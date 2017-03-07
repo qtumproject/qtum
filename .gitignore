@@ -112,3 +112,7 @@ qa/cache/*
 
 libbitcoinconsensus.pc
 contrib/devtools/split-debug.sh
+#eclipse project files
+.cproject
+.project
+.settings/language.settings.xml
