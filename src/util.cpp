@@ -99,8 +99,8 @@ namespace boost {
 
 using namespace std;
 
-const char * const BITCOIN_CONF_FILENAME = "bitcoin.conf";
-const char * const BITCOIN_PID_FILENAME = "bitcoind.pid";
+const char * const BITCOIN_CONF_FILENAME = "qtum.conf";
+const char * const BITCOIN_PID_FILENAME = "qtumd.pid";
 
 CCriticalSection cs_args;
 map<string, string> mapArgs;
@@ -478,13 +478,13 @@ void PrintExceptionContinue(const std::exception* pex, const char* pszThread)
 boost::filesystem::path GetDefaultDataDir()
 {
     namespace fs = boost::filesystem;
-    // Windows < Vista: C:\Documents and Settings\Username\Application Data\Bitcoin
-    // Windows >= Vista: C:\Users\Username\AppData\Roaming\Bitcoin
-    // Mac: ~/Library/Application Support/Bitcoin
-    // Unix: ~/.bitcoin
+    // Windows < Vista: C:\Documents and Settings\Username\Application Data\Qtum
+    // Windows >= Vista: C:\Users\Username\AppData\Roaming\Qtum
+    // Mac: ~/Library/Application Support/Qtum
+    // Unix: ~/.qtum
 #ifdef WIN32
     // Windows
-    return GetSpecialFolderPath(CSIDL_APPDATA) / "Bitcoin";
+    return GetSpecialFolderPath(CSIDL_APPDATA) / "Qtum";
 #else
     fs::path pathRet;
     char* pszHome = getenv("HOME");
@@ -494,10 +494,10 @@ boost::filesystem::path GetDefaultDataDir()
         pathRet = fs::path(pszHome);
 #ifdef MAC_OSX
     // Mac
-    return pathRet / "Library/Application Support/Bitcoin";
+    return pathRet / "Library/Application Support/Qtum";
 #else
     // Unix
-    return pathRet / ".bitcoin";
+    return pathRet / ".qtum";
 #endif
 #endif
 }

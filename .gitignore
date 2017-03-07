@@ -1,13 +1,15 @@
 *.tar.gz
 
 *.exe
-src/bitcoin
-src/bitcoind
-src/bitcoin-cli
-src/bitcoin-tx
-src/test/test_bitcoin
-src/test/test_bitcoin_fuzzy
-src/qt/test/test_bitcoin-qt
+src/qtum
+src/qtum-cli
+src/qtum-tx
+src/qtumd
+src/bench/bench_qtum
+src/qt/qtum-qt
+src/qt/test/test_qtum-qt
+src/test/test_qtum
+src/test/test_qtum_fuzzy
 
 # autoreconf
 Makefile.in
