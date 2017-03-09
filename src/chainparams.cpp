@@ -15,6 +15,7 @@
 #include <boost/assign/list_of.hpp>
 
 #include "chainparamsseeds.h"
+#include "arith_uint256.h"
 
 static CBlock CreateGenesisBlock(const char* pszTimestamp, const CScript& genesisOutputScript, uint32_t nTime, uint32_t nNonce, uint32_t nBits, int32_t nVersion, const CAmount& genesisReward)
 {
@@ -75,9 +76,10 @@ public:
         consensus.BIP34Hash = uint256S("0x00");
         consensus.BIP65Height = 0;
         consensus.BIP66Height = 0;
-        consensus.powLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-        consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks
-        consensus.nPowTargetSpacing = 10 * 60;
+        //TODO change min difficulty before mainnet
+        consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        consensus.nPowTargetTimespan = 2 * 24 * 60 * 60; // two days (TODO)
+        consensus.nPowTargetSpacing = 2 * 60;
         consensus.fPowAllowMinDifficultyBlocks = false;
         consensus.fPowNoRetargeting = false;
         consensus.nRuleChangeActivationThreshold = 1916; // 95% of 2016
@@ -118,6 +120,33 @@ public:
         pchMessageStart[3] = 0xd2;
         nDefaultPort = 3888;
         nPruneAfterHeight = 100000;
+        printf("Searching for genesis block...\n");
+         // This will figure out a valid hash and Nonce if you're
+         // creating a different genesis block:
+        arith_uint256 hashTarget = UintToArith256(consensus.powLimit);
+        arith_uint256 thash;
+
+        genesis = CreateGenesisBlock(1231006505, 2083236893, hashTarget.GetCompact(), 1, 50 * COIN);
+        while(true)
+        {
+             thash = UintToArith256(genesis.GetHash());
+             if (thash <= hashTarget)
+                  break;
+             if ((genesis.nNonce & 0xFFF) == 0)
+             {
+                  printf("nonce %08X: hash = %s (target = %s)\n", genesis.nNonce, thash.ToString().c_str(), hashTarget.ToString().c_str());
+             }
+             ++genesis.nNonce;
+             if (genesis.nNonce == 0)
+             {
+                  printf("NONCE WRAPPED, incrementing time\n");
+                  ++genesis.nTime;
+             }
+        }
+        printf("block.nTime = %u \n", genesis.nTime);
+        printf("block.nNonce = %u \n", genesis.nNonce);
+        printf("block.GetHash = %s\n", genesis.GetHash().ToString().c_str());
+
 
         genesis = CreateGenesisBlock(1231006505, 2083236893, 0x1d00ffff, 1, 50 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
@@ -165,9 +194,10 @@ public:
         consensus.BIP34Hash = uint256S("0x00");
         consensus.BIP65Height = 0;
         consensus.BIP66Height = 0;
-        consensus.powLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-        consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks
-        consensus.nPowTargetSpacing = 10 * 60;
+        //TODO change min difficulty before mainnet
+        consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        consensus.nPowTargetTimespan = 2 * 24 * 60 * 60; // two days
+        consensus.nPowTargetSpacing = 2 * 60;
         consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.fPowNoRetargeting = false;
         consensus.nRuleChangeActivationThreshold = 1512; // 75% for testchains
