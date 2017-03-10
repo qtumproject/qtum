@@ -56,10 +56,10 @@
     <name>BanTableModel</name>
     </context>
 <context>
-    <name>BitcoinGUI</name>
+    <name>QtumGUI</name>
     <message>
-        <source>Bitcoin</source>
-        <translation>Bitcoin Core</translation>
+        <source>Qtum</source>
+        <translation>Qtum Core</translation>
     </message>
     <message>
         <source>&amp;Command-line options</source>
@@ -226,14 +226,14 @@
     </message>
     </context>
 <context>
-    <name>bitcoin-core</name>
+    <name>qtum-core</name>
     <message>
-        <source>Bitcoin Core</source>
-        <translation>Bitcoin Core</translation>
+        <source>Qtum Core</source>
+        <translation>Qtum Core</translation>
     </message>
     <message>
         <source>Whitelisted peers cannot be DoS banned and their transactions are always relayed, even if they are already in the mempool, useful e.g. for a gateway</source>
-        <translation>bitcoin-core</translation>
+        <translation>qtum-core</translation>
     </message>
     <message>
         <source>Information</source>
