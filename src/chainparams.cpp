@@ -120,38 +120,12 @@ public:
         pchMessageStart[3] = 0xd2;
         nDefaultPort = 3888;
         nPruneAfterHeight = 100000;
-        printf("Searching for genesis block...\n");
-         // This will figure out a valid hash and Nonce if you're
-         // creating a different genesis block:
+
+
         arith_uint256 hashTarget = UintToArith256(consensus.powLimit);
-        arith_uint256 thash;
-
-        genesis = CreateGenesisBlock(1231006505, 2083236893, hashTarget.GetCompact(), 1, 50 * COIN);
-        while(true)
-        {
-             thash = UintToArith256(genesis.GetHash());
-             if (thash <= hashTarget)
-                  break;
-             if ((genesis.nNonce & 0xFFF) == 0)
-             {
-                  printf("nonce %08X: hash = %s (target = %s)\n", genesis.nNonce, thash.ToString().c_str(), hashTarget.ToString().c_str());
-             }
-             ++genesis.nNonce;
-             if (genesis.nNonce == 0)
-             {
-                  printf("NONCE WRAPPED, incrementing time\n");
-                  ++genesis.nTime;
-             }
-        }
-        printf("block.nTime = %u \n", genesis.nTime);
-        printf("block.nNonce = %u \n", genesis.nNonce);
-        printf("block.GetHash = %s\n", genesis.GetHash().ToString().c_str());
-
-
-        genesis = CreateGenesisBlock(1231006505, 2083236893, 0x1d00ffff, 1, 50 * COIN);
+        genesis = CreateGenesisBlock(1231006505, 2083469462, hashTarget.GetCompact(), 1, 50 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
-        //assert(consensus.hashGenesisBlock == uint256S("0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"));
-        //assert(genesis.hashMerkleRoot == uint256S("0x4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b"));
+        assert(consensus.hashGenesisBlock == uint256S("0x0000296cd1da4a8b00ecc876c5837e0711585538f9dea8fc44f94c8dbc1de3b6"));
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,0);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,5);
@@ -237,10 +211,10 @@ public:
         nDefaultPort = 13888;
         nPruneAfterHeight = 1000;
 
-        genesis = CreateGenesisBlock(1296688602, 414098458, 0x1d00ffff, 1, 50 * COIN);
+        arith_uint256 hashTarget = UintToArith256(consensus.powLimit);
+        genesis = CreateGenesisBlock(1296688602, 2083484632, hashTarget.GetCompact(), 1, 50 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
-        //assert(consensus.hashGenesisBlock == uint256S("0x000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943"));
-        //assert(genesis.hashMerkleRoot == uint256S("0x4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b"));
+        assert(consensus.hashGenesisBlock == uint256S("0x0000e682180fa433161dca9faafec57446e7a9ea6c6e24a550503fa5e4810e04"));
 
         vFixedSeeds.clear();
         vSeeds.clear();
@@ -318,10 +292,35 @@ public:
         nDefaultPort = 13999;
         nPruneAfterHeight = 1000;
 
-        genesis = CreateGenesisBlock(1296688602, 2, 0x207fffff, 1, 50 * COIN);
+        arith_uint256 hashTarget = UintToArith256(consensus.powLimit);
+        /* Miner -- uncomment to mine new genesis
+        arith_uint256 thash;
+
+        genesis = CreateGenesisBlock(1296688602, 2083469462, hashTarget.GetCompact(), 1, 50 * COIN);
+        while(true)
+        {
+            thash = UintToArith256(genesis.GetHash());
+            if (thash <= hashTarget)
+                break;
+            if ((genesis.nNonce & 0xFFF) == 0)
+            {
+                printf("nonce %08X: hash = %s (target = %s)\n", genesis.nNonce, thash.ToString().c_str(), hashTarget.ToString().c_str());
+            }
+            ++genesis.nNonce;
+            if (genesis.nNonce == 0)
+            {
+                printf("NONCE WRAPPED, incrementing time\n");
+                ++genesis.nTime;
+            }
+        }
+        printf("block.nTime = %u \n", genesis.nTime);
+        printf("block.nNonce = %u \n", genesis.nNonce);
+        printf("block.GetHash = %s\n", genesis.GetHash().ToString().c_str());
+        */
+
+        genesis = CreateGenesisBlock(1296688602, 2083469462, hashTarget.GetCompact(), 1, 50 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
-        //assert(consensus.hashGenesisBlock == uint256S("0x0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206"));
-        //assert(genesis.hashMerkleRoot == uint256S("0x4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b"));
+        assert(consensus.hashGenesisBlock == uint256S("0x77f80e1d26d72d64a66ff1386d48ccac929106e332d482a0da0a4c56ddd9e601"));
 
         vFixedSeeds.clear(); //!< Regtest mode doesn't have any fixed seeds.
         vSeeds.clear();      //!< Regtest mode doesn't have any DNS seeds.
