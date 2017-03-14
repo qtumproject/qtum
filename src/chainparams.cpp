@@ -73,7 +73,7 @@ public:
         strNetworkID = "main";
         consensus.nSubsidyHalvingInterval = 210000;
         consensus.BIP34Height = 0;
-        consensus.BIP34Hash = uint256S("0x00");
+        consensus.BIP34Hash = uint256S("0x0000296cd1da4a8b00ecc876c5837e0711585538f9dea8fc44f94c8dbc1de3b6");
         consensus.BIP65Height = 0;
         consensus.BIP66Height = 0;
         //TODO change min difficulty before mainnet
@@ -146,7 +146,6 @@ public:
         };
 
         chainTxData = ChainTxData{
-            // Data as of block 00000000000000000166d612d5595e2b1cd88d71d695fc580af64d8da8658c23 (height 446482).
             0, // * UNIX timestamp of last known number of transactions
             0,  // * total number of transactions between genesis and that timestamp
                         //   (the tx=... number in the SetBestChain debug.log lines)
@@ -165,7 +164,7 @@ public:
         strNetworkID = "test";
         consensus.nSubsidyHalvingInterval = 210000;
         consensus.BIP34Height = 0;
-        consensus.BIP34Hash = uint256S("0x00");
+        consensus.BIP34Hash = uint256S("0x0000296cd1da4a8b00ecc876c5837e0711585538f9dea8fc44f94c8dbc1de3b6");
         consensus.BIP65Height = 0;
         consensus.BIP66Height = 0;
         //TODO change min difficulty before mainnet
@@ -240,7 +239,6 @@ public:
         };
 
         chainTxData = ChainTxData{
-            // Data as of block 00000000c2872f8f8a8935c8e3c5862be9038c97d4de2cf37ed496991166928a (height 1063660)
             0,
             0,
             0.1
