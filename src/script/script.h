@@ -177,8 +177,13 @@ enum opcodetype
     OP_NOP9 = 0xb8,
     OP_NOP10 = 0xb9,
 
+    // Execute EXT byte code.
+    OP_CREATE = 0xc1,
 
     // template matching params
+    OP_VERSION = 0xf6,
+    OP_GAS_LAP = 0xf7,
+    OP_DATA = 0xf8,
     OP_SMALLINTEGER = 0xfa,
     OP_PUBKEYS = 0xfb,
     OP_PUBKEYHASH = 0xfd,
@@ -315,6 +320,12 @@ public:
     {
         return serialize(m_value);
     }
+
+    ///////////////////////////////// qtum
+    int64_t getvalue() const{
+        return m_value;
+    }
+    /////////////////////////////////
 
     static std::vector<unsigned char> serialize(const int64_t& value)
     {
@@ -636,6 +647,13 @@ public:
     {
         return (size() > 0 && *begin() == OP_RETURN) || (size() > MAX_SCRIPT_SIZE);
     }
+
+    ///////////////////////////////////////// qtum
+    bool HasOpCreate() const
+    {
+        return Find(OP_CREATE) > 0;
+    }
+    /////////////////////////////////////////
 
     void clear()
     {

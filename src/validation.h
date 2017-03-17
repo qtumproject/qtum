@@ -32,6 +32,17 @@
 #include <boost/unordered_map.hpp>
 #include <boost/filesystem/path.hpp>
 
+/////////////////////////////////////////// qtum
+#include <qtum/qtumstate.h>
+#include <libethereum/ChainParams.h>
+#include <libethashseal/Ethash.h>
+#include <libethashseal/GenesisInfo.h>
+
+using OnOpFunc = std::function<void(uint64_t, uint64_t, dev::eth::Instruction, dev::bigint, dev::bigint, dev::bigint, dev::eth::VM*, dev::eth::ExtVMFace const*)>;
+
+extern std::unique_ptr<QtumState> globalState;
+///////////////////////////////////////////
+
 class CBlockIndex;
 class CBlockTreeDB;
 class CBloomFilter;

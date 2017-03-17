@@ -33,6 +33,7 @@ const char* GetTxnOutputType(txnouttype t)
     case TX_NULL_DATA: return "nulldata";
     case TX_WITNESS_V0_KEYHASH: return "witness_v0_keyhash";
     case TX_WITNESS_V0_SCRIPTHASH: return "witness_v0_scripthash";
+    case TX_DEPLOYMENT: return "deployment";
     }
     return NULL;
 }
@@ -54,6 +55,9 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
 
         // Sender provides N pubkeys, receivers provides M signatures
         mTemplates.insert(make_pair(TX_MULTISIG, CScript() << OP_SMALLINTEGER << OP_PUBKEYS << OP_SMALLINTEGER << OP_CHECKMULTISIG));
+
+        // Contract deployment tx
+        mTemplates.insert(make_pair(TX_DEPLOYMENT, CScript() << OP_VERSION << OP_GAS_LAP << OP_GAS_LAP << OP_DATA << OP_CREATE));
     }
 
     vSolutionsRet.clear();
@@ -166,6 +170,29 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
                 else
                     break;
             }
+            /////////////////////////////////////////////////////////// qtum
+            else if (opcode2 == OP_VERSION)
+            {
+                if(0 <= opcode1 && opcode1 <= OP_PUSHDATA4)
+                {
+                    if(vch1.size() > 1)
+                        break;
+                }
+            }
+            else if(opcode2 == OP_GAS_LAP)
+            {
+                if(vch1.empty() || vch1.size() > 32)
+                    break;
+            }
+            else if(opcode2 == OP_DATA)
+            {
+                if(0 <= opcode1 && opcode1 <= OP_PUSHDATA4)
+                {
+                    if(vch1.empty())
+                        break;
+                }
+            }
+            ///////////////////////////////////////////////////////////
             else if (opcode1 != opcode2 || vch1 != vch2)
             {
                 // Others must match exactly

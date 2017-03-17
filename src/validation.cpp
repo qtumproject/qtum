@@ -54,6 +54,14 @@
  * Global state
  */
 
+ ////////////////////////////// qtum
+ #include "pubkey.h"
+
+ std::unique_ptr<QtumState> globalState;
+
+ using valtype = std::vector<unsigned char>;
+ //////////////////////////////
+
 CCriticalSection cs_main;
 
 BlockMap mapBlockIndex;
@@ -1735,6 +1743,32 @@ static int64_t nTimeIndex = 0;
 static int64_t nTimeCallbacks = 0;
 static int64_t nTimeTotal = 0;
 
+/////////////////////////////////////////////////////////////////////// qtum
+valtype GetSenderAddress(const CTransaction& tx, const CCoinsViewCache* coinsView){
+    CTransactionRef txPrevout;
+    uint256 hashBlock;
+    CScript script;
+    if(coinsView){
+        script = coinsView->AccessCoins(tx.vin[0].prevout.hash)->vout[tx.vin[0].prevout.n].scriptPubKey;    
+    } else {
+        if(GetTransaction(tx.vin[0].prevout.hash, txPrevout, Params().GetConsensus(), hashBlock, true)){
+            script = txPrevout->vout[tx.vin[0].prevout.n].scriptPubKey;
+        } else {
+            // TODO temp exeption   
+            return valtype();
+        }
+    }
+	CTxDestination addressBit;
+	if(ExtractDestination(script, addressBit)){
+		if (addressBit.type() == typeid(CKeyID)){
+			CKeyID senderAddress(boost::get<CKeyID>(addressBit));
+			return valtype(senderAddress.begin(), senderAddress.end());
+		}
+	}
+    return valtype();
+}
+///////////////////////////////////////////////////////////////////////
+
 bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pindex,
                   CCoinsViewCache& view, const CChainParams& chainparams, bool fJustCheck)
 {
@@ -1915,6 +1949,43 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     tx.GetHash().ToString(), FormatStateMessage(state));
             control.Add(vChecks);
         }
+
+///////////////////////////////////////////////////////////////////////////////////////// qtum
+        for(const CTxOut& vout : tx.vout){
+            std::vector<std::vector<unsigned char>> stack;
+            if(vout.scriptPubKey.HasOpCreate()){
+                EvalScript(stack, vout.scriptPubKey, SCRIPT_EXEC_BYTE_CODE, BaseSignatureChecker(), SIGVERSION_BASE, nullptr);
+                
+                valtype code(stack.back());
+                stack.pop_back();
+                CScriptNum gasPrice(stack.back(), 0, 8);
+                stack.pop_back();
+                CScriptNum gasLimit(stack.back(), 0, 8);
+                stack.pop_back();
+                CScriptNum version(stack.back(), 0);
+                stack.pop_back();
+
+                valtype sendAddr = GetSenderAddress(tx, &view);
+                dev::Address sender(sendAddr);
+                globalState->addBalance(sender, dev::u256(1000000));
+                dev::eth::Transaction tx(dev::u256(0), dev::u256(gasPrice.getvalue()), dev::u256(gasLimit.getvalue() * gasPrice.getvalue()), dev::bytes(code), dev::u256(0));
+                tx.forceSender(sender);
+
+                dev::eth::EnvInfo envInfo;
+                envInfo.setGasLimit(10000000);
+
+                std::unique_ptr<dev::eth::SealEngineFace> se(dev::eth::ChainParams(dev::eth::genesisInfo(dev::eth::Network::HomesteadTest)).createSealEngine());
+                globalState->execute(envInfo, *se.get(), tx, dev::eth::Permanence::Committed, OnOpFunc());
+                globalState->db().commit();
+            }
+        }
+
+        std::unordered_map<dev::Address, dev::u256> addresses = globalState->addresses();
+        for(auto i : addresses){
+            std::cout << "Address : " << i.first.hex() << std::endl;
+            std::cout << "Balance : " << CAmount(i.second) << std::endl << std::endl;
+        }
+/////////////////////////////////////////////////////////////////////////////////////////
 
         CTxUndo undoDummy;
         if (i > 0) {
