@@ -1976,7 +1976,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                 std::unique_ptr<dev::eth::SealEngineFace> se(dev::eth::ChainParams(dev::eth::genesisInfo(dev::eth::Network::HomesteadTest)).createSealEngine());
                 globalState->execute(envInfo, *se.get(), tx, dev::eth::Permanence::Committed, OnOpFunc());
-                globalState->db().commit();
             }
         }
 
