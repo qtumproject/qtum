@@ -374,6 +374,8 @@ public:
      */
     unsigned int GetTotalSize() const;
 
+    bool HasCreate() const; // qtum
+
     bool IsCoinBase() const
     {
         return (vin.size() == 1 && vin[0].prevout.IsNull());

@@ -585,4 +585,30 @@ void DumpMempool();
 /** Load the mempool from disk. */
 bool LoadMempool();
 
+//////////////////////////////////////////////////////// qtum
+struct EthTransactionParams{
+    int64_t version;
+    dev::u256 gasLimit;
+    dev::u256 gasPrice;
+    std::vector<unsigned char> code;
+};
+
+class ByteCodeExec {
+
+public:
+
+    ByteCodeExec(CTransaction tx, CCoinsViewCache* v = NULL) : txBit(tx), view(v){}
+
+    std::pair<dev::eth::ExecutionResult, dev::eth::TransactionReceipt> performByteCode();
+
+private:
+
+    EthTransactionParams parseEthTXParams(const CScript& scriptPubKey);
+
+    const CTransaction txBit;
+    const CCoinsViewCache* view;
+
+};
+////////////////////////////////////////////////////////
+
 #endif // BITCOIN_VALIDATION_H

@@ -1767,6 +1767,42 @@ valtype GetSenderAddress(const CTransaction& tx, const CCoinsViewCache* coinsVie
 	}
     return valtype();
 }
+
+std::pair<dev::eth::ExecutionResult, dev::eth::TransactionReceipt> ByteCodeExec::performByteCode() {
+    for(const CTxOut& vout : txBit.vout){
+        if(vout.scriptPubKey.HasOpCreate()){
+                
+            EthTransactionParams params = parseEthTXParams(vout.scriptPubKey);
+
+            dev::Address sender(GetSenderAddress(txBit, view));
+            globalState->addBalance(sender, dev::u256(1000000));
+            dev::eth::Transaction tx(dev::u256(0), params.gasPrice, params.gasLimit * params.gasPrice, params.code, dev::u256(0));
+            tx.forceSender(sender);
+
+            dev::eth::EnvInfo envInfo;
+            envInfo.setGasLimit(10000000);
+
+            std::unique_ptr<dev::eth::SealEngineFace> se(dev::eth::ChainParams(dev::eth::genesisInfo(dev::eth::Network::HomesteadTest)).createSealEngine());
+            return globalState->execute(envInfo, *se.get(), tx, dev::eth::Permanence::Committed, OnOpFunc());
+        }
+    }
+}
+
+EthTransactionParams ByteCodeExec::parseEthTXParams(const CScript& scriptPubKey){
+    std::vector<std::vector<unsigned char>> stack;
+    EvalScript(stack, scriptPubKey, SCRIPT_EXEC_BYTE_CODE, BaseSignatureChecker(), SIGVERSION_BASE, nullptr);
+                    
+    valtype code(stack.back());
+    stack.pop_back();
+    CScriptNum gasPrice(stack.back(), 0, 8);
+    stack.pop_back();
+    CScriptNum gasLimit(stack.back(), 0, 8);
+    stack.pop_back();
+    CScriptNum version(stack.back(), 0);
+    stack.pop_back();
+
+    return EthTransactionParams{version.getint(), gasLimit.getvalue(), gasPrice.getvalue(), code};
+}
 ///////////////////////////////////////////////////////////////////////
 
 bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pindex,
@@ -1951,32 +1987,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         }
 
 ///////////////////////////////////////////////////////////////////////////////////////// qtum
-        for(const CTxOut& vout : tx.vout){
-            std::vector<std::vector<unsigned char>> stack;
-            if(vout.scriptPubKey.HasOpCreate()){
-                EvalScript(stack, vout.scriptPubKey, SCRIPT_EXEC_BYTE_CODE, BaseSignatureChecker(), SIGVERSION_BASE, nullptr);
-                
-                valtype code(stack.back());
-                stack.pop_back();
-                CScriptNum gasPrice(stack.back(), 0, 8);
-                stack.pop_back();
-                CScriptNum gasLimit(stack.back(), 0, 8);
-                stack.pop_back();
-                CScriptNum version(stack.back(), 0);
-                stack.pop_back();
-
-                valtype sendAddr = GetSenderAddress(tx, &view);
-                dev::Address sender(sendAddr);
-                globalState->addBalance(sender, dev::u256(1000000));
-                dev::eth::Transaction tx(dev::u256(0), dev::u256(gasPrice.getvalue()), dev::u256(gasLimit.getvalue() * gasPrice.getvalue()), dev::bytes(code), dev::u256(0));
-                tx.forceSender(sender);
-
-                dev::eth::EnvInfo envInfo;
-                envInfo.setGasLimit(10000000);
-
-                std::unique_ptr<dev::eth::SealEngineFace> se(dev::eth::ChainParams(dev::eth::genesisInfo(dev::eth::Network::HomesteadTest)).createSealEngine());
-                globalState->execute(envInfo, *se.get(), tx, dev::eth::Permanence::Committed, OnOpFunc());
-            }
+        if(tx.HasCreate()){
+            ByteCodeExec exec(tx, &view);
+            exec.performByteCode();
         }
 
         std::unordered_map<dev::Address, dev::u256> addresses = globalState->addresses();
