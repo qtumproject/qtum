@@ -179,6 +179,7 @@ enum opcodetype
 
     // Execute EXT byte code.
     OP_CREATE = 0xc1,
+    OP_CALL = 0xc2,
 
     // template matching params
     OP_VERSION = 0xf6,
@@ -652,6 +653,11 @@ public:
     bool HasOpCreate() const
     {
         return Find(OP_CREATE) > 0;
+    }
+    
+    bool HasOpCall() const
+    {
+        return Find(OP_CALL) > 0;
     }
     /////////////////////////////////////////
 
