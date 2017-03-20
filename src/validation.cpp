@@ -58,8 +58,6 @@
  #include "pubkey.h"
 
  std::unique_ptr<QtumState> globalState;
-
- using valtype = std::vector<unsigned char>;
  //////////////////////////////
 
 CCriticalSection cs_main;
@@ -1768,29 +1766,49 @@ valtype GetSenderAddress(const CTransaction& tx, const CCoinsViewCache* coinsVie
     return valtype();
 }
 
-std::pair<dev::eth::ExecutionResult, dev::eth::TransactionReceipt> ByteCodeExec::performByteCode() {
-    for(const CTxOut& vout : txBit.vout){
-        if(vout.scriptPubKey.HasOpCreate()){
+execResult ByteCodeExec::performByteCode() {
+    for(size_t i = 0; i < txBit.vout.size(); i++){
+        if(txBit.vout[i].scriptPubKey.HasOpCreate() || txBit.vout[i].scriptPubKey.HasOpCall()){
+            if(receiveStack(txBit.vout[i].scriptPubKey)){
                 
-            EthTransactionParams params = parseEthTXParams(vout.scriptPubKey);
+                EthTransactionParams params = parseEthTXParams();
+                dev::eth::Transaction tx(createEthTX(params, i));
 
-            dev::Address sender(GetSenderAddress(txBit, view));
-            globalState->addBalance(sender, dev::u256(1000000));
-            dev::eth::Transaction tx(dev::u256(0), params.gasPrice, params.gasLimit * params.gasPrice, params.code, dev::u256(0));
-            tx.forceSender(sender);
+                dev::eth::EnvInfo envInfo;
+                envInfo.setGasLimit(10000000);
 
-            dev::eth::EnvInfo envInfo;
-            envInfo.setGasLimit(10000000);
-
-            std::unique_ptr<dev::eth::SealEngineFace> se(dev::eth::ChainParams(dev::eth::genesisInfo(dev::eth::Network::HomesteadTest)).createSealEngine());
-            return globalState->execute(envInfo, *se.get(), tx, dev::eth::Permanence::Committed, OnOpFunc());
+                std::unique_ptr<dev::eth::SealEngineFace> se(dev::eth::ChainParams(dev::eth::genesisInfo(dev::eth::Network::HomesteadTest)).createSealEngine());
+                return globalState->execute(envInfo, *se.get(), tx, dev::eth::Permanence::Committed, OnOpFunc());
+            }
         }
     }
+    return execResult(dev::eth::ExecutionResult(), dev::eth::TransactionReceipt(dev::h256(), dev::u256(), dev::eth::LogEntries()));
 }
 
-EthTransactionParams ByteCodeExec::parseEthTXParams(const CScript& scriptPubKey){
-    std::vector<std::vector<unsigned char>> stack;
+bool ByteCodeExec::receiveStack(const CScript& scriptPubKey){
     EvalScript(stack, scriptPubKey, SCRIPT_EXEC_BYTE_CODE, BaseSignatureChecker(), SIGVERSION_BASE, nullptr);
+    if (stack.empty())
+        return false;
+
+    CScript scriptRest(stack.back().begin(), stack.back().end());
+    stack.pop_back();
+
+    opcode = (opcodetype)(*scriptRest.begin());
+    if (stack.size() < 4 || ((opcode == OP_CALL) && (stack.size() < 5)))
+        return false;
+
+    return true;
+}
+
+EthTransactionParams ByteCodeExec::parseEthTXParams(){
+    dev::Address receiveAddress;
+    valtype vecAddr;
+    if (opcode == OP_CALL)
+    {
+        vecAddr = stack.back();
+        stack.pop_back();
+        receiveAddress = dev::Address(vecAddr);
+    }
                     
     valtype code(stack.back());
     stack.pop_back();
@@ -1801,7 +1819,23 @@ EthTransactionParams ByteCodeExec::parseEthTXParams(const CScript& scriptPubKey)
     CScriptNum version(stack.back(), 0);
     stack.pop_back();
 
-    return EthTransactionParams{version.getint(), gasLimit.getvalue(), gasPrice.getvalue(), code};
+    return EthTransactionParams{version.getint(), gasLimit.getvalue(), gasPrice.getvalue(), code, receiveAddress};
+}
+
+dev::eth::Transaction ByteCodeExec::createEthTX(const EthTransactionParams& etp, uint32_t nOut){
+    dev::eth::Transaction txEth;
+    if (etp.receiveAddress == dev::Address()){
+        txEth = dev::eth::Transaction(txBit.vout[nOut].nValue, etp.gasPrice, (etp.gasLimit * etp.gasPrice), etp.code, dev::u256(0)); // TODO temp QtumTransaction
+    }
+    else{
+        txEth = dev::eth::Transaction(txBit.vout[nOut].nValue, etp.gasPrice, (etp.gasLimit * etp.gasPrice), etp.receiveAddress, etp.code, dev::u256(0)); // TODO temp QtumTransaction
+    }
+    dev::Address sender(GetSenderAddress(txBit, view));
+    txEth.forceSender(sender);
+    
+    globalState->addBalance(sender, dev::u256(txBit.vout[nOut].nValue) + (etp.gasLimit * etp.gasPrice)); // temp
+
+    return txEth;
 }
 ///////////////////////////////////////////////////////////////////////
 
@@ -1987,9 +2021,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         }
 
 ///////////////////////////////////////////////////////////////////////////////////////// qtum
-        if(tx.HasCreate()){
+        if(tx.HasCreateOrCall()){
             ByteCodeExec exec(tx, &view);
-            exec.performByteCode();
+            execResult res = exec.performByteCode();
         }
 
         std::unordered_map<dev::Address, dev::u256> addresses = globalState->addresses();

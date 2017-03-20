@@ -39,6 +39,8 @@
 #include <libethashseal/GenesisInfo.h>
 
 extern std::unique_ptr<QtumState> globalState;
+
+ using valtype = std::vector<unsigned char>;
 ///////////////////////////////////////////
 
 class CBlockIndex;
@@ -590,7 +592,8 @@ struct EthTransactionParams{
     int64_t version;
     dev::u256 gasLimit;
     dev::u256 gasPrice;
-    std::vector<unsigned char> code;
+    valtype code;
+    dev::Address receiveAddress;
 };
 
 class ByteCodeExec {
@@ -599,14 +602,20 @@ public:
 
     ByteCodeExec(CTransaction tx, CCoinsViewCache* v = NULL) : txBit(tx), view(v){}
 
-    std::pair<dev::eth::ExecutionResult, dev::eth::TransactionReceipt> performByteCode();
+    execResult performByteCode();
 
 private:
 
-    EthTransactionParams parseEthTXParams(const CScript& scriptPubKey);
+    bool receiveStack(const CScript& scriptPubKey);
+
+    EthTransactionParams parseEthTXParams();
+
+    dev::eth::Transaction createEthTX(const EthTransactionParams& etp, const uint32_t nOut);
 
     const CTransaction txBit;
     const CCoinsViewCache* view;
+    std::vector<valtype> stack;
+    opcodetype opcode;
 
 };
 ////////////////////////////////////////////////////////

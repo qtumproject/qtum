@@ -374,7 +374,7 @@ public:
      */
     unsigned int GetTotalSize() const;
 
-    bool HasCreate() const; // qtum
+    bool HasCreateOrCall() const; // qtum
 
     bool IsCoinBase() const
     {

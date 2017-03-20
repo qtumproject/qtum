@@ -144,9 +144,9 @@ int64_t GetTransactionWeight(const CTransaction& tx)
 }
 
 ///////////////////////////////////////////////////////////// qtum
-bool CTransaction::HasCreate() const{
+bool CTransaction::HasCreateOrCall() const{
     for(const CTxOut& v : vout){
-        if(v.scriptPubKey.HasOpCreate()){ //|| v.scriptPubKey.HasOpCall()){
+        if(v.scriptPubKey.HasOpCreate() || v.scriptPubKey.HasOpCall()){
             return true;
         }
     }
