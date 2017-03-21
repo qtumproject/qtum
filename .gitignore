@@ -116,3 +116,8 @@ contrib/devtools/split-debug.sh
 .cproject
 .project
 .settings/language.settings.xml
+
+#clion project files
+.idea/
+CMakeLists.txt
+cmake-build-debug/
