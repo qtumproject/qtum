@@ -1772,7 +1772,7 @@ execResult ByteCodeExec::performByteCode() {
             if(receiveStack(txBit.vout[i].scriptPubKey)){
                 
                 EthTransactionParams params = parseEthTXParams();
-                dev::eth::Transaction tx(createEthTX(params, i));
+                QtumTransaction tx(createEthTX(params, i));
 
                 dev::eth::EnvInfo envInfo;
                 envInfo.setGasLimit(10000000);
@@ -1822,18 +1822,18 @@ EthTransactionParams ByteCodeExec::parseEthTXParams(){
     return EthTransactionParams{version.getint(), gasLimit.getvalue(), gasPrice.getvalue(), code, receiveAddress};
 }
 
-dev::eth::Transaction ByteCodeExec::createEthTX(const EthTransactionParams& etp, uint32_t nOut){
-    dev::eth::Transaction txEth;
+QtumTransaction ByteCodeExec::createEthTX(const EthTransactionParams& etp, uint32_t nOut){
+    QtumTransaction txEth;
     if (etp.receiveAddress == dev::Address()){
-        txEth = dev::eth::Transaction(txBit.vout[nOut].nValue, etp.gasPrice, (etp.gasLimit * etp.gasPrice), etp.code, dev::u256(0)); // TODO temp QtumTransaction
+        txEth = QtumTransaction(txBit.vout[nOut].nValue, etp.gasPrice, (etp.gasLimit * etp.gasPrice), etp.code, dev::u256(0));
     }
     else{
-        txEth = dev::eth::Transaction(txBit.vout[nOut].nValue, etp.gasPrice, (etp.gasLimit * etp.gasPrice), etp.receiveAddress, etp.code, dev::u256(0)); // TODO temp QtumTransaction
+        txEth = QtumTransaction(txBit.vout[nOut].nValue, etp.gasPrice, (etp.gasLimit * etp.gasPrice), etp.receiveAddress, etp.code, dev::u256(0));
     }
     dev::Address sender(GetSenderAddress(txBit, view));
     txEth.forceSender(sender);
-    
-    globalState->addBalance(sender, dev::u256(txBit.vout[nOut].nValue) + (etp.gasLimit * etp.gasPrice)); // temp
+    txEth.setHashWith(uintToh256(txBit.GetHash()));
+    txEth.setNVout(nOut);
 
     return txEth;
 }

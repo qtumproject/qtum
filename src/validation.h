@@ -610,7 +610,7 @@ private:
 
     EthTransactionParams parseEthTXParams();
 
-    dev::eth::Transaction createEthTX(const EthTransactionParams& etp, const uint32_t nOut);
+    QtumTransaction createEthTX(const EthTransactionParams& etp, const uint32_t nOut);
 
     const CTransaction txBit;
     const CCoinsViewCache* view;

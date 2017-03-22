@@ -178,7 +178,8 @@ BITCOIN_CORE_H = \
   zmq/zmqconfig.h\
   zmq/zmqnotificationinterface.h \
   zmq/zmqpublishnotifier.h \
-  qtum/qtumstate.h
+  qtum/qtumstate.h \
+  qtum/qtumtransaction.h
 
 
 obj/build.h: FORCE
@@ -227,6 +228,7 @@ libbitcoin_server_a_SOURCES = \
   validationinterface.cpp \
   versionbits.cpp \
   qtum/qtumstate.cpp \
+  qtum/qtumtransaction.cpp \
   $(BITCOIN_CORE_H)
 
 if ENABLE_ZMQ
@@ -478,7 +480,6 @@ if GLIBC_BACK_COMPAT
 endif
 
 libbitcoinconsensus_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS)
-#libbitcoinconsensus_la_LIBADD = $(LIBSECP256K1)
 libbitcoinconsensus_la_LIBADD = $(LIBSECP256K1ETH)
 libbitcoinconsensus_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -DBUILD_BITCOIN_INTERNAL
 libbitcoinconsensus_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
