@@ -163,7 +163,7 @@ public:
         strNetworkID = "test";
         consensus.nSubsidyHalvingInterval = 210000;
         consensus.BIP34Height = 0;
-        consensus.BIP34Hash = uint256S("0x0000000023b3a96d3484e5abb3755c413e7d41500f8e2a5c3f0dd01299cd8ef8");
+        consensus.BIP34Hash = uint256S("0x000000676695892ca4708f57b7bb203b64b78d92b133e00f722dfa32b7716896");
         consensus.BIP65Height = 0; // 00000000007f6655f22f98e72ed80d8b06dc761d5da09df0fa1dc4be4f861eb6
         consensus.BIP66Height = 0; // 000000002104c8c45e99a8853285a3b592602a3ccde2b832481da85e9e4ba182
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
@@ -251,7 +251,7 @@ public:
         strNetworkID = "regtest";
         consensus.nSubsidyHalvingInterval = 150;
         consensus.BIP34Height = 0; // BIP34 has not activated on regtest (far in the future so block v1 are not rejected in tests) // activate for qtum
-        consensus.BIP34Hash = uint256();
+        consensus.BIP34Hash = uint256("0x72303d3080cdd1161da936dd388ae0a58a9246dc4fa61a658cdac17b55d93cb9");
         consensus.BIP65Height = 0; // BIP65 activated on regtest (Used in rpc activation tests)
         consensus.BIP66Height = 0; // BIP66 activated on regtest (Used in rpc activation tests)
         consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
