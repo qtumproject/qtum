@@ -12,16 +12,8 @@
 // Supposed to be 2^n-1
 static const int STAKE_TIMESTAMP_MASK = 15;
 
-// MODIFIER_INTERVAL: time to elapse before new modifier is computed
-extern unsigned int nModifierInterval;
-
-// MODIFIER_INTERVAL_RATIO:
-// ratio of group interval length between the last group and the first group
-static const int MODIFIER_INTERVAL_RATIO = 3;
-
 // Compute the hash modifier for proof-of-stake
-bool ComputeNextStakeModifier(const CBlockIndex* pindexPrev, uint64_t& nStakeModifier, bool& fGeneratedStakeModifier);
-uint256 ComputeStakeModifierV2(const CBlockIndex* pindexPrev, const uint256& kernel);
+uint256 ComputeStakeModifier(const CBlockIndex* pindexPrev, const uint256& kernel);
 
 // Check whether stake kernel meets hash target
 // Sets hashProofOfStake on success return
