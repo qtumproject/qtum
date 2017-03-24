@@ -1648,6 +1648,8 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
     // move best block pointer to prevout block
     view.SetBestBlock(pindex->pprev->GetBlockHash());
 
+    globalState->setRoot(uintToh256(pindex->pprev->hashStateRoot)); // qtum
+
     if (pfClean) {
         *pfClean = fClean;
         return true;
@@ -2060,8 +2062,18 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     int64_t nTime4 = GetTimeMicros(); nTimeVerify += nTime4 - nTime2;
     LogPrint("bench", "    - Verify %u txins: %.2fms (%.3fms/txin) [%.2fs]\n", nInputs - 1, 0.001 * (nTime4 - nTime2), nInputs <= 1 ? 0 : 0.001 * (nTime4 - nTime2) / (nInputs-1), nTimeVerify * 0.000001);
 
+////////////////////////////////////////////////////////////////// // qtum
+    dev::h256 oldHashStateRoot(globalState->rootHash());
+    if (globalState->rootHash() != uintToh256(block.hashStateRoot))
+        return state.DoS(100, error("ConnectBlock(): rootHashState diverged"),
+                            REJECT_INVALID, "diverged-state-root");
+
     if (fJustCheck)
+    {
+        globalState->setRoot(uintToh256(pindex->pprev->hashStateRoot));
         return true;
+    }
+//////////////////////////////////////////////////////////////////
 
     // Write undo information to disk
     if (pindex->GetUndoPos().IsNull() || !pindex->IsValid(BLOCK_VALID_SCRIPTS))
@@ -2384,11 +2396,17 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
     LogPrint("bench", "  - Load block from disk: %.2fms [%.2fs]\n", (nTime2 - nTime1) * 0.001, nTimeReadFromDisk * 0.000001);
     {
         CCoinsViewCache view(pcoinsTip);
+
+        dev::h256 oldHashStateRoot(globalState->rootHash()); // qtum
+
         bool rv = ConnectBlock(blockConnecting, state, pindexNew, view, chainparams);
         GetMainSignals().BlockChecked(blockConnecting, state);
         if (!rv) {
             if (state.IsInvalid())
                 InvalidBlockFound(pindexNew, state);
+
+            globalState->setRoot(oldHashStateRoot); // qtum
+
             return error("ConnectTip(): ConnectBlock %s failed", pindexNew->GetBlockHash().ToString());
         }
         nTime3 = GetTimeMicros(); nTimeConnectTotal += nTime3 - nTime2;
@@ -3397,8 +3415,15 @@ bool TestBlockValidity(CValidationState& state, const CChainParams& chainparams,
         return error("%s: Consensus::CheckBlock: %s", __func__, FormatStateMessage(state));
     if (!ContextualCheckBlock(block, state, chainparams.GetConsensus(), pindexPrev))
         return error("%s: Consensus::ContextualCheckBlock: %s", __func__, FormatStateMessage(state));
-    if (!ConnectBlock(block, state, &indexDummy, viewNew, chainparams, true))
+
+    dev::h256 oldHashStateRoot(globalState->rootHash()); // qtum
+    
+    if (!ConnectBlock(block, state, &indexDummy, viewNew, chainparams, true)){
+        
+        globalState->setRoot(oldHashStateRoot); // qtum
+        
         return false;
+    }
     assert(state.IsValid());
 
     return true;
@@ -3744,6 +3769,9 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CCoinsView *coinsview,
     int nGoodTransactions = 0;
     CValidationState state;
     int reportDone = 0;
+
+    dev::h256 oldHashStateRoot(globalState->rootHash()); // qtum
+
     LogPrintf("[0%%]...");
     for (CBlockIndex* pindex = chainActive.Tip(); pindex && pindex->pprev; pindex = pindex->pprev)
     {
@@ -3807,9 +3835,18 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CCoinsView *coinsview,
             CBlock block;
             if (!ReadBlockFromDisk(block, pindex, chainparams.GetConsensus()))
                 return error("VerifyDB(): *** ReadBlockFromDisk failed at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
-            if (!ConnectBlock(block, state, pindex, coins, chainparams))
+
+            dev::h256 oldHashStateRoot(globalState->rootHash()); // qtum
+
+            if (!ConnectBlock(block, state, pindex, coins, chainparams)){
+
+                globalState->setRoot(oldHashStateRoot); // qtum
+
                 return error("VerifyDB(): *** found unconnectable block at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
+            }
         }
+    } else {
+        globalState->setRoot(oldHashStateRoot); // qtum
     }
 
     LogPrintf("[DONE].\n");
