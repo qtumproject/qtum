@@ -33,8 +33,8 @@ const char* GetTxnOutputType(txnouttype t)
     case TX_NULL_DATA: return "nulldata";
     case TX_WITNESS_V0_KEYHASH: return "witness_v0_keyhash";
     case TX_WITNESS_V0_SCRIPTHASH: return "witness_v0_scripthash";
-    case TX_DEPLOYMENT: return "deployment";
-    case TX_ASSIGN_SC: return "assign";
+    case TX_CREATE: return "create";
+    case TX_CALL: return "call";
     }
     return NULL;
 }
@@ -57,11 +57,11 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
         // Sender provides N pubkeys, receivers provides M signatures
         mTemplates.insert(make_pair(TX_MULTISIG, CScript() << OP_SMALLINTEGER << OP_PUBKEYS << OP_SMALLINTEGER << OP_CHECKMULTISIG));
 
-        // Contract deployment tx
-        mTemplates.insert(make_pair(TX_DEPLOYMENT, CScript() << OP_VERSION << OP_GAS_LAP << OP_GAS_LAP << OP_DATA << OP_CREATE));
+        // Contract creation tx
+        mTemplates.insert(make_pair(TX_CREATE, CScript() << OP_VERSION << OP_GAS_LAP << OP_GAS_LAP << OP_DATA << OP_CREATE));
 
         // Call contract tx
-        mTemplates.insert(make_pair(TX_ASSIGN_SC, CScript() << OP_VERSION << OP_GAS_LAP << OP_GAS_LAP << OP_DATA << OP_PUBKEYHASH << OP_CALL));
+        mTemplates.insert(make_pair(TX_CALL, CScript() << OP_VERSION << OP_GAS_LAP << OP_GAS_LAP << OP_DATA << OP_PUBKEYHASH << OP_CALL));
     }
 
     vSolutionsRet.clear();
