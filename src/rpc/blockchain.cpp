@@ -118,6 +118,7 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool tx
     result.push_back(Pair("version", block.nVersion));
     result.push_back(Pair("versionHex", strprintf("%08x", block.nVersion)));
     result.push_back(Pair("merkleroot", block.hashMerkleRoot.GetHex()));
+    result.push_back(Pair("hashStateRoot",block.hashStateRoot.GetHex())); // qtum
     UniValue txs(UniValue::VARR);
     for(const auto& tx : block.vtx)
     {
