@@ -72,7 +72,7 @@ public:
         strNetworkID = "main";
         consensus.nSubsidyHalvingInterval = 210000;
         consensus.BIP34Height = 0;
-        consensus.BIP34Hash = uint256S("0x000000024d7124adf01d831f735cf0c898e82c14be26622127a02e1ad6df4beb");
+        consensus.BIP34Hash = uint256S("0x00008891bb0890952941a813a14bf116ba550067b4f7b4cbb0136a43a812c2eb");
         consensus.BIP65Height = 0; // 000000000000000004c2b624ed5d7756c508d90fd0da2c7c679febfa6c4735f0
         consensus.BIP66Height = 0; // 00000000000000000379eaa19dce8c9b722d46ae6a57c2f1a988119488b50931
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
@@ -80,8 +80,8 @@ public:
         consensus.nPowTargetSpacing = 2 * 64;
         consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.fPowNoRetargeting = true;
-        consensus.nRuleChangeActivationThreshold = 14; // 95% of 2016 //TODO change to 475 for testnet launch
-        consensus.nMinerConfirmationWindow = 15; // nPowTargetTimespan / nPowTargetSpacing //TODO change to 500 for testnet launch
+        consensus.nRuleChangeActivationThreshold = 1916; // 95% of 2016
+        consensus.nMinerConfirmationWindow = 2016; // nPowTargetTimespan / nPowTargetSpacing
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 0;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 999999999999ULL;
@@ -115,10 +115,10 @@ public:
         nPruneAfterHeight = 100000;
 
 
-        genesis = CreateGenesisBlock(1490247077, 6805699, 0x1e00ffff, 1, 50 * COIN);
+        genesis = CreateGenesisBlock(1490247077, 6848315, 0x1f00ffff, 1, 50 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
 
-        assert(consensus.hashGenesisBlock == uint256S("0x000000024d7124adf01d831f735cf0c898e82c14be26622127a02e1ad6df4beb"));
+        assert(consensus.hashGenesisBlock == uint256S("0x00008891bb0890952941a813a14bf116ba550067b4f7b4cbb0136a43a812c2eb"));
         assert(genesis.hashMerkleRoot == uint256S("0x66c9b04253902df4aca489f3226b95830eecf780ea90b6bbb0432ccc35b5d2a6"));
 
         // Note that of those with the service bits flag, most only support a subset of possible options
@@ -140,7 +140,7 @@ public:
 
         checkpointData = (CCheckpointData) {
             boost::assign::map_list_of
-            ( 0, uint256S("0x000000024d7124adf01d831f735cf0c898e82c14be26622127a02e1ad6df4beb"))
+            ( 0, uint256S("0x00008891bb0890952941a813a14bf116ba550067b4f7b4cbb0136a43a812c2eb"))
         };
 
         chainTxData = ChainTxData{
@@ -163,7 +163,7 @@ public:
         strNetworkID = "test";
         consensus.nSubsidyHalvingInterval = 210000;
         consensus.BIP34Height = 0;
-        consensus.BIP34Hash = uint256S("0x000000676695892ca4708f57b7bb203b64b78d92b133e00f722dfa32b7716896");
+        consensus.BIP34Hash = uint256S("0x000072c36e9e98359d18e08eb3a07ec802071a195aa003fd722315caa1667119");
         consensus.BIP65Height = 0; // 00000000007f6655f22f98e72ed80d8b06dc761d5da09df0fa1dc4be4f861eb6
         consensus.BIP66Height = 0; // 000000002104c8c45e99a8853285a3b592602a3ccde2b832481da85e9e4ba182
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
@@ -171,8 +171,8 @@ public:
         consensus.nPowTargetSpacing = 2 * 64;
         consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.fPowNoRetargeting = true;
-        consensus.nRuleChangeActivationThreshold = 11; // 75% for testchains
-        consensus.nMinerConfirmationWindow = 15; // nPowTargetTimespan / nPowTargetSpacing
+        consensus.nRuleChangeActivationThreshold = 1512; // 75% for testchains
+        consensus.nMinerConfirmationWindow = 2016; // nPowTargetTimespan / nPowTargetSpacing
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 0;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 999999999999ULL;
@@ -200,10 +200,10 @@ public:
         nDefaultPort = 13888;
         nPruneAfterHeight = 1000;
 
-        genesis = CreateGenesisBlock(1490247078, 5975544, 0x1e00ffff, 1, 50 * COIN);
+        genesis = CreateGenesisBlock(1490247078, 6914006, 0x1f00ffff, 1, 50 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
 
-        assert(consensus.hashGenesisBlock == uint256S("0x000000676695892ca4708f57b7bb203b64b78d92b133e00f722dfa32b7716896"));
+        assert(consensus.hashGenesisBlock == uint256S("0x000072c36e9e98359d18e08eb3a07ec802071a195aa003fd722315caa1667119"));
         assert(genesis.hashMerkleRoot == uint256S("0x66c9b04253902df4aca489f3226b95830eecf780ea90b6bbb0432ccc35b5d2a6"));
 
         vFixedSeeds.clear();
@@ -228,7 +228,7 @@ public:
 
         checkpointData = (CCheckpointData) {
             boost::assign::map_list_of
-            ( 0, uint256S("0x000000676695892ca4708f57b7bb203b64b78d92b133e00f722dfa32b7716896")),
+            ( 0, uint256S("0x000072c36e9e98359d18e08eb3a07ec802071a195aa003fd722315caa1667119")),
         };
 
         chainTxData = ChainTxData{
@@ -259,8 +259,8 @@ public:
         consensus.nPowTargetSpacing = 2 * 64;
         consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.fPowNoRetargeting = true;
-        consensus.nRuleChangeActivationThreshold = 7; // 75% for testchains
-        consensus.nMinerConfirmationWindow = 10; // Faster than normal for regtest (144 instead of 2016)
+        consensus.nRuleChangeActivationThreshold = 108; // 75% for testchains
+        consensus.nMinerConfirmationWindow = 144; // Faster than normal for regtest (144 instead of 2016)
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 0;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 999999999999ULL;
