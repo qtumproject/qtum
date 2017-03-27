@@ -325,8 +325,9 @@ void BlockAssembler::AddToBlock(CTxMemPool::txiter iter)
 ////////////////////////////////////////////////////////////// // qtum
     const CTransaction& tx = iter->GetTx();
     if(tx.HasCreateOrCall()){
-        ByteCodeExec exec(tx, NULL);
-        execResult res = exec.performByteCode();
+        ByteCodeExec exec;
+        QtumTxConverter convert(tx, NULL);
+        exec.performByteCode(convert.extractionQtumTransactions());
     }
 //////////////////////////////////////////////////////////////
 
