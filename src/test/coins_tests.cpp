@@ -497,6 +497,87 @@ BOOST_AUTO_TEST_CASE(ccoins_serialization)
         BOOST_CHECK_MESSAGE(false, "We should have thrown");
     } catch (const std::ios_base::failure& e) {
     }
+
+    // Coinstake with only third vout available
+    CDataStream ssPoS1(ParseHex("0118835800816115944e077fe7c803cfa57f29b36bf87c1d358bb85e"), SER_DISK, CLIENT_VERSION);
+    CCoins ccPoS1;
+    ssPoS1 >> ccPoS1;
+    BOOST_CHECK_EQUAL(ccPoS1.nVersion, 1);
+    BOOST_CHECK_EQUAL(ccPoS1.fCoinBase, false);
+    BOOST_CHECK_EQUAL(ccPoS1.nHeight, 203998);
+    BOOST_CHECK_EQUAL(ccPoS1.vout.size(), 3);
+    BOOST_CHECK_EQUAL(ccPoS1.IsCoinStake(), true);
+    BOOST_CHECK_EQUAL(ccPoS1.IsAvailable(0), false);
+    BOOST_CHECK_EQUAL(ccPoS1.IsAvailable(1), false);
+    BOOST_CHECK_EQUAL(ccPoS1.IsAvailable(2), true);
+    BOOST_CHECK_EQUAL(ccPoS1.vout[2].nValue, 60000000000ULL);
+    BOOST_CHECK_EQUAL(HexStr(ccPoS1.vout[2].scriptPubKey), HexStr(GetScriptForDestination(CKeyID(uint160(ParseHex("816115944e077fe7c803cfa57f29b36bf87c1d35"))))));
+
+    // Coinstake with third and fourth vout available
+    CDataStream ssPoS2(ParseHex("013801835800816115944e077fe7c803cfa57f29b36bf87c1d3586ef97d5790061b01caab50f1b8e9c50a5057eb43c2d9563a4ee86af3b"), SER_DISK, CLIENT_VERSION);
+    CCoins ccPoS2;
+    ssPoS2 >> ccPoS2;
+    BOOST_CHECK_EQUAL(ccPoS2.nVersion, 1);
+    BOOST_CHECK_EQUAL(ccPoS2.fCoinBase, false);
+    BOOST_CHECK_EQUAL(ccPoS2.IsCoinStake(), true);
+    BOOST_CHECK_EQUAL(ccPoS2.nHeight, 120891);
+    BOOST_CHECK_EQUAL(ccPoS2.IsAvailable(0), false);
+    BOOST_CHECK_EQUAL(ccPoS2.IsAvailable(1), false);
+    BOOST_CHECK_EQUAL(ccPoS2.IsAvailable(2), true);
+    BOOST_CHECK_EQUAL(ccPoS2.vout[2].nValue, 60000000000ULL);
+    BOOST_CHECK_EQUAL(ccPoS2.vout.size(), 4);
+    for (int i = 3; i < 4; i++) {
+        BOOST_CHECK_EQUAL(ccPoS2.IsAvailable(i), i == 3);
+    }
+    BOOST_CHECK_EQUAL(ccPoS2.vout[3].nValue, 234925952);
+    BOOST_CHECK_EQUAL(HexStr(ccPoS2.vout[2].scriptPubKey), HexStr(GetScriptForDestination(CKeyID(uint160(ParseHex("816115944e077fe7c803cfa57f29b36bf87c1d35"))))));
+    BOOST_CHECK_EQUAL(HexStr(ccPoS2.vout[3].scriptPubKey), HexStr(GetScriptForDestination(CKeyID(uint160(ParseHex("61b01caab50f1b8e9c50a5057eb43c2d9563a4ee"))))));
+
+    // Coinbase with first, second and third vout not available but fourth and eighth vout available  
+    CDataStream ssPoS3(ParseHex("0101228358008c988f1a4a4de2161e0f50aac7f17e7f9555caa4bbd1230061b01caab50f1b8e9c50a5057eb43c2d9563a4ee86af3b"), SER_DISK, CLIENT_VERSION);
+    CCoins ccPoS3;
+    ssPoS3 >> ccPoS3;
+    BOOST_CHECK_EQUAL(ccPoS3.nVersion, 1);
+    BOOST_CHECK_EQUAL(ccPoS3.fCoinBase, true);
+    BOOST_CHECK_EQUAL(ccPoS3.IsCoinStake(), false);
+    BOOST_CHECK_EQUAL(ccPoS3.nHeight, 120891);
+    BOOST_CHECK_EQUAL(ccPoS3.IsAvailable(0), false);
+    BOOST_CHECK_EQUAL(ccPoS3.IsAvailable(1), false);
+    BOOST_CHECK_EQUAL(ccPoS3.IsAvailable(2), false);
+    BOOST_CHECK_EQUAL(ccPoS3.vout.size(), 9);
+    for (int i = 0; i < 9; i++) {
+        BOOST_CHECK_EQUAL(ccPoS3.IsAvailable(i), i == 4 || i == 8);
+    }
+    BOOST_CHECK_EQUAL(ccPoS3.vout[4].nValue, 60000000000);
+    BOOST_CHECK_EQUAL(ccPoS3.vout[8].nValue, 110397);
+    BOOST_CHECK_EQUAL(HexStr(ccPoS3.vout[4].scriptPubKey), HexStr(GetScriptForDestination(CKeyID(uint160(ParseHex("8c988f1a4a4de2161e0f50aac7f17e7f9555caa4"))))));
+    BOOST_CHECK_EQUAL(HexStr(ccPoS3.vout[8].scriptPubKey), HexStr(GetScriptForDestination(CKeyID(uint160(ParseHex("61b01caab50f1b8e9c50a5057eb43c2d9563a4ee"))))));
+
+    // Coinstake with second, third and three others vout available
+    CDataStream ssPoS4(ParseHex("015c820886ef97d579006bf80f6ae3390b1b39a04690af8a0a765365850f835800ede7e6d57b0f8193dcda8c0f80b71abefc18205f86ef97d5790061b01caab50f1b8e9c50a5057eb43c2d9563a4eebbd123008c988f1a4a4de2161e0f50aac7f17e7f9555caa486ef97d57900816115944e077fe7c803cfa57f29b36bf87c1d3586af3b"), SER_DISK, CLIENT_VERSION);
+    CCoins ccPoS4;
+    ssPoS4 >> ccPoS4;
+    BOOST_CHECK_EQUAL(ccPoS4.nVersion, 1);
+    BOOST_CHECK_EQUAL(ccPoS4.fCoinBase, false);
+    BOOST_CHECK_EQUAL(ccPoS4.IsAvailable(0), false);
+    BOOST_CHECK_EQUAL(ccPoS4.IsAvailable(1), true);
+    BOOST_CHECK_EQUAL(ccPoS4.IsAvailable(2), true);
+    BOOST_CHECK_EQUAL(ccPoS4.IsCoinStake(), true);
+    BOOST_CHECK_EQUAL(ccPoS4.nHeight, 120891);
+    BOOST_CHECK_EQUAL(ccPoS4.vout.size(), 15);
+    for (int i = 3; i < 15; i++) {
+        BOOST_CHECK_EQUAL(ccPoS4.IsAvailable(i), i == 4 || i == 10 || i == 14);
+    }
+    BOOST_CHECK_EQUAL(ccPoS4.vout[1].nValue, 234925952);
+    BOOST_CHECK_EQUAL(ccPoS4.vout[2].nValue, 60000000000);
+    BOOST_CHECK_EQUAL(ccPoS4.vout[4].nValue, 234925952);
+    BOOST_CHECK_EQUAL(ccPoS4.vout[10].nValue, 110397);
+    BOOST_CHECK_EQUAL(ccPoS4.vout[14].nValue, 234925952);
+    BOOST_CHECK_EQUAL(HexStr(ccPoS4.vout[1].scriptPubKey), HexStr(GetScriptForDestination(CKeyID(uint160(ParseHex("6bf80f6ae3390b1b39a04690af8a0a765365850f"))))));
+    BOOST_CHECK_EQUAL(HexStr(ccPoS4.vout[2].scriptPubKey), HexStr(GetScriptForDestination(CKeyID(uint160(ParseHex("ede7e6d57b0f8193dcda8c0f80b71abefc18205f"))))));
+    BOOST_CHECK_EQUAL(HexStr(ccPoS4.vout[4].scriptPubKey), HexStr(GetScriptForDestination(CKeyID(uint160(ParseHex("61b01caab50f1b8e9c50a5057eb43c2d9563a4ee"))))));
+    BOOST_CHECK_EQUAL(HexStr(ccPoS4.vout[10].scriptPubKey), HexStr(GetScriptForDestination(CKeyID(uint160(ParseHex("8c988f1a4a4de2161e0f50aac7f17e7f9555caa4"))))));
+    BOOST_CHECK_EQUAL(HexStr(ccPoS4.vout[14].scriptPubKey), HexStr(GetScriptForDestination(CKeyID(uint160(ParseHex("816115944e077fe7c803cfa57f29b36bf87c1d35"))))));
 }
 
 const static uint256 TXID;
