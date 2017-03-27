@@ -33,6 +33,10 @@
  * - bit 0: IsCoinBase()
  * - bit 1: vout[0] is not spent
  * - bit 2: vout[1] is not spent
+ * - begin modif qtum
+ * - bit 3: vout[2] is not spent
+ * - bit 4: IsCoinStake()
+ * - end modif qtum
  * - The higher bits encode N, the number of non-zero bytes in the following bitvector.
  *   - In case both bit 1 and bit 2 are unset, they encode N-1, as there must be at
  *     least one non-spent output).
@@ -76,6 +80,7 @@ class CCoins
 public:
     //! whether transaction is a coinbase
     bool fCoinBase;
+    bool fCoinStake;
 
     //! unspent transaction outputs; spent outputs are .IsNull(); spent outputs at the end of the array are dropped
     std::vector<CTxOut> vout;
@@ -89,6 +94,7 @@ public:
 
     void FromTx(const CTransaction &tx, int nHeightIn) {
         fCoinBase = tx.IsCoinBase();
+        fCoinStake = tx.IsCoinStake();
         vout = tx.vout;
         nHeight = nHeightIn;
         nVersion = tx.nVersion;
@@ -102,13 +108,14 @@ public:
 
     void Clear() {
         fCoinBase = false;
+        fCoinStake = false;
         std::vector<CTxOut>().swap(vout);
         nHeight = 0;
         nVersion = 0;
     }
 
     //! empty constructor
-    CCoins() : fCoinBase(false), vout(0), nHeight(0), nVersion(0) { }
+    CCoins() : fCoinBase(false), fCoinStake(false), vout(0), nHeight(0), nVersion(0) { }
 
     //!remove spent outputs at the end of vout
     void Cleanup() {
@@ -128,6 +135,7 @@ public:
 
     void swap(CCoins &to) {
         std::swap(to.fCoinBase, fCoinBase);
+        std::swap(to.fCoinStake, fCoinStake);
         to.vout.swap(vout);
         std::swap(to.nHeight, nHeight);
         std::swap(to.nVersion, nVersion);
@@ -139,6 +147,7 @@ public:
          if (a.IsPruned() && b.IsPruned())
              return true;
          return a.fCoinBase == b.fCoinBase &&
+                a.fCoinStake == b.fCoinStake &&
                 a.nHeight == b.nHeight &&
                 a.nVersion == b.nVersion &&
                 a.vout == b.vout;
@@ -152,6 +161,9 @@ public:
     bool IsCoinBase() const {
         return fCoinBase;
     }
+    bool IsCoinStake() const {
+        return fCoinStake;
+    }
 
     template<typename Stream>
     void Serialize(Stream &s) const {
@@ -159,8 +171,9 @@ public:
         CalcMaskSize(nMaskSize, nMaskCode);
         bool fFirst = vout.size() > 0 && !vout[0].IsNull();
         bool fSecond = vout.size() > 1 && !vout[1].IsNull();
-        assert(fFirst || fSecond || nMaskCode);
-        unsigned int nCode = 8*(nMaskCode - (fFirst || fSecond ? 0 : 1)) + (fCoinBase ? 1 : 0) + (fFirst ? 2 : 0) + (fSecond ? 4 : 0);
+        bool fThird = vout.size() > 2 && !vout[2].IsNull();
+        assert(fFirst || fSecond || fThird || nMaskCode);
+        unsigned int nCode = 32*(nMaskCode - (fFirst || fSecond || fThird ? 0 : 1)) + (fCoinBase ? 1 : 0) + (fFirst ? 2 : 0) + (fSecond ? 4 : 0) + (fThird ? 8 : 0) + (fCoinStake ? 16 : 0);
         // version
         ::Serialize(s, VARINT(this->nVersion));
         // header code
@@ -168,8 +181,8 @@ public:
         // spentness bitmask
         for (unsigned int b = 0; b<nMaskSize; b++) {
             unsigned char chAvail = 0;
-            for (unsigned int i = 0; i < 8 && 2+b*8+i < vout.size(); i++)
-                if (!vout[2+b*8+i].IsNull())
+            for (unsigned int i = 0; i < 8 && 3+b*8+i < vout.size(); i++)
+                if (!vout[3+b*8+i].IsNull())
                     chAvail |= (1 << i);
             ::Serialize(s, chAvail);
         }
@@ -190,10 +203,12 @@ public:
         // header code
         ::Unserialize(s, VARINT(nCode));
         fCoinBase = nCode & 1;
-        std::vector<bool> vAvail(2, false);
+        fCoinStake = nCode & 16;
+        std::vector<bool> vAvail(3, false);
         vAvail[0] = (nCode & 2) != 0;
         vAvail[1] = (nCode & 4) != 0;
-        unsigned int nMaskCode = (nCode / 8) + ((nCode & 6) != 0 ? 0 : 1);
+        vAvail[2] = (nCode & 8) != 0;
+        unsigned int nMaskCode = (nCode / 32) + ((nCode & 14) != 0 ? 0 : 1);
         // spentness bitmask
         while (nMaskCode > 0) {
             unsigned char chAvail = 0;
