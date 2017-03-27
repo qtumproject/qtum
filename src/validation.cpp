@@ -727,7 +727,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
         double dPriority = view.GetPriority(tx, chainActive.Height(), inChainInputValue);
 
         // Keep track of transactions that spend a coinbase, which we re-scan
-        // during reorgs to ensure COINBASE_MATURITY is still met.
+        // during reorgs to ensure COINPROOF_MATURITY is still met.
         bool fSpendsCoinbase = false;
         BOOST_FOREACH(const CTxIn &txin, tx.vin) {
             const CCoins *coins = view.AccessCoins(txin.prevout.hash);
@@ -1386,7 +1386,7 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoins
 
             // If prev is coinbase, check that it's matured
             if (coins->IsCoinBase()) {
-                if (nSpendHeight - coins->nHeight < COINBASE_MATURITY)
+                if (nSpendHeight - coins->nHeight < COINPROOF_MATURITY)
                     return state.Invalid(false,
                         REJECT_INVALID, "bad-txns-premature-spend-of-coinbase",
                         strprintf("tried to spend coinbase at depth %d", nSpendHeight - coins->nHeight));
