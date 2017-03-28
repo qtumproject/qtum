@@ -1275,17 +1275,35 @@ BOOST_AUTO_TEST_CASE(script_standard_push)
         BOOST_CHECK_MESSAGE(err == SCRIPT_ERR_OK, ScriptErrorString(err));
     }
 
-    // for (unsigned int i=0; i<=MAX_SCRIPT_ELEMENT_SIZE; i++) {
-        // std::vector<unsigned char> data(i, '\111');
-        std::vector<unsigned char> data(MAX_SCRIPT_ELEMENT_SIZE, '\111'); // qtum
+    for (unsigned int i=0; i<=MAX_SCRIPT_ELEMENT_SIZE; i+=100000) {
+        std::vector<unsigned char> data(i, '\111');
         CScript script;
         script << data;
-        // BOOST_CHECK_MESSAGE(script.IsPushOnly(), "Length " << i << " is not pure push.");
-        // BOOST_CHECK_MESSAGE(VerifyScript(script, CScript() << OP_1, NULL, SCRIPT_VERIFY_MINIMALDATA, BaseSignatureChecker(), &err), "Length " << i << " push is not minimal data.");
-        BOOST_CHECK_MESSAGE(script.IsPushOnly(), "Length " << MAX_SCRIPT_ELEMENT_SIZE << " is not pure push.");  // qtum
-        BOOST_CHECK_MESSAGE(VerifyScript(script, CScript() << OP_1, NULL, SCRIPT_VERIFY_MINIMALDATA, BaseSignatureChecker(), &err), "Length " << MAX_SCRIPT_ELEMENT_SIZE << " push is not minimal data.");  // qtum
+        BOOST_CHECK_MESSAGE(script.IsPushOnly(), "Length " << i << " is not pure push.");
+        BOOST_CHECK_MESSAGE(VerifyScript(script, CScript() << OP_1, NULL, SCRIPT_VERIFY_MINIMALDATA, BaseSignatureChecker(), &err), "Length " << i << " push is not minimal data.");
         BOOST_CHECK_MESSAGE(err == SCRIPT_ERR_OK, ScriptErrorString(err));
-    // }
+    }
+
+    std::vector<unsigned char> data1(MAX_SCRIPT_ELEMENT_SIZE - 1, '\111');
+    CScript script1;
+    script1 << data1;
+    BOOST_CHECK_MESSAGE(script1.IsPushOnly(), "Length " << MAX_SCRIPT_ELEMENT_SIZE - 1 << " is not pure push.");
+    BOOST_CHECK_MESSAGE(VerifyScript(script1, CScript() << OP_1, NULL, SCRIPT_VERIFY_MINIMALDATA, BaseSignatureChecker(), &err), "Length " << MAX_SCRIPT_ELEMENT_SIZE - 1 << " push is not minimal data.");  // qtum
+    BOOST_CHECK_MESSAGE(err == SCRIPT_ERR_OK, ScriptErrorString(err));
+
+    std::vector<unsigned char> data2(MAX_SCRIPT_ELEMENT_SIZE + 1, '\111');
+    CScript script2;
+    script2 << data2;
+    BOOST_CHECK_MESSAGE(script2.IsPushOnly(), "Length " << MAX_SCRIPT_ELEMENT_SIZE + 1 << " is not pure push.");
+    BOOST_CHECK_MESSAGE(!VerifyScript(script2, CScript() << OP_1, NULL, SCRIPT_VERIFY_MINIMALDATA, BaseSignatureChecker(), &err), "Length " << MAX_SCRIPT_ELEMENT_SIZE + 1 << " push is not minimal data.");  // qtum
+    BOOST_CHECK_MESSAGE(err == SCRIPT_ERR_PUSH_SIZE, ScriptErrorString(err));
+
+    std::vector<unsigned char> data3(MAX_SCRIPT_ELEMENT_SIZE, '\111');
+    CScript script3;
+    script3 << data3;
+    BOOST_CHECK_MESSAGE(script3.IsPushOnly(), "Length " << MAX_SCRIPT_ELEMENT_SIZE << " is not pure push.");
+    BOOST_CHECK_MESSAGE(VerifyScript(script3, CScript() << OP_1, NULL, SCRIPT_VERIFY_MINIMALDATA, BaseSignatureChecker(), &err), "Length " << MAX_SCRIPT_ELEMENT_SIZE << " push is not minimal data.");  // qtum
+    BOOST_CHECK_MESSAGE(err == SCRIPT_ERR_OK, ScriptErrorString(err));
 }
 
 BOOST_AUTO_TEST_CASE(script_IsPushOnly_on_invalid_scripts)
