@@ -2076,7 +2076,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
     if (fJustCheck)
     {
-        globalState->setRoot(uintToh256(pindex->pprev->hashStateRoot));
+        dev::h256 prevHashStateRoot = dev::sha3(dev::rlp(""));
+        if(pindex->pprev->hashStateRoot != uint256()){
+            prevHashStateRoot = uintToh256(pindex->pprev->hashStateRoot);
+        }
+        globalState->setRoot(prevHashStateRoot);
         return true;
     }
 //////////////////////////////////////////////////////////////////
