@@ -623,9 +623,17 @@ class ByteCodeExec {
 
 public:
 
-    ByteCodeExec() {}
+    ByteCodeExec(const CBlock& _block) : block(_block){}
 
     std::vector<execResult> performByteCode(std::vector<QtumTransaction> txs);
+
+private:
+
+    dev::eth::EnvInfo BuildEVMEnvironment();
+
+    dev::Address EthAddrFromScript(const CScript& scriptIn);
+
+    const CBlock& block;
 
 };
 ////////////////////////////////////////////////////////

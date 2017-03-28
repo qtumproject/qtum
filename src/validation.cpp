@@ -1771,12 +1771,45 @@ valtype GetSenderAddress(const CTransaction& tx, const CCoinsViewCache* coinsVie
 std::vector<execResult> ByteCodeExec::performByteCode(std::vector<QtumTransaction> txs){
     std::vector<execResult> result;
     for(QtumTransaction& tx : txs){
-        dev::eth::EnvInfo envInfo;
-        envInfo.setGasLimit(10000000);
+        dev::eth::EnvInfo envInfo(BuildEVMEnvironment());
         std::unique_ptr<dev::eth::SealEngineFace> se(dev::eth::ChainParams(dev::eth::genesisInfo(dev::eth::Network::HomesteadTest)).createSealEngine());
         result.push_back(globalState->execute(envInfo, *se.get(), tx, dev::eth::Permanence::Committed, OnOpFunc()));
     }
     return result;
+}
+
+dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(){
+    dev::eth::EnvInfo env;
+    CBlockIndex* tip = chainActive.Tip();
+    env.setNumber(dev::u256(tip->nHeight + 1));
+    env.setTimestamp(dev::u256(block.nTime));
+    env.setDifficulty(dev::u256(block.nBits));
+
+    dev::eth::LastHashes lh;
+    lh.resize(256);
+    lh[0] = dev::u256(0);
+    for(int i=0;i<256;i++){
+        if(!tip)
+            break;
+        lh[i]= uintToh256(*tip->phashBlock);
+        tip = tip->pprev;
+    }
+    env.setLastHashes(std::move(lh));
+    env.setGasLimit(500000000);
+    env.setAuthor(EthAddrFromScript(block.vtx.at(0)->vout.at(0).scriptPubKey));
+    return env;
+}
+
+dev::Address ByteCodeExec::EthAddrFromScript(const CScript& scriptIn){
+    CTxDestination resDest;
+    if(!ExtractDestination(scriptIn, resDest)){
+        return dev::Address();
+    }
+    CKeyID resPH(boost::get<CKeyID>(resDest));
+
+    std::vector<unsigned char> addr(resPH.begin(), resPH.end());
+
+    return dev::Address(addr);
 }
 
 std::vector<QtumTransaction> QtumTxConverter::extractionQtumTransactions(){
@@ -2032,7 +2065,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
 ///////////////////////////////////////////////////////////////////////////////////////// qtum
         if(tx.HasCreateOrCall()){
-            ByteCodeExec exec;
+            ByteCodeExec exec(block);
             QtumTxConverter convert(tx, &view);
             exec.performByteCode(convert.extractionQtumTransactions());
         }
