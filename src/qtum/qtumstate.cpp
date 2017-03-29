@@ -50,6 +50,7 @@ void QtumState::addBalance(dev::Address const& _id, dev::u256 const& _amount)
     {
         if(!addressInUse(newAddress) && newAddress != dev::Address()){
             const_cast<dev::Address&>(_id) = newAddress;
+            newAddress = dev::Address();
         }
         createAccount(_id, {requireAccountStartNonce(), _amount});
     }
