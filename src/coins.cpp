@@ -16,10 +16,10 @@
  */
 void CCoins::CalcMaskSize(unsigned int &nBytes, unsigned int &nNonzeroBytes) const {
     unsigned int nLastUsedByte = 0;
-    for (unsigned int b = 0; 2+b*8 < vout.size(); b++) {
+    for (unsigned int b = 0; 3+b*8 < vout.size(); b++) {
         bool fZero = true;
-        for (unsigned int i = 0; i < 8 && 2+b*8+i < vout.size(); i++) {
-            if (!vout[2+b*8+i].IsNull()) {
+        for (unsigned int i = 0; i < 8 && 3+b*8+i < vout.size(); i++) {
+            if (!vout[3+b*8+i].IsNull()) {
                 fZero = false;
                 continue;
             }
@@ -298,7 +298,7 @@ bool CCoinsViewCache::HaveInputs(const CTransaction& tx) const
 double CCoinsViewCache::GetPriority(const CTransaction &tx, int nHeight, CAmount &inChainInputValue) const
 {
     inChainInputValue = 0;
-    if (tx.IsCoinBase())
+    if (tx.IsCoinBase() || tx.IsCoinStake())
         return 0.0;
     double dResult = 0.0;
     BOOST_FOREACH(const CTxIn& txin, tx.vin)
