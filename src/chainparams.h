@@ -77,6 +77,7 @@ public:
     const std::vector<SeedSpec6>& FixedSeeds() const { return vFixedSeeds; }
     const CCheckpointData& Checkpoints() const { return checkpointData; }
     const ChainTxData& TxData() const { return chainTxData; }
+    int LastPOWBlock() const { return nLastPOWBlock; }
 protected:
     CChainParams() {}
 
@@ -95,6 +96,7 @@ protected:
     bool fMineBlocksOnDemand;
     CCheckpointData checkpointData;
     ChainTxData chainTxData;
+    int nLastPOWBlock;
 };
 
 /**
