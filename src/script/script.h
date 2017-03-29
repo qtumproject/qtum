@@ -19,7 +19,7 @@
 #include <vector>
 
 // Maximum number of bytes pushable to the stack
-static const unsigned int MAX_SCRIPT_ELEMENT_SIZE = 1000000; //(1 Mb) // qtum
+static const unsigned int MAX_SCRIPT_ELEMENT_SIZE = 128000; //(128 kb) // qtum
 
 // Maximum number of non-push operations per script
 static const int MAX_OPS_PER_SCRIPT = 201;
@@ -28,7 +28,7 @@ static const int MAX_OPS_PER_SCRIPT = 201;
 static const int MAX_PUBKEYS_PER_MULTISIG = 20;
 
 // Maximum script length in bytes
-static const int MAX_SCRIPT_SIZE = 1100000; // (1.1 Mb) // qtum
+static const int MAX_SCRIPT_SIZE = 129000; // (129 kb) // qtum
 
 // Threshold for nLockTime: below this value it is interpreted as block number,
 // otherwise as UNIX timestamp.
