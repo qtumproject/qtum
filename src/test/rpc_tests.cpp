@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE(rpc_rawsign)
       "\"vout\":1,\"scriptPubKey\":\"a914b10c9df5f7edf436c697f02f1efdba4cf399615187\","
       "\"redeemScript\":\"512103debedc17b3df2badbcdd86d5feb4562b86fe182e5998abd8bcd4f122c6155b1b21027e940bb73ab8732bfdf7f9216ecefca5b94d6df834e77e108f68e66f126044c052ae\"}]";
     r = CallRPC(std::string("createrawtransaction ")+prevout+" "+
-      "{\"3HqAe9LtNBjnsfM4CyYaWTnvCaUYT7v4oZ\":11}");
+      "{\"MQ3Jx2krKJbDgAcxJrXvL73KXH4zVf8mWg\":11}");
     std::string notsigned = r.get_str();
     std::string privkey1 = "\"KzsXybp9jX64P5ekX1KUxRQ79Jht9uzW7LorgwE65i5rWACL6LQe\"";
     std::string privkey2 = "\"Kyhdf5LuKTRx4ge69ybABsiUAWjVRK4XGxAKk2FQLp2HjGMy87Z4\"";
@@ -149,8 +149,14 @@ BOOST_AUTO_TEST_CASE(rpc_format_monetary_values)
     BOOST_CHECK(ValueFromAmount(50000000LL).write() == "0.50000000");
     BOOST_CHECK(ValueFromAmount(89898989LL).write() == "0.89898989");
     BOOST_CHECK(ValueFromAmount(100000000LL).write() == "1.00000000");
+<<<<<<< HEAD
+    BOOST_CHECK(ValueFromAmount(10782240624999990LL).write() == "107822406.24999990");
+    BOOST_CHECK(ValueFromAmount(10782240624999999LL).write() == "107822406.24999999");
+    BOOST_CHECK(ValueFromAmount(10782240625000000LL).write() == "107822406.25000000");
+=======
     BOOST_CHECK(ValueFromAmount(9999999999999990LL).write() == "99999999.99999990");
     BOOST_CHECK(ValueFromAmount(9999999999999999LL).write() == "99999999.99999999");
+>>>>>>> d565b4e04df8ce2eda8e3d4b7c0fe7e0c644e799
 
     BOOST_CHECK_EQUAL(ValueFromAmount(0).write(), "0.00000000");
     BOOST_CHECK_EQUAL(ValueFromAmount((COIN/10000)*123456789).write(), "12345.67890000");
@@ -194,8 +200,14 @@ BOOST_AUTO_TEST_CASE(rpc_parse_monetary_values)
     BOOST_CHECK_EQUAL(AmountFromValue(ValueFromString("0.50000000")), 50000000LL);
     BOOST_CHECK_EQUAL(AmountFromValue(ValueFromString("0.89898989")), 89898989LL);
     BOOST_CHECK_EQUAL(AmountFromValue(ValueFromString("1.00000000")), 100000000LL);
+<<<<<<< HEAD
+    BOOST_CHECK_EQUAL(AmountFromValue(ValueFromString("107822406.2499999")), 10782240624999990LL);
+    BOOST_CHECK_EQUAL(AmountFromValue(ValueFromString("107822406.24999999")), 10782240624999999LL);
+    BOOST_CHECK_EQUAL(AmountFromValue(ValueFromString("107822406.25")), 10782240625000000LL);
+=======
     BOOST_CHECK_EQUAL(AmountFromValue(ValueFromString("99999999.9999999")), 9999999999999990LL);
     BOOST_CHECK_EQUAL(AmountFromValue(ValueFromString("99999999.99999999")), 9999999999999999LL);
+>>>>>>> d565b4e04df8ce2eda8e3d4b7c0fe7e0c644e799
 
     BOOST_CHECK_EQUAL(AmountFromValue(ValueFromString("1e-8")), COIN/100000000);
     BOOST_CHECK_EQUAL(AmountFromValue(ValueFromString("0.1e-7")), COIN/100000000);
