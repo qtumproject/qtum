@@ -18,3 +18,4 @@ cd src/cpp-ethereum
 git submodule update --init
 ./scripts/install_deps.sh
 cmake .
+make -j `nproc`
