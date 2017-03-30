@@ -152,7 +152,7 @@ public:
                         //   (the tx=... number in the SetBestChain debug.log lines)
             0         // * estimated number of transactions per second after that timestamp
         };
-        nLastPOWBlock = 10000;
+        consensus.nLastPOWBlock = 5000;
     }
 };
 static CMainParams mainParams;
@@ -243,7 +243,7 @@ public:
         	0
         };
 
-        nLastPOWBlock = 1000;
+        consensus.nLastPOWBlock = 1000;
     }
 };
 static CTestNetParams testNetParams;
@@ -316,7 +316,7 @@ public:
             0
         };
 
-        nLastPOWBlock = 0x7fffffff;
+        consensus.nLastPOWBlock = 0x7fffffff;
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,120);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,110);
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,239);
