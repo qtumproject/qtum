@@ -1,7 +1,6 @@
 *.tar.gz
 
 *.exe
-src/qtum
 src/qtum-cli
 src/qtum-tx
 src/qtumd

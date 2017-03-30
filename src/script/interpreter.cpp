@@ -1025,6 +1025,17 @@ bool EvalScript(vector<vector<unsigned char> >& stack, const CScript& script, un
                 }
                 break;
 
+                //////////////////////////////////////////////////////// qtum
+                case OP_CREATE:
+                case OP_CALL:
+                {
+                    valtype scriptRest(pc - 1, pend);
+                    stack.push_back(scriptRest);
+                    return set_error(serror, SCRIPT_ERR_BAD_OPCODE);
+                }
+                break;
+                ////////////////////////////////////////////////////////
+
                 default:
                     return set_error(serror, SCRIPT_ERR_BAD_OPCODE);
             }

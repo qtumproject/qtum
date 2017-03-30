@@ -54,6 +54,12 @@
  * Global state
  */
 
+ ////////////////////////////// qtum
+ #include "pubkey.h"
+
+ std::unique_ptr<QtumState> globalState;
+ //////////////////////////////
+
 CCriticalSection cs_main;
 
 BlockMap mapBlockIndex;
@@ -1735,6 +1741,104 @@ static int64_t nTimeIndex = 0;
 static int64_t nTimeCallbacks = 0;
 static int64_t nTimeTotal = 0;
 
+/////////////////////////////////////////////////////////////////////// qtum
+valtype GetSenderAddress(const CTransaction& tx, const CCoinsViewCache* coinsView){
+    CTransactionRef txPrevout;
+    uint256 hashBlock;
+    CScript script;
+    if(coinsView){
+        script = coinsView->AccessCoins(tx.vin[0].prevout.hash)->vout[tx.vin[0].prevout.n].scriptPubKey;    
+    } else {
+        if(GetTransaction(tx.vin[0].prevout.hash, txPrevout, Params().GetConsensus(), hashBlock, true)){
+            script = txPrevout->vout[tx.vin[0].prevout.n].scriptPubKey;
+        } else {
+            // TODO temp exeption   
+            return valtype();
+        }
+    }
+	CTxDestination addressBit;
+	if(ExtractDestination(script, addressBit)){
+		if (addressBit.type() == typeid(CKeyID)){
+			CKeyID senderAddress(boost::get<CKeyID>(addressBit));
+			return valtype(senderAddress.begin(), senderAddress.end());
+		}
+	}
+    return valtype();
+}
+
+execResult ByteCodeExec::performByteCode() {
+    for(size_t i = 0; i < txBit.vout.size(); i++){
+        if(txBit.vout[i].scriptPubKey.HasOpCreate() || txBit.vout[i].scriptPubKey.HasOpCall()){
+            if(receiveStack(txBit.vout[i].scriptPubKey)){
+                
+                EthTransactionParams params = parseEthTXParams();
+                QtumTransaction tx(createEthTX(params, i));
+
+                dev::eth::EnvInfo envInfo;
+                envInfo.setGasLimit(10000000);
+
+                std::unique_ptr<dev::eth::SealEngineFace> se(dev::eth::ChainParams(dev::eth::genesisInfo(dev::eth::Network::HomesteadTest)).createSealEngine());
+                return globalState->execute(envInfo, *se.get(), tx, dev::eth::Permanence::Committed, OnOpFunc());
+            }
+        }
+    }
+    return execResult(dev::eth::ExecutionResult(), dev::eth::TransactionReceipt(dev::h256(), dev::u256(), dev::eth::LogEntries()));
+}
+
+bool ByteCodeExec::receiveStack(const CScript& scriptPubKey){
+    EvalScript(stack, scriptPubKey, SCRIPT_EXEC_BYTE_CODE, BaseSignatureChecker(), SIGVERSION_BASE, nullptr);
+    if (stack.empty())
+        return false;
+
+    CScript scriptRest(stack.back().begin(), stack.back().end());
+    stack.pop_back();
+
+    opcode = (opcodetype)(*scriptRest.begin());
+    if (stack.size() < 4 || ((opcode == OP_CALL) && (stack.size() < 5)))
+        return false;
+
+    return true;
+}
+
+EthTransactionParams ByteCodeExec::parseEthTXParams(){
+    dev::Address receiveAddress;
+    valtype vecAddr;
+    if (opcode == OP_CALL)
+    {
+        vecAddr = stack.back();
+        stack.pop_back();
+        receiveAddress = dev::Address(vecAddr);
+    }
+                    
+    valtype code(stack.back());
+    stack.pop_back();
+    CScriptNum gasPrice(stack.back(), 0, 8);
+    stack.pop_back();
+    CScriptNum gasLimit(stack.back(), 0, 8);
+    stack.pop_back();
+    CScriptNum version(stack.back(), 0);
+    stack.pop_back();
+
+    return EthTransactionParams{version.getint(), gasLimit.getvalue(), gasPrice.getvalue(), code, receiveAddress};
+}
+
+QtumTransaction ByteCodeExec::createEthTX(const EthTransactionParams& etp, uint32_t nOut){
+    QtumTransaction txEth;
+    if (etp.receiveAddress == dev::Address()){
+        txEth = QtumTransaction(txBit.vout[nOut].nValue, etp.gasPrice, (etp.gasLimit * etp.gasPrice), etp.code, dev::u256(0));
+    }
+    else{
+        txEth = QtumTransaction(txBit.vout[nOut].nValue, etp.gasPrice, (etp.gasLimit * etp.gasPrice), etp.receiveAddress, etp.code, dev::u256(0));
+    }
+    dev::Address sender(GetSenderAddress(txBit, view));
+    txEth.forceSender(sender);
+    txEth.setHashWith(uintToh256(txBit.GetHash()));
+    txEth.setNVout(nOut);
+
+    return txEth;
+}
+///////////////////////////////////////////////////////////////////////
+
 bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pindex,
                   CCoinsViewCache& view, const CChainParams& chainparams, bool fJustCheck)
 {
@@ -1918,6 +2022,19 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     tx.GetHash().ToString(), FormatStateMessage(state));
             control.Add(vChecks);
         }
+
+///////////////////////////////////////////////////////////////////////////////////////// qtum
+        if(tx.HasCreateOrCall()){
+            ByteCodeExec exec(tx, &view);
+            execResult res = exec.performByteCode();
+        }
+
+        std::unordered_map<dev::Address, dev::u256> addresses = globalState->addresses();
+        for(auto i : addresses){
+            std::cout << "Address : " << i.first.hex() << std::endl;
+            std::cout << "Balance : " << CAmount(i.second) << std::endl << std::endl;
+        }
+/////////////////////////////////////////////////////////////////////////////////////////
 
         CTxUndo undoDummy;
         if (i > 0) {
