@@ -186,4 +186,204 @@ BOOST_AUTO_TEST_CASE(parse_txcall_many_vout){
     }
 }
 
+BOOST_AUTO_TEST_CASE(parse_incorrect_txcreate_many){
+
+    mempool.clear();
+
+    TestMemPoolEntryHelper entry;
+    CMutableTransaction tx1, tx2;
+    tx1.vin.resize(1);
+    tx1.vin[0].scriptSig = CScript() << OP_1;
+    tx1.vin[0].prevout.hash = uint256();
+    tx1.vin[0].prevout.n = 0;
+    tx1.vout.resize(1);
+    tx1.vout[0].nValue = value;
+    tx1.vout[0].scriptPubKey = CScript() << OP_DUP << OP_HASH160 << address << OP_EQUALVERIFY << OP_CHECKSIG;
+
+    uint256 hashParentTx = tx1.GetHash(); // save this txid for later use
+    mempool.addUnchecked(hashParentTx, entry.Fee(1000).Time(GetTime()).SpendsCoinbase(true).FromTx(tx1));
+
+    tx2.vin.resize(1);
+    tx2.vin[0].scriptSig = CScript() << OP_1;
+    tx2.vin[0].prevout.hash = hashParentTx;
+    tx2.vin[0].prevout.n = 0;
+    tx2.vout.resize(120);
+    for(size_t i = 0; i < tx2.vout.size(); i++){
+        if(i < 60){
+            tx2.vout[i].nValue = value;
+            tx2.vout[i].scriptPubKey = CScript() << CScriptNum(1) << CScriptNum(int64_t(gasLimit)) << CScriptNum(int64_t(gasPrice)) << data << OP_CREATE;
+        } else {
+            tx2.vout[i].nValue = value;
+            tx2.vout[i].scriptPubKey = CScript() << CScriptNum(1) << CScriptNum(int64_t(gasLimit)) << CScriptNum(int64_t(gasPrice)) << data << address << OP_CREATE;
+        }
+    }
+
+    CTransaction transaction(tx2);
+    QtumTxConverter converter(transaction, NULL);
+    std::vector<QtumTransaction> result = converter.extractionQtumTransactions();
+
+    BOOST_CHECK(result.size() == tx2.vout.size() / 2);
+    for(size_t i = 0; i < tx2.vout.size() / 2; i++){
+        BOOST_CHECK(result[i].isCreation());
+        BOOST_CHECK(result[i].data() == data);
+        BOOST_CHECK(result[i].value() == value);
+        BOOST_CHECK(result[i].gasPrice() == gasPrice);
+        BOOST_CHECK(result[i].gas() == gasLimit * gasPrice);
+        BOOST_CHECK(result[i].sender() == dev::Address(address));
+        BOOST_CHECK(result[i].receiveAddress() == dev::Address());
+        BOOST_CHECK(result[i].getNVout() == i);
+        BOOST_CHECK(result[i].getHashWith() == uintToh256(tx2.GetHash()));
+    }
+}
+
+BOOST_AUTO_TEST_CASE(parse_incorrect_txcreate_few){
+
+    mempool.clear();
+
+    TestMemPoolEntryHelper entry;
+    CMutableTransaction tx1, tx2;
+    tx1.vin.resize(1);
+    tx1.vin[0].scriptSig = CScript() << OP_1;
+    tx1.vin[0].prevout.hash = uint256();
+    tx1.vin[0].prevout.n = 0;
+    tx1.vout.resize(1);
+    tx1.vout[0].nValue = value;
+    tx1.vout[0].scriptPubKey = CScript() << OP_DUP << OP_HASH160 << address << OP_EQUALVERIFY << OP_CHECKSIG;
+
+    uint256 hashParentTx = tx1.GetHash(); // save this txid for later use
+    mempool.addUnchecked(hashParentTx, entry.Fee(1000).Time(GetTime()).SpendsCoinbase(true).FromTx(tx1));
+
+    tx2.vin.resize(1);
+    tx2.vin[0].scriptSig = CScript() << OP_1;
+    tx2.vin[0].prevout.hash = hashParentTx;
+    tx2.vin[0].prevout.n = 0;
+    tx2.vout.resize(120);
+    for(size_t i = 0; i < tx2.vout.size(); i++){
+        if(i < 60){
+            tx2.vout[i].nValue = value;
+            tx2.vout[i].scriptPubKey = CScript() << CScriptNum(1) << CScriptNum(int64_t(gasLimit)) << CScriptNum(int64_t(gasPrice)) << data << OP_CREATE;
+        } else {
+            tx2.vout[i].nValue = value;
+            tx2.vout[i].scriptPubKey = CScript() << CScriptNum(1) << CScriptNum(int64_t(gasLimit)) << CScriptNum(int64_t(gasPrice)) << OP_CREATE;
+        }
+    }
+
+    CTransaction transaction(tx2);
+    QtumTxConverter converter(transaction, NULL);
+    std::vector<QtumTransaction> result = converter.extractionQtumTransactions();
+
+    BOOST_CHECK(result.size() == tx2.vout.size() / 2);
+    for(size_t i = 0; i < tx2.vout.size() / 2; i++){
+        BOOST_CHECK(result[i].isCreation());
+        BOOST_CHECK(result[i].data() == data);
+        BOOST_CHECK(result[i].value() == value);
+        BOOST_CHECK(result[i].gasPrice() == gasPrice);
+        BOOST_CHECK(result[i].gas() == gasLimit * gasPrice);
+        BOOST_CHECK(result[i].sender() == dev::Address(address));
+        BOOST_CHECK(result[i].receiveAddress() == dev::Address());
+        BOOST_CHECK(result[i].getNVout() == i);
+        BOOST_CHECK(result[i].getHashWith() == uintToh256(tx2.GetHash()));
+    }
+}
+
+BOOST_AUTO_TEST_CASE(parse_incorrect_txcall_many){
+
+    mempool.clear();
+
+    TestMemPoolEntryHelper entry;
+    CMutableTransaction tx1, tx2;
+    tx1.vin.resize(1);
+    tx1.vin[0].scriptSig = CScript() << OP_1;
+    tx1.vin[0].prevout.hash = uint256();
+    tx1.vin[0].prevout.n = 0;
+    tx1.vout.resize(1);
+    tx1.vout[0].nValue = value;
+    tx1.vout[0].scriptPubKey = CScript() << OP_DUP << OP_HASH160 << address << OP_EQUALVERIFY << OP_CHECKSIG;
+
+    uint256 hashParentTx = tx1.GetHash(); // save this txid for later use
+    mempool.addUnchecked(hashParentTx, entry.Fee(1000).Time(GetTime()).SpendsCoinbase(true).FromTx(tx1));
+
+    tx2.vin.resize(1);
+    tx2.vin[0].scriptSig = CScript() << OP_1;
+    tx2.vin[0].prevout.hash = hashParentTx;
+    tx2.vin[0].prevout.n = 0;
+    tx2.vout.resize(120);
+    for(size_t i = 0; i < tx2.vout.size(); i++){
+        if(i < 60){
+            tx2.vout[i].nValue = value;
+            tx2.vout[i].scriptPubKey = CScript() << CScriptNum(1) << CScriptNum(int64_t(gasLimit)) << CScriptNum(int64_t(gasPrice)) << data << address << OP_CALL;
+        } else {
+            tx2.vout[i].nValue = value;
+            tx2.vout[i].scriptPubKey = CScript() << CScriptNum(1) << CScriptNum(int64_t(gasLimit)) << CScriptNum(int64_t(gasPrice)) << data << address << address << OP_CALL;
+        }
+    }
+
+    CTransaction transaction(tx2);
+    QtumTxConverter converter(transaction, NULL);
+    std::vector<QtumTransaction> result = converter.extractionQtumTransactions();
+
+    BOOST_CHECK(result.size() == tx2.vout.size() / 2);
+    for(size_t i = 0; i < tx2.vout.size() / 2; i++){
+        BOOST_CHECK(!result[i].isCreation());
+        BOOST_CHECK(result[i].data() == data);
+        BOOST_CHECK(result[i].value() == value);
+        BOOST_CHECK(result[i].gasPrice() == gasPrice);
+        BOOST_CHECK(result[i].gas() == gasLimit * gasPrice);
+        BOOST_CHECK(result[i].sender() == dev::Address(address));
+        BOOST_CHECK(result[i].receiveAddress() == dev::Address(address));
+        BOOST_CHECK(result[i].getNVout() == i);
+        BOOST_CHECK(result[i].getHashWith() == uintToh256(tx2.GetHash()));
+    }
+}
+
+BOOST_AUTO_TEST_CASE(parse_incorrect_txcall_few){
+
+    mempool.clear();
+
+    TestMemPoolEntryHelper entry;
+    CMutableTransaction tx1, tx2;
+    tx1.vin.resize(1);
+    tx1.vin[0].scriptSig = CScript() << OP_1;
+    tx1.vin[0].prevout.hash = uint256();
+    tx1.vin[0].prevout.n = 0;
+    tx1.vout.resize(1);
+    tx1.vout[0].nValue = value;
+    tx1.vout[0].scriptPubKey = CScript() << OP_DUP << OP_HASH160 << address << OP_EQUALVERIFY << OP_CHECKSIG;
+
+    uint256 hashParentTx = tx1.GetHash(); // save this txid for later use
+    mempool.addUnchecked(hashParentTx, entry.Fee(1000).Time(GetTime()).SpendsCoinbase(true).FromTx(tx1));
+
+    tx2.vin.resize(1);
+    tx2.vin[0].scriptSig = CScript() << OP_1;
+    tx2.vin[0].prevout.hash = hashParentTx;
+    tx2.vin[0].prevout.n = 0;
+    tx2.vout.resize(120);
+    for(size_t i = 0; i < tx2.vout.size(); i++){
+        if(i < 60){
+            tx2.vout[i].nValue = value;
+            tx2.vout[i].scriptPubKey = CScript() << CScriptNum(1) << CScriptNum(int64_t(gasLimit)) << CScriptNum(int64_t(gasPrice)) << data << address << OP_CALL;
+        } else {
+            tx2.vout[i].nValue = value;
+            tx2.vout[i].scriptPubKey = CScript() << CScriptNum(1) << CScriptNum(int64_t(gasLimit)) << CScriptNum(int64_t(gasPrice)) << data << OP_CALL;
+        }
+    }
+
+    CTransaction transaction(tx2);
+    QtumTxConverter converter(transaction, NULL);
+    std::vector<QtumTransaction> result = converter.extractionQtumTransactions();
+
+    BOOST_CHECK(result.size() == tx2.vout.size() / 2);
+    for(size_t i = 0; i < tx2.vout.size() / 2; i++){
+        BOOST_CHECK(!result[i].isCreation());
+        BOOST_CHECK(result[i].data() == data);
+        BOOST_CHECK(result[i].value() == value);
+        BOOST_CHECK(result[i].gasPrice() == gasPrice);
+        BOOST_CHECK(result[i].gas() == gasLimit * gasPrice);
+        BOOST_CHECK(result[i].sender() == dev::Address(address));
+        BOOST_CHECK(result[i].receiveAddress() == dev::Address(address));
+        BOOST_CHECK(result[i].getNVout() == i);
+        BOOST_CHECK(result[i].getHashWith() == uintToh256(tx2.GetHash()));
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
