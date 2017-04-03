@@ -167,8 +167,13 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     // transaction (which in most cases can be a no-op).
     fIncludeWitness = IsWitnessEnabled(pindexPrev, chainparams.GetConsensus());
 
+    //////////////////////////////////////////////////////// qtum
+    dev::h256 oldHashStateRoot(globalState->rootHash());
     addPriorityTxs();
     addPackageTxs();
+    pblock->hashStateRoot = uint256(h256Touint(dev::h256(globalState->rootHash())));
+    globalState->setRoot(oldHashStateRoot);
+    ////////////////////////////////////////////////////////
 
     nLastBlockTx = nBlockTx;
     nLastBlockSize = nBlockSize;
@@ -196,15 +201,11 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     pblock->nNonce         = 0;
     pblocktemplate->vTxSigOpsCost[0] = WITNESS_SCALE_FACTOR * GetLegacySigOpCount(*pblock->vtx[0]);
 
-    dev::h256 oldHashState(globalState->rootHash()); // qtum temp
-
     CValidationState state;
     if (!TestBlockValidity(state, chainparams, *pblock, pindexPrev, false, false)) {
         throw std::runtime_error(strprintf("%s: TestBlockValidity failed: %s", __func__, FormatStateMessage(state)));
     }
-
-    globalState->setRoot(oldHashState); // qtum temp
-
+    
     return std::move(pblocktemplate);
 }
 
@@ -320,6 +321,16 @@ bool BlockAssembler::TestForBlock(CTxMemPool::txiter iter)
 
 void BlockAssembler::AddToBlock(CTxMemPool::txiter iter)
 {
+
+////////////////////////////////////////////////////////////// // qtum
+    const CTransaction& tx = iter->GetTx();
+    if(tx.HasCreateOrCall()){
+        ByteCodeExec exec;
+        QtumTxConverter convert(tx, NULL);
+        exec.performByteCode(convert.extractionQtumTransactions());
+    }
+//////////////////////////////////////////////////////////////
+
     pblock->vtx.emplace_back(iter->GetSharedTx());
     pblocktemplate->vTxFees.push_back(iter->GetFee());
     pblocktemplate->vTxSigOpsCost.push_back(iter->GetSigOpCost());

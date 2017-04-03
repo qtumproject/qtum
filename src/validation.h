@@ -596,13 +596,13 @@ struct EthTransactionParams{
     dev::Address receiveAddress;
 };
 
-class ByteCodeExec {
+class QtumTxConverter{
 
 public:
 
-    ByteCodeExec(CTransaction tx, CCoinsViewCache* v = NULL) : txBit(tx), view(v){}
+    QtumTxConverter(CTransaction tx, CCoinsViewCache* v = NULL) : txBit(tx), view(v){}
 
-    execResult performByteCode();
+    std::vector<QtumTransaction> extractionQtumTransactions();
 
 private:
 
@@ -616,6 +616,16 @@ private:
     const CCoinsViewCache* view;
     std::vector<valtype> stack;
     opcodetype opcode;
+
+};
+
+class ByteCodeExec {
+
+public:
+
+    ByteCodeExec() {}
+
+    std::vector<execResult> performByteCode(std::vector<QtumTransaction> txs);
 
 };
 ////////////////////////////////////////////////////////
