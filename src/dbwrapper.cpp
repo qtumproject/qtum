@@ -13,7 +13,11 @@
 #include <leveldb/env.h>
 #include <leveldb/filter_policy.h>
 // #include <memenv.h>
+#ifdef __APPLE__ && __MACH__
+#include <helpers/memenv/memenv.h> // qtum
+#else
 #include <leveldb/helpers/memenv.h> // qtum
+#endif
 #include <stdint.h>
 
 static leveldb::Options GetOptions(size_t nCacheSize)
