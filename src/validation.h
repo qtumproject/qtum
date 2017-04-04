@@ -32,6 +32,17 @@
 #include <boost/unordered_map.hpp>
 #include <boost/filesystem/path.hpp>
 
+/////////////////////////////////////////// qtum
+#include <qtum/qtumstate.h>
+#include <libethereum/ChainParams.h>
+#include <libethashseal/Ethash.h>
+#include <libethashseal/GenesisInfo.h>
+
+extern std::unique_ptr<QtumState> globalState;
+
+ using valtype = std::vector<unsigned char>;
+///////////////////////////////////////////
+
 class CBlockIndex;
 class CBlockTreeDB;
 class CBloomFilter;
@@ -575,5 +586,48 @@ void DumpMempool();
 
 /** Load the mempool from disk. */
 bool LoadMempool();
+
+//////////////////////////////////////////////////////// qtum
+struct EthTransactionParams{
+    int64_t version;
+    dev::u256 gasLimit;
+    dev::u256 gasPrice;
+    valtype code;
+    dev::Address receiveAddress;
+};
+
+class QtumTxConverter{
+
+public:
+
+    QtumTxConverter(CTransaction tx, CCoinsViewCache* v = NULL) : txBit(tx), view(v){}
+
+    std::vector<QtumTransaction> extractionQtumTransactions();
+
+private:
+
+    bool receiveStack(const CScript& scriptPubKey);
+
+    EthTransactionParams parseEthTXParams();
+
+    QtumTransaction createEthTX(const EthTransactionParams& etp, const uint32_t nOut);
+
+    const CTransaction txBit;
+    const CCoinsViewCache* view;
+    std::vector<valtype> stack;
+    opcodetype opcode;
+
+};
+
+class ByteCodeExec {
+
+public:
+
+    ByteCodeExec() {}
+
+    std::vector<execResult> performByteCode(std::vector<QtumTransaction> txs);
+
+};
+////////////////////////////////////////////////////////
 
 #endif // BITCOIN_VALIDATION_H

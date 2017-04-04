@@ -54,6 +54,12 @@
  * Global state
  */
 
+ ////////////////////////////// qtum
+ #include "pubkey.h"
+
+ std::unique_ptr<QtumState> globalState;
+ //////////////////////////////
+
 CCriticalSection cs_main;
 
 BlockMap mapBlockIndex;
@@ -1645,6 +1651,8 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
     // move best block pointer to prevout block
     view.SetBestBlock(pindex->pprev->GetBlockHash());
 
+    globalState->setRoot(uintToh256(pindex->pprev->hashStateRoot)); // qtum
+
     if (pfClean) {
         *pfClean = fClean;
         return true;
@@ -1737,6 +1745,109 @@ static int64_t nTimeConnect = 0;
 static int64_t nTimeIndex = 0;
 static int64_t nTimeCallbacks = 0;
 static int64_t nTimeTotal = 0;
+
+/////////////////////////////////////////////////////////////////////// qtum
+valtype GetSenderAddress(const CTransaction& tx, const CCoinsViewCache* coinsView){
+    CTransactionRef txPrevout;
+    uint256 hashBlock;
+    CScript script;
+    if(coinsView){
+        script = coinsView->AccessCoins(tx.vin[0].prevout.hash)->vout[tx.vin[0].prevout.n].scriptPubKey;    
+    } else {
+        if(GetTransaction(tx.vin[0].prevout.hash, txPrevout, Params().GetConsensus(), hashBlock, true)){
+            script = txPrevout->vout[tx.vin[0].prevout.n].scriptPubKey;
+        } else {
+            // TODO temp exeption   
+            return valtype();
+        }
+    }
+	CTxDestination addressBit;
+	if(ExtractDestination(script, addressBit)){
+		if (addressBit.type() == typeid(CKeyID)){
+			CKeyID senderAddress(boost::get<CKeyID>(addressBit));
+			return valtype(senderAddress.begin(), senderAddress.end());
+		}
+	}
+    return valtype();
+}
+
+std::vector<execResult> ByteCodeExec::performByteCode(std::vector<QtumTransaction> txs){
+    std::vector<execResult> result;
+    for(QtumTransaction& tx : txs){
+        dev::eth::EnvInfo envInfo;
+        envInfo.setGasLimit(10000000);
+        std::unique_ptr<dev::eth::SealEngineFace> se(dev::eth::ChainParams(dev::eth::genesisInfo(dev::eth::Network::HomesteadTest)).createSealEngine());
+        result.push_back(globalState->execute(envInfo, *se.get(), tx, dev::eth::Permanence::Committed, OnOpFunc()));
+    }
+    return result;
+}
+
+std::vector<QtumTransaction> QtumTxConverter::extractionQtumTransactions(){
+    std::vector<QtumTransaction> result;
+    for(size_t i = 0; i < txBit.vout.size(); i++){
+        if(txBit.vout[i].scriptPubKey.HasOpCreate() || txBit.vout[i].scriptPubKey.HasOpCall()){
+            if(receiveStack(txBit.vout[i].scriptPubKey)){
+                EthTransactionParams params = parseEthTXParams();
+                result.push_back(createEthTX(params, i));
+            }
+        }
+    }
+    return result;
+}
+
+bool QtumTxConverter::receiveStack(const CScript& scriptPubKey){
+    EvalScript(stack, scriptPubKey, SCRIPT_EXEC_BYTE_CODE, BaseSignatureChecker(), SIGVERSION_BASE, nullptr);
+    if (stack.empty())
+        return false;
+
+    CScript scriptRest(stack.back().begin(), stack.back().end());
+    stack.pop_back();
+
+    opcode = (opcodetype)(*scriptRest.begin());
+    if (stack.size() < 4 || ((opcode == OP_CALL) && (stack.size() < 5)))
+        return false;
+
+    return true;
+}
+
+EthTransactionParams QtumTxConverter::parseEthTXParams(){
+    dev::Address receiveAddress;
+    valtype vecAddr;
+    if (opcode == OP_CALL)
+    {
+        vecAddr = stack.back();
+        stack.pop_back();
+        receiveAddress = dev::Address(vecAddr);
+    }
+                    
+    valtype code(stack.back());
+    stack.pop_back();
+    CScriptNum gasPrice(stack.back(), 0, 8);
+    stack.pop_back();
+    CScriptNum gasLimit(stack.back(), 0, 8);
+    stack.pop_back();
+    CScriptNum version(stack.back(), 0);
+    stack.pop_back();
+
+    return EthTransactionParams{version.getint(), gasLimit.getvalue(), gasPrice.getvalue(), code, receiveAddress};
+}
+
+QtumTransaction QtumTxConverter::createEthTX(const EthTransactionParams& etp, uint32_t nOut){
+    QtumTransaction txEth;
+    if (etp.receiveAddress == dev::Address()){
+        txEth = QtumTransaction(txBit.vout[nOut].nValue, etp.gasPrice, (etp.gasLimit * etp.gasPrice), etp.code, dev::u256(0));
+    }
+    else{
+        txEth = QtumTransaction(txBit.vout[nOut].nValue, etp.gasPrice, (etp.gasLimit * etp.gasPrice), etp.receiveAddress, etp.code, dev::u256(0));
+    }
+    dev::Address sender(GetSenderAddress(txBit, view));
+    txEth.forceSender(sender);
+    txEth.setHashWith(uintToh256(txBit.GetHash()));
+    txEth.setNVout(nOut);
+
+    return txEth;
+}
+///////////////////////////////////////////////////////////////////////
 
 bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pindex,
                   CCoinsViewCache& view, const CChainParams& chainparams, bool fJustCheck)
@@ -1922,6 +2033,20 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             control.Add(vChecks);
         }
 
+///////////////////////////////////////////////////////////////////////////////////////// qtum
+        if(tx.HasCreateOrCall()){
+            ByteCodeExec exec;
+            QtumTxConverter convert(tx, &view);
+            exec.performByteCode(convert.extractionQtumTransactions());
+        }
+
+        std::unordered_map<dev::Address, dev::u256> addresses = globalState->addresses();
+        for(auto i : addresses){
+            std::cout << "Address : " << i.first.hex() << std::endl;
+            std::cout << "Balance : " << CAmount(i.second) << std::endl << std::endl;
+        }
+/////////////////////////////////////////////////////////////////////////////////////////
+
         CTxUndo undoDummy;
         if (i > 0) {
             blockundo.vtxundo.push_back(CTxUndo());
@@ -1946,8 +2071,22 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     int64_t nTime4 = GetTimeMicros(); nTimeVerify += nTime4 - nTime2;
     LogPrint("bench", "    - Verify %u txins: %.2fms (%.3fms/txin) [%.2fs]\n", nInputs - 1, 0.001 * (nTime4 - nTime2), nInputs <= 1 ? 0 : 0.001 * (nTime4 - nTime2) / (nInputs-1), nTimeVerify * 0.000001);
 
+////////////////////////////////////////////////////////////////// // qtum
+    dev::h256 oldHashStateRoot(globalState->rootHash());
+    if (globalState->rootHash() != uintToh256(block.hashStateRoot))
+        return state.DoS(100, error("ConnectBlock(): rootHashState diverged"),
+                            REJECT_INVALID, "diverged-state-root");
+
     if (fJustCheck)
+    {
+        dev::h256 prevHashStateRoot = dev::sha3(dev::rlp(""));
+        if(pindex->pprev->hashStateRoot != uint256()){
+            prevHashStateRoot = uintToh256(pindex->pprev->hashStateRoot);
+        }
+        globalState->setRoot(prevHashStateRoot);
         return true;
+    }
+//////////////////////////////////////////////////////////////////
 
     // Write undo information to disk
     if (pindex->GetUndoPos().IsNull() || !pindex->IsValid(BLOCK_VALID_SCRIPTS))
@@ -2270,11 +2409,17 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
     LogPrint("bench", "  - Load block from disk: %.2fms [%.2fs]\n", (nTime2 - nTime1) * 0.001, nTimeReadFromDisk * 0.000001);
     {
         CCoinsViewCache view(pcoinsTip);
+
+        dev::h256 oldHashStateRoot(globalState->rootHash()); // qtum
+
         bool rv = ConnectBlock(blockConnecting, state, pindexNew, view, chainparams);
         GetMainSignals().BlockChecked(blockConnecting, state);
         if (!rv) {
             if (state.IsInvalid())
                 InvalidBlockFound(pindexNew, state);
+
+            globalState->setRoot(oldHashStateRoot); // qtum
+
             return error("ConnectTip(): ConnectBlock %s failed", pindexNew->GetBlockHash().ToString());
         }
         nTime3 = GetTimeMicros(); nTimeConnectTotal += nTime3 - nTime2;
@@ -3283,8 +3428,15 @@ bool TestBlockValidity(CValidationState& state, const CChainParams& chainparams,
         return error("%s: Consensus::CheckBlock: %s", __func__, FormatStateMessage(state));
     if (!ContextualCheckBlock(block, state, chainparams.GetConsensus(), pindexPrev))
         return error("%s: Consensus::ContextualCheckBlock: %s", __func__, FormatStateMessage(state));
-    if (!ConnectBlock(block, state, &indexDummy, viewNew, chainparams, true))
+
+    dev::h256 oldHashStateRoot(globalState->rootHash()); // qtum
+    
+    if (!ConnectBlock(block, state, &indexDummy, viewNew, chainparams, true)){
+        
+        globalState->setRoot(oldHashStateRoot); // qtum
+        
         return false;
+    }
     assert(state.IsValid());
 
     return true;
@@ -3630,6 +3782,9 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CCoinsView *coinsview,
     int nGoodTransactions = 0;
     CValidationState state;
     int reportDone = 0;
+
+    dev::h256 oldHashStateRoot(globalState->rootHash()); // qtum
+
     LogPrintf("[0%%]...");
     for (CBlockIndex* pindex = chainActive.Tip(); pindex && pindex->pprev; pindex = pindex->pprev)
     {
@@ -3693,9 +3848,18 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CCoinsView *coinsview,
             CBlock block;
             if (!ReadBlockFromDisk(block, pindex, chainparams.GetConsensus()))
                 return error("VerifyDB(): *** ReadBlockFromDisk failed at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
-            if (!ConnectBlock(block, state, pindex, coins, chainparams))
+
+            dev::h256 oldHashStateRoot(globalState->rootHash()); // qtum
+
+            if (!ConnectBlock(block, state, pindex, coins, chainparams)){
+
+                globalState->setRoot(oldHashStateRoot); // qtum
+
                 return error("VerifyDB(): *** found unconnectable block at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
+            }
         }
+    } else {
+        globalState->setRoot(oldHashStateRoot); // qtum
     }
 
     LogPrintf("[DONE].\n");

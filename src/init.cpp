@@ -1451,6 +1451,22 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
                 if (!mapBlockIndex.empty() && mapBlockIndex.count(chainparams.GetConsensus().hashGenesisBlock) == 0)
                     return InitError(_("Incorrect or no genesis block found. Wrong datadir for network?"));
 
+                /////////////////////////////////////////////////////////// qtum
+                dev::eth::Ethash::init();
+                boost::filesystem::path qtumStateDir = GetDataDir() / "stateQtum";
+                bool fStatus = boost::filesystem::exists(qtumStateDir);
+                const std::string dirQtum(qtumStateDir.string());
+                const dev::h256 hashDB(dev::sha3(dev::rlp("")));
+                dev::eth::BaseState existsQtumstate = fStatus ? dev::eth::BaseState::PreExisting : dev::eth::BaseState::Empty;
+                globalState = std::unique_ptr<QtumState>(new QtumState(dev::u256(0), QtumState::openDB(dirQtum, hashDB, dev::WithExisting::Trust), existsQtumstate));
+                
+                if(chainActive.Tip() != NULL)
+                    globalState->setRoot(uintToh256(chainActive.Tip()->hashStateRoot));
+                else
+                    globalState->setRoot(uintToh256(chainparams.GenesisBlock().hashStateRoot));
+                globalState->db().commit();
+                ///////////////////////////////////////////////////////////
+
                 // Initialize the block index (no-op if non-empty database was already loaded)
                 if (!InitBlockIndex(chainparams)) {
                     strLoadError = _("Error initializing block database");

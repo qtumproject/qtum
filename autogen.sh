@@ -13,3 +13,9 @@ fi
 which autoreconf >/dev/null || \
   (echo "configuration failed, please install autoconf first" && exit 1)
 autoreconf --install --force --warnings=all
+
+cd src/cpp-ethereum
+git submodule update --init
+./scripts/install_deps.sh
+cmake .
+make -j `nproc`
