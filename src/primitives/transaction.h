@@ -276,7 +276,10 @@ inline void UnserializeTransaction(TxType& tx, Stream& s) {
         throw std::ios_base::failure("Unknown transaction optional data");
     }
     s >> tx.nLockTime;
-    s >> tx.nTime;
+    if(tx.HasTime())
+    {
+        s >> tx.nTime;
+    }
 }
 
 template<typename Stream, typename TxType>
@@ -306,7 +309,10 @@ inline void SerializeTransaction(const TxType& tx, Stream& s) {
         }
     }
     s << tx.nLockTime;
-    s << tx.nTime;
+    if(tx.HasTime())
+    {
+        s << tx.nTime;
+    }
 }
 
 
@@ -421,6 +427,11 @@ public:
         }
         return false;
     }
+
+    bool HasTime() const
+    {
+        return nVersion > 2 && nVersion <= CTransaction::MAX_STANDARD_VERSION;
+    }
 };
 
 /** A mutable version of CTransaction. */
@@ -469,6 +480,11 @@ struct CMutableTransaction
             }
         }
         return false;
+    }
+
+    bool HasTime() const
+    {
+        return nVersion > 2 && nVersion <= CTransaction::MAX_STANDARD_VERSION;
     }
 };
 
