@@ -1782,8 +1782,8 @@ dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(){
     dev::eth::EnvInfo env;
     CBlockIndex* tip = chainActive.Tip();
     env.setNumber(dev::u256(tip->nHeight + 1));
-    env.setTimestamp(dev::u256(block.nTime));
-    env.setDifficulty(dev::u256(block.nBits));
+    env.setTimestamp(dev::u256(tip->nTime));
+    env.setDifficulty(dev::u256(tip->nBits));
 
     dev::eth::LastHashes lh;
     lh.resize(256);
