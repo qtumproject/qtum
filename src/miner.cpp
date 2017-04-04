@@ -189,6 +189,19 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     addPackageTxs();
     pblock->hashStateRoot = uint256(h256Touint(dev::h256(globalState->rootHash())));
     globalState->setRoot(oldHashStateRoot);
+
+    CMutableTransaction coinbaseTxNew;
+    coinbaseTxNew.vin.resize(1);
+    coinbaseTxNew.vin[0].prevout.SetNull();
+    coinbaseTxNew.vout.resize(1);
+    coinbaseTxNew.vout[0].scriptPubKey = scriptPubKeyIn;
+    coinbaseTxNew.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
+    coinbaseTxNew.vin[0].scriptSig = CScript() << nHeight << OP_0;
+    coinbaseTxNew.vout[0].nValue -= bceResult.refundSender;
+    for(CTxOut& vOut : bceResult.refundVOuts){
+        coinbaseTxNew.vout.push_back(vOut);
+    }
+    pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTxNew));
     ////////////////////////////////////////////////////////
 
     uint64_t nSerializeSize = GetSerializeSize(*pblock, SER_NETWORK, PROTOCOL_VERSION);
@@ -325,9 +338,10 @@ void BlockAssembler::AddToBlock(CTxMemPool::txiter iter)
 ////////////////////////////////////////////////////////////// // qtum
     const CTransaction& tx = iter->GetTx();
     if(tx.HasCreateOrCall()){
-        ByteCodeExec exec(*pblock);
         QtumTxConverter convert(tx, NULL);
-        exec.performByteCode(convert.extractionQtumTransactions());
+        ByteCodeExec exec(*pblock, convert.extractionQtumTransactions());
+        exec.performByteCode();
+        bceResult = exec.processingResults();
     }
 //////////////////////////////////////////////////////////////
 
@@ -353,6 +367,17 @@ void BlockAssembler::AddToBlock(CTxMemPool::txiter iter)
                   CFeeRate(iter->GetModifiedFee(), iter->GetTxSize()).ToString(),
                   iter->GetTx().GetHash().ToString());
     }
+
+    /////////////////////////////////////////////////////////////// // qtum
+    for(CTransaction& t : bceResult.refundValueTx){
+        pblock->vtx.emplace_back(MakeTransactionRef(std::move(t)));
+        if (fNeedSizeAccounting) {
+            nBlockSize += ::GetSerializeSize(t, SER_NETWORK, PROTOCOL_VERSION);
+        }
+        nBlockWeight += GetTransactionWeight(t);
+        ++nBlockTx;
+    }
+    ///////////////////////////////////////////////////////////////
 }
 
 void BlockAssembler::UpdatePackagesForAdded(const CTxMemPool::setEntries& alreadyAdded,
