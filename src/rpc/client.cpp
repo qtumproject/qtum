@@ -118,6 +118,9 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "getmempoolancestors", 1, "verbose" },
     { "getmempooldescendants", 1, "verbose" },
     { "bumpfee", 1, "options" },
+	{ "createcontract", 1, "gasLimit" },
+	{ "createcontract", 2, "gasPrice" },
+	{ "createcontract", 4, "broadcast" },
     // Echo with conversion (For testing only)
     { "echojson", 0, "arg0" },
     { "echojson", 1, "arg1" },
@@ -129,8 +132,6 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "echojson", 7, "arg7" },
     { "echojson", 8, "arg8" },
     { "echojson", 9, "arg9" },
-	{ "createcontract", 2 },
-    { "createcontract", 3 },
 };
 
 class CRPCConvertTable
