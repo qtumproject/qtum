@@ -100,6 +100,7 @@ void static RandomTransaction(CMutableTransaction &tx, bool fSingle) {
     tx.vin.clear();
     tx.vout.clear();
     tx.nLockTime = (insecure_rand() % 2) ? insecure_rand() : 0;
+    tx.nTime = insecure_rand();
     int ins = (insecure_rand() % 4) + 1;
     int outs = fSingle ? ins : (insecure_rand() % 4) + 1;
     for (int in = 0; in < ins; in++) {
