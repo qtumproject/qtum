@@ -190,13 +190,8 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     pblock->hashStateRoot = uint256(h256Touint(dev::h256(globalState->rootHash())));
     globalState->setRoot(oldHashStateRoot);
 
-    CMutableTransaction coinbaseTxNew;
-    coinbaseTxNew.vin.resize(1);
-    coinbaseTxNew.vin[0].prevout.SetNull();
-    coinbaseTxNew.vout.resize(1);
-    coinbaseTxNew.vout[0].scriptPubKey = scriptPubKeyIn;
+    CMutableTransaction coinbaseTxNew(*pblock->vtx[0]);
     coinbaseTxNew.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
-    coinbaseTxNew.vin[0].scriptSig = CScript() << nHeight << OP_0;
     coinbaseTxNew.vout[0].nValue -= bceResult.refundSender;
     for(CTxOut& vOut : bceResult.refundVOuts){
         coinbaseTxNew.vout.push_back(vOut);
