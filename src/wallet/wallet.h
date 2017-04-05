@@ -17,7 +17,7 @@
 #include "wallet/crypter.h"
 #include "wallet/walletdb.h"
 #include "wallet/rpcwallet.h"
-
+#include "wallet/coincontrol.h"
 #include <algorithm>
 #include <atomic>
 #include <map>
@@ -75,7 +75,7 @@ static const bool DEFAULT_USE_HD_WALLET = true;
 extern const char * DEFAULT_WALLET_DAT;
 
 class CBlockIndex;
-class CCoinControl;
+//class CCoinControl;
 class COutput;
 class CReserveKey;
 class CScript;
@@ -811,7 +811,7 @@ public:
      * @note passing nChangePosInOut as -1 will result in setting a random position
      */
     bool CreateTransaction(const std::vector<CRecipient>& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, CAmount& nFeeRet, int& nChangePosInOut,
-                           std::string& strFailReason, const CCoinControl *coinControl = NULL, bool sign = true);
+                           std::string& strFailReason, const CCoinControl *coinControl = NULL, bool sign = true, CAmount nGasFee=0, bool hasSender=false);
     bool CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey, CConnman* connman, CValidationState& state);
 
     void ListAccountCreditDebit(const std::string& strAccount, std::list<CAccountingEntry>& entries);

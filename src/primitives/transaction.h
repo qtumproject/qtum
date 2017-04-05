@@ -205,7 +205,7 @@ public:
 
     bool IsDust(const CFeeRate &minRelayTxFee) const
     {
-        return (nValue < GetDustThreshold(minRelayTxFee));
+        return (nValue < GetDustThreshold(minRelayTxFee) && !this->scriptPubKey.HasOpCreate() && !this->scriptPubKey.HasOpCall());
     }
 
     friend bool operator==(const CTxOut& a, const CTxOut& b)
