@@ -12,7 +12,7 @@ def create_block(hashprev, coinbase, nTime=None):
     block = CBlock()
     if nTime is None:
         import time
-        block.nTime = int(time.time()+600)
+        block.nTime = int(time.time()+POW_TARGET_SPACING)
     else:
         block.nTime = nTime
     block.hashPrevBlock = hashprev
@@ -66,7 +66,7 @@ def serialize_script_num(value):
 def create_coinbase(height, pubkey = None):
     coinbase = CTransaction()
     coinbase.vin.append(CTxIn(COutPoint(0, 0xffffffff), 
-                ser_string(serialize_script_num(height)), 0xffffffff))
+                CScript() + height + b"\x00", 0xffffffff))
     coinbaseoutput = CTxOut()
     coinbaseoutput.nValue = 50 * COIN
     halvings = int(height/150) # regtest
