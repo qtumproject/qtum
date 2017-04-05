@@ -10,12 +10,13 @@
 from collections import OrderedDict
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
+from test_framework.address import convert_btc_address_to_qtum
 
 # Construct 2 trivial P2SH's and the ScriptSigs that spend them
 # So we can create many many transactions without needing to spend
 # time signing.
-P2SH_1 = "2MySexEGVzZpRgNQ1JdjdP5bRETznm3roQ2" # P2SH of "OP_1 OP_DROP"
-P2SH_2 = "2NBdpwq8Aoo1EEKEXPNrKvr5xQr3M9UfcZA" # P2SH of "OP_2 OP_DROP"
+P2SH_1 = convert_btc_address_to_qtum("2MySexEGVzZpRgNQ1JdjdP5bRETznm3roQ2") # P2SH of "OP_1 OP_DROP"
+P2SH_2 = convert_btc_address_to_qtum("2NBdpwq8Aoo1EEKEXPNrKvr5xQr3M9UfcZA") # P2SH of "OP_2 OP_DROP"
 # Associated ScriptSig's to spend satisfy P2SH_1 and P2SH_2
 # 4 bytes of OP_TRUE and push 2-byte redeem script of "OP_1 OP_DROP" or "OP_2 OP_DROP"
 SCRIPT_SIG = ["0451025175", "0451025275"]
