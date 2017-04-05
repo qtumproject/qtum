@@ -54,7 +54,7 @@ def enable_mocktime():
     #with previous versions of the cache, set MOCKTIME 
     #to Jan 1, 2014 + (201 * 10 * 60)
     global MOCKTIME
-    MOCKTIME = 1388534400 + (201 * 10 * 60)
+    MOCKTIME = 1490247077 + (201 * 2 * 64)
 
 def disable_mocktime():
     global MOCKTIME
@@ -252,7 +252,7 @@ def initialize_chain(test_dir, num_nodes, cachedir):
             args = [ os.getenv("BITCOIND", "bitcoind"), "-server", "-keypool=1", "-datadir="+datadir, "-discover=0" ]
             if i > 0:
                 args.append("-connect=127.0.0.1:"+str(p2p_port(0)))
-            bitcoind_processes[i] = subprocess.Popen(args)
+            bitcoind_processes[i] = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             if os.getenv("PYTHON_DEBUG", ""):
                 print("initialize_chain: bitcoind started, waiting for RPC to come up")
             wait_for_bitcoind_start(bitcoind_processes[i], rpc_url(i), i)
@@ -275,15 +275,27 @@ def initialize_chain(test_dir, num_nodes, cachedir):
         # blocks are created with timestamps 10 minutes apart
         # starting from 2010 minutes in the past
         enable_mocktime()
-        block_time = get_mocktime() - (201 * 10 * 60)
-        for i in range(2):
+        block_time = get_mocktime() - (201 * 2 * 64)
+        for i in range(1):
             for peer in range(4):
                 for j in range(25):
                     set_node_times(rpcs, block_time)
                     rpcs[peer].generate(1)
-                    block_time += 10*60
+                    block_time += 2*64
                 # Must sync before next peer starts generating blocks
                 sync_blocks(rpcs)
+
+        # since blocks mature after 15 blocks we only generate 115 blocks initially. A lot of the tests rely on the behaviour of having 100 mature blocks.
+        # The last blocks (that have not matured on a test where setup_clean_chain is set to false) are generated at the 0th node.
+        peer = 0
+        for j in range(15):
+            set_node_times(rpcs, block_time)
+            rpcs[peer].generate(1)
+            block_time += 2*64
+        # Must sync before next peer starts generating blocks
+        sync_blocks(rpcs)
+
+
 
         # Shut them down, and clean up cache directories:
         stop_nodes(rpcs)
@@ -336,9 +348,9 @@ def start_node(i, dirname, extra_args=None, rpchost=None, timewait=None, binary=
     datadir = os.path.join(dirname, "node"+str(i))
     if binary is None:
         binary = os.getenv("BITCOIND", "bitcoind")
-    args = [ binary, "-datadir="+datadir, "-server", "-keypool=1", "-discover=0", "-rest", "-mocktime="+str(get_mocktime()) ]
+    args = [ binary, "-datadir="+datadir, "-server", "-keypool=1", "-discover=0", "-rest", "-mocktime="+str(get_mocktime())]
     if extra_args is not None: args.extend(extra_args)
-    bitcoind_processes[i] = subprocess.Popen(args)
+    bitcoind_processes[i] = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if os.getenv("PYTHON_DEBUG", ""):
         print("start_node: bitcoind started, waiting for RPC to come up")
     url = rpc_url(i, rpchost)
