@@ -30,7 +30,12 @@ public:
 
     template<typename Stream>
     void Serialize(Stream &s) const {
-        ::Serialize(s, VARINT(nHeight*2+(fCoinBase ? 1 : 0)));
+/////////////////////////////////////////////////////////// // qtum
+        // ::Serialize(s, VARINT(nHeight*2+(fCoinBase ? 1 : 0)));
+        ::Serialize(s, VARINT(nHeight));
+        ::Serialize(s, fCoinBase);
+        ::Serialize(s, fCoinStake);
+///////////////////////////////////////////////////////////
         if (nHeight > 0)
             ::Serialize(s, VARINT(this->nVersion));
         ::Serialize(s, CTxOutCompressor(REF(txout)));
@@ -38,11 +43,16 @@ public:
 
     template<typename Stream>
     void Unserialize(Stream &s) {
-        unsigned int nCode = 0;
-        ::Unserialize(s, VARINT(nCode));
-        nHeight = nCode / 4;
-        fCoinBase = nCode & 1;
-        fCoinStake = nCode & 2;
+/////////////////////////////////////////////////////////// // qtum
+        // unsigned int nCode = 0;
+        // ::Unserialize(s, VARINT(nCode));
+        // nHeight = nCode / 4;
+        // fCoinBase = nCode & 1;
+        // fCoinStake = nCode & 2;
+        ::Unserialize(s, VARINT(nHeight));
+        ::Unserialize(s, fCoinBase);
+        ::Unserialize(s, fCoinStake);
+///////////////////////////////////////////////////////////
         if (nHeight > 0)
             ::Unserialize(s, VARINT(this->nVersion));
         ::Unserialize(s, REF(CTxOutCompressor(REF(txout))));
