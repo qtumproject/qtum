@@ -187,7 +187,7 @@ class FullBlockTest(ComparisonTestFramework):
 
         # Now we need that block to mature so we can spend the coinbase.
         test = TestInstance(sync_every_block=False)
-        for i in range(99):
+        for i in range(98):
             block(5000 + i)
             test.blocks_and_transactions.append([self.tip, True])
             save_spendable_output()
@@ -195,8 +195,10 @@ class FullBlockTest(ComparisonTestFramework):
 
         # collect spendable outputs now to avoid cluttering the code later on
         out = []
-        for i in range(33):
+        for i in range(99):
             out.append(get_spendable_output())
+
+
 
         # Start by building a couple of blocks on top (which output is spent is
         # in parentheses):
@@ -331,12 +333,13 @@ class FullBlockTest(ComparisonTestFramework):
         block(19, spend=out[6])
         yield rejected()
 
+
         # Attempt to spend a coinbase at depth too low
         #     genesis -> b1 (0) -> b2 (1) -> b5 (2) -> b6  (3)
         #                                          \-> b12 (3) -> b13 (4) -> b15 (5) -> b20 (7)
         #                      \-> b3 (1) -> b4 (2)
         tip(15)
-        block(20, spend=out[7])
+        block(20, spend=out[98])
         yield rejected(RejectResult(16, b'bad-txns-premature-spend-of-coinbase'))
 
         # Attempt to spend a coinbase at depth too low (on a fork this time)
@@ -345,10 +348,10 @@ class FullBlockTest(ComparisonTestFramework):
         #                                                                \-> b21 (6) -> b22 (5)
         #                      \-> b3 (1) -> b4 (2)
         tip(13)
-        block(21, spend=out[6])
+        block(21, spend=out[97])
         yield rejected()
 
-        block(22, spend=out[5])
+        block(22, spend=out[96])
         yield rejected()
 
         # Create a block on either side of MAX_BLOCK_BASE_SIZE and make sure its accepted/rejected
@@ -415,7 +418,7 @@ class FullBlockTest(ComparisonTestFramework):
         # b30 has a max-sized coinbase scriptSig.
         tip(23)
         b30 = block(30)
-        b30.vtx[0].vin[0].scriptSig = b'\x00' * 100
+        b30.vtx[0].vin[0].scriptSig += b'\x00' * 90
         b30.vtx[0].rehash()
         b30 = update_block(30, [])
         yield accepted()
@@ -826,6 +829,7 @@ class FullBlockTest(ComparisonTestFramework):
         yield accepted()
         save_spendable_output()
 
+
         # Test BIP30
         #
         # -> b39 (11) -> b42 (12) -> b43 (13) -> b53 (14) -> b55 (15) -> b57 (16) -> b60 (17)
@@ -835,13 +839,16 @@ class FullBlockTest(ComparisonTestFramework):
         # not-fully-spent transaction in the same chain. To test, make identical coinbases;
         # the second one should be rejected.
         #
-        tip(60)
-        b61 = block(61, spend=out[18])
-        b61.vtx[0].vin[0].scriptSig = b60.vtx[0].vin[0].scriptSig  #equalize the coinbases
-        b61.vtx[0].rehash()
-        b61 = update_block(61, [])
-        assert_equal(b60.vtx[0].serialize(), b61.vtx[0].serialize())
-        yield rejected(RejectResult(16, b'bad-txns-BIP30'))
+
+        # QTUM: Since we enable BIP34 from block 0, this BIP30 test is no longer relevant. This test has therefore been removed.
+        # See https://github.com/qtumproject/qtum_new/blob/master/src/validation.cpp#L1809
+        #tip(60)
+        #b61 = block(61, spend=out[18])
+        #b61.vtx[0].vin[0].scriptSig = b60.vtx[0].vin[0].scriptSig  #equalize the coinbases
+        #b61.vtx[0].rehash()
+        #b61 = update_block(61, [])
+        #assert_equal(b60.vtx[0].serialize(), b61.vtx[0].serialize())
+        #yield rejected(RejectResult(16, b'bad-txns-BIP30'))
 
 
         # Test tx.isFinal is properly rejected (not an exhaustive tx.isFinal test, that should be in data-driven transaction tests)
