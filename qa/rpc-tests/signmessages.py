@@ -5,7 +5,7 @@
 
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
-
+from test_framework.address import convert_btc_address_to_qtum
 
 class SignMessagesTest(BitcoinTestFramework):
     """Tests RPC commands for signing and verifying messages."""
@@ -24,7 +24,7 @@ class SignMessagesTest(BitcoinTestFramework):
 
         # Test the signing with a privkey
         privKey = 'cUeKHd5orzT3mz8P9pxyREHfsWtVfgsfDjiZZBcjUBAaGk1BTj7N'
-        address = 'mpLQjfK79b7CCV4VMJWEWAj5Mpx8Up5zxB'
+        address = convert_btc_address_to_qtum('mpLQjfK79b7CCV4VMJWEWAj5Mpx8Up5zxB')
         signature = self.nodes[0].signmessagewithprivkey(privKey, message)
 
         # Verify the message
