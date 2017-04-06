@@ -638,7 +638,7 @@ class ByteCodeExec {
 
 public:
 
-    ByteCodeExec(const CBlock& _block, std::vector<QtumTransaction> _txs) : block(_block), txs(_txs) {}
+    ByteCodeExec(const CBlock& _block, std::vector<QtumTransaction> _txs) : txs(_txs), block(_block) {}
 
     void performByteCode();
 
