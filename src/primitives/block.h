@@ -28,6 +28,11 @@ public:
     uint32_t nBits;
     uint32_t nNonce;
     uint256 hashStateRoot; // qtum
+    std::vector<unsigned char> vchBlockSig;
+    bool fStake;
+    // proof-of-stake specific fields
+    COutPoint prevoutStake;
+    uint32_t nStakeTime; // qtum
 
     CBlockHeader()
     {
@@ -45,6 +50,13 @@ public:
         READWRITE(nBits);
         READWRITE(nNonce);
         READWRITE(hashStateRoot); // qtum
+        READWRITE(vchBlockSig);
+        fStake = IsProofOfStake();
+        prevoutStake = PrevoutStake();
+        nStakeTime = StakeTime();
+        READWRITE(fStake);
+        READWRITE(prevoutStake);
+        READWRITE(nStakeTime); // qtum
     }
 
     void SetNull()
@@ -56,6 +68,10 @@ public:
         nBits = 0;
         nNonce = 0;
         hashStateRoot.SetNull(); // qtum
+        vchBlockSig.clear();
+        fStake = 0;
+        prevoutStake.SetNull();
+        nStakeTime = 0; // qtum
     }
 
     bool IsNull() const
@@ -68,6 +84,46 @@ public:
     int64_t GetBlockTime() const
     {
         return (int64_t)nTime;
+    }
+    
+    // ppcoin: two types of block: proof-of-work or proof-of-stake
+    virtual bool IsProofOfStake() const //qtum
+    {
+        return fStake;
+    }
+
+    virtual bool IsProofOfWork() const
+    {
+        return !IsProofOfStake();
+    }
+    
+    virtual COutPoint PrevoutStake() const
+    {
+        return prevoutStake;
+    }
+
+    virtual uint32_t StakeTime() const
+    {
+        return nStakeTime;
+    }
+
+    CBlockHeader& operator=(const CBlockHeader& other) //qtum
+    {
+        if (this != &other)
+        {
+            this->nVersion       = other.nVersion;
+            this->hashPrevBlock  = other.hashPrevBlock;
+            this->hashMerkleRoot = other.hashMerkleRoot;
+            this->nTime          = other.nTime;
+            this->nBits          = other.nBits;
+            this->nNonce         = other.nNonce;
+            this->hashStateRoot  = other.hashStateRoot;
+            this->vchBlockSig    = other.vchBlockSig;
+            this->fStake         = other.IsProofOfStake();
+            this->prevoutStake   = other.PrevoutStake();
+            this->nStakeTime     = other.StakeTime();
+        }
+        return *this;
     }
 };
 
@@ -107,6 +163,43 @@ public:
         fChecked = false;
     }
 
+    // ppcoin: two types of block: proof-of-work or proof-of-stake
+    bool IsProofOfStake() const //qtum
+    {
+        if(vtx.size() == 0) return fStake;
+
+        return (vtx.size() > 1 && vtx[1]->IsCoinStake());
+    }
+
+    COutPoint PrevoutStake() const
+    {
+        if(vtx.size() == 0) return prevoutStake;
+
+        COutPoint ret;
+        if(IsProofOfStake())
+        {
+            ret = vtx[1]->vin[0].prevout;
+        }
+        return ret;
+    }
+    
+    uint32_t StakeTime() const
+    {
+        if(vtx.size() == 0) return nStakeTime;
+
+        uint32_t ret = 0;
+        if(IsProofOfStake())
+        {
+            ret = vtx[1]->nTime;;
+        }
+        return ret;
+    }
+    
+    std::pair<COutPoint, unsigned int> GetProofOfStake() const //qtum
+    {
+        return IsProofOfStake()? std::make_pair(vtx[1]->vin[0].prevout, vtx[1]->nTime) : std::make_pair(COutPoint(), (unsigned int)0);
+    }
+    
     CBlockHeader GetBlockHeader() const
     {
         CBlockHeader block;
@@ -117,6 +210,10 @@ public:
         block.nBits          = nBits;
         block.nNonce         = nNonce;
         block.hashStateRoot  = hashStateRoot; // qtum
+        block.vchBlockSig    = vchBlockSig;
+        block.fStake         = IsProofOfStake();
+        block.prevoutStake   = PrevoutStake();
+        block.nStakeTime     = StakeTime(); // qtum
         return block;
     }
 
