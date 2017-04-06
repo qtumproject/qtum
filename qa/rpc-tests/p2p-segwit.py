@@ -236,7 +236,7 @@ class SegWitTest(BitcoinTestFramework):
         # Mine a block with an anyone-can-spend coinbase,
         # let it mature, then try to spend it.
         print("\tTesting non-witness transaction")
-        block = self.build_next_block(nVersion=1)
+        block = self.build_next_block(nVersion=4)
         block.solve()
         self.test_node.send_message(msg_block(block))
         self.test_node.sync_with_ping() # make sure the block was processed
@@ -489,7 +489,7 @@ class SegWitTest(BitcoinTestFramework):
         add_witness_commitment(block)
         block.solve()
 
-        block.vtx[0].wit.vtxinwit[0].scriptWitness.stack.append(b'a'*5000000)
+        block.vtx[0].wit.vtxinwit[0].scriptWitness.stack.append(b'a'*5000000*2)
         assert(get_virtual_size(block) > MAX_BLOCK_BASE_SIZE)
 
         # We can't send over the p2p network, because this is too big to relay
@@ -535,7 +535,7 @@ class SegWitTest(BitcoinTestFramework):
         # This should give us plenty of room to tweak the spending tx's
         # virtual size.
         NUM_DROPS = 200 # 201 max ops per script!
-        NUM_OUTPUTS = 50
+        NUM_OUTPUTS = 2*50
 
         witness_program = CScript([OP_2DROP]*NUM_DROPS + [OP_TRUE])
         witness_hash = uint256_from_str(sha256(witness_program))
@@ -563,16 +563,18 @@ class SegWitTest(BitcoinTestFramework):
         child_tx.rehash()
         self.update_witness_block_with_transactions(block, [parent_tx, child_tx])
 
+        # basically what we want here is to test the block limits of segwit blocks
+        # first we create one such block that exceeds the block base limit by 1 -> should not be accepted
+        # next we subtract such that the block base limit is eq to the block base limit -> should be accepted
         vsize = get_virtual_size(block)
-        additional_bytes = (MAX_BLOCK_BASE_SIZE - vsize)*4
         i = 0
-        while additional_bytes > 0:
+        while vsize < MAX_BLOCK_BASE_SIZE+1:
             # Add some more bytes to each input until we hit MAX_BLOCK_BASE_SIZE+1
-            extra_bytes = min(additional_bytes+1, 55)
-            block.vtx[-1].wit.vtxinwit[int(i/(2*NUM_DROPS))].scriptWitness.stack[i%(2*NUM_DROPS)] = b'a'*(195+extra_bytes)
-            additional_bytes -= extra_bytes
+            extra_bytes = min((MAX_BLOCK_BASE_SIZE - vsize)*4-2, 5*55)
+            block.vtx[-1].wit.vtxinwit[i % len(block.vtx[-1].wit.vtxinwit)].scriptWitness.stack[i%(2*NUM_DROPS)] = b'a'*(195+extra_bytes)
+            vsize = get_virtual_size(block)
             i += 1
-
+        
         block.vtx[0].vout.pop()  # Remove old commitment
         add_witness_commitment(block)
         block.solve()
@@ -580,13 +582,12 @@ class SegWitTest(BitcoinTestFramework):
         assert_equal(vsize, MAX_BLOCK_BASE_SIZE + 1)
         # Make sure that our test case would exceed the old max-network-message
         # limit
-        assert(len(block.serialize(True)) > 2*1024*1024)
-
+        assert(len(block.serialize(True)) > 4*1024*1024)
         self.test_node.test_witness_block(block, accepted=False)
 
         # Now resize the second transaction to make the block fit.
         cur_length = len(block.vtx[-1].wit.vtxinwit[0].scriptWitness.stack[0])
-        block.vtx[-1].wit.vtxinwit[0].scriptWitness.stack[0] = b'a'*(cur_length-1)
+        block.vtx[-1].wit.vtxinwit[0].scriptWitness.stack[0] = b'a'*(cur_length-4)
         block.vtx[0].vout.pop()
         add_witness_commitment(block)
         block.solve()
@@ -1296,7 +1297,7 @@ class SegWitTest(BitcoinTestFramework):
         spend_tx.rehash()
 
         # Now test a premature spend.
-        self.nodes[0].generate(98)
+        self.nodes[0].generate(13)
         sync_blocks(self.nodes)
         block2 = self.build_next_block()
         self.update_witness_block_with_transactions(block2, [spend_tx])

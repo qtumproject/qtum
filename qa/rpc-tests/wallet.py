@@ -44,7 +44,7 @@ class WalletTest (BitcoinTestFramework):
         assert_equal(walletinfo['balance'], 0)
 
         self.sync_all()
-        self.nodes[1].generate(101)
+        self.nodes[1].generate(16)
         self.sync_all()
 
         assert_equal(self.nodes[0].getbalance(), 50)

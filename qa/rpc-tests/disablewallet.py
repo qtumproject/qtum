@@ -9,6 +9,7 @@
 
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
+from test_framework.address import convert_btc_address_to_qtum
 
 
 class DisableWalletTest (BitcoinTestFramework):
@@ -27,12 +28,12 @@ class DisableWalletTest (BitcoinTestFramework):
         # Check regression: https://github.com/bitcoin/bitcoin/issues/6963#issuecomment-154548880
         x = self.nodes[0].validateaddress('3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy')
         assert(x['isvalid'] == False)
-        x = self.nodes[0].validateaddress('mneYUmWYsuk7kySiURxCi3AGxrAqZxLgPZ')
+        x = self.nodes[0].validateaddress(convert_btc_address_to_qtum('mneYUmWYsuk7kySiURxCi3AGxrAqZxLgPZ'))
         assert(x['isvalid'] == True)
 
         # Checking mining to an address without a wallet
         try:
-            self.nodes[0].generatetoaddress(1, 'mneYUmWYsuk7kySiURxCi3AGxrAqZxLgPZ')
+            self.nodes[0].generatetoaddress(1, convert_btc_address_to_qtum('mneYUmWYsuk7kySiURxCi3AGxrAqZxLgPZ'))
         except JSONRPCException as e:
             assert("Invalid address" not in e.error['message'])
             assert("ProcessNewBlock, block not accepted" not in e.error['message'])

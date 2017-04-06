@@ -115,7 +115,7 @@ class WalletBackupTest(BitcoinTestFramework):
         assert_equal(self.nodes[0].getbalance(), 50)
         assert_equal(self.nodes[1].getbalance(), 50)
         assert_equal(self.nodes[2].getbalance(), 50)
-        assert_equal(self.nodes[3].getbalance(), 0)
+        assert_equal(self.nodes[3].getbalance(), 4250)
 
         logging.info("Creating transactions")
         # Five rounds of sending each other transactions.
@@ -136,7 +136,7 @@ class WalletBackupTest(BitcoinTestFramework):
             self.do_one_round()
 
         # Generate 101 more blocks, so any fees paid mature
-        self.nodes[3].generate(101)
+        self.nodes[3].generate(16)
         self.sync_all()
 
         balance0 = self.nodes[0].getbalance()

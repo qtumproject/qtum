@@ -44,7 +44,10 @@ MY_SUBVERSION = b"/python-mininode-tester:0.0.3/"
 MY_RELAY = 1 # from version 70001 onwards, fRelay should be appended to version messages (BIP37)
 
 MAX_INV_SZ = 50000
-MAX_BLOCK_BASE_SIZE = 1000000
+MAX_BLOCK_BASE_SIZE = 2000000
+POW_TARGET_SPACING = 600
+INITIAL_HASH_STATE_ROOT = 0x21b463e3b52f6201c0ad6c991be0485b6ef8c092e64583ffa655cc1b171fe856
+
 
 COIN = 100000000 # 1 btc in satoshis
 
@@ -536,15 +539,18 @@ class CBlockHeader(object):
             self.nNonce = header.nNonce
             self.sha256 = header.sha256
             self.hash = header.hash
+            self.hashStateRoot = header.hashStateRoot
             self.calc_sha256()
 
     def set_null(self):
-        self.nVersion = 1
+        self.nVersion = 4
         self.hashPrevBlock = 0
         self.hashMerkleRoot = 0
         self.nTime = 0
         self.nBits = 0
         self.nNonce = 0
+        self.hashStateRoot = INITIAL_HASH_STATE_ROOT
+
         self.sha256 = None
         self.hash = None
 
@@ -555,6 +561,7 @@ class CBlockHeader(object):
         self.nTime = struct.unpack("<I", f.read(4))[0]
         self.nBits = struct.unpack("<I", f.read(4))[0]
         self.nNonce = struct.unpack("<I", f.read(4))[0]
+        self.hashStateRoot = deser_uint256(f)
         self.sha256 = None
         self.hash = None
 
@@ -566,6 +573,7 @@ class CBlockHeader(object):
         r += struct.pack("<I", self.nTime)
         r += struct.pack("<I", self.nBits)
         r += struct.pack("<I", self.nNonce)
+        r += ser_uint256(self.hashStateRoot)
         return r
 
     def calc_sha256(self):
@@ -577,6 +585,7 @@ class CBlockHeader(object):
             r += struct.pack("<I", self.nTime)
             r += struct.pack("<I", self.nBits)
             r += struct.pack("<I", self.nNonce)
+            r += ser_uint256(self.hashStateRoot)
             self.sha256 = uint256_from_str(hash256(r))
             self.hash = encode(hash256(r)[::-1], 'hex_codec').decode('ascii')
 
@@ -1610,9 +1619,9 @@ class NodeConn(asyncore.dispatcher):
         b"blocktxn": msg_blocktxn
     }
     MAGIC_BYTES = {
-        "mainnet": b"\xf9\xbe\xb4\xd9",   # mainnet
-        "testnet3": b"\x0b\x11\x09\x07",  # testnet3
-        "regtest": b"\xfa\xbf\xb5\xda",   # regtest
+        "mainnet": b"\xf0\xce\xa5\xd2",   # mainnet
+        "testnet3": b"\x0c\x21\x19\x05",  # testnet3
+        "regtest": b"\xfc\xdf\xc5\xe0",   # regtest
     }
 
     def __init__(self, dstaddr, dstport, rpc, callback, net="regtest", services=NODE_NETWORK, send_version=True):
