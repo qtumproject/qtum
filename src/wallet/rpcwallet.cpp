@@ -616,33 +616,33 @@ UniValue sendtocontract(const JSONRPCRequest& request){
                 "\nArguments:\n"
                 "1. \"contractaddress\" (string, required) The contract address that will receive the funds and data.\n"
                 "2. \"datahex\"  (string, required) data to send.\n"
-				"3. \"amount\"      (numeric or string, optional) The amount in " + CURRENCY_UNIT + " to send. eg 0.1, default: 0\n"
+                "3. \"amount\"      (numeric or string, optional) The amount in " + CURRENCY_UNIT + " to send. eg 0.1, default: 0\n"
                 "4. gasLimit  (numeric or string, optional) gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT)+"\n"
                 "5. gasPrice  (numeric or string, optional) gasPrice Qtum price per gas unit, default: "+FormatMoney(DEFAULT_GAS_PRICE)+"\n"
-				"6. \"senderaddress\" (string, optional) The quantum address that will be used as sender.\n"
-				"5. \"broadcast\" (bool, optional, default=true) Whether to broadcast the transaction or not.\n"
-				"\nResult:\n"
-				"[\n"
-				"  {\n"
-				"    \"txid\" : (string) The transaction id.\n"
-				"    \"sender\" : (string) " + CURRENCY_UNIT + " address of the sender.\n"
-				"    \"hash160\" : (string) ripemd-160 hash of the sender.\n"
-				"  }\n"
-				"]\n"
-				"\nExamples:\n"
-				+ HelpExampleCli("sendtocontract", "\"c6ca2697719d00446d4ea51f6fac8fd1e9310214\" \"54f6127f\"")
-				+ HelpExampleCli("sendtocontract", "\"c6ca2697719d00446d4ea51f6fac8fd1e9310214\" \"54f6127f\" 12.0015 6000000 0.00000001 \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\"")
-                );
+                "6. \"senderaddress\" (string, optional) The quantum address that will be used as sender.\n"
+                "5. \"broadcast\" (bool, optional, default=true) Whether to broadcast the transaction or not.\n"
+                "\nResult:\n"
+                "[\n"
+                "  {\n"
+                "    \"txid\" : (string) The transaction id.\n"
+                "    \"sender\" : (string) " + CURRENCY_UNIT + " address of the sender.\n"
+                "    \"hash160\" : (string) ripemd-160 hash of the sender.\n"
+                "  }\n"
+                "]\n"
+                "\nExamples:\n"
+                + HelpExampleCli("sendtocontract", "\"c6ca2697719d00446d4ea51f6fac8fd1e9310214\" \"54f6127f\"")
+                + HelpExampleCli("sendtocontract", "\"c6ca2697719d00446d4ea51f6fac8fd1e9310214\" \"54f6127f\" 12.0015 6000000 0.00000001 \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\"")
+        );
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
-	 std::string contractaddress = request.params[0].get_str();
-	 if(contractaddress.size() != 40)
-		 throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect contract address");
+    std::string contractaddress = request.params[0].get_str();
+    if(contractaddress.size() != 40)
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect contract address");
 
-	 dev::Address addrAccount(contractaddress);
-	 if(!globalState->addressInUse(addrAccount))
-		 throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "contract address does not exist");
+    dev::Address addrAccount(contractaddress);
+    if(!globalState->addressInUse(addrAccount))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "contract address does not exist");
 
     string datahex=request.params[1].get_str();
 
@@ -651,14 +651,14 @@ UniValue sendtocontract(const JSONRPCRequest& request){
         nAmount = AmountFromValue(request.params[2]);
         if (nAmount < 0)
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
-    	}
+    }
 
     uint64_t nGasLimit=DEFAULT_GAS_LIMIT;
-	if (request.params.size() > 3){
-	   nGasLimit = request.params[3].get_int64();
-	   if (nGasLimit <= 0)
-		   throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasLimit");
-	}
+    if (request.params.size() > 3){
+        nGasLimit = request.params[3].get_int64();
+        if (nGasLimit <= 0)
+            throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasLimit");
+    }
 
     CAmount nGasPrice = DEFAULT_GAS_PRICE;
     if (request.params.size() > 4){
@@ -668,53 +668,53 @@ UniValue sendtocontract(const JSONRPCRequest& request){
     }
 
     bool fHasSender=false;
-        CBitcoinAddress senderAddress;
-        if (request.params.size() > 5){
+    CBitcoinAddress senderAddress;
+    if (request.params.size() > 5){
         senderAddress.SetString(request.params[5].get_str());
-            if (!senderAddress.IsValid())
-                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Qtum address to send from");
-            else
-            	fHasSender=true;
-        }
+        if (!senderAddress.IsValid())
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Qtum address to send from");
+        else
+            fHasSender=true;
+    }
 
     bool fBroadcast=true;
-        if (request.params.size() > 6){
-        	fBroadcast=request.params[6].get_bool();
-        }
+    if (request.params.size() > 6){
+        fBroadcast=request.params[6].get_bool();
+    }
 
 
     CCoinControl coinControl;
 
     if(fHasSender){
 
-     UniValue results(UniValue::VARR);
-     vector<COutput> vecOutputs;
+        UniValue results(UniValue::VARR);
+        vector<COutput> vecOutputs;
 
-     coinControl.fAllowOtherInputs=true;
+        coinControl.fAllowOtherInputs=true;
 
-     assert(pwalletMain != NULL);
-     pwalletMain->AvailableCoins(vecOutputs, false, NULL, true);
+        assert(pwalletMain != NULL);
+        pwalletMain->AvailableCoins(vecOutputs, false, NULL, true);
 
-     BOOST_FOREACH(const COutput& out, vecOutputs) {
+        BOOST_FOREACH(const COutput& out, vecOutputs) {
 
-         CTxDestination address;
-         const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
-         bool fValidAddress = ExtractDestination(scriptPubKey, address);
+            CTxDestination address;
+            const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
+            bool fValidAddress = ExtractDestination(scriptPubKey, address);
 
-         CBitcoinAddress destAdress(address);
+            CBitcoinAddress destAdress(address);
 
-         if (!fValidAddress || senderAddress.Get() != destAdress.Get())
-            continue;
+            if (!fValidAddress || senderAddress.Get() != destAdress.Get())
+                continue;
 
-         coinControl.Select(COutPoint(out.tx->GetHash(),out.i));
+            coinControl.Select(COutPoint(out.tx->GetHash(),out.i));
 
-         break;
+            break;
 
-     }
+        }
 
-    if(!coinControl.HasSelected()){
-    	throw JSONRPCError(RPC_TYPE_ERROR, "Sender address does not have any unspent outputs");
-    }
+        if(!coinControl.HasSelected()){
+            throw JSONRPCError(RPC_TYPE_ERROR, "Sender address does not have any unspent outputs");
+        }
     }
 
     EnsureWalletIsUnlocked();
@@ -728,11 +728,11 @@ UniValue sendtocontract(const JSONRPCRequest& request){
     CAmount curBalance = pwalletMain->GetBalance();
 
     // Check amount
-	if (nGasFee <= 0)
-		throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid amount for gas fee");
+    if (nGasFee <= 0)
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid amount for gas fee");
 
-	if (nAmount+nGasFee > curBalance)
-		throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Insufficient funds");
+    if (nAmount+nGasFee > curBalance)
+        throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Insufficient funds");
 
     // Build OP_EXEC_ASSIGN script
     CScript scriptPubKey = CScript() << ParseHex("01") << CScriptNum(nGasLimit) << CScriptNum(nGasPrice) << ParseHex(datahex) << ParseHex(contractaddress) << OP_CALL;
@@ -756,30 +756,30 @@ UniValue sendtocontract(const JSONRPCRequest& request){
     ExtractDestination(pwalletMain->mapWallet[wtx.tx->vin[0].prevout.hash].tx->vout[wtx.tx->vin[0].prevout.n].scriptPubKey,txSenderDest);
 
     if (fHasSender && !(senderAddress.Get() == txSenderDest)){
-               throw JSONRPCError(RPC_TYPE_ERROR, "Sender could not be set, transaction was not committed!");
-        }
+        throw JSONRPCError(RPC_TYPE_ERROR, "Sender could not be set, transaction was not committed!");
+    }
 
     UniValue result(UniValue::VOBJ);
 
     if(fBroadcast){
 
 
-    CValidationState state;
-    if (!pwalletMain->CommitTransaction(wtx, reservekey, g_connman.get(), state))
-        throw JSONRPCError(RPC_WALLET_ERROR, "Error: The transaction was rejected! This might happen if some of the coins in your wallet were already spent, such as if you used a copy of the wallet and coins were spent in the copy but not marked as spent here.");
+        CValidationState state;
+        if (!pwalletMain->CommitTransaction(wtx, reservekey, g_connman.get(), state))
+            throw JSONRPCError(RPC_WALLET_ERROR, "Error: The transaction was rejected! This might happen if some of the coins in your wallet were already spent, such as if you used a copy of the wallet and coins were spent in the copy but not marked as spent here.");
 
-    std::string txId=wtx.GetHash().GetHex();
-    result.push_back(Pair("txid", txId));
+        std::string txId=wtx.GetHash().GetHex();
+        result.push_back(Pair("txid", txId));
 
-    CBitcoinAddress txSenderAdress(txSenderDest);
-    CKeyID keyid;
-    txSenderAdress.GetKeyID(keyid);
+        CBitcoinAddress txSenderAdress(txSenderDest);
+        CKeyID keyid;
+        txSenderAdress.GetKeyID(keyid);
 
-    result.push_back(Pair("sender", txSenderAdress.ToString()));
-    result.push_back(Pair("hash160", HexStr(valtype(keyid.begin(),keyid.end()))));
+        result.push_back(Pair("sender", txSenderAdress.ToString()));
+        result.push_back(Pair("hash160", HexStr(valtype(keyid.begin(),keyid.end()))));
     }else{
-    string strHex = EncodeHexTx(*wtx.tx, RPCSerializationFlags());
-    result.push_back(Pair("raw transaction", strHex));
+        string strHex = EncodeHexTx(*wtx.tx, RPCSerializationFlags());
+        result.push_back(Pair("raw transaction", strHex));
     }
 
     return result;
@@ -3347,57 +3347,57 @@ extern UniValue importmulti(const JSONRPCRequest& request);
 
 static const CRPCCommand commands[] =
 { //  category              name                        actor (function)           okSafeMode
-    //  --------------------- ------------------------    -----------------------    ----------
-    { "rawtransactions",    "fundrawtransaction",       &fundrawtransaction,       false,  {"hexstring","options"} },
-    { "hidden",             "resendwallettransactions", &resendwallettransactions, true,   {} },
-    { "wallet",             "abandontransaction",       &abandontransaction,       false,  {"txid"} },
-    { "wallet",             "addmultisigaddress",       &addmultisigaddress,       true,   {"nrequired","keys","account"} },
-    { "wallet",             "addwitnessaddress",        &addwitnessaddress,        true,   {"address"} },
-    { "wallet",             "backupwallet",             &backupwallet,             true,   {"destination"} },
-    { "wallet",             "bumpfee",                  &bumpfee,                  true,   {"txid", "options"} },
-    { "wallet",             "dumpprivkey",              &dumpprivkey,              true,   {"address"}  },
-    { "wallet",             "dumpwallet",               &dumpwallet,               true,   {"filename"} },
-    { "wallet",             "encryptwallet",            &encryptwallet,            true,   {"passphrase"} },
-    { "wallet",             "getaccountaddress",        &getaccountaddress,        true,   {"account"} },
-    { "wallet",             "getaccount",               &getaccount,               true,   {"address"} },
-    { "wallet",             "getaddressesbyaccount",    &getaddressesbyaccount,    true,   {"account"} },
-    { "wallet",             "getbalance",               &getbalance,               false,  {"account","minconf","include_watchonly"} },
-    { "wallet",             "getnewaddress",            &getnewaddress,            true,   {"account"} },
-    { "wallet",             "getrawchangeaddress",      &getrawchangeaddress,      true,   {} },
-    { "wallet",             "getreceivedbyaccount",     &getreceivedbyaccount,     false,  {"account","minconf"} },
-    { "wallet",             "getreceivedbyaddress",     &getreceivedbyaddress,     false,  {"address","minconf"} },
-    { "wallet",             "gettransaction",           &gettransaction,           false,  {"txid","include_watchonly"} },
-    { "wallet",             "getunconfirmedbalance",    &getunconfirmedbalance,    false,  {} },
-    { "wallet",             "getwalletinfo",            &getwalletinfo,            false,  {} },
-    { "wallet",             "importmulti",              &importmulti,              true,   {"requests","options"} },
-    { "wallet",             "importprivkey",            &importprivkey,            true,   {"privkey","label","rescan"} },
-    { "wallet",             "importwallet",             &importwallet,             true,   {"filename"} },
-    { "wallet",             "importaddress",            &importaddress,            true,   {"address","label","rescan","p2sh"} },
-    { "wallet",             "importprunedfunds",        &importprunedfunds,        true,   {"rawtransaction","txoutproof"} },
-    { "wallet",             "importpubkey",             &importpubkey,             true,   {"pubkey","label","rescan"} },
-    { "wallet",             "keypoolrefill",            &keypoolrefill,            true,   {"newsize"} },
-    { "wallet",             "listaccounts",             &listaccounts,             false,  {"minconf","include_watchonly"} },
-    { "wallet",             "listaddressgroupings",     &listaddressgroupings,     false,  {} },
-    { "wallet",             "listlockunspent",          &listlockunspent,          false,  {} },
-    { "wallet",             "listreceivedbyaccount",    &listreceivedbyaccount,    false,  {"minconf","include_empty","include_watchonly"} },
-    { "wallet",             "listreceivedbyaddress",    &listreceivedbyaddress,    false,  {"minconf","include_empty","include_watchonly"} },
-    { "wallet",             "listsinceblock",           &listsinceblock,           false,  {"blockhash","target_confirmations","include_watchonly"} },
-    { "wallet",             "listtransactions",         &listtransactions,         false,  {"account","count","skip","include_watchonly"} },
-    { "wallet",             "listunspent",              &listunspent,              false,  {"minconf","maxconf","addresses","include_unsafe"} },
-    { "wallet",             "lockunspent",              &lockunspent,              true,   {"unlock","transactions"} },
-    { "wallet",             "move",                     &movecmd,                  false,  {"fromaccount","toaccount","amount","minconf","comment"} },
-    { "wallet",             "sendfrom",                 &sendfrom,                 false,  {"fromaccount","toaddress","amount","minconf","comment","comment_to"} },
-    { "wallet",             "sendmany",                 &sendmany,                 false,  {"fromaccount","amounts","minconf","comment","subtractfeefrom"} },
-    { "wallet",             "sendtoaddress",            &sendtoaddress,            false,  {"address","amount","comment","comment_to","subtractfeefromamount"} },
-    { "wallet",             "setaccount",               &setaccount,               true,   {"address","account"} },
-    { "wallet",             "settxfee",                 &settxfee,                 true,   {"amount"} },
-    { "wallet",             "signmessage",              &signmessage,              true,   {"address","message"} },
-    { "wallet",             "walletlock",               &walletlock,               true,   {} },
-    { "wallet",             "walletpassphrasechange",   &walletpassphrasechange,   true,   {"oldpassphrase","newpassphrase"} },
-    { "wallet",             "walletpassphrase",         &walletpassphrase,         true,   {"passphrase","timeout"} },
-    { "wallet",             "removeprunedfunds",        &removeprunedfunds,        true,   {"txid"} },
-    { "wallet",             "createcontract",           &createcontract,           false,  {"bytecode", "gasLimit", "gasPrice", "senderAddress", "broadcast"} },
-	{ "wallet",             "sendtocontract",           &sendtocontract,           false,  {"contractaddress", "bytecode", "amount", "gasLimit", "gasPrice", "senderAddress", "broadcast"} },
+        //  --------------------- ------------------------    -----------------------    ----------
+        { "rawtransactions",    "fundrawtransaction",       &fundrawtransaction,       false,  {"hexstring","options"} },
+        { "hidden",             "resendwallettransactions", &resendwallettransactions, true,   {} },
+        { "wallet",             "abandontransaction",       &abandontransaction,       false,  {"txid"} },
+        { "wallet",             "addmultisigaddress",       &addmultisigaddress,       true,   {"nrequired","keys","account"} },
+        { "wallet",             "addwitnessaddress",        &addwitnessaddress,        true,   {"address"} },
+        { "wallet",             "backupwallet",             &backupwallet,             true,   {"destination"} },
+        { "wallet",             "bumpfee",                  &bumpfee,                  true,   {"txid", "options"} },
+        { "wallet",             "dumpprivkey",              &dumpprivkey,              true,   {"address"}  },
+        { "wallet",             "dumpwallet",               &dumpwallet,               true,   {"filename"} },
+        { "wallet",             "encryptwallet",            &encryptwallet,            true,   {"passphrase"} },
+        { "wallet",             "getaccountaddress",        &getaccountaddress,        true,   {"account"} },
+        { "wallet",             "getaccount",               &getaccount,               true,   {"address"} },
+        { "wallet",             "getaddressesbyaccount",    &getaddressesbyaccount,    true,   {"account"} },
+        { "wallet",             "getbalance",               &getbalance,               false,  {"account","minconf","include_watchonly"} },
+        { "wallet",             "getnewaddress",            &getnewaddress,            true,   {"account"} },
+        { "wallet",             "getrawchangeaddress",      &getrawchangeaddress,      true,   {} },
+        { "wallet",             "getreceivedbyaccount",     &getreceivedbyaccount,     false,  {"account","minconf"} },
+        { "wallet",             "getreceivedbyaddress",     &getreceivedbyaddress,     false,  {"address","minconf"} },
+        { "wallet",             "gettransaction",           &gettransaction,           false,  {"txid","include_watchonly"} },
+        { "wallet",             "getunconfirmedbalance",    &getunconfirmedbalance,    false,  {} },
+        { "wallet",             "getwalletinfo",            &getwalletinfo,            false,  {} },
+        { "wallet",             "importmulti",              &importmulti,              true,   {"requests","options"} },
+        { "wallet",             "importprivkey",            &importprivkey,            true,   {"privkey","label","rescan"} },
+        { "wallet",             "importwallet",             &importwallet,             true,   {"filename"} },
+        { "wallet",             "importaddress",            &importaddress,            true,   {"address","label","rescan","p2sh"} },
+        { "wallet",             "importprunedfunds",        &importprunedfunds,        true,   {"rawtransaction","txoutproof"} },
+        { "wallet",             "importpubkey",             &importpubkey,             true,   {"pubkey","label","rescan"} },
+        { "wallet",             "keypoolrefill",            &keypoolrefill,            true,   {"newsize"} },
+        { "wallet",             "listaccounts",             &listaccounts,             false,  {"minconf","include_watchonly"} },
+        { "wallet",             "listaddressgroupings",     &listaddressgroupings,     false,  {} },
+        { "wallet",             "listlockunspent",          &listlockunspent,          false,  {} },
+        { "wallet",             "listreceivedbyaccount",    &listreceivedbyaccount,    false,  {"minconf","include_empty","include_watchonly"} },
+        { "wallet",             "listreceivedbyaddress",    &listreceivedbyaddress,    false,  {"minconf","include_empty","include_watchonly"} },
+        { "wallet",             "listsinceblock",           &listsinceblock,           false,  {"blockhash","target_confirmations","include_watchonly"} },
+        { "wallet",             "listtransactions",         &listtransactions,         false,  {"account","count","skip","include_watchonly"} },
+        { "wallet",             "listunspent",              &listunspent,              false,  {"minconf","maxconf","addresses","include_unsafe"} },
+        { "wallet",             "lockunspent",              &lockunspent,              true,   {"unlock","transactions"} },
+        { "wallet",             "move",                     &movecmd,                  false,  {"fromaccount","toaccount","amount","minconf","comment"} },
+        { "wallet",             "sendfrom",                 &sendfrom,                 false,  {"fromaccount","toaddress","amount","minconf","comment","comment_to"} },
+        { "wallet",             "sendmany",                 &sendmany,                 false,  {"fromaccount","amounts","minconf","comment","subtractfeefrom"} },
+        { "wallet",             "sendtoaddress",            &sendtoaddress,            false,  {"address","amount","comment","comment_to","subtractfeefromamount"} },
+        { "wallet",             "setaccount",               &setaccount,               true,   {"address","account"} },
+        { "wallet",             "settxfee",                 &settxfee,                 true,   {"amount"} },
+        { "wallet",             "signmessage",              &signmessage,              true,   {"address","message"} },
+        { "wallet",             "walletlock",               &walletlock,               true,   {} },
+        { "wallet",             "walletpassphrasechange",   &walletpassphrasechange,   true,   {"oldpassphrase","newpassphrase"} },
+        { "wallet",             "walletpassphrase",         &walletpassphrase,         true,   {"passphrase","timeout"} },
+        { "wallet",             "removeprunedfunds",        &removeprunedfunds,        true,   {"txid"} },
+        { "wallet",             "createcontract",           &createcontract,           false,  {"bytecode", "gasLimit", "gasPrice", "senderAddress", "broadcast"} },
+        { "wallet",             "sendtocontract",           &sendtocontract,           false,  {"contractaddress", "bytecode", "amount", "gasLimit", "gasPrice", "senderAddress", "broadcast"} },
 };
 
 void RegisterWalletRPCCommands(CRPCTable &t)
