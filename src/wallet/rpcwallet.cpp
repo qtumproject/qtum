@@ -604,6 +604,186 @@ UniValue createcontract(const JSONRPCRequest& request){
     }
     return result;
 }
+UniValue sendtocontract(const JSONRPCRequest& request){
+
+    if (!EnsureWalletIsAvailable(request.fHelp))
+        return NullUniValue;
+    if (request.fHelp || request.params.size() < 2 || request.params.size() > 7)
+        throw runtime_error(
+                "sendtocontract \"contractaddress\" \"data\" (amount gaslimit gasprice senderaddress broadcast)"
+                "\nSend funds and data to a contract.\n"
+                + HelpRequiringPassphrase() +
+                "\nArguments:\n"
+                "1. \"contractaddress\" (string, required) The contract address that will receive the funds and data.\n"
+                "2. \"datahex\"  (string, required) data to send.\n"
+				"3. \"amount\"      (numeric or string, optional) The amount in " + CURRENCY_UNIT + " to send. eg 0.1, default: 0\n"
+                "4. gasLimit  (numeric or string, optional) gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT)+"\n"
+                "5. gasPrice  (numeric or string, optional) gasPrice Qtum price per gas unit, default: "+FormatMoney(DEFAULT_GAS_PRICE)+"\n"
+				"6. \"senderaddress\" (string, optional) The quantum address that will be used as sender.\n"
+				"5. \"broadcast\" (bool, optional, default=true) Whether to broadcast the transaction or not.\n"
+				"\nResult:\n"
+				"[\n"
+				"  {\n"
+				"    \"txid\" : (string) The transaction id.\n"
+				"    \"sender\" : (string) " + CURRENCY_UNIT + " address of the sender.\n"
+				"    \"hash160\" : (string) ripemd-160 hash of the sender.\n"
+				"  }\n"
+				"]\n"
+				"\nExamples:\n"
+				+ HelpExampleCli("sendtocontract", "\"c6ca2697719d00446d4ea51f6fac8fd1e9310214\" \"54f6127f\"")
+				+ HelpExampleCli("sendtocontract", "\"c6ca2697719d00446d4ea51f6fac8fd1e9310214\" \"54f6127f\" 12.0015 6000000 0.00000001 \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\"")
+                );
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+
+	 std::string contractaddress = request.params[0].get_str();
+	 if(contractaddress.size() != 40)
+		 throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect contract address");
+
+	 dev::Address addrAccount(contractaddress);
+	 if(!globalState->addressInUse(addrAccount))
+		 throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "contract address does not exist");
+
+    string datahex=request.params[1].get_str();
+
+    CAmount nAmount = 0;
+    if (request.params.size() > 2){
+        nAmount = AmountFromValue(request.params[2]);
+        if (nAmount < 0)
+            throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
+    	}
+
+    uint64_t nGasLimit=DEFAULT_GAS_LIMIT;
+	if (request.params.size() > 3){
+	   nGasLimit = request.params[3].get_int64();
+	   if (nGasLimit <= 0)
+		   throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasLimit");
+	}
+
+    CAmount nGasPrice = DEFAULT_GAS_PRICE;
+    if (request.params.size() > 4){
+        nGasPrice = request.params[4].get_real()*COIN;
+        if (nGasPrice <= 0)
+            throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasPrice");
+    }
+
+    bool fHasSender=false;
+        CBitcoinAddress senderAddress;
+        if (request.params.size() > 5){
+        senderAddress.SetString(request.params[5].get_str());
+            if (!senderAddress.IsValid())
+                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Qtum address to send from");
+            else
+            	fHasSender=true;
+        }
+
+    bool fBroadcast=true;
+        if (request.params.size() > 6){
+        	fBroadcast=request.params[6].get_bool();
+        }
+
+
+    CCoinControl coinControl;
+
+    if(fHasSender){
+
+     UniValue results(UniValue::VARR);
+     vector<COutput> vecOutputs;
+
+     coinControl.fAllowOtherInputs=true;
+
+     assert(pwalletMain != NULL);
+     pwalletMain->AvailableCoins(vecOutputs, false, NULL, true);
+
+     BOOST_FOREACH(const COutput& out, vecOutputs) {
+
+         CTxDestination address;
+         const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
+         bool fValidAddress = ExtractDestination(scriptPubKey, address);
+
+         CBitcoinAddress destAdress(address);
+
+         if (!fValidAddress || senderAddress.Get() != destAdress.Get())
+            continue;
+
+         coinControl.Select(COutPoint(out.tx->GetHash(),out.i));
+
+         break;
+
+     }
+
+    if(!coinControl.HasSelected()){
+    	throw JSONRPCError(RPC_TYPE_ERROR, "Sender address does not have any unspent outputs");
+    }
+    }
+
+    EnsureWalletIsUnlocked();
+
+    CWalletTx wtx;
+
+    wtx.nTimeSmart = GetAdjustedTime();
+
+    CAmount nGasFee=nGasPrice*nGasLimit;
+
+    CAmount curBalance = pwalletMain->GetBalance();
+
+    // Check amount
+	if (nGasFee <= 0)
+		throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid amount for gas fee");
+
+	if (nAmount+nGasFee > curBalance)
+		throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Insufficient funds");
+
+    // Build OP_EXEC_ASSIGN script
+    CScript scriptPubKey = CScript() << ParseHex("01") << CScriptNum(nGasLimit) << CScriptNum(nGasPrice) << ParseHex(datahex) << ParseHex(contractaddress) << OP_CALL;
+
+    // Create and send the transaction
+    CReserveKey reservekey(pwalletMain);
+    CAmount nFeeRequired;
+    std::string strError;
+    vector<CRecipient> vecSend;
+    int nChangePosRet = -1;
+    CRecipient recipient = {scriptPubKey, nAmount, false};
+    vecSend.push_back(recipient);
+
+    if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, nChangePosRet, strError, &coinControl, true, nGasFee, fHasSender)) {
+        if (nFeeRequired > pwalletMain->GetBalance())
+            strError = strprintf("Error: This transaction requires a transaction fee of at least %s because of its amount, complexity, or use of recently received funds!", FormatMoney(nFeeRequired));
+        throw JSONRPCError(RPC_WALLET_ERROR, strError);
+    }
+
+    CTxDestination txSenderDest;
+    ExtractDestination(pwalletMain->mapWallet[wtx.tx->vin[0].prevout.hash].tx->vout[wtx.tx->vin[0].prevout.n].scriptPubKey,txSenderDest);
+
+    if (fHasSender && !(senderAddress.Get() == txSenderDest)){
+               throw JSONRPCError(RPC_TYPE_ERROR, "Sender could not be set, transaction was not committed!");
+        }
+
+    UniValue result(UniValue::VOBJ);
+
+    if(fBroadcast){
+
+
+    CValidationState state;
+    if (!pwalletMain->CommitTransaction(wtx, reservekey, g_connman.get(), state))
+        throw JSONRPCError(RPC_WALLET_ERROR, "Error: The transaction was rejected! This might happen if some of the coins in your wallet were already spent, such as if you used a copy of the wallet and coins were spent in the copy but not marked as spent here.");
+
+    std::string txId=wtx.GetHash().GetHex();
+    result.push_back(Pair("txid", txId));
+
+    CBitcoinAddress txSenderAdress(txSenderDest);
+    CKeyID keyid;
+    txSenderAdress.GetKeyID(keyid);
+
+    result.push_back(Pair("sender", txSenderAdress.ToString()));
+    result.push_back(Pair("hash160", HexStr(valtype(keyid.begin(),keyid.end()))));
+    }else{
+    string strHex = EncodeHexTx(*wtx.tx, RPCSerializationFlags());
+    result.push_back(Pair("raw transaction", strHex));
+    }
+
+    return result;
+}
 UniValue listaddressgroupings(const JSONRPCRequest& request)
 {
     if (!EnsureWalletIsAvailable(request.fHelp))
@@ -3217,6 +3397,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "walletpassphrase",         &walletpassphrase,         true,   {"passphrase","timeout"} },
     { "wallet",             "removeprunedfunds",        &removeprunedfunds,        true,   {"txid"} },
     { "wallet",             "createcontract",           &createcontract,           false,  {"bytecode", "gasLimit", "gasPrice", "senderAddress", "broadcast"} },
+	{ "wallet",             "sendtocontract",           &sendtocontract,           false,  {"contractaddress", "bytecode", "amount", "gasLimit", "gasPrice", "senderAddress", "broadcast"} },
 };
 
 void RegisterWalletRPCCommands(CRPCTable &t)
