@@ -19,6 +19,7 @@
 #include "util.h"
 #include "utilstrencodings.h"
 #include "hash.h"
+#include "libdevcore/CommonData.h"
 
 #include <stdint.h>
 
@@ -628,6 +629,61 @@ UniValue getblockhash(const JSONRPCRequest& request)
 
     CBlockIndex* pblockindex = chainActive[nHeight];
     return pblockindex->GetBlockHash().GetHex();
+}
+
+UniValue getaccountinfo(const JSONRPCRequest& request)
+{
+    if (request.fHelp || request.params.size() < 1)
+        throw runtime_error(
+            "getaccountinfo \"address\"\n"
+            "\nArgument:\n"
+            "1. \"address\"          (string, required) The account address\n"
+        );
+
+    LOCK(cs_main);
+
+    std::string strAddr = request.params[0].get_str();
+    if(strAddr.size() != 40)
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect address");
+
+    dev::Address addrAccount(strAddr);
+    if(!globalState->addressInUse(addrAccount))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
+    
+    UniValue result(UniValue::VOBJ);
+
+    result.push_back(Pair("address", strAddr));
+    result.push_back(Pair("balance", CAmount(globalState->balance(addrAccount))));
+    std::vector<uint8_t> code(globalState->code(addrAccount));
+    auto storage(globalState->storage(addrAccount));
+
+    UniValue storageUV(UniValue::VOBJ);
+    int fj = 0;
+    for (auto j: storage)
+    {
+        UniValue e(UniValue::VOBJ);
+        e.push_back(Pair(dev::toHex(j.second.first), dev::toHex(j.second.second)));
+        storageUV.push_back(Pair(j.first.hex(), e));
+    }
+        
+    result.push_back(Pair("storage", storageUV));
+
+    result.push_back(Pair("code", HexStr(code.begin(), code.end())));
+
+    // UniValue vins(UniValue::VARR);
+    // VinsInfo vinsAcc = globalState->getVins(addrAccount);
+    // for(unsigned int i = 0; i < vinsAcc.size(); i++){
+    //     UniValue cOutPoint(UniValue::VOBJ);
+
+    //     cOutPoint.push_back(Pair("hash", vinsAcc[i].first.hash.GetHex()));
+    //     cOutPoint.push_back(Pair("vout", uint64_t(vinsAcc[i].first.n)));
+    //     cOutPoint.push_back(Pair("amount", uint64_t(vinsAcc[i].second)));
+
+    //     vins.push_back(cOutPoint);
+    // }
+
+    // result.push_back(Pair("vins", vins));
+    return result;
 }
 
 UniValue getblockheader(const JSONRPCRequest& request)
@@ -1437,6 +1493,7 @@ static const CRPCCommand commands[] =
     { "blockchain",         "gettxoutsetinfo",        &gettxoutsetinfo,        true,  {} },
     { "blockchain",         "pruneblockchain",        &pruneblockchain,        true,  {"height"} },
     { "blockchain",         "verifychain",            &verifychain,            true,  {"checklevel","nblocks"} },
+    { "blockchain",         "getaccountinfo",         &getaccountinfo,         true,  {"contract_address"} },
 
     { "blockchain",         "preciousblock",          &preciousblock,          true,  {"blockhash"} },
 

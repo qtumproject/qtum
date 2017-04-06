@@ -2164,7 +2164,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     LogPrint("bench", "    - Verify %u txins: %.2fms (%.3fms/txin) [%.2fs]\n", nInputs - 1, 0.001 * (nTime4 - nTime2), nInputs <= 1 ? 0 : 0.001 * (nTime4 - nTime2) / (nInputs-1), nTimeVerify * 0.000001);
 
 ////////////////////////////////////////////////////////////////// // qtum
-    dev::h256 oldHashStateRoot(globalState->rootHash());
     if (globalState->rootHash() != uintToh256(block.hashStateRoot))
         return state.DoS(100, error("ConnectBlock(): rootHashState diverged"),
                             REJECT_INVALID, "diverged-state-root");
