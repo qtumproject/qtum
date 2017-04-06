@@ -739,7 +739,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
             QtumTxConverter converter(tx, NULL);
             std::vector<QtumTransaction> qtumTransactions = converter.extractionQtumTransactions();
             for(QtumTransaction qtumTransaction : qtumTransactions){
-                sumGas += CAmount(qtumTransaction.gas() * qtumTransaction.gasPrice());
+                sumGas += CAmount(qtumTransaction.gas());
             }
             if(sumGas > nFees){
                 return state.DoS(100, false, REJECT_INVALID, "bad-txns-fee-notenough");
