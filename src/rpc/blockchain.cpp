@@ -699,7 +699,6 @@ UniValue getaccountinfo(const JSONRPCRequest& request)
     auto storage(globalState->storage(addrAccount));
 
     UniValue storageUV(UniValue::VOBJ);
-    int fj = 0;
     for (auto j: storage)
     {
         UniValue e(UniValue::VOBJ);
@@ -861,9 +860,9 @@ UniValue getblock(const JSONRPCRequest& request)
 
 ////////////////////////////////////////////////////////////////////// // qtum
 UniValue callcontract(const JSONRPCRequest& request)
- {
-     if (request.fHelp || request.params.size() < 2)
-         throw runtime_error(
+{
+    if (request.fHelp || request.params.size() < 2)
+        throw runtime_error(
              "callcontract \"address\" \"data\" ( address )\n"
              "\nArgument:\n"
              "1. \"address\"          (string, required) The account address\n"
@@ -871,40 +870,44 @@ UniValue callcontract(const JSONRPCRequest& request)
              "3. address            (string, optional) The sender address hex string\n"
          );
  
-     LOCK(cs_main);
+    LOCK(cs_main);
+    
+    std::string strAddr = request.params[0].get_str();
+    std::string data = request.params[1].get_str();
+    if(strAddr.size() != 40)
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect address");
  
-     std::string strAddr = request.params[0].get_str();
-     std::string data = request.params[1].get_str();
-     if(strAddr.size() != 40)
-         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect address");
- 
-     dev::Address addrAccount(strAddr);
-     if(!globalState->addressInUse(addrAccount))
-         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
+    dev::Address addrAccount(strAddr);
+    if(!globalState->addressInUse(addrAccount))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
      
-     dev::u256 gasPrice = 1;
-     dev::u256 gasLimit(10000000); // MAX_MONEY
-     dev::Address senderAddress("f1b0747fe29c1fe5d4ff1e63cefdbdeaae1329d6");
-     if(request.params.size() == 3){
-         senderAddress = dev::Address(request.params[2].get_str());
-     }
+    dev::u256 gasPrice = 1;
+    dev::u256 gasLimit(10000000); // MAX_MONEY
+    dev::Address senderAddress("f1b0747fe29c1fe5d4ff1e63cefdbdeaae1329d6");
+    if(request.params.size() == 3){
+        senderAddress = dev::Address(request.params[2].get_str());
+    }
+     
+    CBlock block;
+    CMutableTransaction tx;
+    tx.vout.push_back(CTxOut(0, CScript() << OP_DUP << OP_HASH160 << senderAddress.asBytes() << OP_EQUALVERIFY << OP_CHECKSIG));
+    block.vtx.push_back(MakeTransactionRef(CTransaction(tx)));
  
-     std::vector<unsigned char> opcode(ParseHex(data));
-     QtumTransaction callTransaction(0, gasPrice, gasLimit, addrAccount, opcode, dev::u256(0));
-     callTransaction.forceSender(senderAddress);
+    std::vector<unsigned char> opcode(ParseHex(data));
+    QtumTransaction callTransaction(0, gasPrice, gasLimit, addrAccount, opcode, dev::u256(0));
+    callTransaction.forceSender(senderAddress);
 
-     dev::h256 oldGlobalStateRoot(globalState->rootHash()); // temp !!!!!!!!!!!!!!!!!!!!
-     ByteCodeExec exec;
-     std::vector<execResult> execResults = exec.performByteCode(std::vector<QtumTransaction>(1, callTransaction));
-     globalState->setRoot(oldGlobalStateRoot); // temp !!!!!!!!!!!!!!!!!!!!!!!!!!
+    ByteCodeExec exec(block, std::vector<QtumTransaction>(1, callTransaction));
+    exec.performByteCode(dev::eth::Permanence::Reverted);
+    std::vector<execResult> execResults = exec.getResult();
  
-     UniValue result(UniValue::VOBJ);
-     result.push_back(Pair("address", strAddr));
-     result.push_back(Pair("executionResult", executionResultToJSON(execResults[0].first)));
-     result.push_back(Pair("transactionReceipt", transactionReceiptToJSON(execResults[0].second)));
+    UniValue result(UniValue::VOBJ);
+    result.push_back(Pair("address", strAddr));
+    result.push_back(Pair("executionResult", executionResultToJSON(execResults[0].first)));
+    result.push_back(Pair("transactionReceipt", transactionReceiptToJSON(execResults[0].second)));
  
-     return result;
- }
+    return result;
+}
 //////////////////////////////////////////////////////////////////////
 
 struct CCoinsStats
