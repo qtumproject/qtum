@@ -594,6 +594,14 @@ struct EthTransactionParams{
     dev::u256 gasPrice;
     valtype code;
     dev::Address receiveAddress;
+
+    bool operator!=(EthTransactionParams etp){
+        if(this->version != etp.version || this->gasLimit != etp.gasLimit ||
+        this->gasPrice != etp.gasPrice || this->code != etp.code ||
+        this->receiveAddress != etp.receiveAddress)
+            return true;
+        return false;
+    }
 };
 
 class QtumTxConverter{
@@ -619,13 +627,36 @@ private:
 
 };
 
+struct ByteCodeExecResult{
+    CAmount usedFee = 0;
+    CAmount refundSender = 0;
+    std::vector<CTxOut> refundVOuts;
+    std::vector<CTransaction> refundValueTx;
+};
+
 class ByteCodeExec {
 
 public:
 
-    ByteCodeExec() {}
+    ByteCodeExec(const CBlock& _block, std::vector<QtumTransaction> _txs) : txs(_txs), block(_block) {}
 
-    std::vector<execResult> performByteCode(std::vector<QtumTransaction> txs);
+    void performByteCode();
+
+    ByteCodeExecResult processingResults();
+
+    std::vector<execResult>& getResult(){ return result; }
+
+private:
+
+    dev::eth::EnvInfo BuildEVMEnvironment();
+
+    dev::Address EthAddrFromScript(const CScript& scriptIn);
+
+    std::vector<QtumTransaction> txs;
+
+    std::vector<execResult> result;
+
+    const CBlock& block;
 
 };
 ////////////////////////////////////////////////////////

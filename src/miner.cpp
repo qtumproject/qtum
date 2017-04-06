@@ -167,14 +167,6 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     // transaction (which in most cases can be a no-op).
     fIncludeWitness = IsWitnessEnabled(pindexPrev, chainparams.GetConsensus());
 
-    //////////////////////////////////////////////////////// qtum
-    dev::h256 oldHashStateRoot(globalState->rootHash());
-    addPriorityTxs();
-    addPackageTxs();
-    pblock->hashStateRoot = uint256(h256Touint(dev::h256(globalState->rootHash())));
-    globalState->setRoot(oldHashStateRoot);
-    ////////////////////////////////////////////////////////
-
     nLastBlockTx = nBlockTx;
     nLastBlockSize = nBlockSize;
     nLastBlockWeight = nBlockWeight;
@@ -190,6 +182,22 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTx));
     pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus());
     pblocktemplate->vTxFees[0] = -nFees;
+
+    //////////////////////////////////////////////////////// qtum
+    dev::h256 oldHashStateRoot(globalState->rootHash());
+    addPriorityTxs();
+    addPackageTxs();
+    pblock->hashStateRoot = uint256(h256Touint(dev::h256(globalState->rootHash())));
+    globalState->setRoot(oldHashStateRoot);
+
+    CMutableTransaction coinbaseTxNew(*pblock->vtx[0]);
+    coinbaseTxNew.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
+    coinbaseTxNew.vout[0].nValue -= bceResult.refundSender;
+    for(CTxOut& vOut : bceResult.refundVOuts){
+        coinbaseTxNew.vout.push_back(vOut);
+    }
+    pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTxNew));
+    ////////////////////////////////////////////////////////
 
     uint64_t nSerializeSize = GetSerializeSize(*pblock, SER_NETWORK, PROTOCOL_VERSION);
     LogPrintf("CreateNewBlock(): total size: %u block weight: %u txs: %u fees: %ld sigops %d\n", nSerializeSize, GetBlockWeight(*pblock), nBlockTx, nFees, nBlockSigOpsCost);
@@ -325,9 +333,10 @@ void BlockAssembler::AddToBlock(CTxMemPool::txiter iter)
 ////////////////////////////////////////////////////////////// // qtum
     const CTransaction& tx = iter->GetTx();
     if(tx.HasCreateOrCall()){
-        ByteCodeExec exec;
         QtumTxConverter convert(tx, NULL);
-        exec.performByteCode(convert.extractionQtumTransactions());
+        ByteCodeExec exec(*pblock, convert.extractionQtumTransactions());
+        exec.performByteCode();
+        bceResult = exec.processingResults();
     }
 //////////////////////////////////////////////////////////////
 
@@ -353,6 +362,17 @@ void BlockAssembler::AddToBlock(CTxMemPool::txiter iter)
                   CFeeRate(iter->GetModifiedFee(), iter->GetTxSize()).ToString(),
                   iter->GetTx().GetHash().ToString());
     }
+
+    /////////////////////////////////////////////////////////////// // qtum
+    for(CTransaction& t : bceResult.refundValueTx){
+        pblock->vtx.emplace_back(MakeTransactionRef(std::move(t)));
+        if (fNeedSizeAccounting) {
+            nBlockSize += ::GetSerializeSize(t, SER_NETWORK, PROTOCOL_VERSION);
+        }
+        nBlockWeight += GetTransactionWeight(t);
+        ++nBlockTx;
+    }
+    ///////////////////////////////////////////////////////////////
 }
 
 void BlockAssembler::UpdatePackagesForAdded(const CTxMemPool::setEntries& alreadyAdded,

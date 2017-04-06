@@ -517,6 +517,14 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fChe
         nValueOut += txout.nValue;
         if (!MoneyRange(nValueOut))
             return state.DoS(100, false, REJECT_INVALID, "bad-txns-txouttotal-toolarge");
+
+        /////////////////////////////////////////////////////////// // qtum
+        std::vector<valtype> vSolutions;
+        txnouttype whichType;
+        if (txout.scriptPubKey.HasOpCall() && !Solver(txout.scriptPubKey, whichType, vSolutions)){
+            return state.DoS(100, false, REJECT_INVALID, "bad-txns-callcontract-incorrect");
+        }
+        ///////////////////////////////////////////////////////////
     }
 
     // Check for duplicate inputs - note that this check is slow so we skip it in CheckBlock
@@ -724,6 +732,21 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
 
         CAmount nValueOut = tx.GetValueOut();
         CAmount nFees = nValueIn-nValueOut;
+
+        //////////////////////////////////////////////////////////// // qtum
+        if(tx.HasCreateOrCall()){
+            CAmount sumGas = 0;
+            QtumTxConverter converter(tx, NULL);
+            std::vector<QtumTransaction> qtumTransactions = converter.extractionQtumTransactions();
+            for(QtumTransaction qtumTransaction : qtumTransactions){
+                sumGas += CAmount(qtumTransaction.gas());
+            }
+            if(sumGas > nFees){
+                return state.DoS(100, false, REJECT_INVALID, "bad-txns-fee-notenough");
+            }
+        }
+        ////////////////////////////////////////////////////////////
+
         // nModifiedFees includes any fee deltas from PrioritiseTransaction
         CAmount nModifiedFees = nFees;
         double nPriorityDummy = 0;
@@ -1771,15 +1794,76 @@ valtype GetSenderAddress(const CTransaction& tx, const CCoinsViewCache* coinsVie
     return valtype();
 }
 
-std::vector<execResult> ByteCodeExec::performByteCode(std::vector<QtumTransaction> txs){
-    std::vector<execResult> result;
+void ByteCodeExec::performByteCode(){
     for(QtumTransaction& tx : txs){
-        dev::eth::EnvInfo envInfo;
-        envInfo.setGasLimit(10000000);
+        dev::eth::EnvInfo envInfo(BuildEVMEnvironment());
         std::unique_ptr<dev::eth::SealEngineFace> se(dev::eth::ChainParams(dev::eth::genesisInfo(dev::eth::Network::HomesteadTest)).createSealEngine());
+        if(!tx.isCreation() && !globalState->addressInUse(tx.receiveAddress())){
+            dev::eth::ExecutionResult execRes;
+            execRes.excepted = dev::eth::TransactionException::Unknown;
+            result.push_back(std::make_pair(execRes, dev::eth::TransactionReceipt(dev::h256(), dev::u256(), dev::eth::LogEntries())));
+            continue;
+        }
         result.push_back(globalState->execute(envInfo, *se.get(), tx, dev::eth::Permanence::Committed, OnOpFunc()));
     }
-    return result;
+}
+
+ByteCodeExecResult ByteCodeExec::processingResults(){
+    ByteCodeExecResult resultBCE;
+    for(size_t i = 0; i < result.size(); i++){
+        if(result[i].first.excepted != dev::eth::TransactionException::None){
+            if(txs[i].value() > 0){
+                CMutableTransaction tx;
+                tx.vin.push_back(CTxIn(h256Touint(txs[i].getHashWith()), txs[i].getNVout(), CScript()));
+                CScript script(CScript() << OP_DUP << OP_HASH160 << txs[i].sender().asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
+                tx.vout.push_back(CTxOut(CAmount(txs[i].value()), script));
+                resultBCE.refundValueTx.push_back(CTransaction(tx));
+            }
+        } else {
+            resultBCE.usedFee += CAmount(result[i].first.gasUsed);
+            CAmount ref((txs[i].gas() - result[i].first.gasUsed) + (result[i].first.gasRefunded));
+            if(ref > 0){
+                CScript script(CScript() << OP_DUP << OP_HASH160 << txs[i].sender().asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
+                resultBCE.refundVOuts.push_back(CTxOut(ref, script));
+                resultBCE.refundSender += ref;
+            }
+        }
+    }
+    return resultBCE;
+}
+
+dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(){
+    dev::eth::EnvInfo env;
+    CBlockIndex* tip = chainActive.Tip();
+    env.setNumber(dev::u256(tip->nHeight + 1));
+    env.setTimestamp(dev::u256(tip->nTime));
+    env.setDifficulty(dev::u256(tip->nBits));
+
+    dev::eth::LastHashes lh;
+    lh.resize(256);
+    lh[0] = dev::u256(0);
+    for(int i=0;i<256;i++){
+        if(!tip)
+            break;
+        lh[i]= uintToh256(*tip->phashBlock);
+        tip = tip->pprev;
+    }
+    env.setLastHashes(std::move(lh));
+    env.setGasLimit(500000000);
+    env.setAuthor(EthAddrFromScript(block.vtx.at(0)->vout.at(0).scriptPubKey));
+    return env;
+}
+
+dev::Address ByteCodeExec::EthAddrFromScript(const CScript& scriptIn){
+    CTxDestination resDest;
+    if(!ExtractDestination(scriptIn, resDest)){
+        return dev::Address();
+    }
+    CKeyID resPH(boost::get<CKeyID>(resDest));
+
+    std::vector<unsigned char> addr(resPH.begin(), resPH.end());
+
+    return dev::Address(addr);
 }
 
 std::vector<QtumTransaction> QtumTxConverter::extractionQtumTransactions(){
@@ -1788,7 +1872,9 @@ std::vector<QtumTransaction> QtumTxConverter::extractionQtumTransactions(){
         if(txBit.vout[i].scriptPubKey.HasOpCreate() || txBit.vout[i].scriptPubKey.HasOpCall()){
             if(receiveStack(txBit.vout[i].scriptPubKey)){
                 EthTransactionParams params = parseEthTXParams();
-                result.push_back(createEthTX(params, i));
+                if(params != EthTransactionParams()){
+                    result.push_back(createEthTX(params, i));
+                }
             }
         }
     }
@@ -1804,32 +1890,38 @@ bool QtumTxConverter::receiveStack(const CScript& scriptPubKey){
     stack.pop_back();
 
     opcode = (opcodetype)(*scriptRest.begin());
-    if (stack.size() < 4 || ((opcode == OP_CALL) && (stack.size() < 5)))
+    if((opcode == OP_CREATE && stack.size() < 4) || (opcode == OP_CALL && stack.size() < 5)){
+        stack.clear();
         return false;
+    }
 
     return true;
 }
 
 EthTransactionParams QtumTxConverter::parseEthTXParams(){
-    dev::Address receiveAddress;
-    valtype vecAddr;
-    if (opcode == OP_CALL)
-    {
-        vecAddr = stack.back();
+    try{
+        dev::Address receiveAddress;
+        valtype vecAddr;
+        if (opcode == OP_CALL)
+        {
+            vecAddr = stack.back();
+            stack.pop_back();
+            receiveAddress = dev::Address(vecAddr);
+        }           
+        valtype code(stack.back());
         stack.pop_back();
-        receiveAddress = dev::Address(vecAddr);
+        CScriptNum gasPrice(stack.back(), 0, 8);
+        stack.pop_back();
+        CScriptNum gasLimit(stack.back(), 0, 8);
+        stack.pop_back();
+        CScriptNum version(stack.back(), 0);
+        stack.pop_back();
+        return EthTransactionParams{version.getint(), gasLimit.getvalue(), gasPrice.getvalue(), code, receiveAddress};
     }
-                    
-    valtype code(stack.back());
-    stack.pop_back();
-    CScriptNum gasPrice(stack.back(), 0, 8);
-    stack.pop_back();
-    CScriptNum gasLimit(stack.back(), 0, 8);
-    stack.pop_back();
-    CScriptNum version(stack.back(), 0);
-    stack.pop_back();
-
-    return EthTransactionParams{version.getint(), gasLimit.getvalue(), gasPrice.getvalue(), code, receiveAddress};
+    catch(const scriptnum_error& err){
+        LogPrintf("Incorrect parameters to VM.");
+        return EthTransactionParams();
+    }   
 }
 
 QtumTransaction QtumTxConverter::createEthTX(const EthTransactionParams& etp, uint32_t nOut){
@@ -2035,9 +2127,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
 ///////////////////////////////////////////////////////////////////////////////////////// qtum
         if(tx.HasCreateOrCall()){
-            ByteCodeExec exec;
-            QtumTxConverter convert(tx, &view);
-            exec.performByteCode(convert.extractionQtumTransactions());
+            QtumTxConverter convert(tx, NULL);
+            ByteCodeExec exec(block, convert.extractionQtumTransactions());
+            exec.performByteCode();
         }
 
         std::unordered_map<dev::Address, dev::u256> addresses = globalState->addresses();

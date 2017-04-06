@@ -14,6 +14,8 @@
 #include "boost/multi_index_container.hpp"
 #include "boost/multi_index/ordered_index.hpp"
 
+#include <validation.h> // qtum
+
 class CBlockIndex;
 class CChainParams;
 class CReserveKey;
@@ -161,6 +163,8 @@ private:
     // Variables used for addPriorityTxs
     int lastFewTxs;
     bool blockFinished;
+
+    ByteCodeExecResult bceResult; // qtum
 
 public:
     BlockAssembler(const CChainParams& chainparams);
