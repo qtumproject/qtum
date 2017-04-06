@@ -910,6 +910,53 @@ UniValue callcontract(const JSONRPCRequest& request)
 }
 //////////////////////////////////////////////////////////////////////
 
+UniValue listcontracts(const JSONRPCRequest& request)
+{
+	if (request.fHelp)
+		throw runtime_error(
+				"listcontracts (start maxDisplay)\n"
+				"\nArgument:\n"
+				"1. start     (numeric or string, optional) The starting account index, default 1\n"
+				"2. maxDisplay       (numeric or string, optional) Max accounts to list, default 20\n"
+		);
+
+	LOCK(cs_main);
+
+	int start=1;
+	if (request.params.size() > 0){
+		start = request.params[0].get_int();
+		if (start<= 0)
+			throw JSONRPCError(RPC_TYPE_ERROR, "Invalid start, min=1");
+	}
+
+	int maxDisplay=20;
+	if (request.params.size() > 1){
+		maxDisplay = request.params[1].get_int();
+		if (maxDisplay <= 0)
+			throw JSONRPCError(RPC_TYPE_ERROR, "Invalid maxDisplay");
+	}
+
+	UniValue result(UniValue::VOBJ);
+
+	auto map = globalState->addresses();
+	int contractsCount=(int)map.size();
+
+	if (contractsCount>0 && start > contractsCount)
+		throw JSONRPCError(RPC_TYPE_ERROR, "start greater than max index "+ itostr(contractsCount));
+
+	int itStartPos=std::min(start-1,contractsCount);
+	int i=0;
+	for (auto it = std::next(map.begin(),itStartPos); it!=map.end(); it++)
+	{
+		result.push_back(Pair(it->first.hex(),ValueFromAmount(CAmount(globalState->balance(it->first)))));
+		i++;
+		if(i==maxDisplay)break;
+	}
+
+	return result;
+}
+
+
 struct CCoinsStats
 {
     int nHeight;
@@ -1597,6 +1644,7 @@ static const CRPCCommand commands[] =
     { "hidden",             "waitfornewblock",        &waitfornewblock,        true,  {"timeout"} },
     { "hidden",             "waitforblock",           &waitforblock,           true,  {"blockhash","timeout"} },
     { "hidden",             "waitforblockheight",     &waitforblockheight,     true,  {"height","timeout"} },
+	{ "blockchain",         "listcontracts",          &listcontracts,          true,  {"start", "maxDisplay"} },
 };
 
 void RegisterBlockchainRPCCommands(CRPCTable &t)

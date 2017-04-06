@@ -121,6 +121,8 @@ static const CRPCConvertParam vRPCConvertParams[] =
 	{ "createcontract", 1, "gasLimit" },
 	{ "createcontract", 2, "gasPrice" },
 	{ "createcontract", 4, "broadcast" },
+	{ "listcontracts", 0, "start" },
+	{ "listcontracts", 1, "maxDisplay" },
     // Echo with conversion (For testing only)
     { "echojson", 0, "arg0" },
     { "echojson", 1, "arg1" },
