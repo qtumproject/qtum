@@ -204,11 +204,7 @@ public:
     uint256 hashStateRoot; // qtum
     // block signature - proof-of-stake protect the block by signing the block using a stake holder private key
     std::vector<unsigned char> vchBlockSig;
-    unsigned int nFlags;  // ppcoin: block index flags
-    enum  
-    {
-        BLOCK_PROOF_OF_STAKE = (1 << 0), // is proof-of-stake block
-    };
+    bool fStake;
     uint256 nStakeModifier;
     // proof-of-stake specific fields
     COutPoint prevoutStake;
@@ -245,7 +241,7 @@ public:
         nNonce         = 0;
         hashStateRoot  = uint256(); // qtum
         vchBlockSig.clear();
-        nFlags = 0;
+        fStake = 0;
         nStakeModifier = uint256();
         hashProof = uint256();
         prevoutStake.SetNull();
@@ -267,7 +263,7 @@ public:
         nBits          = block.nBits;
         nNonce         = block.nNonce;
         hashStateRoot  = block.hashStateRoot; // qtum
-        nFlags = 0;
+        fStake = 0;
         nStakeModifier = uint256();
         hashProof = uint256(); 
         if (block.IsProofOfStake())
@@ -353,17 +349,17 @@ public:
 
     bool IsProofOfWork() const // qtum
     {
-        return !(nFlags & BLOCK_PROOF_OF_STAKE);
+        return !fStake;
     }
 
     bool IsProofOfStake() const
     {
-        return (nFlags & BLOCK_PROOF_OF_STAKE);
+        return fStake;
     }
 
     void SetProofOfStake() // qtum
     {
-        nFlags |= BLOCK_PROOF_OF_STAKE;
+        fStake = true;
     }
 	
     std::string ToString() const
@@ -449,7 +445,7 @@ public:
         READWRITE(nBits);
         READWRITE(nNonce);
         READWRITE(hashStateRoot); // qtum
-        READWRITE(nFlags);
+        READWRITE(fStake);
         READWRITE(nStakeModifier);
         if (IsProofOfStake())
         {
@@ -476,7 +472,7 @@ public:
         block.nNonce          = nNonce;
         block.hashStateRoot   = hashStateRoot; // qtum
         block.vchBlockSig     = vchBlockSig;
-        block.fStake          = IsProofOfStake();
+        block.fStake          = fStake;
         block.prevoutStake    = prevoutStake;
         block.nStakeTime      = nStakeTime; // qtum
         return block.GetHash();
