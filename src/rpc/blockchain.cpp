@@ -4,6 +4,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "amount.h"
+#include "base58.h"
 #include "chain.h"
 #include "chainparams.h"
 #include "checkpoints.h"
@@ -885,7 +886,15 @@ UniValue callcontract(const JSONRPCRequest& request)
     dev::u256 gasLimit(10000000); // MAX_MONEY
     dev::Address senderAddress("f1b0747fe29c1fe5d4ff1e63cefdbdeaae1329d6");
     if(request.params.size() == 3){
-        senderAddress = dev::Address(request.params[2].get_str());
+        CBitcoinAddress qtumSenderAddress(request.params[2].get_str());
+        if(qtumSenderAddress.IsValid()){
+            CKeyID keyid;
+            qtumSenderAddress.GetKeyID(keyid);
+            senderAddress = dev::Address(HexStr(valtype(keyid.begin(),keyid.end())));
+        }else{
+            senderAddress = dev::Address(request.params[2].get_str());
+        }
+
     }
      
     CBlock block;
