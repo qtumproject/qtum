@@ -15,6 +15,7 @@
 
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
+from test_framework.mininode import INITIAL_BLOCK_REWARD
 
 # Create one-input, one-output, no-fee transaction:
 class MempoolSpendCoinbaseTest(BitcoinTestFramework):
@@ -41,7 +42,7 @@ class MempoolSpendCoinbaseTest(BitcoinTestFramework):
         # is too immature to spend.
         b = [ self.nodes[0].getblockhash(n) for n in range(101, 103) ]
         coinbase_txids = [ self.nodes[0].getblock(h)['tx'][0] for h in b ]
-        spends_raw = [ create_tx(self.nodes[0], txid, node0_address, 49.99) for txid in coinbase_txids ]
+        spends_raw = [ create_tx(self.nodes[0], txid, node0_address, (INITIAL_BLOCK_REWARD-0.01)) for txid in coinbase_txids ]
 
         spend_101_id = self.nodes[0].sendrawtransaction(spends_raw[0])
 

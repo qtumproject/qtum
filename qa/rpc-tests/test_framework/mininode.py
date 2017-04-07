@@ -43,13 +43,15 @@ MY_VERSION = 70014  # past bip-31 for ping/pong
 MY_SUBVERSION = b"/python-mininode-tester:0.0.3/"
 MY_RELAY = 1 # from version 70001 onwards, fRelay should be appended to version messages (BIP37)
 
+COIN = 100000000 # 1 btc in satoshis
+
 MAX_INV_SZ = 50000
 MAX_BLOCK_BASE_SIZE = 2000000
 POW_TARGET_SPACING = 600
 INITIAL_HASH_STATE_ROOT = 0x21b463e3b52f6201c0ad6c991be0485b6ef8c092e64583ffa655cc1b171fe856
+INITIAL_BLOCK_REWARD = 20000.0
 
 
-COIN = 100000000 # 1 btc in satoshis
 
 NODE_NETWORK = (1 << 0)
 NODE_GETUTXO = (1 << 1)
@@ -426,11 +428,12 @@ class CTxWitness(object):
 class CTransaction(object):
     def __init__(self, tx=None):
         if tx is None:
-            self.nVersion = 1
+            self.nVersion = 2
             self.vin = []
             self.vout = []
             self.wit = CTxWitness()
             self.nLockTime = 0
+            self.nTime = 0
             self.sha256 = None
             self.hash = None
         else:
@@ -438,6 +441,7 @@ class CTransaction(object):
             self.vin = copy.deepcopy(tx.vin)
             self.vout = copy.deepcopy(tx.vout)
             self.nLockTime = tx.nLockTime
+            self.nTime = tx.nTime
             self.sha256 = tx.sha256
             self.hash = tx.hash
             self.wit = copy.deepcopy(tx.wit)
@@ -459,6 +463,8 @@ class CTransaction(object):
             self.wit.vtxinwit = [CTxInWitness() for i in range(len(self.vin))]
             self.wit.deserialize(f)
         self.nLockTime = struct.unpack("<I", f.read(4))[0]
+        if self.nVersion > 2 and self.nVersion < 3:
+            self.nTime = struct.unpack("<I", f.read(4))[0]
         self.sha256 = None
         self.hash = None
 
@@ -468,6 +474,8 @@ class CTransaction(object):
         r += ser_vector(self.vin)
         r += ser_vector(self.vout)
         r += struct.pack("<I", self.nLockTime)
+        if self.nVersion > 2 and self.nVersion < 3:
+            r += struct.pack("<I", self.nTime)
         return r
 
     # Only serialize with witness when explicitly called for
@@ -491,6 +499,8 @@ class CTransaction(object):
                     self.wit.vtxinwit.append(CTxInWitness())
             r += self.wit.serialize()
         r += struct.pack("<I", self.nLockTime)
+        if self.nVersion > 2 and self.nVersion < 3:
+            r += struct.pack("<I", self.nTime)
         return r
 
     # Regular serialization is without witness -- must explicitly

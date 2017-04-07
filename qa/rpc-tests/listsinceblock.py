@@ -5,6 +5,7 @@
 
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal
+from test_framework.mininode import INITIAL_BLOCK_REWARD
 
 class ListSinceBlockTest (BitcoinTestFramework):
 
@@ -48,7 +49,7 @@ class ListSinceBlockTest (BitcoinTestFramework):
 
         assert_equal(self.nodes[0].getbalance(), 0)
         assert_equal(self.nodes[1].getbalance(), 0)
-        assert_equal(self.nodes[2].getbalance(), 50)
+        assert_equal(self.nodes[2].getbalance(), INITIAL_BLOCK_REWARD)
         assert_equal(self.nodes[3].getbalance(), 0)
 
         # Split network into two

@@ -10,7 +10,7 @@ from test_framework.util import (
     assert_equal,
     connect_nodes_bi,
 )
-
+from test_framework.mininode import INITIAL_BLOCK_REWARD
 
 class WalletAccountsTest(BitcoinTestFramework):
 
@@ -31,7 +31,7 @@ class WalletAccountsTest(BitcoinTestFramework):
         
         node.generate(101)
         
-        assert_equal(node.getbalance(), 4300)
+        assert_equal(node.getbalance(), INITIAL_BLOCK_REWARD*86)
         
         accounts = ["a","b","c","d","e"]
         amount_to_send = 1.0
@@ -64,13 +64,13 @@ class WalletAccountsTest(BitcoinTestFramework):
         
         node.generate(16)
         
-        expected_account_balances = {"": 5200}
+        expected_account_balances = {"": INITIAL_BLOCK_REWARD*104}
         for account in accounts:
             expected_account_balances[account] = 0
         
         assert_equal(node.listaccounts(), expected_account_balances)
         
-        assert_equal(node.getbalance(""), 5200)
+        assert_equal(node.getbalance(""), INITIAL_BLOCK_REWARD*104)
         
         for account in accounts:
             address = node.getaccountaddress("")

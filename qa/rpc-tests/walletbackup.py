@@ -37,6 +37,8 @@ from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
 from random import randint
 import logging
+from test_framework.mininode import INITIAL_BLOCK_REWARD
+
 logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO, stream=sys.stdout)
 
 class WalletBackupTest(BitcoinTestFramework):
@@ -112,10 +114,10 @@ class WalletBackupTest(BitcoinTestFramework):
         self.nodes[3].generate(100)
         sync_blocks(self.nodes)
 
-        assert_equal(self.nodes[0].getbalance(), 50)
-        assert_equal(self.nodes[1].getbalance(), 50)
-        assert_equal(self.nodes[2].getbalance(), 50)
-        assert_equal(self.nodes[3].getbalance(), 4250)
+        assert_equal(self.nodes[0].getbalance(), INITIAL_BLOCK_REWARD)
+        assert_equal(self.nodes[1].getbalance(), INITIAL_BLOCK_REWARD)
+        assert_equal(self.nodes[2].getbalance(), INITIAL_BLOCK_REWARD)
+        assert_equal(self.nodes[3].getbalance(), 85*INITIAL_BLOCK_REWARD)
 
         logging.info("Creating transactions")
         # Five rounds of sending each other transactions.
@@ -147,7 +149,7 @@ class WalletBackupTest(BitcoinTestFramework):
 
         # At this point, there are 214 blocks (103 for setup, then 10 rounds, then 101.)
         # 114 are mature, so the sum of all wallets should be 114 * 50 = 5700.
-        assert_equal(total, 5700)
+        assert_equal(total, 114*INITIAL_BLOCK_REWARD)
 
         ##
         # Test restoring spender wallets from backups

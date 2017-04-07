@@ -10,6 +10,7 @@
 
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
+from test_framework.mininode import INITIAL_BLOCK_REWARD
 from struct import *
 from io import BytesIO
 from codecs import encode
@@ -69,7 +70,7 @@ class RESTTest (BitcoinTestFramework):
         self.nodes[2].generate(100)
         self.sync_all()
 
-        assert_equal(self.nodes[0].getbalance(), 50)
+        assert_equal(self.nodes[0].getbalance(), INITIAL_BLOCK_REWARD)
 
         txid = self.nodes[0].sendtoaddress(self.nodes[1].getnewaddress(), 0.1)
         self.sync_all()
