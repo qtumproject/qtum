@@ -20,7 +20,7 @@ from test_framework.util import (
     start_nodes,
     connect_nodes_bi,
 )
-
+from test_framework.mininode import INITIAL_BLOCK_REWARD
 
 class BlockchainTest(BitcoinTestFramework):
     """
@@ -51,11 +51,11 @@ class BlockchainTest(BitcoinTestFramework):
         node = self.nodes[0]
         res = node.gettxoutsetinfo()
 
-        assert_equal(res['total_amount'], Decimal('5750.00000000'))
+        assert_equal(res['total_amount'], Decimal(INITIAL_BLOCK_REWARD*115))
         assert_equal(res['transactions'], 115)
         assert_equal(res['height'], 115)
         assert_equal(res['txouts'], 115)
-        assert_equal(res['bytes_serialized'], 7935),
+        assert_equal(res['bytes_serialized'], 8165),
         assert_equal(len(res['bestblock']), 64)
         assert_equal(len(res['hash_serialized']), 64)
 
