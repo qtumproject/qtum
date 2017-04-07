@@ -4,6 +4,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "amount.h"
+#include "base58.h"
 #include "chain.h"
 #include "chainparams.h"
 #include "checkpoints.h"
@@ -148,6 +149,47 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool tx
         result.push_back(Pair("nextblockhash", pnext->GetBlockHash().GetHex()));
     return result;
 }
+
+//////////////////////////////////////////////////////////////////////////// // qtum
+UniValue executionResultToJSON(const dev::eth::ExecutionResult& exRes)
+{
+    UniValue result(UniValue::VOBJ);
+    result.push_back(Pair("gasUsed", CAmount(exRes.gasUsed)));
+    std::stringstream ss;
+    ss << exRes.excepted;
+    result.push_back(Pair("excepted", ss.str()));
+    result.push_back(Pair("newAddress", exRes.newAddress.hex()));
+    result.push_back(Pair("output", HexStr(exRes.output)));
+    result.push_back(Pair("codeDeposit", static_cast<int32_t>(exRes.codeDeposit)));
+    result.push_back(Pair("gasRefunded", CAmount(exRes.gasRefunded)));
+    result.push_back(Pair("depositSize", static_cast<int32_t>(exRes.depositSize)));
+    result.push_back(Pair("gasForDeposit", CAmount(exRes.gasForDeposit)));
+    return result;
+}
+
+UniValue transactionReceiptToJSON(const dev::eth::TransactionReceipt& txRec)
+{
+    UniValue result(UniValue::VOBJ);
+    result.push_back(Pair("stateRoot", txRec.stateRoot().hex()));
+    result.push_back(Pair("gasUsed", CAmount(txRec.gasUsed())));
+    result.push_back(Pair("bloom", txRec.bloom().hex()));
+    UniValue logEntries(UniValue::VARR);
+    dev::eth::LogEntries logs = txRec.log();
+    for(dev::eth::LogEntry log : logs){
+        UniValue logEntrie(UniValue::VOBJ);
+        logEntrie.push_back(Pair("address", log.address.hex()));
+        UniValue topics(UniValue::VARR);
+        for(dev::h256 l : log.topics){
+            topics.push_back(l.hex());
+        }
+        logEntrie.push_back(Pair("topics", topics));
+        logEntrie.push_back(Pair("data", HexStr(log.data)));
+        logEntries.push_back(logEntrie);
+    }
+    result.push_back(Pair("log", logEntries));
+    return result;
+}
+////////////////////////////////////////////////////////////////////////////
 
 UniValue getblockcount(const JSONRPCRequest& request)
 {
@@ -658,7 +700,6 @@ UniValue getaccountinfo(const JSONRPCRequest& request)
     auto storage(globalState->storage(addrAccount));
 
     UniValue storageUV(UniValue::VOBJ);
-    int fj = 0;
     for (auto j: storage)
     {
         UniValue e(UniValue::VOBJ);
@@ -817,6 +858,113 @@ UniValue getblock(const JSONRPCRequest& request)
 
     return blockToJSON(block, pblockindex);
 }
+
+////////////////////////////////////////////////////////////////////// // qtum
+UniValue callcontract(const JSONRPCRequest& request)
+{
+    if (request.fHelp || request.params.size() < 2)
+        throw runtime_error(
+             "callcontract \"address\" \"data\" ( address )\n"
+             "\nArgument:\n"
+             "1. \"address\"          (string, required) The account address\n"
+             "2. \"data\"             (string, required) The data hex string\n"
+             "3. address            (string, optional) The sender address hex string\n"
+         );
+ 
+    LOCK(cs_main);
+    
+    std::string strAddr = request.params[0].get_str();
+    std::string data = request.params[1].get_str();
+    if(strAddr.size() != 40)
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect address");
+ 
+    dev::Address addrAccount(strAddr);
+    if(!globalState->addressInUse(addrAccount))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
+     
+    dev::u256 gasPrice = 1;
+    dev::u256 gasLimit(10000000); // MAX_MONEY
+    dev::Address senderAddress("f1b0747fe29c1fe5d4ff1e63cefdbdeaae1329d6");
+    if(request.params.size() == 3){
+        CBitcoinAddress qtumSenderAddress(request.params[2].get_str());
+        if(qtumSenderAddress.IsValid()){
+            CKeyID keyid;
+            qtumSenderAddress.GetKeyID(keyid);
+            senderAddress = dev::Address(HexStr(valtype(keyid.begin(),keyid.end())));
+        }else{
+            senderAddress = dev::Address(request.params[2].get_str());
+        }
+
+    }
+     
+    CBlock block;
+    CMutableTransaction tx;
+    tx.vout.push_back(CTxOut(0, CScript() << OP_DUP << OP_HASH160 << senderAddress.asBytes() << OP_EQUALVERIFY << OP_CHECKSIG));
+    block.vtx.push_back(MakeTransactionRef(CTransaction(tx)));
+ 
+    std::vector<unsigned char> opcode(ParseHex(data));
+    QtumTransaction callTransaction(0, gasPrice, gasLimit, addrAccount, opcode, dev::u256(0));
+    callTransaction.forceSender(senderAddress);
+
+    ByteCodeExec exec(block, std::vector<QtumTransaction>(1, callTransaction));
+    exec.performByteCode(dev::eth::Permanence::Reverted);
+    std::vector<execResult> execResults = exec.getResult();
+ 
+    UniValue result(UniValue::VOBJ);
+    result.push_back(Pair("address", strAddr));
+    result.push_back(Pair("executionResult", executionResultToJSON(execResults[0].first)));
+    result.push_back(Pair("transactionReceipt", transactionReceiptToJSON(execResults[0].second)));
+ 
+    return result;
+}
+//////////////////////////////////////////////////////////////////////
+
+UniValue listcontracts(const JSONRPCRequest& request)
+{
+	if (request.fHelp)
+		throw runtime_error(
+				"listcontracts (start maxDisplay)\n"
+				"\nArgument:\n"
+				"1. start     (numeric or string, optional) The starting account index, default 1\n"
+				"2. maxDisplay       (numeric or string, optional) Max accounts to list, default 20\n"
+		);
+
+	LOCK(cs_main);
+
+	int start=1;
+	if (request.params.size() > 0){
+		start = request.params[0].get_int();
+		if (start<= 0)
+			throw JSONRPCError(RPC_TYPE_ERROR, "Invalid start, min=1");
+	}
+
+	int maxDisplay=20;
+	if (request.params.size() > 1){
+		maxDisplay = request.params[1].get_int();
+		if (maxDisplay <= 0)
+			throw JSONRPCError(RPC_TYPE_ERROR, "Invalid maxDisplay");
+	}
+
+	UniValue result(UniValue::VOBJ);
+
+	auto map = globalState->addresses();
+	int contractsCount=(int)map.size();
+
+	if (contractsCount>0 && start > contractsCount)
+		throw JSONRPCError(RPC_TYPE_ERROR, "start greater than max index "+ itostr(contractsCount));
+
+	int itStartPos=std::min(start-1,contractsCount);
+	int i=0;
+	for (auto it = std::next(map.begin(),itStartPos); it!=map.end(); it++)
+	{
+		result.push_back(Pair(it->first.hex(),ValueFromAmount(CAmount(globalState->balance(it->first)))));
+		i++;
+		if(i==maxDisplay)break;
+	}
+
+	return result;
+}
+
 
 struct CCoinsStats
 {
@@ -1497,12 +1645,15 @@ static const CRPCCommand commands[] =
 
     { "blockchain",         "preciousblock",          &preciousblock,          true,  {"blockhash"} },
 
+    { "blockchain",         "callcontract",           &callcontract,           true,  {"address","data"} }, // qtum
+
     /* Not shown in help */
     { "hidden",             "invalidateblock",        &invalidateblock,        true,  {"blockhash"} },
     { "hidden",             "reconsiderblock",        &reconsiderblock,        true,  {"blockhash"} },
     { "hidden",             "waitfornewblock",        &waitfornewblock,        true,  {"timeout"} },
     { "hidden",             "waitforblock",           &waitforblock,           true,  {"blockhash","timeout"} },
     { "hidden",             "waitforblockheight",     &waitforblockheight,     true,  {"height","timeout"} },
+	{ "blockchain",         "listcontracts",          &listcontracts,          true,  {"start", "maxDisplay"} },
 };
 
 void RegisterBlockchainRPCCommands(CRPCTable &t)

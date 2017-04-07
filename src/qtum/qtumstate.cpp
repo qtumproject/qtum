@@ -5,12 +5,14 @@
 execResult QtumState::execute(dev::eth::EnvInfo const& _envInfo, dev::eth::SealEngineFace const& _sealEngine, QtumTransaction const& _t, dev::eth::Permanence _p, OnOpFunc const& _onOp){
     execResult&& res = execResult(dev::eth::ExecutionResult(), dev::eth::TransactionReceipt(dev::h256(), dev::u256(), dev::eth::LogEntries()));
     try{
-        addBalance(_t.sender(), _t.value() + (_t.gas() * _t.gasPrice())); // temp
+        addBalance(_t.sender(), _t.value() + (_t.gas() * _t.gasPrice()));
         newAddress = _t.isCreation() ? createQtumAddress(_t.getHashWith(), _t.getNVout()) : dev::Address();
         res = State::execute(_envInfo, _sealEngine, _t, _p, _onOp);
 
-        dev::eth::Account* acAuthor = const_cast<dev::eth::Account*>(account(_envInfo.author()));
-        acAuthor->kill();
+        if(_p != dev::eth::Permanence::Reverted){
+            dev::eth::Account* acAuthor = const_cast<dev::eth::Account*>(account(_envInfo.author()));
+            acAuthor->kill();
+        }
 	}catch(dev::Exception const& _e){
         std::stringstream exception;
         exception << dev::eth::toTransactionException(_e);
@@ -18,11 +20,13 @@ execResult QtumState::execute(dev::eth::EnvInfo const& _envInfo, dev::eth::SealE
         res.first.excepted = dev::eth::toTransactionException(_e);
     }
     
-    dev::eth::Account* acSender = const_cast<dev::eth::Account*>(account(_t.sender()));
-    acSender->kill();
-    
-    commit(CommitBehaviour::RemoveEmptyAccounts);
-    db().commit();
+    if(_p != dev::eth::Permanence::Reverted){
+        dev::eth::Account* acSender = const_cast<dev::eth::Account*>(account(_t.sender()));
+        acSender->kill();
+
+        commit(CommitBehaviour::RemoveEmptyAccounts);
+        db().commit();
+    }
 
     newAddress = dev::Address();
     return std::move(res);
