@@ -1794,7 +1794,7 @@ valtype GetSenderAddress(const CTransaction& tx, const CCoinsViewCache* coinsVie
     return valtype();
 }
 
-void ByteCodeExec::performByteCode(){
+void ByteCodeExec::performByteCode(dev::eth::Permanence type){
     for(QtumTransaction& tx : txs){
         dev::eth::EnvInfo envInfo(BuildEVMEnvironment());
         std::unique_ptr<dev::eth::SealEngineFace> se(dev::eth::ChainParams(dev::eth::genesisInfo(dev::eth::Network::HomesteadTest)).createSealEngine());
@@ -1804,7 +1804,7 @@ void ByteCodeExec::performByteCode(){
             result.push_back(std::make_pair(execRes, dev::eth::TransactionReceipt(dev::h256(), dev::u256(), dev::eth::LogEntries())));
             continue;
         }
-        result.push_back(globalState->execute(envInfo, *se.get(), tx, dev::eth::Permanence::Committed, OnOpFunc()));
+        result.push_back(globalState->execute(envInfo, *se.get(), tx, type, OnOpFunc()));
     }
 }
 
