@@ -158,6 +158,10 @@ testScripts = [
     'rpcnamedargs.py',
     'listsinceblock.py',
     'p2p-leaktests.py',
+
+    #qtum
+    'qtum-opcreate.py',
+    'qtum-state-root.py',
 ]
 if ENABLE_ZMQ:
     testScripts.append('zmq_test.py')
