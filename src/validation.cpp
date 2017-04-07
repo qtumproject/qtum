@@ -1812,9 +1812,14 @@ UniValue vmLogToJSON(const execResult& execRes, const CTransaction& tx, const CB
         logEntrie.push_back(Pair("address", log.address.hex()));
         UniValue topics(UniValue::VARR);
         for(dev::h256 l : log.topics){
-            topics.push_back(l.hex());
+            UniValue topicPair(UniValue::VOBJ);
+            topicPair.push_back(Pair("raw", l.hex()));
+            topics.push_back(topicPair);
+            //TODO add "pretty" field for human readable data
         }
-        logEntrie.push_back(Pair("data", HexStr(log.data)));
+        UniValue dataPair(UniValue::VOBJ);
+        dataPair.push_back(Pair("raw", HexStr(log.data)));
+        logEntrie.push_back(Pair("data", dataPair));
         logEntrie.push_back(Pair("topics", topics));
         logEntries.push_back(logEntrie);
     }
