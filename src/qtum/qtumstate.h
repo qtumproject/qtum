@@ -24,6 +24,8 @@ public:
     execResult execute(dev::eth::EnvInfo const& _envInfo, 
         dev::eth::SealEngineFace const& _sealEngine, QtumTransaction const& _t, dev::eth::Permanence _p, OnOpFunc const& _onOp);
 
+    virtual ~QtumState(){}
+
 private:
 
     void addBalance(dev::Address const& _id, dev::u256 const& _amount);
