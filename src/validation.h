@@ -39,6 +39,8 @@
 #include <libethashseal/GenesisInfo.h>
 
 extern std::unique_ptr<QtumState> globalState;
+extern bool fRecordLogOpcodes;
+extern bool fIsVMlogFile;
 
  using valtype = std::vector<unsigned char>;
 ///////////////////////////////////////////

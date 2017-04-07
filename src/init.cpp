@@ -1465,6 +1465,9 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
                 else
                     globalState->setRoot(uintToh256(chainparams.GenesisBlock().hashStateRoot));
                 globalState->db().commit();
+
+                fRecordLogOpcodes = IsArgSet("-record-log-opcodes");
+                fIsVMlogFile = boost::filesystem::exists(GetDataDir() / "vmExecLogs.json");
                 ///////////////////////////////////////////////////////////
 
                 // Initialize the block index (no-op if non-empty database was already loaded)

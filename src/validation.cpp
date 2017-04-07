@@ -55,9 +55,13 @@
  */
 
  ////////////////////////////// qtum
+#include <iostream>
  #include "pubkey.h"
+#include <univalue.h>
 
  std::unique_ptr<QtumState> globalState;
+bool fRecordLogOpcodes = false;
+bool fIsVMlogFile = false;
  //////////////////////////////
 
 CCriticalSection cs_main;
@@ -1794,6 +1798,47 @@ valtype GetSenderAddress(const CTransaction& tx, const CCoinsViewCache* coinsVie
     return valtype();
 }
 
+UniValue vmLogToJSON(const execResult& execRes, const CTransaction& tx, const CBlock& block){
+    UniValue result(UniValue::VOBJ);
+    result.push_back(Pair("txid", tx.GetHash().GetHex()));
+    result.push_back(Pair("address", execRes.first.newAddress.hex()));
+    result.push_back(Pair("time", block.GetBlockTime()));
+    result.push_back(Pair("blockhash", block.GetHash().GetHex()));
+    result.push_back(Pair("blockheight", chainActive.Tip()->nHeight + 1));
+    UniValue logEntries(UniValue::VARR);
+    dev::eth::LogEntries logs = execRes.second.log();
+    for(dev::eth::LogEntry log : logs){
+        UniValue logEntrie(UniValue::VOBJ);
+        logEntrie.push_back(Pair("address", log.address.hex()));
+        UniValue topics(UniValue::VARR);
+        for(dev::h256 l : log.topics){
+            topics.push_back(l.hex());
+        }
+        logEntrie.push_back(Pair("data", HexStr(log.data)));
+        logEntrie.push_back(Pair("topics", topics));
+        logEntries.push_back(logEntrie);
+    }
+    result.push_back(Pair("entries", logEntries));
+    return result;
+}
+
+void writeVMlog(const std::vector<execResult>& res, const CTransaction& tx, const CBlock& block){
+    std::stringstream ss;
+    if(fIsVMlogFile)
+        ss << ",";
+    for(size_t i = 0; i < res.size(); i++){
+        ss << vmLogToJSON(res[i], tx, block).write();
+        if(i != res.size() - 1){
+            ss << ",";
+        }
+    }
+    boost::filesystem::path qtumDir = GetDataDir() / "vmExecLogs.json";
+    std::ofstream file(qtumDir.string(), std::ios::out | std::ios::app);
+    file << ss.str();
+    file.close();
+    fIsVMlogFile = true;
+}
+
 void ByteCodeExec::performByteCode(){
     for(QtumTransaction& tx : txs){
         dev::eth::EnvInfo envInfo(BuildEVMEnvironment());
@@ -2130,6 +2175,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             QtumTxConverter convert(tx, NULL);
             ByteCodeExec exec(block, convert.extractionQtumTransactions());
             exec.performByteCode();
+            std::vector<execResult> resultExec(exec.getResult());
+            if(fRecordLogOpcodes && !fJustCheck){
+                writeVMlog(resultExec, tx, block);
+            }
         }
 
         std::unordered_map<dev::Address, dev::u256> addresses = globalState->addresses();
