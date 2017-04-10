@@ -8,6 +8,8 @@ execResult QtumState::execute(dev::eth::EnvInfo const& _envInfo, dev::eth::SealE
         addBalance(_t.sender(), _t.value() + (_t.gas() * _t.gasPrice()));
         newAddress = _t.isCreation() ? createQtumAddress(_t.getHashWith(), _t.getNVout()) : dev::Address();
         res = State::execute(_envInfo, _sealEngine, _t, _p, _onOp);
+        if(!_t.isCreation())
+            res.first.newAddress = _t.receiveAddress();
 
         if(_p != dev::eth::Permanence::Reverted){
             dev::eth::Account* acAuthor = const_cast<dev::eth::Account*>(account(_envInfo.author()));
@@ -18,6 +20,8 @@ execResult QtumState::execute(dev::eth::EnvInfo const& _envInfo, dev::eth::SealE
         exception << dev::eth::toTransactionException(_e);
         LogPrintf("VMException: %s\n", exception.str());
         res.first.excepted = dev::eth::toTransactionException(_e);
+        if(!_t.isCreation())
+            res.first.newAddress = _t.receiveAddress();
     }
     
     if(_p != dev::eth::Permanence::Reverted){

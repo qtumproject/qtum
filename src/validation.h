@@ -39,6 +39,8 @@
 #include <libethashseal/GenesisInfo.h>
 
 extern std::unique_ptr<QtumState> globalState;
+extern bool fRecordLogOpcodes;
+extern bool fIsVMlogFile;
 
  using valtype = std::vector<unsigned char>;
 ///////////////////////////////////////////
@@ -591,6 +593,8 @@ void DumpMempool();
 bool LoadMempool();
 
 //////////////////////////////////////////////////////// qtum
+void writeVMlog(const std::vector<execResult>& res, const CTransaction& tx = CTransaction(), const CBlock& block = CBlock());
+
 struct EthTransactionParams{
     int64_t version;
     dev::u256 gasLimit;
