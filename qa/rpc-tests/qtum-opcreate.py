@@ -57,27 +57,53 @@ class OpCreateTest(BitcoinTestFramework):
         self.is_network_split = False
         connect_nodes(self.nodes[0], 1)
 
-    # Executes a simple
+    # Creates a simple contract via a raw tx
     def basic_contract_is_created_raw_tx_test(self):
         for i in range(2):
             assert(len(self.nodes[i].listcontracts()) == 0)
         node = self.nodes[0]
         amount = 10*COIN
 
+        """
+        pragma solidity ^0.4.10;
+        contract Example {
+            function () payable {}
+        }
+        """
         tx = make_op_create_transaction(node,
             [make_vin(node, amount)],
-            [make_op_create_output(node, int(amount-0.01*COIN), b"\x01", b"\xff\xff\x00", b"\x01", b"\x00")]
+            [make_op_create_output(node, 0, b"\x01", 10000, 1000, bytes.fromhex("60606040523415600b57fe5b5b60398060196000396000f30060606040525b600b5b5b565b0000a165627a7a7230582092926a9814888ff08700cbd86cf4ff8c50052f5fd894e794570d9551733591d60029"))]
         )
         node.sendrawtransaction(tx)
         node.generate(1)
         sync_blocks(self.nodes)
         for i in range(2):
-            print(self.nodes[i].listcontracts())
             assert(len(self.nodes[i].listcontracts()) == 1)
 
     # Verifies that large contracts can be deployed
     def large_contract_creation_test(self):
         node = self.nodes[0]
+        """
+        contract Factory {
+            bytes32[] Names;
+            address[] newContracts;
+            function createContract (bytes32 name) {
+                address newContract = new Contract(name);
+                newContracts.push(newContract);
+            } 
+            function getName (uint i) {
+                Contract con = Contract(newContracts[i]);
+                Names[i] = con.Name();
+            }
+        }
+        contract Contract {
+            bytes32 public Name;
+            function Contract (bytes32 name) {
+                Name = name;
+            }
+            function () payable {}
+        }
+        """
         node.createcontract("606060405234610000575b61034a806100196000396000f30060606040526000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680633f811b80146100495780636b8ff5741461006a575b610000565b3461000057610068600480803560001916906020019091905050610087565b005b3461000057610085600480803590602001909190505061015b565b005b60008160405160e18061023e833901808260001916600019168152602001915050604051809103906000f08015610000579050600180548060010182818154818355818115116101035781836000526020600020918201910161010291905b808211156100fe5760008160009055506001016100e6565b5090565b5b505050916000526020600020900160005b83909190916101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550505b5050565b6000600182815481101561000057906000526020600020900160005b9054906101000a900473ffffffffffffffffffffffffffffffffffffffff1690508073ffffffffffffffffffffffffffffffffffffffff16638052474d6000604051602001526040518163ffffffff167c0100000000000000000000000000000000000000000000000000000000028152600401809050602060405180830381600087803b156100005760325a03f1156100005750505060405180519050600083815481101561000057906000526020600020900160005b5081600019169055505b50505600606060405234610000576040516020806100e1833981016040528080519060200190919050505b80600081600019169055505b505b609f806100426000396000f30060606040523615603d576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680638052474d146045575b60435b5b565b005b34600057604f606d565b60405180826000191660001916815260200191505060405180910390f35b600054815600a165627a7a723058209bd85f2ac8e941766991a59f8a0183902c8168f671bfdb430ad9eab85fd697b70029a165627a7a72305820ed128e4929006fce038bc859dd8837890e7ee8d296cd3ed30b66603a8423397e0029")
         block_height = node.getblockcount()
         node.generate(1)
@@ -86,12 +112,19 @@ class OpCreateTest(BitcoinTestFramework):
             assert(self.nodes[i].getblockcount() == block_height+1)
             assert(len(self.nodes[i].listcontracts()) == 2)
 
+
     # Tests mining many contracts in one block
     def many_contracts_in_one_block_test(self):
         node = self.nodes[0]
         num_new_contracts = 25
         for _ in range(num_new_contracts):
-            node.createcontract("60606040523415600b57fe5b5b60398060196000396000f30060606040525b600b5b5b565b0000a165627a7a723058209216cead91e029b841ce47ac13c082940663ea5a71bd29fbc5b7dfab2b16ace40029")
+            """
+            pragma solidity ^0.4.10;
+            contract Example {
+                function () payable {}
+            }
+            """
+            node.createcontract("60606040523415600b57fe5b5b60398060196000396000f30060606040525b600b5b5b565b0000a165627a7a7230582092926a9814888ff08700cbd86cf4ff8c50052f5fd894e794570d9551733591d60029")
 
         block_height = node.getblockcount()
         node.generate(1)
@@ -105,7 +138,13 @@ class OpCreateTest(BitcoinTestFramework):
         node = self.nodes[0]
         num_old_contracts = len(node.listcontracts(1, 1000))
         old_block_height = node.getblockcount()
-        node.createcontract("60606040523415600b57fe5b5b60398060196000396000f30060606040525b600b5b5b565b0000a165627a7a723058209216cead91e029b841ce47ac13c082940663ea5a71bd29fbc5b7dfab2b16ace40029")
+        """
+        pragma solidity ^0.4.10;
+        contract Example {
+            function () payable {}
+        }
+        """
+        node.createcontract("60606040523415600b57fe5b5b60398060196000396000f30060606040525b600b5b5b565b0000a165627a7a7230582092926a9814888ff08700cbd86cf4ff8c50052f5fd894e794570d9551733591d60029")
         new_block_hash = node.generate(1)[0]
         assert_equal(node.getblockcount(), old_block_height+1)
         assert_equal(len(node.listcontracts(1, 1000)), num_old_contracts+1)
@@ -119,7 +158,6 @@ class OpCreateTest(BitcoinTestFramework):
         self.large_contract_creation_test()
         self.many_contracts_in_one_block_test()
         self.contract_reorg_test()
-
 
 if __name__ == '__main__':
     OpCreateTest().main()

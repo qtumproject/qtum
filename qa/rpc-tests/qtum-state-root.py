@@ -32,7 +32,13 @@ class StateRootTest(BitcoinTestFramework):
         self.node.generate(150)
         block_hash_a = self.node.getblockhash(150)
         block_a = self.node.getblock(block_hash_a)
-        self.node.createcontract("00")
+        """
+        pragma solidity ^0.4.10;
+        contract Example {
+            function () payable {}
+        }
+        """
+        self.node.createcontract("60606040523415600b57fe5b5b60398060196000396000f30060606040525b600b5b5b565b0000a165627a7a7230582092926a9814888ff08700cbd86cf4ff8c50052f5fd894e794570d9551733591d60029")
         self.node.generate(1)
         block_hash_b = self.node.getblockhash(151)
         block_b = self.node.getblock(block_hash_b)
