@@ -1800,11 +1800,17 @@ valtype GetSenderAddress(const CTransaction& tx, const CCoinsViewCache* coinsVie
 
 UniValue vmLogToJSON(const execResult& execRes, const CTransaction& tx, const CBlock& block){
     UniValue result(UniValue::VOBJ);
-    result.push_back(Pair("txid", tx.GetHash().GetHex()));
+    if(tx != CTransaction())
+        result.push_back(Pair("txid", tx.GetHash().GetHex()));
     result.push_back(Pair("address", execRes.first.newAddress.hex()));
-    result.push_back(Pair("time", block.GetBlockTime()));
-    result.push_back(Pair("blockhash", block.GetHash().GetHex()));
-    result.push_back(Pair("blockheight", chainActive.Tip()->nHeight + 1));
+    if(block.GetHash() != CBlock().GetHash()){
+        result.push_back(Pair("time", block.GetBlockTime()));
+        result.push_back(Pair("blockhash", block.GetHash().GetHex()));
+        result.push_back(Pair("blockheight", chainActive.Tip()->nHeight + 1));
+    } else {
+        result.push_back(Pair("time", GetAdjustedTime()));
+        result.push_back(Pair("blockheight", chainActive.Tip()->nHeight));
+    }
     UniValue logEntries(UniValue::VARR);
     dev::eth::LogEntries logs = execRes.second.log();
     for(dev::eth::LogEntry log : logs){
@@ -1828,17 +1834,27 @@ UniValue vmLogToJSON(const execResult& execRes, const CTransaction& tx, const CB
 }
 
 void writeVMlog(const std::vector<execResult>& res, const CTransaction& tx, const CBlock& block){
+    boost::filesystem::path qtumDir = GetDataDir() / "vmExecLogs.json";
     std::stringstream ss;
-    if(fIsVMlogFile)
+    if(fIsVMlogFile){
         ss << ",";
+    } else {
+        std::ofstream file(qtumDir.string(), std::ios::out | std::ios::app);
+        file << "{\"logs\":[]}";
+        file.close();
+    }
+
     for(size_t i = 0; i < res.size(); i++){
         ss << vmLogToJSON(res[i], tx, block).write();
         if(i != res.size() - 1){
             ss << ",";
+        } else {
+            ss << "]}";
         }
     }
-    boost::filesystem::path qtumDir = GetDataDir() / "vmExecLogs.json";
-    std::ofstream file(qtumDir.string(), std::ios::out | std::ios::app);
+    
+    std::ofstream file(qtumDir.string(), std::ios::in | std::ios::out);
+    file.seekp(-2, std::ios::end);
     file << ss.str();
     file.close();
     fIsVMlogFile = true;

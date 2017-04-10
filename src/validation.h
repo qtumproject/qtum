@@ -593,6 +593,8 @@ void DumpMempool();
 bool LoadMempool();
 
 //////////////////////////////////////////////////////// qtum
+void writeVMlog(const std::vector<execResult>& res, const CTransaction& tx = CTransaction(), const CBlock& block = CBlock());
+
 struct EthTransactionParams{
     int64_t version;
     dev::u256 gasLimit;
