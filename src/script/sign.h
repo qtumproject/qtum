@@ -73,6 +73,7 @@ bool ProduceSignature(const BaseSignatureCreator& creator, const CScript& script
 /** Produce a script signature for a transaction. */
 bool SignSignature(const CKeyStore &keystore, const CScript& fromPubKey, CMutableTransaction& txTo, unsigned int nIn, const CAmount& amount, int nHashType);
 bool SignSignature(const CKeyStore& keystore, const CTransaction& txFrom, CMutableTransaction& txTo, unsigned int nIn, int nHashType);
+bool VerifySignature(const CTransaction& txFrom, const CTransaction& txTo, unsigned int nIn, unsigned int flags);
 
 /** Combine two script signatures using a generic signature checker, intelligently, possibly with OP_0 placeholders. */
 SignatureData CombineSignatures(const CScript& scriptPubKey, const BaseSignatureChecker& checker, const SignatureData& scriptSig1, const SignatureData& scriptSig2);
