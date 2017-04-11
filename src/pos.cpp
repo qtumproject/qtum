@@ -13,6 +13,7 @@
 #include "timedata.h"
 #include "chainparams.h"
 #include "script/sign.h"
+#include "consensus/consensus.h"
 
 using namespace std;
 
@@ -123,7 +124,7 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, CValidationState& state, const C
 
     // Min age requirement
     int nDepth;
-    if (IsConfirmedInNPrevBlocks(txindex, pindexPrev, nStakeMinConfirmations - 1, nDepth))
+    if (IsConfirmedInNPrevBlocks(txindex, pindexPrev, COINBASE_MATURITY - 1, nDepth))
         return state.DoS(100, error("CheckProofOfStake() : tried to stake at depth %d", nDepth + 1));
 
     if (!CheckStakeKernelHash(pindexPrev, nBits, block, txindex.nTxOffset - txindex.nPos, txPrev, txin.prevout, tx.nTime, hashProofOfStake, targetProofOfStake, fDebug))
@@ -153,7 +154,7 @@ bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, int64_t nTime, con
         return false;
 
     int nDepth;
-    if (IsConfirmedInNPrevBlocks(txindex, pindexPrev, nStakeMinConfirmations - 1, nDepth))
+    if (IsConfirmedInNPrevBlocks(txindex, pindexPrev, COINBASE_MATURITY - 1, nDepth))
         return false;
 
     if (pBlockTime)
