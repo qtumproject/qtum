@@ -162,6 +162,7 @@ testScripts = [
     #qtum
     'qtum-opcreate.py',
     'qtum-state-root.py',
+    'qtum-opcall.py',
 ]
 if ENABLE_ZMQ:
     testScripts.append('zmq_test.py')
