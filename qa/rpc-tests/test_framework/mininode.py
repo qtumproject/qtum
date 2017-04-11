@@ -463,7 +463,7 @@ class CTransaction(object):
             self.wit.vtxinwit = [CTxInWitness() for i in range(len(self.vin))]
             self.wit.deserialize(f)
         self.nLockTime = struct.unpack("<I", f.read(4))[0]
-        if self.nVersion > 2 and self.nVersion < 3:
+        if self.nVersion > 2 and self.nVersion <= 3:
             self.nTime = struct.unpack("<I", f.read(4))[0]
         self.sha256 = None
         self.hash = None
@@ -474,7 +474,7 @@ class CTransaction(object):
         r += ser_vector(self.vin)
         r += ser_vector(self.vout)
         r += struct.pack("<I", self.nLockTime)
-        if self.nVersion > 2 and self.nVersion < 3:
+        if self.nVersion > 2 and self.nVersion <= 3:
             r += struct.pack("<I", self.nTime)
         return r
 
@@ -499,7 +499,7 @@ class CTransaction(object):
                     self.wit.vtxinwit.append(CTxInWitness())
             r += self.wit.serialize()
         r += struct.pack("<I", self.nLockTime)
-        if self.nVersion > 2 and self.nVersion < 3:
+        if self.nVersion > 2 and self.nVersion <= 3:
             r += struct.pack("<I", self.nTime)
         return r
 
@@ -550,6 +550,10 @@ class CBlockHeader(object):
             self.sha256 = header.sha256
             self.hash = header.hash
             self.hashStateRoot = header.hashStateRoot
+            self.vchBlockSig = header.vchBlockSig
+            self.fStake = header.fStake
+            self.prevoutStake = header.prevoutStake
+            self.nStakeTime = header.nStakeTime
             self.calc_sha256()
 
     def set_null(self):
@@ -560,6 +564,10 @@ class CBlockHeader(object):
         self.nBits = 0
         self.nNonce = 0
         self.hashStateRoot = INITIAL_HASH_STATE_ROOT
+        self.vchBlockSig = b""
+        self.fStake = False
+        self.prevoutStake = COutPoint(0, 0xffffffff)
+        self.nStakeTime = 0
 
         self.sha256 = None
         self.hash = None
@@ -572,6 +580,10 @@ class CBlockHeader(object):
         self.nBits = struct.unpack("<I", f.read(4))[0]
         self.nNonce = struct.unpack("<I", f.read(4))[0]
         self.hashStateRoot = deser_uint256(f)
+        self.vchBlockSig = deser_string(f)
+        self.fStake =  struct.unpack("B", f.read(1))[0]
+        self.prevoutStake = COutPoint().deserialize(f)
+        self.nStakeTime = struct.unpack("<I", f.read(4))[0]
         self.sha256 = None
         self.hash = None
 
@@ -584,6 +596,10 @@ class CBlockHeader(object):
         r += struct.pack("<I", self.nBits)
         r += struct.pack("<I", self.nNonce)
         r += ser_uint256(self.hashStateRoot)
+        r += ser_string(self.vchBlockSig)
+        r += struct.pack("B", self.fStake)
+        r += self.prevoutStake.serialize() if self.prevoutStake is not None else COutPoint(0, 0xffffffff).serialize()
+        r += struct.pack("<I", self.nStakeTime)
         return r
 
     def calc_sha256(self):
@@ -596,6 +612,10 @@ class CBlockHeader(object):
             r += struct.pack("<I", self.nBits)
             r += struct.pack("<I", self.nNonce)
             r += ser_uint256(self.hashStateRoot)
+            r += ser_string(self.vchBlockSig)
+            r += struct.pack("B", self.fStake)
+            r += self.prevoutStake.serialize() if self.prevoutStake is not None else COutPoint(0, 0xffffffff).serialize()
+            r += struct.pack("<I", self.nStakeTime)
             self.sha256 = uint256_from_str(hash256(r))
             self.hash = encode(hash256(r)[::-1], 'hex_codec').decode('ascii')
 

@@ -9,7 +9,7 @@
 
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
-from test_framework.mininode import sha256, ripemd160, CTransaction, CTxIn, COutPoint, CTxOut
+from test_framework.mininode import sha256, ripemd160, CTransaction, CTxIn, COutPoint, CTxOut, INITIAL_BLOCK_REWARD
 from test_framework.address import script_to_p2sh, key_to_p2pkh, keyhash_to_p2pkh, scripthash_to_p2sh, convert_btc_address_to_qtum
 from test_framework.script import CScript, OP_HASH160, OP_CHECKSIG, OP_0, hash160, OP_EQUAL, OP_DUP, OP_EQUALVERIFY, OP_1, OP_2, OP_CHECKMULTISIG
 from io import BytesIO
@@ -49,8 +49,7 @@ def create_witnessprogram(version, node, utxo, pubkey, encode_p2sh, amount):
     DUMMY_P2SH = convert_btc_address_to_qtum("2MySexEGVzZpRgNQ1JdjdP5bRETznm3roQ2") # P2SH of "OP_1 OP_DROP"
     outputs[DUMMY_P2SH] = amount
     tx_to_witness = node.createrawtransaction(inputs,outputs)
-    #replace dummy output with our own
-    tx_to_witness = tx_to_witness[0:110] + addlength(pkscript) + tx_to_witness[-8:]
+    tx_to_witness = tx_to_witness[0:110] + addlength(pkscript) + tx_to_witness[-16:]
     return tx_to_witness
 
 def send_to_witness(version, node, utxo, pubkey, encode_p2sh, amount, sign=True, insert_redeem_script=""):
@@ -95,27 +94,27 @@ class SegWitTest(BitcoinTestFramework):
         self.sync_all()
 
     def success_mine(self, node, txid, sign, redeem_script=""):
-        send_to_witness(1, node, getutxo(txid), self.pubkey[0], False, Decimal("49.998"), sign, redeem_script)
+        send_to_witness(1, node, getutxo(txid), self.pubkey[0], False, Decimal(str(INITIAL_BLOCK_REWARD-0.002)), sign, redeem_script)
         block = node.generate(1)
         assert_equal(len(node.getblock(block[0])["tx"]), 2)
         sync_blocks(self.nodes)
 
     def skip_mine(self, node, txid, sign, redeem_script=""):
-        send_to_witness(1, node, getutxo(txid), self.pubkey[0], False, Decimal("49.998"), sign, redeem_script)
+        send_to_witness(1, node, getutxo(txid), self.pubkey[0], False, Decimal(str(INITIAL_BLOCK_REWARD-0.002)), sign, redeem_script)
         block = node.generate(1)
         assert_equal(len(node.getblock(block[0])["tx"]), 1)
         sync_blocks(self.nodes)
 
     def fail_accept(self, node, txid, sign, redeem_script=""):
         try:
-            send_to_witness(1, node, getutxo(txid), self.pubkey[0], False, Decimal("49.998"), sign, redeem_script)
+            send_to_witness(1, node, getutxo(txid), self.pubkey[0], False, Decimal(str(INITIAL_BLOCK_REWARD-0.002)), sign, redeem_script)
         except JSONRPCException as exp:
             assert(exp.error["code"] == -26)
         else:
             raise AssertionError("Tx should not have been accepted")
 
     def fail_mine(self, node, txid, sign, redeem_script=""):
-        send_to_witness(1, node, getutxo(txid), self.pubkey[0], False, Decimal("49.998"), sign, redeem_script)
+        send_to_witness(1, node, getutxo(txid), self.pubkey[0], False, Decimal(str(str(INITIAL_BLOCK_REWARD-0.002))), sign, redeem_script)
         try:
             node.generate(1)
         except JSONRPCException as exp:
@@ -162,16 +161,16 @@ class SegWitTest(BitcoinTestFramework):
         for i in range(5):
             for n in range(3):
                 for v in range(2):
-                    wit_ids[n][v].append(send_to_witness(v, self.nodes[0], find_unspent(self.nodes[0], 50), self.pubkey[n], False, Decimal("49.999")))
-                    p2sh_ids[n][v].append(send_to_witness(v, self.nodes[0], find_unspent(self.nodes[0], 50), self.pubkey[n], True, Decimal("49.999")))
+                    wit_ids[n][v].append(send_to_witness(v, self.nodes[0], find_unspent(self.nodes[0], INITIAL_BLOCK_REWARD), self.pubkey[n], False, Decimal(str(INITIAL_BLOCK_REWARD-0.001))))
+                    p2sh_ids[n][v].append(send_to_witness(v, self.nodes[0], find_unspent(self.nodes[0], INITIAL_BLOCK_REWARD), self.pubkey[n], True, Decimal(str(INITIAL_BLOCK_REWARD-0.001))))
 
         self.nodes[0].generate(1) #block 163
         sync_blocks(self.nodes)
 
         # Make sure all nodes recognize the transactions as theirs
-        assert_equal(self.nodes[0].getbalance(), balance_presetup - 60*50 + 20*Decimal("49.999") + 50)
-        assert_equal(self.nodes[1].getbalance(), 20*Decimal("49.999"))
-        assert_equal(self.nodes[2].getbalance(), 20*Decimal("49.999"))
+        assert_equal(self.nodes[0].getbalance(), balance_presetup - 60*int(INITIAL_BLOCK_REWARD) + 20*Decimal(str(INITIAL_BLOCK_REWARD-0.001)) + int(INITIAL_BLOCK_REWARD))
+        assert_equal(self.nodes[1].getbalance(), 20*Decimal(str(INITIAL_BLOCK_REWARD-0.001)))
+        assert_equal(self.nodes[2].getbalance(), 20*Decimal(str(INITIAL_BLOCK_REWARD-0.001)))
 
         self.nodes[0].generate(260) #block 423
         sync_blocks(self.nodes)
