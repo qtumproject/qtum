@@ -108,7 +108,7 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, CValidationState& state, const C
     const CTxIn& txin = tx.vin[0];
 
     // First try finding the previous transaction in database
-    CTransaction txPrev;
+    CMutableTransaction txPrev;
     CDiskTxPos txindex;
     if (!ReadFromDisk(txPrev, txindex, *pblocktree, txin.prevout))
         return state.DoS(1, error("CheckProofOfStake() : INFO: read txPrev failed"));  // previous transaction not in main chain, may occur during initial download
@@ -143,7 +143,7 @@ bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, int64_t nTime, con
 {
     uint256 hashProofOfStake, targetProofOfStake;
 
-    CTransaction txPrev;
+    CMutableTransaction txPrev;
     CDiskTxPos txindex;
     if (!ReadFromDisk(txPrev, txindex, *pblocktree, prevout))
         return false;
