@@ -620,7 +620,7 @@ UniValue sendtocontract(const JSONRPCRequest& request){
                 "4. gasLimit  (numeric or string, optional) gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT)+"\n"
                 "5. gasPrice  (numeric or string, optional) gasPrice Qtum price per gas unit, default: "+FormatMoney(DEFAULT_GAS_PRICE)+"\n"
                 "6. \"senderaddress\" (string, optional) The quantum address that will be used as sender.\n"
-                "5. \"broadcast\" (bool, optional, default=true) Whether to broadcast the transaction or not.\n"
+                "7. \"broadcast\" (bool, optional, default=true) Whether to broadcast the transaction or not.\n"
                 "\nResult:\n"
                 "[\n"
                 "  {\n"

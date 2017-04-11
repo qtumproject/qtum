@@ -909,6 +909,10 @@ UniValue callcontract(const JSONRPCRequest& request)
     ByteCodeExec exec(block, std::vector<QtumTransaction>(1, callTransaction));
     exec.performByteCode(dev::eth::Permanence::Reverted);
     std::vector<execResult> execResults = exec.getResult();
+
+    if(fRecordLogOpcodes){
+        writeVMlog(execResults);
+    }
  
     UniValue result(UniValue::VOBJ);
     result.push_back(Pair("address", strAddr));
