@@ -161,6 +161,9 @@ public:
 
     //! pointer to the index of the predecessor of this block
     CBlockIndex* pprev;
+	
+    //! pointer to the index of the successor of this block
+    CBlockIndex* pnext;
 
     //! pointer to the index of some further predecessor of this block
     CBlockIndex* pskip;
@@ -199,6 +202,14 @@ public:
     unsigned int nBits;
     unsigned int nNonce;
     uint256 hashStateRoot; // qtum
+    // block signature - proof-of-stake protect the block by signing the block using a stake holder private key
+    std::vector<unsigned char> vchBlockSig;
+    bool fStake;
+    uint256 nStakeModifier;
+    // proof-of-stake specific fields
+    COutPoint prevoutStake;
+    unsigned int nStakeTime;
+    uint256 hashProof; // qtum
 
     //! (memory only) Sequential id assigned to distinguish order in which blocks are received.
     int32_t nSequenceId;
@@ -210,6 +221,7 @@ public:
     {
         phashBlock = NULL;
         pprev = NULL;
+        pnext = NULL;
         pskip = NULL;
         nHeight = 0;
         nFile = 0;
@@ -228,6 +240,12 @@ public:
         nBits          = 0;
         nNonce         = 0;
         hashStateRoot  = uint256(); // qtum
+        vchBlockSig.clear();
+        fStake = 0;
+        nStakeModifier = uint256();
+        hashProof = uint256();
+        prevoutStake.SetNull();
+        nStakeTime = 0; // qtum
     }
 
     CBlockIndex()
@@ -245,6 +263,21 @@ public:
         nBits          = block.nBits;
         nNonce         = block.nNonce;
         hashStateRoot  = block.hashStateRoot; // qtum
+        fStake = 0;
+        nStakeModifier = uint256();
+        hashProof = uint256(); 
+        if (block.IsProofOfStake())
+        {
+            SetProofOfStake();
+            prevoutStake = block.PrevoutStake();
+            nStakeTime = block.StakeTime();
+        }
+        else
+        {
+            prevoutStake.SetNull();
+            nStakeTime = 0;
+        }
+        vchBlockSig    = block.vchBlockSig; // qtum
     }
 
     CDiskBlockPos GetBlockPos() const {
@@ -276,6 +309,10 @@ public:
         block.nBits          = nBits;
         block.nNonce         = nNonce;
         block.hashStateRoot  = hashStateRoot; // qtum
+        block.vchBlockSig    = vchBlockSig;
+        block.fStake         = IsProofOfStake();
+        block.prevoutStake   = prevoutStake;
+        block.nStakeTime     = nStakeTime; // qtum
         return block;
     }
 
@@ -310,6 +347,21 @@ public:
         return pbegin[(pend - pbegin)/2];
     }
 
+    bool IsProofOfWork() const // qtum
+    {
+        return !fStake;
+    }
+
+    bool IsProofOfStake() const
+    {
+        return fStake;
+    }
+
+    void SetProofOfStake() // qtum
+    {
+        fStake = true;
+    }
+	
     std::string ToString() const
     {
         return strprintf("CBlockIndex(pprev=%p, nHeight=%d, merkle=%s, hashBlock=%s)",
@@ -393,6 +445,20 @@ public:
         READWRITE(nBits);
         READWRITE(nNonce);
         READWRITE(hashStateRoot); // qtum
+        READWRITE(fStake);
+        READWRITE(nStakeModifier);
+        if (IsProofOfStake())
+        {
+            READWRITE(prevoutStake);
+            READWRITE(nStakeTime);
+        }
+        else if (ser_action.ForRead())
+        {
+            const_cast<CDiskBlockIndex*>(this)->prevoutStake.SetNull();
+            const_cast<CDiskBlockIndex*>(this)->nStakeTime = 0;
+        }
+        READWRITE(hashProof);
+        READWRITE(vchBlockSig); // qtum
     }
 
     uint256 GetBlockHash() const
@@ -405,6 +471,10 @@ public:
         block.nBits           = nBits;
         block.nNonce          = nNonce;
         block.hashStateRoot   = hashStateRoot; // qtum
+        block.vchBlockSig     = vchBlockSig;
+        block.fStake          = fStake;
+        block.prevoutStake    = prevoutStake;
+        block.nStakeTime      = nStakeTime; // qtum
         return block.GetHash();
     }
 
