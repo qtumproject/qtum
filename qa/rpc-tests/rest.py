@@ -220,10 +220,9 @@ class RESTTest (BitcoinTestFramework):
         # compare with block header
         response_header = http_get_call(url.hostname, url.port, '/rest/headers/1/'+bb_hash+self.FORMAT_SEPARATOR+"bin", True)
         assert_equal(response_header.status, 200)
-        print(int(response_header.getheader('content-length')))
-        assert_equal(int(response_header.getheader('content-length')), 112)
+        assert_equal(int(response_header.getheader('content-length')), 154)
         response_header_str = response_header.read()
-        assert_equal(response_str[0:112], response_header_str)
+        assert_equal(response_str[0:154], response_header_str)
 
         # check block hex format
         response_hex = http_get_call(url.hostname, url.port, '/rest/block/'+bb_hash+self.FORMAT_SEPARATOR+"hex", True)

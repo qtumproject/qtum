@@ -5,7 +5,7 @@
 
 from test_framework.test_framework import ComparisonTestFramework
 from test_framework.util import *
-from test_framework.mininode import ToHex, CTransaction, NetworkThread, POW_TARGET_SPACING
+from test_framework.mininode import ToHex, CTransaction, NetworkThread, POW_TARGET_SPACING, INITIAL_BLOCK_REWARD
 from test_framework.blocktools import create_coinbase, create_block
 from test_framework.comptool import TestInstance, TestManager
 from test_framework.script import *
@@ -110,7 +110,7 @@ class BIP68_112_113Test(ComparisonTestFramework):
         test.run()
 
     def send_generic_input_tx(self, node, coinbases):
-        amount = Decimal("49.99")
+        amount = Decimal(str(INITIAL_BLOCK_REWARD-0.01))
         return node.sendrawtransaction(ToHex(self.sign_transaction(node, self.create_transaction(node, node.getblock(coinbases.pop())['tx'][0], self.nodeaddress, amount))))
 
     def create_transaction(self, node, txid, to_address, amount):
