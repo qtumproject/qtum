@@ -2031,13 +2031,13 @@ EthTransactionParams QtumTxConverter::parseEthTXParams(){
         }           
         valtype code(stack.back());
         stack.pop_back();
-        CScriptNum gasPrice(stack.back(), 0, 8);
+        uint64_t gasPrice = CScriptNum::vch_to_uint64(stack.back());
         stack.pop_back();
-        CScriptNum gasLimit(stack.back(), 0, 8);
+        uint64_t gasLimit = CScriptNum::vch_to_uint64(stack.back());
         stack.pop_back();
         CScriptNum version(stack.back(), 0);
         stack.pop_back();
-        return EthTransactionParams{version.getint(), gasLimit.getvalue(), gasPrice.getvalue(), code, receiveAddress};
+        return EthTransactionParams{version.getint(), dev::u256(gasLimit), dev::u256(gasPrice), code, receiveAddress};        
     }
     catch(const scriptnum_error& err){
         LogPrintf("Incorrect parameters to VM.");
