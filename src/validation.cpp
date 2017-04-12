@@ -740,6 +740,9 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
 
         //////////////////////////////////////////////////////////// // qtum
         if(tx.HasCreateOrCall()){
+            size_t count = 0;
+            for(const CTxOut& o : tx.vout)
+                count += o.scriptPubKey.HasOpCreate() || o.scriptPubKey.HasOpCall() ? 1 : 0;
             CAmount sumGas = 0;
             QtumTxConverter converter(tx, NULL);
             std::vector<QtumTransaction> qtumTransactions = converter.extractionQtumTransactions();
@@ -748,6 +751,9 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
             }
             if(sumGas > nFees){
                 return state.DoS(100, false, REJECT_INVALID, "bad-txns-fee-notenough");
+            }
+            if(count > qtumTransactions.size()){
+                return state.DoS(100, false, REJECT_INVALID, "bad-txns-incorrect-format");
             }
         }
         ////////////////////////////////////////////////////////////
@@ -2031,13 +2037,13 @@ EthTransactionParams QtumTxConverter::parseEthTXParams(){
         }           
         valtype code(stack.back());
         stack.pop_back();
-        CScriptNum gasPrice(stack.back(), 0, 8);
+        uint64_t gasPrice = CScriptNum::vch_to_uint64(stack.back());
         stack.pop_back();
-        CScriptNum gasLimit(stack.back(), 0, 8);
+        uint64_t gasLimit = CScriptNum::vch_to_uint64(stack.back());
         stack.pop_back();
         CScriptNum version(stack.back(), 0);
         stack.pop_back();
-        return EthTransactionParams{version.getint(), gasLimit.getvalue(), gasPrice.getvalue(), code, receiveAddress};
+        return EthTransactionParams{version.getint(), dev::u256(gasLimit), dev::u256(gasPrice), code, receiveAddress};        
     }
     catch(const scriptnum_error& err){
         LogPrintf("Incorrect parameters to VM.");

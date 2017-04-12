@@ -185,8 +185,12 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
             }
             else if(opcode2 == OP_GAS_LAP)
             {
-                if(vch1.empty() || vch1.size() > 32)
+                try{
+                    CScriptNum::vch_to_uint64(vch1);
+                }
+                catch(const scriptnum_error& err){
                     break;
+                }
             }
             else if(opcode2 == OP_DATA)
             {
