@@ -1887,7 +1887,7 @@ ByteCodeExecResult ByteCodeExec::processingResults(){
             }
         } else {
             resultBCE.usedFee += CAmount(result[i].first.gasUsed);
-            CAmount ref((txs[i].gas() - result[i].first.gasUsed) + (result[i].first.gasRefunded));
+            CAmount ref(txs[i].gas() - result[i].first.gasUsed);
             if(ref > 0){
                 CScript script(CScript() << OP_DUP << OP_HASH160 << txs[i].sender().asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
                 resultBCE.refundVOuts.push_back(CTxOut(ref, script));

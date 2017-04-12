@@ -15,7 +15,7 @@ execResult QtumState::execute(dev::eth::EnvInfo const& _envInfo, dev::eth::SealE
             dev::eth::Account* acAuthor = const_cast<dev::eth::Account*>(account(_envInfo.author()));
             acAuthor->kill();
         }
-	}catch(dev::Exception const& _e){
+    }catch(dev::Exception const& _e){
         std::stringstream exception;
         exception << dev::eth::toTransactionException(_e);
         LogPrintf("VMException: %s\n", exception.str());
