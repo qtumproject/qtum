@@ -13,7 +13,7 @@
 #include <leveldb/env.h>
 #include <leveldb/filter_policy.h>
 // #include <memenv.h>
-#ifdef __APPLE__ && __MACH__
+#if defined(__APPLE__) && defined(__MACH__)
 #include <helpers/memenv/memenv.h> // qtum
 #else
 #include <leveldb/helpers/memenv.h> // qtum
