@@ -740,6 +740,9 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
 
         //////////////////////////////////////////////////////////// // qtum
         if(tx.HasCreateOrCall()){
+            size_t count = 0;
+            for(const CTxOut& o : tx.vout)
+                count += o.scriptPubKey.HasOpCreate() || o.scriptPubKey.HasOpCall() ? 1 : 0;
             CAmount sumGas = 0;
             QtumTxConverter converter(tx, NULL);
             std::vector<QtumTransaction> qtumTransactions = converter.extractionQtumTransactions();
@@ -748,6 +751,9 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
             }
             if(sumGas > nFees){
                 return state.DoS(100, false, REJECT_INVALID, "bad-txns-fee-notenough");
+            }
+            if(count > qtumTransactions.size()){
+                return state.DoS(100, false, REJECT_INVALID, "bad-txns-incorrect-format");
             }
         }
         ////////////////////////////////////////////////////////////
