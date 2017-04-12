@@ -55,7 +55,7 @@ class CScriptCheck;
 class CTxMemPool;
 class CValidationInterface;
 class CValidationState;
-class CDiskTxPos;
+struct CDiskTxPos;
 struct ChainTxData;
 
 struct PrecomputedTransactionData;
