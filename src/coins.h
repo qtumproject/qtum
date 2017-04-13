@@ -75,6 +75,82 @@
  *              * 8c988f1a4a4de2161e0f50aac7f17e7f9555caa4: address uint160
  *  - height = 120891
  */
+
+////////////////////////////////////////////////////////////////// // qtum
+struct CSpentIndexKey {
+    uint256 txid;
+    unsigned int outputIndex;
+
+    ADD_SERIALIZE_METHODS;
+
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action) {
+        READWRITE(txid);
+        READWRITE(outputIndex);
+    }
+
+    CSpentIndexKey(uint256 t, unsigned int i) {
+        txid = t;
+        outputIndex = i;
+    }
+
+    CSpentIndexKey() {
+        SetNull();
+    }
+
+    void SetNull() {
+        txid.SetNull();
+        outputIndex = 0;
+    }
+};
+
+struct CSpentIndexValue {
+    uint256 txid;
+    unsigned int inputIndex;
+    int blockHeight;
+    CAmount satoshis;
+    int addressType;
+    uint160 addressHash;
+
+    ADD_SERIALIZE_METHODS;
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action) {
+        READWRITE(txid);
+        READWRITE(inputIndex);
+        READWRITE(blockHeight);
+        READWRITE(satoshis);
+        READWRITE(addressType);
+        READWRITE(addressHash);
+    }
+
+    CSpentIndexValue(uint256 t, unsigned int i, int h, CAmount s, int type, uint160 a) {
+        txid = t;
+        inputIndex = i;
+        blockHeight = h;
+        satoshis = s;
+        addressType = type;
+        addressHash = a;
+    }
+
+    CSpentIndexValue() {
+        SetNull();
+    }
+
+    void SetNull() {
+        txid.SetNull();
+        inputIndex = 0;
+        blockHeight = 0;
+        satoshis = 0;
+        addressType = 0;
+        addressHash.SetNull();
+    }
+
+    bool IsNull() const {
+        return txid.IsNull();
+    }
+};
+//////////////////////////////////////////////////////////////////
+
 class CCoins
 {
 public:

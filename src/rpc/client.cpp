@@ -74,6 +74,17 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "sendmany", 4, "subtractfeefrom" },
     { "addmultisigaddress", 0, "nrequired" },
     { "addmultisigaddress", 1, "keys" },
+    ////////////////////////////////////////////////// // qtum
+    { "getaddresstxids", 0, "addresses"},
+    { "getaddressmempool", 0, "addresses"},
+    { "getaddressdeltas", 0, "addresses"},
+    { "getaddressbalance", 0, "addresses"},
+    { "getaddressutxos", 0, "addresses"},
+    { "getblockhashes", 0, "high"},
+    { "getblockhashes", 1, "low"},
+    { "getblockhashes", 2, "options"},
+    { "getspentinfo", 0, "argument"},
+    //////////////////////////////////////////////////
     { "createmultisig", 0, "nrequired" },
     { "createmultisig", 1, "keys" },
     { "listunspent", 0, "minconf" },
