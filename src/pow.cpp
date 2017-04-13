@@ -21,11 +21,11 @@ const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfSta
 
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params, bool* pfProofOfStake)
 {
-    unsigned int nProofOfWorkLimit = UintToArith256(params.powLimit).GetCompact();
+    const arith_uint256 bnTargetLimit = fProofOfStake ? UintToArith256(params.posLimit) : UintToArith256(params.powLimit);
 
     // Genesis block
     if (pindexLast == NULL)
-        return nProofOfWorkLimit;
+        return bnTargetLimit;
 
     if (params.fPowAllowMinDifficultyBlocks)
     {
@@ -33,12 +33,12 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
         // If the new block's timestamp is more than 2* 10 minutes
         // then allow mining of a min-difficulty block.
         if (pblock->GetBlockTime() > pindexLast->GetBlockTime() + params.nPowTargetSpacing*2)
-            return nProofOfWorkLimit;
+            return bnTargetLimit;
         else
         {
             // Return the last non-special-min-difficulty-rules-block
             const CBlockIndex* pindex = pindexLast;
-            while (pindex->pprev && pindex->nHeight % params.DifficultyAdjustmentInterval() != 0 && pindex->nBits == nProofOfWorkLimit)
+            while (pindex->pprev && pindex->nHeight % params.DifficultyAdjustmentInterval() != 0 && pindex->nBits == bnTargetLimit)
                 pindex = pindex->pprev;
             return pindex->nBits;
         }
