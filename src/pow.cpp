@@ -21,30 +21,46 @@ const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfSta
 
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params, bool* pfProofOfStake)
 {
-    const arith_uint256 bnTargetLimit = fProofOfStake ? UintToArith256(params.posLimit) : UintToArith256(params.powLimit);
+     // choose proof
+    bool fProofOfStake = pindexLast->nHeight > params.nLastPOWBlock;
+    if(pfProofOfStake)
+        fProofOfStake = *pfProofOfStake;
 
-    // Genesis block
+    unsigned int  nTargetLimit = (fProofOfStake ? UintToArith256(params.posLimit) : UintToArith256(params.powLimit)).GetCompact();
+
+    // genesis block
     if (pindexLast == NULL)
-        return bnTargetLimit;
+        return nTargetLimit;
 
+    // first block
+    const CBlockIndex* pindexPrev = GetLastBlockIndex(pindexLast, fProofOfStake);
+    if (pindexPrev->pprev == NULL)
+        return nTargetLimit;
+
+    // second block
+    const CBlockIndex* pindexPrevPrev = GetLastBlockIndex(pindexPrev->pprev, fProofOfStake);
+    if (pindexPrevPrev->pprev == NULL)
+        return nTargetLimit;
+
+    // min difficulty
     if (params.fPowAllowMinDifficultyBlocks)
     {
         // Special difficulty rule for testnet:
         // If the new block's timestamp is more than 2* 10 minutes
         // then allow mining of a min-difficulty block.
         if (pblock->GetBlockTime() > pindexLast->GetBlockTime() + params.nPowTargetSpacing*2)
-            return bnTargetLimit;
+            return nTargetLimit;
         else
         {
             // Return the last non-special-min-difficulty-rules-block
             const CBlockIndex* pindex = pindexLast;
-            while (pindex->pprev && pindex->nHeight % params.DifficultyAdjustmentInterval() != 0 && pindex->nBits == bnTargetLimit)
+            while (pindex->pprev && pindex->nHeight % params.DifficultyAdjustmentInterval() != 0 && pindex->nBits == nTargetLimit)
                 pindex = pindex->pprev;
             return pindex->nBits;
         }
     }
 
-    return CalculateNextWorkRequired(pindexLast, pindexFirst->GetBlockTime(), params);
+    return CalculateNextWorkRequired(pindexPrev, pindexPrevPrev->GetBlockTime(), params, fProofOfStake);
 }
 
 unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nFirstBlockTime, const Consensus::Params& params, bool fProofOfStake)
