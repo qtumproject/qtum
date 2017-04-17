@@ -2437,6 +2437,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
 
     {
         set<pair<const CWalletTx*,unsigned int> > setCoins;
+        vector<pair<const CWalletTx*,unsigned int>> vCoins;
         LOCK2(cs_main, cs_wallet);
         {
             std::vector<COutput> vAvailableCoins;
@@ -2598,7 +2599,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                     reservekey.ReturnKey();
 
                 // Move sender input to position 0
-                vector<pair<const CWalletTx*,unsigned int>> vCoins(setCoins.begin(),setCoins.end());
+                std::copy(setCoins.begin(), setCoins.end(), std::back_inserter(vCoins));
                 if(hasSender && coinControl && coinControl->HasSelected()){
                 for (std::vector<pair<const CWalletTx*,unsigned int>>::size_type i = 0 ; i != vCoins.size(); i++){
                 	if(COutPoint(vCoins[i].first->GetHash(),vCoins[i].second)==senderInput){
@@ -2712,7 +2713,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
         {
             CTransaction txNewConst(txNew);
             int nIn = 0;
-            for (const auto& coin : setCoins)
+            for (const auto& coin : vCoins)
             {
                 const CScript& scriptPubKey = coin.first->tx->vout[coin.second].scriptPubKey;
                 SignatureData sigdata;
