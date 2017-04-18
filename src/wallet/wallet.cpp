@@ -2139,7 +2139,7 @@ static void ApproximateBestSubset(vector<pair<CAmount, pair<const CWalletTx*,uns
     }
 }
 
-bool CWallet::SelectCoinsMinConf(const CAmount& nTargetValue, const int nConfMine, const int nConfTheirs, const uint64_t nMaxAncestors, vector<COutput> vCoins,
+bool CWallet::SelectCoinsMinConf(const CAmount& nTargetValue,unsigned int nSpendTime, const int nConfMine, const int nConfTheirs, const uint64_t nMaxAncestors, vector<COutput> vCoins,
                                  set<pair<const CWalletTx*,unsigned int> >& setCoinsRet, CAmount& nValueRet) const
 {
     setCoinsRet.clear();
@@ -2162,6 +2162,10 @@ bool CWallet::SelectCoinsMinConf(const CAmount& nTargetValue, const int nConfMin
         const CWalletTx *pcoin = output.tx;
 
         if (output.nDepth < (pcoin->IsFromMe(ISMINE_ALL) ? nConfMine : nConfTheirs))
+            continue;
+
+        // Follow the timestamp rules
+        if (pcoin->tx->nTime > nSpendTime)
             continue;
 
         if (!mempool.TransactionWithinChainLimit(pcoin->GetHash(), nMaxAncestors))
