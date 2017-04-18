@@ -51,6 +51,9 @@ const uint32_t BIP32_HARDENED_KEY_LIMIT = 0x80000000;
  */
 CFeeRate CWallet::minTxFee = CFeeRate(DEFAULT_TRANSACTION_MINFEE);
 CAmount nReserveBalance = 0;
+static int64_t GetStakeCombineThreshold() { return 100 * COIN; }
+static int64_t GetStakeSplitThreshold() { return 2 * GetStakeCombineThreshold(); }
+
 /**
  * If fee estimation does not have enough data to provide estimates, use this fee instead.
  * Has no effect if not using fee estimation
