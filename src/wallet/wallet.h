@@ -713,6 +713,7 @@ public:
     /**
      * populate vCoins with vector of available COutputs.
      */
+    void AvailableCoinsForStaking(std::vector<COutput>& vCoins) const;
     void AvailableCoins(std::vector<COutput>& vCoins, bool fOnlyConfirmed=true, const CCoinControl *coinControl = NULL, bool fIncludeZeroValue=false) const;
 
     /**
