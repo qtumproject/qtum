@@ -36,6 +36,7 @@ extern CWallet* pwalletMain;
 /**
  * Settings
  */
+extern CAmount nReserveBalance;
 extern CFeeRate payTxFee;
 extern unsigned int nTxConfirmTarget;
 extern bool bSpendZeroConfChange;
@@ -823,6 +824,7 @@ public:
 
     void ListAccountCreditDebit(const std::string& strAccount, std::list<CAccountingEntry>& entries);
     uint64_t GetStakeWeight() const;
+    bool CreateCoinStake(const CKeyStore &keystore, unsigned int nBits, int64_t nSearchInterval, CAmount& nFeeRet, CMutableTransaction& tx, CKey& key);
     bool AddAccountingEntry(const CAccountingEntry&);
     bool AddAccountingEntry(const CAccountingEntry&, CWalletDB *pwalletdb);
     template <typename ContainerType>

@@ -3034,7 +3034,7 @@ bool CheckTransactionTimestamp(const CTransaction& tx, CBlockTreeDB& txdb)
     BOOST_FOREACH(const CTxIn& txin, tx.vin)
     {
         // First try finding the previous transaction in database
-        CTransaction txPrev;
+        CMutableTransaction txPrev;
         CDiskTxPos txindex;
         if (!ReadFromDisk(txPrev, txindex, txdb, txin.prevout))
             continue;  // previous transaction not in main chain
