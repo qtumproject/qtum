@@ -2351,6 +2351,45 @@ bool CWallet::SelectCoins(const vector<COutput>& vAvailableCoins, const CAmount&
     return res;
 }
 
+bool CWallet::SelectCoinsForStaking(CAmount& nTargetValue, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoinsRet, CAmount& nValueRet) const
+{
+    vector<COutput> vCoins;
+    AvailableCoinsForStaking(vCoins);
+
+    setCoinsRet.clear();
+    nValueRet = 0;
+
+    BOOST_FOREACH(COutput output, vCoins)
+    {
+        const CWalletTx *pcoin = output.tx;
+        int i = output.i;
+
+        // Stop if we've chosen enough inputs
+        if (nValueRet >= nTargetValue)
+            break;
+
+        int64_t n = pcoin->tx->vout[i].nValue;
+
+        pair<int64_t,pair<const CWalletTx*,unsigned int> > coin = make_pair(n,make_pair(pcoin, i));
+
+        if (n >= nTargetValue)
+        {
+            // If input value is greater or equal to target then simply insert
+            // it into the current subset and exit
+            setCoinsRet.insert(coin.second);
+            nValueRet += coin.first;
+            break;
+        }
+        else if (n < nTargetValue + CENT)
+        {
+            setCoinsRet.insert(coin.second);
+            nValueRet += coin.first;
+        }
+    }
+
+    return true;
+}
+
 bool CWallet::FundTransaction(CMutableTransaction& tx, CAmount& nFeeRet, bool overrideEstimatedFeeRate, const CFeeRate& specificFeeRate, int& nChangePosInOut, std::string& strFailReason, bool includeWatching, bool lockUnspents, const std::set<int>& setSubtractFeeFromOutputs, bool keepReserveKey, const CTxDestination& destChange)
 {
     vector<CRecipient> vecSend;

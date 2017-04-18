@@ -710,6 +710,9 @@ public:
     //! check whether we are allowed to upgrade (or already support) to the named feature
     bool CanSupportFeature(enum WalletFeature wf) { AssertLockHeld(cs_wallet); return nWalletMaxVersion >= wf; }
 
+    //! select coins for staking from the available coins for staking.
+    bool SelectCoinsForStaking(CAmount& nTargetValue, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoinsRet, CAmount& nValueRet) const;
+	
     /**
      * populate vCoins with vector of available COutputs.
      */
