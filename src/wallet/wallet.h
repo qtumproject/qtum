@@ -803,6 +803,8 @@ public:
     CAmount GetWatchOnlyBalance() const;
     CAmount GetUnconfirmedWatchOnlyBalance() const;
     CAmount GetImmatureWatchOnlyBalance() const;
+    CAmount GetStake() const;
+    CAmount GetWatchOnlyStake() const;
 
     /**
      * Insert additional inputs into the transaction by
