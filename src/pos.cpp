@@ -134,12 +134,12 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, CValidationState& state, const C
 }
 
 // Check whether the coinstake timestamp meets protocol
-bool CheckCoinStakeTimestamp(int64_t nTimeBlock, int64_t nTimeTx)
+bool CheckCoinStakeTimestamp(uint32_t nTimeBlock, uint32_t nTimeTx)
 {
     return (nTimeBlock == nTimeTx) && ((nTimeTx & STAKE_TIMESTAMP_MASK) == 0);
 }
 
-bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, int64_t nTime, const COutPoint& prevout, int64_t* pBlockTime)
+bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTime, const COutPoint& prevout, uint32_t* pBlockTime)
 {
     uint256 hashProofOfStake, targetProofOfStake;
 

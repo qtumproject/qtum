@@ -2901,7 +2901,7 @@ uint64_t CWallet::GetStakeWeight() const
     return nWeight;
 }
 
-bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int64_t nSearchInterval, CAmount& nFees, CMutableTransaction& tx, CKey& key)
+bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, uint32_t nSearchInterval, CAmount& nFees, CMutableTransaction& tx, CKey& key)
 {
     CBlockIndex* pindexPrev = pindexBestHeader;
     arith_uint256 bnTargetPerCoinDay;
@@ -2939,15 +2939,15 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     CScript scriptPubKeyKernel;
     BOOST_FOREACH(const PAIRTYPE(const CWalletTx*, unsigned int)& pcoin, setCoins)
     {
-        static int nMaxStakeSearchInterval = 60;
+        static uint32_t nMaxStakeSearchInterval = 60;
         bool fKernelFound = false;
-        for (unsigned int n=0; n<min(nSearchInterval,(int64_t)nMaxStakeSearchInterval) && !fKernelFound && pindexPrev == pindexBestHeader; n++)
+        for (uint32_t n=0; n<min(nSearchInterval, nMaxStakeSearchInterval) && !fKernelFound && pindexPrev == pindexBestHeader; n++)
         {
             boost::this_thread::interruption_point();
             // Search backward in time from the given txNew timestamp
             // Search nSearchInterval seconds back up to nMaxStakeSearchInterval
             COutPoint prevoutStake = COutPoint(pcoin.first->GetHash(), pcoin.second);
-            int64_t nBlockTime;
+            uint32_t nBlockTime;
             if (CheckKernel(pindexPrev, nBits, txNew.nTime - n, prevoutStake, &nBlockTime))
             {
                 // Found a kernel
