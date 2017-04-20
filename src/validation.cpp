@@ -3227,10 +3227,10 @@ bool CheckBlockSignature(const CBlock& block)
     if (block.vchBlockSig.empty())
         return false;
 
-    vector<valtype> vSolutions;
+    std::vector<valtype> vSolutions;
     txnouttype whichType;
 
-    const CTxOut& txout = block.vtx[1].vout[1];
+    const CTxOut& txout = block.vtx[1]->vout[1];
 
     if (!Solver(txout.scriptPubKey, whichType, vSolutions))
         return false;

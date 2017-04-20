@@ -15,8 +15,6 @@
 
 using namespace std;
 
-typedef vector<unsigned char> valtype;
-
 namespace {
 
 inline bool set_success(ScriptError* ret)
@@ -63,7 +61,7 @@ static inline void popstack(vector<valtype>& stack)
     stack.pop_back();
 }
 
-bool static IsCompressedOrUncompressedPubKey(const valtype &vchPubKey) {
+bool IsCompressedOrUncompressedPubKey(const valtype &vchPubKey) {
     if (vchPubKey.size() < 33) {
         //  Non-canonical public key: too short
         return false;

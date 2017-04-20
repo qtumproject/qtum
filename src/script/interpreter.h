@@ -18,6 +18,8 @@ class CScript;
 class CTransaction;
 class uint256;
 
+typedef std::vector<unsigned char> valtype;
+
 /** Signature hash types/flags */
 enum
 {
@@ -182,5 +184,7 @@ bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& 
 bool VerifyScript(const CScript& scriptSig, const CScript& scriptPubKey, const CScriptWitness* witness, unsigned int flags, const BaseSignatureChecker& checker, ScriptError* serror = NULL);
 
 size_t CountWitnessSigOps(const CScript& scriptSig, const CScript& scriptPubKey, const CScriptWitness* witness, unsigned int flags);
+
+bool IsCompressedOrUncompressedPubKey(const valtype &vchPubKey);
 
 #endif // BITCOIN_SCRIPT_INTERPRETER_H
