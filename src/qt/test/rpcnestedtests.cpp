@@ -51,12 +51,30 @@ void RPCNestedTests::rpcNestedTests()
     pcoinsdbview = new CCoinsViewDB(1 << 23, true);
     pcoinsTip = new CCoinsViewCache(pcoinsdbview);
     InitBlockIndex(chainparams);
+    /////////////////////////////////////////////////////////// qtum
+    dev::eth::Ethash::init();
+    boost::filesystem::path qtumStateDir = GetDataDir() / "stateQtum";
+    bool fStatus = boost::filesystem::exists(qtumStateDir);
+    const std::string dirQtum(qtumStateDir.string());
+    const dev::h256 hashDB(dev::sha3(dev::rlp("")));
+    dev::eth::BaseState existsQtumstate = fStatus ? dev::eth::BaseState::PreExisting : dev::eth::BaseState::Empty;
+    globalState = std::unique_ptr<QtumState>(new QtumState(dev::u256(0), QtumState::openDB(dirQtum, hashDB, dev::WithExisting::Trust), existsQtumstate));
+
+    if(chainActive.Tip() != NULL)
+        globalState->setRoot(uintToh256(chainActive.Tip()->hashStateRoot));
+    else
+        globalState->setRoot(uintToh256(chainparams.GenesisBlock().hashStateRoot));
+    globalState->db().commit();
+
+    fRecordLogOpcodes = IsArgSet("-record-log-opcodes");
+    fIsVMlogFile = boost::filesystem::exists(GetDataDir() / "vmExecLogs.json");
+    ///////////////////////////////////////////////////////////
     {
         CValidationState state;
         bool ok = ActivateBestChain(state, chainparams);
         QVERIFY(ok);
     }
-
+    delete globalState.release();
     SetRPCWarmupFinished();
 
     std::string result;
@@ -90,7 +108,7 @@ void RPCNestedTests::rpcNestedTests()
     QVERIFY(result == result2);
 
     RPCConsole::RPCExecuteCommandLine(result, "getblock(getbestblockhash())[tx][0]", &filtered);
-    QVERIFY(result == "4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b");
+    QVERIFY(result == "14afc2c67776b5a1f064bcb429d1a62efcf04061ef7b01ec0d314f55cc5770d3");
     QVERIFY(filtered == "getblock(getbestblockhash())[tx][0]");
 
     RPCConsole::RPCParseCommandLine(result, "importprivkey", false, &filtered);
