@@ -95,7 +95,8 @@ UniValue blockheaderToJSON(const CBlockIndex* blockindex)
     result.push_back(Pair("bits", strprintf("%08x", blockindex->nBits)));
     result.push_back(Pair("difficulty", GetDifficulty(blockindex)));
     result.push_back(Pair("chainwork", blockindex->nChainWork.GetHex()));
-    result.push_back(Pair("hashStateRoot", blockindex->hashStateRoot.GetHex()));
+    result.push_back(Pair("hashStateRoot", blockindex->hashStateRoot.GetHex())); // qtum
+    result.push_back(Pair("hashUTXORoot", blockindex->hashUTXORoot.GetHex())); // qtum
 
     if (blockindex->pprev)
         result.push_back(Pair("previousblockhash", blockindex->pprev->GetBlockHash().GetHex()));
@@ -122,6 +123,7 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool tx
     result.push_back(Pair("versionHex", strprintf("%08x", block.nVersion)));
     result.push_back(Pair("merkleroot", block.hashMerkleRoot.GetHex()));
     result.push_back(Pair("hashStateRoot", block.hashStateRoot.GetHex())); // qtum
+    result.push_back(Pair("hashUTXORoot", block.hashUTXORoot.GetHex())); // qtum
     UniValue txs(UniValue::VARR);
     for(const auto& tx : block.vtx)
     {
@@ -710,6 +712,15 @@ UniValue getaccountinfo(const JSONRPCRequest& request)
     result.push_back(Pair("storage", storageUV));
 
     result.push_back(Pair("code", HexStr(code.begin(), code.end())));
+
+    std::unordered_map<dev::Address, Vin> vins = globalState->vins();
+    if(vins.count(addrAccount)){
+        UniValue vin(UniValue::VOBJ);
+        vin.push_back(Pair("hash", vins[addrAccount].hash.hex()));
+        vin.push_back(Pair("nVout", uint64_t(vins[addrAccount].nVout)));
+        vin.push_back(Pair("value", uint64_t(vins[addrAccount].value)));
+        result.push_back(Pair("vin", vin));
+    }
 
     // UniValue vins(UniValue::VARR);
     // VinsInfo vinsAcc = globalState->getVins(addrAccount);

@@ -1740,6 +1740,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
     view.SetBestBlock(pindex->pprev->GetBlockHash());
 
     globalState->setRoot(uintToh256(pindex->pprev->hashStateRoot)); // qtum
+    globalState->setRootUTXO(uintToh256(pindex->pprev->hashUTXORoot)); // qtum
 
     if (pfClean) {
         *pfClean = fClean;
@@ -1933,6 +1934,8 @@ void ByteCodeExec::performByteCode(dev::eth::Permanence type){
         }
         result.push_back(globalState->execute(envInfo, *se.get(), tx, type, OnOpFunc()));
     }
+    globalState->db().commit();
+    globalState->dbUtxo().commit();
 }
 
 ByteCodeExecResult ByteCodeExec::processingResults(){
@@ -2295,17 +2298,21 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     LogPrint("bench", "    - Verify %u txins: %.2fms (%.3fms/txin) [%.2fs]\n", nInputs - 1, 0.001 * (nTime4 - nTime2), nInputs <= 1 ? 0 : 0.001 * (nTime4 - nTime2) / (nInputs-1), nTimeVerify * 0.000001);
 
 ////////////////////////////////////////////////////////////////// // qtum
-    if (globalState->rootHash() != uintToh256(block.hashStateRoot))
+    // if (globalState->rootHash() != uintToh256(block.hashStateRoot))
+    if (globalState->rootHash() != uintToh256(block.hashStateRoot) && globalState->rootHashUTXO() != uintToh256(block.hashUTXORoot))
         return state.DoS(100, error("ConnectBlock(): rootHashState diverged"),
                             REJECT_INVALID, "diverged-state-root");
 
     if (fJustCheck)
     {
         dev::h256 prevHashStateRoot = dev::sha3(dev::rlp(""));
-        if(pindex->pprev->hashStateRoot != uint256()){
+        dev::h256 prevHashUTXORoot = dev::sha3(dev::rlp(""));
+        if(pindex->pprev->hashStateRoot != uint256() && pindex->pprev->hashUTXORoot != uint256()){
             prevHashStateRoot = uintToh256(pindex->pprev->hashStateRoot);
+            prevHashUTXORoot = uintToh256(pindex->pprev->hashUTXORoot);
         }
         globalState->setRoot(prevHashStateRoot);
+        globalState->setRootUTXO(prevHashUTXORoot);
         return true;
     }
 //////////////////////////////////////////////////////////////////
@@ -2633,6 +2640,7 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
         CCoinsViewCache view(pcoinsTip);
 
         dev::h256 oldHashStateRoot(globalState->rootHash()); // qtum
+        dev::h256 oldHashUTXORoot(globalState->rootHashUTXO()); // qtum
 
         bool rv = ConnectBlock(blockConnecting, state, pindexNew, view, chainparams);
         GetMainSignals().BlockChecked(blockConnecting, state);
@@ -2641,6 +2649,7 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
                 InvalidBlockFound(pindexNew, state);
 
             globalState->setRoot(oldHashStateRoot); // qtum
+            globalState->setRootUTXO(oldHashUTXORoot); // qtum
 
             return error("ConnectTip(): ConnectBlock %s failed", pindexNew->GetBlockHash().ToString());
         }
@@ -3675,10 +3684,12 @@ bool TestBlockValidity(CValidationState& state, const CChainParams& chainparams,
         return error("%s: Consensus::ContextualCheckBlock: %s", __func__, FormatStateMessage(state));
 
     dev::h256 oldHashStateRoot(globalState->rootHash()); // qtum
+    dev::h256 oldHashUTXORoot(globalState->rootHashUTXO()); // qtum
     
     if (!ConnectBlock(block, state, &indexDummy, viewNew, chainparams, true)){
         
         globalState->setRoot(oldHashStateRoot); // qtum
+        globalState->setRootUTXO(oldHashUTXORoot); // qtum
         
         return false;
     }
@@ -4029,6 +4040,7 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CCoinsView *coinsview,
     int reportDone = 0;
 
     dev::h256 oldHashStateRoot(globalState->rootHash()); // qtum
+    dev::h256 oldHashUTXORoot(globalState->rootHashUTXO()); // qtum
 
     LogPrintf("[0%%]...");
     for (CBlockIndex* pindex = chainActive.Tip(); pindex && pindex->pprev; pindex = pindex->pprev)
@@ -4095,16 +4107,19 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CCoinsView *coinsview,
                 return error("VerifyDB(): *** ReadBlockFromDisk failed at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
 
             dev::h256 oldHashStateRoot(globalState->rootHash()); // qtum
+            dev::h256 oldHashUTXORoot(globalState->rootHashUTXO()); // qtum
 
             if (!ConnectBlock(block, state, pindex, coins, chainparams)){
 
                 globalState->setRoot(oldHashStateRoot); // qtum
+                globalState->setRootUTXO(oldHashUTXORoot); // qtum
 
                 return error("VerifyDB(): *** found unconnectable block at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
             }
         }
     } else {
         globalState->setRoot(oldHashStateRoot); // qtum
+        globalState->setRootUTXO(oldHashUTXORoot); // qtum
     }
 
     LogPrintf("[DONE].\n");

@@ -28,6 +28,7 @@ public:
     uint32_t nBits;
     uint32_t nNonce;
     uint256 hashStateRoot; // qtum
+    uint256 hashUTXORoot; // qtum
     std::vector<unsigned char> vchBlockSig;
     bool fStake;
     // proof-of-stake specific fields
@@ -50,6 +51,7 @@ public:
         READWRITE(nBits);
         READWRITE(nNonce);
         READWRITE(hashStateRoot); // qtum
+        READWRITE(hashUTXORoot); // qtum
         READWRITE(vchBlockSig);
         fStake = IsProofOfStake();
         prevoutStake = PrevoutStake();
@@ -68,6 +70,7 @@ public:
         nBits = 0;
         nNonce = 0;
         hashStateRoot.SetNull(); // qtum
+        hashUTXORoot.SetNull(); // qtum
         vchBlockSig.clear();
         fStake = 0;
         prevoutStake.SetNull();
@@ -118,6 +121,7 @@ public:
             this->nBits          = other.nBits;
             this->nNonce         = other.nNonce;
             this->hashStateRoot  = other.hashStateRoot;
+            this->hashUTXORoot   = other.hashUTXORoot;
             this->vchBlockSig    = other.vchBlockSig;
             this->fStake         = other.IsProofOfStake();
             this->prevoutStake   = other.PrevoutStake();
@@ -210,6 +214,7 @@ public:
         block.nBits          = nBits;
         block.nNonce         = nNonce;
         block.hashStateRoot  = hashStateRoot; // qtum
+        block.hashUTXORoot   = hashUTXORoot; // qtum
         block.vchBlockSig    = vchBlockSig;
         block.fStake         = IsProofOfStake();
         block.prevoutStake   = PrevoutStake();

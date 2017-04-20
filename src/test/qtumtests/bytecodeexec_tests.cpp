@@ -88,7 +88,9 @@ void initState(){
     boost::filesystem::create_directories(pathTemp);
     const std::string dirQtum = pathTemp.string();
     const dev::h256 hashDB(dev::sha3(dev::rlp("")));
-    globalState = std::unique_ptr<QtumState>(new QtumState(dev::u256(0), QtumState::openDB(dirQtum, hashDB, dev::WithExisting::Trust), dev::eth::BaseState::Empty));
+    globalState = std::unique_ptr<QtumState>(new QtumState(dev::u256(0), QtumState::openDB(dirQtum, hashDB, dev::WithExisting::Trust), dirQtum + "/qtumDB", dev::eth::BaseState::Empty));
+
+    globalState->setRootUTXO(dev::sha3(dev::rlp(""))); // temp
 }
 
 CBlock generateBlock(){
@@ -131,6 +133,7 @@ std::pair<std::vector<execResult>, ByteCodeExecResult> executeBC(std::vector<Qtu
     std::vector<execResult> res = exec.getResult();
     ByteCodeExecResult bceExecRes = exec.processingResults();
     globalState->db().commit();
+    globalState->dbUtxo().commit();
     return std::make_pair(res, bceExecRes);
 }
 

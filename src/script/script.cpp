@@ -144,6 +144,7 @@ const char* GetOpName(opcodetype opcode)
     // byte code execution
     case OP_CREATE                 : return "OP_CREATE";
     case OP_CALL                   : return "OP_CALL";
+    case OP_TXHASH                 : return "OP_TXHASH";
 
     case OP_INVALIDOPCODE          : return "OP_INVALIDOPCODE";
 
@@ -213,6 +214,19 @@ bool CScript::IsPayToScriptHash() const
             (*this)[1] == 0x14 &&
             (*this)[22] == OP_EQUAL);
 }
+
+///////////////////////////////////////////////////////// // qtum
+bool CScript::IsPayToPubkeyHash() const
+{
+    // Extra-fast test for pay-to-pubkeyhash CScripts:
+    return (this->size() == 25 &&
+            (*this)[0] == OP_DUP &&
+            (*this)[1] == OP_HASH160 &&
+            (*this)[2] == 0x14 &&
+            (*this)[23] == OP_EQUALVERIFY &&
+            (*this)[24] == OP_CHECKSIG);
+}
+/////////////////////////////////////////////////////////
 
 bool CScript::IsPayToWitnessScriptHash() const
 {
