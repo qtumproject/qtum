@@ -2599,6 +2599,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                     reservekey.ReturnKey();
 
                 // Move sender input to position 0
+                vCoins.clear();
                 std::copy(setCoins.begin(), setCoins.end(), std::back_inserter(vCoins));
                 if(hasSender && coinControl && coinControl->HasSelected()){
                 for (std::vector<pair<const CWalletTx*,unsigned int>>::size_type i = 0 ; i != vCoins.size(); i++){
