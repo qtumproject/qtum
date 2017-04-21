@@ -3,6 +3,7 @@
 #include <test/test_bitcoin.h>
 #include <validation.h>
 #include <util.h>
+#include "testutil.h"
 
 extern std::unique_ptr<QtumState> globalState;
 dev::u256 GASLIMIT = dev::u256(500000);
@@ -82,8 +83,10 @@ std::vector<valtype> CODE =
 
 void initState(){
     dev::eth::Ethash::init();
-    boost::filesystem::path full_path = boost::filesystem::current_path();
-    const std::string dirQtum = full_path.string() + "/src/test/qtumtests/tempState/";
+    boost::filesystem::path pathTemp;
+    pathTemp = GetTempPath() / strprintf("test_bitcoin_%lu_%i", (unsigned long)GetTime(), (int)(GetRand(100000)));
+    boost::filesystem::create_directories(pathTemp);
+    const std::string dirQtum = pathTemp.string();
     const dev::h256 hashDB(dev::sha3(dev::rlp("")));
     globalState = std::unique_ptr<QtumState>(new QtumState(dev::u256(0), QtumState::openDB(dirQtum, hashDB, dev::WithExisting::Trust), dev::eth::BaseState::Empty));
 }
