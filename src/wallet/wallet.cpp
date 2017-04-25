@@ -3043,7 +3043,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, uin
             return error("CreateCoinStake : Transaction timestamp check failure.");
         const CChainParams& chainParams = Params();
         int64_t nReward = nFees + GetBlockSubsidy(pindexPrev->nHeight, chainParams.GetConsensus());;
-        if (nReward <= 0)
+        if (nReward < 0)
             return false;
 
         nCredit += nReward;
