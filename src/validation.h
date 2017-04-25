@@ -410,6 +410,11 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoins
 } // namespace Consensus
 
 /**
+ * Check if coinstake transaction timestamp is bigger than the previous
+ */
+bool CheckTransactionTimestamp(const CTransaction& tx, CBlockTreeDB& txdb);
+
+/**
  * Check if transaction is final and can be included in a block with the
  * specified height and time. Consensus critical.
  */

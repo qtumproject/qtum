@@ -10,7 +10,7 @@
 
 // To decrease granularity of timestamp
 // Supposed to be 2^n-1
-static const int STAKE_TIMESTAMP_MASK = 15;
+static const uint32_t STAKE_TIMESTAMP_MASK = 15;
 
 // Compute the hash modifier for proof-of-stake
 uint256 ComputeStakeModifier(const CBlockIndex* pindexPrev, const uint256& kernel);
@@ -24,11 +24,11 @@ bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, const CBl
 bool CheckProofOfStake(CBlockIndex* pindexPrev, CValidationState& state, const CTransaction& tx, unsigned int nBits, uint256& hashProofOfStake, uint256& targetProofOfStake);
 
 // Check whether the coinstake timestamp meets protocol
-bool CheckCoinStakeTimestamp(int64_t nTimeBlock, int64_t nTimeTx);
+bool CheckCoinStakeTimestamp(uint32_t nTimeBlock, uint32_t nTimeTx);
 
 // Wrapper around CheckStakeKernelHash()
 // Also checks existence of kernel input and min age
 // Convenient for searching a kernel
-bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, int64_t nTime, const COutPoint& prevout, int64_t* pBlockTime = NULL);
+bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTime, const COutPoint& prevout, uint32_t* pBlockTime = NULL);
 
 #endif // QUANTUM_POS_H

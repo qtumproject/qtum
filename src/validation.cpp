@@ -3026,6 +3026,27 @@ bool ResetBlockFailureFlags(CBlockIndex *pindex) {
     return true;
 }
 
+bool CheckTransactionTimestamp(const CTransaction& tx, CBlockTreeDB& txdb)
+{
+    if (tx.IsCoinBase())
+        return true;
+
+    BOOST_FOREACH(const CTxIn& txin, tx.vin)
+    {
+        // First try finding the previous transaction in database
+        CMutableTransaction txPrev;
+        CDiskTxPos txindex;
+        if (!ReadFromDisk(txPrev, txindex, txdb, txin.prevout))
+            continue;  // previous transaction not in main chain
+        if (tx.nTime < txPrev.nTime)
+            return false;  // Transaction timestamp violation
+
+        LogPrint("Transaction timestamp", "timestamp nTimeDiff=%d", tx.nTime - txPrev.nTime);
+    }
+
+    return true;
+}
+
 CBlockIndex* AddToBlockIndex(const CBlockHeader& block)
 {
     // Check for duplicate
