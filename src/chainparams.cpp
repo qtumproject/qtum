@@ -80,7 +80,7 @@ public:
         strNetworkID = "main";
         consensus.nSubsidyHalvingInterval = 985500; // qtum halving every 4 years
         consensus.BIP34Height = 0;
-        consensus.BIP34Hash = uint256S("0x0000c5b0ae6817bd20eb1b9889ccb8ae679009d14ad8e1f5f816bba436c25009");
+        consensus.BIP34Hash = uint256S("0x000056578ef62ae0c27b86f38df2499ecb52df6d10bc1ef77913caa1abe14599");
         consensus.BIP65Height = 0; // 000000000000000004c2b624ed5d7756c508d90fd0da2c7c679febfa6c4735f0
         consensus.BIP66Height = 0; // 00000000000000000379eaa19dce8c9b722d46ae6a57c2f1a988119488b50931
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
@@ -149,7 +149,7 @@ public:
 
         checkpointData = (CCheckpointData) {
             boost::assign::map_list_of
-            ( 0, uint256S("0x0000c5b0ae6817bd20eb1b9889ccb8ae679009d14ad8e1f5f816bba436c25009"))
+            ( 0, uint256S("0x000056578ef62ae0c27b86f38df2499ecb52df6d10bc1ef77913caa1abe14599"))
         };
 
         chainTxData = ChainTxData{
@@ -173,7 +173,7 @@ public:
         strNetworkID = "test";
         consensus.nSubsidyHalvingInterval = 985500; // qtum halving every 4 years
         consensus.BIP34Height = 0;
-        consensus.BIP34Hash = uint256S("0x00003c1940a813ec254b1ff98695a768c1b7ebf4dd1e9d2743d572114a4cf1bb");
+        consensus.BIP34Hash = uint256S("0x000078d237104fe144501eb90df78d1b8e4b3c946dcabec193d4cf9f66f21444");
         consensus.BIP65Height = 0; // 00000000007f6655f22f98e72ed80d8b06dc761d5da09df0fa1dc4be4f861eb6
         consensus.BIP66Height = 0; // 000000002104c8c45e99a8853285a3b592602a3ccde2b832481da85e9e4ba182
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
@@ -240,7 +240,7 @@ public:
 
         checkpointData = (CCheckpointData) {
             boost::assign::map_list_of
-            ( 0, uint256S("0x00003c1940a813ec254b1ff98695a768c1b7ebf4dd1e9d2743d572114a4cf1bb")),
+            ( 0, uint256S("0x000078d237104fe144501eb90df78d1b8e4b3c946dcabec193d4cf9f66f21444")),
         };
 
         chainTxData = ChainTxData{
@@ -264,7 +264,7 @@ public:
         strNetworkID = "regtest";
         consensus.nSubsidyHalvingInterval = 150;
         consensus.BIP34Height = 0; // BIP34 has not activated on regtest (far in the future so block v1 are not rejected in tests) // activate for qtum
-        consensus.BIP34Hash = uint256S("0x5729432214f52acebfac69b674fb3bbfdb46b3292fed2f8708b1f829c45ab781");
+        consensus.BIP34Hash = uint256S("0x1902a20959c1dca2d40d9a71c1b4f62e57584886e9ad34e87e037fcf755927cc");
         consensus.BIP65Height = 0; // BIP65 activated on regtest (Used in rpc activation tests)
         consensus.BIP66Height = 0; // BIP66 activated on regtest (Used in rpc activation tests)
         consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
