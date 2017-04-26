@@ -607,8 +607,50 @@ bool LoadMempool();
 //////////////////////////////////////////////////////// qtum
 void writeVMlog(const std::vector<execResult>& res, const CTransaction& tx = CTransaction(), const CBlock& block = CBlock());
 
+class VersionVM{
+
+public:
+
+    VersionVM(){
+        vmFormat = 0;
+        rootVM = 1;
+        vmVersion = 0;
+        flagOptions = 0;
+    }
+
+    VersionVM(uint32_t _rawVersion) : rawVersion(_rawVersion){
+        expandData();
+    }
+
+    uint8_t getVMFormat(){ return vmFormat; }
+    uint8_t getRootVM(){ return rootVM; }
+    uint8_t getVMVersion(){ return vmVersion; }
+    uint8_t getFlagOptions(){ return flagOptions; }
+
+    uint32_t getRawVersion(){ return rawVersion; }
+
+    bool operator!=(VersionVM& v){
+        if(this->vmFormat != v.vmFormat || this->rootVM != v.rootVM ||
+           this->vmVersion != v.vmVersion || this->flagOptions != v.flagOptions){
+           return true;
+        }
+        return false;
+    }
+
+private:
+
+    void expandData();
+
+    uint8_t vmFormat : 2;
+    uint8_t rootVM : 6;
+    uint8_t vmVersion : 8;
+    uint16_t flagOptions : 16;
+
+    uint32_t rawVersion;
+};
+
 struct EthTransactionParams{
-    int64_t version;
+    VersionVM version;
     dev::u256 gasLimit;
     dev::u256 gasPrice;
     valtype code;
