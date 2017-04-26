@@ -1860,11 +1860,11 @@ valtype GetSenderAddress(const CTransaction& tx, const CCoinsViewCache* coinsVie
     return valtype();
 }
 
-UniValue vmLogToJSON(const execResult& execRes, const CTransaction& tx, const CBlock& block){
+UniValue vmLogToJSON(const ResultExecute& execRes, const CTransaction& tx, const CBlock& block){
     UniValue result(UniValue::VOBJ);
     if(tx != CTransaction())
         result.push_back(Pair("txid", tx.GetHash().GetHex()));
-    result.push_back(Pair("address", execRes.first.newAddress.hex()));
+    result.push_back(Pair("address", execRes.execRes.newAddress.hex()));
     if(block.GetHash() != CBlock().GetHash()){
         result.push_back(Pair("time", block.GetBlockTime()));
         result.push_back(Pair("blockhash", block.GetHash().GetHex()));
@@ -1874,7 +1874,7 @@ UniValue vmLogToJSON(const execResult& execRes, const CTransaction& tx, const CB
         result.push_back(Pair("blockheight", chainActive.Tip()->nHeight));
     }
     UniValue logEntries(UniValue::VARR);
-    dev::eth::LogEntries logs = execRes.second.log();
+    dev::eth::LogEntries logs = execRes.txRec.log();
     for(dev::eth::LogEntry log : logs){
         UniValue logEntrie(UniValue::VOBJ);
         logEntrie.push_back(Pair("address", log.address.hex()));
@@ -1895,7 +1895,7 @@ UniValue vmLogToJSON(const execResult& execRes, const CTransaction& tx, const CB
     return result;
 }
 
-void writeVMlog(const std::vector<execResult>& res, const CTransaction& tx, const CBlock& block){
+void writeVMlog(const std::vector<ResultExecute>& res, const CTransaction& tx, const CBlock& block){
     boost::filesystem::path qtumDir = GetDataDir() / "vmExecLogs.json";
     std::stringstream ss;
     if(fIsVMlogFile){
@@ -1929,7 +1929,7 @@ void ByteCodeExec::performByteCode(dev::eth::Permanence type){
         if(!tx.isCreation() && !globalState->addressInUse(tx.receiveAddress())){
             dev::eth::ExecutionResult execRes;
             execRes.excepted = dev::eth::TransactionException::Unknown;
-            result.push_back(std::make_pair(execRes, dev::eth::TransactionReceipt(dev::h256(), dev::u256(), dev::eth::LogEntries())));
+            result.push_back(ResultExecute{execRes, dev::eth::TransactionReceipt(dev::h256(), dev::u256(), dev::eth::LogEntries()), CTransaction()});
             continue;
         }
         result.push_back(globalState->execute(envInfo, *se.get(), tx, type, OnOpFunc()));
@@ -1941,7 +1941,7 @@ void ByteCodeExec::performByteCode(dev::eth::Permanence type){
 ByteCodeExecResult ByteCodeExec::processingResults(){
     ByteCodeExecResult resultBCE;
     for(size_t i = 0; i < result.size(); i++){
-        if(result[i].first.excepted != dev::eth::TransactionException::None){
+        if(result[i].execRes.excepted != dev::eth::TransactionException::None){
             if(txs[i].value() > 0){
                 CMutableTransaction tx;
                 tx.vin.push_back(CTxIn(h256Touint(txs[i].getHashWith()), txs[i].getNVout(), CScript()));
@@ -1950,13 +1950,16 @@ ByteCodeExecResult ByteCodeExec::processingResults(){
                 resultBCE.refundValueTx.push_back(CTransaction(tx));
             }
         } else {
-            resultBCE.usedFee += CAmount(result[i].first.gasUsed);
-            CAmount ref(txs[i].gas() - result[i].first.gasUsed);
+            resultBCE.usedFee += CAmount(result[i].execRes.gasUsed);
+            CAmount ref(txs[i].gas() - result[i].execRes.gasUsed);
             if(ref > 0){
                 CScript script(CScript() << OP_DUP << OP_HASH160 << txs[i].sender().asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
                 resultBCE.refundVOuts.push_back(CTxOut(ref, script));
                 resultBCE.refundSender += ref;
             }
+        }
+        if(result[i].tx != CTransaction()){
+            resultBCE.refundValueTx.push_back(result[i].tx);
         }
     }
     return resultBCE;
@@ -2243,24 +2246,29 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                              REJECT_INVALID, "bad-blk-sigops");
 
         txdata.emplace_back(tx);
+
+        bool hasTxhash = false;
+
         if (!tx.IsCoinBase())
         {
             nFees += view.GetValueIn(tx)-tx.GetValueOut();
 
             std::vector<CScriptCheck> vChecks;
             bool fCacheResults = fJustCheck; /* Don't cache results if we're actually connecting blocks (still consult the cache, though) */
-            if (!CheckInputs(tx, state, view, fScriptChecks, flags, fCacheResults, txdata[i], nScriptCheckThreads ? &vChecks : NULL))
+            // if (!CheckInputs(tx, state, view, fScriptChecks, flags, fCacheResults, txdata[i], nScriptCheckThreads ? &vChecks : NULL))
+            hasTxhash = tx.vin[0].scriptSig.HasOpTXHASH();
+            if (!CheckInputs(tx, state, view, fScriptChecks, flags, fCacheResults, txdata[i], (hasTxhash || tx.HasCreateOrCall()) ? NULL : (nScriptCheckThreads ? &vChecks : NULL)))//nScriptCheckThreads ? &vChecks : NULL))
                 return error("ConnectBlock(): CheckInputs on %s failed with %s",
                     tx.GetHash().ToString(), FormatStateMessage(state));
             control.Add(vChecks);
         }
 
 ///////////////////////////////////////////////////////////////////////////////////////// qtum
-        if(tx.HasCreateOrCall()){
+        if(tx.HasCreateOrCall() && !hasTxhash){
             QtumTxConverter convert(tx, NULL);
             ByteCodeExec exec(block, convert.extractionQtumTransactions());
             exec.performByteCode();
-            std::vector<execResult> resultExec(exec.getResult());
+            std::vector<ResultExecute> resultExec(exec.getResult());
             if(fRecordLogOpcodes && !fJustCheck){
                 writeVMlog(resultExec, tx, block);
             }

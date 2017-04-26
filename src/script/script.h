@@ -679,6 +679,10 @@ public:
     {
         return Find(OP_CALL) > 0;
     }
+    bool HasOpTXHASH() const
+    {
+        return Find(OP_TXHASH) > 0;
+    }
     /////////////////////////////////////////
 
     void clear()

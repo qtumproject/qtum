@@ -17,7 +17,7 @@ QtumState::QtumState() : dev::eth::State(dev::Invalid256, dev::OverlayDB(), dev:
     stateUTXO = SecureTrieDB<Address, OverlayDB>(&dbUTXO);
 }
 
-pair<ExecutionResult, TransactionReceipt> QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& _sealEngine, QtumTransaction const& _t, Permanence _p, OnOpFunc const& _onOp){
+ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& _sealEngine, QtumTransaction const& _t, Permanence _p, OnOpFunc const& _onOp){
     addBalance(_t.sender(), _t.value() + (_t.gas() * _t.gasPrice()));
     newAddress = _t.isCreation() ? createQtumAddress(_t.getHashWith(), _t.getNVout()) : dev::Address();
 
@@ -33,6 +33,7 @@ pair<ExecutionResult, TransactionReceipt> QtumState::execute(EnvInfo const& _env
 	ExecutionResult res;
 	e.setResultRecipient(res);
 
+    CTransactionRef tx;
     u256 startGasUsed;
     try{
         e.initialize(_t);
@@ -49,8 +50,8 @@ pair<ExecutionResult, TransactionReceipt> QtumState::execute(EnvInfo const& _env
             std::vector<Address> deleteAddresses = {_t.sender(), _envInfo.author()};
             deleteAccounts(deleteAddresses);
             CondensingTX ctx(this, transfers, _t);
-            CTransaction tx = ctx.createCondensingTX();
-            std::unordered_map<dev::Address, Vin> vins = ctx.createVin(tx);
+            tx = res.excepted == TransactionException::None ? MakeTransactionRef(ctx.createCondensingTX()) : NULL;
+            std::unordered_map<dev::Address, Vin> vins = ctx.createVin(*tx);
             updateUTXO(vins);
             
             qtum::commit(cacheUTXO, stateUTXO, m_cache);
@@ -77,7 +78,7 @@ pair<ExecutionResult, TransactionReceipt> QtumState::execute(EnvInfo const& _env
         res.newAddress = _t.receiveAddress();
     newAddress = dev::Address();
     transfers.clear();
-	return make_pair(res, dev::eth::TransactionReceipt(rootHash(), startGasUsed + e.gasUsed(), e.logs()));
+    return ResultExecute{res, dev::eth::TransactionReceipt(rootHash(), startGasUsed + e.gasUsed(), e.logs()), tx ? *tx : CTransaction()};
 }
 
 std::unordered_map<dev::Address, Vin> QtumState::vins() const // temp
@@ -222,7 +223,7 @@ CTransaction CondensingTX::createCondensingTX(){
     CMutableTransaction tx;
     tx.vin = createVins();;
     tx.vout = createVout();
-    return CTransaction(tx);
+    return !tx.vin.size() || !tx.vout.size() ? CTransaction() : CTransaction(tx);
 }
 
 std::unordered_map<dev::Address, Vin> CondensingTX::createVin(const CTransaction& tx){
@@ -303,7 +304,8 @@ std::vector<CTxOut> CondensingTX::createVout(){
     for(auto& b : balances){
         if(b.second > 0){
             CScript script;
-            if(state->addressInUse(b.first)){
+            auto* a = state->account(b.first);
+            if(a && a->isAlive()){
                 script = CScript() << valtype{0} << valtype{0} << valtype{0} << valtype(1, 0) << b.first.asBytes() << OP_CALL;
             } else {
                 script = CScript() << OP_DUP << OP_HASH160 << b.first.asBytes() << OP_EQUALVERIFY << OP_CHECKSIG;

@@ -13,7 +13,6 @@
 
 using OnOpFunc = std::function<void(uint64_t, uint64_t, dev::eth::Instruction, dev::bigint, dev::bigint, 
     dev::bigint, dev::eth::VM*, dev::eth::ExtVMFace const*)>;
-using execResult = std::pair<dev::eth::ExecutionResult, dev::eth::TransactionReceipt>;
 using plusAndMinus = std::pair<dev::u256, dev::u256>;
 using valtype = std::vector<unsigned char>;
 
@@ -28,6 +27,12 @@ struct Vin{
     uint32_t nVout;
     dev::u256 value;
     uint8_t alive;
+};
+
+struct ResultExecute{
+    dev::eth::ExecutionResult execRes;
+    dev::eth::TransactionReceipt txRec;
+    CTransaction tx;
 };
 
 namespace qtum{
@@ -55,11 +60,11 @@ class QtumState : public dev::eth::State {
     
 public:
 
-    QtumState();// : dev::eth::State(dev::Invalid256, dev::OverlayDB(), dev::eth::BaseState::PreExisting);
+    QtumState();
 
     QtumState(dev::u256 const& _accountStartNonce, dev::OverlayDB const& _db, const std::string& _path, dev::eth::BaseState _bs = dev::eth::BaseState::PreExisting);
 
-    std::pair<dev::eth::ExecutionResult, dev::eth::TransactionReceipt> execute(dev::eth::EnvInfo const& _envInfo, dev::eth::SealEngineFace const& _sealEngine, QtumTransaction const& _t, dev::eth::Permanence _p = dev::eth::Permanence::Committed, dev::eth::OnOpFunc const& _onOp = OnOpFunc());
+    ResultExecute execute(dev::eth::EnvInfo const& _envInfo, dev::eth::SealEngineFace const& _sealEngine, QtumTransaction const& _t, dev::eth::Permanence _p = dev::eth::Permanence::Committed, dev::eth::OnOpFunc const& _onOp = OnOpFunc());
 
     void setRootUTXO(dev::h256 const& _r) { cacheUTXO.clear(); stateUTXO.setRoot(_r); }
 

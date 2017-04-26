@@ -919,7 +919,7 @@ UniValue callcontract(const JSONRPCRequest& request)
 
     ByteCodeExec exec(block, std::vector<QtumTransaction>(1, callTransaction));
     exec.performByteCode(dev::eth::Permanence::Reverted);
-    std::vector<execResult> execResults = exec.getResult();
+    std::vector<ResultExecute> execResults = exec.getResult();
 
     if(fRecordLogOpcodes){
         writeVMlog(execResults);
@@ -927,8 +927,8 @@ UniValue callcontract(const JSONRPCRequest& request)
  
     UniValue result(UniValue::VOBJ);
     result.push_back(Pair("address", strAddr));
-    result.push_back(Pair("executionResult", executionResultToJSON(execResults[0].first)));
-    result.push_back(Pair("transactionReceipt", transactionReceiptToJSON(execResults[0].second)));
+    result.push_back(Pair("executionResult", executionResultToJSON(execResults[0].execRes)));
+    result.push_back(Pair("transactionReceipt", transactionReceiptToJSON(execResults[0].txRec)));
  
     return result;
 }
