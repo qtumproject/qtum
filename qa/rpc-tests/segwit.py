@@ -251,7 +251,7 @@ class SegWitTest(BitcoinTestFramework):
         assert(tmpl['transactions'][0]['sigops'] == 8)
 
         print("Verify non-segwit miners get a valid GBT response after the fork")
-        send_to_witness(1, self.nodes[0], find_unspent(self.nodes[0], 50), self.pubkey[0], False, Decimal("49.998"))
+        send_to_witness(1, self.nodes[0], find_unspent(self.nodes[0], int(INITIAL_BLOCK_REWARD)), self.pubkey[0], False, Decimal(str(INITIAL_BLOCK_REWARD-0.002)))
         try:
             tmpl = self.nodes[0].getblocktemplate({})
             assert(len(tmpl['transactions']) == 1)  # Doesn't include witness tx
@@ -556,7 +556,7 @@ class SegWitTest(BitcoinTestFramework):
         self.create_and_mine_tx_from_txids(solvable_txid)
 
     def mine_and_test_listunspent(self, script_list, ismine):
-        utxo = find_unspent(self.nodes[0], 50)
+        utxo = find_unspent(self.nodes[0], int(INITIAL_BLOCK_REWARD))
         tx = CTransaction()
         tx.vin.append(CTxIn(COutPoint(int('0x'+utxo['txid'],0), utxo['vout'])))
         for i in script_list:
