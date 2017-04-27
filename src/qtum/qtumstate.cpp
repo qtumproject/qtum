@@ -49,14 +49,15 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
             cacheUTXO.clear();
         } else {
             deleteAccounts(_sealEngine.deleteAddresses);
-            CondensingTX ctx(this, transfers, _t);
-            tx = res.excepted == TransactionException::None ? MakeTransactionRef(ctx.createCondensingTX()) : NULL;
-            std::unordered_map<dev::Address, Vin> vins = ctx.createVin(*tx);
-            updateUTXO(vins);
+            if(res.excepted == TransactionException::None){
+                CondensingTX ctx(this, transfers, _t);
+                tx = MakeTransactionRef(ctx.createCondensingTX());
+                std::unordered_map<dev::Address, Vin> vins = ctx.createVin(*tx);
+                updateUTXO(vins);
+            }
             
             qtum::commit(cacheUTXO, stateUTXO, m_cache);
             cacheUTXO.clear();
-
             bool removeEmptyAccounts = _envInfo.number() >= _sealEngine.chainParams().u256Param("EIP158ForkBlock");
             commit(removeEmptyAccounts ? State::CommitBehaviour::RemoveEmptyAccounts : State::CommitBehaviour::KeepEmptyAccounts);
         }
@@ -66,7 +67,6 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
         exception << dev::eth::toTransactionException(_e);
         LogPrintf("VMException: %s\n", exception.str());
         res.excepted = dev::eth::toTransactionException(_e);
-
         if(_p != Permanence::Reverted){
             deleteAccounts(_sealEngine.deleteAddresses);
             commit(CommitBehaviour::RemoveEmptyAccounts);
