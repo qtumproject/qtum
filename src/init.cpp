@@ -1347,6 +1347,17 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
         }
     }
 
+#ifdef ENABLE_WALLET
+    if (mapMultiArgs.count("-reservebalance")) // ppcoin: reserve balance amount
+    {
+        if (!ParseMoney(GetArg("-reservebalance", ""), nReserveBalance))
+        {
+            InitError(_("Invalid amount for -reservebalance=<amount>"));
+            return false;
+        }
+    }
+#endif
+
     if (mapMultiArgs.count("-seednode")) {
         BOOST_FOREACH(const std::string& strDest, mapMultiArgs.at("-seednode"))
             connman.AddOneShot(strDest);
