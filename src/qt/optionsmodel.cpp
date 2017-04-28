@@ -9,6 +9,7 @@
 #include "optionsmodel.h"
 
 #include "bitcoinunits.h"
+#include "wallet/wallet.h"
 #include "guiutil.h"
 
 #include "amount.h"
@@ -94,6 +95,15 @@ void OptionsModel::Init(bool resetSettings)
         settings.setValue("nDatabaseCache", (qint64)nDefaultDbCache);
     if (!SoftSetArg("-dbcache", settings.value("nDatabaseCache").toString().toStdString()))
         addOverriddenOption("-dbcache");
+
+    if (!settings.contains("nReserveBalance"))
+        settings.setValue("nReserveBalance", (qint64)nReserveBalance);
+    if (!SoftSetArg("-reservebalance", settings.value("nReserveBalance").toString().toStdString()))
+        nReserveBalance = GetArg("-reservebalance", nReserveBalance);
+    else
+        nReserveBalance = settings.value("nReserveBalance").toLongLong();
+
+    Q_EMIT reserveBalanceChanged(nReserveBalance);
 
     if (!settings.contains("nThreadsScriptVerif"))
         settings.setValue("nThreadsScriptVerif", DEFAULT_SCRIPTCHECK_THREADS);
@@ -233,6 +243,8 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
         case SpendZeroConfChange:
             return settings.value("bSpendZeroConfChange");
 #endif
+        case ReserveBalance:
+            return (qint64) nReserveBalance;
         case DisplayUnit:
             return nDisplayUnit;
         case ThirdPartyTxUrls:
@@ -381,6 +393,13 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             if (settings.value("nDatabaseCache") != value) {
                 settings.setValue("nDatabaseCache", value);
                 setRestartRequired(true);
+            }
+            break;
+        case ReserveBalance:
+            if (settings.value("nReserveBalance") != value) {
+                settings.setValue("nReserveBalance", value);
+                nReserveBalance = value.toLongLong();
+                Q_EMIT reserveBalanceChanged(nReserveBalance);
             }
             break;
         case ThreadsScriptVerif:

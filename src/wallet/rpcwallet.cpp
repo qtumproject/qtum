@@ -2500,6 +2500,44 @@ UniValue encryptwallet(const JSONRPCRequest& request)
     return "wallet encrypted; Qtum server stopping, restart to run with encrypted wallet. The keypool has been flushed and a new HD seed was generated (if you are using HD). You need to make a new backup.";
 }
 
+UniValue  reservebalance(const JSONRPCRequest& request)
+{
+    if (request.fHelp || request.params.size() > 2)
+        throw runtime_error(
+            "reservebalance [<reserve> [amount]]\n"
+            "<reserve> is true or false to turn balance reserve on or off.\n"
+            "<amount> is a real and rounded to cent.\n"
+            "Set reserve amount not participating in network protection.\n"
+            "If no parameters provided current setting is printed.\n");
+
+    if (request.params.size() > 0)
+    {
+        bool fReserve = request.params[0].get_bool();
+        if (fReserve)
+        {
+            if (request.params.size() == 1)
+                throw runtime_error("must provide amount to reserve balance.\n");
+            int64_t nAmount = AmountFromValue(request.params[1]);
+            nAmount = (nAmount / CENT) * CENT;  // round to cent
+            if (nAmount < 0)
+                throw runtime_error("amount cannot be negative.\n");
+            nReserveBalance = nAmount;
+        }
+        else
+        {
+            if (request.params.size() > 1)
+                throw runtime_error("cannot specify amount to turn off reserve.\n");
+            nReserveBalance = 0;
+        }
+    }
+
+    UniValue result(UniValue::VOBJ);
+    result.push_back(Pair("reserve", (nReserveBalance > 0)));
+    result.push_back(Pair("amount", ValueFromAmount(nReserveBalance)));
+    return result;
+}
+
+
 UniValue lockunspent(const JSONRPCRequest& request)
 {
     if (!EnsureWalletIsAvailable(request.fHelp))
@@ -3386,6 +3424,7 @@ static const CRPCCommand commands[] =
         { "wallet",             "listunspent",              &listunspent,              false,  {"minconf","maxconf","addresses","include_unsafe"} },
         { "wallet",             "lockunspent",              &lockunspent,              true,   {"unlock","transactions"} },
         { "wallet",             "move",                     &movecmd,                  false,  {"fromaccount","toaccount","amount","minconf","comment"} },
+        { "wallet",             "reservebalance",           &reservebalance,           false,  {"reserve", "amount"}},
         { "wallet",             "sendfrom",                 &sendfrom,                 false,  {"fromaccount","toaddress","amount","minconf","comment","comment_to"} },
         { "wallet",             "sendmany",                 &sendmany,                 false,  {"fromaccount","amounts","minconf","comment","subtractfeefrom"} },
         { "wallet",             "sendtoaddress",            &sendtoaddress,            false,  {"address","amount","comment","comment_to","subtractfeefromamount"} },
