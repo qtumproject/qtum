@@ -20,6 +20,7 @@ QtumState::QtumState() : dev::eth::State(dev::Invalid256, dev::OverlayDB(), dev:
 ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& _sealEngine, QtumTransaction const& _t, Permanence _p, OnOpFunc const& _onOp){
     addBalance(_t.sender(), _t.value() + (_t.gas() * _t.gasPrice()));
     newAddress = _t.isCreation() ? createQtumAddress(_t.getHashWith(), _t.getNVout()) : dev::Address();
+    _sealEngine.deleteAddresses.insert(_sealEngine.deleteAddresses.end(), {_t.sender(), _envInfo.author()});
 
 	auto onOp = _onOp;
 #if ETH_VMTRACE
@@ -47,8 +48,7 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
             m_cache.clear();
             cacheUTXO.clear();
         } else {
-            std::vector<Address> deleteAddresses = {_t.sender(), _envInfo.author()};
-            deleteAccounts(deleteAddresses);
+            deleteAccounts(_sealEngine.deleteAddresses);
             CondensingTX ctx(this, transfers, _t);
             tx = res.excepted == TransactionException::None ? MakeTransactionRef(ctx.createCondensingTX()) : NULL;
             std::unordered_map<dev::Address, Vin> vins = ctx.createVin(*tx);
@@ -68,8 +68,7 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
         res.excepted = dev::eth::toTransactionException(_e);
 
         if(_p != Permanence::Reverted){
-            std::vector<Address> deleteAddresses = {_t.sender()};
-            deleteAccounts(deleteAddresses);
+            deleteAccounts(_sealEngine.deleteAddresses);
             commit(CommitBehaviour::RemoveEmptyAccounts);
         }
     }
@@ -196,7 +195,11 @@ dev::Address QtumState::createQtumAddress(dev::h256 hashTx, uint32_t voutNumber)
 void QtumState::deleteAccounts(std::vector<dev::Address>& addrs){
     for(dev::Address addr : addrs){
         dev::eth::Account* acc = const_cast<dev::eth::Account*>(account(addr));
-        acc->kill();
+        if(acc)
+            acc->kill();
+        Vin* in = const_cast<Vin*>(vin(addr));
+        if(in)
+            in->alive = 0;
     }
 }
 
