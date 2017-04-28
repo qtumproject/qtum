@@ -163,6 +163,9 @@ testScripts = [
     'qtum-opcreate.py',
     'qtum-state-root.py',
     'qtum-opcall.py',
+    'qtum-createcontract.py',
+    'qtum-sendtocontract.py',
+    'qtum-callcontract.py',
 ]
 if ENABLE_ZMQ:
     testScripts.append('zmq_test.py')
