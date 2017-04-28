@@ -62,7 +62,8 @@
 
  ////////////////////////////// qtum
 #include <iostream>
- #include "pubkey.h"
+#include <bitset>
+#include "pubkey.h"
 #include <univalue.h>
 
  std::unique_ptr<QtumState> globalState;
@@ -1998,6 +1999,14 @@ dev::Address ByteCodeExec::EthAddrFromScript(const CScript& scriptIn){
     return dev::Address(addr);
 }
 
+void VersionVM::expandData(){
+    std::string raw(std::bitset<32>(rawVersion).to_string());
+    vmFormat = std::bitset<2>(std::string(raw.begin(), raw.begin() + 2)).to_ulong();
+    rootVM = std::bitset<6>(std::string(raw.begin() + 2, raw.begin() + 8)).to_ulong();
+    vmVersion = std::bitset<8>(std::string(raw.begin() + 8, raw.begin() + 16)).to_ulong();
+    flagOptions = std::bitset<16>(std::string(raw.begin() + 16, raw.begin() + 32)).to_ulong();
+}
+
 std::vector<QtumTransaction> QtumTxConverter::extractionQtumTransactions(){
     std::vector<QtumTransaction> result;
     for(size_t i = 0; i < txBit.vout.size(); i++){
@@ -2046,9 +2055,9 @@ EthTransactionParams QtumTxConverter::parseEthTXParams(){
         stack.pop_back();
         uint64_t gasLimit = CScriptNum::vch_to_uint64(stack.back());
         stack.pop_back();
-        CScriptNum version(stack.back(), 0);
+        VersionVM version(CScriptNum::vch_to_uint64(stack.back()));
         stack.pop_back();
-        return EthTransactionParams{version.getint(), dev::u256(gasLimit), dev::u256(gasPrice), code, receiveAddress};        
+        return EthTransactionParams{version, dev::u256(gasLimit), dev::u256(gasPrice), code, receiveAddress};      
     }
     catch(const scriptnum_error& err){
         LogPrintf("Incorrect parameters to VM.");
