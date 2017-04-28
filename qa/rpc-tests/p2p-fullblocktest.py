@@ -7,6 +7,7 @@ from test_framework.test_framework import ComparisonTestFramework
 from test_framework.util import *
 from test_framework.comptool import TestManager, TestInstance, RejectResult
 from test_framework.blocktools import *
+from test_framework.mininode import *
 import time
 from test_framework.key import CECKey
 from test_framework.script import *
@@ -794,7 +795,6 @@ class FullBlockTest(ComparisonTestFramework):
 
         tip("57p2")
         yield accepted()
-
         tip(57)
         yield rejected()  #rejected because 57p2 seen first
         save_spendable_output()
@@ -819,7 +819,7 @@ class FullBlockTest(ComparisonTestFramework):
         # tx with output value > input value out of range
         tip(57)
         b59 = block(59)
-        tx = create_and_sign_tx(out[17].tx, out[17].n, 51*COIN)
+        tx = create_and_sign_tx(out[17].tx, out[17].n, (int(INITIAL_BLOCK_REWARD)+1)*COIN)
         b59 = update_block(59, [tx])
         yield rejected(RejectResult(16, b'bad-txns-in-belowout'))
 
@@ -1234,7 +1234,6 @@ class FullBlockTest(ComparisonTestFramework):
         block(87, spend=out[30])
         yield rejected()
         save_spendable_output()
-
         block(88, spend=out[31])
         yield accepted()
         save_spendable_output()
@@ -1251,7 +1250,8 @@ class FullBlockTest(ComparisonTestFramework):
         #
         if self.options.runbarelyexpensive:
             tip(88)
-            LARGE_REORG_SIZE = 1088
+            # Due to changing the MAX_HEADERS_RESULTS
+            LARGE_REORG_SIZE = 288
             test1 = TestInstance(sync_every_block=False)
             spend=out[32]
             for i in range(89, LARGE_REORG_SIZE + 89):
@@ -1266,10 +1266,8 @@ class FullBlockTest(ComparisonTestFramework):
                 test1.blocks_and_transactions.append([self.tip, True])
                 save_spendable_output()
                 spend = get_spendable_output()
-
             yield test1
             chain1_tip = i
-
             # now create alt chain of same length
             tip(88)
             test2 = TestInstance(sync_every_block=False)

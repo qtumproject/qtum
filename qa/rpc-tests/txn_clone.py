@@ -73,6 +73,8 @@ class TxnMallTest(BitcoinTestFramework):
             output0 = clone_raw[pos0 : pos0 + output_len]
             output1 = clone_raw[pos0 + output_len : pos0 + 2 * output_len]
             clone_raw = clone_raw[:pos0] + output1 + output0 + clone_raw[pos0 + 2 * output_len:]
+        # The clone must also have the same txTime
+        clone_raw = clone_raw[0:-8] + rawtx1['hex'][-8:]
 
         # Use a different signature hash type to sign.  This creates an equivalent but malleated clone.
         # Don't send the clone anywhere yet

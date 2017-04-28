@@ -71,7 +71,7 @@ class OpCreateTest(BitcoinTestFramework):
         }
         """
         tx = make_op_create_transaction(node,
-            [make_vin(node, amount)],
+            [self.vins.pop(-1)],
             [make_op_create_output(node, 0, b"\x01", 10000, 1000, bytes.fromhex("60606040523415600b57fe5b5b60398060196000396000f30060606040525b600b5b5b565b0000a165627a7a7230582092926a9814888ff08700cbd86cf4ff8c50052f5fd894e794570d9551733591d60029"))]
         )
         node.sendrawtransaction(tx)
@@ -152,12 +152,59 @@ class OpCreateTest(BitcoinTestFramework):
         assert_equal(node.getblockcount(), old_block_height)
         assert_equal(len(node.listcontracts(1, 1000)), num_old_contracts)
 
+    def gas_limit_signedness_test(self):
+        node = self.nodes[0]
+        num_old_contracts = len(node.listcontracts(1, 1000))
+
+        """
+        pragma solidity ^0.4.10;
+        contract Example {
+            function () payable {}
+        }
+        """
+        tx = make_op_create_transaction(node,
+            [self.vins.pop(-1)],
+            # changing the gas limit \xff\xff -> \xff\xff\x00 results in success.
+            [make_op_create_output(node, 0, b"\x01", b"\xff\xff", 1000, bytes.fromhex("60606040523415600b57fe5b5b60398060196000396000f30060606040525b600b5b5b565b0000a165627a7a7230582092926a9814888ff08700cbd86cf4ff8c50052f5fd894e794570d9551733591d60029"))]
+        )
+        try:
+            node.sendrawtransaction(tx)
+            assert(False)
+        except:
+            pass
+
+
+    def gas_limit_signedness_test(self):
+        node = self.nodes[0]
+        num_old_contracts = len(node.listcontracts(1, 1000))
+
+        """
+        pragma solidity ^0.4.10;
+        contract Example {
+            function () payable {}
+        }
+        """
+        tx = make_op_create_transaction(node,
+            [self.vins.pop(-1)],
+            # changing the gas limit \xff\xff -> \xff\xff\x00 results in success.
+            [make_op_create_output(node, 0, b"\x01", b"\xff\x4f", 1000, bytes.fromhex("60606040523415600b57fe5b5b60398060196000396000f30060606040525b600b5b5b565b0000a165627a7a7230582092926a9814888ff08700cbd86cf4ff8c50052f5fd894e794570d9551733591d60029")),
+            make_op_create_output(node, 0, b"\x01", b"\xff\xff", 1000, bytes.fromhex("60606040523415600b57fe5b5b60398060196000396000f30060606040525b600b5b5b565b0000a165627a7a7230582092926a9814888ff08700cbd86cf4ff8c50052f5fd894e794570d9551733591d60029"))]
+        )
+        try:
+            node.sendrawtransaction(tx)
+            assert(False)
+        except:
+            pass
+
+
     def run_test(self):
-        self.nodes[0].generate(200)
+        self.nodes[0].generate(40)
+        self.vins = [make_vin(self.nodes[0], 10*COIN) for _ in range(10)]
         self.basic_contract_is_created_raw_tx_test()
         self.large_contract_creation_test()
         self.many_contracts_in_one_block_test()
         self.contract_reorg_test()
+        self.gas_limit_signedness_test()
 
 if __name__ == '__main__':
     OpCreateTest().main()
