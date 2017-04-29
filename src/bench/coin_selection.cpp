@@ -22,7 +22,6 @@ static void addCoin(const CAmount& nValue, const CWallet& wallet, std::vector<CO
     tx.vout.resize(nInput + 1);
     tx.vout[nInput].nValue = nValue;
     //Use default time for coin
-    currentTime = GetAdjustedTime();
     tx.nTime = currentTime - GetRandInt(100) - 1; //qtum
     CWalletTx* wtx = new CWalletTx(&wallet, MakeTransactionRef(std::move(tx)));
 
