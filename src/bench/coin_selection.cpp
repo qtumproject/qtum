@@ -10,7 +10,7 @@
 #include <boost/foreach.hpp>
 #include <set>
 
-uint32_t currentTime = GetAdjustedTime();
+uint32_t currentTime;
 
 static void addCoin(const CAmount& nValue, const CWallet& wallet, std::vector<COutput>& vCoins)
 {
@@ -22,6 +22,7 @@ static void addCoin(const CAmount& nValue, const CWallet& wallet, std::vector<CO
     tx.vout.resize(nInput + 1);
     tx.vout[nInput].nValue = nValue;
     //Use default time for coin
+    currentTime = GetAdjustedTime();
     tx.nTime = currentTime - GetRandInt(100) - 1; //qtum
     CWalletTx* wtx = new CWalletTx(&wallet, MakeTransactionRef(std::move(tx)));
 
@@ -42,7 +43,7 @@ static void CoinSelection(benchmark::State& state)
     const CWallet wallet;
     std::vector<COutput> vCoins;
     LOCK(wallet.cs_wallet);
-
+    currentTime = GetAdjustedTime();
     while (state.KeepRunning()) {
         // Empty wallet.
         BOOST_FOREACH (COutput output, vCoins)
