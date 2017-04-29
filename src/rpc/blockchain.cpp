@@ -721,20 +721,6 @@ UniValue getaccountinfo(const JSONRPCRequest& request)
         vin.push_back(Pair("value", uint64_t(vins[addrAccount].value)));
         result.push_back(Pair("vin", vin));
     }
-
-    // UniValue vins(UniValue::VARR);
-    // VinsInfo vinsAcc = globalState->getVins(addrAccount);
-    // for(unsigned int i = 0; i < vinsAcc.size(); i++){
-    //     UniValue cOutPoint(UniValue::VOBJ);
-
-    //     cOutPoint.push_back(Pair("hash", vinsAcc[i].first.hash.GetHex()));
-    //     cOutPoint.push_back(Pair("vout", uint64_t(vinsAcc[i].first.n)));
-    //     cOutPoint.push_back(Pair("amount", uint64_t(vinsAcc[i].second)));
-
-    //     vins.push_back(cOutPoint);
-    // }
-
-    // result.push_back(Pair("vins", vins));
     return result;
 }
 
