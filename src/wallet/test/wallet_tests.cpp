@@ -39,7 +39,7 @@ BOOST_FIXTURE_TEST_SUITE(wallet_tests, WalletTestingSetup)
 
 static const CWallet wallet;
 static vector<COutput> vCoins;
-uint32_t currentTime = GetAdjustedTime();
+uint32_t currentTime;
 
 static void add_coin(const CAmount& nValue, int nAge = 6*24, bool fIsFromMe = false, int nInput=0, uint32_t coinTime = 0)
 {
@@ -89,6 +89,8 @@ BOOST_AUTO_TEST_CASE(coin_selection_tests)
     CAmount nValueRet;
 
     LOCK(wallet.cs_wallet);
+
+    currentTime = GetAdjustedTime();
 
     // test multiple times to allow for differences in the shuffle order
     for (int i = 0; i < RUN_TESTS; i++)
@@ -364,6 +366,8 @@ BOOST_AUTO_TEST_CASE(ApproximateBestSubset)
     CAmount nValueRet;
 
     LOCK(wallet.cs_wallet);
+
+    currentTime = GetAdjustedTime();
 
     empty_wallet();
 
