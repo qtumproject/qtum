@@ -820,3 +820,29 @@ bool static ScanHash(const CBlockHeader *pblock, uint32_t& nNonce, uint256 *phas
             return false;
     }
 }
+
+static bool ProcessBlockFound(const std::shared_ptr<const CBlock> pblock, const CChainParams& chainparams)
+{
+    LogPrintf("%s\n", pblock->ToString());
+    LogPrintf("generated %s\n", FormatMoney(pblock->vtx[0]->vout[0].nValue));
+
+    // Found a solution
+    {
+        LOCK(cs_main);
+        if (pblock->hashPrevBlock != chainActive.Tip()->GetBlockHash())
+            return error("QtumMiner: generated block is stale");
+    }
+
+    // Inform about the new block
+    GetMainSignals().BlockFound(pblock->GetHash());
+
+    // Process this block the same as if we had received it from another node
+    CValidationState state;
+    bool fNewBlock = false;
+    if (!ProcessNewBlock(chainparams, pblock, true, &fNewBlock))
+        return error("QtumMiner: ProcessNewBlock, block not accepted");
+
+    return true;
+}
+
+
