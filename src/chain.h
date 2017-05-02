@@ -202,6 +202,7 @@ public:
     unsigned int nBits;
     unsigned int nNonce;
     uint256 hashStateRoot; // qtum
+    uint256 hashUTXORoot; // qtum
     // block signature - proof-of-stake protect the block by signing the block using a stake holder private key
     std::vector<unsigned char> vchBlockSig;
     bool fStake;
@@ -240,6 +241,7 @@ public:
         nBits          = 0;
         nNonce         = 0;
         hashStateRoot  = uint256(); // qtum
+        hashUTXORoot   = uint256(); // qtum
         vchBlockSig.clear();
         fStake = 0;
         nStakeModifier = uint256();
@@ -263,6 +265,7 @@ public:
         nBits          = block.nBits;
         nNonce         = block.nNonce;
         hashStateRoot  = block.hashStateRoot; // qtum
+        hashUTXORoot   = block.hashUTXORoot; // qtum
         fStake = 0;
         nStakeModifier = uint256();
         hashProof = uint256(); 
@@ -309,6 +312,7 @@ public:
         block.nBits          = nBits;
         block.nNonce         = nNonce;
         block.hashStateRoot  = hashStateRoot; // qtum
+        block.hashUTXORoot   = hashUTXORoot; // qtum
         block.vchBlockSig    = vchBlockSig;
         block.fStake         = IsProofOfStake();
         block.prevoutStake   = prevoutStake;
@@ -445,6 +449,7 @@ public:
         READWRITE(nBits);
         READWRITE(nNonce);
         READWRITE(hashStateRoot); // qtum
+        READWRITE(hashUTXORoot); // qtum
         READWRITE(fStake);
         READWRITE(nStakeModifier);
         if (IsProofOfStake())
@@ -471,6 +476,7 @@ public:
         block.nBits           = nBits;
         block.nNonce          = nNonce;
         block.hashStateRoot   = hashStateRoot; // qtum
+        block.hashUTXORoot    = hashUTXORoot; // qtum
         block.vchBlockSig     = vchBlockSig;
         block.fStake          = fStake;
         block.prevoutStake    = prevoutStake;

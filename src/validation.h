@@ -608,7 +608,7 @@ void DumpMempool();
 bool LoadMempool();
 
 //////////////////////////////////////////////////////// qtum
-void writeVMlog(const std::vector<execResult>& res, const CTransaction& tx = CTransaction(), const CBlock& block = CBlock());
+void writeVMlog(const std::vector<ResultExecute>& res, const CTransaction& tx = CTransaction(), const CBlock& block = CBlock());
 
 class VersionVM{
 
@@ -668,6 +668,13 @@ struct EthTransactionParams{
     }
 };
 
+struct ByteCodeExecResult{
+    CAmount usedFee = 0;
+    CAmount refundSender = 0;
+    std::vector<CTxOut> refundVOuts;
+    std::vector<CTransaction> refundValueTx;
+};
+
 class QtumTxConverter{
 
 public:
@@ -691,13 +698,6 @@ private:
 
 };
 
-struct ByteCodeExecResult{
-    CAmount usedFee = 0;
-    CAmount refundSender = 0;
-    std::vector<CTxOut> refundVOuts;
-    std::vector<CTransaction> refundValueTx;
-};
-
 class ByteCodeExec {
 
 public:
@@ -708,7 +708,7 @@ public:
 
     ByteCodeExecResult processingResults();
 
-    std::vector<execResult>& getResult(){ return result; }
+    std::vector<ResultExecute>& getResult(){ return result; }
 
 private:
 
@@ -718,7 +718,7 @@ private:
 
     std::vector<QtumTransaction> txs;
 
-    std::vector<execResult> result;
+    std::vector<ResultExecute> result;
 
     const CBlock& block;
 

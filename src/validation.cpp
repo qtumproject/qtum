@@ -1746,6 +1746,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
     view.SetBestBlock(pindex->pprev->GetBlockHash());
 
     globalState->setRoot(uintToh256(pindex->pprev->hashStateRoot)); // qtum
+    globalState->setRootUTXO(uintToh256(pindex->pprev->hashUTXORoot)); // qtum
 
     if (pfClean) {
         *pfClean = fClean;
@@ -1865,11 +1866,11 @@ valtype GetSenderAddress(const CTransaction& tx, const CCoinsViewCache* coinsVie
     return valtype();
 }
 
-UniValue vmLogToJSON(const execResult& execRes, const CTransaction& tx, const CBlock& block){
+UniValue vmLogToJSON(const ResultExecute& execRes, const CTransaction& tx, const CBlock& block){
     UniValue result(UniValue::VOBJ);
     if(tx != CTransaction())
         result.push_back(Pair("txid", tx.GetHash().GetHex()));
-    result.push_back(Pair("address", execRes.first.newAddress.hex()));
+    result.push_back(Pair("address", execRes.execRes.newAddress.hex()));
     if(block.GetHash() != CBlock().GetHash()){
         result.push_back(Pair("time", block.GetBlockTime()));
         result.push_back(Pair("blockhash", block.GetHash().GetHex()));
@@ -1879,7 +1880,7 @@ UniValue vmLogToJSON(const execResult& execRes, const CTransaction& tx, const CB
         result.push_back(Pair("blockheight", chainActive.Tip()->nHeight));
     }
     UniValue logEntries(UniValue::VARR);
-    dev::eth::LogEntries logs = execRes.second.log();
+    dev::eth::LogEntries logs = execRes.txRec.log();
     for(dev::eth::LogEntry log : logs){
         UniValue logEntrie(UniValue::VOBJ);
         logEntrie.push_back(Pair("address", log.address.hex()));
@@ -1900,7 +1901,7 @@ UniValue vmLogToJSON(const execResult& execRes, const CTransaction& tx, const CB
     return result;
 }
 
-void writeVMlog(const std::vector<execResult>& res, const CTransaction& tx, const CBlock& block){
+void writeVMlog(const std::vector<ResultExecute>& res, const CTransaction& tx, const CBlock& block){
     boost::filesystem::path qtumDir = GetDataDir() / "vmExecLogs.json";
     std::stringstream ss;
     if(fIsVMlogFile){
@@ -1934,17 +1935,19 @@ void ByteCodeExec::performByteCode(dev::eth::Permanence type){
         if(!tx.isCreation() && !globalState->addressInUse(tx.receiveAddress())){
             dev::eth::ExecutionResult execRes;
             execRes.excepted = dev::eth::TransactionException::Unknown;
-            result.push_back(std::make_pair(execRes, dev::eth::TransactionReceipt(dev::h256(), dev::u256(), dev::eth::LogEntries())));
+            result.push_back(ResultExecute{execRes, dev::eth::TransactionReceipt(dev::h256(), dev::u256(), dev::eth::LogEntries()), CTransaction()});
             continue;
         }
         result.push_back(globalState->execute(envInfo, *se.get(), tx, type, OnOpFunc()));
     }
+    globalState->db().commit();
+    globalState->dbUtxo().commit();
 }
 
 ByteCodeExecResult ByteCodeExec::processingResults(){
     ByteCodeExecResult resultBCE;
     for(size_t i = 0; i < result.size(); i++){
-        if(result[i].first.excepted != dev::eth::TransactionException::None){
+        if(result[i].execRes.excepted != dev::eth::TransactionException::None){
             if(txs[i].value() > 0){
                 CMutableTransaction tx;
                 tx.vin.push_back(CTxIn(h256Touint(txs[i].getHashWith()), txs[i].getNVout(), CScript()));
@@ -1953,13 +1956,16 @@ ByteCodeExecResult ByteCodeExec::processingResults(){
                 resultBCE.refundValueTx.push_back(CTransaction(tx));
             }
         } else {
-            resultBCE.usedFee += CAmount(result[i].first.gasUsed);
-            CAmount ref(txs[i].gas() - result[i].first.gasUsed);
+            resultBCE.usedFee += CAmount(result[i].execRes.gasUsed);
+            CAmount ref(txs[i].gas() - result[i].execRes.gasUsed);
             if(ref > 0){
                 CScript script(CScript() << OP_DUP << OP_HASH160 << txs[i].sender().asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
                 resultBCE.refundVOuts.push_back(CTxOut(ref, script));
                 resultBCE.refundSender += ref;
             }
+        }
+        if(result[i].tx != CTransaction()){
+            resultBCE.refundValueTx.push_back(result[i].tx);
         }
     }
     return resultBCE;
@@ -2254,24 +2260,29 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                              REJECT_INVALID, "bad-blk-sigops");
 
         txdata.emplace_back(tx);
+
+        bool hasTxhash = false;
+
         if (!tx.IsCoinBase())
         {
             nFees += view.GetValueIn(tx)-tx.GetValueOut();
 
             std::vector<CScriptCheck> vChecks;
             bool fCacheResults = fJustCheck; /* Don't cache results if we're actually connecting blocks (still consult the cache, though) */
-            if (!CheckInputs(tx, state, view, fScriptChecks, flags, fCacheResults, txdata[i], nScriptCheckThreads ? &vChecks : NULL))
+            // if (!CheckInputs(tx, state, view, fScriptChecks, flags, fCacheResults, txdata[i], nScriptCheckThreads ? &vChecks : NULL))
+            hasTxhash = tx.vin[0].scriptSig.HasOpTXHASH();
+            if (!CheckInputs(tx, state, view, fScriptChecks, flags, fCacheResults, txdata[i], (hasTxhash || tx.HasCreateOrCall()) ? NULL : (nScriptCheckThreads ? &vChecks : NULL)))//nScriptCheckThreads ? &vChecks : NULL))
                 return error("ConnectBlock(): CheckInputs on %s failed with %s",
                     tx.GetHash().ToString(), FormatStateMessage(state));
             control.Add(vChecks);
         }
 
 ///////////////////////////////////////////////////////////////////////////////////////// qtum
-        if(tx.HasCreateOrCall()){
+        if(tx.HasCreateOrCall() && !hasTxhash){
             QtumTxConverter convert(tx, NULL);
             ByteCodeExec exec(block, convert.extractionQtumTransactions());
             exec.performByteCode();
-            std::vector<execResult> resultExec(exec.getResult());
+            std::vector<ResultExecute> resultExec(exec.getResult());
             if(fRecordLogOpcodes && !fJustCheck){
                 writeVMlog(resultExec, tx, block);
             }
@@ -2309,17 +2320,21 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     LogPrint("bench", "    - Verify %u txins: %.2fms (%.3fms/txin) [%.2fs]\n", nInputs - 1, 0.001 * (nTime4 - nTime2), nInputs <= 1 ? 0 : 0.001 * (nTime4 - nTime2) / (nInputs-1), nTimeVerify * 0.000001);
 
 ////////////////////////////////////////////////////////////////// // qtum
-    if (globalState->rootHash() != uintToh256(block.hashStateRoot))
+    // if (globalState->rootHash() != uintToh256(block.hashStateRoot))
+    if (globalState->rootHash() != uintToh256(block.hashStateRoot) && globalState->rootHashUTXO() != uintToh256(block.hashUTXORoot))
         return state.DoS(100, error("ConnectBlock(): rootHashState diverged"),
                             REJECT_INVALID, "diverged-state-root");
 
     if (fJustCheck)
     {
         dev::h256 prevHashStateRoot = dev::sha3(dev::rlp(""));
-        if(pindex->pprev->hashStateRoot != uint256()){
+        dev::h256 prevHashUTXORoot = dev::sha3(dev::rlp(""));
+        if(pindex->pprev->hashStateRoot != uint256() && pindex->pprev->hashUTXORoot != uint256()){
             prevHashStateRoot = uintToh256(pindex->pprev->hashStateRoot);
+            prevHashUTXORoot = uintToh256(pindex->pprev->hashUTXORoot);
         }
         globalState->setRoot(prevHashStateRoot);
+        globalState->setRootUTXO(prevHashUTXORoot);
         return true;
     }
 //////////////////////////////////////////////////////////////////
@@ -2647,6 +2662,7 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
         CCoinsViewCache view(pcoinsTip);
 
         dev::h256 oldHashStateRoot(globalState->rootHash()); // qtum
+        dev::h256 oldHashUTXORoot(globalState->rootHashUTXO()); // qtum
 
         bool rv = ConnectBlock(blockConnecting, state, pindexNew, view, chainparams);
         GetMainSignals().BlockChecked(blockConnecting, state);
@@ -2655,6 +2671,7 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
                 InvalidBlockFound(pindexNew, state);
 
             globalState->setRoot(oldHashStateRoot); // qtum
+            globalState->setRootUTXO(oldHashUTXORoot); // qtum
 
             return error("ConnectTip(): ConnectBlock %s failed", pindexNew->GetBlockHash().ToString());
         }
@@ -3802,10 +3819,12 @@ bool TestBlockValidity(CValidationState& state, const CChainParams& chainparams,
         return error("%s: Consensus::ContextualCheckBlock: %s", __func__, FormatStateMessage(state));
 
     dev::h256 oldHashStateRoot(globalState->rootHash()); // qtum
+    dev::h256 oldHashUTXORoot(globalState->rootHashUTXO()); // qtum
     
     if (!ConnectBlock(block, state, &indexDummy, viewNew, chainparams, true)){
         
         globalState->setRoot(oldHashStateRoot); // qtum
+        globalState->setRootUTXO(oldHashUTXORoot); // qtum
         
         return false;
     }
@@ -4156,6 +4175,7 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CCoinsView *coinsview,
     int reportDone = 0;
 
     dev::h256 oldHashStateRoot(globalState->rootHash()); // qtum
+    dev::h256 oldHashUTXORoot(globalState->rootHashUTXO()); // qtum
 
     LogPrintf("[0%%]...");
     for (CBlockIndex* pindex = chainActive.Tip(); pindex && pindex->pprev; pindex = pindex->pprev)
@@ -4222,16 +4242,19 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CCoinsView *coinsview,
                 return error("VerifyDB(): *** ReadBlockFromDisk failed at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
 
             dev::h256 oldHashStateRoot(globalState->rootHash()); // qtum
+            dev::h256 oldHashUTXORoot(globalState->rootHashUTXO()); // qtum
 
             if (!ConnectBlock(block, state, pindex, coins, chainparams)){
 
                 globalState->setRoot(oldHashStateRoot); // qtum
+                globalState->setRootUTXO(oldHashUTXORoot); // qtum
 
                 return error("VerifyDB(): *** found unconnectable block at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
             }
         }
     } else {
         globalState->setRoot(oldHashStateRoot); // qtum
+        globalState->setRootUTXO(oldHashUTXORoot); // qtum
     }
 
     LogPrintf("[DONE].\n");

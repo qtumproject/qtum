@@ -95,7 +95,8 @@ UniValue blockheaderToJSON(const CBlockIndex* blockindex)
     result.push_back(Pair("bits", strprintf("%08x", blockindex->nBits)));
     result.push_back(Pair("difficulty", GetDifficulty(blockindex)));
     result.push_back(Pair("chainwork", blockindex->nChainWork.GetHex()));
-    result.push_back(Pair("hashStateRoot", blockindex->hashStateRoot.GetHex()));
+    result.push_back(Pair("hashStateRoot", blockindex->hashStateRoot.GetHex())); // qtum
+    result.push_back(Pair("hashUTXORoot", blockindex->hashUTXORoot.GetHex())); // qtum
 
     if (blockindex->pprev)
         result.push_back(Pair("previousblockhash", blockindex->pprev->GetBlockHash().GetHex()));
@@ -122,6 +123,7 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool tx
     result.push_back(Pair("versionHex", strprintf("%08x", block.nVersion)));
     result.push_back(Pair("merkleroot", block.hashMerkleRoot.GetHex()));
     result.push_back(Pair("hashStateRoot", block.hashStateRoot.GetHex())); // qtum
+    result.push_back(Pair("hashUTXORoot", block.hashUTXORoot.GetHex())); // qtum
     UniValue txs(UniValue::VARR);
     for(const auto& tx : block.vtx)
     {
@@ -711,19 +713,14 @@ UniValue getaccountinfo(const JSONRPCRequest& request)
 
     result.push_back(Pair("code", HexStr(code.begin(), code.end())));
 
-    // UniValue vins(UniValue::VARR);
-    // VinsInfo vinsAcc = globalState->getVins(addrAccount);
-    // for(unsigned int i = 0; i < vinsAcc.size(); i++){
-    //     UniValue cOutPoint(UniValue::VOBJ);
-
-    //     cOutPoint.push_back(Pair("hash", vinsAcc[i].first.hash.GetHex()));
-    //     cOutPoint.push_back(Pair("vout", uint64_t(vinsAcc[i].first.n)));
-    //     cOutPoint.push_back(Pair("amount", uint64_t(vinsAcc[i].second)));
-
-    //     vins.push_back(cOutPoint);
-    // }
-
-    // result.push_back(Pair("vins", vins));
+    std::unordered_map<dev::Address, Vin> vins = globalState->vins();
+    if(vins.count(addrAccount)){
+        UniValue vin(UniValue::VOBJ);
+        vin.push_back(Pair("hash", vins[addrAccount].hash.hex()));
+        vin.push_back(Pair("nVout", uint64_t(vins[addrAccount].nVout)));
+        vin.push_back(Pair("value", uint64_t(vins[addrAccount].value)));
+        result.push_back(Pair("vin", vin));
+    }
     return result;
 }
 
@@ -908,7 +905,7 @@ UniValue callcontract(const JSONRPCRequest& request)
 
     ByteCodeExec exec(block, std::vector<QtumTransaction>(1, callTransaction));
     exec.performByteCode(dev::eth::Permanence::Reverted);
-    std::vector<execResult> execResults = exec.getResult();
+    std::vector<ResultExecute> execResults = exec.getResult();
 
     if(fRecordLogOpcodes){
         writeVMlog(execResults);
@@ -916,8 +913,8 @@ UniValue callcontract(const JSONRPCRequest& request)
  
     UniValue result(UniValue::VOBJ);
     result.push_back(Pair("address", strAddr));
-    result.push_back(Pair("executionResult", executionResultToJSON(execResults[0].first)));
-    result.push_back(Pair("transactionReceipt", transactionReceiptToJSON(execResults[0].second)));
+    result.push_back(Pair("executionResult", executionResultToJSON(execResults[0].execRes)));
+    result.push_back(Pair("transactionReceipt", transactionReceiptToJSON(execResults[0].txRec)));
  
     return result;
 }
