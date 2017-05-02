@@ -179,7 +179,7 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
             {
                 if(0 <= opcode1 && opcode1 <= OP_PUSHDATA4)
                 {
-                    if(vch1.size() > 4 || (vch1.back() & 0x80))
+                    if(vch1.empty() || vch1.size() > 4 || (vch1.back() & 0x80))
                         break;
                 }
             }
