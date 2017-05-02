@@ -7,7 +7,7 @@ BENCH_SRCDIR = bench
 BENCH_BINARY = bench/bench_qtum$(EXEEXT)
 
 RAW_TEST_FILES = \
-  bench/data/block413567.raw
+  bench/data/blockbench.raw
 GENERATED_TEST_FILES = $(RAW_TEST_FILES:.raw=.raw.h)
 
 bench_bench_qtum_SOURCES = \
@@ -70,7 +70,7 @@ CLEAN_BITCOIN_BENCH = bench/*.gcda bench/*.gcno $(GENERATED_TEST_FILES)
 
 CLEANFILES += $(CLEAN_BITCOIN_BENCH)
 
-bench/checkblock.cpp: bench/data/block413567.raw.h
+bench/checkblock.cpp: bench/data/blockbench.raw.h
 
 bitcoin_bench: $(BENCH_BINARY)
 
