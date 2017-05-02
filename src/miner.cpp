@@ -852,7 +852,7 @@ void static QtumMiner(const CChainParams& chainparams)
     RenameThread("qtum-miner");
 
     unsigned int nExtraNonce = 0;
-	int nLastPOWBlock = Params().GetConsensus().nLastPOWBlock;
+    int nLastPOWBlock = Params().GetConsensus().nLastPOWBlock;
 
     boost::shared_ptr<CReserveScript> coinbaseScript;
     GetMainSignals().ScriptForMining(coinbaseScript);
@@ -982,4 +982,24 @@ void static QtumMiner(const CChainParams& chainparams)
     }
 }
 
+void GenerateQtums(bool fGenerate, int nThreads, const CChainParams& chainparams)
+{
+    static boost::thread_group* minerThreads = NULL;
 
+    if (nThreads < 0)
+        nThreads = GetNumCores();
+
+    if (minerThreads != NULL)
+    {
+        minerThreads->interrupt_all();
+        delete minerThreads;
+        minerThreads = NULL;
+    }
+
+    if (nThreads == 0 || !fGenerate)
+        return;
+
+    minerThreads = new boost::thread_group();
+    for (int i = 0; i < nThreads; i++)
+        minerThreads->create_thread(boost::bind(&QtumMiner, boost::cref(chainparams)));
+}
