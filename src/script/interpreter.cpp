@@ -1031,6 +1031,11 @@ bool EvalScript(vector<vector<unsigned char> >& stack, const CScript& script, un
                 break;
 
                 //////////////////////////////////////////////////////// qtum
+                case OP_TXHASH:
+                {
+                    return true; // temp
+                }
+                break;
                 case OP_CREATE:
                 case OP_CALL:
                 {

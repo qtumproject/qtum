@@ -58,13 +58,18 @@ void RPCNestedTests::rpcNestedTests()
     const std::string dirQtum(qtumStateDir.string());
     const dev::h256 hashDB(dev::sha3(dev::rlp("")));
     dev::eth::BaseState existsQtumstate = fStatus ? dev::eth::BaseState::PreExisting : dev::eth::BaseState::Empty;
-    globalState = std::unique_ptr<QtumState>(new QtumState(dev::u256(0), QtumState::openDB(dirQtum, hashDB, dev::WithExisting::Trust), existsQtumstate));
+    globalState = std::unique_ptr<QtumState>(new QtumState(dev::u256(0), QtumState::openDB(dirQtum, hashDB, dev::WithExisting::Trust), dirQtum, existsQtumstate));
 
-    if(chainActive.Tip() != NULL)
+    if(chainActive.Tip() != NULL){
         globalState->setRoot(uintToh256(chainActive.Tip()->hashStateRoot));
-    else
+        globalState->setRootUTXO(uintToh256(chainActive.Tip()->hashUTXORoot)); // temp
+    } else {
         globalState->setRoot(uintToh256(chainparams.GenesisBlock().hashStateRoot));
+        globalState->setRootUTXO(uintToh256(chainparams.GenesisBlock().hashUTXORoot));
+    }
     globalState->db().commit();
+    globalState->dbUtxo().commit();
+
 
     fRecordLogOpcodes = IsArgSet("-record-log-opcodes");
     fIsVMlogFile = boost::filesystem::exists(GetDataDir() / "vmExecLogs.json");

@@ -180,6 +180,7 @@ enum opcodetype
     // Execute EXT byte code.
     OP_CREATE = 0xc1,
     OP_CALL = 0xc2,
+    OP_TXHASH = 0xc3,
 
     // template matching params
     OP_VERSION = 0xf6,
@@ -650,6 +651,7 @@ public:
     unsigned int GetSigOpCount(const CScript& scriptSig) const;
 
     bool IsPayToScriptHash() const;
+    bool IsPayToPubkeyHash() const; // qtum
     bool IsPayToWitnessScriptHash() const;
     bool IsWitnessProgram(int& version, std::vector<unsigned char>& program) const;
 
@@ -676,6 +678,10 @@ public:
     bool HasOpCall() const
     {
         return Find(OP_CALL) > 0;
+    }
+    bool HasOpTXHASH() const
+    {
+        return Find(OP_TXHASH) > 0;
     }
     /////////////////////////////////////////
 

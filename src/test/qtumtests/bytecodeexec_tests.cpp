@@ -88,7 +88,9 @@ void initState(){
     boost::filesystem::create_directories(pathTemp);
     const std::string dirQtum = pathTemp.string();
     const dev::h256 hashDB(dev::sha3(dev::rlp("")));
-    globalState = std::unique_ptr<QtumState>(new QtumState(dev::u256(0), QtumState::openDB(dirQtum, hashDB, dev::WithExisting::Trust), dev::eth::BaseState::Empty));
+    globalState = std::unique_ptr<QtumState>(new QtumState(dev::u256(0), QtumState::openDB(dirQtum, hashDB, dev::WithExisting::Trust), dirQtum + "/qtumDB", dev::eth::BaseState::Empty));
+
+    globalState->setRootUTXO(dev::sha3(dev::rlp(""))); // temp
 }
 
 CBlock generateBlock(){
@@ -124,17 +126,18 @@ QtumTransaction createQtumTransaction(valtype data, dev::u256 value, dev::u256 g
     return txEth;
 }
 
-std::pair<std::vector<execResult>, ByteCodeExecResult> executeBC(std::vector<QtumTransaction> txs){
+std::pair<std::vector<ResultExecute>, ByteCodeExecResult> executeBC(std::vector<QtumTransaction> txs){
     CBlock block(generateBlock());
     ByteCodeExec exec(block, txs);
     exec.performByteCode();
-    std::vector<execResult> res = exec.getResult();
+    std::vector<ResultExecute> res = exec.getResult();
     ByteCodeExecResult bceExecRes = exec.processingResults();
     globalState->db().commit();
+    globalState->dbUtxo().commit();
     return std::make_pair(res, bceExecRes);
 }
 
-void checkExecResult(std::vector<execResult>& result, size_t execResSize, size_t addressesSize, 
+void checkExecResult(std::vector<ResultExecute>& result, size_t execResSize, size_t addressesSize, 
                      dev::eth::TransactionException except, std::vector<dev::Address> newAddresses, 
                      valtype output, dev::u256 balance, bool normalAndIncorrect = false){
     std::unordered_map<dev::Address, dev::u256> addresses = globalState->addresses();
@@ -143,24 +146,24 @@ void checkExecResult(std::vector<execResult>& result, size_t execResSize, size_t
     for(size_t i = 0; i < result.size(); i++){
         if(normalAndIncorrect){
             if(i%2 == 0){
-                BOOST_CHECK(result[i].first.excepted == dev::eth::TransactionException::None);
-                BOOST_CHECK(result[i].first.newAddress == newAddresses[i]);
-                BOOST_CHECK(result[i].first.output == output);
+                BOOST_CHECK(result[i].execRes.excepted == dev::eth::TransactionException::None);
+                BOOST_CHECK(result[i].execRes.newAddress == newAddresses[i]);
+                BOOST_CHECK(result[i].execRes.output == output);
             } else {
-                BOOST_CHECK(result[i].first.excepted == except);
-                BOOST_CHECK(result[i].first.newAddress == dev::Address());
-                BOOST_CHECK(result[i].first.output == valtype());
+                BOOST_CHECK(result[i].execRes.excepted == except);
+                BOOST_CHECK(result[i].execRes.newAddress == dev::Address());
+                BOOST_CHECK(result[i].execRes.output == valtype());
             }
         } else {
-            BOOST_CHECK(result[i].first.excepted == except);
-            BOOST_CHECK(result[i].first.newAddress == newAddresses[i]);
-            BOOST_CHECK(result[i].first.output == output);
+            BOOST_CHECK(result[i].execRes.excepted == except);
+            BOOST_CHECK(result[i].execRes.newAddress == newAddresses[i]);
+            BOOST_CHECK(result[i].execRes.output == output);
         }
         BOOST_CHECK(globalState->balance(newAddresses[i]) == balance);
     }
 }
 
-void checkBCEResult(ByteCodeExecResult result, CAmount usedFee, CAmount refundSender, size_t nVouts, CAmount sum, size_t nTxs = 0, CAmount value = 0){
+void checkBCEResult(ByteCodeExecResult result, CAmount usedFee, CAmount refundSender, size_t nVouts, CAmount sum, size_t nTxs = 0){
     BOOST_CHECK(result.usedFee + result.refundSender == sum);
     BOOST_CHECK(result.usedFee == usedFee);
     BOOST_CHECK(result.refundSender == refundSender);
@@ -170,9 +173,6 @@ void checkBCEResult(ByteCodeExecResult result, CAmount usedFee, CAmount refundSe
         BOOST_CHECK(result.refundVOuts[i].scriptPubKey == CScript() << OP_DUP << OP_HASH160 << SENDERADDRESS.asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
     }
     BOOST_CHECK(result.refundValueTx.size() == nTxs);
-    for(size_t i = 0; i < result.refundValueTx.size(); i++){
-        BOOST_CHECK(result.refundValueTx[i].vout[0].nValue == value);
-    }
 }
 
 BOOST_FIXTURE_TEST_SUITE(bytecodeexec_tests, TestingSetup)
@@ -285,7 +285,7 @@ BOOST_AUTO_TEST_CASE(bytecodeexec_call_contract_transfer){
     auto result = executeBC(txsCall);
 
     checkExecResult(result.first, 1, 1, dev::eth::TransactionException::None, addrs, valtype(), dev::u256(1300));
-    checkBCEResult(result.second, 21037, 478963, 1, CAmount(GASLIMIT));
+    checkBCEResult(result.second, 21037, 478963, 1, CAmount(GASLIMIT), 1);
 }
 
 BOOST_AUTO_TEST_CASE(bytecodeexec_call_contract_transfer_OutOfGasBase_return_value){
@@ -300,7 +300,7 @@ BOOST_AUTO_TEST_CASE(bytecodeexec_call_contract_transfer_OutOfGasBase_return_val
 
     std::vector<dev::Address> addrs = {txEthCall.receiveAddress()};
     checkExecResult(result.first, 1, 1, dev::eth::TransactionException::OutOfGasBase, addrs, valtype(), dev::u256(0));
-    checkBCEResult(result.second, 0, 0, 0, 0, 1, 1300);
+    checkBCEResult(result.second, 0, 0, 0, 0, 1);
 }
 
 BOOST_AUTO_TEST_CASE(bytecodeexec_call_contract_transfer_OutOfGas_return_value){
@@ -315,7 +315,7 @@ BOOST_AUTO_TEST_CASE(bytecodeexec_call_contract_transfer_OutOfGas_return_value){
 
     std::vector<dev::Address> addrs = {txEthCall.receiveAddress()};
     checkExecResult(result.first, 1, 1, dev::eth::TransactionException::OutOfGas, addrs, valtype(), dev::u256(0));
-    checkBCEResult(result.second, 0, 0, 0, 0, 1, 1300);
+    checkBCEResult(result.second, 0, 0, 0, 0, 1);
 }
 
 BOOST_AUTO_TEST_CASE(bytecodeexec_call_contract_transfer_many){
@@ -343,7 +343,7 @@ BOOST_AUTO_TEST_CASE(bytecodeexec_call_contract_transfer_many){
     auto result = executeBC(txsCall);
     
     checkExecResult(result.first, 130, 130, dev::eth::TransactionException::None, addrs, valtype(), dev::u256(1300));
-    checkBCEResult(result.second, 2734810, 62265190, 130, CAmount(GASLIMIT * 130));
+    checkBCEResult(result.second, 2734810, 62265190, 130, CAmount(GASLIMIT * 130), 130);
 }
 
 BOOST_AUTO_TEST_CASE(bytecodeexec_call_contract_OutOfGas_transfer_many_return_value){
@@ -371,7 +371,7 @@ BOOST_AUTO_TEST_CASE(bytecodeexec_call_contract_OutOfGas_transfer_many_return_va
     auto result = executeBC(txsCall);
 
     checkExecResult(result.first, 130, 130, dev::eth::TransactionException::OutOfGas, addrs, valtype(), dev::u256(0));
-    checkBCEResult(result.second, 0, 0, 0, 0, 130, 1300);
+    checkBCEResult(result.second, 0, 0, 0, 0, 130);
 }
 
 BOOST_AUTO_TEST_CASE(bytecodeexec_suicide){
@@ -401,7 +401,7 @@ BOOST_AUTO_TEST_CASE(bytecodeexec_suicide){
     auto result = executeBC(txsCall);
 
     checkExecResult(result.first, 9, 1, dev::eth::TransactionException::None, addrs, valtype(), dev::u256(0));
-    checkBCEResult(result.second, 96588, 4403412, 9, CAmount(GASLIMIT * 9));
+    checkBCEResult(result.second, 96588, 4403412, 9, CAmount(GASLIMIT * 9), 9);
 }
 
 BOOST_AUTO_TEST_CASE(bytecodeexec_contract_create_contracts){
