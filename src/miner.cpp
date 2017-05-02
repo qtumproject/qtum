@@ -653,6 +653,15 @@ void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned
     pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
 }
 
+//////////////////////////////////////////////////////////////////////////////
+//
+// Proof of Stake miner
+//
+
+//
+// Looking for suitable coins for creating new block.
+//
+
 bool CheckStake(const std::shared_ptr<const CBlock> pblock, CWallet& wallet)
 {
     uint256 proofHash, hashTarget;
@@ -750,5 +759,23 @@ void ThreadStakeMiner(CWallet *pwallet)
         }
         else
             MilliSleep(nMinerSleep);
+    }
+}
+
+void StakeQtums(bool fStake, CWallet *pwallet)
+{
+    static boost::thread_group* stakeThread = NULL;
+
+    if (stakeThread != NULL)
+    {
+        stakeThread->interrupt_all();
+        delete stakeThread;
+        stakeThread = NULL;
+    }
+
+    if(fStake)
+    {
+        stakeThread = new boost::thread_group();
+        stakeThread->create_thread(boost::bind(&ThreadStakeMiner, pwallet));
     }
 }
