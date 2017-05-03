@@ -136,7 +136,10 @@ BITCOIN_TESTS =\
   test/univalue_tests.cpp \
   test/util_tests.cpp \
   test/qtumtests/qtumtxconverter_tests.cpp \
-  test/qtumtests/bytecodeexec_tests.cpp
+  test/qtumtests/bytecodeexec_tests.cpp \
+  test/qtumtests/condensingtransaction_tests.cpp \
+  test/qtumtests/test_utils.cpp \
+  test/qtumtests/test_utils.h
 
 if ENABLE_WALLET
 BITCOIN_TESTS += \
