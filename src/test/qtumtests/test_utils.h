@@ -1,4 +1,5 @@
 #include <util.h>
+#include <testutil.h>
 #include <validation.h>
 #include <utilstrencodings.h>
 #include <test/test_bitcoin.h>
