@@ -48,6 +48,7 @@ COIN = 100000000 # 1 btc in satoshis
 MAX_INV_SZ = 50000
 MAX_BLOCK_BASE_SIZE = 2000000
 POW_TARGET_SPACING = 600
+INITIAL_HASH_UTXO_ROOT = 0x21b463e3b52f6201c0ad6c991be0485b6ef8c092e64583ffa655cc1b171fe856
 INITIAL_HASH_STATE_ROOT = 0x21b463e3b52f6201c0ad6c991be0485b6ef8c092e64583ffa655cc1b171fe856
 INITIAL_BLOCK_REWARD = 20000.0
 
@@ -549,6 +550,7 @@ class CBlockHeader(object):
             self.nNonce = header.nNonce
             self.sha256 = header.sha256
             self.hash = header.hash
+            self.hashUTXORoot = header.hashUTXORoot
             self.hashStateRoot = header.hashStateRoot
             self.vchBlockSig = header.vchBlockSig
             self.fStake = header.fStake
@@ -563,6 +565,7 @@ class CBlockHeader(object):
         self.nTime = 0
         self.nBits = 0
         self.nNonce = 0
+        self.hashUTXORoot = INITIAL_HASH_UTXO_ROOT
         self.hashStateRoot = INITIAL_HASH_STATE_ROOT
         self.vchBlockSig = b""
         self.fStake = False
@@ -579,6 +582,7 @@ class CBlockHeader(object):
         self.nTime = struct.unpack("<I", f.read(4))[0]
         self.nBits = struct.unpack("<I", f.read(4))[0]
         self.nNonce = struct.unpack("<I", f.read(4))[0]
+        self.hashUTXORoot = deser_uint256(f)
         self.hashStateRoot = deser_uint256(f)
         self.vchBlockSig = deser_string(f)
         self.fStake =  struct.unpack("B", f.read(1))[0]
@@ -595,6 +599,7 @@ class CBlockHeader(object):
         r += struct.pack("<I", self.nTime)
         r += struct.pack("<I", self.nBits)
         r += struct.pack("<I", self.nNonce)
+        r += ser_uint256(self.hashUTXORoot)
         r += ser_uint256(self.hashStateRoot)
         r += ser_string(self.vchBlockSig)
         r += struct.pack("B", self.fStake)
@@ -611,6 +616,7 @@ class CBlockHeader(object):
             r += struct.pack("<I", self.nTime)
             r += struct.pack("<I", self.nBits)
             r += struct.pack("<I", self.nNonce)
+            r += ser_uint256(self.hashUTXORoot)
             r += ser_uint256(self.hashStateRoot)
             r += ser_string(self.vchBlockSig)
             r += struct.pack("B", self.fStake)
