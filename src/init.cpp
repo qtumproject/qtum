@@ -201,7 +201,10 @@ void Shutdown()
     StopHTTPServer();
 #ifdef ENABLE_WALLET
     if (pwalletMain)
+    {
+        StakeQtums(false, pwalletMain);
         pwalletMain->Flush(false);
+    }
 #endif
     MapPort(false);
     UnregisterValidationInterface(peerLogic.get());
@@ -1661,6 +1664,7 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
 
     Discover(threadGroup);
 
+
     // Map ports with UPnP
     MapPort(GetBoolArg("-upnp", DEFAULT_UPNP));
 
@@ -1683,6 +1687,14 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
     if (!connman.Start(scheduler, strNodeError, connOptions))
         return InitError(strNodeError);
 
+
+#ifdef ENABLE_WALLET
+    // Mine proof-of-stake blocks in the background
+    if (!GetBoolArg("-staking", DEFAULT_STAKE))
+        LogPrintf("Staking disabled\n");
+    else if (pwalletMain)
+        StakeQtums(true, pwalletMain);
+#endif
     // ********************************************************* Step 12: finished
 
     SetRPCWarmupFinished();

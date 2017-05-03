@@ -26,6 +26,8 @@ namespace Consensus { struct Params; };
 
 static const bool DEFAULT_PRINTPRIORITY = false;
 
+static const bool DEFAULT_STAKE = true;
+
 struct CBlockTemplate
 {
     CBlock block;
@@ -169,7 +171,7 @@ private:
 public:
     BlockAssembler(const CChainParams& chainparams);
     /** Construct a new block template with coinbase to scriptPubKeyIn */
-    std::unique_ptr<CBlockTemplate> CreateNewBlock(const CScript& scriptPubKeyIn);
+    std::unique_ptr<CBlockTemplate> CreateNewBlock(const CScript& scriptPubKeyIn, bool fProofOfStake=false, int64_t* pFees = 0);
 
 private:
     // utility functions
@@ -209,6 +211,9 @@ private:
       * state updated assuming given transactions are inBlock. */
     void UpdatePackagesForAdded(const CTxMemPool::setEntries& alreadyAdded, indexed_modified_transaction_set &mapModifiedTx);
 };
+
+/** Generate a new block, without valid proof-of-work */
+void StakeQtums(bool fStake, CWallet *pwallet);
 
 /** Modify the extranonce in a block */
 void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned int& nExtraNonce);
