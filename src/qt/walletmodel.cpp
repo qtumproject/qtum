@@ -34,11 +34,17 @@ WalletModel::WalletModel(const PlatformStyle *platformStyle, CWallet *_wallet, O
     QObject(parent), wallet(_wallet), optionsModel(_optionsModel), addressTableModel(0),
     transactionTableModel(0),
     recentRequestsTableModel(0),
-    cachedBalance(0), cachedUnconfirmedBalance(0), cachedImmatureBalance(0),
+    cachedBalance(0), 
+	cachedUnconfirmedBalance(0), 
+	cachedImmatureBalance(0), 
+	cachedStake(0),
+	cachedWatchOnlyBalance(0), 
+	cachedWatchUnconfBalance(0), 
+	cachedWatchImmatureBalance(0), 
+	cachedWatchOnlyStake(0),
     cachedEncryptionStatus(Unencrypted),
-    cachedNumBlocks(0),
-    cachedStake(0),
-    cachedWatchOnlyStake(0)
+
+    cachedNumBlocks(0)
 {
     fHaveWatchOnly = wallet->HaveWatchOnly();
     fForceCheckBalanceChanged = false;
