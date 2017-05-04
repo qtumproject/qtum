@@ -134,13 +134,13 @@ private:
 
     std::vector<CTxOut> createVout();
 
-    std::unordered_map<dev::Address, plusAndMinus> plusMinusInfo;
+    std::map<dev::Address, plusAndMinus> plusMinusInfo;
 
-    std::unordered_map<dev::Address, dev::u256> balances;
+    std::map<dev::Address, dev::u256> balances;
 
-    std::unordered_map<dev::Address, uint32_t> nVouts;
+    std::map<dev::Address, uint32_t> nVouts;
 
-    std::unordered_map<dev::Address, Vin> vins;
+    std::map<dev::Address, Vin> vins;
 
     const std::vector<TransferInfo>& transfers;
 

@@ -230,7 +230,7 @@ BOOST_AUTO_TEST_CASE(condensingtransactionbehavior_tests){
     result = executeBC(txs);
     balances = {5000,2500,500};
     checkRes(result.second, addresses, balances, 1);
-    checkTx(result.second.refundValueTx[0], 1, 3, {5000,500,2500});
+    checkTx(result.second.refundValueTx[0], 1, 3, {5000,2500,500});
 
     txs.clear();
     txs.push_back(createQtumTransaction(code[7], 2000, dev::u256(500000), dev::u256(1), hashTemp, addresses[0]));
@@ -293,7 +293,7 @@ BOOST_AUTO_TEST_CASE(condensingtransactiondeep_tests){
     result = executeBC(txs);
     std::vector<dev::u256> balances = {1250,1250,2500,5000,10000};
     checkRes(result.second, addresses, balances, 1);
-    checkTx(result.second.refundValueTx[0], 1, 5, {2500,10000,1250,5000,1250});
+    checkTx(result.second.refundValueTx[0], 1, 5, {2500,1250,5000,1250,10000});
 }
 
 BOOST_AUTO_TEST_CASE(condensingtransactionsuicide_tests){
