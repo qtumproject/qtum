@@ -143,7 +143,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
 
     // Add dummy coinbase tx as first transaction
     pblock->vtx.emplace_back();
-    // Add dummy coinstake tx as second transaction
+    // Add dummy coinstake tx as sec transaction
     if(fProofOfStake)
         pblock->vtx.emplace_back();
     pblocktemplate->vTxFees.push_back(-1); // updated at end
@@ -183,8 +183,17 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     coinbaseTx.vin.resize(1);
     coinbaseTx.vin[0].prevout.SetNull();
     coinbaseTx.vout.resize(1);
-    coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
-    coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
+    coinbaseTx.nTime = GetAdjustedTime();
+    if (fProofOfStake)
+    {
+        // Make the coinbase tx empty in case of proof of stake
+        coinbaseTx.vout[0].SetEmpty();
+    }
+    else
+    {
+        coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
+        coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
+    }
     coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
     pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTx));
 
