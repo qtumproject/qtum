@@ -183,7 +183,8 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     coinbaseTx.vin.resize(1);
     coinbaseTx.vin[0].prevout.SetNull();
     coinbaseTx.vout.resize(1);
-    coinbaseTx.nTime = GetAdjustedTime();
+    uint32_t txProofTime = GetAdjustedTime();
+    coinbaseTx.nTime = txProofTime;
     if (fProofOfStake)
     {
         // Make the coinbase tx empty in case of proof of stake
@@ -196,7 +197,10 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     }
     coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
     pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTx));
-
+    
+    //Add the contract data into the proof transaction
+    int contrTxIndex = fProofOfStake ? 1 : 0;
+	
     //////////////////////////////////////////////////////// qtum
     dev::h256 oldHashStateRoot(globalState->rootHash());
     dev::h256 oldHashUTXORoot(globalState->rootHashUTXO());
@@ -207,13 +211,14 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     globalState->setRoot(oldHashStateRoot);
     globalState->setRootUTXO(oldHashUTXORoot);
 
-    CMutableTransaction coinbaseTxNew(*pblock->vtx[0]);
-    coinbaseTxNew.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
-    coinbaseTxNew.vout[0].nValue -= bceResult.refundSender;
+    CMutableTransaction contrTx(*pblock->vtx[contrTxIndex]);
+    contrTx.nTime = txProofTime;
+    contrTx.vout[contrTxIndex].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
+    contrTx.vout[contrTxIndex].nValue -= bceResult.refundSender;
     for(CTxOut& vOut : bceResult.refundVOuts){
-        coinbaseTxNew.vout.push_back(vOut);
+        contrTx.vout.push_back(vOut);
     }
-    pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTxNew));
+    pblock->vtx[contrTxIndex] = MakeTransactionRef(std::move(contrTx));
     ////////////////////////////////////////////////////////
 
     pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus());
