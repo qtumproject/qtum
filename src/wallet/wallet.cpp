@@ -3071,7 +3071,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, uin
     }
 
     // Append the Refunds To Sender to the transaction outputs
-    for(int i = 0; i < tx.vout.size(); i++)
+    for(unsigned int i = 0; i < tx.vout.size(); i++)
     {
         txNew.vout.push_back(tx.vout[i]);
     }
