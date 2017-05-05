@@ -2902,7 +2902,7 @@ uint64_t CWallet::GetStakeWeight() const
     return nWeight;
 }
 
-bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, uint32_t nSearchInterval, CAmount& nFees, CMutableTransaction& tx, CKey& key)
+bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, uint32_t nSearchInterval, const CAmount& nTotalFees, CMutableTransaction& tx, CKey& key)
 {
     CBlockIndex* pindexPrev = pindexBestHeader;
     arith_uint256 bnTargetPerCoinDay;
@@ -3043,7 +3043,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, uin
         if (!CheckTransactionTimestamp(txNew, *pblocktree))
             return error("CreateCoinStake : Transaction timestamp check failure.");
         const CChainParams& chainParams = Params();
-        int64_t nReward = nFees + GetBlockSubsidy(pindexPrev->nHeight, chainParams.GetConsensus());;
+        int64_t nReward = nTotalFees + GetBlockSubsidy(pindexPrev->nHeight, chainParams.GetConsensus());;
         if (nReward < 0)
             return false;
 
