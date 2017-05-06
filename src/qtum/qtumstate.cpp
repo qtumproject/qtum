@@ -224,7 +224,7 @@ CTransaction CondensingTX::createCondensingTX(){
     if(!createNewBalances())
         return CTransaction();
     CMutableTransaction tx;
-    tx.vin = createVins();;
+    tx.vin = createVins();
     tx.vout = createVout();
     return !tx.vin.size() || !tx.vout.size() ? CTransaction() : CTransaction(tx);
 }

@@ -1842,6 +1842,16 @@ static int64_t nTimeCallbacks = 0;
 static int64_t nTimeTotal = 0;
 
 /////////////////////////////////////////////////////////////////////// qtum
+bool checkOpTxHashTransaction(const CBlock block, std::vector<uint256>& hashes){
+    size_t count = 0;
+    for(CTransactionRef t : block.vtx){
+        if(t.get()->HasTXHASH() && (t.get()->GetHash() != hashes[count] || ++count > hashes.size())){
+            return false;
+        }
+    }
+    return true;
+}
+
 valtype GetSenderAddress(const CTransaction& tx, const CCoinsViewCache* coinsView){
     CTransactionRef txPrevout;
     uint256 hashBlock;
@@ -2224,6 +2234,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     blockundo.vtxundo.reserve(block.vtx.size() - 1);
     std::vector<PrecomputedTransactionData> txdata;
     txdata.reserve(block.vtx.size()); // Required so that pointers to individual PrecomputedTransactionData don't get invalidated
+
+    std::vector<uint256> optxhash; // qtum
+
     for (unsigned int i = 0; i < block.vtx.size(); i++)
     {
         const CTransaction &tx = *(block.vtx[i]);
@@ -2283,6 +2296,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             ByteCodeExec exec(block, convert.extractionQtumTransactions());
             exec.performByteCode();
             std::vector<ResultExecute> resultExec(exec.getResult());
+            ByteCodeExecResult bceResult = exec.processingResults();
+            for(CTransaction& t : bceResult.refundValueTx)
+                optxhash.push_back(std::move(t.GetHash()));
+
             if(fRecordLogOpcodes && !fJustCheck){
                 writeVMlog(resultExec, tx, block);
             }
@@ -2323,6 +2340,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     if (globalState->rootHash() != uintToh256(block.hashStateRoot) || globalState->rootHashUTXO() != uintToh256(block.hashUTXORoot))
         return state.DoS(100, error("ConnectBlock(): rootHashState or hashUTXORoot diverged"),
                             REJECT_INVALID, "diverged-stateorutxo-root");
+
+    if(!checkOpTxHashTransaction(block, optxhash))
+        return state.DoS(100, error("ConnectBlock(): vtx diverged"),
+                            REJECT_INVALID, "diverged-vtx");
 
     if (fJustCheck)
     {
