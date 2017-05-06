@@ -40,8 +40,12 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
         e.initialize(_t);
         // OK - transaction looks valid - execute.
         startGasUsed = _envInfo.gasUsed();
-        if (!e.execute())
+        if (!e.execute()){
             e.go(onOp);
+        } else {
+            e.revert();
+            throw Exception();
+        }
         e.finalize();
 
         if (_p == Permanence::Reverted){
