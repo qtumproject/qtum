@@ -380,6 +380,7 @@ void BlockAssembler::AddToBlock(CTxMemPool::txiter iter)
         nBlockWeight += GetTransactionWeight(t);
         ++nBlockTx;
     }
+    bceResult.refundValueTx.clear();
     ///////////////////////////////////////////////////////////////
 }
 
