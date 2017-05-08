@@ -1441,6 +1441,7 @@ void UpdateCoins(const CTransaction& tx, CCoinsViewCache& inputs, CTxUndo &txund
                 CTxInUndo& undo = txundo.vprevout.back();
                 undo.nHeight = coins->nHeight;
                 undo.fCoinBase = coins->fCoinBase;
+                undo.fCoinStake = coins->fCoinStake;
                 undo.nVersion = coins->nVersion;
             }
         }
@@ -1670,6 +1671,7 @@ bool ApplyTxInUndo(const CTxInUndo& undo, CCoinsViewCache& view, const COutPoint
             fClean = fClean && error("%s: undo data overwriting existing transaction", __func__);
         coins->Clear();
         coins->fCoinBase = undo.fCoinBase;
+        coins->fCoinStake = undo.fCoinStake;
         coins->nHeight = undo.nHeight;
         coins->nVersion = undo.nVersion;
     } else {
