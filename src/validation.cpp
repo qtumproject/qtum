@@ -614,6 +614,10 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
     if (tx.IsCoinBase())
         return state.DoS(100, false, REJECT_INVALID, "coinbase");
 
+    // ppcoin: coinstake is also only valid in a block, not as a loose transaction
+    if (tx.IsCoinStake())
+        return state.DoS(100, false, REJECT_INVALID, "coinstake");
+
     // Reject transactions with witness before segregated witness activates (override with -prematurewitness)
     bool witnessEnabled = IsWitnessEnabled(chainActive.Tip(), Params().GetConsensus());
     if (!GetBoolArg("-prematurewitness",false) && tx.HasWitness() && !witnessEnabled) {
