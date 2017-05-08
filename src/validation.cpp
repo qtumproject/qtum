@@ -4464,6 +4464,7 @@ bool InitBlockIndex(const CChainParams& chainparams)
             if (!WriteBlockToDisk(block, blockPos, chainparams.MessageStart()))
                 return error("LoadBlockIndex(): writing genesis block to disk failed");
             CBlockIndex *pindex = AddToBlockIndex(block);
+            pindex->hashProof = chainparams.GetConsensus().hashGenesisBlock;
             if (!ReceivedBlockTransactions(block, state, pindex, blockPos))
                 return error("LoadBlockIndex(): genesis block not accepted");
             // Force a chainstate write so that when we VerifyDB in a moment, it doesn't check stale data
