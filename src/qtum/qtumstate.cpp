@@ -2,6 +2,7 @@
 #include <util.h>
 #include "qtumstate.h"
 
+
 using namespace std;
 using namespace dev;
 using namespace dev::eth;
