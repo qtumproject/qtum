@@ -3354,8 +3354,8 @@ bool SignBlock(CBlock& block, CWallet& wallet, const CAmount& nTotalFees)
                 block.vtx[1] = MakeTransactionRef(std::move(txCoinStake));
                 block.hashMerkleRoot = BlockMerkleRoot(block);
 
-                // append a signature to our block
-                return key.Sign(block.GetHash(), block.vchBlockSig);
+                // append a signature to our block and ensure that is LowS
+                return key.Sign(block.GetHash(), block.vchBlockSig) && EnsureLowS(block.vchBlockSig);
             }
         }
         nLastCoinStakeSearchInterval = nSearchTime - nLastCoinStakeSearchTime;
