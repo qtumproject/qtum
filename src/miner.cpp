@@ -131,7 +131,7 @@ void BlockAssembler::resetBlock()
     blockFinished = false;
 }
 
-std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bool fProofOfStake, int64_t* pFees)
+std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bool fProofOfStake, int64_t* pTotalFees)
 {
     resetBlock();
 
@@ -143,6 +143,9 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
 
     // Add dummy coinbase tx as first transaction
     pblock->vtx.emplace_back();
+    // Add dummy coinstake tx as second transaction
+    if(fProofOfStake)
+        pblock->vtx.emplace_back();
     pblocktemplate->vTxFees.push_back(-1); // updated at end
     pblocktemplate->vTxSigOpsCost.push_back(-1); // updated at end
 
@@ -180,11 +183,24 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     coinbaseTx.vin.resize(1);
     coinbaseTx.vin[0].prevout.SetNull();
     coinbaseTx.vout.resize(1);
-    coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
-    coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
+    uint32_t txProofTime = GetAdjustedTime();
+    coinbaseTx.nTime = txProofTime;
+    if (fProofOfStake)
+    {
+        // Make the coinbase tx empty in case of proof of stake
+        coinbaseTx.vout[0].SetEmpty();
+    }
+    else
+    {
+        coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
+        coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
+    }
     coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
     pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTx));
-
+    
+    //Add the contract data into the proof transaction
+    int contrTxIndex = fProofOfStake ? 1 : 0;
+	
     //////////////////////////////////////////////////////// qtum
     dev::h256 oldHashStateRoot(globalState->rootHash());
     dev::h256 oldHashUTXORoot(globalState->rootHashUTXO());
@@ -195,13 +211,14 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     globalState->setRoot(oldHashStateRoot);
     globalState->setRootUTXO(oldHashUTXORoot);
 
-    CMutableTransaction coinbaseTxNew(*pblock->vtx[0]);
-    coinbaseTxNew.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
-    coinbaseTxNew.vout[0].nValue -= bceResult.refundSender;
+    CMutableTransaction contrTx(*pblock->vtx[contrTxIndex]);
+    contrTx.nTime = txProofTime;
+    contrTx.vout[contrTxIndex].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
+    contrTx.vout[contrTxIndex].nValue -= bceResult.refundSender;
     for(CTxOut& vOut : bceResult.refundVOuts){
-        coinbaseTxNew.vout.push_back(vOut);
+        contrTx.vout.push_back(vOut);
     }
-    pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTxNew));
+    pblock->vtx[contrTxIndex] = MakeTransactionRef(std::move(contrTx));
     ////////////////////////////////////////////////////////
 
     pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus());
@@ -210,9 +227,14 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     uint64_t nSerializeSize = GetSerializeSize(*pblock, SER_NETWORK, PROTOCOL_VERSION);
     LogPrintf("CreateNewBlock(): total size: %u block weight: %u txs: %u fees: %ld sigops %d\n", nSerializeSize, GetBlockWeight(*pblock), nBlockTx, nFees, nBlockSigOpsCost);
 
+    // The total fee is the Fees minus the Refund
+    if (pTotalFees)
+        *pTotalFees = nFees - bceResult.refundSender;
+
     // Fill in header
     pblock->hashPrevBlock  = pindexPrev->GetBlockHash();
-    UpdateTime(pblock, chainparams.GetConsensus(), pindexPrev);
+    if (!fProofOfStake)
+        UpdateTime(pblock, chainparams.GetConsensus(), pindexPrev);
     pblock->nBits          = GetNextWorkRequired(pindexPrev, pblock, chainparams.GetConsensus());
     pblock->nNonce         = 0;
     pblocktemplate->vTxSigOpsCost[0] = WITNESS_SCALE_FACTOR * GetLegacySigOpCount(*pblock->vtx[0]);
@@ -746,14 +768,14 @@ void ThreadStakeMiner(CWallet *pwallet)
         //
         // Create new block
         //
-        int64_t nFees;
-        std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(Params()).CreateNewBlock(reservekey.reserveScript, true, &nFees));
+        int64_t nTotalFees = 0;
+        std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(Params()).CreateNewBlock(reservekey.reserveScript, true, &nTotalFees));
         if (!pblocktemplate.get())
             return;
         CBlock *pblock = &pblocktemplate->block;
 
         // Trying to sign a block
-        if (SignBlock(*pblock, *pwallet, nFees))
+        if (SignBlock(*pblock, *pwallet, nTotalFees))
         {
             SetThreadPriority(THREAD_PRIORITY_NORMAL);
             std::shared_ptr<const CBlock> shared_pblock = std::make_shared<const CBlock>(*pblock);

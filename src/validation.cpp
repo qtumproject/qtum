@@ -3251,7 +3251,7 @@ bool FindUndoPos(CValidationState &state, int nFile, CDiskBlockPos &pos, unsigne
 
 #ifdef ENABLE_WALLET
 // novacoin: attempt to generate suitable proof-of-stake
-bool SignBlock(CBlock& block, CWallet& wallet, CAmount& nFees)
+bool SignBlock(CBlock& block, CWallet& wallet, const CAmount& nTotalFees)
 {
     // if we are trying to sign
     //    something except proof-of-stake block template
@@ -3267,7 +3267,7 @@ bool SignBlock(CBlock& block, CWallet& wallet, CAmount& nFees)
 
     CKey key;
     CMutableTransaction txCoinBase(*block.vtx[0]);
-    CMutableTransaction txCoinStake;
+    CMutableTransaction txCoinStake(*block.vtx[1]);
     txCoinStake.nTime = GetAdjustedTime();
     txCoinStake.nTime &= ~STAKE_TIMESTAMP_MASK;
 
@@ -3279,7 +3279,7 @@ bool SignBlock(CBlock& block, CWallet& wallet, CAmount& nFees)
         //int64_t nSearchInterval = IsProtocolV2(nBestHeight+1) ? 1 : nSearchTime - nLastCoinStakeSearchTime;
         //IsProtocolV2 mean POS 2 or higher, so the modified line is:
         int64_t nSearchInterval = 1;
-        if (wallet.CreateCoinStake(wallet, block.nBits, nSearchInterval, nFees, txCoinStake, key))
+        if (wallet.CreateCoinStake(wallet, block.nBits, nSearchInterval, nTotalFees, txCoinStake, key))
         {
             if (txCoinStake.nTime >= pindexBestHeader->GetMedianTimePast()+1)
             {
@@ -3293,7 +3293,7 @@ bool SignBlock(CBlock& block, CWallet& wallet, CAmount& nFees)
                 for (auto it = block.vtx.begin(); it != block.vtx.end();)
                     if ((*it)->nTime > block.nTime) { it = block.vtx.erase(it); } else { ++it; }
 
-                block.vtx.insert(block.vtx.begin() + 1, MakeTransactionRef(std::move(txCoinStake)));
+                block.vtx[1] = MakeTransactionRef(std::move(txCoinStake));
                 block.hashMerkleRoot = BlockMerkleRoot(block);
 
                 // append a signature to our block

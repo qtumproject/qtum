@@ -2903,7 +2903,7 @@ uint64_t CWallet::GetStakeWeight() const
     return nWeight;
 }
 
-bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, uint32_t nSearchInterval, CAmount& nFees, CMutableTransaction& tx, CKey& key)
+bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, uint32_t nSearchInterval, const CAmount& nTotalFees, CMutableTransaction& tx, CKey& key)
 {
     CBlockIndex* pindexPrev = pindexBestHeader;
     arith_uint256 bnTargetPerCoinDay;
@@ -3044,7 +3044,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, uin
         if (!CheckTransactionTimestamp(txNew, *pblocktree))
             return error("CreateCoinStake : Transaction timestamp check failure.");
         const CChainParams& chainParams = Params();
-        int64_t nReward = nFees + GetBlockSubsidy(pindexPrev->nHeight, chainParams.GetConsensus());;
+        int64_t nReward = nTotalFees + GetBlockSubsidy(pindexPrev->nHeight, chainParams.GetConsensus());;
         if (nReward < 0)
             return false;
 
@@ -3063,12 +3063,18 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, uin
     else
         txNew.vout[1].nValue = nCredit;
 
-    // Sign
+    // Sign the input coins
     int nIn = 0;
     BOOST_FOREACH(const CWalletTx* pcoin, vwtxPrev)
     {
         if (!SignSignature(*this, *pcoin, txNew, nIn++, SIGHASH_ALL))
             return error("CreateCoinStake : failed to sign coinstake");
+    }
+
+    // Append the Refunds To Sender to the transaction outputs
+    for(unsigned int i = 0; i < tx.vout.size(); i++)
+    {
+        txNew.vout.push_back(tx.vout[i]);
     }
 
     // Limit size
