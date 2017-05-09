@@ -550,8 +550,8 @@ class CBlockHeader(object):
             self.nNonce = header.nNonce
             self.sha256 = header.sha256
             self.hash = header.hash
-            self.hashUTXORoot = header.hashUTXORoot
             self.hashStateRoot = header.hashStateRoot
+            self.hashUTXORoot = header.hashUTXORoot
             self.vchBlockSig = header.vchBlockSig
             self.fStake = header.fStake
             self.prevoutStake = header.prevoutStake
@@ -565,8 +565,8 @@ class CBlockHeader(object):
         self.nTime = 0
         self.nBits = 0
         self.nNonce = 0
-        self.hashUTXORoot = INITIAL_HASH_UTXO_ROOT
         self.hashStateRoot = INITIAL_HASH_STATE_ROOT
+        self.hashUTXORoot = INITIAL_HASH_UTXO_ROOT
         self.vchBlockSig = b""
         self.fStake = False
         self.prevoutStake = COutPoint(0, 0xffffffff)
@@ -582,8 +582,8 @@ class CBlockHeader(object):
         self.nTime = struct.unpack("<I", f.read(4))[0]
         self.nBits = struct.unpack("<I", f.read(4))[0]
         self.nNonce = struct.unpack("<I", f.read(4))[0]
-        self.hashUTXORoot = deser_uint256(f)
         self.hashStateRoot = deser_uint256(f)
+        self.hashUTXORoot = deser_uint256(f)
         self.vchBlockSig = deser_string(f)
         self.fStake =  struct.unpack("B", f.read(1))[0]
         self.prevoutStake = COutPoint().deserialize(f)
@@ -599,8 +599,8 @@ class CBlockHeader(object):
         r += struct.pack("<I", self.nTime)
         r += struct.pack("<I", self.nBits)
         r += struct.pack("<I", self.nNonce)
-        r += ser_uint256(self.hashUTXORoot)
         r += ser_uint256(self.hashStateRoot)
+        r += ser_uint256(self.hashUTXORoot)
         r += ser_string(self.vchBlockSig)
         r += struct.pack("B", self.fStake)
         r += self.prevoutStake.serialize() if self.prevoutStake is not None else COutPoint(0, 0xffffffff).serialize()
@@ -616,8 +616,8 @@ class CBlockHeader(object):
             r += struct.pack("<I", self.nTime)
             r += struct.pack("<I", self.nBits)
             r += struct.pack("<I", self.nNonce)
-            r += ser_uint256(self.hashUTXORoot)
             r += ser_uint256(self.hashStateRoot)
+            r += ser_uint256(self.hashUTXORoot)
             r += ser_string(self.vchBlockSig)
             r += struct.pack("B", self.fStake)
             r += self.prevoutStake.serialize() if self.prevoutStake is not None else COutPoint(0, 0xffffffff).serialize()
