@@ -24,9 +24,6 @@ class CWallet;
 
 namespace Consensus { struct Params; };
 
-static const bool DEFAULT_GENERATE = true;
-static const int DEFAULT_GENERATE_THREADS = 1;
-
 static const bool DEFAULT_PRINTPRIORITY = false;
 
 static const bool DEFAULT_STAKE = true;
@@ -214,9 +211,6 @@ private:
       * state updated assuming given transactions are inBlock. */
     void UpdatePackagesForAdded(const CTxMemPool::setEntries& alreadyAdded, indexed_modified_transaction_set &mapModifiedTx);
 };
-
-/** Run the miner threads */
-void GenerateQtums(bool fGenerate, int nThreads, const CChainParams& chainparams);
 
 /** Generate a new block, without valid proof-of-work */
 void StakeQtums(bool fStake, CWallet *pwallet);

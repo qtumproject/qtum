@@ -206,7 +206,6 @@ void Shutdown()
         pwalletMain->Flush(false);
     }
 #endif
-    GenerateQtums(false, 0, Params());
     MapPort(false);
     UnregisterValidationInterface(peerLogic.get());
     peerLogic.reset();
@@ -1696,10 +1695,6 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
     else if (pwalletMain)
         StakeQtums(true, pwalletMain);
 #endif
-
-    // Generate coins in the background
-    GenerateQtums(GetBoolArg("-gen", DEFAULT_GENERATE), GetArg("-genproclimit", DEFAULT_GENERATE_THREADS), chainparams);
-
     // ********************************************************* Step 12: finished
 
     SetRPCWarmupFinished();
