@@ -212,9 +212,6 @@ private:
     void UpdatePackagesForAdded(const CTxMemPool::setEntries& alreadyAdded, indexed_modified_transaction_set &mapModifiedTx);
 };
 
-/** Run the miner threads */
-void GenerateQtums(bool fGenerate, int nThreads, const CChainParams& chainparams);
-
 /** Generate a new block, without valid proof-of-work */
 void StakeQtums(bool fStake, CWallet *pwallet);
 
