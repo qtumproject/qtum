@@ -2214,6 +2214,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
     CCheckQueueControl<CScriptCheck> control(fScriptChecks && nScriptCheckThreads ? &scriptcheckqueue : NULL);
 
+    CBlock checkBlock(block.GetBlockHeader()); // qtum
+
     std::vector<int> prevheights;
     CAmount nFees = 0;
     int nInputs = 0;
@@ -2278,11 +2280,19 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         }
 
 ///////////////////////////////////////////////////////////////////////////////////////// qtum
+        if(!tx.HasTXHASH()){
+            checkBlock.vtx.push_back(block.vtx[i]);
+        }
+
         if(tx.HasCreateOrCall() && !hasTxhash){
             QtumTxConverter convert(tx, NULL);
             ByteCodeExec exec(block, convert.extractionQtumTransactions());
             exec.performByteCode();
             std::vector<ResultExecute> resultExec(exec.getResult());
+            ByteCodeExecResult bcer = exec.processingResults();
+            for(CTransaction& t : bcer.refundValueTx){
+                checkBlock.vtx.push_back(MakeTransactionRef(std::move(t)));
+            }
             if(fRecordLogOpcodes && !fJustCheck){
                 writeVMlog(resultExec, tx, block);
             }
@@ -2320,9 +2330,12 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     LogPrint("bench", "    - Verify %u txins: %.2fms (%.3fms/txin) [%.2fs]\n", nInputs - 1, 0.001 * (nTime4 - nTime2), nInputs <= 1 ? 0 : 0.001 * (nTime4 - nTime2) / (nInputs-1), nTimeVerify * 0.000001);
 
 ////////////////////////////////////////////////////////////////// // qtum
-    if (globalState->rootHash() != uintToh256(block.hashStateRoot) || globalState->rootHashUTXO() != uintToh256(block.hashUTXORoot))
-        return state.DoS(100, error("ConnectBlock(): rootHashState or hashUTXORoot diverged"),
-                            REJECT_INVALID, "diverged-stateorutxo-root");
+    checkBlock.hashMerkleRoot = BlockMerkleRoot(checkBlock);
+    checkBlock.hashStateRoot = h256Touint(globalState->rootHash());
+    checkBlock.hashUTXORoot = h256Touint(globalState->rootHashUTXO());
+    if((checkBlock.GetHash() != block.GetHash()) && !fJustCheck)
+        return state.DoS(100, error("ConnectBlock(): Incorrect transactions or hashes(hashStateRoot, hashUTXORoot)."),
+                            REJECT_INVALID, "incorrect-transactions-or-hashes-block");
 
     if (fJustCheck)
     {
