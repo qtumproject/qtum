@@ -1950,7 +1950,7 @@ ByteCodeExecResult ByteCodeExec::processingResults(){
         if(result[i].execRes.excepted != dev::eth::TransactionException::None){
             if(txs[i].value() > 0){
                 CMutableTransaction tx;
-                tx.vin.push_back(CTxIn(h256Touint(txs[i].getHashWith()), txs[i].getNVout(), CScript()));
+                tx.vin.push_back(CTxIn(h256Touint(txs[i].getHashWith()), txs[i].getNVout(), CScript() << OP_TXHASH));
                 CScript script(CScript() << OP_DUP << OP_HASH160 << txs[i].sender().asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
                 tx.vout.push_back(CTxOut(CAmount(txs[i].value()), script));
                 resultBCE.refundValueTx.push_back(CTransaction(tx));
