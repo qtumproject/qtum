@@ -22,6 +22,12 @@ namespace Checkpoints
 //! Returns last CBlockIndex* in mapBlockIndex that is a checkpoint
 CBlockIndex* GetLastCheckpoint(const CCheckpointData& data);
 
+//! Returns last CBlockIndex* from the auto selected checkpoint
+const CBlockIndex* AutoSelectSyncCheckpoint();
+
+//! Check against automatically selected checkpoint
+bool CheckSync(int nHeight);
+
 } //namespace Checkpoints
 
 #endif // BITCOIN_CHECKPOINTS_H
