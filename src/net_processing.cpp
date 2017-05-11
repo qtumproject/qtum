@@ -2132,7 +2132,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
                 mapBlockSource.emplace(pblock->GetHash(), std::make_pair(pfrom->GetId(), false));
             }
             bool fNewBlock = false;
-            ProcessNewBlock(chainparams, pblock, true, &fNewBlock);
+            ProcessNetBlock(chainparams, pblock, true, &fNewBlock, pfrom, connman);
             if (fNewBlock)
                 pfrom->nLastBlockTime = GetTime();
 
@@ -2209,7 +2209,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             bool fNewBlock = false;
             // Since we requested this block (it was in mapBlocksInFlight), force it to be processed,
             // even if it would not be a candidate for new tip (missing previous block, chain not long enough, etc)
-            ProcessNewBlock(chainparams, pblock, true, &fNewBlock);
+            ProcessNetBlock(chainparams, pblock, true, &fNewBlock, pfrom, connman);
             if (fNewBlock)
                 pfrom->nLastBlockTime = GetTime();
         }
@@ -2388,7 +2388,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             mapBlockSource.emplace(hash, std::make_pair(pfrom->GetId(), true));
         }
         bool fNewBlock = false;
-        ProcessNewBlock(chainparams, pblock, forceProcessing, &fNewBlock);
+        ProcessNetBlock(chainparams, pblock, forceProcessing, &fNewBlock, pfrom, connman);
         if (fNewBlock)
             pfrom->nLastBlockTime = GetTime();
     }
@@ -3267,6 +3267,11 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
         }
     }
     return true;
+}
+
+bool ProcessNetBlock(const CChainParams& chainparams, const std::shared_ptr<const CBlock> pblock, bool fForceProcessing, bool* fNewBlock, CNode* pfrom, CConnman& connman)
+{
+    return ProcessNewBlock(chainparams, pblock, fForceProcessing, fNewBlock);
 }
 
 class CNetProcessingCleanup
