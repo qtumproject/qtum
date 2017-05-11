@@ -29,6 +29,7 @@
 #include "utilmoneystr.h"
 #include "utilstrencodings.h"
 #include "validationinterface.h"
+#include "checkpoints.h"
 
 #include <boost/thread.hpp>
 
@@ -3274,12 +3275,26 @@ bool ProcessNetBlock(const CChainParams& chainparams, const std::shared_ptr<cons
     {
         LOCK(cs_main);
 
-        //Check for the signiture encoding
+        // Check for the checkpoint
+        if (chainActive.Tip() && pblock->hashPrevBlock != chainActive.Tip()->GetBlockHash())
+        {
+            // Extra checks to prevent "fill up memory by spamming with bogus blocks"
+            const CBlockIndex* pcheckpoint = Checkpoints::AutoSelectSyncCheckpoint();
+            int64_t deltaTime = pblock->GetBlockTime() - pcheckpoint->nTime;
+            if (deltaTime < 0)
+            {
+                if (pfrom)
+                    Misbehaving(pfrom->GetId(), 1);
+
+                return error("ProcessNetBlock() : block with timestamp before last checkpoint");
+            }
+        }
+
+        // Check for the signiture encoding
         if (!CheckCanonicalBlockSignature(pblock)) 
         {
-            if (pfrom) {
+            if (pfrom)
                 Misbehaving(pfrom->GetId(), 100);
-            }
 
             return error("ProcessNetBlock(): bad block signature encoding");
         }
