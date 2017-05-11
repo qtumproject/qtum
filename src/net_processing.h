@@ -19,6 +19,8 @@ static const int64_t ORPHAN_TX_EXPIRE_TIME = 20 * 60;
 static const int64_t ORPHAN_TX_EXPIRE_INTERVAL = 5 * 60;
 /** Default number of orphan+recently-replaced txn to keep around for block reconstruction */
 static const unsigned int DEFAULT_BLOCK_RECONSTRUCTION_EXTRA_TXN = 100;
+/** Default maximum orphan blocks */
+static const unsigned int DEFAULT_MAX_ORPHAN_BLOCKS = 40;
 
 /** Register with a network node to receive its signals */
 void RegisterNodeSignals(CNodeSignals& nodeSignals);

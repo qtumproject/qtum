@@ -30,6 +30,7 @@
 #include "utilstrencodings.h"
 #include "validationinterface.h"
 #include "checkpoints.h"
+#include "test/test_random.h"
 
 #include <boost/thread.hpp>
 
@@ -3279,6 +3280,64 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
         }
     }
     return true;
+}
+
+void PushGetBlocks(CNode* pnode, const CBlockIndex* pindexBegin, const uint256& hashEnd, CConnman& connman)
+{
+    const CNetMsgMaker msgMaker(pnode->GetSendVersion());
+    connman.PushMessage(pnode, msgMaker.Make(NetMsgType::GETBLOCKS, chainActive.GetLocator(pindexBegin), hashEnd));
+}
+
+uint256 static GetOrphanRoot(const uint256& hash)
+{
+    std::map<uint256, COrphanBlock*>::iterator it = mapOrphanBlocks.find(hash);
+    if (it == mapOrphanBlocks.end())
+        return hash;
+
+    // Work back to the first block in the orphan chain
+    do {
+        std::map<uint256, COrphanBlock*>::iterator it2 = mapOrphanBlocks.find(it->second->hashPrev);
+        if (it2 == mapOrphanBlocks.end())
+            return it->first;
+        it = it2;
+    } while(true);
+}
+
+// ppcoin: find block wanted by given orphan block
+uint256 WantedByOrphan(const COrphanBlock* pblockOrphan)
+{
+    // Work back to the first block in the orphan chain
+    while (mapOrphanBlocks.count(pblockOrphan->hashPrev))
+        pblockOrphan = mapOrphanBlocks[pblockOrphan->hashPrev];
+    return pblockOrphan->hashPrev;
+}
+
+// Remove a random orphan block (which does not have any dependent orphans).
+void static PruneOrphanBlocks()
+{
+    size_t nMaxOrphanBlocksSize = GetArg("-maxorphanblocksmib", DEFAULT_MAX_ORPHAN_BLOCKS) * ((size_t) 1 << 20);
+    while (nOrphanBlocksSize > nMaxOrphanBlocksSize)
+    {
+        // Pick a random orphan block.
+        int pos = insecure_rand() % mapOrphanBlocksByPrev.size();
+        std::multimap<uint256, COrphanBlock*>::iterator it = mapOrphanBlocksByPrev.begin();
+        while (pos--) it++;
+
+        // As long as this block has other orphans depending on it, move to one of those successors.
+        do {
+            std::multimap<uint256, COrphanBlock*>::iterator it2 = mapOrphanBlocksByPrev.find(it->second->hashBlock);
+            if (it2 == mapOrphanBlocksByPrev.end())
+                break;
+            it = it2;
+        } while(1);
+
+        setStakeSeenOrphan.erase(it->second->stake);
+        uint256 hash = it->second->hashBlock;
+        nOrphanBlocksSize -= it->second->vchBlock.size();
+        delete it->second;
+        mapOrphanBlocksByPrev.erase(it);
+        mapOrphanBlocks.erase(hash);
+    }
 }
 
 bool ProcessNetBlock(const CChainParams& chainparams, const std::shared_ptr<const CBlock> pblock, bool fForceProcessing, bool* fNewBlock, CNode* pfrom, CConnman& connman)
