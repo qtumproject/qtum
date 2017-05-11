@@ -3271,6 +3271,20 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
 
 bool ProcessNetBlock(const CChainParams& chainparams, const std::shared_ptr<const CBlock> pblock, bool fForceProcessing, bool* fNewBlock, CNode* pfrom, CConnman& connman)
 {
+    {
+        LOCK(cs_main);
+
+        //Check for the signiture encoding
+        if (!CheckCanonicalBlockSignature(pblock)) 
+        {
+            if (pfrom) {
+                Misbehaving(pfrom->GetId(), 100);
+            }
+
+            return error("ProcessNetBlock(): bad block signature encoding");
+        }
+    }
+
     return ProcessNewBlock(chainparams, pblock, fForceProcessing, fNewBlock);
 }
 
