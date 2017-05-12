@@ -1187,6 +1187,25 @@ bool GetTransaction(const uint256 &hash, CTransactionRef &txOut, const Consensus
     return false;
 }
 
+bool CheckHeaderProof(const CBlockHeader& block, const Consensus::Params& consensusParams)
+{
+    // Check for proof of work block header
+    if(block.IsProofOfWork())
+    {
+        return CheckProofOfWork(block.GetHash(), block.nBits, consensusParams);
+    }
+
+    // Check for proof of stake block header
+
+    // Get prev block index
+    BlockMap::iterator mi = mapBlockIndex.find(block.hashPrevBlock);
+    if (mi == mapBlockIndex.end())
+        return false;
+
+    // Check the kernel hash
+    CBlockIndex* pindexPrev = (*mi).second;
+    return CheckKernel(pindexPrev, block.nBits, block.StakeTime(), block.PrevoutStake());
+}
 
 
 
@@ -1237,7 +1256,7 @@ bool ReadBlockFromDisk(Block& block, const CDiskBlockPos& pos, const Consensus::
     }
 
     // Check the header
-    if (!CheckProofOfWork(block.GetHash(), block.nBits, consensusParams))
+    if (!CheckHeaderProof(block, consensusParams))
         return error("ReadBlockFromDisk: Errors in block header at %s", pos.ToString());
 
     return true;
@@ -3427,7 +3446,7 @@ bool CheckBlockSignature(const CBlock& block)
 bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW)
 {
     // Check proof of work matches claimed amount
-    if (fCheckPOW && !CheckProofOfWork(block.GetHash(), block.nBits, consensusParams))
+    if (fCheckPOW && !CheckHeaderProof(block, consensusParams))
         return state.DoS(50, false, REJECT_INVALID, "high-hash", false, "proof of work failed");
 
     return true;
