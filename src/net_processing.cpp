@@ -32,6 +32,7 @@
 #include "checkpoints.h"
 #include "test/test_random.h"
 #include "clientversion.h"
+#include "consensus/merkle.h"
 
 #include <boost/thread.hpp>
 
@@ -3423,7 +3424,44 @@ bool ProcessNetBlock(const CChainParams& chainparams, const std::shared_ptr<cons
         }
     }
 
-    return ProcessNewBlock(chainparams, pblock, fForceProcessing, fNewBlock);
+    if(!ProcessNewBlock(chainparams, pblock, fForceProcessing, fNewBlock))
+        return error("%s: ProcessNewBlock FAILED", __func__);
+
+    std::vector<uint256> vWorkQueue;
+    vWorkQueue.push_back(pblock->GetHash());
+    for (unsigned int i = 0; i < vWorkQueue.size(); i++)
+    {
+        uint256 hashPrev = vWorkQueue[i];
+        for (std::multimap<uint256, COrphanBlock*>::iterator mi = mapOrphanBlocksByPrev.lower_bound(hashPrev);
+             mi != mapOrphanBlocksByPrev.upper_bound(hashPrev);
+             ++mi)
+        {
+            CBlock block;
+            {
+                CDataStream ss(mi->second->vchBlock, SER_DISK, CLIENT_VERSION);
+                ss >> block;
+            }
+            block.hashMerkleRoot = BlockMerkleRoot(block);
+
+            bool fNewBlockOrphan = false;
+            std::shared_ptr<const CBlock> shared_pblock = std::make_shared<const CBlock>(block);
+            if (ProcessNewBlock(chainparams, shared_pblock, fForceProcessing, &fNewBlockOrphan))
+                vWorkQueue.push_back(mi->second->hashBlock);
+
+            LOCK(cs_main);
+            mapOrphanBlocks.erase(mi->second->hashBlock);
+            setStakeSeenOrphan.erase(block.GetProofOfStake());
+            nOrphanBlocksSize -= mi->second->vchBlock.size();
+            delete mi->second;
+        }
+
+        LOCK(cs_main);
+        mapOrphanBlocksByPrev.erase(hashPrev);
+    }
+
+    LogPrintf("ProcessNetBlock: ACCEPTED\n");
+
+    return true;
 }
 
 class CNetProcessingCleanup
