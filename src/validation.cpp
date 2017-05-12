@@ -1207,6 +1207,16 @@ bool CheckHeaderProof(const CBlockHeader& block, const Consensus::Params& consen
     return CheckKernel(pindexPrev, block.nBits, block.StakeTime(), block.PrevoutStake());
 }
 
+bool CheckIndexProof(const CBlockIndex& block, const Consensus::Params& consensusParams)
+{
+    // Get the hash of the proof
+    // After validating the PoS block the computed hash proof is saved in the block index, which is used to check the index
+    uint256 hashProof = block.IsProofOfWork() ? block.GetBlockHash() : block.hashProof;
+
+    // Check for proof after the hash proof is computed
+    return CheckProofOfWork(hashProof, block.nBits, consensusParams, block.IsProofOfStake());
+}
+
 
 
 

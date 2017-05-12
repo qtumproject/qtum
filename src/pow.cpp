@@ -19,6 +19,11 @@ const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfSta
     return pindex;
 }
 
+inline arith_uint256 GetLimit(const Consensus::Params& params, bool fProofOfStake)
+{
+    return fProofOfStake ? UintToArith256(params.posLimit) : UintToArith256(params.powLimit);
+}
+
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params, bool* pfProofOfStake)
 {
      // choose proof
@@ -26,7 +31,7 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
     if(pfProofOfStake)
         fProofOfStake = *pfProofOfStake;
 
-    unsigned int  nTargetLimit = (fProofOfStake ? UintToArith256(params.posLimit) : UintToArith256(params.powLimit)).GetCompact();
+    unsigned int  nTargetLimit = GetLimit(params, fProofOfStake).GetCompact();
 
     // genesis block
     if (pindexLast == NULL)
@@ -77,7 +82,7 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
         nActualSpacing = nTargetSpacing * 10;
 
 	// Retarget
-    const arith_uint256 bnTargetLimit = fProofOfStake ? UintToArith256(params.posLimit) : UintToArith256(params.powLimit);
+    const arith_uint256 bnTargetLimit = GetLimit(params, fProofOfStake);
     // ppcoin: target change every block
     // ppcoin: retarget with exponential moving toward target spacing
     arith_uint256 bnNew;
@@ -92,7 +97,7 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
     return bnNew.GetCompact();
 }
 
-bool CheckProofOfWork(uint256 hash, unsigned int nBits, const Consensus::Params& params)
+bool CheckProofOfWork(uint256 hash, unsigned int nBits, const Consensus::Params& params, bool fProofOfStake)
 {
     bool fNegative;
     bool fOverflow;
@@ -101,7 +106,7 @@ bool CheckProofOfWork(uint256 hash, unsigned int nBits, const Consensus::Params&
     bnTarget.SetCompact(nBits, &fNegative, &fOverflow);
 
     // Check range
-    if (fNegative || bnTarget == 0 || fOverflow || bnTarget > UintToArith256(params.powLimit))
+    if (fNegative || bnTarget == 0 || fOverflow || bnTarget > GetLimit(params, fProofOfStake))
         return false;
 
     // Check proof of work matches claimed amount

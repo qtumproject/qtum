@@ -513,6 +513,7 @@ bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, const 
 bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW = true, bool fCheckMerkleRoot = true, bool fCheckSig=true);
 bool SignBlock(CBlock& block, CWallet& wallet, const CAmount& nTotalFees);
 bool CheckCanonicalBlockSignature(const std::shared_ptr<const CBlock> pblock);
+bool CheckIndexProof(const CBlockIndex& block, const Consensus::Params& consensusParams);
 
 /** Context-dependent validity checks.
  *  By "context", we mean only the previous block headers, but not the UTXO
