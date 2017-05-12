@@ -39,6 +39,7 @@
 #include <libethashseal/GenesisInfo.h>
 
 extern std::unique_ptr<QtumState> globalState;
+extern std::shared_ptr<dev::eth::SealEngineFace> globalSealEngine;
 extern bool fRecordLogOpcodes;
 extern bool fIsVMlogFile;
 
