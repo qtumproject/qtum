@@ -3472,5 +3472,8 @@ public:
         // orphan transactions
         mapOrphanTransactions.clear();
         mapOrphanTransactionsByPrev.clear();
+        mapOrphanBlocks.clear();
+        mapOrphanBlocksByPrev.clear();
+        setStakeSeenOrphan.clear();
     }
 } instance_of_cnetprocessingcleanup;
