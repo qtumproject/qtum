@@ -30,7 +30,6 @@
 #include "utilstrencodings.h"
 #include "validationinterface.h"
 #include "checkpoints.h"
-#include "test/test_random.h"
 #include "clientversion.h"
 #include "consensus/merkle.h"
 
@@ -3321,9 +3320,10 @@ void static PruneOrphanBlocks()
     while (nOrphanBlocksSize > nMaxOrphanBlocksSize)
     {
         // Pick a random orphan block.
-        int pos = insecure_rand() % mapOrphanBlocksByPrev.size();
-        std::multimap<uint256, COrphanBlock*>::iterator it = mapOrphanBlocksByPrev.begin();
-        while (pos--) it++;
+        uint256 randomhash = GetRandHash();
+        std::multimap<uint256, COrphanBlock*>::iterator it = mapOrphanBlocksByPrev.lower_bound(randomhash);
+        if (it == mapOrphanBlocksByPrev.end())
+            it = mapOrphanBlocksByPrev.begin();
 
         // As long as this block has other orphans depending on it, move to one of those successors.
         do {
@@ -3397,7 +3397,7 @@ bool ProcessNetBlock(const CChainParams& chainparams, const std::shared_ptr<cons
                     if (setStakeSeenOrphan.count(pblock->GetProofOfStake()) && !mapOrphanBlocksByPrev.count(hash))
                         return error("ProcessNetBlock() : duplicate proof-of-stake (%s, %d) for orphan block %s", pblock->GetProofOfStake().first.ToString(), pblock->GetProofOfStake().second, hash.ToString());
                 }
-                //PruneOrphanBlocks();
+                PruneOrphanBlocks();
                 COrphanBlock* pblock2 = new COrphanBlock();
                 {
                     CDataStream ss(SER_DISK, CLIENT_VERSION);
