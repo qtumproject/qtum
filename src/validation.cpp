@@ -3824,14 +3824,30 @@ static bool AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CValidation
         return error("%s: UpdateHashProof(): %s", __func__, state.GetRejectReason().c_str());
     }
 
+    // Get prev block index
+    BlockMap::iterator mi = mapBlockIndex.find(block.hashPrevBlock);
+    if (mi == mapBlockIndex.end())
+        return state.DoS(10, error("AcceptBlock() : prev block not found"));
+    CBlockIndex* pindexPrev = (*mi).second;
+
+    // Get block height
     int nHeight = pindex->nHeight;
 
+    // Check for the last proof of work block
     if (block.IsProofOfWork() && nHeight > chainparams.GetConsensus().nLastPOWBlock)
         return state.DoS(100, error("AcceptBlock() : reject proof-of-work at height %d", nHeight));
 
     // Check that the block satisfies synchronized checkpoint
     if (!Checkpoints::CheckSync(nHeight))
         return error("AcceptBlock() : rejected by synchronized checkpoint");
+
+    // Check coinbase timestamp
+    if (block.GetBlockTime() > FutureDrift(block.vtx[0]->nTime))
+        return state.DoS(50, error("AcceptBlock() : coinbase timestamp is too early"));
+
+    // Check timestamp against prev
+    if (block.GetBlockTime() <= pindexPrev->GetBlockTime() || FutureDrift(block.GetBlockTime()) < pindexPrev->GetBlockTime())
+        return error("AcceptBlock() : block's timestamp is too early");
 
     // Enforce rule that the coinbase starts with serialized block height
     CScript expect = CScript() << nHeight;
