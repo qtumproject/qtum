@@ -52,27 +52,17 @@ void RPCNestedTests::rpcNestedTests()
     pcoinsTip = new CCoinsViewCache(pcoinsdbview);
     InitBlockIndex(chainparams);
     /////////////////////////////////////////////////////////// qtum
-    dev::eth::Ethash::init();
-    boost::filesystem::path qtumStateDir = GetDataDir() / "stateQtum";
-    bool fStatus = boost::filesystem::exists(qtumStateDir);
-    const std::string dirQtum(qtumStateDir.string());
+    dev::eth::Ethash::init();		
+    boost::filesystem::path pathTemp = GetTempPath() / strprintf("test_bitcoin_%lu_%i", (unsigned long)GetTime(), (int)(GetRand(100000)));
+    boost::filesystem::create_directories(pathTemp);
     const dev::h256 hashDB(dev::sha3(dev::rlp("")));
-    dev::eth::BaseState existsQtumstate = fStatus ? dev::eth::BaseState::PreExisting : dev::eth::BaseState::Empty;
-    globalState = std::unique_ptr<QtumState>(new QtumState(dev::u256(0), QtumState::openDB(dirQtum, hashDB, dev::WithExisting::Trust), dirQtum, existsQtumstate));
-
-    if(chainActive.Tip() != NULL){
-        globalState->setRoot(uintToh256(chainActive.Tip()->hashStateRoot));
-        globalState->setRootUTXO(uintToh256(chainActive.Tip()->hashUTXORoot)); // temp
-    } else {
-        globalState->setRoot(uintToh256(chainparams.GenesisBlock().hashStateRoot));
-        globalState->setRootUTXO(uintToh256(chainparams.GenesisBlock().hashUTXORoot));
-    }
+    globalState = std::unique_ptr<QtumState>(new QtumState(dev::u256(0), QtumState::openDB(pathTemp.string(), hashDB, dev::WithExisting::Trust), pathTemp.string(), dev::eth::BaseState::Empty));
+    dev::eth::ChainParams cp((dev::eth::genesisInfo(dev::eth::Network::qtumTestNetwork)));
+    globalSealEngine = std::unique_ptr<dev::eth::SealEngineFace>(cp.createSealEngine());
+    globalState->populateFrom(cp.genesisState);
+    globalState->setRootUTXO(uintToh256(chainparams.GenesisBlock().hashUTXORoot));
     globalState->db().commit();
     globalState->dbUtxo().commit();
-
-
-    fRecordLogOpcodes = IsArgSet("-record-log-opcodes");
-    fIsVMlogFile = boost::filesystem::exists(GetDataDir() / "vmExecLogs.json");
     ///////////////////////////////////////////////////////////
     {
         CValidationState state;
