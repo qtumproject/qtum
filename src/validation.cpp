@@ -3397,7 +3397,7 @@ bool SignBlock(CBlock& block, CWallet& wallet, const CAmount& nTotalFees)
                 block.hashMerkleRoot = BlockMerkleRoot(block);
 
                 // append a signature to our block and ensure that is LowS
-                return key.Sign(block.GetHash(), block.vchBlockSig) && EnsureLowS(block.vchBlockSig);
+                return key.Sign(block.GetHashWithoutSign(), block.vchBlockSig) && EnsureLowS(block.vchBlockSig);
             }
         }
         nLastCoinStakeSearchInterval = nSearchTime - nLastCoinStakeSearchTime;
@@ -3427,7 +3427,7 @@ bool CheckBlockSignature(const CBlock& block)
     if (whichType == TX_PUBKEY)
     {
         valtype& vchPubKey = vSolutions[0];
-        return CPubKey(vchPubKey).Verify(block.GetHash(), block.vchBlockSig);
+        return CPubKey(vchPubKey).Verify(block.GetHashWithoutSign(), block.vchBlockSig);
     }
     else
     {
@@ -3447,7 +3447,7 @@ bool CheckBlockSignature(const CBlock& block)
             return false;
         if (!IsCompressedOrUncompressedPubKey(vchPushValue))
             return false;
-        return CPubKey(vchPushValue).Verify(block.GetHash(), block.vchBlockSig);
+        return CPubKey(vchPushValue).Verify(block.GetHashWithoutSign(), block.vchBlockSig);
     }
 
     return false;
