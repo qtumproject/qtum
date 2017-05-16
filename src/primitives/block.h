@@ -54,14 +54,14 @@ public:
         READWRITE(nNonce);
         READWRITE(hashStateRoot); // qtum
         READWRITE(hashUTXORoot); // qtum
+        if (!(s.GetType() & SER_WITHOUT_SIGNATURE))
+            READWRITE(vchBlockSig);
         fStake = IsProofOfStake();
         prevoutStake = PrevoutStake();
         nStakeTime = StakeTime();
         READWRITE(fStake);
         READWRITE(prevoutStake);
         READWRITE(nStakeTime); // qtum
-        if (!(s.GetType() & SER_WITHOUT_SIGNATURE))
-            READWRITE(vchBlockSig);
     }
 
     void SetNull()
