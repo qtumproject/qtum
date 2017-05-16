@@ -363,6 +363,10 @@ void BlockAssembler::AddToBlock(CTxMemPool::txiter iter)
 ////////////////////////////////////////////////////////////// // qtum
     const CTransaction& tx = iter->GetTx();
     if(tx.HasCreateOrCall()){
+
+        QtumDGP qtumDGP(dev::Address("0000000000000000000000000000000000000080"));
+        globalSealEngine->setQtumSchedule(qtumDGP.getGasSchedule(globalState.get(), nHeight));
+
         QtumTxConverter convert(tx, NULL);
         ByteCodeExec exec(*pblock, convert.extractionQtumTransactions());
         exec.performByteCode();
