@@ -2250,7 +2250,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
     CCheckQueueControl<CScriptCheck> control(fScriptChecks && nScriptCheckThreads ? &scriptcheckqueue : NULL);
 
-    CBlock checkBlock(block.GetBlockHeader()); // qtum
+/////////////////////////////////////////////////////////////////// // qtum
+    CBlock checkBlock(block.GetBlockHeader());
+    bool scheduleChanged = false;
+///////////////////////////////////////////////////////////////////
 
     std::vector<int> prevheights;
     CAmount nFees = 0;
@@ -2325,6 +2328,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         }
 
         if(tx.HasCreateOrCall() && !hasTxhash){
+            if(!scheduleChanged){
+                QtumDGP qtumDGP(dev::Address("0000000000000000000000000000000000000080"));
+                globalSealEngine->setQtumSchedule(qtumDGP.getGasSchedule(globalState.get(), pindex->nHeight + 1));
+                scheduleChanged = true;
+            }
             QtumTxConverter convert(tx, NULL);
             ByteCodeExec exec(block, convert.extractionQtumTransactions());
             exec.performByteCode();

@@ -34,6 +34,7 @@
 
 /////////////////////////////////////////// qtum
 #include <qtum/qtumstate.h>
+#include <qtum/qtumDGP.h>
 #include <libethereum/ChainParams.h>
 #include <libethashseal/Ethash.h>
 #include <libethashseal/GenesisInfo.h>

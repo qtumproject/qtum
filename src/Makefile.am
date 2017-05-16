@@ -182,7 +182,8 @@ BITCOIN_CORE_H = \
   zmq/zmqnotificationinterface.h \
   zmq/zmqpublishnotifier.h \
   qtum/qtumstate.h \
-  qtum/qtumtransaction.h
+  qtum/qtumtransaction.h \
+  qtum/qtumDGP.h
 
 
 obj/build.h: FORCE
@@ -233,6 +234,7 @@ libbitcoin_server_a_SOURCES = \
   versionbits.cpp \
   qtum/qtumstate.cpp \
   qtum/qtumtransaction.cpp \
+  qtum/qtumDGP.cpp \
   $(BITCOIN_CORE_H)
 
 if ENABLE_ZMQ
