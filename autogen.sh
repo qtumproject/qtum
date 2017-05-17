@@ -15,7 +15,7 @@ which autoreconf >/dev/null || \
 autoreconf --install --force --warnings=all
 
 cd src/cpp-ethereum
-git submodule update --init
+git submodule update --init --recursive
 ./scripts/install_deps.sh
 cmake .
 make -j `nproc`
