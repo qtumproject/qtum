@@ -21,8 +21,13 @@ const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfSta
 
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params, bool* pfProofOfStake)
 {
+    bool fProofOfStake;
+    if (pindexLast == NULL)
+        fProofOfStake = false;
+    else
+        fProofOfStake = pindexLast->nHeight > params.nLastPOWBlock;
+
      // choose proof
-    bool fProofOfStake = pindexLast->nHeight > params.nLastPOWBlock;
     if(pfProofOfStake)
         fProofOfStake = *pfProofOfStake;
 
