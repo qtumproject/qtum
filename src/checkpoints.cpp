@@ -49,7 +49,7 @@ namespace Checkpoints {
         if(nHeight)
             pindexSync = AutoSelectSyncCheckpoint();
 
-        if(nHeight && pindexSync->nHeight)
+        if(nHeight && nHeight <= pindexSync->nHeight)
             return false;
         return true;
     }
