@@ -1,7 +1,6 @@
 #include <qtumtests/test_utils.h>
 
 void initState(){
-    dev::eth::Ethash::init();
     boost::filesystem::path pathTemp;		
     pathTemp = GetTempPath() / strprintf("test_bitcoin_%lu_%i", (unsigned long)GetTime(), (int)(GetRand(100000)));
     boost::filesystem::create_directories(pathTemp);
