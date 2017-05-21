@@ -511,7 +511,7 @@ bool ReadFromDisk(CMutableTransaction& tx, CDiskTxPos& txindex, CBlockTreeDB& tx
 /** Context-independent validity checks */
 bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW = true);
 bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW = true, bool fCheckMerkleRoot = true, bool fCheckSig=true);
-bool SignBlock(CBlock& block, CWallet& wallet, const CAmount& nTotalFees);
+bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& nTotalFees);
 bool CheckCanonicalBlockSignature(const std::shared_ptr<const CBlock> pblock);
 bool CheckIndexProof(const CBlockIndex& block, const Consensus::Params& consensusParams);
 

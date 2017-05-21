@@ -3351,23 +3351,23 @@ bool FindUndoPos(CValidationState &state, int nFile, CDiskBlockPos &pos, unsigne
 
 #ifdef ENABLE_WALLET
 // novacoin: attempt to generate suitable proof-of-stake
-bool SignBlock(CBlock& block, CWallet& wallet, const CAmount& nTotalFees)
+bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& nTotalFees)
 {
     // if we are trying to sign
     //    something except proof-of-stake block template
-    if (!block.vtx[0]->vout[0].IsEmpty())
+    if (!pblock->vtx[0]->vout[0].IsEmpty())
         return false;
 
     // if we are trying to sign
     //    a complete proof-of-stake block
-    if (block.IsProofOfStake())
+    if (pblock->IsProofOfStake())
         return true;
 
     static int64_t nLastCoinStakeSearchTime = GetAdjustedTime(); // startup timestamp
 
     CKey key;
-    CMutableTransaction txCoinBase(*block.vtx[0]);
-    CMutableTransaction txCoinStake(*block.vtx[1]);
+    CMutableTransaction txCoinBase(*pblock->vtx[0]);
+    CMutableTransaction txCoinStake(*pblock->vtx[1]);
     txCoinStake.nTime = GetAdjustedTime();
     txCoinStake.nTime &= ~STAKE_TIMESTAMP_MASK;
 
@@ -3379,25 +3379,25 @@ bool SignBlock(CBlock& block, CWallet& wallet, const CAmount& nTotalFees)
         //int64_t nSearchInterval = IsProtocolV2(nBestHeight+1) ? 1 : nSearchTime - nLastCoinStakeSearchTime;
         //IsProtocolV2 mean POS 2 or higher, so the modified line is:
         int64_t nSearchInterval = 1;
-        if (wallet.CreateCoinStake(wallet, block.nBits, nSearchInterval, nTotalFees, txCoinStake, key))
+        if (wallet.CreateCoinStake(wallet, pblock->nBits, nSearchInterval, nTotalFees, txCoinStake, key))
         {
             if (txCoinStake.nTime >= pindexBestHeader->GetMedianTimePast()+1)
             {
                 // make sure coinstake would meet timestamp protocol
                 //    as it would be the same as the block timestamp
-                txCoinBase.nTime = block.nTime = txCoinStake.nTime;
-                block.vtx[0] = MakeTransactionRef(std::move(txCoinBase));
+                txCoinBase.nTime = pblock->nTime = txCoinStake.nTime;
+                pblock->vtx[0] = MakeTransactionRef(std::move(txCoinBase));
 
                 // we have to make sure that we have no future timestamps in
                 //    our transactions set
-                for (auto it = block.vtx.begin(); it != block.vtx.end();)
-                    if ((*it)->nTime > block.nTime) { it = block.vtx.erase(it); } else { ++it; }
+                for (auto it = pblock->vtx.begin(); it != pblock->vtx.end();)
+                    if ((*it)->nTime > pblock->nTime) { it = pblock->vtx.erase(it); } else { ++it; }
 
-                block.vtx[1] = MakeTransactionRef(std::move(txCoinStake));
-                block.hashMerkleRoot = BlockMerkleRoot(block);
+                pblock->vtx[1] = MakeTransactionRef(std::move(txCoinStake));
+                pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
 
                 // append a signature to our block and ensure that is LowS
-                return key.Sign(block.GetHashWithoutSign(), block.vchBlockSig) && EnsureLowS(block.vchBlockSig);
+                return key.Sign(pblock->GetHashWithoutSign(), pblock->vchBlockSig) && EnsureLowS(pblock->vchBlockSig);
             }
         }
         nLastCoinStakeSearchInterval = nSearchTime - nLastCoinStakeSearchTime;

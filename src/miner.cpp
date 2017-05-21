@@ -772,14 +772,13 @@ void ThreadStakeMiner(CWallet *pwallet)
         std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(Params()).CreateNewBlock(reservekey.reserveScript, true, &nTotalFees));
         if (!pblocktemplate.get())
             return;
-        CBlock *pblock = &pblocktemplate->block;
 
         // Trying to sign a block
-        if (SignBlock(*pblock, *pwallet, nTotalFees))
+        std::shared_ptr<CBlock> pblock = std::make_shared<CBlock>(pblocktemplate->block);
+        if (SignBlock(pblock, *pwallet, nTotalFees))
         {
             SetThreadPriority(THREAD_PRIORITY_NORMAL);
-            std::shared_ptr<const CBlock> shared_pblock = std::make_shared<const CBlock>(*pblock);
-            CheckStake(shared_pblock, *pwallet);
+            CheckStake(pblock, *pwallet);
             SetThreadPriority(THREAD_PRIORITY_LOWEST);
             MilliSleep(500);
         }
