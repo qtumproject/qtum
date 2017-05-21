@@ -237,6 +237,7 @@ enum FlushStateMode {
 // See definition for documentation
 bool static FlushStateToDisk(CValidationState &state, FlushStateMode mode, int nManualPruneHeight=0);
 void FindFilesToPruneManual(std::set<int>& setFilesToPrune, int nManualPruneHeight);
+static int GetWitnessCommitmentIndex(const CBlock& block);
 
 bool IsFinalTx(const CTransaction &tx, int nBlockHeight, int64_t nBlockTime)
 {
