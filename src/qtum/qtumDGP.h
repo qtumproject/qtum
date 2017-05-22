@@ -10,15 +10,17 @@ class QtumDGP {
     
 public:
 
-    dev::eth::EVMSchedule getGasSchedule(QtumState* state, unsigned int blockHeight);
+    QtumDGP(QtumState* _state) : state(_state){}
 
-    uint32_t getBlockSize(QtumState* state, unsigned int blockHeight);
+    dev::eth::EVMSchedule getGasSchedule(unsigned int blockHeight);
+
+    uint32_t getBlockSize(unsigned int blockHeight);
 
 private:
 
-    void initStorageDGP(QtumState* state, const dev::Address& addr);
+    void initStorageDGP(const dev::Address& addr);
 
-    void initStorageTemplate(QtumState* state, const dev::Address& addr);
+    void initStorageTemplate(const dev::Address& addr);
 
     void createParamsInstance();
 
@@ -31,6 +33,8 @@ private:
     dev::eth::EVMSchedule createEVMSchedule();
 
     void clear();
+
+    const QtumState* state;
 
     dev::Address templateContract;
 

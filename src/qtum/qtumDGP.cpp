@@ -1,36 +1,36 @@
 #include "qtumDGP.h"
 
-dev::eth::EVMSchedule QtumDGP::getGasSchedule(QtumState* state, unsigned int blockHeight){
+dev::eth::EVMSchedule QtumDGP::getGasSchedule(unsigned int blockHeight){
     clear();
     dev::eth::EVMSchedule schedule = dev::eth::EIP158Schedule;
-    initStorageDGP(state, DGPCONTRACT1);
+    initStorageDGP(DGPCONTRACT1);
     createParamsInstance();
     dev::Address address = getAddressForBlock(blockHeight);
     if(address != dev::Address()){
-        initStorageTemplate(state, address);
+        initStorageTemplate(address);
         schedule = createEVMSchedule();
     }
     return schedule;
 }
 
-uint32_t QtumDGP::getBlockSize(QtumState* state, unsigned int blockHeight){
+uint32_t QtumDGP::getBlockSize(unsigned int blockHeight){
     clear();
     uint32_t blockSize = 0;
-    initStorageDGP(state, DGPCONTRACT2);
+    initStorageDGP(DGPCONTRACT2);
     createParamsInstance();
     dev::Address address = getAddressForBlock(blockHeight);
     if(address != dev::Address()){
-        initStorageTemplate(state, address);
+        initStorageTemplate(address);
         parseStorageBlockSizeContract(blockSize);
     }
     return blockSize;
 }
 
-void QtumDGP::initStorageDGP(QtumState* state, const dev::Address& addr){
+void QtumDGP::initStorageDGP(const dev::Address& addr){
     storageDGP = state->storage(addr);
 }
 
-void QtumDGP::initStorageTemplate(QtumState* state, const dev::Address& addr){
+void QtumDGP::initStorageTemplate(const dev::Address& addr){
     storageTemplate = state->storage(addr);
 }
 

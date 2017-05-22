@@ -202,9 +202,9 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     int contrTxIndex = fProofOfStake ? 1 : 0;
 	
     //////////////////////////////////////////////////////// qtum
-    QtumDGP qtumDGP;
-    globalSealEngine->setQtumSchedule(qtumDGP.getGasSchedule(globalState.get(), nHeight));
-    uint32_t blockSizeDGP = qtumDGP.getBlockSize(globalState.get(), nHeight);
+    QtumDGP qtumDGP(globalState.get());
+    globalSealEngine->setQtumSchedule(qtumDGP.getGasSchedule(nHeight));
+    uint32_t blockSizeDGP = qtumDGP.getBlockSize(nHeight);
     nBlockMaxSize = blockSizeDGP ? blockSizeDGP : nBlockMaxSize;
     
     dev::h256 oldHashStateRoot(globalState->rootHash());
