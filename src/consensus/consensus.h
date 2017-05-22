@@ -14,6 +14,9 @@ static const unsigned int MAX_BLOCK_SERIALIZED_SIZE = 8000000;
 static const unsigned int MAX_BLOCK_WEIGHT = 8000000;
 /** The maximum allowed size for a block excluding witness data, in bytes (network rule) */
 static const unsigned int MAX_BLOCK_BASE_SIZE = 2000000;
+
+static unsigned int MAX_BLOCK_DGP_SIZE = MAX_BLOCK_BASE_SIZE; // qtum
+
 /** The maximum allowed number of signature check operations in a block (network rule) */
 static const int64_t MAX_BLOCK_SIGOPS_COST = 80000;
 /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */

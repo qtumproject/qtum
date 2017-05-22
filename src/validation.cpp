@@ -516,7 +516,7 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fChe
     if (tx.vout.empty())
         return state.DoS(10, false, REJECT_INVALID, "bad-txns-vout-empty");
     // Size limits (this doesn't take the witness into account, as that hasn't been checked for malleability)
-    if (::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION | SERIALIZE_TRANSACTION_NO_WITNESS) > MAX_BLOCK_BASE_SIZE)
+    if (::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION | SERIALIZE_TRANSACTION_NO_WITNESS) > MAX_BLOCK_DGP_SIZE) // qtum
         return state.DoS(100, false, REJECT_INVALID, "bad-txns-oversize");
 
     // Check for negative or overflow output values
@@ -2131,6 +2131,14 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
     int64_t nTimeStart = GetTimeMicros();
 
+    ///////////////////////////////////////////////// // qtum
+    QtumDGP qtumDGP;
+    globalSealEngine->setQtumSchedule(qtumDGP.getGasSchedule(globalState.get(), pindex->nHeight + 1));
+    uint32_t sizeBlockDGP = qtumDGP.getBlockSize(globalState.get(), pindex->nHeight + 1);
+    MAX_BLOCK_DGP_SIZE = sizeBlockDGP ? sizeBlockDGP : MAX_BLOCK_DGP_SIZE;
+    CBlock checkBlock(block.GetBlockHeader());
+    /////////////////////////////////////////////////
+
     // Check it again in case a previous version let a bad block in
     if (!CheckBlock(block, state, chainparams.GetConsensus(), !fJustCheck, !fJustCheck))
         return error("%s: Consensus::CheckBlock: %s", __func__, FormatStateMessage(state));
@@ -2250,11 +2258,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
     CCheckQueueControl<CScriptCheck> control(fScriptChecks && nScriptCheckThreads ? &scriptcheckqueue : NULL);
 
-/////////////////////////////////////////////////////////////////// // qtum
-    CBlock checkBlock(block.GetBlockHeader());
-    bool scheduleChanged = false;
-///////////////////////////////////////////////////////////////////
-
     std::vector<int> prevheights;
     CAmount nFees = 0;
     CAmount nActualStakeReward = 0;
@@ -2328,11 +2331,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         }
 
         if(tx.HasCreateOrCall() && !hasTxhash){
-            if(!scheduleChanged){
-                QtumDGP qtumDGP(dev::Address("0000000000000000000000000000000000000080"));
-                globalSealEngine->setQtumSchedule(qtumDGP.getGasSchedule(globalState.get(), pindex->nHeight + 1));
-                scheduleChanged = true;
-            }
             QtumTxConverter convert(tx, NULL);
             ByteCodeExec exec(block, convert.extractionQtumTransactions());
             exec.performByteCode();
@@ -3475,7 +3473,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
     // checks that use witness data may be performed here.
 
     // Size limits
-    if (block.vtx.empty() || block.vtx.size() > MAX_BLOCK_BASE_SIZE || ::GetSerializeSize(block, SER_NETWORK, PROTOCOL_VERSION | SERIALIZE_TRANSACTION_NO_WITNESS) > MAX_BLOCK_BASE_SIZE)
+    if (block.vtx.empty() || block.vtx.size() > MAX_BLOCK_DGP_SIZE || ::GetSerializeSize(block, SER_NETWORK, PROTOCOL_VERSION | SERIALIZE_TRANSACTION_NO_WITNESS) > MAX_BLOCK_DGP_SIZE) // qtum
         return state.DoS(100, false, REJECT_INVALID, "bad-blk-length", false, "size limits failed");
 
     // First transaction must be coinbase in case of PoW block, the rest must not be

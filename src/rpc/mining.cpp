@@ -677,7 +677,7 @@ UniValue getblocktemplate(const JSONRPCRequest& request)
     }
     result.push_back(Pair("sigoplimit", nSigOpLimit));
     if (fPreSegWit) {
-        result.push_back(Pair("sizelimit", (int64_t)MAX_BLOCK_BASE_SIZE));
+        result.push_back(Pair("sizelimit", (int64_t)MAX_BLOCK_DGP_SIZE)); // qtum
     } else {
         result.push_back(Pair("sizelimit", (int64_t)MAX_BLOCK_SERIALIZED_SIZE));
         result.push_back(Pair("weightlimit", (int64_t)MAX_BLOCK_WEIGHT));
