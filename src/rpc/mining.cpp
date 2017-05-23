@@ -16,12 +16,17 @@
 #include "miner.h"
 #include "net.h"
 #include "pow.h"
+#include "pos.h"
 #include "rpc/server.h"
 #include "txmempool.h"
 #include "util.h"
 #include "utilstrencodings.h"
 #include "validationinterface.h"
-
+#include "timedata.h"
+#ifdef ENABLE_WALLET
+#include "wallet/wallet.h"
+#include "wallet/walletdb.h"
+#endif
 #include <memory>
 #include <stdint.h>
 
@@ -242,14 +247,37 @@ UniValue getmininginfo(const JSONRPCRequest& request)
     LOCK(cs_main);
 
     UniValue obj(UniValue::VOBJ);
+    UniValue diff(UniValue::VOBJ);
+    UniValue weight(UniValue::VOBJ);
     obj.push_back(Pair("blocks",           (int)chainActive.Height()));
     obj.push_back(Pair("currentblocksize", (uint64_t)nLastBlockSize));
     obj.push_back(Pair("currentblockweight", (uint64_t)nLastBlockWeight));
     obj.push_back(Pair("currentblocktx",   (uint64_t)nLastBlockTx));
-    obj.push_back(Pair("difficulty",       (double)GetDifficulty()));
+
+    diff.push_back(Pair("proof-of-work",   GetDifficulty(GetLastBlockIndex(pindexBestHeader, false))));
+    diff.push_back(Pair("proof-of-stake",  GetDifficulty(GetLastBlockIndex(pindexBestHeader, true))));
+    diff.push_back(Pair("search-interval", (int)nLastCoinStakeSearchInterval));
+    obj.push_back(Pair("difficulty",       diff));
+
+    const Consensus::Params& consensusParams = Params().GetConsensus();
+    obj.push_back(Pair("blockvalue",    (uint64_t)GetBlockSubsidy(chainActive.Height(), consensusParams)));
+
+    obj.push_back(Pair("netmhashps",       GetPoWMHashPS()));
+    obj.push_back(Pair("netstakeweight",   GetPoSKernelPS()));
     obj.push_back(Pair("errors",           GetWarnings("statusbar")));
     obj.push_back(Pair("networkhashps",    getnetworkhashps(request)));
     obj.push_back(Pair("pooledtx",         (uint64_t)mempool.size()));
+
+    uint64_t nWeight = 0;
+#ifdef ENABLE_WALLET
+    if (pwalletMain)
+    nWeight = pwalletMain->GetStakeWeight(); 
+#endif
+    weight.push_back(Pair("minimum",       (uint64_t)nWeight));
+    weight.push_back(Pair("maximum",       (uint64_t)0));
+    weight.push_back(Pair("combined",      (uint64_t)nWeight));
+    obj.push_back(Pair("stakeweight",      weight));
+
     obj.push_back(Pair("chain",            Params().NetworkIDString()));
     return obj;
 }
