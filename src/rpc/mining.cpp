@@ -227,6 +227,8 @@ UniValue getsubsidy(const JSONRPCRequest& request)
             "getsubsidy [nTarget]\n"
             "Returns subsidy value for the specified value of target.");
     int nTarget = request.params.size() == 1 ? request.params[0].get_int() : chainActive.Height();
+    if (nTarget < 0)
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Block height out of range");
     const Consensus::Params& consensusParams = Params().GetConsensus();
     return (uint64_t)GetBlockSubsidy(nTarget, consensusParams);
 }
@@ -999,7 +1001,7 @@ static const CRPCCommand commands[] =
     { "mining",             "prioritisetransaction",  &prioritisetransaction,  true,  {"txid","priority_delta","fee_delta"} },
     { "mining",             "getblocktemplate",       &getblocktemplate,       true,  {"template_request"} },
     { "mining",             "submitblock",            &submitblock,            true,  {"hexdata","parameters"} },
-    { "mining",             "getsubsidy",             &getsubsidy,             true,  {"nTarget"} },
+    { "mining",             "getsubsidy",             &getsubsidy,             true,  {"height"} },
     { "mining",             "getstakinginfo",         &getstakinginfo,         true,  {} },
 
     { "generating",         "generate",               &generate,               true,  {"nblocks","maxtries"} },
