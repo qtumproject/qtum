@@ -3,11 +3,7 @@
 dev::eth::EVMSchedule QtumDGP::getGasSchedule(unsigned int blockHeight){
     clear();
     dev::eth::EVMSchedule schedule = dev::eth::EIP158Schedule;
-    initStorageDGP(DGPCONTRACT1);
-    createParamsInstance();
-    dev::Address address = getAddressForBlock(blockHeight);
-    if(address != dev::Address()){
-        initStorageTemplate(address);
+    if(initStorages(DGPCONTRACT1, blockHeight)){
         schedule = createEVMSchedule();
     }
     return schedule;
@@ -16,14 +12,30 @@ dev::eth::EVMSchedule QtumDGP::getGasSchedule(unsigned int blockHeight){
 uint32_t QtumDGP::getBlockSize(unsigned int blockHeight){
     clear();
     uint32_t blockSize = 0;
-    initStorageDGP(DGPCONTRACT2);
+    if(initStorages(DGPCONTRACT2, blockHeight)){
+        parseStorageOneUint32(blockSize);
+    }
+    return blockSize;
+}
+
+uint32_t QtumDGP::getMinGasPrice(unsigned int blockHeight){
+    clear();
+    uint32_t minGasLimit = 1;
+    if(initStorages(DGPCONTRACT3, blockHeight)){
+        parseStorageOneUint32(minGasLimit);
+    }
+    return minGasLimit < 1 ? 1 : minGasLimit;
+}
+
+bool QtumDGP::initStorages(const dev::Address& addr, unsigned int blockHeight){
+    initStorageDGP(addr);
     createParamsInstance();
     dev::Address address = getAddressForBlock(blockHeight);
     if(address != dev::Address()){
         initStorageTemplate(address);
-        parseStorageBlockSizeContract(blockSize);
+        return true;
     }
-    return blockSize;
+    return false;
 }
 
 void QtumDGP::initStorageDGP(const dev::Address& addr){
@@ -85,10 +97,10 @@ void QtumDGP::parseStorageScheduleContract(std::vector<uint32_t>& uint32Values){
     }
 }
 
-void QtumDGP::parseStorageBlockSizeContract(uint32_t& blockSize){
+void QtumDGP::parseStorageOneUint32(uint32_t& value){
     dev::h256 blockSizeHash = sha3(dev::h256(dev::u256(0)));
     if(storageTemplate.count(blockSizeHash)){
-        blockSize = uint32_t(storageTemplate.find(blockSizeHash)->second.second);
+        value = uint32_t(storageTemplate.find(blockSizeHash)->second.second);
     }
 }
 

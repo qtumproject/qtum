@@ -44,7 +44,9 @@ extern std::shared_ptr<dev::eth::SealEngineFace> globalSealEngine;
 extern bool fRecordLogOpcodes;
 extern bool fIsVMlogFile;
 
- using valtype = std::vector<unsigned char>;
+struct EthTransactionParams;
+using valtype = std::vector<unsigned char>;
+using extractQtumTX = std::pair<std::vector<QtumTransaction>, std::vector<EthTransactionParams>>;
 ///////////////////////////////////////////
 
 class CBlockIndex;
@@ -611,6 +613,8 @@ void DumpMempool();
 bool LoadMempool();
 
 //////////////////////////////////////////////////////// qtum
+bool CheckMinGasPrice(std::vector<EthTransactionParams>& etps, const uint32_t& minGasPrice);
+
 void writeVMlog(const std::vector<ResultExecute>& res, const CTransaction& tx = CTransaction(), const CBlock& block = CBlock());
 
 class VersionVM{
@@ -684,7 +688,7 @@ public:
 
     QtumTxConverter(CTransaction tx, CCoinsViewCache* v = NULL) : txBit(tx), view(v){}
 
-    std::vector<QtumTransaction> extractionQtumTransactions();
+    extractQtumTX extractionQtumTransactions();
 
 private:
 

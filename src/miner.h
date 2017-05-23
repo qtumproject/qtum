@@ -166,7 +166,10 @@ private:
     int lastFewTxs;
     bool blockFinished;
 
-    ByteCodeExecResult bceResult; // qtum
+///////////////////////////////////////////// // qtum
+    ByteCodeExecResult bceResult;
+    uint32_t minGasPrice = 1;
+/////////////////////////////////////////////
 
 public:
     BlockAssembler(const CChainParams& chainparams);

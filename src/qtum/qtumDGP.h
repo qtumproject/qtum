@@ -16,7 +16,11 @@ public:
 
     uint32_t getBlockSize(unsigned int blockHeight);
 
+    uint32_t getMinGasPrice(unsigned int blockHeight);
+
 private:
+
+    bool initStorages(const dev::Address& addr, unsigned int blockHeight);
 
     void initStorageDGP(const dev::Address& addr);
 
@@ -28,7 +32,7 @@ private:
 
     void parseStorageScheduleContract(std::vector<uint32_t>& uint32Values);
 
-    void parseStorageBlockSizeContract(uint32_t& blockSize);
+    void parseStorageOneUint32(uint32_t& blockSize);
 
     dev::eth::EVMSchedule createEVMSchedule();
 

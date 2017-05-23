@@ -205,6 +205,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     QtumDGP qtumDGP(globalState.get());
     globalSealEngine->setQtumSchedule(qtumDGP.getGasSchedule(nHeight));
     uint32_t blockSizeDGP = qtumDGP.getBlockSize(nHeight);
+    minGasPrice = qtumDGP.getMinGasPrice(nHeight);
     nBlockMaxSize = blockSizeDGP ? blockSizeDGP : nBlockMaxSize;
     
     dev::h256 oldHashStateRoot(globalState->rootHash());
@@ -369,7 +370,10 @@ void BlockAssembler::AddToBlock(CTxMemPool::txiter iter)
     const CTransaction& tx = iter->GetTx();
     if(tx.HasCreateOrCall()){
         QtumTxConverter convert(tx, NULL);
-        ByteCodeExec exec(*pblock, convert.extractionQtumTransactions());
+        extractQtumTX resultConverter = convert.extractionQtumTransactions();
+        if(!CheckMinGasPrice(resultConverter.second, minGasPrice))
+            return;
+        ByteCodeExec exec(*pblock, resultConverter.first);
         exec.performByteCode();
         bceResult = exec.processingResults();
     }
