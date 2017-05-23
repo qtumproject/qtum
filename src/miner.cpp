@@ -370,7 +370,7 @@ void BlockAssembler::AddToBlock(CTxMemPool::txiter iter)
     const CTransaction& tx = iter->GetTx();
     if(tx.HasCreateOrCall()){
         QtumTxConverter convert(tx, NULL);
-        extractQtumTX resultConverter = convert.extractionQtumTransactions();
+        ExtractQtumTX resultConverter = convert.extractionQtumTransactions();
         if(!CheckMinGasPrice(resultConverter.second, minGasPrice))
             return;
         ByteCodeExec exec(*pblock, resultConverter.first);

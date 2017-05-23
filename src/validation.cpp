@@ -755,27 +755,24 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
         //////////////////////////////////////////////////////////// // qtum
         if(tx.HasCreateOrCall()){
             QtumDGP qtumDGP(globalState.get());
-            uint32_t minGasPrice = qtumDGP.getMinGasPrice(chainActive.Tip()->nHeight);
+            uint32_t minGasPrice = qtumDGP.getMinGasPrice(chainActive.Tip()->nHeight + 1);
             size_t count = 0;
             for(const CTxOut& o : tx.vout)
                 count += o.scriptPubKey.HasOpCreate() || o.scriptPubKey.HasOpCall() ? 1 : 0;
             CAmount sumGas = 0;
             QtumTxConverter converter(tx, NULL);
-            extractQtumTX resultConverter = converter.extractionQtumTransactions();
+            ExtractQtumTX resultConverter = converter.extractionQtumTransactions();
             std::vector<QtumTransaction> qtumTransactions = resultConverter.first;
-            std::vector<EthTransactionParams> qtumETP = resultConverter.second;
-            for(size_t i = 0; i < qtumTransactions.size(); i++){
-                sumGas += CAmount(qtumTransactions[i].gas());
-                if(qtumETP[i].gasPrice < dev::u256(minGasPrice)){
-                    return state.DoS(100, false, REJECT_INVALID, "bad-txns-small-gasprice");
-                }
+            std::vector<EthTransactionParams> qtumETP = resultConverter.second;           
+            for(QtumTransaction& qtumTransaction : qtumTransactions){
+                sumGas += CAmount(qtumTransaction.gas());
             }
-            if(sumGas > nFees){
+            if(!CheckMinGasPrice(qtumETP, minGasPrice))
+                return state.DoS(100, false, REJECT_INVALID, "bad-txns-small-gasprice");
+            if(sumGas > nFees)
                 return state.DoS(100, false, REJECT_INVALID, "bad-txns-fee-notenough");
-            }
-            if(count > qtumTransactions.size()){
+            if(count > qtumTransactions.size())
                 return state.DoS(100, false, REJECT_INVALID, "bad-txns-incorrect-format");
-            }
         }
         ////////////////////////////////////////////////////////////
 
@@ -2064,7 +2061,7 @@ void VersionVM::expandData(){
     flagOptions = std::bitset<16>(std::string(raw.begin() + 16, raw.begin() + 32)).to_ulong();
 }
 
-extractQtumTX QtumTxConverter::extractionQtumTransactions(){
+ExtractQtumTX QtumTxConverter::extractionQtumTransactions(){
     std::vector<QtumTransaction> resultTX;
     std::vector<EthTransactionParams> resultETP;
     for(size_t i = 0; i < txBit.vout.size(); i++){
@@ -2350,7 +2347,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
         if(tx.HasCreateOrCall() && !hasTxhash){
             QtumTxConverter convert(tx, NULL);
-            extractQtumTX resultConvertQtumTX = convert.extractionQtumTransactions();
+            ExtractQtumTX resultConvertQtumTX = convert.extractionQtumTransactions();
             if(!CheckMinGasPrice(resultConvertQtumTX.second, minGasPrice))
                 return state.DoS(100, error("ConnectBlock(): Incorrect transaction."),
                             REJECT_INVALID, "incorrect-transaction-small-gasprice");

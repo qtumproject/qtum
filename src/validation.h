@@ -46,7 +46,7 @@ extern bool fIsVMlogFile;
 
 struct EthTransactionParams;
 using valtype = std::vector<unsigned char>;
-using extractQtumTX = std::pair<std::vector<QtumTransaction>, std::vector<EthTransactionParams>>;
+using ExtractQtumTX = std::pair<std::vector<QtumTransaction>, std::vector<EthTransactionParams>>;
 ///////////////////////////////////////////
 
 class CBlockIndex;
@@ -688,7 +688,7 @@ public:
 
     QtumTxConverter(CTransaction tx, CCoinsViewCache* v = NULL) : txBit(tx), view(v){}
 
-    extractQtumTX extractionQtumTransactions();
+    ExtractQtumTX extractionQtumTransactions();
 
 private:
 
