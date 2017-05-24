@@ -159,7 +159,73 @@ std::vector<valtype> code = {
     */
     valtype(ParseHex("60606040526104e060405190810160405280600d61ffff168152602001600d61ffff168152602001600a61ffff168152602001600a61ffff168152602001600a61ffff168152602001600a61ffff168152602001600a61ffff168152602001600a61ffff168152602001600a61ffff168152602001603261ffff168152602001601e61ffff168152602001600661ffff16815260200160c861ffff168152602001614e2061ffff16815260200161138861ffff168152602001613a9861ffff168152602001600161ffff16815260200161017761ffff168152602001600861ffff16815260200161017761ffff168152602001617d0061ffff1681526020016102bc61ffff1681526020016108fc61ffff16815260200161232861ffff1681526020016161a861ffff168152602001615dc061ffff168152602001600361ffff16815260200161020061ffff16815260200160c861ffff16815260200161520861ffff16815260200161cf0861ffff168152602001600461ffff168152602001604461ffff168152602001600361ffff1681526020016102bc61ffff1681526020016102bc61ffff16815260200161019061ffff168152602001600d61ffff168152602001600d61ffff1681525060009060278260276007016008900481019282156102625791602002820160005b8382111561023057835183826101000a81548163ffffffff021916908361ffff16021790555092602001926004016020816003010492830192600103026101ee565b80156102605782816101000a81549063ffffffff0219169055600401602081600301049283019260010302610230565b505b50905061029591905b8082111561029157600081816101000a81549063ffffffff02191690555060010161026b565b5090565b505034610000575b61015f806102ac6000396000f30060606040526000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806326fadbe21461003e575b610000565b346100005761004b610097565b6040518082602760200280838360008314610085575b80518252602083111561008557602082019150602081019050602083039250610061565b50505090500191505060405180910390f35b6104e0604051908101604052806027905b600063ffffffff168152602001906001900390816100a8579050506000602780602002604051908101604052809291908260278015610128576020028201916000905b82829054906101000a900463ffffffff1663ffffffff16815260200190600401906020826003010492830192600103820291508084116100eb5790505b505050505090505b905600a165627a7a72305820fef63e975e39c9a940efe66e72db5c50939f66a21b9c6e57ee0f27539fd2b5b20029")),
     /*addAddressProposal(address,uint256)*/
-    valtype(ParseHex("bf5f1e83000000000000000000000000a8beea891fa7b7dfbbd2c6429d2253afae8d31640000000000000000000000000000000000000000000000000000000000000002"))
+    valtype(ParseHex("bf5f1e83000000000000000000000000a8beea891fa7b7dfbbd2c6429d2253afae8d31640000000000000000000000000000000000000000000000000000000000000002")),
+    /*
+        contract blockSize{
+            uint32[1] _blockSize=[
+                1000000 //block size in bytes
+            ];
+            function getBlockSize() constant returns(uint32[1] _size){
+                return _blockSize;
+            }
+        }
+    */
+    valtype(ParseHex("6060604052602060405190810160405280620f424062ffffff16815250600090600161002c92919061003a565b50341561003557fe5b61010f565b8260016007016008900481019282156100cb5791602002820160005b8382111561009957835183826101000a81548163ffffffff021916908362ffffff1602179055509260200192600401602081600301049283019260010302610056565b80156100c95782816101000a81549063ffffffff0219169055600401602081600301049283019260010302610099565b505b5090506100d891906100dc565b5090565b61010c91905b8082111561010857600081816101000a81549063ffffffff0219169055506001016100e2565b5090565b90565b6101698061011e6000396000f30060606040526000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806392ac3c621461003b575bfe5b341561004357fe5b61004b610097565b6040518082600160200280838360008314610085575b80518252602083111561008557602082019150602081019050602083039250610061565b50505090500191505060405180910390f35b61009f61010f565b6000600180602002604051908101604052809291908260018015610104576020028201916000905b82829054906101000a900463ffffffff1663ffffffff16815260200190600401906020826003010492830192600103820291508084116100c75790505b505050505090505b90565b6020604051908101604052806001905b600063ffffffff1681526020019060019003908161011f57905050905600a165627a7a723058200b657beb7573194625eb5be9fc9072280a82296a70274ce97ad54d6a9ad0ceb30029")),
+    /*
+        contract blockSize{
+            uint32[1] _blockSize=[
+                2000000 //block size in bytes
+            ];
+            function getBlockSize() constant returns(uint32[1] _size){
+                return _blockSize;
+            }
+        }
+    */
+    valtype(ParseHex("6060604052602060405190810160405280621e848062ffffff16815250600090600161002c92919061003a565b50341561003557fe5b61010f565b8260016007016008900481019282156100cb5791602002820160005b8382111561009957835183826101000a81548163ffffffff021916908362ffffff1602179055509260200192600401602081600301049283019260010302610056565b80156100c95782816101000a81549063ffffffff0219169055600401602081600301049283019260010302610099565b505b5090506100d891906100dc565b5090565b61010c91905b8082111561010857600081816101000a81549063ffffffff0219169055506001016100e2565b5090565b90565b6101698061011e6000396000f30060606040526000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806392ac3c621461003b575bfe5b341561004357fe5b61004b610097565b6040518082600160200280838360008314610085575b80518252602083111561008557602082019150602081019050602083039250610061565b50505090500191505060405180910390f35b61009f61010f565b6000600180602002604051908101604052809291908260018015610104576020028201916000905b82829054906101000a900463ffffffff1663ffffffff16815260200190600401906020826003010492830192600103820291508084116100c75790505b505050505090505b90565b6020604051908101604052806001905b600063ffffffff1681526020019060019003908161011f57905050905600a165627a7a72305820b849e0a25b57c96e2ae1c2acf855080420b2c6123d3bd477695e3d189d047db20029")),
+    /*
+        contract blockSize{
+            uint32[1] _blockSize=[
+                12345 //block size in bytes
+            ];
+            function getBlockSize() constant returns(uint32[1] _size){
+                return _blockSize;
+            }
+        }
+    */
+    valtype(ParseHex("606060405260206040519081016040528061303961ffff16815250600090600161002a929190610038565b50341561003357fe5b61010c565b8260016007016008900481019282156100c85791602002820160005b8382111561009657835183826101000a81548163ffffffff021916908361ffff1602179055509260200192600401602081600301049283019260010302610054565b80156100c65782816101000a81549063ffffffff0219169055600401602081600301049283019260010302610096565b505b5090506100d591906100d9565b5090565b61010991905b8082111561010557600081816101000a81549063ffffffff0219169055506001016100df565b5090565b90565b6101698061011b6000396000f30060606040526000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806392ac3c621461003b575bfe5b341561004357fe5b61004b610097565b6040518082600160200280838360008314610085575b80518252602083111561008557602082019150602081019050602083039250610061565b50505090500191505060405180910390f35b61009f61010f565b6000600180602002604051908101604052809291908260018015610104576020028201916000905b82829054906101000a900463ffffffff1663ffffffff16815260200190600401906020826003010492830192600103820291508084116100c75790505b505050505090505b90565b6020604051908101604052806001905b600063ffffffff1681526020019060019003908161011f57905050905600a165627a7a723058202965ee868058a0203b190760e5593d32f50881ff9c2309cf46320f92116f68a70029")),
+    /*
+        contract minGasPrice{
+            uint32[1] _minGasPrice=[
+                13 //min gas price in satoshis
+            ];
+            function getMinGasPrice() constant returns(uint32[1] _gasPrice){
+                return _minGasPrice;
+            }
+        }
+    */
+    valtype(ParseHex("6060604052602060405190810160405280600d60ff168152506000906001610028929190610036565b50341561003157fe5b610109565b8260016007016008900481019282156100c55791602002820160005b8382111561009357835183826101000a81548163ffffffff021916908360ff1602179055509260200192600401602081600301049283019260010302610052565b80156100c35782816101000a81549063ffffffff0219169055600401602081600301049283019260010302610093565b505b5090506100d291906100d6565b5090565b61010691905b8082111561010257600081816101000a81549063ffffffff0219169055506001016100dc565b5090565b90565b610169806101186000396000f30060606040526000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680633fb588191461003b575bfe5b341561004357fe5b61004b610097565b6040518082600160200280838360008314610085575b80518252602083111561008557602082019150602081019050602083039250610061565b50505090500191505060405180910390f35b61009f61010f565b6000600180602002604051908101604052809291908260018015610104576020028201916000905b82829054906101000a900463ffffffff1663ffffffff16815260200190600401906020826003010492830192600103820291508084116100c75790505b505050505090505b90565b6020604051908101604052806001905b600063ffffffff1681526020019060019003908161011f57905050905600a165627a7a72305820cc36549938177e1eb1f75e1c29460e706caac3ba259710e09610baec608493650029")),
+    /*
+        contract minGasPrice{
+            uint32[1] _minGasPrice=[
+                123456 //min gas price in satoshis
+            ];
+            function getMinGasPrice() constant returns(uint32[1] _gasPrice){
+                return _minGasPrice;
+            }
+        }
+    */
+    valtype(ParseHex("60606040526020604051908101604052806201e24062ffffff16815250600090600161002c92919061003a565b50341561003557fe5b61010f565b8260016007016008900481019282156100cb5791602002820160005b8382111561009957835183826101000a81548163ffffffff021916908362ffffff1602179055509260200192600401602081600301049283019260010302610056565b80156100c95782816101000a81549063ffffffff0219169055600401602081600301049283019260010302610099565b505b5090506100d891906100dc565b5090565b61010c91905b8082111561010857600081816101000a81549063ffffffff0219169055506001016100e2565b5090565b90565b6101698061011e6000396000f30060606040526000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680633fb588191461003b575bfe5b341561004357fe5b61004b610097565b6040518082600160200280838360008314610085575b80518252602083111561008557602082019150602081019050602083039250610061565b50505090500191505060405180910390f35b61009f61010f565b6000600180602002604051908101604052809291908260018015610104576020028201916000905b82829054906101000a900463ffffffff1663ffffffff16815260200190600401906020826003010492830192600103820291508084116100c75790505b505050505090505b90565b6020604051908101604052806001905b600063ffffffff1681526020019060019003908161011f57905050905600a165627a7a72305820670bbe0d6febf823fa6429f66a8d8469d04c1b529c6c77f450543d8de2665dbb0029")),
+    /*
+        contract minGasPrice{
+            uint32[1] _minGasPrice=[
+                123 //min gas price in satoshis
+            ];
+            function getMinGasPrice() constant returns(uint32[1] _gasPrice){
+                return _minGasPrice;
+            }
+        }
+    */
+    valtype(ParseHex("6060604052602060405190810160405280607b60ff168152506000906001610028929190610036565b50341561003157fe5b610109565b8260016007016008900481019282156100c55791602002820160005b8382111561009357835183826101000a81548163ffffffff021916908360ff1602179055509260200192600401602081600301049283019260010302610052565b80156100c35782816101000a81549063ffffffff0219169055600401602081600301049283019260010302610093565b505b5090506100d291906100d6565b5090565b61010691905b8082111561010257600081816101000a81549063ffffffff0219169055506001016100dc565b5090565b90565b610169806101186000396000f30060606040526000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680633fb588191461003b575bfe5b341561004357fe5b61004b610097565b6040518082600160200280838360008314610085575b80518252602083111561008557602082019150602081019050602083039250610061565b50505090500191505060405180910390f35b61009f61010f565b6000600180602002604051908101604052809291908260018015610104576020028201916000905b82829054906101000a900463ffffffff1663ffffffff16815260200190600401906020826003010492830192600103820291508084116100c75790505b505050505090505b90565b6020604051908101604052806001905b600063ffffffff1681526020019060019003908161011f57905050905600a165627a7a72305820bfd8ad217275ac01e0ff45cf88c44acf60c31d36f6cf200711eb17d6831a54cc0029"))
 };
 
 struct EVMScheduleCustom : public dev::eth::EVMSchedule{
@@ -241,147 +307,277 @@ bool compareEVMSchedule(const dev::eth::EVMSchedule& a, const dev::eth::EVMSched
     return false;
 }
 
+bool compareUint32(const uint32_t& value1, const uint32_t& value2){
+    if(value1 == value2)
+        return true;
+    return false;
+}
+
+void createTestContractsAndBlocks(TestChain100Setup* testChain100Setup, valtype& code1, valtype& code2, valtype& code3, dev::Address addr){
+    std::function<void(size_t n)> generateBlocks = [&](size_t n){
+        dev::h256 oldHashStateRoot = globalState->rootHash();
+        dev::h256 oldHashUTXORoot = globalState->rootHashUTXO();
+        for(size_t i = 0; i < n; i++)
+            testChain100Setup->CreateAndProcessBlock({}, GetScriptForRawPubKey(testChain100Setup->coinbaseKey.GetPubKey()));
+        globalState->setRoot(oldHashStateRoot);
+        globalState->setRootUTXO(oldHashUTXORoot);
+    };
+
+    dev::h256 hashTemp(hash);
+    std::vector<QtumTransaction> txs;
+    txs.push_back(createQtumTransaction(code[0], 0, dev::u256(500000), dev::u256(1), hashTemp, addr, 0));
+    txs.push_back(createQtumTransaction(code1, 0, dev::u256(500000), dev::u256(1), ++hashTemp, dev::Address(), 0));
+    txs.push_back(createQtumTransaction(code[2], 0, dev::u256(500000), dev::u256(1), ++hashTemp, addr, 0));
+    auto result = executeBC(txs);
+
+    generateBlocks(50);
+    txs.clear();
+    txs.push_back(createQtumTransaction(code2, 0, dev::u256(500000), dev::u256(1), ++hashTemp, dev::Address(), 0));
+    txs.push_back(createQtumTransaction(code[4], 0, dev::u256(500000), dev::u256(1), ++hashTemp, addr, 0));
+    result = executeBC(txs);
+
+    generateBlocks(50);
+    txs.clear();
+    txs.push_back(createQtumTransaction(code3, 0, dev::u256(500000), dev::u256(1), ++hashTemp, dev::Address(), 0));
+    txs.push_back(createQtumTransaction(code[6], 0, dev::u256(500000), dev::u256(1), ++hashTemp, addr, 0));
+    result = executeBC(txs);
+}
+
+template <typename T>
+void checkValue(T value, T value1, T value2, T value3, T value4, size_t i, std::function<bool(T&,T&)> func){
+    if(i > 116)
+        BOOST_CHECK(func(value, value4));
+    if(116 > i > 67)
+        BOOST_CHECK(func(value, value3));
+    if(66 > i > 16)
+        BOOST_CHECK(func(value, value2));
+    if(16 > i > 0)
+        BOOST_CHECK(func(value, value1));
+}
+
 BOOST_FIXTURE_TEST_SUITE(dgp_tests, TestChain100Setup)
 
-BOOST_AUTO_TEST_CASE(default_state_test1){
+BOOST_AUTO_TEST_CASE(gas_schedule_default_state_test1){
     initState();
     contractLoading();
-    QtumDGP qtumDGP(dev::Address("0000000000000000000000000000000000000080"));
-    dev::eth::EVMSchedule schedule = qtumDGP.getGasSchedule(globalState.get(), 100);
+    QtumDGP qtumDGP(globalState.get());
+    dev::eth::EVMSchedule schedule = qtumDGP.getGasSchedule(100);
     BOOST_CHECK(compareEVMSchedule(schedule, dev::eth::EIP158Schedule));
 }
 
-BOOST_AUTO_TEST_CASE(default_state_test2){
+BOOST_AUTO_TEST_CASE(gas_schedule_default_state_test2){
     initState();
     contractLoading();
-    QtumDGP qtumDGP(dev::Address("0000000000000000000000000000000000000080"));
-    dev::eth::EVMSchedule schedule = qtumDGP.getGasSchedule(globalState.get(), 0);
+    QtumDGP qtumDGP(globalState.get());
+    dev::eth::EVMSchedule schedule = qtumDGP.getGasSchedule(0);
     BOOST_CHECK(compareEVMSchedule(schedule, dev::eth::EIP158Schedule));
 }
 
-BOOST_AUTO_TEST_CASE(one_paramsInstance_introductory_block_1_test1){
+BOOST_AUTO_TEST_CASE(gas_schedule_one_paramsInstance_introductory_block_1_test1){
     initState();
     contractLoading();
 
     dev::h256 hashTemp(hash);
     std::vector<QtumTransaction> txs;
-    txs.push_back(createQtumTransaction(code[0], 0, dev::u256(500000), dev::u256(1), hashTemp, dev::Address("0000000000000000000000000000000000000080"), 0));
+    txs.push_back(createQtumTransaction(code[0], 0, dev::u256(500000), dev::u256(1), hashTemp, DGPCONTRACT1, 0));
     txs.push_back(createQtumTransaction(code[1], 0, dev::u256(500000), dev::u256(1), ++hashTemp, dev::Address(), 0));
-    txs.push_back(createQtumTransaction(code[2], 0, dev::u256(500000), dev::u256(1), ++hashTemp, dev::Address("0000000000000000000000000000000000000080"), 0));
+    txs.push_back(createQtumTransaction(code[2], 0, dev::u256(500000), dev::u256(1), ++hashTemp, DGPCONTRACT1, 0));
     auto result = executeBC(txs);
 
-    QtumDGP qtumDGP(dev::Address("0000000000000000000000000000000000000080"));
-    dev::eth::EVMSchedule schedule = qtumDGP.getGasSchedule(globalState.get(), 0);
+    QtumDGP qtumDGP(globalState.get());
+    dev::eth::EVMSchedule schedule = qtumDGP.getGasSchedule(0);
     BOOST_CHECK(compareEVMSchedule(schedule, dev::eth::EIP158Schedule));
 }
 
-BOOST_AUTO_TEST_CASE(one_paramsInstance_introductory_block_1_test2){
+BOOST_AUTO_TEST_CASE(gas_schedule_one_paramsInstance_introductory_block_1_test2){
     initState();
     contractLoading();
 
     dev::h256 hashTemp(hash);
     std::vector<QtumTransaction> txs;
-    txs.push_back(createQtumTransaction(code[0], 0, dev::u256(500000), dev::u256(1), hashTemp, dev::Address("0000000000000000000000000000000000000080"), 0));
+    txs.push_back(createQtumTransaction(code[0], 0, dev::u256(500000), dev::u256(1), hashTemp, DGPCONTRACT1, 0));
     txs.push_back(createQtumTransaction(code[1], 0, dev::u256(500000), dev::u256(1), ++hashTemp, dev::Address(), 0));
-    txs.push_back(createQtumTransaction(code[2], 0, dev::u256(500000), dev::u256(1), ++hashTemp, dev::Address("0000000000000000000000000000000000000080"), 0));
+    txs.push_back(createQtumTransaction(code[2], 0, dev::u256(500000), dev::u256(1), ++hashTemp, DGPCONTRACT1, 0));
     auto result = executeBC(txs);
 
-    QtumDGP qtumDGP(dev::Address("0000000000000000000000000000000000000080"));
-    dev::eth::EVMSchedule schedule = qtumDGP.getGasSchedule(globalState.get(), 17);
+    QtumDGP qtumDGP(globalState.get());
+    dev::eth::EVMSchedule schedule = qtumDGP.getGasSchedule(17);
     BOOST_CHECK(compareEVMSchedule(schedule, EVMScheduleContractGasSchedule));
 }
 
-BOOST_AUTO_TEST_CASE(passage_from_0_to_130_three_paramsInstance_test){
+BOOST_AUTO_TEST_CASE(gas_schedule_passage_from_0_to_130_three_paramsInstance_test){
     initState();
     contractLoading();
-    QtumDGP qtumDGP(dev::Address("0000000000000000000000000000000000000080"));
     
-    std::function<void(size_t n)> generateBlocks = [&](size_t n){
-        dev::h256 oldHashStateRoot = globalState->rootHash();
-        dev::h256 oldHashUTXORoot = globalState->rootHashUTXO();
-        for(size_t i = 0; i < 50; i++)
-            CreateAndProcessBlock({}, GetScriptForRawPubKey(coinbaseKey.GetPubKey()));
-        globalState->setRoot(oldHashStateRoot);
-        globalState->setRootUTXO(oldHashUTXORoot);
-    };
-
-    dev::h256 hashTemp(hash);
-    std::vector<QtumTransaction> txs;
-    txs.push_back(createQtumTransaction(code[0], 0, dev::u256(500000), dev::u256(1), hashTemp, dev::Address("0000000000000000000000000000000000000080"), 0));
-    txs.push_back(createQtumTransaction(code[1], 0, dev::u256(500000), dev::u256(1), ++hashTemp, dev::Address(), 0));
-    txs.push_back(createQtumTransaction(code[2], 0, dev::u256(500000), dev::u256(1), ++hashTemp, dev::Address("0000000000000000000000000000000000000080"), 0));
-    auto result = executeBC(txs);
-
-    generateBlocks(50);
-    txs.clear();
-    txs.push_back(createQtumTransaction(code[3], 0, dev::u256(500000), dev::u256(1), ++hashTemp, dev::Address(), 0));
-    txs.push_back(createQtumTransaction(code[4], 0, dev::u256(500000), dev::u256(1), ++hashTemp, dev::Address("0000000000000000000000000000000000000080"), 0));
-    result = executeBC(txs);
-
-    generateBlocks(50);
-    txs.clear();
-    txs.push_back(createQtumTransaction(code[5], 0, dev::u256(500000), dev::u256(1), ++hashTemp, dev::Address(), 0));
-    txs.push_back(createQtumTransaction(code[6], 0, dev::u256(500000), dev::u256(1), ++hashTemp, dev::Address("0000000000000000000000000000000000000080"), 0));
-    result = executeBC(txs);
-
-    dev::eth::EVMSchedule schedule;
+    createTestContractsAndBlocks(this, code[1], code[3], code[5], DGPCONTRACT1);
+    QtumDGP qtumDGP(globalState.get());
     for(size_t i = 0; i < 130; i++){
-        schedule = qtumDGP.getGasSchedule(globalState.get(), i);
-        if(i > 116)
-            BOOST_CHECK(compareEVMSchedule(schedule, EVMScheduleContractGasSchedule3));
-        if(116 > i > 67)
-            BOOST_CHECK(compareEVMSchedule(schedule, EVMScheduleContractGasSchedule2));
-        if(66 > i > 16)
-            BOOST_CHECK(compareEVMSchedule(schedule, EVMScheduleContractGasSchedule));
-        if(16 > i > 0)
-            BOOST_CHECK(compareEVMSchedule(schedule, dev::eth::EIP158Schedule));
+        dev::eth::EVMSchedule schedule = qtumDGP.getGasSchedule(i);
+        std::function<bool(const dev::eth::EVMSchedule&, const dev::eth::EVMSchedule&)> func = compareEVMSchedule;
+        checkValue<dev::eth::EVMSchedule>(schedule, dev::eth::EIP158Schedule, EVMScheduleContractGasSchedule,
+            EVMScheduleContractGasSchedule2, EVMScheduleContractGasSchedule3, i, func);
     }
 }
 
-BOOST_AUTO_TEST_CASE(passage_from_130_to_0_three_paramsInstance_test){
+BOOST_AUTO_TEST_CASE(gas_schedule_passage_from_130_to_0_three_paramsInstance_test){
     initState();
     contractLoading();
-    QtumDGP qtumDGP(dev::Address("0000000000000000000000000000000000000080"));
     
-    std::function<void(size_t n)> generateBlocks = [&](size_t n){
-        dev::h256 oldHashStateRoot = globalState->rootHash();
-        dev::h256 oldHashUTXORoot = globalState->rootHashUTXO();
-        for(size_t i = 0; i < 50; i++)
-            CreateAndProcessBlock({}, GetScriptForRawPubKey(coinbaseKey.GetPubKey()));
-        globalState->setRoot(oldHashStateRoot);
-        globalState->setRootUTXO(oldHashUTXORoot);
-    };
+    createTestContractsAndBlocks(this, code[1], code[3], code[5], DGPCONTRACT1);
+    QtumDGP qtumDGP(globalState.get());
+    for(size_t i = 130; i > 0; i--){
+        dev::eth::EVMSchedule schedule = qtumDGP.getGasSchedule(i);
+        std::function<bool(const dev::eth::EVMSchedule&, const dev::eth::EVMSchedule&)> func = compareEVMSchedule;
+        checkValue<dev::eth::EVMSchedule>(schedule, dev::eth::EIP158Schedule, EVMScheduleContractGasSchedule,
+            EVMScheduleContractGasSchedule2, EVMScheduleContractGasSchedule3, i, func);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(block_size_default_state_test1){
+    initState();
+    contractLoading();
+    QtumDGP qtumDGP(globalState.get());
+    uint32_t blockSize = qtumDGP.getBlockSize(100);
+    BOOST_CHECK(blockSize == 0);
+}
+
+BOOST_AUTO_TEST_CASE(block_size_default_state_test2){
+    initState();
+    contractLoading();
+    QtumDGP qtumDGP(globalState.get());
+    uint32_t blockSize = qtumDGP.getBlockSize(0);
+    BOOST_CHECK(blockSize == 0);
+}
+
+BOOST_AUTO_TEST_CASE(block_size_one_paramsInstance_introductory_block_1_test1){
+    initState();
+    contractLoading();
 
     dev::h256 hashTemp(hash);
     std::vector<QtumTransaction> txs;
-    txs.push_back(createQtumTransaction(code[0], 0, dev::u256(500000), dev::u256(1), hashTemp, dev::Address("0000000000000000000000000000000000000080"), 0));
-    txs.push_back(createQtumTransaction(code[1], 0, dev::u256(500000), dev::u256(1), ++hashTemp, dev::Address(), 0));
-    txs.push_back(createQtumTransaction(code[2], 0, dev::u256(500000), dev::u256(1), ++hashTemp, dev::Address("0000000000000000000000000000000000000080"), 0));
+    txs.push_back(createQtumTransaction(code[0], 0, dev::u256(500000), dev::u256(1), hashTemp, DGPCONTRACT2, 0));
+    txs.push_back(createQtumTransaction(code[7], 0, dev::u256(500000), dev::u256(1), ++hashTemp, dev::Address(), 0));
+    txs.push_back(createQtumTransaction(code[2], 0, dev::u256(500000), dev::u256(1), ++hashTemp, DGPCONTRACT2, 0));
     auto result = executeBC(txs);
 
-    generateBlocks(50);
-    txs.clear();
-    txs.push_back(createQtumTransaction(code[3], 0, dev::u256(500000), dev::u256(1), ++hashTemp, dev::Address(), 0));
-    txs.push_back(createQtumTransaction(code[4], 0, dev::u256(500000), dev::u256(1), ++hashTemp, dev::Address("0000000000000000000000000000000000000080"), 0));
-    result = executeBC(txs);
+    QtumDGP qtumDGP(globalState.get());
+    uint32_t blockSize = qtumDGP.getBlockSize(0);
+    BOOST_CHECK(blockSize == 0);
+}
 
-    generateBlocks(50);
-    txs.clear();
-    txs.push_back(createQtumTransaction(code[5], 0, dev::u256(500000), dev::u256(1), ++hashTemp, dev::Address(), 0));
-    txs.push_back(createQtumTransaction(code[6], 0, dev::u256(500000), dev::u256(1), ++hashTemp, dev::Address("0000000000000000000000000000000000000080"), 0));
-    result = executeBC(txs);
+BOOST_AUTO_TEST_CASE(block_size_one_paramsInstance_introductory_block_1_test2){
+    initState();
+    contractLoading();
 
-    dev::eth::EVMSchedule schedule;
+    dev::h256 hashTemp(hash);
+    std::vector<QtumTransaction> txs;
+    txs.push_back(createQtumTransaction(code[0], 0, dev::u256(500000), dev::u256(1), hashTemp, DGPCONTRACT2, 0));
+    txs.push_back(createQtumTransaction(code[7], 0, dev::u256(500000), dev::u256(1), ++hashTemp, dev::Address(), 0));
+    txs.push_back(createQtumTransaction(code[2], 0, dev::u256(500000), dev::u256(1), ++hashTemp, DGPCONTRACT2, 0));
+    auto result = executeBC(txs);
+
+    QtumDGP qtumDGP(globalState.get());
+    uint32_t blockSize = qtumDGP.getBlockSize(17);
+    BOOST_CHECK(blockSize == 1000000);
+}
+
+BOOST_AUTO_TEST_CASE(block_size_passage_from_0_to_130_three_paramsInstance_test){
+    initState();
+    contractLoading();
+    
+    createTestContractsAndBlocks(this, code[7], code[8], code[9], DGPCONTRACT2);
+    QtumDGP qtumDGP(globalState.get());
+    for(size_t i = 0; i < 130; i++){
+        uint32_t blockSize = qtumDGP.getBlockSize(i);
+        std::function<bool(const uint32_t&, const uint32_t&)> func = compareUint32;
+        checkValue<uint32_t>(blockSize, 0, 1000000, 2000000, 12345, i, func);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(block_size_passage_from_130_to_0_three_paramsInstance_test){
+    initState();
+    contractLoading();
+    
+    createTestContractsAndBlocks(this, code[7], code[8], code[9], DGPCONTRACT2);
+    QtumDGP qtumDGP(globalState.get());
     for(size_t i = 130; i > 0; i--){
-        schedule = qtumDGP.getGasSchedule(globalState.get(), i);
-        if(i > 116)
-            BOOST_CHECK(compareEVMSchedule(schedule, EVMScheduleContractGasSchedule3));
-        if(116 > i > 67)
-            BOOST_CHECK(compareEVMSchedule(schedule, EVMScheduleContractGasSchedule2));
-        if(66 > i > 16)
-            BOOST_CHECK(compareEVMSchedule(schedule, EVMScheduleContractGasSchedule));
-        if(16 > i > 0)
-            BOOST_CHECK(compareEVMSchedule(schedule, dev::eth::EIP158Schedule));
+        uint32_t blockSize = qtumDGP.getBlockSize(i);
+        std::function<bool(const uint32_t&, const uint32_t&)> func = compareUint32;
+        checkValue<uint32_t>(blockSize, 0, 1000000, 2000000, 12345, i, func);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(min_gas_price_default_state_test1){
+    initState();
+    contractLoading();
+    QtumDGP qtumDGP(globalState.get());
+    uint32_t minGasPrice = qtumDGP.getMinGasPrice(100);
+    BOOST_CHECK(minGasPrice == 1);
+}
+
+BOOST_AUTO_TEST_CASE(min_gas_price_default_state_test2){
+    initState();
+    contractLoading();
+    QtumDGP qtumDGP(globalState.get());
+    uint32_t minGasPrice = qtumDGP.getMinGasPrice(0);
+    BOOST_CHECK(minGasPrice == 1);
+}
+
+BOOST_AUTO_TEST_CASE(min_gas_price_one_paramsInstance_introductory_block_1_test1){
+    initState();
+    contractLoading();
+
+    dev::h256 hashTemp(hash);
+    std::vector<QtumTransaction> txs;
+    txs.push_back(createQtumTransaction(code[0], 0, dev::u256(500000), dev::u256(1), hashTemp, DGPCONTRACT3, 0));
+    txs.push_back(createQtumTransaction(code[10], 0, dev::u256(500000), dev::u256(1), ++hashTemp, dev::Address(), 0));
+    txs.push_back(createQtumTransaction(code[2], 0, dev::u256(500000), dev::u256(1), ++hashTemp, DGPCONTRACT3, 0));
+    auto result = executeBC(txs);
+
+    QtumDGP qtumDGP(globalState.get());
+    uint32_t minGasPrice = qtumDGP.getMinGasPrice(0);
+    BOOST_CHECK(minGasPrice == 1);
+}
+
+BOOST_AUTO_TEST_CASE(min_gas_price_one_paramsInstance_introductory_block_1_test2){
+    initState();
+    contractLoading();
+
+    dev::h256 hashTemp(hash);
+    std::vector<QtumTransaction> txs;
+    txs.push_back(createQtumTransaction(code[0], 0, dev::u256(500000), dev::u256(1), hashTemp, DGPCONTRACT3, 0));
+    txs.push_back(createQtumTransaction(code[10], 0, dev::u256(500000), dev::u256(1), ++hashTemp, dev::Address(), 0));
+    txs.push_back(createQtumTransaction(code[2], 0, dev::u256(500000), dev::u256(1), ++hashTemp, DGPCONTRACT3, 0));
+    auto result = executeBC(txs);
+
+    QtumDGP qtumDGP(globalState.get());
+    uint32_t minGasPrice = qtumDGP.getMinGasPrice(17);
+    BOOST_CHECK(minGasPrice == 13);
+}
+
+BOOST_AUTO_TEST_CASE(min_gas_price_passage_from_0_to_130_three_paramsInstance_test){
+    initState();
+    contractLoading();
+    
+    createTestContractsAndBlocks(this, code[10], code[11], code[12], DGPCONTRACT3);
+    QtumDGP qtumDGP(globalState.get());
+    for(size_t i = 0; i < 130; i++){
+        uint32_t minGasPrice = qtumDGP.getMinGasPrice(i);
+        std::function<bool(const uint32_t&, const uint32_t&)> func = compareUint32;
+        checkValue<uint32_t>(minGasPrice, 1, 13, 123456, 123, i, func);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(min_gas_price_passage_from_130_to_0_three_paramsInstance_test){
+    initState();
+    contractLoading();
+    
+    createTestContractsAndBlocks(this, code[10], code[11], code[12], DGPCONTRACT3);
+    QtumDGP qtumDGP(globalState.get());
+    for(size_t i = 130; i > 0; i--){
+        uint32_t minGasPrice = qtumDGP.getMinGasPrice(i);
+        std::function<bool(const uint32_t&, const uint32_t&)> func = compareUint32;
+        checkValue<uint32_t>(minGasPrice, 1, 13, 123456, 123, i, func);
     }
 }
 
