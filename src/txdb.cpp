@@ -203,6 +203,7 @@ bool CBlockTreeDB::LoadBlockIndexGuts(boost::function<CBlockIndex*(const uint256
                 pindexNew->nStakeModifier = diskindex.nStakeModifier;
                 pindexNew->prevoutStake   = diskindex.prevoutStake;
                 pindexNew->nStakeTime     = diskindex.nStakeTime; // qtum
+                pindexNew->vchBlockSig    = diskindex.vchBlockSig; // qtum
 
                 if (!CheckIndexProof(*pindexNew, Params().GetConsensus()))
                     return error("LoadBlockIndex(): CheckIndexProof failed: %s", pindexNew->ToString());
