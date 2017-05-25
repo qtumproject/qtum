@@ -3,7 +3,7 @@
 dev::eth::EVMSchedule QtumDGP::getGasSchedule(unsigned int blockHeight){
     clear();
     dev::eth::EVMSchedule schedule = dev::eth::EIP158Schedule;
-    if(initStorages(DGPCONTRACT1, blockHeight)){
+    if(initStorages(GasScheduleDGP, blockHeight)){
         schedule = createEVMSchedule();
     }
     return schedule;
@@ -12,7 +12,7 @@ dev::eth::EVMSchedule QtumDGP::getGasSchedule(unsigned int blockHeight){
 uint32_t QtumDGP::getBlockSize(unsigned int blockHeight){
     clear();
     uint32_t blockSize = 0;
-    if(initStorages(DGPCONTRACT2, blockHeight)){
+    if(initStorages(BlockSizeDGP, blockHeight)){
         parseStorageOneUint32(blockSize);
     }
     return blockSize;
@@ -21,7 +21,7 @@ uint32_t QtumDGP::getBlockSize(unsigned int blockHeight){
 uint32_t QtumDGP::getMinGasPrice(unsigned int blockHeight){
     clear();
     uint32_t minGasLimit = 1;
-    if(initStorages(DGPCONTRACT3, blockHeight)){
+    if(initStorages(GasPriceDGP, blockHeight)){
         parseStorageOneUint32(minGasLimit);
     }
     return minGasLimit < 1 ? 1 : minGasLimit;

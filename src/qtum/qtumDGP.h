@@ -1,8 +1,8 @@
 #include "qtumstate.h"
 
-static const dev::Address DGPCONTRACT1 = dev::Address("0000000000000000000000000000000000000080"); // gasSchedule
-static const dev::Address DGPCONTRACT2 = dev::Address("0000000000000000000000000000000000000081"); // blockSize
-static const dev::Address DGPCONTRACT3 = dev::Address("0000000000000000000000000000000000000082");
+static const dev::Address GasScheduleDGP = dev::Address("0000000000000000000000000000000000000080");
+static const dev::Address BlockSizeDGP = dev::Address("0000000000000000000000000000000000000081");
+static const dev::Address GasPriceDGP = dev::Address("0000000000000000000000000000000000000082");
 static const dev::Address DGPCONTRACT4 = dev::Address("0000000000000000000000000000000000000083");
 static const dev::Address DGPCONTRACT5 = dev::Address("0000000000000000000000000000000000000084");
 
