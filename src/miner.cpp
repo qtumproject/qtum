@@ -366,7 +366,11 @@ void BlockAssembler::AddToBlock(CTxMemPool::txiter iter)
         QtumTxConverter convert(tx, NULL);
         ByteCodeExec exec(*pblock, convert.extractionQtumTransactions());
         exec.performByteCode();
-        bceResult = exec.processingResults();
+        ByteCodeExecResult res = exec.processingResults();
+        bceResult.usedFee += res.usedFee;
+        bceResult.refundSender += res.refundSender;
+        bceResult.refundVOuts.insert(bceResult.refundVOuts.end(), res.refundVOuts.begin(), res.refundVOuts.end());
+        bceResult.refundValueTx = std::move(res.refundValueTx);
     }
 //////////////////////////////////////////////////////////////
 
