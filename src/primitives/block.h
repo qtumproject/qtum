@@ -199,14 +199,14 @@ public:
         uint32_t ret = 0;
         if(IsProofOfStake())
         {
-            ret = vtx[1]->nTime;;
+            ret = nTime;;
         }
         return ret;
     }
     
     std::pair<COutPoint, unsigned int> GetProofOfStake() const //qtum
     {
-        return IsProofOfStake()? std::make_pair(vtx[1]->vin[0].prevout, vtx[1]->nTime) : std::make_pair(COutPoint(), (unsigned int)0);
+        return IsProofOfStake()? std::make_pair(vtx[1]->vin[0].prevout, nTime) : std::make_pair(COutPoint(), (unsigned int)0);
     }
     
     CBlockHeader GetBlockHeader() const

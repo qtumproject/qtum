@@ -804,10 +804,6 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                    return state.DoS(100, error("%s : previous transaction not found", __func__), REJECT_INVALID, "bad-txns-not-found");
             }
 
-            // ppcoin: check transaction timestamp
-            if (txPrev.nTime > tx.nTime)
-                return state.DoS(100, error("%s : transaction timestamp earlier than input transaction", __func__), REJECT_INVALID, "bad-txns-timestamp");
-
             if (txPrev.vout[prevout.n].IsEmpty())
                 return state.DoS(1, error("%s : special marker is not spendable", __func__), REJECT_INVALID, "bad-txns-not-spendable");
 
@@ -2397,8 +2393,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     }
     else
     {
-        if (!CheckTransactionTimestamp(*block.vtx[1], *pblocktree))
-            return error("ConnectBlock() : %s unable to get coin age for coinstake", block.vtx[1]->GetHash().ToString());
+        if (!CheckTransactionTimestamp(*block.vtx[1], block.nTime, *pblocktree))
+            return error("ConnectBlock() : %s transaction timestamp check failure", block.vtx[1]->GetHash().ToString());
 
         CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus());
         if (nActualStakeReward > blockReward)
@@ -3154,7 +3150,7 @@ bool ResetBlockFailureFlags(CBlockIndex *pindex) {
     return true;
 }
 
-bool CheckTransactionTimestamp(const CTransaction& tx, CBlockTreeDB& txdb)
+bool CheckTransactionTimestamp(const CTransaction& tx, const uint32_t& nTimeBlock, CBlockTreeDB& txdb)
 {
     if (tx.IsCoinBase())
         return true;
@@ -3166,10 +3162,16 @@ bool CheckTransactionTimestamp(const CTransaction& tx, CBlockTreeDB& txdb)
         CDiskTxPos txindex;
         if (!ReadFromDisk(txPrev, txindex, txdb, txin.prevout))
             continue;  // previous transaction not in main chain
-        if (tx.nTime < txPrev.nTime)
+
+        // Read block header
+        CBlockHeader blockFrom;
+        if (!ReadFromDisk(blockFrom, txindex.nFile, txindex.nPos))
+            return false; // unable to read block of previous transaction
+
+        if (nTimeBlock < blockFrom.nTime)
             return false;  // Transaction timestamp violation
 
-        LogPrint("Transaction timestamp", "timestamp nTimeDiff=%d", tx.nTime - txPrev.nTime);
+        LogPrint("Transaction timestamp", "timestamp nTimeDiff=%d", nTimeBlock - blockFrom.nTime);
     }
 
     return true;
@@ -3367,12 +3369,11 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
     static int64_t nLastCoinStakeSearchTime = GetAdjustedTime(); // startup timestamp
 
     CKey key;
-    CMutableTransaction txCoinBase(*pblock->vtx[0]);
     CMutableTransaction txCoinStake(*pblock->vtx[1]);
-    txCoinStake.nTime = GetAdjustedTime();
-    txCoinStake.nTime &= ~STAKE_TIMESTAMP_MASK;
+    uint32_t nTimeBlock = GetAdjustedTime();
+    nTimeBlock &= ~STAKE_TIMESTAMP_MASK;
 
-    int64_t nSearchTime = txCoinStake.nTime; // search to current time
+    int64_t nSearchTime = nTimeBlock; // search to current time
 
     if (nSearchTime > nLastCoinStakeSearchTime)
     {
@@ -3380,20 +3381,13 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
         //int64_t nSearchInterval = IsProtocolV2(nBestHeight+1) ? 1 : nSearchTime - nLastCoinStakeSearchTime;
         //IsProtocolV2 mean POS 2 or higher, so the modified line is:
         int64_t nSearchInterval = 1;
-        if (wallet.CreateCoinStake(wallet, pblock->nBits, nSearchInterval, nTotalFees, txCoinStake, key))
+        if (wallet.CreateCoinStake(wallet, pblock->nBits, nSearchInterval, nTotalFees, nTimeBlock, txCoinStake, key))
         {
-            if (txCoinStake.nTime >= pindexBestHeader->GetMedianTimePast()+1)
+            if (nTimeBlock >= pindexBestHeader->GetMedianTimePast()+1)
             {
                 // make sure coinstake would meet timestamp protocol
                 //    as it would be the same as the block timestamp
-                txCoinBase.nTime = pblock->nTime = txCoinStake.nTime;
-                pblock->vtx[0] = MakeTransactionRef(std::move(txCoinBase));
-
-                // we have to make sure that we have no future timestamps in
-                //    our transactions set
-                for (auto it = pblock->vtx.begin(); it != pblock->vtx.end();)
-                    if ((*it)->nTime > pblock->nTime) { it = pblock->vtx.erase(it); } else { ++it; }
-
+                pblock->nTime = nTimeBlock;
                 pblock->vtx[1] = MakeTransactionRef(std::move(txCoinStake));
                 pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
 
@@ -3739,8 +3733,8 @@ static bool UpdateHashProof(const CBlock& block, CValidationState& state, const 
         return state.DoS(100, error("AcceptBlock() : reject proof-of-work at height %d", nHeight));
     
     // Check coinstake timestamp
-    if (block.IsProofOfStake() && !CheckCoinStakeTimestamp(block.GetBlockTime(), block.vtx[1]->nTime))
-        return state.DoS(50, error("AcceptBlock() : coinstake timestamp violation nTimeBlock=%d nTimeTx=%u", block.GetBlockTime(), block.vtx[1]->nTime));
+    if (block.IsProofOfStake() && !CheckCoinStakeTimestamp(block.GetBlockTime()))
+        return state.DoS(50, error("AcceptBlock() : coinstake timestamp violation nTimeBlock=%d", block.GetBlockTime()));
 
     // Check proof-of-work or proof-of-stake
     if (block.nBits != GetNextWorkRequired(pindex->pprev, &block, consensusParams))
@@ -3751,7 +3745,7 @@ static bool UpdateHashProof(const CBlock& block, CValidationState& state, const 
     if (block.IsProofOfStake())
     {
         uint256 targetProofOfStake;
-        if (!CheckProofOfStake(pindex->pprev, state, *block.vtx[1], block.nBits, hashProof, targetProofOfStake))
+        if (!CheckProofOfStake(pindex->pprev, state, *block.vtx[1], block.nBits, block.nTime, hashProof, targetProofOfStake))
         {
             return error("AcceptBlock() : check proof-of-stake failed for block %s", hash.ToString());
         }
@@ -3871,10 +3865,6 @@ static bool AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CValidation
     // Check that the block satisfies synchronized checkpoint
     if (!Checkpoints::CheckSync(nHeight))
         return error("AcceptBlock() : rejected by synchronized checkpoint");
-
-    // Check coinbase timestamp
-    if (block.GetBlockTime() > FutureDrift(block.vtx[0]->nTime))
-        return state.DoS(50, error("AcceptBlock() : coinbase timestamp is too early"));
 
     // Check timestamp against prev
     if (block.GetBlockTime() <= pindexPrev->GetBlockTime() || FutureDrift(block.GetBlockTime()) < pindexPrev->GetBlockTime())

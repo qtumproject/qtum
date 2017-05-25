@@ -186,7 +186,6 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     coinbaseTx.vin.resize(1);
     coinbaseTx.vin[0].prevout.SetNull();
     coinbaseTx.vout.resize(1);
-    coinbaseTx.nTime = txProofTime;
     if (fProofOfStake)
     {
         // Make the coinbase tx empty in case of proof of stake
@@ -224,7 +223,6 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     globalState->setRootUTXO(oldHashUTXORoot);
 
     CMutableTransaction contrTx(*pblock->vtx[contrTxIndex]);
-    contrTx.nTime = txProofTime;
     contrTx.vout[contrTxIndex].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
     contrTx.vout[contrTxIndex].nValue -= bceResult.refundSender;
     for(CTxOut& vOut : bceResult.refundVOuts){
@@ -710,7 +708,7 @@ bool CheckStake(const std::shared_ptr<const CBlock> pblock, CWallet& wallet)
 
     // verify hash target and signature of coinstake tx
     CValidationState state;
-    if (!CheckProofOfStake(mapBlockIndex[pblock->hashPrevBlock], state, *pblock->vtx[1], pblock->nBits, proofHash, hashTarget))
+    if (!CheckProofOfStake(mapBlockIndex[pblock->hashPrevBlock], state, *pblock->vtx[1], pblock->nBits, pblock->nTime, proofHash, hashTarget))
         return error("CheckStake() : proof-of-stake checking failed");
 
     //// debug print

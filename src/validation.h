@@ -417,7 +417,7 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoins
 /**
  * Check if coinstake transaction timestamp is bigger than the previous
  */
-bool CheckTransactionTimestamp(const CTransaction& tx, CBlockTreeDB& txdb);
+bool CheckTransactionTimestamp(const CTransaction& tx, const uint32_t& nTimeBlock, CBlockTreeDB& txdb);
 
 /**
  * Check if transaction is final and can be included in a block with the
