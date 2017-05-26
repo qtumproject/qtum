@@ -16,12 +16,17 @@
 #include "miner.h"
 #include "net.h"
 #include "pow.h"
+#include "pos.h"
 #include "rpc/server.h"
 #include "txmempool.h"
 #include "util.h"
 #include "utilstrencodings.h"
 #include "validationinterface.h"
-
+#include "timedata.h"
+#ifdef ENABLE_WALLET
+#include "wallet/wallet.h"
+#include "wallet/walletdb.h"
+#endif
 #include <memory>
 #include <stdint.h>
 
@@ -215,6 +220,19 @@ UniValue generatetoaddress(const JSONRPCRequest& request)
     return generateBlocks(coinbaseScript, nGenerate, nMaxTries, false);
 }
 
+UniValue getsubsidy(const JSONRPCRequest& request)
+{
+    if (request.fHelp || request.params.size() > 1)
+        throw runtime_error(
+            "getsubsidy [nTarget]\n"
+            "Returns subsidy value for the specified value of target.");
+    int nTarget = request.params.size() == 1 ? request.params[0].get_int() : chainActive.Height();
+    if (nTarget < 0)
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Block height out of range");
+    const Consensus::Params& consensusParams = Params().GetConsensus();
+    return (uint64_t)GetBlockSubsidy(nTarget, consensusParams);
+}
+
 UniValue getmininginfo(const JSONRPCRequest& request)
 {
     if (request.fHelp || request.params.size() != 0)
@@ -242,18 +260,82 @@ UniValue getmininginfo(const JSONRPCRequest& request)
     LOCK(cs_main);
 
     UniValue obj(UniValue::VOBJ);
+    UniValue diff(UniValue::VOBJ);
+    UniValue weight(UniValue::VOBJ);
     obj.push_back(Pair("blocks",           (int)chainActive.Height()));
     obj.push_back(Pair("currentblocksize", (uint64_t)nLastBlockSize));
     obj.push_back(Pair("currentblockweight", (uint64_t)nLastBlockWeight));
     obj.push_back(Pair("currentblocktx",   (uint64_t)nLastBlockTx));
-    obj.push_back(Pair("difficulty",       (double)GetDifficulty()));
+
+    diff.push_back(Pair("proof-of-work",   GetDifficulty(GetLastBlockIndex(pindexBestHeader, false))));
+    diff.push_back(Pair("proof-of-stake",  GetDifficulty(GetLastBlockIndex(pindexBestHeader, true))));
+    diff.push_back(Pair("search-interval", (int)nLastCoinStakeSearchInterval));
+    obj.push_back(Pair("difficulty",       diff));
+
+    const Consensus::Params& consensusParams = Params().GetConsensus();
+    obj.push_back(Pair("blockvalue",    (uint64_t)GetBlockSubsidy(chainActive.Height(), consensusParams)));
+
+    obj.push_back(Pair("netmhashps",       GetPoWMHashPS()));
+    obj.push_back(Pair("netstakeweight",   GetPoSKernelPS()));
     obj.push_back(Pair("errors",           GetWarnings("statusbar")));
     obj.push_back(Pair("networkhashps",    getnetworkhashps(request)));
     obj.push_back(Pair("pooledtx",         (uint64_t)mempool.size()));
+
+    uint64_t nWeight = 0;
+#ifdef ENABLE_WALLET
+    if (pwalletMain)
+    nWeight = pwalletMain->GetStakeWeight(); 
+#endif
+    weight.push_back(Pair("minimum",       (uint64_t)nWeight));
+    weight.push_back(Pair("maximum",       (uint64_t)0));
+    weight.push_back(Pair("combined",      (uint64_t)nWeight));
+    obj.push_back(Pair("stakeweight",      weight));
+
     obj.push_back(Pair("chain",            Params().NetworkIDString()));
     return obj;
 }
 
+UniValue getstakinginfo(const JSONRPCRequest& request)
+{
+    if (request.fHelp || request.params.size() != 0)
+        throw runtime_error(
+            "getstakinginfo\n"
+            "Returns an object containing staking-related information.");
+
+    LOCK(cs_main);
+
+    uint64_t nWeight = 0;
+#ifdef ENABLE_WALLET
+    if (pwalletMain)
+        nWeight = pwalletMain->GetStakeWeight();
+#endif
+
+    uint64_t nNetworkWeight = GetPoSKernelPS();
+    bool staking = nLastCoinStakeSearchInterval && nWeight;
+    const Consensus::Params& consensusParams = Params().GetConsensus();
+    int64_t nTargetSpacing = consensusParams.nPowTargetSpacing;
+    uint64_t nExpectedTime = staking ? (nTargetSpacing * nNetworkWeight / nWeight) : 0;
+
+    UniValue obj(UniValue::VOBJ);
+
+    obj.push_back(Pair("enabled", GetBoolArg("-staking", true)));
+    obj.push_back(Pair("staking", staking));
+    obj.push_back(Pair("errors", GetWarnings("statusbar")));
+
+    obj.push_back(Pair("currentblocksize", (uint64_t)nLastBlockSize));
+    obj.push_back(Pair("currentblocktx", (uint64_t)nLastBlockTx));
+    obj.push_back(Pair("pooledtx", (uint64_t)mempool.size()));
+
+    obj.push_back(Pair("difficulty", GetDifficulty(GetLastBlockIndex(pindexBestHeader, true))));
+    obj.push_back(Pair("search-interval", (int)nLastCoinStakeSearchInterval));
+
+    obj.push_back(Pair("weight", (uint64_t)nWeight));
+    obj.push_back(Pair("netstakeweight", (uint64_t)nNetworkWeight));
+
+    obj.push_back(Pair("expectedtime", nExpectedTime));
+
+    return obj;
+}
 
 // NOTE: Unlike wallet RPC (which use BTC values), mining RPCs follow GBT (BIP 22) in using satoshi amounts
 UniValue prioritisetransaction(const JSONRPCRequest& request)
@@ -919,6 +1001,8 @@ static const CRPCCommand commands[] =
     { "mining",             "prioritisetransaction",  &prioritisetransaction,  true,  {"txid","priority_delta","fee_delta"} },
     { "mining",             "getblocktemplate",       &getblocktemplate,       true,  {"template_request"} },
     { "mining",             "submitblock",            &submitblock,            true,  {"hexdata","parameters"} },
+    { "mining",             "getsubsidy",             &getsubsidy,             true,  {"height"} },
+    { "mining",             "getstakinginfo",         &getstakinginfo,         true,  {} },
 
     { "generating",         "generate",               &generate,               true,  {"nblocks","maxtries"} },
     { "generating",         "generatetoaddress",      &generatetoaddress,      true,  {"nblocks","address","maxtries"} },
