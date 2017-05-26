@@ -159,7 +159,10 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     if (chainparams.MineBlocksOnDemand())
         pblock->nVersion = GetArg("-blockversion", pblock->nVersion);
 
-    pblock->nTime = GetAdjustedTime();
+    uint32_t txProofTime = GetAdjustedTime();
+    if(fProofOfStake)
+        txProofTime &= STAKE_TIMESTAMP_MASK;
+    pblock->nTime = txProofTime;
     const int64_t nMedianTimePast = pindexPrev->GetMedianTimePast();
 
     nLockTimeCutoff = (STANDARD_LOCKTIME_VERIFY_FLAGS & LOCKTIME_MEDIAN_TIME_PAST)
@@ -183,7 +186,6 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     coinbaseTx.vin.resize(1);
     coinbaseTx.vin[0].prevout.SetNull();
     coinbaseTx.vout.resize(1);
-    uint32_t txProofTime = GetAdjustedTime();
     coinbaseTx.nTime = txProofTime;
     if (fProofOfStake)
     {
@@ -198,6 +200,16 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
     pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTx));
     
+    // Create coinstake transaction.
+    if(fProofOfStake)
+    {
+        CMutableTransaction coinstakeTx;
+        coinstakeTx.vout.resize(2);
+        coinstakeTx.vout[0].SetEmpty();
+        coinstakeTx.vout[1].scriptPubKey = scriptPubKeyIn;
+        pblock->vtx[1] = MakeTransactionRef(std::move(coinstakeTx));
+    }
+
     //Add the contract data into the proof transaction
     int contrTxIndex = fProofOfStake ? 1 : 0;
 	
@@ -221,7 +233,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     pblock->vtx[contrTxIndex] = MakeTransactionRef(std::move(contrTx));
     ////////////////////////////////////////////////////////
 
-    pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus());
+    pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus(), fProofOfStake);
     pblocktemplate->vTxFees[0] = -nFees;
 
     uint64_t nSerializeSize = GetSerializeSize(*pblock, SER_NETWORK, PROTOCOL_VERSION);
@@ -240,7 +252,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     pblocktemplate->vTxSigOpsCost[0] = WITNESS_SCALE_FACTOR * GetLegacySigOpCount(*pblock->vtx[0]);
 
     CValidationState state;
-    if (!TestBlockValidity(state, chainparams, *pblock, pindexPrev, false, false)) {
+    if (!fProofOfStake && !TestBlockValidity(state, chainparams, *pblock, pindexPrev, false, false)) {
         throw std::runtime_error(strprintf("%s: TestBlockValidity failed: %s", __func__, FormatStateMessage(state)));
     }
     
@@ -759,7 +771,7 @@ void ThreadStakeMiner(CWallet *pwallet)
         }
 
         //check the next block height, wait for PoS
-        if (chainActive.Tip()->nHeight + 1 < Params().GetConsensus().nLastPOWBlock)
+        if (chainActive.Tip()->nHeight < Params().GetConsensus().nLastPOWBlock)
         {
             MilliSleep(60000);
             continue;
@@ -772,14 +784,13 @@ void ThreadStakeMiner(CWallet *pwallet)
         std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(Params()).CreateNewBlock(reservekey.reserveScript, true, &nTotalFees));
         if (!pblocktemplate.get())
             return;
-        CBlock *pblock = &pblocktemplate->block;
 
         // Trying to sign a block
-        if (SignBlock(*pblock, *pwallet, nTotalFees))
+        std::shared_ptr<CBlock> pblock = std::make_shared<CBlock>(pblocktemplate->block);
+        if (SignBlock(pblock, *pwallet, nTotalFees))
         {
             SetThreadPriority(THREAD_PRIORITY_NORMAL);
-            std::shared_ptr<const CBlock> shared_pblock = std::make_shared<const CBlock>(*pblock);
-            CheckStake(shared_pblock, *pwallet);
+            CheckStake(pblock, *pwallet);
             SetThreadPriority(THREAD_PRIORITY_LOWEST);
             MilliSleep(500);
         }

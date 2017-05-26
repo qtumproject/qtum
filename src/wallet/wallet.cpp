@@ -3063,18 +3063,18 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, uin
     else
         txNew.vout[1].nValue = nCredit;
 
+    // Append the Refunds To Sender to the transaction outputs
+    for(unsigned int i = 2; i < tx.vout.size(); i++)
+    {
+        txNew.vout.push_back(tx.vout[i]);
+    }
+
     // Sign the input coins
     int nIn = 0;
     BOOST_FOREACH(const CWalletTx* pcoin, vwtxPrev)
     {
         if (!SignSignature(*this, *pcoin, txNew, nIn++, SIGHASH_ALL))
             return error("CreateCoinStake : failed to sign coinstake");
-    }
-
-    // Append the Refunds To Sender to the transaction outputs
-    for(unsigned int i = 0; i < tx.vout.size(); i++)
-    {
-        txNew.vout.push_back(tx.vout[i]);
     }
 
     // Limit size
