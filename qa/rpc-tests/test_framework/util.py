@@ -252,7 +252,7 @@ def initialize_chain(test_dir, num_nodes, cachedir):
             args = [ os.getenv("BITCOIND", "bitcoind"), "-server", "-keypool=1", "-datadir="+datadir, "-discover=0" ]
             if i > 0:
                 args.append("-connect=127.0.0.1:"+str(p2p_port(0)))
-            bitcoind_processes[i] = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            bitcoind_processes[i] = subprocess.Popen(args, stdout=open(datadir + '/teststdout1.txt', 'w'), stderr=open(datadir + '/teststderr1.txt', 'w'))
             if os.getenv("PYTHON_DEBUG", ""):
                 print("initialize_chain: bitcoind started, waiting for RPC to come up")
             wait_for_bitcoind_start(bitcoind_processes[i], rpc_url(i), i)
@@ -350,7 +350,7 @@ def start_node(i, dirname, extra_args=None, rpchost=None, timewait=None, binary=
         binary = os.getenv("BITCOIND", "bitcoind")
     args = [ binary, "-datadir="+datadir, "-server", "-keypool=1", "-discover=0", "-rest", "-mocktime="+str(get_mocktime())]
     if extra_args is not None: args.extend(extra_args)
-    bitcoind_processes[i] = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    bitcoind_processes[i] = subprocess.Popen(args, stdout=open(datadir + '/teststdout2.txt', 'w'), stderr=open(datadir + '/teststderr2.txt', 'w'))
     if os.getenv("PYTHON_DEBUG", ""):
         print("start_node: bitcoind started, waiting for RPC to come up")
     url = rpc_url(i, rpchost)
