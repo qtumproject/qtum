@@ -1907,6 +1907,14 @@ static int64_t nTimeCallbacks = 0;
 static int64_t nTimeTotal = 0;
 
 /////////////////////////////////////////////////////////////////////// qtum
+bool CheckRefund(const CBlock& block, const std::vector<CTxOut>& vouts){
+    size_t offset = block.IsProofOfStake() ? 1 : 0;
+    for(size_t i = 0; i < vouts.size(); i++)
+        if(block.vtx[offset]->vout[i + 1] != vouts[i])
+            return false;
+    return true;
+}
+
 valtype GetSenderAddress(const CTransaction& tx, const CCoinsViewCache* coinsView){
     CTransactionRef txPrevout;
     uint256 hashBlock;
@@ -2279,7 +2287,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
     CCheckQueueControl<CScriptCheck> control(fScriptChecks && nScriptCheckThreads ? &scriptcheckqueue : NULL);
 
-    CBlock checkBlock(block.GetBlockHeader()); // qtum
+///////////////////////////////////////////////////////  // qtum
+    CBlock checkBlock(block.GetBlockHeader());
+    std::vector<CTxOut> checkVouts;
+///////////////////////////////////////////////////////
 
     std::vector<int> prevheights;
     CAmount nFees = 0;
@@ -2359,6 +2370,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             exec.performByteCode();
             std::vector<ResultExecute> resultExec(exec.getResult());
             ByteCodeExecResult bcer = exec.processingResults();
+            checkVouts.insert(checkVouts.end(), bcer.refundVOuts.begin(), bcer.refundVOuts.end());
             for(CTransaction& t : bcer.refundValueTx){
                 checkBlock.vtx.push_back(MakeTransactionRef(std::move(t)));
             }
@@ -2389,7 +2401,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     if (block.IsProofOfWork())
     {
         CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus());
-        if (block.vtx[0]->GetValueOut() > blockReward)
+        if (block.vtx[0]->GetValueOut() > blockReward || !CheckRefund(block, checkVouts))
             return state.DoS(100,
                              error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
                                    block.vtx[0]->GetValueOut(), blockReward),
@@ -2401,7 +2413,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             return error("ConnectBlock() : %s unable to get coin age for coinstake", block.vtx[1]->GetHash().ToString());
 
         CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus());
-        if (nActualStakeReward > blockReward)
+         if (nActualStakeReward > blockReward || !CheckRefund(block, checkVouts))
             return state.DoS(100,
                              error("ConnectBlock(): coinstake pays too much (actual=%d vs limit=%d)",
                                    block.vtx[0]->GetValueOut(), blockReward),
