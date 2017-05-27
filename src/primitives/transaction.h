@@ -230,7 +230,6 @@ struct CMutableTransaction;
  * - std::vector<CTxIn> vin
  * - std::vector<CTxOut> vout
  * - uint32_t nLockTime
- * - uint32_t nTime
  *
  * Extended transaction serialization format:
  * - int32_t nVersion
@@ -241,7 +240,6 @@ struct CMutableTransaction;
  * - if (flags & 1):
  *   - CTxWitness wit;
  * - uint32_t nLockTime
- * - uint32_t nTime
  */
 template<typename Stream, typename TxType>
 inline void UnserializeTransaction(TxType& tx, Stream& s) {
@@ -276,10 +274,6 @@ inline void UnserializeTransaction(TxType& tx, Stream& s) {
         throw std::ios_base::failure("Unknown transaction optional data");
     }
     s >> tx.nLockTime;
-    if(tx.HasTime())
-    {
-        s >> tx.nTime;
-    }
 }
 
 template<typename Stream, typename TxType>
@@ -309,10 +303,6 @@ inline void SerializeTransaction(const TxType& tx, Stream& s) {
         }
     }
     s << tx.nLockTime;
-    if(tx.HasTime())
-    {
-        s << tx.nTime;
-    }
 }
 
 
@@ -323,13 +313,13 @@ class CTransaction
 {
 public:
     // Default transaction version.
-    static const int32_t CURRENT_VERSION=3;
+    static const int32_t CURRENT_VERSION=2;
 
     // Changing the default transaction version requires a two step process: first
     // adapting relay policy by bumping MAX_STANDARD_VERSION, and then later date
     // bumping the default CURRENT_VERSION at which point both CURRENT_VERSION and
     // MAX_STANDARD_VERSION will be equal.
-    static const int32_t MAX_STANDARD_VERSION=3;
+    static const int32_t MAX_STANDARD_VERSION=2;
 
     // The local variables are made const to prevent unintended modification
     // without updating the cached hash value. However, CTransaction is not
@@ -340,7 +330,6 @@ public:
     const std::vector<CTxIn> vin;
     const std::vector<CTxOut> vout;
     const uint32_t nLockTime;
-    const uint32_t nTime;
 
 private:
     /** Memory only. */
@@ -438,11 +427,6 @@ public:
         }
         return false;
     }
-
-    bool HasTime() const
-    {
-        return nVersion > 2 && nVersion <= CTransaction::MAX_STANDARD_VERSION;
-    }
 };
 
 /** A mutable version of CTransaction. */
@@ -452,7 +436,6 @@ struct CMutableTransaction
     std::vector<CTxIn> vin;
     std::vector<CTxOut> vout;
     uint32_t nLockTime;
-    uint32_t nTime;
 
     CMutableTransaction();
     CMutableTransaction(const CTransaction& tx);
@@ -491,11 +474,6 @@ struct CMutableTransaction
             }
         }
         return false;
-    }
-
-    bool HasTime() const
-    {
-        return nVersion > 2 && nVersion <= CTransaction::MAX_STANDARD_VERSION;
     }
 };
 

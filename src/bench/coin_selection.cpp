@@ -10,8 +10,6 @@
 #include <boost/foreach.hpp>
 #include <set>
 
-uint32_t currentTime;
-
 static void addCoin(const CAmount& nValue, const CWallet& wallet, std::vector<COutput>& vCoins)
 {
     int nInput = 0;
@@ -22,7 +20,6 @@ static void addCoin(const CAmount& nValue, const CWallet& wallet, std::vector<CO
     tx.vout.resize(nInput + 1);
     tx.vout[nInput].nValue = nValue;
     //Use default time for coin
-    tx.nTime = currentTime - GetRandInt(100) - 1; //qtum
     CWalletTx* wtx = new CWalletTx(&wallet, MakeTransactionRef(std::move(tx)));
 
     int nAge = 6 * 24;
@@ -42,7 +39,6 @@ static void CoinSelection(benchmark::State& state)
     const CWallet wallet;
     std::vector<COutput> vCoins;
     LOCK(wallet.cs_wallet);
-    currentTime = GetAdjustedTime();
     while (state.KeepRunning()) {
         // Empty wallet.
         BOOST_FOREACH (COutput output, vCoins)
@@ -56,7 +52,7 @@ static void CoinSelection(benchmark::State& state)
 
         std::set<std::pair<const CWalletTx*, unsigned int> > setCoinsRet;
         CAmount nValueRet;
-        bool success = wallet.SelectCoinsMinConf(1003 * COIN, currentTime, 1, 6, 0, vCoins, setCoinsRet, nValueRet);
+        bool success = wallet.SelectCoinsMinConf(1003 * COIN, 1, 6, 0, vCoins, setCoinsRet, nValueRet);
         assert(success);
         assert(nValueRet == 1003 * COIN);
         assert(setCoinsRet.size() == 2);
