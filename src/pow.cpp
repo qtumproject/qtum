@@ -75,9 +75,14 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
 
 unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nFirstBlockTime, const Consensus::Params& params, bool fProofOfStake)
 {
+
+    if(fProofOfStake){
+    if (params.fPoSNoRetargeting)
+        return pindexLast->nBits;
+    }else{
     if (params.fPowNoRetargeting)
         return pindexLast->nBits;
-
+    }
     // Limit adjustment step
     int64_t nTargetSpacing = params.nPowTargetSpacing;
     int64_t nActualSpacing = pindexLast->GetBlockTime() - nFirstBlockTime;
