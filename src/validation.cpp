@@ -3372,7 +3372,6 @@ bool FindUndoPos(CValidationState &state, int nFile, CDiskBlockPos &pos, unsigne
 
     return true;
 }
-
 #ifdef ENABLE_WALLET
 // novacoin: attempt to generate suitable proof-of-stake
 bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& nTotalFees)
@@ -3411,6 +3410,7 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
                 pblock->nTime = nTimeBlock;
                 pblock->vtx[1] = MakeTransactionRef(std::move(txCoinStake));
                 pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
+                pblock->prevoutStake = txCoinStake.vin[0].prevout;
 
                 // append a signature to our block and ensure that is LowS
                 return key.Sign(pblock->GetHashWithoutSign(), pblock->vchBlockSig) && EnsureLowS(pblock->vchBlockSig);
@@ -3476,7 +3476,10 @@ bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, const 
         return state.DoS(50, false, REJECT_INVALID, "high-hash", false, "proof of work failed");
     if (fCheckPOW && block.IsProofOfStake() && !CheckHeaderPoS(block, consensusParams))
         return state.DoS(50, false, REJECT_INVALID, "kernel-hash", false, "proof of stake failed");
-
+    if(block.fStake && block.prevoutStake.IsNull())
+        return state.DoS(50, false, REJECT_INVALID, "block-validation", false, "prevoutStake not valid");
+    if(block.fStake && block.nStakeTime == 0)
+        return state.DoS(50, false, REJECT_INVALID, "block-validation", false, "stakeTime not valid");
     return true;
 }
 
