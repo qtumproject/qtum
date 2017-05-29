@@ -3463,7 +3463,7 @@ bool CheckBlockSignature(const CBlock& block)
 bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW)
 {
     // Check proof of work matches claimed amount
-    if (fCheckPOW && !CheckHeaderProof(block, consensusParams))
+    if (fCheckPOW && block.IsProofOfWork() && !CheckHeaderProof(block, consensusParams)) //TODO Qtum validate PoS header
         return state.DoS(50, false, REJECT_INVALID, "high-hash", false, "proof of work failed");
 
     return true;
