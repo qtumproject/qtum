@@ -199,10 +199,8 @@ bool CBlockTreeDB::LoadBlockIndexGuts(boost::function<CBlockIndex*(const uint256
                 pindexNew->nTx            = diskindex.nTx;
                 pindexNew->hashStateRoot  = diskindex.hashStateRoot; // qtum
                 pindexNew->hashUTXORoot   = diskindex.hashUTXORoot; // qtum
-                pindexNew->fStake         = diskindex.fStake;
                 pindexNew->nStakeModifier = diskindex.nStakeModifier;
                 pindexNew->prevoutStake   = diskindex.prevoutStake;
-                pindexNew->nStakeTime     = diskindex.nStakeTime; // qtum
                 pindexNew->vchBlockSig    = diskindex.vchBlockSig; // qtum
 
                 if (!CheckIndexProof(*pindexNew, Params().GetConsensus()))
@@ -210,7 +208,7 @@ bool CBlockTreeDB::LoadBlockIndexGuts(boost::function<CBlockIndex*(const uint256
 
                 // NovaCoin: build setStakeSeen
                 if (pindexNew->IsProofOfStake())
-                    setStakeSeen.insert(std::make_pair(pindexNew->prevoutStake, pindexNew->nStakeTime));
+                    setStakeSeen.insert(std::make_pair(pindexNew->prevoutStake, pindexNew->nTime));
 
                 pcursor->Next();
             } else {
