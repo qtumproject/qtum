@@ -3636,7 +3636,7 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
         return state.DoS(100, false, REJECT_INVALID, "bad-diffbits", false, "incorrect proof of work");
 
     // Check timestamp against prev
-    if (block.GetBlockTime() <= pindexPrev->GetMedianTimePast())
+    if (pindexPrev && block.IsProofOfStake() && block.GetBlockTime() <= pindexPrev->GetMedianTimePast())
         return state.Invalid(false, REJECT_INVALID, "time-too-old", "block's timestamp is too early");
 
     // Check timestamp
@@ -3882,7 +3882,7 @@ static bool AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CValidation
         return error("AcceptBlock() : rejected by synchronized checkpoint");
 
     // Check timestamp against prev
-    if (pindexPrev && (block.GetBlockTime() <= pindexPrev->GetBlockTime() || FutureDrift(block.GetBlockTime()) < pindexPrev->GetBlockTime()))
+    if (pindexPrev && block.IsProofOfStake() && (block.GetBlockTime() <= pindexPrev->GetBlockTime() || FutureDrift(block.GetBlockTime()) < pindexPrev->GetBlockTime()))
         return error("AcceptBlock() : block's timestamp is too early");
 
     // Enforce rule that the coinbase starts with serialized block height
