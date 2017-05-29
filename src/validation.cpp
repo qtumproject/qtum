@@ -1184,16 +1184,15 @@ bool GetTransaction(const uint256 &hash, CTransactionRef &txOut, const Consensus
     return false;
 }
 
-bool CheckHeaderProof(const CBlockHeader& block, const Consensus::Params& consensusParams)
+bool CheckHeaderPoW(const CBlockHeader& block, const Consensus::Params& consensusParams)
 {
     // Check for proof of work block header
-    if(block.IsProofOfWork())
-    {
-        return CheckProofOfWork(block.GetHash(), block.nBits, consensusParams);
-    }
+    return CheckProofOfWork(block.GetHash(), block.nBits, consensusParams);
+}
 
+bool CheckHeaderPoS(const CBlockHeader& block, const Consensus::Params& consensusParams)
+{
     // Check for proof of stake block header
-
     // Get prev block index
     BlockMap::iterator mi = mapBlockIndex.find(block.hashPrevBlock);
     if (mi == mapBlockIndex.end())
@@ -1202,6 +1201,16 @@ bool CheckHeaderProof(const CBlockHeader& block, const Consensus::Params& consen
     // Check the kernel hash
     CBlockIndex* pindexPrev = (*mi).second;
     return CheckKernel(pindexPrev, block.nBits, block.StakeTime(), block.PrevoutStake());
+}
+
+bool CheckHeaderProof(const CBlockHeader& block, const Consensus::Params& consensusParams){
+    if(block.IsProofOfWork()){
+        return CheckHeaderPoW(block, consensusParams);
+    }
+    if(block.IsProofOfStake()){
+        return CheckHeaderPoS(block, consensusParams);
+    }
+    return false;
 }
 
 bool CheckIndexProof(const CBlockIndex& block, const Consensus::Params& consensusParams)
@@ -3463,8 +3472,10 @@ bool CheckBlockSignature(const CBlock& block)
 bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW)
 {
     // Check proof of work matches claimed amount
-    if (fCheckPOW && block.IsProofOfWork() && !CheckHeaderProof(block, consensusParams)) //TODO Qtum validate PoS header
+    if (fCheckPOW && block.IsProofOfWork() && !CheckHeaderPoW(block, consensusParams))
         return state.DoS(50, false, REJECT_INVALID, "high-hash", false, "proof of work failed");
+    if (fCheckPOW && block.IsProofOfStake() && !CheckHeaderPoS(block, consensusParams))
+        return state.DoS(50, false, REJECT_INVALID, "kernel-hash", false, "proof of stake failed");
 
     return true;
 }
