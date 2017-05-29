@@ -31,6 +31,7 @@
 
 #include <boost/unordered_map.hpp>
 #include <boost/filesystem/path.hpp>
+#include "consensus/consensus.h"
 
 /////////////////////////////////////////// qtum
 #include <qtum/qtumstate.h>
