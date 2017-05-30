@@ -1220,7 +1220,11 @@ bool CheckIndexProof(const CBlockIndex& block, const Consensus::Params& consensu
     uint256 hashProof = block.IsProofOfWork() ? block.GetBlockHash() : block.hashProof;
 
     // Check for proof after the hash proof is computed
-    return CheckProofOfWork(hashProof, block.nBits, consensusParams, block.IsProofOfStake());
+    if(block.IsProofOfStake() && block.pprev->IsProofOfStake()){
+        return CheckKernel(block.pprev, block.nBits, block.nStakeTime, block.prevoutStake);
+    }else{
+        return CheckProofOfWork(hashProof, block.nBits, consensusParams, false);
+    }
 }
 
 
