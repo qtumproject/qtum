@@ -252,7 +252,7 @@ public:
         	0
         };
 
-        consensus.nLastPOWBlock = 1000;
+        consensus.nLastPOWBlock = 5000;
     }
 };
 static CTestNetParams testNetParams;
