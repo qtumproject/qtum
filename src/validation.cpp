@@ -1221,7 +1221,7 @@ bool CheckIndexProof(const CBlockIndex& block, const Consensus::Params& consensu
 
     // Check for proof after the hash proof is computed
     if(block.IsProofOfStake() && block.pprev->IsProofOfStake()){
-        return CheckKernel(block.pprev, block.nBits, block.nStakeTime, block.prevoutStake);
+        return CheckKernel(block.pprev, block.nBits, block.nTime, block.prevoutStake);
     }else{
         return CheckProofOfWork(hashProof, block.nBits, consensusParams, false);
     }
@@ -3480,10 +3480,6 @@ bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, const 
         return state.DoS(50, false, REJECT_INVALID, "high-hash", false, "proof of work failed");
     if (fCheckPOW && block.IsProofOfStake() && !CheckHeaderPoS(block, consensusParams))
         return state.DoS(50, false, REJECT_INVALID, "kernel-hash", false, "proof of stake failed");
-    if(block.fStake && block.prevoutStake.IsNull())
-        return state.DoS(50, false, REJECT_INVALID, "block-validation", false, "prevoutStake not valid");
-    if(block.fStake && block.nStakeTime == 0)
-        return state.DoS(50, false, REJECT_INVALID, "block-validation", false, "stakeTime not valid");
     return true;
 }
 
