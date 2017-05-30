@@ -746,37 +746,41 @@ void ThreadStakeMiner(CWallet *pwallet)
     CReserveKey reservekey(pwallet);
 
     bool fTryToSync = true;
+    bool regtestMode = Params().GetConsensus().fPoSNoRetargeting;
+    if(regtestMode){
+        nMinerSleep = 30000; //limit regtest to 30s, otherwise it'll create 2 blocks per second
+    }
 
     while (true)
     {
         while (pwallet->IsLocked())
         {
             nLastCoinStakeSearchInterval = 0;
-            MilliSleep(1000);
+            MilliSleep(10000);
         }
+        //don't disable PoS mining for no connections if in regtest mode
+        if(!regtestMode) {
+            while (g_connman->GetNodeCount(CConnman::CONNECTIONS_ALL) == 0 || IsInitialBlockDownload()) {
+                nLastCoinStakeSearchInterval = 0;
+                fTryToSync = true;
+                MilliSleep(1000);
+            }
 
-        while (g_connman->GetNodeCount(CConnman::CONNECTIONS_ALL) == 0 || IsInitialBlockDownload())
-        {
-            nLastCoinStakeSearchInterval = 0;
-            fTryToSync = true;
-            MilliSleep(1000);
-        }
+            if (fTryToSync) {
+                fTryToSync = false;
+                if (g_connman->GetNodeCount(CConnman::CONNECTIONS_ALL) < 3 ||
+                    pindexBestHeader->GetBlockTime() < GetTime() - 10 * 60) {
+                    MilliSleep(60000);
+                    continue;
+                }
+            }
 
-        if (fTryToSync)
-        {
-            fTryToSync = false;
-            if (g_connman->GetNodeCount(CConnman::CONNECTIONS_ALL) < 3 || pindexBestHeader->GetBlockTime() < GetTime() - 10 * 60)
-            {
+
+            //check the next block height, wait for PoS
+            if (chainActive.Tip()->nHeight < Params().GetConsensus().nLastPOWBlock) {
                 MilliSleep(60000);
                 continue;
             }
-        }
-
-        //check the next block height, wait for PoS
-        if (chainActive.Tip()->nHeight < Params().GetConsensus().nLastPOWBlock)
-        {
-            MilliSleep(60000);
-            continue;
         }
 
         //
@@ -794,10 +798,8 @@ void ThreadStakeMiner(CWallet *pwallet)
             SetThreadPriority(THREAD_PRIORITY_NORMAL);
             CheckStake(pblock, *pwallet);
             SetThreadPriority(THREAD_PRIORITY_LOWEST);
-            MilliSleep(500);
         }
-        else
-            MilliSleep(nMinerSleep);
+        MilliSleep(nMinerSleep);
     }
 }
 
