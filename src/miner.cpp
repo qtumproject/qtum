@@ -774,13 +774,6 @@ void ThreadStakeMiner(CWallet *pwallet)
                     continue;
                 }
             }
-
-
-            //check the next block height, wait for PoS
-            if (chainActive.Tip()->nHeight < Params().GetConsensus().nLastPOWBlock) {
-                MilliSleep(60000);
-                continue;
-            }
         }
 
         //
