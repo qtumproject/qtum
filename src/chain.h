@@ -264,7 +264,7 @@ public:
         hashUTXORoot   = block.hashUTXORoot; // qtum
         nStakeModifier = uint256();
         hashProof = uint256(); 
-        prevoutStake = block.PrevoutStake();
+        prevoutStake   = block.prevoutStake; // qtum
         vchBlockSig    = block.vchBlockSig; // qtum
     }
 
