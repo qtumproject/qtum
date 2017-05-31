@@ -205,11 +205,9 @@ public:
     uint256 hashUTXORoot; // qtum
     // block signature - proof-of-stake protect the block by signing the block using a stake holder private key
     std::vector<unsigned char> vchBlockSig;
-    bool fStake;
     uint256 nStakeModifier;
     // proof-of-stake specific fields
     COutPoint prevoutStake;
-    unsigned int nStakeTime;
     uint256 hashProof; // qtum
 
     //! (memory only) Sequential id assigned to distinguish order in which blocks are received.
@@ -243,11 +241,9 @@ public:
         hashStateRoot  = uint256(); // qtum
         hashUTXORoot   = uint256(); // qtum
         vchBlockSig.clear();
-        fStake = 0;
         nStakeModifier = uint256();
         hashProof = uint256();
         prevoutStake.SetNull();
-        nStakeTime = 0; // qtum
     }
 
     CBlockIndex()
@@ -266,20 +262,9 @@ public:
         nNonce         = block.nNonce;
         hashStateRoot  = block.hashStateRoot; // qtum
         hashUTXORoot   = block.hashUTXORoot; // qtum
-        fStake = 0;
         nStakeModifier = uint256();
         hashProof = uint256(); 
-        if (block.IsProofOfStake())
-        {
-            SetProofOfStake();
-            prevoutStake = block.PrevoutStake();
-            nStakeTime = block.StakeTime();
-        }
-        else
-        {
-            prevoutStake.SetNull();
-            nStakeTime = 0;
-        }
+        prevoutStake   = block.prevoutStake; // qtum
         vchBlockSig    = block.vchBlockSig; // qtum
     }
 
@@ -314,9 +299,7 @@ public:
         block.hashStateRoot  = hashStateRoot; // qtum
         block.hashUTXORoot   = hashUTXORoot; // qtum
         block.vchBlockSig    = vchBlockSig;
-        block.fStake         = IsProofOfStake();
         block.prevoutStake   = prevoutStake;
-        block.nStakeTime     = nStakeTime; // qtum
         return block;
     }
 
@@ -353,19 +336,14 @@ public:
 
     bool IsProofOfWork() const // qtum
     {
-        return !fStake;
+        return !IsProofOfStake();
     }
 
     bool IsProofOfStake() const
     {
-        return fStake;
+        return !prevoutStake.IsNull();
     }
 
-    void SetProofOfStake() // qtum
-    {
-        fStake = true;
-    }
-	
     std::string ToString() const
     {
         return strprintf("CBlockIndex(pprev=%p, nHeight=%d, merkle=%s, hashBlock=%s)",
@@ -450,18 +428,8 @@ public:
         READWRITE(nNonce);
         READWRITE(hashStateRoot); // qtum
         READWRITE(hashUTXORoot); // qtum
-        READWRITE(fStake);
         READWRITE(nStakeModifier);
-        if (IsProofOfStake())
-        {
-            READWRITE(prevoutStake);
-            READWRITE(nStakeTime);
-        }
-        else if (ser_action.ForRead())
-        {
-            const_cast<CDiskBlockIndex*>(this)->prevoutStake.SetNull();
-            const_cast<CDiskBlockIndex*>(this)->nStakeTime = 0;
-        }
+        READWRITE(prevoutStake);
         READWRITE(hashProof);
         READWRITE(vchBlockSig); // qtum
     }
@@ -478,9 +446,7 @@ public:
         block.hashStateRoot   = hashStateRoot; // qtum
         block.hashUTXORoot    = hashUTXORoot; // qtum
         block.vchBlockSig     = vchBlockSig;
-        block.fStake          = fStake;
         block.prevoutStake    = prevoutStake;
-        block.nStakeTime      = nStakeTime; // qtum
         return block.GetHash();
     }
 

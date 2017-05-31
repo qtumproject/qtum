@@ -23,7 +23,7 @@ uint256 CBlockHeader::GetHashWithoutSign() const
 std::string CBlock::ToString() const
 {
     std::stringstream s;
-    s << strprintf("CBlock(hash=%s, ver=0x%08x, hashPrevBlock=%s, hashMerkleRoot=%s, nTime=%u, nBits=%08x, nNonce=%u, hashStateRoot=%s, hashUTXORoot=%s, blockSig=%s, proof=%s, prevoutStake=%s, nStakeTime=%u, vtx=%u)\n",
+    s << strprintf("CBlock(hash=%s, ver=0x%08x, hashPrevBlock=%s, hashMerkleRoot=%s, nTime=%u, nBits=%08x, nNonce=%u, hashStateRoot=%s, hashUTXORoot=%s, blockSig=%s, proof=%s, prevoutStake=%s, vtx=%u)\n",
         GetHash().ToString(),
         nVersion,
         hashPrevBlock.ToString(),
@@ -32,9 +32,8 @@ std::string CBlock::ToString() const
         hashStateRoot.ToString(), // qtum
         hashUTXORoot.ToString(), // qtum
         HexStr(vchBlockSig),
-        fStake ? "PoS" : "PoW",
+        IsProofOfStake() ? "PoS" : "PoW",
         prevoutStake.ToString(),
-        nStakeTime, // qtum
         vtx.size());
     for (unsigned int i = 0; i < vtx.size(); i++)
     {

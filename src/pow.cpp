@@ -68,11 +68,11 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
 {
 
     if(fProofOfStake){
-    if (params.fPoSNoRetargeting)
-        return pindexLast->nBits;
+        if (params.fPoSNoRetargeting)
+            return pindexLast->nBits;
     }else{
-    if (params.fPowNoRetargeting)
-        return pindexLast->nBits;
+        if (params.fPowNoRetargeting)
+            return pindexLast->nBits;
     }
     // Limit adjustment step
     int64_t nTargetSpacing = params.nPowTargetSpacing;
