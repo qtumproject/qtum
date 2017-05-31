@@ -71,7 +71,7 @@ int64_t UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParam
 
     // Updating time can change work required on testnet:
     if (consensusParams.fPowAllowMinDifficultyBlocks)
-        pblock->nBits = GetNextWorkRequired(pindexPrev, pblock, consensusParams);
+        pblock->nBits = GetNextWorkRequired(pindexPrev, pblock, consensusParams,pblock->IsProofOfStake());
 
     return nNewTime - nOldTime;
 }
@@ -245,7 +245,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     pblock->hashPrevBlock  = pindexPrev->GetBlockHash();
     if (!fProofOfStake)
         UpdateTime(pblock, chainparams.GetConsensus(), pindexPrev);
-    pblock->nBits          = GetNextWorkRequired(pindexPrev, pblock, chainparams.GetConsensus());
+    pblock->nBits          = GetNextWorkRequired(pindexPrev, pblock, chainparams.GetConsensus(),fProofOfStake);
     pblock->nNonce         = 0;
     pblocktemplate->vTxSigOpsCost[0] = WITNESS_SCALE_FACTOR * GetLegacySigOpCount(*pblock->vtx[0]);
 
@@ -765,7 +765,6 @@ void ThreadStakeMiner(CWallet *pwallet)
                 fTryToSync = true;
                 MilliSleep(1000);
             }
-
             if (fTryToSync) {
                 fTryToSync = false;
                 if (g_connman->GetNodeCount(CConnman::CONNECTIONS_ALL) < 3 ||
@@ -775,7 +774,6 @@ void ThreadStakeMiner(CWallet *pwallet)
                 }
             }
         }
-
         //
         // Create new block
         //
