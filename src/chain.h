@@ -264,14 +264,7 @@ public:
         hashUTXORoot   = block.hashUTXORoot; // qtum
         nStakeModifier = uint256();
         hashProof = uint256(); 
-        if (block.IsProofOfStake())
-        {
-            prevoutStake = block.PrevoutStake();
-        }
-        else
-        {
-            prevoutStake.SetNull();
-        }
+        prevoutStake = block.PrevoutStake();
         vchBlockSig    = block.vchBlockSig; // qtum
     }
 
@@ -436,14 +429,7 @@ public:
         READWRITE(hashStateRoot); // qtum
         READWRITE(hashUTXORoot); // qtum
         READWRITE(nStakeModifier);
-        if (IsProofOfStake())
-        {
-            READWRITE(prevoutStake);
-        }
-        else if (ser_action.ForRead())
-        {
-            const_cast<CDiskBlockIndex*>(this)->prevoutStake.SetNull();
-        }
+        READWRITE(prevoutStake);
         READWRITE(hashProof);
         READWRITE(vchBlockSig); // qtum
     }
