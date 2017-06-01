@@ -1915,9 +1915,10 @@ static int64_t nTimeTotal = 0;
 /////////////////////////////////////////////////////////////////////// qtum
 bool CheckRefund(const CBlock& block, const std::vector<CTxOut>& vouts){
     size_t offset = block.IsProofOfStake() ? 1 : 0;
-    for(size_t i = 0; i < vouts.size(); i++)
-        if(block.vtx[offset]->vout[i + 1] != vouts[i])
+    for(size_t i = 0; i < vouts.size(); i++){
+        if(std::find(block.vtx[offset]->vout.begin(), block.vtx[offset]->vout.end(), vouts[i])==block.vtx[offset]->vout.end())
             return false;
+    }
     return true;
 }
 
@@ -2407,7 +2408,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     if (block.IsProofOfWork())
     {
         CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus());
-        if (block.vtx[0]->GetValueOut() > blockReward || !CheckRefund(block, checkVouts))
+        if (block.vtx[0]->GetValueOut() > blockReward)
             return state.DoS(100,
                              error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
                                    block.vtx[0]->GetValueOut(), blockReward),
@@ -2419,13 +2420,16 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             return error("ConnectBlock() : %s transaction timestamp check failure", block.vtx[1]->GetHash().ToString());
 
         CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus());
-         if (nActualStakeReward > blockReward || !CheckRefund(block, checkVouts))
+         if (nActualStakeReward > blockReward)
             return state.DoS(100,
                              error("ConnectBlock(): coinstake pays too much (actual=%d vs limit=%d)",
-                                   block.vtx[0]->GetValueOut(), blockReward),
+                                   nActualStakeReward, blockReward),
                                    REJECT_INVALID, "bad-cs-amount");
         
     }
+
+    if(!CheckRefund(block, checkVouts))
+        return state.DoS(100,error("ConnectBlock(): Gas refund missing"));
 
     if (!control.Wait())
         return state.DoS(100, false);
