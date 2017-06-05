@@ -3417,8 +3417,16 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
                 pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
                 pblock->prevoutStake = pblock->vtx[1]->vin[0].prevout;
 
+                // Check timestamp against prev
+                if(pblock->GetBlockTime() <= pindexBestHeader->GetBlockTime() || FutureDrift(pblock->GetBlockTime()) < pindexBestHeader->GetBlockTime())
+                {
+                    return false;
+                }
+
                 // append a signature to our block and ensure that is LowS
-                return key.Sign(pblock->GetHashWithoutSign(), pblock->vchBlockSig) && EnsureLowS(pblock->vchBlockSig);
+                return key.Sign(pblock->GetHashWithoutSign(), pblock->vchBlockSig) && 
+                           EnsureLowS(pblock->vchBlockSig) &&
+                           CheckHeaderPoS(*pblock, Params().GetConsensus());
             }
         }
         nLastCoinStakeSearchInterval = nSearchTime - nLastCoinStakeSearchTime;

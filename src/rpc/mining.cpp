@@ -305,16 +305,21 @@ UniValue getstakinginfo(const JSONRPCRequest& request)
     LOCK(cs_main);
 
     uint64_t nWeight = 0;
+    uint64_t nStakedCoins = 0;
 #ifdef ENABLE_WALLET
     if (pwalletMain)
+    {
         nWeight = pwalletMain->GetStakeWeight();
+        nStakedCoins = pwalletMain->GetStake();
+    }
 #endif
 
     uint64_t nNetworkWeight = GetPoSKernelPS();
-    bool staking = nLastCoinStakeSearchInterval && nWeight;
+    bool staking = nStakedCoins > 0;
+    bool createStakeBlockNow = nLastCoinStakeSearchInterval && nWeight;
     const Consensus::Params& consensusParams = Params().GetConsensus();
     int64_t nTargetSpacing = consensusParams.nPowTargetSpacing;
-    uint64_t nExpectedTime = staking ? (nTargetSpacing * nNetworkWeight / nWeight) : 0;
+    uint64_t nExpectedTime = createStakeBlockNow ? (nTargetSpacing * nNetworkWeight / nWeight) : 0;
 
     UniValue obj(UniValue::VOBJ);
 

@@ -719,6 +719,7 @@ public:
      */
     void AvailableCoinsForStaking(std::vector<COutput>& vCoins) const;
     void AvailableCoins(std::vector<COutput>& vCoins, bool fOnlyConfirmed=true, const CCoinControl *coinControl = NULL, bool fIncludeZeroValue=false) const;
+    bool HaveAvailableCoinsForStaking() const;
 
     /**
      * Shuffle and select coins until nTargetValue is reached while avoiding
