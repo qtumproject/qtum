@@ -777,18 +777,21 @@ void ThreadStakeMiner(CWallet *pwallet)
         //
         // Create new block
         //
-        int64_t nTotalFees = 0;
-        std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(Params()).CreateNewBlock(reservekey.reserveScript, true, &nTotalFees));
-        if (!pblocktemplate.get())
-            return;
-
-        // Trying to sign a block
-        std::shared_ptr<CBlock> pblock = std::make_shared<CBlock>(pblocktemplate->block);
-        if (SignBlock(pblock, *pwallet, nTotalFees))
+        if(pwallet->HaveAvailableCoinsForStaking())
         {
-            SetThreadPriority(THREAD_PRIORITY_NORMAL);
-            CheckStake(pblock, *pwallet);
-            SetThreadPriority(THREAD_PRIORITY_LOWEST);
+            int64_t nTotalFees = 0;
+            std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(Params()).CreateNewBlock(reservekey.reserveScript, true, &nTotalFees));
+            if (!pblocktemplate.get())
+                return;
+
+            // Trying to sign a block
+            std::shared_ptr<CBlock> pblock = std::make_shared<CBlock>(pblocktemplate->block);
+            if (SignBlock(pblock, *pwallet, nTotalFees))
+            {
+                SetThreadPriority(THREAD_PRIORITY_NORMAL);
+                CheckStake(pblock, *pwallet);
+                SetThreadPriority(THREAD_PRIORITY_LOWEST);
+            }
         }
         MilliSleep(nMinerSleep);
     }
