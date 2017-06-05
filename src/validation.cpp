@@ -3408,6 +3408,12 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
         int64_t nSearchInterval = 1;
         if (wallet.CreateCoinStake(wallet, pblock->nBits, nSearchInterval, nTotalFees, nTimeBlock, txCoinStake, key))
         {
+            // Check timestamp against prev
+            if(pblock->GetBlockTime() <= pindexBestHeader->GetBlockTime() || FutureDrift(pblock->GetBlockTime()) < pindexBestHeader->GetBlockTime())
+            {
+                return false;
+            }
+
             if (nTimeBlock >= pindexBestHeader->GetMedianTimePast()+1)
             {
                 // make sure coinstake would meet timestamp protocol
