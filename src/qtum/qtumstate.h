@@ -116,7 +116,7 @@ class CondensingTX{
 
 public:
 
-    CondensingTX(QtumState* _state, const std::vector<TransferInfo>& _transfers, const QtumTransaction& _transaction) : transfers(_transfers), transaction(_transaction), state(_state){}
+    CondensingTX(QtumState* _state, const std::vector<TransferInfo>& _transfers, const QtumTransaction& _transaction, std::vector<dev::Address> _deleteAddresses = std::vector<dev::Address>()) : transfers(_transfers), transaction(_transaction), state(_state), deleteAddresses(_deleteAddresses){}
 
     CTransaction createCondensingTX();
 
@@ -134,6 +134,8 @@ private:
 
     std::vector<CTxOut> createVout();
 
+    bool checkDeleteAddress(dev::Address addr);
+
     std::map<dev::Address, plusAndMinus> plusMinusInfo;
 
     std::map<dev::Address, dev::u256> balances;
@@ -143,6 +145,8 @@ private:
     std::map<dev::Address, Vin> vins;
 
     const std::vector<TransferInfo>& transfers;
+
+    const std::vector<dev::Address> deleteAddresses;
 
     const QtumTransaction& transaction;
 
