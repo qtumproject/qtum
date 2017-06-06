@@ -120,4 +120,8 @@ BOOST_AUTO_TEST_CASE(parse_incorrect_txcall_few){
     runTest(false, 120, script1, script2);
 }
 
+BOOST_AUTO_TEST_CASE(pt){
+    BOOST_CHECK(false);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
