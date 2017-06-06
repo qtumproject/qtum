@@ -116,7 +116,7 @@ class CondensingTX{
 
 public:
 
-    CondensingTX(QtumState* _state, const std::vector<TransferInfo>& _transfers, const QtumTransaction& _transaction, std::vector<dev::Address> _deleteAddresses = std::vector<dev::Address>()) : transfers(_transfers), transaction(_transaction), state(_state), deleteAddresses(_deleteAddresses){}
+    CondensingTX(QtumState* _state, const std::vector<TransferInfo>& _transfers, const QtumTransaction& _transaction, std::vector<dev::Address> _deleteAddresses = std::vector<dev::Address>()) : transfers(_transfers), deleteAddresses(_deleteAddresses), transaction(_transaction), state(_state){}
 
     CTransaction createCondensingTX();
 
