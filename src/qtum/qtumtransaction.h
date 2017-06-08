@@ -1,5 +1,6 @@
 #include <libethcore/Transaction.h>
 
+
 class QtumTransaction : public dev::eth::Transaction{
 
 public:
