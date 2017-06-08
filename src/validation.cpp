@@ -3377,13 +3377,32 @@ bool FindUndoPos(CValidationState &state, int nFile, CDiskBlockPos &pos, unsigne
 
     return true;
 }
+
+bool CheckFirstCoinstakeOutput(const CBlock& block)
+{
+	// Coinbase output should be empty if proof-of-stake block
+	int commitpos = GetWitnessCommitmentIndex(block);
+	if(commitpos < 0)
+	{
+		if (block.vtx[0]->vout.size() != 1 || !block.vtx[0]->vout[0].IsEmpty())
+			return false;
+	}
+	else
+	{
+		if (block.vtx[0]->vout.size() != 2 || !block.vtx[0]->vout[0].IsEmpty() || block.vtx[0]->vout[1].nValue)
+			return false;
+	}
+
+	return true;
+}
+
 #ifdef ENABLE_WALLET
 // novacoin: attempt to generate suitable proof-of-stake
 bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& nTotalFees)
 {
     // if we are trying to sign
     //    something except proof-of-stake block template
-    if (!pblock->vtx[0]->vout[0].IsEmpty())
+    if (!CheckFirstCoinstakeOutput(*pblock))
         return false;
 
     // if we are trying to sign
@@ -3540,7 +3559,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
     {
         // Coinbase output should be empty if proof-of-stake block
         int commitpos = GetWitnessCommitmentIndex(block);
-        if (block.vtx[0]->vout.size() != (commitpos == -1 ? 1 : 2) || !block.vtx[0]->vout[0].IsEmpty())
+        if (!CheckFirstCoinstakeOutput(block))
             return state.DoS(100, false, REJECT_INVALID, "bad-cb-missing", false, "coinbase output not empty for proof-of-stake block");
 
         // Second transaction must be coinstake, the rest must not be
