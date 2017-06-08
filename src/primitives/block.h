@@ -51,6 +51,7 @@ public:
         READWRITE(nNonce);
         READWRITE(hashStateRoot); // qtum
         READWRITE(hashUTXORoot); // qtum
+        prevoutStake = PrevoutStake();
         READWRITE(prevoutStake);
         if (!(s.GetType() & SER_WITHOUT_SIGNATURE))
             READWRITE(vchBlockSig);
@@ -95,6 +96,11 @@ public:
         return !IsProofOfStake();
     }
     
+    virtual COutPoint PrevoutStake() const
+    {
+        return prevoutStake;
+    }
+
     virtual uint32_t StakeTime() const
     {
         uint32_t ret = 0;
@@ -118,7 +124,7 @@ public:
             this->hashStateRoot  = other.hashStateRoot;
             this->hashUTXORoot   = other.hashUTXORoot;
             this->vchBlockSig    = other.vchBlockSig;
-            this->prevoutStake   = other.prevoutStake;
+            this->prevoutStake   = other.PrevoutStake();
         }
         return *this;
     }
@@ -160,6 +166,26 @@ public:
         fChecked = false;
     }
 
+    // ppcoin: two types of block: proof-of-work or proof-of-stake
+    bool IsProofOfStake() const //qtum
+    {
+        if(vtx.size() == 0) return !prevoutStake.IsNull();
+
+        return (vtx.size() > 1 && vtx[1]->IsCoinStake());
+    }
+
+    COutPoint PrevoutStake() const
+    {
+        if(vtx.size() == 0) return prevoutStake;
+
+        COutPoint ret;
+        if(IsProofOfStake())
+        {
+            ret = vtx[1]->vin[0].prevout;
+        }
+        return ret;
+    }
+
     std::pair<COutPoint, unsigned int> GetProofOfStake() const //qtum
     {
         return IsProofOfStake()? std::make_pair(vtx[1]->vin[0].prevout, nTime) : std::make_pair(COutPoint(), (unsigned int)0);
@@ -177,7 +203,7 @@ public:
         block.hashStateRoot  = hashStateRoot; // qtum
         block.hashUTXORoot   = hashUTXORoot; // qtum
         block.vchBlockSig    = vchBlockSig;
-        block.prevoutStake   = prevoutStake;
+        block.prevoutStake   = PrevoutStake();
         return block;
     }
 
