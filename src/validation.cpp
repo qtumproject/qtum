@@ -3487,8 +3487,7 @@ bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, const 
     // Check proof of work matches claimed amount
     if (fCheckPOW && block.IsProofOfWork() && !CheckHeaderPoW(block, consensusParams))
         return state.DoS(50, false, REJECT_INVALID, "high-hash", false, "proof of work failed");
-    if (fCheckPOW && block.IsProofOfStake() && !CheckHeaderPoS(block, consensusParams))
-        return state.DoS(50, false, REJECT_INVALID, "kernel-hash", false, "proof of stake failed");
+    // PoS header proofs are not validated and always return true
     return true;
 }
 
