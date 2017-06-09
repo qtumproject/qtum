@@ -260,7 +260,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
 }
 
 
-std::unique_ptr<CBlockTemplate> BlockAssembler::CreateEmptyPoSBlock(const CScript& scriptPubKeyIn, bool fProofOfStake, int64_t* pTotalFees)
+std::unique_ptr<CBlockTemplate> BlockAssembler::CreateEmptyBlock(const CScript& scriptPubKeyIn, bool fProofOfStake, int64_t* pTotalFees)
 {
     resetBlock();
 
@@ -298,13 +298,6 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateEmptyPoSBlock(const CScrip
                       ? nMedianTimePast
                       : pblock->GetBlockTime();
 
-    // Decide whether to include witness transactions
-    // This is only needed in case the witness softfork activation is reverted
-    // (which would require a very deep reorganization) or when
-    // -promiscuousmempoolflags is used.
-    // TODO: replace this with a call to main to assess validity of a mempool
-    // transaction (which in most cases can be a no-op).
-    fIncludeWitness = IsWitnessEnabled(pindexPrev, chainparams.GetConsensus());
 
     nLastBlockTx = nBlockTx;
     nLastBlockSize = nBlockSize;
@@ -339,19 +332,13 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateEmptyPoSBlock(const CScrip
     }
 
     //////////////////////////////////////////////////////// qtum
-    dev::h256 oldHashStateRoot(globalState->rootHash());
-    dev::h256 oldHashUTXORoot(globalState->rootHashUTXO());
+    //state shouldn't change here for an empty block, but if it's not valid it'll fail in CheckBlock later
     pblock->hashStateRoot = uint256(h256Touint(dev::h256(globalState->rootHash())));
     pblock->hashUTXORoot = uint256(h256Touint(dev::h256(globalState->rootHashUTXO())));
-    globalState->setRoot(oldHashStateRoot);
-    globalState->setRootUTXO(oldHashUTXORoot);
     ////////////////////////////////////////////////////////
 
     pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus(), fProofOfStake);
     pblocktemplate->vTxFees[0] = -nFees;
-
-    uint64_t nSerializeSize = GetSerializeSize(*pblock, SER_NETWORK, PROTOCOL_VERSION);
-    LogPrint("miner", "CreateNewBlock(): total size: %u block weight: %u txs: %u fees: %ld sigops %d\n", nSerializeSize, GetBlockWeight(*pblock), nBlockTx, nFees, nBlockSigOpsCost);
 
     // The total fee is the Fees minus the Refund
     if (pTotalFees)
@@ -897,26 +884,31 @@ void ThreadStakeMiner(CWallet *pwallet)
         if(pwallet->HaveAvailableCoinsForStaking())
         {
             int64_t nTotalFees = 0;
-            std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(Params()).CreateEmptyPoSBlock(reservekey.reserveScript, true, &nTotalFees));
+            // First just create an empty block. No need to process transactions until we know we can create a block
+            std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(Params()).CreateEmptyBlock(reservekey.reserveScript, true, &nTotalFees));
             if (!pblocktemplate.get())
                 return;
 
-            // Trying to sign a block
+            // Try to sign a block (this also checks for a PoS stake)
             std::shared_ptr<CBlock> pblock = std::make_shared<CBlock>(pblocktemplate->block);
             if (SignBlock(pblock, *pwallet, nTotalFees))
             {
+                // increase priority so we can build the full PoS block ASAP to ensure the timestamp doesn't expire
                 SetThreadPriority(THREAD_PRIORITY_ABOVE_NORMAL);
-                //create actual block with transactions
+                // Create a block that's properly populated with transactions
                 std::unique_ptr<CBlockTemplate> pblocktemplatefilled(BlockAssembler(Params()).CreateNewBlock(reservekey.reserveScript, true, &nTotalFees, pblock->nTime));
                 if (!pblocktemplatefilled.get())
                     return;
 
-                // Trying to sign a block
+                // Sign the full block and use the timestamp from earlier for a valid stake
                 std::shared_ptr<CBlock> pblockfilled = std::make_shared<CBlock>(pblocktemplatefilled->block);
                 if (SignBlock(pblockfilled, *pwallet, nTotalFees))
                 {
+                    // Should always reach here unless we spent too much time processing transactions and the timestamp is now invalid
+                    // CheckStake also does CheckBlock and AcceptBlock to propogate it to the network
                     CheckStake(pblockfilled, *pwallet);
                 }
+                //return back to low priority
                 SetThreadPriority(THREAD_PRIORITY_LOWEST);
             }
         }
