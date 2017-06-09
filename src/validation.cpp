@@ -3679,7 +3679,7 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
     const int nHeight = pindexPrev == NULL ? 0 : pindexPrev->nHeight + 1;
     // Check proof of work
     if (block.nBits != GetNextWorkRequired(pindexPrev, &block, consensusParams,block.IsProofOfStake()))
-        return state.DoS(100, false, REJECT_INVALID, "bad-diffbits", false, "incorrect proof of work");
+        return state.DoS(100, false, REJECT_INVALID, "bad-diffbits", false, "incorrect difficulty value");
 
     // Check timestamp against prev
     if (pindexPrev && block.IsProofOfStake() && block.GetBlockTime() <= pindexPrev->GetMedianTimePast())
