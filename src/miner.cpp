@@ -131,7 +131,7 @@ void BlockAssembler::resetBlock()
     blockFinished = false;
 }
 
-std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bool fProofOfStake, int64_t* pTotalFees)
+std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bool fProofOfStake, int64_t* pTotalFees, int32_t txProofTime)
 {
     resetBlock();
 
@@ -159,15 +159,17 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     if (chainparams.MineBlocksOnDemand())
         pblock->nVersion = GetArg("-blockversion", pblock->nVersion);
 
-    uint32_t txProofTime = GetAdjustedTime();
+    if(txProofTime == 0) {
+        txProofTime = GetAdjustedTime();
+    }
     if(fProofOfStake)
         txProofTime &= STAKE_TIMESTAMP_MASK;
     pblock->nTime = txProofTime;
     const int64_t nMedianTimePast = pindexPrev->GetMedianTimePast();
 
     nLockTimeCutoff = (STANDARD_LOCKTIME_VERIFY_FLAGS & LOCKTIME_MEDIAN_TIME_PAST)
-                       ? nMedianTimePast
-                       : pblock->GetBlockTime();
+                      ? nMedianTimePast
+                      : pblock->GetBlockTime();
 
     // Decide whether to include witness transactions
     // This is only needed in case the witness softfork activation is reverted
@@ -198,7 +200,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     }
     coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
     pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTx));
-    
+
     // Create coinstake transaction.
     if(fProofOfStake)
     {
@@ -211,7 +213,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
 
     //Add the contract data into the proof transaction
     int contrTxIndex = fProofOfStake ? 1 : 0;
-	
+
     //////////////////////////////////////////////////////// qtum
     dev::h256 oldHashStateRoot(globalState->rootHash());
     dev::h256 oldHashUTXORoot(globalState->rootHashUTXO());
@@ -253,9 +255,111 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     if (!fProofOfStake && !TestBlockValidity(state, chainparams, *pblock, pindexPrev, false, false)) {
         throw std::runtime_error(strprintf("%s: TestBlockValidity failed: %s", __func__, FormatStateMessage(state)));
     }
-    
+
     return std::move(pblocktemplate);
 }
+
+
+std::unique_ptr<CBlockTemplate> BlockAssembler::CreateEmptyBlock(const CScript& scriptPubKeyIn, bool fProofOfStake, int64_t* pTotalFees)
+{
+    resetBlock();
+
+    pblocktemplate.reset(new CBlockTemplate());
+
+    if(!pblocktemplate.get())
+        return nullptr;
+    pblock = &pblocktemplate->block; // pointer for convenience
+
+    // Add dummy coinbase tx as first transaction
+    pblock->vtx.emplace_back();
+    // Add dummy coinstake tx as second transaction
+    if(fProofOfStake)
+        pblock->vtx.emplace_back();
+    pblocktemplate->vTxFees.push_back(-1); // updated at end
+    pblocktemplate->vTxSigOpsCost.push_back(-1); // updated at end
+
+    LOCK2(cs_main, mempool.cs);
+    CBlockIndex* pindexPrev = chainActive.Tip();
+    nHeight = pindexPrev->nHeight + 1;
+
+    pblock->nVersion = ComputeBlockVersion(pindexPrev, chainparams.GetConsensus());
+    // -regtest only: allow overriding block.nVersion with
+    // -blockversion=N to test forking scenarios
+    if (chainparams.MineBlocksOnDemand())
+        pblock->nVersion = GetArg("-blockversion", pblock->nVersion);
+
+    uint32_t txProofTime = GetAdjustedTime();
+    if(fProofOfStake)
+        txProofTime &= STAKE_TIMESTAMP_MASK;
+    pblock->nTime = txProofTime;
+    const int64_t nMedianTimePast = pindexPrev->GetMedianTimePast();
+
+    nLockTimeCutoff = (STANDARD_LOCKTIME_VERIFY_FLAGS & LOCKTIME_MEDIAN_TIME_PAST)
+                      ? nMedianTimePast
+                      : pblock->GetBlockTime();
+
+
+    nLastBlockTx = nBlockTx;
+    nLastBlockSize = nBlockSize;
+    nLastBlockWeight = nBlockWeight;
+
+    // Create coinbase transaction.
+    CMutableTransaction coinbaseTx;
+    coinbaseTx.vin.resize(1);
+    coinbaseTx.vin[0].prevout.SetNull();
+    coinbaseTx.vout.resize(1);
+    if (fProofOfStake)
+    {
+        // Make the coinbase tx empty in case of proof of stake
+        coinbaseTx.vout[0].SetEmpty();
+    }
+    else
+    {
+        coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
+        coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
+    }
+    coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
+    pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTx));
+
+    // Create coinstake transaction.
+    if(fProofOfStake)
+    {
+        CMutableTransaction coinstakeTx;
+        coinstakeTx.vout.resize(2);
+        coinstakeTx.vout[0].SetEmpty();
+        coinstakeTx.vout[1].scriptPubKey = scriptPubKeyIn;
+        pblock->vtx[1] = MakeTransactionRef(std::move(coinstakeTx));
+    }
+
+    //////////////////////////////////////////////////////// qtum
+    //state shouldn't change here for an empty block, but if it's not valid it'll fail in CheckBlock later
+    pblock->hashStateRoot = uint256(h256Touint(dev::h256(globalState->rootHash())));
+    pblock->hashUTXORoot = uint256(h256Touint(dev::h256(globalState->rootHashUTXO())));
+    ////////////////////////////////////////////////////////
+
+    pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus(), fProofOfStake);
+    pblocktemplate->vTxFees[0] = -nFees;
+
+    // The total fee is the Fees minus the Refund
+    if (pTotalFees)
+        *pTotalFees = nFees - bceResult.refundSender;
+
+    // Fill in header
+    pblock->hashPrevBlock  = pindexPrev->GetBlockHash();
+    if (!fProofOfStake)
+        UpdateTime(pblock, chainparams.GetConsensus(), pindexPrev);
+    pblock->nBits          = GetNextWorkRequired(pindexPrev, pblock, chainparams.GetConsensus(),fProofOfStake);
+    pblock->nNonce         = 0;
+    pblocktemplate->vTxSigOpsCost[0] = WITNESS_SCALE_FACTOR * GetLegacySigOpCount(*pblock->vtx[0]);
+
+    CValidationState state;
+    if (!fProofOfStake && !TestBlockValidity(state, chainparams, *pblock, pindexPrev, false, false)) {
+        throw std::runtime_error(strprintf("%s: TestBlockValidity failed: %s", __func__, FormatStateMessage(state)));
+    }
+
+    return std::move(pblocktemplate);
+}
+
 
 bool BlockAssembler::isStillDependent(CTxMemPool::txiter iter)
 {
@@ -780,16 +884,31 @@ void ThreadStakeMiner(CWallet *pwallet)
         if(pwallet->HaveAvailableCoinsForStaking())
         {
             int64_t nTotalFees = 0;
-            std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(Params()).CreateNewBlock(reservekey.reserveScript, true, &nTotalFees));
+            // First just create an empty block. No need to process transactions until we know we can create a block
+            std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(Params()).CreateEmptyBlock(reservekey.reserveScript, true, &nTotalFees));
             if (!pblocktemplate.get())
                 return;
 
-            // Trying to sign a block
+            // Try to sign a block (this also checks for a PoS stake)
             std::shared_ptr<CBlock> pblock = std::make_shared<CBlock>(pblocktemplate->block);
             if (SignBlock(pblock, *pwallet, nTotalFees))
             {
-                SetThreadPriority(THREAD_PRIORITY_NORMAL);
-                CheckStake(pblock, *pwallet);
+                // increase priority so we can build the full PoS block ASAP to ensure the timestamp doesn't expire
+                SetThreadPriority(THREAD_PRIORITY_ABOVE_NORMAL);
+                // Create a block that's properly populated with transactions
+                std::unique_ptr<CBlockTemplate> pblocktemplatefilled(BlockAssembler(Params()).CreateNewBlock(reservekey.reserveScript, true, &nTotalFees, pblock->nTime));
+                if (!pblocktemplatefilled.get())
+                    return;
+
+                // Sign the full block and use the timestamp from earlier for a valid stake
+                std::shared_ptr<CBlock> pblockfilled = std::make_shared<CBlock>(pblocktemplatefilled->block);
+                if (SignBlock(pblockfilled, *pwallet, nTotalFees))
+                {
+                    // Should always reach here unless we spent too much time processing transactions and the timestamp is now invalid
+                    // CheckStake also does CheckBlock and AcceptBlock to propogate it to the network
+                    CheckStake(pblockfilled, *pwallet);
+                }
+                //return back to low priority
                 SetThreadPriority(THREAD_PRIORITY_LOWEST);
             }
         }
