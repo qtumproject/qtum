@@ -3380,20 +3380,20 @@ bool FindUndoPos(CValidationState &state, int nFile, CDiskBlockPos &pos, unsigne
 
 bool CheckFirstCoinstakeOutput(const CBlock& block)
 {
-	// Coinbase output should be empty if proof-of-stake block
-	int commitpos = GetWitnessCommitmentIndex(block);
-	if(commitpos < 0)
-	{
-		if (block.vtx[0]->vout.size() != 1 || !block.vtx[0]->vout[0].IsEmpty())
-			return false;
-	}
-	else
-	{
-		if (block.vtx[0]->vout.size() != 2 || !block.vtx[0]->vout[0].IsEmpty() || block.vtx[0]->vout[1].nValue)
-			return false;
-	}
+    // Coinbase output should be empty if proof-of-stake block
+    int commitpos = GetWitnessCommitmentIndex(block);
+    if(commitpos < 0)
+    {
+        if (block.vtx[0]->vout.size() != 1 || !block.vtx[0]->vout[0].IsEmpty())
+            return false;
+    }
+    else
+    {
+        if (block.vtx[0]->vout.size() != 2 || !block.vtx[0]->vout[0].IsEmpty() || block.vtx[0]->vout[1].nValue)
+            return false;
+    }
 
-	return true;
+    return true;
 }
 
 #ifdef ENABLE_WALLET
