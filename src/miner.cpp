@@ -131,6 +131,25 @@ void BlockAssembler::resetBlock()
     blockFinished = false;
 }
 
+void BlockAssembler::RebuildRefundTransaction(){
+    int refundtx=0; //0 for coinbase in PoW
+    if(pblock->IsProofOfStake()){
+        refundtx=1; //1 for coinstake in PoS
+    }
+    CMutableTransaction contrTx(*pblock->vtx[refundtx]);
+    contrTx.vout[refundtx].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
+    contrTx.vout[refundtx].nValue -= bceResult.refundSender;
+    //note, this will need changed for MPoS
+    contrTx.vout.resize(2+bceResult.refundVOuts.size());
+    int i=2;
+    for(CTxOut& vout : bceResult.refundVOuts){
+        contrTx.vout[i]=vout;
+        i++;
+    }
+    pblock->vtx[refundtx] = MakeTransactionRef(std::move(contrTx));
+}
+
+
 std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bool fProofOfStake, int64_t* pTotalFees, int32_t txProofTime)
 {
     resetBlock();
@@ -209,10 +228,11 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
         coinstakeTx.vout[0].SetEmpty();
         coinstakeTx.vout[1].scriptPubKey = scriptPubKeyIn;
         pblock->vtx[1] = MakeTransactionRef(std::move(coinstakeTx));
-    }
 
-    //Add the contract data into the proof transaction
-    int contrTxIndex = fProofOfStake ? 1 : 0;
+        //this just makes CBlock::IsProofOfStake to return true
+        //real prevoutstake info is filled in later in SignBlock
+        pblock->prevoutStake.n=0;
+    }
 
     //////////////////////////////////////////////////////// qtum
     dev::h256 oldHashStateRoot(globalState->rootHash());
@@ -224,13 +244,9 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     globalState->setRoot(oldHashStateRoot);
     globalState->setRootUTXO(oldHashUTXORoot);
 
-    CMutableTransaction contrTx(*pblock->vtx[contrTxIndex]);
-    contrTx.vout[contrTxIndex].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
-    contrTx.vout[contrTxIndex].nValue -= bceResult.refundSender;
-    for(CTxOut& vOut : bceResult.refundVOuts){
-        contrTx.vout.push_back(vOut);
-    }
-    pblock->vtx[contrTxIndex] = MakeTransactionRef(std::move(contrTx));
+    //this should already be populated by AddBlock in case of contracts, but if no contracts
+    //then it won't get populated
+    RebuildRefundTransaction();
     ////////////////////////////////////////////////////////
 
     pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus(), fProofOfStake);
@@ -471,12 +487,24 @@ bool BlockAssembler::TestForBlock(CTxMemPool::txiter iter)
     return true;
 }
 
+bool BlockAssembler::CheckBlockBeyondFull()
+{
+    if (nBlockSize > MAX_BLOCK_SERIALIZED_SIZE) {
+        return false;
+    }
+
+    if (nBlockSigOpsCost > MAX_BLOCK_SIGOPS_COST) {
+        return false;
+    }
+    return true;
+}
+
 void BlockAssembler::AddToBlock(CTxMemPool::txiter iter)
 {
-
-////////////////////////////////////////////////////////////// // qtum
+    ////////////////////////////////////////////////////////////// // qtum
     const CTransaction& tx = iter->GetTx();
-    if(tx.HasCreateOrCall()){
+    bool isContract = tx.HasCreateOrCall();
+    if(isContract){
         QtumTxConverter convert(tx, NULL);
         ByteCodeExec exec(*pblock, convert.extractionQtumTransactions());
         exec.performByteCode();
@@ -486,7 +514,7 @@ void BlockAssembler::AddToBlock(CTxMemPool::txiter iter)
         bceResult.refundVOuts.insert(bceResult.refundVOuts.end(), res.refundVOuts.begin(), res.refundVOuts.end());
         bceResult.refundValueTx = std::move(res.refundValueTx);
     }
-//////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////
 
     pblock->vtx.emplace_back(iter->GetSharedTx());
     pblocktemplate->vTxFees.push_back(iter->GetFee());
@@ -511,17 +539,26 @@ void BlockAssembler::AddToBlock(CTxMemPool::txiter iter)
                   iter->GetTx().GetHash().ToString());
     }
 
-    /////////////////////////////////////////////////////////////// // qtum
-    for(CTransaction& t : bceResult.refundValueTx){
-        pblock->vtx.emplace_back(MakeTransactionRef(std::move(t)));
-        if (fNeedSizeAccounting) {
-            nBlockSize += ::GetSerializeSize(t, SER_NETWORK, PROTOCOL_VERSION);
+    if(isContract) {
+        /////////////////////////////////////////////////////////////// // qtum
+        for (CTransaction &t : bceResult.refundValueTx) {
+            pblock->vtx.emplace_back(MakeTransactionRef(std::move(t)));
+            if (fNeedSizeAccounting) {
+                nBlockSize += ::GetSerializeSize(t, SER_NETWORK, PROTOCOL_VERSION);
+            }
+            nBlockWeight += GetTransactionWeight(t);
+            nBlockSigOpsCost += GetLegacySigOpCount(t);
+            ++nBlockTx;
         }
-        nBlockWeight += GetTransactionWeight(t);
-        ++nBlockTx;
+        bceResult.refundValueTx.clear();
+
+        //calculate sigops from new refund/proof tx
+        int proofTx = pblock->IsProofOfStake() ? 1 : 0;
+        nBlockSigOpsCost -= GetLegacySigOpCount(*pblock->vtx[proofTx]);
+        RebuildRefundTransaction();
+        nBlockSigOpsCost += GetLegacySigOpCount(*pblock->vtx[proofTx]);
+        ///////////////////////////////////////////////////////////////
     }
-    bceResult.refundValueTx.clear();
-    ///////////////////////////////////////////////////////////////
 }
 
 void BlockAssembler::UpdatePackagesForAdded(const CTxMemPool::setEntries& alreadyAdded,

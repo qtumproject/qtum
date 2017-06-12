@@ -3406,7 +3406,7 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
 
     // if we are trying to sign
     //    a complete proof-of-stake block
-    if (pblock->IsProofOfStake())
+    if (pblock->IsProofOfStake() && !pblock->vchBlockSig.empty())
         return true;
 
     static int64_t nLastCoinStakeSearchTime = GetAdjustedTime(); // startup timestamp
