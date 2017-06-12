@@ -142,6 +142,7 @@ void BlockAssembler::RebuildRefundTransaction(){
     //note, this will need changed for MPoS
     contrTx.vout.resize(2+bceResult.refundVOuts.size());
     int i=2;
+    //TODO doesn't handle stake splits
     for(CTxOut& vout : bceResult.refundVOuts){
         contrTx.vout[i]=vout;
         i++;
@@ -276,7 +277,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
 }
 
 
-std::unique_ptr<CBlockTemplate> BlockAssembler::CreateEmptyBlock(const CScript& scriptPubKeyIn, bool fProofOfStake, int64_t* pTotalFees)
+std::unique_ptr<CBlockTemplate> BlockAssembler::CreateEmptyBlock(const CScript& scriptPubKeyIn, bool fProofOfStake, int64_t* pTotalFees, int32_t nTime)
 {
     resetBlock();
 
@@ -304,7 +305,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateEmptyBlock(const CScript& 
     if (chainparams.MineBlocksOnDemand())
         pblock->nVersion = GetArg("-blockversion", pblock->nVersion);
 
-    uint32_t txProofTime = GetAdjustedTime();
+    uint32_t txProofTime = nTime == 0 ? GetAdjustedTime() : nTime;
     if(fProofOfStake)
         txProofTime &= STAKE_TIMESTAMP_MASK;
     pblock->nTime = txProofTime;
@@ -927,7 +928,7 @@ void ThreadStakeMiner(CWallet *pwallet)
 
             // Try to sign a block (this also checks for a PoS stake)
             std::shared_ptr<CBlock> pblock = std::make_shared<CBlock>(pblocktemplate->block);
-            if (SignBlock(pblock, *pwallet, nTotalFees))
+            if (SignBlock(pblock, *pwallet, nTotalFees, (uint32_t) GetAdjustedTime()))
             {
                 // increase priority so we can build the full PoS block ASAP to ensure the timestamp doesn't expire
                 SetThreadPriority(THREAD_PRIORITY_ABOVE_NORMAL);
@@ -938,7 +939,7 @@ void ThreadStakeMiner(CWallet *pwallet)
 
                 // Sign the full block and use the timestamp from earlier for a valid stake
                 std::shared_ptr<CBlock> pblockfilled = std::make_shared<CBlock>(pblocktemplatefilled->block);
-                if (SignBlock(pblockfilled, *pwallet, nTotalFees))
+                if (SignBlock(pblockfilled, *pwallet, nTotalFees, (uint32_t) GetAdjustedTime()))
                 {
                     // Should always reach here unless we spent too much time processing transactions and the timestamp is now invalid
                     // CheckStake also does CheckBlock and AcceptBlock to propogate it to the network

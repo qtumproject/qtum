@@ -3397,7 +3397,7 @@ bool CheckFirstCoinstakeOutput(const CBlock& block)
 
 #ifdef ENABLE_WALLET
 // novacoin: attempt to generate suitable proof-of-stake
-bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& nTotalFees)
+bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& nTotalFees, uint32_t nTime)
 {
     // if we are trying to sign
     //    something except proof-of-stake block template
@@ -3409,46 +3409,35 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
     if (pblock->IsProofOfStake() && !pblock->vchBlockSig.empty())
         return true;
 
-    static int64_t nLastCoinStakeSearchTime = GetAdjustedTime(); // startup timestamp
-
     CKey key;
     CMutableTransaction txCoinStake(*pblock->vtx[1]);
-    uint32_t nTimeBlock = GetAdjustedTime();
+    uint32_t nTimeBlock = nTime;
     nTimeBlock &= ~STAKE_TIMESTAMP_MASK;
-
-    int64_t nSearchTime = nTimeBlock; // search to current time
-
-    if (nSearchTime > nLastCoinStakeSearchTime)
+    //original line:
+    //int64_t nSearchInterval = IsProtocolV2(nBestHeight+1) ? 1 : nSearchTime - nLastCoinStakeSearchTime;
+    //IsProtocolV2 mean POS 2 or higher, so the modified line is:
+    if (wallet.CreateCoinStake(wallet, pblock->nBits, nTotalFees, nTimeBlock, txCoinStake, key))
     {
-        //original line:
-        //int64_t nSearchInterval = IsProtocolV2(nBestHeight+1) ? 1 : nSearchTime - nLastCoinStakeSearchTime;
-        //IsProtocolV2 mean POS 2 or higher, so the modified line is:
-        int64_t nSearchInterval = 1;
-        if (wallet.CreateCoinStake(wallet, pblock->nBits, nSearchInterval, nTotalFees, nTimeBlock, txCoinStake, key))
+        if (nTimeBlock >= pindexBestHeader->GetMedianTimePast()+1)
         {
-            if (nTimeBlock >= pindexBestHeader->GetMedianTimePast()+1)
+            // make sure coinstake would meet timestamp protocol
+            //    as it would be the same as the block timestamp
+            pblock->nTime = nTimeBlock;
+            pblock->vtx[1] = MakeTransactionRef(std::move(txCoinStake));
+            pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
+            pblock->prevoutStake = pblock->vtx[1]->vin[0].prevout;
+
+            // Check timestamp against prev
+            if(pblock->GetBlockTime() <= pindexBestHeader->GetBlockTime() || FutureDrift(pblock->GetBlockTime()) < pindexBestHeader->GetBlockTime())
             {
-                // make sure coinstake would meet timestamp protocol
-                //    as it would be the same as the block timestamp
-                pblock->nTime = nTimeBlock;
-                pblock->vtx[1] = MakeTransactionRef(std::move(txCoinStake));
-                pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
-                pblock->prevoutStake = pblock->vtx[1]->vin[0].prevout;
-
-                // Check timestamp against prev
-                if(pblock->GetBlockTime() <= pindexBestHeader->GetBlockTime() || FutureDrift(pblock->GetBlockTime()) < pindexBestHeader->GetBlockTime())
-                {
-                    return false;
-                }
-
-                // append a signature to our block and ensure that is LowS
-                return key.Sign(pblock->GetHashWithoutSign(), pblock->vchBlockSig) && 
-                           EnsureLowS(pblock->vchBlockSig) &&
-                           CheckHeaderPoS(*pblock, Params().GetConsensus());
+                return false;
             }
+
+            // append a signature to our block and ensure that is LowS
+            return key.Sign(pblock->GetHashWithoutSign(), pblock->vchBlockSig) &&
+                       EnsureLowS(pblock->vchBlockSig) &&
+                       CheckHeaderPoS(*pblock, Params().GetConsensus());
         }
-        nLastCoinStakeSearchInterval = nSearchTime - nLastCoinStakeSearchTime;
-        nLastCoinStakeSearchTime = nSearchTime;
     }
 
     return false;
