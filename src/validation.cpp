@@ -761,7 +761,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
             QtumTxConverter converter(tx, NULL);
             std::vector<QtumTransaction> qtumTransactions = converter.extractionQtumTransactions();
             for(QtumTransaction qtumTransaction : qtumTransactions){
-                sumGas += CAmount(qtumTransaction.gas());
+                sumGas += CAmount(qtumTransaction.gas() * qtumTransaction.gasPrice());
             }
             if(sumGas > nFees){
                 return state.DoS(100, false, REJECT_INVALID, "bad-txns-fee-notenough");
@@ -2037,7 +2037,7 @@ ByteCodeExecResult ByteCodeExec::processingResults(){
             }
         } else {
             resultBCE.usedFee += CAmount(result[i].execRes.gasUsed);
-            CAmount ref(txs[i].gas() - result[i].execRes.gasUsed);
+            CAmount ref((txs[i].gas() - result[i].execRes.gasUsed) * txs[i].gasPrice());
             if(ref > 0){
                 CScript script(CScript() << OP_DUP << OP_HASH160 << txs[i].sender().asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
                 resultBCE.refundVOuts.push_back(CTxOut(ref, script));
@@ -2154,10 +2154,10 @@ EthTransactionParams QtumTxConverter::parseEthTXParams(){
 QtumTransaction QtumTxConverter::createEthTX(const EthTransactionParams& etp, uint32_t nOut){
     QtumTransaction txEth;
     if (etp.receiveAddress == dev::Address()){
-        txEth = QtumTransaction(txBit.vout[nOut].nValue, etp.gasPrice, (etp.gasLimit * etp.gasPrice), etp.code, dev::u256(0));
+        txEth = QtumTransaction(txBit.vout[nOut].nValue, etp.gasPrice, etp.gasLimit, etp.code, dev::u256(0));
     }
     else{
-        txEth = QtumTransaction(txBit.vout[nOut].nValue, etp.gasPrice, (etp.gasLimit * etp.gasPrice), etp.receiveAddress, etp.code, dev::u256(0));
+        txEth = QtumTransaction(txBit.vout[nOut].nValue, etp.gasPrice, etp.gasLimit, etp.receiveAddress, etp.code, dev::u256(0));
     }
     dev::Address sender(GetSenderAddress(txBit, view));
     txEth.forceSender(sender);

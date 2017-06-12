@@ -35,7 +35,7 @@ void checkResult(bool isCreation, std::vector<QtumTransaction> results, uint256 
         BOOST_CHECK(results[i].data() == data);
         BOOST_CHECK(results[i].value() == value);
         BOOST_CHECK(results[i].gasPrice() == gasPrice);
-        BOOST_CHECK(results[i].gas() == gasLimit * gasPrice);
+        BOOST_CHECK(results[i].gas() == gasLimit);
         BOOST_CHECK(results[i].sender() == dev::Address(address));
         BOOST_CHECK(results[i].getNVout() == i);
         BOOST_CHECK(results[i].getHashWith() == uintToh256(hash));
