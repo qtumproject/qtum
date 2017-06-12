@@ -35,9 +35,9 @@ dev::Address createQtumAddress(dev::h256 hashTx, uint32_t voutNumber){
 QtumTransaction createQtumTransaction(valtype data, dev::u256 value, dev::u256 gasLimit, dev::u256 gasPrice, dev::h256 hashTransaction, dev::Address recipient, int32_t nvout){
     QtumTransaction txEth;
     if(recipient == dev::Address()){
-        txEth = QtumTransaction(value, gasLimit, (gasLimit * gasPrice), data, dev::u256(0));
+        txEth = QtumTransaction(value, gasPrice, gasLimit, data, dev::u256(0));
     } else {
-        txEth = QtumTransaction(value, gasLimit, (gasLimit * gasPrice), recipient, data, dev::u256(0));
+        txEth = QtumTransaction(value, gasPrice, gasLimit, recipient, data, dev::u256(0));
     }
     txEth.forceSender(dev::Address("0101010101010101010101010101010101010101"));
     txEth.setHashWith(hashTransaction);
