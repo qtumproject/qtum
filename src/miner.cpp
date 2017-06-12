@@ -831,7 +831,6 @@ bool CheckStake(const std::shared_ptr<const CBlock> pblock, CWallet& wallet)
             return error("CheckStake() : generated block is stale");
 
         // Process this block the same as if we had received it from another node
-        CValidationState state;
         bool fNewBlock = false;
         if (!ProcessNewBlock(Params(), pblock, true, &fNewBlock))
             return error("CheckStake() : ProcessBlock, block not accepted");
