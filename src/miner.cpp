@@ -477,14 +477,22 @@ void BlockAssembler::AddToBlock(CTxMemPool::txiter iter)
 ////////////////////////////////////////////////////////////// // qtum
     const CTransaction& tx = iter->GetTx();
     if(tx.HasCreateOrCall()){
+
+        dev::h256 oldHashQtumRoot(globalState->rootHashUTXO());
+        dev::h256 oldHashStateRoot(globalState->rootHash());
+
         QtumTxConverter convert(tx, NULL);
-        ByteCodeExec exec(*pblock, convert.extractionQtumTransactions());
+        std::vector<QtumTransaction> transactions = convert.extractionQtumTransactions();
+        ByteCodeExec exec(*pblock, transactions);
         exec.performByteCode();
         ByteCodeExecResult res = exec.processingResults();
+
         bceResult.usedFee += res.usedFee;
         bceResult.refundSender += res.refundSender;
         bceResult.refundVOuts.insert(bceResult.refundVOuts.end(), res.refundVOuts.begin(), res.refundVOuts.end());
         bceResult.refundValueTx = std::move(res.refundValueTx);
+
+        processingMuchVouts(res, bceResult, oldHashQtumRoot, oldHashStateRoot, transactions);
     }
 //////////////////////////////////////////////////////////////
 

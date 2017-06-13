@@ -1913,6 +1913,33 @@ static int64_t nTimeCallbacks = 0;
 static int64_t nTimeTotal = 0;
 
 /////////////////////////////////////////////////////////////////////// qtum
+void processingMuchVouts(ByteCodeExecResult& bcer, ByteCodeExecResult& bcerOut, const dev::h256& oldHashQtumRoot, 
+    const dev::h256& oldHashStateRoot, const std::vector<QtumTransaction>& transactions){
+        
+    for(CTransaction& t : bcerOut.refundValueTx){
+        if(t.vout.size() > 1000){
+            globalState->setRootUTXO(oldHashQtumRoot);
+            globalState->setRoot(oldHashStateRoot);
+
+            bcerOut.refundSender -= bcer.refundSender;
+            bcerOut.refundVOuts.erase(bcerOut.refundVOuts.end(), bcerOut.refundVOuts.end() + bcer.refundVOuts.size());
+            bcerOut.refundValueTx.clear();
+
+            std::vector<CTransaction> refundValue;
+            for(QtumTransaction t : transactions){
+                if(t.value() > 0){
+                    CMutableTransaction tx;
+                    tx.vin.push_back(CTxIn(h256Touint(t.getHashWith()), t.getNVout(), CScript() << OP_TXHASH));
+                    CScript script(CScript() << OP_DUP << OP_HASH160 << t.sender().asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
+                    tx.vout.push_back(CTxOut(CAmount(t.value()), script));
+                    bcerOut.refundValueTx.push_back(CTransaction(tx));
+                }
+            }
+            break;
+        }
+    }
+}
+
 bool CheckRefund(const CBlock& block, const std::vector<CTxOut>& vouts){
     size_t offset = block.IsProofOfStake() ? 1 : 0;
     for(size_t i = 0; i < vouts.size(); i++){
@@ -2372,11 +2399,19 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         }
 
         if(tx.HasCreateOrCall() && !hasTxhash){
+
+            dev::h256 oldHashQtumRoot(globalState->rootHashUTXO());
+            dev::h256 oldHashStateRoot(globalState->rootHash());
+
             QtumTxConverter convert(tx, NULL);
-            ByteCodeExec exec(block, convert.extractionQtumTransactions());
+            std::vector<QtumTransaction> transactions = convert.extractionQtumTransactions();
+            ByteCodeExec exec(block, transactions);
             exec.performByteCode();
             std::vector<ResultExecute> resultExec(exec.getResult());
             ByteCodeExecResult bcer = exec.processingResults();
+
+            processingMuchVouts(bcer, bcer, oldHashQtumRoot, oldHashStateRoot, transactions);
+
             checkVouts.insert(checkVouts.end(), bcer.refundVOuts.begin(), bcer.refundVOuts.end());
             for(CTransaction& t : bcer.refundValueTx){
                 checkBlock.vtx.push_back(MakeTransactionRef(std::move(t)));
