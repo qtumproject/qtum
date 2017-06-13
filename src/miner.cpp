@@ -136,12 +136,12 @@ void BlockAssembler::RebuildRefundTransaction(){
     if(pblock->IsProofOfStake()){
         refundtx=1; //1 for coinstake in PoS
     }
-    CMutableTransaction contrTx(*pblock->vtx[refundtx]);
+    CMutableTransaction contrTx(originalRewardTx);
     contrTx.vout[refundtx].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
     contrTx.vout[refundtx].nValue -= bceResult.refundSender;
     //note, this will need changed for MPoS
-    contrTx.vout.resize(2+bceResult.refundVOuts.size());
-    int i=2;
+    int i=contrTx.vout.size();
+    contrTx.vout.resize(contrTx.vout.size()+bceResult.refundVOuts.size());
     //TODO doesn't handle stake splits
     for(CTxOut& vout : bceResult.refundVOuts){
         contrTx.vout[i]=vout;
@@ -183,7 +183,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
         txProofTime = GetAdjustedTime();
     }
     if(fProofOfStake)
-        txProofTime &= STAKE_TIMESTAMP_MASK;
+        txProofTime &= ~STAKE_TIMESTAMP_MASK;
     pblock->nTime = txProofTime;
     const int64_t nMedianTimePast = pindexPrev->GetMedianTimePast();
 
@@ -219,6 +219,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
         coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
     }
     coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
+    originalRewardTx = coinbaseTx;
     pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTx));
 
     // Create coinstake transaction.
@@ -228,11 +229,13 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
         coinstakeTx.vout.resize(2);
         coinstakeTx.vout[0].SetEmpty();
         coinstakeTx.vout[1].scriptPubKey = scriptPubKeyIn;
+        originalRewardTx = coinstakeTx;
         pblock->vtx[1] = MakeTransactionRef(std::move(coinstakeTx));
 
         //this just makes CBlock::IsProofOfStake to return true
         //real prevoutstake info is filled in later in SignBlock
         pblock->prevoutStake.n=0;
+
     }
 
     //////////////////////////////////////////////////////// qtum
@@ -307,7 +310,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateEmptyBlock(const CScript& 
 
     uint32_t txProofTime = nTime == 0 ? GetAdjustedTime() : nTime;
     if(fProofOfStake)
-        txProofTime &= STAKE_TIMESTAMP_MASK;
+        txProofTime &= ~STAKE_TIMESTAMP_MASK;
     pblock->nTime = txProofTime;
     const int64_t nMedianTimePast = pindexPrev->GetMedianTimePast();
 
@@ -336,6 +339,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateEmptyBlock(const CScript& 
         coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
     }
     coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
+    originalRewardTx = coinbaseTx;
     pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTx));
 
     // Create coinstake transaction.
@@ -345,13 +349,20 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateEmptyBlock(const CScript& 
         coinstakeTx.vout.resize(2);
         coinstakeTx.vout[0].SetEmpty();
         coinstakeTx.vout[1].scriptPubKey = scriptPubKeyIn;
+        originalRewardTx = coinstakeTx;
         pblock->vtx[1] = MakeTransactionRef(std::move(coinstakeTx));
+
+        //this just makes CBlock::IsProofOfStake to return true
+        //real prevoutstake info is filled in later in SignBlock
+        pblock->prevoutStake.n=0;
     }
 
     //////////////////////////////////////////////////////// qtum
     //state shouldn't change here for an empty block, but if it's not valid it'll fail in CheckBlock later
     pblock->hashStateRoot = uint256(h256Touint(dev::h256(globalState->rootHash())));
     pblock->hashUTXORoot = uint256(h256Touint(dev::h256(globalState->rootHashUTXO())));
+
+    RebuildRefundTransaction();
     ////////////////////////////////////////////////////////
 
     pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus(), fProofOfStake);
@@ -929,7 +940,7 @@ void ThreadStakeMiner(CWallet *pwallet)
             uint256 beginningHash = pindexPrev->GetBlockHash();
 
             uint32_t nTime=GetAdjustedTime();
-            nTime &= STAKE_TIMESTAMP_MASK;
+            nTime &= ~STAKE_TIMESTAMP_MASK;
             for(uint32_t i=nTime;i<nTime + MAX_STAKE_LOOKAHEAD;i+=STAKE_TIMESTAMP_MASK) {
 
                 // Try to sign a block (this also checks for a PoS stake)
