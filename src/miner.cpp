@@ -963,10 +963,10 @@ void ThreadStakeMiner(CWallet *pwallet)
                                 FutureDrift(pblockfilled->GetBlockTime()) < pindexPrev->GetBlockTime()) {
                                 break; //timestamp too late, so ignore
                             }
-                            if (pblockfilled->GetBlockTime() > GetAdjustedTime() + 2 * 60 * 60) {
+                            if (pblockfilled->GetBlockTime() > FutureDrift(GetAdjustedTime())) {
                                 //too early, so wait a second and try again
                                 MilliSleep(1000);
-                                break;
+                                continue;
                             }
                             validBlock=true;
                         }
