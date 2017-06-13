@@ -162,7 +162,7 @@ public:
 
     std::pair<COutPoint, unsigned int> GetProofOfStake() const //qtum
     {
-        return IsProofOfStake()? std::make_pair(vtx[1]->vin[0].prevout, nTime) : std::make_pair(COutPoint(), (unsigned int)0);
+        return IsProofOfStake()? std::make_pair(prevoutStake, nTime) : std::make_pair(COutPoint(), (unsigned int)0);
     }
     
     CBlockHeader GetBlockHeader() const
