@@ -74,6 +74,7 @@ TestingSetup::TestingSetup(const std::string& chainName) : BasicTestingSetup(cha
         globalState = std::unique_ptr<QtumState>(new QtumState);
         globalState->setRoot(dev::sha3(dev::rlp("")));
         globalState->setRootUTXO(dev::sha3(dev::rlp("")));
+        logPrintfVM = [](const std::string &str, bool type){ return 1; };
 //////////////////////////////////////////////////////////////
 
         InitBlockIndex(chainparams);

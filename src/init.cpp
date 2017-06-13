@@ -1176,6 +1176,11 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
     if (fPrintToDebugLog)
         OpenDebugLog();
 
+////////////////////////////////////////////////////////////////////// // qtum
+    logPrintfVM = LogPrintStr;
+    logPrintfVM(std::string("\n\n\n\n\n\n\n\n\n\n"), true);
+//////////////////////////////////////////////////////////////////////
+
     if (!fLogTimestamps)
         LogPrintf("Startup time: %s\n", DateTimeStrFormat("%Y-%m-%d %H:%M:%S", GetTime()));
     LogPrintf("Default data directory %s\n", GetDefaultDataDir().string());

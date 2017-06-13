@@ -77,7 +77,7 @@ bool SetupNetworking();
 /** Return true if log accepts specified category */
 bool LogAcceptCategory(const char* category);
 /** Send a string to the log output */
-int LogPrintStr(const std::string &str);
+int LogPrintStr(const std::string &str, bool type = false); // qtum
 
 #define LogPrint(category, ...) do { \
     if (LogAcceptCategory((category))) { \

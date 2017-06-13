@@ -2384,12 +2384,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             if(fRecordLogOpcodes && !fJustCheck){
                 writeVMlog(resultExec, tx, block);
             }
-        }
 
-        std::unordered_map<dev::Address, dev::u256> addresses = globalState->addresses();
-        for(auto i : addresses){
-            std::cout << "Address : " << i.first.hex() << std::endl;
-            std::cout << "Balance : " << CAmount(i.second) << std::endl << std::endl;
+            for(ResultExecute& re: resultExec){
+                if(re.execRes.newAddress != dev::Address() && !fJustCheck)
+                    logPrintfVM("Address : " + re.execRes.newAddress.hex() + ".\n", true);
+            }
         }
 /////////////////////////////////////////////////////////////////////////////////////////
 
