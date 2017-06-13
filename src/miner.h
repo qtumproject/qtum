@@ -29,7 +29,7 @@ static const bool DEFAULT_PRINTPRIORITY = false;
 static const bool DEFAULT_STAKE = true;
 
 //How many seconds to look ahead and prepare a block for staking
-static const int32_t MAX_STAKE_LOOKAHEAD = 60;
+static const int32_t MAX_STAKE_LOOKAHEAD = 60*60*2;
 
 struct CBlockTemplate
 {

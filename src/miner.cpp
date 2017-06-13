@@ -48,7 +48,7 @@ uint64_t nLastBlockTx = 0;
 uint64_t nLastBlockSize = 0;
 uint64_t nLastBlockWeight = 0;
 int64_t nLastCoinStakeSearchInterval = 0;
-unsigned int nMinerSleep = 500;
+unsigned int nMinerSleep = 5000;
 
 class ScoreCompare
 {
@@ -925,28 +925,59 @@ void ThreadStakeMiner(CWallet *pwallet)
             std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(Params()).CreateEmptyBlock(reservekey.reserveScript, true, &nTotalFees));
             if (!pblocktemplate.get())
                 return;
+            CBlockIndex* pindexPrev =  chainActive.Tip();
+            uint256 beginningHash = pindexPrev->GetBlockHash();
 
-            // Try to sign a block (this also checks for a PoS stake)
-            std::shared_ptr<CBlock> pblock = std::make_shared<CBlock>(pblocktemplate->block);
-            if (SignBlock(pblock, *pwallet, nTotalFees, (uint32_t) GetAdjustedTime()))
-            {
-                // increase priority so we can build the full PoS block ASAP to ensure the timestamp doesn't expire
-                SetThreadPriority(THREAD_PRIORITY_ABOVE_NORMAL);
-                // Create a block that's properly populated with transactions
-                std::unique_ptr<CBlockTemplate> pblocktemplatefilled(BlockAssembler(Params()).CreateNewBlock(reservekey.reserveScript, true, &nTotalFees, pblock->nTime));
-                if (!pblocktemplatefilled.get())
-                    return;
+            uint32_t nTime=GetAdjustedTime();
+            nTime &= STAKE_TIMESTAMP_MASK;
+            for(uint32_t i=nTime;i<nTime + MAX_STAKE_LOOKAHEAD;i+=STAKE_TIMESTAMP_MASK) {
 
-                // Sign the full block and use the timestamp from earlier for a valid stake
-                std::shared_ptr<CBlock> pblockfilled = std::make_shared<CBlock>(pblocktemplatefilled->block);
-                if (SignBlock(pblockfilled, *pwallet, nTotalFees, (uint32_t) GetAdjustedTime()))
-                {
-                    // Should always reach here unless we spent too much time processing transactions and the timestamp is now invalid
-                    // CheckStake also does CheckBlock and AcceptBlock to propogate it to the network
-                    CheckStake(pblockfilled, *pwallet);
+                // Try to sign a block (this also checks for a PoS stake)
+                std::shared_ptr<CBlock> pblock = std::make_shared<CBlock>(pblocktemplate->block);
+                if (SignBlock(pblock, *pwallet, nTotalFees, i)) {
+                    // increase priority so we can build the full PoS block ASAP to ensure the timestamp doesn't expire
+                    SetThreadPriority(THREAD_PRIORITY_ABOVE_NORMAL);
+                    // Create a block that's properly populated with transactions
+                    std::unique_ptr<CBlockTemplate> pblocktemplatefilled(
+                            BlockAssembler(Params()).CreateNewBlock(reservekey.reserveScript, true, &nTotalFees,
+                                                                    pblock->nTime));
+                    if (!pblocktemplatefilled.get())
+                        return;
+                    if(pindexPrev->GetBlockHash() != beginningHash){
+                        //another block was received while building ours, scrap progress
+                        break;
+                    }
+                    // Sign the full block and use the timestamp from earlier for a valid stake
+                    std::shared_ptr<CBlock> pblockfilled = std::make_shared<CBlock>(pblocktemplatefilled->block);
+                    if (SignBlock(pblockfilled, *pwallet, nTotalFees, i)) {
+                        // Should always reach here unless we spent too much time processing transactions and the timestamp is now invalid
+                        // CheckStake also does CheckBlock and AcceptBlock to propogate it to the network
+                        bool validBlock = false;
+                        while(!validBlock) {
+                            if (pindexPrev->GetBlockHash() != beginningHash) {
+                                //another block was received while building ours, scrap progress
+                                break;
+                            }
+                            //check timestamps
+                            if (pblockfilled->GetBlockTime() <= pindexPrev->GetBlockTime() ||
+                                FutureDrift(pblockfilled->GetBlockTime()) < pindexPrev->GetBlockTime()) {
+                                break; //timestamp too late, so ignore
+                            }
+                            if (pblockfilled->GetBlockTime() > GetAdjustedTime() + 2 * 60 * 60) {
+                                //too early, so wait a second and try again
+                                MilliSleep(1000);
+                                break;
+                            }
+                            validBlock=true;
+                        }
+                        if(validBlock) {
+                            CheckStake(pblockfilled, *pwallet);
+                        }
+                        break;
+                    }
+                    //return back to low priority
+                    SetThreadPriority(THREAD_PRIORITY_LOWEST);
                 }
-                //return back to low priority
-                SetThreadPriority(THREAD_PRIORITY_LOWEST);
             }
         }
         MilliSleep(nMinerSleep);
