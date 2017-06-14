@@ -5,6 +5,7 @@
 
 #include "chainparams.h"
 #include "consensus/merkle.h"
+#include "consensus/consensus.h"
 
 #include "tinyformat.h"
 #include "util.h"
@@ -162,6 +163,10 @@ public:
             0         // * estimated number of transactions per second after that timestamp
         };
         consensus.nLastPOWBlock = 5000;
+        consensus.nMPoSRewardRecipients = 10;
+        consensus.nFirstMPoSBlock = consensus.nLastPOWBlock + 
+                                    consensus.nMPoSRewardRecipients + 
+                                    COINBASE_MATURITY;
     }
 };
 static CMainParams mainParams;
@@ -254,6 +259,10 @@ public:
         };
 
         consensus.nLastPOWBlock = 5000;
+        consensus.nMPoSRewardRecipients = 10;
+        consensus.nFirstMPoSBlock = consensus.nLastPOWBlock + 
+                                    consensus.nMPoSRewardRecipients + 
+                                    COINBASE_MATURITY;
     }
 };
 static CTestNetParams testNetParams;
@@ -328,6 +337,11 @@ public:
         };
 
         consensus.nLastPOWBlock = 0x7fffffff;
+        consensus.nMPoSRewardRecipients = 10;
+        consensus.nFirstMPoSBlock = consensus.nLastPOWBlock + 
+                                    consensus.nMPoSRewardRecipients + 
+                                    COINBASE_MATURITY;
+
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,120);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,110);
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,239);
