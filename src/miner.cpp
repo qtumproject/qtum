@@ -142,7 +142,6 @@ void BlockAssembler::RebuildRefundTransaction(){
     //note, this will need changed for MPoS
     int i=contrTx.vout.size();
     contrTx.vout.resize(contrTx.vout.size()+bceResult.refundVOuts.size());
-    //TODO doesn't handle stake splits
     for(CTxOut& vout : bceResult.refundVOuts){
         contrTx.vout[i]=vout;
         i++;
@@ -505,29 +504,109 @@ bool BlockAssembler::CheckBlockBeyondFull()
         return false;
     }
 
-    if (nBlockSigOpsCost > MAX_BLOCK_SIGOPS_COST) {
+    if (nBlockSigOpsCost * WITNESS_SCALE_FACTOR > MAX_BLOCK_SIGOPS_COST) {
         return false;
     }
     return true;
 }
 
+bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
+    // operate on local vars first, then later apply to `this`
+    uint64_t nBlockWeight = this->nBlockWeight;
+    uint64_t nBlockSize = this->nBlockSize;
+    uint64_t nBlockSigOpsCost = this->nBlockSigOpsCost;
+
+    const CTransaction& tx = iter->GetTx();
+    QtumTxConverter convert(tx, NULL);
+    ByteCodeExec exec(*pblock, convert.extractionQtumTransactions());
+    exec.performByteCode();
+    ByteCodeExecResult testExecResult = exec.processingResults();
+
+    //apply contractTx costs to local state
+    if (fNeedSizeAccounting) {
+        nBlockSize += ::GetSerializeSize(iter->GetTx(), SER_NETWORK, PROTOCOL_VERSION);
+    }
+    nBlockWeight += iter->GetTxWeight();
+    nBlockSigOpsCost += iter->GetSigOpCost();
+    //apply value-transfer txs to local state
+    for (CTransaction &t : testExecResult.refundValueTx) {
+        if (fNeedSizeAccounting) {
+            nBlockSize += ::GetSerializeSize(t, SER_NETWORK, PROTOCOL_VERSION);
+        }
+        nBlockWeight += GetTransactionWeight(t);
+        nBlockSigOpsCost += GetLegacySigOpCount(t);
+    }
+
+    int proofTx = pblock->IsProofOfStake() ? 1 : 0;
+
+    //calculate sigops from new refund/proof tx
+
+    //first, subtract old proof tx
+    nBlockSigOpsCost -= GetLegacySigOpCount(*pblock->vtx[proofTx]);
+
+
+    // manually rebuild refundtx
+    CMutableTransaction contrTx(*pblock->vtx[proofTx]);
+    contrTx.vout[proofTx].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
+    contrTx.vout[proofTx].nValue -= testExecResult.refundSender;
+    //note, this will need changed for MPoS
+    int i=contrTx.vout.size();
+    contrTx.vout.resize(contrTx.vout.size()+testExecResult.refundVOuts.size());
+    for(CTxOut& vout : testExecResult.refundVOuts){
+        contrTx.vout[i]=vout;
+        i++;
+    }
+    nBlockSigOpsCost += GetLegacySigOpCount(contrTx);
+    //all contract costs now applied to local state
+
+    //Check if block will be too big or too expensive with this contract execution
+    if (nBlockSize > MAX_BLOCK_SERIALIZED_SIZE) {
+        return false;
+    }
+
+    if (nBlockSigOpsCost * WITNESS_SCALE_FACTOR > MAX_BLOCK_SIGOPS_COST) {
+        return false;
+    }
+
+    //block is not too big, so apply the contract execution and it's results to the actual block
+
+    //apply local bytecode to global bytecode state
+    bceResult.usedFee += testExecResult.usedFee;
+    bceResult.refundSender += testExecResult.refundSender;
+    bceResult.refundVOuts.insert(bceResult.refundVOuts.end(), testExecResult.refundVOuts.begin(), testExecResult.refundVOuts.end());
+    bceResult.refundValueTx = std::move(testExecResult.refundValueTx);
+
+    pblock->vtx.emplace_back(iter->GetSharedTx());
+    pblocktemplate->vTxFees.push_back(iter->GetFee());
+    pblocktemplate->vTxSigOpsCost.push_back(iter->GetSigOpCost());
+    if (fNeedSizeAccounting) {
+        nBlockSize += ::GetSerializeSize(iter->GetTx(), SER_NETWORK, PROTOCOL_VERSION);
+    }
+    this->nBlockWeight += iter->GetTxWeight();
+    ++nBlockTx;
+    this->nBlockSigOpsCost += iter->GetSigOpCost();
+    nFees += iter->GetFee();
+    inBlock.insert(iter);
+
+    for (CTransaction &t : testExecResult.refundValueTx) {
+        pblock->vtx.emplace_back(MakeTransactionRef(std::move(t)));
+        if (fNeedSizeAccounting) {
+            this->nBlockSize += ::GetSerializeSize(t, SER_NETWORK, PROTOCOL_VERSION);
+        }
+        this->nBlockWeight += GetTransactionWeight(t);
+        this->nBlockSigOpsCost += GetLegacySigOpCount(t);
+        ++nBlockTx;
+    }
+    //calculate sigops from new refund/proof tx
+    this->nBlockSigOpsCost -= GetLegacySigOpCount(*pblock->vtx[proofTx]);
+    RebuildRefundTransaction();
+    this->nBlockSigOpsCost += GetLegacySigOpCount(*pblock->vtx[proofTx]);
+
+    return true;
+}
+
 void BlockAssembler::AddToBlock(CTxMemPool::txiter iter)
 {
-    ////////////////////////////////////////////////////////////// // qtum
-    const CTransaction& tx = iter->GetTx();
-    bool isContract = tx.HasCreateOrCall();
-    if(isContract){
-        QtumTxConverter convert(tx, NULL);
-        ByteCodeExec exec(*pblock, convert.extractionQtumTransactions());
-        exec.performByteCode();
-        ByteCodeExecResult res = exec.processingResults();
-        bceResult.usedFee += res.usedFee;
-        bceResult.refundSender += res.refundSender;
-        bceResult.refundVOuts.insert(bceResult.refundVOuts.end(), res.refundVOuts.begin(), res.refundVOuts.end());
-        bceResult.refundValueTx = std::move(res.refundValueTx);
-    }
-    //////////////////////////////////////////////////////////////
-
     pblock->vtx.emplace_back(iter->GetSharedTx());
     pblocktemplate->vTxFees.push_back(iter->GetFee());
     pblocktemplate->vTxSigOpsCost.push_back(iter->GetSigOpCost());
@@ -551,26 +630,6 @@ void BlockAssembler::AddToBlock(CTxMemPool::txiter iter)
                   iter->GetTx().GetHash().ToString());
     }
 
-    if(isContract) {
-        /////////////////////////////////////////////////////////////// // qtum
-        for (CTransaction &t : bceResult.refundValueTx) {
-            pblock->vtx.emplace_back(MakeTransactionRef(std::move(t)));
-            if (fNeedSizeAccounting) {
-                nBlockSize += ::GetSerializeSize(t, SER_NETWORK, PROTOCOL_VERSION);
-            }
-            nBlockWeight += GetTransactionWeight(t);
-            nBlockSigOpsCost += GetLegacySigOpCount(t);
-            ++nBlockTx;
-        }
-        bceResult.refundValueTx.clear();
-
-        //calculate sigops from new refund/proof tx
-        int proofTx = pblock->IsProofOfStake() ? 1 : 0;
-        nBlockSigOpsCost -= GetLegacySigOpCount(*pblock->vtx[proofTx]);
-        RebuildRefundTransaction();
-        nBlockSigOpsCost += GetLegacySigOpCount(*pblock->vtx[proofTx]);
-        ///////////////////////////////////////////////////////////////
-    }
 }
 
 void BlockAssembler::UpdatePackagesForAdded(const CTxMemPool::setEntries& alreadyAdded,
@@ -735,7 +794,7 @@ void BlockAssembler::addPackageTxs()
         SortForBlock(ancestors, iter, sortedEntries);
 
         for (size_t i=0; i<sortedEntries.size(); ++i) {
-            AddToBlock(sortedEntries[i]);
+            AddToBlock(sortedEntries[i]); //TODO exclude contracts from being treated as packages
             // Erase from the modified set, if present
             mapModifiedTx.erase(sortedEntries[i]);
         }
@@ -803,24 +862,31 @@ void BlockAssembler::addPriorityTxs()
 
         // If this tx fits in the block add it, otherwise keep looping
         if (TestForBlock(iter)) {
-            AddToBlock(iter);
+
+            const CTransaction& tx = iter->GetTx();
+            bool wasAdded=true;
+            if(tx.HasCreateOrCall()) {
+                wasAdded = AttemptToAddContractToBlock(iter);
+            }else {
+                AddToBlock(iter);
+            }
 
             // If now that this txs is added we've surpassed our desired priority size
             // or have dropped below the AllowFreeThreshold, then we're done adding priority txs
             if (nBlockSize >= nBlockPrioritySize || !AllowFree(actualPriority)) {
                 break;
             }
-
-            // This tx was successfully added, so
-            // add transactions that depend on this one to the priority queue to try again
-            BOOST_FOREACH(CTxMemPool::txiter child, mempool.GetMemPoolChildren(iter))
-            {
-                waitPriIter wpiter = waitPriMap.find(child);
-                if (wpiter != waitPriMap.end()) {
-                    vecPriority.push_back(TxCoinAgePriority(wpiter->second,child));
-                    std::push_heap(vecPriority.begin(), vecPriority.end(), pricomparer);
-                    waitPriMap.erase(wpiter);
-                }
+            if(wasAdded) {
+                // This tx was successfully added, so
+                // add transactions that depend on this one to the priority queue to try again
+                BOOST_FOREACH(CTxMemPool::txiter child, mempool.GetMemPoolChildren(iter)) {
+                                waitPriIter wpiter = waitPriMap.find(child);
+                                if (wpiter != waitPriMap.end()) {
+                                    vecPriority.push_back(TxCoinAgePriority(wpiter->second, child));
+                                    std::push_heap(vecPriority.begin(), vecPriority.end(), pricomparer);
+                                    waitPriMap.erase(wpiter);
+                                }
+                            }
             }
         }
     }

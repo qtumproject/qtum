@@ -187,6 +187,8 @@ private:
     /** Add a tx to the block */
     void AddToBlock(CTxMemPool::txiter iter);
 
+    bool AttemptToAddContractToBlock(CTxMemPool::txiter iter);
+
     // Methods for how to add transactions to a block.
     /** Add transactions based on tx "priority" */
     void addPriorityTxs();
