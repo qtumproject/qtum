@@ -2387,7 +2387,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
             for(ResultExecute& re: resultExec){
                 if(re.execRes.newAddress != dev::Address() && !fJustCheck)
-                    logPrintfVM("Address : " + re.execRes.newAddress.hex() + ".\n", true);
+                    dev::g_logPost(std::string("Address : " + re.execRes.newAddress.hex()), NULL);
             }
         }
 /////////////////////////////////////////////////////////////////////////////////////////

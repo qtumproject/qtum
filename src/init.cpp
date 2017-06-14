@@ -1177,8 +1177,8 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
         OpenDebugLog();
 
 ////////////////////////////////////////////////////////////////////// // qtum
-    logPrintfVM = LogPrintStr;
-    logPrintfVM(std::string("\n\n\n\n\n\n\n\n\n\n"), true);
+    dev::g_logPost = [&](std::string const& s, char const* c){ LogPrintStr(s + '\n', true); };
+    dev::g_logPost(std::string("\n\n\n\n\n\n\n\n\n\n"), NULL);
 //////////////////////////////////////////////////////////////////////
 
     if (!fLogTimestamps)
