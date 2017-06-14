@@ -305,12 +305,12 @@ static std::string LogTimestampStr(const std::string &str, std::atomic_bool *fSt
     return strStamped;
 }
 
-int LogPrintStr(const std::string &str, bool type)
+int LogPrintStr(const std::string &str, bool useVMLog)
 {
 
 //////////////////////////////// // qtum
     FILE* file = fileout;
-    if(type){
+    if(useVMLog){
         file = fileoutVM;
     }
 ////////////////////////////////
