@@ -107,6 +107,12 @@ TestingSetup::~TestingSetup()
         delete pcoinsTip;
         delete pcoinsdbview;
         delete pblocktree;
+
+/////////////////////////////////////////////// // qtum
+        delete globalState.release();
+        globalSealEngine.reset();
+///////////////////////////////////////////////
+
         boost::filesystem::remove_all(pathTemp);
 }
 
