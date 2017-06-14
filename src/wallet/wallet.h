@@ -18,6 +18,7 @@
 #include "wallet/walletdb.h"
 #include "wallet/rpcwallet.h"
 #include "wallet/coincontrol.h"
+#include "consensus/params.h"
 #include <algorithm>
 #include <atomic>
 #include <map>
@@ -169,6 +170,10 @@ struct COutputEntry
     CAmount amount;
     int vout;
 };
+
+int64_t GetStakeSplitThreshold();
+
+bool GetMPoSOutputScripts(std::vector<CScript> &mposScroptList, int nHeight, const Consensus::Params& consensusParams);
 
 /** A transaction with a merkle branch linking it to the block chain. */
 class CMerkleTx
