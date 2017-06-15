@@ -2849,7 +2849,8 @@ bool static DisconnectTip(CValidationState& state, const CChainParams& chainpara
     // Let wallets know transactions went from 1-confirmed to
     // 0-confirmed or conflicted:
     for (const auto& tx : block.vtx) {
-        GetMainSignals().SyncTransaction(*tx, pindexDelete->pprev, CMainSignals::SYNC_TRANSACTION_NOT_IN_BLOCK);
+        CBlockIndex* pindexPrev = tx->IsCoinStake() ? NULL : pindexDelete->pprev;
+        GetMainSignals().SyncTransaction(*tx, pindexPrev, CMainSignals::SYNC_TRANSACTION_NOT_IN_BLOCK);
     }
     return true;
 }
