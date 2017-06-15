@@ -48,7 +48,7 @@ uint64_t nLastBlockTx = 0;
 uint64_t nLastBlockSize = 0;
 uint64_t nLastBlockWeight = 0;
 int64_t nLastCoinStakeSearchInterval = 0;
-unsigned int nMinerSleep = 5000;
+unsigned int nMinerSleep = STAKER_POLLING_PERIOD;
 
 class ScoreCompare
 {
@@ -150,7 +150,7 @@ void BlockAssembler::RebuildRefundTransaction(){
 }
 
 
-std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bool fProofOfStake, int64_t* pTotalFees, int32_t txProofTime)
+std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bool fProofOfStake, int64_t* pTotalFees, int32_t txProofTime, int32_t nTimeLimit)
 {
     resetBlock();
 
@@ -159,6 +159,8 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     if(!pblocktemplate.get())
         return nullptr;
     pblock = &pblocktemplate->block; // pointer for convenience
+
+    this->nTimeLimit = nTimeLimit;
 
     // Add dummy coinbase tx as first transaction
     pblock->vtx.emplace_back();
@@ -511,6 +513,10 @@ bool BlockAssembler::CheckBlockBeyondFull()
 }
 
 bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
+    if(nTimeLimit != 0 && GetAdjustedTime() >= nTimeLimit-BYTECODE_TIME_BUFFER)
+    {
+        return false;
+    }
     dev::h256 oldHashStateRoot(globalState->rootHash());
     dev::h256 oldHashUTXORoot(globalState->rootHashUTXO());
     // operate on local vars first, then later apply to `this`
@@ -794,6 +800,10 @@ void BlockAssembler::addPackageTxs()
         SortForBlock(ancestors, iter, sortedEntries);
 
         for (size_t i=0; i<sortedEntries.size(); ++i) {
+            if(nTimeLimit != 0 && GetAdjustedTime() >= nTimeLimit)
+            {
+                break;
+            }
             const CTransaction& tx = sortedEntries[i]->GetTx();
             bool wasAdded=true;
             if(tx.HasCreateOrCall()) {
@@ -863,6 +873,12 @@ void BlockAssembler::addPriorityTxs()
         // cannot accept witness transactions into a non-witness block
         if (!fIncludeWitness && iter->GetTx().HasWitness())
             continue;
+
+
+        if(nTimeLimit != 0 && GetAdjustedTime() >= nTimeLimit)
+        {
+            break;
+        }
 
         // If tx is dependent on other mempool txs which haven't yet been included
         // then put it in the waitSet
@@ -1028,11 +1044,12 @@ void ThreadStakeMiner(CWallet *pwallet)
                     // Create a block that's properly populated with transactions
                     std::unique_ptr<CBlockTemplate> pblocktemplatefilled(
                             BlockAssembler(Params()).CreateNewBlock(reservekey.reserveScript, true, &nTotalFees,
-                                                                    pblock->nTime));
+                                                                    nTime, FutureDrift(GetAdjustedTime()) - STAKE_TIME_BUFFER));
                     if (!pblocktemplatefilled.get())
                         return;
                     if(pindexPrev->GetBlockHash() != beginningHash){
                         //another block was received while building ours, scrap progress
+                        LogPrint("staker", "ThreadStakeMiner(): Valid future PoS block was orphaned before becoming valid");
                         break;
                     }
                     // Sign the full block and use the timestamp from earlier for a valid stake
@@ -1044,11 +1061,13 @@ void ThreadStakeMiner(CWallet *pwallet)
                         while(!validBlock) {
                             if (pindexPrev->GetBlockHash() != beginningHash) {
                                 //another block was received while building ours, scrap progress
+                                LogPrint("staker", "ThreadStakeMiner(): Valid future PoS block was orphaned before becoming valid");
                                 break;
                             }
                             //check timestamps
                             if (pblockfilled->GetBlockTime() <= pindexPrev->GetBlockTime() ||
                                 FutureDrift(pblockfilled->GetBlockTime()) < pindexPrev->GetBlockTime()) {
+                                LogPrint("staker", "ThreadStakeMiner(): Valid PoS block took too long to create and has expired");
                                 break; //timestamp too late, so ignore
                             }
                             if (pblockfilled->GetBlockTime() > FutureDrift(GetAdjustedTime())) {
