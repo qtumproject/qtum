@@ -1917,7 +1917,7 @@ void processingMuchVouts(ByteCodeExecResult& bcer, ByteCodeExecResult& bcerOut, 
     const dev::h256& oldHashStateRoot, const std::vector<QtumTransaction>& transactions){
         
     for(CTransaction& t : bcerOut.refundValueTx){
-        if(t.vout.size() > 1000){
+        if(t.vout.size() > MAX_CONTRACT_VOUTS){
             globalState->setRootUTXO(oldHashQtumRoot);
             globalState->setRoot(oldHashStateRoot);
 
