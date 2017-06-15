@@ -48,7 +48,7 @@ uint64_t nLastBlockTx = 0;
 uint64_t nLastBlockSize = 0;
 uint64_t nLastBlockWeight = 0;
 int64_t nLastCoinStakeSearchInterval = 0;
-unsigned int nMinerSleep = 500;
+unsigned int nMinerSleep = STAKER_POLLING_PERIOD;
 
 class ScoreCompare
 {
@@ -131,7 +131,26 @@ void BlockAssembler::resetBlock()
     blockFinished = false;
 }
 
-std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bool fProofOfStake, int64_t* pTotalFees, int32_t txProofTime)
+void BlockAssembler::RebuildRefundTransaction(){
+    int refundtx=0; //0 for coinbase in PoW
+    if(pblock->IsProofOfStake()){
+        refundtx=1; //1 for coinstake in PoS
+    }
+    CMutableTransaction contrTx(originalRewardTx);
+    contrTx.vout[refundtx].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
+    contrTx.vout[refundtx].nValue -= bceResult.refundSender;
+    //note, this will need changed for MPoS
+    int i=contrTx.vout.size();
+    contrTx.vout.resize(contrTx.vout.size()+bceResult.refundVOuts.size());
+    for(CTxOut& vout : bceResult.refundVOuts){
+        contrTx.vout[i]=vout;
+        i++;
+    }
+    pblock->vtx[refundtx] = MakeTransactionRef(std::move(contrTx));
+}
+
+
+std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bool fProofOfStake, int64_t* pTotalFees, int32_t txProofTime, int32_t nTimeLimit)
 {
     resetBlock();
 
@@ -140,6 +159,8 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     if(!pblocktemplate.get())
         return nullptr;
     pblock = &pblocktemplate->block; // pointer for convenience
+
+    this->nTimeLimit = nTimeLimit;
 
     // Add dummy coinbase tx as first transaction
     pblock->vtx.emplace_back();
@@ -163,7 +184,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
         txProofTime = GetAdjustedTime();
     }
     if(fProofOfStake)
-        txProofTime &= STAKE_TIMESTAMP_MASK;
+        txProofTime &= ~STAKE_TIMESTAMP_MASK;
     pblock->nTime = txProofTime;
     const int64_t nMedianTimePast = pindexPrev->GetMedianTimePast();
 
@@ -199,6 +220,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
         coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
     }
     coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
+    originalRewardTx = coinbaseTx;
     pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTx));
 
     // Create coinstake transaction.
@@ -208,11 +230,14 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
         coinstakeTx.vout.resize(2);
         coinstakeTx.vout[0].SetEmpty();
         coinstakeTx.vout[1].scriptPubKey = scriptPubKeyIn;
+        originalRewardTx = coinstakeTx;
         pblock->vtx[1] = MakeTransactionRef(std::move(coinstakeTx));
-    }
 
-    //Add the contract data into the proof transaction
-    int contrTxIndex = fProofOfStake ? 1 : 0;
+        //this just makes CBlock::IsProofOfStake to return true
+        //real prevoutstake info is filled in later in SignBlock
+        pblock->prevoutStake.n=0;
+
+    }
 
     //////////////////////////////////////////////////////// qtum
     dev::h256 oldHashStateRoot(globalState->rootHash());
@@ -224,13 +249,9 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     globalState->setRoot(oldHashStateRoot);
     globalState->setRootUTXO(oldHashUTXORoot);
 
-    CMutableTransaction contrTx(*pblock->vtx[contrTxIndex]);
-    contrTx.vout[contrTxIndex].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
-    contrTx.vout[contrTxIndex].nValue -= bceResult.refundSender;
-    for(CTxOut& vOut : bceResult.refundVOuts){
-        contrTx.vout.push_back(vOut);
-    }
-    pblock->vtx[contrTxIndex] = MakeTransactionRef(std::move(contrTx));
+    //this should already be populated by AddBlock in case of contracts, but if no contracts
+    //then it won't get populated
+    RebuildRefundTransaction();
     ////////////////////////////////////////////////////////
 
     pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus(), fProofOfStake);
@@ -260,7 +281,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
 }
 
 
-std::unique_ptr<CBlockTemplate> BlockAssembler::CreateEmptyBlock(const CScript& scriptPubKeyIn, bool fProofOfStake, int64_t* pTotalFees)
+std::unique_ptr<CBlockTemplate> BlockAssembler::CreateEmptyBlock(const CScript& scriptPubKeyIn, bool fProofOfStake, int64_t* pTotalFees, int32_t nTime)
 {
     resetBlock();
 
@@ -288,9 +309,9 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateEmptyBlock(const CScript& 
     if (chainparams.MineBlocksOnDemand())
         pblock->nVersion = GetArg("-blockversion", pblock->nVersion);
 
-    uint32_t txProofTime = GetAdjustedTime();
+    uint32_t txProofTime = nTime == 0 ? GetAdjustedTime() : nTime;
     if(fProofOfStake)
-        txProofTime &= STAKE_TIMESTAMP_MASK;
+        txProofTime &= ~STAKE_TIMESTAMP_MASK;
     pblock->nTime = txProofTime;
     const int64_t nMedianTimePast = pindexPrev->GetMedianTimePast();
 
@@ -319,6 +340,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateEmptyBlock(const CScript& 
         coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
     }
     coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
+    originalRewardTx = coinbaseTx;
     pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTx));
 
     // Create coinstake transaction.
@@ -328,13 +350,20 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateEmptyBlock(const CScript& 
         coinstakeTx.vout.resize(2);
         coinstakeTx.vout[0].SetEmpty();
         coinstakeTx.vout[1].scriptPubKey = scriptPubKeyIn;
+        originalRewardTx = coinstakeTx;
         pblock->vtx[1] = MakeTransactionRef(std::move(coinstakeTx));
+
+        //this just makes CBlock::IsProofOfStake to return true
+        //real prevoutstake info is filled in later in SignBlock
+        pblock->prevoutStake.n=0;
     }
 
     //////////////////////////////////////////////////////// qtum
     //state shouldn't change here for an empty block, but if it's not valid it'll fail in CheckBlock later
     pblock->hashStateRoot = uint256(h256Touint(dev::h256(globalState->rootHash())));
     pblock->hashUTXORoot = uint256(h256Touint(dev::h256(globalState->rootHashUTXO())));
+
+    RebuildRefundTransaction();
     ////////////////////////////////////////////////////////
 
     pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus(), fProofOfStake);
@@ -471,23 +500,119 @@ bool BlockAssembler::TestForBlock(CTxMemPool::txiter iter)
     return true;
 }
 
+bool BlockAssembler::CheckBlockBeyondFull()
+{
+    if (nBlockSize > MAX_BLOCK_SERIALIZED_SIZE) {
+        return false;
+    }
+
+    if (nBlockSigOpsCost * WITNESS_SCALE_FACTOR > MAX_BLOCK_SIGOPS_COST) {
+        return false;
+    }
+    return true;
+}
+
+bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
+    if(nTimeLimit != 0 && GetAdjustedTime() >= nTimeLimit-BYTECODE_TIME_BUFFER)
+    {
+        return false;
+    }
+    dev::h256 oldHashStateRoot(globalState->rootHash());
+    dev::h256 oldHashUTXORoot(globalState->rootHashUTXO());
+    // operate on local vars first, then later apply to `this`
+    uint64_t nBlockWeight = this->nBlockWeight;
+    uint64_t nBlockSize = this->nBlockSize;
+    uint64_t nBlockSigOpsCost = this->nBlockSigOpsCost;
+
+    QtumTxConverter convert(iter->GetTx(), NULL);
+    ByteCodeExec exec(*pblock, convert.extractionQtumTransactions());
+    exec.performByteCode();
+    ByteCodeExecResult testExecResult = exec.processingResults();
+
+    //apply contractTx costs to local state
+    if (fNeedSizeAccounting) {
+        nBlockSize += ::GetSerializeSize(iter->GetTx(), SER_NETWORK, PROTOCOL_VERSION);
+    }
+    nBlockWeight += iter->GetTxWeight();
+    nBlockSigOpsCost += iter->GetSigOpCost();
+    //apply value-transfer txs to local state
+    for (CTransaction &t : testExecResult.refundValueTx) {
+        if (fNeedSizeAccounting) {
+            nBlockSize += ::GetSerializeSize(t, SER_NETWORK, PROTOCOL_VERSION);
+        }
+        nBlockWeight += GetTransactionWeight(t);
+        nBlockSigOpsCost += GetLegacySigOpCount(t);
+    }
+
+    int proofTx = pblock->IsProofOfStake() ? 1 : 0;
+
+    //calculate sigops from new refund/proof tx
+
+    //first, subtract old proof tx
+    nBlockSigOpsCost -= GetLegacySigOpCount(*pblock->vtx[proofTx]);
+
+    // manually rebuild refundtx
+    CMutableTransaction contrTx(*pblock->vtx[proofTx]);
+    //note, this will need changed for MPoS
+    int i=contrTx.vout.size();
+    contrTx.vout.resize(contrTx.vout.size()+testExecResult.refundVOuts.size());
+    for(CTxOut& vout : testExecResult.refundVOuts){
+        contrTx.vout[i]=vout;
+        i++;
+    }
+    nBlockSigOpsCost += GetLegacySigOpCount(contrTx);
+    //all contract costs now applied to local state
+
+    //Check if block will be too big or too expensive with this contract execution
+    if (nBlockSigOpsCost * WITNESS_SCALE_FACTOR > MAX_BLOCK_SIGOPS_COST ||
+            nBlockSize > MAX_BLOCK_SERIALIZED_SIZE) {
+        //contract will not be added to block, so revert state to before we tried
+        globalState->setRoot(oldHashStateRoot);
+        globalState->setRootUTXO(oldHashUTXORoot);
+        return false;
+    }
+
+    //block is not too big, so apply the contract execution and it's results to the actual block
+
+    //apply local bytecode to global bytecode state
+    bceResult.usedFee += testExecResult.usedFee;
+    bceResult.refundSender += testExecResult.refundSender;
+    bceResult.refundVOuts.insert(bceResult.refundVOuts.end(), testExecResult.refundVOuts.begin(), testExecResult.refundVOuts.end());
+    bceResult.refundValueTx = std::move(testExecResult.refundValueTx);
+
+    pblock->vtx.emplace_back(iter->GetSharedTx());
+    pblocktemplate->vTxFees.push_back(iter->GetFee());
+    pblocktemplate->vTxSigOpsCost.push_back(iter->GetSigOpCost());
+    if (fNeedSizeAccounting) {
+        this->nBlockSize += ::GetSerializeSize(iter->GetTx(), SER_NETWORK, PROTOCOL_VERSION);
+    }
+    this->nBlockWeight += iter->GetTxWeight();
+    ++nBlockTx;
+    this->nBlockSigOpsCost += iter->GetSigOpCost();
+    nFees += iter->GetFee();
+    inBlock.insert(iter);
+
+    for (CTransaction &t : bceResult.refundValueTx) {
+        pblock->vtx.emplace_back(MakeTransactionRef(std::move(t)));
+        if (fNeedSizeAccounting) {
+            this->nBlockSize += ::GetSerializeSize(t, SER_NETWORK, PROTOCOL_VERSION);
+        }
+        this->nBlockWeight += GetTransactionWeight(t);
+        this->nBlockSigOpsCost += GetLegacySigOpCount(t);
+        ++nBlockTx;
+    }
+    //calculate sigops from new refund/proof tx
+    this->nBlockSigOpsCost -= GetLegacySigOpCount(*pblock->vtx[proofTx]);
+    RebuildRefundTransaction();
+    this->nBlockSigOpsCost += GetLegacySigOpCount(*pblock->vtx[proofTx]);
+
+    bceResult.refundValueTx.clear();
+
+    return true;
+}
+
 void BlockAssembler::AddToBlock(CTxMemPool::txiter iter)
 {
-
-////////////////////////////////////////////////////////////// // qtum
-    const CTransaction& tx = iter->GetTx();
-    if(tx.HasCreateOrCall()){
-        QtumTxConverter convert(tx, NULL);
-        ByteCodeExec exec(*pblock, convert.extractionQtumTransactions());
-        exec.performByteCode();
-        ByteCodeExecResult res = exec.processingResults();
-        bceResult.usedFee += res.usedFee;
-        bceResult.refundSender += res.refundSender;
-        bceResult.refundVOuts.insert(bceResult.refundVOuts.end(), res.refundVOuts.begin(), res.refundVOuts.end());
-        bceResult.refundValueTx = std::move(res.refundValueTx);
-    }
-//////////////////////////////////////////////////////////////
-
     pblock->vtx.emplace_back(iter->GetSharedTx());
     pblocktemplate->vTxFees.push_back(iter->GetFee());
     pblocktemplate->vTxSigOpsCost.push_back(iter->GetSigOpCost());
@@ -511,17 +636,6 @@ void BlockAssembler::AddToBlock(CTxMemPool::txiter iter)
                   iter->GetTx().GetHash().ToString());
     }
 
-    /////////////////////////////////////////////////////////////// // qtum
-    for(CTransaction& t : bceResult.refundValueTx){
-        pblock->vtx.emplace_back(MakeTransactionRef(std::move(t)));
-        if (fNeedSizeAccounting) {
-            nBlockSize += ::GetSerializeSize(t, SER_NETWORK, PROTOCOL_VERSION);
-        }
-        nBlockWeight += GetTransactionWeight(t);
-        ++nBlockTx;
-    }
-    bceResult.refundValueTx.clear();
-    ///////////////////////////////////////////////////////////////
 }
 
 void BlockAssembler::UpdatePackagesForAdded(const CTxMemPool::setEntries& alreadyAdded,
@@ -686,9 +800,24 @@ void BlockAssembler::addPackageTxs()
         SortForBlock(ancestors, iter, sortedEntries);
 
         for (size_t i=0; i<sortedEntries.size(); ++i) {
-            AddToBlock(sortedEntries[i]);
+            if(nTimeLimit != 0 && GetAdjustedTime() >= nTimeLimit)
+            {
+                break;
+            }
+            const CTransaction& tx = sortedEntries[i]->GetTx();
+            bool wasAdded=true;
+            if(tx.HasCreateOrCall()) {
+                wasAdded = AttemptToAddContractToBlock(sortedEntries[i]);
+            }else {
+                AddToBlock(sortedEntries[i]);
+            }
+
+            if(!wasAdded){
+                break;
+            }
             // Erase from the modified set, if present
             mapModifiedTx.erase(sortedEntries[i]);
+
         }
 
         // Update transactions that depend on each of these
@@ -745,6 +874,12 @@ void BlockAssembler::addPriorityTxs()
         if (!fIncludeWitness && iter->GetTx().HasWitness())
             continue;
 
+
+        if(nTimeLimit != 0 && GetAdjustedTime() >= nTimeLimit)
+        {
+            break;
+        }
+
         // If tx is dependent on other mempool txs which haven't yet been included
         // then put it in the waitSet
         if (isStillDependent(iter)) {
@@ -754,24 +889,31 @@ void BlockAssembler::addPriorityTxs()
 
         // If this tx fits in the block add it, otherwise keep looping
         if (TestForBlock(iter)) {
-            AddToBlock(iter);
+
+            const CTransaction& tx = iter->GetTx();
+            bool wasAdded=true;
+            if(tx.HasCreateOrCall()) {
+                wasAdded = AttemptToAddContractToBlock(iter);
+            }else {
+                AddToBlock(iter);
+            }
 
             // If now that this txs is added we've surpassed our desired priority size
             // or have dropped below the AllowFreeThreshold, then we're done adding priority txs
             if (nBlockSize >= nBlockPrioritySize || !AllowFree(actualPriority)) {
                 break;
             }
-
-            // This tx was successfully added, so
-            // add transactions that depend on this one to the priority queue to try again
-            BOOST_FOREACH(CTxMemPool::txiter child, mempool.GetMemPoolChildren(iter))
-            {
-                waitPriIter wpiter = waitPriMap.find(child);
-                if (wpiter != waitPriMap.end()) {
-                    vecPriority.push_back(TxCoinAgePriority(wpiter->second,child));
-                    std::push_heap(vecPriority.begin(), vecPriority.end(), pricomparer);
-                    waitPriMap.erase(wpiter);
-                }
+            if(wasAdded) {
+                // This tx was successfully added, so
+                // add transactions that depend on this one to the priority queue to try again
+                BOOST_FOREACH(CTxMemPool::txiter child, mempool.GetMemPoolChildren(iter)) {
+                                waitPriIter wpiter = waitPriMap.find(child);
+                                if (wpiter != waitPriMap.end()) {
+                                    vecPriority.push_back(TxCoinAgePriority(wpiter->second, child));
+                                    std::push_heap(vecPriority.begin(), vecPriority.end(), pricomparer);
+                                    waitPriMap.erase(wpiter);
+                                }
+                            }
             }
         }
     }
@@ -887,28 +1029,62 @@ void ThreadStakeMiner(CWallet *pwallet)
             std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(Params()).CreateEmptyBlock(reservekey.reserveScript, true, &nTotalFees));
             if (!pblocktemplate.get())
                 return;
+            CBlockIndex* pindexPrev =  chainActive.Tip();
+            uint256 beginningHash = pindexPrev->GetBlockHash();
 
-            // Try to sign a block (this also checks for a PoS stake)
-            std::shared_ptr<CBlock> pblock = std::make_shared<CBlock>(pblocktemplate->block);
-            if (SignBlock(pblock, *pwallet, nTotalFees))
-            {
-                // increase priority so we can build the full PoS block ASAP to ensure the timestamp doesn't expire
-                SetThreadPriority(THREAD_PRIORITY_ABOVE_NORMAL);
-                // Create a block that's properly populated with transactions
-                std::unique_ptr<CBlockTemplate> pblocktemplatefilled(BlockAssembler(Params()).CreateNewBlock(reservekey.reserveScript, true, &nTotalFees, pblock->nTime));
-                if (!pblocktemplatefilled.get())
-                    return;
+            uint32_t nTime=GetAdjustedTime();
+            nTime &= ~STAKE_TIMESTAMP_MASK;
+            for(uint32_t i=nTime;i<nTime + MAX_STAKE_LOOKAHEAD;i+=STAKE_TIMESTAMP_MASK) {
 
-                // Sign the full block and use the timestamp from earlier for a valid stake
-                std::shared_ptr<CBlock> pblockfilled = std::make_shared<CBlock>(pblocktemplatefilled->block);
-                if (SignBlock(pblockfilled, *pwallet, nTotalFees))
-                {
-                    // Should always reach here unless we spent too much time processing transactions and the timestamp is now invalid
-                    // CheckStake also does CheckBlock and AcceptBlock to propogate it to the network
-                    CheckStake(pblockfilled, *pwallet);
+                // Try to sign a block (this also checks for a PoS stake)
+                std::shared_ptr<CBlock> pblock = std::make_shared<CBlock>(pblocktemplate->block);
+                if (SignBlock(pblock, *pwallet, nTotalFees, i)) {
+                    // increase priority so we can build the full PoS block ASAP to ensure the timestamp doesn't expire
+                    SetThreadPriority(THREAD_PRIORITY_ABOVE_NORMAL);
+                    // Create a block that's properly populated with transactions
+                    std::unique_ptr<CBlockTemplate> pblocktemplatefilled(
+                            BlockAssembler(Params()).CreateNewBlock(reservekey.reserveScript, true, &nTotalFees,
+                                                                    nTime, FutureDrift(GetAdjustedTime()) - STAKE_TIME_BUFFER));
+                    if (!pblocktemplatefilled.get())
+                        return;
+                    if(pindexPrev->GetBlockHash() != beginningHash){
+                        //another block was received while building ours, scrap progress
+                        LogPrint("staker", "ThreadStakeMiner(): Valid future PoS block was orphaned before becoming valid");
+                        break;
+                    }
+                    // Sign the full block and use the timestamp from earlier for a valid stake
+                    std::shared_ptr<CBlock> pblockfilled = std::make_shared<CBlock>(pblocktemplatefilled->block);
+                    if (SignBlock(pblockfilled, *pwallet, nTotalFees, i)) {
+                        // Should always reach here unless we spent too much time processing transactions and the timestamp is now invalid
+                        // CheckStake also does CheckBlock and AcceptBlock to propogate it to the network
+                        bool validBlock = false;
+                        while(!validBlock) {
+                            if (pindexPrev->GetBlockHash() != beginningHash) {
+                                //another block was received while building ours, scrap progress
+                                LogPrint("staker", "ThreadStakeMiner(): Valid future PoS block was orphaned before becoming valid");
+                                break;
+                            }
+                            //check timestamps
+                            if (pblockfilled->GetBlockTime() <= pindexPrev->GetBlockTime() ||
+                                FutureDrift(pblockfilled->GetBlockTime()) < pindexPrev->GetBlockTime()) {
+                                LogPrint("staker", "ThreadStakeMiner(): Valid PoS block took too long to create and has expired");
+                                break; //timestamp too late, so ignore
+                            }
+                            if (pblockfilled->GetBlockTime() > FutureDrift(GetAdjustedTime())) {
+                                //too early, so wait a second and try again
+                                MilliSleep(1000);
+                                continue;
+                            }
+                            validBlock=true;
+                        }
+                        if(validBlock) {
+                            CheckStake(pblockfilled, *pwallet);
+                        }
+                        break;
+                    }
+                    //return back to low priority
+                    SetThreadPriority(THREAD_PRIORITY_LOWEST);
                 }
-                //return back to low priority
-                SetThreadPriority(THREAD_PRIORITY_LOWEST);
             }
         }
         MilliSleep(nMinerSleep);
