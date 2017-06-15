@@ -511,13 +511,14 @@ bool BlockAssembler::CheckBlockBeyondFull()
 }
 
 bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
+    dev::h256 oldHashStateRoot(globalState->rootHash());
+    dev::h256 oldHashUTXORoot(globalState->rootHashUTXO());
     // operate on local vars first, then later apply to `this`
     uint64_t nBlockWeight = this->nBlockWeight;
     uint64_t nBlockSize = this->nBlockSize;
     uint64_t nBlockSigOpsCost = this->nBlockSigOpsCost;
 
-    const CTransaction& tx = iter->GetTx();
-    QtumTxConverter convert(tx, NULL);
+    QtumTxConverter convert(iter->GetTx(), NULL);
     ByteCodeExec exec(*pblock, convert.extractionQtumTransactions());
     exec.performByteCode();
     ByteCodeExecResult testExecResult = exec.processingResults();
@@ -544,11 +545,8 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
     //first, subtract old proof tx
     nBlockSigOpsCost -= GetLegacySigOpCount(*pblock->vtx[proofTx]);
 
-
     // manually rebuild refundtx
     CMutableTransaction contrTx(*pblock->vtx[proofTx]);
-    contrTx.vout[proofTx].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
-    contrTx.vout[proofTx].nValue -= testExecResult.refundSender;
     //note, this will need changed for MPoS
     int i=contrTx.vout.size();
     contrTx.vout.resize(contrTx.vout.size()+testExecResult.refundVOuts.size());
@@ -560,11 +558,11 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
     //all contract costs now applied to local state
 
     //Check if block will be too big or too expensive with this contract execution
-    if (nBlockSize > MAX_BLOCK_SERIALIZED_SIZE) {
-        return false;
-    }
-
-    if (nBlockSigOpsCost * WITNESS_SCALE_FACTOR > MAX_BLOCK_SIGOPS_COST) {
+    if (nBlockSigOpsCost * WITNESS_SCALE_FACTOR > MAX_BLOCK_SIGOPS_COST ||
+            nBlockSize > MAX_BLOCK_SERIALIZED_SIZE) {
+        //contract will not be added to block, so revert state to before we tried
+        globalState->setRoot(oldHashStateRoot);
+        globalState->setRootUTXO(oldHashUTXORoot);
         return false;
     }
 
@@ -580,7 +578,7 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
     pblocktemplate->vTxFees.push_back(iter->GetFee());
     pblocktemplate->vTxSigOpsCost.push_back(iter->GetSigOpCost());
     if (fNeedSizeAccounting) {
-        nBlockSize += ::GetSerializeSize(iter->GetTx(), SER_NETWORK, PROTOCOL_VERSION);
+        this->nBlockSize += ::GetSerializeSize(iter->GetTx(), SER_NETWORK, PROTOCOL_VERSION);
     }
     this->nBlockWeight += iter->GetTxWeight();
     ++nBlockTx;
@@ -588,7 +586,7 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
     nFees += iter->GetFee();
     inBlock.insert(iter);
 
-    for (CTransaction &t : testExecResult.refundValueTx) {
+    for (CTransaction &t : bceResult.refundValueTx) {
         pblock->vtx.emplace_back(MakeTransactionRef(std::move(t)));
         if (fNeedSizeAccounting) {
             this->nBlockSize += ::GetSerializeSize(t, SER_NETWORK, PROTOCOL_VERSION);
@@ -601,6 +599,8 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
     this->nBlockSigOpsCost -= GetLegacySigOpCount(*pblock->vtx[proofTx]);
     RebuildRefundTransaction();
     this->nBlockSigOpsCost += GetLegacySigOpCount(*pblock->vtx[proofTx]);
+
+    bceResult.refundValueTx.clear();
 
     return true;
 }
@@ -794,9 +794,20 @@ void BlockAssembler::addPackageTxs()
         SortForBlock(ancestors, iter, sortedEntries);
 
         for (size_t i=0; i<sortedEntries.size(); ++i) {
-            AddToBlock(sortedEntries[i]); //TODO exclude contracts from being treated as packages
+            const CTransaction& tx = sortedEntries[i]->GetTx();
+            bool wasAdded=true;
+            if(tx.HasCreateOrCall()) {
+                wasAdded = AttemptToAddContractToBlock(sortedEntries[i]);
+            }else {
+                AddToBlock(sortedEntries[i]);
+            }
+
+            if(!wasAdded){
+                break;
+            }
             // Erase from the modified set, if present
             mapModifiedTx.erase(sortedEntries[i]);
+
         }
 
         // Update transactions that depend on each of these
