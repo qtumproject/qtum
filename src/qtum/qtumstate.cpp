@@ -54,7 +54,7 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
         } else {
             deleteAccounts(_sealEngine.deleteAddresses);
             if(res.excepted == TransactionException::None){
-                CondensingTX ctx(this, transfers, _t);
+                CondensingTX ctx(this, transfers, _t, _sealEngine.deleteAddresses);
                 tx = MakeTransactionRef(ctx.createCondensingTX());
                 std::unordered_map<dev::Address, Vin> vins = ctx.createVin(*tx);
                 updateUTXO(vins);
@@ -284,7 +284,7 @@ void CondensingTX::calculatePlusAndMinus(){
 bool CondensingTX::createNewBalances(){
     for(auto& p : plusMinusInfo){
         dev::u256 balance = 0;
-        if(vins.count(p.first)){
+        if((vins.count(p.first) && vins[p.first].alive) || (!vins[p.first].alive && !checkDeleteAddress(p.first))){
             balance = vins[p.first].value;
         }
         balance += p.second.first;
@@ -299,7 +299,7 @@ bool CondensingTX::createNewBalances(){
 std::vector<CTxIn> CondensingTX::createVins(){
     std::vector<CTxIn> ins;
     for(auto& v : vins){
-        if(v.second.value > 0)
+        if((v.second.value > 0 && v.second.alive) || (v.second.value > 0 && !vins[v.first].alive && !checkDeleteAddress(v.first)))
             ins.push_back(CTxIn(h256Touint(v.second.hash), v.second.nVout, CScript() << OP_TXHASH));
     }
     return ins;
@@ -323,5 +323,14 @@ std::vector<CTxOut> CondensingTX::createVout(){
         }
     }
     return outs;
+}
+
+bool CondensingTX::checkDeleteAddress(dev::Address addr){
+    for(const dev::Address& a : deleteAddresses){
+        if(a == addr){
+            return true;
+        }
+    }
+    return false;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////

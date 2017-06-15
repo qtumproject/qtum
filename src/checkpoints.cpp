@@ -45,9 +45,11 @@ namespace Checkpoints {
     // Check against synchronized checkpoint
     bool CheckSync(int nHeight)
     {
-        const CBlockIndex* pindexSync = AutoSelectSyncCheckpoint();
+        const CBlockIndex* pindexSync;
+        if(nHeight)
+            pindexSync = AutoSelectSyncCheckpoint();
 
-        if (nHeight <= pindexSync->nHeight)
+        if(nHeight && nHeight <= pindexSync->nHeight)
             return false;
         return true;
     }
