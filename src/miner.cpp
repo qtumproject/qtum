@@ -141,8 +141,8 @@ void BlockAssembler::RebuildRefundTransaction(){
     contrTx.vout[refundtx].nValue -= bceResult.refundSender;
     //note, this will need changed for MPoS
     int i=contrTx.vout.size();
-    contrTx.vout.resize(contrTx.vout.size()+bceResult.refundVOuts.size());
-    for(CTxOut& vout : bceResult.refundVOuts){
+    contrTx.vout.resize(contrTx.vout.size()+bceResult.refundOutputs.size());
+    for(CTxOut& vout : bceResult.refundOutputs){
         contrTx.vout[i]=vout;
         i++;
     }
@@ -536,7 +536,7 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
     nBlockWeight += iter->GetTxWeight();
     nBlockSigOpsCost += iter->GetSigOpCost();
     //apply value-transfer txs to local state
-    for (CTransaction &t : testExecResult.refundValueTx) {
+    for (CTransaction &t : testExecResult.valueTransfers) {
         if (fNeedSizeAccounting) {
             nBlockSize += ::GetSerializeSize(t, SER_NETWORK, PROTOCOL_VERSION);
         }
@@ -555,8 +555,8 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
     CMutableTransaction contrTx(*pblock->vtx[proofTx]);
     //note, this will need changed for MPoS
     int i=contrTx.vout.size();
-    contrTx.vout.resize(contrTx.vout.size()+testExecResult.refundVOuts.size());
-    for(CTxOut& vout : testExecResult.refundVOuts){
+    contrTx.vout.resize(contrTx.vout.size()+testExecResult.refundOutputs.size());
+    for(CTxOut& vout : testExecResult.refundOutputs){
         contrTx.vout[i]=vout;
         i++;
     }
@@ -577,8 +577,8 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
     //apply local bytecode to global bytecode state
     bceResult.usedFee += testExecResult.usedFee;
     bceResult.refundSender += testExecResult.refundSender;
-    bceResult.refundVOuts.insert(bceResult.refundVOuts.end(), testExecResult.refundVOuts.begin(), testExecResult.refundVOuts.end());
-    bceResult.refundValueTx = std::move(testExecResult.refundValueTx);
+    bceResult.refundOutputs.insert(bceResult.refundOutputs.end(), testExecResult.refundOutputs.begin(), testExecResult.refundOutputs.end());
+    bceResult.valueTransfers = std::move(testExecResult.valueTransfers);
 ////////////////////////////////////////////////////////////// // qtum
     const CTransaction& tx = iter->GetTx();
     if(tx.HasCreateOrCall()){
@@ -594,10 +594,10 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
 
         bceResult.usedFee += res.usedFee;
         bceResult.refundSender += res.refundSender;
-        bceResult.refundVOuts.insert(bceResult.refundVOuts.end(), res.refundVOuts.begin(), res.refundVOuts.end());
-        bceResult.refundValueTx = std::move(res.refundValueTx);
+        bceResult.refundOutputs.insert(bceResult.refundOutputs.end(), res.refundOutputs.begin(), res.refundOutputs.end());
+        bceResult.valueTransfers = std::move(res.valueTransfers);
 
-        processingMuchVouts(res, bceResult, oldHashQtumRoot, oldHashStateRoot, transactions);
+        EnforceContractVoutLimit(res, bceResult, oldHashQtumRoot, oldHashStateRoot, transactions);
     }
 //////////////////////////////////////////////////////////////
 
@@ -613,7 +613,7 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
     nFees += iter->GetFee();
     inBlock.insert(iter);
 
-    for (CTransaction &t : bceResult.refundValueTx) {
+    for (CTransaction &t : bceResult.valueTransfers) {
         pblock->vtx.emplace_back(MakeTransactionRef(std::move(t)));
         if (fNeedSizeAccounting) {
             this->nBlockSize += ::GetSerializeSize(t, SER_NETWORK, PROTOCOL_VERSION);
@@ -627,7 +627,7 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
     RebuildRefundTransaction();
     this->nBlockSigOpsCost += GetLegacySigOpCount(*pblock->vtx[proofTx]);
 
-    bceResult.refundValueTx.clear();
+    bceResult.valueTransfers.clear();
 
     return true;
 }

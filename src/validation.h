@@ -618,7 +618,7 @@ bool LoadMempool();
 //////////////////////////////////////////////////////// qtum
 struct ByteCodeExecResult;
 
-void processingMuchVouts(ByteCodeExecResult& bcer, ByteCodeExecResult& bcerOut, const dev::h256& oldHashQtumRoot, 
+void EnforceContractVoutLimit(ByteCodeExecResult& bcer, ByteCodeExecResult& bcerOut, const dev::h256& oldHashQtumRoot,
     const dev::h256& oldHashStateRoot, const std::vector<QtumTransaction>& transactions);
 
 void writeVMlog(const std::vector<ResultExecute>& res, const CTransaction& tx = CTransaction(), const CBlock& block = CBlock());
@@ -684,8 +684,8 @@ struct EthTransactionParams{
 struct ByteCodeExecResult{
     CAmount usedFee = 0;
     CAmount refundSender = 0;
-    std::vector<CTxOut> refundVOuts;
-    std::vector<CTransaction> refundValueTx;
+    std::vector<CTxOut> refundOutputs;
+    std::vector<CTransaction> valueTransfers;
 };
 
 class QtumTxConverter{
