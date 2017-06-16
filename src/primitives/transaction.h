@@ -386,7 +386,7 @@ public:
 
 //////////////////////////////////////// // qtum
     bool HasCreateOrCall() const;
-    bool HasTXHASH() const;
+    bool HasOpSpend() const;
 ////////////////////////////////////////
 
     bool IsCoinBase() const
