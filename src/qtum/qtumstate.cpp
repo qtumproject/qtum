@@ -300,7 +300,7 @@ std::vector<CTxIn> CondensingTX::createVins(){
     std::vector<CTxIn> ins;
     for(auto& v : vins){
         if((v.second.value > 0 && v.second.alive) || (v.second.value > 0 && !vins[v.first].alive && !checkDeleteAddress(v.first)))
-            ins.push_back(CTxIn(h256Touint(v.second.hash), v.second.nVout, CScript() << OP_TXHASH));
+            ins.push_back(CTxIn(h256Touint(v.second.hash), v.second.nVout, CScript() << OP_SPEND));
     }
     return ins;
 }
