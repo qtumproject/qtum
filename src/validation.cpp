@@ -2374,7 +2374,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
         txdata.emplace_back(tx);
 
-        bool hasTxhash = false;
+        bool hasOpSpend = false;
 
         if (!tx.IsCoinBase())
         {
@@ -2386,19 +2386,19 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             std::vector<CScriptCheck> vChecks;
             bool fCacheResults = fJustCheck; /* Don't cache results if we're actually connecting blocks (still consult the cache, though) */
             // if (!CheckInputs(tx, state, view, fScriptChecks, flags, fCacheResults, txdata[i], nScriptCheckThreads ? &vChecks : NULL))
-            hasTxhash = tx.vin[0].scriptSig.HasOpSpend();
-            if (!CheckInputs(tx, state, view, fScriptChecks, flags, fCacheResults, txdata[i], (hasTxhash || tx.HasCreateOrCall()) ? NULL : (nScriptCheckThreads ? &vChecks : NULL)))//nScriptCheckThreads ? &vChecks : NULL))
+            hasOpSpend = tx.vin[0].scriptSig.HasOpSpend();
+            if (!CheckInputs(tx, state, view, fScriptChecks, flags, fCacheResults, txdata[i], (hasOpSpend || tx.HasCreateOrCall()) ? NULL : (nScriptCheckThreads ? &vChecks : NULL)))//nScriptCheckThreads ? &vChecks : NULL))
                 return error("ConnectBlock(): CheckInputs on %s failed with %s",
                     tx.GetHash().ToString(), FormatStateMessage(state));
             control.Add(vChecks);
         }
 
 ///////////////////////////////////////////////////////////////////////////////////////// qtum
-        if(!tx.HasTXHASH()){
+        if(!tx.HasOpSpend()){
             checkBlock.vtx.push_back(block.vtx[i]);
         }
 
-        if(tx.HasCreateOrCall() && !hasTxhash){
+        if(tx.HasCreateOrCall() && !hasOpSpend){
 
             dev::h256 oldHashQtumRoot(globalState->rootHashUTXO());
             dev::h256 oldHashStateRoot(globalState->rootHash());
