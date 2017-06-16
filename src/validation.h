@@ -166,6 +166,8 @@ static const bool DEFAULT_PEERBLOOMFILTERS = true;
 static const uint64_t DEFAULT_GAS_LIMIT=10000;
 static const CAmount DEFAULT_GAS_PRICE=0.00001*COIN;
 
+static const size_t MAX_CONTRACT_VOUTS = 1000; // qtum
+
 struct BlockHasher
 {
     size_t operator()(const uint256& hash) const { return hash.GetCheapHash(); }
@@ -614,6 +616,11 @@ void DumpMempool();
 bool LoadMempool();
 
 //////////////////////////////////////////////////////// qtum
+struct ByteCodeExecResult;
+
+void processingMuchVouts(ByteCodeExecResult& bcer, ByteCodeExecResult& bcerOut, const dev::h256& oldHashQtumRoot, 
+    const dev::h256& oldHashStateRoot, const std::vector<QtumTransaction>& transactions);
+
 void writeVMlog(const std::vector<ResultExecute>& res, const CTransaction& tx = CTransaction(), const CBlock& block = CBlock());
 
 class VersionVM{
