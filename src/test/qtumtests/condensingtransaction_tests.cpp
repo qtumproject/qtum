@@ -181,7 +181,7 @@ dev::h256 hash = dev::h256(ParseHex("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 
 void checkRes(ByteCodeExecResult& res, std::vector<dev::Address>& addresses, std::vector<dev::u256>& balances, size_t sizeTxs){
     std::unordered_map<dev::Address, Vin> vins = globalState->vins();
-    BOOST_CHECK(res.refundValueTx.size() == sizeTxs);
+    BOOST_CHECK(res.valueTransfers.size() == sizeTxs);
     for(size_t i = 0; i < addresses.size(); i++){
         BOOST_CHECK(globalState->balance(addresses[i]) == balances[i]);
         if(balances[i] > 0){
@@ -230,7 +230,7 @@ BOOST_AUTO_TEST_CASE(condensingtransactionbehavior_tests){
     result = executeBC(txs);
     balances = {5000,2500,500};
     checkRes(result.second, addresses, balances, 1);
-    checkTx(result.second.refundValueTx[0], 1, 3, {5000,2500,500});
+    checkTx(result.second.valueTransfers[0], 1, 3, {5000,2500,500});
 
     txs.clear();
     txs.push_back(createQtumTransaction(code[7], 2000, dev::u256(500000), dev::u256(1), hashTemp, addresses[0]));
@@ -238,8 +238,8 @@ BOOST_AUTO_TEST_CASE(condensingtransactionbehavior_tests){
     result = executeBC(txs);
     balances = {0,11500,500};
     checkRes(result.second, addresses, balances, 2);
-    checkTx(result.second.refundValueTx[0], 2, 1, {7000});
-    checkTx(result.second.refundValueTx[1], 3, 1, {11500});
+    checkTx(result.second.valueTransfers[0], 2, 1, {7000});
+    checkTx(result.second.valueTransfers[1], 3, 1, {11500});
 
     txs.clear();
     txs.push_back(createQtumTransaction(code[6], 2000, dev::u256(30000), dev::u256(1), hashTemp, addresses[1]));
@@ -247,8 +247,8 @@ BOOST_AUTO_TEST_CASE(condensingtransactionbehavior_tests){
     result = executeBC(txs);
     balances = {0,0,0};
     checkRes(result.second, addresses, balances, 2);
-    checkTx(result.second.refundValueTx[0], 1, 1, {2000});
-    checkTx(result.second.refundValueTx[1], 2, 1, {12000});
+    checkTx(result.second.valueTransfers[0], 1, 1, {2000});
+    checkTx(result.second.valueTransfers[1], 2, 1, {12000});
 }
 
 BOOST_AUTO_TEST_CASE(condensingtransactionbreadthways_tests){
@@ -272,8 +272,8 @@ BOOST_AUTO_TEST_CASE(condensingtransactionbreadthways_tests){
     result = executeBC(txs);
     std::vector<dev::u256> balances = {5000,5000,5000,0};
     checkRes(result.second, addresses, balances, 2);
-    checkTx(result.second.refundValueTx[0], 1, 1, {15000});
-    checkTx(result.second.refundValueTx[1], 1, 3, {5000,5000,5000});
+    checkTx(result.second.valueTransfers[0], 1, 1, {15000});
+    checkTx(result.second.valueTransfers[1], 1, 3, {5000,5000,5000});
 }
 
 BOOST_AUTO_TEST_CASE(condensingtransactiondeep_tests){
@@ -293,7 +293,7 @@ BOOST_AUTO_TEST_CASE(condensingtransactiondeep_tests){
     result = executeBC(txs);
     std::vector<dev::u256> balances = {1250,1250,2500,5000,10000};
     checkRes(result.second, addresses, balances, 1);
-    checkTx(result.second.refundValueTx[0], 1, 5, {2500,1250,5000,1250,10000});
+    checkTx(result.second.valueTransfers[0], 1, 5, {2500,1250,5000,1250,10000});
 }
 
 BOOST_AUTO_TEST_CASE(condensingtransactionsuicide_tests){
@@ -312,7 +312,7 @@ BOOST_AUTO_TEST_CASE(condensingtransactionsuicide_tests){
     result = executeBC(txs);
     std::vector<dev::u256> balances = {13000,0};
     checkRes(result.second, addresses, balances, 1);
-    checkTx(result.second.refundValueTx[0], 1, 1, {13000});
+    checkTx(result.second.valueTransfers[0], 1, 1, {13000});
 }
 
 BOOST_AUTO_TEST_CASE(condensingtransactionpaytopubkeyhash_tests){
@@ -329,9 +329,9 @@ BOOST_AUTO_TEST_CASE(condensingtransactionpaytopubkeyhash_tests){
     result = executeBC(txs);
     std::vector<dev::u256> balances = {6500,6500};
     checkRes(result.second, addresses, balances, 1);
-    checkTx(result.second.refundValueTx[0], 1, 2, {6500,6500});
-    BOOST_CHECK(result.second.refundValueTx[0].vout[0].scriptPubKey.HasOpCall());
-    BOOST_CHECK(result.second.refundValueTx[0].vout[1].scriptPubKey.IsPayToPubkeyHash());
+    checkTx(result.second.valueTransfers[0], 1, 2, {6500,6500});
+    BOOST_CHECK(result.second.valueTransfers[0].vout[0].scriptPubKey.HasOpCall());
+    BOOST_CHECK(result.second.valueTransfers[0].vout[1].scriptPubKey.IsPayToPubkeyHash());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

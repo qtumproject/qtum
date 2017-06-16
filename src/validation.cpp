@@ -1913,17 +1913,17 @@ static int64_t nTimeCallbacks = 0;
 static int64_t nTimeTotal = 0;
 
 /////////////////////////////////////////////////////////////////////// qtum
-void processingMuchVouts(ByteCodeExecResult& bcer, ByteCodeExecResult& bcerOut, const dev::h256& oldHashQtumRoot, 
+void EnforceContractVoutLimit(ByteCodeExecResult& bcer, ByteCodeExecResult& bcerOut, const dev::h256& oldHashQtumRoot,
     const dev::h256& oldHashStateRoot, const std::vector<QtumTransaction>& transactions){
         
-    for(CTransaction& t : bcerOut.refundValueTx){
+    for(CTransaction& t : bcerOut.valueTransfers){
         if(t.vout.size() > MAX_CONTRACT_VOUTS){
             globalState->setRootUTXO(oldHashQtumRoot);
             globalState->setRoot(oldHashStateRoot);
 
             bcerOut.refundSender -= bcer.refundSender;
-            bcerOut.refundVOuts.erase(bcerOut.refundVOuts.end(), bcerOut.refundVOuts.end() + bcer.refundVOuts.size());
-            bcerOut.refundValueTx.clear();
+            bcerOut.refundOutputs.erase(bcerOut.refundOutputs.end(), bcerOut.refundOutputs.end() + bcer.refundOutputs.size());
+            bcerOut.valueTransfers.clear();
 
             std::vector<CTransaction> refundValue;
             for(QtumTransaction t : transactions){
@@ -1932,7 +1932,7 @@ void processingMuchVouts(ByteCodeExecResult& bcer, ByteCodeExecResult& bcerOut, 
                     tx.vin.push_back(CTxIn(h256Touint(t.getHashWith()), t.getNVout(), CScript() << OP_TXHASH));
                     CScript script(CScript() << OP_DUP << OP_HASH160 << t.sender().asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
                     tx.vout.push_back(CTxOut(CAmount(t.value()), script));
-                    bcerOut.refundValueTx.push_back(CTransaction(tx));
+                    bcerOut.valueTransfers.push_back(CTransaction(tx));
                 }
             }
             break;
@@ -2060,19 +2060,19 @@ ByteCodeExecResult ByteCodeExec::processingResults(){
                 tx.vin.push_back(CTxIn(h256Touint(txs[i].getHashWith()), txs[i].getNVout(), CScript() << OP_TXHASH));
                 CScript script(CScript() << OP_DUP << OP_HASH160 << txs[i].sender().asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
                 tx.vout.push_back(CTxOut(CAmount(txs[i].value()), script));
-                resultBCE.refundValueTx.push_back(CTransaction(tx));
+                resultBCE.valueTransfers.push_back(CTransaction(tx));
             }
         } else {
             resultBCE.usedFee += CAmount(result[i].execRes.gasUsed);
             CAmount ref((txs[i].gas() - result[i].execRes.gasUsed) * txs[i].gasPrice());
             if(ref > 0){
                 CScript script(CScript() << OP_DUP << OP_HASH160 << txs[i].sender().asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
-                resultBCE.refundVOuts.push_back(CTxOut(ref, script));
+                resultBCE.refundOutputs.push_back(CTxOut(ref, script));
                 resultBCE.refundSender += ref;
             }
         }
         if(result[i].tx != CTransaction()){
-            resultBCE.refundValueTx.push_back(result[i].tx);
+            resultBCE.valueTransfers.push_back(result[i].tx);
         }
     }
     return resultBCE;
@@ -2410,10 +2410,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             std::vector<ResultExecute> resultExec(exec.getResult());
             ByteCodeExecResult bcer = exec.processingResults();
 
-            processingMuchVouts(bcer, bcer, oldHashQtumRoot, oldHashStateRoot, transactions);
+            EnforceContractVoutLimit(bcer, bcer, oldHashQtumRoot, oldHashStateRoot, transactions);
 
-            checkVouts.insert(checkVouts.end(), bcer.refundVOuts.begin(), bcer.refundVOuts.end());
-            for(CTransaction& t : bcer.refundValueTx){
+            checkVouts.insert(checkVouts.end(), bcer.refundOutputs.begin(), bcer.refundOutputs.end());
+            for(CTransaction& t : bcer.valueTransfers){
                 checkBlock.vtx.push_back(MakeTransactionRef(std::move(t)));
             }
             if(fRecordLogOpcodes && !fJustCheck){
