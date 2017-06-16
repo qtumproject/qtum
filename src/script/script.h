@@ -679,7 +679,7 @@ public:
     {
         return Find(OP_CALL) > 0;
     }
-    bool HasOpTXHASH() const
+    bool HasOpSpend() const
     {
         return Find(OP_SPEND) > 0;
     }
