@@ -163,8 +163,8 @@ static const int MAX_UNCONNECTING_HEADERS = 10;
 
 static const bool DEFAULT_PEERBLOOMFILTERS = true;
 
-static const uint64_t DEFAULT_GAS_LIMIT=10000;
-static const CAmount DEFAULT_GAS_PRICE=0.00001*COIN;
+static const uint64_t DEFAULT_GAS_LIMIT=190000;
+static const CAmount DEFAULT_GAS_PRICE=0.0000001*COIN;
 
 static const size_t MAX_CONTRACT_VOUTS = 1000; // qtum
 
