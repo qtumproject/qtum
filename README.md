@@ -1,43 +1,64 @@
-Bitcoin Core integration/staging tree
-=====================================
+Qtum Core
+=========
 
-[![Build Status](https://travis-ci.org/bitcoin/bitcoin.svg?branch=master)](https://travis-ci.org/bitcoin/bitcoin)
+https://qtum.org
 
-https://bitcoincore.org
+What is Qtum?
+-------------
 
-What is Bitcoin?
-----------------
+Qtum is a new blockchain based on Bitcoin Core that integrates Ethereum based smart contracts. It implements an extensible design which is capable of adding more VMs, enabled primarily through the Account Abstraction Layer, which allows for an account based virtual machine to function on a UTXO based blockchain. 
 
-Bitcoin is an experimental digital currency that enables instant payments to
-anyone, anywhere in the world. Bitcoin uses peer-to-peer technology to operate
-with no central authority: managing transactions and issuing money are carried
-out collectively by the network. Bitcoin Core is the name of open source
-software which enables the use of this currency.
 
-For more information, as well as an immediately useable, binary version of
-the Bitcoin Core software, see https://bitcoin.org/en/download, or read the
-[original whitepaper](https://bitcoincore.org/bitcoin.pdf).
+Quickstart
+----------
+
+    This is a quick start script for Ubuntu
+
+
+    sudo apt-get install build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils git cmake libboost-all-dev
+    sudo apt-get install software-properties-common
+    sudo add-apt-repository ppa:bitcoin/bitcoin
+    sudo apt-get update
+    sudo apt-get install libdb4.8-dev libdb4.8++-dev
+
+    # If you want to build the Qt GUI:
+    sudo apt-get install libqt5gui5 libqt5core5a libqt5dbus5 qttools5-dev qttools5-dev-tools libprotobuf-dev protobuf-compiler
+
+    git clone https://github.com/qtumproject/qtum
+    cd qtum
+    # Update cpp-ethereum submodule
+    git submodule update --init --recursive 
+
+    # Note autogen will prompt to install some more dependencies if needed
+    ./autogen.sh
+    ./configure 
+    make -j2
+
+Then you can either run the command-line daemon using `src/qtumd` and `src/qtum-cli`, or you can run the Qt GUI using `src/qt/qtum-qt`
+
+2Gb of RAM is recommended for building Qtum. If you encounter internal compiler errors or out of memory errors in autogen, then you can modify the last line of autogen to be something like:
+
+    make -j1
+
+This will disable multicore building of some cpp-ethereum dependencies
+
 
 License
 -------
 
-Bitcoin Core is released under the terms of the MIT license. See [COPYING](COPYING) for more
-information or see https://opensource.org/licenses/MIT.
+Qtum is GPLv3 licensed.
+
 
 Development Process
 -------------------
 
 The `master` branch is regularly built and tested, but is not guaranteed to be
-completely stable. [Tags](https://github.com/bitcoin/bitcoin/tags) are created
-regularly to indicate new official, stable release versions of Bitcoin Core.
+completely stable. [Tags](https://github.com/qtumproject/qtum/tags) are created
+regularly to indicate new official, stable release versions of Qtum.
 
 The contribution workflow is described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
-The developer [mailing list](https://lists.linuxfoundation.org/mailman/listinfo/bitcoin-dev)
-should be used to discuss complicated or controversial changes before working
-on a patch set.
-
-Developer IRC can be found on Freenode at #bitcoin-core-dev.
+Developer IRC can be found on Freenode at #qtum-dev.
 
 Testing
 -------
@@ -58,8 +79,6 @@ There are also [regression and integration tests](/qa) of the RPC interface, wri
 in Python, that are run automatically on the build server.
 These tests can be run (if the [test dependencies](/qa) are installed) with: `qa/pull-tester/rpc-tests.py`
 
-The Travis CI system makes sure that every pull request is built for Windows, Linux, and OS X, and that unit/sanity tests are run automatically.
-
 ### Manual Quality Assurance (QA) Testing
 
 Changes should be tested by somebody other than the developer who wrote the
@@ -67,16 +86,3 @@ code. This is especially important for large or high-risk changes. It is useful
 to add a test plan to the pull request description if testing the changes is
 not straightforward.
 
-Translations
-------------
-
-Changes to translations as well as new translations can be submitted to
-[Bitcoin Core's Transifex page](https://www.transifex.com/projects/p/bitcoin/).
-
-Translations are periodically pulled from Transifex and merged into the git repository. See the
-[translation process](doc/translation_process.md) for details on how this works.
-
-**Important**: We do not accept translation changes as GitHub pull requests because the next
-pull from Transifex would automatically overwrite them again.
-
-Translators should also subscribe to the [mailing list](https://groups.google.com/forum/#!forum/bitcoin-translators).
