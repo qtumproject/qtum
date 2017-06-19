@@ -1039,6 +1039,11 @@ void ThreadStakeMiner(CWallet *pwallet)
             nTime &= ~STAKE_TIMESTAMP_MASK;
             for(uint32_t i=nTime;i<nTime + MAX_STAKE_LOOKAHEAD;i+=STAKE_TIMESTAMP_MASK) {
 
+                // The information is needed for status bar to determine if the staker is trying to create block and when it will be created approximately,
+                static int64_t nLastCoinStakeSearchTime = GetAdjustedTime(); // startup timestamp
+                // nLastCoinStakeSearchInterval > 0 mean that the staker is running
+                nLastCoinStakeSearchInterval = i - nLastCoinStakeSearchTime;
+
                 // Try to sign a block (this also checks for a PoS stake)
                 std::shared_ptr<CBlock> pblock = std::make_shared<CBlock>(pblocktemplate->block);
                 if (SignBlock(pblock, *pwallet, nTotalFees, i)) {
@@ -1082,6 +1087,8 @@ void ThreadStakeMiner(CWallet *pwallet)
                         }
                         if(validBlock) {
                             CheckStake(pblockfilled, *pwallet);
+                            // Update the search time when new valid block is created, needed for status bar icon
+                            nLastCoinStakeSearchTime = pblockfilled->GetBlockTime();
                         }
                         break;
                     }
