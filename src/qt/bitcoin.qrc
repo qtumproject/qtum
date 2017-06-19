@@ -55,6 +55,8 @@
         <file alias="network_disabled">res/icons/network_disabled.png</file>
         <file alias="staking_on">res/icons/staking_on.png</file>
         <file alias="staking_off">res/icons/staking_off.png</file>
+        <file alias="contract_input">res/icons/contract_input.png</file>
+        <file alias="contract_output">res/icons/contract_output.png</file>
     </qresource>
     <qresource prefix="/movies">
         <file alias="spinner-000">res/movies/spinner-000.png</file>
