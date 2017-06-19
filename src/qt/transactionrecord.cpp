@@ -65,16 +65,16 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
             {
                 TransactionRecord sub(hash, nTime);
                 CTxDestination address;
-				if(wtx.IsCoinStake()) // Combine into single output for coinstake
-				{
-					sub.idx = 1; // vout index
-					sub.credit = nNet;
-				}
-				else
-				{
-					sub.idx = i; // vout index
-					sub.credit = txout.nValue;
-				}
+                if(wtx.IsCoinStake()) // Combine into single output for coinstake
+                {
+                    sub.idx = 1; // vout index
+                    sub.credit = nNet;
+                }
+                else
+                {
+                    sub.idx = i; // vout index
+                    sub.credit = txout.nValue;
+                }
                 sub.involvesWatchAddress = mine & ISMINE_WATCH_ONLY;
                 if (ExtractDestination(txout.scriptPubKey, address) && IsMine(*wallet, address))
                 {
