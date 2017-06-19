@@ -3545,7 +3545,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
     if (!CheckBlockHeader(block, state, consensusParams, fCheckPOW))
         return false;
 
-    if (block.GetBlockTime() > FutureDrift(GetAdjustedTime()))
+    if (!block.IsProofOfStake() &&  block.GetBlockTime() > FutureDrift(GetAdjustedTime()))
         return error("CheckBlock() : block timestamp too far in the future");
 
     // Check the merkle root.
