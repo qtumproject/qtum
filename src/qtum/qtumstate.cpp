@@ -58,6 +58,8 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
                 tx = MakeTransactionRef(ctx.createCondensingTX());
                 std::unordered_map<dev::Address, Vin> vins = ctx.createVin(*tx);
                 updateUTXO(vins);
+            } else {
+                printfErrorLog(res.excepted);
             }
             
             qtum::commit(cacheUTXO, stateUTXO, m_cache);
@@ -67,9 +69,7 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
         }
     }
     catch(Exception const& _e){
-        std::stringstream exception;
-        exception << dev::eth::toTransactionException(_e);
-        LogPrintf("VMException: %s\n", exception.str());
+        printfErrorLog(dev::eth::toTransactionException(_e));
         res.excepted = dev::eth::toTransactionException(_e);
         if(_p != Permanence::Reverted){
             deleteAccounts(_sealEngine.deleteAddresses);
@@ -219,6 +219,12 @@ void QtumState::updateUTXO(const std::unordered_map<dev::Address, Vin>& vins){
             cacheUTXO[v.first] = v.second;
         }
     }
+}
+
+void QtumState::printfErrorLog(const dev::eth::TransactionException er){
+    std::stringstream ss;
+    ss << er;
+    clog(ExecutiveWarnChannel) << "VM exception:" << ss.str();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
