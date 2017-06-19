@@ -100,6 +100,8 @@ private:
 
     void updateUTXO(const std::unordered_map<dev::Address, Vin>& vins);
 
+    void printfErrorLog(const dev::eth::TransactionException er);
+
     dev::Address newAddress;
 
     std::vector<TransferInfo> transfers;
