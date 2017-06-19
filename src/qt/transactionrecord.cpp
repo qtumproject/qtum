@@ -14,6 +14,16 @@
 
 #include <boost/foreach.hpp>
 
+/* Convert the destination into hash160 string for contract.
+ */
+std::string toStringHash160(const CTxDestination& address)
+{
+    CBitcoinAddress txAdress(address);
+    CKeyID keyid;
+    txAdress.GetKeyID(keyid);
+    return HexStr(valtype(keyid.begin(),keyid.end()));
+}
+
 /* Return positive answer if transaction should be shown in list.
  */
 bool TransactionRecord::showTransaction(const CWalletTx &wtx)
@@ -69,8 +79,16 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 if (ExtractDestination(txout.scriptPubKey, address) && IsMine(*wallet, address))
                 {
                     // Received by Bitcoin Address
-                    sub.type = TransactionRecord::RecvWithAddress;
-                    sub.address = CBitcoinAddress(address).ToString();
+                    if(wtx.tx->HasCreateOrCall())
+                    {
+                        sub.type = TransactionRecord::ContractRecv;
+                        sub.address = toStringHash160(address);
+                    }
+                    else
+                    {
+                        sub.type = TransactionRecord::RecvWithAddress;
+                        sub.address = CBitcoinAddress(address).ToString();
+                    }
                 }
                 else
                 {
@@ -140,6 +158,9 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                     continue;
                 }
 
+                if(wtx.tx->HasCreateOrCall())
+                    break;
+
                 CTxDestination address;
                 if (ExtractDestination(txout.scriptPubKey, address))
                 {
@@ -162,6 +183,22 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                     nTxFee = 0;
                 }
                 sub.debit = -nValue;
+
+                parts.append(sub);
+            }
+
+            if(wtx.tx->HasCreateOrCall()){
+                TransactionRecord sub(hash, nTime);
+                sub.idx = 0;
+                sub.credit = nNet;
+                sub.type = TransactionRecord::ContractSend;
+
+                CTxDestination address;
+                // Use the same destination address as in the contract RPCs
+                if(ExtractDestination(pwalletMain->mapWallet[wtx.tx->vin[0].prevout.hash].tx->vout[wtx.tx->vin[0].prevout.n].scriptPubKey, address))
+                {
+                    sub.address = toStringHash160(address);
+                }
 
                 parts.append(sub);
             }
