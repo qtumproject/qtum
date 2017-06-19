@@ -581,7 +581,7 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
     bceResult.refundOutputs.insert(bceResult.refundOutputs.end(), testExecResult.refundOutputs.begin(), testExecResult.refundOutputs.end());
     bceResult.valueTransfers = std::move(testExecResult.valueTransfers);
 
-    EnforceContractVoutLimit(testExecResult, bceResult, oldHashStateRoot, oldHashStateRoot, transactions);
+    EnforceContractVoutLimit(testExecResult, bceResult, oldHashUTXORoot, oldHashStateRoot, transactions);
 
     pblock->vtx.emplace_back(iter->GetSharedTx());
     pblocktemplate->vTxFees.push_back(iter->GetFee());
