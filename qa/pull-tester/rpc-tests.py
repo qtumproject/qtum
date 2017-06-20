@@ -168,7 +168,8 @@ testScripts = [
     'qtum-callcontract.py',
     'qtum-condensing-txs.py',
     'qtum-block-header.py',
-    'qtum-dgp.py'
+    'qtum-dgp.py',
+    'qtum-pos.py'
 ]
 if ENABLE_ZMQ:
     testScripts.append('zmq_test.py')
