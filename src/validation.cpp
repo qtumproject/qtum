@@ -2180,7 +2180,7 @@ EthTransactionParams QtumTxConverter::parseEthTXParams(){
 
 QtumTransaction QtumTxConverter::createEthTX(const EthTransactionParams& etp, uint32_t nOut){
     QtumTransaction txEth;
-    if (etp.receiveAddress == dev::Address()){
+    if (etp.receiveAddress == dev::Address() && opcode != OP_CALL){
         txEth = QtumTransaction(txBit.vout[nOut].nValue, etp.gasPrice, etp.gasLimit, etp.code, dev::u256(0));
     }
     else{
