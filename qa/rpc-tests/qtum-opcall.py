@@ -123,7 +123,7 @@ class OpCallTest(BitcoinTestFramework):
             }
         }
         """
-        contract_data = self.node.createcontract("6060604052341561000c57fe5b5b61011e8061001c6000396000f30060606040526000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806312065fe0146058578063371303c014607b57806361bc221a14608a578063d0e30db01460ad575bfe5b3415605f57fe5b606560b5565b6040518082815260200191505060405180910390f35b3415608257fe5b608860d5565b005b3415609157fe5b609760e9565b6040518082815260200191505060405180910390f35b60b360ef565b005b60003073ffffffffffffffffffffffffffffffffffffffff163190505b90565b60016000600082825401925050819055505b565b60005481565b5b5600a165627a7a72305820fe93d8cc66557a2a6c8347f481f6d334402a7f90f8b2288668a874c34416a4dc0029")
+        contract_data = self.node.createcontract("6060604052341561000c57fe5b5b61011e8061001c6000396000f30060606040526000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806312065fe0146058578063371303c014607b57806361bc221a14608a578063d0e30db01460ad575bfe5b3415605f57fe5b606560b5565b6040518082815260200191505060405180910390f35b3415608257fe5b608860d5565b005b3415609157fe5b609760e9565b6040518082815260200191505060405180910390f35b60b360ef565b005b60003073ffffffffffffffffffffffffffffffffffffffff163190505b90565b60016000600082825401925050819055505b565b60005481565b5b5600a165627a7a72305820fe93d8cc66557a2a6c8347f481f6d334402a7f90f8b2288668a874c34416a4dc0029", 1000000, 0.00000001)
         self.contract_address = contract_data['address']
         block_height = self.node.getblockcount()
         self.node.generate(1)
@@ -135,8 +135,8 @@ class OpCallTest(BitcoinTestFramework):
     # Sends a tx containing 2 op_call outputs calling inc()
     def many_calls_in_same_tx_test(self):
         outputs = []
-        outputs.append(make_op_call_output(self.node, 0, b"\x01", 10000, 1000, bytes.fromhex("371303c0"), bytes.fromhex(self.contract_address)))
-        outputs.append(make_op_call_output(self.node, 0, b"\x01", 10000, 1000, bytes.fromhex("371303c0"), bytes.fromhex(self.contract_address)))
+        outputs.append(make_op_call_output(self.node, 0, b"\x01", 1000000, 10, bytes.fromhex("371303c0"), bytes.fromhex(self.contract_address)))
+        outputs.append(make_op_call_output(self.node, 0, b"\x01", 1000000, 10, bytes.fromhex("371303c0"), bytes.fromhex(self.contract_address)))
         self.send_one_op_call_tx_with_counter_check(outputs, counter_should_increase_by=2)
 
     # Sends a normal raw op_call tx with a single output.
@@ -203,13 +203,13 @@ class OpCallTest(BitcoinTestFramework):
     # Sends 100 valid op_call txs
     def send_100_txs_test(self):
         outputs = []
-        outputs.append(make_op_call_output(self.node, 0, b"\x01", 10000, 1000, bytes.fromhex("371303c0"), bytes.fromhex(self.contract_address)))
+        outputs.append(make_op_call_output(self.node, 0, b"\x01", 1000000, 10, bytes.fromhex("371303c0"), bytes.fromhex(self.contract_address)))
         self.send_multiple_op_call_txs_with_counter_check(100, outputs, 100)
 
     def send_tx_with_value_test(self):
         outputs = []
         # d0e30db0 deposit()
-        outputs.append(make_op_call_output(self.node, 100000000, b"\x01", 10000, 1000, bytes.fromhex("d0e30db0"), bytes.fromhex(self.contract_address)))
+        outputs.append(make_op_call_output(self.node, 100000000, b"\x01", 1000000, 10, bytes.fromhex("d0e30db0"), bytes.fromhex(self.contract_address)))
         self.send_one_op_call_tx_with_counter_check(outputs, counter_should_increase_by=0)
         
         # 12065fe0 getBalance()

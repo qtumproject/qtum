@@ -218,33 +218,38 @@ class BIP68_112_113Test(ComparisonTestFramework):
 
         assert_equal(get_bip9_status(self.nodes[0], 'csv')['status'], 'defined')
         test_blocks = self.generate_blocks(61, 4)
-        yield TestInstance(test_blocks, sync_every_block=False) # 1
-        # Advanced from DEFINED to STARTED, height = 143
-        assert_equal(get_bip9_status(self.nodes[0], 'csv')['status'], 'started')
 
         # Fail to achieve LOCKED_IN 100 out of 144 signal bit 0
         # using a variety of bits to simulate multiple parallel softforks
-        test_blocks = self.generate_blocks(50, 536870913) # 0x20000001 (signalling ready)
+        test_blocks = self.generate_blocks(50, 536870913, test_blocks) # 0x20000001 (signalling ready)
         test_blocks = self.generate_blocks(20, 4, test_blocks) # 0x00000004 (signalling not)
         test_blocks = self.generate_blocks(50, 536871169, test_blocks) # 0x20000101 (signalling ready)
         test_blocks = self.generate_blocks(24, 536936448, test_blocks) # 0x20010000 (signalling not)
-        yield TestInstance(test_blocks, sync_every_block=False) # 2
-        # Failed to advance past STARTED, height = 287
-        assert_equal(get_bip9_status(self.nodes[0], 'csv')['status'], 'started')
 
         # 108 out of 144 signal bit 0 to achieve lock-in
         # using a variety of bits to simulate multiple parallel softforks
-        test_blocks = self.generate_blocks(58, 536870913) # 0x20000001 (signalling ready)
+        test_blocks = self.generate_blocks(58, 536870913, test_blocks) # 0x20000001 (signalling ready)
         test_blocks = self.generate_blocks(26, 4, test_blocks) # 0x00000004 (signalling not)
         test_blocks = self.generate_blocks(50, 536871169, test_blocks) # 0x20000101 (signalling ready)
         test_blocks = self.generate_blocks(10, 536936448, test_blocks) # 0x20010000 (signalling not)
-        yield TestInstance(test_blocks, sync_every_block=False) # 3
+
+        # 140 more version 4 blocks
+        test_blocks = self.generate_blocks(140, 4, test_blocks)
+
+
+        yield TestInstance(test_blocks[0:61], sync_every_block=True) # 1
+        # Advanced from DEFINED to STARTED, height = 143
+        assert_equal(get_bip9_status(self.nodes[0], 'csv')['status'], 'started')
+
+        yield TestInstance(test_blocks[61:61+144], sync_every_block=True) # 2
+        # Failed to advance past STARTED, height = 287
+        assert_equal(get_bip9_status(self.nodes[0], 'csv')['status'], 'started')
+
+        yield TestInstance(test_blocks[61+144:61+144+144], sync_every_block=True) # 3
         # Advanced from STARTED to LOCKED_IN, height = 431
         assert_equal(get_bip9_status(self.nodes[0], 'csv')['status'], 'locked_in')
 
-        # 140 more version 4 blocks
-        test_blocks = self.generate_blocks(140, 4)
-        yield TestInstance(test_blocks, sync_every_block=False) # 4
+        yield TestInstance(test_blocks[61+144+144:61+144+144+140], sync_every_block=True) # 4
 
         ### Inputs at height = 572
         # Put inputs for all tests in the chain at height 572 (tip now = 571) (time increases by 600s per block)
