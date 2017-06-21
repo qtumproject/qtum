@@ -2161,7 +2161,9 @@ EthTransactionParams QtumTxConverter::parseEthTXParams(){
             vecAddr = stack.back();
             stack.pop_back();
             receiveAddress = dev::Address(vecAddr);
-        }           
+        }
+        if(stack.size() < 4)
+            throw scriptnum_error("Not enough items");
         valtype code(stack.back());
         stack.pop_back();
         uint64_t gasPrice = CScriptNum::vch_to_uint64(stack.back());
