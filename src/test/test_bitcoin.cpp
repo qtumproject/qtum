@@ -71,7 +71,11 @@ TestingSetup::TestingSetup(const std::string& chainName) : BasicTestingSetup(cha
         pcoinsTip = new CCoinsViewCache(pcoinsdbview);
 
 ////////////////////////////////////////////////////////////// qtum
+        dev::eth::Ethash::init();
         globalState = std::unique_ptr<QtumState>(new QtumState);
+        dev::eth::ChainParams cp((dev::eth::genesisInfo(dev::eth::Network::HomesteadTest)));
+        globalSealEngine = std::unique_ptr<dev::eth::SealEngineFace>(cp.createSealEngine());
+
         globalState->setRoot(dev::sha3(dev::rlp("")));
         globalState->setRootUTXO(dev::sha3(dev::rlp("")));
 //////////////////////////////////////////////////////////////
@@ -99,6 +103,10 @@ TestingSetup::~TestingSetup()
         delete pcoinsTip;
         delete pcoinsdbview;
         delete pblocktree;
+
+        delete globalState.release();
+        globalSealEngine.reset();
+
         boost::filesystem::remove_all(pathTemp);
 }
 

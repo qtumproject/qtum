@@ -66,7 +66,8 @@
 #include "pubkey.h"
 #include <univalue.h>
 
- std::unique_ptr<QtumState> globalState;
+std::unique_ptr<QtumState> globalState;
+std::shared_ptr<dev::eth::SealEngineFace> globalSealEngine;
 bool fRecordLogOpcodes = false;
 bool fIsVMlogFile = false;
  //////////////////////////////
@@ -2038,14 +2039,13 @@ void writeVMlog(const std::vector<ResultExecute>& res, const CTransaction& tx, c
 void ByteCodeExec::performByteCode(dev::eth::Permanence type){
     for(QtumTransaction& tx : txs){
         dev::eth::EnvInfo envInfo(BuildEVMEnvironment());
-        std::unique_ptr<dev::eth::SealEngineFace> se(dev::eth::ChainParams(dev::eth::genesisInfo(dev::eth::Network::HomesteadTest)).createSealEngine());
         if(!tx.isCreation() && !globalState->addressInUse(tx.receiveAddress())){
             dev::eth::ExecutionResult execRes;
             execRes.excepted = dev::eth::TransactionException::Unknown;
             result.push_back(ResultExecute{execRes, dev::eth::TransactionReceipt(dev::h256(), dev::u256(), dev::eth::LogEntries()), CTransaction()});
             continue;
         }
-        result.push_back(globalState->execute(envInfo, *se.get(), tx, type, OnOpFunc()));
+        result.push_back(globalState->execute(envInfo, *globalSealEngine.get(), tx, type, OnOpFunc()));
     }
     globalState->db().commit();
     globalState->dbUtxo().commit();
