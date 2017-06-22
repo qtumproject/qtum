@@ -524,7 +524,7 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
     uint64_t nBlockSize = this->nBlockSize;
     uint64_t nBlockSigOpsCost = this->nBlockSigOpsCost;
 
-    QtumTxConverter convert(iter->GetTx(), NULL);
+    QtumTxConverter convert(iter->GetTx(), NULL, &pblock->vtx);
     std::vector<QtumTransaction> transactions = convert.extractionQtumTransactions();
     ByteCodeExec exec(*pblock, convert.extractionQtumTransactions());
     exec.performByteCode();

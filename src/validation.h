@@ -692,7 +692,7 @@ class QtumTxConverter{
 
 public:
 
-    QtumTxConverter(CTransaction tx, CCoinsViewCache* v = NULL) : txBit(tx), view(v){}
+    QtumTxConverter(CTransaction tx, CCoinsViewCache* v = NULL, const std::vector<CTransactionRef>* blockTxs = NULL) : txBit(tx), view(v), blockTransactions(blockTxs){}
 
     std::vector<QtumTransaction> extractionQtumTransactions();
 
@@ -708,6 +708,7 @@ private:
     const CCoinsViewCache* view;
     std::vector<valtype> stack;
     opcodetype opcode;
+    const std::vector<CTransactionRef> *blockTransactions;
 
 };
 

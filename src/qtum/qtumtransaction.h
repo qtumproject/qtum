@@ -20,8 +20,10 @@ public:
 
     uint32_t getNVout() const { return nVout; }
 
+
 private:
 
     uint32_t nVout;
+
 
 };
