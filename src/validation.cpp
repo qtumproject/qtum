@@ -3581,6 +3581,11 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
         if (block.vtx[i]->IsCoinBase())
             return state.DoS(100, false, REJECT_INVALID, "bad-cb-multiple", false, "more than one coinbase");
 
+    //Don't allow contract opcodes in coinbase
+    if(block.vtx[0]->HasOpSpend() || block.vtx[0]->HasCreateOrCall()){
+        return state.DoS(100, false, REJECT_INVALID, "bad-cb-contract", false, "coinbase must not contain OP_SPEND, OP_CALL, or OP_CREATE");
+    }
+
     // Second transaction must be coinbase in case of PoS block, the rest must not be
     if (block.IsProofOfStake())
     {
