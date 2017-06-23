@@ -802,25 +802,36 @@ void BlockAssembler::addPackageTxs()
         std::vector<CTxMemPool::txiter> sortedEntries;
         SortForBlock(ancestors, iter, sortedEntries);
 
+        bool wasAdded=true;
         for (size_t i=0; i<sortedEntries.size(); ++i) {
-            if(nTimeLimit != 0 && GetAdjustedTime() >= nTimeLimit)
+            if((nTimeLimit != 0 && GetAdjustedTime() >= nTimeLimit) || !wasAdded)
             {
-                break;
+                //if out of time, or earlier ancestor failed, then skip the rest of the transactions
+                mapModifiedTx.erase(sortedEntries[i]);
+                continue;
             }
             const CTransaction& tx = sortedEntries[i]->GetTx();
-            bool wasAdded=true;
-            if(tx.HasCreateOrCall()) {
-                wasAdded = AttemptToAddContractToBlock(sortedEntries[i]);
-            }else {
-                AddToBlock(sortedEntries[i]);
-            }
-
-            if(!wasAdded){
-                break;
+            if(wasAdded) {
+                if (tx.HasCreateOrCall()) {
+                    wasAdded = AttemptToAddContractToBlock(sortedEntries[i]);
+                    if(!wasAdded){
+                        if(fUsingModified) {
+                            //this only needs to be done once to mark the whole package (everything in sortedEntries) as failed
+                            mapModifiedTx.get<ancestor_score>().erase(modit);
+                            failedTx.insert(iter);
+                        }
+                    }
+                } else {
+                    AddToBlock(sortedEntries[i]);
+                }
             }
             // Erase from the modified set, if present
             mapModifiedTx.erase(sortedEntries[i]);
+        }
 
+        if(!wasAdded){
+            //skip UpdatePackages if a transaction failed to be added (match TestPackage logic)
+            continue;
         }
 
         // Update transactions that depend on each of these
