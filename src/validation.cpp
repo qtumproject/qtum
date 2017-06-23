@@ -1951,27 +1951,46 @@ bool CheckRefund(const CBlock& block, const std::vector<CTxOut>& vouts){
     return true;
 }
 
-valtype GetSenderAddress(const CTransaction& tx, const CCoinsViewCache* coinsView){
-    CTransactionRef txPrevout;
-    uint256 hashBlock;
+valtype GetSenderAddress(const CTransaction& tx, const CCoinsViewCache* coinsView, const std::vector<CTransactionRef>* blockTxs){
     CScript script;
-    if(coinsView){
-        script = coinsView->AccessCoins(tx.vin[0].prevout.hash)->vout[tx.vin[0].prevout.n].scriptPubKey;    
-    } else {
+    bool scriptFilled=false; //can't use script.empty() because an empty script is technically valid
+
+    // First check the current (or in-progress) block for zero-confirmation change spending that won't yet be in txindex
+    if(blockTxs){
+        for(auto btx : *blockTxs){
+            if(btx->GetHash() == tx.vin[0].prevout.hash){
+                script = btx->vout[tx.vin[0].prevout.n].scriptPubKey;
+                scriptFilled=true;
+                break;
+            }
+        }
+    }
+    if(!scriptFilled && coinsView){
+        script = coinsView->AccessCoins(tx.vin[0].prevout.hash)->vout[tx.vin[0].prevout.n].scriptPubKey;
+        scriptFilled = true;
+    }
+    if(!scriptFilled)
+    {
+        CTransactionRef txPrevout;
+        uint256 hashBlock;
         if(GetTransaction(tx.vin[0].prevout.hash, txPrevout, Params().GetConsensus(), hashBlock, true)){
             script = txPrevout->vout[tx.vin[0].prevout.n].scriptPubKey;
         } else {
-            // TODO temp exeption   
+            LogPrintf("Error fetching transaction details of tx %s. This will probably cause more errors", tx.vin[0].prevout.hash.ToString());
             return valtype();
         }
     }
+
 	CTxDestination addressBit;
-	if(ExtractDestination(script, addressBit)){
-		if (addressBit.type() == typeid(CKeyID)){
+    txnouttype txType=TX_NONSTANDARD;
+	if(ExtractDestination(script, addressBit, &txType)){
+		if ((txType == TX_PUBKEY || txType == TX_PUBKEYHASH) &&
+                addressBit.type() == typeid(CKeyID)){
 			CKeyID senderAddress(boost::get<CKeyID>(addressBit));
 			return valtype(senderAddress.begin(), senderAddress.end());
 		}
 	}
+    //prevout is not a standard transaction format, so just return 0
     return valtype();
 }
 
@@ -2189,7 +2208,7 @@ QtumTransaction QtumTxConverter::createEthTX(const EthTransactionParams& etp, ui
     else{
         txEth = QtumTransaction(txBit.vout[nOut].nValue, etp.gasPrice, etp.gasLimit, etp.receiveAddress, etp.code, dev::u256(0));
     }
-    dev::Address sender(GetSenderAddress(txBit, view));
+    dev::Address sender(GetSenderAddress(txBit, view, blockTransactions));
     txEth.forceSender(sender);
     txEth.setHashWith(uintToh256(txBit.GetHash()));
     txEth.setNVout(nOut);
@@ -2406,7 +2425,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             dev::h256 oldHashQtumRoot(globalState->rootHashUTXO());
             dev::h256 oldHashStateRoot(globalState->rootHash());
 
-            QtumTxConverter convert(tx, NULL);
+            QtumTxConverter convert(tx, NULL, &block.vtx);
+
             std::vector<QtumTransaction> transactions = convert.extractionQtumTransactions();
             ByteCodeExec exec(block, transactions);
             exec.performByteCode();
