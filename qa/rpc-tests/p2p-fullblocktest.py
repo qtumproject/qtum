@@ -187,7 +187,7 @@ class FullBlockTest(ComparisonTestFramework):
 
 
         # Now we need that block to mature so we can spend the coinbase.
-        test = TestInstance(sync_every_block=False)
+        test = TestInstance(sync_every_block=True)
         for i in range(98):
             block(5000 + i)
             test.blocks_and_transactions.append([self.tip, True])
@@ -386,6 +386,7 @@ class FullBlockTest(ComparisonTestFramework):
         block(25, spend=out[7])
         yield rejected()
 
+
         # Create blocks with a coinbase input script size out of range
         #     genesis -> b1 (0) -> b2 (1) -> b5 (2) -> b6  (3)
         #                                          \-> b12 (3) -> b13 (4) -> b15 (5) -> b23 (6) -> b30 (7)
@@ -402,7 +403,7 @@ class FullBlockTest(ComparisonTestFramework):
 
         # Extend the b26 chain to make sure bitcoind isn't accepting b26
         b27 = block(27, spend=out[7])
-        yield rejected(RejectResult(0, b'bad-prevblk'))
+        yield rejected()
 
         # Now try a too-large-coinbase script
         tip(15)
@@ -414,7 +415,7 @@ class FullBlockTest(ComparisonTestFramework):
 
         # Extend the b28 chain to make sure bitcoind isn't accepting b28
         b29 = block(29, spend=out[7])
-        yield rejected(RejectResult(0, b'bad-prevblk'))
+        yield rejected()
 
         # b30 has a max-sized coinbase scriptSig.
         tip(23)
@@ -672,11 +673,12 @@ class FullBlockTest(ComparisonTestFramework):
         yield rejected(RejectResult(16, b'high-hash'))
 
         # A block with timestamp > 2 hrs in the future
+        # This rule has been disabled for non-PoS blocks
         tip(44)
         b48 = block(48, solve=False)
-        b48.nTime = int(time.time()) + 60 * 60 * 3
+        b48.nBits = b48.nBits - 1
         b48.solve()
-        yield rejected(RejectResult(16, b'time-too-new'))
+        yield rejected()
 
         # A block with an invalid merkle hash
         tip(44)
@@ -691,6 +693,7 @@ class FullBlockTest(ComparisonTestFramework):
         b50.nBits = b50.nBits - 1
         b50.solve()
         yield rejected(RejectResult(16, b'bad-diffbits'))
+
 
         # A block with two coinbase txns
         tip(44)
@@ -717,10 +720,11 @@ class FullBlockTest(ComparisonTestFramework):
         save_spendable_output()
 
         # invalid timestamp (b35 is 5 blocks back, so its time is MedianTimePast)
+        # We no longer do checking on medianTimePast for PoW blocks, therefore we simply submit a block that will be rejected here
         b54 = block(54, spend=out[15])
-        b54.nTime = b35.nTime - 1
+        b54.nBits -= 1
         b54.solve()
-        yield rejected(RejectResult(16, b'time-too-old'))
+        yield rejected()
 
         # valid timestamp
         tip(53)
@@ -814,7 +818,7 @@ class FullBlockTest(ComparisonTestFramework):
         tx.vout.append(CTxOut(0, b""))
         tx.calc_sha256()
         b58 = update_block(58, [tx])
-        yield rejected(RejectResult(16, b'bad-txns-inputs-missingorspent'))
+        yield rejected(RejectResult(16, b'bad-txns-vout-empty'))
 
         # tx with output value > input value out of range
         tip(57)
@@ -1251,7 +1255,7 @@ class FullBlockTest(ComparisonTestFramework):
         if self.options.runbarelyexpensive:
             tip(88)
             # Due to changing the MAX_HEADERS_RESULTS
-            LARGE_REORG_SIZE = 288
+            LARGE_REORG_SIZE = 10
             test1 = TestInstance(sync_every_block=False)
             spend=out[32]
             for i in range(89, LARGE_REORG_SIZE + 89):

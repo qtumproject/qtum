@@ -24,7 +24,7 @@ class MerkleBlockTest(BitcoinTestFramework):
         self.nodes.append(start_node(0, self.options.tmpdir, ["-debug"]))
         self.nodes.append(start_node(1, self.options.tmpdir, ["-debug"]))
         # Nodes 2/3 are used for testing
-        self.nodes.append(start_node(2, self.options.tmpdir, ["-debug"]))
+        self.nodes.append(start_node(2, self.options.tmpdir, ["-debug", "-txindex=0"]))
         self.nodes.append(start_node(3, self.options.tmpdir, ["-debug", "-txindex"]))
         connect_nodes(self.nodes[0], 1)
         connect_nodes(self.nodes[0], 2)

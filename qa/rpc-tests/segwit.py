@@ -11,7 +11,7 @@ from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
 from test_framework.mininode import sha256, ripemd160, CTransaction, CTxIn, COutPoint, CTxOut, INITIAL_BLOCK_REWARD
 from test_framework.address import script_to_p2sh, key_to_p2pkh, keyhash_to_p2pkh, scripthash_to_p2sh, convert_btc_address_to_qtum
-from test_framework.script import CScript, OP_HASH160, OP_CHECKSIG, OP_0, hash160, OP_EQUAL, OP_DUP, OP_EQUALVERIFY, OP_1, OP_2, OP_CHECKMULTISIG
+from test_framework.script import CScript, OP_HASH160, OP_CHECKSIG, OP_0, hash160, OP_EQUAL, OP_DUP, OP_EQUALVERIFY, OP_1, OP_2, OP_CHECKMULTISIG, OP_TRUE
 from io import BytesIO
 from test_framework.mininode import FromHex
 
@@ -49,7 +49,7 @@ def create_witnessprogram(version, node, utxo, pubkey, encode_p2sh, amount):
     DUMMY_P2SH = convert_btc_address_to_qtum("2MySexEGVzZpRgNQ1JdjdP5bRETznm3roQ2") # P2SH of "OP_1 OP_DROP"
     outputs[DUMMY_P2SH] = amount
     tx_to_witness = node.createrawtransaction(inputs,outputs)
-    tx_to_witness = tx_to_witness[0:110] + addlength(pkscript) + tx_to_witness[-16:]
+    tx_to_witness = tx_to_witness[0:110] + addlength(pkscript) + tx_to_witness[-8:]
     return tx_to_witness
 
 def send_to_witness(version, node, utxo, pubkey, encode_p2sh, amount, sign=True, insert_redeem_script=""):
@@ -612,7 +612,7 @@ class SegWitTest(BitcoinTestFramework):
             txtmp.deserialize(f)
             for j in range(len(txtmp.vout)):
                 tx.vin.append(CTxIn(COutPoint(int('0x'+i,0), j)))
-        tx.vout.append(CTxOut(0, CScript()))
+        tx.vout.append(CTxOut(0, CScript([OP_TRUE])))
         tx.rehash()
         signresults = self.nodes[0].signrawtransaction(bytes_to_hex_str(tx.serialize_without_witness()))['hex']
         self.nodes[0].sendrawtransaction(signresults, True)

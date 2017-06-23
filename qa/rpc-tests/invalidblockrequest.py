@@ -58,15 +58,13 @@ class InvalidBlockRequestTest(ComparisonTestFramework):
         '''
         Now we need that block to mature so we can spend the coinbase.
         '''
-        test = TestInstance(sync_every_block=False)
-        for i in range(100):
+        for i in range(15):
             block = create_block(self.tip, create_coinbase(height), self.block_time)
             block.solve()
             self.tip = block.sha256
             self.block_time += 1
-            test.blocks_and_transactions.append([block, True])
+            yield TestInstance([[block, True]])
             height += 1
-        yield test
 
         '''
         Now we use merkle-root malleability to generate an invalid block with

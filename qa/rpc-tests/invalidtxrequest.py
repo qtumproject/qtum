@@ -51,15 +51,13 @@ class InvalidTxRequestTest(ComparisonTestFramework):
         '''
         Now we need that block to mature so we can spend the coinbase.
         '''
-        test = TestInstance(sync_every_block=False)
-        for i in range(100):
-            block = create_block(self.tip, create_coinbase(height), self.block_time)
+        for i in range(15):
+            block = create_block(self.tip, create_coinbase(height), self.block_time+i)
             block.solve()
             self.tip = block.sha256
             self.block_time += 1
-            test.blocks_and_transactions.append([block, True])
+            yield TestInstance([[block, True]])
             height += 1
-        yield test
 
         # b'\x64' is OP_NOTIF
         # Transaction will be rejected with code 16 (REJECT_INVALID)
