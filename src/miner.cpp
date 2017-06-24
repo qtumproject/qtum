@@ -719,6 +719,10 @@ void BlockAssembler::addPackageTxs()
     CTxMemPool::txiter iter;
     while (mi != mempool.mapTx.get<ancestor_score>().end() || !mapModifiedTx.empty())
     {
+        if(nTimeLimit != 0 && GetAdjustedTime() >= nTimeLimit){
+            //no more time to add transactions, just exit
+            return;
+        }
         // First try to find a new transaction in mapTx to evaluate.
         if (mi != mempool.mapTx.get<ancestor_score>().end() &&
                 SkipMapTxEntry(mempool.mapTx.project<0>(mi), mapModifiedTx, failedTx)) {
@@ -804,10 +808,11 @@ void BlockAssembler::addPackageTxs()
 
         bool wasAdded=true;
         for (size_t i=0; i<sortedEntries.size(); ++i) {
-            if((nTimeLimit != 0 && GetAdjustedTime() >= nTimeLimit) || !wasAdded)
+            if(!wasAdded || (nTimeLimit != 0 && GetAdjustedTime() >= nTimeLimit))
             {
                 //if out of time, or earlier ancestor failed, then skip the rest of the transactions
                 mapModifiedTx.erase(sortedEntries[i]);
+                wasAdded=false;
                 continue;
             }
             const CTransaction& tx = sortedEntries[i]->GetTx();
