@@ -20,14 +20,14 @@ QtumState::QtumState() : dev::eth::State(dev::Invalid256, dev::OverlayDB(), dev:
 ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& _sealEngine, QtumTransaction const& _t, Permanence _p, OnOpFunc const& _onOp){
     addBalance(_t.sender(), _t.value() + (_t.gas() * _t.gasPrice()));
     newAddress = _t.isCreation() ? createQtumAddress(_t.getHashWith(), _t.getNVout()) : dev::Address();
-    _sealEngine.deleteAddresses.insert(_sealEngine.deleteAddresses.end(), {_t.sender(), _envInfo.author()});
+
+    _sealEngine.deleteAddresses.insert({_t.sender(), _envInfo.author()});
 
 	auto onOp = _onOp;
 #if ETH_VMTRACE
 	if (isChannelVisible<VMTraceChannel>())
 		onOp = Executive::simpleTrace(); // override tracer
 #endif
-
 	// Create and initialize the executive. This will throw fairly cheaply and quickly if the
 	// transaction is bad in any way.
 	Executive e(*this, _envInfo, _sealEngine);
@@ -47,7 +47,6 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
             throw Exception();
         }
         e.finalize();
-
         if (_p == Permanence::Reverted){
             m_cache.clear();
             cacheUTXO.clear();
@@ -196,7 +195,7 @@ dev::Address QtumState::createQtumAddress(dev::h256 hashTx, uint32_t voutNumber)
 	return dev::Address(hashTxIdAndVout);
 }
 
-void QtumState::deleteAccounts(std::vector<dev::Address>& addrs){
+void QtumState::deleteAccounts(std::set<dev::Address>& addrs){
     for(dev::Address addr : addrs){
         dev::eth::Account* acc = const_cast<dev::eth::Account*>(account(addr));
         if(acc)
@@ -332,11 +331,6 @@ std::vector<CTxOut> CondensingTX::createVout(){
 }
 
 bool CondensingTX::checkDeleteAddress(dev::Address addr){
-    for(const dev::Address& a : deleteAddresses){
-        if(a == addr){
-            return true;
-        }
-    }
-    return false;
+    return deleteAddresses.count(addr) != 0;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////
