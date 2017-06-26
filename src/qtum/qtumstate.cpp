@@ -97,7 +97,16 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
         ex.gasRefunded=0;
         ex.gasUsed=gas;
         ex.excepted=TransactionException();
-        return ResultExecute{ex, dev::eth::TransactionReceipt(oldStateRoot, gas, logs), CTransaction()};
+        //create a refund tx to send back any coins that were suppose to be sent to the contract
+        CMutableTransaction refund;
+        if(_t.value() > 0) {
+            refund.vin.push_back(CTxIn(h256Touint(_t.getHashWith()), _t.getNVout(), CScript() << OP_SPEND));
+            //note, if sender was a non-standard tx, this will send the coins to pubkeyhash 0x00, effectively destroying the coins
+            CScript script(CScript() << OP_DUP << OP_HASH160 << _t.sender().asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
+            refund.vout.push_back(CTxOut(CAmount(_t.value().convert_to<uint64_t>()), script));
+        }
+        //make sure to use empty transaction if no vouts made
+        return ResultExecute{ex, dev::eth::TransactionReceipt(oldStateRoot, gas, e.logs()), refund.vout.empty() ? CTransaction() : CTransaction(refund)};
     }else{
         return ResultExecute{res, dev::eth::TransactionReceipt(rootHash(), startGasUsed + e.gasUsed(), e.logs()), tx ? *tx : CTransaction()};
     }
