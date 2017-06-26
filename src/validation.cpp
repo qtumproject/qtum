@@ -2395,10 +2395,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         }
 
         if(tx.HasCreateOrCall() && !hasOpSpend){
-
-            dev::h256 oldHashQtumRoot(globalState->rootHashUTXO());
-            dev::h256 oldHashStateRoot(globalState->rootHash());
-
             QtumTxConverter convert(tx, NULL, &block.vtx);
 
             std::vector<QtumTransaction> transactions = convert.extractionQtumTransactions();
