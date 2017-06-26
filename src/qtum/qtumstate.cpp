@@ -1,5 +1,6 @@
 #include <sstream>
 #include <util.h>
+#include <validation.h>
 #include "qtumstate.h"
 
 using namespace std;
@@ -22,6 +23,9 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
     newAddress = _t.isCreation() ? createQtumAddress(_t.getHashWith(), _t.getNVout()) : dev::Address();
 
     _sealEngine.deleteAddresses.insert({_t.sender(), _envInfo.author()});
+
+    h256 oldStateRoot = rootHash();
+    bool voutLimit = false;
 
 	auto onOp = _onOp;
 #if ETH_VMTRACE
@@ -55,6 +59,11 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
             if(res.excepted == TransactionException::None){
                 CondensingTX ctx(this, transfers, _t, _sealEngine.deleteAddresses);
                 tx = MakeTransactionRef(ctx.createCondensingTX());
+                if(ctx.reachedVoutLimit()){
+                    voutLimit = true;
+                    e.revert();
+                    throw Exception();
+                }
                 std::unordered_map<dev::Address, Vin> vins = ctx.createVin(*tx);
                 updateUTXO(vins);
             } else {
@@ -80,7 +89,18 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
         res.newAddress = _t.receiveAddress();
     newAddress = dev::Address();
     transfers.clear();
-    return ResultExecute{res, dev::eth::TransactionReceipt(rootHash(), startGasUsed + e.gasUsed(), e.logs()), tx ? *tx : CTransaction()};
+    if(voutLimit){
+        //use old and empty states to create virtual Out Of Gas exception
+        LogEntries logs;
+        u256 gas = _t.gas();
+        ExecutionResult ex;
+        ex.gasRefunded=0;
+        ex.gasUsed=gas;
+        ex.excepted=TransactionException();
+        return ResultExecute{ex, dev::eth::TransactionReceipt(oldStateRoot, gas, logs), CTransaction()};
+    }else{
+        return ResultExecute{res, dev::eth::TransactionReceipt(rootHash(), startGasUsed + e.gasUsed(), e.logs()), tx ? *tx : CTransaction()};
+    }
 }
 
 std::unordered_map<dev::Address, Vin> QtumState::vins() const // temp
@@ -325,6 +345,10 @@ std::vector<CTxOut> CondensingTX::createVout(){
             outs.push_back(CTxOut(CAmount(b.second), script));
             nVouts[b.first] = count;
             count++;
+        }
+        if(count > MAX_CONTRACT_VOUTS){
+            voutOverflow=true;
+            return outs;
         }
     }
     return outs;

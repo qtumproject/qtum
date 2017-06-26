@@ -1918,28 +1918,6 @@ static int64_t nTimeTotal = 0;
 void EnforceContractVoutLimit(ByteCodeExecResult& bcer, ByteCodeExecResult& bcerOut, const dev::h256& oldHashQtumRoot,
     const dev::h256& oldHashStateRoot, const std::vector<QtumTransaction>& transactions){
         
-    for(CTransaction& t : bcerOut.valueTransfers){
-        if(t.vout.size() > MAX_CONTRACT_VOUTS){
-            globalState->setRootUTXO(oldHashQtumRoot);
-            globalState->setRoot(oldHashStateRoot);
-
-            bcerOut.refundSender -= bcer.refundSender;
-            bcerOut.refundOutputs.erase(bcerOut.refundOutputs.end(), bcerOut.refundOutputs.end() + bcer.refundOutputs.size());
-            bcerOut.valueTransfers.clear();
-
-            std::vector<CTransaction> refundValue;
-            for(QtumTransaction t : transactions){
-                if(t.value() > 0){
-                    CMutableTransaction tx;
-                    tx.vin.push_back(CTxIn(h256Touint(t.getHashWith()), t.getNVout(), CScript() << OP_SPEND));
-                    CScript script(CScript() << OP_DUP << OP_HASH160 << t.sender().asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
-                    tx.vout.push_back(CTxOut(CAmount(t.value()), script));
-                    bcerOut.valueTransfers.push_back(CTransaction(tx));
-                }
-            }
-            break;
-        }
-    }
 }
 
 bool CheckRefund(const CBlock& block, const std::vector<CTxOut>& vouts){
