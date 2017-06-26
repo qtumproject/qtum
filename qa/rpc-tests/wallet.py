@@ -46,7 +46,7 @@ class WalletTest (BitcoinTestFramework):
         assert_equal(walletinfo['balance'], 0)
 
         self.sync_all()
-        self.nodes[1].generate(16)
+        self.nodes[1].generate(COINBASE_MATURITY+1)
         self.sync_all()
 
         assert_equal(self.nodes[0].getbalance(), INITIAL_BLOCK_REWARD)
@@ -79,7 +79,7 @@ class WalletTest (BitcoinTestFramework):
         assert_equal(len(self.nodes[2].listlockunspent()), 0)
 
         # Have node1 generate 100 blocks (so node0 can recover the fee)
-        self.nodes[1].generate(100)
+        self.nodes[1].generate(COINBASE_MATURITY)
         self.sync_all()
 
         # node0 should end up with 100 btc in block rewards plus fees, but

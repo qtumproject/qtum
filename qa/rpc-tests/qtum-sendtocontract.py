@@ -116,7 +116,7 @@ class SendToContractTest(BitcoinTestFramework):
         assert(False)
 
     def run_test(self):
-        self.nodes[0].generate(100)
+        self.nodes[0].generate(COINBASE_MATURITY+100)
         self.setup_contract()
         self.sendtocontract_verify_storage_test()
         self.sendtocontract_verify_storage_and_balance_test()

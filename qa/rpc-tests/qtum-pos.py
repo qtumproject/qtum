@@ -31,7 +31,7 @@ class QtumPOSTest(ComparisonTestFramework):
 
     def create_unsigned_pos_block(self, staking_prevouts, nTime=None, outNValue=10002, signStakeTx=True, bestBlockHash=None, coinStakePrevout=None):
         if not nTime:
-            current_time = int(time.time())
+            current_time = int(time.time()) + 15
             nTime = current_time & 0xfffffff0
 
         if not bestBlockHash:
@@ -95,7 +95,13 @@ class QtumPOSTest(ComparisonTestFramework):
                 return TestInstance([[self.tip, reject]])
 
         # First generate some blocks so we have some spendable coins
-        block_hashes = self.node.generate(40)
+        block_hashes = self.node.generate(25)
+
+        for i in range(COINBASE_MATURITY):
+            self.tip = create_block(int(self.node.getbestblockhash(), 16), create_coinbase(self.node.getblockcount()+1), int(time.time()))
+            self.tip.solve()
+            yield accepted()
+
         for _ in range(10):
             self.node.sendtoaddress(self.node.getnewaddress(), 1000)
         block_hashes += self.node.generate(1)
@@ -119,20 +125,20 @@ class QtumPOSTest(ComparisonTestFramework):
             else:
                 assert(False)
 
-            if unspent['confirmations'] > 15:
+            if unspent['confirmations'] > COINBASE_MATURITY:
                 self.staking_prevouts.append((COutPoint(int(unspent['txid'], 16), unspent['vout']), int(unspent['amount'])*COIN, tx_block_time))
                 self.bad_vout_staking_prevouts.append((COutPoint(int(unspent['txid'], 16), 0xff), int(unspent['amount'])*COIN, tx_block_time))
                 self.bad_txid_staking_prevouts.append((COutPoint(int(unspent['txid'], 16)+1, unspent['vout']), int(unspent['amount'])*COIN, tx_block_time))
 
 
-            if unspent['confirmations'] < 15:
+            if unspent['confirmations'] < COINBASE_MATURITY:
                 self.unconfirmed_staking_prevouts.append((COutPoint(int(unspent['txid'], 16), unspent['vout']), int(unspent['amount'])*COIN, tx_block_time))
 
 
 
 
         # First let 25 seconds pass so that we do not submit blocks directly after the last one
-        time.sleep(25)
+        #time.sleep(100)
         block_count = self.node.getblockcount()
 
 
@@ -273,7 +279,6 @@ class QtumPOSTest(ComparisonTestFramework):
         self.tip.rehash()
         yield rejected()
 
-
         # 17 A block with where the pubkey of the second output of the coinstake has been modified after block signing
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.staking_prevouts)
         scriptPubKey = self.tip.vtx[1].vout[1].scriptPubKey
@@ -289,9 +294,8 @@ class QtumPOSTest(ComparisonTestFramework):
         self.tip.rehash()
         yield rejected()
 
-
         # 18. A block in the past
-        t = (int(time.time())-100) & 0xfffffff0
+        t = (int(time.time())-700) & 0xfffffff0
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.staking_prevouts, nTime=t)
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()

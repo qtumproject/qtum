@@ -9,6 +9,7 @@ from test_framework.util import (
     start_node,
     assert_equal,
     connect_nodes_bi,
+    COINBASE_MATURITY
 )
 from test_framework.mininode import INITIAL_BLOCK_REWARD
 
@@ -29,9 +30,9 @@ class WalletAccountsTest(BitcoinTestFramework):
         # Check that there's no UTXO on any of the nodes
         assert_equal(len(node.listunspent()), 0)
         
-        node.generate(101)
+        node.generate(COINBASE_MATURITY+1)
         
-        assert_equal(node.getbalance(), INITIAL_BLOCK_REWARD*86)
+        assert_equal(node.getbalance(), INITIAL_BLOCK_REWARD)
         
         accounts = ["a","b","c","d","e"]
         amount_to_send = 1.0
@@ -62,15 +63,15 @@ class WalletAccountsTest(BitcoinTestFramework):
             assert_equal(node.getreceivedbyaccount(account), 2)
             node.move(account, "", node.getbalance(account))
         
-        node.generate(16)
+        node.generate(COINBASE_MATURITY+1)
         
-        expected_account_balances = {"": INITIAL_BLOCK_REWARD*104}
+        expected_account_balances = {"": INITIAL_BLOCK_REWARD*(COINBASE_MATURITY+4)}
         for account in accounts:
             expected_account_balances[account] = 0
         
         assert_equal(node.listaccounts(), expected_account_balances)
         
-        assert_equal(node.getbalance(""), INITIAL_BLOCK_REWARD*104)
+        assert_equal(node.getbalance(""), INITIAL_BLOCK_REWARD*(COINBASE_MATURITY+4))
         
         for account in accounts:
             address = node.getaccountaddress("")
@@ -85,7 +86,7 @@ class WalletAccountsTest(BitcoinTestFramework):
             multisig_address = node.addmultisigaddress(5, addresses, account)
             node.sendfrom("", multisig_address, 50)
         
-        node.generate(101)
+        node.generate(COINBASE_MATURITY+1)
         
         for account in accounts:
             assert_equal(node.getbalance(account), 50)

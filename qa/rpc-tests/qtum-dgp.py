@@ -102,10 +102,10 @@ class DGPState:
             self._assert_params_for_block(block_height, param_for_block)
         # Make sure that there are no subsequent params for blocks
         if self.params_for_block:
-            ret = self.node.callcontract(self.contract_address, self.abiGetParamsForBlock + hex(0x2ff)[2:].zfill(64))
+            ret = self.node.callcontract(self.contract_address, self.abiGetParamsForBlock + hex(0x2fff)[2:].zfill(64))
             assert_equal(int(ret['executionResult']['output'], 16), int(param_for_block, 16))
         else:
-            ret = self.node.callcontract(self.contract_address, self.abiGetParamsForBlock + hex(0x2ff)[2:].zfill(64))
+            ret = self.node.callcontract(self.contract_address, self.abiGetParamsForBlock + hex(0x2fff)[2:].zfill(64))
             assert(ret['executionResult']['excepted'] != 'None')
 
 
@@ -664,7 +664,7 @@ class QtumDGPTest(BitcoinTestFramework):
         self.abiGetSchedule = "26fadbe2"
 
     def run_test(self):
-        self.node.generate(100)
+        self.node.generate(COINBASE_MATURITY+100)
         self.create_dgp_contract()
         state = DGPState(self.node, self.contract_address)
         # Our initial admin key

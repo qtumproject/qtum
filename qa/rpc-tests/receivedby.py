@@ -29,14 +29,15 @@ class ReceivedByTest(BitcoinTestFramework):
     def __init__(self):
         super().__init__()
         self.num_nodes = 4
-        self.setup_clean_chain = False
+        self.setup_clean_chain = True
 
     def setup_nodes(self):
-        #This test requires mocktime
-        enable_mocktime()
         return start_nodes(self.num_nodes, self.options.tmpdir)
 
     def run_test(self):
+        for node in self.nodes:
+            node.generate(25)
+        self.nodes[0].generate(COINBASE_MATURITY)
         '''
         listreceivedbyaddress Test
         '''

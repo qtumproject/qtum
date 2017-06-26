@@ -19,7 +19,6 @@ import io
 
 def find_unspent(node, amount):
     for unspent in node.listunspent():
-        print(unspent)
         if unspent['amount'] == amount and unspent['spendable']:
             return CTxIn(COutPoint(int(unspent['txid'], 16), unspent['vout']), nSequence=0)
     assert(False)
@@ -54,10 +53,18 @@ class QtumBlockHeaderTest(ComparisonTestFramework):
                 return TestInstance([[self.tip, reject]])
 
         node = self.nodes[0]
-        mocktime = 1490247077
-        node.setmocktime(mocktime)
+        #mocktime = 1490247077
+        #node.setmocktime(mocktime)
 
-        node.generate(50)
+        node.generate(10)
+        self.block_time = int(time.time())+20
+        for i in range(500):
+            self.tip = create_block(int(node.getbestblockhash(), 16), create_coinbase(node.getblockcount()+1), self.block_time+i)
+            self.tip.solve()
+            yield accepted()
+
+        #node.generate(COINBASE_MATURITY+50)
+        mocktime = COINBASE_MATURITY+50
         spendable_addresses = []
         # store some addresses to use later
         for unspent in node.listunspent():
@@ -66,7 +73,7 @@ class QtumBlockHeaderTest(ComparisonTestFramework):
         # first make sure that what is a valid block is accepted
         coinbase = create_coinbase(node.getblockcount()+1)
         coinbase.rehash()
-        self.tip = create_block(int(node.getbestblockhash(), 16), coinbase, int(mocktime+100))
+        self.tip = create_block(int(node.getbestblockhash(), 16), coinbase, int(time.time()+mocktime+100))
         self.tip.hashMerkleRoot = self.tip.calc_merkle_root()
         self.tip.solve()
         yield accepted()

@@ -113,6 +113,13 @@ class BIP68_112_113Test(ComparisonTestFramework):
         amount = Decimal(str(INITIAL_BLOCK_REWARD-0.01))
         return node.sendrawtransaction(ToHex(self.sign_transaction(node, self.create_transaction(node, node.getblock(coinbases.pop())['tx'][0], self.nodeaddress, amount))))
 
+    def send_generic_unspent_input_tx(self, node, unspent):
+        inputs = [{'txid': unspent[0], 'vout': unspent[1]}]
+        outputs = {self.nodeaddress : unspent[2]-Decimal("0.01")}
+        rawtx = node.createrawtransaction(inputs, outputs)
+        rawtx = node.signrawtransaction(rawtx)['hex']
+        return node.sendrawtransaction(rawtx)
+
     def create_transaction(self, node, txid, to_address, amount):
         inputs = [{ "txid" : txid, "vout" : 0}]
         outputs = { to_address : amount }
@@ -130,13 +137,14 @@ class BIP68_112_113Test(ComparisonTestFramework):
         tx.deserialize(f)
         return tx
 
-    def generate_blocks(self, number, version, test_blocks = []):
+    def generate_blocks(self, number, version, test_blocks = [], extend_txs = []):
         for i in range(number):
-            block = self.create_test_block([], version)
+            block = self.create_test_block(extend_txs, version)
             test_blocks.append([block, True])
             self.last_block_time += POW_TARGET_SPACING
             self.tip = block.sha256
             self.tipheight += 1
+            extend_txs = []
         return test_blocks
 
     def create_test_block(self, txs, version = 536870912):
@@ -234,7 +242,27 @@ class BIP68_112_113Test(ComparisonTestFramework):
         test_blocks = self.generate_blocks(10, 536936448, test_blocks) # 0x20010000 (signalling not)
 
         # 140 more version 4 blocks
-        test_blocks = self.generate_blocks(140, 4, test_blocks)
+        test_blocks = self.generate_blocks(130, 4, test_blocks)
+
+        extend_txs = []
+        # split 50 coinbases into 2 unspents so we have enough unspent txs
+        for coinbase_block in self.coinbase_blocks[0:50]:
+            amount = (INITIAL_BLOCK_REWARD-0.01) / 2.0
+            addr_a = self.nodes[0].getnewaddress()
+            addr_b = self.nodes[0].getnewaddress()
+            inputs = [{'txid': self.nodes[0].getblock(coinbase_block)['tx'][0], 'vout': 0}]
+            outputs = {
+                addr_a : amount,
+                addr_b : amount
+            }
+            rawtx = self.nodes[0].createrawtransaction(inputs, outputs)
+            res = self.nodes[0].signrawtransaction(rawtx)
+            rawtx = res['hex']
+            tx = CTransaction()
+            f = BytesIO(hex_str_to_bytes(rawtx))
+            tx.deserialize(f)
+            extend_txs.append(tx)
+        test_blocks = self.generate_blocks(10, 4, test_blocks, extend_txs=extend_txs)
 
 
         yield TestInstance(test_blocks[0:61], sync_every_block=True) # 1
@@ -249,7 +277,20 @@ class BIP68_112_113Test(ComparisonTestFramework):
         # Advanced from STARTED to LOCKED_IN, height = 431
         assert_equal(get_bip9_status(self.nodes[0], 'csv')['status'], 'locked_in')
 
-        yield TestInstance(test_blocks[61+144+144:61+144+144+140], sync_every_block=True) # 4
+        yield TestInstance(test_blocks[61+144+144:61+144+144+130], sync_every_block=True) # 4
+
+        yield TestInstance(test_blocks[61+144+144+130:61+144+144+130+10], sync_every_block=True) # 4
+
+        self.nodes[0].generate(1)
+        self.tip = int("0x" + self.nodes[0].getbestblockhash(), 0)
+        self.tipheight += 1
+        self.last_block_time += POW_TARGET_SPACING
+
+        self.unspents = []
+        for unspent in self.nodes[0].listunspent():
+            if unspent['spendable']:
+                self.unspents.append((unspent['txid'], unspent['vout'], unspent['amount']))
+
 
         ### Inputs at height = 572
         # Put inputs for all tests in the chain at height 572 (tip now = 571) (time increases by 600s per block)
@@ -257,25 +298,25 @@ class BIP68_112_113Test(ComparisonTestFramework):
         # 16 normal inputs
         bip68inputs = []
         for i in range(16):
-            bip68inputs.append(self.send_generic_input_tx(self.nodes[0], self.coinbase_blocks))
+            bip68inputs.append(self.send_generic_unspent_input_tx(self.nodes[0], self.unspents.pop()))
         # 2 sets of 16 inputs with 10 OP_CSV OP_DROP (actually will be prepended to spending scriptSig)
         bip112basicinputs = []
         for j in range(2):
             inputs = []
             for i in range(16):
-                inputs.append(self.send_generic_input_tx(self.nodes[0], self.coinbase_blocks))
+                inputs.append(self.send_generic_unspent_input_tx(self.nodes[0], self.unspents.pop()))
             bip112basicinputs.append(inputs)
         # 2 sets of 16 varied inputs with (relative_lock_time) OP_CSV OP_DROP (actually will be prepended to spending scriptSig)
         bip112diverseinputs = []
         for j in range(2):
             inputs = []
             for i in range(16):
-                inputs.append(self.send_generic_input_tx(self.nodes[0], self.coinbase_blocks))
+                inputs.append(self.send_generic_unspent_input_tx(self.nodes[0], self.unspents.pop()))
             bip112diverseinputs.append(inputs)
         # 1 special input with -1 OP_CSV OP_DROP (actually will be prepended to spending scriptSig)
-        bip112specialinput = self.send_generic_input_tx(self.nodes[0], self.coinbase_blocks)
+        bip112specialinput = self.send_generic_unspent_input_tx(self.nodes[0], self.unspents.pop())
         # 1 normal input
-        bip113input = self.send_generic_input_tx(self.nodes[0], self.coinbase_blocks)
+        bip113input = self.send_generic_unspent_input_tx(self.nodes[0], self.unspents.pop())
 
         self.nodes[0].setmocktime(self.last_block_time + POW_TARGET_SPACING)
         inputblockhash = self.nodes[0].generate(1)[0] # 1 block generated for inputs to be in chain at height 572
@@ -286,7 +327,7 @@ class BIP68_112_113Test(ComparisonTestFramework):
         assert_equal(len(self.nodes[0].getblock(inputblockhash,True)["tx"]), 82+1)
 
         # 2 more version 4 blocks
-        test_blocks = self.generate_blocks(2, 4)
+        test_blocks = self.generate_blocks(1, 4)
         yield TestInstance(test_blocks, sync_every_block=False) # 5
         # Not yet advanced to ACTIVE, height = 574 (will activate for block 576, not 575)
         assert_equal(get_bip9_status(self.nodes[0], 'csv')['status'], 'locked_in')
@@ -436,8 +477,8 @@ class BIP68_112_113Test(ComparisonTestFramework):
         for tx in bip68heighttxs:
             yield TestInstance([[self.create_test_block([tx]), False]]) # 26 - 29
 
-        # Advance one block to 582
-        test_blocks = self.generate_blocks(1, 1234)
+        # Advance two blocks to 583
+        test_blocks = self.generate_blocks(2, 1234)
         yield TestInstance(test_blocks, sync_every_block=False) # 30
 
         # All BIP 68 txs should pass

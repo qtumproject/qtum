@@ -37,6 +37,8 @@ PORT_RANGE = 5000
 
 BITCOIND_PROC_WAIT_TIMEOUT = 60
 
+COINBASE_MATURITY = 500
+
 
 class PortSeed:
     # Must be initialized with a unique integer for each process
@@ -288,7 +290,7 @@ def initialize_chain(test_dir, num_nodes, cachedir):
         # since blocks mature after 15 blocks we only generate 115 blocks initially. A lot of the tests rely on the behaviour of having 100 mature blocks.
         # The last blocks (that have not matured on a test where setup_clean_chain is set to false) are generated at the 0th node.
         peer = 0
-        for j in range(15):
+        for j in range(COINBASE_MATURITY):
             set_node_times(rpcs, block_time)
             rpcs[peer].generate(1)
             block_time += 2*64
@@ -638,7 +640,7 @@ def satoshi_round(amount):
 # Helper to create at least "count" utxos
 # Pass in a fee that is sufficient for relay and mining new transactions.
 def create_confirmed_utxos(fee, node, count):
-    node.generate(int(0.5*count)+101)
+    node.generate(int(0.5*count)+COINBASE_MATURITY+1)
     utxos = node.listunspent()
     iterations = count - len(utxos)
     addr1 = node.getnewaddress()

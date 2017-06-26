@@ -19,6 +19,7 @@ from test_framework.util import (
     assert_is_hash_string,
     start_nodes,
     connect_nodes_bi,
+    COINBASE_MATURITY
 )
 from test_framework.mininode import INITIAL_BLOCK_REWARD
 
@@ -51,11 +52,11 @@ class BlockchainTest(BitcoinTestFramework):
         node = self.nodes[0]
         res = node.gettxoutsetinfo()
 
-        assert_equal(res['total_amount'], Decimal(INITIAL_BLOCK_REWARD*115))
-        assert_equal(res['transactions'], 115)
-        assert_equal(res['height'], 115)
-        assert_equal(res['txouts'], 115)
-        assert_equal(res['bytes_serialized'], 8165),
+        assert_equal(res['total_amount'], Decimal(INITIAL_BLOCK_REWARD*(COINBASE_MATURITY+100)))
+        assert_equal(res['transactions'], COINBASE_MATURITY+100)
+        assert_equal(res['height'], COINBASE_MATURITY+100)
+        assert_equal(res['txouts'], COINBASE_MATURITY+100)
+        assert_equal(res['bytes_serialized'], 43073),
         assert_equal(len(res['bestblock']), 64)
         assert_equal(len(res['hash_serialized']), 64)
 
@@ -66,11 +67,11 @@ class BlockchainTest(BitcoinTestFramework):
             JSONRPCException, lambda: node.getblockheader('nonsense'))
 
         besthash = node.getbestblockhash()
-        secondbesthash = node.getblockhash(114)
+        secondbesthash = node.getblockhash(COINBASE_MATURITY+100-1)
         header = node.getblockheader(besthash)
 
         assert_equal(header['hash'], besthash)
-        assert_equal(header['height'], 115)
+        assert_equal(header['height'], COINBASE_MATURITY+100)
         assert_equal(header['confirmations'], 1)
         assert_equal(header['previousblockhash'], secondbesthash)
         assert_is_hex_string(header['chainwork'])

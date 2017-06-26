@@ -14,6 +14,7 @@ from test_framework.address import script_to_p2sh, key_to_p2pkh, keyhash_to_p2pk
 from test_framework.script import CScript, OP_HASH160, OP_CHECKSIG, OP_0, hash160, OP_EQUAL, OP_DUP, OP_EQUALVERIFY, OP_1, OP_2, OP_CHECKMULTISIG, OP_TRUE
 from io import BytesIO
 from test_framework.mininode import FromHex
+from test_framework.blocktools import create_block, create_coinbase
 
 NODE_0 = 0
 NODE_1 = 1
@@ -125,6 +126,16 @@ class SegWitTest(BitcoinTestFramework):
 
     def run_test(self):
         self.nodes[0].generate(161) #block 161
+
+        # We submit some non-segwit-signalling blocks to delay activation until the coinbases have matured
+        for i in range(4*144 - 161):
+            block = create_block(int(self.nodes[0].getbestblockhash(), 16), create_coinbase(self.nodes[0].getblockcount() + 1), int(time.time())+2+i)
+            block.nVersion = 4
+            block.hashMerkleRoot = block.calc_merkle_root()
+            block.rehash()
+            block.solve()
+            self.nodes[0].submitblock(bytes_to_hex_str(block.serialize()))
+        self.nodes[0].generate(17)
 
         print("Verify sigops are counted in GBT with pre-BIP141 rules before the fork")
         txid = self.nodes[0].sendtoaddress(self.nodes[0].getnewaddress(), 1)

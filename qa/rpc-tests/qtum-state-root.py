@@ -29,8 +29,8 @@ class StateRootTest(BitcoinTestFramework):
     # verify that the state hash changes on contract creation
     def verify_state_hash_changes(self):
         amount = 20000*COIN
-        self.node.generate(150)
-        block_hash_a = self.node.getblockhash(150)
+        self.node.generate(COINBASE_MATURITY+50)
+        block_hash_a = self.node.getblockhash(COINBASE_MATURITY+50)
         block_a = self.node.getblock(block_hash_a)
         """
         pragma solidity ^0.4.10;
@@ -40,19 +40,19 @@ class StateRootTest(BitcoinTestFramework):
         """
         self.node.createcontract("60606040523415600b57fe5b5b60398060196000396000f30060606040525b600b5b5b565b0000a165627a7a7230582092926a9814888ff08700cbd86cf4ff8c50052f5fd894e794570d9551733591d60029")
         self.node.generate(1)
-        block_hash_b = self.node.getblockhash(151)
+        block_hash_b = self.node.getblockhash(COINBASE_MATURITY+51)
         block_b = self.node.getblock(block_hash_b)
         assert(block_a['hashStateRoot'] != block_b['hashStateRoot'])
 
     # verify that the state hash remains the same on restart
     def verify_state_hash_remains_on_restart(self):
-        block_hash_a = self.node.getblockhash(151)
+        block_hash_a = self.node.getblockhash(COINBASE_MATURITY+51)
         block_a = self.node.getblock(block_hash_a)
         stop_nodes(self.nodes)
         self.nodes = start_nodes(self.num_nodes, self.options.tmpdir)
         self.node = self.nodes[0]
         self.node.generate(1)
-        block_hash_b = self.node.getblockhash(152)
+        block_hash_b = self.node.getblockhash(COINBASE_MATURITY+52)
         block_b = self.node.getblock(block_hash_b)
         assert(block_a['hashStateRoot'] == block_b['hashStateRoot'])
 
