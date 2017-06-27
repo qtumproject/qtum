@@ -213,7 +213,10 @@ void QtumState::addBalance(dev::Address const& _id, dev::u256 const& _amount)
 dev::Address QtumState::createQtumAddress(dev::h256 hashTx, uint32_t voutNumber){
     uint256 hashTXid(h256Touint(hashTx));
 	std::vector<unsigned char> txIdAndVout(hashTXid.begin(), hashTXid.end());
-	txIdAndVout.push_back(voutNumber);
+	std::vector<unsigned char> voutNumberChrs;
+	if (voutNumberChrs.size() < sizeof(voutNumber))voutNumberChrs.resize(sizeof(voutNumber));
+	std::memcpy(voutNumberChrs.data(), &voutNumber, sizeof(voutNumber));
+	txIdAndVout.insert(txIdAndVout.end(),voutNumberChrs.begin(),voutNumberChrs.end());
 		
 	std::vector<unsigned char> SHA256TxVout(32);
     CSHA256().Write(txIdAndVout.data(), txIdAndVout.size()).Finalize(SHA256TxVout.data());
