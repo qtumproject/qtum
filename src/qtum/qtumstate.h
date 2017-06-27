@@ -124,6 +124,8 @@ public:
 
     std::unordered_map<dev::Address, Vin> createVin(const CTransaction& tx);
 
+    bool reachedVoutLimit(){ return voutOverflow; }
+
 private:
 
     void selectionVin();
@@ -155,6 +157,8 @@ private:
     const QtumTransaction& transaction;
 
     QtumState* state;
+
+    bool voutOverflow = false;
 
 };
 ///////////////////////////////////////////////////////////////////////////////////////////

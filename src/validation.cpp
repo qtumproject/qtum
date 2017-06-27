@@ -1915,32 +1915,6 @@ static int64_t nTimeCallbacks = 0;
 static int64_t nTimeTotal = 0;
 
 /////////////////////////////////////////////////////////////////////// qtum
-void EnforceContractVoutLimit(ByteCodeExecResult& bcer, ByteCodeExecResult& bcerOut, const dev::h256& oldHashQtumRoot,
-    const dev::h256& oldHashStateRoot, const std::vector<QtumTransaction>& transactions){
-        
-    for(CTransaction& t : bcerOut.valueTransfers){
-        if(t.vout.size() > MAX_CONTRACT_VOUTS){
-            globalState->setRootUTXO(oldHashQtumRoot);
-            globalState->setRoot(oldHashStateRoot);
-
-            bcerOut.refundSender -= bcer.refundSender;
-            bcerOut.refundOutputs.erase(bcerOut.refundOutputs.end(), bcerOut.refundOutputs.end() + bcer.refundOutputs.size());
-            bcerOut.valueTransfers.clear();
-
-            std::vector<CTransaction> refundValue;
-            for(QtumTransaction t : transactions){
-                if(t.value() > 0){
-                    CMutableTransaction tx;
-                    tx.vin.push_back(CTxIn(h256Touint(t.getHashWith()), t.getNVout(), CScript() << OP_SPEND));
-                    CScript script(CScript() << OP_DUP << OP_HASH160 << t.sender().asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
-                    tx.vout.push_back(CTxOut(CAmount(t.value()), script));
-                    bcerOut.valueTransfers.push_back(CTransaction(tx));
-                }
-            }
-            break;
-        }
-    }
-}
 
 bool CheckRefund(const CBlock& block, const std::vector<CTxOut>& vouts){
     size_t offset = block.IsProofOfStake() ? 1 : 0;
@@ -2421,10 +2395,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         }
 
         if(tx.HasCreateOrCall() && !hasOpSpend){
-
-            dev::h256 oldHashQtumRoot(globalState->rootHashUTXO());
-            dev::h256 oldHashStateRoot(globalState->rootHash());
-
             QtumTxConverter convert(tx, NULL, &block.vtx);
 
             std::vector<QtumTransaction> transactions = convert.extractionQtumTransactions();
@@ -2432,8 +2402,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             exec.performByteCode();
             std::vector<ResultExecute> resultExec(exec.getResult());
             ByteCodeExecResult bcer = exec.processingResults();
-
-            EnforceContractVoutLimit(bcer, bcer, oldHashQtumRoot, oldHashStateRoot, transactions);
 
             checkVouts.insert(checkVouts.end(), bcer.refundOutputs.begin(), bcer.refundOutputs.end());
             for(CTransaction& t : bcer.valueTransfers){
@@ -2497,6 +2465,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     checkBlock.hashMerkleRoot = BlockMerkleRoot(checkBlock);
     checkBlock.hashStateRoot = h256Touint(globalState->rootHash());
     checkBlock.hashUTXORoot = h256Touint(globalState->rootHashUTXO());
+
     //If this error happens, it probably means that something with AAL created transactions didn't match up to what is expected
     if((checkBlock.GetHash() != block.GetHash()) && !fJustCheck)
         return state.DoS(100, error("ConnectBlock(): Incorrect AAL transactions or hashes (hashStateRoot, hashUTXORoot)"),
