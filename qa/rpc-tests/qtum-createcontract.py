@@ -141,7 +141,7 @@ class CreatecontractTest(BitcoinTestFramework):
         assert(False)
 
     def run_test(self):
-        self.nodes[0].generate(50)
+        self.nodes[0].generate(COINBASE_MATURITY+50)
         self.createcontract_simple_test()
         self.createcontract_with_sender_test()
         self.createcontract_no_broadcast_test()

@@ -21,7 +21,7 @@ class AbandonConflictTest(BitcoinTestFramework):
         connect_nodes(self.nodes[0], 1)
 
     def run_test(self):
-        self.nodes[1].generate(100)
+        self.nodes[1].generate(COINBASE_MATURITY)
         sync_blocks(self.nodes)
         balance = self.nodes[0].getbalance()
         txA = self.nodes[0].sendtoaddress(self.nodes[0].getnewaddress(), Decimal("10"))

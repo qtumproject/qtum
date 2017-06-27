@@ -52,7 +52,7 @@ class RawTransactionsTest(BitcoinTestFramework):
 
         self.nodes[2].generate(1)
         self.sync_all()
-        self.nodes[0].generate(121)
+        self.nodes[0].generate(COINBASE_MATURITY+21)
         self.sync_all()
 
         watchonly_address = self.nodes[0].getnewaddress()

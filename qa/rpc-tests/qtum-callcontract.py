@@ -73,7 +73,7 @@ class CallContractTest(BitcoinTestFramework):
         # call add()
         ret = self.node.callcontract(contract_address, "4f2be91f")
         assert(ret['address'] == contract_address)
-        assert(ret['executionResult']['gasUsed'] == 26578)
+        assert(ret['executionResult']['gasUsed'] == 26878)
         assert(ret['executionResult']['excepted'] == "None")
         assert(ret['executionResult']['newAddress'] == contract_address)
         assert(ret['executionResult']['output'] == "000000000000000000000000000000000000000000000000000000000000001a")
@@ -81,7 +81,7 @@ class CallContractTest(BitcoinTestFramework):
         assert(ret['executionResult']['gasRefunded'] == 0)
         assert(ret['executionResult']['depositSize'] == 0)
         assert(ret['executionResult']['gasForDeposit'] == 0)
-        assert(ret['transactionReceipt']['gasUsed'] == 26578)
+        assert(ret['transactionReceipt']['gasUsed'] == 26878)
         assert(ret['transactionReceipt']['bloom'] == "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")
         assert(ret['transactionReceipt']['log'] == [])
 
@@ -211,7 +211,7 @@ class CallContractTest(BitcoinTestFramework):
         ]
 
         assert(ret['address'] == contract_address)
-        assert(ret['executionResult']['gasUsed'] == 36351)
+        assert(ret['executionResult']['gasUsed'] == 36501)
         assert(ret['executionResult']['excepted'] == "None")
         assert(ret['executionResult']['newAddress'] == contract_address)
         assert(ret['executionResult']['output'] == "")
@@ -219,13 +219,13 @@ class CallContractTest(BitcoinTestFramework):
         assert(ret['executionResult']['gasRefunded'] == 0)
         assert(ret['executionResult']['depositSize'] == 0)
         assert(ret['executionResult']['gasForDeposit'] == 0)
-        assert(ret['transactionReceipt']['gasUsed'] == 36351)
+        assert(ret['transactionReceipt']['gasUsed'] == 36501)
         assert(ret['transactionReceipt']['bloom'] != "")
         assert(ret['transactionReceipt']['log'] == expected_log)
 
 
     def run_test(self):
-        self.nodes[0].generate(200)
+        self.nodes[0].generate(COINBASE_MATURITY+100)
         self.callcontract_fallback_function_test()
         self.callcontract_abi_function_signature_test()
         self.callcontract_verify_subcall_and_logs_test()

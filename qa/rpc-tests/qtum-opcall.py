@@ -220,7 +220,7 @@ class OpCallTest(BitcoinTestFramework):
 
 
     def run_test(self):
-        self.nodes[0].generate(200)
+        self.nodes[0].generate(COINBASE_MATURITY+100)
         print("Creating contract")
         self.create_contract_test()
         print("Calling inc() in two outputs")

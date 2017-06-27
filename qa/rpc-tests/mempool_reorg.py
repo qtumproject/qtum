@@ -17,7 +17,7 @@ class MempoolCoinbaseTest(BitcoinTestFramework):
     def __init__(self):
         super().__init__()
         self.num_nodes = 2
-        self.setup_clean_chain = False
+        self.setup_clean_chain = True
 
     alert_filename = None  # Set by setup_network
 
@@ -31,12 +31,19 @@ class MempoolCoinbaseTest(BitcoinTestFramework):
         self.sync_all()
 
     def run_test(self):
+        for node in self.nodes:
+            node.generate(25)
+        self.sync_all()
+        self.nodes[0].generate(COINBASE_MATURITY)
+        self.sync_all()
+
         start_count = self.nodes[0].getblockcount()
 
         # Mine three blocks. After this, nodes[0] blocks
         # 101, 102, and 103 are spend-able.
         new_blocks = self.nodes[1].generate(4)
         self.sync_all()
+        assert_equal(self.nodes[0].getblockcount(), self.nodes[1].getblockcount())
 
         node0_address = self.nodes[0].getnewaddress()
         node1_address = self.nodes[1].getnewaddress()
@@ -47,7 +54,7 @@ class MempoolCoinbaseTest(BitcoinTestFramework):
         # 3. Indirect (coinbase and child both in chain) : spend_103 and spend_103_1
         # Use invalidatblock to make all of the above coinbase spends invalid (immature coinbase),
         # and make sure the mempool code behaves correctly.
-        b = [ self.nodes[0].getblockhash(n) for n in range(101, 105) ]
+        b = [ self.nodes[0].getblockhash(n) for n in range(51, 55) ]
         coinbase_txids = [ self.nodes[0].getblock(h)['tx'][0] for h in b ]
         spend_101_raw = create_tx(self.nodes[0], coinbase_txids[1], node1_address, INITIAL_BLOCK_REWARD-0.01)
         spend_102_raw = create_tx(self.nodes[0], coinbase_txids[2], node0_address, INITIAL_BLOCK_REWARD-0.01)
@@ -57,7 +64,7 @@ class MempoolCoinbaseTest(BitcoinTestFramework):
         timelock_tx = self.nodes[0].createrawtransaction([{"txid": coinbase_txids[0], "vout": 0}], {node0_address: INITIAL_BLOCK_REWARD-0.01})
         # Set the time lock
         timelock_tx = timelock_tx.replace("ffffffff", "11111191", 1)
-        timelock_tx = timelock_tx[:-8] + hex(self.nodes[0].getblockcount() + 2)[2:] + "000000"
+        timelock_tx = timelock_tx[:-8] + hex(self.nodes[0].getblockcount() + 2)[3:] + "0" + hex(self.nodes[0].getblockcount() + 2)[2:3] + "0000"
         timelock_tx = self.nodes[0].signrawtransaction(timelock_tx)["hex"]
         assert_raises(JSONRPCException, self.nodes[0].sendrawtransaction, timelock_tx)
 

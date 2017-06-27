@@ -9,6 +9,7 @@ from test_framework.util import (
     start_node,
     assert_equal,
     connect_nodes_bi,
+    COINBASE_MATURITY
 )
 import os
 import shutil
@@ -44,7 +45,7 @@ class WalletHDTest(BitcoinTestFramework):
 
         # Derive some HD addresses and remember the last
         # Also send funds to each add
-        self.nodes[0].generate(101)
+        self.nodes[0].generate(COINBASE_MATURITY+1)
         hd_add = None
         num_hd_adds = 300
         for i in range(num_hd_adds):

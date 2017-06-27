@@ -188,7 +188,7 @@ class FullBlockTest(ComparisonTestFramework):
 
         # Now we need that block to mature so we can spend the coinbase.
         test = TestInstance(sync_every_block=True)
-        for i in range(98):
+        for i in range(98-15+COINBASE_MATURITY):
             block(5000 + i)
             test.blocks_and_transactions.append([self.tip, True])
             save_spendable_output()

@@ -148,7 +148,7 @@ class CondensingTxsTest(BitcoinTestFramework):
         assert_equal(self.node.callcontract(self.sender3, self.sender2_abi)['executionResult']['output'][24:], self.sender2)
 
     def run_test(self):
-        self.node.generate(50)
+        self.node.generate(COINBASE_MATURITY+50)
         print("Setting up contracts and calling setSenders")
         self.setup_contracts()
         A1 = self.node.getnewaddress()
