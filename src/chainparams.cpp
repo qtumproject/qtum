@@ -132,7 +132,7 @@ public:
         assert(genesis.hashMerkleRoot == uint256S("0x14afc2c67776b5a1f064bcb429d1a62efcf04061ef7b01ec0d314f55cc5770d3"));
 
         // Note that of those with the service bits flag, most only support a subset of possible options
-        vSeeds.push_back(CDNSSeedData("qtum.dynu.net", "qtum.dynu.net", false)); // Qtum testnet
+        //vSeeds.push_back(CDNSSeedData("bitcoin.sipa.be", "seed.bitcoin.sipa.be", true)); // Pieter Wuille, only supports x1, x5, x9, and xd
 
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,58);
