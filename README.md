@@ -11,7 +11,7 @@ Qtum is a new blockchain based on Bitcoin Core that integrates Ethereum based sm
 
 Quickstart
 ----------
-###Build on Ubuntu
+### Build on Ubuntu
 
     This is a quick start script for compiling Qtum on  Ubuntu
 
@@ -35,12 +35,12 @@ Quickstart
     ./configure 
     make -j2
 
-###Build on OSX
+### Build on OSX
 
 The commands in this guide should be executed in a Terminal application.
 The built-in one is located in `/Applications/Utilities/Terminal.app`.
 
-####Preparation
+#### Preparation
 
 Install the OS X command line tools:
 
@@ -50,15 +50,15 @@ When the popup appears, click `Install`.
 
 Then install [Homebrew](https://brew.sh).
 
-####Dependencies
+#### Dependencies
 
     brew install cmake automake berkeley-db4 libtool boost --c++11 miniupnpc openssl pkg-config protobuf qt libevent
 
 NOTE: Building with Qt4 is still supported, however, could result in a broken UI. Building with Qt5 is recommended.
 
-####Build Qtum Core
+#### Build Bitcoin Core
 
-1. Clone the qtum source code and cd into `qtum`
+1. Clone the bitcoin source code and cd into `bitcoin`
 
         git clone https://github.com/qtumproject/qtum.git
         cd qtum
@@ -77,7 +77,7 @@ NOTE: Building with Qt4 is still supported, however, could result in a broken UI
 
         make check
 
-###Run
+### Run
 
 Then you can either run the command-line daemon using `src/qtumd` and `src/qtum-cli`, or you can run the Qt GUI using `src/qt/qtum-qt`
 
