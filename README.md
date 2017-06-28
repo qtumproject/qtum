@@ -58,7 +58,7 @@ NOTE: Building with Qt4 is still supported, however, could result in a broken UI
 
 #### Build Bitcoin Core
 
-1. Clone the bitcoin source code and cd into `bitcoin`
+1. Clone the qtum source code and cd into `qtum`
 
         git clone https://github.com/qtumproject/qtum.git
         cd qtum
