@@ -60,8 +60,9 @@ NOTE: Building with Qt4 is still supported, however, could result in a broken UI
 
 1. Clone the qtum source code and cd into `qtum`
 
-        git clone https://github.com/qtumproject/qtum.git
+        git clone --recursive https://github.com/qtumproject/qtum.git
         cd qtum
+        git submodule update --init --recursive
 
 2.  Build qtum-core:
 
