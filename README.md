@@ -12,7 +12,7 @@ Qtum is a new blockchain based on Bitcoin Core that integrates Ethereum based sm
 Quickstart
 ----------
 
-    This is a quick start script for Ubuntu
+    This is a quick start script for compiling Qtum on  Ubuntu
 
 
     sudo apt-get install build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils git cmake libboost-all-dev
@@ -41,6 +41,8 @@ Then you can either run the command-line daemon using `src/qtumd` and `src/qtum-
     make -j1
 
 This will disable multicore building of some cpp-ethereum dependencies
+
+For in-depth description of Sparknet and how to use Qtum for interacting with contracts, please see [sparknet-guide](doc/sparknet-guide.md).
 
 
 License
