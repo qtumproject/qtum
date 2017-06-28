@@ -56,7 +56,7 @@ Then install [Homebrew](https://brew.sh).
 
 NOTE: Building with Qt4 is still supported, however, could result in a broken UI. Building with Qt5 is recommended.
 
-#### Build Bitcoin Core
+#### Build Qtum Core
 
 1. Clone the qtum source code and cd into `qtum`
 
