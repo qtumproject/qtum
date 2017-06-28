@@ -2090,20 +2090,27 @@ dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(){
     }
     env.setLastHashes(std::move(lh));
     env.setGasLimit(500000000);
-    env.setAuthor(EthAddrFromScript(block.vtx.at(0)->vout.at(0).scriptPubKey));
+    if(block.IsProofOfStake()){
+        env.setAuthor(EthAddrFromScript(block.vtx[1]->vout[1].scriptPubKey));
+    }else {
+        env.setAuthor(EthAddrFromScript(block.vtx[0]->vout[0].scriptPubKey));
+    }
     return env;
 }
 
-dev::Address ByteCodeExec::EthAddrFromScript(const CScript& scriptIn){
-    CTxDestination resDest;
-    if(!ExtractDestination(scriptIn, resDest)){
-        return dev::Address();
+dev::Address ByteCodeExec::EthAddrFromScript(const CScript& script){
+    CTxDestination addressBit;
+    txnouttype txType=TX_NONSTANDARD;
+    if(ExtractDestination(script, addressBit, &txType)){
+        if ((txType == TX_PUBKEY || txType == TX_PUBKEYHASH) &&
+            addressBit.type() == typeid(CKeyID)){
+            CKeyID addressKey(boost::get<CKeyID>(addressBit));
+            std::vector<unsigned char> addr(addressKey.begin(), addressKey.end());
+            return dev::Address(addr);
+        }
     }
-    CKeyID resPH(boost::get<CKeyID>(resDest));
-
-    std::vector<unsigned char> addr(resPH.begin(), resPH.end());
-
-    return dev::Address(addr);
+    //if not standard or not a pubkey or pubkeyhash output, then return 0
+    return dev::Address();
 }
 
 void VersionVM::expandData(){
