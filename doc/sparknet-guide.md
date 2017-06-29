@@ -201,6 +201,9 @@ Qtum supports all of the RPC commands supported by Bitcoin Core, but also includ
 * `listcontracts` - This will output a list of currently deployed contract addresses with their respective balance. This RPC call may change or be removed in the future.
 * `reservebalance` - This will reserve a set amount of coins so that they do not participate in staking. If you reserve as many or more coins than are in your wallet, then you will not participate at all in staking and block creation for the network.
 * `getstakinginfo` - This will show some info about the current node's staking status, including network difficulty and expected time (in seconds) until staking a new block.
+* `gethexaddress` - This will convert a standard Base58 pubkeyhash address to a hex address for use in smart contracts
+* `fromhexaddress` - this will convert a hex address used in smart contracts to a standard Base58 pubkeyhash address
+
 
 # New Qtum Command Line Arguments
 

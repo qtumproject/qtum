@@ -123,6 +123,61 @@ void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& entry)
     }
 }
 
+
+UniValue gethexaddress(const JSONRPCRequest& request) {
+    if (request.fHelp || request.params.size() < 1 || request.params.size() > 1)
+        throw runtime_error(
+                "gethexaddress \"address\"\n"
+
+                        "\nConverts a base58 pubkeyhash address to a hex address for use in smart contracts.\n"
+
+                        "\nArguments:\n"
+                        "1. \"address\"      (string, required) The base58 address\n"
+
+                        "\nResult:\n"
+                        "\"hexaddress\"      (string) The raw hex pubkeyhash address for use in smart contracts\n"
+
+                        "\nExamples:\n"
+                + HelpExampleCli("gethexaddress", "\"address\"")
+                + HelpExampleRpc("gethexaddress", "\"address\"")
+        );
+
+    CBitcoinAddress address(request.params[0].get_str());
+    if (!address.IsValid())
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Qtum address");
+
+    if(!address.IsPubKeyHash())
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Only pubkeyhash addresses are supported");
+
+    return boost::get<CKeyID>(address.Get()).GetHex();
+}
+
+UniValue fromhexaddress(const JSONRPCRequest& request) {
+    if (request.fHelp || request.params.size() < 1 || request.params.size() > 1)
+        throw runtime_error(
+                "fromhexaddress \"hexaddress\"\n"
+
+                        "\nConverts a raw hex address to a base58 pubkeyhash address\n"
+
+                        "\nArguments:\n"
+                        "1. \"hexaddress\"      (string, required) The raw hex address\n"
+
+                        "\nResult:\n"
+                        "\"address\"      (string) The base58 pubkeyhash address\n"
+
+                        "\nExamples:\n"
+                + HelpExampleCli("fromhexaddress", "\"hexaddress\"")
+                + HelpExampleRpc("fromhexaddress", "\"hexaddress\"")
+        );
+    if (request.params[0].get_str().size() != 40)
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid pubkeyhash hex size (should be 40 hex characters)");
+    CKeyID raw;
+    raw.SetHex(request.params[0].get_str());
+    CBitcoinAddress address(raw);
+
+    return address.ToString();
+}
+
 UniValue getrawtransaction(const JSONRPCRequest& request)
 {
     if (request.fHelp || request.params.size() < 1 || request.params.size() > 2)
@@ -937,6 +992,8 @@ static const CRPCCommand commands[] =
     { "rawtransactions",    "decodescript",           &decodescript,           true,  {"hexstring"} },
     { "rawtransactions",    "sendrawtransaction",     &sendrawtransaction,     false, {"hexstring","allowhighfees"} },
     { "rawtransactions",    "signrawtransaction",     &signrawtransaction,     false, {"hexstring","prevtxs","privkeys","sighashtype"} }, /* uses wallet if enabled */
+    { "rawtransactions",    "gethexaddress",          &gethexaddress,          true,  {"address",} },
+    { "rawtransactions",    "fromhexaddress",         &fromhexaddress,         true,  {"hexaddress",} },
 
     { "blockchain",         "gettxoutproof",          &gettxoutproof,          true,  {"txids", "blockhash"} },
     { "blockchain",         "verifytxoutproof",       &verifytxoutproof,       true,  {"proof"} },
