@@ -149,7 +149,7 @@ UniValue gethexaddress(const JSONRPCRequest& request) {
     if(!address.IsPubKeyHash())
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Only pubkeyhash addresses are supported");
 
-    return boost::get<CKeyID>(address.Get()).GetHex();
+    return boost::get<CKeyID>(address.Get()).GetReverseHex();
 }
 
 UniValue fromhexaddress(const JSONRPCRequest& request) {
@@ -172,7 +172,7 @@ UniValue fromhexaddress(const JSONRPCRequest& request) {
     if (request.params[0].get_str().size() != 40)
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid pubkeyhash hex size (should be 40 hex characters)");
     CKeyID raw;
-    raw.SetHex(request.params[0].get_str());
+    raw.SetReverseHex(request.params[0].get_str());
     CBitcoinAddress address(raw);
 
     return address.ToString();
