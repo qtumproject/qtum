@@ -132,7 +132,7 @@ public:
         assert(genesis.hashMerkleRoot == uint256S("0x14afc2c67776b5a1f064bcb429d1a62efcf04061ef7b01ec0d314f55cc5770d3"));
 
         // Note that of those with the service bits flag, most only support a subset of possible options
-        vSeeds.push_back(CDNSSeedData("qtum.dynu.net", "qtum.dynu.net", false)); // Qtum testnet
+        //vSeeds.push_back(CDNSSeedData("bitcoin.sipa.be", "seed.bitcoin.sipa.be", true)); // Pieter Wuille, only supports x1, x5, x9, and xd
 
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,58);
@@ -151,7 +151,6 @@ public:
         checkpointData = (CCheckpointData) {
             boost::assign::map_list_of
             ( 0, uint256S("0000a0f8023bed94543e0155c0f9e2de624efdb81dced9ac351bdd980a3a3cbf"))
-            ( 5000, uint256S("0000f4c0224b59f0007e91748ff82e5a315f2c2df906f5523b28b57a936e9554")) //last PoW block
         };
 
         chainTxData = ChainTxData{
