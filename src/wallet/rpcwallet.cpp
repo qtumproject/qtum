@@ -521,8 +521,8 @@ UniValue createcontract(const JSONRPCRequest& request){
          bool fValidAddress = ExtractDestination(scriptPubKey, address);
 
          CBitcoinAddress destAdress(address);
-
-         if (!fValidAddress || senderAddress.Get() != destAdress.Get())
+         //use this weird !( == ) to avoid compilation errors on Ubuntu 14.04
+         if (!fValidAddress || !(senderAddress == destAdress))
              continue;
 
          coinControl.Select(COutPoint(out.tx->GetHash(),out.i));
@@ -714,8 +714,8 @@ UniValue sendtocontract(const JSONRPCRequest& request){
             bool fValidAddress = ExtractDestination(scriptPubKey, address);
 
             CBitcoinAddress destAdress(address);
-
-            if (!fValidAddress || senderAddress.Get() != destAdress.Get())
+            //use this weird !( == ) to avoid compilation errors on Ubuntu 14.04
+            if (!fValidAddress || !(senderAddress == destAdress))
                 continue;
 
             coinControl.Select(COutPoint(out.tx->GetHash(),out.i));
