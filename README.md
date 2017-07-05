@@ -59,6 +59,19 @@ Ubuntu 14.04 has many packages that are out of date by default, so before buildi
     sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 1
     sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 1
 
+    #install custom libleveldb (resolve -fPIC error) 
+    #note: this is a bit of a hack, be cautious doing this on a critical machine
+    git clone https://github.com/google/leveldb.git
+    cd leveldb/
+    make OPT="-fPIC -O2 -DNDEBUG"
+    sudo cp out-static/lib* out-shared/lib* /usr/local/lib/
+    cd include
+    sudo cp -r leveldb /usr/local/include/
+    sudo mkdir /usr/local/include/leveldb/helpers
+    cd ..
+    sudo cp helpers/memenv/memenv.h /usr/local/include/leveldb/helpers
+    sudo ldconfig
+
 Additionally when using `./configure` you may need to use if you encounter errors with libmemenv.a 
 
     ./configure --with-miniupnpc=no
