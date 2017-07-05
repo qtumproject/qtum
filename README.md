@@ -13,7 +13,7 @@ Quickstart
 ----------
 ### Build on Ubuntu
 
-    This is a quick start script for compiling Qtum on  Ubuntu
+This is a quick start script for compiling Qtum on  Ubuntu
 
 
     sudo apt-get install build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils git cmake libboost-all-dev
@@ -34,6 +34,34 @@ Quickstart
     ./autogen.sh
     ./configure 
     make -j2
+
+### Additional instructions for Ubuntu 14.04
+
+Ubuntu 14.04 has many packages that are out of date by default, so before building Qtum you must update these:
+
+    #update cmake from source
+    sudo apt-get install build-essential
+    wget http://www.cmake.org/files/v3.5/cmake-3.5.2.tar.gz
+    tar xf cmake-3.5.2.tar.gz
+    cd cmake-3.5.2
+    ./bootstrap --system-curl
+    make
+    sudo apt-get install checkinstall
+
+    # just push enter at any prompts for checkinstall
+    sudo checkinstall
+
+    #update gcc
+    sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+    sudo apt-get update
+    sudo apt-get install gcc-5 g++-5
+    #update default compiler
+    sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 1
+    sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 1
+
+Additionally when using `./configure` you may need to use if you encounter errors with libmemenv.a 
+
+    ./configure --with-miniupnpc=no
 
 ### Build on OSX
 
