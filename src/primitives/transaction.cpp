@@ -153,6 +153,8 @@ bool CTransaction::HasCreateOrCall() const{
     return false;
 }
 
+
+
 bool CTransaction::HasOpSpend() const{
     for(const CTxIn& i : vin){
         if(i.scriptSig.HasOpSpend()){
