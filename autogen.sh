@@ -15,7 +15,8 @@ which autoreconf >/dev/null || \
 autoreconf --install --force --warnings=all
 
 cd src/cpp-ethereum
-if [$# -ne 3]; then
+if [ $# -ne 3 ]
+then
     git submodule update --init
     ./scripts/install_deps.sh
     cmake .
