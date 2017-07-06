@@ -15,7 +15,12 @@ which autoreconf >/dev/null || \
 autoreconf --install --force --warnings=all
 
 cd src/cpp-ethereum
-git submodule update --init
-./scripts/install_deps.sh
-cmake .
-make -j `nproc`
+if [$# -ne 3]; then
+    git submodule update --init
+    ./scripts/install_deps.sh
+    cmake .
+    make -j `nproc`
+else
+    cmake -DCMAKE_SYSTEM_NAME=$1 -DCMAKE_C_COMPILER=/usr/bin/$2-gcc-posix -DCMAKE_CXX_COMPILER=/usr/bin/$2-g++-posix -DCMAKE_RC_COMPILER=/usr/bin/$2-windres -DCMAKE_FIND_ROOT_PATH=$3 -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY -DPLATFORM=$2 .
+    make -j `nproc`
+fi
