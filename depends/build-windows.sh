@@ -1,24 +1,20 @@
 #!/bin/sh
 
 # Set platform variables
-OS_BITS=32
 PLATFORM="i686-w64-mingw32"
-CC="/usr/bin/i686-w64-mingw32-gcc-posix"
-CXX="/usr/bin/i686-w64-mingw32-g++-posix"
 if [ "$1" = "x64" ]; then
-    OS_BITS=64
     PLATFORM="x86_64-w64-mingw32"
-    CC="/usr/bin/x86_64-w64-mingw32-gcc-posix"
-    CXX="/usr/bin/x86_64-w64-mingw32-g++-posix"
 fi
+CC="/usr/bin/$PLATFORM-gcc-posix"
+CXX="/usr/bin/$PLATFORM-g++-posix"
 OLD_PATH=`pwd`
 INSTALL_DIR="$OLD_PATH/$PLATFORM"
 LIB_DIR="$INSTALL_DIR/lib"
 INCLUDE_DIR="$INSTALL_DIR/include"
 
-# Install compilers if needed
+# Install development tools if needed
 if [ ! -f $CC ]; then
-   sudo apt-get install curl g++-mingw-w64-x86-64 mingw-w64-x86-64-dev g++-mingw-w64-i686 mingw-w64-i686-dev
+   sudo apt-get install build-essential libtool autotools-dev automake cmake pkg-config bsdmainutils curl g++-mingw-w64-x86-64 mingw-w64-x86-64-dev g++-mingw-w64-i686 mingw-w64-i686-dev -y
 fi
 
 # Make dependencies
