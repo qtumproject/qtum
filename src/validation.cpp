@@ -3563,10 +3563,10 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
 }
 #endif
 
-bool CheckBlockSignature(const CBlock& block)
+bool GetBlockPublicKey(const CBlock& block, std::vector<unsigned char>& vchPubKey)
 {
     if (block.IsProofOfWork())
-        return block.vchBlockSig.empty();
+        return false;
 
     if (block.vchBlockSig.empty())
         return false;
@@ -3581,8 +3581,8 @@ bool CheckBlockSignature(const CBlock& block)
 
     if (whichType == TX_PUBKEY)
     {
-        valtype& vchPubKey = vSolutions[0];
-        return CPubKey(vchPubKey).Verify(block.GetHashWithoutSign(), block.vchBlockSig);
+        vchPubKey = vSolutions[0];
+        return true;
     }
     else
     {
@@ -3592,20 +3592,33 @@ bool CheckBlockSignature(const CBlock& block)
         const CScript& script = txout.scriptPubKey;
         CScript::const_iterator pc = script.begin();
         opcodetype opcode;
-        valtype vchPushValue;
 
-        if (!script.GetOp(pc, opcode, vchPushValue))
+        if (!script.GetOp(pc, opcode, vchPubKey))
             return false;
         if (opcode != OP_RETURN)
             return false;
-        if (!script.GetOp(pc, opcode, vchPushValue))
+        if (!script.GetOp(pc, opcode, vchPubKey))
             return false;
-        if (!IsCompressedOrUncompressedPubKey(vchPushValue))
+        if (!IsCompressedOrUncompressedPubKey(vchPubKey))
             return false;
-        return CPubKey(vchPushValue).Verify(block.GetHashWithoutSign(), block.vchBlockSig);
+        return true;
     }
 
     return false;
+}
+
+bool CheckBlockSignature(const CBlock& block)
+{
+    if (block.IsProofOfWork())
+        return block.vchBlockSig.empty();
+
+    std::vector<unsigned char> vchPubKey;
+    if(!GetBlockPublicKey(block, vchPubKey))
+    {
+        return false;
+    }
+
+    return CPubKey(vchPubKey).Verify(block.GetHashWithoutSign(), block.vchBlockSig);
 }
 
 bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW)
