@@ -2013,7 +2013,7 @@ bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, cons
                                  error("CheckReward(): block reward doesn't split into equal shares"),
                                  REJECT_INVALID, "bad-cs-shares");
 
-            // Get list of script recipients
+            // Generate the list of script recipients including all of their parameters
             std::vector<CScript> mposScriptList;
             if(!GetMPoSOutputScripts(mposScriptList, nPrevHeight, consensusParams))
                 return error("CheckReward(): cannot create the list of MPoS output scripts");
@@ -2021,6 +2021,7 @@ bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, cons
             // Check the list of script recipients
             for(size_t i = 0; i < okRewardRecipients; i++)
             {
+                // Validate that the output recipient have the correct script parameters like public key hash ...
                 if(block.vtx[offset]->vout[beginRecipients + i].scriptPubKey != mposScriptList[i])
                 {
                     return state.DoS(100,
