@@ -172,17 +172,16 @@ bool AddMPoSScript(std::vector<CScript> &mposScriptList, int nHeight, const Cons
     // The block reward for PoS is in the second transaction (coinstake) and the second or third output
     if(block.vtx.size() > 1 && block.vtx[1]->IsCoinStake() && block.vtx[1]->vout.size() > 1 )
     {
-        // Read the script from the second output
-        CScript script = block.vtx[1]->vout[1].scriptPubKey;
-
-        // Solve the script
-        vector<valtype> vSolutions;
-        txnouttype whichType;
-        if (!Solver(script, whichType, vSolutions))
+        // Read the public key from the second output
+        std::vector<unsigned char> vchPubKey;
+        if(!GetBlockPublicKey(block, vchPubKey))
         {
             LogPrint("coinstake", "Fail to solve script for mpos reward recipient\n");
             return false;
         }
+
+        // Make public key hash script
+        CScript script = CScript() << OP_DUP << OP_HASH160 << ToByteVector(CPubKey(vchPubKey).GetID()) << OP_EQUALVERIFY << OP_CHECKSIG;
 
         // Add the script into the list
         mposScriptList.push_back(script);
