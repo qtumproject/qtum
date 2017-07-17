@@ -64,6 +64,8 @@ struct ChainTxData;
 struct PrecomputedTransactionData;
 struct LockPoints;
 
+static const uint64_t DEFAULT_BLOCK_GASLIMIT = 5e8;
+
 /** Default for DEFAULT_WHITELISTRELAY. */
 static const bool DEFAULT_WHITELISTRELAY = true;
 /** Default for DEFAULT_WHITELISTFORCERELAY. */
@@ -676,7 +678,7 @@ class ByteCodeExec {
 
 public:
 
-    ByteCodeExec(const CBlock& _block, std::vector<QtumTransaction> _txs) : txs(_txs), block(_block) {}
+    ByteCodeExec(const CBlock& _block, std::vector<QtumTransaction> _txs, const int64_t _gasLimit = DEFAULT_BLOCK_GASLIMIT) : txs(_txs), block(_block), gasLimit(_gasLimit) {}
 
     void performByteCode(dev::eth::Permanence type = dev::eth::Permanence::Committed);
 
@@ -695,6 +697,8 @@ private:
     std::vector<ResultExecute> result;
 
     const CBlock& block;
+
+    int64_t gasLimit;
 
 };
 ////////////////////////////////////////////////////////

@@ -2040,6 +2040,8 @@ void ByteCodeExec::performByteCode(dev::eth::Permanence type){
             continue;
         }
         result.push_back(globalState->execute(envInfo, *globalSealEngine.get(), tx, type, OnOpFunc()));
+        dev::u256 gasRemained(envInfo.gasLimit() - result.back().execRes.gasUsed);
+        gasLimit = gasRemained.convert_to<int64_t>();
     }
     globalState->db().commit();
     globalState->dbUtxo().commit();
@@ -2089,7 +2091,7 @@ dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(){
         tip = tip->pprev;
     }
     env.setLastHashes(std::move(lh));
-    env.setGasLimit(500000000);
+    env.setGasLimit(gasLimit);
     env.setAuthor(EthAddrFromScript(block.vtx.at(0)->vout.at(0).scriptPubKey));
     return env;
 }
@@ -2323,6 +2325,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     std::vector<CTxOut> checkVouts;
 ///////////////////////////////////////////////////////
 
+    int64_t blockGasUsed = 0;
     std::vector<int> prevheights;
     CAmount nFees = 0;
     CAmount nActualStakeReward = 0;
@@ -2399,10 +2402,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             QtumTxConverter convert(tx, NULL, &block.vtx);
 
             std::vector<QtumTransaction> transactions = convert.extractionQtumTransactions();
-            ByteCodeExec exec(block, transactions);
+            ByteCodeExec exec(block, transactions, DEFAULT_BLOCK_GASLIMIT - blockGasUsed);
             exec.performByteCode();
             std::vector<ResultExecute> resultExec(exec.getResult());
             ByteCodeExecResult bcer = exec.processingResults();
+            blockGasUsed += bcer.usedFee;
 
             checkVouts.insert(checkVouts.end(), bcer.refundOutputs.begin(), bcer.refundOutputs.end());
             for(CTransaction& t : bcer.valueTransfers){
