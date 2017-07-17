@@ -526,7 +526,7 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
 
     QtumTxConverter convert(iter->GetTx(), NULL, &pblock->vtx);
     std::vector<QtumTransaction> transactions = convert.extractionQtumTransactions();
-    ByteCodeExec exec(*pblock, convert.extractionQtumTransactions());
+    ByteCodeExec exec(*pblock, convert.extractionQtumTransactions(), DEFAULT_BLOCK_GASLIMIT - bceResult.usedFee);
     exec.performByteCode();
     ByteCodeExecResult testExecResult = exec.processingResults();
 
