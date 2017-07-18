@@ -517,6 +517,10 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
     {
         return false;
     }
+    if(bceResult.usedFee > DEFAULT_BLOCK_GASLIMIT){
+        //if this transaction could cause block gas limit to be exceeded, then don't add it
+        return false;
+    }
     dev::h256 oldHashStateRoot(globalState->rootHash());
     dev::h256 oldHashUTXORoot(globalState->rootHashUTXO());
     // operate on local vars first, then later apply to `this`

@@ -64,6 +64,9 @@ struct ChainTxData;
 struct PrecomputedTransactionData;
 struct LockPoints;
 
+/** Default block gas limit (might be changed by DGP later) **/
+static const uint64_t DEFAULT_BLOCK_GASLIMIT = 5e8;
+
 /** Default for DEFAULT_WHITELISTRELAY. */
 static const bool DEFAULT_WHITELISTRELAY = true;
 /** Default for DEFAULT_WHITELISTFORCERELAY. */
