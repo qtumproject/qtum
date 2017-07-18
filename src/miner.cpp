@@ -517,7 +517,7 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
     {
         return false;
     }
-    if(bceResult.usedFee > DEFAULT_BLOCK_GASLIMIT){
+    if(bceResult.usedGas > DEFAULT_BLOCK_GASLIMIT){
         //if this transaction could cause block gas limit to be exceeded, then don't add it
         return false;
     }
@@ -580,7 +580,7 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
     //block is not too big, so apply the contract execution and it's results to the actual block
 
     //apply local bytecode to global bytecode state
-    bceResult.usedFee += testExecResult.usedFee;
+    bceResult.usedGas += testExecResult.usedGas;
     bceResult.refundSender += testExecResult.refundSender;
     bceResult.refundOutputs.insert(bceResult.refundOutputs.end(), testExecResult.refundOutputs.begin(), testExecResult.refundOutputs.end());
     bceResult.valueTransfers = std::move(testExecResult.valueTransfers);

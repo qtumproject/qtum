@@ -2057,12 +2057,22 @@ ByteCodeExecResult ByteCodeExec::processingResults(){
                 resultBCE.valueTransfers.push_back(CTransaction(tx));
             }
         } else {
-            resultBCE.usedFee += CAmount(result[i].execRes.gasUsed);
-            CAmount ref((txs[i].gas() - result[i].execRes.gasUsed) * txs[i].gasPrice());
-            if(ref > 0){
+            assert(txs[i].gas() < UINT64_MAX);
+            assert(result[i].execRes.gasUsed < UINT64_MAX);
+            assert(txs[i].gasPrice() < UINT64_MAX);
+            uint64_t gas = (uint64_t) txs[i].gas();
+            uint64_t gasUsed = (uint64_t) result[i].execRes.gasUsed;
+            uint64_t gasPrice = (uint64_t) txs[i].gasPrice();
+
+            assert(result[i].execRes.gasUsed < UINT64_MAX);
+            resultBCE.usedGas += (uint64_t) result[i].execRes.gasUsed;
+            uint64_t ref = (gas - gasUsed) * gasPrice;
+            assert(ref < INT64_MAX);
+            CAmount amount(ref);
+            if(amount > 0){
                 CScript script(CScript() << OP_DUP << OP_HASH160 << txs[i].sender().asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
-                resultBCE.refundOutputs.push_back(CTxOut(ref, script));
-                resultBCE.refundSender += ref;
+                resultBCE.refundOutputs.push_back(CTxOut(amount, script));
+                resultBCE.refundSender += amount;
             }
         }
         if(result[i].tx != CTransaction()){
@@ -2405,7 +2415,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             std::vector<ResultExecute> resultExec(exec.getResult());
             ByteCodeExecResult bcer = exec.processingResults();
 
-            blockGasUsed += bcer.usedFee;
+            blockGasUsed += bcer.usedGas;
             if(blockGasUsed > DEFAULT_BLOCK_GASLIMIT){
                 return state.DoS(1000, error("ConnectBlock(): Block exceeds gas limit"), REJECT_INVALID, "bad-blk-gaslimit");
             }
