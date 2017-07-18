@@ -2064,11 +2064,9 @@ ByteCodeExecResult ByteCodeExec::processingResults(){
             uint64_t gasUsed = (uint64_t) result[i].execRes.gasUsed;
             uint64_t gasPrice = (uint64_t) txs[i].gasPrice();
 
-            assert(result[i].execRes.gasUsed < UINT64_MAX);
-            resultBCE.usedGas += (uint64_t) result[i].execRes.gasUsed;
-            uint64_t ref = (gas - gasUsed) * gasPrice;
-            assert(ref < INT64_MAX);
-            CAmount amount(ref);
+            resultBCE.usedGas += gasUsed;
+            int64_t amount = (gas - gasUsed) * gasPrice;
+            assert(amount >= 0); //don't allow negative gas, probably only possible by overflow
             if(amount > 0){
                 CScript script(CScript() << OP_DUP << OP_HASH160 << txs[i].sender().asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
                 resultBCE.refundOutputs.push_back(CTxOut(amount, script));
