@@ -171,6 +171,8 @@ struct COutputEntry
     int vout;
 };
 
+unsigned int GetStakeSplitOutputs();
+
 int64_t GetStakeSplitThreshold();
 
 bool GetMPoSOutputScripts(std::vector<CScript> &mposScroptList, int nHeight, const Consensus::Params& consensusParams);

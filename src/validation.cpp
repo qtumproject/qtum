@@ -1966,7 +1966,7 @@ bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, cons
 
         // Check block creator outputs
         int voutsStaker = block.vtx[offset]->vout.size() - rewardRecipients - nRefundVouts;
-        if(voutsStaker < 1 || voutsStaker > 2)
+        if(voutsStaker < 1 || voutsStaker > (int)GetStakeSplitOutputs())
             return state.DoS(100,
                              error("CheckReward(): invalid number of outputs for the block creator"),
                              REJECT_INVALID, "bad-cs-stake-output");
@@ -1979,7 +1979,7 @@ bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, cons
         }
 
         // Check block creator stake split when exceed the threshold
-        if(voutsStaker == 2 && stake < GetStakeSplitThreshold())
+        if(voutsStaker == (int)GetStakeSplitOutputs() && stake < GetStakeSplitThreshold())
             return state.DoS(100,
                              error("CheckReward(): stake does not split when exceed the threshold"),
                              REJECT_INVALID, "bad-cs-stake-split");
