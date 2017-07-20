@@ -1954,7 +1954,7 @@ bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, cons
                                    nActualStakeReward, blockReward),
                              REJECT_INVALID, "bad-cs-amount");
 
-        // The first proof-of-stake blocks get full reward, the rest of them are splitted between recipients
+        // The first proof-of-stake blocks get full reward, the rest of them are split between recipients
         int rewardRecipients = 1;
         int nPrevHeight = nHeight -1;
         if(nPrevHeight >= consensusParams.nFirstMPoSBlock)
@@ -1964,71 +1964,49 @@ bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, cons
         if(rewardRecipients < 1)
             return error("CheckReward(): invalid reward recipients");
 
-        // Check block creator outputs
-        int voutsStaker = block.vtx[offset]->vout.size() - rewardRecipients - nRefundVouts;
-        if(voutsStaker < 1 || voutsStaker > (int)GetStakeSplitOutputs())
-            return state.DoS(100,
-                             error("CheckReward(): invalid number of outputs for the block creator"),
-                             REJECT_INVALID, "bad-cs-stake-output");
-
-        // Check block creator stake split into outputs
-        CAmount stake = 0;
-        for(int i = 1; i <= voutsStaker; i++)
-        {
-            stake += block.vtx[offset]->vout[i].nValue;
+        //if only 1 then no MPoS logic required
+        if(rewardRecipients == 1){
+            return true;
         }
 
-        // Check block creator stake split when exceed the threshold
-        if(voutsStaker == (int)GetStakeSplitOutputs() && stake < GetStakeSplitThreshold())
-            return state.DoS(100,
-                             error("CheckReward(): stake does not split when exceed the threshold"),
-                             REJECT_INVALID, "bad-cs-stake-split");
+        CAmount splitReward = blockReward / rewardRecipients;
 
-        // Check block total reward split when multiple recipients
-        if(rewardRecipients > 1)
+        // Generate the list of script recipients including all of their parameters
+        std::vector<CScript> mposScriptList;
+        if(!GetMPoSOutputScripts(mposScriptList, nPrevHeight, consensusParams))
+            return error("CheckReward(): cannot create the list of MPoS output scripts");
+
+        // Check the list of script recipients
+        for(size_t i = 0; i < (block.vtx[offset]->vout.size() - offset); i++)
         {
-            // Compute the contracts refund reward
-            CAmount refundReward = 0;
-            for(size_t i = block.vtx[offset]->vout.size() - nRefundVouts; i <block.vtx[offset]->vout.size(); i++)
-            {
-                refundReward += block.vtx[offset]->vout[i].nValue;
-            }
-
-            // Check that the block creator split the reward with the rest of the recipients into equal shares
-            size_t okRewardRecipients = 0;
-            size_t beginRecipients = block.vtx[offset]->vout.size() - nRefundVouts - rewardRecipients + 1;
-            size_t endRecipients = block.vtx[offset]->vout.size() - nRefundVouts;
-            CAmount splitReward = (blockReward - refundReward) / rewardRecipients;
-            for(size_t i = beginRecipients; i < endRecipients; i++)
-            {
-                if(block.vtx[offset]->vout[i].nValue == splitReward)
-                {
-                    okRewardRecipients++;
+            //use offset+i because in PoS the first vout is empty
+            std::vector<CScript>::iterator pos;
+            pos=std::find(mposScriptList.begin(), mposScriptList.end(), block.vtx[offset]->vout[offset+i].scriptPubKey);
+            if(pos != mposScriptList.end()){
+                // if this vout does not provide at least splitReward, then it does not count as an MPoS output
+                // This is to allow for the coinstake to send an arbritrary amount to any script including MPoS output scripts
+                // But when this arbritrary amount is less than splitReward, then in order to be valid there needs to be another vout that
+                // sends at least splitReward.
+                // This also makes sure that if an MPoS scriptPubKey is duplicated (such as same address mines 2 blocks in a row)
+                // that they can not be cheated out of their duplicate rewards
+                if(block.vtx[offset]->vout[offset+i].nValue >= splitReward) {
+                    // remove from list without moving all elements
+                    // (this does not preserve order for mposScriptList, but order does not matter here)
+                    assert(mposScriptList.size() != 0); //.back() on empty vector is undefined
+                    std::swap(*pos, mposScriptList.back());
+                    mposScriptList.pop_back();
                 }
             }
-            
-            // Check the reward reward recipents that receive equal shares
-            if((int)okRewardRecipients != rewardRecipients -1)
-                return state.DoS(100,
-                                 error("CheckReward(): block reward doesn't split into equal shares"),
-                                 REJECT_INVALID, "bad-cs-shares");
-
-            // Generate the list of script recipients including all of their parameters
-            std::vector<CScript> mposScriptList;
-            if(!GetMPoSOutputScripts(mposScriptList, nPrevHeight, consensusParams))
-                return error("CheckReward(): cannot create the list of MPoS output scripts");
-            
-            // Check the list of script recipients
-            for(size_t i = 0; i < okRewardRecipients; i++)
-            {
-                // Validate that the output recipient have the correct script parameters like public key hash ...
-                if(block.vtx[offset]->vout[beginRecipients + i].scriptPubKey != mposScriptList[i])
-                {
-                    return state.DoS(100,
-                                     error("CheckReward(): MPoS block reward script not correct"),
-                                     REJECT_INVALID, "bad-cs-mpos-sctipt");
-                }
+            if(mposScriptList.size() == 0){
+                //list is empty, no need to iterate through any more transactions
+                break;
             }
+        }
+        //done checking coinstake tx, mpos reward list should now be empty
+        if(mposScriptList.size()!=0){
+            return state.DoS(100,
+                             error("CheckReward(): An MPoS participant was not properly paid"),
+                             REJECT_INVALID, "bad-cs-mpos-missing");
         }
     }
 
