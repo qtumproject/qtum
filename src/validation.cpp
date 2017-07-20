@@ -1918,10 +1918,17 @@ static int64_t nTimeTotal = 0;
 
 bool CheckRefund(const CBlock& block, const std::vector<CTxOut>& vouts){
     size_t offset = block.IsProofOfStake() ? 1 : 0;
+    std::vector<CTxOut> vTempVouts=block.vtx[offset]->vout;
+    std::vector<CTxOut>::iterator it;
     for(size_t i = 0; i < vouts.size(); i++){
-        if(std::find(block.vtx[offset]->vout.begin(), block.vtx[offset]->vout.end(), vouts[i])==block.vtx[offset]->vout.end())
+        it=std::find(vTempVouts.begin(), vTempVouts.end(), vouts[i]);
+        if(it==vTempVouts.end()){
             return false;
+        }else{
+            vTempVouts.erase(it);
+        }
     }
+    vTempVouts.clear();
     return true;
 }
 
