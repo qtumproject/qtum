@@ -2057,12 +2057,20 @@ ByteCodeExecResult ByteCodeExec::processingResults(){
                 resultBCE.valueTransfers.push_back(CTransaction(tx));
             }
         } else {
-            resultBCE.usedFee += CAmount(result[i].execRes.gasUsed);
-            CAmount ref((txs[i].gas() - result[i].execRes.gasUsed) * txs[i].gasPrice());
-            if(ref > 0){
+            assert(txs[i].gas() < UINT64_MAX);
+            assert(result[i].execRes.gasUsed < UINT64_MAX);
+            assert(txs[i].gasPrice() < UINT64_MAX);
+            uint64_t gas = (uint64_t) txs[i].gas();
+            uint64_t gasUsed = (uint64_t) result[i].execRes.gasUsed;
+            uint64_t gasPrice = (uint64_t) txs[i].gasPrice();
+
+            resultBCE.usedGas += gasUsed;
+            int64_t amount = (gas - gasUsed) * gasPrice;
+            assert(amount >= 0); //don't allow negative gas, probably only possible by overflow
+            if(amount > 0){
                 CScript script(CScript() << OP_DUP << OP_HASH160 << txs[i].sender().asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
-                resultBCE.refundOutputs.push_back(CTxOut(ref, script));
-                resultBCE.refundSender += ref;
+                resultBCE.refundOutputs.push_back(CTxOut(amount, script));
+                resultBCE.refundSender += amount;
             }
         }
         if(result[i].tx != CTransaction()){
@@ -2089,7 +2097,7 @@ dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(){
         tip = tip->pprev;
     }
     env.setLastHashes(std::move(lh));
-    env.setGasLimit(500000000);
+    env.setGasLimit(DEFAULT_BLOCK_GASLIMIT);
     env.setAuthor(EthAddrFromScript(block.vtx.at(0)->vout.at(0).scriptPubKey));
     return env;
 }
@@ -2334,6 +2342,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     blockundo.vtxundo.reserve(block.vtx.size() - 1);
     std::vector<PrecomputedTransactionData> txdata;
     txdata.reserve(block.vtx.size()); // Required so that pointers to individual PrecomputedTransactionData don't get invalidated
+    uint64_t blockGasUsed = 0;
     for (unsigned int i = 0; i < block.vtx.size(); i++)
     {
         const CTransaction &tx = *(block.vtx[i]);
@@ -2404,6 +2413,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             std::vector<ResultExecute> resultExec(exec.getResult());
             ByteCodeExecResult bcer = exec.processingResults();
 
+            blockGasUsed += bcer.usedGas;
+            if(blockGasUsed > DEFAULT_BLOCK_GASLIMIT){
+                return state.DoS(1000, error("ConnectBlock(): Block exceeds gas limit"), REJECT_INVALID, "bad-blk-gaslimit");
+            }
             checkVouts.insert(checkVouts.end(), bcer.refundOutputs.begin(), bcer.refundOutputs.end());
             for(CTransaction& t : bcer.valueTransfers){
                 checkBlock.vtx.push_back(MakeTransactionRef(std::move(t)));
