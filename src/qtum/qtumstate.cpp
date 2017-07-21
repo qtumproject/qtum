@@ -19,6 +19,9 @@ QtumState::QtumState() : dev::eth::State(dev::Invalid256, dev::OverlayDB(), dev:
 }
 
 ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& _sealEngine, QtumTransaction const& _t, Permanence _p, OnOpFunc const& _onOp){
+
+    assert(_t.getVersion().toRaw() == VersionVM::GetEVMDefault().toRaw());
+
     addBalance(_t.sender(), _t.value() + (_t.gas() * _t.gasPrice()));
     newAddress = _t.isCreation() ? createQtumAddress(_t.getHashWith(), _t.getNVout()) : dev::Address();
 

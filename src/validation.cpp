@@ -2037,8 +2037,12 @@ void writeVMlog(const std::vector<ResultExecute>& res, const CTransaction& tx, c
     fIsVMlogFile = true;
 }
 
-void ByteCodeExec::performByteCode(dev::eth::Permanence type){
+bool ByteCodeExec::performByteCode(dev::eth::Permanence type){
     for(QtumTransaction& tx : txs){
+        //validate VM version
+        if(tx.getVersion().toRaw() != VersionVM::GetEVMDefault().toRaw()){
+            return false;
+        }
         dev::eth::EnvInfo envInfo(BuildEVMEnvironment());
         if(!tx.isCreation() && !globalState->addressInUse(tx.receiveAddress())){
             dev::eth::ExecutionResult execRes;
@@ -2050,6 +2054,7 @@ void ByteCodeExec::performByteCode(dev::eth::Permanence type){
     }
     globalState->db().commit();
     globalState->dbUtxo().commit();
+    return true;
 }
 
 ByteCodeExecResult ByteCodeExec::processingResults(){
@@ -2408,7 +2413,34 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
             std::vector<QtumTransaction> transactions = convert.extractionQtumTransactions();
             ByteCodeExec exec(block, transactions);
-            exec.performByteCode();
+            //validate VM version before execution
+            //Reject anything unknown (could be changed late by DGP)
+            //TODO evaluate if this should be relaxed for soft-fork purposes
+            for(QtumTransaction& qtx : transactions){
+                VersionVM v = qtx.getVersion();
+                if(v.format!=0){
+                    return state.DoS(100, error("ConnectBlock(): Contract execution uses unknown version format"), REJECT_INVALID, "bad-tx-version-format");
+                }
+                if(!(v.rootVM == 0 || v.rootVM == 1)){
+                    return state.DoS(100, error("ConnectBlock(): Contract execution uses unknown root VM"), REJECT_INVALID, "bad-tx-version-rootvm");
+                }
+                if(v.vmVersion != 0){
+                    return state.DoS(100, error("ConnectBlock(): Contract execution uses unknown VM version"), REJECT_INVALID, "bad-tx-version-vmversion");
+                }
+                if(v.flagOptions != 0){
+                    return state.DoS(100, error("ConnectBlock(): Contract execution uses unknown flag options"), REJECT_INVALID, "bad-tx-version-flags");
+                }
+
+                //check gas limit is not 0
+                if(qtx.gas() == 0 && v.rootVM != 0){
+                    return state.DoS(100, error("ConnectBlock(): Contract execution uses 0 gas"), REJECT_INVALID, "bad-tx-no-gas");
+                }
+            }
+
+
+            if(!exec.performByteCode()){
+                return state.DoS(100, error("ConnectBlock(): Unknown error during contract execution"), REJECT_INVALID, "bad-tx-unknown-error");
+            }
             std::vector<ResultExecute> resultExec(exec.getResult());
             ByteCodeExecResult bcer = exec.processingResults();
 

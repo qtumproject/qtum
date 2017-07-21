@@ -681,7 +681,7 @@ public:
 
     ByteCodeExec(const CBlock& _block, std::vector<QtumTransaction> _txs) : txs(_txs), block(_block) {}
 
-    void performByteCode(dev::eth::Permanence type = dev::eth::Permanence::Committed);
+    bool performByteCode(dev::eth::Permanence type = dev::eth::Permanence::Committed);
 
     ByteCodeExecResult processingResults();
 

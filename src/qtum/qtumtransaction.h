@@ -1,6 +1,5 @@
 #include <libethcore/Transaction.h>
 
-
 struct VersionVM{
     //this should be portable, see https://stackoverflow.com/questions/31726191/is-there-a-portable-alternative-to-c-bitfields
 # if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -12,7 +11,8 @@ struct VersionVM{
 #endif
     uint8_t vmVersion;
     uint16_t flagOptions;
-
+    // CONSENSUS CRITICAL!
+    // Do not add any other fields to this struct
 
     uint32_t toRaw(){
         return *(uint32_t*)this;
@@ -37,7 +37,6 @@ struct VersionVM{
         x.vmVersion=0;
         return x;
     }
-
 }__attribute__((__packed__));
 
 class QtumTransaction : public dev::eth::Transaction{
@@ -63,7 +62,7 @@ public:
     void setVersion(VersionVM v){
         version=v;
     }
-    VersionVM getVersion(){
+    VersionVM getVersion() const{
         return version;
     }
 private:
