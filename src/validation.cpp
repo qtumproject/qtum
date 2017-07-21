@@ -2091,13 +2091,13 @@ dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(){
     dev::eth::EnvInfo env;
     CBlockIndex* tip = chainActive.Tip();
     env.setNumber(dev::u256(tip->nHeight + 1));
-    env.setTimestamp(dev::u256(tip->nTime));
-    env.setDifficulty(dev::u256(tip->nBits));
+    env.setTimestamp(dev::u256(block.nTime));
+    env.setDifficulty(dev::u256(block.nBits));
 
     dev::eth::LastHashes lh;
     lh.resize(256);
     lh[0] = dev::u256(0);
-    for(int i=0;i<256;i++){
+    for(int i=1;i<256;i++){
         if(!tip)
             break;
         lh[i]= uintToh256(*tip->phashBlock);
