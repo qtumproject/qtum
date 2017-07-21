@@ -11,6 +11,8 @@
 #include "utilstrencodings.h"
 
 #include <boost/foreach.hpp>
+#include <qtum/qtumstate.h>
+#include <qtum/qtumtransaction.h>
 
 using namespace std;
 
@@ -58,10 +60,10 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
         mTemplates.insert(make_pair(TX_MULTISIG, CScript() << OP_SMALLINTEGER << OP_PUBKEYS << OP_SMALLINTEGER << OP_CHECKMULTISIG));
 
         // Contract creation tx
-        mTemplates.insert(make_pair(TX_CREATE, CScript() << OP_VERSION << OP_GAS_LAP << OP_GAS_LAP << OP_DATA << OP_CREATE));
+        mTemplates.insert(make_pair(TX_CREATE, CScript() << OP_VERSION << OP_GAS_LIMIT << OP_GAS_PRICE << OP_DATA << OP_CREATE));
 
         // Call contract tx
-        mTemplates.insert(make_pair(TX_CALL, CScript() << OP_VERSION << OP_GAS_LAP << OP_GAS_LAP << OP_DATA << OP_PUBKEYHASH << OP_CALL));
+        mTemplates.insert(make_pair(TX_CALL, CScript() << OP_VERSION << OP_GAS_LIMIT << OP_GAS_PRICE << OP_DATA << OP_PUBKEYHASH << OP_CALL));
     }
 
     vSolutionsRet.clear();
@@ -181,14 +183,33 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
                 {
                     if(vch1.empty() || vch1.size() > 4 || (vch1.back() & 0x80))
                         break;
+
+                    VersionVM v = VersionVM::fromRaw(CScriptNum::vch_to_uint64(vch1));
+                    if(!(v.toRaw() == VersionVM::GetEVMDefault().toRaw() || v.toRaw() == VersionVM::GetNoExec().toRaw()){
+                        // only allow standard EVM and no-exec transactions to live in mempool
+                        break;
+                    }
                 }
             }
-            else if(opcode2 == OP_GAS_LAP)
-            {
-                try{
-                    CScriptNum::vch_to_uint64(vch1);
+            else if(opcode2 == OP_GAS_LIMIT) {
+                try {
+                    uint64_t val = CScriptNum::vch_to_uint64(vch1);
+                    if(val < STANDARD_MINIMUM_GAS_LIMIT){
+                        break;
+                    }
                 }
-                catch(const scriptnum_error& err){
+                catch (const scriptnum_error &err) {
+                    break;
+                }
+            }
+            else if(opcode2 == OP_GAS_PRICE) {
+                try {
+                    uint64_t val = CScriptNum::vch_to_uint64(vch1);
+                    if(val < STANDARD_MINIMUM_GAS_PRICE){
+                        break;
+                    }
+                }
+                catch (const scriptnum_error &err) {
                     break;
                 }
             }

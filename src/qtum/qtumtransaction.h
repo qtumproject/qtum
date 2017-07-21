@@ -1,3 +1,6 @@
+#ifndef QTUMTRANSACTION_H
+#define QTUMTRANSACTION_H
+
 #include <libethcore/Transaction.h>
 
 struct VersionVM{
@@ -71,3 +74,4 @@ private:
     VersionVM version;
 
 };
+#endif
