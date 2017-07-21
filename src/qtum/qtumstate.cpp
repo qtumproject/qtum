@@ -354,7 +354,7 @@ std::vector<CTxOut> CondensingTX::createVout(){
             auto* a = state->account(b.first);
             if(a && a->isAlive()){
                 //create a no-exec contract output
-                script = CScript() << valtype{0} << valtype{0} << valtype{0} << valtype(0) << b.first.asBytes() << OP_CALL;
+                script = CScript() << valtype{0} << valtype{0} << valtype{0} << valtype{0} << b.first.asBytes() << OP_CALL;
             } else {
                 script = CScript() << OP_DUP << OP_HASH160 << b.first.asBytes() << OP_EQUALVERIFY << OP_CHECKSIG;
             }
