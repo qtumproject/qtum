@@ -13,6 +13,7 @@
 #include <boost/foreach.hpp>
 #include <qtum/qtumstate.h>
 #include <qtum/qtumtransaction.h>
+#include <validation.h>
 
 using namespace std;
 
@@ -114,6 +115,9 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
         opcodetype opcode1, opcode2;
         vector<unsigned char> vch1, vch2;
 
+        VersionVM version;
+        version.rootVM=20; //set to some invalid value
+
         // Compare
         CScript::const_iterator pc1 = script1.begin();
         CScript::const_iterator pc2 = script2.begin();
@@ -184,8 +188,8 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
                     if(vch1.empty() || vch1.size() > 4 || (vch1.back() & 0x80))
                         break;
 
-                    VersionVM v = VersionVM::fromRaw(CScriptNum::vch_to_uint64(vch1));
-                    if(!(v.toRaw() == VersionVM::GetEVMDefault().toRaw() || v.toRaw() == VersionVM::GetNoExec().toRaw()){
+                    version = VersionVM::fromRaw(CScriptNum::vch_to_uint64(vch1));
+                    if(!(version.toRaw() == VersionVM::GetEVMDefault().toRaw() || version.toRaw() == VersionVM::GetNoExec().toRaw())){
                         // only allow standard EVM and no-exec transactions to live in mempool
                         break;
                     }
@@ -194,7 +198,11 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
             else if(opcode2 == OP_GAS_LIMIT) {
                 try {
                     uint64_t val = CScriptNum::vch_to_uint64(vch1);
-                    if(val < STANDARD_MINIMUM_GAS_LIMIT){
+                    if(version.rootVM != 0 && val < STANDARD_MINIMUM_GAS_LIMIT){
+                        break;
+                    }
+                    if(version.rootVM != 0 && val >= DEFAULT_BLOCK_GASLIMIT){
+                        //do not allow transactions that could use more gas than is in a block
                         break;
                     }
                 }
@@ -205,7 +213,7 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
             else if(opcode2 == OP_GAS_PRICE) {
                 try {
                     uint64_t val = CScriptNum::vch_to_uint64(vch1);
-                    if(val < STANDARD_MINIMUM_GAS_PRICE){
+                    if(version.rootVM != 0 && val < STANDARD_MINIMUM_GAS_PRICE){
                         break;
                     }
                 }
