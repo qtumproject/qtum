@@ -180,11 +180,13 @@ bool AddMPoSScript(std::vector<CScript> &mposScriptList, int nHeight, const Cons
         if(!GetBlockPublicKey(block, vchPubKey))
         {
             LogPrint("coinstake", "Fail to solve script for mpos reward recipient\n");
-            return false;
+            //This should never fail, but in case it somehow did we don't want it to bring the network to a halt
+            //So, use an OP_RETURN script to burn the coins for the unknown staker
+            script = CScript() << OP_RETURN;
+        }else{
+            // Make public key hash script
+            script = CScript() << OP_DUP << OP_HASH160 << ToByteVector(CPubKey(vchPubKey).GetID()) << OP_EQUALVERIFY << OP_CHECKSIG;
         }
-
-        // Make public key hash script
-        CScript script = CScript() << OP_DUP << OP_HASH160 << ToByteVector(CPubKey(vchPubKey).GetID()) << OP_EQUALVERIFY << OP_CHECKSIG;
 
         // Add the script into the list
         mposScriptList.push_back(script);
@@ -194,6 +196,13 @@ bool AddMPoSScript(std::vector<CScript> &mposScriptList, int nHeight, const Cons
     }
     else
     {
+        if(consensusParams.fPoSNoRetargeting){
+            //this could happen in regtest. Just ignore and add an empty script
+            script = CScript() << OP_RETURN;
+            mposScriptList.push_back(script);
+            return true;
+
+        }
         LogPrint("coinstake", "The block is not proof-of-stake\n");
         return false;
     }
