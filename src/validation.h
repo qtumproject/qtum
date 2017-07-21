@@ -636,7 +636,7 @@ struct EthTransactionParams{
     dev::Address receiveAddress;
 
     bool operator!=(EthTransactionParams etp){
-        if(this->version != etp.version || this->gasLimit != etp.gasLimit ||
+        if(this->version.toRaw() != etp.version.toRaw() || this->gasLimit != etp.gasLimit ||
         this->gasPrice != etp.gasPrice || this->code != etp.code ||
         this->receiveAddress != etp.receiveAddress)
             return true;
