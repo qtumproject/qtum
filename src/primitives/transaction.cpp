@@ -153,9 +153,11 @@ bool CTransaction::HasCreateOrCall() const{
     return false;
 }
 
-bool CTransaction::HasTXHASH() const{
+
+
+bool CTransaction::HasOpSpend() const{
     for(const CTxIn& i : vin){
-        if(i.scriptSig.HasOpTXHASH()){
+        if(i.scriptSig.HasOpSpend()){
             return true;
         }
     }

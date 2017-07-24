@@ -11,9 +11,10 @@ from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
 from test_framework.mininode import sha256, ripemd160, CTransaction, CTxIn, COutPoint, CTxOut, INITIAL_BLOCK_REWARD
 from test_framework.address import script_to_p2sh, key_to_p2pkh, keyhash_to_p2pkh, scripthash_to_p2sh, convert_btc_address_to_qtum
-from test_framework.script import CScript, OP_HASH160, OP_CHECKSIG, OP_0, hash160, OP_EQUAL, OP_DUP, OP_EQUALVERIFY, OP_1, OP_2, OP_CHECKMULTISIG
+from test_framework.script import CScript, OP_HASH160, OP_CHECKSIG, OP_0, hash160, OP_EQUAL, OP_DUP, OP_EQUALVERIFY, OP_1, OP_2, OP_CHECKMULTISIG, OP_TRUE
 from io import BytesIO
 from test_framework.mininode import FromHex
+from test_framework.blocktools import create_block, create_coinbase
 
 NODE_0 = 0
 NODE_1 = 1
@@ -49,7 +50,7 @@ def create_witnessprogram(version, node, utxo, pubkey, encode_p2sh, amount):
     DUMMY_P2SH = convert_btc_address_to_qtum("2MySexEGVzZpRgNQ1JdjdP5bRETznm3roQ2") # P2SH of "OP_1 OP_DROP"
     outputs[DUMMY_P2SH] = amount
     tx_to_witness = node.createrawtransaction(inputs,outputs)
-    tx_to_witness = tx_to_witness[0:110] + addlength(pkscript) + tx_to_witness[-16:]
+    tx_to_witness = tx_to_witness[0:110] + addlength(pkscript) + tx_to_witness[-8:]
     return tx_to_witness
 
 def send_to_witness(version, node, utxo, pubkey, encode_p2sh, amount, sign=True, insert_redeem_script=""):
@@ -125,6 +126,16 @@ class SegWitTest(BitcoinTestFramework):
 
     def run_test(self):
         self.nodes[0].generate(161) #block 161
+
+        # We submit some non-segwit-signalling blocks to delay activation until the coinbases have matured
+        for i in range(4*144 - 161):
+            block = create_block(int(self.nodes[0].getbestblockhash(), 16), create_coinbase(self.nodes[0].getblockcount() + 1), int(time.time())+2+i)
+            block.nVersion = 4
+            block.hashMerkleRoot = block.calc_merkle_root()
+            block.rehash()
+            block.solve()
+            self.nodes[0].submitblock(bytes_to_hex_str(block.serialize()))
+        self.nodes[0].generate(17)
 
         print("Verify sigops are counted in GBT with pre-BIP141 rules before the fork")
         txid = self.nodes[0].sendtoaddress(self.nodes[0].getnewaddress(), 1)
@@ -612,7 +623,7 @@ class SegWitTest(BitcoinTestFramework):
             txtmp.deserialize(f)
             for j in range(len(txtmp.vout)):
                 tx.vin.append(CTxIn(COutPoint(int('0x'+i,0), j)))
-        tx.vout.append(CTxOut(0, CScript()))
+        tx.vout.append(CTxOut(0, CScript([OP_TRUE])))
         tx.rehash()
         signresults = self.nodes[0].signrawtransaction(bytes_to_hex_str(tx.serialize_without_witness()))['hex']
         self.nodes[0].sendrawtransaction(signresults, True)

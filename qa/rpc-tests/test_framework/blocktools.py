@@ -69,8 +69,8 @@ def create_coinbase(height, pubkey = None):
                 CScript() + height + b"\x00", 0xffffffff))
     coinbaseoutput = CTxOut()
     coinbaseoutput.nValue = int(INITIAL_BLOCK_REWARD) * COIN
-    halvings = int(height/150) # regtest
-    coinbaseoutput.nValue >>= halvings
+    #halvings = int(height) # regtest
+    #coinbaseoutput.nValue >>= halvings
     if (pubkey != None):
         coinbaseoutput.scriptPubKey = CScript([pubkey, OP_CHECKSIG])
     else:

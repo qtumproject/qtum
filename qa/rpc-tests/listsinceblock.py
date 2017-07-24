@@ -4,7 +4,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 from test_framework.test_framework import BitcoinTestFramework
-from test_framework.util import assert_equal
+from test_framework.util import assert_equal, COINBASE_MATURITY
 from test_framework.mininode import INITIAL_BLOCK_REWARD
 
 class ListSinceBlockTest (BitcoinTestFramework):
@@ -44,7 +44,7 @@ class ListSinceBlockTest (BitcoinTestFramework):
         '''
 
         assert_equal(self.is_network_split, False)
-        self.nodes[2].generate(16)
+        self.nodes[2].generate(COINBASE_MATURITY+1)
         self.sync_all()
 
         assert_equal(self.nodes[0].getbalance(), 0)

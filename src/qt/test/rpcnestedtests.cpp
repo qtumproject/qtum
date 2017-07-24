@@ -70,6 +70,8 @@ void RPCNestedTests::rpcNestedTests()
         QVERIFY(ok);
     }
     delete globalState.release();
+    globalSealEngine.reset();
+    
     SetRPCWarmupFinished();
 
     std::string result;

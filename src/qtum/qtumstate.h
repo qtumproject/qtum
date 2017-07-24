@@ -35,6 +35,8 @@ struct ResultExecute{
     CTransaction tx;
 };
 
+
+
 namespace qtum{
     template <class DB>
     dev::AddressHash commit(std::unordered_map<dev::Address, Vin> const& _cache, dev::eth::SecureTrieDB<dev::Address, DB>& _state, std::unordered_map<dev::Address, dev::eth::Account> const& _cacheAcc)
@@ -96,9 +98,11 @@ private:
 
     dev::Address createQtumAddress(dev::h256 hashTx, uint32_t voutNumber);
 
-    void deleteAccounts(std::vector<dev::Address>& addrs);
+    void deleteAccounts(std::set<dev::Address>& addrs);
 
     void updateUTXO(const std::unordered_map<dev::Address, Vin>& vins);
+
+    void printfErrorLog(const dev::eth::TransactionException er);
 
     dev::Address newAddress;
 
@@ -116,11 +120,13 @@ class CondensingTX{
 
 public:
 
-    CondensingTX(QtumState* _state, const std::vector<TransferInfo>& _transfers, const QtumTransaction& _transaction, std::vector<dev::Address> _deleteAddresses = std::vector<dev::Address>()) : transfers(_transfers), deleteAddresses(_deleteAddresses), transaction(_transaction), state(_state){}
+    CondensingTX(QtumState* _state, const std::vector<TransferInfo>& _transfers, const QtumTransaction& _transaction, std::set<dev::Address> _deleteAddresses = std::set<dev::Address>()) : transfers(_transfers), deleteAddresses(_deleteAddresses), transaction(_transaction), state(_state){}
 
     CTransaction createCondensingTX();
 
     std::unordered_map<dev::Address, Vin> createVin(const CTransaction& tx);
+
+    bool reachedVoutLimit(){ return voutOverflow; }
 
 private:
 
@@ -146,11 +152,15 @@ private:
 
     const std::vector<TransferInfo>& transfers;
 
-    const std::vector<dev::Address> deleteAddresses;
+    //We don't need the ordered nature of "set" here, but unordered_set's theoretical worst complexity is O(n), whereas set is O(log n)
+    //So, making this unordered_set could be an attack vector
+    const std::set<dev::Address> deleteAddresses;
 
     const QtumTransaction& transaction;
 
     QtumState* state;
+
+    bool voutOverflow = false;
 
 };
 ///////////////////////////////////////////////////////////////////////////////////////////

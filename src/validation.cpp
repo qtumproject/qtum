@@ -522,8 +522,7 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fChe
 
     // Check for negative or overflow output values
     CAmount nValueOut = 0;
-    for (const auto& txout : tx.vout)
-    {
+    for (const auto& txout : tx.vout) {
         if (txout.IsEmpty() && !tx.IsCoinBase() && !tx.IsCoinStake())
             return state.DoS(100, false, REJECT_INVALID, "bad-txns-vout-empty");
         if (txout.nValue < 0)
@@ -534,11 +533,13 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fChe
         if (!MoneyRange(nValueOut))
             return state.DoS(100, false, REJECT_INVALID, "bad-txns-txouttotal-toolarge");
 
-        /////////////////////////////////////////////////////////// // qtum
-        std::vector<valtype> vSolutions;
-        txnouttype whichType;
-        if (txout.scriptPubKey.HasOpCall() && !Solver(txout.scriptPubKey, whichType, vSolutions)){
-            return state.DoS(100, false, REJECT_INVALID, "bad-txns-callcontract-incorrect");
+        /////////////////////////////////////////////////////////// // qtuma
+        if (txout.scriptPubKey.HasOpCall() || txout.scriptPubKey.HasOpCreate()) {
+            std::vector<valtype> vSolutions;
+            txnouttype whichType;
+            if (!Solver(txout.scriptPubKey, whichType, vSolutions)) {
+                return state.DoS(100, false, REJECT_INVALID, "bad-txns-contract-nonstandard");
+            }
         }
         ///////////////////////////////////////////////////////////
     }
@@ -1928,34 +1929,60 @@ bool CheckMinGasPrice(std::vector<EthTransactionParams>& etps, const uint32_t& m
 
 bool CheckRefund(const CBlock& block, const std::vector<CTxOut>& vouts){
     size_t offset = block.IsProofOfStake() ? 1 : 0;
+    std::vector<CTxOut> vTempVouts=block.vtx[offset]->vout;
+    std::vector<CTxOut>::iterator it;
     for(size_t i = 0; i < vouts.size(); i++){
-        if(std::find(block.vtx[offset]->vout.begin(), block.vtx[offset]->vout.end(), vouts[i])==block.vtx[offset]->vout.end())
+        it=std::find(vTempVouts.begin(), vTempVouts.end(), vouts[i]);
+        if(it==vTempVouts.end()){
             return false;
+        }else{
+            vTempVouts.erase(it);
+        }
     }
+    vTempVouts.clear();
     return true;
 }
 
-valtype GetSenderAddress(const CTransaction& tx, const CCoinsViewCache* coinsView){
-    CTransactionRef txPrevout;
-    uint256 hashBlock;
+valtype GetSenderAddress(const CTransaction& tx, const CCoinsViewCache* coinsView, const std::vector<CTransactionRef>* blockTxs){
     CScript script;
-    if(coinsView){
-        script = coinsView->AccessCoins(tx.vin[0].prevout.hash)->vout[tx.vin[0].prevout.n].scriptPubKey;    
-    } else {
+    bool scriptFilled=false; //can't use script.empty() because an empty script is technically valid
+
+    // First check the current (or in-progress) block for zero-confirmation change spending that won't yet be in txindex
+    if(blockTxs){
+        for(auto btx : *blockTxs){
+            if(btx->GetHash() == tx.vin[0].prevout.hash){
+                script = btx->vout[tx.vin[0].prevout.n].scriptPubKey;
+                scriptFilled=true;
+                break;
+            }
+        }
+    }
+    if(!scriptFilled && coinsView){
+        script = coinsView->AccessCoins(tx.vin[0].prevout.hash)->vout[tx.vin[0].prevout.n].scriptPubKey;
+        scriptFilled = true;
+    }
+    if(!scriptFilled)
+    {
+        CTransactionRef txPrevout;
+        uint256 hashBlock;
         if(GetTransaction(tx.vin[0].prevout.hash, txPrevout, Params().GetConsensus(), hashBlock, true)){
             script = txPrevout->vout[tx.vin[0].prevout.n].scriptPubKey;
         } else {
-            // TODO temp exeption   
+            LogPrintf("Error fetching transaction details of tx %s. This will probably cause more errors", tx.vin[0].prevout.hash.ToString());
             return valtype();
         }
     }
+
 	CTxDestination addressBit;
-	if(ExtractDestination(script, addressBit)){
-		if (addressBit.type() == typeid(CKeyID)){
+    txnouttype txType=TX_NONSTANDARD;
+	if(ExtractDestination(script, addressBit, &txType)){
+		if ((txType == TX_PUBKEY || txType == TX_PUBKEYHASH) &&
+                addressBit.type() == typeid(CKeyID)){
 			CKeyID senderAddress(boost::get<CKeyID>(addressBit));
 			return valtype(senderAddress.begin(), senderAddress.end());
 		}
 	}
+    //prevout is not a standard transaction format, so just return 0
     return valtype();
 }
 
@@ -2024,7 +2051,6 @@ void writeVMlog(const std::vector<ResultExecute>& res, const CTransaction& tx, c
 void ByteCodeExec::performByteCode(dev::eth::Permanence type){
     for(QtumTransaction& tx : txs){
         dev::eth::EnvInfo envInfo(BuildEVMEnvironment());
-
         if(!tx.isCreation() && !globalState->addressInUse(tx.receiveAddress())){
             dev::eth::ExecutionResult execRes;
             execRes.excepted = dev::eth::TransactionException::Unknown;
@@ -2043,22 +2069,30 @@ ByteCodeExecResult ByteCodeExec::processingResults(){
         if(result[i].execRes.excepted != dev::eth::TransactionException::None){
             if(txs[i].value() > 0){
                 CMutableTransaction tx;
-                tx.vin.push_back(CTxIn(h256Touint(txs[i].getHashWith()), txs[i].getNVout(), CScript() << OP_TXHASH));
+                tx.vin.push_back(CTxIn(h256Touint(txs[i].getHashWith()), txs[i].getNVout(), CScript() << OP_SPEND));
                 CScript script(CScript() << OP_DUP << OP_HASH160 << txs[i].sender().asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
                 tx.vout.push_back(CTxOut(CAmount(txs[i].value()), script));
-                resultBCE.refundValueTx.push_back(CTransaction(tx));
+                resultBCE.valueTransfers.push_back(CTransaction(tx));
             }
         } else {
-            resultBCE.usedFee += CAmount(result[i].execRes.gasUsed);
-            CAmount ref((txs[i].gas() - result[i].execRes.gasUsed) * txs[i].gasPrice());
-            if(ref > 0){
+            assert(txs[i].gas() < UINT64_MAX);
+            assert(result[i].execRes.gasUsed < UINT64_MAX);
+            assert(txs[i].gasPrice() < UINT64_MAX);
+            uint64_t gas = (uint64_t) txs[i].gas();
+            uint64_t gasUsed = (uint64_t) result[i].execRes.gasUsed;
+            uint64_t gasPrice = (uint64_t) txs[i].gasPrice();
+
+            resultBCE.usedGas += gasUsed;
+            int64_t amount = (gas - gasUsed) * gasPrice;
+            assert(amount >= 0); //don't allow negative gas, probably only possible by overflow
+            if(amount > 0){
                 CScript script(CScript() << OP_DUP << OP_HASH160 << txs[i].sender().asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
-                resultBCE.refundVOuts.push_back(CTxOut(ref, script));
-                resultBCE.refundSender += ref;
+                resultBCE.refundOutputs.push_back(CTxOut(amount, script));
+                resultBCE.refundSender += amount;
             }
         }
         if(result[i].tx != CTransaction()){
-            resultBCE.refundValueTx.push_back(result[i].tx);
+            resultBCE.valueTransfers.push_back(result[i].tx);
         }
     }
     return resultBCE;
@@ -2068,20 +2102,20 @@ dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(){
     dev::eth::EnvInfo env;
     CBlockIndex* tip = chainActive.Tip();
     env.setNumber(dev::u256(tip->nHeight + 1));
-    env.setTimestamp(dev::u256(tip->nTime));
-    env.setDifficulty(dev::u256(tip->nBits));
+    env.setTimestamp(dev::u256(block.nTime));
+    env.setDifficulty(dev::u256(block.nBits));
 
     dev::eth::LastHashes lh;
     lh.resize(256);
     lh[0] = dev::u256(0);
-    for(int i=0;i<256;i++){
+    for(int i=1;i<256;i++){
         if(!tip)
             break;
         lh[i]= uintToh256(*tip->phashBlock);
         tip = tip->pprev;
     }
     env.setLastHashes(std::move(lh));
-    env.setGasLimit(500000000);
+    env.setGasLimit(DEFAULT_BLOCK_GASLIMIT);
     env.setAuthor(EthAddrFromScript(block.vtx.at(0)->vout.at(0).scriptPubKey));
     return env;
 }
@@ -2149,7 +2183,9 @@ EthTransactionParams QtumTxConverter::parseEthTXParams(){
             vecAddr = stack.back();
             stack.pop_back();
             receiveAddress = dev::Address(vecAddr);
-        }           
+        }
+        if(stack.size() < 4)
+            throw scriptnum_error("Not enough items");
         valtype code(stack.back());
         stack.pop_back();
         uint64_t gasPrice = CScriptNum::vch_to_uint64(stack.back());
@@ -2168,16 +2204,17 @@ EthTransactionParams QtumTxConverter::parseEthTXParams(){
 
 QtumTransaction QtumTxConverter::createEthTX(const EthTransactionParams& etp, uint32_t nOut){
     QtumTransaction txEth;
-    if (etp.receiveAddress == dev::Address()){
+    if (etp.receiveAddress == dev::Address() && opcode != OP_CALL){
         txEth = QtumTransaction(txBit.vout[nOut].nValue, etp.gasPrice, etp.gasLimit, etp.code, dev::u256(0));
     }
     else{
         txEth = QtumTransaction(txBit.vout[nOut].nValue, etp.gasPrice, etp.gasLimit, etp.receiveAddress, etp.code, dev::u256(0));
     }
-    dev::Address sender(GetSenderAddress(txBit, view));
+    dev::Address sender(GetSenderAddress(txBit, view, blockTransactions));
     txEth.forceSender(sender);
     txEth.setHashWith(uintToh256(txBit.GetHash()));
     txEth.setNVout(nOut);
+    txEth.setVersion(etp.version);
 
     return txEth;
 }
@@ -2330,6 +2367,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     blockundo.vtxundo.reserve(block.vtx.size() - 1);
     std::vector<PrecomputedTransactionData> txdata;
     txdata.reserve(block.vtx.size()); // Required so that pointers to individual PrecomputedTransactionData don't get invalidated
+    uint64_t blockGasUsed = 0;
     for (unsigned int i = 0; i < block.vtx.size(); i++)
     {
         const CTransaction &tx = *(block.vtx[i]);
@@ -2367,7 +2405,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
         txdata.emplace_back(tx);
 
-        bool hasTxhash = false;
+        bool hasOpSpend = false;
 
         if (!tx.IsCoinBase())
         {
@@ -2379,19 +2417,19 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             std::vector<CScriptCheck> vChecks;
             bool fCacheResults = fJustCheck; /* Don't cache results if we're actually connecting blocks (still consult the cache, though) */
             // if (!CheckInputs(tx, state, view, fScriptChecks, flags, fCacheResults, txdata[i], nScriptCheckThreads ? &vChecks : NULL))
-            hasTxhash = tx.vin[0].scriptSig.HasOpTXHASH();
-            if (!CheckInputs(tx, state, view, fScriptChecks, flags, fCacheResults, txdata[i], (hasTxhash || tx.HasCreateOrCall()) ? NULL : (nScriptCheckThreads ? &vChecks : NULL)))//nScriptCheckThreads ? &vChecks : NULL))
+            hasOpSpend = tx.vin[0].scriptSig.HasOpSpend();
+            if (!CheckInputs(tx, state, view, fScriptChecks, flags, fCacheResults, txdata[i], (hasOpSpend || tx.HasCreateOrCall()) ? NULL : (nScriptCheckThreads ? &vChecks : NULL)))//nScriptCheckThreads ? &vChecks : NULL))
                 return error("ConnectBlock(): CheckInputs on %s failed with %s",
                     tx.GetHash().ToString(), FormatStateMessage(state));
             control.Add(vChecks);
         }
 
 ///////////////////////////////////////////////////////////////////////////////////////// qtum
-        if(!tx.HasTXHASH()){
+        if(!tx.HasOpSpend()){
             checkBlock.vtx.push_back(block.vtx[i]);
         }
 
-        if(tx.HasCreateOrCall() && !hasTxhash){
+        if(tx.HasCreateOrCall()){
             QtumTxConverter convert(tx, NULL);
             ExtractQtumTX resultConvertQtumTX = convert.extractionQtumTransactions();
             if(!CheckMinGasPrice(resultConvertQtumTX.second, minGasPrice))
@@ -2401,8 +2439,13 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             exec.performByteCode();
             std::vector<ResultExecute> resultExec(exec.getResult());
             ByteCodeExecResult bcer = exec.processingResults();
-            checkVouts.insert(checkVouts.end(), bcer.refundVOuts.begin(), bcer.refundVOuts.end());
-            for(CTransaction& t : bcer.refundValueTx){
+
+            blockGasUsed += bcer.usedGas;
+            if(blockGasUsed > DEFAULT_BLOCK_GASLIMIT){
+                return state.DoS(1000, error("ConnectBlock(): Block exceeds gas limit"), REJECT_INVALID, "bad-blk-gaslimit");
+            }
+            checkVouts.insert(checkVouts.end(), bcer.refundOutputs.begin(), bcer.refundOutputs.end());
+            for(CTransaction& t : bcer.valueTransfers){
                 checkBlock.vtx.push_back(MakeTransactionRef(std::move(t)));
             }
             if(fRecordLogOpcodes && !fJustCheck){
@@ -2463,8 +2506,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     checkBlock.hashMerkleRoot = BlockMerkleRoot(checkBlock);
     checkBlock.hashStateRoot = h256Touint(globalState->rootHash());
     checkBlock.hashUTXORoot = h256Touint(globalState->rootHashUTXO());
+
+    //If this error happens, it probably means that something with AAL created transactions didn't match up to what is expected
     if((checkBlock.GetHash() != block.GetHash()) && !fJustCheck)
-        return state.DoS(100, error("ConnectBlock(): Incorrect transactions or hashes(hashStateRoot, hashUTXORoot)."),
+        return state.DoS(100, error("ConnectBlock(): Incorrect AAL transactions or hashes (hashStateRoot, hashUTXORoot)"),
                             REJECT_INVALID, "incorrect-transactions-or-hashes-block");
 
     if (fJustCheck)
@@ -3421,7 +3466,7 @@ bool CheckFirstCoinstakeOutput(const CBlock& block)
 
 #ifdef ENABLE_WALLET
 // novacoin: attempt to generate suitable proof-of-stake
-bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& nTotalFees)
+bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& nTotalFees, uint32_t nTime)
 {
     // if we are trying to sign
     //    something except proof-of-stake block template
@@ -3430,49 +3475,38 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
 
     // if we are trying to sign
     //    a complete proof-of-stake block
-    if (pblock->IsProofOfStake())
+    if (pblock->IsProofOfStake() && !pblock->vchBlockSig.empty())
         return true;
-
-    static int64_t nLastCoinStakeSearchTime = GetAdjustedTime(); // startup timestamp
 
     CKey key;
     CMutableTransaction txCoinStake(*pblock->vtx[1]);
-    uint32_t nTimeBlock = GetAdjustedTime();
+    uint32_t nTimeBlock = nTime;
     nTimeBlock &= ~STAKE_TIMESTAMP_MASK;
-
-    int64_t nSearchTime = nTimeBlock; // search to current time
-
-    if (nSearchTime > nLastCoinStakeSearchTime)
+    //original line:
+    //int64_t nSearchInterval = IsProtocolV2(nBestHeight+1) ? 1 : nSearchTime - nLastCoinStakeSearchTime;
+    //IsProtocolV2 mean POS 2 or higher, so the modified line is:
+    if (wallet.CreateCoinStake(wallet, pblock->nBits, nTotalFees, nTimeBlock, txCoinStake, key))
     {
-        //original line:
-        //int64_t nSearchInterval = IsProtocolV2(nBestHeight+1) ? 1 : nSearchTime - nLastCoinStakeSearchTime;
-        //IsProtocolV2 mean POS 2 or higher, so the modified line is:
-        int64_t nSearchInterval = 1;
-        if (wallet.CreateCoinStake(wallet, pblock->nBits, nSearchInterval, nTotalFees, nTimeBlock, txCoinStake, key))
+        if (nTimeBlock >= pindexBestHeader->GetMedianTimePast()+1)
         {
-            if (nTimeBlock >= pindexBestHeader->GetMedianTimePast()+1)
+            // make sure coinstake would meet timestamp protocol
+            //    as it would be the same as the block timestamp
+            pblock->nTime = nTimeBlock;
+            pblock->vtx[1] = MakeTransactionRef(std::move(txCoinStake));
+            pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
+            pblock->prevoutStake = pblock->vtx[1]->vin[0].prevout;
+
+            // Check timestamp against prev
+            if(pblock->GetBlockTime() <= pindexBestHeader->GetBlockTime() || FutureDrift(pblock->GetBlockTime()) < pindexBestHeader->GetBlockTime())
             {
-                // make sure coinstake would meet timestamp protocol
-                //    as it would be the same as the block timestamp
-                pblock->nTime = nTimeBlock;
-                pblock->vtx[1] = MakeTransactionRef(std::move(txCoinStake));
-                pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
-                pblock->prevoutStake = pblock->vtx[1]->vin[0].prevout;
-
-                // Check timestamp against prev
-                if(pblock->GetBlockTime() <= pindexBestHeader->GetBlockTime() || FutureDrift(pblock->GetBlockTime()) < pindexBestHeader->GetBlockTime())
-                {
-                    return false;
-                }
-
-                // append a signature to our block and ensure that is LowS
-                return key.Sign(pblock->GetHashWithoutSign(), pblock->vchBlockSig) && 
-                           EnsureLowS(pblock->vchBlockSig) &&
-                           CheckHeaderPoS(*pblock, Params().GetConsensus());
+                return false;
             }
+
+            // append a signature to our block and ensure that is LowS
+            return key.Sign(pblock->GetHashWithoutSign(), pblock->vchBlockSig) &&
+                       EnsureLowS(pblock->vchBlockSig) &&
+                       CheckHeaderPoS(*pblock, Params().GetConsensus());
         }
-        nLastCoinStakeSearchInterval = nSearchTime - nLastCoinStakeSearchTime;
-        nLastCoinStakeSearchTime = nSearchTime;
     }
 
     return false;
@@ -3545,7 +3579,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
     if (!CheckBlockHeader(block, state, consensusParams, fCheckPOW))
         return false;
 
-    if (block.GetBlockTime() > FutureDrift(GetAdjustedTime()))
+    if (block.IsProofOfStake() &&  block.GetBlockTime() > FutureDrift(GetAdjustedTime()))
         return error("CheckBlock() : block timestamp too far in the future");
 
     // Check the merkle root.
@@ -3579,6 +3613,11 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
         if (block.vtx[i]->IsCoinBase())
             return state.DoS(100, false, REJECT_INVALID, "bad-cb-multiple", false, "more than one coinbase");
 
+    //Don't allow contract opcodes in coinbase
+    if(block.vtx[0]->HasOpSpend() || block.vtx[0]->HasCreateOrCall()){
+        return state.DoS(100, false, REJECT_INVALID, "bad-cb-contract", false, "coinbase must not contain OP_SPEND, OP_CALL, or OP_CREATE");
+    }
+
     // Second transaction must be coinbase in case of PoS block, the rest must not be
     if (block.IsProofOfStake())
     {
@@ -3599,17 +3638,33 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
             if (block.vtx[i]->IsCoinStake())
                return state.DoS(100, false, REJECT_INVALID, "bad-cs-multiple", false, "more than one coinstake");
 
+        //Don't allow contract opcodes in coinstake
+        //We might allow this later, but it hasn't been tested enough to determine if safe
+        if(block.vtx[1]->HasOpSpend() || block.vtx[1]->HasCreateOrCall()){
+            return state.DoS(100, false, REJECT_INVALID, "bad-cs-contract", false, "coinstake must not contain OP_SPEND, OP_CALL, or OP_CREATE");
+        }
     }
 
     // Check proof-of-stake block signature
     if (fCheckSig && !CheckBlockSignature(block))
         return state.DoS(100, false, REJECT_INVALID, "bad-blk-signature", false, "bad proof-of-stake block signature");
 
+    bool lastWasContract=false;
     // Check transactions
-    for (const auto& tx : block.vtx)
+    for (const auto& tx : block.vtx) {
         if (!CheckTransaction(*tx, state, false))
             return state.Invalid(false, state.GetRejectCode(), state.GetRejectReason(),
-                                 strprintf("Transaction check failed (tx hash %s) %s", tx->GetHash().ToString(), state.GetDebugMessage()));
+                                 strprintf("Transaction check failed (tx hash %s) %s", tx->GetHash().ToString(),
+                                           state.GetDebugMessage()));
+        //OP_SPEND can only exist immediately after a contract tx in a block
+        //So, if the previous tx was not a contract tx, fail it.
+        if(tx->HasOpSpend()){
+            if(!lastWasContract){
+                return state.DoS(100, false, REJECT_INVALID, "bad-opspend-tx", false, "OP_SPEND transaction without corresponding contract transaction");
+            }
+        }
+        lastWasContract = tx->HasCreateOrCall() && !tx->HasOpSpend();
+    }
 
     unsigned int nSigOps = 0;
     for (const auto& tx : block.vtx)
@@ -3713,7 +3768,7 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
         return state.Invalid(false, REJECT_INVALID, "time-too-old", "block's timestamp is too early");
 
     // Check timestamp
-    if (block.GetBlockTime() > FutureDrift(nAdjustedTime))
+    if (block.IsProofOfStake() && block.GetBlockTime() > FutureDrift(nAdjustedTime))
         return state.Invalid(false, REJECT_INVALID, "time-too-new", "block timestamp too far in the future");
 
     // Reject outdated version blocks when 95% (75% on testnet) of the network has upgraded:
@@ -3959,7 +4014,7 @@ static bool AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CValidation
         return error("AcceptBlock() : block's timestamp is too early");
 
     // Check timestamp
-    if (block.GetBlockTime() > FutureDrift(GetAdjustedTime()))
+    if (block.IsProofOfStake() &&  block.GetBlockTime() > FutureDrift(GetAdjustedTime()))
         return error("AcceptBlock() : block timestamp too far in the future");
 
     // Enforce rule that the coinbase starts with serialized block height

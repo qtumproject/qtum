@@ -8,7 +8,6 @@ from test_framework.test_framework import BitcoinTestFramework
 from test_framework import blocktools
 from test_framework.mininode import CTransaction
 from test_framework.util import *
-from test_framework.util import *
 
 import io
 import time
@@ -47,7 +46,7 @@ class BumpFeeTest(BitcoinTestFramework):
 
         # fund rbf node with 10 coins of 0.001 btc (100,000 satoshis)
         print("Mining blocks...")
-        peer_node.generate(110)
+        peer_node.generate(COINBASE_MATURITY + 10)
         self.sync_all()
         for i in range(25):
             peer_node.sendtoaddress(rbf_node_address, 0.001)

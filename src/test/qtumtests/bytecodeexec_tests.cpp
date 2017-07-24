@@ -103,16 +103,16 @@ void checkExecResult(std::vector<ResultExecute>& result, size_t execResSize, siz
     }
 }
 
-void checkBCEResult(ByteCodeExecResult result, CAmount usedFee, CAmount refundSender, size_t nVouts, CAmount sum, size_t nTxs = 0){
-    BOOST_CHECK(result.usedFee + result.refundSender == sum);
-    BOOST_CHECK(result.usedFee == usedFee);
+void checkBCEResult(ByteCodeExecResult result, CAmount usedGas, CAmount refundSender, size_t nVouts, CAmount sum, size_t nTxs = 0){
+    BOOST_CHECK(result.usedGas + result.refundSender == sum);
+    BOOST_CHECK(result.usedGas == usedGas);
     BOOST_CHECK(result.refundSender == refundSender);
-    BOOST_CHECK(result.refundVOuts.size() == nVouts);
-    for(size_t i = 0; i < result.refundVOuts.size(); i++){
-        BOOST_CHECK(result.refundVOuts[i].nValue == CAmount(GASLIMIT - (result.usedFee/result.refundVOuts.size())));
-        BOOST_CHECK(result.refundVOuts[i].scriptPubKey == CScript() << OP_DUP << OP_HASH160 << SENDERADDRESS.asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
+    BOOST_CHECK(result.refundOutputs.size() == nVouts);
+    for(size_t i = 0; i < result.refundOutputs.size(); i++){
+        BOOST_CHECK(result.refundOutputs[i].nValue == CAmount(GASLIMIT - (result.usedGas/result.refundOutputs.size())));
+        BOOST_CHECK(result.refundOutputs[i].scriptPubKey == CScript() << OP_DUP << OP_HASH160 << SENDERADDRESS.asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
     }
-    BOOST_CHECK(result.refundValueTx.size() == nTxs);
+    BOOST_CHECK(result.valueTransfers.size() == nTxs);
 }
 
 BOOST_FIXTURE_TEST_SUITE(bytecodeexec_tests, TestingSetup)
@@ -361,11 +361,11 @@ BOOST_AUTO_TEST_CASE(bytecodeexec_contract_create_contracts){
     auto result = executeBC(txsCall);
 
     checkExecResult(result.first, 20, 21, dev::eth::TransactionException::None, addrs, valtype(), dev::u256(0));
-    BOOST_CHECK(result.second.usedFee + result.second.refundSender == GASLIMIT * 20);
-    BOOST_CHECK(result.second.usedFee == 2335520);
+    BOOST_CHECK(result.second.usedGas + result.second.refundSender == GASLIMIT * 20);
+    BOOST_CHECK(result.second.usedGas == 2335520);
     BOOST_CHECK(result.second.refundSender == 7664480);
-    BOOST_CHECK(result.second.refundVOuts.size() == 20);
-    BOOST_CHECK(result.second.refundValueTx.size() == 0);
+    BOOST_CHECK(result.second.refundOutputs.size() == 20);
+    BOOST_CHECK(result.second.valueTransfers.size() == 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

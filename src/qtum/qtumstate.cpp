@@ -1,5 +1,6 @@
 #include <sstream>
 #include <util.h>
+#include <validation.h>
 #include "qtumstate.h"
 
 using namespace std;
@@ -20,14 +21,17 @@ QtumState::QtumState() : dev::eth::State(dev::Invalid256, dev::OverlayDB(), dev:
 ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& _sealEngine, QtumTransaction const& _t, Permanence _p, OnOpFunc const& _onOp){
     addBalance(_t.sender(), _t.value() + (_t.gas() * _t.gasPrice()));
     newAddress = _t.isCreation() ? createQtumAddress(_t.getHashWith(), _t.getNVout()) : dev::Address();
-    _sealEngine.deleteAddresses.insert(_sealEngine.deleteAddresses.end(), {_t.sender(), _envInfo.author()});
+
+    _sealEngine.deleteAddresses.insert({_t.sender(), _envInfo.author()});
+
+    h256 oldStateRoot = rootHash();
+    bool voutLimit = false;
 
 	auto onOp = _onOp;
 #if ETH_VMTRACE
 	if (isChannelVisible<VMTraceChannel>())
 		onOp = Executive::simpleTrace(); // override tracer
 #endif
-
 	// Create and initialize the executive. This will throw fairly cheaply and quickly if the
 	// transaction is bad in any way.
 	Executive e(*this, _envInfo, _sealEngine);
@@ -47,7 +51,6 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
             throw Exception();
         }
         e.finalize();
-
         if (_p == Permanence::Reverted){
             m_cache.clear();
             cacheUTXO.clear();
@@ -56,8 +59,15 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
             if(res.excepted == TransactionException::None){
                 CondensingTX ctx(this, transfers, _t, _sealEngine.deleteAddresses);
                 tx = MakeTransactionRef(ctx.createCondensingTX());
+                if(ctx.reachedVoutLimit()){
+                    voutLimit = true;
+                    e.revert();
+                    throw Exception();
+                }
                 std::unordered_map<dev::Address, Vin> vins = ctx.createVin(*tx);
                 updateUTXO(vins);
+            } else {
+                printfErrorLog(res.excepted);
             }
             
             qtum::commit(cacheUTXO, stateUTXO, m_cache);
@@ -67,9 +77,7 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
         }
     }
     catch(Exception const& _e){
-        std::stringstream exception;
-        exception << dev::eth::toTransactionException(_e);
-        LogPrintf("VMException: %s\n", exception.str());
+        printfErrorLog(dev::eth::toTransactionException(_e));
         res.excepted = dev::eth::toTransactionException(_e);
         if(_p != Permanence::Reverted){
             deleteAccounts(_sealEngine.deleteAddresses);
@@ -81,7 +89,27 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
         res.newAddress = _t.receiveAddress();
     newAddress = dev::Address();
     transfers.clear();
-    return ResultExecute{res, dev::eth::TransactionReceipt(rootHash(), startGasUsed + e.gasUsed(), e.logs()), tx ? *tx : CTransaction()};
+    if(voutLimit){
+        //use old and empty states to create virtual Out Of Gas exception
+        LogEntries logs;
+        u256 gas = _t.gas();
+        ExecutionResult ex;
+        ex.gasRefunded=0;
+        ex.gasUsed=gas;
+        ex.excepted=TransactionException();
+        //create a refund tx to send back any coins that were suppose to be sent to the contract
+        CMutableTransaction refund;
+        if(_t.value() > 0) {
+            refund.vin.push_back(CTxIn(h256Touint(_t.getHashWith()), _t.getNVout(), CScript() << OP_SPEND));
+            //note, if sender was a non-standard tx, this will send the coins to pubkeyhash 0x00, effectively destroying the coins
+            CScript script(CScript() << OP_DUP << OP_HASH160 << _t.sender().asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
+            refund.vout.push_back(CTxOut(CAmount(_t.value().convert_to<uint64_t>()), script));
+        }
+        //make sure to use empty transaction if no vouts made
+        return ResultExecute{ex, dev::eth::TransactionReceipt(oldStateRoot, gas, e.logs()), refund.vout.empty() ? CTransaction() : CTransaction(refund)};
+    }else{
+        return ResultExecute{res, dev::eth::TransactionReceipt(rootHash(), startGasUsed + e.gasUsed(), e.logs()), tx ? *tx : CTransaction()};
+    }
 }
 
 std::unordered_map<dev::Address, Vin> QtumState::vins() const // temp
@@ -185,7 +213,10 @@ void QtumState::addBalance(dev::Address const& _id, dev::u256 const& _amount)
 dev::Address QtumState::createQtumAddress(dev::h256 hashTx, uint32_t voutNumber){
     uint256 hashTXid(h256Touint(hashTx));
 	std::vector<unsigned char> txIdAndVout(hashTXid.begin(), hashTXid.end());
-	txIdAndVout.push_back(voutNumber);
+	std::vector<unsigned char> voutNumberChrs;
+	if (voutNumberChrs.size() < sizeof(voutNumber))voutNumberChrs.resize(sizeof(voutNumber));
+	std::memcpy(voutNumberChrs.data(), &voutNumber, sizeof(voutNumber));
+	txIdAndVout.insert(txIdAndVout.end(),voutNumberChrs.begin(),voutNumberChrs.end());
 		
 	std::vector<unsigned char> SHA256TxVout(32);
     CSHA256().Write(txIdAndVout.data(), txIdAndVout.size()).Finalize(SHA256TxVout.data());
@@ -196,7 +227,7 @@ dev::Address QtumState::createQtumAddress(dev::h256 hashTx, uint32_t voutNumber)
 	return dev::Address(hashTxIdAndVout);
 }
 
-void QtumState::deleteAccounts(std::vector<dev::Address>& addrs){
+void QtumState::deleteAccounts(std::set<dev::Address>& addrs){
     for(dev::Address addr : addrs){
         dev::eth::Account* acc = const_cast<dev::eth::Account*>(account(addr));
         if(acc)
@@ -219,6 +250,12 @@ void QtumState::updateUTXO(const std::unordered_map<dev::Address, Vin>& vins){
             cacheUTXO[v.first] = v.second;
         }
     }
+}
+
+void QtumState::printfErrorLog(const dev::eth::TransactionException er){
+    std::stringstream ss;
+    ss << er;
+    clog(ExecutiveWarnChannel) << "VM exception:" << ss.str();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -300,7 +337,7 @@ std::vector<CTxIn> CondensingTX::createVins(){
     std::vector<CTxIn> ins;
     for(auto& v : vins){
         if((v.second.value > 0 && v.second.alive) || (v.second.value > 0 && !vins[v.first].alive && !checkDeleteAddress(v.first)))
-            ins.push_back(CTxIn(h256Touint(v.second.hash), v.second.nVout, CScript() << OP_TXHASH));
+            ins.push_back(CTxIn(h256Touint(v.second.hash), v.second.nVout, CScript() << OP_SPEND));
     }
     return ins;
 }
@@ -321,16 +358,15 @@ std::vector<CTxOut> CondensingTX::createVout(){
             nVouts[b.first] = count;
             count++;
         }
+        if(count > MAX_CONTRACT_VOUTS){
+            voutOverflow=true;
+            return outs;
+        }
     }
     return outs;
 }
 
 bool CondensingTX::checkDeleteAddress(dev::Address addr){
-    for(const dev::Address& a : deleteAddresses){
-        if(a == addr){
-            return true;
-        }
-    }
-    return false;
+    return deleteAddresses.count(addr) != 0;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////

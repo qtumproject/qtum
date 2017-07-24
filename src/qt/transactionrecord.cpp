@@ -14,11 +14,21 @@
 
 #include <boost/foreach.hpp>
 
+/* Convert the destination into hash160 string for contract.
+ */
+std::string toStringHash160(const CTxDestination& address)
+{
+    CBitcoinAddress txAdress(address);
+    CKeyID keyid;
+    txAdress.GetKeyID(keyid);
+    return HexStr(valtype(keyid.begin(),keyid.end()));
+}
+
 /* Return positive answer if transaction should be shown in list.
  */
 bool TransactionRecord::showTransaction(const CWalletTx &wtx)
 {
-    if (wtx.IsCoinBase())
+    if (wtx.IsCoinBase() || wtx.IsCoinStake())
     {
         // Ensures we show generated coins / mined transactions at depth 1
         if (!wtx.IsInMainChain())
@@ -42,7 +52,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
     uint256 hash = wtx.GetHash();
     std::map<std::string, std::string> mapValue = wtx.mapValue;
 
-    if (nNet > 0 || wtx.IsCoinBase())
+    if (nNet > 0 || wtx.IsCoinBase() || wtx.IsCoinStake())
     {
         //
         // Credit
@@ -55,14 +65,30 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
             {
                 TransactionRecord sub(hash, nTime);
                 CTxDestination address;
-                sub.idx = i; // vout index
-                sub.credit = txout.nValue;
+                if(wtx.IsCoinStake()) // Combine into single output for coinstake
+                {
+                    sub.idx = 1; // vout index
+                    sub.credit = nNet;
+                }
+                else
+                {
+                    sub.idx = i; // vout index
+                    sub.credit = txout.nValue;
+                }
                 sub.involvesWatchAddress = mine & ISMINE_WATCH_ONLY;
                 if (ExtractDestination(txout.scriptPubKey, address) && IsMine(*wallet, address))
                 {
                     // Received by Bitcoin Address
-                    sub.type = TransactionRecord::RecvWithAddress;
-                    sub.address = CBitcoinAddress(address).ToString();
+                    if(wtx.tx->HasCreateOrCall())
+                    {
+                        sub.type = TransactionRecord::ContractRecv;
+                        sub.address = toStringHash160(address);
+                    }
+                    else
+                    {
+                        sub.type = TransactionRecord::RecvWithAddress;
+                        sub.address = CBitcoinAddress(address).ToString();
+                    }
                 }
                 else
                 {
@@ -70,13 +96,16 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                     sub.type = TransactionRecord::RecvFromOther;
                     sub.address = mapValue["from"];
                 }
-                if (wtx.IsCoinBase())
+                if (wtx.IsCoinBase() || wtx.IsCoinStake())
                 {
                     // Generated
                     sub.type = TransactionRecord::Generated;
                 }
 
                 parts.append(sub);
+
+                if(wtx.IsCoinStake()) 
+                    break; // Single output for coinstake
             }
         }
     }
@@ -129,6 +158,9 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                     continue;
                 }
 
+                if(wtx.tx->HasCreateOrCall())
+                    break;
+
                 CTxDestination address;
                 if (ExtractDestination(txout.scriptPubKey, address))
                 {
@@ -151,6 +183,22 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                     nTxFee = 0;
                 }
                 sub.debit = -nValue;
+
+                parts.append(sub);
+            }
+
+            if(wtx.tx->HasCreateOrCall()){
+                TransactionRecord sub(hash, nTime);
+                sub.idx = 0;
+                sub.credit = nNet;
+                sub.type = TransactionRecord::ContractSend;
+
+                CTxDestination address;
+                // Use the same destination address as in the contract RPCs
+                if(ExtractDestination(pwalletMain->mapWallet[wtx.tx->vin[0].prevout.hash].tx->vout[wtx.tx->vin[0].prevout.n].scriptPubKey, address))
+                {
+                    sub.address = toStringHash160(address);
+                }
 
                 parts.append(sub);
             }
@@ -182,7 +230,7 @@ void TransactionRecord::updateStatus(const CWalletTx &wtx)
     // Sort order, unrecorded transactions sort to the top
     status.sortKey = strprintf("%010d-%01d-%010u-%03d",
         (pindex ? pindex->nHeight : std::numeric_limits<int>::max()),
-        (wtx.IsCoinBase() ? 1 : 0),
+        ((wtx.IsCoinBase() || wtx.IsCoinStake()) ? 1 : 0),
         wtx.nTimeReceived,
         idx);
     status.countsForBalance = wtx.IsTrusted() && !(wtx.GetBlocksToMaturity() > 0);

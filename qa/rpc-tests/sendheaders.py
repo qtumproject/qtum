@@ -513,7 +513,7 @@ class SendHeadersTest(BitcoinTestFramework):
 
         # Announcing 16 more headers should trigger direct fetch for 14 more
         # blocks
-        test_node.send_header_for_blocks(blocks[2:18])
+        test_node.send_header_for_blocks(blocks[2:16])
         test_node.sync_with_ping()
         test_node.wait_for_getdata([x.sha256 for x in blocks[2:16]], timeout=direct_fetch_response_time)
 

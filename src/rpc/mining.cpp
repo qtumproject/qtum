@@ -118,7 +118,7 @@ UniValue generateBlocks(boost::shared_ptr<CReserveScript> coinbaseScript, int nG
     UniValue blockHashes(UniValue::VARR);
     while (nHeight < nHeightEnd)
     {
-        std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(Params()).CreateNewBlock(coinbaseScript->reserveScript));
+        std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(Params()).CreateNewBlock(coinbaseScript->reserveScript, false, NULL, 0, GetAdjustedTime()+POW_MINER_MAX_TIME));
         if (!pblocktemplate.get())
             throw JSONRPCError(RPC_INTERNAL_ERROR, "Couldn't create new block");
         CBlock *pblock = &pblocktemplate->block;
@@ -305,21 +305,18 @@ UniValue getstakinginfo(const JSONRPCRequest& request)
     LOCK(cs_main);
 
     uint64_t nWeight = 0;
-    uint64_t nStakedCoins = 0;
 #ifdef ENABLE_WALLET
     if (pwalletMain)
     {
         nWeight = pwalletMain->GetStakeWeight();
-        nStakedCoins = pwalletMain->GetStake();
     }
 #endif
 
     uint64_t nNetworkWeight = GetPoSKernelPS();
-    bool staking = nStakedCoins > 0;
-    bool createStakeBlockNow = nLastCoinStakeSearchInterval && nWeight;
+    bool staking = nLastCoinStakeSearchInterval && nWeight;
     const Consensus::Params& consensusParams = Params().GetConsensus();
     int64_t nTargetSpacing = consensusParams.nPowTargetSpacing;
-    uint64_t nExpectedTime = createStakeBlockNow ? (nTargetSpacing * nNetworkWeight / nWeight) : 0;
+    uint64_t nExpectedTime = staking ? (nTargetSpacing * nNetworkWeight / nWeight) : 0;
 
     UniValue obj(UniValue::VOBJ);
 
