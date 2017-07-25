@@ -1000,6 +1000,66 @@ UniValue callcontract(const JSONRPCRequest& request)
  
     return result;
 }
+
+void transactionReceiptInfoToJSON(const TransactionReceiptInfo& resExec, UniValue& entry){
+    entry.push_back(Pair("blockHash", resExec.blockHash.GetHex()));
+    entry.push_back(Pair("blockNumber", uint64_t(resExec.blockNumber)));
+    entry.push_back(Pair("transactionHash", resExec.transactionHash.GetHex()));
+    entry.push_back(Pair("transactionIndex", uint64_t(resExec.transactionIndex)));
+    entry.push_back(Pair("from", resExec.from.hex()));
+    entry.push_back(Pair("to", resExec.to.hex()));
+    entry.push_back(Pair("cumulativeGasUsed", CAmount(resExec.cumulativeGasUsed)));
+    entry.push_back(Pair("gasUsed", CAmount(resExec.gasUsed)));
+    entry.push_back(Pair("contractAddress", resExec.contractAddress.hex()));
+
+    dev::eth::LogEntries logs = resExec.logs;
+    UniValue logEntries(UniValue::VARR);
+    for(dev::eth::LogEntry log : logs){
+        UniValue logEntry(UniValue::VOBJ);
+        logEntry.push_back(Pair("address", log.address.hex()));
+        UniValue topics(UniValue::VARR);
+        for(dev::h256 hash : log.topics){
+            topics.push_back(hash.hex());
+        }
+        logEntry.push_back(Pair("topics", topics));
+        logEntry.push_back(Pair("data", HexStr(log.data)));
+
+        logEntries.push_back(logEntry);
+    }
+    entry.push_back(Pair("log", logEntries));
+}
+
+UniValue gettransactionreceipt(const JSONRPCRequest& request)
+{
+    if (request.fHelp || request.params.size() < 1)
+        throw runtime_error(
+             "gettransactionreceipt \"hash\"\n"
+             "\nArgument:\n"
+             "1. \"hash\"          (string, required) The transaction hash\n"
+         );
+ 
+    LOCK(cs_main);
+
+    std::string hashTemp = request.params[0].get_str();
+    if(hashTemp.size() != 64){
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect hash");
+    }
+    
+    uint256 hash(uint256S(hashTemp));
+
+    boost::filesystem::path stateDir = GetDataDir() / "stateQtum";
+    StorageResults storageRes(stateDir.string());
+
+    std::vector<TransactionReceiptInfo> transactionReceiptInfo = storageRes.getResult(uintToh256(hash));
+
+    UniValue result(UniValue::VARR);
+    for(TransactionReceiptInfo& t : transactionReceiptInfo){
+        UniValue tri(UniValue::VOBJ);
+        transactionReceiptInfoToJSON(t, tri);
+        result.push_back(tri);
+    }
+    return result;
+}
 //////////////////////////////////////////////////////////////////////
 
 UniValue listcontracts(const JSONRPCRequest& request)
@@ -1737,6 +1797,7 @@ static const CRPCCommand commands[] =
     { "hidden",             "waitforblock",           &waitforblock,           true,  {"blockhash","timeout"} },
     { "hidden",             "waitforblockheight",     &waitforblockheight,     true,  {"height","timeout"} },
 	{ "blockchain",         "listcontracts",          &listcontracts,          true,  {"start", "maxDisplay"} },
+    { "blockchain",         "gettransactionreceipt",  &gettransactionreceipt,  true,  {"hash"} },
 };
 
 void RegisterBlockchainRPCCommands(CRPCTable &t)

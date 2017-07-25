@@ -1821,6 +1821,10 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
     globalState->setRoot(uintToh256(pindex->pprev->hashStateRoot)); // qtum
     globalState->setRootUTXO(uintToh256(pindex->pprev->hashUTXORoot)); // qtum
 
+    boost::filesystem::path stateDir = GetDataDir() / "stateQtum";
+    StorageResults storageRes(stateDir.string());
+    storageRes.deleteResults(block.vtx);
+
     if (pfClean) {
         *pfClean = fClean;
         return true;
@@ -2336,6 +2340,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 ///////////////////////////////////////////////////////  // qtum
     CBlock checkBlock(block.GetBlockHeader());
     std::vector<CTxOut> checkVouts;
+
+    boost::filesystem::path stateDir = GetDataDir() / "stateQtum";
+    StorageResults storageRes(stateDir.string());
 ///////////////////////////////////////////////////////
 
     std::vector<int> prevheights;
@@ -2419,6 +2426,13 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             exec.performByteCode();
             std::vector<ResultExecute> resultExec(exec.getResult());
             ByteCodeExecResult bcer = exec.processingResults();
+
+            std::vector<TransactionReceiptInfo> tri;
+            for(size_t k = 0; k < transactions.size(); k ++){
+                tri.push_back(TransactionReceiptInfo{block.GetHash(), uint32_t(pindex->nHeight + 1), tx.GetHash(), uint32_t(i), transactions[k].from(), transactions[k].to(),
+                              bcer.usedGas, uint64_t(resultExec[k].execRes.gasUsed), resultExec[k].execRes.newAddress, resultExec[k].txRec.log()});
+            }
+            storageRes.addResult(uintToh256(tx.GetHash()), tri);
 
             blockGasUsed += bcer.usedGas;
             if(blockGasUsed > DEFAULT_BLOCK_GASLIMIT){
@@ -2543,6 +2557,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
     int64_t nTime6 = GetTimeMicros(); nTimeCallbacks += nTime6 - nTime5;
     LogPrint("bench", "    - Callbacks: %.2fms [%.2fs]\n", 0.001 * (nTime6 - nTime5), nTimeCallbacks * 0.000001);
+
+    storageRes.commitResults();
 
     return true;
 }
