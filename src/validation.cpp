@@ -2429,8 +2429,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             checkBlock.vtx.push_back(block.vtx[i]);
         }
 
-        if(tx.HasCreateOrCall()){
-            QtumTxConverter convert(tx, NULL);
+        if(tx.HasCreateOrCall() && !hasOpSpend){
+            QtumTxConverter convert(tx, NULL, &block.vtx);
             ExtractQtumTX resultConvertQtumTX = convert.extractionQtumTransactions();
             if(!CheckMinGasPrice(resultConvertQtumTX.second, minGasPrice))
                 return state.DoS(100, error("ConnectBlock(): Incorrect transaction."),

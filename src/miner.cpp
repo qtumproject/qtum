@@ -589,23 +589,6 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
     bceResult.refundSender += testExecResult.refundSender;
     bceResult.refundOutputs.insert(bceResult.refundOutputs.end(), testExecResult.refundOutputs.begin(), testExecResult.refundOutputs.end());
     bceResult.valueTransfers = std::move(testExecResult.valueTransfers);
-
-// <<<<<<< HEAD
-// ////////////////////////////////////////////////////////////// // qtum
-//     const CTransaction& tx = iter->GetTx();
-//     if(tx.HasCreateOrCall()){
-//         QtumTxConverter convert(tx, NULL);
-//         ExtractQtumTX resultConverter = convert.extractionQtumTransactions();
-//         if(!CheckMinGasPrice(resultConverter.second, minGasPrice))
-//             return;
-//         ByteCodeExec exec(*pblock, resultConverter.first);
-//         exec.performByteCode();
-//         ByteCodeExecResult res = exec.processingResults();
-//         bceResult.usedFee += res.usedFee;
-//         bceResult.refundSender += res.refundSender;
-//         bceResult.refundVOuts.insert(bceResult.refundVOuts.end(), res.refundVOuts.begin(), res.refundVOuts.end());
-//         bceResult.refundValueTx = std::move(res.refundValueTx);
-// =======
     pblock->vtx.emplace_back(iter->GetSharedTx());
     pblocktemplate->vTxFees.push_back(iter->GetFee());
     pblocktemplate->vTxSigOpsCost.push_back(iter->GetSigOpCost());

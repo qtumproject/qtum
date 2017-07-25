@@ -82,6 +82,15 @@ TestingSetup::TestingSetup(const std::string& chainName) : BasicTestingSetup(cha
         globalState->setRootUTXO(uintToh256(chainparams.GenesisBlock().hashUTXORoot));
         globalState->db().commit();
         globalState->dbUtxo().commit();
+// =======
+//         dev::eth::Ethash::init();
+//         globalState = std::unique_ptr<QtumState>(new QtumState);
+//         dev::eth::ChainParams cp((dev::eth::genesisInfo(dev::eth::Network::HomesteadTest)));
+//         globalSealEngine = std::unique_ptr<dev::eth::SealEngineFace>(cp.createSealEngine());
+
+//         globalState->setRoot(dev::sha3(dev::rlp("")));
+//         globalState->setRootUTXO(dev::sha3(dev::rlp("")));
+// >>>>>>> master
 //////////////////////////////////////////////////////////////
 
         InitBlockIndex(chainparams);
