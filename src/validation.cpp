@@ -2059,6 +2059,7 @@ void ByteCodeExec::performByteCode(dev::eth::Permanence type){
 ByteCodeExecResult ByteCodeExec::processingResults(){
     ByteCodeExecResult resultBCE;
     for(size_t i = 0; i < result.size(); i++){
+        uint64_t gasUsed = (uint64_t) result[i].execRes.gasUsed;
         if(result[i].execRes.excepted != dev::eth::TransactionException::None){
             if(txs[i].value() > 0){
                 CMutableTransaction tx;
@@ -2067,12 +2068,12 @@ ByteCodeExecResult ByteCodeExec::processingResults(){
                 tx.vout.push_back(CTxOut(CAmount(txs[i].value()), script));
                 resultBCE.valueTransfers.push_back(CTransaction(tx));
             }
+            resultBCE.usedGas += gasUsed;
         } else {
             assert(txs[i].gas() < UINT64_MAX);
             assert(result[i].execRes.gasUsed < UINT64_MAX);
             assert(txs[i].gasPrice() < UINT64_MAX);
             uint64_t gas = (uint64_t) txs[i].gas();
-            uint64_t gasUsed = (uint64_t) result[i].execRes.gasUsed;
             uint64_t gasPrice = (uint64_t) txs[i].gasPrice();
 
             resultBCE.usedGas += gasUsed;
@@ -2343,6 +2344,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
     boost::filesystem::path stateDir = GetDataDir() / "stateQtum";
     StorageResults storageRes(stateDir.string());
+
+    uint64_t countCumulativeGasUsed = 0;
 ///////////////////////////////////////////////////////
 
     std::vector<int> prevheights;
@@ -2427,10 +2430,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             std::vector<ResultExecute> resultExec(exec.getResult());
             ByteCodeExecResult bcer = exec.processingResults();
 
+            countCumulativeGasUsed += bcer.usedGas;
             std::vector<TransactionReceiptInfo> tri;
             for(size_t k = 0; k < transactions.size(); k ++){
-                tri.push_back(TransactionReceiptInfo{block.GetHash(), uint32_t(pindex->nHeight + 1), tx.GetHash(), uint32_t(i), transactions[k].from(), transactions[k].to(),
-                              bcer.usedGas, uint64_t(resultExec[k].execRes.gasUsed), resultExec[k].execRes.newAddress, resultExec[k].txRec.log()});
+                tri.push_back(TransactionReceiptInfo{block.GetHash(), uint32_t(pindex->nHeight), tx.GetHash(), uint32_t(i), transactions[k].from(), transactions[k].to(),
+                              countCumulativeGasUsed, uint64_t(resultExec[k].execRes.gasUsed), resultExec[k].execRes.newAddress, resultExec[k].txRec.log()});
             }
             storageRes.addResult(uintToh256(tx.GetHash()), tri);
 
