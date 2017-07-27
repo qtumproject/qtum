@@ -186,12 +186,12 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
                 if(0 <= opcode1 && opcode1 <= OP_PUSHDATA4)
                 {
                     if(vch1.empty() || vch1.size() > 4 || (vch1.back() & 0x80))
-                        break;
+                        return false;
 
                     version = VersionVM::fromRaw(CScriptNum::vch_to_uint64(vch1));
                     if(!(version.toRaw() == VersionVM::GetEVMDefault().toRaw() || version.toRaw() == VersionVM::GetNoExec().toRaw())){
                         // only allow standard EVM and no-exec transactions to live in mempool
-                        break;
+                        return false;
                     }
                 }
             }
@@ -199,26 +199,26 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
                 try {
                     uint64_t val = CScriptNum::vch_to_uint64(vch1);
                     if(version.rootVM != 0 && val < STANDARD_MINIMUM_GAS_LIMIT){
-                        break;
+                        return false;
                     }
-                    if(version.rootVM != 0 && val >= DEFAULT_BLOCK_GASLIMIT){
+                    if(val > DEFAULT_BLOCK_GASLIMIT){
                         //do not allow transactions that could use more gas than is in a block
-                        break;
+                        return false;
                     }
                 }
                 catch (const scriptnum_error &err) {
-                    break;
+                    return false;
                 }
             }
             else if(opcode2 == OP_GAS_PRICE) {
                 try {
                     uint64_t val = CScriptNum::vch_to_uint64(vch1);
                     if(version.rootVM != 0 && val < STANDARD_MINIMUM_GAS_PRICE){
-                        break;
+                        return false;
                     }
                 }
                 catch (const scriptnum_error &err) {
-                    break;
+                    return false;
                 }
             }
             else if(opcode2 == OP_DATA)

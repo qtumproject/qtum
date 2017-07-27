@@ -197,7 +197,7 @@ class CondensingTxsTest(BitcoinTestFramework):
 
         # We need the txfee to be higher than T5 so that T4 tx is prioritized over T5.
         # We set the gas such that the the tx will run but not immediately throw a out of gas exception
-        T4_raw = make_transaction(self.node, [make_vin(self.node, 3*COIN)], [make_op_call_output(2*COIN, 0x1, 22000, 1, hex_str_to_bytes(self.share_abi), hex_str_to_bytes(self.sender2))])
+        T4_raw = make_transaction(self.node, [make_vin(self.node, 3*COIN)], [make_op_call_output(2*COIN, 0x04, 22000, 1, hex_str_to_bytes(self.share_abi), hex_str_to_bytes(self.sender2))])
         T4_id = self.node.sendrawtransaction(T4_raw)
         T5_id = self.node.sendtocontract(self.sender2, self.withdrawAll_abi, 0, 1000000, 0.00000001, A1)['txid']
         B4_id = self.node.generate(1)[0]
