@@ -345,13 +345,13 @@ void createTestContractsAndBlocks(TestChain100Setup* testChain100Setup, valtype&
 
 template <typename T>
 void checkValue(T value, T value1, T value2, T value3, T value4, size_t i, std::function<bool(T&,T&)> func){
-    if(i > 618)
+    if(i > 599)
         BOOST_CHECK(func(value, value4));
-    if(618 > i > 569)
+    if(599 > i && i > 550)
         BOOST_CHECK(func(value, value3));
-    if(568 > i > 518)
+    if(550 > i && i > 501)
         BOOST_CHECK(func(value, value2));
-    if(518 > i > 502) // After initializing the tests, the height of the chain 502
+    if(501 > i && i > 0) // After initializing the tests, the height of the chain 502
         BOOST_CHECK(func(value, value1));
 }
 
@@ -410,7 +410,7 @@ BOOST_AUTO_TEST_CASE(gas_schedule_passage_from_0_to_130_three_paramsInstance_tes
     contractLoading();    
     createTestContractsAndBlocks(this, code[1], code[3], code[5], GasScheduleDGP);
     QtumDGP qtumDGP(globalState.get());
-    for(size_t i = 502; i < 632; i++){ // After initializing the tests, the height of the chain 502
+    for(size_t i = 0; i < 1300; i++){
         dev::eth::EVMSchedule schedule = qtumDGP.getGasSchedule(i);
         std::function<bool(const dev::eth::EVMSchedule&, const dev::eth::EVMSchedule&)> func = compareEVMSchedule;
         checkValue<dev::eth::EVMSchedule>(schedule, dev::eth::EIP158Schedule, EVMScheduleContractGasSchedule,
@@ -424,7 +424,7 @@ BOOST_AUTO_TEST_CASE(gas_schedule_passage_from_130_to_0_three_paramsInstance_tes
     
     createTestContractsAndBlocks(this, code[1], code[3], code[5], GasScheduleDGP);
     QtumDGP qtumDGP(globalState.get());
-    for(size_t i = 130; i > 0; i--){
+    for(size_t i = 1300; i > 0; i--){
         dev::eth::EVMSchedule schedule = qtumDGP.getGasSchedule(i);
         std::function<bool(const dev::eth::EVMSchedule&, const dev::eth::EVMSchedule&)> func = compareEVMSchedule;
         checkValue<dev::eth::EVMSchedule>(schedule, dev::eth::EIP158Schedule, EVMScheduleContractGasSchedule,
@@ -486,7 +486,7 @@ BOOST_AUTO_TEST_CASE(block_size_passage_from_0_to_130_three_paramsInstance_test)
     
     createTestContractsAndBlocks(this, code[7], code[8], code[9], BlockSizeDGP);
     QtumDGP qtumDGP(globalState.get());
-    for(size_t i = 0; i < 130; i++){
+    for(size_t i = 0; i < 1300; i++){
         uint32_t blockSize = qtumDGP.getBlockSize(i);
         std::function<bool(const uint32_t&, const uint32_t&)> func = compareUint32;
         checkValue<uint32_t>(blockSize, 0, 1000000, 2000000, 12345, i, func);
@@ -499,7 +499,7 @@ BOOST_AUTO_TEST_CASE(block_size_passage_from_130_to_0_three_paramsInstance_test)
     
     createTestContractsAndBlocks(this, code[7], code[8], code[9], BlockSizeDGP);
     QtumDGP qtumDGP(globalState.get());
-    for(size_t i = 130; i > 0; i--){
+    for(size_t i = 1300; i > 0; i--){
         uint32_t blockSize = qtumDGP.getBlockSize(i);
         std::function<bool(const uint32_t&, const uint32_t&)> func = compareUint32;
         checkValue<uint32_t>(blockSize, 0, 1000000, 2000000, 12345, i, func);
@@ -560,7 +560,7 @@ BOOST_AUTO_TEST_CASE(min_gas_price_passage_from_0_to_130_three_paramsInstance_te
     
     createTestContractsAndBlocks(this, code[10], code[11], code[12], GasPriceDGP);
     QtumDGP qtumDGP(globalState.get());
-    for(size_t i = 0; i < 130; i++){
+    for(size_t i = 0; i < 1300; i++){
         uint32_t minGasPrice = qtumDGP.getMinGasPrice(i);
         std::function<bool(const uint32_t&, const uint32_t&)> func = compareUint32;
         checkValue<uint32_t>(minGasPrice, 1, 13, 123456, 123, i, func);
@@ -573,7 +573,7 @@ BOOST_AUTO_TEST_CASE(min_gas_price_passage_from_130_to_0_three_paramsInstance_te
     
     createTestContractsAndBlocks(this, code[10], code[11], code[12], GasPriceDGP);
     QtumDGP qtumDGP(globalState.get());
-    for(size_t i = 130; i > 0; i--){
+    for(size_t i = 1300; i > 0; i--){
         uint32_t minGasPrice = qtumDGP.getMinGasPrice(i);
         std::function<bool(const uint32_t&, const uint32_t&)> func = compareUint32;
         checkValue<uint32_t>(minGasPrice, 1, 13, 123456, 123, i, func);
