@@ -1,9 +1,25 @@
 #include "qtumDGP.h"
 
+std::vector<ResultExecute> QtumDGP::callContract(const dev::Address& addrContract, std::vector<unsigned char> opcode){
+    CBlock block;
+    CMutableTransaction tx;
+    dev::u256 gasLimit(DEFAULT_BLOCK_GASLIMIT - 1); // MAX_MONEY
+    dev::Address senderAddress("ffffffffffffffffffffffffffffffffffffffff");
+    tx.vout.push_back(CTxOut(0, CScript() << OP_DUP << OP_HASH160 << senderAddress.asBytes() << OP_EQUALVERIFY << OP_CHECKSIG));
+    block.vtx.push_back(MakeTransactionRef(CTransaction(tx)));
+ 
+    QtumTransaction callTransaction(0, 1, gasLimit, addrContract, opcode, dev::u256(0));
+    callTransaction.forceSender(senderAddress);
+
+    ByteCodeExec exec(block, std::vector<QtumTransaction>(1, callTransaction));
+    exec.performByteCode(dev::eth::Permanence::Reverted);
+    return exec.getResult();
+}
+
 dev::eth::EVMSchedule QtumDGP::getGasSchedule(unsigned int blockHeight){
     clear();
     dev::eth::EVMSchedule schedule = dev::eth::EIP158Schedule;
-    if(initStorages(GasScheduleDGP, blockHeight)){
+    if(initStorages(GasScheduleDGP, blockHeight, ParseHex("26fadbe2"))){
         schedule = createEVMSchedule();
     }
     return schedule;
@@ -12,8 +28,12 @@ dev::eth::EVMSchedule QtumDGP::getGasSchedule(unsigned int blockHeight){
 uint32_t QtumDGP::getBlockSize(unsigned int blockHeight){
     clear();
     uint32_t blockSize = 0;
-    if(initStorages(BlockSizeDGP, blockHeight)){
-        parseStorageOneUint32(blockSize);
+    if(initStorages(BlockSizeDGP, blockHeight, ParseHex("92ac3c62"))){
+        if(!dgpevm){
+            parseStorageOneUint32(blockSize);
+        } else {
+            parseDataOneUint32(blockSize);
+        }
     }
     return blockSize;
 }
@@ -21,18 +41,26 @@ uint32_t QtumDGP::getBlockSize(unsigned int blockHeight){
 uint32_t QtumDGP::getMinGasPrice(unsigned int blockHeight){
     clear();
     uint32_t minGasLimit = 1;
-    if(initStorages(GasPriceDGP, blockHeight)){
-        parseStorageOneUint32(minGasLimit);
+    if(initStorages(GasPriceDGP, blockHeight, ParseHex("3fb58819"))){
+        if(!dgpevm){
+            parseStorageOneUint32(minGasLimit);
+        } else {
+            parseDataOneUint32(minGasLimit);
+        }
     }
     return minGasLimit < 1 ? 1 : minGasLimit;
 }
 
-bool QtumDGP::initStorages(const dev::Address& addr, unsigned int blockHeight){
+bool QtumDGP::initStorages(const dev::Address& addr, unsigned int blockHeight, std::vector<unsigned char> data){
     initStorageDGP(addr);
     createParamsInstance();
     dev::Address address = getAddressForBlock(blockHeight);
     if(address != dev::Address()){
-        initStorageTemplate(address);
+        if(!dgpevm){
+            initStorageTemplate(address);
+        } else {
+            initDataTemplate(address, data);
+        }
         return true;
     }
     return false;
@@ -44,6 +72,10 @@ void QtumDGP::initStorageDGP(const dev::Address& addr){
 
 void QtumDGP::initStorageTemplate(const dev::Address& addr){
     storageTemplate = state->storage(addr);
+}
+
+void QtumDGP::initDataTemplate(const dev::Address& addr, std::vector<unsigned char>& data){
+    dataTemplate = callContract(addr, data)[0].execRes.output;
 }
 
 void QtumDGP::createParamsInstance(){
@@ -97,6 +129,15 @@ void QtumDGP::parseStorageScheduleContract(std::vector<uint32_t>& uint32Values){
     }
 }
 
+void QtumDGP::parseDataScheduleContract(std::vector<uint32_t>& uint32Values){
+    size_t size = dataTemplate.size() / 32;
+    for(size_t i = 0; i < size; i++){
+        std::vector<unsigned char> value = std::vector<unsigned char>(dataTemplate.begin() + (i * 32), dataTemplate.begin() + ((i+1) * 32));
+        dev::h256 valueTemp(value);
+        uint32Values.push_back(uint64_t(dev::u256(valueTemp)));
+    }
+}
+
 void QtumDGP::parseStorageOneUint32(uint32_t& value){
     dev::h256 blockSizeHash = sha3(dev::h256(dev::u256(0)));
     if(storageTemplate.count(blockSizeHash)){
@@ -104,10 +145,22 @@ void QtumDGP::parseStorageOneUint32(uint32_t& value){
     }
 }
 
+void QtumDGP::parseDataOneUint32(uint32_t& value){
+    if(dataTemplate.size() == 32){
+        value = uint64_t(dev::u256(dev::h256(dataTemplate)));
+    }
+}
+
 dev::eth::EVMSchedule QtumDGP::createEVMSchedule(){
     dev::eth::EVMSchedule schedule = dev::eth::EIP158Schedule;
     std::vector<uint32_t> uint32Values;
-    parseStorageScheduleContract(uint32Values);
+
+    if(!dgpevm){
+        parseStorageScheduleContract(uint32Values);
+    } else {
+        parseDataScheduleContract(uint32Values);
+    }
+
     if(uint32Values.size() >= 39){
         schedule.tierStepGas = {{uint32Values[0], uint32Values[1], uint32Values[2], uint32Values[3],
                                 uint32Values[4], uint32Values[5], uint32Values[6], uint32Values[7]}};
