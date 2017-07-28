@@ -273,11 +273,11 @@ struct EVMScheduleCustom : public dev::eth::EVMSchedule{
     }
 };
 
-EVMScheduleCustom EVMScheduleContractGasSchedule(true,true,true,true,{10,10,10,10,10,10,10,10},10,50,30,6,200,20000,5000,15000,
+EVMScheduleCustom EVMScheduleContractGasSchedule(true,true,true,true,{{10,10,10,10,10,10,10,10}},10,50,30,6,200,20000,5000,15000,
     1,375,8,375,32000,700,2300,9000,25000,24000,3,512,200,21000,53000,4,68,3,700,700,400,5000,24576);
-EVMScheduleCustom EVMScheduleContractGasSchedule2(true,true,true,true,{13,10,10,10,10,10,10,10},10,50,30,6,200,20000,5000,15000,
+EVMScheduleCustom EVMScheduleContractGasSchedule2(true,true,true,true,{{13,10,10,10,10,10,10,10}},10,50,30,6,200,20000,5000,15000,
     1,375,8,375,32000,700,2300,9000,25000,24000,3,512,200,21000,53000,4,68,3,700,700,400,5000,13);
-EVMScheduleCustom EVMScheduleContractGasSchedule3(true,true,true,true,{13,13,10,10,10,10,10,10},10,50,30,6,200,20000,5000,15000,
+EVMScheduleCustom EVMScheduleContractGasSchedule3(true,true,true,true,{{13,13,10,10,10,10,10,10}},10,50,30,6,200,20000,5000,15000,
     1,375,8,375,32000,700,2300,9000,25000,24000,3,512,200,21000,53000,4,68,3,700,700,400,13,13);
 
 dev::h256 hash = dev::h256(ParseHex("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"));

@@ -2233,6 +2233,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     uint32_t sizeBlockDGP = qtumDGP.getBlockSize(pindex->nHeight + 1);
     uint32_t minGasPrice = qtumDGP.getMinGasPrice(pindex->nHeight + 1);
     MAX_BLOCK_DGP_SIZE = sizeBlockDGP ? sizeBlockDGP : MAX_BLOCK_DGP_SIZE;
+    updateBlockSizeParams(MAX_BLOCK_DGP_SIZE);
     CBlock checkBlock(block.GetBlockHeader());
     std::vector<CTxOut> checkVouts;
     /////////////////////////////////////////////////
