@@ -25,30 +25,46 @@ dev::eth::EVMSchedule QtumDGP::getGasSchedule(unsigned int blockHeight){
     return schedule;
 }
 
-uint32_t QtumDGP::getBlockSize(unsigned int blockHeight){
-    clear();
-    uint32_t blockSize = 0;
-    if(initStorages(BlockSizeDGP, blockHeight, ParseHex("92ac3c62"))){
+uint32_t QtumDGP::getUint32FromDGP(unsigned int blockHeight, const dev::Address& contract, std::vector<unsigned char> data){
+    uint32_t value = 0;
+    if(initStorages(contract, blockHeight, data)){
         if(!dgpevm){
-            parseStorageOneUint32(blockSize);
+            parseStorageOneUint32(value);
         } else {
-            parseDataOneUint32(blockSize);
+            parseDataOneUint32(value);
         }
     }
-    return blockSize;
+    return value;
+}
+
+uint32_t QtumDGP::getBlockSize(unsigned int blockHeight){
+    clear();
+    uint32_t result = defaultBlockSizeDGP;
+    uint32_t blockSize = getUint32FromDGP(blockHeight, BlockSizeDGP, ParseHex("92ac3c62"));
+    if(blockSize <= maxBlockSizeDGP && blockSize >= minBlockSizeDGP){
+        result = blockSize;
+    }
+    return result;
 }
 
 uint32_t QtumDGP::getMinGasPrice(unsigned int blockHeight){
     clear();
-    uint32_t minGasLimit = 1;
-    if(initStorages(GasPriceDGP, blockHeight, ParseHex("3fb58819"))){
-        if(!dgpevm){
-            parseStorageOneUint32(minGasLimit);
-        } else {
-            parseDataOneUint32(minGasLimit);
-        }
+    uint32_t result = defaultMinGasPriceDGP;
+    uint32_t minGasPrice = getUint32FromDGP(blockHeight, GasPriceDGP, ParseHex("3fb58819"));
+    if(minGasPrice <= maxMinGasPriceDGP && minGasPrice >= minMinGasPriceDGP){
+        result = minGasPrice;
     }
-    return minGasLimit < 1 ? 1 : minGasLimit;
+    return result;
+}
+
+uint32_t QtumDGP::getBlockGasLimit(unsigned int blockHeight){
+    clear();
+    uint32_t result = defaultBlockGasLimitDGP;
+    uint32_t blockGasLimit = getUint32FromDGP(blockHeight, BlockGasLimitDGP, ParseHex("2cc8377d"));
+    if(blockGasLimit <= maxBlockGasLimitDGP && blockGasLimit >= minBlockGasLimitDGP){
+        result = blockGasLimit;
+    }
+    return result;
 }
 
 bool QtumDGP::initStorages(const dev::Address& addr, unsigned int blockHeight, std::vector<unsigned char> data){

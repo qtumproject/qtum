@@ -10,7 +10,19 @@ static const dev::Address GasScheduleDGP = dev::Address("00000000000000000000000
 static const dev::Address BlockSizeDGP = dev::Address("0000000000000000000000000000000000000081");
 static const dev::Address GasPriceDGP = dev::Address("0000000000000000000000000000000000000082");
 static const dev::Address DGPCONTRACT4 = dev::Address("0000000000000000000000000000000000000083");
-static const dev::Address DGPCONTRACT5 = dev::Address("0000000000000000000000000000000000000084");
+static const dev::Address BlockGasLimitDGP = dev::Address("0000000000000000000000000000000000000084");
+
+static const uint32_t minBlockSizeDGP = 500000;
+static const uint32_t maxBlockSizeDGP = 32000000;
+static const uint32_t defaultBlockSizeDGP = 2000000;
+
+static const uint32_t minMinGasPriceDGP = 1;
+static const uint32_t maxMinGasPriceDGP = 10000;
+static const uint32_t defaultMinGasPriceDGP = 1;
+
+static const uint32_t minBlockGasLimitDGP = 1000000;
+static const uint32_t maxBlockGasLimitDGP = 1000000000;
+static const uint32_t defaultBlockGasLimitDGP = 40000000;
 
 class QtumDGP {
     
@@ -23,6 +35,8 @@ public:
     uint32_t getBlockSize(unsigned int blockHeight);
 
     uint32_t getMinGasPrice(unsigned int blockHeight);
+
+    uint32_t getBlockGasLimit(unsigned int blockHeight);
 
 private:
 
@@ -39,6 +53,8 @@ private:
     std::vector<ResultExecute> callContract(const dev::Address& addrContract, std::vector<unsigned char> opcode);
 
     dev::Address getAddressForBlock(unsigned int blockHeight);
+
+    uint32_t getUint32FromDGP(unsigned int blockHeight, const dev::Address& contract, std::vector<unsigned char> data);
 
     void parseStorageScheduleContract(std::vector<uint32_t>& uint32Values);
     
