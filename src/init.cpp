@@ -1489,8 +1489,8 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
                     globalState->setRootUTXO(uintToh256(chainActive.Tip()->hashUTXORoot));
                     QtumDGP qtumDGP(globalState.get());
                     uint32_t sizeBlockDGP = qtumDGP.getBlockSize(chainActive.Tip()->nHeight);
-                    MAX_BLOCK_DGP_SIZE = sizeBlockDGP ? sizeBlockDGP : MAX_BLOCK_DGP_SIZE;
-                    updateBlockSizeParams(MAX_BLOCK_DGP_SIZE);
+                    dgpMaxBlockSize = sizeBlockDGP ? sizeBlockDGP : dgpMaxBlockSize;
+                    updateBlockSizeParams(dgpMaxBlockSize);
                 } else {
                     globalState->setRoot(dev::sha3(dev::rlp("")));
                     globalState->setRootUTXO(uintToh256(chainparams.GenesisBlock().hashUTXORoot));

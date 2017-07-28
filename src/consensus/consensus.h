@@ -9,18 +9,18 @@
 #include <stdint.h>
 
 /** The maximum allowed size for a serialized block, in bytes (only for buffer size limits) */
-extern unsigned int MAX_BLOCK_SERIALIZED_SIZE;
+extern unsigned int dgpMaxBlockSerSize;
 /** The maximum allowed weight for a block, see BIP 141 (network rule) */
-extern unsigned int MAX_BLOCK_WEIGHT;
+extern unsigned int dgpMaxBlockWeight;
 /** The maximum allowed size for a block excluding witness data, in bytes (network rule) */
-extern unsigned int MAX_BLOCK_BASE_SIZE;
+extern unsigned int dgpMaxBlockBaseSize;
 
-extern unsigned int MAX_BLOCK_DGP_SIZE; // qtum
+extern unsigned int dgpMaxBlockSize; // qtum
 
 /** The maximum allowed number of signature check operations in a block (network rule) */
-extern int64_t MAX_BLOCK_SIGOPS_COST;
+extern int64_t dgpMaxBlockSigOps;
 
-extern unsigned int MAX_PROTOCOL_MESSAGE_LENGTH;
+extern unsigned int dgpMaxProtoMsgLenght;
 
 /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
 static const int COINBASE_MATURITY = 500; //qtum: change to 500 for prod
