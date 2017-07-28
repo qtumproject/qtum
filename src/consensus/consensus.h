@@ -20,7 +20,7 @@ extern unsigned int dgpMaxBlockSize; // qtum
 /** The maximum allowed number of signature check operations in a block (network rule) */
 extern int64_t dgpMaxBlockSigOps;
 
-extern unsigned int dgpMaxProtoMsgLenght;
+extern unsigned int dgpMaxProtoMsgLength;
 
 /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
 static const int COINBASE_MATURITY = 500; //qtum: change to 500 for prod
