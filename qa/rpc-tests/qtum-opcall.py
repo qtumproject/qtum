@@ -135,8 +135,8 @@ class OpCallTest(BitcoinTestFramework):
     # Sends a tx containing 2 op_call outputs calling inc()
     def many_calls_in_same_tx_test(self):
         outputs = []
-        outputs.append(make_op_call_output(self.node, 0, b"\x04", 1000000, 10, bytes.fromhex("371303c0"), bytes.fromhex(self.contract_address)))
-        outputs.append(make_op_call_output(self.node, 0, b"\x04", 1000000, 10, bytes.fromhex("371303c0"), bytes.fromhex(self.contract_address)))
+        outputs.append(make_op_call_output(self.node, 0, b"\x04", 1000000, b"\x0a", bytes.fromhex("371303c0"), bytes.fromhex(self.contract_address)))
+        outputs.append(make_op_call_output(self.node, 0, b"\x04", 1000000, b"\x0a", bytes.fromhex("371303c0"), bytes.fromhex(self.contract_address)))
         self.send_one_op_call_tx_with_counter_check(outputs, counter_should_increase_by=2)
 
     # Sends a normal raw op_call tx with a single output.
@@ -203,13 +203,13 @@ class OpCallTest(BitcoinTestFramework):
     # Sends 100 valid op_call txs
     def send_100_txs_test(self):
         outputs = []
-        outputs.append(make_op_call_output(self.node, 0, b"\x04", 1000000, 10, bytes.fromhex("371303c0"), bytes.fromhex(self.contract_address)))
+        outputs.append(make_op_call_output(self.node, 0, b"\x04", 1000000, b"\x0a", bytes.fromhex("371303c0"), bytes.fromhex(self.contract_address)))
         self.send_multiple_op_call_txs_with_counter_check(100, outputs, 100)
 
     def send_tx_with_value_test(self):
         outputs = []
         # d0e30db0 deposit()
-        outputs.append(make_op_call_output(self.node, 100000000, b"\x04", 1000000, 10, bytes.fromhex("d0e30db0"), bytes.fromhex(self.contract_address)))
+        outputs.append(make_op_call_output(self.node, 100000000, b"\x04", 1000000, b"\x0a", bytes.fromhex("d0e30db0"), bytes.fromhex(self.contract_address)))
         self.send_one_op_call_tx_with_counter_check(outputs, counter_should_increase_by=0)
         
         # 12065fe0 getBalance()
