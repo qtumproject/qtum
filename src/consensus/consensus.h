@@ -22,6 +22,8 @@ extern int64_t dgpMaxBlockSigOps;
 
 extern unsigned int dgpMaxProtoMsgLength;
 
+extern unsigned int dgpMaxTxSigOps;
+
 /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
 static const int COINBASE_MATURITY = 500; //qtum: change to 500 for prod
 

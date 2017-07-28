@@ -824,7 +824,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
         // itself can contain sigops MAX_STANDARD_TX_SIGOPS is less than
         // MAX_BLOCK_SIGOPS; we still consider this an invalid rather than
         // merely non-standard transaction.
-        if (nSigOpsCost > MAX_STANDARD_TX_SIGOPS_COST)
+        if (nSigOpsCost > dgpMaxTxSigOps)
             return state.DoS(0, false, REJECT_NONSTANDARD, "bad-txns-too-many-sigops", false,
                 strprintf("%d", nSigOpsCost));
 
