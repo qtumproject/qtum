@@ -1821,6 +1821,10 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
     globalState->setRoot(uintToh256(pindex->pprev->hashStateRoot)); // qtum
     globalState->setRootUTXO(uintToh256(pindex->pprev->hashUTXORoot)); // qtum
 
+    boost::filesystem::path stateDir = GetDataDir() / "stateQtum";
+    StorageResults storageRes(stateDir.string());
+    storageRes.deleteResults(block.vtx);
+
     if (pfClean) {
         *pfClean = fClean;
         return true;
@@ -2060,6 +2064,7 @@ bool ByteCodeExec::performByteCode(dev::eth::Permanence type){
 ByteCodeExecResult ByteCodeExec::processingResults(){
     ByteCodeExecResult resultBCE;
     for(size_t i = 0; i < result.size(); i++){
+        uint64_t gasUsed = (uint64_t) result[i].execRes.gasUsed;
         if(result[i].execRes.excepted != dev::eth::TransactionException::None){
             if(txs[i].value() > 0){
                 CMutableTransaction tx;
@@ -2068,12 +2073,12 @@ ByteCodeExecResult ByteCodeExec::processingResults(){
                 tx.vout.push_back(CTxOut(CAmount(txs[i].value()), script));
                 resultBCE.valueTransfers.push_back(CTransaction(tx));
             }
+            resultBCE.usedGas += gasUsed;
         } else {
             assert(txs[i].gas() < UINT64_MAX);
             assert(result[i].execRes.gasUsed < UINT64_MAX);
             assert(txs[i].gasPrice() < UINT64_MAX);
             uint64_t gas = (uint64_t) txs[i].gas();
-            uint64_t gasUsed = (uint64_t) result[i].execRes.gasUsed;
             uint64_t gasPrice = (uint64_t) txs[i].gasPrice();
 
             resultBCE.usedGas += gasUsed;
@@ -2333,6 +2338,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 ///////////////////////////////////////////////////////  // qtum
     CBlock checkBlock(block.GetBlockHeader());
     std::vector<CTxOut> checkVouts;
+
+    boost::filesystem::path stateDir = GetDataDir() / "stateQtum";
+    StorageResults storageRes(stateDir.string());
+
+    uint64_t countCumulativeGasUsed = 0;
 ///////////////////////////////////////////////////////
 
     std::vector<int> prevheights;
@@ -2442,6 +2452,14 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             }
             std::vector<ResultExecute> resultExec(exec.getResult());
             ByteCodeExecResult bcer = exec.processingResults();
+
+            countCumulativeGasUsed += bcer.usedGas;
+            std::vector<TransactionReceiptInfo> tri;
+            for(size_t k = 0; k < transactions.size(); k ++){
+                tri.push_back(TransactionReceiptInfo{block.GetHash(), uint32_t(pindex->nHeight), tx.GetHash(), uint32_t(i), transactions[k].from(), transactions[k].to(),
+                              countCumulativeGasUsed, uint64_t(resultExec[k].execRes.gasUsed), resultExec[k].execRes.newAddress, resultExec[k].txRec.log()});
+            }
+            storageRes.addResult(uintToh256(tx.GetHash()), tri);
 
             blockGasUsed += bcer.usedGas;
             if(blockGasUsed > DEFAULT_BLOCK_GASLIMIT){
@@ -2566,6 +2584,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
     int64_t nTime6 = GetTimeMicros(); nTimeCallbacks += nTime6 - nTime5;
     LogPrint("bench", "    - Callbacks: %.2fms [%.2fs]\n", 0.001 * (nTime6 - nTime5), nTimeCallbacks * 0.000001);
+
+    storageRes.commitResults();
 
     return true;
 }

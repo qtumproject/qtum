@@ -169,7 +169,10 @@ testScripts = [
     'qtum-condensing-txs.py',
     'qtum-block-header.py',
     'qtum-dgp.py',
-    'qtum-pos.py'
+    'qtum-pos.py',
+    'qtum-identical-refunds.py',
+    'qtum-8mb-block.py',
+    'qtum-null-sender.py'
 ]
 if ENABLE_ZMQ:
     testScripts.append('zmq_test.py')
