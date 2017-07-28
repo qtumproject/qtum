@@ -19,7 +19,7 @@ void updateBlockSizeParams(unsigned int newBlockSize){
     unsigned int newSizeForParams=WITNESS_SCALE_FACTOR*newBlockSize;
     dgpMaxBlockSerSize=newSizeForParams;
     dgpMaxBlockWeight=newSizeForParams;
-    dgpMaxBlockBaseSize=newSizeForParams;
+    dgpMaxBlockBaseSize=newBlockSize;
     dgpMaxBlockSigOps=(int64_t)(newSizeForParams/100);
     dgpMaxProtoMsgLenght=newSizeForParams;
 }
