@@ -984,6 +984,7 @@ UniValue callcontract(const JSONRPCRequest& request)
     std::vector<unsigned char> opcode(ParseHex(data));
     QtumTransaction callTransaction(0, gasPrice, gasLimit, addrAccount, opcode, dev::u256(0));
     callTransaction.forceSender(senderAddress);
+    callTransaction.setVersion(VersionVM::GetEVMDefault());
 
     ByteCodeExec exec(block, std::vector<QtumTransaction>(1, callTransaction));
     exec.performByteCode(dev::eth::Permanence::Reverted);
@@ -992,7 +993,7 @@ UniValue callcontract(const JSONRPCRequest& request)
     if(fRecordLogOpcodes){
         writeVMlog(execResults);
     }
- 
+
     UniValue result(UniValue::VOBJ);
     result.push_back(Pair("address", strAddr));
     result.push_back(Pair("executionResult", executionResultToJSON(execResults[0].execRes)));
