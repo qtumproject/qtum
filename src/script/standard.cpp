@@ -45,8 +45,12 @@ const char* GetTxnOutputType(txnouttype t)
 /**
  * Return public keys or hashes from scriptPubKey, for 'standard' transaction types.
  */
-bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsigned char> >& vSolutionsRet)
+bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsigned char> >& vSolutionsRet, bool contractConsensus)
 {
+    //contractConsesus is true when evaluating if a contract tx is "standard" for consensus purposes
+    //It is false in all other cases, so to prevent a particular contract tx from being broadcast on mempool, but allowed in blocks,
+    //one should ensure that contractConsensus is false
+
     // Templates
     static multimap<txnouttype, CScript> mTemplates;
     if (mTemplates.empty())
@@ -198,12 +202,26 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
             else if(opcode2 == OP_GAS_LIMIT) {
                 try {
                     uint64_t val = CScriptNum::vch_to_uint64(vch1);
-                    if(version.rootVM != 0 && val < STANDARD_MINIMUM_GAS_LIMIT){
-                        return false;
-                    }
-                    if(val > DEFAULT_BLOCK_GASLIMIT){
-                        //do not allow transactions that could use more gas than is in a block
-                        return false;
+                    if(contractConsensus) {
+                        //consensus rules for contracts
+                        if (version.rootVM != 0 && val < MINIMUM_GAS_LIMIT) {
+                            return false;
+                        }
+                        if (val > DEFAULT_BLOCK_GASLIMIT) {
+                            //do not allow transactions that could use more gas than is in a block
+                            return false;
+                        }
+                    }else{
+                        //standard mempool rules for contracts
+                        //consensus rules for contracts
+                        if (version.rootVM != 0 && val < STANDARD_MINIMUM_GAS_LIMIT) {
+                            return false;
+                        }
+                        if (val > DEFAULT_BLOCK_GASLIMIT / 2) {
+                            //don't allow transactions that use more than 1/2 block of gas to be broadcast on the mempool
+                            return false;
+                        }
+
                     }
                 }
                 catch (const scriptnum_error &err) {
@@ -213,8 +231,16 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
             else if(opcode2 == OP_GAS_PRICE) {
                 try {
                     uint64_t val = CScriptNum::vch_to_uint64(vch1);
-                    if(version.rootVM != 0 && val < STANDARD_MINIMUM_GAS_PRICE){
-                        return false;
+                    if(contractConsensus) {
+                        //consensus rules
+                        if (version.rootVM != 0 && val < MINIMUM_GAS_PRICE) {
+                            return false;
+                        }
+                    }else{
+                        //standard mempool rules
+                        if (version.rootVM != 0 && val < STANDARD_MINIMUM_GAS_PRICE) {
+                            return false;
+                        }
                     }
                 }
                 catch (const scriptnum_error &err) {
