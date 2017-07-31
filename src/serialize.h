@@ -23,7 +23,7 @@
 
 #include "prevector.h"
 
-static const unsigned int MAX_SIZE = 0x02000000;
+static const unsigned int MAX_SIZE = 0x08000000; // Qtum: Increase max serialized size to 128mb
 
 /**
  * Dummy data type to identify deserializing constructors.

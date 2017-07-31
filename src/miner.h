@@ -186,7 +186,10 @@ private:
     int lastFewTxs;
     bool blockFinished;
 
-    ByteCodeExecResult bceResult; // qtum
+///////////////////////////////////////////// // qtum
+    ByteCodeExecResult bceResult;
+    uint32_t minGasPrice = 1;
+/////////////////////////////////////////////
 
     // The original constructed reward tx (either coinbase or coinstake) without gas refund adjustments
     CMutableTransaction originalRewardTx; // qtum

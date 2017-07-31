@@ -35,6 +35,7 @@
 
 /////////////////////////////////////////// qtum
 #include <qtum/qtumstate.h>
+#include <qtum/qtumDGP.h>
 #include <libethereum/ChainParams.h>
 #include <libethashseal/Ethash.h>
 #include <libethashseal/GenesisInfo.h>
@@ -46,8 +47,11 @@ extern std::unique_ptr<QtumState> globalState;
 extern std::shared_ptr<dev::eth::SealEngineFace> globalSealEngine;
 extern bool fRecordLogOpcodes;
 extern bool fIsVMlogFile;
+extern bool fGettingValuesDGP;
 
- using valtype = std::vector<unsigned char>;
+struct EthTransactionParams;
+using valtype = std::vector<unsigned char>;
+using ExtractQtumTX = std::pair<std::vector<QtumTransaction>, std::vector<EthTransactionParams>>;
 ///////////////////////////////////////////
 
 class CBlockIndex;
@@ -525,6 +529,7 @@ bool ReadFromDisk(CMutableTransaction& tx, CDiskTxPos& txindex, CBlockTreeDB& tx
 /** Context-independent validity checks */
 bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW = true);
 bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW = true, bool fCheckMerkleRoot = true, bool fCheckSig=true);
+bool GetBlockPublicKey(const CBlock& block, std::vector<unsigned char>& vchPubKey);
 bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& nTotalFees, uint32_t nTime);
 bool CheckCanonicalBlockSignature(const std::shared_ptr<const CBlock> pblock);
 bool CheckIndexProof(const CBlockIndex& block, const Consensus::Params& consensusParams);
@@ -627,13 +632,14 @@ void DumpMempool();
 bool LoadMempool();
 
 //////////////////////////////////////////////////////// qtum
+bool CheckMinGasPrice(std::vector<EthTransactionParams>& etps, const uint32_t& minGasPrice);
+
 struct ByteCodeExecResult;
 
 void EnforceContractVoutLimit(ByteCodeExecResult& bcer, ByteCodeExecResult& bcerOut, const dev::h256& oldHashQtumRoot,
     const dev::h256& oldHashStateRoot, const std::vector<QtumTransaction>& transactions);
 
 void writeVMlog(const std::vector<ResultExecute>& res, const CTransaction& tx = CTransaction(), const CBlock& block = CBlock());
-
 
 struct EthTransactionParams{
     VersionVM version;
@@ -664,7 +670,7 @@ public:
 
     QtumTxConverter(CTransaction tx, CCoinsViewCache* v = NULL, const std::vector<CTransactionRef>* blockTxs = NULL) : txBit(tx), view(v), blockTransactions(blockTxs){}
 
-    std::vector<QtumTransaction> extractionQtumTransactions();
+    ExtractQtumTX extractionQtumTransactions();
 
 private:
 

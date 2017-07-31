@@ -29,6 +29,7 @@ qt_test_test_qtum_qt_SOURCES = \
   qt/test/rpcnestedtests.cpp \
   qt/test/test_main.cpp \
   qt/test/uritests.cpp \
+  test/testutil.cpp \
   $(TEST_QT_H)
 if ENABLE_WALLET
 qt_test_test_qtum_qt_SOURCES += \

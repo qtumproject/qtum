@@ -183,6 +183,7 @@ BITCOIN_CORE_H = \
   zmq/zmqpublishnotifier.h \
   qtum/qtumstate.h \
   qtum/qtumtransaction.h \
+  qtum/qtumDGP.h \ 
   qtum/storageresults.h
 
 
@@ -234,6 +235,8 @@ libbitcoin_server_a_SOURCES = \
   versionbits.cpp \
   qtum/qtumstate.cpp \
   qtum/qtumtransaction.cpp \
+  qtum/qtumDGP.cpp \
+  consensus/consensus.cpp \
   qtum/storageresults.cpp \
   $(BITCOIN_CORE_H)
 
@@ -445,7 +448,7 @@ qtum_cli_LDADD += $(BOOST_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(EVENT_LIBS)
 #
 
 # bitcoin-tx binary #
-qtum_tx_SOURCES = bitcoin-tx.cpp
+qtum_tx_SOURCES = bitcoin-tx.cpp consensus/consensus.cpp
 qtum_tx_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
 qtum_tx_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 qtum_tx_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)

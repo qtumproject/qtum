@@ -3347,6 +3347,14 @@ bool ProcessNetBlock(const CChainParams& chainparams, const std::shared_ptr<cons
     {
         LOCK(cs_main);
 
+        // Check that the coinstake transaction exist in the received block
+        if(pblock->IsProofOfStake() && !(pblock->vtx.size() > 1 && pblock->vtx[1]->IsCoinStake()))
+        {
+            if (pfrom)
+                Misbehaving(pfrom->GetId(), 100);
+            return error("ProcessNetBlock() : coinstake transaction does not exist");
+        }
+
         // Check for duplicate orphan block
         uint256 hash = pblock->GetHash();
         if (mapOrphanBlocks.count(hash))

@@ -139,7 +139,8 @@ BITCOIN_TESTS =\
   test/qtumtests/bytecodeexec_tests.cpp \
   test/qtumtests/condensingtransaction_tests.cpp \
   test/qtumtests/test_utils.cpp \
-  test/qtumtests/test_utils.h
+  test/qtumtests/test_utils.h \
+  test/qtumtests/dgp_tests.cpp
 
 if ENABLE_WALLET
 BITCOIN_TESTS += \
