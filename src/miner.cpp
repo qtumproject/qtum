@@ -88,7 +88,7 @@ BlockAssembler::BlockAssembler(const CChainParams& _chainparams)
     bool fWeightSet = false;
     if (IsArgSet("-blockmaxweight")) {
         nBlockMaxWeight = GetArg("-blockmaxweight", DEFAULT_BLOCK_MAX_WEIGHT);
-        nBlockMaxSize = MAX_BLOCK_SERIALIZED_SIZE;
+        nBlockMaxSize = dgpMaxBlockSerSize;
         fWeightSet = true;
     }
     if (IsArgSet("-blockmaxsize")) {
@@ -105,12 +105,12 @@ BlockAssembler::BlockAssembler(const CChainParams& _chainparams)
         blockMinFeeRate = CFeeRate(DEFAULT_BLOCK_MIN_TX_FEE);
     }
 
-    // Limit weight to between 4K and MAX_BLOCK_WEIGHT-4K for sanity:
-    nBlockMaxWeight = std::max((unsigned int)4000, std::min((unsigned int)(MAX_BLOCK_WEIGHT-4000), nBlockMaxWeight));
-    // Limit size to between 1K and MAX_BLOCK_SERIALIZED_SIZE-1K for sanity:
-    nBlockMaxSize = std::max((unsigned int)1000, std::min((unsigned int)(MAX_BLOCK_SERIALIZED_SIZE-1000), nBlockMaxSize));
+    // Limit weight to between 4K and dgpMaxBlockWeight-4K for sanity:
+    nBlockMaxWeight = std::max((unsigned int)4000, std::min((unsigned int)(dgpMaxBlockWeight-4000), nBlockMaxWeight));
+    // Limit size to between 1K and dgpMaxBlockSerSize-1K for sanity:
+    nBlockMaxSize = std::max((unsigned int)1000, std::min((unsigned int)(dgpMaxBlockSerSize-1000), nBlockMaxSize));
     // Whether we need to account for byte usage (in addition to weight usage)
-    fNeedSizeAccounting = (nBlockMaxSize < MAX_BLOCK_SERIALIZED_SIZE-1000);
+    fNeedSizeAccounting = (nBlockMaxSize < dgpMaxBlockSerSize-1000);
 }
 
 void BlockAssembler::resetBlock()
@@ -240,6 +240,12 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     }
 
     //////////////////////////////////////////////////////// qtum
+    QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
+    globalSealEngine->setQtumSchedule(qtumDGP.getGasSchedule(nHeight));
+    uint32_t blockSizeDGP = qtumDGP.getBlockSize(nHeight);
+    minGasPrice = qtumDGP.getMinGasPrice(nHeight);
+    nBlockMaxSize = blockSizeDGP ? blockSizeDGP : nBlockMaxSize;
+    
     dev::h256 oldHashStateRoot(globalState->rootHash());
     dev::h256 oldHashUTXORoot(globalState->rootHashUTXO());
     addPriorityTxs();
@@ -419,7 +425,7 @@ bool BlockAssembler::TestPackage(uint64_t packageSize, int64_t packageSigOpsCost
     // TODO: switch to weight-based accounting for packages instead of vsize-based accounting.
     if (nBlockWeight + WITNESS_SCALE_FACTOR * packageSize >= nBlockMaxWeight)
         return false;
-    if (nBlockSigOpsCost + packageSigOpsCost >= MAX_BLOCK_SIGOPS_COST)
+    if (nBlockSigOpsCost + packageSigOpsCost >= (uint64_t)dgpMaxBlockSigOps)
         return false;
     return true;
 }
@@ -479,10 +485,10 @@ bool BlockAssembler::TestForBlock(CTxMemPool::txiter iter)
         }
     }
 
-    if (nBlockSigOpsCost + iter->GetSigOpCost() >= MAX_BLOCK_SIGOPS_COST) {
+    if (nBlockSigOpsCost + iter->GetSigOpCost() >= (uint64_t)dgpMaxBlockSigOps) {
         // If the block has room for no more sig ops then
         // flag that the block is finished
-        if (nBlockSigOpsCost > MAX_BLOCK_SIGOPS_COST - 8) {
+        if (nBlockSigOpsCost > (uint64_t)dgpMaxBlockSigOps - 8) {
             blockFinished = true;
             return false;
         }
@@ -502,11 +508,11 @@ bool BlockAssembler::TestForBlock(CTxMemPool::txiter iter)
 
 bool BlockAssembler::CheckBlockBeyondFull()
 {
-    if (nBlockSize > MAX_BLOCK_SERIALIZED_SIZE) {
+    if (nBlockSize > dgpMaxBlockSerSize) {
         return false;
     }
 
-    if (nBlockSigOpsCost * WITNESS_SCALE_FACTOR > MAX_BLOCK_SIGOPS_COST) {
+    if (nBlockSigOpsCost * WITNESS_SCALE_FACTOR > (uint64_t)dgpMaxBlockSigOps) {
         return false;
     }
     return true;
@@ -529,8 +535,7 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
     uint64_t nBlockSigOpsCost = this->nBlockSigOpsCost;
 
     QtumTxConverter convert(iter->GetTx(), NULL, &pblock->vtx);
-    std::vector<QtumTransaction> transactions = convert.extractionQtumTransactions();
-    ByteCodeExec exec(*pblock, convert.extractionQtumTransactions());
+    ByteCodeExec exec(*pblock, convert.extractionQtumTransactions().first);
     exec.performByteCode();
     ByteCodeExecResult testExecResult = exec.processingResults();
 
@@ -569,8 +574,8 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
     //all contract costs now applied to local state
 
     //Check if block will be too big or too expensive with this contract execution
-    if (nBlockSigOpsCost * WITNESS_SCALE_FACTOR > MAX_BLOCK_SIGOPS_COST ||
-            nBlockSize > MAX_BLOCK_SERIALIZED_SIZE) {
+    if (nBlockSigOpsCost * WITNESS_SCALE_FACTOR > (uint64_t)dgpMaxBlockSigOps ||
+            nBlockSize > dgpMaxBlockSerSize) {
         //contract will not be added to block, so revert state to before we tried
         globalState->setRoot(oldHashStateRoot);
         globalState->setRootUTXO(oldHashUTXORoot);
@@ -584,7 +589,6 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
     bceResult.refundSender += testExecResult.refundSender;
     bceResult.refundOutputs.insert(bceResult.refundOutputs.end(), testExecResult.refundOutputs.begin(), testExecResult.refundOutputs.end());
     bceResult.valueTransfers = std::move(testExecResult.valueTransfers);
-
     pblock->vtx.emplace_back(iter->GetSharedTx());
     pblocktemplate->vTxFees.push_back(iter->GetFee());
     pblocktemplate->vTxSigOpsCost.push_back(iter->GetSigOpCost());

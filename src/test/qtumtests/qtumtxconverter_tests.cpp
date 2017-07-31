@@ -65,7 +65,7 @@ void runTest(bool isCreation, size_t n, CScript& script1, CScript script2 = CScr
     tx2 = createTX(outs2, hashParentTx);
     CTransaction transaction(tx2);
     QtumTxConverter converter(transaction, NULL);
-    std::vector<QtumTransaction> result = converter.extractionQtumTransactions();
+    std::vector<QtumTransaction> result = converter.extractionQtumTransactions().first;
     if(script2 == CScript()){
         BOOST_CHECK(result.size() == n);
     } else {

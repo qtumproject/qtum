@@ -394,6 +394,8 @@ std::string HelpMessage(HelpMessageMode mode)
     strUsage += HelpMessageOpt("-timeout=<n>", strprintf(_("Specify connection timeout in milliseconds (minimum: 1, default: %d)"), DEFAULT_CONNECT_TIMEOUT));
     strUsage += HelpMessageOpt("-torcontrol=<ip>:<port>", strprintf(_("Tor control port to use if onion listening enabled (default: %s)"), DEFAULT_TOR_CONTROL));
     strUsage += HelpMessageOpt("-torpassword=<pass>", _("Tor control port password (default: empty)"));
+    strUsage += HelpMessageOpt("-dgpstorage", _("Receiving data from DGP via a contract call (default: -dgpevm)"));
+    strUsage += HelpMessageOpt("-dgpevm", _("Receiving data from DGP via storage (default: -dgpevm)"));
 #ifdef USE_UPNP
 #if USE_UPNP
     strUsage += HelpMessageOpt("-upnp", _("Use UPnP to map the listening port (default: 1 when listening and no -proxy)"));
@@ -1474,6 +1476,13 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
                     return InitError(_("Incorrect or no genesis block found. Wrong datadir for network?"));
 
                 /////////////////////////////////////////////////////////// qtum
+                if((IsArgSet("-dgpstorage") && IsArgSet("-dgpevm")) || (!IsArgSet("-dgpstorage") && IsArgSet("-dgpevm")) ||
+                  (!IsArgSet("-dgpstorage") && !IsArgSet("-dgpevm"))){
+                    fGettingValuesDGP = true;
+                } else {
+                    fGettingValuesDGP = false;
+                }
+
                 dev::eth::Ethash::init();
                 boost::filesystem::path qtumStateDir = GetDataDir() / "stateQtum";
                 bool fStatus = boost::filesystem::exists(qtumStateDir);
@@ -1481,16 +1490,20 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
                 const dev::h256 hashDB(dev::sha3(dev::rlp("")));
                 dev::eth::BaseState existsQtumstate = fStatus ? dev::eth::BaseState::PreExisting : dev::eth::BaseState::Empty;
                 globalState = std::unique_ptr<QtumState>(new QtumState(dev::u256(0), QtumState::openDB(dirQtum, hashDB, dev::WithExisting::Trust), dirQtum, existsQtumstate));
-                
                 dev::eth::ChainParams cp((dev::eth::genesisInfo(dev::eth::Network::qtumMainNetwork)));
                 globalSealEngine = std::unique_ptr<dev::eth::SealEngineFace>(cp.createSealEngine());
 
                 if(chainActive.Tip() != NULL){
                     globalState->setRoot(uintToh256(chainActive.Tip()->hashStateRoot));
-                    globalState->setRootUTXO(uintToh256(chainActive.Tip()->hashUTXORoot)); // temp
+                    globalState->setRootUTXO(uintToh256(chainActive.Tip()->hashUTXORoot));
+                    QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
+                    uint32_t sizeBlockDGP = qtumDGP.getBlockSize(chainActive.Tip()->nHeight);
+                    dgpMaxBlockSize = sizeBlockDGP ? sizeBlockDGP : dgpMaxBlockSize;
+                    updateBlockSizeParams(dgpMaxBlockSize);
                 } else {
-                    globalState->setRoot(uintToh256(chainparams.GenesisBlock().hashStateRoot));
+                    globalState->setRoot(dev::sha3(dev::rlp("")));
                     globalState->setRootUTXO(uintToh256(chainparams.GenesisBlock().hashUTXORoot));
+                    globalState->populateFrom(cp.genesisState);
                 }
                 globalState->db().commit();
                 globalState->dbUtxo().commit();
