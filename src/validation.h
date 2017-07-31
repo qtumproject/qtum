@@ -626,6 +626,8 @@ void DumpMempool();
 bool LoadMempool();
 
 //////////////////////////////////////////////////////// qtum
+std::vector<ResultExecute> callContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, const dev::Address& sender = dev::Address());
+
 bool CheckMinGasPrice(std::vector<EthTransactionParams>& etps, const uint32_t& minGasPrice);
 
 struct ByteCodeExecResult;
@@ -686,7 +688,7 @@ class ByteCodeExec {
 
 public:
 
-    ByteCodeExec(const CBlock& _block, std::vector<QtumTransaction> _txs) : txs(_txs), block(_block) {}
+    ByteCodeExec(const CBlock& _block, std::vector<QtumTransaction> _txs, const uint32_t _blockGasLimit) : txs(_txs), block(_block), blockGasLimit(_blockGasLimit) {}
 
     void performByteCode(dev::eth::Permanence type = dev::eth::Permanence::Committed);
 
@@ -705,6 +707,8 @@ private:
     std::vector<ResultExecute> result;
 
     const CBlock& block;
+
+    const uint32_t blockGasLimit;
 
 };
 ////////////////////////////////////////////////////////

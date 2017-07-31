@@ -960,10 +960,12 @@ UniValue callcontract(const JSONRPCRequest& request)
     dev::Address addrAccount(strAddr);
     if(!globalState->addressInUse(addrAccount))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
-     
-    dev::u256 gasPrice = 1;
-    dev::u256 gasLimit(10000000); // MAX_MONEY
-    dev::Address senderAddress("f1b0747fe29c1fe5d4ff1e63cefdbdeaae1329d6");
+
+    QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
+    uint32_t blockGasLimit = qtumDGP.getBlockGasLimit(chainActive.Tip()->nHeight + 1);
+
+    dev::u256 gasLimit(blockGasLimit - 1); // MAX_MONEY
+    dev::Address senderAddress;
     if(request.params.size() == 3){
         CBitcoinAddress qtumSenderAddress(request.params[2].get_str());
         if(qtumSenderAddress.IsValid()){
@@ -975,19 +977,8 @@ UniValue callcontract(const JSONRPCRequest& request)
         }
 
     }
-     
-    CBlock block;
-    CMutableTransaction tx;
-    tx.vout.push_back(CTxOut(0, CScript() << OP_DUP << OP_HASH160 << senderAddress.asBytes() << OP_EQUALVERIFY << OP_CHECKSIG));
-    block.vtx.push_back(MakeTransactionRef(CTransaction(tx)));
- 
-    std::vector<unsigned char> opcode(ParseHex(data));
-    QtumTransaction callTransaction(0, gasPrice, gasLimit, addrAccount, opcode, dev::u256(0));
-    callTransaction.forceSender(senderAddress);
 
-    ByteCodeExec exec(block, std::vector<QtumTransaction>(1, callTransaction));
-    exec.performByteCode(dev::eth::Permanence::Reverted);
-    std::vector<ResultExecute> execResults = exec.getResult();
+    std::vector<ResultExecute> execResults = callContract(addrAccount, ParseHex(data), senderAddress);
 
     if(fRecordLogOpcodes){
         writeVMlog(execResults);
