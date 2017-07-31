@@ -776,7 +776,6 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                 return state.DoS(100, false, REJECT_INVALID, "bad-txns-fee-notenough");
             if(count > qtumTransactions.size())
                 return state.DoS(100, false, REJECT_INVALID, "bad-txns-incorrect-format");
-            }
         }
         ////////////////////////////////////////////////////////////
 
@@ -2232,14 +2231,6 @@ dev::Address ByteCodeExec::EthAddrFromScript(const CScript& scriptIn){
     return dev::Address(addr);
 }
 
-void VersionVM::expandData(){
-    std::string raw(std::bitset<32>(rawVersion).to_string());
-    vmFormat = std::bitset<2>(std::string(raw.begin(), raw.begin() + 2)).to_ulong();
-    rootVM = std::bitset<6>(std::string(raw.begin() + 2, raw.begin() + 8)).to_ulong();
-    vmVersion = std::bitset<8>(std::string(raw.begin() + 8, raw.begin() + 16)).to_ulong();
-    flagOptions = std::bitset<16>(std::string(raw.begin() + 16, raw.begin() + 32)).to_ulong();
-}
-
 ExtractQtumTX QtumTxConverter::extractionQtumTransactions(){
     std::vector<QtumTransaction> resultTX;
     std::vector<EthTransactionParams> resultETP;
@@ -2536,16 +2527,15 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         if(tx.HasCreateOrCall() && !hasOpSpend){
             QtumTxConverter convert(tx, NULL, &block.vtx);
 
-            std::vector<QtumTransaction> transactions = convert.extractionQtumTransactions();
             ExtractQtumTX resultConvertQtumTX = convert.extractionQtumTransactions();
             if(!CheckMinGasPrice(resultConvertQtumTX.second, minGasPrice))
                 return state.DoS(100, error("ConnectBlock(): Incorrect transaction."),
                             REJECT_INVALID, "incorrect-transaction-small-gasprice");            
-	ByteCodeExec exec(block, transactions);
+            ByteCodeExec exec(block, resultConvertQtumTX.first);
             //validate VM version before execution
             //Reject anything unknown (could be changed late by DGP)
             //TODO evaluate if this should be relaxed for soft-fork purposes
-            for(QtumTransaction& qtx : transactions){
+            for(QtumTransaction& qtx : resultConvertQtumTX.first){
                 VersionVM v = qtx.getVersion();
                 if(v.format!=0){
                     return state.DoS(100, error("ConnectBlock(): Contract execution uses unknown version format"), REJECT_INVALID, "bad-tx-version-format");

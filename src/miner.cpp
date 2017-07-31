@@ -535,7 +535,6 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
     uint64_t nBlockSigOpsCost = this->nBlockSigOpsCost;
 
     QtumTxConverter convert(iter->GetTx(), NULL, &pblock->vtx);
-    std::vector<QtumTransaction> transactions = convert.extractionQtumTransactions();
     ByteCodeExec exec(*pblock, convert.extractionQtumTransactions().first);
     if(!exec.performByteCode()){
         //error, don't add contract
