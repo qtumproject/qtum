@@ -960,11 +960,7 @@ UniValue callcontract(const JSONRPCRequest& request)
     dev::Address addrAccount(strAddr);
     if(!globalState->addressInUse(addrAccount))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
-
-    QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
-    uint32_t blockGasLimit = qtumDGP.getBlockGasLimit(chainActive.Tip()->nHeight + 1);
-
-    dev::u256 gasLimit(blockGasLimit - 1); // MAX_MONEY
+    
     dev::Address senderAddress;
     if(request.params.size() == 3){
         CBitcoinAddress qtumSenderAddress(request.params[2].get_str());
