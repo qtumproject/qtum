@@ -1948,6 +1948,94 @@ bool CheckRefund(const CBlock& block, const std::vector<CTxOut>& vouts){
     return true;
 }
 
+bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, const Consensus::Params& consensusParams, CAmount nFees, CAmount nActualStakeReward, int nRefundVouts)
+{
+    size_t offset = block.IsProofOfStake() ? 1 : 0;
+
+    // Check block reward
+    if (block.IsProofOfWork())
+    {
+        // Check proof-of-work reward
+        CAmount blockReward = nFees + GetBlockSubsidy(nHeight, consensusParams);
+        if (block.vtx[offset]->GetValueOut() > blockReward)
+            return state.DoS(100,
+                             error("CheckReward(): coinbase pays too much (actual=%d vs limit=%d)",
+                                   block.vtx[offset]->GetValueOut(), blockReward),
+                             REJECT_INVALID, "bad-cb-amount");
+    }
+    else
+    {
+        // Check proof-of-stake timestamp
+        if (!CheckTransactionTimestamp(*block.vtx[offset], block.nTime, *pblocktree))
+            return error("CheckReward() : %s transaction timestamp check failure", block.vtx[offset]->GetHash().ToString());
+
+        // Check full reward
+        CAmount blockReward = nFees + GetBlockSubsidy(nHeight, consensusParams);
+        if (nActualStakeReward > blockReward)
+            return state.DoS(100,
+                             error("CheckReward(): coinstake pays too much (actual=%d vs limit=%d)",
+                                   nActualStakeReward, blockReward),
+                             REJECT_INVALID, "bad-cs-amount");
+
+        // The first proof-of-stake blocks get full reward, the rest of them are split between recipients
+        int rewardRecipients = 1;
+        int nPrevHeight = nHeight -1;
+        if(nPrevHeight >= consensusParams.nFirstMPoSBlock)
+            rewardRecipients = consensusParams.nMPoSRewardRecipients;
+
+        // Check reward recipients number
+        if(rewardRecipients < 1)
+            return error("CheckReward(): invalid reward recipients");
+
+        //if only 1 then no MPoS logic required
+        if(rewardRecipients == 1){
+            return true;
+        }
+
+        CAmount splitReward = blockReward / rewardRecipients;
+
+        // Generate the list of script recipients including all of their parameters
+        std::vector<CScript> mposScriptList;
+        if(!GetMPoSOutputScripts(mposScriptList, nPrevHeight, consensusParams))
+            return error("CheckReward(): cannot create the list of MPoS output scripts");
+
+        // Check the list of script recipients
+        for(size_t i = 0; i < (block.vtx[offset]->vout.size() - offset); i++)
+        {
+            //use offset+i because in PoS the first vout is empty
+            std::vector<CScript>::iterator pos;
+            pos=std::find(mposScriptList.begin(), mposScriptList.end(), block.vtx[offset]->vout[offset+i].scriptPubKey);
+            if(pos != mposScriptList.end()){
+                // if this vout does not provide at least splitReward, then it does not count as an MPoS output
+                // This is to allow for the coinstake to send an arbritrary amount to any script including MPoS output scripts
+                // But when this arbritrary amount is less than splitReward, then in order to be valid there needs to be another vout that
+                // sends at least splitReward.
+                // This also makes sure that if an MPoS scriptPubKey is duplicated (such as same address mines 2 blocks in a row)
+                // that they can not be cheated out of their duplicate rewards
+                if(block.vtx[offset]->vout[offset+i].nValue >= splitReward) {
+                    // remove from list without moving all elements
+                    // (this does not preserve order for mposScriptList, but order does not matter here)
+                    assert(mposScriptList.size() != 0); //.back() on empty vector is undefined
+                    std::swap(*pos, mposScriptList.back());
+                    mposScriptList.pop_back();
+                }
+            }
+            if(mposScriptList.size() == 0){
+                //list is empty, no need to iterate through any more transactions
+                break;
+            }
+        }
+        //done checking coinstake tx, mpos reward list should now be empty
+        if(mposScriptList.size()!=0){
+            return state.DoS(100,
+                             error("CheckReward(): An MPoS participant was not properly paid"),
+                             REJECT_INVALID, "bad-cs-mpos-missing");
+        }
+    }
+
+    return true;
+}
+
 valtype GetSenderAddress(const CTransaction& tx, const CCoinsViewCache* coinsView, const std::vector<CTransactionRef>* blockTxs){
     CScript script;
     bool scriptFilled=false; //can't use script.empty() because an empty script is technically valid
@@ -2490,28 +2578,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     int64_t nTime3 = GetTimeMicros(); nTimeConnect += nTime3 - nTime2;
     LogPrint("bench", "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs]\n", (unsigned)block.vtx.size(), 0.001 * (nTime3 - nTime2), 0.001 * (nTime3 - nTime2) / block.vtx.size(), nInputs <= 1 ? 0 : 0.001 * (nTime3 - nTime2) / (nInputs-1), nTimeConnect * 0.000001);
 
-    if (block.IsProofOfWork())
-    {
-        CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus());
-        if (block.vtx[0]->GetValueOut() > blockReward)
-            return state.DoS(100,
-                             error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
-                                   block.vtx[0]->GetValueOut(), blockReward),
-                                   REJECT_INVALID, "bad-cb-amount");
-    }
-    else
-    {
-        if (!CheckTransactionTimestamp(*block.vtx[1], block.nTime, *pblocktree))
-            return error("ConnectBlock() : %s transaction timestamp check failure", block.vtx[1]->GetHash().ToString());
-
-        CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus());
-         if (nActualStakeReward > blockReward)
-            return state.DoS(100,
-                             error("ConnectBlock(): coinstake pays too much (actual=%d vs limit=%d)",
-                                   nActualStakeReward, blockReward),
-                                   REJECT_INVALID, "bad-cs-amount");
-        
-    }
+    if(!CheckReward(block, state, pindex->nHeight, chainparams.GetConsensus(), nFees, nActualStakeReward, checkVouts.size()))
+        return state.DoS(100,error("ConnectBlock(): Reward check failed"));
 
     if(!CheckRefund(block, checkVouts))
         return state.DoS(100,error("ConnectBlock(): Gas refund missing"));
@@ -2821,7 +2889,8 @@ bool static DisconnectTip(CValidationState& state, const CChainParams& chainpara
     // Let wallets know transactions went from 1-confirmed to
     // 0-confirmed or conflicted:
     for (const auto& tx : block.vtx) {
-        GetMainSignals().SyncTransaction(*tx, pindexDelete->pprev, CMainSignals::SYNC_TRANSACTION_NOT_IN_BLOCK);
+        CBlockIndex* pindexPrev = tx->IsCoinStake() ? NULL : pindexDelete->pprev;
+        GetMainSignals().SyncTransaction(*tx, pindexPrev, CMainSignals::SYNC_TRANSACTION_NOT_IN_BLOCK);
     }
     return true;
 }
@@ -3534,10 +3603,10 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
 }
 #endif
 
-bool CheckBlockSignature(const CBlock& block)
+bool GetBlockPublicKey(const CBlock& block, std::vector<unsigned char>& vchPubKey)
 {
     if (block.IsProofOfWork())
-        return block.vchBlockSig.empty();
+        return false;
 
     if (block.vchBlockSig.empty())
         return false;
@@ -3552,8 +3621,8 @@ bool CheckBlockSignature(const CBlock& block)
 
     if (whichType == TX_PUBKEY)
     {
-        valtype& vchPubKey = vSolutions[0];
-        return CPubKey(vchPubKey).Verify(block.GetHashWithoutSign(), block.vchBlockSig);
+        vchPubKey = vSolutions[0];
+        return true;
     }
     else
     {
@@ -3563,20 +3632,33 @@ bool CheckBlockSignature(const CBlock& block)
         const CScript& script = txout.scriptPubKey;
         CScript::const_iterator pc = script.begin();
         opcodetype opcode;
-        valtype vchPushValue;
 
-        if (!script.GetOp(pc, opcode, vchPushValue))
+        if (!script.GetOp(pc, opcode, vchPubKey))
             return false;
         if (opcode != OP_RETURN)
             return false;
-        if (!script.GetOp(pc, opcode, vchPushValue))
+        if (!script.GetOp(pc, opcode, vchPubKey))
             return false;
-        if (!IsCompressedOrUncompressedPubKey(vchPushValue))
+        if (!IsCompressedOrUncompressedPubKey(vchPubKey))
             return false;
-        return CPubKey(vchPushValue).Verify(block.GetHashWithoutSign(), block.vchBlockSig);
+        return true;
     }
 
     return false;
+}
+
+bool CheckBlockSignature(const CBlock& block)
+{
+    if (block.IsProofOfWork())
+        return block.vchBlockSig.empty();
+
+    std::vector<unsigned char> vchPubKey;
+    if(!GetBlockPublicKey(block, vchPubKey))
+    {
+        return false;
+    }
+
+    return CPubKey(vchPubKey).Verify(block.GetHashWithoutSign(), block.vchBlockSig);
 }
 
 bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW)
