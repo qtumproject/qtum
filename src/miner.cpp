@@ -524,7 +524,7 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
     {
         return false;
     }
-    if(bceResult.usedGas > DEFAULT_BLOCK_GASLIMIT){
+    if(bceResult.usedGas > blockGasLimit){
         //if this transaction could cause block gas limit to be exceeded, then don't add it
         return false;
     }

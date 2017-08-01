@@ -2570,7 +2570,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             storageRes.addResult(uintToh256(tx.GetHash()), tri);
 
             blockGasUsed += bcer.usedGas;
-            if(blockGasUsed > DEFAULT_BLOCK_GASLIMIT){
+            if(blockGasUsed > blockGasLimit){
                 return state.DoS(1000, error("ConnectBlock(): Block exceeds gas limit"), REJECT_INVALID, "bad-blk-gaslimit");
             }
             checkVouts.insert(checkVouts.end(), bcer.refundOutputs.begin(), bcer.refundOutputs.end());
