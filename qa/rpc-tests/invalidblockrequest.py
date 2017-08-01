@@ -108,7 +108,7 @@ class InvalidBlockRequestTest(ComparisonTestFramework):
         block3.hashMerkleRoot = block3.calc_merkle_root()
         block3.rehash()
         block3.solve()
-        yield TestInstance([[block3, RejectResult(16, b'bad-cb-amount')]])
+        yield TestInstance([[block3, False]])
 
 
 if __name__ == '__main__':
