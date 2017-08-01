@@ -758,7 +758,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
         //////////////////////////////////////////////////////////// // qtum
         if(tx.HasCreateOrCall()){
             QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
-            uint32_t minGasPrice = qtumDGP.getMinGasPrice(chainActive.Tip()->nHeight + 1);
+            uint64_t minGasPrice = qtumDGP.getMinGasPrice(chainActive.Tip()->nHeight + 1);
             size_t count = 0;
             for(const CTxOut& o : tx.vout)
                 count += o.scriptPubKey.HasOpCreate() || o.scriptPubKey.HasOpCall() ? 1 : 0;
@@ -1929,7 +1929,7 @@ std::vector<ResultExecute> callContract(const dev::Address& addrContract, std::v
     CMutableTransaction tx;
 
     QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
-    uint32_t blockGasLimit = qtumDGP.getBlockGasLimit(chainActive.Tip()->nHeight + 1);
+    uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(chainActive.Tip()->nHeight + 1);
 
     dev::u256 gasLimit(blockGasLimit - 1); // MAX_MONEY
     dev::Address senderAddress = sender == dev::Address() ? dev::Address("ffffffffffffffffffffffffffffffffffffffff") : sender;
@@ -1945,7 +1945,7 @@ std::vector<ResultExecute> callContract(const dev::Address& addrContract, std::v
     return exec.getResult();
 }
 
-bool CheckMinGasPrice(std::vector<EthTransactionParams>& etps, const uint32_t& minGasPrice){
+bool CheckMinGasPrice(std::vector<EthTransactionParams>& etps, const uint64_t& minGasPrice){
     for(EthTransactionParams& etp : etps){
         if(etp.gasPrice < dev::u256(minGasPrice))
             return false;
@@ -2346,8 +2346,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
     globalSealEngine->setQtumSchedule(qtumDGP.getGasSchedule(pindex->nHeight + 1));
     uint32_t sizeBlockDGP = qtumDGP.getBlockSize(pindex->nHeight + 1);
-    uint32_t minGasPrice = qtumDGP.getMinGasPrice(pindex->nHeight + 1);
-    uint32_t blockGasLimit = qtumDGP.getBlockGasLimit(pindex->nHeight + 1);
+    uint64_t minGasPrice = qtumDGP.getMinGasPrice(pindex->nHeight + 1);
+    uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(pindex->nHeight + 1);
     dgpMaxBlockSize = sizeBlockDGP ? sizeBlockDGP : dgpMaxBlockSize;
     updateBlockSizeParams(dgpMaxBlockSize);
     CBlock checkBlock(block.GetBlockHeader());

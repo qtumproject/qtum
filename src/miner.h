@@ -188,8 +188,8 @@ private:
 
 ///////////////////////////////////////////// // qtum
     ByteCodeExecResult bceResult;
-    uint32_t minGasPrice = 1;
-    uint32_t blockGasLimit;
+    uint64_t minGasPrice = 1;
+    uint64_t blockGasLimit;
 /////////////////////////////////////////////
 
     // The original constructed reward tx (either coinbase or coinstake) without gas refund adjustments

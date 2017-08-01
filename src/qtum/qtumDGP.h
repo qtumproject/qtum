@@ -16,13 +16,13 @@ static const uint32_t MIN_BLOCK_SIZE_DGP = 500000;
 static const uint32_t MAX_BLOCK_SIZE_DGP = 32000000;
 static const uint32_t DEFAULT_BLOCK_SIZE_DGP = 2000000;
 
-static const uint32_t MIN_MIN_GAS_PRICE_DGP = 1;
-static const uint32_t MAX_MIN_GAS_PRICE_DGP = 10000;
-static const uint32_t DEFAULT_MIN_GAS_PRICE_DGP = 1;
+static const uint64_t MIN_MIN_GAS_PRICE_DGP = 1;
+static const uint64_t MAX_MIN_GAS_PRICE_DGP = 10000;
+static const uint64_t DEFAULT_MIN_GAS_PRICE_DGP = 1;
 
-static const uint32_t MIN_BLOCK_GAS_LIMIT_DGP = 1000000;
-static const uint32_t MAX_BLOCK_GAS_LIMIT_DGP = 1000000000;
-static const uint32_t DEFAULT_BLOCK_GAS_LIMIT_DGP = 40000000;
+static const uint64_t MIN_BLOCK_GAS_LIMIT_DGP = 1000000;
+static const uint64_t MAX_BLOCK_GAS_LIMIT_DGP = 1000000000;
+static const uint64_t DEFAULT_BLOCK_GAS_LIMIT_DGP = 40000000;
 
 class QtumDGP {
     
@@ -34,9 +34,9 @@ public:
 
     uint32_t getBlockSize(unsigned int blockHeight);
 
-    uint32_t getMinGasPrice(unsigned int blockHeight);
+    uint64_t getMinGasPrice(unsigned int blockHeight);
 
-    uint32_t getBlockGasLimit(unsigned int blockHeight);
+    uint64_t getBlockGasLimit(unsigned int blockHeight);
 
 private:
 
@@ -56,15 +56,15 @@ private:
 
     dev::Address getAddressForBlock(unsigned int blockHeight);
 
-    uint32_t getUint32FromDGP(unsigned int blockHeight, const dev::Address& contract, std::vector<unsigned char> data);
+    uint64_t getUint64FromDGP(unsigned int blockHeight, const dev::Address& contract, std::vector<unsigned char> data);
 
     void parseStorageScheduleContract(std::vector<uint32_t>& uint32Values);
     
     void parseDataScheduleContract(std::vector<uint32_t>& uint32Values);
 
-    void parseStorageOneUint32(uint32_t& blockSize);
+    void parseStorageOneUint64(uint64_t& blockSize);
 
-    void parseDataOneUint32(uint32_t& value);
+    void parseDataOneUint64(uint64_t& value);
 
     dev::eth::EVMSchedule createEVMSchedule();
 
