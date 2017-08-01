@@ -203,8 +203,8 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
                 try {
                     uint64_t val = CScriptNum::vch_to_uint64(vch1);
                     if(contractConsensus) {
-                        //consensus rules for contracts
-                        if (version.rootVM != 0 && val < MINIMUM_GAS_LIMIT) {
+                        //consensus rules (this is checked more in depth later using DGP)
+                        if (version.rootVM != 0 && val < 1) {
                             return false;
                         }
                         if (val > DEFAULT_BLOCK_GASLIMIT) {
@@ -232,8 +232,8 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
                 try {
                     uint64_t val = CScriptNum::vch_to_uint64(vch1);
                     if(contractConsensus) {
-                        //consensus rules
-                        if (version.rootVM != 0 && val < MINIMUM_GAS_PRICE) {
+                        //consensus rules (this is checked more in depth later using DGP)
+                        if (version.rootVM != 0 && val < 1) {
                             return false;
                         }
                     }else{

@@ -74,9 +74,8 @@ struct LockPoints;
 /** Default block gas limit (might be changed by DGP later), 40M for now **/
 static const uint64_t DEFAULT_BLOCK_GASLIMIT = 40e8;
 
-static const uint64_t MINIMUM_GAS_LIMIT = STANDARD_MINIMUM_GAS_LIMIT;
-
-static const uint64_t MINIMUM_GAS_PRICE = STANDARD_MINIMUM_GAS_PRICE;
+/** Minimum gas limit that is allowed in a transaction within a block - prevent various types of tx and mempool spam **/
+static const uint64_t MINIMUM_GAS_LIMIT = 10000;
 
 /** Default for DEFAULT_WHITELISTRELAY. */
 static const bool DEFAULT_WHITELISTRELAY = true;

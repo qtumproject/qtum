@@ -2322,7 +2322,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
     globalSealEngine->setQtumSchedule(qtumDGP.getGasSchedule(pindex->nHeight + 1));
     uint32_t sizeBlockDGP = qtumDGP.getBlockSize(pindex->nHeight + 1);
-    uint32_t minGasPrice = qtumDGP.getMinGasPrice(pindex->nHeight + 1);
+    uint64_t minGasPrice = qtumDGP.getMinGasPrice(pindex->nHeight + 1);
     dgpMaxBlockSize = sizeBlockDGP ? sizeBlockDGP : dgpMaxBlockSize;
     updateBlockSizeParams(dgpMaxBlockSize);
     CBlock checkBlock(block.GetBlockHeader());
@@ -2529,33 +2529,34 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
             ExtractQtumTX resultConvertQtumTX = convert.extractionQtumTransactions();
             if(!CheckMinGasPrice(resultConvertQtumTX.second, minGasPrice))
-                return state.DoS(100, error("ConnectBlock(): Incorrect transaction."),
-                            REJECT_INVALID, "incorrect-transaction-small-gasprice");            
+                return state.DoS(100, error("ConnectBlock(): Contract execution has lower gas price than allowed"), REJECT_INVALID, "bad-tx-low-gas-price");
+
             ByteCodeExec exec(block, resultConvertQtumTX.first);
-            //validate VM version before execution
-            //Reject anything unknown (could be changed late by DGP)
+            //validate VM version and other ETH params before execution
+            //Reject anything unknown (could be changed later by DGP)
             //TODO evaluate if this should be relaxed for soft-fork purposes
             for(QtumTransaction& qtx : resultConvertQtumTX.first){
                 VersionVM v = qtx.getVersion();
-                if(v.format!=0){
+                if(v.format!=0)
                     return state.DoS(100, error("ConnectBlock(): Contract execution uses unknown version format"), REJECT_INVALID, "bad-tx-version-format");
-                }
-                if(!(v.rootVM == 0 || v.rootVM == 1)){
+                if(!(v.rootVM == 0 || v.rootVM == 1))
                     return state.DoS(100, error("ConnectBlock(): Contract execution uses unknown root VM"), REJECT_INVALID, "bad-tx-version-rootvm");
-                }
-                if(v.vmVersion != 0){
+                if(v.vmVersion != 0)
                     return state.DoS(100, error("ConnectBlock(): Contract execution uses unknown VM version"), REJECT_INVALID, "bad-tx-version-vmversion");
-                }
-                if(v.flagOptions != 0){
+                if(v.flagOptions != 0)
                     return state.DoS(100, error("ConnectBlock(): Contract execution uses unknown flag options"), REJECT_INVALID, "bad-tx-version-flags");
-                }
 
                 //check gas limit is not less than minimum gas limit (unless it is a no-exec tx)
-                if(qtx.gas() < MINIMUM_GAS_LIMIT && v.rootVM != 0){
+                if(qtx.gas() < MINIMUM_GAS_LIMIT && v.rootVM != 0)
                     return state.DoS(100, error("ConnectBlock(): Contract execution has lower gas limit than allowed"), REJECT_INVALID, "bad-tx-too-little-gas");
-                }
-            }
 
+                if(qtx.gas() > UINT32_MAX)
+                    return state.DoS(100, error("ConnectBlock(): Contract execution can not specify greater gas limit than can fit in 32-bits"), REJECT_INVALID, "bad-tx-too-much-gas");
+
+                //don't allow less than DGP set minimum gas price to prevent MPoS greedy mining/spammers
+                if(v.rootVM!=0 && (uint64_t)qtx.gasPrice() < minGasPrice)
+                    return state.DoS(100, error("ConnectBlock(): Contract execution has lower gas price than allowed"), REJECT_INVALID, "bad-tx-low-gas-price");
+            }
 
             if(!exec.performByteCode()){
                 return state.DoS(100, error("ConnectBlock(): Unknown error during contract execution"), REJECT_INVALID, "bad-tx-unknown-error");
