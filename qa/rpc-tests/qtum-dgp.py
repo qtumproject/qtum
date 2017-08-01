@@ -78,19 +78,19 @@ class DGPState:
 
     def send_set_initial_admin(self, sender):
         self.node.sendtoaddress(sender, 1)
-        self.node.sendtocontract(self.contract_address, self.abiSetInitialAdmin, 0, 500000000, 0.00000001, sender)
+        self.node.sendtocontract(self.contract_address, self.abiSetInitialAdmin, 0, 4000000, 0.00000001, sender)
 
     def send_add_address_proposal(self, proposal_address, type1, sender):
         self.node.sendtoaddress(sender, 1)
-        self.node.sendtocontract(self.contract_address, self.abiAddAddressProposal + proposal_address.zfill(64) + hex(type1)[2:].zfill(64), 0, 500000000, 0.00000001, sender)
+        self.node.sendtocontract(self.contract_address, self.abiAddAddressProposal + proposal_address.zfill(64) + hex(type1)[2:].zfill(64), 0, 4000000, 0.00000001, sender)
 
     def send_remove_address_proposal(self, proposal_address, type1, sender):
         self.node.sendtoaddress(sender, 1)
-        self.node.sendtocontract(self.contract_address, self.abiRemoveAddressProposal + proposal_address.zfill(64) + hex(type1)[2:].zfill(64), 0, 500000000, 0.00000001, sender)
+        self.node.sendtocontract(self.contract_address, self.abiRemoveAddressProposal + proposal_address.zfill(64) + hex(type1)[2:].zfill(64), 0, 4000000, 0.00000001, sender)
 
     def send_change_value_proposal(self, uint_proposal, type1, sender):
         self.node.sendtoaddress(sender, 1)
-        self.node.sendtocontract(self.contract_address, self.abiChangeValueProposal + hex(uint_proposal)[2:].zfill(64) + hex(type1)[2:].zfill(64), 0, 500000000, 0.00000001, sender)
+        self.node.sendtocontract(self.contract_address, self.abiChangeValueProposal + hex(uint_proposal)[2:].zfill(64) + hex(type1)[2:].zfill(64), 0, 4000000, 0.00000001, sender)
 
     def assert_state(self):
         # This assertion is only to catch potential errors in the test code (if we forget to add a generate after an evm call)
@@ -738,6 +738,7 @@ class QtumDGPTest(BitcoinTestFramework):
         #state.assert_state()
 
         self.create_proposal_contract()
+        self.node.generate(1)
         # Add an address proposal by using the last removed admin key, expected fail
         state.send_add_address_proposal(self.proposal_address, 2, keyhash_to_p2pkh(hex_str_to_bytes(removed_admin_key)))
         self.node.generate(1)
@@ -780,6 +781,7 @@ class QtumDGPTest(BitcoinTestFramework):
 
         # A valid admin key makes an address params proposal, should activate immediately
         self.create_proposal_contract()
+        self.node.generate(1)
         state.send_add_address_proposal(self.proposal_address, 2, keyhash_to_p2pkh(hex_str_to_bytes(state.admin_keys[0])))
         self.node.generate(1)
         state.param_count += 1
@@ -795,6 +797,7 @@ class QtumDGPTest(BitcoinTestFramework):
         state.assert_state()
 
         self.create_proposal_contract()
+        self.node.generate(1)
         for i in range(4):
             state.send_add_address_proposal(self.proposal_address, 2, keyhash_to_p2pkh(hex_str_to_bytes(state.admin_keys[-1*i])))
             self.node.generate(1)
@@ -896,7 +899,7 @@ class QtumDGPTest(BitcoinTestFramework):
             gov_address = self.node.getnewaddress()
             for j in range(len(state.admin_keys)):
                 state.send_add_address_proposal(p2pkh_to_hex_hash(gov_address), 1, keyhash_to_p2pkh(hex_str_to_bytes(state.admin_keys[j])))
-            self.node.generate(1)
+                self.node.generate(1)
             state.gov_keys.append(p2pkh_to_hex_hash(gov_address))
             state.assert_state()
 
@@ -916,6 +919,7 @@ class QtumDGPTest(BitcoinTestFramework):
 
         # Make sure that no gov votes are required to accept a proposal
         self.create_proposal_contract()
+        self.node.generate(1)
         state.send_add_address_proposal(self.proposal_address, 2, keyhash_to_p2pkh(hex_str_to_bytes(state.admin_keys[8])))
         self.node.generate(1)
         state.current_on_vote_statuses[0][2] = True
@@ -941,6 +945,7 @@ class QtumDGPTest(BitcoinTestFramework):
 
         # Make sure that govs can't initiate new votes
         self.create_proposal_contract()
+        self.node.generate(1)
         state.send_add_address_proposal(self.proposal_address, 2, keyhash_to_p2pkh(hex_str_to_bytes(state.gov_keys[0])))
         self.node.generate(1)
         # No state changes because a gov can't initiate votes
@@ -1032,6 +1037,7 @@ class QtumDGPTest(BitcoinTestFramework):
 
         # Submit a new proposal where votes are submitted in the following block order (only 2 admin votes and 2 gov votes are required for the proposal to be accepted): 1 admin | 2 gov votes | 29 admin votes
         self.create_proposal_contract()
+        self.node.generate(1)
         # Add the first admin vote which initializes the vote
         state.send_add_address_proposal(self.proposal_address, 2, keyhash_to_p2pkh(hex_str_to_bytes(state.admin_keys[0])))
         self.node.generate(1)
@@ -1083,6 +1089,7 @@ class QtumDGPTest(BitcoinTestFramework):
 
         # Create one of each type of proposal
         self.create_proposal_contract()
+        self.node.generate(1)
         admin_key = self.node.getnewaddress()
         gov_key = self.node.getnewaddress()
         state.send_change_value_proposal(3, 0, keyhash_to_p2pkh(hex_str_to_bytes(state.admin_keys[0])))

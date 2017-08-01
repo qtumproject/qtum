@@ -537,7 +537,11 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
 
     QtumTxConverter convert(iter->GetTx(), NULL, &pblock->vtx);
     ByteCodeExec exec(*pblock, convert.extractionQtumTransactions().first, blockGasLimit);
-    exec.performByteCode();
+    if(!exec.performByteCode()){
+        //error, don't add contract
+        return false;
+    }
+
     ByteCodeExecResult testExecResult = exec.processingResults();
 
     //apply contractTx costs to local state
@@ -590,6 +594,7 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
     bceResult.refundSender += testExecResult.refundSender;
     bceResult.refundOutputs.insert(bceResult.refundOutputs.end(), testExecResult.refundOutputs.begin(), testExecResult.refundOutputs.end());
     bceResult.valueTransfers = std::move(testExecResult.valueTransfers);
+
     pblock->vtx.emplace_back(iter->GetSharedTx());
     pblocktemplate->vTxFees.push_back(iter->GetFee());
     pblocktemplate->vTxSigOpsCost.push_back(iter->GetSigOpCost());

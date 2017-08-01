@@ -538,7 +538,7 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fChe
         if (txout.scriptPubKey.HasOpCall() || txout.scriptPubKey.HasOpCreate()) {
             std::vector<valtype> vSolutions;
             txnouttype whichType;
-            if (!Solver(txout.scriptPubKey, whichType, vSolutions)) {
+            if (!Solver(txout.scriptPubKey, whichType, vSolutions, true)) {
                 return state.DoS(100, false, REJECT_INVALID, "bad-txns-contract-nonstandard");
             }
         }
@@ -1924,20 +1924,23 @@ static int64_t nTimeCallbacks = 0;
 static int64_t nTimeTotal = 0;
 
 /////////////////////////////////////////////////////////////////////// qtum
-std::vector<ResultExecute> callContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, const dev::Address& sender){
+std::vector<ResultExecute> callContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, const dev::Address& sender, uint64_t gasLimit){
     CBlock block;
     CMutableTransaction tx;
 
     QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
     uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(chainActive.Tip()->nHeight + 1);
 
-    dev::u256 gasLimit(blockGasLimit - 1); // MAX_MONEY
+    if(gasLimit == 0){
+        gasLimit = blockGasLimit - 1;
+    }
     dev::Address senderAddress = sender == dev::Address() ? dev::Address("ffffffffffffffffffffffffffffffffffffffff") : sender;
     tx.vout.push_back(CTxOut(0, CScript() << OP_DUP << OP_HASH160 << senderAddress.asBytes() << OP_EQUALVERIFY << OP_CHECKSIG));
     block.vtx.push_back(MakeTransactionRef(CTransaction(tx)));
  
-    QtumTransaction callTransaction(0, 1, gasLimit, addrContract, opcode, dev::u256(0));
+    QtumTransaction callTransaction(0, 1, dev::u256(gasLimit), addrContract, opcode, dev::u256(0));
     callTransaction.forceSender(senderAddress);
+    callTransaction.setVersion(VersionVM::GetEVMDefault());
 
     
     ByteCodeExec exec(block, std::vector<QtumTransaction>(1, callTransaction), blockGasLimit);
@@ -2162,8 +2165,12 @@ void writeVMlog(const std::vector<ResultExecute>& res, const CTransaction& tx, c
     fIsVMlogFile = true;
 }
 
-void ByteCodeExec::performByteCode(dev::eth::Permanence type){
+bool ByteCodeExec::performByteCode(dev::eth::Permanence type){
     for(QtumTransaction& tx : txs){
+        //validate VM version
+        if(tx.getVersion().toRaw() != VersionVM::GetEVMDefault().toRaw()){
+            return false;
+        }
         dev::eth::EnvInfo envInfo(BuildEVMEnvironment());
         if(!tx.isCreation() && !globalState->addressInUse(tx.receiveAddress())){
             dev::eth::ExecutionResult execRes;
@@ -2175,6 +2182,7 @@ void ByteCodeExec::performByteCode(dev::eth::Permanence type){
     }
     globalState->db().commit();
     globalState->dbUtxo().commit();
+    return true;
 }
 
 ByteCodeExecResult ByteCodeExec::processingResults(){
@@ -2247,14 +2255,6 @@ dev::Address ByteCodeExec::EthAddrFromScript(const CScript& scriptIn){
     return dev::Address(addr);
 }
 
-void VersionVM::expandData(){
-    std::string raw(std::bitset<32>(rawVersion).to_string());
-    vmFormat = std::bitset<2>(std::string(raw.begin(), raw.begin() + 2)).to_ulong();
-    rootVM = std::bitset<6>(std::string(raw.begin() + 2, raw.begin() + 8)).to_ulong();
-    vmVersion = std::bitset<8>(std::string(raw.begin() + 8, raw.begin() + 16)).to_ulong();
-    flagOptions = std::bitset<16>(std::string(raw.begin() + 16, raw.begin() + 32)).to_ulong();
-}
-
 ExtractQtumTX QtumTxConverter::extractionQtumTransactions(){
     std::vector<QtumTransaction> resultTX;
     std::vector<EthTransactionParams> resultETP;
@@ -2307,7 +2307,7 @@ EthTransactionParams QtumTxConverter::parseEthTXParams(){
         stack.pop_back();
         uint64_t gasLimit = CScriptNum::vch_to_uint64(stack.back());
         stack.pop_back();
-        VersionVM version(CScriptNum::vch_to_uint64(stack.back()));
+        VersionVM version = VersionVM::fromRaw((uint32_t)CScriptNum::vch_to_uint64(stack.back()));
         stack.pop_back();
         return EthTransactionParams{version, dev::u256(gasLimit), dev::u256(gasPrice), code, receiveAddress};      
     }
@@ -2476,7 +2476,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     CBlockUndo blockundo;
 
     CCheckQueueControl<CScriptCheck> control(fScriptChecks && nScriptCheckThreads ? &scriptcheckqueue : NULL);
-
     std::vector<int> prevheights;
     CAmount nFees = 0;
     CAmount nActualStakeReward = 0;
@@ -2552,12 +2551,42 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
         if(tx.HasCreateOrCall() && !hasOpSpend){
             QtumTxConverter convert(tx, NULL, &block.vtx);
+
             ExtractQtumTX resultConvertQtumTX = convert.extractionQtumTransactions();
             if(!CheckMinGasPrice(resultConvertQtumTX.second, minGasPrice))
-                return state.DoS(100, error("ConnectBlock(): Incorrect transaction."),
-                            REJECT_INVALID, "incorrect-transaction-small-gasprice");
+                return state.DoS(100, error("ConnectBlock(): Contract execution has lower gas price than allowed"), REJECT_INVALID, "bad-tx-low-gas-price");
+
             ByteCodeExec exec(block, resultConvertQtumTX.first, blockGasLimit);
-            exec.performByteCode();
+            //validate VM version and other ETH params before execution
+            //Reject anything unknown (could be changed later by DGP)
+            //TODO evaluate if this should be relaxed for soft-fork purposes
+            for(QtumTransaction& qtx : resultConvertQtumTX.first){
+                VersionVM v = qtx.getVersion();
+                if(v.format!=0)
+                    return state.DoS(100, error("ConnectBlock(): Contract execution uses unknown version format"), REJECT_INVALID, "bad-tx-version-format");
+                if(!(v.rootVM == 0 || v.rootVM == 1))
+                    return state.DoS(100, error("ConnectBlock(): Contract execution uses unknown root VM"), REJECT_INVALID, "bad-tx-version-rootvm");
+                if(v.vmVersion != 0)
+                    return state.DoS(100, error("ConnectBlock(): Contract execution uses unknown VM version"), REJECT_INVALID, "bad-tx-version-vmversion");
+                if(v.flagOptions != 0)
+                    return state.DoS(100, error("ConnectBlock(): Contract execution uses unknown flag options"), REJECT_INVALID, "bad-tx-version-flags");
+
+                //check gas limit is not less than minimum gas limit (unless it is a no-exec tx)
+                if(qtx.gas() < MINIMUM_GAS_LIMIT && v.rootVM != 0)
+                    return state.DoS(100, error("ConnectBlock(): Contract execution has lower gas limit than allowed"), REJECT_INVALID, "bad-tx-too-little-gas");
+
+                if(qtx.gas() > UINT32_MAX)
+                    return state.DoS(100, error("ConnectBlock(): Contract execution can not specify greater gas limit than can fit in 32-bits"), REJECT_INVALID, "bad-tx-too-much-gas");
+
+                //don't allow less than DGP set minimum gas price to prevent MPoS greedy mining/spammers
+                if(v.rootVM!=0 && (uint64_t)qtx.gasPrice() < minGasPrice)
+                    return state.DoS(100, error("ConnectBlock(): Contract execution has lower gas price than allowed"), REJECT_INVALID, "bad-tx-low-gas-price");
+            }
+
+            if(!exec.performByteCode()){
+                return state.DoS(100, error("ConnectBlock(): Unknown error during contract execution"), REJECT_INVALID, "bad-tx-unknown-error");
+            }
+
             std::vector<ResultExecute> resultExec(exec.getResult());
             ByteCodeExecResult bcer = exec.processingResults();
 
@@ -3654,6 +3683,7 @@ bool GetBlockPublicKey(const CBlock& block, std::vector<unsigned char>& vchPubKe
         const CScript& script = txout.scriptPubKey;
         CScript::const_iterator pc = script.begin();
         opcodetype opcode;
+        valtype vchPushValue;
 
         if (!script.GetOp(pc, opcode, vchPubKey))
             return false;

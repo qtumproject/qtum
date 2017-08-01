@@ -19,6 +19,9 @@ QtumState::QtumState() : dev::eth::State(dev::Invalid256, dev::OverlayDB(), dev:
 }
 
 ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& _sealEngine, QtumTransaction const& _t, Permanence _p, OnOpFunc const& _onOp){
+
+    assert(_t.getVersion().toRaw() == VersionVM::GetEVMDefault().toRaw());
+
     addBalance(_t.sender(), _t.value() + (_t.gas() * _t.gasPrice()));
     newAddress = _t.isCreation() ? createQtumAddress(_t.getHashWith(), _t.getNVout()) : dev::Address();
 
@@ -350,7 +353,8 @@ std::vector<CTxOut> CondensingTX::createVout(){
             CScript script;
             auto* a = state->account(b.first);
             if(a && a->isAlive()){
-                script = CScript() << valtype{0} << valtype{0} << valtype{0} << valtype(1, 0) << b.first.asBytes() << OP_CALL;
+                //create a no-exec contract output
+                script = CScript() << valtype{0} << valtype{0} << valtype{0} << valtype{0} << b.first.asBytes() << OP_CALL;
             } else {
                 script = CScript() << OP_DUP << OP_HASH160 << b.first.asBytes() << OP_EQUALVERIFY << OP_CHECKSIG;
             }

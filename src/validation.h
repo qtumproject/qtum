@@ -39,7 +39,9 @@
 #include <libethereum/ChainParams.h>
 #include <libethashseal/Ethash.h>
 #include <libethashseal/GenesisInfo.h>
+#include <script/standard.h>
 #include <qtum/storageresults.h>
+
 
 extern std::unique_ptr<QtumState> globalState;
 extern std::shared_ptr<dev::eth::SealEngineFace> globalSealEngine;
@@ -69,8 +71,8 @@ struct ChainTxData;
 struct PrecomputedTransactionData;
 struct LockPoints;
 
-/** Default block gas limit (might be changed by DGP later) **/
-// static const uint64_t DEFAULT_BLOCK_GASLIMIT = 5e8;
+/** Minimum gas limit that is allowed in a transaction within a block - prevent various types of tx and mempool spam **/
+static const uint64_t MINIMUM_GAS_LIMIT = 10000;
 
 /** Default for DEFAULT_WHITELISTRELAY. */
 static const bool DEFAULT_WHITELISTRELAY = true;
@@ -626,7 +628,7 @@ void DumpMempool();
 bool LoadMempool();
 
 //////////////////////////////////////////////////////// qtum
-std::vector<ResultExecute> callContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, const dev::Address& sender = dev::Address());
+std::vector<ResultExecute> callContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, const dev::Address& sender = dev::Address(), uint64_t gasLimit=0);
 
 bool CheckMinGasPrice(std::vector<EthTransactionParams>& etps, const uint64_t& minGasPrice);
 
@@ -645,7 +647,7 @@ struct EthTransactionParams{
     dev::Address receiveAddress;
 
     bool operator!=(EthTransactionParams etp){
-        if(this->version != etp.version || this->gasLimit != etp.gasLimit ||
+        if(this->version.toRaw() != etp.version.toRaw() || this->gasLimit != etp.gasLimit ||
         this->gasPrice != etp.gasPrice || this->code != etp.code ||
         this->receiveAddress != etp.receiveAddress)
             return true;
@@ -690,7 +692,7 @@ public:
 
     ByteCodeExec(const CBlock& _block, std::vector<QtumTransaction> _txs, const uint64_t _blockGasLimit) : txs(_txs), block(_block), blockGasLimit(_blockGasLimit) {}
 
-    void performByteCode(dev::eth::Permanence type = dev::eth::Permanence::Committed);
+    bool performByteCode(dev::eth::Permanence type = dev::eth::Permanence::Committed);
 
     ByteCodeExecResult processingResults();
 

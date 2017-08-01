@@ -1,47 +1,46 @@
+#ifndef QTUMTRANSACTION_H
+#define QTUMTRANSACTION_H
+
 #include <libethcore/Transaction.h>
 
-
-class VersionVM{
-
-public:
-
-    VersionVM(){
-        vmFormat = 0;
-        rootVM = 1;
-        vmVersion = 0;
-        flagOptions = 0;
-    }
-
-    VersionVM(uint32_t _rawVersion) : rawVersion(_rawVersion){
-        expandData();
-    }
-
-    uint8_t getVMFormat(){ return vmFormat; }
-    uint8_t getRootVM(){ return rootVM; }
-    uint8_t getVMVersion(){ return vmVersion; }
-    uint8_t getFlagOptions(){ return flagOptions; }
-
-    uint32_t getRawVersion(){ return rawVersion; }
-
-    bool operator!=(VersionVM& v){
-        if(this->vmFormat != v.vmFormat || this->rootVM != v.rootVM ||
-           this->vmVersion != v.vmVersion || this->flagOptions != v.flagOptions){
-            return true;
-        }
-        return false;
-    }
-
-private:
-
-    void expandData();
-
-    uint8_t vmFormat : 2;
+struct VersionVM{
+    //this should be portable, see https://stackoverflow.com/questions/31726191/is-there-a-portable-alternative-to-c-bitfields
+# if __BYTE_ORDER == __LITTLE_ENDIAN
+    uint8_t format : 2;
     uint8_t rootVM : 6;
-    uint8_t vmVersion : 8;
-    uint16_t flagOptions : 16;
+#elif __BYTE_ORDER == __BIG_ENDIAN
+    uint8_t rootVM : 6;
+    uint8_t format : 2;
+#endif
+    uint8_t vmVersion;
+    uint16_t flagOptions;
+    // CONSENSUS CRITICAL!
+    // Do not add any other fields to this struct
 
-    uint32_t rawVersion;
-};
+    uint32_t toRaw(){
+        return *(uint32_t*)this;
+    }
+    static VersionVM fromRaw(uint32_t val){
+        VersionVM x = *(VersionVM*)&val;
+        return x;
+    }
+    static VersionVM GetNoExec(){
+        VersionVM x;
+        x.flagOptions=0;
+        x.rootVM=0;
+        x.format=0;
+        x.vmVersion=0;
+        return x;
+    }
+    static VersionVM GetEVMDefault(){
+        VersionVM x;
+        x.flagOptions=0;
+        x.rootVM=1;
+        x.format=0;
+        x.vmVersion=0;
+        return x;
+    }
+}__attribute__((__packed__));
 
 class QtumTransaction : public dev::eth::Transaction{
 
@@ -66,7 +65,7 @@ public:
     void setVersion(VersionVM v){
         version=v;
     }
-    VersionVM getVersion(){
+    VersionVM getVersion() const{
         return version;
     }
 private:
@@ -75,3 +74,4 @@ private:
     VersionVM version;
 
 };
+#endif

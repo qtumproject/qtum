@@ -48,6 +48,7 @@ QtumTransaction createQtumTransaction(valtype data, dev::u256 value, dev::u256 g
     txEth.forceSender(dev::Address("0101010101010101010101010101010101010101"));
     txEth.setHashWith(hashTransaction);
     txEth.setNVout(nvout);
+    txEth.setVersion(VersionVM::GetEVMDefault());
     return txEth;
 }
 

@@ -183,8 +183,9 @@ enum opcodetype
     OP_SPEND = 0xc3,
 
     // template matching params
+    OP_GAS_PRICE = 0xf5,
     OP_VERSION = 0xf6,
-    OP_GAS_LAP = 0xf7,
+    OP_GAS_LIMIT = 0xf7,
     OP_DATA = 0xf8,
     OP_SMALLINTEGER = 0xfa,
     OP_PUBKEYS = 0xfb,

@@ -103,9 +103,9 @@ void checkExecResult(std::vector<ResultExecute>& result, size_t execResSize, siz
     }
 }
 
-void checkBCEResult(ByteCodeExecResult result, CAmount usedGas, CAmount refundSender, size_t nVouts, CAmount sum, size_t nTxs = 0){
-    BOOST_CHECK(int64_t(result.usedGas) + result.refundSender == sum);
-    BOOST_CHECK(int64_t(result.usedGas) == usedGas);
+void checkBCEResult(ByteCodeExecResult result, uint64_t usedGas, CAmount refundSender, size_t nVouts, uint64_t sum, size_t nTxs = 0){
+    BOOST_CHECK(result.usedGas + result.refundSender == sum);
+    BOOST_CHECK(result.usedGas == usedGas);
     BOOST_CHECK(result.refundSender == refundSender);
     BOOST_CHECK(result.refundOutputs.size() == nVouts);
     for(size_t i = 0; i < result.refundOutputs.size(); i++){

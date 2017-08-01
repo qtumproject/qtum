@@ -553,7 +553,7 @@ UniValue createcontract(const JSONRPCRequest& request){
 		throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Insufficient funds");
 
 	// Build OP_EXEC script
-    CScript scriptPubKey = CScript() << ParseHex("01") << CScriptNum(nGasLimit) << CScriptNum(nGasPrice) << ParseHex(bytecode) <<OP_CREATE;
+    CScript scriptPubKey = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(nGasLimit) << CScriptNum(nGasPrice) << ParseHex(bytecode) <<OP_CREATE;
 
     // Create and send the transaction
     CReserveKey reservekey(pwalletMain);
@@ -747,7 +747,7 @@ UniValue sendtocontract(const JSONRPCRequest& request){
         throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Insufficient funds");
 
     // Build OP_EXEC_ASSIGN script
-    CScript scriptPubKey = CScript() << ParseHex("01") << CScriptNum(nGasLimit) << CScriptNum(nGasPrice) << ParseHex(datahex) << ParseHex(contractaddress) << OP_CALL;
+    CScript scriptPubKey = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(nGasLimit) << CScriptNum(nGasPrice) << ParseHex(datahex) << ParseHex(contractaddress) << OP_CALL;
 
     // Create and send the transaction
     CReserveKey reservekey(pwalletMain);

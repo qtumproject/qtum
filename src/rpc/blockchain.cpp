@@ -134,8 +134,8 @@ double GetPoSKernelPS()
 
     if (nStakesTime)
         result = dStakeKernelsTriedAvg / nStakesTime;
-		
-	result *= STAKE_TIMESTAMP_MASK + 1;
+    
+    result *= STAKE_TIMESTAMP_MASK + 1;
 
     return result;
 }
@@ -974,12 +974,13 @@ UniValue callcontract(const JSONRPCRequest& request)
 
     }
 
+
     std::vector<ResultExecute> execResults = callContract(addrAccount, ParseHex(data), senderAddress);
 
     if(fRecordLogOpcodes){
         writeVMlog(execResults);
     }
- 
+
     UniValue result(UniValue::VOBJ);
     result.push_back(Pair("address", strAddr));
     result.push_back(Pair("executionResult", executionResultToJSON(execResults[0].execRes)));
