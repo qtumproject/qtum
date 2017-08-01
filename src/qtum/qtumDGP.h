@@ -12,23 +12,23 @@ static const dev::Address GasPriceDGP = dev::Address("00000000000000000000000000
 static const dev::Address DGPCONTRACT4 = dev::Address("0000000000000000000000000000000000000083");
 static const dev::Address BlockGasLimitDGP = dev::Address("0000000000000000000000000000000000000084");
 
-static const uint32_t minBlockSizeDGP = 500000;
-static const uint32_t maxBlockSizeDGP = 32000000;
-static const uint32_t defaultBlockSizeDGP = 2000000;
+static const uint32_t MIN_BLOCK_SIZE_DGP = 500000;
+static const uint32_t MAX_BLOCK_SIZE_DGP = 32000000;
+static const uint32_t DEFAULT_BLOCK_SIZE_DGP = 2000000;
 
-static const uint32_t minMinGasPriceDGP = 1;
-static const uint32_t maxMinGasPriceDGP = 10000;
-static const uint32_t defaultMinGasPriceDGP = 1;
+static const uint32_t MIN_MIN_GAS_PRICE_DGP = 1;
+static const uint32_t MAX_MIN_GAS_PRICE_DGP = 10000;
+static const uint32_t DEFAULT_MIN_GAS_PRICE_DGP = 1;
 
-static const uint32_t minBlockGasLimitDGP = 1000000;
-static const uint32_t maxBlockGasLimitDGP = 1000000000;
-static const uint32_t defaultBlockGasLimitDGP = 40000000;
+static const uint32_t MIN_BLOCK_GAS_LIMIT_DGP = 1000000;
+static const uint32_t MAX_BLOCK_GAS_LIMIT_DGP = 1000000000;
+static const uint32_t DEFAULT_BLOCK_GAS_LIMIT_DGP = 40000000;
 
 class QtumDGP {
     
 public:
 
-    QtumDGP(QtumState* _state, bool _dgpevm = true) : dgpevm(_dgpevm), state(_state) {}
+    QtumDGP(QtumState* _state, bool _dgpevm = true) : dgpevm(_dgpevm), state(_state) { initDataEIP158(); }
 
     dev::eth::EVMSchedule getGasSchedule(unsigned int blockHeight);
 
@@ -48,9 +48,11 @@ private:
 
     void initDataTemplate(const dev::Address& addr, std::vector<unsigned char>& data);
 
-    void createParamsInstance();
+    void initDataEIP158();
 
-    std::vector<ResultExecute> callContract(const dev::Address& addrContract, std::vector<unsigned char> opcode);
+    bool checkLimitSchedule(const std::vector<uint32_t>& defaultData, const std::vector<uint32_t>& checkData);
+
+    void createParamsInstance();
 
     dev::Address getAddressForBlock(unsigned int blockHeight);
 
@@ -66,7 +68,7 @@ private:
 
     dev::eth::EVMSchedule createEVMSchedule();
 
-    void clear();
+    void clear();    
 
 
 
@@ -83,6 +85,8 @@ private:
     std::vector<unsigned char> dataTemplate;
 
     std::vector<std::pair<unsigned int, dev::Address>> paramsInstance;
+
+    std::vector<uint32_t> dataEIP158Schedule;
 
 };
 #endif

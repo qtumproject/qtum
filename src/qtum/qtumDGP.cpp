@@ -1,19 +1,34 @@
 #include "qtumDGP.h"
 
-std::vector<ResultExecute> QtumDGP::callContract(const dev::Address& addrContract, std::vector<unsigned char> opcode){
-    CBlock block;
-    CMutableTransaction tx;
-    dev::u256 gasLimit(DEFAULT_BLOCK_GASLIMIT - 1); // MAX_MONEY
-    dev::Address senderAddress("ffffffffffffffffffffffffffffffffffffffff");
-    tx.vout.push_back(CTxOut(0, CScript() << OP_DUP << OP_HASH160 << senderAddress.asBytes() << OP_EQUALVERIFY << OP_CHECKSIG));
-    block.vtx.push_back(MakeTransactionRef(CTransaction(tx)));
- 
-    QtumTransaction callTransaction(0, 1, gasLimit, addrContract, opcode, dev::u256(0));
-    callTransaction.forceSender(senderAddress);
+void QtumDGP::initDataEIP158(){
+    std::vector<uint32_t> tempData = {dev::eth::EIP158Schedule.tierStepGas[0], dev::eth::EIP158Schedule.tierStepGas[1], dev::eth::EIP158Schedule.tierStepGas[2],
+                                      dev::eth::EIP158Schedule.tierStepGas[3], dev::eth::EIP158Schedule.tierStepGas[4], dev::eth::EIP158Schedule.tierStepGas[5],
+                                      dev::eth::EIP158Schedule.tierStepGas[6], dev::eth::EIP158Schedule.tierStepGas[7], dev::eth::EIP158Schedule.expGas,
+                                      dev::eth::EIP158Schedule.expByteGas, dev::eth::EIP158Schedule.sha3Gas, dev::eth::EIP158Schedule.sha3WordGas,
+                                      dev::eth::EIP158Schedule.sloadGas, dev::eth::EIP158Schedule.sstoreSetGas, dev::eth::EIP158Schedule.sstoreResetGas,
+                                      dev::eth::EIP158Schedule.sstoreRefundGas, dev::eth::EIP158Schedule.jumpdestGas, dev::eth::EIP158Schedule.logGas,
+                                      dev::eth::EIP158Schedule.logDataGas, dev::eth::EIP158Schedule.logTopicGas, dev::eth::EIP158Schedule.createGas,
+                                      dev::eth::EIP158Schedule.callGas, dev::eth::EIP158Schedule.callStipend, dev::eth::EIP158Schedule.callValueTransferGas,
+                                      dev::eth::EIP158Schedule.callNewAccountGas, dev::eth::EIP158Schedule.suicideRefundGas, dev::eth::EIP158Schedule.memoryGas,
+                                      dev::eth::EIP158Schedule.quadCoeffDiv, dev::eth::EIP158Schedule.createDataGas, dev::eth::EIP158Schedule.txGas,
+                                      dev::eth::EIP158Schedule.txCreateGas, dev::eth::EIP158Schedule.txDataZeroGas, dev::eth::EIP158Schedule.txDataNonZeroGas,
+                                      dev::eth::EIP158Schedule.copyGas, dev::eth::EIP158Schedule.extcodesizeGas, dev::eth::EIP158Schedule.extcodecopyGas,
+                                      dev::eth::EIP158Schedule.balanceGas, dev::eth::EIP158Schedule.suicideGas, dev::eth::EIP158Schedule.maxCodeSize};
+    dataEIP158Schedule = tempData;
+}
 
-    ByteCodeExec exec(block, std::vector<QtumTransaction>(1, callTransaction));
-    exec.performByteCode(dev::eth::Permanence::Reverted);
-    return exec.getResult();
+bool QtumDGP::checkLimitSchedule(const std::vector<uint32_t>& defaultData, const std::vector<uint32_t>& checkData){
+    if(defaultData.size() == 39 && checkData.size() == 39){
+        for(size_t i = 0; i < defaultData.size(); i++){
+            uint32_t max = defaultData[i] * 1000 > 0 ? defaultData[i] * 1000 : 1 * 1000;
+            uint32_t min = defaultData[i] / 100 > 0 ? defaultData[i] / 100 : 1;
+            if(checkData[i] > max || checkData[i] < min){
+                return false;
+            }
+        }
+        return true;
+    }
+    return false;
 }
 
 dev::eth::EVMSchedule QtumDGP::getGasSchedule(unsigned int blockHeight){
@@ -39,9 +54,9 @@ uint32_t QtumDGP::getUint32FromDGP(unsigned int blockHeight, const dev::Address&
 
 uint32_t QtumDGP::getBlockSize(unsigned int blockHeight){
     clear();
-    uint32_t result = defaultBlockSizeDGP;
+    uint32_t result = DEFAULT_BLOCK_SIZE_DGP;
     uint32_t blockSize = getUint32FromDGP(blockHeight, BlockSizeDGP, ParseHex("92ac3c62"));
-    if(blockSize <= maxBlockSizeDGP && blockSize >= minBlockSizeDGP){
+    if(blockSize <= MAX_BLOCK_SIZE_DGP && blockSize >= MIN_BLOCK_SIZE_DGP){
         result = blockSize;
     }
     return result;
@@ -49,9 +64,9 @@ uint32_t QtumDGP::getBlockSize(unsigned int blockHeight){
 
 uint32_t QtumDGP::getMinGasPrice(unsigned int blockHeight){
     clear();
-    uint32_t result = defaultMinGasPriceDGP;
+    uint32_t result = DEFAULT_MIN_GAS_PRICE_DGP;
     uint32_t minGasPrice = getUint32FromDGP(blockHeight, GasPriceDGP, ParseHex("3fb58819"));
-    if(minGasPrice <= maxMinGasPriceDGP && minGasPrice >= minMinGasPriceDGP){
+    if(minGasPrice <= MAX_MIN_GAS_PRICE_DGP && minGasPrice >= MIN_MIN_GAS_PRICE_DGP){
         result = minGasPrice;
     }
     return result;
@@ -59,9 +74,9 @@ uint32_t QtumDGP::getMinGasPrice(unsigned int blockHeight){
 
 uint32_t QtumDGP::getBlockGasLimit(unsigned int blockHeight){
     clear();
-    uint32_t result = defaultBlockGasLimitDGP;
+    uint32_t result = DEFAULT_BLOCK_GAS_LIMIT_DGP;
     uint32_t blockGasLimit = getUint32FromDGP(blockHeight, BlockGasLimitDGP, ParseHex("2cc8377d"));
-    if(blockGasLimit <= maxBlockGasLimitDGP && blockGasLimit >= minBlockGasLimitDGP){
+    if(blockGasLimit <= MAX_BLOCK_GAS_LIMIT_DGP && blockGasLimit >= MIN_BLOCK_GAS_LIMIT_DGP){
         result = blockGasLimit;
     }
     return result;
@@ -176,6 +191,9 @@ dev::eth::EVMSchedule QtumDGP::createEVMSchedule(){
     } else {
         parseDataScheduleContract(uint32Values);
     }
+
+    if(!checkLimitSchedule(dataEIP158Schedule, uint32Values))
+        return schedule;
 
     if(uint32Values.size() >= 39){
         schedule.tierStepGas = {{uint32Values[0], uint32Values[1], uint32Values[2], uint32Values[3],

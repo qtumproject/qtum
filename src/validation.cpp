@@ -1924,6 +1924,27 @@ static int64_t nTimeCallbacks = 0;
 static int64_t nTimeTotal = 0;
 
 /////////////////////////////////////////////////////////////////////// qtum
+std::vector<ResultExecute> callContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, const dev::Address& sender){
+    CBlock block;
+    CMutableTransaction tx;
+
+    QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
+    uint32_t blockGasLimit = qtumDGP.getBlockGasLimit(chainActive.Tip()->nHeight + 1);
+
+    dev::u256 gasLimit(blockGasLimit - 1); // MAX_MONEY
+    dev::Address senderAddress = sender == dev::Address() ? dev::Address("ffffffffffffffffffffffffffffffffffffffff") : sender;
+    tx.vout.push_back(CTxOut(0, CScript() << OP_DUP << OP_HASH160 << senderAddress.asBytes() << OP_EQUALVERIFY << OP_CHECKSIG));
+    block.vtx.push_back(MakeTransactionRef(CTransaction(tx)));
+ 
+    QtumTransaction callTransaction(0, 1, gasLimit, addrContract, opcode, dev::u256(0));
+    callTransaction.forceSender(senderAddress);
+
+    
+    ByteCodeExec exec(block, std::vector<QtumTransaction>(1, callTransaction), blockGasLimit);
+    exec.performByteCode(dev::eth::Permanence::Reverted);
+    return exec.getResult();
+}
+
 bool CheckMinGasPrice(std::vector<EthTransactionParams>& etps, const uint32_t& minGasPrice){
     for(EthTransactionParams& etp : etps){
         if(etp.gasPrice < dev::u256(minGasPrice))
@@ -2209,7 +2230,7 @@ dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(){
         tip = tip->pprev;
     }
     env.setLastHashes(std::move(lh));
-    env.setGasLimit(DEFAULT_BLOCK_GASLIMIT);
+    env.setGasLimit(blockGasLimit);
     env.setAuthor(EthAddrFromScript(block.vtx.at(0)->vout.at(0).scriptPubKey));
     return env;
 }
@@ -2326,6 +2347,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     globalSealEngine->setQtumSchedule(qtumDGP.getGasSchedule(pindex->nHeight + 1));
     uint32_t sizeBlockDGP = qtumDGP.getBlockSize(pindex->nHeight + 1);
     uint32_t minGasPrice = qtumDGP.getMinGasPrice(pindex->nHeight + 1);
+    uint32_t blockGasLimit = qtumDGP.getBlockGasLimit(pindex->nHeight + 1);
     dgpMaxBlockSize = sizeBlockDGP ? sizeBlockDGP : dgpMaxBlockSize;
     updateBlockSizeParams(dgpMaxBlockSize);
     CBlock checkBlock(block.GetBlockHeader());
@@ -2534,7 +2556,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             if(!CheckMinGasPrice(resultConvertQtumTX.second, minGasPrice))
                 return state.DoS(100, error("ConnectBlock(): Incorrect transaction."),
                             REJECT_INVALID, "incorrect-transaction-small-gasprice");
-            ByteCodeExec exec(block, resultConvertQtumTX.first);
+            ByteCodeExec exec(block, resultConvertQtumTX.first, blockGasLimit);
             exec.performByteCode();
             std::vector<ResultExecute> resultExec(exec.getResult());
             ByteCodeExecResult bcer = exec.processingResults();
