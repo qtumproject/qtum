@@ -244,6 +244,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     globalSealEngine->setQtumSchedule(qtumDGP.getGasSchedule(nHeight));
     uint32_t blockSizeDGP = qtumDGP.getBlockSize(nHeight);
     minGasPrice = qtumDGP.getMinGasPrice(nHeight);
+    blockGasLimit = qtumDGP.getBlockGasLimit(nHeight);
     nBlockMaxSize = blockSizeDGP ? blockSizeDGP : nBlockMaxSize;
     
     dev::h256 oldHashStateRoot(globalState->rootHash());
@@ -523,7 +524,7 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
     {
         return false;
     }
-    if(bceResult.usedGas > DEFAULT_BLOCK_GASLIMIT){
+    if(bceResult.usedGas > blockGasLimit){
         //if this transaction could cause block gas limit to be exceeded, then don't add it
         return false;
     }
@@ -535,11 +536,12 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
     uint64_t nBlockSigOpsCost = this->nBlockSigOpsCost;
 
     QtumTxConverter convert(iter->GetTx(), NULL, &pblock->vtx);
-    ByteCodeExec exec(*pblock, convert.extractionQtumTransactions().first);
+    ByteCodeExec exec(*pblock, convert.extractionQtumTransactions().first, blockGasLimit);
     if(!exec.performByteCode()){
         //error, don't add contract
         return false;
     }
+
     ByteCodeExecResult testExecResult = exec.processingResults();
 
     //apply contractTx costs to local state

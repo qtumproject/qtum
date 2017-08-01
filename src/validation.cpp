@@ -758,7 +758,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
         //////////////////////////////////////////////////////////// // qtum
         if(tx.HasCreateOrCall()){
             QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
-            uint32_t minGasPrice = qtumDGP.getMinGasPrice(chainActive.Tip()->nHeight + 1);
+            uint64_t minGasPrice = qtumDGP.getMinGasPrice(chainActive.Tip()->nHeight + 1);
             size_t count = 0;
             for(const CTxOut& o : tx.vout)
                 count += o.scriptPubKey.HasOpCreate() || o.scriptPubKey.HasOpCall() ? 1 : 0;
@@ -1924,7 +1924,28 @@ static int64_t nTimeCallbacks = 0;
 static int64_t nTimeTotal = 0;
 
 /////////////////////////////////////////////////////////////////////// qtum
-bool CheckMinGasPrice(std::vector<EthTransactionParams>& etps, const uint32_t& minGasPrice){
+std::vector<ResultExecute> callContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, const dev::Address& sender){
+    CBlock block;
+    CMutableTransaction tx;
+
+    QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
+    uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(chainActive.Tip()->nHeight + 1);
+
+    dev::u256 gasLimit(blockGasLimit - 1); // MAX_MONEY
+    dev::Address senderAddress = sender == dev::Address() ? dev::Address("ffffffffffffffffffffffffffffffffffffffff") : sender;
+    tx.vout.push_back(CTxOut(0, CScript() << OP_DUP << OP_HASH160 << senderAddress.asBytes() << OP_EQUALVERIFY << OP_CHECKSIG));
+    block.vtx.push_back(MakeTransactionRef(CTransaction(tx)));
+ 
+    QtumTransaction callTransaction(0, 1, gasLimit, addrContract, opcode, dev::u256(0));
+    callTransaction.forceSender(senderAddress);
+
+    
+    ByteCodeExec exec(block, std::vector<QtumTransaction>(1, callTransaction), blockGasLimit);
+    exec.performByteCode(dev::eth::Permanence::Reverted);
+    return exec.getResult();
+}
+
+bool CheckMinGasPrice(std::vector<EthTransactionParams>& etps, const uint64_t& minGasPrice){
     for(EthTransactionParams& etp : etps){
         if(etp.gasPrice < dev::u256(minGasPrice))
             return false;
@@ -2214,7 +2235,7 @@ dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(){
         tip = tip->pprev;
     }
     env.setLastHashes(std::move(lh));
-    env.setGasLimit(DEFAULT_BLOCK_GASLIMIT);
+    env.setGasLimit(blockGasLimit);
     env.setAuthor(EthAddrFromScript(block.vtx.at(0)->vout.at(0).scriptPubKey));
     return env;
 }
@@ -2323,6 +2344,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     globalSealEngine->setQtumSchedule(qtumDGP.getGasSchedule(pindex->nHeight + 1));
     uint32_t sizeBlockDGP = qtumDGP.getBlockSize(pindex->nHeight + 1);
     uint64_t minGasPrice = qtumDGP.getMinGasPrice(pindex->nHeight + 1);
+    uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(pindex->nHeight + 1);
     dgpMaxBlockSize = sizeBlockDGP ? sizeBlockDGP : dgpMaxBlockSize;
     updateBlockSizeParams(dgpMaxBlockSize);
     CBlock checkBlock(block.GetBlockHeader());
@@ -2531,7 +2553,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             if(!CheckMinGasPrice(resultConvertQtumTX.second, minGasPrice))
                 return state.DoS(100, error("ConnectBlock(): Contract execution has lower gas price than allowed"), REJECT_INVALID, "bad-tx-low-gas-price");
 
-            ByteCodeExec exec(block, resultConvertQtumTX.first);
+            ByteCodeExec exec(block, resultConvertQtumTX.first, blockGasLimit);
             //validate VM version and other ETH params before execution
             //Reject anything unknown (could be changed later by DGP)
             //TODO evaluate if this should be relaxed for soft-fork purposes
@@ -2561,6 +2583,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             if(!exec.performByteCode()){
                 return state.DoS(100, error("ConnectBlock(): Unknown error during contract execution"), REJECT_INVALID, "bad-tx-unknown-error");
             }
+
             std::vector<ResultExecute> resultExec(exec.getResult());
             ByteCodeExecResult bcer = exec.processingResults();
 
@@ -2573,7 +2596,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             storageRes.addResult(uintToh256(tx.GetHash()), tri);
 
             blockGasUsed += bcer.usedGas;
-            if(blockGasUsed > DEFAULT_BLOCK_GASLIMIT){
+            if(blockGasUsed > blockGasLimit){
                 return state.DoS(1000, error("ConnectBlock(): Block exceeds gas limit"), REJECT_INVALID, "bad-blk-gaslimit");
             }
             checkVouts.insert(checkVouts.end(), bcer.refundOutputs.begin(), bcer.refundOutputs.end());
