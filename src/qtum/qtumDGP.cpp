@@ -1,23 +1,5 @@
 #include "qtumDGP.h"
 
-std::vector<ResultExecute> QtumDGP::callContract(const dev::Address& addrContract, std::vector<unsigned char> opcode){
-    CBlock block;
-    CMutableTransaction tx;
-    dev::u256 gasLimit(DEFAULT_BLOCK_GASLIMIT - 1); // MAX_MONEY
-    dev::Address senderAddress("ffffffffffffffffffffffffffffffffffffffff");
-    tx.vout.push_back(CTxOut(0, CScript() << OP_DUP << OP_HASH160 << senderAddress.asBytes() << OP_EQUALVERIFY << OP_CHECKSIG));
-    block.vtx.push_back(MakeTransactionRef(CTransaction(tx)));
- 
-    QtumTransaction callTransaction(0, 1, gasLimit, addrContract, opcode, dev::u256(0));
-    callTransaction.setVersion(VersionVM::GetEVMDefault());
-    callTransaction.forceSender(senderAddress);
-
-    ByteCodeExec exec(block, std::vector<QtumTransaction>(1, callTransaction));
-    //if this fails here it can lead to a segfault due to assumptions of this function's result, so just kill with an assert error
-    assert(exec.performByteCode(dev::eth::Permanence::Reverted));
-    return exec.getResult();
-}
-
 void QtumDGP::initDataEIP158(){
     std::vector<uint32_t> tempData = {dev::eth::EIP158Schedule.tierStepGas[0], dev::eth::EIP158Schedule.tierStepGas[1], dev::eth::EIP158Schedule.tierStepGas[2],
                                       dev::eth::EIP158Schedule.tierStepGas[3], dev::eth::EIP158Schedule.tierStepGas[4], dev::eth::EIP158Schedule.tierStepGas[5],

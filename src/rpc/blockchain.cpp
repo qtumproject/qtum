@@ -974,6 +974,7 @@ UniValue callcontract(const JSONRPCRequest& request)
 
     }
 
+    
     std::vector<ResultExecute> execResults = callContract(addrAccount, ParseHex(data), senderAddress);
 
     if(fRecordLogOpcodes){
