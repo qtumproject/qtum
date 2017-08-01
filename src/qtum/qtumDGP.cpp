@@ -9,10 +9,12 @@ std::vector<ResultExecute> QtumDGP::callContract(const dev::Address& addrContrac
     block.vtx.push_back(MakeTransactionRef(CTransaction(tx)));
  
     QtumTransaction callTransaction(0, 1, gasLimit, addrContract, opcode, dev::u256(0));
+    callTransaction.setVersion(VersionVM::GetEVMDefault());
     callTransaction.forceSender(senderAddress);
 
     ByteCodeExec exec(block, std::vector<QtumTransaction>(1, callTransaction));
-    exec.performByteCode(dev::eth::Permanence::Reverted);
+    //if this fails here it can lead to a segfault due to assumptions of this function's result, so just kill with an assert error
+    assert(exec.performByteCode(dev::eth::Permanence::Reverted));
     return exec.getResult();
 }
 
