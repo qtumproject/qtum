@@ -307,7 +307,7 @@ bool compareEVMSchedule(const dev::eth::EVMSchedule& a, const dev::eth::EVMSched
     return false;
 }
 
-bool compareUint32(const uint32_t& value1, const uint32_t& value2){
+bool compareUint64(const uint64_t& value1, const uint64_t& value2){
     if(value1 == value2)
         return true;
     return false;
@@ -488,8 +488,8 @@ BOOST_AUTO_TEST_CASE(block_size_passage_from_0_to_130_three_paramsInstance_test)
     QtumDGP qtumDGP(globalState.get());
     for(size_t i = 0; i < 1300; i++){
         uint32_t blockSize = qtumDGP.getBlockSize(i);
-        std::function<bool(const uint32_t&, const uint32_t&)> func = compareUint32;
-        checkValue<uint32_t>(blockSize, DEFAULT_BLOCK_SIZE_DGP, 1000000, 2000000, 500123, i, func);
+        std::function<bool(const uint64_t&, const uint64_t&)> func = compareUint64;
+        checkValue<uint64_t>(blockSize, DEFAULT_BLOCK_SIZE_DGP, 1000000, 2000000, 500123, i, func);
     }
 }
 
@@ -501,7 +501,7 @@ BOOST_AUTO_TEST_CASE(block_size_passage_from_130_to_0_three_paramsInstance_test)
     QtumDGP qtumDGP(globalState.get());
     for(size_t i = 1300; i > 0; i--){
         uint32_t blockSize = qtumDGP.getBlockSize(i);
-        std::function<bool(const uint32_t&, const uint32_t&)> func = compareUint32;
+        std::function<bool(const uint64_t&, const uint64_t&)> func = compareUint64;
         checkValue<uint32_t>(blockSize, DEFAULT_BLOCK_SIZE_DGP, 1000000, 2000000, 500123, i, func);
     }
 }
@@ -510,7 +510,7 @@ BOOST_AUTO_TEST_CASE(min_gas_price_default_state_test1){
     initState();
     contractLoading();
     QtumDGP qtumDGP(globalState.get());
-    uint32_t minGasPrice = qtumDGP.getMinGasPrice(100);
+    uint64_t minGasPrice = qtumDGP.getMinGasPrice(100);
     BOOST_CHECK(minGasPrice == 1);
 }
 
@@ -518,7 +518,7 @@ BOOST_AUTO_TEST_CASE(min_gas_price_default_state_test2){
     initState();
     contractLoading();
     QtumDGP qtumDGP(globalState.get());
-    uint32_t minGasPrice = qtumDGP.getMinGasPrice(0);
+    uint64_t minGasPrice = qtumDGP.getMinGasPrice(0);
     BOOST_CHECK(minGasPrice == 1);
 }
 
@@ -534,7 +534,7 @@ BOOST_AUTO_TEST_CASE(min_gas_price_one_paramsInstance_introductory_block_1_test1
     auto result = executeBC(txs);
 
     QtumDGP qtumDGP(globalState.get());
-    uint32_t minGasPrice = qtumDGP.getMinGasPrice(0);
+    uint64_t minGasPrice = qtumDGP.getMinGasPrice(0);
     BOOST_CHECK(minGasPrice == 1);
 }
 
@@ -550,7 +550,7 @@ BOOST_AUTO_TEST_CASE(min_gas_price_one_paramsInstance_introductory_block_1_test2
     auto result = executeBC(txs);
 
     QtumDGP qtumDGP(globalState.get());
-    uint32_t minGasPrice = qtumDGP.getMinGasPrice(502);
+    uint64_t minGasPrice = qtumDGP.getMinGasPrice(502);
     BOOST_CHECK(minGasPrice == 13);
 }
 
@@ -561,9 +561,9 @@ BOOST_AUTO_TEST_CASE(min_gas_price_passage_from_0_to_130_three_paramsInstance_te
     createTestContractsAndBlocks(this, code[10], code[11], code[12], GasPriceDGP);
     QtumDGP qtumDGP(globalState.get());
     for(size_t i = 0; i < 1300; i++){
-        uint32_t minGasPrice = qtumDGP.getMinGasPrice(i);
-        std::function<bool(const uint32_t&, const uint32_t&)> func = compareUint32;
-        checkValue<uint32_t>(minGasPrice, 1, 13, 9850, 123, i, func);
+        uint64_t minGasPrice = qtumDGP.getMinGasPrice(i);
+        std::function<bool(const uint64_t&, const uint64_t&)> func = compareUint64;
+        checkValue<uint64_t>(minGasPrice, 1, 13, 9850, 123, i, func);
     }
 }
 
@@ -574,9 +574,9 @@ BOOST_AUTO_TEST_CASE(min_gas_price_passage_from_130_to_0_three_paramsInstance_te
     createTestContractsAndBlocks(this, code[10], code[11], code[12], GasPriceDGP);
     QtumDGP qtumDGP(globalState.get());
     for(size_t i = 1300; i > 0; i--){
-        uint32_t minGasPrice = qtumDGP.getMinGasPrice(i);
-        std::function<bool(const uint32_t&, const uint32_t&)> func = compareUint32;
-        checkValue<uint32_t>(minGasPrice, 1, 13, 9850, 123, i, func);
+        uint64_t minGasPrice = qtumDGP.getMinGasPrice(i);
+        std::function<bool(const uint64_t&, const uint64_t&)> func = compareUint64;
+        checkValue<uint64_t>(minGasPrice, 1, 13, 9850, 123, i, func);
     }
 }
 
