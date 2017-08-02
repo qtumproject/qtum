@@ -446,6 +446,7 @@ UniValue createcontract(const JSONRPCRequest& request){
         return NullUniValue;
 
     QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
+    uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(chainActive.Height()+1);
     uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(chainActive.Height()+1));
     CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
 
@@ -456,7 +457,7 @@ UniValue createcontract(const JSONRPCRequest& request){
                 + HelpRequiringPassphrase() +
                 "\nArguments:\n"
                 "1. \"bytecode\"  (string, required) contract bytcode.\n"
-                "2. gasLimit  (numeric or string, optional) gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+"\n"
+                "2. gasLimit  (numeric or string, optional) gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+", max:"+i64tostr(blockGasLimit)+"\n"
                 "3. gasPrice  (numeric or string, optional) gasPrice QTUM price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)+"\n"
 				"4. \"senderaddress\" (string, optional) The quantum address that will be used to create the contract.\n"
 				"5. \"broadcast\" (bool, optional, default=true) Whether to broadcast the transaction or not.\n"
@@ -481,6 +482,8 @@ UniValue createcontract(const JSONRPCRequest& request){
     uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_CREATE;
     if (request.params.size() > 1){
         nGasLimit = request.params[1].get_int64();
+        if (nGasLimit > blockGasLimit)
+            throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasLimit (Maximum is: "+i64tostr(blockGasLimit)+")");
         if (nGasLimit <= 0)
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasLimit");
     }
