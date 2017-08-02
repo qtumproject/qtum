@@ -260,7 +260,7 @@ class FullBlockTest(ComparisonTestFramework):
         #                      \-> b3 (1) -> b4 (2)
         tip(6)
         block(9, spend=out[4], additional_coinbase_value=1)
-        yield rejected(RejectResult(16, b'bad-cb-amount'))
+        yield rejected()
 
         # Create a fork that ends in a block with too much fee (the one that causes the reorg)
         #     genesis -> b1 (0) -> b2 (1) -> b5 (2) -> b6  (3)
@@ -271,7 +271,7 @@ class FullBlockTest(ComparisonTestFramework):
         yield rejected()
 
         block(11, spend=out[4], additional_coinbase_value=1)
-        yield rejected(RejectResult(16, b'bad-cb-amount'))
+        yield rejected()
 
 
         # Try again, but with a valid fork first
@@ -986,7 +986,7 @@ class FullBlockTest(ComparisonTestFramework):
         b68 = block(68, additional_coinbase_value=10)
         tx = create_and_sign_tx(out[20].tx, out[20].n, out[20].tx.vout[0].nValue-9)
         update_block(68, [tx])
-        yield rejected(RejectResult(16, b'bad-cb-amount'))
+        yield rejected()
 
         tip(65)
         b69 = block(69, additional_coinbase_value=10)

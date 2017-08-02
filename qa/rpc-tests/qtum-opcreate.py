@@ -45,7 +45,6 @@ def make_op_create_transaction(node, vin, vout):
     return signed_raw_tx
 
 
-
 class OpCreateTest(BitcoinTestFramework):
     def __init__(self):
         super().__init__()
@@ -60,7 +59,7 @@ class OpCreateTest(BitcoinTestFramework):
     # Creates a simple contract via a raw tx
     def basic_contract_is_created_raw_tx_test(self):
         for i in range(2):
-            assert(len(self.nodes[i].listcontracts()) == 0)
+            assert(len(self.nodes[i].listcontracts()) == 0+NUM_DEFAULT_DGP_CONTRACTS)
         node = self.nodes[0]
         amount = 10*COIN
 
@@ -78,8 +77,8 @@ class OpCreateTest(BitcoinTestFramework):
         node.sendrawtransaction(tx)
         node.generate(1)
         sync_blocks(self.nodes)
-       # for i in range(2):
-       #     assert(len(self.nodes[i].listcontracts()) == 1)
+        # for i in range(2):
+        #     assert(len(self.nodes[i].listcontracts()) == 1)
 
     # Verifies that large contracts can be deployed
     def large_contract_creation_test(self):
@@ -111,7 +110,7 @@ class OpCreateTest(BitcoinTestFramework):
         sync_blocks(self.nodes)
         for i in range(2):
             assert(self.nodes[i].getblockcount() == block_height+1)
-            assert(len(self.nodes[i].listcontracts()) == 2)
+            assert(len(self.nodes[i].listcontracts()) == 2+NUM_DEFAULT_DGP_CONTRACTS)
 
 
     # Tests mining many contracts in one block
@@ -132,7 +131,7 @@ class OpCreateTest(BitcoinTestFramework):
         sync_blocks(self.nodes)
         for i in range(2):
             assert(self.nodes[i].getblockcount() == block_height+1)
-            assert(len(self.nodes[i].listcontracts(1, 10000)) == 2+num_new_contracts)
+            assert(len(self.nodes[i].listcontracts(1, 10000)) == 2+num_new_contracts+NUM_DEFAULT_DGP_CONTRACTS)
 
     # Checks that contracts are removed if the block it was mined in was invalidated
     def contract_reorg_test(self):
