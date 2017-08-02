@@ -444,6 +444,11 @@ UniValue createcontract(const JSONRPCRequest& request){
 
     if (!EnsureWalletIsAvailable(request.fHelp))
         return NullUniValue;
+
+    QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
+    uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(chainActive.Height()+1));
+    CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
+
     if (request.fHelp || request.params.size() < 1 || request.params.size() > 5)
         throw runtime_error(
                 "createcontract \"bytecode\" (gaslimit gasprice \"senderaddress\" broadcast)"
@@ -452,7 +457,7 @@ UniValue createcontract(const JSONRPCRequest& request){
                 "\nArguments:\n"
                 "1. \"bytecode\"  (string, required) contract bytcode.\n"
                 "2. gasLimit  (numeric or string, optional) gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+"\n"
-                "3. gasPrice  (numeric or string, optional) gasPrice QTUM price per gas unit, default: "+FormatMoney(DEFAULT_GAS_PRICE)+"\n"
+                "3. gasPrice  (numeric or string, optional) gasPrice QTUM price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)+"\n"
 				"4. \"senderaddress\" (string, optional) The quantum address that will be used to create the contract.\n"
 				"5. \"broadcast\" (bool, optional, default=true) Whether to broadcast the transaction or not.\n"
 				"\nResult:\n"
@@ -474,15 +479,16 @@ UniValue createcontract(const JSONRPCRequest& request){
     string bytecode=request.params[0].get_str();
 
     uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_CREATE;
-   if (request.params.size() > 1){
-	   nGasLimit = request.params[1].get_int64();
-	   if (nGasLimit <= 0)
-		   throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasLimit");
-   }
+    if (request.params.size() > 1){
+        nGasLimit = request.params[1].get_int64();
+        if (nGasLimit <= 0)
+            throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasLimit");
+    }
 
-    CAmount nGasPrice = DEFAULT_GAS_PRICE;
     if (request.params.size() > 2){
         nGasPrice = request.params[2].get_real()*COIN;
+        if (nGasPrice < (int64_t)minGasPrice)
+            throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasPrice (Minimum is: "+FormatMoney(minGasPrice)+")");
         if (nGasPrice <= 0)
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasPrice");
     }
