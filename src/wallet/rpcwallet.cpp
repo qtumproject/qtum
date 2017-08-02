@@ -451,7 +451,7 @@ UniValue createcontract(const JSONRPCRequest& request){
                 + HelpRequiringPassphrase() +
                 "\nArguments:\n"
                 "1. \"bytecode\"  (string, required) contract bytcode.\n"
-                "2. gasLimit  (numeric or string, optional) gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT)+"\n"
+                "2. gasLimit  (numeric or string, optional) gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+"\n"
                 "3. gasPrice  (numeric or string, optional) gasPrice QTUM price per gas unit, default: "+FormatMoney(DEFAULT_GAS_PRICE)+"\n"
 				"4. \"senderaddress\" (string, optional) The quantum address that will be used to create the contract.\n"
 				"5. \"broadcast\" (bool, optional, default=true) Whether to broadcast the transaction or not.\n"
@@ -473,7 +473,7 @@ UniValue createcontract(const JSONRPCRequest& request){
 
     string bytecode=request.params[0].get_str();
 
-    uint64_t nGasLimit=DEFAULT_GAS_LIMIT;
+    uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_CREATE;
    if (request.params.size() > 1){
 	   nGasLimit = request.params[1].get_int64();
 	   if (nGasLimit <= 0)
@@ -629,7 +629,7 @@ UniValue sendtocontract(const JSONRPCRequest& request){
                 "1. \"contractaddress\" (string, required) The contract address that will receive the funds and data.\n"
                 "2. \"datahex\"  (string, required) data to send.\n"
                 "3. \"amount\"      (numeric or string, optional) The amount in " + CURRENCY_UNIT + " to send. eg 0.1, default: 0\n"
-                "4. gasLimit  (numeric or string, optional) gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT)+"\n"
+                "4. gasLimit  (numeric or string, optional) gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+"\n"
                 "5. gasPrice  (numeric or string, optional) gasPrice Qtum price per gas unit, default: "+FormatMoney(DEFAULT_GAS_PRICE)+"\n"
                 "6. \"senderaddress\" (string, optional) The quantum address that will be used as sender.\n"
                 "7. \"broadcast\" (bool, optional, default=true) Whether to broadcast the transaction or not.\n"
@@ -665,7 +665,7 @@ UniValue sendtocontract(const JSONRPCRequest& request){
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
     }
 
-    uint64_t nGasLimit=DEFAULT_GAS_LIMIT;
+    uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
     if (request.params.size() > 3){
         nGasLimit = request.params[3].get_int64();
         if (nGasLimit <= 0)
