@@ -18,8 +18,10 @@ else
 LIBUNIVALUE = $(UNIVALUE_LIBS)
 endif
 
+BOOST_LIBS += -lboost_random
+
 BITCOIN_CONFIG_INCLUDES=-I$(builddir)/config
-BITCOIN_INCLUDES=-I$(builddir) -I$(builddir)/obj $(BDB_CPPFLAGS) $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS) $(CRYPTO_CFLAGS) $(SSL_CFLAGS)
+BITCOIN_INCLUDES=-I$(builddir) -I$(builddir)/obj $(BDB_CPPFLAGS) $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS) $(CRYPTO_CFLAGS) $(SSL_CFLAGS) -I$(builddir)/cpp-ethereum/utils
 
 BITCOIN_INCLUDES += -I$(srcdir)/secp256k1/include
 BITCOIN_INCLUDES += $(UNIVALUE_CFLAGS)
@@ -37,18 +39,6 @@ LIBBITCOIN_CRYPTO=crypto/libbitcoin_crypto.a
 LIBBITCOINQT=qt/libbitcoinqt.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
 
-LIBETHEREUM=cpp-ethereum/libethereum/libethereum.a
-LIBDEVCORE=cpp-ethereum/libdevcore/libdevcore.a
-LIBETHCORE=cpp-ethereum/libethcore/libethcore.a
-LIBJSONCPP=cpp-ethereum/deps/lib/libjsoncpp.a
-LIBEVM=cpp-ethereum/libevm/libevm.a
-LIBEVMCORE=cpp-ethereum/libevmcore/libevmcore.a
-LIBDEVCRYPTO=cpp-ethereum/libdevcrypto/libdevcrypto.a
-LIBCRYPTOPP=cpp-ethereum/deps/lib/libcryptopp.a
-LIBSECP256K1ETH=cpp-ethereum/deps/lib/libsecp256k1.a
-LIBSCRYIPT=cpp-ethereum/utils/libscrypt/libscrypt.a
-LIBETHASHSEAL=cpp-ethereum/libethashseal/libethashseal.a
-LIBETHASH=cpp-ethereum/libethash/libethash.a
 
 if ENABLE_ZMQ
 LIBBITCOIN_ZMQ=libbitcoin_zmq.a
@@ -183,7 +173,7 @@ BITCOIN_CORE_H = \
   zmq/zmqpublishnotifier.h \
   qtum/qtumstate.h \
   qtum/qtumtransaction.h \
-  qtum/qtumDGP.h \ 
+  qtum/qtumDGP.h \
   qtum/storageresults.h
 
 
@@ -194,7 +184,7 @@ obj/build.h: FORCE
 libbitcoin_util_a-clientversion.$(OBJEXT): obj/build.h
 
 # server: shared between bitcoind and bitcoin-qt
-libbitcoin_server_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(MINIUPNPC_CPPFLAGS) $(EVENT_CFLAGS) $(EVENT_PTHREADS_CFLAGS)
+libbitcoin_server_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(MINIUPNPC_CPPFLAGS) $(EVENT_CFLAGS) $(EVENT_PTHREADS_CFLAGS) -DETH_FATDB=1
 libbitcoin_server_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libbitcoin_server_a_SOURCES = \
   addrman.cpp \
@@ -238,6 +228,42 @@ libbitcoin_server_a_SOURCES = \
   qtum/qtumDGP.cpp \
   consensus/consensus.cpp \
   qtum/storageresults.cpp \
+  cpp-ethereum/libdevcore/Base64.cpp \
+  cpp-ethereum/libdevcore/Common.cpp \
+  cpp-ethereum/libdevcore/CommonData.cpp \
+  cpp-ethereum/libdevcore/CommonIO.cpp \
+  cpp-ethereum/libdevcore/CommonJS.cpp \
+  cpp-ethereum/libdevcore/FileSystem.cpp \
+  cpp-ethereum/libdevcore/FixedHash.cpp \
+  cpp-ethereum/libdevcore/Guards.cpp \
+  cpp-ethereum/libdevcore/Hash.cpp \
+  cpp-ethereum/libdevcore/Log.cpp \
+  cpp-ethereum/libdevcore/MemoryDB.cpp \
+  cpp-ethereum/libdevcore/OverlayDB.cpp \
+  cpp-ethereum/libdevcore/RLP.cpp \
+  cpp-ethereum/libdevcore/SHA3.cpp \
+  cpp-ethereum/libdevcore/TransientDirectory.cpp \
+  cpp-ethereum/libdevcore/TrieCommon.cpp \
+  cpp-ethereum/libdevcore/Worker.cpp \
+  cpp-ethereum/libevm/ExtVMFace.cpp \
+  cpp-ethereum/libevm/VM.cpp \
+  cpp-ethereum/libevm/VMCalls.cpp \
+  cpp-ethereum/libevm/VMFactory.cpp \
+  cpp-ethereum/libevmcore/Instruction.cpp \
+  cpp-ethereum/libethereum/Account.cpp \
+  cpp-ethereum/libethereum/Defaults.cpp \
+  cpp-ethereum/libethereum/GasPricer.cpp \
+  cpp-ethereum/libethereum/State.cpp \
+  cpp-ethereum/libethcore/ABI.cpp \
+  cpp-ethereum/libethcore/ChainOperationParams.cpp \
+  cpp-ethereum/libethcore/Common.cpp \
+  cpp-ethereum/libethcore/ICAP.cpp \
+  cpp-ethereum/libethcore/Precompiled.cpp \
+  cpp-ethereum/libdevcore/TrieDB.cpp \
+  cpp-ethereum/libdevcrypto/Common.cpp \
+  cpp-ethereum/libdevcrypto/CryptoPP.cpp \
+  cpp-ethereum/libdevcrypto/AES.cpp \
+  cpp-ethereum/libdevcrypto/ECDHE.cpp \
   $(BITCOIN_CORE_H)
 
 if ENABLE_ZMQ
@@ -283,7 +309,22 @@ crypto_libbitcoin_crypto_a_SOURCES = \
   crypto/sha256.cpp \
   crypto/sha256.h \
   crypto/sha512.cpp \
-  crypto/sha512.h
+  crypto/sha512.h \
+  cpp-ethereum/utils/libscrypt/b64.c \
+  cpp-ethereum/utils/libscrypt/b64.h \
+  cpp-ethereum/utils/libscrypt/crypto-mcf.c \
+  cpp-ethereum/utils/libscrypt/crypto_scrypt-check.c \
+  cpp-ethereum/utils/libscrypt/crypto_scrypt-hash.c \
+  cpp-ethereum/utils/libscrypt/crypto_scrypt-hexconvert.c \
+  cpp-ethereum/utils/libscrypt/crypto_scrypt-hexconvert.h \
+  cpp-ethereum/utils/libscrypt/crypto_scrypt-nosse.c \
+  cpp-ethereum/utils/libscrypt/crypto-scrypt-saltgen.c \
+  cpp-ethereum/utils/libscrypt/libscrypt.h \
+  cpp-ethereum/utils/libscrypt/sha256.c \
+  cpp-ethereum/utils/libscrypt/sha256.h \
+  cpp-ethereum/utils/libscrypt/slowequals.c \
+  cpp-ethereum/utils/libscrypt/slowequals.h \
+  cpp-ethereum/utils/libscrypt/sysendian.h
 
 # consensus: shared between all executables that validate any consensus rules.
 libbitcoin_consensus_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
@@ -399,19 +440,7 @@ qtumd_LDADD = \
   $(LIBBITCOIN_CONSENSUS) \
   $(LIBBITCOIN_CRYPTO) \
   $(LIBLEVELDB) \
-  $(LIBMEMENV) \
-  $(LIBETHEREUM) \
-  $(LIBETHASHSEAL) \
-  $(LIBETHASH) \
-  $(LIBETHCORE) \
-  $(LIBDEVCORE) \
-  $(LIBJSONCPP) \
-  $(LIBEVM) \
-  $(LIBEVMCORE) \
-  $(LIBDEVCRYPTO) \
-  $(LIBCRYPTOPP) \
-  $(LIBSECP256K1ETH) \
-  $(LIBSCRYIPT)
+  $(LIBCRYPTOPP) 
 
 qtumd_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS)
 
@@ -431,18 +460,7 @@ qtum_cli_LDADD = \
   $(LIBBITCOIN_UTIL) \
   $(LIBBITCOIN_CRYPTO) \
   $(LIBLEVELDB) \
-  $(LIBETHEREUM) \
-  $(LIBETHASHSEAL) \
-  $(LIBETHASH) \
-  $(LIBETHCORE) \
-  $(LIBDEVCORE) \
-  $(LIBJSONCPP) \
-  $(LIBEVM) \
-  $(LIBEVMCORE) \
-  $(LIBDEVCRYPTO) \
-  $(LIBCRYPTOPP) \
-  $(LIBSECP256K1ETH) \
-  $(LIBSCRYIPT)
+  $(LIBCRYPTOPP)
 
 qtum_cli_LDADD += $(BOOST_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(EVENT_LIBS)
 #
@@ -464,18 +482,7 @@ qtum_tx_LDADD = \
   $(LIBBITCOIN_CONSENSUS) \
   $(LIBBITCOIN_CRYPTO) \
   $(LIBLEVELDB) \
-  $(LIBETHEREUM) \
-  $(LIBETHASHSEAL) \
-  $(LIBETHASH) \
-  $(LIBETHCORE) \
-  $(LIBDEVCORE) \
-  $(LIBJSONCPP) \
-  $(LIBEVM) \
-  $(LIBEVMCORE) \
-  $(LIBDEVCRYPTO) \
-  $(LIBCRYPTOPP) \
-  $(LIBSECP256K1ETH) \
-  $(LIBSCRYIPT)
+  $(LIBCRYPTOPP)
 
 qtum_tx_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS)
 #
@@ -525,7 +532,8 @@ EXTRA_DIST = $(CTAES_DIST)
 clean-local:
 	-$(MAKE) -C secp256k1 clean
 	-$(MAKE) -C univalue clean
-	-rm -f leveldb/*/*.gcda leveldb/*/*.gcno leveldb/helpers/memenv/*.gcda leveldb/helpers/memenv/*.gcno
+	-rm -f a/*/*.gcda leveldb/*/*.gcno leveldb/helpers/memenv/*.gcda leveldb/helpers/memenv/*.gcno 
+	-rm -f cryptopp/*.o
 	-rm -f config.h
 	-rm -rf test/__pycache__
 
@@ -556,6 +564,10 @@ endif
 
 if EMBEDDED_LEVELDB
 include Makefile.leveldb.include
+endif
+
+if EMBEDDED_CRYPTOPP
+include Makefile.cryptopp.include
 endif
 
 if ENABLE_TESTS
