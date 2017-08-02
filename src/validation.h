@@ -628,9 +628,9 @@ void DumpMempool();
 bool LoadMempool();
 
 //////////////////////////////////////////////////////// qtum
-std::vector<ResultExecute> callContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, const dev::Address& sender = dev::Address(), uint64_t gasLimit=0);
+std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, const dev::Address& sender = dev::Address(), uint64_t gasLimit=0);
 
-bool checkSenderScript(const CCoinsViewCache& view, const CTransaction& tx);
+bool CheckSenderScript(const CCoinsViewCache& view, const CTransaction& tx);
 
 bool CheckMinGasPrice(std::vector<EthTransactionParams>& etps, const uint64_t& minGasPrice);
 
