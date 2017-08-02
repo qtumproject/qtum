@@ -27,8 +27,13 @@ packages:
 - "bsdmainutils"
 - "ca-certificates"
 - "python"
+- "cmake"
+- "libcurl4-openssl-dev"
+- "libgmp-dev"
+- "libmicrohttpd-dev"
+- "libminiupnpc-dev"
 remotes:
-- "url": "https://github.com/bitcoin/bitcoin.git"
+- "url": "https://github.com/qtumproject/qtum.git"
   "dir": "bitcoin"
 files: []
 script: |
