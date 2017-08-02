@@ -626,6 +626,11 @@ UniValue sendtocontract(const JSONRPCRequest& request){
 
     if (!EnsureWalletIsAvailable(request.fHelp))
         return NullUniValue;
+
+    QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
+    uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(chainActive.Height()+1));
+    CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
+
     if (request.fHelp || request.params.size() < 2 || request.params.size() > 7)
         throw runtime_error(
                 "sendtocontract \"contractaddress\" \"data\" (amount gaslimit gasprice senderaddress broadcast)"
@@ -636,7 +641,7 @@ UniValue sendtocontract(const JSONRPCRequest& request){
                 "2. \"datahex\"  (string, required) data to send.\n"
                 "3. \"amount\"      (numeric or string, optional) The amount in " + CURRENCY_UNIT + " to send. eg 0.1, default: 0\n"
                 "4. gasLimit  (numeric or string, optional) gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+"\n"
-                "5. gasPrice  (numeric or string, optional) gasPrice Qtum price per gas unit, default: "+FormatMoney(DEFAULT_GAS_PRICE)+"\n"
+                "5. gasPrice  (numeric or string, optional) gasPrice Qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)+"\n"
                 "6. \"senderaddress\" (string, optional) The quantum address that will be used as sender.\n"
                 "7. \"broadcast\" (bool, optional, default=true) Whether to broadcast the transaction or not.\n"
                 "\nResult:\n"
@@ -678,9 +683,10 @@ UniValue sendtocontract(const JSONRPCRequest& request){
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasLimit");
     }
 
-    CAmount nGasPrice = DEFAULT_GAS_PRICE;
     if (request.params.size() > 4){
         nGasPrice = request.params[4].get_real()*COIN;
+        if (nGasPrice < (int64_t)minGasPrice)
+            throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasPrice (Minimum is: "+FormatMoney(minGasPrice)+")");
         if (nGasPrice <= 0)
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasPrice");
     }
