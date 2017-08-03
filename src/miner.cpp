@@ -533,6 +533,16 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
     uint64_t nBlockSigOpsCost = this->nBlockSigOpsCost;
 
     QtumTxConverter convert(iter->GetTx(), NULL, &pblock->vtx);
+
+    ExtractQtumTX resultConverter = convert.extractionQtumTransactions();
+    std::vector<QtumTransaction> qtumTransactions = resultConverter.first;
+    for(QtumTransaction qtumTransaction : qtumTransactions){
+        if(bceResult.usedGas + qtumTransaction.gas() > blockGasLimit){
+            //if this transaction's gasLimit could cause block gas limit to be exceeded, then don't add it
+            return false;
+        }
+    }
+
     ByteCodeExec exec(*pblock, convert.extractionQtumTransactions().first, blockGasLimit);
     if(!exec.performByteCode()){
         //error, don't add contract
