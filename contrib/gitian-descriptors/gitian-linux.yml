@@ -119,7 +119,7 @@ script: |
   done
 
   cd qtum
-  git submodule update --recursive --remote
+  git submodule update --init --recursive
   BASEPREFIX=`pwd`/depends
   # Build dependencies for each host
   for i in $HOSTS; do
