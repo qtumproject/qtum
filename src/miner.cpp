@@ -543,7 +543,7 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
         }
     }
 
-    ByteCodeExec exec(*pblock, convert.extractionQtumTransactions().first, blockGasLimit);
+    ByteCodeExec exec(*pblock, qtumTransactions, blockGasLimit);
     if(!exec.performByteCode()){
         //error, don't add contract
         return false;
