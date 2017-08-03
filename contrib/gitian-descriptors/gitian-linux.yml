@@ -37,7 +37,9 @@ remotes:
   "dir": "qtum"
 files: []
 script: |
-
+  cd qtum
+  git submodule update --init --recursive
+  cd ..
   WRAP_DIR=$HOME/wrapped
   HOSTS="i686-pc-linux-gnu x86_64-linux-gnu arm-linux-gnueabihf aarch64-linux-gnu"
   CONFIGFLAGS="--enable-glibc-back-compat --enable-reduce-exports --disable-bench --disable-gui-tests"
@@ -119,7 +121,7 @@ script: |
   done
 
   cd qtum
-  git submodule update --init --recursive
+
   BASEPREFIX=`pwd`/depends
   # Build dependencies for each host
   for i in $HOSTS; do
