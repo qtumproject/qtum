@@ -36,11 +36,11 @@ remotes:
 - "url": "https://github.com/qtumproject/qtum.git"
   "dir": "qtum"
 - "url": "https://github.com/qtumproject/cpp-eth-qtum.git"
-  "dir": "cpp-ethereum"
+  "dir": "cpp-eth-qtum"
 files: []
 script: |
   #this is a hack since gitian has no natural support for submodules
-  cp -r cpp-ethereum qtum/src/cpp-ethereum
+  cp -r cpp-eth-qtum qtum/src/cpp-ethereum
   #make sure this file exists... 
   cat qtum/src/cpp-ethereum/utils/b64.c 
 
