@@ -759,7 +759,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
         if(tx.HasCreateOrCall()){
 
             if(!CheckSenderScript(view, tx)){
-                return state.DoS(100, false, REJECT_INVALID, "bad-txns-invalid-sender-script");
+                return state.DoS(1, false, REJECT_INVALID, "bad-txns-invalid-sender-script");
             }
 
             QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
@@ -1931,7 +1931,7 @@ static int64_t nTimeTotal = 0;
 /////////////////////////////////////////////////////////////////////// qtum
 bool CheckSenderScript(const CCoinsViewCache& view, const CTransaction& tx){
     CScript script = view.AccessCoins(tx.vin[0].prevout.hash)->vout[tx.vin[0].prevout.n].scriptPubKey;
-    if(!script.IsPayToScriptHash() && !script.IsPayToPubkeyHash() && !script.IsPayToPubkey()){
+    if(!script.IsPayToPubkeyHash() && !script.IsPayToPubkey()){
         return false;
     }
     return true;
