@@ -772,7 +772,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                 sumGas += CAmount(qtumTransaction.gas() * qtumTransaction.gasPrice());
 
                 if(qtumTransaction.gas() > blockGasLimit){
-                    return state.DoS(100, false, REJECT_INVALID, "bad-txns-gas-exceeds-blockgaslimit");
+                    return state.DoS(1, false, REJECT_INVALID, "bad-txns-gas-exceeds-blockgaslimit");
                 }
 
             }
