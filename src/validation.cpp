@@ -2577,6 +2577,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 if(v.flagOptions != 0)
                     return state.DoS(100, error("ConnectBlock(): Contract execution uses unknown flag options"), REJECT_INVALID, "bad-tx-version-flags");
 
+                if(qtx.gas() > blockGasLimit){
+                    return state.DoS(100, false, REJECT_INVALID, "bad-txns-gas-exceeds-blockgaslimit");
+                }
+
                 //check gas limit is not less than minimum gas limit (unless it is a no-exec tx)
                 if(qtx.gas() < MINIMUM_GAS_LIMIT && v.rootVM != 0)
                     return state.DoS(100, error("ConnectBlock(): Contract execution has lower gas limit than allowed"), REJECT_INVALID, "bad-tx-too-little-gas");
