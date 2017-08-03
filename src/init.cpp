@@ -1483,7 +1483,6 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
                     fGettingValuesDGP = false;
                 }
 
-                dev::eth::Ethash::init();
                 boost::filesystem::path qtumStateDir = GetDataDir() / "stateQtum";
                 bool fStatus = boost::filesystem::exists(qtumStateDir);
                 const std::string dirQtum(qtumStateDir.string());
