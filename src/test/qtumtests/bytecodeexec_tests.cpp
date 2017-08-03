@@ -143,7 +143,7 @@ BOOST_AUTO_TEST_CASE(bytecodeexec_create_contract_OutOfGasBase){
 
     std::vector<dev::Address> addrs = {dev::Address()};
     checkExecResult(result.first, 1, 0, dev::eth::TransactionException::OutOfGasBase, addrs, valtype(), dev::u256(0));
-    checkBCEResult(result.second, 0, 0, 0, 0);
+    checkBCEResult(result.second, 100, 0, 0, 100);
 }
 
 BOOST_AUTO_TEST_CASE(bytecodeexec_create_contract_OutOfGas){
@@ -173,7 +173,7 @@ BOOST_AUTO_TEST_CASE(bytecodeexec_OutOfGasBase_create_contract_normal_create_con
 
     valtype code = ParseHex("60606040525b600b5b5b565b0000a165627a7a723058209cedb722bf57a30e3eb00eeefc392103ea791a2001deed29f5c3809ff10eb1dd0029");
     checkExecResult(result.first, 10, 5, dev::eth::TransactionException::OutOfGasBase, newAddressGen, code, dev::u256(0), true);
-    checkBCEResult(result.second, 346910, 2153090, 5, CAmount(GASLIMIT * 5));
+    checkBCEResult(result.second, 347410, 2153090, 5, CAmount(GASLIMIT * 5 + 500));
 }
 
 BOOST_AUTO_TEST_CASE(bytecodeexec_OutOfGas_create_contract_normal_create_contract){
@@ -239,7 +239,7 @@ BOOST_AUTO_TEST_CASE(bytecodeexec_call_contract_transfer_OutOfGasBase_return_val
 
     std::vector<dev::Address> addrs = {txEthCall.receiveAddress()};
     checkExecResult(result.first, 1, 1, dev::eth::TransactionException::OutOfGasBase, addrs, valtype(), dev::u256(0));
-    checkBCEResult(result.second, 0, 0, 0, 0, 1);
+    checkBCEResult(result.second, 1, 0, 0, 1, 1);
 }
 
 BOOST_AUTO_TEST_CASE(bytecodeexec_call_contract_transfer_OutOfGas_return_value){

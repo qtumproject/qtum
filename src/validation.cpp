@@ -764,6 +764,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
 
             QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
             uint64_t minGasPrice = qtumDGP.getMinGasPrice(chainActive.Tip()->nHeight + 1);
+            uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(chainActive.Tip()->nHeight + 1);
             size_t count = 0;
             for(const CTxOut& o : tx.vout)
                 count += o.scriptPubKey.HasOpCreate() || o.scriptPubKey.HasOpCall() ? 1 : 0;
@@ -774,6 +775,11 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
             std::vector<EthTransactionParams> qtumETP = resultConverter.second;
             for(QtumTransaction qtumTransaction : qtumTransactions){
                 sumGas += CAmount(qtumTransaction.gas() * qtumTransaction.gasPrice());
+
+                if(qtumTransaction.gas() > blockGasLimit){
+                    return state.DoS(1, false, REJECT_INVALID, "bad-txns-gas-exceeds-blockgaslimit");
+                }
+
             }
             if(!CheckMinGasPrice(qtumETP, minGasPrice))
                 return state.DoS(100, false, REJECT_INVALID, "bad-txns-small-gasprice");
@@ -2588,6 +2594,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     return state.DoS(100, error("ConnectBlock(): Contract execution uses unknown VM version"), REJECT_INVALID, "bad-tx-version-vmversion");
                 if(v.flagOptions != 0)
                     return state.DoS(100, error("ConnectBlock(): Contract execution uses unknown flag options"), REJECT_INVALID, "bad-tx-version-flags");
+
+                if(qtx.gas() > blockGasLimit){
+                    return state.DoS(100, false, REJECT_INVALID, "bad-txns-gas-exceeds-blockgaslimit");
+                }
 
                 //check gas limit is not less than minimum gas limit (unless it is a no-exec tx)
                 if(qtx.gas() < MINIMUM_GAS_LIMIT && v.rootVM != 0)

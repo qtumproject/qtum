@@ -524,10 +524,7 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
     {
         return false;
     }
-    if(bceResult.usedGas > blockGasLimit){
-        //if this transaction could cause block gas limit to be exceeded, then don't add it
-        return false;
-    }
+    
     dev::h256 oldHashStateRoot(globalState->rootHash());
     dev::h256 oldHashUTXORoot(globalState->rootHashUTXO());
     // operate on local vars first, then later apply to `this`
@@ -536,6 +533,16 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
     uint64_t nBlockSigOpsCost = this->nBlockSigOpsCost;
 
     QtumTxConverter convert(iter->GetTx(), NULL, &pblock->vtx);
+
+    ExtractQtumTX resultConverter = convert.extractionQtumTransactions();
+    std::vector<QtumTransaction> qtumTransactions = resultConverter.first;
+    for(QtumTransaction qtumTransaction : qtumTransactions){
+        if(bceResult.usedGas + qtumTransaction.gas() > blockGasLimit){
+            //if this transaction's gasLimit could cause block gas limit to be exceeded, then don't add it
+            return false;
+        }
+    }
+
     ByteCodeExec exec(*pblock, convert.extractionQtumTransactions().first, blockGasLimit);
     if(!exec.performByteCode()){
         //error, don't add contract
@@ -543,6 +550,11 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
     }
 
     ByteCodeExecResult testExecResult = exec.processingResults();
+
+    if(bceResult.usedGas + testExecResult.usedGas > blockGasLimit){
+        //if this transaction could cause block gas limit to be exceeded, then don't add it
+        return false;
+    }
 
     //apply contractTx costs to local state
     if (fNeedSizeAccounting) {
