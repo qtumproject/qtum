@@ -58,6 +58,7 @@ cryptopp_libcryptopp_a_SOURCES += cryptopp/rng.cpp
 cryptopp_libcryptopp_a_SOURCES += cryptopp/sha.cpp
 cryptopp_libcryptopp_a_SOURCES += cryptopp/strciphr.cpp
 cryptopp_libcryptopp_a_SOURCES += cryptopp/winpipes.cpp
+cryptopp_libcryptopp_a_SOURCES += cryptopp/sha3.cpp
 
 if TARGET_WINDOWS
 else

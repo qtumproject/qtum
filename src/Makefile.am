@@ -329,6 +329,7 @@ libbitcoin_consensus_a_SOURCES = \
 # common: shared between bitcoind, and bitcoin-qt and non-server tools
 libbitcoin_common_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
 libbitcoin_common_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+libbitcoin_common_a_CFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libbitcoin_common_a_SOURCES = \
   amount.cpp \
   base58.cpp \
@@ -400,7 +401,22 @@ libbitcoin_common_a_SOURCES = \
   cpp-ethereum/libethcore/SealEngine.cpp \
   cpp-ethereum/libdevcore/TrieHash.cpp \
   cpp-ethereum/libethereum/GenesisInfo.cpp \
+  cpp-ethereum/libethashseal/Ethash.cpp \
+  cpp-ethereum/libethashseal/EthashCPUMiner.cpp \
+  cpp-ethereum/libethashseal/EthashAux.cpp \
+  cpp-ethereum/libethashseal/EthashProofOfWork.cpp \
+  cpp-ethereum/libethash/internal.c \
+  cpp-ethereum/libethash/io.c \
+  cpp-ethereum/libethash/sha3.c \
   $(BITCOIN_CORE_H)
+
+if TARGET_WINDOWS
+  libbitcoin_common_a_SOURCES += cpp-ethereum/libethash/io_win32.c
+else
+  libbitcoin_common_a_SOURCES += cpp-ethereum/libethash/io_posix.c
+endif
+
+
 
 # util: shared between all executables.
 # This library *must* be included to make sure that the glibc
