@@ -309,8 +309,8 @@ Clone the git repositories for bitcoin and Gitian.
 
 ```bash
 git clone https://github.com/devrandom/gitian-builder.git
-git clone https://github.com/bitcoin/bitcoin
-git clone https://github.com/bitcoin-core/gitian.sigs.git
+git clone https://github.com/qtumproject/qtum --recursive
+git clone https://github.com/qtumproject/gitian.sigs.git
 ```
 
 Setting up the Gitian image
