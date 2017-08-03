@@ -1837,9 +1837,11 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
     globalState->setRoot(uintToh256(pindex->pprev->hashStateRoot)); // qtum
     globalState->setRootUTXO(uintToh256(pindex->pprev->hashUTXORoot)); // qtum
 
-    boost::filesystem::path stateDir = GetDataDir() / "stateQtum";
-    StorageResults storageRes(stateDir.string());
-    storageRes.deleteResults(block.vtx);
+    if(pfClean == NULL){
+        boost::filesystem::path stateDir = GetDataDir() / "stateQtum";
+        StorageResults storageRes(stateDir.string());
+        storageRes.deleteResults(block.vtx);
+    }
 
     if (pfClean) {
         *pfClean = fClean;
