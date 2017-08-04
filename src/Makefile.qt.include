@@ -290,6 +290,10 @@ RES_ICONS = \
   qt/res/icons/tx_mined.png \
   qt/res/icons/warning.png \
   qt/res/icons/verify.png \
+  qt/res/icons/staking_on.png \
+  qt/res/icons/staking_off.png \
+  qt/res/icons/contract_input.png \
+  qt/res/icons/contract_output.png \
   qt/res/icons/lock_staking.png
 
 BITCOIN_QT_BASE_CPP = \
