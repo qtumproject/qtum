@@ -132,7 +132,7 @@ dev::Address QtumDGP::getAddressForBlock(unsigned int blockHeight){
     return dev::Address();
 }
 
-static inline bool sortPairs(std::pair<dev::u256, dev::u256>& a, std::pair<dev::u256, dev::u256>& b){
+static inline bool sortPairs(const std::pair<dev::u256, dev::u256>& a, const std::pair<dev::u256, dev::u256>& b){
     return a.first < b.first;
 }
 
