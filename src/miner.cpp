@@ -249,8 +249,8 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     
     dev::h256 oldHashStateRoot(globalState->rootHash());
     dev::h256 oldHashUTXORoot(globalState->rootHashUTXO());
-    addPriorityTxs();
-    addPackageTxs();
+    addPriorityTxs(minGasPrice);
+    addPackageTxs(minGasPrice);
     pblock->hashStateRoot = uint256(h256Touint(dev::h256(globalState->rootHash())));
     pblock->hashUTXORoot = uint256(h256Touint(dev::h256(globalState->rootHashUTXO())));
     globalState->setRoot(oldHashStateRoot);
@@ -519,7 +519,7 @@ bool BlockAssembler::CheckBlockBeyondFull()
     return true;
 }
 
-bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
+bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64_t minGasPrice){
     if(nTimeLimit != 0 && GetAdjustedTime() >= nTimeLimit-BYTECODE_TIME_BUFFER)
     {
         return false;
@@ -539,6 +539,10 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter){
     for(QtumTransaction qtumTransaction : qtumTransactions){
         if(bceResult.usedGas + qtumTransaction.gas() > blockGasLimit){
             //if this transaction's gasLimit could cause block gas limit to be exceeded, then don't add it
+            return false;
+        }
+        if(qtumTransaction.gasPrice() < minGasPrice){
+            //if this transaction's gasPrice is less than the current DGP minGasPrice don't add it
             return false;
         }
     }
@@ -727,7 +731,7 @@ void BlockAssembler::SortForBlock(const CTxMemPool::setEntries& package, CTxMemP
 // Each time through the loop, we compare the best transaction in
 // mapModifiedTxs with the next transaction in the mempool to decide what
 // transaction package to work on next.
-void BlockAssembler::addPackageTxs()
+void BlockAssembler::addPackageTxs(uint64_t minGasPrice)
 {
     // mapModifiedTx will store sorted packages after they are modified
     // because some of their txs are already in the block
@@ -842,7 +846,7 @@ void BlockAssembler::addPackageTxs()
             const CTransaction& tx = sortedEntries[i]->GetTx();
             if(wasAdded) {
                 if (tx.HasCreateOrCall()) {
-                    wasAdded = AttemptToAddContractToBlock(sortedEntries[i]);
+                    wasAdded = AttemptToAddContractToBlock(sortedEntries[i], minGasPrice);
                     if(!wasAdded){
                         if(fUsingModified) {
                             //this only needs to be done once to mark the whole package (everything in sortedEntries) as failed
@@ -868,7 +872,7 @@ void BlockAssembler::addPackageTxs()
     }
 }
 
-void BlockAssembler::addPriorityTxs()
+void BlockAssembler::addPriorityTxs(uint64_t minGasPrice)
 {
     // How much of the block should be dedicated to high-priority transactions,
     // included regardless of the fees they pay
@@ -936,7 +940,7 @@ void BlockAssembler::addPriorityTxs()
             const CTransaction& tx = iter->GetTx();
             bool wasAdded=true;
             if(tx.HasCreateOrCall()) {
-                wasAdded = AttemptToAddContractToBlock(iter);
+                wasAdded = AttemptToAddContractToBlock(iter, minGasPrice);
             }else {
                 AddToBlock(iter);
             }

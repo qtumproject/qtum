@@ -211,13 +211,13 @@ private:
     /** Add a tx to the block */
     void AddToBlock(CTxMemPool::txiter iter);
 
-    bool AttemptToAddContractToBlock(CTxMemPool::txiter iter);
+    bool AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64_t minGasPrice);
 
     // Methods for how to add transactions to a block.
     /** Add transactions based on tx "priority" */
-    void addPriorityTxs();
+    void addPriorityTxs(uint64_t minGasPrice);
     /** Add transactions based on feerate including unconfirmed ancestors */
-    void addPackageTxs();
+    void addPackageTxs(uint64_t minGasPrice);
 
     // helper function for addPriorityTxs
     /** Test if tx will still "fit" in the block */
