@@ -216,6 +216,19 @@ bool CScript::IsPayToScriptHash() const
 }
 
 ///////////////////////////////////////////////////////// // qtum
+bool CScript::IsPayToPubkey() const
+{
+    if (this->size() == 35 && (*this)[0] == 33 && (*this)[34] == OP_CHECKSIG
+                            && ((*this)[1] == 0x02 || (*this)[1] == 0x03)) {
+        return true;
+     }
+     if (this->size() == 67 && (*this)[0] == 65 && (*this)[66] == OP_CHECKSIG
+                            && (*this)[1] == 0x04) {
+        return true;
+     }
+     return false;
+}
+
 bool CScript::IsPayToPubkeyHash() const
 {
     // Extra-fast test for pay-to-pubkeyhash CScripts:

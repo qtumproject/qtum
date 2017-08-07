@@ -484,6 +484,8 @@ UniValue createcontract(const JSONRPCRequest& request){
         nGasLimit = request.params[1].get_int64();
         if (nGasLimit > blockGasLimit)
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasLimit (Maximum is: "+i64tostr(blockGasLimit)+")");
+        if (nGasLimit < MINIMUM_GAS_LIMIT)
+            throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasLimit (Minimum is: "+i64tostr(MINIMUM_GAS_LIMIT)+")");
         if (nGasLimit <= 0)
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasLimit");
     }
@@ -685,6 +687,8 @@ UniValue sendtocontract(const JSONRPCRequest& request){
         nGasLimit = request.params[3].get_int64();
         if (nGasLimit > blockGasLimit)
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasLimit (Maximum is: "+i64tostr(blockGasLimit)+")");
+        if (nGasLimit < MINIMUM_GAS_LIMIT)
+            throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasLimit (Minimum is: "+i64tostr(MINIMUM_GAS_LIMIT)+")");
         if (nGasLimit <= 0)
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasLimit");
     }

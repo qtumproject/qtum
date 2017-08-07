@@ -652,7 +652,10 @@ public:
     unsigned int GetSigOpCount(const CScript& scriptSig) const;
 
     bool IsPayToScriptHash() const;
-    bool IsPayToPubkeyHash() const; // qtum
+    ///////////////////////////////////////////////// // qtum
+    bool IsPayToPubkey() const;
+    bool IsPayToPubkeyHash() const;
+    /////////////////////////////////////////////////
     bool IsPayToWitnessScriptHash() const;
     bool IsWitnessProgram(int& version, std::vector<unsigned char>& program) const;
 

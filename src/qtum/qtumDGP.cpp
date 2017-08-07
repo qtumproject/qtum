@@ -106,7 +106,7 @@ void QtumDGP::initStorageTemplate(const dev::Address& addr){
 }
 
 void QtumDGP::initDataTemplate(const dev::Address& addr, std::vector<unsigned char>& data){
-    dataTemplate = callContract(addr, data)[0].execRes.output;
+    dataTemplate = CallContract(addr, data)[0].execRes.output;
 }
 
 void QtumDGP::createParamsInstance(){
