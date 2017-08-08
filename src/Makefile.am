@@ -522,7 +522,8 @@ libbitcoin_common_a_SOURCES = \
 if TARGET_WINDOWS
   libbitcoin_common_a_SOURCES += \
     cpp-ethereum/libethash/io_win32.c \
-    cpp-ethereum/libethash/mmap_win32.c 
+    cpp-ethereum/libethash/mmap_win32.c \
+    cpp-ethereum/libethash/util_win32.c
 else
   libbitcoin_common_a_SOURCES += cpp-ethereum/libethash/io_posix.c
 endif
