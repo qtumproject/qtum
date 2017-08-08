@@ -132,6 +132,10 @@ dev::Address QtumDGP::getAddressForBlock(unsigned int blockHeight){
     return dev::Address();
 }
 
+static inline bool sortPairs(const std::pair<dev::u256, dev::u256>& a, const std::pair<dev::u256, dev::u256>& b){
+    return a.first < b.first;
+}
+
 void QtumDGP::parseStorageScheduleContract(std::vector<uint32_t>& uint32Values){
     std::vector<std::pair<dev::u256, dev::u256>> data;
     for(size_t i = 0; i < 5; i++){
@@ -143,9 +147,7 @@ void QtumDGP::parseStorageScheduleContract(std::vector<uint32_t>& uint32Values){
         }
     }
 
-    std::sort(data.begin(), data.end(), [&data](std::pair<dev::u256, dev::u256>& a, std::pair<dev::u256, dev::u256>& b){
-        return a.first < b.first;
-    });
+    std::sort(data.begin(), data.end(), sortPairs);
 
     for(std::pair<dev::u256, dev::u256> d : data){
         dev::u256 value = d.second;
