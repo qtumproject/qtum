@@ -520,7 +520,9 @@ libbitcoin_common_a_SOURCES = \
 #only added json_spirit so that `make dist` works properly
 
 if TARGET_WINDOWS
-  libbitcoin_common_a_SOURCES += cpp-ethereum/libethash/io_win32.c
+  libbitcoin_common_a_SOURCES += \
+    cpp-ethereum/libethash/io_win32.c \
+    cpp-ethereum/libethash/mmap_win32.c 
 else
   libbitcoin_common_a_SOURCES += cpp-ethereum/libethash/io_posix.c
 endif
