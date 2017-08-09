@@ -324,6 +324,14 @@ Creating the image will take a while, but only has to be done once.
 
 Execute the following as user `debian`:
 
+First, we must add the xenial setup script for LXC, as this is missing in older versions of debootstrap:
+
+```bash
+sudo cp /home/debian/qtum/contrib/gitian-descriptors/xenial /usr/share/debootstrap/scripts
+```
+
+And now with that in place, setup the VM images:
+
 ```bash
 cd gitian-builder
 bin/make-base-vm --lxc --arch amd64 --suite trusty
