@@ -37,6 +37,7 @@ QT_BEGIN_NAMESPACE
 class QAction;
 class QProgressBar;
 class QProgressDialog;
+class QDockWidget;
 QT_END_NAMESPACE
 
 /**
@@ -156,6 +157,9 @@ private:
     void updateNetworkState();
 
     void updateHeadersSyncProgressLabel();
+
+    /** Add docking windows to the main windows */
+    void addDockWindows(Qt::DockWidgetArea area, QWidget* widget);
 
 Q_SIGNALS:
     /** Signal raised when a URI was entered or dragged to the GUI */
