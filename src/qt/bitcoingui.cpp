@@ -23,6 +23,8 @@
 #include "utilitydialog.h"
 #include "validation.h"
 #include "rpc/server.h"
+#include "navigationbar.h"
+#include "titlebar.h"
 
 #ifdef ENABLE_WALLET
 #include "walletframe.h"
@@ -185,6 +187,9 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
 
     // Create the toolbars
     createToolBars();
+
+    // Create the title bar
+    createTitleBars();
 
     // Create system tray icon and notification
     createTrayIcon(networkStyle);
@@ -480,14 +485,27 @@ void BitcoinGUI::createToolBars()
 {
     if(walletFrame)
     {
-        QToolBar *toolbar = addToolBar(tr("Tabs toolbar"));
-        toolbar->setMovable(false);
-        toolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-        toolbar->addAction(overviewAction);
-        toolbar->addAction(sendCoinsAction);
-        toolbar->addAction(receiveCoinsAction);
-        toolbar->addAction(historyAction);
+        // Create custom tool bar component
+        NavigationBar* nav = new NavigationBar();
+        addDockWindows(Qt::LeftDockWidgetArea, nav);
+
+        // Fill the component with actions
+        nav->addAction(overviewAction);
+        nav->addAction(sendCoinsAction);
+        nav->addAction(receiveCoinsAction);
+        nav->addAction(historyAction);
+        nav->buildUi();
         overviewAction->setChecked(true);
+    }
+}
+
+void BitcoinGUI::createTitleBars()
+{
+    if(walletFrame)
+    {
+        // Create custom title bar component
+        TitleBar* title = new TitleBar();
+        addDockWindows(Qt::TopDockWidgetArea, title);
     }
 }
 
