@@ -3,8 +3,15 @@
 #include <QToolButton>
 #include <QLayout>
 
-#define BUTTON_WIDTH 128
-#define BUTTON_HEIGHT 64
+namespace NavigationBar_NS
+{
+static const int ToolButtonWidth = 128;
+static const int ToolButtonHeight = 64;
+static const int ToolButtonIconSize = 32;
+static const int MarginLeft = 6;
+static const int MarginTop = 9;
+}
+using namespace NavigationBar_NS;
 
 NavigationBar::NavigationBar(QWidget *parent) :
     QWidget(parent),
@@ -48,10 +55,12 @@ void NavigationBar::buildUi()
         QActionGroup* actionGroup = new QActionGroup(this);
         actionGroup->setExclusive(true);
         QVBoxLayout* vboxLayout = new QVBoxLayout(this);
-        int defButtonWidth = m_subBar ? BUTTON_WIDTH / 2 : BUTTON_WIDTH;
-        int defButtonHeight = m_subBar ? BUTTON_HEIGHT / 2 : BUTTON_HEIGHT;
-        vboxLayout->setContentsMargins(m_subBar ? defButtonWidth : 6, 0, 0, 0);
-        vboxLayout->setSpacing(3);
+        int defButtonWidth = m_subBar ? ToolButtonWidth / 2 : ToolButtonWidth;
+        int defButtonHeight = m_subBar ? ToolButtonHeight / 2 : ToolButtonHeight;
+        vboxLayout->setContentsMargins(m_subBar ? defButtonWidth : MarginLeft,
+                                       m_subBar ? 0 : MarginTop,
+                                       0, 0);
+        vboxLayout->setSpacing(MarginLeft / 2);
 
         // List all actions
         for(int i = 0; i < m_actions.count(); i++)
@@ -65,7 +74,7 @@ void NavigationBar::buildUi()
             toolButton->setMinimumHeight(defButtonHeight);
             toolButton->setToolButtonStyle(m_toolStyle);
             toolButton->setDefaultAction(action);
-            toolButton->setIconSize(QSize(32, 32));
+            toolButton->setIconSize(QSize(ToolButtonIconSize, ToolButtonIconSize));
             vboxLayout->addWidget(toolButton);
 
             if(m_groups.contains(action))
@@ -91,7 +100,7 @@ void NavigationBar::buildUi()
             {
                 m_actions[0]->setChecked(true);
             }
-            setMinimumWidth(defButtonWidth + 6);
+            setMinimumWidth(defButtonWidth + MarginLeft);
             vboxLayout->addStretch(1);
         }
 
