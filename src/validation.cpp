@@ -2401,6 +2401,15 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     uint64_t countCumulativeGasUsed = 0;
     /////////////////////////////////////////////////
 
+    // Move this check from CheckBlock to ConnectBlock as it depends on DGP values
+    if (block.vtx.empty() || block.vtx.size() > dgpMaxBlockSize || ::GetSerializeSize(block, SER_NETWORK, PROTOCOL_VERSION | SERIALIZE_TRANSACTION_NO_WITNESS) > dgpMaxBlockSize) // qtum
+        return state.DoS(100, false, REJECT_INVALID, "bad-blk-length", false, "size limits failed");
+
+    // Move this check from ContextualCheckBlock to ConnectBlock as it depends on DGP values
+    if (GetBlockWeight(block) > dgpMaxBlockWeight) {
+        return state.DoS(100, false, REJECT_INVALID, "bad-blk-weight", false, strprintf("%s : weight limit failed", __func__));
+    }
+
     // Check it again in case a previous version let a bad block in
     if (!CheckBlock(block, state, chainparams.GetConsensus(), !fJustCheck, !fJustCheck))
         return error("%s: Consensus::CheckBlock: %s", __func__, FormatStateMessage(state));
@@ -3810,8 +3819,8 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
     // checks that use witness data may be performed here.
 
     // Size limits
-    if (block.vtx.empty() || block.vtx.size() > dgpMaxBlockSize || ::GetSerializeSize(block, SER_NETWORK, PROTOCOL_VERSION | SERIALIZE_TRANSACTION_NO_WITNESS) > dgpMaxBlockSize) // qtum
-        return state.DoS(100, false, REJECT_INVALID, "bad-blk-length", false, "size limits failed");
+//    if (block.vtx.empty() || block.vtx.size() > dgpMaxBlockSize || ::GetSerializeSize(block, SER_NETWORK, PROTOCOL_VERSION | SERIALIZE_TRANSACTION_NO_WITNESS) > dgpMaxBlockSize) // qtum
+//        return state.DoS(100, false, REJECT_INVALID, "bad-blk-length", false, "size limits failed");
 
     // First transaction must be coinbase in case of PoW block, the rest must not be
     if (block.vtx.empty() || !block.vtx[0]->IsCoinBase())
@@ -4063,9 +4072,9 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, const Co
     // large by filling up the coinbase witness, which doesn't change
     // the block hash, so we couldn't mark the block as permanently
     // failed).
-    if (GetBlockWeight(block) > dgpMaxBlockWeight) {
-        return state.DoS(100, false, REJECT_INVALID, "bad-blk-weight", false, strprintf("%s : weight limit failed", __func__));
-    }
+//    if (GetBlockWeight(block) > dgpMaxBlockWeight) {
+//        return state.DoS(100, false, REJECT_INVALID, "bad-blk-weight", false, strprintf("%s : weight limit failed", __func__));
+//    }
 
     return true;
 }
