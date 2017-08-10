@@ -114,6 +114,7 @@ QT_FORMS_UI = \
   qt/forms/sendcoinsentry.ui \
   qt/forms/sendtocontract.ui \
   qt/forms/signverifymessagedialog.ui \
+  qt/forms/titlebar.ui \
   qt/forms/transactiondescdialog.ui
 
 QT_MOC_CPP = \

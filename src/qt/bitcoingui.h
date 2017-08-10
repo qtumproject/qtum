@@ -30,6 +30,7 @@ class WalletFrame;
 class WalletModel;
 class HelpMessageDialog;
 class ModalOverlay;
+class TitleBar;
 
 class CWallet;
 
@@ -94,6 +95,7 @@ private:
     QProgressDialog *progressDialog;
 
     QMenuBar *appMenuBar;
+    TitleBar *appTitleBar;
     QAction *overviewAction;
     QAction *historyAction;
     QAction *quitAction;

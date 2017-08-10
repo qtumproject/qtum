@@ -98,6 +98,7 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
     progressBar(0),
     progressDialog(0),
     appMenuBar(0),
+    appTitleBar(0),
     overviewAction(0),
     historyAction(0),
     quitAction(0),
@@ -530,8 +531,8 @@ void BitcoinGUI::createTitleBars()
     if(walletFrame)
     {
         // Create custom title bar component
-        TitleBar* title = new TitleBar();
-        addDockWindows(Qt::TopDockWidgetArea, title);
+        appTitleBar = new TitleBar();
+        addDockWindows(Qt::TopDockWidgetArea, appTitleBar);
     }
 }
 
@@ -604,6 +605,7 @@ bool BitcoinGUI::addWallet(const QString& name, WalletModel *walletModel)
     if(!walletFrame)
         return false;
     setWalletActionsEnabled(true);
+    appTitleBar->setModel(walletModel);
     return walletFrame->addWallet(name, walletModel);
 }
 
