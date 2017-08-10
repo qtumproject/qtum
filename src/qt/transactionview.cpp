@@ -47,10 +47,10 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
 
     if (platformStyle->getUseExtraSpacing()) {
         hlayout->setSpacing(5);
-        hlayout->addSpacing(26);
+        hlayout->addSpacing(STATUS_COLUMN_WIDTH + 3);
     } else {
         hlayout->setSpacing(0);
-        hlayout->addSpacing(23);
+        hlayout->addSpacing(STATUS_COLUMN_WIDTH);
     }
 
     watchOnlyWidget = new QComboBox(this);
@@ -62,9 +62,9 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
 
     dateWidget = new QComboBox(this);
     if (platformStyle->getUseExtraSpacing()) {
-        dateWidget->setFixedWidth(121);
+        dateWidget->setFixedWidth(DATE_COLUMN_WIDTH + 1);
     } else {
-        dateWidget->setFixedWidth(120);
+        dateWidget->setFixedWidth(DATE_COLUMN_WIDTH);
     }
     dateWidget->addItem(tr("All"), All);
     dateWidget->addItem(tr("Today"), Today);
@@ -77,9 +77,9 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
 
     typeWidget = new QComboBox(this);
     if (platformStyle->getUseExtraSpacing()) {
-        typeWidget->setFixedWidth(121);
+        typeWidget->setFixedWidth(TYPE_COLUMN_WIDTH + 1);
     } else {
-        typeWidget->setFixedWidth(120);
+        typeWidget->setFixedWidth(TYPE_COLUMN_WIDTH);
     }
 
     typeWidget->addItem(tr("All"), TransactionFilterProxy::ALL_TYPES);
@@ -106,9 +106,9 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
     amountWidget->setPlaceholderText(tr("Min amount"));
 #endif
     if (platformStyle->getUseExtraSpacing()) {
-        amountWidget->setFixedWidth(97);
+        amountWidget->setFixedWidth(AMOUNT_MINIMUM_COLUMN_WIDTH - 3);
     } else {
-        amountWidget->setFixedWidth(100);
+        amountWidget->setFixedWidth(AMOUNT_MINIMUM_COLUMN_WIDTH);
     }
     amountWidget->setValidator(new QDoubleValidator(0, 1e20, 8, this));
     hlayout->addWidget(amountWidget);
