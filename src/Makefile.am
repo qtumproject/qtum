@@ -6,7 +6,7 @@ DIST_SUBDIRS = secp256k1 univalue
 
 AM_LDFLAGS = $(PTHREAD_CFLAGS) $(LIBTOOL_LDFLAGS) $(HARDENED_LDFLAGS)
 AM_CXXFLAGS = $(HARDENED_CXXFLAGS) $(ERROR_CXXFLAGS) -DETH_FATDB=1
-AM_CPPFLAGS = $(HARDENED_CPPFLAGS)
+AM_CPPFLAGS = $(HARDENED_CPPFLAGS) -DQTUM_BUILD
 EXTRA_LIBRARIES =
 
 if EMBEDDED_UNIVALUE
@@ -324,7 +324,7 @@ libbitcoin_consensus_a_SOURCES = \
   version.h
 
 # common: shared between bitcoind, and bitcoin-qt and non-server tools
-libbitcoin_common_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
+libbitcoin_common_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) -DQTUM_BUILD
 libbitcoin_common_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libbitcoin_common_a_CFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) -std=c99
 libbitcoin_common_a_SOURCES = \
@@ -505,6 +505,7 @@ libbitcoin_common_a_SOURCES = \
   cpp-ethereum/libethash/io.h \
   cpp-ethereum/libethash/ethash.h \
   cpp-ethereum/libethash/internal.h \
+  cpp-ethereum/libethash/mmap_win32.c \
   cpp-ethereum/utils/json_spirit/JsonSpiritHeaders.h \
   cpp-ethereum/utils/json_spirit/json_spirit.h \
   cpp-ethereum/utils/json_spirit/json_spirit_error_position.h \
@@ -520,7 +521,9 @@ libbitcoin_common_a_SOURCES = \
 #only added json_spirit so that `make dist` works properly
 
 if TARGET_WINDOWS
-  libbitcoin_common_a_SOURCES += cpp-ethereum/libethash/io_win32.c
+  libbitcoin_common_a_SOURCES += \
+    cpp-ethereum/libethash/io_win32.c \
+    cpp-ethereum/libethash/util_win32.c
 else
   libbitcoin_common_a_SOURCES += cpp-ethereum/libethash/io_posix.c
 endif
