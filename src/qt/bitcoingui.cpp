@@ -121,6 +121,10 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
     openRPCConsoleAction(0),
     openAction(0),
     showHelpMessageAction(0),
+    smartContractAction(0),
+    createContractAction(0),
+    sendToContractAction(0),
+    callContractAction(0),
     trayIcon(0),
     trayIconMenu(0),
     notificator(0),
@@ -328,11 +332,22 @@ void BitcoinGUI::createActions()
     receiveCoinsMenuAction->setStatusTip(receiveCoinsAction->statusTip());
     receiveCoinsMenuAction->setToolTip(receiveCoinsMenuAction->statusTip());
 
+    smartContractAction = new QAction(platformStyle->SingleColorIcon(":/icons/receiving_addresses"), tr("Smart &Contract"), this);
+    smartContractAction->setStatusTip(tr("Smart contract"));
+    smartContractAction->setToolTip(receiveCoinsAction->statusTip());
+    smartContractAction->setCheckable(true);
+    smartContractAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_4));
+    tabGroup->addAction(smartContractAction);
+
+    createContractAction = new QAction(tr("Create"), this);
+    sendToContractAction = new QAction(tr("SendTo"), this);
+    callContractAction = new QAction(tr("Call"), this);
+
     historyAction = new QAction(platformStyle->SingleColorIcon(":/icons/history"), tr("&Transactions"), this);
     historyAction->setStatusTip(tr("Browse transaction history"));
     historyAction->setToolTip(historyAction->statusTip());
     historyAction->setCheckable(true);
-    historyAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_4));
+    historyAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_5));
     tabGroup->addAction(historyAction);
 
 #ifdef ENABLE_WALLET
@@ -350,6 +365,12 @@ void BitcoinGUI::createActions()
     connect(receiveCoinsMenuAction, SIGNAL(triggered()), this, SLOT(gotoReceiveCoinsPage()));
     connect(historyAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(historyAction, SIGNAL(triggered()), this, SLOT(gotoHistoryPage()));
+    connect(createContractAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
+    connect(createContractAction, SIGNAL(triggered()), this, SLOT(gotoCreateContractPage()));
+    connect(sendToContractAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
+    connect(sendToContractAction, SIGNAL(triggered()), this, SLOT(gotoSendToContractPage()));
+    connect(callContractAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
+    connect(callContractAction, SIGNAL(triggered()), this, SLOT(gotoCallContractPage()));
 #endif // ENABLE_WALLET
 
     quitAction = new QAction(platformStyle->TextColorIcon(":/icons/quit"), tr("E&xit"), this);
@@ -493,6 +514,11 @@ void BitcoinGUI::createToolBars()
         nav->addAction(overviewAction);
         nav->addAction(sendCoinsAction);
         nav->addAction(receiveCoinsAction);
+        QList<QAction*> contractActions;
+        contractActions.append(createContractAction);
+        contractActions.append(sendToContractAction);
+        contractActions.append(callContractAction);
+        nav->mapGroup(smartContractAction, contractActions);
         nav->addAction(historyAction);
         nav->buildUi();
         overviewAction->setChecked(true);
@@ -745,6 +771,21 @@ void BitcoinGUI::gotoSendCoinsPage(QString addr)
 {
     sendCoinsAction->setChecked(true);
     if (walletFrame) walletFrame->gotoSendCoinsPage(addr);
+}
+
+void BitcoinGUI::gotoCreateContractPage()
+{
+    if (walletFrame) walletFrame->gotoCreateContractPage();
+}
+
+void BitcoinGUI::gotoSendToContractPage()
+{
+    if (walletFrame) walletFrame->gotoSendToContractPage();
+}
+
+void BitcoinGUI::gotoCallContractPage()
+{
+    if (walletFrame) walletFrame->gotoCallContractPage();
 }
 
 void BitcoinGUI::gotoSignMessageTab(QString addr)

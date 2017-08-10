@@ -19,6 +19,9 @@ class SendCoinsRecipient;
 class TransactionView;
 class WalletModel;
 class AddressBookPage;
+class CreateContract;
+class SendToContract;
+class CallContract;
 
 QT_BEGIN_NAMESPACE
 class QModelIndex;
@@ -64,6 +67,9 @@ private:
     SendCoinsDialog *sendCoinsPage;
     AddressBookPage *usedSendingAddressesPage;
     AddressBookPage *usedReceivingAddressesPage;
+    CreateContract* createContractPage;
+    SendToContract* sendToContractPage;
+    CallContract* callContractPage;
 
     TransactionView *transactionView;
 
@@ -79,6 +85,12 @@ public Q_SLOTS:
     void gotoReceiveCoinsPage();
     /** Switch to send coins page */
     void gotoSendCoinsPage(QString addr = "");
+    /** Switch to create contract page */
+    void gotoCreateContractPage();
+    /** Switch to send contract page */
+    void gotoSendToContractPage();
+    /** Switch to call contract page */
+    void gotoCallContractPage();
 
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");

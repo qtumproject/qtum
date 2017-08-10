@@ -43,6 +43,13 @@ public:
     QAction *addGroup(QList<QAction*> list, const QString &text);
 
     /**
+     * @brief mapGroup Map the action with group
+     * @param action Action result of group creation
+     * @param list List of group actions
+     */
+    void mapGroup(QAction* action, QList<QAction*> list);
+
+    /**
      * @brief buildUi Construct the layout of the composite GUI control
      */
     void buildUi();
@@ -62,12 +69,6 @@ public Q_SLOTS:
     void setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle);
 
 private:
-    /**
-     * @brief mapGroup Map the action with group
-     * @param action Action result of group creation
-     * @param list List of group actions
-     */
-    void mapGroup(QAction* action, QList<QAction*> list);
 
     /**
      * @brief setSubBar Set the component be sub-navigation bar

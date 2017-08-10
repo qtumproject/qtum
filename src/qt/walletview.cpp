@@ -18,6 +18,9 @@
 #include "transactiontablemodel.h"
 #include "transactionview.h"
 #include "walletmodel.h"
+#include "createcontract.h"
+#include "sendtocontract.h"
+#include "callcontract.h"
 
 #include "ui_interface.h"
 
@@ -59,10 +62,17 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
     usedSendingAddressesPage = new AddressBookPage(platformStyle, AddressBookPage::ForEditing, AddressBookPage::SendingTab, this);
     usedReceivingAddressesPage = new AddressBookPage(platformStyle, AddressBookPage::ForEditing, AddressBookPage::ReceivingTab, this);
 
+    createContractPage = new CreateContract(platformStyle);
+    sendToContractPage = new SendToContract(platformStyle);
+    callContractPage = new CallContract(platformStyle);
+
     addWidget(overviewPage);
     addWidget(transactionsPage);
     addWidget(receiveCoinsPage);
     addWidget(sendCoinsPage);
+    addWidget(createContractPage);
+    addWidget(sendToContractPage);
+    addWidget(callContractPage);
 
     // Clicking on a transaction on the overview pre-selects the transaction on the transaction history page
     connect(overviewPage, SIGNAL(transactionClicked(QModelIndex)), transactionView, SLOT(focusTransaction(QModelIndex)));
@@ -190,6 +200,21 @@ void WalletView::gotoSendCoinsPage(QString addr)
 
     if (!addr.isEmpty())
         sendCoinsPage->setAddress(addr);
+}
+
+void WalletView::gotoCreateContractPage()
+{
+    setCurrentWidget(createContractPage);
+}
+
+void WalletView::gotoSendToContractPage()
+{
+    setCurrentWidget(sendToContractPage);
+}
+
+void WalletView::gotoCallContractPage()
+{
+    setCurrentWidget(callContractPage);
 }
 
 void WalletView::gotoSignMessageTab(QString addr)
