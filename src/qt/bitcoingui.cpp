@@ -332,9 +332,9 @@ void BitcoinGUI::createActions()
     receiveCoinsMenuAction->setStatusTip(receiveCoinsAction->statusTip());
     receiveCoinsMenuAction->setToolTip(receiveCoinsMenuAction->statusTip());
 
-    smartContractAction = new QAction(platformStyle->SingleColorIcon(":/icons/receiving_addresses"), tr("Smart &Contract"), this);
+    smartContractAction = new QAction(platformStyle->SingleColorIcon(":/icons/smart_contract"), tr("Smart &Contract"), this);
     smartContractAction->setStatusTip(tr("Smart contract"));
-    smartContractAction->setToolTip(receiveCoinsAction->statusTip());
+    smartContractAction->setToolTip(smartContractAction->statusTip());
     smartContractAction->setCheckable(true);
     smartContractAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_4));
     tabGroup->addAction(smartContractAction);
