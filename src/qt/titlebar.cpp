@@ -21,6 +21,8 @@ TitleBar::TitleBar(QWidget *parent) :
     ui->lblLogo->setFixedSize(logo.size());
     // Hide the fiat balance label
     ui->lblFiatBalance->hide();
+    // Set size policy
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 }
 
 TitleBar::~TitleBar()
