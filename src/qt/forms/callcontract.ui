@@ -16,6 +16,18 @@
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="6" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="leftMargin">
+      <number>9</number>
+     </property>
+     <property name="topMargin">
+      <number>9</number>
+     </property>
+     <property name="rightMargin">
+      <number>9</number>
+     </property>
+     <property name="bottomMargin">
+      <number>9</number>
+     </property>
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
@@ -37,7 +49,7 @@
        <property name="minimumSize">
         <size>
          <width>150</width>
-         <height>45</height>
+         <height>64</height>
         </size>
        </property>
        <property name="text">
@@ -66,7 +78,7 @@
        <property name="minimumSize">
         <size>
          <width>150</width>
-         <height>45</height>
+         <height>64</height>
         </size>
        </property>
        <property name="text">
@@ -144,13 +156,13 @@
        <widget class="QLineEdit" name="lineEdit_3">
         <property name="minimumSize">
          <size>
-          <width>350</width>
+          <width>370</width>
           <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>350</width>
+          <width>370</width>
           <height>16777215</height>
          </size>
         </property>
@@ -186,7 +198,7 @@
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>40</width>
+          <width>0</width>
           <height>20</height>
          </size>
         </property>

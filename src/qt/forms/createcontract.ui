@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>718</width>
+    <width>744</width>
     <height>460</height>
    </rect>
   </property>
@@ -151,23 +151,13 @@
            <widget class="QLineEdit" name="lineEdit_3">
             <property name="minimumSize">
              <size>
-              <width>350</width>
+              <width>370</width>
               <height>0</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>350</width>
-              <height>16777215</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="lineEdit">
-            <property name="maximumSize">
-             <size>
-              <width>120</width>
+              <width>370</width>
               <height>16777215</height>
              </size>
             </property>
@@ -195,6 +185,16 @@
              </size>
             </property>
            </spacer>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="lineEdit">
+            <property name="maximumSize">
+             <size>
+              <width>120</width>
+              <height>16777215</height>
+             </size>
+            </property>
+           </widget>
           </item>
          </layout>
          <zorder>label_2</zorder>
@@ -290,6 +290,18 @@
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <property name="leftMargin">
+      <number>9</number>
+     </property>
+     <property name="topMargin">
+      <number>9</number>
+     </property>
+     <property name="rightMargin">
+      <number>9</number>
+     </property>
+     <property name="bottomMargin">
+      <number>9</number>
+     </property>
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
@@ -311,7 +323,7 @@
        <property name="minimumSize">
         <size>
          <width>150</width>
-         <height>45</height>
+         <height>64</height>
         </size>
        </property>
        <property name="text">
@@ -340,7 +352,7 @@
        <property name="minimumSize">
         <size>
          <width>150</width>
-         <height>45</height>
+         <height>64</height>
         </size>
        </property>
        <property name="text">

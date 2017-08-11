@@ -5,8 +5,8 @@
 
 namespace NavigationBar_NS
 {
-static const int ToolButtonWidth = 128;
-static const int ToolButtonHeight = 64;
+static const int ToolButtonWidth = 150;
+static const int ToolButtonHeight = 54;
 static const int ToolButtonIconSize = 32;
 static const int MarginLeft = 6;
 static const int MarginTop = 0;
@@ -15,7 +15,7 @@ using namespace NavigationBar_NS;
 
 NavigationBar::NavigationBar(QWidget *parent) :
     QWidget(parent),
-    m_toolStyle(Qt::ToolButtonTextUnderIcon),
+    m_toolStyle(Qt::ToolButtonTextBesideIcon),
     m_subBar(false),
     m_built(false)
 {
