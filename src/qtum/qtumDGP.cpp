@@ -1,5 +1,10 @@
 #include "qtumDGP.h"
 
+uint32_t blockSizeDGP = DEFAULT_BLOCK_SIZE_DGP;
+uint64_t minGasPriceDGP = DEFAULT_MIN_GAS_PRICE_DGP;
+uint64_t blockGasLimitDGP = DEFAULT_BLOCK_GAS_LIMIT_DGP;
+dev::eth::EVMSchedule evmScheduleDGP = dev::eth::EIP158Schedule;
+
 void QtumDGP::initDataEIP158(){
     std::vector<uint32_t> tempData = {dev::eth::EIP158Schedule.tierStepGas[0], dev::eth::EIP158Schedule.tierStepGas[1], dev::eth::EIP158Schedule.tierStepGas[2],
                                       dev::eth::EIP158Schedule.tierStepGas[3], dev::eth::EIP158Schedule.tierStepGas[4], dev::eth::EIP158Schedule.tierStepGas[5],

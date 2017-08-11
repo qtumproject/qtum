@@ -188,7 +188,7 @@ private:
 
 ///////////////////////////////////////////// // qtum
     ByteCodeExecResult bceResult;
-    uint64_t minGasPrice = 1;
+    // uint64_t minGasPrice = 1;
     uint64_t blockGasLimit;
 /////////////////////////////////////////////
 

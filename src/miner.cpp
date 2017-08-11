@@ -241,16 +241,15 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
 
     //////////////////////////////////////////////////////// qtum
     QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
-    globalSealEngine->setQtumSchedule(qtumDGP.getGasSchedule(nHeight));
-    uint32_t blockSizeDGP = qtumDGP.getBlockSize(nHeight);
-    minGasPrice = qtumDGP.getMinGasPrice(nHeight);
-    blockGasLimit = qtumDGP.getBlockGasLimit(nHeight);
+    qtumDGP.updateParamsDGP(nHeight);
+    globalSealEngine->setQtumSchedule(evmScheduleDGP);
+    blockGasLimit = blockGasLimitDGP;
     nBlockMaxSize = blockSizeDGP ? blockSizeDGP : nBlockMaxSize;
     
     dev::h256 oldHashStateRoot(globalState->rootHash());
     dev::h256 oldHashUTXORoot(globalState->rootHashUTXO());
-    addPriorityTxs(minGasPrice);
-    addPackageTxs(minGasPrice);
+    addPriorityTxs(minGasPriceDGP);
+    addPackageTxs(minGasPriceDGP);
     pblock->hashStateRoot = uint256(h256Touint(dev::h256(globalState->rootHash())));
     pblock->hashUTXORoot = uint256(h256Touint(dev::h256(globalState->rootHashUTXO())));
     globalState->setRoot(oldHashStateRoot);
