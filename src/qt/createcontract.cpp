@@ -1,12 +1,14 @@
 #include "createcontract.h"
 #include "ui_createcontract.h"
 #include "platformstyle.h"
+#include "guiconstants.h"
 
 CreateContract::CreateContract(const PlatformStyle *platformStyle, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::CreateContract)
 {
     ui->setupUi(this);
+    ui->groupBox->setStyleSheet(STYLE_GROUPBOX);
     setLinkLabels();
     Q_UNUSED(platformStyle);
 }

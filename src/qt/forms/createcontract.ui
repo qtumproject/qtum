@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>690</width>
+    <width>718</width>
     <height>460</height>
    </rect>
   </property>
@@ -97,6 +97,12 @@
           <string>Optional</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
+          <property name="leftMargin">
+           <number>15</number>
+          </property>
+          <property name="topMargin">
+           <number>15</number>
+          </property>
           <property name="horizontalSpacing">
            <number>30</number>
           </property>
@@ -191,10 +197,6 @@
            </spacer>
           </item>
          </layout>
-         <zorder>frame</zorder>
-         <zorder>label_2</zorder>
-         <zorder>label_6</zorder>
-         <zorder>label_3</zorder>
          <zorder>label_2</zorder>
          <zorder>label_3</zorder>
          <zorder>label_4</zorder>
