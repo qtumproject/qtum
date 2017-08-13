@@ -133,7 +133,7 @@ public:
         assert(genesis.hashMerkleRoot == uint256S("0xd7473f8514fb97d570b81e1f7b660bc89cfe32b8ccb7897c8e2fe2e6e336d35f"));
 
         // Note that of those with the service bits flag, most only support a subset of possible options
-        // vSeeds.push_back(CDNSSeedData("qtum.dynu.net", "qtum.dynu.net", false)); // Qtum testnet
+        vSeeds.push_back(CDNSSeedData("qtum2.dynu.net", "qtum2.dynu.net", false)); // Qtum testnet
 
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,58);
