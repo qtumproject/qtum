@@ -24,6 +24,11 @@ static const uint64_t MIN_BLOCK_GAS_LIMIT_DGP = 1000000;
 static const uint64_t MAX_BLOCK_GAS_LIMIT_DGP = 1000000000;
 static const uint64_t DEFAULT_BLOCK_GAS_LIMIT_DGP = 40000000;
 
+extern uint32_t blockSizeDGP;
+extern uint64_t minGasPriceDGP;
+extern uint64_t blockGasLimitDGP;
+extern dev::eth::EVMSchedule evmScheduleDGP;
+
 class QtumDGP {
     
 public:
@@ -37,6 +42,13 @@ public:
     uint64_t getMinGasPrice(unsigned int blockHeight);
 
     uint64_t getBlockGasLimit(unsigned int blockHeight);
+
+    void updateParamsDGP(const uint32_t& nHeight){
+        blockSizeDGP = getBlockSize(nHeight);
+        minGasPriceDGP = getMinGasPrice(nHeight);
+        blockGasLimitDGP = getBlockGasLimit(nHeight);
+        evmScheduleDGP = getGasSchedule(nHeight);
+    }
 
 private:
 
