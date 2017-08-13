@@ -179,6 +179,11 @@
             </property>
             <item>
              <property name="text">
+              <string/>
+             </property>
+            </item>
+            <item>
+             <property name="text">
               <string>True</string>
              </property>
             </item>
