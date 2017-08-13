@@ -15,7 +15,13 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QLabel" name="label_8">
+    <widget class="QLabel" name="labelTitle">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="text">
       <string>Send to Smart Contract</string>
      </property>
@@ -49,24 +55,24 @@
       <number>15</number>
      </property>
      <item row="0" column="0">
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="labelContractAddress">
        <property name="text">
         <string>Contract Address</string>
        </property>
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QLineEdit" name="lineEdit"/>
+      <widget class="QLineEdit" name="lineEditContractAddress"/>
      </item>
      <item row="1" column="0">
-      <widget class="QLabel" name="label_2">
+      <widget class="QLabel" name="labelDataHex">
        <property name="text">
         <string>Data Hex</string>
        </property>
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QLineEdit" name="lineEdit_2"/>
+      <widget class="QLineEdit" name="lineEditDataHex"/>
      </item>
     </layout>
    </item>
@@ -87,7 +93,7 @@
     </spacer>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBox">
+    <widget class="QGroupBox" name="groupBoxOptional">
      <property name="title">
       <string>Optional</string>
      </property>
@@ -105,7 +111,7 @@
        <number>12</number>
       </property>
       <item row="1" column="1">
-       <widget class="QLineEdit" name="lineEdit_4">
+       <widget class="QLineEdit" name="lineEditGasLimit">
         <property name="maximumSize">
          <size>
           <width>120</width>
@@ -115,7 +121,7 @@
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QLineEdit" name="lineEdit_5">
+       <widget class="QLineEdit" name="lineEditGasPrice">
         <property name="maximumSize">
          <size>
           <width>120</width>
@@ -125,35 +131,35 @@
        </widget>
       </item>
       <item row="4" column="0">
-       <widget class="QLabel" name="label_7">
+       <widget class="QLabel" name="labelBroadcast">
         <property name="text">
          <string>Broadcast</string>
         </property>
        </widget>
       </item>
       <item row="3" column="0">
-       <widget class="QLabel" name="label_6">
+       <widget class="QLabel" name="labelSenderAddress">
         <property name="text">
          <string>Sender Address</string>
         </property>
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QLabel" name="label_4">
+       <widget class="QLabel" name="labelGasLimit">
         <property name="text">
          <string>Gas Limit</string>
         </property>
        </widget>
       </item>
       <item row="2" column="0">
-       <widget class="QLabel" name="label_5">
+       <widget class="QLabel" name="labelGasPrice">
         <property name="text">
          <string>Gas Price</string>
         </property>
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="QLineEdit" name="lineEdit_6">
+       <widget class="QLineEdit" name="lineEditSenderAddress">
         <property name="minimumSize">
          <size>
           <width>370</width>
@@ -169,24 +175,34 @@
        </widget>
       </item>
       <item row="4" column="1">
-       <widget class="QComboBox" name="comboBox">
+       <widget class="QComboBox" name="comboBoxBroadcast">
         <property name="maximumSize">
          <size>
           <width>120</width>
           <height>16777215</height>
          </size>
         </property>
+        <item>
+         <property name="text">
+          <string>True</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>False</string>
+         </property>
+        </item>
        </widget>
       </item>
       <item row="0" column="0">
-       <widget class="QLabel" name="label_3">
+       <widget class="QLabel" name="labelAmount">
         <property name="text">
          <string>Amount</string>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QLineEdit" name="lineEdit_3">
+       <widget class="QLineEdit" name="lineEditAmount">
         <property name="maximumSize">
          <size>
           <width>120</width>
@@ -258,11 +274,11 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_2">
+      <widget class="QPushButton" name="pushButtonSendToContract">
        <property name="minimumSize">
         <size>
          <width>150</width>
-         <height>64</height>
+         <height>50</height>
         </size>
        </property>
        <property name="text">
@@ -287,11 +303,11 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="pushButtonClearAll">
        <property name="minimumSize">
         <size>
          <width>150</width>
-         <height>64</height>
+         <height>50</height>
         </size>
        </property>
        <property name="text">

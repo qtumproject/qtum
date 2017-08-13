@@ -8,7 +8,7 @@ CallContract::CallContract(const PlatformStyle *platformStyle, QWidget *parent) 
     ui(new Ui::CallContract)
 {
     ui->setupUi(this);
-    ui->groupBox->setStyleSheet(STYLE_GROUPBOX);
+    ui->groupBoxOptional->setStyleSheet(STYLE_GROUPBOX);
     Q_UNUSED(platformStyle);
 }
 

@@ -19,7 +19,6 @@ NavigationBar::NavigationBar(QWidget *parent) :
     m_subBar(false),
     m_built(false)
 {
-    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
 }
 
 void NavigationBar::addAction(QAction *action)

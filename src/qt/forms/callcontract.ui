@@ -45,11 +45,11 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_2">
+      <widget class="QPushButton" name="pushButtonCallContract">
        <property name="minimumSize">
         <size>
          <width>150</width>
-         <height>64</height>
+         <height>50</height>
         </size>
        </property>
        <property name="text">
@@ -74,11 +74,11 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="pushButtonClearAll">
        <property name="minimumSize">
         <size>
          <width>150</width>
-         <height>64</height>
+         <height>50</height>
         </size>
        </property>
        <property name="text">
@@ -113,29 +113,29 @@
       <number>15</number>
      </property>
      <item row="0" column="0">
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="labelContractAddress">
        <property name="text">
         <string>Contract Address</string>
        </property>
       </widget>
      </item>
      <item row="1" column="0">
-      <widget class="QLabel" name="label_2">
+      <widget class="QLabel" name="labelDataHex">
        <property name="text">
         <string>Data Hex</string>
        </property>
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QLineEdit" name="lineEdit"/>
+      <widget class="QLineEdit" name="lineEditContractAddress"/>
      </item>
      <item row="1" column="1">
-      <widget class="QLineEdit" name="lineEdit_2"/>
+      <widget class="QLineEdit" name="lineEditDataHex"/>
      </item>
     </layout>
    </item>
    <item row="4" column="0">
-    <widget class="QGroupBox" name="groupBox">
+    <widget class="QGroupBox" name="groupBoxOptional">
      <property name="title">
       <string>Optional</string>
      </property>
@@ -153,7 +153,7 @@
        <number>12</number>
       </property>
       <item row="0" column="1">
-       <widget class="QLineEdit" name="lineEdit_3">
+       <widget class="QLineEdit" name="lineEditSenderAddress">
         <property name="minimumSize">
          <size>
           <width>370</width>
@@ -169,7 +169,7 @@
        </widget>
       </item>
       <item row="0" column="0">
-       <widget class="QLabel" name="label_3">
+       <widget class="QLabel" name="labelSenderAddress">
         <property name="text">
          <string>Sender Address</string>
         </property>
@@ -237,7 +237,13 @@
     </spacer>
    </item>
    <item row="0" column="0">
-    <widget class="QLabel" name="label_4">
+    <widget class="QLabel" name="labelTitle">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="text">
       <string>Call Smart Contract</string>
      </property>

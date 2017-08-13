@@ -8,7 +8,7 @@ CreateContract::CreateContract(const PlatformStyle *platformStyle, QWidget *pare
     ui(new Ui::CreateContract)
 {
     ui->setupUi(this);
-    ui->groupBox->setStyleSheet(STYLE_GROUPBOX);
+    ui->groupBoxOptional->setStyleSheet(STYLE_GROUPBOX);
     setLinkLabels();
     Q_UNUSED(platformStyle);
 }

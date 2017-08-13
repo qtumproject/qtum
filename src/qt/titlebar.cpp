@@ -6,7 +6,7 @@
 #include <QPixmap>
 
 namespace TitleBar_NS {
-const int titleBarHeight = 64;
+const int titleBarHeight = 50;
 }
 using namespace TitleBar_NS;
 

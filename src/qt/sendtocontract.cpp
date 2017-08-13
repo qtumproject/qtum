@@ -8,7 +8,7 @@ SendToContract::SendToContract(const PlatformStyle *platformStyle, QWidget *pare
     ui(new Ui::SendToContract)
 {
     ui->setupUi(this);
-    ui->groupBox->setStyleSheet(STYLE_GROUPBOX);
+    ui->groupBoxOptional->setStyleSheet(STYLE_GROUPBOX);
     Q_UNUSED(platformStyle);
 }
 
