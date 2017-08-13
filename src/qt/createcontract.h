@@ -19,6 +19,11 @@ public:
 
     void setLinkLabels();
 
+Q_SIGNALS:
+
+public Q_SLOTS:
+    void on_clearAll_clicked();
+
 private:
     Ui::CreateContract *ui;
 };

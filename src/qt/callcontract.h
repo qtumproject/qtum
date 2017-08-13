@@ -17,6 +17,11 @@ public:
     explicit CallContract(const PlatformStyle *platformStyle, QWidget *parent = 0);
     ~CallContract();
 
+Q_SIGNALS:
+
+public Q_SLOTS:
+    void on_clearAll_clicked();
+
 private:
     Ui::CallContract *ui;
 };

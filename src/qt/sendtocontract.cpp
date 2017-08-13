@@ -10,9 +10,22 @@ SendToContract::SendToContract(const PlatformStyle *platformStyle, QWidget *pare
     ui->setupUi(this);
     ui->groupBoxOptional->setStyleSheet(STYLE_GROUPBOX);
     Q_UNUSED(platformStyle);
+
+    connect(ui->pushButtonClearAll, SIGNAL(clicked()), SLOT(on_clearAll_clicked()));
 }
 
 SendToContract::~SendToContract()
 {
     delete ui;
+}
+
+void SendToContract::on_clearAll_clicked()
+{
+    ui->lineEditContractAddress->clear();
+    ui->lineEditDataHex->clear();
+    ui->lineEditAmount->clear();
+    ui->lineEditGasLimit->clear();
+    ui->lineEditGasPrice->clear();
+    ui->lineEditSenderAddress->clear();
+    ui->comboBoxBroadcast->setCurrentIndex(0);
 }
