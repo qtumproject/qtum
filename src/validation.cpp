@@ -2225,6 +2225,7 @@ bool ByteCodeExec::performByteCode(dev::eth::Permanence type){
     }
     globalState->db().commit();
     globalState->dbUtxo().commit();
+    globalSealEngine.get()->deleteAddresses.clear();
     return true;
 }
 
