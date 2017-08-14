@@ -205,6 +205,7 @@ BITCOIN_QT_H = \
   qt/createcontract.h \
   qt/csvmodelwriter.h \
   qt/editaddressdialog.h \
+  qt/execrpccommand.h \
   qt/guiconstants.h \
   qt/guiutil.h \
   qt/intro.h \
@@ -341,6 +342,7 @@ BITCOIN_QT_WALLET_CPP = \
   qt/coincontroldialog.cpp \
   qt/coincontroltreewidget.cpp \
   qt/createcontract.cpp \
+  qt/execrpccommand.cpp \
   qt/editaddressdialog.cpp \
   qt/openuridialog.cpp \
   qt/overviewpage.cpp \
