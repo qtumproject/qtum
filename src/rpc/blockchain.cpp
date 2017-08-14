@@ -798,7 +798,8 @@ UniValue getaccountinfo(const JSONRPCRequest& request)
     std::unordered_map<dev::Address, Vin> vins = globalState->vins();
     if(vins.count(addrAccount)){
         UniValue vin(UniValue::VOBJ);
-        vin.push_back(Pair("hash", vins[addrAccount].hash.hex()));
+        valtype vchHash(vins[addrAccount].hash.asBytes());
+        vin.push_back(Pair("hash", HexStr(vchHash.rbegin(), vchHash.rend())));
         vin.push_back(Pair("nVout", uint64_t(vins[addrAccount].nVout)));
         vin.push_back(Pair("value", uint64_t(vins[addrAccount].value)));
         result.push_back(Pair("vin", vin));
