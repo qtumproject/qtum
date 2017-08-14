@@ -19,9 +19,13 @@ CallContract::CallContract(const PlatformStyle *platformStyle, QWidget *parent) 
     QWidget(parent),
     ui(new Ui::CallContract)
 {
+    // Setup ui components
+    Q_UNUSED(platformStyle);
     ui->setupUi(this);
     ui->groupBoxOptional->setStyleSheet(STYLE_GROUPBOX);
-    Q_UNUSED(platformStyle);
+    ui->labelContractAddress->setToolTip(tr("The account address."));
+    ui->labelDataHex->setToolTip(tr("The data hex string."));
+    ui->labelSenderAddress->setToolTip(tr("The sender address hex string."));
 
     // Create new PRC command line interface
     QStringList lstMandatory;

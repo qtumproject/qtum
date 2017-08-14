@@ -23,10 +23,15 @@ CreateContract::CreateContract(const PlatformStyle *platformStyle, QWidget *pare
     m_execRPCCommand(0)
 {
     // Setup ui components
+    Q_UNUSED(platformStyle);
     ui->setupUi(this);
     ui->groupBoxOptional->setStyleSheet(STYLE_GROUPBOX);
     setLinkLabels();
-    Q_UNUSED(platformStyle);
+    ui->labelBytecode->setToolTip(tr("The bytecode of the contract"));
+    ui->labelGasLimit->setToolTip(tr("Gas limit. Default = 1000000, Max = 40000000"));
+    ui->labelGasPrice->setToolTip(tr("Gas price: QTUM price per gas unit. Default = 0.00000001, Min = 0.00000001"));
+    ui->labelSenderAddress->setToolTip(tr("The quantum address that will be used to create the contract."));
+    ui->labelBroadcast->setToolTip(tr("Default = true. Whether to broadcast the transaction or not"));
 
     // Create new PRC command line interface
     QStringList lstMandatory;

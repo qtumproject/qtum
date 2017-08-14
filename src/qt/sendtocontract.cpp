@@ -23,9 +23,17 @@ SendToContract::SendToContract(const PlatformStyle *platformStyle, QWidget *pare
     QWidget(parent),
     ui(new Ui::SendToContract)
 {
+    // Setup ui components
+    Q_UNUSED(platformStyle);
     ui->setupUi(this);
     ui->groupBoxOptional->setStyleSheet(STYLE_GROUPBOX);
-    Q_UNUSED(platformStyle);
+    ui->labelContractAddress->setToolTip(tr("The contract address that will receive the funds and data."));
+    ui->labelDataHex->setToolTip(tr("The data to send."));
+    ui->labelAmount->setToolTip(tr("The amount in QTUM to send. Default = 0."));
+    ui->labelGasLimit->setToolTip(tr("Gas limit: Default = 200000, Max = 4000000."));
+    ui->labelGasPrice->setToolTip(tr("Gas price: QTUM price per gas unit. Default = 0.00000001, Min = 0.00000001."));
+    ui->labelSenderAddress->setToolTip(tr("The quantum address that will be used as sender."));
+    ui->labelBroadcast->setToolTip(tr("Whether to broadcast the transaction or not"));
 
     // Create new PRC command line interface
     QStringList lstMandatory;
