@@ -304,7 +304,12 @@ RES_ICONS = \
   qt/res/icons/tx_output.png \
   qt/res/icons/tx_mined.png \
   qt/res/icons/warning.png \
-  qt/res/icons/verify.png
+  qt/res/icons/verify.png \
+  qt/res/icons/staking_on.png \
+  qt/res/icons/staking_off.png \
+  qt/res/icons/contract_input.png \
+  qt/res/icons/contract_output.png \
+  qt/res/icons/lock_staking.png
 
 BITCOIN_QT_BASE_CPP = \
   qt/bantablemodel.cpp \
@@ -428,7 +433,7 @@ endif
 qt_qtum_qt_LDADD += $(LIBBITCOIN_CLI) $(LIBBITCOIN_COMMON) $(LIBBITCOIN_UTIL) $(LIBBITCOIN_CONSENSUS) $(LIBBITCOIN_CRYPTO) $(LIBUNIVALUE) $(LIBLEVELDB) $(LIBMEMENV) \
   $(QT_LIBS) $(QT_DBUS_LIBS) $(QR_LIBS) $(PROTOBUF_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) \
   $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(LIBLEVELDB) $(LIBMEMENV) $(LIBETHEREUM) $(LIBETHASHSEAL) $(LIBETHASH) \
-  $(LIBETHCORE) $(LIBDEVCORE) $(LIBJSONCPP) $(LIBEVM) $(LIBEVMCORE) $(LIBDEVCRYPTO) $(LIBCRYPTOPP) $(BOOST_LIBS) $(LIBSECP256K1ETH) $(LIBSCRYIPT)
+  $(LIBETHCORE) $(LIBDEVCORE) $(LIBJSONCPP) $(LIBEVM) $(LIBEVMCORE) $(LIBDEVCRYPTO) $(LIBCRYPTOPP) $(BOOST_LIBS) $(LIBSECP256K1) $(LIBSCRYIPT)
 qt_qtum_qt_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(QT_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 qt_qtum_qt_LIBTOOLFLAGS = --tag CXX
 

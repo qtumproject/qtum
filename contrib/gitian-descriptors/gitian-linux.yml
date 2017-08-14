@@ -1,5 +1,5 @@
 ---
-name: "bitcoin-linux-0.14"
+name: "qtum-linux-0.14"
 enable_cache: true
 suites:
 - "trusty"
@@ -27,11 +27,23 @@ packages:
 - "bsdmainutils"
 - "ca-certificates"
 - "python"
+- "cmake"
+- "libcurl4-openssl-dev"
+- "libgmp-dev"
+- "libmicrohttpd-dev"
+- "libminiupnpc-dev"
 remotes:
-- "url": "https://github.com/bitcoin/bitcoin.git"
-  "dir": "bitcoin"
+- "url": "https://github.com/qtumproject/qtum.git"
+  "dir": "qtum"
+- "url": "https://github.com/qtumproject/cpp-eth-qtum.git"
+  "dir": "cpp-eth-qtum"
 files: []
 script: |
+  #this is a hack since gitian has no natural support for submodules
+  rm -rf qtum/src/cpp-ethereum
+  cp -r cpp-eth-qtum qtum/src/cpp-ethereum
+  #make sure this file exists... 
+  cat qtum/src/cpp-ethereum/utils/libscrypt/b64.c 
 
   WRAP_DIR=$HOME/wrapped
   HOSTS="i686-pc-linux-gnu x86_64-linux-gnu arm-linux-gnueabihf aarch64-linux-gnu"
@@ -113,7 +125,8 @@ script: |
   chmod +x ${WRAP_DIR}/${prog}
   done
 
-  cd bitcoin
+  cd qtum
+
   BASEPREFIX=`pwd`/depends
   # Build dependencies for each host
   for i in $HOSTS; do
@@ -134,14 +147,14 @@ script: |
   # Create the release tarball using (arbitrarily) the first host
   ./autogen.sh
   CONFIG_SITE=${BASEPREFIX}/`echo "${HOSTS}" | awk '{print $1;}'`/share/config.site ./configure --prefix=/
-  make dist
-  SOURCEDIST=`echo bitcoin-*.tar.gz`
+  make V=1 dist
+  SOURCEDIST=`echo qtum-*.tar.gz`
   DISTNAME=`echo ${SOURCEDIST} | sed 's/.tar.*//'`
   # Correct tar file order
   mkdir -p temp
   pushd temp
   tar xf ../$SOURCEDIST
-  find bitcoin-* | sort | tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > ../$SOURCEDIST
+  find qtum-* | sort | tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > ../$SOURCEDIST
   popd
 
   ORIGPATH="$PATH"
@@ -155,8 +168,8 @@ script: |
     tar --strip-components=1 -xf ../$SOURCEDIST
 
     CONFIG_SITE=${BASEPREFIX}/${i}/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking ${CONFIGFLAGS} CFLAGS="${HOST_CFLAGS}" CXXFLAGS="${HOST_CXXFLAGS}" LDFLAGS="${HOST_LDFLAGS}"
-    make ${MAKEOPTS}
-    make ${MAKEOPTS} -C src check-security
+    make V=1 ${MAKEOPTS}
+    make V=1 ${MAKEOPTS} -C src check-security
 
     #TODO: This is a quick hack that disables symbol checking for arm.
     #      Instead, we should investigate why these are popping up.

@@ -15,8 +15,8 @@
 #include "crypto/common.h"
 
 //////////////////////////////////////// qtum
-#include <cpp-ethereum/libdevcore/Common.h>
-#include <cpp-ethereum/libdevcore/FixedHash.h>
+#include <libdevcore/Common.h>
+#include <libdevcore/FixedHash.h>
 ////////////////////////////////////////
 
 /** Template base class for fixed-sized opaque blobs. */

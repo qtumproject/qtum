@@ -446,8 +446,8 @@ UniValue createcontract(const JSONRPCRequest& request){
         return NullUniValue;
 
     QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
-    uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(chainActive.Height()+1);
-    uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(chainActive.Height()+1));
+    uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(chainActive.Height());
+    uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(chainActive.Height()));
     CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
 
     if (request.fHelp || request.params.size() < 1 || request.params.size() > 5)
@@ -633,8 +633,8 @@ UniValue sendtocontract(const JSONRPCRequest& request){
         return NullUniValue;
 
     QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
-    uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(chainActive.Height()+1);
-    uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(chainActive.Height()+1));
+    uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(chainActive.Height());
+    uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(chainActive.Height()));
     CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
 
     if (request.fHelp || request.params.size() < 2 || request.params.size() > 7)
