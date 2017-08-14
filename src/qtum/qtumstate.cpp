@@ -44,6 +44,9 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
     CTransactionRef tx;
     u256 startGasUsed;
     try{
+        if (_t.isCreation() && _t.value())
+            BOOST_THROW_EXCEPTION(CreateWithValue());
+
         e.initialize(_t);
         // OK - transaction looks valid - execute.
         startGasUsed = _envInfo.gasUsed();
