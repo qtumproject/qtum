@@ -4,6 +4,7 @@
 #include <QWidget>
 
 class PlatformStyle;
+class ExecRPCCommand;
 
 namespace Ui {
 class SendToContract;
@@ -21,9 +22,11 @@ Q_SIGNALS:
 
 public Q_SLOTS:
     void on_clearAll_clicked();
+    void on_sendToContract_clicked();
 
 private:
     Ui::SendToContract *ui;
+    ExecRPCCommand* m_execRPCCommand;
 };
 
 #endif // SENDTOCONTRACT_H

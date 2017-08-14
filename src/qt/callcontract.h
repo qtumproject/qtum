@@ -4,6 +4,7 @@
 #include <QWidget>
 
 class PlatformStyle;
+class ExecRPCCommand;
 
 namespace Ui {
 class CallContract;
@@ -21,9 +22,11 @@ Q_SIGNALS:
 
 public Q_SLOTS:
     void on_clearAll_clicked();
+    void on_callContract_clicked();
 
 private:
     Ui::CallContract *ui;
+    ExecRPCCommand* m_execRPCCommand;
 };
 
 #endif // CALLCONTRACT_H
