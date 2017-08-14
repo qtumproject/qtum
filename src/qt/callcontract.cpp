@@ -58,6 +58,7 @@ void CallContract::on_callContract_clicked()
     QMap<QString, QString> lstParams;
     QVariant result;
     QString errorMessage;
+    QString resultJson;
 
     // Append params to the list
     ExecRPCCommand::appendParam(lstParams, PARAM_ADDRESS, ui->lineEditContractAddress->text());
@@ -65,7 +66,12 @@ void CallContract::on_callContract_clicked()
     ExecRPCCommand::appendParam(lstParams, PARAM_SENDER, ui->lineEditSenderAddress->text());
 
     // Execute RPC command line
-    if(!m_execRPCCommand->exec(lstParams, result, errorMessage))
+    if(m_execRPCCommand->exec(lstParams, result, resultJson, errorMessage))
+    {
+        QString message = tr("The contract is called successfully.\n\n") + resultJson;
+        QMessageBox::information(this, tr("Call contract"), message);
+    }
+    else
     {
         QMessageBox::warning(this, tr("Call contract"), errorMessage);
     }

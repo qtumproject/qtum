@@ -81,6 +81,7 @@ void CreateContract::on_createContract_clicked()
     QMap<QString, QString> lstParams;
     QVariant result;
     QString errorMessage;
+    QString resultJson;
 
     // Append params to the list
     ExecRPCCommand::appendParam(lstParams, PARAM_BYTECODE, ui->textEditBytecode->toPlainText());
@@ -95,7 +96,12 @@ void CreateContract::on_createContract_clicked()
     ExecRPCCommand::appendParam(lstParams, PARAM_BROADCAST, broadcast);
 
     // Execute RPC command line
-    if(!m_execRPCCommand->exec(lstParams, result, errorMessage))
+    if(m_execRPCCommand->exec(lstParams, result, resultJson, errorMessage))
+    {
+        QString message = tr("The contract is created successfully.\n\n") + resultJson;
+        QMessageBox::information(this, tr("Create contract"), message);
+    }
+    else
     {
         QMessageBox::warning(this, tr("Create contract"), errorMessage);
     }

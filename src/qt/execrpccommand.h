@@ -26,10 +26,11 @@ public:
      * @brief exec Execute the RPC command
      * @param params Map of the parameter name and the parameter value
      * @param result Returned data from the PRC call execution
+     * @param resultJson Raw JSON string from the PRC call execution
      * @param errorMessage Error message from the execution
      * @return Result of the execution
      */
-    bool exec(const QMap<QString, QString>& params, QVariant& result, QString& errorMessage);
+    bool exec(const QMap<QString, QString>& params, QVariant& result, QString& resultJson, QString& errorMessage);
 
     /**
      * @brief appendParam Append paramether to the list

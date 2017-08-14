@@ -74,6 +74,7 @@ void SendToContract::on_sendToContract_clicked()
     QMap<QString, QString> lstParams;
     QVariant result;
     QString errorMessage;
+    QString resultJson;
 
     // Append params to the list
     ExecRPCCommand::appendParam(lstParams, PARAM_ADDRESS, ui->lineEditContractAddress->text());
@@ -90,7 +91,12 @@ void SendToContract::on_sendToContract_clicked()
     ExecRPCCommand::appendParam(lstParams, PARAM_BROADCAST, broadcast);
 
     // Execute RPC command line
-    if(!m_execRPCCommand->exec(lstParams, result, errorMessage))
+    if(m_execRPCCommand->exec(lstParams, result, resultJson, errorMessage))
+    {
+        QString message = tr("Send to the contract is performed successfully.\n\n") + resultJson;
+        QMessageBox::information(this, tr("Send to contract"), message);
+    }
+    else
     {
         QMessageBox::warning(this, tr("Send to contract"), errorMessage);
     }
