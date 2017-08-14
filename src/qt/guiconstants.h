@@ -18,6 +18,13 @@ static const bool DEFAULT_SPLASHSCREEN = true;
 
 /* Invalid field background style */
 #define STYLE_INVALID "background:#FF8080"
+/* Group box style */
+#define STYLE_GROUPBOX ".QGroupBox { border: 1px solid #c4c1bd;"\
+                       "margin-top: 15px;}"\
+                       "QGroupBox::title {"\
+                       "subcontrol-position: top left;"\
+                       "left: 10px;"\
+                       "padding: -20px 3px 0px 3px;}"
 
 /* Transaction list -- unconfirmed transaction */
 #define COLOR_UNCONFIRMED QColor(128, 128, 128)
