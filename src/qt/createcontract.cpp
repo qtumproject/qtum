@@ -58,7 +58,7 @@ CreateContract::~CreateContract()
 void CreateContract::setLinkLabels()
 {
     ui->labelSolidity->setOpenExternalLinks(true);
-    ui->labelSolidity->setText("<a href=\"https://chriseth.github.io/browser-solidity/#version=soljson-latest.js\">Solidity</a>");
+    ui->labelSolidity->setText("<a href=\"https://ethereum.github.io/browser-solidity/\">Solidity</a>");
 
     ui->labelContractTemplate->setOpenExternalLinks(true);
     ui->labelContractTemplate->setText("<a href=\"https://www.qtum.org\">Contract Template</a>");
