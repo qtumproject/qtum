@@ -43,6 +43,12 @@ ReceiveCoinsDialog::ReceiveCoinsDialog(const PlatformStyle *_platformStyle, QWid
         ui->removeRequestButton->setIcon(_platformStyle->SingleColorIcon(":/icons/remove"));
     }
 
+    ui->copyAddressButton->setIcon(platformStyle->SingleColorIcon(":/icons/editcopy"));
+    ui->copyAddressButton->setEnabled(false);
+    ui->refreshButton->setIcon(platformStyle->SingleColorIcon(":/movies/spinner-010"));
+    ui->refreshButton->setVisible(false);
+    ui->leAddress->setReadOnly(true);
+
     // context menu actions
     QAction *copyURIAction = new QAction(tr("Copy URI"), this);
     QAction *copyLabelAction = new QAction(tr("Copy label"), this);
@@ -107,6 +113,11 @@ void ReceiveCoinsDialog::clear()
     ui->reqLabel->setText("");
     ui->reqMessage->setText("");
     ui->reuseAddress->setChecked(false);
+    ui->leAddress->setText("");
+    ui->copyAddressButton->setEnabled(false);
+    QPixmap emptyPixmap;
+    ui->lblQRCode->setPixmap(emptyPixmap);
+    ui->lblQRCode->setText("");
     updateDisplayUnit();
 }
 
@@ -137,18 +148,24 @@ void ReceiveCoinsDialog::on_receiveButton_clicked()
     QString label = ui->reqLabel->text();
     if(ui->reuseAddress->isChecked())
     {
-        /* Choose existing receiving address */
-        AddressBookPage dlg(platformStyle, AddressBookPage::ForSelection, AddressBookPage::ReceivingTab, this);
-        dlg.setModel(model->getAddressTableModel());
-        if(dlg.exec())
+        /* Use selected address*/
+        if(ui->leAddress->text() != "")
         {
-            address = dlg.getReturnValue();
-            if(label.isEmpty()) /* If no label provided, use the previously used label */
-            {
-                label = model->getAddressTableModel()->labelForAddress(address);
-            }
+            address = ui->leAddress->text();
         } else {
-            return;
+            /* Choose existing receiving address */
+            AddressBookPage dlg(platformStyle, AddressBookPage::ForSelection, AddressBookPage::ReceivingTab, this);
+            dlg.setModel(model->getAddressTableModel());
+            if(dlg.exec())
+            {
+                address = dlg.getReturnValue();
+                if(label.isEmpty()) /* If no label provided, use the previously used label */
+                {
+                    label = model->getAddressTableModel()->labelForAddress(address);
+                }
+            } else {
+                return;
+            }
         }
     } else {
         /* Generate new receiving address */
@@ -175,6 +192,24 @@ void ReceiveCoinsDialog::on_recentRequestsView_doubleClicked(const QModelIndex &
     dialog->setInfo(submodel->entry(index.row()).recipient);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->show();
+}
+
+void ReceiveCoinsDialog::on_recentRequestsView_clicked(const QModelIndex &index)
+{
+    const RecentRequestsTableModel *submodel = model->getRecentRequestsTableModel();
+    SendCoinsRecipient info = submodel->entry(index.row()).recipient;
+
+    ui->leAddress->setText(info.address);
+    ui->reqLabel->setText(info.label);
+    ui->reqMessage->setText(info.message);
+    ui->reqAmount->setValue(info.amount);
+
+    if(ReceiveRequestDialog::createQRCode(ui->lblQRCode, info))
+    {
+        ui->lblQRCode->setScaledContents(true);
+    }
+
+    ui->copyAddressButton->setEnabled(true);
 }
 
 void ReceiveCoinsDialog::recentRequestsView_selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
@@ -206,6 +241,11 @@ void ReceiveCoinsDialog::on_removeRequestButton_clicked()
     // correct for selection mode ContiguousSelection
     QModelIndex firstIndex = selection.at(0);
     model->getRecentRequestsTableModel()->removeRows(firstIndex.row(), selection.length(), firstIndex.parent());
+}
+
+void ReceiveCoinsDialog::on_copyAddressButton_clicked()
+{
+    GUIUtil::setClipboard(ui->leAddress->text());
 }
 
 // We override the virtual resizeEvent of the QWidget to adjust tables column

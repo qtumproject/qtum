@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>776</width>
-    <height>364</height>
+    <height>440</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,1">
@@ -28,7 +28,7 @@
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
        <layout class="QGridLayout" name="gridLayout">
-        <item row="7" column="2">
+        <item row="8" column="2">
          <widget class="QCheckBox" name="reuseAddress">
           <property name="toolTip">
            <string>Reuse one of the previously used receiving addresses. Reusing addresses has security and privacy issues. Do not use this unless re-generating a payment request made before.</string>
@@ -38,37 +38,7 @@
           </property>
          </widget>
         </item>
-        <item row="7" column="0">
-         <widget class="QLabel" name="label_4">
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="0">
-         <widget class="QLabel" name="label_3">
-          <property name="toolTip">
-           <string>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</string>
-          </property>
-          <property name="text">
-           <string>&amp;Message:</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-          <property name="buddy">
-           <cstring>reqMessage</cstring>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="2">
-         <widget class="QLineEdit" name="reqLabel">
-          <property name="toolTip">
-           <string>An optional label to associate with the new receiving address.</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="2">
+        <item row="7" column="2">
          <widget class="QLineEdit" name="reqMessage">
           <property name="toolTip">
            <string>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</string>
@@ -82,7 +52,7 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="0">
+        <item row="5" column="0">
          <widget class="QLabel" name="label_2">
           <property name="toolTip">
            <string>An optional label to associate with the new receiving address.</string>
@@ -98,7 +68,14 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="0">
+        <item row="9" column="0">
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="0">
          <widget class="QLabel" name="label">
           <property name="toolTip">
            <string>An optional amount to request. Leave this empty or zero to not request a specific amount.</string>
@@ -114,7 +91,7 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="2">
+        <item row="6" column="2">
          <widget class="BitcoinAmountField" name="reqAmount">
           <property name="minimumSize">
            <size>
@@ -127,14 +104,44 @@
           </property>
          </widget>
         </item>
-        <item row="8" column="2">
+        <item row="5" column="2">
+         <widget class="QLineEdit" name="reqLabel">
+          <property name="toolTip">
+           <string>An optional label to associate with the new receiving address.</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="0">
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="0">
+         <widget class="QLabel" name="label_3">
+          <property name="toolTip">
+           <string>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</string>
+          </property>
+          <property name="text">
+           <string>&amp;Message:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="buddy">
+           <cstring>reqMessage</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="2">
          <layout class="QHBoxLayout" name="horizontalLayout">
           <item>
            <widget class="QPushButton" name="receiveButton">
             <property name="minimumSize">
              <size>
-              <width>150</width>
-              <height>0</height>
+              <width>160</width>
+              <height>30</height>
              </size>
             </property>
             <property name="text">
@@ -147,12 +154,34 @@
            </widget>
           </item>
           <item>
+           <spacer name="horizontalSpacer_5">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
            <widget class="QPushButton" name="clearButton">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>160</width>
+              <height>30</height>
+             </size>
             </property>
             <property name="toolTip">
              <string>Clear all fields of the form.</string>
@@ -184,12 +213,79 @@
           </item>
          </layout>
         </item>
-        <item row="8" column="0">
-         <widget class="QLabel" name="label_7">
+        <item row="2" column="3" rowspan="9">
+         <widget class="QRImageWidget" name="lblQRCode">
+          <property name="minimumSize">
+           <size>
+            <width>200</width>
+            <height>220</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>200</width>
+            <height>220</height>
+           </size>
+          </property>
           <property name="text">
            <string/>
           </property>
          </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="label_8">
+          <property name="text">
+           <string>Address:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="2">
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QLineEdit" name="leAddress"/>
+          </item>
+          <item>
+           <widget class="QToolButton" name="copyAddressButton">
+            <property name="minimumSize">
+             <size>
+              <width>28</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>20</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="refreshButton">
+            <property name="minimumSize">
+             <size>
+              <width>28</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>20</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </item>
@@ -253,9 +349,31 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
+         <spacer name="horizontalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>70</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
          <widget class="QPushButton" name="showRequestButton">
           <property name="enabled">
            <bool>false</bool>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>160</width>
+            <height>30</height>
+           </size>
           </property>
           <property name="toolTip">
            <string>Show the selected request (does the same as double clicking an entry)</string>
@@ -273,9 +391,31 @@
          </widget>
         </item>
         <item>
+         <spacer name="horizontalSpacer_4">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
          <widget class="QPushButton" name="removeRequestButton">
           <property name="enabled">
            <bool>false</bool>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>160</width>
+            <height>30</height>
+           </size>
           </property>
           <property name="toolTip">
            <string>Remove the selected entries from the list</string>
@@ -318,6 +458,11 @@
    <extends>QLineEdit</extends>
    <header>bitcoinamountfield.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QRImageWidget</class>
+   <extends>QLabel</extends>
+   <header>receiverequestdialog.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

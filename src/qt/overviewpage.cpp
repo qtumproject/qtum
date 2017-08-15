@@ -43,8 +43,14 @@ public:
         int xspace = DECORATION_SIZE + 8;
         int ypad = 6;
         int halfheight = (mainRect.height() - 2*ypad)/2;
-        QRect amountRect(mainRect.left() + xspace, mainRect.top()+ypad, mainRect.width() - xspace, halfheight);
-        QRect addressRect(mainRect.left() + xspace, mainRect.top()+ypad+halfheight, mainRect.width() - xspace, halfheight);
+        QRect dateAddressRect(mainRect.left() + xspace, mainRect.top() + ypad, mainRect.width(), mainRect.height() - ypad);
+        QRect dateRect(dateAddressRect.left(), dateAddressRect.top(), dateAddressRect.width(), halfheight);
+        QRect addressRect(dateAddressRect.left(), dateRect.bottom(), dateAddressRect.width(), halfheight);
+        QRect amountRect(mainRect.right()-155, mainRect.top(), 155, mainRect.height());
+
+        painter->setPen(QColor("#c4c1bd"));
+        painter->drawRect(mainRect);
+        painter->drawRect(amountRect);
         icon = platformStyle->SingleColorIcon(icon);
         icon.paint(painter, decorationRect);
 
@@ -63,7 +69,7 @@ public:
         painter->setPen(foreground);
         QRect boundingRect;
         painter->drawText(addressRect, Qt::AlignLeft|Qt::AlignVCenter, address, &boundingRect);
-
+        painter->drawText(dateRect, Qt::AlignLeft|Qt::AlignVCenter, GUIUtil::dateTimeStr(date));
         if (index.data(TransactionTableModel::WatchonlyRole).toBool())
         {
             QIcon iconWatchonly = qvariant_cast<QIcon>(index.data(TransactionTableModel::WatchonlyDecorationRole));
@@ -89,10 +95,10 @@ public:
         {
             amountText = QString("[") + amountText + QString("]");
         }
-        painter->drawText(amountRect, Qt::AlignRight|Qt::AlignVCenter, amountText);
+        painter->drawText(amountRect, Qt::AlignCenter|Qt::AlignVCenter, amountText);
 
         painter->setPen(option.palette.color(QPalette::Text));
-        painter->drawText(amountRect, Qt::AlignLeft|Qt::AlignVCenter, GUIUtil::dateTimeStr(date));
+
 
         painter->restore();
     }
@@ -125,6 +131,9 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
 {
     ui->setupUi(this);
 
+    ui->groupBoxBalances->setStyleSheet(STYLE_GROUPBOX);
+    ui->groupBoxRecent->setStyleSheet(STYLE_GROUPBOX);
+
     // use a SingleColorIcon for the "out of sync warning" icon
     QIcon icon = platformStyle->SingleColorIcon(":/icons/warning");
     icon.addPixmap(icon.pixmap(QSize(64,64), QIcon::Normal), QIcon::Disabled); // also set the disabled icon because we are using a disabled QPushButton to work around missing HiDPI support of QLabel (https://bugreports.qt.io/browse/QTBUG-42503)
@@ -135,6 +144,7 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     ui->listTransactions->setItemDelegate(txdelegate);
     ui->listTransactions->setIconSize(QSize(DECORATION_SIZE, DECORATION_SIZE));
     ui->listTransactions->setMinimumHeight(NUM_ITEMS * (DECORATION_SIZE + 2));
+    ui->listTransactions->setMinimumWidth(570);
     ui->listTransactions->setAttribute(Qt::WA_MacShowFocusRect, false);
 
     connect(ui->listTransactions, SIGNAL(clicked(QModelIndex)), this, SLOT(handleTransactionClicked(QModelIndex)));
