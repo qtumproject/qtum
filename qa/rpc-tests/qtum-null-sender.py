@@ -29,7 +29,7 @@ class QtumNullSenderTest(BitcoinTestFramework):
         tx.vin = [CTxIn(COutPoint(int(parent_tx_id, 16), 0), scriptSig=CScript([]), nSequence=0)]
         tx.vout = [CTxOut(0, CScript([b"\x04", 1000000, b"\x01", b"\x00", OP_CREATE]))]
         tx_hex = bytes_to_hex_str(tx.serialize())
-        self.node.sendrawtransaction(tx_hex)
+        assert_raises(JSONRPCException, self.node.sendrawtransaction, tx_hex)
         block_count = self.node.getblockcount()
         self.node.generate(1)
         assert_equal(self.node.getblockcount(), block_count+1)
