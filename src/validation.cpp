@@ -2015,7 +2015,7 @@ bool CheckRefund(const CBlock& block, const std::vector<CTxOut>& vouts){
     return true;
 }
 
-bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, const Consensus::Params& consensusParams, CAmount nFees, CAmount nActualStakeReward, int nRefundVouts)
+bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, const Consensus::Params& consensusParams, CAmount nFees, CAmount gasRefunds, CAmount nActualStakeReward, int nRefundVouts)
 {
     size_t offset = block.IsProofOfStake() ? 1 : 0;
 
@@ -2058,8 +2058,8 @@ bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, cons
         if(rewardRecipients == 1){
             return true;
         }
-
-        CAmount splitReward = blockReward / rewardRecipients;
+        assert(blockReward >= gasRefunds);
+        CAmount splitReward = (blockReward - gasRefunds) / rewardRecipients;
 
         // Generate the list of script recipients including all of their parameters
         std::vector<CScript> mposScriptList;
@@ -2541,6 +2541,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     std::vector<PrecomputedTransactionData> txdata;
     txdata.reserve(block.vtx.size()); // Required so that pointers to individual PrecomputedTransactionData don't get invalidated
     uint64_t blockGasUsed = 0;
+    CAmount gasRefunds=0;
     for (unsigned int i = 0; i < block.vtx.size(); i++)
     {
         const CTransaction &tx = *(block.vtx[i]);
@@ -2601,7 +2602,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         if(!tx.HasOpSpend()){
             checkBlock.vtx.push_back(block.vtx[i]);
         }
-
         if(tx.HasCreateOrCall() && !hasOpSpend){
 
             if(!CheckSenderScript(view, tx)){
@@ -2659,10 +2659,12 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                               countCumulativeGasUsed, uint64_t(resultExec[k].execRes.gasUsed), resultExec[k].execRes.newAddress, resultExec[k].txRec.log()});
             }
             storageRes.addResult(uintToh256(tx.GetHash()), tri);
-
             blockGasUsed += bcer.usedGas;
             if(blockGasUsed > blockGasLimit){
                 return state.DoS(1000, error("ConnectBlock(): Block exceeds gas limit"), REJECT_INVALID, "bad-blk-gaslimit");
+            }
+            for(CTxOut refundVout : bcer.refundOutputs){
+                gasRefunds += refundVout.nValue;
             }
             checkVouts.insert(checkVouts.end(), bcer.refundOutputs.begin(), bcer.refundOutputs.end());
             for(CTransaction& t : bcer.valueTransfers){
@@ -2690,8 +2692,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     }
     int64_t nTime3 = GetTimeMicros(); nTimeConnect += nTime3 - nTime2;
     LogPrint("bench", "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs]\n", (unsigned)block.vtx.size(), 0.001 * (nTime3 - nTime2), 0.001 * (nTime3 - nTime2) / block.vtx.size(), nInputs <= 1 ? 0 : 0.001 * (nTime3 - nTime2) / (nInputs-1), nTimeConnect * 0.000001);
-
-    if(!CheckReward(block, state, pindex->nHeight, chainparams.GetConsensus(), nFees, nActualStakeReward, checkVouts.size()))
+    assert(nFees >= gasRefunds); //make sure it won't overflow
+    if(!CheckReward(block, state, pindex->nHeight, chainparams.GetConsensus(), nFees, gasRefunds, nActualStakeReward, checkVouts.size()))
         return state.DoS(100,error("ConnectBlock(): Reward check failed"));
 
     if(!CheckRefund(block, checkVouts))
