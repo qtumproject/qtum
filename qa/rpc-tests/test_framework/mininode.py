@@ -674,12 +674,18 @@ class CBlock(CBlockHeader):
             hashes.append(ser_uint256(tx.sha256))
         return self.get_merkle_root(hashes)
 
-    def calc_witness_merkle_root(self):
+    def calc_witness_merkle_root(self, is_pos=False):
         # For witness root purposes, the hash of the
         # coinbase, with witness, is defined to be 0...0
-        hashes = [ser_uint256(0)]
 
-        for tx in self.vtx[1:]:
+        if is_pos:
+            hashes = [ser_uint256(0), ser_uint256(0)]
+            hashes_start_index = 2
+        else:
+            hashes = [ser_uint256(0)]
+            hashes_start_index = 1
+
+        for tx in self.vtx[hashes_start_index:]:
             # Calculate the hashes with witness data
             hashes.append(ser_uint256(tx.calc_sha256(True)))
 

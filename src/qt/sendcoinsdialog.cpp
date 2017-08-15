@@ -14,6 +14,7 @@
 #include "platformstyle.h"
 #include "sendcoinsentry.h"
 #include "walletmodel.h"
+#include "guiconstants.h"
 
 #include "base58.h"
 #include "chainparams.h"
@@ -41,6 +42,7 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *_platformStyle, QWidget *p
     platformStyle(_platformStyle)
 {
     ui->setupUi(this);
+    ui->groupBoxFee->setStyleSheet(STYLE_GROUPBOX);
 
     if (!_platformStyle->getImagesOnButtons()) {
         ui->addButton->setIcon(QIcon());

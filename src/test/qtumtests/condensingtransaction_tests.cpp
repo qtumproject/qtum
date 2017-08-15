@@ -171,9 +171,11 @@ std::vector<valtype> code = {
                 addr.call.value(this.balance/2)(bytes4(sha3("transfer()")));
             }
             function Test() payable{}
+            
+            function() payable {}
         }
     */
-    valtype(ParseHex("60606040527347b725b087f9ef7802b4fef599cfeb08a451e46f600060006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055505b5b5b6101708061006b6000396000f30060606040526000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680638a4068dd1461003e575b610000565b610046610048565b005b600060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1660023073ffffffffffffffffffffffffffffffffffffffff16318115610000570460405180807f7472616e73666572282900000000000000000000000000000000000000000000815250600a01905060405180910390207c01000000000000000000000000000000000000000000000000000000009004906040518263ffffffff167c010000000000000000000000000000000000000000000000000000000002815260040180905060006040518083038185886185025a03f19350505050505b5600a165627a7a723058208624b9ba0441e9d6e1e2a655d0384c4cd65cc76928dcff6eab562722140805650029"))
+    valtype(ParseHex("60606040527347b725b087f9ef7802b4fef599cfeb08a451e46f600060006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055505b5b5b61017a8061006b6000396000f3006060604052361561003f576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680638a4068dd14610048575b6100465b5b565b005b610050610052565b005b600060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1660023073ffffffffffffffffffffffffffffffffffffffff16318115610000570460405180807f7472616e73666572282900000000000000000000000000000000000000000000815250600a01905060405180910390207c01000000000000000000000000000000000000000000000000000000009004906040518263ffffffff167c010000000000000000000000000000000000000000000000000000000002815260040180905060006040518083038185886185025a03f19350505050505b5600a165627a7a72305820709abc77d99f7e829396b41fcf78a6d4444b9f9734ea765177bd11cbd7357e960029"))
 };
 
 dev::h256 hash = dev::h256(ParseHex("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"));
@@ -303,7 +305,10 @@ BOOST_AUTO_TEST_CASE(condensingtransactionsuicide_tests){
     std::vector<QtumTransaction> txs;
     txs.push_back(createQtumTransaction(code[12], 0, dev::u256(500000), dev::u256(1), hashTemp, dev::Address(), 0));
     addresses.push_back(createQtumAddress(hashTemp, 0));
-    txs.push_back(createQtumTransaction(code[17], 13000, dev::u256(500000), dev::u256(1), ++hashTemp, dev::Address(), 1));
+    
+    txs.push_back(createQtumTransaction(code[17], 0, dev::u256(500000), dev::u256(1), ++hashTemp, dev::Address(), 1));
+    txs.push_back(createQtumTransaction(valtype(), 13000, dev::u256(500000), dev::u256(1), hashTemp, createQtumAddress(hashTemp, 1), 1));
+
     addresses.push_back(createQtumAddress(hashTemp, 1));
     auto result = executeBC(txs);
 
@@ -320,7 +325,10 @@ BOOST_AUTO_TEST_CASE(condensingtransactionpaytopubkeyhash_tests){
     dev::h256 hashTemp(hash);
     std::vector<dev::Address> addresses;
     std::vector<QtumTransaction> txs;
-    txs.push_back(createQtumTransaction(code[19], 13000, dev::u256(500000), dev::u256(1), hashTemp, dev::Address(), 13));
+
+    txs.push_back(createQtumTransaction(code[19], 0, dev::u256(500000), dev::u256(1), hashTemp, dev::Address(), 13));
+    txs.push_back(createQtumTransaction(valtype(), 13000, dev::u256(500000), dev::u256(1), hashTemp, createQtumAddress(hashTemp, 13), 13));
+
     addresses.push_back(createQtumAddress(hashTemp, 13));
     auto result = executeBC(txs);
 

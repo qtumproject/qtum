@@ -1,4 +1,4 @@
-Source: bitcoin
+Source: qtum
 Section: utils
 Priority: optional
 Maintainer: Jonas Smedegaard <dr@jones.dk>
@@ -23,11 +23,11 @@ Build-Depends: debhelper,
  libprotobuf-dev, protobuf-compiler,
  python
 Standards-Version: 3.9.2
-Homepage: https://bitcoincore.org/
-Vcs-Git: git://github.com/bitcoin/bitcoin.git
-Vcs-Browser: https://github.com/bitcoin/bitcoin
+Homepage: https://qtum.org/
+Vcs-Git: git://github.com/qtumproject/qtum.git
+Vcs-Browser: https://github.com/qtumproject/qtum
 
-Package: bitcoind
+Package: qtumd
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: peer-to-peer network based digital currency - daemon
@@ -37,10 +37,10 @@ Description: peer-to-peer network based digital currency - daemon
  and issuing money are carried out collectively by the network. Bitcoin Core
  is the name of the open source software which enables the use of this currency.
  .
- This package provides the daemon, bitcoind, and the CLI tool
- bitcoin-cli to interact with the daemon.
+ This package provides the daemon, qtumd, and the CLI tool
+ qtum-cli to interact with the daemon.
 
-Package: bitcoin-qt
+Package: qtum-qt
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: peer-to-peer network based digital currency - Qt GUI
@@ -52,7 +52,7 @@ Description: peer-to-peer network based digital currency - Qt GUI
  .
  This package provides Bitcoin-Qt, a GUI for Bitcoin based on Qt.
 
-Package: bitcoin-tx
+Package: qtum-tx
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: peer-to-peer digital currency - standalone transaction tool
@@ -62,6 +62,6 @@ Description: peer-to-peer digital currency - standalone transaction tool
  and issuing money are carried out collectively by the network. Bitcoin Core
  is the name of the open source software which enables the use of this currency.
  .
- This package provides bitcoin-tx, a command-line transaction creation
- tool which can be used without a bitcoin daemon.  Some means of
+ This package provides qtum-tx, a command-line transaction creation
+ tool which can be used without a qtum daemon.  Some means of
  exchanging minimal transaction data with peers is still required.
