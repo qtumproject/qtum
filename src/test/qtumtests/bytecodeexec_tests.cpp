@@ -321,8 +321,15 @@ BOOST_AUTO_TEST_CASE(bytecodeexec_suicide){
     for(size_t i = 0; i < 10; i++){
         valtype code = i == 0 ? CODE[0] : CODE[4];
         dev::u256 value = i == 0 ? dev::u256(0) : dev::u256(13);
-        QtumTransaction txEthCreate = createQtumTransaction(code, value, GASLIMIT, dev::u256(1), hash, dev::Address(), i);
+        QtumTransaction txEthCreate = createQtumTransaction(code, 0, GASLIMIT, dev::u256(1), hash, dev::Address(), i);
         txsCreate.push_back(txEthCreate);
+
+        QtumTransaction txEthSendValue;
+        if(i != 0){
+            txEthSendValue = createQtumTransaction(valtype(), value, GASLIMIT, dev::u256(1), hash, createQtumAddress(txEthCreate.getHashWith(), txEthCreate.getNVout()), i);
+            txsCreate.push_back(txEthSendValue);
+        }
+
         newAddresses.push_back(createQtumAddress(txEthCreate.getHashWith(), txEthCreate.getNVout()));
         ++hash;
     }
@@ -332,7 +339,7 @@ BOOST_AUTO_TEST_CASE(bytecodeexec_suicide){
     std::vector<QtumTransaction> txsCall;
     std::vector<dev::Address> addrs;
     valtype codeCall(ParseHex("41c0e1b5"));
-    for(size_t i = 0; i < txsCreate.size() - 1; i++){
+    for(size_t i = 0; i < newAddresses.size() - 1; i++){
         QtumTransaction txEthCall = createQtumTransaction(codeCall, 0, GASLIMIT, dev::u256(1), HASHTX, newAddresses[i + 1]);
         txsCall.push_back(txEthCall);
         addrs.push_back(txEthCall.receiveAddress());
