@@ -13,7 +13,6 @@ static const QString PARAM_BYTECODE = "bytecode";
 static const QString PARAM_GASLIMIT = "gaslimit";
 static const QString PARAM_GASPRICE = "gasprice";
 static const QString PARAM_SENDER = "sender";
-static const QString PARAM_BROADCAST = "broadcast";
 }
 using namespace CreateContract_NS;
 
@@ -31,7 +30,6 @@ CreateContract::CreateContract(const PlatformStyle *platformStyle, QWidget *pare
     ui->labelGasLimit->setToolTip(tr("Gas limit. Default = 1000000, Max = 40000000"));
     ui->labelGasPrice->setToolTip(tr("Gas price: QTUM price per gas unit. Default = 0.00000001, Min = 0.00000001"));
     ui->labelSenderAddress->setToolTip(tr("The quantum address that will be used to create the contract."));
-    ui->labelBroadcast->setToolTip(tr("Default = true. Whether to broadcast the transaction or not"));
 
     // Create new PRC command line interface
     QStringList lstMandatory;
@@ -40,13 +38,11 @@ CreateContract::CreateContract(const PlatformStyle *platformStyle, QWidget *pare
     lstOptional.append(PARAM_GASLIMIT);
     lstOptional.append(PARAM_GASPRICE);
     lstOptional.append(PARAM_SENDER);
-    lstOptional.append(PARAM_BROADCAST);
     QMap<QString, QString> lstTranslations;
     lstTranslations[PARAM_BYTECODE] = ui->labelBytecode->text();
     lstTranslations[PARAM_GASLIMIT] = ui->labelGasLimit->text();
     lstTranslations[PARAM_GASPRICE] = ui->labelGasPrice->text();
     lstTranslations[PARAM_SENDER] = ui->labelSenderAddress->text();
-    lstTranslations[PARAM_BROADCAST] = ui->labelBroadcast->text();
     m_execRPCCommand = new ExecRPCCommand(PRC_COMMAND, lstMandatory, lstOptional, lstTranslations, this);
 
     // Connect signals with slots
@@ -77,7 +73,6 @@ void CreateContract::on_clearAll_clicked()
     ui->lineEditGasLimit->clear();
     ui->lineEditGasPrice->clear();
     ui->lineEditSenderAddress->clear();
-    ui->comboBoxBroadcast->setCurrentIndex(0);
 }
 
 void CreateContract::on_createContract_clicked()
@@ -93,12 +88,6 @@ void CreateContract::on_createContract_clicked()
     ExecRPCCommand::appendParam(lstParams, PARAM_GASLIMIT, ui->lineEditGasLimit->text());
     ExecRPCCommand::appendParam(lstParams, PARAM_GASPRICE, ui->lineEditGasPrice->text());
     ExecRPCCommand::appendParam(lstParams, PARAM_SENDER, ui->lineEditSenderAddress->text());
-    QString broadcast;
-    if(ui->comboBoxBroadcast->currentIndex() > 0)
-    {
-        broadcast = ui->comboBoxBroadcast->currentIndex() > 1 ? "false" : "true";
-    }
-    ExecRPCCommand::appendParam(lstParams, PARAM_BROADCAST, broadcast);
 
     // Execute RPC command line
     if(m_execRPCCommand->exec(lstParams, result, resultJson, errorMessage))

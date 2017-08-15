@@ -130,13 +130,6 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="labelBroadcast">
-        <property name="text">
-         <string>Broadcast</string>
-        </property>
-       </widget>
-      </item>
       <item row="3" column="0">
        <widget class="QLabel" name="labelSenderAddress">
         <property name="text">
@@ -148,13 +141,6 @@
        <widget class="QLabel" name="labelGasLimit">
         <property name="text">
          <string>Gas Limit</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="labelGasPrice">
-        <property name="text">
-         <string>Gas Price</string>
         </property>
        </widget>
       </item>
@@ -174,35 +160,10 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="1">
-       <widget class="QComboBox" name="comboBoxBroadcast">
-        <property name="maximumSize">
-         <size>
-          <width>120</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <item>
-         <property name="text">
-          <string/>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>True</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>False</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="labelAmount">
+      <item row="2" column="0">
+       <widget class="QLabel" name="labelGasPrice">
         <property name="text">
-         <string>Amount</string>
+         <string>Gas Price</string>
         </property>
        </widget>
       </item>
@@ -216,7 +177,14 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="2" rowspan="6">
+      <item row="0" column="0">
+       <widget class="QLabel" name="labelAmount">
+        <property name="text">
+         <string>Amount</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2" rowspan="5">
        <spacer name="horizontalSpacer_4">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>

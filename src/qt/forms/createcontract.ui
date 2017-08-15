@@ -129,13 +129,6 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="labelBroadcast">
-            <property name="text">
-             <string>Broadcast</string>
-            </property>
-           </widget>
-          </item>
           <item row="1" column="1">
            <widget class="QLineEdit" name="lineEditGasPrice">
             <property name="maximumSize">
@@ -169,31 +162,6 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
-           <widget class="QComboBox" name="comboBoxBroadcast">
-            <property name="maximumSize">
-             <size>
-              <width>120</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <item>
-             <property name="text">
-              <string/>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>True</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>False</string>
-             </property>
-            </item>
-           </widget>
-          </item>
           <item row="0" column="2" rowspan="4">
            <spacer name="horizontalSpacer_5">
             <property name="orientation">
@@ -221,11 +189,9 @@
          <zorder>labelGasLimit</zorder>
          <zorder>labelGasPrice</zorder>
          <zorder>labelSenderAddress</zorder>
-         <zorder>labelBroadcast</zorder>
          <zorder>lineEditGasLimit</zorder>
          <zorder>lineEditGasPrice</zorder>
          <zorder>lineEditSenderAddress</zorder>
-         <zorder>comboBoxBroadcast</zorder>
          <zorder>horizontalSpacer_5</zorder>
         </widget>
        </item>
