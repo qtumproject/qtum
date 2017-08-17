@@ -2,6 +2,7 @@
 #include "ui_createcontract.h"
 #include "platformstyle.h"
 #include "walletmodel.h"
+#include "clientmodel.h"
 #include "guiconstants.h"
 #include "rpcconsole.h"
 #include "execrpccommand.h"
@@ -26,15 +27,15 @@ using namespace CreateContract_NS;
 CreateContract::CreateContract(const PlatformStyle *platformStyle, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::CreateContract),
-    m_execRPCCommand(0),
-    m_model(0)
+    m_model(0),
+    m_clientModel(0),
+    m_execRPCCommand(0)
 {
     // Setup ui components
     Q_UNUSED(platformStyle);
     ui->setupUi(this);
     ui->groupBoxOptional->setStyleSheet(STYLE_GROUPBOX);
     setLinkLabels();
-    on_updateGasValues();
 
     ui->labelBytecode->setToolTip(tr("The bytecode of the contract"));
     ui->labelSenderAddress->setToolTip(tr("The quantum address that will be used to create the contract."));
@@ -42,6 +43,8 @@ CreateContract::CreateContract(const PlatformStyle *platformStyle, QWidget *pare
     // Set defaults
     ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
     ui->lineEditGasPrice->setSingleStep(SINGLE_STEP);
+    ui->lineEditGasLimit->setMinimum(MINIMUM_GAS_LIMIT);
+    ui->lineEditGasLimit->setMaximum(DEFAULT_GAS_LIMIT_OP_CREATE);
     ui->lineEditGasLimit->setValue(DEFAULT_GAS_LIMIT_OP_CREATE);
 
     // Create new PRC command line interface
@@ -85,6 +88,17 @@ void CreateContract::setModel(WalletModel *_model)
     m_model = _model;
 }
 
+void CreateContract::setClientModel(ClientModel *_clientModel)
+{
+    m_clientModel = _clientModel;
+
+    if (m_clientModel) 
+    {
+        connect(m_clientModel, SIGNAL(numBlocksChanged(int,QDateTime,double,bool)), this, SLOT(on_updateGasValues()));
+        on_updateGasValues();
+    }
+}
+
 void CreateContract::on_clearAll_clicked()
 {
     ui->textEditBytecode->clear();
@@ -122,11 +136,15 @@ void CreateContract::on_createContract_clicked()
 
 void CreateContract::on_updateGasValues()
 {
-    QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
-    uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(chainActive.Height()+1);
-    uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(chainActive.Height()+1));
+    if(m_clientModel)
+    {
+        uint64_t blockGasLimit = 0;
+        uint64_t minGasPrice = 0;
+        uint64_t nGasPrice = 0;
+        m_clientModel->getGasInfo(blockGasLimit, minGasPrice, nGasPrice);
 
-    ui->labelGasLimit->setToolTip(tr("Gas limit. Default = %1, Max = %2").arg(DEFAULT_GAS_LIMIT_OP_CREATE).arg(blockGasLimit));
-    ui->labelGasPrice->setToolTip(tr("Gas price: QTUM price per gas unit. Default = %1, Min = %2").arg(QString::fromStdString(FormatMoney(DEFAULT_GAS_PRICE))).arg(QString::fromStdString(FormatMoney(minGasPrice))));
-    ui->lineEditGasLimit->setMaximum(blockGasLimit);
+        ui->labelGasLimit->setToolTip(tr("Gas limit. Default = %1, Max = %2").arg(DEFAULT_GAS_LIMIT_OP_CREATE).arg(blockGasLimit));
+        ui->labelGasPrice->setToolTip(tr("Gas price: QTUM price per gas unit. Default = %1, Min = %2").arg(QString::fromStdString(FormatMoney(DEFAULT_GAS_PRICE))).arg(QString::fromStdString(FormatMoney(minGasPrice))));
+        ui->lineEditGasLimit->setMaximum(blockGasLimit);
+    }
 }

@@ -5,6 +5,7 @@
 
 class PlatformStyle;
 class WalletModel;
+class ClientModel;
 class ExecRPCCommand;
 
 namespace Ui {
@@ -19,6 +20,7 @@ public:
     explicit SendToContract(const PlatformStyle *platformStyle, QWidget *parent = 0);
     ~SendToContract();
 
+    void setClientModel(ClientModel *clientModel);
     void setModel(WalletModel *model);
 
 Q_SIGNALS:
@@ -30,8 +32,9 @@ public Q_SLOTS:
 
 private:
     Ui::SendToContract *ui;
-    ExecRPCCommand* m_execRPCCommand;
     WalletModel* m_model;
+    ClientModel* m_clientModel;
+    ExecRPCCommand* m_execRPCCommand;
 };
 
 #endif // SENDTOCONTRACT_H

@@ -5,6 +5,7 @@
 
 class PlatformStyle;
 class WalletModel;
+class ClientModel;
 class ExecRPCCommand;
 
 namespace Ui {
@@ -20,6 +21,7 @@ public:
     ~CreateContract();
 
     void setLinkLabels();
+    void setClientModel(ClientModel *clientModel);
     void setModel(WalletModel *model);
 
 Q_SIGNALS:
@@ -31,8 +33,9 @@ public Q_SLOTS:
 
 private:
     Ui::CreateContract *ui;
-    ExecRPCCommand* m_execRPCCommand;
     WalletModel* m_model;
+    ClientModel* m_clientModel;
+    ExecRPCCommand* m_execRPCCommand;
 };
 
 #endif // CREATECONTRACT_H
