@@ -46,6 +46,7 @@ CreateContract::CreateContract(const PlatformStyle *platformStyle, QWidget *pare
     ui->lineEditGasLimit->setMinimum(MINIMUM_GAS_LIMIT);
     ui->lineEditGasLimit->setMaximum(DEFAULT_GAS_LIMIT_OP_CREATE);
     ui->lineEditGasLimit->setValue(DEFAULT_GAS_LIMIT_OP_CREATE);
+    ui->pushButtonCreateContract->setEnabled(false);
 
     // Create new PRC command line interface
     QStringList lstMandatory;
@@ -64,6 +65,7 @@ CreateContract::CreateContract(const PlatformStyle *platformStyle, QWidget *pare
     // Connect signals with slots
     connect(ui->pushButtonClearAll, SIGNAL(clicked()), SLOT(on_clearAll_clicked()));
     connect(ui->pushButtonCreateContract, SIGNAL(clicked()), SLOT(on_createContract_clicked()));
+    connect(ui->textEditBytecode, SIGNAL(textChanged()), SLOT(on_updateCreateButton()));
 }
 
 CreateContract::~CreateContract()
@@ -147,5 +149,17 @@ void CreateContract::on_updateGasValues()
         ui->labelGasPrice->setToolTip(tr("Gas price: QTUM price per gas unit. Default = %1, Min = %2").arg(QString::fromStdString(FormatMoney(DEFAULT_GAS_PRICE))).arg(QString::fromStdString(FormatMoney(minGasPrice))));
         ui->lineEditGasPrice->setMinimum(minGasPrice);
         ui->lineEditGasLimit->setMaximum(blockGasLimit);
+    }
+}
+
+void CreateContract::on_updateCreateButton()
+{
+    if(ui->textEditBytecode->toPlainText().isEmpty())
+    {
+        ui->pushButtonCreateContract->setEnabled(false);
+    }
+    else
+    {
+        ui->pushButtonCreateContract->setEnabled(true);
     }
 }

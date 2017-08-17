@@ -27,6 +27,7 @@ CallContract::CallContract(const PlatformStyle *platformStyle, QWidget *parent) 
     ui->labelContractAddress->setToolTip(tr("The account address."));
     ui->labelDataHex->setToolTip(tr("The data hex string."));
     ui->labelSenderAddress->setToolTip(tr("The sender address hex string."));
+    ui->pushButtonCallContract->setEnabled(false);
 
     // Create new PRC command line interface
     QStringList lstMandatory;
@@ -43,6 +44,8 @@ CallContract::CallContract(const PlatformStyle *platformStyle, QWidget *parent) 
     // Connect signals with slots
     connect(ui->pushButtonClearAll, SIGNAL(clicked()), SLOT(on_clearAll_clicked()));
     connect(ui->pushButtonCallContract, SIGNAL(clicked()), SLOT(on_callContract_clicked()));
+    connect(ui->lineEditContractAddress, SIGNAL(textChanged(QString)), SLOT(on_updateCallContractButton()));
+    connect(ui->lineEditDataHex, SIGNAL(textChanged(QString)), SLOT(on_updateCallContractButton()));
 }
 
 CallContract::~CallContract()
@@ -79,5 +82,17 @@ void CallContract::on_callContract_clicked()
     else
     {
         QMessageBox::warning(this, tr("Call contract"), errorMessage);
+    }
+}
+
+void CallContract::on_updateCallContractButton()
+{
+    if(ui->lineEditContractAddress->text().isEmpty() || ui->lineEditDataHex->text().isEmpty())
+    {
+        ui->pushButtonCallContract->setEnabled(false);
+    }
+    else
+    {
+        ui->pushButtonCallContract->setEnabled(true);
     }
 }

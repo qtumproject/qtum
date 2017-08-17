@@ -29,6 +29,7 @@ public Q_SLOTS:
     void on_clearAll_clicked();
     void on_sendToContract_clicked();
     void on_updateGasValues();
+    void on_updateSendToContractButton();
 
 private:
     Ui::SendToContract *ui;

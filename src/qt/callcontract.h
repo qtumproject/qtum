@@ -23,6 +23,7 @@ Q_SIGNALS:
 public Q_SLOTS:
     void on_clearAll_clicked();
     void on_callContract_clicked();
+    void on_updateCallContractButton();
 
 private:
     Ui::CallContract *ui;
