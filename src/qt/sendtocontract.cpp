@@ -27,7 +27,9 @@ using namespace SendToContract_NS;
 
 SendToContract::SendToContract(const PlatformStyle *platformStyle, QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::SendToContract)
+    ui(new Ui::SendToContract),
+    m_execRPCCommand(0),
+    m_model(0)
 {
     // Setup ui components
     Q_UNUSED(platformStyle);
@@ -75,7 +77,7 @@ SendToContract::~SendToContract()
 
 void SendToContract::setModel(WalletModel *_model)
 {
-    model = _model;
+    m_model = _model;
 }
 
 void SendToContract::on_clearAll_clicked()
@@ -95,7 +97,7 @@ void SendToContract::on_sendToContract_clicked()
     QVariant result;
     QString errorMessage;
     QString resultJson;
-    int unit = model->getOptionsModel()->getDisplayUnit();
+    int unit = m_model->getOptionsModel()->getDisplayUnit();
 
     // Append params to the list
     ExecRPCCommand::appendParam(lstParams, PARAM_ADDRESS, ui->lineEditContractAddress->text());

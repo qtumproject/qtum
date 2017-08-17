@@ -31,7 +31,7 @@ public Q_SLOTS:
 private:
     Ui::SendToContract *ui;
     ExecRPCCommand* m_execRPCCommand;
-    WalletModel *model;
+    WalletModel* m_model;
 };
 
 #endif // SENDTOCONTRACT_H

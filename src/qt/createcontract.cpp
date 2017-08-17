@@ -26,7 +26,8 @@ using namespace CreateContract_NS;
 CreateContract::CreateContract(const PlatformStyle *platformStyle, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::CreateContract),
-    m_execRPCCommand(0)
+    m_execRPCCommand(0),
+    m_model(0)
 {
     // Setup ui components
     Q_UNUSED(platformStyle);
@@ -81,7 +82,7 @@ void CreateContract::setLinkLabels()
 
 void CreateContract::setModel(WalletModel *_model)
 {
-    model = _model;
+    m_model = _model;
 }
 
 void CreateContract::on_clearAll_clicked()
@@ -99,7 +100,7 @@ void CreateContract::on_createContract_clicked()
     QVariant result;
     QString errorMessage;
     QString resultJson;
-    int unit = model->getOptionsModel()->getDisplayUnit();
+    int unit = m_model->getOptionsModel()->getDisplayUnit();
 
     // Append params to the list
     ExecRPCCommand::appendParam(lstParams, PARAM_BYTECODE, ui->textEditBytecode->toPlainText());

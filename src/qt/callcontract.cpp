@@ -17,7 +17,8 @@ using namespace CallContract_NS;
 
 CallContract::CallContract(const PlatformStyle *platformStyle, QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::CallContract)
+    ui(new Ui::CallContract),
+    m_execRPCCommand(0)
 {
     // Setup ui components
     Q_UNUSED(platformStyle);
