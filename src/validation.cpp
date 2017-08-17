@@ -2598,10 +2598,12 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             control.Add(vChecks);
 
             for(const CTxIn& j : tx.vin){
-                const CTxOut& prevout = view.GetOutputFor(j);
-                if((prevout.scriptPubKey.HasOpCreate() || prevout.scriptPubKey.HasOpCall()) && !j.scriptSig.HasOpSpend()){
-                    return state.DoS(100, error("ConnectBlock(): Contract spend without OP_SPEND in scriptSig"),
-                                     REJECT_INVALID, "bad-txns-invalid-contract-spend");
+                if(!j.scriptSig.HasOpSpend()){
+                    const CTxOut& prevout = view.GetOutputFor(j);
+                    if((prevout.scriptPubKey.HasOpCreate() || prevout.scriptPubKey.HasOpCall())){
+                        return state.DoS(100, error("ConnectBlock(): Contract spend without OP_SPEND in scriptSig"),
+                                REJECT_INVALID, "bad-txns-invalid-contract-spend");
+                    }
                 }
             }
         }
