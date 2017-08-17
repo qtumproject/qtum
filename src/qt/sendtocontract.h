@@ -4,6 +4,7 @@
 #include <QWidget>
 
 class PlatformStyle;
+class WalletModel;
 class ExecRPCCommand;
 
 namespace Ui {
@@ -18,15 +19,19 @@ public:
     explicit SendToContract(const PlatformStyle *platformStyle, QWidget *parent = 0);
     ~SendToContract();
 
+    void setModel(WalletModel *model);
+
 Q_SIGNALS:
 
 public Q_SLOTS:
     void on_clearAll_clicked();
     void on_sendToContract_clicked();
+    void on_updateGasValues();
 
 private:
     Ui::SendToContract *ui;
     ExecRPCCommand* m_execRPCCommand;
+    WalletModel *model;
 };
 
 #endif // SENDTOCONTRACT_H

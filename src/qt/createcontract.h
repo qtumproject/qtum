@@ -4,6 +4,7 @@
 #include <QWidget>
 
 class PlatformStyle;
+class WalletModel;
 class ExecRPCCommand;
 
 namespace Ui {
@@ -19,16 +20,19 @@ public:
     ~CreateContract();
 
     void setLinkLabels();
+    void setModel(WalletModel *model);
 
 Q_SIGNALS:
 
 public Q_SLOTS:
     void on_clearAll_clicked();
     void on_createContract_clicked();
+    void on_updateGasValues();
 
 private:
     Ui::CreateContract *ui;
     ExecRPCCommand* m_execRPCCommand;
+    WalletModel *model;
 };
 
 #endif // CREATECONTRACT_H

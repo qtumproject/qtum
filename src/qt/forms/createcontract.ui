@@ -130,14 +130,7 @@
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="QLineEdit" name="lineEditGasPrice">
-            <property name="maximumSize">
-             <size>
-              <width>120</width>
-              <height>16777215</height>
-             </size>
-            </property>
-           </widget>
+           <widget class="BitcoinAmountField" name="lineEditGasPrice"/>
           </item>
           <item row="2" column="0">
            <widget class="QLabel" name="labelSenderAddress">
@@ -176,12 +169,15 @@
            </spacer>
           </item>
           <item row="0" column="1">
-           <widget class="QLineEdit" name="lineEditGasLimit">
+           <widget class="QSpinBox" name="lineEditGasLimit">
             <property name="maximumSize">
              <size>
-              <width>120</width>
+              <width>170</width>
               <height>16777215</height>
              </size>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
@@ -364,6 +360,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>BitcoinAmountField</class>
+   <extends>QLineEdit</extends>
+   <header>bitcoinamountfield.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

@@ -1,9 +1,14 @@
 #include "createcontract.h"
 #include "ui_createcontract.h"
 #include "platformstyle.h"
+#include "walletmodel.h"
 #include "guiconstants.h"
 #include "rpcconsole.h"
 #include "execrpccommand.h"
+#include "bitcoinunits.h"
+#include "optionsmodel.h"
+#include "validation.h"
+#include "utilmoneystr.h"
 
 namespace CreateContract_NS
 {
@@ -13,6 +18,8 @@ static const QString PARAM_BYTECODE = "bytecode";
 static const QString PARAM_GASLIMIT = "gaslimit";
 static const QString PARAM_GASPRICE = "gasprice";
 static const QString PARAM_SENDER = "sender";
+
+static const CAmount SINGLE_STEP = 0.00000001*COIN;
 }
 using namespace CreateContract_NS;
 
@@ -26,10 +33,15 @@ CreateContract::CreateContract(const PlatformStyle *platformStyle, QWidget *pare
     ui->setupUi(this);
     ui->groupBoxOptional->setStyleSheet(STYLE_GROUPBOX);
     setLinkLabels();
+    on_updateGasValues();
+
     ui->labelBytecode->setToolTip(tr("The bytecode of the contract"));
-    ui->labelGasLimit->setToolTip(tr("Gas limit. Default = 1000000, Max = 40000000"));
-    ui->labelGasPrice->setToolTip(tr("Gas price: QTUM price per gas unit. Default = 0.00000001, Min = 0.00000001"));
     ui->labelSenderAddress->setToolTip(tr("The quantum address that will be used to create the contract."));
+
+    // Set defaults
+    ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
+    ui->lineEditGasPrice->setSingleStep(SINGLE_STEP);
+    ui->lineEditGasLimit->setValue(DEFAULT_GAS_LIMIT_OP_CREATE);
 
     // Create new PRC command line interface
     QStringList lstMandatory;
@@ -67,11 +79,16 @@ void CreateContract::setLinkLabels()
     ui->labelGenerateBytecode->setText("<a href=\"https://www.qtum.org\">Generate Bytecode</a>");
 }
 
+void CreateContract::setModel(WalletModel *_model)
+{
+    model = _model;
+}
+
 void CreateContract::on_clearAll_clicked()
 {
     ui->textEditBytecode->clear();
-    ui->lineEditGasLimit->clear();
-    ui->lineEditGasPrice->clear();
+    ui->lineEditGasLimit->setValue(DEFAULT_GAS_LIMIT_OP_CREATE);
+    ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
     ui->lineEditSenderAddress->clear();
 }
 
@@ -82,11 +99,12 @@ void CreateContract::on_createContract_clicked()
     QVariant result;
     QString errorMessage;
     QString resultJson;
+    int unit = model->getOptionsModel()->getDisplayUnit();
 
     // Append params to the list
     ExecRPCCommand::appendParam(lstParams, PARAM_BYTECODE, ui->textEditBytecode->toPlainText());
-    ExecRPCCommand::appendParam(lstParams, PARAM_GASLIMIT, ui->lineEditGasLimit->text());
-    ExecRPCCommand::appendParam(lstParams, PARAM_GASPRICE, ui->lineEditGasPrice->text());
+    ExecRPCCommand::appendParam(lstParams, PARAM_GASLIMIT, QString::number(ui->lineEditGasLimit->value()));
+    ExecRPCCommand::appendParam(lstParams, PARAM_GASPRICE, BitcoinUnits::format(unit, ui->lineEditGasPrice->value()));
     ExecRPCCommand::appendParam(lstParams, PARAM_SENDER, ui->lineEditSenderAddress->text());
 
     // Execute RPC command line
@@ -99,4 +117,15 @@ void CreateContract::on_createContract_clicked()
     {
         QMessageBox::warning(this, tr("Create contract"), errorMessage);
     }
+}
+
+void CreateContract::on_updateGasValues()
+{
+    QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
+    uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(chainActive.Height()+1);
+    uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(chainActive.Height()+1));
+
+    ui->labelGasLimit->setToolTip(tr("Gas limit. Default = %1, Max = %2").arg(DEFAULT_GAS_LIMIT_OP_CREATE).arg(blockGasLimit));
+    ui->labelGasPrice->setToolTip(tr("Gas price: QTUM price per gas unit. Default = %1, Min = %2").arg(QString::fromStdString(FormatMoney(DEFAULT_GAS_PRICE))).arg(QString::fromStdString(FormatMoney(minGasPrice))));
+    ui->lineEditGasLimit->setMaximum(blockGasLimit);
 }
