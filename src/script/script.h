@@ -676,16 +676,16 @@ public:
     ///////////////////////////////////////// qtum
     bool HasOpCreate() const
     {
-        return Find(OP_CREATE) > 0;
+        return Find(OP_CREATE) == 1;
     }
     
     bool HasOpCall() const
     {
-        return Find(OP_CALL) > 0;
+        return Find(OP_CALL) == 1;
     }
     bool HasOpSpend() const
     {
-        return Find(OP_SPEND) > 0;
+        return size()==1 && *begin() == OP_SPEND;
     }
     /////////////////////////////////////////
 

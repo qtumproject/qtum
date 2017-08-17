@@ -2579,7 +2579,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
         txdata.emplace_back(tx);
 
-        bool hasOpSpend = false;
+        bool hasOpSpend = tx.HasOpSpend();
 
         if (!tx.IsCoinBase())
         {
@@ -2591,11 +2591,19 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             std::vector<CScriptCheck> vChecks;
             bool fCacheResults = fJustCheck; /* Don't cache results if we're actually connecting blocks (still consult the cache, though) */
             // if (!CheckInputs(tx, state, view, fScriptChecks, flags, fCacheResults, txdata[i], nScriptCheckThreads ? &vChecks : NULL))
-            hasOpSpend = tx.vin[0].scriptSig.HasOpSpend();
+            //note that coinbase and coinstake can not contain any contract opcodes, this is checked in CheckBlock
             if (!CheckInputs(tx, state, view, fScriptChecks, flags, fCacheResults, txdata[i], (hasOpSpend || tx.HasCreateOrCall()) ? NULL : (nScriptCheckThreads ? &vChecks : NULL)))//nScriptCheckThreads ? &vChecks : NULL))
                 return error("ConnectBlock(): CheckInputs on %s failed with %s",
                     tx.GetHash().ToString(), FormatStateMessage(state));
             control.Add(vChecks);
+
+            for(size_t j=0;j<tx.vin.size();j++){
+                const CTxOut& prevout = view.GetOutputFor(tx.vin[j]);
+                if((prevout.scriptPubKey.HasOpCreate() || prevout.scriptPubKey.HasOpCall()) && !tx.vin[j].scriptSig.HasOpSpend()){
+                    return state.DoS(100, error("ConnectBlock(): Contract spend without OP_SPEND in scriptSig"),
+                                     REJECT_INVALID, "bad-txns-invalid-contract-spend");
+                }
+            }
         }
 
 ///////////////////////////////////////////////////////////////////////////////////////// qtum
