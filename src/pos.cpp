@@ -139,26 +139,81 @@ bool CheckCoinStakeTimestamp(uint32_t nTimeBlock)
     return (nTimeBlock & STAKE_TIMESTAMP_MASK) == 0;
 }
 
-bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint& prevout, uint32_t* pBlockTime)
+
+bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint& prevout, uint32_t* pBlockTime){
+    std::map<COutPoint, CStakeCache> tmp;
+    return CheckKernel(pindexPrev, nBits, nTimeBlock, prevout, pBlockTime, tmp);
+}
+
+bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint& prevout, uint32_t* pBlockTime, const std::map<COutPoint, CStakeCache>& cache)
 {
     uint256 hashProofOfStake, targetProofOfStake;
+    auto it=cache.find(prevout);
+    if(it == cache.end()) {
+        //not found in cache (shouldn't happen during staking, only during verification which does not use cache)
+        CMutableTransaction txPrev;
+        CDiskTxPos txindex;
+        if (!ReadFromDisk(txPrev, txindex, *pblocktree, prevout))
+            return false;
 
+        // Read block header
+        CBlockHeader block;
+        if (!ReadFromDisk(block, txindex.nFile, txindex.nPos))
+            return false;
+
+        int nDepth;
+        if (IsConfirmedInNPrevBlocks(txindex, pindexPrev, COINBASE_MATURITY - 1, nDepth))
+            return false;
+
+        if (pBlockTime)
+            *pBlockTime = block.GetBlockTime();
+
+        return CheckStakeKernelHash(pindexPrev, nBits, block, txindex.nTxOffset - txindex.nPos, txPrev, prevout,
+                                    nTimeBlock, hashProofOfStake, targetProofOfStake);
+    }else{
+        //found in cache
+        const CStakeCache& stake = it->second;
+        return CheckStakeKernelHash(pindexPrev, nBits, stake.blockFrom, stake.txindex.nTxOffset - stake.txindex.nPos, stake.txPrev, prevout,
+                                    nTimeBlock, hashProofOfStake, targetProofOfStake);
+    }
+}
+
+void CacheKernel(std::map<COutPoint, CStakeCache>& cache, const COutPoint& prevout){
+    if(cache.find(prevout) != cache.end()){
+        //already in cache
+        return;
+    }
     CMutableTransaction txPrev;
     CDiskTxPos txindex;
     if (!ReadFromDisk(txPrev, txindex, *pblocktree, prevout))
-        return false;
-
+        return;
     // Read block header
     CBlockHeader block;
     if (!ReadFromDisk(block, txindex.nFile, txindex.nPos))
-        return false;
-
-    int nDepth;
-    if (IsConfirmedInNPrevBlocks(txindex, pindexPrev, COINBASE_MATURITY - 1, nDepth))
-        return false;
-
-    if (pBlockTime)
-        *pBlockTime = block.GetBlockTime();
-
-    return CheckStakeKernelHash(pindexPrev, nBits, block, txindex.nTxOffset - txindex.nPos, txPrev, prevout, nTimeBlock, hashProofOfStake, targetProofOfStake);
+        return;
+    CStakeCache c(block, txindex, txPrev);
+    cache.insert({prevout, c});
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
