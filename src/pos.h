@@ -21,11 +21,11 @@
 static const uint32_t STAKE_TIMESTAMP_MASK = 15;
 
 struct CStakeCache{
-    CStakeCache(CBlockHeader blockFrom_, CDiskTxPos txindex_, const CTransaction txPrev_) : blockFrom(blockFrom_), txindex(txindex_), txPrev(txPrev_){
+    CStakeCache(CBlockHeader blockFrom_, CDiskTxPos txindex_, CAmount amount_) : blockFrom(blockFrom_), txindex(txindex_), amount(amount_){
     }
     CBlockHeader blockFrom;
     CDiskTxPos txindex;
-    const CTransaction txPrev;
+    CAmount amount;
 };
 
 void CacheKernel(std::map<COutPoint, CStakeCache>& cache, const COutPoint& prevout);
@@ -35,7 +35,7 @@ uint256 ComputeStakeModifier(const CBlockIndex* pindexPrev, const uint256& kerne
 
 // Check whether stake kernel meets hash target
 // Sets hashProofOfStake on success return
-bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, const CBlockHeader& blockFrom, unsigned int nTxPrevOffset, const CTransaction& txPrev, const COutPoint& prevout, unsigned int nTimeTx, uint256& hashProofOfStake, uint256& targetProofOfStake, bool fPrintProofOfStake=false);
+bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, const CBlockHeader& blockFrom, unsigned int nTxPrevOffset, CAmount prevoutAmount, const COutPoint& prevout, unsigned int nTimeTx, uint256& hashProofOfStake, uint256& targetProofOfStake, bool fPrintProofOfStake=false);
 
 // Check kernel hash target and coinstake signature
 // Sets hashProofOfStake on success return
