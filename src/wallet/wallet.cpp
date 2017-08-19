@@ -32,6 +32,7 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/thread.hpp>
+#include <miner.h>
 
 using namespace std;
 
@@ -3164,6 +3165,21 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, con
     if (setCoins.empty())
         return false;
 
+    static std::map<COutPoint, CStakeCache> stakeCache;
+    if(stakeCache.size() > setCoins.size() + 100){
+        //Determining if the cache is still valid is harder than just clearing it when it gets too big, so instead just clear it
+        //when it has more than 100 entries more than the actual setCoins.
+        stakeCache.clear();
+    }
+    if(GetBoolArg("-stakecache", DEFAULT_STAKE_CACHE)) {
+
+        BOOST_FOREACH(const PAIRTYPE(const CWalletTx *, unsigned int) &pcoin, setCoins)
+        {
+            boost::this_thread::interruption_point();
+            COutPoint prevoutStake = COutPoint(pcoin.first->GetHash(), pcoin.second);
+            CacheKernel(stakeCache, prevoutStake); //this will do a 2 disk loads per op
+        }
+    }
     int64_t nCredit = 0;
     CScript scriptPubKeyKernel;
     BOOST_FOREACH(const PAIRTYPE(const CWalletTx*, unsigned int)& pcoin, setCoins)
@@ -3174,7 +3190,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, con
         // Search nSearchInterval seconds back up to nMaxStakeSearchInterval
         COutPoint prevoutStake = COutPoint(pcoin.first->GetHash(), pcoin.second);
         uint32_t nBlockTime;
-        if (CheckKernel(pindexPrev, nBits, nTimeBlock, prevoutStake, &nBlockTime))
+        if (CheckKernel(pindexPrev, nBits, nTimeBlock, prevoutStake, &nBlockTime, stakeCache))
         {
             // Found a kernel
             LogPrint("coinstake", "CreateCoinStake : kernel found\n");
@@ -4171,6 +4187,10 @@ std::string CWallet::GetWalletHelpString(bool showDebug)
     strUsage += HelpMessageOpt("-walletnotify=<cmd>", _("Execute command when a wallet transaction changes (%s in cmd is replaced by TxID)"));
     strUsage += HelpMessageOpt("-zapwallettxes=<mode>", _("Delete all wallet transactions and only recover those parts of the blockchain through -rescan on startup") +
                                " " + _("(1 = keep tx meta data e.g. account owner and payment request information, 2 = drop tx meta data)"));
+    //qtum
+    strUsage += HelpMessageOpt("-staking=<true/false>", _("Enables or disables staking (enabled by default)"));
+    strUsage += HelpMessageOpt("-stakecache=<true/false>", _("Enables or disables the staking cache; significantly improves staking performance, but can use a lot of memory (enabled by default)"));
+
 
     if (showDebug)
     {

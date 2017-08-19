@@ -550,6 +550,8 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64
     ByteCodeExec exec(*pblock, qtumTransactions, blockGasLimit);
     if(!exec.performByteCode()){
         //error, don't add contract
+        globalState->setRoot(oldHashStateRoot);
+        globalState->setRootUTXO(oldHashUTXORoot);
         return false;
     }
 
@@ -557,6 +559,8 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64
 
     if(bceResult.usedGas + testExecResult.usedGas > blockGasLimit){
         //if this transaction could cause block gas limit to be exceeded, then don't add it
+        globalState->setRoot(oldHashStateRoot);
+        globalState->setRootUTXO(oldHashUTXORoot);
         return false;
     }
 
