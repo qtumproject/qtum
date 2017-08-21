@@ -541,7 +541,7 @@
         <height>183</height>
        </rect>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,1">
+      <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,1,0,0">
        <property name="leftMargin">
         <number>0</number>
        </property>
