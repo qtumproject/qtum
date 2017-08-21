@@ -8,6 +8,7 @@
 #include "base58.h"
 #include <boost/foreach.hpp>
 #include <QLineEdit>
+#include <QCompleter>
 
 using namespace std;
 
@@ -17,7 +18,17 @@ AddressField::AddressField(QWidget *parent) :
 {
     connect(this, SIGNAL(addressTypeChanged(AddressType)), SLOT(on_addressTypeChanged()));
     setEditable(true);
-    lineEdit()->setReadOnly(true);
+    completer()->setCompletionMode(QCompleter::PopupCompletion);
+    connect(lineEdit(), SIGNAL(editingFinished()), this, SLOT(on_editingFinished()));
+}
+
+QString AddressField::currentText() const
+{
+    int index = currentIndex();
+    if(index == -1)
+        return QString();
+
+    return itemText(index);
 }
 
 void AddressField::on_refresh()
@@ -50,6 +61,14 @@ void AddressField::on_refresh()
             }
         }
     }
+    else
+    {
+        auto map = globalState->addresses();
+        for (auto it = std::next(map.begin()); it!=map.end(); it++)
+        {
+            m_stringList.append(QString::fromStdString(it->first.hex()));
+        }
+    }
 
     // Update the current index
     int index = m_stringList.indexOf(currentAddress);
@@ -62,4 +81,9 @@ void AddressField::on_addressTypeChanged()
 {
     m_stringList.clear();
     on_refresh();
+}
+
+void AddressField::on_editingFinished()
+{
+    Q_EMIT editTextChanged(QComboBox::currentText());
 }

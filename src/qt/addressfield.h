@@ -50,6 +50,12 @@ public:
      */
     explicit AddressField(QWidget *parent = 0);
 
+    /**
+     * @brief currentText Get the current text
+     * @return Current text
+     */
+    virtual QString currentText() const;
+
 Q_SIGNALS:
     /**
      * @brief addressTypeChanged Signal that the address type is changed
@@ -66,6 +72,11 @@ public Q_SLOTS:
      * @brief on_addressTypeChanged Change the address type
      */
     void on_addressTypeChanged();
+
+    /**
+     * @brief on_editingFinished Completer finish text update
+     */
+    void on_editingFinished();
 
 private:
     QStringList m_stringList;
