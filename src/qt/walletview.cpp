@@ -123,6 +123,7 @@ void WalletView::setClientModel(ClientModel *_clientModel)
     sendCoinsPage->setClientModel(_clientModel);
     createContractPage->setClientModel(_clientModel);
     sendToContractPage->setClientModel(_clientModel);
+    callContractPage->setClientModel(_clientModel);
 }
 
 void WalletView::setWalletModel(WalletModel *_walletModel)

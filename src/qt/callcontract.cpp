@@ -1,6 +1,7 @@
 #include "callcontract.h"
 #include "ui_callcontract.h"
 #include "platformstyle.h"
+#include "clientmodel.h"
 #include "guiconstants.h"
 #include "rpcconsole.h"
 #include "execrpccommand.h"
@@ -18,6 +19,7 @@ using namespace CallContract_NS;
 CallContract::CallContract(const PlatformStyle *platformStyle, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::CallContract),
+    m_clientModel(0),
     m_execRPCCommand(0)
 {
     // Setup ui components
@@ -53,11 +55,22 @@ CallContract::~CallContract()
     delete ui;
 }
 
+void CallContract::setClientModel(ClientModel *_clientModel)
+{
+    m_clientModel = _clientModel;
+
+    if (m_clientModel) 
+    {
+        connect(m_clientModel, SIGNAL(numBlocksChanged(int,QDateTime,double,bool)), this, SLOT(on_numBlocksChanged()));
+        on_numBlocksChanged();
+    }
+}
+
 void CallContract::on_clearAll_clicked()
 {
     ui->lineEditContractAddress->clear();
     ui->lineEditDataHex->clear();
-    ui->lineEditSenderAddress->clear();
+    ui->lineEditSenderAddress->setCurrentIndex(-1);
 }
 
 void CallContract::on_callContract_clicked()
@@ -71,7 +84,7 @@ void CallContract::on_callContract_clicked()
     // Append params to the list
     ExecRPCCommand::appendParam(lstParams, PARAM_ADDRESS, ui->lineEditContractAddress->text());
     ExecRPCCommand::appendParam(lstParams, PARAM_DATAHEX, ui->lineEditDataHex->text());
-    ExecRPCCommand::appendParam(lstParams, PARAM_SENDER, ui->lineEditSenderAddress->text());
+    ExecRPCCommand::appendParam(lstParams, PARAM_SENDER, ui->lineEditSenderAddress->currentText());
 
     // Execute RPC command line
     if(m_execRPCCommand->exec(lstParams, result, resultJson, errorMessage))
@@ -82,6 +95,14 @@ void CallContract::on_callContract_clicked()
     else
     {
         QMessageBox::warning(this, tr("Call contract"), errorMessage);
+    }
+}
+
+void CallContract::on_numBlocksChanged()
+{
+    if(m_clientModel)
+    {
+        ui->lineEditSenderAddress->on_refresh();
     }
 }
 

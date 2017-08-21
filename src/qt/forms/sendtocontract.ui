@@ -141,7 +141,7 @@
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="QLineEdit" name="lineEditSenderAddress">
+       <widget class="AddressField" name="lineEditSenderAddress">
         <property name="minimumSize">
          <size>
           <width>370</width>
@@ -300,6 +300,11 @@
    <extends>QLineEdit</extends>
    <header>bitcoinamountfield.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>AddressField</class>
+   <extends>QComboBox</extends>
+   <header>addressfield.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

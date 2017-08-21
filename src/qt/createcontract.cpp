@@ -10,6 +10,7 @@
 #include "optionsmodel.h"
 #include "validation.h"
 #include "utilmoneystr.h"
+#include "addressfield.h"
 
 namespace CreateContract_NS
 {
@@ -96,8 +97,8 @@ void CreateContract::setClientModel(ClientModel *_clientModel)
 
     if (m_clientModel) 
     {
-        connect(m_clientModel, SIGNAL(numBlocksChanged(int,QDateTime,double,bool)), this, SLOT(on_updateGasValues()));
-        on_updateGasValues();
+        connect(m_clientModel, SIGNAL(numBlocksChanged(int,QDateTime,double,bool)), this, SLOT(on_numBlocksChanged()));
+        on_numBlocksChanged();
     }
 }
 
@@ -106,7 +107,7 @@ void CreateContract::on_clearAll_clicked()
     ui->textEditBytecode->clear();
     ui->lineEditGasLimit->setValue(DEFAULT_GAS_LIMIT_OP_CREATE);
     ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
-    ui->lineEditSenderAddress->clear();
+    ui->lineEditSenderAddress->setCurrentIndex(-1);
 }
 
 void CreateContract::on_createContract_clicked()
@@ -122,7 +123,7 @@ void CreateContract::on_createContract_clicked()
     ExecRPCCommand::appendParam(lstParams, PARAM_BYTECODE, ui->textEditBytecode->toPlainText());
     ExecRPCCommand::appendParam(lstParams, PARAM_GASLIMIT, QString::number(ui->lineEditGasLimit->value()));
     ExecRPCCommand::appendParam(lstParams, PARAM_GASPRICE, BitcoinUnits::format(unit, ui->lineEditGasPrice->value()));
-    ExecRPCCommand::appendParam(lstParams, PARAM_SENDER, ui->lineEditSenderAddress->text());
+    ExecRPCCommand::appendParam(lstParams, PARAM_SENDER, ui->lineEditSenderAddress->currentText());
 
     // Execute RPC command line
     if(m_execRPCCommand->exec(lstParams, result, resultJson, errorMessage))
@@ -136,7 +137,7 @@ void CreateContract::on_createContract_clicked()
     }
 }
 
-void CreateContract::on_updateGasValues()
+void CreateContract::on_numBlocksChanged()
 {
     if(m_clientModel)
     {
@@ -149,6 +150,8 @@ void CreateContract::on_updateGasValues()
         ui->labelGasPrice->setToolTip(tr("Gas price: QTUM price per gas unit. Default = %1, Min = %2").arg(QString::fromStdString(FormatMoney(DEFAULT_GAS_PRICE))).arg(QString::fromStdString(FormatMoney(minGasPrice))));
         ui->lineEditGasPrice->setMinimum(minGasPrice);
         ui->lineEditGasLimit->setMaximum(blockGasLimit);
+
+        ui->lineEditSenderAddress->on_refresh();
     }
 }
 

@@ -29,7 +29,7 @@ Q_SIGNALS:
 public Q_SLOTS:
     void on_clearAll_clicked();
     void on_createContract_clicked();
-    void on_updateGasValues();
+    void on_numBlocksChanged();
     void on_updateCreateButton();
 
 private:
