@@ -104,6 +104,7 @@ void CallContract::on_numBlocksChanged()
     if(m_clientModel)
     {
         ui->lineEditSenderAddress->on_refresh();
+        ui->lineEditContractAddress->on_refresh();
     }
 }
 

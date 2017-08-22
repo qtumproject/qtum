@@ -151,6 +151,7 @@ void SendToContract::on_numBlocksChanged()
         ui->lineEditGasLimit->setMaximum(blockGasLimit);
 
         ui->lineEditSenderAddress->on_refresh();
+        ui->lineEditContractAddress->on_refresh();
     }
 }
 
