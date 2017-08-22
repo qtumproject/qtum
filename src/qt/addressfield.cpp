@@ -20,6 +20,10 @@ AddressField::AddressField(QWidget *parent) :
     setEditable(true);
     completer()->setCompletionMode(QCompleter::PopupCompletion);
     connect(lineEdit(), SIGNAL(editingFinished()), this, SLOT(on_editingFinished()));
+
+    // Limit the number of visible items in the list
+    setStyleSheet("combobox-popup: 0;");
+    setMaxVisibleItems(15);
 }
 
 QString AddressField::currentText() const
