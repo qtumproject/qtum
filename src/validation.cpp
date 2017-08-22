@@ -3881,14 +3881,14 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
             return state.Invalid(false, state.GetRejectCode(), state.GetRejectReason(),
                                  strprintf("Transaction check failed (tx hash %s) %s", tx->GetHash().ToString(),
                                            state.GetDebugMessage()));
-        //OP_SPEND can only exist immediately after a contract tx in a block
+        //OP_SPEND can only exist immediately after a contract tx in a block, or after another OP_SPEND
         //So, if the previous tx was not a contract tx, fail it.
         if(tx->HasOpSpend()){
             if(!lastWasContract){
                 return state.DoS(100, false, REJECT_INVALID, "bad-opspend-tx", false, "OP_SPEND transaction without corresponding contract transaction");
             }
         }
-        lastWasContract = tx->HasCreateOrCall() && !tx->HasOpSpend();
+        lastWasContract = tx->HasCreateOrCall() || tx->HasOpSpend();
     }
 
     unsigned int nSigOps = 0;

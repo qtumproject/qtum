@@ -193,6 +193,14 @@ QString ClientModel::getStatusBarWarnings() const
     return QString::fromStdString(GetWarnings("gui"));
 }
 
+void ClientModel::getGasInfo(uint64_t& blockGasLimit, uint64_t& minGasPrice, uint64_t& nGasPrice) const
+{
+    QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
+    blockGasLimit = qtumDGP.getBlockGasLimit(chainActive.Height());
+    minGasPrice = CAmount(qtumDGP.getMinGasPrice(chainActive.Height()));
+    nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
+}
+
 OptionsModel *ClientModel::getOptionsModel()
 {
     return optionsModel;

@@ -38,11 +38,11 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *_platformStyle, QWidget *p
     clientModel(0),
     model(0),
     fNewRecipientAllowed(true),
-    fFeeMinimized(true),
     platformStyle(_platformStyle)
 {
     ui->setupUi(this);
     ui->groupBoxFee->setStyleSheet(STYLE_GROUPBOX);
+    ui->groupBoxCoinControl->setStyleSheet(STYLE_GROUPBOX);
 
     if (!_platformStyle->getImagesOnButtons()) {
         ui->addButton->setIcon(QIcon());
@@ -91,8 +91,6 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *_platformStyle, QWidget *p
 
     // init transaction fee section
     QSettings settings;
-    if (!settings.contains("fFeeSectionMinimized"))
-        settings.setValue("fFeeSectionMinimized", true);
     if (!settings.contains("nFeeRadio") && settings.contains("nTransactionFee") && settings.value("nTransactionFee").toLongLong() > 0) // compatibility
         settings.setValue("nFeeRadio", 1); // custom
     if (!settings.contains("nFeeRadio"))
@@ -115,7 +113,7 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *_platformStyle, QWidget *p
     ui->groupCustomFee->button((int)std::max(0, std::min(1, settings.value("nCustomFeeRadio").toInt())))->setChecked(true);
     ui->customFee->setValue(settings.value("nTransactionFee").toLongLong());
     ui->checkBoxMinimumFee->setChecked(settings.value("fPayOnlyMinFee").toBool());
-    minimizeFeeSection(settings.value("fFeeSectionMinimized").toBool());
+    minimizeFeeSection(true);
 }
 
 void SendCoinsDialog::setClientModel(ClientModel *_clientModel)
@@ -151,7 +149,7 @@ void SendCoinsDialog::setModel(WalletModel *_model)
         // Coin Control
         connect(_model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(coinControlUpdateLabels()));
         connect(_model->getOptionsModel(), SIGNAL(coinControlFeaturesChanged(bool)), this, SLOT(coinControlFeatureChanged(bool)));
-        ui->frameCoinControl->setVisible(_model->getOptionsModel()->getCoinControlFeatures());
+        ui->groupBoxCoinControl->setVisible(_model->getOptionsModel()->getCoinControlFeatures());
         coinControlUpdateLabels();
 
         // fee section
@@ -187,7 +185,6 @@ void SendCoinsDialog::setModel(WalletModel *_model)
 SendCoinsDialog::~SendCoinsDialog()
 {
     QSettings settings;
-    settings.setValue("fFeeSectionMinimized", fFeeMinimized);
     settings.setValue("nFeeRadio", ui->groupFee->checkedId());
     settings.setValue("nCustomFeeRadio", ui->groupCustomFee->checkedId());
     settings.setValue("nSmartFeeSliderPosition", ui->sliderSmartFee->value());
@@ -565,7 +562,6 @@ void SendCoinsDialog::minimizeFeeSection(bool fMinimize)
     ui->buttonMinimizeFee->setVisible(!fMinimize);
     ui->frameFeeSelection->setVisible(!fMinimize);
     ui->horizontalLayoutSmartFee->setContentsMargins(0, (fMinimize ? 0 : 6), 0, 0);
-    fFeeMinimized = fMinimize;
 }
 
 void SendCoinsDialog::on_buttonChooseFee_clicked()
@@ -717,7 +713,7 @@ void SendCoinsDialog::coinControlClipboardChange()
 // Coin Control: settings menu - coin control enabled/disabled by user
 void SendCoinsDialog::coinControlFeatureChanged(bool checked)
 {
-    ui->frameCoinControl->setVisible(checked);
+    ui->groupBoxCoinControl->setVisible(checked);
 
     if (!checked && model) // coin control features disabled
         CoinControlDialog::coinControl->SetNull();

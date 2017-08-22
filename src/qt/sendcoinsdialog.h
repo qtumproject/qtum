@@ -60,7 +60,6 @@ private:
     ClientModel *clientModel;
     WalletModel *model;
     bool fNewRecipientAllowed;
-    bool fFeeMinimized;
     const PlatformStyle *platformStyle;
 
     // Process WalletModel::SendCoinsReturn and generate a pair consisting

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>855</width>
-    <height>636</height>
+    <height>679</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,81 +18,25 @@
     <number>8</number>
    </property>
    <item>
-    <widget class="QFrame" name="frameCoinControl">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
+    <widget class="QGroupBox" name="groupBoxCoinControl">
+     <property name="title">
+      <string>Coin Control Features</string>
      </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Sunken</enum>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayoutCoinControl2">
-      <property name="spacing">
-       <number>0</number>
-      </property>
-      <property name="leftMargin">
-       <number>0</number>
-      </property>
-      <property name="topMargin">
-       <number>0</number>
-      </property>
-      <property name="rightMargin">
-       <number>0</number>
-      </property>
+     <layout class="QVBoxLayout" name="verticalLayout_4">
       <property name="bottomMargin">
        <number>6</number>
       </property>
       <item>
-       <layout class="QVBoxLayout" name="verticalLayoutCoinControl" stretch="0,0,0,0,1">
+       <layout class="QVBoxLayout" name="verticalLayoutCoinControl" stretch="0,0,0,1">
         <property name="spacing">
          <number>0</number>
         </property>
         <property name="leftMargin">
-         <number>10</number>
+         <number>0</number>
         </property>
         <property name="topMargin">
-         <number>10</number>
+         <number>0</number>
         </property>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayoutCoinControl1">
-          <property name="bottomMargin">
-           <number>15</number>
-          </property>
-          <item>
-           <widget class="QLabel" name="labelCoinControlFeatures">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="font">
-             <font>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">font-weight:bold;</string>
-            </property>
-            <property name="text">
-             <string>Coin Control Features</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayoutCoinControl2" stretch="0,0,0,0">
           <property name="spacing">
@@ -205,7 +149,7 @@
                 <number>10</number>
                </property>
                <property name="verticalSpacing">
-                <number>14</number>
+                <number>6</number>
                </property>
                <property name="leftMargin">
                 <number>10</number>
@@ -288,7 +232,7 @@
                 <number>10</number>
                </property>
                <property name="verticalSpacing">
-                <number>14</number>
+                <number>6</number>
                </property>
                <property name="leftMargin">
                 <number>6</number>
@@ -368,7 +312,7 @@
                 <number>10</number>
                </property>
                <property name="verticalSpacing">
-                <number>14</number>
+                <number>6</number>
                </property>
                <property name="leftMargin">
                 <number>6</number>
@@ -419,7 +363,7 @@
                 <number>10</number>
                </property>
                <property name="verticalSpacing">
-                <number>14</number>
+                <number>6</number>
                </property>
                <property name="leftMargin">
                 <number>6</number>
@@ -579,6 +523,12 @@
    </item>
    <item>
     <widget class="QScrollArea" name="scrollArea">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>115</height>
+      </size>
+     </property>
      <property name="widgetResizable">
       <bool>true</bool>
      </property>
@@ -588,10 +538,10 @@
         <x>0</x>
         <y>0</y>
         <width>835</width>
-        <height>92</height>
+        <height>183</height>
        </rect>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,1">
+      <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,1,0,0">
        <property name="leftMargin">
         <number>0</number>
        </property>
@@ -661,7 +611,7 @@
          <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
-           <height>10</height>
+           <height>6</height>
           </size>
          </property>
         </spacer>
@@ -676,6 +626,15 @@
       <string>Transaction Fee:</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>6</number>
+      </property>
+      <property name="bottomMargin">
+       <number>6</number>
+      </property>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayoutFee1">
         <property name="bottomMargin">
@@ -697,7 +656,7 @@
             <property name="sizeHint" stdset="0">
              <size>
               <width>1</width>
-              <height>4</height>
+              <height>2</height>
              </size>
             </property>
            </spacer>
@@ -795,7 +754,7 @@
            <item>
             <layout class="QGridLayout" name="gridLayoutFee">
              <property name="topMargin">
-              <number>10</number>
+              <number>0</number>
              </property>
              <property name="bottomMargin">
               <number>4</number>

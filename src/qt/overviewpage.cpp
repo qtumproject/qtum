@@ -46,11 +46,12 @@ public:
         QRect dateAddressRect(mainRect.left() + xspace, mainRect.top() + ypad, mainRect.width(), mainRect.height() - ypad);
         QRect dateRect(dateAddressRect.left(), dateAddressRect.top(), dateAddressRect.width(), halfheight);
         QRect addressRect(dateAddressRect.left(), dateRect.bottom(), dateAddressRect.width(), halfheight);
-        QRect amountRect(mainRect.right()-155, mainRect.top(), 155, mainRect.height());
+        QRect amountRect(mainRect.right()-172, mainRect.top(), 172, mainRect.height());
 
         painter->setPen(QColor("#c4c1bd"));
-        painter->drawRect(mainRect);
-        painter->drawRect(amountRect);
+        QColor txColor = index.row() % 2 ? QColor("#ededed") : QColor("#e3e3e3");
+        painter->fillRect(mainRect, txColor);
+        painter->drawLine(amountRect.left() -3, amountRect.top() + 5, amountRect.left() - 3, amountRect.bottom() - 5);
         icon = platformStyle->SingleColorIcon(icon);
         icon.paint(painter, decorationRect);
 
@@ -144,7 +145,7 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     ui->listTransactions->setItemDelegate(txdelegate);
     ui->listTransactions->setIconSize(QSize(DECORATION_SIZE, DECORATION_SIZE));
     ui->listTransactions->setMinimumHeight(NUM_ITEMS * (DECORATION_SIZE + 2));
-    ui->listTransactions->setMinimumWidth(570);
+    ui->listTransactions->setMinimumWidth(590);
     ui->listTransactions->setAttribute(Qt::WA_MacShowFocusRect, false);
 
     connect(ui->listTransactions, SIGNAL(clicked(QModelIndex)), this, SLOT(handleTransactionClicked(QModelIndex)));

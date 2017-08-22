@@ -1,9 +1,11 @@
 #include "callcontract.h"
 #include "ui_callcontract.h"
 #include "platformstyle.h"
+#include "clientmodel.h"
 #include "guiconstants.h"
 #include "rpcconsole.h"
 #include "execrpccommand.h"
+#include <QComboBox>
 
 namespace CallContract_NS
 {
@@ -17,7 +19,9 @@ using namespace CallContract_NS;
 
 CallContract::CallContract(const PlatformStyle *platformStyle, QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::CallContract)
+    ui(new Ui::CallContract),
+    m_clientModel(0),
+    m_execRPCCommand(0)
 {
     // Setup ui components
     Q_UNUSED(platformStyle);
@@ -26,6 +30,7 @@ CallContract::CallContract(const PlatformStyle *platformStyle, QWidget *parent) 
     ui->labelContractAddress->setToolTip(tr("The account address."));
     ui->labelDataHex->setToolTip(tr("The data hex string."));
     ui->labelSenderAddress->setToolTip(tr("The sender address hex string."));
+    ui->pushButtonCallContract->setEnabled(false);
 
     // Create new PRC command line interface
     QStringList lstMandatory;
@@ -42,6 +47,8 @@ CallContract::CallContract(const PlatformStyle *platformStyle, QWidget *parent) 
     // Connect signals with slots
     connect(ui->pushButtonClearAll, SIGNAL(clicked()), SLOT(on_clearAll_clicked()));
     connect(ui->pushButtonCallContract, SIGNAL(clicked()), SLOT(on_callContract_clicked()));
+    connect(ui->lineEditContractAddress, SIGNAL(editTextChanged(QString)), SLOT(on_updateCallContractButton()));
+    connect(ui->lineEditDataHex, SIGNAL(textChanged(QString)), SLOT(on_updateCallContractButton()));
 }
 
 CallContract::~CallContract()
@@ -49,11 +56,22 @@ CallContract::~CallContract()
     delete ui;
 }
 
+void CallContract::setClientModel(ClientModel *_clientModel)
+{
+    m_clientModel = _clientModel;
+
+    if (m_clientModel) 
+    {
+        connect(m_clientModel, SIGNAL(numBlocksChanged(int,QDateTime,double,bool)), this, SLOT(on_numBlocksChanged()));
+        on_numBlocksChanged();
+    }
+}
+
 void CallContract::on_clearAll_clicked()
 {
-    ui->lineEditContractAddress->clear();
+    ui->lineEditContractAddress->setCurrentIndex(-1);
     ui->lineEditDataHex->clear();
-    ui->lineEditSenderAddress->clear();
+    ui->lineEditSenderAddress->setCurrentIndex(-1);
 }
 
 void CallContract::on_callContract_clicked()
@@ -65,9 +83,9 @@ void CallContract::on_callContract_clicked()
     QString resultJson;
 
     // Append params to the list
-    ExecRPCCommand::appendParam(lstParams, PARAM_ADDRESS, ui->lineEditContractAddress->text());
+    ExecRPCCommand::appendParam(lstParams, PARAM_ADDRESS, ui->lineEditContractAddress->currentText());
     ExecRPCCommand::appendParam(lstParams, PARAM_DATAHEX, ui->lineEditDataHex->text());
-    ExecRPCCommand::appendParam(lstParams, PARAM_SENDER, ui->lineEditSenderAddress->text());
+    ExecRPCCommand::appendParam(lstParams, PARAM_SENDER, ui->lineEditSenderAddress->currentText());
 
     // Execute RPC command line
     if(m_execRPCCommand->exec(lstParams, result, resultJson, errorMessage))
@@ -78,5 +96,26 @@ void CallContract::on_callContract_clicked()
     else
     {
         QMessageBox::warning(this, tr("Call contract"), errorMessage);
+    }
+}
+
+void CallContract::on_numBlocksChanged()
+{
+    if(m_clientModel)
+    {
+        ui->lineEditSenderAddress->on_refresh();
+        ui->lineEditContractAddress->on_refresh();
+    }
+}
+
+void CallContract::on_updateCallContractButton()
+{
+    if(ui->lineEditContractAddress->currentText().isEmpty() || ui->lineEditDataHex->text().isEmpty())
+    {
+        ui->pushButtonCallContract->setEnabled(false);
+    }
+    else
+    {
+        ui->pushButtonCallContract->setEnabled(true);
     }
 }
