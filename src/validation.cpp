@@ -2575,6 +2575,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     std::vector<std::pair<uint256, CDiskTxPos> > vPos;
     vPos.reserve(block.vtx.size());
     blockundo.vtxundo.reserve(block.vtx.size() - 1);
+
+    ///////////////////////////////////////////////////////// // qtum
+    std::vector<std::pair<CHeightTxIndexKey, uint256>> heightIndexes;
+    /////////////////////////////////////////////////////////
+
     std::vector<PrecomputedTransactionData> txdata;
     txdata.reserve(block.vtx.size()); // Required so that pointers to individual PrecomputedTransactionData don't get invalidated
     uint64_t blockGasUsed = 0;
@@ -2721,6 +2726,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             countCumulativeGasUsed += bcer.usedGas;
             std::vector<TransactionReceiptInfo> tri;
             for(size_t k = 0; k < resultConvertQtumTX.first.size(); k ++){
+                CHeightTxIndexKey heightIndex;
+                heightIndex.height = pindex->nHeight + 1;
+                heightIndex.address = resultExec[k].execRes.newAddress;
+                heightIndexes.push_back({heightIndex, tx.GetHash()});
+
                 tri.push_back(TransactionReceiptInfo{block.GetHash(), uint32_t(pindex->nHeight), tx.GetHash(), uint32_t(i), resultConvertQtumTX.first[k].from(), resultConvertQtumTX.first[k].to(),
                               countCumulativeGasUsed, uint64_t(resultExec[k].execRes.gasUsed), resultExec[k].execRes.newAddress, resultExec[k].txRec.log()});
             }
@@ -2874,6 +2884,12 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         setDirtyBlockIndex.insert(pindex);
     }
 
+    for (const auto& e: heightIndexes)
+    {
+        if (!pblocktree->WriteHeightIndex(e.first, e.second))
+            return AbortNode(state, "Failed to write height index");
+    }    
+    
     if (fTxIndex)
         if (!pblocktree->WriteTxIndex(vPos))
             return AbortNode(state, "Failed to write transaction index");

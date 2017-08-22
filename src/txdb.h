@@ -17,6 +17,8 @@
 
 #include <boost/function.hpp>
 
+#include <validation.h> // temp
+
 class CBlockIndex;
 class CCoinsViewDBCursor;
 class uint256;
@@ -117,6 +119,13 @@ public:
     bool WriteFlag(const std::string &name, bool fValue);
     bool ReadFlag(const std::string &name, bool &fValue);
     bool LoadBlockIndexGuts(boost::function<CBlockIndex*(const uint256&)> insertBlockIndex);
+    
+    ////////////////////////////////////////////////////////////////////////////// // qtum
+    bool WriteHeightIndex(const CHeightTxIndexKey &heightIndex, const uint256&);
+    bool ReadHeightIndex(const unsigned int &high, const unsigned int &low, 
+                                std::vector<uint256> &hashes, std::set<dev::h160> addresses);
+
+    //////////////////////////////////////////////////////////////////////////////
 };
 
 #endif // BITCOIN_TXDB_H
