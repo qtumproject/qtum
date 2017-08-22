@@ -412,12 +412,12 @@ struct CHeightTxIndexKey {
     }
     template<typename Stream>
     void Serialize(Stream& s) const {
-        s << height;
+        ser_writedata32be(s, height);
         s << address.asBytes();
     }
     template<typename Stream>
     void Unserialize(Stream& s) {
-        s >> height;
+        height = ser_readdata32be(s);
         valtype tmp;
         s >> tmp;
         address = dev::h160(tmp);

@@ -2726,10 +2726,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             countCumulativeGasUsed += bcer.usedGas;
             std::vector<TransactionReceiptInfo> tri;
             for(size_t k = 0; k < resultConvertQtumTX.first.size(); k ++){
-                CHeightTxIndexKey heightIndex;
-                heightIndex.height = pindex->nHeight + 1;
-                heightIndex.address = resultExec[k].execRes.newAddress;
-                heightIndexes.push_back({heightIndex, tx.GetHash()});
+                heightIndexes.push_back({CHeightTxIndexKey(pindex->nHeight, resultExec[k].execRes.newAddress), tx.GetHash()});
 
                 tri.push_back(TransactionReceiptInfo{block.GetHash(), uint32_t(pindex->nHeight), tx.GetHash(), uint32_t(i), resultConvertQtumTX.first[k].from(), resultConvertQtumTX.first[k].to(),
                               countCumulativeGasUsed, uint64_t(resultExec[k].execRes.gasUsed), resultExec[k].execRes.newAddress, resultExec[k].txRec.log()});
