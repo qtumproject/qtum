@@ -1075,19 +1075,19 @@ bool getTopicsFromParams(const UniValue& params, std::vector<std::pair<unsigned,
     return true;
 }
 
-UniValue getlogs(const JSONRPCRequest& request)
+UniValue searchlogs(const JSONRPCRequest& request)
 {
     if (request.fHelp || request.params.size() < 2)
         throw runtime_error(
-             "getlogs <fromBlock> <toBlock> (address) (topics)\n"
+             "searchlogs <fromBlock> <toBlock> (address) (topics)\n"
              "\nArgument:\n"
              "1. \"fromBlock\"        (numeric, required) The number of the earliest block (latest may be given to mean the most recent block).\n"
              "2. \"toBlock\"          (string, required) The number of the latest block (latest may be given to mean the most recent block).\n"
              "3. \"address\"          (string, optional) An address or a list of addresses to only get logs from particular account(s).\n"
              "4. \"topics\"           (string, optional) An array of values which must each appear in the log entries. The order is important, if you want to leave topics out use null, e.g. [\"null\", \"0x00...\"]. \n"
              "\nExamples:\n"
-            + HelpExampleCli("getlogs", "0 100 '{\"addresses\": [\"12ae42729af478ca92c8c66773a3e32115717be4\"]}' '{\"topics\": [\"null\",\"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"]}'")
-            + HelpExampleRpc("getlogs", "0 100 {\"addresses\": [\"12ae42729af478ca92c8c66773a3e32115717be4\"]} {\"topics\": [\"null\",\"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"]}")
+            + HelpExampleCli("searchlogs", "0 100 '{\"addresses\": [\"12ae42729af478ca92c8c66773a3e32115717be4\"]}' '{\"topics\": [\"null\",\"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"]}'")
+            + HelpExampleRpc("searchlogs", "0 100 {\"addresses\": [\"12ae42729af478ca92c8c66773a3e32115717be4\"]} {\"topics\": [\"null\",\"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"]}")
          );
  
     LOCK(cs_main);
@@ -1933,7 +1933,7 @@ static const CRPCCommand commands[] =
     { "hidden",             "waitforblockheight",     &waitforblockheight,     true,  {"height","timeout"} },
 	{ "blockchain",         "listcontracts",          &listcontracts,          true,  {"start", "maxDisplay"} },
     { "blockchain",         "gettransactionreceipt",  &gettransactionreceipt,  true,  {"hash"} },
-    { "blockchain",         "getlogs",                &getlogs,                true,  {"fromBlock", "toBlock", "address", "topics"} },
+    { "blockchain",         "searchlogs",             &searchlogs,             true,  {"fromBlock", "toBlock", "address", "topics"} },
 };
 
 void RegisterBlockchainRPCCommands(CRPCTable &t)
