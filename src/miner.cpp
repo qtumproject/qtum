@@ -186,6 +186,8 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     if(fProofOfStake)
         txProofTime &= ~STAKE_TIMESTAMP_MASK;
     pblock->nTime = txProofTime;
+    if (!fProofOfStake)
+        UpdateTime(pblock, chainparams.GetConsensus(), pindexPrev);
     pblock->nBits = GetNextWorkRequired(pindexPrev, pblock, chainparams.GetConsensus(),fProofOfStake);
     const int64_t nMedianTimePast = pindexPrev->GetMedianTimePast();
 
@@ -274,9 +276,6 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
 
     // Fill in header
     pblock->hashPrevBlock  = pindexPrev->GetBlockHash();
-    if (!fProofOfStake)
-        UpdateTime(pblock, chainparams.GetConsensus(), pindexPrev);
-    pblock->nBits          = GetNextWorkRequired(pindexPrev, pblock, chainparams.GetConsensus(),fProofOfStake);
     pblock->nNonce         = 0;
     pblocktemplate->vTxSigOpsCost[0] = WITNESS_SCALE_FACTOR * GetLegacySigOpCount(*pblock->vtx[0]);
 
