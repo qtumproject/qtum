@@ -231,6 +231,7 @@ public:
         // nodes with support for servicebits filtering should be at the top
         //vSeeds.push_back(CDNSSeedData("testnetbitcoin.jonasschnelli.ch", "testnet-seed.bitcoin.jonasschnelli.ch", true));
 
+        vSeeds.push_back(CDNSSeedData("qtum-testnet1.earlz.net", "qtum-testnet1.earlz.net", false)); // Qtum testnet
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,120);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,110);
