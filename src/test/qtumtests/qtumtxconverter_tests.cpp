@@ -65,13 +65,42 @@ void runTest(bool isCreation, size_t n, CScript& script1, CScript script2 = CScr
     tx2 = createTX(outs2, hashParentTx);
     CTransaction transaction(tx2);
     QtumTxConverter converter(transaction, NULL);
-    std::vector<QtumTransaction> result = converter.extractionQtumTransactions().first;
+    ExtractQtumTX qtumTx;
+    BOOST_CHECK(converter.extractionQtumTransactions(qtumTx));
+    std::vector<QtumTransaction> result = qtumTx.first;
     if(script2 == CScript()){
         BOOST_CHECK(result.size() == n);
     } else {
         BOOST_CHECK(result.size() == n / 2);
     }
     checkResult(isCreation, result, tx2.GetHash());
+}
+
+void runFailingTest(bool isCreation, size_t n, CScript& script1, CScript script2 = CScript()){
+    mempool.clear();
+    TestMemPoolEntryHelper entry;
+    CMutableTransaction tx1, tx2;
+    std::vector<CTxOut> outs1 = {CTxOut(value, CScript() << OP_DUP << OP_HASH160 << address << OP_EQUALVERIFY << OP_CHECKSIG)};
+    tx1 = createTX(outs1);
+    uint256 hashParentTx = tx1.GetHash(); // save this txid for later use
+    mempool.addUnchecked(hashParentTx, entry.Fee(1000).Time(GetTime()).SpendsCoinbase(true).FromTx(tx1));
+    std::vector<CTxOut> outs2;
+    for(size_t i = 0; i < n; i++){
+        if(script2 == CScript()){
+            outs2.push_back(CTxOut(value, script1));
+        } else {
+            if(i < n / 2){
+                outs2.push_back(CTxOut(value, script1));
+            } else {
+                outs2.push_back(CTxOut(value, script2));
+            }
+        }
+    }
+    tx2 = createTX(outs2, hashParentTx);
+    CTransaction transaction(tx2);
+    QtumTxConverter converter(transaction, NULL);
+    ExtractQtumTX qtumTx;
+    BOOST_CHECK(!converter.extractionQtumTransactions(qtumTx));
 }
 
 BOOST_FIXTURE_TEST_SUITE(qtumtxconverter_tests, TestingSetup)
@@ -86,9 +115,20 @@ BOOST_AUTO_TEST_CASE(parse_txcall){
     runTest(false, 1, script1);
 }
 
+BOOST_AUTO_TEST_CASE(parse_txcall_mixed){
+    CScript script1 = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(int64_t(gasLimit)) << CScriptNum(int64_t(gasPrice)) << data << address << OP_CALL;
+    CScript script2 = CScript() << OP_TRUE;
+    runTest(false, 1, script1, script2);
+}
+
 BOOST_AUTO_TEST_CASE(parse_txcreate_many_vout){
     CScript script1 = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(int64_t(gasLimit)) << CScriptNum(int64_t(gasPrice)) << data << OP_CREATE;
     runTest(true, 120, script1);
+}
+BOOST_AUTO_TEST_CASE(parse_txcreate_many_vout_mixed){
+    CScript script1 = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(int64_t(gasLimit)) << CScriptNum(int64_t(gasPrice)) << data << OP_CREATE;
+    CScript script2 = CScript() << OP_TRUE;
+    runTest(true, 120, script1, script2);
 }
 
 BOOST_AUTO_TEST_CASE(parse_txcall_many_vout){
@@ -99,25 +139,25 @@ BOOST_AUTO_TEST_CASE(parse_txcall_many_vout){
 BOOST_AUTO_TEST_CASE(parse_incorrect_txcreate_many){
     CScript script1 = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(int64_t(gasLimit)) << CScriptNum(int64_t(gasPrice)) << data << OP_CREATE;
     CScript script2 = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(int64_t(gasLimit)) << CScriptNum(int64_t(gasPrice)) << data << address << OP_CREATE;
-    runTest(true, 120, script1, script2);
+    runFailingTest(true, 120, script1, script2);
 }
 
 BOOST_AUTO_TEST_CASE(parse_incorrect_txcreate_few){
     CScript script1 = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(int64_t(gasLimit)) << CScriptNum(int64_t(gasPrice)) << data << OP_CREATE;
     CScript script2 = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(int64_t(gasLimit)) << CScriptNum(int64_t(gasPrice)) << OP_CREATE;
-    runTest(true, 120, script1, script2);
+    runFailingTest(true, 120, script1, script2);
 }
 
 BOOST_AUTO_TEST_CASE(parse_incorrect_txcall_many){
     CScript script1 = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(int64_t(gasLimit)) << CScriptNum(int64_t(gasPrice)) << data << address << OP_CALL;
     CScript script2 = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(int64_t(gasLimit)) << CScriptNum(int64_t(gasPrice)) << data << address << address << OP_CALL;
-    runTest(false, 120, script1, script2);
+    runFailingTest(false, 120, script1, script2);
 }
 
 BOOST_AUTO_TEST_CASE(parse_incorrect_txcall_few){
     CScript script1 = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(int64_t(gasLimit)) << CScriptNum(int64_t(gasPrice)) << data << address << OP_CALL;
     CScript script2 = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(int64_t(gasLimit)) << CScriptNum(int64_t(gasPrice)) << data << OP_CALL;
-    runTest(false, 120, script1, script2);
+    runFailingTest(false, 120, script1, script2);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
