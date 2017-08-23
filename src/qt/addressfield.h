@@ -21,7 +21,7 @@ public:
     /**
      * @brief The AddressType enum Type of addresses that will be displayed
      */
-    enum AddressType { UTXO, Contract };
+    enum AddressType { UTXO };
 
     Q_ENUM(AddressType)
 

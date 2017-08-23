@@ -47,7 +47,7 @@ CallContract::CallContract(const PlatformStyle *platformStyle, QWidget *parent) 
     // Connect signals with slots
     connect(ui->pushButtonClearAll, SIGNAL(clicked()), SLOT(on_clearAll_clicked()));
     connect(ui->pushButtonCallContract, SIGNAL(clicked()), SLOT(on_callContract_clicked()));
-    connect(ui->lineEditContractAddress, SIGNAL(editTextChanged(QString)), SLOT(on_updateCallContractButton()));
+    connect(ui->lineEditContractAddress, SIGNAL(textChanged(QString)), SLOT(on_updateCallContractButton()));
     connect(ui->lineEditDataHex, SIGNAL(textChanged(QString)), SLOT(on_updateCallContractButton()));
 }
 
@@ -69,7 +69,7 @@ void CallContract::setClientModel(ClientModel *_clientModel)
 
 void CallContract::on_clearAll_clicked()
 {
-    ui->lineEditContractAddress->setCurrentIndex(-1);
+    ui->lineEditContractAddress->clear();
     ui->lineEditDataHex->clear();
     ui->lineEditSenderAddress->setCurrentIndex(-1);
 }
@@ -83,7 +83,7 @@ void CallContract::on_callContract_clicked()
     QString resultJson;
 
     // Append params to the list
-    ExecRPCCommand::appendParam(lstParams, PARAM_ADDRESS, ui->lineEditContractAddress->currentText());
+    ExecRPCCommand::appendParam(lstParams, PARAM_ADDRESS, ui->lineEditContractAddress->text());
     ExecRPCCommand::appendParam(lstParams, PARAM_DATAHEX, ui->lineEditDataHex->text());
     ExecRPCCommand::appendParam(lstParams, PARAM_SENDER, ui->lineEditSenderAddress->currentText());
 
@@ -104,13 +104,12 @@ void CallContract::on_numBlocksChanged()
     if(m_clientModel)
     {
         ui->lineEditSenderAddress->on_refresh();
-        ui->lineEditContractAddress->on_refresh();
     }
 }
 
 void CallContract::on_updateCallContractButton()
 {
-    if(ui->lineEditContractAddress->currentText().isEmpty() || ui->lineEditDataHex->text().isEmpty())
+    if(ui->lineEditContractAddress->text().isEmpty() || ui->lineEditDataHex->text().isEmpty())
     {
         ui->pushButtonCallContract->setEnabled(false);
     }

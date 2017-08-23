@@ -65,14 +65,6 @@ void AddressField::on_refresh()
             }
         }
     }
-    else
-    {
-        auto map = globalState->addresses();
-        for (auto it = map.begin(); it!=map.end(); it++)
-        {
-            m_stringList.append(QString::fromStdString(it->first.hex()));
-        }
-    }
 
     // Update the current index
     int index = m_stringList.indexOf(currentAddress);

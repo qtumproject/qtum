@@ -72,7 +72,7 @@ SendToContract::SendToContract(const PlatformStyle *platformStyle, QWidget *pare
     // Connect signals with slots
     connect(ui->pushButtonClearAll, SIGNAL(clicked()), SLOT(on_clearAll_clicked()));
     connect(ui->pushButtonSendToContract, SIGNAL(clicked()), SLOT(on_sendToContract_clicked()));
-    connect(ui->lineEditContractAddress, SIGNAL(editTextChanged(QString)), SLOT(on_updateCallContractButton()));
+    connect(ui->lineEditContractAddress, SIGNAL(textChanged(QString)), SLOT(on_updateCallContractButton()));
     connect(ui->lineEditDataHex, SIGNAL(textChanged(QString)), SLOT(on_updateSendToContractButton()));
 }
 
@@ -99,7 +99,7 @@ void SendToContract::setClientModel(ClientModel *_clientModel)
 
 void SendToContract::on_clearAll_clicked()
 {
-    ui->lineEditContractAddress->setCurrentIndex(-1);
+    ui->lineEditContractAddress->clear();
     ui->lineEditDataHex->clear();
     ui->lineEditAmount->clear();
     ui->lineEditGasLimit->setValue(DEFAULT_GAS_LIMIT_OP_SEND);
@@ -117,7 +117,7 @@ void SendToContract::on_sendToContract_clicked()
     int unit = m_model->getOptionsModel()->getDisplayUnit();
 
     // Append params to the list
-    ExecRPCCommand::appendParam(lstParams, PARAM_ADDRESS, ui->lineEditContractAddress->currentText());
+    ExecRPCCommand::appendParam(lstParams, PARAM_ADDRESS, ui->lineEditContractAddress->text());
     ExecRPCCommand::appendParam(lstParams, PARAM_DATAHEX, ui->lineEditDataHex->text());
     ExecRPCCommand::appendParam(lstParams, PARAM_AMOUNT, BitcoinUnits::format(unit, ui->lineEditAmount->value()));
     ExecRPCCommand::appendParam(lstParams, PARAM_GASLIMIT, QString::number(ui->lineEditGasLimit->value()));
@@ -151,13 +151,12 @@ void SendToContract::on_numBlocksChanged()
         ui->lineEditGasLimit->setMaximum(blockGasLimit);
 
         ui->lineEditSenderAddress->on_refresh();
-        ui->lineEditContractAddress->on_refresh();
     }
 }
 
 void SendToContract::on_updateSendToContractButton()
 {
-    if(ui->lineEditContractAddress->currentText().isEmpty() || ui->lineEditDataHex->text().isEmpty())
+    if(ui->lineEditContractAddress->text().isEmpty() || ui->lineEditDataHex->text().isEmpty())
     {
         ui->pushButtonSendToContract->setEnabled(false);
     }
