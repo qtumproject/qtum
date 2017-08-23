@@ -1866,6 +1866,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
         boost::filesystem::path stateDir = GetDataDir() / "stateQtum";
         StorageResults storageRes(stateDir.string());
         storageRes.deleteResults(block.vtx);
+        pblocktree->EraseHeightIndex(pindex->nHeight);
     }
 
     if (pfClean) {

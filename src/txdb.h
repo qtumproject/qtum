@@ -124,6 +124,7 @@ public:
     bool WriteHeightIndex(const CHeightTxIndexKey &heightIndex, const uint256&);
     bool ReadHeightIndex(const unsigned int &high, const unsigned int &low, 
                                 std::vector<uint256> &hashes, std::set<dev::h160> addresses);
+    bool EraseHeightIndex(const unsigned int &height);
 
     //////////////////////////////////////////////////////////////////////////////
 };
