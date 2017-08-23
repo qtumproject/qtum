@@ -35,8 +35,6 @@ struct ResultExecute{
     CTransaction tx;
 };
 
-
-
 namespace qtum{
     template <class DB>
     dev::AddressHash commit(std::unordered_map<dev::Address, Vin> const& _cache, dev::eth::SecureTrieDB<dev::Address, DB>& _state, std::unordered_map<dev::Address, dev::eth::Account> const& _cacheAcc)
@@ -114,6 +112,35 @@ private:
 
 	std::unordered_map<dev::Address, Vin> cacheUTXO;
 };
+
+
+struct TemporaryState{
+    std::unique_ptr<QtumState>& globalStateRef;
+    dev::h256 oldHashStateRoot;
+    dev::h256 oldHashUTXORoot;
+
+    TemporaryState(std::unique_ptr<QtumState>& _globalStateRef) : 
+        globalStateRef(_globalStateRef),
+        oldHashStateRoot(globalStateRef->rootHash()), 
+        oldHashUTXORoot(globalStateRef->rootHashUTXO()) {}
+                
+    void SetRoot(dev::h256 newHashStateRoot, dev::h256 newHashUTXORoot)
+    {
+        globalStateRef->setRoot(newHashStateRoot);
+        globalStateRef->setRootUTXO(newHashUTXORoot);
+    }
+
+    ~TemporaryState(){
+        globalStateRef->setRoot(oldHashStateRoot);
+        globalStateRef->setRootUTXO(oldHashUTXORoot);
+    }
+    TemporaryState() = delete;
+    TemporaryState(const TemporaryState&) = delete;
+    TemporaryState& operator=(const TemporaryState&) = delete;
+    TemporaryState(TemporaryState&&) = delete;
+    TemporaryState& operator=(TemporaryState&&) = delete;
+};
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 class CondensingTX{
