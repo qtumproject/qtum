@@ -160,4 +160,10 @@ BOOST_AUTO_TEST_CASE(parse_incorrect_txcall_few){
     runFailingTest(false, 120, script1, script2);
 }
 
+BOOST_AUTO_TEST_CASE(parse_incorrect_txcall_overflow){
+    CScript script1 = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(int64_t(gasLimit)) << CScriptNum(int64_t(gasPrice)) << data << address << OP_CALL;
+    CScript script2 = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(int64_t(0x80841e0000000000)) << CScriptNum(int64_t(0x0100000000000000)) << data << address << OP_CALL;
+    runFailingTest(false, 120, script1, script2);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
