@@ -519,8 +519,11 @@ bool BlockAssembler::CheckBlockBeyondFull()
     return true;
 }
 
-bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64_t minGasPrice){
-    if(nTimeLimit != 0 && GetAdjustedTime() >= nTimeLimit-BYTECODE_TIME_BUFFER)
+bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64_t minGasPrice) {
+    if (nTimeLimit != 0 && GetAdjustedTime() >= nTimeLimit - BYTECODE_TIME_BUFFER) {
+        return false;
+    }
+    if (GetBoolArg("-nocontractstaking", false))
     {
         return false;
     }
@@ -1060,7 +1063,7 @@ void ThreadStakeMiner(CWallet *pwallet)
             MilliSleep(10000);
         }
         //don't disable PoS mining for no connections if in regtest mode
-        if(!regtestMode) {
+        if(!regtestMode && !GetBoolArg("-emergencystaking", false)) {
             while (g_connman->GetNodeCount(CConnman::CONNECTIONS_ALL) == 0 || IsInitialBlockDownload()) {
                 nLastCoinStakeSearchInterval = 0;
                 fTryToSync = true;
