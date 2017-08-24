@@ -534,7 +534,12 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64
 
     QtumTxConverter convert(iter->GetTx(), NULL, &pblock->vtx);
 
-    ExtractQtumTX resultConverter = convert.extractionQtumTransactions();
+    ExtractQtumTX resultConverter;
+    if(!convert.extractionQtumTransactions(resultConverter)){
+        //this check already happens when accepting txs into mempool
+        //therefore, this can only be triggered by using raw transactions on the staker itself
+        return false;
+    }
     std::vector<QtumTransaction> qtumTransactions = resultConverter.first;
     for(QtumTransaction qtumTransaction : qtumTransactions){
         if(bceResult.usedGas + qtumTransaction.gas() > blockGasLimit){

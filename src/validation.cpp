@@ -770,7 +770,10 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                 count += o.scriptPubKey.HasOpCreate() || o.scriptPubKey.HasOpCall() ? 1 : 0;
             CAmount sumGas = 0;
             QtumTxConverter converter(tx, NULL);
-            ExtractQtumTX resultConverter = converter.extractionQtumTransactions();
+            ExtractQtumTX resultConverter;
+            if(!converter.extractionQtumTransactions(resultConverter)){
+                return state.DoS(100, error("AcceptToMempool(): Contract transaction of the wrong format"), REJECT_INVALID, "bad-tx-bad-contract-format");
+            }
             std::vector<QtumTransaction> qtumTransactions = resultConverter.first;
             std::vector<EthTransactionParams> qtumETP = resultConverter.second;
 
@@ -779,13 +782,13 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
 
                 VersionVM v = qtumTransaction.getVersion();
                 if(v.format!=0)
-                    return state.DoS(100, error("ConnectBlock(): Contract execution uses unknown version format"), REJECT_INVALID, "bad-tx-version-format");
+                    return state.DoS(100, error("AcceptToMempool(): Contract execution uses unknown version format"), REJECT_INVALID, "bad-tx-version-format");
                 if(!(v.rootVM == 0 || v.rootVM == 1))
-                    return state.DoS(100, error("ConnectBlock(): Contract execution uses unknown root VM"), REJECT_INVALID, "bad-tx-version-rootvm");
+                    return state.DoS(100, error("AcceptToMempool(): Contract execution uses unknown root VM"), REJECT_INVALID, "bad-tx-version-rootvm");
                 if(v.vmVersion != 0)
-                    return state.DoS(100, error("ConnectBlock(): Contract execution uses unknown VM version"), REJECT_INVALID, "bad-tx-version-vmversion");
+                    return state.DoS(100, error("AcceptToMempool(): Contract execution uses unknown VM version"), REJECT_INVALID, "bad-tx-version-vmversion");
                 if(v.flagOptions != 0)
-                    return state.DoS(100, error("ConnectBlock(): Contract execution uses unknown flag options"), REJECT_INVALID, "bad-tx-version-flags");
+                    return state.DoS(100, error("AcceptToMempool(): Contract execution uses unknown flag options"), REJECT_INVALID, "bad-tx-version-flags");
 
                 if(qtumTransaction.gas() > blockGasLimit){
                     return state.DoS(1, false, REJECT_INVALID, "bad-txns-gas-exceeds-blockgaslimit");
@@ -793,14 +796,14 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
 
                 //check gas limit is not less than minimum gas limit (unless it is a no-exec tx)
                 if(qtumTransaction.gas() < MINIMUM_GAS_LIMIT && v.rootVM != 0)
-                    return state.DoS(100, error("ConnectBlock(): Contract execution has lower gas limit than allowed"), REJECT_INVALID, "bad-tx-too-little-gas");
+                    return state.DoS(100, error("AcceptToMempool(): Contract execution has lower gas limit than allowed"), REJECT_INVALID, "bad-tx-too-little-gas");
 
                 if(qtumTransaction.gas() > UINT32_MAX)
-                    return state.DoS(100, error("ConnectBlock(): Contract execution can not specify greater gas limit than can fit in 32-bits"), REJECT_INVALID, "bad-tx-too-much-gas");
+                    return state.DoS(100, error("AcceptToMempool(): Contract execution can not specify greater gas limit than can fit in 32-bits"), REJECT_INVALID, "bad-tx-too-much-gas");
 
                 //don't allow less than DGP set minimum gas price to prevent MPoS greedy mining/spammers
                 if(v.rootVM!=0 && (uint64_t)qtumTransaction.gasPrice() < minGasPrice)
-                    return state.DoS(100, error("ConnectBlock(): Contract execution has lower gas price than allowed"), REJECT_INVALID, "bad-tx-low-gas-price");
+                    return state.DoS(100, error("AcceptToMempool(): Contract execution has lower gas price than allowed"), REJECT_INVALID, "bad-tx-low-gas-price");
             }
 
             if(!CheckMinGasPrice(qtumETP, minGasPrice))
@@ -2299,7 +2302,7 @@ dev::Address ByteCodeExec::EthAddrFromScript(const CScript& scriptIn){
     return dev::Address(addr);
 }
 
-ExtractQtumTX QtumTxConverter::extractionQtumTransactions(){
+bool QtumTxConverter::extractionQtumTransactions(ExtractQtumTX& qtumtx){
     std::vector<QtumTransaction> resultTX;
     std::vector<EthTransactionParams> resultETP;
     for(size_t i = 0; i < txBit.vout.size(); i++){
@@ -2309,11 +2312,16 @@ ExtractQtumTX QtumTxConverter::extractionQtumTransactions(){
                 if(params != EthTransactionParams()){
                     resultTX.push_back(createEthTX(params, i));
                     resultETP.push_back(params);
+                }else{
+                    return false;
                 }
+            }else{
+                return false;
             }
         }
     }
-    return std::make_pair(resultTX, resultETP);
+    qtumtx = std::make_pair(resultTX, resultETP);
+    return true;
 }
 
 bool QtumTxConverter::receiveStack(const CScript& scriptPubKey){
@@ -2345,12 +2353,27 @@ EthTransactionParams QtumTxConverter::parseEthTXParams(){
         }
         if(stack.size() < 4)
             throw scriptnum_error("Not enough items");
+
+        if(stack.back().size() < 1){
+            throw scriptnum_error("bytecode must be greater than 0 bytes");
+        }
         valtype code(stack.back());
         stack.pop_back();
         uint64_t gasPrice = CScriptNum::vch_to_uint64(stack.back());
         stack.pop_back();
         uint64_t gasLimit = CScriptNum::vch_to_uint64(stack.back());
         stack.pop_back();
+        if(gasPrice > INT64_MAX || gasLimit > INT64_MAX){
+            throw scriptnum_error("parameter would cause 64bit overflow");
+        }
+        //we track this as CAmount in some places, which is an int64_t, so constrain to INT64_MAX
+        if(gasPrice !=0 && gasLimit > INT64_MAX / gasPrice){
+            //overflows past 64bits, reject this tx
+            throw scriptnum_error("gasPrice*gasLimit would cause a 64bit overflow");
+        }
+        if(stack.back().size() > 4){
+            throw scriptnum_error("version is not a 32bit data field");
+        }
         VersionVM version = VersionVM::fromRaw((uint32_t)CScriptNum::vch_to_uint64(stack.back()));
         stack.pop_back();
         return EthTransactionParams{version, dev::u256(gasLimit), dev::u256(gasPrice), code, receiveAddress};      
@@ -2620,7 +2643,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
             QtumTxConverter convert(tx, NULL, &block.vtx);
 
-            ExtractQtumTX resultConvertQtumTX = convert.extractionQtumTransactions();
+            ExtractQtumTX resultConvertQtumTX;
+            if(!convert.extractionQtumTransactions(resultConvertQtumTX)){
+                return state.DoS(100, error("ConnectBlock(): Contract transaction of the wrong format"), REJECT_INVALID, "bad-tx-bad-contract-format");
+            }
             if(!CheckMinGasPrice(resultConvertQtumTX.second, minGasPrice))
                 return state.DoS(100, error("ConnectBlock(): Contract execution has lower gas price than allowed"), REJECT_INVALID, "bad-tx-low-gas-price");
 
