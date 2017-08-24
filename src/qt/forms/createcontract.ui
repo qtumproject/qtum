@@ -188,7 +188,6 @@
          <zorder>lineEditGasLimit</zorder>
          <zorder>lineEditGasPrice</zorder>
          <zorder>lineEditSenderAddress</zorder>
-         <zorder>horizontalSpacer_5</zorder>
         </widget>
        </item>
        <item>
