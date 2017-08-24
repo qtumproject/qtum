@@ -125,6 +125,7 @@ public:
     bool ReadHeightIndex(const unsigned int &high, const unsigned int &low, 
                                 std::vector<uint256> &hashes, std::set<dev::h160> addresses);
     bool EraseHeightIndex(const unsigned int &height);
+    bool WipeHeightIndex();
 
     //////////////////////////////////////////////////////////////////////////////
 };

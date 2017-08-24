@@ -44,6 +44,8 @@ public:
 
 	void commitResults();
 
+    void wipeResults();
+
 private:
 
 	bool readResult(dev::h256 const& _key, std::vector<TransactionReceiptInfo>& _result);
