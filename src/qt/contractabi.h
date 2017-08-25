@@ -7,8 +7,8 @@ class ParameterABI
 {
 public:
     ParameterABI(const std::string& _name, const std::string& _type, bool _indexed);
-    bool abiIn(const std::string &value, std::string &data);
-    bool abiOut(const std::string &data, size_t& pos, std::string &value);
+    bool abiIn(const std::string &value, std::string &data) const;
+    bool abiOut(const std::string &data, size_t& pos, std::string &value) const;
 
     std::string name; // The name of the parameter;
     std::string type; // The canonical type of the parameter.
@@ -27,11 +27,11 @@ public:
                 bool _constant = false,
                 bool _anonymous = false);
 
-    bool abiIn(const std::vector<std::string>& values, std::string& data);
+    bool abiIn(const std::vector<std::string>& values, std::string& data) const;
 
-    bool abiOut(const std::string& data, std::vector<std::string>& values);
+    bool abiOut(const std::string& data, std::vector<std::string>& values) const;
 
-    std::string selector();
+    std::string selector() const;
 
     std::string name; // The name of the function;
     std::string type; // Function types: "function", "constructor", "fallback" or "event"
