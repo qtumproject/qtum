@@ -47,7 +47,7 @@ bool CheckCoinStakeTimestamp(uint32_t nTimeBlock);
 // Wrapper around CheckStakeKernelHash()
 // Also checks existence of kernel input and min age
 // Convenient for searching a kernel
-bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint& prevout, uint32_t* pBlockTime=NULL);
-bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint& prevout, uint32_t* pBlockTime, const std::map<COutPoint, CStakeCache>& cache);
+bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint& prevout);
+bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint& prevout, const std::map<COutPoint, CStakeCache>& cache);
 
 #endif // QUANTUM_POS_H

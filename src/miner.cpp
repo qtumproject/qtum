@@ -1091,9 +1091,9 @@ void ThreadStakeMiner(CWallet *pwallet)
             CBlockIndex* pindexPrev =  chainActive.Tip();
             uint256 beginningHash = pindexPrev->GetBlockHash();
 
-            uint32_t nTime=GetAdjustedTime();
-            nTime &= ~STAKE_TIMESTAMP_MASK;
-            for(uint32_t i=nTime;i<nTime + MAX_STAKE_LOOKAHEAD;i+=STAKE_TIMESTAMP_MASK) {
+            uint32_t beginningTime=GetAdjustedTime();
+            beginningTime &= ~STAKE_TIMESTAMP_MASK;
+            for(uint32_t i=beginningTime;i<beginningTime + MAX_STAKE_LOOKAHEAD;i+=STAKE_TIMESTAMP_MASK+1) {
 
                 // The information is needed for status bar to determine if the staker is trying to create block and when it will be created approximately,
                 static int64_t nLastCoinStakeSearchTime = GetAdjustedTime(); // startup timestamp
@@ -1101,6 +1101,7 @@ void ThreadStakeMiner(CWallet *pwallet)
                 nLastCoinStakeSearchInterval = i - nLastCoinStakeSearchTime;
 
                 // Try to sign a block (this also checks for a PoS stake)
+                pblocktemplate->block.nTime = i;
                 std::shared_ptr<CBlock> pblock = std::make_shared<CBlock>(pblocktemplate->block);
                 if (SignBlock(pblock, *pwallet, nTotalFees, i)) {
                     // increase priority so we can build the full PoS block ASAP to ensure the timestamp doesn't expire
@@ -1108,7 +1109,7 @@ void ThreadStakeMiner(CWallet *pwallet)
                     // Create a block that's properly populated with transactions
                     std::unique_ptr<CBlockTemplate> pblocktemplatefilled(
                             BlockAssembler(Params()).CreateNewBlock(reservekey.reserveScript, true, &nTotalFees,
-                                                                    nTime, FutureDrift(GetAdjustedTime()) - STAKE_TIME_BUFFER));
+                                                                    i, FutureDrift(GetAdjustedTime()) - STAKE_TIME_BUFFER));
                     if (!pblocktemplatefilled.get())
                         return;
                     if(pindexPrev->GetBlockHash() != beginningHash){
