@@ -140,12 +140,12 @@ bool CheckCoinStakeTimestamp(uint32_t nTimeBlock)
 }
 
 
-bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint& prevout, uint32_t* pBlockTime){
+bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint& prevout){
     std::map<COutPoint, CStakeCache> tmp;
-    return CheckKernel(pindexPrev, nBits, nTimeBlock, prevout, pBlockTime, tmp);
+    return CheckKernel(pindexPrev, nBits, nTimeBlock, prevout, tmp);
 }
 
-bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint& prevout, uint32_t* pBlockTime, const std::map<COutPoint, CStakeCache>& cache)
+bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint& prevout, const std::map<COutPoint, CStakeCache>& cache)
 {
     uint256 hashProofOfStake, targetProofOfStake;
     auto it=cache.find(prevout);
@@ -164,9 +164,6 @@ bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBloc
         int nDepth;
         if (IsConfirmedInNPrevBlocks(txindex, pindexPrev, COINBASE_MATURITY - 1, nDepth))
             return false;
-
-        if (pBlockTime)
-            *pBlockTime = block.GetBlockTime();
 
         return CheckStakeKernelHash(pindexPrev, nBits, block, txindex.nTxOffset - txindex.nPos, txPrev.vout[prevout.n].nValue, prevout,
                                     nTimeBlock, hashProofOfStake, targetProofOfStake);
