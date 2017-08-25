@@ -697,7 +697,7 @@ public:
 
     bool performByteCode(dev::eth::Permanence type = dev::eth::Permanence::Committed);
 
-    ByteCodeExecResult processingResults();
+    bool processingResults(ByteCodeExecResult& result);
 
     std::vector<ResultExecute>& getResult(){ return result; }
 

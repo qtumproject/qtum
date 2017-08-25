@@ -2061,7 +2061,11 @@ bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, cons
         if(rewardRecipients == 1){
             return true;
         }
-        assert(blockReward >= gasRefunds);
+        if(blockReward < gasRefunds){
+            return state.DoS(100, error("CheckReward(): Block Reward is less than total gas refunds"),
+                             REJECT_INVALID, "bad-cs-gas-greater-than-reward");
+
+        }
         CAmount splitReward = (blockReward - gasRefunds) / rewardRecipients;
 
         // Generate the list of script recipients including all of their parameters
@@ -2085,7 +2089,9 @@ bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, cons
                 if(block.vtx[offset]->vout[offset+i].nValue >= splitReward) {
                     // remove from list without moving all elements
                     // (this does not preserve order for mposScriptList, but order does not matter here)
-                    assert(mposScriptList.size() != 0); //.back() on empty vector is undefined
+                    if(mposScriptList.size() == 0) { //.back() on empty vector is undefined
+                        return error("CheckReward(): Error modifying mposScriptList");
+                    }
                     std::swap(*pos, mposScriptList.back());
                     mposScriptList.pop_back();
                 }
@@ -2232,8 +2238,7 @@ bool ByteCodeExec::performByteCode(dev::eth::Permanence type){
     return true;
 }
 
-ByteCodeExecResult ByteCodeExec::processingResults(){
-    ByteCodeExecResult resultBCE;
+bool ByteCodeExec::processingResults(ByteCodeExecResult& resultBCE){
     for(size_t i = 0; i < result.size(); i++){
         uint64_t gasUsed = (uint64_t) result[i].execRes.gasUsed;
         if(result[i].execRes.excepted != dev::eth::TransactionException::None){
@@ -2246,15 +2251,19 @@ ByteCodeExecResult ByteCodeExec::processingResults(){
             }
             resultBCE.usedGas += gasUsed;
         } else {
-            assert(txs[i].gas() < UINT64_MAX);
-            assert(result[i].execRes.gasUsed < UINT64_MAX);
-            assert(txs[i].gasPrice() < UINT64_MAX);
+            if(txs[i].gas() > UINT64_MAX ||
+                    result[i].execRes.gasUsed > UINT64_MAX ||
+                    txs[i].gasPrice() > UINT64_MAX){
+                return false;
+            }
             uint64_t gas = (uint64_t) txs[i].gas();
             uint64_t gasPrice = (uint64_t) txs[i].gasPrice();
 
             resultBCE.usedGas += gasUsed;
             int64_t amount = (gas - gasUsed) * gasPrice;
-            assert(amount >= 0); //don't allow negative gas, probably only possible by overflow
+            if(amount < 0){
+                return false;
+            }
             if(amount > 0){
                 CScript script(CScript() << OP_DUP << OP_HASH160 << txs[i].sender().asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
                 resultBCE.refundOutputs.push_back(CTxOut(amount, script));
@@ -2265,7 +2274,7 @@ ByteCodeExecResult ByteCodeExec::processingResults(){
             resultBCE.valueTransfers.push_back(result[i].tx);
         }
     }
-    return resultBCE;
+    return true;
 }
 
 dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(){
@@ -2691,7 +2700,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             }
 
             std::vector<ResultExecute> resultExec(exec.getResult());
-            ByteCodeExecResult bcer = exec.processingResults();
+            ByteCodeExecResult bcer;
+            if(!exec.processingResults(bcer)){
+                return state.DoS(100, error("ConnectBlock(): Error processing VM execution results"), REJECT_INVALID, "bad-vm-exec-processing");
+            }
 
             countCumulativeGasUsed += bcer.usedGas;
             std::vector<TransactionReceiptInfo> tri;
@@ -2733,7 +2745,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     }
     int64_t nTime3 = GetTimeMicros(); nTimeConnect += nTime3 - nTime2;
     LogPrint("bench", "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs]\n", (unsigned)block.vtx.size(), 0.001 * (nTime3 - nTime2), 0.001 * (nTime3 - nTime2) / block.vtx.size(), nInputs <= 1 ? 0 : 0.001 * (nTime3 - nTime2) / (nInputs-1), nTimeConnect * 0.000001);
-    assert(nFees >= gasRefunds); //make sure it won't overflow
+    if(nFees < gasRefunds) { //make sure it won't overflow
+        return state.DoS(1000, error("ConnectBlock(): Less total fees than gas refund fees"), REJECT_INVALID, "bad-blk-fees-greater-gasrefund");
+    }
     if(!CheckReward(block, state, pindex->nHeight, chainparams.GetConsensus(), nFees, gasRefunds, nActualStakeReward, checkVouts.size()))
         return state.DoS(100,error("ConnectBlock(): Reward check failed"));
 

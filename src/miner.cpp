@@ -563,7 +563,10 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64
         return false;
     }
 
-    ByteCodeExecResult testExecResult = exec.processingResults();
+    ByteCodeExecResult testExecResult;
+    if(!exec.processingResults(testExecResult)){
+        return false;
+    }
 
     if(bceResult.usedGas + testExecResult.usedGas > blockGasLimit){
         //if this transaction could cause block gas limit to be exceeded, then don't add it
