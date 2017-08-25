@@ -2850,7 +2850,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     //only start checking this assert after block 5000 and only on testnet and mainnet, not regtest
     if(pindex->nHeight > 5000 && !Params().GetConsensus().fPoSNoRetargeting) {
         //sanity check to shut down the network in case an exploit happens that allows new coins to be minted
-        assert(pindex->nMoneySupply < 100000000 + ((pindex->nHeight - 5000) * 4) * COIN);
+        assert(pindex->nMoneySupply <= (uint64_t)(100000000 + ((pindex->nHeight - 5000) * 4)) * COIN);
     }
     // Write undo information to disk
     if (pindex->GetUndoPos().IsNull() || !pindex->IsValid(BLOCK_VALID_SCRIPTS))
