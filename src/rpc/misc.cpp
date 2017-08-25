@@ -99,6 +99,7 @@ UniValue getinfo(const JSONRPCRequest& request)
     diff.push_back(Pair("proof-of-stake",       GetDifficulty(GetLastBlockIndex(pindexBestHeader, true))));
     obj.push_back(Pair("difficulty",    diff));
     obj.push_back(Pair("testnet",       Params().NetworkIDString() == CBaseChainParams::TESTNET));
+    obj.push_back(Pair("moneysupply",       pindexBestHeader->nMoneySupply));
 #ifdef ENABLE_WALLET
     if (pwalletMain) {
         obj.push_back(Pair("keypoololdest", pwalletMain->GetOldestKeyPoolTime()));
