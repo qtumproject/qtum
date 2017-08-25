@@ -4985,7 +4985,13 @@ bool InitBlockIndex(const CChainParams& chainparams)
         return true;
 
     // Use the provided setting for -txindex in the new database
+#if 0
+// *** The Qtum wallet currently requires txindex to be set/true.
+// *** TODO: Add support for pruning (while still maintaining txindex).
     fTxIndex = GetBoolArg("-txindex", DEFAULT_TXINDEX);
+#else
+    fTxIndex = DEFAULT_TXINDEX;
+#endif
     pblocktree->WriteFlag("txindex", fTxIndex);
     LogPrintf("Initializing databases...\n");
 
