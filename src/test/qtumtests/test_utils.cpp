@@ -59,7 +59,8 @@ std::pair<std::vector<ResultExecute>, ByteCodeExecResult> executeBC(std::vector<
     ByteCodeExec exec(block, txs, blockGasLimit);
     exec.performByteCode();
     std::vector<ResultExecute> res = exec.getResult();
-    ByteCodeExecResult bceExecRes = exec.processingResults();
+    ByteCodeExecResult bceExecRes;
+    exec.processingResults(bceExecRes); //error handling?
     globalState->db().commit();
     globalState->dbUtxo().commit();
     return std::make_pair(res, bceExecRes);
