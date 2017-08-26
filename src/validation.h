@@ -385,11 +385,11 @@ struct CHeightTxIndexIteratorKey {
     }
     template<typename Stream>
     void Serialize(Stream& s) const {
-        s << height;
+        ser_writedata32be(s, height);
     }
     template<typename Stream>
     void Unserialize(Stream& s) {
-        s >> height;
+        height = ser_readdata32be(s);
     }
 
     CHeightTxIndexIteratorKey(unsigned int _height) {

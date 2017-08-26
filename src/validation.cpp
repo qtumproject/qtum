@@ -1863,7 +1863,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
     globalState->setRoot(uintToh256(pindex->pprev->hashStateRoot)); // qtum
     globalState->setRootUTXO(uintToh256(pindex->pprev->hashUTXORoot)); // qtum
 
-    if(pfClean == NULL){
+    if(pfClean == NULL && fLogEvents){
         boost::filesystem::path stateDir = GetDataDir() / "stateQtum";
         StorageResults storageRes(stateDir.string());
         storageRes.deleteResults(block.vtx);
@@ -2727,13 +2727,17 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
             countCumulativeGasUsed += bcer.usedGas;
             std::vector<TransactionReceiptInfo> tri;
-            for(size_t k = 0; k < resultConvertQtumTX.first.size(); k ++){
-                heightIndexes.push_back({CHeightTxIndexKey(pindex->nHeight, resultExec[k].execRes.newAddress), tx.GetHash()});
+            if (fLogEvents)
+            {
+                for(size_t k = 0; k < resultConvertQtumTX.first.size(); k ++){
+                    heightIndexes.push_back({CHeightTxIndexKey(pindex->nHeight, resultExec[k].execRes.newAddress), tx.GetHash()});
+                    tri.push_back(TransactionReceiptInfo{block.GetHash(), uint32_t(pindex->nHeight), tx.GetHash(), uint32_t(i), resultConvertQtumTX.first[k].from(), resultConvertQtumTX.first[k].to(),
+                                countCumulativeGasUsed, uint64_t(resultExec[k].execRes.gasUsed), resultExec[k].execRes.newAddress, resultExec[k].txRec.log()});
+                }
 
-                tri.push_back(TransactionReceiptInfo{block.GetHash(), uint32_t(pindex->nHeight), tx.GetHash(), uint32_t(i), resultConvertQtumTX.first[k].from(), resultConvertQtumTX.first[k].to(),
-                              countCumulativeGasUsed, uint64_t(resultExec[k].execRes.gasUsed), resultExec[k].execRes.newAddress, resultExec[k].txRec.log()});
+                storageRes.addResult(uintToh256(tx.GetHash()), tri);
             }
-            storageRes.addResult(uintToh256(tx.GetHash()), tri);
+
             blockGasUsed += bcer.usedGas;
             if(blockGasUsed > blockGasLimit){
                 return state.DoS(1000, error("ConnectBlock(): Block exceeds gas limit"), REJECT_INVALID, "bad-blk-gaslimit");
@@ -2883,10 +2887,13 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         setDirtyBlockIndex.insert(pindex);
     }
 
-    for (const auto& e: heightIndexes)
+    if (fLogEvents)
     {
-        if (!pblocktree->WriteHeightIndex(e.first, e.second))
-            return AbortNode(state, "Failed to write height index");
+        for (const auto& e: heightIndexes)
+        {
+            if (!pblocktree->WriteHeightIndex(e.first, e.second))
+                return AbortNode(state, "Failed to write height index");
+        }
     }    
     
     if (fTxIndex)
@@ -2908,7 +2915,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     int64_t nTime6 = GetTimeMicros(); nTimeCallbacks += nTime6 - nTime5;
     LogPrint("bench", "    - Callbacks: %.2fms [%.2fs]\n", 0.001 * (nTime6 - nTime5), nTimeCallbacks * 0.000001);
 
-    storageRes.commitResults();
+    if (fLogEvents)
+        storageRes.commitResults();
 
     return true;
 }
@@ -4816,6 +4824,10 @@ bool static LoadBlockIndexDB(const CChainParams& chainparams)
     pblocktree->ReadFlag("txindex", fTxIndex);
     LogPrintf("%s: transaction index %s\n", __func__, fTxIndex ? "enabled" : "disabled");
 
+    // Check whether we have a transaction index
+    pblocktree->ReadFlag("logevents", fLogEvents);
+    LogPrintf("%s: log events index %s\n", __func__, fLogEvents ? "enabled" : "disabled");
+
     // Load pointer to end of best chain
     BlockMap::iterator it = mapBlockIndex.find(pcoinsTip->GetBestBlock());
     if (it == mapBlockIndex.end())
@@ -5093,6 +5105,10 @@ bool InitBlockIndex(const CChainParams& chainparams)
     // Use the provided setting for -txindex in the new database
     fTxIndex = GetBoolArg("-txindex", DEFAULT_TXINDEX);
     pblocktree->WriteFlag("txindex", fTxIndex);
+
+    // Use the provided setting for -txindex in the new database
+    fLogEvents = GetBoolArg("-logevents", DEFAULT_LOGEVENTS);
+    pblocktree->WriteFlag("logevents", fLogEvents);
     LogPrintf("Initializing databases...\n");
 
     // Only add the genesis block if not reindexing (in which case we reuse the one already on disk)

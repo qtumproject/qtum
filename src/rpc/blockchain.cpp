@@ -1080,6 +1080,7 @@ UniValue searchlogs(const JSONRPCRequest& request)
     if (request.fHelp || request.params.size() < 2)
         throw runtime_error(
              "searchlogs <fromBlock> <toBlock> (address) (topics)\n"
+             "requires -logevents to be enabled"
              "\nArgument:\n"
              "1. \"fromBlock\"        (numeric, required) The number of the earliest block (latest may be given to mean the most recent block).\n"
              "2. \"toBlock\"          (string, required) The number of the latest block (latest may be given to mean the most recent block).\n"
@@ -1089,7 +1090,10 @@ UniValue searchlogs(const JSONRPCRequest& request)
             + HelpExampleCli("searchlogs", "0 100 '{\"addresses\": [\"12ae42729af478ca92c8c66773a3e32115717be4\"]}' '{\"topics\": [\"null\",\"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"]}'")
             + HelpExampleRpc("searchlogs", "0 100 {\"addresses\": [\"12ae42729af478ca92c8c66773a3e32115717be4\"]} {\"topics\": [\"null\",\"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"]}")
          );
- 
+
+    if(!fLogEvents)
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "Events indexing disabled");
+
     LOCK(cs_main);
 
     int fromBlock = request.params[0].get_int();
@@ -1169,10 +1173,14 @@ UniValue gettransactionreceipt(const JSONRPCRequest& request)
     if (request.fHelp || request.params.size() < 1)
         throw runtime_error(
              "gettransactionreceipt \"hash\"\n"
+             "requires -logevents to be enabled"
              "\nArgument:\n"
              "1. \"hash\"          (string, required) The transaction hash\n"
          );
  
+    if(!fLogEvents)
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "Events indexing disabled");
+
     LOCK(cs_main);
 
     std::string hashTemp = request.params[0].get_str();

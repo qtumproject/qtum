@@ -1520,9 +1520,17 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
                     break;
                 }
                                 // Check for changed -logevents state
-                if (fLogEvents != GetBoolArg("-logevents", DEFAULT_LOGEVENTS)) {
-                    strLoadError = _("You need to rebuild the database using -reindex-chainstate to change -logevents");
+                if (fLogEvents != GetBoolArg("-logevents", DEFAULT_LOGEVENTS) && !fLogEvents) {
+                    strLoadError = _("You need to rebuild the database using -reindex-chainstate to enable -logevents");
                     break;
+                }
+
+                if (!GetBoolArg("-logevents", DEFAULT_LOGEVENTS))
+                {
+                    boost::filesystem::path stateDir = GetDataDir() / "stateQtum";
+                    StorageResults storageRes(stateDir.string());
+                    storageRes.wipeResults();
+                    pblocktree->WipeHeightIndex();
                 }
 
                 // Check for changed -prune state.  What we are concerned about is a user who has pruned blocks
