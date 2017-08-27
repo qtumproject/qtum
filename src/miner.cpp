@@ -247,7 +247,13 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     globalSealEngine->setQtumSchedule(qtumDGP.getGasSchedule(nHeight));
     uint32_t blockSizeDGP = qtumDGP.getBlockSize(nHeight);
     minGasPrice = qtumDGP.getMinGasPrice(nHeight);
-    blockGasLimit = qtumDGP.getBlockGasLimit(nHeight);
+    minGasPrice = GetArg("-staker-min-tx-gas-price", minGasPrice);
+    minGasPrice = std::max(minGasPrice, qtumDGP.getMinGasPrice(nHeight));
+    hardBlockGasLimit = qtumDGP.getBlockGasLimit(nHeight);
+    softBlockGasLimit = GetArg("-staker-soft-block-gas-limit", hardBlockGasLimit);
+    softBlockGasLimit = std::min(softBlockGasLimit, hardBlockGasLimit);
+    txGasLimit = GetArg("-staker-max-tx-gas-limit", softBlockGasLimit);
+
     nBlockMaxSize = blockSizeDGP ? blockSizeDGP : nBlockMaxSize;
     
     dev::h256 oldHashStateRoot(globalState->rootHash());
@@ -545,7 +551,12 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64
     }
     std::vector<QtumTransaction> qtumTransactions = resultConverter.first;
     for(QtumTransaction qtumTransaction : qtumTransactions){
-        if(bceResult.usedGas + qtumTransaction.gas() > blockGasLimit){
+        if(qtumTransaction.gas() > txGasLimit) {
+            // Limit the tx gas limit by the soft limit if such a limit has been specified.
+            return false;
+        }
+
+        if(bceResult.usedGas + qtumTransaction.gas() > softBlockGasLimit){
             //if this transaction's gasLimit could cause block gas limit to be exceeded, then don't add it
             return false;
         }
@@ -554,8 +565,8 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64
             return false;
         }
     }
-
-    ByteCodeExec exec(*pblock, qtumTransactions, blockGasLimit);
+    // We need to pass the DGP's block gas limit (not the soft limit) since it is consensus critical.
+    ByteCodeExec exec(*pblock, qtumTransactions, hardBlockGasLimit);
     if(!exec.performByteCode()){
         //error, don't add contract
         globalState->setRoot(oldHashStateRoot);
@@ -568,7 +579,7 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64
         return false;
     }
 
-    if(bceResult.usedGas + testExecResult.usedGas > blockGasLimit){
+    if(bceResult.usedGas + testExecResult.usedGas > softBlockGasLimit){
         //if this transaction could cause block gas limit to be exceeded, then don't add it
         globalState->setRoot(oldHashStateRoot);
         globalState->setRootUTXO(oldHashUTXORoot);
@@ -758,16 +769,16 @@ void BlockAssembler::addPackageTxs(uint64_t minGasPrice)
     // and modifying them for their already included ancestors
     UpdatePackagesForAdded(inBlock, mapModifiedTx);
 
-    CTxMemPool::indexed_transaction_set::index<ancestor_score>::type::iterator mi = mempool.mapTx.get<ancestor_score>().begin();
+    CTxMemPool::indexed_transaction_set::index<ancestor_score_or_gas_price>::type::iterator mi = mempool.mapTx.get<ancestor_score_or_gas_price>().begin();
     CTxMemPool::txiter iter;
-    while (mi != mempool.mapTx.get<ancestor_score>().end() || !mapModifiedTx.empty())
+    while (mi != mempool.mapTx.get<ancestor_score_or_gas_price>().end() || !mapModifiedTx.empty())
     {
         if(nTimeLimit != 0 && GetAdjustedTime() >= nTimeLimit){
             //no more time to add transactions, just exit
             return;
         }
         // First try to find a new transaction in mapTx to evaluate.
-        if (mi != mempool.mapTx.get<ancestor_score>().end() &&
+        if (mi != mempool.mapTx.get<ancestor_score_or_gas_price>().end() &&
                 SkipMapTxEntry(mempool.mapTx.project<0>(mi), mapModifiedTx, failedTx)) {
             ++mi;
             continue;
@@ -777,15 +788,15 @@ void BlockAssembler::addPackageTxs(uint64_t minGasPrice)
         // the next entry from mapTx, or the best from mapModifiedTx?
         bool fUsingModified = false;
 
-        modtxscoreiter modit = mapModifiedTx.get<ancestor_score>().begin();
-        if (mi == mempool.mapTx.get<ancestor_score>().end()) {
+        modtxscoreiter modit = mapModifiedTx.get<ancestor_score_or_gas_price>().begin();
+        if (mi == mempool.mapTx.get<ancestor_score_or_gas_price>().end()) {
             // We're out of entries in mapTx; use the entry from mapModifiedTx
             iter = modit->iter;
             fUsingModified = true;
         } else {
             // Try to compare the mapTx entry to the mapModifiedTx entry
             iter = mempool.mapTx.project<0>(mi);
-            if (modit != mapModifiedTx.get<ancestor_score>().end() &&
+            if (modit != mapModifiedTx.get<ancestor_score_or_gas_price>().end() &&
                     CompareModifiedEntry()(*modit, CTxMemPoolModifiedEntry(iter))) {
                 // The best entry in mapModifiedTx has higher score
                 // than the one from mapTx.
@@ -822,7 +833,7 @@ void BlockAssembler::addPackageTxs(uint64_t minGasPrice)
                 // Since we always look at the best entry in mapModifiedTx,
                 // we must erase failed entries so that we can consider the
                 // next best entry on the next loop iteration
-                mapModifiedTx.get<ancestor_score>().erase(modit);
+                mapModifiedTx.get<ancestor_score_or_gas_price>().erase(modit);
                 failedTx.insert(iter);
             }
             continue;
@@ -839,7 +850,7 @@ void BlockAssembler::addPackageTxs(uint64_t minGasPrice)
         // Test if all tx's are Final
         if (!TestPackageTransactions(ancestors)) {
             if (fUsingModified) {
-                mapModifiedTx.get<ancestor_score>().erase(modit);
+                mapModifiedTx.get<ancestor_score_or_gas_price>().erase(modit);
                 failedTx.insert(iter);
             }
             continue;
@@ -865,7 +876,7 @@ void BlockAssembler::addPackageTxs(uint64_t minGasPrice)
                     if(!wasAdded){
                         if(fUsingModified) {
                             //this only needs to be done once to mark the whole package (everything in sortedEntries) as failed
-                            mapModifiedTx.get<ancestor_score>().erase(modit);
+                            mapModifiedTx.get<ancestor_score_or_gas_price>().erase(modit);
                             failedTx.insert(iter);
                         }
                     }

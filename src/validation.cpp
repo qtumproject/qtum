@@ -754,6 +754,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
 
         CAmount nValueOut = tx.GetValueOut();
         CAmount nFees = nValueIn-nValueOut;
+        dev::u256 txMinGasPrice = 0;
 
         //////////////////////////////////////////////////////////// // qtum
         if(tx.HasCreateOrCall()){
@@ -780,6 +781,11 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
             for(QtumTransaction qtumTransaction : qtumTransactions){
                 sumGas += CAmount(qtumTransaction.gas() * qtumTransaction.gasPrice());
 
+                if(txMinGasPrice != 0) {
+                    txMinGasPrice = std::min(txMinGasPrice, qtumTransaction.gasPrice());
+                } else {
+                    txMinGasPrice = qtumTransaction.gasPrice();
+                }
                 VersionVM v = qtumTransaction.getVersion();
                 if(v.format!=0)
                     return state.DoS(100, error("AcceptToMempool(): Contract execution uses unknown version format"), REJECT_INVALID, "bad-tx-version-format");
@@ -853,7 +859,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
         }
 
         CTxMemPoolEntry entry(ptx, nFees, nAcceptTime, dPriority, chainActive.Height(),
-                              inChainInputValue, fSpendsCoinbase, nSigOpsCost, lp);
+                              inChainInputValue, fSpendsCoinbase, nSigOpsCost, lp, CAmount(txMinGasPrice));
         unsigned int nSize = entry.GetTxSize();
 
         // Check that the transaction doesn't have an excessive number of
