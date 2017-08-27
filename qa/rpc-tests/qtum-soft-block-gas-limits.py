@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-# Copyright (c) 2015-2016 The Bitcoin Core developers
-# Distributed under the MIT software license, see the accompanying
-# file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
@@ -30,7 +27,7 @@ class QtumSoftMinerGasRelatedLimitsTest(BitcoinTestFramework):
             ["-staker-max-tx-gas-limit=100000"],
             ["-staker-max-tx-gas-limit=0"],
             ["-staker-min-tx-gas-price=0"],
-            ["-staker-min-tx-gas-price=100"]
+            ["-staker-min-tx-gas-price=0.000001"]
         ])
         self.is_network_split = False
         # Make the network fully connected

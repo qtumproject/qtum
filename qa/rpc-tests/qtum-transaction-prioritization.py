@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-# Copyright (c) 2015-2016 The Bitcoin Core developers
-# Distributed under the MIT software license, see the accompanying
-# file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
@@ -10,6 +7,7 @@ from test_framework.mininode import *
 from test_framework.address import *
 import sys
 import random
+import time
 
 def p2pkh_to_hex_hash(address):
     return str(base58_to_byte(address, 25)[1])[2:-1]
@@ -24,12 +22,34 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
         self.num_nodes = 1
 
     def setup_network(self, split=False):
-        self.nodes = start_nodes(self.num_nodes, self.options.tmpdir)
+        self.nodes = start_nodes(self.num_nodes, self.options.tmpdir, [['-staking=1']])
         self.is_network_split = False
         self.node = self.nodes[0]
 
+    def restart_node(self):
+        stop_nodes(self.nodes)
+        self.nodes = start_nodes(self.num_nodes, self.options.tmpdir, [["-staking=1"]])
+        self.node = self.nodes[0]
+
+
+    def stake_or_mine(self, old_block_count=None, use_staking=False):
+        # Since staking is switched on by default, if a block has been staked return that block's hash
+        if self.node.getblockcount() > old_block_count:
+            return self.node.getbestblockhash()
+
+        if use_staking:
+            if not old_block_count:
+                old_block_count = self.node.getblockcount()
+            while old_block_count == self.node.getblockcount():
+                time.sleep(0.1)
+            return self.node.getbestblockhash()
+        else:
+            return self.node.generate(1)[0]
+
     def send_transaction_with_fee(self, fee):
-        unspent = self.node.listunspent()[0]
+        for unspent in self.node.listunspent():
+            if unspent['amount'] >= 10000:
+                break
         addr = self.node.getnewaddress()
         haddr = p2pkh_to_hex_hash(addr)
         tx = CTransaction()
@@ -93,24 +113,26 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
         tx_hex_signed = self.node.signrawtransaction(bytes_to_hex_str(tx.serialize()))['hex']
         return self.node.sendrawtransaction(tx_hex_signed)
 
-    def verify_contract_txs_are_added_last_test(self, with_restart=False):
+    def verify_contract_txs_are_added_last_test(self, with_restart=False, use_staking=False):
         # Set the fee really high so that it should normally be added first if we only looked at the fee/size
         contract_txid = self.node.createcontract("00", 4*10**6, 0.0001)['txid']
         normal_txid = self.node.sendtoaddress(self.node.getnewaddress(), 1)
 
+        old_block_count = self.node.getblockcount()
         if with_restart:
-            stop_nodes(self.nodes)
-            self.nodes = start_nodes(self.num_nodes, self.options.tmpdir)
+            self.restart_node()
+        block_hash = self.stake_or_mine(old_block_count=old_block_count, use_staking=use_staking)
 
-        block_hash = self.node.generate(1)[0]
-        txs = self.node.getblock(block_hash)['tx']
-        assert_equal(len(txs), 3)
-        assert_equal(txs.index(normal_txid), 1)
-        assert_equal(txs.index(contract_txid), 2)
+        block_txs = self.node.getblock(block_hash)['tx']
+        if use_staking:
+            block_txs.pop(1) # Ignore the coinstake tx so we can reuse the tests for both pow and pos
+        assert_equal(len(block_txs), 3)
+        assert_equal(block_txs.index(normal_txid), 1)
+        assert_equal(block_txs.index(contract_txid), 2)
 
     # Verifies that contract transactions are correctly ordered by descending (minimum among outputs) gas price and ascending size
     # Sends 7 txs in total
-    def verify_contract_txs_internal_order_test(self, with_restart=False):
+    def verify_contract_txs_internal_order_test(self, with_restart=False, use_staking=False):
         contract_address = list(self.node.listcontracts().keys())[0]
         sender = self.node.getnewaddress()
         tx4 = self.send_op_call_outputs_with_gas_price(contract_address, [0.0001])
@@ -120,15 +142,17 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
         tx2 = self.send_op_call_outputs_with_gas_price(contract_address, [0.002])
         tx1 = self.node.sendtoaddress(sender, 1)
         tx7 = self.node.sendtocontract(contract_address, "00", 0, 100000, 0.00000001, sender)['txid']
-
+        old_block_count = self.node.getblockcount()
         if with_restart:
-            stop_nodes(self.nodes)
-            self.nodes = start_nodes(self.num_nodes, self.options.tmpdir)
-
+            self.restart_node()
         # Ordering based on gas_price should now be
-        block_hash = self.node.generate(1)[0]
+        block_hash = self.stake_or_mine(old_block_count=old_block_count, use_staking=use_staking)
         block = self.node.getblock(block_hash)
-        assert_equal(block['tx'][1:], [tx1, tx2, tx3, tx4, tx5, tx6, tx7])
+        block_txs = block['tx']
+        if use_staking:
+            block_txs.pop(1) # Ignore the coinstake tx so we can reuse the tests for both pow and pos
+
+        assert_equal(block_txs[1:], [tx1, tx2, tx3, tx4, tx5, tx6, tx7])
 
 
 
@@ -140,7 +164,7 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
     # 3. a normal tx with a fee < tx2 and tx3
     # 4. a op call contract tx spending tx2.
     # Expected transaction ordering in the block should thus be tx1, tx2, tx3, tx4
-    def verify_ancestor_chain_with_contract_txs_test(self, with_restart=False):
+    def verify_ancestor_chain_with_contract_txs_test(self, with_restart=False, use_staking=False):
         contract_address = list(self.node.listcontracts().keys())[0]
         tx1 = self.send_transaction_with_fee(0.001)
         tx2 = self.send_transaction_with_fee(0.0005)
@@ -151,12 +175,15 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
         # Make sure that all txs are in the mempool
         assert_equal(len(self.node.getrawmempool()), 4)
 
+        old_block_count = self.node.getblockcount()
         if with_restart:
-            stop_nodes(self.nodes)
-            self.nodes = start_nodes(self.num_nodes, self.options.tmpdir)
+            self.restart_node()
+        block_hash = self.stake_or_mine(old_block_count=old_block_count, use_staking=use_staking)
 
-        block_hash = self.node.generate(1)[0]
         block_txs = self.node.getblock(block_hash)['tx']
+
+        if use_staking:
+            block_txs.pop(1) # Ignore the coinstake tx so we can reuse the tests for both pow and pos
 
         assert_equal(len(block_txs), 5)
         assert_equal(block_txs[1], tx1)
@@ -164,22 +191,8 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
         assert_equal(block_txs[3], tx3)
         assert_equal(block_txs[4], tx4)
 
-
-
-    def verify_many_txs_are_correctly_ordered_in_block_test(self):
-        contract_address = self.node.listcontracts().keys()[0]
-        # create 50 contract txs with different gas prices calling the fallback function
-        for i in range(50):
-            self.node.sendtocontract(contract_address, "00", 0, 100000, random.uniform(0.00000001, 0.001))
-
-        # create 50 normal txs
-        for i in range(50):
-            self.node.sendtoaddress(self.node.getnewaddress(), random.randint(1, 1000))
-
-        self.node.generate(1)
-
     # Creates two different contract tx chains.
-    def verify_contract_ancestor_txs_test(self, with_restart=False):
+    def verify_contract_ancestor_txs_test(self, with_restart=False, use_staking=False):
         contract_address = list(self.node.listcontracts().keys())[0]
         for unspent in self.node.listunspent():
             if unspent['amount'] > 10000:
@@ -222,20 +235,23 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
             unspent['vout'] = 1
             expected_tx_order.append((expected_tx_index, unspent['txid']))
 
+        old_block_count = self.node.getblockcount()
         if with_restart:
-            stop_nodes(self.nodes)
-            self.nodes = start_nodes(self.num_nodes, self.options.tmpdir)
-
-        block_hash = self.node.generate(1)[0]
+            self.restart_node()
+        block_hash = self.stake_or_mine(old_block_count=old_block_count, use_staking=use_staking)
         block_txs = self.node.getblock(block_hash)['tx']
+        
+        if use_staking:
+            block_txs.pop(1) # Ignore the coinstake tx so we can reuse the tests for both pow and pos
 
-        # Even though the gas prices differ, since they the ancestor txs must be included before the child txs we expect the order by which they were sent.
-        # Always chosing the tx with the highest gas price whose ancestors have already been included. 
+        # Even though the gas prices differ, since they the ancestor txs must be included before the child txs we expect the order by which they were sent,
+        # always chosing the tx with the highest gas price whose ancestors have already been included. 
         for (expected_tx_index, txid) in expected_tx_order:
             assert_equal(block_txs[expected_tx_index], txid)
 
     def run_test(self):
         self.node.generate(COINBASE_MATURITY+500)
+        print("running pow tests")
         self.verify_contract_txs_are_added_last_test()
         self.verify_ancestor_chain_with_contract_txs_test()
         self.verify_contract_txs_internal_order_test()
@@ -245,10 +261,29 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
         assert_equal(self.node.getrawmempool(), [])
 
         # Redo the testing and check that the mempool is correctly ordered after a restart
+        print("running pow tests with restart")
         self.verify_contract_txs_are_added_last_test(with_restart=True)
         self.verify_ancestor_chain_with_contract_txs_test(with_restart=True)
         self.verify_contract_txs_internal_order_test(with_restart=True)
         self.verify_contract_ancestor_txs_test(with_restart=True)
+
+        # Verify that the mempool is empty before running more tests
+        assert_equal(self.node.getrawmempool(), [])
+
+        print("running pos tests")
+        self.verify_contract_txs_are_added_last_test(use_staking=True)
+        self.verify_ancestor_chain_with_contract_txs_test(use_staking=True)
+        self.verify_contract_txs_internal_order_test(use_staking=True)
+        self.verify_contract_ancestor_txs_test(use_staking=True)
+
+        # Verify that the mempool is empty before running more tests
+        assert_equal(self.node.getrawmempool(), [])
+
+        print("running pos tests with restart")
+        self.verify_contract_txs_are_added_last_test(with_restart=True, use_staking=True)
+        self.verify_ancestor_chain_with_contract_txs_test(with_restart=True, use_staking=True)
+        self.verify_contract_txs_internal_order_test(with_restart=True, use_staking=True)
+        self.verify_contract_ancestor_txs_test(with_restart=True, use_staking=True)
 
 if __name__ == '__main__':
     QtumTransactionPrioritizationTest().main()
