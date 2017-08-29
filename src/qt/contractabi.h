@@ -6,7 +6,7 @@
 class ParameterABI
 {
 public:
-    ParameterABI(const std::string& _name, const std::string& _type, bool _indexed);
+    ParameterABI(const std::string& _name = "", const std::string& _type = "", bool _indexed = false);
     bool abiIn(const std::string &value, std::string &data) const;
     bool abiOut(const std::string &data, size_t& pos, std::string &value) const;
 
@@ -19,8 +19,8 @@ public:
 class FunctionABI
 {
 public:
-    FunctionABI(const std::string& _name,
-                const std::string& _type = std::string(),
+    FunctionABI(const std::string& _name = "",
+                const std::string& _type = "function",
                 const std::vector<ParameterABI>& _inputs = std::vector<ParameterABI>(),
                 const std::vector<ParameterABI>& _outputs = std::vector<ParameterABI>(),
                 bool _payable = false,
