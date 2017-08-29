@@ -1,5 +1,6 @@
 #include "contractabi.h"
 #include "univalue.h"
+#include "libethcore/ABI.h"
 
 // Defining json preprocessor functions in order to avoid repetitive code with slight difference
 #define ReadJsonString(json, param, result) if(json.exists(#param) && json[#param].isStr())\
@@ -107,8 +108,27 @@ bool FunctionABI::abiOut(const std::string &data, std::vector<std::string> &valu
 
 std::string FunctionABI::selector() const
 {
-    // Not implemented
-    return "";
+    if(type == "constructor")
+    {
+        return "";
+    }
+
+    std::stringstream id;
+    id << name;
+    id << "(";
+    if(inputs.size() > 0)
+    {
+        id << inputs[0].type;
+    }
+    for(size_t i = 1; i < inputs.size(); i++)
+    {
+        id << "," << inputs[i].type;
+    }
+    id << ")";
+    std::string sig = id.str();
+    dev::bytes hash = dev::sha3(sig).ref().cropped(0, 4).toBytes();
+
+    return dev::toHex(hash);
 }
 
 ParameterABI::ParameterABI(const std::string &_name, const std::string &_type, bool _indexed):
