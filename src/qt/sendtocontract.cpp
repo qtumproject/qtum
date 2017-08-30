@@ -23,6 +23,7 @@ static const QString PARAM_GASPRICE = "gasprice";
 static const QString PARAM_SENDER = "sender";
 
 static const CAmount SINGLE_STEP = 0.00000001*COIN;
+static const CAmount HIGH_GASPRICE = 0.001*COIN;
 }
 using namespace SendToContract_NS;
 
@@ -115,13 +116,23 @@ void SendToContract::on_sendToContract_clicked()
     QString errorMessage;
     QString resultJson;
     int unit = m_model->getOptionsModel()->getDisplayUnit();
+    uint64_t gasLimit = ui->lineEditGasLimit->value();
+    CAmount gasPrice = ui->lineEditGasPrice->value();
+
+    // Check the for high gas price
+    if(gasPrice > HIGH_GASPRICE)
+    {
+        QString message = tr("The Gas Price is too high, are you sure you want to possibly spend a max of %1 for this transaction?");
+        if(QMessageBox::question(this, tr("High Gas price"), message.arg(BitcoinUnits::formatWithUnit(unit, gasLimit * gasPrice))) == QMessageBox::No)
+            return;
+    }
 
     // Append params to the list
     ExecRPCCommand::appendParam(lstParams, PARAM_ADDRESS, ui->lineEditContractAddress->text());
     ExecRPCCommand::appendParam(lstParams, PARAM_DATAHEX, ui->lineEditDataHex->text());
     ExecRPCCommand::appendParam(lstParams, PARAM_AMOUNT, BitcoinUnits::format(unit, ui->lineEditAmount->value()));
-    ExecRPCCommand::appendParam(lstParams, PARAM_GASLIMIT, QString::number(ui->lineEditGasLimit->value()));
-    ExecRPCCommand::appendParam(lstParams, PARAM_GASPRICE, BitcoinUnits::format(unit, ui->lineEditGasPrice->value()));
+    ExecRPCCommand::appendParam(lstParams, PARAM_GASLIMIT, QString::number(gasLimit));
+    ExecRPCCommand::appendParam(lstParams, PARAM_GASPRICE, BitcoinUnits::format(unit, gasPrice));
     ExecRPCCommand::appendParam(lstParams, PARAM_SENDER, ui->lineEditSenderAddress->currentText());
 
     // Execute RPC command line
