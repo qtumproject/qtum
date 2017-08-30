@@ -1,7 +1,10 @@
 #include "contractabi.h"
 #include "univalue.h"
 #include "libethcore/ABI.h"
+#include <math.h>
 
+namespace ContractABI_NS
+{
 // Defining json preprocessor functions in order to avoid repetitive code with slight difference
 #define ReadJsonString(json, param, result) if(json.exists(#param) && json[#param].isStr())\
                                                 result.param = json[#param].get_str();
@@ -9,6 +12,38 @@
                                               result.param = json[#param].get_bool();
 #define ReadJsonArray(json, param, result) if(json.exists(#param) && json[#param].isArray())\
                                               result = json[#param].get_array();
+
+// String parsing functions
+inline bool startsWithString(const std::string& str, const std::string& s, size_t& pos)
+{
+    if(pos >= str.length()) return false;
+
+    size_t length = s.length();
+    bool ret = (str.substr(pos, length) == s);
+    if(ret) pos += length;
+    return ret;
+}
+
+inline std::string startsWithNumber(const std::string& str, size_t& pos)
+{
+    if(pos >= str.length()) return "";
+
+    std::stringstream ss;
+    for(size_t i = pos; i < str.size(); i++)
+    {
+        char c = str[i];
+        if(c >= '0' && c <= '9')
+            ss << c;
+        else
+            break;
+    }
+
+    std::string s = ss.str();
+    pos += s.length();
+    return s;
+}
+}
+using namespace ContractABI_NS;
 
 ContractABI::ContractABI()
 {}
@@ -134,8 +169,18 @@ std::string FunctionABI::selector() const
 ParameterABI::ParameterABI(const std::string &_name, const std::string &_type, bool _indexed):
     name(_name),
     type(_type),
-    indexed(_indexed)
+    indexed(_indexed),
+    m_decodeType(0)
 {}
+
+ParameterABI::~ParameterABI()
+{
+    if(m_decodeType)
+    {
+        delete m_decodeType;
+        m_decodeType = 0;
+    }
+}
 
 bool ParameterABI::abiIn(const std::string &value, std::string &data) const
 {
@@ -147,4 +192,224 @@ bool ParameterABI::abiOut(const std::string &data, size_t &pos, std::string &val
 {
     // Not implemented
     return false;
+}
+
+const ParameterType &ParameterABI::decodeType() const
+{
+    if(m_decodeType && m_decodeType->canonical() != type)
+    {
+        delete m_decodeType;
+        m_decodeType = 0;
+    }
+
+    if(!m_decodeType)
+    {
+        m_decodeType = new ParameterType(type);
+    }
+    return *m_decodeType;
+}
+
+ParameterType::ParameterType(const std::string& _type):
+    m_type(ParameterType::abi_none),
+    m_whole(0),
+    m_decimal(0),
+    m_length(0),
+    m_isList(false),
+    m_valid(false)
+{
+    determine(_type);
+}
+
+bool ParameterType::determine(const std::string &_type)
+{
+    clean();
+
+    // Initialize variables
+    bool ret = true;
+    size_t pos = 0;
+
+    // Set string representation
+    m_canonical = _type;
+
+    // Determine the basic type
+    if(startsWithString(m_canonical, "uint", pos))
+    {
+        m_type = abi_uint;
+    }
+    else if(startsWithString(m_canonical, "int", pos))
+    {
+        m_type = abi_int;
+    }
+    else if(startsWithString(m_canonical, "address", pos))
+    {
+        m_type = abi_address;
+    }
+    else if(startsWithString(m_canonical, "fixed", pos))
+    {
+        m_type = abi_fixed;
+    }
+    else if(startsWithString(m_canonical, "ufixed", pos))
+    {
+        m_type = abi_ufixed;
+    }
+    else if(startsWithString(m_canonical, "bytes", pos))
+    {
+        m_type = abi_bytes;
+    }
+    else if(startsWithString(m_canonical, "string", pos))
+    {
+        m_type = abi_string;
+    }
+
+    // Provide more informations about the type
+    if(m_type != abi_none)
+    {
+        // Get the whole number part size
+        std::string strWhole = startsWithNumber(m_canonical, pos);
+        if(!strWhole.empty())
+        {
+            m_whole = atoi(strWhole.c_str());
+        }
+
+        // Get the decimal number part size
+        if(startsWithString(m_canonical, "x", pos))
+        {
+            std::string strDecimal = startsWithNumber(m_canonical, pos);
+            if(!strDecimal.empty())
+            {
+                m_decimal = atoi(strDecimal.c_str());
+            }
+            else
+            {
+                ret = false;
+            }
+        }
+
+        // Get information for list type
+        if(startsWithString(m_canonical, "[", pos))
+        {
+            std::string strLength = startsWithNumber(m_canonical, pos);
+            if(!strLength.empty())
+            {
+                m_length = atoi(strLength.c_str());
+            }
+            if(startsWithString(m_canonical, "]", pos))
+            {
+                m_isList = true;
+            }
+            else
+            {
+                ret = false;
+            }
+        }
+    }
+
+    // Return if not parsed correctly
+    if(m_canonical.length() != pos || ret == false)
+        ret = false;
+
+    // Check the validity of the types
+    if(ret && (m_type == abi_int || m_type == abi_uint))
+    {
+        ret &= m_whole > 0;
+        ret &= m_whole <= 256;
+        ret &= m_whole % 8 == 0;
+        ret &= m_decimal == 0;
+    }
+
+    if(ret && m_type == abi_address)
+    {
+        ret &= m_whole == 0;
+        ret &= m_decimal == 0;
+        if(ret) m_whole = 160;
+    }
+
+    if(ret && (m_type == abi_fixed || m_type == abi_ufixed))
+    {
+        ret &= m_whole > 0;
+        ret &= m_decimal > 0;
+        ret &= (m_whole + m_decimal) <= 256;
+    }
+
+    if(ret && m_type == abi_bytes)
+    {
+        m_whole *= 8;
+        ret &= m_whole > 0;
+        ret &= m_whole <= 256;
+        ret &= m_decimal == 0;
+    }
+
+    if(ret && m_type == abi_function)
+    {
+        ret &= m_whole == 0;
+        ret &= m_decimal == 0;
+        if(ret) m_whole = 196;
+    }
+
+    if(ret && m_type == abi_string)
+    {
+        ret &= m_whole == 0;
+        ret &= m_decimal == 0;
+    }
+
+    m_valid = ret;
+
+    return m_valid;
+}
+
+size_t ParameterType::wholeBits() const
+{
+    return m_whole;
+}
+
+size_t ParameterType::decimalBits() const
+{
+    return m_decimal;
+}
+
+size_t ParameterType::totalBytes() const
+{
+    return ceil((m_whole + m_decimal) / 8.0);
+}
+
+size_t ParameterType::length() const
+{
+    return m_length;
+}
+
+bool ParameterType::isList() const
+{
+    return m_isList;
+}
+
+bool ParameterType::isDynamic() const
+{
+    if(m_type == abi_bytes || m_type == abi_string)
+        return true;
+
+    if(m_isList)
+        return m_length == 0;
+
+    return false;
+}
+
+bool ParameterType::isValid() const
+{
+    return m_valid;
+}
+
+const std::string& ParameterType::canonical() const
+{
+    return m_canonical;
+}
+
+void ParameterType::clean()
+{
+    m_type = ParameterType::abi_none;
+    m_whole = 0;
+    m_decimal = 0;
+    m_length = 0;
+    m_isList = false;
+    m_valid = false;
+    m_canonical = "";
 }
