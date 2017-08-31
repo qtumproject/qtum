@@ -43,6 +43,9 @@ ABIFunctionField::ABIFunctionField(FunctionType type, QWidget *parent) :
 
 void ABIFunctionField::updateABIFunctionField()
 {
+    // Clear the content
+    clear();
+
     if(m_contractABI != NULL)
     {
         // Populate the control with functions
@@ -77,6 +80,18 @@ void ABIFunctionField::updateABIFunctionField()
             m_comboBoxFunc->setVisible(visible);
             m_labelFunction->setVisible(visible);
         }
+    }
+}
+
+void ABIFunctionField::clear()
+{
+    m_comboBoxFunc->clear();
+    m_abiFunctionList.clear();
+    for(int i = m_paramsField->count() - 1; i >= 0; i--)
+    {
+        QWidget* widget = m_paramsField->widget(i);
+        m_paramsField->removeWidget(widget);
+        widget->deleteLater();
     }
 }
 

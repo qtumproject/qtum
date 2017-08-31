@@ -69,6 +69,11 @@ private:
      */
     void updateABIFunctionField();
 
+    /**
+     * @brief clear Clear the GUI control
+     */
+    void clear();
+
 private:
     ContractABI *m_contractABI;
     QComboBox *m_comboBoxFunc;
