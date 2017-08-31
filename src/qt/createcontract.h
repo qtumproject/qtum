@@ -7,6 +7,8 @@ class PlatformStyle;
 class WalletModel;
 class ClientModel;
 class ExecRPCCommand;
+class ABIFunctionField;
+class ContractABI;
 
 namespace Ui {
 class CreateContract;
@@ -31,12 +33,15 @@ public Q_SLOTS:
     void on_createContract_clicked();
     void on_numBlocksChanged();
     void on_updateCreateButton();
+    void on_newContractABI();
 
 private:
     Ui::CreateContract *ui;
     WalletModel* m_model;
     ClientModel* m_clientModel;
     ExecRPCCommand* m_execRPCCommand;
+    ABIFunctionField* m_ABIFunctionField;
+    ContractABI* m_contractABI;
 };
 
 #endif // CREATECONTRACT_H

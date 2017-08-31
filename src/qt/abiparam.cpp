@@ -9,12 +9,16 @@ ABIParam::ABIParam(int ID, std::string name, QWidget *parent) :
 {
     // Set up layout
     QHBoxLayout *mainLayout = new QHBoxLayout(this);
+    mainLayout->setSpacing(30);
+    mainLayout->setContentsMargins(0,0,0,0);
     m_ParamID = ID;
     m_paramName->setText(QString::fromStdString(name));
+    m_paramName->setMinimumWidth(110);
+    m_ParamValue->setMinimumWidth(170);
 
     mainLayout->addWidget(m_paramName);
-    mainLayout->addSpacerItem(new QSpacerItem(30, 20, QSizePolicy::Fixed, QSizePolicy::Fixed));
     mainLayout->addWidget(m_ParamValue);
+    mainLayout->addSpacerItem(new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Fixed));
 }
 
 QString ABIParam::getValue()

@@ -10,6 +10,8 @@
 #include "optionsmodel.h"
 #include "validation.h"
 #include "utilmoneystr.h"
+#include "abifunctionfield.h"
+#include "contractabi.h"
 
 namespace SendToContract_NS
 {
@@ -32,15 +34,19 @@ SendToContract::SendToContract(const PlatformStyle *platformStyle, QWidget *pare
     ui(new Ui::SendToContract),
     m_model(0),
     m_clientModel(0),
-    m_execRPCCommand(0)
+    m_execRPCCommand(0),
+    m_ABIFunctionField(0),
+    m_contractABI(0)
 {
     // Setup ui components
     Q_UNUSED(platformStyle);
     ui->setupUi(this);
     ui->groupBoxOptional->setStyleSheet(STYLE_GROUPBOX);
-
+    ui->groupBoxFunction->setStyleSheet(STYLE_GROUPBOX);
+    ui->scrollAreaFunction->setStyleSheet(".QScrollArea {border: none;}");
+    m_ABIFunctionField = new ABIFunctionField(ABIFunctionField::Function, ui->scrollAreaFunction);
+    ui->scrollAreaFunction->setWidget(m_ABIFunctionField);
     ui->labelContractAddress->setToolTip(tr("The contract address that will receive the funds and data."));
-    ui->labelDataHex->setToolTip(tr("The data to send."));
     ui->labelAmount->setToolTip(tr("The amount in QTUM to send. Default = 0."));
     ui->labelSenderAddress->setToolTip(tr("The quantum address that will be used as sender."));
    
@@ -63,22 +69,23 @@ SendToContract::SendToContract(const PlatformStyle *platformStyle, QWidget *pare
     lstOptional.append(PARAM_SENDER);
     QMap<QString, QString> lstTranslations;
     lstTranslations[PARAM_ADDRESS] = ui->labelContractAddress->text();
-    lstTranslations[PARAM_DATAHEX] = ui->labelDataHex->text();
     lstTranslations[PARAM_AMOUNT] = ui->labelAmount->text();
     lstTranslations[PARAM_GASLIMIT] = ui->labelGasLimit->text();
     lstTranslations[PARAM_GASPRICE] = ui->labelGasPrice->text();
     lstTranslations[PARAM_SENDER] = ui->labelSenderAddress->text();
     m_execRPCCommand = new ExecRPCCommand(PRC_COMMAND, lstMandatory, lstOptional, lstTranslations, this);
+    m_contractABI = new ContractABI();
 
     // Connect signals with slots
     connect(ui->pushButtonClearAll, SIGNAL(clicked()), SLOT(on_clearAll_clicked()));
     connect(ui->pushButtonSendToContract, SIGNAL(clicked()), SLOT(on_sendToContract_clicked()));
     connect(ui->lineEditContractAddress, SIGNAL(textChanged(QString)), SLOT(on_updateSendToContractButton()));
-    connect(ui->lineEditDataHex, SIGNAL(textChanged(QString)), SLOT(on_updateSendToContractButton()));
+    connect(ui->textEditInterface, SIGNAL(textChanged()), SLOT(on_newContractABI()));
 }
 
 SendToContract::~SendToContract()
 {
+    delete m_contractABI;
     delete ui;
 }
 
@@ -101,7 +108,6 @@ void SendToContract::setClientModel(ClientModel *_clientModel)
 void SendToContract::on_clearAll_clicked()
 {
     ui->lineEditContractAddress->clear();
-    ui->lineEditDataHex->clear();
     ui->lineEditAmount->clear();
     ui->lineEditGasLimit->setValue(DEFAULT_GAS_LIMIT_OP_SEND);
     ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
@@ -119,7 +125,7 @@ void SendToContract::on_sendToContract_clicked()
     uint64_t gasLimit = ui->lineEditGasLimit->value();
     CAmount gasPrice = ui->lineEditGasPrice->value();
 
-    // Check the for high gas price
+    // Check for high gas price
     if(gasPrice > HIGH_GASPRICE)
     {
         QString message = tr("The Gas Price is too high, are you sure you want to possibly spend a max of %1 for this transaction?");
@@ -129,7 +135,7 @@ void SendToContract::on_sendToContract_clicked()
 
     // Append params to the list
     ExecRPCCommand::appendParam(lstParams, PARAM_ADDRESS, ui->lineEditContractAddress->text());
-    ExecRPCCommand::appendParam(lstParams, PARAM_DATAHEX, ui->lineEditDataHex->text());
+    ExecRPCCommand::appendParam(lstParams, PARAM_DATAHEX, "");
     ExecRPCCommand::appendParam(lstParams, PARAM_AMOUNT, BitcoinUnits::format(unit, ui->lineEditAmount->value()));
     ExecRPCCommand::appendParam(lstParams, PARAM_GASLIMIT, QString::number(gasLimit));
     ExecRPCCommand::appendParam(lstParams, PARAM_GASPRICE, BitcoinUnits::format(unit, gasPrice));
@@ -167,7 +173,7 @@ void SendToContract::on_numBlocksChanged()
 
 void SendToContract::on_updateSendToContractButton()
 {
-    if(ui->lineEditContractAddress->text().isEmpty() || ui->lineEditDataHex->text().isEmpty())
+    if(ui->lineEditContractAddress->text().isEmpty())
     {
         ui->pushButtonSendToContract->setEnabled(false);
     }
@@ -175,4 +181,14 @@ void SendToContract::on_updateSendToContractButton()
     {
         ui->pushButtonSendToContract->setEnabled(true);
     }
+}
+
+void SendToContract::on_newContractABI()
+{
+    std::string json_data = ui->textEditInterface->toPlainText().toStdString();
+    if(!m_contractABI->loads(json_data))
+    {
+        m_contractABI->clean();
+    }
+    m_ABIFunctionField->setContractABI(m_contractABI);
 }

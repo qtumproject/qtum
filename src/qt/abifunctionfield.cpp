@@ -7,23 +7,38 @@
 #include <QStringListModel>
 
 #include <iostream>
-ABIFunctionField::ABIFunctionField(QWidget *parent) :
+ABIFunctionField::ABIFunctionField(FunctionType type, QWidget *parent) :
     QWidget(parent),
     m_contractABI(0),
     m_comboBoxFunc(new QComboBox(this)),
-    m_paramsField(new QStackedWidget(this))
+    m_paramsField(new QStackedWidget(this)),
+    m_functionType(type)
 {
     // Setup layouts
+    m_comboBoxFunc->setMinimumWidth(170);
+    m_paramsField->setStyleSheet(".QStackedWidget { border: none; }");
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    mainLayout->setSpacing(12);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
+
     QHBoxLayout *topLayout = new QHBoxLayout(this);
-    QLabel *labelFunction = new QLabel(tr("Function:"));
-    topLayout->addWidget(labelFunction);
-    topLayout->addSpacerItem(new QSpacerItem(30, 20, QSizePolicy::Fixed, QSizePolicy::Fixed));
+    topLayout->setSpacing(30);
+    topLayout->setContentsMargins(0, 0, 0, 0);
+
+    m_labelFunction = new QLabel(tr("Function:"));
+    m_labelFunction->setMinimumWidth(110);
+    topLayout->addWidget(m_labelFunction);
+
     topLayout->addWidget(m_comboBoxFunc);
+    topLayout->addSpacerItem(new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Fixed));
 
     mainLayout->addLayout(topLayout);
     mainLayout->addWidget(m_paramsField);
+    mainLayout->addStretch(1);
     connect(m_comboBoxFunc, SIGNAL(currentIndexChanged(int)), m_paramsField, SLOT(setCurrentIndex(int)));
+
+    m_comboBoxFunc->setVisible(false);
+    m_labelFunction->setVisible(false);
 }
 
 void ABIFunctionField::updateABIFunctionField()
@@ -36,18 +51,32 @@ void ABIFunctionField::updateABIFunctionField()
         QStringListModel *functionModel = new QStringListModel(this);
         for (std::vector<FunctionABI>::const_iterator func = functions.begin() ; func != functions.end(); ++func)
         {
+            const FunctionABI &function = *func;
+            if((m_functionType == Constructor && function.type != "constructor") ||
+                    (m_functionType == Function && function.type == "constructor"))
+            {
+                continue;
+            }
+
             ABIParamsField *abiParamsField = new ABIParamsField(this);
-            abiParamsField->updateParamsField(*func);
+            abiParamsField->updateParamsField(function);
 
             m_paramsField->addWidget(abiParamsField);
-            QString funcName = QString::fromStdString((*func).name);
-            QString funcSelector = QString::fromStdString((*func).selector());
+            QString funcName = QString::fromStdString(function.name);
+            QString funcSelector = QString::fromStdString(function.selector());
             functionList.append(QString(funcName + "(" + funcSelector + ")"));
 
-            m_abiFunctionList.append(&(*func));
+            m_abiFunctionList.append(&function);
         }
         functionModel->setStringList(functionList);
         m_comboBoxFunc->setModel(functionModel);
+
+        if(m_functionType == Function)
+        {
+            bool visible = m_abiFunctionList.size() > 0;
+            m_comboBoxFunc->setVisible(visible);
+            m_labelFunction->setVisible(visible);
+        }
     }
 }
 

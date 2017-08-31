@@ -11,6 +11,8 @@
 #include "validation.h"
 #include "utilmoneystr.h"
 #include "addressfield.h"
+#include "abifunctionfield.h"
+#include "contractabi.h"
 
 namespace CreateContract_NS
 {
@@ -31,14 +33,19 @@ CreateContract::CreateContract(const PlatformStyle *platformStyle, QWidget *pare
     ui(new Ui::CreateContract),
     m_model(0),
     m_clientModel(0),
-    m_execRPCCommand(0)
+    m_execRPCCommand(0),
+    m_ABIFunctionField(0),
+    m_contractABI(0)
 {
     // Setup ui components
     Q_UNUSED(platformStyle);
     ui->setupUi(this);
     ui->groupBoxOptional->setStyleSheet(STYLE_GROUPBOX);
+    ui->groupBoxConstructor->setStyleSheet(STYLE_GROUPBOX);
+    ui->scrollAreaConstructor->setStyleSheet(".QScrollArea {border: none;}");
     setLinkLabels();
-
+    m_ABIFunctionField = new ABIFunctionField(ABIFunctionField::Constructor, ui->scrollAreaConstructor);
+    ui->scrollAreaConstructor->setWidget(m_ABIFunctionField);
     ui->labelBytecode->setToolTip(tr("The bytecode of the contract"));
     ui->labelSenderAddress->setToolTip(tr("The quantum address that will be used to create the contract."));
 
@@ -63,15 +70,18 @@ CreateContract::CreateContract(const PlatformStyle *platformStyle, QWidget *pare
     lstTranslations[PARAM_GASPRICE] = ui->labelGasPrice->text();
     lstTranslations[PARAM_SENDER] = ui->labelSenderAddress->text();
     m_execRPCCommand = new ExecRPCCommand(PRC_COMMAND, lstMandatory, lstOptional, lstTranslations, this);
+    m_contractABI = new ContractABI();
 
     // Connect signals with slots
     connect(ui->pushButtonClearAll, SIGNAL(clicked()), SLOT(on_clearAll_clicked()));
     connect(ui->pushButtonCreateContract, SIGNAL(clicked()), SLOT(on_createContract_clicked()));
     connect(ui->textEditBytecode, SIGNAL(textChanged()), SLOT(on_updateCreateButton()));
+    connect(ui->textEditInterface, SIGNAL(textChanged()), SLOT(on_newContractABI()));
 }
 
 CreateContract::~CreateContract()
 {
+    delete m_contractABI;
     delete ui;
 }
 
@@ -122,7 +132,7 @@ void CreateContract::on_createContract_clicked()
     uint64_t gasLimit = ui->lineEditGasLimit->value();
     CAmount gasPrice = ui->lineEditGasPrice->value();
 
-    // Check the for high gas price
+    // Check for high gas price
     if(gasPrice > HIGH_GASPRICE)
     {
         QString message = tr("The Gas Price is too high, are you sure you want to possibly spend a max of %1 for this transaction?");
@@ -176,4 +186,14 @@ void CreateContract::on_updateCreateButton()
     {
         ui->pushButtonCreateContract->setEnabled(true);
     }
+}
+
+void CreateContract::on_newContractABI()
+{
+    std::string json_data = ui->textEditInterface->toPlainText().toStdString();
+    if(!m_contractABI->loads(json_data))
+    {
+        m_contractABI->clean();
+    }
+    m_ABIFunctionField->setContractABI(m_contractABI);
 }

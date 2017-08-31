@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QStackedWidget>
 #include <QComboBox>
+#include <QLabel>
 #include <QVector>
 #include "contractabi.h"
 
@@ -15,12 +16,23 @@ class ABIParamsField;
 class ABIFunctionField : public QWidget
 {
     Q_OBJECT
+    Q_ENUMS(FunctionType)
 public:
     /**
+     * @brief The FunctionType enum Function type to display
+     */
+    enum FunctionType
+    {
+        Function,
+        Constructor
+    };
+
+    /**
      * @brief ABIFunctionField Constructor
+     * @param type Function type to display
      * @param parent Parent windows for the GUI control
      */
-    ABIFunctionField(QWidget *parent = 0);
+    ABIFunctionField(FunctionType type, QWidget *parent = 0);
 
     /**
      * @brief setContractABI Set the contract ABI (list of functions from the contract)
@@ -60,8 +72,10 @@ private:
 private:
     ContractABI *m_contractABI;
     QComboBox *m_comboBoxFunc;
+    QLabel* m_labelFunction;
     QStackedWidget *m_paramsField;
     QVector<const FunctionABI*> m_abiFunctionList;
+    FunctionType m_functionType;
 };
 
 #endif // ABIFUNCTIONFIELD_H

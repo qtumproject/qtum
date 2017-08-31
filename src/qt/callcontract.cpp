@@ -5,7 +5,8 @@
 #include "guiconstants.h"
 #include "rpcconsole.h"
 #include "execrpccommand.h"
-#include <QComboBox>
+#include "abifunctionfield.h"
+#include "contractabi.h"
 
 namespace CallContract_NS
 {
@@ -21,14 +22,20 @@ CallContract::CallContract(const PlatformStyle *platformStyle, QWidget *parent) 
     QWidget(parent),
     ui(new Ui::CallContract),
     m_clientModel(0),
-    m_execRPCCommand(0)
+    m_execRPCCommand(0),
+    m_ABIFunctionField(0),
+    m_contractABI(0)
 {
     // Setup ui components
     Q_UNUSED(platformStyle);
     ui->setupUi(this);
     ui->groupBoxOptional->setStyleSheet(STYLE_GROUPBOX);
+    ui->groupBoxFunction->setStyleSheet(STYLE_GROUPBOX);
+    ui->scrollAreaFunction->setStyleSheet(".QScrollArea {border: none;}");
+    m_ABIFunctionField = new ABIFunctionField(ABIFunctionField::Function, ui->scrollAreaFunction);
+    ui->scrollAreaFunction->setWidget(m_ABIFunctionField);
+
     ui->labelContractAddress->setToolTip(tr("The account address."));
-    ui->labelDataHex->setToolTip(tr("The data hex string."));
     ui->labelSenderAddress->setToolTip(tr("The sender address hex string."));
     ui->pushButtonCallContract->setEnabled(false);
 
@@ -40,19 +47,20 @@ CallContract::CallContract(const PlatformStyle *platformStyle, QWidget *parent) 
     lstOptional.append(PARAM_SENDER);
     QMap<QString, QString> lstTranslations;
     lstTranslations[PARAM_ADDRESS] = ui->labelContractAddress->text();
-    lstTranslations[PARAM_DATAHEX] = ui->labelDataHex->text();
     lstTranslations[PARAM_SENDER] = ui->labelSenderAddress->text();
     m_execRPCCommand = new ExecRPCCommand(PRC_COMMAND, lstMandatory, lstOptional, lstTranslations, this);
+    m_contractABI = new ContractABI();
 
     // Connect signals with slots
     connect(ui->pushButtonClearAll, SIGNAL(clicked()), SLOT(on_clearAll_clicked()));
     connect(ui->pushButtonCallContract, SIGNAL(clicked()), SLOT(on_callContract_clicked()));
     connect(ui->lineEditContractAddress, SIGNAL(textChanged(QString)), SLOT(on_updateCallContractButton()));
-    connect(ui->lineEditDataHex, SIGNAL(textChanged(QString)), SLOT(on_updateCallContractButton()));
+    connect(ui->textEditInterface, SIGNAL(textChanged()), SLOT(on_newContractABI()));
 }
 
 CallContract::~CallContract()
 {
+    delete m_contractABI;
     delete ui;
 }
 
@@ -70,7 +78,6 @@ void CallContract::setClientModel(ClientModel *_clientModel)
 void CallContract::on_clearAll_clicked()
 {
     ui->lineEditContractAddress->clear();
-    ui->lineEditDataHex->clear();
     ui->lineEditSenderAddress->setCurrentIndex(-1);
 }
 
@@ -84,7 +91,7 @@ void CallContract::on_callContract_clicked()
 
     // Append params to the list
     ExecRPCCommand::appendParam(lstParams, PARAM_ADDRESS, ui->lineEditContractAddress->text());
-    ExecRPCCommand::appendParam(lstParams, PARAM_DATAHEX, ui->lineEditDataHex->text());
+    ExecRPCCommand::appendParam(lstParams, PARAM_DATAHEX, "");
     ExecRPCCommand::appendParam(lstParams, PARAM_SENDER, ui->lineEditSenderAddress->currentText());
 
     // Execute RPC command line
@@ -109,7 +116,7 @@ void CallContract::on_numBlocksChanged()
 
 void CallContract::on_updateCallContractButton()
 {
-    if(ui->lineEditContractAddress->text().isEmpty() || ui->lineEditDataHex->text().isEmpty())
+    if(ui->lineEditContractAddress->text().isEmpty())
     {
         ui->pushButtonCallContract->setEnabled(false);
     }
@@ -117,4 +124,14 @@ void CallContract::on_updateCallContractButton()
     {
         ui->pushButtonCallContract->setEnabled(true);
     }
+}
+
+void CallContract::on_newContractABI()
+{
+    std::string json_data = ui->textEditInterface->toPlainText().toStdString();
+    if(!m_contractABI->loads(json_data))
+    {
+        m_contractABI->clean();
+    }
+    m_ABIFunctionField->setContractABI(m_contractABI);
 }

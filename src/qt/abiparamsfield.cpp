@@ -7,6 +7,8 @@ ABIParamsField::ABIParamsField(QWidget *parent) :
     QWidget(parent),
     m_mainLayout(new QVBoxLayout(this))
 {
+    m_mainLayout->setSpacing(6);
+    m_mainLayout->setContentsMargins(0,0,0,0);
     this->setLayout(m_mainLayout);
 }
 

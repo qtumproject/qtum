@@ -7,6 +7,8 @@ class PlatformStyle;
 class WalletModel;
 class ClientModel;
 class ExecRPCCommand;
+class ABIFunctionField;
+class ContractABI;
 
 namespace Ui {
 class SendToContract;
@@ -30,12 +32,15 @@ public Q_SLOTS:
     void on_sendToContract_clicked();
     void on_numBlocksChanged();
     void on_updateSendToContractButton();
+    void on_newContractABI();
 
 private:
     Ui::SendToContract *ui;
     WalletModel* m_model;
     ClientModel* m_clientModel;
     ExecRPCCommand* m_execRPCCommand;
+    ABIFunctionField* m_ABIFunctionField;
+    ContractABI* m_contractABI;
 };
 
 #endif // SENDTOCONTRACT_H

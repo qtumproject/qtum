@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>690</width>
-    <height>501</height>
+    <height>526</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -52,8 +52,11 @@
       <number>23</number>
      </property>
      <property name="verticalSpacing">
-      <number>15</number>
+      <number>12</number>
      </property>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="lineEditContractAddress"/>
+     </item>
      <item row="0" column="0">
       <widget class="QLabel" name="labelContractAddress">
        <property name="text">
@@ -61,36 +64,69 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="QLineEdit" name="lineEditContractAddress"/>
+     <item row="1" column="1">
+      <widget class="QTextEdit" name="textEditInterface"/>
      </item>
      <item row="1" column="0">
-      <widget class="QLabel" name="labelDataHex">
-       <property name="text">
-        <string>Data Hex</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="lineEditDataHex"/>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QLabel" name="labelInterface">
+         <property name="text">
+          <string>Interface</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>
    <item>
-    <spacer name="verticalSpacer_3">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
+    <widget class="QGroupBox" name="groupBoxFunction">
+     <property name="title">
+      <string>Function</string>
      </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::Fixed</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <property name="leftMargin">
+       <number>15</number>
+      </property>
+      <property name="topMargin">
+       <number>15</number>
+      </property>
+      <property name="bottomMargin">
+       <number>9</number>
+      </property>
+      <item>
+       <widget class="QScrollArea" name="scrollAreaFunction">
+        <property name="widgetResizable">
+         <bool>true</bool>
+        </property>
+        <widget class="QWidget" name="scrollAreaWidgetContents">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>640</width>
+           <height>68</height>
+          </rect>
+         </property>
+        </widget>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item>
     <widget class="QGroupBox" name="groupBoxOptional">
@@ -108,7 +144,7 @@
        <number>30</number>
       </property>
       <property name="verticalSpacing">
-       <number>12</number>
+       <number>6</number>
       </property>
       <item row="1" column="1">
        <widget class="QSpinBox" name="lineEditGasLimit">
@@ -128,6 +164,12 @@
       </item>
       <item row="3" column="0">
        <widget class="QLabel" name="labelSenderAddress">
+        <property name="minimumSize">
+         <size>
+          <width>110</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="text">
          <string>Sender Address</string>
         </property>
@@ -135,6 +177,12 @@
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="labelGasLimit">
+        <property name="minimumSize">
+         <size>
+          <width>110</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="text">
          <string>Gas Limit</string>
         </property>
@@ -158,6 +206,12 @@
       </item>
       <item row="2" column="0">
        <widget class="QLabel" name="labelGasPrice">
+        <property name="minimumSize">
+         <size>
+          <width>110</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="text">
          <string>Gas Price</string>
         </property>
@@ -168,6 +222,12 @@
       </item>
       <item row="0" column="0">
        <widget class="QLabel" name="labelAmount">
+        <property name="minimumSize">
+         <size>
+          <width>110</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="text">
          <string>Amount</string>
         </property>
