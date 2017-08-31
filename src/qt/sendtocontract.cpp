@@ -73,7 +73,7 @@ SendToContract::SendToContract(const PlatformStyle *platformStyle, QWidget *pare
     // Connect signals with slots
     connect(ui->pushButtonClearAll, SIGNAL(clicked()), SLOT(on_clearAll_clicked()));
     connect(ui->pushButtonSendToContract, SIGNAL(clicked()), SLOT(on_sendToContract_clicked()));
-    connect(ui->lineEditContractAddress, SIGNAL(textChanged(QString)), SLOT(on_updateCallContractButton()));
+    connect(ui->lineEditContractAddress, SIGNAL(textChanged(QString)), SLOT(on_updateSendToContractButton()));
     connect(ui->lineEditDataHex, SIGNAL(textChanged(QString)), SLOT(on_updateSendToContractButton()));
 }
 
