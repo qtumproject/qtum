@@ -125,10 +125,6 @@ struct CompareModifiedEntry {
                 return false;
             }
 
-            // Consistency check, there should never be any contract txs in the mempool with a zero gas price.
-            assert(a.iter->GetMinGasPrice() != 0);
-            assert(b.iter->GetMinGasPrice() != 0);
-
             // Otherwise, prioritize the contract tx with the highest (minimum among its outputs) gas price
             // The reason for using the gas price of the output that sets the minimum gas price is that
             // otherwise it may be possible to game the prioritization by setting a large gas price in one output

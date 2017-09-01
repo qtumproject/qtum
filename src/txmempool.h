@@ -334,9 +334,6 @@ public:
                 return a.GetCountWithAncestors() < b.GetCountWithAncestors();
             }
 
-            assert(a.GetMinGasPrice() > 0);
-            assert(b.GetMinGasPrice() > 0);
-
             // Otherwise, prioritize the contract tx with the highest (minimum among its outputs) gas price
             // The reason for using the gas price of the output that sets the minimum gas price is that there
             // otherwise it may be possible to game the prioritization by setting a large gas price in one output
