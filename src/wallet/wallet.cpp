@@ -4439,8 +4439,12 @@ bool CWallet::ParameterInteraction()
 
     if (GetBoolArg("-sysperms", false))
         return InitError("-sysperms is not allowed in combination with enabled wallet functionality");
+#if 0
+// *** The Qtum wallet currently requires txindex to be set/true.  Therefore pruning is not allowed.
+// *** TODO: Add support for pruning (while still maintaining txindex).
     if (GetArg("-prune", 0) && GetBoolArg("-rescan", false))
         return InitError(_("Rescans are not possible in pruned mode. You will need to use -reindex which will download the whole blockchain again."));
+#endif
 
     if (::minRelayTxFee.GetFeePerK() > HIGH_TX_FEE_PER_KB)
         InitWarning(AmountHighWarn("-minrelaytxfee") + " " +
