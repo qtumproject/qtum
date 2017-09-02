@@ -363,13 +363,13 @@ class FullBlockTest(ComparisonTestFramework):
         tip(15)
         b23 = block(23, spend=out[6])
         tx = CTransaction()
-        script_length = dgpMaxBlockBaseSize - len(b23.serialize()) - 69
+        script_length = 1000000 - len(b23.serialize()) - 69
         script_output = CScript([b'\x00' * script_length])
         tx.vout.append(CTxOut(0, script_output))
         tx.vin.append(CTxIn(COutPoint(b23.vtx[1].sha256, 0)))
         b23 = update_block(23, [tx])
         # Make sure the math above worked out to produce a max-sized block
-        assert_equal(len(b23.serialize()), dgpMaxBlockBaseSize)
+        assert_equal(len(b23.serialize()), 1000000)
         yield accepted()
         save_spendable_output()
 
@@ -912,12 +912,12 @@ class FullBlockTest(ComparisonTestFramework):
         tx = CTransaction()
 
         # use canonical serialization to calculate size
-        script_length = dgpMaxBlockBaseSize - len(b64a.normal_serialize()) - 69
+        script_length = 1000000 - len(b64a.normal_serialize()) - 69
         script_output = CScript([b'\x00' * script_length])
         tx.vout.append(CTxOut(0, script_output))
         tx.vin.append(CTxIn(COutPoint(b64a.vtx[1].sha256, 0)))
         b64a = update_block("64a", [tx])
-        assert_equal(len(b64a.serialize()), dgpMaxBlockBaseSize + 8)
+        assert_equal(len(b64a.serialize()), 1000000 + 8)
         yield TestInstance([[self.tip, None]])
 
         # comptool workaround: to make sure b64 is delivered, manually erase b64a from blockstore
@@ -927,7 +927,7 @@ class FullBlockTest(ComparisonTestFramework):
         b64 = CBlock(b64a)
         b64.vtx = copy.deepcopy(b64a.vtx)
         assert_equal(b64.hash, b64a.hash)
-        assert_equal(len(b64.serialize()), dgpMaxBlockBaseSize)
+        assert_equal(len(b64.serialize()), 1000000)
         self.blocks[64] = b64
         update_block(64, [])
         yield accepted()
@@ -1261,12 +1261,12 @@ class FullBlockTest(ComparisonTestFramework):
             for i in range(89, LARGE_REORG_SIZE + 89):
                 b = block(i, spend)
                 tx = CTransaction()
-                script_length = dgpMaxBlockBaseSize - len(b.serialize()) - 69
+                script_length = 1000000 - len(b.serialize()) - 69
                 script_output = CScript([b'\x00' * script_length])
                 tx.vout.append(CTxOut(0, script_output))
                 tx.vin.append(CTxIn(COutPoint(b.vtx[1].sha256, 0)))
                 b = update_block(i, [tx])
-                assert_equal(len(b.serialize()), dgpMaxBlockBaseSize)
+                assert_equal(len(b.serialize()), 1000000)
                 test1.blocks_and_transactions.append([self.tip, True])
                 save_spendable_output()
                 spend = get_spendable_output()
