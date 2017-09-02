@@ -5102,8 +5102,14 @@ bool InitBlockIndex(const CChainParams& chainparams)
     if (chainActive.Genesis() != NULL)
         return true;
 
+#if 0
+// *** The Qtum wallet currently requires txindex to be set/true.
+// *** TODO: Add support for pruning (while still maintaining txindex).
     // Use the provided setting for -txindex in the new database
     fTxIndex = GetBoolArg("-txindex", DEFAULT_TXINDEX);
+#else
+    fTxIndex = DEFAULT_TXINDEX;
+#endif
     pblocktree->WriteFlag("txindex", fTxIndex);
 
     // Use the provided setting for -txindex in the new database
