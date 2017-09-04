@@ -1098,19 +1098,13 @@ UniValue searchlogs(const JSONRPCRequest& request)
 
     int fromBlock = request.params[0].get_int();
     int toBlock = 0;
-    if (request.params[1].isNum())
-    {
-        toBlock = request.params[1].get_int();
-    } else {
-        if (request.params[1].isStr())
-        {
-            if (request.params[1].get_str() == "latest")
-            {
-                toBlock = chainActive.Height();
-            } else 
-                throw JSONRPCError(RPC_INVALID_PARAMS, "Incorrect toBlock");
-        } else 
-            throw JSONRPCError(RPC_INVALID_PARAMS, "Incorrect toBlock");
+    toBlock = request.params[1].get_int();
+    if(request.params[1].isNum()){
+        if(toBlock < 0){
+            toBlock = chainActive.Height();
+        } else {
+            toBlock = request.params[1].get_int();
+        }
     }
 
     std::set<dev::h160> addresses;
@@ -1128,40 +1122,45 @@ UniValue searchlogs(const JSONRPCRequest& request)
     if (request.params.size() > 3 && !getTopicsFromParams(request.params, topics))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
     
-    std::vector<uint256> hashes;
-    if (!pblocktree->ReadHeightIndex(toBlock, fromBlock, hashes, addresses))
+    std::vector<std::vector<uint256>> hashesToBlock;
+    if (!pblocktree->ReadHeightIndex(toBlock, fromBlock, hashesToBlock, addresses))
         throw JSONRPCError(RPC_INVALID_PARAMS, "Could not read tx height index");
 
     UniValue result(UniValue::VARR);
     boost::filesystem::path stateDir = GetDataDir() / "stateQtum";
     StorageResults storageRes(stateDir.string());
 
-    for(const auto& e : hashes)
+    for(const auto& hashesTx : hashesToBlock)
     {
-        std::vector<TransactionReceiptInfo> transactionReceiptInfo = storageRes.getResult(uintToh256(e));
-        
-        for(TransactionReceiptInfo& t : transactionReceiptInfo){
-            if (!topics.empty())
-            {
-                bool skip = true;
-                for (const auto& tc: topics)
-                {
-                    for (const auto& log: t.logs)
-                    {                  
-                        if(tc.first < t.logs.size() && tc.second == log.topics[tc.first])
-                        {
-                            skip = false;
-                            break;
-                        }
-                    }
-                    if (!skip) break;
-                }
-                if (skip) continue;
-            }
+        for(const auto& e : hashesTx)
+        {
+            std::vector<TransactionReceiptInfo> transactionReceiptInfo = storageRes.getResult(uintToh256(e));
             
-            UniValue tri(UniValue::VOBJ);
-            transactionReceiptInfoToJSON(t, tri);
-            result.push_back(tri);
+            for(TransactionReceiptInfo& t : transactionReceiptInfo){
+                if (!topics.empty())
+                {
+                    bool skip = true;
+                    for (const auto& tc: topics)
+                    {
+                        for (const auto& log: t.logs)
+                        {                  
+                            if(tc.first < t.logs.size() && tc.second == log.topics[tc.first])
+                            {
+                                skip = false;
+                                break;
+                            }
+                        }
+                        if (!skip) break;
+                    }
+                    if (skip) continue;
+                }
+                
+                if(!t.logs.empty()){
+                    UniValue tri(UniValue::VOBJ);
+                    transactionReceiptInfoToJSON(t, tri);
+                    result.push_back(tri);
+                }
+            }
         }
     }
 

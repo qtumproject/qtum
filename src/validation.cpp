@@ -2579,7 +2579,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     blockundo.vtxundo.reserve(block.vtx.size() - 1);
 
     ///////////////////////////////////////////////////////// // qtum
-    std::vector<std::pair<CHeightTxIndexKey, uint256>> heightIndexes;
+    std::map<dev::Address, std::pair<CHeightTxIndexKey, std::vector<uint256>>> heightIndexes;
     /////////////////////////////////////////////////////////
 
     std::vector<PrecomputedTransactionData> txdata;
@@ -2730,7 +2730,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             if (fLogEvents)
             {
                 for(size_t k = 0; k < resultConvertQtumTX.first.size(); k ++){
-                    heightIndexes.push_back({CHeightTxIndexKey(pindex->nHeight, resultExec[k].execRes.newAddress), tx.GetHash()});
+                    dev::Address key = resultExec[k].execRes.newAddress;
+                    if(!heightIndexes.count(key)){
+                        heightIndexes[key].first = CHeightTxIndexKey(pindex->nHeight, resultExec[k].execRes.newAddress);
+                    }
+                    heightIndexes[key].second.push_back(tx.GetHash());
                     tri.push_back(TransactionReceiptInfo{block.GetHash(), uint32_t(pindex->nHeight), tx.GetHash(), uint32_t(i), resultConvertQtumTX.first[k].from(), resultConvertQtumTX.first[k].to(),
                                 countCumulativeGasUsed, uint64_t(resultExec[k].execRes.gasUsed), resultExec[k].execRes.newAddress, resultExec[k].txRec.log()});
                 }
@@ -2891,7 +2895,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     {
         for (const auto& e: heightIndexes)
         {
-            if (!pblocktree->WriteHeightIndex(e.first, e.second))
+            if (!pblocktree->WriteHeightIndex(e.second.first, e.second.second))
                 return AbortNode(state, "Failed to write height index");
         }
     }    

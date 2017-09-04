@@ -175,12 +175,13 @@ bool CBlockTreeDB::ReadFlag(const std::string &name, bool &fValue) {
 }
 
 /////////////////////////////////////////////////////// // qtum
-bool CBlockTreeDB::WriteHeightIndex(const CHeightTxIndexKey &heightIndex, const uint256& hash) {
+bool CBlockTreeDB::WriteHeightIndex(const CHeightTxIndexKey &heightIndex, const std::vector<uint256>& hash) {
     CDBBatch batch(*this);
     batch.Write(std::make_pair(DB_HEIGHTINDEX, heightIndex), hash);
     return WriteBatch(batch);
 }
-bool CBlockTreeDB::ReadHeightIndex(const unsigned int &high, const unsigned int &low, std::vector<uint256> &hashes,
+
+bool CBlockTreeDB::ReadHeightIndex(const unsigned int &high, const unsigned int &low, std::vector<std::vector<uint256>> &hashes,
                                     std::set<dev::h160> addresses) {
 
     boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
@@ -196,7 +197,7 @@ bool CBlockTreeDB::ReadHeightIndex(const unsigned int &high, const unsigned int 
                 pcursor->Next();
                 continue;
             }
-            uint256 value;
+            std::vector<uint256> value;
             pcursor->GetValue(value);
             hashes.push_back(value);
             pcursor->Next();

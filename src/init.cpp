@@ -1550,8 +1550,8 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
                     strLoadError = _("You need to rebuild the database using -reindex-chainstate to change -txindex");
                     break;
                 }
-                                // Check for changed -logevents state
-                if (fLogEvents != GetBoolArg("-logevents", DEFAULT_LOGEVENTS) && !fLogEvents) {
+                // Check for changed -logevents state
+                if (GetBoolArg("-logevents", DEFAULT_LOGEVENTS) && !fReindexChainState) {
                     strLoadError = _("You need to rebuild the database using -reindex-chainstate to enable -logevents");
                     break;
                 }
@@ -1562,6 +1562,7 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
                     StorageResults storageRes(stateDir.string());
                     storageRes.wipeResults();
                     pblocktree->WipeHeightIndex();
+                    fLogEvents = false;
                 }
 
                 // Check for changed -prune state.  What we are concerned about is a user who has pruned blocks
