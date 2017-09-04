@@ -2082,7 +2082,7 @@ bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, cons
             return error("CheckReward(): cannot create the list of MPoS output scripts");
 
         // Check the list of script recipients
-        for(size_t i = 0; i < (block.vtx[offset]->vout.size() - offset); i++)
+        for(size_t i = 0; i < (block.vtx[offset]->vout.size() - offset - nRefundVouts); i++)
         {
             //use offset+i because in PoS the first vout is empty
             std::vector<CScript>::iterator pos;
