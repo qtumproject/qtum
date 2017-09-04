@@ -10,12 +10,13 @@
 ABIFunctionField::ABIFunctionField(FunctionType type, QWidget *parent) :
     QWidget(parent),
     m_contractABI(0),
+    m_func(new QWidget(this)),
     m_comboBoxFunc(new QComboBox(this)),
     m_paramsField(new QStackedWidget(this)),
     m_functionType(type)
 {
     // Setup layouts
-    m_comboBoxFunc->setMinimumWidth(170);
+    m_comboBoxFunc->setFixedWidth(370);
     m_paramsField->setStyleSheet(".QStackedWidget { border: none; }");
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->setSpacing(12);
@@ -32,13 +33,13 @@ ABIFunctionField::ABIFunctionField(FunctionType type, QWidget *parent) :
     topLayout->addWidget(m_comboBoxFunc);
     topLayout->addSpacerItem(new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Fixed));
 
-    mainLayout->addLayout(topLayout);
+    m_func->setLayout(topLayout);
+    mainLayout->addWidget(m_func);
     mainLayout->addWidget(m_paramsField);
-    mainLayout->addStretch(1);
+    mainLayout->addSpacerItem(new QSpacerItem(20, 40, QSizePolicy::Fixed, QSizePolicy::Expanding));
     connect(m_comboBoxFunc, SIGNAL(currentIndexChanged(int)), m_paramsField, SLOT(setCurrentIndex(int)));
 
-    m_comboBoxFunc->setVisible(false);
-    m_labelFunction->setVisible(false);
+    m_func->setVisible(false);
 }
 
 void ABIFunctionField::updateABIFunctionField()
@@ -77,8 +78,7 @@ void ABIFunctionField::updateABIFunctionField()
         if(m_functionType == Function)
         {
             bool visible = m_abiFunctionList.size() > 0;
-            m_comboBoxFunc->setVisible(visible);
-            m_labelFunction->setVisible(visible);
+            m_func->setVisible(visible);
         }
     }
 }

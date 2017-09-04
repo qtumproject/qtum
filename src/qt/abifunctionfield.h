@@ -76,6 +76,7 @@ private:
 
 private:
     ContractABI *m_contractABI;
+    QWidget *m_func;
     QComboBox *m_comboBoxFunc;
     QLabel* m_labelFunction;
     QStackedWidget *m_paramsField;
