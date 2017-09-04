@@ -19,7 +19,7 @@ void ABIParamsField::updateParamsField(const FunctionABI &function)
     int paramId = 0;
     for(std::vector<ParameterABI>::const_iterator param = function.inputs.begin(); param != function.inputs.end(); ++param)
     {
-        ABIParam *paramFiled = new ABIParam(paramId, param->name);
+        ABIParam *paramFiled = new ABIParam(paramId, *param);
         m_listParams.append(paramFiled);
         m_mainLayout->addWidget(paramFiled);
         paramId++;
