@@ -948,7 +948,8 @@ UniValue callcontract(const JSONRPCRequest& request)
              "\nArgument:\n"
              "1. \"address\"          (string, required) The account address\n"
              "2. \"data\"             (string, required) The data hex string\n"
-             "3. address            (string, optional) The sender address hex string\n"
+             "3. address              (string, optional) The sender address hex string\n"
+             "4. gasLimit             (string, optional) The gas limit for executing the contract\n"
          );
  
     LOCK(cs_main);
@@ -974,9 +975,13 @@ UniValue callcontract(const JSONRPCRequest& request)
         }
 
     }
+    uint64_t gasLimit=0;
+    if(request.params.size() == 4){
+        gasLimit = request.params[3].get_int();
+    }
 
 
-    std::vector<ResultExecute> execResults = CallContract(addrAccount, ParseHex(data), senderAddress);
+    std::vector<ResultExecute> execResults = CallContract(addrAccount, ParseHex(data), senderAddress, gasLimit);
 
     if(fRecordLogOpcodes){
         writeVMlog(execResults);
