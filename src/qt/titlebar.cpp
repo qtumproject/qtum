@@ -23,6 +23,7 @@ TitleBar::TitleBar(QWidget *parent) :
     ui->lblFiatBalance->hide();
     // Set size policy
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    ui->tabWidget->setStyleSheet("margin-bottom: -2px;");
 }
 
 TitleBar::~TitleBar()
@@ -40,6 +41,11 @@ void TitleBar::setModel(WalletModel *_model)
     connect(model, SIGNAL(balanceChanged(CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount)), this, SLOT(setBalance(CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount)));
 }
 
+QTabBar *TitleBar::tabBar() const
+{
+    return ui->tabWidget;
+}
+
 void TitleBar::setBalance(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& immatureBalance, const CAmount& stake,
                                  const CAmount& watchBalance, const CAmount& watchUnconfirmedBalance, const CAmount& watchImmatureBalance, const CAmount& watchStake)
 {
@@ -55,4 +61,9 @@ void TitleBar::setBalance(const CAmount& balance, const CAmount& unconfirmedBala
     {
         ui->lblBalance->setText(BitcoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), balance));
     }
+}
+
+void TitleBar::on_navigationResized(const QSize &_size)
+{
+    ui->widgetLogo->setMaximumWidth(_size.width());
 }

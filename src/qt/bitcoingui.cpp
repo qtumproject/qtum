@@ -100,6 +100,7 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
     progressDialog(0),
     appMenuBar(0),
     appTitleBar(0),
+    appNavigationBar(0),
     overviewAction(0),
     historyAction(0),
     quitAction(0),
@@ -285,6 +286,8 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
         connect(progressBar, SIGNAL(clicked(QPoint)), this, SLOT(showModalOverlay()));
     }
 #endif
+
+    setStyleSheet("QMainWindow::separator { width: 1px; height: 1px; margin: 0px; padding: 0px; }");
 }
 
 BitcoinGUI::~BitcoinGUI()
@@ -511,20 +514,20 @@ void BitcoinGUI::createToolBars()
     if(walletFrame)
     {
         // Create custom tool bar component
-        NavigationBar* nav = new NavigationBar();
-        addDockWindows(Qt::LeftDockWidgetArea, nav);
+        appNavigationBar = new NavigationBar();
+        addDockWindows(Qt::LeftDockWidgetArea, appNavigationBar);
 
         // Fill the component with actions
-        nav->addAction(overviewAction);
-        nav->addAction(sendCoinsAction);
-        nav->addAction(receiveCoinsAction);
+        appNavigationBar->addAction(overviewAction);
+        appNavigationBar->addAction(sendCoinsAction);
+        appNavigationBar->addAction(receiveCoinsAction);
         QList<QAction*> contractActions;
         contractActions.append(createContractAction);
         contractActions.append(sendToContractAction);
         contractActions.append(callContractAction);
-        nav->mapGroup(smartContractAction, contractActions);
-        nav->addAction(historyAction);
-        nav->buildUi();
+        appNavigationBar->mapGroup(smartContractAction, contractActions);
+        appNavigationBar->addAction(historyAction);
+        appNavigationBar->buildUi();
         overviewAction->setChecked(true);
     }
 }
@@ -536,6 +539,7 @@ void BitcoinGUI::createTitleBars()
         // Create custom title bar component
         appTitleBar = new TitleBar();
         addDockWindows(Qt::TopDockWidgetArea, appTitleBar);
+        connect(appNavigationBar, SIGNAL(resized(QSize)), appTitleBar, SLOT(on_navigationResized(QSize)));
     }
 }
 

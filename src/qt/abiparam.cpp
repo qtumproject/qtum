@@ -13,7 +13,7 @@ ABIParam::ABIParam(int ID, const ParameterABI &param, QWidget *parent) :
     mainLayout->setSpacing(30);
     mainLayout->setContentsMargins(0,0,0,0);
     m_ParamID = ID;
-    m_paramName->setText(QString("Parameter %1").arg(ID + 1));
+    m_paramName->setText(tr("Parameter %1").arg(ID + 1));
     m_paramName->setMinimumWidth(110);
     m_ParamValue->setFixedWidth(370);
 
