@@ -1100,7 +1100,7 @@ UniValue searchlogs(const JSONRPCRequest& request)
     int toBlock = 0;
     toBlock = request.params[1].get_int();
     if(request.params[1].isNum()){
-        if(toBlock < 0){
+        if(toBlock == -1){
             toBlock = chainActive.Height();
         } else {
             toBlock = request.params[1].get_int();
