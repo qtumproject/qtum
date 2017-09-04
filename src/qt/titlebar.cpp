@@ -6,7 +6,7 @@
 #include <QPixmap>
 
 namespace TitleBar_NS {
-const int titleBarHeight = 32;
+const int logoWidth = 135;
 }
 using namespace TitleBar_NS;
 
@@ -16,7 +16,7 @@ TitleBar::TitleBar(QWidget *parent) :
 {
     ui->setupUi(this);
     // Set the logo
-    QPixmap logo = QPixmap(":/icons/bitcoin").scaledToHeight(titleBarHeight, Qt::SmoothTransformation);
+    QPixmap logo = QPixmap(":/icons/logo").scaledToWidth(logoWidth, Qt::SmoothTransformation);
     ui->lblLogo->setPixmap(logo);
     ui->lblLogo->setFixedSize(logo.size());
     // Hide the fiat balance label

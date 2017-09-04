@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>722</width>
-    <height>57</height>
+    <height>54</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -45,13 +45,13 @@
        <number>0</number>
       </property>
       <property name="topMargin">
-       <number>9</number>
+       <number>0</number>
       </property>
       <property name="rightMargin">
        <number>0</number>
       </property>
       <property name="bottomMargin">
-       <number>9</number>
+       <number>0</number>
       </property>
       <item>
        <spacer name="verticalSpacer_2">
@@ -114,24 +114,6 @@
          </spacer>
         </item>
        </layout>
-      </item>
-      <item>
-       <widget class="QLabel" name="label">
-        <property name="font">
-         <font>
-          <pointsize>11</pointsize>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">color : rgb(40, 167, 225);</string>
-        </property>
-        <property name="text">
-         <string>QTUM</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
       </item>
       <item>
        <spacer name="verticalSpacer">

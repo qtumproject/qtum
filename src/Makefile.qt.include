@@ -296,6 +296,7 @@ RES_ICONS = \
   qt/res/icons/key.png \
   qt/res/icons/lock_closed.png \
   qt/res/icons/lock_open.png \
+  qt/res/icons/logo.png \
   qt/res/icons/network_disabled.png \
   qt/res/icons/open.png \
   qt/res/icons/overview.png \
@@ -319,7 +320,7 @@ RES_ICONS = \
   qt/res/icons/contract_input.png \
   qt/res/icons/contract_output.png \
   qt/res/icons/smart_contract.png \
-  qt/res/icons/lock_staking.png
+  qt/res/icons/lock_staking.png 
 
 BITCOIN_QT_BASE_CPP = \
   qt/bantablemodel.cpp \
