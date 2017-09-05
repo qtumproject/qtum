@@ -1144,7 +1144,7 @@ UniValue searchlogs(const JSONRPCRequest& request)
                     {
                         for (const auto& log: t.logs)
                         {                  
-                            if(tc.first < t.logs.size() && tc.second == log.topics[tc.first])
+                            if(tc.first < log.topics.size() && tc.second == log.topics[tc.first])
                             {
                                 skip = false;
                                 break;
