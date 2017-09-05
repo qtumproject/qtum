@@ -825,18 +825,21 @@ UniValue getstorage(const JSONRPCRequest& request)
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect address"); 
 
     TemporaryState ts(globalState);
-
     if (request.params.size() > 1)
     {
         if (request.params[1].isNum())
         {
             auto blockNum = request.params[1].get_int();
-            if(blockNum < 0 || blockNum > chainActive.Height())
+            if((blockNum < 0 && blockNum != -1) || blockNum > chainActive.Height())
                 throw JSONRPCError(RPC_INVALID_PARAMS, "Incorrect block number");
-            ts.SetRoot(uintToh256(chainActive[blockNum]->hashStateRoot), uintToh256(chainActive[blockNum]->hashUTXORoot));
+
+            if(blockNum == -1){
+                ts.SetRoot(uintToh256(chainActive.Tip()->hashStateRoot), uintToh256(chainActive.Tip()->hashUTXORoot));
+            } else {
+                ts.SetRoot(uintToh256(chainActive[blockNum]->hashStateRoot), uintToh256(chainActive[blockNum]->hashUTXORoot));
+            }
         } else {
-            if (request.params[1].isStr() && request.params[1].get_str() != "latest")
-                    throw JSONRPCError(RPC_INVALID_PARAMS, "Incorrect toBlock");
+            throw JSONRPCError(RPC_INVALID_PARAMS, "Incorrect toBlock");
         }
     }
 
