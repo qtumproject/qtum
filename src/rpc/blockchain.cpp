@@ -833,13 +833,11 @@ UniValue getstorage(const JSONRPCRequest& request)
             if((blockNum < 0 && blockNum != -1) || blockNum > chainActive.Height())
                 throw JSONRPCError(RPC_INVALID_PARAMS, "Incorrect block number");
 
-            if(blockNum == -1){
-                ts.SetRoot(uintToh256(chainActive.Tip()->hashStateRoot), uintToh256(chainActive.Tip()->hashUTXORoot));
-            } else {
+            if(blockNum != -1)
                 ts.SetRoot(uintToh256(chainActive[blockNum]->hashStateRoot), uintToh256(chainActive[blockNum]->hashUTXORoot));
-            }
+                
         } else {
-            throw JSONRPCError(RPC_INVALID_PARAMS, "Incorrect toBlock");
+            throw JSONRPCError(RPC_INVALID_PARAMS, "Incorrect block number");
         }
     }
 
