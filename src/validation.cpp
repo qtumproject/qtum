@@ -40,7 +40,7 @@
 #include "pubkey.h"
 #include "key.h"
 #include "wallet/wallet.h"
-
+#include "base58.h"
 
 #include <atomic>
 #include <sstream>
@@ -2010,25 +2010,19 @@ bool CheckMinGasPrice(std::vector<EthTransactionParams>& etps, const uint64_t& m
     return true;
 }
 
-bool CheckRefund(const CBlock& block, const std::vector<CTxOut>& vouts){
+bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, const Consensus::Params& consensusParams, CAmount nFees, CAmount gasRefunds, CAmount nActualStakeReward, const std::vector<CTxOut>& vouts)
+{
     size_t offset = block.IsProofOfStake() ? 1 : 0;
     std::vector<CTxOut> vTempVouts=block.vtx[offset]->vout;
     std::vector<CTxOut>::iterator it;
     for(size_t i = 0; i < vouts.size(); i++){
         it=std::find(vTempVouts.begin(), vTempVouts.end(), vouts[i]);
         if(it==vTempVouts.end()){
-            return false;
+            return state.DoS(100,error("CheckReward(): Gas refund missing"));
         }else{
             vTempVouts.erase(it);
         }
     }
-    vTempVouts.clear();
-    return true;
-}
-
-bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, const Consensus::Params& consensusParams, CAmount nFees, CAmount gasRefunds, CAmount nActualStakeReward, int nRefundVouts)
-{
-    size_t offset = block.IsProofOfStake() ? 1 : 0;
 
     // Check block reward
     if (block.IsProofOfWork())
@@ -2080,41 +2074,19 @@ bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, cons
         std::vector<CScript> mposScriptList;
         if(!GetMPoSOutputScripts(mposScriptList, nPrevHeight, consensusParams))
             return error("CheckReward(): cannot create the list of MPoS output scripts");
+      
+        for(size_t i = 0; i < mposScriptList.size(); i++){
+            it=std::find(vTempVouts.begin(), vTempVouts.end(), CTxOut(splitReward,mposScriptList[i]));
+            if(it==vTempVouts.end()){
+                return state.DoS(100,
+                        error("CheckReward(): An MPoS participant was not properly paid"),
+                        REJECT_INVALID, "bad-cs-mpos-missing");
+            }else{
+                vTempVouts.erase(it);
+            }
+        }
 
-        // Check the list of script recipients
-        for(size_t i = 0; i < (block.vtx[offset]->vout.size() - offset - nRefundVouts); i++)
-        {
-            //use offset+i because in PoS the first vout is empty
-            std::vector<CScript>::iterator pos;
-            pos=std::find(mposScriptList.begin(), mposScriptList.end(), block.vtx[offset]->vout[offset+i].scriptPubKey);
-            if(pos != mposScriptList.end()){
-                // if this vout does not provide at least splitReward, then it does not count as an MPoS output
-                // This is to allow for the coinstake to send an arbritrary amount to any script including MPoS output scripts
-                // But when this arbritrary amount is less than splitReward, then in order to be valid there needs to be another vout that
-                // sends at least splitReward.
-                // This also makes sure that if an MPoS scriptPubKey is duplicated (such as same address mines 2 blocks in a row)
-                // that they can not be cheated out of their duplicate rewards
-                if(block.vtx[offset]->vout[offset+i].nValue >= splitReward) {
-                    // remove from list without moving all elements
-                    // (this does not preserve order for mposScriptList, but order does not matter here)
-                    if(mposScriptList.size() == 0) { //.back() on empty vector is undefined
-                        return error("CheckReward(): Error modifying mposScriptList");
-                    }
-                    std::swap(*pos, mposScriptList.back());
-                    mposScriptList.pop_back();
-                }
-            }
-            if(mposScriptList.size() == 0){
-                //list is empty, no need to iterate through any more transactions
-                break;
-            }
-        }
-        //done checking coinstake tx, mpos reward list should now be empty
-        if(mposScriptList.size()!=0){
-            return state.DoS(100,
-                             error("CheckReward(): An MPoS participant was not properly paid"),
-                             REJECT_INVALID, "bad-cs-mpos-missing");
-        }
+        vTempVouts.clear();
     }
 
     return true;
@@ -2787,11 +2759,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     if(nFees < gasRefunds) { //make sure it won't overflow
         return state.DoS(1000, error("ConnectBlock(): Less total fees than gas refund fees"), REJECT_INVALID, "bad-blk-fees-greater-gasrefund");
     }
-    if(!CheckReward(block, state, pindex->nHeight, chainparams.GetConsensus(), nFees, gasRefunds, nActualStakeReward, checkVouts.size()))
+    if(!CheckReward(block, state, pindex->nHeight, chainparams.GetConsensus(), nFees, gasRefunds, nActualStakeReward, checkVouts))
         return state.DoS(100,error("ConnectBlock(): Reward check failed"));
-
-    if(!CheckRefund(block, checkVouts))
-        return state.DoS(100,error("ConnectBlock(): Gas refund missing"));
 
     if (!control.Wait())
         return state.DoS(100, false);
