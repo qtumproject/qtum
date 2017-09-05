@@ -134,6 +134,8 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "reservebalance", 1, "amount"},
     { "listcontracts", 0, "start" },
     { "listcontracts", 1, "maxDisplay" },
+    { "getstorage", 2, "index" },
+    { "getstorage", 1, "blockNum" },
     // Echo with conversion (For testing only)
     { "echojson", 0, "arg0" },
     { "echojson", 1, "arg1" },
