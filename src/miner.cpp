@@ -554,8 +554,10 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64
         return false;
     }
     std::vector<QtumTransaction> qtumTransactions = resultConverter.first;
+    dev::u256 txGas = 0;
     for(QtumTransaction qtumTransaction : qtumTransactions){
-        if(qtumTransaction.gas() > txGasLimit) {
+        txGas += qtumTransaction.gas();
+        if(txGas > txGasLimit) {
             // Limit the tx gas limit by the soft limit if such a limit has been specified.
             return false;
         }
@@ -580,6 +582,8 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64
 
     ByteCodeExecResult testExecResult;
     if(!exec.processingResults(testExecResult)){
+        globalState->setRoot(oldHashStateRoot);
+        globalState->setRootUTXO(oldHashUTXORoot);
         return false;
     }
 

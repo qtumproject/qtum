@@ -59,13 +59,12 @@ class QtumSoftMinerGasRelatedLimitsTest(BitcoinTestFramework):
         assert_equal(self.nodes[0].listcontracts()[contract_address], 8)
 
 
-
-    def send_raw_to_contract(self, node, contract_address, gas_limit, gas_price):
+    def send_raw_to_contract(self, node, contract_address, gas_limit, gas_price, num_outputs=1):
         unspent = node.listunspent()[0]
         tx = CTransaction()
         tx.vin = [CTxIn(COutPoint(int(unspent['txid'], 16), unspent['vout']), nSequence=0)]
-        amount = int((float(str(unspent['amount'])) - 1000)*COIN)
-        tx.vout = [CTxOut(amount, scriptPubKey=CScript([b"\x04", CScriptNum(gas_limit), CScriptNum(gas_price), b"\x00", hex_str_to_bytes(contract_address), OP_CALL]))]
+        amount = int((float(str(unspent['amount'])) - 1000)*COIN // num_outputs)
+        tx.vout = [CTxOut(amount, scriptPubKey=CScript([b"\x04", CScriptNum(gas_limit), CScriptNum(gas_price), b"\x00", hex_str_to_bytes(contract_address), OP_CALL])) for i in range(num_outputs)]
         tx_hex_signed = node.signrawtransaction(bytes_to_hex_str(tx.serialize()))['hex']
         return node.sendrawtransaction(tx_hex_signed)
 
@@ -162,6 +161,17 @@ class QtumSoftMinerGasRelatedLimitsTest(BitcoinTestFramework):
         self.nodes[6].generate(1)
         assert_equal(len(self.nodes[6].getrawmempool()), 0)
         self.sync_all()
+
+        # Also make sure that the update counting the sum gas of all outputs works correctly for the soft tx gas limit
+        self.send_raw_to_contract(self.nodes[4], contract_address, 34000, 1, num_outputs=3)
+        self.nodes[4].generate(1)
+        assert_equal(len(self.nodes[4].getrawmempool()), 1)
+        self.sync_all()
+        assert_equal(len(self.nodes[3].getrawmempool()), 1)
+        self.nodes[3].generate(1)
+        self.sync_all()
+        assert_equal(len(self.nodes[3].getrawmempool()), 0)
+        assert_equal(len(self.nodes[4].getrawmempool()), 0)
 
         self.verify_hard_block_gas_limit_test()
 
