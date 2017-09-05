@@ -372,6 +372,7 @@ std::string HelpMessage(HelpMessageMode mode)
 // *** TODO: Add support for pruning (while still maintaining txindex).
     strUsage += HelpMessageOpt("-txindex", strprintf(_("Maintain a full transaction index, used by the getrawtransaction rpc call (default: %u)"), DEFAULT_TXINDEX));
 #endif
+    strUsage += HelpMessageOpt("-logevents", strprintf(_("Maintain a full EVM log index, used by searchlogs and gettransactionreceipt rpc calls (default: %u)"), DEFAULT_LOGEVENTS));
 
     strUsage += HelpMessageGroup(_("Connection options:"));
     strUsage += HelpMessageOpt("-addnode=<ip>", _("Add a node to connect to and attempt to keep the connection open"));
@@ -1553,6 +1554,21 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
                 if (fTxIndex != GetBoolArg("-txindex", DEFAULT_TXINDEX)) {
                     strLoadError = _("You need to rebuild the database using -reindex-chainstate to change -txindex");
                     break;
+                }
+                // Check for changed -logevents state
+                if (fLogEvents != GetBoolArg("-logevents", DEFAULT_LOGEVENTS) && !fLogEvents) {
+                    strLoadError = _("You need to rebuild the database using -reindex-chainstate to enable -logevents");
+                    break;
+                }
+
+                if (!GetBoolArg("-logevents", DEFAULT_LOGEVENTS))
+                {
+                    boost::filesystem::path stateDir = GetDataDir() / "stateQtum";
+                    StorageResults storageRes(stateDir.string());
+                    storageRes.wipeResults();
+                    pblocktree->WipeHeightIndex();
+                    fLogEvents = false;
+                    pblocktree->WriteFlag("logevents", fLogEvents);
                 }
 
                 // Check for changed -prune state.  What we are concerned about is a user who has pruned blocks

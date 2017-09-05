@@ -8,6 +8,10 @@ void StorageResults::addResult(dev::h256 hashTx, std::vector<TransactionReceiptI
 	m_cache_result.insert(std::make_pair(hashTx, result));
 }
 
+void StorageResults::wipeResults(){
+	leveldb::Status result = leveldb::DestroyDB(path, leveldb::Options());
+}
+
 void StorageResults::deleteResults(std::vector<CTransactionRef> const& txs){
     leveldb::DB* db;
     leveldb::Options options;
