@@ -2729,16 +2729,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
             if(!nonZeroVersion){
                 //if tx is 0 version, then the tx must already have been added by a previous contract execution
-                bool found=false;
-                //iterate backwards because the AAL tx should have been added by the last contract exec, though there can be multiple txs by a single contract tx
-                for (unsigned int j = checkBlock.vtx.size()-1; j > 0; j--)
-                {
-                    const CTransaction &ctx = *(checkBlock.vtx[j]);
-                    if(ctx.GetHash() == tx.GetHash()){
-                        found = true;
-                    }
-                }
-                if(!found){
+                if(!tx.HasOpSpend()){
                     return state.DoS(100, error("ConnectBlock(): Version 0 contract executions are not allowed unless created by the AAL "), REJECT_INVALID, "bad-tx-improper-version-0");
                 }
             }
