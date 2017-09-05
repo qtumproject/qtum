@@ -479,6 +479,9 @@ UniValue createcontract(const JSONRPCRequest& request){
 
     string bytecode=request.params[0].get_str();
 
+    if(bytecode.size() % 2 != 0 || !std::regex_match(bytecode, hexData))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid data (data not hex)");
+
     uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_CREATE;
     if (request.params.size() > 1){
         nGasLimit = request.params[1].get_int64();
@@ -666,14 +669,16 @@ UniValue sendtocontract(const JSONRPCRequest& request){
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
     std::string contractaddress = request.params[0].get_str();
-    if(contractaddress.size() != 40)
+    if(contractaddress.size() != 40 || !std::regex_match(contractaddress, hexData))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect contract address");
 
     dev::Address addrAccount(contractaddress);
     if(!globalState->addressInUse(addrAccount))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "contract address does not exist");
 
-    string datahex=request.params[1].get_str();
+    string datahex = request.params[1].get_str();
+    if(datahex.size() % 2 != 0 || !std::regex_match(datahex, hexData))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid data (data not hex)");
 
     CAmount nAmount = 0;
     if (request.params.size() > 2){
