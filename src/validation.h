@@ -79,11 +79,11 @@ static const bool DEFAULT_WHITELISTRELAY = true;
 /** Default for DEFAULT_WHITELISTFORCERELAY. */
 static const bool DEFAULT_WHITELISTFORCERELAY = true;
 /** Default for -minrelaytxfee, minimum relay fee for transactions */
-static const unsigned int DEFAULT_MIN_RELAY_TX_FEE = 1000;
+static const unsigned int DEFAULT_MIN_RELAY_TX_FEE = 400000;
 //! -maxtxfee default
-static const CAmount DEFAULT_TRANSACTION_MAXFEE = 0.1 * COIN;
+static const CAmount DEFAULT_TRANSACTION_MAXFEE = 1 * COIN;
 //! Discourage users to set fees higher than this amount (in satoshis) per kB
-static const CAmount HIGH_TX_FEE_PER_KB = 0.01 * COIN;
+static const CAmount HIGH_TX_FEE_PER_KB = 1 * COIN;
 //! -maxtxfee will warn if called with a higher fee than this amount (in satoshis)
 static const CAmount HIGH_MAX_TX_FEE = 100 * HIGH_TX_FEE_PER_KB;
 /** Default for -limitancestorcount, max number of in-mempool ancestors */
@@ -159,6 +159,7 @@ static const int64_t MAX_FEE_ESTIMATION_TIP_AGE = 3 * 60 * 60;
 static const bool DEFAULT_PERMIT_BAREMULTISIG = true;
 static const bool DEFAULT_CHECKPOINTS_ENABLED = true;
 static const bool DEFAULT_TXINDEX = true;
+static const bool DEFAULT_LOGEVENTS = false;
 static const unsigned int DEFAULT_BANSCORE_THRESHOLD = 100;
 
 /** Default for -mempoolreplacement */
@@ -174,9 +175,9 @@ static const int MAX_UNCONNECTING_HEADERS = 10;
 
 static const bool DEFAULT_PEERBLOOMFILTERS = true;
 
-static const uint64_t DEFAULT_GAS_LIMIT_OP_CREATE=1000000;
-static const uint64_t DEFAULT_GAS_LIMIT_OP_SEND=200000;
-static const CAmount DEFAULT_GAS_PRICE=0.00000001*COIN;
+static const uint64_t DEFAULT_GAS_LIMIT_OP_CREATE=2500000;
+static const uint64_t DEFAULT_GAS_LIMIT_OP_SEND=250000;
+static const CAmount DEFAULT_GAS_PRICE=0.00000040*COIN;
 
 static const size_t MAX_CONTRACT_VOUTS = 1000; // qtum
 
@@ -202,6 +203,7 @@ extern std::atomic_bool fImporting;
 extern bool fReindex;
 extern int nScriptCheckThreads;
 extern bool fTxIndex;
+extern bool fLogEvents;
 extern bool fIsBareMultisigStd;
 extern bool fRequireStandard;
 extern bool fCheckBlockIndex;
@@ -373,6 +375,71 @@ std::string FormatStateMessage(const CValidationState &state);
 
 /** Get the BIP9 state for a given deployment at the current tip. */
 ThresholdState VersionBitsTipState(const Consensus::Params& params, Consensus::DeploymentPos pos);
+
+//////////////////////////////////////////////////////////// // qtum
+struct CHeightTxIndexIteratorKey {
+    unsigned int height;
+
+    size_t GetSerializeSize(int nType, int nVersion) const {
+        return 4;
+    }
+    template<typename Stream>
+    void Serialize(Stream& s) const {
+        ser_writedata32be(s, height);
+    }
+    template<typename Stream>
+    void Unserialize(Stream& s) {
+        height = ser_readdata32be(s);
+    }
+
+    CHeightTxIndexIteratorKey(unsigned int _height) {
+        height = _height;
+    }
+
+    CHeightTxIndexIteratorKey() {
+        SetNull();
+    }
+
+    void SetNull() {
+        height = 0;
+    }
+};
+
+struct CHeightTxIndexKey {
+    unsigned int height;
+    dev::h160 address;
+
+    size_t GetSerializeSize(int nType, int nVersion) const {
+        return 24;
+    }
+    template<typename Stream>
+    void Serialize(Stream& s) const {
+        ser_writedata32be(s, height);
+        s << address.asBytes();
+    }
+    template<typename Stream>
+    void Unserialize(Stream& s) {
+        height = ser_readdata32be(s);
+        valtype tmp;
+        s >> tmp;
+        address = dev::h160(tmp);
+    }
+
+    CHeightTxIndexKey(unsigned int _height, dev::h160 _address) {
+        height = _height;
+        address = _address;
+    }
+
+    CHeightTxIndexKey() {
+        SetNull();
+    }
+
+    void SetNull() {
+        height = 0;
+        address.clear();
+    }
+};
+////////////////////////////////////////////////////////////
 
 /** Get the block height at which the BIP9 deployment switched into the state for the block building on the current tip. */
 int VersionBitsTipStateSinceHeight(const Consensus::Params& params, Consensus::DeploymentPos pos);

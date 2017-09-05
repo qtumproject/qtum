@@ -308,12 +308,12 @@ CPubKey CWallet::GenerateNewKey()
 
 void CWallet::DeriveNewChildKey(CKeyMetadata& metadata, CKey& secret)
 {
-    // for now we use a fixed keypath scheme of m/0'/0'/k
+    // for now we use a fixed keypath scheme of m/88'/0'/k
     CKey key;                      //master key seed (256bit)
     CExtKey masterKey;             //hd master key
-    CExtKey accountKey;            //key at m/0'
-    CExtKey externalChainChildKey; //key at m/0'/0'
-    CExtKey childKey;              //key at m/0'/0'/<n>'
+    CExtKey accountKey;            //key at m/88'
+    CExtKey externalChainChildKey; //key at m/88'/0'
+    CExtKey childKey;              //key at m/88'/0'/<n>'
 
     // try to get the master key
     if (!GetKey(hdChain.masterKeyID, key))
@@ -334,7 +334,7 @@ void CWallet::DeriveNewChildKey(CKeyMetadata& metadata, CKey& secret)
         // childIndex | BIP32_HARDENED_KEY_LIMIT = derive childIndex in hardened child-index-range
         // example: 1 | BIP32_HARDENED_KEY_LIMIT == 0x80000001 == 2147483649
         externalChainChildKey.Derive(childKey, hdChain.nExternalChainCounter | BIP32_HARDENED_KEY_LIMIT);
-        metadata.hdKeypath = "m/0'/0'/" + std::to_string(hdChain.nExternalChainCounter) + "'";
+        metadata.hdKeypath = "m/88'/0'/" + std::to_string(hdChain.nExternalChainCounter) + "'";
         metadata.hdMasterKeyID = hdChain.masterKeyID;
         // increment childkey index
         hdChain.nExternalChainCounter++;
@@ -4439,8 +4439,12 @@ bool CWallet::ParameterInteraction()
 
     if (GetBoolArg("-sysperms", false))
         return InitError("-sysperms is not allowed in combination with enabled wallet functionality");
+#if 0
+// *** The Qtum wallet currently requires txindex to be set/true.  Therefore pruning is not allowed.
+// *** TODO: Add support for pruning (while still maintaining txindex).
     if (GetArg("-prune", 0) && GetBoolArg("-rescan", false))
         return InitError(_("Rescans are not possible in pruned mode. You will need to use -reindex which will download the whole blockchain again."));
+#endif
 
     if (::minRelayTxFee.GetFeePerK() > HIGH_TX_FEE_PER_KB)
         InitWarning(AmountHighWarn("-minrelaytxfee") + " " +
