@@ -53,7 +53,7 @@ class QtumDGPActivation(BitcoinTestFramework):
             unspent = unspents.pop(0)
             tx = CTransaction()
             tx.vin = [CTxIn(COutPoint(int(unspent['txid'], 16), unspent['vout']), nSequence=0)]
-            for i in range(100):
+            for i in range(50):
                 tx.vout.append(CTxOut(int(unspent['amount']*COIN/100 - 11000), scriptPubKey=CScript([OP_TRUE]*10000)))
             tx_hex = self.node.signrawtransaction(bytes_to_hex_str(tx.serialize()))['hex']
             f = io.BytesIO(hex_str_to_bytes(tx_hex))

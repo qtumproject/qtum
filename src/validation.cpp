@@ -40,7 +40,7 @@
 #include "pubkey.h"
 #include "key.h"
 #include "wallet/wallet.h"
-
+#include "base58.h"
 
 #include <atomic>
 #include <sstream>
@@ -518,7 +518,8 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fChe
     if (tx.vout.empty())
         return state.DoS(10, false, REJECT_INVALID, "bad-txns-vout-empty");
     // Size limits (this doesn't take the witness into account, as that hasn't been checked for malleability)
-    if (::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION | SERIALIZE_TRANSACTION_NO_WITNESS) > dgpMaxBlockSize) // qtum
+    if (::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION | SERIALIZE_TRANSACTION_NO_WITNESS) > MAX_TRANSACTION_BASE_SIZE ||
+        ::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION | SERIALIZE_TRANSACTION_NO_WITNESS) > dgpMaxBlockSize) // qtum
         return state.DoS(100, false, REJECT_INVALID, "bad-txns-oversize");
 
     // Check for negative or overflow output values
@@ -754,6 +755,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
 
         CAmount nValueOut = tx.GetValueOut();
         CAmount nFees = nValueIn-nValueOut;
+        dev::u256 txMinGasPrice = 0;
 
         //////////////////////////////////////////////////////////// // qtum
         if(tx.HasCreateOrCall()){
@@ -777,9 +779,15 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
             std::vector<QtumTransaction> qtumTransactions = resultConverter.first;
             std::vector<EthTransactionParams> qtumETP = resultConverter.second;
 
+            dev::u256 gasAllTxs = dev::u256(0);
             for(QtumTransaction qtumTransaction : qtumTransactions){
                 sumGas += CAmount(qtumTransaction.gas() * qtumTransaction.gasPrice());
 
+                if(txMinGasPrice != 0) {
+                    txMinGasPrice = std::min(txMinGasPrice, qtumTransaction.gasPrice());
+                } else {
+                    txMinGasPrice = qtumTransaction.gasPrice();
+                }
                 VersionVM v = qtumTransaction.getVersion();
                 if(v.format!=0)
                     return state.DoS(100, error("AcceptToMempool(): Contract execution uses unknown version format"), REJECT_INVALID, "bad-tx-version-format");
@@ -790,16 +798,16 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                 if(v.flagOptions != 0)
                     return state.DoS(100, error("AcceptToMempool(): Contract execution uses unknown flag options"), REJECT_INVALID, "bad-tx-version-flags");
 
-                if(qtumTransaction.gas() > blockGasLimit){
-                    return state.DoS(1, false, REJECT_INVALID, "bad-txns-gas-exceeds-blockgaslimit");
-                }
-
                 //check gas limit is not less than minimum gas limit (unless it is a no-exec tx)
                 if(qtumTransaction.gas() < MINIMUM_GAS_LIMIT && v.rootVM != 0)
                     return state.DoS(100, error("AcceptToMempool(): Contract execution has lower gas limit than allowed"), REJECT_INVALID, "bad-tx-too-little-gas");
 
                 if(qtumTransaction.gas() > UINT32_MAX)
                     return state.DoS(100, error("AcceptToMempool(): Contract execution can not specify greater gas limit than can fit in 32-bits"), REJECT_INVALID, "bad-tx-too-much-gas");
+
+                gasAllTxs += qtumTransaction.gas();
+                if(gasAllTxs > dev::u256(blockGasLimit))
+                    return state.DoS(1, false, REJECT_INVALID, "bad-txns-gas-exceeds-blockgaslimit");
 
                 //don't allow less than DGP set minimum gas price to prevent MPoS greedy mining/spammers
                 if(v.rootVM!=0 && (uint64_t)qtumTransaction.gasPrice() < minGasPrice)
@@ -853,7 +861,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
         }
 
         CTxMemPoolEntry entry(ptx, nFees, nAcceptTime, dPriority, chainActive.Height(),
-                              inChainInputValue, fSpendsCoinbase, nSigOpsCost, lp);
+                              inChainInputValue, fSpendsCoinbase, nSigOpsCost, lp, CAmount(txMinGasPrice));
         unsigned int nSize = entry.GetTxSize();
 
         // Check that the transaction doesn't have an excessive number of
@@ -2002,25 +2010,19 @@ bool CheckMinGasPrice(std::vector<EthTransactionParams>& etps, const uint64_t& m
     return true;
 }
 
-bool CheckRefund(const CBlock& block, const std::vector<CTxOut>& vouts){
+bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, const Consensus::Params& consensusParams, CAmount nFees, CAmount gasRefunds, CAmount nActualStakeReward, const std::vector<CTxOut>& vouts)
+{
     size_t offset = block.IsProofOfStake() ? 1 : 0;
     std::vector<CTxOut> vTempVouts=block.vtx[offset]->vout;
     std::vector<CTxOut>::iterator it;
     for(size_t i = 0; i < vouts.size(); i++){
         it=std::find(vTempVouts.begin(), vTempVouts.end(), vouts[i]);
         if(it==vTempVouts.end()){
-            return false;
+            return state.DoS(100,error("CheckReward(): Gas refund missing"));
         }else{
             vTempVouts.erase(it);
         }
     }
-    vTempVouts.clear();
-    return true;
-}
-
-bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, const Consensus::Params& consensusParams, CAmount nFees, CAmount gasRefunds, CAmount nActualStakeReward, int nRefundVouts)
-{
-    size_t offset = block.IsProofOfStake() ? 1 : 0;
 
     // Check block reward
     if (block.IsProofOfWork())
@@ -2073,40 +2075,18 @@ bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, cons
         if(!GetMPoSOutputScripts(mposScriptList, nPrevHeight, consensusParams))
             return error("CheckReward(): cannot create the list of MPoS output scripts");
 
-        // Check the list of script recipients
-        for(size_t i = 0; i < (block.vtx[offset]->vout.size() - offset); i++)
-        {
-            //use offset+i because in PoS the first vout is empty
-            std::vector<CScript>::iterator pos;
-            pos=std::find(mposScriptList.begin(), mposScriptList.end(), block.vtx[offset]->vout[offset+i].scriptPubKey);
-            if(pos != mposScriptList.end()){
-                // if this vout does not provide at least splitReward, then it does not count as an MPoS output
-                // This is to allow for the coinstake to send an arbritrary amount to any script including MPoS output scripts
-                // But when this arbritrary amount is less than splitReward, then in order to be valid there needs to be another vout that
-                // sends at least splitReward.
-                // This also makes sure that if an MPoS scriptPubKey is duplicated (such as same address mines 2 blocks in a row)
-                // that they can not be cheated out of their duplicate rewards
-                if(block.vtx[offset]->vout[offset+i].nValue >= splitReward) {
-                    // remove from list without moving all elements
-                    // (this does not preserve order for mposScriptList, but order does not matter here)
-                    if(mposScriptList.size() == 0) { //.back() on empty vector is undefined
-                        return error("CheckReward(): Error modifying mposScriptList");
-                    }
-                    std::swap(*pos, mposScriptList.back());
-                    mposScriptList.pop_back();
-                }
-            }
-            if(mposScriptList.size() == 0){
-                //list is empty, no need to iterate through any more transactions
-                break;
+        for(size_t i = 0; i < mposScriptList.size(); i++){
+            it=std::find(vTempVouts.begin(), vTempVouts.end(), CTxOut(splitReward,mposScriptList[i]));
+            if(it==vTempVouts.end()){
+                return state.DoS(100,
+                        error("CheckReward(): An MPoS participant was not properly paid"),
+                        REJECT_INVALID, "bad-cs-mpos-missing");
+            }else{
+                vTempVouts.erase(it);
             }
         }
-        //done checking coinstake tx, mpos reward list should now be empty
-        if(mposScriptList.size()!=0){
-            return state.DoS(100,
-                             error("CheckReward(): An MPoS participant was not properly paid"),
-                             REJECT_INVALID, "bad-cs-mpos-missing");
-        }
+
+        vTempVouts.clear();
     }
 
     return true;
@@ -2677,6 +2657,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             if(!CheckMinGasPrice(resultConvertQtumTX.second, minGasPrice))
                 return state.DoS(100, error("ConnectBlock(): Contract execution has lower gas price than allowed"), REJECT_INVALID, "bad-tx-low-gas-price");
 
+
+            dev::u256 gasAllTxs = dev::u256(0);
             ByteCodeExec exec(block, resultConvertQtumTX.first, blockGasLimit);
             //validate VM version and other ETH params before execution
             //Reject anything unknown (could be changed later by DGP)
@@ -2692,16 +2674,16 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 if(v.flagOptions != 0)
                     return state.DoS(100, error("ConnectBlock(): Contract execution uses unknown flag options"), REJECT_INVALID, "bad-tx-version-flags");
 
-                if(qtx.gas() > blockGasLimit){
-                    return state.DoS(100, false, REJECT_INVALID, "bad-txns-gas-exceeds-blockgaslimit");
-                }
-
                 //check gas limit is not less than minimum gas limit (unless it is a no-exec tx)
                 if(qtx.gas() < MINIMUM_GAS_LIMIT && v.rootVM != 0)
                     return state.DoS(100, error("ConnectBlock(): Contract execution has lower gas limit than allowed"), REJECT_INVALID, "bad-tx-too-little-gas");
 
                 if(qtx.gas() > UINT32_MAX)
                     return state.DoS(100, error("ConnectBlock(): Contract execution can not specify greater gas limit than can fit in 32-bits"), REJECT_INVALID, "bad-tx-too-much-gas");
+
+                gasAllTxs += qtx.gas();
+                if(gasAllTxs > dev::u256(blockGasLimit))
+                    return state.DoS(1, false, REJECT_INVALID, "bad-txns-gas-exceeds-blockgaslimit");
 
                 //don't allow less than DGP set minimum gas price to prevent MPoS greedy mining/spammers
                 if(v.rootVM!=0 && (uint64_t)qtx.gasPrice() < minGasPrice)
@@ -2761,11 +2743,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     if(nFees < gasRefunds) { //make sure it won't overflow
         return state.DoS(1000, error("ConnectBlock(): Less total fees than gas refund fees"), REJECT_INVALID, "bad-blk-fees-greater-gasrefund");
     }
-    if(!CheckReward(block, state, pindex->nHeight, chainparams.GetConsensus(), nFees, gasRefunds, nActualStakeReward, checkVouts.size()))
+    if(!CheckReward(block, state, pindex->nHeight, chainparams.GetConsensus(), nFees, gasRefunds, nActualStakeReward, checkVouts))
         return state.DoS(100,error("ConnectBlock(): Reward check failed"));
-
-    if(!CheckRefund(block, checkVouts))
-        return state.DoS(100,error("ConnectBlock(): Gas refund missing"));
 
     if (!control.Wait())
         return state.DoS(100, false);
@@ -2847,10 +2826,13 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 //////////////////////////////////////////////////////////////////
 
     pindex->nMoneySupply = (pindex->pprev? pindex->pprev->nMoneySupply : 0) + nValueOut - nValueIn;
-    //only start checking this assert after block 5000 and only on testnet and mainnet, not regtest
+    //only start checking this error after block 5000 and only on testnet and mainnet, not regtest
     if(pindex->nHeight > 5000 && !Params().GetConsensus().fPoSNoRetargeting) {
-        //sanity check to shut down the network in case an exploit happens that allows new coins to be minted
-        assert(pindex->nMoneySupply <= (uint64_t)(100000000 + ((pindex->nHeight - 5000) * 4)) * COIN);
+        //sanity check in case an exploit happens that allows new coins to be minted
+        if(pindex->nMoneySupply > (uint64_t)(100000000 + ((pindex->nHeight - 5000) * 4)) * COIN){
+            return state.DoS(100, error("ConnectBlock(): Unknown error caused actual money supply to exceed expected money supply"),
+                             REJECT_INVALID, "incorrect-money-supply");
+        }
     }
     // Write undo information to disk
     if (pindex->GetUndoPos().IsNull() || !pindex->IsValid(BLOCK_VALID_SCRIPTS))
@@ -5072,8 +5054,14 @@ bool InitBlockIndex(const CChainParams& chainparams)
     if (chainActive.Genesis() != NULL)
         return true;
 
+#if 0
+// *** The Qtum wallet currently requires txindex to be set/true.
+// *** TODO: Add support for pruning (while still maintaining txindex).
     // Use the provided setting for -txindex in the new database
     fTxIndex = GetBoolArg("-txindex", DEFAULT_TXINDEX);
+#else
+    fTxIndex = DEFAULT_TXINDEX;
+#endif
     pblocktree->WriteFlag("txindex", fTxIndex);
     LogPrintf("Initializing databases...\n");
 
