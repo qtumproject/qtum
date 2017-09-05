@@ -1083,7 +1083,7 @@ UniValue searchlogs(const JSONRPCRequest& request)
              "requires -logevents to be enabled"
              "\nArgument:\n"
              "1. \"fromBlock\"        (numeric, required) The number of the earliest block (latest may be given to mean the most recent block).\n"
-             "2. \"toBlock\"          (string, required) The number of the latest block (latest may be given to mean the most recent block).\n"
+             "2. \"toBlock\"          (string, required) The number of the latest block (-1 may be given to mean the most recent block).\n"
              "3. \"address\"          (string, optional) An address or a list of addresses to only get logs from particular account(s).\n"
              "4. \"topics\"           (string, optional) An array of values which must each appear in the log entries. The order is important, if you want to leave topics out use null, e.g. [\"null\", \"0x00...\"]. \n"
              "\nExamples:\n"
