@@ -136,7 +136,8 @@ std::unordered_map<dev::Address, Vin> QtumState::vins() const // temp
 void QtumState::transferBalance(dev::Address const& _from, dev::Address const& _to, dev::u256 const& _value) {
     subBalance(_from, _value);
     addBalance(_to, _value);
-    transfers.push_back({_from, _to, _value});
+    if (_value > 0)
+        transfers.push_back({_from, _to, _value});
 }
 
 Vin const* QtumState::vin(dev::Address const& _a) const
