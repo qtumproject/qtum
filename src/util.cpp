@@ -99,6 +99,8 @@ namespace boost {
 
 using namespace std;
 
+std::regex hexData("^([0-9a-fA-f]{2,}$)");
+
 const char * const BITCOIN_CONF_FILENAME = "qtum.conf";
 const char * const BITCOIN_PID_FILENAME = "qtumd.pid";
 
