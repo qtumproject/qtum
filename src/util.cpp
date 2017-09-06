@@ -867,3 +867,18 @@ std::string CopyrightHolders(const std::string& strPrefix)
     }
     return strCopyrightHolders;
 }
+
+bool CheckHex(std::string& str) {
+    if(str.size() > 10000){
+        std::string tempStr = str;
+        while(!tempStr.empty()){
+            std::string part(tempStr.begin(), tempStr.size() >= 1000 ? (tempStr.begin() + 1000) : tempStr.end());
+            if(part.size() % 2 != 0 || !std::regex_match(part, hexData)){
+                return false;
+            }
+            tempStr.erase(tempStr.begin(), tempStr.size() >= 1000 ? (tempStr.begin() + 1000) : tempStr.end());
+        }
+        return true;
+    }
+    return std::regex_match(str, hexData);
+}
