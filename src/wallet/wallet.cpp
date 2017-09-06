@@ -3177,7 +3177,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, con
         {
             boost::this_thread::interruption_point();
             COutPoint prevoutStake = COutPoint(pcoin.first->GetHash(), pcoin.second);
-            CacheKernel(stakeCache, prevoutStake, pindexPrev); //this will do a 2 disk loads per op
+            CacheKernel(stakeCache, prevoutStake, pindexPrev, *pcoinsTip); //this will do a 2 disk loads per op
         }
     }
     int64_t nCredit = 0;
@@ -3189,7 +3189,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, con
         // Search backward in time from the given txNew timestamp
         // Search nSearchInterval seconds back up to nMaxStakeSearchInterval
         COutPoint prevoutStake = COutPoint(pcoin.first->GetHash(), pcoin.second);
-        if (CheckKernel(pindexPrev, nBits, nTimeBlock, prevoutStake, stakeCache))
+        if (CheckKernel(pindexPrev, nBits, nTimeBlock, prevoutStake, *pcoinsTip, stakeCache))
         {
             // Found a kernel
             LogPrint("coinstake", "CreateCoinStake : kernel found\n");
