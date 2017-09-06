@@ -191,7 +191,7 @@ bool CBlockTreeDB::ReadHeightIndex(const unsigned int &high, const unsigned int 
     while (pcursor->Valid()) {
         boost::this_thread::interruption_point();
         std::pair<char, CHeightTxIndexKey> key;
-        if (pcursor->GetKey(key) && key.first == DB_HEIGHTINDEX && key.second.height < high) {
+        if (pcursor->GetKey(key) && key.first == DB_HEIGHTINDEX && key.second.height <= high) {
             if (!addresses.empty() && !addresses.count(key.second.address))
             {
                 pcursor->Next();
