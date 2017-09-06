@@ -99,7 +99,7 @@ bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t 
 }
 
 // Check kernel hash target and coinstake signature
-bool CheckProofOfStake(CBlockIndex* pindexPrev, CValidationState& state, const CTransaction& tx, unsigned int nBits, uint32_t nTimeBlock, uint256& hashProofOfStake, uint256& targetProofOfStake)
+bool CheckProofOfStake(CBlockIndex* pindexPrev, CValidationState& state, const CTransaction& tx, unsigned int nBits, uint32_t nTimeBlock, uint256& hashProofOfStake, uint256& targetProofOfStake, CCoinsViewCache& view)
 {
     if (!tx.IsCoinStake())
         return error("CheckProofOfStake() : called on non-coinstake %s", tx.GetHash().ToString());
@@ -108,11 +108,11 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, CValidationState& state, const C
     const CTxIn& txin = tx.vin[0];
 
     CCoins coinsPrev;
-    if(!pcoinsTip->GetCoins(txin.prevout.hash, coinsPrev)){
+    if(!view.GetCoins(txin.prevout.hash, coinsPrev)){
         return false;
     }
 
-    if(pindexPrev->nHeight-coinsPrev.nHeight < COINBASE_MATURITY){
+    if(pindexPrev->nHeight + 1 - coinsPrev.nHeight < COINBASE_MATURITY){
         return false;
     }
     CBlockIndex* blockFrom = pindexPrev->GetAncestor(coinsPrev.nHeight);
@@ -137,23 +137,24 @@ bool CheckCoinStakeTimestamp(uint32_t nTimeBlock)
 }
 
 
-bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint& prevout){
+bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint& prevout, CCoinsViewCache& view)
+{
     std::map<COutPoint, CStakeCache> tmp;
-    return CheckKernel(pindexPrev, nBits, nTimeBlock, prevout, tmp);
+    return CheckKernel(pindexPrev, nBits, nTimeBlock, prevout, view, tmp);
 }
 
-bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint& prevout, const std::map<COutPoint, CStakeCache>& cache)
+bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint& prevout, CCoinsViewCache& view, const std::map<COutPoint, CStakeCache>& cache)
 {
     uint256 hashProofOfStake, targetProofOfStake;
     auto it=cache.find(prevout);
     if(it == cache.end()) {
         //not found in cache (shouldn't happen during staking, only during verification which does not use cache)
         CCoins coinsPrev;
-        if(!pcoinsTip->GetCoins(prevout.hash, coinsPrev)){
+        if(!view.GetCoins(prevout.hash, coinsPrev)){
             return false;
         }
 
-        if(pindexPrev->nHeight-coinsPrev.nHeight < COINBASE_MATURITY){
+        if(pindexPrev->nHeight + 1 - coinsPrev.nHeight < COINBASE_MATURITY){
             return false;
         }
         CBlockIndex* blockFrom = pindexPrev->GetAncestor(coinsPrev.nHeight);
@@ -169,24 +170,24 @@ bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBloc
         if(CheckStakeKernelHash(pindexPrev, nBits, stake.blockFromTime, stake.amount, prevout,
                                     nTimeBlock, hashProofOfStake, targetProofOfStake)){
             //Cache could potentially cause false positive stakes in the event of deep reorgs, so check without cache also
-            return CheckKernel(pindexPrev, nBits, nTimeBlock, prevout);
+            return CheckKernel(pindexPrev, nBits, nTimeBlock, prevout, view);
         }
     }
     return false;
 }
 
-void CacheKernel(std::map<COutPoint, CStakeCache>& cache, const COutPoint& prevout, CBlockIndex* pindexPrev){
+void CacheKernel(std::map<COutPoint, CStakeCache>& cache, const COutPoint& prevout, CBlockIndex* pindexPrev, CCoinsViewCache& view){
     if(cache.find(prevout) != cache.end()){
         //already in cache
         return;
     }
 
     CCoins coinsPrev;
-    if(!pcoinsTip->GetCoins(prevout.hash, coinsPrev)){
+    if(!view.GetCoins(prevout.hash, coinsPrev)){
         return;
     }
 
-    if(pindexPrev->nHeight-coinsPrev.nHeight < COINBASE_MATURITY){
+    if(pindexPrev->nHeight + 1 - coinsPrev.nHeight < COINBASE_MATURITY){
         return;
     }
     CBlockIndex* blockFrom = pindexPrev->GetAncestor(coinsPrev.nHeight);

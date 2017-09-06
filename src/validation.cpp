@@ -105,7 +105,7 @@ CAmount maxTxFee = DEFAULT_TRANSACTION_MAXFEE;
 CTxMemPool mempool(::minRelayTxFee);
 
 static void CheckBlockIndex(const Consensus::Params& consensusParams);
-static bool UpdateHashProof(const CBlock& block, CValidationState& state, const Consensus::Params& consensusParams, CBlockIndex* pindex);
+static bool UpdateHashProof(const CBlock& block, CValidationState& state, const Consensus::Params& consensusParams, CBlockIndex* pindex, CCoinsViewCache& view);
 
 /** Constant stuff for coinbase transactions we create: */
 CScript COINBASE_FLAGS;
@@ -1253,7 +1253,7 @@ bool CheckHeaderPoS(const CBlockHeader& block, const Consensus::Params& consensu
 
     // Check the kernel hash
     CBlockIndex* pindexPrev = (*mi).second;
-    return CheckKernel(pindexPrev, block.nBits, block.StakeTime(), block.prevoutStake);
+    return CheckKernel(pindexPrev, block.nBits, block.StakeTime(), block.prevoutStake, *pcoinsTip);
 }
 
 bool CheckHeaderProof(const CBlockHeader& block, const Consensus::Params& consensusParams){
@@ -2422,11 +2422,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     uint64_t countCumulativeGasUsed = 0;
     /////////////////////////////////////////////////
 
-    // State is filled in by UpdateHashProof
-    if (!UpdateHashProof(block, state, chainparams.GetConsensus(), pindex)) {
-        return error("%s: ConnectBlock(): %s", __func__, state.GetRejectReason().c_str());
-    }
-
     // Move this check from CheckBlock to ConnectBlock as it depends on DGP values
     if (block.vtx.empty() || block.vtx.size() > dgpMaxBlockSize || ::GetSerializeSize(block, SER_NETWORK, PROTOCOL_VERSION | SERIALIZE_TRANSACTION_NO_WITNESS) > dgpMaxBlockSize) // qtum
         return state.DoS(100, false, REJECT_INVALID, "bad-blk-length", false, "size limits failed");
@@ -2450,6 +2445,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         if (!fJustCheck)
             view.SetBestBlock(pindex->GetBlockHash());
         return true;
+    }
+
+    // State is filled in by UpdateHashProof
+    if (!UpdateHashProof(block, state, chainparams.GetConsensus(), pindex, view)) {
+        return error("%s: ConnectBlock(): %s", __func__, state.GetRejectReason().c_str());
     }
 
     bool fScriptChecks = true;
@@ -4224,7 +4224,7 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, const Co
 }
 
 
-static bool UpdateHashProof(const CBlock& block, CValidationState& state, const Consensus::Params& consensusParams, CBlockIndex* pindex)
+static bool UpdateHashProof(const CBlock& block, CValidationState& state, const Consensus::Params& consensusParams, CBlockIndex* pindex, CCoinsViewCache& view)
 {
     int nHeight = pindex->nHeight;
     uint256 hash = block.GetHash();
@@ -4246,7 +4246,7 @@ static bool UpdateHashProof(const CBlock& block, CValidationState& state, const 
     if (block.IsProofOfStake())
     {
         uint256 targetProofOfStake;
-        if (!CheckProofOfStake(pindex->pprev, state, *block.vtx[1], block.nBits, block.nTime, hashProof, targetProofOfStake))
+        if (!CheckProofOfStake(pindex->pprev, state, *block.vtx[1], block.nBits, block.nTime, hashProof, targetProofOfStake, view))
         {
             return error("UpdateHashProof() : check proof-of-stake failed for block %s", hash.ToString());
         }
@@ -4347,7 +4347,7 @@ static bool AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CValidation
         return false;
 
     if(block.IsProofOfWork()) {
-        if (!UpdateHashProof(block, state, chainparams.GetConsensus(), pindex))
+        if (!UpdateHashProof(block, state, chainparams.GetConsensus(), pindex, *pcoinsTip))
         {
             return error("%s: AcceptBlock(): %s", __func__, state.GetRejectReason().c_str());
         }
