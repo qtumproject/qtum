@@ -17,7 +17,6 @@ ABIFunctionField::ABIFunctionField(FunctionType type, QWidget *parent) :
 {
     // Setup layouts
     m_comboBoxFunc->setFixedWidth(370);
-    m_paramsField->setStyleSheet(".QStackedWidget { border: none; }");
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->setSpacing(12);
     mainLayout->setContentsMargins(0, 0, 0, 0);
@@ -53,9 +52,9 @@ void ABIFunctionField::updateABIFunctionField()
         std::vector<FunctionABI> functions = m_contractABI->functions;
         QStringList functionList;
         QStringListModel *functionModel = new QStringListModel(this);
-        for (std::vector<FunctionABI>::const_iterator func = functions.begin() ; func != functions.end(); ++func)
+        for (int func = 0; func < functions.size(); ++func)
         {
-            const FunctionABI &function = *func;
+            const FunctionABI &function = functions[func];
             if((m_functionType == Constructor && function.type != "constructor") ||
                     (m_functionType == Function && function.type == "constructor"))
             {
@@ -70,7 +69,7 @@ void ABIFunctionField::updateABIFunctionField()
             QString funcSelector = QString::fromStdString(function.selector());
             functionList.append(QString(funcName + "(" + funcSelector + ")"));
 
-            m_abiFunctionList.append(&function);
+            m_abiFunctionList.append(func);
         }
         functionModel->setStringList(functionList);
         m_comboBoxFunc->setModel(functionModel);
@@ -111,12 +110,12 @@ QStringList ABIFunctionField::getParamsValues()
     return ((ABIParamsField*)m_paramsField->currentWidget())->getParamsValues();
 }
 
-const FunctionABI *ABIFunctionField::getSelectedFunction() const
+int ABIFunctionField::getSelectedFunction() const
 {
     // Get the currently selected function
     int currentFunc = m_comboBoxFunc->currentIndex();
     if(currentFunc == -1)
-        return NULL;
+        return -1;
 
     return m_abiFunctionList[currentFunc];
 }

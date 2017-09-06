@@ -57,7 +57,7 @@ public:
      * @brief getSelectedFunction Get the ABI for the selected function from the contract
      * @return Selected function ABI
      */
-    const FunctionABI* getSelectedFunction() const;
+    int getSelectedFunction() const;
 
 Q_SIGNALS:
 
@@ -80,7 +80,7 @@ private:
     QComboBox *m_comboBoxFunc;
     QLabel* m_labelFunction;
     QStackedWidget *m_paramsField;
-    QVector<const FunctionABI*> m_abiFunctionList;
+    QVector<int> m_abiFunctionList;
     FunctionType m_functionType;
 };
 

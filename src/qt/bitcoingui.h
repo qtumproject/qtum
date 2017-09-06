@@ -211,6 +211,8 @@ public Q_SLOTS:
     void incomingTransaction(const QString& date, int unit, const CAmount& amount, const QString& type, const QString& address, const QString& label);
 #endif // ENABLE_WALLET
 
+    void setTabBarInfo(QObject* into);
+
 private Q_SLOTS:
 #ifdef ENABLE_WALLET
     /** Switch to overview (home) page */

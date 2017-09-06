@@ -7,6 +7,7 @@
 #include "execrpccommand.h"
 #include "abifunctionfield.h"
 #include "contractabi.h"
+#include "tabbarinfo.h"
 
 namespace CallContract_NS
 {
@@ -24,7 +25,8 @@ CallContract::CallContract(const PlatformStyle *platformStyle, QWidget *parent) 
     m_clientModel(0),
     m_execRPCCommand(0),
     m_ABIFunctionField(0),
-    m_contractABI(0)
+    m_contractABI(0),
+    m_tabInfo(0)
 {
     // Setup ui components
     Q_UNUSED(platformStyle);
@@ -38,6 +40,11 @@ CallContract::CallContract(const PlatformStyle *platformStyle, QWidget *parent) 
     ui->labelContractAddress->setToolTip(tr("The account address."));
     ui->labelSenderAddress->setToolTip(tr("The sender address hex string."));
     ui->pushButtonCallContract->setEnabled(false);
+
+    m_tabInfo = new TabBarInfo(ui->stackedWidget);
+    m_tabInfo->addTab(0, tr("CallContract"));
+    m_tabInfo->addTab(1, tr("Result"));
+    m_tabInfo->setTabVisible(1, false);
 
     // Create new PRC command line interface
     QStringList lstMandatory;
@@ -56,6 +63,7 @@ CallContract::CallContract(const PlatformStyle *platformStyle, QWidget *parent) 
     connect(ui->pushButtonCallContract, SIGNAL(clicked()), SLOT(on_callContract_clicked()));
     connect(ui->lineEditContractAddress, SIGNAL(textChanged(QString)), SLOT(on_updateCallContractButton()));
     connect(ui->textEditInterface, SIGNAL(textChanged()), SLOT(on_newContractABI()));
+    connect(ui->stackedWidget, SIGNAL(currentChanged(int)), SLOT(on_updateCallContractButton()));
 }
 
 CallContract::~CallContract()
@@ -79,6 +87,9 @@ void CallContract::on_clearAll_clicked()
 {
     ui->lineEditContractAddress->clear();
     ui->lineEditSenderAddress->setCurrentIndex(-1);
+    ui->textEditInterface->clear();
+    m_tabInfo->setTabVisible(1, false);
+    m_tabInfo->setCurrent(0);
 }
 
 void CallContract::on_callContract_clicked()
@@ -88,6 +99,7 @@ void CallContract::on_callContract_clicked()
     QVariant result;
     QString errorMessage;
     QString resultJson;
+    int func = m_ABIFunctionField->getSelectedFunction();
 
     // Append params to the list
     ExecRPCCommand::appendParam(lstParams, PARAM_ADDRESS, ui->lineEditContractAddress->text());
@@ -97,8 +109,9 @@ void CallContract::on_callContract_clicked()
     // Execute RPC command line
     if(m_execRPCCommand->exec(lstParams, result, resultJson, errorMessage))
     {
-        QString message = tr("The contract is called successfully.\n\n") + resultJson;
-        QMessageBox::information(this, tr("Call contract"), message);
+        ui->widgetResult->setResultData(result, m_contractABI->functions[func], m_ABIFunctionField->getParamsValues(), ContractResult::CallResult);
+        m_tabInfo->setTabVisible(1, true);
+        m_tabInfo->setCurrent(1);
     }
     else
     {
@@ -116,14 +129,15 @@ void CallContract::on_numBlocksChanged()
 
 void CallContract::on_updateCallContractButton()
 {
+    int func = m_ABIFunctionField->getSelectedFunction();
+    bool enabled = func != -1;
     if(ui->lineEditContractAddress->text().isEmpty())
     {
-        ui->pushButtonCallContract->setEnabled(false);
+        enabled = false;
     }
-    else
-    {
-        ui->pushButtonCallContract->setEnabled(true);
-    }
+    enabled &= ui->stackedWidget->currentIndex() == 0;
+
+    ui->pushButtonCallContract->setEnabled(enabled);
 }
 
 void CallContract::on_newContractABI()
@@ -134,4 +148,6 @@ void CallContract::on_newContractABI()
         m_contractABI->clean();
     }
     m_ABIFunctionField->setContractABI(m_contractABI);
+
+    on_updateCallContractButton();
 }

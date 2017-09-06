@@ -99,6 +99,7 @@ QT_FORMS_UI = \
   qt/forms/askpassphrasedialog.ui \
   qt/forms/callcontract.ui \
   qt/forms/coincontroldialog.ui \
+  qt/forms/contractresult.ui \
   qt/forms/createcontract.ui \
   qt/forms/editaddressdialog.ui \
   qt/forms/helpmessagedialog.ui \
@@ -134,6 +135,7 @@ QT_MOC_CPP = \
   qt/moc_clientmodel.cpp \
   qt/moc_coincontroldialog.cpp \
   qt/moc_coincontroltreewidget.cpp \
+  qt/moc_contractresult.cpp \
   qt/moc_createcontract.cpp \
   qt/moc_csvmodelwriter.cpp \
   qt/moc_editaddressdialog.cpp \
@@ -161,6 +163,7 @@ QT_MOC_CPP = \
   qt/moc_sendtocontract.cpp \
   qt/moc_signverifymessagedialog.cpp \
   qt/moc_splashscreen.cpp \
+  qt/moc_tabbarinfo.cpp \
   qt/moc_titlebar.cpp \
   qt/moc_trafficgraphwidget.cpp \
   qt/moc_transactiondesc.cpp \
@@ -211,6 +214,7 @@ BITCOIN_QT_H = \
   qt/coincontroldialog.h \
   qt/coincontroltreewidget.h \
   qt/contractabi.h \
+  qt/contractresult.h \
   qt/createcontract.h \
   qt/csvmodelwriter.h \
   qt/editaddressdialog.h \
@@ -243,6 +247,7 @@ BITCOIN_QT_H = \
   qt/sendtocontract.h \
   qt/signverifymessagedialog.h \
   qt/splashscreen.h \
+  qt/tabbarinfo.h \
   qt/titlebar.h \
   qt/trafficgraphwidget.h \
   qt/transactiondesc.h \
@@ -344,6 +349,7 @@ BITCOIN_QT_BASE_CPP = \
   qt/qvaluecombobox.cpp \
   qt/rpcconsole.cpp \
   qt/splashscreen.cpp \
+  qt/tabbarinfo.cpp \
   qt/titlebar.cpp \
   qt/trafficgraphwidget.cpp \
   qt/utilitydialog.cpp
@@ -362,6 +368,7 @@ BITCOIN_QT_WALLET_CPP = \
   qt/coincontroldialog.cpp \
   qt/coincontroltreewidget.cpp \
   qt/contractabi.cpp \
+  qt/contractresult.cpp \
   qt/createcontract.cpp \
   qt/execrpccommand.cpp \
   qt/editaddressdialog.cpp \

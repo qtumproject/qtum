@@ -9,6 +9,7 @@ class ClientModel;
 class ExecRPCCommand;
 class ABIFunctionField;
 class ContractABI;
+class TabBarInfo;
 
 namespace Ui {
 class CreateContract;
@@ -42,6 +43,7 @@ private:
     ExecRPCCommand* m_execRPCCommand;
     ABIFunctionField* m_ABIFunctionField;
     ContractABI* m_contractABI;
+    TabBarInfo* m_tabInfo;
 };
 
 #endif // CREATECONTRACT_H

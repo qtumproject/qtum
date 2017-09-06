@@ -10,6 +10,7 @@ namespace Ui {
 class TitleBar;
 }
 class WalletModel;
+class TabBarInfo;
 
 /**
  * @brief The TitleBar class Title bar widget
@@ -36,10 +37,10 @@ public:
     void setModel(WalletModel *_model);
 
     /**
-     * @brief tabBar Get the tab bar component
-     * @return Tab bar GUI component
+     * @brief setTabBarInfo Set the tab bar info
+     * @param info Information about tabs
      */
-    QTabBar *tabBar() const;
+    void setTabBarInfo(QObject* info);
 
 Q_SIGNALS:
 
@@ -59,6 +60,7 @@ public Q_SLOTS:
 private:
     Ui::TitleBar *ui;
     WalletModel *model;
+    TabBarInfo* m_tab;
 };
 
 #endif // TITLEBAR_H

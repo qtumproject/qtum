@@ -13,6 +13,7 @@
 #include "addressfield.h"
 #include "abifunctionfield.h"
 #include "contractabi.h"
+#include "tabbarinfo.h"
 
 namespace CreateContract_NS
 {
@@ -35,7 +36,8 @@ CreateContract::CreateContract(const PlatformStyle *platformStyle, QWidget *pare
     m_clientModel(0),
     m_execRPCCommand(0),
     m_ABIFunctionField(0),
-    m_contractABI(0)
+    m_contractABI(0),
+    m_tabInfo(0)
 {
     // Setup ui components
     Q_UNUSED(platformStyle);
@@ -48,6 +50,11 @@ CreateContract::CreateContract(const PlatformStyle *platformStyle, QWidget *pare
     ui->scrollAreaConstructor->setWidget(m_ABIFunctionField);
     ui->labelBytecode->setToolTip(tr("The bytecode of the contract"));
     ui->labelSenderAddress->setToolTip(tr("The quantum address that will be used to create the contract."));
+
+    m_tabInfo = new TabBarInfo(ui->stackedWidget);
+    m_tabInfo->addTab(0, tr("CreateContract"));
+    m_tabInfo->addTab(1, tr("Result"));
+    m_tabInfo->setTabVisible(1, false);
 
     // Set defaults
     ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
@@ -77,6 +84,7 @@ CreateContract::CreateContract(const PlatformStyle *platformStyle, QWidget *pare
     connect(ui->pushButtonCreateContract, SIGNAL(clicked()), SLOT(on_createContract_clicked()));
     connect(ui->textEditBytecode, SIGNAL(textChanged()), SLOT(on_updateCreateButton()));
     connect(ui->textEditInterface, SIGNAL(textChanged()), SLOT(on_newContractABI()));
+    connect(ui->stackedWidget, SIGNAL(currentChanged(int)), SLOT(on_updateCreateButton()));
 }
 
 CreateContract::~CreateContract()
@@ -119,6 +127,9 @@ void CreateContract::on_clearAll_clicked()
     ui->lineEditGasLimit->setValue(DEFAULT_GAS_LIMIT_OP_CREATE);
     ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
     ui->lineEditSenderAddress->setCurrentIndex(-1);
+    ui->textEditInterface->clear();
+    m_tabInfo->setTabVisible(1, false);
+    m_tabInfo->setCurrent(0);
 }
 
 void CreateContract::on_createContract_clicked()
@@ -131,6 +142,7 @@ void CreateContract::on_createContract_clicked()
     int unit = m_model->getOptionsModel()->getDisplayUnit();
     uint64_t gasLimit = ui->lineEditGasLimit->value();
     CAmount gasPrice = ui->lineEditGasPrice->value();
+    int func = m_ABIFunctionField->getSelectedFunction();
 
     // Check for high gas price
     if(gasPrice > HIGH_GASPRICE)
@@ -149,8 +161,9 @@ void CreateContract::on_createContract_clicked()
     // Execute RPC command line
     if(m_execRPCCommand->exec(lstParams, result, resultJson, errorMessage))
     {
-        QString message = tr("The contract is created successfully.\n\n") + resultJson;
-        QMessageBox::information(this, tr("Create contract"), message);
+        ui->widgetResult->setResultData(result, m_contractABI->functions[func], m_ABIFunctionField->getParamsValues(), ContractResult::CreateResult);
+        m_tabInfo->setTabVisible(1, true);
+        m_tabInfo->setCurrent(1);
     }
     else
     {
@@ -178,14 +191,15 @@ void CreateContract::on_numBlocksChanged()
 
 void CreateContract::on_updateCreateButton()
 {
+    int func = m_ABIFunctionField->getSelectedFunction();
+    bool enabled = func != -1;
     if(ui->textEditBytecode->toPlainText().isEmpty())
     {
-        ui->pushButtonCreateContract->setEnabled(false);
+        enabled = false;
     }
-    else
-    {
-        ui->pushButtonCreateContract->setEnabled(true);
-    }
+    enabled &= ui->stackedWidget->currentIndex() == 0;
+
+    ui->pushButtonCreateContract->setEnabled(enabled);
 }
 
 void CreateContract::on_newContractABI()
@@ -196,4 +210,6 @@ void CreateContract::on_newContractABI()
         m_contractABI->clean();
     }
     m_ABIFunctionField->setContractABI(m_contractABI);
+
+    on_updateCreateButton();
 }

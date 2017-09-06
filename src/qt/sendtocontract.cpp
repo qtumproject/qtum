@@ -12,6 +12,7 @@
 #include "utilmoneystr.h"
 #include "abifunctionfield.h"
 #include "contractabi.h"
+#include "tabbarinfo.h"
 
 namespace SendToContract_NS
 {
@@ -36,7 +37,8 @@ SendToContract::SendToContract(const PlatformStyle *platformStyle, QWidget *pare
     m_clientModel(0),
     m_execRPCCommand(0),
     m_ABIFunctionField(0),
-    m_contractABI(0)
+    m_contractABI(0),
+    m_tabInfo(0)
 {
     // Setup ui components
     Q_UNUSED(platformStyle);
@@ -49,6 +51,11 @@ SendToContract::SendToContract(const PlatformStyle *platformStyle, QWidget *pare
     ui->labelContractAddress->setToolTip(tr("The contract address that will receive the funds and data."));
     ui->labelAmount->setToolTip(tr("The amount in QTUM to send. Default = 0."));
     ui->labelSenderAddress->setToolTip(tr("The quantum address that will be used as sender."));
+
+    m_tabInfo = new TabBarInfo(ui->stackedWidget);
+    m_tabInfo->addTab(0, tr("SendToContract"));
+    m_tabInfo->addTab(1, tr("Result"));
+    m_tabInfo->setTabVisible(1, false);
    
     // Set defaults
     ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
@@ -81,6 +88,7 @@ SendToContract::SendToContract(const PlatformStyle *platformStyle, QWidget *pare
     connect(ui->pushButtonSendToContract, SIGNAL(clicked()), SLOT(on_sendToContract_clicked()));
     connect(ui->lineEditContractAddress, SIGNAL(textChanged(QString)), SLOT(on_updateSendToContractButton()));
     connect(ui->textEditInterface, SIGNAL(textChanged()), SLOT(on_newContractABI()));
+    connect(ui->stackedWidget, SIGNAL(currentChanged(int)), SLOT(on_updateSendToContractButton()));
 }
 
 SendToContract::~SendToContract()
@@ -112,6 +120,9 @@ void SendToContract::on_clearAll_clicked()
     ui->lineEditGasLimit->setValue(DEFAULT_GAS_LIMIT_OP_SEND);
     ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
     ui->lineEditSenderAddress->setCurrentIndex(-1);
+    ui->textEditInterface->clear();
+    m_tabInfo->setTabVisible(1, false);
+    m_tabInfo->setCurrent(0);
 }
 
 void SendToContract::on_sendToContract_clicked()
@@ -124,6 +135,7 @@ void SendToContract::on_sendToContract_clicked()
     int unit = m_model->getOptionsModel()->getDisplayUnit();
     uint64_t gasLimit = ui->lineEditGasLimit->value();
     CAmount gasPrice = ui->lineEditGasPrice->value();
+    int func = m_ABIFunctionField->getSelectedFunction();
 
     // Check for high gas price
     if(gasPrice > HIGH_GASPRICE)
@@ -144,8 +156,9 @@ void SendToContract::on_sendToContract_clicked()
     // Execute RPC command line
     if(m_execRPCCommand->exec(lstParams, result, resultJson, errorMessage))
     {
-        QString message = tr("Send to the contract is performed successfully.\n\n") + resultJson;
-        QMessageBox::information(this, tr("Send to contract"), message);
+        ui->widgetResult->setResultData(result, m_contractABI->functions[func], m_ABIFunctionField->getParamsValues(), ContractResult::SendToResult);
+        m_tabInfo->setTabVisible(1, true);
+        m_tabInfo->setCurrent(1);
     }
     else
     {
@@ -173,14 +186,15 @@ void SendToContract::on_numBlocksChanged()
 
 void SendToContract::on_updateSendToContractButton()
 {
+    int func = m_ABIFunctionField->getSelectedFunction();
+    bool enabled = func != -1;
     if(ui->lineEditContractAddress->text().isEmpty())
     {
-        ui->pushButtonSendToContract->setEnabled(false);
+        enabled = false;
     }
-    else
-    {
-        ui->pushButtonSendToContract->setEnabled(true);
-    }
+    enabled &= ui->stackedWidget->currentIndex() == 0;
+
+    ui->pushButtonSendToContract->setEnabled(enabled);
 }
 
 void SendToContract::on_newContractABI()
@@ -191,4 +205,6 @@ void SendToContract::on_newContractABI()
         m_contractABI->clean();
     }
     m_ABIFunctionField->setContractABI(m_contractABI);
+
+    on_updateSendToContractButton();
 }

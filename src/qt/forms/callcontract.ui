@@ -224,7 +224,7 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QWidget" name="widgetResult" native="true"/>
+        <widget class="ContractResult" name="widgetResult" native="true"/>
        </item>
       </layout>
      </widget>
@@ -324,6 +324,11 @@
    <class>AddressField</class>
    <extends>QComboBox</extends>
    <header>addressfield.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ContractResult</class>
+   <extends>QStackedWidget</extends>
+   <header>contractresult.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

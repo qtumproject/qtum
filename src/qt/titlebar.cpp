@@ -2,6 +2,7 @@
 #include "ui_titlebar.h"
 #include "bitcoinunits.h"
 #include "optionsmodel.h"
+#include "tabbarinfo.h"
 
 #include <QPixmap>
 
@@ -12,7 +13,8 @@ using namespace TitleBar_NS;
 
 TitleBar::TitleBar(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::TitleBar)
+    ui(new Ui::TitleBar),
+    m_tab(0)
 {
     ui->setupUi(this);
     // Set the logo
@@ -23,7 +25,7 @@ TitleBar::TitleBar(QWidget *parent) :
     ui->lblFiatBalance->hide();
     // Set size policy
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    ui->tabWidget->setStyleSheet("margin-bottom: -2px;");
+    ui->tabWidget->setDrawBase(false);
 }
 
 TitleBar::~TitleBar()
@@ -41,9 +43,19 @@ void TitleBar::setModel(WalletModel *_model)
     connect(model, SIGNAL(balanceChanged(CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount)), this, SLOT(setBalance(CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount)));
 }
 
-QTabBar *TitleBar::tabBar() const
+void TitleBar::setTabBarInfo(QObject *info)
 {
-    return ui->tabWidget;
+    if(m_tab)
+    {
+        m_tab->detach();
+    }
+
+    if(info && info->inherits("TabBarInfo"))
+    {
+        TabBarInfo* tab = (TabBarInfo*)info;
+        m_tab = tab;
+        m_tab->attach(ui->tabWidget);
+    }
 }
 
 void TitleBar::setBalance(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& immatureBalance, const CAmount& stake,
