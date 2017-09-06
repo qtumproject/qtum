@@ -178,6 +178,7 @@ static const bool DEFAULT_PEERBLOOMFILTERS = true;
 static const uint64_t DEFAULT_GAS_LIMIT_OP_CREATE=1000000;
 static const uint64_t DEFAULT_GAS_LIMIT_OP_SEND=200000;
 static const CAmount DEFAULT_GAS_PRICE=0.00000001*COIN;
+static const CAmount MAX_RPC_GAS_PRICE=0.00000100*COIN;
 
 static const size_t MAX_CONTRACT_VOUTS = 1000; // qtum
 
