@@ -770,7 +770,7 @@ UniValue getaccountinfo(const JSONRPCRequest& request)
     LOCK(cs_main);
 
     std::string strAddr = request.params[0].get_str();
-    if(strAddr.size() != 40 || !std::regex_match(strAddr, hexData))
+    if(strAddr.size() != 40 || !CheckHex(strAddr))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect address");
 
     dev::Address addrAccount(strAddr);
@@ -822,7 +822,7 @@ UniValue getstorage(const JSONRPCRequest& request)
     LOCK(cs_main);
 
     std::string strAddr = request.params[0].get_str();
-    if(strAddr.size() != 40 || !std::regex_match(strAddr, hexData))
+    if(strAddr.size() != 40 || !CheckHex(strAddr))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect address"); 
 
     TemporaryState ts(globalState);
@@ -1027,10 +1027,10 @@ UniValue callcontract(const JSONRPCRequest& request)
     std::string strAddr = request.params[0].get_str();
     std::string data = request.params[1].get_str();
 
-    if(data.size() % 2 != 0 || !std::regex_match(data, hexData))
+    if(data.size() % 2 != 0 || !CheckHex(data))
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid data (data not hex)");
 
-    if(strAddr.size() != 40 || !std::regex_match(strAddr, hexData))
+    if(strAddr.size() != 40 || !CheckHex(strAddr))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect address");
  
     dev::Address addrAccount(strAddr);
@@ -1116,7 +1116,7 @@ bool getContarctAddressesFromParams(const UniValue& params, std::vector<dev::h16
 
         for (std::vector<UniValue>::iterator it = values.begin(); it != values.end(); ++it) {
             auto addrStr(it->get_str());
-            if (addrStr.length() != 40 || !std::regex_match(addrStr, hexData))
+            if (addrStr.length() != 40 || !CheckHex(addrStr))
                 throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
             addresses.push_back(dev::h160(addrStr));
         }
@@ -1142,7 +1142,7 @@ bool getTopicsFromParams(const UniValue& params, std::vector<std::pair<unsigned,
             auto topicStr(values[i].get_str());
             if (topicStr == "null")
                 continue;
-            if (topicStr.length() != 64 || !std::regex_match(topicStr, hexData))
+            if (topicStr.length() != 64 || !CheckHex(topicStr))
                 throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid topic");
             topics.push_back({i, dev::h256(topicStr)});
         }
