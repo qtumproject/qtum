@@ -1261,7 +1261,7 @@ bool CheckHeaderProof(const CBlockHeader& block, const Consensus::Params& consen
         return CheckHeaderPoW(block, consensusParams);
     }
     if(block.IsProofOfStake()){
-        return true; // CheckHeaderPoS(block, consensusParams);
+        return CheckHeaderPoS(block, consensusParams);
     }
     return false;
 }
@@ -2041,10 +2041,6 @@ bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, cons
     }
     else
     {
-        // Check proof-of-stake timestamp
-        if (!CheckTransactionTimestamp(*block.vtx[offset], block.nTime, *pblocktree))
-            return error("CheckReward() : %s transaction timestamp check failure", block.vtx[offset]->GetHash().ToString());
-
         // Check full reward
         CAmount blockReward = nFees + GetBlockSubsidy(nHeight, consensusParams);
         if (nActualStakeReward > blockReward)
@@ -2902,9 +2898,17 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         }
     }    
     if(block.IsProofOfStake()){
-        pblocktree->WriteStakeIndex(pindex->nHeight, block.vtx[1]->GetHash());
+        // Read the public key from the second output
+        std::vector<unsigned char> vchPubKey;
+        if(GetBlockPublicKey(block, vchPubKey))
+        {
+            uint160 pkh = uint160(ToByteVector(CPubKey(vchPubKey).GetID()));
+            pblocktree->WriteStakeIndex(pindex->nHeight, pkh);
+        }else{
+            pblocktree->WriteStakeIndex(pindex->nHeight, uint160());
+        }
     }else{
-        pblocktree->WriteStakeIndex(pindex->nHeight, block.vtx[0]->GetHash());
+        pblocktree->WriteStakeIndex(pindex->nHeight, uint160());
     }
     if (fTxIndex)
         if (!pblocktree->WriteTxIndex(vPos))
@@ -3606,33 +3610,6 @@ bool ResetBlockFailureFlags(CBlockIndex *pindex) {
         }
         pindex = pindex->pprev;
     }
-    return true;
-}
-
-bool CheckTransactionTimestamp(const CTransaction& tx, const uint32_t& nTimeBlock, CBlockTreeDB& txdb)
-{
-    if (tx.IsCoinBase())
-        return true;
-
-    BOOST_FOREACH(const CTxIn& txin, tx.vin)
-    {
-        // First try finding the previous transaction in database
-        CMutableTransaction txPrev;
-        CDiskTxPos txindex;
-        if (!ReadFromDisk(txPrev, txindex, txdb, txin.prevout))
-            continue;  // previous transaction not in main chain
-
-        // Read block header
-        CBlockHeader blockFrom;
-        if (!ReadFromDisk(blockFrom, txindex.nFile, txindex.nPos))
-            return false; // unable to read block of previous transaction
-
-        if (nTimeBlock < blockFrom.nTime)
-            return false;  // Transaction timestamp violation
-
-        LogPrint("Transaction timestamp", "timestamp nTimeDiff=%d", nTimeBlock - blockFrom.nTime);
-    }
-
     return true;
 }
 

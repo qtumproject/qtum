@@ -166,19 +166,15 @@ bool AddMPoSScript(std::vector<CScript> &mposScriptList, int nHeight, const Cons
     }
 
     // Read the block
-    CBlock block;
-    if (!ReadBlockFromDisk(block, pblockindex, consensusParams))
-    {
-        LogPrint("coinstake", "Block read from disk failed\n");
+    uint160 stakeAddress;
+    if(!pblocktree->ReadStakeIndex(nHeight, stakeAddress)){
         return false;
     }
 
     // The block reward for PoS is in the second transaction (coinstake) and the second or third output
-    if(block.vtx.size() > 1 && block.vtx[1]->IsCoinStake() && block.vtx[1]->vout.size() > 1 )
+    if(pblockindex->IsProofOfStake())
     {
-        // Read the public key from the second output
-        std::vector<unsigned char> vchPubKey;
-        if(!GetBlockPublicKey(block, vchPubKey))
+        if(stakeAddress == uint160())
         {
             LogPrint("coinstake", "Fail to solve script for mpos reward recipient\n");
             //This should never fail, but in case it somehow did we don't want it to bring the network to a halt
@@ -186,7 +182,7 @@ bool AddMPoSScript(std::vector<CScript> &mposScriptList, int nHeight, const Cons
             script = CScript() << OP_RETURN;
         }else{
             // Make public key hash script
-            script = CScript() << OP_DUP << OP_HASH160 << ToByteVector(CPubKey(vchPubKey).GetID()) << OP_EQUALVERIFY << OP_CHECKSIG;
+            script = CScript() << OP_DUP << OP_HASH160 << ToByteVector(stakeAddress) << OP_EQUALVERIFY << OP_CHECKSIG;
         }
 
         // Add the script into the list
@@ -3280,9 +3276,6 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, con
     int64_t nRewardPiece = 0;
     // Calculate reward
     {
-        if (!CheckTransactionTimestamp(txNew, nTimeBlock, *pblocktree))
-            return error("CreateCoinStake : Transaction timestamp check failure.");
-
         int64_t nReward = nTotalFees + GetBlockSubsidy(pindexPrev->nHeight, consensusParams);
         if (nReward < 0)
             return false;
