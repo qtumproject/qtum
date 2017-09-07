@@ -22,6 +22,7 @@ static const char DB_BLOCK_INDEX = 'b';
 
 ////////////////////////////////////////// // qtum
 static const char DB_HEIGHTINDEX = 'h';
+static const char DB_STAKEINDEX = 's';
 //////////////////////////////////////////
 
 static const char DB_BEST_BLOCK = 'B';
@@ -241,6 +242,72 @@ bool CBlockTreeDB::WipeHeightIndex() {
         boost::this_thread::interruption_point();
         std::pair<char, CHeightTxIndexKey> key;
         if (pcursor->GetKey(key) && key.first == DB_HEIGHTINDEX) {
+            batch.Erase(key);
+            pcursor->Next();
+        } else {
+            break;
+        }
+    }
+
+    return WriteBatch(batch);
+}
+
+
+bool CBlockTreeDB::WriteStakeIndex(unsigned int height, uint256 txid) {
+    CDBBatch batch(*this);
+    batch.Write(std::make_pair(DB_STAKEINDEX, height), txid);
+    return WriteBatch(batch);
+}
+
+bool CBlockTreeDB::ReadStakeIndex(unsigned int height, uint256& txid){
+    boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
+
+    pcursor->Seek(std::make_pair(DB_STAKEINDEX, height));
+
+    while (pcursor->Valid()) {
+        boost::this_thread::interruption_point();
+        std::pair<char, CHeightTxIndexKey> key;
+        if (pcursor->GetKey(key) && key.first == DB_STAKEINDEX) {
+            pcursor->GetValue(txid);
+            return true;
+        }else{
+            return false;
+        }
+    }
+    return false;
+}
+bool CBlockTreeDB::ReadStakeIndex(unsigned int high, unsigned int low, std::vector<uint256> txids){
+    boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
+
+    pcursor->Seek(std::make_pair(DB_STAKEINDEX, low));
+
+    while (pcursor->Valid()) {
+        boost::this_thread::interruption_point();
+        std::pair<char, CHeightTxIndexKey> key;
+        if (pcursor->GetKey(key) && key.first == DB_STAKEINDEX && key.second.height < high) {
+            uint256 value;
+            pcursor->GetValue(value);
+            txids.push_back(value);
+            pcursor->Next();
+        } else {
+            break;
+        }
+    }
+
+    return true;
+}
+
+bool CBlockTreeDB::EraseStakeIndex(unsigned int height) {
+
+    boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
+    CDBBatch batch(*this);
+
+    pcursor->Seek(std::make_pair(DB_STAKEINDEX, height));
+
+    while (pcursor->Valid()) {
+        boost::this_thread::interruption_point();
+        std::pair<char, CHeightTxIndexKey> key;
+        if (pcursor->GetKey(key) && key.first == DB_HEIGHTINDEX && key.second.height == height) {
             batch.Erase(key);
             pcursor->Next();
         } else {

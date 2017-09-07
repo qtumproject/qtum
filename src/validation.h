@@ -440,6 +440,7 @@ struct CHeightTxIndexKey {
         address.clear();
     }
 };
+
 ////////////////////////////////////////////////////////////
 
 /** Get the block height at which the BIP9 deployment switched into the state for the block building on the current tip. */
