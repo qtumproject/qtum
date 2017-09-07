@@ -161,6 +161,9 @@ bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBloc
         if(!blockFrom) {
             return false;
         }
+        if(!coinsPrev.IsAvailable(prevout.n)){
+            return false;
+        }
 
         return CheckStakeKernelHash(pindexPrev, nBits, blockFrom->nTime, coinsPrev.vout[prevout.n].nValue, prevout,
                                     nTimeBlock, hashProofOfStake, targetProofOfStake);
