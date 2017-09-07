@@ -253,13 +253,13 @@ bool CBlockTreeDB::WipeHeightIndex() {
 }
 
 
-bool CBlockTreeDB::WriteStakeIndex(unsigned int height, uint256 txid) {
+bool CBlockTreeDB::WriteStakeIndex(unsigned int height, uint160 address) {
     CDBBatch batch(*this);
-    batch.Write(std::make_pair(DB_STAKEINDEX, height), txid);
+    batch.Write(std::make_pair(DB_STAKEINDEX, height), address);
     return WriteBatch(batch);
 }
 
-bool CBlockTreeDB::ReadStakeIndex(unsigned int height, uint256& txid){
+bool CBlockTreeDB::ReadStakeIndex(unsigned int height, uint160& address){
     boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
 
     pcursor->Seek(std::make_pair(DB_STAKEINDEX, height));
@@ -267,8 +267,9 @@ bool CBlockTreeDB::ReadStakeIndex(unsigned int height, uint256& txid){
     while (pcursor->Valid()) {
         boost::this_thread::interruption_point();
         std::pair<char, CHeightTxIndexKey> key;
-        if (pcursor->GetKey(key) && key.first == DB_STAKEINDEX) {
-            pcursor->GetValue(txid);
+        pcursor->GetKey(key); //note: it's apparently ok if this returns an error https://github.com/bitcoin/bitcoin/issues/7890
+        if (key.first == DB_STAKEINDEX) {
+            pcursor->GetValue(address);
             return true;
         }else{
             return false;
@@ -276,7 +277,7 @@ bool CBlockTreeDB::ReadStakeIndex(unsigned int height, uint256& txid){
     }
     return false;
 }
-bool CBlockTreeDB::ReadStakeIndex(unsigned int high, unsigned int low, std::vector<uint256> txids){
+bool CBlockTreeDB::ReadStakeIndex(unsigned int high, unsigned int low, std::vector<uint160> addresses){
     boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
 
     pcursor->Seek(std::make_pair(DB_STAKEINDEX, low));
@@ -284,10 +285,11 @@ bool CBlockTreeDB::ReadStakeIndex(unsigned int high, unsigned int low, std::vect
     while (pcursor->Valid()) {
         boost::this_thread::interruption_point();
         std::pair<char, CHeightTxIndexKey> key;
-        if (pcursor->GetKey(key) && key.first == DB_STAKEINDEX && key.second.height < high) {
-            uint256 value;
+        pcursor->GetKey(key); //note: it's apparently ok if this returns an error https://github.com/bitcoin/bitcoin/issues/7890
+        if (key.first == DB_STAKEINDEX && key.second.height < high) {
+            uint160 value;
             pcursor->GetValue(value);
-            txids.push_back(value);
+            addresses.push_back(value);
             pcursor->Next();
         } else {
             break;
