@@ -40,7 +40,6 @@
 #include "pubkey.h"
 #include "key.h"
 #include "wallet/wallet.h"
-#include "base58.h"
 
 #include <atomic>
 #include <sstream>
