@@ -19,7 +19,7 @@ class QtumDGPGasPriceLingeringMempoolTxTest(BitcoinTestFramework):
         self.num_nodes = 2
 
     def setup_network(self, split=False):
-        self.nodes = start_nodes(self.num_nodes, self.options.tmpdir)
+        self.nodes = start_nodes(self.num_nodes, self.options.tmpdir, [['-rpcmaxgasprice=10000000'], ['-rpcmaxgasprice=10000000']])
         self.node = self.nodes[0]
         self.GAS_PRICE_DGP = DGPState(self.node, "0000000000000000000000000000000000000082")
         connect_nodes_bi(self.nodes, 0, 1)

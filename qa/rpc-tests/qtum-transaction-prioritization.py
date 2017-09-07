@@ -5,15 +5,10 @@ from test_framework.util import *
 from test_framework.script import *
 from test_framework.mininode import *
 from test_framework.address import *
+from test_framework.qtum import *
 import sys
 import random
 import time
-
-def p2pkh_to_hex_hash(address):
-    return str(base58_to_byte(address, 25)[1])[2:-1]
-
-def hex_hash_to_p2pkh(hex_hash):
-    return keyhash_to_p2pkh(hex_str_to_bytes(hex_hash))    
 
 class QtumTransactionPrioritizationTest(BitcoinTestFramework):
     def __init__(self):
@@ -22,15 +17,14 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
         self.num_nodes = 1
 
     def setup_network(self, split=False):
-        self.nodes = start_nodes(self.num_nodes, self.options.tmpdir, [['-staking=1']])
+        self.nodes = start_nodes(self.num_nodes, self.options.tmpdir, [['-staking=1', '-rpcmaxgasprice=10000000']])
         self.is_network_split = False
         self.node = self.nodes[0]
 
     def restart_node(self):
         stop_nodes(self.nodes)
-        self.nodes = start_nodes(self.num_nodes, self.options.tmpdir, [["-staking=1"]])
+        self.nodes = start_nodes(self.num_nodes, self.options.tmpdir, [['-staking=1', '-rpcmaxgasprice=10000000']])
         self.node = self.nodes[0]
-
 
     def stake_or_mine(self, old_block_count=None, use_staking=False):
         # Since staking is switched on by default, if a block has been staked return that block's hash
