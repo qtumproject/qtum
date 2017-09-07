@@ -842,24 +842,6 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                 fSpendsCoinbase = true;
                 break;
             }
-            
-            COutPoint prevout = txin.prevout;
-            CMutableTransaction txPrev;
-            std::shared_ptr<const CTransaction> ptx = mempool.get(prevout.hash);
-            if(ptx)
-            {
-                txPrev = *ptx;
-            }
-            else
-            {
-                CDiskTxPos txindex;
-                if (!ReadFromDisk(txPrev, txindex, *pblocktree, prevout))
-                   return state.DoS(100, error("%s : previous transaction not found", __func__), REJECT_INVALID, "bad-txns-not-found");
-            }
-
-            if (txPrev.vout[prevout.n].IsEmpty())
-                return state.DoS(1, error("%s : special marker is not spendable", __func__), REJECT_INVALID, "bad-txns-not-spendable");
-
         }
 
         CTxMemPoolEntry entry(ptx, nFees, nAcceptTime, dPriority, chainActive.Height(),
