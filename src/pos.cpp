@@ -102,22 +102,22 @@ bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t 
 bool CheckProofOfStake(CBlockIndex* pindexPrev, CValidationState& state, const CTransaction& tx, unsigned int nBits, uint32_t nTimeBlock, uint256& hashProofOfStake, uint256& targetProofOfStake, CCoinsViewCache& view)
 {
     if (!tx.IsCoinStake())
-        return error("CheckProofOfStake() : called on non-coinstake %s", tx.GetHash().ToString());
+        return error("CheckProofOfStake() : called on non-coinstake %s", tx.GetHash().ToString());s
 
     // Kernel (input 0) must match the stake hash target (nBits)
     const CTxIn& txin = tx.vin[0];
 
     CCoins coinsPrev;
     if(!view.GetCoins(txin.prevout.hash, coinsPrev)){
-        return false;
+        return state.DoS(100, error("CheckProofOfStake() : Stake prevout does not exist %s", txin.prevout.hash.ToString()));
     }
 
     if(pindexPrev->nHeight + 1 - coinsPrev.nHeight < COINBASE_MATURITY){
-        return false;
+        return state.DoS(100, error("CheckProofOfStake() : Stake prevout is not mature, expecting %i and only matured to %i", COINBASE_MATURITY, pindexPrev->nHeight + 1 - coinsPrev.nHeight));
     }
     CBlockIndex* blockFrom = pindexPrev->GetAncestor(coinsPrev.nHeight);
     if(!blockFrom) {
-        return false;
+        return state.DoS(100, error("CheckProofOfStake() : Block at height %i for prevout can not be loaded", coinsPrev.nHeight));
     }
 
     // Verify signature
