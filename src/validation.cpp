@@ -1261,7 +1261,7 @@ bool CheckHeaderProof(const CBlockHeader& block, const Consensus::Params& consen
         return CheckHeaderPoW(block, consensusParams);
     }
     if(block.IsProofOfStake()){
-        return CheckHeaderPoS(block, consensusParams);
+        return true; // CheckHeaderPoS(block, consensusParams);
     }
     return false;
 }
@@ -1878,6 +1878,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
         storageRes.deleteResults(block.vtx);
         pblocktree->EraseHeightIndex(pindex->nHeight);
     }
+    pblocktree->EraseStakeIndex(pindex->nHeight);
 
     if (pfClean) {
         *pfClean = fClean;
@@ -2900,7 +2901,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 return AbortNode(state, "Failed to write height index");
         }
     }    
-    
+    if(block.IsProofOfStake()){
+        pblocktree->WriteStakeIndex(pindex->nHeight, block.vtx[1]->GetHash());
+    }else{
+        pblocktree->WriteStakeIndex(pindex->nHeight, block.vtx[0]->GetHash());
+    }
     if (fTxIndex)
         if (!pblocktree->WriteTxIndex(vPos))
             return AbortNode(state, "Failed to write transaction index");

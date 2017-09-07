@@ -127,6 +127,12 @@ public:
     bool EraseHeightIndex(const unsigned int &height);
     bool WipeHeightIndex();
 
+
+    bool WriteStakeIndex(unsigned int height, uint256 txid);
+    bool ReadStakeIndex(unsigned int height, uint256& txid);
+    bool ReadStakeIndex(unsigned int high, unsigned int low, std::vector<uint256> txids);
+    bool EraseStakeIndex(unsigned int height);
+
     //////////////////////////////////////////////////////////////////////////////
 };
 
