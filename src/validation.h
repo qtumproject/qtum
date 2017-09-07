@@ -158,7 +158,7 @@ static const int64_t MAX_FEE_ESTIMATION_TIP_AGE = 3 * 60 * 60;
 /** Default for -permitbaremultisig */
 static const bool DEFAULT_PERMIT_BAREMULTISIG = true;
 static const bool DEFAULT_CHECKPOINTS_ENABLED = true;
-static const bool DEFAULT_TXINDEX = true;
+static const bool DEFAULT_TXINDEX = false;
 static const bool DEFAULT_LOGEVENTS = false;
 static const unsigned int DEFAULT_BANSCORE_THRESHOLD = 100;
 
@@ -439,6 +439,7 @@ struct CHeightTxIndexKey {
         address.clear();
     }
 };
+
 ////////////////////////////////////////////////////////////
 
 /** Get the block height at which the BIP9 deployment switched into the state for the block building on the current tip. */

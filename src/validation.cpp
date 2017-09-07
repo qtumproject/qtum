@@ -40,7 +40,6 @@
 #include "pubkey.h"
 #include "key.h"
 #include "wallet/wallet.h"
-#include "base58.h"
 
 #include <atomic>
 #include <sstream>
@@ -105,6 +104,7 @@ CAmount maxTxFee = DEFAULT_TRANSACTION_MAXFEE;
 CTxMemPool mempool(::minRelayTxFee);
 
 static void CheckBlockIndex(const Consensus::Params& consensusParams);
+static bool UpdateHashProof(const CBlock& block, CValidationState& state, const Consensus::Params& consensusParams, CBlockIndex* pindex, CCoinsViewCache& view);
 
 /** Constant stuff for coinbase transactions we create: */
 CScript COINBASE_FLAGS;
@@ -841,24 +841,6 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                 fSpendsCoinbase = true;
                 break;
             }
-            
-            COutPoint prevout = txin.prevout;
-            CMutableTransaction txPrev;
-            std::shared_ptr<const CTransaction> ptx = mempool.get(prevout.hash);
-            if(ptx)
-            {
-                txPrev = *ptx;
-            }
-            else
-            {
-                CDiskTxPos txindex;
-                if (!ReadFromDisk(txPrev, txindex, *pblocktree, prevout))
-                   return state.DoS(100, error("%s : previous transaction not found", __func__), REJECT_INVALID, "bad-txns-not-found");
-            }
-
-            if (txPrev.vout[prevout.n].IsEmpty())
-                return state.DoS(1, error("%s : special marker is not spendable", __func__), REJECT_INVALID, "bad-txns-not-spendable");
-
         }
 
         CTxMemPoolEntry entry(ptx, nFees, nAcceptTime, dPriority, chainActive.Height(),
@@ -1252,7 +1234,7 @@ bool CheckHeaderPoS(const CBlockHeader& block, const Consensus::Params& consensu
 
     // Check the kernel hash
     CBlockIndex* pindexPrev = (*mi).second;
-    return CheckKernel(pindexPrev, block.nBits, block.StakeTime(), block.prevoutStake);
+    return CheckKernel(pindexPrev, block.nBits, block.StakeTime(), block.prevoutStake, *pcoinsTip);
 }
 
 bool CheckHeaderProof(const CBlockHeader& block, const Consensus::Params& consensusParams){
@@ -1325,8 +1307,12 @@ bool ReadBlockFromDisk(Block& block, const CDiskBlockPos& pos, const Consensus::
     }
 
     // Check the header
-    if (!CheckHeaderProof(block, consensusParams))
-        return error("ReadBlockFromDisk: Errors in block header at %s", pos.ToString());
+    if(!block.IsProofOfStake()) {
+        //PoS blocks can be loaded out of order from disk, which makes PoS impossible to validate. So, do not validate their headers
+        //they will be validated later in CheckBlock and ConnectBlock anyway
+        if (!CheckHeaderProof(block, consensusParams))
+            return error("ReadBlockFromDisk: Errors in block header at %s", pos.ToString());
+    }
 
     return true;
 }
@@ -1877,6 +1863,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
         storageRes.deleteResults(block.vtx);
         pblocktree->EraseHeightIndex(pindex->nHeight);
     }
+    pblocktree->EraseStakeIndex(pindex->nHeight);
 
     if (pfClean) {
         *pfClean = fClean;
@@ -2039,10 +2026,6 @@ bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, cons
     }
     else
     {
-        // Check proof-of-stake timestamp
-        if (!CheckTransactionTimestamp(*block.vtx[offset], block.nTime, *pblocktree))
-            return error("CheckReward() : %s transaction timestamp check failure", block.vtx[offset]->GetHash().ToString());
-
         // Check full reward
         CAmount blockReward = nFees + GetBlockSubsidy(nHeight, consensusParams);
         if (nActualStakeReward > blockReward)
@@ -2446,6 +2429,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         return true;
     }
 
+    // State is filled in by UpdateHashProof
+    if (!UpdateHashProof(block, state, chainparams.GetConsensus(), pindex, view)) {
+        return error("%s: ConnectBlock(): %s", __func__, state.GetRejectReason().c_str());
+    }
+
     bool fScriptChecks = true;
     if (!hashAssumeValid.IsNull()) {
         // We've been configured with the hash of a block which has been externally verified to have a valid history.
@@ -2655,7 +2643,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 return state.DoS(100, false, REJECT_INVALID, "bad-txns-invalid-sender-script");
             }
 
-            QtumTxConverter convert(tx, NULL, &block.vtx);
+            QtumTxConverter convert(tx, &view, &block.vtx);
 
             ExtractQtumTX resultConvertQtumTX;
             if(!convert.extractionQtumTransactions(resultConvertQtumTX)){
@@ -2894,7 +2882,19 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 return AbortNode(state, "Failed to write height index");
         }
     }    
-    
+    if(block.IsProofOfStake()){
+        // Read the public key from the second output
+        std::vector<unsigned char> vchPubKey;
+        if(GetBlockPublicKey(block, vchPubKey))
+        {
+            uint160 pkh = uint160(ToByteVector(CPubKey(vchPubKey).GetID()));
+            pblocktree->WriteStakeIndex(pindex->nHeight, pkh);
+        }else{
+            pblocktree->WriteStakeIndex(pindex->nHeight, uint160());
+        }
+    }else{
+        pblocktree->WriteStakeIndex(pindex->nHeight, uint160());
+    }
     if (fTxIndex)
         if (!pblocktree->WriteTxIndex(vPos))
             return AbortNode(state, "Failed to write transaction index");
@@ -3598,33 +3598,6 @@ bool ResetBlockFailureFlags(CBlockIndex *pindex) {
     return true;
 }
 
-bool CheckTransactionTimestamp(const CTransaction& tx, const uint32_t& nTimeBlock, CBlockTreeDB& txdb)
-{
-    if (tx.IsCoinBase())
-        return true;
-
-    BOOST_FOREACH(const CTxIn& txin, tx.vin)
-    {
-        // First try finding the previous transaction in database
-        CMutableTransaction txPrev;
-        CDiskTxPos txindex;
-        if (!ReadFromDisk(txPrev, txindex, txdb, txin.prevout))
-            continue;  // previous transaction not in main chain
-
-        // Read block header
-        CBlockHeader blockFrom;
-        if (!ReadFromDisk(blockFrom, txindex.nFile, txindex.nPos))
-            return false; // unable to read block of previous transaction
-
-        if (nTimeBlock < blockFrom.nTime)
-            return false;  // Transaction timestamp violation
-
-        LogPrint("Transaction timestamp", "timestamp nTimeDiff=%d", nTimeBlock - blockFrom.nTime);
-    }
-
-    return true;
-}
-
 CBlockIndex* AddToBlockIndex(const CBlockHeader& block)
 {
     // Check for duplicate
@@ -4217,31 +4190,32 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, const Co
     return true;
 }
 
-static bool UpdateHashProof(const CBlock& block, CValidationState& state, const Consensus::Params& consensusParams, CBlockIndex* pindex)
+
+static bool UpdateHashProof(const CBlock& block, CValidationState& state, const Consensus::Params& consensusParams, CBlockIndex* pindex, CCoinsViewCache& view)
 {
     int nHeight = pindex->nHeight;
     uint256 hash = block.GetHash();
 
     //reject proof of work at height consensusParams.nLastPOWBlock
     if (block.IsProofOfWork() && nHeight > consensusParams.nLastPOWBlock)
-        return state.DoS(100, error("AcceptBlock() : reject proof-of-work at height %d", nHeight));
+        return state.DoS(100, error("UpdateHashProof() : reject proof-of-work at height %d", nHeight));
     
     // Check coinstake timestamp
     if (block.IsProofOfStake() && !CheckCoinStakeTimestamp(block.GetBlockTime()))
-        return state.DoS(50, error("AcceptBlock() : coinstake timestamp violation nTimeBlock=%d", block.GetBlockTime()));
+        return state.DoS(50, error("UpdateHashProof() : coinstake timestamp violation nTimeBlock=%d", block.GetBlockTime()));
 
     // Check proof-of-work or proof-of-stake
     if (block.nBits != GetNextWorkRequired(pindex->pprev, &block, consensusParams,block.IsProofOfStake()))
-        return state.DoS(100, error("AcceptBlock() : incorrect %s", block.IsProofOfWork() ? "proof-of-work" : "proof-of-stake"));
+        return state.DoS(100, error("UpdateHashProof() : incorrect %s", block.IsProofOfWork() ? "proof-of-work" : "proof-of-stake"));
 
     uint256 hashProof;
     // Verify hash target and signature of coinstake tx
     if (block.IsProofOfStake())
     {
         uint256 targetProofOfStake;
-        if (!CheckProofOfStake(pindex->pprev, state, *block.vtx[1], block.nBits, block.nTime, hashProof, targetProofOfStake))
+        if (!CheckProofOfStake(pindex->pprev, state, *block.vtx[1], block.nBits, block.nTime, hashProof, targetProofOfStake, view))
         {
-            return error("AcceptBlock() : check proof-of-stake failed for block %s", hash.ToString());
+            return error("UpdateHashProof() : check proof-of-stake failed for block %s", hash.ToString());
         }
     }
     
@@ -4338,9 +4312,11 @@ static bool AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CValidation
     if (!AcceptBlockHeader(block, state, chainparams, &pindex))
         return false;
 
-    if (!UpdateHashProof(block, state, chainparams.GetConsensus(), pindex))
-    {
-        return error("%s: UpdateHashProof(): %s", __func__, state.GetRejectReason().c_str());
+    if(block.IsProofOfWork()) {
+        if (!UpdateHashProof(block, state, chainparams.GetConsensus(), pindex, *pcoinsTip))
+        {
+            return error("%s: AcceptBlock(): %s", __func__, state.GetRejectReason().c_str());
+        }
     }
 
     // Get prev block index
@@ -5101,14 +5077,8 @@ bool InitBlockIndex(const CChainParams& chainparams)
     if (chainActive.Genesis() != NULL)
         return true;
 
-#if 0
-// *** The Qtum wallet currently requires txindex to be set/true.
-// *** TODO: Add support for pruning (while still maintaining txindex).
     // Use the provided setting for -txindex in the new database
     fTxIndex = GetBoolArg("-txindex", DEFAULT_TXINDEX);
-#else
-    fTxIndex = DEFAULT_TXINDEX;
-#endif
     pblocktree->WriteFlag("txindex", fTxIndex);
 
     // Use the provided setting for -txindex in the new database

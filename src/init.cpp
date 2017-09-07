@@ -354,24 +354,16 @@ std::string HelpMessage(HelpMessageMode mode)
 #ifndef WIN32
     strUsage += HelpMessageOpt("-pid=<file>", strprintf(_("Specify pid file (default: %s)"), BITCOIN_PID_FILENAME));
 #endif
-#if 0
-// *** The Qtum wallet currently requires txindex to be set/true.  Therefore pruning is not allowed.
-// *** TODO: Add support for pruning (while still maintaining txindex).
     strUsage += HelpMessageOpt("-prune=<n>", strprintf(_("Reduce storage requirements by enabling pruning (deleting) of old blocks. This allows the pruneblockchain RPC to be called to delete specific blocks, and enables automatic pruning of old blocks if a target size in MiB is provided. This mode is incompatible with -txindex and -rescan. "
             "Warning: Reverting this setting requires re-downloading the entire blockchain. "
             "(default: 0 = disable pruning blocks, 1 = allow manual pruning via RPC, >%u = automatically prune block files to stay under the specified target size in MiB)"), MIN_DISK_SPACE_FOR_BLOCK_FILES / 1024 / 1024));
-#endif
     strUsage += HelpMessageOpt("-record-log-opcodes", strprintf(_("Logs all EVM LOG opcode operations to the file vmExecLogs.json")));
     strUsage += HelpMessageOpt("-reindex-chainstate", _("Rebuild chain state from the currently indexed blocks"));
     strUsage += HelpMessageOpt("-reindex", _("Rebuild chain state and block index from the blk*.dat files on disk"));
 #ifndef WIN32
     strUsage += HelpMessageOpt("-sysperms", _("Create new files with system default permissions, instead of umask 077 (only effective with disabled wallet functionality)"));
 #endif
-#if 0
-// *** The Qtum wallet currently requires txindex to be set/true.
-// *** TODO: Add support for pruning (while still maintaining txindex).
     strUsage += HelpMessageOpt("-txindex", strprintf(_("Maintain a full transaction index, used by the getrawtransaction rpc call (default: %u)"), DEFAULT_TXINDEX));
-#endif
     strUsage += HelpMessageOpt("-logevents", strprintf(_("Maintain a full EVM log index, used by searchlogs and gettransactionreceipt rpc calls (default: %u)"), DEFAULT_LOGEVENTS));
 
     strUsage += HelpMessageGroup(_("Connection options:"));
@@ -451,13 +443,7 @@ std::string HelpMessage(HelpMessageMode mode)
         strUsage += HelpMessageOpt("-limitdescendantsize=<n>", strprintf("Do not accept transactions if any ancestor would have more than <n> kilobytes of in-mempool descendants (default: %u).", DEFAULT_DESCENDANT_SIZE_LIMIT));
         strUsage += HelpMessageOpt("-bip9params=deployment:start:end", "Use given start/end times for specified BIP9 deployment (regtest-only)");
     }
-#if 0
-// *** The Qtum wallet currently requires txindex to be set/true.  Therefore pruning is not allowed.
-// *** TODO: Add support for pruning (while still maintaining txindex)
-    std::string debugCategories = "addrman, alert, bench, cmpctblock, coindb, db, http, libevent, lock, mempool, mempoolrej, net, proxy, prune, rand, reindex, rpc, selectcoins, tor, zmq"; // Don't translate these and qt below
-#else
-    std::string debugCategories = "addrman, alert, bench, cmpctblock, coindb, db, http, libevent, lock, mempool, mempoolrej, net, proxy, rand, reindex, rpc, selectcoins, tor, zmq"; // Don't translate these and qt below
-#endif
+    std::string debugCategories = "addrman, alert, bench, cmpctblock, coindb, db, http, libevent, lock, mempool, mempoolrej, miner, net, proxy, prune, rand, reindex, rpc, selectcoins, tor, zmq"; // Don't translate these and qt below
     if (mode == HMM_BITCOIN_QT)
         debugCategories += ", qt";
     strUsage += HelpMessageOpt("-debug=<category>", strprintf(_("Output debugging information (default: %u, supplying <category> is optional)"), 0) + ". " +
@@ -907,15 +893,11 @@ bool AppInitParameterInteraction()
 
     // also see: InitParameterInteraction()
 
-#if 0
-// *** The Qtum wallet currently requires txindex to be set/true.  Therefore pruning is not allowed.
-// *** TODO: Add support for pruning (while still maintaining txindex).
     // if using block pruning, then disallow txindex
     if (GetArg("-prune", 0)) {
         if (GetBoolArg("-txindex", DEFAULT_TXINDEX))
             return InitError(_("Prune mode is incompatible with -txindex."));
     }
-#endif
 
     // Make sure enough file descriptors are available
     int nBind = std::max(
@@ -1001,14 +983,8 @@ bool AppInitParameterInteraction()
     else if (nScriptCheckThreads > MAX_SCRIPTCHECK_THREADS)
         nScriptCheckThreads = MAX_SCRIPTCHECK_THREADS;
 
-#if 0
-// *** The Qtum wallet currently requires txindex to be set/true.  Therefore pruning is not allowed.
-// *** TODO: Add support for pruning (while still maintaining txindex).
     // block pruning; get the amount of disk space (in MiB) to allot for block & undo files
     int64_t nPruneArg = GetArg("-prune", 0);
-#else
-    int64_t nPruneArg = 0;
-#endif
     if (nPruneArg < 0) {
         return InitError(_("Prune cannot be configured with a negative value."));
     }
@@ -1455,13 +1431,7 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
     nTotalCache = std::max(nTotalCache, nMinDbCache << 20); // total cache cannot be less than nMinDbCache
     nTotalCache = std::min(nTotalCache, nMaxDbCache << 20); // total cache cannot be greater than nMaxDbcache
     int64_t nBlockTreeDBCache = nTotalCache / 8;
-#if 0
-// *** The Qtum wallet currently requires txindex to be set/true.
-// *** TODO: Add support for pruning (while still maintaining txindex).
     nBlockTreeDBCache = std::min(nBlockTreeDBCache, (GetBoolArg("-txindex", DEFAULT_TXINDEX) ? nMaxBlockDBAndTxIndexCache : nMaxBlockDBCache) << 20);
-#else
-    nBlockTreeDBCache = std::min(nBlockTreeDBCache, nMaxBlockDBAndTxIndexCache << 20);
-#endif
     nTotalCache -= nBlockTreeDBCache;
     int64_t nCoinDBCache = std::min(nTotalCache / 2, (nTotalCache / 4) + (1 << 23)); // use 25%-50% of the remainder for disk cache
     nCoinDBCache = std::min(nCoinDBCache, nMaxCoinsDBCache << 20); // cap total coins db cache
