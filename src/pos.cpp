@@ -102,7 +102,7 @@ bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t 
 bool CheckProofOfStake(CBlockIndex* pindexPrev, CValidationState& state, const CTransaction& tx, unsigned int nBits, uint32_t nTimeBlock, uint256& hashProofOfStake, uint256& targetProofOfStake, CCoinsViewCache& view)
 {
     if (!tx.IsCoinStake())
-        return error("CheckProofOfStake() : called on non-coinstake %s", tx.GetHash().ToString());s
+        return error("CheckProofOfStake() : called on non-coinstake %s", tx.GetHash().ToString());
 
     // Kernel (input 0) must match the stake hash target (nBits)
     const CTxIn& txin = tx.vin[0];
