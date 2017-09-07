@@ -43,7 +43,7 @@ class QtumCombinedOutputsExceedGasLimitTest(BitcoinTestFramework):
         ]
         signed_tx_raw = self.node.signrawtransaction(bytes_to_hex_str(tx.serialize()))['hex']
         #
-        self.node.sendrawtransaction(signed_tx_raw)
+        assert_raises(JSONRPCException, self.node.sendrawtransaction, signed_tx_raw)
         block_count = self.node.getblockcount()
         self.node.generate(2)
         assert_equal(self.node.getblockcount(), block_count+2)

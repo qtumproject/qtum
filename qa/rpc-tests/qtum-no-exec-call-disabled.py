@@ -50,7 +50,7 @@ class QtumNoExecCallDisabledTest(BitcoinTestFramework):
         tx = rpc_sign_transaction(self.node, tx)
         assert_raises(JSONRPCException, self.node.sendrawtransaction, bytes_to_hex_str(tx.serialize()))
 
-        tx.vout = [CTxOut(int(COIN), scriptPubKey=CScript([b"\x00", CScriptNum(100000), CScriptNum(1), b"\x00", hex_str_to_bytes(contract_address), OP_CALL]))]
+        tx.vout = [CTxOut(int(COIN), scriptPubKey=CScript([b"\x00", CScriptNum(100000), CScriptNum(QTUM_MIN_GAS_PRICE), b"\x00", hex_str_to_bytes(contract_address), OP_CALL]))]
         tx = rpc_sign_transaction(self.node, tx)
         assert_raises(JSONRPCException, self.node.sendrawtransaction, bytes_to_hex_str(tx.serialize()))
 

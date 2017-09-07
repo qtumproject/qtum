@@ -89,9 +89,11 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
     def send_op_call_outputs_with_gas_price(self, contract_address, gas_prices, spends_txid=None, spends_vout=None):
         gas_limit = 100000
         if not spends_txid:
-            unspent = self.node.listunspent()[0]
-            spends_txid = unspent['txid']
-            spends_vout = unspent['vout']
+            for unspent in self.node.listunspent():
+                if unspent['amount'] == 20000:
+                    spends_txid = unspent['txid']
+                    spends_vout = unspent['vout']
+                    break
 
         # Fetch the amount of the vout of the txid that we are spending
         spends_tx = self.node.getrawtransaction(spends_txid, True)
@@ -141,7 +143,7 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
         tx6 = self.send_op_call_outputs_with_gas_price(contract_address, [0.0001, 0.00010001, 0.00010001])
         tx2 = self.send_op_call_outputs_with_gas_price(contract_address, [0.002])
         tx1 = self.node.sendtoaddress(sender, 1)
-        tx7 = self.node.sendtocontract(contract_address, "00", 0, 100000, 0.00000001, sender)['txid']
+        tx7 = self.node.sendtocontract(contract_address, "00", 0, 100000, 0.000001, sender)['txid']
         old_block_count = self.node.getblockcount()
         if with_restart:
             self.restart_node()
@@ -166,9 +168,9 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
     # Expected transaction ordering in the block should thus be tx1, tx2, tx3, tx4
     def verify_ancestor_chain_with_contract_txs_test(self, with_restart=False, use_staking=False):
         contract_address = list(self.node.listcontracts().keys())[0]
-        tx1 = self.send_transaction_with_fee(0.001)
-        tx2 = self.send_transaction_with_fee(0.0005)
-        tx3 = self.send_transaction_with_fee(0.0001)
+        tx1 = self.send_transaction_with_fee(0.01)
+        tx2 = self.send_transaction_with_fee(0.005)
+        tx3 = self.send_transaction_with_fee(0.001)
 
         # Create a contract tx (4) that spends tx3
         tx4 = self.send_op_call_transaction_with_gas_price(contract_address, 0.001, spends_txid=tx2, spends_vout=0)
@@ -200,7 +202,7 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
         address = self.node.getnewaddress()
         expected_tx_order = []
 
-        for (expected_tx_index, gas_price) in [(1, 1009), (2, 8), (7, 1), (8, 99)]:
+        for (expected_tx_index, gas_price) in [(1, 100900), (2, 800), (7, 100), (8, 9900)]:
             tx = CTransaction()
             tx.vin = [CTxIn(COutPoint(int(unspent['txid'], 16), unspent['vout']), nSequence=0)]
             tx.vout = [
@@ -220,7 +222,7 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
                 break
 
         # The list of tuples specifies (expected position in block txs, gas_price)
-        for (expected_tx_index, gas_price) in [(3, 6), (4, 3), (5, 2), (6, 98)]:
+        for (expected_tx_index, gas_price) in [(3, 600), (4, 300), (5, 200), (6, 9800)]:
             tx = CTransaction()
             tx.vin = [CTxIn(COutPoint(int(unspent['txid'], 16), unspent['vout']), nSequence=0)]
             tx.vout = [
@@ -250,7 +252,7 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
             assert_equal(block_txs[expected_tx_index], txid)
 
     def run_test(self):
-        self.node.generate(COINBASE_MATURITY+500)
+        self.node.generate(500+COINBASE_MATURITY)
         print("running pow tests")
         self.verify_contract_txs_are_added_last_test()
         self.verify_ancestor_chain_with_contract_txs_test()

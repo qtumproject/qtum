@@ -19,7 +19,7 @@ class QtumNullSenderTest(BitcoinTestFramework):
     def run_test(self):
         self.node.generate(10+COINBASE_MATURITY)
         tx = CTransaction()
-        tx.vin = [make_vin(self.node, COIN + 10000)]
+        tx.vin = [make_vin(self.node, COIN + 1000000)]
         tx.vout = [CTxOut(int(COIN), CScript([OP_TRUE]))]
         tx_hex = self.node.signrawtransaction(bytes_to_hex_str(tx.serialize()))['hex']
         parent_tx_id = self.node.sendrawtransaction(tx_hex)
@@ -27,7 +27,7 @@ class QtumNullSenderTest(BitcoinTestFramework):
 
         tx = CTransaction()
         tx.vin = [CTxIn(COutPoint(int(parent_tx_id, 16), 0), scriptSig=CScript([]), nSequence=0)]
-        tx.vout = [CTxOut(0, CScript([b"\x04", 1000000, b"\x01", b"\x00", OP_CREATE]))]
+        tx.vout = [CTxOut(0, CScript([b"\x04", CScriptNum(1000000), CScriptNum(QTUM_MIN_GAS_PRICE), b"\x00", OP_CREATE]))]
         tx_hex = bytes_to_hex_str(tx.serialize())
         assert_raises(JSONRPCException, self.node.sendrawtransaction, tx_hex)
         block_count = self.node.getblockcount()
