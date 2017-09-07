@@ -124,13 +124,7 @@ Intro::Intro(QWidget *parent) :
     ui->setupUi(this);
     ui->welcomeLabel->setText(ui->welcomeLabel->text().arg(tr(PACKAGE_NAME)));
     ui->storageLabel->setText(ui->storageLabel->text().arg(tr(PACKAGE_NAME)));
-#if 0
-// *** The Qtum wallet currently requires txindex to be set/true.  Therefore pruning is not allowed.
-// *** TODO: Add support for pruning (while still maintaining txindex).
     uint64_t pruneTarget = std::max<int64_t>(0, GetArg("-prune", 0));
-#else
-    uint64_t pruneTarget = 0;
-#endif
     requiredSpace = BLOCK_CHAIN_SIZE;
     if (pruneTarget) {
         uint64_t prunedGBs = std::ceil(pruneTarget * 1024 * 1024.0 / GB_BYTES);

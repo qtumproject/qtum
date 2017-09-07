@@ -166,19 +166,15 @@ bool AddMPoSScript(std::vector<CScript> &mposScriptList, int nHeight, const Cons
     }
 
     // Read the block
-    CBlock block;
-    if (!ReadBlockFromDisk(block, pblockindex, consensusParams))
-    {
-        LogPrint("coinstake", "Block read from disk failed\n");
+    uint160 stakeAddress;
+    if(!pblocktree->ReadStakeIndex(nHeight, stakeAddress)){
         return false;
     }
 
     // The block reward for PoS is in the second transaction (coinstake) and the second or third output
-    if(block.vtx.size() > 1 && block.vtx[1]->IsCoinStake() && block.vtx[1]->vout.size() > 1 )
+    if(pblockindex->IsProofOfStake())
     {
-        // Read the public key from the second output
-        std::vector<unsigned char> vchPubKey;
-        if(!GetBlockPublicKey(block, vchPubKey))
+        if(stakeAddress == uint160())
         {
             LogPrint("coinstake", "Fail to solve script for mpos reward recipient\n");
             //This should never fail, but in case it somehow did we don't want it to bring the network to a halt
@@ -186,7 +182,7 @@ bool AddMPoSScript(std::vector<CScript> &mposScriptList, int nHeight, const Cons
             script = CScript() << OP_RETURN;
         }else{
             // Make public key hash script
-            script = CScript() << OP_DUP << OP_HASH160 << ToByteVector(CPubKey(vchPubKey).GetID()) << OP_EQUALVERIFY << OP_CHECKSIG;
+            script = CScript() << OP_DUP << OP_HASH160 << ToByteVector(stakeAddress) << OP_EQUALVERIFY << OP_CHECKSIG;
         }
 
         // Add the script into the list
@@ -3177,7 +3173,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, con
         {
             boost::this_thread::interruption_point();
             COutPoint prevoutStake = COutPoint(pcoin.first->GetHash(), pcoin.second);
-            CacheKernel(stakeCache, prevoutStake); //this will do a 2 disk loads per op
+            CacheKernel(stakeCache, prevoutStake, pindexPrev, *pcoinsTip); //this will do a 2 disk loads per op
         }
     }
     int64_t nCredit = 0;
@@ -3189,7 +3185,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, con
         // Search backward in time from the given txNew timestamp
         // Search nSearchInterval seconds back up to nMaxStakeSearchInterval
         COutPoint prevoutStake = COutPoint(pcoin.first->GetHash(), pcoin.second);
-        if (CheckKernel(pindexPrev, nBits, nTimeBlock, prevoutStake, stakeCache))
+        if (CheckKernel(pindexPrev, nBits, nTimeBlock, prevoutStake, *pcoinsTip, stakeCache))
         {
             // Found a kernel
             LogPrint("coinstake", "CreateCoinStake : kernel found\n");
@@ -3280,9 +3276,6 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, con
     int64_t nRewardPiece = 0;
     // Calculate reward
     {
-        if (!CheckTransactionTimestamp(txNew, nTimeBlock, *pblocktree))
-            return error("CreateCoinStake : Transaction timestamp check failure.");
-
         int64_t nReward = nTotalFees + GetBlockSubsidy(pindexPrev->nHeight, consensusParams);
         if (nReward < 0)
             return false;
@@ -4439,12 +4432,8 @@ bool CWallet::ParameterInteraction()
 
     if (GetBoolArg("-sysperms", false))
         return InitError("-sysperms is not allowed in combination with enabled wallet functionality");
-#if 0
-// *** The Qtum wallet currently requires txindex to be set/true.  Therefore pruning is not allowed.
-// *** TODO: Add support for pruning (while still maintaining txindex).
     if (GetArg("-prune", 0) && GetBoolArg("-rescan", false))
         return InitError(_("Rescans are not possible in pruned mode. You will need to use -reindex which will download the whole blockchain again."));
-#endif
 
     if (::minRelayTxFee.GetFeePerK() > HIGH_TX_FEE_PER_KB)
         InitWarning(AmountHighWarn("-minrelaytxfee") + " " +
