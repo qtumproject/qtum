@@ -160,23 +160,35 @@ testScripts = [
     'p2p-leaktests.py',
 
     #qtum
+    'qtum-8mb-block.py',
+    'qtum-dgp-gas-price-lingering-mempool-tx.py',
     'qtum-opcreate.py',
-    'qtum-state-root.py',
-    'qtum-opcall.py',
-    'qtum-createcontract.py',
-    'qtum-sendtocontract.py',
-    'qtum-callcontract.py',
-    'qtum-condensing-txs.py',
     'qtum-block-header.py',
     'qtum-dgp.py',
     'qtum-pos.py',
+    'qtum-callcontract.py',
+    'qtum-gas-limit.py',
+    'qtum-pos-segwit.py',
+    'qtum-combined-outputs-exceed-gas-limit.py',
+    'qtum-globals-state-changer.py',
+    'qtum-sendtocontract.py',
+    'qtum-condensing-txs.py',
     'qtum-identical-refunds.py',
-    'qtum-8mb-block.py',
-    'qtum-null-sender.py',
+    'qtum-soft-block-gas-limits.py',
+    'qtum-createcontract.py',
+    'qtum-many-value-refunds-from-same-tx.py',
+    'qtum-spend-op-call.py',
+    'qtum-create-eth-op-code.py',
+    'qtum-no-exec-call-disabled.py',
+    'qtum-state-root.py',
     'qtum-dgp-block-size-restart.py',
+    'qtum-null-sender.py',
+    'qtum-transaction-prioritization.py',
     'qtum-dgp-block-size-sync.py',
-    'qtum-dgp-gas-price-lingering-mempool-tx.py'
+    'qtum-opcall.py'
 ]
+
+
 if ENABLE_ZMQ:
     testScripts.append('zmq_test.py')
 

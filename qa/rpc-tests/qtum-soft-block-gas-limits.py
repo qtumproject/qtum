@@ -5,11 +5,9 @@ from test_framework.util import *
 from test_framework.script import *
 from test_framework.mininode import *
 from test_framework.address import *
+from test_framework.qtum import *
 import sys
 import random
-
-def p2pkh_to_hex_hash(address):
-    return str(base58_to_byte(address, 25)[1])[2:-1]
 
 
 class QtumSoftMinerGasRelatedLimitsTest(BitcoinTestFramework):
@@ -27,7 +25,7 @@ class QtumSoftMinerGasRelatedLimitsTest(BitcoinTestFramework):
             ["-staker-max-tx-gas-limit=100000"],
             ["-staker-max-tx-gas-limit=0"],
             ["-staker-min-tx-gas-price=0"],
-            ["-staker-min-tx-gas-price=0.000001"]
+            ["-staker-min-tx-gas-price=0.0001"]
         ])
         self.is_network_split = False
         # Make the network fully connected
@@ -52,7 +50,7 @@ class QtumSoftMinerGasRelatedLimitsTest(BitcoinTestFramework):
         self.nodes[0].generate(1)
         self.sync_all()
         for node in self.nodes:
-            node.sendtocontract(contract_address, "00", 1, 1000000, 0.00001)
+            node.sendtocontract(contract_address, "00", 1, 1000000, 0.0001)
             node.generate(1)
             self.sync_all()
         assert_equal(self.nodes[0].getrawmempool(), [])
@@ -87,8 +85,8 @@ class QtumSoftMinerGasRelatedLimitsTest(BitcoinTestFramework):
         self.sync_all()
 
         # Make sure that the soft block gas limit default to the hard block gas limit if the soft one exceeds the hard one.
-        txid1 = self.send_raw_to_contract(self.nodes[0], contract_address, 40000000, 2)
-        txid2 = self.send_raw_to_contract(self.nodes[0], contract_address, 40000000, 1)
+        txid1 = self.send_raw_to_contract(self.nodes[0], contract_address, 40000000, 2000)
+        txid2 = self.send_raw_to_contract(self.nodes[0], contract_address, 40000000, 1000)
         self.sync_all()
         for node_that_cannot_mine_the_txs in self.nodes[1:3]:
             block_hash = node_that_cannot_mine_the_txs.generate(1)[0]
@@ -107,7 +105,7 @@ class QtumSoftMinerGasRelatedLimitsTest(BitcoinTestFramework):
         self.sync_all()
 
         for i in range(5):
-            self.send_raw_to_contract(self.nodes[1], contract_address, 100000, 2)
+            self.send_raw_to_contract(self.nodes[1], contract_address, 100000, 2000)
         self.sync_all()
 
         block_hash = self.nodes[2].generate(1)[0]
@@ -126,8 +124,8 @@ class QtumSoftMinerGasRelatedLimitsTest(BitcoinTestFramework):
         self.sync_all()
 
         # Test the soft gas limit
-        self.send_raw_to_contract(self.nodes[4], contract_address, 100000, 2)
-        self.send_raw_to_contract(self.nodes[4], contract_address, 100001, 2)
+        self.send_raw_to_contract(self.nodes[4], contract_address, 100000, 2000)
+        self.send_raw_to_contract(self.nodes[4], contract_address, 100001, 2000)
         self.sync_all()
 
         block_hash = self.nodes[5].generate(1)[0]
@@ -150,8 +148,8 @@ class QtumSoftMinerGasRelatedLimitsTest(BitcoinTestFramework):
         assert_equal(len(self.nodes[3].getrawmempool()), 0)
 
 
-        self.send_raw_to_contract(self.nodes[7], contract_address, 100000, 99)
-        self.send_raw_to_contract(self.nodes[7], contract_address, 100000, 100)
+        self.send_raw_to_contract(self.nodes[7], contract_address, 100000, 9900)
+        self.send_raw_to_contract(self.nodes[7], contract_address, 100000, 10000)
         self.sync_all()
         block_hash = self.nodes[7].generate(1)[0]
         assert_equal(len(self.nodes[7].getblock(block_hash)['tx']), 3)
@@ -163,7 +161,7 @@ class QtumSoftMinerGasRelatedLimitsTest(BitcoinTestFramework):
         self.sync_all()
 
         # Also make sure that the update counting the sum gas of all outputs works correctly for the soft tx gas limit
-        self.send_raw_to_contract(self.nodes[4], contract_address, 34000, 1, num_outputs=3)
+        self.send_raw_to_contract(self.nodes[4], contract_address, 34000, 1000, num_outputs=3)
         self.nodes[4].generate(1)
         assert_equal(len(self.nodes[4].getrawmempool()), 1)
         self.sync_all()

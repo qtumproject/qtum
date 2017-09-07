@@ -33,7 +33,7 @@ class MempoolCoinbaseTest(BitcoinTestFramework):
     def run_test(self):
         for node in self.nodes:
             node.generate(25)
-        self.sync_all()
+            self.sync_all()
         self.nodes[0].generate(COINBASE_MATURITY)
         self.sync_all()
 
