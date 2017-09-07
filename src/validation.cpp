@@ -1326,8 +1326,12 @@ bool ReadBlockFromDisk(Block& block, const CDiskBlockPos& pos, const Consensus::
     }
 
     // Check the header
-    if (!CheckHeaderProof(block, consensusParams))
-        return error("ReadBlockFromDisk: Errors in block header at %s", pos.ToString());
+    if(!block.IsProofOfStake()) {
+        //PoS blocks can be loaded out of order from disk, which makes PoS impossible to validate. So, do not validate their headers
+        //they will be validated later in CheckBlock and ConnectBlock anyway
+        if (!CheckHeaderProof(block, consensusParams))
+            return error("ReadBlockFromDisk: Errors in block header at %s", pos.ToString());
+    }
 
     return true;
 }
@@ -2658,7 +2662,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 return state.DoS(100, false, REJECT_INVALID, "bad-txns-invalid-sender-script");
             }
 
-            QtumTxConverter convert(tx, NULL, &block.vtx);
+            QtumTxConverter convert(tx, &view, &block.vtx);
 
             ExtractQtumTX resultConvertQtumTX;
             if(!convert.extractionQtumTransactions(resultConvertQtumTX)){

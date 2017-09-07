@@ -364,7 +364,6 @@ std::string HelpMessage(HelpMessageMode mode)
     strUsage += HelpMessageOpt("-sysperms", _("Create new files with system default permissions, instead of umask 077 (only effective with disabled wallet functionality)"));
 #endif
     strUsage += HelpMessageOpt("-txindex", strprintf(_("Maintain a full transaction index, used by the getrawtransaction rpc call (default: %u)"), DEFAULT_TXINDEX));
-#endif
     strUsage += HelpMessageOpt("-logevents", strprintf(_("Maintain a full EVM log index, used by searchlogs and gettransactionreceipt rpc calls (default: %u)"), DEFAULT_LOGEVENTS));
 
     strUsage += HelpMessageGroup(_("Connection options:"));
