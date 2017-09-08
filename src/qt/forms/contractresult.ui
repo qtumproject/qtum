@@ -50,12 +50,6 @@ background: transparent;
            <height>0</height>
           </size>
          </property>
-         <property name="maximumSize">
-          <size>
-           <width>370</width>
-           <height>16777215</height>
-          </size>
-         </property>
          <property name="readOnly">
           <bool>true</bool>
          </property>
@@ -98,12 +92,6 @@ background: transparent;
            <height>0</height>
           </size>
          </property>
-         <property name="maximumSize">
-          <size>
-           <width>370</width>
-           <height>16777215</height>
-          </size>
-         </property>
          <property name="readOnly">
           <bool>true</bool>
          </property>
@@ -122,6 +110,19 @@ background: transparent;
          </property>
         </widget>
        </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="lineEditHash160">
+         <property name="minimumSize">
+          <size>
+           <width>370</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
        <item row="1" column="1">
         <widget class="QLineEdit" name="lineEditSenderAddress">
          <property name="enabled">
@@ -131,12 +132,6 @@ background: transparent;
           <size>
            <width>370</width>
            <height>0</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>370</width>
-           <height>16777215</height>
           </size>
          </property>
          <property name="readOnly">
@@ -156,38 +151,6 @@ background: transparent;
           <string>Transaction ID</string>
          </property>
         </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QLineEdit" name="lineEditHash160">
-         <property name="minimumSize">
-          <size>
-           <width>370</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>370</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2">
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
        </item>
       </layout>
      </widget>
@@ -230,19 +193,6 @@ background: transparent;
        <property name="verticalSpacing">
         <number>6</number>
        </property>
-       <item row="0" column="2" rowspan="4">
-        <spacer name="horizontalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
        <item row="0" column="0">
         <widget class="QLabel" name="labelCallContractAddress">
          <property name="minimumSize">
@@ -265,12 +215,6 @@ background: transparent;
           <size>
            <width>370</width>
            <height>0</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>370</width>
-           <height>16777215</height>
           </size>
          </property>
          <property name="readOnly">
@@ -300,7 +244,7 @@ background: transparent;
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>513</width>
+            <width>889</width>
             <height>73</height>
            </rect>
           </property>
@@ -332,10 +276,20 @@ background: transparent;
            <height>0</height>
           </size>
          </property>
-         <property name="maximumSize">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLineEdit" name="lineEditCallSenderAddress">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="minimumSize">
           <size>
            <width>370</width>
-           <height>16777215</height>
+           <height>0</height>
           </size>
          </property>
          <property name="readOnly">
@@ -353,28 +307,6 @@ background: transparent;
          </property>
          <property name="text">
           <string>SenderAddress</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QLineEdit" name="lineEditCallSenderAddress">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>370</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>370</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="readOnly">
-          <bool>true</bool>
          </property>
         </widget>
        </item>

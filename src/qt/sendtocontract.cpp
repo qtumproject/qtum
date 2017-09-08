@@ -56,7 +56,7 @@ SendToContract::SendToContract(const PlatformStyle *platformStyle, QWidget *pare
     m_tabInfo->addTab(0, tr("SendToContract"));
     m_tabInfo->addTab(1, tr("Result"));
     m_tabInfo->setTabVisible(1, false);
-   
+
     // Set defaults
     ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
     ui->lineEditGasPrice->setSingleStep(SINGLE_STEP);
@@ -89,6 +89,13 @@ SendToContract::SendToContract(const PlatformStyle *platformStyle, QWidget *pare
     connect(ui->lineEditContractAddress, SIGNAL(textChanged(QString)), SLOT(on_updateSendToContractButton()));
     connect(ui->textEditInterface, SIGNAL(textChanged()), SLOT(on_newContractABI()));
     connect(ui->stackedWidget, SIGNAL(currentChanged(int)), SLOT(on_updateSendToContractButton()));
+
+    // Set contract address validator
+    QRegularExpression regEx;
+    regEx.setPattern(paternAddress);
+    QRegularExpressionValidator *addressValidatr = new QRegularExpressionValidator(ui->lineEditContractAddress);
+    addressValidatr->setRegularExpression(regEx);
+    ui->lineEditContractAddress->setCheckValidator(addressValidatr);
 }
 
 SendToContract::~SendToContract()
@@ -102,11 +109,27 @@ void SendToContract::setModel(WalletModel *_model)
     m_model = _model;
 }
 
+bool SendToContract::isValidContractAddress()
+{
+    ui->lineEditContractAddress->checkValidity();
+    return ui->lineEditContractAddress->isValid();
+}
+
+bool SendToContract::isDataValid()
+{
+    bool dataValid = true;
+
+    if(!isValidContractAddress() || !m_ABIFunctionField->isValid() || !ui->lineEditSenderAddress->isValidAddress())
+        dataValid = false;
+
+    return dataValid;
+}
+
 void SendToContract::setClientModel(ClientModel *_clientModel)
 {
     m_clientModel = _clientModel;
 
-    if (m_clientModel) 
+    if (m_clientModel)
     {
         connect(m_clientModel, SIGNAL(numBlocksChanged(int,QDateTime,double,bool)), this, SLOT(on_numBlocksChanged()));
         on_numBlocksChanged();
@@ -127,42 +150,45 @@ void SendToContract::on_clearAll_clicked()
 
 void SendToContract::on_sendToContract_clicked()
 {
-    // Initialize variables
-    QMap<QString, QString> lstParams;
-    QVariant result;
-    QString errorMessage;
-    QString resultJson;
-    int unit = m_model->getOptionsModel()->getDisplayUnit();
-    uint64_t gasLimit = ui->lineEditGasLimit->value();
-    CAmount gasPrice = ui->lineEditGasPrice->value();
-    int func = m_ABIFunctionField->getSelectedFunction();
-
-    // Check for high gas price
-    if(gasPrice > HIGH_GASPRICE)
+    if(isDataValid())
     {
-        QString message = tr("The Gas Price is too high, are you sure you want to possibly spend a max of %1 for this transaction?");
-        if(QMessageBox::question(this, tr("High Gas price"), message.arg(BitcoinUnits::formatWithUnit(unit, gasLimit * gasPrice))) == QMessageBox::No)
-            return;
-    }
+        // Initialize variables
+        QMap<QString, QString> lstParams;
+        QVariant result;
+        QString errorMessage;
+        QString resultJson;
+        int unit = m_model->getOptionsModel()->getDisplayUnit();
+        uint64_t gasLimit = ui->lineEditGasLimit->value();
+        CAmount gasPrice = ui->lineEditGasPrice->value();
+        int func = m_ABIFunctionField->getSelectedFunction();
 
-    // Append params to the list
-    ExecRPCCommand::appendParam(lstParams, PARAM_ADDRESS, ui->lineEditContractAddress->text());
-    ExecRPCCommand::appendParam(lstParams, PARAM_DATAHEX, toDataHex(func));
-    ExecRPCCommand::appendParam(lstParams, PARAM_AMOUNT, BitcoinUnits::format(unit, ui->lineEditAmount->value()));
-    ExecRPCCommand::appendParam(lstParams, PARAM_GASLIMIT, QString::number(gasLimit));
-    ExecRPCCommand::appendParam(lstParams, PARAM_GASPRICE, BitcoinUnits::format(unit, gasPrice));
-    ExecRPCCommand::appendParam(lstParams, PARAM_SENDER, ui->lineEditSenderAddress->currentText());
+        // Check for high gas price
+        if(gasPrice > HIGH_GASPRICE)
+        {
+            QString message = tr("The Gas Price is too high, are you sure you want to possibly spend a max of %1 for this transaction?");
+            if(QMessageBox::question(this, tr("High Gas price"), message.arg(BitcoinUnits::formatWithUnit(unit, gasLimit * gasPrice))) == QMessageBox::No)
+                return;
+        }
 
-    // Execute RPC command line
-    if(m_execRPCCommand->exec(lstParams, result, resultJson, errorMessage))
-    {
-        ui->widgetResult->setResultData(result, m_contractABI->functions[func], m_ABIFunctionField->getParamsValues(), ContractResult::SendToResult);
-        m_tabInfo->setTabVisible(1, true);
-        m_tabInfo->setCurrent(1);
-    }
-    else
-    {
-        QMessageBox::warning(this, tr("Send to contract"), errorMessage);
+        // Append params to the list
+        ExecRPCCommand::appendParam(lstParams, PARAM_ADDRESS, ui->lineEditContractAddress->text());
+        ExecRPCCommand::appendParam(lstParams, PARAM_DATAHEX, toDataHex(func));
+        ExecRPCCommand::appendParam(lstParams, PARAM_AMOUNT, BitcoinUnits::format(unit, ui->lineEditAmount->value()));
+        ExecRPCCommand::appendParam(lstParams, PARAM_GASLIMIT, QString::number(gasLimit));
+        ExecRPCCommand::appendParam(lstParams, PARAM_GASPRICE, BitcoinUnits::format(unit, gasPrice));
+        ExecRPCCommand::appendParam(lstParams, PARAM_SENDER, ui->lineEditSenderAddress->currentText());
+
+        // Execute RPC command line
+        if(m_execRPCCommand->exec(lstParams, result, resultJson, errorMessage))
+        {
+            ui->widgetResult->setResultData(result, m_contractABI->functions[func], m_ABIFunctionField->getParamsValues(), ContractResult::SendToResult);
+            m_tabInfo->setTabVisible(1, true);
+            m_tabInfo->setCurrent(1);
+        }
+        else
+        {
+            QMessageBox::warning(this, tr("Send to contract"), errorMessage);
+        }
     }
 }
 

@@ -15,6 +15,8 @@
 #include "contractabi.h"
 #include "tabbarinfo.h"
 
+#include <QRegularExpressionValidator>
+
 namespace CreateContract_NS
 {
 // Contract data names
@@ -85,6 +87,12 @@ CreateContract::CreateContract(const PlatformStyle *platformStyle, QWidget *pare
     connect(ui->textEditBytecode, SIGNAL(textChanged()), SLOT(on_updateCreateButton()));
     connect(ui->textEditInterface, SIGNAL(textChanged()), SLOT(on_newContractABI()));
     connect(ui->stackedWidget, SIGNAL(currentChanged(int)), SLOT(on_updateCreateButton()));
+
+    // Set bytecode validator
+    QRegularExpression regEx;
+    regEx.setPattern(paternHex);
+    m_bytecodeValidator = new QRegularExpressionValidator(ui->textEditBytecode);
+    m_bytecodeValidator->setRegularExpression(regEx);
 }
 
 CreateContract::~CreateContract()
@@ -110,11 +118,36 @@ void CreateContract::setModel(WalletModel *_model)
     m_model = _model;
 }
 
+bool CreateContract::isValidBytecode(QRegularExpressionValidator *validator)
+{
+    int pos = 0;
+    QString text = ui->textEditBytecode->toPlainText();
+    if(validator->validate(text, pos) == QValidator::Acceptable)
+    {
+        ui->textEditBytecode->setStyleSheet("");
+        return true;
+    }
+    ui->textEditBytecode->setStyleSheet(STYLE_INVALID_TEXTEDIT);
+    return false;
+}
+
+bool CreateContract::isDataValid()
+{
+    bool dataValid = true;
+    int func = m_ABIFunctionField->getSelectedFunction();
+    bool funcValid = func == -1 ? true : m_ABIFunctionField->isValid();
+
+    if(!isValidBytecode(m_bytecodeValidator) || !funcValid || !ui->lineEditSenderAddress->isValidAddress())
+        dataValid = false;
+
+    return dataValid;
+}
+
 void CreateContract::setClientModel(ClientModel *_clientModel)
 {
     m_clientModel = _clientModel;
 
-    if (m_clientModel) 
+    if (m_clientModel)
     {
         connect(m_clientModel, SIGNAL(numBlocksChanged(int,QDateTime,double,bool)), this, SLOT(on_numBlocksChanged()));
         on_numBlocksChanged();
@@ -134,41 +167,44 @@ void CreateContract::on_clearAll_clicked()
 
 void CreateContract::on_createContract_clicked()
 {
-    // Initialize variables
-    QMap<QString, QString> lstParams;
-    QVariant result;
-    QString errorMessage;
-    QString resultJson;
-    int unit = m_model->getOptionsModel()->getDisplayUnit();
-    uint64_t gasLimit = ui->lineEditGasLimit->value();
-    CAmount gasPrice = ui->lineEditGasPrice->value();
-    int func = m_ABIFunctionField->getSelectedFunction();
-
-    // Check for high gas price
-    if(gasPrice > HIGH_GASPRICE)
+    if(isDataValid())
     {
-        QString message = tr("The Gas Price is too high, are you sure you want to possibly spend a max of %1 for this transaction?");
-        if(QMessageBox::question(this, tr("High Gas price"), message.arg(BitcoinUnits::formatWithUnit(unit, gasLimit * gasPrice))) == QMessageBox::No)
-            return;
-    }
+        // Initialize variables
+        QMap<QString, QString> lstParams;
+        QVariant result;
+        QString errorMessage;
+        QString resultJson;
+        int unit = m_model->getOptionsModel()->getDisplayUnit();
+        uint64_t gasLimit = ui->lineEditGasLimit->value();
+        CAmount gasPrice = ui->lineEditGasPrice->value();
+        int func = m_ABIFunctionField->getSelectedFunction();
 
-    // Append params to the list
-    QString bytecode = ui->textEditBytecode->toPlainText() + toDataHex(func);
-    ExecRPCCommand::appendParam(lstParams, PARAM_BYTECODE, bytecode);
-    ExecRPCCommand::appendParam(lstParams, PARAM_GASLIMIT, QString::number(gasLimit));
-    ExecRPCCommand::appendParam(lstParams, PARAM_GASPRICE, BitcoinUnits::format(unit, gasPrice));
-    ExecRPCCommand::appendParam(lstParams, PARAM_SENDER, ui->lineEditSenderAddress->currentText());
+        // Check for high gas price
+        if(gasPrice > HIGH_GASPRICE)
+        {
+            QString message = tr("The Gas Price is too high, are you sure you want to possibly spend a max of %1 for this transaction?");
+            if(QMessageBox::question(this, tr("High Gas price"), message.arg(BitcoinUnits::formatWithUnit(unit, gasLimit * gasPrice))) == QMessageBox::No)
+                return;
+        }
 
-    // Execute RPC command line
-    if(m_execRPCCommand->exec(lstParams, result, resultJson, errorMessage))
-    {
-        ui->widgetResult->setResultData(result, FunctionABI(), QStringList(), ContractResult::CreateResult);
-        m_tabInfo->setTabVisible(1, true);
-        m_tabInfo->setCurrent(1);
-    }
-    else
-    {
-        QMessageBox::warning(this, tr("Create contract"), errorMessage);
+        // Append params to the list
+        QString bytecode = ui->textEditBytecode->toPlainText() + toDataHex(func);
+        ExecRPCCommand::appendParam(lstParams, PARAM_BYTECODE, bytecode);
+        ExecRPCCommand::appendParam(lstParams, PARAM_GASLIMIT, QString::number(gasLimit));
+        ExecRPCCommand::appendParam(lstParams, PARAM_GASPRICE, BitcoinUnits::format(unit, gasPrice));
+        ExecRPCCommand::appendParam(lstParams, PARAM_SENDER, ui->lineEditSenderAddress->currentText());
+
+        // Execute RPC command line
+        if(m_execRPCCommand->exec(lstParams, result, resultJson, errorMessage))
+        {
+            ui->widgetResult->setResultData(result, FunctionABI(), QStringList(), ContractResult::CreateResult);
+            m_tabInfo->setTabVisible(1, true);
+            m_tabInfo->setCurrent(1);
+        }
+        else
+        {
+            QMessageBox::warning(this, tr("Create contract"), errorMessage);
+        }
     }
 }
 
@@ -229,4 +265,9 @@ QString CreateContract::toDataHex(int func)
         return QString::fromStdString(strData);
     }
     return "";
+}
+
+void CreateContract::on_textEditBytecode_textChanged()
+{
+    ui->textEditBytecode->setStyleSheet("");
 }

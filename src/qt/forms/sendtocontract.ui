@@ -74,7 +74,7 @@
           <number>12</number>
          </property>
          <item row="0" column="1">
-          <widget class="QLineEdit" name="lineEditContractAddress"/>
+          <widget class="QValidatedLineEdit" name="lineEditContractAddress"/>
          </item>
          <item row="0" column="0">
           <widget class="QLabel" name="labelContractAddress">
@@ -396,6 +396,12 @@
    <class>ContractResult</class>
    <extends>QStackedWidget</extends>
    <header>contractresult.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QValidatedLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>qvalidatedlineedit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

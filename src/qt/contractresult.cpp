@@ -79,7 +79,6 @@ void ContractResult::setParamsData(FunctionABI function, QStringList paramValues
         QLabel *paramName = new QLabel(this);
         QLineEdit *paramValue = new QLineEdit(this);
         paramValue->setReadOnly(true);
-        paramValue->setFixedWidth(370);
         paramName->setMinimumWidth(110);
         paramName->setText(paramNames[i]);
         paramValue->setText(paramValues[i]);

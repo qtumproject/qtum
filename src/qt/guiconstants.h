@@ -18,6 +18,7 @@ static const bool DEFAULT_SPLASHSCREEN = true;
 
 /* Invalid field background style */
 #define STYLE_INVALID "background:#FF8080"
+#define STYLE_INVALID_TEXTEDIT ".QTextEdit { background:#FF8080 }"
 /* Group box style */
 #define STYLE_GROUPBOX ".QGroupBox { border: 1px solid #c4c1bd;"\
                        "margin-top: 15px;}"\

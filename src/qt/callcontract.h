@@ -23,6 +23,8 @@ public:
     ~CallContract();
 
     void setClientModel(ClientModel *clientModel);
+    bool isValidContractAddress();
+    bool isDataValid();
 
 Q_SIGNALS:
 

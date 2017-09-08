@@ -56,6 +56,8 @@ public:
      */
     virtual QString currentText() const;
 
+    bool isValidAddress();
+
 Q_SIGNALS:
     /**
      * @brief addressTypeChanged Signal that the address type is changed

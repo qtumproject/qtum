@@ -84,7 +84,7 @@
           <widget class="QTextEdit" name="textEditInterface"/>
          </item>
          <item row="0" column="1">
-          <widget class="QLineEdit" name="lineEditContractAddress"/>
+          <widget class="QValidatedLineEdit" name="lineEditContractAddress"/>
          </item>
          <item row="1" column="0">
           <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -329,6 +329,12 @@
    <class>ContractResult</class>
    <extends>QStackedWidget</extends>
    <header>contractresult.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QValidatedLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>qvalidatedlineedit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

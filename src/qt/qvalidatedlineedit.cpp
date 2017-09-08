@@ -10,7 +10,8 @@
 QValidatedLineEdit::QValidatedLineEdit(QWidget *parent) :
     QLineEdit(parent),
     valid(true),
-    checkValidator(0)
+    checkValidator(0),
+    emptyIsValid(true)
 {
     connect(this, SIGNAL(textChanged(QString)), this, SLOT(markValid()));
 }
@@ -48,6 +49,16 @@ void QValidatedLineEdit::focusOutEvent(QFocusEvent *evt)
     QLineEdit::focusOutEvent(evt);
 }
 
+bool QValidatedLineEdit::getEmptyIsValid() const
+{
+    return emptyIsValid;
+}
+
+void QValidatedLineEdit::setEmptyIsValid(bool value)
+{
+    emptyIsValid = value;
+}
+
 void QValidatedLineEdit::markValid()
 {
     // As long as a user is typing ensure we display state as valid
@@ -78,7 +89,7 @@ void QValidatedLineEdit::setEnabled(bool enabled)
 
 void QValidatedLineEdit::checkValidity()
 {
-    if (text().isEmpty())
+    if (emptyIsValid && text().isEmpty())
     {
         setValid(true);
     }

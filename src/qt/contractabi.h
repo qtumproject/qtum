@@ -3,6 +3,15 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <QRegularExpression>
+
+#define paternUint "^[0-9]{1,}$"
+#define paternInt "^\\-{0,1}[0-9]{1,}$"
+#define paternAddress "^[a-fA-F0-9]{40,40}$"
+#define paternBool "^true$|^false$"
+#define paternHex "^[a-fA-F0-9]{1,}$"
+#define paternBytes paternHex
+
 
 /**
  * @brief The ParameterType class Decode the api parameter type,
@@ -117,14 +126,13 @@ public:
     ~ParameterABI();
     bool abiIn(const std::string &value, std::string &data, std::map<int, std::string>& mapDynamic) const;
     bool abiOut(const std::string &data, size_t& pos, std::string &value) const;
+    const ParameterType &decodeType() const;
+    static bool setRegularExpession(ParameterType::Type type, QRegularExpression &regEx);
 
     std::string name; // The name of the parameter;
     std::string type; // The canonical type of the parameter.
     bool indexed; // True if the field is part of the log's topics, false if it one of the log's data segment.
     // Indexed is only used with event function
-
-    const ParameterType &decodeType() const;
-
 
 private:
     mutable ParameterType* m_decodeType;

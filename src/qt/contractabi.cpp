@@ -319,6 +319,49 @@ bool ParameterABI::abiOut(const std::string &data, size_t &pos, std::string &val
     return true;
 }
 
+bool ParameterABI::setRegularExpession(ParameterType::Type type, QRegularExpression &regEx)
+{
+    bool ret = false;
+    switch (type) {
+    case ParameterType::abi_bytes:
+    {
+        regEx.setPattern(paternBytes);
+        ret = true;
+        break;
+    }
+    case ParameterType::abi_uint:
+    {
+        regEx.setPattern(paternUint);
+        ret = true;
+        break;
+    }
+    case ParameterType::abi_int:
+    {
+        regEx.setPattern(paternInt);
+        ret = true;
+        break;
+    }
+    case ParameterType::abi_address:
+    {
+        regEx.setPattern(paternAddress);
+        ret = true;
+        break;
+    }
+    case ParameterType::abi_bool:
+    {
+        regEx.setPattern(paternBool);
+        ret = true;
+        break;
+    }
+    default:
+    {
+        ret = false;
+        break;
+    }
+    }
+    return ret;
+}
+
 const ParameterType &ParameterABI::decodeType() const
 {
     if(m_decodeType && m_decodeType->canonical() != type)

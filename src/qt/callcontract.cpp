@@ -64,6 +64,13 @@ CallContract::CallContract(const PlatformStyle *platformStyle, QWidget *parent) 
     connect(ui->lineEditContractAddress, SIGNAL(textChanged(QString)), SLOT(on_updateCallContractButton()));
     connect(ui->textEditInterface, SIGNAL(textChanged()), SLOT(on_newContractABI()));
     connect(ui->stackedWidget, SIGNAL(currentChanged(int)), SLOT(on_updateCallContractButton()));
+
+    // Set contract address validator
+    QRegularExpression regEx;
+    regEx.setPattern(paternAddress);
+    QRegularExpressionValidator *addressValidatr = new QRegularExpressionValidator(ui->lineEditContractAddress);
+    addressValidatr->setRegularExpression(regEx);
+    ui->lineEditContractAddress->setCheckValidator(addressValidatr);
 }
 
 CallContract::~CallContract()
@@ -76,11 +83,27 @@ void CallContract::setClientModel(ClientModel *_clientModel)
 {
     m_clientModel = _clientModel;
 
-    if (m_clientModel) 
+    if (m_clientModel)
     {
         connect(m_clientModel, SIGNAL(numBlocksChanged(int,QDateTime,double,bool)), this, SLOT(on_numBlocksChanged()));
         on_numBlocksChanged();
     }
+}
+
+bool CallContract::isValidContractAddress()
+{
+    ui->lineEditContractAddress->checkValidity();
+    return ui->lineEditContractAddress->isValid();
+}
+
+bool CallContract::isDataValid()
+{
+    bool dataValid = true;
+
+    if(!isValidContractAddress() || !m_ABIFunctionField->isValid() || !ui->lineEditSenderAddress->isValidAddress())
+        dataValid = false;
+
+    return dataValid;
 }
 
 void CallContract::on_clearAll_clicked()
@@ -94,28 +117,31 @@ void CallContract::on_clearAll_clicked()
 
 void CallContract::on_callContract_clicked()
 {
-    // Initialize variables
-    QMap<QString, QString> lstParams;
-    QVariant result;
-    QString errorMessage;
-    QString resultJson;
-    int func = m_ABIFunctionField->getSelectedFunction();
-
-    // Append params to the list
-    ExecRPCCommand::appendParam(lstParams, PARAM_ADDRESS, ui->lineEditContractAddress->text());
-    ExecRPCCommand::appendParam(lstParams, PARAM_DATAHEX, toDataHex(func));
-    ExecRPCCommand::appendParam(lstParams, PARAM_SENDER, ui->lineEditSenderAddress->currentText());
-
-    // Execute RPC command line
-    if(m_execRPCCommand->exec(lstParams, result, resultJson, errorMessage))
+    if(isDataValid())
     {
-        ui->widgetResult->setResultData(result, m_contractABI->functions[func], m_ABIFunctionField->getParamsValues(), ContractResult::CallResult);
-        m_tabInfo->setTabVisible(1, true);
-        m_tabInfo->setCurrent(1);
-    }
-    else
-    {
-        QMessageBox::warning(this, tr("Call contract"), errorMessage);
+        // Initialize variables
+        QMap<QString, QString> lstParams;
+        QVariant result;
+        QString errorMessage;
+        QString resultJson;
+        int func = m_ABIFunctionField->getSelectedFunction();
+
+        // Append params to the list
+        ExecRPCCommand::appendParam(lstParams, PARAM_ADDRESS, ui->lineEditContractAddress->text());
+        ExecRPCCommand::appendParam(lstParams, PARAM_DATAHEX, toDataHex(func));
+        ExecRPCCommand::appendParam(lstParams, PARAM_SENDER, ui->lineEditSenderAddress->currentText());
+
+        // Execute RPC command line
+        if(m_execRPCCommand->exec(lstParams, result, resultJson, errorMessage))
+        {
+            ui->widgetResult->setResultData(result, m_contractABI->functions[func], m_ABIFunctionField->getParamsValues(), ContractResult::CallResult);
+            m_tabInfo->setTabVisible(1, true);
+            m_tabInfo->setCurrent(1);
+        }
+        else
+        {
+            QMessageBox::warning(this, tr("Call contract"), errorMessage);
+        }
     }
 }
 

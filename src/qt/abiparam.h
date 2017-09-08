@@ -3,7 +3,7 @@
 
 #include <QWidget>
 #include <QLabel>
-#include <QLineEdit>
+#include "qvalidatedlineedit.h"
 
 class ParameterABI;
 /**
@@ -27,6 +27,8 @@ public:
      */
     QString getValue();
 
+    bool isValid();
+
 Q_SIGNALS:
 
 public Q_SLOTS:
@@ -34,7 +36,7 @@ public Q_SLOTS:
 private:
     int m_ParamID;
     QLabel *m_paramName;
-    QLineEdit *m_ParamValue;
+    QValidatedLineEdit *m_ParamValue;
 };
 
 #endif // CONTRACTPARAMFIELD_H

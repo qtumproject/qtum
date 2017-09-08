@@ -25,7 +25,7 @@ ABIFunctionField::ABIFunctionField(FunctionType type, QWidget *parent) :
     topLayout->setSpacing(30);
     topLayout->setContentsMargins(0, 0, 0, 0);
 
-    m_labelFunction = new QLabel(tr("Function:"));
+    m_labelFunction = new QLabel(tr("Function"));
     m_labelFunction->setMinimumWidth(110);
     topLayout->addWidget(m_labelFunction);
 
@@ -129,5 +129,10 @@ int ABIFunctionField::getSelectedFunction() const
         return -1;
 
     return m_abiFunctionList[currentFunc];
+}
+
+bool ABIFunctionField::isValid()
+{
+    return ((ABIParamsField*)m_paramsField->currentWidget())->isValid();
 }
 

@@ -42,3 +42,13 @@ QStringList ABIParamsField::getParamsValues()
     return resultList;
 }
 
+bool ABIParamsField::isValid()
+{
+    bool isValid = true;
+    for(int i = 0; i < m_listParams.count(); ++i){
+        if(!m_listParams[i]->isValid())
+            isValid = false;
+    }
+    return isValid;
+}
+

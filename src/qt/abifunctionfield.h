@@ -65,6 +65,8 @@ public:
      */
     int getSelectedFunction() const;
 
+    bool isValid();
+
 Q_SIGNALS:
 
 public Q_SLOTS:
