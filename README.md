@@ -25,10 +25,8 @@ Quickstart
     # If you want to build the Qt GUI:
     sudo apt-get install libqt5gui5 libqt5core5a libqt5dbus5 qttools5-dev qttools5-dev-tools libprotobuf-dev protobuf-compiler
 
-    git clone https://github.com/qtumproject/qtum
+    git clone https://github.com/qtumproject/qtum --recursive
     cd qtum
-    # Update cpp-ethereum submodule
-    git submodule update --init --recursive 
 
     # Note autogen will prompt to install some more dependencies if needed
     ./autogen.sh
@@ -62,7 +60,6 @@ NOTE: Building with Qt4 is still supported, however, could result in a broken UI
 
         git clone --recursive https://github.com/qtumproject/qtum.git
         cd qtum
-        git submodule update --init --recursive
 
 2.  Build qtum-core:
 
@@ -82,20 +79,12 @@ NOTE: Building with Qt4 is still supported, however, could result in a broken UI
 
 Then you can either run the command-line daemon using `src/qtumd` and `src/qtum-cli`, or you can run the Qt GUI using `src/qt/qtum-qt`
 
-2Gb of RAM is recommended for building Qtum. If you encounter internal compiler errors or out of memory errors in autogen, then you can modify the last line of autogen to be something like:
-
-    make -j1
-
-This will disable multicore building of some cpp-ethereum dependencies
-
 For in-depth description of Sparknet and how to use Qtum for interacting with contracts, please see [sparknet-guide](doc/sparknet-guide.md).
-
 
 License
 -------
 
 Qtum is GPLv3 licensed.
-
 
 Development Process
 -------------------
