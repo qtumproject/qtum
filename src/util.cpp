@@ -99,8 +99,6 @@ namespace boost {
 
 using namespace std;
 
-std::regex hexData("^([0-9a-fA-f]{2,}$)");
-
 const char * const BITCOIN_CONF_FILENAME = "qtum.conf";
 const char * const BITCOIN_PID_FILENAME = "qtumd.pid";
 
@@ -866,4 +864,12 @@ std::string CopyrightHolders(const std::string& strPrefix)
         strCopyrightHolders += "\n" + strPrefix + "The Qtum Core developers";
     }
     return strCopyrightHolders;
+}
+
+bool CheckHex(const std::string& str) {
+    size_t data=0;
+    if(str.size() > 2 && (str.compare(0, 2, "0x") == 0 || str.compare(0, 2, "0X") == 0)){
+        data=2;
+    }
+    return str.size() > data && str.find_first_not_of("0123456789abcdefABCDEF", data) == std::string::npos;
 }
