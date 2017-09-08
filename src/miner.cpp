@@ -1130,7 +1130,7 @@ void ThreadStakeMiner(CWallet *pwallet)
                     SetThreadPriority(THREAD_PRIORITY_ABOVE_NORMAL);
                     // Create a block that's properly populated with transactions
                     std::unique_ptr<CBlockTemplate> pblocktemplatefilled(
-                            BlockAssembler(Params()).CreateNewBlock(reservekey.reserveScript, true, &nTotalFees,
+                            BlockAssembler(Params()).CreateNewBlock(pblock->vtx[1]->vout[1].scriptPubKey, true, &nTotalFees,
                                                                     i, FutureDrift(GetAdjustedTime()) - STAKE_TIME_BUFFER));
                     if (!pblocktemplatefilled.get())
                         return;
