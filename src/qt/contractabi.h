@@ -2,6 +2,7 @@
 #define CONTRACTABI_H
 #include <string>
 #include <vector>
+#include <map>
 
 /**
  * @brief The ParameterType class Decode the api parameter type,
@@ -114,7 +115,7 @@ class ParameterABI
 public:
     ParameterABI(const std::string& _name = "", const std::string& _type = "", bool _indexed = false);
     ~ParameterABI();
-    bool abiIn(const std::string &value, std::string &data) const;
+    bool abiIn(const std::string &value, std::string &data, std::map<int, std::string>& mapDynamic) const;
     bool abiOut(const std::string &data, size_t& pos, std::string &value) const;
 
     std::string name; // The name of the parameter;
@@ -144,6 +145,8 @@ public:
 
     bool abiOut(const std::string& data, std::vector<std::string>& values) const;
 
+
+
     std::string selector() const;
 
     std::string name; // The name of the function;
@@ -159,6 +162,9 @@ public:
     // Event function is the only one that have anonymous.
     // Sending non-zero ether to non-payable function will throw.
     // Type can be omitted, defaulting to "function".
+
+private:
+    bool processDynamicParams(const std::map<int, std::string>& mapDynamic, std::string& data) const;
 };
 
 class ContractABI

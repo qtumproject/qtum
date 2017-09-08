@@ -52,7 +52,7 @@ void ABIFunctionField::updateABIFunctionField()
         std::vector<FunctionABI> functions = m_contractABI->functions;
         QStringList functionList;
         QStringListModel *functionModel = new QStringListModel(this);
-        for (int func = 0; func < functions.size(); ++func)
+        for (int func = 0; func < (int)functions.size(); ++func)
         {
             const FunctionABI &function = functions[func];
             if((m_functionType == Constructor && function.type != "constructor") ||

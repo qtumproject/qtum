@@ -162,7 +162,7 @@ void CreateContract::on_createContract_clicked()
     // Execute RPC command line
     if(m_execRPCCommand->exec(lstParams, result, resultJson, errorMessage))
     {
-        ui->widgetResult->setResultData(result, m_contractABI->functions[func], m_ABIFunctionField->getParamsValues(), ContractResult::CreateResult);
+        ui->widgetResult->setResultData(result, FunctionABI(), QStringList(), ContractResult::CreateResult);
         m_tabInfo->setTabVisible(1, true);
         m_tabInfo->setCurrent(1);
     }

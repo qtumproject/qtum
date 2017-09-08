@@ -7,11 +7,11 @@ namespace ContractABI_NS
 {
 // Defining json preprocessor functions in order to avoid repetitive code with slight difference
 #define ReadJsonString(json, param, result) if(json.exists(#param) && json[#param].isStr())\
-                                                result.param = json[#param].get_str();
+    result.param = json[#param].get_str();
 #define ReadJsonBool(json, param, result) if(json.exists(#param) && json[#param].isBool())\
-                                              result.param = json[#param].get_bool();
+    result.param = json[#param].get_bool();
 #define ReadJsonArray(json, param, result) if(json.exists(#param) && json[#param].isArray())\
-                                              result = json[#param].get_array();
+    result = json[#param].get_array();
 
 // String parsing functions
 inline bool startsWithString(const std::string& str, const std::string& s, size_t& pos)
@@ -42,6 +42,9 @@ inline std::string startsWithNumber(const std::string& str, size_t& pos)
     pos += s.length();
     return s;
 }
+
+// define constransts
+const static int HEX_INSTRUCTION_SIZE = 64;
 }
 using namespace ContractABI_NS;
 
@@ -120,10 +123,16 @@ FunctionABI::FunctionABI(const std::string &_name,
 bool FunctionABI::abiIn(const std::vector<std::string> &values, std::string &data) const
 {
     bool ret = inputs.size() == values.size();
-    data = selector();
+    std::string params;
+    std::map<int, std::string> mapDynamic;
     for(size_t i = 0; (i < inputs.size() || !ret); i++)
     {
-        ret &= inputs[i].abiIn(values[i], data);
+        ret &= inputs[i].abiIn(values[i], params, mapDynamic);
+    }
+    ret &= processDynamicParams(mapDynamic, params);
+    if(ret)
+    {
+        data = selector() + params;
     }
     return ret;
 }
@@ -166,6 +175,21 @@ std::string FunctionABI::selector() const
     return dev::toHex(hash);
 }
 
+bool FunctionABI::processDynamicParams(const std::map<int, std::string> &mapDynamic, std::string &data) const
+{
+    for(auto i = mapDynamic.begin(); i != mapDynamic.end(); i++)
+    {
+        int pos = i->first;
+        std::string value = i->second;
+        dev::u256 inRef = data.size() / 2;
+        dev::bytes rawRef = dev::eth::ABISerialiser<dev::u256>::serialise(inRef);
+        std::string strRef = dev::toHex(rawRef);
+        data.replace(pos, strRef.size(), strRef);
+        data += value;
+    }
+    return true;
+}
+
 ParameterABI::ParameterABI(const std::string &_name, const std::string &_type, bool _indexed):
     name(_name),
     type(_type),
@@ -182,89 +206,116 @@ ParameterABI::~ParameterABI()
     }
 }
 
-bool ParameterABI::abiIn(const std::string &value, std::string &data) const
+bool ParameterABI::abiIn(const std::string &value, std::string &data, std::map<int, std::string>& mapDynamic) const
 {
-    std::string _value = value;
-    switch (decodeType().type()) {
-    case ParameterType::abi_bytes:
-
-        break;
-    case ParameterType::abi_string:
-
-        break;
-    case ParameterType::abi_bool:
-        _value = value == "false" ? "0" : "1";
-    case ParameterType::abi_int:
-    case ParameterType::abi_uint:
+    try
+    {
+        std::string _value = value;
+        switch (decodeType().type()) {
+        case ParameterType::abi_bytes:
+            _value = dev::asString(dev::fromHex(value));
+        case ParameterType::abi_string:
+        {
+            dev::bytes rawData = dev::eth::ABISerialiser<std::string>::serialise(_value);
+            int key = data.size();
+            std::string strData = dev::toHex(rawData);
+            data += strData.substr(0, HEX_INSTRUCTION_SIZE);
+            mapDynamic[key] = strData.substr(HEX_INSTRUCTION_SIZE);
+        }
+            break;
+        case ParameterType::abi_bool:
+            _value = value == "false" ? "0" : "1";
+        case ParameterType::abi_int:
+        case ParameterType::abi_uint:
         {
             dev::u256 inData(_value.c_str());
             dev::bytes rawData = dev::eth::ABISerialiser<dev::u256>::serialise(inData);
             data += dev::toHex(rawData);
         }
-        break;
-    case ParameterType::abi_address:
+            break;
+        case ParameterType::abi_address:
         {
             dev::u160 inData = dev::fromBigEndian<dev::u160, dev::bytes>(dev::fromHex(_value));
             dev::bytes rawData = dev::eth::ABISerialiser<dev::u160>::serialise(inData);
             data += dev::toHex(rawData);
         }
-        break;
-    default:
-        break;
+            break;
+        default:
+            return false;
+        }
+    }
+    catch(...)
+    {
+        return false;
     }
     return true;
 }
 
 bool ParameterABI::abiOut(const std::string &data, size_t &pos, std::string &value) const
 {
-    switch (decodeType().type()) {
-    case ParameterType::abi_bytes:
-
-        break;
-    case ParameterType::abi_string:
-
-        break;
-    case ParameterType::abi_uint:
+    try
+    {
+        switch (decodeType().type()) {
+        case ParameterType::abi_bytes:
         {
-            dev::bytes rawData = dev::fromHex(data.substr(pos, 64));
+            dev::bytes rawData = dev::fromHex(data.substr(pos));
+            dev::bytesConstRef o(&rawData);
+            std::string outData = dev::eth::ABIDeserialiser<std::string>::deserialise(o);
+            value = dev::toHex(outData);
+        }
+            break;
+        case ParameterType::abi_string:
+        {
+            dev::bytes rawData = dev::fromHex(data.substr(pos));
+            dev::bytesConstRef o(&rawData);
+            value = dev::eth::ABIDeserialiser<std::string>::deserialise(o);
+        }
+            break;
+        case ParameterType::abi_uint:
+        {
+            dev::bytes rawData = dev::fromHex(data.substr(pos, HEX_INSTRUCTION_SIZE));
             dev::bytesConstRef o(&rawData);
             dev::u256 outData = dev::eth::ABIDeserialiser<dev::u256>::deserialise(o);
             value = outData.str();
-            pos += 64;
         }
-        break;
-    case ParameterType::abi_int:
+            break;
+        case ParameterType::abi_int:
         {
-            dev::bytes rawData = dev::fromHex(data.substr(pos, 64));
+            dev::bytes rawData = dev::fromHex(data.substr(pos, HEX_INSTRUCTION_SIZE));
             dev::bytesConstRef o(&rawData);
             dev::s256 outData = dev::u2s(dev::eth::ABIDeserialiser<dev::u256>::deserialise(o));
             value = outData.str();
-            pos += 64;
         }
-        break;
-    case ParameterType::abi_address:
+            break;
+        case ParameterType::abi_address:
         {
-            dev::bytes rawData = dev::fromHex(data.substr(pos, 64));
+            dev::bytes rawData = dev::fromHex(data.substr(pos, HEX_INSTRUCTION_SIZE));
             dev::bytesConstRef o(&rawData);
             dev::u160 outData = dev::eth::ABIDeserialiser<dev::u160>::deserialise(o);
             dev::bytes rawAddress(20);
             dev::toBigEndian<dev::u160, dev::bytes>(outData, rawAddress);
             value = dev::toHex(rawAddress);
-            pos += 64;
         }
-    break;
-    case ParameterType::abi_bool:
+            break;
+        case ParameterType::abi_bool:
         {
-            dev::bytes rawData = dev::fromHex(data.substr(pos, 64));
+            dev::bytes rawData = dev::fromHex(data.substr(pos, HEX_INSTRUCTION_SIZE));
             dev::bytesConstRef o(&rawData);
             dev::u256 outData = dev::eth::ABIDeserialiser<dev::u256>::deserialise(o);
             value = outData == 0 ? "false" : "true";
-            pos += 64;
         }
-        break;
-    default:
-        break;
+            break;
+        default:
+            return false;
+        }
+
+        pos += HEX_INSTRUCTION_SIZE;
     }
+    catch(...)
+    {
+        return false;
+    }
+
     return true;
 }
 
