@@ -184,14 +184,88 @@ ParameterABI::~ParameterABI()
 
 bool ParameterABI::abiIn(const std::string &value, std::string &data) const
 {
-    // Not implemented
-    return false;
+    std::string _value = value;
+    switch (decodeType().type()) {
+    case ParameterType::abi_bytes:
+
+        break;
+    case ParameterType::abi_string:
+
+        break;
+    case ParameterType::abi_bool:
+        _value = value == "false" ? "0" : "1";
+    case ParameterType::abi_int:
+    case ParameterType::abi_uint:
+        {
+            dev::u256 inData(_value.c_str());
+            dev::bytes rawData = dev::eth::ABISerialiser<dev::u256>::serialise(inData);
+            data += dev::toHex(rawData);
+        }
+        break;
+    case ParameterType::abi_address:
+        {
+            dev::u160 inData = dev::fromBigEndian<dev::u160, dev::bytes>(dev::fromHex(_value));
+            dev::bytes rawData = dev::eth::ABISerialiser<dev::u160>::serialise(inData);
+            data += dev::toHex(rawData);
+        }
+        break;
+    default:
+        break;
+    }
+    return true;
 }
 
 bool ParameterABI::abiOut(const std::string &data, size_t &pos, std::string &value) const
 {
-    // Not implemented
-    return false;
+    switch (decodeType().type()) {
+    case ParameterType::abi_bytes:
+
+        break;
+    case ParameterType::abi_string:
+
+        break;
+    case ParameterType::abi_uint:
+        {
+            dev::bytes rawData = dev::fromHex(data.substr(pos, 64));
+            dev::bytesConstRef o(&rawData);
+            dev::u256 outData = dev::eth::ABIDeserialiser<dev::u256>::deserialise(o);
+            value = outData.str();
+            pos += 64;
+        }
+        break;
+    case ParameterType::abi_int:
+        {
+            dev::bytes rawData = dev::fromHex(data.substr(pos, 64));
+            dev::bytesConstRef o(&rawData);
+            dev::s256 outData = dev::u2s(dev::eth::ABIDeserialiser<dev::u256>::deserialise(o));
+            value = outData.str();
+            pos += 64;
+        }
+        break;
+    case ParameterType::abi_address:
+        {
+            dev::bytes rawData = dev::fromHex(data.substr(pos, 64));
+            dev::bytesConstRef o(&rawData);
+            dev::u160 outData = dev::eth::ABIDeserialiser<dev::u160>::deserialise(o);
+            dev::bytes rawAddress(20);
+            dev::toBigEndian<dev::u160, dev::bytes>(outData, rawAddress);
+            value = dev::toHex(rawAddress);
+            pos += 64;
+        }
+    break;
+    case ParameterType::abi_bool:
+        {
+            dev::bytes rawData = dev::fromHex(data.substr(pos, 64));
+            dev::bytesConstRef o(&rawData);
+            dev::u256 outData = dev::eth::ABIDeserialiser<dev::u256>::deserialise(o);
+            value = outData == 0 ? "false" : "true";
+            pos += 64;
+        }
+        break;
+    default:
+        break;
+    }
+    return true;
 }
 
 const ParameterType &ParameterABI::decodeType() const
@@ -243,6 +317,10 @@ bool ParameterType::determine(const std::string &_type)
     else if(startsWithString(m_canonical, "address", pos))
     {
         m_type = abi_address;
+    }
+    else if(startsWithString(m_canonical, "bool", pos))
+    {
+        m_type = abi_bool;
     }
     else if(startsWithString(m_canonical, "fixed", pos))
     {
@@ -412,4 +490,9 @@ void ParameterType::clean()
     m_isList = false;
     m_valid = false;
     m_canonical = "";
+}
+
+ParameterType::Type ParameterType::type() const
+{
+    return m_type;
 }

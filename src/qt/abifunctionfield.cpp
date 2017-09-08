@@ -110,6 +110,17 @@ QStringList ABIFunctionField::getParamsValues()
     return ((ABIParamsField*)m_paramsField->currentWidget())->getParamsValues();
 }
 
+std::vector<std::string> ABIFunctionField::getValuesVector()
+{
+    QStringList qlist = getParamsValues();
+    std::vector<std::string> result(qlist.size());
+    for (int i=0; i<qlist.size(); i++)
+    {
+      result[i] = qlist.at(i).toUtf8().data();
+    }
+    return result;
+}
+
 int ABIFunctionField::getSelectedFunction() const
 {
     // Get the currently selected function

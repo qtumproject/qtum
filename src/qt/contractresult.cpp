@@ -126,7 +126,12 @@ void ContractResult::updateCallResult(QVariant result, FunctionABI function, QSt
 
     setParamsData(function, paramValues);
 
-    //TODO - Sender is not in the JSON
     ui->labelCallSenderAddressValue->setText(variantMap.value("sender").toString());
-    ui->labelResult->setText(executionResultMap.value("output").toString());
+    std::string rawData = executionResultMap.value("output").toString().toStdString();
+    std::vector<std::string> values;
+    function.abiOut(rawData, values);
+    if(values.size() > 0)
+    {
+        ui->labelResult->setText(QString::fromStdString(values[0]));
+    }
 }

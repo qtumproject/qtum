@@ -147,7 +147,7 @@ void SendToContract::on_sendToContract_clicked()
 
     // Append params to the list
     ExecRPCCommand::appendParam(lstParams, PARAM_ADDRESS, ui->lineEditContractAddress->text());
-    ExecRPCCommand::appendParam(lstParams, PARAM_DATAHEX, "");
+    ExecRPCCommand::appendParam(lstParams, PARAM_DATAHEX, toDataHex(func));
     ExecRPCCommand::appendParam(lstParams, PARAM_AMOUNT, BitcoinUnits::format(unit, ui->lineEditAmount->value()));
     ExecRPCCommand::appendParam(lstParams, PARAM_GASLIMIT, QString::number(gasLimit));
     ExecRPCCommand::appendParam(lstParams, PARAM_GASPRICE, BitcoinUnits::format(unit, gasPrice));
@@ -207,4 +207,21 @@ void SendToContract::on_newContractABI()
     m_ABIFunctionField->setContractABI(m_contractABI);
 
     on_updateSendToContractButton();
+}
+
+QString SendToContract::toDataHex(int func)
+{
+    if(func == -1 || m_ABIFunctionField == NULL || m_contractABI == NULL)
+    {
+        return "";
+    }
+
+    std::string strData;
+    std::vector<std::string> values = m_ABIFunctionField->getValuesVector();
+    FunctionABI function = m_contractABI->functions[func];
+    if(function.abiIn(values, strData))
+    {
+        return QString::fromStdString(strData);
+    }
+    return "";
 }

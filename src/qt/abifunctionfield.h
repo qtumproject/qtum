@@ -54,6 +54,12 @@ public:
     QStringList getParamsValues();
 
     /**
+     * @brief getValuesVector Get params values vector
+     * @return Values of the parameters
+     */
+    std::vector<std::string> getValuesVector();
+
+    /**
      * @brief getSelectedFunction Get the ABI for the selected function from the contract
      * @return Selected function ABI
      */

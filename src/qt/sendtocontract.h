@@ -36,6 +36,9 @@ public Q_SLOTS:
     void on_newContractABI();
 
 private:
+    QString toDataHex(int func);
+
+private:
     Ui::SendToContract *ui;
     WalletModel* m_model;
     ClientModel* m_clientModel;

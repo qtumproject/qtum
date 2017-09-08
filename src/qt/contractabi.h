@@ -88,6 +88,12 @@ public:
      */
     const std::string& canonical() const;
 
+    /**
+     * @brief type Get the type
+     * @return Decoded type
+     */
+    Type type() const;
+
 private:
     /**
      * @brief clean Set the value to the defaults

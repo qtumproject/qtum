@@ -103,7 +103,7 @@ void CallContract::on_callContract_clicked()
 
     // Append params to the list
     ExecRPCCommand::appendParam(lstParams, PARAM_ADDRESS, ui->lineEditContractAddress->text());
-    ExecRPCCommand::appendParam(lstParams, PARAM_DATAHEX, "");
+    ExecRPCCommand::appendParam(lstParams, PARAM_DATAHEX, toDataHex(func));
     ExecRPCCommand::appendParam(lstParams, PARAM_SENDER, ui->lineEditSenderAddress->currentText());
 
     // Execute RPC command line
@@ -150,4 +150,21 @@ void CallContract::on_newContractABI()
     m_ABIFunctionField->setContractABI(m_contractABI);
 
     on_updateCallContractButton();
+}
+
+QString CallContract::toDataHex(int func)
+{
+    if(func == -1 || m_ABIFunctionField == NULL || m_contractABI == NULL)
+    {
+        return "";
+    }
+
+    std::string strData;
+    std::vector<std::string> values = m_ABIFunctionField->getValuesVector();
+    FunctionABI function = m_contractABI->functions[func];
+    if(function.abiIn(values, strData))
+    {
+        return QString::fromStdString(strData);
+    }
+    return "";
 }

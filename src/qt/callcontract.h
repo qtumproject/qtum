@@ -34,6 +34,9 @@ public Q_SLOTS:
     void on_newContractABI();
 
 private:
+    QString toDataHex(int func);
+
+private:
     Ui::CallContract *ui;
     ClientModel* m_clientModel;
     ExecRPCCommand* m_execRPCCommand;

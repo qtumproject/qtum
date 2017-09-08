@@ -153,7 +153,8 @@ void CreateContract::on_createContract_clicked()
     }
 
     // Append params to the list
-    ExecRPCCommand::appendParam(lstParams, PARAM_BYTECODE, ui->textEditBytecode->toPlainText());
+    QString bytecode = toDataHex(func) + ui->textEditBytecode->toPlainText();
+    ExecRPCCommand::appendParam(lstParams, PARAM_BYTECODE, bytecode);
     ExecRPCCommand::appendParam(lstParams, PARAM_GASLIMIT, QString::number(gasLimit));
     ExecRPCCommand::appendParam(lstParams, PARAM_GASPRICE, BitcoinUnits::format(unit, gasPrice));
     ExecRPCCommand::appendParam(lstParams, PARAM_SENDER, ui->lineEditSenderAddress->currentText());
@@ -191,8 +192,7 @@ void CreateContract::on_numBlocksChanged()
 
 void CreateContract::on_updateCreateButton()
 {
-    int func = m_ABIFunctionField->getSelectedFunction();
-    bool enabled = func != -1;
+    bool enabled = true;
     if(ui->textEditBytecode->toPlainText().isEmpty())
     {
         enabled = false;
@@ -212,4 +212,21 @@ void CreateContract::on_newContractABI()
     m_ABIFunctionField->setContractABI(m_contractABI);
 
     on_updateCreateButton();
+}
+
+QString CreateContract::toDataHex(int func)
+{
+    if(func == -1 || m_ABIFunctionField == NULL || m_contractABI == NULL)
+    {
+        return "";
+    }
+
+    std::string strData;
+    std::vector<std::string> values = m_ABIFunctionField->getValuesVector();
+    FunctionABI function = m_contractABI->functions[func];
+    if(function.abiIn(values, strData))
+    {
+        return QString::fromStdString(strData);
+    }
+    return "";
 }
