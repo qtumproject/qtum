@@ -77,7 +77,8 @@ void ContractResult::setParamsData(FunctionABI function, QStringList paramValues
         hLayout->setContentsMargins(0,0,0,0);
 
         QLabel *paramName = new QLabel(this);
-        QLabel *paramValue = new QLabel(this);
+        QLineEdit *paramValue = new QLineEdit(this);
+        paramValue->setReadOnly(true);
         paramValue->setFixedWidth(370);
         paramName->setMinimumWidth(110);
         paramName->setText(paramNames[i]);
@@ -93,27 +94,27 @@ void ContractResult::setParamsData(FunctionABI function, QStringList paramValues
 
 void ContractResult::updateCreateResult(QVariant result)
 {
-    ui->labelContractAddressValue->setVisible(true);
+    ui->lineEditContractAddress->setVisible(true);
     ui->labelContractAddress->setVisible(true);
 
     QVariantMap variantMap = result.toMap();
 
-    ui->labelTxIDValue->setText(variantMap.value("txid").toString());
-    ui->labelSenderAddressValue->setText(variantMap.value("sender").toString());
-    ui->labelHash160Value->setText(variantMap.value("hash160").toString());
-    ui->labelContractAddressValue->setText(variantMap.value("address").toString());
+    ui->lineEditTxID->setText(variantMap.value("txid").toString());
+    ui->lineEditSenderAddress->setText(variantMap.value("sender").toString());
+    ui->lineEditHash160->setText(variantMap.value("hash160").toString());
+    ui->lineEditContractAddress->setText(variantMap.value("address").toString());
 }
 
 void ContractResult::updateSendToResult(QVariant result)
 {
-    ui->labelContractAddressValue->setVisible(false);
+    ui->lineEditContractAddress->setVisible(false);
     ui->labelContractAddress->setVisible(false);
 
     QVariantMap variantMap = result.toMap();
 
-    ui->labelTxIDValue->setText(variantMap.value("txid").toString());
-    ui->labelSenderAddressValue->setText(variantMap.value("sender").toString());
-    ui->labelHash160Value->setText(variantMap.value("hash160").toString());
+    ui->lineEditTxID->setText(variantMap.value("txid").toString());
+    ui->lineEditSenderAddress->setText(variantMap.value("sender").toString());
+    ui->lineEditHash160->setText(variantMap.value("hash160").toString());
 }
 
 void ContractResult::updateCallResult(QVariant result, FunctionABI function, QStringList paramValues)
@@ -121,17 +122,17 @@ void ContractResult::updateCallResult(QVariant result, FunctionABI function, QSt
     QVariantMap variantMap = result.toMap();
     QVariantMap executionResultMap = variantMap.value("executionResult").toMap();
 
-    ui->labelCallContractAddressValue->setText(variantMap.value("address").toString());
-    ui->labelFunctionValue->setText(QString::fromStdString(function.name));
+    ui->lineEditCallContractAddress->setText(variantMap.value("address").toString());
+    ui->lineEditFunction->setText(QString::fromStdString(function.name));
 
     setParamsData(function, paramValues);
 
-    ui->labelCallSenderAddressValue->setText(variantMap.value("sender").toString());
+    ui->lineEditCallSenderAddress->setText(variantMap.value("sender").toString());
     std::string rawData = executionResultMap.value("output").toString().toStdString();
     std::vector<std::string> values;
     function.abiOut(rawData, values);
     if(values.size() > 0)
     {
-        ui->labelResult->setText(QString::fromStdString(values[0]));
+        ui->lineEditResult->setText(QString::fromStdString(values[0]));
     }
 }
