@@ -511,7 +511,7 @@ BOOST_AUTO_TEST_CASE(min_gas_price_default_state_test1){
     contractLoading();
     QtumDGP qtumDGP(globalState.get());
     uint64_t minGasPrice = qtumDGP.getMinGasPrice(100);
-    BOOST_CHECK(minGasPrice == 1);
+    BOOST_CHECK(minGasPrice == DEFAULT_MIN_GAS_PRICE_DGP);
 }
 
 BOOST_AUTO_TEST_CASE(min_gas_price_default_state_test2){
@@ -519,7 +519,7 @@ BOOST_AUTO_TEST_CASE(min_gas_price_default_state_test2){
     contractLoading();
     QtumDGP qtumDGP(globalState.get());
     uint64_t minGasPrice = qtumDGP.getMinGasPrice(0);
-    BOOST_CHECK(minGasPrice == 1);
+    BOOST_CHECK(minGasPrice == DEFAULT_MIN_GAS_PRICE_DGP);
 }
 
 BOOST_AUTO_TEST_CASE(min_gas_price_one_paramsInstance_introductory_block_1_test1){
@@ -535,7 +535,7 @@ BOOST_AUTO_TEST_CASE(min_gas_price_one_paramsInstance_introductory_block_1_test1
 
     QtumDGP qtumDGP(globalState.get());
     uint64_t minGasPrice = qtumDGP.getMinGasPrice(0);
-    BOOST_CHECK(minGasPrice == 1);
+    BOOST_CHECK(minGasPrice == DEFAULT_MIN_GAS_PRICE_DGP);
 }
 
 BOOST_AUTO_TEST_CASE(min_gas_price_one_paramsInstance_introductory_block_1_test2){
@@ -563,7 +563,7 @@ BOOST_AUTO_TEST_CASE(min_gas_price_passage_from_0_to_130_three_paramsInstance_te
     for(size_t i = 0; i < 1300; i++){
         uint64_t minGasPrice = qtumDGP.getMinGasPrice(i);
         std::function<bool(const uint64_t&, const uint64_t&)> func = compareUint64;
-        checkValue<uint64_t>(minGasPrice, 1, 13, 9850, 123, i, func);
+        checkValue<uint64_t>(minGasPrice, DEFAULT_MIN_GAS_PRICE_DGP, 13, 9850, 123, i, func);
     }
 }
 
@@ -576,7 +576,7 @@ BOOST_AUTO_TEST_CASE(min_gas_price_passage_from_130_to_0_three_paramsInstance_te
     for(size_t i = 1300; i > 0; i--){
         uint64_t minGasPrice = qtumDGP.getMinGasPrice(i);
         std::function<bool(const uint64_t&, const uint64_t&)> func = compareUint64;
-        checkValue<uint64_t>(minGasPrice, 1, 13, 9850, 123, i, func);
+        checkValue<uint64_t>(minGasPrice, DEFAULT_MIN_GAS_PRICE_DGP, 13, 9850, 123, i, func);
     }
 }
 
