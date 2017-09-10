@@ -533,7 +533,7 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64
     if (nTimeLimit != 0 && GetAdjustedTime() >= nTimeLimit - BYTECODE_TIME_BUFFER) {
         return false;
     }
-    if (GetBoolArg("-nocontractstaking", false))
+    if (GetBoolArg("-disablecontractstaking", false))
     {
         return false;
     }
