@@ -43,7 +43,7 @@ private Q_SLOTS:
     void on_textEditBytecode_textChanged();
 
 private:
-    QString toDataHex(int func);
+    QString toDataHex(int func, QString& errorMessage);
 
 private:
 

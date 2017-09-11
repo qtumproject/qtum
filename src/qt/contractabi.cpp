@@ -120,32 +120,34 @@ FunctionABI::FunctionABI(const std::string &_name,
     anonymous(_anonymous)
 {}
 
-bool FunctionABI::abiIn(const std::vector<std::string> &values, std::string &data) const
+bool FunctionABI::abiIn(const std::vector<std::string> &values, std::string &data, std::vector<ParameterABI::ErrorType>& errors) const
 {
     bool ret = inputs.size() == values.size();
     std::string params;
     std::map<int, std::string> mapDynamic;
-    for(size_t i = 0; (i < inputs.size() || !ret); i++)
+    for(size_t i = 0; i < inputs.size(); i++)
     {
         ret &= inputs[i].abiIn(values[i], params, mapDynamic);
+        errors.push_back(inputs[i].lastError());
     }
-    ret &= processDynamicParams(mapDynamic, params);
     if(ret)
     {
+        processDynamicParams(mapDynamic, params);
         data = selector() + params;
     }
     return ret;
 }
 
-bool FunctionABI::abiOut(const std::string &data, std::vector<std::string> &values) const
+bool FunctionABI::abiOut(const std::string &data, std::vector<std::string> &values, std::vector<ParameterABI::ErrorType>& errors) const
 {
     size_t pos = 0;
     bool ret = true;
-    for(size_t i = 0; (i < outputs.size() || !ret); i++)
+    for(size_t i = 0; i < outputs.size(); i++)
     {
         std::string value;
         ret &= outputs[i].abiOut(data, pos, value);
         values.push_back(value);
+        errors.push_back(outputs[i].lastError());
     }
     return ret;
 }
@@ -175,7 +177,42 @@ std::string FunctionABI::selector() const
     return dev::toHex(hash);
 }
 
-bool FunctionABI::processDynamicParams(const std::map<int, std::string> &mapDynamic, std::string &data) const
+QString FunctionABI::errorMessage(std::vector<ParameterABI::ErrorType> &errors, bool in) const
+{
+    if(in && errors.size() != inputs.size())
+        return "";
+    if(!in && errors.size() != outputs.size())
+        return "";
+    const std::vector<ParameterABI>& params = in ? inputs : outputs;
+
+    QStringList messages;
+    messages.append(QObject::tr("ABI parsing error:"));
+    for(size_t i = 0; i < errors.size(); i++)
+    {
+        ParameterABI::ErrorType err = errors[i];
+        if(err == ParameterABI::Ok) continue;
+        const ParameterABI& param = params[i];
+        QString _type = QString::fromStdString(param.type);
+        QString _name = QString::fromStdString(param.name);
+
+        switch (err) {
+        case ParameterABI::UnsupportedABI:
+            messages.append(QObject::tr("Unsupported type %1 %2.").arg(_type, _name));
+            break;
+        case ParameterABI::EncodingError:
+            messages.append(QObject::tr("Error encoding parameter %1 %2.").arg(_type, _name));
+            break;
+        case ParameterABI::DecodingError:
+            messages.append(QObject::tr("Error decoding parameter %1 %2.").arg(_type, _name));
+            break;
+        default:
+            break;
+        }
+    }
+    return messages.join('\n');
+}
+
+void FunctionABI::processDynamicParams(const std::map<int, std::string> &mapDynamic, std::string &data) const
 {
     for(auto i = mapDynamic.begin(); i != mapDynamic.end(); i++)
     {
@@ -187,14 +224,14 @@ bool FunctionABI::processDynamicParams(const std::map<int, std::string> &mapDyna
         data.replace(pos, strRef.size(), strRef);
         data += value;
     }
-    return true;
 }
 
 ParameterABI::ParameterABI(const std::string &_name, const std::string &_type, bool _indexed):
     name(_name),
     type(_type),
     indexed(_indexed),
-    m_decodeType(0)
+    m_decodeType(0),
+    m_lastError(ParameterABI::Ok)
 {}
 
 ParameterABI::~ParameterABI()
@@ -210,6 +247,7 @@ bool ParameterABI::abiIn(const std::string &value, std::string &data, std::map<i
 {
     try
     {
+        m_lastError = Ok;
         std::string _value = value;
         ParameterType::Type abiType = decodeType().type();
         if(decodeType().isDynamic() && !decodeType().isList())
@@ -228,6 +266,7 @@ bool ParameterABI::abiIn(const std::string &value, std::string &data, std::map<i
             }
                 break;
             default:
+                m_lastError = UnsupportedABI;
                 return false;
             }
         }
@@ -260,27 +299,32 @@ bool ParameterABI::abiIn(const std::string &value, std::string &data, std::map<i
             }
                 break;
             default:
+                m_lastError = UnsupportedABI;
                 return false;
             }
         }
         else if(decodeType().isDynamic() && decodeType().isList())
         {
             // Dynamic list type
+            m_lastError = UnsupportedABI;
             return false;
         }
         else if(!decodeType().isDynamic() && decodeType().isList())
         {
             // Static list type
+            m_lastError = UnsupportedABI;
             return false;
         }
         else
         {
             // Unknown type
+            m_lastError = UnsupportedABI;
             return false;
         }
     }
     catch(...)
     {
+        m_lastError = EncodingError;
         return false;
     }
 
@@ -291,6 +335,7 @@ bool ParameterABI::abiOut(const std::string &data, size_t &pos, std::string &val
 {
     try
     {
+        m_lastError = Ok;
         ParameterType::Type abiType = decodeType().type();
         if(decodeType().isDynamic() && !decodeType().isList())
         {
@@ -312,6 +357,7 @@ bool ParameterABI::abiOut(const std::string &data, size_t &pos, std::string &val
             }
                 break;
             default:
+                m_lastError = UnsupportedABI;
                 return false;
             }
         }
@@ -362,22 +408,26 @@ bool ParameterABI::abiOut(const std::string &data, size_t &pos, std::string &val
             }
                 break;
             default:
+                m_lastError = UnsupportedABI;
                 return false;
             }
         }
         else if(decodeType().isDynamic() && decodeType().isList())
         {
             // Dynamic list type
+            m_lastError = UnsupportedABI;
             return false;
         }
         else if(!decodeType().isDynamic() && decodeType().isList())
         {
             // Static list type
+            m_lastError = UnsupportedABI;
             return false;
         }
         else
         {
             // Unknown type
+            m_lastError = UnsupportedABI;
             return false;
         }
 
@@ -385,6 +435,7 @@ bool ParameterABI::abiOut(const std::string &data, size_t &pos, std::string &val
     }
     catch(...)
     {
+        m_lastError = DecodingError;
         return false;
     }
 
@@ -432,6 +483,11 @@ bool ParameterABI::setRegularExpession(ParameterType::Type type, QRegularExpress
     }
     }
     return ret;
+}
+
+ParameterABI::ErrorType ParameterABI::lastError() const
+{
+    return m_lastError;
 }
 
 const ParameterType &ParameterABI::decodeType() const

@@ -2,6 +2,7 @@
 #include "ui_contractresult.h"
 #include "guiconstants.h"
 #include "contractabi.h"
+#include <QMessageBox>
 
 ContractResult::ContractResult(QWidget *parent) :
     QStackedWidget(parent),
@@ -129,9 +130,18 @@ void ContractResult::updateCallResult(QVariant result, FunctionABI function, QSt
     ui->lineEditCallSenderAddress->setText(variantMap.value("sender").toString());
     std::string rawData = executionResultMap.value("output").toString().toStdString();
     std::vector<std::string> values;
-    function.abiOut(rawData, values);
-    if(values.size() > 0)
+    std::vector<ParameterABI::ErrorType> errors;
+    if(function.abiOut(rawData, values, errors))
     {
-        ui->lineEditResult->setText(QString::fromStdString(values[0]));
+        if(values.size() > 0)
+        {
+            ui->lineEditResult->setText(QString::fromStdString(values[0]));
+        }
+    }
+    else
+    {
+        QString errorMessage;
+        errorMessage = function.errorMessage(errors, false);
+        QMessageBox::warning(this, tr("Create contract"), errorMessage);
     }
 }

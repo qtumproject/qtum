@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include <QRegularExpression>
+#include <QStringList>
 
 #define paternUint "^[0-9]{1,}$"
 #define paternInt "^\\-{0,1}[0-9]{1,}$"
@@ -122,6 +123,14 @@ private:
 class ParameterABI
 {
 public:
+    enum ErrorType
+    {
+        Ok = 0,
+        UnsupportedABI,
+        EncodingError,
+        DecodingError
+    };
+
     ParameterABI(const std::string& _name = "", const std::string& _type = "", bool _indexed = false);
     ~ParameterABI();
     bool abiIn(const std::string &value, std::string &data, std::map<int, std::string>& mapDynamic) const;
@@ -134,8 +143,11 @@ public:
     bool indexed; // True if the field is part of the log's topics, false if it one of the log's data segment.
     // Indexed is only used with event function
 
+    ErrorType lastError() const;
+
 private:
     mutable ParameterType* m_decodeType;
+    mutable ErrorType m_lastError;
 };
 
 class FunctionABI
@@ -149,13 +161,13 @@ public:
                 bool _constant = false,
                 bool _anonymous = false);
 
-    bool abiIn(const std::vector<std::string>& values, std::string& data) const;
+    bool abiIn(const std::vector<std::string>& values, std::string& data, std::vector<ParameterABI::ErrorType>& errors) const;
 
-    bool abiOut(const std::string& data, std::vector<std::string>& values) const;
-
-
+    bool abiOut(const std::string& data, std::vector<std::string>& values, std::vector<ParameterABI::ErrorType>& errors) const;
 
     std::string selector() const;
+
+    QString errorMessage(std::vector<ParameterABI::ErrorType>& errors, bool in) const;
 
     std::string name; // The name of the function;
     std::string type; // Function types: "function", "constructor", "fallback" or "event"
@@ -172,7 +184,7 @@ public:
     // Type can be omitted, defaulting to "function".
 
 private:
-    bool processDynamicParams(const std::map<int, std::string>& mapDynamic, std::string& data) const;
+    void processDynamicParams(const std::map<int, std::string>& mapDynamic, std::string& data) const;
 };
 
 class ContractABI

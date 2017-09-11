@@ -128,11 +128,11 @@ void CallContract::on_callContract_clicked()
 
         // Append params to the list
         ExecRPCCommand::appendParam(lstParams, PARAM_ADDRESS, ui->lineEditContractAddress->text());
-        ExecRPCCommand::appendParam(lstParams, PARAM_DATAHEX, toDataHex(func));
+        ExecRPCCommand::appendParam(lstParams, PARAM_DATAHEX, toDataHex(func, errorMessage));
         ExecRPCCommand::appendParam(lstParams, PARAM_SENDER, ui->lineEditSenderAddress->currentText());
 
         // Execute RPC command line
-        if(m_execRPCCommand->exec(lstParams, result, resultJson, errorMessage))
+        if(errorMessage.isEmpty() && m_execRPCCommand->exec(lstParams, result, resultJson, errorMessage))
         {
             ui->widgetResult->setResultData(result, m_contractABI->functions[func], m_ABIFunctionField->getParamsValues(), ContractResult::CallResult);
             m_tabInfo->setTabVisible(1, true);
@@ -178,7 +178,7 @@ void CallContract::on_newContractABI()
     on_updateCallContractButton();
 }
 
-QString CallContract::toDataHex(int func)
+QString CallContract::toDataHex(int func, QString& errorMessage)
 {
     if(func == -1 || m_ABIFunctionField == NULL || m_contractABI == NULL)
     {
@@ -188,9 +188,15 @@ QString CallContract::toDataHex(int func)
     std::string strData;
     std::vector<std::string> values = m_ABIFunctionField->getValuesVector();
     FunctionABI function = m_contractABI->functions[func];
-    if(function.abiIn(values, strData))
+    std::vector<ParameterABI::ErrorType> errors;
+
+    if(function.abiIn(values, strData, errors))
     {
         return QString::fromStdString(strData);
+    }
+    else
+    {
+        errorMessage = function.errorMessage(errors, true);
     }
     return "";
 }
