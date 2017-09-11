@@ -292,6 +292,15 @@ void TestPackageSelection(const CChainParams& chainparams, CScript scriptPubKey,
     BOOST_CHECK(pblocktemplate->block.vtx[8]->GetHash() == hashLowFeeTx2);
 }
 
+CAmount calculateReward(const CBlock& block){
+    CAmount sumVout = 0, fee = 0;
+    for(const CTransactionRef t : block.vtx){
+        fee += pcoinsTip->GetValueIn(*t);
+        sumVout += t->GetValueOut();
+    }
+    return sumVout - fee;
+}
+
 // NOTE: These tests rely on CreateNewBlock doing its own self-validation!
 BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
 {
@@ -469,7 +478,7 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
     // subsidy changing
     int nHeight = chainActive.Height();
     // Create an actual 209999-long block chain (without valid blocks).
-    while (chainActive.Tip()->nHeight < 4999) {
+    while (chainActive.Tip()->nHeight < 990499) {
         CBlockIndex* prev = chainActive.Tip();
         CBlockIndex* next = new CBlockIndex();
         next->phashBlock = new uint256(GetRandHash());
@@ -479,9 +488,11 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
         next->BuildSkip();
         chainActive.SetTip(next);
     }
-    BOOST_CHECK(pblocktemplate = BlockAssembler(chainparams).CreateNewBlock(scriptPubKey));
+    BOOST_CHECK(pblocktemplate = BlockAssembler(chainparams).CreateNewBlock(scriptPubKey, true));
+    BOOST_CHECK(calculateReward(pblocktemplate->block) == 400000000);
+
     // Extend to a 210000-long block chain.
-    while (chainActive.Tip()->nHeight < 4999) {
+    while (chainActive.Tip()->nHeight < 990501) {
         CBlockIndex* prev = chainActive.Tip();
         CBlockIndex* next = new CBlockIndex();
         next->phashBlock = new uint256(GetRandHash());
@@ -491,7 +502,9 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
         next->BuildSkip();
         chainActive.SetTip(next);
     }
-    BOOST_CHECK(pblocktemplate = BlockAssembler(chainparams).CreateNewBlock(scriptPubKey));
+    BOOST_CHECK(pblocktemplate = BlockAssembler(chainparams).CreateNewBlock(scriptPubKey, true));
+    BOOST_CHECK(calculateReward(pblocktemplate->block) == 200000000);
+
     // Delete the dummy blocks again.
     while (chainActive.Tip()->nHeight > nHeight) {
         CBlockIndex* del = chainActive.Tip();
