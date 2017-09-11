@@ -211,36 +211,71 @@ bool ParameterABI::abiIn(const std::string &value, std::string &data, std::map<i
     try
     {
         std::string _value = value;
-        switch (decodeType().type()) {
-        case ParameterType::abi_bytes:
-            _value = dev::asString(dev::fromHex(value));
-        case ParameterType::abi_string:
+        ParameterType::Type abiType = decodeType().type();
+        if(decodeType().isDynamic() && !decodeType().isList())
         {
-            dev::bytes rawData = dev::eth::ABISerialiser<std::string>::serialise(_value);
-            int key = data.size();
-            std::string strData = dev::toHex(rawData);
-            data += strData.substr(0, HEX_INSTRUCTION_SIZE);
-            mapDynamic[key] = strData.substr(HEX_INSTRUCTION_SIZE);
+            // Dynamic basic type
+            switch (abiType) {
+            case ParameterType::abi_bytes:
+                _value = dev::asString(dev::fromHex(value));
+            case ParameterType::abi_string:
+            {
+                dev::bytes rawData = dev::eth::ABISerialiser<std::string>::serialise(_value);
+                int key = data.size();
+                std::string strData = dev::toHex(rawData);
+                data += strData.substr(0, HEX_INSTRUCTION_SIZE);
+                mapDynamic[key] = strData.substr(HEX_INSTRUCTION_SIZE);
+            }
+                break;
+            default:
+                return false;
+            }
         }
-            break;
-        case ParameterType::abi_bool:
-            _value = value == "false" ? "0" : "1";
-        case ParameterType::abi_int:
-        case ParameterType::abi_uint:
+        else if(!decodeType().isDynamic() && !decodeType().isList())
         {
-            dev::u256 inData(_value.c_str());
-            dev::bytes rawData = dev::eth::ABISerialiser<dev::u256>::serialise(inData);
-            data += dev::toHex(rawData);
+            // Static basic type
+            switch (abiType) {
+            case ParameterType::abi_bytes:
+            {
+                _value = dev::asString(dev::fromHex(value));
+                dev::string32 inData = dev::eth::toString32(_value);
+                data += dev::toHex(inData);
+            }
+                break;
+            case ParameterType::abi_bool:
+                _value = value == "false" ? "0" : "1";
+            case ParameterType::abi_int:
+            case ParameterType::abi_uint:
+            {
+                dev::u256 inData(_value.c_str());
+                dev::bytes rawData = dev::eth::ABISerialiser<dev::u256>::serialise(inData);
+                data += dev::toHex(rawData);
+            }
+                break;
+            case ParameterType::abi_address:
+            {
+                dev::u160 inData = dev::fromBigEndian<dev::u160, dev::bytes>(dev::fromHex(_value));
+                dev::bytes rawData = dev::eth::ABISerialiser<dev::u160>::serialise(inData);
+                data += dev::toHex(rawData);
+            }
+                break;
+            default:
+                return false;
+            }
         }
-            break;
-        case ParameterType::abi_address:
+        else if(decodeType().isDynamic() && decodeType().isList())
         {
-            dev::u160 inData = dev::fromBigEndian<dev::u160, dev::bytes>(dev::fromHex(_value));
-            dev::bytes rawData = dev::eth::ABISerialiser<dev::u160>::serialise(inData);
-            data += dev::toHex(rawData);
+            // Dynamic list type
+            return false;
         }
-            break;
-        default:
+        else if(!decodeType().isDynamic() && decodeType().isList())
+        {
+            // Static list type
+            return false;
+        }
+        else
+        {
+            // Unknown type
             return false;
         }
     }
@@ -248,6 +283,7 @@ bool ParameterABI::abiIn(const std::string &value, std::string &data, std::map<i
     {
         return false;
     }
+
     return true;
 }
 
@@ -255,57 +291,93 @@ bool ParameterABI::abiOut(const std::string &data, size_t &pos, std::string &val
 {
     try
     {
-        switch (decodeType().type()) {
-        case ParameterType::abi_bytes:
+        ParameterType::Type abiType = decodeType().type();
+        if(decodeType().isDynamic() && !decodeType().isList())
         {
-            dev::bytes rawData = dev::fromHex(data.substr(pos));
-            dev::bytesConstRef o(&rawData);
-            std::string outData = dev::eth::ABIDeserialiser<std::string>::deserialise(o);
-            value = dev::toHex(outData);
+            // Dynamic basic type
+            switch (abiType) {
+            case ParameterType::abi_bytes:
+            {
+                dev::bytes rawData = dev::fromHex(data.substr(pos));
+                dev::bytesConstRef o(&rawData);
+                std::string outData = dev::eth::ABIDeserialiser<std::string>::deserialise(o);
+                value = dev::toHex(outData);
+            }
+                break;
+            case ParameterType::abi_string:
+            {
+                dev::bytes rawData = dev::fromHex(data.substr(pos));
+                dev::bytesConstRef o(&rawData);
+                value = dev::eth::ABIDeserialiser<std::string>::deserialise(o);
+            }
+                break;
+            default:
+                return false;
+            }
         }
-            break;
-        case ParameterType::abi_string:
+        else if(!decodeType().isDynamic() && !decodeType().isList())
         {
-            dev::bytes rawData = dev::fromHex(data.substr(pos));
-            dev::bytesConstRef o(&rawData);
-            value = dev::eth::ABIDeserialiser<std::string>::deserialise(o);
+            // Static basic type
+            switch (abiType) {
+            case ParameterType::abi_bytes:
+            {
+                dev::bytes rawData = dev::fromHex(data.substr(pos, HEX_INSTRUCTION_SIZE));
+                dev::bytesConstRef o(&rawData);
+                std::string outData = dev::toString(dev::eth::ABIDeserialiser<dev::string32>::deserialise(o));
+                value = dev::toHex(outData);
+            }
+                break;
+            case ParameterType::abi_uint:
+            {
+                dev::bytes rawData = dev::fromHex(data.substr(pos, HEX_INSTRUCTION_SIZE));
+                dev::bytesConstRef o(&rawData);
+                dev::u256 outData = dev::eth::ABIDeserialiser<dev::u256>::deserialise(o);
+                value = outData.str();
+            }
+                break;
+            case ParameterType::abi_int:
+            {
+                dev::bytes rawData = dev::fromHex(data.substr(pos, HEX_INSTRUCTION_SIZE));
+                dev::bytesConstRef o(&rawData);
+                dev::s256 outData = dev::u2s(dev::eth::ABIDeserialiser<dev::u256>::deserialise(o));
+                value = outData.str();
+            }
+                break;
+            case ParameterType::abi_address:
+            {
+                dev::bytes rawData = dev::fromHex(data.substr(pos, HEX_INSTRUCTION_SIZE));
+                dev::bytesConstRef o(&rawData);
+                dev::u160 outData = dev::eth::ABIDeserialiser<dev::u160>::deserialise(o);
+                dev::bytes rawAddress(20);
+                dev::toBigEndian<dev::u160, dev::bytes>(outData, rawAddress);
+                value = dev::toHex(rawAddress);
+            }
+                break;
+            case ParameterType::abi_bool:
+            {
+                dev::bytes rawData = dev::fromHex(data.substr(pos, HEX_INSTRUCTION_SIZE));
+                dev::bytesConstRef o(&rawData);
+                dev::u256 outData = dev::eth::ABIDeserialiser<dev::u256>::deserialise(o);
+                value = outData == 0 ? "false" : "true";
+            }
+                break;
+            default:
+                return false;
+            }
         }
-            break;
-        case ParameterType::abi_uint:
+        else if(decodeType().isDynamic() && decodeType().isList())
         {
-            dev::bytes rawData = dev::fromHex(data.substr(pos, HEX_INSTRUCTION_SIZE));
-            dev::bytesConstRef o(&rawData);
-            dev::u256 outData = dev::eth::ABIDeserialiser<dev::u256>::deserialise(o);
-            value = outData.str();
+            // Dynamic list type
+            return false;
         }
-            break;
-        case ParameterType::abi_int:
+        else if(!decodeType().isDynamic() && decodeType().isList())
         {
-            dev::bytes rawData = dev::fromHex(data.substr(pos, HEX_INSTRUCTION_SIZE));
-            dev::bytesConstRef o(&rawData);
-            dev::s256 outData = dev::u2s(dev::eth::ABIDeserialiser<dev::u256>::deserialise(o));
-            value = outData.str();
+            // Static list type
+            return false;
         }
-            break;
-        case ParameterType::abi_address:
+        else
         {
-            dev::bytes rawData = dev::fromHex(data.substr(pos, HEX_INSTRUCTION_SIZE));
-            dev::bytesConstRef o(&rawData);
-            dev::u160 outData = dev::eth::ABIDeserialiser<dev::u160>::deserialise(o);
-            dev::bytes rawAddress(20);
-            dev::toBigEndian<dev::u160, dev::bytes>(outData, rawAddress);
-            value = dev::toHex(rawAddress);
-        }
-            break;
-        case ParameterType::abi_bool:
-        {
-            dev::bytes rawData = dev::fromHex(data.substr(pos, HEX_INSTRUCTION_SIZE));
-            dev::bytesConstRef o(&rawData);
-            dev::u256 outData = dev::eth::ABIDeserialiser<dev::u256>::deserialise(o);
-            value = outData == 0 ? "false" : "true";
-        }
-            break;
-        default:
+            // Unknown type
             return false;
         }
 
@@ -556,9 +628,14 @@ bool ParameterType::isList() const
 
 bool ParameterType::isDynamic() const
 {
-    if(m_type == abi_bytes || m_type == abi_string)
+    // Type bytes is dynamic when the count of bytes is not known.
+    // Type string is always dynamic.
+    if((m_type == abi_bytes && totalBytes() == 0) || m_type == abi_string)
+    {
         return true;
+    }
 
+    // Type list is dynamic when the count of elements is not known.
     if(m_isList)
         return m_length == 0;
 
