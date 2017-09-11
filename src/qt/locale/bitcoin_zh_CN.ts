@@ -1766,6 +1766,10 @@
 <context>
     <name>ReceiveCoinsDialog</name>
     <message>
+        <source>Address:</source>
+        <translation>地址：</translation>
+    </message>
+    <message>
         <source>&amp;Amount:</source>
         <translation>总额(&amp;A)：</translation>
     </message>
@@ -3657,5 +3661,119 @@
         <source>Error</source>
         <translation>错误</translation>
     </message>
+</context>
+<context>
+    <name>SendToContract</name>
+    <message>
+        <source>Send to Smart Contract</source>
+        <translation>发送至智能合约</translation>
+    </message>
+    <message>
+        <source>Contract Address</source>
+        <translation>合约地址</translation>
+    </message>
+    <message>
+        <source>Data Hex</source>
+        <translation>Data Hex</translation>
+    </message>
+    <message>
+        <source>Optional</source>
+        <translation>可选项</translation>
+    </message>
+    <message>
+        <source>Sender Address</source>
+        <translation>发送者地址</translation>
+    </message>
+    <message>
+        <source>Gas Limit</source>
+        <translation>Gas Limit</translation>
+    </message>
+    <message>
+        <source>Gas Price</source>
+        <translation>Gas Price</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>数量</translation>
+    </message>
+    <message>
+        <source>Clear All</source>
+        <translation>清除所有</translation>
+    </message>
+    <message>
+        <source>Send to Contract</source>
+        <translation>发送至智能合约</translation>
+    </message>
+</context>
+<context>
+    <name>CreateContract</name>
+    <message>
+        <source>Create Smart Contract</source>
+        <translation>创建智能合约</translation>
+    </message>
+    <message>
+        <source>Bytecode</source>
+        <translation>Bytecode</translation>
+    </message>
+    <message>
+        <source>Optional</source>
+        <translation>可选项</translation>
+    </message>
+    <message>
+        <source>Sender Address</source>
+        <translation>发送者地址</translation>
+    </message>
+    <message>
+        <source>Gas Limit</source>
+        <translation>Gas Limit</translation>
+    </message>
+    <message>
+        <source>Gas Price</source>
+        <translation>Gas Price</translation>
+    </message>
+    <message>
+        <source>Contract Template</source>
+        <translation>合约模板</translation>
+    </message>
+    <message>
+        <source>Generate Bytecode</source>
+        <translation>生成Bytecode</translation>
+    </message>
+    <message>
+        <source>Create Contract</source>
+        <translation>创建智能合约</translation>
+    </message>
+    <message>
+        <source>Clear All</source>
+        <translation>清除所有</translation>
+    </message>
+</context>
+<context>
+    <name>CallContract</name>
+    <message>
+        <source>Call Contract</source>
+        <translation>调用智能合约</translation>
+    </message>
+    <message>
+        <source>Clear All</source>
+        <translation>清除所有</translation>
+    </message>
+    <message>
+        <source>Contract Address</source>
+        <translation>合约地址</translation>
+    </message>
+    <message>
+        <source>Optional</source>
+        <translation>可选项</translation>
+    </message>
+    <message>
+        <source>Sender Address</source>
+        <translation>发送者地址</translation>
+    </message>
+    <message>
+        <source>Call Smart Contract</source>
+        <translation>调用智能合约</translation>
+    </message>
+
 </context>
 </TS>
