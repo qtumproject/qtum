@@ -48,16 +48,11 @@ class TxInUndoDeserializer
 public:
     template<typename Stream>
     void Unserialize(Stream &s) {
-/////////////////////////////////////////////////////////// // qtum
-        // unsigned int nCode = 0;
-        // ::Unserialize(s, VARINT(nCode));
-        // nHeight = nCode / 4;
-        // fCoinBase = nCode & 1;
-        // fCoinStake = nCode & 2;
-        ::Unserialize(s, VARINT(txout->nHeight));
-        ::Unserialize(s, txout->fCoinBase);
-        ::Unserialize(s, txout->fCoinStake);
-///////////////////////////////////////////////////////////
+        unsigned int nCode = 0;
+        ::Unserialize(s, VARINT(nCode));
+        txout->nHeight = nCode / 2;
+        txout->fCoinBase = nCode & 1;
+        txout->fCoinStake = nCode & 16;
         if (txout->nHeight > 0) {
             // Old versions stored the version number for the last spend of
             // a transaction's outputs. Non-final spends were indicated with
