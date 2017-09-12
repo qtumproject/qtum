@@ -107,24 +107,25 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, CValidationState& state, const C
     // Kernel (input 0) must match the stake hash target (nBits)
     const CTxIn& txin = tx.vin[0];
 
-    CCoins coinsPrev;
-    if(!view.GetCoins(txin.prevout.hash, coinsPrev)){
+    Coin coinPrev;
+
+    if(!view.GetCoin(txin.prevout, coinPrev)){
         return state.DoS(100, error("CheckProofOfStake() : Stake prevout does not exist %s", txin.prevout.hash.ToString()));
     }
 
-    if(pindexPrev->nHeight + 1 - coinsPrev.nHeight < COINBASE_MATURITY){
-        return state.DoS(100, error("CheckProofOfStake() : Stake prevout is not mature, expecting %i and only matured to %i", COINBASE_MATURITY, pindexPrev->nHeight + 1 - coinsPrev.nHeight));
+    if(pindexPrev->nHeight + 1 - coinPrev.nHeight < COINBASE_MATURITY){
+        return state.DoS(100, error("CheckProofOfStake() : Stake prevout is not mature, expecting %i and only matured to %i", COINBASE_MATURITY, pindexPrev->nHeight + 1 - coinPrev.nHeight));
     }
-    CBlockIndex* blockFrom = pindexPrev->GetAncestor(coinsPrev.nHeight);
+    CBlockIndex* blockFrom = pindexPrev->GetAncestor(coinPrev.nHeight);
     if(!blockFrom) {
-        return state.DoS(100, error("CheckProofOfStake() : Block at height %i for prevout can not be loaded", coinsPrev.nHeight));
+        return state.DoS(100, error("CheckProofOfStake() : Block at height %i for prevout can not be loaded", coinPrev.nHeight));
     }
 
     // Verify signature
-    if (!VerifySignature(coinsPrev, txin.prevout.hash, tx, 0, SCRIPT_VERIFY_NONE))
+    if (!VerifySignature(coinPrev, txin.prevout.hash, tx, 0, SCRIPT_VERIFY_NONE))
         return state.DoS(100, error("CheckProofOfStake() : VerifySignature failed on coinstake %s", tx.GetHash().ToString()));
 
-    if (!CheckStakeKernelHash(pindexPrev, nBits, blockFrom->nTime, coinsPrev.vout[txin.prevout.n].nValue, txin.prevout, nTimeBlock, hashProofOfStake, targetProofOfStake, fDebug))
+    if (!CheckStakeKernelHash(pindexPrev, nBits, blockFrom->nTime, coinPrev.out.nValue, txin.prevout, nTimeBlock, hashProofOfStake, targetProofOfStake, fDebug))
         return state.DoS(1, error("CheckProofOfStake() : INFO: check kernel failed on coinstake %s, hashProof=%s", tx.GetHash().ToString(), hashProofOfStake.ToString())); // may occur during initial download or if behind on block chain sync
 
     return true;
@@ -149,23 +150,23 @@ bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBloc
     auto it=cache.find(prevout);
     if(it == cache.end()) {
         //not found in cache (shouldn't happen during staking, only during verification which does not use cache)
-        CCoins coinsPrev;
-        if(!view.GetCoins(prevout.hash, coinsPrev)){
+        Coin coinPrev;
+        if(!view.GetCoin(prevout, coinPrev)){
             return false;
         }
 
-        if(pindexPrev->nHeight + 1 - coinsPrev.nHeight < COINBASE_MATURITY){
+        if(pindexPrev->nHeight + 1 - coinPrev.nHeight < COINBASE_MATURITY){
             return false;
         }
-        CBlockIndex* blockFrom = pindexPrev->GetAncestor(coinsPrev.nHeight);
+        CBlockIndex* blockFrom = pindexPrev->GetAncestor(coinPrev.nHeight);
         if(!blockFrom) {
             return false;
         }
-        if(!coinsPrev.IsAvailable(prevout.n)){
+        if(coinPrev.IsSpent()){
             return false;
         }
 
-        return CheckStakeKernelHash(pindexPrev, nBits, blockFrom->nTime, coinsPrev.vout[prevout.n].nValue, prevout,
+        return CheckStakeKernelHash(pindexPrev, nBits, blockFrom->nTime, coinPrev.out.nValue, prevout,
                                     nTimeBlock, hashProofOfStake, targetProofOfStake);
     }else{
         //found in cache
@@ -185,20 +186,20 @@ void CacheKernel(std::map<COutPoint, CStakeCache>& cache, const COutPoint& prevo
         return;
     }
 
-    CCoins coinsPrev;
-    if(!view.GetCoins(prevout.hash, coinsPrev)){
+    Coin coinPrev;
+    if(!view.GetCoin(prevout, coinPrev)){
         return;
     }
 
-    if(pindexPrev->nHeight + 1 - coinsPrev.nHeight < COINBASE_MATURITY){
+    if(pindexPrev->nHeight + 1 - coinPrev.nHeight < COINBASE_MATURITY){
         return;
     }
-    CBlockIndex* blockFrom = pindexPrev->GetAncestor(coinsPrev.nHeight);
+    CBlockIndex* blockFrom = pindexPrev->GetAncestor(coinPrev.nHeight);
     if(!blockFrom) {
         return;
     }
 
-    CStakeCache c(blockFrom->nTime, coinsPrev.vout[prevout.n].nValue);
+    CStakeCache c(blockFrom->nTime, coinPrev.out.nValue);
     cache.insert({prevout, c});
 }
 
