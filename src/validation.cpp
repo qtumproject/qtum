@@ -1952,7 +1952,7 @@ static int64_t nTimeTotal = 0;
 
 /////////////////////////////////////////////////////////////////////// qtum
 bool CheckSenderScript(const CCoinsViewCache& view, const CTransaction& tx){
-    CScript script = view.AccessCoins(tx.vin[0].prevout.hash)->vout[tx.vin[0].prevout.n].scriptPubKey;
+    CScript script = view.AccessCoin(tx.vin[0].prevout).out.scriptPubKey;
     if(!script.IsPayToPubkeyHash() && !script.IsPayToPubkey()){
         return false;
     }
@@ -2084,7 +2084,7 @@ valtype GetSenderAddress(const CTransaction& tx, const CCoinsViewCache* coinsVie
         }
     }
     if(!scriptFilled && coinsView){
-        script = coinsView->AccessCoins(tx.vin[0].prevout.hash)->vout[tx.vin[0].prevout.n].scriptPubKey;
+        script = coinsView->AccessCoin(tx.vin[0].prevout).out.scriptPubKey;
         scriptFilled = true;
     }
     if(!scriptFilled)
