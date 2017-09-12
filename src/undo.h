@@ -7,6 +7,7 @@
 #define BITCOIN_UNDO_H
 
 #include "compressor.h" 
+#include "consensus/consensus.h"
 #include "primitives/transaction.h"
 #include "serialize.h"
 
@@ -53,7 +54,7 @@ public:
         // nHeight = nCode / 4;
         // fCoinBase = nCode & 1;
         // fCoinStake = nCode & 2;
-        ::Unserialize(s, VARINTtxout->(nHeight));
+        ::Unserialize(s, VARINT(txout->nHeight));
         ::Unserialize(s, txout->fCoinBase);
         ::Unserialize(s, txout->fCoinStake);
 ///////////////////////////////////////////////////////////
@@ -69,7 +70,7 @@ public:
     TxInUndoDeserializer(Coin* coin) : txout(coin) {}
 };
 
-static const size_t MAX_INPUTS_PER_BLOCK = MAX_BLOCK_BASE_SIZE / ::GetSerializeSize(CTxIn(), SER_NETWORK, PROTOCOL_VERSION);
+static const size_t MAX_INPUTS_PER_BLOCK = dgpMaxBlockBaseSize / ::GetSerializeSize(CTxIn(), SER_NETWORK, PROTOCOL_VERSION);
 /** Undo information for a CTransaction */
 class CTxUndo
 {

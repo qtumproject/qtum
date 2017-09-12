@@ -970,7 +970,7 @@ bool CCoinsViewMemPool::GetCoin(const COutPoint &outpoint, Coin &coin) const {
     CTransactionRef ptx = mempool.get(outpoint.hash);
     if (ptx) {
         if (outpoint.n < ptx->vout.size()) {
-            coin = Coin(ptx->vout[outpoint.n], MEMPOOL_HEIGHT, false);
+            coin = Coin(ptx->vout[outpoint.n], MEMPOOL_HEIGHT, false, false);
             return true;
         } else {
             return false;
@@ -1141,3 +1141,5 @@ bool CTxMemPool::TransactionWithinChainLimit(const uint256& txid, size_t chainLi
     return it == mapTx.end() || (it->GetCountWithAncestors() < chainLimit &&
        it->GetCountWithDescendants() < chainLimit);
 }
+
+SaltedTxidHasher::SaltedTxidHasher() : k0(GetRand(std::numeric_limits<uint64_t>::max())), k1(GetRand(std::numeric_limits<uint64_t>::max())) {}

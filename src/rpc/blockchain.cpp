@@ -1558,7 +1558,7 @@ UniValue gettxout(const JSONRPCRequest& request)
     }
     ret.push_back(Pair("value", ValueFromAmount(coin.out.nValue)));
     UniValue o(UniValue::VOBJ);
-    ScriptPubKeyToJSON(coins.vout[n].scriptPubKey, o, true);
+    ScriptPubKeyToJSON(coin.out.scriptPubKey, o, true);
     ret.push_back(Pair("scriptPubKey", o));
     ret.push_back(Pair("coinbase", (bool)coin.fCoinBase));
 

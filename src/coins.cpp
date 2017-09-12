@@ -83,11 +83,12 @@ void CCoinsViewCache::AddCoin(const COutPoint &outpoint, Coin&& coin, bool possi
 
 void AddCoins(CCoinsViewCache& cache, const CTransaction &tx, int nHeight) {
     bool fCoinbase = tx.IsCoinBase();
+    bool fCoinstake = tx.IsCoinStake();
     const uint256& txid = tx.GetHash();
     for (size_t i = 0; i < tx.vout.size(); ++i) {
         // Pass fCoinbase as the possible_overwrite flag to AddCoin, in order to correctly
         // deal with the pre-BIP30 occurrances of duplicate coinbase transactions.
-        cache.AddCoin(COutPoint(txid, i), Coin(tx.vout[i], nHeight, fCoinbase), fCoinbase);
+        cache.AddCoin(COutPoint(txid, i), Coin(tx.vout[i], nHeight, fCoinbase, fCoinstake), fCoinbase || fCoinstake);
     }
 }
 
@@ -104,6 +105,25 @@ void CCoinsViewCache::SpendCoin(const COutPoint &outpoint, Coin* moveout) {
         it->second.flags |= CCoinsCacheEntry::DIRTY;
         it->second.coin.Clear();
     }
+}
+
+double CCoinsViewCache::GetPriority(const CTransaction &tx, int nHeight, CAmount &inChainInputValue) const
+{
+    inChainInputValue = 0;
+    if (tx.IsCoinBase() || tx.IsCoinStake())
+        return 0.0;
+    double dResult = 0.0;
+    BOOST_FOREACH(const CTxIn& txin, tx.vin)
+    {
+        const Coin coin = AccessCoin(txin.prevout);
+        assert(!coin.IsSpent());
+        if (coin.IsSpent()) continue;
+        if (coin.nHeight <= nHeight) {
+            dResult += (double)(coin.out.nValue) * (nHeight-coin.nHeight);
+            inChainInputValue += coin.out.nValue;
+        }
+    }
+    return tx.ComputePriority(dResult);
 }
 
 static const Coin coinEmpty;
@@ -237,7 +257,7 @@ bool CCoinsViewCache::HaveInputs(const CTransaction& tx) const
     return true;
 }
 
-static const size_t MAX_OUTPUTS_PER_BLOCK = MAX_BLOCK_BASE_SIZE /  ::GetSerializeSize(CTxOut(), SER_NETWORK, PROTOCOL_VERSION); // TODO: merge with similar definition in undo.h.
+static const size_t MAX_OUTPUTS_PER_BLOCK = dgpMaxBlockBaseSize /  ::GetSerializeSize(CTxOut(), SER_NETWORK, PROTOCOL_VERSION); // TODO: merge with similar definition in undo.h.
 
 const Coin& AccessByTxid(const CCoinsViewCache& view, const uint256& txid)
 {
