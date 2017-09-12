@@ -442,13 +442,21 @@ bool ParameterABI::abiOut(const std::string &data, size_t &pos, std::string &val
     return true;
 }
 
-bool ParameterABI::setRegularExpession(ParameterType::Type type, QRegularExpression &regEx)
+bool ParameterABI::getRegularExpession(const ParameterType &paramType, QRegularExpression &regEx)
 {
     bool ret = false;
-    switch (type) {
+    switch (paramType.type()) {
     case ParameterType::abi_bytes:
     {
-        regEx.setPattern(paternBytes);
+        if(paramType.isDynamic())
+        {
+            regEx.setPattern(paternBytes);
+        }
+        else
+        {
+            // Expression to check the number of bytes encoded in hex (1-32)
+            regEx.setPattern(QString(paternBytes32).arg(paramType.totalBytes()*2));
+        }
         ret = true;
         break;
     }

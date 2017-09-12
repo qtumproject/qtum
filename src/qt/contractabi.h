@@ -12,6 +12,7 @@
 #define paternBool "^true$|^false$"
 #define paternHex "^[a-fA-F0-9]{1,}$"
 #define paternBytes paternHex
+#define paternBytes32 "^[a-fA-F0-9]{%1,%1}$"
 
 
 /**
@@ -136,7 +137,7 @@ public:
     bool abiIn(const std::string &value, std::string &data, std::map<int, std::string>& mapDynamic) const;
     bool abiOut(const std::string &data, size_t& pos, std::string &value) const;
     const ParameterType &decodeType() const;
-    static bool setRegularExpession(ParameterType::Type type, QRegularExpression &regEx);
+    static bool getRegularExpession(const ParameterType &paramType, QRegularExpression &regEx);
 
     std::string name; // The name of the parameter;
     std::string type; // The canonical type of the parameter.

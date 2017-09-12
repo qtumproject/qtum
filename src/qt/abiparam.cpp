@@ -19,7 +19,7 @@ ABIParam::ABIParam(int ID, const ParameterABI &param, QWidget *parent) :
     m_ParamValue->setFixedWidth(370);
 
     QRegularExpression regEx;
-    if(ParameterABI::setRegularExpession(param.decodeType().type(), regEx))
+    if(ParameterABI::getRegularExpession(param.decodeType(), regEx))
     {
         QRegularExpressionValidator *validator = new QRegularExpressionValidator(m_ParamValue);
         validator->setRegularExpression(regEx);
