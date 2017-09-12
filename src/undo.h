@@ -25,12 +25,8 @@ class TxInUndoSerializer
 public:
     template<typename Stream>
     void Serialize(Stream &s) const {
-/////////////////////////////////////////////////////////// // qtum
-        // ::Serialize(s, VARINT(nHeight*2+(fCoinBase ? 1 : 0)));
-        ::Serialize(s, VARINT(txout->nHeight));
-        ::Serialize(s, txout->fCoinBase);
-        ::Serialize(s, txout->fCoinStake);
-///////////////////////////////////////////////////////////
+        unsigned int nCode = txout->nHeight*4 + (txout->fCoinStake ? 2 : 0) + (txout->fCoinBase ? 1 : 0);
+        ::Serialize(s, VARINT(nCode));
         if (txout->nHeight > 0) {
             // Required to maintain compatibility with older undo format.
             ::Serialize(s, (unsigned char)0);
@@ -50,9 +46,9 @@ public:
     void Unserialize(Stream &s) {
         unsigned int nCode = 0;
         ::Unserialize(s, VARINT(nCode));
-        txout->nHeight = nCode / 2;
+        txout->nHeight = nCode >> 2;
         txout->fCoinBase = nCode & 1;
-        txout->fCoinStake = nCode & 16;
+        txout->fCoinStake = nCode & 2;
         if (txout->nHeight > 0) {
             // Old versions stored the version number for the last spend of
             // a transaction's outputs. Non-final spends were indicated with
