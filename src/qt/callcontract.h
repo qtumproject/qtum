@@ -24,6 +24,7 @@ public:
 
     void setClientModel(ClientModel *clientModel);
     bool isValidContractAddress();
+    bool isValidInterfaceABI();
     bool isDataValid();
 
 Q_SIGNALS:

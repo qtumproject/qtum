@@ -22,11 +22,11 @@ ABIFunctionField::ABIFunctionField(FunctionType type, QWidget *parent) :
     mainLayout->setContentsMargins(0, 0, 0, 0);
 
     QHBoxLayout *topLayout = new QHBoxLayout(this);
-    topLayout->setSpacing(30);
+    topLayout->setSpacing(10);
     topLayout->setContentsMargins(0, 0, 0, 0);
 
     m_labelFunction = new QLabel(tr("Function"));
-    m_labelFunction->setMinimumWidth(110);
+    m_labelFunction->setFixedWidth(160);
     topLayout->addWidget(m_labelFunction);
 
     topLayout->addWidget(m_comboBoxFunc);
@@ -37,6 +37,7 @@ ABIFunctionField::ABIFunctionField(FunctionType type, QWidget *parent) :
     mainLayout->addWidget(m_paramsField);
     mainLayout->addSpacerItem(new QSpacerItem(20, 40, QSizePolicy::Fixed, QSizePolicy::Expanding));
     connect(m_comboBoxFunc, SIGNAL(currentIndexChanged(int)), m_paramsField, SLOT(setCurrentIndex(int)));
+    connect(m_paramsField, SIGNAL(currentChanged(int)), this, SLOT(on_currentIndexChanged()));
 
     m_func->setVisible(false);
 }
@@ -79,6 +80,7 @@ void ABIFunctionField::updateABIFunctionField()
             bool visible = m_abiFunctionList.size() > 0;
             m_func->setVisible(visible);
         }
+        on_currentIndexChanged();
     }
 }
 
@@ -134,5 +136,18 @@ int ABIFunctionField::getSelectedFunction() const
 bool ABIFunctionField::isValid()
 {
     return ((ABIParamsField*)m_paramsField->currentWidget())->isValid();
+}
+
+void ABIFunctionField::on_currentIndexChanged()
+{
+    for (int i = 0; i < m_paramsField->count (); ++i)
+    {
+        QSizePolicy::Policy policy = QSizePolicy::Ignored;
+        if (i == m_paramsField->currentIndex())
+            policy = QSizePolicy::Expanding;
+
+        QWidget* pPage = m_paramsField->widget(i);
+        pPage->setSizePolicy(policy, policy);
+    }
 }
 

@@ -71,13 +71,22 @@
            </property>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_2">
+             <property name="leftMargin">
+              <number>12</number>
+             </property>
              <item>
               <layout class="QVBoxLayout" name="verticalLayout_6">
                <item>
                 <widget class="QLabel" name="labelBytecode">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
                  <property name="minimumSize">
                   <size>
-                   <width>70</width>
+                   <width>100</width>
                    <height>0</height>
                   </size>
                  </property>
@@ -102,40 +111,37 @@
               </layout>
              </item>
              <item>
-              <spacer name="horizontalSpacer_4">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
+              <widget class="QValidatedTextEdit" name="textEditBytecode">
+               <property name="horizontalScrollBarPolicy">
+                <enum>Qt::ScrollBarAlwaysOff</enum>
                </property>
-               <property name="sizeType">
-                <enum>QSizePolicy::Fixed</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>10</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <widget class="QTextEdit" name="textEditBytecode"/>
+              </widget>
              </item>
             </layout>
            </item>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_4">
+             <property name="leftMargin">
+              <number>12</number>
+             </property>
              <item>
               <layout class="QVBoxLayout" name="verticalLayout">
                <item>
                 <widget class="QLabel" name="labelInterface">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
                  <property name="minimumSize">
                   <size>
-                   <width>70</width>
+                   <width>100</width>
                    <height>0</height>
                   </size>
                  </property>
                  <property name="text">
-                  <string>Interface</string>
+                  <string>Interface (ABI)</string>
                  </property>
                 </widget>
                </item>
@@ -155,23 +161,11 @@
               </layout>
              </item>
              <item>
-              <spacer name="horizontalSpacer_6">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
+              <widget class="QValidatedTextEdit" name="textEditInterface">
+               <property name="horizontalScrollBarPolicy">
+                <enum>Qt::ScrollBarAlwaysOff</enum>
                </property>
-               <property name="sizeType">
-                <enum>QSizePolicy::Fixed</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>10</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <widget class="QTextEdit" name="textEditInterface"/>
+              </widget>
              </item>
             </layout>
            </item>
@@ -197,8 +191,8 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>538</width>
-                   <height>73</height>
+                   <width>591</width>
+                   <height>68</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_5"/>
@@ -221,16 +215,22 @@
                <number>15</number>
               </property>
               <property name="horizontalSpacing">
-               <number>30</number>
+               <number>10</number>
               </property>
               <property name="verticalSpacing">
                <number>6</number>
               </property>
               <item row="1" column="0">
                <widget class="QLabel" name="labelGasPrice">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="minimumSize">
                  <size>
-                  <width>110</width>
+                  <width>160</width>
                   <height>0</height>
                  </size>
                 </property>
@@ -241,9 +241,15 @@
               </item>
               <item row="0" column="0">
                <widget class="QLabel" name="labelGasLimit">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="minimumSize">
                  <size>
-                  <width>110</width>
+                  <width>160</width>
                   <height>0</height>
                  </size>
                 </property>
@@ -257,9 +263,15 @@
               </item>
               <item row="2" column="0">
                <widget class="QLabel" name="labelSenderAddress">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="minimumSize">
                  <size>
-                  <width>110</width>
+                  <width>160</width>
                   <height>0</height>
                  </size>
                 </property>
@@ -347,22 +359,14 @@
            </item>
            <item>
             <widget class="QLabel" name="labelSolidity">
+             <property name="minimumSize">
+              <size>
+               <width>80</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="text">
               <string>Solidity</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="labelContractTemplate">
-             <property name="text">
-              <string>Contract Template</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="labelGenerateBytecode">
-             <property name="text">
-              <string>Generate Bytecode</string>
              </property>
             </widget>
            </item>
@@ -400,7 +404,7 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="ContractResult" name="widgetResult" native="true"/>
+        <widget class="ContractResult" name="widgetResult"/>
        </item>
       </layout>
      </widget>
@@ -511,6 +515,12 @@
    <class>ContractResult</class>
    <extends>QStackedWidget</extends>
    <header>contractresult.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QValidatedTextEdit</class>
+   <extends>QTextEdit</extends>
+   <header>qvalidatedtextedit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

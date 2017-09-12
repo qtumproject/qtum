@@ -68,7 +68,7 @@
           <number>12</number>
          </property>
          <property name="horizontalSpacing">
-          <number>23</number>
+          <number>6</number>
          </property>
          <property name="verticalSpacing">
           <number>12</number>
@@ -84,14 +84,18 @@
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="QTextEdit" name="textEditInterface"/>
+          <widget class="QValidatedTextEdit" name="textEditInterface">
+           <property name="horizontalScrollBarPolicy">
+            <enum>Qt::ScrollBarAlwaysOff</enum>
+           </property>
+          </widget>
          </item>
          <item row="1" column="0">
           <layout class="QVBoxLayout" name="verticalLayout_2">
            <item>
             <widget class="QLabel" name="labelInterface">
              <property name="text">
-              <string>Interface</string>
+              <string>Interface (ABI)</string>
              </property>
             </widget>
            </item>
@@ -137,8 +141,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>638</width>
-               <height>73</height>
+               <width>640</width>
+               <height>68</height>
               </rect>
              </property>
             </widget>
@@ -160,7 +164,7 @@
            <number>15</number>
           </property>
           <property name="horizontalSpacing">
-           <number>30</number>
+           <number>10</number>
           </property>
           <property name="verticalSpacing">
            <number>6</number>
@@ -183,9 +187,15 @@
           </item>
           <item row="3" column="0">
            <widget class="QLabel" name="labelSenderAddress">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="minimumSize">
              <size>
-              <width>110</width>
+              <width>160</width>
               <height>0</height>
              </size>
             </property>
@@ -196,9 +206,15 @@
           </item>
           <item row="1" column="0">
            <widget class="QLabel" name="labelGasLimit">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="minimumSize">
              <size>
-              <width>110</width>
+              <width>160</width>
               <height>0</height>
              </size>
             </property>
@@ -225,9 +241,15 @@
           </item>
           <item row="2" column="0">
            <widget class="QLabel" name="labelGasPrice">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="minimumSize">
              <size>
-              <width>110</width>
+              <width>160</width>
               <height>0</height>
              </size>
             </property>
@@ -241,9 +263,15 @@
           </item>
           <item row="0" column="0">
            <widget class="QLabel" name="labelAmount">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="minimumSize">
              <size>
-              <width>110</width>
+              <width>160</width>
               <height>0</height>
              </size>
             </property>
@@ -285,7 +313,7 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="ContractResult" name="widgetResult" native="true"/>
+        <widget class="ContractResult" name="widgetResult"/>
        </item>
       </layout>
      </widget>
@@ -397,6 +425,11 @@
    <extends>QStackedWidget</extends>
    <header>contractresult.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QValidatedTextEdit</class>
+   <extends>QTextEdit</extends>
+   <header>qvalidatedtextedit.h</header>
   </customwidget>
   <customwidget>
    <class>QValidatedLineEdit</class>

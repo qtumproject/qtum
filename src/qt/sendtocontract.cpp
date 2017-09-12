@@ -115,13 +115,24 @@ bool SendToContract::isValidContractAddress()
     return ui->lineEditContractAddress->isValid();
 }
 
+bool SendToContract::isValidInterfaceABI()
+{
+    ui->textEditInterface->checkValidity();
+    return ui->textEditInterface->isValid();
+}
+
 bool SendToContract::isDataValid()
 {
     bool dataValid = true;
 
-    if(!isValidContractAddress() || !m_ABIFunctionField->isValid() || !ui->lineEditSenderAddress->isValidAddress())
+    if(!isValidContractAddress())
         dataValid = false;
-
+    if(!isValidInterfaceABI())
+        dataValid = false;
+    if(!m_ABIFunctionField->isValid())
+        dataValid = false;
+    if(!ui->lineEditSenderAddress->isValidAddress())
+        dataValid = false;
     return dataValid;
 }
 
@@ -229,6 +240,11 @@ void SendToContract::on_newContractABI()
     if(!m_contractABI->loads(json_data))
     {
         m_contractABI->clean();
+        ui->textEditInterface->setIsValidManually(false);
+    }
+    else
+    {
+        ui->textEditInterface->setIsValidManually(true);
     }
     m_ABIFunctionField->setContractABI(m_contractABI);
 

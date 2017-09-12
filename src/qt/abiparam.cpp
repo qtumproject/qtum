@@ -11,11 +11,11 @@ ABIParam::ABIParam(int ID, const ParameterABI &param, QWidget *parent) :
 {
     // Set up layout
     QHBoxLayout *mainLayout = new QHBoxLayout(this);
-    mainLayout->setSpacing(30);
+    mainLayout->setSpacing(10);
     mainLayout->setContentsMargins(0,0,0,0);
     m_ParamID = ID;
-    m_paramName->setToolTip(tr("Parameter %1").arg(ID + 1));
-    m_paramName->setMinimumWidth(110);
+    m_paramName->setToolTip(tr("Parameter %1 %2").arg(ID + 1).arg(QString::fromStdString(param.name)));
+    m_paramName->setFixedWidth(160);
     m_ParamValue->setFixedWidth(370);
 
     QRegularExpression regEx;
@@ -30,7 +30,12 @@ ABIParam::ABIParam(int ID, const ParameterABI &param, QWidget *parent) :
     mainLayout->addWidget(m_paramName);
     mainLayout->addWidget(m_ParamValue);
     mainLayout->addSpacerItem(new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Fixed));
-    m_paramName->setText(QString("%2 %1").arg(QString::fromStdString(param.name)).arg(QString::fromStdString(param.type)));
+
+    QFontMetrics metrix(m_paramName->font());
+    int width = m_paramName->width() + 10;
+    QString text(QString("%2 <b>%1").arg(QString::fromStdString(param.name)).arg(QString::fromStdString(param.type)));
+    QString clippedText = metrix.elidedText(text, Qt::ElideRight, width);
+    m_paramName->setText(clippedText);
 }
 
 QString ABIParam::getValue()

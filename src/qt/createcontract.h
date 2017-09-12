@@ -10,7 +10,6 @@ class ExecRPCCommand;
 class ABIFunctionField;
 class ContractABI;
 class TabBarInfo;
-class QRegularExpressionValidator;
 
 namespace Ui {
 class CreateContract;
@@ -27,7 +26,8 @@ public:
     void setLinkLabels();
     void setClientModel(ClientModel *clientModel);
     void setModel(WalletModel *model);
-    bool isValidBytecode(QRegularExpressionValidator *validator);
+    bool isValidBytecode();
+    bool isValidInterfaceABI();
     bool isDataValid();
 
 Q_SIGNALS:
@@ -54,7 +54,6 @@ private:
     ABIFunctionField* m_ABIFunctionField;
     ContractABI* m_contractABI;
     TabBarInfo* m_tabInfo;
-    QRegularExpressionValidator* m_bytecodeValidator;
 };
 
 #endif // CREATECONTRACT_H

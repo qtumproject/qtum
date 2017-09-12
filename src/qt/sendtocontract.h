@@ -26,6 +26,7 @@ public:
     void setClientModel(ClientModel *clientModel);
     void setModel(WalletModel *model);
     bool isValidContractAddress();
+    bool isValidInterfaceABI();
     bool isDataValid();
 
 Q_SIGNALS:

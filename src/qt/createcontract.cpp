@@ -91,8 +91,9 @@ CreateContract::CreateContract(const PlatformStyle *platformStyle, QWidget *pare
     // Set bytecode validator
     QRegularExpression regEx;
     regEx.setPattern(paternHex);
-    m_bytecodeValidator = new QRegularExpressionValidator(ui->textEditBytecode);
-    m_bytecodeValidator->setRegularExpression(regEx);
+    QRegularExpressionValidator *bytecodeValidator = new QRegularExpressionValidator(ui->textEditBytecode);
+    bytecodeValidator->setRegularExpression(regEx);
+    ui->textEditBytecode->setCheckValidator(bytecodeValidator);
 }
 
 CreateContract::~CreateContract()
@@ -104,13 +105,7 @@ CreateContract::~CreateContract()
 void CreateContract::setLinkLabels()
 {
     ui->labelSolidity->setOpenExternalLinks(true);
-    ui->labelSolidity->setText("<a href=\"https://ethereum.github.io/browser-solidity/\">Solidity</a>");
-
-    ui->labelContractTemplate->setOpenExternalLinks(true);
-    ui->labelContractTemplate->setText("<a href=\"https://www.qtum.org\">Contract Template</a>");
-
-    ui->labelGenerateBytecode->setOpenExternalLinks(true);
-    ui->labelGenerateBytecode->setText("<a href=\"https://www.qtum.org\">Generate Bytecode</a>");
+    ui->labelSolidity->setText("<a href=\"https://ethereum.github.io/browser-solidity/\">Solidity compiler</a>");
 }
 
 void CreateContract::setModel(WalletModel *_model)
@@ -118,17 +113,16 @@ void CreateContract::setModel(WalletModel *_model)
     m_model = _model;
 }
 
-bool CreateContract::isValidBytecode(QRegularExpressionValidator *validator)
+bool CreateContract::isValidBytecode()
 {
-    int pos = 0;
-    QString text = ui->textEditBytecode->toPlainText();
-    if(validator->validate(text, pos) == QValidator::Acceptable)
-    {
-        ui->textEditBytecode->setStyleSheet("");
-        return true;
-    }
-    ui->textEditBytecode->setStyleSheet(STYLE_INVALID_TEXTEDIT);
-    return false;
+    ui->textEditBytecode->checkValidity();
+    return ui->textEditBytecode->isValid();
+}
+
+bool CreateContract::isValidInterfaceABI()
+{
+    ui->textEditInterface->checkValidity();
+    return ui->textEditInterface->isValid();
 }
 
 bool CreateContract::isDataValid()
@@ -137,7 +131,13 @@ bool CreateContract::isDataValid()
     int func = m_ABIFunctionField->getSelectedFunction();
     bool funcValid = func == -1 ? true : m_ABIFunctionField->isValid();
 
-    if(!isValidBytecode(m_bytecodeValidator) || !funcValid || !ui->lineEditSenderAddress->isValidAddress())
+    if(!isValidBytecode())
+        dataValid = false;
+    if(!isValidInterfaceABI())
+        dataValid = false;
+    if(!funcValid)
+        dataValid = false;
+    if(!ui->lineEditSenderAddress->isValidAddress())
         dataValid = false;
 
     return dataValid;
@@ -244,6 +244,11 @@ void CreateContract::on_newContractABI()
     if(!m_contractABI->loads(json_data))
     {
         m_contractABI->clean();
+        ui->textEditInterface->setIsValidManually(false);
+    }
+    else
+    {
+        ui->textEditInterface->setIsValidManually(true);
     }
     m_ABIFunctionField->setContractABI(m_contractABI);
 
