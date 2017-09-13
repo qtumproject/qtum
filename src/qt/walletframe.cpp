@@ -21,7 +21,8 @@ WalletFrame::WalletFrame(const PlatformStyle *_platformStyle, BitcoinGUI *_gui) 
     QHBoxLayout *walletFrameLayout = new QHBoxLayout(this);
     setContentsMargins(0,0,0,0);
     walletStack = new QStackedWidget(this);
-    walletStack->setStyleSheet(".QStackedWidget {border: 1px solid #c4c1bd;}");
+    walletStack->setObjectName("walletStack");
+    walletStack->setStyleSheet("#walletStack {border: 1px solid #c4c1bd;}");
     walletFrameLayout->setContentsMargins(0,0,0,0);
     walletFrameLayout->addWidget(walletStack);
 
@@ -59,6 +60,8 @@ bool WalletFrame::addWallet(const QString& name, WalletModel *walletModel)
     connect(walletView, SIGNAL(showNormalIfMinimized()), gui, SLOT(showNormalIfMinimized()));
 
     connect(walletView, SIGNAL(outOfSyncWarningClicked()), this, SLOT(outOfSyncWarningClicked()));
+
+    connect(walletView, SIGNAL(currentChanged(int)), this, SLOT(pageChanged(int)));
 
     return true;
 }
@@ -232,4 +235,19 @@ WalletView *WalletFrame::currentWalletView()
 void WalletFrame::outOfSyncWarningClicked()
 {
     Q_EMIT requestedSyncWarningInfo();
+}
+
+void WalletFrame::pageChanged(int index)
+{
+    QObject* obj = sender();
+    if(obj->inherits("WalletView"))
+    {
+        WalletView* walletView = (WalletView*)obj;
+        if(walletView->count() > index)
+        {
+            QWidget* currentPage = walletView->widget(index);
+            QObject* info = currentPage->findChild<QObject *>("appTabBarInfo");
+            gui->setTabBarInfo(info);
+        }
+    }
 }

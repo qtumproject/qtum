@@ -9,7 +9,9 @@ static const int ToolButtonWidth = 150;
 static const int ToolButtonHeight = 54;
 static const int ToolButtonIconSize = 32;
 static const int MarginLeft = 6;
-static const int MarginTop = 0;
+static const int MarginRight = 3;
+static const int MarginTop = 2;
+static const int MarginBottom = 9;
 }
 using namespace NavigationBar_NS;
 
@@ -59,7 +61,8 @@ void NavigationBar::buildUi()
         int defButtonHeight = m_subBar ? ToolButtonHeight / 2 : ToolButtonHeight;
         vboxLayout->setContentsMargins(m_subBar ? defButtonWidth : MarginLeft,
                                        m_subBar ? 0 : MarginTop,
-                                       0, 0);
+                                       m_subBar ? 0 : MarginRight,
+                                       m_subBar ? 0 : MarginBottom);
         vboxLayout->setSpacing(MarginLeft / 2);
 
         // List all actions
@@ -140,6 +143,12 @@ void NavigationBar::setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle)
 {
     // Set the tool button style
     m_toolStyle = toolButtonStyle;
+}
+
+void NavigationBar::resizeEvent(QResizeEvent *evt)
+{
+    QWidget::resizeEvent(evt);
+    Q_EMIT resized(size());
 }
 
 void NavigationBar::mapGroup(QAction *action, QList<QAction *> list)

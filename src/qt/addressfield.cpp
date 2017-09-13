@@ -6,6 +6,8 @@
 #include "wallet/wallet.h"
 #include "validation.h"
 #include "base58.h"
+#include "qvalidatedlineedit.h"
+#include "bitcoinaddressvalidator.h"
 #include <boost/foreach.hpp>
 #include <QLineEdit>
 #include <QCompleter>
@@ -16,6 +18,11 @@ AddressField::AddressField(QWidget *parent) :
     QComboBox(parent),
     m_addressType(AddressField::UTXO)
 {
+
+    QValidatedLineEdit *validatedLineEdit = new QValidatedLineEdit(this);
+    validatedLineEdit->setCheckValidator(new BitcoinAddressCheckValidator(parent));
+    this->setLineEdit(validatedLineEdit);
+
     connect(this, SIGNAL(addressTypeChanged(AddressType)), SLOT(on_addressTypeChanged()));
     setEditable(true);
     completer()->setCompletionMode(QCompleter::PopupCompletion);
@@ -33,6 +40,12 @@ QString AddressField::currentText() const
         return QString();
 
     return itemText(index);
+}
+
+bool AddressField::isValidAddress()
+{
+    ((QValidatedLineEdit*)lineEdit())->checkValidity();
+    return ((QValidatedLineEdit*)lineEdit())->isValid();
 }
 
 void AddressField::on_refresh()

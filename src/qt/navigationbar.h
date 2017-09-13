@@ -5,6 +5,7 @@
 #include <QAction>
 #include <QList>
 #include <QMap>
+#include <QSize>
 
 /**
  * @brief The NavigationBar class Custom control for navigation bar
@@ -55,6 +56,10 @@ public:
     void buildUi();
 
 Q_SIGNALS:
+    /**
+     * @brief resized Signal that the size is changed
+     */
+    void resized(const QSize&);
 
 public Q_SLOTS:
     /**
@@ -67,6 +72,9 @@ public Q_SLOTS:
      * @param toolButtonStyle Tool button style
      */
     void setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle);
+
+protected:
+    void resizeEvent(QResizeEvent * evt);
 
 private:
 

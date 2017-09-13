@@ -2,27 +2,30 @@
 #include "ui_titlebar.h"
 #include "bitcoinunits.h"
 #include "optionsmodel.h"
+#include "tabbarinfo.h"
 
 #include <QPixmap>
 
 namespace TitleBar_NS {
-const int titleBarHeight = 32;
+const int logoWidth = 135;
 }
 using namespace TitleBar_NS;
 
 TitleBar::TitleBar(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::TitleBar)
+    ui(new Ui::TitleBar),
+    m_tab(0)
 {
     ui->setupUi(this);
     // Set the logo
-    QPixmap logo = QPixmap(":/icons/bitcoin").scaledToHeight(titleBarHeight, Qt::SmoothTransformation);
+    QPixmap logo = QPixmap(":/icons/logo").scaledToWidth(logoWidth, Qt::SmoothTransformation);
     ui->lblLogo->setPixmap(logo);
     ui->lblLogo->setFixedSize(logo.size());
     // Hide the fiat balance label
     ui->lblFiatBalance->hide();
     // Set size policy
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    ui->tabWidget->setDrawBase(false);
 }
 
 TitleBar::~TitleBar()
@@ -40,6 +43,21 @@ void TitleBar::setModel(WalletModel *_model)
     connect(model, SIGNAL(balanceChanged(CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount)), this, SLOT(setBalance(CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount)));
 }
 
+void TitleBar::setTabBarInfo(QObject *info)
+{
+    if(m_tab)
+    {
+        m_tab->detach();
+    }
+
+    if(info && info->inherits("TabBarInfo"))
+    {
+        TabBarInfo* tab = (TabBarInfo*)info;
+        m_tab = tab;
+        m_tab->attach(ui->tabWidget);
+    }
+}
+
 void TitleBar::setBalance(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& immatureBalance, const CAmount& stake,
                                  const CAmount& watchBalance, const CAmount& watchUnconfirmedBalance, const CAmount& watchImmatureBalance, const CAmount& watchStake)
 {
@@ -55,4 +73,9 @@ void TitleBar::setBalance(const CAmount& balance, const CAmount& unconfirmedBala
     {
         ui->lblBalance->setText(BitcoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), balance));
     }
+}
+
+void TitleBar::on_navigationResized(const QSize &_size)
+{
+    ui->widgetLogo->setMaximumWidth(_size.width());
 }

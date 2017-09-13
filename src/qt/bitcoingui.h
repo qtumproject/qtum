@@ -31,6 +31,7 @@ class WalletModel;
 class HelpMessageDialog;
 class ModalOverlay;
 class TitleBar;
+class NavigationBar;
 
 class CWallet;
 
@@ -96,6 +97,7 @@ private:
 
     QMenuBar *appMenuBar;
     TitleBar *appTitleBar;
+    NavigationBar *appNavigationBar;
     QAction *overviewAction;
     QAction *historyAction;
     QAction *quitAction;
@@ -208,6 +210,8 @@ public Q_SLOTS:
     /** Show incoming transaction notification for new transactions. */
     void incomingTransaction(const QString& date, int unit, const CAmount& amount, const QString& type, const QString& address, const QString& label);
 #endif // ENABLE_WALLET
+
+    void setTabBarInfo(QObject* into);
 
 private Q_SLOTS:
 #ifdef ENABLE_WALLET

@@ -7,6 +7,9 @@ class PlatformStyle;
 class WalletModel;
 class ClientModel;
 class ExecRPCCommand;
+class ABIFunctionField;
+class ContractABI;
+class TabBarInfo;
 
 namespace Ui {
 class SendToContract;
@@ -22,6 +25,9 @@ public:
 
     void setClientModel(ClientModel *clientModel);
     void setModel(WalletModel *model);
+    bool isValidContractAddress();
+    bool isValidInterfaceABI();
+    bool isDataValid();
 
 Q_SIGNALS:
 
@@ -30,12 +36,19 @@ public Q_SLOTS:
     void on_sendToContract_clicked();
     void on_numBlocksChanged();
     void on_updateSendToContractButton();
+    void on_newContractABI();
+
+private:
+    QString toDataHex(int func, QString& errorMessage);
 
 private:
     Ui::SendToContract *ui;
     WalletModel* m_model;
     ClientModel* m_clientModel;
     ExecRPCCommand* m_execRPCCommand;
+    ABIFunctionField* m_ABIFunctionField;
+    ContractABI* m_contractABI;
+    TabBarInfo* m_tabInfo;
 };
 
 #endif // SENDTOCONTRACT_H
