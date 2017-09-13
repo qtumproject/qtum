@@ -177,6 +177,13 @@ uint256 GetRandHash()
     return hash;
 }
 
+void FastRandomContext::RandomSeed()
+{
+    uint256 seed = GetRandHash();
+    rng.SetKey(seed.begin(), 32);
+    requires_seed = false;
+}
+
 FastRandomContext::FastRandomContext(bool fDeterministic)
 {
     // The seed values have some unlikely fixed points which we avoid.
