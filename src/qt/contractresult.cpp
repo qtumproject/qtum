@@ -141,13 +141,13 @@ void ContractResult::updateCallResult(QVariant result, FunctionABI function, QSt
     std::vector<ParameterABI::ErrorType> errors;
     if(function.abiOut(rawData, values, errors))
     {
+        // Remove previous widget from scroll area
+        QWidget *scrollWidget = ui->scrollAreaResult->widget();
+        if(scrollWidget)
+            scrollWidget->deleteLater();
+
         if(values.size() > 0)
         {
-            // Remove previous widget from scroll area
-            QWidget *scrollWidget = ui->scrollAreaResult->widget();
-            if(scrollWidget)
-                scrollWidget->deleteLater();
-
             QWidget *widgetResults = new QWidget(this);
             QVBoxLayout *vLayout = new QVBoxLayout(widgetResults);
             vLayout->setSpacing(6);
@@ -182,6 +182,11 @@ void ContractResult::updateCallResult(QVariant result, FunctionABI function, QSt
             widgetResults->adjustSize();
             ui->scrollAreaResult->setMaximumHeight(widgetResults->sizeHint().height() + 2);
             ui->scrollAreaResult->setWidget(widgetResults);
+            ui->groupBoxResult->setVisible(true);
+        }
+        else
+        {
+            ui->groupBoxResult->setVisible(false);
         }
     }
     else
