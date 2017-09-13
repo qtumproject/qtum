@@ -837,7 +837,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
         bool fSpendsCoinbase = false;
         BOOST_FOREACH(const CTxIn &txin, tx.vin) {
             const Coin &coin = view.AccessCoin(txin.prevout);
-            if (coin.IsCoinBase()) {
+            if (coin.IsCoinBase() || coin.IsCoinStake()) {
                 fSpendsCoinbase = true;
                 break;
             }
