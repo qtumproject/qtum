@@ -68,7 +68,7 @@
           <number>12</number>
          </property>
          <property name="horizontalSpacing">
-          <number>6</number>
+          <number>15</number>
          </property>
          <property name="verticalSpacing">
           <number>12</number>
@@ -138,8 +138,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>640</width>
-               <height>68</height>
+               <width>638</width>
+               <height>73</height>
               </rect>
              </property>
             </widget>

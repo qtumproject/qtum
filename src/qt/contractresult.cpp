@@ -14,6 +14,7 @@ ContractResult::ContractResult(QWidget *parent) :
     ui->groupBoxCreateOrSendTo->setStyleSheet(STYLE_GROUPBOX);
 
     ui->scrollAreaParams->setStyleSheet(".QScrollArea { border: none;}");
+    ui->scrollAreaResult->setStyleSheet(".QScrollArea { border: none;}");
 }
 
 ContractResult::~ContractResult()
@@ -46,19 +47,13 @@ void ContractResult::setResultData(QVariant result, FunctionABI function, QStrin
 
 void ContractResult::setParamsData(FunctionABI function, QStringList paramValues)
 {
-    QStringList paramNames;
-    for(std::vector<ParameterABI>::const_iterator param = function.inputs.begin(); param != function.inputs.end(); ++param)
-    {
-        paramNames.append(QString::fromStdString(param->name));
-    }
-
     // Remove previous widget from scroll area
     QWidget *scrollWidget = ui->scrollAreaParams->widget();
-        if(scrollWidget)
-            scrollWidget->deleteLater();
+    if(scrollWidget)
+        scrollWidget->deleteLater();
 
     // Don't show empty list
-    if(paramNames.isEmpty())
+    if(function.inputs.size() == 0)
     {
         ui->scrollAreaParams->setVisible(false);
         return;
@@ -71,25 +66,38 @@ void ContractResult::setParamsData(FunctionABI function, QStringList paramValues
     widgetParams->setLayout(vLayout);
 
     // Add rows with params and values sent
-    for(int i = 0; i < paramNames.count(); i++)
+    int i = 0;
+    for(std::vector<ParameterABI>::const_iterator param = function.inputs.begin(); param != function.inputs.end(); ++param)
     {
+
         QHBoxLayout *hLayout = new QHBoxLayout();
-        hLayout->setSpacing(30);
+        hLayout->setSpacing(10);
         hLayout->setContentsMargins(0,0,0,0);
 
         QLabel *paramName = new QLabel(this);
         QLineEdit *paramValue = new QLineEdit(this);
         paramValue->setReadOnly(true);
-        paramName->setMinimumWidth(110);
-        paramName->setText(paramNames[i]);
+        paramName->setFixedWidth(160);
+
+        QFontMetrics metrix(paramName->font());
+        int width = paramName->width() + 10;
+        QString text(QString("%2 <b>%1").arg(QString::fromStdString(param->name)).arg(QString::fromStdString(param->type)));
+        QString clippedText = metrix.elidedText(text, Qt::ElideRight, width);
+
+        paramName->setToolTip(QString("%2 %1").arg(QString::fromStdString(param->name)).arg(QString::fromStdString(param->type)));
+        paramName->setText(clippedText);
         paramValue->setText(paramValues[i]);
 
         hLayout->addWidget(paramName);
         hLayout->addWidget(paramValue);
 
         vLayout->addLayout(hLayout);
+        i++;
     }
+    widgetParams->adjustSize();
+    ui->scrollAreaParams->setMaximumHeight(widgetParams->sizeHint().height() + 2);
     ui->scrollAreaParams->setWidget(widgetParams);
+    ui->scrollAreaParams->setVisible(true);
 }
 
 void ContractResult::updateCreateResult(QVariant result)
@@ -135,7 +143,45 @@ void ContractResult::updateCallResult(QVariant result, FunctionABI function, QSt
     {
         if(values.size() > 0)
         {
-            ui->lineEditResult->setText(QString::fromStdString(values[0]));
+            // Remove previous widget from scroll area
+            QWidget *scrollWidget = ui->scrollAreaResult->widget();
+            if(scrollWidget)
+                scrollWidget->deleteLater();
+
+            QWidget *widgetResults = new QWidget(this);
+            QVBoxLayout *vLayout = new QVBoxLayout(widgetResults);
+            vLayout->setSpacing(30);
+            vLayout->setContentsMargins(0,6,0,6);
+            widgetResults->setLayout(vLayout);
+
+            for(size_t i = 0; i < values.size(); i++)
+            {
+                QHBoxLayout *hLayout = new QHBoxLayout();
+                hLayout->setSpacing(10);
+                hLayout->setContentsMargins(0,0,0,0);
+
+                QLabel *resultName = new QLabel(this);
+                QLineEdit *resultValue = new QLineEdit(this);
+                resultValue->setReadOnly(true);
+                resultName->setFixedWidth(160);
+
+                QFontMetrics metrix(resultName->font());
+                int width = resultName->width() + 10;
+                QString text(QString("%2 <b>%1").arg(QString::fromStdString(function.outputs[i].name)).arg(QString::fromStdString(function.outputs[i].type)));
+                QString clippedText = metrix.elidedText(text, Qt::ElideRight, width);
+
+                resultName->setText(clippedText);
+                resultName->setToolTip(QString("%2 %1").arg(QString::fromStdString(function.outputs[i].name)).arg(QString::fromStdString(function.outputs[i].type)));
+                resultValue->setText(QString::fromStdString(values[i]));
+
+                hLayout->addWidget(resultName);
+                hLayout->addWidget(resultValue);
+
+                vLayout->addLayout(hLayout);
+            }
+            widgetResults->adjustSize();
+            ui->scrollAreaResult->setMaximumHeight(widgetResults->sizeHint().height() + 2);
+            ui->scrollAreaResult->setWidget(widgetResults);
         }
     }
     else
