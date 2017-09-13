@@ -150,7 +150,7 @@ void ContractResult::updateCallResult(QVariant result, FunctionABI function, QSt
 
             QWidget *widgetResults = new QWidget(this);
             QVBoxLayout *vLayout = new QVBoxLayout(widgetResults);
-            vLayout->setSpacing(30);
+            vLayout->setSpacing(6);
             vLayout->setContentsMargins(0,6,0,6);
             widgetResults->setLayout(vLayout);
 
