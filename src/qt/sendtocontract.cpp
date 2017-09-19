@@ -190,9 +190,9 @@ void SendToContract::on_sendToContract_clicked()
         // Append params to the list
         ExecRPCCommand::appendParam(lstParams, PARAM_ADDRESS, ui->lineEditContractAddress->text());
         ExecRPCCommand::appendParam(lstParams, PARAM_DATAHEX, toDataHex(func, errorMessage));
-        ExecRPCCommand::appendParam(lstParams, PARAM_AMOUNT, BitcoinUnits::format(unit, ui->lineEditAmount->value()));
+        ExecRPCCommand::appendParam(lstParams, PARAM_AMOUNT, BitcoinUnits::format(unit, ui->lineEditAmount->value(), false, BitcoinUnits::separatorNever));
         ExecRPCCommand::appendParam(lstParams, PARAM_GASLIMIT, QString::number(gasLimit));
-        ExecRPCCommand::appendParam(lstParams, PARAM_GASPRICE, BitcoinUnits::format(unit, gasPrice));
+        ExecRPCCommand::appendParam(lstParams, PARAM_GASPRICE, BitcoinUnits::format(unit, gasPrice, false, BitcoinUnits::separatorNever));
         ExecRPCCommand::appendParam(lstParams, PARAM_SENDER, ui->lineEditSenderAddress->currentText());
 
         // Execute RPC command line

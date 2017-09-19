@@ -197,7 +197,7 @@ void CreateContract::on_createContract_clicked()
         QString bytecode = ui->textEditBytecode->toPlainText() + toDataHex(func, errorMessage);
         ExecRPCCommand::appendParam(lstParams, PARAM_BYTECODE, bytecode);
         ExecRPCCommand::appendParam(lstParams, PARAM_GASLIMIT, QString::number(gasLimit));
-        ExecRPCCommand::appendParam(lstParams, PARAM_GASPRICE, BitcoinUnits::format(unit, gasPrice));
+        ExecRPCCommand::appendParam(lstParams, PARAM_GASPRICE, BitcoinUnits::format(unit, gasPrice, false, BitcoinUnits::separatorNever));
         ExecRPCCommand::appendParam(lstParams, PARAM_SENDER, ui->lineEditSenderAddress->currentText());
 
         // Execute RPC command line
