@@ -14,9 +14,8 @@ ABIParam::ABIParam(int ID, const ParameterABI &param, QWidget *parent) :
     mainLayout->setSpacing(10);
     mainLayout->setContentsMargins(0,0,0,0);
     m_ParamID = ID;
-    m_paramName->setToolTip(tr("Parameter %1 %2").arg(ID + 1).arg(QString::fromStdString(param.name)));
+    m_paramName->setToolTip(tr("%1 %2").arg(QString::fromStdString(param.type)).arg(QString::fromStdString(param.name)));
     m_paramName->setFixedWidth(160);
-    m_ParamValue->setFixedWidth(370);
 
     QRegularExpression regEx;
     if(ParameterABI::getRegularExpession(param.decodeType(), regEx))
@@ -29,7 +28,7 @@ ABIParam::ABIParam(int ID, const ParameterABI &param, QWidget *parent) :
 
     mainLayout->addWidget(m_paramName);
     mainLayout->addWidget(m_ParamValue);
-    mainLayout->addSpacerItem(new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Fixed));
+    mainLayout->addSpacerItem(new QSpacerItem(10, 20, QSizePolicy::Fixed, QSizePolicy::Fixed));
 
     QFontMetrics metrix(m_paramName->font());
     int width = m_paramName->width() + 10;

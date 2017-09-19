@@ -6,8 +6,8 @@
 #include <QRegularExpression>
 #include <QStringList>
 
-#define paternUint "^[0-9]{1,}$"
-#define paternInt "^\\-{0,1}[0-9]{1,}$"
+#define paternUint "^[0-9]{1,77}$"
+#define paternInt "^\\-{0,1}[0-9]{1,76}$"
 #define paternAddress "^[a-fA-F0-9]{40,40}$"
 #define paternBool "^true$|^false$"
 #define paternHex "^[a-fA-F0-9]{1,}$"
