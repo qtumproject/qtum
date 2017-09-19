@@ -155,5 +155,6 @@ void ABIFunctionField::on_currentIndexChanged()
         QWidget* pPage = m_paramsField->widget(i);
         pPage->setSizePolicy(policy, policy);
     }
+    Q_EMIT(functionChanged());
 }
 

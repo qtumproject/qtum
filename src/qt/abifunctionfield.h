@@ -69,6 +69,7 @@ public:
     bool isValid();
 
 Q_SIGNALS:
+    void functionChanged();
 
 public Q_SLOTS:
     void on_currentIndexChanged();
