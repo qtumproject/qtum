@@ -21,14 +21,14 @@ public:
     };
     explicit ContractResult(QWidget *parent = 0);
     ~ContractResult();
-    void setResultData(QVariant result, FunctionABI function, QStringList paramValues, ContractTxType type);
+    void setResultData(QVariant result, FunctionABI function, QList<QStringList> paramValues, ContractTxType type);
 
 private:
     Ui::ContractResult *ui;
-    void setParamsData(FunctionABI function, QStringList paramValues);
+    void setParamsData(FunctionABI function, QList<QStringList> paramValues);
     void updateCreateResult(QVariant result);
     void updateSendToResult(QVariant result);
-    void updateCallResult(QVariant result, FunctionABI function, QStringList paramValues);
+    void updateCallResult(QVariant result, FunctionABI function, QList<QStringList> paramValues);
 };
 
 #endif // CONTRACTRESULT_H

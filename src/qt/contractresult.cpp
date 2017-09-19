@@ -22,7 +22,7 @@ ContractResult::~ContractResult()
     delete ui;
 }
 
-void ContractResult::setResultData(QVariant result, FunctionABI function, QStringList paramValues, ContractTxType type)
+void ContractResult::setResultData(QVariant result, FunctionABI function, QList<QStringList> paramValues, ContractTxType type)
 {
     switch (type) {
     case CreateResult:
@@ -45,7 +45,7 @@ void ContractResult::setResultData(QVariant result, FunctionABI function, QStrin
     }
 }
 
-void ContractResult::setParamsData(FunctionABI function, QStringList paramValues)
+void ContractResult::setParamsData(FunctionABI function, QList<QStringList> paramValues)
 {
     // Remove previous widget from scroll area
     QWidget *scrollWidget = ui->scrollAreaParams->widget();
@@ -86,7 +86,7 @@ void ContractResult::setParamsData(FunctionABI function, QStringList paramValues
 
         paramName->setToolTip(QString("%2 %1").arg(QString::fromStdString(param->name)).arg(QString::fromStdString(param->type)));
         paramName->setText(clippedText);
-        paramValue->setText(paramValues[i]);
+        paramValue->setText(paramValues[i][0]);
 
         hLayout->addWidget(paramName);
         hLayout->addWidget(paramValue);
@@ -125,7 +125,7 @@ void ContractResult::updateSendToResult(QVariant result)
     ui->lineEditHash160->setText(variantMap.value("hash160").toString());
 }
 
-void ContractResult::updateCallResult(QVariant result, FunctionABI function, QStringList paramValues)
+void ContractResult::updateCallResult(QVariant result, FunctionABI function, QList<QStringList> paramValues)
 {
     QVariantMap variantMap = result.toMap();
     QVariantMap executionResultMap = variantMap.value("executionResult").toMap();

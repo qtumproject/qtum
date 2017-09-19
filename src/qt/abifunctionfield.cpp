@@ -1,13 +1,14 @@
 #include "abifunctionfield.h"
 #include "abiparamsfield.h"
 #include "contractabi.h"
+#include "platformstyle.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QStringListModel>
 
 #include <iostream>
-ABIFunctionField::ABIFunctionField(FunctionType type, QWidget *parent) :
+ABIFunctionField::ABIFunctionField(const PlatformStyle *platformStyle, FunctionType type, QWidget *parent) :
     QWidget(parent),
     m_contractABI(0),
     m_func(new QWidget(this)),
@@ -15,10 +16,11 @@ ABIFunctionField::ABIFunctionField(FunctionType type, QWidget *parent) :
     m_paramsField(new QStackedWidget(this)),
     m_functionType(type)
 {
+    m_platformStyle = platformStyle;
     // Setup layouts
     m_comboBoxFunc->setFixedWidth(370);
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
-    mainLayout->setSpacing(12);
+    mainLayout->setSpacing(10);
     mainLayout->setContentsMargins(0, 0, 0, 0);
 
     QHBoxLayout *topLayout = new QHBoxLayout(this);
@@ -62,7 +64,7 @@ void ABIFunctionField::updateABIFunctionField()
                 continue;
             }
 
-            ABIParamsField *abiParamsField = new ABIParamsField(this);
+            ABIParamsField *abiParamsField = new ABIParamsField(m_platformStyle, this);
             abiParamsField->updateParamsField(function);
 
             m_paramsField->addWidget(abiParamsField);
@@ -102,23 +104,23 @@ void ABIFunctionField::setContractABI(ContractABI *contractABI)
     updateABIFunctionField();
 }
 
-QString ABIFunctionField::getParamValue(int paramID)
+QStringList ABIFunctionField::getParamValue(int paramID)
 {
     return ((ABIParamsField*)m_paramsField->currentWidget())->getParamValue(paramID);
 }
 
-QStringList ABIFunctionField::getParamsValues()
+QList<QStringList> ABIFunctionField::getParamsValues()
 {
     return ((ABIParamsField*)m_paramsField->currentWidget())->getParamsValues();
 }
 
 std::vector<std::string> ABIFunctionField::getValuesVector()
 {
-    QStringList qlist = getParamsValues();
-    std::vector<std::string> result(qlist.size());
+    QList<QStringList> qlist = getParamsValues();
+    std::vector<std::string> result;
     for (int i=0; i<qlist.size(); i++)
     {
-      result[i] = qlist.at(i).toUtf8().data();
+      result.push_back(qlist.at(i).toUtf8().data());
     }
     return result;
 }

@@ -48,7 +48,7 @@ CreateContract::CreateContract(const PlatformStyle *platformStyle, QWidget *pare
     ui->groupBoxConstructor->setStyleSheet(STYLE_GROUPBOX);
     ui->scrollAreaConstructor->setStyleSheet(".QScrollArea {border: none;}");
     setLinkLabels();
-    m_ABIFunctionField = new ABIFunctionField(ABIFunctionField::Constructor, ui->scrollAreaConstructor);
+    m_ABIFunctionField = new ABIFunctionField(platformStyle, ABIFunctionField::Constructor, ui->scrollAreaConstructor);
     ui->scrollAreaConstructor->setWidget(m_ABIFunctionField);
     ui->labelBytecode->setToolTip(tr("The bytecode of the contract"));
     ui->labelSenderAddress->setToolTip(tr("The quantum address that will be used to create the contract."));
@@ -197,7 +197,7 @@ void CreateContract::on_createContract_clicked()
         // Execute RPC command line
         if(errorMessage.isEmpty() && m_execRPCCommand->exec(lstParams, result, resultJson, errorMessage))
         {
-            ui->widgetResult->setResultData(result, FunctionABI(), QStringList(), ContractResult::CreateResult);
+            ui->widgetResult->setResultData(result, FunctionABI(), QList<QStringList>(), ContractResult::CreateResult);
             m_tabInfo->setTabVisible(1, true);
             m_tabInfo->setCurrent(1);
         }
