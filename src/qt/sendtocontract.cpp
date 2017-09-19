@@ -13,6 +13,7 @@
 #include "abifunctionfield.h"
 #include "contractabi.h"
 #include "tabbarinfo.h"
+#include "contractresult.h"
 
 namespace SendToContract_NS
 {
@@ -54,8 +55,6 @@ SendToContract::SendToContract(const PlatformStyle *platformStyle, QWidget *pare
 
     m_tabInfo = new TabBarInfo(ui->stackedWidget);
     m_tabInfo->addTab(0, tr("SendToContract"));
-    m_tabInfo->addTab(1, tr("Result"));
-    m_tabInfo->setTabVisible(1, false);
 
     // Set defaults
     ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
@@ -155,7 +154,14 @@ void SendToContract::on_clearAll_clicked()
     ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
     ui->lineEditSenderAddress->setCurrentIndex(-1);
     ui->textEditInterface->clear();
-    m_tabInfo->setTabVisible(1, false);
+
+    for(int i = ui->stackedWidget->count() - 1; i > 0; i--)
+    {
+        QWidget* widget = ui->stackedWidget->widget(i);
+        ui->stackedWidget->removeWidget(widget);
+        widget->deleteLater();
+        m_tabInfo->removeTab(i);
+    }
     m_tabInfo->setCurrent(0);
 }
 
@@ -192,9 +198,13 @@ void SendToContract::on_sendToContract_clicked()
         // Execute RPC command line
         if(errorMessage.isEmpty() && m_execRPCCommand->exec(lstParams, result, resultJson, errorMessage))
         {
-            ui->widgetResult->setResultData(result, m_contractABI->functions[func], m_ABIFunctionField->getParamsValues(), ContractResult::SendToResult);
-            m_tabInfo->setTabVisible(1, true);
-            m_tabInfo->setCurrent(1);
+            ContractResult *widgetResult = new ContractResult(ui->stackedWidget);
+            widgetResult->setResultData(result, FunctionABI(), m_ABIFunctionField->getParamsValues(), ContractResult::SendToResult);
+            ui->stackedWidget->addWidget(widgetResult);
+            int position = ui->stackedWidget->count() - 1;
+
+            m_tabInfo->addTab(position, tr("Result %1").arg(position));
+            m_tabInfo->setCurrent(position);
         }
         else
         {

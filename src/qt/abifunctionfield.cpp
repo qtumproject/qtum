@@ -120,7 +120,11 @@ std::vector<std::string> ABIFunctionField::getValuesVector()
     std::vector<std::string> result;
     for (int i=0; i<qlist.size(); i++)
     {
-      result.push_back(qlist.at(i).toUtf8().data());
+        QStringList qlistVlaues = qlist[i];
+        for(int j=0; j<qlistVlaues.size(); j++)
+        {
+            result.push_back(qlistVlaues.at(j).toUtf8().data());
+        }
     }
     return result;
 }

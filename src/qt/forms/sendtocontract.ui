@@ -141,8 +141,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>638</width>
-               <height>73</height>
+               <width>640</width>
+               <height>68</height>
               </rect>
              </property>
             </widget>
@@ -298,25 +298,6 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="resultPage">
-      <layout class="QVBoxLayout" name="verticalLayout_5">
-       <property name="leftMargin">
-        <number>0</number>
-       </property>
-       <property name="topMargin">
-        <number>0</number>
-       </property>
-       <property name="rightMargin">
-        <number>0</number>
-       </property>
-       <property name="bottomMargin">
-        <number>0</number>
-       </property>
-       <item>
-        <widget class="ContractResult" name="widgetResult"/>
-       </item>
-      </layout>
-     </widget>
     </widget>
    </item>
    <item>
@@ -419,12 +400,6 @@
    <class>AddressField</class>
    <extends>QComboBox</extends>
    <header>addressfield.h</header>
-  </customwidget>
-  <customwidget>
-   <class>ContractResult</class>
-   <extends>QStackedWidget</extends>
-   <header>contractresult.h</header>
-   <container>1</container>
   </customwidget>
   <customwidget>
    <class>QValidatedTextEdit</class>

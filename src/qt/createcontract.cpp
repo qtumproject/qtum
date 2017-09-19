@@ -14,6 +14,7 @@
 #include "abifunctionfield.h"
 #include "contractabi.h"
 #include "tabbarinfo.h"
+#include "contractresult.h"
 
 #include <QRegularExpressionValidator>
 
@@ -55,8 +56,6 @@ CreateContract::CreateContract(const PlatformStyle *platformStyle, QWidget *pare
 
     m_tabInfo = new TabBarInfo(ui->stackedWidget);
     m_tabInfo->addTab(0, tr("CreateContract"));
-    m_tabInfo->addTab(1, tr("Result"));
-    m_tabInfo->setTabVisible(1, false);
 
     // Set defaults
     ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
@@ -161,7 +160,14 @@ void CreateContract::on_clearAll_clicked()
     ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
     ui->lineEditSenderAddress->setCurrentIndex(-1);
     ui->textEditInterface->clear();
-    m_tabInfo->setTabVisible(1, false);
+
+    for(int i = ui->stackedWidget->count() - 1; i > 0; i--)
+    {
+        QWidget* widget = ui->stackedWidget->widget(i);
+        ui->stackedWidget->removeWidget(widget);
+        widget->deleteLater();
+        m_tabInfo->removeTab(i);
+    }
     m_tabInfo->setCurrent(0);
 }
 
@@ -197,9 +203,13 @@ void CreateContract::on_createContract_clicked()
         // Execute RPC command line
         if(errorMessage.isEmpty() && m_execRPCCommand->exec(lstParams, result, resultJson, errorMessage))
         {
-            ui->widgetResult->setResultData(result, FunctionABI(), QList<QStringList>(), ContractResult::CreateResult);
-            m_tabInfo->setTabVisible(1, true);
-            m_tabInfo->setCurrent(1);
+            ContractResult *widgetResult = new ContractResult(ui->stackedWidget);
+            widgetResult->setResultData(result, FunctionABI(), QList<QStringList>(), ContractResult::CreateResult);
+            ui->stackedWidget->addWidget(widgetResult);
+            int position = ui->stackedWidget->count() - 1;
+
+            m_tabInfo->addTab(position, tr("Result %1").arg(position));
+            m_tabInfo->setCurrent(position);
         }
         else
         {
@@ -275,9 +285,4 @@ QString CreateContract::toDataHex(int func, QString& errorMessage)
         errorMessage = function.errorMessage(errors, true);
     }
     return "";
-}
-
-void CreateContract::on_textEditBytecode_textChanged()
-{
-    ui->textEditBytecode->setStyleSheet("");
 }
