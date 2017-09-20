@@ -212,7 +212,7 @@ QString CallContract::toDataHex(int func, QString& errorMessage)
     }
 
     std::string strData;
-    std::vector<std::string> values = m_ABIFunctionField->getValuesVector();
+    std::vector<std::vector<std::string>> values = m_ABIFunctionField->getValuesVector();
     FunctionABI function = m_contractABI->functions[func];
     std::vector<ParameterABI::ErrorType> errors;
 

@@ -56,9 +56,11 @@ public:
 
     /**
      * @brief getValuesVector Get params values vector
+     * List of all parameters that can be sent to a function.
+     * The parameter can be single value or list.
      * @return Values of the parameters
      */
-    std::vector<std::string> getValuesVector();
+    std::vector<std::vector<std::string>> getValuesVector();
 
     /**
      * @brief getSelectedFunction Get the ABI for the selected function from the contract

@@ -137,7 +137,7 @@ void ContractResult::updateCallResult(QVariant result, FunctionABI function, QLi
 
     ui->lineEditCallSenderAddress->setText(variantMap.value("sender").toString());
     std::string rawData = executionResultMap.value("output").toString().toStdString();
-    std::vector<std::string> values;
+    std::vector<std::vector<std::string>> values;
     std::vector<ParameterABI::ErrorType> errors;
     if(function.abiOut(rawData, values, errors))
     {
@@ -172,7 +172,7 @@ void ContractResult::updateCallResult(QVariant result, FunctionABI function, QLi
 
                 resultName->setText(clippedText);
                 resultName->setToolTip(QString("%2 %1").arg(QString::fromStdString(function.outputs[i].name)).arg(QString::fromStdString(function.outputs[i].type)));
-                resultValue->setText(QString::fromStdString(values[i]));
+                resultValue->setText(QString::fromStdString(values[i][0]));
 
                 hLayout->addWidget(resultName);
                 hLayout->addWidget(resultValue);

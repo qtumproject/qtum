@@ -114,17 +114,19 @@ QList<QStringList> ABIFunctionField::getParamsValues()
     return ((ABIParamsField*)m_paramsField->currentWidget())->getParamsValues();
 }
 
-std::vector<std::string> ABIFunctionField::getValuesVector()
+std::vector<std::vector<std::string>> ABIFunctionField::getValuesVector()
 {
     QList<QStringList> qlist = getParamsValues();
-    std::vector<std::string> result;
+    std::vector<std::vector<std::string>> result;
     for (int i=0; i<qlist.size(); i++)
     {
+        std::vector<std::string> itemParam;
         QStringList qlistVlaues = qlist[i];
         for(int j=0; j<qlistVlaues.size(); j++)
         {
-            result.push_back(qlistVlaues.at(j).toUtf8().data());
+            itemParam.push_back(qlistVlaues.at(j).toUtf8().data());
         }
+        result.push_back(itemParam);
     }
     return result;
 }
