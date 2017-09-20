@@ -5,17 +5,23 @@
 
 #include <QHBoxLayout>
 #include <QRegularExpressionValidator>
-#include <iostream>
 
 ABIParam::ABIParam(const PlatformStyle *platformStyle, int ID, const ParameterABI &param, QWidget *parent) :
     QWidget(parent),
-    m_paramName(new QLabel(this)),
-    m_mainLayout(new QHBoxLayout(this)),
-    m_paramItemsLayout(new QVBoxLayout(this))
+    m_ParamID(ID),
+    m_paramName(0),
+    m_mainLayout(0),
+    m_paramItemsLayout(0),
+    m_param(param),
+    m_platformStyle(platformStyle),
+    m_vSpacer(0),
+    m_hSpacer(0)
 {
-    m_platformStyle = platformStyle;
-    m_param = param;
-    m_ParamID = ID;
+    m_paramName = new QLabel(this);
+    m_mainLayout = new QHBoxLayout(this);
+    m_paramItemsLayout = new QVBoxLayout(this);
+    m_vSpacer = new QSpacerItem(0, 0, QSizePolicy::Fixed, QSizePolicy::Fixed);
+    m_hSpacer = new QSpacerItem(0, 0, QSizePolicy::Fixed, QSizePolicy::Fixed);
 
     m_mainLayout->setSpacing(10);
     m_mainLayout->setContentsMargins(0,0,0,0);
@@ -35,8 +41,6 @@ ABIParam::ABIParam(const PlatformStyle *platformStyle, int ID, const ParameterAB
 
     QVBoxLayout *vLayout = new QVBoxLayout(this);
     vLayout->addWidget(m_paramName);
-    m_vSpacer = new QSpacerItem(0, 0, QSizePolicy::Fixed, QSizePolicy::Fixed);
-    m_hSpacer = new QSpacerItem(0, 0, QSizePolicy::Fixed, QSizePolicy::Fixed);
     vLayout->addSpacerItem(m_vSpacer);
     m_mainLayout->addLayout(vLayout);
 
@@ -78,6 +82,7 @@ QStringList ABIParam::getValue()
     QStringList valuesList;
     for(int i = 0; i < m_listParamItems.count(); i++)
     {
+        if(!m_listParamItems[i]->getIsDeleted())
         valuesList.append(m_listParamItems[i]->getValue());
     }
     return valuesList;
@@ -88,7 +93,7 @@ bool ABIParam::isValid()
     bool isValid = true;
     for(int i = 0; i < m_listParamItems.count(); i++)
     {
-        if(!m_listParamItems[i]->isValid())
+        if(!m_listParamItems[i]->getIsDeleted() && !m_listParamItems[i]->isValid())
             isValid = false;
     }
     return isValid;

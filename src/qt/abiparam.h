@@ -43,10 +43,9 @@ public Q_SLOTS:
 private:
     int m_ParamID;
     QLabel *m_paramName;
-    QList<QValidatedLineEdit*> m_listParamsValues;
     QHBoxLayout *m_mainLayout;
     QVBoxLayout *m_paramItemsLayout;
-    ParameterABI m_param;
+    const ParameterABI& m_param;
     QList<ABIParamItem*> m_listParamItems;
     const PlatformStyle *m_platformStyle;
     QSpacerItem *m_vSpacer;

@@ -21,11 +21,6 @@ void ABIParamsField::updateParamsField(const FunctionABI &function)
     int paramId = 0;
     for(std::vector<ParameterABI>::const_iterator param = function.inputs.begin(); param != function.inputs.end(); ++param)
     {
-        QFrame *hLine = new QFrame(this);
-        hLine->setFrameShape(QFrame::HLine);
-        hLine->setStyleSheet("QFrame[frameShape=\"4\"] { color: #c4c1bd; }");
-        m_mainLayout->addWidget(hLine);
-
         ABIParam *paramFiled = new ABIParam(m_platfromStyle, paramId, *param);
         m_listParams.append(paramFiled);
         m_mainLayout->addWidget(paramFiled);
