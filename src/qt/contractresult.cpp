@@ -196,21 +196,27 @@ void ContractResult::updateCallResult(QVariant result, FunctionABI function, QLi
 
                 vNameLayout->addWidget(resultName);
                 std::vector<std::string> listValues = values[i];
-                int spacerSize = 0;
-                for(size_t j = 0; j < listValues.size(); j++)
-                {
-                    QLineEdit *resultValue = new QLineEdit(this);
-                    resultValue->setReadOnly(true);
-                    resultValue->setText(QString::fromStdString(listValues[j]));
-                    paramValuesLayout->addWidget(resultValue);
-                    if(j > 0)
-                        spacerSize += 22; // Line edit height + spacing
-                }
-                if(spacerSize > 0)
-                    vNameLayout->addSpacerItem(new QSpacerItem(20, spacerSize, QSizePolicy::Fixed, QSizePolicy::Fixed));
                 hLayout->addLayout(vNameLayout);
-                hLayout->addLayout(paramValuesLayout);
-
+                if(listValues.size() > 0)
+                {
+                    int spacerSize = 0;
+                    for(size_t j = 0; j < listValues.size(); j++)
+                    {
+                        QLineEdit *resultValue = new QLineEdit(this);
+                        resultValue->setReadOnly(true);
+                        resultValue->setText(QString::fromStdString(listValues[j]));
+                        paramValuesLayout->addWidget(resultValue);
+                        if(j > 0)
+                            spacerSize += 22; // Line edit height + spacing
+                    }
+                    if(spacerSize > 0)
+                        vNameLayout->addSpacerItem(new QSpacerItem(20, spacerSize, QSizePolicy::Fixed, QSizePolicy::Fixed));
+                    hLayout->addLayout(paramValuesLayout);
+                }
+                else
+                {
+                    hLayout->addSpacerItem(new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Fixed));
+                }
                 mainLayout->addLayout(hLayout);
             }
             widgetResults->adjustSize();
