@@ -21,6 +21,7 @@
 #include "createcontract.h"
 #include "sendtocontract.h"
 #include "callcontract.h"
+#include "qrctoken.h"
 
 #include "ui_interface.h"
 
@@ -66,6 +67,8 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
     sendToContractPage = new SendToContract(platformStyle);
     callContractPage = new CallContract(platformStyle);
 
+    QRCTokenPage = new QRCToken();
+
     addWidget(overviewPage);
     addWidget(transactionsPage);
     addWidget(receiveCoinsPage);
@@ -73,6 +76,7 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
     addWidget(createContractPage);
     addWidget(sendToContractPage);
     addWidget(callContractPage);
+    addWidget(QRCTokenPage);
 
     // Clicking on a transaction on the overview pre-selects the transaction on the transaction history page
     connect(overviewPage, SIGNAL(transactionClicked(QModelIndex)), transactionView, SLOT(focusTransaction(QModelIndex)));
@@ -220,6 +224,11 @@ void WalletView::gotoSendToContractPage()
 void WalletView::gotoCallContractPage()
 {
     setCurrentWidget(callContractPage);
+}
+
+void WalletView::gotoQRCTokenPage()
+{
+    setCurrentWidget(QRCTokenPage);
 }
 
 void WalletView::gotoSignMessageTab(QString addr)

@@ -22,6 +22,7 @@ class AddressBookPage;
 class CreateContract;
 class SendToContract;
 class CallContract;
+class QRCToken;
 
 QT_BEGIN_NAMESPACE
 class QModelIndex;
@@ -70,6 +71,7 @@ private:
     CreateContract* createContractPage;
     SendToContract* sendToContractPage;
     CallContract* callContractPage;
+    QRCToken* QRCTokenPage;
 
     TransactionView *transactionView;
 
@@ -91,6 +93,8 @@ public Q_SLOTS:
     void gotoSendToContractPage();
     /** Switch to call contract page */
     void gotoCallContractPage();
+    /** Switch to QRCToken page */
+    void gotoQRCTokenPage();
 
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");

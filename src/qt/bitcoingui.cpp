@@ -128,6 +128,7 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
     createContractAction(0),
     sendToContractAction(0),
     callContractAction(0),
+    QRCTokenAction(0),
     trayIcon(0),
     trayIconMenu(0),
     notificator(0),
@@ -357,6 +358,13 @@ void BitcoinGUI::createActions()
     historyAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_5));
     tabGroup->addAction(historyAction);
 
+    QRCTokenAction = new QAction(tr("&QRC Token"), this);
+    QRCTokenAction->setStatusTip(tr("QRC Token (send, receive or add Token in list)"));
+    QRCTokenAction->setToolTip(QRCTokenAction->statusTip());
+    QRCTokenAction->setCheckable(true);
+    QRCTokenAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_6));
+    tabGroup->addAction(QRCTokenAction);
+
 #ifdef ENABLE_WALLET
     // These showNormalIfMinimized are needed because Send Coins and Receive Coins
     // can be triggered from the tray menu, and need to show the GUI to be useful.
@@ -378,6 +386,8 @@ void BitcoinGUI::createActions()
     connect(sendToContractAction, SIGNAL(triggered()), this, SLOT(gotoSendToContractPage()));
     connect(callContractAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(callContractAction, SIGNAL(triggered()), this, SLOT(gotoCallContractPage()));
+    connect(QRCTokenAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
+    connect(QRCTokenAction, SIGNAL(triggered()), this, SLOT(gotoQRCTokenPage()));
 #endif // ENABLE_WALLET
 
     quitAction = new QAction(platformStyle->TextColorIcon(":/icons/quit"), tr("E&xit"), this);
@@ -527,6 +537,7 @@ void BitcoinGUI::createToolBars()
         contractActions.append(callContractAction);
         appNavigationBar->mapGroup(smartContractAction, contractActions);
         appNavigationBar->addAction(historyAction);
+        appNavigationBar->addAction(QRCTokenAction);
         appNavigationBar->buildUi();
         overviewAction->setChecked(true);
     }
@@ -768,6 +779,12 @@ void BitcoinGUI::gotoHistoryPage()
 {
     historyAction->setChecked(true);
     if (walletFrame) walletFrame->gotoHistoryPage();
+}
+
+void BitcoinGUI::gotoQRCTokenPage()
+{
+    QRCTokenAction->setChecked(true);
+    if (walletFrame) walletFrame->gotoQRCTokenPage();
 }
 
 void BitcoinGUI::gotoReceiveCoinsPage()
