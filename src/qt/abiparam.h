@@ -45,7 +45,7 @@ private:
     QLabel *m_paramName;
     QHBoxLayout *m_mainLayout;
     QVBoxLayout *m_paramItemsLayout;
-    const ParameterABI& m_param;
+    ParameterABI m_param;
     QList<ABIParamItem*> m_listParamItems;
     const PlatformStyle *m_platformStyle;
     QSpacerItem *m_vSpacer;

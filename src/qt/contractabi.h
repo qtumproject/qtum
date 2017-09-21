@@ -152,7 +152,7 @@ private:
     void addDynamic(const std::string& paramData, std::string &data, std::map<int, std::string>& mapDynamic) const;
 
 
-    mutable ParameterType* m_decodeType;
+    mutable ParameterType m_decodeType;
     mutable ErrorType m_lastError;
 };
 

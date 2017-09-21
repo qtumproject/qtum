@@ -230,18 +230,11 @@ ParameterABI::ParameterABI(const std::string &_name, const std::string &_type, b
     name(_name),
     type(_type),
     indexed(_indexed),
-    m_decodeType(0),
     m_lastError(ParameterABI::Ok)
 {}
 
 ParameterABI::~ParameterABI()
-{
-    if(m_decodeType)
-    {
-        delete m_decodeType;
-        m_decodeType = 0;
-    }
-}
+{}
 
 bool ParameterABI::abiInBasic(ParameterType::Type abiType, std::string value, std::string &data) const
 {
@@ -566,17 +559,12 @@ ParameterABI::ErrorType ParameterABI::lastError() const
 
 const ParameterType &ParameterABI::decodeType() const
 {
-    if(m_decodeType && m_decodeType->canonical() != type)
+    if(m_decodeType.canonical() != type)
     {
-        delete m_decodeType;
-        m_decodeType = 0;
+        m_decodeType = ParameterType(type);
     }
 
-    if(!m_decodeType)
-    {
-        m_decodeType = new ParameterType(type);
-    }
-    return *m_decodeType;
+    return m_decodeType;
 }
 
 ParameterType::ParameterType(const std::string& _type):
