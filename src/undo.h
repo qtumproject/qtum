@@ -48,7 +48,7 @@ public:
         ::Unserialize(s, VARINT(nCode));
         txout->nHeight = nCode >> 2;
         txout->fCoinBase = nCode & 1;
-        txout->fCoinStake = nCode & 2;
+        txout->fCoinStake = (nCode >> 1) & 1;
         if (txout->nHeight > 0) {
             // Old versions stored the version number for the last spend of
             // a transaction's outputs. Non-final spends were indicated with

@@ -74,7 +74,7 @@ public:
         ::Unserialize(s, VARINT(code));
         nHeight = code >> 2;
         fCoinBase = code & 1;
-        fCoinStake = code & 2;
+        fCoinStake = (code >> 1) & 1;
         ::Unserialize(s, REF(CTxOutCompressor(out)));
     }
 
