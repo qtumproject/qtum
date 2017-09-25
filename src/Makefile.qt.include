@@ -265,6 +265,7 @@ BITCOIN_QT_H = \
   qt/splashscreen.h \
   qt/tabbarinfo.h \
   qt/titlebar.h \
+  qt/token.h \
   qt/trafficgraphwidget.h \
   qt/transactiondesc.h \
   qt/transactiondescdialog.h \
@@ -368,6 +369,7 @@ BITCOIN_QT_BASE_CPP = \
   qt/splashscreen.cpp \
   qt/tabbarinfo.cpp \
   qt/titlebar.cpp \
+  qt/token.cpp \
   qt/trafficgraphwidget.cpp \
   qt/utilitydialog.cpp
 
