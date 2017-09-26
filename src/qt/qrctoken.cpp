@@ -71,6 +71,7 @@ QRCToken::QRCToken(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::QRCToken),
     m_model(0),
+    m_clientModel(0),
     m_tokenDelegate(0),
     m_tokenModel(0)
 {
@@ -119,6 +120,12 @@ QRCToken::~QRCToken()
 void QRCToken::setModel(WalletModel *_model)
 {
     m_model = _model;
+}
+
+void QRCToken::setClientModel(ClientModel *_clientModel)
+{
+    m_clientModel = _clientModel;
+    m_sendTokenPage->setClientModel(_clientModel);
 }
 
 void QRCToken::on_goToSendTokenPage()

@@ -1,11 +1,17 @@
 #include "addtokenpage.h"
 #include "ui_addtokenpage.h"
 
+#include "guiconstants.h"
+
 AddTokenPage::AddTokenPage(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::AddTokenPage)
 {
     ui->setupUi(this);
+    ui->lineEditContractAddress->setStyleSheet(STYLE_UNDERLINE);
+    ui->lineEditTokenName->setStyleSheet(STYLE_UNDERLINE);
+    ui->lineEditTokenSymbol->setStyleSheet(STYLE_UNDERLINE);
+    ui->lineEditDecimals->setStyleSheet(STYLE_UNDERLINE);
 }
 
 AddTokenPage::~AddTokenPage()

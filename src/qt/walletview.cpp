@@ -128,6 +128,7 @@ void WalletView::setClientModel(ClientModel *_clientModel)
     createContractPage->setClientModel(_clientModel);
     sendToContractPage->setClientModel(_clientModel);
     callContractPage->setClientModel(_clientModel);
+    QRCTokenPage->setClientModel(_clientModel);
 }
 
 void WalletView::setWalletModel(WalletModel *_walletModel)
@@ -141,6 +142,7 @@ void WalletView::setWalletModel(WalletModel *_walletModel)
     sendCoinsPage->setModel(_walletModel);
     createContractPage->setModel(_walletModel);
     sendToContractPage->setModel(_walletModel);
+    QRCTokenPage->setModel(_walletModel);
     usedReceivingAddressesPage->setModel(_walletModel->getAddressTableModel());
     usedSendingAddressesPage->setModel(_walletModel->getAddressTableModel());
 

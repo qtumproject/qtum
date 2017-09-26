@@ -10,6 +10,7 @@
 
 class TokenViewDelegate;
 class WalletModel;
+class ClientModel;
 class QStandardItemModel;
 
 namespace Ui {
@@ -25,6 +26,7 @@ public:
     ~QRCToken();
 
     void setModel(WalletModel *_model);
+    void setClientModel(ClientModel *clientModel);
 
 Q_SIGNALS:
 
@@ -40,6 +42,7 @@ private:
     ReceiveTokenPage* m_receiveTokenPage;
     AddTokenPage* m_addTokenPage;
     WalletModel* m_model;
+    ClientModel* m_clientModel;
     TokenViewDelegate* m_tokenDelegate;
     QStandardItemModel *m_tokenModel;
     QAction *m_sendAction;
