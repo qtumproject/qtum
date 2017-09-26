@@ -781,10 +781,10 @@ void BitcoinGUI::gotoHistoryPage()
     if (walletFrame) walletFrame->gotoHistoryPage();
 }
 
-void BitcoinGUI::gotoQRCTokenPage()
+void BitcoinGUI::gotoQRCTokenPage(bool toAddTokenPage)
 {
     QRCTokenAction->setChecked(true);
-    if (walletFrame) walletFrame->gotoQRCTokenPage();
+    if (walletFrame) walletFrame->gotoQRCTokenPage(toAddTokenPage);
 }
 
 void BitcoinGUI::gotoReceiveCoinsPage()

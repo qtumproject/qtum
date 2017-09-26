@@ -13,6 +13,7 @@
 class ClientModel;
 class TransactionFilterProxy;
 class TxViewDelegate;
+class TknViewDelegate;
 class PlatformStyle;
 class WalletModel;
 
@@ -44,6 +45,7 @@ public Q_SLOTS:
 Q_SIGNALS:
     void transactionClicked(const QModelIndex &index);
     void outOfSyncWarningClicked();
+    void addTokenClicked(bool toAddTokenPage);
 
 private:
     Ui::OverviewPage *ui;
@@ -59,6 +61,7 @@ private:
     CAmount currentWatchOnlyStake;
 
     TxViewDelegate *txdelegate;
+    TknViewDelegate *tkndelegate;
     std::unique_ptr<TransactionFilterProxy> filter;
 
 private Q_SLOTS:
@@ -67,6 +70,7 @@ private Q_SLOTS:
     void updateAlerts(const QString &warnings);
     void updateWatchOnlyLabels(bool showWatchOnly);
     void handleOutOfSyncWarningClicks();
+    void on_buttonAddToken_clicked();
 };
 
 #endif // BITCOIN_QT_OVERVIEWPAGE_H

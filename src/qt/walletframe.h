@@ -77,7 +77,7 @@ public Q_SLOTS:
     /** Switch to call contract page */
     void gotoCallContractPage();
     /** Switch to QRCToken page */
-    void gotoQRCTokenPage();
+    void gotoQRCTokenPage(bool toAddTokenPage);
 
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");

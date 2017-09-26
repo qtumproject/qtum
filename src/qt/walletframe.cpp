@@ -127,11 +127,11 @@ void WalletFrame::gotoHistoryPage()
         i.value()->gotoHistoryPage();
 }
 
-void WalletFrame::gotoQRCTokenPage()
+void WalletFrame::gotoQRCTokenPage(bool toAddTokenPage)
 {
     QMap<QString, WalletView*>::const_iterator i;
     for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
-        i.value()->gotoQRCTokenPage();
+        i.value()->gotoQRCTokenPage(toAddTokenPage);
 }
 
 void WalletFrame::gotoReceiveCoinsPage()

@@ -18,8 +18,12 @@
 #include <QAbstractItemDelegate>
 #include <QPainter>
 
+#include <QStandardItem>
+#include <QStandardItemModel>
+
 #define DECORATION_SIZE 54
 #define NUM_ITEMS 5
+#define TOKEN_SIZE 24
 
 class TxViewDelegate : public QAbstractItemDelegate
 {
@@ -113,6 +117,52 @@ public:
     const PlatformStyle *platformStyle;
 
 };
+
+class TknViewDelegate : public QAbstractItemDelegate
+{
+public:
+    enum DataRole{
+        AddressRole = Qt::UserRole + 1,
+        NameRole = Qt::UserRole + 2,
+        SymbolRole = Qt::UserRole + 3,
+        DecimalsRole = Qt::UserRole + 4,
+        BalanceRole = Qt::UserRole + 5,
+    };
+
+    TknViewDelegate(QObject *parent) :
+        QAbstractItemDelegate(parent)
+    {}
+
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
+               const QModelIndex &index) const
+    {
+        painter->save();
+
+        QString tokenName = index.data(NameRole).toString();
+        QString tokenBalance = index.data(BalanceRole).toString();
+        QString tokenSymbol = index.data(SymbolRole).toString();
+        tokenBalance.append(" " + tokenSymbol);
+
+        QRect mainRect = option.rect;
+        mainRect.setWidth(option.rect.width());
+
+        int margin = 4;
+        int nameWidth = mainRect.width() / 3;
+        QRect nameRect(mainRect.topLeft(), QSize(nameWidth - margin, TOKEN_SIZE));
+        painter->drawText(nameRect, Qt::AlignLeft|Qt::AlignVCenter, tokenName);
+
+        QRect tokenBalanceRect(nameRect.right() + margin, mainRect.top(), nameWidth * 2, TOKEN_SIZE);
+        painter->drawText(tokenBalanceRect, Qt::AlignLeft|Qt::AlignVCenter, tokenBalance);
+
+        painter->restore();
+    }
+
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+    {
+        return QSize(TOKEN_SIZE, TOKEN_SIZE);
+    }
+};
+
 #include "overviewpage.moc"
 
 OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) :
@@ -128,7 +178,8 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     currentWatchUnconfBalance(-1),
     currentWatchImmatureBalance(-1),
     currentWatchOnlyStake(-1),
-    txdelegate(new TxViewDelegate(platformStyle, this))
+    txdelegate(new TxViewDelegate(platformStyle, this)),
+    tkndelegate(new TknViewDelegate(this))
 {
     ui->setupUi(this);
 
@@ -149,6 +200,9 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     ui->listTransactions->setAttribute(Qt::WA_MacShowFocusRect, false);
 
     connect(ui->listTransactions, SIGNAL(clicked(QModelIndex)), this, SLOT(handleTransactionClicked(QModelIndex)));
+
+    // Token list
+    ui->listTokens->setItemDelegate(tkndelegate);
 
     // start with displaying the "out of sync" warnings
     showOutOfSyncWarning(true);
@@ -295,4 +349,9 @@ void OverviewPage::showOutOfSyncWarning(bool fShow)
 {
     ui->labelWalletStatus->setVisible(fShow);
     ui->labelTransactionsStatus->setVisible(fShow);
+}
+
+void OverviewPage::on_buttonAddToken_clicked()
+{
+    Q_EMIT addTokenClicked(true);
 }
