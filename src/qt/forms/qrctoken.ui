@@ -28,7 +28,13 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
-          <widget class="QPushButton" name="sendButton">
+          <widget class="QToolButton" name="sendButton">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>100</width>
@@ -41,7 +47,13 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="receiveButton">
+          <widget class="QToolButton" name="receiveButton">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>100</width>
@@ -54,7 +66,13 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="addTokenButton">
+          <widget class="QToolButton" name="addTokenButton">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>100</width>

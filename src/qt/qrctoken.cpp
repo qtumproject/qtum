@@ -5,7 +5,7 @@
 #include <QAbstractItemDelegate>
 #include <QStandardItem>
 #include <QStandardItemModel>
-#include <iostream>
+#include <QActionGroup>
 
 #define DECORATION_SIZE 54
 #define SYMBOL_WIDTH 80
@@ -89,8 +89,26 @@ QRCToken::QRCToken(QWidget *parent) :
     ui->tokensList->setItemDelegate(m_tokenDelegate);
     ui->tokensList->setModel(m_tokenModel);
 
-    connect(ui->tokensList,SIGNAL(clicked(QModelIndex)), this, SLOT(setCurrentToken(QModelIndex)));
+    QActionGroup *actionGroup = new QActionGroup(this);
+    m_sendAction = new QAction(tr("Send"), actionGroup);
+    m_receiveAction = new QAction(tr("Receive"), actionGroup);
+    m_addTokenAction = new QAction(tr("AddToken"), actionGroup);
+    actionGroup->setExclusive(true);
+
+    m_sendAction->setCheckable(true);
+    m_receiveAction->setCheckable(true);
+    m_addTokenAction->setCheckable(true);
+
+    ui->sendButton->setDefaultAction(m_sendAction);
+    ui->receiveButton->setDefaultAction(m_receiveAction);
+    ui->addTokenButton->setDefaultAction(m_addTokenAction);
+
     connect(m_addTokenPage, SIGNAL(on_addNewToken(QString,QString,QString,int,double)),this, SLOT(on_addToken(QString,QString,QString,int,double)));
+    connect(m_sendAction, SIGNAL(triggered()), this, SLOT(on_goToSendTokenPage()));
+    connect(m_receiveAction, SIGNAL(triggered()), this, SLOT(on_goToReceiveTokenPage()));
+    connect(m_addTokenAction, SIGNAL(triggered()), this, SLOT(on_goToAddTokenPage()));
+
+    on_goToSendTokenPage();
 }
 
 QRCToken::~QRCToken()
@@ -103,18 +121,21 @@ void QRCToken::setModel(WalletModel *_model)
     m_model = _model;
 }
 
-void QRCToken::on_sendButton_clicked()
+void QRCToken::on_goToSendTokenPage()
 {
+    m_sendAction->setChecked(true);
     ui->stackedWidget->setCurrentIndex(0);
 }
 
-void QRCToken::on_receiveButton_clicked()
+void QRCToken::on_goToReceiveTokenPage()
 {
+    m_receiveAction->setChecked(true);
     ui->stackedWidget->setCurrentIndex(1);
 }
 
-void QRCToken::on_addTokenButton_clicked()
+void QRCToken::on_goToAddTokenPage()
 {
+    m_addTokenAction->setChecked(true);
     ui->stackedWidget->setCurrentIndex(2);
 }
 
