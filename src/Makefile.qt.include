@@ -342,7 +342,8 @@ RES_ICONS = \
   qt/res/icons/contract_input.png \
   qt/res/icons/contract_output.png \
   qt/res/icons/smart_contract.png \
-  qt/res/icons/lock_staking.png 
+  qt/res/icons/lock_staking.png \
+  qt/res/icons/qrctoken.png
 
 BITCOIN_QT_BASE_CPP = \
   qt/bantablemodel.cpp \
