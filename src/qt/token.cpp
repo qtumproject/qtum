@@ -175,32 +175,32 @@ Token::~Token()
 
 void Token::setAddress(const std::string &address)
 {
-    ExecRPCCommand::appendParam(d->lstParams, PARAM_ADDRESS, QString::fromStdString(address));
+    d->lstParams[PARAM_ADDRESS] = QString::fromStdString(address);
 }
 
 void Token::setDataHex(const std::string &datahex)
 {
-    ExecRPCCommand::appendParam(d->lstParams, PARAM_DATAHEX, QString::fromStdString(datahex));
+    d->lstParams[PARAM_DATAHEX] = QString::fromStdString(datahex);
 }
 
 void Token::setAmount(const std::string &amount)
 {
-    ExecRPCCommand::appendParam(d->lstParams, PARAM_AMOUNT, QString::fromStdString(amount));
+    d->lstParams[PARAM_AMOUNT] = QString::fromStdString(amount);
 }
 
 void Token::setGasLimit(const std::string &gaslimit)
 {
-    ExecRPCCommand::appendParam(d->lstParams, PARAM_GASLIMIT, QString::fromStdString(gaslimit));
+    d->lstParams[PARAM_GASLIMIT] = QString::fromStdString(gaslimit);
 }
 
 void Token::setGasPrice(const std::string &gasPrice)
 {
-    ExecRPCCommand::appendParam(d->lstParams, PARAM_GASPRICE, QString::fromStdString(gasPrice));
+    d->lstParams[PARAM_GASPRICE] = QString::fromStdString(gasPrice);
 }
 
 void Token::setSender(const std::string &sender)
 {
-    ExecRPCCommand::appendParam(d->lstParams, PARAM_SENDER, QString::fromStdString(sender));
+    d->lstParams[PARAM_SENDER] = QString::fromStdString(sender);
 }
 
 void Token::clear()
