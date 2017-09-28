@@ -28,6 +28,7 @@ class COutPoint;
 class COutput;
 class CPubKey;
 class CWallet;
+class CTokenInfo;
 class uint256;
 
 QT_BEGIN_NAMESPACE
@@ -214,6 +215,8 @@ public:
     bool hdEnabled() const;
 
     int getDefaultConfirmTarget() const;
+
+    bool AddTokenEntry(const CTokenInfo& token);
 
 private:
     CWallet *wallet;

@@ -1,12 +1,15 @@
 #include "addtokenpage.h"
 #include "ui_addtokenpage.h"
 #include "guiconstants.h"
+#include "wallet/wallet.h"
+#include "walletmodel.h"
 #include "token.h"
 
 AddTokenPage::AddTokenPage(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::AddTokenPage),
-    m_tokenABI(0)
+    m_tokenABI(0),
+    m_model(0)
 {
     ui->setupUi(this);
     ui->lineEditContractAddress->setStyleSheet(STYLE_UNDERLINE);
@@ -35,6 +38,11 @@ void AddTokenPage::clearAll()
     ui->lineEditDecimals->setText("");
 }
 
+void AddTokenPage::setModel(WalletModel *_model)
+{
+    m_model = _model;
+}
+
 void AddTokenPage::on_clearButton_clicked()
 {
     clearAll();
@@ -42,12 +50,19 @@ void AddTokenPage::on_clearButton_clicked()
 
 void AddTokenPage::on_confirmButton_clicked()
 {
-    QString address = ui->lineEditContractAddress->text();
-    QString name = ui->lineEditTokenName->text();
-    QString symbol = ui->lineEditTokenSymbol->text();
-    int decimals = ui->lineEditDecimals->text().toInt();
+    CTokenInfo tokenInfo;
+    tokenInfo.strContractAddress = ui->lineEditContractAddress->text().toStdString();
+    tokenInfo.strTokenName = ui->lineEditTokenName->text().toStdString();
+    tokenInfo.strTokenSymbol = ui->lineEditTokenSymbol->text().toStdString();
+    tokenInfo.nDecimals = ui->lineEditDecimals->text().toInt();
+    //tokenInfo.strSenderAddress = ui->lineEditTokenSymbol->text().toStdString();
 
-    Q_EMIT on_addNewToken(address, name, symbol, decimals, 234234.234324);
+    if(m_model)
+    {
+        m_model->AddTokenEntry(tokenInfo);
+    }
+
+    //Q_EMIT on_addNewToken(address, name, symbol, decimals, 234234.234324);
 
     clearAll();
 }

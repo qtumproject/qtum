@@ -120,6 +120,7 @@ QRCToken::~QRCToken()
 void QRCToken::setModel(WalletModel *_model)
 {
     m_model = _model;
+    m_addTokenPage->setModel(m_model);
 }
 
 void QRCToken::setClientModel(ClientModel *_clientModel)

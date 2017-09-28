@@ -3,6 +3,7 @@
 
 #include <QWidget>
 class Token;
+class WalletModel;
 
 namespace Ui {
 class AddTokenPage;
@@ -16,6 +17,7 @@ public:
     explicit AddTokenPage(QWidget *parent = 0);
     ~AddTokenPage();
     void clearAll();
+    void setModel(WalletModel *_model);
 
 private Q_SLOTS:
     void on_clearButton_clicked();
@@ -28,6 +30,7 @@ Q_SIGNALS:
 private:
     Ui::AddTokenPage *ui;
     Token *m_tokenABI;
+    WalletModel* m_model;
 };
 
 #endif // ADDTOKENPAGE_H

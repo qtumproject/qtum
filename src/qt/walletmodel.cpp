@@ -735,3 +735,8 @@ int WalletModel::getDefaultConfirmTarget() const
 {
     return nTxConfirmTarget;
 }
+
+bool WalletModel::AddTokenEntry(const CTokenInfo &token)
+{
+    return wallet->AddTokenEntry(token, true);
+}

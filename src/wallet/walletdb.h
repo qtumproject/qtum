@@ -27,6 +27,7 @@ class CMasterKey;
 class CScript;
 class CWallet;
 class CWalletTx;
+class CTokenInfo;
 class uint160;
 class uint256;
 
@@ -128,6 +129,9 @@ public:
 
     bool WriteTx(const CWalletTx& wtx);
     bool EraseTx(uint256 hash);
+
+    bool WriteToken(const CTokenInfo& wtoken);
+    bool EraseToken(uint256 hash);
 
     bool WriteKey(const CPubKey& vchPubKey, const CPrivKey& vchPrivKey, const CKeyMetadata &keyMeta);
     bool WriteCryptedKey(const CPubKey& vchPubKey, const std::vector<unsigned char>& vchCryptedSecret, const CKeyMetadata &keyMeta);
