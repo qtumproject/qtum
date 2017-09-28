@@ -1346,7 +1346,7 @@ static void ApplyStats(CCoinsStats &stats, CHashWriter& ss, const uint256& hash,
 {
     assert(!outputs.empty());
     ss << hash;
-    ss << VARINT(outputs.begin()->second.nHeight * 2 + outputs.begin()->second.fCoinBase);
+    ss << VARINT((outputs.begin()->second.nHeight << 2) + outputs.begin()->second.fCoinBase + outputs.begin()->second.fCoinStake);
     stats.nTransactions++;
     for (const auto output : outputs) {
         ss << VARINT(output.first + 1);
