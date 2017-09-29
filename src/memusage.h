@@ -167,6 +167,26 @@ static inline size_t DynamicUsage(const boost::unordered_map<X, Y, Z>& m)
     return MallocUsage(sizeof(boost_unordered_node<std::pair<const X, Y> >)) * m.size() + MallocUsage(sizeof(void*) * m.bucket_count());
 }
 
+//std version
+template<typename Xstd>
+struct unordered_node : private Xstd
+{
+private:
+    void* ptr;
+};
+
+template<typename Xstd, typename Y>
+static inline size_t DynamicUsage(const std::unordered_set<Xstd, Y>& s)
+{
+    return MallocUsage(sizeof(unordered_node<Xstd>)) * s.size() + MallocUsage(sizeof(void*) * s.bucket_count());
+}
+
+template<typename Xstd, typename Y, typename Z>
+static inline size_t DynamicUsage(const std::unordered_map<Xstd, Y, Z>& m)
+{
+    return MallocUsage(sizeof(unordered_node<std::pair<const Xstd, Y> >)) * m.size() + MallocUsage(sizeof(void*) * m.bucket_count());
+}
+
 }
 
 #endif // BITCOIN_MEMUSAGE_H
