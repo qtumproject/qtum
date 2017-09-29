@@ -771,7 +771,6 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
             size_t count = 0;
             for(const CTxOut& o : tx.vout)
                 count += o.scriptPubKey.HasOpCreate() || o.scriptPubKey.HasOpCall() ? 1 : 0;
-            CAmount sumGas = 0;
             QtumTxConverter converter(tx, NULL);
             ExtractQtumTX resultConverter;
             if(!converter.extractionQtumTransactions(resultConverter)){
@@ -780,9 +779,18 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
             std::vector<QtumTransaction> qtumTransactions = resultConverter.first;
             std::vector<EthTransactionParams> qtumETP = resultConverter.second;
 
+            dev::u256 sumGas = dev::u256(0);
             dev::u256 gasAllTxs = dev::u256(0);
             for(QtumTransaction qtumTransaction : qtumTransactions){
-                sumGas += CAmount(qtumTransaction.gas() * qtumTransaction.gasPrice());
+                sumGas += qtumTransaction.gas() * qtumTransaction.gasPrice();
+
+                if(sumGas > dev::u256(INT64_MAX)) {
+                    return state.DoS(100, error("AcceptToMempool(): Transaction's gas stipend overflows"), REJECT_INVALID, "bad-tx-gas-stipend-overflow");
+                }
+
+                if(sumGas > dev::u256(nFees)) {
+                    return state.DoS(100, error("AcceptToMempool(): Transaction fee does not cover the gas stipend"), REJECT_INVALID, "bad-txns-fee-notenough");
+                }
 
                 if(txMinGasPrice != 0) {
                     txMinGasPrice = std::min(txMinGasPrice, qtumTransaction.gasPrice());
@@ -817,8 +825,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
 
             if(!CheckMinGasPrice(qtumETP, minGasPrice))
                 return state.DoS(100, false, REJECT_INVALID, "bad-txns-small-gasprice");
-            if(sumGas > nFees)
-                return state.DoS(100, false, REJECT_INVALID, "bad-txns-fee-notenough");
+
             if(count > qtumTransactions.size())
                 return state.DoS(100, false, REJECT_INVALID, "bad-txns-incorrect-format");
         }
@@ -2659,7 +2666,19 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             //Reject anything unknown (could be changed later by DGP)
             //TODO evaluate if this should be relaxed for soft-fork purposes
             bool nonZeroVersion=false;
+            dev::u256 sumGas = dev::u256(0);
+            CAmount nTxFee = view.GetValueIn(tx)-tx.GetValueOut();
             for(QtumTransaction& qtx : resultConvertQtumTX.first){
+                sumGas += qtx.gas() * qtx.gasPrice();
+
+                if(sumGas > dev::u256(INT64_MAX)) {
+                    return state.DoS(100, error("ConnectBlock(): Transaction's gas stipend overflows"), REJECT_INVALID, "bad-tx-gas-stipend-overflow");
+                }
+
+                if(sumGas > dev::u256(nTxFee)) {
+                    return state.DoS(100, error("ConnectBlock(): Transaction fee does not cover the gas stipend"), REJECT_INVALID, "bad-txns-fee-notenough");
+                }
+
                 VersionVM v = qtx.getVersion();
                 if(v.format!=0)
                     return state.DoS(100, error("ConnectBlock(): Contract execution uses unknown version format"), REJECT_INVALID, "bad-tx-version-format");

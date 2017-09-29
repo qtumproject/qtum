@@ -251,7 +251,7 @@ def initialize_chain(test_dir, num_nodes, cachedir):
         # Create cache directories, run bitcoinds:
         for i in range(MAX_NODES):
             datadir=initialize_datadir(cachedir, i)
-            args = [ os.getenv("BITCOIND", "bitcoind"), "-server", "-keypool=1", "-datadir="+datadir, "-discover=0", "-staking=0" ]
+            args = [ os.getenv("BITCOIND", "qtumd"), "-server", "-keypool=1", "-datadir="+datadir, "-discover=0", "-staking=0" ]
             if i > 0:
                 args.append("-connect=127.0.0.1:"+str(p2p_port(0)))
             bitcoind_processes[i] = subprocess.Popen(args, stdout=open(datadir + '/teststdout1.txt', 'w'), stderr=open(datadir + '/teststderr1.txt', 'w'))
@@ -349,7 +349,7 @@ def start_node(i, dirname, extra_args=None, rpchost=None, timewait=None, binary=
     """
     datadir = os.path.join(dirname, "node"+str(i))
     if binary is None:
-        binary = os.getenv("BITCOIND", "bitcoind")
+        binary = os.getenv("BITCOIND", "qtumd")
     args = [ binary, "-datadir="+datadir, "-server", "-keypool=1", "-discover=0", "-rest", "-mocktime="+str(get_mocktime())]
 
     if not extra_args or not any(extra_arg.startswith('-staking') for extra_arg in extra_args):
