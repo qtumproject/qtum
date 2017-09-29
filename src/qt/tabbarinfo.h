@@ -27,6 +27,8 @@ public:
      */
     bool addTab(int index, const QString& name);
 
+    bool removeTab(int index);
+
     /**
      * @brief setTabVisible Set tab visible
      * @param index Stack index

@@ -13,6 +13,7 @@
 #include "abifunctionfield.h"
 #include "contractabi.h"
 #include "tabbarinfo.h"
+#include "contractresult.h"
 
 namespace SendToContract_NS
 {
@@ -46,16 +47,15 @@ SendToContract::SendToContract(const PlatformStyle *platformStyle, QWidget *pare
     ui->groupBoxOptional->setStyleSheet(STYLE_GROUPBOX);
     ui->groupBoxFunction->setStyleSheet(STYLE_GROUPBOX);
     ui->scrollAreaFunction->setStyleSheet(".QScrollArea {border: none;}");
-    m_ABIFunctionField = new ABIFunctionField(ABIFunctionField::Function, ui->scrollAreaFunction);
+    m_ABIFunctionField = new ABIFunctionField(platformStyle, ABIFunctionField::Function, ui->scrollAreaFunction);
     ui->scrollAreaFunction->setWidget(m_ABIFunctionField);
+    ui->lineEditAmount->setEnabled(false);
     ui->labelContractAddress->setToolTip(tr("The contract address that will receive the funds and data."));
     ui->labelAmount->setToolTip(tr("The amount in QTUM to send. Default = 0."));
     ui->labelSenderAddress->setToolTip(tr("The quantum address that will be used as sender."));
 
     m_tabInfo = new TabBarInfo(ui->stackedWidget);
     m_tabInfo->addTab(0, tr("SendToContract"));
-    m_tabInfo->addTab(1, tr("Result"));
-    m_tabInfo->setTabVisible(1, false);
 
     // Set defaults
     ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
@@ -89,6 +89,7 @@ SendToContract::SendToContract(const PlatformStyle *platformStyle, QWidget *pare
     connect(ui->lineEditContractAddress, SIGNAL(textChanged(QString)), SLOT(on_updateSendToContractButton()));
     connect(ui->textEditInterface, SIGNAL(textChanged()), SLOT(on_newContractABI()));
     connect(ui->stackedWidget, SIGNAL(currentChanged(int)), SLOT(on_updateSendToContractButton()));
+    connect(m_ABIFunctionField, SIGNAL(functionChanged()), SLOT(on_functionChanged()));
 
     // Set contract address validator
     QRegularExpression regEx;
@@ -155,7 +156,14 @@ void SendToContract::on_clearAll_clicked()
     ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
     ui->lineEditSenderAddress->setCurrentIndex(-1);
     ui->textEditInterface->clear();
-    m_tabInfo->setTabVisible(1, false);
+
+    for(int i = ui->stackedWidget->count() - 1; i > 0; i--)
+    {
+        QWidget* widget = ui->stackedWidget->widget(i);
+        ui->stackedWidget->removeWidget(widget);
+        widget->deleteLater();
+        m_tabInfo->removeTab(i);
+    }
     m_tabInfo->setCurrent(0);
 }
 
@@ -184,17 +192,22 @@ void SendToContract::on_sendToContract_clicked()
         // Append params to the list
         ExecRPCCommand::appendParam(lstParams, PARAM_ADDRESS, ui->lineEditContractAddress->text());
         ExecRPCCommand::appendParam(lstParams, PARAM_DATAHEX, toDataHex(func, errorMessage));
-        ExecRPCCommand::appendParam(lstParams, PARAM_AMOUNT, BitcoinUnits::format(unit, ui->lineEditAmount->value()));
+        QString amount = isFunctionPayable() ? BitcoinUnits::format(unit, ui->lineEditAmount->value(), false, BitcoinUnits::separatorNever) : "0";
+        ExecRPCCommand::appendParam(lstParams, PARAM_AMOUNT, amount);
         ExecRPCCommand::appendParam(lstParams, PARAM_GASLIMIT, QString::number(gasLimit));
-        ExecRPCCommand::appendParam(lstParams, PARAM_GASPRICE, BitcoinUnits::format(unit, gasPrice));
+        ExecRPCCommand::appendParam(lstParams, PARAM_GASPRICE, BitcoinUnits::format(unit, gasPrice, false, BitcoinUnits::separatorNever));
         ExecRPCCommand::appendParam(lstParams, PARAM_SENDER, ui->lineEditSenderAddress->currentText());
 
         // Execute RPC command line
         if(errorMessage.isEmpty() && m_execRPCCommand->exec(lstParams, result, resultJson, errorMessage))
         {
-            ui->widgetResult->setResultData(result, m_contractABI->functions[func], m_ABIFunctionField->getParamsValues(), ContractResult::SendToResult);
-            m_tabInfo->setTabVisible(1, true);
-            m_tabInfo->setCurrent(1);
+            ContractResult *widgetResult = new ContractResult(ui->stackedWidget);
+            widgetResult->setResultData(result, FunctionABI(), m_ABIFunctionField->getParamsValues(), ContractResult::SendToResult);
+            ui->stackedWidget->addWidget(widgetResult);
+            int position = ui->stackedWidget->count() - 1;
+
+            m_tabInfo->addTab(position, tr("Result %1").arg(position));
+            m_tabInfo->setCurrent(position);
         }
         else
         {
@@ -251,6 +264,16 @@ void SendToContract::on_newContractABI()
     on_updateSendToContractButton();
 }
 
+void SendToContract::on_functionChanged()
+{
+    bool payable = isFunctionPayable();
+    ui->lineEditAmount->setEnabled(payable);
+    if(!payable)
+    {
+        ui->lineEditAmount->clear();
+    }
+}
+
 QString SendToContract::toDataHex(int func, QString& errorMessage)
 {
     if(func == -1 || m_ABIFunctionField == NULL || m_contractABI == NULL)
@@ -259,7 +282,7 @@ QString SendToContract::toDataHex(int func, QString& errorMessage)
     }
 
     std::string strData;
-    std::vector<std::string> values = m_ABIFunctionField->getValuesVector();
+    std::vector<std::vector<std::string>> values = m_ABIFunctionField->getValuesVector();
     FunctionABI function = m_contractABI->functions[func];
     std::vector<ParameterABI::ErrorType> errors;
     if(function.abiIn(values, strData, errors))
@@ -271,4 +294,12 @@ QString SendToContract::toDataHex(int func, QString& errorMessage)
         errorMessage = function.errorMessage(errors, true);
     }
     return "";
+}
+
+bool SendToContract::isFunctionPayable()
+{
+    int func = m_ABIFunctionField->getSelectedFunction();
+    if(func < 0) return false;
+    FunctionABI function = m_contractABI->functions[func];
+    return function.payable;
 }

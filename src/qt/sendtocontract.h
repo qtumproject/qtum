@@ -37,9 +37,11 @@ public Q_SLOTS:
     void on_numBlocksChanged();
     void on_updateSendToContractButton();
     void on_newContractABI();
+    void on_functionChanged();
 
 private:
     QString toDataHex(int func, QString& errorMessage);
+    bool isFunctionPayable();
 
 private:
     Ui::SendToContract *ui;

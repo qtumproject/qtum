@@ -40,7 +40,6 @@ public Q_SLOTS:
     void on_newContractABI();
 
 private Q_SLOTS:
-    void on_textEditBytecode_textChanged();
 
 private:
     QString toDataHex(int func, QString& errorMessage);

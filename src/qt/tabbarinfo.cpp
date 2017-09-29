@@ -23,6 +23,18 @@ bool TabBarInfo::addTab(int index, const QString &name)
     return true;
 }
 
+bool TabBarInfo::removeTab(int index)
+{
+    if(m_stack->count() < index)
+    {
+        return false;
+    }
+    m_mapName.remove(index);
+    m_mapVisible.remove(index);
+    update();
+    return true;
+}
+
 void TabBarInfo::setTabVisible(int index, bool visible)
 {
     if(m_stack->count() > index)

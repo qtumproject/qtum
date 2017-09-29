@@ -22,7 +22,7 @@ ContractResult::~ContractResult()
     delete ui;
 }
 
-void ContractResult::setResultData(QVariant result, FunctionABI function, QStringList paramValues, ContractTxType type)
+void ContractResult::setResultData(QVariant result, FunctionABI function, QList<QStringList> paramValues, ContractTxType type)
 {
     switch (type) {
     case CreateResult:
@@ -45,7 +45,7 @@ void ContractResult::setResultData(QVariant result, FunctionABI function, QStrin
     }
 }
 
-void ContractResult::setParamsData(FunctionABI function, QStringList paramValues)
+void ContractResult::setParamsData(FunctionABI function, QList<QStringList> paramValues)
 {
     // Remove previous widget from scroll area
     QWidget *scrollWidget = ui->scrollAreaParams->widget();
@@ -60,42 +60,60 @@ void ContractResult::setParamsData(FunctionABI function, QStringList paramValues
     }
 
     QWidget *widgetParams = new QWidget(this);
-    QVBoxLayout *vLayout = new QVBoxLayout(widgetParams);
-    vLayout->setSpacing(6);
-    vLayout->setContentsMargins(0,0,0,0);
-    widgetParams->setLayout(vLayout);
+    QVBoxLayout *mainLayout = new QVBoxLayout(widgetParams);
+    mainLayout->setSpacing(6);
+    mainLayout->setContentsMargins(0,0,30,0);
 
     // Add rows with params and values sent
     int i = 0;
     for(std::vector<ParameterABI>::const_iterator param = function.inputs.begin(); param != function.inputs.end(); ++param)
     {
-
-        QHBoxLayout *hLayout = new QHBoxLayout();
+        QHBoxLayout *hLayout = new QHBoxLayout(widgetParams);
         hLayout->setSpacing(10);
         hLayout->setContentsMargins(0,0,0,0);
+        QVBoxLayout *vNameLayout = new QVBoxLayout(widgetParams);
+        vNameLayout->setSpacing(3);
+        vNameLayout->setContentsMargins(0,0,0,0);
+        QVBoxLayout *paramValuesLayout = new QVBoxLayout(widgetParams);
+        paramValuesLayout->setSpacing(3);
+        paramValuesLayout->setContentsMargins(0,0,0,0);
 
         QLabel *paramName = new QLabel(this);
-        QLineEdit *paramValue = new QLineEdit(this);
-        paramValue->setReadOnly(true);
         paramName->setFixedWidth(160);
-
+        paramName->setFixedHeight(19);
         QFontMetrics metrix(paramName->font());
         int width = paramName->width() + 10;
         QString text(QString("%2 <b>%1").arg(QString::fromStdString(param->name)).arg(QString::fromStdString(param->type)));
         QString clippedText = metrix.elidedText(text, Qt::ElideRight, width);
-
-        paramName->setToolTip(QString("%2 %1").arg(QString::fromStdString(param->name)).arg(QString::fromStdString(param->type)));
         paramName->setText(clippedText);
-        paramValue->setText(paramValues[i]);
+        paramName->setToolTip(QString("%2 %1").arg(QString::fromStdString(param->name)).arg(QString::fromStdString(param->type)));
 
-        hLayout->addWidget(paramName);
-        hLayout->addWidget(paramValue);
+        vNameLayout->addWidget(paramName);
+        QStringList listValues = paramValues[i];
+        int spacerSize = 0;
+        for(int j = 0; j < listValues.count(); j++)
+        {
+            QLineEdit *paramValue = new QLineEdit(this);
+            paramValue->setReadOnly(true);
+            paramValue->setText(listValues[j]);
+            paramValuesLayout->addWidget(paramValue);
+            if(j > 0)
+                spacerSize += 22; // Line edit height + spacing
+        }
+        if(spacerSize > 0)
+            vNameLayout->addSpacerItem(new QSpacerItem(20, spacerSize, QSizePolicy::Fixed, QSizePolicy::Fixed));
+        hLayout->addLayout(vNameLayout);
+        hLayout->addLayout(paramValuesLayout);
 
-        vLayout->addLayout(hLayout);
+        mainLayout->addLayout(hLayout);
         i++;
     }
+    widgetParams->setLayout(mainLayout);
     widgetParams->adjustSize();
-    ui->scrollAreaParams->setMaximumHeight(widgetParams->sizeHint().height() + 2);
+    if(widgetParams->sizeHint().height() < 70)
+        ui->scrollAreaParams->setMaximumHeight(widgetParams->sizeHint().height() + 2);
+    else
+        ui->scrollAreaParams->setMaximumHeight(140);
     ui->scrollAreaParams->setWidget(widgetParams);
     ui->scrollAreaParams->setVisible(true);
 }
@@ -125,7 +143,7 @@ void ContractResult::updateSendToResult(QVariant result)
     ui->lineEditHash160->setText(variantMap.value("hash160").toString());
 }
 
-void ContractResult::updateCallResult(QVariant result, FunctionABI function, QStringList paramValues)
+void ContractResult::updateCallResult(QVariant result, FunctionABI function, QList<QStringList> paramValues)
 {
     QVariantMap variantMap = result.toMap();
     QVariantMap executionResultMap = variantMap.value("executionResult").toMap();
@@ -137,7 +155,7 @@ void ContractResult::updateCallResult(QVariant result, FunctionABI function, QSt
 
     ui->lineEditCallSenderAddress->setText(variantMap.value("sender").toString());
     std::string rawData = executionResultMap.value("output").toString().toStdString();
-    std::vector<std::string> values;
+    std::vector<std::vector<std::string>> values;
     std::vector<ParameterABI::ErrorType> errors;
     if(function.abiOut(rawData, values, errors))
     {
@@ -149,38 +167,67 @@ void ContractResult::updateCallResult(QVariant result, FunctionABI function, QSt
         if(values.size() > 0)
         {
             QWidget *widgetResults = new QWidget(this);
-            QVBoxLayout *vLayout = new QVBoxLayout(widgetResults);
-            vLayout->setSpacing(6);
-            vLayout->setContentsMargins(0,6,0,6);
-            widgetResults->setLayout(vLayout);
+            QVBoxLayout *mainLayout = new QVBoxLayout(widgetResults);
+            mainLayout->setSpacing(6);
+            mainLayout->setContentsMargins(0,6,0,6);
+            widgetResults->setLayout(mainLayout);
 
             for(size_t i = 0; i < values.size(); i++)
             {
-                QHBoxLayout *hLayout = new QHBoxLayout();
+                QHBoxLayout *hLayout = new QHBoxLayout(widgetResults);
                 hLayout->setSpacing(10);
                 hLayout->setContentsMargins(0,0,0,0);
+                QVBoxLayout *vNameLayout = new QVBoxLayout(widgetResults);
+                vNameLayout->setSpacing(3);
+                vNameLayout->setContentsMargins(0,0,0,0);
+                QVBoxLayout *paramValuesLayout = new QVBoxLayout(widgetResults);
+                paramValuesLayout->setSpacing(3);
+                paramValuesLayout->setContentsMargins(0,0,0,0);
 
                 QLabel *resultName = new QLabel(this);
-                QLineEdit *resultValue = new QLineEdit(this);
-                resultValue->setReadOnly(true);
                 resultName->setFixedWidth(160);
-
+                resultName->setFixedHeight(19);
                 QFontMetrics metrix(resultName->font());
                 int width = resultName->width() + 10;
                 QString text(QString("%2 <b>%1").arg(QString::fromStdString(function.outputs[i].name)).arg(QString::fromStdString(function.outputs[i].type)));
                 QString clippedText = metrix.elidedText(text, Qt::ElideRight, width);
-
                 resultName->setText(clippedText);
                 resultName->setToolTip(QString("%2 %1").arg(QString::fromStdString(function.outputs[i].name)).arg(QString::fromStdString(function.outputs[i].type)));
-                resultValue->setText(QString::fromStdString(values[i]));
 
-                hLayout->addWidget(resultName);
-                hLayout->addWidget(resultValue);
-
-                vLayout->addLayout(hLayout);
+                vNameLayout->addWidget(resultName);
+                std::vector<std::string> listValues = values[i];
+                hLayout->addLayout(vNameLayout);
+                if(listValues.size() > 0)
+                {
+                    int spacerSize = 0;
+                    for(size_t j = 0; j < listValues.size(); j++)
+                    {
+                        QLineEdit *resultValue = new QLineEdit(this);
+                        resultValue->setReadOnly(true);
+                        resultValue->setText(QString::fromStdString(listValues[j]));
+                        paramValuesLayout->addWidget(resultValue);
+                        if(j > 0)
+                            spacerSize += 22; // Line edit height + spacing
+                    }
+                    if(spacerSize > 0)
+                        vNameLayout->addSpacerItem(new QSpacerItem(20, spacerSize, QSizePolicy::Fixed, QSizePolicy::Fixed));
+                    hLayout->addLayout(paramValuesLayout);
+                }
+                else
+                {
+                    hLayout->addSpacerItem(new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Fixed));
+                }
+                mainLayout->addLayout(hLayout);
             }
             widgetResults->adjustSize();
-            ui->scrollAreaResult->setMaximumHeight(widgetResults->sizeHint().height() + 2);
+            if(widgetResults->sizeHint().height() < 70)
+            {
+                ui->scrollAreaResult->setMaximumHeight(widgetResults->sizeHint().height() + 2);
+            }
+            else
+            {
+                ui->scrollAreaResult->setMaximumHeight(140);
+            }
             ui->scrollAreaResult->setWidget(widgetResults);
             ui->groupBoxResult->setVisible(true);
         }

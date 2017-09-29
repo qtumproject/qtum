@@ -7,6 +7,7 @@
 
 #include "contractabi.h"
 
+class PlatformStyle;
 class ABIParam;
 
 /**
@@ -20,7 +21,7 @@ public:
      * @brief ABIParamsField Constructor
      * @param parent Parent windows of the GUI control
      */
-    explicit ABIParamsField(QWidget *parent = 0);
+    explicit ABIParamsField(const PlatformStyle *platformStyle, QWidget *parent = 0);
 
     /**
      * @brief updateParamsField Populate the GUI control with function parameters
@@ -33,13 +34,13 @@ public:
      * @param paramID Number of the parameter into the input list (0, 1, ...)
      * @return Value of the parameter
      */
-    QString getParamValue(int paramID);
+    QStringList getParamValue(int paramID);
 
     /**
      * @brief getParamsValues Get the values of the whole list of input parameters
      * @return Values of the parameters
      */
-    QStringList getParamsValues();
+    QList<QStringList> getParamsValues();
 
     bool isValid();
 
@@ -50,6 +51,7 @@ public Q_SLOTS:
 private:
     QVBoxLayout *m_mainLayout;
     QList<ABIParam*> m_listParams;
+    const PlatformStyle *m_platfromStyle;
 };
 
 #endif // CONTRACTFUNCTIONFIELD_H

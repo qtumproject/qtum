@@ -8,6 +8,7 @@
 #include <QVector>
 #include "contractabi.h"
 
+class PlatformStyle;
 class ABIParamsField;
 
 /**
@@ -32,7 +33,7 @@ public:
      * @param type Function type to display
      * @param parent Parent windows for the GUI control
      */
-    ABIFunctionField(FunctionType type, QWidget *parent = 0);
+    ABIFunctionField(const PlatformStyle *platformStyle, FunctionType type, QWidget *parent = 0);
 
     /**
      * @brief setContractABI Set the contract ABI (list of functions from the contract)
@@ -45,19 +46,21 @@ public:
      * @param paramID Id of the input parameter
      * @return Parameter value
      */
-    QString getParamValue(int paramID);
+    QStringList getParamValue(int paramID);
 
     /**
      * @brief getParamsValues Get the values of the whole list of input parameters for the selected function
      * @return Values of the parameters
      */
-    QStringList getParamsValues();
+    QList<QStringList> getParamsValues();
 
     /**
      * @brief getValuesVector Get params values vector
+     * List of all parameters that can be sent to a function.
+     * The parameter can be single value or list.
      * @return Values of the parameters
      */
-    std::vector<std::string> getValuesVector();
+    std::vector<std::vector<std::string>> getValuesVector();
 
     /**
      * @brief getSelectedFunction Get the ABI for the selected function from the contract
@@ -68,6 +71,7 @@ public:
     bool isValid();
 
 Q_SIGNALS:
+    void functionChanged();
 
 public Q_SLOTS:
     void on_currentIndexChanged();
@@ -91,6 +95,7 @@ private:
     QStackedWidget *m_paramsField;
     QVector<int> m_abiFunctionList;
     FunctionType m_functionType;
+    const PlatformStyle *m_platformStyle;
 };
 
 #endif // ABIFUNCTIONFIELD_H
