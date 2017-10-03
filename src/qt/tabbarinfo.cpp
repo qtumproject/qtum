@@ -1,5 +1,4 @@
 #include "tabbarinfo.h"
-#include <QApplication>
 
 TabBarInfo::TabBarInfo(QStackedWidget *parent) :
     QObject(parent),
@@ -7,9 +6,7 @@ TabBarInfo::TabBarInfo(QStackedWidget *parent) :
     m_stack(parent),
     m_tabBar(0),
     m_attached(false)
-{
-    setObjectName("appTabBarInfo");
-}
+{}
 
 bool TabBarInfo::addTab(int index, const QString &name)
 {

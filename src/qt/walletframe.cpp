@@ -6,6 +6,7 @@
 
 #include "bitcoingui.h"
 #include "walletview.h"
+#include "tabbarinfo.h"
 
 #include <cstdio>
 
@@ -246,7 +247,7 @@ void WalletFrame::pageChanged(int index)
         if(walletView->count() > index)
         {
             QWidget* currentPage = walletView->widget(index);
-            QObject* info = currentPage->findChild<QObject *>("appTabBarInfo");
+            QObject* info = currentPage->findChild<TabBarInfo *>("");
             gui->setTabBarInfo(info);
         }
     }
