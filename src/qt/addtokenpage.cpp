@@ -36,6 +36,7 @@ void AddTokenPage::clearAll()
     ui->lineEditTokenName->setText("");
     ui->lineEditTokenSymbol->setText("");
     ui->lineEditDecimals->setText("");
+    ui->lineEditSenderAddress->setCurrentIndex(-1);
 }
 
 void AddTokenPage::setModel(WalletModel *_model)
@@ -55,7 +56,7 @@ void AddTokenPage::on_confirmButton_clicked()
     tokenInfo.strTokenName = ui->lineEditTokenName->text().toStdString();
     tokenInfo.strTokenSymbol = ui->lineEditTokenSymbol->text().toStdString();
     tokenInfo.nDecimals = ui->lineEditDecimals->text().toInt();
-    //tokenInfo.strSenderAddress = ui->lineEditTokenSymbol->text().toStdString();
+    tokenInfo.strSenderAddress = ui->lineEditSenderAddress->currentText().toStdString();
 
     if(m_model)
     {
