@@ -43,7 +43,7 @@ void SendTokenPage::setClientModel(ClientModel *_clientModel)
 void SendTokenPage::clearAll()
 {
     ui->lineEditPayTo->setText("");
-    ui->lineEditAmount->setText("");
+    ui->lineEditAmount->clear();
     ui->lineEditDescription->setText("");
     ui->lineEditGasLimit->setValue(DEFAULT_GAS_LIMIT_OP_SEND);
     ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
