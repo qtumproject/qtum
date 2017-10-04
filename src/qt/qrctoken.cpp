@@ -19,7 +19,8 @@ public:
         NameRole = Qt::UserRole + 2,
         SymbolRole = Qt::UserRole + 3,
         DecimalsRole = Qt::UserRole + 4,
-        BalanceRole = Qt::UserRole + 5,
+        SenderRole = Qt::UserRole + 5,
+        BalanceRole = Qt::UserRole + 6,
     };
 
     TokenViewDelegate(QObject *parent) :
@@ -104,7 +105,6 @@ QRCToken::QRCToken(QWidget *parent) :
     ui->receiveButton->setDefaultAction(m_receiveAction);
     ui->addTokenButton->setDefaultAction(m_addTokenAction);
 
-    connect(m_addTokenPage, SIGNAL(on_addNewToken(QString,QString,QString,int,double)),this, SLOT(on_addToken(QString,QString,QString,int,double)));
     connect(m_sendAction, SIGNAL(triggered()), this, SLOT(on_goToSendTokenPage()));
     connect(m_receiveAction, SIGNAL(triggered()), this, SLOT(on_goToReceiveTokenPage()));
     connect(m_addTokenAction, SIGNAL(triggered()), this, SLOT(on_goToAddTokenPage()));
@@ -127,6 +127,7 @@ void QRCToken::setClientModel(ClientModel *_clientModel)
 {
     m_clientModel = _clientModel;
     m_sendTokenPage->setClientModel(_clientModel);
+    m_addTokenPage->setClientModel(_clientModel);
 }
 
 void QRCToken::on_goToSendTokenPage()
@@ -147,7 +148,7 @@ void QRCToken::on_goToAddTokenPage()
     ui->stackedWidget->setCurrentIndex(2);
 }
 
-void QRCToken::on_addToken(QString _address, QString _name, QString _symbol, int _decimals, double _balance)
+void QRCToken::on_addToken(QString _address, QString _name, QString _symbol, int _decimals, QString _sender, double _balance)
 {
     QStandardItem *item = new QStandardItem();
 
@@ -155,6 +156,7 @@ void QRCToken::on_addToken(QString _address, QString _name, QString _symbol, int
     item->setData(_name, TokenViewDelegate::NameRole);
     item->setData(_symbol, TokenViewDelegate::SymbolRole);
     item->setData(_decimals, TokenViewDelegate::DecimalsRole);
+    item->setData(_sender, TokenViewDelegate::SenderRole);
     item->setData(_balance, TokenViewDelegate::BalanceRole);
 
     m_tokenModel->appendRow(item);

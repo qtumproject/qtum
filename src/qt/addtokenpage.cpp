@@ -2,6 +2,7 @@
 #include "ui_addtokenpage.h"
 #include "guiconstants.h"
 #include "wallet/wallet.h"
+#include "clientmodel.h"
 #include "walletmodel.h"
 #include "token.h"
 
@@ -9,7 +10,8 @@ AddTokenPage::AddTokenPage(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::AddTokenPage),
     m_tokenABI(0),
-    m_model(0)
+    m_model(0),
+    m_clientModel(0)
 {
     ui->setupUi(this);
     ui->lineEditContractAddress->setStyleSheet(STYLE_UNDERLINE);
@@ -28,6 +30,16 @@ AddTokenPage::~AddTokenPage()
     if(m_tokenABI)
         delete m_tokenABI;
     m_tokenABI = 0;
+}
+
+void AddTokenPage::setClientModel(ClientModel *clientModel)
+{
+    m_clientModel = clientModel;
+    if (m_clientModel)
+    {
+        connect(m_clientModel, SIGNAL(numBlocksChanged(int,QDateTime,double,bool)), this, SLOT(on_numBlocksChanged()));
+        on_numBlocksChanged();
+    }
 }
 
 void AddTokenPage::clearAll()
@@ -63,8 +75,6 @@ void AddTokenPage::on_confirmButton_clicked()
         m_model->AddTokenEntry(tokenInfo);
     }
 
-    //Q_EMIT on_addNewToken(address, name, symbol, decimals, 234234.234324);
-
     clearAll();
 }
 
@@ -85,4 +95,9 @@ void AddTokenPage::on_addressChanged()
         enableConfirm = ret;
     }
     ui->confirmButton->setEnabled(enableConfirm);
+}
+
+void AddTokenPage::on_numBlocksChanged()
+{
+    ui->lineEditSenderAddress->on_refresh();
 }
