@@ -175,6 +175,7 @@ QT_MOC_CPP = \
   qt/moc_splashscreen.cpp \
   qt/moc_tabbarinfo.cpp \
   qt/moc_titlebar.cpp \
+  qt/moc_tokenamountfield.cpp \
   qt/moc_tokenitemmodel.cpp \
   qt/moc_trafficgraphwidget.cpp \
   qt/moc_transactiondesc.cpp \
@@ -196,7 +197,8 @@ QT_MOC = \
   qt/bitcoinamountfield.moc \
   qt/intro.moc \
   qt/overviewpage.moc \
-  qt/rpcconsole.moc
+  qt/rpcconsole.moc \
+  qt/tokenamountfield.moc
 
 QT_QRC_CPP = qt/qrc_bitcoin.cpp
 QT_QRC = qt/bitcoin.qrc
@@ -267,6 +269,7 @@ BITCOIN_QT_H = \
   qt/tabbarinfo.h \
   qt/titlebar.h \
   qt/token.h \
+  qt/tokenamountfield.h \
   qt/tokenitemmodel.h \
   qt/trafficgraphwidget.h \
   qt/transactiondesc.h \
@@ -373,6 +376,7 @@ BITCOIN_QT_BASE_CPP = \
   qt/tabbarinfo.cpp \
   qt/titlebar.cpp \
   qt/token.cpp \
+  qt/tokenamountfield.cpp \
   qt/tokenitemmodel.cpp \
   qt/trafficgraphwidget.cpp \
   qt/utilitydialog.cpp
