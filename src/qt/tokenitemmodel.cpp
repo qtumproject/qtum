@@ -2,6 +2,7 @@
 #include "token.h"
 #include "walletmodel.h"
 #include "wallet/wallet.h"
+#include "validation.h"
 #include "bitcoinunits.h"
 #include <boost/foreach.hpp>
 
@@ -101,7 +102,7 @@ public:
     {
         cachedTokenItem.clear();
         {
-            LOCK(wallet->cs_wallet);
+            LOCK2(cs_main, wallet->cs_wallet);
 
             BOOST_FOREACH(const PAIRTYPE(uint256, CTokenInfo)& item, wallet->mapToken)
             {
@@ -339,6 +340,8 @@ private:
 static void NotifyTokenChanged(TokenItemModel *tim, CWallet *wallet, const uint256 &hash, ChangeType status)
 {
     // Find token in wallet
+    LOCK2(cs_main, wallet->cs_wallet);
+
     std::map<uint256, CTokenInfo>::iterator mi = wallet->mapToken.find(hash);
     bool showToken = mi != wallet->mapToken.end();
     CTokenInfo tokenInfo;
