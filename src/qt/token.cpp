@@ -3,6 +3,8 @@
 #include "contractabi.h"
 #include "validation.h"
 #include "utilmoneystr.h"
+#include "base58.h"
+#include "utilstrencodings.h"
 
 namespace Token_NS
 {
@@ -327,6 +329,21 @@ bool Token::burn(const std::string &_value, bool &success, bool sendTo)
     }
 
     return true;
+}
+
+bool Token::balanceOf(std::string &result, bool sendTo)
+{
+    std::string spender = d->lstParams[PARAM_SENDER].toStdString();
+    CBitcoinAddress qtumSenderAddress(spender);
+    if(qtumSenderAddress.IsValid()){
+        CKeyID keyid;
+        qtumSenderAddress.GetKeyID(keyid);
+        spender = HexStr(valtype(keyid.begin(),keyid.end()));
+    }else{
+        return false;
+    }
+
+    return balanceOf(spender, result, sendTo);
 }
 
 bool Token::balanceOf(const std::string &spender, std::string &result, bool sendTo)

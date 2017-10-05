@@ -27,6 +27,7 @@ public:
     bool transferFrom(const std::string& _from, const std::string& _to, const std::string& _value, bool& success, bool sendTo = false);
     bool decimals(std::string& result, bool sendTo = false);
     bool burn(const std::string& _value, bool& success, bool sendTo = false);
+    bool balanceOf(std::string& result, bool sendTo = false);
     bool balanceOf(const std::string& spender, std::string& result, bool sendTo = false);
     bool burnFrom(const std::string& _from, const std::string& _value, bool& success, bool sendTo = false);
     bool symbol(std::string& result, bool sendTo = false);

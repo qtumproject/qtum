@@ -1,5 +1,7 @@
 #include "qrctoken.h"
 #include "ui_qrctoken.h"
+#include "tokenitemmodel.h"
+#include "walletmodel.h"
 
 #include <QPainter>
 #include <QAbstractItemDelegate>
@@ -14,14 +16,6 @@
 class TokenViewDelegate : public QAbstractItemDelegate
 {
 public:
-    enum DataRole{
-        AddressRole = Qt::UserRole + 1,
-        NameRole = Qt::UserRole + 2,
-        SymbolRole = Qt::UserRole + 3,
-        DecimalsRole = Qt::UserRole + 4,
-        SenderRole = Qt::UserRole + 5,
-        BalanceRole = Qt::UserRole + 6,
-    };
 
     TokenViewDelegate(QObject *parent) :
         QAbstractItemDelegate(parent)
@@ -33,8 +27,8 @@ public:
         painter->save();
 
         QIcon tokenIcon;
-        QString tokenSymbol = index.data(SymbolRole).toString();
-        QString tokenBalance = index.data(BalanceRole).toString();
+        QString tokenSymbol = index.data(TokenItemModel::SymbolRole).toString();
+        QString tokenBalance = index.data(TokenItemModel::BalanceRole).toString();
 
         QRect mainRect = option.rect;
         mainRect.setWidth(option.rect.width());
@@ -73,8 +67,7 @@ QRCToken::QRCToken(QWidget *parent) :
     ui(new Ui::QRCToken),
     m_model(0),
     m_clientModel(0),
-    m_tokenDelegate(0),
-    m_tokenModel(0)
+    m_tokenDelegate(0)
 {
     ui->setupUi(this);
 
@@ -82,14 +75,12 @@ QRCToken::QRCToken(QWidget *parent) :
     m_receiveTokenPage = new ReceiveTokenPage(this);
     m_addTokenPage = new AddTokenPage(this);
     m_tokenDelegate = new TokenViewDelegate(this);
-    m_tokenModel = new QStandardItemModel(this);
 
     ui->stackedWidget->addWidget(m_sendTokenPage);
     ui->stackedWidget->addWidget(m_receiveTokenPage);
     ui->stackedWidget->addWidget(m_addTokenPage);
 
     ui->tokensList->setItemDelegate(m_tokenDelegate);
-    ui->tokensList->setModel(m_tokenModel);
 
     QActionGroup *actionGroup = new QActionGroup(this);
     m_sendAction = new QAction(tr("Send"), actionGroup);
@@ -121,6 +112,7 @@ void QRCToken::setModel(WalletModel *_model)
 {
     m_model = _model;
     m_addTokenPage->setModel(m_model);
+    ui->tokensList->setModel(m_model->getTokenItemModel());
 }
 
 void QRCToken::setClientModel(ClientModel *_clientModel)
@@ -148,16 +140,3 @@ void QRCToken::on_goToAddTokenPage()
     ui->stackedWidget->setCurrentIndex(2);
 }
 
-void QRCToken::on_addToken(QString _address, QString _name, QString _symbol, int _decimals, QString _sender, double _balance)
-{
-    QStandardItem *item = new QStandardItem();
-
-    item->setData(_address, TokenViewDelegate::AddressRole);
-    item->setData(_name, TokenViewDelegate::NameRole);
-    item->setData(_symbol, TokenViewDelegate::SymbolRole);
-    item->setData(_decimals, TokenViewDelegate::DecimalsRole);
-    item->setData(_sender, TokenViewDelegate::SenderRole);
-    item->setData(_balance, TokenViewDelegate::BalanceRole);
-
-    m_tokenModel->appendRow(item);
-}

@@ -11,8 +11,6 @@
 class TokenViewDelegate;
 class WalletModel;
 class ClientModel;
-class QStandardItemModel;
-class QStandardItem;
 namespace Ui {
 class QRCToken;
 }
@@ -31,7 +29,6 @@ public:
 Q_SIGNALS:
 
 public Q_SLOTS:
-    void on_addToken(QString address, QString name, QString symbol, int decimals, QString sender, double balance);
     void on_goToSendTokenPage();
     void on_goToReceiveTokenPage();
     void on_goToAddTokenPage();
@@ -44,7 +41,6 @@ private:
     WalletModel* m_model;
     ClientModel* m_clientModel;
     TokenViewDelegate* m_tokenDelegate;
-    QStandardItemModel *m_tokenModel;
     QAction *m_sendAction;
     QAction *m_receiveAction;
     QAction *m_addTokenAction;
