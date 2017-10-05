@@ -14,6 +14,7 @@
 #include "transactionfilterproxy.h"
 #include "transactiontablemodel.h"
 #include "walletmodel.h"
+#include "tokenitemmodel.h"
 
 #include <QAbstractItemDelegate>
 #include <QPainter>
@@ -121,14 +122,6 @@ public:
 class TknViewDelegate : public QAbstractItemDelegate
 {
 public:
-    enum DataRole{
-        AddressRole = Qt::UserRole + 1,
-        NameRole = Qt::UserRole + 2,
-        SymbolRole = Qt::UserRole + 3,
-        DecimalsRole = Qt::UserRole + 4,
-        BalanceRole = Qt::UserRole + 5,
-    };
-
     TknViewDelegate(QObject *parent) :
         QAbstractItemDelegate(parent)
     {}
@@ -138,9 +131,9 @@ public:
     {
         painter->save();
 
-        QString tokenName = index.data(NameRole).toString();
-        QString tokenBalance = index.data(BalanceRole).toString();
-        QString tokenSymbol = index.data(SymbolRole).toString();
+        QString tokenName = index.data(TokenItemModel::NameRole).toString();
+        QString tokenBalance = index.data(TokenItemModel::BalanceRole).toString();
+        QString tokenSymbol = index.data(TokenItemModel::SymbolRole).toString();
         tokenBalance.append(" " + tokenSymbol);
 
         QRect mainRect = option.rect;
@@ -318,6 +311,11 @@ void OverviewPage::setWalletModel(WalletModel *model)
 
         updateWatchOnlyLabels(model->haveWatchOnly());
         connect(model, SIGNAL(notifyWatchonlyChanged(bool)), this, SLOT(updateWatchOnlyLabels(bool)));
+    }
+
+    if(model && model->getTokenItemModel())
+    {
+        ui->listTokens->setModel(model->getTokenItemModel());
     }
 
     // update the display unit, to not use the default ("BTC")
