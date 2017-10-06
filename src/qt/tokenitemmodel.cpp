@@ -44,6 +44,14 @@ public:
 
     bool update(Token* tokenAbi)
     {
+        bool modified;
+        return update(tokenAbi, modified);
+    }
+
+    bool update(Token* tokenAbi, bool& modified)
+    {
+        modified = false;
+
         if(!tokenAbi)
             return false;
 
@@ -55,7 +63,11 @@ public:
         if(ret)
         {
             int256_t val(strBalance);
-            balance = BitcoinUnits::formatToken(tokenInfo.nDecimals, val, false, BitcoinUnits::separatorAlways);
+            if(val != balance)
+            {
+                modified = true;
+            }
+            balance = val;
         }
 
         return ret;
@@ -72,7 +84,7 @@ public:
     quint8 decimals;
     QString senderAddress;
     QString totalSupply;
-    QString balance;
+    int256_t balance;
 
 private:
     CTokenInfo tokenInfo;
@@ -284,7 +296,7 @@ QVariant TokenItemModel::data(const QModelIndex &index, int role) const
         return rec->senderAddress;
         break;
     case TokenItemModel::BalanceRole:
-        return rec->balance;
+        return BitcoinUnits::formatToken(rec->decimals, rec->balance, false, BitcoinUnits::separatorAlways);
         break;
     default:
         break;
@@ -301,8 +313,29 @@ Token *TokenItemModel::getTokenAbi()
 void TokenItemModel::updateToken(const QVariant &token, int status, bool showToken)
 {
     TokenItemEntry tokenEntry = token.value<TokenItemEntry>();
-    tokenEntry.update(getTokenAbi());
+    if(showToken)
+    {
+        tokenEntry.update(getTokenAbi());
+    }
     d->priv->updateEntry(tokenEntry, status);
+}
+
+void TokenItemModel::checkTokenBalanceChanged()
+{
+    if(!d->priv && !d->tokenAbi)
+        return;
+
+    for(int i = 0; i < d->priv->cachedTokenItem.size(); i++)
+    {
+        TokenItemEntry tokenEntry = d->priv->cachedTokenItem[i];
+        bool modified = false;
+        tokenEntry.update(d->tokenAbi, modified);
+        if(modified)
+        {
+            d->priv->cachedTokenItem[i] = tokenEntry;
+            emitDataChanged(i);
+        }
+    }
 }
 
 void TokenItemModel::emitDataChanged(int idx)

@@ -251,6 +251,7 @@ private:
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();
     void checkBalanceChanged();
+    void checkTokenBalanceChanged();
 
 Q_SIGNALS:
     // Signal that balance in wallet changed

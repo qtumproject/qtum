@@ -145,7 +145,8 @@ void WalletModel::pollBalanceChanged()
     if(!lockWallet)
         return;
 
-    if(fForceCheckBalanceChanged || chainActive.Height() != cachedNumBlocks)
+    bool cachedNumBlocksChanged = chainActive.Height() != cachedNumBlocks;
+    if(fForceCheckBalanceChanged || cachedNumBlocksChanged)
     {
         fForceCheckBalanceChanged = false;
 
@@ -155,6 +156,11 @@ void WalletModel::pollBalanceChanged()
         checkBalanceChanged();
         if(transactionTableModel)
             transactionTableModel->updateConfirmations();
+
+        if(cachedNumBlocksChanged)
+        {
+            checkTokenBalanceChanged();
+        }
     }
 }
 
@@ -189,6 +195,14 @@ void WalletModel::checkBalanceChanged()
         cachedWatchOnlyStake = newWatchOnlyStake;
         Q_EMIT balanceChanged(newBalance, newUnconfirmedBalance, newImmatureBalance, newStake,
                             newWatchOnlyBalance, newWatchUnconfBalance, newWatchImmatureBalance, newWatchOnlyStake);
+    }
+}
+
+void WalletModel::checkTokenBalanceChanged()
+{
+    if(tokenItemModel)
+    {
+        tokenItemModel->checkTokenBalanceChanged();
     }
 }
 
