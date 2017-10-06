@@ -267,3 +267,8 @@ void TokenAmountField::setDecimalUnits(int value)
 {
     amount->setDecimalUnits(value);
 }
+
+QString TokenAmountField::text() const
+{
+    return QString::fromStdString(value().str());
+}
