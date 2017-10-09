@@ -20,12 +20,14 @@ public:
     void clearAll();
     void setModel(WalletModel *_model);
     void setClientModel(ClientModel *clientModel);
+    bool isValidSenderAddress();
 
 private Q_SLOTS:
     void on_clearButton_clicked();
     void on_confirmButton_clicked();
     void on_addressChanged();
     void on_numBlocksChanged();
+    void on_updateConfirmButton();
 
 Q_SIGNALS:
 
@@ -34,6 +36,7 @@ private:
     Token *m_tokenABI;
     WalletModel* m_model;
     ClientModel* m_clientModel;
+    bool m_validTokenAddress;
 };
 
 #endif // ADDTOKENPAGE_H
