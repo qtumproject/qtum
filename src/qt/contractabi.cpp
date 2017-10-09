@@ -154,7 +154,7 @@ bool FunctionABI::abiOut(const std::string &data, std::vector<std::vector<std::s
 
 std::string FunctionABI::selector() const
 {
-    if(type == "constructor")
+    if(type == "constructor" || (type == "event" && anonymous))
     {
         return "";
     }
@@ -172,7 +172,16 @@ std::string FunctionABI::selector() const
     }
     id << ")";
     std::string sig = id.str();
-    dev::bytes hash = dev::sha3(sig).ref().cropped(0, 4).toBytes();
+
+    dev::bytes hash;
+    if(type == "event")
+    {
+        hash = dev::sha3(sig).ref().toBytes();
+    }
+    else
+    {
+        hash = dev::sha3(sig).ref().cropped(0, 4).toBytes();
+    }
 
     return dev::toHex(hash);
 }

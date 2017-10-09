@@ -59,7 +59,8 @@ void ABIFunctionField::updateABIFunctionField()
         {
             const FunctionABI &function = functions[func];
             if((m_functionType == Constructor && function.type != "constructor") ||
-                    (m_functionType == Function && function.type == "constructor"))
+                    (m_functionType == Function && function.type == "constructor") ||
+                    (m_functionType == Function && function.type == "event"))
             {
                 continue;
             }
