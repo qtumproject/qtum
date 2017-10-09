@@ -367,6 +367,13 @@
             </widget>
            </item>
            <item>
+            <widget class="QLabel" name="labelToken">
+             <property name="text">
+              <string>Token</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <spacer name="verticalSpacer_3">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
