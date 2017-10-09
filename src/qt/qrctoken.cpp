@@ -116,8 +116,19 @@ void QRCToken::setModel(WalletModel *_model)
     m_addTokenPage->setModel(m_model);
     m_sendTokenPage->setModel(m_model);
     m_tokenModel = m_model->getTokenItemModel();
-    ui->tokensList->setModel(m_tokenModel);
-    connect(m_tokenModel, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)), SLOT(on_dataChanged(QModelIndex,QModelIndex,QVector<int>)));
+    if(m_tokenModel)
+    {
+        connect(m_tokenModel, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)), SLOT(on_dataChanged(QModelIndex,QModelIndex,QVector<int>)));
+
+        ui->tokensList->setModel(m_tokenModel);
+
+        if(m_tokenModel->rowCount() > 0)
+        {
+            QModelIndex currentToken(m_tokenModel->index(2, 0));
+            ui->tokensList->setCurrentIndex(currentToken);
+            on_currentTokenChanged(currentToken);
+        }
+    }
 }
 
 void QRCToken::setClientModel(ClientModel *_clientModel)
@@ -167,7 +178,8 @@ void QRCToken::on_dataChanged(const QModelIndex &topLeft, const QModelIndex &bot
     if(m_tokenModel)
     {
         QString tokenHash = m_tokenModel->data(topLeft, TokenItemModel::Hash).toString();
-        if(tokenHash == m_selectedTokenHash)
+        if(m_selectedTokenHash.isEmpty() ||
+                tokenHash == m_selectedTokenHash)
         {
             on_currentTokenChanged(topLeft);
         }

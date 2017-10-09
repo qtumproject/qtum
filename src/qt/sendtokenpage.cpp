@@ -21,6 +21,9 @@ struct SelectedToken{
     std::string symbol;
     int8_t decimals;
     std::string balance;
+    SelectedToken():
+        decimals(0)
+    {}
 };
 
 SendTokenPage::SendTokenPage(QWidget *parent) :
@@ -161,12 +164,39 @@ void SendTokenPage::on_confirmClicked()
 
 void SendTokenPage::setTokenData(std::string address, std::string sender, std::string symbol, int8_t decimals, std::string balance)
 {
+    // Update data with the current token
+    int decimalDiff = decimals - m_selectedToken->decimals;
     m_selectedToken->address = address;
     m_selectedToken->sender = sender;
     m_selectedToken->symbol = symbol;
     m_selectedToken->decimals = decimals;
     m_selectedToken->balance = balance;
 
+    // Convert values for different number of decimals
+    int256_t totalSupply(balance);
+    int256_t value(ui->lineEditAmount->value());
+    if(value != 0)
+    {
+        for(int i = 0; i < decimalDiff; i++)
+        {
+            value *= 10;
+        }
+        for(int i = decimalDiff; i < 0; i++)
+        {
+            value /= 10;
+        }
+    }
+    if(value > totalSupply)
+    {
+        value = totalSupply;
+    }
+
+    // Update the amount field with the current token data
+    ui->lineEditAmount->clear();
     ui->lineEditAmount->setDecimalUnits(decimals);
-    ui->lineEditAmount->setTotalSupply(int256_t(balance));
+    ui->lineEditAmount->setTotalSupply(totalSupply);
+    if(value != 0)
+    {
+        ui->lineEditAmount->setValue(value);
+    }
 }
