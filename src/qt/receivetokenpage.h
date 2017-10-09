@@ -15,8 +15,16 @@ public:
     explicit ReceiveTokenPage(QWidget *parent = 0);
     ~ReceiveTokenPage();
 
+    void setAddress(QString address);
+
+private Q_SLOTS:
+    void on_copyAddressClicked();
+
 private:
     Ui::ReceiveTokenPage *ui;
+    QString m_address;
+
+    void createQRCode();
 };
 
 #endif // RECEIVETOKENPAGE_H

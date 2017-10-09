@@ -175,6 +175,7 @@ void QRCToken::on_currentTokenChanged(QModelIndex index)
         int8_t decimals = m_tokenModel->data(index, TokenItemModel::DecimalsRole).toInt();
         std::string balance = m_tokenModel->data(index, TokenItemModel::RawBalanceRole).toString().toStdString();
         m_sendTokenPage->setTokenData(address, sender, symbol, decimals, balance);
+        m_receiveTokenPage->setAddress(QString::fromStdString(sender));
     }
 }
 
