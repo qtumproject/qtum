@@ -12,6 +12,7 @@
 #include "validation.h"
 #include "guiutil.h"
 #include "sendcoinsdialog.h"
+#include "bitcoinaddressvalidator.h"
 
 static const CAmount SINGLE_STEP = 0.00000001*COIN;
 
@@ -53,6 +54,8 @@ SendTokenPage::SendTokenPage(QWidget *parent) :
     connect(ui->lineEditPayTo, SIGNAL(textChanged(QString)), SLOT(on_updateConfirmButton()));
     connect(ui->lineEditAmount, SIGNAL(textChanged(QString)), SLOT(on_updateConfirmButton()));
     connect(ui->confirmButton, SIGNAL(clicked()), SLOT(on_confirmClicked()));
+
+    ui->lineEditPayTo->setCheckValidator(new BitcoinAddressCheckValidator(parent));
 }
 
 SendTokenPage::~SendTokenPage()
@@ -89,6 +92,28 @@ void SendTokenPage::clearAll()
     ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
 }
 
+bool SendTokenPage::isValidAddress()
+{
+    ui->lineEditPayTo->checkValidity();
+    return ui->lineEditPayTo->isValid();
+}
+
+bool SendTokenPage::isDataValid()
+{
+    bool dataValid = true;
+
+    if(!isValidAddress())
+        dataValid = false;
+    if(!ui->lineEditAmount->validate())
+        dataValid = false;
+    if(ui->lineEditAmount->value(0) <= 0)
+    {
+        ui->lineEditAmount->setValid(false);
+        dataValid = false;
+    }
+    return dataValid;
+}
+
 void SendTokenPage::on_clearButton_clicked()
 {
     clearAll();
@@ -123,6 +148,9 @@ void SendTokenPage::on_updateConfirmButton()
 
 void SendTokenPage::on_confirmClicked()
 {
+    if(!isDataValid())
+        return;
+
     if(m_model && m_model->isUnspentAddress(m_selectedToken->sender))
     {
         int unit = m_model->getOptionsModel()->getDisplayUnit();
