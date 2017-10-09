@@ -8,6 +8,7 @@
 #include <QStandardItem>
 #include <QStandardItemModel>
 #include <QActionGroup>
+#include <QSortFilterProxyModel>
 
 #define DECORATION_SIZE 54
 #define SYMBOL_WIDTH 80
@@ -115,16 +116,23 @@ void QRCToken::setModel(WalletModel *_model)
     m_model = _model;
     m_addTokenPage->setModel(m_model);
     m_sendTokenPage->setModel(m_model);
-    m_tokenModel = m_model->getTokenItemModel();
-    if(m_tokenModel)
+    if(m_model && m_model->getTokenItemModel())
     {
-        connect(m_tokenModel, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)), SLOT(on_dataChanged(QModelIndex,QModelIndex,QVector<int>)));
+        // Sort tokens by symbol
+        QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(this);
+        TokenItemModel* tokenModel = m_model->getTokenItemModel();
+        proxyModel->setSourceModel(tokenModel);
+        proxyModel->sort(1, Qt::AscendingOrder);
+        m_tokenModel = proxyModel;
 
+        // Set tokens model
         ui->tokensList->setModel(m_tokenModel);
 
+        // Set current token
+        connect(m_tokenModel, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)), SLOT(on_dataChanged(QModelIndex,QModelIndex,QVector<int>)));
         if(m_tokenModel->rowCount() > 0)
         {
-            QModelIndex currentToken(m_tokenModel->index(2, 0));
+            QModelIndex currentToken(m_tokenModel->index(0, 0));
             ui->tokensList->setCurrentIndex(currentToken);
             on_currentTokenChanged(currentToken);
         }
@@ -160,7 +168,7 @@ void QRCToken::on_currentTokenChanged(QModelIndex index)
 {
     if(m_tokenModel)
     {
-        m_selectedTokenHash = m_tokenModel->data(index, TokenItemModel::Hash).toString();
+        m_selectedTokenHash = m_tokenModel->data(index, TokenItemModel::HashRole).toString();
         std::string address = m_tokenModel->data(index, TokenItemModel::AddressRole).toString().toStdString();
         std::string symbol = m_tokenModel->data(index, TokenItemModel::SymbolRole).toString().toStdString();
         std::string sender = m_tokenModel->data(index, TokenItemModel::SenderRole).toString().toStdString();
@@ -177,7 +185,7 @@ void QRCToken::on_dataChanged(const QModelIndex &topLeft, const QModelIndex &bot
 
     if(m_tokenModel)
     {
-        QString tokenHash = m_tokenModel->data(topLeft, TokenItemModel::Hash).toString();
+        QString tokenHash = m_tokenModel->data(topLeft, TokenItemModel::HashRole).toString();
         if(m_selectedTokenHash.isEmpty() ||
                 tokenHash == m_selectedTokenHash)
         {

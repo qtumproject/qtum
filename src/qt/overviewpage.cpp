@@ -21,6 +21,7 @@
 
 #include <QStandardItem>
 #include <QStandardItemModel>
+#include <QSortFilterProxyModel>
 
 #define DECORATION_SIZE 54
 #define NUM_ITEMS 5
@@ -315,7 +316,14 @@ void OverviewPage::setWalletModel(WalletModel *model)
 
     if(model && model->getTokenItemModel())
     {
-        ui->listTokens->setModel(model->getTokenItemModel());
+        // Sort tokens by name
+        QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(this);
+        TokenItemModel* tokenModel = model->getTokenItemModel();
+        proxyModel->setSourceModel(tokenModel);
+        proxyModel->sort(0, Qt::AscendingOrder);
+
+        // Set tokens model
+        ui->listTokens->setModel(proxyModel);
     }
 
     // update the display unit, to not use the default ("BTC")
