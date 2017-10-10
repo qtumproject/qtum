@@ -78,6 +78,9 @@ QRCToken::QRCToken(QWidget *parent) :
     m_addTokenPage = new AddTokenPage(this);
     m_tokenDelegate = new TokenViewDelegate(this);
 
+    m_sendTokenPage->setEnabled(false);
+    m_receiveTokenPage->setEnabled(false);
+
     ui->stackedWidget->addWidget(m_sendTokenPage);
     ui->stackedWidget->addWidget(m_receiveTokenPage);
     ui->stackedWidget->addWidget(m_addTokenPage);
@@ -176,6 +179,11 @@ void QRCToken::on_currentTokenChanged(QModelIndex index)
         std::string balance = m_tokenModel->data(index, TokenItemModel::RawBalanceRole).toString().toStdString();
         m_sendTokenPage->setTokenData(address, sender, symbol, decimals, balance);
         m_receiveTokenPage->setAddress(QString::fromStdString(sender));
+
+        if(!m_sendTokenPage->isEnabled())
+            m_sendTokenPage->setEnabled(true);
+        if(!m_receiveTokenPage->isEnabled())
+            m_receiveTokenPage->setEnabled(true);
     }
 }
 

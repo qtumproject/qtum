@@ -2,12 +2,15 @@
 <ui version="4.0">
  <class>ReceiveTokenPage</class>
  <widget class="QWidget" name="ReceiveTokenPage">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>520</width>
-    <height>377</height>
+    <height>387</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -37,7 +40,7 @@
         </size>
        </property>
        <property name="text">
-        <string>TextLabel</string>
+        <string/>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
