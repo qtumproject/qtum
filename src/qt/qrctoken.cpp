@@ -13,7 +13,7 @@
 #include <QSortFilterProxyModel>
 
 #define DECORATION_SIZE 54
-#define SYMBOL_WIDTH 80
+#define SYMBOL_WIDTH 100
 #define MARGIN 5
 
 class TokenViewDelegate : public QAbstractItemDelegate
@@ -47,10 +47,13 @@ public:
         QRect decorationRect(mainRect.topLeft(), QSize(DECORATION_SIZE, DECORATION_SIZE));
         tokenIcon.paint(painter, decorationRect);
 
+        QFontMetrics fmName(option.font);
+        QString clippedSymbol = fmName.elidedText(tokenSymbol, Qt::ElideRight, SYMBOL_WIDTH);
+
         QColor foreground = option.palette.color(QPalette::Text);
         painter->setPen(foreground);
         QRect tokenSymbolRect(decorationRect.right() + MARGIN, mainRect.top(), SYMBOL_WIDTH, DECORATION_SIZE);
-        painter->drawText(tokenSymbolRect, Qt::AlignLeft|Qt::AlignVCenter, tokenSymbol);
+        painter->drawText(tokenSymbolRect, Qt::AlignLeft|Qt::AlignVCenter, clippedSymbol);
 
         int amountWidth = (mainRect.width() - decorationRect.width() - 2 * MARGIN - tokenSymbolRect.width());
         QRect tokenBalanceRect(tokenSymbolRect.right(), mainRect.top(), amountWidth, DECORATION_SIZE);
