@@ -12,6 +12,7 @@
 #include "recentrequeststablemodel.h"
 #include "transactiontablemodel.h"
 #include "tokenitemmodel.h"
+#include "tokentransactiontablemodel.h"
 
 #include "base58.h"
 #include "keystore.h"
@@ -36,6 +37,7 @@ WalletModel::WalletModel(const PlatformStyle *platformStyle, CWallet *_wallet, O
     transactionTableModel(0),
     recentRequestsTableModel(0),
     tokenItemModel(0),
+    tokenTransactionTableModel(0),
     cachedBalance(0), 
 	cachedUnconfirmedBalance(0), 
 	cachedImmatureBalance(0), 
@@ -55,6 +57,7 @@ WalletModel::WalletModel(const PlatformStyle *platformStyle, CWallet *_wallet, O
     transactionTableModel = new TransactionTableModel(platformStyle, wallet, this);
     recentRequestsTableModel = new RecentRequestsTableModel(wallet, this);
     tokenItemModel = new TokenItemModel(wallet, this);
+    tokenTransactionTableModel = new TokenTransactionTableModel(platformStyle, wallet, this);
 
     // This timer will be fired repeatedly to update the balance
     pollTimer = new QTimer(this);
@@ -156,6 +159,9 @@ void WalletModel::pollBalanceChanged()
         checkBalanceChanged();
         if(transactionTableModel)
             transactionTableModel->updateConfirmations();
+
+        if(tokenTransactionTableModel)
+            tokenTransactionTableModel->updateConfirmations();
 
         if(cachedNumBlocksChanged)
         {
@@ -436,6 +442,12 @@ TokenItemModel *WalletModel::getTokenItemModel()
 {
     return tokenItemModel;
 }
+
+TokenTransactionTableModel *WalletModel::getTokenTransactionTableModel()
+{
+    return tokenTransactionTableModel;
+}
+
 
 WalletModel::EncryptionStatus WalletModel::getEncryptionStatus() const
 {

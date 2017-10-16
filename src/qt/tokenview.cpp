@@ -2,7 +2,7 @@
 
 #include "walletmodel.h"
 #include "platformstyle.h"
-#include "transactiontablemodel.h"
+#include "tokentransactiontablemodel.h"
 #include "tokenfilterproxy.h"
 #include "guiutil.h"
 #include "optionsmodel.h"
@@ -159,7 +159,7 @@ void TokenView::setModel(WalletModel *_model)
     {
         updateNameWidget();
         tokenProxyModel = new TokenFilterProxy(this);
-        //tokenProxyModel->setSourceModel(_model->getTransactionTableModel());
+        tokenProxyModel->setSourceModel(_model->getTokenTransactionTableModel());
         tokenProxyModel->setDynamicSortFilter(true);
         tokenProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
         tokenProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
