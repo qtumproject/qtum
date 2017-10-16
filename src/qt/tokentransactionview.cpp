@@ -1,4 +1,4 @@
-#include "tokenview.h"
+#include "tokentransactionview.h"
 
 #include "walletmodel.h"
 #include "platformstyle.h"
@@ -22,7 +22,7 @@
 #include <QTableView>
 #include <QVBoxLayout>
 
-TokenView::TokenView(const PlatformStyle *platformStyle, QWidget *parent) :
+TokenTransactionView::TokenTransactionView(const PlatformStyle *platformStyle, QWidget *parent) :
     QWidget(parent),
     model(0),
     tokenProxyModel(0),
@@ -152,7 +152,7 @@ TokenView::TokenView(const PlatformStyle *platformStyle, QWidget *parent) :
     connect(showDetailsAction, SIGNAL(triggered()), this, SLOT(showDetails()));
 }
 
-void TokenView::setModel(WalletModel *_model)
+void TokenTransactionView::setModel(WalletModel *_model)
 {
     this->model = _model;
     if(_model)
@@ -181,11 +181,11 @@ void TokenView::setModel(WalletModel *_model)
         tokenView->setColumnWidth(TokenTableModel::Name, NAME_COLUMN_WIDTH);
         tokenView->setColumnWidth(TokenTableModel::Amount, AMOUNT_MINIMUM_COLUMN_WIDTH);
 
-        //columnResizingFixer = new GUIUtil::TableViewLastColumnResizingFixer(tokenView, AMOUNT_MINIMUM_COLUMN_WIDTH, MINIMUM_COLUMN_WIDTH, this);
+        columnResizingFixer = new GUIUtil::TableViewLastColumnResizingFixer(tokenView, AMOUNT_MINIMUM_COLUMN_WIDTH, MINIMUM_COLUMN_WIDTH, this);
     }
 }
 
-QWidget *TokenView::createDateRangeWidget()
+QWidget *TokenTransactionView::createDateRangeWidget()
 {
     dateRangeWidget = new QFrame();
     dateRangeWidget->setFrameStyle(QFrame::Panel | QFrame::Raised);
@@ -221,7 +221,7 @@ QWidget *TokenView::createDateRangeWidget()
     return dateRangeWidget;
 }
 
-void TokenView::updateNameWidget()
+void TokenTransactionView::updateNameWidget()
 {
     if(model)
         for(int i = 0; i < model->getTokenItemModel()->rowCount(); i++)
@@ -231,13 +231,13 @@ void TokenView::updateNameWidget()
         }
 }
 
-void TokenView::resizeEvent(QResizeEvent *event)
+void TokenTransactionView::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
-    //columnResizingFixer->stretchColumnWidth(TokenTableModel::ToAddress);
+    columnResizingFixer->stretchColumnWidth(TokenTableModel::ToAddress);
 }
 
-bool TokenView::eventFilter(QObject *obj, QEvent *event)
+bool TokenTransactionView::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::KeyPress)
     {
@@ -251,7 +251,7 @@ bool TokenView::eventFilter(QObject *obj, QEvent *event)
     return QWidget::eventFilter(obj, event);
 }
 
-void TokenView::contextualMenu(const QPoint &point)
+void TokenTransactionView::contextualMenu(const QPoint &point)
 {
     QModelIndex index = tokenView->indexAt(point);
     QModelIndexList selection = tokenView->selectionModel()->selectedRows(0);
@@ -264,7 +264,7 @@ void TokenView::contextualMenu(const QPoint &point)
     }
 }
 
-void TokenView::dateRangeChanged()
+void TokenTransactionView::dateRangeChanged()
 {
     if(!tokenProxyModel)
         return;
@@ -273,7 +273,7 @@ void TokenView::dateRangeChanged()
                 QDateTime(dateTo->date()).addDays(1));
 }
 
-void TokenView::showDetails()
+void TokenTransactionView::showDetails()
 {
     if(!tokenView->selectionModel())
         return;
@@ -286,27 +286,27 @@ void TokenView::showDetails()
     }
 }
 
-void TokenView::copyAddress()
+void TokenTransactionView::copyAddress()
 {
     GUIUtil::copyEntryData(tokenView, 0, TokenTableModel::AddressRole);
 }
 
-void TokenView::copyAmount()
+void TokenTransactionView::copyAmount()
 {
     GUIUtil::copyEntryData(tokenView, 0, TokenTableModel::AmountRole);
 }
 
-void TokenView::copyTxID()
+void TokenTransactionView::copyTxID()
 {
     GUIUtil::copyEntryData(tokenView, 0, TokenTableModel::TxIdRole);
 }
 
-void TokenView::copyTxPlainText()
+void TokenTransactionView::copyTxPlainText()
 {
     GUIUtil::copyEntryData(tokenView, 0, TokenTableModel::TokenPlainTextRole);
 }
 
-void TokenView::chooseDate(int idx)
+void TokenTransactionView::chooseDate(int idx)
 {
     if(!tokenProxyModel)
         return;
@@ -354,7 +354,7 @@ void TokenView::chooseDate(int idx)
     }
 }
 
-void TokenView::chooseType(int idx)
+void TokenTransactionView::chooseType(int idx)
 {
     if(!tokenProxyModel)
         return;
@@ -362,7 +362,7 @@ void TokenView::chooseType(int idx)
                 typeWidget->itemData(idx).toInt());
 }
 
-void TokenView::chooseName(int idx)
+void TokenTransactionView::chooseName(int idx)
 {
     if(!tokenProxyModel)
         return;
@@ -370,14 +370,14 @@ void TokenView::chooseName(int idx)
                 nameWidget->itemData(idx).toString());
 }
 
-void TokenView::changedPrefix(const QString &prefix)
+void TokenTransactionView::changedPrefix(const QString &prefix)
 {
     if(!tokenProxyModel)
         return;
     tokenProxyModel->setAddressPrefix(prefix);
 }
 
-void TokenView::changedAmount(const QString &amount)
+void TokenTransactionView::changedAmount(const QString &amount)
 {
     if(!tokenProxyModel)
         return;

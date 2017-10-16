@@ -18,11 +18,11 @@ class QMenu;
 class QTableView;
 QT_END_NAMESPACE
 
-class TokenView : public QWidget
+class TokenTransactionView : public QWidget
 {
     Q_OBJECT
 public:
-    explicit TokenView(const PlatformStyle *platformStyle, QWidget *parent = 0);
+    explicit TokenTransactionView(const PlatformStyle *platformStyle, QWidget *parent = 0);
 
     void setModel(WalletModel *model);
 

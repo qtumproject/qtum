@@ -12,7 +12,7 @@
 class TokenViewDelegate;
 class WalletModel;
 class ClientModel;
-class TokenView;
+class TokenTransactionView;
 class PlatformStyle;
 
 namespace Ui {
@@ -52,7 +52,7 @@ private:
     QAction *m_receiveAction;
     QAction *m_addTokenAction;
     QString m_selectedTokenHash;
-    TokenView *m_tokenView;
+    TokenTransactionView *m_tokenTransactionView;
     const PlatformStyle *m_platformStyle;
 };
 
