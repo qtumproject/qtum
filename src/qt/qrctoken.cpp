@@ -2,6 +2,8 @@
 #include "ui_qrctoken.h"
 #include "tokenitemmodel.h"
 #include "walletmodel.h"
+#include "tokenview.h"
+#include "platformstyle.h"
 
 #include <QPainter>
 #include <QAbstractItemDelegate>
@@ -63,15 +65,18 @@ public:
     }
 };
 
-QRCToken::QRCToken(QWidget *parent) :
+QRCToken::QRCToken(const PlatformStyle *platformStyle, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::QRCToken),
     m_model(0),
     m_clientModel(0),
     m_tokenModel(0),
-    m_tokenDelegate(0)
+    m_tokenDelegate(0),
+    m_tokenView(0)
 {
     ui->setupUi(this);
+
+    m_platformStyle = platformStyle;
 
     m_sendTokenPage = new SendTokenPage(this);
     m_receiveTokenPage = new ReceiveTokenPage(this);
@@ -84,6 +89,9 @@ QRCToken::QRCToken(QWidget *parent) :
     ui->stackedWidget->addWidget(m_sendTokenPage);
     ui->stackedWidget->addWidget(m_receiveTokenPage);
     ui->stackedWidget->addWidget(m_addTokenPage);
+
+    m_tokenView = new TokenView(m_platformStyle, this);
+    ui->tokenViewLayout->addWidget(m_tokenView);
 
     ui->tokensList->setItemDelegate(m_tokenDelegate);
 
@@ -119,6 +127,7 @@ void QRCToken::setModel(WalletModel *_model)
     m_model = _model;
     m_addTokenPage->setModel(m_model);
     m_sendTokenPage->setModel(m_model);
+    m_tokenView->setModel(_model);
     if(m_model && m_model->getTokenItemModel())
     {
         // Sort tokens by symbol

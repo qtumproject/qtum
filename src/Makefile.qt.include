@@ -120,6 +120,7 @@ QT_FORMS_UI = \
   qt/forms/sendtokenpage.ui \
   qt/forms/signverifymessagedialog.ui \
   qt/forms/titlebar.ui \
+  qt/forms/tokendescdialog.ui \
   qt/forms/transactiondescdialog.ui
 
 QT_MOC_CPP = \
@@ -176,7 +177,10 @@ QT_MOC_CPP = \
   qt/moc_tabbarinfo.cpp \
   qt/moc_titlebar.cpp \
   qt/moc_tokenamountfield.cpp \
+  qt/moc_tokendescdialog.cpp \
   qt/moc_tokenitemmodel.cpp \
+  qt/moc_tokenfilterproxy.cpp \
+  qt/moc_tokenview.cpp \
   qt/moc_trafficgraphwidget.cpp \
   qt/moc_transactiondesc.cpp \
   qt/moc_transactiondescdialog.cpp \
@@ -271,7 +275,10 @@ BITCOIN_QT_H = \
   qt/titlebar.h \
   qt/token.h \
   qt/tokenamountfield.h \
+  qt/tokendescdialog.h \
   qt/tokenitemmodel.h \
+  qt/tokenfilterproxy.h \
+  qt/tokenview.h \
   qt/trafficgraphwidget.h \
   qt/transactiondesc.h \
   qt/transactiondescdialog.h \
@@ -417,6 +424,9 @@ BITCOIN_QT_WALLET_CPP = \
   qt/sendtocontract.cpp \
   qt/sendtokenpage.cpp \
   qt/signverifymessagedialog.cpp \
+  qt/tokendescdialog.cpp \
+  qt/tokenfilterproxy.cpp \
+  qt/tokenview.cpp \
   qt/transactiondesc.cpp \
   qt/transactiondescdialog.cpp \
   qt/transactionfilterproxy.cpp \

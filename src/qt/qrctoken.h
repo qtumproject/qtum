@@ -12,6 +12,9 @@
 class TokenViewDelegate;
 class WalletModel;
 class ClientModel;
+class TokenView;
+class PlatformStyle;
+
 namespace Ui {
 class QRCToken;
 }
@@ -21,7 +24,7 @@ class QRCToken : public QWidget
     Q_OBJECT
 
 public:
-    explicit QRCToken(QWidget *parent = 0);
+    explicit QRCToken(const PlatformStyle *platformStyle, QWidget *parent = 0);
     ~QRCToken();
 
     void setModel(WalletModel *_model);
@@ -49,6 +52,8 @@ private:
     QAction *m_receiveAction;
     QAction *m_addTokenAction;
     QString m_selectedTokenHash;
+    TokenView *m_tokenView;
+    const PlatformStyle *m_platformStyle;
 };
 
 #endif // QRCTOKEN_H

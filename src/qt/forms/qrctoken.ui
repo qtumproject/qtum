@@ -94,11 +94,7 @@
     </layout>
    </item>
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout">
-     <item>
-      <widget class="QTableView" name="transactionTable"/>
-     </item>
-    </layout>
+    <layout class="QVBoxLayout" name="tokenViewLayout"/>
    </item>
   </layout>
  </widget>

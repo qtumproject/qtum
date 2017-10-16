@@ -67,7 +67,7 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
     sendToContractPage = new SendToContract(platformStyle);
     callContractPage = new CallContract(platformStyle);
 
-    QRCTokenPage = new QRCToken();
+    QRCTokenPage = new QRCToken(platformStyle);
 
     addWidget(overviewPage);
     addWidget(transactionsPage);
