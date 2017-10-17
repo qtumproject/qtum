@@ -30,3 +30,7 @@ bool TokenTransactionRecord::statusUpdateNeeded()
     return status.cur_num_blocks != chainActive.Height();
 }
 
+QString TokenTransactionRecord::getTxID() const
+{
+    return QString::fromStdString(hash.ToString());
+}

@@ -95,6 +95,9 @@ public:
     CAmount credit;
     /**@}*/
 
+    /** Return the unique identifier for this transaction (part) */
+    QString getTxID() const;
+
     /** Status: can change with block chain update */
     TokenTransactionStatus status;
 
