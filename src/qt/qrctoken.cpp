@@ -11,6 +11,7 @@
 #include <QStandardItemModel>
 #include <QActionGroup>
 #include <QSortFilterProxyModel>
+#include <QSizePolicy>
 
 #define TOKEN_SIZE 54
 #define SYMBOL_WIDTH 100
@@ -99,6 +100,7 @@ QRCToken::QRCToken(const PlatformStyle *platformStyle, QWidget *parent) :
     ui->stackedWidget->addWidget(m_addTokenPage);
 
     m_tokenTransactionView = new TokenTransactionView(m_platformStyle, this);
+    m_tokenTransactionView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->tokenViewLayout->addWidget(m_tokenTransactionView);
 
     ui->tokensList->setItemDelegate(m_tokenDelegate);
