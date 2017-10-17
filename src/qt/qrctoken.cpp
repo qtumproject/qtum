@@ -12,7 +12,7 @@
 #include <QActionGroup>
 #include <QSortFilterProxyModel>
 
-#define DECORATION_SIZE 54
+#define TOKEN_SIZE 54
 #define SYMBOL_WIDTH 100
 #define MARGIN 5
 
@@ -20,8 +20,9 @@ class TokenViewDelegate : public QAbstractItemDelegate
 {
 public:
 
-    TokenViewDelegate(QObject *parent) :
-        QAbstractItemDelegate(parent)
+    TokenViewDelegate(const PlatformStyle *_platformStyle, QObject *parent) :
+        QAbstractItemDelegate(parent),
+        platformStyle(_platformStyle)
     {}
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
@@ -29,7 +30,7 @@ public:
     {
         painter->save();
 
-        QIcon tokenIcon;
+        QIcon tokenIcon = platformStyle->SingleColorIcon(":/icons/token");
         QString tokenSymbol = index.data(TokenItemModel::SymbolRole).toString();
         QString tokenBalance = index.data(TokenItemModel::BalanceRole).toString();
 
@@ -44,7 +45,9 @@ public:
             painter->fillRect(mainRect,QColor("#cbcbcb"));
         }
 
-        QRect decorationRect(mainRect.topLeft(), QSize(DECORATION_SIZE, DECORATION_SIZE));
+        int decorationSize = TOKEN_SIZE - 20;
+        int leftTopMargin = 10;
+        QRect decorationRect(mainRect.topLeft() + QPoint(leftTopMargin, leftTopMargin), QSize(decorationSize, decorationSize));
         tokenIcon.paint(painter, decorationRect);
 
         QFontMetrics fmName(option.font);
@@ -52,11 +55,11 @@ public:
 
         QColor foreground = option.palette.color(QPalette::Text);
         painter->setPen(foreground);
-        QRect tokenSymbolRect(decorationRect.right() + MARGIN, mainRect.top(), SYMBOL_WIDTH, DECORATION_SIZE);
+        QRect tokenSymbolRect(decorationRect.right() + MARGIN, mainRect.top(), SYMBOL_WIDTH, TOKEN_SIZE);
         painter->drawText(tokenSymbolRect, Qt::AlignLeft|Qt::AlignVCenter, clippedSymbol);
 
-        int amountWidth = (mainRect.width() - decorationRect.width() - 2 * MARGIN - tokenSymbolRect.width());
-        QRect tokenBalanceRect(tokenSymbolRect.right(), mainRect.top(), amountWidth, DECORATION_SIZE);
+        int amountWidth = (mainRect.width() - decorationRect.width() - 2 * MARGIN - tokenSymbolRect.width()- leftTopMargin);
+        QRect tokenBalanceRect(tokenSymbolRect.right(), mainRect.top(), amountWidth, TOKEN_SIZE);
         painter->drawText(tokenBalanceRect, Qt::AlignRight|Qt::AlignVCenter, tokenBalance);
 
         painter->restore();
@@ -64,8 +67,10 @@ public:
 
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
     {
-        return QSize(DECORATION_SIZE, DECORATION_SIZE);
+        return QSize(TOKEN_SIZE, TOKEN_SIZE);
     }
+
+    const PlatformStyle *platformStyle;
 };
 
 QRCToken::QRCToken(const PlatformStyle *platformStyle, QWidget *parent) :
@@ -84,7 +89,7 @@ QRCToken::QRCToken(const PlatformStyle *platformStyle, QWidget *parent) :
     m_sendTokenPage = new SendTokenPage(this);
     m_receiveTokenPage = new ReceiveTokenPage(this);
     m_addTokenPage = new AddTokenPage(this);
-    m_tokenDelegate = new TokenViewDelegate(this);
+    m_tokenDelegate = new TokenViewDelegate(platformStyle, this);
 
     m_sendTokenPage->setEnabled(false);
     m_receiveTokenPage->setEnabled(false);

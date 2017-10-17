@@ -61,6 +61,7 @@
         <file alias="contract_output">res/icons/contract_output.png</file>
         <file alias="smart_contract">res/icons/smart_contract.png</file>
         <file alias="qrctoken">res/icons/qrctoken.png</file>
+        <file alias="token">res/icons/token.png</file>
     </qresource>
     <qresource prefix="/movies">
         <file alias="spinner-000">res/movies/spinner-000.png</file>
