@@ -553,6 +553,20 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
 
             pwallet->LoadToken(wtoken);
         }
+        else if (strType == "tokentx")
+        {
+            uint256 hash;
+            ssKey >> hash;
+            CTokenTx wTokenTx;
+            ssValue >> wTokenTx;
+            if (wTokenTx.GetHash() != hash)
+            {
+                strErr = "Error reading wallet database: CTokenTx corrupt";
+                return false;
+            }
+
+            pwallet->LoadTokenTx(wTokenTx);
+        }
     } catch (...)
     {
         return false;
@@ -986,4 +1000,16 @@ bool CWalletDB::EraseToken(uint256 hash)
 {
     nWalletDBUpdateCounter++;
     return Erase(std::make_pair(std::string("token"), hash));
+}
+
+bool CWalletDB::WriteTokenTx(const CTokenTx &wTokenTx)
+{
+    nWalletDBUpdateCounter++;
+    return Write(std::make_pair(std::string("tokentx"), wTokenTx.GetHash()), wTokenTx);
+}
+
+bool CWalletDB::EraseTokenTx(uint256 hash)
+{
+    nWalletDBUpdateCounter++;
+    return Erase(std::make_pair(std::string("tokentx"), hash));
 }

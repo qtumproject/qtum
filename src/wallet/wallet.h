@@ -798,6 +798,8 @@ public:
 
     bool LoadToken(const CTokenInfo &token);
 
+    bool LoadTokenTx(const CTokenTx &tokenTx);
+
     /** 
      * Increment the next transaction order id
      * @return next transaction order id
@@ -1038,6 +1040,9 @@ public:
 
     /* Add token entry into the wallet */
     bool AddTokenEntry(const CTokenInfo& token, bool fFlushOnClose=true);
+
+    /* Add token tx entry into the wallet */
+    bool AddTokenTxEntry(const CTokenTx& tokenTx, bool fFlushOnClose=true);
 };
 
 /** A key allocated from the key pool. */
