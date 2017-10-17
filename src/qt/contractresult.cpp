@@ -89,21 +89,29 @@ void ContractResult::setParamsData(FunctionABI function, QList<QStringList> para
         paramName->setToolTip(QString("%2 %1").arg(QString::fromStdString(param->name)).arg(QString::fromStdString(param->type)));
 
         vNameLayout->addWidget(paramName);
-        QStringList listValues = paramValues[i];
-        int spacerSize = 0;
-        for(int j = 0; j < listValues.count(); j++)
-        {
-            QLineEdit *paramValue = new QLineEdit(this);
-            paramValue->setReadOnly(true);
-            paramValue->setText(listValues[j]);
-            paramValuesLayout->addWidget(paramValue);
-            if(j > 0)
-                spacerSize += 22; // Line edit height + spacing
-        }
-        if(spacerSize > 0)
-            vNameLayout->addSpacerItem(new QSpacerItem(20, spacerSize, QSizePolicy::Fixed, QSizePolicy::Fixed));
         hLayout->addLayout(vNameLayout);
+        QStringList listValues = paramValues[i];
+        if(listValues.size() > 0)
+        {
+            int spacerSize = 0;
+            for(int j = 0; j < listValues.count(); j++)
+            {
+                QLineEdit *paramValue = new QLineEdit(this);
+                paramValue->setReadOnly(true);
+                paramValue->setText(listValues[j]);
+                paramValuesLayout->addWidget(paramValue);
+                if(j > 0)
+                    spacerSize += 22; // Line edit height + spacing
+            }
+            if(spacerSize > 0)
+                vNameLayout->addSpacerItem(new QSpacerItem(20, spacerSize, QSizePolicy::Fixed, QSizePolicy::Fixed));
+
         hLayout->addLayout(paramValuesLayout);
+        }
+        else
+        {
+            hLayout->addSpacerItem(new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Fixed));
+        }
 
         mainLayout->addLayout(hLayout);
         i++;
