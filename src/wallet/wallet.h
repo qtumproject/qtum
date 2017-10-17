@@ -84,6 +84,7 @@ class CReserveKey;
 class CScript;
 class CTxMemPool;
 class CWalletTx;
+class CTokenTx;
 
 /** (client) version numbers for particular wallet features */
 enum WalletFeature
@@ -718,6 +719,8 @@ public:
 
     std::map<uint256, CTokenInfo> mapToken;
 
+    std::map<uint256, CTokenTx> mapTokenTx;
+
     const CWalletTx* GetWalletTx(const uint256& hash) const;
 
     //! check whether we are allowed to upgrade (or already support) to the named feature
@@ -1160,6 +1163,38 @@ public:
         strTokenSymbol = "";
         nDecimals = 0;
         strSenderAddress = "";
+    }
+
+    uint256 GetHash() const;
+};
+
+class CTokenTx
+{
+public:
+    static const int CURRENT_VERSION=1;
+    int nVersion;
+    int64_t nTime;
+
+    CTokenTx()
+    {
+        SetNull();
+    }
+
+    ADD_SERIALIZE_METHODS;
+
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action) {
+        if (!(s.GetType() & SER_GETHASH))
+        {
+            READWRITE(nVersion);
+        }
+        READWRITE(nTime);
+    }
+
+    void SetNull()
+    {
+        nVersion = CTokenTx::CURRENT_VERSION;
+        nTime = 0;
     }
 
     uint256 GetHash() const;

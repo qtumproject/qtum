@@ -3,13 +3,13 @@
 #include "validation.h"
 #include "wallet/wallet.h"
 
-QString TokenTransactionDesc::FormatTxStatus(const CWalletTx& wtx)
+QString TokenTransactionDesc::FormatTxStatus(const CTokenTx& wtx)
 {
     AssertLockHeld(cs_main);
     return QString();
 }
 
-QString TokenTransactionDesc::toHTML(CWallet *wallet, CWalletTx &wtx, TokenTransactionRecord *rec, int unit)
+QString TokenTransactionDesc::toHTML(CWallet *wallet, CTokenTx &wtx, TokenTransactionRecord *rec, int unit)
 {
     QString strHTML;
 
