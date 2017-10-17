@@ -794,3 +794,9 @@ bool WalletModel::AddTokenEntry(const CTokenInfo &token)
 {
     return wallet->AddTokenEntry(token, true);
 }
+
+bool WalletModel::AddTokenTxEntry(const CTokenTx& tokenTx, bool fFlushOnClose)
+{
+    return wallet->AddTokenTxEntry(tokenTx, fFlushOnClose);
+}
+
