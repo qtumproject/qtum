@@ -1043,6 +1043,9 @@ public:
 
     /* Add token tx entry into the wallet */
     bool AddTokenTxEntry(const CTokenTx& tokenTx, bool fFlushOnClose=true);
+
+    /* Get details token tx entry into the wallet */
+    bool GetTokenTxDetails(const CTokenTx &wtx, uint256& credit, uint256& debit, std::string& tokenSymbol, uint8_t& decimals) const;
 };
 
 /** A key allocated from the key pool. */
