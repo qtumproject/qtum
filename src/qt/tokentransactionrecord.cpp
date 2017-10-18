@@ -21,7 +21,7 @@ QList<TokenTransactionRecord> TokenTransactionRecord::decomposeTransaction(const
     uint256 debit;
     std::string tokenSymbol;
     uint8_t decimals = 18;
-    if(wallet && wallet->GetTokenTxDetails(wtx, credit, debit, tokenSymbol, decimals))
+    if(wallet && !wtx.nValue.IsNull() && wallet->GetTokenTxDetails(wtx, credit, debit, tokenSymbol, decimals))
     {
         // Get token transaction data
         TokenTransactionRecord rec;
@@ -34,26 +34,26 @@ QList<TokenTransactionRecord> TokenTransactionRecord::decomposeTransaction(const
         dev::s256 net = rec.credit + rec.debit;
 
         // Determine type
-        if(wtx.strSenderAddress == wtx.strReceiverAddress)
+        if(net == 0)
         {
             rec.type = SendToSelf;
         }
+        else if(net > 0)
+        {
+           rec.type = RecvWithAddress;
+        }
         else
         {
-            if(net > 0)
-                rec.type = RecvWithAddress;
-
-            if(net < 0)
-                rec.type = SendToAddress;
+            rec.type = SendToAddress;
         }
 
         // Set address
         switch (rec.type) {
         case SendToAddress:
         case SendToOther:
-        case SendToSelf:
             rec.address = wtx.strSenderAddress;
             break;
+        case SendToSelf:
         case RecvWithAddress:
         case RecvFromOther:
             rec.address = wtx.strReceiverAddress;

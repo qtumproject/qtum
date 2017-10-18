@@ -78,6 +78,7 @@ bool TokenFilterProxy::filterAcceptsRow(int sourceRow, const QModelIndex &source
     QDateTime datetime = index.data(TokenTransactionTableModel::DateRole).toDateTime();
     QString address = index.data(TokenTransactionTableModel::AddressRole).toString();
     int256_t amount(index.data(TokenTransactionTableModel::AmountRole).toString().toStdString());
+    amount = amount < 0 ? - amount : amount;
     QString tokenName = index.data(TokenTransactionTableModel::NameRole).toString();
 
     if(!(TYPE(type) & typeFilter))
