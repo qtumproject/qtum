@@ -28,7 +28,8 @@ QList<TokenTransactionRecord> TokenTransactionRecord::decomposeTransaction(const
         rec.time = wtx.nTime;
         rec.credit = dev::u2s(uintTou256(credit));
         rec.debit = -dev::u2s(uintTou256(debit));
-        rec.hash = wtx.transactionHash;
+        rec.hash = wtx.GetHash();
+        rec.txid = wtx.transactionHash;
         rec.tokenSymbol = tokenSymbol;
         rec.decimals = decimals;
         dev::s256 net = rec.credit + rec.debit;

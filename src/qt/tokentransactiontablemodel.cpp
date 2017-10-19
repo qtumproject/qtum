@@ -536,7 +536,7 @@ QVariant TokenTransactionTableModel::data(const QModelIndex &index, int role) co
     case AmountRole:
         return QString::fromStdString((rec->credit + rec->debit).str());
     case TxHashRole:
-        return QString::fromStdString(rec->hash.ToString());
+        return QString::fromStdString(rec->txid.ToString());
     case TxHexRole:
         return priv->getTxHex(rec);
     case TxPlainTextRole:
