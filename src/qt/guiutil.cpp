@@ -292,6 +292,18 @@ void copyEntryData(QAbstractItemView *view, int column, int role)
     }
 }
 
+void copyEntryDataFromList(QAbstractItemView *view, int role)
+{
+    if(!view || !view->selectionModel())
+        return;
+    QModelIndexList selection = view->selectionModel()->selectedIndexes();
+
+    if(!selection.isEmpty())
+    {
+        // Copy first item
+        setClipboard(selection.at(0).data(role).toString());
+    }
+}
 QList<QModelIndex> getEntryData(QAbstractItemView *view, int column)
 {
     if(!view || !view->selectionModel())

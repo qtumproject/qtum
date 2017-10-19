@@ -14,6 +14,7 @@ class WalletModel;
 class ClientModel;
 class TokenTransactionView;
 class PlatformStyle;
+class QMenu;
 
 namespace Ui {
 class QRCToken;
@@ -38,6 +39,11 @@ public Q_SLOTS:
     void on_goToAddTokenPage();
     void on_currentTokenChanged(QModelIndex index);
     void on_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>());
+    void contextualMenu(const QPoint &);
+    void copyTokenAddress();
+    void copyTokenBalance();
+    void copyTokenName();
+    void copySenderAddress();
 
 private:
     Ui::QRCToken *ui;
@@ -54,6 +60,7 @@ private:
     QString m_selectedTokenHash;
     TokenTransactionView *m_tokenTransactionView;
     const PlatformStyle *m_platformStyle;
+    QMenu *contextMenu;
 };
 
 #endif // QRCTOKEN_H
