@@ -1146,7 +1146,7 @@ void ThreadStakeMiner(CWallet *pwallet)
                         // CheckStake also does CheckBlock and AcceptBlock to propogate it to the network
                         bool validBlock = false;
                         while(!validBlock) {
-                            if (pindexPrev->GetBlockHash() != beginningHash) {
+                            if (chainActive.Tip()->GetBlockHash() != beginningHash) {
                                 //another block was received while building ours, scrap progress
                                 LogPrint("staker", "ThreadStakeMiner(): Valid future PoS block was orphaned before becoming valid");
                                 break;
