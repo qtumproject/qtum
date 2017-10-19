@@ -1170,8 +1170,8 @@ void ThreadStakeMiner(CWallet *pwallet)
                                     //or receiving more stale/orphan blocks than normal. Use at your own risk.
                                     MilliSleep(100);
                                 }else{
-                                    //too early, so wait 2 seconds and try again
-                                    MilliSleep(2000);
+                                    //too early, so wait 3 seconds and try again
+                                    MilliSleep(3000);
                                 }
                                 continue;
                             }
