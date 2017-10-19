@@ -1128,13 +1128,19 @@ void ThreadStakeMiner(CWallet *pwallet)
                 if (SignBlock(pblock, *pwallet, nTotalFees, i)) {
                     // increase priority so we can build the full PoS block ASAP to ensure the timestamp doesn't expire
                     SetThreadPriority(THREAD_PRIORITY_ABOVE_NORMAL);
+                    
+                    if (chainActive.Tip()->GetBlockHash() != beginningHash) {
+                        //another block was received while building ours, scrap progress
+                        LogPrint("ThreadStakeMiner(): Valid future PoS block was orphaned before becoming valid");
+                        break;
+                    }
                     // Create a block that's properly populated with transactions
                     std::unique_ptr<CBlockTemplate> pblocktemplatefilled(
                             BlockAssembler(Params()).CreateNewBlock(pblock->vtx[1]->vout[1].scriptPubKey, true, &nTotalFees,
                                                                     i, FutureDrift(GetAdjustedTime()) - STAKE_TIME_BUFFER));
                     if (!pblocktemplatefilled.get())
                         return;
-                    if(pindexPrev->GetBlockHash() != beginningHash){
+                    if (chainActive.Tip()->GetBlockHash() != beginningHash) {
                         //another block was received while building ours, scrap progress
                         LogPrint("ThreadStakeMiner(): Valid future PoS block was orphaned before becoming valid");
                         break;
