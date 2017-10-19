@@ -50,14 +50,14 @@ QList<TokenTransactionRecord> TokenTransactionRecord::decomposeTransaction(const
 
         // Set address
         switch (rec.type) {
+        case SendToSelf:
         case SendToAddress:
         case SendToOther:
-            rec.address = wtx.strSenderAddress;
+            rec.address = wtx.strReceiverAddress;
             break;
-        case SendToSelf:
         case RecvWithAddress:
         case RecvFromOther:
-            rec.address = wtx.strReceiverAddress;
+            rec.address = wtx.strSenderAddress;
         default:
             break;
         }

@@ -16,7 +16,7 @@ class TokenTransactionDesc: public QObject
     Q_OBJECT
 
 public:
-    static QString toHTML(CWallet *wallet, CTokenTx &wtx, TokenTransactionRecord *rec, int unit);
+    static QString toHTML(CWallet *wallet, CTokenTx &wtx, TokenTransactionRecord *rec);
 
 private:
     TokenTransactionDesc() {}

@@ -83,9 +83,9 @@ TokenTransactionView::TokenTransactionView(const PlatformStyle *platformStyle, Q
 
     nameWidget = new QComboBox(this);
     if (platformStyle->getUseExtraSpacing()) {
-        nameWidget->setFixedWidth(TYPE_COLUMN_WIDTH + 1);
+        nameWidget->setFixedWidth(NAME_COLUMN_WIDTH + 1);
     } else {
-        nameWidget->setFixedWidth(TYPE_COLUMN_WIDTH);
+        nameWidget->setFixedWidth(NAME_COLUMN_WIDTH);
     }
     nameWidget->addItem(tr("All"), "");
 
@@ -158,6 +158,7 @@ TokenTransactionView::TokenTransactionView(const PlatformStyle *platformStyle, Q
     connect(copyTxIDAction, SIGNAL(triggered()), this, SLOT(copyTxID()));
     connect(copyTxPlainText, SIGNAL(triggered()), this, SLOT(copyTxPlainText()));
     connect(showDetailsAction, SIGNAL(triggered()), this, SLOT(showDetails()));
+    connect(tokenView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(showDetails()));
 }
 
 void TokenTransactionView::setModel(WalletModel *_model)
