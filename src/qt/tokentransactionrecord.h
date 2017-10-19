@@ -93,7 +93,7 @@ public:
 
     /** Update status from core wallet tx.
      */
-    void updateStatus(const CTokenTx &wtx);
+    void updateStatus(const CWallet *wallet, const CTokenTx &wtx);
 
     /** Return whether a status update is needed.
      */

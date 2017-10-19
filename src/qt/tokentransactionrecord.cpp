@@ -70,10 +70,30 @@ QList<TokenTransactionRecord> TokenTransactionRecord::decomposeTransaction(const
     return parts;
 }
 
-void TokenTransactionRecord::updateStatus(const CTokenTx &wtx)
+void TokenTransactionRecord::updateStatus(const CWallet *wallet, const CTokenTx &wtx)
 {
     AssertLockHeld(cs_main);
+
     // Determine transaction status
+    status.cur_num_blocks = chainActive.Height();
+
+    auto mi = wallet->mapWallet.find(wtx.transactionHash);
+    if (mi != wallet->mapWallet.end() && (GetAdjustedTime() - mi->second.nTimeReceived > 2 * 60) && mi->second.GetRequestCount() == 0)
+    {
+        status.status = TokenTransactionStatus::Offline;
+    }
+    else if (status.depth == 0)
+    {
+        status.status = TokenTransactionStatus::Unconfirmed;
+    }
+    else if (status.depth < RecommendedNumConfirmations)
+    {
+        status.status = TokenTransactionStatus::Confirming;
+    }
+    else
+    {
+        status.status = TokenTransactionStatus::Confirmed;
+    }
 }
 
 bool TokenTransactionRecord::statusUpdateNeeded()
