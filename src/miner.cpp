@@ -1111,7 +1111,6 @@ void ThreadStakeMiner(CWallet *pwallet)
             if (!pblocktemplate.get())
                 return;
             CBlockIndex* pindexPrev =  chainActive.Tip();
-            uint256 beginningHash = pindexPrev->GetBlockHash();
 
             uint32_t beginningTime=GetAdjustedTime();
             beginningTime &= ~STAKE_TIMESTAMP_MASK;
@@ -1128,15 +1127,21 @@ void ThreadStakeMiner(CWallet *pwallet)
                 if (SignBlock(pblock, *pwallet, nTotalFees, i)) {
                     // increase priority so we can build the full PoS block ASAP to ensure the timestamp doesn't expire
                     SetThreadPriority(THREAD_PRIORITY_ABOVE_NORMAL);
+
+                    if (chainActive.Tip()->GetBlockHash() != pblock->hashPrevBlock) {
+                        //another block was received while building ours, scrap progress
+                        LogPrintf("ThreadStakeMiner(): Valid future PoS block was orphaned before becoming valid");
+                        break;
+                    }
                     // Create a block that's properly populated with transactions
                     std::unique_ptr<CBlockTemplate> pblocktemplatefilled(
                             BlockAssembler(Params()).CreateNewBlock(pblock->vtx[1]->vout[1].scriptPubKey, true, &nTotalFees,
                                                                     i, FutureDrift(GetAdjustedTime()) - STAKE_TIME_BUFFER));
                     if (!pblocktemplatefilled.get())
                         return;
-                    if(pindexPrev->GetBlockHash() != beginningHash){
+                    if (chainActive.Tip()->GetBlockHash() != pblock->hashPrevBlock) {
                         //another block was received while building ours, scrap progress
-                        LogPrint("staker", "ThreadStakeMiner(): Valid future PoS block was orphaned before becoming valid");
+                        LogPrintf("ThreadStakeMiner(): Valid future PoS block was orphaned before becoming valid");
                         break;
                     }
                     // Sign the full block and use the timestamp from earlier for a valid stake
@@ -1146,20 +1151,27 @@ void ThreadStakeMiner(CWallet *pwallet)
                         // CheckStake also does CheckBlock and AcceptBlock to propogate it to the network
                         bool validBlock = false;
                         while(!validBlock) {
-                            if (pindexPrev->GetBlockHash() != beginningHash) {
+                            if (chainActive.Tip()->GetBlockHash() != pblockfilled->hashPrevBlock) {
                                 //another block was received while building ours, scrap progress
-                                LogPrint("staker", "ThreadStakeMiner(): Valid future PoS block was orphaned before becoming valid");
+                                LogPrintf("ThreadStakeMiner(): Valid future PoS block was orphaned before becoming valid");
                                 break;
                             }
                             //check timestamps
                             if (pblockfilled->GetBlockTime() <= pindexPrev->GetBlockTime() ||
                                 FutureDrift(pblockfilled->GetBlockTime()) < pindexPrev->GetBlockTime()) {
-                                LogPrint("staker", "ThreadStakeMiner(): Valid PoS block took too long to create and has expired");
+                                LogPrintf("ThreadStakeMiner(): Valid PoS block took too long to create and has expired");
                                 break; //timestamp too late, so ignore
                             }
                             if (pblockfilled->GetBlockTime() > FutureDrift(GetAdjustedTime())) {
-                                //too early, so wait a second and try again
-                                MilliSleep(1000);
+                                if (IsArgSet("-aggressive-staking")) {
+                                    //if being agressive, then check more often to publish immediately when valid. This might allow you to find more blocks, 
+                                    //but also increases the chance of broadcasting invalid blocks and getting DoS banned by nodes,
+                                    //or receiving more stale/orphan blocks than normal. Use at your own risk.
+                                    MilliSleep(100);
+                                }else{
+                                    //too early, so wait 3 seconds and try again
+                                    MilliSleep(3000);
+                                }
                                 continue;
                             }
                             validBlock=true;
