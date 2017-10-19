@@ -1136,7 +1136,7 @@ void ThreadStakeMiner(CWallet *pwallet)
                         return;
                     if(pindexPrev->GetBlockHash() != beginningHash){
                         //another block was received while building ours, scrap progress
-                        LogPrint("staker", "ThreadStakeMiner(): Valid future PoS block was orphaned before becoming valid");
+                        LogPrint("ThreadStakeMiner(): Valid future PoS block was orphaned before becoming valid");
                         break;
                     }
                     // Sign the full block and use the timestamp from earlier for a valid stake
@@ -1148,13 +1148,13 @@ void ThreadStakeMiner(CWallet *pwallet)
                         while(!validBlock) {
                             if (chainActive.Tip()->GetBlockHash() != beginningHash) {
                                 //another block was received while building ours, scrap progress
-                                LogPrint("staker", "ThreadStakeMiner(): Valid future PoS block was orphaned before becoming valid");
+                                LogPrint("ThreadStakeMiner(): Valid future PoS block was orphaned before becoming valid");
                                 break;
                             }
                             //check timestamps
                             if (pblockfilled->GetBlockTime() <= pindexPrev->GetBlockTime() ||
                                 FutureDrift(pblockfilled->GetBlockTime()) < pindexPrev->GetBlockTime()) {
-                                LogPrint("staker", "ThreadStakeMiner(): Valid PoS block took too long to create and has expired");
+                                LogPrint("ThreadStakeMiner(): Valid PoS block took too long to create and has expired");
                                 break; //timestamp too late, so ignore
                             }
                             if (pblockfilled->GetBlockTime() > FutureDrift(GetAdjustedTime())) {
