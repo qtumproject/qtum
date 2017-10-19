@@ -1111,7 +1111,6 @@ void ThreadStakeMiner(CWallet *pwallet)
             if (!pblocktemplate.get())
                 return;
             CBlockIndex* pindexPrev =  chainActive.Tip();
-            uint256 beginningHash = pindexPrev->GetBlockHash();
 
             uint32_t beginningTime=GetAdjustedTime();
             beginningTime &= ~STAKE_TIMESTAMP_MASK;
@@ -1129,7 +1128,7 @@ void ThreadStakeMiner(CWallet *pwallet)
                     // increase priority so we can build the full PoS block ASAP to ensure the timestamp doesn't expire
                     SetThreadPriority(THREAD_PRIORITY_ABOVE_NORMAL);
 
-                    if (chainActive.Tip()->GetBlockHash() != beginningHash) {
+                    if (chainActive.Tip()->GetBlockHash() != pblock->hashPrevBlock) {
                         //another block was received while building ours, scrap progress
                         LogPrintf("ThreadStakeMiner(): Valid future PoS block was orphaned before becoming valid");
                         break;
@@ -1140,7 +1139,7 @@ void ThreadStakeMiner(CWallet *pwallet)
                                                                     i, FutureDrift(GetAdjustedTime()) - STAKE_TIME_BUFFER));
                     if (!pblocktemplatefilled.get())
                         return;
-                    if (chainActive.Tip()->GetBlockHash() != beginningHash) {
+                    if (chainActive.Tip()->GetBlockHash() != pblock->hashPrevBlock) {
                         //another block was received while building ours, scrap progress
                         LogPrintf("ThreadStakeMiner(): Valid future PoS block was orphaned before becoming valid");
                         break;
@@ -1152,7 +1151,7 @@ void ThreadStakeMiner(CWallet *pwallet)
                         // CheckStake also does CheckBlock and AcceptBlock to propogate it to the network
                         bool validBlock = false;
                         while(!validBlock) {
-                            if (chainActive.Tip()->GetBlockHash() != beginningHash) {
+                            if (chainActive.Tip()->GetBlockHash() != pblockfilled->hashPrevBlock) {
                                 //another block was received while building ours, scrap progress
                                 LogPrintf("ThreadStakeMiner(): Valid future PoS block was orphaned before becoming valid");
                                 break;
