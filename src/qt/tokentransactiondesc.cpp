@@ -5,11 +5,30 @@
 #include "uint256.h"
 #include "validation.h"
 #include "wallet/wallet.h"
+#include "timedata.h"
 
-QString TokenTransactionDesc::FormatTxStatus(const CTokenTx& wtx)
+QString TokenTransactionDesc::FormatTxStatus(CWallet *wallet, const CTokenTx& wtx)
 {
     AssertLockHeld(cs_main);
-    return QString();
+
+    int nDepth = 1;
+    auto mi = wallet->mapWallet.find(wtx.transactionHash);
+
+    if (nDepth < 0)
+        return tr("conflicted with a transaction with %1 confirmations").arg(-nDepth);
+    else if (mi != wallet->mapWallet.end() && (GetAdjustedTime() - mi->second.nTimeReceived > 2 * 60) && mi->second.GetRequestCount() == 0)
+        return tr("%1/offline").arg(nDepth);
+    else if (nDepth == 0)
+    {
+        if(mi != wallet->mapWallet.end() && mi->second.InMempool())
+            return tr("0/unconfirmed, in memory pool");
+        else
+            return tr("0/unconfirmed, not in memory pool");
+    }
+    else if (nDepth < 6)
+        return tr("%1/unconfirmed").arg(nDepth);
+    else
+        return tr("%1 confirmations").arg(nDepth);
 }
 
 QString TokenTransactionDesc::toHTML(CWallet *wallet, CTokenTx &wtx, TokenTransactionRecord *rec)
@@ -26,7 +45,7 @@ QString TokenTransactionDesc::toHTML(CWallet *wallet, CTokenTx &wtx, TokenTransa
     dev::s256 nNet = nCredit + nDebit;
     QString unit = QString::fromStdString(rec->tokenSymbol);
 
-    strHTML += "<b>" + tr("Status") + ":</b> " + FormatTxStatus(wtx);
+    strHTML += "<b>" + tr("Status") + ":</b> " + FormatTxStatus(wallet, wtx);
 
     strHTML += "<br>";
 

@@ -21,7 +21,7 @@ public:
 private:
     TokenTransactionDesc() {}
 
-    static QString FormatTxStatus(const CTokenTx& wtx);
+    static QString FormatTxStatus(CWallet *wallet, const CTokenTx& wtx);
 };
 
 #endif // QTUM_QT_TOKENTRANSACTIONDESC_H
