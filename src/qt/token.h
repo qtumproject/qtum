@@ -63,12 +63,12 @@ public:
     bool allowance(const std::string& _from, const std::string& _to, std::string& result, bool sendTo = false);
 
     // ABI Events
-    bool transferEvents(int fromBlock, int toBlock, std::vector<TokenEvent>& tokenEvents);
-    bool burnEvents(int fromBlock, int toBlock, std::vector<TokenEvent>& tokenEvents);
+    bool transferEvents(std::vector<TokenEvent>& tokenEvents, int64_t fromBlock = 0, int64_t toBlock = -1);
+    bool burnEvents(std::vector<TokenEvent>& tokenEvents, int64_t fromBlock = 0, int64_t toBlock = -1);
 
 private:
     bool exec(const std::vector<std::string>& input, int func, std::vector<std::string>& output, bool sendTo);
-    bool execEvents(int fromBlock, int toBlock, int func, std::vector<TokenEvent> &tokenEvents);
+    bool execEvents(int64_t fromBlock, int64_t toBlock, int func, std::vector<TokenEvent> &tokenEvents);
 
     Token(Token const&);
     Token& operator=(Token const&);

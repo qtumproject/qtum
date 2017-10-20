@@ -6,6 +6,7 @@
 #include "base58.h"
 #include "utilstrencodings.h"
 #include "eventlog.h"
+#include "libethcore/ABI.h"
 
 namespace Token_NS
 {
@@ -498,12 +499,12 @@ bool Token::allowance(const std::string &_from, const std::string &_to, std::str
     return true;
 }
 
-bool Token::transferEvents(int fromBlock, int toBlock, std::vector<TokenEvent> &tokenEvents)
+bool Token::transferEvents(std::vector<TokenEvent> &tokenEvents, int64_t fromBlock, int64_t toBlock)
 {
     return execEvents(fromBlock, toBlock, d->evtTransfer, tokenEvents);
 }
 
-bool Token::burnEvents(int fromBlock, int toBlock, std::vector<TokenEvent> &tokenEvents)
+bool Token::burnEvents(std::vector<TokenEvent> &tokenEvents, int64_t fromBlock, int64_t toBlock)
 {
     return execEvents(fromBlock, toBlock, d->evtBurn, tokenEvents);
 }
@@ -561,10 +562,10 @@ bool Token::exec(const std::vector<std::string> &input, int func, std::vector<st
     return true;
 }
 
-bool Token::execEvents(int fromBlock, int toBlock, int func, std::vector<TokenEvent> &tokenEvents)
+bool Token::execEvents(int64_t fromBlock, int64_t toBlock, int func, std::vector<TokenEvent> &tokenEvents)
 {
     // Check parameters
-    if(func == -1 || fromBlock < 0 || toBlock < 0 || fromBlock > toBlock)
+    if(func == -1 || fromBlock < 0)
         return false;
 
     //  Get function
@@ -575,6 +576,8 @@ bool Token::execEvents(int fromBlock, int toBlock, int func, std::vector<TokenEv
     std::string eventName = function.selector();
     std::string contractAddress = d->lstParams[PARAM_ADDRESS].toStdString();
     std::string senderAddress = d->lstParams[PARAM_SENDER].toStdString();
+    ToHash160(senderAddress, senderAddress);
+    senderAddress  = "000000000000000000000000" + senderAddress;
     if(!(d->eventLog->searchTokenTx(fromBlock, toBlock, contractAddress, senderAddress, result)))
         return false;
 
@@ -602,7 +605,13 @@ bool Token::execEvents(int fromBlock, int toBlock, int func, std::vector<TokenEv
             tokenEvent.blockHash = uint256S(variantMap.value("blockHash").toString().toStdString());
             tokenEvent.blockNumber = variantMap.value("blockNumber").toLongLong();
             tokenEvent.transactionHash = uint256S(variantMap.value("transactionHash").toString().toStdString());
-            tokenEvent.value = uint256S(variantLog.value("data").toString().toStdString());
+
+            // Parse data
+            std::string data = variantLog.value("data").toString().toStdString();
+            dev::bytes rawData = dev::fromHex(data);
+            dev::bytesConstRef o(&rawData);
+            dev::u256 outData = dev::eth::ABIDeserialiser<dev::u256>::deserialise(o);
+            tokenEvent.value = u256Touint(outData);
 
             tokenEvents.push_back(tokenEvent);
         }
