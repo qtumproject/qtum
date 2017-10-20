@@ -6,7 +6,6 @@
 #include "base58.h"
 #include "utilstrencodings.h"
 #include "eventlog.h"
-#include "libethcore/ABI.h"
 
 namespace Token_NS
 {
@@ -45,7 +44,6 @@ struct TokenData
     int funcAllowance;
     int evtTransfer;
     int evtBurn;
-    std::vector<std::string> contractAddresses;
 
     std::string txid;
 
@@ -81,6 +79,19 @@ bool ToHash160(const std::string& strQtumAddress, std::string& strHash160)
         return false;
     }
     return true;
+}
+
+bool ToQtumAddress(const std::string& strHash160, std::string& strQtumAddress)
+{
+    uint160 key(ParseHex(strHash160.c_str()));
+    CKeyID keyid(key);
+    CBitcoinAddress qtumAddress;
+    qtumAddress.Set(keyid);
+    if(qtumAddress.IsValid()){
+        strQtumAddress = qtumAddress.ToString();
+        return true;
+    }
+    return false;
 }
 
 Token::Token():
@@ -487,11 +498,6 @@ bool Token::allowance(const std::string &_from, const std::string &_to, std::str
     return true;
 }
 
-void Token::listenForAddresses(const std::vector<std::string> &contractAddresses)
-{
-    d->contractAddresses = contractAddresses;
-}
-
 bool Token::transferEvents(int fromBlock, int toBlock, std::vector<TokenEvent> &tokenEvents)
 {
     return execEvents(fromBlock, toBlock, d->evtTransfer, tokenEvents);
@@ -566,35 +572,40 @@ bool Token::execEvents(int fromBlock, int toBlock, int func, std::vector<TokenEv
 
     // Search for events
     QVariant result;
-    if(!(d->eventLog->search(fromBlock, toBlock, function.selector(), d->contractAddresses, result)))
+    std::string eventName = function.selector();
+    std::string contractAddress = d->lstParams[PARAM_ADDRESS].toStdString();
+    std::string senderAddress = d->lstParams[PARAM_SENDER].toStdString();
+    if(!(d->eventLog->searchTokenTx(fromBlock, toBlock, contractAddress, senderAddress, result)))
         return false;
 
     // Parse the result events
     QList<QVariant> list = result.toList();
     for(int i = 0; i < list.size(); i++)
     {
+        // Search the log for events
         QVariantMap variantMap = list[i].toMap();
-
         QList<QVariant> listLog = variantMap.value("log").toList();
-        QVariantMap variantLog = listLog[0].toMap();
-        QList<QVariant> topicsList = variantLog.value("topics").toList();
+        for(int i = 0; i < listLog.size(); i++)
+        {
+            // Skip the not needed events
+            QVariantMap variantLog = listLog[0].toMap();
+            QList<QVariant> topicsList = variantLog.value("topics").toList();
+            if(topicsList.count() < 3) continue;
+            if(topicsList[0].toString().toStdString() != eventName) continue;
 
-        std::string contractAddress = variantMap.value("contractAddress").toString().toStdString();
-        std::string from = topicsList[1].toString().toStdString();
-        std::string to = topicsList[2].toString().toStdString();
-        std::string data = variantLog.value("data").toString().toStdString();
+            // Create new event
+            TokenEvent tokenEvent;
+            tokenEvent.sender = topicsList[1].toString().toStdString().substr(24);
+            ToQtumAddress(tokenEvent.sender, tokenEvent.sender);
+            tokenEvent.receiver = topicsList[2].toString().toStdString().substr(24);
+            ToQtumAddress(tokenEvent.receiver, tokenEvent.receiver);
+            tokenEvent.blockHash = uint256S(variantMap.value("blockHash").toString().toStdString());
+            tokenEvent.blockNumber = variantMap.value("blockNumber").toLongLong();
+            tokenEvent.transactionHash = uint256S(variantMap.value("transactionHash").toString().toStdString());
+            tokenEvent.value = uint256S(variantLog.value("data").toString().toStdString());
 
-        //parse value
-        std::string value;
-        int HEX_INSTRUCTION_SIZE = 64;
-        size_t pos = 0;
-        dev::bytes rawData = dev::fromHex(data.substr(pos, HEX_INSTRUCTION_SIZE));
-        dev::bytesConstRef o(&rawData);
-        dev::u256 outData = dev::eth::ABIDeserialiser<dev::u256>::deserialise(o);
-        value = outData.str();
-
-        TokenEvent tokenEvent(contractAddress, from, to, value);
-        tokenEvents.push_back(tokenEvent);
+            tokenEvents.push_back(tokenEvent);
+        }
     }
 
     return true;

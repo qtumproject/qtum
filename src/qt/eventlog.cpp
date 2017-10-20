@@ -54,12 +54,25 @@ EventLog::~EventLog()
     }
 }
 
-bool EventLog::search(int fromBlock, int toBlock, const std::string &eventName, const std::vector<std::string> &addresses, QVariant &result)
+bool EventLog::searchTokenTx(int fromBlock, int toBlock, std::string strContractAddress, std::string strSenderAddress, QVariant &result)
+{
+    std::vector<std::string> addresses;
+    addresses.push_back(strContractAddress);
+
+    std::vector<std::string> topics;
+    topics.push_back("null");
+    topics.push_back(strSenderAddress);
+    topics.push_back(strSenderAddress);
+
+    return search(fromBlock, toBlock, addresses, topics, result);
+}
+
+bool EventLog::search(int fromBlock, int toBlock, const std::vector<std::string> addresses, const std::vector<std::string> topics, QVariant &result)
 {
     setStartBlock(fromBlock);
     setEndBlock(toBlock);
     setAddresses(addresses);
-    setEventName(eventName);
+    setTopics(topics);
 
     QString resultJson;
     QString errorMessage;
@@ -83,9 +96,7 @@ void EventLog::setAddresses(const std::vector<std::string> addresses)
     m_lstParams[PARAM_ADDRESSES] = createJsonString("addresses", addresses);
 }
 
-void EventLog::setEventName(const std::string &eventName)
+void EventLog::setTopics(const std::vector<std::string> topics)
 {
-    std::vector<std::string> topics;
-    topics.push_back(eventName);
     m_lstParams[PARAM_TOPICS] = createJsonString("topics", topics);
 }
