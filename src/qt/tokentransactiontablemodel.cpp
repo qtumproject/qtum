@@ -220,10 +220,10 @@ public:
     QString getTxHex(TokenTransactionRecord *rec)
     {
         LOCK2(cs_main, wallet->cs_wallet);
-        std::map<uint256, CTokenTx>::iterator mi = wallet->mapTokenTx.find(rec->hash);
-        if(mi != wallet->mapTokenTx.end())
+        std::map<uint256, CWalletTx>::iterator mi = wallet->mapWallet.find(rec->txid);
+        if(mi != wallet->mapWallet.end())
         {
-            std::string strHex;// = EncodeHexTx(static_cast<CTransaction>(mi->second));
+            std::string strHex = EncodeHexTx(static_cast<CTransaction>(mi->second));
             return QString::fromStdString(strHex);
         }
         return QString();
