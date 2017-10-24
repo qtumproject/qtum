@@ -91,9 +91,10 @@ class TokenTxWorker : public QObject
     Q_OBJECT
 public:
     CWallet *wallet;
+    bool first;
     Token tokenTxAbi;
     TokenTxWorker(CWallet *_wallet):
-        wallet(_wallet) {}
+        wallet(_wallet), first(true) {}
     
 private Q_SLOTS:
     void updateTokenTx(const QVariant &token)
@@ -108,6 +109,9 @@ private Q_SLOTS:
         bool found = false;
 
         LOCK2(cs_main, wallet->cs_wallet);
+
+        int64_t backInPast = first ? COINBASE_MATURITY : 10;
+        first = false;
 
         CBlockIndex* tip = chainActive.Tip();
         if(tip)
@@ -132,12 +136,12 @@ private Q_SLOTS:
                     }
                     else
                     {
-                        fromBlock = tokenInfo.blockNumber - COINBASE_MATURITY;
+                        fromBlock = tokenInfo.blockNumber - backInPast;
                     }
                 }
                 else
                 {
-                    fromBlock = toBlock - COINBASE_MATURITY;
+                    fromBlock = toBlock - backInPast;
                 }
                 if(fromBlock < 0)
                     fromBlock = 0;
@@ -445,15 +449,15 @@ void TokenItemModel::checkTokenBalanceChanged()
         {
             d->priv->cachedTokenItem[i] = tokenEntry;
             emitDataChanged(i);
+        }
 
-            // Balance is changed, search for token transactions
-            if(fLogEvents)
-            {
-                QVariant token;
-                token.setValue(tokenEntry);
-                QMetaObject::invokeMethod(d->worker, "updateTokenTx", Qt::QueuedConnection,
-                                          Q_ARG(QVariant, token));
-            }
+        // Search for token transactions
+        if(fLogEvents)
+        {
+            QVariant token;
+            token.setValue(tokenEntry);
+            QMetaObject::invokeMethod(d->worker, "updateTokenTx", Qt::QueuedConnection,
+                                      Q_ARG(QVariant, token));
         }
     }
 }
