@@ -44,6 +44,7 @@ public:
         CoinControlFeatures,    // bool
         ThreadsScriptVerif,     // int
         DatabaseCache,          // int
+        LogEvents,               // bool
         SpendZeroConfChange,    // bool
         Listen,                 // bool
         ReserveBalance,         // CAmount

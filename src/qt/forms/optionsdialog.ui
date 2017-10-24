@@ -151,6 +151,13 @@
         </layout>
        </item>
        <item>
+        <widget class="QCheckBox" name="logEvents">
+         <property name="text">
+          <string>Enable  log &amp;event</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <spacer name="verticalSpacer_Main">
          <property name="orientation">
           <enum>Qt::Vertical</enum>

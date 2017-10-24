@@ -446,10 +446,14 @@ void TokenItemModel::checkTokenBalanceChanged()
             d->priv->cachedTokenItem[i] = tokenEntry;
             emitDataChanged(i);
 
-            QVariant token;
-            token.setValue(tokenEntry);
-            QMetaObject::invokeMethod(d->worker, "updateTokenTx", Qt::QueuedConnection,
-                                      Q_ARG(QVariant, token));
+            // Balance is changed, search for token transactions
+            if(fLogEvents)
+            {
+                QVariant token;
+                token.setValue(tokenEntry);
+                QMetaObject::invokeMethod(d->worker, "updateTokenTx", Qt::QueuedConnection,
+                                          Q_ARG(QVariant, token));
+            }
         }
     }
 }

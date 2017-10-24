@@ -7,8 +7,10 @@
 #include "token.h"
 #include "qvalidatedlineedit.h"
 #include "contractabi.h"
+#include "validation.h"
 
 #include <QRegularExpressionValidator>
+#include <QMessageBox>
 
 AddTokenPage::AddTokenPage(QWidget *parent) :
     QWidget(parent),
@@ -93,6 +95,11 @@ void AddTokenPage::on_confirmButton_clicked()
         }
 
         clearAll();
+
+        if(!fLogEvents)
+        {
+            QMessageBox::information(this, tr("Log events"), tr("Enable log events from the option menu in order to receive token transactions."));
+        }
     }
 }
 
