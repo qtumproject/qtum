@@ -419,6 +419,13 @@ QString TokenTransactionTableModel::formatTxAmount(const TokenTransactionRecord 
     return QString(str);
 }
 
+QString TokenTransactionTableModel::formatTxAmountWithUnit(const TokenTransactionRecord *wtx, bool showUnconfirmed, BitcoinUnits::SeparatorStyle separators) const
+{
+    QString unit = QString::fromStdString(wtx->tokenSymbol);
+    QString str = BitcoinUnits::formatTokenWithUnit(unit, wtx->decimals, wtx->credit + wtx->debit, false, separators);
+    return QString(str);
+}
+
 QVariant TokenTransactionTableModel::txStatusDecoration(const TokenTransactionRecord *wtx) const
 {
     switch(wtx->status.status)
@@ -577,6 +584,8 @@ QVariant TokenTransactionTableModel::data(const QModelIndex &index, int role) co
     case FormattedAmountRole:
         // Used for copy/export, so don't include separators
         return formatTxAmount(rec, false, BitcoinUnits::separatorNever);
+    case FormattedAmountWithUnitRole:
+        return formatTxAmountWithUnit(rec, false, BitcoinUnits::separatorAlways);
     case StatusRole:
         return rec->status.status;
     }

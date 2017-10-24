@@ -16,6 +16,7 @@
 #include "sendcoinsdialog.h"
 #include "signverifymessagedialog.h"
 #include "transactiontablemodel.h"
+#include "tokentransactiontablemodel.h"
 #include "transactionview.h"
 #include "walletmodel.h"
 #include "createcontract.h"
@@ -114,6 +115,9 @@ void WalletView::setBitcoinGUI(BitcoinGUI *gui)
         // Pass through transaction notifications
         connect(this, SIGNAL(incomingTransaction(QString,int,CAmount,QString,QString,QString)), gui, SLOT(incomingTransaction(QString,int,CAmount,QString,QString,QString)));
 
+        // Pass through token transaction notifications
+        connect(this, SIGNAL(incomingTokenTransaction(QString,QString,QString,QString,QString)), gui, SLOT(incomingTokenTransaction(QString,QString,QString,QString,QString)));
+
         // Connect HD enabled state signal 
         connect(this, SIGNAL(hdEnabledStatusChanged(int)), gui, SLOT(setHDStatus(int)));
 
@@ -165,6 +169,10 @@ void WalletView::setWalletModel(WalletModel *_walletModel)
         connect(_walletModel->getTransactionTableModel(), SIGNAL(rowsInserted(QModelIndex,int,int)),
                 this, SLOT(processNewTransaction(QModelIndex,int,int)));
 
+        // Balloon pop-up for new token transaction
+        connect(_walletModel->getTokenTransactionTableModel(), SIGNAL(rowsInserted(QModelIndex,int,int)),
+                this, SLOT(processNewTokenTransaction(QModelIndex,int,int)));
+
         // Ask for passphrase if needed
         connect(_walletModel, SIGNAL(requireUnlock()), this, SLOT(unlockWallet()));
 
@@ -191,6 +199,26 @@ void WalletView::processNewTransaction(const QModelIndex& parent, int start, int
     QString label = ttm->data(index, TransactionTableModel::LabelRole).toString();
 
     Q_EMIT incomingTransaction(date, walletModel->getOptionsModel()->getDisplayUnit(), amount, type, address, label);
+}
+
+void WalletView::processNewTokenTransaction(const QModelIndex &parent, int start, int /*end*/)
+{
+    // Prevent balloon-spam when initial block download is in progress
+    if (!walletModel || !clientModel || clientModel->inInitialBlockDownload())
+        return;
+
+    TokenTransactionTableModel *tttm = walletModel->getTokenTransactionTableModel();
+    if (!tttm || tttm->processingQueuedTransactions())
+        return;
+
+    QString date = tttm->index(start, TokenTransactionTableModel::Date, parent).data().toString();
+    QString amount(tttm->index(start, TokenTransactionTableModel::Amount, parent).data(TokenTransactionTableModel::FormattedAmountWithUnitRole).toString());
+    QString type = tttm->index(start, TokenTransactionTableModel::Type, parent).data().toString();
+    QModelIndex index = tttm->index(start, 0, parent);
+    QString address = tttm->data(index, TokenTransactionTableModel::AddressRole).toString();
+    QString label = tttm->data(index, TokenTransactionTableModel::LabelRole).toString();
+
+    Q_EMIT incomingTokenTransaction(date, amount, type, address, label);
 }
 
 void WalletView::gotoOverviewPage()
