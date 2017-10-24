@@ -189,7 +189,7 @@ void SendTokenPage::on_confirmClicked()
                 tokenTx.nValue = u256Touint(nValue);
                 tokenTx.transactionHash = uint256S(m_tokenABI->getTxId());
                 tokenTx.strLabel = label;
-                m_model->AddTokenTxEntry(tokenTx);
+                m_model->addTokenTxEntry(tokenTx);
             }
             clearAll();
         }

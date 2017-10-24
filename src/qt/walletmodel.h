@@ -222,9 +222,11 @@ public:
 
     int getDefaultConfirmTarget() const;
 
-    bool AddTokenEntry(const CTokenInfo& token);
+    bool addTokenEntry(const CTokenInfo& token);
 
-    bool AddTokenTxEntry(const CTokenTx& tokenTx, bool fFlushOnClose=true);
+    bool addTokenTxEntry(const CTokenTx& tokenTx, bool fFlushOnClose=true);
+
+    bool existTokenEntry(const CTokenInfo& token);
 
 private:
     CWallet *wallet;
