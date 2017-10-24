@@ -25,7 +25,7 @@ QList<TokenTransactionRecord> TokenTransactionRecord::decomposeTransaction(const
     {
         // Get token transaction data
         TokenTransactionRecord rec;
-        rec.time = wtx.nTime;
+        rec.time = wtx.nCreateTime;
         rec.credit = dev::u2s(uintTou256(credit));
         rec.debit = -dev::u2s(uintTou256(debit));
         rec.hash = wtx.GetHash();
@@ -46,6 +46,11 @@ QList<TokenTransactionRecord> TokenTransactionRecord::decomposeTransaction(const
         else
         {
             rec.type = SendToAddress;
+        }
+
+        if(net)
+        {
+            rec.status.countsForBalance = true;
         }
 
         // Set address
@@ -76,6 +81,14 @@ void TokenTransactionRecord::updateStatus(const CWallet *wallet, const CTokenTx 
 
     // Determine transaction status
     status.cur_num_blocks = chainActive.Height();
+    if(wtx.blockNumber == -1)
+    {
+        status.depth = 0;
+    }
+    else
+    {
+        status.depth = status.cur_num_blocks - wtx.blockNumber + 1;
+    }
 
     auto mi = wallet->mapWallet.find(wtx.transactionHash);
     if (mi != wallet->mapWallet.end() && (GetAdjustedTime() - mi->second.nTimeReceived > 2 * 60) && mi->second.GetRequestCount() == 0)

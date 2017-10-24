@@ -13,7 +13,6 @@
 #include "guiutil.h"
 #include "sendcoinsdialog.h"
 #include "bitcoinaddressvalidator.h"
-#include "timedata.h"
 #include "uint256.h"
 
 static const CAmount SINGLE_STEP = 0.00000001*COIN;
@@ -182,7 +181,6 @@ void SendTokenPage::on_confirmClicked()
             if(m_tokenABI->transfer(toAddress, amountToSend, true))
             {
                 CTokenTx tokenTx;
-                tokenTx.nTime = GetAdjustedTime();
                 tokenTx.strContractAddress = m_selectedToken->address;
                 tokenTx.strSenderAddress = m_selectedToken->sender;
                 tokenTx.strReceiverAddress = toAddress;

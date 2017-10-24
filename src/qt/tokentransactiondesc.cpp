@@ -11,9 +11,18 @@ QString TokenTransactionDesc::FormatTxStatus(CWallet *wallet, const CTokenTx& wt
 {
     AssertLockHeld(cs_main);
 
-    int nDepth = 1;
-    auto mi = wallet->mapWallet.find(wtx.transactionHash);
+    // Determine transaction status
+    int nDepth= 0;
+    if(wtx.blockNumber == -1)
+    {
+        nDepth = 0;
+    }
+    else
+    {
+        nDepth = chainActive.Height() - wtx.blockNumber + 1;
+    }
 
+    auto mi = wallet->mapWallet.find(wtx.transactionHash);
     if (nDepth < 0)
         return tr("conflicted with a transaction with %1 confirmations").arg(-nDepth);
     else if (mi != wallet->mapWallet.end() && (GetAdjustedTime() - mi->second.nTimeReceived > 2 * 60) && mi->second.GetRequestCount() == 0)
@@ -25,7 +34,7 @@ QString TokenTransactionDesc::FormatTxStatus(CWallet *wallet, const CTokenTx& wt
         else
             return tr("0/unconfirmed, not in memory pool");
     }
-    else if (nDepth < 6)
+    else if (nDepth < TokenTransactionRecord::RecommendedNumConfirmations)
         return tr("%1/unconfirmed").arg(nDepth);
     else
         return tr("%1 confirmations").arg(nDepth);

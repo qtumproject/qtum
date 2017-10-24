@@ -1134,12 +1134,16 @@ class CTokenInfo
 public:
     static const int CURRENT_VERSION=1;
     int nVersion;
-    int64_t nCreateTime;
     std::string strContractAddress;
     std::string strTokenName;
     std::string strTokenSymbol;
     uint8_t nDecimals;
     std::string strSenderAddress;
+
+    // Wallet data for token transaction
+    int64_t nCreateTime;
+    uint256 blockHash;
+    int64_t blockNumber;
 
     CTokenInfo()
     {
@@ -1156,6 +1160,8 @@ public:
             READWRITE(nCreateTime);
             READWRITE(strTokenName);
             READWRITE(strTokenSymbol);
+            READWRITE(blockHash);
+            READWRITE(blockNumber);
         }
         READWRITE(nDecimals);
         READWRITE(strContractAddress);
@@ -1171,6 +1177,8 @@ public:
         strTokenSymbol = "";
         nDecimals = 0;
         strSenderAddress = "";
+        blockHash.SetNull();
+        blockNumber = -1;
     }
 
     uint256 GetHash() const;
@@ -1181,12 +1189,16 @@ class CTokenTx
 public:
     static const int CURRENT_VERSION=1;
     int nVersion;
-    int64_t nTime;
     std::string strContractAddress;
     std::string strSenderAddress;
     std::string strReceiverAddress;
     uint256 nValue;
     uint256 transactionHash;
+
+    // Wallet data for token transaction
+    int64_t nCreateTime;
+    uint256 blockHash;
+    int64_t blockNumber;
 
     CTokenTx()
     {
@@ -1200,7 +1212,9 @@ public:
         if (!(s.GetType() & SER_GETHASH))
         {
             READWRITE(nVersion);
-            READWRITE(nTime);
+            READWRITE(nCreateTime);
+            READWRITE(blockHash);
+            READWRITE(blockNumber);
         }
         READWRITE(strContractAddress);
         READWRITE(strSenderAddress);
@@ -1212,12 +1226,14 @@ public:
     void SetNull()
     {
         nVersion = CTokenTx::CURRENT_VERSION;
-        nTime = 0;
+        nCreateTime = 0;
         strContractAddress = "";
         strSenderAddress = "";
         strReceiverAddress = "";
         nValue.SetNull();
         transactionHash.SetNull();
+        blockHash.SetNull();
+        blockNumber = -1;
     }
 
     uint256 GetHash() const;

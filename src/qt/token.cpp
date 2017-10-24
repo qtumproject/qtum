@@ -598,6 +598,7 @@ bool Token::execEvents(int64_t fromBlock, int64_t toBlock, int func, std::vector
 
             // Create new event
             TokenEvent tokenEvent;
+            tokenEvent.address = variantMap.value("contractAddress").toString().toStdString();
             tokenEvent.sender = topicsList[1].toString().toStdString().substr(24);
             ToQtumAddress(tokenEvent.sender, tokenEvent.sender);
             tokenEvent.receiver = topicsList[2].toString().toStdString().substr(24);

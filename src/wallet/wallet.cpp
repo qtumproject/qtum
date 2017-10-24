@@ -4573,8 +4573,16 @@ bool CWallet::AddTokenEntry(const CTokenInfo &token, bool fFlushOnClose)
     }
 
     // Write to disk
-    CTokenInfo wtoken(token);
-    wtoken.nCreateTime = GetAdjustedTime();
+    CTokenInfo wtoken = token;
+    if(!fInsertedNew)
+    {
+        wtoken.nCreateTime = GetAdjustedTime();
+    }
+    else
+    {
+        wtoken.nCreateTime = it->second.nCreateTime;
+    }
+
     if (!walletdb.WriteToken(wtoken))
         return false;
 
@@ -4604,14 +4612,24 @@ bool CWallet::AddTokenTxEntry(const CTokenTx &tokenTx, bool fFlushOnClose)
     }
 
     // Write to disk
-    if (!walletdb.WriteTokenTx(tokenTx))
+    CTokenTx wtokenTx = tokenTx;
+    if(fInsertedNew)
+    {
+        wtokenTx.nCreateTime = GetAdjustedTime();
+    }
+    else
+    {
+        wtokenTx.nCreateTime = it->second.nCreateTime;
+    }
+
+    if (!walletdb.WriteTokenTx(wtokenTx))
         return false;
 
-    mapTokenTx[hash] = tokenTx;
+    mapTokenTx[hash] = wtokenTx;
 
     NotifyTokenTransactionChanged(this, hash, fInsertedNew ? CT_NEW : CT_UPDATED);
 
-    LogPrintf("AddTokenTxEntry %s\n", tokenTx.GetHash().ToString());
+    LogPrintf("AddTokenTxEntry %s\n", wtokenTx.GetHash().ToString());
 
     return true;
 }

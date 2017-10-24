@@ -195,7 +195,8 @@ public:
 
                     if(mi != wallet->mapTokenTx.end())
                     {
-                        rec->updateStatus(wallet, mi->second);
+                        CTokenTx wtx(mi->second);
+                        rec->updateStatus(wallet, wtx);
                     }
                 }
             }
