@@ -157,6 +157,7 @@ void SendTokenPage::on_confirmClicked()
         int unit = m_model->getOptionsModel()->getDisplayUnit();
         uint64_t gasLimit = ui->lineEditGasLimit->value();
         CAmount gasPrice = ui->lineEditGasPrice->value();
+        std::string label = ui->lineEditDescription->text().trimmed().toStdString();
 
         m_tokenABI->setAddress(m_selectedToken->address);
         m_tokenABI->setSender(m_selectedToken->sender);
@@ -187,6 +188,7 @@ void SendTokenPage::on_confirmClicked()
                 dev::u256 nValue(amountToSend);
                 tokenTx.nValue = u256Touint(nValue);
                 tokenTx.transactionHash = uint256S(m_tokenABI->getTxId());
+                tokenTx.strLabel = label;
                 m_model->AddTokenTxEntry(tokenTx);
             }
             clearAll();
