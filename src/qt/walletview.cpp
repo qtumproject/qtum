@@ -17,6 +17,7 @@
 #include "signverifymessagedialog.h"
 #include "transactiontablemodel.h"
 #include "tokentransactiontablemodel.h"
+#include "tokentransactionrecord.h"
 #include "transactionview.h"
 #include "walletmodel.h"
 #include "createcontract.h"
@@ -116,7 +117,7 @@ void WalletView::setBitcoinGUI(BitcoinGUI *gui)
         connect(this, SIGNAL(incomingTransaction(QString,int,CAmount,QString,QString,QString)), gui, SLOT(incomingTransaction(QString,int,CAmount,QString,QString,QString)));
 
         // Pass through token transaction notifications
-        connect(this, SIGNAL(incomingTokenTransaction(QString,QString,QString,QString,QString)), gui, SLOT(incomingTokenTransaction(QString,QString,QString,QString,QString)));
+        connect(this, SIGNAL(incomingTokenTransaction(QString,QString,QString,QString,QString,QString)), gui, SLOT(incomingTokenTransaction(QString,QString,QString,QString,QString,QString)));
 
         // Connect HD enabled state signal 
         connect(this, SIGNAL(hdEnabledStatusChanged(int)), gui, SLOT(setHDStatus(int)));
@@ -217,8 +218,19 @@ void WalletView::processNewTokenTransaction(const QModelIndex &parent, int start
     QModelIndex index = tttm->index(start, 0, parent);
     QString address = tttm->data(index, TokenTransactionTableModel::AddressRole).toString();
     QString label = tttm->data(index, TokenTransactionTableModel::LabelRole).toString();
-
-    Q_EMIT incomingTokenTransaction(date, amount, type, address, label);
+    QString title;
+    int txType = tttm->data(index, TokenTransactionTableModel::TypeRole).toInt();
+    switch (txType)
+    {
+    case TokenTransactionRecord::RecvWithAddress:
+    case TokenTransactionRecord::RecvFromOther:
+        title = tr("Incoming transaction");
+        break;
+    default:
+        title = tr("Sent transaction");
+        break;
+    }
+    Q_EMIT incomingTokenTransaction(date, amount, type, address, label, title);
 }
 
 void WalletView::gotoOverviewPage()

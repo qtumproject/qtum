@@ -212,7 +212,7 @@ public Q_SLOTS:
     void incomingTransaction(const QString& date, int unit, const CAmount& amount, const QString& type, const QString& address, const QString& label);
 
     /** Show incoming transaction notification for new token transactions. */
-    void incomingTokenTransaction(const QString& date, const QString& amount, const QString& type, const QString& address, const QString& label);
+    void incomingTokenTransaction(const QString& date, const QString& amount, const QString& type, const QString& address, const QString& label, const QString& title);
 #endif // ENABLE_WALLET
 
     void setTabBarInfo(QObject* into);

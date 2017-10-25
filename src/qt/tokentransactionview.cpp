@@ -138,7 +138,7 @@ TokenTransactionView::TokenTransactionView(const PlatformStyle *platformStyle, Q
     QAction *copyTxPlainText = new QAction(tr("Copy full transaction details"), this);
     QAction *showDetailsAction = new QAction(tr("Show transaction details"), this);
 
-    contextMenu = new QMenu(this);
+    contextMenu = new QMenu(tokenView);
     contextMenu->addAction(copyAddressAction);
     contextMenu->addAction(copyAmountAction);
     contextMenu->addAction(copyTxIDAction);
