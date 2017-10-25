@@ -242,7 +242,6 @@ void TokenTransactionView::refreshNameWidget()
             QString name = tim->data(tim->index(i, 0), TokenItemModel::SymbolRole).toString();
             nameWidget->addItem(name, name);
         }
-        nameWidget->setCurrentIndex(0);
     }
 }
 
@@ -253,7 +252,6 @@ void TokenTransactionView::addToNameWidget(const QModelIndex &parent, int start,
         TokenItemModel *tim = model->getTokenItemModel();
         QString name = tim->index(start, TokenItemModel::Symbol, parent).data().toString();
         nameWidget->addItem(name, name);
-        nameWidget->setCurrentIndex(0);
     }
 }
 
