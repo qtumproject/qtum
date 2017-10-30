@@ -128,16 +128,16 @@ QRCToken::QRCToken(const PlatformStyle *platformStyle, QWidget *parent) :
     ui->receiveButton->setDefaultAction(m_receiveAction);
     ui->addTokenButton->setDefaultAction(m_addTokenAction);
 
-    QAction *copyTokenAddressAction = new QAction(tr("Copy token address"), this);
+    QAction *copySenderAction = new QAction(tr("Copy receive address"), this);
     QAction *copyTokenBalanceAction = new QAction(tr("Copy token balance"), this);
     QAction *copyTokenNameAction = new QAction(tr("Copy token name"), this);
-    QAction *copySenderAction = new QAction(tr("Copy sender address"), this);
+    QAction *copyTokenAddressAction = new QAction(tr("Copy contract address"), this);
 
     contextMenu = new QMenu(ui->tokensList);
-    contextMenu->addAction(copyTokenAddressAction);
+    contextMenu->addAction(copySenderAction);
     contextMenu->addAction(copyTokenBalanceAction);
     contextMenu->addAction(copyTokenNameAction);
-    contextMenu->addAction(copySenderAction);
+    contextMenu->addAction(copyTokenAddressAction);
 
     connect(copyTokenAddressAction, SIGNAL(triggered(bool)), this, SLOT(copyTokenAddress()));
     connect(copyTokenBalanceAction, SIGNAL(triggered(bool)), this, SLOT(copyTokenBalance()));
