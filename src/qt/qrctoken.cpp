@@ -35,6 +35,7 @@ public:
         QIcon tokenIcon = platformStyle->SingleColorIcon(":/icons/token");
         QString tokenSymbol = index.data(TokenItemModel::SymbolRole).toString();
         QString tokenBalance = index.data(TokenItemModel::BalanceRole).toString();
+        QString receiveAddress = index.data(TokenItemModel::SenderRole).toString();
 
         QRect mainRect = option.rect;
         mainRect.setWidth(option.rect.width());
@@ -57,12 +58,18 @@ public:
 
         QColor foreground = option.palette.color(QPalette::Text);
         painter->setPen(foreground);
-        QRect tokenSymbolRect(decorationRect.right() + MARGIN, mainRect.top(), SYMBOL_WIDTH, TOKEN_SIZE);
-        painter->drawText(tokenSymbolRect, Qt::AlignLeft|Qt::AlignVCenter, clippedSymbol);
+        QRect tokenSymbolRect(decorationRect.right() + MARGIN, decorationRect.top(), SYMBOL_WIDTH, decorationSize / 2);
+        painter->drawText(tokenSymbolRect, Qt::AlignLeft|Qt::AlignTop, clippedSymbol);
 
         int amountWidth = (mainRect.width() - decorationRect.width() - 2 * MARGIN - tokenSymbolRect.width()- leftTopMargin);
-        QRect tokenBalanceRect(tokenSymbolRect.right(), mainRect.top(), amountWidth, TOKEN_SIZE);
-        painter->drawText(tokenBalanceRect, Qt::AlignRight|Qt::AlignVCenter, tokenBalance);
+        QRect tokenBalanceRect(tokenSymbolRect.right(), decorationRect.top(), amountWidth, decorationSize / 2);
+        painter->drawText(tokenBalanceRect, Qt::AlignRight|Qt::AlignTop, tokenBalance);
+
+        QFont addressFont = option.font;
+        addressFont.setPixelSize(addressFont.pixelSize() * 0.9);
+        painter->setFont(addressFont);
+        QRect receiveAddressRect(decorationRect.right() + MARGIN, tokenSymbolRect.bottom(), mainRect.width() - SYMBOL_WIDTH, decorationSize / 2);
+        painter->drawText(receiveAddressRect, Qt::AlignLeft|Qt::AlignBottom, receiveAddress);
 
         painter->restore();
     }
