@@ -80,7 +80,7 @@
             </size>
            </property>
            <property name="text">
-            <string>AddToken</string>
+            <string>Add Token</string>
            </property>
           </widget>
          </item>

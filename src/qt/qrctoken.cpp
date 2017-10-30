@@ -117,7 +117,7 @@ QRCToken::QRCToken(const PlatformStyle *platformStyle, QWidget *parent) :
     QActionGroup *actionGroup = new QActionGroup(this);
     m_sendAction = new QAction(tr("Send"), actionGroup);
     m_receiveAction = new QAction(tr("Receive"), actionGroup);
-    m_addTokenAction = new QAction(tr("AddToken"), actionGroup);
+    m_addTokenAction = new QAction(tr("Add Token"), actionGroup);
     actionGroup->setExclusive(true);
 
     m_sendAction->setCheckable(true);

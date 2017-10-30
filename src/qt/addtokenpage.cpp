@@ -24,6 +24,7 @@ AddTokenPage::AddTokenPage(QWidget *parent) :
     ui->lineEditTokenName->setStyleSheet(STYLE_UNDERLINE);
     ui->lineEditTokenSymbol->setStyleSheet(STYLE_UNDERLINE);
     ui->lineEditDecimals->setStyleSheet(STYLE_UNDERLINE);
+    ui->labelDescription->setText(tr("(This is your wallet address which will be tied to the token for send/receive oprations)"));
     m_tokenABI = new Token();
 
     connect(ui->lineEditContractAddress, SIGNAL(textChanged(const QString &)), this, SLOT(on_addressChanged()));
