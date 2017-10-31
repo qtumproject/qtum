@@ -31,7 +31,8 @@ AddTokenPage::AddTokenPage(QWidget *parent) :
     connect(ui->lineEditTokenName, SIGNAL(textChanged(const QString &)), SLOT(on_updateConfirmButton()));
     connect(ui->lineEditTokenSymbol, SIGNAL(textChanged(const QString &)), SLOT(on_updateConfirmButton()));
 
-    ((QValidatedLineEdit*)ui->lineEditSenderAddress->lineEdit())->setEmptyIsValid(false);
+    if(ui->lineEditSenderAddress->isEditable())
+        ((QValidatedLineEdit*)ui->lineEditSenderAddress->lineEdit())->setEmptyIsValid(false);
     m_validTokenAddress = false;
 }
 
@@ -52,12 +53,6 @@ void AddTokenPage::setClientModel(ClientModel *clientModel)
         connect(m_clientModel, SIGNAL(numBlocksChanged(int,QDateTime,double,bool)), this, SLOT(on_numBlocksChanged()));
         on_numBlocksChanged();
     }
-}
-
-bool AddTokenPage::isValidSenderAddress()
-{
-    ((QValidatedLineEdit*)ui->lineEditSenderAddress->lineEdit())->checkValidity();
-    return ((QValidatedLineEdit*)ui->lineEditSenderAddress->lineEdit())->isValid();
 }
 
 void AddTokenPage::clearAll()
@@ -81,7 +76,7 @@ void AddTokenPage::on_clearButton_clicked()
 
 void AddTokenPage::on_confirmButton_clicked()
 {
-    if(isValidSenderAddress())
+    if(ui->lineEditSenderAddress->isValidAddress())
     {
         CTokenInfo tokenInfo;
         tokenInfo.strContractAddress = ui->lineEditContractAddress->text().toStdString();

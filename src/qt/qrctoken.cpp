@@ -68,7 +68,8 @@ public:
         QFont addressFont = option.font;
         addressFont.setPixelSize(addressFont.pixelSize() * 0.9);
         painter->setFont(addressFont);
-        QRect receiveAddressRect(decorationRect.right() + MARGIN, tokenSymbolRect.bottom(), mainRect.width() - SYMBOL_WIDTH, decorationSize / 2);
+
+        QRect receiveAddressRect(decorationRect.right() + MARGIN, tokenSymbolRect.bottom(), mainRect.width() - decorationSize, decorationSize / 2);
         painter->drawText(receiveAddressRect, Qt::AlignLeft|Qt::AlignBottom, receiveAddress);
 
         painter->restore();

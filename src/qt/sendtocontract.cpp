@@ -132,8 +132,6 @@ bool SendToContract::isDataValid()
         dataValid = false;
     if(!m_ABIFunctionField->isValid())
         dataValid = false;
-    if(!ui->lineEditSenderAddress->isValidAddress())
-        dataValid = false;
     return dataValid;
 }
 

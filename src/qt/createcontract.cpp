@@ -139,8 +139,6 @@ bool CreateContract::isDataValid()
         dataValid = false;
     if(!funcValid)
         dataValid = false;
-    if(!ui->lineEditSenderAddress->isValidAddress())
-        dataValid = false;
 
     return dataValid;
 }
