@@ -114,6 +114,7 @@ QRCToken::QRCToken(const PlatformStyle *platformStyle, QWidget *parent) :
 
     ui->tokensList->setItemDelegate(m_tokenDelegate);
     ui->tokensList->setContextMenuPolicy(Qt::CustomContextMenu);
+    ui->tokensList->setAttribute(Qt::WA_MacShowFocusRect, false);
 
     QActionGroup *actionGroup = new QActionGroup(this);
     m_sendAction = new QAction(tr("Send"), actionGroup);

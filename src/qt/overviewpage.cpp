@@ -237,6 +237,7 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
 
     // Token list
     ui->listTokens->setItemDelegate(tkndelegate);
+    ui->listTokens->setAttribute(Qt::WA_MacShowFocusRect, false);
 
     // start with displaying the "out of sync" warnings
     showOutOfSyncWarning(true);
