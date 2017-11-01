@@ -228,6 +228,8 @@ public:
 
     bool existTokenEntry(const CTokenInfo& token);
 
+    bool removeTokenEntry(const std::string& sHash);
+
 private:
     CWallet *wallet;
     bool fHaveWatchOnly;

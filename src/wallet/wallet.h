@@ -1046,6 +1046,12 @@ public:
 
     /* Get details token tx entry into the wallet */
     bool GetTokenTxDetails(const CTokenTx &wtx, uint256& credit, uint256& debit, std::string& tokenSymbol, uint8_t& decimals) const;
+
+    /* Check if token transaction is mine */
+    bool IsTokenTxMine(const CTokenTx &wtx) const;
+
+    /* Remove token entry from the wallet */
+    bool RemoveTokenEntry(const uint256& tokenHash, bool fFlushOnClose=true);
 };
 
 /** A key allocated from the key pool. */

@@ -133,17 +133,20 @@ QRCToken::QRCToken(const PlatformStyle *platformStyle, QWidget *parent) :
     QAction *copyTokenBalanceAction = new QAction(tr("Copy token balance"), this);
     QAction *copyTokenNameAction = new QAction(tr("Copy token name"), this);
     QAction *copyTokenAddressAction = new QAction(tr("Copy contract address"), this);
+    QAction *removeTokenAction = new QAction(tr("Remove token"), this);
 
     contextMenu = new QMenu(ui->tokensList);
     contextMenu->addAction(copySenderAction);
     contextMenu->addAction(copyTokenBalanceAction);
     contextMenu->addAction(copyTokenNameAction);
     contextMenu->addAction(copyTokenAddressAction);
+    contextMenu->addAction(removeTokenAction);
 
     connect(copyTokenAddressAction, SIGNAL(triggered(bool)), this, SLOT(copyTokenAddress()));
     connect(copyTokenBalanceAction, SIGNAL(triggered(bool)), this, SLOT(copyTokenBalance()));
     connect(copyTokenNameAction, SIGNAL(triggered(bool)), this, SLOT(copyTokenName()));
     connect(copySenderAction, SIGNAL(triggered(bool)), this, SLOT(copySenderAddress()));
+    connect(removeTokenAction, SIGNAL(triggered(bool)), this, SLOT(removeToken()));
 
     connect(m_sendAction, SIGNAL(triggered()), this, SLOT(on_goToSendTokenPage()));
     connect(m_receiveAction, SIGNAL(triggered()), this, SLOT(on_goToReceiveTokenPage()));
@@ -280,4 +283,21 @@ void QRCToken::copyTokenName()
 void QRCToken::copySenderAddress()
 {
     GUIUtil::copyEntryDataFromList(ui->tokensList, TokenItemModel::SenderRole);
+}
+
+void QRCToken::removeToken()
+{
+    QMessageBox::StandardButton btnRetVal = QMessageBox::question(this, tr("Confirm token remove"), tr("The selected token will be removed from the list. Are you sure?"),
+        QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
+
+    if(btnRetVal == QMessageBox::Yes)
+    {
+        QModelIndexList selection = ui->tokensList->selectionModel()->selectedIndexes();
+        if (selection.empty() && !m_model)
+            return;
+
+        QModelIndex index = selection[0];
+        std::string sHash = index.data(TokenItemModel::HashRole).toString().toStdString();
+        m_model->removeTokenEntry(sHash);
+    }
 }
