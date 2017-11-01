@@ -176,6 +176,12 @@ void CreateContract::on_createContract_clicked()
 {
     if(isDataValid())
     {
+        WalletModel::UnlockContext ctx(m_model->requestUnlock());
+        if(!ctx.isValid())
+        {
+            return;
+        }
+
         // Initialize variables
         QMap<QString, QString> lstParams;
         QVariant result;

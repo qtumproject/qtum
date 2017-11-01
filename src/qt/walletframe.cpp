@@ -7,6 +7,7 @@
 #include "bitcoingui.h"
 #include "walletview.h"
 #include "tabbarinfo.h"
+#include "wallet/wallet.h"
 
 #include <cstdio>
 
@@ -218,7 +219,10 @@ void WalletFrame::lockWallet()
 {
     WalletView *walletView = currentWalletView();
     if (walletView)
+    {
         walletView->lockWallet();
+        fWalletUnlockStakingOnly = false;
+    }
 }
 
 void WalletFrame::usedSendingAddresses()

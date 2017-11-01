@@ -152,6 +152,12 @@ void SendTokenPage::on_confirmClicked()
     if(!isDataValid())
         return;
 
+    WalletModel::UnlockContext ctx(m_model->requestUnlock());
+    if(!ctx.isValid())
+    {
+        return;
+    }
+
     if(m_model && m_model->isUnspentAddress(m_selectedToken->sender))
     {
         int unit = m_model->getOptionsModel()->getDisplayUnit();

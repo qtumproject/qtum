@@ -600,8 +600,14 @@ WalletModel::UnlockContext WalletModel::requestUnlock()
 WalletModel::UnlockContext::UnlockContext(WalletModel *_wallet, bool _valid, bool _relock):
         wallet(_wallet),
         valid(_valid),
-        relock(_relock)
+        relock(_relock),
+        stakingOnly(false)
 {
+    if(!relock)
+    {
+        stakingOnly = fWalletUnlockStakingOnly;
+        fWalletUnlockStakingOnly = false;
+    }
 }
 
 WalletModel::UnlockContext::~UnlockContext()
@@ -609,6 +615,12 @@ WalletModel::UnlockContext::~UnlockContext()
     if(valid && relock)
     {
         wallet->setWalletLocked(true);
+    }
+
+    if(!relock)
+    {
+        fWalletUnlockStakingOnly = stakingOnly;
+        wallet->updateStatus();
     }
 }
 
