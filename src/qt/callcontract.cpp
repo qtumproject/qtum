@@ -34,7 +34,7 @@ CallContract::CallContract(const PlatformStyle *platformStyle, QWidget *parent) 
     ui->groupBoxOptional->setStyleSheet(STYLE_GROUPBOX);
     ui->groupBoxFunction->setStyleSheet(STYLE_GROUPBOX);
     ui->scrollAreaFunction->setStyleSheet(".QScrollArea {border: none;}");
-    m_ABIFunctionField = new ABIFunctionField(platformStyle, ABIFunctionField::Function, ui->scrollAreaFunction);
+    m_ABIFunctionField = new ABIFunctionField(platformStyle, ABIFunctionField::Call, ui->scrollAreaFunction);
     ui->scrollAreaFunction->setWidget(m_ABIFunctionField);
 
     ui->labelContractAddress->setToolTip(tr("The account address."));

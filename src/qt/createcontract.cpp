@@ -49,7 +49,7 @@ CreateContract::CreateContract(const PlatformStyle *platformStyle, QWidget *pare
     ui->groupBoxConstructor->setStyleSheet(STYLE_GROUPBOX);
     ui->scrollAreaConstructor->setStyleSheet(".QScrollArea {border: none;}");
     setLinkLabels();
-    m_ABIFunctionField = new ABIFunctionField(platformStyle, ABIFunctionField::Constructor, ui->scrollAreaConstructor);
+    m_ABIFunctionField = new ABIFunctionField(platformStyle, ABIFunctionField::Create, ui->scrollAreaConstructor);
     ui->scrollAreaConstructor->setWidget(m_ABIFunctionField);
     ui->labelBytecode->setToolTip(tr("The bytecode of the contract"));
     ui->labelSenderAddress->setToolTip(tr("The quantum address that will be used to create the contract."));

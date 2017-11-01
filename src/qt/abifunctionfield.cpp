@@ -55,12 +55,21 @@ void ABIFunctionField::updateABIFunctionField()
         std::vector<FunctionABI> functions = m_contractABI->functions;
         QStringList functionList;
         QStringListModel *functionModel = new QStringListModel(this);
+        bool bFieldCreate = m_functionType == Create;
+        bool bFieldCall = m_functionType == Call;
+        bool bFieldSendTo = m_functionType == SendTo;
+        bool bFieldFunc = bFieldCall || bFieldSendTo;
         for (int func = 0; func < (int)functions.size(); ++func)
         {
             const FunctionABI &function = functions[func];
-            if((m_functionType == Constructor && function.type != "constructor") ||
-                    (m_functionType == Function && function.type == "constructor") ||
-                    (m_functionType == Function && function.type == "event"))
+            bool bTypeConstructor = function.type == "constructor";
+            bool bTypeEvent = function.type == "event";
+            bool bIsConstant = function.constant;
+            if((bFieldCreate && !bTypeConstructor) ||
+                    (bFieldFunc && bTypeConstructor) ||
+                    (bFieldFunc && bTypeEvent) ||
+                    (bFieldCall && !bIsConstant) ||
+                    (bFieldSendTo && bIsConstant))
             {
                 continue;
             }
@@ -78,7 +87,7 @@ void ABIFunctionField::updateABIFunctionField()
         functionModel->setStringList(functionList);
         m_comboBoxFunc->setModel(functionModel);
 
-        if(m_functionType == Function)
+        if(bFieldFunc)
         {
             bool visible = m_abiFunctionList.size() > 0;
             m_func->setVisible(visible);

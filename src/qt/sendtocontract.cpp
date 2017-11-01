@@ -47,7 +47,7 @@ SendToContract::SendToContract(const PlatformStyle *platformStyle, QWidget *pare
     ui->groupBoxOptional->setStyleSheet(STYLE_GROUPBOX);
     ui->groupBoxFunction->setStyleSheet(STYLE_GROUPBOX);
     ui->scrollAreaFunction->setStyleSheet(".QScrollArea {border: none;}");
-    m_ABIFunctionField = new ABIFunctionField(platformStyle, ABIFunctionField::Function, ui->scrollAreaFunction);
+    m_ABIFunctionField = new ABIFunctionField(platformStyle, ABIFunctionField::SendTo, ui->scrollAreaFunction);
     ui->scrollAreaFunction->setWidget(m_ABIFunctionField);
     ui->lineEditAmount->setEnabled(false);
     ui->labelContractAddress->setToolTip(tr("The contract address that will receive the funds and data."));
