@@ -15,7 +15,7 @@
 #include <QMenu>
 
 #define TOKEN_SIZE 54
-#define SYMBOL_WIDTH 100
+#define SYMBOL_WIDTH 60
 #define MARGIN 5
 
 class TokenViewDelegate : public QAbstractItemDelegate
@@ -60,6 +60,10 @@ public:
         painter->setPen(foreground);
         QRect tokenSymbolRect(decorationRect.right() + MARGIN, decorationRect.top(), SYMBOL_WIDTH, decorationSize / 2);
         painter->drawText(tokenSymbolRect, Qt::AlignLeft|Qt::AlignTop, clippedSymbol);
+
+        QFont font = option.font;
+        font.setBold(true);
+        painter->setFont(font);
 
         int amountWidth = (mainRect.width() - decorationRect.width() - 2 * MARGIN - tokenSymbolRect.width()- leftTopMargin);
         QRect tokenBalanceRect(tokenSymbolRect.right(), decorationRect.top(), amountWidth, decorationSize / 2);
