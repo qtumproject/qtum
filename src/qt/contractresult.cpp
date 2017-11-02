@@ -157,7 +157,7 @@ void ContractResult::updateCallResult(QVariant result, FunctionABI function, QLi
     QVariantMap executionResultMap = variantMap.value("executionResult").toMap();
 
     ui->lineEditCallContractAddress->setText(variantMap.value("address").toString());
-    ui->lineEditFunction->setText(QString::fromStdString(function.name));
+    ui->lineEditFunction->setText(QString::fromStdString(function.name) + "()");
 
     setParamsData(function, paramValues);
 

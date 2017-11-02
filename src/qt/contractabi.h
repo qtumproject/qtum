@@ -173,6 +173,8 @@ public:
 
     std::string selector() const;
 
+    static std::string defaultSelector();
+
     QString errorMessage(std::vector<ParameterABI::ErrorType>& errors, bool in) const;
 
     std::string name; // The name of the function;

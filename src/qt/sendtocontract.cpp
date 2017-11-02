@@ -49,7 +49,7 @@ SendToContract::SendToContract(const PlatformStyle *platformStyle, QWidget *pare
     ui->scrollAreaFunction->setStyleSheet(".QScrollArea {border: none;}");
     m_ABIFunctionField = new ABIFunctionField(platformStyle, ABIFunctionField::SendTo, ui->scrollAreaFunction);
     ui->scrollAreaFunction->setWidget(m_ABIFunctionField);
-    ui->lineEditAmount->setEnabled(false);
+    ui->lineEditAmount->setEnabled(true);
     ui->labelContractAddress->setToolTip(tr("The contract address that will receive the funds and data."));
     ui->labelAmount->setToolTip(tr("The amount in QTUM to send. Default = 0."));
     ui->labelSenderAddress->setToolTip(tr("The quantum address that will be used as sender."));
@@ -63,6 +63,7 @@ SendToContract::SendToContract(const PlatformStyle *platformStyle, QWidget *pare
     ui->lineEditGasLimit->setMinimum(MINIMUM_GAS_LIMIT);
     ui->lineEditGasLimit->setMaximum(DEFAULT_GAS_LIMIT_OP_SEND);
     ui->lineEditGasLimit->setValue(DEFAULT_GAS_LIMIT_OP_SEND);
+    ui->textEditInterface->setIsValidManually(true);
     ui->pushButtonSendToContract->setEnabled(false);
 
     // Create new PRC command line interface
@@ -150,10 +151,12 @@ void SendToContract::on_clearAll_clicked()
 {
     ui->lineEditContractAddress->clear();
     ui->lineEditAmount->clear();
+    ui->lineEditAmount->setEnabled(true);
     ui->lineEditGasLimit->setValue(DEFAULT_GAS_LIMIT_OP_SEND);
     ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
     ui->lineEditSenderAddress->setCurrentIndex(-1);
     ui->textEditInterface->clear();
+    ui->textEditInterface->setIsValidManually(true);
 
     for(int i = ui->stackedWidget->count() - 1; i > 0; i--)
     {
@@ -241,7 +244,7 @@ void SendToContract::on_numBlocksChanged()
 void SendToContract::on_updateSendToContractButton()
 {
     int func = m_ABIFunctionField->getSelectedFunction();
-    bool enabled = func != -1;
+    bool enabled = func >= -1;
     if(ui->lineEditContractAddress->text().isEmpty())
     {
         enabled = false;
@@ -282,7 +285,8 @@ QString SendToContract::toDataHex(int func, QString& errorMessage)
 {
     if(func == -1 || m_ABIFunctionField == NULL || m_contractABI == NULL)
     {
-        return "";
+        std::string defSelector = FunctionABI::defaultSelector();
+        return QString::fromStdString(defSelector);
     }
 
     std::string strData;
@@ -303,7 +307,7 @@ QString SendToContract::toDataHex(int func, QString& errorMessage)
 bool SendToContract::isFunctionPayable()
 {
     int func = m_ABIFunctionField->getSelectedFunction();
-    if(func < 0) return false;
+    if(func < 0) return true;
     FunctionABI function = m_contractABI->functions[func];
     return function.payable;
 }

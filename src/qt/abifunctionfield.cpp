@@ -64,12 +64,13 @@ void ABIFunctionField::updateABIFunctionField()
             const FunctionABI &function = functions[func];
             bool bTypeConstructor = function.type == "constructor";
             bool bTypeEvent = function.type == "event";
+            bool bTypeDefault = function.type == "default";
             bool bIsConstant = function.constant;
             if((bFieldCreate && !bTypeConstructor) ||
                     (bFieldFunc && bTypeConstructor) ||
                     (bFieldFunc && bTypeEvent) ||
-                    (bFieldCall && !bIsConstant) ||
-                    (bFieldSendTo && bIsConstant))
+                    (bFieldCall && !bIsConstant && !bTypeDefault) ||
+                    (bFieldSendTo && bIsConstant && !bTypeDefault))
             {
                 continue;
             }
@@ -116,11 +117,17 @@ void ABIFunctionField::setContractABI(ContractABI *contractABI)
 
 QStringList ABIFunctionField::getParamValue(int paramID)
 {
+    if(m_paramsField->currentWidget() == 0)
+        return QStringList();
+
     return ((ABIParamsField*)m_paramsField->currentWidget())->getParamValue(paramID);
 }
 
 QList<QStringList> ABIFunctionField::getParamsValues()
 {
+    if(m_paramsField->currentWidget() == 0)
+        return QList<QStringList>();
+
     return ((ABIParamsField*)m_paramsField->currentWidget())->getParamsValues();
 }
 
@@ -153,6 +160,9 @@ int ABIFunctionField::getSelectedFunction() const
 
 bool ABIFunctionField::isValid()
 {
+    if(m_paramsField->currentWidget() == 0)
+        return true;
+
     return ((ABIParamsField*)m_paramsField->currentWidget())->isValid();
 }
 

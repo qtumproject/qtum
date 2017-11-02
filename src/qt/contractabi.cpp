@@ -98,6 +98,11 @@ bool ContractABI::loads(const std::string &json_data)
         }
     }
 
+    FunctionABI function;
+    function.type = "default";
+    function.payable = true;
+    functions.push_back(function);
+
     return ret;
 }
 
@@ -154,6 +159,11 @@ bool FunctionABI::abiOut(const std::string &data, std::vector<std::vector<std::s
 
 std::string FunctionABI::selector() const
 {
+    if(type == "default")
+    {
+        return defaultSelector();
+    }
+
     if(type == "constructor" || (type == "event" && anonymous))
     {
         return "";
@@ -184,6 +194,11 @@ std::string FunctionABI::selector() const
     }
 
     return dev::toHex(hash);
+}
+
+std::string FunctionABI::defaultSelector()
+{
+    return "00";
 }
 
 QString FunctionABI::errorMessage(std::vector<ParameterABI::ErrorType> &errors, bool in) const
