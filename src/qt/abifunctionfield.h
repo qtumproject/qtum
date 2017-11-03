@@ -24,8 +24,9 @@ public:
      */
     enum FunctionType
     {
-        Function,
-        Constructor
+        Create,
+        SendTo,
+        Call
     };
 
     /**

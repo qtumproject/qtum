@@ -57,6 +57,7 @@ public:
     virtual QString currentText() const;
 
     bool isValidAddress();
+    void setComboBoxEditable(bool editable);
 
 Q_SIGNALS:
     /**
@@ -84,7 +85,6 @@ private:
     QStringList m_stringList;
     QStringListModel m_stringModel;
     AddressType m_addressType;
-
 };
 
 #endif // ADDRESSFIELD_H

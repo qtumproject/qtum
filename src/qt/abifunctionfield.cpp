@@ -55,11 +55,22 @@ void ABIFunctionField::updateABIFunctionField()
         std::vector<FunctionABI> functions = m_contractABI->functions;
         QStringList functionList;
         QStringListModel *functionModel = new QStringListModel(this);
+        bool bFieldCreate = m_functionType == Create;
+        bool bFieldCall = m_functionType == Call;
+        bool bFieldSendTo = m_functionType == SendTo;
+        bool bFieldFunc = bFieldCall || bFieldSendTo;
         for (int func = 0; func < (int)functions.size(); ++func)
         {
             const FunctionABI &function = functions[func];
-            if((m_functionType == Constructor && function.type != "constructor") ||
-                    (m_functionType == Function && function.type == "constructor"))
+            bool bTypeConstructor = function.type == "constructor";
+            bool bTypeEvent = function.type == "event";
+            bool bTypeDefault = function.type == "default";
+            bool bIsConstant = function.constant;
+            if((bFieldCreate && !bTypeConstructor) ||
+                    (bFieldFunc && bTypeConstructor) ||
+                    (bFieldFunc && bTypeEvent) ||
+                    (bFieldCall && !bIsConstant && !bTypeDefault) ||
+                    (bFieldSendTo && bIsConstant && !bTypeDefault))
             {
                 continue;
             }
@@ -77,7 +88,7 @@ void ABIFunctionField::updateABIFunctionField()
         functionModel->setStringList(functionList);
         m_comboBoxFunc->setModel(functionModel);
 
-        if(m_functionType == Function)
+        if(bFieldFunc)
         {
             bool visible = m_abiFunctionList.size() > 0;
             m_func->setVisible(visible);
@@ -106,11 +117,17 @@ void ABIFunctionField::setContractABI(ContractABI *contractABI)
 
 QStringList ABIFunctionField::getParamValue(int paramID)
 {
+    if(m_paramsField->currentWidget() == 0)
+        return QStringList();
+
     return ((ABIParamsField*)m_paramsField->currentWidget())->getParamValue(paramID);
 }
 
 QList<QStringList> ABIFunctionField::getParamsValues()
 {
+    if(m_paramsField->currentWidget() == 0)
+        return QList<QStringList>();
+
     return ((ABIParamsField*)m_paramsField->currentWidget())->getParamsValues();
 }
 
@@ -143,6 +160,9 @@ int ABIFunctionField::getSelectedFunction() const
 
 bool ABIFunctionField::isValid()
 {
+    if(m_paramsField->currentWidget() == 0)
+        return true;
+
     return ((ABIParamsField*)m_paramsField->currentWidget())->isValid();
 }
 

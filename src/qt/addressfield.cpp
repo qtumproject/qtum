@@ -18,14 +18,9 @@ AddressField::AddressField(QWidget *parent) :
     QComboBox(parent),
     m_addressType(AddressField::UTXO)
 {
-
-    QValidatedLineEdit *validatedLineEdit = new QValidatedLineEdit(this);
-    validatedLineEdit->setCheckValidator(new BitcoinAddressCheckValidator(parent));
-    this->setLineEdit(validatedLineEdit);
+    setComboBoxEditable(false);
 
     connect(this, SIGNAL(addressTypeChanged(AddressType)), SLOT(on_addressTypeChanged()));
-    setEditable(true);
-    completer()->setCompletionMode(QCompleter::PopupCompletion);
     connect(lineEdit(), SIGNAL(editingFinished()), this, SLOT(on_editingFinished()));
 
     // Limit the number of visible items in the list
@@ -44,8 +39,33 @@ QString AddressField::currentText() const
 
 bool AddressField::isValidAddress()
 {
+    if(!isEditable())
+    {
+        if(currentIndex() != -1)
+            return true;
+        else
+            return false;
+    }
+
     ((QValidatedLineEdit*)lineEdit())->checkValidity();
     return ((QValidatedLineEdit*)lineEdit())->isValid();
+}
+
+void AddressField::setComboBoxEditable(bool editable)
+{
+
+    QValidatedLineEdit *validatedLineEdit = new QValidatedLineEdit(this);
+    if(editable)
+    {
+        validatedLineEdit->setCheckValidator(new BitcoinAddressCheckValidator(parent()));
+        this->setLineEdit(validatedLineEdit);
+        completer()->setCompletionMode(QCompleter::PopupCompletion);
+    }
+    else
+    {
+        this->setLineEdit(validatedLineEdit);
+    }
+    setEditable(editable);
 }
 
 void AddressField::on_refresh()

@@ -14,12 +14,20 @@
 #include "transactionfilterproxy.h"
 #include "transactiontablemodel.h"
 #include "walletmodel.h"
+#include "tokenitemmodel.h"
 
 #include <QAbstractItemDelegate>
 #include <QPainter>
 
+#include <QStandardItem>
+#include <QStandardItemModel>
+#include <QSortFilterProxyModel>
+
 #define DECORATION_SIZE 54
 #define NUM_ITEMS 5
+#define TOKEN_SIZE 54
+#define MARGIN 5
+#define NAME_WIDTH 120
 
 class TxViewDelegate : public QAbstractItemDelegate
 {
@@ -113,6 +121,82 @@ public:
     const PlatformStyle *platformStyle;
 
 };
+
+class TknViewDelegate : public QAbstractItemDelegate
+{
+public:
+    TknViewDelegate(const PlatformStyle *_platformStyle, QObject *parent) :
+        QAbstractItemDelegate(parent),
+        platformStyle(_platformStyle)
+    {}
+
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
+               const QModelIndex &index) const
+    {
+        painter->save();
+
+        QIcon tokenIcon = platformStyle->SingleColorIcon(":/icons/token");
+        QString tokenName = index.data(TokenItemModel::NameRole).toString() + ":";
+        QString tokenBalance = index.data(TokenItemModel::BalanceRole).toString();
+        QString tokenSymbol = index.data(TokenItemModel::SymbolRole).toString();
+        tokenBalance.append(" " + tokenSymbol);
+        QString receiveAddress = index.data(TokenItemModel::SenderRole).toString();
+
+        QRect mainRect = option.rect;
+        mainRect.setWidth(option.rect.width());
+
+        QColor rowColor = index.row() % 2 ? QColor("#ededed") : QColor("#e3e3e3");
+        painter->fillRect(mainRect, rowColor);
+
+        int decorationSize = TOKEN_SIZE - 20;
+        int leftTopMargin = 10;
+        QRect decorationRect(mainRect.topLeft() + QPoint(leftTopMargin, leftTopMargin), QSize(decorationSize, decorationSize));
+        tokenIcon.paint(painter, decorationRect);
+
+        QFont font = option.font;
+
+        QFontMetrics fmName(font);
+        QString clippedName = fmName.elidedText(tokenName, Qt::ElideRight, NAME_WIDTH);
+
+        QString balanceString = tokenBalance;
+        balanceString.append(tokenSymbol);
+        QFontMetrics fmBalance(font);
+        int balanceWidth = fmBalance.width(balanceString);
+
+        QRect nameRect(decorationRect.right() + MARGIN, decorationRect.top(), NAME_WIDTH, decorationSize / 2);
+        painter->drawText(nameRect, Qt::AlignLeft|Qt::AlignVCenter, clippedName);
+
+        font.setBold(true);
+        painter->setFont(font);
+        QRect tokenBalanceRect(nameRect.right() + MARGIN, decorationRect.top(), balanceWidth, decorationSize / 2);
+        painter->drawText(tokenBalanceRect, Qt::AlignLeft|Qt::AlignVCenter, tokenBalance);
+
+        QFont addressFont = option.font;
+        addressFont.setPixelSize(addressFont.pixelSize() * 0.9);
+        painter->setFont(addressFont);
+        QRect receiveAddressRect(decorationRect.right() + MARGIN, nameRect.bottom(), mainRect.width() - decorationSize, decorationSize / 2);
+        painter->drawText(receiveAddressRect, Qt::AlignLeft|Qt::AlignBottom, receiveAddress);
+
+        painter->restore();
+    }
+
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+    {
+        QFont font = option.font;
+        font.setBold(true);
+
+        QString balanceString = index.data(TokenItemModel::BalanceRole).toString();
+        balanceString.append(" " + index.data(TokenItemModel::SymbolRole).toString());
+        QFontMetrics fm(font);
+        int balanceWidth = fm.width(balanceString);
+
+        int width = TOKEN_SIZE - 10 + NAME_WIDTH + balanceWidth + 2*MARGIN;
+        return QSize(width, TOKEN_SIZE);
+    }
+
+    const PlatformStyle *platformStyle;
+};
+
 #include "overviewpage.moc"
 
 OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) :
@@ -128,7 +212,8 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     currentWatchUnconfBalance(-1),
     currentWatchImmatureBalance(-1),
     currentWatchOnlyStake(-1),
-    txdelegate(new TxViewDelegate(platformStyle, this))
+    txdelegate(new TxViewDelegate(platformStyle, this)),
+    tkndelegate(new TknViewDelegate(platformStyle, this))
 {
     ui->setupUi(this);
 
@@ -149,6 +234,10 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     ui->listTransactions->setAttribute(Qt::WA_MacShowFocusRect, false);
 
     connect(ui->listTransactions, SIGNAL(clicked(QModelIndex)), this, SLOT(handleTransactionClicked(QModelIndex)));
+
+    // Token list
+    ui->listTokens->setItemDelegate(tkndelegate);
+    ui->listTokens->setAttribute(Qt::WA_MacShowFocusRect, false);
 
     // start with displaying the "out of sync" warnings
     showOutOfSyncWarning(true);
@@ -266,6 +355,18 @@ void OverviewPage::setWalletModel(WalletModel *model)
         connect(model, SIGNAL(notifyWatchonlyChanged(bool)), this, SLOT(updateWatchOnlyLabels(bool)));
     }
 
+    if(model && model->getTokenItemModel())
+    {
+        // Sort tokens by name
+        QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(this);
+        TokenItemModel* tokenModel = model->getTokenItemModel();
+        proxyModel->setSourceModel(tokenModel);
+        proxyModel->sort(0, Qt::AscendingOrder);
+
+        // Set tokens model
+        ui->listTokens->setModel(proxyModel);
+    }
+
     // update the display unit, to not use the default ("BTC")
     updateDisplayUnit();
 }
@@ -295,4 +396,9 @@ void OverviewPage::showOutOfSyncWarning(bool fShow)
 {
     ui->labelWalletStatus->setVisible(fShow);
     ui->labelTransactionsStatus->setVisible(fShow);
+}
+
+void OverviewPage::on_buttonAddToken_clicked()
+{
+    Q_EMIT addTokenClicked(true);
 }

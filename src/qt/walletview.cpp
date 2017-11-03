@@ -16,11 +16,14 @@
 #include "sendcoinsdialog.h"
 #include "signverifymessagedialog.h"
 #include "transactiontablemodel.h"
+#include "tokentransactiontablemodel.h"
+#include "tokentransactionrecord.h"
 #include "transactionview.h"
 #include "walletmodel.h"
 #include "createcontract.h"
 #include "sendtocontract.h"
 #include "callcontract.h"
+#include "qrctoken.h"
 
 #include "ui_interface.h"
 
@@ -66,6 +69,8 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
     sendToContractPage = new SendToContract(platformStyle);
     callContractPage = new CallContract(platformStyle);
 
+    QRCTokenPage = new QRCToken(platformStyle);
+
     addWidget(overviewPage);
     addWidget(transactionsPage);
     addWidget(receiveCoinsPage);
@@ -73,6 +78,7 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
     addWidget(createContractPage);
     addWidget(sendToContractPage);
     addWidget(callContractPage);
+    addWidget(QRCTokenPage);
 
     // Clicking on a transaction on the overview pre-selects the transaction on the transaction history page
     connect(overviewPage, SIGNAL(transactionClicked(QModelIndex)), transactionView, SLOT(focusTransaction(QModelIndex)));
@@ -110,8 +116,14 @@ void WalletView::setBitcoinGUI(BitcoinGUI *gui)
         // Pass through transaction notifications
         connect(this, SIGNAL(incomingTransaction(QString,int,CAmount,QString,QString,QString)), gui, SLOT(incomingTransaction(QString,int,CAmount,QString,QString,QString)));
 
+        // Pass through token transaction notifications
+        connect(this, SIGNAL(incomingTokenTransaction(QString,QString,QString,QString,QString,QString)), gui, SLOT(incomingTokenTransaction(QString,QString,QString,QString,QString,QString)));
+
         // Connect HD enabled state signal 
         connect(this, SIGNAL(hdEnabledStatusChanged(int)), gui, SLOT(setHDStatus(int)));
+
+        // Clicking on add token button sends you to add token page
+        connect(overviewPage, SIGNAL(addTokenClicked(bool)), gui, SLOT(gotoQRCTokenPage(bool)));
     }
 }
 
@@ -124,6 +136,7 @@ void WalletView::setClientModel(ClientModel *_clientModel)
     createContractPage->setClientModel(_clientModel);
     sendToContractPage->setClientModel(_clientModel);
     callContractPage->setClientModel(_clientModel);
+    QRCTokenPage->setClientModel(_clientModel);
 }
 
 void WalletView::setWalletModel(WalletModel *_walletModel)
@@ -137,6 +150,7 @@ void WalletView::setWalletModel(WalletModel *_walletModel)
     sendCoinsPage->setModel(_walletModel);
     createContractPage->setModel(_walletModel);
     sendToContractPage->setModel(_walletModel);
+    QRCTokenPage->setModel(_walletModel);
     usedReceivingAddressesPage->setModel(_walletModel->getAddressTableModel());
     usedSendingAddressesPage->setModel(_walletModel->getAddressTableModel());
 
@@ -155,6 +169,10 @@ void WalletView::setWalletModel(WalletModel *_walletModel)
         // Balloon pop-up for new transaction
         connect(_walletModel->getTransactionTableModel(), SIGNAL(rowsInserted(QModelIndex,int,int)),
                 this, SLOT(processNewTransaction(QModelIndex,int,int)));
+
+        // Balloon pop-up for new token transaction
+        connect(_walletModel->getTokenTransactionTableModel(), SIGNAL(rowsInserted(QModelIndex,int,int)),
+                this, SLOT(processNewTokenTransaction(QModelIndex,int,int)));
 
         // Ask for passphrase if needed
         connect(_walletModel, SIGNAL(requireUnlock()), this, SLOT(unlockWallet()));
@@ -182,6 +200,37 @@ void WalletView::processNewTransaction(const QModelIndex& parent, int start, int
     QString label = ttm->data(index, TransactionTableModel::LabelRole).toString();
 
     Q_EMIT incomingTransaction(date, walletModel->getOptionsModel()->getDisplayUnit(), amount, type, address, label);
+}
+
+void WalletView::processNewTokenTransaction(const QModelIndex &parent, int start, int /*end*/)
+{
+    // Prevent balloon-spam when initial block download is in progress
+    if (!walletModel || !clientModel || clientModel->inInitialBlockDownload())
+        return;
+
+    TokenTransactionTableModel *tttm = walletModel->getTokenTransactionTableModel();
+    if (!tttm || tttm->processingQueuedTransactions())
+        return;
+
+    QString date = tttm->index(start, TokenTransactionTableModel::Date, parent).data().toString();
+    QString amount(tttm->index(start, TokenTransactionTableModel::Amount, parent).data(TokenTransactionTableModel::FormattedAmountWithUnitRole).toString());
+    QString type = tttm->index(start, TokenTransactionTableModel::Type, parent).data().toString();
+    QModelIndex index = tttm->index(start, 0, parent);
+    QString address = tttm->data(index, TokenTransactionTableModel::AddressRole).toString();
+    QString label = tttm->data(index, TokenTransactionTableModel::LabelRole).toString();
+    QString title;
+    int txType = tttm->data(index, TokenTransactionTableModel::TypeRole).toInt();
+    switch (txType)
+    {
+    case TokenTransactionRecord::RecvWithAddress:
+    case TokenTransactionRecord::RecvFromOther:
+        title = tr("Incoming transaction");
+        break;
+    default:
+        title = tr("Sent transaction");
+        break;
+    }
+    Q_EMIT incomingTokenTransaction(date, amount, type, address, label, title);
 }
 
 void WalletView::gotoOverviewPage()
@@ -220,6 +269,13 @@ void WalletView::gotoSendToContractPage()
 void WalletView::gotoCallContractPage()
 {
     setCurrentWidget(callContractPage);
+}
+
+void WalletView::gotoQRCTokenPage(bool toAddTokenPage)
+{
+    setCurrentWidget(QRCTokenPage);
+    if(toAddTokenPage)
+        QRCTokenPage->on_goToAddTokenPage();
 }
 
 void WalletView::gotoSignMessageTab(QString addr)

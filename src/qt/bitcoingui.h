@@ -125,6 +125,7 @@ private:
     QAction* createContractAction;
     QAction* sendToContractAction;
     QAction* callContractAction;
+    QAction* QRCTokenAction;
 
     QSystemTrayIcon *trayIcon;
     QMenu *trayIconMenu;
@@ -209,6 +210,9 @@ public Q_SLOTS:
 
     /** Show incoming transaction notification for new transactions. */
     void incomingTransaction(const QString& date, int unit, const CAmount& amount, const QString& type, const QString& address, const QString& label);
+
+    /** Show incoming transaction notification for new token transactions. */
+    void incomingTokenTransaction(const QString& date, const QString& amount, const QString& type, const QString& address, const QString& label, const QString& title);
 #endif // ENABLE_WALLET
 
     void setTabBarInfo(QObject* into);
@@ -229,6 +233,8 @@ private Q_SLOTS:
     void gotoSendToContractPage();
     /** Switch to call contract page */
     void gotoCallContractPage();
+    /** Switch to QRCToken page page */
+    void gotoQRCTokenPage(bool toAddTokenPage = false);
 
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");

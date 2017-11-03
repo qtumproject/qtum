@@ -49,7 +49,7 @@ CreateContract::CreateContract(const PlatformStyle *platformStyle, QWidget *pare
     ui->groupBoxConstructor->setStyleSheet(STYLE_GROUPBOX);
     ui->scrollAreaConstructor->setStyleSheet(".QScrollArea {border: none;}");
     setLinkLabels();
-    m_ABIFunctionField = new ABIFunctionField(platformStyle, ABIFunctionField::Constructor, ui->scrollAreaConstructor);
+    m_ABIFunctionField = new ABIFunctionField(platformStyle, ABIFunctionField::Create, ui->scrollAreaConstructor);
     ui->scrollAreaConstructor->setWidget(m_ABIFunctionField);
     ui->labelBytecode->setToolTip(tr("The bytecode of the contract"));
     ui->labelSenderAddress->setToolTip(tr("The quantum address that will be used to create the contract."));
@@ -105,6 +105,9 @@ void CreateContract::setLinkLabels()
 {
     ui->labelSolidity->setOpenExternalLinks(true);
     ui->labelSolidity->setText("<a href=\"https://ethereum.github.io/browser-solidity/\">Solidity compiler</a>");
+
+    ui->labelToken->setOpenExternalLinks(true);
+    ui->labelToken->setText("<a href=\"https://ethereum.org/token#the-code\">Token template</a>");
 }
 
 void CreateContract::setModel(WalletModel *_model)
@@ -135,8 +138,6 @@ bool CreateContract::isDataValid()
     if(!isValidInterfaceABI())
         dataValid = false;
     if(!funcValid)
-        dataValid = false;
-    if(!ui->lineEditSenderAddress->isValidAddress())
         dataValid = false;
 
     return dataValid;
@@ -175,6 +176,12 @@ void CreateContract::on_createContract_clicked()
 {
     if(isDataValid())
     {
+        WalletModel::UnlockContext ctx(m_model->requestUnlock());
+        if(!ctx.isValid())
+        {
+            return;
+        }
+
         // Initialize variables
         QMap<QString, QString> lstParams;
         QVariant result;
