@@ -548,9 +548,10 @@ UniValue createcontract(const JSONRPCRequest& request){
 
      }
 
-    if(!coinControl.HasSelected()){
-    	throw JSONRPCError(RPC_TYPE_ERROR, "Sender address does not have any unspent outputs");
-    }
+        if(!coinControl.HasSelected()){
+            throw JSONRPCError(RPC_TYPE_ERROR, "Sender address does not have any unspent outputs");
+        }
+        coinControl.destChange=senderAddress.Get();
     }
     EnsureWalletIsUnlocked();
 
@@ -760,6 +761,7 @@ UniValue sendtocontract(const JSONRPCRequest& request){
         if(!coinControl.HasSelected()){
             throw JSONRPCError(RPC_TYPE_ERROR, "Sender address does not have any unspent outputs");
         }
+        coinControl.destChange=senderAddress.Get();
     }
 
     EnsureWalletIsUnlocked();
