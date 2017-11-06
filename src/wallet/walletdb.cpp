@@ -936,7 +936,7 @@ bool CWalletDB::Recover(CDBEnv& dbenv, const std::string& filename, bool fOnlyKe
                 fReadOK = ReadKeyValue(&dummyWallet, ssKey, ssValue,
                                         wss, strType, strErr);
             }
-            if (!IsKeyType(strType) && strType != "hdchain")
+            if (!IsKeyType(strType) && strType != "hdchain" && strType != "token" && strType != "tokentx")
                 continue;
             if (!fReadOK)
             {
