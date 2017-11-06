@@ -286,6 +286,7 @@ BITCOIN_QT_H = \
   qt/sendtokenpage.h \
   qt/signverifymessagedialog.h \
   qt/splashscreen.h \
+  qt/styleSheet.h \
   qt/tabbarinfo.h \
   qt/titlebar.h \
   qt/token.h \
@@ -401,6 +402,7 @@ BITCOIN_QT_BASE_CPP = \
   qt/qvaluecombobox.cpp \
   qt/rpcconsole.cpp \
   qt/splashscreen.cpp \
+  qt/styleSheet.cpp \
   qt/tabbarinfo.cpp \
   qt/titlebar.cpp \
   qt/token.cpp \
