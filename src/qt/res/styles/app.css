@@ -15,3 +15,26 @@ QGroupBox
 {
     border: 0px solid transparent;
 }
+/*-------------------------------------------- 
+Line Edit CSS
+--------------------------------------------*/
+QLineEdit{
+    border: 1px solid #3b3b3d;
+    border-radius: 12px;
+    background-color: #272727;
+    color: #969696;
+    padding: 4px;
+}
+
+QLineEdit::hover{
+    border: 3px solid #049ee8;
+    padding: 2px;
+    background-color: #ffffff;
+    color: #000000;
+}
+QLineEdit::focus{
+    border: 3px solid #0099ce;
+    padding: 2px;
+    background-color: #e6f0f0;
+    color: #000000;
+}
