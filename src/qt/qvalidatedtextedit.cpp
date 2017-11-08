@@ -1,5 +1,5 @@
 #include "qvalidatedtextedit.h"
-#include "guiconstants.h"
+#include "styleSheet.h"
 
 #include <QValidator>
 
@@ -51,7 +51,7 @@ void QValidatedTextEdit::setValid(bool _valid)
     }
     else
     {
-        setStyleSheet(STYLE_INVALID_TEXTEDIT);
+        SetObjectStyleSheet(this, StyleSheetNames::Invalid);
     }
     this->valid = _valid;
 }

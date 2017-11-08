@@ -1,0 +1,15 @@
+/*--------------------------------------------
+Main Window CSS
+--------------------------------------------*/
+QLineEdit{
+    border: 3px solid #d02e49; padding: 2px;
+}
+QTextEdit{
+    border: 3px solid #d02e49; padding: 2px;
+}
+QAbstractSpinBox{
+    border: 3px solid #d02e49; padding: 1px;
+}
+QValidatedTextEdit{ 
+    border: 3px solid #d02e49; padding: 2px;
+}

@@ -103,5 +103,6 @@
     </qresource>
     <qresource prefix="/styles">
         <file alias="app">res/styles/app.css</file>
+        <file alias="invalid">res/styles/invalid.css</file>
     </qresource>
 </RCC>
