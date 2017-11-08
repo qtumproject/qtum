@@ -9,12 +9,6 @@ ContractResult::ContractResult(QWidget *parent) :
     ui(new Ui::ContractResult)
 {
     ui->setupUi(this);
-    ui->groupBoxCallContract->setStyleSheet(STYLE_GROUPBOX);
-    ui->groupBoxResult->setStyleSheet(STYLE_GROUPBOX);
-    ui->groupBoxCreateOrSendTo->setStyleSheet(STYLE_GROUPBOX);
-
-    ui->scrollAreaParams->setStyleSheet(".QScrollArea { border: none;}");
-    ui->scrollAreaResult->setStyleSheet(".QScrollArea { border: none;}");
 }
 
 ContractResult::~ContractResult()

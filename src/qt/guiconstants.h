@@ -19,18 +19,6 @@ static const bool DEFAULT_SPLASHSCREEN = true;
 /* Invalid field background style */
 #define STYLE_INVALID "background:#FF8080"
 #define STYLE_INVALID_TEXTEDIT ".QValidatedTextEdit { background:#FF8080 }"
-/* Group box style */
-#define STYLE_GROUPBOX ".QGroupBox { border: 1px solid #c4c1bd;"\
-                       "margin-top: 15px;}"\
-                       "QGroupBox::title {"\
-                       "subcontrol-position: top left;"\
-                       "left: 10px;"\
-                       "padding: -20px 3px 0px 3px;}"
-/* Bottom-bordered line edit style */
-#define STYLE_UNDERLINE ".QLineEdit { border-top: none;"\
-                        "border-right: none;"\
-                        "border-bottom: 2px solid #c4c1bd;"\
-                        "background-color: transparent;}"
 /* Transaction list -- unconfirmed transaction */
 #define COLOR_UNCONFIRMED QColor(128, 128, 128)
 /* Transaction list -- negative amount */

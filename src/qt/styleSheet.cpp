@@ -23,12 +23,7 @@ void StyleSheet::setStyleSheet(QWidget *widget, const QString &style_name)
 
 void StyleSheet::setStyleSheet(QApplication *app, const QString& style_name)
 {
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
-    //Enable scaling for high resolution, the attribute is present from Qt 5.6 on
-    app->setAttribute(Qt::AA_EnableHighDpiScaling);  
-#endif
-
-    QStyle* mainStyle = QStyleFactory::create("Fusion");
+    QStyle* mainStyle = QStyleFactory::create("fusion");
 	if(mainStyle) app->setStyle(mainStyle);
 
     setObjectStyleSheet<QApplication>(app, style_name);

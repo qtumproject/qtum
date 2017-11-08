@@ -22,10 +22,6 @@ AddTokenPage::AddTokenPage(QWidget *parent) :
     m_clientModel(0)
 {
     ui->setupUi(this);
-    ui->lineEditContractAddress->setStyleSheet(STYLE_UNDERLINE);
-    ui->lineEditTokenName->setStyleSheet(STYLE_UNDERLINE);
-    ui->lineEditTokenSymbol->setStyleSheet(STYLE_UNDERLINE);
-    ui->lineEditDecimals->setStyleSheet(STYLE_UNDERLINE);
 
     ui->labelDescription->setText(tr("(This is your wallet address which will be tied to the token for send/receive oprations)"));
     QFont font = QApplication::font();

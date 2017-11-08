@@ -40,14 +40,9 @@ CallContract::CallContract(const PlatformStyle *platformStyle, QWidget *parent) 
     m_platformStyle = platformStyle;
     // Setup ui components
     ui->setupUi(this);
-
     ui->saveInfoButton->setIcon(platformStyle->SingleColorIcon(":/icons/filesave"));
     ui->loadInfoButton->setIcon(platformStyle->SingleColorIcon(":/icons/address-book"));
     ui->pasteAddressButton->setIcon(platformStyle->SingleColorIcon(":/icons/editpaste"));
-
-    ui->groupBoxOptional->setStyleSheet(STYLE_GROUPBOX);
-    ui->groupBoxFunction->setStyleSheet(STYLE_GROUPBOX);
-    ui->scrollAreaFunction->setStyleSheet(".QScrollArea {border: none;}");
     m_ABIFunctionField = new ABIFunctionField(platformStyle, ABIFunctionField::Call, ui->scrollAreaFunction);
     ui->scrollAreaFunction->setWidget(m_ABIFunctionField);
 

@@ -1,0 +1,17 @@
+/*--------------------------------------------
+Main Window CSS
+--------------------------------------------*/
+QMainWindow{
+    background-color: #272727;
+    border: 0px solid transparent;
+}
+QMainWindow .QFrame{
+    border: 1px solid transparent;
+}
+/*--------------------------------------------
+Group Box CSS
+--------------------------------------------*/
+QGroupBox
+{
+    border: 0px solid transparent;
+}

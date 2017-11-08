@@ -41,8 +41,6 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *_platformStyle, QWidget *p
     platformStyle(_platformStyle)
 {
     ui->setupUi(this);
-    ui->groupBoxFee->setStyleSheet(STYLE_GROUPBOX);
-    ui->groupBoxCoinControl->setStyleSheet(STYLE_GROUPBOX);
 
     if (!_platformStyle->getImagesOnButtons()) {
         ui->addButton->setIcon(QIcon());
