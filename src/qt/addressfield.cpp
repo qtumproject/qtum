@@ -27,10 +27,6 @@ AddressField::AddressField(QWidget *parent) :
 
     connect(this, SIGNAL(addressTypeChanged(AddressType)), SLOT(on_addressTypeChanged()));
     connect(lineEdit(), SIGNAL(editingFinished()), this, SLOT(on_editingFinished()));
-
-    // Limit the number of visible items in the list
-    setStyleSheet("combobox-popup: 0;");
-    setMaxVisibleItems(15);
 }
 
 QString AddressField::currentText() const

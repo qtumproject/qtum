@@ -4,8 +4,35 @@
 #include <QWidget>
 #include <QApplication>
 #include <QStyleFactory>
+#include <QProxyStyle>
+#include <QListView>
+#include <QComboBox>
 
 static const QString STYLE_FORMAT = ":/styles/%1";
+
+class QtumStyle : public QProxyStyle
+{
+public:
+
+    void polish(QWidget *widget)
+    {
+        if(widget && widget->inherits("QComboBox"))
+        {
+            QComboBox* comboBox = (QComboBox*)widget;
+            comboBox->setView(new QListView());
+            qApp->processEvents();
+
+            if(comboBox->view() && comboBox->view()->parentWidget())
+            {
+                QWidget* parent = comboBox->view()->parentWidget();
+                parent->setWindowFlags(Qt::Popup | Qt::FramelessWindowHint | Qt::NoDropShadowWindowHint);
+                parent->setAttribute(Qt::WA_TranslucentBackground);
+            }
+        }
+
+        QProxyStyle::polish(widget);
+    }
+};
 
 StyleSheet &StyleSheet::instance()
 {
@@ -24,7 +51,9 @@ void StyleSheet::setStyleSheet(QWidget *widget, const QString &style_name)
 void StyleSheet::setStyleSheet(QApplication *app, const QString& style_name)
 {
     QStyle* mainStyle = QStyleFactory::create("fusion");
-	if(mainStyle) app->setStyle(mainStyle);
+    QtumStyle* qtumStyle = new QtumStyle;
+    qtumStyle->setBaseStyle(mainStyle);
+    app->setStyle(qtumStyle);
 
     setObjectStyleSheet<QApplication>(app, style_name);
 }
