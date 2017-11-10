@@ -41,8 +41,8 @@ QComboBox {
     background-color: #2a2a2a;
     color: #ffffff;
     padding: 4px;
-    padding-left: 20px;
-    padding-right: 20px;
+    padding-left: 10px;
+    padding-right: 15px;
     combobox-popup: 0;
 }
 QComboBox:hover {
@@ -60,7 +60,7 @@ QComboBox:down-arrow:on {
     top: 1px;
 }
 QComboBox:on {
-    padding-top: 2px;
+    padding-top: 6px;
     border-bottom: 3px solid #3e3e3e;
     border-bottom-right-radius: 0px;
     border-bottom-left-radius: 0px;
@@ -250,7 +250,6 @@ QHeaderView::down-arrow {
     margin-right: 5px;
     margin-bottom: 1px;
 }
-
 QHeaderView::up-arrow {
     image: url(":/styles/app-icons/up_arrow");
     width: 6px;
@@ -276,4 +275,14 @@ QTableView::item:selected{
     qproperty-showGrid: false;
     background-color: #244343;
     color: white;
+}
+/*--------------------------------------------
+QValidatedTextEdit CSS
+--------------------------------------------*/
+QValidatedTextEdit {
+    border: 1px solid #5a5a5d;
+    border-radius: 12px;
+    background-color: #ffffff;
+    color: #2a2a2a;
+    padding-left: 5px;
 }

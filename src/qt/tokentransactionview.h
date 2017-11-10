@@ -40,9 +40,9 @@ public:
 
     enum ColumnWidths {
         STATUS_COLUMN_WIDTH = 30,
-        DATE_COLUMN_WIDTH = 120,
-        TYPE_COLUMN_WIDTH = 113,
-        NAME_COLUMN_WIDTH = 90,
+        DATE_COLUMN_WIDTH = 130,
+        TYPE_COLUMN_WIDTH = 150,
+        NAME_COLUMN_WIDTH = 100,
         AMOUNT_MINIMUM_COLUMN_WIDTH = 230,
         MINIMUM_COLUMN_WIDTH = 23
     };
