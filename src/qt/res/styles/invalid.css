@@ -11,5 +11,15 @@ QAbstractSpinBox{
     border: 3px solid #d02e49; padding: 1px;
 }
 QValidatedTextEdit{ 
-    border: 3px solid #d02e49; padding: 0px -2px 0px 3px;
+    border: 3px solid #d02e49; 
+	padding: 0px -2px 0px 3px;
+}
+QValidatedTextEdit QScrollBar:vertical {
+	border-radius: 0px;
+    border-top-right-radius: 8px;
+	border-bottom-right-radius: 8px;
+    background: #747474;
+    width: 19px;
+	padding: 8px 2px 8px 6px;
+	margin: 0px 2px 0px -2px;
 }

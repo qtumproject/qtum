@@ -248,6 +248,21 @@ QScrollBar::handle:vertical {
     border-radius: 4px;
     min-height: 35px;
 }
+QValidatedTextEdit QScrollBar:vertical {
+    border-radius: 0px;
+    border-top-right-radius: 9px;
+    border-bottom-right-radius: 9px;
+    border-left: 1px solid #6a6a6d;
+    background: #747474;
+    width: 19px;
+    padding: 10px 4px;
+}
+QValidatedTextEdit QScrollBar::handle:vertical {
+    border: 1px solid #646464;
+    background: #4c4c4c;
+    border-radius: 5px;
+    min-height: 30px;
+}
 /*--------------------------------------------
 Scroll Bar Horizontal CSS
 --------------------------------------------*/
