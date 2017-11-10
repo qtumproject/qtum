@@ -312,3 +312,17 @@ QStatusBar QLabel{
 QStatusBar::item {
     border: none;
 }
+/*--------------------------------------------
+Progress Bar CSS
+--------------------------------------------*/
+QProgressBar {
+    background-color: #0a0a0a;
+    border: 1px solid #0a0a0a;
+    font: bold 10pt;
+    color: white;
+    border-radius: 3px;
+}
+QProgressBar::chunk {
+    background: QLinearGradient(x1: 1, y1: 0, x2: 0, y2: 1, stop: 0 #82cae0, stop: 1 #2c839d);
+}
+
