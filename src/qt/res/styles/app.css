@@ -8,13 +8,6 @@ QMainWindow{
 QMainWindow .QFrame{
     border: 1px solid transparent;
 }
-/*--------------------------------------------
-Group Box CSS
---------------------------------------------*/
-QGroupBox
-{
-    border: 0px solid transparent;
-}
 /*-------------------------------------------- 
 Line Edit CSS
 --------------------------------------------*/
@@ -99,14 +92,14 @@ Group Box CSS
 QGroupBox
 {
     border: 0px solid transparent; 
-	margin-top: 35px;
+	margin-top: 15px;
 	background-color: #2e2e2e;
 }
 QGroupBox::title {
 	color: #ffffff;
 	subcontrol-position: top left;
 	left: -5px;
-	padding: -40px 3px 0px 3px;
+	padding: -35px 3px 0px 3px;
 }
 /*--------------------------------------------
 Slider CSS
@@ -145,4 +138,58 @@ QSlider::sub-page:horizontal {
 	border: none;
     background: #57b2d5;
 	border-left: 1px solid #498ea9;
+}
+/*--------------------------------------------
+Spin Box CSS
+--------------------------------------------*/
+QAbstractSpinBox {
+    padding: 4px;
+    background-color: #282828;
+    background-image: url(":/styles/app-icons/spinBox");
+    background-position: right;
+    background-repeat: no-repeat;
+    border: 1px solid #3b3b3d;
+    border-radius: 12px;
+    color: #bdbdbd;
+    padding-left: 12px;
+}
+QAbstractSpinBox:hover {
+    border: 1px solid #7e7e7e;
+    background-image: url(":/styles/app-icons/spinBoxHover");
+}
+QAbstractSpinBox:focus {
+    background-image: url(":/styles/app-icons/spinBoxFocus");
+}
+QAbstractSpinBox::up-button {
+    border: none;
+    width: 22px;
+    background-color: transparent;
+    border-top-right-radius: 12px;
+}
+QAbstractSpinBox::down-button {
+    border: none;
+    margin-top: 1px;
+    width: 22px;
+    background-color: transparent;
+    border-bottom-right-radius: 12px;
+}
+QAbstractSpinBox::up-arrow {
+    image: url(":/styles/app-icons/up_arrow");
+    width: 6px;
+    height: 4px;
+    margin-right: 5px;
+    margin-top: 1px;
+}
+QAbstractSpinBox::down-arrow {
+    image: url(":/styles/app-icons/down_arrow");
+    width: 6px;
+    height: 4px;
+    margin-right: 5px;
+    margin-bottom: 1px;
+}
+QAbstractSpinBox::up-arrow:hover{
+    image: url(":/styles/app-icons/up_arrow_hover");
+}
+QAbstractSpinBox::down-arrow:hover{
+    image: url(":/styles/app-icons/down_arrow_hover");
 }
