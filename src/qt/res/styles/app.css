@@ -252,7 +252,7 @@ QHeaderView{
     border: none;
 }
 QHeaderView:section{
-    height: 40px;
+    padding: 6px 20px 6px 6px;
     border: none;
     background-color: #2e2e2e;
 }
@@ -282,7 +282,6 @@ QTableView{
 }
 QTableView::item{
     border: none;
-    height: 35px;
 }
 QTableView::item:selected{
     qproperty-showGrid: false;
@@ -325,4 +324,34 @@ QProgressBar {
 QProgressBar::chunk {
     background: QLinearGradient(x1: 1, y1: 0, x2: 0, y2: 1, stop: 0 #82cae0, stop: 1 #2c839d);
 }
-
+/*--------------------------------------------
+Tab Bar CSS
+--------------------------------------------*/
+QTabBar::tab {
+    background-color: #1d1d1d;
+    color: #636363;
+    padding: 10px;
+    border-width: 0px;
+    border-radius: 0px;
+    border-style: none;
+    border-bottom: 5px solid #1d1d1d;
+    padding-bottom: 10px;
+}
+QTabBar::tab:selected {
+    color:white;
+    border-bottom: 5px solid #163B4E;
+    padding-bottom: 10px;
+}
+QTabBar::tab:hover:!selected {
+    color:#636363;
+    border-bottom: 5px solid #2E92D0;
+    padding-bottom: 10px;
+}
+QTabBar::tab:disabled {
+    color: #2A2A2A;
+}
+QTabWidget::pane {
+    border: 1px solid #232121;
+    border-top: none;
+    background-color: #232121;
+}
