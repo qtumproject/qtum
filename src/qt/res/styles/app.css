@@ -193,3 +193,87 @@ QAbstractSpinBox::up-arrow:hover{
 QAbstractSpinBox::down-arrow:hover{
     image: url(":/styles/app-icons/down_arrow_hover");
 }
+/*--------------------------------------------
+Scroll Bar Vertical CSS
+--------------------------------------------*/
+QScrollBar{
+    background: none;
+    border-radius: 10px;
+}
+QScrollBar:up-arrow:vertical, QScrollBar::down-arrow:vertical {
+    qproperty-visible: false;
+}
+QScrollBar::add-line:vertical {
+    qproperty-visible: false;
+    border: none;
+    background: none;
+    height: 0px;
+}
+QScrollBar::sub-line:vertical {
+    qproperty-visible: false;
+    border: none;
+    background: none;
+    height: 0px;
+}
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+    background: rgba(255, 255, 255, 0.0);
+}
+QScrollBar:vertical {
+    border-radius: 4px;
+    background: transparent;
+    width: 16px;
+    margin: 5px 4px;
+}
+QScrollBar::handle:vertical {
+    border: none;
+    background: #636363;
+    border-radius: 3px;
+    min-height: 35px;
+}
+/*--------------------------------------------
+Table View CSS
+--------------------------------------------*/
+QHeaderView{
+    color: white;
+    background-color: transparent;
+    border: none;
+}
+QHeaderView:section{
+    height: 40px;
+    border: none;
+    background-color: #2e2e2e;
+}
+QHeaderView::down-arrow {
+    image: url(":/styles/app-icons/down_arrow");
+    width: 6px;
+    height: 4px;
+    margin-right: 5px;
+    margin-bottom: 1px;
+}
+
+QHeaderView::up-arrow {
+    image: url(":/styles/app-icons/up_arrow");
+    width: 6px;
+    height: 4px;
+    margin-right: 5px;
+    margin-bottom: 1px;
+}
+QTableView{
+    color: #C5C5C5;
+    background-color: #2e2e2e;
+    alternate-background-color: #393939;
+    border: none;
+    font: normal;
+    qproperty-showGrid: false;
+    qproperty-alternatingRowColors: true;
+    qproperty-selectionBehavior: SelectRows;
+}
+QTableView::item{
+    border: none;
+    height: 35px;
+}
+QTableView::item:selected{
+    qproperty-showGrid: false;
+    background-color: #244343;
+    color: white;
+}
