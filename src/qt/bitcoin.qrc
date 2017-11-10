@@ -107,5 +107,7 @@
     </qresource>
     <qresource prefix="/styles/app-icons">
         <file alias="cb_up_down_arrow">res/styles/app-icons/cb_up_down_arrow.png</file>
+        <file alias="slider_switcher">res/styles/app-icons/slider_switcher.png</file>
+        <file alias="slider_switcher_hover">res/styles/app-icons/slider_switcher_hover.png</file>
     </qresource>
 </RCC>
