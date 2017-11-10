@@ -17,6 +17,7 @@
 #define TOKEN_SIZE 54
 #define SYMBOL_WIDTH 60
 #define MARGIN 5
+#define SELECTION_WIDTH 4
 
 class TokenViewDelegate : public QAbstractItemDelegate
 {
@@ -32,48 +33,55 @@ public:
     {
         painter->save();
 
-        QIcon tokenIcon = platformStyle->SingleColorIcon(":/icons/token");
+        QIcon tokenIcon = platformStyle->TextColorIcon(":/icons/token");
         QString tokenSymbol = index.data(TokenItemModel::SymbolRole).toString();
         QString tokenBalance = index.data(TokenItemModel::BalanceRole).toString();
         QString receiveAddress = index.data(TokenItemModel::SenderRole).toString();
 
         QRect mainRect = option.rect;
-        mainRect.setWidth(option.rect.width());
-        QColor rowColor = index.row() % 2 ? QColor("#ededed") : QColor("#e3e3e3");
-        painter->fillRect(mainRect, rowColor);
+        painter->fillRect(mainRect, QColor("#2e2e2e"));
 
+        QRect selectionRect(mainRect.topLeft(), QSize(SELECTION_WIDTH, mainRect.height()));
         bool selected = option.state & QStyle::State_Selected;
         if(selected)
         {
-            painter->fillRect(mainRect,QColor("#cbcbcb"));
+            painter->fillRect(selectionRect,QColor("#078dc9"));
         }
+        else
+        {
+            painter->fillRect(selectionRect,QColor("#2e2e2e"));
+        }
+
+        QColor foreground("#bebebe");
+        painter->setPen(foreground);
 
         int decorationSize = TOKEN_SIZE - 20;
         int leftTopMargin = 10;
-        QRect decorationRect(mainRect.topLeft() + QPoint(leftTopMargin, leftTopMargin), QSize(decorationSize, decorationSize));
+        QRect decorationRect(selectionRect.topRight() + QPoint(leftTopMargin, leftTopMargin), QSize(decorationSize, decorationSize));
         tokenIcon.paint(painter, decorationRect);
 
         QFontMetrics fmName(option.font);
         QString clippedSymbol = fmName.elidedText(tokenSymbol, Qt::ElideRight, SYMBOL_WIDTH);
-
-        QColor foreground = option.palette.color(QPalette::Text);
-        painter->setPen(foreground);
         QRect tokenSymbolRect(decorationRect.right() + MARGIN, decorationRect.top(), SYMBOL_WIDTH, decorationSize / 2);
         painter->drawText(tokenSymbolRect, Qt::AlignLeft|Qt::AlignTop, clippedSymbol);
 
         QFont font = option.font;
         font.setBold(true);
         painter->setFont(font);
-
-        int amountWidth = (mainRect.width() - decorationRect.width() - 2 * MARGIN - tokenSymbolRect.width()- leftTopMargin);
+        QColor amounColor("#ffffff");
+        painter->setPen(amounColor);
+        int amountWidth = (mainRect.width() - SELECTION_WIDTH - decorationRect.width() - 2 * MARGIN - tokenSymbolRect.width() - leftTopMargin);
+        QFontMetrics fmAmount(font);
+        QString clippedAmount = fmAmount.elidedText(tokenBalance, Qt::ElideRight, amountWidth);
         QRect tokenBalanceRect(tokenSymbolRect.right(), decorationRect.top(), amountWidth, decorationSize / 2);
-        painter->drawText(tokenBalanceRect, Qt::AlignRight|Qt::AlignTop, tokenBalance);
+        painter->drawText(tokenBalanceRect, Qt::AlignRight|Qt::AlignTop, clippedAmount);
 
         QFont addressFont = option.font;
-        addressFont.setPixelSize(addressFont.pixelSize() * 0.9);
+        addressFont.setPointSizeF(option.font.pointSizeF() * 0.8);
         painter->setFont(addressFont);
-
-        QRect receiveAddressRect(decorationRect.right() + MARGIN, tokenSymbolRect.bottom(), mainRect.width() - decorationSize, decorationSize / 2);
+        painter->setPen(foreground);
+        int receiveAddressWidth = (mainRect.width() - SELECTION_WIDTH - decorationRect.width() - 2 * MARGIN - leftTopMargin);
+        QRect receiveAddressRect(decorationRect.right() + MARGIN, tokenSymbolRect.bottom(), receiveAddressWidth, decorationSize / 2);
         painter->drawText(receiveAddressRect, Qt::AlignLeft|Qt::AlignBottom, receiveAddress);
 
         painter->restore();
