@@ -355,3 +355,47 @@ QTabWidget::pane {
     border-top: none;
     background-color: #232121;
 }
+/*--------------------------------------------
+MenuBar CSS
+--------------------------------------------*/
+QMenuBar {
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #e3e2e3, stop:1 #c5c4c5);
+}
+QMenuBar::item {
+    background-color: transparent;
+    padding: 5px 6px;
+    border-radius: 4px;
+    color: #696869;
+}
+QMenuBar::item:selected {
+    border: 1px solid #d5d4d5;
+    border-radius: 3px;
+    color: #232121;
+}
+/*--------------------------------------------
+Menu CSS
+--------------------------------------------*/
+QMenu{
+    border: none;
+}
+QMenu::item {
+    border: none;
+    padding: 5px 28px;
+    background-color: #deddde;
+    color: #636363;
+}
+QMenu::item:selected {
+    background-color: #cfcfcf;
+    color:#232121;
+}
+QMenu::separator{
+    height: 1px;
+    background-color: #d2d1d2;
+}
+QMenu::icon{
+    margin-left: 15px;
+}
+QMenu::item:disabled {
+   color: #a6a6a6;
+}
