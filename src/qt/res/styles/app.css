@@ -207,11 +207,17 @@ QAbstractSpinBox::down-arrow:hover{
     image: url(":/styles/app-icons/down_arrow_hover");
 }
 /*--------------------------------------------
+Scroll Area CSS
+--------------------------------------------*/
+QAbstractScrollArea::corner {
+    background: #222222;
+    border: 0px;
+}
+/*--------------------------------------------
 Scroll Bar Vertical CSS
 --------------------------------------------*/
 QScrollBar{
     background: none;
-    border-radius: 10px;
 }
 QScrollBar:up-arrow:vertical, QScrollBar::down-arrow:vertical {
     qproperty-visible: false;
@@ -232,16 +238,47 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
     background: rgba(255, 255, 255, 0.0);
 }
 QScrollBar:vertical {
-    border-radius: 4px;
-    background: transparent;
+    background: #222222;
     width: 16px;
-    margin: 5px 4px;
+    padding: 5px 4px;
 }
 QScrollBar::handle:vertical {
     border: none;
-    background: #636363;
-    border-radius: 3px;
+    background: #2e2e2e;
+    border-radius: 4px;
     min-height: 35px;
+}
+/*--------------------------------------------
+Scroll Bar Horizontal CSS
+--------------------------------------------*/
+QScrollBar:left-arrow:horizontal, QScrollBar::right-arrow:horizontal {
+    qproperty-visible: false;
+}
+QScrollBar::add-line:horizontal {
+    qproperty-visible: false;
+    border: none;
+    background: none;
+    height: 0px;
+}
+QScrollBar::sub-line:horizontal {
+    qproperty-visible: false;
+    border: none;
+    background: none;
+    height: 0px;
+}
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
+    background: rgba(255, 255, 255, 0.0);
+}
+QScrollBar:horizontal {
+    background: #222222;
+    height: 16px;
+    padding: 4px 5px;
+}
+QScrollBar::handle:horizontal {
+    border: none;
+    background: #2e2e2e;
+    border-radius: 4px;
+    min-width: 35px;
 }
 /*--------------------------------------------
 Table View CSS
