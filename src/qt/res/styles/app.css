@@ -299,3 +299,16 @@ QValidatedTextEdit {
     color: #2a2a2a;
     padding-left: 5px;
 }
+/*--------------------------------------------
+Status Bar CSS
+--------------------------------------------*/
+QStatusBar{
+    background-color: #DADADA;
+}
+QStatusBar QLabel{
+    border: 1px solid #DADADA;
+    color: #232121;
+}
+QStatusBar::item {
+    border: none;
+}
