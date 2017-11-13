@@ -120,5 +120,11 @@
         <file alias="down_arrow_hover">res/styles/app-icons/down_arrow_hover.png</file>
         <file alias="up_arrow_disabled">res/styles/app-icons/up_arrow_disabled.png</file>
         <file alias="down_arrow_disabled">res/styles/app-icons/down_arrow_disabled.png</file>
+        <file alias="checkbox_unchecked">res/styles/app-icons/checkbox_unchecked.png</file>
+        <file alias="checkbox_unchecked_hover">res/styles/app-icons/checkbox_unchecked_hover.png</file>
+        <file alias="checkbox_unchecked_disabled">res/styles/app-icons/checkbox_unchecked_disabled.png</file>
+        <file alias="checkbox_checked">res/styles/app-icons/checkbox_checked.png</file>
+        <file alias="checkbox_checked_hover">res/styles/app-icons/checkbox_checked_hover.png</file>
+        <file alias="checkbox_checked_disabled">res/styles/app-icons/checkbox_checked_disabled.png</file>
     </qresource>
 </RCC>

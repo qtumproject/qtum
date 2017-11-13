@@ -526,3 +526,38 @@ QMenu::icon{
 QMenu::item:disabled {
    color: #a6a6a6;
 }
+/*--------------------------------------------
+Check Box CSS
+--------------------------------------------*/
+QCheckBox{
+    color: #bdbdbd;
+    outline-style: none;
+}
+QCheckBox:hover, QCheckBox:checked {
+    color: #ffffff;
+}
+QCheckBox:disabled {
+    color: rgba(255, 255, 255, 10%);
+}
+QCheckBox::indicator {
+    width: 16px;
+    height: 16px;
+}
+QCheckBox::indicator::unchecked {
+    image: url(:/styles/app-icons/checkbox_unchecked);
+}
+QCheckBox::indicator::checked {
+    image: url(:/styles/app-icons/checkbox_checked);
+}
+QCheckBox::indicator::unchecked:hover {
+    image: url(:/styles/app-icons/checkbox_unchecked_hover);
+}
+QCheckBox::indicator::checked:hover {
+    image: url(:/styles/app-icons/checkbox_checked_hover);
+}
+QCheckBox:indicator:unchecked:disabled {
+    image: url(:/styles/app-icons/checkbox_unchecked_disabled);  
+}
+QCheckBox:indicator:checked:disabled {
+    image: url(:/styles/app-icons/checkbox_checked_disabled);
+}
