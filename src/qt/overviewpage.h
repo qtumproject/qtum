@@ -47,7 +47,7 @@ public Q_SLOTS:
 Q_SIGNALS:
     void transactionClicked(const QModelIndex &index);
     void outOfSyncWarningClicked();
-    void addTokenClicked(bool toAddTokenPage);
+    void addTokenClicked();
 
 private:
     Ui::OverviewPage *ui;

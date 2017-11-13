@@ -126,11 +126,25 @@ void WalletFrame::gotoHistoryPage()
         i.value()->gotoHistoryPage();
 }
 
-void WalletFrame::gotoQRCTokenPage(bool toAddTokenPage)
+void WalletFrame::gotoSendTokenPage()
 {
     QMap<QString, WalletView*>::const_iterator i;
     for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
-        i.value()->gotoQRCTokenPage(toAddTokenPage);
+        i.value()->gotoSendTokenPage();
+}
+
+void WalletFrame::gotoReceiveTokenPage()
+{
+    QMap<QString, WalletView*>::const_iterator i;
+    for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
+        i.value()->gotoReceiveTokenPage();
+}
+
+void WalletFrame::gotoAddTokenPage()
+{
+    QMap<QString, WalletView*>::const_iterator i;
+    for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
+        i.value()->gotoAddTokenPage();
 }
 
 void WalletFrame::gotoReceiveCoinsPage()

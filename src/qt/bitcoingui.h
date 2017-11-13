@@ -128,6 +128,9 @@ private:
     QAction* sendToContractAction;
     QAction* callContractAction;
     QAction* QRCTokenAction;
+    QAction* sendTokenAction;
+    QAction* receiveTokenAction;
+    QAction* addTokenAction;
 
     QSystemTrayIcon *trayIcon;
     QMenu *trayIconMenu;
@@ -236,8 +239,12 @@ private Q_SLOTS:
     void gotoSendToContractPage();
     /** Switch to call contract page */
     void gotoCallContractPage();
-    /** Switch to QRCToken page page */
-    void gotoQRCTokenPage(bool toAddTokenPage = false);
+    /** Switch to Send Token page */
+    void gotoSendTokenPage();
+    /** Switch to Receive Token page */
+    void gotoReceiveTokenPage();
+    /** Switch to Add Token page */
+    void gotoAddTokenPage();
 
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");

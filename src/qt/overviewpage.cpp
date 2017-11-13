@@ -422,5 +422,5 @@ void OverviewPage::showOutOfSyncWarning(bool fShow)
 
 void OverviewPage::on_buttonAddToken_clicked()
 {
-    Q_EMIT addTokenClicked(true);
+    Q_EMIT addTokenClicked();
 }

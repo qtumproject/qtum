@@ -124,7 +124,7 @@ void WalletView::setBitcoinGUI(BitcoinGUI *gui)
         connect(this, SIGNAL(hdEnabledStatusChanged(int)), gui, SLOT(setHDStatus(int)));
 
         // Clicking on add token button sends you to add token page
-        connect(overviewPage, SIGNAL(addTokenClicked(bool)), gui, SLOT(gotoQRCTokenPage(bool)));
+        connect(overviewPage, SIGNAL(addTokenClicked()), gui, SLOT(gotoAddTokenPage()));
     }
 }
 
@@ -273,11 +273,22 @@ void WalletView::gotoCallContractPage()
     setCurrentWidget(callContractPage);
 }
 
-void WalletView::gotoQRCTokenPage(bool toAddTokenPage)
+void WalletView::gotoSendTokenPage()
 {
     setCurrentWidget(QRCTokenPage);
-    if(toAddTokenPage)
-        QRCTokenPage->on_goToAddTokenPage();
+    QRCTokenPage->on_goToSendTokenPage();
+}
+
+void WalletView::gotoReceiveTokenPage()
+{
+    setCurrentWidget(QRCTokenPage);
+    QRCTokenPage->on_goToReceiveTokenPage();
+}
+
+void WalletView::gotoAddTokenPage()
+{
+    setCurrentWidget(QRCTokenPage);
+    QRCTokenPage->on_goToAddTokenPage();
 }
 
 void WalletView::gotoSignMessageTab(QString addr)

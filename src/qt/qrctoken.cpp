@@ -9,7 +9,6 @@
 #include <QAbstractItemDelegate>
 #include <QStandardItem>
 #include <QStandardItemModel>
-#include <QActionGroup>
 #include <QSortFilterProxyModel>
 #include <QSizePolicy>
 #include <QMenu>
@@ -128,20 +127,6 @@ QRCToken::QRCToken(const PlatformStyle *platformStyle, QWidget *parent) :
     ui->tokensList->setContextMenuPolicy(Qt::CustomContextMenu);
     ui->tokensList->setAttribute(Qt::WA_MacShowFocusRect, false);
 
-    QActionGroup *actionGroup = new QActionGroup(this);
-    m_sendAction = new QAction(tr("Send"), actionGroup);
-    m_receiveAction = new QAction(tr("Receive"), actionGroup);
-    m_addTokenAction = new QAction(tr("Add Token"), actionGroup);
-    actionGroup->setExclusive(true);
-
-    m_sendAction->setCheckable(true);
-    m_receiveAction->setCheckable(true);
-    m_addTokenAction->setCheckable(true);
-
-    ui->sendButton->setDefaultAction(m_sendAction);
-    ui->receiveButton->setDefaultAction(m_receiveAction);
-    ui->addTokenButton->setDefaultAction(m_addTokenAction);
-
     QAction *copySenderAction = new QAction(tr("Copy receive address"), this);
     QAction *copyTokenBalanceAction = new QAction(tr("Copy token balance"), this);
     QAction *copyTokenNameAction = new QAction(tr("Copy token name"), this);
@@ -161,9 +146,6 @@ QRCToken::QRCToken(const PlatformStyle *platformStyle, QWidget *parent) :
     connect(copySenderAction, SIGNAL(triggered(bool)), this, SLOT(copySenderAddress()));
     connect(removeTokenAction, SIGNAL(triggered(bool)), this, SLOT(removeToken()));
 
-    connect(m_sendAction, SIGNAL(triggered()), this, SLOT(on_goToSendTokenPage()));
-    connect(m_receiveAction, SIGNAL(triggered()), this, SLOT(on_goToReceiveTokenPage()));
-    connect(m_addTokenAction, SIGNAL(triggered()), this, SLOT(on_goToAddTokenPage()));
     connect(ui->tokensList, SIGNAL(clicked(QModelIndex)), this, SLOT(on_currentTokenChanged(QModelIndex)));
     connect(ui->tokensList, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(contextualMenu(QPoint)));
 
@@ -215,19 +197,16 @@ void QRCToken::setClientModel(ClientModel *_clientModel)
 
 void QRCToken::on_goToSendTokenPage()
 {
-    m_sendAction->setChecked(true);
     ui->stackedWidget->setCurrentIndex(0);
 }
 
 void QRCToken::on_goToReceiveTokenPage()
 {
-    m_receiveAction->setChecked(true);
     ui->stackedWidget->setCurrentIndex(1);
 }
 
 void QRCToken::on_goToAddTokenPage()
 {
-    m_addTokenAction->setChecked(true);
     ui->stackedWidget->setCurrentIndex(2);
 }
 
