@@ -108,13 +108,17 @@
     <qresource prefix="/styles/app-icons">
         <file alias="cb_up_down_arrow">res/styles/app-icons/cb_up_down_arrow.png</file>
         <file alias="slider_switcher">res/styles/app-icons/slider_switcher.png</file>
+        <file alias="slider_switcher_disabled">res/styles/app-icons/slider_switcher_disabled.png</file>
         <file alias="slider_switcher_hover">res/styles/app-icons/slider_switcher_hover.png</file>
         <file alias="spinBox">res/styles/app-icons/spinBox.png</file>
         <file alias="spinBoxHover">res/styles/app-icons/spinBoxHover.png</file>
         <file alias="spinBoxFocus">res/styles/app-icons/spinBoxFocus.png</file>
+        <file alias="spinBoxDisabled">res/styles/app-icons/spinBoxDisabled.png</file>
         <file alias="up_arrow">res/styles/app-icons/up_arrow.png</file>
         <file alias="down_arrow">res/styles/app-icons/down_arrow.png</file>
         <file alias="up_arrow_hover">res/styles/app-icons/up_arrow_hover.png</file>
         <file alias="down_arrow_hover">res/styles/app-icons/down_arrow_hover.png</file>
+        <file alias="up_arrow_disabled">res/styles/app-icons/up_arrow_disabled.png</file>
+        <file alias="down_arrow_disabled">res/styles/app-icons/down_arrow_disabled.png</file>
     </qresource>
 </RCC>
