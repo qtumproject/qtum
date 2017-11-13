@@ -126,5 +126,11 @@
         <file alias="checkbox_checked">res/styles/app-icons/checkbox_checked.png</file>
         <file alias="checkbox_checked_hover">res/styles/app-icons/checkbox_checked_hover.png</file>
         <file alias="checkbox_checked_disabled">res/styles/app-icons/checkbox_checked_disabled.png</file>
+        <file alias="radiobutton_unchecked">res/styles/app-icons/radiobutton_unchecked.png</file>
+        <file alias="radiobutton_unchecked_hover">res/styles/app-icons/radiobutton_unchecked_hover.png</file>
+        <file alias="radiobutton_unchecked_disabled">res/styles/app-icons/radiobutton_unchecked_disabled.png</file>
+        <file alias="radiobutton_checked">res/styles/app-icons/radiobutton_checked.png</file>
+        <file alias="radiobutton_checked_hover">res/styles/app-icons/radiobutton_checked_hover.png</file>
+        <file alias="radiobutton_checked_disabled">res/styles/app-icons/radiobutton_checked_disabled.png</file>
     </qresource>
 </RCC>
