@@ -7,7 +7,7 @@
 #include <QPixmap>
 
 namespace TitleBar_NS {
-const int logoWidth = 135;
+const int titleHeight = 35;
 }
 using namespace TitleBar_NS;
 
@@ -17,15 +17,10 @@ TitleBar::TitleBar(QWidget *parent) :
     m_tab(0)
 {
     ui->setupUi(this);
-    // Set the logo
-    QPixmap logo = QPixmap(":/icons/logo").scaledToWidth(logoWidth, Qt::SmoothTransformation);
-    ui->lblLogo->setPixmap(logo);
-    ui->lblLogo->setFixedSize(logo.size());
-    // Hide the fiat balance label
-    ui->lblFiatBalance->hide();
     // Set size policy
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     ui->tabWidget->setDrawBase(false);
+    setFixedHeight(titleHeight);
 }
 
 TitleBar::~TitleBar()
@@ -77,5 +72,5 @@ void TitleBar::setBalance(const CAmount& balance, const CAmount& unconfirmedBala
 
 void TitleBar::on_navigationResized(const QSize &_size)
 {
-    ui->widgetLogo->setMaximumWidth(_size.width());
+    ui->widgetLogo->setFixedWidth(_size.width());
 }

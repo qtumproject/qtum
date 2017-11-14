@@ -5,12 +5,12 @@
 
 namespace NavigationBar_NS
 {
-static const int ToolButtonWidth = 150;
+static const int ToolButtonWidth = 180;
 static const int ToolButtonHeight = 54;
 static const int ToolButtonIconSize = 32;
 static const int MarginLeft = 6;
 static const int MarginRight = 3;
-static const int MarginTop = 2;
+static const int MarginTop = 0;
 static const int MarginBottom = 9;
 }
 using namespace NavigationBar_NS;

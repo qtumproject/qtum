@@ -8,11 +8,26 @@ QWidget{
 Main Window CSS
 --------------------------------------------*/
 QMainWindow{
-    background-color: #272727;
+    background-color: #1f1f1f;
     border: 0px solid transparent;
+    background-image: url(":/styles/app-icons/bg");
+    background-position: bottom left;
+    background-repeat: no-repeat;
 }
 QMainWindow .QFrame{
     border: 1px solid transparent;
+}
+WalletFrame{
+    background-color: #272727;
+}
+QDialog{
+    background-color: #272727;
+}
+QLabel{
+    color: #ffffff;
+}
+QLabel::disabled{
+    color: rgba(255, 255, 255, 10%);
 }
 /*-------------------------------------------- 
 Line Edit CSS
@@ -115,14 +130,14 @@ Group Box CSS
 QGroupBox
 {
     border: 0px solid transparent; 
-	margin-top: 15px;
+	margin-top: 20px;
 	background-color: #2e2e2e;
 }
 QGroupBox::title {
 	color: #ffffff;
 	subcontrol-position: top left;
 	left: -5px;
-	padding: -35px 3px 0px 3px;
+	padding: -40px 3px 0px 3px;
 }
 QGroupBox::title:disabled {
     color: rgba(255, 255, 255, 10%);
@@ -454,22 +469,19 @@ Tab Bar CSS
 QTabBar::tab {
     background-color: #1d1d1d;
     color: #636363;
-    padding: 10px;
+    padding: 5px;
     border-width: 0px;
     border-radius: 0px;
     border-style: none;
     border-bottom: 5px solid #1d1d1d;
-    padding-bottom: 10px;
 }
 QTabBar::tab:selected {
     color:white;
     border-bottom: 5px solid #163B4E;
-    padding-bottom: 10px;
 }
 QTabBar::tab:hover:!selected {
     color:#636363;
     border-bottom: 5px solid #2E92D0;
-    padding-bottom: 10px;
 }
 QTabBar::tab:disabled {
     color: #2A2A2A;
@@ -596,3 +608,4 @@ QRadioButton:indicator:unchecked:disabled {
 QRadioButton:indicator:checked:disabled {
     image: url(:/styles/app-icons/radiobutton_checked_disabled);
 }
+
