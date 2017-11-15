@@ -7,6 +7,7 @@
 #include <QProxyStyle>
 #include <QListView>
 #include <QComboBox>
+#include <QMessageBox>
 
 static const QString STYLE_FORMAT = ":/styles/%1";
 
@@ -28,6 +29,28 @@ public:
                 parent->setWindowFlags(Qt::Popup | Qt::FramelessWindowHint | Qt::NoDropShadowWindowHint);
                 parent->setAttribute(Qt::WA_TranslucentBackground);
             }
+        }
+        if(widget && widget->inherits("QMessageBox"))
+        {
+            QMessageBox* messageBox = (QMessageBox*)widget;
+            QPixmap iconPixmap;
+            QMessageBox::Icon icon = messageBox->icon();
+            switch (icon)
+            {
+            case QMessageBox::Information:
+            case QMessageBox::Question:
+                iconPixmap = QPixmap(":/styles/app-icons/message_info");
+                break;
+            case QMessageBox::Warning:
+                iconPixmap = QPixmap(":/styles/app-icons/message_critical");
+                break;
+            case QMessageBox::Critical:
+                iconPixmap = QPixmap(":/styles/app-icons/message_critical");
+                break;
+            default:
+                break;
+            }
+            messageBox->setIconPixmap(iconPixmap.scaled(45,49));
         }
 
         QProxyStyle::polish(widget);

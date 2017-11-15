@@ -608,4 +608,19 @@ QRadioButton:indicator:unchecked:disabled {
 QRadioButton:indicator:checked:disabled {
     image: url(:/styles/app-icons/radiobutton_checked_disabled);
 }
+/*--------------------------------------------
+Dialogs CSS
+--------------------------------------------*/
+QWidget#buttonsContainer {
+	background: #ebeef3;
+}
+QWidget#buttonsContainerWhite {
+	background: #ffffff;
+}
+QWidget#ReceiveRequestDialog {
+	background: #f6f8fa;
+}
+QTextEdit#outUri {
+	background: #f6f8fa;
+}
 

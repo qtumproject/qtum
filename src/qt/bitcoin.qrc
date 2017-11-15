@@ -133,5 +133,8 @@
         <file alias="radiobutton_checked">res/styles/app-icons/radiobutton_checked.png</file>
         <file alias="radiobutton_checked_hover">res/styles/app-icons/radiobutton_checked_hover.png</file>
         <file alias="radiobutton_checked_disabled">res/styles/app-icons/radiobutton_checked_disabled.png</file>
+        <file alias="message_critical">res/styles/app-icons/message_critical.png</file>
+        <file alias="message_info">res/styles/app-icons/message_info.png</file>
+        <file alias="message_warning">res/styles/app-icons/message_warning.png</file>
     </qresource>
 </RCC>
