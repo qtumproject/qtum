@@ -538,7 +538,7 @@
         <x>0</x>
         <y>0</y>
         <width>835</width>
-        <height>183</height>
+        <height>206</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,1,0,0">
@@ -1145,12 +1145,6 @@
      </item>
      <item>
       <widget class="QPushButton" name="addButton">
-       <property name="minimumSize">
-        <size>
-         <width>150</width>
-         <height>50</height>
-        </size>
-       </property>
        <property name="toolTip">
         <string>Send to multiple recipients at once</string>
        </property>
@@ -1184,12 +1178,6 @@
      </item>
      <item>
       <widget class="QPushButton" name="sendButton">
-       <property name="minimumSize">
-        <size>
-         <width>150</width>
-         <height>50</height>
-        </size>
-       </property>
        <property name="toolTip">
         <string>Confirm the send action</string>
        </property>
@@ -1231,12 +1219,6 @@
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>150</width>
-         <height>50</height>
-        </size>
        </property>
        <property name="toolTip">
         <string>Clear all fields of the form.</string>
@@ -1339,7 +1321,7 @@
  </resources>
  <connections/>
  <buttongroups>
-  <buttongroup name="groupCustomFee"/>
   <buttongroup name="groupFee"/>
+  <buttongroup name="groupCustomFee"/>
  </buttongroups>
 </ui>

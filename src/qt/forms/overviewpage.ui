@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>745</width>
-    <height>503</height>
+    <height>504</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -509,12 +509,6 @@
             </item>
             <item>
              <widget class="QPushButton" name="buttonAddToken">
-              <property name="minimumSize">
-               <size>
-                <width>100</width>
-                <height>50</height>
-               </size>
-              </property>
               <property name="text">
                <string>Add Token</string>
               </property>

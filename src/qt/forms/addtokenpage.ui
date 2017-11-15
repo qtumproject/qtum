@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>520</width>
-    <height>304</height>
+    <height>311</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -215,12 +215,6 @@
        <property name="enabled">
         <bool>false</bool>
        </property>
-       <property name="minimumSize">
-        <size>
-         <width>100</width>
-         <height>50</height>
-        </size>
-       </property>
        <property name="text">
         <string>Confirm</string>
        </property>
@@ -244,12 +238,6 @@
      </item>
      <item>
       <widget class="QPushButton" name="clearButton">
-       <property name="minimumSize">
-        <size>
-         <width>100</width>
-         <height>50</height>
-        </size>
-       </property>
        <property name="text">
         <string>Clear</string>
        </property>
