@@ -623,4 +623,15 @@ QWidget#ReceiveRequestDialog {
 QTextEdit#outUri {
 	background: #f6f8fa;
 }
+/*--------------------------------------------
+System Tray Message CSS
+--------------------------------------------*/
+QBalloonTip{
+    background: #e1e1e1;
+    color: #5a5a5d;
+    border-color: #5a5a5d;
+}
+QBalloonTip QLabel{
+    color: #5a5a5d;
+}
 
