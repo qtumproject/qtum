@@ -301,7 +301,7 @@ QScrollBar::handle:vertical {
 QScrollBar::handle:vertical:disabled {
     background: rgba(46, 46, 46, 40%);
 }
-QValidatedTextEdit QScrollBar:vertical {
+QTextEdit QScrollBar:vertical {
     border-radius: 0px;
     border-top-right-radius: 9px;
     border-bottom-right-radius: 9px;
@@ -310,13 +310,13 @@ QValidatedTextEdit QScrollBar:vertical {
     width: 19px;
     padding: 10px 4px;
 }
-QValidatedTextEdit QScrollBar::handle:vertical {
+QTextEdit QScrollBar::handle:vertical {
     border: 1px solid #646464;
     background: #4c4c4c;
     border-radius: 5px;
     min-height: 30px;
 }
-QValidatedTextEdit QScrollBar::handle:vertical:disabled {
+QTextEdit QScrollBar::handle:vertical:disabled {
     background: rgba(76, 76, 76, 40%);
 }
 /*--------------------------------------------
@@ -416,16 +416,16 @@ QTableView::disabled{
     color: rgba(197, 197, 197, 10%);
 }
 /*--------------------------------------------
-QValidatedTextEdit CSS
+QTextEdit CSS
 --------------------------------------------*/
-QValidatedTextEdit {
+QTextEdit {
     border: 1px solid #5a5a5d;
     border-radius: 12px;
     background-color: #ffffff;
     color: #2a2a2a;
     padding-left: 5px;
 }
-QValidatedTextEdit::disabled {
+QTextEdit::disabled {
     border: 1px solid rgba(90, 90, 93, 40%);
     color: rgba(42, 42, 42, 10%);
 }
@@ -633,6 +633,21 @@ QBalloonTip{
 }
 QBalloonTip QLabel{
     color: #5a5a5d;
+}
+QBalloonTip QPushButton{
+    padding: 0px;
+    min-width: 0em;
+    background: transparent;
+    border-radius: 0px;
+}
+QBalloonTip QPushButton:hover{
+    background: transparent;
+}
+QBalloonTip QPushButton:pressed {
+    background: transparent;
+}
+QBalloonTip QPushButton::disabled {
+    background: transparent;
 }
 /*--------------------------------------------
 Push Button CSS

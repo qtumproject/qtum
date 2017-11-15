@@ -85,12 +85,6 @@
      </item>
      <item>
       <widget class="QPushButton" name="copyAddressButton">
-       <property name="minimumSize">
-        <size>
-         <width>150</width>
-         <height>50</height>
-        </size>
-       </property>
        <property name="text">
         <string>Copy Address</string>
        </property>
