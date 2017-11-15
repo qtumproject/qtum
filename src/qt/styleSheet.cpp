@@ -8,6 +8,7 @@
 #include <QListView>
 #include <QComboBox>
 #include <QMessageBox>
+#include <QPushButton>
 
 static const QString STYLE_FORMAT = ":/styles/%1";
 
@@ -51,6 +52,11 @@ public:
                 break;
             }
             messageBox->setIconPixmap(iconPixmap.scaled(45,49));
+        }
+        if(widget && widget->inherits("QPushButton"))
+        {
+            QPushButton* button = (QPushButton*)widget;
+            button->setText(button->text().toUpper());
         }
 
         QProxyStyle::polish(widget);
