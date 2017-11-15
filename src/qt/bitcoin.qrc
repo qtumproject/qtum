@@ -104,6 +104,7 @@
     <qresource prefix="/styles">
         <file alias="app">res/styles/app.css</file>
         <file alias="invalid">res/styles/invalid.css</file>
+        <file alias="tableviewlight">res/styles/tableviewlight.css</file>
     </qresource>
     <qresource prefix="/styles/app-icons">
         <file alias="bg">res/styles/app-icons/bg.png</file>

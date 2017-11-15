@@ -15,6 +15,7 @@ namespace StyleSheetNames
 {
     static const QString App                 = "app";
     static const QString Invalid             = "invalid";
+    static const QString TableViewLight      = "tableviewlight";
 }
 
 /** Singleton class that manage the styles

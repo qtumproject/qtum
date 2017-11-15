@@ -15,6 +15,7 @@
 #include "editaddressdialog.h"
 #include "guiutil.h"
 #include "platformstyle.h"
+#include "styleSheet.h"
 
 #include <QIcon>
 #include <QMenu>
@@ -29,6 +30,8 @@ AddressBookPage::AddressBookPage(const PlatformStyle *platformStyle, Mode _mode,
     tab(_tab)
 {
     ui->setupUi(this);
+
+    SetObjectStyleSheet(ui->tableView, StyleSheetNames::TableViewLight);
 
     if (!platformStyle->getImagesOnButtons()) {
         ui->newAddress->setIcon(QIcon());
