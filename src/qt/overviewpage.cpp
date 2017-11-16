@@ -26,11 +26,16 @@
 #include <QStandardItemModel>
 #include <QSortFilterProxyModel>
 
-#define DECORATION_SIZE 54
 #define NUM_ITEMS 5
 #define TOKEN_SIZE 54
 #define MARGIN 5
-#define NAME_WIDTH 120
+#define NAME_WIDTH 80
+
+#define TX_SIZE 40
+#define DECORATION_SIZE 20
+#define DATE_WIDTH 110
+#define TYPE_WIDTH 140
+#define AMOUNT_WIDTH 205
 
 class TxViewDelegate : public QAbstractItemDelegate
 {
@@ -48,46 +53,56 @@ public:
     {
         painter->save();
 
-        QIcon icon = qvariant_cast<QIcon>(index.data(TransactionTableModel::RawDecorationRole));
-        QRect mainRect = option.rect;
-        QRect decorationRect(mainRect.topLeft(), QSize(DECORATION_SIZE, DECORATION_SIZE));
-        int xspace = DECORATION_SIZE + 8;
-        int ypad = 6;
-        int halfheight = (mainRect.height() - 2*ypad)/2;
-        QRect dateAddressRect(mainRect.left() + xspace, mainRect.top() + ypad, mainRect.width(), mainRect.height() - ypad);
-        QRect dateRect(dateAddressRect.left(), dateAddressRect.top(), dateAddressRect.width(), halfheight);
-        QRect addressRect(dateAddressRect.left(), dateRect.bottom(), dateAddressRect.width(), halfheight);
-        QRect amountRect(mainRect.right()-172, mainRect.top(), 172, mainRect.height());
-
-        painter->setPen(QColor("#c4c1bd"));
-        QColor txColor = index.row() % 2 ? QColor("#ededed") : QColor("#e3e3e3");
-        painter->fillRect(mainRect, txColor);
-        painter->drawLine(amountRect.left() -3, amountRect.top() + 5, amountRect.left() - 3, amountRect.bottom() - 5);
-        icon = platformStyle->SingleColorIcon(icon);
-        icon.paint(painter, decorationRect);
-
         QDateTime date = index.data(TransactionTableModel::DateRole).toDateTime();
+        QIcon icon = qvariant_cast<QIcon>(index.data(TransactionTableModel::RawDecorationRole));
         QString address = index.data(Qt::DisplayRole).toString();
         qint64 amount = index.data(TransactionTableModel::AmountRole).toLongLong();
         bool confirmed = index.data(TransactionTableModel::ConfirmedRole).toBool();
-        QVariant value = index.data(Qt::ForegroundRole);
-        QColor foreground = option.palette.color(QPalette::Text);
-        if(value.canConvert<QBrush>())
-        {
-            QBrush brush = qvariant_cast<QBrush>(value);
-            foreground = brush.color();
-        }
 
+        QModelIndex ind = index.model()->index(index.row(), TransactionTableModel::Type, index.parent());
+        QString typeString = ind.data(Qt::DisplayRole).toString();
+
+        QRect mainRect = option.rect;
+        QColor txColor = index.row() % 2 ? QColor("#393939") : QColor("#2e2e2e");
+        painter->fillRect(mainRect, txColor);
+
+        QColor foreground("#dedede");
         painter->setPen(foreground);
-        QRect boundingRect;
-        painter->drawText(addressRect, Qt::AlignLeft|Qt::AlignVCenter, address, &boundingRect);
+
+        QRect dateRect(mainRect.left() + MARGIN, mainRect.top(), DATE_WIDTH, TX_SIZE);
         painter->drawText(dateRect, Qt::AlignLeft|Qt::AlignVCenter, GUIUtil::dateTimeStr(date));
-        if (index.data(TransactionTableModel::WatchonlyRole).toBool())
+
+        int topMargin = (TX_SIZE - DECORATION_SIZE) / 2;
+        QRect decorationRect(dateRect.topRight() + QPoint(MARGIN, topMargin), QSize(DECORATION_SIZE, DECORATION_SIZE));
+        icon = platformStyle->SingleColorIcon(icon);
+        icon.paint(painter, decorationRect);
+
+        QRect typeRect(decorationRect.right() + MARGIN, mainRect.top(), TYPE_WIDTH, TX_SIZE);
+        painter->drawText(typeRect, Qt::AlignLeft|Qt::AlignVCenter, typeString);
+
+        bool watchOnly = index.data(TransactionTableModel::WatchonlyRole).toBool();
+
+        if (watchOnly)
         {
             QIcon iconWatchonly = qvariant_cast<QIcon>(index.data(TransactionTableModel::WatchonlyDecorationRole));
-            QRect watchonlyRect(boundingRect.right() + 5, mainRect.top()+ypad+halfheight, 16, halfheight);
+            QRect watchonlyRect(typeRect.right() + MARGIN, mainRect.top() + topMargin, DECORATION_SIZE, DECORATION_SIZE);
             iconWatchonly.paint(painter, watchonlyRect);
         }
+
+        int addressMargin = watchOnly ? MARGIN + 20 : MARGIN;
+        int addressWidth = mainRect.width() - DATE_WIDTH - DECORATION_SIZE - TYPE_WIDTH - AMOUNT_WIDTH - 5*MARGIN;
+        addressWidth = watchOnly ? addressWidth - 20 : addressWidth;
+
+        QFont addressFont = option.font;
+        addressFont.setPointSizeF(addressFont.pointSizeF() * 0.95);
+        painter->setFont(addressFont);
+
+        QRect addressRect(typeRect.right() + addressMargin, mainRect.top(), addressWidth, TX_SIZE);
+        painter->drawText(addressRect, Qt::AlignLeft|Qt::AlignVCenter, address);
+
+        QFont amountFont = option.font;
+        amountFont.setBold(true);
+        painter->setFont(amountFont);
 
         if(amount < 0)
         {
@@ -99,25 +114,25 @@ public:
         }
         else
         {
-            foreground = option.palette.color(QPalette::Text);
+            foreground = QColor("#ffffff");
         }
         painter->setPen(foreground);
+
         QString amountText = BitcoinUnits::formatWithUnit(unit, amount, true, BitcoinUnits::separatorAlways);
         if(!confirmed)
         {
             amountText = QString("[") + amountText + QString("]");
         }
-        painter->drawText(amountRect, Qt::AlignCenter|Qt::AlignVCenter, amountText);
 
-        painter->setPen(option.palette.color(QPalette::Text));
-
+        QRect amountRect(addressRect.right() + MARGIN, addressRect.top(), AMOUNT_WIDTH, TX_SIZE);
+        painter->drawText(amountRect, Qt::AlignLeft|Qt::AlignVCenter, amountText);
 
         painter->restore();
     }
 
     inline QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
     {
-        return QSize(DECORATION_SIZE, DECORATION_SIZE);
+        return QSize(TX_SIZE, TX_SIZE);
     }
 
     int unit;
@@ -138,7 +153,7 @@ public:
     {
         painter->save();
 
-        QIcon tokenIcon = platformStyle->SingleColorIcon(":/icons/token");
+        QIcon tokenIcon = platformStyle->TextColorIcon(":/icons/token");
         QString tokenName = index.data(TokenItemModel::NameRole).toString() + ":";
         QString tokenBalance = index.data(TokenItemModel::BalanceRole).toString();
         QString tokenSymbol = index.data(TokenItemModel::SymbolRole).toString();
@@ -148,8 +163,11 @@ public:
         QRect mainRect = option.rect;
         mainRect.setWidth(option.rect.width());
 
-        QColor rowColor = index.row() % 2 ? QColor("#ededed") : QColor("#e3e3e3");
+        QColor rowColor = index.row() % 2 ? QColor("#393939") : QColor("#2e2e2e");
         painter->fillRect(mainRect, rowColor);
+
+        QColor foreground("#dedede");
+        painter->setPen(foreground);
 
         int decorationSize = TOKEN_SIZE - 20;
         int leftTopMargin = 10;
@@ -171,12 +189,15 @@ public:
 
         font.setBold(true);
         painter->setFont(font);
+        QColor amountColor("#ffffff");
+        painter->setPen(amountColor);
         QRect tokenBalanceRect(nameRect.right() + MARGIN, decorationRect.top(), balanceWidth, decorationSize / 2);
         painter->drawText(tokenBalanceRect, Qt::AlignLeft|Qt::AlignVCenter, tokenBalance);
 
         QFont addressFont = option.font;
-        addressFont.setPixelSize(addressFont.pixelSize() * 0.9);
+        addressFont.setPointSizeF(addressFont.pointSizeF() * 0.8);
         painter->setFont(addressFont);
+        painter->setPen(foreground);
         QRect receiveAddressRect(decorationRect.right() + MARGIN, nameRect.bottom(), mainRect.width() - decorationSize, decorationSize / 2);
         painter->drawText(receiveAddressRect, Qt::AlignLeft|Qt::AlignBottom, receiveAddress);
 
@@ -225,11 +246,24 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     icon.addPixmap(icon.pixmap(QSize(64,64), QIcon::Normal), QIcon::Disabled); // also set the disabled icon because we are using a disabled QPushButton to work around missing HiDPI support of QLabel (https://bugreports.qt.io/browse/QTBUG-42503)
     ui->labelTransactionsStatus->setIcon(icon);
     ui->labelWalletStatus->setIcon(icon);
+    ui->labelTokenStatus->setIcon(icon);
+
+    QFont font = ui->labelTotal->font();
+    font.setPointSizeF(font.pointSizeF() * 1.5);
+    ui->labelTotal->setFont(font);
+
+    QFont fontWatch = ui->labelWatchTotal->font();
+    fontWatch.setPointSizeF(fontWatch.pointSizeF() * 1.5);
+    ui->labelWatchTotal->setFont(fontWatch);
+
+    ui->labelDate->setFixedWidth(DATE_WIDTH);
+    ui->labelType->setFixedWidth(TYPE_WIDTH);
+    ui->labelAmount->setFixedWidth(AMOUNT_WIDTH);
 
     // Recent transactions
     ui->listTransactions->setItemDelegate(txdelegate);
     ui->listTransactions->setIconSize(QSize(DECORATION_SIZE, DECORATION_SIZE));
-    ui->listTransactions->setMinimumHeight(NUM_ITEMS * (DECORATION_SIZE + 2));
+    ui->listTransactions->setMinimumHeight(NUM_ITEMS * (TX_SIZE + 2));
     ui->listTransactions->setMinimumWidth(590);
     ui->listTransactions->setAttribute(Qt::WA_MacShowFocusRect, false);
 
@@ -242,6 +276,7 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     // start with displaying the "out of sync" warnings
     showOutOfSyncWarning(true);
     connect(ui->labelWalletStatus, SIGNAL(clicked()), this, SLOT(handleOutOfSyncWarningClicks()));
+    connect(ui->labelTokenStatus, SIGNAL(clicked()), this, SLOT(handleOutOfSyncWarningClicks()));
     connect(ui->labelTransactionsStatus, SIGNAL(clicked()), this, SLOT(handleOutOfSyncWarningClicks()));
 }
 
@@ -323,7 +358,6 @@ void OverviewPage::updateWatchOnlyLabels(bool showWatchOnly)
 {
     ui->labelSpendable->setVisible(showWatchOnly);      // show spendable label (only when watch-only is active)
     ui->labelWatchonly->setVisible(showWatchOnly);      // show watch-only label
-    ui->lineWatchBalance->setVisible(showWatchOnly);    // show watch-only balance separator line
     ui->labelWatchAvailable->setVisible(showWatchOnly); // show watch-only available balance
     ui->labelWatchPending->setVisible(showWatchOnly);   // show watch-only pending balance
     ui->labelWatchTotal->setVisible(showWatchOnly);     // show watch-only total balance
@@ -418,6 +452,7 @@ void OverviewPage::showOutOfSyncWarning(bool fShow)
 {
     ui->labelWalletStatus->setVisible(fShow);
     ui->labelTransactionsStatus->setVisible(fShow);
+    ui->labelTokenStatus->setVisible(fShow);
 }
 
 void OverviewPage::on_buttonAddToken_clicked()

@@ -17,6 +17,14 @@ QMainWindow{
 QMainWindow .QFrame{
     border: 1px solid transparent;
 }
+QMainWindow .QFrame#frameBalances, 
+#frameOtherTokens, 
+#frameRecentTransactions{
+    background-color: #2e2e2e;
+}
+QFrame#hLine{
+    border-top: 1px solid #404041;
+}
 WalletFrame{
     background-color: #272727;
 }
@@ -28,6 +36,10 @@ QLabel{
 }
 QLabel::disabled{
     color: rgba(255, 255, 255, 10%);
+}
+QLabel#labelTotal,
+#labelWatchTotal{
+    color: #049ee8;
 }
 /*-------------------------------------------- 
 Line Edit CSS
@@ -130,14 +142,14 @@ Group Box CSS
 QGroupBox
 {
     border: 0px solid transparent; 
-	margin-top: 20px;
-	background-color: #2e2e2e;
+    margin-top: 20px;
+    background-color: #2e2e2e;
 }
 QGroupBox::title {
-	color: #ffffff;
-	subcontrol-position: top left;
-	left: -5px;
-	padding: -40px 3px 0px 3px;
+    color: #ffffff;
+    subcontrol-position: top left;
+    left: -5px;
+    padding: -40px 3px 0px 3px;
 }
 QGroupBox::title:disabled {
     color: rgba(255, 255, 255, 10%);
@@ -154,9 +166,9 @@ QSlider:horizontal{
 }
 QSlider::groove:horizontal {
     background-color: transparent;
-	height: 20px;
-	left: 16px;
-	right: 7px;
+    height: 20px;
+    left: 16px;
+    right: 7px;
 }
 QSlider::handle:horizontal {
     background-image: url(":/styles/app-icons/slider_switcher");
@@ -172,21 +184,21 @@ QSlider::add-page:horizontal {
     margin: 9px -8px;
     border: none;
     background: #d7d7d7;
-	border-right: 1px solid #ababab;
+    border-right: 1px solid #ababab;
 }
 QSlider::sub-page:horizontal {
     margin: 9px -9px;
-	border: none;
+    border: none;
     background: #57b2d5;
-	border-left: 1px solid #498ea9;
+    border-left: 1px solid #498ea9;
 }
 QSlider::add-page:horizontal:disabled {
     background: rgba(215, 215, 215, 40%);
-	border-right: 1px solid rgba(171, 171, 171, 40%);
+    border-right: 1px solid rgba(171, 171, 171, 40%);
 }
 QSlider::sub-page:horizontal:disabled {
     background: rgba(87, 178, 213, 40%);
-	border-left: 1px solid rgba(73, 142, 169, 40%);
+    border-left: 1px solid rgba(73, 142, 169, 40%);
 }
 QSlider::handle:horizontal:disabled {
     background-image: url(":/styles/app-icons/slider_switcher_disabled");
@@ -612,16 +624,16 @@ QRadioButton:indicator:checked:disabled {
 Dialogs CSS
 --------------------------------------------*/
 QWidget#buttonsContainer {
-	background: #ebeef3;
+    background: #ebeef3;
 }
 QWidget#buttonsContainerWhite {
-	background: #ffffff;
+    background: #ffffff;
 }
 QWidget#ReceiveRequestDialog {
-	background: #f6f8fa;
+    background: #f6f8fa;
 }
 QTextEdit#outUri {
-	background: #f6f8fa;
+    background: #f6f8fa;
 }
 /*--------------------------------------------
 System Tray Message CSS
