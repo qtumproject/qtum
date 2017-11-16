@@ -41,6 +41,7 @@ CWallet* pwalletMain = NULL;
 CFeeRate payTxFee(DEFAULT_TRANSACTION_FEE);
 unsigned int nTxConfirmTarget = DEFAULT_TX_CONFIRM_TARGET;
 bool bSpendZeroConfChange = DEFAULT_SPEND_ZEROCONF_CHANGE;
+bool bZeroBalanceAddressToken = DEFAULT_ZERO_BALANCE_ADDRESS_TOKEN;
 bool fSendFreeTransactions = DEFAULT_SEND_FREE_TRANSACTIONS;
 bool fWalletRbf = DEFAULT_WALLET_RBF;
 
@@ -4491,6 +4492,7 @@ bool CWallet::ParameterInteraction()
     }
     nTxConfirmTarget = GetArg("-txconfirmtarget", DEFAULT_TX_CONFIRM_TARGET);
     bSpendZeroConfChange = GetBoolArg("-spendzeroconfchange", DEFAULT_SPEND_ZEROCONF_CHANGE);
+    bZeroBalanceAddressToken = GetBoolArg("-zerobalanceaddresstoken", DEFAULT_SPEND_ZEROCONF_CHANGE);
     fSendFreeTransactions = GetBoolArg("-sendfreetransactions", DEFAULT_SEND_FREE_TRANSACTIONS);
     fWalletRbf = GetBoolArg("-walletrbf", DEFAULT_WALLET_RBF);
 
@@ -4558,7 +4560,7 @@ bool CWallet::LoadTokenTx(const CTokenTx &tokenTx)
 
 bool CWallet::AddTokenEntry(const CTokenInfo &token, bool fFlushOnClose)
 {
-    LOCK(cs_wallet);
+    LOCK2(cs_main, cs_wallet);
 
     CWalletDB walletdb(strWalletFile, "r+", fFlushOnClose);
 
@@ -4607,7 +4609,7 @@ bool CWallet::AddTokenEntry(const CTokenInfo &token, bool fFlushOnClose)
 
 bool CWallet::AddTokenTxEntry(const CTokenTx &tokenTx, bool fFlushOnClose)
 {
-    LOCK(cs_wallet);
+    LOCK2(cs_main, cs_wallet);
 
     CWalletDB walletdb(strWalletFile, "r+", fFlushOnClose);
 
@@ -4718,7 +4720,7 @@ uint256 CTokenTx::GetHash() const
 
 bool CWallet::GetTokenTxDetails(const CTokenTx &wtx, uint256 &credit, uint256 &debit, string &tokenSymbol, uint8_t &decimals) const
 {
-    LOCK(cs_wallet);
+    LOCK2(cs_main, cs_wallet);
     bool ret = false;
 
     for(auto it = mapToken.begin(); it != mapToken.end(); it++)
@@ -4749,7 +4751,7 @@ bool CWallet::GetTokenTxDetails(const CTokenTx &wtx, uint256 &credit, uint256 &d
 
 bool CWallet::IsTokenTxMine(const CTokenTx &wtx) const
 {
-    LOCK(cs_wallet);
+    LOCK2(cs_main, cs_wallet);
     bool ret = false;
 
     for(auto it = mapToken.begin(); it != mapToken.end(); it++)
@@ -4770,7 +4772,7 @@ bool CWallet::IsTokenTxMine(const CTokenTx &wtx) const
 
 bool CWallet::RemoveTokenEntry(const uint256 &tokenHash, bool fFlushOnClose)
 {
-    LOCK(cs_wallet);
+    LOCK2(cs_main, cs_wallet);
 
     CWalletDB walletdb(strWalletFile, "r+", fFlushOnClose);
 

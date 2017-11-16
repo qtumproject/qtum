@@ -125,6 +125,10 @@ void OptionsModel::Init(bool resetSettings)
     if (!SoftSetBoolArg("-spendzeroconfchange", settings.value("bSpendZeroConfChange").toBool()))
         addOverriddenOption("-spendzeroconfchange");
 #endif
+    if (!settings.contains("bZeroBalanceAddressToken"))
+        settings.setValue("bZeroBalanceAddressToken", true);
+    if (!SoftSetBoolArg("-zerobalanceaddresstoken", settings.value("bZeroBalanceAddressToken").toBool()))
+        addOverriddenOption("-zerobalanceaddresstoken");
 
     // Network
     if (!settings.contains("fUseUPnP"))
@@ -248,6 +252,8 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
         case SpendZeroConfChange:
             return settings.value("bSpendZeroConfChange");
 #endif
+        case ZeroBalanceAddressToken:
+            return settings.value("bZeroBalanceAddressToken");
         case ReserveBalance:
             return (qint64) nReserveBalance;
         case DisplayUnit:
@@ -375,6 +381,11 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             }
             break;
 #endif
+        case ZeroBalanceAddressToken:
+            bZeroBalanceAddressToken = value.toBool();
+            settings.setValue("bZeroBalanceAddressToken", bZeroBalanceAddressToken);
+            Q_EMIT zeroBalanceAddressTokenChanged(bZeroBalanceAddressToken);
+            break;
         case DisplayUnit:
             setDisplayUnit(value);
             break;
