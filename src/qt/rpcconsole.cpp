@@ -420,8 +420,13 @@ RPCConsole::RPCConsole(const PlatformStyle *_platformStyle, QWidget *parent) :
     ui->setupUi(this);
     GUIUtil::restoreWindowGeometry("nRPCConsoleWindow", this->size(), this);
 
+    // Set stylesheet
+    SetObjectStyleSheet(ui->promptIcon, StyleSheetNames::ButtonTransparent);
+    SetObjectStyleSheet(ui->clearButton, StyleSheetNames::ButtonTransparent);
+    SetObjectStyleSheet(ui->fontBiggerButton, StyleSheetNames::ButtonTransparent);
+    SetObjectStyleSheet(ui->fontSmallerButton, StyleSheetNames::ButtonTransparent);
     SetObjectStyleSheet(ui->openDebugLogfileButton, StyleSheetNames::ButtonBlue);
-    SetObjectStyleSheet(ui->clearButton, StyleSheetNames::ButtonBlue);
+    SetObjectStyleSheet(ui->btnClearTrafficGraph, StyleSheetNames::ButtonBlue);
     SetObjectStyleSheet(ui->peerWidget, StyleSheetNames::TableViewLight);
     SetObjectStyleSheet(ui->banlistWidget, StyleSheetNames::TableViewLight);
 

@@ -16,6 +16,7 @@
 #include "walletmodel.h"
 #include "tokenitemmodel.h"
 #include "wallet/wallet.h"
+#include "styleSheet.h"
 
 #include <QAbstractItemDelegate>
 #include <QPainter>
@@ -240,6 +241,11 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     tkndelegate(new TknViewDelegate(platformStyle, this))
 {
     ui->setupUi(this);
+
+    // Set stylesheet
+    SetObjectStyleSheet(ui->labelWalletStatus, StyleSheetNames::ButtonTransparent);
+    SetObjectStyleSheet(ui->labelTokenStatus, StyleSheetNames::ButtonTransparent);
+    SetObjectStyleSheet(ui->labelTransactionsStatus, StyleSheetNames::ButtonTransparent);
 
     // use a SingleColorIcon for the "out of sync warning" icon
     QIcon icon = platformStyle->SingleColorIcon(":/icons/warning");

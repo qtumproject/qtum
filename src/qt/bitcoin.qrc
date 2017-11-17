@@ -107,6 +107,7 @@
         <file alias="tableviewlight">res/styles/tableviewlight.css</file>
         <file alias="buttonblack">res/styles/buttonblack.css</file>
         <file alias="buttonwhite">res/styles/buttonwhite.css</file>
+        <file alias="buttontransparent">res/styles/buttontransparent.css</file>
     </qresource>
     <qresource prefix="/styles/app-icons">
         <file alias="bg">res/styles/app-icons/bg.png</file>

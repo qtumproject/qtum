@@ -6,6 +6,7 @@
 #include "ui_modaloverlay.h"
 
 #include "guiutil.h"
+#include "styleSheet.h"
 
 #include "chainparams.h"
 
@@ -21,6 +22,10 @@ layerIsVisible(false),
 userClosed(false)
 {
     ui->setupUi(this);
+
+    // Set stylesheet
+    SetObjectStyleSheet(ui->warningIcon, StyleSheetNames::ButtonTransparent);
+
     connect(ui->closeButton, SIGNAL(clicked()), this, SLOT(closeClicked()));
     if (parent) {
         parent->installEventFilter(this);
