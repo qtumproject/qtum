@@ -692,7 +692,7 @@ QScrollArea {
     border:none;
 }
 QWidget#scrollAreaWidgetContents{
-    background: transparent;
+    background: #2e2e2e;
 }
 .ABIFunctionField{
 	background: transparent;
