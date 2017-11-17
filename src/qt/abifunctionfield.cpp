@@ -6,6 +6,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QStringListModel>
+#include <QPainter>
 
 #include <iostream>
 ABIFunctionField::ABIFunctionField(const PlatformStyle *platformStyle, FunctionType type, QWidget *parent) :
@@ -107,6 +108,14 @@ void ABIFunctionField::clear()
         m_paramsField->removeWidget(widget);
         widget->deleteLater();
     }
+}
+
+void ABIFunctionField::paintEvent(QPaintEvent *)
+{
+    QStyleOption opt;
+    opt.init(this);
+    QPainter p(this);
+    style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }
 
 void ABIFunctionField::setContractABI(ContractABI *contractABI)

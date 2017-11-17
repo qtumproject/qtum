@@ -684,3 +684,16 @@ QPushButton::disabled {
     color: rgba(255, 255, 255, 40%);
     background: rgba(87, 177, 212, 60%);
 }
+/*--------------------------------------------
+Scroll Area CSS
+--------------------------------------------*/
+QScrollArea {
+    background: transparent;
+    border:none;
+}
+QWidget#scrollAreaWidgetContents{
+    background: transparent;
+}
+.ABIFunctionField{
+	background: transparent;
+}

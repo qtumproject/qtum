@@ -97,6 +97,10 @@ private:
     QVector<int> m_abiFunctionList;
     FunctionType m_functionType;
     const PlatformStyle *m_platformStyle;
+
+    // QWidget interface
+protected:
+    void paintEvent(QPaintEvent *);
 };
 
 #endif // ABIFUNCTIONFIELD_H
