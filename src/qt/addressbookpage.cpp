@@ -45,6 +45,12 @@ AddressBookPage::AddressBookPage(const PlatformStyle *platformStyle, Mode _mode,
         ui->exportButton->setIcon(platformStyle->SingleColorIcon(":/icons/export"));
     }
 
+    SetObjectStyleSheet(ui->newAddress, StyleSheetNames::ButtonWhite);
+    SetObjectStyleSheet(ui->copyAddress, StyleSheetNames::ButtonWhite);
+    SetObjectStyleSheet(ui->deleteAddress, StyleSheetNames::ButtonWhite);
+    SetObjectStyleSheet(ui->exportButton, StyleSheetNames::ButtonBlue);
+    SetObjectStyleSheet(ui->closeButton, StyleSheetNames::ButtonBlue);
+
     switch(mode)
     {
     case ForSelection:

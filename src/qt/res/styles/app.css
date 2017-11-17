@@ -697,3 +697,9 @@ QWidget#scrollAreaWidgetContents{
 .ABIFunctionField{
 	background: transparent;
 }
+/*--------------------------------------------
+Debug Dialog CSS
+--------------------------------------------*/
+QWidget#RPCConsole{
+    background-color: #272727;
+}

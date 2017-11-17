@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>760</width>
-    <height>415</height>
+    <width>700</width>
+    <height>450</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -190,7 +190,6 @@
        </widget>
       </item>
      </layout>
-     <zorder></zorder>
      <zorder>newAddress</zorder>
      <zorder>copyAddress</zorder>
      <zorder>deleteAddress</zorder>

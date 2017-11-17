@@ -20,6 +20,7 @@
 #include "rpc/server.h"
 #include "rpc/client.h"
 #include "util.h"
+#include "styleSheet.h"
 
 #include <openssl/crypto.h>
 
@@ -418,6 +419,11 @@ RPCConsole::RPCConsole(const PlatformStyle *_platformStyle, QWidget *parent) :
 {
     ui->setupUi(this);
     GUIUtil::restoreWindowGeometry("nRPCConsoleWindow", this->size(), this);
+
+    SetObjectStyleSheet(ui->openDebugLogfileButton, StyleSheetNames::ButtonBlue);
+    SetObjectStyleSheet(ui->clearButton, StyleSheetNames::ButtonBlue);
+    SetObjectStyleSheet(ui->peerWidget, StyleSheetNames::TableViewLight);
+    SetObjectStyleSheet(ui->banlistWidget, StyleSheetNames::TableViewLight);
 
     ui->openDebugLogfileButton->setToolTip(ui->openDebugLogfileButton->toolTip().arg(tr(PACKAGE_NAME)));
 

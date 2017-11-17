@@ -105,6 +105,8 @@
         <file alias="app">res/styles/app.css</file>
         <file alias="invalid">res/styles/invalid.css</file>
         <file alias="tableviewlight">res/styles/tableviewlight.css</file>
+        <file alias="buttonblack">res/styles/buttonblack.css</file>
+        <file alias="buttonwhite">res/styles/buttonwhite.css</file>
     </qresource>
     <qresource prefix="/styles/app-icons">
         <file alias="bg">res/styles/app-icons/bg.png</file>

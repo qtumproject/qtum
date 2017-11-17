@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>598</width>
-    <height>224</height>
+    <width>600</width>
+    <height>270</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -66,6 +66,9 @@
        </property>
        <property name="fieldGrowthPolicy">
         <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+       </property>
+       <property name="verticalSpacing">
+        <number>9</number>
        </property>
        <property name="bottomMargin">
         <number>10</number>

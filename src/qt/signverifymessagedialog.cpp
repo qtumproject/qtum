@@ -14,6 +14,7 @@
 #include "init.h"
 #include "validation.h" // For strMessageMagic
 #include "wallet/wallet.h"
+#include "styleSheet.h"
 
 #include <string>
 #include <vector>
@@ -36,6 +37,11 @@ SignVerifyMessageDialog::SignVerifyMessageDialog(const PlatformStyle *_platformS
     ui->addressBookButton_VM->setIcon(platformStyle->SingleColorIcon(":/icons/address-book"));
     ui->verifyMessageButton_VM->setIcon(platformStyle->SingleColorIcon(":/icons/transaction_0"));
     ui->clearButton_VM->setIcon(platformStyle->SingleColorIcon(":/icons/remove"));
+
+    SetObjectStyleSheet(ui->clearButton_SM, StyleSheetNames::ButtonBlack);
+    SetObjectStyleSheet(ui->clearButton_VM, StyleSheetNames::ButtonBlack);
+    SetObjectStyleSheet(ui->signMessageButton_SM, StyleSheetNames::ButtonBlue);
+    SetObjectStyleSheet(ui->verifyMessageButton_VM, StyleSheetNames::ButtonBlue);
 
 #if QT_VERSION >= 0x040700
     ui->signatureOut_SM->setPlaceholderText(tr("Click \"Sign Message\" to generate signature"));

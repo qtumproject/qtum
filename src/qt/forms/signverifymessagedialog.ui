@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>700</width>
-    <height>380</height>
+    <width>800</width>
+    <height>450</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -150,23 +150,6 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_3_SM">
          <item>
-          <widget class="QPushButton" name="signMessageButton_SM">
-           <property name="toolTip">
-            <string>Sign the message to prove you own this Qtum address</string>
-           </property>
-           <property name="text">
-            <string>Sign &amp;Message</string>
-           </property>
-           <property name="icon">
-            <iconset resource="../bitcoin.qrc">
-             <normaloff>:/icons/edit</normaloff>:/icons/edit</iconset>
-           </property>
-           <property name="autoDefault">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="QPushButton" name="clearButton_SM">
            <property name="toolTip">
             <string>Reset all sign message fields</string>
@@ -177,6 +160,23 @@
            <property name="icon">
             <iconset resource="../bitcoin.qrc">
              <normaloff>:/icons/remove</normaloff>:/icons/remove</iconset>
+           </property>
+           <property name="autoDefault">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="signMessageButton_SM">
+           <property name="toolTip">
+            <string>Sign the message to prove you own this Qtum address</string>
+           </property>
+           <property name="text">
+            <string>Sign &amp;Message</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../bitcoin.qrc">
+             <normaloff>:/icons/edit</normaloff>:/icons/edit</iconset>
            </property>
            <property name="autoDefault">
             <bool>false</bool>
@@ -293,23 +293,6 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_2_VM">
          <item>
-          <widget class="QPushButton" name="verifyMessageButton_VM">
-           <property name="toolTip">
-            <string>Verify the message to ensure it was signed with the specified Qtum address</string>
-           </property>
-           <property name="text">
-            <string>Verify &amp;Message</string>
-           </property>
-           <property name="icon">
-            <iconset resource="../bitcoin.qrc">
-             <normaloff>:/icons/transaction_0</normaloff>:/icons/transaction_0</iconset>
-           </property>
-           <property name="autoDefault">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="QPushButton" name="clearButton_VM">
            <property name="toolTip">
             <string>Reset all verify message fields</string>
@@ -320,6 +303,23 @@
            <property name="icon">
             <iconset resource="../bitcoin.qrc">
              <normaloff>:/icons/remove</normaloff>:/icons/remove</iconset>
+           </property>
+           <property name="autoDefault">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="verifyMessageButton_VM">
+           <property name="toolTip">
+            <string>Verify the message to ensure it was signed with the specified Qtum address</string>
+           </property>
+           <property name="text">
+            <string>Verify &amp;Message</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../bitcoin.qrc">
+             <normaloff>:/icons/transaction_0</normaloff>:/icons/transaction_0</iconset>
            </property>
            <property name="autoDefault">
             <bool>false</bool>
