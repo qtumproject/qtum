@@ -703,3 +703,9 @@ Debug Dialog CSS
 QWidget#RPCConsole{
     background-color: #272727;
 }
+/*--------------------------------------------
+Shut Down Window CSS
+--------------------------------------------*/
+QWidget#shutdownWindow{
+    background-color: #272727;
+}
