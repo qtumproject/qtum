@@ -2,6 +2,9 @@
 #include <QActionGroup>
 #include <QToolButton>
 #include <QLayout>
+#include <QStylePainter>
+#include <QStyleOptionToolButton>
+#include <QStyle>
 #include "styleSheet.h"
 
 namespace NavigationBar_NS
@@ -14,8 +17,82 @@ static const int MarginRight = 0;
 static const int MarginTop = 0;
 static const int MarginBottom = 8;
 static const int ButtonSpacing = 2;
+static const int SubNavPaddingRight = 40;
 }
 using namespace NavigationBar_NS;
+
+class SubNavToolButton : public QToolButton
+{
+public:
+    explicit SubNavToolButton(QWidget * parent):
+        QToolButton(parent)
+    {}
+
+protected:
+    void paintEvent(QPaintEvent *) Q_DECL_OVERRIDE
+    {
+        QStylePainter sp( this );
+        QStyleOptionToolButton opt;
+        initStyleOption( &opt );
+        const QString strText = opt.text;
+
+        //draw background
+        opt.text.clear();
+        opt.icon = QIcon();
+        sp.drawComplexControl( QStyle::CC_ToolButton, opt );
+        opt.text = strText;
+
+        //draw label
+        drawLabel(&opt, &sp);
+    }
+
+    void drawLabel(const QStyleOption *opt, QPainter *p)
+    {
+        if (const QStyleOptionToolButton *toolbutton
+                = qstyleoption_cast<const QStyleOptionToolButton *>(opt)) {
+
+            // Choose color
+            QColor color;
+            if(!(toolbutton->state & QStyle::State_Enabled))
+            {
+                color = 0x1a96ce;
+            }
+            else if(toolbutton->state & (QStyle::State_Sunken | QStyle::State_On))
+            {
+                color = 0xe5f3f9;
+            }
+            else if(toolbutton->state & QStyle::State_MouseOver)
+            {
+                color = 0xb3dcef;
+            }
+            else
+            {
+                color = 0x7fc4e3;
+            }
+
+            // Determine area
+            QRect rect = toolbutton->rect;
+            int w = rect.width() - SubNavPaddingRight;
+            w = qMax(w, 0);
+            rect.setWidth(w);
+            int shiftX = 0;
+            int shiftY = 0;
+            if (toolbutton->state & (QStyle::State_Sunken | QStyle::State_On)) {
+                shiftX = style()->pixelMetric(QStyle::PM_ButtonShiftHorizontal, toolbutton, this);
+                shiftY = style()->pixelMetric(QStyle::PM_ButtonShiftVertical, toolbutton, this);
+            }
+
+            // Draw text
+            if (!toolbutton->text.isEmpty()) {
+                int alignment = Qt::AlignRight | Qt::AlignVCenter | Qt::TextShowMnemonic;
+                rect.translate(shiftX, shiftY);
+                p->setFont(toolbutton->font);
+                p->setPen(color);
+                p->drawText(rect, alignment, toolbutton->text);
+            }
+        }
+    }
+};
 
 NavigationBar::NavigationBar(QWidget *parent) :
     QWidget(parent),
@@ -73,7 +150,7 @@ void NavigationBar::buildUi()
             QAction* action = m_actions[i];
             action->setActionGroup(actionGroup);
             action->setCheckable(true);
-            QToolButton* toolButton = new QToolButton(this);
+            QToolButton* toolButton = m_subBar ? new SubNavToolButton(this) : new QToolButton(this);
             toolButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
             toolButton->setToolButtonStyle(m_toolStyle);
             toolButton->setDefaultAction(action);
