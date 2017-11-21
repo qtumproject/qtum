@@ -12,6 +12,7 @@
 #include <QPainter>
 
 static const QString STYLE_FORMAT = ":/styles/%1";
+static const QColor LINK_COLOR = "#2d9ad0";
 
 class QtumStyle : public QProxyStyle
 {
@@ -85,6 +86,10 @@ void StyleSheet::setStyleSheet(QApplication *app, const QString& style_name)
     QtumStyle* qtumStyle = new QtumStyle;
     qtumStyle->setBaseStyle(mainStyle);
     app->setStyle(qtumStyle);
+
+    QPalette mainPalette(app->palette());
+    mainPalette.setColor(QPalette::Link, LINK_COLOR);
+    app->setPalette(mainPalette);
 
     setObjectStyleSheet<QApplication>(app, style_name);
 }
