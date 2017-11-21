@@ -42,6 +42,10 @@ SignVerifyMessageDialog::SignVerifyMessageDialog(const PlatformStyle *_platformS
     SetObjectStyleSheet(ui->clearButton_VM, StyleSheetNames::ButtonBlack);
     SetObjectStyleSheet(ui->signMessageButton_SM, StyleSheetNames::ButtonBlue);
     SetObjectStyleSheet(ui->verifyMessageButton_VM, StyleSheetNames::ButtonBlue);
+    SetObjectStyleSheet(ui->addressBookButton_SM, StyleSheetNames::ButtonTransparent);
+    SetObjectStyleSheet(ui->pasteButton_SM, StyleSheetNames::ButtonTransparent);
+    SetObjectStyleSheet(ui->copySignatureButton_SM, StyleSheetNames::ButtonTransparent);
+    SetObjectStyleSheet(ui->addressBookButton_VM, StyleSheetNames::ButtonTransparent);
 
 #if QT_VERSION >= 0x040700
     ui->signatureOut_SM->setPlaceholderText(tr("Click \"Sign Message\" to generate signature"));
