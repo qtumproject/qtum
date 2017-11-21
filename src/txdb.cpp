@@ -251,6 +251,51 @@ bool CBlockTreeDB::ReadHeightIndex(const unsigned int &high, const unsigned int 
     return true;
 }
 
+size_t CBlockTreeDB::ReadHeightIndexFrom(size_t low, size_t limitTx,
+        std::vector<std::vector<uint256>> &blocksOfHashes,
+        std::set<dev::h160> const &addresses) {
+
+    std::unique_ptr<CDBIterator> pcursor(NewIterator());
+
+    pcursor->Seek(
+            std::make_pair(DB_HEIGHTINDEX, CHeightTxIndexIteratorKey(low)));
+
+    size_t curheight = 0;
+
+    for (size_t count = 0; pcursor->Valid() && count < limitTx;
+            pcursor->Next()) {
+        boost::this_thread::interruption_point();
+
+        std::pair<char, CHeightTxIndexKey> key;
+        if (!pcursor->GetKey(key)) {
+            break;
+        }
+
+        if (key.first != DB_HEIGHTINDEX) {
+            break;
+        }
+
+        curheight = key.second.height;
+
+        auto address = key.second.address;
+        if (!addresses.empty() && addresses.find(address) == addresses.end()) {
+            continue;
+        }
+
+        std::vector<uint256> hashesTx;
+
+        if (!pcursor->GetValue(hashesTx)) {
+            break;
+        }
+
+        count += hashesTx.size();
+
+        blocksOfHashes.push_back(hashesTx);
+    }
+
+    return curheight;
+}
+
 bool CBlockTreeDB::EraseHeightIndex(const unsigned int &height) {
 
     boost::scoped_ptr<CDBIterator> pcursor(NewIterator());

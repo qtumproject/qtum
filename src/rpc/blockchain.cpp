@@ -1069,29 +1069,43 @@ UniValue callcontract(const JSONRPCRequest& request)
     return result;
 }
 
-void transactionReceiptInfoToJSON(const TransactionReceiptInfo& resExec, UniValue& entry){
+void assignJSON(UniValue& entry, const TransactionReceiptInfo& resExec) {
     entry.push_back(Pair("blockHash", resExec.blockHash.GetHex()));
     entry.push_back(Pair("blockNumber", uint64_t(resExec.blockNumber)));
     entry.push_back(Pair("transactionHash", resExec.transactionHash.GetHex()));
-    entry.push_back(Pair("transactionIndex", uint64_t(resExec.transactionIndex)));
+    entry.push_back(
+            Pair("transactionIndex", uint64_t(resExec.transactionIndex)));
     entry.push_back(Pair("from", resExec.from.hex()));
     entry.push_back(Pair("to", resExec.to.hex()));
-    entry.push_back(Pair("cumulativeGasUsed", CAmount(resExec.cumulativeGasUsed)));
+    entry.push_back(
+            Pair("cumulativeGasUsed", CAmount(resExec.cumulativeGasUsed)));
     entry.push_back(Pair("gasUsed", CAmount(resExec.gasUsed)));
     entry.push_back(Pair("contractAddress", resExec.contractAddress.hex()));
+}
+
+void assignJSON(UniValue& logEntry, const dev::eth::LogEntry& log,
+        bool includeAddress) {
+    if (includeAddress) {
+        logEntry.push_back(Pair("address", log.address.hex()));
+    }
+
+    UniValue topics(UniValue::VARR);
+    for (dev::h256 hash : log.topics) {
+        topics.push_back(hash.hex());
+    }
+    logEntry.push_back(Pair("topics", topics));
+    logEntry.push_back(Pair("data", HexStr(log.data)));
+}
+
+
+void transactionReceiptInfoToJSON(const TransactionReceiptInfo& resExec, UniValue& entry) {
+    assignJSON(entry, resExec);
 
     dev::eth::LogEntries logs = resExec.logs;
     UniValue logEntries(UniValue::VARR);
     for(dev::eth::LogEntry log : logs){
         UniValue logEntry(UniValue::VOBJ);
-        logEntry.push_back(Pair("address", log.address.hex()));
-        UniValue topics(UniValue::VARR);
-        for(dev::h256 hash : log.topics){
-            topics.push_back(hash.hex());
-        }
-        logEntry.push_back(Pair("topics", topics));
-        logEntry.push_back(Pair("data", HexStr(log.data)));
-
+        assignJSON(logEntry, log, true);
         logEntries.push_back(logEntry);
     }
     entry.push_back(Pair("log", logEntries));
@@ -1151,6 +1165,157 @@ bool getTopicsFromParams(const UniValue& params, std::vector<std::pair<unsigned,
     }
 
     return true;
+}
+
+UniValue waitforlogs(const JSONRPCRequest& request_) {
+    // this is a long poll function. force cast to non const pointer
+    JSONRPCRequest& request = (JSONRPCRequest&) request_;
+
+    if (request.fHelp) {
+        throw runtime_error(
+                "waitforlogs (fromBlock) (txLimit) (address) (topics)\n"
+                        "requires -logevents to be enabled");
+    }
+
+    if (!fLogEvents)
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "Events indexing disabled");
+
+    int fromBlock = -1;
+
+    if (request.params.size() > 0) {
+        fromBlock = request.params[0].get_int();
+    }
+
+    if (fromBlock == -1) {
+        {
+            std::unique_lock<std::mutex> lock(cs_blockchange);
+            fromBlock = latestblock.height;
+        }
+    }
+
+    int ntx = 0;
+
+    if (request.params.size() > 1) {
+        ntx = request.params[1].get_int();
+    }
+
+    if (ntx <= 0) {
+        ntx = 500;
+    }
+
+    std::set<dev::h160> addresses;
+    std::vector<dev::h160> vecAddresses;
+
+    if (request.params.size() > 2) {
+        if (!getContarctAddressesFromParams(request.params, vecAddresses)) {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
+        }
+        addresses.insert(vecAddresses.begin(), vecAddresses.end());
+    }
+
+    std::vector<std::pair<unsigned, dev::h256>> topics;
+    if (request.params.size() > 3
+            && !getTopicsFromParams(request.params, topics))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid topics");
+
+
+    request.PollStart();
+
+    std::vector<std::vector<uint256>> hashesToBlock;
+
+    int curheight = 0;
+
+    while (curheight == 0) {
+        {
+            LOCK(cs_main);
+            curheight = pblocktree->ReadHeightIndexFrom(fromBlock, ntx,
+                    hashesToBlock, addresses);
+        }
+
+        // if curheight >= fromBlock. Blockchain extended with new log entries. Return next block height to client.
+        //    nextBlock = curheight + 1
+        // if curheight == 0. No log entry found in index. Wait for new block then try again.
+        //    nextBlock = fromBlock
+        //
+        // if curheight advanced, but all filtered out, API should return empty array, but advancing the cursor anyway.
+
+        if (curheight > 0) {
+            break;
+        }
+
+        // wait for a new block to arrive
+        {
+            while (true) {
+                std::unique_lock<std::mutex> lock(cs_blockchange);
+                auto blockHeight = latestblock.height;
+
+                request.PollPing();
+
+                LogPrintf("waitforlogs: checking block height\n");
+
+                cond_blockchange.wait_for(lock, std::chrono::milliseconds(300));
+                if (latestblock.height > blockHeight) {
+                    break;
+                }
+
+                if (!request.PollAlive() || !IsRPCRunning()) {
+                    LogPrintf("client closed\n");
+                    return NullUniValue;
+                }
+            }
+        }
+    }
+
+    LOCK(cs_main);
+
+    boost::filesystem::path stateDir = GetDataDir() / "stateQtum";
+    StorageResults storageRes(stateDir.string());
+
+    UniValue jsonLogs(UniValue::VARR);
+
+    for (auto txHashes : hashesToBlock) {
+        for (auto txHash : txHashes) {
+            std::vector<TransactionReceiptInfo> receipts = storageRes.getResult(
+                    uintToh256(txHash));
+
+            for (auto receipt : receipts) {
+                for (auto log : receipt.logs) {
+
+                    bool includeLog = true;
+
+                    // pair-wise comparison of log topics andfilter topics
+                    for (auto topic : topics) {
+                        auto i = topic.first;
+                        auto filterTopicContent = topic.second;
+                        auto topicContent = log.topics[i];
+
+                        if (topicContent != filterTopicContent) {
+                            includeLog = false;
+                            break;
+                        }
+                    }
+
+                    if (!includeLog) {
+                        continue;
+                    }
+
+                    UniValue jsonLog(UniValue::VOBJ);
+
+                    assignJSON(jsonLog, receipt);
+                    assignJSON(jsonLog, log, false);
+
+                    jsonLogs.push_back(jsonLog);
+                }
+            }
+        }
+    }
+
+    UniValue result(UniValue::VOBJ);
+    result.push_back(Pair("entries", jsonLogs));
+    result.push_back(Pair("count", (int) jsonLogs.size()));
+    result.push_back(Pair("nextblock", curheight + 1));
+
+    return result;
 }
 
 UniValue searchlogs(const JSONRPCRequest& request)
@@ -2033,6 +2198,8 @@ static const CRPCCommand commands[] =
 	{ "blockchain",         "listcontracts",          &listcontracts,          true,  {"start", "maxDisplay"} },
     { "blockchain",         "gettransactionreceipt",  &gettransactionreceipt,  true,  {"hash"} },
     { "blockchain",         "searchlogs",             &searchlogs,             true,  {"fromBlock", "toBlock", "address", "topics"} },
+
+    { "blockchain",         "waitforlogs",            &waitforlogs,            true,  {"fromBlock", "nblocks", "address", "topics"} },
 };
 
 void RegisterBlockchainRPCCommands(CRPCTable &t)
