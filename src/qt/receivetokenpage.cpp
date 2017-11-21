@@ -39,10 +39,12 @@ void ReceiveTokenPage::createQRCode()
         if(ReceiveRequestDialog::createQRCode(ui->lblQRCode, info))
         {
             ui->lblQRCode->setScaledContents(true);
+            ui->labelTokenAddress->setText(m_address);
         }
     }
     else
     {
         ui->lblQRCode->clear();
+        ui->labelTokenAddress->setText("");
     }
 }

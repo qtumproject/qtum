@@ -47,121 +47,129 @@
         </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer_4">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
+        <widget class="QFrame" name="frameContract">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
          </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>10</height>
-          </size>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
          </property>
-        </spacer>
-       </item>
-       <item>
-        <layout class="QGridLayout" name="gridLayout">
-         <property name="leftMargin">
-          <number>12</number>
-         </property>
-         <property name="horizontalSpacing">
-          <number>15</number>
-         </property>
-         <property name="verticalSpacing">
-          <number>12</number>
-         </property>
-         <item row="0" column="0">
-          <widget class="QLabel" name="labelContractAddress">
-           <property name="text">
-            <string>Contract Address</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="2">
-          <widget class="QValidatedTextEdit" name="textEditInterface">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>65</height>
-            </size>
-           </property>
-           <property name="horizontalScrollBarPolicy">
-            <enum>Qt::ScrollBarAlwaysOff</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0" alignment="Qt::AlignTop">
-          <widget class="QLabel" name="labelInterface">
-           <property name="text">
-            <string>Interface (ABI)</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="2">
-          <layout class="QHBoxLayout" name="horizontalLayout_2">
-           <item>
-            <widget class="QValidatedLineEdit" name="lineEditContractAddress"/>
-           </item>
-           <item>
-            <widget class="QToolButton" name="loadInfoButton">
-             <property name="toolTip">
-              <string>Choose from contract book page</string>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="iconSize">
-              <size>
-               <width>22</width>
-               <height>22</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QToolButton" name="pasteAddressButton">
-             <property name="toolTip">
-              <string>Paste contract address from clipboard</string>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="iconSize">
-              <size>
-               <width>22</width>
-               <height>22</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QToolButton" name="saveInfoButton">
-             <property name="toolTip">
-              <string>Save contract info</string>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="iconSize">
-              <size>
-               <width>22</width>
-               <height>22</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <layout class="QGridLayout" name="gridLayout">
+            <property name="leftMargin">
+             <number>12</number>
+            </property>
+            <property name="horizontalSpacing">
+             <number>15</number>
+            </property>
+            <property name="verticalSpacing">
+             <number>12</number>
+            </property>
+            <item row="0" column="2">
+             <layout class="QHBoxLayout" name="horizontalLayout_2">
+              <item>
+               <widget class="QValidatedLineEdit" name="lineEditContractAddress"/>
+              </item>
+              <item>
+               <widget class="QToolButton" name="loadInfoButton">
+                <property name="toolTip">
+                 <string>Choose from contract book page</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>22</width>
+                  <height>22</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QToolButton" name="pasteAddressButton">
+                <property name="toolTip">
+                 <string>Paste contract address from clipboard</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>22</width>
+                  <height>22</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QToolButton" name="saveInfoButton">
+                <property name="toolTip">
+                 <string>Save contract info</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>22</width>
+                  <height>22</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="labelContractAddress">
+              <property name="text">
+               <string>Contract Address</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2">
+             <widget class="QValidatedTextEdit" name="textEditInterface">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>65</height>
+               </size>
+              </property>
+              <property name="horizontalScrollBarPolicy">
+               <enum>Qt::ScrollBarAlwaysOff</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" alignment="Qt::AlignTop">
+             <widget class="QLabel" name="labelInterface">
+              <property name="text">
+               <string>Interface (ABI)</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
        </item>
        <item>
         <widget class="QGroupBox" name="groupBoxFunction">
@@ -188,8 +196,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>637</width>
-               <height>139</height>
+               <width>639</width>
+               <height>157</height>
               </rect>
              </property>
             </widget>
@@ -378,9 +386,9 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButtonSendToContract">
+      <widget class="QPushButton" name="pushButtonClearAll">
        <property name="text">
-        <string>Send To Contract</string>
+        <string>Clear All</string>
        </property>
       </widget>
      </item>
@@ -401,9 +409,9 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButtonClearAll">
+      <widget class="QPushButton" name="pushButtonSendToContract">
        <property name="text">
-        <string>Clear All</string>
+        <string>Send To Contract</string>
        </property>
       </widget>
      </item>

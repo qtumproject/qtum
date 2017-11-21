@@ -13,7 +13,7 @@
 #include "contractbookpage.h"
 #include "editcontractinfodialog.h"
 #include "contracttablemodel.h"
-
+#include "styleSheet.h"
 #include <QClipboard>
 
 namespace CallContract_NS
@@ -43,6 +43,10 @@ CallContract::CallContract(const PlatformStyle *platformStyle, QWidget *parent) 
     ui->saveInfoButton->setIcon(platformStyle->SingleColorIcon(":/icons/filesave"));
     ui->loadInfoButton->setIcon(platformStyle->SingleColorIcon(":/icons/address-book"));
     ui->pasteAddressButton->setIcon(platformStyle->SingleColorIcon(":/icons/editpaste"));
+
+    // Set stylesheet
+    SetObjectStyleSheet(ui->pushButtonClearAll, StyleSheetNames::ButtonBlack);
+
     m_ABIFunctionField = new ABIFunctionField(platformStyle, ABIFunctionField::Call, ui->scrollAreaFunction);
     ui->scrollAreaFunction->setWidget(m_ABIFunctionField);
 

@@ -17,9 +17,6 @@
    <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="bottomMargin">
-    <number>0</number>
-   </property>
    <item>
     <spacer name="verticalSpacer_2">
      <property name="orientation">
@@ -148,9 +145,6 @@
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
-     <property name="rightMargin">
-      <number>0</number>
-     </property>
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
@@ -168,9 +162,9 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="confirmButton">
+      <widget class="QPushButton" name="clearButton">
        <property name="text">
-        <string>Confirm</string>
+        <string>Clear</string>
        </property>
       </widget>
      </item>
@@ -191,9 +185,9 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="clearButton">
+      <widget class="QPushButton" name="confirmButton">
        <property name="text">
-        <string>Clear</string>
+        <string>Confirm</string>
        </property>
       </widget>
      </item>

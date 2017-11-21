@@ -25,8 +25,12 @@ QMainWindow::separator {
 }
 QMainWindow .QFrame#frameBalances, 
 #frameOtherTokens, 
-#frameRecentTransactions{
+#frameRecentTransactions,
+#frameRequest{
     background-color: #2e2e2e;
+}
+QMainWindow .QFrame#frameContract{
+    background-color: #2a2a2a;
 }
 QFrame#hLine{
     border-top: 1px solid #404041;

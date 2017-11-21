@@ -14,6 +14,7 @@
 #include "receiverequestdialog.h"
 #include "recentrequeststablemodel.h"
 #include "walletmodel.h"
+#include "styleSheet.h"
 
 #include <QAction>
 #include <QCursor>
@@ -30,6 +31,11 @@ ReceiveCoinsDialog::ReceiveCoinsDialog(const PlatformStyle *_platformStyle, QWid
     platformStyle(_platformStyle)
 {
     ui->setupUi(this);
+
+    // Set stylesheet
+    SetObjectStyleSheet(ui->clearButton, StyleSheetNames::ButtonBlack);
+    SetObjectStyleSheet(ui->showRequestButton, StyleSheetNames::ButtonBlack);
+    SetObjectStyleSheet(ui->removeRequestButton, StyleSheetNames::ButtonBlack);
 
     if (!_platformStyle->getImagesOnButtons()) {
         ui->clearButton->setIcon(QIcon());

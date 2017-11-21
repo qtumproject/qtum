@@ -14,6 +14,7 @@
 #include "sendcoinsdialog.h"
 #include "bitcoinaddressvalidator.h"
 #include "uint256.h"
+#include "styleSheet.h"
 
 static const CAmount SINGLE_STEP = 0.00000001*COIN;
 
@@ -38,6 +39,10 @@ SendTokenPage::SendTokenPage(QWidget *parent) :
 {
     // Setup ui components
     ui->setupUi(this);
+
+    // Set stylesheet
+    SetObjectStyleSheet(ui->clearButton, StyleSheetNames::ButtonBlack);
+
     ui->labelPayTo->setToolTip(tr("The address that will receive the tokens."));
     ui->labelAmount->setToolTip(tr("The amount in Token to send."));
     ui->labelDescription->setToolTip(tr("Optional description for transaction."));

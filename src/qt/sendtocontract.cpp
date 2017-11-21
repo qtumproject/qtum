@@ -17,7 +17,7 @@
 #include "contractbookpage.h"
 #include "editcontractinfodialog.h"
 #include "contracttablemodel.h"
-
+#include "styleSheet.h"
 #include <QClipboard>
 
 namespace SendToContract_NS
@@ -55,6 +55,10 @@ SendToContract::SendToContract(const PlatformStyle *platformStyle, QWidget *pare
     ui->saveInfoButton->setIcon(platformStyle->SingleColorIcon(":/icons/filesave"));
     ui->loadInfoButton->setIcon(platformStyle->SingleColorIcon(":/icons/address-book"));
     ui->pasteAddressButton->setIcon(platformStyle->SingleColorIcon(":/icons/editpaste"));
+
+    // Set stylesheet
+    SetObjectStyleSheet(ui->pushButtonClearAll, StyleSheetNames::ButtonBlack);
+
     m_ABIFunctionField = new ABIFunctionField(platformStyle, ABIFunctionField::SendTo, ui->scrollAreaFunction);
     ui->scrollAreaFunction->setWidget(m_ABIFunctionField);
     ui->lineEditAmount->setEnabled(true);

@@ -10,6 +10,7 @@
 #include "validation.h"
 #include "addresstablemodel.h"
 #include "optionsmodel.h"
+#include "styleSheet.h"
 
 #include <QRegularExpressionValidator>
 #include <QMessageBox>
@@ -22,6 +23,9 @@ AddTokenPage::AddTokenPage(QWidget *parent) :
     m_clientModel(0)
 {
     ui->setupUi(this);
+
+    // Set stylesheet
+    SetObjectStyleSheet(ui->clearButton, StyleSheetNames::ButtonBlack);
 
     ui->labelDescription->setText(tr("(This is your wallet address which will be tied to the token for send/receive oprations)"));
     QFont font = QApplication::font();
