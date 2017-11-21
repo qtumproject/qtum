@@ -9,6 +9,7 @@
 #include <QComboBox>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QPainter>
 
 static const QString STYLE_FORMAT = ":/styles/%1";
 
@@ -61,6 +62,7 @@ public:
 
         QProxyStyle::polish(widget);
     }
+
 };
 
 StyleSheet &StyleSheet::instance()

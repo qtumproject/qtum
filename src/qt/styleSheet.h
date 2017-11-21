@@ -20,6 +20,9 @@ namespace StyleSheetNames
     static const QString ButtonWhite         = "buttonwhite";
     static const QString ButtonBlue          = "buttonblue";
     static const QString ButtonTransparent   = "buttontransparent";
+    static const QString ToolBlack           = "toolblack";
+    static const QString ToolGroupBlack      = "toolgroupblack";
+    static const QString ToolSubBlack        = "toolsubblack";
 }
 
 /** Singleton class that manage the styles

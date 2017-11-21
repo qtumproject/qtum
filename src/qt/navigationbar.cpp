@@ -2,10 +2,11 @@
 #include <QActionGroup>
 #include <QToolButton>
 #include <QLayout>
+#include "styleSheet.h"
 
 namespace NavigationBar_NS
 {
-static const int ToolButtonWidth = 180;
+static const int ToolButtonWidth = 190;
 static const int ToolButtonHeight = 54;
 static const int ToolButtonIconSize = 32;
 static const int MarginLeft = 6;
@@ -57,13 +58,12 @@ void NavigationBar::buildUi()
         QActionGroup* actionGroup = new QActionGroup(this);
         actionGroup->setExclusive(true);
         QVBoxLayout* vboxLayout = new QVBoxLayout(this);
-        int defButtonWidth = m_subBar ? ToolButtonWidth / 2 : ToolButtonWidth;
-        int defButtonHeight = m_subBar ? ToolButtonHeight / 2 : ToolButtonHeight;
-        vboxLayout->setContentsMargins(m_subBar ? defButtonWidth : MarginLeft,
+        int defButtonWidth = ToolButtonWidth;
+        vboxLayout->setContentsMargins(m_subBar ? 0 : MarginLeft,
                                        m_subBar ? 0 : MarginTop,
                                        m_subBar ? 0 : MarginRight,
                                        m_subBar ? 0 : MarginBottom);
-        vboxLayout->setSpacing(MarginLeft / 2);
+        vboxLayout->setSpacing(m_subBar ? 0 : MarginLeft / 2);
 
         // List all actions
         for(int i = 0; i < m_actions.count(); i++)
@@ -74,14 +74,30 @@ void NavigationBar::buildUi()
             action->setCheckable(true);
             QToolButton* toolButton = new QToolButton(this);
             toolButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-            toolButton->setMinimumHeight(defButtonHeight);
             toolButton->setToolButtonStyle(m_toolStyle);
             toolButton->setDefaultAction(action);
             toolButton->setIconSize(QSize(ToolButtonIconSize, ToolButtonIconSize));
-            vboxLayout->addWidget(toolButton);
+            if(m_subBar)
+            {
+                SetObjectStyleSheet(toolButton, StyleSheetNames::ToolSubBlack);
+            }
+            else
+            {
+                SetObjectStyleSheet(toolButton, StyleSheetNames::ToolBlack);
+            }
 
             if(m_groups.contains(action))
             {
+                // Add the tool button
+                QVBoxLayout* vboxLayout2 = new QVBoxLayout();
+                vboxLayout->addLayout(vboxLayout2);
+                vboxLayout2->addWidget(toolButton);
+                vboxLayout2->setSpacing(0);
+                if(!m_subBar)
+                {
+                    SetObjectStyleSheet(toolButton, StyleSheetNames::ToolGroupBlack);
+                }
+
                 // Add sub-navigation bar for the group of actions
                 QList<QAction*> group = m_groups[action];
                 NavigationBar* subNavBar = new NavigationBar(this);
@@ -90,9 +106,14 @@ void NavigationBar::buildUi()
                 {
                     subNavBar->addAction(group[j]);
                 }
-                vboxLayout->addWidget(subNavBar);
+                vboxLayout2->addWidget(subNavBar);
                 subNavBar->buildUi();
                 connect(action, SIGNAL(toggled(bool)), subNavBar, SLOT(onSubBarClick(bool)));
+            }
+            else
+            {
+
+                vboxLayout->addWidget(toolButton);
             }
         }
 

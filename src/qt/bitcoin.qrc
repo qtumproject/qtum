@@ -108,6 +108,9 @@
         <file alias="buttonblack">res/styles/buttonblack.css</file>
         <file alias="buttonwhite">res/styles/buttonwhite.css</file>
         <file alias="buttontransparent">res/styles/buttontransparent.css</file>
+        <file alias="toolblack">res/styles/toolblack.css</file>
+        <file alias="toolgroupblack">res/styles/toolgroupblack.css</file>
+        <file alias="toolsubblack">res/styles/toolsubblack.css</file>
     </qresource>
     <qresource prefix="/styles/app-icons">
         <file alias="bg">res/styles/app-icons/bg.png</file>
@@ -140,5 +143,7 @@
         <file alias="message_critical">res/styles/app-icons/message_critical.png</file>
         <file alias="message_info">res/styles/app-icons/message_info.png</file>
         <file alias="message_warning">res/styles/app-icons/message_warning.png</file>
+        <file alias="toolbutton_down_arrow">res/styles/app-icons/toolbutton_down_arrow.png</file>
+        <file alias="toolbutton_right_arrow">res/styles/app-icons/toolbutton_right_arrow.png</file>
     </qresource>
 </RCC>
