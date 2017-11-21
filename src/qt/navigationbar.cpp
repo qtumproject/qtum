@@ -6,13 +6,14 @@
 
 namespace NavigationBar_NS
 {
-static const int ToolButtonWidth = 190;
+static const int ToolButtonWidth = 200;
 static const int ToolButtonHeight = 54;
 static const int ToolButtonIconSize = 32;
-static const int MarginLeft = 6;
-static const int MarginRight = 3;
+static const int MarginLeft = 0;
+static const int MarginRight = 0;
 static const int MarginTop = 0;
-static const int MarginBottom = 9;
+static const int MarginBottom = 8;
+static const int ButtonSpacing = 2;
 }
 using namespace NavigationBar_NS;
 
@@ -63,7 +64,7 @@ void NavigationBar::buildUi()
                                        m_subBar ? 0 : MarginTop,
                                        m_subBar ? 0 : MarginRight,
                                        m_subBar ? 0 : MarginBottom);
-        vboxLayout->setSpacing(m_subBar ? 0 : MarginLeft / 2);
+        vboxLayout->setSpacing(m_subBar ? 0 : ButtonSpacing);
 
         // List all actions
         for(int i = 0; i < m_actions.count(); i++)
@@ -124,7 +125,7 @@ void NavigationBar::buildUi()
             {
                 m_actions[0]->setChecked(true);
             }
-            setMinimumWidth(defButtonWidth + MarginLeft);
+            setMinimumWidth(defButtonWidth + MarginLeft + MarginRight);
             vboxLayout->addStretch(1);
         }
 

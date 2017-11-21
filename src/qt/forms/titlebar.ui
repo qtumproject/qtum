@@ -21,7 +21,7 @@
     <number>0</number>
    </property>
    <property name="topMargin">
-    <number>5</number>
+    <number>0</number>
    </property>
    <property name="rightMargin">
     <number>20</number>
@@ -108,10 +108,10 @@
      </item>
      <item>
       <widget class="QTabBar" name="tabWidget" native="true">
-       <property name="maximumSize">
+       <property name="minimumSize">
         <size>
-         <width>560</width>
-         <height>16777215</height>
+         <width>0</width>
+         <height>35</height>
         </size>
        </property>
       </widget>
