@@ -31,7 +31,7 @@ class HTTPRPCTimer : public RPCTimerBase
 {
 public:
     HTTPRPCTimer(struct event_base* eventBase, boost::function<void(void)>& func, int64_t millis) :
-        ev(eventBase, false, func)
+        ev(eventBase, false, NULL, func)
     {
         struct timeval tv;
         tv.tv_sec = millis/1000;
@@ -162,7 +162,7 @@ static bool HTTPReq_JSONRPC(HTTPRequest* req, const std::string &)
         return false;
     }
 
-    JSONRPCRequest jreq;
+    JSONRPCRequest jreq(req);
     if (!RPCAuthorized(authHeader.second, jreq.authUser)) {
         LogPrintf("ThreadRPCServer incorrect password attempt from %s\n", req->GetPeer().ToString());
 
@@ -175,6 +175,8 @@ static bool HTTPReq_JSONRPC(HTTPRequest* req, const std::string &)
         req->WriteReply(HTTP_UNAUTHORIZED);
         return false;
     }
+
+    req->WriteHeader("Content-Type", "application/json");
 
     try {
         // Parse request
@@ -192,6 +194,11 @@ static bool HTTPReq_JSONRPC(HTTPRequest* req, const std::string &)
 
             UniValue result = tableRPC.execute(jreq);
 
+            if (jreq.isLongPolling) {
+                jreq.PollReply(result);
+                return true;
+            }
+
             // Send reply
             strReply = JSONRPCReply(result, NullUniValue, jreq.id);
 
@@ -201,7 +208,6 @@ static bool HTTPReq_JSONRPC(HTTPRequest* req, const std::string &)
         else
             throw JSONRPCError(RPC_PARSE_ERROR, "Top-level object parse error");
 
-        req->WriteHeader("Content-Type", "application/json");
         req->WriteReply(HTTP_OK, strReply);
     } catch (const UniValue& objError) {
         JSONErrorReply(req, objError, jreq.id);
