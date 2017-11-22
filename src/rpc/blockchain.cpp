@@ -1097,13 +1097,12 @@ void assignJSON(UniValue& logEntry, const dev::eth::LogEntry& log,
     logEntry.push_back(Pair("data", HexStr(log.data)));
 }
 
-
 void transactionReceiptInfoToJSON(const TransactionReceiptInfo& resExec, UniValue& entry) {
     assignJSON(entry, resExec);
 
-    dev::eth::LogEntries logs = resExec.logs;
+    const auto& logs = resExec.logs;
     UniValue logEntries(UniValue::VARR);
-    for(dev::eth::LogEntry log : logs){
+    for(const auto&log : logs){
         UniValue logEntry(UniValue::VOBJ);
         assignJSON(logEntry, log, true);
         logEntries.push_back(logEntry);
@@ -1111,61 +1110,150 @@ void transactionReceiptInfoToJSON(const TransactionReceiptInfo& resExec, UniValu
     entry.push_back(Pair("log", logEntries));
 }
 
-bool getContarctAddressesFromParams(const UniValue& params, std::vector<dev::h160> &addresses)
-{
-    if (params[2].isStr()) {
-        auto addrStr(params[2].get_str());
-        if (addrStr.length() != 40)
-            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
-        dev::h160 address(params[2].get_str());
-        addresses.push_back(address);
-    } else if (params[2].isObject()) {
+int parseBlockHeight(const UniValue& val) {
+    if (val.isStr()) {
+        auto blockKey = val.get_str();
 
-        UniValue addressValues = find_value(params[2].get_obj(), "addresses");
-        if (!addressValues.isArray()) {
-            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Addresses is expected to be an array");
+        if (blockKey == "latest") {
+            return latestblock.height;
+        } else {
+            throw JSONRPCError(RPC_INVALID_PARAMS, "invalid block number");
         }
-
-        std::vector<UniValue> values = addressValues.getValues();
-
-        for (std::vector<UniValue>::iterator it = values.begin(); it != values.end(); ++it) {
-            auto addrStr(it->get_str());
-            if (addrStr.length() != 40 || !CheckHex(addrStr))
-                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
-            addresses.push_back(dev::h160(addrStr));
-        }
-    } else {
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
     }
 
-    return true;
-}
+    if (val.isNum()) {
+        auto blockHeight = val.get_int();
 
-bool getTopicsFromParams(const UniValue& params, std::vector<std::pair<unsigned, dev::h256>> &topics)
-{
-    if (params[3].isObject()) {
-
-        UniValue topicValues = find_value(params[3].get_obj(), "topics");
-        if (!topicValues.isArray()) {
-            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Topics is expected to be an array");
+        if (blockHeight == -1) {
+            return latestblock.height;
         }
 
-        std::vector<UniValue> values = topicValues.getValues();
-
-        for (size_t i = 0; i < values.size(); ++i) {
-            auto topicStr(values[i].get_str());
-            if (topicStr == "null")
-                continue;
-            if (topicStr.length() != 64 || !CheckHex(topicStr))
-                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid topic");
-            topics.push_back({i, dev::h256(topicStr)});
-        }
-    } else {
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid topic");
+        return blockHeight;
     }
 
-    return true;
+    throw JSONRPCError(RPC_INVALID_PARAMS, "invalid block number");
 }
+
+
+dev::h160 parseParamH160(const UniValue& val) {
+    if (!val.isStr()) {
+        throw JSONRPCError(RPC_INVALID_PARAMS, "Invalid hex 160");
+    }
+
+    auto addrStr = val.get_str();
+
+    if (addrStr.length() != 40 || !CheckHex(addrStr)) {
+        throw JSONRPCError(RPC_INVALID_PARAMS, "Invalid hex 160 string");
+    }
+    return dev::h160(addrStr);
+}
+
+void parseParam(const UniValue& val, std::vector<dev::h160> &h160s) {
+    if (val.isNull()) {
+        return;
+    }
+
+    // Treat a string as an array of length 1
+    if (val.isStr()) {
+        h160s.push_back(parseParamH160(val.get_str()));
+        return;
+    }
+
+    if (!val.isArray()) {
+        throw JSONRPCError(RPC_INVALID_PARAMS, "Expect an array of hex 160 strings");
+    }
+
+    auto vals = val.getValues();
+    h160s.resize(vals.size());
+
+    std::transform(vals.begin(), vals.end(), h160s.begin(), [](UniValue val) -> dev::h160 {
+        return parseParamH160(val);
+    });
+}
+
+void parseParam(const UniValue& val, std::set<dev::h160> &h160s) {
+    std::vector<dev::h160> v;
+    parseParam(val, v);
+    h160s.insert(v.begin(), v.end());
+}
+
+void parseParam(const UniValue& val, std::vector<boost::optional<dev::h256>> &h256s) {
+    if (val.isNull()) {
+        return;
+    }
+
+    if (!val.isArray()) {
+        throw JSONRPCError(RPC_INVALID_PARAMS, "Expect an array of hex 256 strings");
+    }
+
+    auto vals = val.getValues();
+    h256s.resize(vals.size());
+
+    std::transform(vals.begin(), vals.end(), h256s.begin(), [](UniValue val) -> boost::optional<dev::h256> {
+        if (val.isNull()) {
+            return boost::optional<dev::h256>();
+        }
+
+        if (!val.isStr()) {
+            throw JSONRPCError(RPC_INVALID_PARAMS, "Invalid hex 256 string");
+        }
+
+        auto addrStr = val.get_str();
+
+        if (addrStr.length() != 64 || !CheckHex(addrStr)) {
+            throw JSONRPCError(RPC_INVALID_PARAMS, "Invalid hex 256 string");
+        }
+
+        return boost::optional<dev::h256>(dev::h256(addrStr));
+    });
+}
+
+class WaitForLogsParams {
+public:
+    int fromBlock;
+    int toBlock;
+
+    std::set<dev::h160> addresses;
+    std::vector<boost::optional<dev::h256>> topics;
+
+    // bool wait;
+
+    WaitForLogsParams(const UniValue& params) {
+        std::unique_lock<std::mutex> lock(cs_blockchange);
+
+        setFromBlock(params[0]);
+        setToBlock(params[1]);
+
+        parseFilter(params[2]);
+    }
+
+private:
+    void setFromBlock(const UniValue& val) {
+        if (!val.isNull()) {
+            fromBlock = parseBlockHeight(val);
+        } else {
+            fromBlock = latestblock.height;
+        }
+    }
+
+    void setToBlock(const UniValue& val) {
+        if (!val.isNull()) {
+            toBlock = parseBlockHeight(val);
+        } else {
+            toBlock = 0;
+        }
+
+    }
+
+    void parseFilter(const UniValue& val) {
+        if (val.isNull()) {
+            return;
+        }
+
+        parseParam(val["addresses"], addresses);
+        parseParam(val["topics"], topics);
+    }
+};
 
 UniValue waitforlogs(const JSONRPCRequest& request_) {
     // this is a long poll function. force cast to non const pointer
@@ -1173,51 +1261,14 @@ UniValue waitforlogs(const JSONRPCRequest& request_) {
 
     if (request.fHelp) {
         throw runtime_error(
-                "waitforlogs (fromBlock) (txLimit) (address) (topics)\n"
+                "waitforlogs (fromBlock) (toBlock) (filter) (wait)\n"
                         "requires -logevents to be enabled");
     }
 
     if (!fLogEvents)
         throw JSONRPCError(RPC_INTERNAL_ERROR, "Events indexing disabled");
 
-    int fromBlock = -1;
-
-    if (request.params.size() > 0) {
-        fromBlock = request.params[0].get_int();
-    }
-
-    if (fromBlock == -1) {
-        {
-            std::unique_lock<std::mutex> lock(cs_blockchange);
-            fromBlock = latestblock.height;
-        }
-    }
-
-    int ntx = 0;
-
-    if (request.params.size() > 1) {
-        ntx = request.params[1].get_int();
-    }
-
-    if (ntx <= 0) {
-        ntx = 500;
-    }
-
-    std::set<dev::h160> addresses;
-    std::vector<dev::h160> vecAddresses;
-
-    if (request.params.size() > 2) {
-        if (!getContarctAddressesFromParams(request.params, vecAddresses)) {
-            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
-        }
-        addresses.insert(vecAddresses.begin(), vecAddresses.end());
-    }
-
-    std::vector<std::pair<unsigned, dev::h256>> topics;
-    if (request.params.size() > 3
-            && !getTopicsFromParams(request.params, topics))
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid topics");
-
+    WaitForLogsParams params(request.params);
 
     request.PollStart();
 
@@ -1225,10 +1276,13 @@ UniValue waitforlogs(const JSONRPCRequest& request_) {
 
     int curheight = 0;
 
+    auto& addresses = params.addresses;
+    auto& filterTopics = params.topics;
+
     while (curheight == 0) {
         {
             LOCK(cs_main);
-            curheight = pblocktree->ReadHeightIndexFrom(fromBlock, ntx,
+            curheight = pblocktree->ReadHeightIndex(params.fromBlock, params.toBlock,
                     hashesToBlock, addresses);
         }
 
@@ -1258,6 +1312,7 @@ UniValue waitforlogs(const JSONRPCRequest& request_) {
                     break;
                 }
 
+                // TODO: maybe just merge `IsRPCRunning` this into PollAlive
                 if (!request.PollAlive() || !IsRPCRunning()) {
                     LogPrintf("client closed\n");
                     return NullUniValue;
@@ -1273,27 +1328,34 @@ UniValue waitforlogs(const JSONRPCRequest& request_) {
 
     UniValue jsonLogs(UniValue::VARR);
 
-    for (auto txHashes : hashesToBlock) {
-        for (auto txHash : txHashes) {
+    for (const auto& txHashes : hashesToBlock) {
+        for (const auto& txHash : txHashes) {
             std::vector<TransactionReceiptInfo> receipts = storageRes.getResult(
                     uintToh256(txHash));
 
-            for (auto receipt : receipts) {
-                for (auto log : receipt.logs) {
+            for (const auto& receipt : receipts) {
+                for (const auto& log : receipt.logs) {
 
                     bool includeLog = true;
 
-                    // pair-wise comparison of log topics andfilter topics
-                    for (auto topic : topics) {
-                        auto i = topic.first;
-                        auto filterTopicContent = topic.second;
-                        auto topicContent = log.topics[i];
+                    if (!filterTopics.empty()) {
+                        for (size_t i = 0; i < filterTopics.size(); i++) {
+                            auto filterTopic = filterTopics[i];
 
-                        if (topicContent != filterTopicContent) {
-                            includeLog = false;
-                            break;
+                            if (!filterTopic) {
+                                continue;
+                            }
+
+                            auto filterTopicContent = filterTopic.get();
+                            auto topicContent = log.topics[i];
+
+                            if (topicContent != filterTopicContent) {
+                                includeLog = false;
+                                break;
+                            }
                         }
                     }
+
 
                     if (!includeLog) {
                         continue;
@@ -1318,6 +1380,43 @@ UniValue waitforlogs(const JSONRPCRequest& request_) {
     return result;
 }
 
+class SearchLogsParams {
+public:
+    int fromBlock;
+    int toBlock;
+
+    std::set<dev::h160> addresses;
+    std::vector<boost::optional<dev::h256>> topics;
+
+    SearchLogsParams(const UniValue& params) {
+        std::unique_lock<std::mutex> lock(cs_blockchange);
+
+        setFromBlock(params[0]);
+        setToBlock(params[1]);
+
+        parseParam(params[2]["addresses"], addresses);
+        parseParam(params[3]["topics"], topics);
+    }
+
+private:
+    void setFromBlock(const UniValue& val) {
+        if (!val.isNull()) {
+            fromBlock = parseBlockHeight(val);
+        } else {
+            fromBlock = latestblock.height;
+        }
+    }
+
+    void setToBlock(const UniValue& val) {
+        if (!val.isNull()) {
+            toBlock = parseBlockHeight(val);
+        } else {
+            toBlock = latestblock.height;
+        }
+    }
+
+};
+
 UniValue searchlogs(const JSONRPCRequest& request)
 {
     if (request.fHelp || request.params.size() < 2)
@@ -1339,70 +1438,56 @@ UniValue searchlogs(const JSONRPCRequest& request)
 
     LOCK(cs_main);
 
-    int fromBlock = request.params[0].get_int();
-    int toBlock = 0;
-    toBlock = request.params[1].get_int();
-    if(request.params[1].isNum()){
-        if(toBlock == -1){
-            toBlock = chainActive.Height();
-        } else {
-            toBlock = request.params[1].get_int();
-        }
-    }
-
-    std::set<dev::h160> addresses;
-    std::vector<dev::h160> vecAddresses;
-    std::vector<std::pair<unsigned, dev::h256>> topics;
-
-    if (request.params.size() > 2)
-    {
-        if (!getContarctAddressesFromParams(request.params, vecAddresses)) {
-            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
-        }
-        addresses.insert(vecAddresses.begin(), vecAddresses.end());
-    }
-
-    if (request.params.size() > 3 && !getTopicsFromParams(request.params, topics))
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
+    SearchLogsParams params(request.params);
     
     std::vector<std::vector<uint256>> hashesToBlock;
-    if (!pblocktree->ReadHeightIndex(toBlock, fromBlock, hashesToBlock, addresses))
-        throw JSONRPCError(RPC_INVALID_PARAMS, "Could not read tx height index");
+
+    pblocktree->ReadHeightIndex(params.fromBlock, params.toBlock, hashesToBlock, params.addresses);
 
     UniValue result(UniValue::VARR);
     boost::filesystem::path stateDir = GetDataDir() / "stateQtum";
     StorageResults storageRes(stateDir.string());
 
+    auto topics = params.topics;
+
     for(const auto& hashesTx : hashesToBlock)
     {
         for(const auto& e : hashesTx)
         {
-            std::vector<TransactionReceiptInfo> transactionReceiptInfo = storageRes.getResult(uintToh256(e));
+            std::vector<TransactionReceiptInfo> receipts = storageRes.getResult(uintToh256(e));
             
-            for(TransactionReceiptInfo& t : transactionReceiptInfo){
-                if (!topics.empty())
-                {
-                    bool skip = true;
-                    for (const auto& tc: topics)
-                    {
-                        for (const auto& log: t.logs)
-                        {                  
-                            if(tc.first < log.topics.size() && tc.second == log.topics[tc.first])
-                            {
-                                skip = false;
-                                break;
+            for(const auto& receipt : receipts) {
+                if(receipt.logs.empty()) {
+                    continue;
+                }
+
+                if (!topics.empty()) {
+                    for (size_t i = 0; i < topics.size(); i++) {
+                        const auto& tc = topics[i];
+
+                        if (!tc) {
+                            continue;
+                        }
+
+                        for (const auto& log: receipt.logs) {
+                            auto filterTopicContent = tc.get();
+
+                            if (i >= log.topics.size()) {
+                                continue;
+                            }
+
+                            if (filterTopicContent == log.topics[i]) {
+                                goto push;
                             }
                         }
-                        if (!skip) break;
                     }
-                    if (skip) continue;
                 }
-                
-                if(!t.logs.empty()){
-                    UniValue tri(UniValue::VOBJ);
-                    transactionReceiptInfoToJSON(t, tri);
-                    result.push_back(tri);
-                }
+
+            push:
+
+                UniValue tri(UniValue::VOBJ);
+                transactionReceiptInfoToJSON(receipt, tri);
+                result.push_back(tri);
             }
         }
     }

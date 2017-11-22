@@ -223,59 +223,30 @@ bool CBlockTreeDB::WriteHeightIndex(const CHeightTxIndexKey &heightIndex, const 
     return WriteBatch(batch);
 }
 
-bool CBlockTreeDB::ReadHeightIndex(const unsigned int &high, const unsigned int &low, std::vector<std::vector<uint256>> &hashes,
-                                    std::set<dev::h160> addresses) {
-
-    boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
-
-    pcursor->Seek(std::make_pair(DB_HEIGHTINDEX, CHeightTxIndexIteratorKey(low)));
-
-    while (pcursor->Valid()) {
-        boost::this_thread::interruption_point();
-        std::pair<char, CHeightTxIndexKey> key;
-        if (pcursor->GetKey(key) && key.first == DB_HEIGHTINDEX && key.second.height <= high) {
-            if (!addresses.empty() && !addresses.count(key.second.address))
-            {
-                pcursor->Next();
-                continue;
-            }
-            std::vector<uint256> value;
-            pcursor->GetValue(value);
-            hashes.push_back(value);
-            pcursor->Next();
-        } else {
-            break;
-        }
-    }
-
-    return true;
-}
-
-size_t CBlockTreeDB::ReadHeightIndexFrom(size_t low, size_t limitTx,
+size_t CBlockTreeDB::ReadHeightIndex(size_t low, size_t high,
         std::vector<std::vector<uint256>> &blocksOfHashes,
         std::set<dev::h160> const &addresses) {
 
     std::unique_ptr<CDBIterator> pcursor(NewIterator());
 
-    pcursor->Seek(
-            std::make_pair(DB_HEIGHTINDEX, CHeightTxIndexIteratorKey(low)));
+    pcursor->Seek(std::make_pair(DB_HEIGHTINDEX, CHeightTxIndexIteratorKey(low)));
 
     size_t curheight = 0;
 
-    for (size_t count = 0; pcursor->Valid() && count < limitTx;
-            pcursor->Next()) {
-        boost::this_thread::interruption_point();
+    for (size_t count = 0; pcursor->Valid(); pcursor->Next()) {
 
         std::pair<char, CHeightTxIndexKey> key;
-        if (!pcursor->GetKey(key)) {
+        if (!pcursor->GetKey(key) || key.first != DB_HEIGHTINDEX) {
             break;
         }
 
-        if (key.first != DB_HEIGHTINDEX) {
+        auto nextHeight = key.second.height;
+
+        if (high > 0 && nextHeight > high) {
             break;
         }
 
-        curheight = key.second.height;
+        curheight = nextHeight;
 
         auto address = key.second.address;
         if (!addresses.empty() && addresses.find(address) == addresses.end()) {
