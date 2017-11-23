@@ -1,0 +1,118 @@
+/*--------------------------------------------
+Tree view CSS
+--------------------------------------------*/
+QTreeView QHeaderView{
+    color: #5a5a5d;
+    background-color: #e1e1e1;
+    border: none;
+}
+QTreeView QHeaderView:section{
+    padding: 6px 20px 6px 6px;
+    border: none;
+    background-color: transparent;
+}
+QTreeView QHeaderView::down-arrow {
+    image: url(":/styles/app-icons/down_arrow");
+    width: 6px;
+    height: 4px;
+    margin-right: 5px;
+    margin-bottom: 1px;
+}
+QTreeView QHeaderView::up-arrow {
+    image: url(":/styles/app-icons/up_arrow");
+    width: 6px;
+    height: 4px;
+    margin-right: 5px;
+    margin-bottom: 1px;
+}
+QTreeWidget {
+	background-color:rgba(0,0,0,0);
+	selection-background-color: #ffffff;
+	show-decoration-selected:0;
+}
+QTreeView {
+    background-color: #f3f3f3;
+    alternate-background-color: #ededed;
+    border: 1px solid #919192;
+}
+QTreeView::item{
+    border: none;
+    color: #989898;
+    padding: 4px;
+}
+QTreeView::item:selected{
+    qproperty-showGrid: false;
+    background-color: #ffffff;
+    color: #5a5a5d;
+}
+/*--------------------------------------------
+Scroll bar light CSS
+--------------------------------------------*/
+QTreeView QScrollBar:vertical {
+    border-radius: 0px;
+    background: #747474;
+    width: 19px;
+    padding: 10px 4px;
+}
+QTreeView QScrollBar::handle:vertical {
+    border: 1px solid #646464;
+    background: #4c4c4c;
+    border-radius: 5px;
+    min-height: 30px;
+}
+QTreeView QScrollBar::handle:vertical:disabled {
+    background: rgba(76, 76, 76, 40%);
+}
+QTreeView QScrollBar:horizontal {
+    border-radius: 0px;
+    background: #747474;
+    height: 19px;
+    padding: 4px 10px;
+}
+QTreeView QScrollBar::handle:horizontal {
+    border: 1px solid #646464;
+    background: #4c4c4c;
+    border-radius: 5px;
+    min-width: 30px;
+}
+QTreeView QScrollBar::handle:horizontal:disabled {
+    background: rgba(76, 76, 76, 40%);
+}
+QAbstractScrollArea::corner {
+    background: #747474;
+    border: 0px;
+}
+/*--------------------------------------------
+Check Box CSS
+--------------------------------------------*/
+QTreeView::indicator {
+    width: 16px;
+    height: 16px;
+}
+QTreeView::indicator::unchecked {
+    image: url(:/styles/app-icons/checkbox_unchecked);
+}
+QTreeView::indicator::checked {
+    image: url(:/styles/app-icons/checkbox_checked);
+}
+QTreeView:indicator:indeterminate {
+    image: url(:/styles/app-icons/checkbox_indeterminate);
+}
+QTreeView::indicator::unchecked:hover {
+    image: url(:/styles/app-icons/checkbox_unchecked_hover);
+}
+QTreeView::indicator::checked:hover {
+    image: url(:/styles/app-icons/checkbox_checked_hover);
+}
+QTreeView:indicator:indeterminate:hover {
+    image: url(:/styles/app-icons/checkbox_indeterminate_hover);
+}
+QTreeView:indicator:unchecked:disabled {
+    image: url(:/styles/app-icons/checkbox_unchecked_disabled);  
+}
+QTreeView:indicator:checked:disabled {
+    image: url(:/styles/app-icons/checkbox_checked_disabled);
+}
+QTreeView:indicator:indeterminate:disabled {
+    image: url(:/styles/app-icons/checkbox_indeterminate_disabled);
+}

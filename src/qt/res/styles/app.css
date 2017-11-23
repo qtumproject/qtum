@@ -17,6 +17,9 @@ QMainWindow{
 QMainWindow .QFrame{
     border: 1px solid transparent;
 }
+QDialog .QFrame{
+    border: 1px solid transparent;
+}
 QMainWindow::separator {
     width: 0px;
     height: 0px;
@@ -583,17 +586,26 @@ QCheckBox::indicator::unchecked {
 QCheckBox::indicator::checked {
     image: url(:/styles/app-icons/checkbox_checked);
 }
+QCheckBox:indicator:indeterminate {
+    image: url(:/styles/app-icons/checkbox_indeterminate);
+}
 QCheckBox::indicator::unchecked:hover {
     image: url(:/styles/app-icons/checkbox_unchecked_hover);
 }
 QCheckBox::indicator::checked:hover {
     image: url(:/styles/app-icons/checkbox_checked_hover);
 }
+QCheckBox:indicator:indeterminate:hover {
+    image: url(:/styles/app-icons/checkbox_indeterminate_hover);
+}
 QCheckBox:indicator:unchecked:disabled {
     image: url(:/styles/app-icons/checkbox_unchecked_disabled);  
 }
 QCheckBox:indicator:checked:disabled {
     image: url(:/styles/app-icons/checkbox_checked_disabled);
+}
+QCheckBox:indicator:indeterminate:disabled {
+    image: url(:/styles/app-icons/checkbox_indeterminate_disabled);
 }
 /*--------------------------------------------
 Radio Button CSS

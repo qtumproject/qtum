@@ -111,6 +111,7 @@
         <file alias="toolblack">res/styles/toolblack.css</file>
         <file alias="toolgroupblack">res/styles/toolgroupblack.css</file>
         <file alias="toolsubblack">res/styles/toolsubblack.css</file>
+        <file alias="treeview">res/styles/treeview.css</file>
     </qresource>
     <qresource prefix="/styles/app-icons">
         <file alias="bg">res/styles/app-icons/bg.png</file>
@@ -134,6 +135,9 @@
         <file alias="checkbox_checked">res/styles/app-icons/checkbox_checked.png</file>
         <file alias="checkbox_checked_hover">res/styles/app-icons/checkbox_checked_hover.png</file>
         <file alias="checkbox_checked_disabled">res/styles/app-icons/checkbox_checked_disabled.png</file>
+        <file alias="checkbox_indeterminate">res/styles/app-icons/checkbox_indeterminate.png</file>
+        <file alias="checkbox_indeterminate_hover">res/styles/app-icons/checkbox_indeterminate_hover.png</file>
+        <file alias="checkbox_indeterminate_disabled">res/styles/app-icons/checkbox_indeterminate_disabled.png</file>
         <file alias="radiobutton_unchecked">res/styles/app-icons/radiobutton_unchecked.png</file>
         <file alias="radiobutton_unchecked_hover">res/styles/app-icons/radiobutton_unchecked_hover.png</file>
         <file alias="radiobutton_unchecked_disabled">res/styles/app-icons/radiobutton_unchecked_disabled.png</file>
