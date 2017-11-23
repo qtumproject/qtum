@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>740</width>
-    <height>430</height>
+    <height>540</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_info">
       <attribute name="title">
@@ -165,17 +165,17 @@
         </widget>
        </item>
        <item row="6" column="0">
-           <widget class="QLabel" name="labelNetwork">
-               <property name="font">
-                   <font>
-                       <weight>75</weight>
-                       <bold>true</bold>
-                   </font>
-               </property>
-               <property name="text">
-                   <string>Network</string>
-               </property>
-           </widget>
+        <widget class="QLabel" name="labelNetwork">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Network</string>
+         </property>
+        </widget>
        </item>
        <item row="7" column="0">
         <widget class="QLabel" name="label_8">
@@ -427,17 +427,11 @@
          </item>
          <item>
           <widget class="QPushButton" name="fontSmallerButton">
-           <property name="maximumSize">
-            <size>
-             <width>24</width>
-             <height>24</height>
-            </size>
+           <property name="toolTip">
+            <string>Decrease font size</string>
            </property>
            <property name="text">
             <string/>
-           </property>
-           <property name="toolTip">
-            <string>Decrease font size</string>
            </property>
            <property name="icon">
             <iconset resource="../bitcoin.qrc">
@@ -459,12 +453,6 @@
          </item>
          <item>
           <widget class="QPushButton" name="fontBiggerButton">
-           <property name="maximumSize">
-            <size>
-             <width>24</width>
-             <height>24</height>
-            </size>
-           </property>
            <property name="toolTip">
             <string>Increase font size</string>
            </property>
@@ -491,12 +479,6 @@
          </item>
          <item>
           <widget class="QPushButton" name="clearButton">
-           <property name="maximumSize">
-            <size>
-             <width>24</width>
-             <height>24</height>
-            </size>
-           </property>
            <property name="toolTip">
             <string>Clear console</string>
            </property>

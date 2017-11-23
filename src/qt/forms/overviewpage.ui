@@ -60,12 +60,6 @@
            <property name="enabled">
             <bool>true</bool>
            </property>
-           <property name="maximumSize">
-            <size>
-             <width>30</width>
-             <height>16777215</height>
-            </size>
-           </property>
            <property name="toolTip">
             <string>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</string>
            </property>
@@ -490,12 +484,6 @@
            </item>
            <item>
             <widget class="QPushButton" name="labelTokenStatus">
-             <property name="maximumSize">
-              <size>
-               <width>30</width>
-               <height>16777215</height>
-              </size>
-             </property>
              <property name="toolTip">
               <string>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</string>
              </property>
@@ -612,12 +600,6 @@
       <widget class="QPushButton" name="labelTransactionsStatus">
        <property name="enabled">
         <bool>true</bool>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>30</width>
-         <height>16777215</height>
-        </size>
        </property>
        <property name="toolTip">
         <string>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</string>

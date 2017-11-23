@@ -731,3 +731,24 @@ Shut Down Window CSS
 QWidget#shutdownWindow{
     background-color: #272727;
 }
+/*--------------------------------------------
+Tool Button CSS
+--------------------------------------------*/
+QToolButton {
+	background-color: transparent;
+	padding: 6px;
+	border: none;
+}
+QToolButton::hover{
+	background-color: rgba(89, 89, 92, 20%);
+	border-top: 1px solid #2c2c2c;
+	border-bottom: 1px solid #2c2c2c;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+QToolButton::pressed{
+	background-color: rgba(89, 89, 92, 30%);
+}
+QToolButton::disabled{
+	background-color: transparent;
+}

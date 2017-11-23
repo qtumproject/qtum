@@ -111,7 +111,7 @@ protected:
     {
         // Update mouse over icon
         if((toolbutton.state & QStyle::State_Enabled) &&
-                !(toolbutton.state & (QStyle::State_Sunken | QStyle::State_On)) &&
+                !(toolbutton.state & QStyle::State_On) &&
                 (toolbutton.state & QStyle::State_MouseOver))
         {
             if(!m_iconCached)
