@@ -752,3 +752,49 @@ QToolButton::pressed{
 QToolButton::disabled{
 	background-color: transparent;
 }
+/*--------------------------------------------
+Calendar CSS
+--------------------------------------------*/
+QDateTimeEdit{
+    padding: 4px;
+    background-image: url(":/styles/app-icons/spinBoxHover");
+}
+QDateTimeEdit:drop-down {
+    border: none;
+}
+QDateTimeEdit::down-arrow:hover, QDateTimeEdit:down-arrow {
+    image: url(":/styles/app-icons/cb_up_down_arrow");
+    width: 6px;
+    height: 10px;
+    top: 1px;
+}
+QCalendarWidget QWidget{
+    border-radius: 0px;
+}
+#qt_calendar_navigationbar{
+    background: #2E9AD0;
+}
+QCalendarWidget QAbstractSpinBox {
+    min-width: 0px;
+    border-radius: 0px;
+}
+QCalendarWidget QAbstractSpinBox::up-button{
+    border-radius: 0px;
+}
+QCalendarWidget QAbstractSpinBox::down-button{
+    border-radius: 0px;
+}
+QCalendarWidget QMenu{
+    padding: 0px;
+}
+/* normal days */
+QCalendarWidget QAbstractItemView
+{
+    background-color: #373535;
+    alternate-background-color: #2E2C2C;
+    color: #ffffff;
+    padding-bottom:-1px;
+}
+QCalendarWidget QAbstractItemView:disabled {
+    color: #535353;
+}
