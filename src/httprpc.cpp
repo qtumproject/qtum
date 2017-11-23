@@ -86,7 +86,7 @@ static void JSONErrorReply(HTTPRequest* req, const UniValue& objError, const Uni
 //This function checks username and password against -rpcauth
 //entries from config file.
 static bool multiUserAuthorized(std::string strUserPass)
-{    
+{
     if (strUserPass.find(":") == std::string::npos) {
         return false;
     }
@@ -176,8 +176,6 @@ static bool HTTPReq_JSONRPC(HTTPRequest* req, const std::string &)
         return false;
     }
 
-    req->WriteHeader("Content-Type", "application/json");
-
     try {
         // Parse request
         UniValue valRequest;
@@ -208,6 +206,7 @@ static bool HTTPReq_JSONRPC(HTTPRequest* req, const std::string &)
         else
             throw JSONRPCError(RPC_PARSE_ERROR, "Top-level object parse error");
 
+        req->WriteHeader("Content-Type", "application/json");
         req->WriteReply(HTTP_OK, strReply);
     } catch (const UniValue& objError) {
         JSONErrorReply(req, objError, jreq.id);
