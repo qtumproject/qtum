@@ -22,8 +22,8 @@ static const struct {
     /** Extra padding/spacing in transactionview */
     const bool useExtraSpacing;
 } platform_styles[] = {
-    {"macosx", false, false, true},
-    {"windows", true, false, false},
+    {"macosx", true, true, false},
+    {"windows", true, true, false},
     /* Other: linux, unix, ... */
     {"other", true, true, false}
 };
@@ -32,17 +32,26 @@ static const unsigned platform_styles_count = sizeof(platform_styles)/sizeof(*pl
 namespace {
 /* Local functions for colorizing single-color images */
 
-void MakeSingleColorImage(QImage& img, const QColor& colorbase)
+void MakeSingleColorImage(QImage& img, const QColor& colorbase, double opacity = 1)
 {
+    //Opacity representation in percentage (0, 1) i.e. (0%, 100%)
+    if(opacity > 1 && opacity < 0) opacity = 1;
+
     img = img.convertToFormat(QImage::Format_ARGB32);
     for (int x = img.width(); x--; )
     {
         for (int y = img.height(); y--; )
         {
             const QRgb rgb = img.pixel(x, y);
-            img.setPixel(x, y, qRgba(colorbase.red(), colorbase.green(), colorbase.blue(), qAlpha(rgb)));
+            img.setPixel(x, y, qRgba(colorbase.red(), colorbase.green(), colorbase.blue(), opacity * qAlpha(rgb)));
         }
     }
+}
+
+QPixmap MakeSingleColorPixmap(QImage& img, const QColor& colorbase, double opacity = 1)
+{
+    MakeSingleColorImage(img, colorbase, opacity);
+    return QPixmap::fromImage(img);
 }
 
 QIcon ColorizeIcon(const QIcon& ico, const QColor& colorbase)
@@ -61,7 +70,7 @@ QIcon ColorizeIcon(const QIcon& ico, const QColor& colorbase)
 QImage ColorizeImage(const QString& filename, const QColor& colorbase)
 {
     QImage img(filename);
-    MakeSingleColorImage(img, colorbase);
+    MakeSingleColorImage(img, colorbase, 0.7);
     return img;
 }
 
@@ -83,16 +92,7 @@ PlatformStyle::PlatformStyle(const QString &_name, bool _imagesOnButtons, bool _
 {
     // Determine icon highlighting color
     if (colorizeIcons) {
-        const QColor colorHighlightBg(QApplication::palette().color(QPalette::Highlight));
-        const QColor colorHighlightFg(QApplication::palette().color(QPalette::HighlightedText));
-        const QColor colorText(QApplication::palette().color(QPalette::WindowText));
-        const int colorTextLightness = colorText.lightness();
-        QColor colorbase;
-        if (abs(colorHighlightBg.lightness() - colorTextLightness) < abs(colorHighlightFg.lightness() - colorTextLightness))
-            colorbase = colorHighlightBg;
-        else
-            colorbase = colorHighlightFg;
-        singleColor = colorbase;
+        singleColor = 0x049ee8;
     }
     // Determine text color
     textColor = QColor(QApplication::palette().color(QPalette::WindowText));
@@ -127,6 +127,80 @@ QIcon PlatformStyle::TextColorIcon(const QString& filename) const
 QIcon PlatformStyle::TextColorIcon(const QIcon& icon) const
 {
     return ColorizeIcon(icon, TextColor());
+}
+
+QIcon PlatformStyle::MultiStatesIcon(const QString &resourcename, StateType type, QColor color, QColor colorAlt) const
+{
+    QIcon icon;
+    switch (type) {
+    case NavBar:
+    {
+        QImage img1(resourcename);
+        QImage img2(img1);
+        QImage img3(img1);
+        QPixmap pix1 = MakeSingleColorPixmap(img1, color, 1);
+        QPixmap pix2 = MakeSingleColorPixmap(img2, color, 0.3);
+        QPixmap pix3 = MakeSingleColorPixmap(img3, colorAlt, 0.8);
+        icon.addPixmap(pix1, QIcon::Normal, QIcon::On);
+        icon.addPixmap(pix2, QIcon::Normal, QIcon::Off);
+        icon.addPixmap(pix3, QIcon::Selected, QIcon::On);
+        break;
+    }
+    case PushButton:
+    {
+        QImage img1(resourcename);
+        QImage img2(img1);
+        QPixmap pix1 = MakeSingleColorPixmap(img1, color, 0.7);
+        QPixmap pix2 = MakeSingleColorPixmap(img2, color, 0.2);
+        icon.addPixmap(pix1, QIcon::Normal, QIcon::Off);
+        icon.addPixmap(pix2, QIcon::Disabled, QIcon::On);
+        icon.addPixmap(pix2, QIcon::Disabled, QIcon::Off);
+        break;
+    }
+    default:
+        break;
+    }
+    return icon;
+}
+
+QIcon PlatformStyle::SingleColorIcon(const QString &resourcename, SingleColorType type) const
+{
+    QImage img = SingleColorImage(resourcename, type);
+    return QPixmap::fromImage(img);
+}
+
+QImage PlatformStyle::SingleColorImage(const QString& resourcename, SingleColorType type) const
+{
+    double opacity = 1;
+    int color = 0xffffff;
+    switch (type) {
+    case Normal:
+        opacity = 0.3;
+        color = 0xffffff;
+        break;
+    case Input:
+        opacity = 0.7;
+        color = 0x43b38a;
+        break;
+    case Inout:
+        opacity = 0.7;
+        color = 0x602dc8;
+        break;
+    case Output:
+        opacity = 0.7;
+        color = 0xe54a4a;
+        break;
+    case Error:
+        opacity = 0.7;
+        color = 0xd02e49;
+        break;
+    default:
+        break;
+    }
+
+    QImage img(resourcename);
+    MakeSingleColorImage(img, color, opacity);
+    return img;
 }
 
 const PlatformStyle *PlatformStyle::instantiate(const QString &platformId)

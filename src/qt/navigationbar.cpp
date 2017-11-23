@@ -21,11 +21,13 @@ static const int SubNavPaddingRight = 40;
 }
 using namespace NavigationBar_NS;
 
-class SubNavToolButton : public QToolButton
+class NavToolButton : public QToolButton
 {
 public:
-    explicit SubNavToolButton(QWidget * parent):
-        QToolButton(parent)
+    explicit NavToolButton(QWidget * parent, bool subBar):
+        QToolButton(parent),
+        m_subBar(subBar),
+        m_iconCached(false)
     {}
 
 protected:
@@ -34,16 +36,28 @@ protected:
         QStylePainter sp( this );
         QStyleOptionToolButton opt;
         initStyleOption( &opt );
-        const QString strText = opt.text;
 
-        //draw background
-        opt.text.clear();
-        opt.icon = QIcon();
-        sp.drawComplexControl( QStyle::CC_ToolButton, opt );
-        opt.text = strText;
+        if(m_subBar)
+        {
+            const QString strText = opt.text;
 
-        //draw label
-        drawLabel(&opt, &sp);
+            //draw background
+            opt.text.clear();
+            opt.icon = QIcon();
+            sp.drawComplexControl( QStyle::CC_ToolButton, opt );
+            opt.text = strText;
+
+            //draw label
+            drawLabel(&opt, &sp);
+        }
+        else
+        {
+            //update icon
+            updateIcon(opt);
+
+            //draw control
+            sp.drawComplexControl( QStyle::CC_ToolButton, opt );
+        }
     }
 
     void drawLabel(const QStyleOption *opt, QPainter *p)
@@ -92,6 +106,29 @@ protected:
             }
         }
     }
+
+    void updateIcon(QStyleOptionToolButton &toolbutton)
+    {
+        // Update mouse over icon
+        if((toolbutton.state & QStyle::State_Enabled) &&
+                !(toolbutton.state & (QStyle::State_Sunken | QStyle::State_On)) &&
+                (toolbutton.state & QStyle::State_MouseOver))
+        {
+            if(!m_iconCached)
+            {
+                QIcon icon = toolbutton.icon;
+                QPixmap pixmap = icon.pixmap(toolbutton.iconSize, QIcon::Selected, QIcon::On);
+                m_hoverIcon = QIcon(pixmap);
+                m_iconCached = true;
+            }
+            toolbutton.icon = m_hoverIcon;
+        }
+    }
+
+private:
+    bool m_subBar;
+    bool m_iconCached;
+    QIcon m_hoverIcon;
 };
 
 NavigationBar::NavigationBar(QWidget *parent) :
@@ -150,7 +187,7 @@ void NavigationBar::buildUi()
             QAction* action = m_actions[i];
             action->setActionGroup(actionGroup);
             action->setCheckable(true);
-            QToolButton* toolButton = m_subBar ? new SubNavToolButton(this) : new QToolButton(this);
+            QToolButton* toolButton = new NavToolButton(this, m_subBar);
             toolButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
             toolButton->setToolButtonStyle(m_toolStyle);
             toolButton->setDefaultAction(action);
