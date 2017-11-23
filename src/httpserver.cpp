@@ -522,14 +522,18 @@ static void httpevent_callback_fn(evutil_socket_t, short, void* data)
         delete self;
 }
 
-HTTPEvent::HTTPEvent(struct event_base* base, bool _deleteWhenTriggered, const std::function<void(void)>& _handler):
-    deleteWhenTriggered(_deleteWhenTriggered), handler(_handler)
+HTTPEvent::HTTPEvent(struct event_base* base, bool _deleteWhenTriggered, struct evbuffer *_databuf, const std::function<void(void)>& _handler):
+    deleteWhenTriggered(_deleteWhenTriggered), handler(_handler), databuf(_databuf)
 {
     ev = event_new(base, -1, 0, httpevent_callback_fn, this);
     assert(ev);
 }
+
 HTTPEvent::~HTTPEvent()
 {
+    if (databuf != NULL) {
+        evbuffer_free(databuf);
+    }
     event_free(ev);
 }
 void HTTPEvent::trigger(struct timeval* tv)
@@ -540,17 +544,54 @@ void HTTPEvent::trigger(struct timeval* tv)
         evtimer_add(ev, tv); // trigger after timeval passed
 }
 HTTPRequest::HTTPRequest(struct evhttp_request* _req) : req(_req),
-                                                       replySent(false)
+                                                        replySent(false),
+                                                        startedChunkTransfer(false),
+                                                        connClosed(false)
 {
 }
+
 HTTPRequest::~HTTPRequest()
 {
-    if (!replySent) {
+    if (!replySent && !startedChunkTransfer) {
         // Keep track of whether reply was sent to avoid request leaks
         LogPrintf("%s: Unhandled request\n", __func__);
         WriteReply(HTTP_INTERNAL, "Unhandled request");
     }
-    // evhttpd cleans up the request, as long as a reply was sent.
+}
+
+void HTTPRequest::waitClientClose() {
+    std::unique_lock<std::mutex> lock(cs);
+    closeCv.wait(lock);
+}
+
+void HTTPRequest::startDetectClientClose() {
+    // will need to call evhttp_send_reply_end to clean this up
+    auto conn = evhttp_request_get_connection(req);
+
+   // evhttp_connection_set_closecb does not reliably detect client connection close unless we write to it.
+   //
+   // This problem is supposedly resolved in 2.1.8. See: https://github.com/libevent/libevent/issues/78
+   //
+   // But we should just write to the socket to test liveness. This is useful for long-poll RPC calls to see
+   // if they should terminate the request early.
+   evhttp_connection_set_closecb(conn, [](struct evhttp_connection *conn, void *data) {
+       auto req = (HTTPRequest*) data;
+
+       req->setConnClosed();
+
+       LogPrintf("http connection closed\n");
+   }, (void *) this);
+}
+
+void HTTPRequest::setConnClosed() {
+    std::lock_guard<std::mutex> lock(cs);
+    connClosed = true;
+    closeCv.notify_all();
+}
+
+bool HTTPRequest::isConnClosed() {
+    std::lock_guard<std::mutex> lock(cs);
+    return connClosed;
 }
 
 std::pair<bool, std::string> HTTPRequest::GetHeader(const std::string& hdr)
@@ -584,11 +625,59 @@ std::string HTTPRequest::ReadBody()
     return rv;
 }
 
+bool HTTPRequest::ReplySent() {
+    return replySent;
+}
+
 void HTTPRequest::WriteHeader(const std::string& hdr, const std::string& value)
 {
     struct evkeyvalq* headers = evhttp_request_get_output_headers(req);
     assert(headers);
     evhttp_add_header(headers, hdr.c_str(), value.c_str());
+}
+
+void HTTPRequest::ChunkEnd() {
+    assert(startedChunkTransfer && !replySent);
+
+    HTTPEvent* ev = new HTTPEvent(eventBase, true, NULL,
+            std::bind(evhttp_send_reply_end, req));
+
+    ev->trigger(0);
+
+    // If HTTPRequest is destroyed before connection is closed, evhttp seems to get messed up.
+    // We wait here for connection close before returning back to the handler, where HTTPRequest will be reclaimed.
+    waitClientClose();
+
+    replySent = true;
+    // `WriteReply` sets req to 0 to prevent req from being freed. But this is not enough in the case of long-polling.
+    // Something is still freed to early.
+    // req = 0;
+}
+
+void HTTPRequest::Chunk(const std::string& chunk) {
+    assert(!replySent);
+
+    int status = 200;
+
+    if (!startedChunkTransfer) {
+        HTTPEvent* ev = new HTTPEvent(eventBase, true, NULL,
+                std::bind(evhttp_send_reply_start, req, status,
+                        (const char*) NULL));
+        ev->trigger(0);
+
+        startDetectClientClose();
+        startedChunkTransfer = true;
+    }
+
+
+    if (chunk.size() > 0) {
+        auto databuf = evbuffer_new(); // HTTPEvent will free this buffer
+        evbuffer_add(databuf, chunk.data(), chunk.size());
+
+        HTTPEvent* ev = new HTTPEvent(eventBase, true, databuf,
+                std::bind(evhttp_send_reply_chunk, req, databuf));
+        ev->trigger(0);
+    }
 }
 
 /** Closure sent to main thread to request a reply to be sent to
@@ -603,7 +692,7 @@ void HTTPRequest::WriteReply(int nStatus, const std::string& strReply)
     struct evbuffer* evb = evhttp_request_get_output_buffer(req);
     assert(evb);
     evbuffer_add(evb, strReply.data(), strReply.size());
-    HTTPEvent* ev = new HTTPEvent(eventBase, true,
+    HTTPEvent* ev = new HTTPEvent(eventBase, true, NULL,
         std::bind(evhttp_send_reply, req, nStatus, (const char*)NULL, (struct evbuffer *)NULL));
     ev->trigger(0);
     replySent = true;
