@@ -47,6 +47,9 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *_platformStyle, QWidget *p
     SetObjectStyleSheet(ui->clearButton, StyleSheetNames::ButtonBlack);
     SetObjectStyleSheet(ui->addButton, StyleSheetNames::ButtonBlack);
     SetObjectStyleSheet(ui->sendButton, StyleSheetNames::ButtonBlue);
+    SetObjectStyleSheet(ui->pushButtonCoinControl, StyleSheetNames::ButtonBlack);
+    SetObjectStyleSheet(ui->buttonChooseFee, StyleSheetNames::ButtonBlack);
+    SetObjectStyleSheet(ui->buttonMinimizeFee, StyleSheetNames::ButtonBlack);
 
     if (!_platformStyle->getImagesOnButtons()) {
         ui->addButton->setIcon(QIcon());
