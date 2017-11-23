@@ -1232,7 +1232,7 @@ private:
         if (!val.isNull()) {
             fromBlock = parseBlockHeight(val);
         } else {
-            fromBlock = latestblock.height;
+            fromBlock = latestblock.height + 1;
         }
     }
 
