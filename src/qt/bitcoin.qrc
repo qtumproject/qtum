@@ -112,6 +112,7 @@
         <file alias="toolgroupblack">res/styles/toolgroupblack.css</file>
         <file alias="toolsubblack">res/styles/toolsubblack.css</file>
         <file alias="treeview">res/styles/treeview.css</file>
+        <file alias="scrollbarlight">res/styles/scrollbarlight.css</file>
     </qresource>
     <qresource prefix="/styles/app-icons">
         <file alias="bg">res/styles/app-icons/bg.png</file>
