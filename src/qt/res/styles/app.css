@@ -649,7 +649,8 @@ Dialogs CSS
 QWidget#buttonsContainer {
     background: #ebeef3;
 }
-QWidget#buttonsContainerWhite {
+QWidget#buttonsContainerWhite,
+#buttonsContainerWhite_ {
     background: #ffffff;
 }
 QWidget#ReceiveRequestDialog {
