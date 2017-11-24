@@ -223,7 +223,7 @@ bool CBlockTreeDB::WriteHeightIndex(const CHeightTxIndexKey &heightIndex, const 
     return WriteBatch(batch);
 }
 
-size_t CBlockTreeDB::ReadHeightIndex(size_t low, size_t high,
+size_t CBlockTreeDB::ReadHeightIndex(size_t low, size_t high, size_t minconf,
         std::vector<std::vector<uint256>> &blocksOfHashes,
         std::set<dev::h160> const &addresses) {
 
@@ -244,6 +244,13 @@ size_t CBlockTreeDB::ReadHeightIndex(size_t low, size_t high,
 
         if (high > 0 && nextHeight > high) {
             break;
+        }
+
+        if (minconf > 0) {
+            auto conf = chainActive.Height() - nextHeight;
+            if (conf < minconf) {
+                break;
+            }
         }
 
         curheight = nextHeight;

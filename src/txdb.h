@@ -136,12 +136,13 @@ public:
      *
      * @param low start iterating from this block height
      * @param high end iterating at this block height (ignored if <= 0)
+     * @param minconf stop iterating of the block height does not have enough confirmations (ignored if <= 0)
      * @param blocksOfHashes transaction hashes in blocks iterated are collected into this vector.
      * @param addresses filter out a block unless it matches one of the addresses in this set.
      *
      * @return the height of the latest block iterated. 0 if no block is iterated.
      */
-    size_t ReadHeightIndex(size_t low, size_t high,
+    size_t ReadHeightIndex(size_t low, size_t high, size_t minconf,
             std::vector<std::vector<uint256>> &blocksOfHashes,
             std::set<dev::h160> const &addresses);
     bool EraseHeightIndex(const unsigned int &height);

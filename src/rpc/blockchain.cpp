@@ -1110,7 +1110,20 @@ void transactionReceiptInfoToJSON(const TransactionReceiptInfo& resExec, UniValu
     entry.push_back(Pair("log", logEntries));
 }
 
-int parseBlockHeight(const UniValue& val) {
+uint parseUInt(const UniValue& val, uint defaultVal) {
+    if (val.isNull()) {
+        return defaultVal;
+    } else {
+        int n = val.get_int();
+        if (n < 0) {
+            throw JSONRPCError(RPC_INVALID_PARAMS, "Expects unsigned integer");
+        }
+
+        return n;
+    }
+}
+
+uint parseBlockHeight(const UniValue& val) {
     if (val.isStr()) {
         auto blockKey = val.get_str();
 
@@ -1122,9 +1135,9 @@ int parseBlockHeight(const UniValue& val) {
     }
 
     if (val.isNum()) {
-        auto blockHeight = val.get_int();
+        int blockHeight = val.get_int();
 
-        if (blockHeight == -1) {
+        if (blockHeight < 0) {
             return latestblock.height;
         }
 
@@ -1134,6 +1147,13 @@ int parseBlockHeight(const UniValue& val) {
     throw JSONRPCError(RPC_INVALID_PARAMS, "invalid block number");
 }
 
+uint parseBlockHeight(const UniValue& val, uint defaultVal) {
+    if (val.isNull()) {
+        return defaultVal;
+    } else {
+        return parseBlockHeight(val);
+    }
+}
 
 dev::h160 parseParamH160(const UniValue& val) {
     if (!val.isStr()) {
@@ -1210,8 +1230,10 @@ void parseParam(const UniValue& val, std::vector<boost::optional<dev::h256>> &h2
 
 class WaitForLogsParams {
 public:
-    int fromBlock;
-    int toBlock;
+    size_t fromBlock;
+    size_t toBlock;
+
+    size_t minconf;
 
     std::set<dev::h160> addresses;
     std::vector<boost::optional<dev::h256>> topics;
@@ -1221,30 +1243,14 @@ public:
     WaitForLogsParams(const UniValue& params) {
         std::unique_lock<std::mutex> lock(cs_blockchange);
 
-        setFromBlock(params[0]);
-        setToBlock(params[1]);
+        fromBlock = parseBlockHeight(params[0], latestblock.height + 1);
+        toBlock = parseBlockHeight(params[1], 0);
 
         parseFilter(params[2]);
+        minconf = parseUInt(params[3], 6);
     }
 
 private:
-    void setFromBlock(const UniValue& val) {
-        if (!val.isNull()) {
-            fromBlock = parseBlockHeight(val);
-        } else {
-            fromBlock = latestblock.height + 1;
-        }
-    }
-
-    void setToBlock(const UniValue& val) {
-        if (!val.isNull()) {
-            toBlock = parseBlockHeight(val);
-        } else {
-            toBlock = 0;
-        }
-
-    }
-
     void parseFilter(const UniValue& val) {
         if (val.isNull()) {
             return;
@@ -1261,15 +1267,16 @@ UniValue waitforlogs(const JSONRPCRequest& request_) {
 
     if (request.fHelp) {
         throw runtime_error(
-                "waitforlogs (fromBlock) (toBlock) (filter) (timeout)\n"
+                "waitforlogs (fromBlock) (toBlock) (filter) (minconf)\n"
                 "requires -logevents to be enabled\n"
                 "\nWaits for a new logs and return matching log entries. When the call returns, it also specifies the next block number to start waiting for new logs.\n"
                 "By calling waitforlogs repeatedly using the returned `nextBlock` number, a client can receive a stream of up-to-date log entires.\n"
                 "\nThis call is different from the similarly named `waitforlogs`. This call returns individual matching log entries, `searchlogs` returns a transaction receipt if one of the log entries of that transaction matches the filter conditions.\n"
                 "\nArguments:\n"
-                "1. fromBlock (int | \"latest\", optional, default=\"latest\") The block number to start looking for logs. ()\n"
-                "2. toBlock   (int | \"latest\", optional, default=null) The block number to start looking for logs. If null, will wait indefinitely into the future.\n"
+                "1. fromBlock (int | \"latest\", optional, default=null) The block number to start looking for logs. ()\n"
+                "2. toBlock   (int | \"latest\", optional, default=null) The block number to stop looking for logs. If null, will wait indefinitely into the future.\n"
                 "3. filter    ({ addresses?: Hex160String[], topics?: Hex256String[] }, optional default={}) Filter conditions for logs. Addresses and topics are specified as array of hexadecimal strings\n"
+                "4. minconf   (uint, optional, default=6) Minimal number of confirmations before a log is returned\n"
                 "\nResult:\n"
                 "An object with the following properties:\n"
                 "1. logs (LogEntry[]) Array of matchiing log entries. This may be empty if `filter` removed all entries."
@@ -1279,8 +1286,8 @@ UniValue waitforlogs(const JSONRPCRequest& request_) {
                 "`waitforlogs` waits for new logs, starting from the tip of the chain.\n"
                 "`waitforlogs 600` waits for new logs, but starting from block 600. If there are logs available, this call will return immediately.\n"
                 "`waitforlogs 600 700` waits for new logs, but only up to 700th block\n"
-                "`waitforlogs '\"latest\"' null` this is equivalent to `waitforlogs`, using default parameter values\n"
-                "`waitforlogs '\"latest\"' null` { \"addresses\": [ \"ff0011...\" ], \"topics\": [ \"c0fefe\"] }` waits for logs in the future matching the specified conditions\n"
+                "`waitforlogs null null` this is equivalent to `waitforlogs`, using default parameter values\n"
+                "`waitforlogs null null` { \"addresses\": [ \"ff0011...\" ], \"topics\": [ \"c0fefe\"] }` waits for logs in the future matching the specified conditions\n"
                 "\nSample Output:\n"
                 "{\n  \"entries\": [\n    {\n      \"blockHash\": \"56d5f1f5ec239ef9c822d9ed600fe9aa63727071770ac7c0eabfc903bf7316d4\",\n      \"blockNumber\": 3286,\n      \"transactionHash\": \"00aa0f041ce333bc3a855b2cba03c41427cda04f0334d7f6cb0acad62f338ddc\",\n      \"transactionIndex\": 2,\n      \"from\": \"3f6866e2b59121ada1ddfc8edc84a92d9655675f\",\n      \"to\": \"8e1ee0b38b719abe8fa984c986eabb5bb5071b6b\",\n      \"cumulativeGasUsed\": 23709,\n      \"gasUsed\": 23709,\n      \"contractAddress\": \"8e1ee0b38b719abe8fa984c986eabb5bb5071b6b\",\n      \"topics\": [\n        \"f0e1159fa6dc12bb31e0098b7a1270c2bd50e760522991c6f0119160028d9916\",\n        \"0000000000000000000000000000000000000000000000000000000000000002\"\n      ],\n      \"data\": \"00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003\"\n    }\n  ],\n\n  \"count\": 7,\n  \"nextblock\": 801\n}\n"
                 );
@@ -1303,7 +1310,7 @@ UniValue waitforlogs(const JSONRPCRequest& request_) {
     while (curheight == 0) {
         {
             LOCK(cs_main);
-            curheight = pblocktree->ReadHeightIndex(params.fromBlock, params.toBlock,
+            curheight = pblocktree->ReadHeightIndex(params.fromBlock, params.toBlock, params.minconf,
                     hashesToBlock, addresses);
         }
 
@@ -1403,8 +1410,9 @@ UniValue waitforlogs(const JSONRPCRequest& request_) {
 
 class SearchLogsParams {
 public:
-    int fromBlock;
-    int toBlock;
+    size_t fromBlock;
+    size_t toBlock;
+    size_t minconf;
 
     std::set<dev::h160> addresses;
     std::vector<boost::optional<dev::h256>> topics;
@@ -1417,6 +1425,8 @@ public:
 
         parseParam(params[2]["addresses"], addresses);
         parseParam(params[3]["topics"], topics);
+
+        minconf = parseUInt(params[4], 6);
     }
 
 private:
@@ -1449,6 +1459,7 @@ UniValue searchlogs(const JSONRPCRequest& request)
              "2. \"toBlock\"          (string, required) The number of the latest block (-1 may be given to mean the most recent block).\n"
              "3. \"address\"          (string, optional) An address or a list of addresses to only get logs from particular account(s).\n"
              "4. \"topics\"           (string, optional) An array of values which must each appear in the log entries. The order is important, if you want to leave topics out use null, e.g. [\"null\", \"0x00...\"]. \n"
+             "5. \"minconf\"          (uint, optional, default=6) Minimal number of confirmations before a log is returned\n"
              "\nExamples:\n"
             + HelpExampleCli("searchlogs", "0 100 '{\"addresses\": [\"12ae42729af478ca92c8c66773a3e32115717be4\"]}' '{\"topics\": [\"null\",\"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"]}'")
             + HelpExampleRpc("searchlogs", "0 100 {\"addresses\": [\"12ae42729af478ca92c8c66773a3e32115717be4\"]} {\"topics\": [\"null\",\"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"]}")
@@ -1463,7 +1474,7 @@ UniValue searchlogs(const JSONRPCRequest& request)
     
     std::vector<std::vector<uint256>> hashesToBlock;
 
-    pblocktree->ReadHeightIndex(params.fromBlock, params.toBlock, hashesToBlock, params.addresses);
+    pblocktree->ReadHeightIndex(params.fromBlock, params.toBlock, params.minconf, hashesToBlock, params.addresses);
 
     UniValue result(UniValue::VARR);
     boost::filesystem::path stateDir = GetDataDir() / "stateQtum";
