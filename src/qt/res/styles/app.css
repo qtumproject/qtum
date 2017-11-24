@@ -167,6 +167,9 @@ QGroupBox::title {
 QGroupBox::title:disabled {
     color: rgba(255, 255, 255, 10%);
 }
+QGroupBox#groupBoxExpert {
+    background-color: transparent;
+}
 /*--------------------------------------------
 Slider CSS
 --------------------------------------------*/
