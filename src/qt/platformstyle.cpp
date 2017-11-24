@@ -70,7 +70,7 @@ QIcon ColorizeIcon(const QIcon& ico, const QColor& colorbase)
 QImage ColorizeImage(const QString& filename, const QColor& colorbase)
 {
     QImage img(filename);
-    MakeSingleColorImage(img, colorbase, 0.7);
+    MakeSingleColorImage(img, colorbase, 0.8);
     return img;
 }
 
@@ -92,7 +92,7 @@ PlatformStyle::PlatformStyle(const QString &_name, bool _imagesOnButtons, bool _
 {
     // Determine icon highlighting color
     if (colorizeIcons) {
-        singleColor = 0x049ee8;
+        singleColor = 0x008ac8;
     }
     // Determine text color
     textColor = QColor(QApplication::palette().color(QPalette::WindowText));
