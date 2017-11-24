@@ -54,29 +54,29 @@ QPixmap MakeSingleColorPixmap(QImage& img, const QColor& colorbase, double opaci
     return QPixmap::fromImage(img);
 }
 
-QIcon ColorizeIcon(const QIcon& ico, const QColor& colorbase)
+QIcon ColorizeIcon(const QIcon& ico, const QColor& colorbase, double opacity = 1)
 {
     QIcon new_ico;
     QSize sz;
     Q_FOREACH(sz, ico.availableSizes())
     {
         QImage img(ico.pixmap(sz).toImage());
-        MakeSingleColorImage(img, colorbase);
+        MakeSingleColorImage(img, colorbase, opacity);
         new_ico.addPixmap(QPixmap::fromImage(img));
     }
     return new_ico;
 }
 
-QImage ColorizeImage(const QString& filename, const QColor& colorbase)
+QImage ColorizeImage(const QString& filename, const QColor& colorbase, double opacity = 1)
 {
     QImage img(filename);
-    MakeSingleColorImage(img, colorbase, 0.8);
+    MakeSingleColorImage(img, colorbase, opacity);
     return img;
 }
 
-QIcon ColorizeIcon(const QString& filename, const QColor& colorbase)
+QIcon ColorizeIcon(const QString& filename, const QColor& colorbase, double opacity = 1)
 {
-    return QIcon(QPixmap::fromImage(ColorizeImage(filename, colorbase)));
+    return QIcon(QPixmap::fromImage(ColorizeImage(filename, colorbase, opacity)));
 }
 
 }
@@ -88,21 +88,23 @@ PlatformStyle::PlatformStyle(const QString &_name, bool _imagesOnButtons, bool _
     colorizeIcons(_colorizeIcons),
     useExtraSpacing(_useExtraSpacing),
     singleColor(0,0,0),
-    textColor(0,0,0)
+    textColor(0,0,0),
+    menuColor(0,0,0)
 {
     // Determine icon highlighting color
     if (colorizeIcons) {
         singleColor = 0x008ac8;
     }
     // Determine text color
-    textColor = QColor(QApplication::palette().color(QPalette::WindowText));
+    textColor = 0xe6f0f0;
+    menuColor = QColor(QApplication::palette().color(QPalette::WindowText));
 }
 
 QImage PlatformStyle::SingleColorImage(const QString& filename) const
 {
     if (!colorizeIcons)
         return QImage(filename);
-    return ColorizeImage(filename, SingleColor());
+    return ColorizeImage(filename, SingleColor(), 0.8);
 }
 
 QIcon PlatformStyle::SingleColorIcon(const QString& filename) const
@@ -121,12 +123,22 @@ QIcon PlatformStyle::SingleColorIcon(const QIcon& icon) const
 
 QIcon PlatformStyle::TextColorIcon(const QString& filename) const
 {
-    return ColorizeIcon(filename, TextColor());
+    return ColorizeIcon(filename, TextColor(), 0.6);
 }
 
 QIcon PlatformStyle::TextColorIcon(const QIcon& icon) const
 {
-    return ColorizeIcon(icon, TextColor());
+    return ColorizeIcon(icon, TextColor(), 0.6);
+}
+
+QIcon PlatformStyle::MenuColorIcon(const QString &filename) const
+{
+    return ColorizeIcon(filename, MenuColor(), 0.8);
+}
+
+QIcon PlatformStyle::MenuColorIcon(const QIcon &icon) const
+{
+    return ColorizeIcon(icon, MenuColor(), 0.8);
 }
 
 QIcon PlatformStyle::MultiStatesIcon(const QString &resourcename, StateType type, QColor color, QColor colorAlt) const

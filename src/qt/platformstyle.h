@@ -23,6 +23,7 @@ public:
 
     QColor TextColor() const { return textColor; }
     QColor SingleColor() const { return singleColor; }
+    QColor MenuColor() const { return menuColor; }
 
     /** Colorize an image (given filename) with the icon color */
     QImage SingleColorImage(const QString& filename) const;
@@ -38,6 +39,12 @@ public:
 
     /** Colorize an icon (given object) with the text color */
     QIcon TextColorIcon(const QIcon& icon) const;
+
+    /** Colorize an icon (given filename) with the menu text color */
+    QIcon MenuColorIcon(const QString& filename) const;
+
+    /** Colorize an icon (given object) with the menu text color */
+    QIcon MenuColorIcon(const QIcon& icon) const;
 
     enum StateType{
         NavBar = 0,
@@ -65,6 +72,7 @@ private:
     bool useExtraSpacing;
     QColor singleColor;
     QColor textColor;
+    QColor menuColor;
     /* ... more to come later */
 };
 
