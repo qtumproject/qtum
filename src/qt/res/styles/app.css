@@ -35,7 +35,10 @@ QMainWindow .QFrame#frameBalances,
 QMainWindow .QFrame#frameContract{
     background-color: #2a2a2a;
 }
-QFrame#hLine{
+QFrame#hLine,
+#hLine2,
+#hLine3,
+#hLine4{
     border-top: 1px solid #404041;
 }
 WalletFrame{
@@ -51,8 +54,15 @@ QLabel::disabled{
     color: rgba(255, 255, 255, 10%);
 }
 QLabel#labelTotal,
-#labelWatchTotal{
+#labelWatchTotal,
+#labelGeneral,
+#labelNetwork,
+#labelBlockChain,
+#labelMempoolTitle{
     color: #049ee8;
+}
+QLabel#overriddenByCommandLineLabel{
+    color: #bdbdbd;
 }
 /*-------------------------------------------- 
 Line Edit CSS
@@ -497,7 +507,7 @@ Tab Bar CSS
 QTabBar::tab {
     background-color: transparent;
     color: rgba(255, 255, 255, 60%);
-    padding: 5px 10px;
+    padding: 10px 15px;
     border-width: 0px;
     border-radius: 0px;
     border-style: none;
@@ -518,6 +528,9 @@ QTabWidget::pane {
     border: 1px solid #2e2e2e;
     border-top: none;
     background-color: #2e2e2e;
+}
+TitleBar QTabBar::tab {
+    padding: 5px 10px;
 }
 /*--------------------------------------------
 MenuBar CSS
