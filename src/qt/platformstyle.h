@@ -53,15 +53,14 @@ public:
     /** Get multi-states icon*/
     QIcon MultiStatesIcon(const QString& resourcename, StateType type = NavBar, QColor color = Qt::white, QColor colorAlt = 0x2d2d2d) const;
 
-    enum SingleColorType{
+    enum TableColorType{
         Normal = 0,
         Input,
         Inout,
         Output,
         Error
     };
-    QImage SingleColorImage(const QString& resourcename, SingleColorType type) const;
-    QIcon SingleColorIcon(const QString& resourcename, SingleColorType type) const;
+    QIcon TableColorIcon(const QString& resourcename, TableColorType type) const;
 
 private:
     PlatformStyle(const QString &name, bool imagesOnButtons, bool colorizeIcons, bool useExtraSpacing);

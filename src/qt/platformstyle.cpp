@@ -175,44 +175,54 @@ QIcon PlatformStyle::MultiStatesIcon(const QString &resourcename, StateType type
     return icon;
 }
 
-QIcon PlatformStyle::SingleColorIcon(const QString &resourcename, SingleColorType type) const
+QIcon PlatformStyle::TableColorIcon(const QString &resourcename, TableColorType type) const
 {
-    QImage img = SingleColorImage(resourcename, type);
-    return QPixmap::fromImage(img);
-}
-
-QImage PlatformStyle::SingleColorImage(const QString& resourcename, SingleColorType type) const
-{
+    // Initialize variables
+    QIcon icon;
+    QImage img1(resourcename);
+    QImage img2(img1);
     double opacity = 1;
+    double opacitySelected = 0.8;
     int color = 0xffffff;
+    int colorSelected = 0xffffff;
+
+    // Choose color
     switch (type) {
     case Normal:
         opacity = 0.3;
         color = 0xffffff;
         break;
     case Input:
-        opacity = 0.7;
-        color = 0x43b38a;
+        opacity = 0.8;
+        color = 0x2fa5df;
         break;
     case Inout:
-        opacity = 0.7;
-        color = 0x602dc8;
+        opacity = 0.8;
+        color = 0x40bb00;
         break;
     case Output:
-        opacity = 0.7;
-        color = 0xe54a4a;
+        opacity = 0.8;
+        color = 0x40bb00;
         break;
     case Error:
-        opacity = 0.7;
+        opacity = 0.8;
         color = 0xd02e49;
         break;
     default:
         break;
     }
 
-    QImage img(resourcename);
-    MakeSingleColorImage(img, color, opacity);
-    return img;
+    // Create pixmaps
+    QPixmap pix1 = MakeSingleColorPixmap(img1, color, opacity);
+    QPixmap pix2 = MakeSingleColorPixmap(img2, colorSelected, opacitySelected);
+
+    // Create icon
+    icon.addPixmap(pix1, QIcon::Normal, QIcon::On);
+    icon.addPixmap(pix1, QIcon::Normal, QIcon::Off);
+    icon.addPixmap(pix2, QIcon::Selected, QIcon::On);
+    icon.addPixmap(pix2, QIcon::Selected, QIcon::Off);
+
+    return icon;
 }
 
 const PlatformStyle *PlatformStyle::instantiate(const QString &platformId)
