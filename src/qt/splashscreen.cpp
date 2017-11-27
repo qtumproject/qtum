@@ -26,14 +26,15 @@
 #include <QPainter>
 #include <QRadialGradient>
 
+#define STATUS_FONT_SIZE 10
+
 SplashScreen::SplashScreen(Qt::WindowFlags f, const NetworkStyle *networkStyle) :
     QWidget(0, f), curAlignment(0)
 {
-    // set reference point, paddings
-    int paddingRight            = 50;
-    int paddingTop              = 50;
-    int titleVersionVSpace      = 17;
-    int titleCopyrightVSpace    = 40;
+    // set sizes
+    int versionTextHeight       = 30;
+    int statusHeight            = 30;
+    int titleAddTextHeight      = 20;
 
     float fontFactor            = 1.0;
     float devicePixelRatio      = 1.0;
@@ -59,65 +60,42 @@ SplashScreen::SplashScreen(Qt::WindowFlags f, const NetworkStyle *networkStyle) 
 #endif
 
     QPainter pixPaint(&pixmap);
-    pixPaint.setPen(QColor(100,100,100));
+    pixPaint.setPen(QColor("#ffffff"));
 
-    // draw a slightly radial gradient
-    QRadialGradient gradient(QPoint(0,0), splashSize.width()/devicePixelRatio);
-    gradient.setColorAt(0, Qt::white);
-    gradient.setColorAt(1, QColor(247,247,247));
-    QRect rGradient(QPoint(0,0), splashSize);
-    pixPaint.fillRect(rGradient, gradient);
+    QRect mainRect(QPoint(0,0), splashSize);
+    pixPaint.fillRect(mainRect, QColor("#030509"));
 
-    // draw the bitcoin icon, expected size of PNG: 1024x1024
-    QRect rectIcon(QPoint(-150,-122), QSize(430,430));
+    // draw background
+    QRect rectBg(QPoint(-50, -50), QSize(splashSize.width() + 50, splashSize.height() + 50));
+    QPixmap bg(":/styles/app-icons/splash_bg");
+    pixPaint.drawPixmap(rectBg, bg);
 
-    const QSize requiredSize(1024,1024);
-    QPixmap icon(networkStyle->getAppIcon().pixmap(requiredSize));
+    pixPaint.setFont(QFont(font, 32*fontFactor, QFont::Bold));
+    QRect rectTitle(QPoint(0,0), QSize(splashSize.width(), (splashSize.height() / 2)));
+    pixPaint.drawText(rectTitle, Qt::AlignHCenter | Qt::AlignBottom, titleText);
 
-    pixPaint.drawPixmap(rectIcon, icon);
-
-    // check font size and drawing with
-    pixPaint.setFont(QFont(font, 33*fontFactor));
-    QFontMetrics fm = pixPaint.fontMetrics();
-    int titleTextWidth = fm.width(titleText);
-    if (titleTextWidth > 176) {
-        fontFactor = fontFactor * 176 / titleTextWidth;
-    }
-
-    pixPaint.setFont(QFont(font, 33*fontFactor));
-    fm = pixPaint.fontMetrics();
-    titleTextWidth  = fm.width(titleText);
-    pixPaint.drawText(pixmap.width()/devicePixelRatio-titleTextWidth-paddingRight,paddingTop,titleText);
-
-    pixPaint.setFont(QFont(font, 15*fontFactor));
-
-    // if the version string is to long, reduce size
-    fm = pixPaint.fontMetrics();
-    int versionTextWidth  = fm.width(versionText);
-    if(versionTextWidth > titleTextWidth+paddingRight-10) {
-        pixPaint.setFont(QFont(font, 10*fontFactor));
-        titleVersionVSpace -= 5;
-    }
-    pixPaint.drawText(pixmap.width()/devicePixelRatio-titleTextWidth-paddingRight+2,paddingTop+titleVersionVSpace,versionText);
-
-    // draw copyright stuff
-    {
-        pixPaint.setFont(QFont(font, 10*fontFactor));
-        const int x = pixmap.width()/devicePixelRatio-titleTextWidth-paddingRight;
-        const int y = paddingTop+titleCopyrightVSpace;
-        QRect copyrightRect(x, y, pixmap.width() - x - paddingRight, pixmap.height() - y);
-        pixPaint.drawText(copyrightRect, Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap, copyrightText);
-    }
+    QPoint versionPoint(rectTitle.bottomLeft());
 
     // draw additional text if special network
-    if(!titleAddText.isEmpty()) {
-        QFont boldFont = QFont(font, 10*fontFactor);
-        boldFont.setWeight(QFont::Bold);
-        pixPaint.setFont(boldFont);
-        fm = pixPaint.fontMetrics();
-        int titleAddTextWidth  = fm.width(titleAddText);
-        pixPaint.drawText(pixmap.width()/devicePixelRatio-titleAddTextWidth-10,15,titleAddText);
+    if(!titleAddText.isEmpty())
+    {
+        QRect titleAddRect(rectTitle.bottomLeft(), QSize(rectTitle.width(), titleAddTextHeight));
+        versionPoint = titleAddRect.bottomLeft();
+        pixPaint.setFont(QFont(font, 8*fontFactor, QFont::Bold));
+        pixPaint.drawText(titleAddRect, Qt::AlignHCenter | Qt::AlignVCenter, titleAddText);
     }
+
+    pixPaint.setFont(QFont(font, 11*fontFactor));
+    QRect versionRect(versionPoint, QSize(rectTitle.width(), versionTextHeight));
+    pixPaint.drawText(versionRect, Qt::AlignHCenter | Qt::AlignTop, versionText);
+
+    // draw copyright stuff
+    pixPaint.setFont(QFont(font, STATUS_FONT_SIZE*fontFactor));
+    QRect statusRect(mainRect.left(), mainRect.height() - statusHeight, mainRect.width(), statusHeight);
+    QColor statusColor(255, 255, 255);
+    statusColor.setAlphaF(0.1);
+    pixPaint.fillRect(statusRect, statusColor);
+    pixPaint.drawText(statusRect.adjusted(10, 10, -10, -10), Qt::AlignLeft | Qt::AlignVCenter, copyrightText);
 
     pixPaint.end();
 
@@ -155,8 +133,8 @@ static void InitMessage(SplashScreen *splash, const std::string &message)
     QMetaObject::invokeMethod(splash, "showMessage",
         Qt::QueuedConnection,
         Q_ARG(QString, QString::fromStdString(message)),
-        Q_ARG(int, Qt::AlignBottom|Qt::AlignHCenter),
-        Q_ARG(QColor, QColor(55,55,55)));
+        Q_ARG(int, Qt::AlignBottom|Qt::AlignRight),
+        Q_ARG(QColor, QColor("#ffffff")));
 }
 
 static void ShowProgress(SplashScreen *splash, const std::string &title, int nProgress)
@@ -206,8 +184,10 @@ void SplashScreen::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
     painter.drawPixmap(0, 0, pixmap);
-    QRect r = rect().adjusted(5, 5, -5, -5);
+    QRect r = rect().adjusted(10, 10, -10, -10);
     painter.setPen(curColor);
+    QString font = QApplication::font().toString();
+    painter.setFont(QFont(font, STATUS_FONT_SIZE * 1.0));
     painter.drawText(r, curAlignment, curMessage);
 }
 
