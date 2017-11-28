@@ -63,6 +63,10 @@ public:
 
     void setAddressColumn(int addressColumn);
 
+    void setTypeRole(int typeRole);
+
+    void setReceive(const QString &receive);
+
 Q_SIGNALS:
     /**
      * @brief addressTypeChanged Signal that the address type is changed
@@ -94,6 +98,8 @@ private:
     AddressType m_addressType;
     QAbstractItemModel* m_addressTableModel;
     int m_addressColumn;
+    int m_typeRole;
+    QString m_receive;
 };
 
 #endif // ADDRESSFIELD_H
