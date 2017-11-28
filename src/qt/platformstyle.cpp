@@ -187,6 +187,44 @@ QIcon PlatformStyle::TableColorIcon(const QString &resourcename, TableColorType 
     int colorSelected = 0xffffff;
 
     // Choose color
+    TableColor(type, color, opacity);
+
+    // Create pixmaps
+    QPixmap pix1 = MakeSingleColorPixmap(img1, color, opacity);
+    QPixmap pix2 = MakeSingleColorPixmap(img2, colorSelected, opacitySelected);
+
+    // Create icon
+    icon.addPixmap(pix1, QIcon::Normal, QIcon::On);
+    icon.addPixmap(pix1, QIcon::Normal, QIcon::Off);
+    icon.addPixmap(pix2, QIcon::Selected, QIcon::On);
+    icon.addPixmap(pix2, QIcon::Selected, QIcon::Off);
+
+    return icon;
+}
+
+QImage PlatformStyle::TableColorImage(const QString &resourcename, PlatformStyle::TableColorType type) const
+{
+    // Initialize variables
+    QImage img(resourcename);
+    double opacity = 1;
+    int color = 0xffffff;
+
+    // Choose color
+    TableColor(type, color, opacity);
+
+    // Create imtge
+    MakeSingleColorImage(img, color, opacity);
+
+    return img;
+}
+
+void PlatformStyle::TableColor(PlatformStyle::TableColorType type, int &color, double &opacity) const
+{
+    // Initialize variables
+    opacity = 1;
+    color = 0xffffff;
+
+    // Choose color
     switch (type) {
     case Normal:
         opacity = 0.3;
@@ -211,18 +249,6 @@ QIcon PlatformStyle::TableColorIcon(const QString &resourcename, TableColorType 
     default:
         break;
     }
-
-    // Create pixmaps
-    QPixmap pix1 = MakeSingleColorPixmap(img1, color, opacity);
-    QPixmap pix2 = MakeSingleColorPixmap(img2, colorSelected, opacitySelected);
-
-    // Create icon
-    icon.addPixmap(pix1, QIcon::Normal, QIcon::On);
-    icon.addPixmap(pix1, QIcon::Normal, QIcon::Off);
-    icon.addPixmap(pix2, QIcon::Selected, QIcon::On);
-    icon.addPixmap(pix2, QIcon::Selected, QIcon::Off);
-
-    return icon;
 }
 
 const PlatformStyle *PlatformStyle::instantiate(const QString &platformId)

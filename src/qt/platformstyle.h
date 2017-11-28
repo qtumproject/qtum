@@ -61,6 +61,8 @@ public:
         Error
     };
     QIcon TableColorIcon(const QString& resourcename, TableColorType type) const;
+    QImage TableColorImage(const QString& resourcename, TableColorType type) const;
+    void TableColor(TableColorType type, int& color, double& opacity) const;
 
 private:
     PlatformStyle(const QString &name, bool imagesOnButtons, bool colorizeIcons, bool useExtraSpacing);

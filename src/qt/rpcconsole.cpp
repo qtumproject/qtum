@@ -57,11 +57,12 @@ const char fontSizeSettingsKey[] = "consoleFontSize";
 const struct {
     const char *url;
     const char *source;
+    PlatformStyle::TableColorType type;
 } ICON_MAPPING[] = {
-    {"cmd-request", ":/icons/tx_input"},
-    {"cmd-reply", ":/icons/tx_output"},
-    {"cmd-error", ":/icons/tx_output"},
-    {"misc", ":/icons/tx_inout"},
+    {"cmd-request", ":/icons/tx_input", PlatformStyle::Input},
+    {"cmd-reply", ":/icons/tx_output", PlatformStyle::Output},
+    {"cmd-error", ":/icons/tx_output", PlatformStyle::Error},
+    {"misc", ":/icons/tx_inout", PlatformStyle::Inout},
     {NULL, NULL}
 };
 
@@ -438,6 +439,7 @@ RPCConsole::RPCConsole(const PlatformStyle *_platformStyle, QWidget *parent) :
     ui->clearButton->setIcon(platformStyle->MultiStatesIcon(":/icons/remove", PlatformStyle::PushButton));
     ui->fontBiggerButton->setIcon(platformStyle->MultiStatesIcon(":/icons/fontbigger", PlatformStyle::PushButton));
     ui->fontSmallerButton->setIcon(platformStyle->MultiStatesIcon(":/icons/fontsmaller", PlatformStyle::PushButton));
+    ui->promptIcon->setIcon(platformStyle->MultiStatesIcon(":/icons/prompticon", PlatformStyle::PushButton));
 
     // Install event filter for up and down arrow
     ui->lineEdit->installEventFilter(this);
@@ -717,7 +719,7 @@ void RPCConsole::clear(bool clearHistory)
         ui->messagesWidget->document()->addResource(
                     QTextDocument::ImageResource,
                     QUrl(ICON_MAPPING[i].url),
-                    platformStyle->SingleColorImage(ICON_MAPPING[i].source).scaled(QSize(consoleFontSize*2, consoleFontSize*2), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+                    platformStyle->TableColorImage(ICON_MAPPING[i].source, ICON_MAPPING[i].type).scaled(QSize(consoleFontSize*2, consoleFontSize*2), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
     }
 
     // Set default style sheet
