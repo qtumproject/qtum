@@ -144,7 +144,9 @@ void AddressField::on_editingFinished()
 
 void AddressField::appendAddress(const QString &strAddress)
 {
-    if(!m_stringList.contains(strAddress))
+    CBitcoinAddress address(strAddress.toStdString());
+    if(!m_stringList.contains(strAddress) &&
+            IsMine(*pwalletMain, address.Get()))
     {
         m_stringList.append(strAddress);
     }
