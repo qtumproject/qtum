@@ -125,12 +125,6 @@ QComboBox:down-arrow:on {
     height: 10px;
     top: 1px;
 }
-QComboBox:on {
-    padding-top: 6px;
-    border-bottom: 3px solid #3e3e3e;
-    border-bottom-right-radius: 0px;
-    border-bottom-left-radius: 0px;
-}
 QComboBox QAbstractItemView::item {
     border: none;
     border-radius: 10px;
@@ -147,10 +141,12 @@ QComboBox QAbstractItemView::item:selected {
 QComboBox QAbstractItemView{
     background-color: #2e2e2e;
     border: none;
+    border-top: 1px solid #727272;
     border-bottom: 1px solid #727272;
-    border-bottom-right-radius: 10px;
-    border-bottom-left-radius: 10px;
+    border-radius: 10px;
     padding: 4px;
+    margin-top: 3px;
+    margin-bottom: 3px;
 }
 QComboBox::disabled {
     border-bottom: 1px solid rgba(114, 114, 114, 40%);
@@ -288,10 +284,12 @@ QAbstractSpinBox::disabled {
     border: 1px solid rgba(59, 59, 59, 40%);
     color: rgba(189, 189, 189, 10%);
 }
-QAbstractSpinBox::up-arrow:disabled{
+QAbstractSpinBox::up-arrow:disabled,
+QAbstractSpinBox::up-arrow:off {
     image: url(":/styles/app-icons/up_arrow_disabled");
 }
-QAbstractSpinBox::down-arrow:disabled{
+QAbstractSpinBox::down-arrow:disabled,
+QAbstractSpinBox::down-arrow:off {
     image: url(":/styles/app-icons/down_arrow_disabled");
 }
 /*--------------------------------------------
@@ -356,6 +354,9 @@ QTextEdit QScrollBar::handle:vertical {
 }
 QTextEdit QScrollBar::handle:vertical:disabled {
     background: rgba(76, 76, 76, 40%);
+}
+QComboBox QScrollBar:vertical {
+    border-radius: 7px;
 }
 /*--------------------------------------------
 Scroll Bar Horizontal CSS

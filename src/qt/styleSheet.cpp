@@ -23,8 +23,11 @@ public:
         if(widget && widget->inherits("QComboBox"))
         {
             QComboBox* comboBox = (QComboBox*)widget;
-            //comboBox->setView(new QListView());
-            //qApp->processEvents();
+            if(comboBox->view() && comboBox->view()->inherits("QComboBoxListView"))
+            {
+                comboBox->setView(new QListView());
+                qApp->processEvents();
+            }
 
             if(comboBox->view() && comboBox->view()->parentWidget())
             {
