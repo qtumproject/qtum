@@ -125,7 +125,7 @@ public:
         }
 
         QRect amountRect(addressRect.right() + MARGIN, addressRect.top(), AMOUNT_WIDTH, TX_SIZE);
-        painter->drawText(amountRect, Qt::AlignLeft|Qt::AlignVCenter, amountText);
+        painter->drawText(amountRect, Qt::AlignRight|Qt::AlignVCenter, amountText);
 
         painter->restore();
     }
