@@ -78,7 +78,7 @@ TokenTransactionView::TokenTransactionView(const PlatformStyle *platformStyle, Q
 #if QT_VERSION >= 0x040700
     amountWidget->setPlaceholderText(tr("Min amount"));
 #endif
-    amountWidget->setFixedWidth(AMOUNT_MINIMUM_COLUMN_WIDTH - 10);
+    amountWidget->setFixedWidth(AMOUNT_COLUMN_WIDTH - 10);
 
     QRegularExpression regEx;
     regEx.setPattern(paternTokenAmount);
@@ -171,7 +171,7 @@ void TokenTransactionView::setModel(WalletModel *_model)
         tokenView->setColumnWidth(TokenTransactionTableModel::Date, DATE_COLUMN_WIDTH);
         tokenView->setColumnWidth(TokenTransactionTableModel::Type, TYPE_COLUMN_WIDTH);
         tokenView->setColumnWidth(TokenTransactionTableModel::Name, NAME_COLUMN_WIDTH);
-        tokenView->setColumnWidth(TokenTransactionTableModel::Amount, AMOUNT_MINIMUM_COLUMN_WIDTH);
+        tokenView->setColumnWidth(TokenTransactionTableModel::Amount, AMOUNT_COLUMN_WIDTH);
 
         columnResizingFixer = new GUIUtil::TableViewLastColumnResizingFixer(tokenView, AMOUNT_MINIMUM_COLUMN_WIDTH, MINIMUM_COLUMN_WIDTH, this, 3);
     }
