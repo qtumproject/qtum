@@ -97,8 +97,11 @@ public:
         addressFont.setPointSizeF(addressFont.pointSizeF() * 0.95);
         painter->setFont(addressFont);
 
+        QFontMetrics fmName(painter->font());
+        QString clippedAddress = fmName.elidedText(address, Qt::ElideRight, addressWidth);
+
         QRect addressRect(typeRect.right() + addressMargin, mainRect.top(), addressWidth, TX_SIZE);
-        painter->drawText(addressRect, Qt::AlignLeft|Qt::AlignVCenter, address);
+        painter->drawText(addressRect, Qt::AlignLeft|Qt::AlignVCenter, clippedAddress);
 
         QFont amountFont = option.font;
         amountFont.setBold(true);
