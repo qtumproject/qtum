@@ -26,8 +26,6 @@
 #include <QPainter>
 #include <QRadialGradient>
 
-#define STATUS_FONT_SIZE 10
-
 SplashScreen::SplashScreen(Qt::WindowFlags f, const NetworkStyle *networkStyle) :
     QWidget(0, f), curAlignment(0)
 {
@@ -90,12 +88,14 @@ SplashScreen::SplashScreen(Qt::WindowFlags f, const NetworkStyle *networkStyle) 
     pixPaint.drawText(versionRect, Qt::AlignHCenter | Qt::AlignTop, versionText);
 
     // draw copyright stuff
-    pixPaint.setFont(QFont(font, STATUS_FONT_SIZE*fontFactor));
+    QFont statusFont = QApplication::font();
+    statusFont.setPointSizeF(statusFont.pointSizeF() * 0.9);
+    pixPaint.setFont(statusFont);
     QRect statusRect(mainRect.left(), mainRect.height() - statusHeight, mainRect.width(), statusHeight);
     QColor statusColor(255, 255, 255);
     statusColor.setAlphaF(0.1);
     pixPaint.fillRect(statusRect, statusColor);
-    pixPaint.drawText(statusRect.adjusted(10, 10, -10, -10), Qt::AlignLeft | Qt::AlignVCenter, copyrightText);
+    pixPaint.drawText(statusRect.adjusted(10, 0, -10, 0), Qt::AlignLeft | Qt::AlignVCenter, copyrightText);
 
     pixPaint.end();
 
@@ -186,8 +186,9 @@ void SplashScreen::paintEvent(QPaintEvent *event)
     painter.drawPixmap(0, 0, pixmap);
     QRect r = rect().adjusted(10, 10, -10, -10);
     painter.setPen(curColor);
-    QString font = QApplication::font().toString();
-    painter.setFont(QFont(font, STATUS_FONT_SIZE * 1.0));
+    QFont font = QApplication::font();
+    font.setPointSizeF(font.pointSizeF() * 0.9);
+    painter.setFont(font);
     painter.drawText(r, curAlignment, curMessage);
 }
 
