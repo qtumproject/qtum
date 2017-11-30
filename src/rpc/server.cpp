@@ -372,6 +372,7 @@ void JSONRPCRequest::PollStart() {
     // send an empty space to the client to ensure that it's still alive.
     assert(!isLongPolling);
     req->WriteHeader("Content-Type", "application/json");
+    req->WriteHeader("Connection", "close");
     req->Chunk(std::string(" "));
     isLongPolling = true;
 }
