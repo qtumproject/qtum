@@ -83,8 +83,8 @@ CreateContract::CreateContract(const PlatformStyle *platformStyle, QWidget *pare
     m_contractABI = new ContractABI();
 
     // Connect signals with slots
-    connect(ui->pushButtonClearAll, SIGNAL(clicked()), SLOT(on_clearAll_clicked()));
-    connect(ui->pushButtonCreateContract, SIGNAL(clicked()), SLOT(on_createContract_clicked()));
+    connect(ui->pushButtonClearAll, SIGNAL(clicked()), SLOT(on_clearAllClicked()));
+    connect(ui->pushButtonCreateContract, SIGNAL(clicked()), SLOT(on_createContractClicked()));
     connect(ui->textEditBytecode, SIGNAL(textChanged()), SLOT(on_updateCreateButton()));
     connect(ui->textEditInterface, SIGNAL(textChanged()), SLOT(on_newContractABI()));
     connect(ui->stackedWidget, SIGNAL(currentChanged(int)), SLOT(on_updateCreateButton()));
@@ -156,7 +156,7 @@ void CreateContract::setClientModel(ClientModel *_clientModel)
     }
 }
 
-void CreateContract::on_clearAll_clicked()
+void CreateContract::on_clearAllClicked()
 {
     ui->textEditBytecode->clear();
     ui->lineEditGasLimit->setValue(DEFAULT_GAS_LIMIT_OP_CREATE);
@@ -174,7 +174,7 @@ void CreateContract::on_clearAll_clicked()
     m_tabInfo->setCurrent(0);
 }
 
-void CreateContract::on_createContract_clicked()
+void CreateContract::on_createContractClicked()
 {
     if(isDataValid())
     {

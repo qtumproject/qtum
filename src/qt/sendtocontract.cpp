@@ -97,8 +97,8 @@ SendToContract::SendToContract(const PlatformStyle *platformStyle, QWidget *pare
     m_contractABI = new ContractABI();
 
     // Connect signals with slots
-    connect(ui->pushButtonClearAll, SIGNAL(clicked()), SLOT(on_clearAll_clicked()));
-    connect(ui->pushButtonSendToContract, SIGNAL(clicked()), SLOT(on_sendToContract_clicked()));
+    connect(ui->pushButtonClearAll, SIGNAL(clicked()), SLOT(on_clearAllClicked()));
+    connect(ui->pushButtonSendToContract, SIGNAL(clicked()), SLOT(on_sendToContractClicked()));
     connect(ui->lineEditContractAddress, SIGNAL(textChanged(QString)), SLOT(on_updateSendToContractButton()));
     connect(ui->textEditInterface, SIGNAL(textChanged()), SLOT(on_newContractABI()));
     connect(ui->stackedWidget, SIGNAL(currentChanged(int)), SLOT(on_updateSendToContractButton()));
@@ -170,7 +170,7 @@ void SendToContract::setClientModel(ClientModel *_clientModel)
     }
 }
 
-void SendToContract::on_clearAll_clicked()
+void SendToContract::on_clearAllClicked()
 {
     ui->lineEditContractAddress->clear();
     ui->lineEditAmount->clear();
@@ -191,7 +191,7 @@ void SendToContract::on_clearAll_clicked()
     m_tabInfo->setCurrent(0);
 }
 
-void SendToContract::on_sendToContract_clicked()
+void SendToContract::on_sendToContractClicked()
 {
     if(isDataValid())
     {

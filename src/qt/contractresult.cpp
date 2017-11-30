@@ -62,13 +62,13 @@ void ContractResult::setParamsData(FunctionABI function, QList<QStringList> para
     int i = 0;
     for(std::vector<ParameterABI>::const_iterator param = function.inputs.begin(); param != function.inputs.end(); ++param)
     {
-        QHBoxLayout *hLayout = new QHBoxLayout(widgetParams);
+        QHBoxLayout *hLayout = new QHBoxLayout();
         hLayout->setSpacing(10);
         hLayout->setContentsMargins(0,0,0,0);
-        QVBoxLayout *vNameLayout = new QVBoxLayout(widgetParams);
+        QVBoxLayout *vNameLayout = new QVBoxLayout();
         vNameLayout->setSpacing(3);
         vNameLayout->setContentsMargins(0,0,0,0);
-        QVBoxLayout *paramValuesLayout = new QVBoxLayout(widgetParams);
+        QVBoxLayout *paramValuesLayout = new QVBoxLayout();
         paramValuesLayout->setSpacing(3);
         paramValuesLayout->setContentsMargins(0,0,0,0);
 
@@ -176,13 +176,13 @@ void ContractResult::updateCallResult(QVariant result, FunctionABI function, QLi
 
             for(size_t i = 0; i < values.size(); i++)
             {
-                QHBoxLayout *hLayout = new QHBoxLayout(widgetResults);
+                QHBoxLayout *hLayout = new QHBoxLayout();
                 hLayout->setSpacing(10);
                 hLayout->setContentsMargins(0,0,0,0);
-                QVBoxLayout *vNameLayout = new QVBoxLayout(widgetResults);
+                QVBoxLayout *vNameLayout = new QVBoxLayout();
                 vNameLayout->setSpacing(3);
                 vNameLayout->setContentsMargins(0,0,0,0);
-                QVBoxLayout *paramValuesLayout = new QVBoxLayout(widgetResults);
+                QVBoxLayout *paramValuesLayout = new QVBoxLayout();
                 paramValuesLayout->setSpacing(3);
                 paramValuesLayout->setContentsMargins(0,0,0,0);
 

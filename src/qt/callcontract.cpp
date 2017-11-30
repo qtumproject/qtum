@@ -71,8 +71,8 @@ CallContract::CallContract(const PlatformStyle *platformStyle, QWidget *parent) 
     m_contractABI = new ContractABI();
 
     // Connect signals with slots
-    connect(ui->pushButtonClearAll, SIGNAL(clicked()), SLOT(on_clearAll_clicked()));
-    connect(ui->pushButtonCallContract, SIGNAL(clicked()), SLOT(on_callContract_clicked()));
+    connect(ui->pushButtonClearAll, SIGNAL(clicked()), SLOT(on_clearAllClicked()));
+    connect(ui->pushButtonCallContract, SIGNAL(clicked()), SLOT(on_callContractClicked()));
     connect(ui->lineEditContractAddress, SIGNAL(textChanged(QString)), SLOT(on_updateCallContractButton()));
     connect(ui->textEditInterface, SIGNAL(textChanged()), SLOT(on_newContractABI()));
     connect(ui->stackedWidget, SIGNAL(currentChanged(int)), SLOT(on_updateCallContractButton()));
@@ -146,7 +146,7 @@ void CallContract::setContractAddress(const QString &address)
     ui->lineEditContractAddress->setFocus();
 }
 
-void CallContract::on_clearAll_clicked()
+void CallContract::on_clearAllClicked()
 {
     ui->lineEditContractAddress->clear();
     ui->lineEditSenderAddress->setCurrentIndex(-1);
@@ -162,7 +162,7 @@ void CallContract::on_clearAll_clicked()
     m_tabInfo->setCurrent(0);
 }
 
-void CallContract::on_callContract_clicked()
+void CallContract::on_callContractClicked()
 {
     if(isDataValid())
     {

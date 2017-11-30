@@ -24,7 +24,7 @@ ABIFunctionField::ABIFunctionField(const PlatformStyle *platformStyle, FunctionT
     mainLayout->setSpacing(10);
     mainLayout->setContentsMargins(0, 0, 0, 0);
 
-    QHBoxLayout *topLayout = new QHBoxLayout(this);
+    QHBoxLayout *topLayout = new QHBoxLayout(m_func);
     topLayout->setSpacing(10);
     topLayout->setContentsMargins(0, 0, 0, 0);
 
