@@ -9,6 +9,7 @@
 #include "util.h"
 #include "netbase.h"
 #include "rpc/protocol.h" // For HTTP status codes
+#include "rpc/server.h" // For HTTP status codes
 #include "sync.h"
 #include "ui_interface.h"
 
@@ -560,8 +561,11 @@ HTTPRequest::~HTTPRequest()
 }
 
 void HTTPRequest::waitClientClose() {
-    std::unique_lock<std::mutex> lock(cs);
-    closeCv.wait(lock);
+    while (IsRPCRunning()) {
+        // Allow early exit if RPC is shutting down.
+        std::unique_lock<std::mutex> lock(cs);
+        closeCv.wait_for(lock, std::chrono::milliseconds(500));
+    }
 }
 
 void HTTPRequest::startDetectClientClose() {
@@ -574,10 +578,18 @@ void HTTPRequest::startDetectClientClose() {
    //
    // But we should just write to the socket to test liveness. This is useful for long-poll RPC calls to see
    // if they should terminate the request early.
+   //
+   // More weirdness: if process received SIGTERM, the http event loop (in HTTPThread) returns prematurely with 1.
+   // In which case evhttp_send_reply_end doesn't seem to get called, and evhttp_connection_set_closecb is
+   // not called. BUT when the event base is freed, this callback IS called, and HTTPRequest is already freed.
+   //
+   // So, waitClientClose and startDetectClientClose should just not do anything if RPC is shutting down.
    evhttp_connection_set_closecb(conn, [](struct evhttp_connection *conn, void *data) {
-       auto req = (HTTPRequest*) data;
+       if (IsRPCRunning()) {
+           auto req = (HTTPRequest*) data;
+           req->setConnClosed();
+       }
 
-       req->setConnClosed();
 
        LogPrintf("http connection closed\n");
    }, (void *) this);
