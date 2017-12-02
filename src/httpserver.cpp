@@ -561,14 +561,25 @@ HTTPRequest::~HTTPRequest()
 }
 
 void HTTPRequest::waitClientClose() {
-    while (IsRPCRunning()) {
-        // Allow early exit if RPC is shutting down.
+    LogPrint("http-poll", "wait for connection close\n");
+
+    // wait at most 5 seconds for client to close
+    for (int i = 0; i < 10 && IsRPCRunning() && !isConnClosed(); i++) {
         std::unique_lock<std::mutex> lock(cs);
         closeCv.wait_for(lock, std::chrono::milliseconds(500));
+    }
+
+    if (isConnClosed()) {
+        LogPrint("http-poll", "wait for connection close, ok\n");
+    } else if (!IsRPCRunning()) {
+        LogPrint("http-poll", "wait for connection close, RPC stopped\n");
+    } else {
+        LogPrint("http-poll", "wait for connection close, timeout after 5 seconds\n");
     }
 }
 
 void HTTPRequest::startDetectClientClose() {
+    LogPrint("http-poll", "start detect http connection close\n");
     // will need to call evhttp_send_reply_end to clean this up
     auto conn = evhttp_request_get_connection(req);
 
@@ -585,13 +596,12 @@ void HTTPRequest::startDetectClientClose() {
    //
    // So, waitClientClose and startDetectClientClose should just not do anything if RPC is shutting down.
    evhttp_connection_set_closecb(conn, [](struct evhttp_connection *conn, void *data) {
+       LogPrint("http-poll", "http connection close detected\n");
+
        if (IsRPCRunning()) {
            auto req = (HTTPRequest*) data;
            req->setConnClosed();
        }
-
-
-       LogPrintf("http connection closed\n");
    }, (void *) this);
 }
 
@@ -685,7 +695,6 @@ void HTTPRequest::Chunk(const std::string& chunk) {
     if (chunk.size() > 0) {
         auto databuf = evbuffer_new(); // HTTPEvent will free this buffer
         evbuffer_add(databuf, chunk.data(), chunk.size());
-
         HTTPEvent* ev = new HTTPEvent(eventBase, true, databuf,
                 std::bind(evhttp_send_reply_chunk, req, databuf));
         ev->trigger(0);
