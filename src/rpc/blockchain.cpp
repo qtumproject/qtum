@@ -1110,7 +1110,7 @@ void transactionReceiptInfoToJSON(const TransactionReceiptInfo& resExec, UniValu
     entry.push_back(Pair("log", logEntries));
 }
 
-uint parseUInt(const UniValue& val, uint defaultVal) {
+size_t parseUInt(const UniValue& val, size_t defaultVal) {
     if (val.isNull()) {
         return defaultVal;
     } else {
@@ -1123,7 +1123,7 @@ uint parseUInt(const UniValue& val, uint defaultVal) {
     }
 }
 
-uint parseBlockHeight(const UniValue& val) {
+size_t parseBlockHeight(const UniValue& val) {
     if (val.isStr()) {
         auto blockKey = val.get_str();
 
@@ -1147,7 +1147,7 @@ uint parseBlockHeight(const UniValue& val) {
     throw JSONRPCError(RPC_INVALID_PARAMS, "invalid block number");
 }
 
-uint parseBlockHeight(const UniValue& val, uint defaultVal) {
+size_t parseBlockHeight(const UniValue& val, size_t defaultVal) {
     if (val.isNull()) {
         return defaultVal;
     } else {
