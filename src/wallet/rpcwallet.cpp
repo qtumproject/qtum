@@ -24,6 +24,7 @@
 #include <stdint.h>
 
 #include <boost/assign/list_of.hpp>
+#include <boost/optional.hpp>
 
 #include <univalue.h>
 
@@ -2267,18 +2268,22 @@ UniValue listsinceblock(const JSONRPCRequest& request)
     return ret;
 }
 
-UniValue gettransaction(const JSONRPCRequest& request)
+UniValue gettransaction(const JSONRPCRequest& request_)
 {
+    // long-poll
+    JSONRPCRequest& request = (JSONRPCRequest&) request_;
+
     if (!EnsureWalletIsAvailable(request.fHelp))
         return NullUniValue;
 
-    if (request.fHelp || request.params.size() < 1 || request.params.size() > 2)
+    if (request.fHelp || request.params.size() < 1 || request.params.size() > 3)
         throw runtime_error(
-            "gettransaction \"txid\" ( include_watchonly )\n"
+            "gettransaction \"txid\" ( include_watchonly ) (waitconf)\n"
             "\nGet detailed information about in-wallet transaction <txid>\n"
             "\nArguments:\n"
             "1. \"txid\"                  (string, required) The transaction id\n"
             "2. \"include_watchonly\"     (bool, optional, default=false) Whether to include watch-only addresses in balance calculation and details[]\n"
+            "3. \"waitconf\"              (int, optional, default=0) Wait for enough confirmations before returning\n"
             "\nResult:\n"
             "{\n"
             "  \"amount\" : x.xxx,        (numeric) The transaction amount in " + CURRENCY_UNIT + "\n"
@@ -2317,7 +2322,7 @@ UniValue gettransaction(const JSONRPCRequest& request)
             + HelpExampleRpc("gettransaction", "\"1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d\"")
         );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+
 
     uint256 hash;
     hash.SetHex(request.params[0].get_str());
@@ -2327,10 +2332,45 @@ UniValue gettransaction(const JSONRPCRequest& request)
         if(request.params[1].get_bool())
             filter = filter | ISMINE_WATCH_ONLY;
 
+    int waitconf = 0;
+    if(request.params.size() > 2) {
+        waitconf = request.params[2].get_int();
+    }
+
+    {
+        LOCK2(cs_main, pwalletMain->cs_wallet);
+        if (!pwalletMain->mapWallet.count(hash))
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid or non-wallet transaction id");
+    }
+
+    // FIXME: can i avoid long-poll if waitconf == 0 ?
+    request.PollStart();
+
+    CWalletTx* _wtx = NULL;
+    while (true) {
+        {
+            LOCK2(cs_main, pwalletMain->cs_wallet);
+            _wtx = &pwalletMain->mapWallet[hash];
+
+            if (_wtx->GetDepthInMainChain() >= waitconf) {
+                break;
+            }
+        }
+
+        request.PollPing();
+
+        std::unique_lock<std::mutex> lock(cs_blockchange);
+        cond_blockchange.wait_for(lock, std::chrono::milliseconds(300));
+
+        if (!request.PollAlive() || !IsRPCRunning()) {
+            return NullUniValue;
+        }
+    }
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    CWalletTx& wtx = *_wtx;
+
     UniValue entry(UniValue::VOBJ);
-    if (!pwalletMain->mapWallet.count(hash))
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid or non-wallet transaction id");
-    const CWalletTx& wtx = pwalletMain->mapWallet[hash];
 
     CAmount nCredit = wtx.GetCredit(filter);
     CAmount nDebit = wtx.GetDebit(filter);
@@ -3573,7 +3613,7 @@ static const CRPCCommand commands[] =
         { "wallet",             "getrawchangeaddress",      &getrawchangeaddress,      true,   {} },
         { "wallet",             "getreceivedbyaccount",     &getreceivedbyaccount,     false,  {"account","minconf"} },
         { "wallet",             "getreceivedbyaddress",     &getreceivedbyaddress,     false,  {"address","minconf"} },
-        { "wallet",             "gettransaction",           &gettransaction,           false,  {"txid","include_watchonly"} },
+        { "wallet",             "gettransaction",           &gettransaction,           false,  {"txid","include_watchonly", "waitconf"} },
         { "wallet",             "getunconfirmedbalance",    &getunconfirmedbalance,    false,  {} },
         { "wallet",             "getwalletinfo",            &getwalletinfo,            false,  {} },
         { "wallet",             "importmulti",              &importmulti,              true,   {"requests","options"} },

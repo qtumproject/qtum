@@ -106,6 +106,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "getblock", 1, "verbose" },
     { "getblockheader", 1, "verbose" },
     { "gettransaction", 1, "include_watchonly" },
+    { "gettransaction", 2, "waitconf" },
     { "getrawtransaction", 1, "verbose" },
     { "createrawtransaction", 0, "transactions" },
     { "createrawtransaction", 1, "outputs" },
