@@ -49,6 +49,7 @@ CreateContract::CreateContract(const PlatformStyle *platformStyle, QWidget *pare
 
     // Set stylesheet
     SetObjectStyleSheet(ui->pushButtonClearAll, StyleSheetNames::ButtonBlack);
+    SetObjectStyleSheet(ui->scrollAreaConstructor, StyleSheetNames::ScrollBarDark);
 
     setLinkLabels();
     m_ABIFunctionField = new ABIFunctionField(platformStyle, ABIFunctionField::Create, ui->scrollAreaConstructor);

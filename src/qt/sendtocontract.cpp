@@ -58,6 +58,7 @@ SendToContract::SendToContract(const PlatformStyle *platformStyle, QWidget *pare
 
     // Set stylesheet
     SetObjectStyleSheet(ui->pushButtonClearAll, StyleSheetNames::ButtonBlack);
+    SetObjectStyleSheet(ui->scrollAreaFunction, StyleSheetNames::ScrollBarDark);
 
     m_ABIFunctionField = new ABIFunctionField(platformStyle, ABIFunctionField::SendTo, ui->scrollAreaFunction);
     ui->scrollAreaFunction->setWidget(m_ABIFunctionField);

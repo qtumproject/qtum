@@ -248,6 +248,7 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     SetObjectStyleSheet(ui->labelWalletStatus, StyleSheetNames::ButtonTransparent);
     SetObjectStyleSheet(ui->labelTokenStatus, StyleSheetNames::ButtonTransparent);
     SetObjectStyleSheet(ui->labelTransactionsStatus, StyleSheetNames::ButtonTransparent);
+    SetObjectStyleSheet(ui->listTokens, StyleSheetNames::ScrollBarDark);
 
     // use a MultiStatesIcon for the "out of sync warning" icon
     QIcon icon = platformStyle->MultiStatesIcon(":/icons/warning", PlatformStyle::PushButton);

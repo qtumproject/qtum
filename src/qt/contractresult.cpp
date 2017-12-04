@@ -2,6 +2,8 @@
 #include "ui_contractresult.h"
 #include "guiconstants.h"
 #include "contractabi.h"
+#include "styleSheet.h"
+
 #include <QMessageBox>
 
 ContractResult::ContractResult(QWidget *parent) :
@@ -9,6 +11,8 @@ ContractResult::ContractResult(QWidget *parent) :
     ui(new Ui::ContractResult)
 {
     ui->setupUi(this);
+    SetObjectStyleSheet(ui->scrollAreaParams, StyleSheetNames::ScrollBarDark);
+    SetObjectStyleSheet(ui->scrollAreaResult, StyleSheetNames::ScrollBarDark);
 }
 
 ContractResult::~ContractResult()

@@ -9,6 +9,7 @@
 #include "optionsmodel.h"
 #include "tokenitemmodel.h"
 #include "tokendescdialog.h"
+#include "styleSheet.h"
 
 #include <QComboBox>
 #include <QDateTimeEdit>
@@ -92,6 +93,7 @@ TokenTransactionView::TokenTransactionView(const PlatformStyle *platformStyle, Q
     vlayout->setSpacing(0);
 
     QTableView *view = new QTableView(this);
+    SetObjectStyleSheet(view, StyleSheetNames::ScrollBarDark);
     vlayout->addLayout(hlayout);
     vlayout->addWidget(createDateRangeWidget());
     vlayout->addWidget(view);

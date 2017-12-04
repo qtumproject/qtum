@@ -16,6 +16,7 @@
 #include "transactionrecord.h"
 #include "transactiontablemodel.h"
 #include "walletmodel.h"
+#include "styleSheet.h"
 
 #include "ui_interface.h"
 
@@ -101,6 +102,7 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
     vlayout->setSpacing(0);
 
     QTableView *view = new QTableView(this);
+    SetObjectStyleSheet(view, StyleSheetNames::ScrollBarDark);
     vlayout->addLayout(hlayout);
     vlayout->addWidget(createDateRangeWidget());
     vlayout->addWidget(view);

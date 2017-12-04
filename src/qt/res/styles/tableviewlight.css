@@ -43,36 +43,3 @@ QTableView::item:selected{
     background-color: #ffffff;
     color: #5a5a5d;
 }
-/*--------------------------------------------
-SCroll bar light CSS
---------------------------------------------*/
-QScrollBar:vertical {
-    border-radius: 0px;
-    background: #747474;
-    width: 19px;
-    padding: 10px 4px;
-}
-QScrollBar::handle:vertical {
-    border: 1px solid #646464;
-    background: #4c4c4c;
-    border-radius: 5px;
-    min-height: 30px;
-}
-QScrollBar::handle:vertical:disabled {
-    background: rgba(76, 76, 76, 40%);
-}
-QScrollBar:horizontal {
-    border-radius: 0px;
-    background: #747474;
-    height: 19px;
-    padding: 4px 10px;
-}
-QScrollBar::handle:horizontal {
-    border: 1px solid #646464;
-    background: #4c4c4c;
-    border-radius: 5px;
-    min-width: 30px;
-}
-QScrollBar::handle:horizontal:disabled {
-    background: rgba(76, 76, 76, 40%);
-}

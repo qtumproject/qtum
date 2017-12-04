@@ -36,6 +36,7 @@ ReceiveCoinsDialog::ReceiveCoinsDialog(const PlatformStyle *_platformStyle, QWid
     SetObjectStyleSheet(ui->clearButton, StyleSheetNames::ButtonBlack);
     SetObjectStyleSheet(ui->showRequestButton, StyleSheetNames::ButtonBlack);
     SetObjectStyleSheet(ui->removeRequestButton, StyleSheetNames::ButtonBlack);
+    SetObjectStyleSheet(ui->recentRequestsView, StyleSheetNames::ScrollBarDark);
 
     if (!_platformStyle->getImagesOnButtons()) {
         ui->clearButton->setIcon(QIcon());

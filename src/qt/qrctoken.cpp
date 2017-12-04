@@ -4,6 +4,7 @@
 #include "walletmodel.h"
 #include "tokentransactionview.h"
 #include "platformstyle.h"
+#include "styleSheet.h"
 
 #include <QPainter>
 #include <QAbstractItemDelegate>
@@ -104,6 +105,8 @@ QRCToken::QRCToken(const PlatformStyle *platformStyle, QWidget *parent) :
     m_tokenTransactionView(0)
 {
     ui->setupUi(this);
+
+    SetObjectStyleSheet(ui->tokensList, StyleSheetNames::ScrollBarDark);
 
     m_platformStyle = platformStyle;
 
