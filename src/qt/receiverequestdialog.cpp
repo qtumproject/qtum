@@ -10,6 +10,7 @@
 #include "guiutil.h"
 #include "optionsmodel.h"
 #include "walletmodel.h"
+#include "styleSheet.h"
 
 #include <QClipboard>
 #include <QDrag>
@@ -95,6 +96,10 @@ ReceiveRequestDialog::ReceiveRequestDialog(QWidget *parent) :
     model(0)
 {
     ui->setupUi(this);
+
+    SetObjectStyleSheet(ui->btnCopyURI, StyleSheetNames::ButtonWhite);
+    SetObjectStyleSheet(ui->btnSaveAs, StyleSheetNames::ButtonWhite);
+    SetObjectStyleSheet(ui->btnCopyAddress, StyleSheetNames::ButtonWhite);
 
 #ifndef USE_QRCODE
     ui->btnSaveAs->setVisible(false);

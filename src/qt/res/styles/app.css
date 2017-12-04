@@ -690,6 +690,7 @@ QWidget#ReceiveRequestDialog {
 }
 QTextEdit#outUri {
     background: #f6f8fa;
+    border: none;
 }
 /*--------------------------------------------
 System Tray Message CSS
