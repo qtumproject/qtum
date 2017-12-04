@@ -14,6 +14,16 @@ RestoreDialog::~RestoreDialog()
     delete ui;
 }
 
+int RestoreDialog::getStartCommand()
+{
+    return ui->rbReindex->isChecked() ? Reindex : Salvage;
+}
+
+QString RestoreDialog::getFileName()
+{
+    return ui->txtWalletPath->text();
+}
+
 void RestoreDialog::on_btnReset_clicked()
 {
     ui->txtWalletPath->setText("");
