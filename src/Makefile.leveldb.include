@@ -129,6 +129,7 @@ leveldb_libleveldb_a_SOURCES += leveldb/util/env_win.cc
 leveldb_libleveldb_a_SOURCES += leveldb/port/port_win.cc
 else
 leveldb_libleveldb_a_SOURCES += leveldb/port/port_posix.cc
+leveldb_libleveldb_a_SOURCES += leveldb/port/port_posix_sse.cc
 endif
 
 leveldb_libmemenv_a_CPPFLAGS = $(leveldb_libleveldb_a_CPPFLAGS)
