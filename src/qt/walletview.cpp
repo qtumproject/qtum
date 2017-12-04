@@ -350,7 +350,7 @@ void WalletView::backupWallet()
 
 void WalletView::restoreWallet()
 {
-    RestoreDialog dlg(Athis);
+    RestoreDialog dlg(this);
     dlg.exec();
 }
 

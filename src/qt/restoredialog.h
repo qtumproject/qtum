@@ -15,12 +15,14 @@ public:
     explicit RestoreDialog(QWidget *parent = 0);
     ~RestoreDialog();
 
-private slots:
+private Q_SLOTS:
     void on_btnReset_clicked();
 
     void on_btnBoxRestore_accepted();
 
     void on_btnBoxRestore_rejected();
+
+    void on_toolWalletPath_clicked();
 
 private:
     Ui::RestoreDialog *ui;

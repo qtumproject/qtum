@@ -1,5 +1,6 @@
 #include "restoredialog.h"
 #include "ui_restoredialog.h"
+#include "guiutil.h"
 
 RestoreDialog::RestoreDialog(QWidget *parent) :
     QDialog(parent),
@@ -27,4 +28,16 @@ void RestoreDialog::on_btnBoxRestore_accepted()
 void RestoreDialog::on_btnBoxRestore_rejected()
 {
     reject();
+}
+
+void RestoreDialog::on_toolWalletPath_clicked()
+{
+    QString filename = GUIUtil::getOpenFileName(this,
+        tr("Restore Wallet"), QString(),
+        tr("Wallet Data (*.dat)"), NULL);
+
+    if (filename.isEmpty())
+        return;
+
+    ui->txtWalletPath->setText(filename);
 }
