@@ -1,6 +1,7 @@
 // Copyright (c) 2011 The LevelDB Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file. See the AUTHORS file for names of contributors.
+#if !defined(LEVELDB_PLATFORM_WINDOWS)
 
 #include <dirent.h>
 #include <errno.h>
@@ -265,7 +266,7 @@ class PosixWritableFile : public WritableFile {
       if (fd < 0) {
         s = IOError(dir, errno);
       } else {
-        if (fsync(fd) < 0) {
+        if (fsync(fd) < 0 && errno != EINVAL) {
           s = IOError(dir, errno);
         }
         close(fd);
@@ -693,3 +694,5 @@ Env* Env::Default() {
 }
 
 }  // namespace leveldb
+
+#endif
