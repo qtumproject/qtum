@@ -25,11 +25,27 @@ void QValidatedLineEdit::setValid(bool _valid)
 
     if(_valid)
     {
-        setStyleSheet("");
+        QWidget *widget = this->parentWidget();
+        if(widget && widget->inherits("QComboBox"))
+        {
+            widget->setStyleSheet("");
+        }
+        else
+        {
+            setStyleSheet("");
+        }
     }
     else
     {
-        SetObjectStyleSheet(this, StyleSheetNames::Invalid);
+        QWidget *widget = this->parentWidget();
+        if(widget && widget->inherits("QComboBox"))
+        {
+            SetObjectStyleSheet(widget, StyleSheetNames::Invalid);
+        }
+        else
+        {
+            SetObjectStyleSheet(this, StyleSheetNames::Invalid);
+        }
     }
     this->valid = _valid;
 }
