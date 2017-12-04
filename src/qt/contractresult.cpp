@@ -54,6 +54,8 @@ void ContractResult::setParamsData(FunctionABI function, QList<QStringList> para
     }
 
     QWidget *widgetParams = new QWidget(this);
+    widgetParams->setObjectName("scrollAreaWidgetContents");
+
     QVBoxLayout *mainLayout = new QVBoxLayout(widgetParams);
     mainLayout->setSpacing(6);
     mainLayout->setContentsMargins(0,0,30,0);
@@ -169,6 +171,8 @@ void ContractResult::updateCallResult(QVariant result, FunctionABI function, QLi
         if(values.size() > 0)
         {
             QWidget *widgetResults = new QWidget(this);
+            widgetResults->setObjectName("scrollAreaWidgetContents");
+
             QVBoxLayout *mainLayout = new QVBoxLayout(widgetResults);
             mainLayout->setSpacing(6);
             mainLayout->setContentsMargins(0,6,0,6);
