@@ -90,6 +90,24 @@ QLineEdit::disabled{
     border: 1px solid rgba(59, 59, 59, 40%);
     color: rgba(150, 150, 150, 10%);
 }
+QAbstractItemView#autoCompleterPopup{
+    background-color: #2e2e2e;
+    border: none;
+    padding: 4px;
+}
+QAbstractItemView#autoCompleterPopup::item{
+    border: none;
+    border-radius: 10px;
+    background-color: #2e2e2e;
+    color: #ffffff;
+    padding: 4px;
+    padding-left: 10px;
+}
+QAbstractItemView#autoCompleterPopup::item:selected {
+    background-color: #545454;
+    color: #ffffff;
+    padding: 4px;
+}
 /*--------------------------------------------
 List Viev CSS
 --------------------------------------------*/

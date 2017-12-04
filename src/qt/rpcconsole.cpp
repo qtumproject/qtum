@@ -40,6 +40,7 @@
 #include <QTime>
 #include <QTimer>
 #include <QStringList>
+#include <QStyledItemDelegate>
 
 #if QT_VERSION < 0x050000
 #include <QUrl>
@@ -644,6 +645,9 @@ void RPCConsole::setClientModel(ClientModel *model)
         autoCompleter = new QCompleter(wordList, this);
         ui->lineEdit->setCompleter(autoCompleter);
         autoCompleter->popup()->installEventFilter(this);
+        autoCompleter->popup()->setItemDelegate(new QStyledItemDelegate(this));
+        autoCompleter->popup()->setObjectName("autoCompleterPopup");
+
         // Start thread to execute RPC commands.
         startExecutor();
     }
