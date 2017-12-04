@@ -2,6 +2,8 @@
 #include "ui_restoredialog.h"
 #include "guiutil.h"
 #include "walletmodel.h"
+#include <QMessageBox>
+#include <QFile>
 
 RestoreDialog::RestoreDialog(QWidget *parent) :
     QDialog(parent),
@@ -39,11 +41,21 @@ void RestoreDialog::on_btnReset_clicked()
 
 void RestoreDialog::on_btnBoxRestore_accepted()
 {
-    if(model)
+    QString filename = getFileName();
+    QString param = getParam();
+    if(model && QFile::exists(filename))
     {
-        if(model->restoreWallet(getFileName(), getParam()))
+        QMessageBox::StandardButton retval = QMessageBox::question(this, tr("Confirm wallet restoration"),
+                 tr("Warning: The wallet will be restored from location <b>%1</b> and restarted with parameter <b>%2</b>.").arg(filename, param)
+                 + tr("<br><br>Are you sure you wish to restore your wallet?"),
+                 QMessageBox::Yes|QMessageBox::Cancel,
+                 QMessageBox::Cancel);
+        if(retval == QMessageBox::Yes)
         {
-            QApplication::quit();
+            if(model->restoreWallet(getFileName(), getParam()))
+            {
+                QApplication::quit();
+            }
         }
     }
     accept();
