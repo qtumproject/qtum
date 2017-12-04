@@ -1,10 +1,12 @@
 #include "restoredialog.h"
 #include "ui_restoredialog.h"
 #include "guiutil.h"
+#include "walletmodel.h"
 
 RestoreDialog::RestoreDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::RestoreDialog)
+    ui(new Ui::RestoreDialog),
+    model(0)
 {
     ui->setupUi(this);
 }
@@ -14,14 +16,19 @@ RestoreDialog::~RestoreDialog()
     delete ui;
 }
 
-int RestoreDialog::getStartCommand()
+QString RestoreDialog::getParam()
 {
-    return ui->rbReindex->isChecked() ? Reindex : Salvage;
+    return ui->rbReindex->isChecked() ? "-reindex" : "-salvagewallet";
 }
 
 QString RestoreDialog::getFileName()
 {
     return ui->txtWalletPath->text();
+}
+
+void RestoreDialog::setModel(WalletModel *model)
+{
+    this->model = model;
 }
 
 void RestoreDialog::on_btnReset_clicked()
@@ -32,6 +39,13 @@ void RestoreDialog::on_btnReset_clicked()
 
 void RestoreDialog::on_btnBoxRestore_accepted()
 {
+    if(model)
+    {
+        if(model->restoreWallet(getFileName(), getParam()))
+        {
+            QApplication::quit();
+        }
+    }
     accept();
 }
 

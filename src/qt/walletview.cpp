@@ -351,6 +351,7 @@ void WalletView::backupWallet()
 void WalletView::restoreWallet()
 {
     RestoreDialog dlg(this);
+    dlg.setModel(walletModel);
     dlg.exec();
 }
 

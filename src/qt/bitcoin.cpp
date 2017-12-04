@@ -249,6 +249,9 @@ private:
     std::unique_ptr<QWidget> shutdownWindow;
 
     void startThread();
+
+    QString restorePath;
+    QString restoreParam;
 };
 
 #include "bitcoin.moc"
@@ -437,6 +440,8 @@ void BitcoinApplication::requestShutdown()
     pollShutdownTimer->stop();
 
 #ifdef ENABLE_WALLET
+    restoreParam= walletModel->getRestoreParam();
+    restorePath = walletModel->getRestorePath();
     window->removeAllWallets();
     delete walletModel;
     walletModel = 0;
