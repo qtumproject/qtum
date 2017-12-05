@@ -385,6 +385,7 @@ BitcoinApplication::~BitcoinApplication()
         {
             // Unlock the data folder
             UnlockDataDirectory();
+            QThread::currentThread()->sleep(2);
 
             // Create new process and start the wallet
             QProcess *process = new QProcess();
