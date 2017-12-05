@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>697</width>
-    <height>434</height>
+    <height>456</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -267,6 +267,13 @@
               </property>
               <property name="text">
                <string>&amp;Spend unconfirmed change</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="zeroBalanceAddressToken">
+              <property name="text">
+               <string>Enable &amp;zero balance for receiver token address</string>
               </property>
              </widget>
             </item>

@@ -26,6 +26,7 @@ AddressField::AddressField(QWidget *parent) :
     setComboBoxEditable(false);
 
     connect(this, SIGNAL(addressTypeChanged(AddressType)), SLOT(on_addressTypeChanged()));
+    connect(lineEdit(), SIGNAL(editingFinished()), this, SLOT(on_editingFinished()));
 }
 
 QString AddressField::currentText() const
