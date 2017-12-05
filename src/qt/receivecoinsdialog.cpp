@@ -46,7 +46,7 @@ ReceiveCoinsDialog::ReceiveCoinsDialog(const PlatformStyle *_platformStyle, QWid
     } else {
         ui->clearButton->setIcon(_platformStyle->MultiStatesIcon(":/icons/remove", PlatformStyle::PushButton));
         ui->receiveButton->setIcon(_platformStyle->MultiStatesIcon(":/icons/receiving_addresses", PlatformStyle::PushButton));
-        ui->showRequestButton->setIcon(_platformStyle->MultiStatesIcon(":/icons/edit", PlatformStyle::PushButton));
+        ui->showRequestButton->setIcon(_platformStyle->MultiStatesIcon(":/icons/show", PlatformStyle::PushButton));
         ui->removeRequestButton->setIcon(_platformStyle->MultiStatesIcon(":/icons/remove", PlatformStyle::PushButton));
     }
 
