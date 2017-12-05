@@ -18,7 +18,10 @@ AddressField::AddressField(QWidget *parent) :
     QComboBox(parent),
     m_addressType(AddressField::UTXO),
     m_addressTableModel(0),
-    m_addressColumn(0)
+    m_addressColumn(0),
+    m_typeRole(Qt::UserRole),
+    m_receive("R")
+
 {
     setComboBoxEditable(false);
 
@@ -92,7 +95,11 @@ void AddressField::on_refresh()
             {
                 QModelIndex index = m_addressTableModel->index(row, m_addressColumn);
                 QString strAddress = m_addressTableModel->data(index).toString();
-                appendAddress(strAddress);
+                QString type = m_addressTableModel->data(index, m_typeRole).toString();
+                if(type == m_receive)
+                {
+                    appendAddress(strAddress);
+                }
             }
 
             // Include zero or unconfirmed coins too
@@ -137,10 +144,22 @@ void AddressField::on_editingFinished()
 
 void AddressField::appendAddress(const QString &strAddress)
 {
-    if(!m_stringList.contains(strAddress))
+    CBitcoinAddress address(strAddress.toStdString());
+    if(!m_stringList.contains(strAddress) &&
+            IsMine(*pwalletMain, address.Get()))
     {
         m_stringList.append(strAddress);
     }
+}
+
+void AddressField::setReceive(const QString &receive)
+{
+    m_receive = receive;
+}
+
+void AddressField::setTypeRole(int typeRole)
+{
+    m_typeRole = typeRole;
 }
 
 void AddressField::setAddressColumn(int addressColumn)

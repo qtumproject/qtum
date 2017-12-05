@@ -195,6 +195,8 @@ QString ClientModel::getStatusBarWarnings() const
 
 void ClientModel::getGasInfo(uint64_t& blockGasLimit, uint64_t& minGasPrice, uint64_t& nGasPrice) const
 {
+    LOCK(cs_main);
+
     QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
     blockGasLimit = qtumDGP.getBlockGasLimit(chainActive.Height());
     minGasPrice = CAmount(qtumDGP.getMinGasPrice(chainActive.Height()));
