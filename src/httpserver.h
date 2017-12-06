@@ -80,6 +80,7 @@ public:
 
     void setConnClosed();
     bool isConnClosed();
+    bool isChunkMode();
 
     /** Get requested URI.
      */

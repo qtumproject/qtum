@@ -392,7 +392,7 @@ void JSONRPCRequest::PollReply(const UniValue& result) {
     assert(isLongPolling);
     UniValue reply(UniValue::VOBJ);
     reply.push_back(Pair("result", result));
-//    reply.push_back(Pair("error", NullUniValue));
+    reply.push_back(Pair("error", NullUniValue));
     reply.push_back(Pair("id", id));
 
     req->Chunk(reply.write() + "\n");
