@@ -224,7 +224,7 @@ public:
     /// Get window identifier of QMainWindow (BitcoinGUI)
     WId getMainWinId() const;
 
-    int restartIfRequested();
+    void restoreWallet();
 
 public Q_SLOTS:
     void initializeResult(int retval);
@@ -363,36 +363,6 @@ BitcoinApplication::~BitcoinApplication()
     optionsModel = 0;
     delete platformStyle;
     platformStyle = 0;
-
-#ifdef ENABLE_WALLET
-    // Restart the wallet if needed
-    if(!restorePath.isEmpty())
-    {
-        // Create command line
-        QString commandLine;
-        QStringList arg = arguments();
-        if(!arg.contains(restoreParam))
-        {
-            arg.append(restoreParam);
-        }
-        commandLine = arg.join(' ');
-
-        // Copy the new wallet.dat to the data folder
-        boost::filesystem::path path = GetDataDir() / "wallet.dat";
-        QString pathWallet = QString::fromStdString(path.string());
-        QFile::remove(pathWallet);
-        if(QFile::copy(restorePath, pathWallet))
-        {
-            // Unlock the data folder
-            UnlockDataDirectory();
-            QThread::currentThread()->sleep(2);
-
-            // Create new process and start the wallet
-            QProcess *process = new QProcess();
-            process->start(commandLine);
-        }
-    }
-#endif
 }
 
 #ifdef ENABLE_WALLET
@@ -564,6 +534,39 @@ WId BitcoinApplication::getMainWinId() const
         return 0;
 
     return window->winId();
+}
+
+void BitcoinApplication::restoreWallet()
+{
+#ifdef ENABLE_WALLET
+    // Restart the wallet if needed
+    if(!restorePath.isEmpty())
+    {
+        // Create command line
+        QString commandLine;
+        QStringList arg = arguments();
+        if(!arg.contains(restoreParam))
+        {
+            arg.append(restoreParam);
+        }
+        commandLine = arg.join(' ');
+
+        // Copy the new wallet.dat to the data folder
+        boost::filesystem::path path = GetDataDir() / "wallet.dat";
+        QString pathWallet = QString::fromStdString(path.string());
+        QFile::remove(pathWallet);
+        if(QFile::copy(restorePath, pathWallet))
+        {
+            // Unlock the data folder
+            UnlockDataDirectory();
+            QThread::currentThread()->sleep(2);
+
+            // Create new process and start the wallet
+            QProcess *process = new QProcess();
+            process->start(commandLine);
+        }
+    }
+#endif
 }
 
 #ifndef BITCOIN_QT_TEST
@@ -738,6 +741,7 @@ int main(int argc, char *argv[])
         PrintExceptionContinue(NULL, "Runaway exception");
         app.handleRunawayException(QString::fromStdString(GetWarnings("gui")));
     }
+    app.restoreWallet();
     return app.getReturnValue();
 }
 #endif // BITCOIN_QT_TEST

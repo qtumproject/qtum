@@ -1122,7 +1122,7 @@ bool AppInitParameterInteraction()
     return true;
 }
 
-static bool LockDataDirectory(bool probeOnly)
+static bool LockDataDirectory(bool probeOnly, bool try_lock = true)
 {
     std::string strDataDir = GetDataDir().string();
 
@@ -1133,7 +1133,7 @@ static bool LockDataDirectory(bool probeOnly)
 
     try {
         static boost::interprocess::file_lock lock(pathLockFile.string().c_str());
-        if (!lock.try_lock()) {
+        if (try_lock && !lock.try_lock()) {
             return InitError(strprintf(_("Cannot obtain a lock on data directory %s. %s is probably already running."), strDataDir, _(PACKAGE_NAME)));
         }
         if (probeOnly) {
@@ -1754,6 +1754,6 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
 
 void UnlockDataDirectory()
 {
-    // Try lock and unlock
-    LockDataDirectory(true);
+    // Unlock
+    LockDataDirectory(true, false);
 }
