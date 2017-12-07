@@ -31,7 +31,7 @@ class HTTPRPCTimer : public RPCTimerBase
 {
 public:
     HTTPRPCTimer(struct event_base* eventBase, boost::function<void(void)>& func, int64_t millis) :
-        ev(eventBase, false, func)
+        ev(eventBase, false, NULL, func)
     {
         struct timeval tv;
         tv.tv_sec = millis/1000;
@@ -86,7 +86,7 @@ static void JSONErrorReply(HTTPRequest* req, const UniValue& objError, const Uni
 //This function checks username and password against -rpcauth
 //entries from config file.
 static bool multiUserAuthorized(std::string strUserPass)
-{    
+{
     if (strUserPass.find(":") == std::string::npos) {
         return false;
     }
@@ -162,7 +162,7 @@ static bool HTTPReq_JSONRPC(HTTPRequest* req, const std::string &)
         return false;
     }
 
-    JSONRPCRequest jreq;
+    JSONRPCRequest jreq(req);
     if (!RPCAuthorized(authHeader.second, jreq.authUser)) {
         LogPrintf("ThreadRPCServer incorrect password attempt from %s\n", req->GetPeer().ToString());
 
@@ -191,6 +191,11 @@ static bool HTTPReq_JSONRPC(HTTPRequest* req, const std::string &)
             jreq.parse(valRequest);
 
             UniValue result = tableRPC.execute(jreq);
+
+            if (jreq.isLongPolling) {
+                jreq.PollReply(result);
+                return true;
+            }
 
             // Send reply
             strReply = JSONRPCReply(result, NullUniValue, jreq.id);

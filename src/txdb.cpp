@@ -223,32 +223,55 @@ bool CBlockTreeDB::WriteHeightIndex(const CHeightTxIndexKey &heightIndex, const 
     return WriteBatch(batch);
 }
 
-bool CBlockTreeDB::ReadHeightIndex(const unsigned int &high, const unsigned int &low, std::vector<std::vector<uint256>> &hashes,
-                                    std::set<dev::h160> addresses) {
+size_t CBlockTreeDB::ReadHeightIndex(size_t low, size_t high, size_t minconf,
+        std::vector<std::vector<uint256>> &blocksOfHashes,
+        std::set<dev::h160> const &addresses) {
 
-    boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
+    std::unique_ptr<CDBIterator> pcursor(NewIterator());
 
     pcursor->Seek(std::make_pair(DB_HEIGHTINDEX, CHeightTxIndexIteratorKey(low)));
 
-    while (pcursor->Valid()) {
-        boost::this_thread::interruption_point();
+    size_t curheight = 0;
+
+    for (size_t count = 0; pcursor->Valid(); pcursor->Next()) {
+
         std::pair<char, CHeightTxIndexKey> key;
-        if (pcursor->GetKey(key) && key.first == DB_HEIGHTINDEX && key.second.height <= high) {
-            if (!addresses.empty() && !addresses.count(key.second.address))
-            {
-                pcursor->Next();
-                continue;
-            }
-            std::vector<uint256> value;
-            pcursor->GetValue(value);
-            hashes.push_back(value);
-            pcursor->Next();
-        } else {
+        if (!pcursor->GetKey(key) || key.first != DB_HEIGHTINDEX) {
             break;
         }
+
+        auto nextHeight = key.second.height;
+
+        if (high > 0 && nextHeight > high) {
+            break;
+        }
+
+        if (minconf > 0) {
+            auto conf = chainActive.Height() - nextHeight;
+            if (conf < minconf) {
+                break;
+            }
+        }
+
+        curheight = nextHeight;
+
+        auto address = key.second.address;
+        if (!addresses.empty() && addresses.find(address) == addresses.end()) {
+            continue;
+        }
+
+        std::vector<uint256> hashesTx;
+
+        if (!pcursor->GetValue(hashesTx)) {
+            break;
+        }
+
+        count += hashesTx.size();
+
+        blocksOfHashes.push_back(hashesTx);
     }
 
-    return true;
+    return curheight;
 }
 
 bool CBlockTreeDB::EraseHeightIndex(const unsigned int &height) {

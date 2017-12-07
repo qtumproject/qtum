@@ -200,7 +200,7 @@ std::string CRPCTable::help(const std::string& strCommand) const
             continue;
         try
         {
-            JSONRPCRequest jreq;
+            JSONRPCRequest jreq(NULL);
             jreq.fHelp = true;
             rpcfn_type pfn = pcmd->actor;
             if (setDone.insert(pfn).second)
@@ -360,6 +360,45 @@ bool RPCIsInWarmup(std::string *outStatus)
     return fRPCInWarmup;
 }
 
+JSONRPCRequest::JSONRPCRequest(HTTPRequest *_req): JSONRPCRequest() {
+	req = _req;
+}
+
+bool JSONRPCRequest::PollAlive() {
+    return !req->isConnClosed();
+}
+
+void JSONRPCRequest::PollStart() {
+    // send an empty space to the client to ensure that it's still alive.
+    assert(!isLongPolling);
+    req->WriteHeader("Content-Type", "application/json");
+    req->WriteHeader("Connection", "close");
+    req->Chunk(std::string(" "));
+    isLongPolling = true;
+}
+
+void JSONRPCRequest::PollPing() {
+    assert(isLongPolling);
+    // send an empty space to the client to ensure that it's still alive.
+    req->Chunk(std::string(" "));
+}
+
+void JSONRPCRequest::PollCancel() {
+    assert(isLongPolling);
+    req->ChunkEnd();
+}
+
+void JSONRPCRequest::PollReply(const UniValue& result) {
+    assert(isLongPolling);
+    UniValue reply(UniValue::VOBJ);
+    reply.push_back(Pair("result", result));
+//    reply.push_back(Pair("error", NullUniValue));
+    reply.push_back(Pair("id", id));
+
+    req->Chunk(reply.write() + "\n");
+    req->ChunkEnd();
+}
+
 void JSONRPCRequest::parse(const UniValue& valRequest)
 {
     // Parse request
@@ -394,7 +433,7 @@ static UniValue JSONRPCExecOne(const UniValue& req)
 {
     UniValue rpc_result(UniValue::VOBJ);
 
-    JSONRPCRequest jreq;
+    JSONRPCRequest jreq(NULL);
     try {
         jreq.parse(req);
 
