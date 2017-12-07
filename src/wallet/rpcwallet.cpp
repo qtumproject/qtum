@@ -2337,35 +2337,46 @@ UniValue gettransaction(const JSONRPCRequest& request_)
         waitconf = request.params[2].get_int();
     }
 
+    bool shouldWaitConf = request.params.size() > 2 && waitconf > 0;
+
     {
         LOCK2(cs_main, pwalletMain->cs_wallet);
         if (!pwalletMain->mapWallet.count(hash))
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid or non-wallet transaction id");
     }
 
-    // FIXME: can i avoid long-poll if waitconf == 0 ?
-    request.PollStart();
-
     CWalletTx* _wtx = NULL;
-    while (true) {
+
+    // avoid long-poll if API caller does not specify waitconf
+    if (!shouldWaitConf) {
         {
             LOCK2(cs_main, pwalletMain->cs_wallet);
             _wtx = &pwalletMain->mapWallet[hash];
+        }
 
-            if (_wtx->GetDepthInMainChain() >= waitconf) {
-                break;
+    } else {
+        request.PollStart();
+        while (true) {
+            {
+                LOCK2(cs_main, pwalletMain->cs_wallet);
+                _wtx = &pwalletMain->mapWallet[hash];
+
+                if (_wtx->GetDepthInMainChain() >= waitconf) {
+                    break;
+                }
+            }
+
+            request.PollPing();
+
+            std::unique_lock<std::mutex> lock(cs_blockchange);
+            cond_blockchange.wait_for(lock, std::chrono::milliseconds(300));
+
+            if (!request.PollAlive() || !IsRPCRunning()) {
+                return NullUniValue;
             }
         }
-
-        request.PollPing();
-
-        std::unique_lock<std::mutex> lock(cs_blockchange);
-        cond_blockchange.wait_for(lock, std::chrono::milliseconds(300));
-
-        if (!request.PollAlive() || !IsRPCRunning()) {
-            return NullUniValue;
-        }
     }
+
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
     CWalletTx& wtx = *_wtx;
