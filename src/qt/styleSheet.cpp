@@ -10,6 +10,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QPainter>
+#include <QLineEdit>
 
 static const QString STYLE_FORMAT = ":/styles/%1";
 static const QColor LINK_COLOR = "#2d9ad0";
@@ -44,17 +45,17 @@ public:
             switch (icon)
             {
             case QMessageBox::Information:
-            case QMessageBox::Question:
                 iconPixmap = QPixmap(":/styles/app-icons/message_info");
                 break;
             case QMessageBox::Warning:
-                iconPixmap = QPixmap(":/styles/app-icons/message_critical");
+                iconPixmap = QPixmap(":/styles/app-icons/message_warning");
                 break;
             case QMessageBox::Critical:
                 iconPixmap = QPixmap(":/styles/app-icons/message_critical");
                 break;
             default:
-                break;
+                QProxyStyle::polish(widget);
+                return;
             }
             messageBox->setIconPixmap(iconPixmap.scaled(45,49));
         }
@@ -62,6 +63,14 @@ public:
         {
             QPushButton* button = (QPushButton*)widget;
             button->setText(button->text().toUpper());
+        }
+        if(widget && widget->inherits("QLineEdit"))
+        {
+            QLineEdit* lineEdit = (QLineEdit*)widget;
+            if(lineEdit->isReadOnly())
+            {
+                lineEdit->setFocusPolicy(Qt::ClickFocus);
+            }
         }
 
         QProxyStyle::polish(widget);

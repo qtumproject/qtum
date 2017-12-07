@@ -22,6 +22,9 @@ ABIParamItem::ABIParamItem(const PlatformStyle *platformStyle, const ParameterAB
     m_buttonAdd->setFixedSize(30,30);
     m_buttonRemove->setFixedSize(30,30);
 
+    m_buttonAdd->setFocusPolicy(Qt::NoFocus);
+    m_buttonRemove->setFocusPolicy(Qt::NoFocus);
+
     QRegularExpression regEx;
     if(ParameterABI::getRegularExpession(param.decodeType(), regEx))
     {

@@ -101,7 +101,7 @@ void ContractResult::setParamsData(FunctionABI function, QList<QStringList> para
                 paramValue->setText(listValues[j]);
                 paramValuesLayout->addWidget(paramValue);
                 if(j > 0)
-                    spacerSize += 22; // Line edit height + spacing
+                    spacerSize += 30; // Line edit height + spacing
             }
             if(spacerSize > 0)
                 vNameLayout->addSpacerItem(new QSpacerItem(20, spacerSize, QSizePolicy::Fixed, QSizePolicy::Fixed));
@@ -217,7 +217,7 @@ void ContractResult::updateCallResult(QVariant result, FunctionABI function, QLi
                         resultValue->setText(QString::fromStdString(listValues[j]));
                         paramValuesLayout->addWidget(resultValue);
                         if(j > 0)
-                            spacerSize += 22; // Line edit height + spacing
+                            spacerSize += 30; // Line edit height + spacing
                     }
                     if(spacerSize > 0)
                         vNameLayout->addSpacerItem(new QSpacerItem(20, spacerSize, QSizePolicy::Fixed, QSizePolicy::Fixed));
