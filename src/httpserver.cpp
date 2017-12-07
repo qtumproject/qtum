@@ -616,6 +616,10 @@ bool HTTPRequest::isConnClosed() {
     return connClosed;
 }
 
+bool HTTPRequest::isChunkMode() {
+    return startedChunkTransfer;
+}
+
 std::pair<bool, std::string> HTTPRequest::GetHeader(const std::string& hdr)
 {
     const struct evkeyvalq* headers = evhttp_request_get_input_headers(req);
