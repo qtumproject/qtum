@@ -24,6 +24,7 @@
 #include "sendtocontract.h"
 #include "callcontract.h"
 #include "qrctoken.h"
+#include "restoredialog.h"
 
 #include "ui_interface.h"
 
@@ -345,6 +346,13 @@ void WalletView::backupWallet()
         Q_EMIT message(tr("Backup Successful"), tr("The wallet data was successfully saved to %1.").arg(filename),
             CClientUIInterface::MSG_INFORMATION);
     }
+}
+
+void WalletView::restoreWallet()
+{
+    RestoreDialog dlg(this);
+    dlg.setModel(walletModel);
+    dlg.exec();
 }
 
 void WalletView::changePassphrase()
