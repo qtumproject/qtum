@@ -462,7 +462,7 @@ UniValue createcontract(const JSONRPCRequest& request){
                 "3. gasPrice  (numeric or string, optional) gasPrice QTUM price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)+"\n"
                 "4. \"senderaddress\" (string, optional) The quantum address that will be used to create the contract.\n"
                 "5. \"broadcast\" (bool, optional, default=true) Whether to broadcast the transaction or not.\n"
-                "6. \"changeToSender\" (bool, optional, default=false) Return the change to the sender.\n"
+                "6. \"changeToSender\" (bool, optional, default=true) Return the change to the sender.\n"
                 "\nResult:\n"
                 "[\n"
                 "  {\n"
@@ -521,7 +521,7 @@ UniValue createcontract(const JSONRPCRequest& request){
     	fBroadcast=request.params[4].get_bool();
     }
 
-    bool fChangeToSender=false;
+    bool fChangeToSender=true;
     if (request.params.size() > 5){
         fChangeToSender=request.params[5].get_bool();
     }
@@ -666,7 +666,7 @@ UniValue sendtocontract(const JSONRPCRequest& request){
                 "5. gasPrice  (numeric or string, optional) gasPrice Qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)+"\n"
                 "6. \"senderaddress\" (string, optional) The quantum address that will be used as sender.\n"
                 "7. \"broadcast\" (bool, optional, default=true) Whether to broadcast the transaction or not.\n"
-                "8. \"changeToSender\" (bool, optional, default=false) Return the change to the sender.\n"
+                "8. \"changeToSender\" (bool, optional, default=true) Return the change to the sender.\n"
                 "\nResult:\n"
                 "[\n"
                 "  {\n"
@@ -738,7 +738,7 @@ UniValue sendtocontract(const JSONRPCRequest& request){
         fBroadcast=request.params[6].get_bool();
     }
 
-    bool fChangeToSender=false;
+    bool fChangeToSender=true;
     if (request.params.size() > 7){
         fChangeToSender=request.params[7].get_bool();
     }
