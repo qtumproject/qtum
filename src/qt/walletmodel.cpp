@@ -13,6 +13,7 @@
 #include "transactiontablemodel.h"
 #include "tokenitemmodel.h"
 #include "tokentransactiontablemodel.h"
+#include "contracttablemodel.h"
 
 #include "base58.h"
 #include "keystore.h"
@@ -38,6 +39,7 @@
 
 WalletModel::WalletModel(const PlatformStyle *platformStyle, CWallet *_wallet, OptionsModel *_optionsModel, QObject *parent) :
     QObject(parent), wallet(_wallet), optionsModel(_optionsModel), addressTableModel(0),
+    contractTableModel(0),
     transactionTableModel(0),
     recentRequestsTableModel(0),
     tokenItemModel(0),
@@ -58,6 +60,7 @@ WalletModel::WalletModel(const PlatformStyle *platformStyle, CWallet *_wallet, O
     fForceCheckBalanceChanged = false;
 
     addressTableModel = new AddressTableModel(wallet, this);
+    contractTableModel = new ContractTableModel(wallet, this);
     transactionTableModel = new TransactionTableModel(platformStyle, wallet, this);
     recentRequestsTableModel = new RecentRequestsTableModel(wallet, this);
     tokenItemModel = new TokenItemModel(wallet, this);
@@ -430,6 +433,11 @@ OptionsModel *WalletModel::getOptionsModel()
 AddressTableModel *WalletModel::getAddressTableModel()
 {
     return addressTableModel;
+}
+
+ContractTableModel *WalletModel::getContractTableModel()
+{
+    return contractTableModel;
 }
 
 TransactionTableModel *WalletModel::getTransactionTableModel()

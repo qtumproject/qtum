@@ -88,6 +88,7 @@ class CScript;
 class CTxMemPool;
 class CWalletTx;
 class CTokenTx;
+class CContractBookData;
 
 /** (client) version numbers for particular wallet features */
 enum WalletFeature
@@ -716,6 +717,8 @@ public:
 
     std::map<CTxDestination, CAddressBookData> mapAddressBook;
 
+    std::map<std::string, CContractBookData> mapContractBook;
+
     CPubKey vchDefaultKey;
 
     std::set<COutPoint> setLockedCoins;
@@ -914,6 +917,10 @@ public:
     bool SetAddressBook(const CTxDestination& address, const std::string& strName, const std::string& purpose);
 
     bool DelAddressBook(const CTxDestination& address);
+
+    bool SetContractBook(const std::string& strAddress, const std::string& strName, const std::string& strAbi);
+
+    bool DelContractBook(const std::string& strAddress);
 
     void UpdatedTransaction(const uint256 &hashTx) override;
 
@@ -1249,6 +1256,17 @@ public:
     }
 
     uint256 GetHash() const;
+};
+
+/** Contract book data */
+class CContractBookData
+{
+public:
+    std::string name;
+    std::string abi;
+
+    CContractBookData()
+    {}
 };
 
 #endif // BITCOIN_WALLET_WALLET_H

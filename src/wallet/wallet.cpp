@@ -4806,3 +4806,22 @@ bool CWallet::RemoveTokenEntry(const uint256 &tokenHash, bool fFlushOnClose)
 
     return true;
 }
+
+bool CWallet::SetContractBook(const string &strAddress, const string &strName, const string &strAbi)
+{
+    LOCK(cs_wallet); // mapContractBook
+
+    mapContractBook[strAddress].name = strName;
+    mapContractBook[strAddress].name = strAbi;
+
+    return true;
+}
+
+bool CWallet::DelContractBook(const string &strAddress)
+{
+    LOCK(cs_wallet); // mapContractBook
+
+    mapContractBook.erase(strAddress);
+
+    return true;
+}
