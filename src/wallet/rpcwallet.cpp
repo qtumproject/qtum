@@ -1,4 +1,4 @@
-// Copyright (c) 2010 Satoshi Nakamoto
+﻿// Copyright (c) 2010 Satoshi Nakamoto
 // Copyright (c) 2009-2016 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -558,7 +558,7 @@ UniValue createcontract(const JSONRPCRequest& request){
         if(!coinControl.HasSelected()){
             throw JSONRPCError(RPC_TYPE_ERROR, "Sender address does not have any unspent outputs");
         }
-        if(fNotUseChangeAddress || fChangeToSender){
+        if(fChangeToSender){
             coinControl.destChange=senderAddress.Get();
         }
     }
@@ -775,7 +775,7 @@ UniValue sendtocontract(const JSONRPCRequest& request){
         if(!coinControl.HasSelected()){
             throw JSONRPCError(RPC_TYPE_ERROR, "Sender address does not have any unspent outputs");
         }
-        if(fNotUseChangeAddress || fChangeToSender){
+        if(fChangeToSender){
             coinControl.destChange=senderAddress.Get();
         }
     }
