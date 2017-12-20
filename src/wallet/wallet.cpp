@@ -2866,6 +2866,8 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                         // send change to existing address
                         if(fNotUseChangeAddress)
                         {
+                            // setCoins will be added as inputs to the new transaction
+                            // Set the first input script as change script for the new transaction
                             auto pcoin = setCoins.begin();
                             scriptChange = pcoin->first->tx->vout[pcoin->second].scriptPubKey;
                         }
