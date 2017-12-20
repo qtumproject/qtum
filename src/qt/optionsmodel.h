@@ -48,6 +48,7 @@ public:
         SpendZeroConfChange,    // bool
         ZeroBalanceAddressToken,// bool
         Listen,                 // bool
+        NotUseChangeAddress,    // bool
         ReserveBalance,         // CAmount
         OptionIDRowCount,
     };

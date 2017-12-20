@@ -1,4 +1,4 @@
-// Copyright (c) 2010 Satoshi Nakamoto
+﻿// Copyright (c) 2010 Satoshi Nakamoto
 // Copyright (c) 2009-2016 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -451,7 +451,7 @@ UniValue createcontract(const JSONRPCRequest& request){
     uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(chainActive.Height()));
     CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
 
-    if (request.fHelp || request.params.size() < 1 || request.params.size() > 5)
+    if (request.fHelp || request.params.size() < 1 || request.params.size() > 6)
         throw runtime_error(
                 "createcontract \"bytecode\" (gaslimit gasprice \"senderaddress\" broadcast)"
                 "\nCreate a contract with bytcode.\n"
@@ -460,20 +460,21 @@ UniValue createcontract(const JSONRPCRequest& request){
                 "1. \"bytecode\"  (string, required) contract bytcode.\n"
                 "2. gasLimit  (numeric or string, optional) gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+", max: "+i64tostr(blockGasLimit)+"\n"
                 "3. gasPrice  (numeric or string, optional) gasPrice QTUM price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)+"\n"
-				"4. \"senderaddress\" (string, optional) The quantum address that will be used to create the contract.\n"
-				"5. \"broadcast\" (bool, optional, default=true) Whether to broadcast the transaction or not.\n"
-				"\nResult:\n"
-				"[\n"
-				"  {\n"
-				"    \"txid\" : (string) The transaction id.\n"
-				"    \"sender\" : (string) " + CURRENCY_UNIT + " address of the sender.\n"
-				"    \"hash160\" : (string) ripemd-160 hash of the sender.\n"
-				"    \"address\" : (string) expected contract address.\n"
-				"  }\n"
-				"]\n"
-				"\nExamples:\n"
-				+ HelpExampleCli("createcontract", "\"60606040525b33600060006101000a81548173ffffffffffffffffffffffffffffffffffffffff02191690836c010000000000000000000000009081020402179055506103786001600050819055505b600c80605b6000396000f360606040526008565b600256\"")
-				+ HelpExampleCli("createcontract", "\"60606040525b33600060006101000a81548173ffffffffffffffffffffffffffffffffffffffff02191690836c010000000000000000000000009081020402179055506103786001600050819055505b600c80605b6000396000f360606040526008565b600256\" 6000000 "+FormatMoney(minGasPrice)+" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" true")
+                "4. \"senderaddress\" (string, optional) The quantum address that will be used to create the contract.\n"
+                "5. \"broadcast\" (bool, optional, default=true) Whether to broadcast the transaction or not.\n"
+                "6. \"changeToSender\" (bool, optional, default=true) Return the change to the sender.\n"
+                "\nResult:\n"
+                "[\n"
+                "  {\n"
+                "    \"txid\" : (string) The transaction id.\n"
+                "    \"sender\" : (string) " + CURRENCY_UNIT + " address of the sender.\n"
+                "    \"hash160\" : (string) ripemd-160 hash of the sender.\n"
+                "    \"address\" : (string) expected contract address.\n"
+                "  }\n"
+                "]\n"
+                "\nExamples:\n"
+                + HelpExampleCli("createcontract", "\"60606040525b33600060006101000a81548173ffffffffffffffffffffffffffffffffffffffff02191690836c010000000000000000000000009081020402179055506103786001600050819055505b600c80605b6000396000f360606040526008565b600256\"")
+                + HelpExampleCli("createcontract", "\"60606040525b33600060006101000a81548173ffffffffffffffffffffffffffffffffffffffff02191690836c010000000000000000000000009081020402179055506103786001600050819055505b600c80605b6000396000f360606040526008565b600256\" 6000000 "+FormatMoney(minGasPrice)+" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" true")
                 );
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
@@ -520,6 +521,11 @@ UniValue createcontract(const JSONRPCRequest& request){
     	fBroadcast=request.params[4].get_bool();
     }
 
+    bool fChangeToSender=true;
+    if (request.params.size() > 5){
+        fChangeToSender=request.params[5].get_bool();
+    }
+
     CCoinControl coinControl;
 
     if(fHasSender){
@@ -552,7 +558,9 @@ UniValue createcontract(const JSONRPCRequest& request){
         if(!coinControl.HasSelected()){
             throw JSONRPCError(RPC_TYPE_ERROR, "Sender address does not have any unspent outputs");
         }
-        coinControl.destChange=senderAddress.Get();
+        if(fChangeToSender){
+            coinControl.destChange=senderAddress.Get();
+        }
     }
     EnsureWalletIsUnlocked();
 
@@ -645,7 +653,7 @@ UniValue sendtocontract(const JSONRPCRequest& request){
     uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(chainActive.Height()));
     CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
 
-    if (request.fHelp || request.params.size() < 2 || request.params.size() > 7)
+    if (request.fHelp || request.params.size() < 2 || request.params.size() > 8)
         throw runtime_error(
                 "sendtocontract \"contractaddress\" \"data\" (amount gaslimit gasprice senderaddress broadcast)"
                 "\nSend funds and data to a contract.\n"
@@ -658,6 +666,7 @@ UniValue sendtocontract(const JSONRPCRequest& request){
                 "5. gasPrice  (numeric or string, optional) gasPrice Qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)+"\n"
                 "6. \"senderaddress\" (string, optional) The quantum address that will be used as sender.\n"
                 "7. \"broadcast\" (bool, optional, default=true) Whether to broadcast the transaction or not.\n"
+                "8. \"changeToSender\" (bool, optional, default=true) Return the change to the sender.\n"
                 "\nResult:\n"
                 "[\n"
                 "  {\n"
@@ -729,6 +738,10 @@ UniValue sendtocontract(const JSONRPCRequest& request){
         fBroadcast=request.params[6].get_bool();
     }
 
+    bool fChangeToSender=true;
+    if (request.params.size() > 7){
+        fChangeToSender=request.params[7].get_bool();
+    }
 
     CCoinControl coinControl;
 
@@ -762,7 +775,9 @@ UniValue sendtocontract(const JSONRPCRequest& request){
         if(!coinControl.HasSelected()){
             throw JSONRPCError(RPC_TYPE_ERROR, "Sender address does not have any unspent outputs");
         }
-        coinControl.destChange=senderAddress.Get();
+        if(fChangeToSender){
+            coinControl.destChange=senderAddress.Get();
+        }
     }
 
     EnsureWalletIsUnlocked();
@@ -3656,8 +3671,8 @@ static const CRPCCommand commands[] =
         { "wallet",             "walletpassphrasechange",   &walletpassphrasechange,   true,   {"oldpassphrase","newpassphrase"} },
         { "wallet",             "walletpassphrase",         &walletpassphrase,         true,   {"passphrase","timeout", "stakingonly"} },
         { "wallet",             "removeprunedfunds",        &removeprunedfunds,        true,   {"txid"} },
-        { "wallet",             "createcontract",           &createcontract,           false,  {"bytecode", "gasLimit", "gasPrice", "senderAddress", "broadcast"} },
-        { "wallet",             "sendtocontract",           &sendtocontract,           false,  {"contractaddress", "bytecode", "amount", "gasLimit", "gasPrice", "senderAddress", "broadcast"} },
+        { "wallet",             "createcontract",           &createcontract,           false,  {"bytecode", "gasLimit", "gasPrice", "senderAddress", "broadcast", "changeToSender"} },
+        { "wallet",             "sendtocontract",           &sendtocontract,           false,  {"contractaddress", "bytecode", "amount", "gasLimit", "gasPrice", "senderAddress", "broadcast", "changeToSender"} },
 };
 
 void RegisterWalletRPCCommands(CRPCTable &t)
