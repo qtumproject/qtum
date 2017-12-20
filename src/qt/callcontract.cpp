@@ -1,6 +1,7 @@
 #include "callcontract.h"
 #include "ui_callcontract.h"
 #include "platformstyle.h"
+#include "walletmodel.h"
 #include "clientmodel.h"
 #include "guiconstants.h"
 #include "rpcconsole.h"
@@ -9,6 +10,7 @@
 #include "contractabi.h"
 #include "tabbarinfo.h"
 #include "contractresult.h"
+#include "contractbookpage.h"
 
 namespace CallContract_NS
 {
@@ -23,14 +25,20 @@ using namespace CallContract_NS;
 CallContract::CallContract(const PlatformStyle *platformStyle, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::CallContract),
+    m_model(0),
     m_clientModel(0),
     m_execRPCCommand(0),
     m_ABIFunctionField(0),
     m_contractABI(0),
     m_tabInfo(0)
 {
+    m_platformStyle = platformStyle;
     // Setup ui components
     ui->setupUi(this);
+
+    ui->saveInfoButton->setIcon(platformStyle->SingleColorIcon(":/icons/filesave"));
+    ui->loadInfoButton->setIcon(platformStyle->SingleColorIcon(":/icons/address-book"));
+
     ui->groupBoxOptional->setStyleSheet(STYLE_GROUPBOX);
     ui->groupBoxFunction->setStyleSheet(STYLE_GROUPBOX);
     ui->scrollAreaFunction->setStyleSheet(".QScrollArea {border: none;}");
@@ -63,6 +71,7 @@ CallContract::CallContract(const PlatformStyle *platformStyle, QWidget *parent) 
     connect(ui->lineEditContractAddress, SIGNAL(textChanged(QString)), SLOT(on_updateCallContractButton()));
     connect(ui->textEditInterface, SIGNAL(textChanged()), SLOT(on_newContractABI()));
     connect(ui->stackedWidget, SIGNAL(currentChanged(int)), SLOT(on_updateCallContractButton()));
+    connect(ui->loadInfoButton, SIGNAL(clicked()), SLOT(on_loadInfo_clicked()));
 
     // Set contract address validator
     QRegularExpression regEx;
@@ -87,6 +96,11 @@ void CallContract::setClientModel(ClientModel *_clientModel)
         connect(m_clientModel, SIGNAL(numBlocksChanged(int,QDateTime,double,bool)), this, SLOT(on_numBlocksChanged()));
         on_numBlocksChanged();
     }
+}
+
+void CallContract::setModel(WalletModel *_model)
+{
+    m_model = _model;
 }
 
 bool CallContract::isValidContractAddress()
@@ -203,6 +217,17 @@ void CallContract::on_newContractABI()
     m_ABIFunctionField->setContractABI(m_contractABI);
 
     on_updateCallContractButton();
+}
+
+void CallContract::on_loadInfo_clicked()
+{
+    ContractBookPage dlg(m_platformStyle, this);
+    dlg.setModel(m_model->getContractTableModel());
+    if(dlg.exec())
+    {
+        ui->lineEditContractAddress->setText(dlg.getAddressValue());
+        ui->textEditInterface->setText(dlg.getABIValue());
+    }
 }
 
 QString CallContract::toDataHex(int func, QString& errorMessage)

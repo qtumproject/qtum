@@ -38,6 +38,7 @@ public Q_SLOTS:
     void on_updateSendToContractButton();
     void on_newContractABI();
     void on_functionChanged();
+    void on_loadInfo_clicked();
 
 private:
     QString toDataHex(int func, QString& errorMessage);
@@ -51,6 +52,7 @@ private:
     ABIFunctionField* m_ABIFunctionField;
     ContractABI* m_contractABI;
     TabBarInfo* m_tabInfo;
+    const PlatformStyle* m_platformStyle;
 };
 
 #endif // SENDTOCONTRACT_H

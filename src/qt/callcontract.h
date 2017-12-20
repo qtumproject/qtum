@@ -4,6 +4,7 @@
 #include <QWidget>
 
 class PlatformStyle;
+class WalletModel;
 class ClientModel;
 class ExecRPCCommand;
 class ABIFunctionField;
@@ -23,6 +24,7 @@ public:
     ~CallContract();
 
     void setClientModel(ClientModel *clientModel);
+    void setModel(WalletModel *model);
     bool isValidContractAddress();
     bool isValidInterfaceABI();
     bool isDataValid();
@@ -35,17 +37,20 @@ public Q_SLOTS:
     void on_numBlocksChanged();
     void on_updateCallContractButton();
     void on_newContractABI();
+    void on_loadInfo_clicked();
 
 private:
     QString toDataHex(int func, QString& errorMessage);
 
 private:
     Ui::CallContract *ui;
+    WalletModel* m_model;
     ClientModel* m_clientModel;
     ExecRPCCommand* m_execRPCCommand;
     ABIFunctionField* m_ABIFunctionField;
     ContractABI* m_contractABI;
     TabBarInfo* m_tabInfo;
+    const PlatformStyle* m_platformStyle;
 };
 
 #endif // CALLCONTRACT_H

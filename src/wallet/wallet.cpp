@@ -4812,7 +4812,7 @@ bool CWallet::SetContractBook(const string &strAddress, const string &strName, c
     LOCK(cs_wallet); // mapContractBook
 
     mapContractBook[strAddress].name = strName;
-    mapContractBook[strAddress].name = strAbi;
+    mapContractBook[strAddress].abi = strAbi;
 
     return true;
 }

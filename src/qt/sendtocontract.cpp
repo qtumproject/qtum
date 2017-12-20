@@ -14,6 +14,7 @@
 #include "contractabi.h"
 #include "tabbarinfo.h"
 #include "contractresult.h"
+#include "contractbookpage.h"
 
 namespace SendToContract_NS
 {
@@ -41,9 +42,15 @@ SendToContract::SendToContract(const PlatformStyle *platformStyle, QWidget *pare
     m_contractABI(0),
     m_tabInfo(0)
 {
+    m_platformStyle = platformStyle;
+
     // Setup ui components
     Q_UNUSED(platformStyle);
     ui->setupUi(this);
+
+    ui->saveInfoButton->setIcon(platformStyle->SingleColorIcon(":/icons/filesave"));
+    ui->loadInfoButton->setIcon(platformStyle->SingleColorIcon(":/icons/address-book"));
+
     ui->groupBoxOptional->setStyleSheet(STYLE_GROUPBOX);
     ui->groupBoxFunction->setStyleSheet(STYLE_GROUPBOX);
     ui->scrollAreaFunction->setStyleSheet(".QScrollArea {border: none;}");
@@ -91,6 +98,7 @@ SendToContract::SendToContract(const PlatformStyle *platformStyle, QWidget *pare
     connect(ui->textEditInterface, SIGNAL(textChanged()), SLOT(on_newContractABI()));
     connect(ui->stackedWidget, SIGNAL(currentChanged(int)), SLOT(on_updateSendToContractButton()));
     connect(m_ABIFunctionField, SIGNAL(functionChanged()), SLOT(on_functionChanged()));
+    connect(ui->loadInfoButton, SIGNAL(clicked()), SLOT(on_loadInfo_clicked()));
 
     // Set contract address validator
     QRegularExpression regEx;
@@ -278,6 +286,17 @@ void SendToContract::on_functionChanged()
     if(!payable)
     {
         ui->lineEditAmount->clear();
+    }
+}
+
+void SendToContract::on_loadInfo_clicked()
+{
+    ContractBookPage dlg(m_platformStyle, this);
+    dlg.setModel(m_model->getContractTableModel());
+    if(dlg.exec())
+    {
+        ui->lineEditContractAddress->setText(dlg.getAddressValue());
+        ui->textEditInterface->setText(dlg.getABIValue());
     }
 }
 
