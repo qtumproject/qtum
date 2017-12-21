@@ -4820,7 +4820,7 @@ bool CWallet::SetContractBook(const string &strAddress, const string &strName, c
 
     NotifyContractBookChanged(this, strAddress, strName, strAbi, (fUpdated ? CT_UPDATED : CT_NEW) );
 
-    CWalletDB walletdb(strWalletFile);
+    CWalletDB walletdb(strWalletFile, "r+", true);
     bool ret = walletdb.WriteContractData(strAddress, "name", strName);
     ret &= walletdb.WriteContractData(strAddress, "abi", strAbi);
     return ret;
@@ -4835,7 +4835,7 @@ bool CWallet::DelContractBook(const string &strAddress)
 
     NotifyContractBookChanged(this, strAddress, "", "", CT_DELETED);
 
-    CWalletDB walletdb(strWalletFile);
+    CWalletDB walletdb(strWalletFile, "r+", true);
     bool ret = walletdb.EraseContractData(strAddress, "name");
     ret &= walletdb.EraseContractData(strAddress, "abi");
     return ret;

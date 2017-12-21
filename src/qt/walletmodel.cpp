@@ -593,7 +593,7 @@ static void NotifyWatchonlyChanged(WalletModel *walletmodel, bool fHaveWatchonly
 static void NotifyContractBookChanged(WalletModel *walletmodel, CWallet *wallet,
         const std::string &address, const std::string &label, const std::string &abi, ChangeType status)
 {
-    QString strAddress = QString::fromStdString(CBitcoinAddress(address).ToString());
+    QString strAddress = QString::fromStdString(address);
     QString strLabel = QString::fromStdString(label);
     QString strAbi = QString::fromStdString(abi);
 
