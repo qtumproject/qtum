@@ -4809,19 +4809,52 @@ bool CWallet::RemoveTokenEntry(const uint256 &tokenHash, bool fFlushOnClose)
 
 bool CWallet::SetContractBook(const string &strAddress, const string &strName, const string &strAbi)
 {
-    LOCK(cs_wallet); // mapContractBook
+    bool fUpdated = false;
+    {
+        LOCK(cs_wallet); // mapContractBook
+        auto mi = mapContractBook.find(strAddress);
+        fUpdated = mi != mapContractBook.end();
+        mapContractBook[strAddress].name = strName;
+        mapContractBook[strAddress].abi = strAbi;
+    }
 
-    mapContractBook[strAddress].name = strName;
-    mapContractBook[strAddress].abi = strAbi;
+    NotifyContractBookChanged(this, strAddress, strName, strAbi, (fUpdated ? CT_UPDATED : CT_NEW) );
 
-    return true;
+    CWalletDB walletdb(strWalletFile);
+    bool ret = walletdb.WriteContractData(strAddress, "name", strName);
+    ret &= walletdb.WriteContractData(strAddress, "abi", strAbi);
+    return ret;
 }
 
 bool CWallet::DelContractBook(const string &strAddress)
 {
-    LOCK(cs_wallet); // mapContractBook
+    {
+        LOCK(cs_wallet); // mapContractBook
+        mapContractBook.erase(strAddress);
+    }
 
-    mapContractBook.erase(strAddress);
+    NotifyContractBookChanged(this, strAddress, "", "", CT_DELETED);
 
-    return true;
+    CWalletDB walletdb(strWalletFile);
+    bool ret = walletdb.EraseContractData(strAddress, "name");
+    ret &= walletdb.EraseContractData(strAddress, "abi");
+    return ret;
+}
+
+bool CWallet::LoadContractData(const string &address, const string &key, const string &value)
+{
+    bool ret = true;
+    if(key == "name")
+    {
+        mapContractBook[address].name = value;
+    }
+    else if(key == "abi")
+    {
+        mapContractBook[address].abi = value;
+    }
+    else
+    {
+        ret = false;
+    }
+    return ret;
 }

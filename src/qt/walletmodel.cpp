@@ -177,6 +177,12 @@ void WalletModel::pollBalanceChanged()
     }
 }
 
+void WalletModel::updateContractBook(const QString &address, const QString &label, const QString &abi, int status)
+{
+    if(contractTableModel)
+        contractTableModel->updateEntry(address, label, abi, status);
+}
+
 void WalletModel::checkBalanceChanged()
 {
     CAmount newBalance = getBalance();
@@ -584,6 +590,21 @@ static void NotifyWatchonlyChanged(WalletModel *walletmodel, bool fHaveWatchonly
                               Q_ARG(bool, fHaveWatchonly));
 }
 
+static void NotifyContractBookChanged(WalletModel *walletmodel, CWallet *wallet,
+        const std::string &address, const std::string &label, const std::string &abi, ChangeType status)
+{
+    QString strAddress = QString::fromStdString(CBitcoinAddress(address).ToString());
+    QString strLabel = QString::fromStdString(label);
+    QString strAbi = QString::fromStdString(abi);
+
+    qDebug() << "NotifyContractBookChanged: " + strAddress + " " + strLabel + " status=" + QString::number(status);
+    QMetaObject::invokeMethod(walletmodel, "updateContractBook", Qt::QueuedConnection,
+                              Q_ARG(QString, strAddress),
+                              Q_ARG(QString, strLabel),
+                              Q_ARG(QString, strAbi),
+                              Q_ARG(int, status));
+}
+
 void WalletModel::subscribeToCoreSignals()
 {
     // Connect signals to wallet
@@ -592,6 +613,7 @@ void WalletModel::subscribeToCoreSignals()
     wallet->NotifyTransactionChanged.connect(boost::bind(NotifyTransactionChanged, this, _1, _2, _3));
     wallet->ShowProgress.connect(boost::bind(ShowProgress, this, _1, _2));
     wallet->NotifyWatchonlyChanged.connect(boost::bind(NotifyWatchonlyChanged, this, _1));
+    wallet->NotifyContractBookChanged.connect(boost::bind(NotifyContractBookChanged, this, _1, _2, _3, _4, _5));
 }
 
 void WalletModel::unsubscribeFromCoreSignals()
@@ -602,6 +624,7 @@ void WalletModel::unsubscribeFromCoreSignals()
     wallet->NotifyTransactionChanged.disconnect(boost::bind(NotifyTransactionChanged, this, _1, _2, _3));
     wallet->ShowProgress.disconnect(boost::bind(ShowProgress, this, _1, _2));
     wallet->NotifyWatchonlyChanged.disconnect(boost::bind(NotifyWatchonlyChanged, this, _1));
+    wallet->NotifyContractBookChanged.disconnect(boost::bind(NotifyContractBookChanged, this, _1, _2, _3, _4, _5));
 }
 
 // WalletModel::UnlockContext implementation

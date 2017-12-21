@@ -806,6 +806,9 @@ public:
 
     bool LoadTokenTx(const CTokenTx &tokenTx);
 
+    //! Adds a contract data tuple to the store, without saving it to disk
+    bool LoadContractData(const std::string &address, const std::string &key, const std::string &value);
+
     /** 
      * Increment the next transaction order id
      * @return next transaction order id
@@ -1005,6 +1008,11 @@ public:
     /** Wallet transaction added, removed or updated. */
     boost::signals2::signal<void (CWallet *wallet, const uint256 &hashToken,
             ChangeType status)> NotifyTokenChanged;
+
+    /** Contract book entry changed. */
+    boost::signals2::signal<void (CWallet *wallet, const std::string &address,
+            const std::string &label, const std::string &abi,
+            ChangeType status)> NotifyContractBookChanged;
 
     /** Inquire whether this wallet broadcasts transactions. */
     bool GetBroadcastTransactions() const { return fBroadcastTransactions; }
