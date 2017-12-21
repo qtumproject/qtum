@@ -37,6 +37,7 @@ public Q_SLOTS:
     void on_numBlocksChanged();
     void on_updateCallContractButton();
     void on_newContractABI();
+    void on_saveInfo_clicked();
     void on_loadInfo_clicked();
 
 private:

@@ -11,6 +11,7 @@
 #include "tabbarinfo.h"
 #include "contractresult.h"
 #include "contractbookpage.h"
+#include "editcontractinfodialog.h"
 
 namespace CallContract_NS
 {
@@ -71,6 +72,7 @@ CallContract::CallContract(const PlatformStyle *platformStyle, QWidget *parent) 
     connect(ui->lineEditContractAddress, SIGNAL(textChanged(QString)), SLOT(on_updateCallContractButton()));
     connect(ui->textEditInterface, SIGNAL(textChanged()), SLOT(on_newContractABI()));
     connect(ui->stackedWidget, SIGNAL(currentChanged(int)), SLOT(on_updateCallContractButton()));
+    connect(ui->saveInfoButton, SIGNAL(clicked()), SLOT(on_saveInfo_clicked()));
     connect(ui->loadInfoButton, SIGNAL(clicked()), SLOT(on_loadInfo_clicked()));
 
     // Set contract address validator
@@ -217,6 +219,33 @@ void CallContract::on_newContractABI()
     m_ABIFunctionField->setContractABI(m_contractABI);
 
     on_updateCallContractButton();
+}
+
+void CallContract::on_saveInfo_clicked()
+{
+    if(!m_model && !m_model->getContractTableModel())
+        return;
+
+    bool valid = true;
+
+    if(!isValidContractAddress())
+        valid = false;
+
+    if(!isValidInterfaceABI())
+        valid = false;
+
+    if(!valid)
+        return;
+
+    EditContractInfoDialog dlg(EditContractInfoDialog::NewContractInfo, this);
+    dlg.setModel(m_model->getContractTableModel());
+    dlg.setAddress(ui->lineEditContractAddress->text());
+    dlg.setABI(ui->textEditInterface->toPlainText());
+    if(dlg.exec())
+    {
+        ui->lineEditContractAddress->setText(dlg.getAddress());
+        ui->textEditInterface->setText(dlg.getABI());
+    }
 }
 
 void CallContract::on_loadInfo_clicked()

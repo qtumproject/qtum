@@ -3,6 +3,7 @@
 
 #include "contracttablemodel.h"
 #include "csvmodelwriter.h"
+#include "editcontractinfodialog.h"
 #include "guiutil.h"
 #include "platformstyle.h"
 
@@ -105,12 +106,33 @@ void ContractBookPage::on_copyAddress_clicked()
 
 void ContractBookPage::onEditAction()
 {
-    // TODO
+    if(!model)
+        return;
+
+    if(!ui->tableView->selectionModel())
+        return;
+    QModelIndexList indexes = ui->tableView->selectionModel()->selectedRows();
+    if(indexes.isEmpty())
+        return;
+
+    EditContractInfoDialog dlg(EditContractInfoDialog::EditContractInfo, this);
+    dlg.setModel(model);
+    QModelIndex origIndex = proxyModel->mapToSource(indexes.at(0));
+    dlg.loadRow(origIndex.row());
+    dlg.exec();
 }
 
 void ContractBookPage::on_newContractInfo_clicked()
 {
-    // TODO
+    if(!model)
+        return;
+
+    EditContractInfoDialog dlg(EditContractInfoDialog::NewContractInfo, this);
+    dlg.setModel(model);
+    if(dlg.exec())
+    {
+        newContractInfoToSelect = dlg.getAddress();
+    }
 }
 
 void ContractBookPage::on_deleteContractInfo_clicked()

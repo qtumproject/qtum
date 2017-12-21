@@ -38,6 +38,7 @@ public Q_SLOTS:
     void on_updateSendToContractButton();
     void on_newContractABI();
     void on_functionChanged();
+    void on_saveInfo_clicked();
     void on_loadInfo_clicked();
 
 private:
