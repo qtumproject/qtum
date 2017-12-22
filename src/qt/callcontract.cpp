@@ -13,6 +13,8 @@
 #include "contractbookpage.h"
 #include "editcontractinfodialog.h"
 
+#include <QClipboard>
+
 namespace CallContract_NS
 {
 // Contract data names
@@ -39,6 +41,7 @@ CallContract::CallContract(const PlatformStyle *platformStyle, QWidget *parent) 
 
     ui->saveInfoButton->setIcon(platformStyle->SingleColorIcon(":/icons/filesave"));
     ui->loadInfoButton->setIcon(platformStyle->SingleColorIcon(":/icons/address-book"));
+    ui->pasteAddressButton->setIcon(platformStyle->SingleColorIcon(":/icons/editpaste"));
 
     ui->groupBoxOptional->setStyleSheet(STYLE_GROUPBOX);
     ui->groupBoxFunction->setStyleSheet(STYLE_GROUPBOX);
@@ -74,6 +77,7 @@ CallContract::CallContract(const PlatformStyle *platformStyle, QWidget *parent) 
     connect(ui->stackedWidget, SIGNAL(currentChanged(int)), SLOT(on_updateCallContractButton()));
     connect(ui->saveInfoButton, SIGNAL(clicked()), SLOT(on_saveInfo_clicked()));
     connect(ui->loadInfoButton, SIGNAL(clicked()), SLOT(on_loadInfo_clicked()));
+    connect(ui->pasteAddressButton, SIGNAL(clicked()), SLOT(on_pasteAddress_clicked()));
 
     // Set contract address validator
     QRegularExpression regEx;
@@ -131,6 +135,12 @@ bool CallContract::isDataValid()
         dataValid = false;
 
     return dataValid;
+}
+
+void CallContract::setContractAddress(const QString &address)
+{
+    ui->lineEditContractAddress->setText(address);
+    ui->lineEditContractAddress->setFocus();
 }
 
 void CallContract::on_clearAll_clicked()
@@ -257,6 +267,11 @@ void CallContract::on_loadInfo_clicked()
         ui->lineEditContractAddress->setText(dlg.getAddressValue());
         ui->textEditInterface->setText(dlg.getABIValue());
     }
+}
+
+void CallContract::on_pasteAddress_clicked()
+{
+    setContractAddress(QApplication::clipboard()->text());
 }
 
 QString CallContract::toDataHex(int func, QString& errorMessage)

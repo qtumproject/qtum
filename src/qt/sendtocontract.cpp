@@ -17,6 +17,8 @@
 #include "contractbookpage.h"
 #include "editcontractinfodialog.h"
 
+#include <QClipboard>
+
 namespace SendToContract_NS
 {
 // Contract data names
@@ -51,6 +53,7 @@ SendToContract::SendToContract(const PlatformStyle *platformStyle, QWidget *pare
 
     ui->saveInfoButton->setIcon(platformStyle->SingleColorIcon(":/icons/filesave"));
     ui->loadInfoButton->setIcon(platformStyle->SingleColorIcon(":/icons/address-book"));
+    ui->pasteAddressButton->setIcon(platformStyle->SingleColorIcon(":/icons/editpaste"));
 
     ui->groupBoxOptional->setStyleSheet(STYLE_GROUPBOX);
     ui->groupBoxFunction->setStyleSheet(STYLE_GROUPBOX);
@@ -101,6 +104,7 @@ SendToContract::SendToContract(const PlatformStyle *platformStyle, QWidget *pare
     connect(m_ABIFunctionField, SIGNAL(functionChanged()), SLOT(on_functionChanged()));
     connect(ui->saveInfoButton, SIGNAL(clicked()), SLOT(on_saveInfo_clicked()));
     connect(ui->loadInfoButton, SIGNAL(clicked()), SLOT(on_loadInfo_clicked()));
+    connect(ui->pasteAddressButton, SIGNAL(clicked()), SLOT(on_pasteAddress_clicked()));
 
     // Set contract address validator
     QRegularExpression regEx;
@@ -144,6 +148,12 @@ bool SendToContract::isDataValid()
     if(!m_ABIFunctionField->isValid())
         dataValid = false;
     return dataValid;
+}
+
+void SendToContract::setContractAddress(const QString &address)
+{
+    ui->lineEditContractAddress->setText(address);
+    ui->lineEditContractAddress->setFocus();
 }
 
 void SendToContract::setClientModel(ClientModel *_clientModel)
@@ -327,6 +337,11 @@ void SendToContract::on_loadInfo_clicked()
         ui->lineEditContractAddress->setText(dlg.getAddressValue());
         ui->textEditInterface->setText(dlg.getABIValue());
     }
+}
+
+void SendToContract::on_pasteAddress_clicked()
+{
+    setContractAddress(QApplication::clipboard()->text());
 }
 
 QString SendToContract::toDataHex(int func, QString& errorMessage)

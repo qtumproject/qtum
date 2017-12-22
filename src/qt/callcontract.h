@@ -28,6 +28,7 @@ public:
     bool isValidContractAddress();
     bool isValidInterfaceABI();
     bool isDataValid();
+    void setContractAddress(const QString &address);
 
 Q_SIGNALS:
 
@@ -39,6 +40,7 @@ public Q_SLOTS:
     void on_newContractABI();
     void on_saveInfo_clicked();
     void on_loadInfo_clicked();
+    void on_pasteAddress_clicked();
 
 private:
     QString toDataHex(int func, QString& errorMessage);
