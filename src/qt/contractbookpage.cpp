@@ -195,7 +195,7 @@ void ContractBookPage::done(int retval)
         ABIValue = ABI.toString();
     }
 
-    if(addressValue.isEmpty() || ABIValue.isEmpty())
+    if(addressValue.isEmpty())
     {
         // If no contract info entry selected, return rejected
         retval = Rejected;
