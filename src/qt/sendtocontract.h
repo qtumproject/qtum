@@ -6,6 +6,7 @@
 class PlatformStyle;
 class WalletModel;
 class ClientModel;
+class ContractTableModel;
 class ExecRPCCommand;
 class ABIFunctionField;
 class ContractABI;
@@ -42,6 +43,7 @@ public Q_SLOTS:
     void on_saveInfo_clicked();
     void on_loadInfo_clicked();
     void on_pasteAddress_clicked();
+    void on_contractAddress_changed();
 
 private:
     QString toDataHex(int func, QString& errorMessage);
@@ -51,6 +53,7 @@ private:
     Ui::SendToContract *ui;
     WalletModel* m_model;
     ClientModel* m_clientModel;
+    ContractTableModel* m_contractModel;
     ExecRPCCommand* m_execRPCCommand;
     ABIFunctionField* m_ABIFunctionField;
     ContractABI* m_contractABI;

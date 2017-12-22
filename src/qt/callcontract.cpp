@@ -12,6 +12,7 @@
 #include "contractresult.h"
 #include "contractbookpage.h"
 #include "editcontractinfodialog.h"
+#include "contracttablemodel.h"
 
 #include <QClipboard>
 
@@ -30,6 +31,7 @@ CallContract::CallContract(const PlatformStyle *platformStyle, QWidget *parent) 
     ui(new Ui::CallContract),
     m_model(0),
     m_clientModel(0),
+    m_contractModel(0),
     m_execRPCCommand(0),
     m_ABIFunctionField(0),
     m_contractABI(0),
@@ -78,6 +80,7 @@ CallContract::CallContract(const PlatformStyle *platformStyle, QWidget *parent) 
     connect(ui->saveInfoButton, SIGNAL(clicked()), SLOT(on_saveInfo_clicked()));
     connect(ui->loadInfoButton, SIGNAL(clicked()), SLOT(on_loadInfo_clicked()));
     connect(ui->pasteAddressButton, SIGNAL(clicked()), SLOT(on_pasteAddress_clicked()));
+    connect(ui->lineEditContractAddress, SIGNAL(textChanged(QString)), SLOT(on_contractAddress_changed()));
 
     // Set contract address validator
     QRegularExpression regEx;
@@ -107,6 +110,7 @@ void CallContract::setClientModel(ClientModel *_clientModel)
 void CallContract::setModel(WalletModel *_model)
 {
     m_model = _model;
+    m_contractModel = m_model->getContractTableModel();
 }
 
 bool CallContract::isValidContractAddress()
@@ -233,7 +237,7 @@ void CallContract::on_newContractABI()
 
 void CallContract::on_saveInfo_clicked()
 {
-    if(!m_model && !m_model->getContractTableModel())
+    if(!m_contractModel)
         return;
 
     bool valid = true;
@@ -247,14 +251,21 @@ void CallContract::on_saveInfo_clicked()
     if(!valid)
         return;
 
-    EditContractInfoDialog dlg(EditContractInfoDialog::NewContractInfo, this);
-    dlg.setModel(m_model->getContractTableModel());
+    QString contractAddress = ui->lineEditContractAddress->text();
+    int row = m_contractModel->lookupAddress(contractAddress);
+    EditContractInfoDialog::Mode dlgMode = row > -1 ? EditContractInfoDialog::EditContractInfo : EditContractInfoDialog::NewContractInfo;
+    EditContractInfoDialog dlg(dlgMode, this);
+    dlg.setModel(m_contractModel);
+    if(dlgMode == EditContractInfoDialog::EditContractInfo)
+    {
+        dlg.loadRow(row);
+    }
     dlg.setAddress(ui->lineEditContractAddress->text());
     dlg.setABI(ui->textEditInterface->toPlainText());
     if(dlg.exec())
     {
         ui->lineEditContractAddress->setText(dlg.getAddress());
-        ui->textEditInterface->setText(dlg.getABI());
+        on_contractAddress_changed();
     }
 }
 
@@ -265,13 +276,29 @@ void CallContract::on_loadInfo_clicked()
     if(dlg.exec())
     {
         ui->lineEditContractAddress->setText(dlg.getAddressValue());
-        ui->textEditInterface->setText(dlg.getABIValue());
+        on_contractAddress_changed();
     }
 }
 
 void CallContract::on_pasteAddress_clicked()
 {
     setContractAddress(QApplication::clipboard()->text());
+}
+
+void CallContract::on_contractAddress_changed()
+{
+    if(isValidContractAddress() && m_contractModel)
+    {
+        QString contractAddress = ui->lineEditContractAddress->text();
+        if(m_contractModel->lookupAddress(contractAddress) > -1)
+        {
+            QString contractAbi = m_contractModel->abiForAddress(contractAddress);
+            if(ui->textEditInterface->toPlainText() != contractAbi)
+            {
+                ui->textEditInterface->setText(m_contractModel->abiForAddress(contractAddress));
+            }
+        }
+    }
 }
 
 QString CallContract::toDataHex(int func, QString& errorMessage)
