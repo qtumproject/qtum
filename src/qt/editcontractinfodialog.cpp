@@ -2,17 +2,22 @@
 #include "ui_editcontractinfodialog.h"
 
 #include "contracttablemodel.h"
+#include "contractabi.h"
 
 #include <QDataWidgetMapper>
 #include <QMessageBox>
+#include <QRegularExpressionValidator>
 
 EditContractInfoDialog::EditContractInfoDialog(Mode _mode, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::EditContractInfoDialog),
     mapper(0),
     mode(_mode),
-    model(0)
+    model(0),
+    m_contractABI(0)
 {
+    m_contractABI = new ContractABI();
+
     ui->setupUi(this);
 
     switch(mode)
@@ -27,11 +32,46 @@ EditContractInfoDialog::EditContractInfoDialog(Mode _mode, QWidget *parent) :
 
     mapper = new QDataWidgetMapper(this);
     mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
+
+    connect(ui->ABIEdit, SIGNAL(textChanged()), SLOT(on_newContractABI()));
+
+    // Set contract address validator
+    QRegularExpression regEx;
+    regEx.setPattern(paternAddress);
+    QRegularExpressionValidator *addressValidator = new QRegularExpressionValidator(ui->addressEdit);
+    addressValidator->setRegularExpression(regEx);
+    ui->addressEdit->setCheckValidator(addressValidator);
+    ui->addressEdit->setEmptyIsValid(false);
 }
 
 EditContractInfoDialog::~EditContractInfoDialog()
 {
+    delete m_contractABI;
     delete ui;
+}
+
+bool EditContractInfoDialog::isValidContractAddress()
+{
+    ui->addressEdit->checkValidity();
+    return ui->addressEdit->isValid();
+}
+
+bool EditContractInfoDialog::isValidInterfaceABI()
+{
+    ui->ABIEdit->checkValidity();
+    return ui->ABIEdit->isValid();
+}
+
+bool EditContractInfoDialog::isDataValid()
+{
+    bool dataValid = true;
+
+    if(!isValidContractAddress())
+        dataValid = false;
+    if(!isValidInterfaceABI())
+        dataValid = false;
+
+    return dataValid;
 }
 
 void EditContractInfoDialog::setModel(ContractTableModel *_model)
@@ -78,30 +118,46 @@ bool EditContractInfoDialog::saveCurrentRow()
 
 void EditContractInfoDialog::accept()
 {
-    if(!model)
-        return;
-
-    if(!saveCurrentRow())
+    if(isDataValid())
     {
-        switch(model->getEditStatus())
+        if(!model)
+            return;
+
+        if(!saveCurrentRow())
         {
-        case ContractTableModel::OK:
-            // Failed with unknown reason. Just reject.
-            break;
-        case ContractTableModel::NO_CHANGES:
-            // No changes were made during edit operation. Just reject.
-            break;
-        case ContractTableModel::DUPLICATE_ADDRESS:
-            QMessageBox::warning(this, windowTitle(),
-                                 tr("The entered address \"%1\" is already in the contract book.").arg(ui->addressEdit->text()),
-                                 QMessageBox::Ok, QMessageBox::Ok);
-            break;
+            switch(model->getEditStatus())
+            {
+            case ContractTableModel::OK:
+                // Failed with unknown reason. Just reject.
+                break;
+            case ContractTableModel::NO_CHANGES:
+                // No changes were made during edit operation. Just reject.
+                break;
+            case ContractTableModel::DUPLICATE_ADDRESS:
+                QMessageBox::warning(this, windowTitle(),
+                                     tr("The entered address \"%1\" is already in the contract book.").arg(ui->addressEdit->text()),
+                                     QMessageBox::Ok, QMessageBox::Ok);
+                break;
 
+            }
+            return;
         }
-        return;
+        QDialog::accept();
     }
-    QDialog::accept();
+}
 
+void EditContractInfoDialog::on_newContractABI()
+{
+    std::string json_data = ui->ABIEdit->toPlainText().toStdString();
+    if(!m_contractABI->loads(json_data))
+    {
+        ui->ABIEdit->setIsValidManually(false);
+    }
+    else
+    {
+        ui->ABIEdit->setIsValidManually(true);
+    }
+    m_contractABI->clean();
 }
 
 QString EditContractInfoDialog::getAddress() const

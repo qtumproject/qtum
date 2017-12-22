@@ -4,6 +4,7 @@
 #include <QDialog>
 
 class ContractTableModel;
+class ContractABI;
 
 namespace Ui {
 class EditContractInfoDialog;
@@ -28,6 +29,10 @@ public:
     explicit EditContractInfoDialog(Mode mode, QWidget *parent = 0);
     ~EditContractInfoDialog();
 
+    bool isValidContractAddress();
+    bool isValidInterfaceABI();
+    bool isDataValid();
+
     void setModel(ContractTableModel *model);
     void loadRow(int row);
 
@@ -38,6 +43,7 @@ public:
 
 public Q_SLOTS:
     void accept();
+    void on_newContractABI();
 
 private:
     bool saveCurrentRow();
@@ -46,6 +52,7 @@ private:
     QDataWidgetMapper *mapper;
     Mode mode;
     ContractTableModel *model;
+    ContractABI* m_contractABI;
 
     QString address;
     QString ABI;

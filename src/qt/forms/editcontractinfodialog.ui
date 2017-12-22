@@ -34,10 +34,10 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QLineEdit" name="addressEdit"/>
+      <widget class="QValidatedLineEdit" name="addressEdit"/>
      </item>
      <item row="2" column="1">
-      <widget class="QTextEdit" name="ABIEdit"/>
+      <widget class="QValidatedTextEdit" name="ABIEdit"/>
      </item>
      <item row="2" column="0">
       <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -77,6 +77,18 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QValidatedLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>qvalidatedlineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QValidatedTextEdit</class>
+   <extends>QTextEdit</extends>
+   <header>qvalidatedtextedit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>
