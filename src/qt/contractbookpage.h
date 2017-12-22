@@ -22,6 +22,11 @@ public:
     explicit ContractBookPage(const PlatformStyle *platformStyle, QWidget *parent = 0);
     ~ContractBookPage();
 
+    enum ColumnWidths {
+            LABEL_COLUMN_WIDTH = 180,
+            ADDRESS_COLUMN_WIDTH = 380,
+        };
+
     void setModel(ContractTableModel *model);
     const QString &getAddressValue() const { return addressValue; }
     const QString &getABIValue() const { return ABIValue; }
@@ -48,6 +53,8 @@ private Q_SLOTS:
     void on_copyAddress_clicked();
     /** Copy label of currently selected contract info entry to clipboard (no button) */
     void onCopyNameAction();
+    /** Copy ABI of currently selected contract info entry to clipboard (no button) */
+    void onCopyABIAction();
     /** Edit currently selected contract info entry (no button) */
     void onEditAction();
     /** Export button clicked */

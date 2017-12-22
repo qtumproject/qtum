@@ -135,7 +135,7 @@ public:
 ContractTableModel::ContractTableModel(CWallet *_wallet, WalletModel *parent) :
     QAbstractTableModel(parent),walletModel(parent),wallet(_wallet),priv(0)
 {
-    columns << tr("Label") << tr("Address") << tr("ABI");
+    columns << tr("Label") << tr("Contract Address") << tr("Interface (ABI)");
     priv = new ContractTablePriv(wallet, this);
     priv->refreshContractTable();
 }

@@ -43,7 +43,7 @@ void EditContractInfoDialog::setModel(ContractTableModel *_model)
     mapper->setModel(_model);
     mapper->addMapping(ui->labelEdit, ContractTableModel::Label);
     mapper->addMapping(ui->addressEdit, ContractTableModel::Address);
-    mapper->addMapping(ui->ABIEdit, ContractTableModel::ABI);
+    mapper->addMapping(ui->ABIEdit, ContractTableModel::ABI, "plainText");
 }
 
 void EditContractInfoDialog::loadRow(int row)

@@ -29,17 +29,21 @@ ContractBookPage::ContractBookPage(const PlatformStyle *platformStyle, QWidget *
         ui->deleteContractInfo->setIcon(platformStyle->SingleColorIcon(":/icons/remove"));
         ui->exportButton->setIcon(platformStyle->SingleColorIcon(":/icons/export"));
     }
+    setWindowTitle(tr("Choose the contract for send/call"));
+    ui->labelExplanation->setText(tr("These are your saved contracts. Always check the contract address and the ABI before sending/calling."));
 
     // Context menu actions
-    QAction *copyAddressAction = new QAction(tr("&Copy Address"), this);
-    QAction *copyNameAction = new QAction(tr("&Copy Name"), this);
+    QAction *copyAddressAction = new QAction(tr("Copy &Address"), this);
+    QAction *copyNameAction = new QAction(tr("Copy &Name"), this);
+    QAction *copyABIAction = new QAction(tr("Copy &Interface"), this);
     QAction *editAction = new QAction(tr("&Edit"), this);
-    QAction *deleteAction = new QAction(ui->deleteContractInfo->text(), this);
+    QAction *deleteAction = new QAction(tr("&Delete"), this);
 
     // Build context menu
     contextMenu = new QMenu(this);
     contextMenu->addAction(copyAddressAction);
     contextMenu->addAction(copyNameAction);
+    contextMenu->addAction(copyABIAction);
     contextMenu->addAction(editAction);
     contextMenu->addAction(deleteAction);
     contextMenu->addSeparator();
@@ -47,6 +51,7 @@ ContractBookPage::ContractBookPage(const PlatformStyle *platformStyle, QWidget *
     // Connect signals for context menu actions
     connect(copyAddressAction, SIGNAL(triggered()), this, SLOT(on_copyAddress_clicked()));
     connect(copyNameAction, SIGNAL(triggered()), this, SLOT(onCopyNameAction()));
+    connect(copyABIAction, SIGNAL(triggered()), this, SLOT(onCopyABIAction()));
     connect(editAction, SIGNAL(triggered()), this, SLOT(onEditAction()));
     connect(deleteAction, SIGNAL(triggered()), this, SLOT(on_deleteContractInfo_clicked()));
 
@@ -75,13 +80,15 @@ void ContractBookPage::setModel(ContractTableModel *_model)
     ui->tableView->sortByColumn(0, Qt::AscendingOrder);
 
     // Set column widths
+    ui->tableView->setColumnWidth(ContractTableModel::Label, ColumnWidths::LABEL_COLUMN_WIDTH);
+    ui->tableView->setColumnWidth(ContractTableModel::Address, ColumnWidths::ADDRESS_COLUMN_WIDTH);
 #if QT_VERSION < 0x050000
-    ui->tableView->horizontalHeader()->setResizeMode(ContractTableModel::Label, QHeaderView::Stretch);
-    ui->tableView->horizontalHeader()->setResizeMode(ContractTableModel::Address, QHeaderView::ResizeToContents);
+    ui->tableView->horizontalHeader()->setResizeMode(ContractTableModel::Label, QHeaderView::Fixed);
+    ui->tableView->horizontalHeader()->setResizeMode(ContractTableModel::Address, QHeaderView::Fixed);
     ui->tableView->horizontalHeader()->setResizeMode(ContractTableModel::ABI, QHeaderView::Stretch);
 #else
-    ui->tableView->horizontalHeader()->setSectionResizeMode(ContractTableModel::Label, QHeaderView::Stretch);
-    ui->tableView->horizontalHeader()->setSectionResizeMode(ContractTableModel::Address, QHeaderView::ResizeToContents);
+    ui->tableView->horizontalHeader()->setSectionResizeMode(ContractTableModel::Label, QHeaderView::Fixed);
+    ui->tableView->horizontalHeader()->setSectionResizeMode(ContractTableModel::Address, QHeaderView::Fixed);
     ui->tableView->horizontalHeader()->setSectionResizeMode(ContractTableModel::ABI, QHeaderView::Stretch);
 #endif
 
@@ -97,6 +104,11 @@ void ContractBookPage::setModel(ContractTableModel *_model)
 void ContractBookPage::onCopyNameAction()
 {
     GUIUtil::copyEntryData(ui->tableView, ContractTableModel::Label);
+}
+
+void ContractBookPage::onCopyABIAction()
+{
+    GUIUtil::copyEntryData(ui->tableView, ContractTableModel::ABI);
 }
 
 void ContractBookPage::on_copyAddress_clicked()
