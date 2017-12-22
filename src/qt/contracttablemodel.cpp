@@ -290,18 +290,23 @@ void ContractTableModel::updateEntry(const QString &address,
 
 QString ContractTableModel::addRow(const QString &label, const QString &address, const QString &abi)
 {
+    // Check for duplicate entry
+    if(lookupAddress(address) != -1)
+    {
+        editStatus = DUPLICATE_ADDRESS;
+        return "";
+    }
+
+    // Add new entry
     std::string strLabel = label.toStdString();
     std::string strAddress = address.toStdString();
     std::string strAbi = abi.toStdString();
-
     editStatus = OK;
-
-    // Add entry
     {
         LOCK(wallet->cs_wallet);
         wallet->SetContractBook(strAddress, strLabel, strAbi);
     }
-    return QString::fromStdString(strAddress);
+    return address;
 }
 
 bool ContractTableModel::removeRows(int row, int count, const QModelIndex &parent)
