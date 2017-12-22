@@ -201,7 +201,6 @@ bool ContractTableModel::setData(const QModelIndex &index, const QVariant &value
     if(!index.isValid())
         return false;
     ContractTableEntry *rec = static_cast<ContractTableEntry*>(index.internalPointer());
-    editStatus = OK;
 
     if(role == Qt::EditRole)
     {
@@ -214,7 +213,7 @@ bool ContractTableModel::setData(const QModelIndex &index, const QVariant &value
             // Do nothing, if old label == new label
             if(rec->label == value.toString())
             {
-                editStatus = NO_CHANGES;
+                updateEditStatus(NO_CHANGES);
                 return false;
             }
             wallet->SetContractBook(curAddress, value.toString().toStdString(), curAbi);
@@ -224,14 +223,14 @@ bool ContractTableModel::setData(const QModelIndex &index, const QVariant &value
             // Do nothing, if old address == new address
             if(newAddress == curAddress)
             {
-                editStatus = NO_CHANGES;
+                updateEditStatus(NO_CHANGES);
                 return false;
             }
             // Check for duplicate addresses to prevent accidental deletion of addresses, if you try
             // to paste an existing address over another address (with a different label)
             else if(wallet->mapContractBook.count(newAddress))
             {
-                editStatus = DUPLICATE_ADDRESS;
+                updateEditStatus(DUPLICATE_ADDRESS);
                 return false;
             }
             else
@@ -246,7 +245,7 @@ bool ContractTableModel::setData(const QModelIndex &index, const QVariant &value
             // Do nothing, if old abi == new abi
             if(rec->abi == value.toString())
             {
-                editStatus = NO_CHANGES;
+                updateEditStatus(NO_CHANGES);
                 return false;
             }
             wallet->SetContractBook(curAddress, curLabel, value.toString().toStdString());
@@ -367,7 +366,20 @@ int ContractTableModel::lookupAddress(const QString &address) const
     }
 }
 
+void ContractTableModel::resetEditStatus()
+{
+    editStatus = OK;
+}
+
 void ContractTableModel::emitDataChanged(int idx)
 {
     Q_EMIT dataChanged(index(idx, 0, QModelIndex()), index(idx, columns.length()-1, QModelIndex()));
+}
+
+void ContractTableModel::updateEditStatus(ContractTableModel::EditStatus status)
+{
+    if(status > editStatus)
+    {
+        editStatus = status;
+    }
 }

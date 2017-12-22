@@ -96,6 +96,7 @@ bool EditContractInfoDialog::saveCurrentRow()
     if(!model)
         return false;
 
+    model->resetEditStatus();
     switch(mode)
     {
     case NewContractInfo:
@@ -109,11 +110,13 @@ bool EditContractInfoDialog::saveCurrentRow()
     case EditContractInfo:
         if(mapper->submit())
         {
-            address = ui->addressEdit->text();
+            this->address = ui->addressEdit->text();
+            this->ABI = ui->ABIEdit->toPlainText();
         }
         break;
     }
-    return !address.isEmpty();
+    bool editError = model->getEditStatus() >= ContractTableModel::DUPLICATE_ADDRESS;
+    return !address.isEmpty() && !editError;
 }
 
 void EditContractInfoDialog::accept()

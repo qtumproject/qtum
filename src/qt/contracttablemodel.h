@@ -28,7 +28,7 @@ public:
 
     /** Return status of edit/insert operation */
     enum EditStatus {
-        OK,                     /**< Everything ok */
+        OK = 0,                     /**< Everything ok */
         NO_CHANGES,             /**< No changes were made during edit operation */
         DUPLICATE_ADDRESS,      /**< Address already in contract book */
     };
@@ -64,6 +64,8 @@ public:
 
     EditStatus getEditStatus() const { return editStatus; }
 
+    void resetEditStatus();
+
 private:
     WalletModel *walletModel;
     CWallet *wallet;
@@ -73,6 +75,8 @@ private:
 
     /** Notify listeners that data changed. */
     void emitDataChanged(int index);
+
+    void updateEditStatus(EditStatus status);
 
 public Q_SLOTS:
     /* Update address list from core.
