@@ -55,6 +55,7 @@ ContractBookPage::ContractBookPage(const PlatformStyle *platformStyle, QWidget *
     connect(editAction, SIGNAL(triggered()), this, SLOT(onEditAction()));
     connect(deleteAction, SIGNAL(triggered()), this, SLOT(on_deleteContractInfo_clicked()));
 
+    connect(ui->tableView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(accept()));
     connect(ui->tableView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(contextualMenu(QPoint)));
 
     connect(ui->chooseContractInfo, SIGNAL(clicked()), this, SLOT(accept()));

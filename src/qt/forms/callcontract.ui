@@ -113,6 +113,9 @@
            </item>
            <item>
             <widget class="QToolButton" name="loadInfoButton">
+             <property name="toolTip">
+              <string>Choose from contract book page</string>
+             </property>
              <property name="text">
               <string/>
              </property>
@@ -126,6 +129,9 @@
            </item>
            <item>
             <widget class="QToolButton" name="pasteAddressButton">
+             <property name="toolTip">
+              <string>Paste contract address from clipboard</string>
+             </property>
              <property name="text">
               <string/>
              </property>
@@ -139,6 +145,9 @@
            </item>
            <item>
             <widget class="QToolButton" name="saveInfoButton">
+             <property name="toolTip">
+              <string>Save contract info</string>
+             </property>
              <property name="text">
               <string/>
              </property>
