@@ -156,7 +156,15 @@ void ContractBookPage::on_deleteContractInfo_clicked()
     QModelIndexList indexes = table->selectionModel()->selectedRows();
     if(!indexes.isEmpty())
     {
-        table->model()->removeRow(indexes.at(0).row());
+        int row = indexes.at(0).row();
+        QModelIndex index = table->model()->index(row, ContractTableModel::Address);
+        QString contractAddress = table->model()->data(index).toString();
+        QString message = tr("Are you sure you want to delete the address \"%1\" from your contract address list?");
+        if(QMessageBox::Yes == QMessageBox::question(this, tr("Delete contact address"), message.arg(contractAddress),
+                                                     QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel))
+        {
+            table->model()->removeRow(row);
+        }
     }
 }
 
