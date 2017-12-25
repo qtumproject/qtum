@@ -335,6 +335,7 @@ void SendToContract::on_saveInfo_clicked()
     if(dlg.exec())
     {
         ui->lineEditContractAddress->setText(dlg.getAddress());
+        ui->textEditInterface->setText(dlg.getABI());
         on_contractAddress_changed();
     }
 }
