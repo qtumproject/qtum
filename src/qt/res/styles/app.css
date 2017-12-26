@@ -504,34 +504,40 @@ QTextEdit::disabled {
 Status Bar CSS
 --------------------------------------------*/
 QStatusBar{
-    background: QLinearGradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #cacaca, stop: 1 #aaaaaa);
+    background: #ebebeb;
 }
 QStatusBar QLabel{
     border: 1px solid transparent;
-    color: #232121;
+    color: black;
+    font: 10pt;
 }
 QStatusBar::item {
     border: none;
 }
 QStatusBar QLabel::disabled{
-    border: 1px solid rgba(218, 218, 218, 40%);
-    color: rgba(35, 33, 33, 10%);
+    border: 1px solid transparent;
+    color: rgba(0, 0, 0, 10%);
+}
+#unitDisplayControl{
+    font: 16px;
+    padding: 0px;
 }
 /*--------------------------------------------
 Progress Bar CSS
 --------------------------------------------*/
 QProgressBar {
-    background-color: rgba(31, 31, 31, 70%);
-    border: 1px solid rgba(31, 31, 31, 90%);
-    font: bold 10pt;
+    background-color: #2e2e2e;
+    border: 1px solid #2e2e2e;
+    font: 10pt;
     color: white;
-    border-radius: 2px;
+    border-radius: 10px;
 }
 QProgressBar::chunk {
-    background: QLinearGradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 rgba(0, 138, 200, 50%), stop: 1 rgba(0, 138, 200, 100%));
+    background: QLinearGradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #007cb3, stop: 1 #029ce0);
+    border-radius: 9px;
 }
 QProgressBar::disabled {
-    border: 1px solid rgba(31, 31, 31, 40%);
+    border: 1px solid rgba(46, 46, 46, 40%);
     color: rgba(255, 255, 255, 10%);
 }
 /*--------------------------------------------
