@@ -28,9 +28,9 @@
 #include <QSortFilterProxyModel>
 
 #define NUM_ITEMS 5
-#define TOKEN_SIZE 54
+#define TOKEN_SIZE 40
 #define MARGIN 5
-#define NAME_WIDTH 80
+#define SYMBOL_WIDTH 80
 
 #define TX_SIZE 40
 #define DECORATION_SIZE 20
@@ -156,53 +156,31 @@ public:
     {
         painter->save();
 
-        QIcon tokenIcon = platformStyle->TextColorIcon(":/icons/token");
-        QString tokenName = index.data(TokenItemModel::NameRole).toString() + ":";
-        QString tokenBalance = index.data(TokenItemModel::BalanceRole).toString();
         QString tokenSymbol = index.data(TokenItemModel::SymbolRole).toString();
-        tokenBalance.append(" " + tokenSymbol);
-        QString receiveAddress = index.data(TokenItemModel::SenderRole).toString();
+        QString tokenBalance = index.data(TokenItemModel::BalanceRole).toString();
 
         QRect mainRect = option.rect;
         mainRect.setWidth(option.rect.width());
 
-        QColor rowColor = index.row() % 2 ? QColor("#393939") : QColor("#2e2e2e");
-        painter->fillRect(mainRect, rowColor);
+        painter->fillRect(mainRect, QColor("#383938"));
+
+        QRect hLineRect(mainRect.left(), mainRect.bottom(), mainRect.width(), 1);
+        painter->fillRect(hLineRect, QColor("#2e2e2e"));
 
         QColor foreground("#dedede");
         painter->setPen(foreground);
-
-        int decorationSize = TOKEN_SIZE - 20;
-        int leftTopMargin = 10;
-        QRect decorationRect(mainRect.topLeft() + QPoint(leftTopMargin, leftTopMargin), QSize(decorationSize, decorationSize));
-        tokenIcon.paint(painter, decorationRect);
-
+        
         QFont font = option.font;
 
         QFontMetrics fmName(font);
-        QString clippedName = fmName.elidedText(tokenName, Qt::ElideRight, NAME_WIDTH);
+        QString clippedSymbol = fmName.elidedText(tokenSymbol, Qt::ElideRight, SYMBOL_WIDTH);
 
-        QString balanceString = tokenBalance;
-        balanceString.append(tokenSymbol);
+        QRect symbolRect(mainRect.left() + MARGIN, mainRect.top(), SYMBOL_WIDTH, mainRect.height());
+        painter->drawText(symbolRect, Qt::AlignLeft|Qt::AlignVCenter, clippedSymbol);
 
-        QRect nameRect(decorationRect.right() + MARGIN, decorationRect.top(), NAME_WIDTH, decorationSize / 2);
-        painter->drawText(nameRect, Qt::AlignLeft|Qt::AlignVCenter, clippedName);
-
-        font.setBold(true);
-        painter->setFont(font);
-        QColor amountColor("#ffffff");
-        painter->setPen(amountColor);
-        QFontMetrics fmBalance(font);
-        int balanceWidth = fmBalance.width(balanceString);
-        QRect tokenBalanceRect(nameRect.right() + MARGIN, decorationRect.top(), balanceWidth, decorationSize / 2);
-        painter->drawText(tokenBalanceRect, Qt::AlignLeft|Qt::AlignVCenter, tokenBalance);
-
-        QFont addressFont = option.font;
-        addressFont.setPointSizeF(addressFont.pointSizeF() * 0.8);
-        painter->setFont(addressFont);
-        painter->setPen(foreground);
-        QRect receiveAddressRect(decorationRect.right() + MARGIN, nameRect.bottom(), mainRect.width() - decorationSize, decorationSize / 2);
-        painter->drawText(receiveAddressRect, Qt::AlignLeft|Qt::AlignBottom, receiveAddress);
+        int balanceWidth = mainRect.width() - symbolRect.width() - 3 * MARGIN;
+        QRect balanceRect(symbolRect.right() + MARGIN, symbolRect.top(), balanceWidth, mainRect.height());
+        painter->drawText(balanceRect, Qt::AlignRight|Qt::AlignVCenter, tokenBalance);
 
         painter->restore();
     }
@@ -210,14 +188,12 @@ public:
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
     {
         QFont font = option.font;
-        font.setBold(true);
 
         QString balanceString = index.data(TokenItemModel::BalanceRole).toString();
-        balanceString.append(" " + index.data(TokenItemModel::SymbolRole).toString());
         QFontMetrics fm(font);
         int balanceWidth = fm.width(balanceString);
 
-        int width = TOKEN_SIZE - 10 + NAME_WIDTH + balanceWidth + 2*MARGIN;
+        int width = SYMBOL_WIDTH + balanceWidth + 3*MARGIN;
         return QSize(width, TOKEN_SIZE);
     }
 
@@ -249,6 +225,12 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     SetObjectStyleSheet(ui->labelTokenStatus, StyleSheetNames::ButtonTransparent);
     SetObjectStyleSheet(ui->labelTransactionsStatus, StyleSheetNames::ButtonTransparent);
     SetObjectStyleSheet(ui->listTokens, StyleSheetNames::ScrollBarDark);
+
+    if (!platformStyle->getImagesOnButtons()) {
+        ui->buttonAddToken->setIcon(QIcon());
+    } else {
+        ui->buttonAddToken->setIcon(platformStyle->MultiStatesIcon(":/icons/add", PlatformStyle::PushButton));
+    }
 
     // use a MultiStatesIcon for the "out of sync warning" icon
     QIcon icon = platformStyle->MultiStatesIcon(":/icons/warning", PlatformStyle::PushButton);
