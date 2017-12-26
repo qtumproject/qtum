@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>640</width>
-    <height>385</height>
+    <height>419</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -50,36 +50,34 @@
       <item>
        <widget class="QWidget" name="contentWidget" native="true">
         <property name="styleSheet">
-         <string notr="true">#contentWidget { background: rgba(255,255,255,240); border-radius: 6px; }
-
-QLabel { color: rgb(40,40,40);  }</string>
+         <string notr="true">#contentWidget { background: white; border-radius: 6px; }</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayoutSub" stretch="1,0,0,0">
          <property name="spacing">
           <number>0</number>
          </property>
          <property name="leftMargin">
-          <number>10</number>
+          <number>20</number>
          </property>
          <property name="topMargin">
           <number>10</number>
          </property>
          <property name="rightMargin">
-          <number>10</number>
+          <number>20</number>
          </property>
          <property name="bottomMargin">
-          <number>10</number>
+          <number>20</number>
          </property>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayoutIconText" stretch="0,1">
+           <property name="spacing">
+            <number>20</number>
+           </property>
            <property name="topMargin">
             <number>20</number>
            </property>
            <item>
             <layout class="QVBoxLayout" name="verticalLayoutIcon">
-             <property name="leftMargin">
-              <number>0</number>
-             </property>
              <item>
               <widget class="QPushButton" name="warningIcon">
                <property name="enabled">
@@ -192,10 +190,10 @@ QLabel { color: rgb(40,40,40);  }</string>
          <item>
           <layout class="QFormLayout" name="formLayout">
            <property name="fieldGrowthPolicy">
-            <enum>QFormLayout::FieldsStayAtSizeHint</enum>
+            <enum>QFormLayout::ExpandingFieldsGrow</enum>
            </property>
            <property name="horizontalSpacing">
-            <number>6</number>
+            <number>20</number>
            </property>
            <property name="verticalSpacing">
             <number>6</number>
@@ -207,8 +205,8 @@ QLabel { color: rgb(40,40,40);  }</string>
             <widget class="QLabel" name="labelNumberOfBlocksLeft">
              <property name="font">
               <font>
-               <weight>75</weight>
-               <bold>true</bold>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
              </property>
              <property name="text">
@@ -227,8 +225,8 @@ QLabel { color: rgb(40,40,40);  }</string>
             <widget class="QLabel" name="labelLastBlockTime">
              <property name="font">
               <font>
-               <weight>75</weight>
-               <bold>true</bold>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
              </property>
              <property name="text">
@@ -253,8 +251,8 @@ QLabel { color: rgb(40,40,40);  }</string>
             <widget class="QLabel" name="labelSyncDone">
              <property name="font">
               <font>
-               <weight>75</weight>
-               <bold>true</bold>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
              </property>
              <property name="text">
@@ -287,8 +285,8 @@ QLabel { color: rgb(40,40,40);  }</string>
             <widget class="QLabel" name="labelProgressIncrease">
              <property name="font">
               <font>
-               <weight>75</weight>
-               <bold>true</bold>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
              </property>
              <property name="text">
@@ -307,8 +305,8 @@ QLabel { color: rgb(40,40,40);  }</string>
             <widget class="QLabel" name="labelEstimatedTimeLeft">
              <property name="font">
               <font>
-               <weight>75</weight>
-               <bold>true</bold>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
              </property>
              <property name="text">

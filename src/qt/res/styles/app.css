@@ -743,7 +743,7 @@ Push Button CSS
 --------------------------------------------*/
 QPushButton {
     color: white; 
-    background: #57b1d4;
+    background: #029ce0;
     border: none;
     border-radius: 12px;
     min-width: 5em;
@@ -751,15 +751,15 @@ QPushButton {
     margin: 0px;
 }
 QPushButton:hover{
-    background: #6cc1e2;
+    background: #0188c4;
 }
 QPushButton:pressed {
-    background: #029ce0;
+    background: #007cb3;
     color: #a4d1f0;
 }
 QPushButton::disabled {
     color: rgba(255, 255, 255, 40%);
-    background: rgba(87, 177, 212, 60%);
+    background: rgba(2, 156, 224, 60%);
 }
 /*--------------------------------------------
 Scroll Area CSS
@@ -852,4 +852,28 @@ QCalendarWidget QAbstractItemView
 }
 QCalendarWidget QAbstractItemView:disabled {
     color: #535353;
+}
+/*--------------------------------------------
+Modal Overlay CSS
+--------------------------------------------*/
+#ModalOverlay QProgressBar {
+    background-color: #e3e2e3;
+    border: 1px solid #e3e2e3;
+    font: 0pt;
+    color: transparent;
+    border-radius: 8px;
+    height: 8px;
+}
+#ModalOverlay QProgressBar::chunk {
+    border-radius: 7px;
+}
+#ModalOverlay QLabel { 
+    color: black;  
+}
+#ModalOverlay #labelNumberOfBlocksLeft, 
+#ModalOverlay #labelLastBlockTime, 
+#ModalOverlay #labelSyncDone, 
+#ModalOverlay #labelProgressIncrease, 
+#ModalOverlay #labelEstimatedTimeLeft  {
+    color: #9c9c9c;
 }
