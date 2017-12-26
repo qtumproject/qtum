@@ -151,7 +151,7 @@ QIcon PlatformStyle::MultiStatesIcon(const QString &resourcename, StateType type
         QImage img2(img1);
         QImage img3(img1);
         QPixmap pix1 = MakeSingleColorPixmap(img1, color, 1);
-        QPixmap pix2 = MakeSingleColorPixmap(img2, color, 0.3);
+        QPixmap pix2 = MakeSingleColorPixmap(img2, color, 0.8);
         QPixmap pix3 = MakeSingleColorPixmap(img3, colorAlt, 0.8);
         icon.addPixmap(pix1, QIcon::Normal, QIcon::On);
         icon.addPixmap(pix2, QIcon::Normal, QIcon::Off);
