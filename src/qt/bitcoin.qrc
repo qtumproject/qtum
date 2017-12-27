@@ -109,6 +109,7 @@
         <file alias="buttonblack">res/styles/buttonblack.css</file>
         <file alias="buttonwhite">res/styles/buttonwhite.css</file>
         <file alias="buttontransparent">res/styles/buttontransparent.css</file>
+        <file alias="buttontransparentbordered">res/styles/buttontransparentbordered.css</file>
         <file alias="toolblack">res/styles/toolblack.css</file>
         <file alias="toolgroupblack">res/styles/toolgroupblack.css</file>
         <file alias="toolsubblack">res/styles/toolsubblack.css</file>

@@ -34,8 +34,8 @@ ReceiveCoinsDialog::ReceiveCoinsDialog(const PlatformStyle *_platformStyle, QWid
 
     // Set stylesheet
     SetObjectStyleSheet(ui->clearButton, StyleSheetNames::ButtonBlack);
-    SetObjectStyleSheet(ui->showRequestButton, StyleSheetNames::ButtonBlack);
-    SetObjectStyleSheet(ui->removeRequestButton, StyleSheetNames::ButtonBlack);
+    SetObjectStyleSheet(ui->showRequestButton, StyleSheetNames::ButtonTransparentBordered);
+    SetObjectStyleSheet(ui->removeRequestButton, StyleSheetNames::ButtonTransparentBordered);
     SetObjectStyleSheet(ui->recentRequestsView, StyleSheetNames::ScrollBarDark);
 
     if (!_platformStyle->getImagesOnButtons()) {
