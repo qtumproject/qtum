@@ -40,9 +40,9 @@ CallContract::CallContract(const PlatformStyle *platformStyle, QWidget *parent) 
     m_platformStyle = platformStyle;
     // Setup ui components
     ui->setupUi(this);
-    ui->saveInfoButton->setIcon(platformStyle->SingleColorIcon(":/icons/filesave"));
-    ui->loadInfoButton->setIcon(platformStyle->SingleColorIcon(":/icons/address-book"));
-    ui->pasteAddressButton->setIcon(platformStyle->SingleColorIcon(":/icons/editpaste"));
+    ui->saveInfoButton->setIcon(platformStyle->MultiStatesIcon(":/icons/filesave", PlatformStyle::PushButton));
+    ui->loadInfoButton->setIcon(platformStyle->MultiStatesIcon(":/icons/address-book", PlatformStyle::PushButton));
+    ui->pasteAddressButton->setIcon(platformStyle->MultiStatesIcon(":/icons/editpaste", PlatformStyle::PushButton));
 
     // Set stylesheet
     SetObjectStyleSheet(ui->pushButtonClearAll, StyleSheetNames::ButtonBlack);
