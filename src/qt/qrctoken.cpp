@@ -58,8 +58,8 @@ public:
         font.setPointSizeF(option.font.pointSizeF() * 1.1);
         font.setBold(true);
         painter->setFont(font);
-        QColor amounColor("#ffffff");
-        painter->setPen(amounColor);
+        QColor amountColor("#ffffff");
+        painter->setPen(amountColor);
 
         QFontMetrics fmName(option.font);
         QString clippedSymbol = fmName.elidedText(tokenSymbol, Qt::ElideRight, SYMBOL_WIDTH);

@@ -119,26 +119,25 @@ QListView {
 Combo Box CSS
 --------------------------------------------*/
 QComboBox {
-    border: none;
-    border-bottom: 1px solid #717173;
+    border: 1px solid #5a5a5d;
     border-radius: 12px;
     background-color: #2a2a2a;
     color: #ffffff;
     padding: 4px;
     padding-left: 10px;
-    padding-right: 15px;
+    padding-right: 8px;
     combobox-popup: 0;
 }
 QComboBox:hover {
-    border-bottom: 1px solid #373737;
+    border: 1px solid #7e7e7e;
 }
 QComboBox:drop-down {
     border: 0px;
-    border-left: 2px solid #727272;
-    margin-left: -15px;
+    border-left: 1px solid #686868;
+    margin-left: -8px;
 }
-QComboBox:down-arrow:on {
-    image: url(":/styles/app-icons/cb_up_down_arrow");
+QComboBox:down-arrow {
+    image: url(":/styles/app-icons/down_arrow");
     width: 6px;
     height: 10px;
     top: 1px;
@@ -167,11 +166,14 @@ QComboBox QAbstractItemView{
     margin-bottom: 3px;
 }
 QComboBox::disabled {
-    border-bottom: 1px solid rgba(114, 114, 114, 40%);
+    border: 1px solid rgba(59, 59, 59, 40%);
     color: rgba(255, 255, 255, 10%);
 }
 QComboBox:drop-down:disabled {
-    border-left: 2px solid rgba(114, 114, 114, 40%);
+    border-left: 1px solid rgba(59, 59, 59, 40%);
+}
+QComboBox::down-arrow:disabled {
+    image: url(":/styles/app-icons/down_arrow_disabled");
 }
 /*--------------------------------------------
 Group Box CSS
@@ -249,30 +251,27 @@ Spin Box CSS
 QAbstractSpinBox {
     padding: 4px;
     background-color: #282828;
-    background-image: url(":/styles/app-icons/spinBox");
     background-position: right;
     background-repeat: no-repeat;
-    border: 1px solid #3b3b3d;
+    border: 1px solid #5a5a5d;
     border-radius: 12px;
     color: #bdbdbd;
     padding-left: 12px;
 }
 QAbstractSpinBox:hover {
     border: 1px solid #7e7e7e;
-    background-image: url(":/styles/app-icons/spinBoxHover");
-}
-QAbstractSpinBox:focus {
-    background-image: url(":/styles/app-icons/spinBoxFocus");
 }
 QAbstractSpinBox::up-button {
     border: none;
+    border-left: 1px solid #686868;
     width: 22px;
     background-color: transparent;
     border-top-right-radius: 12px;
 }
 QAbstractSpinBox::down-button {
     border: none;
-    margin-top: 1px;
+    border-left: 1px solid #686868;
+    margin-top: -1px;
     width: 22px;
     background-color: transparent;
     border-bottom-right-radius: 12px;
@@ -282,14 +281,14 @@ QAbstractSpinBox::up-arrow {
     width: 6px;
     height: 4px;
     margin-right: 5px;
-    margin-top: 1px;
+    margin-top: 5px;
 }
 QAbstractSpinBox::down-arrow {
     image: url(":/styles/app-icons/down_arrow");
     width: 6px;
     height: 4px;
     margin-right: 5px;
-    margin-bottom: 1px;
+    margin-bottom: 5px;
 }
 QAbstractSpinBox::up-arrow:hover{
     image: url(":/styles/app-icons/up_arrow_hover");
@@ -298,9 +297,14 @@ QAbstractSpinBox::down-arrow:hover{
     image: url(":/styles/app-icons/down_arrow_hover");
 }
 QAbstractSpinBox::disabled {
-    background-image: url(":/styles/app-icons/spinBoxDisabled");
     border: 1px solid rgba(59, 59, 59, 40%);
     color: rgba(189, 189, 189, 10%);
+}
+QAbstractSpinBox::up-button:disabled {
+    border-left: 1px solid rgba(59, 59, 59, 40%);
+}
+QAbstractSpinBox::down-button:disabled {
+    border-left: 1px solid rgba(59, 59, 59, 40%);
 }
 QAbstractSpinBox::up-arrow:disabled,
 QAbstractSpinBox::up-arrow:off {
