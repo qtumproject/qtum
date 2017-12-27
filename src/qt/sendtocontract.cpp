@@ -14,6 +14,11 @@
 #include "contractabi.h"
 #include "tabbarinfo.h"
 #include "contractresult.h"
+#include "contractbookpage.h"
+#include "editcontractinfodialog.h"
+#include "contracttablemodel.h"
+
+#include <QClipboard>
 
 namespace SendToContract_NS
 {
@@ -36,14 +41,22 @@ SendToContract::SendToContract(const PlatformStyle *platformStyle, QWidget *pare
     ui(new Ui::SendToContract),
     m_model(0),
     m_clientModel(0),
+    m_contractModel(0),
     m_execRPCCommand(0),
     m_ABIFunctionField(0),
     m_contractABI(0),
     m_tabInfo(0)
 {
+    m_platformStyle = platformStyle;
+
     // Setup ui components
     Q_UNUSED(platformStyle);
     ui->setupUi(this);
+
+    ui->saveInfoButton->setIcon(platformStyle->SingleColorIcon(":/icons/filesave"));
+    ui->loadInfoButton->setIcon(platformStyle->SingleColorIcon(":/icons/address-book"));
+    ui->pasteAddressButton->setIcon(platformStyle->SingleColorIcon(":/icons/editpaste"));
+
     ui->groupBoxOptional->setStyleSheet(STYLE_GROUPBOX);
     ui->groupBoxFunction->setStyleSheet(STYLE_GROUPBOX);
     ui->scrollAreaFunction->setStyleSheet(".QScrollArea {border: none;}");
@@ -91,6 +104,10 @@ SendToContract::SendToContract(const PlatformStyle *platformStyle, QWidget *pare
     connect(ui->textEditInterface, SIGNAL(textChanged()), SLOT(on_newContractABI()));
     connect(ui->stackedWidget, SIGNAL(currentChanged(int)), SLOT(on_updateSendToContractButton()));
     connect(m_ABIFunctionField, SIGNAL(functionChanged()), SLOT(on_functionChanged()));
+    connect(ui->saveInfoButton, SIGNAL(clicked()), SLOT(on_saveInfo_clicked()));
+    connect(ui->loadInfoButton, SIGNAL(clicked()), SLOT(on_loadInfo_clicked()));
+    connect(ui->pasteAddressButton, SIGNAL(clicked()), SLOT(on_pasteAddress_clicked()));
+    connect(ui->lineEditContractAddress, SIGNAL(textChanged(QString)), SLOT(on_contractAddress_changed()));
 
     // Set contract address validator
     QRegularExpression regEx;
@@ -109,6 +126,7 @@ SendToContract::~SendToContract()
 void SendToContract::setModel(WalletModel *_model)
 {
     m_model = _model;
+    m_contractModel = m_model->getContractTableModel();
 }
 
 bool SendToContract::isValidContractAddress()
@@ -134,6 +152,12 @@ bool SendToContract::isDataValid()
     if(!m_ABIFunctionField->isValid())
         dataValid = false;
     return dataValid;
+}
+
+void SendToContract::setContractAddress(const QString &address)
+{
+    ui->lineEditContractAddress->setText(address);
+    ui->lineEditContractAddress->setFocus();
 }
 
 void SendToContract::setClientModel(ClientModel *_clientModel)
@@ -278,6 +302,73 @@ void SendToContract::on_functionChanged()
     if(!payable)
     {
         ui->lineEditAmount->clear();
+    }
+}
+
+void SendToContract::on_saveInfo_clicked()
+{
+    if(!m_contractModel)
+        return;
+
+    bool valid = true;
+
+    if(!isValidContractAddress())
+        valid = false;
+
+    if(!isValidInterfaceABI())
+        valid = false;
+
+    if(!valid)
+        return;
+
+    QString contractAddress = ui->lineEditContractAddress->text();
+    int row = m_contractModel->lookupAddress(contractAddress);
+    EditContractInfoDialog::Mode dlgMode = row > -1 ? EditContractInfoDialog::EditContractInfo : EditContractInfoDialog::NewContractInfo;
+    EditContractInfoDialog dlg(dlgMode, this);
+    dlg.setModel(m_contractModel);
+    if(dlgMode == EditContractInfoDialog::EditContractInfo)
+    {
+        dlg.loadRow(row);
+    }
+    dlg.setAddress(ui->lineEditContractAddress->text());
+    dlg.setABI(ui->textEditInterface->toPlainText());
+    if(dlg.exec())
+    {
+        ui->lineEditContractAddress->setText(dlg.getAddress());
+        ui->textEditInterface->setText(dlg.getABI());
+        on_contractAddress_changed();
+    }
+}
+
+void SendToContract::on_loadInfo_clicked()
+{
+    ContractBookPage dlg(m_platformStyle, this);
+    dlg.setModel(m_model->getContractTableModel());
+    if(dlg.exec())
+    {
+        ui->lineEditContractAddress->setText(dlg.getAddressValue());
+        on_contractAddress_changed();
+    }
+}
+
+void SendToContract::on_pasteAddress_clicked()
+{
+    setContractAddress(QApplication::clipboard()->text());
+}
+
+void SendToContract::on_contractAddress_changed()
+{
+    if(isValidContractAddress() && m_contractModel)
+    {
+        QString contractAddress = ui->lineEditContractAddress->text();
+        if(m_contractModel->lookupAddress(contractAddress) > -1)
+        {
+            QString contractAbi = m_contractModel->abiForAddress(contractAddress);
+            if(ui->textEditInterface->toPlainText() != contractAbi)
+            {
+                ui->textEditInterface->setText(m_contractModel->abiForAddress(contractAddress));
+            }
+        }
     }
 }
 

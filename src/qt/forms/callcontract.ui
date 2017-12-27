@@ -99,15 +99,67 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="2">
-          <widget class="QValidatedLineEdit" name="lineEditContractAddress"/>
-         </item>
          <item row="1" column="0" alignment="Qt::AlignTop">
           <widget class="QLabel" name="labelInterface">
            <property name="text">
             <string>Interface (ABI)</string>
            </property>
           </widget>
+         </item>
+         <item row="0" column="2">
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
+           <item>
+            <widget class="QValidatedLineEdit" name="lineEditContractAddress"/>
+           </item>
+           <item>
+            <widget class="QToolButton" name="loadInfoButton">
+             <property name="toolTip">
+              <string>Choose from contract book page</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>22</width>
+               <height>22</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="pasteAddressButton">
+             <property name="toolTip">
+              <string>Paste contract address from clipboard</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>22</width>
+               <height>22</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="saveInfoButton">
+             <property name="toolTip">
+              <string>Save contract info</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>22</width>
+               <height>22</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
         </layout>
        </item>
@@ -133,8 +185,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>638</width>
-               <height>137</height>
+               <width>640</width>
+               <height>131</height>
               </rect>
              </property>
             </widget>
@@ -307,9 +359,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>AddressField</class>
-   <extends>QComboBox</extends>
-   <header>addressfield.h</header>
+   <class>QValidatedLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>qvalidatedlineedit.h</header>
   </customwidget>
   <customwidget>
    <class>QValidatedTextEdit</class>
@@ -317,9 +369,9 @@
    <header>qvalidatedtextedit.h</header>
   </customwidget>
   <customwidget>
-   <class>QValidatedLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>qvalidatedlineedit.h</header>
+   <class>AddressField</class>
+   <extends>QComboBox</extends>
+   <header>addressfield.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

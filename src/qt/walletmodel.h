@@ -23,6 +23,7 @@ class TransactionTableModel;
 class WalletModelTransaction;
 class TokenItemModel;
 class TokenTransactionTableModel;
+class ContractTableModel;
 
 class CCoinControl;
 class CKeyID;
@@ -130,6 +131,7 @@ public:
 
     OptionsModel *getOptionsModel();
     AddressTableModel *getAddressTableModel();
+    ContractTableModel *getContractTableModel();
     TransactionTableModel *getTransactionTableModel();
     RecentRequestsTableModel *getRecentRequestsTableModel();
     TokenItemModel *getTokenItemModel();
@@ -246,6 +248,7 @@ private:
     OptionsModel *optionsModel;
 
     AddressTableModel *addressTableModel;
+    ContractTableModel *contractTableModel;
     TransactionTableModel *transactionTableModel;
     RecentRequestsTableModel *recentRequestsTableModel;
     TokenItemModel *tokenItemModel;
@@ -309,6 +312,8 @@ public Q_SLOTS:
     void updateWatchOnlyFlag(bool fHaveWatchonly);
     /* Current, immature or unconfirmed balance might have changed - emit 'balanceChanged' if so */
     void pollBalanceChanged();
+    /* New, updated or removed contract book entry */
+    void updateContractBook(const QString &address, const QString &label, const QString &abi, int status);
 };
 
 #endif // BITCOIN_QT_WALLETMODEL_H

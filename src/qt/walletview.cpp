@@ -151,6 +151,7 @@ void WalletView::setWalletModel(WalletModel *_walletModel)
     sendCoinsPage->setModel(_walletModel);
     createContractPage->setModel(_walletModel);
     sendToContractPage->setModel(_walletModel);
+    callContractPage->setModel(_walletModel);
     QRCTokenPage->setModel(_walletModel);
     usedReceivingAddressesPage->setModel(_walletModel->getAddressTableModel());
     usedSendingAddressesPage->setModel(_walletModel->getAddressTableModel());

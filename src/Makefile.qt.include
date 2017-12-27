@@ -100,9 +100,11 @@ QT_FORMS_UI = \
   qt/forms/askpassphrasedialog.ui \
   qt/forms/callcontract.ui \
   qt/forms/coincontroldialog.ui \
+  qt/forms/contractbookpage.ui \
   qt/forms/contractresult.ui \
   qt/forms/createcontract.ui \
   qt/forms/editaddressdialog.ui \
+  qt/forms/editcontractinfodialog.ui \
   qt/forms/helpmessagedialog.ui \
   qt/forms/intro.ui \
   qt/forms/modaloverlay.ui \
@@ -143,10 +145,13 @@ QT_MOC_CPP = \
   qt/moc_clientmodel.cpp \
   qt/moc_coincontroldialog.cpp \
   qt/moc_coincontroltreewidget.cpp \
+  qt/moc_contractbookpage.cpp \
   qt/moc_contractresult.cpp \
+  qt/moc_contracttablemodel.cpp \
   qt/moc_createcontract.cpp \
   qt/moc_csvmodelwriter.cpp \
   qt/moc_editaddressdialog.cpp \
+  qt/moc_editcontractinfodialog.cpp \
   qt/moc_guiutil.cpp \
   qt/moc_intro.cpp \
   qt/moc_macdockiconhandler.cpp \
@@ -238,10 +243,13 @@ BITCOIN_QT_H = \
   qt/coincontroldialog.h \
   qt/coincontroltreewidget.h \
   qt/contractabi.h \
+  qt/contractbookpage.h \
   qt/contractresult.h \
+  qt/contracttablemodel.h \
   qt/createcontract.h \
   qt/csvmodelwriter.h \
   qt/editaddressdialog.h \
+  qt/editcontractinfodialog.h \
   qt/eventlog.h \
   qt/execrpccommand.h \
   qt/guiconstants.h \
@@ -415,11 +423,14 @@ BITCOIN_QT_WALLET_CPP = \
   qt/coincontroldialog.cpp \
   qt/coincontroltreewidget.cpp \
   qt/contractabi.cpp \
+  qt/contractbookpage.cpp \
   qt/contractresult.cpp \
+  qt/contracttablemodel.cpp \
   qt/createcontract.cpp \
   qt/eventlog.cpp \
   qt/execrpccommand.cpp \
   qt/editaddressdialog.cpp \
+  qt/editcontractinfodialog.cpp \
   qt/openuridialog.cpp \
   qt/overviewpage.cpp \
   qt/paymentrequestplus.cpp \
