@@ -17,7 +17,6 @@
 #define TOKEN_SIZE 54
 #define SYMBOL_WIDTH 60
 #define MARGIN 5
-#define SELECTION_WIDTH 4
 
 class TokenViewDelegate : public QAbstractItemDelegate
 {
@@ -33,56 +32,52 @@ public:
     {
         painter->save();
 
-        QIcon tokenIcon = platformStyle->TextColorIcon(":/icons/token");
         QString tokenSymbol = index.data(TokenItemModel::SymbolRole).toString();
         QString tokenBalance = index.data(TokenItemModel::BalanceRole).toString();
         QString receiveAddress = index.data(TokenItemModel::SenderRole).toString();
 
         QRect mainRect = option.rect;
-        painter->fillRect(mainRect, QColor("#2e2e2e"));
 
-        QRect selectionRect(mainRect.topLeft(), QSize(SELECTION_WIDTH, mainRect.height()));
         bool selected = option.state & QStyle::State_Selected;
         if(selected)
         {
-            painter->fillRect(selectionRect,QColor("#078dc9"));
+            painter->fillRect(mainRect,QColor("#009ee5"));
         }
         else
         {
-            painter->fillRect(selectionRect,QColor("#2e2e2e"));
+            painter->fillRect(mainRect,QColor("#383938"));
         }
 
-        QColor foreground("#bebebe");
+        QRect hLineRect(mainRect.left(), mainRect.bottom(), mainRect.width(), 1);
+        painter->fillRect(hLineRect, QColor("#2e2e2e"));
+
+        QColor foreground("#dddddd");
         painter->setPen(foreground);
 
-        int decorationSize = TOKEN_SIZE - 20;
-        int leftTopMargin = 10;
-        QRect decorationRect(selectionRect.topRight() + QPoint(leftTopMargin, leftTopMargin), QSize(decorationSize, decorationSize));
-        tokenIcon.paint(painter, decorationRect);
-
-        QFontMetrics fmName(option.font);
-        QString clippedSymbol = fmName.elidedText(tokenSymbol, Qt::ElideRight, SYMBOL_WIDTH);
-        QRect tokenSymbolRect(decorationRect.right() + MARGIN, decorationRect.top(), SYMBOL_WIDTH, decorationSize / 2);
-        painter->drawText(tokenSymbolRect, Qt::AlignLeft|Qt::AlignTop, clippedSymbol);
-
         QFont font = option.font;
+        font.setPointSizeF(option.font.pointSizeF() * 1.1);
         font.setBold(true);
         painter->setFont(font);
         QColor amounColor("#ffffff");
         painter->setPen(amounColor);
-        int amountWidth = (mainRect.width() - SELECTION_WIDTH - decorationRect.width() - 2 * MARGIN - tokenSymbolRect.width() - leftTopMargin);
+
+        QFontMetrics fmName(option.font);
+        QString clippedSymbol = fmName.elidedText(tokenSymbol, Qt::ElideRight, SYMBOL_WIDTH);
+        QRect tokenSymbolRect(mainRect.left() + MARGIN, mainRect.top() + MARGIN, SYMBOL_WIDTH, mainRect.height() / 2 - MARGIN);
+        painter->drawText(tokenSymbolRect, Qt::AlignLeft|Qt::AlignVCenter, clippedSymbol);
+
+        int amountWidth = (mainRect.width() - 4 * MARGIN - tokenSymbolRect.width());
         QFontMetrics fmAmount(font);
         QString clippedAmount = fmAmount.elidedText(tokenBalance, Qt::ElideRight, amountWidth);
-        QRect tokenBalanceRect(tokenSymbolRect.right(), decorationRect.top(), amountWidth, decorationSize / 2);
-        painter->drawText(tokenBalanceRect, Qt::AlignRight|Qt::AlignTop, clippedAmount);
+        QRect tokenBalanceRect(tokenSymbolRect.right() + 2 * MARGIN, tokenSymbolRect.top(), amountWidth, tokenSymbolRect.height());
+        painter->drawText(tokenBalanceRect, Qt::AlignLeft|Qt::AlignVCenter, clippedAmount);
 
         QFont addressFont = option.font;
         addressFont.setPointSizeF(option.font.pointSizeF() * 0.8);
         painter->setFont(addressFont);
         painter->setPen(foreground);
-        int receiveAddressWidth = (mainRect.width() - SELECTION_WIDTH - decorationRect.width() - 2 * MARGIN - leftTopMargin);
-        QRect receiveAddressRect(decorationRect.right() + MARGIN, tokenSymbolRect.bottom(), receiveAddressWidth, decorationSize / 2);
-        painter->drawText(receiveAddressRect, Qt::AlignLeft|Qt::AlignBottom, receiveAddress);
+        QRect receiveAddressRect(mainRect.left() + MARGIN, tokenSymbolRect.bottom(), mainRect.width() - 2 * MARGIN, mainRect.height() / 2 - 2 * MARGIN);
+        painter->drawText(receiveAddressRect, Qt::AlignLeft|Qt::AlignVCenter, receiveAddress);
 
         painter->restore();
     }
