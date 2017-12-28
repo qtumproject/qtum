@@ -3,10 +3,12 @@
 
 #include "contracttablemodel.h"
 #include "contractabi.h"
+#include "styleSheet.h"
 
 #include <QDataWidgetMapper>
 #include <QMessageBox>
 #include <QRegularExpressionValidator>
+#include <QPushButton>
 
 EditContractInfoDialog::EditContractInfoDialog(Mode _mode, QWidget *parent) :
     QDialog(parent),
@@ -19,6 +21,9 @@ EditContractInfoDialog::EditContractInfoDialog(Mode _mode, QWidget *parent) :
     m_contractABI = new ContractABI();
 
     ui->setupUi(this);
+
+    SetObjectStyleSheet(ui->buttonBox->button(QDialogButtonBox::Cancel), StyleSheetNames::ButtonWhite);
+    SetObjectStyleSheet(ui->buttonBox->button(QDialogButtonBox::Ok), StyleSheetNames::ButtonBlue);
 
     switch(mode)
     {
