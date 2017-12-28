@@ -194,7 +194,7 @@
                <x>0</x>
                <y>0</y>
                <width>640</width>
-               <height>164</height>
+               <height>155</height>
               </rect>
              </property>
             </widget>
@@ -229,12 +229,6 @@
               <height>0</height>
              </size>
             </property>
-            <property name="maximumSize">
-             <size>
-              <width>370</width>
-              <height>16777215</height>
-             </size>
-            </property>
            </widget>
           </item>
           <item row="0" column="0">
@@ -255,19 +249,6 @@
              <string>Sender Address</string>
             </property>
            </widget>
-          </item>
-          <item row="0" column="2">
-           <spacer name="horizontalSpacer_4">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>0</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
           </item>
          </layout>
         </widget>
@@ -296,11 +277,11 @@
         <enum>Qt::Horizontal</enum>
        </property>
        <property name="sizeType">
-        <enum>QSizePolicy::Fixed</enum>
+        <enum>QSizePolicy::Expanding</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>100</width>
+         <width>40</width>
          <height>20</height>
         </size>
        </property>
@@ -323,7 +304,7 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>60</width>
+         <width>40</width>
          <height>20</height>
         </size>
        </property>
@@ -336,19 +317,6 @@
        </property>
       </widget>
      </item>
-     <item>
-      <spacer name="horizontalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
     </layout>
    </item>
   </layout>
@@ -358,8 +326,6 @@
    <class>QValidatedLineEdit</class>
    <extends>QLineEdit</extends>
    <header>qvalidatedlineedit.h</header>
-  </customwidget>
-  <customwidget>
   </customwidget>
   <customwidget>
    <class>QValidatedTextEdit</class>

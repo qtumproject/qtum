@@ -190,12 +190,6 @@
        </widget>
       </item>
      </layout>
-     <zorder>newAddress</zorder>
-     <zorder>copyAddress</zorder>
-     <zorder>deleteAddress</zorder>
-     <zorder>horizontalSpacer</zorder>
-     <zorder>exportButton</zorder>
-     <zorder>closeButton</zorder>
     </widget>
    </item>
   </layout>

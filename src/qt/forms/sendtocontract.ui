@@ -197,7 +197,7 @@
                <x>0</x>
                <y>0</y>
                <width>639</width>
-               <height>157</height>
+               <height>182</height>
               </rect>
              </property>
             </widget>
@@ -224,20 +224,77 @@
           <property name="verticalSpacing">
            <number>6</number>
           </property>
-          <item row="1" column="1">
-           <widget class="QSpinBox" name="lineEditGasLimit">
-            <property name="maximumSize">
+          <item row="0" column="1" colspan="4">
+           <widget class="BitcoinAmountField" name="lineEditAmount"/>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="labelGasLimit">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
              <size>
-              <width>170</width>
-              <height>16777215</height>
+              <width>130</width>
+              <height>0</height>
              </size>
             </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            <property name="text">
+             <string>Gas Limit</string>
             </property>
            </widget>
           </item>
-          <item row="2" column="1">
+          <item row="1" column="3">
+           <widget class="QLabel" name="labelGasPrice">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>90</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Gas Price</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1" colspan="4">
+           <widget class="AddressField" name="lineEditSenderAddress">
+            <property name="minimumSize">
+             <size>
+              <width>370</width>
+              <height>0</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="labelAmount">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>130</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Amount</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="4">
            <widget class="BitcoinAmountField" name="lineEditGasPrice"/>
           </item>
           <item row="3" column="0">
@@ -250,7 +307,7 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>160</width>
+              <width>130</width>
               <height>0</height>
              </size>
             </property>
@@ -259,90 +316,27 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="labelGasLimit">
+          <item row="1" column="1">
+           <widget class="QSpinBox" name="lineEditGasLimit">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
-            <property name="minimumSize">
-             <size>
-              <width>160</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Gas Limit</string>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
-           <widget class="AddressField" name="lineEditSenderAddress">
-            <property name="minimumSize">
-             <size>
-              <width>370</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>370</width>
-              <height>16777215</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="labelGasPrice">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>160</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Gas Price</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="BitcoinAmountField" name="lineEditAmount"/>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="labelAmount">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>160</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Amount</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2" rowspan="5">
-           <spacer name="horizontalSpacer_4">
+          <item row="1" column="2">
+           <spacer name="horizontalSpacer_2">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
-              <width>0</width>
+              <width>60</width>
               <height>20</height>
              </size>
             </property>
@@ -375,11 +369,11 @@
         <enum>Qt::Horizontal</enum>
        </property>
        <property name="sizeType">
-        <enum>QSizePolicy::Fixed</enum>
+        <enum>QSizePolicy::Expanding</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>100</width>
+         <width>40</width>
          <height>20</height>
         </size>
        </property>
@@ -402,7 +396,7 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>60</width>
+         <width>40</width>
          <height>20</height>
         </size>
        </property>
@@ -414,19 +408,6 @@
         <string>Send To Contract</string>
        </property>
       </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
      </item>
     </layout>
    </item>
