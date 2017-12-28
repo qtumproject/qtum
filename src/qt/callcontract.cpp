@@ -14,6 +14,7 @@
 #include "editcontractinfodialog.h"
 #include "contracttablemodel.h"
 #include "styleSheet.h"
+#include "guiutil.h"
 #include <QClipboard>
 
 namespace CallContract_NS
@@ -43,6 +44,8 @@ CallContract::CallContract(const PlatformStyle *platformStyle, QWidget *parent) 
     ui->saveInfoButton->setIcon(platformStyle->MultiStatesIcon(":/icons/filesave", PlatformStyle::PushButton));
     ui->loadInfoButton->setIcon(platformStyle->MultiStatesIcon(":/icons/address-book", PlatformStyle::PushButton));
     ui->pasteAddressButton->setIcon(platformStyle->MultiStatesIcon(":/icons/editpaste", PlatformStyle::PushButton));
+    // Format tool buttons
+    GUIUtil::formatToolButtons(ui->saveInfoButton, ui->loadInfoButton, ui->pasteAddressButton);
 
     // Set stylesheet
     SetObjectStyleSheet(ui->pushButtonClearAll, StyleSheetNames::ButtonBlack);

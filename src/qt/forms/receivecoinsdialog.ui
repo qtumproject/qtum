@@ -194,7 +194,7 @@
             </property>
             <property name="icon">
              <iconset resource="../bitcoin.qrc">
-              <normaloff>:/icons/receiving_addresses</normaloff>:/icons/receiving_addresses</iconset>
+              <normaloff>:/icons/request_payment</normaloff>:/icons/request_payment</iconset>
             </property>
            </widget>
           </item>
@@ -389,7 +389,13 @@
           </property>
           <property name="icon">
            <iconset resource="../bitcoin.qrc">
-            <normaloff>:/icons/edit</normaloff>:/icons/edit</iconset>
+            <normaloff>:/icons/show</normaloff>:/icons/show</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>22</width>
+            <height>16</height>
+           </size>
           </property>
           <property name="autoDefault">
            <bool>false</bool>

@@ -193,7 +193,7 @@
         </property>
         <property name="icon">
          <iconset resource="../bitcoin.qrc">
-          <normaloff>:/icons/remove</normaloff>:/icons/remove</iconset>
+          <normaloff>:/icons/remove_entry</normaloff>:/icons/remove_entry</iconset>
         </property>
         <property name="iconSize">
          <size>

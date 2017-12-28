@@ -57,7 +57,7 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *_platformStyle, QWidget *p
         ui->clearButton->setIcon(QIcon());
         ui->sendButton->setIcon(QIcon());
     } else {
-        ui->addButton->setIcon(_platformStyle->MultiStatesIcon(":/icons/add", PlatformStyle::PushButton));
+        ui->addButton->setIcon(_platformStyle->MultiStatesIcon(":/icons/add_recipient", PlatformStyle::PushButton));
         ui->clearButton->setIcon(_platformStyle->MultiStatesIcon(":/icons/remove", PlatformStyle::PushButton));
         ui->sendButton->setIcon(_platformStyle->MultiStatesIcon(":/icons/send", PlatformStyle::PushButton));
     }

@@ -538,7 +538,7 @@
         <x>0</x>
         <y>0</y>
         <width>835</width>
-        <height>227</height>
+        <height>190</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,1,0,0">
@@ -1208,7 +1208,7 @@
        </property>
        <property name="icon">
         <iconset resource="../bitcoin.qrc">
-         <normaloff>:/icons/add</normaloff>:/icons/add</iconset>
+         <normaloff>:/icons/add_recipient</normaloff>:/icons/add_recipient</iconset>
        </property>
        <property name="autoDefault">
         <bool>false</bool>
@@ -1337,7 +1337,7 @@
  </resources>
  <connections/>
  <buttongroups>
-  <buttongroup name="groupCustomFee"/>
   <buttongroup name="groupFee"/>
+  <buttongroup name="groupCustomFee"/>
  </buttongroups>
 </ui>
