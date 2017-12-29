@@ -64,7 +64,7 @@ const struct {
     {"cmd-reply", ":/icons/tx_output", PlatformStyle::Output},
     {"cmd-error", ":/icons/tx_output", PlatformStyle::Error},
     {"misc", ":/icons/tx_inout", PlatformStyle::Inout},
-    {NULL, NULL}
+    {NULL, NULL, PlatformStyle::Inout}
 };
 
 namespace {
