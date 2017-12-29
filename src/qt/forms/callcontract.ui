@@ -106,6 +106,9 @@
             </item>
             <item row="0" column="2">
              <layout class="QHBoxLayout" name="horizontalLayout_2">
+              <property name="spacing">
+               <number>5</number>
+              </property>
               <item>
                <widget class="QValidatedLineEdit" name="lineEditContractAddress"/>
               </item>
@@ -126,6 +129,19 @@
                </widget>
               </item>
               <item>
+               <widget class="Line" name="vLine">
+                <property name="maximumSize">
+                 <size>
+                  <width>1</width>
+                  <height>22</height>
+                 </size>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QToolButton" name="pasteAddressButton">
                 <property name="toolTip">
                  <string>Paste contract address from clipboard</string>
@@ -138,6 +154,19 @@
                   <width>22</width>
                   <height>22</height>
                  </size>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="Line" name="vLine2">
+                <property name="maximumSize">
+                 <size>
+                  <width>1</width>
+                  <height>22</height>
+                 </size>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
                 </property>
                </widget>
               </item>

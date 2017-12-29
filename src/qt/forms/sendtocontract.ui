@@ -80,6 +80,9 @@
             </property>
             <item row="0" column="2">
              <layout class="QHBoxLayout" name="horizontalLayout_2">
+              <property name="spacing">
+               <number>5</number>
+              </property>
               <item>
                <widget class="QValidatedLineEdit" name="lineEditContractAddress"/>
               </item>
@@ -100,6 +103,19 @@
                </widget>
               </item>
               <item>
+               <widget class="Line" name="vLine">
+                <property name="maximumSize">
+                 <size>
+                  <width>1</width>
+                  <height>22</height>
+                 </size>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QToolButton" name="pasteAddressButton">
                 <property name="toolTip">
                  <string>Paste contract address from clipboard</string>
@@ -112,6 +128,19 @@
                   <width>22</width>
                   <height>22</height>
                  </size>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="Line" name="vLine2">
+                <property name="maximumSize">
+                 <size>
+                  <width>1</width>
+                  <height>22</height>
+                 </size>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
                 </property>
                </widget>
               </item>
@@ -420,6 +449,12 @@
    <header>qvalidatedlineedit.h</header>
   </customwidget>
   <customwidget>
+   <class>BitcoinAmountField</class>
+   <extends>QLineEdit</extends>
+   <header>bitcoinamountfield.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>QValidatedTextEdit</class>
    <extends>QTextEdit</extends>
    <header>qvalidatedtextedit.h</header>
@@ -428,12 +463,6 @@
    <class>AddressField</class>
    <extends>QComboBox</extends>
    <header>addressfield.h</header>
-  </customwidget>
-  <customwidget>
-   <class>BitcoinAmountField</class>
-   <extends>QLineEdit</extends>
-   <header>bitcoinamountfield.h</header>
-   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

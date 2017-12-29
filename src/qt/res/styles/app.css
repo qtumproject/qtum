@@ -41,6 +41,10 @@ QFrame#hLine,
 #hLine4{
     border-top: 1px solid #404041;
 }
+QFrame#vLine,
+#vLine2{
+    border-left: 1px solid #404041;
+}
 WalletFrame{
     background-color: #272727;
 }
