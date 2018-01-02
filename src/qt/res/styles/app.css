@@ -572,7 +572,7 @@ QTabBar::tab:disabled {
     color: rgba(255, 255, 255, 30%);
 }
 QTabWidget::pane {
-    border: 1px solid #2e2e2e;
+    border: none;
     border-top: none;
     background-color: #2e2e2e;
 }

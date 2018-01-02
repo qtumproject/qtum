@@ -111,6 +111,19 @@
             </widget>
            </item>
            <item>
+            <widget class="Line" name="vLine">
+             <property name="maximumSize">
+              <size>
+               <width>1</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QPushButton" name="pasteButton_SM">
              <property name="toolTip">
               <string>Paste address from clipboard</string>

@@ -11,6 +11,7 @@ QValidatedTextEdit::QValidatedTextEdit(QWidget *parent) :
     isValidManually(false)
 {
     connect(this, SIGNAL(textChanged()), this, SLOT(markValid()));
+    setStyleSheet("");
 }
 
 void QValidatedTextEdit::clear()
