@@ -106,7 +106,7 @@ QRCToken::QRCToken(const PlatformStyle *platformStyle, QWidget *parent) :
     m_platformStyle = platformStyle;
 
     m_sendTokenPage = new SendTokenPage(this);
-    m_receiveTokenPage = new ReceiveTokenPage(this);
+    m_receiveTokenPage = new ReceiveTokenPage(platformStyle, this);
     m_addTokenPage = new AddTokenPage(this);
     m_tokenDelegate = new TokenViewDelegate(platformStyle, this);
 
@@ -222,6 +222,7 @@ void QRCToken::on_currentTokenChanged(QModelIndex index)
             std::string balance = m_tokenModel->data(index, TokenItemModel::RawBalanceRole).toString().toStdString();
             m_sendTokenPage->setTokenData(address, sender, symbol, decimals, balance);
             m_receiveTokenPage->setAddress(QString::fromStdString(sender));
+            m_receiveTokenPage->setSymbol(QString::fromStdString(symbol));
 
             if(!m_sendTokenPage->isEnabled())
                 m_sendTokenPage->setEnabled(true);
@@ -233,6 +234,7 @@ void QRCToken::on_currentTokenChanged(QModelIndex index)
             m_sendTokenPage->setEnabled(false);
             m_receiveTokenPage->setEnabled(false);
             m_receiveTokenPage->setAddress(QString::fromStdString(""));
+            m_receiveTokenPage->setSymbol(QString::fromStdString(""));
         }
     }
 }

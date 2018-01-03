@@ -68,6 +68,9 @@ QLabel#labelTotal,
 QLabel#overriddenByCommandLineLabel{
     color: #bdbdbd;
 }
+#labelTokenAddressText{
+    color: #969696;
+}
 /*-------------------------------------------- 
 Line Edit CSS
 --------------------------------------------*/

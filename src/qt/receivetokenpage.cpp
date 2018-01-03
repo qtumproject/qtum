@@ -4,13 +4,18 @@
 #include "guiutil.h"
 #include "guiconstants.h"
 #include "receiverequestdialog.h"
+#include "platformstyle.h"
 
-ReceiveTokenPage::ReceiveTokenPage(QWidget *parent) :
+ReceiveTokenPage::ReceiveTokenPage(const PlatformStyle *_platformStyle, QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::ReceiveTokenPage)
+    ui(new Ui::ReceiveTokenPage),
+    platformStyle(_platformStyle)
 {
     ui->setupUi(this);
     connect(ui->copyAddressButton, SIGNAL(clicked()), this, SLOT(on_copyAddressClicked()));
+    ui->copyAddressButton->setIcon(platformStyle->MultiStatesIcon(":/icons/editcopy", PlatformStyle::PushButton));
+    ui->copyAddressButton->setVisible(false);
+    setAddress("");
 }
 
 ReceiveTokenPage::~ReceiveTokenPage()
@@ -22,6 +27,12 @@ void ReceiveTokenPage::setAddress(QString address)
 {
     m_address = address;
     createQRCode();
+}
+
+void ReceiveTokenPage::setSymbol(QString symbol)
+{
+    QString addressText = symbol.isEmpty() ? "" : (QString("%1 ").arg(symbol) + tr("Address"));
+    ui->labelTokenAddressText->setText(addressText);
 }
 
 void ReceiveTokenPage::on_copyAddressClicked()
@@ -40,11 +51,14 @@ void ReceiveTokenPage::createQRCode()
         {
             ui->lblQRCode->setScaledContents(true);
             ui->labelTokenAddress->setText(m_address);
+            ui->copyAddressButton->setVisible(true);
         }
     }
     else
     {
         ui->lblQRCode->clear();
         ui->labelTokenAddress->setText("");
+        ui->labelTokenAddressText->setText("");
+        ui->copyAddressButton->setVisible(false);
     }
 }
