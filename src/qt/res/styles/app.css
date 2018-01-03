@@ -882,6 +882,10 @@ Modal Overlay CSS
 #ModalOverlay #labelLastBlockTime, 
 #ModalOverlay #labelSyncDone, 
 #ModalOverlay #labelProgressIncrease, 
-#ModalOverlay #labelEstimatedTimeLeft  {
+#ModalOverlay #labelEstimatedTimeLeft,
+#ModalOverlay #labelMessage  {
     color: #9c9c9c;
+}
+#ModalOverlay #labelNote {
+    font: 20pt;
 }
