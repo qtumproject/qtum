@@ -194,7 +194,7 @@ QGroupBox
 QGroupBox::title {
     color: #ffffff;
     subcontrol-position: top left;
-    left: -5px;
+    left: -3px;
     padding: -40px 3px 0px 3px;
 }
 QGroupBox::title:disabled {
