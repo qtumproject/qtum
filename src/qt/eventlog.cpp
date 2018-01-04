@@ -3,6 +3,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include "uint256.h"
 
 namespace EventLog_NS
 {
@@ -60,8 +61,12 @@ bool EventLog::searchTokenTx(int64_t fromBlock, int64_t toBlock, std::string str
     addresses.push_back(strContractAddress);
 
     std::vector<std::string> topics;
-    topics.push_back("null");
+    // Skip the event type check
+    static std::string nullRecord = uint256().ToString();
+    topics.push_back(nullRecord);
+    // Match the log with sender address
     topics.push_back(strSenderAddress);
+    // Match the log with receiver address
     topics.push_back(strSenderAddress);
 
     return search(fromBlock, toBlock, addresses, topics, result);
