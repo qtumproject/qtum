@@ -87,7 +87,7 @@ const std::string BitcoinGUI::DEFAULT_UIPLATFORM =
 const QString BitcoinGUI::DEFAULT_WALLET = "~Default";
 
 /** Switch for showing the backup overlay modal screen*/
-bool showBackupOverlay = true;
+bool showBackupOverlay = false;
 
 BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *networkStyle, QWidget *parent) :
     QMainWindow(parent),

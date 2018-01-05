@@ -49,8 +49,8 @@ SplashScreen::SplashScreen(Qt::WindowFlags f, const NetworkStyle *networkStyle) 
     QString font            = QApplication::font().toString();
 
     // create a bitmap according to device pixelratio
-    QSize splashSize(480*devicePixelRatio,320*devicePixelRatio);
-    pixmap = QPixmap(splashSize);
+    QSize splashSize(480,320);
+    pixmap = QPixmap(480*devicePixelRatio,320*devicePixelRatio);
 
 #if QT_VERSION > 0x050100
     // change to HiDPI if it makes sense

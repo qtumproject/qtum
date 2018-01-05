@@ -112,7 +112,7 @@ void StyleSheet::setStyleSheet(QApplication *app, const QString& style_name)
     qreal fontSize = font.pointSizeF();
     qreal multiplier = 1;
 #if defined(Q_OS_WIN) ||  defined(Q_OS_MAC)
-    multiplier = 1.25;
+    multiplier = 1.1;
 #endif
     font.setPointSizeF(fontSize * multiplier);
     app->setFont(font);
