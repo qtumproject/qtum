@@ -609,7 +609,7 @@ QMenu{
 }
 QMenu::item {
     border: none;
-    padding: 5px 28px;
+    padding: 5px 32px;
     background-color: #deddde;
     color: #636363;
 }

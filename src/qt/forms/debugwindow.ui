@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>740</width>
-    <height>540</height>
+    <height>550</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -548,7 +548,7 @@
            </property>
            <property name="iconSize">
             <size>
-             <width>24</width>
+             <width>16</width>
              <height>16</height>
             </size>
            </property>
@@ -557,6 +557,22 @@
            </property>
            <property name="flat">
             <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="Line" name="vLine">
+           <property name="maximumSize">
+            <size>
+             <width>1</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QFrame{ background: #404041; }</string>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
            </property>
           </widget>
          </item>
@@ -574,7 +590,7 @@
            </property>
            <property name="iconSize">
             <size>
-             <width>24</width>
+             <width>16</width>
              <height>16</height>
             </size>
            </property>
@@ -583,6 +599,22 @@
            </property>
            <property name="flat">
             <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="Line" name="vLine2">
+           <property name="maximumSize">
+            <size>
+             <width>1</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QFrame{ background: #404041; }</string>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
            </property>
           </widget>
          </item>

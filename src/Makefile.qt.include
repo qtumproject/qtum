@@ -377,6 +377,14 @@ RES_ICONS = \
   qt/res/icons/smart_contract.png \
   qt/res/icons/lock_staking.png \
   qt/res/icons/qrctoken.png \
+  qt/res/icons/add_recipient.png \
+  qt/res/icons/encrypt.png \
+  qt/res/icons/receive_from.png \
+  qt/res/icons/remove_entry.png \
+  qt/res/icons/request_payment.png \
+  qt/res/icons/restore.png \
+  qt/res/icons/send_to.png \
+  qt/res/icons/show.png \
   qt/res/icons/token.png
 
 BITCOIN_QT_BASE_CPP = \

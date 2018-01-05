@@ -21,6 +21,7 @@
         <file alias="eye">res/icons/eye.png</file>
         <file alias="eye_minus">res/icons/eye_minus.png</file>
         <file alias="eye_plus">res/icons/eye_plus.png</file>
+        <file alias="encrypt">res/icons/encrypt.png</file>
         <file alias="options">res/icons/configure.png</file>
         <file alias="receiving_addresses">res/icons/receive.png</file>
         <file alias="receive_from">res/icons/receive_from.png</file>
@@ -36,6 +37,7 @@
         <file alias="synced">res/icons/synced.png</file>
         <file alias="remove">res/icons/remove.png</file>
         <file alias="remove_entry">res/icons/remove_entry.png</file>
+        <file alias="restore">res/icons/restore.png</file>
         <file alias="tx_mined">res/icons/tx_mined.png</file>
         <file alias="tx_input">res/icons/tx_input.png</file>
         <file alias="tx_output">res/icons/tx_output.png</file>
@@ -157,6 +159,7 @@
         <file alias="message_critical">res/styles/app-icons/message_critical.png</file>
         <file alias="message_info">res/styles/app-icons/message_info.png</file>
         <file alias="message_warning">res/styles/app-icons/message_warning.png</file>
+        <file alias="message_question">res/styles/app-icons/message_question.png</file>
         <file alias="toolbutton_down_arrow">res/styles/app-icons/toolbutton_down_arrow.png</file>
         <file alias="toolbutton_right_arrow">res/styles/app-icons/toolbutton_right_arrow.png</file>
     </qresource>

@@ -86,6 +86,9 @@ const std::string BitcoinGUI::DEFAULT_UIPLATFORM =
  * collisions in the future with additional wallets */
 const QString BitcoinGUI::DEFAULT_WALLET = "~Default";
 
+/** Switch for showing the backup overlay modal screen*/
+bool showBackupOverlay = true;
+
 BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *networkStyle, QWidget *parent) :
     QMainWindow(parent),
     enableWallet(false),
@@ -435,19 +438,19 @@ void BitcoinGUI::createActions()
     toggleHideAction = new QAction(platformStyle->MenuColorIcon(":/icons/about"), tr("&Show / Hide"), this);
     toggleHideAction->setStatusTip(tr("Show or hide the main Window"));
 
-    encryptWalletAction = new QAction(platformStyle->MenuColorIcon(":/icons/lock_closed"), tr("&Encrypt Wallet..."), this);
+    encryptWalletAction = new QAction(platformStyle->MenuColorIcon(":/icons/encrypt"), tr("&Encrypt Wallet..."), this);
     encryptWalletAction->setStatusTip(tr("Encrypt the private keys that belong to your wallet"));
     encryptWalletAction->setCheckable(true);
     backupWalletAction = new QAction(platformStyle->MenuColorIcon(":/icons/filesave"), tr("&Backup Wallet..."), this);
     backupWalletAction->setStatusTip(tr("Backup wallet to another location"));
-    restoreWalletAction = new QAction(tr("&Restore Wallet..."), this);
+    restoreWalletAction = new QAction(platformStyle->MenuColorIcon(":/icons/restore"), tr("&Restore Wallet..."), this);
     restoreWalletAction->setStatusTip(tr("Restore wallet from another location"));
     changePassphraseAction = new QAction(platformStyle->MenuColorIcon(":/icons/key"), tr("&Change Passphrase..."), this);
     changePassphraseAction->setStatusTip(tr("Change the passphrase used for wallet encryption"));
-    unlockWalletAction = new QAction(tr("&Unlock Wallet..."), this);
+    unlockWalletAction = new QAction(platformStyle->MenuColorIcon(":/icons/lock_open"), tr("&Unlock Wallet..."), this);
     unlockWalletAction->setToolTip(tr("Unlock wallet"));
     unlockWalletAction->setObjectName("unlockWalletAction");
-    lockWalletAction = new QAction(tr("&Lock Wallet"), this);
+    lockWalletAction = new QAction(platformStyle->MenuColorIcon(":/icons/lock_closed"), tr("&Lock Wallet"), this);
     lockWalletAction->setToolTip(tr("Lock wallet"));
     signMessageAction = new QAction(platformStyle->MenuColorIcon(":/icons/edit"), tr("Sign &message..."), this);
     signMessageAction->setStatusTip(tr("Sign messages with your Qtum addresses to prove you own them"));
@@ -659,7 +662,7 @@ bool BitcoinGUI::addWallet(const QString& name, WalletModel *walletModel)
         return false;
     setWalletActionsEnabled(true);
     appTitleBar->setModel(walletModel);
-    if(walletModel && !(walletModel->hasWalletBackup()))
+    if(showBackupOverlay && walletModel && !(walletModel->hasWalletBackup()))
     {
         showModalBackupOverlay();
     }

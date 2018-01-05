@@ -39,10 +39,6 @@ type(_type)
     setVisible(false);
 
     ui->stackedWidget->setCurrentIndex(type);
-    if(type == Backup)
-    {
-        ui->closeButton->setVisible(false);
-    }
 }
 
 ModalOverlay::~ModalOverlay()

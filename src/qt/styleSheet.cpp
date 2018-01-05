@@ -11,6 +11,7 @@
 #include <QPushButton>
 #include <QPainter>
 #include <QLineEdit>
+#include <QtGlobal>
 
 static const QString STYLE_FORMAT = ":/styles/%1";
 static const QColor LINK_COLOR = "#2d9ad0";
@@ -52,6 +53,9 @@ public:
                 break;
             case QMessageBox::Critical:
                 iconPixmap = QPixmap(":/styles/app-icons/message_critical");
+                break;
+            case QMessageBox::Question:
+                iconPixmap = QPixmap(":/styles/app-icons/message_question");
                 break;
             default:
                 QProxyStyle::polish(widget);
@@ -102,6 +106,16 @@ void StyleSheet::setStyleSheet(QApplication *app, const QString& style_name)
     QPalette mainPalette(app->palette());
     mainPalette.setColor(QPalette::Link, LINK_COLOR);
     app->setPalette(mainPalette);
+
+    // Increase the font size slightly for Windows and MAC
+    QFont font = app->font();
+    qreal fontSize = font.pointSizeF();
+    qreal multiplier = 1;
+#if defined(Q_OS_WIN) ||  defined(Q_OS_MAC)
+    multiplier = 1.25;
+#endif
+    font.setPointSizeF(fontSize * multiplier);
+    app->setFont(font);
 
     setObjectStyleSheet<QApplication>(app, style_name);
 }
