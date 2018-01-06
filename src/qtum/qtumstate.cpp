@@ -53,6 +53,7 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
         if (!e.execute()){
             e.go(onOp);
         } else {
+
             e.revert();
             throw Exception();
         }
@@ -66,6 +67,7 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
                 CondensingTX ctx(this, transfers, _t, _sealEngine.deleteAddresses);
                 tx = MakeTransactionRef(ctx.createCondensingTX());
                 if(ctx.reachedVoutLimit()){
+
                     voutLimit = true;
                     e.revert();
                     throw Exception();
@@ -83,12 +85,16 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
         }
     }
     catch(Exception const& _e){
+
         printfErrorLog(dev::eth::toTransactionException(_e));
         res.excepted = dev::eth::toTransactionException(_e);
         res.gasUsed = _t.gas();
         if(_p != Permanence::Reverted){
             deleteAccounts(_sealEngine.deleteAddresses);
             commit(CommitBehaviour::RemoveEmptyAccounts);
+        } else {
+            m_cache.clear();
+            cacheUTXO.clear();
         }
     }
 
@@ -249,6 +255,7 @@ void QtumState::deleteAccounts(std::set<dev::Address>& addrs){
 void QtumState::updateUTXO(const std::unordered_map<dev::Address, Vin>& vins){
     for(auto& v : vins){
         Vin* vi = const_cast<Vin*>(vin(v.first));
+
         if(vi){
             vi->hash = v.second.hash;
             vi->nVout = v.second.nVout;
