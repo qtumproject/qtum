@@ -1446,7 +1446,7 @@ UniValue searchlogs(const JSONRPCRequest& request)
              "1. \"fromBlock\"        (numeric, required) The number of the earliest block (latest may be given to mean the most recent block).\n"
              "2. \"toBlock\"          (string, required) The number of the latest block (-1 may be given to mean the most recent block).\n"
              "3. \"address\"          (string, optional) An address or a list of addresses to only get logs from particular account(s).\n"
-             "4. \"topics\"           (string, optional) An array of values which must each appear in the log entries. The order is important, if you want to leave topics out use null, e.g. [\"null\", \"0x00...\"]. \n"
+             "4. \"topics\"           (string, optional) An array of values from which at least one must appear in the log entries. The order is important, if you want to leave topics out use null, e.g. [\"null\", \"0x00...\"]. \n"
              "5. \"minconf\"          (uint, optional, default=0) Minimal number of confirmations before a log is returned\n"
              "\nExamples:\n"
             + HelpExampleCli("searchlogs", "0 100 '{\"addresses\": [\"12ae42729af478ca92c8c66773a3e32115717be4\"]}' '{\"topics\": [\"null\",\"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"]}'")
@@ -1501,6 +1501,9 @@ UniValue searchlogs(const JSONRPCRequest& request)
                             }
                         }
                     }
+
+                    // Skip the log if none of the topics are matched
+                    continue;
                 }
 
             push:
