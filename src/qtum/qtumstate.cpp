@@ -289,7 +289,6 @@ std::unordered_map<dev::Address, Vin> CondensingTX::createVin(const CTransaction
     std::unordered_map<dev::Address, Vin> vins;
     for(auto& b : balances){
         if(b.first == transaction.sender())
-        // if(b.first == transaction.sender() || checkDeleteAddress(b.first))
             continue;
 
         if(b.second > 0){
