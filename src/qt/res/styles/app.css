@@ -873,7 +873,7 @@ Modal Overlay CSS
     font: 1pt;
     color: transparent;
     border-radius: 8px;
-    height: 8px;
+    height: 16px;
 }
 #ModalOverlay QProgressBar::chunk {
     border-radius: 7px;
