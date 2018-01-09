@@ -870,7 +870,7 @@ Modal Overlay CSS
 #ModalOverlay QProgressBar {
     background-color: #e3e2e3;
     border: 1px solid #e3e2e3;
-    font: 0pt;
+    font: 1pt;
     color: transparent;
     border-radius: 8px;
     height: 8px;

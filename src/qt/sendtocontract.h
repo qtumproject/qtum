@@ -40,10 +40,10 @@ public Q_SLOTS:
     void on_updateSendToContractButton();
     void on_newContractABI();
     void on_functionChanged();
-    void on_saveInfo_clicked();
-    void on_loadInfo_clicked();
-    void on_pasteAddress_clicked();
-    void on_contractAddress_changed();
+    void on_saveInfoClicked();
+    void on_loadInfoClicked();
+    void on_pasteAddressClicked();
+    void on_contractAddressChanged();
 
 private:
     QString toDataHex(int func, QString& errorMessage);

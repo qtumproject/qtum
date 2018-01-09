@@ -107,10 +107,10 @@ SendToContract::SendToContract(const PlatformStyle *platformStyle, QWidget *pare
     connect(ui->textEditInterface, SIGNAL(textChanged()), SLOT(on_newContractABI()));
     connect(ui->stackedWidget, SIGNAL(currentChanged(int)), SLOT(on_updateSendToContractButton()));
     connect(m_ABIFunctionField, SIGNAL(functionChanged()), SLOT(on_functionChanged()));
-    connect(ui->saveInfoButton, SIGNAL(clicked()), SLOT(on_saveInfo_clicked()));
-    connect(ui->loadInfoButton, SIGNAL(clicked()), SLOT(on_loadInfo_clicked()));
-    connect(ui->pasteAddressButton, SIGNAL(clicked()), SLOT(on_pasteAddress_clicked()));
-    connect(ui->lineEditContractAddress, SIGNAL(textChanged(QString)), SLOT(on_contractAddress_changed()));
+    connect(ui->saveInfoButton, SIGNAL(clicked()), SLOT(on_saveInfoClicked()));
+    connect(ui->loadInfoButton, SIGNAL(clicked()), SLOT(on_loadInfoClicked()));
+    connect(ui->pasteAddressButton, SIGNAL(clicked()), SLOT(on_pasteAddressClicked()));
+    connect(ui->lineEditContractAddress, SIGNAL(textChanged(QString)), SLOT(on_contractAddressChanged()));
 
     // Set contract address validator
     QRegularExpression regEx;
@@ -308,7 +308,7 @@ void SendToContract::on_functionChanged()
     }
 }
 
-void SendToContract::on_saveInfo_clicked()
+void SendToContract::on_saveInfoClicked()
 {
     if(!m_contractModel)
         return;
@@ -339,27 +339,27 @@ void SendToContract::on_saveInfo_clicked()
     {
         ui->lineEditContractAddress->setText(dlg.getAddress());
         ui->textEditInterface->setText(dlg.getABI());
-        on_contractAddress_changed();
+        on_contractAddressChanged();
     }
 }
 
-void SendToContract::on_loadInfo_clicked()
+void SendToContract::on_loadInfoClicked()
 {
     ContractBookPage dlg(m_platformStyle, this);
     dlg.setModel(m_model->getContractTableModel());
     if(dlg.exec())
     {
         ui->lineEditContractAddress->setText(dlg.getAddressValue());
-        on_contractAddress_changed();
+        on_contractAddressChanged();
     }
 }
 
-void SendToContract::on_pasteAddress_clicked()
+void SendToContract::on_pasteAddressClicked()
 {
     setContractAddress(QApplication::clipboard()->text());
 }
 
-void SendToContract::on_contractAddress_changed()
+void SendToContract::on_contractAddressChanged()
 {
     if(isValidContractAddress() && m_contractModel)
     {

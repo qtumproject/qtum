@@ -26,7 +26,6 @@ AddressField::AddressField(QWidget *parent) :
     setComboBoxEditable(false);
 
     connect(this, SIGNAL(addressTypeChanged(AddressType)), SLOT(on_addressTypeChanged()));
-    connect(lineEdit(), SIGNAL(editingFinished()), this, SLOT(on_editingFinished()));
 }
 
 QString AddressField::currentText() const
@@ -61,19 +60,19 @@ bool AddressField::isValidAddress()
 
 void AddressField::setComboBoxEditable(bool editable)
 {
-
     QValidatedLineEdit *validatedLineEdit = new QValidatedLineEdit(this);
+    setEditable(editable);
     if(editable)
     {
         validatedLineEdit->setCheckValidator(new BitcoinAddressCheckValidator(parent()));
         this->setLineEdit(validatedLineEdit);
         completer()->setCompletionMode(QCompleter::InlineCompletion);
+        connect(lineEdit(), SIGNAL(editingFinished()), this, SLOT(on_editingFinished()));
     }
     else
     {
         this->setLineEdit(validatedLineEdit);
     }
-    setEditable(editable);
 }
 
 void AddressField::on_refresh()
