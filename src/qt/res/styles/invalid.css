@@ -24,10 +24,10 @@ QValidatedTextEdit QScrollBar:vertical {
 	margin: 0px 2px 0px -2px;
 }
 QComboBox {
-	border: 3px solid #d02e49; padding: 1px 12px 2px 7px;
+	border: 3px solid #d02e49; padding: 2px 6px 2px 8px;
 }
 QComboBox:drop-down { 
-	margin-left: -12px;
+	margin-left: -6px;
 }
 QComboBox QLineEdit{
     border: none; padding: 0px; background: transparent;
