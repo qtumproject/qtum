@@ -1984,9 +1984,13 @@ std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::v
     callTransaction.forceSender(senderAddress);
     callTransaction.setVersion(VersionVM::GetEVMDefault());
 
-    
+    std::unordered_map<dev::Address, Vin> cacheUTXOTemp = globalState->getCacheUTXO();
+
     ByteCodeExec exec(block, std::vector<QtumTransaction>(1, callTransaction), blockGasLimit);
     exec.performByteCode(dev::eth::Permanence::Reverted);
+
+    globalState->setCacheUTXO(cacheUTXOTemp);
+
     return exec.getResult();
 }
 
