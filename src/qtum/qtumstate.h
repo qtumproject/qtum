@@ -76,6 +76,9 @@ public:
 
 	dev::OverlayDB& dbUtxo() { return dbUTXO; }
 
+    std::unordered_map<dev::Address, Vin> getCacheUTXO() const { return cacheUTXO; }
+    void setCacheUTXO(const std::unordered_map<dev::Address, Vin>& cache) { cacheUTXO = cache; }
+
     virtual ~QtumState(){}
 
     friend CondensingTX;

@@ -260,6 +260,8 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
 
     nBlockMaxSize = blockSizeDGP ? blockSizeDGP : nBlockMaxSize;
     
+    std::unordered_map<dev::Address, Vin> cacheUTXOTemp = globalState->getCacheUTXO();
+
     dev::h256 oldHashStateRoot(globalState->rootHash());
     dev::h256 oldHashUTXORoot(globalState->rootHashUTXO());
     addPriorityTxs(minGasPrice);
@@ -268,6 +270,8 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     pblock->hashUTXORoot = uint256(h256Touint(dev::h256(globalState->rootHashUTXO())));
     globalState->setRoot(oldHashStateRoot);
     globalState->setRootUTXO(oldHashUTXORoot);
+
+    globalState->setCacheUTXO(cacheUTXOTemp);
 
     //this should already be populated by AddBlock in case of contracts, but if no contracts
     //then it won't get populated
@@ -289,10 +293,17 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     pblock->nNonce         = 0;
     pblocktemplate->vTxSigOpsCost[0] = WITNESS_SCALE_FACTOR * GetLegacySigOpCount(*pblock->vtx[0]);
 
+    std::unordered_map<dev::Address, Vin> cacheUTXOTemp2 = globalState->getCacheUTXO();
+
     CValidationState state;
     if (!fProofOfStake && !TestBlockValidity(state, chainparams, *pblock, pindexPrev, false, false)) {
+
+        globalState->setCacheUTXO(cacheUTXOTemp2);
+
         throw std::runtime_error(strprintf("%s: TestBlockValidity failed: %s", __func__, FormatStateMessage(state)));
     }
+
+    globalState->setCacheUTXO(cacheUTXOTemp2);
 
     return std::move(pblocktemplate);
 }
