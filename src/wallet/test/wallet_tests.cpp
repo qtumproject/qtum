@@ -19,6 +19,9 @@
 #include <boost/test/unit_test.hpp>
 #include <univalue.h>
 
+#include <timedata.h>
+#include <random.h>
+
 extern CWallet* pwalletMain;
 
 extern UniValue importmulti(const JSONRPCRequest& request);
@@ -41,7 +44,7 @@ BOOST_FIXTURE_TEST_SUITE(wallet_tests, WalletTestingSetup)
 static const CWallet testWallet;
 static std::vector<COutput> vCoins;
 
-static void add_coin(const CAmount& nValue, int nAge = 6*24, bool fIsFromMe = false, int nInput=0)
+static void add_coin(const CAmount& nValue, int nAge = 6*24, bool fIsFromMe = false, int nInput=0, uint32_t coinTime = 0)
 {
     static int nextLockTime = 0;
     CMutableTransaction tx;
@@ -195,6 +198,14 @@ BOOST_AUTO_TEST_CASE(coin_selection_tests)
         BOOST_CHECK( testWallet.SelectCoinsMinConf(195 * CENT, 1, 1, 0, vCoins, setCoinsRet, nValueRet));
         BOOST_CHECK_EQUAL(nValueRet, 2 * COIN);  // we should get 2 BTC in 1 coin
         BOOST_CHECK_EQUAL(setCoinsRet.size(), 1U);
+
+        // empty the wallet and start again only with coins with equal or bigger time than txTime
+        empty_wallet();
+        add_coin(10, 6*24, false, 0);
+
+        // coins with equal or bigger time than txTime could not be selected
+        BOOST_CHECK(!testWallet.SelectCoinsMinConf(5*CENT, 1, 6, 0, vCoins, setCoinsRet , nValueRet));
+        BOOST_CHECK(!testWallet.SelectCoinsMinConf(5*CENT + GetRandInt(100) + 1, 1, 6, 0, vCoins, setCoinsRet , nValueRet));
 
         // empty the wallet and start again, now with fractions of a cent, to test small change avoidance
 
@@ -387,7 +398,7 @@ BOOST_FIXTURE_TEST_CASE(rescan, TestChain100Setup)
         CWallet wallet;
         AddKey(wallet, coinbaseKey);
         BOOST_CHECK_EQUAL(nullBlock, wallet.ScanForWalletTransactions(oldTip));
-        BOOST_CHECK_EQUAL(wallet.GetImmatureBalance(), 100 * COIN);
+        BOOST_CHECK_EQUAL(wallet.GetImmatureBalance(), 40000 * COIN);
     }
 
     // Prune the older block file.
@@ -400,7 +411,7 @@ BOOST_FIXTURE_TEST_CASE(rescan, TestChain100Setup)
         CWallet wallet;
         AddKey(wallet, coinbaseKey);
         BOOST_CHECK_EQUAL(oldTip, wallet.ScanForWalletTransactions(oldTip));
-        BOOST_CHECK_EQUAL(wallet.GetImmatureBalance(), 50 * COIN);
+        BOOST_CHECK_EQUAL(wallet.GetImmatureBalance(), 20000 * COIN);
     }
 
     // Verify importmulti RPC returns failure for a key whose creation time is

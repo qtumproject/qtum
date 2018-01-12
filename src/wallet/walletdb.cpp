@@ -507,6 +507,34 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
                 return false;
             }
         }
+        else if (strType == "token")
+        {
+            uint256 hash;
+            ssKey >> hash;
+            CTokenInfo wtoken;
+            ssValue >> wtoken;
+            if (wtoken.GetHash() != hash)
+            {
+                strErr = "Error reading wallet database: CTokenInfo corrupt";
+                return false;
+            }
+
+            pwallet->LoadToken(wtoken);
+        }
+        else if (strType == "tokentx")
+        {
+            uint256 hash;
+            ssKey >> hash;
+            CTokenTx wTokenTx;
+            ssValue >> wTokenTx;
+            if (wTokenTx.GetHash() != hash)
+            {
+                strErr = "Error reading wallet database: CTokenTx corrupt";
+                return false;
+            }
+
+            pwallet->LoadTokenTx(wTokenTx);
+        }
     } catch (...)
     {
         return false;
@@ -862,4 +890,24 @@ bool CWalletDB::ReadVersion(int& nVersion)
 bool CWalletDB::WriteVersion(int nVersion)
 {
     return batch.WriteVersion(nVersion);
+}
+
+bool CWalletDB::WriteToken(const CTokenInfo &wtoken)
+{
+    return WriteIC(std::make_pair(std::string("token"), wtoken.GetHash()), wtoken);
+}
+
+bool CWalletDB::EraseToken(uint256 hash)
+{
+    return EraseIC(std::make_pair(std::string("token"), hash));
+}
+
+bool CWalletDB::WriteTokenTx(const CTokenTx &wTokenTx)
+{
+    return WriteIC(std::make_pair(std::string("tokentx"), wTokenTx.GetHash()), wTokenTx);
+}
+
+bool CWalletDB::EraseTokenTx(uint256 hash)
+{
+    return EraseIC(std::make_pair(std::string("tokentx"), hash));
 }

@@ -41,10 +41,13 @@ std::vector<CWalletRef> vpwallets;
 CFeeRate payTxFee(DEFAULT_TRANSACTION_FEE);
 unsigned int nTxConfirmTarget = DEFAULT_TX_CONFIRM_TARGET;
 bool bSpendZeroConfChange = DEFAULT_SPEND_ZEROCONF_CHANGE;
+bool bZeroBalanceAddressToken = DEFAULT_ZERO_BALANCE_ADDRESS_TOKEN;
 bool fWalletRbf = DEFAULT_WALLET_RBF;
 
 const char * DEFAULT_WALLET_DAT = "wallet.dat";
 const uint32_t BIP32_HARDENED_KEY_LIMIT = 0x80000000;
+
+CAmount nReserveBalance = 0;
 
 /**
  * Fees smaller than this (in satoshi) are considered zero fee (for transaction creation)
@@ -298,6 +301,11 @@ bool CWallet::AddCScript(const CScript& redeemScript)
         return false;
     return CWalletDB(*dbw).WriteCScript(Hash160(redeemScript), redeemScript);
 }
+
+// optional setting to unlock wallet for staking only
+// serves to disable the trivial sendmoney when OS account compromised
+// provides no real security
+bool fWalletUnlockStakingOnly = false;
 
 bool CWallet::LoadCScript(const CScript& redeemScript)
 {
@@ -4277,6 +4285,7 @@ bool CWallet::ParameterInteraction()
     }
     nTxConfirmTarget = gArgs.GetArg("-txconfirmtarget", DEFAULT_TX_CONFIRM_TARGET);
     bSpendZeroConfChange = gArgs.GetBoolArg("-spendzeroconfchange", DEFAULT_SPEND_ZEROCONF_CHANGE);
+    bZeroBalanceAddressToken = gArgs.GetBoolArg("-zerobalanceaddresstoken", DEFAULT_SPEND_ZEROCONF_CHANGE);
     fWalletRbf = gArgs.GetBoolArg("-walletrbf", DEFAULT_WALLET_RBF);
 
     return true;
@@ -4285,6 +4294,111 @@ bool CWallet::ParameterInteraction()
 bool CWallet::BackupWallet(const std::string& strDest)
 {
     return dbw->Backup(strDest);
+}
+
+bool CWallet::LoadToken(const CTokenInfo &token)
+{
+    uint256 hash = token.GetHash();
+    mapToken[hash] = token;
+
+    return true;
+}
+
+bool CWallet::LoadTokenTx(const CTokenTx &tokenTx)
+{
+    uint256 hash = tokenTx.GetHash();
+    mapTokenTx[hash] = tokenTx;
+
+    return true;
+}
+
+bool CWallet::AddTokenEntry(const CTokenInfo &token, bool fFlushOnClose)
+{
+    LOCK2(cs_main, cs_wallet);
+
+    CWalletDB walletdb(*dbw, "r+", fFlushOnClose);
+
+    uint256 hash = token.GetHash();
+
+    bool fInsertedNew = true;
+
+    std::map<uint256, CTokenInfo>::iterator it = mapToken.find(hash);
+    if(it!=mapToken.end())
+    {
+        fInsertedNew = false;
+    }
+
+    // Write to disk
+    CTokenInfo wtoken = token;
+    if(!fInsertedNew)
+    {
+        wtoken.nCreateTime = GetAdjustedTime();
+    }
+    else
+    {
+        wtoken.nCreateTime = it->second.nCreateTime;
+    }
+
+    if (!walletdb.WriteToken(wtoken))
+        return false;
+
+    mapToken[hash] = wtoken;
+
+    NotifyTokenChanged(this, hash, fInsertedNew ? CT_NEW : CT_UPDATED);
+
+    // Refresh token tx
+    if(fInsertedNew)
+    {
+        for(auto it = mapTokenTx.begin(); it != mapTokenTx.end(); it++)
+        {
+            uint256 tokenTxHash = it->second.GetHash();
+            NotifyTokenTransactionChanged(this, tokenTxHash, CT_UPDATED);
+        }
+    }
+
+    LogPrintf("AddTokenEntry %s\n", wtoken.GetHash().ToString());
+
+    return true;
+}
+
+bool CWallet::AddTokenTxEntry(const CTokenTx &tokenTx, bool fFlushOnClose)
+{
+    LOCK2(cs_main, cs_wallet);
+
+    CWalletDB walletdb(*dbw, "r+", fFlushOnClose);
+
+    uint256 hash = tokenTx.GetHash();
+
+    bool fInsertedNew = true;
+
+    std::map<uint256, CTokenTx>::iterator it = mapTokenTx.find(hash);
+    if(it!=mapTokenTx.end())
+    {
+        fInsertedNew = false;
+    }
+
+    // Write to disk
+    CTokenTx wtokenTx = tokenTx;
+    if(fInsertedNew)
+    {
+        wtokenTx.nCreateTime = GetAdjustedTime();
+    }
+    else
+    {
+        wtokenTx.nCreateTime = it->second.nCreateTime;
+        wtokenTx.strLabel = it->second.strLabel;
+    }
+
+    if (!walletdb.WriteTokenTx(wtokenTx))
+        return false;
+
+    mapTokenTx[hash] = wtokenTx;
+
+    NotifyTokenTransactionChanged(this, hash, fInsertedNew ? CT_NEW : CT_UPDATED);
+
+    LogPrintf("AddTokenTxEntry %s\n", wtokenTx.GetHash().ToString());
+
+    return true;
 }
 
 CKeyPool::CKeyPool()
@@ -4345,4 +4459,105 @@ int CMerkleTx::GetBlocksToMaturity() const
 bool CMerkleTx::AcceptToMemoryPool(const CAmount& nAbsurdFee, CValidationState& state)
 {
     return ::AcceptToMemoryPool(mempool, state, tx, true, nullptr, nullptr, false, nAbsurdFee);
+}
+
+uint256 CTokenInfo::GetHash() const
+{
+    return SerializeHash(*this, SER_GETHASH, 0);
+}
+
+
+uint256 CTokenTx::GetHash() const
+{
+    return SerializeHash(*this, SER_GETHASH, 0);
+}
+
+
+bool CWallet::GetTokenTxDetails(const CTokenTx &wtx, uint256 &credit, uint256 &debit, std::string &tokenSymbol, uint8_t &decimals) const
+{
+    LOCK2(cs_main, cs_wallet);
+    bool ret = false;
+
+    for(auto it = mapToken.begin(); it != mapToken.end(); it++)
+    {
+        CTokenInfo info = it->second;
+        if(wtx.strContractAddress == info.strContractAddress)
+        {
+            if(wtx.strSenderAddress == info.strSenderAddress)
+            {
+                debit = wtx.nValue;
+                tokenSymbol = info.strTokenSymbol;
+                decimals = info.nDecimals;
+                ret = true;
+            }
+
+            if(wtx.strReceiverAddress == info.strSenderAddress)
+            {
+                credit = wtx.nValue;
+                tokenSymbol = info.strTokenSymbol;
+                decimals = info.nDecimals;
+                ret = true;
+            }
+        }
+    }
+
+    return ret;
+}
+
+bool CWallet::IsTokenTxMine(const CTokenTx &wtx) const
+{
+    LOCK2(cs_main, cs_wallet);
+    bool ret = false;
+
+    for(auto it = mapToken.begin(); it != mapToken.end(); it++)
+    {
+        CTokenInfo info = it->second;
+        if(wtx.strContractAddress == info.strContractAddress)
+        {
+            if(wtx.strSenderAddress == info.strSenderAddress || 
+                wtx.strReceiverAddress == info.strSenderAddress)
+            {
+                ret = true;
+            }
+        }
+    }
+
+    return ret;
+}
+
+bool CWallet::RemoveTokenEntry(const uint256 &tokenHash, bool fFlushOnClose)
+{
+    LOCK2(cs_main, cs_wallet);
+
+    CWalletDB walletdb(*dbw, "r+", fFlushOnClose);
+
+    bool fFound = false;
+
+    std::map<uint256, CTokenInfo>::iterator it = mapToken.find(tokenHash);
+    if(it!=mapToken.end())
+    {
+        fFound = true;
+    }
+
+    if(fFound)
+    {
+        // Remove from disk
+        if (!walletdb.EraseToken(tokenHash))
+            return false;
+
+        mapToken.erase(it);
+
+        NotifyTokenChanged(this, tokenHash, CT_DELETED);
+
+        // Refresh token tx
+        for(auto it = mapTokenTx.begin(); it != mapTokenTx.end(); it++)
+        {
+            uint256 tokenTxHash = it->second.GetHash();
+            NotifyTokenTransactionChanged(this, tokenTxHash, CT_UPDATED);
+        }
+    }
+
+    LogPrintf("RemoveTokenEntry %s\n", tokenHash.ToString());
+
+    return true;
 }

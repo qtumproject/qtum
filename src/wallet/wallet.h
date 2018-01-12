@@ -35,10 +35,13 @@ extern std::vector<CWalletRef> vpwallets;
 /**
  * Settings
  */
+extern CAmount nReserveBalance;
 extern CFeeRate payTxFee;
 extern unsigned int nTxConfirmTarget;
 extern bool bSpendZeroConfChange;
+extern bool bZeroBalanceAddressToken;
 extern bool fWalletRbf;
+extern bool fWalletUnlockStakingOnly;
 
 static const unsigned int DEFAULT_KEYPOOL_SIZE = 1000;
 //! -paytxfee default
@@ -48,7 +51,7 @@ static const CAmount DEFAULT_FALLBACK_FEE = 20000;
 //! -m_discard_rate default
 static const CAmount DEFAULT_DISCARD_FEE = 10000;
 //! -mintxfee default
-static const CAmount DEFAULT_TRANSACTION_MINFEE = 1000;
+static const CAmount DEFAULT_TRANSACTION_MINFEE = 400000;
 //! minimum recommended increment for BIP 125 replacement txs
 static const CAmount WALLET_INCREMENTAL_RELAY_FEE = 5000;
 //! target minimum change amount
@@ -57,6 +60,8 @@ static const CAmount MIN_CHANGE = CENT;
 static const CAmount MIN_FINAL_CHANGE = MIN_CHANGE/2;
 //! Default for -spendzeroconfchange
 static const bool DEFAULT_SPEND_ZEROCONF_CHANGE = true;
+//! Default for -zerobalanceaddresstoken
+static const bool DEFAULT_ZERO_BALANCE_ADDRESS_TOKEN = true;
 //! Default for -walletrejectlongchains
 static const bool DEFAULT_WALLET_REJECT_LONG_CHAINS = false;
 //! -txconfirmtarget default
@@ -81,6 +86,7 @@ class CScheduler;
 class CTxMemPool;
 class CBlockPolicyEstimator;
 class CWalletTx;
+class CTokenTx;
 struct FeeCalculation;
 enum class FeeEstimateMode;
 
@@ -811,6 +817,10 @@ public:
 
     std::set<COutPoint> setLockedCoins;
 
+    std::map<uint256, CTokenInfo> mapToken;
+
+    std::map<uint256, CTokenTx> mapTokenTx;
+
     const CWalletTx* GetWalletTx(const uint256& hash) const;
 
     //! check whether we are allowed to upgrade (or already support) to the named feature
@@ -903,6 +913,10 @@ public:
 
     void GetKeyBirthTimes(std::map<CTxDestination, int64_t> &mapKeyBirth) const;
     unsigned int ComputeTimeSmart(const CWalletTx& wtx) const;
+
+    bool LoadToken(const CTokenInfo &token);
+
+    bool LoadTokenTx(const CTokenTx &tokenTx);
 
     /** 
      * Increment the next transaction order id
@@ -1079,11 +1093,22 @@ public:
     boost::signals2::signal<void (CWallet *wallet, const uint256 &hashTx,
             ChangeType status)> NotifyTransactionChanged;
 
+    /** 
+     * Wallet token transaction added, removed or updated.
+     * @note called with lock cs_wallet held.
+     */
+    boost::signals2::signal<void (CWallet *wallet, const uint256 &hashTx,
+            ChangeType status)> NotifyTokenTransactionChanged;
+
     /** Show progress e.g. for rescan */
     boost::signals2::signal<void (const std::string &title, int nProgress)> ShowProgress;
 
     /** Watch-only address added */
     boost::signals2::signal<void (bool fHaveWatchOnly)> NotifyWatchonlyChanged;
+
+    /** Wallet transaction added, removed or updated. */
+    boost::signals2::signal<void (CWallet *wallet, const uint256 &hashToken,
+            ChangeType status)> NotifyTokenChanged;
 
     /** Inquire whether this wallet broadcasts transactions. */
     bool GetBroadcastTransactions() const { return fBroadcastTransactions; }
@@ -1132,6 +1157,21 @@ public:
        caller must ensure the current wallet version is correct before calling
        this function). */
     bool SetHDMasterKey(const CPubKey& key);
+
+    /* Add token entry into the wallet */
+    bool AddTokenEntry(const CTokenInfo& token, bool fFlushOnClose=true);
+
+    /* Add token tx entry into the wallet */
+    bool AddTokenTxEntry(const CTokenTx& tokenTx, bool fFlushOnClose=true);
+
+    /* Get details token tx entry into the wallet */
+    bool GetTokenTxDetails(const CTokenTx &wtx, uint256& credit, uint256& debit, std::string& tokenSymbol, uint8_t& decimals) const;
+
+    /* Check if token transaction is mine */
+    bool IsTokenTxMine(const CTokenTx &wtx) const;
+
+    /* Remove token entry from the wallet */
+    bool RemoveTokenEntry(const uint256& tokenHash, bool fFlushOnClose=true);
 };
 
 /** A key allocated from the key pool. */
@@ -1220,5 +1260,118 @@ bool CWallet::DummySignTx(CMutableTransaction &txNew, const ContainerType &coins
     }
     return true;
 }
+
+class CTokenInfo
+{
+public:
+    static const int CURRENT_VERSION=1;
+    int nVersion;
+    std::string strContractAddress;
+    std::string strTokenName;
+    std::string strTokenSymbol;
+    uint8_t nDecimals;
+    std::string strSenderAddress;
+
+    // Wallet data for token transaction
+    int64_t nCreateTime;
+    uint256 blockHash;
+    int64_t blockNumber;
+
+    CTokenInfo()
+    {
+        SetNull();
+    }
+
+    ADD_SERIALIZE_METHODS;
+
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action) {
+        if (!(s.GetType() & SER_GETHASH))
+        {
+            READWRITE(nVersion);
+            READWRITE(nCreateTime);
+            READWRITE(strTokenName);
+            READWRITE(strTokenSymbol);
+            READWRITE(blockHash);
+            READWRITE(blockNumber);
+        }
+        READWRITE(nDecimals);
+        READWRITE(strContractAddress);
+        READWRITE(strSenderAddress);
+    }
+
+    void SetNull()
+    {
+        nVersion = CTokenInfo::CURRENT_VERSION;
+        nCreateTime = 0;
+        strContractAddress = "";
+        strTokenName = "";
+        strTokenSymbol = "";
+        nDecimals = 0;
+        strSenderAddress = "";
+        blockHash.SetNull();
+        blockNumber = -1;
+    }
+
+    uint256 GetHash() const;
+};
+
+class CTokenTx
+{
+public:
+    static const int CURRENT_VERSION=1;
+    int nVersion;
+    std::string strContractAddress;
+    std::string strSenderAddress;
+    std::string strReceiverAddress;
+    uint256 nValue;
+    uint256 transactionHash;
+
+    // Wallet data for token transaction
+    int64_t nCreateTime;
+    uint256 blockHash;
+    int64_t blockNumber;
+    std::string strLabel;
+
+    CTokenTx()
+    {
+        SetNull();
+    }
+
+    ADD_SERIALIZE_METHODS;
+
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action) {
+        if (!(s.GetType() & SER_GETHASH))
+        {
+            READWRITE(nVersion);
+            READWRITE(nCreateTime);
+            READWRITE(blockHash);
+            READWRITE(blockNumber);
+            READWRITE(LIMITED_STRING(strLabel, 65536));
+        }
+        READWRITE(strContractAddress);
+        READWRITE(strSenderAddress);
+        READWRITE(strReceiverAddress);
+        READWRITE(nValue);
+        READWRITE(transactionHash);
+    }
+
+    void SetNull()
+    {
+        nVersion = CTokenTx::CURRENT_VERSION;
+        nCreateTime = 0;
+        strContractAddress = "";
+        strSenderAddress = "";
+        strReceiverAddress = "";
+        nValue.SetNull();
+        transactionHash.SetNull();
+        blockHash.SetNull();
+        blockNumber = -1;
+        strLabel = "";
+    }
+
+    uint256 GetHash() const;
+};
 
 #endif // BITCOIN_WALLET_WALLET_H
