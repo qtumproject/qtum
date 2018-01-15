@@ -1906,20 +1906,24 @@ UniValue listsinceblock(const JSONRPCRequest& request)
     return ret;
 }
 
-UniValue gettransaction(const JSONRPCRequest& request)
+UniValue gettransaction(const JSONRPCRequest& request_)
 {
+    // long-poll
+    JSONRPCRequest& request = (JSONRPCRequest&) request_;
+
     CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
     if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
         return NullUniValue;
     }
 
-    if (request.fHelp || request.params.size() < 1 || request.params.size() > 2)
+    if (request.fHelp || request.params.size() < 1 || request.params.size() > 3)
         throw std::runtime_error(
-            "gettransaction \"txid\" ( include_watchonly )\n"
+            "gettransaction \"txid\" ( include_watchonly ) (waitconf)\n"
             "\nGet detailed information about in-wallet transaction <txid>\n"
             "\nArguments:\n"
             "1. \"txid\"                  (string, required) The transaction id\n"
             "2. \"include_watchonly\"     (bool, optional, default=false) Whether to include watch-only addresses in balance calculation and details[]\n"
+            "3. \"waitconf\"              (int, optional, default=0) Wait for enough confirmations before returning\n"
             "\nResult:\n"
             "{\n"
             "  \"amount\" : x.xxx,        (numeric) The transaction amount in " + CURRENCY_UNIT + "\n"
@@ -1937,7 +1941,7 @@ UniValue gettransaction(const JSONRPCRequest& request)
             "  \"details\" : [\n"
             "    {\n"
             "      \"account\" : \"accountname\",      (string) DEPRECATED. The account name involved in the transaction, can be \"\" for the default account.\n"
-            "      \"address\" : \"address\",          (string) The bitcoin address involved in the transaction\n"
+            "      \"address\" : \"address\",          (string) The qtum address involved in the transaction\n"
             "      \"category\" : \"send|receive\",    (string) The category, either 'send' or 'receive'\n"
             "      \"amount\" : x.xxx,                 (numeric) The amount in " + CURRENCY_UNIT + "\n"
             "      \"label\" : \"label\",              (string) A comment for the address/transaction, if any\n"
@@ -3237,6 +3241,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "listwallets",              &listwallets,              true,   {} },
     { "wallet",             "lockunspent",              &lockunspent,              true,   {"unlock","transactions"} },
     { "wallet",             "move",                     &movecmd,                  false,  {"fromaccount","toaccount","amount","minconf","comment"} },
+    { "wallet",             "reservebalance",           &reservebalance,           false,  {"reserve", "amount"}},
     { "wallet",             "sendfrom",                 &sendfrom,                 false,  {"fromaccount","toaddress","amount","minconf","comment","comment_to"} },
     { "wallet",             "sendmany",                 &sendmany,                 false,  {"fromaccount","amounts","minconf","comment","subtractfeefrom","replaceable","conf_target","estimate_mode"} },
     { "wallet",             "sendtoaddress",            &sendtoaddress,            false,  {"address","amount","comment","comment_to","subtractfeefromamount","replaceable","conf_target","estimate_mode"} },

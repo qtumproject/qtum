@@ -30,6 +30,27 @@
 
 #include <atomic>
 
+/////////////////////////////////////////// qtum
+#include <qtum/qtumstate.h>
+#include <qtum/qtumDGP.h>
+#include <libethereum/ChainParams.h>
+#include <libethashseal/Ethash.h>
+#include <libethashseal/GenesisInfo.h>
+#include <script/standard.h>
+#include <qtum/storageresults.h>
+
+
+extern std::unique_ptr<QtumState> globalState;
+extern std::shared_ptr<dev::eth::SealEngineFace> globalSealEngine;
+extern bool fRecordLogOpcodes;
+extern bool fIsVMlogFile;
+extern bool fGettingValuesDGP;
+
+struct EthTransactionParams;
+using valtype = std::vector<unsigned char>;
+using ExtractQtumTX = std::pair<std::vector<QtumTransaction>, std::vector<EthTransactionParams>>;
+///////////////////////////////////////////
+
 class CBlockIndex;
 class CBlockTreeDB;
 class CChainParams;
@@ -130,6 +151,7 @@ static const int64_t MAX_FEE_ESTIMATION_TIP_AGE = 3 * 60 * 60;
 static const bool DEFAULT_PERMIT_BAREMULTISIG = true;
 static const bool DEFAULT_CHECKPOINTS_ENABLED = true;
 static const bool DEFAULT_TXINDEX = false;
+static const bool DEFAULT_LOGEVENTS = false;
 static const unsigned int DEFAULT_BANSCORE_THRESHOLD = 100;
 /** Default for -persistmempool */
 static const bool DEFAULT_PERSIST_MEMPOOL = true;
@@ -148,6 +170,13 @@ static const bool DEFAULT_PEERBLOOMFILTERS = true;
 
 /** Default for -stopatheight */
 static const int DEFAULT_STOPATHEIGHT = 0;
+
+static const uint64_t DEFAULT_GAS_LIMIT_OP_CREATE=2500000;
+static const uint64_t DEFAULT_GAS_LIMIT_OP_SEND=250000;
+static const CAmount DEFAULT_GAS_PRICE=0.00000040*COIN;
+static const CAmount MAX_RPC_GAS_PRICE=0.00000100*COIN;
+
+static const size_t MAX_CONTRACT_VOUTS = 1000; // qtum
 
 struct BlockHasher
 {
@@ -311,6 +340,72 @@ std::string FormatStateMessage(const CValidationState &state);
 
 /** Get the BIP9 state for a given deployment at the current tip. */
 ThresholdState VersionBitsTipState(const Consensus::Params& params, Consensus::DeploymentPos pos);
+
+//////////////////////////////////////////////////////////// // qtum
+struct CHeightTxIndexIteratorKey {
+    unsigned int height;
+
+    size_t GetSerializeSize(int nType, int nVersion) const {
+        return 4;
+    }
+    template<typename Stream>
+    void Serialize(Stream& s) const {
+        ser_writedata32be(s, height);
+    }
+    template<typename Stream>
+    void Unserialize(Stream& s) {
+        height = ser_readdata32be(s);
+    }
+
+    CHeightTxIndexIteratorKey(unsigned int _height) {
+        height = _height;
+    }
+
+    CHeightTxIndexIteratorKey() {
+        SetNull();
+    }
+
+    void SetNull() {
+        height = 0;
+    }
+};
+
+struct CHeightTxIndexKey {
+    unsigned int height;
+    dev::h160 address;
+
+    size_t GetSerializeSize(int nType, int nVersion) const {
+        return 24;
+    }
+    template<typename Stream>
+    void Serialize(Stream& s) const {
+        ser_writedata32be(s, height);
+        s << address.asBytes();
+    }
+    template<typename Stream>
+    void Unserialize(Stream& s) {
+        height = ser_readdata32be(s);
+        valtype tmp;
+        s >> tmp;
+        address = dev::h160(tmp);
+    }
+
+    CHeightTxIndexKey(unsigned int _height, dev::h160 _address) {
+        height = _height;
+        address = _address;
+    }
+
+    CHeightTxIndexKey() {
+        SetNull();
+    }
+
+    void SetNull() {
+        height = 0;
+        address.clear();
+    }
+};
+
+////////////////////////////////////////////////////////////
 
 /** Get the numerical statistics for the BIP9 state for a given deployment at the current tip. */
 BIP9Stats VersionBitsTipStatistics(const Consensus::Params& params, Consensus::DeploymentPos pos);
@@ -482,5 +577,95 @@ void DumpMempool();
 
 /** Load the mempool from disk. */
 bool LoadMempool();
+
+//////////////////////////////////////////////////////// qtum
+std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, const dev::Address& sender = dev::Address(), uint64_t gasLimit=0);
+
+bool CheckSenderScript(const CCoinsViewCache& view, const CTransaction& tx);
+
+bool CheckMinGasPrice(std::vector<EthTransactionParams>& etps, const uint64_t& minGasPrice);
+
+struct ByteCodeExecResult;
+
+void EnforceContractVoutLimit(ByteCodeExecResult& bcer, ByteCodeExecResult& bcerOut, const dev::h256& oldHashQtumRoot,
+    const dev::h256& oldHashStateRoot, const std::vector<QtumTransaction>& transactions);
+
+void writeVMlog(const std::vector<ResultExecute>& res, const CTransaction& tx = CTransaction(), const CBlock& block = CBlock());
+
+struct EthTransactionParams{
+    VersionVM version;
+    dev::u256 gasLimit;
+    dev::u256 gasPrice;
+    valtype code;
+    dev::Address receiveAddress;
+
+    bool operator!=(EthTransactionParams etp){
+        if(this->version.toRaw() != etp.version.toRaw() || this->gasLimit != etp.gasLimit ||
+        this->gasPrice != etp.gasPrice || this->code != etp.code ||
+        this->receiveAddress != etp.receiveAddress)
+            return true;
+        return false;
+    }
+};
+
+struct ByteCodeExecResult{
+    uint64_t usedGas = 0;
+    CAmount refundSender = 0;
+    std::vector<CTxOut> refundOutputs;
+    std::vector<CTransaction> valueTransfers;
+};
+
+class QtumTxConverter{
+
+public:
+
+    QtumTxConverter(CTransaction tx, CCoinsViewCache* v = NULL, const std::vector<CTransactionRef>* blockTxs = NULL) : txBit(tx), view(v), blockTransactions(blockTxs){}
+
+    bool extractionQtumTransactions(ExtractQtumTX& qtumTx);
+
+private:
+
+    bool receiveStack(const CScript& scriptPubKey);
+
+    bool parseEthTXParams(EthTransactionParams& params);
+
+    QtumTransaction createEthTX(const EthTransactionParams& etp, const uint32_t nOut);
+
+    const CTransaction txBit;
+    const CCoinsViewCache* view;
+    std::vector<valtype> stack;
+    opcodetype opcode;
+    const std::vector<CTransactionRef> *blockTransactions;
+
+};
+
+class ByteCodeExec {
+
+public:
+
+    ByteCodeExec(const CBlock& _block, std::vector<QtumTransaction> _txs, const uint64_t _blockGasLimit) : txs(_txs), block(_block), blockGasLimit(_blockGasLimit) {}
+
+    bool performByteCode(dev::eth::Permanence type = dev::eth::Permanence::Committed);
+
+    bool processingResults(ByteCodeExecResult& result);
+
+    std::vector<ResultExecute>& getResult(){ return result; }
+
+private:
+
+    dev::eth::EnvInfo BuildEVMEnvironment();
+
+    dev::Address EthAddrFromScript(const CScript& scriptIn);
+
+    std::vector<QtumTransaction> txs;
+
+    std::vector<ResultExecute> result;
+
+    const CBlock& block;
+
+    const uint64_t blockGasLimit;
+
+};
+////////////////////////////////////////////////////////
 
 #endif // BITCOIN_VALIDATION_H
