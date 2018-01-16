@@ -79,7 +79,6 @@ public:
 
         QProxyStyle::polish(widget);
     }
-
 };
 
 StyleSheet &StyleSheet::instance()

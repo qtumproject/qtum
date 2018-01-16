@@ -542,6 +542,7 @@ QProgressBar {
     font: 10pt;
     color: white;
     border-radius: 10px;
+    text-align: center;
 }
 QProgressBar::chunk {
     background: QLinearGradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #007cb3, stop: 1 #029ce0);
@@ -891,4 +892,18 @@ Modal Overlay CSS
 }
 #ModalOverlay #labelNote {
     font: 20pt;
+}
+/*--------------------------------------------
+Watch Only Widget CSS
+--------------------------------------------*/
+#watchOnlyWidget QAbstractItemView::item, 
+#watchOnlyWidget QAbstractItemView::item:selected, 
+#watchOnlyWidget QAbstractItemView{
+    padding-left: 0px; 
+    padding: 4px; 
+} 
+#watchOnlyWidget {
+    padding-left: 0px;
+    padding-right: 0px;
+    padding: 4px;
 }

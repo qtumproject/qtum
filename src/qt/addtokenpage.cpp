@@ -27,7 +27,7 @@ AddTokenPage::AddTokenPage(QWidget *parent) :
     // Set stylesheet
     SetObjectStyleSheet(ui->clearButton, StyleSheetNames::ButtonBlack);
 
-    ui->labelDescription->setText(tr("(This is your wallet address which will be tied to the token for send/receive oprations)"));
+    ui->labelDescription->setText(tr("(This is your wallet address which will be tied to the token for send/receive operations)"));
     QFont font = QApplication::font();
     font.setPointSizeF(font.pointSizeF() * 0.8);
     ui->labelDescription->setFont(font);

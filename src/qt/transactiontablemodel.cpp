@@ -510,7 +510,7 @@ QVariant TransactionTableModel::txStatusDecoration(const TransactionRecord *wtx)
 QVariant TransactionTableModel::txWatchonlyDecoration(const TransactionRecord *wtx) const
 {
     if (wtx->involvesWatchAddress)
-        return QIcon(":/icons/eye");
+        return platformStyle->TableColorIcon(":/icons/eye", PlatformStyle::Normal);
     else
         return QVariant();
 }

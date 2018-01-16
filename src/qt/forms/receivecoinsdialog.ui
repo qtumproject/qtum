@@ -122,9 +122,6 @@
           <property name="text">
            <string>Address:</string>
           </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
          </widget>
         </item>
         <item row="2" column="2">
@@ -161,9 +158,6 @@
           <property name="text">
            <string>&amp;Amount:</string>
           </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
           <property name="buddy">
            <cstring>reqAmount</cstring>
           </property>
@@ -184,9 +178,6 @@
           <property name="text">
            <string>&amp;Label:</string>
           </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
           <property name="buddy">
            <cstring>reqLabel</cstring>
           </property>
@@ -199,9 +190,6 @@
           </property>
           <property name="text">
            <string>&amp;Message:</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
           <property name="buddy">
            <cstring>reqMessage</cstring>

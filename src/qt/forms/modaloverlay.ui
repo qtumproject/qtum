@@ -225,6 +225,12 @@
                </item>
                <item row="0" column="1">
                 <widget class="QLabel" name="numberOfBlocksLeft">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
                  <property name="text">
                   <string>Unknown...</string>
                  </property>
@@ -246,7 +252,7 @@
                <item row="1" column="1">
                 <widget class="QLabel" name="newestBlockDate">
                  <property name="sizePolicy">
-                  <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
@@ -305,6 +311,12 @@
                </item>
                <item row="4" column="1">
                 <widget class="QLabel" name="progressIncreasePerH">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
                  <property name="text">
                   <string>calculating...</string>
                  </property>
@@ -325,6 +337,12 @@
                </item>
                <item row="5" column="1">
                 <widget class="QLabel" name="expectedTimeLeft">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
                  <property name="text">
                   <string>calculating...</string>
                  </property>

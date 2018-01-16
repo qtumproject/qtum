@@ -99,7 +99,7 @@ Building Qtum Core
     sudo apt-get install libdb4.8-dev libdb4.8++-dev
 
     # If you want to build the Qt GUI:
-    sudo apt-get install libqt5gui5 libqt5core5a libqt5dbus5 qttools5-dev qttools5-dev-tools libprotobuf-dev protobuf-compiler
+    sudo apt-get install libqt5gui5 libqt5core5a libqt5dbus5 qttools5-dev qttools5-dev-tools libprotobuf-dev protobuf-compiler qrencode
 
     git clone https://github.com/qtumproject/qtum --recursive
     cd qtum
@@ -126,7 +126,7 @@ Then install [Homebrew](https://brew.sh).
 
 #### Dependencies
 
-    brew install cmake automake berkeley-db4 libtool boost --c++11 --without-single --without-static miniupnpc openssl pkg-config protobuf qt5 libevent imagemagick --with-librsvg
+    brew install cmake automake berkeley-db4 libtool boost --c++11 --without-single --without-static miniupnpc openssl pkg-config protobuf qt5 libevent imagemagick --with-librsvg qrencode
 
 NOTE: Building with Qt4 is still supported, however, could result in a broken UI. Building with Qt5 is recommended.
 

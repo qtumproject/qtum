@@ -51,7 +51,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="labelTokenStatus">
+        <widget class="QToolButton" name="labelTokenStatus">
          <property name="toolTip">
           <string>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</string>
          </property>
@@ -64,8 +64,8 @@
            <height>24</height>
           </size>
          </property>
-         <property name="flat">
-          <bool>true</bool>
+         <property name="flat" stdset="0">
+          <bool>false</bool>
          </property>
         </widget>
        </item>
@@ -474,7 +474,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="labelWalletStatus">
+        <widget class="QToolButton" name="labelWalletStatus">
          <property name="enabled">
           <bool>true</bool>
          </property>
@@ -495,8 +495,8 @@
            <height>24</height>
           </size>
          </property>
-         <property name="flat">
-          <bool>true</bool>
+         <property name="flat" stdset="0">
+          <bool>false</bool>
          </property>
         </widget>
        </item>
@@ -562,7 +562,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="labelTransactionsStatus">
+      <widget class="QToolButton" name="labelTransactionsStatus">
        <property name="enabled">
         <bool>true</bool>
        </property>
@@ -583,8 +583,8 @@
          <height>24</height>
         </size>
        </property>
-       <property name="flat">
-        <bool>true</bool>
+       <property name="flat" stdset="0">
+        <bool>false</bool>
        </property>
       </widget>
      </item>

@@ -49,10 +49,15 @@ void ReceiveTokenPage::createQRCode()
         info.address = m_address;
         if(ReceiveRequestDialog::createQRCode(ui->lblQRCode, info))
         {
+            ui->lblQRCode->setVisible(true);
             ui->lblQRCode->setScaledContents(true);
-            ui->labelTokenAddress->setText(m_address);
-            ui->copyAddressButton->setVisible(true);
         }
+        else
+        {
+            ui->lblQRCode->setVisible(false);
+        }
+        ui->labelTokenAddress->setText(m_address);
+        ui->copyAddressButton->setVisible(true);
     }
     else
     {

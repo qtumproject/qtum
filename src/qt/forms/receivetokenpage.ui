@@ -131,7 +131,7 @@
               </property>
              </widget>
             </item>
-            <item>
+            <item alignment="Qt::AlignLeft">
              <widget class="QToolButton" name="copyAddressButton">
               <property name="minimumSize">
                <size>

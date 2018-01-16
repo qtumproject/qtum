@@ -54,9 +54,6 @@
       <property name="text">
        <string>Pay &amp;To:</string>
       </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
       <property name="buddy">
        <cstring>payTo</cstring>
       </property>
@@ -107,9 +104,6 @@
       <property name="text">
        <string>&amp;Label:</string>
       </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
       <property name="buddy">
        <cstring>addAsLabel</cstring>
       </property>
@@ -120,18 +114,12 @@
       <property name="text">
        <string>Message:</string>
       </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
      </widget>
     </item>
     <item row="2" column="0">
      <widget class="QLabel" name="amountLabel">
       <property name="text">
        <string>A&amp;mount:</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
       </property>
       <property name="buddy">
        <cstring>payAmount</cstring>
@@ -694,9 +682,6 @@
       <property name="text">
        <string>Pay To:</string>
       </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
      </widget>
     </item>
     <item row="0" column="1">
@@ -728,9 +713,6 @@
       <property name="text">
        <string>Memo:</string>
       </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
      </widget>
     </item>
     <item row="1" column="1">
@@ -744,9 +726,6 @@
      <widget class="QLabel" name="amountLabel_is">
       <property name="text">
        <string>A&amp;mount:</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
       </property>
       <property name="buddy">
        <cstring>payAmount_is</cstring>
