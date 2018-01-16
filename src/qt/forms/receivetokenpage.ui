@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>520</width>
+    <width>594</width>
     <height>342</height>
    </rect>
   </property>
@@ -105,6 +105,12 @@
           </property>
           <item>
            <widget class="QLabel" name="labelTokenAddressText">
+            <property name="minimumSize">
+             <size>
+              <width>350</width>
+              <height>0</height>
+             </size>
+            </property>
             <property name="text">
              <string>Address</string>
             </property>
