@@ -286,6 +286,11 @@ bool CBitcoinAddress::IsScript() const
     return IsValid() && vchVersion == Params().Base58Prefix(CChainParams::SCRIPT_ADDRESS);
 }
 
+bool CBitcoinAddress::IsPubKeyHash() const
+{
+    return IsValid() && vchVersion == Params().Base58Prefix(CChainParams::PUBKEY_ADDRESS);
+}
+
 void CBitcoinSecret::SetKey(const CKey& vchSecret)
 {
     assert(vchSecret.IsValid());
