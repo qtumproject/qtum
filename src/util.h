@@ -29,6 +29,12 @@
 
 #include <boost/signals2/signal.hpp>
 
+#ifndef WIN32
+#include <sys/types.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+#endif
+
 // Application startup time (used for uptime calculation)
 int64_t GetStartupTime();
 
@@ -122,7 +128,7 @@ std::vector<CLogCategoryActive> ListActiveLogCategories();
 bool GetLogCategory(uint32_t *f, const std::string *str);
 
 /** Send a string to the log output */
-int LogPrintStr(const std::string &str);
+int LogPrintStr(const std::string &str, bool useVMLog = false);
 
 /** Get format string from VA_ARGS for error reporting */
 template<typename... Args> std::string FormatStringFromLogArgs(const char *fmt, const Args&... args) { return fmt; }
@@ -289,6 +295,30 @@ std::string HelpMessageOpt(const std::string& option, const std::string& message
  */
 int GetNumCores();
 
+#ifdef WIN32
+inline void SetThreadPriority(int nPriority)
+{
+    SetThreadPriority(GetCurrentThread(), nPriority);
+}
+#else
+
+#define THREAD_PRIORITY_LOWEST          PRIO_MAX
+#define THREAD_PRIORITY_BELOW_NORMAL    2
+#define THREAD_PRIORITY_NORMAL          0
+#define THREAD_PRIORITY_ABOVE_NORMAL    0
+
+inline void SetThreadPriority(int nPriority)
+{
+    // It's unclear if it's even possible to change thread priorities on Linux,
+    // but we really and truly need it for the generation threads.
+#ifdef PRIO_THREAD
+    setpriority(PRIO_THREAD, 0, nPriority);
+#else
+    setpriority(PRIO_PROCESS, 0, nPriority);
+#endif
+}
+#endif
+
 void RenameThread(const char* name);
 
 /**
@@ -320,5 +350,7 @@ template <typename Callable> void TraceThread(const char* name,  Callable func)
 }
 
 std::string CopyrightHolders(const std::string& strPrefix);
+
+bool CheckHex(const std::string& str);
 
 #endif // BITCOIN_UTIL_H
