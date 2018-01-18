@@ -31,7 +31,7 @@
 class CBlockIndex;
 
 /** Fake height value used in Coin to signify they are only in the memory pool (since 0.8) */
-static const uint32_t MEMPOOL_HEIGHT = 0x7FFFFFFF;
+static const uint32_t MEMPOOL_HEIGHT = 0x0FFFFFFF;
 
 struct LockPoints
 {
@@ -75,6 +75,7 @@ private:
     int64_t sigOpCost;         //!< Total sigop cost
     int64_t feeDelta;          //!< Used for determining the priority of the transaction for mining in a block
     LockPoints lockPoints;     //!< Track the height and time at which tx was final
+    CAmount nMinGasPrice;      //!< The minimum gas price among the contract outputs of the tx
 
     // Information about descendants of this transaction that are in the
     // mempool; if we remove this transaction we must remove all of these
@@ -93,7 +94,7 @@ public:
     CTxMemPoolEntry(const CTransactionRef& _tx, const CAmount& _nFee,
                     int64_t _nTime, unsigned int _entryHeight,
                     bool spendsCoinbase,
-                    int64_t nSigOpsCost, LockPoints lp);
+                    int64_t nSigOpsCost, LockPoints lp, CAmount _nMinGasPrice = 0);
 
     CTxMemPoolEntry(const CTxMemPoolEntry& other);
 
@@ -108,6 +109,7 @@ public:
     int64_t GetModifiedFee() const { return nFee + feeDelta; }
     size_t DynamicMemoryUsage() const { return nUsageSize; }
     const LockPoints& GetLockPoints() const { return lockPoints; }
+    const CAmount& GetMinGasPrice() const { return nMinGasPrice; }
 
     // Adjusts the descendant state.
     void UpdateDescendantState(int64_t modifySize, CAmount modifyFee, int64_t modifyCount);
@@ -287,11 +289,58 @@ public:
     }
 };
 
+class CompareTxMemPoolEntryByAncestorFeeOrGasPrice
+{
+public:
+    bool operator()(const CTxMemPoolEntry& a, const CTxMemPoolEntry& b)
+    {
+        bool fAHasCreateOrCall = a.GetTx().HasCreateOrCall();
+        bool fBHasCreateOrCall = b.GetTx().HasCreateOrCall();
+
+        // If either of the two entries that we are comparing has a contract scriptPubKey, the comparison here takes precedence
+        if(fAHasCreateOrCall || fBHasCreateOrCall) {
+            // Prioritze non-contract txs
+            if(fAHasCreateOrCall != fBHasCreateOrCall) {
+                return fAHasCreateOrCall ? false : true;
+            }
+
+            // Prioritize the contract txs that have the least number of ancestors
+            // The reason for this is that otherwise it is possible to send one tx with a
+            // high gas limit but a low gas price which has a child with a low gas limit but a high gas price
+            // Without this condition that transaction chain would get priority in being included into the block.
+            if(a.GetCountWithAncestors() != b.GetCountWithAncestors()) {
+                return a.GetCountWithAncestors() < b.GetCountWithAncestors();
+            }
+
+            // Otherwise, prioritize the contract tx with the highest (minimum among its outputs) gas price
+            // The reason for using the gas price of the output that sets the minimum gas price is that there
+            // otherwise it may be possible to game the prioritization by setting a large gas price in one output
+            // that does no execution, while the real execution has a very low gas price
+            if(a.GetMinGasPrice() != b.GetMinGasPrice()) {
+                return a.GetMinGasPrice() > b.GetMinGasPrice();
+            }
+
+            // Otherwise, prioritize the tx with the minimum size
+            if(a.GetTxSize() != b.GetTxSize()) {
+                return a.GetTxSize() < b.GetTxSize();
+            }
+
+            // If the txs are identical in their minimum gas prices and tx size
+            // order based on the tx hash for consistency.
+            return a.GetTx().GetHash() < b.GetTx().GetHash();
+        }
+
+        // If neither of the txs we are comparing are contract txs, use the standard comparison based on ancestor fees / ancestor size
+        return CompareTxMemPoolEntryByAncestorFee()(a, b);
+    }
+};
+
 // Multi_index tag names
 struct descendant_score {};
 struct entry_time {};
 struct mining_score {};
 struct ancestor_score {};
+struct ancestor_score_or_gas_price {};
 
 class CBlockPolicyEstimator;
 
@@ -460,7 +509,13 @@ public:
                 boost::multi_index::tag<ancestor_score>,
                 boost::multi_index::identity<CTxMemPoolEntry>,
                 CompareTxMemPoolEntryByAncestorFee
-            >
+            >,
+            // sorted by fee rate with gas price (if contract tx) or ancestors otherwise
+            boost::multi_index::ordered_non_unique<
+                boost::multi_index::tag<ancestor_score_or_gas_price>,
+                boost::multi_index::identity<CTxMemPoolEntry>,
+                CompareTxMemPoolEntryByAncestorFeeOrGasPrice
+             >
         >
     > indexed_transaction_set;
 
@@ -618,6 +673,13 @@ public:
         return (mapTx.count(hash) != 0);
     }
 
+    bool exists(const COutPoint& outpoint) const
+    {
+        LOCK(cs);
+        auto it = mapTx.find(outpoint.hash);
+        return (it != mapTx.end() && outpoint.n < it->GetTx().vout.size());
+    }
+
     CTransactionRef get(const uint256& hash) const;
     TxMempoolInfo info(const uint256& hash) const;
     std::vector<TxMempoolInfo> infoAll() const;
@@ -685,6 +747,7 @@ protected:
 public:
     CCoinsViewMemPool(CCoinsView* baseIn, const CTxMemPool& mempoolIn);
     bool GetCoin(const COutPoint &outpoint, Coin &coin) const override;
+    bool HaveCoin(const COutPoint &outpoint) const override;
 };
 
 /**

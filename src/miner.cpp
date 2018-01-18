@@ -19,6 +19,7 @@
 #include "policy/feerate.h"
 #include "policy/policy.h"
 #include "pow.h"
+#include "pos.h"
 #include "primitives/transaction.h"
 #include "script/standard.h"
 #include "timedata.h"
@@ -26,6 +27,7 @@
 #include "util.h"
 #include "utilmoneystr.h"
 #include "validationinterface.h"
+#include "wallet/wallet.h"
 
 #include <algorithm>
 #include <queue>
@@ -44,6 +46,8 @@
 
 uint64_t nLastBlockTx = 0;
 uint64_t nLastBlockWeight = 0;
+int64_t nLastCoinStakeSearchInterval = 0;
+unsigned int nMinerSleep = STAKER_POLLING_PERIOD;
 
 int64_t UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParams, const CBlockIndex* pindexPrev)
 {
