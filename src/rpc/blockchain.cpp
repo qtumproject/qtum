@@ -1301,7 +1301,7 @@ UniValue waitforlogs(const JSONRPCRequest& request_) {
         {
             LOCK(cs_main);
             curheight = pblocktree->ReadHeightIndex(params.fromBlock, params.toBlock, params.minconf,
-                    hashesToBlock, addresses);
+                    hashesToBlock, addresses, false);
         }
 
         // if curheight >= fromBlock. Blockchain extended with new log entries. Return next block height to client.
@@ -1462,7 +1462,7 @@ UniValue searchlogs(const JSONRPCRequest& request)
     
     std::vector<std::vector<uint256>> hashesToBlock;
 
-    pblocktree->ReadHeightIndex(params.fromBlock, params.toBlock, params.minconf, hashesToBlock, params.addresses);
+    pblocktree->ReadHeightIndex(params.fromBlock, params.toBlock, params.minconf, hashesToBlock, params.addresses, true);
 
     UniValue result(UniValue::VARR);
     boost::filesystem::path stateDir = GetDataDir() / "stateQtum";

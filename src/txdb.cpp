@@ -225,7 +225,7 @@ bool CBlockTreeDB::WriteHeightIndex(const CHeightTxIndexKey &heightIndex, const 
 
 size_t CBlockTreeDB::ReadHeightIndex(size_t low, size_t high, size_t minconf,
         std::vector<std::vector<uint256>> &blocksOfHashes,
-        std::set<dev::h160> const &addresses) {
+        std::set<dev::h160> const &addresses, bool searchlogs) {
 
     std::unique_ptr<CDBIterator> pcursor(NewIterator());
 
@@ -242,6 +242,10 @@ size_t CBlockTreeDB::ReadHeightIndex(size_t low, size_t high, size_t minconf,
 
         auto nextHeight = key.second.height;
 
+        if (high <= low && high == 0 && searchlogs) {
+            break;
+        }
+        
         if (high > 0 && nextHeight > high) {
             break;
         }
