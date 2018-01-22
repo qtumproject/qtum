@@ -889,3 +889,33 @@ QString WalletModel::getRestoreParam()
     return restoreParam;
 }
 
+std::vector<CTokenInfo> WalletModel::getInvalidTokens()
+{
+    LOCK2(cs_main, wallet->cs_wallet);
+
+    std::vector<CTokenInfo> listInvalid;
+    for(auto& info : wallet->mapToken)
+    {
+        std::string strAddress = info.second.strSenderAddress;
+        CBitcoinAddress address(strAddress);
+        if(!IsMine(*wallet, address.Get()))
+        {
+            listInvalid.push_back(info.second);
+        }
+    }
+
+    return listInvalid;
+}
+
+bool WalletModel::isMineAddress(const std::string &strAddress)
+{
+    LOCK2(cs_main, wallet->cs_wallet);
+
+    CBitcoinAddress address(strAddress);
+    if(!address.IsValid() || !IsMine(*wallet, address.Get()))
+    {
+        return false;
+    }
+    return true;
+}
+

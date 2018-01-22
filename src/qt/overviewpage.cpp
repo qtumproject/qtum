@@ -15,9 +15,12 @@
 #include "transactiontablemodel.h"
 #include "walletmodel.h"
 #include "tokenitemmodel.h"
+#include "wallet/wallet.h"
 
 #include <QAbstractItemDelegate>
 #include <QPainter>
+#include <QMessageBox>
+#include <QTimer>
 
 #include <QStandardItem>
 #include <QStandardItemModel>
@@ -299,6 +302,25 @@ void OverviewPage::setBalance(const CAmount& balance, const CAmount& unconfirmed
     ui->labelWatchStake->setVisible(showWatchOnlyStake); // show watch-only stake balance
 }
 
+void OverviewPage::checkForInvalidTokens()
+{
+    if(walletModel)
+    {
+        std::vector<CTokenInfo> invalidTokens = walletModel->getInvalidTokens();
+        if(invalidTokens.size() > 0)
+        {
+            QString message;
+            for(CTokenInfo& tokenInfo : invalidTokens)
+            {
+                QString symbol = QString::fromStdString(tokenInfo.strTokenSymbol);
+                QString address = QString::fromStdString(tokenInfo.strSenderAddress);
+                message += tr("The %1 address \"%2\" is not yours, please change it to new one.\n").arg(symbol, address);
+            }
+            QMessageBox::warning(this, tr("Invalid token address"), message);
+        }
+    }
+}
+
 // show/hide watch-only labels
 void OverviewPage::updateWatchOnlyLabels(bool showWatchOnly)
 {
@@ -369,6 +391,9 @@ void OverviewPage::setWalletModel(WalletModel *model)
 
     // update the display unit, to not use the default ("BTC")
     updateDisplayUnit();
+
+    // check for presence of invalid tokens
+    QTimer::singleShot(500, this, SLOT(checkForInvalidTokens()));
 }
 
 void OverviewPage::updateDisplayUnit()
