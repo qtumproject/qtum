@@ -80,7 +80,17 @@ public:
             LOCK2(cs_main, wallet->cs_wallet);
             for(std::map<uint256, CTokenTx>::iterator it = wallet->mapTokenTx.begin(); it != wallet->mapTokenTx.end(); ++it)
             {
-                cachedWallet.append(TokenTransactionRecord::decomposeTransaction(wallet, it->second)); 
+                // Update token transaction time if the block time is changed
+                CTokenTx wtokenTx = it->second;
+                const CBlockIndex *pIndex = chainActive[wtokenTx.blockNumber];
+                if(pIndex && pIndex->GetBlockTime() != wtokenTx.nCreateTime)
+                {
+                    wtokenTx.nCreateTime = pIndex->GetBlockTime();
+                    wallet->AddTokenTxEntry(wtokenTx, false);
+                }
+
+                // Add token tx to the cache
+                cachedWallet.append(TokenTransactionRecord::decomposeTransaction(wallet, wtokenTx));
             }
         }
     }
