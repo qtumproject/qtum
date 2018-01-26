@@ -586,7 +586,7 @@ void BitcoinGUI::createTitleBars()
     if(walletFrame)
     {
         // Create custom title bar component
-        appTitleBar = new TitleBar();
+        appTitleBar = new TitleBar(platformStyle);
         addDockWindows(Qt::TopDockWidgetArea, appTitleBar);
         connect(appNavigationBar, SIGNAL(resized(QSize)), appTitleBar, SLOT(on_navigationResized(QSize)));
     }

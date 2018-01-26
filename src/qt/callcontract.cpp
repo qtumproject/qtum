@@ -36,7 +36,8 @@ CallContract::CallContract(const PlatformStyle *platformStyle, QWidget *parent) 
     m_execRPCCommand(0),
     m_ABIFunctionField(0),
     m_contractABI(0),
-    m_tabInfo(0)
+    m_tabInfo(0),
+    m_results(1)
 {
     m_platformStyle = platformStyle;
     // Setup ui components
@@ -155,15 +156,7 @@ void CallContract::on_clearAllClicked()
     ui->lineEditContractAddress->clear();
     ui->lineEditSenderAddress->setCurrentIndex(-1);
     ui->textEditInterface->clear();
-
-    for(int i = ui->stackedWidget->count() - 1; i > 0; i--)
-    {
-        QWidget* widget = ui->stackedWidget->widget(i);
-        ui->stackedWidget->removeWidget(widget);
-        widget->deleteLater();
-        m_tabInfo->removeTab(i);
-    }
-    m_tabInfo->setCurrent(0);
+    m_tabInfo->clear();
 }
 
 void CallContract::on_callContractClicked()
@@ -189,8 +182,9 @@ void CallContract::on_callContractClicked()
             widgetResult->setResultData(result, m_contractABI->functions[func], m_ABIFunctionField->getParamsValues(), ContractResult::CallResult);
             ui->stackedWidget->addWidget(widgetResult);
             int position = ui->stackedWidget->count() - 1;
+            m_results = position == 1 ? 1 : m_results + 1;
 
-            m_tabInfo->addTab(position, tr("Result %1").arg(position));
+            m_tabInfo->addTab(position, tr("Result %1").arg(m_results));
             m_tabInfo->setCurrent(position);
         }
         else

@@ -41,7 +41,8 @@ CreateContract::CreateContract(const PlatformStyle *platformStyle, QWidget *pare
     m_execRPCCommand(0),
     m_ABIFunctionField(0),
     m_contractABI(0),
-    m_tabInfo(0)
+    m_tabInfo(0),
+    m_results(1)
 {
     // Setup ui components
     Q_UNUSED(platformStyle);
@@ -164,15 +165,7 @@ void CreateContract::on_clearAllClicked()
     ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
     ui->lineEditSenderAddress->setCurrentIndex(-1);
     ui->textEditInterface->clear();
-
-    for(int i = ui->stackedWidget->count() - 1; i > 0; i--)
-    {
-        QWidget* widget = ui->stackedWidget->widget(i);
-        ui->stackedWidget->removeWidget(widget);
-        widget->deleteLater();
-        m_tabInfo->removeTab(i);
-    }
-    m_tabInfo->setCurrent(0);
+    m_tabInfo->clear();
 }
 
 void CreateContract::on_createContractClicked()
@@ -217,8 +210,9 @@ void CreateContract::on_createContractClicked()
             widgetResult->setResultData(result, FunctionABI(), QList<QStringList>(), ContractResult::CreateResult);
             ui->stackedWidget->addWidget(widgetResult);
             int position = ui->stackedWidget->count() - 1;
+            m_results = position == 1 ? 1 : m_results + 1;
 
-            m_tabInfo->addTab(position, tr("Result %1").arg(position));
+            m_tabInfo->addTab(position, tr("Result %1").arg(m_results));
             m_tabInfo->setCurrent(position);
         }
         else

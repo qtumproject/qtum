@@ -4,6 +4,7 @@
 #include <QStackedWidget>
 #include <QMap>
 #include <QTabBar>
+#include <QIcon>
 
 /**
  * @brief The TabBarInfo class Class for informations about tabs.
@@ -27,7 +28,11 @@ public:
      */
     bool addTab(int index, const QString& name);
 
-    bool removeTab(int index);
+    /**
+     * @brief removeTab Removing tab
+     * @param index Index of the tab
+     */
+    void removeTab(int index);
 
     /**
      * @brief setTabVisible Set tab visible
@@ -39,8 +44,9 @@ public:
     /**
      * @brief attach Attack the tab bar
      * @param tabBar Tab bar control
+     * @param iconCloseTab Close tab icon
      */
-    void attach(QTabBar* tabBar);
+    void attach(QTabBar* tabBar, QIcon* iconCloseTab);
 
     /**
      * @brief detach Detach the tab bar
@@ -53,12 +59,22 @@ public:
      */
     void setCurrent(int index);
 
+    /**
+     * @brief clear Remove all tabs except the first one which is not closable
+     */
+    void clear();
+
 public Q_SLOTS:
     /**
      * @brief on_currentChanged Slot for changing the tab bar index
      * @param index Tab bar index
      */
     void on_currentChanged(int index);
+
+    /**
+     * @brief on_closeButtonClick Slot for close button click
+     */
+    void on_closeButtonClick();
 
 private:
     /**
@@ -74,6 +90,7 @@ private:
     QStackedWidget* m_stack;
     QTabBar* m_tabBar;
     bool m_attached;
+    QIcon* m_iconCloseTab;
 };
 
 #endif // TABBARINFO_H

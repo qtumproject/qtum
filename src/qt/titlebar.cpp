@@ -5,13 +5,14 @@
 #include "tabbarinfo.h"
 
 #include <QPixmap>
+#include "platformstyle.h"
 
 namespace TitleBar_NS {
 const int titleHeight = 35;
 }
 using namespace TitleBar_NS;
 
-TitleBar::TitleBar(QWidget *parent) :
+TitleBar::TitleBar(const PlatformStyle *platformStyle, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::TitleBar),
     m_tab(0)
@@ -20,7 +21,9 @@ TitleBar::TitleBar(QWidget *parent) :
     // Set size policy
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     ui->tabWidget->setDrawBase(false);
+    ui->tabWidget->setTabsClosable(true);
     setFixedHeight(titleHeight);
+    m_iconCloseTab = platformStyle->TextColorIcon(":/icons/quit");
 }
 
 TitleBar::~TitleBar()
@@ -49,7 +52,7 @@ void TitleBar::setTabBarInfo(QObject *info)
     {
         TabBarInfo* tab = (TabBarInfo*)info;
         m_tab = tab;
-        m_tab->attach(ui->tabWidget);
+        m_tab->attach(ui->tabWidget, &m_iconCloseTab);
     }
 }
 

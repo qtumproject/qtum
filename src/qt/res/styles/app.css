@@ -907,3 +907,13 @@ Watch Only Widget CSS
     padding-right: 0px;
     padding: 4px;
 }
+/*--------------------------------------------
+Tab Bar close button CSS
+--------------------------------------------*/
+QToolButton#tabBarTool {
+    padding: 2px; 
+}
+QToolButton#tabBarTool::hover{ 
+    padding-top: 1px; 
+    padding-bottom: 1px; 
+}

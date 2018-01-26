@@ -59,6 +59,7 @@ private:
     ContractABI* m_contractABI;
     TabBarInfo* m_tabInfo;
     const PlatformStyle* m_platformStyle;
+    int m_results;
 };
 
 #endif // SENDTOCONTRACT_H

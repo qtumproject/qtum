@@ -53,6 +53,7 @@ private:
     ABIFunctionField* m_ABIFunctionField;
     ContractABI* m_contractABI;
     TabBarInfo* m_tabInfo;
+    int m_results;
 };
 
 #endif // CREATECONTRACT_H
