@@ -99,8 +99,8 @@ class QtumRPCSearchlogsTestModified(BitcoinTestFramework):
        assert_equal(ret['count'], 1)
        assert_equal(ret['nextblock'], 605)
 
-       assert(self.nodes[0].waitforlogs(0,0) != [])
-       assert(self.nodes[0].waitforlogs(1,0) != [])
+       assert(self.nodes[0].waitforlogs(0,0)['entries'] == [])
+       assert(self.nodes[0].waitforlogs(1,0)['entries'] == [])
 
 
 

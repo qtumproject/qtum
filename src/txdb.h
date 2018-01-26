@@ -142,9 +142,9 @@ public:
      *
      * @return the height of the latest block iterated. 0 if no block is iterated.
      */
-    size_t ReadHeightIndex(size_t low, size_t high, size_t minconf,
+    int ReadHeightIndex(int low, int high, int minconf,
             std::vector<std::vector<uint256>> &blocksOfHashes,
-            std::set<dev::h160> const &addresses, bool searchlogs);
+            std::set<dev::h160> const &addresses);
     bool EraseHeightIndex(const unsigned int &height);
     bool WipeHeightIndex();
 
