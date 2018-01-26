@@ -15,6 +15,7 @@
 #include "contractabi.h"
 #include "tabbarinfo.h"
 #include "contractresult.h"
+#include "sendcoinsdialog.h"
 #include "styleSheet.h"
 
 #include <QRegularExpressionValidator>
@@ -50,7 +51,6 @@ CreateContract::CreateContract(const PlatformStyle *platformStyle, QWidget *pare
 
     // Set stylesheet
     SetObjectStyleSheet(ui->pushButtonClearAll, StyleSheetNames::ButtonBlack);
-    SetObjectStyleSheet(ui->scrollAreaConstructor, StyleSheetNames::ScrollBarDark);
 
     setLinkLabels();
     m_ABIFunctionField = new ABIFunctionField(platformStyle, ABIFunctionField::Create, ui->scrollAreaConstructor);
@@ -59,7 +59,7 @@ CreateContract::CreateContract(const PlatformStyle *platformStyle, QWidget *pare
     ui->labelSenderAddress->setToolTip(tr("The quantum address that will be used to create the contract."));
 
     m_tabInfo = new TabBarInfo(ui->stackedWidget);
-    m_tabInfo->addTab(0, tr("CreateContract"));
+    m_tabInfo->addTab(0, tr("Create Contract"));
 
     // Set defaults
     ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
@@ -203,21 +203,29 @@ void CreateContract::on_createContractClicked()
         ExecRPCCommand::appendParam(lstParams, PARAM_GASPRICE, BitcoinUnits::format(unit, gasPrice, false, BitcoinUnits::separatorNever));
         ExecRPCCommand::appendParam(lstParams, PARAM_SENDER, ui->lineEditSenderAddress->currentText());
 
-        // Execute RPC command line
-        if(errorMessage.isEmpty() && m_execRPCCommand->exec(lstParams, result, resultJson, errorMessage))
-        {
-            ContractResult *widgetResult = new ContractResult(ui->stackedWidget);
-            widgetResult->setResultData(result, FunctionABI(), QList<QStringList>(), ContractResult::CreateResult);
-            ui->stackedWidget->addWidget(widgetResult);
-            int position = ui->stackedWidget->count() - 1;
-            m_results = position == 1 ? 1 : m_results + 1;
+        QString questionString = tr("Are you sure you want to create contract? <br />");
 
-            m_tabInfo->addTab(position, tr("Result %1").arg(m_results));
-            m_tabInfo->setCurrent(position);
-        }
-        else
+        SendConfirmationDialog confirmationDialog(tr("Confirm contract creation."), questionString, 3, this);
+        confirmationDialog.exec();
+        QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();
+        if(retval == QMessageBox::Yes)
         {
-            QMessageBox::warning(this, tr("Create contract"), errorMessage);
+            // Execute RPC command line
+            if(errorMessage.isEmpty() && m_execRPCCommand->exec(lstParams, result, resultJson, errorMessage))
+            {
+                ContractResult *widgetResult = new ContractResult(ui->stackedWidget);
+                widgetResult->setResultData(result, FunctionABI(), QList<QStringList>(), ContractResult::CreateResult);
+                ui->stackedWidget->addWidget(widgetResult);
+                int position = ui->stackedWidget->count() - 1;
+                m_results = position == 1 ? 1 : m_results + 1;
+
+                m_tabInfo->addTab(position, tr("Result %1").arg(m_results));
+                m_tabInfo->setCurrent(position);
+            }
+            else
+            {
+                QMessageBox::warning(this, tr("Create contract"), errorMessage);
+            }
         }
     }
 }

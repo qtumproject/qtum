@@ -101,8 +101,6 @@ QRCToken::QRCToken(const PlatformStyle *platformStyle, QWidget *parent) :
 {
     ui->setupUi(this);
 
-    SetObjectStyleSheet(ui->tokensList, StyleSheetNames::ScrollBarDark);
-
     m_platformStyle = platformStyle;
 
     m_sendTokenPage = new SendTokenPage(this);

@@ -13,7 +13,7 @@ TokenDescDialog::TokenDescDialog(const QModelIndex &idx, QWidget *parent) :
     ui->setupUi(this);
 
     // Set stylesheet
-    SetObjectStyleSheet(this, StyleSheetNames::ScrollBarLight);
+    SetObjectStyleSheet(this, StyleSheetNames::ScrollBarDark);
 
     setWindowTitle(tr("Details for %1").arg(idx.data(TokenTransactionTableModel::TxHashRole).toString()));
     QString desc = idx.data(TokenTransactionTableModel::LongDescriptionRole).toString();

@@ -17,7 +17,7 @@ TransactionDescDialog::TransactionDescDialog(const QModelIndex &idx, QWidget *pa
     ui->setupUi(this);
 
     // Set stylesheet
-    SetObjectStyleSheet(this, StyleSheetNames::ScrollBarLight);
+    SetObjectStyleSheet(this, StyleSheetNames::ScrollBarDark);
 
     setWindowTitle(tr("Details for %1").arg(idx.data(TransactionTableModel::TxIDRole).toString()));
     QString desc = idx.data(TransactionTableModel::LongDescriptionRole).toString();

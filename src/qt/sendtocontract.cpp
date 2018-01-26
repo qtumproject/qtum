@@ -19,6 +19,7 @@
 #include "contracttablemodel.h"
 #include "styleSheet.h"
 #include "guiutil.h"
+#include "sendcoinsdialog.h"
 #include <QClipboard>
 
 namespace SendToContract_NS
@@ -62,7 +63,6 @@ SendToContract::SendToContract(const PlatformStyle *platformStyle, QWidget *pare
 
     // Set stylesheet
     SetObjectStyleSheet(ui->pushButtonClearAll, StyleSheetNames::ButtonBlack);
-    SetObjectStyleSheet(ui->scrollAreaFunction, StyleSheetNames::ScrollBarDark);
 
     m_ABIFunctionField = new ABIFunctionField(platformStyle, ABIFunctionField::SendTo, ui->scrollAreaFunction);
     ui->scrollAreaFunction->setWidget(m_ABIFunctionField);
@@ -72,7 +72,7 @@ SendToContract::SendToContract(const PlatformStyle *platformStyle, QWidget *pare
     ui->labelSenderAddress->setToolTip(tr("The quantum address that will be used as sender."));
 
     m_tabInfo = new TabBarInfo(ui->stackedWidget);
-    m_tabInfo->addTab(0, tr("SendToContract"));
+    m_tabInfo->addTab(0, tr("Send To Contract"));
 
     // Set defaults
     ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
@@ -225,21 +225,31 @@ void SendToContract::on_sendToContractClicked()
         ExecRPCCommand::appendParam(lstParams, PARAM_GASPRICE, BitcoinUnits::format(unit, gasPrice, false, BitcoinUnits::separatorNever));
         ExecRPCCommand::appendParam(lstParams, PARAM_SENDER, ui->lineEditSenderAddress->currentText());
 
-        // Execute RPC command line
-        if(errorMessage.isEmpty() && m_execRPCCommand->exec(lstParams, result, resultJson, errorMessage))
-        {
-            ContractResult *widgetResult = new ContractResult(ui->stackedWidget);
-            widgetResult->setResultData(result, FunctionABI(), m_ABIFunctionField->getParamsValues(), ContractResult::SendToResult);
-            ui->stackedWidget->addWidget(widgetResult);
-            int position = ui->stackedWidget->count() - 1;
-            m_results = position == 1 ? 1 : m_results + 1;
+        QString questionString = tr("Are you sure you want to send to the contract: <br /><br />");
+        questionString.append(tr("<b>%1</b>?")
+                              .arg(ui->lineEditContractAddress->text()));
 
-            m_tabInfo->addTab(position, tr("Result %1").arg(m_results));
-            m_tabInfo->setCurrent(position);
-        }
-        else
+        SendConfirmationDialog confirmationDialog(tr("Confirm sending to contract."), questionString, 3, this);
+        confirmationDialog.exec();
+        QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();
+        if(retval == QMessageBox::Yes)
         {
-            QMessageBox::warning(this, tr("Send to contract"), errorMessage);
+            // Execute RPC command line
+            if(errorMessage.isEmpty() && m_execRPCCommand->exec(lstParams, result, resultJson, errorMessage))
+            {
+                ContractResult *widgetResult = new ContractResult(ui->stackedWidget);
+                widgetResult->setResultData(result, FunctionABI(), m_ABIFunctionField->getParamsValues(), ContractResult::SendToResult);
+                ui->stackedWidget->addWidget(widgetResult);
+                int position = ui->stackedWidget->count() - 1;
+                m_results = position == 1 ? 1 : m_results + 1;
+
+                m_tabInfo->addTab(position, tr("Result %1").arg(m_results));
+                m_tabInfo->setCurrent(position);
+            }
+            else
+            {
+                QMessageBox::warning(this, tr("Send to contract"), errorMessage);
+            }
         }
     }
 }

@@ -50,7 +50,6 @@ CallContract::CallContract(const PlatformStyle *platformStyle, QWidget *parent) 
 
     // Set stylesheet
     SetObjectStyleSheet(ui->pushButtonClearAll, StyleSheetNames::ButtonBlack);
-    SetObjectStyleSheet(ui->scrollAreaFunction, StyleSheetNames::ScrollBarDark);
 
     m_ABIFunctionField = new ABIFunctionField(platformStyle, ABIFunctionField::Call, ui->scrollAreaFunction);
     ui->scrollAreaFunction->setWidget(m_ABIFunctionField);
@@ -61,7 +60,7 @@ CallContract::CallContract(const PlatformStyle *platformStyle, QWidget *parent) 
     ui->lineEditSenderAddress->setComboBoxEditable(true);
 
     m_tabInfo = new TabBarInfo(ui->stackedWidget);
-    m_tabInfo->addTab(0, tr("CallContract"));
+    m_tabInfo->addTab(0, tr("Call Contract"));
 
     // Create new PRC command line interface
     QStringList lstMandatory;

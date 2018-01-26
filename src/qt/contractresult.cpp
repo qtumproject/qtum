@@ -11,8 +11,6 @@ ContractResult::ContractResult(QWidget *parent) :
     ui(new Ui::ContractResult)
 {
     ui->setupUi(this);
-    SetObjectStyleSheet(ui->scrollAreaParams, StyleSheetNames::ScrollBarDark);
-    SetObjectStyleSheet(ui->scrollAreaResult, StyleSheetNames::ScrollBarDark);
 }
 
 ContractResult::~ContractResult()

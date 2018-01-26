@@ -16,6 +16,7 @@
 #include "walletmodel.h"
 #include "tokenitemmodel.h"
 #include "wallet/wallet.h"
+#include "transactiondescdialog.h"
 #include "styleSheet.h"
 
 #include <QAbstractItemDelegate>
@@ -224,7 +225,6 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     SetObjectStyleSheet(ui->labelWalletStatus, StyleSheetNames::ButtonTransparent);
     SetObjectStyleSheet(ui->labelTokenStatus, StyleSheetNames::ButtonTransparent);
     SetObjectStyleSheet(ui->labelTransactionsStatus, StyleSheetNames::ButtonTransparent);
-    SetObjectStyleSheet(ui->listTokens, StyleSheetNames::ScrollBarDark);
 
     if (!platformStyle->getImagesOnButtons()) {
         ui->buttonAddToken->setIcon(QIcon());
@@ -256,8 +256,9 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     ui->listTransactions->setMinimumHeight(NUM_ITEMS * (TX_SIZE + 2));
     ui->listTransactions->setMinimumWidth(590);
     ui->listTransactions->setAttribute(Qt::WA_MacShowFocusRect, false);
+    ui->listTransactions->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-    connect(ui->listTransactions, SIGNAL(clicked(QModelIndex)), this, SLOT(handleTransactionClicked(QModelIndex)));
+    connect(ui->listTransactions, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(showDetails()));
 
     // Token list
     ui->listTokens->setItemDelegate(tkndelegate);
@@ -268,12 +269,6 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     connect(ui->labelWalletStatus, SIGNAL(clicked()), this, SLOT(handleOutOfSyncWarningClicks()));
     connect(ui->labelTokenStatus, SIGNAL(clicked()), this, SLOT(handleOutOfSyncWarningClicks()));
     connect(ui->labelTransactionsStatus, SIGNAL(clicked()), this, SLOT(handleOutOfSyncWarningClicks()));
-}
-
-void OverviewPage::handleTransactionClicked(const QModelIndex &index)
-{
-    if(filter)
-        Q_EMIT transactionClicked(filter->mapToSource(index));
 }
 
 void OverviewPage::handleOutOfSyncWarningClicks()
@@ -448,4 +443,22 @@ void OverviewPage::showOutOfSyncWarning(bool fShow)
 void OverviewPage::on_buttonAddToken_clicked()
 {
     Q_EMIT addTokenClicked();
+}
+
+void OverviewPage::on_showMoreButton_clicked()
+{
+    Q_EMIT showMoreClicked();
+}
+
+void OverviewPage::showDetails()
+{
+    if(!ui->listTransactions->selectionModel())
+        return;
+    QModelIndexList selection = ui->listTransactions->selectionModel()->selectedRows();
+    if(!selection.isEmpty())
+    {
+        TransactionDescDialog *dlg = new TransactionDescDialog(selection.at(0));
+        dlg->setAttribute(Qt::WA_DeleteOnClose);
+        dlg->show();
+    }
 }

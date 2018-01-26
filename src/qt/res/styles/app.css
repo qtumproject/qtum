@@ -75,23 +75,17 @@ QLabel#overriddenByCommandLineLabel{
 Line Edit CSS
 --------------------------------------------*/
 QLineEdit{
-    border: 1px solid #3b3b3d;
+    border: 1px solid #5a5a5d;
     border-radius: 12px;
-    background-color: #272727;
-    color: #969696;
+    background-color: #282828;
+    color: #bdbdbd;
     padding: 4px;
 }
 QLineEdit::hover:!read-only{
-    border: 3px solid #049ee8;
-    padding: 2px;
-    background-color: #ffffff;
-    color: #000000;
+    border: 1px solid #7e7e7e;
 }
 QLineEdit::focus:!read-only{
-    border: 3px solid #0099ce;
-    padding: 2px;
-    background-color: #e6f0f0;
-    color: #000000;
+    border: 1px solid #7e7e7e;
 }
 QLineEdit::disabled{
     border: 1px solid rgba(59, 59, 59, 40%);
@@ -354,36 +348,35 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
 }
 QScrollBar:vertical {
     border-radius: 0px;
-    background: #747474;
-    width: 19px;
-    padding: 10px 4px;
+    background: #222222;
+    width: 16px;
+    padding: 5px 4px;
 }
 QScrollBar::handle:vertical {
-    border: 1px solid #646464;
-    background: #4c4c4c;
-    border-radius: 5px;
-    min-height: 30px;
+    border: none;
+    background: #2e2e2e;
+    border-radius: 4px;
+    min-height: 35px;
 }
 QScrollBar::handle:vertical:disabled {
-    background: rgba(76, 76, 76, 40%);
+    background: rgba(46, 46, 46, 40%);
 }
 QTextEdit QScrollBar:vertical {
     border-radius: 0px;
-    border-top-right-radius: 9px;
-    border-bottom-right-radius: 9px;
-    border-left: 1px solid #6a6a6d;
-    background: #747474;
+    border-top-right-radius: 11px;
+    border-bottom-right-radius: 11px;
+    background: #222222;
     width: 19px;
     padding: 10px 4px;
 }
 QTextEdit QScrollBar::handle:vertical {
-    border: 1px solid #646464;
-    background: #4c4c4c;
+    border: none;
+    background: #2e2e2e;
     border-radius: 5px;
     min-height: 30px;
 }
 QTextEdit QScrollBar::handle:vertical:disabled {
-    background: rgba(76, 76, 76, 40%);
+    background: rgba(46, 46, 46, 40%);
 }
 QComboBox QScrollBar:vertical {
     border-radius: 7px;
@@ -423,18 +416,18 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
 }
 QScrollBar:horizontal {
     border-radius: 0px;
-    background: #747474;
-    height: 19px;
-    padding: 4px 10px;
+    background: #222222;
+    height: 16px;
+    padding: 4px 5px;
 }
 QScrollBar::handle:horizontal {
-    border: 1px solid #646464;
-    background: #4c4c4c;
-    border-radius: 5px;
+    border: none;
+    background: #2e2e2e;
+    border-radius: 4px;
     min-width: 30px;
 }
 QScrollBar::handle:horizontal:disabled {
-    background: rgba(76, 76, 76, 40%);
+    background: rgba(46, 46, 46, 40%);
 }
 /*--------------------------------------------
 Table View CSS
@@ -503,9 +496,15 @@ QTextEdit CSS
 QTextEdit {
     border: 1px solid #5a5a5d;
     border-radius: 12px;
-    background-color: #ffffff;
-    color: #2a2a2a;
+    background-color: #282828;
+    color: #bdbdbd;
     padding-left: 5px;
+}
+QTextEdit::hover:!read-only{
+    border: 1px solid #7e7e7e;
+}
+QTextEdit::focus:!read-only{
+    border: 1px solid #7e7e7e;
 }
 QTextEdit::disabled {
     border: 1px solid rgba(90, 90, 93, 40%);
@@ -718,10 +717,9 @@ QWidget#buttonsContainerWhite,
     background: #ffffff;
 }
 QWidget#ReceiveRequestDialog {
-    background: #f6f8fa;
+    background: #272727;
 }
 QTextEdit#outUri {
-    background: #f6f8fa;
     border: none;
 }
 /*--------------------------------------------

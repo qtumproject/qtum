@@ -362,15 +362,15 @@ void BitcoinGUI::createActions()
     receiveCoinsMenuAction->setStatusTip(receiveCoinsAction->statusTip());
     receiveCoinsMenuAction->setToolTip(receiveCoinsMenuAction->statusTip());
 
-    smartContractAction = new QAction(platformStyle->MultiStatesIcon(":/icons/smart_contract"), tr("Smart &Contract"), this);
-    smartContractAction->setStatusTip(tr("Smart contract"));
+    smartContractAction = new QAction(platformStyle->MultiStatesIcon(":/icons/smart_contract"), tr("Smart &Contracts"), this);
+    smartContractAction->setStatusTip(tr("Smart contracts"));
     smartContractAction->setToolTip(smartContractAction->statusTip());
     smartContractAction->setCheckable(true);
     smartContractAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_4));
     tabGroup->addAction(smartContractAction);
 
     createContractAction = new QAction(tr("Create"), this);
-    sendToContractAction = new QAction(tr("SendTo"), this);
+    sendToContractAction = new QAction(tr("Send To"), this);
     callContractAction = new QAction(tr("Call"), this);
 
     historyAction = new QAction(platformStyle->MultiStatesIcon(":/icons/history"), tr("&Transactions"), this);
@@ -380,8 +380,8 @@ void BitcoinGUI::createActions()
     historyAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_5));
     tabGroup->addAction(historyAction);
 
-    QRCTokenAction = new QAction(platformStyle->MultiStatesIcon(":/icons/qrctoken"), tr("&QRC Token"), this);
-    QRCTokenAction->setStatusTip(tr("QRC Token (send, receive or add Token in list)"));
+    QRCTokenAction = new QAction(platformStyle->MultiStatesIcon(":/icons/qrctoken"), tr("&QRC Tokens"), this);
+    QRCTokenAction->setStatusTip(tr("QRC Tokens (send, receive or add Tokens in list)"));
     QRCTokenAction->setToolTip(QRCTokenAction->statusTip());
     QRCTokenAction->setCheckable(true);
     QRCTokenAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_6));
@@ -389,7 +389,7 @@ void BitcoinGUI::createActions()
 
     sendTokenAction = new QAction(tr("Send"), this);
     receiveTokenAction = new QAction(tr("Receive"), this);
-    addTokenAction = new QAction(tr("AddToken"), this);
+    addTokenAction = new QAction(tr("Add Token"), this);
 
 #ifdef ENABLE_WALLET
     // These showNormalIfMinimized are needed because Send Coins and Receive Coins
@@ -565,12 +565,12 @@ void BitcoinGUI::createToolBars()
         appNavigationBar->addAction(overviewAction);
         appNavigationBar->addAction(sendCoinsAction);
         appNavigationBar->addAction(receiveCoinsAction);
+        appNavigationBar->addAction(historyAction);
         QList<QAction*> contractActions;
         contractActions.append(createContractAction);
         contractActions.append(sendToContractAction);
         contractActions.append(callContractAction);
         appNavigationBar->mapGroup(smartContractAction, contractActions);
-        appNavigationBar->addAction(historyAction);
         QList<QAction*> tokenActions;
         tokenActions.append(sendTokenAction);
         tokenActions.append(receiveTokenAction);

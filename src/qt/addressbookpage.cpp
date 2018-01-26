@@ -32,6 +32,7 @@ AddressBookPage::AddressBookPage(const PlatformStyle *platformStyle, Mode _mode,
     ui->setupUi(this);
 
     SetObjectStyleSheet(ui->tableView, StyleSheetNames::TableViewLight);
+    setStyleSheet("");
 
     if (!platformStyle->getImagesOnButtons()) {
         ui->newAddress->setIcon(QIcon());

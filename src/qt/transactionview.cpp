@@ -102,7 +102,6 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
     vlayout->setSpacing(0);
 
     QTableView *view = new QTableView(this);
-    SetObjectStyleSheet(view, StyleSheetNames::ScrollBarDark);
     vlayout->addLayout(hlayout);
     vlayout->addWidget(createDateRangeWidget());
     vlayout->addWidget(view);
@@ -525,16 +524,6 @@ void TransactionView::dateRangeChanged()
     transactionProxyModel->setDateRange(
             QDateTime(dateFrom->date()),
             QDateTime(dateTo->date()).addDays(1));
-}
-
-void TransactionView::focusTransaction(const QModelIndex &idx)
-{
-    if(!transactionProxyModel)
-        return;
-    QModelIndex targetIdx = transactionProxyModel->mapFromSource(idx);
-    transactionView->scrollTo(targetIdx);
-    transactionView->setCurrentIndex(targetIdx);
-    transactionView->setFocus();
 }
 
 // We override the virtual resizeEvent of the QWidget to adjust tables column
