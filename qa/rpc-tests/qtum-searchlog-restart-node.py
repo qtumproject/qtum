@@ -8,8 +8,9 @@ from test_framework.util import *
 from test_framework.script import *
 from test_framework.mininode import *
 import sys
-import pdb
 
+
+RPC_INVALID_PARAMETER = -8
 class QtumRPCSearchlogsTestModified(BitcoinTestFramework):
 
    def __init__(self):
@@ -99,9 +100,20 @@ class QtumRPCSearchlogsTestModified(BitcoinTestFramework):
 
  
    def check_searchlogs(self, contract_addresses, send_result, block_hashes):
-       assert_equal(self.nodes[0].searchlogs(0,0),[])
-       assert_equal(self.nodes[0].searchlogs(1,0),[])
-       assert_equal(self.nodes[0].searchlogs(604,0),[])
+       try:
+           self.nodes[0].searchlogs(0,0)
+       except JSONRPCException as exp:
+           assert_equal(exp.error["code"], RPC_INVALID_PARAMETER)
+
+       try:
+           self.nodes[0].searchlogs(1,0)
+       except JSONRPCException as exp:
+           assert_equal(exp.error["code"], RPC_INVALID_PARAMETER)
+
+       try:
+           self.nodes[0].searchlogs(604,0)
+       except JSONRPCException as exp:
+           assert_equal(exp.error["code"], RPC_INVALID_PARAMETER)
 
        ret = self.nodes[0].searchlogs(0,604)
 
@@ -127,7 +139,6 @@ class QtumRPCSearchlogsTestModified(BitcoinTestFramework):
        contract_addresses, send_result, block_hashes = self.create_contracts_with_logs()
        first_output = []
        self.check_searchlogs(contract_addresses, send_result, block_hashes)
-       #pdb.set_trace()
        self.check_logs(contract_addresses,first_output)
        stop_nodes(self.nodes)              #turn off node
        self.setup_network()               #start node again

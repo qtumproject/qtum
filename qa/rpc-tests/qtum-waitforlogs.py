@@ -9,7 +9,10 @@ from test_framework.script import *
 from test_framework.mininode import *
 import sys
 
-class QtumRPCSearchlogsTestModified(BitcoinTestFramework):
+
+RPC_INVALID_PARAMETER = -8
+
+class QtumRPCWaitforlogs(BitcoinTestFramework):
 
    def __init__(self):
        super().__init__()
@@ -99,8 +102,21 @@ class QtumRPCSearchlogsTestModified(BitcoinTestFramework):
        assert_equal(ret['count'], 1)
        assert_equal(ret['nextblock'], 605)
 
-       assert(self.nodes[0].waitforlogs(0,0)['entries'] == [])
-       assert(self.nodes[0].waitforlogs(1,0)['entries'] == [])
+       try:
+           self.nodes[0].waitforlogs(0,0)
+       except JSONRPCException as exp:
+           assert_equal(exp.error["code"], RPC_INVALID_PARAMETER)
+
+       try:
+           self.nodes[0].waitforlogs(1,0)
+       except JSONRPCException as exp:
+           assert_equal(exp.error["code"], RPC_INVALID_PARAMETER)
+
+       try:
+           self.nodes[0].waitforlogs(200,100)
+       except JSONRPCException as exp:
+           assert_equal(exp.error["code"], RPC_INVALID_PARAMETER)
+
 
 
 
@@ -114,4 +130,4 @@ class QtumRPCSearchlogsTestModified(BitcoinTestFramework):
        self.check_topics(contract_addresses, block_hashes,send_result)
 
 if __name__ == '__main__':
-   QtumRPCSearchlogsTestModified().main()
+   QtumRPCWaitforlogs().main()
