@@ -1113,7 +1113,7 @@ size_t parseUInt(const UniValue& val, size_t defaultVal) {
     }
 }
 
-size_t parseBlockHeight(const UniValue& val) {
+int parseBlockHeight(const UniValue& val) {
     if (val.isStr()) {
         auto blockKey = val.get_str();
 
@@ -1137,7 +1137,7 @@ size_t parseBlockHeight(const UniValue& val) {
     throw JSONRPCError(RPC_INVALID_PARAMS, "invalid block number");
 }
 
-size_t parseBlockHeight(const UniValue& val, size_t defaultVal) {
+int parseBlockHeight(const UniValue& val, int defaultVal) {
     if (val.isNull()) {
         return defaultVal;
     } else {
@@ -1220,10 +1220,10 @@ void parseParam(const UniValue& val, std::vector<boost::optional<dev::h256>> &h2
 
 class WaitForLogsParams {
 public:
-    size_t fromBlock;
-    size_t toBlock;
+    int fromBlock;
+    int toBlock;
 
-    size_t minconf;
+    int minconf;
 
     std::set<dev::h160> addresses;
     std::vector<boost::optional<dev::h256>> topics;
@@ -1234,7 +1234,7 @@ public:
         std::unique_lock<std::mutex> lock(cs_blockchange);
 
         fromBlock = parseBlockHeight(params[0], latestblock.height + 1);
-        toBlock = parseBlockHeight(params[1], 0);
+        toBlock = parseBlockHeight(params[1], -1);
 
         parseFilter(params[2]);
         minconf = parseUInt(params[3], 6);
@@ -1308,11 +1308,16 @@ UniValue waitforlogs(const JSONRPCRequest& request_) {
         //    nextBlock = curheight + 1
         // if curheight == 0. No log entry found in index. Wait for new block then try again.
         //    nextBlock = fromBlock
+        // if curheight == -1. Incorrect parameters has entered.
         //
         // if curheight advanced, but all filtered out, API should return empty array, but advancing the cursor anyway.
 
         if (curheight > 0) {
             break;
+        }
+
+        if (curheight == -1) {
+            throw JSONRPCError(RPC_INVALID_PARAMETER, "Incorrect params");
         }
 
         // wait for a new block to arrive
@@ -1456,13 +1461,19 @@ UniValue searchlogs(const JSONRPCRequest& request)
     if(!fLogEvents)
         throw JSONRPCError(RPC_INTERNAL_ERROR, "Events indexing disabled");
 
+    int curheight = 0;
+    
     LOCK(cs_main);
 
     SearchLogsParams params(request.params);
     
     std::vector<std::vector<uint256>> hashesToBlock;
 
-    pblocktree->ReadHeightIndex(params.fromBlock, params.toBlock, params.minconf, hashesToBlock, params.addresses);
+    curheight = pblocktree->ReadHeightIndex(params.fromBlock, params.toBlock, params.minconf, hashesToBlock, params.addresses);
+
+    if (curheight == -1) {
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Incorrect params");
+    }
 
     UniValue result(UniValue::VARR);
     boost::filesystem::path stateDir = GetDataDir() / "stateQtum";
