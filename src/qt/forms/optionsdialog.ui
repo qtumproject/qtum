@@ -284,6 +284,13 @@
               </property>
              </widget>
             </item>
+            <item>
+             <widget class="QCheckBox" name="checkForUpdates">
+              <property name="text">
+               <string>Check for &amp;updates</string>
+              </property>
+             </widget>
+            </item>
            </layout>
           </widget>
          </item>

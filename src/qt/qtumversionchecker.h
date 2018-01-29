@@ -13,18 +13,20 @@ public:
     int _revision;
 
     Version(){
-        _major = 0;
-        _minor = 0;
-        _revision = 0;
+        SetNull();
     }
 
     Version(int maj, int min, int rev){
+        SetNull();
+
         _major = maj;
         _minor = min;
         _revision = rev;
     }
 
     Version(QString str){
+        SetNull();
+
         QStringList parts = str.split(".");
 
         if(!parts.isEmpty())
@@ -69,6 +71,13 @@ public:
             _revision != other._revision ?  false :
                                             true;
     return retValue;
+    }
+
+    void SetNull()
+    {
+        _major = 0;
+        _minor = 0;
+        _revision = 0;
     }
 };
 

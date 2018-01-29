@@ -294,7 +294,7 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
     modalBackupOverlay = new ModalOverlay(this, ModalOverlay::Backup);
     qtumVersionChecker = new QtumVersionChecker(this);
 
-    if(qtumVersionChecker->newVersionAvailable())
+    if(fCheckForUpdates && qtumVersionChecker->newVersionAvailable())
     {
         QString link = QString("<a href=%1>%2</a>").arg(QTUM_RELEASES, QTUM_RELEASES);
         QString message(tr("New version of Qtum wallet is available on the Qtum source code repository: <br /> %1. <br />It is recommended to download it and update this application").arg(link));

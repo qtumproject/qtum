@@ -223,15 +223,19 @@ bool CBlockTreeDB::WriteHeightIndex(const CHeightTxIndexKey &heightIndex, const 
     return WriteBatch(batch);
 }
 
-size_t CBlockTreeDB::ReadHeightIndex(size_t low, size_t high, size_t minconf,
+int CBlockTreeDB::ReadHeightIndex(int low, int high, int minconf,
         std::vector<std::vector<uint256>> &blocksOfHashes,
         std::set<dev::h160> const &addresses) {
+
+    if ((high < low && high > -1) || (high == 0 && low == 0) || (high < -1 || low < 0)) {
+       return -1;
+    }
 
     std::unique_ptr<CDBIterator> pcursor(NewIterator());
 
     pcursor->Seek(std::make_pair(DB_HEIGHTINDEX, CHeightTxIndexIteratorKey(low)));
 
-    size_t curheight = 0;
+    int curheight = 0;
 
     for (size_t count = 0; pcursor->Valid(); pcursor->Next()) {
 
@@ -240,14 +244,14 @@ size_t CBlockTreeDB::ReadHeightIndex(size_t low, size_t high, size_t minconf,
             break;
         }
 
-        auto nextHeight = key.second.height;
+        int nextHeight = key.second.height;
 
-        if (high > 0 && nextHeight > high) {
+        if (high > -1 && nextHeight > high) {
             break;
         }
 
         if (minconf > 0) {
-            auto conf = chainActive.Height() - nextHeight;
+            int conf = chainActive.Height() - nextHeight;
             if (conf < minconf) {
                 break;
             }

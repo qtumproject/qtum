@@ -49,6 +49,7 @@ public:
         ZeroBalanceAddressToken,// bool
         Listen,                 // bool
         NotUseChangeAddress,    // bool
+        CheckForUpdates,        // bool
         ReserveBalance,         // CAmount
         OptionIDRowCount,
     };
