@@ -46,6 +46,7 @@ extern bool fSendFreeTransactions;
 extern bool fWalletRbf;
 extern bool fWalletUnlockStakingOnly;
 extern bool fNotUseChangeAddress;
+extern bool fCheckForUpdates;
 
 static const unsigned int DEFAULT_KEYPOOL_SIZE = 100;
 //! -paytxfee default
@@ -82,6 +83,8 @@ static const bool DEFAULT_USE_HD_WALLET = true;
 extern const char * DEFAULT_WALLET_DAT;
 
 static const bool DEFAULT_NOT_USE_CHANGE_ADDRESS = false;
+
+static const bool DEFAULT_CHECK_FOR_UPDATES = true;
 
 class CBlockIndex;
 //class CCoinControl;
