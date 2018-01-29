@@ -2720,6 +2720,12 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 }
             }
 
+            //hardcode cacheUTXO state for block 7f13155572268ccc92c96a1649e5da128386e4ca459c4dc63aaa8e3ad0a03762
+            if(pindex->phashBlock != NULL && pindex->GetBlockHash() == uint256S("7f13155572268ccc92c96a1649e5da128386e4ca459c4dc63aaa8e3ad0a03762")){
+                globalState->setCacheUTXO(dev::Address("b9ffee05ae5d7ab00c79f01b4aceea5efc2eb4cb"),
+                        Vin{ dev::h256("664791d987f24ec877055f8dc32426fceecc819b70ef082b3bf20eb2fc1e1c98"), 0, 99999900, 0});
+            }
+
             if(!exec.performByteCode()){
                 return state.DoS(100, error("ConnectBlock(): Unknown error during contract execution"), REJECT_INVALID, "bad-tx-unknown-error");
             }
