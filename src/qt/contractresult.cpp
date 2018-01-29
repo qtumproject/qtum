@@ -2,6 +2,8 @@
 #include "ui_contractresult.h"
 #include "guiconstants.h"
 #include "contractabi.h"
+#include "styleSheet.h"
+
 #include <QMessageBox>
 
 ContractResult::ContractResult(QWidget *parent) :
@@ -9,12 +11,6 @@ ContractResult::ContractResult(QWidget *parent) :
     ui(new Ui::ContractResult)
 {
     ui->setupUi(this);
-    ui->groupBoxCallContract->setStyleSheet(STYLE_GROUPBOX);
-    ui->groupBoxResult->setStyleSheet(STYLE_GROUPBOX);
-    ui->groupBoxCreateOrSendTo->setStyleSheet(STYLE_GROUPBOX);
-
-    ui->scrollAreaParams->setStyleSheet(".QScrollArea { border: none;}");
-    ui->scrollAreaResult->setStyleSheet(".QScrollArea { border: none;}");
 }
 
 ContractResult::~ContractResult()
@@ -60,6 +56,8 @@ void ContractResult::setParamsData(FunctionABI function, QList<QStringList> para
     }
 
     QWidget *widgetParams = new QWidget(this);
+    widgetParams->setObjectName("scrollAreaWidgetContents");
+
     QVBoxLayout *mainLayout = new QVBoxLayout(widgetParams);
     mainLayout->setSpacing(6);
     mainLayout->setContentsMargins(0,0,30,0);
@@ -68,13 +66,13 @@ void ContractResult::setParamsData(FunctionABI function, QList<QStringList> para
     int i = 0;
     for(std::vector<ParameterABI>::const_iterator param = function.inputs.begin(); param != function.inputs.end(); ++param)
     {
-        QHBoxLayout *hLayout = new QHBoxLayout(widgetParams);
+        QHBoxLayout *hLayout = new QHBoxLayout();
         hLayout->setSpacing(10);
         hLayout->setContentsMargins(0,0,0,0);
-        QVBoxLayout *vNameLayout = new QVBoxLayout(widgetParams);
+        QVBoxLayout *vNameLayout = new QVBoxLayout();
         vNameLayout->setSpacing(3);
         vNameLayout->setContentsMargins(0,0,0,0);
-        QVBoxLayout *paramValuesLayout = new QVBoxLayout(widgetParams);
+        QVBoxLayout *paramValuesLayout = new QVBoxLayout();
         paramValuesLayout->setSpacing(3);
         paramValuesLayout->setContentsMargins(0,0,0,0);
 
@@ -101,7 +99,7 @@ void ContractResult::setParamsData(FunctionABI function, QList<QStringList> para
                 paramValue->setText(listValues[j]);
                 paramValuesLayout->addWidget(paramValue);
                 if(j > 0)
-                    spacerSize += 22; // Line edit height + spacing
+                    spacerSize += 30; // Line edit height + spacing
             }
             if(spacerSize > 0)
                 vNameLayout->addSpacerItem(new QSpacerItem(20, spacerSize, QSizePolicy::Fixed, QSizePolicy::Fixed));
@@ -175,6 +173,8 @@ void ContractResult::updateCallResult(QVariant result, FunctionABI function, QLi
         if(values.size() > 0)
         {
             QWidget *widgetResults = new QWidget(this);
+            widgetResults->setObjectName("scrollAreaWidgetContents");
+
             QVBoxLayout *mainLayout = new QVBoxLayout(widgetResults);
             mainLayout->setSpacing(6);
             mainLayout->setContentsMargins(0,6,0,6);
@@ -182,13 +182,13 @@ void ContractResult::updateCallResult(QVariant result, FunctionABI function, QLi
 
             for(size_t i = 0; i < values.size(); i++)
             {
-                QHBoxLayout *hLayout = new QHBoxLayout(widgetResults);
+                QHBoxLayout *hLayout = new QHBoxLayout();
                 hLayout->setSpacing(10);
                 hLayout->setContentsMargins(0,0,0,0);
-                QVBoxLayout *vNameLayout = new QVBoxLayout(widgetResults);
+                QVBoxLayout *vNameLayout = new QVBoxLayout();
                 vNameLayout->setSpacing(3);
                 vNameLayout->setContentsMargins(0,0,0,0);
-                QVBoxLayout *paramValuesLayout = new QVBoxLayout(widgetResults);
+                QVBoxLayout *paramValuesLayout = new QVBoxLayout();
                 paramValuesLayout->setSpacing(3);
                 paramValuesLayout->setContentsMargins(0,0,0,0);
 
@@ -215,7 +215,7 @@ void ContractResult::updateCallResult(QVariant result, FunctionABI function, QLi
                         resultValue->setText(QString::fromStdString(listValues[j]));
                         paramValuesLayout->addWidget(resultValue);
                         if(j > 0)
-                            spacerSize += 22; // Line edit height + spacing
+                            spacerSize += 30; // Line edit height + spacing
                     }
                     if(spacerSize > 0)
                         vNameLayout->addSpacerItem(new QSpacerItem(20, spacerSize, QSizePolicy::Fixed, QSizePolicy::Fixed));

@@ -33,6 +33,7 @@
 #include <QSet>
 #include <QTimer>
 #include <QFile>
+#include <QSettings>
 
 #include <boost/foreach.hpp>
 #include <boost/filesystem.hpp>
@@ -524,7 +525,20 @@ bool WalletModel::changePassphrase(const SecureString &oldPass, const SecureStri
 
 bool WalletModel::backupWallet(const QString &filename)
 {
-    return wallet->BackupWallet(filename.toLocal8Bit().data());
+    bool ret =  wallet->BackupWallet(filename.toLocal8Bit().data());
+
+    // Set number of backups
+    QSettings settings;
+    int walletHasBackup = settings.value("walletBackupsNumber", 0).toInt();
+    settings.setValue("walletBackupsNumber", walletHasBackup + (ret ? 1 : 0));
+
+    return ret;
+}
+
+bool WalletModel::hasWalletBackup()
+{
+    QSettings settings;
+    return settings.value("walletBackupsNumber", 0).toBool();
 }
 
 bool WalletModel::restoreWallet(const QString &filename, const QString &param)

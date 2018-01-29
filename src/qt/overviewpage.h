@@ -45,9 +45,9 @@ public Q_SLOTS:
     void checkForInvalidTokens();
 
 Q_SIGNALS:
-    void transactionClicked(const QModelIndex &index);
+    void showMoreClicked();
     void outOfSyncWarningClicked();
-    void addTokenClicked(bool toAddTokenPage);
+    void addTokenClicked();
 
 private:
     Ui::OverviewPage *ui;
@@ -68,11 +68,12 @@ private:
 
 private Q_SLOTS:
     void updateDisplayUnit();
-    void handleTransactionClicked(const QModelIndex &index);
     void updateAlerts(const QString &warnings);
     void updateWatchOnlyLabels(bool showWatchOnly);
     void handleOutOfSyncWarningClicks();
     void on_buttonAddToken_clicked();
+    void on_showMoreButton_clicked();
+    void showDetails();
 };
 
 #endif // BITCOIN_QT_OVERVIEWPAGE_H

@@ -15,6 +15,7 @@
 #include "editaddressdialog.h"
 #include "guiutil.h"
 #include "platformstyle.h"
+#include "styleSheet.h"
 
 #include <QIcon>
 #include <QMenu>
@@ -30,17 +31,26 @@ AddressBookPage::AddressBookPage(const PlatformStyle *platformStyle, Mode _mode,
 {
     ui->setupUi(this);
 
+    SetObjectStyleSheet(ui->tableView, StyleSheetNames::TableViewLight);
+    setStyleSheet("");
+
     if (!platformStyle->getImagesOnButtons()) {
         ui->newAddress->setIcon(QIcon());
         ui->copyAddress->setIcon(QIcon());
         ui->deleteAddress->setIcon(QIcon());
         ui->exportButton->setIcon(QIcon());
     } else {
-        ui->newAddress->setIcon(platformStyle->SingleColorIcon(":/icons/add"));
-        ui->copyAddress->setIcon(platformStyle->SingleColorIcon(":/icons/editcopy"));
-        ui->deleteAddress->setIcon(platformStyle->SingleColorIcon(":/icons/remove"));
-        ui->exportButton->setIcon(platformStyle->SingleColorIcon(":/icons/export"));
+        ui->newAddress->setIcon(platformStyle->MultiStatesIcon(":/icons/add", PlatformStyle::PushButton, 0x5a5a5d));
+        ui->copyAddress->setIcon(platformStyle->MultiStatesIcon(":/icons/editcopy", PlatformStyle::PushButton, 0x5a5a5d));
+        ui->deleteAddress->setIcon(platformStyle->MultiStatesIcon(":/icons/remove", PlatformStyle::PushButton, 0x5a5a5d));
+        ui->exportButton->setIcon(platformStyle->MultiStatesIcon(":/icons/export", PlatformStyle::PushButton));
     }
+
+    SetObjectStyleSheet(ui->newAddress, StyleSheetNames::ButtonWhite);
+    SetObjectStyleSheet(ui->copyAddress, StyleSheetNames::ButtonWhite);
+    SetObjectStyleSheet(ui->deleteAddress, StyleSheetNames::ButtonWhite);
+    SetObjectStyleSheet(ui->exportButton, StyleSheetNames::ButtonBlue);
+    SetObjectStyleSheet(ui->closeButton, StyleSheetNames::ButtonBlue);
 
     switch(mode)
     {

@@ -19,7 +19,7 @@ ABIParam::ABIParam(const PlatformStyle *platformStyle, int ID, const ParameterAB
 {
     m_paramName = new QLabel(this);
     m_mainLayout = new QHBoxLayout(this);
-    m_paramItemsLayout = new QVBoxLayout(this);
+    m_paramItemsLayout = new QVBoxLayout();
     m_vSpacer = new QSpacerItem(0, 0, QSizePolicy::Fixed, QSizePolicy::Fixed);
     m_hSpacer = new QSpacerItem(0, 0, QSizePolicy::Fixed, QSizePolicy::Fixed);
 
@@ -39,7 +39,7 @@ ABIParam::ABIParam(const PlatformStyle *platformStyle, int ID, const ParameterAB
     QString clippedText = metrix.elidedText(text, Qt::ElideRight, width);
     m_paramName->setText(clippedText);
 
-    QVBoxLayout *vLayout = new QVBoxLayout(this);
+    QVBoxLayout *vLayout = new QVBoxLayout();
     vLayout->addWidget(m_paramName);
     vLayout->addSpacerItem(m_vSpacer);
     m_mainLayout->addLayout(vLayout);

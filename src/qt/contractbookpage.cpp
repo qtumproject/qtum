@@ -6,6 +6,7 @@
 #include "editcontractinfodialog.h"
 #include "guiutil.h"
 #include "platformstyle.h"
+#include "styleSheet.h"
 
 #include <QIcon>
 #include <QMenu>
@@ -18,17 +19,26 @@ ContractBookPage::ContractBookPage(const PlatformStyle *platformStyle, QWidget *
 {
     ui->setupUi(this);
 
+    SetObjectStyleSheet(ui->tableView, StyleSheetNames::TableViewLight);
+
     if (!platformStyle->getImagesOnButtons()) {
         ui->newContractInfo->setIcon(QIcon());
         ui->copyAddress->setIcon(QIcon());
         ui->deleteContractInfo->setIcon(QIcon());
         ui->exportButton->setIcon(QIcon());
     } else {
-        ui->newContractInfo->setIcon(platformStyle->SingleColorIcon(":/icons/add"));
-        ui->copyAddress->setIcon(platformStyle->SingleColorIcon(":/icons/editcopy"));
-        ui->deleteContractInfo->setIcon(platformStyle->SingleColorIcon(":/icons/remove"));
-        ui->exportButton->setIcon(platformStyle->SingleColorIcon(":/icons/export"));
+        ui->newContractInfo->setIcon(platformStyle->MultiStatesIcon(":/icons/add", PlatformStyle::PushButton, 0x5a5a5d));
+        ui->copyAddress->setIcon(platformStyle->MultiStatesIcon(":/icons/editcopy", PlatformStyle::PushButton, 0x5a5a5d));
+        ui->deleteContractInfo->setIcon(platformStyle->MultiStatesIcon(":/icons/remove", PlatformStyle::PushButton, 0x5a5a5d));
+        ui->exportButton->setIcon(platformStyle->MultiStatesIcon(":/icons/export"));
     }
+
+    SetObjectStyleSheet(ui->newContractInfo, StyleSheetNames::ButtonWhite);
+    SetObjectStyleSheet(ui->copyAddress, StyleSheetNames::ButtonWhite);
+    SetObjectStyleSheet(ui->deleteContractInfo, StyleSheetNames::ButtonWhite);
+    SetObjectStyleSheet(ui->exportButton, StyleSheetNames::ButtonBlue);
+    SetObjectStyleSheet(ui->chooseContractInfo, StyleSheetNames::ButtonBlue);
+
     setWindowTitle(tr("Choose the contract for send/call"));
     ui->labelExplanation->setText(tr("These are your saved contracts. Always check the contract address and the ABI before sending/calling."));
 

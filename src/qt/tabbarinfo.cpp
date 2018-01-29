@@ -1,11 +1,14 @@
-#include "tabbarinfo.h"
+﻿#include "tabbarinfo.h"
+#include <QToolButton>
+#include <QSize>
 
 TabBarInfo::TabBarInfo(QStackedWidget *parent) :
     QObject(parent),
     m_current(0),
     m_stack(parent),
     m_tabBar(0),
-    m_attached(false)
+    m_attached(false),
+    m_iconCloseTab(0)
 {}
 
 bool TabBarInfo::addTab(int index, const QString &name)
@@ -20,16 +23,37 @@ bool TabBarInfo::addTab(int index, const QString &name)
     return true;
 }
 
-bool TabBarInfo::removeTab(int index)
+void TabBarInfo::removeTab(int index)
 {
-    if(m_stack->count() < index)
+    int count = m_stack->count();
+    if(count <= index)
     {
-        return false;
+        return;
     }
-    m_mapName.remove(index);
-    m_mapVisible.remove(index);
+
+    QMap<int, QString> mapName;
+    QMap<int, bool> mapVisible;
+    for(int i = 0; i < count; i++)
+    {
+        if(i < index)
+        {
+            mapName[i] = m_mapName[i];
+            mapVisible[i] = m_mapVisible[i];
+        }
+        else if(i > index)
+        {
+            mapName[i-1] = m_mapName[i];
+            mapVisible[i-1] = m_mapVisible[i];
+        }
+    }
+    m_mapName = mapName;
+    m_mapVisible = mapVisible;
+
+    QWidget* widget = m_stack->widget(index);
+    m_stack->removeWidget(widget);
+    widget->deleteLater();
+
     update();
-    return true;
 }
 
 void TabBarInfo::setTabVisible(int index, bool visible)
@@ -41,9 +65,10 @@ void TabBarInfo::setTabVisible(int index, bool visible)
     update();
 }
 
-void TabBarInfo::attach(QTabBar *tabBar)
+void TabBarInfo::attach(QTabBar *tabBar, QIcon* iconCloseTab)
 {
     m_tabBar = tabBar;
+    m_iconCloseTab = iconCloseTab;
     if(m_tabBar)
     {
         connect(m_tabBar, SIGNAL(currentChanged(int)), SLOT(on_currentChanged(int)));
@@ -73,6 +98,26 @@ void TabBarInfo::setCurrent(int index)
     update();
 }
 
+void TabBarInfo::clear()
+{
+    for(int i = m_stack->count() - 1; i > 0; i--)
+    {
+        QWidget* widget = m_stack->widget(i);
+        m_stack->removeWidget(widget);
+        widget->deleteLater();
+    }
+
+    QMap<int, QString> mapName;
+    QMap<int, bool> mapVisible;
+    mapName[0] = m_mapName[0];
+    mapVisible[0] = m_mapVisible[0];
+    m_mapName = mapName;
+    m_mapVisible = mapVisible;
+    m_current = 0;
+
+    update();
+}
+
 void TabBarInfo::on_currentChanged(int index)
 {
     if(m_attached && index < m_mapTabInfo.keys().size())
@@ -83,6 +128,29 @@ void TabBarInfo::on_currentChanged(int index)
             m_stack->setCurrentIndex(tab);
         }
         m_current = tab;
+    }
+}
+
+void TabBarInfo::on_closeButtonClick()
+{
+    if(m_attached && m_tabBar)
+    {
+        QObject* obj = sender();
+        if(obj)
+        {
+            for(int index = 0; index < m_tabBar->count(); index++)
+            {
+                if(obj == m_tabBar->tabButton(index, QTabBar::RightSide))
+                {
+                    if(index < m_mapTabInfo.keys().size())
+                    {
+                        int tab = m_mapTabInfo[index];
+                        removeTab(tab);
+                    }
+                    break;
+                }
+            }
+        }
     }
 }
 
@@ -106,6 +174,24 @@ void TabBarInfo::update()
                 else
                 {
                     m_tabBar->addTab(m_mapName[i]);
+                    int count = m_tabBar->count();
+                    m_tabBar->setTabButton(count - 1, QTabBar::LeftSide, 0);
+                    if(count == 1)
+                    {
+                        m_tabBar->setTabButton(0, QTabBar::RightSide, 0);
+                    }
+                    else
+                    {
+                        if(m_iconCloseTab)
+                        {
+                            QToolButton* tool = new QToolButton(m_tabBar);
+                            tool->setIcon(*m_iconCloseTab);
+                            tool->setObjectName("tabBarTool");
+                            tool->setFixedSize(16, 16);
+                            m_tabBar->setTabButton(count - 1, QTabBar::RightSide, tool);
+                            connect(tool, SIGNAL(clicked(bool)), SLOT(on_closeButtonClick()));
+                        }
+                    }
                 }
                 mapTabInfo[currentTab] = i;
                 currentTab++;

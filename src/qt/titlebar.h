@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QSize>
 #include <QTabBar>
+#include <QIcon>
 #include "walletmodel.h"
 
 namespace Ui {
@@ -11,6 +12,7 @@ class TitleBar;
 }
 class WalletModel;
 class TabBarInfo;
+class PlatformStyle;
 
 /**
  * @brief The TitleBar class Title bar widget
@@ -23,7 +25,7 @@ public:
      * @brief TitleBar Constructor
      * @param parent Parent widget
      */
-    explicit TitleBar(QWidget *parent = 0);
+    explicit TitleBar(const PlatformStyle *platformStyle, QWidget *parent = 0);
     
     /**
      * @brief TitleBar Destrustor
@@ -61,6 +63,7 @@ private:
     Ui::TitleBar *ui;
     WalletModel *model;
     TabBarInfo* m_tab;
+    QIcon m_iconCloseTab;
 };
 
 #endif // TITLEBAR_H

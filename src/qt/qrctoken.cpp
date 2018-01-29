@@ -4,12 +4,12 @@
 #include "walletmodel.h"
 #include "tokentransactionview.h"
 #include "platformstyle.h"
+#include "styleSheet.h"
 
 #include <QPainter>
 #include <QAbstractItemDelegate>
 #include <QStandardItem>
 #include <QStandardItemModel>
-#include <QActionGroup>
 #include <QSortFilterProxyModel>
 #include <QSizePolicy>
 #include <QMenu>
@@ -32,49 +32,52 @@ public:
     {
         painter->save();
 
-        QIcon tokenIcon = platformStyle->SingleColorIcon(":/icons/token");
         QString tokenSymbol = index.data(TokenItemModel::SymbolRole).toString();
         QString tokenBalance = index.data(TokenItemModel::BalanceRole).toString();
         QString receiveAddress = index.data(TokenItemModel::SenderRole).toString();
 
         QRect mainRect = option.rect;
-        mainRect.setWidth(option.rect.width());
-        QColor rowColor = index.row() % 2 ? QColor("#ededed") : QColor("#e3e3e3");
-        painter->fillRect(mainRect, rowColor);
 
         bool selected = option.state & QStyle::State_Selected;
         if(selected)
         {
-            painter->fillRect(mainRect,QColor("#cbcbcb"));
+            painter->fillRect(mainRect,QColor("#009ee5"));
+        }
+        else
+        {
+            painter->fillRect(mainRect,QColor("#383938"));
         }
 
-        int decorationSize = TOKEN_SIZE - 20;
-        int leftTopMargin = 10;
-        QRect decorationRect(mainRect.topLeft() + QPoint(leftTopMargin, leftTopMargin), QSize(decorationSize, decorationSize));
-        tokenIcon.paint(painter, decorationRect);
+        QRect hLineRect(mainRect.left(), mainRect.bottom(), mainRect.width(), 1);
+        painter->fillRect(hLineRect, QColor("#2e2e2e"));
+
+        QColor foreground("#dddddd");
+        painter->setPen(foreground);
+
+        QFont font = option.font;
+        font.setPointSizeF(option.font.pointSizeF() * 1.1);
+        font.setBold(true);
+        painter->setFont(font);
+        QColor amountColor("#ffffff");
+        painter->setPen(amountColor);
 
         QFontMetrics fmName(option.font);
         QString clippedSymbol = fmName.elidedText(tokenSymbol, Qt::ElideRight, SYMBOL_WIDTH);
+        QRect tokenSymbolRect(mainRect.left() + MARGIN, mainRect.top() + MARGIN, SYMBOL_WIDTH, mainRect.height() / 2 - MARGIN);
+        painter->drawText(tokenSymbolRect, Qt::AlignLeft|Qt::AlignVCenter, clippedSymbol);
 
-        QColor foreground = option.palette.color(QPalette::Text);
-        painter->setPen(foreground);
-        QRect tokenSymbolRect(decorationRect.right() + MARGIN, decorationRect.top(), SYMBOL_WIDTH, decorationSize / 2);
-        painter->drawText(tokenSymbolRect, Qt::AlignLeft|Qt::AlignTop, clippedSymbol);
-
-        QFont font = option.font;
-        font.setBold(true);
-        painter->setFont(font);
-
-        int amountWidth = (mainRect.width() - decorationRect.width() - 2 * MARGIN - tokenSymbolRect.width()- leftTopMargin);
-        QRect tokenBalanceRect(tokenSymbolRect.right(), decorationRect.top(), amountWidth, decorationSize / 2);
-        painter->drawText(tokenBalanceRect, Qt::AlignRight|Qt::AlignTop, tokenBalance);
+        int amountWidth = (mainRect.width() - 4 * MARGIN - tokenSymbolRect.width());
+        QFontMetrics fmAmount(font);
+        QString clippedAmount = fmAmount.elidedText(tokenBalance, Qt::ElideRight, amountWidth);
+        QRect tokenBalanceRect(tokenSymbolRect.right() + 2 * MARGIN, tokenSymbolRect.top(), amountWidth, tokenSymbolRect.height());
+        painter->drawText(tokenBalanceRect, Qt::AlignLeft|Qt::AlignVCenter, clippedAmount);
 
         QFont addressFont = option.font;
-        addressFont.setPixelSize(addressFont.pixelSize() * 0.9);
+        addressFont.setPointSizeF(option.font.pointSizeF() * 0.8);
         painter->setFont(addressFont);
-
-        QRect receiveAddressRect(decorationRect.right() + MARGIN, tokenSymbolRect.bottom(), mainRect.width() - decorationSize, decorationSize / 2);
-        painter->drawText(receiveAddressRect, Qt::AlignLeft|Qt::AlignBottom, receiveAddress);
+        painter->setPen(foreground);
+        QRect receiveAddressRect(mainRect.left() + MARGIN, tokenSymbolRect.bottom(), mainRect.width() - 2 * MARGIN, mainRect.height() / 2 - 2 * MARGIN);
+        painter->drawText(receiveAddressRect, Qt::AlignLeft|Qt::AlignVCenter, receiveAddress);
 
         painter->restore();
     }
@@ -101,16 +104,16 @@ QRCToken::QRCToken(const PlatformStyle *platformStyle, QWidget *parent) :
     m_platformStyle = platformStyle;
 
     m_sendTokenPage = new SendTokenPage(this);
-    m_receiveTokenPage = new ReceiveTokenPage(this);
+    m_receiveTokenPage = new ReceiveTokenPage(platformStyle, this);
     m_addTokenPage = new AddTokenPage(this);
     m_tokenDelegate = new TokenViewDelegate(platformStyle, this);
 
     m_sendTokenPage->setEnabled(false);
     m_receiveTokenPage->setEnabled(false);
 
-    ui->stackedWidget->addWidget(m_sendTokenPage);
-    ui->stackedWidget->addWidget(m_receiveTokenPage);
-    ui->stackedWidget->addWidget(m_addTokenPage);
+    ui->stackedWidgetToken->addWidget(m_sendTokenPage);
+    ui->stackedWidgetToken->addWidget(m_receiveTokenPage);
+    ui->stackedWidgetToken->addWidget(m_addTokenPage);
 
     m_tokenTransactionView = new TokenTransactionView(m_platformStyle, this);
     m_tokenTransactionView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -119,20 +122,6 @@ QRCToken::QRCToken(const PlatformStyle *platformStyle, QWidget *parent) :
     ui->tokensList->setItemDelegate(m_tokenDelegate);
     ui->tokensList->setContextMenuPolicy(Qt::CustomContextMenu);
     ui->tokensList->setAttribute(Qt::WA_MacShowFocusRect, false);
-
-    QActionGroup *actionGroup = new QActionGroup(this);
-    m_sendAction = new QAction(tr("Send"), actionGroup);
-    m_receiveAction = new QAction(tr("Receive"), actionGroup);
-    m_addTokenAction = new QAction(tr("Add Token"), actionGroup);
-    actionGroup->setExclusive(true);
-
-    m_sendAction->setCheckable(true);
-    m_receiveAction->setCheckable(true);
-    m_addTokenAction->setCheckable(true);
-
-    ui->sendButton->setDefaultAction(m_sendAction);
-    ui->receiveButton->setDefaultAction(m_receiveAction);
-    ui->addTokenButton->setDefaultAction(m_addTokenAction);
 
     QAction *copySenderAction = new QAction(tr("Copy receive address"), this);
     QAction *copyTokenBalanceAction = new QAction(tr("Copy token balance"), this);
@@ -153,9 +142,6 @@ QRCToken::QRCToken(const PlatformStyle *platformStyle, QWidget *parent) :
     connect(copySenderAction, SIGNAL(triggered(bool)), this, SLOT(copySenderAddress()));
     connect(removeTokenAction, SIGNAL(triggered(bool)), this, SLOT(removeToken()));
 
-    connect(m_sendAction, SIGNAL(triggered()), this, SLOT(on_goToSendTokenPage()));
-    connect(m_receiveAction, SIGNAL(triggered()), this, SLOT(on_goToReceiveTokenPage()));
-    connect(m_addTokenAction, SIGNAL(triggered()), this, SLOT(on_goToAddTokenPage()));
     connect(ui->tokensList, SIGNAL(clicked(QModelIndex)), this, SLOT(on_currentTokenChanged(QModelIndex)));
     connect(ui->tokensList, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(contextualMenu(QPoint)));
 
@@ -207,20 +193,17 @@ void QRCToken::setClientModel(ClientModel *_clientModel)
 
 void QRCToken::on_goToSendTokenPage()
 {
-    m_sendAction->setChecked(true);
-    ui->stackedWidget->setCurrentIndex(0);
+    ui->stackedWidgetToken->setCurrentIndex(0);
 }
 
 void QRCToken::on_goToReceiveTokenPage()
 {
-    m_receiveAction->setChecked(true);
-    ui->stackedWidget->setCurrentIndex(1);
+    ui->stackedWidgetToken->setCurrentIndex(1);
 }
 
 void QRCToken::on_goToAddTokenPage()
 {
-    m_addTokenAction->setChecked(true);
-    ui->stackedWidget->setCurrentIndex(2);
+    ui->stackedWidgetToken->setCurrentIndex(2);
 }
 
 void QRCToken::on_currentTokenChanged(QModelIndex index)
@@ -237,6 +220,7 @@ void QRCToken::on_currentTokenChanged(QModelIndex index)
             std::string balance = m_tokenModel->data(index, TokenItemModel::RawBalanceRole).toString().toStdString();
             m_sendTokenPage->setTokenData(address, sender, symbol, decimals, balance);
             m_receiveTokenPage->setAddress(QString::fromStdString(sender));
+            m_receiveTokenPage->setSymbol(QString::fromStdString(symbol));
 
             if(!m_sendTokenPage->isEnabled())
                 m_sendTokenPage->setEnabled(true);
@@ -248,6 +232,7 @@ void QRCToken::on_currentTokenChanged(QModelIndex index)
             m_sendTokenPage->setEnabled(false);
             m_receiveTokenPage->setEnabled(false);
             m_receiveTokenPage->setAddress(QString::fromStdString(""));
+            m_receiveTokenPage->setSymbol(QString::fromStdString(""));
         }
     }
 }
