@@ -68,6 +68,16 @@ public:
         QColor txColor = index.row() % 2 ? QColor("#393939") : QColor("#2e2e2e");
         painter->fillRect(mainRect, txColor);
 
+        QPen pen;
+        pen.setWidth(2);
+        pen.setColor(QColor("#009ee5"));
+        painter->setPen(pen);
+        bool selected = option.state & QStyle::State_Selected;
+        if(selected)
+        {
+            painter->drawRect(mainRect.x()+1, mainRect.y()+1, mainRect.width()-2, mainRect.height()-2);
+        }
+
         QColor foreground("#dedede");
         painter->setPen(foreground);
 
