@@ -17,6 +17,7 @@
 #include "txmempool.h"
 #include "ui_interface.h"
 #include "util.h"
+#include "wallet/wallet.h"
 
 #include <stdint.h>
 
@@ -301,6 +302,10 @@ static void BlockTipChanged(ClientModel *clientmodel, bool initialSync, const CB
                                   Q_ARG(QDateTime, QDateTime::fromTime_t(pIndex->GetBlockTime())),
                                   Q_ARG(double, clientmodel->getVerificationProgress(pIndex)),
                                   Q_ARG(bool, fHeader));
+        if(!fHeader && !fBatchProcessingMode)
+        {
+            QMetaObject::invokeMethod(clientmodel, "tipChanged", Qt::QueuedConnection);
+        }
         nLastUpdateNotification = now;
     }
 }
