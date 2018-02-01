@@ -998,6 +998,13 @@ void BitcoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
 
         progressBarLabel->setVisible(false);
         progressBar->setVisible(false);
+
+        // notify tip changed when the sync is finished
+        if(fBatchProcessingMode)
+        {
+            fBatchProcessingMode = false;
+            QMetaObject::invokeMethod(clientModel, "tipChanged", Qt::QueuedConnection);
+        }
     }
     else
     {
