@@ -285,6 +285,21 @@ static void BannedListChanged(ClientModel *clientmodel)
 
 static void BlockTipChanged(ClientModel *clientmodel, bool initialSync, const CBlockIndex *pIndex, bool fHeader)
 {
+    // Wallet batch mode checks
+    if(pIndex)
+    {
+        int64_t secs = GetTime() - pIndex->GetBlockTime();
+        bool batchMode = secs >= 90*60 ? true : false;
+        if(batchMode)
+        {
+            initialSync |= batchMode;
+            if(!fBatchProcessingMode)
+            {
+                fBatchProcessingMode = true;
+            }
+        }
+    }
+
     // lock free async UI updates in case we have a new block tip
     // during initial sync, only update the UI if the last update
     // was > 250ms (MODEL_UPDATE_DELAY) ago
