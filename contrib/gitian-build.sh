@@ -6,7 +6,7 @@
 sign=false
 verify=false
 build=false
-setupenv=false
+setup=false
 
 # Systems to build
 linux=true
@@ -18,6 +18,7 @@ SIGNER=
 VERSION=
 commit=false
 url=https://github.com/qtumproject/qtum
+ethurl=https://github.com/qtumproject/cpp-eth-qtum
 proc=2
 mem=2000
 lxc=true
@@ -29,12 +30,12 @@ commitFiles=true
 
 # Help Message
 read -d '' usage <<- EOF
-Usage: $scriptName [-c|u|v|b|s|B|o|h|j|m|] signer version
+Usage: $scriptName [-c|u|v|b|s|B|o|h|j|m|] version
 
 Run this script from the directory containing the qtum, gitian-builder, gitian.sigs, and qtum-detached-sigs.
 
 Arguments:
-signer          GPG signer to sign each build assert file
+--signer signer          GPG signer to sign each build assert file
 version		Version number, commit, or branch to build. If building a commit or branch, the -c option must be specified
 
 Options:
@@ -48,7 +49,7 @@ Options:
 -j		Number of processes to use. Default 2
 -m		Memory to allocate in MiB. Default 2000
 --kvm           Use KVM instead of LXC
---setup         Setup the gitian building environment. Uses KVM. If you want to use lxc, use the --lxc option. Only works on Debian-based systems (Ubuntu, Debian)
+--setup         Setup the gitian building environment. Uses lxc. If you want to use kvm, use the --kvm option. Only works on Debian-based systems (Ubuntu, Debian)
 --detach-sign   Create the assert file for detached signing. Will not commit anything.
 --no-commit     Do not commit anything to git
 -h|--help	Print this help message
@@ -190,13 +191,6 @@ then
     osx=false
 fi
 
-# Get signer
-if [[ -n"$1" ]]
-then
-    SIGNER=$1
-    shift
-fi
-
 # Get version
 if [[ -n "$1" ]]
 then
@@ -205,16 +199,8 @@ then
     shift
 fi
 
-# Check that a signer is specified
-if [[ $SIGNER == "" ]]
-then
-    echo "$scriptName: Missing signer."
-    echo "Try $scriptName --help for more information"
-    exit 1
-fi
-
 # Check that a version is specified
-if [[ $VERSION == "" ]]
+if [[ $VERSION == ""  &&  $setup = false ]]
 then
     echo "$scriptName: Missing version."
     echo "Try $scriptName --help for more information"
@@ -224,7 +210,7 @@ fi
 # Add a "v" if no -c
 if [[ $commit = false ]]
 then
-	COMMIT="v${VERSION}"
+	COMMIT="${VERSION}"
 fi
 echo ${COMMIT}
 
@@ -233,28 +219,33 @@ if [[ $setup = true ]]
 then
     sudo apt-get install ruby apache2 git apt-cacher-ng python-vm-builder qemu-kvm qemu-utils
     git clone https://github.com/qtumproject/gitian.sigs.git
-    git clone https://github.com/qtumproject/qtum-detached-sigs.git
     git clone https://github.com/devrandom/gitian-builder.git
     pushd ./gitian-builder
     if [[ -n "$USE_LXC" ]]
     then
         sudo apt-get install lxc
+        echo "Setup trusty"
         bin/make-base-vm --suite trusty --arch amd64 --lxc
+        echo "Setup xenial"
+        bin/make-base-vm --suite xenial --arch amd64 --lxc
     else
+        echo "Setup trusty"
         bin/make-base-vm --suite trusty --arch amd64
+        echo "Setup xenial"
+        bin/make-base-vm --suite xenial --arch amd64 
     fi
     popd
 fi
 
-# Set up build
-pushd ./qtum
-git fetch
-git checkout ${COMMIT}
-popd
-
 # Build
 if [[ $build = true ]]
 then
+	if [[ $SIGNER == "" ]]
+	then
+	    echo "$scriptName: Missing signer."
+	    echo "Try $scriptName --help for more information"
+	    exit 1
+	fi
 	# Make output folder
 	mkdir -p ./qtum-binaries/${VERSION}
 	
@@ -271,11 +262,11 @@ then
 	# Linux
 	if [[ $linux = true ]]
 	then
-            echo ""
+        echo ""
 	    echo "Compiling ${VERSION} Linux"
 	    echo ""
-	    ./bin/gbuild -j ${proc} -m ${mem} --commit qtum=${COMMIT} --url qtum=${url} ../qtum/contrib/gitian-descriptors/gitian-linux.yml
-	    ./bin/gsign -p $signProg --signer $SIGNER --release ${VERSION}-linux --destination ../gitian.sigs/ ../qtum/contrib/gitian-descriptors/gitian-linux.yml
+	    ./bin/gbuild -j ${proc} -m ${mem} --commit qtum=${COMMIT},cpp-eth-qtum=develop --url qtum=${url},cpp-eth-qtum=${ethurl} ../qtum/contrib/gitian-descriptors/gitian-linux.yml
+	    ./bin/gsign --signer $SIGNER --release ${VERSION}-linux --destination ../gitian.sigs/ ../qtum/contrib/gitian-descriptors/gitian-linux.yml
 	    mv build/out/qtum-*.tar.gz build/out/src/qtum-*.tar.gz ../qtum-binaries/${VERSION}
 	fi
 	# Windows
@@ -284,8 +275,8 @@ then
 	    echo ""
 	    echo "Compiling ${VERSION} Windows"
 	    echo ""
-	    ./bin/gbuild -j ${proc} -m ${mem} --commit qtum=${COMMIT} --url qtum=${url} ../qtum/contrib/gitian-descriptors/gitian-win.yml
-	    ./bin/gsign -p $signProg --signer $SIGNER --release ${VERSION}-win-unsigned --destination ../gitian.sigs/ ../qtum/contrib/gitian-descriptors/gitian-win.yml
+	    ./bin/gbuild -j ${proc} -m ${mem} --commit qtum=${COMMIT},cpp-eth-qtum=develop --url qtum=${url},cpp-eth-qtum=${ethurl} ../qtum/contrib/gitian-descriptors/gitian-win.yml
+	    ./bin/gsign --signer $SIGNER --release ${VERSION}-win-unsigned --destination ../gitian.sigs/ ../qtum/contrib/gitian-descriptors/gitian-win.yml
 	    mv build/out/qtum-*-win-unsigned.tar.gz inputs/qtum-win-unsigned.tar.gz
 	    mv build/out/qtum-*.zip build/out/qtum-*.exe ../qtum-binaries/${VERSION}
 	fi
@@ -295,8 +286,8 @@ then
 	    echo ""
 	    echo "Compiling ${VERSION} Mac OSX"
 	    echo ""
-	    ./bin/gbuild -j ${proc} -m ${mem} --commit qtum=${COMMIT} --url qtum=${url} ../qtum/contrib/gitian-descriptors/gitian-osx.yml
-	    ./bin/gsign -p $signProg --signer $SIGNER --release ${VERSION}-osx-unsigned --destination ../gitian.sigs/ ../qtum/contrib/gitian-descriptors/gitian-osx.yml
+	    ./bin/gbuild -j ${proc} -m ${mem} --commit qtum=${COMMIT},cpp-eth-qtum=develop --url qtum=${url},cpp-eth-qtum=${ethurl} ../qtum/contrib/gitian-descriptors/gitian-osx.yml
+	    ./bin/gsign --signer $SIGNER --release ${VERSION}-osx-unsigned --destination ../gitian.sigs/ ../qtum/contrib/gitian-descriptors/gitian-osx.yml
 	    mv build/out/qtum-*-osx-unsigned.tar.gz inputs/qtum-osx-unsigned.tar.gz
 	    mv build/out/qtum-*.tar.gz build/out/qtum-*.dmg ../qtum-binaries/${VERSION}
 	fi
@@ -323,27 +314,27 @@ then
 	# Linux
 	pushd ./gitian-builder
 	echo ""
-	echo "Verifying v${VERSION} Linux"
+	echo "Verifying ${VERSION} Linux"
 	echo ""
 	./bin/gverify -v -d ../gitian.sigs/ -r ${VERSION}-linux ../qtum/contrib/gitian-descriptors/gitian-linux.yml
 	# Windows
 	echo ""
-	echo "Verifying v${VERSION} Windows"
+	echo "Verifying ${VERSION} Windows"
 	echo ""
 	./bin/gverify -v -d ../gitian.sigs/ -r ${VERSION}-win-unsigned ../qtum/contrib/gitian-descriptors/gitian-win.yml
 	# Mac OSX	
 	echo ""
-	echo "Verifying v${VERSION} Mac OSX"
+	echo "Verifying ${VERSION} Mac OSX"
 	echo ""	
 	./bin/gverify -v -d ../gitian.sigs/ -r ${VERSION}-osx-unsigned ../qtum/contrib/gitian-descriptors/gitian-osx.yml
 	# Signed Windows
 	echo ""
-	echo "Verifying v${VERSION} Signed Windows"
+	echo "Verifying ${VERSION} Signed Windows"
 	echo ""
 	./bin/gverify -v -d ../gitian.sigs/ -r ${VERSION}-osx-signed ../qtum/contrib/gitian-descriptors/gitian-osx-signer.yml
 	# Signed Mac OSX
 	echo ""
-	echo "Verifying v${VERSION} Signed Mac OSX"
+	echo "Verifying ${VERSION} Signed Mac OSX"
 	echo ""
 	./bin/gverify -v -d ../gitian.sigs/ -r ${VERSION}-osx-signed ../qtum/contrib/gitian-descriptors/gitian-osx-signer.yml	
 	popd
@@ -352,8 +343,13 @@ fi
 # Sign binaries
 if [[ $sign = true ]]
 then
-	
-        pushd ./gitian-builder
+	if [[ $SIGNER == "" ]]
+	then
+	    echo "$scriptName: Missing signer."
+	    echo "Try $scriptName --help for more information"
+	    exit 1
+	fi
+    pushd ./gitian-builder
 	# Sign Windows
 	if [[ $windows = true ]]
 	then
@@ -361,7 +357,7 @@ then
 	    echo "Signing ${VERSION} Windows"
 	    echo ""
 	    ./bin/gbuild -i --commit signature=${COMMIT} ../qtum/contrib/gitian-descriptors/gitian-win-signer.yml
-	    ./bin/gsign -p $signProg --signer $SIGNER --release ${VERSION}-win-signed --destination ../gitian.sigs/ ../qtum/contrib/gitian-descriptors/gitian-win-signer.yml
+	    ./bin/gsign --signer $SIGNER --release ${VERSION}-win-signed --destination ../gitian.sigs/ ../qtum/contrib/gitian-descriptors/gitian-win-signer.yml
 	    mv build/out/qtum-*win64-setup.exe ../qtum-binaries/${VERSION}
 	    mv build/out/qtum-*win32-setup.exe ../qtum-binaries/${VERSION}
 	fi
@@ -371,8 +367,8 @@ then
 	    echo ""
 	    echo "Signing ${VERSION} Mac OSX"
 	    echo ""
-	    ./bin/gbuild -i --commit signature=${COMMIT} ../qtum/contrib/gitian-descriptors/gitian-osx-signer.yml
-	    ./bin/gsign -p $signProg --signer $SIGNER --release ${VERSION}-osx-signed --destination ../gitian.sigs/ ../qtum/contrib/gitian-descriptors/gitian-osx-signer.yml
+	    ./bin/gbuild -i --commit signature=master ../qtum/contrib/gitian-descriptors/gitian-osx-signer.yml
+	    ./bin/gsign --signer $SIGNER --release ${VERSION}-osx-signed --destination ../gitian.sigs/ ../qtum/contrib/gitian-descriptors/gitian-osx-signer.yml
 	    mv build/out/qtum-osx-signed.dmg ../qtum-binaries/${VERSION}/qtum-${VERSION}-osx.dmg
 	fi
 	popd

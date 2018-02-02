@@ -488,7 +488,57 @@ RES_IMAGES =
 
 RES_MOVIES = $(wildcard $(srcdir)/qt/res/movies/spinner-*.png)
 
-RES_STYLES = $(wildcard qt/res/styles/*.css)
+RES_STYLES = $(srcdir)/qt/res/styles/app.css \
+	     $(srcdir)/qt/res/styles/buttonblack.css \
+	     $(srcdir)/qt/res/styles/buttonblue.css \
+	     $(srcdir)/qt/res/styles/buttontransparentbordered.css \
+	     $(srcdir)/qt/res/styles/buttontransparent.css \
+	     $(srcdir)/qt/res/styles/buttonwhite.css \
+	     $(srcdir)/qt/res/styles/invalid.css \
+	     $(srcdir)/qt/res/styles/scrollbardark.css \
+	     $(srcdir)/qt/res/styles/scrollbarlight.css \
+	     $(srcdir)/qt/res/styles/tableviewlight.css \
+	     $(srcdir)/qt/res/styles/toolblack.css \
+	     $(srcdir)/qt/res/styles/toolgroupblack.css \
+	     $(srcdir)/qt/res/styles/toolsubblack.css \
+	     $(srcdir)/qt/res/styles/treeview.css \
+	     $(srcdir)/qt/res/styles/app-icons/bg.png \
+	     $(srcdir)/qt/res/styles/app-icons/cb_up_down_arrow.png \
+	     $(srcdir)/qt/res/styles/app-icons/checkbox_checked_disabled.png \
+	     $(srcdir)/qt/res/styles/app-icons/checkbox_checked_hover.png \
+	     $(srcdir)/qt/res/styles/app-icons/checkbox_checked.png \
+	     $(srcdir)/qt/res/styles/app-icons/checkbox_indeterminate_disabled.png \
+	     $(srcdir)/qt/res/styles/app-icons/checkbox_indeterminate_hover.png \
+	     $(srcdir)/qt/res/styles/app-icons/checkbox_indeterminate.png \
+	     $(srcdir)/qt/res/styles/app-icons/checkbox_unchecked_disabled.png \
+	     $(srcdir)/qt/res/styles/app-icons/checkbox_unchecked_hover.png \
+	     $(srcdir)/qt/res/styles/app-icons/checkbox_unchecked.png \
+	     $(srcdir)/qt/res/styles/app-icons/down_arrow_disabled.png \
+	     $(srcdir)/qt/res/styles/app-icons/down_arrow_hover.png \
+	     $(srcdir)/qt/res/styles/app-icons/down_arrow.png \
+	     $(srcdir)/qt/res/styles/app-icons/message_critical.png \
+	     $(srcdir)/qt/res/styles/app-icons/message_info.png \
+	     $(srcdir)/qt/res/styles/app-icons/message_question.png \
+	     $(srcdir)/qt/res/styles/app-icons/message_warning.png \
+	     $(srcdir)/qt/res/styles/app-icons/radiobutton_checked_disabled.png \
+	     $(srcdir)/qt/res/styles/app-icons/radiobutton_checked_hover.png \
+	     $(srcdir)/qt/res/styles/app-icons/radiobutton_checked.png \
+	     $(srcdir)/qt/res/styles/app-icons/radiobutton_unchecked_disabled.png \
+	     $(srcdir)/qt/res/styles/app-icons/radiobutton_unchecked_hover.png \
+	     $(srcdir)/qt/res/styles/app-icons/radiobutton_unchecked.png \
+	     $(srcdir)/qt/res/styles/app-icons/slider_switcher_disabled.png \
+	     $(srcdir)/qt/res/styles/app-icons/slider_switcher_hover.png \
+	     $(srcdir)/qt/res/styles/app-icons/slider_switcher.png \
+	     $(srcdir)/qt/res/styles/app-icons/spinBoxDisabled.png \
+	     $(srcdir)/qt/res/styles/app-icons/spinBoxFocus.png \
+	     $(srcdir)/qt/res/styles/app-icons/spinBoxHover.png \
+	     $(srcdir)/qt/res/styles/app-icons/spinBox.png \
+	     $(srcdir)/qt/res/styles/app-icons/splash_bg.png \
+	     $(srcdir)/qt/res/styles/app-icons/toolbutton_down_arrow.png \
+	     $(srcdir)/qt/res/styles/app-icons/toolbutton_right_arrow.png \
+	     $(srcdir)/qt/res/styles/app-icons/up_arrow_disabled.png \
+	     $(srcdir)/qt/res/styles/app-icons/up_arrow_hover.png \
+	     $(srcdir)/qt/res/styles/app-icons/up_arrow.png
 
 BITCOIN_RC = qt/res/bitcoin-qt-res.rc
 
