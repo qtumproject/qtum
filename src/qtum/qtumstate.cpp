@@ -1,6 +1,7 @@
 #include <sstream>
 #include <util.h>
 #include <validation.h>
+#include "chainparams.h"
 #include "qtumstate.h"
 
 using namespace std;
@@ -89,8 +90,14 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
         printfErrorLog(dev::eth::toTransactionException(_e));
         res.excepted = dev::eth::toTransactionException(_e);
         res.gasUsed = _t.gas();
-        m_cache.clear();
-        cacheUTXO.clear();
+        const Consensus::Params& consensusParams = Params().GetConsensus();
+        if(chainActive.Height() < consensusParams.nFixUTXOCacheHFHeight  && _p != Permanence::Reverted){
+            deleteAccounts(_sealEngine.deleteAddresses);
+            commit(CommitBehaviour::RemoveEmptyAccounts);
+        } else {
+            m_cache.clear();
+            cacheUTXO.clear();
+        }
     }
 
     if(!_t.isCreation())
