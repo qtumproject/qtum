@@ -488,7 +488,57 @@ RES_IMAGES =
 
 RES_MOVIES = $(wildcard $(srcdir)/qt/res/movies/spinner-*.png)
 
-RES_STYLES = $(wildcard qt/res/styles/*.css)
+RES_STYLES = qt/res/styles/buttontransparentbordered.css \
+qt/res/styles/buttonblack.css \
+qt/res/styles/toolgroupblack.css \
+qt/res/styles/toolblack.css \
+qt/res/styles/toolsubblack.css \
+qt/res/styles/app.css \
+qt/res/styles/scrollbarlight.css \
+qt/res/styles/buttonwhite.css \
+qt/res/styles/buttontransparent.css \
+qt/res/styles/invalid.css \
+qt/res/styles/treeview.css \
+qt/res/styles/scrollbardark.css \
+qt/res/styles/buttonblue.css \
+qt/res/styles/tableviewlight.css \
+qt/res/styles/app-icons/toolbutton_right_arrow.png \
+qt/res/styles/app-icons/spinBoxHover.png \
+qt/res/styles/app-icons/down_arrow.png \
+qt/res/styles/app-icons/spinBoxDisabled.png \
+qt/res/styles/app-icons/checkbox_indeterminate_hover.png \
+qt/res/styles/app-icons/radiobutton_checked_disabled.png \
+qt/res/styles/app-icons/up_arrow_disabled.png \
+qt/res/styles/app-icons/checkbox_unchecked.png \
+qt/res/styles/app-icons/message_critical.png \
+qt/res/styles/app-icons/radiobutton_unchecked_hover.png \
+qt/res/styles/app-icons/checkbox_unchecked_hover.png \
+qt/res/styles/app-icons/checkbox_indeterminate_disabled.png \
+qt/res/styles/app-icons/message_warning.png \
+qt/res/styles/app-icons/radiobutton_checked_hover.png \
+qt/res/styles/app-icons/cb_up_down_arrow.png \
+qt/res/styles/app-icons/checkbox_checked_disabled.png \
+qt/res/styles/app-icons/message_info.png \
+qt/res/styles/app-icons/radiobutton_unchecked.png \
+qt/res/styles/app-icons/checkbox_checked.png \
+qt/res/styles/app-icons/toolbutton_down_arrow.png \
+qt/res/styles/app-icons/spinBox.png \
+qt/res/styles/app-icons/up_arrow_hover.png \
+qt/res/styles/app-icons/radiobutton_checked.png \
+qt/res/styles/app-icons/slider_switcher_disabled.png \
+qt/res/styles/app-icons/radiobutton_unchecked_disabled.png \
+qt/res/styles/app-icons/up_arrow.png \
+qt/res/styles/app-icons/spinBoxFocus.png \
+qt/res/styles/app-icons/slider_switcher.png \
+qt/res/styles/app-icons/down_arrow_hover.png \
+qt/res/styles/app-icons/checkbox_indeterminate.png \
+qt/res/styles/app-icons/message_question.png \
+qt/res/styles/app-icons/checkbox_checked_hover.png \
+qt/res/styles/app-icons/down_arrow_disabled.png \
+qt/res/styles/app-icons/slider_switcher_hover.png \
+qt/res/styles/app-icons/checkbox_unchecked_disabled.png \
+qt/res/styles/app-icons/splash_bg.png \
+qt/res/styles/app-icons/bg.png
 
 BITCOIN_RC = qt/res/bitcoin-qt-res.rc
 
