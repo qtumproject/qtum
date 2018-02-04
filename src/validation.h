@@ -74,6 +74,8 @@ struct LockPoints;
 /** Minimum gas limit that is allowed in a transaction within a block - prevent various types of tx and mempool spam **/
 static const uint64_t MINIMUM_GAS_LIMIT = 10000;
 
+static const uint64_t MEMPOOL_MIN_GAS_LIMIT = 22000;
+
 /** Default for DEFAULT_WHITELISTRELAY. */
 static const bool DEFAULT_WHITELISTRELAY = true;
 /** Default for DEFAULT_WHITELISTFORCERELAY. */
