@@ -830,7 +830,7 @@ bool CWalletDB::RecoverKeysOnlyFilter(void *callbackData, CDataStream ssKey, CDa
         fReadOK = ReadKeyValue(dummyWallet, ssKey, ssValue,
                                dummyWss, strType, strErr);
     }
-    if (!IsKeyType(strType) && strType != "hdchain")
+    if (!IsKeyType(strType) && strType != "hdchain" && strType != "token" && strType != "tokentx")
         return false;
     if (!fReadOK)
     {
