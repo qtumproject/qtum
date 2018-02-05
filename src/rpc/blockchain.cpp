@@ -38,16 +38,6 @@
 #include <mutex>
 #include <condition_variable>
 
-struct CUpdatedBlock
-{
-    uint256 hash;
-    int height;
-};
-
-static std::mutex cs_blockchange;
-static std::condition_variable cond_blockchange;
-static CUpdatedBlock latestblock;
-
 extern void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& entry);
 
 double GetDifficulty(const CBlockIndex* blockindex)

@@ -699,7 +699,9 @@ private:
     typedef std::multimap<COutPoint, uint256> TxSpends;
     TxSpends mapTxSpends;
     void AddToSpends(const COutPoint& outpoint, const uint256& wtxid);
+    void RemoveFromSpends(const COutPoint& outpoint, const uint256& wtxid);
     void AddToSpends(const uint256& wtxid);
+    void RemoveFromSpends(const uint256& wtxid);
 
     /* Mark a transaction (and its in-wallet descendants) as conflicting with a particular block. */
     void MarkConflicted(const uint256& hashBlock, const uint256& hashTx);

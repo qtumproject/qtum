@@ -1423,7 +1423,7 @@ UniValue sendmany(const JSONRPCRequest& request)
     {
         CBitcoinAddress address(name_);
         if (!address.IsValid())
-            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, std::string("Invalid Bitcoin address: ")+name_);
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, std::string("Invalid Qtum address: ")+name_);
 
         if (setAddress.count(address))
             throw JSONRPCError(RPC_INVALID_PARAMETER, std::string("Invalid parameter, duplicated address: ")+name_);
@@ -2474,8 +2474,6 @@ UniValue gettransaction(const JSONRPCRequest& request_)
             + HelpExampleRpc("gettransaction", "\"1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d\"")
         );
 
-    LOCK2(cs_main, pwallet->cs_wallet);
-
     uint256 hash;
     hash.SetHex(request.params[0].get_str());
 
@@ -2484,11 +2482,55 @@ UniValue gettransaction(const JSONRPCRequest& request_)
         if(request.params[1].get_bool())
             filter = filter | ISMINE_WATCH_ONLY;
 
-    UniValue entry(UniValue::VOBJ);
-    if (!pwallet->mapWallet.count(hash)) {
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid or non-wallet transaction id");
+    int waitconf = 0;
+    if(request.params.size() > 2) {
+        waitconf = request.params[2].get_int();
     }
-    const CWalletTx& wtx = pwallet->mapWallet[hash];
+
+    bool shouldWaitConf = request.params.size() > 2 && waitconf > 0;
+
+    {
+        LOCK2(cs_main, pwallet->cs_wallet);
+        if (!pwallet->mapWallet.count(hash))
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid or non-wallet transaction id");
+    }
+
+    CWalletTx* _wtx = NULL;
+
+    // avoid long-poll if API caller does not specify waitconf
+    if (!shouldWaitConf) {
+        {
+            LOCK2(cs_main, pwallet->cs_wallet);
+            _wtx = &pwallet->mapWallet[hash];
+        }
+
+    } else {
+        request.PollStart();
+        while (true) {
+            {
+                LOCK2(cs_main, pwallet->cs_wallet);
+                _wtx = &pwallet->mapWallet[hash];
+
+                if (_wtx->GetDepthInMainChain() >= waitconf) {
+                    break;
+                }
+            }
+
+            request.PollPing();
+
+            std::unique_lock<std::mutex> lock(cs_blockchange);
+            cond_blockchange.wait_for(lock, std::chrono::milliseconds(300));
+
+            if (!request.PollAlive() || !IsRPCRunning()) {
+                return NullUniValue;
+            }
+        }
+    }
+
+    LOCK2(cs_main, pwallet->cs_wallet);
+    CWalletTx& wtx = *_wtx;
+
+    UniValue entry(UniValue::VOBJ);
 
     CAmount nCredit = wtx.GetCredit(filter);
     CAmount nDebit = wtx.GetDebit(filter);
@@ -2633,7 +2675,7 @@ UniValue walletpassphrase(const JSONRPCRequest& request)
         return NullUniValue;
     }
 
-    if (pwallet->IsCrypted() && (request.fHelp || request.params.size() != 2)) {
+    if (pwallet->IsCrypted() && (request.fHelp || request.params.size() < 2 || request.params.size() > 3)) {
         throw std::runtime_error(
             "walletpassphrase \"passphrase\" timeout\n"
             "\nStores the wallet decryption key in memory for 'timeout' seconds.\n"
@@ -2686,6 +2728,12 @@ UniValue walletpassphrase(const JSONRPCRequest& request)
     int64_t nSleepTime = request.params[1].get_int64();
     pwallet->nRelockTime = GetTime() + nSleepTime;
     RPCRunLater(strprintf("lockwallet(%s)", pwallet->GetName()), boost::bind(LockWallet, pwallet), nSleepTime);
+
+    // ppcoin: if user OS account compromised prevent trivial sendmoney commands
+    if (request.params.size() > 2)
+        fWalletUnlockStakingOnly = request.params[2].get_bool();
+    else
+        fWalletUnlockStakingOnly = false;
 
     return NullUniValue;
 }
@@ -3092,6 +3140,7 @@ UniValue getwalletinfo(const JSONRPCRequest& request)
     obj.push_back(Pair("walletname", pwallet->GetName()));
     obj.push_back(Pair("walletversion", pwallet->GetVersion()));
     obj.push_back(Pair("balance",       ValueFromAmount(pwallet->GetBalance())));
+    obj.push_back(Pair("stake",         ValueFromAmount(pwallet->GetStake())));
     obj.push_back(Pair("unconfirmed_balance", ValueFromAmount(pwallet->GetUnconfirmedBalance())));
     obj.push_back(Pair("immature_balance",    ValueFromAmount(pwallet->GetImmatureBalance())));
     obj.push_back(Pair("txcount",       (int)pwallet->mapWallet.size()));

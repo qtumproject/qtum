@@ -805,6 +805,22 @@ void CWallet::AddToSpends(const COutPoint& outpoint, const uint256& wtxid)
     SyncMetaData(range);
 }
 
+void CWallet::RemoveFromSpends(const COutPoint& outpoint, const uint256& wtxid)
+{
+    std::pair<TxSpends::iterator, TxSpends::iterator> range;
+    range = mapTxSpends.equal_range(outpoint);
+    TxSpends::iterator it = range.first;
+    for(; it != range.second; ++ it)
+    {
+        if(it->second == wtxid)
+        {
+            mapTxSpends.erase(it);
+            break;
+        }
+    }
+    range = mapTxSpends.equal_range(outpoint);
+    SyncMetaData(range);
+}
 
 void CWallet::AddToSpends(const uint256& wtxid)
 {
@@ -815,6 +831,17 @@ void CWallet::AddToSpends(const uint256& wtxid)
 
     for (const CTxIn& txin : thisTx.tx->vin)
         AddToSpends(txin.prevout, wtxid);
+}
+
+void CWallet::RemoveFromSpends(const uint256& wtxid)
+{
+    assert(mapWallet.count(wtxid));
+    CWalletTx& thisTx = mapWallet[wtxid];
+	if (thisTx.IsCoinBase()) // Coinbases don't spend anything!
+        return;
+
+    for(const CTxIn& txin : thisTx.tx->vin)
+        RemoveFromSpends(txin.prevout, wtxid);
 }
 
 bool CWallet::EncryptWallet(const SecureString& strWalletPassphrase)
