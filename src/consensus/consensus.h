@@ -15,9 +15,14 @@ extern unsigned int dgpMaxBlockSerSize;
 extern unsigned int dgpMaxBlockWeight;
 static const unsigned int MAX_BLOCK_WEIGHT = 4000000; //del
 /** The maximum allowed number of signature check operations in a block (network rule) */
-static const int64_t MAX_BLOCK_SIGOPS_COST = 80000;
+extern int64_t dgpMaxBlockSigOps;
+
+extern unsigned int dgpMaxProtoMsgLength;
+
+extern unsigned int dgpMaxTxSigOps;
+
 /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
-static const int COINBASE_MATURITY = 100;
+static const int COINBASE_MATURITY = 500;
 
 static const int WITNESS_SCALE_FACTOR = 4;
 
@@ -32,5 +37,7 @@ enum {
     /* Use GetMedianTimePast() instead of nTime for end point timestamp. */
     LOCKTIME_MEDIAN_TIME_PAST = (1 << 1),
 };
+
+void updateBlockSizeParams(unsigned int newBlockSize);
 
 #endif // BITCOIN_CONSENSUS_CONSENSUS_H
