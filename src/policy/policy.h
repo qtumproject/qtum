@@ -17,7 +17,7 @@ class CCoinsViewCache;
 class CTxOut;
 
 /** Default for -blockmaxweight, which controls the range of block weights the mining code will create **/
-static const unsigned int DEFAULT_BLOCK_MAX_WEIGHT = MAX_BLOCK_WEIGHT - 4000;
+static const unsigned int DEFAULT_BLOCK_MAX_WEIGHT = 7600000;
 /** Default for -blockmintxfee, which sets the minimum feerate for a transaction in blocks created by mining code **/
 static const unsigned int DEFAULT_BLOCK_MIN_TX_FEE = 1000;
 /** The maximum weight for transactions we're willing to relay/mine */
@@ -25,7 +25,7 @@ static const unsigned int MAX_STANDARD_TX_WEIGHT = 400000;
 /** Maximum number of signature check operations in an IsStandard() P2SH script */
 static const unsigned int MAX_P2SH_SIGOPS = 15;
 /** The maximum number of sigops we're willing to relay/mine in a single tx */
-static const unsigned int MAX_STANDARD_TX_SIGOPS_COST = dgpMaxBlockSigOps/5;
+extern unsigned int dgpMaxTxSigOps;
 /** Default for -maxmempool, maximum megabytes of mempool memory usage */
 static const unsigned int DEFAULT_MAX_MEMPOOL_SIZE = 300;
 /** Default for -incrementalrelayfee, which sets the minimum feerate increase for mempool limiting or BIP 125 replacement **/
