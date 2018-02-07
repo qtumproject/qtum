@@ -47,6 +47,7 @@ extern bool fWalletRbf;
 extern bool fWalletUnlockStakingOnly;
 extern bool fNotUseChangeAddress;
 extern bool fCheckForUpdates;
+extern bool fBatchProcessingMode;
 
 static const unsigned int DEFAULT_KEYPOOL_SIZE = 100;
 //! -paytxfee default
