@@ -247,7 +247,7 @@ void Shutdown()
         pcoinsdbview = nullptr;
         delete pblocktree;
         pblocktree = nullptr;
-	delete globalState.release();
+        delete globalState.release();
         globalSealEngine.reset();
     }
 #ifdef ENABLE_WALLET
