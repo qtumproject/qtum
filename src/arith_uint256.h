@@ -235,6 +235,9 @@ public:
     std::string GetHex() const;
     void SetHex(const char* psz);
     void SetHex(const std::string& str);
+    std::string GetReverseHex() const;
+    void SetReverseHex(const char* psz);
+    void SetReverseHex(const std::string& str);
     std::string ToString() const;
 
     unsigned int size() const
