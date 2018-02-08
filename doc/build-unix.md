@@ -144,7 +144,7 @@ To build with Qt 5 (recommended) you need the following:
 libqrencode (optional) can be installed with:
 
     sudo dnf install qrencode-devel
- 
+    
 Dependency Build Instructions: CentOS
 -------------------------------------
 
