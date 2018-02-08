@@ -72,11 +72,12 @@ void StorageResults::commitResults(){
                     tris.gasUsed.push_back(dev::u256(i.second[j].gasUsed));
                     tris.contractAddresses.push_back(i.second[j].contractAddress);
                     tris.logs.push_back(logEntriesSerialization(i.second[j].logs));
+                    tris.excepted.push_back(uint32_t(static_cast<int>(i.second[j].excepted)));
                 }
 
-                dev::RLPStream streamRLP(10);
+                dev::RLPStream streamRLP(11);
                 streamRLP << tris.blockHashes << tris.blockNumbers << tris.transactionHashes << tris.transactionIndexes << tris.senders;
-                streamRLP << tris.receivers << tris.cumulativeGasUsed << tris.gasUsed << tris.contractAddresses << tris.logs;
+                streamRLP << tris.receivers << tris.cumulativeGasUsed << tris.gasUsed << tris.contractAddresses << tris.logs << tris.excepted;
 
                 dev::bytes data = streamRLP.out();
                 std::string stringData(data.begin(), data.end());
@@ -118,10 +119,11 @@ bool StorageResults::readResult(dev::h256 const& _key, std::vector<TransactionRe
         tris.gasUsed = state[7].toVector<dev::u256>();
         tris.contractAddresses = state[8].toVector<dev::h160>();
         tris.logs = state[9].toVector<logEntriesSerializ>();
+        tris.excepted = state[10].toVector<uint32_t>();
 
         for(size_t j = 0; j < tris.blockHashes.size(); j++){
             TransactionReceiptInfo tri{h256Touint(tris.blockHashes[j]), tris.blockNumbers[j], h256Touint(tris.transactionHashes[j]), tris.transactionIndexes[j], tris.senders[j],
-                                       tris.receivers[j], uint64_t(tris.cumulativeGasUsed[j]), uint64_t(tris.gasUsed[j]), tris.contractAddresses[j], logEntriesDeserialize(tris.logs[j])};
+                                       tris.receivers[j], uint64_t(tris.cumulativeGasUsed[j]), uint64_t(tris.gasUsed[j]), tris.contractAddresses[j], logEntriesDeserialize(tris.logs[j]),static_cast<dev::eth::TransactionException>(tris.excepted[j])};
             _result.push_back(tri);
         }
 		return true;
