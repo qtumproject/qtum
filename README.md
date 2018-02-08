@@ -108,6 +108,34 @@ Building Qtum Core
     ./autogen.sh
     ./configure 
     make -j2
+    
+### Build on CentOS
+
+Here is a brief description for compiling Qtum on CentOS, for more details please refer to [the specific document](https://github.com/qtumproject/qtum/blob/master/doc/build-unix.md)
+
+    # Compiling boost manually
+    sudo yum install python-devel bzip2-devel
+    git clone https://github.com/boostorg/boost.git
+    cd boost
+    git checkout boost-1.66.0
+    git submodule update --init --recursive
+    ./bootstrap.sh --prefix=/usr --libdir=/usr/lib64
+    ./b2 headers
+    sudo ./b2 -j4 install
+    
+    # Installing Dependencies for Qtum
+    sudo yum install epel-release
+    sudo yum install libtool libdb4-cxx-devel openssl-devel libevent-devel
+    
+    # If you want to build the Qt GUI:
+    sudo yum install qt5-qttools-devel protobuf-devel qrencode-devel
+    
+    # Building Qtum
+    git clone --recursive https://github.com/qtumproject/qtum.git
+    cd qtum
+    ./autogen.sh
+    ./configure
+    make -j4
 
 ### Build on OSX
 
