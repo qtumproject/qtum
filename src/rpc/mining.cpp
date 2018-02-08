@@ -17,6 +17,7 @@
 #include "net.h"
 #include "policy/fees.h"
 #include "pow.h"
+#include "pos.h"
 #include "rpc/blockchain.h"
 #include "rpc/mining.h"
 #include "rpc/server.h"
@@ -26,6 +27,11 @@
 #include "validationinterface.h"
 #include "warnings.h"
 
+#include "timedata.h"
+#ifdef ENABLE_WALLET
+#include "wallet/wallet.h"
+#include "wallet/walletdb.h"
+#endif
 #include <memory>
 #include <stdint.h>
 
@@ -161,7 +167,7 @@ UniValue generatetoaddress(const JSONRPCRequest& request)
             "\nMine blocks immediately to a specified address (before the RPC call returns)\n"
             "\nArguments:\n"
             "1. nblocks      (numeric, required) How many blocks are generated immediately.\n"
-            "2. address      (string, required) The address to send the newly generated bitcoin to.\n"
+            "2. address      (string, required) The address to send the newly generated qtum to.\n"
             "3. maxtries     (numeric, optional) How many iterations to try (default = 1000000).\n"
             "\nResult:\n"
             "[ blockhashes ]     (array) hashes of blocks generated\n"
@@ -184,6 +190,19 @@ UniValue generatetoaddress(const JSONRPCRequest& request)
     coinbaseScript->reserveScript = GetScriptForDestination(address.Get());
 
     return generateBlocks(coinbaseScript, nGenerate, nMaxTries, false);
+}
+
+UniValue getsubsidy(const JSONRPCRequest& request)
+{
+    if (request.fHelp || request.params.size() > 1)
+        throw std::runtime_error(
+            "getsubsidy [nTarget]\n"
+            "Returns subsidy value for the specified value of target.");
+    int nTarget = request.params.size() == 1 ? request.params[0].get_int() : chainActive.Height();
+    if (nTarget < 0)
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Block height out of range");
+    const Consensus::Params& consensusParams = Params().GetConsensus();
+    return (uint64_t)GetBlockSubsidy(nTarget, consensusParams);
 }
 
 UniValue getmininginfo(const JSONRPCRequest& request)
@@ -212,17 +231,86 @@ UniValue getmininginfo(const JSONRPCRequest& request)
     LOCK(cs_main);
 
     UniValue obj(UniValue::VOBJ);
+    UniValue diff(UniValue::VOBJ);
+    UniValue weight(UniValue::VOBJ);
     obj.push_back(Pair("blocks",           (int)chainActive.Height()));
     obj.push_back(Pair("currentblockweight", (uint64_t)nLastBlockWeight));
     obj.push_back(Pair("currentblocktx",   (uint64_t)nLastBlockTx));
-    obj.push_back(Pair("difficulty",       (double)GetDifficulty()));
+
+    diff.push_back(Pair("proof-of-work",   GetDifficulty(GetLastBlockIndex(pindexBestHeader, false))));
+    diff.push_back(Pair("proof-of-stake",  GetDifficulty(GetLastBlockIndex(pindexBestHeader, true))));
+    diff.push_back(Pair("search-interval", (int)nLastCoinStakeSearchInterval));
+    obj.push_back(Pair("difficulty",       diff));
+
+    const Consensus::Params& consensusParams = Params().GetConsensus();
+    obj.push_back(Pair("blockvalue",    (uint64_t)GetBlockSubsidy(chainActive.Height(), consensusParams)));
+
+    obj.push_back(Pair("netmhashps",       GetPoWMHashPS()));
+    obj.push_back(Pair("netstakeweight",   GetPoSKernelPS()));
     obj.push_back(Pair("errors",           GetWarnings("statusbar")));
     obj.push_back(Pair("networkhashps",    getnetworkhashps(request)));
     obj.push_back(Pair("pooledtx",         (uint64_t)mempool.size()));
+
+    uint64_t nWeight = 0;
+#ifdef ENABLE_WALLET
+    CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
+
+    if (pwallet)
+        nWeight = pwallet->GetStakeWeight(); 
+#endif
+    weight.push_back(Pair("minimum",       (uint64_t)nWeight));
+    weight.push_back(Pair("maximum",       (uint64_t)0));
+    weight.push_back(Pair("combined",      (uint64_t)nWeight));
+    obj.push_back(Pair("stakeweight",      weight));
+
     obj.push_back(Pair("chain",            Params().NetworkIDString()));
     return obj;
 }
 
+UniValue getstakinginfo(const JSONRPCRequest& request)
+{
+    if (request.fHelp || request.params.size() != 0)
+        throw std::runtime_error(
+            "getstakinginfo\n"
+            "Returns an object containing staking-related information.");
+
+    LOCK(cs_main);
+
+    uint64_t nWeight = 0;
+#ifdef ENABLE_WALLET
+    CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
+
+    if (pwallet)
+    {
+        nWeight = pwallet->GetStakeWeight();
+    }
+#endif
+
+    uint64_t nNetworkWeight = GetPoSKernelPS();
+    bool staking = nLastCoinStakeSearchInterval && nWeight;
+    const Consensus::Params& consensusParams = Params().GetConsensus();
+    int64_t nTargetSpacing = consensusParams.nPowTargetSpacing;
+    uint64_t nExpectedTime = staking ? (nTargetSpacing * nNetworkWeight / nWeight) : 0;
+
+    UniValue obj(UniValue::VOBJ);
+
+    obj.push_back(Pair("enabled", gArgs.GetBoolArg("-staking", true)));
+    obj.push_back(Pair("staking", staking));
+    obj.push_back(Pair("errors", GetWarnings("statusbar")));
+
+    obj.push_back(Pair("currentblocktx", (uint64_t)nLastBlockTx));
+    obj.push_back(Pair("pooledtx", (uint64_t)mempool.size()));
+
+    obj.push_back(Pair("difficulty", GetDifficulty(GetLastBlockIndex(pindexBestHeader, true))));
+    obj.push_back(Pair("search-interval", (int)nLastCoinStakeSearchInterval));
+
+    obj.push_back(Pair("weight", (uint64_t)nWeight));
+    obj.push_back(Pair("netstakeweight", (uint64_t)nNetworkWeight));
+
+    obj.push_back(Pair("expectedtime", nExpectedTime));
+
+    return obj;
+}
 
 // NOTE: Unlike wallet RPC (which use BTC values), mining RPCs follow GBT (BIP 22) in using satoshi amounts
 UniValue prioritisetransaction(const JSONRPCRequest& request)
@@ -438,10 +526,10 @@ UniValue getblocktemplate(const JSONRPCRequest& request)
         throw JSONRPCError(RPC_CLIENT_P2P_DISABLED, "Error: Peer-to-peer functionality missing or disabled");
 
     if (g_connman->GetNodeCount(CConnman::CONNECTIONS_ALL) == 0)
-        throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "Bitcoin is not connected!");
+        throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "Qtum is not connected!");
 
     if (IsInitialBlockDownload())
-        throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "Bitcoin is downloading blocks...");
+        throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "Qtum is downloading blocks...");
 
     static unsigned int nTransactionsUpdatedLast;
 
@@ -823,7 +911,7 @@ UniValue estimatesmartfee(const JSONRPCRequest& request)
             "       \"CONSERVATIVE\"\n"
             "\nResult:\n"
             "{\n"
-            "  \"feerate\" : x.x,     (numeric, optional) estimate fee-per-kilobyte (in BTC)\n"
+            "  \"feerate\" : x.x,     (numeric, optional) estimate fee-per-kilobyte (in QTUM)\n"
             "  \"errors\": [ str... ] (json array of strings, optional) Errors encountered during processing\n"
             "  \"blocks\" : n         (numeric) block number where estimate was found\n"
             "}\n"
@@ -972,6 +1060,8 @@ static const CRPCCommand commands[] =
     { "mining",             "prioritisetransaction",  &prioritisetransaction,  true,  {"txid","dummy","fee_delta"} },
     { "mining",             "getblocktemplate",       &getblocktemplate,       true,  {"template_request"} },
     { "mining",             "submitblock",            &submitblock,            true,  {"hexdata","dummy"} },
+    { "mining",             "getsubsidy",             &getsubsidy,             true,  {"height"} },
+    { "mining",             "getstakinginfo",         &getstakinginfo,         true,  {} },
 
     { "generating",         "generatetoaddress",      &generatetoaddress,      true,  {"nblocks","address","maxtries"} },
 
