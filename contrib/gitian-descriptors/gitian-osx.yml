@@ -92,7 +92,7 @@ script: |
 
   cd qtum
   BASEPREFIX=`pwd`/depends
-  ls
+  
   mkdir -p ${BASEPREFIX}/SDKs
   tar -C ${BASEPREFIX}/SDKs -xf ${BUILD_DIR}/MacOSX10.11.sdk.tar.gz
 
