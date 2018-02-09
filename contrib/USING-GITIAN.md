@@ -30,8 +30,8 @@ Ensure that the ./gitian-builder directory is up to date.
 
 ### Build and sign Qtum for Linux, Windows, and OS X:
 
-  ```qtum-bitcore/contrib/gitian-build.sh --build --signer signer version``` or 
-  ```qtum-bitcore/contrib/gitian-build.sh --build --kvm --signer signer version```
+  ```qtum/contrib/gitian-build.sh --build --signer signer version``` or 
+  ```qtum/contrib/gitian-build.sh --build --kvm --signer signer version```
 
 signer — GPG Signer sign assert files for builds (name you entered with GPG key creation). When script is running you must specify passphrase. Use passphrase you entered with the GPG key creation. 
 
@@ -84,9 +84,56 @@ Build output expected:
 
 Add other gitian builders keys to your gpg keyring
 
-    gpg --import bitcoin/contrib/gitian-keys/*.pgp
+    gpg --import qtum/contrib/gitian-keys/*.pgp
     gpg --refresh-keys
 
 Verify the signatures
 
-```qtum-bitcore/contrib/gitian-build.sh --verify version```
+    pushd ./gitian-builder
+    ./bin/gverify -v -d ../gitian.sigs/ -r ${VERSION}-linux ../qtum/contrib/gitian-descriptors/gitian-linux.yml
+    ./bin/gverify -v -d ../gitian.sigs/ -r ${VERSION}-win-unsigned ../qtum/contrib/gitian-descriptors/gitian-win.yml
+    ./bin/gverify -v -d ../gitian.sigs/ -r ${VERSION}-osx-unsigned ../qtum/contrib/gitian-descriptors/gitian-osx.yml
+    popd
+
+### Next steps:
+
+Codesigner only: Sign the osx binary:
+
+    transfer qtum-osx-unsigned.tar.gz to osx for signing
+    tar xf qtum-osx-unsigned.tar.gz
+    ./detached-sig-create.sh -s "Key ID"
+    Enter the keychain password and authorize the signature
+    Move signature-osx.tar.gz back to the gitian host
+
+Codesigner only: Sign the windows binaries:
+
+    tar xf qtum-win-unsigned.tar.gz
+    ./detached-sig-create.sh -key /path/to/codesign.key
+    Enter the passphrase for the key when prompted
+    signature-win.tar.gz will be created
+
+Codesigner only: Commit the detached codesign payloads:
+
+    cd /path/to/qtum-detached-sigs
+    checkout the appropriate branch for this release series
+    rm -rf *
+    tar xf signature-osx.tar.gz
+    tar xf signature-win.tar.gz
+    git add -a
+    git commit -m "point to ${VERSION}"
+    git push the current branch
+
+Non-codesigners: wait for Windows/OS X detached signatures:
+
+    Once the Windows/OS X builds each have 3 matching signatures, they will be signed with their respective release keys.
+    Detached signatures will then be committed to the bitcoin-detached-sigs repository, which can be combined with the unsigned apps to create signed binaries.
+
+Create the signed OS X binary:
+```qtum/contrib/gitian-build.sh --sign -o x --signer signer version```
+
+Create the signed Win binary:
+```qtum/contrib/gitian-build.sh --sign -o w --signer signer version```
+
+Commit your signed signatures for OS X and Win.
+You can verify all binaries with:
+```qtum/contrib/gitian-build.sh --verify version```
