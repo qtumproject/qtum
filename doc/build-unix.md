@@ -144,6 +144,20 @@ To build with Qt 5 (recommended) you need the following:
 libqrencode (optional) can be installed with:
 
     sudo dnf install qrencode-devel
+    
+Dependency Build Instructions: CentOS
+-------------------------------------
+
+You need to build boost manually, and if it's not in standard library paths, you need to add `/path/to/boost/lib` into `LD_LIBRARY_PATH` env when building Qtum.
+
+Build requirements:
+
+    sudo yum install epel-release
+    sudo yum install gcc-c++ libtool libdb4-cxx-devel openssl-devel libevent-devel
+    
+To build with Qt 5 (recommended) you need the following:
+
+    sudo yum install qt5-qttools-devel protobuf-devel qrencode-devel
 
 Notes
 -----
