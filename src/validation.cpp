@@ -4187,8 +4187,17 @@ bool TestBlockValidity(CValidationState& state, const CChainParams& chainparams,
         return error("%s: Consensus::CheckBlock: %s", __func__, FormatStateMessage(state));
     if (!ContextualCheckBlock(block, state, chainparams.GetConsensus(), pindexPrev))
         return error("%s: Consensus::ContextualCheckBlock: %s", __func__, FormatStateMessage(state));
-    if (!ConnectBlock(block, state, &indexDummy, viewNew, chainparams, true))
+
+    dev::h256 oldHashStateRoot(globalState->rootHash()); // qtum
+    dev::h256 oldHashUTXORoot(globalState->rootHashUTXO()); // qtum
+    
+    if (!ConnectBlock(block, state, &indexDummy, viewNew, chainparams, true)){
+        
+        globalState->setRoot(oldHashStateRoot); // qtum
+        globalState->setRootUTXO(oldHashUTXORoot); // qtum
+        
         return false;
+    }
     assert(state.IsValid());
 
     return true;
