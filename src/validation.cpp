@@ -3171,11 +3171,19 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
     LogPrint(BCLog::BENCH, "  - Load block from disk: %.2fms [%.2fs]\n", (nTime2 - nTime1) * 0.001, nTimeReadFromDisk * 0.000001);
     {
         CCoinsViewCache view(pcoinsTip);
+
+        dev::h256 oldHashStateRoot(globalState->rootHash()); // qtum
+        dev::h256 oldHashUTXORoot(globalState->rootHashUTXO()); // qtum
+
         bool rv = ConnectBlock(blockConnecting, state, pindexNew, view, chainparams);
         GetMainSignals().BlockChecked(blockConnecting, state);
         if (!rv) {
             if (state.IsInvalid())
                 InvalidBlockFound(pindexNew, state);
+
+            globalState->setRoot(oldHashStateRoot); // qtum
+            globalState->setRootUTXO(oldHashUTXORoot); // qtum
+
             return error("ConnectTip(): ConnectBlock %s failed", pindexNew->GetBlockHash().ToString());
         }
         nTime3 = GetTimeMicros(); nTimeConnectTotal += nTime3 - nTime2;
