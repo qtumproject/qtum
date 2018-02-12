@@ -340,6 +340,9 @@ void FlushStateToDisk();
 void PruneAndFlush();
 /** Prune block files up to a given height */
 void PruneBlockFilesManual(int nManualPruneHeight);
+/** Check if the transaction is confirmed in N previous blocks */
+bool IsConfirmedInNPrevBlocks(const CDiskTxPos& txindex, const CBlockIndex* pindexFrom, int nMaxDepth, int& nActualDepth);
+
 
 /** (try to) add transaction to memory pool
  * plTxnReplaced will be appended to with all transactions replaced from mempool **/
