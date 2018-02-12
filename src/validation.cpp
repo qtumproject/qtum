@@ -5246,6 +5246,10 @@ bool LoadGenesisBlock(const CChainParams& chainparams)
     if (mapBlockIndex.count(chainparams.GenesisBlock().GetHash()))
         return true;
 
+    // Use the provided setting for -txindex in the new database
+    fLogEvents = gArgs.GetBoolArg("-logevents", DEFAULT_LOGEVENTS);
+    pblocktree->WriteFlag("logevents", fLogEvents);
+
     try {
         CBlock &block = const_cast<CBlock&>(chainparams.GenesisBlock());
         // Start new block file
@@ -5257,6 +5261,7 @@ bool LoadGenesisBlock(const CChainParams& chainparams)
         if (!WriteBlockToDisk(block, blockPos, chainparams.MessageStart()))
             return error("%s: writing genesis block to disk failed", __func__);
         CBlockIndex *pindex = AddToBlockIndex(block);
+        pindex->hashProof = chainparams.GetConsensus().hashGenesisBlock;
         if (!ReceivedBlockTransactions(block, state, pindex, blockPos, chainparams.GetConsensus()))
             return error("%s: genesis block not accepted", __func__);
     } catch (const std::runtime_error& e) {
