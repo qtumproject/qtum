@@ -78,7 +78,7 @@ bool fGettingValuesDGP = false;
 CCriticalSection cs_main;
 
 BlockMap mapBlockIndex;
-std::set<std::pair<COutPoint, unsigned int>> setStakeSeen; // QTUM_INSERT_LINE
+std::set<std::pair<COutPoint, unsigned int>> setStakeSeen;
 CChain chainActive;
 CBlockIndex *pindexBestHeader = nullptr;
 CWaitableCriticalSection csBestBlock;
@@ -4008,6 +4008,47 @@ static bool AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CValidation
     if (!AcceptBlockHeader(block, state, chainparams, &pindex))
         return false;
 
+    if(block.IsProofOfWork()) {
+        if (!UpdateHashProof(block, state, chainparams.GetConsensus(), pindex, *pcoinsTip))
+        {
+            return error("%s: AcceptBlock(): %s", __func__, state.GetRejectReason().c_str());
+        }
+    }
+
+    // Get prev block index
+    CBlockIndex* pindexPrev = nullptr;
+    if(pindex->nHeight > 0){
+        BlockMap::iterator mi = mapBlockIndex.find(block.hashPrevBlock);
+        if (mi == mapBlockIndex.end())
+            return state.DoS(10, error("AcceptBlock() : prev block not found"));
+        pindexPrev = (*mi).second;
+    }
+
+    // Get block height
+    int nHeight = pindex->nHeight;
+
+    // Check for the last proof of work block
+    if (block.IsProofOfWork() && nHeight > chainparams.GetConsensus().nLastPOWBlock)
+        return state.DoS(100, error("AcceptBlock() : reject proof-of-work at height %d", nHeight));
+
+    // Check that the block satisfies synchronized checkpoint
+    if (!Checkpoints::CheckSync(nHeight))
+        return error("AcceptBlock() : rejected by synchronized checkpoint");
+
+    // Check timestamp against prev
+    if (pindexPrev && block.IsProofOfStake() && (block.GetBlockTime() <= pindexPrev->GetBlockTime() || FutureDrift(block.GetBlockTime()) < pindexPrev->GetBlockTime()))
+        return error("AcceptBlock() : block's timestamp is too early");
+
+    // Check timestamp
+    if (block.IsProofOfStake() &&  block.GetBlockTime() > FutureDrift(GetAdjustedTime()))
+        return error("AcceptBlock() : block timestamp too far in the future");
+
+    // Enforce rule that the coinbase starts with serialized block height
+    CScript expect = CScript() << nHeight;
+    if (block.vtx[0]->vin[0].scriptSig.size() < expect.size() ||
+        !std::equal(expect.begin(), expect.end(), block.vtx[0]->vin[0].scriptSig.begin()))
+        return state.DoS(100, error("AcceptBlock() : block height mismatch in coinbase"));
+
     // Try to process all requested blocks that we don't have, but only
     // process an unrequested block if it's new and has enough work to
     // advance our tip, and isn't too many blocks ahead.
@@ -4054,8 +4095,6 @@ static bool AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CValidation
     // (but if it does not build on our best tip, let the SendMessages loop relay it)
     if (!IsInitialBlockDownload() && chainActive.Tip() == pindex->pprev)
         GetMainSignals().NewPoWValidBlock(pindex, pblock);
-
-    int nHeight = pindex->nHeight;
 
     // Write block to history file
     try {
