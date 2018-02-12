@@ -30,6 +30,8 @@
 
 #include <atomic>
 
+#include "consensus/consensus.h"
+
 /////////////////////////////////////////// qtum
 #include <qtum/qtumstate.h>
 #include <qtum/qtumDGP.h>
@@ -61,6 +63,8 @@ class CScriptCheck;
 class CBlockPolicyEstimator;
 class CTxMemPool;
 class CValidationState;
+class CWallet;
+struct CDiskTxPos;
 struct ChainTxData;
 
 struct PrecomputedTransactionData;
@@ -146,7 +150,7 @@ static const int64_t BLOCK_DOWNLOAD_TIMEOUT_BASE = 1000000;
 /** Additional block download timeout per parallel downloading peer (i.e. 5 min) */
 static const int64_t BLOCK_DOWNLOAD_TIMEOUT_PER_PEER = 500000;
 
-static const int64_t DEFAULT_MAX_TIP_AGE = 24 * 60 * 60;
+static const int64_t DEFAULT_MAX_TIP_AGE = 30 * 24 * 60 * 60; //bitcoin value is 24 hours. Ours is 30 days in case something causes the chain to get stuck in testnet
 /** Maximum age of our tip in seconds for us to be considered current for fee estimation */
 static const int64_t MAX_FEE_ESTIMATION_TIP_AGE = 3 * 60 * 60;
 
@@ -251,6 +255,8 @@ static const unsigned int DEFAULT_CHECKLEVEL = 3;
 // one 128MB block file + added 15% undo data = 147MB greater for a total of 545MB
 // Setting the target to > than 550MB will make it likely we can respect the target.
 static const uint64_t MIN_DISK_SPACE_FOR_BLOCK_FILES = 550 * 1024 * 1024;
+
+inline int64_t FutureDrift(uint32_t nTime) { return nTime + 15; }
 
 /** 
  * Process an incoming block. This only returns after the best known valid
@@ -584,6 +590,9 @@ void DumpMempool();
 
 /** Load the mempool from disk. */
 bool LoadMempool();
+
+
+bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, const Consensus::Params& consensusParams, CAmount nFees, CAmount gasRefunds, CAmount nActualStakeReward, const std::vector<CTxOut>& vouts);
 
 //////////////////////////////////////////////////////// qtum
 std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, const dev::Address& sender = dev::Address(), uint64_t gasLimit=0);

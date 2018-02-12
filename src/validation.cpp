@@ -22,6 +22,7 @@
 #include "policy/policy.h"
 #include "policy/rbf.h"
 #include "pow.h"
+#include "pos.h"
 #include "primitives/block.h"
 #include "primitives/transaction.h"
 #include "random.h"
@@ -1716,6 +1717,83 @@ bool CheckMinGasPrice(std::vector<EthTransactionParams>& etps, const uint64_t& m
     return true;
 }
 
+bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, const Consensus::Params& consensusParams, CAmount nFees, CAmount gasRefunds, CAmount nActualStakeReward, const std::vector<CTxOut>& vouts)
+{
+    size_t offset = block.IsProofOfStake() ? 1 : 0;
+    std::vector<CTxOut> vTempVouts=block.vtx[offset]->vout;
+    std::vector<CTxOut>::iterator it;
+    for(size_t i = 0; i < vouts.size(); i++){
+        it=std::find(vTempVouts.begin(), vTempVouts.end(), vouts[i]);
+        if(it==vTempVouts.end()){
+            return state.DoS(100,error("CheckReward(): Gas refund missing"));
+        }else{
+            vTempVouts.erase(it);
+        }
+    }
+
+    // Check block reward
+    if (block.IsProofOfWork())
+    {
+        // Check proof-of-work reward
+        CAmount blockReward = nFees + GetBlockSubsidy(nHeight, consensusParams);
+        if (block.vtx[offset]->GetValueOut() > blockReward)
+            return state.DoS(100,
+                             error("CheckReward(): coinbase pays too much (actual=%d vs limit=%d)",
+                                   block.vtx[offset]->GetValueOut(), blockReward),
+                             REJECT_INVALID, "bad-cb-amount");
+    }
+    else
+    {
+        // Check full reward
+        CAmount blockReward = nFees + GetBlockSubsidy(nHeight, consensusParams);
+        if (nActualStakeReward > blockReward)
+            return state.DoS(100,
+                             error("CheckReward(): coinstake pays too much (actual=%d vs limit=%d)",
+                                   nActualStakeReward, blockReward),
+                             REJECT_INVALID, "bad-cs-amount");
+
+        // The first proof-of-stake blocks get full reward, the rest of them are split between recipients
+        int rewardRecipients = 1;
+        int nPrevHeight = nHeight -1;
+        if(nPrevHeight >= consensusParams.nFirstMPoSBlock)
+            rewardRecipients = consensusParams.nMPoSRewardRecipients;
+
+        // Check reward recipients number
+        if(rewardRecipients < 1)
+            return error("CheckReward(): invalid reward recipients");
+
+        //if only 1 then no MPoS logic required
+        if(rewardRecipients == 1){
+            return true;
+        }
+        if(blockReward < gasRefunds){
+            return state.DoS(100, error("CheckReward(): Block Reward is less than total gas refunds"),
+                             REJECT_INVALID, "bad-cs-gas-greater-than-reward");
+
+        }
+        CAmount splitReward = (blockReward - gasRefunds) / rewardRecipients;
+
+        // Generate the list of script recipients including all of their parameters
+        std::vector<CScript> mposScriptList;
+        if(!GetMPoSOutputScripts(mposScriptList, nPrevHeight, consensusParams))
+            return error("CheckReward(): cannot create the list of MPoS output scripts");
+      
+        for(size_t i = 0; i < mposScriptList.size(); i++){
+            it=std::find(vTempVouts.begin(), vTempVouts.end(), CTxOut(splitReward,mposScriptList[i]));
+            if(it==vTempVouts.end()){
+                return state.DoS(100,
+                        error("CheckReward(): An MPoS participant was not properly paid"),
+                        REJECT_INVALID, "bad-cs-mpos-missing");
+            }else{
+                vTempVouts.erase(it);
+            }
+        }
+
+        vTempVouts.clear();
+    }
+
+    return true;
+}
 
 valtype GetSenderAddress(const CTransaction& tx, const CCoinsViewCache* coinsView, const std::vector<CTransactionRef>* blockTxs){
     CScript script;
