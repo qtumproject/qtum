@@ -4839,6 +4839,10 @@ bool static LoadBlockIndexDB(const CChainParams& chainparams)
     pblocktree->ReadFlag("txindex", fTxIndex);
     LogPrintf("%s: transaction index %s\n", __func__, fTxIndex ? "enabled" : "disabled");
 
+    // Check whether we have a transaction index
+    pblocktree->ReadFlag("logevents", fLogEvents);
+    LogPrintf("%s: log events index %s\n", __func__, fLogEvents ? "enabled" : "disabled");
+
     return true;
 }
 
