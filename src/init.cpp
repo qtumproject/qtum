@@ -189,7 +189,7 @@ void Shutdown()
     StopHTTPServer();
 #ifdef ENABLE_WALLET
     for (CWalletRef pwallet : vpwallets) {
-        //StakeQtums(false, pwallet); QTUM_ADD
+        StakeQtums(false, pwallet);
         pwallet->Flush(false);
     }
 #endif
@@ -1810,8 +1810,8 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
     }
     else {
         for (CWalletRef pwallet : vpwallets) {
-            //if (pwallet) QTUM_ADD
-                //StakeQtums(true, pwallet); QTUM_ADD
+            if (pwallet)
+                StakeQtums(true, pwallet);
         }
     }
 #endif
