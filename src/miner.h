@@ -244,6 +244,9 @@ public:
     // The original constructed reward tx (either coinbase or coinstake) without gas refund adjustments
     CMutableTransaction originalRewardTx; // qtum
 
+    //When GetAdjustedTime() exceeds this, no more transactions will attempt to be added
+    int32_t nTimeLimit;
+
     /** Construct a new block template with coinbase to scriptPubKeyIn */
     std::unique_ptr<CBlockTemplate> CreateNewBlock(const CScript& scriptPubKeyIn, bool fMineWitnessTx=true, bool fProofOfStake=false, int64_t* pTotalFees = 0, int32_t nTime=0, int32_t nTimeLimit=0);
     std::unique_ptr<CBlockTemplate> CreateEmptyBlock(const CScript& scriptPubKeyIn, bool fMineWitnessTx=true, bool fProofOfStake=false, int64_t* pTotalFees = 0, int32_t nTime=0);
@@ -258,7 +261,7 @@ private:
     /** Add transactions based on feerate including unconfirmed ancestors
       * Increments nPackagesSelected / nDescendantsUpdated with corresponding
       * statistics from the package selection (for logging statistics). */
-    void addPackageTxs(int &nPackagesSelected, int &nDescendantsUpdated);
+    void addPackageTxs(int &nPackagesSelected, int &nDescendantsUpdated, uint64_t minGasPrice);
 
     /** Rebuild the coinbase/coinstake transaction to account for new gas refunds **/
     void RebuildRefundTransaction();
