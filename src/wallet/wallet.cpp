@@ -170,9 +170,9 @@ bool AddMPoSScript(std::vector<CScript> &mposScriptList, int nHeight, const Cons
 
     // Read the block
     uint160 stakeAddress;
-    /*if(!pblocktree->ReadStakeIndex(nHeight, stakeAddress)){
+    if(!pblocktree->ReadStakeIndex(nHeight, stakeAddress)){
         return false;
-    }*/
+    }
 
     // The block reward for PoS is in the second transaction (coinstake) and the second or third output
     if(pblockindex->IsProofOfStake())
