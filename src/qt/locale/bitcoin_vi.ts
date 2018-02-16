@@ -32,7 +32,7 @@
     <name>BanTableModel</name>
     </context>
 <context>
-    <name>BitcoinGUI</name>
+    <name>QtumGUI</name>
     </context>
 <context>
     <name>CoinControlDialog</name>
@@ -162,6 +162,6 @@
     <name>WalletView</name>
     </context>
 <context>
-    <name>bitcoin-core</name>
+    <name>qtum-core</name>
     </context>
 </TS>
