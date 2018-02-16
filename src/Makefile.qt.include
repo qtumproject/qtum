@@ -165,6 +165,7 @@ QT_MOC_CPP = \
   qt/moc_sendcoinsentry.cpp \
   qt/moc_signverifymessagedialog.cpp \
   qt/moc_splashscreen.cpp \
+  qt/moc_tokenitemmodel.cpp \
   qt/moc_trafficgraphwidget.cpp \
   qt/moc_transactiondesc.cpp \
   qt/moc_transactiondescdialog.cpp \
@@ -186,7 +187,8 @@ QT_MOC = \
   qt/callback.moc \
   qt/intro.moc \
   qt/overviewpage.moc \
-  qt/rpcconsole.moc
+  qt/rpcconsole.moc \
+  qt/tokenitemmodel.moc
 
 QT_QRC_CPP = qt/qrc_bitcoin.cpp
 QT_QRC = qt/bitcoin.qrc
@@ -242,6 +244,7 @@ BITCOIN_QT_H = \
   qt/splashscreen.h \
   qt/styleSheet.h \
   qt/token.h \
+  qt/tokenitemmodel.h \
   qt/trafficgraphwidget.h \
   qt/transactiondesc.h \
   qt/transactiondescdialog.h \
@@ -336,6 +339,7 @@ BITCOIN_QT_BASE_CPP = \
   qt/splashscreen.cpp \
   qt/styleSheet.cpp \
   qt/token.cpp \
+  qt/tokenitemmodel.cpp \
   qt/trafficgraphwidget.cpp \
   qt/utilitydialog.cpp
 
