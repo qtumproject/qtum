@@ -83,6 +83,21 @@ TestingSetup::TestingSetup(const std::string& chainName) : BasicTestingSetup(cha
         pblocktree = new CBlockTreeDB(1 << 20, true);
         pcoinsdbview = new CCoinsViewDB(1 << 23, true);
         pcoinsTip = new CCoinsViewCache(pcoinsdbview);
+
+////////////////////////////////////////////////////////////// qtum
+        dev::eth::Ethash::init();		
+        boost::filesystem::path pathTemp = fs::temp_directory_path() / strprintf("test_bitcoin_%lu_%i", (unsigned long)GetTime(), (int)(GetRand(100000)));
+        boost::filesystem::create_directories(pathTemp);
+        const dev::h256 hashDB(dev::sha3(dev::rlp("")));
+        globalState = std::unique_ptr<QtumState>(new QtumState(dev::u256(0), QtumState::openDB(pathTemp.string(), hashDB, dev::WithExisting::Trust), pathTemp.string(), dev::eth::BaseState::Empty));
+        dev::eth::ChainParams cp((dev::eth::genesisInfo(dev::eth::Network::qtumTestNetwork)));
+        globalSealEngine = std::unique_ptr<dev::eth::SealEngineFace>(cp.createSealEngine());
+        globalState->populateFrom(cp.genesisState);
+        globalState->setRootUTXO(uintToh256(chainparams.GenesisBlock().hashUTXORoot));
+        globalState->db().commit();
+        globalState->dbUtxo().commit();
+//////////////////////////////////////////////////////////////
+
         if (!LoadGenesisBlock(chainparams)) {
             throw std::runtime_error("LoadGenesisBlock failed.");
         }
@@ -112,6 +127,12 @@ TestingSetup::~TestingSetup()
         delete pcoinsTip;
         delete pcoinsdbview;
         delete pblocktree;
+
+/////////////////////////////////////////////// // qtum
+        delete globalState.release();
+        globalSealEngine.reset();
+///////////////////////////////////////////////
+
         fs::remove_all(pathTemp);
 }
 
@@ -143,6 +164,7 @@ TestChain100Setup::CreateAndProcessBlock(const std::vector<CMutableTransaction>&
     block.vtx.resize(1);
     for (const CMutableTransaction& tx : txns)
         block.vtx.push_back(MakeTransactionRef(tx));
+    block.nTime = chainActive.Tip()->GetBlockTime() + 1;
     // IncrementExtraNonce creates a valid coinbase and merkleRoot
     unsigned int extraNonce = 0;
     IncrementExtraNonce(&block, chainActive.Tip(), extraNonce);
