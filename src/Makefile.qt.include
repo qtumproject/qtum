@@ -302,6 +302,7 @@ RES_ICONS = \
   qt/res/icons/key.png \
   qt/res/icons/lock_closed.png \
   qt/res/icons/lock_open.png \
+  qt/res/icons/logo.png \
   qt/res/icons/network_disabled.png \
   qt/res/icons/open.png \
   qt/res/icons/overview.png \
@@ -319,7 +320,23 @@ RES_ICONS = \
   qt/res/icons/tx_output.png \
   qt/res/icons/tx_mined.png \
   qt/res/icons/warning.png \
-  qt/res/icons/verify.png
+  qt/res/icons/verify.png \
+  qt/res/icons/staking_on.png \
+  qt/res/icons/staking_off.png \
+  qt/res/icons/contract_input.png \
+  qt/res/icons/contract_output.png \
+  qt/res/icons/smart_contract.png \
+  qt/res/icons/lock_staking.png \
+  qt/res/icons/qrctoken.png \
+  qt/res/icons/add_recipient.png \
+  qt/res/icons/encrypt.png \
+  qt/res/icons/receive_from.png \
+  qt/res/icons/remove_entry.png \
+  qt/res/icons/request_payment.png \
+  qt/res/icons/restore.png \
+  qt/res/icons/send_to.png \
+  qt/res/icons/show.png \
+  qt/res/icons/token.png
 
 BITCOIN_QT_BASE_CPP = \
   qt/bantablemodel.cpp \
@@ -395,6 +412,58 @@ RES_IMAGES =
 
 RES_MOVIES = $(wildcard $(srcdir)/qt/res/movies/spinner-*.png)
 
+RES_STYLES = qt/res/styles/buttontransparentbordered.css \
+qt/res/styles/buttonblack.css \
+qt/res/styles/toolgroupblack.css \
+qt/res/styles/toolblack.css \
+qt/res/styles/toolsubblack.css \
+qt/res/styles/app.css \
+qt/res/styles/scrollbarlight.css \
+qt/res/styles/buttonwhite.css \
+qt/res/styles/buttontransparent.css \
+qt/res/styles/invalid.css \
+qt/res/styles/treeview.css \
+qt/res/styles/scrollbardark.css \
+qt/res/styles/buttonblue.css \
+qt/res/styles/tableviewlight.css \
+qt/res/styles/app-icons/toolbutton_right_arrow.png \
+qt/res/styles/app-icons/spinBoxHover.png \
+qt/res/styles/app-icons/down_arrow.png \
+qt/res/styles/app-icons/spinBoxDisabled.png \
+qt/res/styles/app-icons/checkbox_indeterminate_hover.png \
+qt/res/styles/app-icons/radiobutton_checked_disabled.png \
+qt/res/styles/app-icons/up_arrow_disabled.png \
+qt/res/styles/app-icons/checkbox_unchecked.png \
+qt/res/styles/app-icons/message_critical.png \
+qt/res/styles/app-icons/radiobutton_unchecked_hover.png \
+qt/res/styles/app-icons/checkbox_unchecked_hover.png \
+qt/res/styles/app-icons/checkbox_indeterminate_disabled.png \
+qt/res/styles/app-icons/message_warning.png \
+qt/res/styles/app-icons/radiobutton_checked_hover.png \
+qt/res/styles/app-icons/cb_up_down_arrow.png \
+qt/res/styles/app-icons/checkbox_checked_disabled.png \
+qt/res/styles/app-icons/message_info.png \
+qt/res/styles/app-icons/radiobutton_unchecked.png \
+qt/res/styles/app-icons/checkbox_checked.png \
+qt/res/styles/app-icons/toolbutton_down_arrow.png \
+qt/res/styles/app-icons/spinBox.png \
+qt/res/styles/app-icons/up_arrow_hover.png \
+qt/res/styles/app-icons/radiobutton_checked.png \
+qt/res/styles/app-icons/slider_switcher_disabled.png \
+qt/res/styles/app-icons/radiobutton_unchecked_disabled.png \
+qt/res/styles/app-icons/up_arrow.png \
+qt/res/styles/app-icons/spinBoxFocus.png \
+qt/res/styles/app-icons/slider_switcher.png \
+qt/res/styles/app-icons/down_arrow_hover.png \
+qt/res/styles/app-icons/checkbox_indeterminate.png \
+qt/res/styles/app-icons/message_question.png \
+qt/res/styles/app-icons/checkbox_checked_hover.png \
+qt/res/styles/app-icons/down_arrow_disabled.png \
+qt/res/styles/app-icons/slider_switcher_hover.png \
+qt/res/styles/app-icons/checkbox_unchecked_disabled.png \
+qt/res/styles/app-icons/splash_bg.png \
+qt/res/styles/app-icons/bg.png
+
 BITCOIN_RC = qt/res/bitcoin-qt-res.rc
 
 BITCOIN_QT_INCLUDES = -I$(builddir)/qt -I$(srcdir)/qt -I$(srcdir)/qt/forms \
@@ -405,7 +474,7 @@ qt_libbitcoinqt_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(BITCOIN_QT_INC
 qt_libbitcoinqt_a_CXXFLAGS = $(AM_CXXFLAGS) $(QT_PIE_FLAGS)
 
 qt_libbitcoinqt_a_SOURCES = $(BITCOIN_QT_CPP) $(BITCOIN_QT_H) $(QT_FORMS_UI) \
-  $(QT_QRC) $(QT_QRC_LOCALE) $(QT_TS) $(PROTOBUF_PROTO) $(RES_ICONS) $(RES_IMAGES) $(RES_MOVIES)
+  $(QT_QRC) $(QT_QRC_LOCALE) $(QT_TS) $(PROTOBUF_PROTO) $(RES_ICONS) $(RES_IMAGES) $(RES_MOVIES) $(RES_STYLES)
 
 nodist_qt_libbitcoinqt_a_SOURCES = $(QT_MOC_CPP) $(QT_MOC) $(PROTOBUF_CC) \
   $(PROTOBUF_H) $(QT_QRC_CPP) $(QT_QRC_LOCALE_CPP)
@@ -469,7 +538,7 @@ $(QT_QRC_LOCALE_CPP): $(QT_QRC_LOCALE) $(QT_QM)
 	  $(SED) -e '/^\*\*.*Created:/d' -e '/^\*\*.*by:/d' > $@
 	@rm $(@D)/temp_$(<F)
 
-$(QT_QRC_CPP): $(QT_QRC) $(QT_FORMS_H) $(RES_ICONS) $(RES_IMAGES) $(RES_MOVIES) $(PROTOBUF_H)
+$(QT_QRC_CPP): $(QT_QRC) $(QT_FORMS_H) $(RES_ICONS) $(RES_IMAGES) $(RES_MOVIES) $(RES_STYLES) $(PROTOBUF_H)
 	@test -f $(RCC)
 	$(AM_V_GEN) QT_SELECT=$(QT_SELECT) $(RCC) -name bitcoin $< | \
 	  $(SED) -e '/^\*\*.*Created:/d' -e '/^\*\*.*by:/d' > $@
