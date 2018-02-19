@@ -166,6 +166,8 @@ QT_MOC_CPP = \
   qt/moc_signverifymessagedialog.cpp \
   qt/moc_splashscreen.cpp \
   qt/moc_tokenitemmodel.cpp \
+  qt/moc_tokentransactiontablemodel.cpp \
+  qt/moc_tokentransactiondesc.cpp \
   qt/moc_trafficgraphwidget.cpp \
   qt/moc_transactiondesc.cpp \
   qt/moc_transactiondescdialog.cpp \
@@ -245,6 +247,9 @@ BITCOIN_QT_H = \
   qt/styleSheet.h \
   qt/token.h \
   qt/tokenitemmodel.h \
+  qt/tokentransactionrecord.h \
+  qt/tokentransactiontablemodel.h \
+  qt/tokentransactiondesc.h \
   qt/trafficgraphwidget.h \
   qt/transactiondesc.h \
   qt/transactiondescdialog.h \
@@ -364,6 +369,9 @@ BITCOIN_QT_WALLET_CPP = \
   qt/sendcoinsdialog.cpp \
   qt/sendcoinsentry.cpp \
   qt/signverifymessagedialog.cpp \
+  qt/tokentransactionrecord.cpp \
+  qt/tokentransactiontablemodel.cpp \
+  qt/tokentransactiondesc.cpp \
   qt/transactiondesc.cpp \
   qt/transactiondescdialog.cpp \
   qt/transactionfilterproxy.cpp \

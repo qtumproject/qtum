@@ -6,7 +6,7 @@
 #define BITCOIN_QT_GUICONSTANTS_H
 
 /* Milliseconds between model updates */
-static const int MODEL_UPDATE_DELAY = 250;
+static const int MODEL_UPDATE_DELAY = 2000;
 
 /* AskPassphraseDialog -- Maximum passphrase length */
 static const int MAX_PASSPHRASE_SIZE = 1024;
@@ -34,6 +34,9 @@ static const bool DEFAULT_SPLASHSCREEN = true;
 /* Transaction list -- TX status decoration - default color */
 #define COLOR_BLACK QColor(0, 0, 0)
 
+// Number of different confirmation icons
+#define CONFIRM_ICONS 5
+
 /* Tooltips longer than this (in characters) are converted into rich text,
    so that they can be word-wrapped.
  */
@@ -48,9 +51,9 @@ static const int MAX_URI_LENGTH = 255;
 /* Number of frames in spinner animation */
 #define SPINNER_FRAMES 36
 
-#define QAPP_ORG_NAME "Bitcoin"
-#define QAPP_ORG_DOMAIN "bitcoin.org"
-#define QAPP_APP_NAME_DEFAULT "Bitcoin-Qt"
-#define QAPP_APP_NAME_TESTNET "Bitcoin-Qt-testnet"
+#define QAPP_ORG_NAME "Qtum"
+#define QAPP_ORG_DOMAIN "qtum.org"
+#define QAPP_APP_NAME_DEFAULT "Qtum-Qt"
+#define QAPP_APP_NAME_TESTNET "Qtum-Qt-testnet"
 
 #endif // BITCOIN_QT_GUICONSTANTS_H
