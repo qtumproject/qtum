@@ -240,6 +240,8 @@ void Shutdown()
         pcoinsdbview = NULL;
         delete pblocktree;
         pblocktree = NULL;
+        delete pstorageresult;
+        pstorageresult = NULL;
 	    delete globalState.release();
         globalSealEngine.reset();
     }
@@ -1459,6 +1461,7 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
                 delete pcoinsdbview;
                 delete pcoinscatcher;
                 delete pblocktree;
+                delete pstorageresult;
 
                 pblocktree = new CBlockTreeDB(nBlockTreeDBCache, false, fReindex);
                 pcoinsdbview = new CCoinsViewDB(nCoinDBCache, false, fReindex || fReindexChainState);
@@ -1500,7 +1503,9 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
                 }
 
                 dev::eth::Ethash::init();
+
                 boost::filesystem::path qtumStateDir = GetDataDir() / "stateQtum";
+
                 bool fStatus = boost::filesystem::exists(qtumStateDir);
                 const std::string dirQtum(qtumStateDir.string());
                 const dev::h256 hashDB(dev::sha3(dev::rlp("")));
@@ -1508,6 +1513,8 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
                 globalState = std::unique_ptr<QtumState>(new QtumState(dev::u256(0), QtumState::openDB(dirQtum, hashDB, dev::WithExisting::Trust), dirQtum, existsQtumstate));
                 dev::eth::ChainParams cp((dev::eth::genesisInfo(dev::eth::Network::qtumMainNetwork)));
                 globalSealEngine = std::unique_ptr<dev::eth::SealEngineFace>(cp.createSealEngine());
+
+                pstorageresult = new StorageResults(qtumStateDir.string());
 
                 if(chainActive.Tip() != NULL){
                     globalState->setRoot(uintToh256(chainActive.Tip()->hashStateRoot));
@@ -1543,9 +1550,7 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
 
                 if (!GetBoolArg("-logevents", DEFAULT_LOGEVENTS))
                 {
-                    boost::filesystem::path stateDir = GetDataDir() / "stateQtum";
-                    StorageResults storageRes(stateDir.string());
-                    storageRes.wipeResults();
+                    pstorageresult->wipeResults();
                     pblocktree->WipeHeightIndex();
                     fLogEvents = false;
                     pblocktree->WriteFlag("logevents", fLogEvents);
