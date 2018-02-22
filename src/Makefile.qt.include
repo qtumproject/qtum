@@ -111,6 +111,7 @@ QT_TS = \
 
 QT_FORMS_UI = \
   qt/forms/addressbookpage.ui \
+  qt/forms/addtokenpage.ui \
   qt/forms/askpassphrasedialog.ui \
   qt/forms/coincontroldialog.ui \
   qt/forms/editaddressdialog.ui \
@@ -120,17 +121,23 @@ QT_FORMS_UI = \
   qt/forms/openuridialog.ui \
   qt/forms/optionsdialog.ui \
   qt/forms/overviewpage.ui \
+  qt/forms/qrctoken.ui \
   qt/forms/receivecoinsdialog.ui \
   qt/forms/receiverequestdialog.ui \
+  qt/forms/receivetokenpage.ui \
   qt/forms/debugwindow.ui \
   qt/forms/sendcoinsdialog.ui \
   qt/forms/sendcoinsentry.ui \
+  qt/forms/sendtokenpage.ui \
   qt/forms/signverifymessagedialog.ui \
+  qt/forms/tokendescdialog.ui \
   qt/forms/transactiondescdialog.ui
 
 QT_MOC_CPP = \
   qt/moc_addressbookpage.cpp \
+  qt/moc_addressfield.cpp \
   qt/moc_addresstablemodel.cpp \
+  qt/moc_addtokenpage.cpp \
   qt/moc_askpassphrasedialog.cpp \
   qt/moc_bantablemodel.cpp \
   qt/moc_bitcoinaddressvalidator.cpp \
@@ -155,17 +162,24 @@ QT_MOC_CPP = \
   qt/moc_overviewpage.cpp \
   qt/moc_peertablemodel.cpp \
   qt/moc_paymentserver.cpp \
+  qt/moc_qrctoken.cpp \
   qt/moc_qvalidatedlineedit.cpp \
   qt/moc_qvaluecombobox.cpp \
   qt/moc_receivecoinsdialog.cpp \
   qt/moc_receiverequestdialog.cpp \
+  qt/moc_receivetokenpage.cpp \
   qt/moc_recentrequeststablemodel.cpp \
   qt/moc_rpcconsole.cpp \
   qt/moc_sendcoinsdialog.cpp \
   qt/moc_sendcoinsentry.cpp \
+  qt/moc_sendtokenpage.cpp \
   qt/moc_signverifymessagedialog.cpp \
   qt/moc_splashscreen.cpp \
+  qt/moc_tokenamountfield.cpp \
+  qt/moc_tokendescdialog.cpp \
   qt/moc_tokenitemmodel.cpp \
+  qt/moc_tokenfilterproxy.cpp \
+  qt/moc_tokentransactionview.cpp \
   qt/moc_tokentransactiontablemodel.cpp \
   qt/moc_tokentransactiondesc.cpp \
   qt/moc_trafficgraphwidget.cpp \
@@ -190,6 +204,7 @@ QT_MOC = \
   qt/intro.moc \
   qt/overviewpage.moc \
   qt/rpcconsole.moc \
+  qt/tokenamountfield.moc \
   qt/tokenitemmodel.moc
 
 QT_QRC_CPP = qt/qrc_bitcoin.cpp
@@ -203,7 +218,9 @@ PROTOBUF_PROTO = qt/paymentrequest.proto
 
 BITCOIN_QT_H = \
   qt/addressbookpage.h \
+  qt/addressfield.h \
   qt/addresstablemodel.h \
+  qt/addtokenpage.h \
   qt/askpassphrasedialog.h \
   qt/bantablemodel.h \
   qt/bitcoinaddressvalidator.h \
@@ -214,6 +231,7 @@ BITCOIN_QT_H = \
   qt/clientmodel.h \
   qt/coincontroldialog.h \
   qt/coincontroltreewidget.h \
+  qt/contractabi.h \
   qt/csvmodelwriter.h \
   qt/editaddressdialog.h \
   qt/eventlog.h \
@@ -234,19 +252,26 @@ BITCOIN_QT_H = \
   qt/paymentserver.h \
   qt/peertablemodel.h \
   qt/platformstyle.h \
+  qt/qrctoken.h \
   qt/qvalidatedlineedit.h \
   qt/qvaluecombobox.h \
   qt/receivecoinsdialog.h \
   qt/receiverequestdialog.h \
+  qt/receivetokenpage.h \
   qt/recentrequeststablemodel.h \
   qt/rpcconsole.h \
   qt/sendcoinsdialog.h \
   qt/sendcoinsentry.h \
+  qt/sendtokenpage.h \
   qt/signverifymessagedialog.h \
   qt/splashscreen.h \
   qt/styleSheet.h \
   qt/token.h \
+  qt/tokenamountfield.h \
+  qt/tokendescdialog.h \
   qt/tokenitemmodel.h \
+  qt/tokenfilterproxy.h \
+  qt/tokentransactionview.h \
   qt/tokentransactionrecord.h \
   qt/tokentransactiontablemodel.h \
   qt/tokentransactiondesc.h \
@@ -361,6 +386,7 @@ BITCOIN_QT_BASE_CPP = \
   qt/splashscreen.cpp \
   qt/styleSheet.cpp \
   qt/token.cpp \
+  qt/tokenamountfield.cpp \
   qt/tokenitemmodel.cpp \
   qt/trafficgraphwidget.cpp \
   qt/utilitydialog.cpp
@@ -369,10 +395,13 @@ BITCOIN_QT_WINDOWS_CPP = qt/winshutdownmonitor.cpp
 
 BITCOIN_QT_WALLET_CPP = \
   qt/addressbookpage.cpp \
+  qt/addressfield.cpp \
   qt/addresstablemodel.cpp \
+  qt/addtokenpage.cpp \
   qt/askpassphrasedialog.cpp \
   qt/coincontroldialog.cpp \
   qt/coincontroltreewidget.cpp \
+  qt/contractabi.cpp \
   qt/eventlog.cpp \
   qt/execrpccommand.cpp \
   qt/editaddressdialog.cpp \
@@ -380,12 +409,18 @@ BITCOIN_QT_WALLET_CPP = \
   qt/overviewpage.cpp \
   qt/paymentrequestplus.cpp \
   qt/paymentserver.cpp \
+  qt/qrctoken.cpp \
   qt/receivecoinsdialog.cpp \
   qt/receiverequestdialog.cpp \
+  qt/receivetokenpage.cpp \
   qt/recentrequeststablemodel.cpp \
   qt/sendcoinsdialog.cpp \
   qt/sendcoinsentry.cpp \
+  qt/sendtokenpage.cpp \
   qt/signverifymessagedialog.cpp \
+  qt/tokendescdialog.cpp \
+  qt/tokenfilterproxy.cpp \
+  qt/tokentransactionview.cpp \
   qt/tokentransactionrecord.cpp \
   qt/tokentransactiontablemodel.cpp \
   qt/tokentransactiondesc.cpp \
