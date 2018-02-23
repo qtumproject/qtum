@@ -30,6 +30,7 @@ class WalletFrame;
 class WalletModel;
 class HelpMessageDialog;
 class ModalOverlay;
+class QtumVersionChecker;
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -118,6 +119,7 @@ private:
     RPCConsole *rpcConsole;
     HelpMessageDialog *helpMessageDialog;
     ModalOverlay *modalOverlay;
+    QtumVersionChecker *qtumVersionChecker;
 
     /** Keep track of previous number of blocks, to detect progress */
     int prevBlocks;

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>560</width>
+    <width>607</width>
     <height>440</height>
    </rect>
   </property>
@@ -160,6 +160,13 @@
             </property>
             <property name="text">
              <string>&amp;Spend unconfirmed change</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="checkForUpdates">
+            <property name="text">
+             <string>Check for &amp;updates</string>
             </property>
            </widget>
           </item>

@@ -46,6 +46,7 @@ public:
         DatabaseCache,          // int
         SpendZeroConfChange,    // bool
         Listen,                 // bool
+        CheckForUpdates,        // bool
         OptionIDRowCount,
     };
 

@@ -43,6 +43,7 @@ extern bool bSpendZeroConfChange;
 extern bool bZeroBalanceAddressToken;
 extern bool fWalletRbf;
 extern bool fWalletUnlockStakingOnly;
+extern bool fCheckForUpdates;
 
 static const unsigned int DEFAULT_KEYPOOL_SIZE = 1000;
 //! -paytxfee default
@@ -77,6 +78,8 @@ static const bool DEFAULT_USE_HD_WALLET = true;
 extern const char * DEFAULT_WALLET_DAT;
 
 static const int64_t TIMESTAMP_MIN = 0;
+
+static const bool DEFAULT_CHECK_FOR_UPDATES = true;
 
 class CBlockIndex;
 class CCoinControl;
