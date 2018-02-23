@@ -11,6 +11,7 @@ import struct
 
 # Default min gas price in satoshis
 QTUM_MIN_GAS_PRICE = 40
+QTUM_MIN_GAS_PRICE_STR = "0.00000040"
 
 # For the dgp
 BLOCKS_BEFORE_PROPOSAL_EXPIRATION = 216
@@ -289,19 +290,19 @@ class DGPState:
 
     def send_set_initial_admin(self, sender):
         self.node.sendtoaddress(sender, 1)
-        self.node.sendtocontract(self.contract_address, self.abiSetInitialAdmin, 0, 2000000, QTUM_MIN_GAS_PRICE/COIN, sender)
+        self.node.sendtocontract(self.contract_address, self.abiSetInitialAdmin, 0, 2000000, QTUM_MIN_GAS_PRICE_STR, sender)
 
     def send_add_address_proposal(self, proposal_address, type1, sender):
         self.node.sendtoaddress(sender, 1)
-        self.node.sendtocontract(self.contract_address, self.abiAddAddressProposal + proposal_address.zfill(64) + hex(type1)[2:].zfill(64), 0, 2000000, QTUM_MIN_GAS_PRICE/COIN, sender)
+        self.node.sendtocontract(self.contract_address, self.abiAddAddressProposal + proposal_address.zfill(64) + hex(type1)[2:].zfill(64), 0, 2000000, QTUM_MIN_GAS_PRICE_STR, sender)
 
     def send_remove_address_proposal(self, proposal_address, type1, sender):
         self.node.sendtoaddress(sender, 1)
-        self.node.sendtocontract(self.contract_address, self.abiRemoveAddressProposal + proposal_address.zfill(64) + hex(type1)[2:].zfill(64), 0, 2000000, QTUM_MIN_GAS_PRICE/COIN, sender)
+        self.node.sendtocontract(self.contract_address, self.abiRemoveAddressProposal + proposal_address.zfill(64) + hex(type1)[2:].zfill(64), 0, 2000000, QTUM_MIN_GAS_PRICE_STR, sender)
 
     def send_change_value_proposal(self, uint_proposal, type1, sender):
         self.node.sendtoaddress(sender, 1)
-        self.node.sendtocontract(self.contract_address, self.abiChangeValueProposal + hex(uint_proposal)[2:].zfill(64) + hex(type1)[2:].zfill(64), 0, 2000000, QTUM_MIN_GAS_PRICE/COIN, sender)
+        self.node.sendtocontract(self.contract_address, self.abiChangeValueProposal + hex(uint_proposal)[2:].zfill(64) + hex(type1)[2:].zfill(64), 0, 2000000, QTUM_MIN_GAS_PRICE_STR, sender)
 
     def assert_state(self):
         # This assertion is only to catch potential errors in the test code (if we forget to add a generate after an evm call)
