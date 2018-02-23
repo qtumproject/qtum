@@ -91,6 +91,7 @@ class CTxMemPool;
 class CBlockPolicyEstimator;
 class CWalletTx;
 class CTokenTx;
+class CContractBookData;
 struct FeeCalculation;
 enum class FeeEstimateMode;
 
@@ -826,6 +827,8 @@ public:
 
     std::map<CTxDestination, CAddressBookData> mapAddressBook;
 
+    std::map<std::string, CContractBookData> mapContractBook;
+
     CPubKey vchDefaultKey;
 
     std::set<COutPoint> setLockedCoins;
@@ -935,6 +938,9 @@ public:
     bool LoadToken(const CTokenInfo &token);
 
     bool LoadTokenTx(const CTokenTx &tokenTx);
+
+    //! Adds a contract data tuple to the store, without saving it to disk
+    bool LoadContractData(const std::string &address, const std::string &key, const std::string &value);
 
     /** 
      * Increment the next transaction order id
@@ -1056,6 +1062,10 @@ public:
 
     const std::string& GetAccountName(const CScript& scriptPubKey) const;
 
+    bool SetContractBook(const std::string& strAddress, const std::string& strName, const std::string& strAbi);
+
+    bool DelContractBook(const std::string& strAddress);
+
     void Inventory(const uint256 &hash) override
     {
         {
@@ -1134,6 +1144,11 @@ public:
     /** Wallet transaction added, removed or updated. */
     boost::signals2::signal<void (CWallet *wallet, const uint256 &hashToken,
             ChangeType status)> NotifyTokenChanged;
+
+    /** Contract book entry changed. */
+    boost::signals2::signal<void (CWallet *wallet, const std::string &address,
+            const std::string &label, const std::string &abi,
+            ChangeType status)> NotifyContractBookChanged;
 
     /** Inquire whether this wallet broadcasts transactions. */
     bool GetBroadcastTransactions() const { return fBroadcastTransactions; }
@@ -1397,6 +1412,17 @@ public:
     }
 
     uint256 GetHash() const;
+};
+
+/** Contract book data */
+class CContractBookData
+{
+public:
+    std::string name;
+    std::string abi;
+
+    CContractBookData()
+    {}
 };
 
 #endif // BITCOIN_WALLET_WALLET_H

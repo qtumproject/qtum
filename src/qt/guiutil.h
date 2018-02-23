@@ -16,6 +16,7 @@
 #include <QString>
 #include <QTableView>
 #include <QLabel>
+#include <QToolButton>
 
 class QValidatedLineEdit;
 class SendCoinsRecipient;
@@ -245,6 +246,8 @@ namespace GUIUtil
 #else
     typedef ClickableProgressBar ProgressBar;
 #endif
+
+    void formatToolButtons(QToolButton* btn1, QToolButton* btn2 = 0, QToolButton* btn3 = 0);
 
 } // namespace GUIUtil
 

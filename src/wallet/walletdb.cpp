@@ -911,3 +911,12 @@ bool CWalletDB::EraseTokenTx(uint256 hash)
 {
     return EraseIC(std::make_pair(std::string("tokentx"), hash));
 }
+bool CWalletDB::WriteContractData(const std::string &address, const std::string &key, const std::string &value)
+{
+    return WriteIC(std::make_pair(std::string("contractdata"), std::make_pair(address, key)), value);
+}
+
+bool CWalletDB::EraseContractData(const std::string &address, const std::string &key)
+{
+    return EraseIC(std::make_pair(std::string("contractdata"), std::make_pair(address, key)));
+}
