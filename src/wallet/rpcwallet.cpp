@@ -3805,6 +3805,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "reservebalance",           &reservebalance,           false,  {"reserve", "amount"}},
     { "wallet",             "sendfrom",                 &sendfrom,                 false,  {"fromaccount","toaddress","amount","minconf","comment","comment_to"} },
     { "wallet",             "sendmany",                 &sendmany,                 false,  {"fromaccount","amounts","minconf","comment","subtractfeefrom","replaceable","conf_target","estimate_mode"} },
+    { "wallet",             "sendmanywithdupes",        &sendmanywithdupes,        false,  {"fromaccount","amounts","minconf","comment","subtractfeefrom"} },
     { "wallet",             "sendtoaddress",            &sendtoaddress,            false,  {"address","amount","comment","comment_to","subtractfeefromamount","replaceable","conf_target","estimate_mode"} },
     { "wallet",             "setaccount",               &setaccount,               true,   {"address","account"} },
     { "wallet",             "settxfee",                 &settxfee,                 true,   {"amount"} },
@@ -3813,6 +3814,8 @@ static const CRPCCommand commands[] =
     { "wallet",             "walletpassphrasechange",   &walletpassphrasechange,   true,   {"oldpassphrase","newpassphrase"} },
     { "wallet",             "walletpassphrase",         &walletpassphrase,         true,   {"passphrase","timeout", "stakingonly"} },
     { "wallet",             "removeprunedfunds",        &removeprunedfunds,        true,   {"txid"} },
+    { "wallet",             "createcontract",           &createcontract,           false,  {"bytecode", "gasLimit", "gasPrice", "senderAddress", "broadcast", "changeToSender"} },
+    { "wallet",             "sendtocontract",           &sendtocontract,           false,  {"contractaddress", "bytecode", "amount", "gasLimit", "gasPrice", "senderAddress", "broadcast", "changeToSender"} },
 
     { "generating",         "generate",                 &generate,                 true,   {"nblocks","maxtries"} },
 };
