@@ -137,7 +137,7 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
         tx6 = self.send_op_call_outputs_with_gas_price(contract_address, [0.0001, 0.00010001, 0.00010001])
         tx2 = self.send_op_call_outputs_with_gas_price(contract_address, [0.002])
         tx1 = self.node.sendtoaddress(sender, 1)
-        tx7 = self.node.sendtocontract(contract_address, "00", 0, 100000, 0.000001, sender)['txid']
+        tx7 = self.node.sendtocontract(contract_address, "00", 0, 100000, "0.000001", sender)['txid']
         old_block_count = self.node.getblockcount()
         if with_restart:
             self.restart_node()

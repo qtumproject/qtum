@@ -54,7 +54,7 @@ class QtumCreateEthOpCodeTest(BitcoinTestFramework):
         assert_equal(deployed_contracts[factory_with_value_contract_address], 0)
 
         # Next, attempt to create the contract via the "create" method
-        txid = self.node.sendtocontract(factory_with_value_contract_address, "efc81a8c", 1000, 1000000, 0.000001)['txid']
+        txid = self.node.sendtocontract(factory_with_value_contract_address, "efc81a8c", 1000, 1000000, "0.000001")['txid']
         blockhash = self.node.generate(1)[0]
         # Make sure that the tx was mined
         assert_equal(len(self.node.getrawmempool()), 0)
@@ -115,7 +115,7 @@ class QtumCreateEthOpCodeTest(BitcoinTestFramework):
         assert_equal(self.node.listcontracts()[self.factory_contract_address], 0)
 
         # Call create(), creating the Test contract
-        self.node.sendtocontract(self.factory_contract_address, "efc81a8c", 0, 1000000, 0.000001)
+        self.node.sendtocontract(self.factory_contract_address, "efc81a8c", 0, 1000000, "0.000001")
         self.node.generate(1)
 
         # Fetch the address of the newly created contract via calling the newAddress() method
@@ -163,7 +163,7 @@ class QtumCreateEthOpCodeTest(BitcoinTestFramework):
         sender = self.node.getnewaddress()
         self.node.sendtoaddress(sender, 1)
         self.node.generate(1)
-        self.node.sendtocontract(self.test_contract_address, "83197ef0", 0, 1000000, 0.000001, sender)
+        self.node.sendtocontract(self.test_contract_address, "83197ef0", 0, 1000000, "0.000001", sender)
         self.node.generate(1)
         # Make sure that the contract is no longer calleable, i.e., does not exist.
         assert_raises(JSONRPCException, self.node.sendtocontract, self.test_contract_address, "00")
