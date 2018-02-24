@@ -3146,9 +3146,8 @@ bool static DisconnectTip(CValidationState& state, const CChainParams& chainpara
     // Apply the block atomically to the chain state.
     int64_t nStart = GetTimeMicros();
     {
-        bool fClean=true;
         CCoinsViewCache view(pcoinsTip);
-        if (DisconnectBlock(block, state, pindexDelete, view, &fClean) != DISCONNECT_OK)
+        if (DisconnectBlock(block, state, pindexDelete, view, NULL) != DISCONNECT_OK)
             return error("DisconnectTip(): DisconnectBlock %s failed", pindexDelete->GetBlockHash().ToString());
         bool flushed = view.Flush();
         assert(flushed);
