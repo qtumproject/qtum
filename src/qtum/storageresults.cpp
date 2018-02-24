@@ -2,6 +2,16 @@
 
 StorageResults::StorageResults(std::string const& _path){
 	path = _path + "/resultsDB";
+    options.create_if_missing = true;
+    leveldb::Status status = leveldb::DB::Open(options, path, &db);
+    assert(status.ok());
+    LogPrintf("Opened LevelDB successfully\n");
+}
+
+StorageResults::~StorageResults()
+{
+    delete db;
+    db = NULL;
 }
 
 void StorageResults::addResult(dev::h256 hashTx, std::vector<TransactionReceiptInfo>& result){
@@ -9,15 +19,11 @@ void StorageResults::addResult(dev::h256 hashTx, std::vector<TransactionReceiptI
 }
 
 void StorageResults::wipeResults(){
-	leveldb::Status result = leveldb::DestroyDB(path, leveldb::Options());
+    LogPrintf("Wiping LevelDB in %s\n", path);
+    leveldb::Status result = leveldb::DestroyDB(path, leveldb::Options());
 }
 
 void StorageResults::deleteResults(std::vector<CTransactionRef> const& txs){
-    leveldb::DB* db;
-    leveldb::Options options;
-    options.create_if_missing = true;
-    leveldb::Status status = leveldb::DB::Open(options, path, &db);
-    assert(status.ok());
 
     for(CTransactionRef tx : txs){
         dev::h256 hashTx = uintToh256(tx->GetHash());
@@ -25,10 +31,9 @@ void StorageResults::deleteResults(std::vector<CTransactionRef> const& txs){
 
         std::string keyTemp = hashTx.hex();
 	    leveldb::Slice key(keyTemp);
-        status = db->Delete(leveldb::WriteOptions(), key);
+        leveldb::Status status = db->Delete(leveldb::WriteOptions(), key);
         assert(status.ok());
     }
-    delete db;
 }
 
 std::vector<TransactionReceiptInfo> StorageResults::getResult(dev::h256 const& hashTx){
@@ -45,17 +50,12 @@ std::vector<TransactionReceiptInfo> StorageResults::getResult(dev::h256 const& h
 
 void StorageResults::commitResults(){
     if(m_cache_result.size()){
-        leveldb::DB* db;
-        leveldb::Options options;
-        options.create_if_missing = true;
-        leveldb::Status status = leveldb::DB::Open(options, path, &db);
-        assert(status.ok());
 
         for (auto const& i: m_cache_result){
             std::string valueTemp;
             std::string keyTemp = i.first.hex();
             leveldb::Slice key(keyTemp);
-            status = db->Get(leveldb::ReadOptions(), key, &valueTemp);
+            leveldb::Status status = db->Get(leveldb::ReadOptions(), key, &valueTemp);
 
             if(status.IsNotFound()){
 
@@ -87,22 +87,15 @@ void StorageResults::commitResults(){
             }
         }
         m_cache_result.clear();
-        delete db;
     }
 }
 
 bool StorageResults::readResult(dev::h256 const& _key, std::vector<TransactionReceiptInfo>& _result){
-    leveldb::DB* db;
-	leveldb::Options options;
-	options.create_if_missing = true;
-	leveldb::Status status = leveldb::DB::Open(options, path, &db);
-	assert(status.ok());
 
-	std::string value;
-	std::string keyTemp = _key.hex();
-	leveldb::Slice key(keyTemp);
-	leveldb::Status s = db->Get(leveldb::ReadOptions(), key, &value);
-	delete db;
+    std::string value;
+    std::string keyTemp = _key.hex();;
+    leveldb::Slice key(keyTemp);
+    leveldb::Status s = db->Get(leveldb::ReadOptions(), key, &value);
 
 	if(!s.IsNotFound() && s.ok()){
         
