@@ -20,6 +20,7 @@
 #include "splashscreen.h"
 #include "utilitydialog.h"
 #include "winshutdownmonitor.h"
+#include "styleSheet.h"
 
 #ifdef ENABLE_WALLET
 #include "paymentserver.h"
@@ -702,6 +703,8 @@ int main(int argc, char *argv[])
     int rv = EXIT_SUCCESS;
     try
     {
+        SetObjectStyleSheet(&app, StyleSheetNames::App);
+
         app.createWindow(networkStyle.data());
         // Perform base initialization before spinning up initialization/shutdown thread
         // This is acceptable because this function only contains steps that are quick to execute,
