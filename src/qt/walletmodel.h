@@ -243,6 +243,7 @@ public:
     QString getRestorePath();
     QString getRestoreParam();
 
+    std::vector<CTokenInfo> getInvalidTokens();
 
     bool isMineAddress(const std::string &strAddress);
 
