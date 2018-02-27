@@ -38,6 +38,7 @@
 #include <QMessageBox>
 #include <QSet>
 #include <QTimer>
+#include <QFile>
 
 
 WalletModel::WalletModel(const PlatformStyle *platformStyle, CWallet *_wallet, OptionsModel *_optionsModel, QObject *parent) :
@@ -522,6 +523,24 @@ bool WalletModel::backupWallet(const QString &filename)
     return wallet->BackupWallet(filename.toLocal8Bit().data());
 }
 
+bool WalletModel::restoreWallet(const QString &filename, const QString &param)
+{
+    if(QFile::exists(filename))
+    {
+        fs::path pathWalletBak = GetDataDir() / strprintf("wallet.%d.bak", GetTime());
+        QString walletBak = QString::fromStdString(pathWalletBak.string());
+        if(backupWallet(walletBak))
+        {
+            restorePath = filename;
+            restoreParam = param;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
 // Handlers for core signals
 static void NotifyKeyStoreStatusChanged(WalletModel *walletmodel, CCryptoKeyStore *wallet)
 {
@@ -886,6 +905,16 @@ bool WalletModel::existTokenEntry(const CTokenInfo &token)
 bool WalletModel::removeTokenEntry(const std::string &sHash)
 {
     return wallet->RemoveTokenEntry(uint256S(sHash), true);
+}
+
+QString WalletModel::getRestorePath()
+{
+    return restorePath;
+}
+
+QString WalletModel::getRestoreParam()
+{
+    return restoreParam;
 }
 
 bool WalletModel::isMineAddress(const std::string &strAddress)
