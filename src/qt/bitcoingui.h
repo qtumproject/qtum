@@ -114,6 +114,8 @@ private:
     QAction *backupWalletAction;
     QAction *restoreWalletAction;
     QAction *changePassphraseAction;
+    QAction *unlockWalletAction;
+    QAction *lockWalletAction;
     QAction *aboutQtAction;
     QAction *openRPCConsoleAction;
     QAction *openAction;
