@@ -26,8 +26,14 @@ std::string toStringHash160(const CTxDestination& address)
  */
 bool TransactionRecord::showTransaction(const CWalletTx &wtx)
 {
-    // There are currently no cases where we hide transactions, but
-    // we may want to use this in the future for things like RBF.
+    if (wtx.IsCoinBase() || wtx.IsCoinStake())
+    {
+        // Ensures we show generated coins / mined transactions at depth 1
+        if (!wtx.IsInMainChain())
+        {
+            return false;
+        }
+    }
     return true;
 }
 

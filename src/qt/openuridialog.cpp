@@ -7,6 +7,7 @@
 
 #include "guiutil.h"
 #include "walletmodel.h"
+#include "styleSheet.h"
 
 #include <QUrl>
 
@@ -15,8 +16,12 @@ OpenURIDialog::OpenURIDialog(QWidget *parent) :
     ui(new Ui::OpenURIDialog)
 {
     ui->setupUi(this);
+
+    SetObjectStyleSheet(ui->buttonBox->button(QDialogButtonBox::Cancel), StyleSheetNames::ButtonWhite);
+    SetObjectStyleSheet(ui->buttonBox->button(QDialogButtonBox::Ok), StyleSheetNames::ButtonBlue);
+
 #if QT_VERSION >= 0x040700
-    ui->uriEdit->setPlaceholderText("bitcoin:");
+    ui->uriEdit->setPlaceholderText("qtum:");
 #endif
 }
 
@@ -48,5 +53,5 @@ void OpenURIDialog::on_selectFileButton_clicked()
     if(filename.isEmpty())
         return;
     QUrl fileUri = QUrl::fromLocalFile(filename);
-    ui->uriEdit->setText("bitcoin:?r=" + QUrl::toPercentEncoding(fileUri.toString()));
+    ui->uriEdit->setText("qtum:?r=" + QUrl::toPercentEncoding(fileUri.toString()));
 }
