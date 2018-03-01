@@ -1,8 +1,6 @@
 #include "qtumversionchecker.h"
 #include "../clientversion.h"
 
-#include <boost/foreach.hpp>
-
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
