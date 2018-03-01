@@ -6,22 +6,30 @@
 #include "ui_modaloverlay.h"
 
 #include "guiutil.h"
+#include "styleSheet.h"
 
 #include "chainparams.h"
 
 #include <QResizeEvent>
 #include <QPropertyAnimation>
 
-ModalOverlay::ModalOverlay(QWidget *parent) :
+ModalOverlay::ModalOverlay(QWidget *parent, OverlayType _type) :
 QWidget(parent),
 ui(new Ui::ModalOverlay),
 bestHeaderHeight(0),
 bestHeaderDate(QDateTime()),
 layerIsVisible(false),
-userClosed(false)
+userClosed(false),
+type(_type)
 {
     ui->setupUi(this);
+
+    // Set stylesheet
+    SetObjectStyleSheet(ui->warningIcon, StyleSheetNames::ButtonTransparent);
+    SetObjectStyleSheet(ui->warningIconBackup, StyleSheetNames::ButtonTransparent);
+
     connect(ui->closeButton, SIGNAL(clicked()), this, SLOT(closeClicked()));
+    connect(ui->walletBackupButton, SIGNAL(clicked()), this, SLOT(backupWalletClicked()));
     if (parent) {
         parent->installEventFilter(this);
         raise();
@@ -29,6 +37,8 @@ userClosed(false)
 
     blockProcessTime.clear();
     setVisible(false);
+
+    ui->stackedWidget->setCurrentIndex(type);
 }
 
 ModalOverlay::~ModalOverlay()
@@ -172,4 +182,10 @@ void ModalOverlay::closeClicked()
 {
     showHide(true);
     userClosed = true;
+}
+
+void ModalOverlay::backupWalletClicked()
+{
+    Q_EMIT backupWallet();
+    showHide(true, true);
 }

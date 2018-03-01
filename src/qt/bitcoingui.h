@@ -136,6 +136,7 @@ private:
     HelpMessageDialog *helpMessageDialog;
     ModalOverlay *modalOverlay;
     QtumVersionChecker *qtumVersionChecker;
+    ModalOverlay *modalBackupOverlay;
 
     /** Keep track of previous number of blocks, to detect progress */
     int prevBlocks;
@@ -281,6 +282,8 @@ private Q_SLOTS:
     void toggleNetworkActive();
 
     void showModalOverlay();
+
+    void showModalBackupOverlay();
 };
 
 class UnitDisplayStatusBarControl : public QLabel

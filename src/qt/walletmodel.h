@@ -176,6 +176,8 @@ public:
     bool changePassphrase(const SecureString &oldPass, const SecureString &newPass);
     // Wallet backup
     bool backupWallet(const QString &filename);
+    // Has wallet backup
+    bool hasWalletBackup();
     // Restore backup
     bool restoreWallet(const QString &filename, const QString &param);
 

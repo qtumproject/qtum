@@ -84,6 +84,9 @@ const std::string BitcoinGUI::DEFAULT_UIPLATFORM =
  * collisions in the future with additional wallets */
 const QString BitcoinGUI::DEFAULT_WALLET = "~Default";
 
+/** Switch for showing the backup overlay modal screen*/
+bool showBackupOverlay = false;
+
 BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *networkStyle, QWidget *parent) :
     QMainWindow(parent),
     enableWallet(false),
@@ -139,6 +142,7 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
     helpMessageDialog(0),
     modalOverlay(0),
     qtumVersionChecker(0),
+    modalBackupOverlay(0),
     prevBlocks(0),
     spinnerFrame(0),
     platformStyle(_platformStyle)
@@ -274,6 +278,7 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
     connect(connectionsControl, SIGNAL(clicked(QPoint)), this, SLOT(toggleNetworkActive()));
 
     modalOverlay = new ModalOverlay(this->centralWidget());
+    modalBackupOverlay = new ModalOverlay(this, ModalOverlay::Backup);
     qtumVersionChecker = new QtumVersionChecker(this);
 
     if(fCheckForUpdates && qtumVersionChecker->newVersionAvailable())
@@ -288,6 +293,7 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
         connect(walletFrame, SIGNAL(requestedSyncWarningInfo()), this, SLOT(showModalOverlay()));
         connect(labelBlocksIcon, SIGNAL(clicked(QPoint)), this, SLOT(showModalOverlay()));
         connect(progressBar, SIGNAL(clicked(QPoint)), this, SLOT(showModalOverlay()));
+        connect(modalBackupOverlay, SIGNAL(backupWallet()), walletFrame, SLOT(backupWallet()));
     }
 #endif
 }
@@ -614,6 +620,8 @@ void BitcoinGUI::setClientModel(ClientModel *_clientModel)
             // initialize the disable state of the tray icon with the current value in the model.
             setTrayIconVisible(optionsModel->getHideTrayIcon());
         }
+
+        modalOverlay->setKnownBestHeight(clientModel->getHeaderTipHeight(), QDateTime::fromTime_t(clientModel->getHeaderTipTime()));
     } else {
         // Disable possibility to show main window via action
         toggleHideAction->setEnabled(false);
@@ -641,6 +649,10 @@ bool BitcoinGUI::addWallet(const QString& name, WalletModel *walletModel)
         return false;
     setWalletActionsEnabled(true);
     appTitleBar->setModel(walletModel);
+    if(showBackupOverlay && walletModel && !(walletModel->hasWalletBackup()))
+    {
+        showModalBackupOverlay();
+    }
     return walletFrame->addWallet(name, walletModel);
 }
 
@@ -1326,6 +1338,12 @@ void BitcoinGUI::showModalOverlay()
 {
     if (modalOverlay && (progressBar->isVisible() || modalOverlay->isLayerVisible()))
         modalOverlay->toggleVisibility();
+}
+
+void BitcoinGUI::showModalBackupOverlay()
+{
+    if (modalBackupOverlay)
+        modalBackupOverlay->toggleVisibility();
 }
 
 void BitcoinGUI::setTabBarInfo(QObject *into)

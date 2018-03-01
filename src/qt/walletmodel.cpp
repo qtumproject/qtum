@@ -39,6 +39,7 @@
 #include <QSet>
 #include <QTimer>
 #include <QFile>
+#include <QSettings>
 
 
 WalletModel::WalletModel(const PlatformStyle *platformStyle, CWallet *_wallet, OptionsModel *_optionsModel, QObject *parent) :
@@ -520,7 +521,20 @@ bool WalletModel::changePassphrase(const SecureString &oldPass, const SecureStri
 
 bool WalletModel::backupWallet(const QString &filename)
 {
-    return wallet->BackupWallet(filename.toLocal8Bit().data());
+    bool ret =  wallet->BackupWallet(filename.toLocal8Bit().data());
+
+    // Set number of backups
+    QSettings settings;
+    int walletHasBackup = settings.value("walletBackupsNumber", 0).toInt();
+    settings.setValue("walletBackupsNumber", walletHasBackup + (ret ? 1 : 0));
+
+    return ret;
+}
+
+bool WalletModel::hasWalletBackup()
+{
+    QSettings settings;
+    return settings.value("walletBackupsNumber", 0).toBool();
 }
 
 bool WalletModel::restoreWallet(const QString &filename, const QString &param)
