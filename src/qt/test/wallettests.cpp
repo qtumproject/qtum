@@ -171,10 +171,10 @@ void TestSendCoins()
 
     // Send two transactions, and verify they are added to transaction list.
     TransactionTableModel* transactionTableModel = walletModel.getTransactionTableModel();
-    QCOMPARE(transactionTableModel->rowCount({}), 105);
+    QCOMPARE(transactionTableModel->rowCount({}), 505);
     uint256 txid1 = SendCoins(wallet, sendCoinsDialog, CBitcoinAddress(CKeyID()), 5 * COIN, false /* rbf */);
     uint256 txid2 = SendCoins(wallet, sendCoinsDialog, CBitcoinAddress(CKeyID()), 10 * COIN, true /* rbf */);
-    QCOMPARE(transactionTableModel->rowCount({}), 107);
+    QCOMPARE(transactionTableModel->rowCount({}), 507);
     QVERIFY(FindTx(*transactionTableModel, txid1).isValid());
     QVERIFY(FindTx(*transactionTableModel, txid2).isValid());
 
