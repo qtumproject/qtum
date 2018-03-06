@@ -1455,6 +1455,8 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
                 delete pcoinsdbview;
                 delete pcoinscatcher;
                 delete pblocktree;
+                globalState.reset();
+                globalSealEngine.reset();
 
                 pblocktree = new CBlockTreeDB(nBlockTreeDBCache, false, fReset);
 

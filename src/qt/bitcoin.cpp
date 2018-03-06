@@ -461,14 +461,20 @@ void BitcoinApplication::requestShutdown()
     pollShutdownTimer->stop();
 
 #ifdef ENABLE_WALLET
-    restoreParam= walletModel->getRestoreParam();
-    restorePath = walletModel->getRestorePath();
-    window->removeAllWallets();
-    delete walletModel;
-    walletModel = 0;
+    if(walletModel)
+    {
+        restoreParam = walletModel->getRestoreParam();
+        restorePath = walletModel->getRestorePath();
+        window->removeAllWallets();
+        delete walletModel;
+        walletModel = 0;
+    }
 #endif
-    delete clientModel;
-    clientModel = 0;
+    if(clientModel)
+    {
+        delete clientModel;
+        clientModel = 0;
+    }
 
     StartShutdown();
 

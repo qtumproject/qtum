@@ -5235,6 +5235,9 @@ bool LoadBlockIndex(const CChainParams& chainparams)
         // Use the provided setting for -txindex in the new database
         fTxIndex = gArgs.GetBoolArg("-txindex", DEFAULT_TXINDEX);
         pblocktree->WriteFlag("txindex", fTxIndex);
+        // Use the provided setting for -logevents in the new database
+        fLogEvents = gArgs.GetBoolArg("-logevents", DEFAULT_LOGEVENTS);
+        pblocktree->WriteFlag("logevents", fLogEvents);
     }
     return true;
 }
@@ -5249,10 +5252,6 @@ bool LoadGenesisBlock(const CChainParams& chainparams)
     // thing loaded at this point.
     if (mapBlockIndex.count(chainparams.GenesisBlock().GetHash()))
         return true;
-
-    // Use the provided setting for -txindex in the new database
-    fLogEvents = gArgs.GetBoolArg("-logevents", DEFAULT_LOGEVENTS);
-    pblocktree->WriteFlag("logevents", fLogEvents);
 
     try {
         CBlock &block = const_cast<CBlock&>(chainparams.GenesisBlock());
