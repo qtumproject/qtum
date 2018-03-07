@@ -512,6 +512,7 @@ UniValue createcontract(const JSONRPCRequest& request){
     if (!EnsureWalletIsAvailable(pwallet, request.fHelp))
         return NullUniValue;
 
+    LOCK2(cs_main, pwallet->cs_wallet);
     QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
     uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(chainActive.Height());
     uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(chainActive.Height()));
@@ -526,23 +527,23 @@ UniValue createcontract(const JSONRPCRequest& request){
                 "1. \"bytecode\"  (string, required) contract bytcode.\n"
                 "2. gasLimit  (numeric or string, optional) gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+", max: "+i64tostr(blockGasLimit)+"\n"
                 "3. gasPrice  (numeric or string, optional) gasPrice QTUM price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)+"\n"
-				"4. \"senderaddress\" (string, optional) The quantum address that will be used to create the contract.\n"
-				"5. \"broadcast\" (bool, optional, default=true) Whether to broadcast the transaction or not.\n"
-				"\nResult:\n"
-				"[\n"
-				"  {\n"
-				"    \"txid\" : (string) The transaction id.\n"
-				"    \"sender\" : (string) " + CURRENCY_UNIT + " address of the sender.\n"
-				"    \"hash160\" : (string) ripemd-160 hash of the sender.\n"
-				"    \"address\" : (string) expected contract address.\n"
-				"  }\n"
-				"]\n"
-				"\nExamples:\n"
-				+ HelpExampleCli("createcontract", "\"60606040525b33600060006101000a81548173ffffffffffffffffffffffffffffffffffffffff02191690836c010000000000000000000000009081020402179055506103786001600050819055505b600c80605b6000396000f360606040526008565b600256\"")
-				+ HelpExampleCli("createcontract", "\"60606040525b33600060006101000a81548173ffffffffffffffffffffffffffffffffffffffff02191690836c010000000000000000000000009081020402179055506103786001600050819055505b600c80605b6000396000f360606040526008565b600256\" 6000000 "+FormatMoney(minGasPrice)+" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" true")
+                "4. \"senderaddress\" (string, optional) The quantum address that will be used to create the contract.\n"
+                "5. \"broadcast\" (bool, optional, default=true) Whether to broadcast the transaction or not.\n"
+                "6. \"changeToSender\" (bool, optional, default=true) Return the change to the sender.\n"
+                "\nResult:\n"
+                "[\n"
+                "  {\n"
+                "    \"txid\" : (string) The transaction id.\n"
+                "    \"sender\" : (string) " + CURRENCY_UNIT + " address of the sender.\n"
+                "    \"hash160\" : (string) ripemd-160 hash of the sender.\n"
+                "    \"address\" : (string) expected contract address.\n"
+                "  }\n"
+                "]\n"
+                "\nExamples:\n"
+                + HelpExampleCli("createcontract", "\"60606040525b33600060006101000a81548173ffffffffffffffffffffffffffffffffffffffff02191690836c010000000000000000000000009081020402179055506103786001600050819055505b600c80605b6000396000f360606040526008565b600256\"")
+                + HelpExampleCli("createcontract", "\"60606040525b33600060006101000a81548173ffffffffffffffffffffffffffffffffffffffff02191690836c010000000000000000000000009081020402179055506103786001600050819055505b600c80605b6000396000f360606040526008565b600256\" 6000000 "+FormatMoney(minGasPrice)+" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" true")
                 );
 
-    LOCK2(cs_main, pwallet->cs_wallet);
 
     std::string bytecode=request.params[0].get_str();
 
@@ -561,7 +562,11 @@ UniValue createcontract(const JSONRPCRequest& request){
     }
 
     if (request.params.size() > 2){
-        nGasPrice = request.params[2].get_real()*COIN;
+        UniValue uGasPrice = request.params[2];
+        if(!ParseMoney(uGasPrice.getValStr(), nGasPrice))
+        {
+            throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasPrice");
+        }
         CAmount maxRpcGasPrice = gArgs.GetArg("-rpcmaxgasprice", MAX_RPC_GAS_PRICE);
         if (nGasPrice > (int64_t)maxRpcGasPrice)
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasPrice, Maximum allowed in RPC calls is: "+FormatMoney(maxRpcGasPrice)+" (use -rpcmaxgasprice to change it)");
@@ -584,6 +589,11 @@ UniValue createcontract(const JSONRPCRequest& request){
     bool fBroadcast=true;
     if (request.params.size() > 4){
     	fBroadcast=request.params[4].get_bool();
+    }
+
+    bool fChangeToSender=true;
+    if (request.params.size() > 5){
+        fChangeToSender=request.params[5].get_bool();
     }
 
     CCoinControl coinControl;
@@ -618,7 +628,9 @@ UniValue createcontract(const JSONRPCRequest& request){
         if(!coinControl.HasSelected()){
             throw JSONRPCError(RPC_TYPE_ERROR, "Sender address does not have any unspent outputs");
         }
-        coinControl.destChange=senderAddress.Get();
+        if(fChangeToSender){
+            coinControl.destChange=senderAddress.Get();
+        }
     }
     EnsureWalletIsUnlocked(pwallet);
 
@@ -708,6 +720,7 @@ UniValue sendtocontract(const JSONRPCRequest& request){
     if (!EnsureWalletIsAvailable(pwallet, request.fHelp))
         return NullUniValue;
 
+    LOCK2(cs_main, pwallet->cs_wallet);
     QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
     uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(chainActive.Height());
     uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(chainActive.Height()));
@@ -726,6 +739,7 @@ UniValue sendtocontract(const JSONRPCRequest& request){
                 "5. gasPrice  (numeric or string, optional) gasPrice Qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)+"\n"
                 "6. \"senderaddress\" (string, optional) The quantum address that will be used as sender.\n"
                 "7. \"broadcast\" (bool, optional, default=true) Whether to broadcast the transaction or not.\n"
+                "8. \"changeToSender\" (bool, optional, default=true) Return the change to the sender.\n"
                 "\nResult:\n"
                 "[\n"
                 "  {\n"
@@ -739,7 +753,6 @@ UniValue sendtocontract(const JSONRPCRequest& request){
                 + HelpExampleCli("sendtocontract", "\"c6ca2697719d00446d4ea51f6fac8fd1e9310214\" \"54f6127f\" 12.0015 6000000 "+FormatMoney(minGasPrice)+" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\"")
         );
 
-    LOCK2(cs_main, pwallet->cs_wallet);
 
     std::string contractaddress = request.params[0].get_str();
     if(contractaddress.size() != 40 || !CheckHex(contractaddress))
@@ -772,7 +785,11 @@ UniValue sendtocontract(const JSONRPCRequest& request){
     }
 
     if (request.params.size() > 4){
-        nGasPrice = request.params[4].get_real()*COIN;
+        UniValue uGasPrice = request.params[4];
+        if(!ParseMoney(uGasPrice.getValStr(), nGasPrice))
+        {
+            throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasPrice");
+        }
         CAmount maxRpcGasPrice = gArgs.GetArg("-rpcmaxgasprice", MAX_RPC_GAS_PRICE);
         if (nGasPrice > (int64_t)maxRpcGasPrice)
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasPrice, Maximum allowed in RPC calls is: "+FormatMoney(maxRpcGasPrice)+" (use -rpcmaxgasprice to change it)");
@@ -797,6 +814,10 @@ UniValue sendtocontract(const JSONRPCRequest& request){
         fBroadcast=request.params[6].get_bool();
     }
 
+    bool fChangeToSender=true;
+    if (request.params.size() > 7){
+        fChangeToSender=request.params[7].get_bool();
+    }
 
     CCoinControl coinControl;
 
@@ -830,7 +851,9 @@ UniValue sendtocontract(const JSONRPCRequest& request){
         if(!coinControl.HasSelected()){
             throw JSONRPCError(RPC_TYPE_ERROR, "Sender address does not have any unspent outputs");
         }
-        coinControl.destChange=senderAddress.Get();
+        if(fChangeToSender){
+            coinControl.destChange=senderAddress.Get();
+        }
     }
 
     EnsureWalletIsUnlocked(pwallet);
@@ -1034,7 +1057,7 @@ UniValue getreceivedbyaddress(const JSONRPCRequest& request)
             + HelpExampleCli("getreceivedbyaddress", "\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"") +
             "\nThe amount including unconfirmed transactions, zero confirmations\n"
             + HelpExampleCli("getreceivedbyaddress", "\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\" 0") +
-            "\nThe amount with at least 6 confirmations\n"
+            "\nThe amount with at least 6 confirmation, very safe\n"
             + HelpExampleCli("getreceivedbyaddress", "\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\" 6") +
             "\nAs a json rpc call\n"
             + HelpExampleRpc("getreceivedbyaddress", "\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\", 6")
@@ -1618,9 +1641,9 @@ UniValue addmultisigaddress(const JSONRPCRequest& request)
 
             "\nExamples:\n"
             "\nAdd a multisig address from 2 addresses\n"
-            + HelpExampleCli("addmultisigaddress", "2 \"[\\\"Q6sSauSf5pF2UkUwvKGq4qjNRzBZYqgEL5\\\",\\\"Q71sgjn4YtPu27adkKGrdDwzRTxnRkBfKV\\\"]\"") +
+            + HelpExampleCli("addmultisigaddress", "2 \"[\\\"QjWnDZxwLhrJDcp4Hisse8RfBo2jRDZY5Z\\\",\\\"Q6sSauSf5pF2UkUwvKGq4qjNRzBZYqgEL5\\\"]\"") +
             "\nAs json rpc call\n"
-            + HelpExampleRpc("addmultisigaddress", "2, \"[\\\"Q6sSauSf5pF2UkUwvKGq4qjNRzBZYqgEL5\\\",\\\"Q71sgjn4YtPu27adkKGrdDwzRTxnRkBfKV\\\"]\"")
+            + HelpExampleRpc("addmultisigaddress", "2, \"[\\\"QjWnDZxwLhrJDcp4Hisse8RfBo2jRDZY5Z\\\",\\\"Q6sSauSf5pF2UkUwvKGq4qjNRzBZYqgEL5\\\"]\"")
         ;
         throw std::runtime_error(msg);
     }
@@ -3279,8 +3302,8 @@ UniValue listunspent(const JSONRPCRequest& request)
 
             "\nExamples\n"
             + HelpExampleCli("listunspent", "")
-            + HelpExampleCli("listunspent", "6 9999999 \"[\\\"QPGFqEzfmQch1gKD3ra4k18PNj3tTUUSqg\\\",\\\"QLtvqCaApEdUGFkpKMM4MstjcaL4dKg8SP\\\"]\"")
-            + HelpExampleRpc("listunspent", "6, 9999999 \"[\\\"QPGFqEzfmQch1gKD3ra4k18PNj3tTUUSqg\\\",\\\"QLtvqCaApEdUGFkpKMM4MstjcaL4dKg8SP\\\"]\"")
+            + HelpExampleCli("listunspent", "6 9999999 \"[\\\"QjWnDZxwLhrJDcp4Hisse8RfBo2jRDZY5Z\\\",\\\"Q6sSauSf5pF2UkUwvKGq4qjNRzBZYqgEL5\\\"]\"")
+            + HelpExampleRpc("listunspent", "6, 9999999 \"[\\\"QjWnDZxwLhrJDcp4Hisse8RfBo2jRDZY5Z\\\",\\\"Q6sSauSf5pF2UkUwvKGq4qjNRzBZYqgEL5\\\"]\"")
             + HelpExampleCli("listunspent", "6 9999999 '[]' true '{ \"minimumAmount\": 0.005 }'")
             + HelpExampleRpc("listunspent", "6, 9999999, [] , true, { \"minimumAmount\": 0.005 } ")
         );
