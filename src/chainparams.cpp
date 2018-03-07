@@ -168,6 +168,8 @@ public:
         consensus.nFirstMPoSBlock = consensus.nLastPOWBlock + 
                                     consensus.nMPoSRewardRecipients + 
                                     COINBASE_MATURITY;
+
+        consensus.nFixUTXOCacheHFHeight=100000;
     }
 };
 
@@ -261,6 +263,8 @@ public:
         consensus.nFirstMPoSBlock = consensus.nLastPOWBlock + 
                                     consensus.nMPoSRewardRecipients + 
                                     COINBASE_MATURITY;
+
+        consensus.nFixUTXOCacheHFHeight=84500;
     }
 };
 
@@ -334,6 +338,8 @@ public:
         consensus.nLastPOWBlock = 0x7fffffff;
         consensus.nMPoSRewardRecipients = 10;
         consensus.nFirstMPoSBlock = 5000;
+
+        consensus.nFixUTXOCacheHFHeight=0;
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,120);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,110);
