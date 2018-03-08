@@ -518,7 +518,7 @@ UniValue createcontract(const JSONRPCRequest& request){
     uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(chainActive.Height()));
     CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
 
-    if (request.fHelp || request.params.size() < 1 || request.params.size() > 5)
+    if (request.fHelp || request.params.size() < 1 || request.params.size() > 6)
         throw std::runtime_error(
                 "createcontract \"bytecode\" (gaslimit gasprice \"senderaddress\" broadcast)"
                 "\nCreate a contract with bytcode.\n"
@@ -726,7 +726,7 @@ UniValue sendtocontract(const JSONRPCRequest& request){
     uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(chainActive.Height()));
     CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
 
-    if (request.fHelp || request.params.size() < 2 || request.params.size() > 7)
+    if (request.fHelp || request.params.size() < 2 || request.params.size() > 8)
         throw std::runtime_error(
                 "sendtocontract \"contractaddress\" \"data\" (amount gaslimit gasprice senderaddress broadcast)"
                 "\nSend funds and data to a contract.\n"
