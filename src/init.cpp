@@ -1488,62 +1488,10 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
                 if (!mapBlockIndex.empty() && mapBlockIndex.count(chainparams.GetConsensus().hashGenesisBlock) == 0)
                     return InitError(_("Incorrect or no genesis block found. Wrong datadir for network?"));
 
-                /////////////////////////////////////////////////////////// qtum
-                if((gArgs.IsArgSet("-dgpstorage") && gArgs.IsArgSet("-dgpevm")) || (!gArgs.IsArgSet("-dgpstorage") && gArgs.IsArgSet("-dgpevm")) ||
-                  (!gArgs.IsArgSet("-dgpstorage") && !gArgs.IsArgSet("-dgpevm"))){
-                    fGettingValuesDGP = true;
-                } else {
-                    fGettingValuesDGP = false;
-                }
-
-                dev::eth::Ethash::init();
-                fs::path qtumStateDir = GetDataDir() / "stateQtum";
-                bool fStatus = fs::exists(qtumStateDir);
-                const std::string dirQtum(qtumStateDir.string());
-                const dev::h256 hashDB(dev::sha3(dev::rlp("")));
-                dev::eth::BaseState existsQtumstate = fStatus ? dev::eth::BaseState::PreExisting : dev::eth::BaseState::Empty;
-                globalState = std::unique_ptr<QtumState>(new QtumState(dev::u256(0), QtumState::openDB(dirQtum, hashDB, dev::WithExisting::Trust), dirQtum, existsQtumstate));
-                dev::eth::ChainParams cp((dev::eth::genesisInfo(dev::eth::Network::qtumMainNetwork)));
-                globalSealEngine = std::unique_ptr<dev::eth::SealEngineFace>(cp.createSealEngine());
-
-                pstorageresult = new StorageResults(qtumStateDir.string());
-                if (fReset) {
-                    pstorageresult->wipeResults();
-                }
-
-                if(chainActive.Tip() != NULL){
-                    globalState->setRoot(uintToh256(chainActive.Tip()->hashStateRoot));
-                    globalState->setRootUTXO(uintToh256(chainActive.Tip()->hashUTXORoot));
-                } else {
-                    globalState->setRoot(dev::sha3(dev::rlp("")));
-                    globalState->setRootUTXO(uintToh256(chainparams.GenesisBlock().hashUTXORoot));
-                    globalState->populateFrom(cp.genesisState);
-                }
-                globalState->db().commit();
-                globalState->dbUtxo().commit();
-
-                fRecordLogOpcodes = gArgs.IsArgSet("-record-log-opcodes");
-                fIsVMlogFile = fs::exists(GetDataDir() / "vmExecLogs.json");
-                ///////////////////////////////////////////////////////////
-
                 // Check for changed -txindex state
                 if (fTxIndex != gArgs.GetBoolArg("-txindex", DEFAULT_TXINDEX)) {
                     strLoadError = _("You need to rebuild the database using -reindex to change -txindex");
                     break;
-                }
-
-                // Check for changed -logevents state
-                if (fLogEvents != gArgs.GetBoolArg("-logevents", DEFAULT_LOGEVENTS) && !fLogEvents) {
-                    strLoadError = _("You need to rebuild the database using -reindex-chainstate to enable -logevents");
-                    break;
-                }
-
-                if (!gArgs.GetBoolArg("-logevents", DEFAULT_LOGEVENTS))
-                {
-                    pstorageresult->wipeResults();
-                    pblocktree->WipeHeightIndex();
-                    fLogEvents = false;
-                    pblocktree->WriteFlag("logevents", fLogEvents);
                 }
 
                 // Check for changed -prune state.  What we are concerned about is a user who has pruned blocks
@@ -1592,6 +1540,58 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
                         break;
                     }
                     assert(chainActive.Tip() != nullptr);
+                }
+
+                /////////////////////////////////////////////////////////// qtum
+                if((gArgs.IsArgSet("-dgpstorage") && gArgs.IsArgSet("-dgpevm")) || (!gArgs.IsArgSet("-dgpstorage") && gArgs.IsArgSet("-dgpevm")) ||
+                  (!gArgs.IsArgSet("-dgpstorage") && !gArgs.IsArgSet("-dgpevm"))){
+                    fGettingValuesDGP = true;
+                } else {
+                    fGettingValuesDGP = false;
+                }
+
+                dev::eth::Ethash::init();
+                fs::path qtumStateDir = GetDataDir() / "stateQtum";
+                bool fStatus = fs::exists(qtumStateDir);
+                const std::string dirQtum(qtumStateDir.string());
+                const dev::h256 hashDB(dev::sha3(dev::rlp("")));
+                dev::eth::BaseState existsQtumstate = fStatus ? dev::eth::BaseState::PreExisting : dev::eth::BaseState::Empty;
+                globalState = std::unique_ptr<QtumState>(new QtumState(dev::u256(0), QtumState::openDB(dirQtum, hashDB, dev::WithExisting::Trust), dirQtum, existsQtumstate));
+                dev::eth::ChainParams cp((dev::eth::genesisInfo(dev::eth::Network::qtumMainNetwork)));
+                globalSealEngine = std::unique_ptr<dev::eth::SealEngineFace>(cp.createSealEngine());
+
+                pstorageresult = new StorageResults(qtumStateDir.string());
+                if (fReset) {
+                    pstorageresult->wipeResults();
+                }
+
+                if(chainActive.Tip() != nullptr){
+                    globalState->setRoot(uintToh256(chainActive.Tip()->hashStateRoot));
+                    globalState->setRootUTXO(uintToh256(chainActive.Tip()->hashUTXORoot));
+                } else {
+                    globalState->setRoot(dev::sha3(dev::rlp("")));
+                    globalState->setRootUTXO(uintToh256(chainparams.GenesisBlock().hashUTXORoot));
+                    globalState->populateFrom(cp.genesisState);
+                }
+                globalState->db().commit();
+                globalState->dbUtxo().commit();
+
+                fRecordLogOpcodes = gArgs.IsArgSet("-record-log-opcodes");
+                fIsVMlogFile = fs::exists(GetDataDir() / "vmExecLogs.json");
+                ///////////////////////////////////////////////////////////
+
+                // Check for changed -logevents state
+                if (fLogEvents != gArgs.GetBoolArg("-logevents", DEFAULT_LOGEVENTS) && !fLogEvents) {
+                    strLoadError = _("You need to rebuild the database using -reindex-chainstate to enable -logevents");
+                    break;
+                }
+
+                if (!gArgs.GetBoolArg("-logevents", DEFAULT_LOGEVENTS))
+                {
+                    pstorageresult->wipeResults();
+                    pblocktree->WipeHeightIndex();
+                    fLogEvents = false;
+                    pblocktree->WriteFlag("logevents", fLogEvents);
                 }
 
                 if (!fReset) {
