@@ -247,6 +247,8 @@ void Shutdown()
         pcoinsdbview = nullptr;
         delete pblocktree;
         pblocktree = nullptr;
+        delete pstorageresult;
+        pstorageresult = nullptr;
         delete globalState.release();
         globalSealEngine.reset();
     }
@@ -479,6 +481,7 @@ std::string HelpMessage(HelpMessageMode mode)
         strUsage += HelpMessageOpt("-maxsigcachesize=<n>", strprintf("Limit sum of signature cache and script execution cache sizes to <n> MiB (default: %u)", DEFAULT_MAX_SIG_CACHE_SIZE));
         strUsage += HelpMessageOpt("-maxtipage=<n>", strprintf("Maximum tip age in seconds to consider node in initial block download (default: %u)", DEFAULT_MAX_TIP_AGE));
     }
+    strUsage += HelpMessageOpt("-minmempoolgaslimit=<limit>", strprintf("The minimum transaction gas limit we are willing to accept into the mempool (default: %s)",MEMPOOL_MIN_GAS_LIMIT));
     strUsage += HelpMessageOpt("-maxtxfee=<amt>", strprintf(_("Maximum total fees (in %s) to use in a single wallet transaction or raw transaction; setting this too low may abort large transactions (default: %s)"),
         CURRENCY_UNIT, FormatMoney(DEFAULT_TRANSACTION_MAXFEE)));
     strUsage += HelpMessageOpt("-printtoconsole", _("Send trace/debug info to console instead of debug.log file"));
@@ -1455,6 +1458,7 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
                 delete pcoinsdbview;
                 delete pcoinscatcher;
                 delete pblocktree;
+                delete pstorageresult;
                 globalState.reset();
                 globalSealEngine.reset();
 
@@ -1502,6 +1506,11 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
                 dev::eth::ChainParams cp((dev::eth::genesisInfo(dev::eth::Network::qtumMainNetwork)));
                 globalSealEngine = std::unique_ptr<dev::eth::SealEngineFace>(cp.createSealEngine());
 
+                pstorageresult = new StorageResults(qtumStateDir.string());
+                if (fReset) {
+                    pstorageresult->wipeResults();
+                }
+
                 if(chainActive.Tip() != NULL){
                     globalState->setRoot(uintToh256(chainActive.Tip()->hashStateRoot));
                     globalState->setRootUTXO(uintToh256(chainActive.Tip()->hashUTXORoot));
@@ -1531,9 +1540,7 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
 
                 if (!gArgs.GetBoolArg("-logevents", DEFAULT_LOGEVENTS))
                 {
-                    fs::path stateDir = GetDataDir() / "stateQtum";
-                    StorageResults storageRes(stateDir.string());
-                    storageRes.wipeResults();
+                    pstorageresult->wipeResults();
                     pblocktree->WipeHeightIndex();
                     fLogEvents = false;
                     pblocktree->WriteFlag("logevents", fLogEvents);

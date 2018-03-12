@@ -1081,6 +1081,9 @@ void assignJSON(UniValue& entry, const TransactionReceiptInfo& resExec) {
             Pair("cumulativeGasUsed", CAmount(resExec.cumulativeGasUsed)));
     entry.push_back(Pair("gasUsed", CAmount(resExec.gasUsed)));
     entry.push_back(Pair("contractAddress", resExec.contractAddress.hex()));
+    std::stringstream ss;
+    ss << resExec.excepted;
+    entry.push_back(Pair("excepted",ss.str()));
 }
 
 void assignJSON(UniValue& logEntry, const dev::eth::LogEntry& log,
@@ -1123,7 +1126,7 @@ size_t parseUInt(const UniValue& val, size_t defaultVal) {
     }
 }
 
-size_t parseBlockHeight(const UniValue& val) {
+int parseBlockHeight(const UniValue& val) {
     if (val.isStr()) {
         auto blockKey = val.get_str();
 
@@ -1147,7 +1150,7 @@ size_t parseBlockHeight(const UniValue& val) {
     throw JSONRPCError(RPC_INVALID_PARAMS, "invalid block number");
 }
 
-size_t parseBlockHeight(const UniValue& val, size_t defaultVal) {
+int parseBlockHeight(const UniValue& val, int defaultVal) {
     if (val.isNull()) {
         return defaultVal;
     } else {
@@ -1230,10 +1233,10 @@ void parseParam(const UniValue& val, std::vector<boost::optional<dev::h256>> &h2
 
 class WaitForLogsParams {
 public:
-    size_t fromBlock;
-    size_t toBlock;
+    int fromBlock;
+    int toBlock;
 
-    size_t minconf;
+    int minconf;
 
     std::set<dev::h160> addresses;
     std::vector<boost::optional<dev::h256>> topics;
@@ -1244,7 +1247,7 @@ public:
         std::unique_lock<std::mutex> lock(cs_blockchange);
 
         fromBlock = parseBlockHeight(params[0], latestblock.height + 1);
-        toBlock = parseBlockHeight(params[1], 0);
+        toBlock = parseBlockHeight(params[1], -1);
 
         parseFilter(params[2]);
         minconf = parseUInt(params[3], 6);
@@ -1318,11 +1321,16 @@ UniValue waitforlogs(const JSONRPCRequest& request_) {
         //    nextBlock = curheight + 1
         // if curheight == 0. No log entry found in index. Wait for new block then try again.
         //    nextBlock = fromBlock
+        // if curheight == -1. Incorrect parameters has entered.
         //
         // if curheight advanced, but all filtered out, API should return empty array, but advancing the cursor anyway.
 
         if (curheight > 0) {
             break;
+        }
+
+        if (curheight == -1) {
+            throw JSONRPCError(RPC_INVALID_PARAMETER, "Incorrect params");
         }
 
         // wait for a new block to arrive
@@ -1349,14 +1357,11 @@ UniValue waitforlogs(const JSONRPCRequest& request_) {
 
     LOCK(cs_main);
 
-    boost::filesystem::path stateDir = GetDataDir() / "stateQtum";
-    StorageResults storageRes(stateDir.string());
-
     UniValue jsonLogs(UniValue::VARR);
 
     for (const auto& txHashes : hashesToBlock) {
         for (const auto& txHash : txHashes) {
-            std::vector<TransactionReceiptInfo> receipts = storageRes.getResult(
+            std::vector<TransactionReceiptInfo> receipts = pstorageresult->getResult(
                     uintToh256(txHash));
 
             for (const auto& receipt : receipts) {
@@ -1456,7 +1461,7 @@ UniValue searchlogs(const JSONRPCRequest& request)
              "1. \"fromBlock\"        (numeric, required) The number of the earliest block (latest may be given to mean the most recent block).\n"
              "2. \"toBlock\"          (string, required) The number of the latest block (-1 may be given to mean the most recent block).\n"
              "3. \"address\"          (string, optional) An address or a list of addresses to only get logs from particular account(s).\n"
-             "4. \"topics\"           (string, optional) An array of values which must each appear in the log entries. The order is important, if you want to leave topics out use null, e.g. [\"null\", \"0x00...\"]. \n"
+             "4. \"topics\"           (string, optional) An array of values from which at least one must appear in the log entries. The order is important, if you want to leave topics out use null, e.g. [\"null\", \"0x00...\"]. \n"
              "5. \"minconf\"          (uint, optional, default=0) Minimal number of confirmations before a log is returned\n"
              "\nExamples:\n"
             + HelpExampleCli("searchlogs", "0 100 '{\"addresses\": [\"12ae42729af478ca92c8c66773a3e32115717be4\"]}' '{\"topics\": [\"null\",\"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"]}'")
@@ -1466,17 +1471,21 @@ UniValue searchlogs(const JSONRPCRequest& request)
     if(!fLogEvents)
         throw JSONRPCError(RPC_INTERNAL_ERROR, "Events indexing disabled");
 
+    int curheight = 0;
+    
     LOCK(cs_main);
 
     SearchLogsParams params(request.params);
     
     std::vector<std::vector<uint256>> hashesToBlock;
 
-    pblocktree->ReadHeightIndex(params.fromBlock, params.toBlock, params.minconf, hashesToBlock, params.addresses);
+    curheight = pblocktree->ReadHeightIndex(params.fromBlock, params.toBlock, params.minconf, hashesToBlock, params.addresses);
+
+    if (curheight == -1) {
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Incorrect params");
+    }
 
     UniValue result(UniValue::VARR);
-    boost::filesystem::path stateDir = GetDataDir() / "stateQtum";
-    StorageResults storageRes(stateDir.string());
 
     auto topics = params.topics;
 
@@ -1484,7 +1493,7 @@ UniValue searchlogs(const JSONRPCRequest& request)
     {
         for(const auto& e : hashesTx)
         {
-            std::vector<TransactionReceiptInfo> receipts = storageRes.getResult(uintToh256(e));
+            std::vector<TransactionReceiptInfo> receipts = pstorageresult->getResult(uintToh256(e));
             
             for(const auto& receipt : receipts) {
                 if(receipt.logs.empty()) {
@@ -1511,6 +1520,9 @@ UniValue searchlogs(const JSONRPCRequest& request)
                             }
                         }
                     }
+
+                    // Skip the log if none of the topics are matched
+                    continue;
                 }
 
             push:
@@ -1547,10 +1559,7 @@ UniValue gettransactionreceipt(const JSONRPCRequest& request)
     
     uint256 hash(uint256S(hashTemp));
 
-    boost::filesystem::path stateDir = GetDataDir() / "stateQtum";
-    StorageResults storageRes(stateDir.string());
-
-    std::vector<TransactionReceiptInfo> transactionReceiptInfo = storageRes.getResult(uintToh256(hash));
+    std::vector<TransactionReceiptInfo> transactionReceiptInfo = pstorageresult->getResult(uintToh256(hash));
 
     UniValue result(UniValue::VARR);
     for(TransactionReceiptInfo& t : transactionReceiptInfo){
