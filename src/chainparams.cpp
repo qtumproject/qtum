@@ -112,10 +112,10 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = 999999999999ULL;
 
         // The best chain should have at least this much work.
-        consensus.nMinimumChainWork = uint256S("0x0000000000000000000000000000000000000000000000000000000000010000");
+        consensus.nMinimumChainWork = uint256S("0x000000000000000000000000000000000000000000000036a70ae675b98824c5"); // qtum
 
         // By default assume that the signatures in ancestors of this block are valid.
-        consensus.defaultAssumeValid = uint256S("0x0000000000000000003b9ce759c2a087d52abc4266f8f4ebd6d768b89defa50a"); //477890
+        consensus.defaultAssumeValid = uint256S("0xbfbbfc2c3be3d4e085082aff2e4e73a4e21dbf6205bc41b84b38ffac0a8bc114"); //453354
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -152,16 +152,18 @@ public:
         checkpointData = (CCheckpointData) {
             {
                 { 0, uint256S("000075aef83cf2853580f8ae8ce6f8c3096cfa21d98334d6e3f95e5582ed986c")},
-                { 5000, uint256S("00006a5338e5647872bd91de1d291365e941e14dff1939b5f16d1804d1ce61cd")},
+                { 5000, uint256S("00006a5338e5647872bd91de1d291365e941e14dff1939b5f16d1804d1ce61cd")}, //last PoW block
+                { 45000, uint256S("060c6af680f6975184c7a17059f2ff4970544fcfd4104e73744fe7ab7be14cfc")},
+                { 90000, uint256S("66fcf426b0aa6f2c9e3330cb2775e9e13c4a2b8ceedb50f8931ae0e12078ad50")},
             }
         };
 
         chainTxData = ChainTxData{
-            // Data as of block 969db3e6c2e9b00cc2b6ec470c1c5b23bf43c76b4f28d5ad0484a9186f822475 (height 17938).
-            1506724560, // * UNIX timestamp of last known number of transactions
-            30988,      // * total number of transactions between genesis and that timestamp
-                        //   (the tx=... number in the SetBestChain debug.log lines)
-            0.5         // * estimated number of transactions per second after that timestamp
+            // Data as of block a1bab8db27f26952ce94fff6563931943554e36fc3a23f99cc8513270d685b2c (height 92662)
+            1517516912, // * UNIX timestamp of last known number of transactions
+            904678, // * total number of transactions between genesis and that timestamp
+                            //   (the tx=... number in the SetBestChain debug.log lines)
+            0.125 // * estimated number of transactions per second after that timestamp
         };
         consensus.nLastPOWBlock = 5000;
         consensus.nMPoSRewardRecipients = 10;
@@ -209,10 +211,10 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = 999999999999ULL;
 
         // The best chain should have at least this much work.
-        consensus.nMinimumChainWork = uint256S("0x0000000000000000000000000000000000000000000000000000000000010000");
+        consensus.nMinimumChainWork = uint256S("0x00000000000000000000000000000000000000000000000d6e528bcf5a3a556f"); // qtum
 
         // By default assume that the signatures in ancestors of this block are valid.
-        consensus.defaultAssumeValid = uint256S("0x0000000002e9e7b00e1f6dc5123a04aad68dd0f0968d8c7aa45f6640795c37b1"); //1135275
+        consensus.defaultAssumeValid = uint256S("0x39ffa0c5924550db0e75030ff8513c3145d491dff2e17b8e3ea1cea7b4662ff0"); //1079274
 
         pchMessageStart[0] = 0x0d;
         pchMessageStart[1] = 0x22;
@@ -247,15 +249,16 @@ public:
         checkpointData = (CCheckpointData) {
             {
                 {0, uint256S("0000e803ee215c0684ca0d2f9220594d3f828617972aad66feb2ba51f5e14222")},
-                {5000, uint256S("000000302bc22f2f65995506e757fff5c824545db5413e871d57d27a0997e8a0")},
+                {5000, uint256S("000000302bc22f2f65995506e757fff5c824545db5413e871d57d27a0997e8a0")}, //last PoW block
+                { 77000, uint256S("f41e2e8d09bca38827c23cad46ed6d434902da08415d2314d0c8ce285b1970cb")},
             }
         };
 
         chainTxData = ChainTxData{
-            // Data as of block 695970858efe7f30a6b332602f449304035e5c679703c8b0364f70b73a485b3f (height 5121)
-            1506753056,
-            5318,
-            0.1
+            // Data as of block 493cccf2ba87ffdabd7afc0f3242c1357fdebdc0b8c7e7adc3c6dc2b1c8ca797 (height 79167)
+            1517517152,
+            162802,
+            0.0132
         };
 
         consensus.nLastPOWBlock = 5000;

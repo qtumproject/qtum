@@ -724,7 +724,7 @@ void HTTPRequest::WriteReply(int nStatus, const std::string& strReply)
     assert(evb);
     evbuffer_add(evb, strReply.data(), strReply.size());
     auto req_copy = req;
-    HTTPEvent* ev = new HTTPEvent(eventBase, true, NULL, [req_copy, nStatus]{
+    HTTPEvent* ev = new HTTPEvent(eventBase, true, nullptr, [req_copy, nStatus]{
         evhttp_send_reply(req_copy, nStatus, nullptr, nullptr);
         // Re-enable reading from the socket. This is the second part of the libevent
         // workaround above.
