@@ -1339,6 +1339,9 @@ void BitcoinGUI::updateWeight(CWalletRef pwalletMain)
 
 void BitcoinGUI::updateStakingIcon()
 {
+    if(ShutdownRequested())
+        return;
+
     CWalletRef pwalletMain = vpwallets.empty() ? 0 : vpwallets[0];
     if(!pwalletMain)
         return;
