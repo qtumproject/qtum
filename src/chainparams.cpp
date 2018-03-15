@@ -352,6 +352,26 @@ public:
     }
 };
 
+/**
+ * Regression network parameters overwrites for unit testing
+ */
+class CUnitTestParams : public CRegTestParams
+{
+public:
+    CUnitTestParams()
+    {
+        // Activate the the BIPs for regtest as in Bitcoin
+        consensus.BIP34Height = 100000000; // BIP34 has not activated on regtest (far in the future so block v1 are not rejected in tests)
+        consensus.BIP65Height = 1351; // BIP65 activated on regtest (Used in rpc activation tests)
+        consensus.BIP66Height = 1251; // BIP66 activated on regtest (Used in rpc activation tests)
+
+        // QTUM have 500 blocks of maturity, increased values for regtest in unit tests in order to correspond with it
+        consensus.nSubsidyHalvingInterval = 750;
+        consensus.nRuleChangeActivationThreshold = 558; // 75% for testchains
+        consensus.nMinerConfirmationWindow = 744; // Faster than normal for regtest (744 instead of 2016)
+    }
+};
+
 static std::unique_ptr<CChainParams> globalChainParams;
 
 const CChainParams &Params() {
@@ -367,6 +387,8 @@ std::unique_ptr<CChainParams> CreateChainParams(const std::string& chain)
         return std::unique_ptr<CChainParams>(new CTestNetParams());
     else if (chain == CBaseChainParams::REGTEST)
         return std::unique_ptr<CChainParams>(new CRegTestParams());
+    else if (chain == CBaseChainParams::UNITTEST)
+        return std::unique_ptr<CChainParams>(new CUnitTestParams());
     throw std::runtime_error(strprintf("%s: Unknown chain %s.", __func__, chain));
 }
 
