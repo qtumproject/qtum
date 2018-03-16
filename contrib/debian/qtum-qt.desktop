@@ -1,0 +1,10 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Bitcoin Core
+Comment=Connect to the Qtum P2P Network
+Exec=qtum-qt %u
+Terminal=false
+Type=Application
+Icon=qtum128
+MimeType=x-scheme-handler/qtum;
+Categories=Office;Finance;
