@@ -1,7 +1,7 @@
 WINDOWS BUILD NOTES
 ====================
 
-Below are some notes on how to build Bitcoin Core for Windows.
+Below are some notes on how to build Qtum Core for Windows.
 
 Most developers use cross-compilation from Ubuntu to build executables for
 Windows. Cross-compilation is also used to build the release binaries.
@@ -57,7 +57,7 @@ installing the toolchain will be different.
 
 First, install the general dependencies:
 
-    sudo apt-get install build-essential libtool autotools-dev automake pkg-config bsdmainutils curl
+    sudo apt-get install build-essential libtool autotools-dev automake cmake pkg-config bsdmainutils curl
 
 A host toolchain (`build-essential`) is necessary because some dependency
 packages (such as `protobuf`) need to build host utilities that are used in the
@@ -113,6 +113,6 @@ Installation
 After building using the Windows subsystem it can be useful to copy the compiled
 executables to a directory on the windows drive in the same directory structure
 as they appear in the release `.zip` archive. This can be done in the following
-way. This will install to `c:\workspace\bitcoin`, for example:
+way. This will install to `c:\workspace\qtum`, for example:
 
-    make install DESTDIR=/mnt/c/workspace/bitcoin
+    make install DESTDIR=/mnt/c/workspace/qtum
