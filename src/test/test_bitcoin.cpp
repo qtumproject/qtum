@@ -82,6 +82,7 @@ TestingSetup::TestingSetup(const std::string& chainName) : BasicTestingSetup(cha
         globalState->setRootUTXO(uintToh256(chainparams.GenesisBlock().hashUTXORoot));
         globalState->db().commit();
         globalState->dbUtxo().commit();
+        pstorageresult = new StorageResults(pathTemp.string());
 //////////////////////////////////////////////////////////////
 
         InitBlockIndex(chainparams);
