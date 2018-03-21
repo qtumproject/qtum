@@ -143,7 +143,7 @@ def test_notmine_bumpfee_fails(rbf_node, peer_node, dest_address):
         "address": utxo["address"],
         "sequence": BIP125_SEQUENCE_NUMBER
     } for utxo in utxos]
-    output_val = sum(utxo["amount"] for utxo in utxos) - Decimal("0.001")
+    output_val = sum(utxo["amount"] for utxo in utxos) - Decimal("0.01")
     rawtx = rbf_node.createrawtransaction(inputs, {dest_address: output_val})
     signedtx = rbf_node.signrawtransaction(rawtx)
     signedtx = peer_node.signrawtransaction(signedtx["hex"])
