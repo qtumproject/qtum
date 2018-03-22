@@ -583,12 +583,12 @@ UniValue createcontract(const JSONRPCRequest& request){
         if (!senderAddress.IsValid())
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Qtum address to send from");
         else
-        	fHasSender=true;
+            fHasSender=true;
     }
 
     bool fBroadcast=true;
     if (request.params.size() > 4){
-    	fBroadcast=request.params[4].get_bool();
+        fBroadcast=request.params[4].get_bool();
     }
 
     bool fChangeToSender=true;
@@ -643,13 +643,13 @@ UniValue createcontract(const JSONRPCRequest& request){
     CAmount curBalance = pwallet->GetBalance();
 
     // Check amount
-	if (nGasFee <= 0)
-		throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid amount");
+    if (nGasFee <= 0)
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid amount");
 
-	if (nGasFee > curBalance)
-		throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Insufficient funds");
+    if (nGasFee > curBalance)
+        throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Insufficient funds");
 
-	// Build OP_EXEC script
+    // Build OP_EXEC script
     CScript scriptPubKey = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(nGasLimit) << CScriptNum(nGasPrice) << ParseHex(bytecode) <<OP_CREATE;
 
     // Create and send the transaction
@@ -695,14 +695,14 @@ UniValue createcontract(const JSONRPCRequest& request){
     std::vector<unsigned char> txIdAndVout(wtx.GetHash().begin(), wtx.GetHash().end());
     uint32_t voutNumber=0;
     for (const CTxOut& txout : wtx.tx->vout) {
-    	if(txout.scriptPubKey.HasOpCreate()){
-    	    std::vector<unsigned char> voutNumberChrs;
-    	    if (voutNumberChrs.size() < sizeof(voutNumber))voutNumberChrs.resize(sizeof(voutNumber));
-    	    std::memcpy(voutNumberChrs.data(), &voutNumber, sizeof(voutNumber));
-    	    txIdAndVout.insert(txIdAndVout.end(),voutNumberChrs.begin(),voutNumberChrs.end());
-    		break;
-    	}
-    	voutNumber++;
+        if(txout.scriptPubKey.HasOpCreate()){
+            std::vector<unsigned char> voutNumberChrs;
+            if (voutNumberChrs.size() < sizeof(voutNumber))voutNumberChrs.resize(sizeof(voutNumber));
+            std::memcpy(voutNumberChrs.data(), &voutNumber, sizeof(voutNumber));
+            txIdAndVout.insert(txIdAndVout.end(),voutNumberChrs.begin(),voutNumberChrs.end());
+            break;
+        }
+        voutNumber++;
     }
     CSHA256().Write(txIdAndVout.data(), txIdAndVout.size()).Finalize(SHA256TxVout.data());
     CRIPEMD160().Write(SHA256TxVout.data(), SHA256TxVout.size()).Finalize(contractAddress.data());
@@ -2737,7 +2737,17 @@ UniValue walletpassphrase(const JSONRPCRequest& request)
 
     if (strWalletPass.length() > 0)
     {
+        // Used to restore fWalletUnlockStakingOnly value in case of unlock failure 
+        bool tmpStakingOnly = fWalletUnlockStakingOnly;
+
+        // ppcoin: if user OS account compromised prevent trivial sendmoney commands
+        if (request.params.size() > 2)
+            fWalletUnlockStakingOnly = request.params[2].get_bool();
+        else
+            fWalletUnlockStakingOnly = false;
+    
         if (!pwallet->Unlock(strWalletPass)) {
+            fWalletUnlockStakingOnly = tmpStakingOnly;
             throw JSONRPCError(RPC_WALLET_PASSPHRASE_INCORRECT, "Error: The wallet passphrase entered was incorrect.");
         }
     }
@@ -2751,12 +2761,6 @@ UniValue walletpassphrase(const JSONRPCRequest& request)
     int64_t nSleepTime = request.params[1].get_int64();
     pwallet->nRelockTime = GetTime() + nSleepTime;
     RPCRunLater(strprintf("lockwallet(%s)", pwallet->GetName()), boost::bind(LockWallet, pwallet), nSleepTime);
-
-    // ppcoin: if user OS account compromised prevent trivial sendmoney commands
-    if (request.params.size() > 2)
-        fWalletUnlockStakingOnly = request.params[2].get_bool();
-    else
-        fWalletUnlockStakingOnly = false;
 
     return NullUniValue;
 }
