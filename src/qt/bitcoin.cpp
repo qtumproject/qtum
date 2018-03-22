@@ -173,6 +173,15 @@ void DebugMessageHandler(QtMsgType type, const QMessageLogContext& context, cons
 }
 #endif
 
+void removeParam(QStringList& list, const QString& param)
+{
+    int index = list.indexOf(param);
+    if(index != -1)
+    {
+        list.removeAt(index);
+    }
+}
+
 /** Class encapsulating Bitcoin Core startup and shutdown.
  * Allows running startup and shutdown in a different thread from the UI thread.
  */
@@ -568,6 +577,8 @@ void BitcoinApplication::restoreWallet()
         // Create command line
         QString commandLine;
         QStringList arg = arguments();
+        removeParam(arg, "-reindex");
+        removeParam(arg, "-salvagewallet");
         if(!arg.contains(restoreParam))
         {
             arg.append(restoreParam);
