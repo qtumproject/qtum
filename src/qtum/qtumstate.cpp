@@ -145,6 +145,7 @@ void QtumState::transferBalance(dev::Address const& _from, dev::Address const& _
     subBalance(_from, _value);
     addBalance(_to, _value);
     if (_value > 0)
+       // if(this->addressHasCode(from))
         transfers.push_back({_from, _to, _value});
 }
 

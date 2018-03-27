@@ -71,6 +71,7 @@ struct UniversalAddress{
     std::vector<uint8_t> data;
 
     static UniversalAddress FromScript(const CScript& script);
+    static UniversalAddress FromOutput(AddressVersion v, uint256 txid, uint32_t vout);
 };
 
 struct ContractOutput{
@@ -80,6 +81,7 @@ struct ContractOutput{
     std::vector<uint8_t> data;
     UniversalAddress sender;
     COutPoint vout;
+    bool OpCreate;
 };
 
 class ContractOutputParser{
@@ -124,11 +126,21 @@ struct ValueTransfer{
     UniversalAddress to;
 };
 
+enum ContractStatus{
+    SUCCESS = 0,
+    OUT_OF_GAS = 1,
+    CODE_ERROR = 2,
+    DOESNT_EXIST = 3
+};
+
 struct ContractExecutionResult{
     uint64_t usedGas;
     CAmount refundSender = 0;
     std::vector<ValueTransfer> transfers;
+    ContractStatus status;
 };
+
+class QtumTransaction;
 
 //the abstract class for the VM interface
 //in the future, enterprise/private VMs will use this interface
@@ -138,7 +150,7 @@ protected:
     ContractVM(DeltaDB &db, const ContractEnvironment &_env, uint64_t _remainingGasLimit)
     : env(_env), remainingGasLimit(_remainingGasLimit) {}
 public:
-    virtual bool execute(bool commit)=0;
+    virtual bool execute(ContractOutput &output, ContractExecutionResult &result, bool commit)=0;
 protected:
     const ContractEnvironment &env;
     const uint64_t remainingGasLimit;
@@ -149,9 +161,10 @@ public:
     EVMContractVM(DeltaDB &db, const ContractEnvironment &env, uint64_t remainingGasLimit)
             : ContractVM(db, env, remainingGasLimit)
     {}
-    virtual bool execute(bool commit);
+    virtual bool execute(ContractOutput &output, ContractExecutionResult &result, bool commit);
 private:
     dev::eth::EnvInfo buildEthEnv();
+    QtumTransaction buildQtumTx(const ContractOutput &output);
 };
 
 class ContractExecutor{
