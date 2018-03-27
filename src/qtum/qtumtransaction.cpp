@@ -193,6 +193,20 @@ bool EVMContractVM::execute(ContractOutput &output, ContractExecutionResult &res
         result.status = ContractStatus::DOESNT_EXIST;
         return false;
     }
+    dev::eth::Permanence p = commit ? dev::eth::Permanence::Committed : dev::eth::Permanence::Reverted;
+    ResultExecute ethres = globalState->execute(envInfo, *globalSealEngine.get(), buildQtumTx(output), p, OnOpFunc());
+    //TODO, make proper status
+    switch(ethres.execRes.excepted){
+        case dev::eth::TransactionException::None:
+            result.status = ContractStatus::SUCCESS;
+            break;
+        default:
+            result.status = ContractStatus ::CODE_ERROR;
+            break;
+    }
+    //todo: error checking here for overflow
+    result.refundSender = (uint64_t) ethres.execRes.gasRefunded;
+    result.usedGas = (uint64_t) ethres.execRes.gasUsed;
     //result.push_back(globalState->execute(envInfo, *globalSealEngine.get(), tx, type, OnOpFunc()));
     globalState->db().commit();
     globalState->dbUtxo().commit();

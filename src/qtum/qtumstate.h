@@ -81,6 +81,7 @@ public:
     virtual ~QtumState(){}
 
     friend CondensingTX;
+    friend EVMContractVM;
 
 private:
 
