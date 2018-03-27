@@ -49,12 +49,36 @@ static const uint8_t ROOT_VM_EVM = 1;
 static const uint8_t ROOT_VM_X86 = 2;
 
 
+enum AddressVersion{
+    UNKNOWN = 0,
+    //legacy is either pubkeyhash or EVM, depending on if the address already exists
+    LEGACYEVM = 1,
+    PUBKEYHASH = 2,
+    EVM = 3,
+    X86 = 4,
+    SCRIPTHASH = 5,
+};
+
+struct UniversalAddress{
+    UniversalAddress(){
+        version = AddressVersion::UNKNOWN;
+    }
+    UniversalAddress(AddressVersion v, const std::vector<uint8_t> &d)
+    : version(v), data(d) {}
+    UniversalAddress(AddressVersion v, const unsigned char* begin, const unsigned char* end)
+    : version(v), data(begin, end) {}
+    AddressVersion version;
+    std::vector<uint8_t> data;
+
+    static UniversalAddress FromScript(const CScript& script);
+};
+
 struct ContractOutput{
     VersionVM version;
     uint64_t value, gasPrice, gasLimit;
-    std::vector<uint8_t> address;
+    UniversalAddress address;
     std::vector<uint8_t> data;
-    std::vector<uint8_t> sender;
+    UniversalAddress sender;
     COutPoint vout;
 };
 
@@ -64,7 +88,7 @@ public:
     ContractOutputParser(CTransaction tx, uint32_t vout, CCoinsViewCache* v = NULL, const std::vector<CTransactionRef>* blockTxs = NULL)
             : tx(tx), nvout(vout), view(v), blockTransactions(blockTxs) {}
     bool parseOutput(ContractOutput& output);
-    valtype getSenderAddress();
+    UniversalAddress getSenderAddress();
 
 private:
     bool receiveStack(const CScript& scriptPubKey);
@@ -82,6 +106,7 @@ struct ContractEnvironment{
     uint64_t blockTime;
     uint64_t difficulty;
     uint64_t gasLimit;
+    UniversalAddress blockCreator;
     std::vector<uint256> blockHashes;
 
     //todo for x86: tx info
@@ -93,27 +118,51 @@ public:
     bool readState(valtype address, valtype key, valtype& value);
 };
 
-struct ByteCodeExecResult;
+struct ValueTransfer{
+    COutPoint spend;
+    CAmount value;
+    UniversalAddress to;
+};
+
+struct ContractExecutionResult{
+    uint64_t usedGas;
+    CAmount refundSender = 0;
+    std::vector<ValueTransfer> transfers;
+};
+
 //the abstract class for the VM interface
 //in the future, enterprise/private VMs will use this interface
 class ContractVM{
     //todo database
-    ContractVM(const ContractEnvironment &_env, uint64_t _gasUsed)
-    : env(_env), gasUsed(_gasUsed) {}
+protected:
+    ContractVM(DeltaDB &db, const ContractEnvironment &_env, uint64_t _remainingGasLimit)
+    : env(_env), remainingGasLimit(_remainingGasLimit) {}
 public:
     virtual bool execute(bool commit)=0;
 protected:
     const ContractEnvironment &env;
-    const uint64_t gasUsed;
+    const uint64_t remainingGasLimit;
+};
+
+class EVMContractVM : public ContractVM {
+public:
+    EVMContractVM(DeltaDB &db, const ContractEnvironment &env, uint64_t remainingGasLimit)
+            : ContractVM(db, env, remainingGasLimit)
+    {}
+    virtual bool execute(bool commit);
+private:
+    dev::eth::EnvInfo buildEthEnv();
 };
 
 class ContractExecutor{
 public:
-    ContractExecutor(const CBlock& _block, ContractOutput output, uint64_t _blockGasLimit);
-    bool execute(ByteCodeExecResult &result, bool commit);
+    ContractExecutor(const CBlock& _block, ContractOutput _output, uint64_t _blockGasLimit);
+    bool execute(ContractExecutionResult &result, bool commit);
 private:
 
+    ContractEnvironment buildEnv();
     const CBlock& block;
+    ContractOutput output;
     const uint64_t blockGasLimit;
 };
 

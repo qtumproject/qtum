@@ -640,7 +640,7 @@ struct EthTransactionParams{
 struct ByteCodeExecResult{
     uint64_t usedGas = 0;
     CAmount refundSender = 0;
-    std::vector<CTxOut> refundOutputs;
+    std::vector<CTxOut> refundOutputs; //outputs that should go
     std::vector<CTransaction> valueTransfers;
 };
 
