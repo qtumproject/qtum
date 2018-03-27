@@ -2,6 +2,8 @@
 #define QTUMTRANSACTION_H
 
 #include <libethcore/Transaction.h>
+#include <coins.h>
+#include <script/interpreter.h>
 
 struct VersionVM{
     //this should be portable, see https://stackoverflow.com/questions/31726191/is-there-a-portable-alternative-to-c-bitfields
@@ -41,6 +43,86 @@ struct VersionVM{
         return x;
     }
 }__attribute__((__packed__));
+
+static const uint8_t ROOT_VM_NULL = 0;
+static const uint8_t ROOT_VM_EVM = 1;
+static const uint8_t ROOT_VM_X86 = 2;
+
+
+struct ContractOutput{
+    VersionVM version;
+    uint64_t value, gasPrice, gasLimit;
+    std::vector<uint8_t> address;
+    std::vector<uint8_t> data;
+    std::vector<uint8_t> sender;
+    COutPoint vout;
+};
+
+class ContractOutputParser{
+public:
+
+    ContractOutputParser(CTransaction tx, uint32_t vout, CCoinsViewCache* v = NULL, const std::vector<CTransactionRef>* blockTxs = NULL)
+            : tx(tx), nvout(vout), view(v), blockTransactions(blockTxs) {}
+    bool parseOutput(ContractOutput& output);
+    valtype getSenderAddress();
+
+private:
+    bool receiveStack(const CScript& scriptPubKey);
+    const CTransaction tx;
+    const uint32_t nvout;
+    const CCoinsViewCache* view;
+    const std::vector<CTransactionRef> *blockTransactions;
+    std::vector<valtype> stack;
+    opcodetype opcode;
+
+};
+
+struct ContractEnvironment{
+    uint32_t blockNumber;
+    uint64_t blockTime;
+    uint64_t difficulty;
+    uint64_t gasLimit;
+    std::vector<uint256> blockHashes;
+
+    //todo for x86: tx info
+};
+
+class DeltaDB{
+public:
+    bool writeState(valtype address, valtype key, valtype value);
+    bool readState(valtype address, valtype key, valtype& value);
+};
+
+struct ByteCodeExecResult;
+//the abstract class for the VM interface
+//in the future, enterprise/private VMs will use this interface
+class ContractVM{
+    //todo database
+    ContractVM(const ContractEnvironment &_env, uint64_t _gasUsed)
+    : env(_env), gasUsed(_gasUsed) {}
+public:
+    virtual bool execute(bool commit)=0;
+protected:
+    const ContractEnvironment &env;
+    const uint64_t gasUsed;
+};
+
+class ContractExecutor{
+public:
+    ContractExecutor(const CBlock& _block, ContractOutput output, uint64_t _blockGasLimit);
+    bool execute(ByteCodeExecResult &result, bool commit);
+private:
+
+    const CBlock& block;
+    const uint64_t blockGasLimit;
+};
+
+
+
+
+
+
+
 
 class QtumTransaction : public dev::eth::Transaction{
 

@@ -2553,6 +2553,124 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
                 return state.DoS(100, false, REJECT_INVALID, "bad-txns-invalid-sender-script");
             }
 
+            //begin contract handling!
+
+            CAmount nTxFee = view.GetValueIn(tx)-tx.GetValueOut();
+            uint64_t gasFeeSum=0;
+            uint64_t gasLimitSum=0;
+            bool nonZeroVersion = false;
+            for(uint32_t nvout=0; i<tx.vout.size(); nvout++) {
+                ContractOutputParser parser(tx, nvout, &view, &block.vtx);
+                ContractOutput output;
+                if(!parser.parseOutput(output)){
+                    return state.DoS(100, error("ConnectBlock(): Contract transaction script is incorrect or invalid"));
+                }
+                uint64_t totalGas = output.gasPrice * output.gasLimit;
+                if((output.gasPrice != 0 && totalGas / output.gasPrice != output.gasLimit) || totalGas > INT64_MAX) {
+                    return state.DoS(100, error("ConnectBlock(): Transaction's gas stipend overflows"), REJECT_INVALID,
+                                     "bad-tx-gas-stipend-overflow");
+                }
+                gasFeeSum += totalGas;
+                if(gasFeeSum < totalGas || gasFeeSum > INT64_MAX) {
+                    return state.DoS(100, error("ConnectBlock(): Transaction's gas sum overflows"), REJECT_INVALID,
+                                     "bad-tx-gas-sum-overflow");
+                }
+
+                if(gasFeeSum > nTxFee) {
+                    return state.DoS(100, error("ConnectBlock(): Transaction fee does not cover the gas stipend"), REJECT_INVALID, "bad-txns-fee-notenough");
+                }
+
+                VersionVM v = output.version;
+                if(v.format!=0)
+                    return state.DoS(100, error("ConnectBlock(): Contract execution uses unknown version format"), REJECT_INVALID, "bad-tx-version-format");
+                if(v.rootVM != 0){
+                    nonZeroVersion=true;
+                }else{
+                    if(nonZeroVersion){
+                        //If an output is version 0, then do not allow any other versions in the same tx
+                        return state.DoS(100, error("ConnectBlock(): Contract tx has mixed version 0 and non-0 VM executions"), REJECT_INVALID, "bad-tx-mixed-zero-versions");
+                    }
+                }
+                if(!(v.rootVM == ROOT_VM_NULL || v.rootVM == ROOT_VM_EVM || v.rootVM == ROOT_VM_X86))
+                    return state.DoS(100, error("ConnectBlock(): Contract execution uses unknown root VM"), REJECT_INVALID, "bad-tx-version-rootvm");
+                if(v.vmVersion != 0)
+                    return state.DoS(100, error("ConnectBlock(): Contract execution uses unknown VM version"), REJECT_INVALID, "bad-tx-version-vmversion");
+                if(v.flagOptions != 0)
+                    return state.DoS(100, error("ConnectBlock(): Contract execution uses unknown flag options"), REJECT_INVALID, "bad-tx-version-flags");
+
+                //check gas limit is not less than minimum gas limit (unless it is a no-exec tx)
+                if(output.gasLimit < MINIMUM_GAS_LIMIT && v.rootVM != 0)
+                    return state.DoS(100, error("ConnectBlock(): Contract execution has lower gas limit than allowed"), REJECT_INVALID, "bad-tx-too-little-gas");
+
+                if(output.gasLimit > UINT32_MAX)
+                    return state.DoS(100, error("ConnectBlock(): Contract execution can not specify greater gas limit than can fit in 32-bits"), REJECT_INVALID, "bad-tx-too-much-gas");
+
+                gasLimitSum += output.gasLimit;
+                if(gasFeeSum > blockGasLimit)
+                    return state.DoS(1, false, REJECT_INVALID, "bad-txns-gas-exceeds-blockgaslimit");
+
+                //don't allow less than DGP set minimum gas price to prevent MPoS greedy mining/spammers
+                if(v.rootVM != 0 && output.gasPrice < minGasPrice)
+                    return state.DoS(100, error("ConnectBlock(): Contract execution has lower gas price than allowed"), REJECT_INVALID, "bad-tx-low-gas-price");
+            }
+            //done testing outputs, now process the entire transaction
+
+            if(!nonZeroVersion){
+                //if tx is 0 version, then the tx must already have been added by a previous contract execution
+                if(!tx.HasOpSpend()){
+                    return state.DoS(100, error("ConnectBlock(): Version 0 contract executions are not allowed unless created by the AAL "), REJECT_INVALID, "bad-tx-improper-version-0");
+                }
+            }
+            /*
+
+            if(!exec.performByteCode()){
+                return state.DoS(100, error("ConnectBlock(): Unknown error during contract execution"), REJECT_INVALID, "bad-tx-unknown-error");
+            }
+
+            std::vector<ResultExecute> resultExec(exec.getResult());
+            ByteCodeExecResult bcer;
+            if(!exec.processingResults(bcer)){
+                return state.DoS(100, error("ConnectBlock(): Error processing VM execution results"), REJECT_INVALID, "bad-vm-exec-processing");
+            }
+
+            countCumulativeGasUsed += bcer.usedGas;
+            std::vector<TransactionReceiptInfo> tri;
+            if (fLogEvents)
+            {
+                for(size_t k = 0; k < resultConvertQtumTX.first.size(); k ++){
+                    dev::Address key = resultExec[k].execRes.newAddress;
+                    if(!heightIndexes.count(key)){
+                        heightIndexes[key].first = CHeightTxIndexKey(pindex->nHeight, resultExec[k].execRes.newAddress);
+                    }
+                    heightIndexes[key].second.push_back(tx.GetHash());
+                    tri.push_back(TransactionReceiptInfo{block.GetHash(), uint32_t(pindex->nHeight), tx.GetHash(), uint32_t(i), resultConvertQtumTX.first[k].from(), resultConvertQtumTX.first[k].to(),
+                                                         countCumulativeGasUsed, uint64_t(resultExec[k].execRes.gasUsed), resultExec[k].execRes.newAddress, resultExec[k].txRec.log(), resultExec[k].execRes.excepted});
+                }
+
+                pstorageresult->addResult(uintToh256(tx.GetHash()), tri);
+            }
+
+            blockGasUsed += bcer.usedGas;
+            if(blockGasUsed > blockGasLimit){
+                return state.DoS(1000, error("ConnectBlock(): Block exceeds gas limit"), REJECT_INVALID, "bad-blk-gaslimit");
+            }
+            for(CTxOut refundVout : bcer.refundOutputs){
+                gasRefunds += refundVout.nValue;
+            }
+            checkVouts.insert(checkVouts.end(), bcer.refundOutputs.begin(), bcer.refundOutputs.end());
+            for(CTransaction& t : bcer.valueTransfers){
+                checkBlock.vtx.push_back(MakeTransactionRef(std::move(t)));
+            }
+            if(fRecordLogOpcodes && !fJustCheck){
+                writeVMlog(resultExec, tx, block);
+            }
+
+            for(ResultExecute& re: resultExec){
+                if(re.execRes.newAddress != dev::Address() && !fJustCheck)
+                    dev::g_logPost(std::string("Address : " + re.execRes.newAddress.hex()), NULL);
+            }
+                */
+//old
             QtumTxConverter convert(tx, &view, &block.vtx);
 
             ExtractQtumTX resultConvertQtumTX;
@@ -2568,9 +2686,8 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
             //validate VM version and other ETH params before execution
             //Reject anything unknown (could be changed later by DGP)
             //TODO evaluate if this should be relaxed for soft-fork purposes
-            bool nonZeroVersion=false;
             dev::u256 sumGas = dev::u256(0);
-            CAmount nTxFee = view.GetValueIn(tx)-tx.GetValueOut();
+
             for(QtumTransaction& qtx : resultConvertQtumTX.first){
                 sumGas += qtx.gas() * qtx.gasPrice();
 
