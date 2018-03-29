@@ -174,6 +174,8 @@ public:
     : transfers(_transfers), senderTransfer(_senderTransfer) {}
     CTransaction createCondensingTx(bool &voutsBeyondMax);
 private:
+    bool calculateBalances();
+    std::map<UniversalAddress, AccountVin> selectVins();
     const std::vector<AccountTransfer> &transfers;
     std::map<UniversalAddress, CAmount> balances;
     AccountTransfer senderTransfer;
