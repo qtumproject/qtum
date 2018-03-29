@@ -341,7 +341,7 @@ UniValue getaddressesbyaccount(const JSONRPCRequest& request)
     return ret;
 }
 
-static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtractFeeFromAmount, CWalletTx& wtxNew)
+static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtractFeeFromAmount, CWalletTx& wtxNew, const CCoinControl *coinControl, bool hasSender)
 {
     CAmount curBalance = pwalletMain->GetBalance();
 
@@ -372,7 +372,7 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
     int nChangePosRet = -1;
     CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount};
     vecSend.push_back(recipient);
-    if (!pwalletMain->CreateTransaction(vecSend, wtxNew, reservekey, nFeeRequired, nChangePosRet, strError)) {
+    if (!pwalletMain->CreateTransaction(vecSend, wtxNew, reservekey, nFeeRequired, nChangePosRet, strError, coinControl, true, 0, hasSender)) {
         if (!fSubtractFeeFromAmount && nValue + nFeeRequired > curBalance)
             strError = strprintf("Error: This transaction requires a transaction fee of at least %s", FormatMoney(nFeeRequired));
         throw JSONRPCError(RPC_WALLET_ERROR, strError);
@@ -389,7 +389,7 @@ UniValue sendtoaddress(const JSONRPCRequest& request)
     if (!EnsureWalletIsAvailable(request.fHelp))
         return NullUniValue;
 
-    if (request.fHelp || request.params.size() < 2 || request.params.size() > 5)
+    if (request.fHelp || request.params.size() < 2 || request.params.size() > 7)
         throw runtime_error(
             "sendtoaddress \"address\" amount ( \"comment\" \"comment_to\" subtractfeefromamount )\n"
             "\nSend an amount to a given address.\n"
@@ -404,6 +404,8 @@ UniValue sendtoaddress(const JSONRPCRequest& request)
             "                             transaction, just kept in your wallet.\n"
             "5. subtractfeefromamount  (boolean, optional, default=false) The fee will be deducted from the amount being sent.\n"
             "                             The recipient will receive less qtum than you enter in the amount field.\n"
+            "6. \"senderaddress\"      (string, optional) The quantum address that will be used to send money from.\n"
+            "7. \"changeToSender\"     (bool, optional, default=true) Return the change to the sender.\n"
             "\nResult:\n"
             "\"txid\"                  (string) The transaction id.\n"
             "\nExamples:\n"
@@ -411,6 +413,8 @@ UniValue sendtoaddress(const JSONRPCRequest& request)
             + HelpExampleCli("sendtoaddress", "\"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"donation\" \"seans outpost\"")
             + HelpExampleCli("sendtoaddress", "\"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"\" \"\" true")
             + HelpExampleRpc("sendtoaddress", "\"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\", 0.1, \"donation\", \"seans outpost\"")
+            + HelpExampleRpc("sendtoaddress", "\"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\", 0.1, \"donation\", \"seans outpost\"")
+            + HelpExampleRpc("sendtoaddress", "\"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\", 0.1, \"donation\", \"seans outpost\", false, \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\", true")
         );
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
@@ -435,9 +439,61 @@ UniValue sendtoaddress(const JSONRPCRequest& request)
     if (request.params.size() > 4)
         fSubtractFeeFromAmount = request.params[4].get_bool();
 
+    bool fHasSender=false;
+    CBitcoinAddress senderAddress;
+    if (request.params.size() > 5){
+    senderAddress.SetString(request.params[5].get_str());
+        if (!senderAddress.IsValid())
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Qtum address to send from");
+        else
+            fHasSender=true;
+    }
+
+    bool fChangeToSender=true;
+    if (request.params.size() > 6){
+        fChangeToSender=request.params[6].get_bool();
+    }
+
+    CCoinControl coinControl;
+
+    if(fHasSender){
+    //find a UTXO with sender address
+
+     UniValue results(UniValue::VARR);
+     vector<COutput> vecOutputs;
+
+     coinControl.fAllowOtherInputs=true;
+
+     assert(pwalletMain != NULL);
+     pwalletMain->AvailableCoins(vecOutputs, false, NULL, true);
+
+     BOOST_FOREACH(const COutput& out, vecOutputs) {
+         CTxDestination address;
+         const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
+         bool fValidAddress = ExtractDestination(scriptPubKey, address);
+
+         CBitcoinAddress destAdress(address);
+
+         if (!fValidAddress || senderAddress.Get() != destAdress.Get())
+             continue;
+
+         coinControl.Select(COutPoint(out.tx->GetHash(),out.i));
+
+         break;
+
+     }
+
+        if(!coinControl.HasSelected()){
+            throw JSONRPCError(RPC_TYPE_ERROR, "Sender address does not have any unspent outputs");
+        }
+        if(fChangeToSender){
+            coinControl.destChange=senderAddress.Get();
+        }
+    }
+
     EnsureWalletIsUnlocked();
 
-    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx);
+    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, &coinControl, fHasSender);
 
     return wtx.GetHash().GetHex();
 }
@@ -1290,7 +1346,7 @@ UniValue sendfrom(const JSONRPCRequest& request)
     if (nAmount > nBalance)
         throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Account has insufficient funds");
 
-    SendMoney(address.Get(), nAmount, false, wtx);
+    SendMoney(address.Get(), nAmount, false, wtx, NULL, false);
 
     return wtx.GetHash().GetHex();
 }
@@ -3671,7 +3727,7 @@ static const CRPCCommand commands[] =
         { "wallet",             "sendfrom",                 &sendfrom,                 false,  {"fromaccount","toaddress","amount","minconf","comment","comment_to"} },
         { "wallet",             "sendmany",                 &sendmany,                 false,  {"fromaccount","amounts","minconf","comment","subtractfeefrom"} },
         { "wallet",             "sendmanywithdupes",        &sendmanywithdupes,                 false,  {"fromaccount","amounts","minconf","comment","subtractfeefrom"} },
-        { "wallet",             "sendtoaddress",            &sendtoaddress,            false,  {"address","amount","comment","comment_to","subtractfeefromamount"} },
+        { "wallet",             "sendtoaddress",            &sendtoaddress,            false,  {"address","amount","comment","comment_to","subtractfeefromamount","senderAddress","changeToSender"} },
         { "wallet",             "setaccount",               &setaccount,               true,   {"address","account"} },
         { "wallet",             "settxfee",                 &settxfee,                 true,   {"amount"} },
         { "wallet",             "signmessage",              &signmessage,              true,   {"address","message"} },
