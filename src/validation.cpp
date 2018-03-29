@@ -2559,6 +2559,7 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
             uint64_t gasFeeSum=0;
             uint64_t gasLimitSum=0;
             bool nonZeroVersion = false;
+            /*
             for(uint32_t nvout=0; i<tx.vout.size(); nvout++) {
                 ContractOutputParser parser(tx, nvout, &view, &block.vtx);
                 ContractOutput output;
@@ -2618,9 +2619,12 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
             if(!nonZeroVersion){
                 //if tx is 0 version, then the tx must already have been added by a previous contract execution
                 if(!tx.HasOpSpend()){
-                    return state.DoS(100, error("ConnectBlock(): Version 0 contract executions are not allowed unless created by the AAL "), REJECT_INVALID, "bad-tx-improper-version-0");
+                //    return state.DoS(100, error("ConnectBlock(): Version 0 contract executions are not allowed unless created by the AAL "), REJECT_INVALID, "bad-tx-improper-version-0");
                 }
             }
+            */
+
+
             /*
 
             if(!exec.performByteCode()){

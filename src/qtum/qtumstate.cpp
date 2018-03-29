@@ -1,6 +1,7 @@
 #include <sstream>
 #include <util.h>
 #include <validation.h>
+#include <tinyformat.h>
 #include "chainparams.h"
 #include "qtumstate.h"
 
@@ -339,6 +340,7 @@ void CondensingTX::calculatePlusAndMinus(){
 bool CondensingTX::createNewBalances(){
     for(auto& p : plusMinusInfo){
         dev::u256 balance = 0;
+        //!alive & checkDelete means that this address is for a pubkeyhash, and so don't track it's balance
         if((vins.count(p.first) && vins[p.first].alive) || (!vins[p.first].alive && !checkDeleteAddress(p.first))){
             balance = vins[p.first].value;
         }
@@ -354,6 +356,7 @@ bool CondensingTX::createNewBalances(){
 std::vector<CTxIn> CondensingTX::createVins(){
     std::vector<CTxIn> ins;
     for(auto& v : vins){
+        //!alive & checkDelete means that this address is for a pubkeyhash, and so don't track it's balance
         if((v.second.value > 0 && v.second.alive) || (v.second.value > 0 && !vins[v.first].alive && !checkDeleteAddress(v.first)))
             ins.push_back(CTxIn(h256Touint(v.second.hash), v.second.nVout, CScript() << OP_SPEND));
     }
@@ -389,3 +392,78 @@ bool CondensingTX::checkDeleteAddress(dev::Address addr){
     return deleteAddresses.count(addr) != 0;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////
+static bool int64AddWillOverflow(int64_t a, int64_t b){
+    return a > 0 && (b < INT64_MAX - a);
+}
+
+CTransaction AccountAbstractionLayer::createCondensingTx(bool &voutsBeyondMax) {
+    //calculate what the balance should be
+    std::set<UniversalAddress> balanceNotLoaded;
+    for(auto &t : transfers){
+        if(balances.count(t.to) == 0){
+            balanceNotLoaded.emplace(t.to);
+            balances[t.to] = 0;
+        }
+        if(balanceNotLoaded.count(t.from)){
+            if(int64AddWillOverflow(balances[t.from], t.fromVin.value)) {
+                LogPrintf("Account balance load would cause overflow!");
+                return CTransaction();
+            }
+            balances[t.from] += t.fromVin.value;
+            balanceNotLoaded.erase(t.from);
+        }
+        if(balances.count(t.from) == 0){
+            balances[t.from] = t.fromVin.value;
+        }
+        if(int64AddWillOverflow(t.value, balances[t.to])){
+            LogPrintf("Account balance change would cause overflow!");
+            return CTransaction();
+        }
+        balances[t.to] += t.value;
+        if(balances[t.from] < t.value){
+            LogPrintf("Account balance change would cause underflow!");
+            return CTransaction();
+        }
+        balances[t.from] -= t.value;
+    }
+
+    CMutableTransaction tx;
+    //generate vins
+    for(auto &t : transfers){
+        if(t.value == 0){
+            continue;
+        }
+        if(t.from.version != AddressVersion::PUBKEYHASH){
+            tx.vin.push_back(CTxIn(t.fromVin.txid, t.fromVin.nVout, CScript() << OP_SPEND));
+        }
+    }
+    //generate vouts
+    for(auto &balance : balances){
+        if(balance.second == 0){
+            continue;
+        }
+        CScript script;
+        if(balance.first.version == AddressVersion::PUBKEYHASH){
+            script = CScript() << OP_DUP << OP_HASH160 << balance.first.data << OP_EQUALVERIFY << OP_CHECKSIG;
+        } else {
+            //create a no-exec contract output
+            script = CScript() << valtype{0} << valtype{0} << valtype{0} << valtype{0} << balance.first.data << OP_CALL;
+        }
+        tx.vout.push_back(CTxOut(balance.second, script));
+        if(tx.vout.size() > MAX_CONTRACT_VOUTS){
+            voutsBeyondMax=true;
+            return !tx.vin.size() || !tx.vout.size() ? CTransaction() : CTransaction(tx);
+        }
+    }
+    return !tx.vin.size() || !tx.vout.size() ? CTransaction() : CTransaction(tx);
+}
+
+
+
+
+
+
+
+
+
+

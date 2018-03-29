@@ -70,6 +70,10 @@ struct UniversalAddress{
     AddressVersion version;
     std::vector<uint8_t> data;
 
+    bool operator<(const UniversalAddress& a) const{
+        return data < a.data;
+    }
+
     static UniversalAddress FromScript(const CScript& script);
     static UniversalAddress FromOutput(AddressVersion v, uint256 txid, uint32_t vout);
 };

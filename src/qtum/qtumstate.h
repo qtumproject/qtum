@@ -145,6 +145,39 @@ struct TemporaryState{
 };
 
 
+struct AccountVin{
+    uint256 txid;
+    uint32_t nVout;
+    uint64_t value;
+    bool alive; //true if not spent, and account exists
+    static AccountVin fromVin(Vin vin){
+        AccountVin a;
+        a.txid = h256Touint(vin.hash);
+        a.alive = vin.alive > 0;
+        a.nVout = vin.nVout;
+        a.value = (uint64_t) vin.value;
+        return a;
+    }
+};
+struct AccountTransfer{
+    UniversalAddress from;
+    UniversalAddress to;
+    uint64_t value;
+    AccountVin fromVin;
+};
+
+
+class AccountAbstractionLayer{
+public:
+    AccountAbstractionLayer(const std::vector<AccountTransfer> &_transfers)
+    : transfers(_transfers) {}
+    CTransaction createCondensingTx(bool &voutsBeyondMax);
+private:
+    const std::vector<AccountTransfer> &transfers;
+    std::map<UniversalAddress, CAmount> balances;
+
+};
+
 ///////////////////////////////////////////////////////////////////////////////////////////
 class CondensingTX{
 
