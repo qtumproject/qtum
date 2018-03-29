@@ -163,18 +163,20 @@ struct AccountTransfer{
     UniversalAddress from;
     UniversalAddress to;
     uint64_t value;
-    AccountVin fromVin;
+    AccountVin fromVin; //current vin owned by from
+    AccountVin toVin; //current vin owned by to
 };
 
 
 class AccountAbstractionLayer{
 public:
-    AccountAbstractionLayer(const std::vector<AccountTransfer> &_transfers)
-    : transfers(_transfers) {}
+    AccountAbstractionLayer(const std::vector<AccountTransfer> &_transfers, AccountTransfer _senderTransfer)
+    : transfers(_transfers), senderTransfer(_senderTransfer) {}
     CTransaction createCondensingTx(bool &voutsBeyondMax);
 private:
     const std::vector<AccountTransfer> &transfers;
     std::map<UniversalAddress, CAmount> balances;
+    AccountTransfer senderTransfer;
 
 };
 

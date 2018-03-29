@@ -73,6 +73,12 @@ struct UniversalAddress{
     bool operator<(const UniversalAddress& a) const{
         return data < a.data;
     }
+    bool operator==(const UniversalAddress& a) const{
+        return version == a.version && data == a.data;
+    }
+    bool operator!=(const UniversalAddress& a) const{
+        return version != a.version || data != a.data;
+    }
 
     static UniversalAddress FromScript(const CScript& script);
     static UniversalAddress FromOutput(AddressVersion v, uint256 txid, uint32_t vout);

@@ -399,6 +399,8 @@ static bool int64AddWillOverflow(int64_t a, int64_t b){
 CTransaction AccountAbstractionLayer::createCondensingTx(bool &voutsBeyondMax) {
     //calculate what the balance should be
     std::set<UniversalAddress> balanceNotLoaded;
+    //requiredVins contains only 1 record per address. note: sort order is consensus-critical
+    bool spendSender=false;
     for(auto &t : transfers){
         if(balances.count(t.to) == 0){
             balanceNotLoaded.emplace(t.to);
@@ -427,17 +429,41 @@ CTransaction AccountAbstractionLayer::createCondensingTx(bool &voutsBeyondMax) {
         balances[t.from] -= t.value;
     }
 
+    //select vins to spend
+    //map isn't particularly necessary, but the sort order is
+    std::map<UniversalAddress, AccountVin> requiredVins;
+    for(auto &t : transfers){
+        if(!requiredVins.count(t.from)){
+            if(t.from == senderTransfer.from && t.value > 0){
+                requiredVins[t.from] = senderTransfer.fromVin;
+            }else {
+                requiredVins[t.from] = t.fromVin;
+            }
+            //if an account has a vin, then spend it to condense it into 1 output
+            if(!requiredVins.count(t.to)){
+                requiredVins[t.to] = t.toVin;
+            }
+        }
+    }
+
     CMutableTransaction tx;
     //generate vins
-    for(auto &t : transfers){
-        if(t.value == 0){
+    //note: the executing output and the previously owned output must be condensed.
+    //In order to do this, they are both placed in the vin list.
+    //the confusing part is that the sender vin is inserted as "fromAddress" rather than "toAddress"
+    //So, it looks like you are spending a pubkeyhash output, but actually it's an OP_CALL
+    //this can't be changed or fixed because sort order is consensus-critical
+    for(auto &v : requiredVins){
+        if(v.second.value == 0){
             continue;
         }
-        if(t.from.version != AddressVersion::PUBKEYHASH){
-            tx.vin.push_back(CTxIn(t.fromVin.txid, t.fromVin.nVout, CScript() << OP_SPEND));
+        if(v.first.version != AddressVersion::PUBKEYHASH && v.first != senderTransfer.from){
+            tx.vin.push_back(CTxIn(v.second.txid, v.second.nVout, CScript() << OP_SPEND));
         }
     }
     //generate vouts
+    //note: vout and vin order are consensus-critical!
+    //
     for(auto &balance : balances){
         if(balance.second == 0){
             continue;
