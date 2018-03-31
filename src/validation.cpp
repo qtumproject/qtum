@@ -68,6 +68,8 @@
 #include "pubkey.h"
 #include <univalue.h>
 
+extern void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& entry);
+
 std::unique_ptr<QtumState> globalState;
 std::shared_ptr<dev::eth::SealEngineFace> globalSealEngine;
 bool fRecordLogOpcodes = false;
@@ -2831,13 +2833,19 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
             if(block.vtx.size() > checkBlock.vtx.size()){
                 LogPrintf("Unexpected AAL transactions in block. Actual txs: %i, expected txs: %i\n", block.vtx.size(), checkBlock.vtx.size());
                 for(size_t i=0;i<block.vtx.size();i++){
-                    if(i > checkBlock.vtx.size()){
-                        LogPrintf("Unexpected transaction: %s\n", block.vtx[i]->ToString());
+                    if(i >= checkBlock.vtx.size()){
+                        UniValue result(UniValue::VOBJ);
+                        TxToJSON(*block.vtx[i].get(), block.GetHash(), result);
+                        LogPrintf("Unexpected transaction: %s\n", result.write(true, 2));
                     }else {
-                        if (block.vtx[i]->GetHash() != block.vtx[i]->GetHash()) {
+                        if (block.vtx[i]->GetHash() != checkBlock.vtx[i]->GetHash()) {
                             LogPrintf("Mismatched transaction at entry %i\n", i);
-                            LogPrintf("Actual: %s\n", block.vtx[i]->ToString());
-                            LogPrintf("Expected: %s\n", checkBlock.vtx[i]->ToString());
+                            UniValue resultActual(UniValue::VOBJ);
+                            TxToJSON(*block.vtx[i].get(), block.GetHash(), resultActual);
+                            LogPrintf("Actual: %s\n", resultActual.write(true, 2));
+                            UniValue resultExpected(UniValue::VOBJ);
+                            TxToJSON(*checkBlock.vtx[i].get(), block.GetHash(), resultExpected);
+                            LogPrintf("Expected: %s\n", resultExpected.write(true, 2));
                         }
                     }
                 }
@@ -2847,7 +2855,7 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
                     if(i > block.vtx.size()){
                         LogPrintf("Missing transaction: %s\n", checkBlock.vtx[i]->ToString());
                     }else {
-                        if (block.vtx[i]->GetHash() != block.vtx[i]->GetHash()) {
+                        if (block.vtx[i]->GetHash() != checkBlock.vtx[i]->GetHash()) {
                             LogPrintf("Mismatched transaction at entry %i\n", i);
                             LogPrintf("Actual: %s\n", block.vtx[i]->ToString());
                             LogPrintf("Expected: %s\n", checkBlock.vtx[i]->ToString());
