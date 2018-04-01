@@ -99,6 +99,7 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
                     for (auto &kv : aal.spentVins()) {
                         //first, update all of the spent vins
                         vins[dev::Address(kv.first.data)] = kv.second.toVin();
+                        vins[dev::Address(kv.first.data)].value = 0; //spent
                         vins[dev::Address(kv.first.data)].alive = false; //spent
                     }
                     //now update all of the accounts that have new vins
@@ -219,10 +220,9 @@ void QtumState::transferBalance(dev::Address const& _from, dev::Address const& _
         }
         Vin* fromVin = vin(_from);
         if(fromVin != NULL){
-            if(_value > 0){
-                LogPrintf("Value transfered from address with no vin!");
-            }
             t.fromVin = AccountVin::fromVin(*fromVin);
+        }else{
+            LogPrintf("Transfer from account with no vin!");
         }
         //overflow check?
         t.value = (uint64_t) _value;
