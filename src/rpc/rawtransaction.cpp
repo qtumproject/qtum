@@ -431,7 +431,7 @@ UniValue createrawtransaction(const JSONRPCRequest& request)
             "    {\n"
             "      \"address\": x.xxx,    (numeric or string, required) The key is the qtum address, the numeric value (can be string) is the " + CURRENCY_UNIT + " amount\n"
             "      \"data\": \"hex\"      (string, required) The key is \"data\", the value is hex encoded data\n"
-            "      \"callcontract\":{\n"
+            "      \"contract\":{\n"
             "         \"contractAddress\":\"address\", (string, required) Valid contract address (valid hash160 hex data)\n"
             "         \"data\":\"hex\",                (string, required) Hex data to add in the call output\n"
             "         \"amount\":x.xxx,                (numeric, optional) Value in QTUM to send with the call, should be a valid amount, default 0\n"
@@ -447,9 +447,11 @@ UniValue createrawtransaction(const JSONRPCRequest& request)
             "\nExamples:\n"
             + HelpExampleCli("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\" \"{\\\"address\\\":0.01}\"")
             + HelpExampleCli("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\" \"{\\\"data\\\":\\\"00010203\\\"}\"")
+            + HelpExampleCli("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\" \"{\\\"contract\\\":{\\\"contractAddress\\\":\\\"mycontract\\\","
+                                                     "\\\"data\\\":\\\"00\\\", \\\"gasLimit\\\":250000, \\\"gasPrice\\\":0.00000040, \\\"amount\\\":0}}\"")
             + HelpExampleRpc("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\", \"{\\\"address\\\":0.01}\"")
             + HelpExampleRpc("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\", \"{\\\"data\\\":\\\"00010203\\\"}\"")
-            + HelpExampleRpc("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\" \"{\\\"callcontract\\\":{\\\"contractAddress\\\":\\\"mycontract\\\","
+            + HelpExampleRpc("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\" \"{\\\"contract\\\":{\\\"contractAddress\\\":\\\"mycontract\\\","
                                                      "\\\"data\\\":\\\"00\\\", \\\"gasLimit\\\":250000, \\\"gasPrice\\\":0.00000040, \\\"amount\\\":0}}\"")
         );
 
@@ -508,10 +510,10 @@ UniValue createrawtransaction(const JSONRPCRequest& request)
 
             CTxOut out(0, CScript() << OP_RETURN << data);
             rawTx.vout.push_back(out);
-        } else if (name_ == "callcontract") {
+        } else if (name_ == "contract") {
             // Get the call object
-            UniValue callContract = sendTo[name_];
-            if(!callContract.isObject())
+            UniValue Contract = sendTo[name_];
+            if(!Contract.isObject())
                 throw JSONRPCError(RPC_INVALID_PARAMETER, string("Invalid parameter, need to be object: ")+name_);
 
             // Get dgp gas limit and gas price
@@ -522,10 +524,10 @@ UniValue createrawtransaction(const JSONRPCRequest& request)
             CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
 
             // Get the contract address
-            if(!callContract.exists("contractAddress") || !callContract["contractAddress"].isStr())
+            if(!Contract.exists("contractAddress") || !Contract["contractAddress"].isStr())
                 throw JSONRPCError(RPC_INVALID_PARAMETER, string("Invalid parameter, contract address is mandatory."));
 
-            std::string contractaddress = callContract["contractAddress"].get_str();
+            std::string contractaddress = Contract["contractAddress"].get_str();
             if(contractaddress.size() != 40 || !CheckHex(contractaddress))
                 throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect contract address");
 
@@ -534,25 +536,25 @@ UniValue createrawtransaction(const JSONRPCRequest& request)
                 throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "contract address does not exist");
 
             // Get the contract data
-            if(!callContract.exists("data") || !callContract["data"].isStr())
+            if(!Contract.exists("data") || !Contract["data"].isStr())
                 throw JSONRPCError(RPC_INVALID_PARAMETER, string("Invalid parameter, contract data is mandatory."));
 
-            string datahex = callContract["data"].get_str();
+            string datahex = Contract["data"].get_str();
             if(datahex.size() % 2 != 0 || !CheckHex(datahex))
                 throw JSONRPCError(RPC_TYPE_ERROR, "Invalid data (data not hex)");
 
             // Get amount
             CAmount nAmount = 0;
-            if (callContract.exists("amount")){
-                nAmount = AmountFromValue(callContract["amount"]);
+            if (Contract.exists("amount")){
+                nAmount = AmountFromValue(Contract["amount"]);
                 if (nAmount < 0)
                     throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for call contract");
             }
 
             // Get gas limit
             uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
-            if (callContract.exists("gasLimit")){
-                nGasLimit = callContract["gasLimit"].get_int64();
+            if (Contract.exists("gasLimit")){
+                nGasLimit = Contract["gasLimit"].get_int64();
                 if (nGasLimit > blockGasLimit)
                     throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasLimit (Maximum is: "+i64tostr(blockGasLimit)+")");
                 if (nGasLimit < MINIMUM_GAS_LIMIT)
@@ -562,8 +564,8 @@ UniValue createrawtransaction(const JSONRPCRequest& request)
             }
 
             // Get gas price
-            if (callContract.exists("gasPrice")){
-                UniValue uGasPrice = callContract["gasPrice"];
+            if (Contract.exists("gasPrice")){
+                UniValue uGasPrice = Contract["gasPrice"];
                 if(!ParseMoney(uGasPrice.getValStr(), nGasPrice))
                 {
                     throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasPrice");
