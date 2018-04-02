@@ -292,7 +292,7 @@ public:
 class CompareTxMemPoolEntryByAncestorFeeOrGasPrice
 {
 public:
-    bool operator()(const CTxMemPoolEntry& a, const CTxMemPoolEntry& b)
+    bool operator()(const CTxMemPoolEntry& a, const CTxMemPoolEntry& b) const
     {
         bool fAHasCreateOrCall = a.GetTx().HasCreateOrCall();
         bool fBHasCreateOrCall = b.GetTx().HasCreateOrCall();
