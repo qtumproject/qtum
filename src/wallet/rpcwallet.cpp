@@ -405,14 +405,14 @@ UniValue sendtoaddress(const JSONRPCRequest& request)
             "5. subtractfeefromamount  (boolean, optional, default=false) The fee will be deducted from the amount being sent.\n"
             "                             The recipient will receive less qtum than you enter in the amount field.\n"
             "6. \"senderaddress\"      (string, optional) The quantum address that will be used to send money from.\n"
-            "7. \"changeToSender\"     (bool, optional, default=true) Return the change to the sender.\n"
+            "7. \"changeToSender\"     (bool, optional, default=false) Return the change to the sender.\n"
             "\nResult:\n"
             "\"txid\"                  (string) The transaction id.\n"
             "\nExamples:\n"
             + HelpExampleCli("sendtoaddress", "\"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
             + HelpExampleCli("sendtoaddress", "\"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"donation\" \"seans outpost\"")
             + HelpExampleCli("sendtoaddress", "\"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"\" \"\" true")
-            + HelpExampleRpc("sendtoaddress", "\"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\", 0.1, \"donation\", \"seans outpost\"")
+            + HelpExampleCli("sendtoaddress", "\"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\", 0.1, \"donation\", \"seans outpost\", false, \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\", true")
             + HelpExampleRpc("sendtoaddress", "\"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\", 0.1, \"donation\", \"seans outpost\"")
             + HelpExampleRpc("sendtoaddress", "\"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\", 0.1, \"donation\", \"seans outpost\", false, \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\", true")
         );
@@ -449,7 +449,7 @@ UniValue sendtoaddress(const JSONRPCRequest& request)
             fHasSender=true;
     }
 
-    bool fChangeToSender=true;
+    bool fChangeToSender=false;
     if (request.params.size() > 6){
         fChangeToSender=request.params[6].get_bool();
     }
