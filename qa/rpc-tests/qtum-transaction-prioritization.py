@@ -196,17 +196,17 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
         address = self.node.getnewaddress()
         expected_tx_order = []
 
-        for (expected_tx_index, gas_price) in [(1, 100900), (2, 800), (7, 100), (8, 9900)]:
+        for (expected_tx_index, gas_price) in [(1, 60), (2, 50), (7, 40), (8, 50)]:
             tx = CTransaction()
             tx.vin = [CTxIn(COutPoint(int(unspent['txid'], 16), unspent['vout']), nSequence=0)]
             tx.vout = [
                 CTxOut(0, scriptPubKey=CScript([b"\x04", CScriptNum(30000), CScriptNum(gas_price), b"\x00", hex_str_to_bytes(contract_address), OP_CALL])),
-                CTxOut(int((unspent['amount'] - 100)*COIN), scriptPubKey=CScript([OP_DUP, OP_HASH160, hex_str_to_bytes(p2pkh_to_hex_hash(address)), OP_EQUALVERIFY, OP_CHECKSIG]))
+                CTxOut(int((unspent['amount'] - Decimal('0.1'))*COIN), scriptPubKey=CScript([OP_DUP, OP_HASH160, hex_str_to_bytes(p2pkh_to_hex_hash(address)), OP_EQUALVERIFY, OP_CHECKSIG]))
                 ]
             tx_raw = self.node.signrawtransaction(bytes_to_hex_str(tx.serialize()))['hex']
 
             # Make the next vin refer to this tx.
-            unspent['amount'] -= 101
+            unspent['amount'] -= Decimal('0.1')
             unspent['txid'] = self.node.sendrawtransaction(tx_raw)
             unspent['vout'] = 1
             expected_tx_order.append((expected_tx_index, unspent['txid']))
@@ -216,17 +216,17 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
                 break
 
         # The list of tuples specifies (expected position in block txs, gas_price)
-        for (expected_tx_index, gas_price) in [(3, 600), (4, 300), (5, 200), (6, 9800)]:
+        for (expected_tx_index, gas_price) in [(3, 49), (4, 48), (5, 47), (6, 46)]:
             tx = CTransaction()
             tx.vin = [CTxIn(COutPoint(int(unspent['txid'], 16), unspent['vout']), nSequence=0)]
             tx.vout = [
                 CTxOut(0, scriptPubKey=CScript([b"\x04", CScriptNum(30000), CScriptNum(gas_price), b"\x00", hex_str_to_bytes(contract_address), OP_CALL])),
-                CTxOut(int((unspent['amount'] - 100)*COIN), scriptPubKey=CScript([OP_DUP, OP_HASH160, hex_str_to_bytes(p2pkh_to_hex_hash(address)), OP_EQUALVERIFY, OP_CHECKSIG]))
+                CTxOut(int((unspent['amount'] - Decimal('0.1'))*COIN), scriptPubKey=CScript([OP_DUP, OP_HASH160, hex_str_to_bytes(p2pkh_to_hex_hash(address)), OP_EQUALVERIFY, OP_CHECKSIG]))
                 ]
             tx_raw = self.node.signrawtransaction(bytes_to_hex_str(tx.serialize()))['hex']
 
             # Make the next vin refer to this tx.
-            unspent['amount'] -= 101
+            unspent['amount'] -= Decimal('0.1')
             unspent['txid'] = self.node.sendrawtransaction(tx_raw)
             unspent['vout'] = 1
             expected_tx_order.append((expected_tx_index, unspent['txid']))

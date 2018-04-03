@@ -837,7 +837,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
             if (rawTx && nAbsurdFee && dev::u256(nFees) > dev::u256(nAbsurdFee) + sumGas)
                 return state.Invalid(false,
                     REJECT_HIGHFEE, "absurdly-high-fee",
-                    strprintf("%d > %d %s", nFees, nAbsurdFee));
+                    strprintf("%d > %d", nFees, nAbsurdFee));
         }
         ////////////////////////////////////////////////////////////
 

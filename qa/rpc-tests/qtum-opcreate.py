@@ -35,7 +35,7 @@ class OpCreateTest(BitcoinTestFramework):
         }
         """
         tx = make_transaction(node,
-            [self.vins.pop(-1)],
+            [make_vin(node, 500000*QTUM_MIN_GAS_PRICE)],
             [make_op_create_output(node, 0, 4, CScriptNum(500000), CScriptNum(QTUM_MIN_GAS_PRICE), bytes.fromhex("60606040523415600b57fe5b5b60398060196000396000f30060606040525b600b5b5b565b0000a165627a7a72305820e3bed070fd3a81dd00e02efd22d18a3b47b70860155d6063e47e1e2674fc5acb0029"))]
         )
         #node.createcontract("60606040523415600b57fe5b5b60398060196000396000f30060606040525b600b5b5b565b0000a165627a7a72305820e3bed070fd3a81dd00e02efd22d18a3b47b70860155d6063e47e1e2674fc5acb0029");
@@ -128,7 +128,7 @@ class OpCreateTest(BitcoinTestFramework):
         }
         """
         tx = make_transaction(node,
-            [self.vins.pop(-1)],
+            [make_vin(node, 0xffff*1000)],
             # changing the gas limit \xff\xff -> \xff\xff\x00 results in success.
             [make_op_create_output(node, 0, b"\x04", b"\xff\xff", 1000, bytes.fromhex("60606040523415600b57fe5b5b60398060196000396000f30060606040525b600b5b5b565b0000a165627a7a7230582092926a9814888ff08700cbd86cf4ff8c50052f5fd894e794570d9551733591d60029"))]
         )
@@ -139,7 +139,7 @@ class OpCreateTest(BitcoinTestFramework):
             pass
 
 
-    def gas_limit_signedness_test(self):
+    def gas_limit_signedness_2_test(self):
         node = self.nodes[0]
         num_old_contracts = len(node.listcontracts(1, 1000))
 
@@ -150,7 +150,7 @@ class OpCreateTest(BitcoinTestFramework):
         }
         """
         tx = make_transaction(node,
-            [self.vins.pop(-1)],
+            [make_vin(node, 2*0xffff*1000)],
             # changing the gas limit \xff\xff -> \xff\xff\x00 results in success.
             [make_op_create_output(node, 0, b"\x04", b"\xff\x4f", 1000, bytes.fromhex("60606040523415600b57fe5b5b60398060196000396000f30060606040525b600b5b5b565b0000a165627a7a7230582092926a9814888ff08700cbd86cf4ff8c50052f5fd894e794570d9551733591d60029")),
             make_op_create_output(node, 0, b"\x04", b"\xff\xff", 1000, bytes.fromhex("60606040523415600b57fe5b5b60398060196000396000f30060606040525b600b5b5b565b0000a165627a7a7230582092926a9814888ff08700cbd86cf4ff8c50052f5fd894e794570d9551733591d60029"))]
@@ -170,6 +170,7 @@ class OpCreateTest(BitcoinTestFramework):
         self.many_contracts_in_one_block_test()
         self.contract_reorg_test()
         self.gas_limit_signedness_test()
+        self.gas_limit_signedness_2_test()
 
 if __name__ == '__main__':
     OpCreateTest().main()

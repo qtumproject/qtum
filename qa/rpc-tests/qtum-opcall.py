@@ -54,12 +54,14 @@ class OpCallTest(BitcoinTestFramework):
         while i < num_txs and len(unspents) > 0:
             # Select as input a tx which has at least 5 qtum spendable
             for tx_i in range(len(unspents)):
-                if unspents[tx_i]['amount'] > 5.00000000 and unspents[tx_i]['spendable']:
+                if int(unspents[tx_i]['amount']*COIN) == 1000000*QTUM_MIN_GAS_PRICE and unspents[tx_i]['spendable']:
                     break
-            
+            else:
+                assert(False)
+
             inpt = CTxIn(COutPoint(int(unspents[tx_i]['txid'], 16), unspents[tx_i]['vout']), nSequence=0)
             tx = make_transaction(self.node, [inpt], outputs)
-            self.node.sendrawtransaction(tx)
+            txid = self.node.sendrawtransaction(tx)
             unspents = self.node.listunspent()
             i += 1
         
@@ -101,13 +103,13 @@ class OpCallTest(BitcoinTestFramework):
         outputs = []
         outputs.append(make_op_call_output(0, b"\x04", CScriptNum(1000000), CScriptNum(QTUM_MIN_GAS_PRICE), bytes.fromhex("371303c0"), bytes.fromhex(self.contract_address)))
         outputs.append(make_op_call_output(0, b"\x04", CScriptNum(1000000), CScriptNum(QTUM_MIN_GAS_PRICE), bytes.fromhex("371303c0"), bytes.fromhex(self.contract_address)))
-        self.send_one_op_call_tx_with_counter_check(outputs, counter_should_increase_by=2)
+        self.send_one_op_call_tx_with_counter_check(outputs, counter_should_increase_by=2, input_value=2*1000000*QTUM_MIN_GAS_PRICE)
 
     # Sends a normal raw op_call tx with a single output.
     def normal_op_call_output_test(self):
         outputs = []
         outputs.append(make_op_call_output(0, b"\x04", b"\xff\x7f", CScriptNum(QTUM_MIN_GAS_PRICE), bytes.fromhex("371303c0"), bytes.fromhex(self.contract_address)))
-        self.send_one_op_call_tx_with_counter_check(outputs, counter_should_increase_by=1)
+        self.send_one_op_call_tx_with_counter_check(outputs, counter_should_increase_by=1, input_value=0x7fff*QTUM_MIN_GAS_PRICE)
 
     # Sends a tx containing 1 op_call output where txfee == gas_price*gas_limit.
     def gas_equal_to_tx_fee_test(self):
@@ -141,7 +143,7 @@ class OpCallTest(BitcoinTestFramework):
         gas_limit = b"\xff"
         while len(gas_limit) < 20:
             outputs.append(make_op_call_output(0, b"\x04", gas_limit, CScriptNum(QTUM_MIN_GAS_PRICE), bytes.fromhex("371303c0"), bytes.fromhex(self.contract_address)))
-            self.send_one_op_call_tx_with_counter_check(outputs, should_throw=True)
+            self.send_one_op_call_tx_with_counter_check(outputs, should_throw=True, input_value=min(max(int(bytes_to_hex_str(gas_limit), 16)*QTUM_MIN_GAS_PRICE, 10000000), 1000000000))
             gas_limit += b"\xff"
 
     # sends a tx containing 1 op_call output with a (if interpreted with a signed integer) negative gas limit calling inc()
@@ -150,19 +152,19 @@ class OpCallTest(BitcoinTestFramework):
         gas_limit = b"\xff"
         outputs.append(make_op_call_output(0, b"\x04", b"\xff\xff\x00", CScriptNum(QTUM_MIN_GAS_PRICE), bytes.fromhex("371303c0"), bytes.fromhex(self.contract_address)))
         outputs.append(make_op_call_output(0, b"\x04", b"\xff\xff", CScriptNum(QTUM_MIN_GAS_PRICE), bytes.fromhex("371303c0"), bytes.fromhex(self.contract_address)))
-        self.send_one_op_call_tx_with_counter_check(outputs, should_throw=True)
+        self.send_one_op_call_tx_with_counter_check(outputs, should_throw=True, input_value=2*0xffff*QTUM_MIN_GAS_PRICE)
 
     # sends a tx containing 1 op_call output with a (if interpreted with a signed integer) negative gas price calling inc()
     def gas_price_signedness_test(self):
         outputs = []
         outputs.append(make_op_call_output(0, b"\x04", b"\x01\x00", b"\xff\xff", bytes.fromhex("371303c0"), bytes.fromhex(self.contract_address)))
-        self.send_one_op_call_tx_with_counter_check(outputs, should_throw=True)
+        self.send_one_op_call_tx_with_counter_check(outputs, should_throw=True, input_value=10000000)
 
     # sends a tx containing 1 op_call output with a possible negative gas limit and price calling inc()
     def gas_limit_and_price_signedness_test(self):
         outputs = []
         outputs.append(make_op_call_output(0, b"\x04", b"\xff\xff", b"\xff", bytes.fromhex("371303c0"), bytes.fromhex(self.contract_address)))
-        self.send_one_op_call_tx_with_counter_check(outputs, should_throw=True)
+        self.send_one_op_call_tx_with_counter_check(outputs, should_throw=True, input_value=0xff*0xffff)
 
     # Sends 100 valid op_call txs
     def send_100_txs_test(self):
@@ -174,7 +176,7 @@ class OpCallTest(BitcoinTestFramework):
         outputs = []
         # d0e30db0 deposit()
         outputs.append(make_op_call_output(100000000, b"\x04", CScriptNum(1000000), CScriptNum(QTUM_MIN_GAS_PRICE), bytes.fromhex("d0e30db0"), bytes.fromhex(self.contract_address)))
-        self.send_one_op_call_tx_with_counter_check(outputs, counter_should_increase_by=0)
+        self.send_one_op_call_tx_with_counter_check(outputs, counter_should_increase_by=0, input_value=100000000+1000000*QTUM_MIN_GAS_PRICE)
         
         # 12065fe0 getBalance()
         balance = int(self.node.callcontract(self.contract_address, "12065fe0")['executionResult']['output'], 16)
@@ -184,7 +186,8 @@ class OpCallTest(BitcoinTestFramework):
 
 
     def run_test(self):
-        self.nodes[0].generate(100+COINBASE_MATURITY)
+        self.nodes[0].generate(200+COINBASE_MATURITY)
+        self.node.sendmany("", {self.node.getnewaddress(): 1000000*QTUM_MIN_GAS_PRICE / Decimal('100000000') for i in range(200)})
         print("Creating contract")
         self.create_contract_test()
         print("Calling inc() in two outputs")
