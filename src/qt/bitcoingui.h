@@ -17,6 +17,10 @@
 #include <QMenu>
 #include <QPoint>
 #include <QSystemTrayIcon>
+#ifdef ENABLE_LIGHTNING
+#include <QProcess>
+#endif
+
 
 class ClientModel;
 class NetworkStyle;
@@ -85,6 +89,7 @@ protected:
 private:
     ClientModel *clientModel;
     WalletFrame *walletFrame;
+    WalletModel *walletModel;
 
     UnitDisplayStatusBarControl *unitDisplayControl;
     QLabel *labelWalletEncryptionIcon;
@@ -131,6 +136,11 @@ private:
     QAction* sendTokenAction;
     QAction* receiveTokenAction;
     QAction* addTokenAction;
+    QAction *lightning;
+#ifdef ENABLE_LIGHTNING
+    QProcess lightningProcess;
+#endif
+
 
     QSystemTrayIcon *trayIcon;
     QMenu *trayIconMenu;
@@ -294,6 +304,8 @@ private Q_SLOTS:
     void showModalOverlay();
 
     void showModalBackupOverlay();
+
+    void startLightning();
 };
 
 class UnitDisplayStatusBarControl : public QLabel

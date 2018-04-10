@@ -64,6 +64,13 @@
 #include <QVBoxLayout>
 #include <QDockWidget>
 #include <QSizeGrip>
+#ifdef ENABLE_LIGHTNING
+#include <QTcpSocket>
+#if ENABLE_ZMQ
+#include "zmq/zmqconfig.h"
+#endif
+#endif
+
 
 #if QT_VERSION < 0x050000
 #include <QTextDocument>
@@ -147,6 +154,9 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
     modalBackupOverlay(0),
     prevBlocks(0),
     spinnerFrame(0),
+    #ifdef ENABLE_LIGHTNING
+    lightning(0),
+    #endif
     platformStyle(_platformStyle)
 {
     GUIUtil::restoreWindowGeometry("nWindow", QSize(850, 550), this);
@@ -474,6 +484,12 @@ void BitcoinGUI::createActions()
     showHelpMessageAction->setMenuRole(QAction::NoRole);
     showHelpMessageAction->setStatusTip(tr("Show the %1 help message to get a list with possible Qtum command-line options").arg(tr(PACKAGE_NAME)));
 
+#ifdef ENABLE_LIGHTNING
+    lightning = new QAction(platformStyle->SingleColorIcon(":/icons/r_coupon"),tr("Lightning"),this);
+
+    connect(lightning,SIGNAL(triggered()),SLOT(startLightning()));
+#endif
+
     connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
     connect(aboutAction, SIGNAL(triggered()), this, SLOT(aboutClicked()));
     connect(aboutQtAction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
@@ -520,6 +536,11 @@ void BitcoinGUI::createMenuBar()
     if(walletFrame)
     {
         file->addAction(openAction);
+
+#ifdef ENABLE_LIGHTNING
+        file->addAction(lightning);
+#endif
+
         file->addAction(backupWalletAction);
         file->addAction(restoreWalletAction);
         file->addAction(signMessageAction);
@@ -661,6 +682,7 @@ bool BitcoinGUI::addWallet(const QString& name, WalletModel *walletModel)
     if(!walletFrame)
         return false;
     setWalletActionsEnabled(true);
+    this->walletModel=walletModel;
     appTitleBar->setModel(walletModel);
     if(showBackupOverlay && walletModel && !(walletModel->hasWalletBackup()))
     {
@@ -1483,6 +1505,87 @@ void BitcoinGUI::toggleNetworkActive()
     if (clientModel) {
         clientModel->setNetworkActive(!clientModel->getNetworkActive());
     }
+}
+
+void BitcoinGUI::startLightning() {
+#ifdef ENABLE_LIGHTNING
+    int lightningPort = 9735;
+
+    QDateTime currentDate = QDateTime::currentDateTime();
+    qint64 secs = clientModel->getLastBlockDate().secsTo(currentDate);
+    const int HOUR_IN_SECONDS = 60 * 60;
+
+    enum BlockSource blockSource = clientModel->getBlockSource();
+
+    if (blockSource == BLOCK_SOURCE_NONE || secs > HOUR_IN_SECONDS) {
+        QMessageBox::information(
+            this, tr("Synchronization"),
+            tr("Wait until the network is fully synchronized and try again."));
+        return;
+    }
+
+    if (walletModel->getEncryptionStatus() == WalletModel::Locked &&
+        QMessageBox::Yes ==
+            QMessageBox::question(this, tr("Start lightning"),
+                                  tr("For normal operation of the lightning, "
+                                     "wallet must be unlocked. "
+                                     "Do you want to unlock your wallet?"))) {
+        walletFrame->unlockWallet();
+    }
+
+    if (walletModel->getEncryptionStatus() == WalletModel::Locked)
+        return;
+
+    if (!GUIUtil::extractLightning()) {
+        QMessageBox::warning(
+            this, tr("Lightning extract error"),
+            tr("Could not install the lightning on your wallet."));
+        return;
+    }
+
+    if (lightningProcess.state() != QProcess::NotRunning ||
+        !QTcpSocket().bind(lightningPort)) {
+        QMessageBox::information(this, tr("Lightning"),
+                                 tr("Lightning is already running"));
+        return;
+    }
+
+    QString datadir = GUIUtil::getDataDir();
+    QString rpcuser = QString::fromStdString(GetArg("-rpcuser", ""));
+    QString rpcpass = QString::fromStdString(GetArg("-rpcpassword", ""));
+    QString network = QString::fromStdString(Params().NetworkIDString());
+    if (network == "test")
+        network += "net";
+    QString zmqport = QString::fromStdString(
+        GetArg("-zmqpubhashblock", DEFAULT_ZMQPUBHASHBLOCK));
+
+    QString program = "java";
+    QStringList arguments;
+
+    arguments << "-Declair.datadir=" + datadir + "/lightning"
+              << QString("-Declair.server.port=%0").arg(lightningPort)
+              << "-Declair.bitcoind.bitdir=" + datadir
+              << "-Declair.bitcoind.rpcuser=" + rpcuser
+              << "-Declair.bitcoind.rpcpassword=" + rpcpass
+              << "-Declair.bitcoind.zmq=" + zmqport
+              << "-Declair.chain=" + network << "-jar"
+              << datadir + "/Lightning.jar";
+
+    lightningProcess.start(program, arguments);
+    lightningProcess.waitForStarted();
+
+    if (lightningProcess.state() == QProcess::NotRunning &&
+        lightningProcess.error() == QProcess::FailedToStart) {
+        QString href = "http://www.oracle.com/technetwork/java/javase/"
+                       "downloads/jdk8-downloads-2133151.html";
+        QMessageBox::warning(
+            this, tr("Java not found"),
+            tr("You need to download and install Java. click on the <a "
+               "style='color:#a3e400;' "
+               "href=%0>link</a> to download.")
+                .arg(href));
+    }
+#endif
 }
 
 void BitcoinGUI::addDockWindows(Qt::DockWidgetArea area, QWidget* widget)

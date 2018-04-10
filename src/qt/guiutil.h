@@ -250,6 +250,12 @@ namespace GUIUtil
     typedef ClickableProgressBar ProgressBar;
 #endif
 
+    QString getDataDir();
+#ifdef ENABLE_LIGHTNING
+    bool extractLightning();
+
+#endif
+
     void formatToolButtons(QToolButton* btn1, QToolButton* btn2 = 0, QToolButton* btn3 = 0);
 
 } // namespace GUIUtil

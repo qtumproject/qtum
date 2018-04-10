@@ -62,6 +62,7 @@
 #include <openssl/crypto.h>
 
 #if ENABLE_ZMQ
+#include "zmq/zmqconfig.h"
 #include "zmq/zmqnotificationinterface.h"
 #endif
 
@@ -1176,6 +1177,10 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
         return false;
     }
 
+#ifdef ENABLE_LIGHTNING
+    SoftSetArg("-server", std::string("1"));
+#endif
+
 #ifndef WIN32
     CreatePidFile(GetPidFile(), getpid());
 #endif
@@ -1384,6 +1389,11 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
     }
 
 #if ENABLE_ZMQ
+
+    SoftSetArg("-zmqpubhashblock", DEFAULT_ZMQPUBHASHBLOCK);
+    SoftSetArg("-zmqpubrawblock", DEFAULT_ZMQPUBRAWTX);
+    SoftSetArg("-zmqpubrawtx", DEFAULT_ZMQPUBRAWTX);
+
     pzmqNotificationInterface = CZMQNotificationInterface::Create();
 
     if (pzmqNotificationInterface) {

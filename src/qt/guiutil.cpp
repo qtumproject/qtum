@@ -55,6 +55,7 @@
 #include <QSettings>
 #include <QTextDocument> // for Qt::mightBeRichText
 #include <QThread>
+#include <QCryptographicHash>
 #include <QMouseEvent>
 #include <QLayout>
 
@@ -1003,6 +1004,47 @@ QString formatNiceTimeOffset(qint64 secs)
     }
     return timeBehindText;
 }
+
+QString getDataDir(){
+    std::string str = GetArg("-datadir","");
+
+    QString datadir=QString::fromLocal8Bit(str.c_str());
+    if(datadir.isEmpty()){
+        datadir = boostPathToQString(GetDefaultDataDir());
+    }
+    return datadir;
+}
+
+#ifdef ENABLE_LIGHTNING
+
+bool extractLightning(){
+
+    QString datadir = getDataDir();
+
+    QFile eclair(datadir + "/Lightning.jar");
+    QFile newEclair(":/lightning/Lightning");
+
+    if(eclair.open(QIODevice::WriteOnly | QIODevice::Truncate) && newEclair.open(QIODevice::ReadOnly)){
+
+        QByteArray newEclairData = newEclair.readAll();
+        QByteArray newEclairHash = QCryptographicHash::hash(newEclairData, QCryptographicHash::Md5);
+
+        if(newEclairHash == QCryptographicHash::hash(eclair.readAll(), QCryptographicHash::Md5)){
+            return true;
+        }
+
+        QDataStream stream(&eclair);
+        stream.writeRawData(newEclairData.data(), newEclairData.size());
+
+        newEclair.close();
+        eclair.close();
+
+        return true;
+
+    }
+    return false;
+}
+#endif
 
 void ClickableLabel::mouseReleaseEvent(QMouseEvent *event)
 {

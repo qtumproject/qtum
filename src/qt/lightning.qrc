@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/lightning">
+        <file alias="Lightning">../lightning/eclair-node-gui/target/lightning-capsule.jar</file>
+    </qresource>
+</RCC>

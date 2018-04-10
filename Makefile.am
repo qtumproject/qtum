@@ -22,6 +22,9 @@ BITCOIN_QT_BIN=$(top_builddir)/src/qt/$(BITCOIN_GUI_NAME)$(EXEEXT)
 BITCOIN_CLI_BIN=$(top_builddir)/src/$(BITCOIN_CLI_NAME)$(EXEEXT)
 BITCOIN_WIN_INSTALLER=$(PACKAGE)-$(PACKAGE_VERSION)-win$(WINDOWS_BITS)-setup$(EXEEXT)
 
+BITCOIN_LIGHTNING_DIR=$(top_builddir)/src/lightning
+BITCOIN_LIGHTNING_RES=$(top_builddir)/src/qt/qt_libbitcoinqt_a-qrc_lightning.o $(top_builddir)/src/qt/qrc_lightning.cpp
+
 empty :=
 space := $(empty) $(empty)
 
@@ -66,6 +69,13 @@ COVERAGE_INFO = baseline_filtered_combined.info baseline.info \
 
 dist-hook:
 	-$(GIT) archive --format=tar HEAD -- src/clientversion.cpp | $(AMTAR) -C $(top_distdir) -xf -
+
+if ENABLE_LIGHTNING
+lightning:
+	cd $(BITCOIN_LIGHTNING_DIR) && mvn install -DskipTests
+	rm -f $(BITCOIN_LIGHTNING_RES) 
+endif
+
 
 $(BITCOIN_WIN_INSTALLER): all-recursive
 	$(MKDIR_P) $(top_builddir)/release
@@ -233,6 +243,9 @@ DISTCLEANFILES = qa/pull-tester/tests_config.pyc
 .INTERMEDIATE: $(COVERAGE_INFO)
 
 DISTCHECK_CONFIGURE_FLAGS = --enable-man
+
+clean_lightning:
+	cd $(BITCOIN_LIGHTNING_DIR) && mvn clean
 
 clean-local:
 	rm -rf coverage_percent.txt test_bitcoin.coverage/ total.coverage/ qa/tmp/ cache/ $(OSX_APP)
