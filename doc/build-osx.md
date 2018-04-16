@@ -11,14 +11,14 @@ Install the OS X command line tools:
 
 When the popup appears, click `Install`.
 
-Then install [Homebrew](http://brew.sh).
+Then install [Homebrew](https://brew.sh).
 
 Dependencies
 ----------------------
 
     brew install cmake automake berkeley-db4 libtool boost --c++11 --without-single --without-static miniupnpc openssl pkg-config protobuf qt5 libevent
 
-In case you want to build the disk image with `make deploy` (.dmg / optional), you need RSVG
+If you want to build the disk image with `make deploy` (.dmg / optional), you need RSVG
 
     brew imagemagick --with-librsvg
 
@@ -42,6 +42,7 @@ Build Build Qtum Core
         ./autogen.sh
         ./configure
         make
+
 3.  It is recommended to build and run the unit tests:
 
         make check

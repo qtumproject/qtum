@@ -33,7 +33,6 @@ class ModalOverlay;
 class TitleBar;
 class NavigationBar;
 class QtumVersionChecker;
-
 class CWallet;
 
 QT_BEGIN_NAMESPACE
@@ -42,6 +41,8 @@ class QProgressBar;
 class QProgressDialog;
 class QDockWidget;
 QT_END_NAMESPACE
+
+typedef CWallet* CWalletRef;
 
 /**
   Bitcoin GUI main class. This class represents the main window of the Bitcoin UI. It communicates with both the client and
@@ -198,7 +199,7 @@ public Q_SLOTS:
                             @see CClientUIInterface::MessageBoxFlags
        @param[in] ret       pointer to a bool that will be modified to whether Ok was clicked (modal only)
     */
-    void message(const QString &title, const QString &message, unsigned int style, bool *ret = NULL);
+    void message(const QString &title, const QString &message, unsigned int style, bool *ret = nullptr);
 
 #ifdef ENABLE_WALLET
     /** Set the encryption status as shown in the UI.
@@ -274,8 +275,6 @@ private Q_SLOTS:
     void showNormalIfMinimized(bool fToggleHidden = false);
     /** Simply calls showNormalIfMinimized(true) for use in SLOT() macro */
     void toggleHidden();
-    /** Update the current weight of the wallet **/
-    void updateWeight();
     /** Update staking icon **/
     void updateStakingIcon();
 
@@ -294,6 +293,10 @@ private Q_SLOTS:
     void showModalOverlay();
 
     void showModalBackupOverlay();
+
+private:
+    /** Update the current weight of the wallet **/
+    void updateWeight(CWalletRef pwalletMain);
 };
 
 class UnitDisplayStatusBarControl : public QLabel

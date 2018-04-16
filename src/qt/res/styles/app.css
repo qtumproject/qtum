@@ -29,7 +29,8 @@ QMainWindow::separator {
 QMainWindow .QFrame#frameBalances, 
 #frameOtherTokens, 
 #frameRecentTransactions,
-#frameRequest{
+#frameRequest,
+#frameFee{
     background-color: #2e2e2e;
 }
 QMainWindow .QFrame#frameContract{

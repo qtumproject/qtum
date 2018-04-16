@@ -1,10 +1,14 @@
 WINDOWS BUILD NOTES
 ====================
 
-Below are some notes on how to build Bitcoin Core for Windows.
+Below are some notes on how to build Qtum Core for Windows.
 
 Most developers use cross-compilation from Ubuntu to build executables for
-Windows. This is also used to build the release binaries.
+Windows. Cross-compilation is also used to build the release binaries.
+
+Currently only building on Ubuntu Trusty 14.04 or Ubuntu Zesty 17.04 or later is supported.
+Building on Ubuntu Xenial 16.04 is known to be broken, see extensive discussion in issue [8732](https://github.com/bitcoin/bitcoin/issues/8732).
+While it may be possible to do so with work arounds, it's potentially dangerous and not recommended.
 
 While there are potentially a number of ways to build on Windows (for example using msys / mingw-w64),
 using the Windows Subsystem For Linux is the most straightforward. If you are building with
@@ -59,19 +63,46 @@ A host toolchain (`build-essential`) is necessary because some dependency
 packages (such as `protobuf`) need to build host utilities that are used in the
 build process.
 
+
+If you're building on Ubuntu 17.04 or later, run these two commands, selecting the 'posix' variant for both,
+to work around issues with mingw-w64. See issue [8732](https://github.com/bitcoin/bitcoin/issues/8732) for more information.
+```
+sudo update-alternatives --config x86_64-w64-mingw32-g++
+sudo update-alternatives --config x86_64-w64-mingw32-gcc
+```
+
 ## Building for 64-bit Windows
 
-    cd depends
-    build-windows.sh x64
+To build executables for Windows 64-bit, install the following dependencies:
 
-Qtum is built at location x86_64-w64-mingw32/bin
+    sudo apt-get install g++-mingw-w64-x86-64 mingw-w64-x86-64-dev
+
+Then build using:
+
+    PATH=$(echo "$PATH" | sed -e 's/:\/mnt.*//g') # strip out problematic Windows %PATH% imported var
+    cd depends
+    make HOST=x86_64-w64-mingw32
+    cd ..
+    ./autogen.sh # not required when building from tarball
+    CONFIG_SITE=$PWD/depends/x86_64-w64-mingw32/share/config.site ./configure --prefix=/
+    make
 
 ## Building for 32-bit Windows
 
-    cd depends
-    build-windows.sh
+To build executables for Windows 32-bit, install the following dependencies:
 
-Qtum is built at location i686-w64-mingw32/bin
+    sudo apt-get install g++-mingw-w64-i686 mingw-w64-i686-dev
+
+Then build using:
+
+    PATH=$(echo "$PATH" | sed -e 's/:\/mnt.*//g') # strip out problematic Windows %PATH% imported var
+    cd depends
+    make HOST=i686-w64-mingw32
+    cd ..
+    ./autogen.sh # not required when building from tarball
+    CONFIG_SITE=$PWD/depends/i686-w64-mingw32/share/config.site ./configure --prefix=/
+    make
+
 ## Depends system
 
 For further documentation on the depends system see [README.md](../depends/README.md) in the depends directory.
@@ -82,6 +113,6 @@ Installation
 After building using the Windows subsystem it can be useful to copy the compiled
 executables to a directory on the windows drive in the same directory structure
 as they appear in the release `.zip` archive. This can be done in the following
-way. This will install to `c:\workspace\bitcoin`, for example:
+way. This will install to `c:\workspace\qtum`, for example:
 
-    make install DESTDIR=/mnt/c/workspace/bitcoin
+    make install DESTDIR=/mnt/c/workspace/qtum

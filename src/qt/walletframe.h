@@ -100,6 +100,7 @@ public Q_SLOTS:
     void unlockWallet();
     /** Lock the wallet */
     void lockWallet();
+
     /** Show used sending addresses */
     void usedSendingAddresses();
     /** Show used receiving addresses */
