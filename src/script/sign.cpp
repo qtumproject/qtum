@@ -225,6 +225,23 @@ bool SignSignature(const CKeyStore &keystore, const CTransaction& txFrom, CMutab
     return SignSignature(keystore, txout.scriptPubKey, txTo, nIn, txout.nValue, nHashType);
 }
 
+bool VerifySignature(const Coin& coin, const uint256 txFromHash, const CTransaction& txTo, unsigned int nIn, unsigned int flags)
+{
+    TransactionSignatureChecker checker(&txTo, nIn, 0);
+	
+    const CTxIn& txin = txTo.vin[nIn];
+//    if (txin.prevout.n >= txFrom.vout.size())
+//        return false;
+//    const CTxOut& txout = txFrom.vout[txin.prevout.n];
+
+    const CTxOut& txout = coin.out;
+
+    if (txin.prevout.hash != txFromHash)
+        return false;
+		
+    return VerifyScript(txin.scriptSig, txout.scriptPubKey, NULL, flags, checker);
+}
+
 static std::vector<valtype> CombineMultisig(const CScript& scriptPubKey, const BaseSignatureChecker& checker,
                                const std::vector<valtype>& vSolutions,
                                const std::vector<valtype>& sigs1, const std::vector<valtype>& sigs2, SigVersion sigversion)
