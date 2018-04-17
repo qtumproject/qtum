@@ -21,6 +21,7 @@
 #include <wallet/coinselection.h>
 #include <wallet/walletdb.h>
 #include <wallet/rpcwallet.h>
+#include <consensus/params.h>
 
 #include <algorithm>
 #include <atomic>

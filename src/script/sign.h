@@ -11,6 +11,7 @@
 #include <pubkey.h>
 #include <script/interpreter.h>
 #include <streams.h>
+#include <coins.h>
 
 class CKey;
 class CKeyID;
@@ -677,6 +678,7 @@ bool ProduceSignature(const SigningProvider& provider, const BaseSignatureCreato
 /** Produce a script signature for a transaction. */
 bool SignSignature(const SigningProvider &provider, const CScript& fromPubKey, CMutableTransaction& txTo, unsigned int nIn, const CAmount& amount, int nHashType);
 bool SignSignature(const SigningProvider &provider, const CTransaction& txFrom, CMutableTransaction& txTo, unsigned int nIn, int nHashType);
+bool VerifySignature(const Coin& coin, uint256 txFromHash, const CTransaction& txTo, unsigned int nIn, unsigned int flags);
 
 /** Signs a PSBTInput */
 bool SignPSBTInput(const SigningProvider& provider, const CMutableTransaction& tx, PSBTInput& input, SignatureData& sigdata, int index, int sighash = 1);

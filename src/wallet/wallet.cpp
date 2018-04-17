@@ -26,6 +26,7 @@
 #include <timedata.h>
 #include <txmempool.h>
 #include <utilmoneystr.h>
+#include <txdb.h>
 #include <wallet/fees.h>
 #include <wallet/walletutil.h>
 
@@ -97,6 +98,17 @@ const uint256 CMerkleTx::ABANDON_HASH(uint256S("00000000000000000000000000000000
 /**
  * Proof-of-stake functions needed in the wallet but wallet independent
  */
+struct ScriptsElement{
+    CScript script;
+    uint256 hash;
+};
+
+/**
+ * Cache of the recent mpos scripts for the block reward recipients
+ * The max size of the map is 2 * nCacheScripts - nMPoSRewardRecipients, so in this case it is 20
+ */
+std::map<int, ScriptsElement> scriptsMap;
+
 unsigned int GetStakeMaxCombineInputs() { return 100; }
 
 int64_t GetStakeCombineThreshold() { return 100 * COIN; }
