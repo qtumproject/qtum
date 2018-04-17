@@ -83,7 +83,12 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
                     if (v != NULL) {
                         senderTransfer.toVin = AccountVin::fromVin(*v);
                     }
-                    transfers.insert(transfers.begin(), senderTransfer);
+                    //transfers.insert(transfers.begin(), senderTransfer);
+                    for(auto& t : transfers){
+                        if(t.from == senderTransfer.from){
+                            t.fromVin = senderTransfer.fromVin;
+                        }
+                    }
                 }
                 AccountAbstractionLayer aal(transfers, senderTransfer);
                 bool reachedVoutLimit = false;
@@ -97,6 +102,9 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
                     //no condensing transaction to update
                     std::unordered_map<dev::Address, Vin> vins;
                     for (auto &kv : aal.spentVins()) {
+                        if(kv.first == senderTransfer.from){
+                            continue; //don't add the pubkey owned vin to this
+                        }
                         //first, update all of the spent vins
                         vins[dev::Address(kv.first.data)] = kv.second.toVin();
                         vins[dev::Address(kv.first.data)].value = 0; //spent
@@ -104,6 +112,9 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
                     }
                     //now update all of the accounts that have new vins
                     for (auto &kv : aal.getNewVoutNumbers()) {
+                        if(kv.first == senderTransfer.from){
+                            continue; //don't add the pubkey owned vin to this
+                        }
                         Vin v;
                         v.alive = true;
                         v.hash = uintToh256(tx.get()->GetHash());
@@ -203,7 +214,8 @@ void QtumState::transferBalance(dev::Address const& _from, dev::Address const& _
         if(addressIsPubKeyHash(_from)) {
             //don't add a transfer for transfers from pubkeyhash
             //this is only possible in the initial sender transaction, and we handle that elsewhere
-            return; //don't add a transfer for this.
+            t.from.version = AddressVersion::PUBKEYHASH;
+            //return; //don't add a transfer for this.
         }else{
             t.from.version = AddressVersion::EVM;
         }
@@ -484,7 +496,7 @@ bool AccountAbstractionLayer::calculateBalances() {
             balances[t.from] = t.fromVin.value;
         }
         if(!balances.count(t.to)) {
-            balances[t.to] = 0;
+            balances[t.to] = t.toVin.value;
         }
     }
     for(auto &t : transfers){
@@ -514,11 +526,14 @@ void AccountAbstractionLayer::selectVins() {
             if(t.from == senderTransfer.from && t.value > 0){
                 selectedVins[t.from] = senderTransfer.fromVin;
             }else {
+                if(t.fromVin.txid.IsNull()){
+                    LogPrintf("no txid to spend from!");
+                }
                 selectedVins[t.from] = t.fromVin;
             }
         }
         //if an account has a vin, then spend it to condense it into 1 output
-        if(!selectedVins.count(t.to)){
+        if(!t.toVin.txid.IsNull() && !selectedVins.count(t.to)){
             selectedVins[t.to] = t.toVin;
         }
     }
@@ -545,9 +560,9 @@ CTransaction AccountAbstractionLayer::createCondensingTx(bool &voutsBeyondMax) {
         if(!v.second.alive){
             continue;
         }
-        if(v.first.version != AddressVersion::PUBKEYHASH && v.first != senderTransfer.from){
+       // if(v.first.version != AddressVersion::PUBKEYHASH) { // && v.first != senderTransfer.from){
             tx.vin.push_back(CTxIn(v.second.txid, v.second.nVout, CScript() << OP_SPEND));
-        }
+       // }
     }
     //generate vouts
     int n=0;
@@ -575,11 +590,23 @@ CTransaction AccountAbstractionLayer::createCondensingTx(bool &voutsBeyondMax) {
         }
         n++;
     }
-    if(!tx.vin.size() && tx.vout.size()>1){
+    //safety check
+    CAmount totalIn=0, totalOut=0;
+
+    for(auto &v : tx.vout){
+        totalOut += v.nValue;
+    }
+    for(auto &v : selectedVins){
+        totalIn += v.second.value;
+    }
+    if(totalOut != totalIn){
+        LogPrintf("Mismatch total input and output for contract created transaction!");
+    }
+    if(!tx.vin.size() && tx.vout.size()>0){
         LogPrintf("AAL Transaction has a vout, but no vins");
         return CTransaction();
     }
-    if(!tx.vout.size() && tx.vin.size()>1){
+    if(!tx.vout.size() && tx.vin.size()>0){
         LogPrintf("AAL Transaction has a vin, but no vouts");
         return CTransaction();
     }
