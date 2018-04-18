@@ -1,6 +1,6 @@
-#include "consensus.h"
-#include "primitives/transaction.h"
-#include "policy/policy.h"
+#include <consensus/consensus.h>
+#include <primitives/transaction.h>
+#include <policy/policy.h>
 
 /** The maximum allowed size for a serialized block, in bytes (only for buffer size limits) */
 unsigned int dgpMaxBlockSerSize = 8000000;

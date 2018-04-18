@@ -2,12 +2,12 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "addressfield.h"
-#include "wallet/wallet.h"
-#include "validation.h"
-#include "base58.h"
-#include "qvalidatedlineedit.h"
-#include "bitcoinaddressvalidator.h"
+#include <qt/addressfield.h>
+#include <wallet/wallet.h>
+#include <validation.h>
+#include <base58.h>
+#include <qt/qvalidatedlineedit.h>
+#include <qt/bitcoinaddressvalidator.h>
 #include <QLineEdit>
 #include <QCompleter>
 

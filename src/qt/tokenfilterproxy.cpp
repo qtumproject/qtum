@@ -1,4 +1,4 @@
-#include "tokenfilterproxy.h"
+#include <qt/tokenfilterproxy.h>
 
 #include <cstdlib>
 

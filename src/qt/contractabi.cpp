@@ -1,6 +1,6 @@
-#include "contractabi.h"
-#include "univalue.h"
-#include "libethcore/ABI.h"
+#include <qt/contractabi.h>
+#include <univalue.h>
+#include <libethcore/ABI.h>
 #include <math.h>
 
 namespace ContractABI_NS

@@ -1,10 +1,10 @@
-#include "tokentransactionrecord.h"
+#include <qt/tokentransactionrecord.h>
 
-#include "base58.h"
-#include "consensus/consensus.h"
-#include "validation.h"
-#include "timedata.h"
-#include "wallet/wallet.h"
+#include <base58.h>
+#include <consensus/consensus.h>
+#include <validation.h>
+#include <timedata.h>
+#include <wallet/wallet.h>
 
 #include <stdint.h>
 

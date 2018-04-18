@@ -1,9 +1,9 @@
-#include "editcontractinfodialog.h"
-#include "ui_editcontractinfodialog.h"
+#include <qt/editcontractinfodialog.h>
+#include <qt/forms/ui_editcontractinfodialog.h>
 
-#include "contracttablemodel.h"
-#include "contractabi.h"
-#include "styleSheet.h"
+#include <qt/contracttablemodel.h>
+#include <qt/contractabi.h>
+#include <qt/styleSheet.h>
 
 #include <QDataWidgetMapper>
 #include <QMessageBox>

@@ -1,12 +1,12 @@
-#include "token.h"
-#include "execrpccommand.h"
-#include "contractabi.h"
-#include "validation.h"
-#include "utilmoneystr.h"
-#include "base58.h"
-#include "utilstrencodings.h"
-#include "eventlog.h"
-#include "libethcore/ABI.h"
+#include <qt/token.h>
+#include <qt/execrpccommand.h>
+#include <qt/contractabi.h>
+#include <validation.h>
+#include <utilmoneystr.h>
+#include <base58.h>
+#include <utilstrencodings.h>
+#include <qt/eventlog.h>
+#include <libethcore/ABI.h>
 
 namespace Token_NS
 {
