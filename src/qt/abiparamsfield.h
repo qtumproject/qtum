@@ -1,11 +1,11 @@
 #ifndef CONTRACTFUNCTIONFIELD_H
 #define CONTRACTFUNCTIONFIELD_H
 
-#include "QWidget"
-#include "QList"
-#include "QVBoxLayout"
+#include <QWidget>
+#include <QList>
+#include <QVBoxLayout>
 
-#include "contractabi.h"
+#include <qt/contractabi.h>
 
 class PlatformStyle;
 class ABIParam;

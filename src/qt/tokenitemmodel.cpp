@@ -1,9 +1,9 @@
-﻿#include "tokenitemmodel.h"
-#include "token.h"
-#include "walletmodel.h"
-#include "wallet/wallet.h"
-#include "validation.h"
-#include "bitcoinunits.h"
+﻿#include <qt/tokenitemmodel.h>
+#include <qt/token.h>
+#include <qt/walletmodel.h>
+#include <wallet/wallet.h>
+#include <validation.h>
+#include <qt/bitcoinunits.h>
 #include <algorithm>
 
 #include <QDateTime>

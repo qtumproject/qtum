@@ -3,7 +3,7 @@
 #include <utilstrencodings.h>
 #include <test/test_bitcoin.h>
 #include <boost/filesystem/operations.hpp>
-#include "fs.h"
+#include <fs.h>
 
 extern std::unique_ptr<QtumState> globalState;
 

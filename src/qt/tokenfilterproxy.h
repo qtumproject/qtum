@@ -1,8 +1,8 @@
 #ifndef TOKENFILTERPROXY_H
 #define TOKENFILTERPROXY_H
 
-#include "amount.h"
-#include "tokentransactiontablemodel.h"
+#include <amount.h>
+#include <qt/tokentransactiontablemodel.h>
 #include <QDateTime>
 #include <QSortFilterProxyModel>
 

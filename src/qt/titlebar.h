@@ -5,7 +5,7 @@
 #include <QSize>
 #include <QTabBar>
 #include <QIcon>
-#include "walletmodel.h"
+#include <qt/walletmodel.h>
 
 namespace Ui {
 class TitleBar;

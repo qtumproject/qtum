@@ -2,7 +2,7 @@
 #define TOKEN_H
 #include <string>
 #include <vector>
-#include "uint256.h"
+#include <uint256.h>
 
 struct TokenEvent{
     std::string address;

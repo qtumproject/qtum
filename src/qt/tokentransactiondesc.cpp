@@ -1,11 +1,11 @@
-#include "tokentransactiondesc.h"
-#include "tokentransactionrecord.h"
-#include "bitcoinunits.h"
-#include "guiutil.h"
-#include "uint256.h"
-#include "validation.h"
-#include "wallet/wallet.h"
-#include "timedata.h"
+#include <qt/tokentransactiondesc.h>
+#include <qt/tokentransactionrecord.h>
+#include <qt/bitcoinunits.h>
+#include <qt/guiutil.h>
+#include <uint256.h>
+#include <validation.h>
+#include <wallet/wallet.h>
+#include <timedata.h>
 
 QString TokenTransactionDesc::FormatTxStatus(CWallet *wallet, const CTokenTx& wtx)
 {

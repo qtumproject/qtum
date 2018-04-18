@@ -1,10 +1,10 @@
-#include "restoredialog.h"
-#include "ui_restoredialog.h"
-#include "guiutil.h"
-#include "walletmodel.h"
+#include <qt/restoredialog.h>
+#include <qt/forms/ui_restoredialog.h>
+#include <qt/guiutil.h>
+#include <qt/walletmodel.h>
 #include <QMessageBox>
 #include <QFile>
-#include "styleSheet.h"
+#include <qt/styleSheet.h>
 
 RestoreDialog::RestoreDialog(QWidget *parent) :
     QDialog(parent),

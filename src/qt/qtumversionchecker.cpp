@@ -1,5 +1,5 @@
-#include "qtumversionchecker.h"
-#include "../clientversion.h"
+#include <qt/qtumversionchecker.h>
+#include <clientversion.h>
 
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
