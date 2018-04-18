@@ -15,6 +15,13 @@
 
 static const bool DEFAULT_ACCEPT_DATACARRIER = true;
 
+//contract executions with less gas than this are not standard
+//Make sure is always equal or greater than MINIMUM_GAS_LIMIT (which we can't reference here due to insane header dependency chains)
+static const uint64_t STANDARD_MINIMUM_GAS_LIMIT = 10000;
+//contract executions with a price cheaper than this (in satoshis) are not standard
+//TODO this needs to be controlled by DGP and needs to be propogated from consensus parameters
+static const uint64_t STANDARD_MINIMUM_GAS_PRICE = 1;
+
 class CKeyID;
 class CScript;
 
@@ -65,6 +72,8 @@ enum txnouttype
     TX_WITNESS_V0_SCRIPTHASH,
     TX_WITNESS_V0_KEYHASH,
     TX_WITNESS_UNKNOWN, //!< Only for Witness versions not already defined above
+    TX_CREATE,
+    TX_CALL,
 };
 
 class CNoDestination {
@@ -138,7 +147,7 @@ const char* GetTxnOutputType(txnouttype t);
  * @param[out]  vSolutionsRet  Vector of parsed pubkeys and hashes
  * @return                     True if script matches standard template
  */
-bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<std::vector<unsigned char> >& vSolutionsRet);
+bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<std::vector<unsigned char> >& vSolutionsRet, bool contractConsensus=false);
 
 /**
  * Parse a standard scriptPubKey for the destination address. Assigns result to
@@ -146,7 +155,7 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<std::v
  * scripts, instead use ExtractDestinations. Currently only works for P2PK,
  * P2PKH, P2SH, P2WPKH, and P2WSH scripts.
  */
-bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet);
+bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet, txnouttype* typeRet = NULL);
 
 /**
  * Parse a standard scriptPubKey with one or more destination addresses. For
