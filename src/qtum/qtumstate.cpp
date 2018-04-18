@@ -108,7 +108,7 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
                         //first, update all of the spent vins
                         vins[dev::Address(kv.first.data)] = kv.second.toVin();
                         vins[dev::Address(kv.first.data)].value = 0; //spent
-                        vins[dev::Address(kv.first.data)].alive = false; //spent
+                        //vins[dev::Address(kv.first.data)].alive = false; //spent
                     }
                     //now update all of the accounts that have new vins
                     for (auto &kv : aal.getNewVoutNumbers()) {

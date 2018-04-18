@@ -2821,6 +2821,9 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
 ////////////////////////////////////////////////////////////////// // qtum
     checkBlock.hashMerkleRoot = BlockMerkleRoot(checkBlock);
     checkBlock.hashStateRoot = h256Touint(globalState->rootHash());
+
+    //TODO this makes it so that hashUTXORoot is IGNORED
+    //This must be changed and fixed before making this suitable for mainnet
     checkBlock.hashUTXORoot = block.hashUTXORoot; //h256Touint(globalState->rootHashUTXO());
 
     //If this error happens, it probably means that something with AAL created transactions didn't match up to what is expected
