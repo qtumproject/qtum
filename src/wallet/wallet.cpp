@@ -4148,6 +4148,108 @@ bool CWallet::BackupWallet(const std::string& strDest)
     return dbw->Backup(strDest);
 }
 
+bool CWallet::LoadToken(const CTokenInfo &token)
+{
+    uint256 hash = token.GetHash();
+    mapToken[hash] = token;
+
+    return true;
+}
+
+bool CWallet::LoadTokenTx(const CTokenTx &tokenTx)
+{
+    uint256 hash = tokenTx.GetHash();
+    mapTokenTx[hash] = tokenTx;
+
+    return true;
+}
+
+bool CWallet::AddTokenEntry(const CTokenInfo &token, bool fFlushOnClose)
+{
+    LOCK2(cs_main, cs_wallet);
+
+    CWalletDB walletdb(*dbw, "r+", fFlushOnClose);
+
+    uint256 hash = token.GetHash();
+
+    bool fInsertedNew = true;
+
+    std::map<uint256, CTokenInfo>::iterator it = mapToken.find(hash);
+    if(it!=mapToken.end())
+    {
+        fInsertedNew = false;
+    }
+
+    // Write to disk
+    CTokenInfo wtoken = token;
+    if(!fInsertedNew)
+    {
+        wtoken.nCreateTime = GetAdjustedTime();
+    }
+    else
+    {
+        wtoken.nCreateTime = it->second.nCreateTime;
+    }
+
+    if (!walletdb.WriteToken(wtoken))
+        return false;
+
+    mapToken[hash] = wtoken;
+
+    NotifyTokenChanged(this, hash, fInsertedNew ? CT_NEW : CT_UPDATED);
+
+    // Refresh token tx
+    if(fInsertedNew)
+    {
+        for(auto it = mapTokenTx.begin(); it != mapTokenTx.end(); it++)
+        {
+            uint256 tokenTxHash = it->second.GetHash();
+            NotifyTokenTransactionChanged(this, tokenTxHash, CT_UPDATED);
+        }
+    }
+
+    LogPrintf("AddTokenEntry %s\n", wtoken.GetHash().ToString());
+
+    return true;
+}
+
+bool CWallet::AddTokenTxEntry(const CTokenTx &tokenTx, bool fFlushOnClose)
+{
+    LOCK2(cs_main, cs_wallet);
+
+    CWalletDB walletdb(*dbw, "r+", fFlushOnClose);
+
+    uint256 hash = tokenTx.GetHash();
+
+    bool fInsertedNew = true;
+
+    std::map<uint256, CTokenTx>::iterator it = mapTokenTx.find(hash);
+    if(it!=mapTokenTx.end())
+    {
+        fInsertedNew = false;
+    }
+
+    // Write to disk
+    CTokenTx wtokenTx = tokenTx;
+    if(!fInsertedNew)
+    {
+        wtokenTx.strLabel = it->second.strLabel;
+    }
+    const CBlockIndex *pIndex = chainActive[wtokenTx.blockNumber];
+    wtokenTx.nCreateTime = pIndex ? pIndex->GetBlockTime() : GetAdjustedTime();
+
+    if (!walletdb.WriteTokenTx(wtokenTx))
+        return false;
+
+    mapTokenTx[hash] = wtokenTx;
+
+    NotifyTokenTransactionChanged(this, hash, fInsertedNew ? CT_NEW : CT_UPDATED);
+
+    LogPrintf("AddTokenTxEntry %s\n", wtokenTx.GetHash().ToString());
+
+    return true;
+}
+
 CKeyPool::CKeyPool()
 {
     nTime = GetTime();
@@ -4322,4 +4424,157 @@ CTxDestination CWallet::AddAndGetDestinationForScript(const CScript& script, Out
     }
     default: assert(false);
     }
+}
+
+uint256 CTokenInfo::GetHash() const
+{
+    return SerializeHash(*this, SER_GETHASH, 0);
+}
+
+
+uint256 CTokenTx::GetHash() const
+{
+    return SerializeHash(*this, SER_GETHASH, 0);
+}
+
+
+bool CWallet::GetTokenTxDetails(const CTokenTx &wtx, uint256 &credit, uint256 &debit, std::string &tokenSymbol, uint8_t &decimals) const
+{
+    LOCK2(cs_main, cs_wallet);
+    bool ret = false;
+
+    for(auto it = mapToken.begin(); it != mapToken.end(); it++)
+    {
+        CTokenInfo info = it->second;
+        if(wtx.strContractAddress == info.strContractAddress)
+        {
+            if(wtx.strSenderAddress == info.strSenderAddress)
+            {
+                debit = wtx.nValue;
+                tokenSymbol = info.strTokenSymbol;
+                decimals = info.nDecimals;
+                ret = true;
+            }
+
+            if(wtx.strReceiverAddress == info.strSenderAddress)
+            {
+                credit = wtx.nValue;
+                tokenSymbol = info.strTokenSymbol;
+                decimals = info.nDecimals;
+                ret = true;
+            }
+        }
+    }
+
+    return ret;
+}
+
+bool CWallet::IsTokenTxMine(const CTokenTx &wtx) const
+{
+    LOCK2(cs_main, cs_wallet);
+    bool ret = false;
+
+    for(auto it = mapToken.begin(); it != mapToken.end(); it++)
+    {
+        CTokenInfo info = it->second;
+        if(wtx.strContractAddress == info.strContractAddress)
+        {
+            if(wtx.strSenderAddress == info.strSenderAddress || 
+                wtx.strReceiverAddress == info.strSenderAddress)
+            {
+                ret = true;
+            }
+        }
+    }
+
+    return ret;
+}
+
+bool CWallet::RemoveTokenEntry(const uint256 &tokenHash, bool fFlushOnClose)
+{
+    LOCK2(cs_main, cs_wallet);
+
+    CWalletDB walletdb(*dbw, "r+", fFlushOnClose);
+
+    bool fFound = false;
+
+    std::map<uint256, CTokenInfo>::iterator it = mapToken.find(tokenHash);
+    if(it!=mapToken.end())
+    {
+        fFound = true;
+    }
+
+    if(fFound)
+    {
+        // Remove from disk
+        if (!walletdb.EraseToken(tokenHash))
+            return false;
+
+        mapToken.erase(it);
+
+        NotifyTokenChanged(this, tokenHash, CT_DELETED);
+
+        // Refresh token tx
+        for(auto it = mapTokenTx.begin(); it != mapTokenTx.end(); it++)
+        {
+            uint256 tokenTxHash = it->second.GetHash();
+            NotifyTokenTransactionChanged(this, tokenTxHash, CT_UPDATED);
+        }
+    }
+
+    LogPrintf("RemoveTokenEntry %s\n", tokenHash.ToString());
+
+    return true;
+}
+
+bool CWallet::SetContractBook(const std::string &strAddress, const std::string &strName, const std::string &strAbi)
+{
+    bool fUpdated = false;
+    {
+        LOCK(cs_wallet); // mapContractBook
+        auto mi = mapContractBook.find(strAddress);
+        fUpdated = mi != mapContractBook.end();
+        mapContractBook[strAddress].name = strName;
+        mapContractBook[strAddress].abi = strAbi;
+    }
+
+    NotifyContractBookChanged(this, strAddress, strName, strAbi, (fUpdated ? CT_UPDATED : CT_NEW) );
+
+    CWalletDB walletdb(*dbw, "r+", true);
+    bool ret = walletdb.WriteContractData(strAddress, "name", strName);
+    ret &= walletdb.WriteContractData(strAddress, "abi", strAbi);
+    return ret;
+}
+
+bool CWallet::DelContractBook(const std::string &strAddress)
+{
+    {
+        LOCK(cs_wallet); // mapContractBook
+        mapContractBook.erase(strAddress);
+    }
+
+    NotifyContractBookChanged(this, strAddress, "", "", CT_DELETED);
+
+    CWalletDB walletdb(*dbw, "r+", true);
+    bool ret = walletdb.EraseContractData(strAddress, "name");
+    ret &= walletdb.EraseContractData(strAddress, "abi");
+    return ret;
+}
+
+bool CWallet::LoadContractData(const std::string &address, const std::string &key, const std::string &value)
+{
+    bool ret = true;
+    if(key == "name")
+    {
+        mapContractBook[address].name = value;
+    }
+    else if(key == "abi")
+    {
+        mapContractBook[address].abi = value;
+    }
+    else
+    {
+        ret = false;
+    }
+    return ret;
 }
