@@ -35,10 +35,16 @@ extern std::vector<CWalletRef> vpwallets;
 /**
  * Settings
  */
+extern CAmount nReserveBalance;
 extern CFeeRate payTxFee;
 extern unsigned int nTxConfirmTarget;
 extern bool bSpendZeroConfChange;
+extern bool bZeroBalanceAddressToken;
 extern bool fWalletRbf;
+extern bool fWalletUnlockStakingOnly;
+extern bool fNotUseChangeAddress;
+extern bool fCheckForUpdates;
+extern bool fBatchProcessingMode;
 
 static const unsigned int DEFAULT_KEYPOOL_SIZE = 1000;
 //! -paytxfee default
@@ -48,7 +54,7 @@ static const CAmount DEFAULT_FALLBACK_FEE = 20000;
 //! -m_discard_rate default
 static const CAmount DEFAULT_DISCARD_FEE = 10000;
 //! -mintxfee default
-static const CAmount DEFAULT_TRANSACTION_MINFEE = 1000;
+static const CAmount DEFAULT_TRANSACTION_MINFEE = 400000;
 //! minimum recommended increment for BIP 125 replacement txs
 static const CAmount WALLET_INCREMENTAL_RELAY_FEE = 5000;
 //! target minimum change amount
@@ -57,6 +63,8 @@ static const CAmount MIN_CHANGE = CENT;
 static const CAmount MIN_FINAL_CHANGE = MIN_CHANGE/2;
 //! Default for -spendzeroconfchange
 static const bool DEFAULT_SPEND_ZEROCONF_CHANGE = true;
+//! Default for -zerobalanceaddresstoken
+static const bool DEFAULT_ZERO_BALANCE_ADDRESS_TOKEN = true;
 //! Default for -walletrejectlongchains
 static const bool DEFAULT_WALLET_REJECT_LONG_CHAINS = false;
 //! -txconfirmtarget default
@@ -70,6 +78,10 @@ extern const char * DEFAULT_WALLET_DAT;
 
 static const int64_t TIMESTAMP_MIN = 0;
 
+static const bool DEFAULT_NOT_USE_CHANGE_ADDRESS = false;
+
+static const bool DEFAULT_CHECK_FOR_UPDATES = true;
+
 class CBlockIndex;
 class CCoinControl;
 class COutput;
@@ -79,6 +91,8 @@ class CScheduler;
 class CTxMemPool;
 class CBlockPolicyEstimator;
 class CWalletTx;
+class CTokenTx;
+class CContractBookData;
 struct FeeCalculation;
 enum class FeeEstimateMode;
 

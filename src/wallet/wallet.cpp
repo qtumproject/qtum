@@ -29,24 +29,43 @@
 #include <util.h>
 #include <utilmoneystr.h>
 #include <wallet/fees.h>
+#include <pos.h>
 
 #include <assert.h>
 #include <future>
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/thread.hpp>
+#include <miner.h>
 
 std::vector<CWalletRef> vpwallets;
 /** Transaction fee set by the user */
 CFeeRate payTxFee(DEFAULT_TRANSACTION_FEE);
 unsigned int nTxConfirmTarget = DEFAULT_TX_CONFIRM_TARGET;
 bool bSpendZeroConfChange = DEFAULT_SPEND_ZEROCONF_CHANGE;
+bool bZeroBalanceAddressToken = DEFAULT_ZERO_BALANCE_ADDRESS_TOKEN;
 bool fWalletRbf = DEFAULT_WALLET_RBF;
+bool fNotUseChangeAddress = DEFAULT_NOT_USE_CHANGE_ADDRESS;
+bool fCheckForUpdates = DEFAULT_CHECK_FOR_UPDATES;
+bool fBatchProcessingMode = false;
 OutputType g_address_type = OUTPUT_TYPE_NONE;
 OutputType g_change_type = OUTPUT_TYPE_NONE;
 
 const char * DEFAULT_WALLET_DAT = "wallet.dat";
 const uint32_t BIP32_HARDENED_KEY_LIMIT = 0x80000000;
+
+CAmount nReserveBalance = 0;
+
+struct ScriptsElement{
+    CScript script;
+    uint256 hash;
+};
+
+/**
+ * Cache of the recent mpos scripts for the block reward recipients
+ * The max size of the map is 2 * nCacheScripts - nMPoSRewardRecipients, so in this case it is 20
+ */
+std::map<int, ScriptsElement> scriptsMap;
 
 /**
  * Fees smaller than this (in satoshi) are considered zero fee (for transaction creation)
@@ -327,6 +346,11 @@ bool CWallet::AddCScript(const CScript& redeemScript)
         return false;
     return CWalletDB(*dbw).WriteCScript(Hash160(redeemScript), redeemScript);
 }
+
+// optional setting to unlock wallet for staking only
+// serves to disable the trivial sendmoney when OS account compromised
+// provides no real security
+bool fWalletUnlockStakingOnly = false;
 
 bool CWallet::LoadCScript(const CScript& redeemScript)
 {
