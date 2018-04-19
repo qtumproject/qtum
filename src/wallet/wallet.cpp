@@ -2538,6 +2538,49 @@ void CWallet::AvailableCoins(std::vector<COutput> &vCoins, bool fOnlySafe, const
     }
 }
 
+void CWallet::AvailableCoinsForStaking(std::vector<COutput>& vCoins) const
+{
+    vCoins.clear();
+
+    {
+        LOCK2(cs_main, cs_wallet);
+        for (std::map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
+        {
+            const uint256& wtxid = it->first;
+            const CWalletTx* pcoin = &(*it).second;
+            int nDepth = pcoin->GetDepthInMainChain();
+
+            if (nDepth < 1)
+                continue;
+
+            if (nDepth < COINBASE_MATURITY)
+                continue;
+
+            if (pcoin->GetBlocksToMaturity() > 0)
+                continue;
+
+            for (unsigned int i = 0; i < pcoin->tx->vout.size(); i++) {
+                isminetype mine = IsMine(pcoin->tx->vout[i]);
+                if (!(IsSpent(wtxid, i)) && mine != ISMINE_NO &&
+                    !IsLockedCoin((*it).first, i) && (pcoin->tx->vout[i].nValue > 0) &&
+                    !pcoin->tx->vout[i].scriptPubKey.HasOpCall() && !pcoin->tx->vout[i].scriptPubKey.HasOpCreate())
+                        vCoins.push_back(COutput(pcoin, i, nDepth,
+                                                 ((mine & ISMINE_SPENDABLE) != ISMINE_NO) ||
+                                                 (mine & ISMINE_WATCH_SOLVABLE) != ISMINE_NO,
+                                                 (mine & (ISMINE_SPENDABLE | ISMINE_WATCH_SOLVABLE)) != ISMINE_NO,
+                                                 pcoin->IsTrusted()));
+            }
+        }
+    }
+}
+
+bool CWallet::HaveAvailableCoinsForStaking() const
+{
+    std::vector<COutput> vCoins;
+    AvailableCoinsForStaking(vCoins);
+    return vCoins.size() > 0;
+}
+
 std::map<CTxDestination, std::vector<COutput>> CWallet::ListCoins() const
 {
     // TODO: Add AssertLockHeld(cs_wallet) here.
@@ -2847,6 +2890,45 @@ bool CWallet::SelectCoins(const std::vector<COutput>& vAvailableCoins, const CAm
     nValueRet += nValueFromPresetInputs;
 
     return res;
+}
+
+bool CWallet::SelectCoinsForStaking(CAmount& nTargetValue, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoinsRet, CAmount& nValueRet) const
+{
+    std::vector<COutput> vCoins;
+    AvailableCoinsForStaking(vCoins);
+
+    setCoinsRet.clear();
+    nValueRet = 0;
+
+    for(COutput output : vCoins)
+    {
+        const CWalletTx *pcoin = output.tx;
+        int i = output.i;
+
+        // Stop if we've chosen enough inputs
+        if (nValueRet >= nTargetValue)
+            break;
+
+        int64_t n = pcoin->tx->vout[i].nValue;
+
+        std::pair<int64_t,std::pair<const CWalletTx*,unsigned int> > coin = std::make_pair(n,std::make_pair(pcoin, i));
+
+        if (n >= nTargetValue)
+        {
+            // If input value is greater or equal to target then simply insert
+            // it into the current subset and exit
+            setCoinsRet.insert(coin.second);
+            nValueRet += coin.first;
+            break;
+        }
+        else if (n < nTargetValue + CENT)
+        {
+            setCoinsRet.insert(coin.second);
+            nValueRet += coin.first;
+        }
+    }
+
+    return true;
 }
 
 bool CWallet::SignTransaction(CMutableTransaction &tx)
@@ -3347,6 +3429,38 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CWalletT
               100 * feeCalc.est.fail.withinTarget / (feeCalc.est.fail.totalConfirmed + feeCalc.est.fail.inMempool + feeCalc.est.fail.leftMempool),
               feeCalc.est.fail.withinTarget, feeCalc.est.fail.totalConfirmed, feeCalc.est.fail.inMempool, feeCalc.est.fail.leftMempool);
     return true;
+}
+
+uint64_t CWallet::GetStakeWeight() const
+{
+    // Choose coins to use
+    CAmount nBalance = GetBalance();
+
+    if (nBalance <= nReserveBalance)
+        return 0;
+
+    std::vector<const CWalletTx*> vwtxPrev;
+
+    std::set<std::pair<const CWalletTx*,unsigned int> > setCoins;
+    CAmount nValueIn = 0;
+
+    CAmount nTargetValue = nBalance - nReserveBalance;
+    if (!SelectCoinsForStaking(nTargetValue, setCoins, nValueIn))
+        return 0;
+
+    if (setCoins.empty())
+        return 0;
+
+    uint64_t nWeight = 0;
+
+    LOCK2(cs_main, cs_wallet);
+    for(std::pair<const CWalletTx*,unsigned int> pcoin : setCoins)
+    {
+        if (pcoin.first->GetDepthInMainChain() >= COINBASE_MATURITY)
+            nWeight += pcoin.first->tx->vout[pcoin.second].nValue;
+    }
+
+    return nWeight;
 }
 
 /**
