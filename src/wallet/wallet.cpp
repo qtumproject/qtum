@@ -2929,11 +2929,17 @@ OutputType CWallet::TransactionChangeType(OutputType change_type, const std::vec
 }
 
 bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, CAmount& nFeeRet,
-                                int& nChangePosInOut, std::string& strFailReason, const CCoinControl& coin_control, bool sign)
+                                int& nChangePosInOut, std::string& strFailReason, const CCoinControl& coin_control, bool sign, CAmount nGasFee, bool hasSender)
 {
     CAmount nValue = 0;
     int nChangePosRequest = nChangePosInOut;
     unsigned int nSubtractFeeFromAmount = 0;
+    COutPoint senderInput;
+    if(hasSender && coin_control.HasSelected()){
+    	std::vector<COutPoint> vSenderInputs;
+    	coin_control.ListSelected(vSenderInputs);
+    	senderInput=vSenderInputs[0];
+    }
     for (const auto& recipient : vecSend)
     {
         if (nValue < 0 || recipient.nAmount < 0)
@@ -2992,6 +2998,7 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CWalletT
     unsigned int nBytes;
     {
         std::set<CInputCoin> setCoins;
+        std::vector<CInputCoin> vCoins;
         LOCK2(cs_main, cs_wallet);
         {
             std::vector<COutput> vAvailableCoins;
@@ -3095,6 +3102,19 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CWalletT
 
                 if (nChange > 0)
                 {
+                    // send change to existing address
+                    if (fNotUseChangeAddress &&
+                            boost::get<CNoDestination>(&coin_control.destChange) &&
+                            setCoins.size() > 0)
+                    {
+                        // setCoins will be added as inputs to the new transaction
+                        // Set the first input script as change script for the new transaction
+                        auto pcoin = setCoins.begin();
+                        scriptChange = pcoin->txout.scriptPubKey;
+
+                        change_prototype_txout = CTxOut(0, scriptChange);
+                        change_prototype_size = GetSerializeSize(change_prototype_txout, SER_DISK, 0);
+                    }
                     // Fill a vout to ourself
                     CTxOut newTxOut(nChange, scriptChange);
 
@@ -3125,6 +3145,19 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CWalletT
                     nChangePosInOut = -1;
                 }
 
+                // Move sender input to position 0
+                vCoins.clear();
+                std::copy(setCoins.begin(), setCoins.end(), std::back_inserter(vCoins));
+                if(hasSender && coin_control.HasSelected()){
+                    for (std::vector<CInputCoin>::size_type i = 0 ; i != vCoins.size(); i++){
+                        if(vCoins[i].outpoint==senderInput){
+                            if(i==0)break;
+                            iter_swap(vCoins.begin(),vCoins.begin()+i);
+                            break;
+                        }
+                    }
+                }
+
                 // Fill vin
                 //
                 // Note how the sequence number is set to non-maxint so that
@@ -3136,12 +3169,12 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CWalletT
                 // and in the spirit of "smallest possible change from prior
                 // behavior."
                 const uint32_t nSequence = coin_control.signalRbf ? MAX_BIP125_RBF_SEQUENCE : (CTxIn::SEQUENCE_FINAL - 1);
-                for (const auto& coin : setCoins)
+                for (const auto& coin : vCoins)
                     txNew.vin.push_back(CTxIn(coin.outpoint,CScript(),
                                               nSequence));
 
                 // Fill in dummy signatures for fee calculation.
-                if (!DummySignTx(txNew, setCoins)) {
+                if (!DummySignTx(txNew, vCoins)) {
                     strFailReason = _("Signing transaction failed");
                     return false;
                 }
@@ -3154,7 +3187,7 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CWalletT
                     vin.scriptWitness.SetNull();
                 }
 
-                nFeeNeeded = GetMinimumFee(nBytes, coin_control, ::mempool, ::feeEstimator, &feeCalc);
+                nFeeNeeded = GetMinimumFee(nBytes, coin_control, ::mempool, ::feeEstimator, &feeCalc)+nGasFee;
 
                 // If we made it here and we aren't even able to meet the relay fee on the next pass, give up
                 // because we must be at the maximum allowed fee.
@@ -3234,7 +3267,7 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CWalletT
         {
             CTransaction txNewConst(txNew);
             int nIn = 0;
-            for (const auto& coin : setCoins)
+            for (const auto& coin : vCoins)
             {
                 const CScript& scriptPubKey = coin.txout.scriptPubKey;
                 SignatureData sigdata;
