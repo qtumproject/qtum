@@ -1554,7 +1554,7 @@ void BitcoinGUI::startLightning() {
     QString rpcuser = QString::fromStdString(GetArg("-rpcuser", ""));
     QString rpcpass = QString::fromStdString(GetArg("-rpcpassword", ""));
     QString network = QString::fromStdString(Params().NetworkIDString());
-    if (network == "test")
+    if (network == "main" || network == "test")
         network += "net";
     QString zmqport = QString::fromStdString(
         GetArg("-zmqpubhashblock", DEFAULT_ZMQPUBHASHBLOCK));
