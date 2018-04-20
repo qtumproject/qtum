@@ -2561,8 +2561,11 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
             uint64_t gasFeeSum=0;
             uint64_t gasLimitSum=0;
             bool nonZeroVersion = false;
-            /*
-            for(uint32_t nvout=0; i<tx.vout.size(); nvout++) {
+
+            for(uint32_t nvout=0; nvout<tx.vout.size(); nvout++) {
+                if(!(tx.vout[nvout].scriptPubKey.HasOpCall() || tx.vout[nvout].scriptPubKey.HasOpCreate() || tx.vout[nvout].scriptPubKey.HasOpSpend())){
+                    continue; //don't process vouts without contract stuff
+                }
                 ContractOutputParser parser(tx, nvout, &view, &block.vtx);
                 ContractOutput output;
                 if(!parser.parseOutput(output)){
@@ -2615,6 +2618,37 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
                 //don't allow less than DGP set minimum gas price to prevent MPoS greedy mining/spammers
                 if(v.rootVM != 0 && output.gasPrice < minGasPrice)
                     return state.DoS(100, error("ConnectBlock(): Contract execution has lower gas price than allowed"), REJECT_INVALID, "bad-tx-low-gas-price");
+
+
+                ContractExecutor executor(block, output, blockGasLimit);
+                ContractExecutionResult result;
+                if(!executor.execute(result, true)){
+                    return state.DoS(100, error("ConnectBlock(): Error processing VM execution results"), REJECT_INVALID, "bad-vm-exec-processing");
+                }
+                blockGasUsed += result.usedGas;
+                if(blockGasUsed > blockGasLimit){
+                    return state.DoS(1000, error("ConnectBlock(): Block exceeds gas limit"), REJECT_INVALID, "bad-blk-gaslimit");
+                }
+
+                if(result.refundSender > 0) {
+                    if(output.sender.version == AddressVersion::PUBKEYHASH) {
+                        CScript script(CScript() << OP_DUP << OP_HASH160 << output.sender.data << OP_EQUALVERIFY
+                                                 << OP_CHECKSIG);
+                        checkVouts.push_back(CTxOut(result.refundSender, script));
+                    }else{
+                        //TODO
+                        return state.DoS(100, error("can't yet handle non-pubkeyhash refunds"));
+                    }
+                }
+                gasRefunds += result.refundSender;
+                if(result.transferTx.vin.size() > 0) {
+                    checkBlock.vtx.push_back(MakeTransactionRef(std::move(result.transferTx)));
+                }
+                if(fRecordLogOpcodes && !fJustCheck){
+                    //TODO writeVMlog(resultExec, tx, block);
+                }
+
+
             }
             //done testing outputs, now process the entire transaction
 
@@ -2624,10 +2658,11 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
                 //    return state.DoS(100, error("ConnectBlock(): Version 0 contract executions are not allowed unless created by the AAL "), REJECT_INVALID, "bad-tx-improper-version-0");
                 }
             }
-            */
 
 
-            /*
+           /*
+            * ByteCodeExec exec(block, resultConvertQtumTX.first, blockGasLimit);
+
 
             if(!exec.performByteCode()){
                 return state.DoS(100, error("ConnectBlock(): Unknown error during contract execution"), REJECT_INVALID, "bad-tx-unknown-error");
@@ -2675,7 +2710,8 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
                 if(re.execRes.newAddress != dev::Address() && !fJustCheck)
                     dev::g_logPost(std::string("Address : " + re.execRes.newAddress.hex()), NULL);
             }
-                */
+            */
+            /*
 //old
             QtumTxConverter convert(tx, &view, &block.vtx);
 
@@ -2792,7 +2828,11 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
                 if(re.execRes.newAddress != dev::Address() && !fJustCheck)
                     dev::g_logPost(std::string("Address : " + re.execRes.newAddress.hex()), NULL);
             }
+
+             */
         }
+
+
 /////////////////////////////////////////////////////////////////////////////////////////
 
         CTxUndo undoDummy;

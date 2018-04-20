@@ -8,10 +8,15 @@
 #include <validation.h>
 #include <pubkey.h>
 #include "qtumtransaction.h"
+#include <qtum/qtumx86.h>
 
 
 bool ContractOutputParser::parseOutput(ContractOutput& output){
+    output.sender = getSenderAddress();
     try{
+        if(!receiveStack(tx.vout[nvout].scriptPubKey)){
+            return false;
+        }
         std::vector<uint8_t> receiveAddress;
         valtype vecAddr;
         if (opcode == OP_CALL)
@@ -131,8 +136,8 @@ UniversalAddress ContractOutputParser::getSenderAddress(){
 ContractEnvironment ContractExecutor::buildEnv() {
     ContractEnvironment env;
     CBlockIndex* tip = chainActive.Tip();
-    assert(*tip->phashBlock == block.GetHash());
-    env.blockNumber = tip->nHeight;
+    assert(*tip->phashBlock == block.hashPrevBlock);
+    env.blockNumber = tip->nHeight + 1;
     env.blockTime = block.nTime;
     env.difficulty = block.nBits;
     env.gasLimit = blockGasLimit;
@@ -183,6 +188,13 @@ bool ContractExecutor::execute(ContractExecutionResult &result, bool commit)
     return true;
 }
 
+bool ContractExecutor::buildTransferTx(ContractExecutionResult &res)
+{
+    return false;
+}
+
+
+
 bool EVMContractVM::execute(ContractOutput &output, ContractExecutionResult &result, bool commit) {
     dev::eth::EnvInfo envInfo(buildEthEnv());
     if (output.address.version != AddressVersion::UNKNOWN &&
@@ -204,9 +216,22 @@ bool EVMContractVM::execute(ContractOutput &output, ContractExecutionResult &res
             result.status = ContractStatus ::CODE_ERROR;
             break;
     }
-    //todo: error checking here for overflow
-    result.refundSender = (uint64_t) ethres.execRes.gasRefunded;
+    result.refundSender = (uint64_t) ethres.execRes.gasRefunded * output.gasPrice;
+    if(result.refundSender > output.gasLimit * output.gasPrice){
+        result.refundSender = output.gasLimit * output.gasPrice; //don't ever return more than was sent
+    }
     result.usedGas = (uint64_t) ethres.execRes.gasUsed;
+
+    result.transferTx = ethres.tx;
+    /*
+    for(auto& vout : ethres.tx.vout){
+        tx.vout.push_back(vout);
+    }
+    for(auto& vin : ethres.tx.vin){
+        tx.vin.push_back(vin);
+    }
+    result.transferTx =  tx;
+     */
     //result.push_back(globalState->execute(envInfo, *globalSealEngine.get(), tx, type, OnOpFunc()));
     globalState->db().commit();
     globalState->dbUtxo().commit();
@@ -254,7 +279,7 @@ QtumTransaction EVMContractVM::buildQtumTx(const ContractOutput &output)
         //txEth = QtumTransaction(txBit.vout[nOut].nValue, etp.gasPrice, etp.gasLimit, etp.code, dev::u256(0));
     } else {
         txEth = QtumTransaction(output.value, output.gasPrice, output.gasLimit, dev::Address(output.address.data),
-                                output.data, dev::u256(0));
+                                std::vector<uint8_t>(output.data.rbegin(), output.data.rend()), dev::u256(0));
         //txEth = QtumTransaction(txBit.vout[nOut].nValue, etp.gasPrice, etp.gasLimit, etp.receiveAddress, etp.code,
         //                        dev::u256(0));
     }

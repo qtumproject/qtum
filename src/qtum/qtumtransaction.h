@@ -130,11 +130,6 @@ public:
     bool readState(valtype address, valtype key, valtype& value);
 };
 
-struct ValueTransfer{
-    COutPoint spend;
-    CAmount value;
-    UniversalAddress to;
-};
 
 enum ContractStatus{
     SUCCESS = 0,
@@ -146,12 +141,12 @@ enum ContractStatus{
 struct ContractExecutionResult{
     uint64_t usedGas;
     CAmount refundSender = 0;
-    std::vector<ValueTransfer> transfers;
     ContractStatus status;
+    CMutableTransaction transferTx;
 };
 
 class QtumTransaction;
-
+class x86ContractVM;
 //the abstract class for the VM interface
 //in the future, enterprise/private VMs will use this interface
 class ContractVM{
@@ -165,6 +160,8 @@ protected:
     const ContractEnvironment &env;
     const uint64_t remainingGasLimit;
 };
+
+
 
 class EVMContractVM : public ContractVM {
 public:
@@ -182,7 +179,7 @@ public:
     ContractExecutor(const CBlock& _block, ContractOutput _output, uint64_t _blockGasLimit);
     bool execute(ContractExecutionResult &result, bool commit);
 private:
-
+    bool buildTransferTx(ContractExecutionResult& res);
     ContractEnvironment buildEnv();
     const CBlock& block;
     ContractOutput output;
