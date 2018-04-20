@@ -552,18 +552,14 @@ UniValue createcontract(const JSONRPCRequest& request){
     }
 
     if (request.params.size() > 2){
-        UniValue uGasPrice = request.params[2];
-        if(!ParseMoney(uGasPrice.getValStr(), nGasPrice))
-        {
+        nGasPrice = AmountFromValue(request.params[2]);
+        if (nGasPrice <= 0)
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasPrice");
-        }
         CAmount maxRpcGasPrice = GetArg("-rpcmaxgasprice", MAX_RPC_GAS_PRICE);
         if (nGasPrice > (int64_t)maxRpcGasPrice)
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasPrice, Maximum allowed in RPC calls is: "+FormatMoney(maxRpcGasPrice)+" (use -rpcmaxgasprice to change it)");
         if (nGasPrice < (int64_t)minGasPrice)
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasPrice (Minimum is: "+FormatMoney(minGasPrice)+")");
-        if (nGasPrice <= 0)
-            throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasPrice");
     }
 
     bool fHasSender=false;
@@ -773,18 +769,14 @@ UniValue sendtocontract(const JSONRPCRequest& request){
     }
 
     if (request.params.size() > 4){
-        UniValue uGasPrice = request.params[4];
-        if(!ParseMoney(uGasPrice.getValStr(), nGasPrice))
-        {
+        nGasPrice = AmountFromValue(request.params[4]);
+        if (nGasPrice <= 0)
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasPrice");
-        }
         CAmount maxRpcGasPrice = GetArg("-rpcmaxgasprice", MAX_RPC_GAS_PRICE);
         if (nGasPrice > (int64_t)maxRpcGasPrice)
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasPrice, Maximum allowed in RPC calls is: "+FormatMoney(maxRpcGasPrice)+" (use -rpcmaxgasprice to change it)");
         if (nGasPrice < (int64_t)minGasPrice)
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasPrice (Minimum is: "+FormatMoney(minGasPrice)+")");
-        if (nGasPrice <= 0)
-            throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasPrice");
     }
 
     bool fHasSender=false;
