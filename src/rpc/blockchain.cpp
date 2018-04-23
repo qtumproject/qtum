@@ -6,6 +6,7 @@
 #include <rpc/blockchain.h>
 
 #include <amount.h>
+#include <base58.h>
 #include <chain.h>
 #include <chainparams.h>
 #include <checkpoints.h>
@@ -26,6 +27,9 @@
 #include <hash.h>
 #include <validationinterface.h>
 #include <warnings.h>
+#include <libdevcore/CommonData.h>
+#include <pos.h>
+#include <txdb.h>
 
 #include <stdint.h>
 
@@ -35,16 +39,6 @@
 
 #include <mutex>
 #include <condition_variable>
-
-struct CUpdatedBlock
-{
-    uint256 hash;
-    int height;
-};
-
-static std::mutex cs_blockchange;
-static std::condition_variable cond_blockchange;
-static CUpdatedBlock latestblock;
 
 extern void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& entry);
 
@@ -987,8 +981,8 @@ UniValue gettxout(const JSONRPCRequest& request)
             "     \"hex\" : \"hex\",        (string) \n"
             "     \"reqSigs\" : n,          (numeric) Number of required signatures\n"
             "     \"type\" : \"pubkeyhash\", (string) The type, eg pubkeyhash\n"
-            "     \"addresses\" : [          (array of string) array of bitcoin addresses\n"
-            "        \"address\"     (string) bitcoin address\n"
+            "     \"addresses\" : [          (array of string) array of qtum addresses\n"
+            "        \"address\"     (string) qtum address\n"
             "        ,...\n"
             "     ]\n"
             "  },\n"
