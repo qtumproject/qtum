@@ -342,6 +342,8 @@ template <typename Callable> void TraceThread(const char* name,  Callable func)
 
 std::string CopyrightHolders(const std::string& strPrefix);
 
+bool CheckHex(const std::string& str);
+
 //! Substitute for C++14 std::make_unique.
 template <typename T, typename... Args>
 std::unique_ptr<T> MakeUnique(Args&&... args)
