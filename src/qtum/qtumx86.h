@@ -1,8 +1,8 @@
 #ifndef QTUMX86_H
 #define QTUMX86_H
 
-#include "qtumtransaction.h"
 #include "qtumstate.h"
+#include "qtumtransaction.h"
 
 #include <x86lib.h>
 
@@ -14,7 +14,24 @@ public:
             : ContractVM(db, env, remainingGasLimit)
     {}
     virtual bool execute(ContractOutput &output, ContractExecutionResult &result, bool commit);
+private:
+    const ContractEnvironment &getEnv();
+
+    friend class QtumHypervisor;
 };
+
+class QtumHypervisor : public x86Lib::InterruptHypervisor{
+    QtumHypervisor(x86ContractVM &vm) : contractVM(vm){
+    }
+    virtual void HandleInt(int number, x86Lib::x86CPU &vm);
+private:
+    x86ContractVM &contractVM;
+
+
+    friend x86ContractVM;
+};
+
+static const int QTUM_SYSTEM_ERROR_INT = 0xFF;
 
 //interrupt 0x40
 enum QtumSystemCall{

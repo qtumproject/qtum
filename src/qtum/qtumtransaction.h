@@ -4,6 +4,7 @@
 #include <libethcore/Transaction.h>
 #include <coins.h>
 #include <script/interpreter.h>
+#include <libevm/ExtVMFace.h>
 
 struct VersionVM{
     //this should be portable, see https://stackoverflow.com/questions/31726191/is-there-a-portable-alternative-to-c-bitfields
@@ -152,11 +153,12 @@ class x86ContractVM;
 class ContractVM{
     //todo database
 protected:
-    ContractVM(DeltaDB &db, const ContractEnvironment &_env, uint64_t _remainingGasLimit)
-    : env(_env), remainingGasLimit(_remainingGasLimit) {}
+    ContractVM(DeltaDB &_db, const ContractEnvironment &_env, uint64_t _remainingGasLimit)
+    : db(db), env(_env), remainingGasLimit(_remainingGasLimit) {}
 public:
     virtual bool execute(ContractOutput &output, ContractExecutionResult &result, bool commit)=0;
 protected:
+    DeltaDB &db;
     const ContractEnvironment &env;
     const uint64_t remainingGasLimit;
 };
