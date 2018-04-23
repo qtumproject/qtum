@@ -195,6 +195,8 @@ extern CBlockPolicyEstimator feeEstimator;
 extern CTxMemPool mempool;
 typedef std::unordered_map<uint256, CBlockIndex*, BlockHasher> BlockMap;
 extern BlockMap& mapBlockIndex;
+extern std::set<std::pair<COutPoint, unsigned int>> setStakeSeen;
+extern int64_t nLastCoinStakeSearchInterval;
 extern uint64_t nLastBlockTx;
 extern uint64_t nLastBlockWeight;
 extern const std::string strMessageMagic;
