@@ -5,7 +5,7 @@
 #include <qt/bitcoinamountfield.h>
 
 #include <qt/bitcoinunits.h>
-#include <qt/guiconstants.h>
+#include <qt/styleSheet.h>
 #include <qt/qvaluecombobox.h>
 
 #include <QApplication>
@@ -25,7 +25,8 @@ public:
     explicit AmountSpinBox(QWidget *parent):
         QAbstractSpinBox(parent),
         currentUnit(BitcoinUnits::BTC),
-        singleStep(100000) // satoshis
+        singleStep(100000), // satoshis
+        minAmount(0)
     {
         setAlignment(Qt::AlignRight);
 
@@ -46,6 +47,7 @@ public:
     {
         bool valid = false;
         CAmount val = parse(input, &valid);
+        val = qMax(val, minAmount);
         if(valid)
         {
             input = BitcoinUnits::format(currentUnit, val, false, BitcoinUnits::separatorAlways);
@@ -60,7 +62,8 @@ public:
 
     void setValue(const CAmount& value)
     {
-        lineEdit()->setText(BitcoinUnits::format(currentUnit, value, false, BitcoinUnits::separatorAlways));
+        CAmount val = qMax(value, minAmount);
+        lineEdit()->setText(BitcoinUnits::format(currentUnit, val, false, BitcoinUnits::separatorAlways));
         Q_EMIT valueChanged();
     }
 
@@ -69,7 +72,7 @@ public:
         bool valid = false;
         CAmount val = value(&valid);
         val = val + steps * singleStep;
-        val = qMin(qMax(val, CAmount(0)), BitcoinUnits::maxMoney());
+        val = qMin(qMax(val, minAmount), BitcoinUnits::maxMoney());
         setValue(val);
     }
 
@@ -124,9 +127,21 @@ public:
         return cachedMinimumSizeHint;
     }
 
+    CAmount minimum() const
+    {
+        return minAmount;
+    }
+
+    void setMinimum(const CAmount& min)
+    {
+        minAmount = min;
+        Q_EMIT valueChanged();
+    }
+
 private:
     int currentUnit;
     CAmount singleStep;
+    CAmount minAmount;
     mutable QSize cachedMinimumSizeHint;
 
     /**
@@ -176,7 +191,7 @@ protected:
         CAmount val = value(&valid);
         if(valid)
         {
-            if(val > 0)
+            if(val > minAmount)
                 rv |= StepDownEnabled;
             if(val < BitcoinUnits::maxMoney())
                 rv |= StepUpEnabled;
@@ -197,14 +212,16 @@ BitcoinAmountField::BitcoinAmountField(QWidget *parent) :
     amount = new AmountSpinBox(this);
     amount->setLocale(QLocale::c());
     amount->installEventFilter(this);
-    amount->setMaximumWidth(170);
+    amount->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->addWidget(amount);
     unit = new QValueComboBox(this);
     unit->setModel(new BitcoinUnits(this));
+    unit->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    unit->setMinimumWidth(120);
     layout->addWidget(unit);
-    layout->addStretch(1);
+
     layout->setContentsMargins(0,0,0,0);
 
     setLayout(layout);
@@ -245,7 +262,7 @@ void BitcoinAmountField::setValid(bool valid)
     if (valid)
         amount->setStyleSheet("");
     else
-        amount->setStyleSheet(STYLE_INVALID);
+        SetObjectStyleSheet(amount, StyleSheetNames::Invalid);
 }
 
 bool BitcoinAmountField::eventFilter(QObject *object, QEvent *event)
@@ -299,4 +316,14 @@ void BitcoinAmountField::setDisplayUnit(int newUnit)
 void BitcoinAmountField::setSingleStep(const CAmount& step)
 {
     amount->setSingleStep(step);
+}
+
+CAmount BitcoinAmountField::minimum() const
+{
+    return amount->minimum();
+}
+
+void BitcoinAmountField::setMinimum(const CAmount& min)
+{
+    amount->setMinimum(min);
 }

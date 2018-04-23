@@ -68,6 +68,11 @@ struct ChainTxData;
 struct PrecomputedTransactionData;
 struct LockPoints;
 
+/** Minimum gas limit that is allowed in a transaction within a block - prevent various types of tx and mempool spam **/
+static const uint64_t MINIMUM_GAS_LIMIT = 10000;
+
+static const uint64_t MEMPOOL_MIN_GAS_LIMIT = 22000;
+
 /** Default for -whitelistrelay. */
 static const bool DEFAULT_WHITELISTRELAY = true;
 /** Default for -whitelistforcerelay. */
@@ -199,6 +204,7 @@ extern std::atomic_bool fImporting;
 extern std::atomic_bool fReindex;
 extern int nScriptCheckThreads;
 extern bool fTxIndex;
+extern bool fLogEvents;
 extern bool fIsBareMultisigStd;
 extern bool fRequireStandard;
 extern bool fCheckBlockIndex;
@@ -580,5 +586,92 @@ bool DumpMempool();
 bool LoadMempool();
 
 std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, const dev::Address& sender = dev::Address(), uint64_t gasLimit=0);
+
+bool CheckSenderScript(const CCoinsViewCache& view, const CTransaction& tx);
+
+bool CheckMinGasPrice(std::vector<EthTransactionParams>& etps, const uint64_t& minGasPrice);
+
+struct ByteCodeExecResult;
+
+void EnforceContractVoutLimit(ByteCodeExecResult& bcer, ByteCodeExecResult& bcerOut, const dev::h256& oldHashQtumRoot,
+    const dev::h256& oldHashStateRoot, const std::vector<QtumTransaction>& transactions);
+
+void writeVMlog(const std::vector<ResultExecute>& res, const CTransaction& tx = CTransaction(), const CBlock& block = CBlock());
+
+struct EthTransactionParams{
+    VersionVM version;
+    dev::u256 gasLimit;
+    dev::u256 gasPrice;
+    valtype code;
+    dev::Address receiveAddress;
+
+    bool operator!=(EthTransactionParams etp){
+        if(this->version.toRaw() != etp.version.toRaw() || this->gasLimit != etp.gasLimit ||
+        this->gasPrice != etp.gasPrice || this->code != etp.code ||
+        this->receiveAddress != etp.receiveAddress)
+            return true;
+        return false;
+    }
+};
+
+struct ByteCodeExecResult{
+    uint64_t usedGas = 0;
+    CAmount refundSender = 0;
+    std::vector<CTxOut> refundOutputs;
+    std::vector<CTransaction> valueTransfers;
+};
+
+class QtumTxConverter{
+
+public:
+
+    QtumTxConverter(CTransaction tx, CCoinsViewCache* v = NULL, const std::vector<CTransactionRef>* blockTxs = NULL) : txBit(tx), view(v), blockTransactions(blockTxs){}
+
+    bool extractionQtumTransactions(ExtractQtumTX& qtumTx);
+
+private:
+
+    bool receiveStack(const CScript& scriptPubKey);
+
+    bool parseEthTXParams(EthTransactionParams& params);
+
+    QtumTransaction createEthTX(const EthTransactionParams& etp, const uint32_t nOut);
+
+    const CTransaction txBit;
+    const CCoinsViewCache* view;
+    std::vector<valtype> stack;
+    opcodetype opcode;
+    const std::vector<CTransactionRef> *blockTransactions;
+
+};
+
+class ByteCodeExec {
+
+public:
+
+    ByteCodeExec(const CBlock& _block, std::vector<QtumTransaction> _txs, const uint64_t _blockGasLimit) : txs(_txs), block(_block), blockGasLimit(_blockGasLimit) {}
+
+    bool performByteCode(dev::eth::Permanence type = dev::eth::Permanence::Committed);
+
+    bool processingResults(ByteCodeExecResult& result);
+
+    std::vector<ResultExecute>& getResult(){ return result; }
+
+private:
+
+    dev::eth::EnvInfo BuildEVMEnvironment();
+
+    dev::Address EthAddrFromScript(const CScript& scriptIn);
+
+    std::vector<QtumTransaction> txs;
+
+    std::vector<ResultExecute> result;
+
+    const CBlock& block;
+
+    const uint64_t blockGasLimit;
+
+};
+////////////////////////////////////////////////////////
 
 #endif // BITCOIN_VALIDATION_H

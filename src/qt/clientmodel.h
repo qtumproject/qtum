@@ -73,6 +73,8 @@ public:
     void setNetworkActive(bool active);
     //! Return warnings to be displayed in status bar
     QString getStatusBarWarnings() const;
+    //! Get the information about the needed gas
+    void getGasInfo(uint64_t& blockGasLimit, uint64_t& minGasPrice, uint64_t& nGasPrice) const;
 
     QString formatFullVersion() const;
     QString formatSubVersion() const;
@@ -101,6 +103,7 @@ Q_SIGNALS:
     void networkActiveChanged(bool networkActive);
     void alertsChanged(const QString &warnings);
     void bytesChanged(quint64 totalBytesIn, quint64 totalBytesOut);
+    void tipChanged();
 
     //! Fired when a message should be reported to the user
     void message(const QString &title, const QString &message, unsigned int style);

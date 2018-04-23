@@ -74,11 +74,12 @@ struct TokenData
 
 bool ToHash160(const std::string& strQtumAddress, std::string& strHash160)
 {
-    CBitcoinAddress qtumAddress(strQtumAddress);
-    if(qtumAddress.IsValid()){
-        CKeyID keyid;
-        qtumAddress.GetKeyID(keyid);
-        strHash160 = HexStr(valtype(keyid.begin(),keyid.end()));
+    CTxDestination qtumAddress = DecodeDestination(strQtumAddress);
+    if(!IsValidDestination(qtumAddress))
+        return false;
+    const CKeyID * keyid = boost::get<CKeyID>(&qtumAddress);
+    if(keyid){
+        strHash160 = HexStr(valtype(keyid->begin(),keyid->end()));
     }else{
         return false;
     }
@@ -89,10 +90,9 @@ bool ToQtumAddress(const std::string& strHash160, std::string& strQtumAddress)
 {
     uint160 key(ParseHex(strHash160.c_str()));
     CKeyID keyid(key);
-    CBitcoinAddress qtumAddress;
-    qtumAddress.Set(keyid);
-    if(qtumAddress.IsValid()){
-        strQtumAddress = qtumAddress.ToString();
+    CTxDestination qtumAddress = keyid;
+    if(IsValidDestination(qtumAddress)){
+        strQtumAddress = EncodeDestination(qtumAddress);
         return true;
     }
     return false;

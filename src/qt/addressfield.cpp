@@ -121,7 +121,7 @@ void AddressField::on_refresh()
 
                 if (fValidAddress)
                 {
-                    QString strAddress = QString::fromStdString(CBitcoinAddress(address).ToString());
+                    QString strAddress = QString::fromStdString(EncodeDestination(address));
                     appendAddress(strAddress);
                 }
             }
@@ -148,12 +148,12 @@ void AddressField::on_editingFinished()
 
 void AddressField::appendAddress(const QString &strAddress)
 {
-    CBitcoinAddress address(strAddress.toStdString());
+    CTxDestination address = DecodeDestination(strAddress.toStdString());
     if(!vpwallets.empty())
     {
         CWalletRef pwalletMain = vpwallets[0];
         if(!m_stringList.contains(strAddress) &&
-                IsMine(*pwalletMain, address.Get()))
+                IsMine(*pwalletMain, address))
         {
             m_stringList.append(strAddress);
         }

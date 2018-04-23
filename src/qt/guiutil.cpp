@@ -286,6 +286,19 @@ void copyEntryData(QAbstractItemView *view, int column, int role)
     }
 }
 
+void copyEntryDataFromList(QAbstractItemView *view, int role)
+{
+    if(!view || !view->selectionModel())
+        return;
+    QModelIndexList selection = view->selectionModel()->selectedIndexes();
+
+    if(!selection.isEmpty())
+    {
+        // Copy first item
+        setClipboard(selection.at(0).data(role).toString());
+    }
+}
+
 QList<QModelIndex> getEntryData(QAbstractItemView *view, int column)
 {
     if(!view || !view->selectionModel())
@@ -1015,6 +1028,19 @@ void ClickableLabel::mouseReleaseEvent(QMouseEvent *event)
 void ClickableProgressBar::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_EMIT clicked(event->pos());
+}
+
+void formatToolButtons(QToolButton *btn1, QToolButton *btn2, QToolButton *btn3)
+{
+    QList<QToolButton *> btnList;
+    if(btn1) btnList.append(btn1);
+    if(btn2) btnList.append(btn2);
+    if(btn3) btnList.append(btn3);
+    for(int i = 0; i < btnList.count(); i++)
+    {
+        QToolButton* btn = btnList[i];
+        btn->setIconSize(QSize(16, 16));
+    }
 }
 
 } // namespace GUIUtil
