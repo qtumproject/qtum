@@ -20,6 +20,7 @@
 #include <qt/splashscreen.h>
 #include <qt/utilitydialog.h>
 #include <qt/winshutdownmonitor.h>
+#include <qt/styleSheet.h>
 
 #ifdef ENABLE_WALLET
 #include <qt/paymentserver.h>
@@ -50,6 +51,8 @@
 #include <QTimer>
 #include <QTranslator>
 #include <QSslConfiguration>
+#include <QFile>
+#include <QProcess>
 
 #if defined(QT_STATICPLUGIN)
 #include <QtPlugin>
@@ -169,6 +172,15 @@ void DebugMessageHandler(QtMsgType type, const QMessageLogContext& context, cons
 }
 #endif
 
+void removeParam(QStringList& list, const QString& param)
+{
+    int index = list.indexOf(param);
+    if(index != -1)
+    {
+        list.removeAt(index);
+    }
+}
+
 /** Class encapsulating Bitcoin Core startup and shutdown.
  * Allows running startup and shutdown in a different thread from the UI thread.
  */
@@ -229,6 +241,8 @@ public:
     /// Get window identifier of QMainWindow (BitcoinGUI)
     WId getMainWinId() const;
 
+    void restoreWallet();
+
 public Q_SLOTS:
     void initializeResult(bool success);
     void shutdownResult();
@@ -256,6 +270,9 @@ private:
     std::unique_ptr<QWidget> shutdownWindow;
 
     void startThread();
+
+    QString restorePath;
+    QString restoreParam;
 };
 
 #include <qt/bitcoin.moc>
@@ -448,12 +465,20 @@ void BitcoinApplication::requestShutdown()
     pollShutdownTimer->stop();
 
 #ifdef ENABLE_WALLET
-    window->removeAllWallets();
-    delete walletModel;
-    walletModel = 0;
+    if(walletModel)
+    {
+        restoreParam = walletModel->getRestoreParam();
+        restorePath = walletModel->getRestorePath();
+        window->removeAllWallets();
+        delete walletModel;
+        walletModel = 0;
+    }
 #endif
-    delete clientModel;
-    clientModel = 0;
+    if(clientModel)
+    {
+        delete clientModel;
+        clientModel = 0;
+    }
 
     StartShutdown();
 
@@ -528,7 +553,7 @@ void BitcoinApplication::shutdownResult()
 
 void BitcoinApplication::handleRunawayException(const QString &message)
 {
-    QMessageBox::critical(0, "Runaway exception", BitcoinGUI::tr("A fatal error occurred. Bitcoin can no longer continue safely and will quit.") + QString("\n\n") + message);
+    QMessageBox::critical(0, "Runaway exception", BitcoinGUI::tr("A fatal error occurred. Qtum can no longer continue safely and will quit.") + QString("\n\n") + message);
     ::exit(EXIT_FAILURE);
 }
 
@@ -538,6 +563,41 @@ WId BitcoinApplication::getMainWinId() const
         return 0;
 
     return window->winId();
+}
+
+void BitcoinApplication::restoreWallet()
+{
+#ifdef ENABLE_WALLET
+    // Restart the wallet if needed
+    if(!restorePath.isEmpty())
+    {
+        // Create command line
+        QString commandLine;
+        QStringList arg = arguments();
+        removeParam(arg, "-reindex");
+        removeParam(arg, "-salvagewallet");
+        if(!arg.contains(restoreParam))
+        {
+            arg.append(restoreParam);
+        }
+        commandLine = arg.join(' ');
+
+        // Copy the new wallet.dat to the data folder
+        fs::path path = GetDataDir() / "wallet.dat";
+        QString pathWallet = QString::fromStdString(path.string());
+        QFile::remove(pathWallet);
+        if(QFile::copy(restorePath, pathWallet))
+        {
+            // Unlock the data folder
+            UnlockDataDirectory();
+            QThread::currentThread()->sleep(2);
+
+            // Create new process and start the wallet
+            QProcess *process = new QProcess();
+            process->start(commandLine);
+        }
+    }
+#endif
 }
 
 #ifndef BITCOIN_QT_TEST
@@ -699,6 +759,8 @@ int main(int argc, char *argv[])
     int rv = EXIT_SUCCESS;
     try
     {
+        SetObjectStyleSheet(&app, StyleSheetNames::App);
+
         app.createWindow(networkStyle.data());
         // Perform base initialization before spinning up initialization/shutdown thread
         // This is acceptable because this function only contains steps that are quick to execute,
@@ -723,6 +785,7 @@ int main(int argc, char *argv[])
         PrintExceptionContinue(nullptr, "Runaway exception");
         app.handleRunawayException(QString::fromStdString(GetWarnings("gui")));
     }
+    app.restoreWallet();
     return rv;
 }
 #endif // BITCOIN_QT_TEST
