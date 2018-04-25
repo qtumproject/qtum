@@ -53,7 +53,8 @@ bench_bench_qtum_LDADD = \
   $(LIBEVMCORE) \
   $(LIBDEVCRYPTO) \
   $(LIBCRYPTOPP) \
-  $(LIBSCRYIPT)
+  $(LIBSCRYIPT) \
+  $(LIBX86LIB)
 
 if ENABLE_ZMQ
 bench_bench_qtum_LDADD += $(LIBBITCOIN_ZMQ) $(ZMQ_LIBS)

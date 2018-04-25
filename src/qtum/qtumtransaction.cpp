@@ -184,6 +184,11 @@ bool ContractExecutor::execute(ContractExecutionResult &result, bool commit)
     if(output.version.rootVM == ROOT_VM_EVM){
         EVMContractVM evm(db, env, blockGasLimit);
         evm.execute(output, result, commit);
+    }else if(output.version.rootVM == ROOT_VM_X86){
+        x86ContractVM x86(db, env, blockGasLimit);
+        x86.execute(output, result, commit);
+    }else{
+        return false;
     }
     return true;
 }

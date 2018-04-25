@@ -648,8 +648,8 @@ static bool AcceptToMemoryPoolWorker(const CChainParams& chainparams, CTxMemPool
         dev::u256 txMinGasPrice = 0;
 
         //////////////////////////////////////////////////////////// // qtum
+/* TODO enable this check and refactor to use ContractParser
         if(tx.HasCreateOrCall()){
-
             if(!CheckSenderScript(view, tx)){
                 return state.DoS(1, false, REJECT_INVALID, "bad-txns-invalid-sender-script");
             }
@@ -722,6 +722,7 @@ static bool AcceptToMemoryPoolWorker(const CChainParams& chainparams, CTxMemPool
             if(count > qtumTransactions.size())
                 return state.DoS(100, false, REJECT_INVALID, "bad-txns-incorrect-format");
         }
+        */
         ////////////////////////////////////////////////////////////
 
         // nModifiedFees includes any fee deltas from PrioritiseTransaction

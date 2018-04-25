@@ -245,6 +245,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     dev::h256 oldHashUTXORoot(globalState->rootHashUTXO());
     int nPackagesSelected = 0;
     int nDescendantsUpdated = 0;
+    pblock->hashPrevBlock  = pindexPrev->GetBlockHash();
     addPackageTxs(nPackagesSelected, nDescendantsUpdated, minGasPrice);
     pblock->hashStateRoot = uint256(h256Touint(dev::h256(globalState->rootHash())));
     pblock->hashUTXORoot = uint256(h256Touint(dev::h256(globalState->rootHashUTXO())));
@@ -504,8 +505,8 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64
             return false;
 
         gasLimitSum += output.gasLimit;
-        if(gasFeeSum > txGasLimit)
-            return false;
+        //if(gasFeeSum > txGasLimit)
+        //    return false;
 
         //don't allow less than DGP set minimum gas price to prevent MPoS greedy mining/spammers
         if(v.rootVM != 0 && output.gasPrice < minGasPrice)

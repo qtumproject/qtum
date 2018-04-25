@@ -191,7 +191,9 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<std::v
                         return false;
 
                     version = VersionVM::fromRaw(CScriptNum::vch_to_uint64(vch1));
-                    if(!(version.toRaw() == VersionVM::GetEVMDefault().toRaw() || version.toRaw() == VersionVM::GetNoExec().toRaw())){
+                    if(!(version.toRaw() == VersionVM::GetEVMDefault().toRaw() ||
+                            version.toRaw() == VersionVM::GetNoExec().toRaw() ||
+                            version.toRaw() == VersionVM::Getx86Default().toRaw())){
                         // only allow standard EVM and no-exec transactions to live in mempool
                         return false;
                     }
