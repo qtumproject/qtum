@@ -415,7 +415,7 @@ static std::map<std::string, std::unique_ptr<boost::interprocess::file_lock>> di
 /** Mutex to protect dir_locks. */
 static std::mutex cs_dir_locks;
 
-bool LockDirectory(const fs::path& directory, const std::string lockfile_name, bool probe_only)
+bool LockDirectory(const fs::path& directory, const std::string lockfile_name, bool probe_only, bool try_lock)
 {
     std::lock_guard<std::mutex> ulock(cs_dir_locks);
     fs::path pathLockFile = directory / lockfile_name;
@@ -431,7 +431,7 @@ bool LockDirectory(const fs::path& directory, const std::string lockfile_name, b
 
     try {
         auto lock = MakeUnique<boost::interprocess::file_lock>(pathLockFile.string().c_str());
-        if (!lock->try_lock()) {
+        if (try_lock && !lock->try_lock()) {
             return false;
         }
         if (!probe_only) {

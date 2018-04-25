@@ -12,6 +12,7 @@
 #include <wallet/rpcwallet.h>
 #include <wallet/wallet.h>
 #include <wallet/walletutil.h>
+#include <miner.h>
 
 std::string GetWalletHelpString(bool showDebug)
 {
@@ -294,10 +295,21 @@ void StartWallets(CScheduler& scheduler) {
     for (CWalletRef pwallet : vpwallets) {
         pwallet->postInitProcess(scheduler);
     }
+    // Mine proof-of-stake blocks in the background
+    if (!gArgs.GetBoolArg("-staking", DEFAULT_STAKE)) {
+        LogPrintf("Staking disabled\n");
+    }
+    else {
+        for (CWalletRef pwallet : vpwallets) {
+            if (pwallet)
+                StakeQtums(true, pwallet);
+        }
+    }
 }
 
 void FlushWallets() {
     for (CWalletRef pwallet : vpwallets) {
+        StakeQtums(false, pwallet);
         pwallet->Flush(false);
     }
 }
