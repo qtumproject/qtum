@@ -234,7 +234,9 @@ public:
     BlockAssembler(const CChainParams& params, const Options& options);
 
 ///////////////////////////////////////////// // qtum
-    ByteCodeExecResult bceResult;
+    std::vector<CTxOut> refundOutputs;
+    uint64_t totalRefund = 0;
+    uint64_t totalUsedGas = 0;
     uint64_t minGasPrice = 1;
     uint64_t hardBlockGasLimit;
     uint64_t softBlockGasLimit;

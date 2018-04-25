@@ -43,6 +43,14 @@ struct VersionVM{
         x.vmVersion=0;
         return x;
     }
+    static VersionVM Getx86Default(){
+        VersionVM x;
+        x.flagOptions=0;
+        x.rootVM=2;
+        x.format=0;
+        x.vmVersion=0;
+        return x;
+    }
 }__attribute__((__packed__));
 
 static const uint8_t ROOT_VM_NULL = 0;
@@ -98,7 +106,7 @@ struct ContractOutput{
 class ContractOutputParser{
 public:
 
-    ContractOutputParser(CTransaction tx, uint32_t vout, CCoinsViewCache* v = NULL, const std::vector<CTransactionRef>* blockTxs = NULL)
+    ContractOutputParser(CTransaction tx, uint32_t vout, const CCoinsViewCache* v = NULL, const std::vector<CTransactionRef>* blockTxs = NULL)
             : tx(tx), nvout(vout), view(v), blockTransactions(blockTxs) {}
     bool parseOutput(ContractOutput& output);
     UniversalAddress getSenderAddress();

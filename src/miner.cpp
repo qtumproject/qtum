@@ -117,11 +117,11 @@ void BlockAssembler::RebuildRefundTransaction(){
     }
     CMutableTransaction contrTx(originalRewardTx);
     contrTx.vout[refundtx].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
-    contrTx.vout[refundtx].nValue -= bceResult.refundSender;
+    contrTx.vout[refundtx].nValue -= totalRefund;
     //note, this will need changed for MPoS
     int i=contrTx.vout.size();
-    contrTx.vout.resize(contrTx.vout.size()+bceResult.refundOutputs.size());
-    for(CTxOut& vout : bceResult.refundOutputs){
+    contrTx.vout.resize(contrTx.vout.size()+refundOutputs.size());
+    for(CTxOut& vout : refundOutputs){
         contrTx.vout[i]=vout;
         i++;
     }
@@ -263,7 +263,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
 
     // The total fee is the Fees minus the Refund
     if (pTotalFees)
-        *pTotalFees = nFees - bceResult.refundSender;
+        *pTotalFees = nFees - totalRefund;
 
     // Fill in header
     pblock->hashPrevBlock  = pindexPrev->GetBlockHash();
@@ -377,7 +377,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateEmptyBlock(const CScript& 
 
     // The total fee is the Fees minus the Refund
     if (pTotalFees)
-        *pTotalFees = nFees - bceResult.refundSender;
+        *pTotalFees = nFees - totalRefund;
 
     // Fill in header
     pblock->hashPrevBlock  = pindexPrev->GetBlockHash();
@@ -448,34 +448,156 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64
     uint64_t nBlockWeight = this->nBlockWeight;
     uint64_t nBlockSigOpsCost = this->nBlockSigOpsCost;
 
-    QtumTxConverter convert(iter->GetTx(), NULL, &pblock->vtx);
+    CTransaction tx = iter->GetTx();
 
-    ExtractQtumTX resultConverter;
-    if(!convert.extractionQtumTransactions(resultConverter)){
-        //this check already happens when accepting txs into mempool
-        //therefore, this can only be triggered by using raw transactions on the staker itself
+    if(!(tx.HasCreateOrCall())){
+        return true;
+    }
+
+    if(!CheckSenderScript(pcoinsTip, tx)){
         return false;
     }
-    std::vector<QtumTransaction> qtumTransactions = resultConverter.first;
-    dev::u256 txGas = 0;
-    for(QtumTransaction qtumTransaction : qtumTransactions){
-        txGas += qtumTransaction.gas();
-        if(txGas > txGasLimit) {
-            // Limit the tx gas limit by the soft limit if such a limit has been specified.
+    uint64_t gasFeeSum = 0;
+    uint64_t gasLimitSum = 0;
+    uint64_t qtumUsedSum = 0; //this is with price multiplier
+    uint64_t gasUsedSum = 0;
+    std::vector<CTransaction> addTxs;
+    for(uint32_t nvout=0; nvout < tx.vout.size(); nvout++){
+
+        if(!(tx.vout[nvout].scriptPubKey.HasOpCall() || tx.vout[nvout].scriptPubKey.HasOpCreate() || tx.vout[nvout].scriptPubKey.HasOpSpend())){
+            continue; //don't process vouts without contract stuff
+        }
+        ContractOutputParser parser(tx, nvout, pcoinsTip, &pblock->vtx);
+        ContractOutput output;
+        if(!parser.parseOutput(output)){
+            return false;
+        }
+        uint64_t totalGas = output.gasPrice * output.gasLimit;
+        if((output.gasPrice != 0 && totalGas / output.gasPrice != output.gasLimit) || totalGas > INT64_MAX) {
+            return false;
+        }
+        gasFeeSum += totalGas;
+        if(gasFeeSum < totalGas || gasFeeSum > INT64_MAX) {
             return false;
         }
 
-        if(bceResult.usedGas + qtumTransaction.gas() > softBlockGasLimit){
-            //if this transaction's gasLimit could cause block gas limit to be exceeded, then don't add it
+//        if(gasFeeSum > nTxFee) {
+//            return state.DoS(100, error("ConnectBlock(): Transaction fee does not cover the gas stipend"), REJECT_INVALID, "bad-txns-fee-notenough");
+//        }
+
+        VersionVM v = output.version;
+        if(v.format!=0)
+            return false;
+
+        if(!(v.rootVM == ROOT_VM_NULL || v.rootVM == ROOT_VM_EVM || v.rootVM == ROOT_VM_X86))
+            return false;
+        if(v.vmVersion != 0)
+            return false;
+        if(v.flagOptions != 0)
+            return false;
+
+        //check gas limit is not less than minimum gas limit (unless it is a no-exec tx)
+        if(output.gasLimit < MINIMUM_GAS_LIMIT && v.rootVM != 0)
+            return false;
+
+        if(output.gasLimit > UINT32_MAX)
+            return false;
+
+        gasLimitSum += output.gasLimit;
+        if(gasFeeSum > txGasLimit)
+            return false;
+
+        //don't allow less than DGP set minimum gas price to prevent MPoS greedy mining/spammers
+        if(v.rootVM != 0 && output.gasPrice < minGasPrice)
+            return false;
+
+
+        ContractExecutor executor(*pblock, output, hardBlockGasLimit);
+        ContractExecutionResult result;
+        if(!executor.execute(result, true)){
+            globalState->setRoot(oldHashStateRoot);
+            globalState->setRootUTXO(oldHashUTXORoot);
+            //todo revert deltadb
             return false;
         }
-        if(qtumTransaction.gasPrice() < minGasPrice){
-            //if this transaction's gasPrice is less than the current DGP minGasPrice don't add it
-            return false;
+
+        qtumUsedSum += result.usedGas * output.gasPrice;
+        gasUsedSum += result.usedGas;
+
+
+        //todo
+        /*
+        blockGasUsed += result.usedGas;
+        if(blockGasUsed > softBlockGasLimit){
+            return state.DoS(1000, error("ConnectBlock(): Block exceeds gas limit"), REJECT_INVALID, "bad-blk-gaslimit");
         }
+        */
+        if(result.refundSender > 0) {
+            if(output.sender.version == AddressVersion::PUBKEYHASH) {
+                CScript script(CScript() << OP_DUP << OP_HASH160 << output.sender.data << OP_EQUALVERIFY
+                                         << OP_CHECKSIG);
+                refundOutputs.push_back(CTxOut(result.refundSender, script));
+            }else{
+                //TODO
+                return false;
+                //return state.DoS(100, error("can't yet handle non-pubkeyhash refunds"));
+            }
+        }
+       // gasRefunds += result.refundSender;
+        if(result.transferTx.vin.size() > 0) {
+            addTxs.push_back(result.transferTx);
+           // checkBlock.vtx.push_back(MakeTransactionRef(std::move(result.transferTx)));
+        }
+
+
     }
-    // We need to pass the DGP's block gas limit (not the soft limit) since it is consensus critical.
-    ByteCodeExec exec(*pblock, qtumTransactions, hardBlockGasLimit);
+
+    //add value transfers
+    for(auto &t : addTxs) {
+        pblock->vtx.push_back(MakeTransactionRef(t));
+    }
+    //rebuild coinbase/stake to include new refund outputs
+    int proofTx = pblock->IsProofOfStake() ? 1 : 0;
+    nBlockSigOpsCost -= GetLegacySigOpCount(*pblock->vtx[proofTx]);
+    //todo figure out error checking too much sigop cost?
+    RebuildRefundTransaction();
+    nBlockSigOpsCost += GetLegacySigOpCount(*pblock->vtx[proofTx]);
+
+
+    if (nBlockSigOpsCost * WITNESS_SCALE_FACTOR > (uint64_t)dgpMaxBlockSigOps ||
+        nBlockWeight > dgpMaxBlockWeight) {
+        //contract will not be added to block, so revert state to before we tried
+        globalState->setRoot(oldHashStateRoot);
+        globalState->setRootUTXO(oldHashUTXORoot);
+        return false;
+    }
+
+    //apply local bytecode to global bytecode state
+    totalUsedGas += gasUsedSum;
+    totalRefund += qtumUsedSum;
+
+    //push on contract tx
+    pblock->vtx.emplace_back(iter->GetSharedTx());
+    pblocktemplate->vTxFees.push_back(iter->GetFee());
+    pblocktemplate->vTxSigOpsCost.push_back(iter->GetSigOpCost());
+    this->nBlockWeight += iter->GetTxWeight();
+    ++nBlockTx;
+    this->nBlockSigOpsCost += iter->GetSigOpCost();
+    nFees += iter->GetFee();
+    inBlock.insert(iter);
+    //push on AAL txs
+    for (CTransaction &t : addTxs) {
+        pblock->vtx.emplace_back(MakeTransactionRef(std::move(t)));
+        this->nBlockWeight += GetTransactionWeight(t);
+        this->nBlockSigOpsCost += GetLegacySigOpCount(t);
+        ++nBlockTx;
+    }
+    //calculate sigops from new refund/proof tx
+    this->nBlockSigOpsCost -= GetLegacySigOpCount(*pblock->vtx[proofTx]);
+    RebuildRefundTransaction();
+    this->nBlockSigOpsCost += GetLegacySigOpCount(*pblock->vtx[proofTx]);
+
+/*
     if(!exec.performByteCode()){
         //error, don't add contract
         globalState->setRoot(oldHashStateRoot);
@@ -506,7 +628,6 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64
         nBlockSigOpsCost += GetLegacySigOpCount(t);
     }
 
-    int proofTx = pblock->IsProofOfStake() ? 1 : 0;
 
     //calculate sigops from new refund/proof tx
 
@@ -564,6 +685,8 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64
 
     bceResult.valueTransfers.clear();
 
+    return true;
+    */
     return true;
 }
 
