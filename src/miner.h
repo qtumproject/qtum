@@ -118,10 +118,10 @@ typedef boost::multi_index_container<
             modifiedentry_iter,
             CompareCTxMemPoolIter
         >,
-        // sorted by modified ancestor fee rate
+        // sorted by modified ancestor fee rate or gas price
         boost::multi_index::ordered_non_unique<
             // Reuse same tag from CTxMemPool's similar index
-            boost::multi_index::tag<ancestor_score>,
+            boost::multi_index::tag<ancestor_score_or_gas_price>,
             boost::multi_index::identity<CTxMemPoolModifiedEntry>,
             CompareTxMemPoolEntryByAncestorFee
         >
@@ -129,7 +129,7 @@ typedef boost::multi_index_container<
 > indexed_modified_transaction_set;
 
 typedef indexed_modified_transaction_set::nth_index<0>::type::iterator modtxiter;
-typedef indexed_modified_transaction_set::index<ancestor_score>::type::iterator modtxscoreiter;
+typedef indexed_modified_transaction_set::index<ancestor_score_or_gas_price>::type::iterator modtxscoreiter;
 
 struct update_for_parent_inclusion
 {
