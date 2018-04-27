@@ -4116,7 +4116,7 @@ std::map<CTxDestination, CAmount> CWallet::GetAddressBalances()
             if (!pcoin->IsTrusted())
                 continue;
 
-            if (pcoin->IsCoinBase() && pcoin->GetBlocksToMaturity() > 0)
+            if ((pcoin->IsCoinBase() || pcoin->IsCoinStake()) && pcoin->GetBlocksToMaturity() > 0)
                 continue;
 
             int nDepth = pcoin->GetDepthInMainChain();
@@ -4917,7 +4917,7 @@ int CMerkleTx::GetDepthInMainChain(const CBlockIndex* &pindexRet) const
 
 int CMerkleTx::GetBlocksToMaturity() const
 {
-    if (!IsCoinBase())
+    if (!(IsCoinBase() || IsCoinStake()))
         return 0;
     return std::max(0, (COINBASE_MATURITY+1) - GetDepthInMainChain());
 }

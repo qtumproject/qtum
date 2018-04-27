@@ -43,6 +43,10 @@ std::string GetWalletHelpString(bool showDebug)
     strUsage += HelpMessageOpt("-zapwallettxes=<mode>", _("Delete all wallet transactions and only recover those parts of the blockchain through -rescan on startup") +
                                " " + _("(1 = keep tx meta data e.g. account owner and payment request information, 2 = drop tx meta data)"));
 
+    strUsage += HelpMessageOpt("-staking=<true/false>", _("Enables or disables staking (enabled by default)"));
+    strUsage += HelpMessageOpt("-stakecache=<true/false>", _("Enables or disables the staking cache; significantly improves staking performance, but can use a lot of memory (enabled by default)"));
+    strUsage += HelpMessageOpt("-rpcmaxgasprice", strprintf(_("The max value (in satoshis) for gas price allowed through RPC (default: %u)"), MAX_RPC_GAS_PRICE));
+
     if (showDebug)
     {
         strUsage += HelpMessageGroup(_("Wallet debugging/testing options:"));
@@ -176,6 +180,7 @@ bool WalletParameterInteraction()
     }
     nTxConfirmTarget = gArgs.GetArg("-txconfirmtarget", DEFAULT_TX_CONFIRM_TARGET);
     bSpendZeroConfChange = gArgs.GetBoolArg("-spendzeroconfchange", DEFAULT_SPEND_ZEROCONF_CHANGE);
+    bZeroBalanceAddressToken = gArgs.GetBoolArg("-zerobalanceaddresstoken", DEFAULT_SPEND_ZEROCONF_CHANGE);
     fWalletRbf = gArgs.GetBoolArg("-walletrbf", DEFAULT_WALLET_RBF);
 
     g_address_type = ParseOutputType(gArgs.GetArg("-addresstype", ""));
