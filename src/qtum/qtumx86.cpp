@@ -39,6 +39,8 @@ const ContractEnvironment& x86ContractVM::getEnv() {
 #define MAX_CODE_SIZE 0x10000
 #define DATA_ADDRESS 0x100000
 #define MAX_DATA_SIZE 0x10000
+#define STACK_ADDRESS 0x200000
+#define MAX_STACK_SIZE 1024 * 8
 
 bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &result, bool commit)
 {
@@ -55,7 +57,13 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
         MemorySystem memory;
         ROMemory codeMemory(map->codeSize, "code");
         RAMemory dataMemory(map->dataSize, "data");
+        RAMemory stackMemory(MAX_STACK_SIZE, "stack");
         //TODO how is .bss loaded!?
+
+        //zero memory for consensus
+        memset(codeMemory.GetMemory(), map->codeSize, 0);
+        memset(dataMemory.GetMemory(), map->dataSize, 0);
+        memset(stackMemory.GetMemory(), MAX_STACK_SIZE, 0);
 
         //init memory
         memcpy(codeMemory.GetMemory(), code, map->codeSize);
@@ -64,6 +72,7 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
         MemorySystem memsys;
         memsys.Add(CODE_ADDRESS, CODE_ADDRESS + MAX_CODE_SIZE, &codeMemory);
         memsys.Add(DATA_ADDRESS, DATA_ADDRESS + MAX_DATA_SIZE, &dataMemory);
+        memsys.Add(STACK_ADDRESS, STACK_ADDRESS + MAX_STACK_SIZE, &stackMemory);
 
         QtumHypervisor qtumhv(*this);
 
@@ -97,9 +106,11 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
 
 void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
 {
+
     if(number == 0xF0){
         //exit code
         vm.Stop();
+        return;
     }
     if(number != QtumEndpoint::QtumSystem){
         LogPrintf("Invalid interrupt endpoint received");
@@ -109,6 +120,19 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
     switch(vm.GetRegister32(EAX)){
         case QtumSystemCall::BlockHeight:
             vm.SetReg32(EAX, contractVM.getEnv().blockNumber);
+            break;
+        case 0xFFFF0001:
+            //internal debug printf
+            //Remove before production!
+            //ecx is string length
+            //ebx is string pointer
+            char* msg = new char[vm.GetRegister32(ECX) + 1];
+            vm.ReadMemory(vm.GetRegister32(EBX), vm.GetRegister32(ECX), msg, Data);
+            msg[vm.GetRegister32(ECX)] = 0; //null termination
+            LogPrintf("Contract message: ");
+            LogPrintf(msg);
+            vm.SetReg32(EAX, 0);
+            delete[] msg;
             break;
     }
     return;
