@@ -40,6 +40,14 @@ struct VersionVM{
         x.vmVersion=0;
         return x;
     }
+    static VersionVM Getx86VMDefault(){
+        VersionVM x;
+        x.flagOptions=0;
+        x.rootVM=2;
+        x.format=0;
+        x.vmVersion=0;
+        return x;
+    }
 }__attribute__((__packed__));
 
 class QtumTransaction : public dev::eth::Transaction{

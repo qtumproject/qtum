@@ -102,6 +102,7 @@ BITCOIN_CORE_H = \
   core_io.h \
   core_memusage.h \
   cuckoocache.h \
+  elfloader.h \
   httprpc.h \
   httpserver.h \
   indirectmap.h \
@@ -553,6 +554,7 @@ libbitcoin_util_a_SOURCES = \
   utilmoneystr.cpp \
   utilstrencodings.cpp \
   utiltime.cpp \
+  elfloader.cpp \
   $(BITCOIN_CORE_H)
 
 if GLIBC_BACK_COMPAT
