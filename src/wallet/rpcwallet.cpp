@@ -759,13 +759,35 @@ UniValue createx86contract(const JSONRPCRequest& request){
     uint32_t codeSize = 0;
     uint32_t dataSize = 0;
     char* options = NULL;
-    char* code = NULL;
-    char* data = NULL;
+    char* code = new char[MAX_CODE_SIZE];
+    char* data = new char[MAX_DATA_SIZE];
     uint32_t unused = 0;
 
     if (!loadElf(options, &optionsSize, code, &codeSize, data, &dataSize, &unused, fileData, fileLength)){
         throw JSONRPCError(RPC_INVALID_PARAMETER, "error loading ELF file");
     }
+
+    int totalSize = 16 + optionsSize + codeSize + dataSize;
+    char* bytecode = new char[totalSize];
+    memset(bytecode, 0, totalSize);
+    memcpy(&bytecode[0], &optionsSize, sizeof(uint32_t));
+    memcpy(&bytecode[4], &codeSize, sizeof(uint32_t));
+    memcpy(&bytecode[8], &dataSize, sizeof(uint32_t));
+    memcpy(&bytecode[12], &unused, sizeof(uint32_t));
+    memcpy(&bytecode[16], &options, optionsSize);
+    memcpy(&bytecode[16 + optionsSize], &code, codeSize);
+    memcpy(&bytecode[16 + optionsSize + codeSize], &data, dataSize);
+
+
+    vector<unsigned char> vBytecode;
+    for (int i = 0; i < totalSize; i++) {
+        vBytecode.push_back(bytecode[i]);
+    }
+
+    delete [] fileData;
+    delete [] code;
+    delete [] data;
+    delete [] bytecode;
 
     uint64_t nGasLimit = DEFAULT_GAS_LIMIT_OP_CREATE;
     if (request.params.size() > 1){
@@ -868,7 +890,7 @@ UniValue createx86contract(const JSONRPCRequest& request){
         throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Insufficient funds");
 
 	// Build OP_EXEC script
-    CScript scriptPubKey = CScript() << CScriptNum(VersionVM::Getx86VMDefault().toRaw()) << CScriptNum(nGasLimit) << CScriptNum(nGasPrice) << ParseHex(fileData) << OP_CREATE;
+    CScript scriptPubKey = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(nGasLimit) << CScriptNum(nGasPrice) << vBytecode << OP_CREATE;
 
     // Create and send the transaction
     CReserveKey reservekey(pwalletMain);
@@ -927,7 +949,7 @@ UniValue createx86contract(const JSONRPCRequest& request){
         CKeyID raw;
         raw.SetReverseHex(HexStr(contractAddress));
         CBitcoinAddress contractAddressBase58(raw);
-        result.push_back(Pair("address", HexStr(raw)));
+        result.push_back(Pair("address", contractAddressBase58.ToString()));
     }else{
         string strHex = EncodeHexTx(*wtx.tx, RPCSerializationFlags());
         result.push_back(Pair("raw transaction", strHex));
