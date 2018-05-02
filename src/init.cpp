@@ -1469,9 +1469,6 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
                 pcoinsTip = new CCoinsViewCache(pcoinscatcher);
 
                 if (fReindex) {
-                    boost::filesystem::path stateDir = GetDataDir() / "stateQtum";
-                    StorageResults storageRes(stateDir.string());
-                    storageRes.wipeResults();
                     pblocktree->WriteReindexing(true);
                     //If we're reindexing in prune mode, wipe away unusable block files and all undo data files
                     if (fPruneMode)
@@ -1515,6 +1512,9 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
                 globalSealEngine = std::unique_ptr<dev::eth::SealEngineFace>(cp.createSealEngine());
 
                 pstorageresult = new StorageResults(qtumStateDir.string());
+
+                if (fReindex && GetBoolArg("-logevents", DEFAULT_LOGEVENTS))
+                    pstorageresult->wipeResults();
 
                 if(chainActive.Tip() != NULL){
                     globalState->setRoot(uintToh256(chainActive.Tip()->hashStateRoot));
