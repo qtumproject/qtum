@@ -224,17 +224,17 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     }
 
     //////////////////////////////////////////////////////// qtum
-    QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
-    globalSealEngine->setQtumSchedule(qtumDGP.getGasSchedule(nHeight));
-    uint32_t blockSizeDGP = qtumDGP.getBlockSize(nHeight);
-    minGasPrice = qtumDGP.getMinGasPrice(nHeight);
+    //QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
+    //globalSealEngine->setQtumSchedule(qtumDGP.getGasSchedule(nHeight));
+    uint32_t blockSizeDGP = 1024 * 1024 * 2; //qtumDGP.getBlockSize(nHeight);
+    minGasPrice = 1; //qtumDGP.getMinGasPrice(nHeight);
     if(gArgs.IsArgSet("-staker-min-tx-gas-price")) {
         CAmount stakerMinGasPrice;
         if(ParseMoney(gArgs.GetArg("-staker-min-tx-gas-price", ""), stakerMinGasPrice)) {
             minGasPrice = std::max(minGasPrice, (uint64_t)stakerMinGasPrice);
         }
     }
-    hardBlockGasLimit = qtumDGP.getBlockGasLimit(nHeight);
+    hardBlockGasLimit = 10000000; //qtumDGP.getBlockGasLimit(nHeight);
     softBlockGasLimit = gArgs.GetArg("-staker-soft-block-gas-limit", hardBlockGasLimit);
     softBlockGasLimit = std::min(softBlockGasLimit, hardBlockGasLimit);
     txGasLimit = gArgs.GetArg("-staker-max-tx-gas-limit", softBlockGasLimit);
@@ -247,10 +247,10 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     int nDescendantsUpdated = 0;
     pblock->hashPrevBlock  = pindexPrev->GetBlockHash();
     addPackageTxs(nPackagesSelected, nDescendantsUpdated, minGasPrice);
-    pblock->hashStateRoot = uint256(h256Touint(dev::h256(globalState->rootHash())));
-    pblock->hashUTXORoot = uint256(h256Touint(dev::h256(globalState->rootHashUTXO())));
-    globalState->setRoot(oldHashStateRoot);
-    globalState->setRootUTXO(oldHashUTXORoot);
+    //pblock->hashStateRoot = uint256(h256Touint(dev::h256(globalState->rootHash())));
+    //pblock->hashUTXORoot = uint256(h256Touint(dev::h256(globalState->rootHashUTXO())));
+    //globalState->setRoot(oldHashStateRoot);
+    //globalState->setRootUTXO(oldHashUTXORoot);
 
     //this should already be populated by AddBlock in case of contracts, but if no contracts
     //then it won't get populated

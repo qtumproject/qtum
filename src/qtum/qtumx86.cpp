@@ -1,5 +1,6 @@
 #include <util.h>
 #include <tinyformat.h>
+#include <algorithm>
 #include "qtumx86.h"
 
 #include <x86lib.h>
@@ -44,6 +45,10 @@ const ContractEnvironment& x86ContractVM::getEnv() {
 
 bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &result, bool commit)
 {
+    //default results
+    result.usedGas = output.gasLimit;
+    result.refundSender = 0;
+    result.status = ContractStatus::CODE_ERROR;
     if(output.OpCreate) {
         const uint8_t *code;
         const uint8_t *data;
@@ -99,6 +104,9 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
     }
 
 
+    result.usedGas = std::min((uint64_t)1000, output.gasLimit);
+    result.refundSender = 0;
+    result.status = ContractStatus::SUCCESS;
 
     return true;
 }

@@ -106,14 +106,14 @@ struct ContractOutput{
 class ContractOutputParser{
 public:
 
-    ContractOutputParser(CTransaction tx, uint32_t vout, const CCoinsViewCache* v = NULL, const std::vector<CTransactionRef>* blockTxs = NULL)
+    ContractOutputParser(const CTransaction &tx, uint32_t vout, const CCoinsViewCache* v = NULL, const std::vector<CTransactionRef>* blockTxs = NULL)
             : tx(tx), nvout(vout), view(v), blockTransactions(blockTxs) {}
     bool parseOutput(ContractOutput& output);
     UniversalAddress getSenderAddress();
 
 private:
     bool receiveStack(const CScript& scriptPubKey);
-    const CTransaction tx;
+    const CTransaction &tx;
     const uint32_t nvout;
     const CCoinsViewCache* view;
     const std::vector<CTransactionRef> *blockTransactions;

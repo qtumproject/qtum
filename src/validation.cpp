@@ -1747,7 +1747,7 @@ static DisconnectResult DisconnectBlock(const CBlock& block, const CBlockIndex* 
     // move best block pointer to prevout block
     view.SetBestBlock(pindex->pprev->GetBlockHash());
 
-    globalState->setRoot(uintToh256(pindex->pprev->hashStateRoot)); // qtum
+    //globalState->setRoot(uintToh256(pindex->pprev->hashStateRoot)); // qtum
     globalState->setRootUTXO(uintToh256(pindex->pprev->hashUTXORoot)); // qtum
 
     if(pfClean == NULL && fLogEvents){
@@ -2322,11 +2322,11 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
     int64_t nTimeStart = GetTimeMicros();
 
     ///////////////////////////////////////////////// // qtum
-    QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
-    globalSealEngine->setQtumSchedule(qtumDGP.getGasSchedule(pindex->nHeight + 1));
-    uint32_t sizeBlockDGP = qtumDGP.getBlockSize(pindex->nHeight + 1);
-    uint64_t minGasPrice = qtumDGP.getMinGasPrice(pindex->nHeight + 1);
-    uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(pindex->nHeight + 1);
+    //QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
+    //globalSealEngine->setQtumSchedule(qtumDGP.getGasSchedule(pindex->nHeight + 1));
+    uint32_t sizeBlockDGP = 1024 * 1024; // qtumDGP.getBlockSize(pindex->nHeight + 1);
+    uint64_t minGasPrice = 5; //qtumDGP.getMinGasPrice(pindex->nHeight + 1);
+    uint64_t blockGasLimit = 10000000; //qtumDGP.getBlockGasLimit(pindex->nHeight + 1);
     dgpMaxBlockSize = sizeBlockDGP ? sizeBlockDGP : dgpMaxBlockSize;
     updateBlockSizeParams(dgpMaxBlockSize);
     CBlock checkBlock(block.GetBlockHeader());
@@ -2613,8 +2613,6 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
                     return state.DoS(100, error("ConnectBlock(): Contract execution can not specify greater gas limit than can fit in 32-bits"), REJECT_INVALID, "bad-tx-too-much-gas");
 
                 gasLimitSum += output.gasLimit;
-                if(gasFeeSum > blockGasLimit)
-                    return state.DoS(1, false, REJECT_INVALID, "bad-txns-gas-exceeds-blockgaslimit");
 
                 //don't allow less than DGP set minimum gas price to prevent MPoS greedy mining/spammers
                 if(v.rootVM != 0 && output.gasPrice < minGasPrice)
@@ -2861,11 +2859,11 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
 
 ////////////////////////////////////////////////////////////////// // qtum
     checkBlock.hashMerkleRoot = BlockMerkleRoot(checkBlock);
-    checkBlock.hashStateRoot = h256Touint(globalState->rootHash());
 
     //TODO this makes it so that hashUTXORoot is IGNORED
     //This must be changed and fixed before making this suitable for mainnet
     checkBlock.hashUTXORoot = block.hashUTXORoot; //h256Touint(globalState->rootHashUTXO());
+    checkBlock.hashStateRoot = block.hashStateRoot; //h256Touint(globalState->rootHash());
 
     //If this error happens, it probably means that something with AAL created transactions didn't match up to what is expected
     if((checkBlock.GetHash() != block.GetHash()) && !fJustCheck)
