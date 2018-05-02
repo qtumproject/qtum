@@ -14,13 +14,11 @@
 #include "boost/multi_index_container.hpp"
 #include "boost/multi_index/ordered_index.hpp"
 
-#include <validation.h> // qtum
+#include <validation.h>
 
 class CBlockIndex;
 class CChainParams;
-class CReserveKey;
 class CScript;
-class CWallet;
 
 namespace Consensus { struct Params; };
 
@@ -143,7 +141,6 @@ struct CompareModifiedEntry {
             return CTxMemPool::CompareIteratorByHash()(a.iter, b.iter);
         }
 
-
         double f1 = (double)a.nModFeesWithAncestors * b.nSizeWithAncestors;
         double f2 = (double)b.nModFeesWithAncestors * a.nSizeWithAncestors;
         if (f1 == f2) {
@@ -210,13 +207,11 @@ private:
 
     // Configuration parameters for the block size
     bool fIncludeWitness;
-    unsigned int nBlockMaxWeight, nBlockMaxSize;
-    bool fNeedSizeAccounting;
+    unsigned int nBlockMaxWeight;
     CFeeRate blockMinFeeRate;
 
     // Information on the current status of the block
     uint64_t nBlockWeight;
-    uint64_t nBlockSize;
     uint64_t nBlockTx;
     uint64_t nBlockSigOpsCost;
     CAmount nFees;
@@ -227,9 +222,16 @@ private:
     int64_t nLockTimeCutoff;
     const CChainParams& chainparams;
 
-    // Variables used for addPriorityTxs
-    int lastFewTxs;
-    bool blockFinished;
+public:
+    struct Options {
+        Options();
+        size_t nBlockMaxWeight;
+        size_t nBlockMaxSize;
+        CFeeRate blockMinFeeRate;
+    };
+
+    BlockAssembler(const CChainParams& params);
+    BlockAssembler(const CChainParams& params, const Options& options);
 
 ///////////////////////////////////////////// // qtum
     ByteCodeExecResult bceResult;
@@ -245,12 +247,9 @@ private:
     //When GetAdjustedTime() exceeds this, no more transactions will attempt to be added
     int32_t nTimeLimit;
 
-public:
-    BlockAssembler(const CChainParams& chainparams);
     /** Construct a new block template with coinbase to scriptPubKeyIn */
-    std::unique_ptr<CBlockTemplate> CreateNewBlock(const CScript& scriptPubKeyIn, bool fProofOfStake=false, int64_t* pTotalFees = 0, int32_t nTime=0, int32_t nTimeLimit=0);
-    std::unique_ptr<CBlockTemplate> CreateEmptyBlock(const CScript& scriptPubKeyIn, bool fProofOfStake=false, int64_t* pTotalFees = 0, int32_t nTime=0);
-
+    std::unique_ptr<CBlockTemplate> CreateNewBlock(const CScript& scriptPubKeyIn, bool fMineWitnessTx=true, bool fProofOfStake=false, int64_t* pTotalFees = 0, int32_t nTime=0, int32_t nTimeLimit=0);
+    std::unique_ptr<CBlockTemplate> CreateEmptyBlock(const CScript& scriptPubKeyIn, bool fMineWitnessTx=true, bool fProofOfStake=false, int64_t* pTotalFees = 0, int32_t nTime=0);
 private:
     // utility functions
     /** Clear the block's state and prepare for assembling a new block */
@@ -261,20 +260,13 @@ private:
     bool AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64_t minGasPrice);
 
     // Methods for how to add transactions to a block.
-    /** Add transactions based on tx "priority" */
-    void addPriorityTxs(uint64_t minGasPrice);
-    /** Add transactions based on feerate including unconfirmed ancestors */
-    void addPackageTxs(uint64_t minGasPrice);
+    /** Add transactions based on feerate including unconfirmed ancestors
+      * Increments nPackagesSelected / nDescendantsUpdated with corresponding
+      * statistics from the package selection (for logging statistics). */
+    void addPackageTxs(int &nPackagesSelected, int &nDescendantsUpdated, uint64_t minGasPrice);
 
-    // helper function for addPriorityTxs
-    /** Test if tx will still "fit" in the block */
-    bool TestForBlock(CTxMemPool::txiter iter);
-    /** Test if block is already full - returns true if block is fuller than allowed by consensus  */
-    bool CheckBlockBeyondFull();
     /** Rebuild the coinbase/coinstake transaction to account for new gas refunds **/
     void RebuildRefundTransaction();
-    /** Test if tx still has unconfirmed parents not yet in block */
-    bool isStillDependent(CTxMemPool::txiter iter);
 
     // helper functions for addPackageTxs()
     /** Remove confirmed (inBlock) entries from given set */
@@ -292,8 +284,9 @@ private:
     /** Sort the package in an order that is valid to appear in a block */
     void SortForBlock(const CTxMemPool::setEntries& package, CTxMemPool::txiter entry, std::vector<CTxMemPool::txiter>& sortedEntries);
     /** Add descendants of given transactions to mapModifiedTx with ancestor
-      * state updated assuming given transactions are inBlock. */
-    void UpdatePackagesForAdded(const CTxMemPool::setEntries& alreadyAdded, indexed_modified_transaction_set &mapModifiedTx);
+      * state updated assuming given transactions are inBlock. Returns number
+      * of updated descendants. */
+    int UpdatePackagesForAdded(const CTxMemPool::setEntries& alreadyAdded, indexed_modified_transaction_set &mapModifiedTx);
 };
 
 /** Generate a new block, without valid proof-of-work */

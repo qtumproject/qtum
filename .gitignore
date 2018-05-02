@@ -1,14 +1,13 @@
 *.tar.gz
 
 *.exe
-src/qtum-cli
-src/qtum-tx
-src/qtumd
-src/bench/bench_qtum
-src/qt/qtum-qt
-src/qt/test/test_qtum-qt
-src/test/test_qtum
-src/test/test_qtum_fuzzy
+src/bitcoin
+src/bitcoind
+src/bitcoin-cli
+src/bitcoin-tx
+src/test/test_bitcoin
+src/test/test_bitcoin_fuzzy
+src/qt/test/test_bitcoin-qt
 
 # autoreconf
 Makefile.in
@@ -44,8 +43,6 @@ src/qt/moc_*.cpp
 src/qt/forms/ui_*.h
 
 src/qt/test/moc*.cpp
-
-Makefile.am.user
 
 .deps
 .dirstamp
@@ -83,7 +80,6 @@ Bitcoin-Qt.app
 # Unit-tests
 Makefile.test
 bitcoin-qt_test
-src/test/buildenv.py
 
 # Resources cpp
 qrc_*.cpp
@@ -104,8 +100,8 @@ coverage_percent.txt
 linux-coverage-build
 linux-build
 win32-build
-qa/pull-tester/tests_config.py
-qa/cache/*
+test/config.ini
+test/cache/*
 
 !src/leveldb*/Makefile
 
@@ -113,12 +109,15 @@ qa/cache/*
 
 libbitcoinconsensus.pc
 contrib/devtools/split-debug.sh
-#eclipse project files
 .cproject
 .project
 .settings/language.settings.xml
-
-#clion project files
-.idea/
-CMakeLists.txt
-cmake-build-debug/
+src/qtum-cli
+src/qtum-tx
+src/qtumd
+src/bench/bench_qtum
+src/qt/qtum-qt
+src/qt/test/test_qtum-qt
+src/test/buildenv.py
+src/test/test_qtum
+src/test/test_qtum_fuzzy
