@@ -80,8 +80,9 @@ QValidator::State BitcoinAddressEntryValidator::validate(QString &input, int &po
     return state;
 }
 
-BitcoinAddressCheckValidator::BitcoinAddressCheckValidator(QObject *parent) :
-    QValidator(parent)
+BitcoinAddressCheckValidator::BitcoinAddressCheckValidator(QObject *parent, bool allowScript) :
+    QValidator(parent),
+    bAllowScript(allowScript)
 {
 }
 
@@ -91,7 +92,12 @@ QValidator::State BitcoinAddressCheckValidator::validate(QString &input, int &po
     // Validate the passed Bitcoin address
     CBitcoinAddress addr(input.toStdString());
     if (addr.IsValid())
-        return QValidator::Acceptable;
+    {
+        if(bAllowScript)
+            return QValidator::Acceptable;
+        else if(!addr.IsScript())
+            return QValidator::Acceptable;
+    }
 
     return QValidator::Invalid;
 }
