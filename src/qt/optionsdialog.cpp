@@ -16,6 +16,7 @@
 #include <validation.h> // for DEFAULT_SCRIPTCHECK_THREADS and MAX_SCRIPTCHECK_THREADS
 #include <netbase.h>
 #include <txdb.h> // for -dbcache defaults
+#include <qt/styleSheet.h>
 
 #include <QDataWidgetMapper>
 #include <QDir>
@@ -32,6 +33,11 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
 {
     ui->setupUi(this);
 
+    SetObjectStyleSheet(ui->resetButton, StyleSheetNames::ButtonWhite);
+    SetObjectStyleSheet(ui->openBitcoinConfButton, StyleSheetNames::ButtonWhite);
+    SetObjectStyleSheet(ui->okButton, StyleSheetNames::ButtonBlue);
+    SetObjectStyleSheet(ui->cancelButton, StyleSheetNames::ButtonBlue);
+
     /* Main elements init */
     ui->databaseCache->setMinimum(nMinDbCache);
     ui->databaseCache->setMaximum(nMaxDbCache);
@@ -44,19 +50,27 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
 #endif
 
     ui->proxyIp->setEnabled(false);
+    ui->proxyIpLabel->setEnabled(false);
     ui->proxyPort->setEnabled(false);
+    ui->proxyPortLabel->setEnabled(false);
     ui->proxyPort->setValidator(new QIntValidator(1, 65535, this));
 
     ui->proxyIpTor->setEnabled(false);
+    ui->proxyIpTorLabel->setEnabled(false);
     ui->proxyPortTor->setEnabled(false);
+    ui->proxyPortTorLabel->setEnabled(false);
     ui->proxyPortTor->setValidator(new QIntValidator(1, 65535, this));
 
     connect(ui->connectSocks, SIGNAL(toggled(bool)), ui->proxyIp, SLOT(setEnabled(bool)));
+    connect(ui->connectSocks, SIGNAL(toggled(bool)), ui->proxyIpLabel, SLOT(setEnabled(bool)));
     connect(ui->connectSocks, SIGNAL(toggled(bool)), ui->proxyPort, SLOT(setEnabled(bool)));
+    connect(ui->connectSocks, SIGNAL(toggled(bool)), ui->proxyPortLabel, SLOT(setEnabled(bool)));
     connect(ui->connectSocks, SIGNAL(toggled(bool)), this, SLOT(updateProxyValidationState()));
 
     connect(ui->connectSocksTor, SIGNAL(toggled(bool)), ui->proxyIpTor, SLOT(setEnabled(bool)));
+    connect(ui->connectSocksTor, SIGNAL(toggled(bool)), ui->proxyIpTorLabel, SLOT(setEnabled(bool)));
     connect(ui->connectSocksTor, SIGNAL(toggled(bool)), ui->proxyPortTor, SLOT(setEnabled(bool)));
+    connect(ui->connectSocksTor, SIGNAL(toggled(bool)), ui->proxyPortTorLabel, SLOT(setEnabled(bool)));
     connect(ui->connectSocksTor, SIGNAL(toggled(bool)), this, SLOT(updateProxyValidationState()));
 
     /* Window elements init */
@@ -157,6 +171,7 @@ void OptionsDialog::setModel(OptionsModel *_model)
 
     /* Main */
     connect(ui->databaseCache, SIGNAL(valueChanged(int)), this, SLOT(showRestartWarning()));
+    connect(ui->logEvents, SIGNAL(clicked(bool)), this, SLOT(showRestartWarning()));
     connect(ui->threadsScriptVerif, SIGNAL(valueChanged(int)), this, SLOT(showRestartWarning()));
     /* Wallet */
     connect(ui->spendZeroConfChange, SIGNAL(clicked(bool)), this, SLOT(showRestartWarning()));
@@ -175,10 +190,15 @@ void OptionsDialog::setMapper()
     mapper->addMapping(ui->bitcoinAtStartup, OptionsModel::StartAtStartup);
     mapper->addMapping(ui->threadsScriptVerif, OptionsModel::ThreadsScriptVerif);
     mapper->addMapping(ui->databaseCache, OptionsModel::DatabaseCache);
+    mapper->addMapping(ui->logEvents, OptionsModel::LogEvents);
+    mapper->addMapping(ui->reserveBalance, OptionsModel::ReserveBalance);
 
     /* Wallet */
     mapper->addMapping(ui->spendZeroConfChange, OptionsModel::SpendZeroConfChange);
     mapper->addMapping(ui->coinControlFeatures, OptionsModel::CoinControlFeatures);
+    mapper->addMapping(ui->zeroBalanceAddressToken, OptionsModel::ZeroBalanceAddressToken);
+    mapper->addMapping(ui->notUseChangeAddress, OptionsModel::NotUseChangeAddress);
+    mapper->addMapping(ui->checkForUpdates, OptionsModel::CheckForUpdates);
 
     /* Network */
     mapper->addMapping(ui->mapPortUpnp, OptionsModel::MapPortUPnP);

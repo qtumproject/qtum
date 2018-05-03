@@ -47,8 +47,13 @@ public:
         CoinControlFeatures,    // bool
         ThreadsScriptVerif,     // int
         DatabaseCache,          // int
+        LogEvents,              // bool
         SpendZeroConfChange,    // bool
+        ZeroBalanceAddressToken,// bool
         Listen,                 // bool
+        NotUseChangeAddress,    // bool
+        CheckForUpdates,        // bool
+        ReserveBalance,         // CAmount
         OptionIDRowCount,
     };
 
@@ -96,6 +101,8 @@ Q_SIGNALS:
     void displayUnitChanged(int unit);
     void coinControlFeaturesChanged(bool);
     void hideTrayIconChanged(bool);
+    void reserveBalanceChanged(CAmount);
+    void zeroBalanceAddressTokenChanged(bool);
 };
 
 #endif // BITCOIN_QT_OPTIONSMODEL_H

@@ -7,9 +7,11 @@
 
 #include <qt/addresstablemodel.h>
 #include <qt/guiutil.h>
+#include <qt/styleSheet.h>
 
 #include <QDataWidgetMapper>
 #include <QMessageBox>
+#include <QPushButton>
 
 extern OutputType g_address_type;
 
@@ -21,6 +23,9 @@ EditAddressDialog::EditAddressDialog(Mode _mode, QWidget *parent) :
     model(0)
 {
     ui->setupUi(this);
+
+    SetObjectStyleSheet(ui->buttonBox->button(QDialogButtonBox::Cancel), StyleSheetNames::ButtonWhite);
+    SetObjectStyleSheet(ui->buttonBox->button(QDialogButtonBox::Ok), StyleSheetNames::ButtonBlue);
 
     GUIUtil::setupAddressWidget(ui->addressEdit, this);
 
@@ -110,7 +115,7 @@ void EditAddressDialog::accept()
             break;
         case AddressTableModel::INVALID_ADDRESS:
             QMessageBox::warning(this, windowTitle(),
-                tr("The entered address \"%1\" is not a valid Bitcoin address.").arg(ui->addressEdit->text()),
+                tr("The entered address \"%1\" is not a valid Qtum address.").arg(ui->addressEdit->text()),
                 QMessageBox::Ok, QMessageBox::Ok);
             break;
         case AddressTableModel::DUPLICATE_ADDRESS:

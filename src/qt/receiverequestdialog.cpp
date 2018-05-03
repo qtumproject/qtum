@@ -9,6 +9,7 @@
 #include <qt/guiconstants.h>
 #include <qt/guiutil.h>
 #include <qt/optionsmodel.h>
+#include <qt/styleSheet.h>
 
 #include <QClipboard>
 #include <QDrag>
@@ -94,6 +95,10 @@ ReceiveRequestDialog::ReceiveRequestDialog(QWidget *parent) :
     model(0)
 {
     ui->setupUi(this);
+
+    SetObjectStyleSheet(ui->btnCopyURI, StyleSheetNames::ButtonWhite);
+    SetObjectStyleSheet(ui->btnSaveAs, StyleSheetNames::ButtonWhite);
+    SetObjectStyleSheet(ui->btnCopyAddress, StyleSheetNames::ButtonWhite);
 
 #ifndef USE_QRCODE
     ui->btnSaveAs->setVisible(false);

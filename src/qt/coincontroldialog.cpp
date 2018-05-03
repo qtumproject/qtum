@@ -12,6 +12,7 @@
 #include <qt/platformstyle.h>
 #include <txmempool.h>
 #include <qt/walletmodel.h>
+#include <qt/styleSheet.h>
 
 #include <wallet/coincontrol.h>
 #include <init.h>
@@ -47,6 +48,10 @@ CoinControlDialog::CoinControlDialog(const PlatformStyle *_platformStyle, QWidge
     platformStyle(_platformStyle)
 {
     ui->setupUi(this);
+
+    // Set stylesheet
+    SetObjectStyleSheet(ui->pushButtonSelectAll, StyleSheetNames::ButtonBlack);
+    SetObjectStyleSheet(ui->treeWidget, StyleSheetNames::TreeView);
 
     // context menu actions
     QAction *copyAddressAction = new QAction(tr("Copy address"), this);
