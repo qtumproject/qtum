@@ -70,7 +70,7 @@ HelpMessageDialog::HelpMessageDialog(QWidget *parent, bool about) :
     } else {
         setWindowTitle(tr("Command-line options"));
         QString header = tr("Usage:") + "\n" +
-            "  bitcoin-qt [" + tr("command-line options") + "]                     " + "\n";
+            "  qtum-qt [" + tr("command-line options") + "]                    " + "\n";
         QTextCursor cursor(ui->helpMessage->document());
         cursor.insertText(version);
         cursor.insertBlock();
@@ -178,6 +178,7 @@ QWidget *ShutdownWindow::showShutdownWindow(BitcoinGUI *window)
 
     // Show a simple window indicating shutdown status
     QWidget *shutdownWindow = new ShutdownWindow();
+    shutdownWindow->setObjectName("shutdownWindow");
     shutdownWindow->setWindowTitle(window->windowTitle());
 
     // Center shutdown window at where main window was
