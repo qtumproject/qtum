@@ -890,7 +890,7 @@ UniValue createx86contract(const JSONRPCRequest& request){
         throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Insufficient funds");
 
 	// Build OP_EXEC script
-    CScript scriptPubKey = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(nGasLimit) << CScriptNum(nGasPrice) << vBytecode << OP_CREATE;
+    CScript scriptPubKey = CScript() << CScriptNum(VersionVM::Getx86VMDefault().toRaw()) << CScriptNum(nGasLimit) << CScriptNum(nGasPrice) << vBytecode << OP_CREATE;
 
     // Create and send the transaction
     CReserveKey reservekey(pwalletMain);
