@@ -19,6 +19,9 @@
 #include <boost/test/unit_test.hpp>
 #include <univalue.h>
 
+#include <timedata.h>
+#include <random.h>
+
 extern UniValue importmulti(const JSONRPCRequest& request);
 extern UniValue dumpwallet(const JSONRPCRequest& request);
 extern UniValue importwallet(const JSONRPCRequest& request);
@@ -39,7 +42,7 @@ BOOST_FIXTURE_TEST_SUITE(wallet_tests, WalletTestingSetup)
 static const CWallet testWallet;
 static std::vector<COutput> vCoins;
 
-static void add_coin(const CAmount& nValue, int nAge = 6*24, bool fIsFromMe = false, int nInput=0)
+static void add_coin(const CAmount& nValue, int nAge = 6*24, bool fIsFromMe = false, int nInput=0, uint32_t coinTime = 0)
 {
     static int nextLockTime = 0;
     CMutableTransaction tx;
@@ -193,6 +196,14 @@ BOOST_AUTO_TEST_CASE(coin_selection_tests)
         BOOST_CHECK( testWallet.SelectCoinsMinConf(195 * CENT, 1, 1, 0, vCoins, setCoinsRet, nValueRet));
         BOOST_CHECK_EQUAL(nValueRet, 2 * COIN);  // we should get 2 BTC in 1 coin
         BOOST_CHECK_EQUAL(setCoinsRet.size(), 1U);
+
+        // empty the wallet and start again only with coins with equal or bigger time than txTime
+        empty_wallet();
+        add_coin(10, 6*24, false, 0);
+
+        // coins with equal or bigger time than txTime could not be selected
+        BOOST_CHECK(!testWallet.SelectCoinsMinConf(5*CENT, 1, 6, 0, vCoins, setCoinsRet , nValueRet));
+        BOOST_CHECK(!testWallet.SelectCoinsMinConf(5*CENT + GetRandInt(100) + 1, 1, 6, 0, vCoins, setCoinsRet , nValueRet));
 
         // empty the wallet and start again, now with fractions of a cent, to test small change avoidance
 
@@ -387,7 +398,7 @@ BOOST_FIXTURE_TEST_CASE(rescan, TestChain100Setup)
         WalletRescanReserver reserver(&wallet);
         reserver.reserve();
         BOOST_CHECK_EQUAL(nullBlock, wallet.ScanForWalletTransactions(oldTip, nullptr, reserver));
-        BOOST_CHECK_EQUAL(wallet.GetImmatureBalance(), 100 * COIN);
+        BOOST_CHECK_EQUAL(wallet.GetImmatureBalance(), 40000 * COIN);
     }
 
     // Prune the older block file.
@@ -402,7 +413,7 @@ BOOST_FIXTURE_TEST_CASE(rescan, TestChain100Setup)
         WalletRescanReserver reserver(&wallet);
         reserver.reserve();
         BOOST_CHECK_EQUAL(oldTip, wallet.ScanForWalletTransactions(oldTip, nullptr, reserver));
-        BOOST_CHECK_EQUAL(wallet.GetImmatureBalance(), 50 * COIN);
+        BOOST_CHECK_EQUAL(wallet.GetImmatureBalance(), 20000 * COIN);
     }
 
     // Verify importmulti RPC returns failure for a key whose creation time is
@@ -496,10 +507,10 @@ BOOST_FIXTURE_TEST_CASE(importwallet_rescan, TestChain100Setup)
 
         LOCK(wallet.cs_wallet);
         BOOST_CHECK_EQUAL(wallet.mapWallet.size(), 3);
-        BOOST_CHECK_EQUAL(coinbaseTxns.size(), 103);
+        BOOST_CHECK_EQUAL(coinbaseTxns.size(), 503);
         for (size_t i = 0; i < coinbaseTxns.size(); ++i) {
             bool found = wallet.GetWalletTx(coinbaseTxns[i].GetHash());
-            bool expected = i >= 100;
+            bool expected = i >= 500;
             BOOST_CHECK_EQUAL(found, expected);
         }
     }
@@ -530,7 +541,7 @@ BOOST_FIXTURE_TEST_CASE(coin_mark_dirty_immature_credit, TestChain100Setup)
     // credit amount is calculated.
     wtx.MarkDirty();
     wallet.AddKeyPubKey(coinbaseKey, coinbaseKey.GetPubKey());
-    BOOST_CHECK_EQUAL(wtx.GetImmatureCredit(), 50*COIN);
+    BOOST_CHECK_EQUAL(wtx.GetImmatureCredit(), 20000*COIN);
 }
 
 static int64_t AddTx(CWallet& wallet, uint32_t lockTime, int64_t mockTime, int64_t blockTime)
@@ -666,7 +677,7 @@ BOOST_FIXTURE_TEST_CASE(ListCoins, ListCoinsTestingSetup)
     BOOST_CHECK_EQUAL(list.begin()->second.size(), 1);
 
     // Check initial balance from one mature coinbase transaction.
-    BOOST_CHECK_EQUAL(50 * COIN, wallet->GetAvailableBalance());
+    BOOST_CHECK_EQUAL(20000 * COIN, wallet->GetAvailableBalance());
 
     // Add a transaction creating a change address, and confirm ListCoins still
     // returns the coin associated with the change address underneath the
