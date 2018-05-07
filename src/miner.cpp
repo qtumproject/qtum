@@ -869,12 +869,12 @@ bool CheckStake(const std::shared_ptr<const CBlock> pblock, CWallet& wallet)
                 return error("CheckStake() : generated block became invalid due to stake UTXO being spent");
             }
         }
-
-        // Process this block the same as if we had received it from another node
-        bool fNewBlock = false;
-        if (!ProcessNewBlock(Params(), pblock, true, &fNewBlock))
-            return error("CheckStake() : ProcessBlock, block not accepted");
     }
+
+    // Process this block the same as if we had received it from another node
+    bool fNewBlock = false;
+    if (!ProcessNewBlock(Params(), pblock, true, &fNewBlock))
+        return error("CheckStake() : ProcessBlock, block not accepted");
 
     return true;
 }
