@@ -1072,7 +1072,7 @@ UniValue callcontract(const JSONRPCRequest& request)
     dev::Address senderAddress;
     if(request.params.size() == 3){
         CTxDestination qtumSenderAddress = DecodeDestination(request.params[2].get_str());
-        if (!IsValidDestination(qtumSenderAddress)) {
+        if (IsValidDestination(qtumSenderAddress)) {
             const CKeyID *keyid = boost::get<CKeyID>(&qtumSenderAddress);
             senderAddress = dev::Address(HexStr(valtype(keyid->begin(),keyid->end())));
         }else{
@@ -2052,6 +2052,7 @@ UniValue getblockchaininfo(const JSONRPCRequest& request)
     obj.push_back(Pair("headers",               pindexBestHeader ? pindexBestHeader->nHeight : -1));
     obj.push_back(Pair("bestblockhash",         chainActive.Tip()->GetBlockHash().GetHex()));
     obj.push_back(Pair("difficulty",            (double)GetDifficulty()));
+    obj.push_back(Pair("moneysupply",           pindexBestHeader->nMoneySupply / COIN));
     obj.push_back(Pair("mediantime",            (int64_t)chainActive.Tip()->GetMedianTimePast()));
     obj.push_back(Pair("verificationprogress",  GuessVerificationProgress(Params().TxData(), chainActive.Tip())));
     obj.push_back(Pair("initialblockdownload",  IsInitialBlockDownload()));

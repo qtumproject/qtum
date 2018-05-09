@@ -48,7 +48,7 @@ std::string HelpMessageCli()
     strUsage += HelpMessageOpt("-rpcclienttimeout=<n>", strprintf(_("Timeout in seconds during HTTP requests, or 0 for no timeout. (default: %d)"), DEFAULT_HTTP_CLIENT_TIMEOUT));
     strUsage += HelpMessageOpt("-stdinrpcpass", strprintf(_("Read RPC password from standard input as a single line.  When combined with -stdin, the first line from standard input is used for the RPC password.")));
     strUsage += HelpMessageOpt("-stdin", _("Read extra arguments from standard input, one per line until EOF/Ctrl-D (recommended for sensitive information such as passphrases).  When combined with -stdinrpcpass, the first line from standard input is used for the RPC password."));
-    strUsage += HelpMessageOpt("-rpcwallet=<walletname>", _("Send RPC for non-default wallet on RPC server (argument is wallet filename in bitcoind directory, required if qtumd/-Qt runs with multiple wallets)"));
+    strUsage += HelpMessageOpt("-rpcwallet=<walletname>", _("Send RPC for non-default wallet on RPC server (argument is wallet filename in qtumd directory, required if qtumd/-Qt runs with multiple wallets)"));
 
     return strUsage;
 }
@@ -209,6 +209,7 @@ public:
     const int ID_NETWORKINFO = 0;
     const int ID_BLOCKCHAININFO = 1;
     const int ID_WALLETINFO = 2;
+    const int ID_GETDIFFICULTY = 3;
 
     /** Create a simulated `getinfo` request. */
     UniValue PrepareRequest(const std::string& method, const std::vector<std::string>& args) override
@@ -220,6 +221,7 @@ public:
         result.push_back(JSONRPCRequestObj("getnetworkinfo", NullUniValue, ID_NETWORKINFO));
         result.push_back(JSONRPCRequestObj("getblockchaininfo", NullUniValue, ID_BLOCKCHAININFO));
         result.push_back(JSONRPCRequestObj("getwalletinfo", NullUniValue, ID_WALLETINFO));
+        result.push_back(JSONRPCRequestObj("getdifficulty", NullUniValue, ID_GETDIFFICULTY));
         return result;
     }
 
@@ -227,7 +229,7 @@ public:
     UniValue ProcessReply(const UniValue &batch_in) override
     {
         UniValue result(UniValue::VOBJ);
-        std::vector<UniValue> batch = JSONRPCProcessBatchReply(batch_in, 3);
+        std::vector<UniValue> batch = JSONRPCProcessBatchReply(batch_in, 4);
         // Errors in getnetworkinfo() and getblockchaininfo() are fatal, pass them on
         // getwalletinfo() is allowed to fail in case there is no wallet.
         if (!batch[ID_NETWORKINFO]["error"].isNull()) {
@@ -241,13 +243,17 @@ public:
         if (!batch[ID_WALLETINFO].isNull()) {
             result.pushKV("walletversion", batch[ID_WALLETINFO]["result"]["walletversion"]);
             result.pushKV("balance", batch[ID_WALLETINFO]["result"]["balance"]);
+            result.pushKV("stake", batch[ID_WALLETINFO]["result"]["stake"]);
         }
         result.pushKV("blocks", batch[ID_BLOCKCHAININFO]["result"]["blocks"]);
         result.pushKV("timeoffset", batch[ID_NETWORKINFO]["result"]["timeoffset"]);
         result.pushKV("connections", batch[ID_NETWORKINFO]["result"]["connections"]);
         result.pushKV("proxy", batch[ID_NETWORKINFO]["result"]["networks"][0]["proxy"]);
-        result.pushKV("difficulty", batch[ID_BLOCKCHAININFO]["result"]["difficulty"]);
+        if (!batch[ID_GETDIFFICULTY].isNull()) {
+            result.pushKV("difficulty", batch[ID_GETDIFFICULTY]["result"]);
+        }
         result.pushKV("testnet", UniValue(batch[ID_BLOCKCHAININFO]["result"]["chain"].get_str() == "test"));
+        result.pushKV("moneysupply", batch[ID_BLOCKCHAININFO]["result"]["moneysupply"]);
         if (!batch[ID_WALLETINFO].isNull()) {
             result.pushKV("walletversion", batch[ID_WALLETINFO]["result"]["walletversion"]);
             result.pushKV("balance", batch[ID_WALLETINFO]["result"]["balance"]);
