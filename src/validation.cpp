@@ -2651,8 +2651,6 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
         {
             if (tx.IsCoinStake())
                 nActualStakeReward = tx.GetValueOut()-view.GetValueIn(tx);
-            else
-                nFees += view.GetValueIn(tx)-tx.GetValueOut();
                     
             std::vector<CScriptCheck> vChecks;
             bool fCacheResults = fJustCheck; /* Don't cache results if we're actually connecting blocks (still consult the cache, though) */
