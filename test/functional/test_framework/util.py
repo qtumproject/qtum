@@ -19,6 +19,8 @@ import time
 from . import coverage
 from .authproxy import AuthServiceProxy, JSONRPCException
 
+from .qtumconfig import COINBASE_MATURITY
+
 logger = logging.getLogger("TestFramework.utils")
 
 # Assert functions
@@ -287,7 +289,7 @@ def initialize_datadir(dirname, n):
     datadir = os.path.join(dirname, "node" + str(n))
     if not os.path.isdir(datadir):
         os.makedirs(datadir)
-    with open(os.path.join(datadir, "bitcoin.conf"), 'w', encoding='utf8') as f:
+    with open(os.path.join(datadir, "qtum.conf"), 'w', encoding='utf8') as f:
         f.write("regtest=1\n")
         f.write("port=" + str(p2p_port(n)) + "\n")
         f.write("rpcport=" + str(rpc_port(n)) + "\n")
@@ -300,8 +302,8 @@ def get_datadir_path(dirname, n):
 def get_auth_cookie(datadir):
     user = None
     password = None
-    if os.path.isfile(os.path.join(datadir, "bitcoin.conf")):
-        with open(os.path.join(datadir, "bitcoin.conf"), 'r', encoding='utf8') as f:
+    if os.path.isfile(os.path.join(datadir, "qtum.conf")):
+        with open(os.path.join(datadir, "qtum.conf"), 'r', encoding='utf8') as f:
             for line in f:
                 if line.startswith("rpcuser="):
                     assert user is None  # Ensure that there is only one rpcuser line
@@ -477,7 +479,7 @@ def random_transaction(nodes, amount, min_fee, fee_increment, fee_variants):
 # Helper to create at least "count" utxos
 # Pass in a fee that is sufficient for relay and mining new transactions.
 def create_confirmed_utxos(fee, node, count):
-    to_generate = int(0.5 * count) + 101
+    to_generate = int(0.5 * count) + COINBASE_MATURITY+1
     while to_generate > 0:
         node.generate(min(25, to_generate))
         to_generate -= 25

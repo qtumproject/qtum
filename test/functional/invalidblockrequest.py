@@ -15,6 +15,7 @@ from test_framework.test_framework import ComparisonTestFramework
 from test_framework.util import *
 from test_framework.comptool import TestManager, TestInstance, RejectResult
 from test_framework.blocktools import *
+from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD
 import copy
 import time
 
@@ -57,7 +58,7 @@ class InvalidBlockRequestTest(ComparisonTestFramework):
         Now we need that block to mature so we can spend the coinbase.
         '''
         test = TestInstance(sync_every_block=False)
-        for i in range(100):
+        for i in range(COINBASE_MATURITY):
             block = create_block(self.tip, create_coinbase(height), self.block_time)
             block.solve()
             self.tip = block.sha256
@@ -102,14 +103,14 @@ class InvalidBlockRequestTest(ComparisonTestFramework):
         '''
         block3 = create_block(self.tip, create_coinbase(height), self.block_time)
         self.block_time += 1
-        block3.vtx[0].vout[0].nValue = 100 * COIN # Too high!
+        block3.vtx[0].vout[0].nValue = 2*INITIAL_BLOCK_REWARD * COIN # Too high!
         block3.vtx[0].sha256=None
         block3.vtx[0].calc_sha256()
         block3.hashMerkleRoot = block3.calc_merkle_root()
         block3.rehash()
         block3.solve()
 
-        yield TestInstance([[block3, RejectResult(16, b'bad-cb-amount')]])
+        yield TestInstance([[block3, False]])
 
 
 if __name__ == '__main__':

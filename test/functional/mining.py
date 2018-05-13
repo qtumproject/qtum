@@ -36,12 +36,12 @@ class MiningTest(BitcoinTestFramework):
 
         self.log.info('getmininginfo')
         mining_info = node.getmininginfo()
-        assert_equal(mining_info['blocks'], 200)
+        assert_equal(mining_info['blocks'], 600)
         assert_equal(mining_info['chain'], 'regtest')
         assert_equal(mining_info['currentblocktx'], 0)
         assert_equal(mining_info['currentblockweight'], 0)
-        assert_equal(mining_info['difficulty'], Decimal('4.656542373906925E-10'))
-        assert_equal(mining_info['networkhashps'], Decimal('0.003333333333333334'))
+        assert_equal(mining_info['difficulty']['proof-of-work'], Decimal('4.656542373906925E-10'))
+        assert_equal(mining_info['networkhashps'], Decimal('0.015625'))
         assert_equal(mining_info['pooledtx'], 0)
 
         # Mine a block to leave initial block download
@@ -50,8 +50,8 @@ class MiningTest(BitcoinTestFramework):
         self.log.info("getblocktemplate: Test capability advertised")
         assert 'proposal' in tmpl['capabilities']
         assert 'coinbasetxn' not in tmpl
+        coinbase_tx = create_coinbase(height=int(tmpl["height"]))
 
-        coinbase_tx = create_coinbase(height=int(tmpl["height"]) + 1)
         # sequence numbers must not be max for nLockTime to have effect
         coinbase_tx.vin[0].nSequence = 2 ** 32 - 2
         coinbase_tx.rehash()
@@ -103,7 +103,7 @@ class MiningTest(BitcoinTestFramework):
 
         self.log.info("getblocktemplate: Test bad tx count")
         # The tx count is immediately after the block header
-        TX_COUNT_OFFSET = 80
+        TX_COUNT_OFFSET = 181
         bad_block_sn = bytearray(block.serialize())
         assert_equal(bad_block_sn[TX_COUNT_OFFSET], 1)
         bad_block_sn[TX_COUNT_OFFSET] += 1
@@ -119,12 +119,13 @@ class MiningTest(BitcoinTestFramework):
         bad_block.hashMerkleRoot += 1
         assert_template(node, bad_block, 'bad-txnmrklroot', False)
 
-        self.log.info("getblocktemplate: Test bad timestamps")
-        bad_block = copy.deepcopy(block)
-        bad_block.nTime = 2 ** 31 - 1
-        assert_template(node, bad_block, 'time-too-new')
-        bad_block.nTime = 0
-        assert_template(node, bad_block, 'time-too-old')
+        # These tests do not apply to qtum since the timestamps are only checked for PoS blocks.
+        #self.log.info("getblocktemplate: Test bad timestamps")
+        #bad_block = copy.deepcopy(block)
+        #bad_block.nTime = 2 ** 31 - 1
+        #assert_template(node, bad_block, 'time-too-new')
+        #bad_block.nTime = 0
+        #assert_template(node, bad_block, 'time-too-old')
 
         self.log.info("getblocktemplate: Test not best block")
         bad_block = copy.deepcopy(block)

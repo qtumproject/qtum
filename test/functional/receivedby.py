@@ -28,12 +28,16 @@ class ReceivedByTest(BitcoinTestFramework):
         self.enable_mocktime()
 
     def run_test(self):
+        # avoid IBD errors
+        self.nodes[0].generate(1)
+
         '''
         listreceivedbyaddress Test
         '''
         # Send from node 0 to 1
         addr = self.nodes[1].getnewaddress()
         txid = self.nodes[0].sendtoaddress(addr, 0.1)
+        time.sleep(5)
         self.sync_all()
 
         #Check not listed in listreceivedbyaddress because has 0 confirmations

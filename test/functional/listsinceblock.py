@@ -6,6 +6,7 @@
 
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal, assert_array_result, assert_raises_rpc_error
+from test_framework.qtumconfig import COINBASE_MATURITY
 
 class ListSinceBlockTest (BitcoinTestFramework):
     def set_test_params(self):
@@ -13,7 +14,7 @@ class ListSinceBlockTest (BitcoinTestFramework):
         self.setup_clean_chain = True
 
     def run_test(self):
-        self.nodes[2].generate(101)
+        self.nodes[2].generate(COINBASE_MATURITY+1)
         self.sync_all()
 
         self.test_no_blockhash()
@@ -148,7 +149,7 @@ class ListSinceBlockTest (BitcoinTestFramework):
         self.nodes[1].importprivkey(privkey)
 
         # send from nodes[1] using utxo to nodes[0]
-        change = '%.8f' % (float(utxo['amount']) - 1.0003)
+        change = '%.8f' % (float(utxo['amount']) - 1.003)
         recipientDict = {
             self.nodes[0].getnewaddress(): 1,
             self.nodes[1].getnewaddress(): change,
@@ -223,7 +224,7 @@ class ListSinceBlockTest (BitcoinTestFramework):
         # create and sign a transaction
         utxos = self.nodes[2].listunspent()
         utxo = utxos[0]
-        change = '%.8f' % (float(utxo['amount']) - 1.0003)
+        change = '%.8f' % (float(utxo['amount']) - 1.003)
         recipientDict = {
             self.nodes[0].getnewaddress(): 1,
             self.nodes[2].getnewaddress(): change,

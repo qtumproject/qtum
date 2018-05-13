@@ -117,12 +117,9 @@ BASE_SCRIPTS= [
     'listsinceblock.py',
     'p2p-leaktests.py',
     'wallet-encryption.py',
-    'bipdersig-p2p.py',
-    'bip65-cltv-p2p.py',
     'uptime.py',
     'resendwallettransactions.py',
     'minchainwork.py',
-    'p2p-acceptblock.py',
 ]
 
 EXTENDED_SCRIPTS = [
@@ -139,6 +136,10 @@ EXTENDED_SCRIPTS = [
     'bip68-sequence.py',
     'getblocktemplate_longpoll.py',
     'p2p-timeouts.py',
+    # Version <4 blocks are never allowed in regtest on qtum
+    'bipdersig-p2p.py',
+    'bip65-cltv-p2p.py',
+    'p2p-acceptblock.py',
     # vv Tests less than 60s vv
     'bip9-softforks.py',
     'p2p-feefilter.py',
@@ -268,8 +269,8 @@ def main():
 def run_tests(test_list, src_dir, build_dir, exeext, tmpdir, jobs=1, enable_coverage=False, args=[]):
     # Warn if bitcoind is already running (unix only)
     try:
-        if subprocess.check_output(["pidof", "bitcoind"]) is not None:
-            print("%sWARNING!%s There is already a bitcoind process running on this system. Tests may fail unexpectedly due to resource contention!" % (BOLD[1], BOLD[0]))
+        if subprocess.check_output(["pidof", "qtumd"]) is not None:
+            print("%sWARNING!%s There is already a qtumd process running on this system. Tests may fail unexpectedly due to resource contention!" % (BOLD[1], BOLD[0]))
     except (OSError, subprocess.SubprocessError):
         pass
 

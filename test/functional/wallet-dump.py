@@ -8,7 +8,7 @@ import os
 
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import (assert_equal, assert_raises_rpc_error)
-
+from test_framework.qtumconfig import COINBASE_MATURITY
 
 def read_dump(file_name, addrs, hd_master_addr_old):
     """
@@ -88,7 +88,7 @@ class WalletDumpTest(BitcoinTestFramework):
         found_addr, found_addr_chg, found_addr_rsv, hd_master_addr_unenc = \
             read_dump(tmpdir + "/node0/wallet.unencrypted.dump", addrs, None)
         assert_equal(found_addr, test_addr_count)  # all keys must be in the dump
-        assert_equal(found_addr_chg, 50)  # 50 blocks where mined
+        assert_equal(found_addr_chg, COINBASE_MATURITY+25)  # COINBASE_MATURITY+25 blocks were mined
         assert_equal(found_addr_rsv, 90*2) # 90 keys plus 100% internal keys
 
         #encrypt wallet, restart, unlock and dump
@@ -102,7 +102,7 @@ class WalletDumpTest(BitcoinTestFramework):
         found_addr, found_addr_chg, found_addr_rsv, hd_master_addr_enc = \
             read_dump(tmpdir + "/node0/wallet.encrypted.dump", addrs, hd_master_addr_unenc)
         assert_equal(found_addr, test_addr_count)
-        assert_equal(found_addr_chg, 90*2 + 50)  # old reserve keys are marked as change now
+        assert_equal(found_addr_chg, 90*2 + COINBASE_MATURITY+25)  # old reserve keys are marked as change now
         assert_equal(found_addr_rsv, 90*2) 
 
         # Overwriting should fail

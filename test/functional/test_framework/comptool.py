@@ -347,7 +347,9 @@ class TestManager(object):
                             self.sync_blocks(block.sha256, 1)
                         else:
                             [ c.send_message(msg_block(block)) for c in self.connections ]
+                            time.sleep(1)
                             [ c.cb.send_ping(self.ping_counter) for c in self.connections ]
+                            time.sleep(1)
                             self.wait_for_pings(self.ping_counter)
                             self.ping_counter += 1
                         if (not self.check_results(tip, outcome)):

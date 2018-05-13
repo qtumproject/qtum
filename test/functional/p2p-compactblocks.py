@@ -93,7 +93,7 @@ class CompactBlocksTest(BitcoinTestFramework):
         self.setup_clean_chain = True
         # Node0 = pre-segwit, node1 = segwit-aware
         self.num_nodes = 2
-        self.extra_args = [["-vbparams=segwit:0:0"], ["-txindex"]]
+        self.extra_args = [["-vbparams=segwit:0:0", "-minrelaytxfee=0.000001"], ["-txindex", "-minrelaytxfee=0.000001"]]
         self.utxos = []
 
     def build_block_on_tip(self, node, segwit=False):
@@ -113,7 +113,7 @@ class CompactBlocksTest(BitcoinTestFramework):
         block = self.build_block_on_tip(self.nodes[0])
         self.test_node.send_and_ping(msg_block(block))
         assert(int(self.nodes[0].getbestblockhash(), 16) == block.sha256)
-        self.nodes[0].generate(100)
+        self.nodes[0].generate(COINBASE_MATURITY)
 
         total_value = block.vtx[0].vout[0].nValue
         out_value = total_value // 10
@@ -815,6 +815,9 @@ class CompactBlocksTest(BitcoinTestFramework):
         self.test_sendcmpct(self.nodes[1], self.segwit_node, 2, old_node=self.old_node)
         sync_blocks(self.nodes)
 
+        self.nodes[0].generate(1)
+        self.nodes[1].generate(1)
+        self.nodes[0].generate(COINBASE_MATURITY)
         self.log.info("Testing compactblock construction...")
         self.test_compactblock_construction(self.nodes[0], self.test_node, 1, False)
         sync_blocks(self.nodes)

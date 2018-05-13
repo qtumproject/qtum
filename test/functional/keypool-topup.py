@@ -18,6 +18,7 @@ from test_framework.util import (
     connect_nodes_bi,
     sync_blocks,
 )
+from test_framework.qtumconfig import COINBASE_MATURITY
 
 class KeypoolRestoreTest(BitcoinTestFramework):
     def set_test_params(self):
@@ -27,7 +28,7 @@ class KeypoolRestoreTest(BitcoinTestFramework):
 
     def run_test(self):
         self.tmpdir = self.options.tmpdir
-        self.nodes[0].generate(101)
+        self.nodes[0].generate(COINBASE_MATURITY+1)
 
         self.log.info("Make backup of wallet")
 
@@ -68,7 +69,7 @@ class KeypoolRestoreTest(BitcoinTestFramework):
         assert_equal(self.nodes[1].listtransactions()[0]['category'], "receive")
 
         # Check that we have marked all keys up to the used keypool key as used
-        assert_equal(self.nodes[1].validateaddress(self.nodes[1].getnewaddress())['hdkeypath'], "m/0'/0'/111'")
+        assert_equal(self.nodes[1].validateaddress(self.nodes[1].getnewaddress())['hdkeypath'], "m/88'/0'/111'")
 
 if __name__ == '__main__':
     KeypoolRestoreTest().main()

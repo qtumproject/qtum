@@ -12,6 +12,7 @@ from codecs import encode
 
 import http.client
 import urllib.parse
+from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD
 
 def deser_uint256(f):
     r = 0
@@ -57,10 +58,10 @@ class RESTTest (BitcoinTestFramework):
 
         self.nodes[0].generate(1)
         self.sync_all()
-        self.nodes[2].generate(100)
+        self.nodes[2].generate(COINBASE_MATURITY)
         self.sync_all()
 
-        assert_equal(self.nodes[0].getbalance(), 50)
+        assert_equal(self.nodes[0].getbalance(), INITIAL_BLOCK_REWARD)
 
         txid = self.nodes[0].sendtoaddress(self.nodes[1].getnewaddress(), 0.1)
         self.sync_all()
@@ -139,7 +140,7 @@ class RESTTest (BitcoinTestFramework):
         hashFromBinResponse = hex(deser_uint256(output))[2:].zfill(64)
 
         assert_equal(bb_hash, hashFromBinResponse) #check if getutxo's chaintip during calculation was fine
-        assert_equal(chainHeight, 102) #chain height must be 102
+        assert_equal(chainHeight, COINBASE_MATURITY + 2) #chain height must be 102
 
 
         ############################
@@ -204,15 +205,15 @@ class RESTTest (BitcoinTestFramework):
         # check binary format
         response = http_get_call(url.hostname, url.port, '/rest/block/'+bb_hash+self.FORMAT_SEPARATOR+"bin", True)
         assert_equal(response.status, 200)
-        assert_greater_than(int(response.getheader('content-length')), 80)
+        assert_greater_than(int(response.getheader('content-length')), 181)
         response_str = response.read()
 
         # compare with block header
         response_header = http_get_call(url.hostname, url.port, '/rest/headers/1/'+bb_hash+self.FORMAT_SEPARATOR+"bin", True)
         assert_equal(response_header.status, 200)
-        assert_equal(int(response_header.getheader('content-length')), 80)
+        assert_equal(int(response_header.getheader('content-length')), 181)
         response_header_str = response_header.read()
-        assert_equal(response_str[0:80], response_header_str)
+        assert_equal(response_str[0:181], response_header_str)
 
         # check block hex format
         response_hex = http_get_call(url.hostname, url.port, '/rest/block/'+bb_hash+self.FORMAT_SEPARATOR+"hex", True)

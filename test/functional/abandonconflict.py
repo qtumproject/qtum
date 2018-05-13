@@ -12,6 +12,7 @@
 """
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
+from test_framework.qtumconfig import COINBASE_MATURITY
 
 class AbandonConflictTest(BitcoinTestFramework):
     def set_test_params(self):
@@ -19,7 +20,7 @@ class AbandonConflictTest(BitcoinTestFramework):
         self.extra_args = [["-minrelaytxfee=0.00001"], []]
 
     def run_test(self):
-        self.nodes[1].generate(100)
+        self.nodes[1].generate(COINBASE_MATURITY)
         sync_blocks(self.nodes)
         balance = self.nodes[0].getbalance()
         txA = self.nodes[0].sendtoaddress(self.nodes[0].getnewaddress(), Decimal("10"))
@@ -30,7 +31,7 @@ class AbandonConflictTest(BitcoinTestFramework):
 
         sync_blocks(self.nodes)
         newbalance = self.nodes[0].getbalance()
-        assert(balance - newbalance < Decimal("0.001")) #no more than fees lost
+        assert(balance - newbalance < Decimal("0.01")) #no more than fees lost
         balance = newbalance
 
         # Disconnect nodes so node0's transactions don't get into node1's mempool
@@ -130,7 +131,7 @@ class AbandonConflictTest(BitcoinTestFramework):
         inputs =[]
         inputs.append({"txid":txA, "vout":nA})
         outputs = {}
-        outputs[self.nodes[1].getnewaddress()] = Decimal("9.9999")
+        outputs[self.nodes[1].getnewaddress()] = Decimal("9.99")
         tx = self.nodes[0].createrawtransaction(inputs, outputs)
         signed = self.nodes[0].signrawtransaction(tx)
         self.nodes[1].sendrawtransaction(signed["hex"])

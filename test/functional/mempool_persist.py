@@ -42,7 +42,7 @@ class MempoolPersistTest(BitcoinTestFramework):
 
     def run_test(self):
         chain_height = self.nodes[0].getblockcount()
-        assert_equal(chain_height, 200)
+        assert_equal(chain_height, 600)
 
         self.log.debug("Mine a single block to get out of IBD")
         self.nodes[0].generate(1)

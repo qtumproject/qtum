@@ -18,6 +18,7 @@ from test_framework.util import *
 from test_framework.mininode import CTransaction, NetworkThread
 from test_framework.blocktools import create_coinbase, create_block, add_witness_commitment
 from test_framework.script import CScript
+from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD
 from io import BytesIO
 import time
 
@@ -53,23 +54,33 @@ class NULLDUMMYTest(BitcoinTestFramework):
         coinbase_txid = []
         for i in self.coinbase_blocks:
             coinbase_txid.append(self.nodes[0].getblock(i)['tx'][0])
-        self.nodes[0].generate(427) # Block 429
+
+        for i in range(COINBASE_MATURITY):
+            block = create_block(int(self.nodes[0].getbestblockhash(), 16), create_coinbase(self.nodes[0].getblockcount()+1), int(time.time())+2+i)
+            block.nVersion = 4
+            block.hashMerkleRoot = block.calc_merkle_root()
+            block.rehash()
+            block.solve()
+            self.nodes[0].submitblock(bytes_to_hex_str(block.serialize()))
+
+        # Generate the number blocks signalling  that the continuation of the test case expects
+        self.nodes[0].generate(863-COINBASE_MATURITY-2-2)
         self.lastblockhash = self.nodes[0].getbestblockhash()
         self.tip = int("0x" + self.lastblockhash, 0)
-        self.lastblockheight = 429
-        self.lastblocktime = int(time.time()) + 429
+        self.lastblockheight = self.nodes[0].getblockcount()
+        self.lastblocktime = int(time.time()) + self.lastblockheight + 1
 
         self.log.info("Test 1: NULLDUMMY compliant base transactions should be accepted to mempool and mined before activation [430]")
-        test1txs = [self.create_transaction(self.nodes[0], coinbase_txid[0], self.ms_address, 49)]
+        test1txs = [self.create_transaction(self.nodes[0], coinbase_txid[0], self.ms_address, INITIAL_BLOCK_REWARD-1)]
         txid1 = self.nodes[0].sendrawtransaction(bytes_to_hex_str(test1txs[0].serialize_with_witness()), True)
-        test1txs.append(self.create_transaction(self.nodes[0], txid1, self.ms_address, 48))
+        test1txs.append(self.create_transaction(self.nodes[0], txid1, self.ms_address, INITIAL_BLOCK_REWARD-2))
         txid2 = self.nodes[0].sendrawtransaction(bytes_to_hex_str(test1txs[1].serialize_with_witness()), True)
-        test1txs.append(self.create_transaction(self.nodes[0], coinbase_txid[1], self.wit_ms_address, 49))
+        test1txs.append(self.create_transaction(self.nodes[0], coinbase_txid[1], self.wit_ms_address, INITIAL_BLOCK_REWARD-1))
         txid3 = self.nodes[0].sendrawtransaction(bytes_to_hex_str(test1txs[2].serialize_with_witness()), True)
         self.block_submit(self.nodes[0], test1txs, False, True)
 
         self.log.info("Test 2: Non-NULLDUMMY base multisig transaction should not be accepted to mempool before activation")
-        test2tx = self.create_transaction(self.nodes[0], txid2, self.ms_address, 47)
+        test2tx = self.create_transaction(self.nodes[0], txid2, self.ms_address, INITIAL_BLOCK_REWARD-3)
         trueDummy(test2tx)
         assert_raises_rpc_error(-26, NULLDUMMY_ERROR, self.nodes[0].sendrawtransaction, bytes_to_hex_str(test2tx.serialize_with_witness()), True)
 
@@ -77,14 +88,14 @@ class NULLDUMMYTest(BitcoinTestFramework):
         self.block_submit(self.nodes[0], [test2tx], False, True)
 
         self.log.info("Test 4: Non-NULLDUMMY base multisig transaction is invalid after activation")
-        test4tx = self.create_transaction(self.nodes[0], test2tx.hash, self.address, 46)
+        test4tx = self.create_transaction(self.nodes[0], test2tx.hash, self.address, INITIAL_BLOCK_REWARD-4)
         test6txs=[CTransaction(test4tx)]
         trueDummy(test4tx)
         assert_raises_rpc_error(-26, NULLDUMMY_ERROR, self.nodes[0].sendrawtransaction, bytes_to_hex_str(test4tx.serialize_with_witness()), True)
         self.block_submit(self.nodes[0], [test4tx])
 
         self.log.info("Test 5: Non-NULLDUMMY P2WSH multisig transaction invalid after activation")
-        test5tx = self.create_transaction(self.nodes[0], txid3, self.wit_address, 48)
+        test5tx = self.create_transaction(self.nodes[0], txid3, self.wit_address, INITIAL_BLOCK_REWARD-2)
         test6txs.append(CTransaction(test5tx))
         test5tx.wit.vtxinwit[0].scriptWitness.stack[0] = b'\x01'
         assert_raises_rpc_error(-26, NULLDUMMY_ERROR, self.nodes[0].sendrawtransaction, bytes_to_hex_str(test5tx.serialize_with_witness()), True)

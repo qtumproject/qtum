@@ -45,7 +45,7 @@ class TestNode():
             # Wait for up to 60 seconds for the RPC server to respond
             self.rpc_timeout = 60
         if binary is None:
-            self.binary = os.getenv("BITCOIND", "bitcoind")
+            self.binary = os.getenv("BITCOIND", "qtumd")
         else:
             self.binary = binary
         self.stderr = stderr
@@ -54,7 +54,7 @@ class TestNode():
         self.extra_args = extra_args
         self.args = [self.binary, "-datadir=" + self.datadir, "-server", "-keypool=1", "-discover=0", "-rest", "-logtimemicros", "-debug", "-debugexclude=libevent", "-debugexclude=leveldb", "-mocktime=" + str(mocktime), "-uacomment=testnode%d" % i]
 
-        self.cli = TestNodeCLI(os.getenv("BITCOINCLI", "bitcoin-cli"), self.datadir)
+        self.cli = TestNodeCLI(os.getenv("BITCOINCLI", "qtum-cli"), self.datadir)
 
         self.running = False
         self.process = None
@@ -74,6 +74,10 @@ class TestNode():
             extra_args = self.extra_args
         if stderr is None:
             stderr = self.stderr
+
+
+        if not any(arg.startswith('-staking=') for arg in extra_args):
+            extra_args.append('-staking=0')
         self.process = subprocess.Popen(self.args + extra_args, stderr=stderr)
         self.running = True
         self.log.debug("bitcoind started, waiting for RPC to come up")

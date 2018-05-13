@@ -6,6 +6,7 @@
 
 from .mininode import *
 from .script import CScript, OP_TRUE, OP_CHECKSIG, OP_RETURN
+from .qtumconfig import INITIAL_BLOCK_REWARD
 
 # Create a block (with regtest difficulty)
 def create_block(hashprev, coinbase, nTime=None):
@@ -71,11 +72,11 @@ def serialize_script_num(value):
 def create_coinbase(height, pubkey = None):
     coinbase = CTransaction()
     coinbase.vin.append(CTxIn(COutPoint(0, 0xffffffff), 
-                ser_string(serialize_script_num(height)), 0xffffffff))
+                CScript() + height + b"\x00", 0xffffffff)) #Fix for BIP34
     coinbaseoutput = CTxOut()
-    coinbaseoutput.nValue = 50 * COIN
-    halvings = int(height/150) # regtest
-    coinbaseoutput.nValue >>= halvings
+    coinbaseoutput.nValue = INITIAL_BLOCK_REWARD * COIN
+    #halvings = int(height/150) # regtest
+    #coinbaseoutput.nValue >>= halvings
     if (pubkey != None):
         coinbaseoutput.scriptPubKey = CScript([pubkey, OP_CHECKSIG])
     else:

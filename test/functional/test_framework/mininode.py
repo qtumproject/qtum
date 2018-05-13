@@ -36,9 +36,10 @@ from threading import RLock, Thread
 
 from test_framework.siphash import siphash256
 from test_framework.util import hex_str_to_bytes, bytes_to_hex_str, wait_until
+from test_framework.qtumconfig import INITIAL_HASH_UTXO_ROOT, INITIAL_HASH_STATE_ROOT
 
 BIP0031_VERSION = 60000
-MY_VERSION = 70014  # past bip-31 for ping/pong
+MY_VERSION = 70016  # past bip-31 for ping/pong
 MY_SUBVERSION = b"/python-mininode-tester:0.0.3/"
 MY_RELAY = 1 # from version 70001 onwards, fRelay should be appended to version messages (BIP37)
 
@@ -537,17 +538,27 @@ class CBlockHeader(object):
             self.nTime = header.nTime
             self.nBits = header.nBits
             self.nNonce = header.nNonce
+            self.hashStateRoot = header.hashStateRoot
+            self.hashUTXORoot = header.hashUTXORoot
+            self.prevoutStake = header.prevoutStake
+            self.vchBlockSig = header.vchBlockSig
+
             self.sha256 = header.sha256
             self.hash = header.hash
             self.calc_sha256()
 
     def set_null(self):
-        self.nVersion = 1
+        self.nVersion = 4
         self.hashPrevBlock = 0
         self.hashMerkleRoot = 0
         self.nTime = 0
         self.nBits = 0
         self.nNonce = 0
+        self.hashStateRoot = INITIAL_HASH_STATE_ROOT
+        self.hashUTXORoot = INITIAL_HASH_UTXO_ROOT
+        self.prevoutStake = COutPoint(0, 0xffffffff)
+        self.vchBlockSig = b""
+
         self.sha256 = None
         self.hash = None
 
@@ -558,6 +569,12 @@ class CBlockHeader(object):
         self.nTime = struct.unpack("<I", f.read(4))[0]
         self.nBits = struct.unpack("<I", f.read(4))[0]
         self.nNonce = struct.unpack("<I", f.read(4))[0]
+        self.hashStateRoot = deser_uint256(f)
+        self.hashUTXORoot = deser_uint256(f)
+        self.prevoutStake = COutPoint()
+        self.prevoutStake.deserialize(f)
+        self.vchBlockSig = deser_string(f)
+
         self.sha256 = None
         self.hash = None
 
@@ -569,6 +586,10 @@ class CBlockHeader(object):
         r += struct.pack("<I", self.nTime)
         r += struct.pack("<I", self.nBits)
         r += struct.pack("<I", self.nNonce)
+        r += ser_uint256(self.hashStateRoot)
+        r += ser_uint256(self.hashUTXORoot)
+        r += self.prevoutStake.serialize() if self.prevoutStake else COutPoint(0, 0xffffffff).serialize()
+        r += ser_string(self.vchBlockSig)
         return r
 
     def calc_sha256(self):
@@ -580,6 +601,10 @@ class CBlockHeader(object):
             r += struct.pack("<I", self.nTime)
             r += struct.pack("<I", self.nBits)
             r += struct.pack("<I", self.nNonce)
+            r += ser_uint256(self.hashStateRoot)
+            r += ser_uint256(self.hashUTXORoot)
+            r += self.prevoutStake.serialize() if self.prevoutStake else COutPoint(0, 0xffffffff).serialize()
+            r += ser_string(self.vchBlockSig)
             self.sha256 = uint256_from_str(hash256(r))
             self.hash = encode(hash256(r)[::-1], 'hex_codec').decode('ascii')
 
@@ -587,6 +612,23 @@ class CBlockHeader(object):
         self.sha256 = None
         self.calc_sha256()
         return self.sha256
+
+    def is_pos(self):
+        return self.prevoutStake and (self.prevoutStake.hash != 0 or self.prevoutStake.n != 0xffffffff)
+
+    def solve_stake(self, stakeModifier, prevouts):
+        target = uint256_from_compact(self.nBits)
+        for prevout, nValue, txBlockTime in prevouts:
+            data = b""
+            data += ser_uint256(stakeModifier)
+            data += struct.pack("<I", txBlockTime)
+            data += prevout.serialize()
+            data += struct.pack("<I", self.nTime)
+            posHash = uint256_from_str(hash256(data))
+            if posHash <= target:
+                self.prevoutStake = prevout
+                return True
+        return False
 
     def __repr__(self):
         return "CBlockHeader(nVersion=%i hashPrevBlock=%064x hashMerkleRoot=%064x nTime=%s nBits=%08x nNonce=%08x)" \
@@ -659,6 +701,20 @@ class CBlock(CBlockHeader):
         while self.sha256 > target:
             self.nNonce += 1
             self.rehash()
+
+    def sign_block(self, key, low_s=True):
+        data = b""
+        data += struct.pack("<i", self.nVersion)
+        data += ser_uint256(self.hashPrevBlock)
+        data += ser_uint256(self.hashMerkleRoot)
+        data += struct.pack("<I", self.nTime)
+        data += struct.pack("<I", self.nBits)
+        data += struct.pack("<I", self.nNonce)
+        data += ser_uint256(self.hashStateRoot)
+        data += ser_uint256(self.hashUTXORoot)
+        data += self.prevoutStake.serialize()
+        sha256NoSig = hash256(data)
+        self.vchBlockSig = key.sign(sha256NoSig, low_s=low_s)
 
     def __repr__(self):
         return "CBlock(nVersion=%i hashPrevBlock=%064x hashMerkleRoot=%064x nTime=%s nBits=%08x nNonce=%08x vtx=%s)" \
@@ -1651,9 +1707,9 @@ class NodeConn(asyncore.dispatcher):
         b"blocktxn": msg_blocktxn
     }
     MAGIC_BYTES = {
-        "mainnet": b"\xf9\xbe\xb4\xd9",   # mainnet
-        "testnet3": b"\x0b\x11\x09\x07",  # testnet3
-        "regtest": b"\xfa\xbf\xb5\xda",   # regtest
+        "mainnet": b"\xf1\xcf\xa6\xd3",   # mainnet
+        "testnet3": b"\x0d\x22\x15\x06",  # testnet3
+        "regtest": b"\xfd\xdd\xc6\xe1",   # regtest
     }
 
     def __init__(self, dstaddr, dstport, rpc, callback, net="regtest", services=NODE_NETWORK, send_version=True):

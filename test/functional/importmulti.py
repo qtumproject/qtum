@@ -5,6 +5,7 @@
 """Test the importmulti RPC."""
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
+from test_framework.qtumconfig import COINBASE_MATURITY
 
 class ImportMultiTest (BitcoinTestFramework):
     def set_test_params(self):
@@ -237,7 +238,7 @@ class ImportMultiTest (BitcoinTestFramework):
         sig_address_2 = self.nodes[0].validateaddress(self.nodes[0].getnewaddress())
         sig_address_3 = self.nodes[0].validateaddress(self.nodes[0].getnewaddress())
         multi_sig_script = self.nodes[0].createmultisig(2, [sig_address_1['address'], sig_address_2['address'], sig_address_3['pubkey']])
-        self.nodes[1].generate(100)
+        self.nodes[1].generate(COINBASE_MATURITY)
         transactionid = self.nodes[1].sendtoaddress(multi_sig_script['address'], 10.00)
         self.nodes[1].generate(1)
         timestamp = self.nodes[1].getblock(self.nodes[1].getbestblockhash())['mediantime']
