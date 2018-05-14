@@ -796,7 +796,8 @@ void CWallet::RemoveFromSpends(const COutPoint& outpoint, const uint256& wtxid)
         }
     }
     range = mapTxSpends.equal_range(outpoint);
-    SyncMetaData(range);
+    if(range.first != range.second)
+        SyncMetaData(range);
 }
 
 void CWallet::AddToSpends(const uint256& wtxid)
