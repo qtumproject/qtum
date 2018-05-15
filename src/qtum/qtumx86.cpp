@@ -60,14 +60,14 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
             return false;
         }
         MemorySystem memory;
-        ROMemory codeMemory(map->codeSize, "code");
-        RAMemory dataMemory(map->dataSize, "data");
+        ROMemory codeMemory(MAX_CODE_SIZE, "code");
+        RAMemory dataMemory(MAX_DATA_SIZE, "data");
         RAMemory stackMemory(MAX_STACK_SIZE, "stack");
         //TODO how is .bss loaded!?
 
         //zero memory for consensus
-        memset(codeMemory.GetMemory(), map->codeSize, 0);
-        memset(dataMemory.GetMemory(), map->dataSize, 0);
+        memset(codeMemory.GetMemory(), 0, MAX_CODE_SIZE);
+        memset(dataMemory.GetMemory(), 0, MAX_DATA_SIZE);
         memset(stackMemory.GetMemory(), MAX_STACK_SIZE, 0);
 
         //init memory
