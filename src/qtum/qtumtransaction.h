@@ -2,9 +2,13 @@
 #define QTUMTRANSACTION_H
 
 #include <libethcore/Transaction.h>
+#include <libethereum/Transaction.h>
 #include <coins.h>
 #include <script/interpreter.h>
 #include <libevm/ExtVMFace.h>
+#include <dbwrapper.h>
+#include <util.h>
+#include <uint256.h>
 
 struct VersionVM{
     //this should be portable, see https://stackoverflow.com/questions/31726191/is-there-a-portable-alternative-to-c-bitfields
@@ -133,12 +137,51 @@ struct ContractEnvironment{
     //todo for x86: tx info
 };
 
-class DeltaDB{
-public:
-    bool writeState(valtype address, valtype key, valtype value);
-    bool readState(valtype address, valtype key, valtype& value);
-};
+class DeltaDB : public CDBWrapper
+{
 
+public:
+	DeltaDB(size_t nCacheSize, bool fMemory, bool fWipe) : CDBWrapper(GetDataDir() / "deltaDB", nCacheSize, fMemory, fWipe) { }	
+	DeltaDB() : CDBWrapper(GetDataDir() / "deltaDB", 4, false, false) { }
+	~DeltaDB() {    }
+	
+	/*************** Live data *****************/
+	/* newest data associated with the contract. */
+    bool writeState(UniversalAddress address, valtype key, valtype value);
+    bool readState(UniversalAddress address, valtype key, valtype& value);
+
+	/* bytecode of the contract. */
+	bool writeByteCode(UniversalAddress address,valtype byteCode);
+	bool readByteCode(UniversalAddress address,valtype& byteCode);
+
+	/* data updated point of the keys in a contract. */
+	bool writeUpdatedKey(UniversalAddress address, valtype key, unsigned int blk_num, uint256 blk_hash);
+	bool readUpdatedKey(UniversalAddress address, valtype key, unsigned int &blk_num, uint256 &blk_hash);
+
+
+	/*************** Change log data *****************/
+	/* raw name of the keys in a contract. */
+	bool writeRawKey(UniversalAddress address,      valtype key, valtype rawkey);
+	bool readRawKey(UniversalAddress address,     valtype key, valtype &rawkey);
+	
+	/* current iterator of the keys in a contract. */
+	bool writeCurrentIterator(UniversalAddress address,      valtype key, uint64_t iterator);
+	bool readCurrentIterator(UniversalAddress address,      valtype key, uint64_t &iterator);
+	
+	/* data of the keys in a contract, indexed by iterator. */
+	bool writeStateWithIterator(UniversalAddress address,        valtype key, uint64_t iterator, valtype value);
+	bool readStateWithIterator(UniversalAddress address,        valtype key, uint64_t iterator, valtype &value);
+	
+	/* info of the keys in a contract, indexed by iterator. */
+	bool writeInfoWithIterator(UniversalAddress address,        valtype key, uint64_t iterator, unsigned int blk_num, uint256 blk_hash, uint256 txid, unsigned int vout);
+	bool readInfoWithIterator(UniversalAddress address,        valtype key, uint64_t iterator, unsigned int &blk_num, uint256 &blk_hash, uint256 &txid, unsigned int &vout);
+
+	/* Oldest iterator and the respect block info that exists in the changelog database. */
+	bool writeOldestIterator(UniversalAddress address,        valtype key, uint64_t iterator, unsigned int blk_num, uint256 blk_hash);
+	bool readOldestIterator(UniversalAddress address,        valtype key, uint64_t &iterator, unsigned int &blk_num, uint256 &blk_hash);
+	
+
+};
 
 enum ContractStatus{
     SUCCESS = 0,
@@ -196,13 +239,6 @@ private:
     const uint64_t blockGasLimit;
 };
 
-
-
-
-
-
-
-
 class QtumTransaction : public dev::eth::Transaction{
 
 public:
@@ -235,4 +271,6 @@ private:
     VersionVM version;
 
 };
+
+
 #endif
