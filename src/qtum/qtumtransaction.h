@@ -72,6 +72,15 @@ enum AddressVersion{
     SCRIPTHASH = 5,
 };
 
+static const size_t ADDRESS_DATA_SIZE = 32;
+
+struct UniversalAddressABI{
+    //Do not modify this struct's fields
+    //This is consensus critical!
+    uint32_t version;
+    uint8_t data[ADDRESS_DATA_SIZE];
+}__attribute__((__packed__));
+
 struct UniversalAddress{
     UniversalAddress(){
         version = AddressVersion::UNKNOWN;
@@ -80,8 +89,6 @@ struct UniversalAddress{
     : version(v), data(d) {}
     UniversalAddress(AddressVersion v, const unsigned char* begin, const unsigned char* end)
     : version(v), data(begin, end) {}
-    AddressVersion version;
-    std::vector<uint8_t> data;
 
     bool operator<(const UniversalAddress& a) const{
         return data < a.data;
@@ -92,10 +99,26 @@ struct UniversalAddress{
     bool operator!=(const UniversalAddress& a) const{
         return !(a == *this);
     }
+    UniversalAddressABI toAbi(){
+        UniversalAddressABI abi;
+        toAbi(abi);
+        return abi;
+    }
+    void toAbi(UniversalAddressABI &abi){
+        abi.version = (uint32_t) version;
+        memset(&abi.data[0], 0, ADDRESS_DATA_SIZE);
+        memcpy(&abi.data[0], data.data(), data.size());
+    }
 
     static UniversalAddress FromScript(const CScript& script);
     static UniversalAddress FromOutput(AddressVersion v, uint256 txid, uint32_t vout);
+
+
+
+    AddressVersion version;
+    std::vector<uint8_t> data;
 };
+
 
 struct ContractOutput{
     VersionVM version;

@@ -21,15 +21,16 @@ private:
 };
 
 class QtumHypervisor : public x86Lib::InterruptHypervisor{
-    QtumHypervisor(x86ContractVM &vm) : contractVM(vm){
+    QtumHypervisor(x86ContractVM &vm, const ContractOutput& out) : contractVM(vm), output(out){
     }
     virtual void HandleInt(int number, x86Lib::x86CPU &vm);
 private:
     x86ContractVM &contractVM;
-
+    ContractOutput output;
 
     friend x86ContractVM;
 };
+
 
 static const int QTUM_SYSTEM_ERROR_INT = 0xFF;
 
@@ -40,7 +41,8 @@ enum QtumSystemCall{
     BlockCreator = 2,
     BlockDifficulty = 3,
     BlockHeight = 4,
-    GetBlockHash = 5
+    GetBlockHash = 5,
+    IsCreate = 6
 };
 
 enum QtumEndpoint{
