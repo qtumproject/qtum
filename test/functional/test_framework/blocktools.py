@@ -35,11 +35,11 @@ def get_witness_script(witness_root, witness_nonce):
 
 # According to BIP141, blocks with witness rules active must commit to the
 # hash of all in-block transactions including witness.
-def add_witness_commitment(block, nonce=0):
+def add_witness_commitment(block, nonce=0, is_pos=False):
     # First calculate the merkle root of the block's
     # transactions, with witnesses.
     witness_nonce = nonce
-    witness_root = block.calc_witness_merkle_root()
+    witness_root = block.calc_witness_merkle_root(is_pos)
     # witness_nonce should go to coinbase witness.
     block.vtx[0].wit.vtxinwit = [CTxInWitness()]
     block.vtx[0].wit.vtxinwit[0].scriptWitness.stack = [ser_uint256(witness_nonce)]

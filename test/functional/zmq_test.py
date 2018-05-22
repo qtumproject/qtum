@@ -12,6 +12,8 @@ from test_framework.util import (assert_equal,
                                  bytes_to_hex_str,
                                  hash256,
                                 )
+from test_framework.mininode import CTransaction, CBlockHeader
+import io
 
 class ZMQTest (BitcoinTestFramework):
     def set_test_params(self):
@@ -47,6 +49,12 @@ class ZMQTest (BitcoinTestFramework):
         self.add_nodes(self.num_nodes, self.extra_args)
         self.start_nodes()
 
+    def get_hash_from_structure(self, block_or_tx, data):
+        f = io.BytesIO(data)
+        block_or_tx.deserialize(f)
+        block_or_tx.rehash()
+        return block_or_tx.hash        
+
     def run_test(self):
         try:
             self._zmq_test()
@@ -76,7 +84,7 @@ class ZMQTest (BitcoinTestFramework):
         assert_equal(msgSequence, 0) # must be sequence 0 on rawtx
 
         # Check that the rawtx hashes to the hashtx
-        assert_equal(hash256(body), txhash)
+        assert_equal(self.get_hash_from_structure(CTransaction(), body), bytes_to_hex_str(txhash))
 
         self.log.info("Wait for block")
         msg = self.zmqSubSocket.recv_multipart()
@@ -97,7 +105,7 @@ class ZMQTest (BitcoinTestFramework):
         assert_equal(msgSequence, 0) #must be sequence 0 on rawblock
 
         # Check the hash of the rawblock's header matches generate
-        assert_equal(genhashes[0], bytes_to_hex_str(hash256(body[:80])))
+        assert_equal(self.get_hash_from_structure(CBlockHeader(), body), genhashes[0])
 
         self.log.info("Generate 10 blocks (and 10 coinbase txes)")
         n = 10
@@ -117,7 +125,7 @@ class ZMQTest (BitcoinTestFramework):
                 assert_equal(msgSequence, blockcount + 1)
                 blockcount += 1
             if topic == b"rawblock":
-                zmqRawHashed.append(bytes_to_hex_str(hash256(body[:80])))
+                zmqRawHashed.append(self.get_hash_from_structure(CBlockHeader(), body))
                 msgSequence = struct.unpack('<I', msg[-1])[-1]
                 assert_equal(msgSequence, blockcount)
 

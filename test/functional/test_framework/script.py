@@ -234,6 +234,10 @@ OP_NOP8 = CScriptOp(0xb7)
 OP_NOP9 = CScriptOp(0xb8)
 OP_NOP10 = CScriptOp(0xb9)
 
+OP_CREATE = CScriptOp(0xc1)
+OP_CALL = CScriptOp(0xc2)
+OP_SPEND = CScriptOp(0xc3)
+
 # template matching params
 OP_SMALLINTEGER = CScriptOp(0xfa)
 OP_PUBKEYS = CScriptOp(0xfb)
@@ -361,6 +365,10 @@ VALID_OPCODES = {
     OP_NOP9,
     OP_NOP10,
 
+    OP_CREATE,
+    OP_CALL,
+    OP_SPEND,
+
     OP_SMALLINTEGER,
     OP_PUBKEYS,
     OP_PUBKEYHASH,
@@ -479,6 +487,9 @@ OPCODE_NAMES.update({
     OP_NOP8 : 'OP_NOP8',
     OP_NOP9 : 'OP_NOP9',
     OP_NOP10 : 'OP_NOP10',
+    OP_CREATE: 'OP_CREATE',
+    OP_CALL: 'OP_CALL',
+    OP_SPEND: 'OP_SPEND',
     OP_SMALLINTEGER : 'OP_SMALLINTEGER',
     OP_PUBKEYS : 'OP_PUBKEYS',
     OP_PUBKEYHASH : 'OP_PUBKEYHASH',
@@ -598,6 +609,9 @@ OPCODES_BY_NAME = {
     'OP_NOP8' : OP_NOP8,
     'OP_NOP9' : OP_NOP9,
     'OP_NOP10' : OP_NOP10,
+    'OP_CREATE' : OP_CREATE,
+    'OP_CALL' : OP_CALL,
+    'OP_SPEND' : OP_SPEND,
     'OP_SMALLINTEGER' : OP_SMALLINTEGER,
     'OP_PUBKEYS' : OP_PUBKEYS,
     'OP_PUBKEYHASH' : OP_PUBKEYHASH,
