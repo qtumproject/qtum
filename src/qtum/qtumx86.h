@@ -16,6 +16,7 @@ public:
     virtual bool execute(ContractOutput &output, ContractExecutionResult &result, bool commit);
 private:
     const ContractEnvironment &getEnv();
+    const std::vector<uint8_t> buildAdditionalData(ContractOutput &output);
 
     friend class QtumHypervisor;
 };

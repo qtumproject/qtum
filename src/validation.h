@@ -571,6 +571,8 @@ extern CCoinsViewCache *pcoinsTip;
 /** Global variable that points to the active block tree (protected by cs_main) */
 extern CBlockTreeDB *pblocktree;
 
+extern DeltaDB *pdeltaDB;
+
 extern StorageResults *pstorageresult;
 
 /**

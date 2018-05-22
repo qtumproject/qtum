@@ -4,6 +4,7 @@
 #include "qtumx86.h"
 
 #include <x86lib.h>
+#include <validation.h>
 
 using namespace x86Lib;
 
@@ -43,6 +44,9 @@ const ContractEnvironment& x86ContractVM::getEnv() {
 #define STACK_ADDRESS 0x200000
 #define MAX_STACK_SIZE 1024 * 8
 
+#define TX_DATA_ADDRESS 0xD0000000
+#define TX_DATA_ADDRESS_END 0xF0000000
+
 #define TX_CALL_DATA_ADDRESS 0x210000
 
 bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &result, bool commit)
@@ -56,7 +60,6 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
     const uint8_t *options;
     ContractMapInfo *map;
     std::vector<uint8_t> bytecode;
-    DeltaDB deltaDB(8, false, false);
     if(output.OpCreate) {
         map = parseContractData(output.data.data(), &code, &data, &options);
         if (map->optionsSize != 0) {
@@ -64,11 +67,8 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
             return false;
         }
     }else {
-        deltaDB.readByteCode(output.address, bytecode);
-        const uint8_t *code;
-        const uint8_t *data;
-        const uint8_t *options;
-        ContractMapInfo *map;
+
+        pdeltaDB->readByteCode(output.address, bytecode);
         map = parseContractData(bytecode.data(), &code, &data, &options);
     }
 
@@ -76,6 +76,8 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
     ROMemory codeMemory(MAX_CODE_SIZE, "code");
     RAMemory dataMemory(MAX_DATA_SIZE, "data");
     RAMemory stackMemory(MAX_STACK_SIZE, "stack");
+    std::vector<uint8_t> txData = buildAdditionalData(output);
+    PointerROMemory txDataMemory(txData.data(), txData.size(), "txdata");
 
     //TODO how is .bss loaded!?
 
@@ -92,6 +94,7 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
     memsys.Add(CODE_ADDRESS, CODE_ADDRESS + MAX_CODE_SIZE, &codeMemory);
     memsys.Add(DATA_ADDRESS, DATA_ADDRESS + MAX_DATA_SIZE, &dataMemory);
     memsys.Add(STACK_ADDRESS, STACK_ADDRESS + MAX_STACK_SIZE, &stackMemory);
+    memsys.Add(TX_DATA_ADDRESS, TX_DATA_ADDRESS_END, &txDataMemory);
 
     PointerROMemory callDataMemory(output.data.data(), output.data.size(), "call-data");
     if(!output.OpCreate){
@@ -122,7 +125,7 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
     LogPrintf("Execution successful!");
     if(output.OpCreate){
         //no error, so save to database
-        deltaDB.writeByteCode(output.address, output.data);
+        pdeltaDB->writeByteCode(output.address, output.data);
     }else{
         //later, store a receipt or something
     }
@@ -134,6 +137,26 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
     return true;
 }
 
+struct TxDataABI{
+    uint32_t size;
+    uint32_t callDataSize;
+    UniversalAddressABI sender;
+}  __attribute__((__packed__));
+
+const std::vector<uint8_t> x86ContractVM::buildAdditionalData(ContractOutput &output) {
+    std::vector<uint8_t> data;
+    data.resize(0x1000);
+    uint8_t* p=data.data();
+    int i=0;
+    *((uint32_t*)&p[i]) = 0x1000; //data size
+    i+=4;
+    *((uint32_t*)&p[i]) = output.data.size();
+    i+=4;
+    UniversalAddressABI sender = output.sender.toAbi();
+    *((UniversalAddressABI*)&p[i]) = sender;
+    i += 33;
+    return data;
+}
 
 void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
 {
