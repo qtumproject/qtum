@@ -2748,7 +2748,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
             countCumulativeGasUsed += bcer.usedGas;
             std::vector<TransactionReceiptInfo> tri;
-            if (fLogEvents)
+            if (fLogEvents && !fJustCheck)
             {
                 for(size_t k = 0; k < resultConvertQtumTX.first.size(); k ++){
                     dev::Address key = resultExec[k].execRes.newAddress;
