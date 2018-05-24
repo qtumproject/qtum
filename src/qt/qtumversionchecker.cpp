@@ -1,8 +1,6 @@
 #include "qtumversionchecker.h"
 #include "../clientversion.h"
 
-#include <boost/foreach.hpp>
-
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
@@ -25,15 +23,7 @@ QtumVersionChecker::~QtumVersionChecker()
 bool QtumVersionChecker::newVersionAvailable()
 {
     Version maxReleaseVersion = getMaxReleaseVersion();
-
-    if(maxReleaseVersion > currentVersion)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return maxReleaseVersion > currentVersion;
 }
 
 QList<Version> QtumVersionChecker::getVersions()

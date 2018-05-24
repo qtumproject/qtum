@@ -24,6 +24,13 @@ int GetRandInt(int nMax);
 uint256 GetRandHash();
 
 /**
+ * Add a little bit of randomness to the output of GetStrongRangBytes.
+ * This sleeps for a millisecond, so should only be called when there is
+ * no other work to be done.
+ */
+void RandAddSeedSleep();
+
+/**
  * Function to gather random data from multiple sources, failing whenever any
  * of those source fail to provide a result.
  */
@@ -63,7 +70,11 @@ private:
     }
 
 public:
-    explicit FastRandomContext(bool fDeterministic=false);
+    explicit FastRandomContext(bool fDeterministic = false);
+
+    /** Initialize with explicit seed (only for testing) */
+    explicit FastRandomContext(const uint256& seed);
+
     /** Generate a random 64-bit integer. */
     uint64_t rand64()
     {
@@ -72,14 +83,64 @@ public:
         bytebuf_size -= 8;
         return ret;
     }
-    uint32_t rand32() {
-        Rz = 36969 * (Rz & 65535) + (Rz >> 16);
-        Rw = 18000 * (Rw & 65535) + (Rw >> 16);
-        return (Rw << 16) + Rz;
+
+    /** Generate a random (bits)-bit integer. */
+    uint64_t randbits(int bits) {
+        if (bits == 0) {
+            return 0;
+        } else if (bits > 32) {
+            return rand64() >> (64 - bits);
+        } else {
+            if (bitbuf_size < bits) FillBitBuffer();
+            uint64_t ret = bitbuf & (~(uint64_t)0 >> (64 - bits));
+            bitbuf >>= bits;
+            bitbuf_size -= bits;
+            return ret;
+        }
     }
 
-    uint32_t Rz;
-    uint32_t Rw;
+    /** Generate a random integer in the range [0..range). */
+    uint64_t randrange(uint64_t range)
+    {
+        --range;
+        int bits = CountBits(range);
+        while (true) {
+            uint64_t ret = randbits(bits);
+            if (ret <= range) return ret;
+        }
+    }
+
+    /** Generate random bytes. */
+    std::vector<unsigned char> randbytes(size_t len);
+
+    /** Generate a random 32-bit integer. */
+    uint32_t rand32() { return randbits(32); }
+
+    /** generate a random uint256. */
+    uint256 rand256();
+
+    /** Generate a random boolean. */
+    bool randbool() { return randbits(1); }
 };
+
+/* Number of random bytes returned by GetOSRand.
+ * When changing this constant make sure to change all call sites, and make
+ * sure that the underlying OS APIs for all platforms support the number.
+ * (many cap out at 256 bytes).
+ */
+static const ssize_t NUM_OS_RANDOM_BYTES = 32;
+
+/** Get 32 bytes of system entropy. Do not use this in application code: use
+ * GetStrongRandBytes instead.
+ */
+void GetOSRand(unsigned char *ent32);
+
+/** Check that OS randomness is available and returning the requested number
+ * of bytes.
+ */
+bool Random_SanityCheck();
+
+/** Initialize the RNG. */
+void RandomInit();
 
 #endif // BITCOIN_RANDOM_H

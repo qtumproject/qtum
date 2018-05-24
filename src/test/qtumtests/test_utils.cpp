@@ -2,7 +2,7 @@
 
 void initState(){
     boost::filesystem::path pathTemp;		
-    pathTemp = GetTempPath() / strprintf("test_bitcoin_%lu_%i", (unsigned long)GetTime(), (int)(GetRand(100000)));
+    pathTemp = fs::temp_directory_path() / strprintf("test_bitcoin_%lu_%i", (unsigned long)GetTime(), (int)(GetRand(100000)));
     boost::filesystem::create_directories(pathTemp);
     const std::string dirQtum = pathTemp.string();
     const dev::h256 hashDB(dev::sha3(dev::rlp("")));

@@ -8,7 +8,6 @@
 #include "base58.h"
 #include "qvalidatedlineedit.h"
 #include "bitcoinaddressvalidator.h"
-#include <boost/foreach.hpp>
 #include <QLineEdit>
 #include <QCompleter>
 
@@ -80,47 +79,51 @@ void AddressField::on_refresh()
     QString currentAddress = currentText();
     m_stringList.clear();
     vector<COutput> vecOutputs;
-    assert(pwalletMain != NULL);
-
-    // Fill the list with address
-    if(m_addressType == AddressField::UTXO)
+    if(!vpwallets.empty())
     {
-        // Fill the list with UTXO
-        LOCK2(cs_main, pwalletMain->cs_wallet);
+        CWalletRef pwalletMain = vpwallets[0];
+        assert(pwalletMain != NULL);
 
-        // Add all available addresses if 0 address ballance for token is enabled
-        if(m_addressTableModel)
+        // Fill the list with address
+        if(m_addressType == AddressField::UTXO)
         {
-            // Fill the list with user defined address
-            for(int row = 0; row < m_addressTableModel->rowCount(); row++)
+            // Fill the list with UTXO
+            LOCK2(cs_main, pwalletMain->cs_wallet);
+
+            // Add all available addresses if 0 address ballance for token is enabled
+            if(m_addressTableModel)
             {
-                QModelIndex index = m_addressTableModel->index(row, m_addressColumn);
-                QString strAddress = m_addressTableModel->data(index).toString();
-                QString type = m_addressTableModel->data(index, m_typeRole).toString();
-                if(type == m_receive)
+                // Fill the list with user defined address
+                for(int row = 0; row < m_addressTableModel->rowCount(); row++)
                 {
-                    appendAddress(strAddress);
+                    QModelIndex index = m_addressTableModel->index(row, m_addressColumn);
+                    QString strAddress = m_addressTableModel->data(index).toString();
+                    QString type = m_addressTableModel->data(index, m_typeRole).toString();
+                    if(type == m_receive)
+                    {
+                        appendAddress(strAddress);
+                    }
                 }
+
+                // Include zero or unconfirmed coins too
+                pwalletMain->AvailableCoins(vecOutputs, false, NULL, true);
+            }
+            else
+            {
+                // List only the spendable coins
+                pwalletMain->AvailableCoins(vecOutputs);
             }
 
-            // Include zero or unconfirmed coins too
-            pwalletMain->AvailableCoins(vecOutputs, false, NULL, true);
-        }
-        else
-        {
-            // List only the spendable coins
-            pwalletMain->AvailableCoins(vecOutputs);
-        }
+            for(const COutput& out : vecOutputs) {
+                CTxDestination address;
+                const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
+                bool fValidAddress = ExtractDestination(scriptPubKey, address);
 
-        BOOST_FOREACH(const COutput& out, vecOutputs) {
-            CTxDestination address;
-            const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
-            bool fValidAddress = ExtractDestination(scriptPubKey, address);
-
-            if (fValidAddress)
-            {
-                QString strAddress = QString::fromStdString(CBitcoinAddress(address).ToString());
-                appendAddress(strAddress);
+                if (fValidAddress)
+                {
+                    QString strAddress = QString::fromStdString(CBitcoinAddress(address).ToString());
+                    appendAddress(strAddress);
+                }
             }
         }
     }
@@ -146,10 +149,14 @@ void AddressField::on_editingFinished()
 void AddressField::appendAddress(const QString &strAddress)
 {
     CBitcoinAddress address(strAddress.toStdString());
-    if(!m_stringList.contains(strAddress) &&
-            IsMine(*pwalletMain, address.Get()))
+    if(!vpwallets.empty())
     {
-        m_stringList.append(strAddress);
+        CWalletRef pwalletMain = vpwallets[0];
+        if(!m_stringList.contains(strAddress) &&
+                IsMine(*pwalletMain, address.Get()))
+        {
+            m_stringList.append(strAddress);
+        }
     }
 }
 
