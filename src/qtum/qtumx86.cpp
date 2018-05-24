@@ -4,6 +4,7 @@
 #include "qtumx86.h"
 
 #include <x86lib.h>
+#include <validation.h>
 
 using namespace x86Lib;
 
@@ -43,66 +44,91 @@ const ContractEnvironment& x86ContractVM::getEnv() {
 #define STACK_ADDRESS 0x200000
 #define MAX_STACK_SIZE 1024 * 8
 
+#define TX_DATA_ADDRESS 0xD0000000
+#define TX_DATA_ADDRESS_END 0xF0000000
+
+#define TX_CALL_DATA_ADDRESS 0x210000
+
 bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &result, bool commit)
 {
     //default results
     result.usedGas = output.gasLimit;
     result.refundSender = 0;
     result.status = ContractStatus::CODE_ERROR;
+    const uint8_t *code;
+    const uint8_t *data;
+    const uint8_t *options;
+    ContractMapInfo *map;
+    std::vector<uint8_t> bytecode;
     if(output.OpCreate) {
-        const uint8_t *code;
-        const uint8_t *data;
-        const uint8_t *options;
-        ContractMapInfo *map;
         map = parseContractData(output.data.data(), &code, &data, &options);
         if (map->optionsSize != 0) {
             LogPrintf("Options specified in x86 contract, but none exist yet!");
             return false;
         }
-        MemorySystem memory;
-        ROMemory codeMemory(MAX_CODE_SIZE, "code");
-        RAMemory dataMemory(MAX_DATA_SIZE, "data");
-        RAMemory stackMemory(MAX_STACK_SIZE, "stack");
-        //TODO how is .bss loaded!?
+    }else {
 
-        //zero memory for consensus
-        memset(codeMemory.GetMemory(), 0, MAX_CODE_SIZE);
-        memset(dataMemory.GetMemory(), 0, MAX_DATA_SIZE);
-        memset(stackMemory.GetMemory(), MAX_STACK_SIZE, 0);
-
-        //init memory
-        memcpy(codeMemory.GetMemory(), code, map->codeSize);
-        memcpy(dataMemory.GetMemory(), data, map->dataSize);
-
-        MemorySystem memsys;
-        memsys.Add(CODE_ADDRESS, CODE_ADDRESS + MAX_CODE_SIZE, &codeMemory);
-        memsys.Add(DATA_ADDRESS, DATA_ADDRESS + MAX_DATA_SIZE, &dataMemory);
-        memsys.Add(STACK_ADDRESS, STACK_ADDRESS + MAX_STACK_SIZE, &stackMemory);
-
-        QtumHypervisor qtumhv(*this);
-
-        x86CPU cpu;
-        cpu.Memory = &memsys;
-        cpu.Hypervisor = &qtumhv;
-        try{
-            cpu.Exec(output.gasLimit);
-        }
-        catch(CPUFaultException err){
-            LogPrintf("CPU Panic! Message: %s, code: %x, opcode: %s, hex: %x", err.desc, err.code, cpu.GetLastOpcodeName(), cpu.GetLastOpcode());
-            return false;
-        }
-        catch(MemoryException *err){
-            LogPrintf("Memory error! address: %x, opcode: %s, hex: %x", err->address, cpu.GetLastOpcodeName(), cpu.GetLastOpcode());
-            return false;
-        }
-        LogPrintf("Execution successful!");
-
-
-    }else{
-        LogPrintf("Call currently not implemented");
-        return false;
+        pdeltaDB->readByteCode(output.address, bytecode);
+        map = parseContractData(bytecode.data(), &code, &data, &options);
     }
 
+    MemorySystem memory;
+    ROMemory codeMemory(MAX_CODE_SIZE, "code");
+    RAMemory dataMemory(MAX_DATA_SIZE, "data");
+    RAMemory stackMemory(MAX_STACK_SIZE, "stack");
+    std::vector<uint8_t> txData = buildAdditionalData(output);
+    PointerROMemory txDataMemory(txData.data(), txData.size(), "txdata");
+
+    //TODO how is .bss loaded!?
+
+    //zero memory for consensus
+    memset(codeMemory.GetMemory(), 0, MAX_CODE_SIZE);
+    memset(dataMemory.GetMemory(), 0, MAX_DATA_SIZE);
+    memset(stackMemory.GetMemory(), MAX_STACK_SIZE, 0);
+
+    //init memory
+    memcpy(codeMemory.GetMemory(), code, map->codeSize);
+    memcpy(dataMemory.GetMemory(), data, map->dataSize);
+
+    MemorySystem memsys;
+    memsys.Add(CODE_ADDRESS, CODE_ADDRESS + MAX_CODE_SIZE, &codeMemory);
+    memsys.Add(DATA_ADDRESS, DATA_ADDRESS + MAX_DATA_SIZE, &dataMemory);
+    memsys.Add(STACK_ADDRESS, STACK_ADDRESS + MAX_STACK_SIZE, &stackMemory);
+    memsys.Add(TX_DATA_ADDRESS, TX_DATA_ADDRESS_END, &txDataMemory);
+
+    PointerROMemory callDataMemory(output.data.data(), output.data.size(), "call-data");
+    if(!output.OpCreate){
+        //load call data into memory space if not create
+        memsys.Add(TX_CALL_DATA_ADDRESS, TX_CALL_DATA_ADDRESS + output.data.size(), &callDataMemory);
+    }
+
+    QtumHypervisor qtumhv(*this, output);
+
+    x86CPU cpu;
+    cpu.Memory = &memsys;
+    cpu.Hypervisor = &qtumhv;
+    try{
+        cpu.Exec(output.gasLimit);
+    }
+    catch(CPUFaultException err){
+        LogPrintf("CPU Panic! Message: %s, code: %x, opcode: %s, hex: %x", err.desc, err.code, cpu.GetLastOpcodeName(), cpu.GetLastOpcode());
+        result.usedGas = output.gasLimit;
+        result.refundSender = output.value;
+        return false;
+    }
+    catch(MemoryException *err){
+        LogPrintf("Memory error! address: %x, opcode: %s, hex: %x", err->address, cpu.GetLastOpcodeName(), cpu.GetLastOpcode());
+        result.usedGas = output.gasLimit;
+        result.refundSender = output.value;
+        return false;
+    }
+    LogPrintf("Execution successful!");
+    if(output.OpCreate){
+        //no error, so save to database
+        pdeltaDB->writeByteCode(output.address, output.data);
+    }else{
+        //later, store a receipt or something
+    }
 
     result.usedGas = std::min((uint64_t)1000, output.gasLimit);
     result.refundSender = 0;
@@ -111,10 +137,29 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
     return true;
 }
 
+struct TxDataABI{
+    uint32_t size;
+    uint32_t callDataSize;
+    UniversalAddressABI sender;
+}  __attribute__((__packed__));
+
+const std::vector<uint8_t> x86ContractVM::buildAdditionalData(ContractOutput &output) {
+    std::vector<uint8_t> data;
+    data.resize(0x1000);
+    uint8_t* p=data.data();
+    int i=0;
+    *((uint32_t*)&p[i]) = 0x1000; //data size
+    i+=4;
+    *((uint32_t*)&p[i]) = output.data.size();
+    i+=4;
+    UniversalAddressABI sender = output.sender.toAbi();
+    *((UniversalAddressABI*)&p[i]) = sender;
+    i += 33;
+    return data;
+}
 
 void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
 {
-
     if(number == 0xF0){
         //exit code
         vm.Stop();
@@ -125,9 +170,13 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
         vm.Int(QTUM_SYSTEM_ERROR_INT);
         return;
     }
+    uint32_t status;
     switch(vm.GetRegister32(EAX)){
         case QtumSystemCall::BlockHeight:
-            vm.SetReg32(EAX, contractVM.getEnv().blockNumber);
+            status = contractVM.getEnv().blockNumber;
+            break;
+        case QtumSystemCall::IsCreate:
+            status = output.OpCreate ? 1 : 0;
             break;
         case 0xFFFF0001:
             //internal debug printf
@@ -139,9 +188,10 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
             msg[vm.GetRegister32(ECX)] = 0; //null termination
             LogPrintf("Contract message: ");
             LogPrintf(msg);
-            vm.SetReg32(EAX, 0);
+            status = 0;
             delete[] msg;
             break;
     }
+    vm.SetReg32(EAX, status);
     return;
 }

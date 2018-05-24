@@ -760,8 +760,8 @@ UniValue sendtocontract(const JSONRPCRequest& request){
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect contract address");
 
     dev::Address addrAccount(contractaddress);
-    if(!globalState->addressInUse(addrAccount))
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "contract address does not exist");
+    //if(!globalState->addressInUse(addrAccount))
+    //    throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "contract address does not exist");
 
     std::string datahex = request.params[1].get_str();
     if(datahex.size() % 2 != 0 || !CheckHex(datahex))
@@ -875,7 +875,7 @@ UniValue sendtocontract(const JSONRPCRequest& request){
         throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Insufficient funds");
 
     // Build OP_EXEC_ASSIGN script
-    CScript scriptPubKey = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(nGasLimit) << CScriptNum(nGasPrice) << ParseHex(datahex) << ParseHex(contractaddress) << OP_CALL;
+    CScript scriptPubKey = CScript() << CScriptNum(VersionVM::Getx86Default().toRaw()) << CScriptNum(nGasLimit) << CScriptNum(nGasPrice) << ParseHex(datahex) << ParseHex(contractaddress) << OP_CALL;
 
     // Create and send the transaction
     CReserveKey reservekey(pwallet);

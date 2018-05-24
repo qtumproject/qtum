@@ -28,7 +28,26 @@ bool ContractOutputParser::parseOutput(ContractOutput& output){
             vecAddr = stack.back();
             stack.pop_back();
             receiveAddress = vecAddr;
+            output.OpCreate = false;
+        }else{
+            output.OpCreate = true;
+            //must compute address
+            std::vector<unsigned char> SHA256TxVout(32);
+            std::vector<unsigned char> contractAddress(20);
+            auto tmp = tx.GetHash();
+            std::vector<unsigned char> txIdAndVout(tmp.begin(), tmp.end());
+            uint32_t voutNumber=nvout;
+            std::vector<unsigned char> voutNumberChrs;
+            if (voutNumberChrs.size() < sizeof(voutNumber))voutNumberChrs.resize(sizeof(voutNumber));
+            std::memcpy(voutNumberChrs.data(), &voutNumber, sizeof(voutNumber));
+            txIdAndVout.insert(txIdAndVout.end(),voutNumberChrs.begin(),voutNumberChrs.end());
+            //address is ripemd160(sha256(txid + vout))
+            CSHA256().Write(txIdAndVout.data(), txIdAndVout.size()).Finalize(SHA256TxVout.data());
+            CRIPEMD160().Write(SHA256TxVout.data(), SHA256TxVout.size()).Finalize(contractAddress.data());
+
+            receiveAddress = contractAddress;
         }
+
         if(stack.size() < 4)
             return false;
 
@@ -66,6 +85,8 @@ bool ContractOutputParser::parseOutput(ContractOutput& output){
         }
         output.data = code;
         output.gasLimit = gasLimit;
+        output.vout.n = nvout;
+        output.vout.hash = tx.GetHash();
         return true;
     }
     catch(const scriptnum_error& err){
@@ -184,12 +205,11 @@ ContractExecutor::ContractExecutor(const CBlock &_block, ContractOutput _output,
 bool ContractExecutor::execute(ContractExecutionResult &result, bool commit)
 {
     ContractEnvironment env=buildEnv();
-    DeltaDB db; //todo
     if(output.version.rootVM == ROOT_VM_EVM){
-        EVMContractVM evm(db, env, blockGasLimit);
+        EVMContractVM evm(*pdeltaDB, env, blockGasLimit);
         evm.execute(output, result, commit);
     }else if(output.version.rootVM == ROOT_VM_X86){
-        x86ContractVM x86(db, env, blockGasLimit);
+        x86ContractVM x86(*pdeltaDB, env, blockGasLimit);
         x86.execute(output, result, commit);
     }else{
         return false;

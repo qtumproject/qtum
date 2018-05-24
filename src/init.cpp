@@ -66,6 +66,8 @@
 #include "zmq/zmqnotificationinterface.h"
 #endif
 
+DeltaDB* pdeltaDB = nullptr;
+
 bool fFeeEstimatesInitialized = false;
 static const bool DEFAULT_PROXYRANDOMIZE = true;
 static const bool DEFAULT_REST_ENABLE = false;
@@ -1459,10 +1461,13 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
                 delete pcoinscatcher;
                 delete pblocktree;
                 delete pstorageresult;
+                delete pdeltaDB;
                 globalState.reset();
                 globalSealEngine.reset();
 
                 pblocktree = new CBlockTreeDB(nBlockTreeDBCache, false, fReset);
+
+                pdeltaDB = new DeltaDB(nBlockTreeDBCache, false, fReset);
 
                 if (fReset) {
                     pblocktree->WriteReindexing(true);
