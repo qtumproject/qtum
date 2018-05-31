@@ -170,8 +170,22 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
         vm.Int(QTUM_SYSTEM_ERROR_INT);
         return;
     }
-    uint32_t status;
+    uint32_t status = 0;
     switch(vm.GetRegister32(EAX)){
+        case QtumSystemCall::PreviousBlockTime:
+            status = contractVM.getEnv().blockTime;
+            break;
+        case QtumSystemCall ::BlockCreator:
+        {
+            auto creator = contractVM.getEnv().blockCreator.toAbi();
+            vm.WriteMemory(vm.Reg32(EBX), sizeof(creator), &creator);
+        }
+        case QtumSystemCall ::BlockDifficulty:
+            vm.WriteMemory(vm.Reg32(EBX), sizeof(uint64_t), (void*) &contractVM.getEnv().difficulty);
+            break;
+        case QtumSystemCall::BlockGasLimit:
+            vm.WriteMemory(vm.Reg32(EBX), sizeof(uint64_t), (void*) &contractVM.getEnv().gasLimit);
+            break;
         case QtumSystemCall::BlockHeight:
             status = contractVM.getEnv().blockNumber;
             break;
