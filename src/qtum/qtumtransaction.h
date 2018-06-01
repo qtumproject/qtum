@@ -99,12 +99,12 @@ struct UniversalAddress{
     bool operator!=(const UniversalAddress& a) const{
         return !(a == *this);
     }
-    UniversalAddressABI toAbi(){
+    UniversalAddressABI toAbi() const{
         UniversalAddressABI abi;
         toAbi(abi);
         return abi;
     }
-    void toAbi(UniversalAddressABI &abi){
+    void toAbi(UniversalAddressABI &abi) const{
         abi.version = (uint32_t) version;
         memset(&abi.data[0], 0, ADDRESS_DATA_SIZE);
         memcpy(&abi.data[0], data.data(), data.size());
