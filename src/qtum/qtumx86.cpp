@@ -7,6 +7,7 @@
 #include <validation.h>
 
 using namespace x86Lib;
+DeltaDB* pdeltaDB = nullptr;
 
 
 //The data field available is only a flat data field, so we need some format for storing

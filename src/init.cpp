@@ -66,7 +66,6 @@
 #include "zmq/zmqnotificationinterface.h"
 #endif
 
-DeltaDB* pdeltaDB = nullptr;
 
 bool fFeeEstimatesInitialized = false;
 static const bool DEFAULT_PROXYRANDOMIZE = true;
