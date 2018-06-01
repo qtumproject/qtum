@@ -228,7 +228,7 @@ class ContractVM{
     //todo database
 protected:
     ContractVM(DeltaDB &_db, const ContractEnvironment &_env, uint64_t _remainingGasLimit)
-    : db(db), env(_env), remainingGasLimit(_remainingGasLimit) {}
+    : db(_db), env(_env), remainingGasLimit(_remainingGasLimit) {}
 public:
     virtual bool execute(ContractOutput &output, ContractExecutionResult &result, bool commit)=0;
 protected:
