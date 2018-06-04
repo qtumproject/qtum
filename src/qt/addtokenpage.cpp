@@ -42,6 +42,7 @@ AddTokenPage::AddTokenPage(QWidget *parent) :
     ui->lineEditSenderAddress->setAddressColumn(AddressTableModel::Address);
     ui->lineEditSenderAddress->setTypeRole(AddressTableModel::TypeRole);
     ui->lineEditSenderAddress->setReceive(AddressTableModel::Receive);
+    ui->lineEditSenderAddress->setSenderAddress(true);
     if(ui->lineEditSenderAddress->isEditable())
         ((QValidatedLineEdit*)ui->lineEditSenderAddress->lineEdit())->setEmptyIsValid(false);
     m_validTokenAddress = false;

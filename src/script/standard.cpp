@@ -456,3 +456,9 @@ CScript GetScriptForWitness(const CScript& redeemscript)
 bool IsValidDestination(const CTxDestination& dest) {
     return dest.which() != 0;
 }
+
+bool IsValidContractSenderAddress(const CTxDestination &dest)
+{
+    const CKeyID *keyID = boost::get<CKeyID>(&dest);
+    return keyID != 0;
+}

@@ -8,6 +8,7 @@
 #include <base58.h>
 #include <qt/qvalidatedlineedit.h>
 #include <qt/bitcoinaddressvalidator.h>
+#include <script/standard.h>
 #include <QLineEdit>
 #include <QCompleter>
 
@@ -19,7 +20,8 @@ AddressField::AddressField(QWidget *parent) :
     m_addressTableModel(0),
     m_addressColumn(0),
     m_typeRole(Qt::UserRole),
-    m_receive("R")
+    m_receive("R"),
+    m_senderAddress(false)
 
 {
     // Set editable state
@@ -67,7 +69,7 @@ void AddressField::setComboBoxEditable(bool editable)
     if(editable)
     {
         QValidatedLineEdit *validatedLineEdit = (QValidatedLineEdit*)lineEdit();
-        validatedLineEdit->setCheckValidator(new BitcoinAddressCheckValidator(parent()));
+        validatedLineEdit->setCheckValidator(new BitcoinAddressCheckValidator(parent(), m_senderAddress));
         completer()->setCompletionMode(QCompleter::InlineCompletion);
         connect(validatedLineEdit, SIGNAL(editingFinished()), this, SLOT(on_editingFinished()));
     }
@@ -151,6 +153,9 @@ void AddressField::appendAddress(const QString &strAddress)
     CTxDestination address = DecodeDestination(strAddress.toStdString());
     if(!vpwallets.empty())
     {
+        if(m_senderAddress && !IsValidContractSenderAddress(address))
+            return;
+
         CWalletRef pwalletMain = vpwallets[0];
         if(!m_stringList.contains(strAddress) &&
                 IsMine(*pwalletMain, address))
@@ -188,4 +193,9 @@ void AddressField::setAddressTableModel(QAbstractItemModel *addressTableModel)
     connect(m_addressTableModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(on_refresh()));
 
     on_refresh();
+}
+
+void AddressField::setSenderAddress(bool senderAddress)
+{
+    m_senderAddress = senderAddress;
 }

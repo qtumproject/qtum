@@ -133,6 +133,9 @@ typedef boost::variant<CNoDestination, CKeyID, CScriptID, WitnessV0ScriptHash, W
 /** Check whether a CTxDestination is a CNoDestination. */
 bool IsValidDestination(const CTxDestination& dest);
 
+/** Check whether a CTxDestination can be used as contract sender address. */
+bool IsValidContractSenderAddress(const CTxDestination& dest);
+
 /** Get the name of a txnouttype as a C string, or nullptr if unknown. */
 const char* GetTxnOutputType(txnouttype t);
 
