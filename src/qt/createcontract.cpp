@@ -1,22 +1,22 @@
-#include "createcontract.h"
-#include "ui_createcontract.h"
-#include "platformstyle.h"
-#include "walletmodel.h"
-#include "clientmodel.h"
-#include "guiconstants.h"
-#include "rpcconsole.h"
-#include "execrpccommand.h"
-#include "bitcoinunits.h"
-#include "optionsmodel.h"
-#include "validation.h"
-#include "utilmoneystr.h"
-#include "addressfield.h"
-#include "abifunctionfield.h"
-#include "contractabi.h"
-#include "tabbarinfo.h"
-#include "contractresult.h"
-#include "sendcoinsdialog.h"
-#include "styleSheet.h"
+#include <qt/createcontract.h>
+#include <qt/forms/ui_createcontract.h>
+#include <qt/platformstyle.h>
+#include <qt/walletmodel.h>
+#include <qt/clientmodel.h>
+#include <qt/guiconstants.h>
+#include <qt/rpcconsole.h>
+#include <qt/execrpccommand.h>
+#include <qt/bitcoinunits.h>
+#include <qt/optionsmodel.h>
+#include <validation.h>
+#include <utilmoneystr.h>
+#include <qt/addressfield.h>
+#include <qt/abifunctionfield.h>
+#include <qt/contractabi.h>
+#include <qt/tabbarinfo.h>
+#include <qt/contractresult.h>
+#include <qt/sendcoinsdialog.h>
+#include <qt/styleSheet.h>
 
 #include <QRegularExpressionValidator>
 
@@ -68,6 +68,7 @@ CreateContract::CreateContract(const PlatformStyle *platformStyle, QWidget *pare
     ui->lineEditGasLimit->setMaximum(DEFAULT_GAS_LIMIT_OP_CREATE);
     ui->lineEditGasLimit->setValue(DEFAULT_GAS_LIMIT_OP_CREATE);
     ui->pushButtonCreateContract->setEnabled(false);
+    ui->lineEditSenderAddress->setSenderAddress(true);
 
     // Create new PRC command line interface
     QStringList lstMandatory;

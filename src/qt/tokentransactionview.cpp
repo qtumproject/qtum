@@ -1,15 +1,15 @@
-#include "tokentransactionview.h"
+#include <qt/tokentransactionview.h>
 
-#include "walletmodel.h"
-#include "platformstyle.h"
-#include "tokentransactiontablemodel.h"
-#include "tokentransactionrecord.h"
-#include "tokenfilterproxy.h"
-#include "guiutil.h"
-#include "optionsmodel.h"
-#include "tokenitemmodel.h"
-#include "tokendescdialog.h"
-#include "styleSheet.h"
+#include <qt/walletmodel.h>
+#include <qt/platformstyle.h>
+#include <qt/tokentransactiontablemodel.h>
+#include <qt/tokentransactionrecord.h>
+#include <qt/tokenfilterproxy.h>
+#include <qt/guiutil.h>
+#include <qt/optionsmodel.h>
+#include <qt/tokenitemmodel.h>
+#include <qt/tokendescdialog.h>
+#include <qt/styleSheet.h>
 
 #include <QComboBox>
 #include <QDateTimeEdit>

@@ -1,7 +1,7 @@
 #ifndef QTUM_QT_TOKENTOKENTRANSACTIONTABLEMODEL_H
 #define QTUM_QT_TOKENTOKENTRANSACTIONTABLEMODEL_H
 
-#include "bitcoinunits.h"
+#include <qt/bitcoinunits.h>
 
 #include <QAbstractTableModel>
 #include <QStringList>

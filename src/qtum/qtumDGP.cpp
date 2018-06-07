@@ -1,4 +1,4 @@
-#include "qtumDGP.h"
+#include <qtum/qtumDGP.h>
 
 void QtumDGP::initDataEIP158(){
     std::vector<uint32_t> tempData = {dev::eth::EIP158Schedule.tierStepGas[0], dev::eth::EIP158Schedule.tierStepGas[1], dev::eth::EIP158Schedule.tierStepGas[2],

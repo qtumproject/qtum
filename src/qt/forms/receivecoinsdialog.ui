@@ -199,27 +199,10 @@
           </property>
          </widget>
         </item>
-        <item row="7" column="2">
-         <widget class="QCheckBox" name="reuseAddress">
-          <property name="toolTip">
-           <string>Reuse one of the previously used receiving addresses. Reusing addresses has security and privacy issues. Do not use this unless re-generating a payment request made before.</string>
-          </property>
-          <property name="text">
-           <string>R&amp;euse an existing receiving address (not recommended)</string>
-          </property>
-         </widget>
-        </item>
         <item row="4" column="2">
          <widget class="QLineEdit" name="reqLabel">
           <property name="toolTip">
            <string>An optional label to associate with the new receiving address.</string>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="0">
-         <widget class="QLabel" name="label_4">
-          <property name="text">
-           <string/>
           </property>
          </widget>
         </item>
@@ -244,19 +227,57 @@
          </widget>
         </item>
         <item row="5" column="2">
-         <widget class="BitcoinAmountField" name="reqAmount">
-          <property name="minimumSize">
-           <size>
-            <width>80</width>
-            <height>0</height>
-           </size>
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <property name="spacing">
+           <number>10</number>
           </property>
-          <property name="toolTip">
-           <string>An optional amount to request. Leave this empty or zero to not request a specific amount.</string>
-          </property>
-         </widget>
+          <item>
+           <widget class="BitcoinAmountField" name="reqAmount">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>80</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>An optional amount to request. Leave this empty or zero to not request a specific amount.</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="useBech32">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>1000</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::StrongFocus</enum>
+            </property>
+            <property name="toolTip">
+             <string>Bech32 addresses (BIP-173) are cheaper to spend from and offer better protection against typos. When unchecked a P2SH wrapped SegWit address will be created, compatible with older wallets.</string>
+            </property>
+            <property name="text">
+             <string>Generate Bech32 address</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
-        <item row="8" column="0" colspan="3">
+        <item row="7" column="0" colspan="3">
          <spacer name="verticalSpacer">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -465,13 +486,13 @@
   <customwidget>
    <class>BitcoinAmountField</class>
    <extends>QLineEdit</extends>
-   <header>bitcoinamountfield.h</header>
+   <header>qt/bitcoinamountfield.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>QRImageWidget</class>
    <extends>QLabel</extends>
-   <header>receiverequestdialog.h</header>
+   <header>qt/receiverequestdialog.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

@@ -1,11 +1,11 @@
-#include "titlebar.h"
-#include "ui_titlebar.h"
-#include "bitcoinunits.h"
-#include "optionsmodel.h"
-#include "tabbarinfo.h"
+#include <qt/titlebar.h>
+#include <qt/forms/ui_titlebar.h>
+#include <qt/bitcoinunits.h>
+#include <qt/optionsmodel.h>
+#include <qt/tabbarinfo.h>
 
 #include <QPixmap>
-#include "platformstyle.h"
+#include <qt/platformstyle.h>
 
 namespace TitleBar_NS {
 const int titleHeight = 35;

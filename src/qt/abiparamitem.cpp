@@ -1,6 +1,6 @@
-#include "abiparamitem.h"
-#include "contractabi.h"
-#include "platformstyle.h"
+#include <qt/abiparamitem.h>
+#include <qt/contractabi.h>
+#include <qt/platformstyle.h>
 
 #include <QHBoxLayout>
 #include <QRegularExpressionValidator>

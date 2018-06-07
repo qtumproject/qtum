@@ -1,8 +1,8 @@
-#include "abiparamsfield.h"
-#include "abiparam.h"
-#include "platformstyle.h"
+#include <qt/abiparamsfield.h>
+#include <qt/abiparam.h>
+#include <qt/platformstyle.h>
 
-#include "QStringList"
+#include <QStringList>
 
 ABIParamsField::ABIParamsField(const PlatformStyle *platformStyle, QWidget *parent) :
     QWidget(parent),

@@ -1,17 +1,15 @@
-// Copyright (c) 2015-2016 The Bitcoin Core developers
+// Copyright (c) 2015-2017 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "platformstyle.h"
+#include <qt/platformstyle.h>
 
-#include "guiconstants.h"
+#include <qt/guiconstants.h>
 
 #include <QApplication>
 #include <QColor>
-#include <QIcon>
 #include <QImage>
 #include <QPalette>
-#include <QPixmap>
 
 static const struct {
     const char *platformId;
@@ -47,7 +45,6 @@ void MakeSingleColorImage(QImage& img, const QColor& colorbase, double opacity =
         }
     }
 }
-
 QPixmap MakeSingleColorPixmap(QImage& img, const QColor& colorbase, double opacity = 1)
 {
     MakeSingleColorImage(img, colorbase, opacity);
@@ -57,8 +54,7 @@ QPixmap MakeSingleColorPixmap(QImage& img, const QColor& colorbase, double opaci
 QIcon ColorizeIcon(const QIcon& ico, const QColor& colorbase, double opacity = 1)
 {
     QIcon new_ico;
-    QSize sz;
-    Q_FOREACH(sz, ico.availableSizes())
+    for (const QSize sz : ico.availableSizes())
     {
         QImage img(ico.pixmap(sz).toImage());
         MakeSingleColorImage(img, colorbase, opacity);

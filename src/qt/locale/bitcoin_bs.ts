@@ -32,6 +32,10 @@
     </context>
 <context>
     <name>Intro</name>
+    <message>
+        <source>Qtum</source>
+        <translation>Qtum</translation>
+    </message>
     </context>
 <context>
     <name>ModalOverlay</name>

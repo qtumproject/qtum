@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2014-2016 The Bitcoin Core developers
+# Copyright (c) 2014-2017 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test mempool re-org scenarios.
@@ -57,7 +57,8 @@ class MempoolCoinbaseTest(BitcoinTestFramework):
         timelock_tx = timelock_tx.replace("ffffffff", "11111191", 1)
         timelock_tx = timelock_tx[:-8] + hex(self.nodes[0].getblockcount() + 2)[3:] + "0" + hex(self.nodes[0].getblockcount() + 2)[2:3] + "0000"
         timelock_tx = self.nodes[0].signrawtransaction(timelock_tx)["hex"]
-        assert_raises_rpc_error(-26,'non-final', self.nodes[0].sendrawtransaction, timelock_tx)
+        # This will raise an exception because the timelock transaction is too immature to spend
+        assert_raises_rpc_error(-26, "non-final", self.nodes[0].sendrawtransaction, timelock_tx)
 
         # Broadcast and mine spend_102 and 103:
         spend_102_id = self.nodes[0].sendrawtransaction(spend_102_raw)

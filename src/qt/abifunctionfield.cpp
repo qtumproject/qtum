@@ -1,7 +1,7 @@
-#include "abifunctionfield.h"
-#include "abiparamsfield.h"
-#include "contractabi.h"
-#include "platformstyle.h"
+#include <qt/abifunctionfield.h>
+#include <qt/abiparamsfield.h>
+#include <qt/contractabi.h>
+#include <qt/platformstyle.h>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>

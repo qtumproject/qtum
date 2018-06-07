@@ -1,15 +1,15 @@
-// Copyright (c) 2014-2016 The Bitcoin Core developers
+// Copyright (c) 2014-2017 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "coins.h"
-#include "script/standard.h"
-#include "uint256.h"
-#include "undo.h"
-#include "utilstrencodings.h"
-#include "test/test_bitcoin.h"
-#include "validation.h"
-#include "consensus/validation.h"
+#include <coins.h>
+#include <script/standard.h>
+#include <uint256.h>
+#include <undo.h>
+#include <utilstrencodings.h>
+#include <test/test_bitcoin.h>
+#include <validation.h>
+#include <consensus/validation.h>
 
 #include <vector>
 #include <map>
@@ -74,23 +74,23 @@ public:
 class CCoinsViewCacheTest : public CCoinsViewCache
 {
 public:
-    CCoinsViewCacheTest(CCoinsView* _base) : CCoinsViewCache(_base) {}
+    explicit CCoinsViewCacheTest(CCoinsView* _base) : CCoinsViewCache(_base) {}
 
     void SelfTest() const
     {
         // Manually recompute the dynamic usage of the whole data, and compare it.
         size_t ret = memusage::DynamicUsage(cacheCoins);
         size_t count = 0;
-        for (CCoinsMap::iterator it = cacheCoins.begin(); it != cacheCoins.end(); it++) {
-            ret += it->second.coin.DynamicMemoryUsage();
+        for (const auto& entry : cacheCoins) {
+            ret += entry.second.coin.DynamicMemoryUsage();
             ++count;
         }
         BOOST_CHECK_EQUAL(GetCacheSize(), count);
         BOOST_CHECK_EQUAL(DynamicMemoryUsage(), ret);
     }
 
-    CCoinsMap& map() { return cacheCoins; }
-    size_t& usage() { return cachedCoinsUsage; }
+    CCoinsMap& map() const { return cacheCoins; }
+    size_t& usage() const { return cachedCoinsUsage; }
 };
 
 } // namespace
@@ -189,15 +189,15 @@ BOOST_AUTO_TEST_CASE(coins_cache_simulation_test)
 
         // Once every 1000 iterations and at the end, verify the full cache.
         if (InsecureRandRange(1000) == 1 || i == NUM_SIMULATION_ITERATIONS - 1) {
-            for (auto it = result.begin(); it != result.end(); it++) {
-                bool have = stack.back()->HaveCoin(it->first);
-                const Coin& coin = stack.back()->AccessCoin(it->first);
+            for (const auto& entry : result) {
+                bool have = stack.back()->HaveCoin(entry.first);
+                const Coin& coin = stack.back()->AccessCoin(entry.first);
                 BOOST_CHECK(have == !coin.IsSpent());
-                BOOST_CHECK(coin == it->second);
+                BOOST_CHECK(coin == entry.second);
                 if (coin.IsSpent()) {
                     missed_an_entry = true;
                 } else {
-                    BOOST_CHECK(stack.back()->HaveCoinInCache(it->first));
+                    BOOST_CHECK(stack.back()->HaveCoinInCache(entry.first));
                     found_an_entry = true;
                 }
             }
@@ -275,7 +275,7 @@ UtxoData::iterator FindRandomFrom(const std::set<COutPoint> &utxoSet) {
 // except the emphasis is on testing the functionality of UpdateCoins
 // random txs are created and UpdateCoins is used to update the cache stack
 // In particular it is tested that spending a duplicate coinbase tx
-// has the expected effect (the other duplicate is overwitten at all cache levels)
+// has the expected effect (the other duplicate is overwritten at all cache levels)
 BOOST_AUTO_TEST_CASE(updatecoins_simulation_test)
 {
     bool spent_a_duplicate_coinbase = false;
@@ -420,11 +420,11 @@ BOOST_AUTO_TEST_CASE(updatecoins_simulation_test)
 
         // Once every 1000 iterations and at the end, verify the full cache.
         if (InsecureRandRange(1000) == 1 || i == NUM_SIMULATION_ITERATIONS - 1) {
-            for (auto it = result.begin(); it != result.end(); it++) {
-                bool have = stack.back()->HaveCoin(it->first);
-                const Coin& coin = stack.back()->AccessCoin(it->first);
+            for (const auto& entry : result) {
+                bool have = stack.back()->HaveCoin(entry.first);
+                const Coin& coin = stack.back()->AccessCoin(entry.first);
                 BOOST_CHECK(have == !coin.IsSpent());
-                BOOST_CHECK(coin == it->second);
+                BOOST_CHECK(coin == entry.second);
             }
         }
 

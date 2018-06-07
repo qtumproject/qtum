@@ -1,20 +1,20 @@
-#include "sendtokenpage.h"
-#include "ui_sendtokenpage.h"
+#include <qt/sendtokenpage.h>
+#include <qt/forms/ui_sendtokenpage.h>
 
-#include "walletmodel.h"
-#include "clientmodel.h"
-#include "optionsmodel.h"
-#include "validation.h"
-#include "utilmoneystr.h"
-#include "token.h"
-#include "bitcoinunits.h"
-#include "wallet/wallet.h"
-#include "validation.h"
-#include "guiutil.h"
-#include "sendcoinsdialog.h"
-#include "bitcoinaddressvalidator.h"
-#include "uint256.h"
-#include "styleSheet.h"
+#include <qt/walletmodel.h>
+#include <qt/clientmodel.h>
+#include <qt/optionsmodel.h>
+#include <validation.h>
+#include <utilmoneystr.h>
+#include <qt/token.h>
+#include <qt/bitcoinunits.h>
+#include <wallet/wallet.h>
+#include <validation.h>
+#include <qt/guiutil.h>
+#include <qt/sendcoinsdialog.h>
+#include <qt/bitcoinaddressvalidator.h>
+#include <uint256.h>
+#include <qt/styleSheet.h>
 
 static const CAmount SINGLE_STEP = 0.00000001*COIN;
 
@@ -61,7 +61,7 @@ SendTokenPage::SendTokenPage(QWidget *parent) :
     connect(ui->lineEditAmount, SIGNAL(valueChanged()), SLOT(on_updateConfirmButton()));
     connect(ui->confirmButton, SIGNAL(clicked()), SLOT(on_confirmClicked()));
 
-    ui->lineEditPayTo->setCheckValidator(new BitcoinAddressCheckValidator(parent, false));
+    ui->lineEditPayTo->setCheckValidator(new BitcoinAddressCheckValidator(parent, true));
 }
 
 SendTokenPage::~SendTokenPage()
@@ -208,7 +208,7 @@ void SendTokenPage::on_confirmClicked()
     else
     {
         QString message = tr("To send %1 you need QTUM on address <br /> %2.")
-                .arg(QString::fromStdString(m_selectedToken->symbol)).arg(QString::fromStdString(CBitcoinAddress(m_selectedToken->sender).ToString()));
+                .arg(QString::fromStdString(m_selectedToken->symbol)).arg(QString::fromStdString(m_selectedToken->sender));
 
         QMessageBox::warning(this, tr("Send token"), message);
     }

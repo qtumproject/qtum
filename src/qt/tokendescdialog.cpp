@@ -1,8 +1,8 @@
-#include "tokendescdialog.h"
-#include "ui_tokendescdialog.h"
+#include <qt/tokendescdialog.h>
+#include <qt/forms/ui_tokendescdialog.h>
 
-#include "tokenfilterproxy.h"
-#include "styleSheet.h"
+#include <qt/tokenfilterproxy.h>
+#include <qt/styleSheet.h>
 
 #include <QModelIndex>
 

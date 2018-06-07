@@ -1,18 +1,18 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2016 The Bitcoin Core developers
+// Copyright (c) 2009-2017 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 // NOTE: This file is intended to be customised by the end user, and includes only local node policy logic
 
-#include "policy/policy.h"
+#include <policy/policy.h>
 
-#include "consensus/validation.h"
-#include "validation.h"
-#include "coins.h"
-#include "tinyformat.h"
-#include "util.h"
-#include "utilstrencodings.h"
+#include <consensus/validation.h>
+#include <validation.h>
+#include <coins.h>
+#include <tinyformat.h>
+#include <util.h>
+#include <utilstrencodings.h>
 
 
 CAmount GetDustThreshold(const CTxOut& txout, const CFeeRate& dustRelayFeeIn)
@@ -54,23 +54,6 @@ bool IsDust(const CTxOut& txout, const CFeeRate& dustRelayFeeIn)
     return (txout.nValue < GetDustThreshold(txout, dustRelayFeeIn) && !txout.scriptPubKey.HasOpCreate() && !txout.scriptPubKey.HasOpCall());
 }
 
-    /**
-     * Check transaction inputs to mitigate two
-     * potential denial-of-service attacks:
-     * 
-     * 1. scriptSigs with extra data stuffed into them,
-     *    not consumed by scriptPubKey (or P2SH script)
-     * 2. P2SH scripts with a crazy number of expensive
-     *    CHECKSIG/CHECKMULTISIG operations
-     *
-     * Why bother? To avoid denial-of-service attacks; an attacker
-     * can submit a standard HASH... OP_EQUAL transaction,
-     * which will get accepted into blocks. The redemption
-     * script can be anything; an attacker could use a very
-     * expensive-to-check-upon-redemption script like:
-     *   DUP CHECKSIG DROP ... repeated 100 times... OP_1
-     */
-
 bool IsStandard(const CScript& scriptPubKey, txnouttype& whichType, const bool witnessEnabled)
 {
     std::vector<std::vector<unsigned char> > vSolutions;
@@ -93,7 +76,7 @@ bool IsStandard(const CScript& scriptPubKey, txnouttype& whichType, const bool w
     else if (!witnessEnabled && (whichType == TX_WITNESS_V0_KEYHASH || whichType == TX_WITNESS_V0_SCRIPTHASH))
         return false;
 
-    return whichType != TX_NONSTANDARD;
+    return whichType != TX_NONSTANDARD && whichType != TX_WITNESS_UNKNOWN;
 }
 
 bool IsStandardTx(const CTransaction& tx, std::string& reason, const bool witnessEnabled)
@@ -160,6 +143,22 @@ bool IsStandardTx(const CTransaction& tx, std::string& reason, const bool witnes
     return true;
 }
 
+/**
+ * Check transaction inputs to mitigate two
+ * potential denial-of-service attacks:
+ *
+ * 1. scriptSigs with extra data stuffed into them,
+ *    not consumed by scriptPubKey (or P2SH script)
+ * 2. P2SH scripts with a crazy number of expensive
+ *    CHECKSIG/CHECKMULTISIG operations
+ *
+ * Why bother? To avoid denial-of-service attacks; an attacker
+ * can submit a standard HASH... OP_EQUAL transaction,
+ * which will get accepted into blocks. The redemption
+ * script can be anything; an attacker could use a very
+ * expensive-to-check-upon-redemption script like:
+ *   DUP CHECKSIG DROP ... repeated 100 times... OP_1
+ */
 bool AreInputsStandard(const CTransaction& tx, const CCoinsViewCache& mapInputs)
 {
     if (tx.IsCoinBase())

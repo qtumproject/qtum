@@ -1,33 +1,32 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2016 The Bitcoin Core developers
+// Copyright (c) 2009-2017 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "miner.h"
+#include <miner.h>
 
-#include "amount.h"
-#include "chain.h"
-#include "chainparams.h"
-#include "coins.h"
-#include "consensus/consensus.h"
-#include "consensus/tx_verify.h"
-#include "consensus/merkle.h"
-#include "consensus/validation.h"
-#include "hash.h"
-#include "validation.h"
-#include "net.h"
-#include "policy/feerate.h"
-#include "policy/policy.h"
-#include "pow.h"
-#include "pos.h"
-#include "primitives/transaction.h"
-#include "script/standard.h"
-#include "timedata.h"
-#include "txmempool.h"
-#include "util.h"
-#include "utilmoneystr.h"
-#include "validationinterface.h"
-#include "wallet/wallet.h"
+#include <amount.h>
+#include <chain.h>
+#include <chainparams.h>
+#include <coins.h>
+#include <consensus/consensus.h>
+#include <consensus/tx_verify.h>
+#include <consensus/merkle.h>
+#include <consensus/validation.h>
+#include <hash.h>
+#include <validation.h>
+#include <net.h>
+#include <policy/feerate.h>
+#include <policy/policy.h>
+#include <pow.h>
+#include <pos.h>
+#include <primitives/transaction.h>
+#include <script/standard.h>
+#include <timedata.h>
+#include <util.h>
+#include <utilmoneystr.h>
+#include <validationinterface.h>
+#include <wallet/wallet.h>
 
 #include <algorithm>
 #include <queue>
@@ -152,6 +151,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
 
     LOCK2(cs_main, mempool.cs);
     CBlockIndex* pindexPrev = chainActive.Tip();
+    assert(pindexPrev != nullptr);
     nHeight = pindexPrev->nHeight + 1;
 
     pblock->nVersion = ComputeBlockVersion(pindexPrev, chainparams.GetConsensus());
@@ -301,6 +301,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateEmptyBlock(const CScript& 
 
     LOCK2(cs_main, mempool.cs);
     CBlockIndex* pindexPrev = chainActive.Tip();
+    assert(pindexPrev != nullptr);
     nHeight = pindexPrev->nHeight + 1;
 
     pblock->nVersion = ComputeBlockVersion(pindexPrev, chainparams.GetConsensus());
@@ -408,7 +409,7 @@ void BlockAssembler::onlyUnconfirmed(CTxMemPool::setEntries& testSet)
     }
 }
 
-bool BlockAssembler::TestPackage(uint64_t packageSize, int64_t packageSigOpsCost)
+bool BlockAssembler::TestPackage(uint64_t packageSize, int64_t packageSigOpsCost) const
 {
     // TODO: switch to weight-based accounting for packages instead of vsize-based accounting.
     if (nBlockWeight + WITNESS_SCALE_FACTOR * packageSize >= nBlockMaxWeight)
@@ -697,7 +698,7 @@ void BlockAssembler::addPackageTxs(int &nPackagesSelected, int &nDescendantsUpda
             // Try to compare the mapTx entry to the mapModifiedTx entry
             iter = mempool.mapTx.project<0>(mi);
             if (modit != mapModifiedTx.get<ancestor_score_or_gas_price>().end() &&
-                    CompareModifiedEntry()(*modit, CTxMemPoolModifiedEntry(iter))) {
+                    CompareTxMemPoolEntryByAncestorFee()(*modit, CTxMemPoolModifiedEntry(iter))) {
                 // The best entry in mapModifiedTx has higher score
                 // than the one from mapTx.
                 // Switch which transaction (package) to consider
@@ -771,7 +772,7 @@ void BlockAssembler::addPackageTxs(int &nPackagesSelected, int &nDescendantsUpda
         std::vector<CTxMemPool::txiter> sortedEntries;
         SortForBlock(ancestors, iter, sortedEntries);
 
-        bool wasAdded=true; // QTUM_INSERT_LINE
+        bool wasAdded=true;
         for (size_t i=0; i<sortedEntries.size(); ++i) {
             if(!wasAdded || (nTimeLimit != 0 && GetAdjustedTime() >= nTimeLimit))
             {
@@ -868,12 +869,12 @@ bool CheckStake(const std::shared_ptr<const CBlock> pblock, CWallet& wallet)
                 return error("CheckStake() : generated block became invalid due to stake UTXO being spent");
             }
         }
-
-        // Process this block the same as if we had received it from another node
-        bool fNewBlock = false;
-        if (!ProcessNewBlock(Params(), pblock, true, &fNewBlock))
-            return error("CheckStake() : ProcessBlock, block not accepted");
     }
+
+    // Process this block the same as if we had received it from another node
+    bool fNewBlock = false;
+    if (!ProcessNewBlock(Params(), pblock, true, &fNewBlock))
+        return error("CheckStake() : ProcessBlock, block not accepted");
 
     return true;
 }
