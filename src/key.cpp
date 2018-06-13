@@ -17,8 +17,20 @@
 #include <openssl/ecdsa.h>
 #include <openssl/rand.h>
 #include <openssl/obj_mac.h>
+#include <openssl/opensslv.h>
 
 static secp256k1_context* secp256k1_context_sign = nullptr;
+
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+// Compatibility Layer for older versions of Open SSL
+void ECDSA_SIG_get0(const ECDSA_SIG *sig, const BIGNUM **pr, const BIGNUM **ps)
+ {
+    if (pr != NULL)
+        *pr = sig->r;
+    if (ps != NULL)
+        *ps = sig->s;
+ }
+#endif
 
 /** These functions are taken from the libsecp256k1 distribution and are very ugly. */
 static int ec_privkey_import_der(const secp256k1_context* ctx, unsigned char *out32, const unsigned char *privkey, size_t privkeylen) {
@@ -146,9 +158,11 @@ bool EnsureLowS(std::vector<unsigned char>& vchSig) {
     BIGNUM *order = BN_bin2bn(vchOrder, sizeof(vchOrder), NULL);
     BIGNUM *halforder = BN_bin2bn(vchHalfOrder, sizeof(vchHalfOrder), NULL);
 
-    if (BN_cmp(sig->s, halforder) > 0) {
+    BIGNUM *s = 0;
+    ECDSA_SIG_get0(sig, 0, (const BIGNUM **)&s);
+    if (BN_cmp(s, halforder) > 0) {
         // enforce low S values, by negating the value (modulo the order) if above order/2.
-        BN_sub(sig->s, order, sig->s);
+        BN_sub(s, order, s);
     }
 
     BN_free(halforder);
