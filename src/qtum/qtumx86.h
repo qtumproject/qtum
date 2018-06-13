@@ -43,7 +43,10 @@ enum QtumSystemCall{
     BlockDifficulty = 3,
     BlockHeight = 4,
     GetBlockHash = 5,
-    IsCreate = 6
+    IsCreate = 6,
+
+
+    SelfAddress = 7
 };
 
 enum QtumEndpoint{

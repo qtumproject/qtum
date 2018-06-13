@@ -193,6 +193,12 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
         case QtumSystemCall::IsCreate:
             status = output.OpCreate ? 1 : 0;
             break;
+        case QtumSystemCall::SelfAddress:
+        {
+			UniversalAddressABI selfAddr = output.address.toAbi();
+            vm.WriteMemory(vm.Reg32(EBX), sizeof(selfAddr), &selfAddr);
+        }
+            break;
         case 0xFFFF0001:
             //internal debug printf
             //Remove before production!
