@@ -319,8 +319,8 @@ def run_tests(test_list, src_dir, build_dir, exeext, tmpdir, jobs=1, enable_cove
 
     #Set env vars
     if "BITCOIND" not in os.environ:
-        os.environ["BITCOIND"] = build_dir + '/src/bitcoind' + exeext
-        os.environ["BITCOINCLI"] = build_dir + '/src/bitcoin-cli' + exeext
+        os.environ["BITCOIND"] = build_dir + '/src/qtumd' + exeext
+        os.environ["BITCOINCLI"] = build_dir + '/src/qtum-cli' + exeext
 
     tests_dir = src_dir + '/test/functional/'
 
