@@ -46,7 +46,9 @@ enum QtumSystemCall{
     IsCreate = 6,
 
 
-    SelfAddress = 7
+    SelfAddress = 7,
+    ReadStorage = 8,
+    WriteStorage = 9
 };
 
 enum QtumEndpoint{
