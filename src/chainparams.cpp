@@ -136,6 +136,9 @@ public:
 
         // Note that of those with the service bits flag, most only support a subset of possible options
         vSeeds.emplace_back("qtum3.dynu.net", false); // Qtum mainnet
+        vSeeds.emplace_back("qtum5.dynu.net", false); // Qtum mainnet
+        vSeeds.emplace_back("qtum6.dynu.net", false); // Qtum mainnet
+        vSeeds.emplace_back("qtum7.dynu.net", false); // Qtum mainnet
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,58);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,50);
