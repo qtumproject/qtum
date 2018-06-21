@@ -860,7 +860,7 @@
     </message>
     <message>
         <source>Qtum</source>
-        <translation>比特币</translation>
+        <translation>QTUM</translation>
     </message>
     <message>
         <source>At least %1 GB of data will be stored in this directory, and it will grow over time.</source>
@@ -872,7 +872,7 @@
     </message>
     <message>
         <source>%1 will download and store a copy of the Qtum block chain.</source>
-        <translation>%1 将会下载并存储比特币区块链。</translation>
+        <translation>%1 将会下载并存储QTUM区块链。</translation>
     </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>

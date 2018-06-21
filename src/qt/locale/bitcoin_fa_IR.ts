@@ -598,7 +598,7 @@
     </message>
     <message>
         <source>Qtum</source>
-        <translation>بیت کوین</translation>
+        <translation>كونتم</translation>
     </message>
     <message>
         <source>Error</source>
