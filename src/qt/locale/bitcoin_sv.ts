@@ -2215,7 +2215,7 @@ Var vänlig och försök igen.</translation>
     </message>
     <message>
         <source>Warning: Invalid Qtum address</source>
-        <translation>Varning: Felaktig Qtumadress</translation>
+        <translation>Varning: Felaktig Qtum adress</translation>
     </message>
     <message>
         <source>Warning: Unknown change address</source>

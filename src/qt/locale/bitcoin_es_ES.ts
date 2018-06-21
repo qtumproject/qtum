@@ -1793,7 +1793,7 @@
     </message>
     <message>
         <source>Copy URI</source>
-        <translation>Copiar URL</translation>
+        <translation>Copiar URI</translation>
     </message>
     <message>
         <source>Copy label</source>

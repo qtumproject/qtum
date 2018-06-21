@@ -141,6 +141,9 @@ public:
         // service bits we want, but we should get them updated to support all service bits wanted by any
         // release ASAP to avoid it where possible.
         vSeeds.emplace_back("qtum3.dynu.net", false); // Qtum mainnet
+        vSeeds.emplace_back("qtum5.dynu.net", false); // Qtum mainnet
+        vSeeds.emplace_back("qtum6.dynu.net", false); // Qtum mainnet
+        vSeeds.emplace_back("qtum7.dynu.net", false); // Qtum mainnet
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,58);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,50);
