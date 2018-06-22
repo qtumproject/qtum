@@ -195,8 +195,37 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
             break;
         case QtumSystemCall::SelfAddress:
         {
-			UniversalAddressABI selfAddr = output.address.toAbi();
+            UniversalAddressABI selfAddr = output.address.toAbi();
             vm.WriteMemory(vm.Reg32(EBX), sizeof(selfAddr), &selfAddr);
+        }
+            break;
+        case QtumSystemCall::ReadStorage:
+        {
+            unsigned char *k = new unsigned char[vm.Reg32(ECX)];
+            vm.ReadMemory(vm.Reg32(EBX), vm.Reg32(ECX), k);
+            valtype key(k,k+vm.Reg32(ECX));
+            valtype value;
+            bool ret;
+			ret = pdeltaDB->readState(output.address, key, value);
+            status = 0;
+            if(ret==true){
+                status = (value.size() <= vm.Reg32(ESI))? value.size() : vm.Reg32(ESI);					
+                vm.WriteMemory(vm.Reg32(EDX), status, value.data());
+            }
+            delete []k;
+       }
+            break;
+        case QtumSystemCall::WriteStorage:
+        {
+            unsigned char *k = new unsigned char[vm.Reg32(ECX)];
+            unsigned char *v = new unsigned char[vm.Reg32(ESI)];
+            vm.ReadMemory(vm.Reg32(EBX), vm.Reg32(ECX), k);
+            vm.ReadMemory(vm.Reg32(EDX), vm.Reg32(ESI), v);
+            valtype key(k,k+vm.Reg32(ECX));
+            valtype value(v,v+vm.Reg32(ESI));
+            pdeltaDB->writeState(output.address, key, value);
+            delete []k;
+            delete []v;
         }
             break;
         case 0xFFFF0001:

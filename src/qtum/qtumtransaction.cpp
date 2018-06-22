@@ -13,6 +13,7 @@
 #include <streams.h>
 #include <serialize.h>
 #include <uint256.h>
+#include <string>
 
 
 bool ContractOutputParser::parseOutput(ContractOutput& output){
@@ -323,7 +324,7 @@ QtumTransaction EVMContractVM::buildQtumTx(const ContractOutput &output)
 }
 
 static const uint8_t byteCodePre[]={'b','y','t','e','c','o','d','e','_'};
-static const uint8_t dataPre[]={'d','a','t','a','_'};
+static const uint8_t dataPre[]={'_','d','a','t','a','_'};
 static const uint8_t updatePre[]={'u','p','d','a','t','e','d','_'};
 static const uint8_t keysPre[]={'k','e','y','s','_'};
 static const uint8_t iteratorPre[]={'i','t','e','r','t', 'o', 'r','_'};
@@ -331,40 +332,61 @@ static const uint8_t infoPre[]={'i','n','f','o','_'};
 static const uint8_t oldPre[]={'o','l','d','_'};
 
 /* Bytecode of contract: KEY is derived from %bytecode%_%address% */
-bool DeltaDB:: writeByteCode(UniversalAddress address, valtype byteCode){
-	std::vector<uint8_t> K(byteCodePre, byteCodePre + sizeof(byteCodePre)/sizeof(uint8_t));
+bool DeltaDB:: writeByteCode(UniversalAddress address,valtype byteCode){
+	std::vector<uint8_t> K;
+	std::vector<uint8_t> V;
 	K.insert(K.end(), address.version);
-	K.insert(K.end(), address.data.begin(), address.data.end());
+	K.insert(K.end(), address.data.begin(), address.data.end());	
+	K.insert(K.end(), dataPre, dataPre + sizeof(dataPre)/sizeof(uint8_t));
+	K.insert(K.end(), 'c');	
 	return Write(K, byteCode);
 }
 
-bool DeltaDB:: readByteCode(UniversalAddress address, valtype& byteCode){
-    std::vector<uint8_t> K(byteCodePre, byteCodePre + sizeof(byteCodePre)/sizeof(uint8_t));	
+bool DeltaDB:: readByteCode(UniversalAddress address,valtype& byteCode){
+	std::vector<uint8_t> K;
+	std::vector<uint8_t> V;
 	K.insert(K.end(), address.version);
-    K.insert(K.end(), address.data.begin(), address.data.end());
+	K.insert(K.end(), address.data.begin(), address.data.end());	
+	K.insert(K.end(), dataPre, dataPre + sizeof(dataPre)/sizeof(uint8_t));
+	K.insert(K.end(), 'c');	
     return Read(K, byteCode);   
 }
 
-/* Live data of contract state: KEY is derived from %address%_data_%key% */
 bool DeltaDB:: writeState(UniversalAddress address, valtype key, valtype value){
 	std::vector<uint8_t> K;
+    std::vector<unsigned char> keyHash(32);
+
 	K.insert(K.end(), address.version);
 	K.insert(K.end(), address.data.begin(), address.data.end());	
-	K.insert(K.end(), '_');
 	K.insert(K.end(), dataPre, dataPre + sizeof(dataPre)/sizeof(uint8_t));
-	K.insert(K.end(), key.begin(),key.end());	
+	if(key.size() > 31){
+		CSHA256().Write(key.data(), key.size()).Finalize(keyHash.data());
+		K.insert(K.end(), keyHash.begin(),keyHash.end());	
+	}else{
+		K.insert(K.end(), '_'); 
+		K.insert(K.end(), key.begin(),key.end());	
+	}
 	return Write(K, value);
 }
 
 bool DeltaDB:: readState(UniversalAddress address, valtype key, valtype& value){
 	std::vector<uint8_t> K;
+    std::vector<unsigned char> keyHash(32);
+
 	K.insert(K.end(), address.version);
 	K.insert(K.end(), address.data.begin(), address.data.end());	
-	K.insert(K.end(), '_');
 	K.insert(K.end(), dataPre, dataPre + sizeof(dataPre)/sizeof(uint8_t));
-	K.insert(K.end(), key.begin(),key.end());	
-	return Read(K, value);
+	if(key.size() > 31){
+		CSHA256().Write(key.data(), key.size()).Finalize(keyHash.data());
+		K.insert(K.end(), keyHash.begin(),keyHash.end());	
+	}else{
+		K.insert(K.end(), '_'); 
+		K.insert(K.end(), key.begin(),key.end());	
+	}
+    return Read(K, value);
 }
+
+
 
 /* Live data of contract updated:  %address%_updated_%key%_ */
 bool DeltaDB:: writeUpdatedKey(UniversalAddress address, valtype key, unsigned int blk_num, uint256 blk_hash){
@@ -451,7 +473,6 @@ bool DeltaDB:: writeStateWithIterator(UniversalAddress address,		 valtype key, u
 	dsKey<<iterator;
 	K.insert(K.end(), address.version);
 	K.insert(K.end(), address.data.begin(), address.data.end());	
-	K.insert(K.end(), '_');
 	K.insert(K.end(), dataPre, dataPre + sizeof(dataPre)/sizeof(uint8_t));
 	K.insert(K.end(), key.begin(),key.end());
 	K.insert(K.end(), dsKey.begin(),dsKey.end());	
@@ -465,7 +486,6 @@ bool DeltaDB:: readStateWithIterator(UniversalAddress address,		valtype key, uin
 	dsKey<<iterator;
 	K.insert(K.end(), address.version);
 	K.insert(K.end(), address.data.begin(), address.data.end());	
-	K.insert(K.end(), '_');
 	K.insert(K.end(), dataPre, dataPre + sizeof(dataPre)/sizeof(uint8_t));
 	K.insert(K.end(), key.begin(),key.end());	
 	K.insert(K.end(), dsKey.begin(),dsKey.end());	
