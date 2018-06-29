@@ -48,7 +48,22 @@ BOOST_AUTO_TEST_CASE(state_read_write_test){
 	BOOST_CHECK(ret);
     BOOST_CHECK(blk==111222);
     BOOST_CHECK(r==w);
-	
+
+    
+	uint256 txid(ParseHex("1cc1133115918557df2ef8f1d1f0b2329cb248a10c4c111170c4c1d73748a1481"));
+    unsigned int vout = 2;
+    uint64_t balance = 13212315444;
+
+    ret = pDeltaDB->writeAalData(addr, txid, vout, balance);
+	BOOST_CHECK(ret);
+
+	uint256 txid2;
+    unsigned int vout2;
+    uint64_t balance2;
+    ret = pDeltaDB->readAalData(addr, txid2, vout2, balance2);
+    BOOST_CHECK(ret);
+	BOOST_CHECK(txid2==txid && vout2==vout && balance2==balance);
+    
     delete pDeltaDB;
 }
 

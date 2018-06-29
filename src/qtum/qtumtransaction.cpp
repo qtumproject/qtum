@@ -352,6 +352,40 @@ bool DeltaDB:: readByteCode(UniversalAddress address,valtype& byteCode){
     return Read(K, byteCode);   
 }
 
+bool DeltaDB:: writeAalData(UniversalAddress address, uint256 txid, unsigned int vout, uint64_t balance){
+	std::vector<uint8_t> K;
+	std::vector<uint8_t> V;
+	K.insert(K.end(), address.version);
+	K.insert(K.end(), address.data.begin(), address.data.end());	
+	K.insert(K.end(), dataPre, dataPre + sizeof(dataPre)/sizeof(uint8_t));
+	K.insert(K.end(), 'u');	
+
+	CDataStream dsValue(SER_DISK,0);
+	dsValue<<txid;	
+	dsValue<<vout;
+	dsValue<<balance;	
+	V.insert(V.end(),dsValue.begin(),dsValue.end());
+	return Write(K, V);
+}
+
+bool DeltaDB:: readAalData(UniversalAddress address, uint256 &txid, unsigned int &vout, uint64_t &balance){
+	std::vector<uint8_t> K;
+	std::vector<uint8_t> V;
+	K.insert(K.end(), address.version);
+	K.insert(K.end(), address.data.begin(), address.data.end());	
+	K.insert(K.end(), dataPre, dataPre + sizeof(dataPre)/sizeof(uint8_t));
+	K.insert(K.end(), 'u');	
+	if(Read(K, V)){
+		CDataStream dsValue(V,SER_DISK,0);
+		dsValue>>txid;	
+		dsValue>>vout;
+		dsValue>>balance;
+		return true;
+	}else{
+        return false;
+	}
+}
+
 bool DeltaDB:: writeState(UniversalAddress address, valtype key, valtype value){
 	std::vector<uint8_t> K;
     std::vector<unsigned char> keyHash(32);
