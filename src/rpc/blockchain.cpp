@@ -1330,6 +1330,9 @@ UniValue waitforlogs(const JSONRPCRequest& request_) {
     if (!fLogEvents)
         throw JSONRPCError(RPC_INTERNAL_ERROR, "Events indexing disabled");
 
+    if(!request.req)
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "HTTP connection not available");
+
     WaitForLogsParams params(request.params);
 
     request.PollStart();
