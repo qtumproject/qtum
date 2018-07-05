@@ -177,6 +177,9 @@ public:
 	bool writeByteCode(UniversalAddress address,valtype byteCode);
 	bool readByteCode(UniversalAddress address,valtype& byteCode);
 
+    bool writeAalData(UniversalAddress address, uint256 txid, unsigned int vout, uint64_t balance);
+    bool readAalData(UniversalAddress address, uint256 &txid, unsigned int &vout, uint64_t &balance);
+
 	/* data updated point of the keys in a contract. */
 	bool writeUpdatedKey(UniversalAddress address, valtype key, unsigned int blk_num, uint256 blk_hash);
 	bool readUpdatedKey(UniversalAddress address, valtype key, unsigned int &blk_num, uint256 &blk_hash);
