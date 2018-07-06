@@ -1,8 +1,3 @@
-// gf2_32.h - written and placed in the public domain by Wei Dai
-
-//! \file gf2_32.h
-//! \brief Classes and functions for schemes over GF(2^32)
-
 #ifndef CRYPTOPP_GF2_32_H
 #define CRYPTOPP_GF2_32_H
 
@@ -12,7 +7,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! \brief GF(2^32) with polynomial basis
+//! GF(2^32) with polynomial basis
 class GF2_32
 {
 public:

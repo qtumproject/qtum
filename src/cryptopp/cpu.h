@@ -9,13 +9,6 @@
 
 #include "config.h"
 
-// Issue 340
-#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
-# pragma GCC diagnostic push
-# pragma GCC diagnostic ignored "-Wconversion"
-# pragma GCC diagnostic ignored "-Wsign-conversion"
-#endif
-
 // ARM32/ARM64 Headers
 #if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
 # if defined(__GNUC__)
@@ -41,7 +34,7 @@
 #endif
 
 // Baseline include
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
 #  include <emmintrin.h>    // __m64, __m128i, _mm_set_epi64x
 #endif
 #if CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE
@@ -54,9 +47,12 @@
 #if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
 #  include <wmmintrin.h>    // aesenc, aesdec, etc
 #endif // wmmintrin.h
-#if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
-#  include <immintrin.h>    // RDRAND, RDSEED, AVX, SHA
-#endif // immintrin.h
+#if CRYPTOPP_BOOL_AVX_INTRINSICS_AVAILABLE
+#  include <immintrin.h>    // RDRAND, RDSEED and AVX
+#endif
+#if CRYPTOPP_BOOL_AVX2_INTRINSICS_AVAILABLE
+#  include <zmmintrin.h>    // AVX 512-bit extensions
+#endif
 #endif  // X86/X64/X32 Headers
 
 // Applies to both X86/X32/X64 and ARM32/ARM64. And we've got MIPS devices on the way.
@@ -113,7 +109,6 @@ extern CRYPTOPP_DLL bool g_hasSSSE3;
 extern CRYPTOPP_DLL bool g_hasSSE4;
 extern CRYPTOPP_DLL bool g_hasAESNI;
 extern CRYPTOPP_DLL bool g_hasCLMUL;
-extern CRYPTOPP_DLL bool g_hasSHA;
 extern CRYPTOPP_DLL bool g_isP4;
 extern CRYPTOPP_DLL bool g_hasRDRAND;
 extern CRYPTOPP_DLL bool g_hasRDSEED;
@@ -212,16 +207,6 @@ inline bool HasCLMUL()
 	if (!g_x86DetectionDone)
 		DetectX86Features();
 	return g_hasCLMUL;
-}
-
-//! \brief Determines SHA availability
-//! \returns true if SHA is determined to be available, false otherwise
-//! \details HasSHA() is a runtime check performed using CPUID
-inline bool HasSHA()
-{
-	if (!g_x86DetectionDone)
-		DetectX86Features();
-	return g_hasSHA;
 }
 
 //! \brief Determines if the CPU is an Intel P4
@@ -352,7 +337,7 @@ inline bool HasPMULL()
 
 //! \brief Determine if an ARM processor has CRC32 available
 //! \returns true if the hardware is capable of CRC32 at runtime, false otherwise.
-//! \details CRC32 instructions provide access to the processor's CRC32 and CRC32-C instructions.
+//! \details CRC32 instructions provide access to the processor's CRC32 and CRC32-C intructions.
 //!   They are provided by ARM C Language Extensions 2.0 (ACLE 2.0) and available under Aarch64
 //!   (ARM-64) and Aarch32 (ARM-32) running on Aarch64 (i.e., an AArch32 execution environment).
 //! \details Runtime support requires compile time support. When compiling with GCC, you may
@@ -608,10 +593,5 @@ inline int GetCacheLineSize()
 #endif  //  X86/X32/X64
 
 NAMESPACE_END
-
-// Issue 340
-#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
-# pragma GCC diagnostic pop
-#endif
 
 #endif  // CRYPTOPP_CPU_H

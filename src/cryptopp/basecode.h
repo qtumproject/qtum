@@ -86,11 +86,11 @@ public:
 	void IsolatedInitialize(const NameValuePairs &parameters);
 	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking);
 
-	//! \brief Initializes BaseN lookup array
+	//! \brief Intializes BaseN lookup array
 	//! \param lookup table of values
 	//! \param alphabet table of ASCII characters
 	//! \param base the base for the encoder
-	//! \param caseInsensitive flag indicating whether the alphabet is case sensitivie
+	//! \param caseInsensitive flag indicating whether the alpabet is case sensitivie
 	//! \pre COUNTOF(lookup) == 256
 	//! \pre COUNTOF(alphabet) == base
 	//! \details Internally, the function sets the first 256 elements in the lookup table to

@@ -242,9 +242,6 @@
     <ClCompile Include="pkcspad.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="poly1305.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="polynomi.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -501,9 +498,6 @@
     <ClInclude Include="dmac.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="drbg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="dsa.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -517,9 +511,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ecp.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ecpoint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="elgamal.h">
@@ -666,9 +657,6 @@
     <ClInclude Include="pkcspad.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="poly1305.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="polynomi.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -751,9 +739,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="simple.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="siphash.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="skipjack.h">

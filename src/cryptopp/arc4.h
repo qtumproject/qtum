@@ -16,15 +16,14 @@ NAMESPACE_BEGIN(CryptoPP)
 namespace Weak1 {
 
 //! \class ARC4_Base
-//! \brief ARC4 base class
+//! \brief Class specific methods used to operate the cipher.
 //! \details Implementations and overrides in \p Base apply to both \p ENCRYPTION and \p DECRYPTION directions
-//! \since Crypto++ 1.0
 class CRYPTOPP_NO_VTABLE ARC4_Base : public VariableKeyLength<16, 1, 256>, public RandomNumberGenerator, public SymmetricCipher, public SymmetricCipherDocumentation
 {
 public:
 	~ARC4_Base();
 
-	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "ARC4";}
+	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "ARC4";}
 
 	void GenerateBlock(byte *output, size_t size);
 	void DiscardBytes(size_t n);
@@ -46,20 +45,17 @@ protected:
     byte m_x, m_y;
 };
 
-//! \class ARC4
-//! \brief Alleged RC4
-//! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#RC4">Alleged RC4</a>
-//! \since Crypto++ 1.0
+//! <a href="http://www.weidai.com/scan-mirror/cs.html#RC4">Alleged RC4</a>
 DOCUMENTED_TYPEDEF(SymmetricCipherFinal<ARC4_Base>, ARC4)
 
 //! \class MARC4_Base
-//! \brief MARC4 base class
+//! \brief Class specific methods used to operate the cipher.
 //! \details Implementations and overrides in \p Base apply to both \p ENCRYPTION and \p DECRYPTION directions
 //! \details MARC4 discards the first 256 bytes of keystream, which may be weaker than the rest
 class CRYPTOPP_NO_VTABLE MARC4_Base : public ARC4_Base
 {
 public:
-	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "MARC4";}
+	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "MARC4";}
 
 	typedef SymmetricCipherFinal<MARC4_Base> Encryption;
 	typedef SymmetricCipherFinal<MARC4_Base> Decryption;
@@ -68,10 +64,6 @@ protected:
 	unsigned int GetDefaultDiscardBytes() const {return 256;}
 };
 
-//! \class MARC4
-//! \brief Modified Alleged RC4
-//! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#RC4">Alleged RC4</a>
-//! \since Crypto++ 1.0
 DOCUMENTED_TYPEDEF(SymmetricCipherFinal<MARC4_Base>, MARC4)
 
 }

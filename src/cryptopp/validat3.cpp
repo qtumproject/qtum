@@ -9,7 +9,7 @@
 #include "gfpcrypt.h"
 #include "eccrypto.h"
 
-#include "aes.h"
+#include "smartptr.h"
 #include "crc.h"
 #include "adler32.h"
 #include "md2.h"
@@ -20,8 +20,6 @@
 #include "ripemd.h"
 #include "whrlpool.h"
 #include "hkdf.h"
-#include "poly1305.h"
-#include "siphash.h"
 #include "blake2.h"
 #include "hmac.h"
 #include "ttmac.h"
@@ -77,7 +75,7 @@ bool HashModuleTest(HashTransformation &md, const HashTestTuple *testSet, unsign
 		for (j=0; j<testSet[i].repeatTimes; j++)
 			md.Update(testSet[i].input, testSet[i].inputLen);
 		md.Final(digest);
-		fail = !!memcmp(digest, testSet[i].output, md.DigestSize()) != 0;
+		fail = memcmp(digest, testSet[i].output, md.DigestSize()) != 0;
 		pass = pass && !fail;
 
 		cout << (fail ? "FAILED   " : "passed   ");
@@ -423,7 +421,7 @@ bool ValidateMD5MAC()
 		{
 			mac.Update((byte *)TestVals[i], strlen(TestVals[i]));
 			mac.Final(digest);
-			fail = !!memcmp(digest, output[k][i], MD5MAC::DIGESTSIZE)
+			fail = memcmp(digest, output[k][i], MD5MAC::DIGESTSIZE)
 				 || !mac.VerifyDigest(output[k][i], (byte *)TestVals[i], strlen(TestVals[i]));
 			pass = pass && !fail;
 			cout << (fail ? "FAILED   " : "passed   ");
@@ -497,7 +495,7 @@ bool ValidateXMACC()
 		{
 			mac.Update((byte *)TestVals[i], strlen(TestVals[i]));
 			mac.Final(digest);
-			fail = !!memcmp(digest, output[k][i], XMACC_MD5::DIGESTSIZE)
+			fail = memcmp(digest, output[k][i], XMACC_MD5::DIGESTSIZE)
 				 || !mac.VerifyDigest(output[k][i], (byte *)TestVals[i], strlen(TestVals[i]));
 			pass = pass && !fail;
 			cout << (fail ? "FAILED   " : "passed   ");
@@ -550,7 +548,7 @@ bool ValidateTTMAC()
 	{
 		mac.Update((byte *)TestVals[k], strlen(TestVals[k]));
 		mac.Final(digest);
-		fail = !!memcmp(digest, output[k], TTMAC::DIGESTSIZE)
+		fail = memcmp(digest, output[k], TTMAC::DIGESTSIZE)
 			|| !mac.VerifyDigest(output[k], (byte *)TestVals[k], strlen(TestVals[k]));
 		pass = pass && !fail;
 		cout << (fail ? "FAILED   " : "passed   ");
@@ -584,7 +582,7 @@ bool TestPBKDF(PasswordBasedKeyDerivationFunction &pbkdf, const PBKDF_TestTuple 
 
 		SecByteBlock derived(derivedKey.size());
 		pbkdf.DeriveKey(derived, derived.size(), tuple.purpose, (byte *)password.data(), password.size(), (byte *)salt.data(), salt.size(), tuple.iterations);
-		bool fail = !!memcmp(derived, derivedKey.data(), derived.size()) != 0;
+		bool fail = memcmp(derived, derivedKey.data(), derived.size()) != 0;
 		pass = pass && !fail;
 
 		HexEncoder enc(new FileSink(cout));
@@ -769,304 +767,6 @@ bool ValidateHKDF()
 	pass = TestHKDF(hkdf, testSet, COUNTOF(testSet)) && pass;
 	}
 
-
-	return pass;
-}
-
-struct Poly1305_TestTuples
-{
-	const char *key, *message, *nonce, *digest;
-	size_t klen, mlen, nlen, dlen;
-};
-
-bool ValidatePoly1305()
-{
-	cout << "\nPoly1305 validation suite running...\n\n";
-	bool fail, pass = true;
-
-	{
-		fail = (Poly1305<AES>::StaticAlgorithmName() != "Poly1305(AES)");
-		cout << (fail ? "FAILED   " : "passed   ") << "algorithm name\n";
-		pass = pass && !fail;
-	}
-
-	// Test data from http://cr.yp.to/mac/poly1305-20050329.pdf
-	static const Poly1305_TestTuples tests[] =
-	{
-		// Appendix B, Test 1
-		{
-			"\xec\x07\x4c\x83\x55\x80\x74\x17\x01\x42\x5b\x62\x32\x35\xad\xd6"   // Key
-			"\x85\x1f\xc4\x0c\x34\x67\xac\x0b\xe0\x5c\xc2\x04\x04\xf3\xf7\x00",
-			"\xf3\xf6",                                                          // Message
-			"\xfb\x44\x73\x50\xc4\xe8\x68\xc5\x2a\xc3\x27\x5c\xf9\xd4\x32\x7e",  // Nonce
-			"\xf4\xc6\x33\xc3\x04\x4f\xc1\x45\xf8\x4f\x33\x5c\xb8\x19\x53\xde",  // Digest
-			32, 2, 16, 16
-		},
-		// Appendix B, Test 2
-		{
-			"\x75\xde\xaa\x25\xc0\x9f\x20\x8e\x1d\xc4\xce\x6b\x5c\xad\x3f\xbf"   // Key
-			"\x61\xee\x09\x21\x8d\x29\xb0\xaa\xed\x7e\x15\x4a\x2c\x55\x09\xcc",
-			"",                                                                  // Message
-			"\x61\xee\x09\x21\x8d\x29\xb0\xaa\xed\x7e\x15\x4a\x2c\x55\x09\xcc",  // Nonce
-			"\xdd\x3f\xab\x22\x51\xf1\x1a\xc7\x59\xf0\x88\x71\x29\xcc\x2e\xe7",  // Digest
-			32, 0, 16, 16
-		},
-		// Appendix B, Test 3
-		{
-			"\x6a\xcb\x5f\x61\xa7\x17\x6d\xd3\x20\xc5\xc1\xeb\x2e\xdc\xdc\x74"   // Key
-			"\x48\x44\x3d\x0b\xb0\xd2\x11\x09\xc8\x9a\x10\x0b\x5c\xe2\xc2\x08",
-			"\x66\x3c\xea\x19\x0f\xfb\x83\xd8\x95\x93\xf3\xf4\x76\xb6\xbc\x24"   // Message
-			"\xd7\xe6\x79\x10\x7e\xa2\x6a\xdb\x8c\xaf\x66\x52\xd0\x65\x61\x36",
-			"\xae\x21\x2a\x55\x39\x97\x29\x59\x5d\xea\x45\x8b\xc6\x21\xff\x0e",  // Nonce
-			"\x0e\xe1\xc1\x6b\xb7\x3f\x0f\x4f\xd1\x98\x81\x75\x3c\x01\xcd\xbe",  // Digest
-			32, 32, 16, 16
-		},
-		// Appendix B, Test 4
-		{
-			"\xe1\xa5\x66\x8a\x4d\x5b\x66\xa5\xf6\x8c\xc5\x42\x4e\xd5\x98\x2d"   // Key
-			"\x12\x97\x6a\x08\xc4\x42\x6d\x0c\xe8\xa8\x24\x07\xc4\xf4\x82\x07",
-			"\xab\x08\x12\x72\x4a\x7f\x1e\x34\x27\x42\xcb\xed\x37\x4d\x94\xd1"   // Message
-			"\x36\xc6\xb8\x79\x5d\x45\xb3\x81\x98\x30\xf2\xc0\x44\x91\xfa\xf0"
-			"\x99\x0c\x62\xe4\x8b\x80\x18\xb2\xc3\xe4\xa0\xfa\x31\x34\xcb\x67"
-			"\xfa\x83\xe1\x58\xc9\x94\xd9\x61\xc4\xcb\x21\x09\x5c\x1b\xf9",
-			"\x9a\xe8\x31\xe7\x43\x97\x8d\x3a\x23\x52\x7c\x71\x28\x14\x9e\x3a",  // Nonce
-			"\x51\x54\xad\x0d\x2c\xb2\x6e\x01\x27\x4f\xc5\x11\x48\x49\x1f\x1b",  // Digest
-			32, 63, 16, 16
-		}
-	};
-
-	unsigned int count = 0;
-	byte digest[Poly1305<AES>::DIGESTSIZE];
-
-	// Positive tests
-	for (unsigned int i=0; i<COUNTOF(tests); ++i)
-	{
-		Poly1305<AES> poly1305((const byte*)tests[i].key, tests[i].klen);
-		poly1305.Resynchronize((const byte*)tests[i].nonce, (int)tests[i].nlen);
-		poly1305.Update((const byte*)tests[i].message, tests[i].mlen);
-		poly1305.Final(digest);
-
-		fail = !!memcmp(digest, tests[i].digest, tests[i].dlen) != 0;
-		if (fail)
-		{
-			cout << "FAILED   " << "Poly1305 test set " << count << endl;
-		}
-
-		count++;
-		pass = pass && !fail;
-	}
-
-	// Positive tests
-	for (unsigned int i=0; i<COUNTOF(tests); ++i)
-	{
-		Poly1305<AES> poly1305((const byte*)tests[i].key, tests[i].klen,(const byte*)tests[i].nonce, (int)tests[i].nlen);
-		poly1305.Update((const byte*)tests[i].message, tests[i].mlen);
-		poly1305.Final(digest);
-
-		fail = !!memcmp(digest, tests[i].digest, tests[i].dlen) != 0;
-		if (fail)
-		{
-			cout << "FAILED   " << "Poly1305 test set " << count << endl;
-		}
-
-		count++;
-		pass = pass && !fail;
-	}
-
-	// Negative tests
-	for (unsigned int i=0; i<COUNTOF(tests); ++i)
-	{
-		Poly1305<AES> poly1305((const byte*)tests[i].key, tests[i].klen);
-		poly1305.Resynchronize((const byte*)tests[i].nonce, (int)tests[i].nlen);
-		poly1305.Update((const byte*)tests[i].message, tests[i].mlen);
-		poly1305.Final(digest);
-
-		unsigned int next = (i+1) % COUNTOF(tests);
-		fail = !!memcmp(digest, tests[next].digest, tests[next].dlen) == 0;
-		if (fail)
-		{
-			cout << "FAILED   " << "Poly1305 test set " << count << endl;
-		}
-
-		count++;
-		pass = pass && !fail;
-	}
-
-	cout << (!pass ? "FAILED   " : "passed   ") << count << " message authentication codes" << endl;
-
-	return pass;
-}
-
-bool ValidateSipHash()
-{
-	cout << "\nSipHash validation suite running...\n\n";
-	bool fail, pass = true, pass1=true, pass2=true, pass3=true, pass4=true;
-
-	{
-		fail = (SipHash<2,4>::StaticAlgorithmName() != "SipHash-2-4");
-		cout << (fail ? "FAILED   " : "passed   ") << "SipHash-2-4 algorithm name\n";
-		pass = pass && !fail;
-
-		fail = (SipHash<2,4, false>::DIGESTSIZE != 8);
-		cout << (fail ? "FAILED   " : "passed   ") << "SipHash-2-4 64-bit digest size\n";
-		pass = pass && !fail;
-
-		fail = (SipHash<2,4, true>::DIGESTSIZE != 16);
-		cout << (fail ? "FAILED   " : "passed   ") << "SipHash-2-4 128-bit digest size\n";
-		pass = pass && !fail;
-
-		fail = (SipHash<4,8>::StaticAlgorithmName() != "SipHash-4-8");
-		cout << (fail ? "FAILED   " : "passed   ") << "SipHash-4-8 algorithm name\n";
-		pass = pass && !fail;
-
-		fail = (SipHash<4,8, false>::DIGESTSIZE != 8);
-		cout << (fail ? "FAILED   " : "passed   ") << "SipHash-4-8 64-bit digest size\n";
-		pass = pass && !fail;
-
-		fail = (SipHash<4,8, true>::DIGESTSIZE != 16);
-		cout << (fail ? "FAILED   " : "passed   ") << "SipHash-4-8 128-bit digest size\n";
-		pass = pass && !fail;
-	}
-
-	// Siphash-2-4, 64-bit MAC
-	{
-		const byte key[] = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F";
-		SipHash<2,4, false> hash(key, 16);
-		byte digest[SipHash<2,4, false>::DIGESTSIZE];
-
-		hash.Update((const byte*)"", 0);
-		hash.Final(digest);
-		fail = !!memcmp("\x31\x0E\x0E\xDD\x47\xDB\x6F\x72", digest, COUNTOF(digest));
-		pass1 = !fail && pass1;
-
-		hash.Update((const byte*)"\x00", 1);
-		hash.Final(digest);
-		fail = !!memcmp("\xFD\x67\xDC\x93\xC5\x39\xF8\x74", digest, COUNTOF(digest));
-		pass1 = !fail && pass1;
-
-		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06", 7);
-		hash.Final(digest);
-		fail = !!memcmp("\x37\xD1\x01\x8B\xF5\x00\x02\xAB", digest, COUNTOF(digest));
-		pass1 = !fail && pass1;
-
-		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06\x07", 8);
-		hash.Final(digest);
-		fail = !!memcmp("\x62\x24\x93\x9A\x79\xF5\xF5\x93", digest, COUNTOF(digest));
-		pass1 = !fail && pass1;
-
-		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06\x07\x08", 9);
-		hash.Final(digest);
-		fail = !!memcmp("\xB0\xE4\xA9\x0B\xDF\x82\x00\x9E", digest, COUNTOF(digest));
-		pass1 = !fail && pass1;
-
-		cout << (pass1 ? "passed   " : "FAILED   ") << "SipHash-2-4 64-bit MAC\n";
-		pass = pass1 && pass;
-	}
-
-	// Siphash-2-4, 128-bit MAC
-	{
-		const byte key[] = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F";
-		SipHash<2,4, true> hash(key, 16);
-		byte digest[SipHash<2,4, true>::DIGESTSIZE];
-
-		hash.Update((const byte*)"", 0);
-		hash.Final(digest);
-		fail = !!memcmp("\xA3\x81\x7F\x04\xBA\x25\xA8\xE6\x6D\xF6\x72\x14\xC7\x55\x02\x93", digest, COUNTOF(digest));
-		pass3 = !fail && pass3;
-
-		hash.Update((const byte*)"\x00", 1);
-		hash.Final(digest);
-		fail = !!memcmp("\xDA\x87\xC1\xD8\x6B\x99\xAF\x44\x34\x76\x59\x11\x9B\x22\xFC\x45", digest, COUNTOF(digest));
-		pass3 = !fail && pass3;
-
-		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06", 7);
-		hash.Final(digest);
-		fail = !!memcmp("\xA1\xF1\xEB\xBE\xD8\xDB\xC1\x53\xC0\xB8\x4A\xA6\x1F\xF0\x82\x39", digest, COUNTOF(digest));
-		pass3 = !fail && pass3;
-
-		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06\x07", 8);
-		hash.Final(digest);
-		fail = !!memcmp("\x3B\x62\xA9\xBA\x62\x58\xF5\x61\x0F\x83\xE2\x64\xF3\x14\x97\xB4", digest, COUNTOF(digest));
-		pass3 = !fail && pass3;
-
-		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06\x07\x08", 9);
-		hash.Final(digest);
-		fail = !!memcmp("\x26\x44\x99\x06\x0A\xD9\xBA\xAB\xC4\x7F\x8B\x02\xBB\x6D\x71\xED", digest, COUNTOF(digest));
-		pass3 = !fail && pass3;
-
-		cout << (pass3 ? "passed   " : "FAILED   ") << "SipHash-2-4 128-bit MAC\n";
-		pass = pass3 && pass;
-	}
-
-	// Siphash-4-8, 64-bit MAC
-	{
-		const byte key[] = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F";
-		SipHash<4, 8, false> hash(key, 16);
-		byte digest[SipHash<4, 8, false>::DIGESTSIZE];
-
-		hash.Update((const byte*)"", 0);
-		hash.Final(digest);
-		fail = !!memcmp("\x41\xDA\x38\x99\x2B\x05\x79\xC8", digest, COUNTOF(digest));
-		pass2 = !fail && pass2;
-
-		hash.Update((const byte*)"\x00", 1);
-		hash.Final(digest);
-		fail = !!memcmp("\x51\xB8\x95\x52\xF9\x14\x59\xC8", digest, COUNTOF(digest));
-		pass2 = !fail && pass2;
-
-		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06", 7);
-		hash.Final(digest);
-		fail = !!memcmp("\x47\xD7\x3F\x71\x5A\xBE\xFD\x4E", digest, COUNTOF(digest));
-		pass2 = !fail && pass2;
-
-		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06\x07", 8);
-		hash.Final(digest);
-		fail = !!memcmp("\x20\xB5\x8B\x9C\x07\x2F\xDB\x50", digest, COUNTOF(digest));
-		pass2 = !fail && pass2;
-
-		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06\x07\x08", 9);
-		hash.Final(digest);
-		fail = !!memcmp("\x36\x31\x9A\xF3\x5E\xE1\x12\x53", digest, COUNTOF(digest));
-		pass2 = !fail && pass2;
-
-		cout << (pass2 ? "passed   " : "FAILED   ") << "SipHash-4-8 64-bit MAC\n";
-		pass = pass2 && pass;
-	}
-
-	// Siphash-4-8, 128-bit MAC
-	{
-		const byte key[] = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F";
-		SipHash<4, 8, true> hash(key, 16);
-		byte digest[SipHash<4, 8, true>::DIGESTSIZE];
-
-		hash.Update((const byte*)"", 0);
-		hash.Final(digest);
-		fail = !!memcmp("\x1F\x64\xCE\x58\x6D\xA9\x04\xE9\xCF\xEC\xE8\x54\x83\xA7\x0A\x6C", digest, COUNTOF(digest));
-		pass4 = !fail && pass4;
-
-		hash.Update((const byte*)"\x00", 1);
-		hash.Final(digest);
-		fail = !!memcmp("\x47\x34\x5D\xA8\xEF\x4C\x79\x47\x6A\xF2\x7C\xA7\x91\xC7\xA2\x80", digest, COUNTOF(digest));
-		pass4 = !fail && pass4;
-
-		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06", 7);
-		hash.Final(digest);
-		fail = !!memcmp("\xED\x00\xE1\x3B\x18\x4B\xF1\xC2\x72\x6B\x8B\x54\xFF\xD2\xEE\xE0", digest, COUNTOF(digest));
-		pass4 = !fail && pass4;
-
-		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06\x07", 8);
-		hash.Final(digest);
-		fail = !!memcmp("\xA7\xD9\x46\x13\x8F\xF9\xED\xF5\x36\x4A\x5A\x23\xAF\xCA\xE0\x63", digest, COUNTOF(digest));
-		pass4 = !fail && pass4;
-
-		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06\x07\x08", 9);
-		hash.Final(digest);
-		fail = !!memcmp("\x9E\x73\x14\xB7\x54\x5C\xEC\xA3\x8B\x9A\x55\x49\xE4\xFB\x0B\xE8", digest, COUNTOF(digest));
-		pass4 = !fail && pass4;
-
-		cout << (pass4 ? "passed   " : "FAILED   ") << "SipHash-4-8 128-bit MAC\n";
-		pass = pass4 && pass;
-	}
 
 	return pass;
 }
@@ -1458,7 +1158,7 @@ bool ValidateBLAKE2s()
 		blake2s.Update((const byte*)tests[i].message, tests[i].mlen);
 		blake2s.Final(digest);
 
-		fail = !!memcmp(digest, tests[i].digest, sizeof(digest)) != 0;
+		fail = memcmp(digest, tests[i].digest, sizeof(digest)) != 0;
 		if (fail)
 		{
 			cout << "FAILED   " << "BLAKE2s test set " << i << endl;
@@ -1467,7 +1167,7 @@ bool ValidateBLAKE2s()
 		pass = pass && !fail;
 	}
 
-	cout << (!pass ? "FAILED   " : "passed   ") << COUNTOF(tests) << " hashes and keyed hashes" << endl;
+	cout << (fail ? "FAILED   " : "passed   ") << COUNTOF(tests) << " hashes and keyed hashes" << endl;
 
 	return pass;
 }
@@ -1853,7 +1553,7 @@ bool ValidateBLAKE2b()
 		blake2b.Update((const byte*)tests[i].message, tests[i].mlen);
 		blake2b.Final(digest);
 
-		fail = !!memcmp(digest, tests[i].digest, sizeof(digest)) != 0;
+		fail = memcmp(digest, tests[i].digest, sizeof(digest)) != 0;
 		if (fail)
 		{
 			cout << "FAILED   " << "BLAKE2b test set " << i << endl;
@@ -1862,7 +1562,7 @@ bool ValidateBLAKE2b()
 		pass = pass && !fail;
 	}
 
-	cout << (!pass ? "FAILED   " : "passed   ") << COUNTOF(tests) << " hashes and keyed hashes" << endl;
+	cout << (fail ? "FAILED   " : "passed   ") << COUNTOF(tests) << " hashes and keyed hashes" << endl;
 
 	return pass;
 }

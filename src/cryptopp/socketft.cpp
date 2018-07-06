@@ -60,8 +60,8 @@ const int SOCKET_EWOULDBLOCK = EWOULDBLOCK;
 
 #define MAX_ADDRSTRLEN (INET6_ADDRSTRLEN > INET_ADDRSTRLEN ? INET6_ADDRSTRLEN : INET_ADDRSTRLEN)
 
-// Also see http://stackoverflow.com/a/20816961 and http://github.com/weidai11/cryptopp/issues/322
-#if defined(USE_WINDOWS_STYLE_SOCKETS)
+#if defined(CRYPTOPP_WIN32_AVAILABLE)
+// http://stackoverflow.com/a/20816961
 int inet_pton(int af, const char *src, void *dst)
 {
 #if CRYPTOPP_MSC_VERSION
@@ -512,7 +512,7 @@ unsigned int SocketReceiver::GetReceiveResult()
 // *************************************************************
 
 SocketSender::SocketSender(Socket &s)
-	: m_s(s), m_lastResult(0), m_resultPending(false)
+	: m_s(s), m_resultPending(false), m_lastResult(0)
 {
 	m_event.AttachHandle(CreateEvent(NULL, true, false, NULL), true);
 	m_s.CheckAndHandleError("CreateEvent", m_event.HandleValid());

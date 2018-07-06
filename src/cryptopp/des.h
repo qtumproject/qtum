@@ -30,7 +30,7 @@ protected:
 struct DES_Info : public FixedBlockSize<8>, public FixedKeyLength<8>
 {
 	// disable DES in DLL version by not exporting this function
-	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "DES";}
+	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "DES";}
 };
 
 //! \class DES
@@ -39,7 +39,6 @@ struct DES_Info : public FixedBlockSize<8>, public FixedKeyLength<8>
 //!   (the least significant bits of each byte) in the key. However you can use CheckKeyParityBits()
 //!   and CorrectKeyParityBits() to	check or correct the parity bits if you wish.
 //! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#DES">DES</a>
-//! \since Crypto++ 1.0
 class DES : public DES_Info, public BlockCipherDocumentation
 {
 	//! \class Base
@@ -70,8 +69,7 @@ struct DES_EDE2_Info : public FixedBlockSize<8>, public FixedKeyLength<16>
 
 //! \class DES_EDE2
 //! \brief 2-key TripleDES block cipher
-//! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#DESede">DES-EDE2</a>
-//! \since Crypto++ 1.0
+/// \sa <a href="http://www.weidai.com/scan-mirror/cs.html#DESede">DES-EDE2</a>
 class DES_EDE2 : public DES_EDE2_Info, public BlockCipherDocumentation
 {
 	//! \class Base
@@ -101,7 +99,6 @@ struct DES_EDE3_Info : public FixedBlockSize<8>, public FixedKeyLength<24>
 //! \class DES_EDE3
 //! \brief 3-key TripleDES block cipher
 //! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#DESede">DES-EDE3</a>
-//! \since Crypto++ 1.0
 class DES_EDE3 : public DES_EDE3_Info, public BlockCipherDocumentation
 {
 	//! \class Base
@@ -125,13 +122,12 @@ public:
 //! \brief DESX block cipher information
 struct DES_XEX3_Info : public FixedBlockSize<8>, public FixedKeyLength<24>
 {
-	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "DES-XEX3";}
+	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "DES-XEX3";}
 };
 
 //! \class DES_XEX3
 //! \brief DESX block cipher
 //! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#DESX">DES-XEX3</a>, AKA DESX
-//! \since Crypto++ 1.0
 class DES_XEX3 : public DES_XEX3_Info, public BlockCipherDocumentation
 {
 	//! \class Base

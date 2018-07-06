@@ -81,7 +81,7 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
             
             qtum::commit(cacheUTXO, stateUTXO, m_cache);
             cacheUTXO.clear();
-            bool removeEmptyAccounts = _envInfo.number() >= _sealEngine.chainParams().u256Param("EIP158ForkBlock");
+            bool removeEmptyAccounts = _envInfo.number() >= _sealEngine.chainParams().EIP158ForkBlock;
             commit(removeEmptyAccounts ? State::CommitBehaviour::RemoveEmptyAccounts : State::CommitBehaviour::KeepEmptyAccounts);
         }
     }
@@ -148,6 +148,12 @@ void QtumState::transferBalance(dev::Address const& _from, dev::Address const& _
         transfers.push_back({_from, _to, _value});
 }
 
+void QtumState::transferBalanceSuicide(dev::Address const& _from, dev::Address const& _to) {
+    transfers.push_back({_from, _to, balance(_from)});
+    addBalance(_to, balance(_from));
+    subBalance(_from, balance(_from));
+}
+
 Vin const* QtumState::vin(dev::Address const& _a) const
 {
     return const_cast<QtumState*>(this)->vin(_a);
@@ -206,7 +212,7 @@ void QtumState::addBalance(dev::Address const& _id, dev::u256 const& _amount)
             // TODO: to save space we can combine this event with Balance by having
             //       Balance and Balance+Touch events.
         if (!a->isDirty() && a->isEmpty())
-            m_changeLog.emplace_back(dev::eth::detail::Change::Touch, _id);
+            m_changeLog.emplace_back(dev::eth::Change::Touch, _id);
 
             // Increase the account balance. This also is done for value 0 to mark
             // the account as dirty. Dirty account are not removed from the cache
@@ -223,7 +229,7 @@ void QtumState::addBalance(dev::Address const& _id, dev::u256 const& _amount)
     }
 
     if (_amount)
-        m_changeLog.emplace_back(dev::eth::detail::Change::Balance, _id, _amount);
+        m_changeLog.emplace_back(dev::eth::Change::Balance, _id, _amount);
 }
 
 dev::Address QtumState::createQtumAddress(dev::h256 hashTx, uint32_t voutNumber){
@@ -272,7 +278,7 @@ void QtumState::updateUTXO(const std::unordered_map<dev::Address, Vin>& vins){
 void QtumState::printfErrorLog(const dev::eth::TransactionException er){
     std::stringstream ss;
     ss << er;
-    clog(ExecutiveWarnChannel) << "VM exception:" << ss.str();
+    clog(0, "vm") << "VM exception:" << ss.str();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////

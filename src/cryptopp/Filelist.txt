@@ -48,6 +48,7 @@ channels.h
 cmac.cpp
 cmac.h
 config.h
+config.compat
 cpu.cpp
 cpu.h
 crc.cpp
@@ -81,7 +82,6 @@ dlltest.cpp
 dlltest.vcxproj
 dlltest.vcxproj.filters
 dmac.h
-drbg.h
 dsa.cpp
 dsa.h
 eax.cpp
@@ -92,7 +92,6 @@ eccrypto.cpp
 eccrypto.h
 ecp.cpp
 ecp.h
-ecpoint.h
 elgamal.cpp
 elgamal.h
 emsa2.cpp
@@ -187,8 +186,6 @@ pch.cpp
 pch.h
 pkcspad.cpp
 pkcspad.h
-poly1305.cpp
-poly1305.h
 polynomi.cpp
 polynomi.h
 pssr.cpp
@@ -251,7 +248,6 @@ shark.h
 sharkbox.cpp
 simple.cpp
 simple.h
-siphash.h
 skipjack.cpp
 skipjack.h
 smartptr.h
@@ -280,13 +276,13 @@ ttmac.cpp
 ttmac.h
 twofish.cpp
 twofish.h
-validat0.cpp
 validat1.cpp
 validat2.cpp
 validat3.cpp
 validate.h
 vmac.cpp
 vmac.h
+vc60.zip
 vs2005.zip
 wait.cpp
 wait.h
@@ -410,20 +406,12 @@ TestVectors/salsa.txt
 TestVectors/seal.txt
 TestVectors/seed.txt
 TestVectors/sha.txt
-TestVectors/sha1_fips_180.txt
-TestVectors/sha1_160_fips_180.txt
-TestVectors/sha2_fips_180.txt
-TestVectors/sha2_224_fips_180.txt
-TestVectors/sha2_256_fips_180.txt
-TestVectors/sha2_384_fips_180.txt
-TestVectors/sha2_512_fips_180.txt
 TestVectors/sha3_fips_202.txt
 TestVectors/sha3_224_fips_202.txt
 TestVectors/sha3_256_fips_202.txt
 TestVectors/sha3_384_fips_202.txt
 TestVectors/sha3_512_fips_202.txt
 TestVectors/shacal2.txt
-TestVectors/siphash.txt
 TestVectors/sosemanuk.txt
 TestVectors/tea.txt
 TestVectors/ttmac.txt

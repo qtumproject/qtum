@@ -53,9 +53,7 @@
 #include "keccak.h"
 #include "sha3.h"
 #include "blake2.h"
-#include "poly1305.h"
 #include "hkdf.h"
-#include "siphash.h"
 
 // Aggressive stack checking with VS2005 SP1 and above.
 #if (CRYPTOPP_MSC_VERSION >= 1410)
@@ -116,12 +114,9 @@ void RegisterFactories()
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, Weak::PanamaMAC<BigEndian> >();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, CMAC<AES> >();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, DMAC<AES> >();
-	RegisterDefaultFactoryFor<MessageAuthenticationCode, Poly1305<AES> >();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, CMAC<DES_EDE3> >();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, BLAKE2s>();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, BLAKE2b>();
-	RegisterDefaultFactoryFor<MessageAuthenticationCode, SipHash<2,4> >();
-	RegisterDefaultFactoryFor<MessageAuthenticationCode, SipHash<4,8> >();
 	RegisterAsymmetricCipherDefaultFactories<RSAES<OAEP<SHA1> > >("RSA/OAEP-MGF1(SHA-1)");
 	RegisterAsymmetricCipherDefaultFactories<DLIES<> >("DLIES(NoCofactorMultiplication, KDF2(SHA-1), XOR, HMAC(SHA-1), DHAES)");
 	RegisterSignatureSchemeDefaultFactories<DSA>();
@@ -129,11 +124,6 @@ void RegisterFactories()
 	RegisterSignatureSchemeDefaultFactories<DSA2<SHA256> >();
 	RegisterSignatureSchemeDefaultFactories<DSA2<SHA384> >();
 	RegisterSignatureSchemeDefaultFactories<DSA2<SHA512> >();
-	RegisterSignatureSchemeDefaultFactories<DSA_RFC6979<SHA1> >();
-	RegisterSignatureSchemeDefaultFactories<DSA_RFC6979<SHA224> >();
-	RegisterSignatureSchemeDefaultFactories<DSA_RFC6979<SHA256> >();
-	RegisterSignatureSchemeDefaultFactories<DSA_RFC6979<SHA384> >();
-	RegisterSignatureSchemeDefaultFactories<DSA_RFC6979<SHA512> >();
 	RegisterSignatureSchemeDefaultFactories<NR<SHA1> >("NR(1363)/EMSA1(SHA-1)");
 	RegisterSignatureSchemeDefaultFactories<GDSA<SHA1> >("DSA-1363/EMSA1(SHA-1)");
 	RegisterSignatureSchemeDefaultFactories<RSASS<PKCS1v15, Weak::MD2> >("RSA/PKCS1-1.5(MD2)");

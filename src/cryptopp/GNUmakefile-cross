@@ -110,14 +110,14 @@ ifeq ($(findstring lean,$(MAKECMDGOALS)),lean)
   endif # MAKECMDGOALS
 endif # Dead code stripping
 
-# List cryptlib.cpp first, then cpu.cpp, then integer.cpp to tame C++ static initialization problems.
+# List cryptlib.cpp first and cpu.cpp second in an attempt to tame C++ static initialization problems.
+#  The issue spills into POD data types of cpu.cpp due to the storage class of the bools, so cpu.cpp
+#  is the second candidate for explicit initialization order.
 SRCS := cryptlib.cpp cpu.cpp integer.cpp $(filter-out cryptlib.cpp cpu.cpp integer.cpp pch.cpp simple.cpp winpipes.cpp cryptlib_bds.cpp,$(wildcard *.cpp))
-
-# List cryptlib.cpp first, then cpu.cpp, then integer.cpp to tame C++ static initialization problems.
 OBJS := $(SRCS:.cpp=.o)
 
-# List test.cpp first to tame C++ static initialization problems.
-TESTSRCS := adhoc.cpp test.cpp bench1.cpp bench2.cpp validat0.cpp validat1.cpp validat2.cpp validat3.cpp datatest.cpp regtest.cpp fipsalgt.cpp dlltest.cpp
+# test.o needs to be after bench.o for cygwin 1.1.4 (possible ld bug?)
+TESTSRCS := bench1.cpp bench2.cpp test.cpp validat1.cpp validat2.cpp validat3.cpp adhoc.cpp datatest.cpp regtest.cpp fipsalgt.cpp dlltest.cpp
 TESTOBJS := $(TESTSRCS:.cpp=.o)
 LIBOBJS := $(filter-out $(TESTOBJS),$(OBJS))
 
@@ -230,22 +230,22 @@ libcryptopp.so: libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 endif
 
 libcryptopp.so$(SOLIB_VERSION_SUFFIX): $(LIBOBJS)
-	$(CXX) -shared $(SOLIB_FLAGS) -o $@ $(strip $(CXXFLAGS)) -Wl,--exclude-libs,ALL $(LIBOBJS) $(LDFLAGS) $(LDLIBS)
+	$(CXX) -shared $(SOLIB_FLAGS) -o $@ $(CXXFLAGS) -Wl,--exclude-libs,ALL $(LIBOBJS) $(LDFLAGS) $(LDLIBS)
 ifeq ($(HAS_SOLIB_VERSION),1)
 	-$(LN) libcryptopp.so$(SOLIB_VERSION_SUFFIX) libcryptopp.so
 	-$(LN) libcryptopp.so$(SOLIB_VERSION_SUFFIX) libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
 endif
 
 libcryptopp.dylib: $(LIBOBJS)
-	$(CXX) -dynamiclib -o $@ $(strip $(CXXFLAGS)) -install_name "$@" -current_version "$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)" -compatibility_version "$(LIB_MAJOR).$(LIB_MINOR)" -headerpad_max_install_names $(LDFLAGS) $(LIBOBJS)
+	$(CXX) -dynamiclib -o $@ $(CXXFLAGS) -install_name "$@" -current_version "$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)" -compatibility_version "$(LIB_MAJOR).$(LIB_MINOR)" -headerpad_max_install_names $(LDFLAGS) $(LIBOBJS)
 
 cryptest.exe: libcryptopp.a $(TESTOBJS)
-	$(CXX) -o $@ $(strip $(CXXFLAGS)) $(TESTOBJS) ./libcryptopp.a $(LDFLAGS) $(LDLIBS)
+	$(CXX) -o $@ $(CXXFLAGS) $(TESTOBJS) ./libcryptopp.a $(LDFLAGS) $(LDLIBS)
 
 # Used to generate list of source files for Autotools, CMakeList and Android.mk
 .PHONY: sources
 sources:
-	$(info Library sources: $(filter-out $(TESTSRCS),$(SRCS)))
+	$(info Library sources: $(filter-out fipstest.cpp $(TESTSRCS),$(SRCS)))
 	$(info )
 	$(info Test sources: $(TESTSRCS))
 
@@ -262,7 +262,7 @@ ifeq ($(wildcard GNUmakefile.deps),GNUmakefile.deps)
 endif # Dependencies
 
 %.o : %.cpp
-	$(CXX) $(strip $(CXXFLAGS)) -c $<
+	$(CXX) $(CXXFLAGS) -c $<
 
 GNUmakefile.deps:
-	$(CXX) $(strip $(CXXFLAGS)) -MM *.cpp > GNUmakefile.deps
+	$(CXX) $(CXXFLAGS) -MM *.cpp > GNUmakefile.deps

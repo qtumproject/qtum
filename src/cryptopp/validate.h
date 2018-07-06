@@ -8,7 +8,6 @@
 bool ValidateAll(bool thorough);
 bool TestSettings();
 bool TestOS_RNG();
-bool TestNIST_DRBG();
 bool TestAutoSeeded();
 bool TestAutoSeededX917();
 
@@ -30,11 +29,8 @@ bool ValidateTiger();
 bool ValidateRIPEMD();
 bool ValidatePanama();
 bool ValidateWhirlpool();
-
 bool ValidateBLAKE2s();
 bool ValidateBLAKE2b();
-bool ValidatePoly1305();
-bool ValidateSipHash();
 
 bool ValidateHMAC();
 bool ValidateTTMAC();
@@ -88,23 +84,16 @@ bool ValidateLUC_DH();
 bool ValidateXTR_DH();
 bool ValidateRabin();
 bool ValidateRW();
+//bool ValidateBlumGoldwasser();
 bool ValidateECP();
 bool ValidateEC2N();
 bool ValidateECDSA();
-bool ValidateECGDSA();
 bool ValidateESIGN();
 
-#if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_IMPORTS)
-// http://github.com/weidai11/cryptopp/issues/92
+#if CRYPTOPP_DEBUG
 bool TestSecBlock();
-// http://github.com/weidai11/cryptopp/issues/64
 bool TestPolynomialMod2();
-// http://github.com/weidai11/cryptopp/issues/336
-bool TestIntegerBitops();
-// http://github.com/weidai11/cryptopp/issues/242
 bool TestHuffmanCodes();
-// http://github.com/weidai11/cryptopp/issues/346
-bool TestASN1Parse();
 #endif
 
 // Coverity finding

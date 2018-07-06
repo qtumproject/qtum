@@ -11,8 +11,6 @@
 # See http://www.cryptopp.com/wiki/iOS_(Command_Line) for more details
 # ====================================================================
 
-# set -eu
-
 #########################################
 #####       Clear old options       #####
 #########################################
@@ -39,9 +37,6 @@ SETENV_VERBOSE=1
 ########################################
 #####         Command line         #####
 ########################################
-
-APPLE_SDK=
-IOS_ARCH=
 
 for ARG in "$@"
 do
@@ -137,7 +132,7 @@ fi
 # move /Applications/Xcode somewhere else for a side-by-side installation.
 # These sorts of tricks are a required procedure on Apple's gear:
 # http://stackoverflow.com/questions/11651773/install-simulator-sdk-4-3-to-xcode-4-4-on-mountain-lion
-if [ -z "${XCODE_DEVELOPER-}" ]; then
+if [ -z "$XCODE_DEVELOPER" ]; then
   XCODE_DEVELOPER=$(xcode-select -print-path 2>/dev/null)
 fi
 
@@ -238,8 +233,8 @@ if [ "$SETENV_VERBOSE" == "1" ]; then
   echo "XCODE_DEVELOPER_TOP: $XCODE_DEVELOPER_TOP"
   echo "IOS_ARCH: $IOS_ARCH"
   echo "IOS_TOOLCHAIN: $IOS_TOOLCHAIN"
-  echo "IOS_FLAGS: ${IOS_FLAGS-}"
-  echo "IOS_SYSROOT: ${IOS_SYSROOT-}"
+  echo "IOS_FLAGS: $IOS_FLAGS"
+  echo "IOS_SYSROOT: $IOS_SYSROOT"
 fi
 
 ########################################
@@ -285,9 +280,8 @@ fi
 
 echo
 echo "*******************************************************************************"
-echo "It looks the the environment is set correctly. Your next step is build"
-echo "the library with 'make -f GNUmakefile-cross'. You can create a versioned"
-echo "shared object using 'HAS_SOLIB_VERSION=1 make -f GNUmakefile-cross'"
+echo "It looks the the environment is set correctly. Your next step is"
+echo "build the library with 'make -f GNUmakefile-cross'"
 echo "*******************************************************************************"
 echo
 

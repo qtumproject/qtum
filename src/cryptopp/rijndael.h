@@ -39,7 +39,7 @@ class CRYPTOPP_DLL Rijndael : public Rijndael_Info, public BlockCipherDocumentat
 		static void FillEncTable();
 		static void FillDecTable();
 
-		// VS2005 workaround: have to put these on separate lines, or error C2487 is triggered in DLL build
+		// VS2005 workaround: have to put these on seperate lines, or error C2487 is triggered in DLL build
 		static const byte Se[256];
 		static const byte Sd[256];
 
@@ -69,7 +69,7 @@ class CRYPTOPP_DLL Rijndael : public Rijndael_Info, public BlockCipherDocumentat
 	{
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
-#if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86
+#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
 		size_t AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const;
 #endif
 	};

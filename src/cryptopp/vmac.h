@@ -2,7 +2,6 @@
 
 //! \file vmac.h
 //! \brief Classes for the VMAC message authentication code
-//! \since Crypto++ 5.5
 
 #ifndef CRYPTOPP_VMAC_H
 #define CRYPTOPP_VMAC_H
@@ -21,7 +20,6 @@ NAMESPACE_BEGIN(CryptoPP)
 
 //! \class VMAC_Base
 //! \brief VMAC message authentication code base class
-//! \since Crypto++ 5.5
 class VMAC_Base : public IteratedHashBase<word64, MessageAuthenticationCode>
 {
 public:
@@ -48,8 +46,10 @@ protected:
 	word64* DataBuf() {return (word64 *)(void*)m_data();}
 
 	void VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWord64, int tagPart);
+#if !(defined(_MSC_VER) && _MSC_VER < 1300)		// can't use function template here with VC6
 	template <bool T_128BitTag>
-		void VHASH_Update_Template(const word64 *data, size_t blockRemainingInWord128);
+#endif
+	void VHASH_Update_Template(const word64 *data, size_t blockRemainingInWord128);
 	void VHASH_Update(const word64 *data, size_t blocksRemainingInWord128);
 
 	CRYPTOPP_BLOCK_1(polyState, word64, 4*(m_is128+1))
@@ -74,7 +74,6 @@ protected:
 //! \details The implementation is based on Ted Krovetz's public domain vmac.c
 //!   and <a href="http://tools.ietf.org/html/draft-krovetz-vmac-01">draft-krovetz-vmac-01.txt</a>.
 //! \sa <a href="http://www.cryptolounge.org/wiki/VMAC">VMAC</a>.
-//! \since Crypto++ 5.5
 template <class T_BlockCipher, int T_DigestBitSize = 128>
 class VMAC : public SimpleKeyingInterfaceImpl<VMAC_Base, SameKeyLengthAs<T_BlockCipher, SimpleKeyingInterface::UNIQUE_IV, T_BlockCipher::BLOCKSIZE> >
 {

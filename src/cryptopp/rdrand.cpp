@@ -248,7 +248,13 @@ static int GCC_RRA_GenerateBlock(byte *output, size_t size, unsigned int safety)
 		{
 			if (size >= sizeof(val))
 			{
-				PutWord(true, LITTLE_ENDIAN_ORDER, output, val, NULL);
+#if defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS) && (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32)
+				*((word64*)(void *)output) = val;
+#elif defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS) && (CRYPTOPP_BOOL_X86)
+				*((word32*)(void *)output) = val;
+#else
+				memcpy(output, &val, sizeof(val));
+#endif
 				output += sizeof(val);
 				size -= sizeof(val);
 			}
@@ -417,7 +423,13 @@ static int GCC_RSA_GenerateBlock(byte *output, size_t size, unsigned int safety)
 		{
 			if (size >= sizeof(val))
 			{
-				PutWord(true, LITTLE_ENDIAN_ORDER, output, val, NULL);
+#if defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS) && (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32)
+				*((word64*)(void *)output) = val;
+#elif defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS) && (CRYPTOPP_BOOL_X86)
+				*((word32*)(void *)output) = val;
+#else
+				memcpy(output, &val, sizeof(val));
+#endif
 				output += sizeof(val);
 				size -= sizeof(val);
 			}

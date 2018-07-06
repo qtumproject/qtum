@@ -13,8 +13,6 @@
 # See http://www.cryptopp.com/wiki/ARM_Embedded_(Command_Line) for details.
 # ====================================================================
 
-# set -eu
-
 # Unset old options
 
 unset IS_CROSS_COMPILE
@@ -23,7 +21,7 @@ unset IS_IOS
 unset IS_ANDROID
 unset IS_ARM_EMBEDDED
 
-if [ -z "${ARM_EMBEDDED_TOOLCHAIN-}" ]; then
+if [ -z "$ARM_EMBEDDED_TOOLCHAIN" ]; then
 	ARM_EMBEDDED_TOOLCHAIN="/usr/bin"
 fi
 
@@ -134,9 +132,8 @@ fi
 
 echo
 echo "*******************************************************************************"
-echo "It looks the the environment is set correctly. Your next step is build"
-echo "the library with 'make -f GNUmakefile-cross'. You can create a versioned"
-echo "shared object using 'HAS_SOLIB_VERSION=1 make -f GNUmakefile-cross'"
+echo "It looks the the environment is set correctly. Your next step is"
+echo "build the library with 'make -f GNUmakefile-cross'"
 echo "*******************************************************************************"
 echo
 

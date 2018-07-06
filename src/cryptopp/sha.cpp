@@ -1,8 +1,7 @@
 // sha.cpp - modified by Wei Dai from Steve Reid's public domain sha1.c
 
-// Steve Reid implemented SHA-1. Wei Dai implemented SHA-2. Jeffrey Walton
-//  implemented Intel SHA extensions based on Intel articles and code by
-//  Sean Gulley. All code is in the public domain.
+// Steve Reid implemented SHA-1. Wei Dai implemented SHA-2.
+// Both are in the public domain.
 
 // use "cl /EP /P /DCRYPTOPP_GENERATE_X64_MASM sha.cpp" to generate MASM code
 
@@ -30,16 +29,19 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-// Function pointer for specific SHA1 or SHA256 Transform function
-typedef void (*pfnSHATransform)(word32 *state, const word32 *data);
-typedef void (CRYPTOPP_FASTCALL *pfnSHAHashBlocks)(word32 *state, const word32 *data, size_t length);
-
-////////////////////////////////
-// start of Steve Reid's code //
-////////////////////////////////
+// start of Steve Reid's code
 
 #define blk0(i) (W[i] = data[i])
 #define blk1(i) (W[i&15] = rotlFixed(W[(i+13)&15]^W[(i+8)&15]^W[(i+2)&15]^W[i&15],1))
+
+void SHA1::InitState(HashWordType *state)
+{
+	state[0] = 0x67452301L;
+	state[1] = 0xEFCDAB89L;
+	state[2] = 0x98BADCFEL;
+	state[3] = 0x10325476L;
+	state[4] = 0xC3D2E1F0L;
+}
 
 #define f1(x,y,z) (z^(x&(y^z)))
 #define f2(x,y,z) (x^y^z)
@@ -53,7 +55,7 @@ typedef void (CRYPTOPP_FASTCALL *pfnSHAHashBlocks)(word32 *state, const word32 *
 #define R3(v,w,x,y,z,i) z+=f3(w,x,y)+blk1(i)+0x8F1BBCDC+rotlFixed(v,5);w=rotlFixed(w,30);
 #define R4(v,w,x,y,z,i) z+=f4(w,x,y)+blk1(i)+0xCA62C1D6+rotlFixed(v,5);w=rotlFixed(w,30);
 
-static void SHA1_CXX_Transform(word32 *state, const word32 *data)
+void SHA1::Transform(word32 *state, const word32 *data)
 {
 	word32 W[16];
     /* Copy context->state[] to working vars */
@@ -91,233 +93,7 @@ static void SHA1_CXX_Transform(word32 *state, const word32 *data)
     state[4] += e;
 }
 
-//////////////////////////////
-// end of Steve Reid's code //
-//////////////////////////////
-
-///////////////////////////////////
-// start of Walton/Gulley's code //
-///////////////////////////////////
-
-#if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
-// Based on http://software.intel.com/en-us/articles/intel-sha-extensions and code by Sean Gulley.
-static void SHA1_SSE_SHA_Transform(word32 *state, const word32 *data)
-{
-    __m128i ABCD, ABCD_SAVE, E0, E0_SAVE, E1;
-    __m128i MASK, MSG0, MSG1, MSG2, MSG3;
-
-    // IteratedHashBase<T> has code to perform this step before HashEndianCorrectedBlock()
-    //  is called, but the design does not lend itself to optional hardware components
-    //  where SHA1 needs reversing, but SHA256 does not.
-    word32* dataBuf = const_cast<word32*>(data);
-    ByteReverse(dataBuf, dataBuf, 64);
-
-    // Load initial values
-    ABCD = _mm_loadu_si128((__m128i*) state);
-    E0 = _mm_set_epi32(state[4], 0, 0, 0);
-    ABCD = _mm_shuffle_epi32(ABCD, 0x1B);
-    MASK = _mm_set_epi64x(W64LIT(0x0001020304050607), W64LIT(0x08090a0b0c0d0e0f));
-
-    // Save current hash
-    ABCD_SAVE = ABCD;
-    E0_SAVE = E0;
-
-    // Rounds 0-3
-    MSG0 = _mm_loadu_si128((__m128i*) data+0);
-    MSG0 = _mm_shuffle_epi8(MSG0, MASK);
-    E0 = _mm_add_epi32(E0, MSG0);
-    E1 = ABCD;
-    ABCD = _mm_sha1rnds4_epu32(ABCD, E0, 0);
-
-    // Rounds 4-7
-    MSG1 = _mm_loadu_si128((__m128i*) (data+4));
-    MSG1 = _mm_shuffle_epi8(MSG1, MASK);
-    E1 = _mm_sha1nexte_epu32(E1, MSG1);
-    E0 = ABCD;
-    ABCD = _mm_sha1rnds4_epu32(ABCD, E1, 0);
-    MSG0 = _mm_sha1msg1_epu32(MSG0, MSG1);
-
-    // Rounds 8-11
-    MSG2 = _mm_loadu_si128((__m128i*) (data+8));
-    MSG2 = _mm_shuffle_epi8(MSG2, MASK);
-    E0 = _mm_sha1nexte_epu32(E0, MSG2);
-    E1 = ABCD;
-    ABCD = _mm_sha1rnds4_epu32(ABCD, E0, 0);
-    MSG1 = _mm_sha1msg1_epu32(MSG1, MSG2);
-    MSG0 = _mm_xor_si128(MSG0, MSG2);
-
-    // Rounds 12-15
-    MSG3 = _mm_loadu_si128((__m128i*) (data+12));
-    MSG3 = _mm_shuffle_epi8(MSG3, MASK);
-    E1 = _mm_sha1nexte_epu32(E1, MSG3);
-    E0 = ABCD;
-    MSG0 = _mm_sha1msg2_epu32(MSG0, MSG3);
-    ABCD = _mm_sha1rnds4_epu32(ABCD, E1, 0);
-    MSG2 = _mm_sha1msg1_epu32(MSG2, MSG3);
-    MSG1 = _mm_xor_si128(MSG1, MSG3);
-
-    // Rounds 16-19
-    E0 = _mm_sha1nexte_epu32(E0, MSG0);
-    E1 = ABCD;
-    MSG1 = _mm_sha1msg2_epu32(MSG1, MSG0);
-    ABCD = _mm_sha1rnds4_epu32(ABCD, E0, 0);
-    MSG3 = _mm_sha1msg1_epu32(MSG3, MSG0);
-    MSG2 = _mm_xor_si128(MSG2, MSG0);
-
-    // Rounds 20-23
-    E1 = _mm_sha1nexte_epu32(E1, MSG1);
-    E0 = ABCD;
-    MSG2 = _mm_sha1msg2_epu32(MSG2, MSG1);
-    ABCD = _mm_sha1rnds4_epu32(ABCD, E1, 1);
-    MSG0 = _mm_sha1msg1_epu32(MSG0, MSG1);
-    MSG3 = _mm_xor_si128(MSG3, MSG1);
-
-    // Rounds 24-27
-    E0 = _mm_sha1nexte_epu32(E0, MSG2);
-    E1 = ABCD;
-    MSG3 = _mm_sha1msg2_epu32(MSG3, MSG2);
-    ABCD = _mm_sha1rnds4_epu32(ABCD, E0, 1);
-    MSG1 = _mm_sha1msg1_epu32(MSG1, MSG2);
-    MSG0 = _mm_xor_si128(MSG0, MSG2);
-
-    // Rounds 28-31
-    E1 = _mm_sha1nexte_epu32(E1, MSG3);
-    E0 = ABCD;
-    MSG0 = _mm_sha1msg2_epu32(MSG0, MSG3);
-    ABCD = _mm_sha1rnds4_epu32(ABCD, E1, 1);
-    MSG2 = _mm_sha1msg1_epu32(MSG2, MSG3);
-    MSG1 = _mm_xor_si128(MSG1, MSG3);
-
-    // Rounds 32-35
-    E0 = _mm_sha1nexte_epu32(E0, MSG0);
-    E1 = ABCD;
-    MSG1 = _mm_sha1msg2_epu32(MSG1, MSG0);
-    ABCD = _mm_sha1rnds4_epu32(ABCD, E0, 1);
-    MSG3 = _mm_sha1msg1_epu32(MSG3, MSG0);
-    MSG2 = _mm_xor_si128(MSG2, MSG0);
-
-    // Rounds 36-39
-    E1 = _mm_sha1nexte_epu32(E1, MSG1);
-    E0 = ABCD;
-    MSG2 = _mm_sha1msg2_epu32(MSG2, MSG1);
-    ABCD = _mm_sha1rnds4_epu32(ABCD, E1, 1);
-    MSG0 = _mm_sha1msg1_epu32(MSG0, MSG1);
-    MSG3 = _mm_xor_si128(MSG3, MSG1);
-
-    // Rounds 40-43
-    E0 = _mm_sha1nexte_epu32(E0, MSG2);
-    E1 = ABCD;
-    MSG3 = _mm_sha1msg2_epu32(MSG3, MSG2);
-    ABCD = _mm_sha1rnds4_epu32(ABCD, E0, 2);
-    MSG1 = _mm_sha1msg1_epu32(MSG1, MSG2);
-    MSG0 = _mm_xor_si128(MSG0, MSG2);
-
-    // Rounds 44-47
-    E1 = _mm_sha1nexte_epu32(E1, MSG3);
-    E0 = ABCD;
-    MSG0 = _mm_sha1msg2_epu32(MSG0, MSG3);
-    ABCD = _mm_sha1rnds4_epu32(ABCD, E1, 2);
-    MSG2 = _mm_sha1msg1_epu32(MSG2, MSG3);
-    MSG1 = _mm_xor_si128(MSG1, MSG3);
-
-    // Rounds 48-51
-    E0 = _mm_sha1nexte_epu32(E0, MSG0);
-    E1 = ABCD;
-    MSG1 = _mm_sha1msg2_epu32(MSG1, MSG0);
-    ABCD = _mm_sha1rnds4_epu32(ABCD, E0, 2);
-    MSG3 = _mm_sha1msg1_epu32(MSG3, MSG0);
-    MSG2 = _mm_xor_si128(MSG2, MSG0);
-
-    // Rounds 52-55
-    E1 = _mm_sha1nexte_epu32(E1, MSG1);
-    E0 = ABCD;
-    MSG2 = _mm_sha1msg2_epu32(MSG2, MSG1);
-    ABCD = _mm_sha1rnds4_epu32(ABCD, E1, 2);
-    MSG0 = _mm_sha1msg1_epu32(MSG0, MSG1);
-    MSG3 = _mm_xor_si128(MSG3, MSG1);
-
-    // Rounds 56-59
-    E0 = _mm_sha1nexte_epu32(E0, MSG2);
-    E1 = ABCD;
-    MSG3 = _mm_sha1msg2_epu32(MSG3, MSG2);
-    ABCD = _mm_sha1rnds4_epu32(ABCD, E0, 2);
-    MSG1 = _mm_sha1msg1_epu32(MSG1, MSG2);
-    MSG0 = _mm_xor_si128(MSG0, MSG2);
-
-    // Rounds 60-63
-    E1 = _mm_sha1nexte_epu32(E1, MSG3);
-    E0 = ABCD;
-    MSG0 = _mm_sha1msg2_epu32(MSG0, MSG3);
-    ABCD = _mm_sha1rnds4_epu32(ABCD, E1, 3);
-    MSG2 = _mm_sha1msg1_epu32(MSG2, MSG3);
-    MSG1 = _mm_xor_si128(MSG1, MSG3);
-
-    // Rounds 64-67
-    E0 = _mm_sha1nexte_epu32(E0, MSG0);
-    E1 = ABCD;
-    MSG1 = _mm_sha1msg2_epu32(MSG1, MSG0);
-    ABCD = _mm_sha1rnds4_epu32(ABCD, E0, 3);
-    MSG3 = _mm_sha1msg1_epu32(MSG3, MSG0);
-    MSG2 = _mm_xor_si128(MSG2, MSG0);
-
-    // Rounds 68-71
-    E1 = _mm_sha1nexte_epu32(E1, MSG1);
-    E0 = ABCD;
-    MSG2 = _mm_sha1msg2_epu32(MSG2, MSG1);
-    ABCD = _mm_sha1rnds4_epu32(ABCD, E1, 3);
-    MSG3 = _mm_xor_si128(MSG3, MSG1);
-
-    // Rounds 72-75
-    E0 = _mm_sha1nexte_epu32(E0, MSG2);
-    E1 = ABCD;
-    MSG3 = _mm_sha1msg2_epu32(MSG3, MSG2);
-    ABCD = _mm_sha1rnds4_epu32(ABCD, E0, 3);
-
-    // Rounds 76-79
-    E1 = _mm_sha1nexte_epu32(E1, MSG3);
-    E0 = ABCD;
-    ABCD = _mm_sha1rnds4_epu32(ABCD, E1, 3);
-
-    // Add values back to state
-    E0 = _mm_sha1nexte_epu32(E0, E0_SAVE);
-    ABCD = _mm_add_epi32(ABCD, ABCD_SAVE);
-
-	// Save state
-    ABCD = _mm_shuffle_epi32(ABCD, 0x1B);
-    _mm_storeu_si128((__m128i*) state, ABCD);
-    state[4] = _mm_extract_epi32(E0, 3);
-}
-#endif
-
-/////////////////////////////////
-// end of Walton/Gulley's code //
-/////////////////////////////////
-
-pfnSHATransform InitializeSHA1Transform()
-{
-#if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
-	if (HasSHA())
-		return &SHA1_SSE_SHA_Transform;
-	else
-#endif
-
-	return &SHA1_CXX_Transform;
-}
-
-void SHA1::InitState(HashWordType *state)
-{
-	state[0] = 0x67452301L;
-	state[1] = 0xEFCDAB89L;
-	state[2] = 0x98BADCFEL;
-	state[3] = 0x10325476L;
-	state[4] = 0xC3D2E1F0L;
-}
-
-void SHA1::Transform(word32 *state, const word32 *data)
-{
-	static const pfnSHATransform s_pfn = InitializeSHA1Transform();
-	s_pfn(state, data);
-}
+// end of Steve Reid's code
 
 // *************************************************************
 
@@ -360,8 +136,17 @@ extern const word32 SHA256_K[64] = {
 
 #if (defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_X32_ASM_AVAILABLE) || defined(CRYPTOPP_GENERATE_X64_MASM))
 
-static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 *data, size_t len)
+static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 *data, size_t len
+#if defined(_MSC_VER) && (_MSC_VER == 1200)
+	, ...	// VC60 workaround: prevent VC 6 from inlining this function
+#endif
+	)
 {
+#if defined(_MSC_VER) && (_MSC_VER == 1200)
+	AS2(mov ecx, [state])
+	AS2(mov edx, [data])
+#endif
+
 	#define LOCALS_SIZE	8*4 + 16*4 + 4*WORD_SZ
 	#define H(i)		[BASE+ASM_MOD(1024+7-(i),8)*4]
 	#define G(i)		H(i+1)
@@ -689,36 +474,20 @@ void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 *data, 
 }
 #endif
 
-#if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
-static void CRYPTOPP_FASTCALL SHA256_SSE_SHA_HashBlocks(word32 *state, const word32 *data, size_t length);
-#endif
-
 #if (defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_X32_ASM_AVAILABLE) || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_SHA_ASM)
-
-pfnSHAHashBlocks InitializeSHA256HashBlocks()
-{
-#if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
-    if (HasSHA())
-        return &SHA256_SSE_SHA_HashBlocks;
-    else
-#endif
-
-    return &X86_SHA256_HashBlocks;
-}
 
 size_t SHA256::HashMultipleBlocks(const word32 *input, size_t length)
 {
-    static const pfnSHAHashBlocks s_pfn = InitializeSHA256HashBlocks();
-    s_pfn(m_state, input, (length&(size_t(0)-BLOCKSIZE)) - !HasSSE2());
-    return length % BLOCKSIZE;
+	X86_SHA256_HashBlocks(m_state, input, (length&(size_t(0)-BLOCKSIZE)) - !HasSSE2());
+	return length % BLOCKSIZE;
 }
 
 size_t SHA224::HashMultipleBlocks(const word32 *input, size_t length)
 {
-    static const pfnSHAHashBlocks s_pfn = InitializeSHA256HashBlocks();
-    s_pfn(m_state, input, (length&(size_t(0)-BLOCKSIZE)) - !HasSSE2());
-    return length % BLOCKSIZE;
+	X86_SHA256_HashBlocks(m_state, input, (length&(size_t(0)-BLOCKSIZE)) - !HasSSE2());
+	return length % BLOCKSIZE;
 }
+
 #endif
 
 #define blk2(i) (W[i&15]+=s1(W[(i-2)&15])+W[(i-7)&15]+s0(W[(i-15)&15]))
@@ -744,11 +513,12 @@ size_t SHA224::HashMultipleBlocks(const word32 *input, size_t length)
 #define s0(x) (rotrFixed(x,7)^rotrFixed(x,18)^(x>>3))
 #define s1(x) (rotrFixed(x,17)^rotrFixed(x,19)^(x>>10))
 
-#if defined(__OPTIMIZE_SIZE__)
 // Smaller but slower
-void SHA256_CXX_Transform(word32 *state, const word32 *data)
+#if defined(__OPTIMIZE_SIZE__)
+void SHA256::Transform(word32 *state, const word32 *data)
 {
-	word32 W[32], T[20];
+	word32 T[20];
+	word32 W[32];
 	unsigned int i = 0, j = 0;
 	word32 *t = T+8;
 
@@ -817,10 +587,15 @@ void SHA256_CXX_Transform(word32 *state, const word32 *data)
     state[7] += t[7];
 }
 #else
-// Bigger but faster
-void SHA256_CXX_Transform(word32 *state, const word32 *data)
+void SHA256::Transform(word32 *state, const word32 *data)
 {
-	word32 W[16], T[8];
+	word32 W[16];
+#if (defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_X32_ASM_AVAILABLE) || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_SHA_ASM)
+	// this byte reverse is a waste of time, but this function is only called by MDC
+	ByteReverse(W, data, BLOCKSIZE);
+	X86_SHA256_HashBlocks(state, W, BLOCKSIZE - !HasSSE2());
+#else
+	word32 T[8];
     /* Copy context->state[] to working vars */
 	memcpy(T, state, sizeof(T));
     /* 64 operations, partially loop unrolled */
@@ -840,260 +615,15 @@ void SHA256_CXX_Transform(word32 *state, const word32 *data)
     state[5] += f(0);
     state[6] += g(0);
     state[7] += h(0);
+#endif
 }
-#endif  // __OPTIMIZE_SIZE__
+#endif
 
 #undef S0
 #undef S1
 #undef s0
 #undef s1
 #undef R
-
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
-static void SHA256_SSE2_Transform(word32 *state, const word32 *data)
-{
-	// this byte reverse is a waste of time, but this function is only called by MDC
-	word32 W[16];
-	ByteReverse(W, data, SHA256::BLOCKSIZE);
-	X86_SHA256_HashBlocks(state, W, SHA256::BLOCKSIZE - !HasSSE2());
-}
-#endif  // CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
-
-#if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
-static void SHA256_SSE_SHA_Transform(word32 *state, const word32 *data)
-{
-    return SHA256_SSE_SHA_HashBlocks(state, data, SHA256::BLOCKSIZE);
-}
-#endif  // CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
-
-///////////////////////////////////
-// start of Walton/Gulley's code //
-///////////////////////////////////
-
-#if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
-// Based on http://software.intel.com/en-us/articles/intel-sha-extensions and code by Sean Gulley.
-static void CRYPTOPP_FASTCALL SHA256_SSE_SHA_HashBlocks(word32 *state, const word32 *data, size_t length)
-{
-    CRYPTOPP_ASSERT(state);    CRYPTOPP_ASSERT(data);
-    CRYPTOPP_ASSERT(length % SHA256::BLOCKSIZE == 0);
-
-    __m128i STATE0, STATE1;
-    __m128i MSG, TMP, MASK;
-    __m128i TMSG0, TMSG1, TMSG2, TMSG3;
-    __m128i ABEF_SAVE, CDGH_SAVE;
-
-    // Load initial values
-    TMP = _mm_loadu_si128((__m128i*) &state[0]);
-    STATE1 = _mm_loadu_si128((__m128i*) &state[4]);
-    MASK = _mm_set_epi64x(W64LIT(0x0c0d0e0f08090a0b), W64LIT(0x0405060700010203));
-
-    TMP = _mm_shuffle_epi32(TMP, 0xB1); // CDAB
-    STATE1 = _mm_shuffle_epi32(STATE1, 0x1B); // EFGH
-    STATE0 = _mm_alignr_epi8(TMP, STATE1, 8); // ABEF
-    STATE1 = _mm_blend_epi16(STATE1, TMP, 0xF0); // CDGH
-
-    while (length)
-    {
-        // Save current hash
-        ABEF_SAVE = STATE0;
-        CDGH_SAVE = STATE1;
-
-        // Rounds 0-3
-        MSG = _mm_loadu_si128((__m128i*) data+0);
-        TMSG0 = _mm_shuffle_epi8(MSG, MASK);
-        MSG = _mm_add_epi32(TMSG0, _mm_set_epi64x(W64LIT(0xE9B5DBA5B5C0FBCF), W64LIT(0x71374491428A2F98)));
-        STATE1 = _mm_sha256rnds2_epu32(STATE1, STATE0, MSG);
-        MSG = _mm_shuffle_epi32(MSG, 0x0E);
-        STATE0 = _mm_sha256rnds2_epu32(STATE0, STATE1, MSG);
-
-        // Rounds 4-7
-        TMSG1 = _mm_loadu_si128((__m128i*) (data+4));
-        TMSG1 = _mm_shuffle_epi8(TMSG1, MASK);
-        MSG = _mm_add_epi32(TMSG1, _mm_set_epi64x(W64LIT(0xAB1C5ED5923F82A4), W64LIT(0x59F111F13956C25B)));
-        STATE1 = _mm_sha256rnds2_epu32(STATE1, STATE0, MSG);
-        MSG = _mm_shuffle_epi32(MSG, 0x0E);
-        STATE0 = _mm_sha256rnds2_epu32(STATE0, STATE1, MSG);
-        TMSG0 = _mm_sha256msg1_epu32(TMSG0, TMSG1);
-
-        // Rounds 8-11
-        TMSG2 = _mm_loadu_si128((__m128i*) (data+8));
-        TMSG2 = _mm_shuffle_epi8(TMSG2, MASK);
-        MSG = _mm_add_epi32(TMSG2, _mm_set_epi64x(W64LIT(0x550C7DC3243185BE), W64LIT(0x12835B01D807AA98)));
-        STATE1 = _mm_sha256rnds2_epu32(STATE1, STATE0, MSG);
-        MSG = _mm_shuffle_epi32(MSG, 0x0E);
-        STATE0 = _mm_sha256rnds2_epu32(STATE0, STATE1, MSG);
-        TMSG1 = _mm_sha256msg1_epu32(TMSG1, TMSG2);
-
-        // Rounds 12-15
-        TMSG3 = _mm_loadu_si128((__m128i*) (data+12));
-        TMSG3 = _mm_shuffle_epi8(TMSG3, MASK);
-        MSG = _mm_add_epi32(TMSG3, _mm_set_epi64x(W64LIT(0xC19BF1749BDC06A7), W64LIT(0x80DEB1FE72BE5D74)));
-        STATE1 = _mm_sha256rnds2_epu32(STATE1, STATE0, MSG);
-        TMP = _mm_alignr_epi8(TMSG3, TMSG2, 4);
-        TMSG0 = _mm_add_epi32(TMSG0, TMP);
-        TMSG0 = _mm_sha256msg2_epu32(TMSG0, TMSG3);
-        MSG = _mm_shuffle_epi32(MSG, 0x0E);
-        STATE0 = _mm_sha256rnds2_epu32(STATE0, STATE1, MSG);
-        TMSG2 = _mm_sha256msg1_epu32(TMSG2, TMSG3);
-
-        // Rounds 16-19
-        MSG = _mm_add_epi32(TMSG0, _mm_set_epi64x(W64LIT(0x240CA1CC0FC19DC6), W64LIT(0xEFBE4786E49B69C1)));
-        STATE1 = _mm_sha256rnds2_epu32(STATE1, STATE0, MSG);
-        TMP = _mm_alignr_epi8(TMSG0, TMSG3, 4);
-        TMSG1 = _mm_add_epi32(TMSG1, TMP);
-        TMSG1 = _mm_sha256msg2_epu32(TMSG1, TMSG0);
-        MSG = _mm_shuffle_epi32(MSG, 0x0E);
-        STATE0 = _mm_sha256rnds2_epu32(STATE0, STATE1, MSG);
-        TMSG3 = _mm_sha256msg1_epu32(TMSG3, TMSG0);
-
-        // Rounds 20-23
-        MSG = _mm_add_epi32(TMSG1, _mm_set_epi64x(W64LIT(0x76F988DA5CB0A9DC), W64LIT(0x4A7484AA2DE92C6F)));
-        STATE1 = _mm_sha256rnds2_epu32(STATE1, STATE0, MSG);
-        TMP = _mm_alignr_epi8(TMSG1, TMSG0, 4);
-        TMSG2 = _mm_add_epi32(TMSG2, TMP);
-        TMSG2 = _mm_sha256msg2_epu32(TMSG2, TMSG1);
-        MSG = _mm_shuffle_epi32(MSG, 0x0E);
-        STATE0 = _mm_sha256rnds2_epu32(STATE0, STATE1, MSG);
-        TMSG0 = _mm_sha256msg1_epu32(TMSG0, TMSG1);
-
-        // Rounds 24-27
-        MSG = _mm_add_epi32(TMSG2, _mm_set_epi64x(W64LIT(0xBF597FC7B00327C8), W64LIT(0xA831C66D983E5152)));
-        STATE1 = _mm_sha256rnds2_epu32(STATE1, STATE0, MSG);
-        TMP = _mm_alignr_epi8(TMSG2, TMSG1, 4);
-        TMSG3 = _mm_add_epi32(TMSG3, TMP);
-        TMSG3 = _mm_sha256msg2_epu32(TMSG3, TMSG2);
-        MSG = _mm_shuffle_epi32(MSG, 0x0E);
-        STATE0 = _mm_sha256rnds2_epu32(STATE0, STATE1, MSG);
-        TMSG1 = _mm_sha256msg1_epu32(TMSG1, TMSG2);
-
-        // Rounds 28-31
-        MSG = _mm_add_epi32(TMSG3, _mm_set_epi64x(W64LIT(0x1429296706CA6351), W64LIT(0xD5A79147C6E00BF3)));
-        STATE1 = _mm_sha256rnds2_epu32(STATE1, STATE0, MSG);
-        TMP = _mm_alignr_epi8(TMSG3, TMSG2, 4);
-        TMSG0 = _mm_add_epi32(TMSG0, TMP);
-        TMSG0 = _mm_sha256msg2_epu32(TMSG0, TMSG3);
-        MSG = _mm_shuffle_epi32(MSG, 0x0E);
-        STATE0 = _mm_sha256rnds2_epu32(STATE0, STATE1, MSG);
-        TMSG2 = _mm_sha256msg1_epu32(TMSG2, TMSG3);
-
-        // Rounds 32-35
-        MSG = _mm_add_epi32(TMSG0, _mm_set_epi64x(W64LIT(0x53380D134D2C6DFC), W64LIT(0x2E1B213827B70A85)));
-        STATE1 = _mm_sha256rnds2_epu32(STATE1, STATE0, MSG);
-        TMP = _mm_alignr_epi8(TMSG0, TMSG3, 4);
-        TMSG1 = _mm_add_epi32(TMSG1, TMP);
-        TMSG1 = _mm_sha256msg2_epu32(TMSG1, TMSG0);
-        MSG = _mm_shuffle_epi32(MSG, 0x0E);
-        STATE0 = _mm_sha256rnds2_epu32(STATE0, STATE1, MSG);
-        TMSG3 = _mm_sha256msg1_epu32(TMSG3, TMSG0);
-
-        // Rounds 36-39
-        MSG = _mm_add_epi32(TMSG1, _mm_set_epi64x(W64LIT(0x92722C8581C2C92E), W64LIT(0x766A0ABB650A7354)));
-        STATE1 = _mm_sha256rnds2_epu32(STATE1, STATE0, MSG);
-        TMP = _mm_alignr_epi8(TMSG1, TMSG0, 4);
-        TMSG2 = _mm_add_epi32(TMSG2, TMP);
-        TMSG2 = _mm_sha256msg2_epu32(TMSG2, TMSG1);
-        MSG = _mm_shuffle_epi32(MSG, 0x0E);
-        STATE0 = _mm_sha256rnds2_epu32(STATE0, STATE1, MSG);
-        TMSG0 = _mm_sha256msg1_epu32(TMSG0, TMSG1);
-
-        // Rounds 40-43
-        MSG = _mm_add_epi32(TMSG2, _mm_set_epi64x(W64LIT(0xC76C51A3C24B8B70), W64LIT(0xA81A664BA2BFE8A1)));
-        STATE1 = _mm_sha256rnds2_epu32(STATE1, STATE0, MSG);
-        TMP = _mm_alignr_epi8(TMSG2, TMSG1, 4);
-        TMSG3 = _mm_add_epi32(TMSG3, TMP);
-        TMSG3 = _mm_sha256msg2_epu32(TMSG3, TMSG2);
-        MSG = _mm_shuffle_epi32(MSG, 0x0E);
-        STATE0 = _mm_sha256rnds2_epu32(STATE0, STATE1, MSG);
-        TMSG1 = _mm_sha256msg1_epu32(TMSG1, TMSG2);
-
-        // Rounds 44-47
-        MSG = _mm_add_epi32(TMSG3, _mm_set_epi64x(W64LIT(0x106AA070F40E3585), W64LIT(0xD6990624D192E819)));
-        STATE1 = _mm_sha256rnds2_epu32(STATE1, STATE0, MSG);
-        TMP = _mm_alignr_epi8(TMSG3, TMSG2, 4);
-        TMSG0 = _mm_add_epi32(TMSG0, TMP);
-        TMSG0 = _mm_sha256msg2_epu32(TMSG0, TMSG3);
-        MSG = _mm_shuffle_epi32(MSG, 0x0E);
-        STATE0 = _mm_sha256rnds2_epu32(STATE0, STATE1, MSG);
-        TMSG2 = _mm_sha256msg1_epu32(TMSG2, TMSG3);
-
-        // Rounds 48-51
-        MSG = _mm_add_epi32(TMSG0, _mm_set_epi64x(W64LIT(0x34B0BCB52748774C), W64LIT(0x1E376C0819A4C116)));
-        STATE1 = _mm_sha256rnds2_epu32(STATE1, STATE0, MSG);
-        TMP = _mm_alignr_epi8(TMSG0, TMSG3, 4);
-        TMSG1 = _mm_add_epi32(TMSG1, TMP);
-        TMSG1 = _mm_sha256msg2_epu32(TMSG1, TMSG0);
-        MSG = _mm_shuffle_epi32(MSG, 0x0E);
-        STATE0 = _mm_sha256rnds2_epu32(STATE0, STATE1, MSG);
-        TMSG3 = _mm_sha256msg1_epu32(TMSG3, TMSG0);
-
-        // Rounds 52-55
-        MSG = _mm_add_epi32(TMSG1, _mm_set_epi64x(W64LIT(0x682E6FF35B9CCA4F), W64LIT(0x4ED8AA4A391C0CB3)));
-        STATE1 = _mm_sha256rnds2_epu32(STATE1, STATE0, MSG);
-        TMP = _mm_alignr_epi8(TMSG1, TMSG0, 4);
-        TMSG2 = _mm_add_epi32(TMSG2, TMP);
-        TMSG2 = _mm_sha256msg2_epu32(TMSG2, TMSG1);
-        MSG = _mm_shuffle_epi32(MSG, 0x0E);
-        STATE0 = _mm_sha256rnds2_epu32(STATE0, STATE1, MSG);
-
-        // Rounds 56-59
-        MSG = _mm_add_epi32(TMSG2, _mm_set_epi64x(W64LIT(0x8CC7020884C87814), W64LIT(0x78A5636F748F82EE)));
-        STATE1 = _mm_sha256rnds2_epu32(STATE1, STATE0, MSG);
-        TMP = _mm_alignr_epi8(TMSG2, TMSG1, 4);
-        TMSG3 = _mm_add_epi32(TMSG3, TMP);
-        TMSG3 = _mm_sha256msg2_epu32(TMSG3, TMSG2);
-        MSG = _mm_shuffle_epi32(MSG, 0x0E);
-        STATE0 = _mm_sha256rnds2_epu32(STATE0, STATE1, MSG);
-
-        // Rounds 60-63
-        MSG = _mm_add_epi32(TMSG3, _mm_set_epi64x(W64LIT(0xC67178F2BEF9A3F7), W64LIT(0xA4506CEB90BEFFFA)));
-        STATE1 = _mm_sha256rnds2_epu32(STATE1, STATE0, MSG);
-        MSG = _mm_shuffle_epi32(MSG, 0x0E);
-        STATE0 = _mm_sha256rnds2_epu32(STATE0, STATE1, MSG);
-
-        // Add values back to state
-        STATE0 = _mm_add_epi32(STATE0, ABEF_SAVE);
-        STATE1 = _mm_add_epi32(STATE1, CDGH_SAVE);
-
-        data += 16;
-        length -= SHA256::BLOCKSIZE;
-    }
-
-    TMP = _mm_shuffle_epi32(STATE0, 0x1B); // FEBA
-    STATE1 = _mm_shuffle_epi32(STATE1, 0xB1); // DCHG
-    STATE0 = _mm_blend_epi16(TMP, STATE1, 0xF0); // DCBA
-    STATE1 = _mm_alignr_epi8(STATE1, TMP, 8); // ABEF
-
-    // Save state
-    _mm_storeu_si128((__m128i*) &state[0], STATE0);
-    _mm_storeu_si128((__m128i*) &state[4], STATE1);
-}
-#endif  // CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
-
-/////////////////////////////////
-// end of Walton/Gulley's code //
-/////////////////////////////////
-
-pfnSHATransform InitializeSHA256Transform()
-{
-#if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
-    if (HasSHA())
-        return &SHA256_SSE_SHA_Transform;
-    else
-#endif
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
-    if (HasSSE2())
-        return &SHA256_SSE2_Transform;
-    else
-#endif
-
-    return &SHA256_CXX_Transform;
-}
-
-void SHA256::Transform(word32 *state, const word32 *data)
-{
-    static const pfnSHATransform s_pfn = InitializeSHA256Transform();
-    s_pfn(state, data);
-}
 
 // *************************************************************
 

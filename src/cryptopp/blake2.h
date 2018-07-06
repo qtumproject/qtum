@@ -5,7 +5,7 @@
 
 //! \file blake2.h
 //! \brief Classes for BLAKE2b and BLAKE2s message digests and keyed message digests
-//! \details This implementation follows Aumasson, Neves, Wilcox-O'Hearn and Winnerlein's
+//! \details This implmentation follows Aumasson, Neves, Wilcox-O'Hearn and Winnerlein's
 //!   <A HREF="http://blake2.net/blake2.pdf">BLAKE2: simpler, smaller, fast as MD5</A> (2013.01.29).
 //!   Static algorithm name return either "BLAKE2b" or "BLAKE2s". An object algorithm name follows
 //!   the naming described in <A HREF="http://tools.ietf.org/html/rfc7693#section-4">RFC 7693, The
@@ -41,7 +41,7 @@ struct BLAKE2_Info : public VariableKeyLength<(T_64bit ? 64 : 32),0,(T_64bit ? 6
 	CRYPTOPP_CONSTANT(SALTSIZE = (T_64bit ? 16 : 8))
 	CRYPTOPP_CONSTANT(PERSONALIZATIONSIZE = (T_64bit ? 16 : 8))
 
-	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return (T_64bit ? "BLAKE2b" : "BLAKE2s");}
+	CRYPTOPP_CONSTEXPR static const	char *StaticAlgorithmName() {return (T_64bit ? "BLAKE2b" : "BLAKE2s");}
 };
 
 //! \class BLAKE2_ParameterBlock
@@ -180,7 +180,7 @@ public:
 
 	//! \brief Retrieve the static algorithm name
 	//! \returns the algorithm name (BLAKE2s or BLAKE2b)
-	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return BLAKE2_Info<T_64bit>::StaticAlgorithmName();}
+	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return BLAKE2_Info<T_64bit>::StaticAlgorithmName();}
 
 	//! \brief Retrieve the object's name
 	//! \returns the object's algorithm name following RFC 7693
@@ -196,7 +196,7 @@ public:
 	void Restart();
 
 	//! \brief Restart a hash with parameter block and counter
-	//! \param block parameter block
+	//! \param block paramter block
 	//! \param counter counter array
 	//! \details Parameter block is persisted across calls to Restart().
 	void Restart(const BLAKE2_ParameterBlock<T_64bit>& block, const W counter[2]);
@@ -240,7 +240,7 @@ private:
 //! \brief The BLAKE2b cryptographic hash function
 //! \details BLAKE2b can function as both a hash and keyed hash. If you want only the hash,
 //!   then use the BLAKE2b constructor that accepts no parameters or digest size. If you
-//!   want a keyed hash, then use the constructor that accpts the key as a parameter.
+//!   want a keyed hash, then use the constuctor that accpts the key as a parameter.
 //!   Once a key and digest size are selected, its effectively immutable. The Restart()
 //!   method that accepts a ParameterBlock does not allow you to change it.
 //! \sa Aumasson, Neves, Wilcox-O'Hearn and Winnerlein's
@@ -276,7 +276,7 @@ public:
 //! \brief The BLAKE2s cryptographic hash function
 //! \details BLAKE2s can function as both a hash and keyed hash. If you want only the hash,
 //!   then use the BLAKE2s constructor that accepts no parameters or digest size. If you
-//!   want a keyed hash, then use the constructor that accpts the key as a parameter.
+//!   want a keyed hash, then use the constuctor that accpts the key as a parameter.
 //!   Once a key and digest size are selected, its effectively immutable. The Restart()
 //!   method that accepts a ParameterBlock does not allow you to change it.
 //! \sa Aumasson, Neves, Wilcox-O'Hearn and Winnerlein's

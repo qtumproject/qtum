@@ -11,8 +11,6 @@
 # See http://www.cryptopp.com/wiki/Android_(Command_Line) for more details
 # ====================================================================
 
-# set -eu
-
 unset IS_CROSS_COMPILE
 
 unset IS_IOS
@@ -34,7 +32,7 @@ unset ANDROID_STL_INC ANDROID_STL_LIB
 unset CPP CC CXX LD AS AR RANLIB STRIP
 
 # Similar to a "make clean"
-if [ x"${1-}" = "xunset" ]; then
+if [ "$1" = "unset" ]; then
 	echo "Unsetting script variables. PATH may remain tainted"
 	[ "$0" = "$BASH_SOURCE" ] && exit 0 || return 0
 fi
@@ -43,7 +41,7 @@ fi
 #   Note: 4.9 is required for the latest architectures, like ARM64/AARCH64.
 # AOSP_TOOLCHAIN_SUFFIX=4.8
 # AOSP_TOOLCHAIN_SUFFIX=4.9
-if [ -z "${AOSP_TOOLCHAIN_SUFFIX-}" ]; then
+if [ -z "$AOSP_TOOLCHAIN_SUFFIX" ]; then
 	AOSP_TOOLCHAIN_SUFFIX=4.9
 fi
 
@@ -59,7 +57,7 @@ fi
 # AOSP_API="android-19"    # Android 4.4 and above
 # AOSP_API="android-21"    # Android 5.0 and above
 # AOSP_API="android-23"    # Android 6.0 and above
-if [ -z "${AOSP_API-}" ]; then
+if [ -z "$AOSP_API" ]; then
 	AOSP_API="android-21"
 fi
 
@@ -70,7 +68,7 @@ fi
 # If the user did not specify the NDK location, try and pick it up. We expect something
 #   like ANDROID_NDK_ROOT=/opt/android-ndk-r10e or ANDROID_NDK_ROOT=/usr/local/android-ndk-r10e.
 
-if [ -z "${ANDROID_NDK_ROOT-}" ]; then
+if [ -z "$ANDROID_NDK_ROOT" ]; then
 	ANDROID_NDK_ROOT=$(find /opt -maxdepth 1 -type d -name android-ndk-r10* 2>/dev/null | tail -1)
 
 	if [ -z "$ANDROID_NDK_ROOT" ]; then
@@ -361,7 +359,7 @@ fi
 
 #####################################################################
 
-COUNT=$(echo -n "$AOSP_STL_LIB" | egrep -i -c 'libstdc\+\+')
+COUNT=$(echo -n "$AOSP_STL_LIB" | grep -i -c 'libstdc++')
 if [[ ("$COUNT" -ne "0") ]]; then
 	echo
 	echo "*******************************************************************************"
@@ -382,7 +380,7 @@ if [[ ("$COUNT" -ne "0") ]]; then
 	echo "*******************************************************************************"
 fi
 
-COUNT=$(echo -n "$AOSP_STL_LIB" | egrep -i -c 'libc\+\+)')
+COUNT=$(echo -n "$AOSP_STL_LIB" | egrep -i -c 'libc++)')
 if [[ ("$COUNT" -ne "0") ]]; then
 	echo
 	echo "*******************************************************************************"
@@ -394,9 +392,8 @@ fi
 
 echo
 echo "*******************************************************************************"
-echo "It looks the the environment is set correctly. Your next step is build"
-echo "the library with 'make -f GNUmakefile-cross'. You can create a versioned"
-echo "shared object using 'HAS_SOLIB_VERSION=1 make -f GNUmakefile-cross'"
+echo "It looks the the environment is set correctly. Your next step is"
+echo "build the library with 'make -f GNUmakefile-cross'"
 echo "*******************************************************************************"
 echo
 

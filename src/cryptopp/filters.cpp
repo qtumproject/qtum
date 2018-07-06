@@ -312,6 +312,13 @@ void FilterWithBufferedInput::BlockQueue::Put(const byte *inString, size_t lengt
 	m_size += length;
 }
 
+#if !defined(CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562)
+FilterWithBufferedInput::FilterWithBufferedInput()
+	: Filter(), m_firstSize(SIZE_MAX), m_blockSize(0), m_lastSize(SIZE_MAX), m_firstInputDone(false)
+{
+}
+#endif
+
 FilterWithBufferedInput::FilterWithBufferedInput(BufferedTransformation *attachment)
 	: Filter(attachment), m_firstSize(SIZE_MAX), m_blockSize(0), m_lastSize(SIZE_MAX), m_firstInputDone(false)
 {
@@ -432,7 +439,7 @@ size_t FilterWithBufferedInput::PutMaybeModifiable(byte *inString, size_t length
 		m_firstInputDone = false;
 		m_queue.ResetQueue(1, m_firstSize);
 
-		// Cast to void to suppress Coverity finding
+		// Cast to void to supress Coverity finding
 		(void)Output(1, NULL, 0, messageEnd, blocking);
 	}
 	return 0;

@@ -49,8 +49,6 @@ IS_X86 := $(shell isainfo -k 2>/dev/null | grep -i -c "i386")
 IS_X64 := $(shell isainfo -k 2>/dev/null | grep -i -c "amd64")
 endif
 
-DISABLE_CXXFLAGS_OPTIMIZATIONS := 0
-
 ###########################################################
 #####                General Variables                #####
 ###########################################################
@@ -127,29 +125,22 @@ ifeq ($(IS_X86)$(IS_X32)$(IS_CYGWIN)$(IS_MINGW)$(SUN_COMPILER),00000)
  endif
 endif
 
-# BEGIN MARCH_CXXFLAGS
-# Guard use of -march=native (or -m{32|64} on some platforms)
-# Don't add anything if -march=XXX or -mtune=XXX is specified
-ifeq ($(findstring -march,$(CXXFLAGS)),)
-ifeq ($(findstring -mtune,$(CXXFLAGS)),)
-   ifeq ($(GCC42_OR_LATER)$(IS_NETBSD),10)
-      CXXFLAGS += -march=native
-   else ifneq ($(CLANG_COMPILER)$(INTEL_COMPILER),00)
-      CXXFLAGS += -march=native
-   else
-     # GCC 3.3 and "unknown option -march="
-     # Ubuntu GCC 4.1 compiler crash with -march=native
-     # NetBSD GCC 4.8 compiler and "bad value (native) for -march= switch"
-     # Sun compiler is handled below
-     ifeq ($(SUN_COMPILER)$(IS_X64),01)
-       CXXFLAGS += -m64
-     else ifeq ($(SUN_COMPILER)$(IS_X86),01)
-       CXXFLAGS += -m32
-     endif # X86/X32/X64
-   endif
-endif  # -mtune
-endif  # -march
-# END MARCH_CXXFLAGS
+# Guard use of -march=native
+ifeq ($(GCC42_OR_LATER)$(IS_NETBSD),10)
+   CXXFLAGS += -march=native
+else ifneq ($(CLANG_COMPILER)$(INTEL_COMPILER),00)
+   CXXFLAGS += -march=native
+else
+  # GCC 3.3 and "unknown option -march="
+  # Ubuntu GCC 4.1 compiler crash with -march=native
+  # NetBSD GCC 4.8 compiler and "bad value (native) for -march= switch"
+  # Sun compiler is handled below
+  ifeq ($(SUN_COMPILER)$(IS_X64),01)
+    CXXFLAGS += -m64
+  else ifeq ($(SUN_COMPILER)$(IS_X86),01)
+    CXXFLAGS += -m32
+  endif # X86/X32/X64
+endif
 
 # Aligned access required for -O3 and above due to vectorization
 UNALIGNED_ACCESS := $(shell $(EGREP) -c "^[[:space:]]*//[[:space:]]*\#[[:space:]]*define[[:space:]]*CRYPTOPP_NO_UNALIGNED_DATA_ACCESS" config.h)
@@ -192,10 +183,10 @@ endif
 # Tell MacPorts GCC to use Clang integrated assembler
 #   http://github.com/weidai11/cryptopp/issues/190
 ifeq ($(GCC_COMPILER)$(MACPORTS_COMPILER),11)
-ifeq ($(findstring -Wa,-q,$(CXXFLAGS)),)
+ifneq ($(findstring -Wa,-q,$(CXXFLAGS)),-Wa,-q)
 CXXFLAGS += -Wa,-q
 endif
-ifeq ($(findstring -DCRYPTOPP_CLANG_INTEGRATED_ASSEMBLER,$(CXXFLAGS)),)
+ifneq ($(findstring -Wa,-q,$(CXXFLAGS)),-DCRYPTOPP_CLANG_INTEGRATED_ASSEMBLER)
 CXXFLAGS += -DCRYPTOPP_CLANG_INTEGRATED_ASSEMBLER=1
 endif
 endif
@@ -203,9 +194,7 @@ endif
 # GCC on Solaris needs -m64. Otherwise, i386 is default
 #   http://github.com/weidai11/cryptopp/issues/230
 ifeq ($(IS_SUN)$(GCC_COMPILER)$(IS_X64),111)
-ifeq ($(findstring -m32,$(CXXFLAGS)),)
 CXXFLAGS += -m64
-endif
 endif
 
 # Allow use of "/" operator for GNU Assembler.
@@ -443,12 +432,12 @@ endif
 OBJS := $(SRCS:.cpp=.o)
 
 # List test.cpp first to tame C++ static initialization problems.
-TESTSRCS := adhoc.cpp test.cpp bench1.cpp bench2.cpp validat0.cpp validat1.cpp validat2.cpp validat3.cpp datatest.cpp regtest.cpp fipsalgt.cpp dlltest.cpp
+TESTSRCS := test.cpp bench1.cpp bench2.cpp validat1.cpp validat2.cpp validat3.cpp adhoc.cpp datatest.cpp regtest.cpp fipsalgt.cpp dlltest.cpp
 TESTOBJS := $(TESTSRCS:.cpp=.o)
 LIBOBJS := $(filter-out $(TESTOBJS),$(OBJS))
 
 # List cryptlib.cpp first, then cpu.cpp, then integer.cpp to tame C++ static initialization problems.
-DLLSRCS := cryptlib.cpp cpu.cpp integer.cpp shacal2.cpp md5.cpp shark.cpp zinflate.cpp gf2n.cpp salsa.cpp xtr.cpp oaep.cpp poly1305.cpp polynomi.cpp rc2.cpp default.cpp wait.cpp wake.cpp twofish.cpp iterhash.cpp adler32.cpp elgamal.cpp marss.cpp blowfish.cpp ecp.cpp filters.cpp strciphr.cpp camellia.cpp ida.cpp zlib.cpp des.cpp crc.cpp algparam.cpp dessp.cpp tea.cpp eax.cpp network.cpp emsa2.cpp pkcspad.cpp squaretb.cpp idea.cpp authenc.cpp hmac.cpp zdeflate.cpp xtrcrypt.cpp queue.cpp mars.cpp rc5.cpp blake2.cpp hrtimer.cpp eprecomp.cpp hex.cpp dsa.cpp sha.cpp fips140.cpp gzip.cpp seal.cpp files.cpp base32.cpp vmac.cpp tigertab.cpp sharkbox.cpp safer.cpp randpool.cpp esign.cpp arc4.cpp osrng.cpp skipjack.cpp seed.cpp sha3.cpp sosemanuk.cpp bfinit.cpp rabin.cpp 3way.cpp rw.cpp rdrand.cpp rsa.cpp rdtables.cpp gost.cpp socketft.cpp tftables.cpp nbtheory.cpp panama.cpp modes.cpp rijndael.cpp casts.cpp chacha.cpp gfpcrypt.cpp poly1305.cpp dll.cpp ec2n.cpp blumshub.cpp algebra.cpp basecode.cpp base64.cpp cbcmac.cpp rc6.cpp dh2.cpp gf256.cpp mqueue.cpp misc.cpp pssr.cpp channels.cpp tiger.cpp cast.cpp rng.cpp square.cpp asn.cpp whrlpool.cpp md4.cpp dh.cpp ccm.cpp md2.cpp mqv.cpp gf2_32.cpp ttmac.cpp luc.cpp trdlocal.cpp pubkey.cpp gcm.cpp ripemd.cpp eccrypto.cpp serpent.cpp cmac.cpp
+DLLSRCS := cryptlib.cpp cpu.cpp integer.cpp shacal2.cpp md5.cpp shark.cpp zinflate.cpp gf2n.cpp salsa.cpp xtr.cpp oaep.cpp polynomi.cpp rc2.cpp default.cpp wait.cpp wake.cpp twofish.cpp iterhash.cpp adler32.cpp elgamal.cpp marss.cpp blowfish.cpp ecp.cpp filters.cpp strciphr.cpp camellia.cpp ida.cpp zlib.cpp des.cpp crc.cpp algparam.cpp dessp.cpp tea.cpp eax.cpp network.cpp emsa2.cpp pkcspad.cpp squaretb.cpp idea.cpp authenc.cpp hmac.cpp zdeflate.cpp xtrcrypt.cpp queue.cpp mars.cpp rc5.cpp blake2.cpp hrtimer.cpp eprecomp.cpp hex.cpp dsa.cpp sha.cpp fips140.cpp gzip.cpp seal.cpp files.cpp base32.cpp vmac.cpp tigertab.cpp sharkbox.cpp safer.cpp randpool.cpp esign.cpp arc4.cpp osrng.cpp skipjack.cpp seed.cpp sha3.cpp sosemanuk.cpp bfinit.cpp rabin.cpp 3way.cpp rw.cpp rdrand.cpp rsa.cpp rdtables.cpp gost.cpp socketft.cpp tftables.cpp nbtheory.cpp panama.cpp modes.cpp rijndael.cpp casts.cpp chacha.cpp gfpcrypt.cpp poly1305.cpp dll.cpp ec2n.cpp blumshub.cpp algebra.cpp basecode.cpp base64.cpp cbcmac.cpp rc6.cpp dh2.cpp gf256.cpp mqueue.cpp misc.cpp pssr.cpp channels.cpp tiger.cpp cast.cpp rng.cpp square.cpp asn.cpp whrlpool.cpp md4.cpp dh.cpp ccm.cpp md2.cpp mqv.cpp gf2_32.cpp ttmac.cpp luc.cpp trdlocal.cpp pubkey.cpp gcm.cpp ripemd.cpp eccrypto.cpp serpent.cpp cmac.cpp
 DLLOBJS := $(DLLSRCS:.cpp=.export.o)
 
 # Import lib testing
@@ -473,7 +462,7 @@ endif
 
 .PHONY: deps
 deps GNUmakefile.deps:
-	$(CXX) $(strip $(CXXFLAGS)) -MM *.cpp > GNUmakefile.deps
+	$(CXX) $(CXXFLAGS) -MM *.cpp > GNUmakefile.deps
 
 # CXXFLAGS are tuned earlier.
 .PHONY: asan ubsan align aligned
@@ -501,8 +490,8 @@ test check: cryptest.exe
 
 # Used to generate list of source files for Autotools, CMakeList, Android.mk, etc
 .PHONY: sources
-sources: adhoc.cpp
-	$(info Library sources: $(filter-out $(TESTSRCS),$(SRCS)))
+sources:
+	$(info Library sources: $(filter-out fipstest.cpp $(TESTSRCS),$(SRCS)))
 	$(info )
 	$(info Test sources: $(TESTSRCS))
 
@@ -642,26 +631,26 @@ libcryptopp.so: libcryptopp.so$(SOLIB_VERSION_SUFFIX) | so_warning
 endif
 
 libcryptopp.so$(SOLIB_VERSION_SUFFIX): $(LIBOBJS)
-	$(CXX) -shared $(SOLIB_FLAGS) -o $@ $(strip $(CXXFLAGS)) $(LDFLAGS) $(LIBOBJS) $(LDLIBS)
+	$(CXX) -shared $(SOLIB_FLAGS) -o $@ $(CXXFLAGS) $(LDFLAGS) $(LIBOBJS) $(LDLIBS)
 ifeq ($(HAS_SOLIB_VERSION),1)
 	-$(LN) libcryptopp.so$(SOLIB_VERSION_SUFFIX) libcryptopp.so
 	-$(LN) libcryptopp.so$(SOLIB_VERSION_SUFFIX) libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
 endif
 
 libcryptopp.dylib: $(LIBOBJS)
-	$(CXX) -dynamiclib -o $@ $(strip $(CXXFLAGS)) -install_name "$@" -current_version "$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)" -compatibility_version "$(LIB_MAJOR).$(LIB_MINOR)" -headerpad_max_install_names $(LDFLAGS) $(LIBOBJS)
+	$(CXX) -dynamiclib -o $@ $(CXXFLAGS) -install_name "$@" -current_version "$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)" -compatibility_version "$(LIB_MAJOR).$(LIB_MINOR)" -headerpad_max_install_names $(LDFLAGS) $(LIBOBJS)
 
 cryptest.exe: libcryptopp.a $(TESTOBJS)
-	$(CXX) -o $@ $(strip $(CXXFLAGS)) $(TESTOBJS) ./libcryptopp.a $(LDFLAGS) $(LDLIBS)
+	$(CXX) -o $@ $(CXXFLAGS) $(TESTOBJS) ./libcryptopp.a $(LDFLAGS) $(LDLIBS)
 
 # Makes it faster to test changes
 nolib: $(OBJS)
-	$(CXX) -o ct  $(strip $(CXXFLAGS)) $(OBJS) $(LDFLAGS) $(LDLIBS)
+	$(CXX) -o ct $(CXXFLAGS) $(OBJS) $(LDFLAGS) $(LDLIBS)
 
 dll: cryptest.import.exe dlltest.exe
 
 cryptopp.dll: $(DLLOBJS)
-	$(CXX) -shared -o $@ $(strip $(CXXFLAGS)) $(DLLOBJS) $(LDFLAGS) $(LDLIBS) -Wl,--out-implib=libcryptopp.dll.a
+	$(CXX) -shared -o $@ $(CXXFLAGS) $(DLLOBJS) $(LDFLAGS) $(LDLIBS) -Wl,--out-implib=libcryptopp.dll.a
 
 libcryptopp.import.a: $(LIBIMPORTOBJS)
 	$(AR) $(ARFLAGS) $@ $(LIBIMPORTOBJS)
@@ -670,13 +659,13 @@ ifeq ($(IS_SUN),0)
 endif
 
 cryptest.import.exe: cryptopp.dll libcryptopp.import.a $(TESTIMPORTOBJS)
-	$(CXX) -o $@ $(strip $(CXXFLAGS)) $(TESTIMPORTOBJS) -L. -lcryptopp.dll -lcryptopp.import $(LDFLAGS) $(LDLIBS)
+	$(CXX) -o $@ $(CXXFLAGS) $(TESTIMPORTOBJS) -L. -lcryptopp.dll -lcryptopp.import $(LDFLAGS) $(LDLIBS)
 
 dlltest.exe: cryptopp.dll $(DLLTESTOBJS)
-	$(CXX) -o $@ $(strip $(CXXFLAGS)) $(DLLTESTOBJS) -L. -lcryptopp.dll $(LDFLAGS) $(LDLIBS)
+	$(CXX) -o $@ $(CXXFLAGS) $(DLLTESTOBJS) -L. -lcryptopp.dll $(LDFLAGS) $(LDLIBS)
 
 # This recipe prepares the distro files
-TEXT_FILES := *.h *.cpp adhoc.cpp.proto License.txt Readme.txt Install.txt Filelist.txt CMakeLists.txt Doxyfile cryptest* cryptlib* dlltest* cryptdll* *.sln *.vcxproj *.filters cryptopp.rc TestVectors/*.txt TestData/*.dat TestScripts/*.sh TestScripts/*.pl TestScripts/*.cmd
+TEXT_FILES := *.h *.cpp adhoc.cpp.proto License.txt Readme.txt Install.txt Filelist.txt CMakeLists.txt config.compat Doxyfile cryptest* cryptlib* dlltest* cryptdll* *.sln *.vcxproj *.filters cryptopp.rc TestVectors/*.txt TestData/*.dat TestScripts/*.sh TestScripts/*.pl TestScripts/*.cmd
 EXEC_FILES := GNUmakefile GNUmakefile-cross TestData/ TestVectors/ TestScripts/
 
 ifeq ($(wildcard Filelist.txt),Filelist.txt)
@@ -686,10 +675,10 @@ endif
 .PHONY: trim
 trim:
 ifneq ($(IS_DARWIN),0)
-	sed -i '' -e's/[[:space:]]*$$//' *.sh *.h *.cpp *.sln *.vcxproj GNUmakefile GNUmakefile-cross
+	sed -i '' -e's/[[:space:]]*$$//' *.compat *.sh *.h *.cpp *.sln *.vcxproj GNUmakefile GNUmakefile-cross
 	make convert
 else
-	sed -i -e's/[[:space:]]*$$//' *.sh *.h *.cpp *.sln *.vcxproj GNUmakefile GNUmakefile-cross
+	sed -i -e's/[[:space:]]*$$//' *.compat *.sh *.h *.cpp *.sln *.vcxproj GNUmakefile GNUmakefile-cross
 	make convert
 endif
 
@@ -757,42 +746,42 @@ endif # Dependencies
 # MacPorts/GCC issue with init_priority. Apple/GCC and Fink/GCC are fine; limit to MacPorts.
 #   Also see http://lists.macosforge.org/pipermail/macports-users/2015-September/039223.html
 ifeq ($(GCC_COMPILER)$(MACPORTS_COMPILER),11)
-ifeq ($(findstring -DMACPORTS_GCC_COMPILER, $(strip $(CXXFLAGS))),)
+ifeq ($(findstring -DMACPORTS_GCC_COMPILER,$(CXXFLAGS)),)
 cryptlib.o:
-	$(CXX) $(strip $(CXXFLAGS)) -DMACPORTS_GCC_COMPILER=1 -c cryptlib.cpp
+	$(CXX) $(CXXFLAGS) -DMACPORTS_GCC_COMPILER=1 -c cryptlib.cpp
 cpu.o:
-	$(CXX) $(strip $(CXXFLAGS)) -DMACPORTS_GCC_COMPILER=1 -c cpu.cpp
+	$(CXX) $(CXXFLAGS) -DMACPORTS_GCC_COMPILER=1 -c cpu.cpp
 endif
 endif
 
 # Only use CRYPTOPP_DATA_DIR if its not set in CXXFLAGS
-ifeq ($(findstring -DCRYPTOPP_DATA_DIR, $(strip $(CXXFLAGS))),)
+ifeq ($(findstring -DCRYPTOPP_DATA_DIR,$(CXXFLAGS)),)
 ifneq ($(strip $(CRYPTOPP_DATA_DIR)),)
 validat%.o : validat%.cpp
-	$(CXX) $(strip $(CXXFLAGS)) -DCRYPTOPP_DATA_DIR=\"$(CRYPTOPP_DATA_DIR)\" -c $<
+	$(CXX) $(CXXFLAGS) -DCRYPTOPP_DATA_DIR=\"$(CRYPTOPP_DATA_DIR)\" -c $<
 bench%.o : bench%.cpp
-	$(CXX) $(strip $(CXXFLAGS)) -DCRYPTOPP_DATA_DIR=\"$(CRYPTOPP_DATA_DIR)\" -c $<
+	$(CXX) $(CXXFLAGS) -DCRYPTOPP_DATA_DIR=\"$(CRYPTOPP_DATA_DIR)\" -c $<
 datatest.o : datatest.cpp
-	$(CXX) $(strip $(CXXFLAGS)) -DCRYPTOPP_DATA_DIR=\"$(CRYPTOPP_DATA_DIR)\" -c $<
+	$(CXX) $(CXXFLAGS) -DCRYPTOPP_DATA_DIR=\"$(CRYPTOPP_DATA_DIR)\" -c $<
 test.o : test.cpp
-	$(CXX) $(strip $(CXXFLAGS)) -DCRYPTOPP_DATA_DIR=\"$(CRYPTOPP_DATA_DIR)\" -c $<
+	$(CXX) $(CXXFLAGS) -DCRYPTOPP_DATA_DIR=\"$(CRYPTOPP_DATA_DIR)\" -c $<
 endif
 endif
 
 %.dllonly.o : %.cpp
-	$(CXX) $(strip $(CXXFLAGS)) -DCRYPTOPP_DLL_ONLY -c $< -o $@
+	$(CXX) $(CXXFLAGS) -DCRYPTOPP_DLL_ONLY -c $< -o $@
 
 %.import.o : %.cpp
-	$(CXX) $(strip $(CXXFLAGS)) -DCRYPTOPP_IMPORTS -c $< -o $@
+	$(CXX) $(CXXFLAGS) -DCRYPTOPP_IMPORTS -c $< -o $@
 
 %.export.o : %.cpp
-	$(CXX) $(strip $(CXXFLAGS)) -DCRYPTOPP_EXPORTS -c $< -o $@
+	$(CXX) $(CXXFLAGS) -DCRYPTOPP_EXPORTS -c $< -o $@
 
 %.bc : %.cpp
-	$(CXX) $(strip $(CXXFLAGS)) -c $<
+	$(CXX) $(CXXFLAGS) -c $<
 
 %.o : %.cpp
-	$(CXX) $(strip $(CXXFLAGS)) -c $<
+	$(CXX) $(CXXFLAGS) -c $<
 
 .PHONY: so_warning
 so_warning:

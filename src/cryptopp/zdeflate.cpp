@@ -12,15 +12,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if (defined(_MSC_VER) && (_MSC_VER < 1400)) && !defined(__MWERKS__)
-	// VC60 and VC7 workaround: built-in std::reverse_iterator has two template parameters, Dinkumware only has one
-	typedef std::reverse_bidirectional_iterator<unsigned int *, unsigned int> RevIt;
-#elif defined(_RWSTD_NO_CLASS_PARTIAL_SPEC)
-	typedef std::reverse_iterator<unsigned int *, std::random_access_iterator_tag, unsigned int> RevIt;
-#else
-	typedef std::reverse_iterator<unsigned int *> RevIt;
-#endif
-
 LowFirstBitWriter::LowFirstBitWriter(BufferedTransformation *attachment)
 	: Filter(attachment), m_counting(false), m_bitCount(0), m_buffer(0)
 	, m_bitsBuffered(0), m_bytesBuffered(0)
@@ -98,7 +89,7 @@ HuffmanEncoder::HuffmanEncoder(const unsigned int *codeBits, unsigned int nCodes
 
 struct HuffmanNode
 {
-	// Coverity finding on uninitialized 'symbol' member
+	// Coverity finding on uninitalized 'symbol' member
 	HuffmanNode()
 		: symbol(0), parent(0) {}
 	HuffmanNode(const HuffmanNode& rhs)
@@ -300,7 +291,7 @@ void Deflator::Reset(bool forceReset)
 	m_detectCount = 1;
 	m_detectSkip = 0;
 
-	// m_prev will be initialized automatically in InsertString
+	// m_prev will be initialized automaticly in InsertString
 	std::fill(m_head.begin(), m_head.end(), byte(0));
 
 	std::fill(m_literalCounts.begin(), m_literalCounts.end(), byte(0));
@@ -670,6 +661,15 @@ void Deflator::EncodeBlock(bool eof, unsigned int blockType)
 	{
 		if (blockType == DYNAMIC)
 		{
+#if defined(_MSC_VER) && !defined(__MWERKS__) && (_MSC_VER <= 1300)
+			// VC60 and VC7 workaround: built-in std::reverse_iterator has two template parameters, Dinkumware only has one
+			typedef std::reverse_bidirectional_iterator<unsigned int *, unsigned int> RevIt;
+#elif defined(_RWSTD_NO_CLASS_PARTIAL_SPEC)
+			typedef std::reverse_iterator<unsigned int *, std::random_access_iterator_tag, unsigned int> RevIt;
+#else
+			typedef std::reverse_iterator<unsigned int *> RevIt;
+#endif
+
 			FixedSizeSecBlock<unsigned int, 286> literalCodeLengths;
 			FixedSizeSecBlock<unsigned int, 30> distanceCodeLengths;
 

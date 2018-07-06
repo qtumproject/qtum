@@ -56,7 +56,9 @@ NAMESPACE_END
 
 USING_NAMESPACE(CryptoPP)
 
+#if !(defined(_MSC_VER) && (_MSC_VER < 1300))
 using std::set_new_handler;
+#endif
 
 static PNew s_pNew = NULL;
 static PDelete s_pDelete = NULL;
@@ -159,4 +161,4 @@ void operator delete [] (void * p)
 	operator delete (p);
 }
 
-#endif	// CRYPTOPP_EXPORTS
+#endif	// #ifdef CRYPTOPP_EXPORTS

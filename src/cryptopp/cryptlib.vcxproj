@@ -251,7 +251,6 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="pkcspad.cpp" />
-    <ClCompile Include="poly1305.cpp" />
     <ClCompile Include="polynomi.cpp" />
     <ClCompile Include="pssr.cpp" />
     <ClCompile Include="pubkey.cpp" />
@@ -320,17 +319,17 @@
     <CustomBuild Condition="'$(Platform)'=='Win32'" Include="rdrand.asm">
       <Message>Building and assembling rdrand.asm</Message>
       <Command>ml.exe /c /nologo /D_M_X86 /W3 /Cx /Zi /safeseh /Fo"$(IntDir)rdrand-x86.obj" "%(FullPath)"</Command>
-      <Outputs>$(IntDir)\rdrand-x86.obj;%(Outputs)</Outputs>
+      <Outputs>$(IntDir)\rdrand-x86.obj</Outputs>
     </CustomBuild>
     <CustomBuild Condition="'$(Platform)'=='x64'" Include="rdrand.asm">
       <Message>Building and assembling rdrand.asm</Message>
       <Command>ml64.exe /c /nologo /D_M_X64 /W3 /Cx /Zi /Fo"$(IntDir)rdrand-x64.obj" "%(FullPath)"</Command>
-      <Outputs>$(IntDir)\rdrand-x64.obj;%(Outputs)</Outputs>
+      <Outputs>$(IntDir)\rdrand-x64.obj</Outputs>
     </CustomBuild>
     <CustomBuild Condition="'$(Platform)'=='x64' AND ('$(Configuration)'=='Debug' Or '$(Configuration)'=='Release')" Include="x64dll.asm">
       <Message>Building and assembling x64dll.asm</Message>
       <Command>ml64.exe /c /nologo /D_M_X64 /W3 /Zi /Fo"$(IntDir)x64dll.obj" "%(FullPath)"</Command>
-      <Outputs>$(IntDir)x64dll.obj;%(Outputs)</Outputs>
+      <Outputs>$(IntDir)x64dll.obj</Outputs>
     </CustomBuild>
     <CustomBuild Condition="'$(Platform)'=='x64'" Include="x64masm.asm">
       <Message>Building and Assembling x64masm.asm</Message>
@@ -370,13 +369,11 @@
     <ClInclude Include="dh.h" />
     <ClInclude Include="dh2.h" />
     <ClInclude Include="dmac.h" />
-    <ClInclude Include="drbg.h" />
     <ClInclude Include="dsa.h" />
     <ClInclude Include="eax.h" />
     <ClInclude Include="ec2n.h" />
     <ClInclude Include="eccrypto.h" />
     <ClInclude Include="ecp.h" />
-    <ClInclude Include="ecpoint.h" />
     <ClInclude Include="elgamal.h" />
     <ClInclude Include="emsa2.h" />
     <ClInclude Include="eprecomp.h" />
@@ -425,7 +422,6 @@
     <ClInclude Include="panama.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="pkcspad.h" />
-    <ClInclude Include="poly1305.h" />
     <ClInclude Include="polynomi.h" />
     <ClInclude Include="pssr.h" />
     <ClInclude Include="pubkey.h" />
@@ -454,7 +450,6 @@
     <ClInclude Include="shacal2.h" />
     <ClInclude Include="shark.h" />
     <ClInclude Include="simple.h" />
-    <ClInclude Include="siphash.h" />
     <ClInclude Include="skipjack.h" />
     <ClInclude Include="smartptr.h" />
     <ClInclude Include="socketft.h" />

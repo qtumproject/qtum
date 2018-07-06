@@ -126,7 +126,7 @@ RandomNumberGenerator & GlobalRNG()
 }
 
 // See misc.h and trap.h for comments and usage
-#if defined(CRYPTOPP_DEBUG) && defined(UNIX_SIGNALS_AVAILABLE)
+#if CRYPTOPP_DEBUG && (defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE))
 static const SignalHandler<SIGTRAP, false> s_dummyHandler;
 // static const DebugTrapHandler s_dummyHandler;
 #endif
@@ -152,9 +152,8 @@ int CRYPTOPP_API main(int argc, char *argv[])
 		std::string seed = IntToString(time(NULL));
 		seed.resize(16, ' ');
 
-		// Fetch the SymmetricCipher interface, not the RandomNumberGenerator interface, to key the underlying cipher
-		OFB_Mode<AES>::Encryption& aesg = dynamic_cast<OFB_Mode<AES>::Encryption&>(GlobalRNG());
-		aesg.SetKeyWithIV((byte *)seed.data(), 16, (byte *)seed.data());
+		OFB_Mode<AES>::Encryption& prng = dynamic_cast<OFB_Mode<AES>::Encryption&>(GlobalRNG());
+		prng.SetKeyWithIV((byte *)seed.data(), 16, (byte *)seed.data());
 
 		std::string command, executableName, macFilename;
 
@@ -439,7 +438,7 @@ T StringToValue(const std::string& str) {
 
 	// Arbitrary, but we need to clear a Coverity finding TAINTED_SCALAR
 	if(iss.str().length() > 25)
-		throw InvalidArgument("cryptest.exe: '" + str +"' is too long");
+		throw InvalidArgument("cryptest.exe: '" + str +"' is tool ong");
 
 	T value;
 	iss >> std::noskipws >> value;
@@ -900,35 +899,34 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	case 0: result = ValidateAll(thorough); break;
 	case 1: result = TestSettings(); break;
 	case 2: result = TestOS_RNG(); break;
-	case 3: result = TestNIST_DRBG(); break;
-	case 4: result = ValidateMD5(); break;
-	case 5: result = ValidateSHA(); break;
-	case 6: result = ValidateDES(); break;
-	case 7: result = ValidateIDEA(); break;
-	case 8: result = ValidateARC4(); break;
-	case 9: result = ValidateRC5(); break;
-	case 10: result = ValidateBlowfish(); break;
-//	case 11: result = ValidateDiamond2(); break;
-	case 12: result = ValidateThreeWay(); break;
-	case 13: result = ValidateBBS(); break;
-	case 14: result = ValidateDH(); break;
-	case 15: result = ValidateRSA(); break;
-	case 16: result = ValidateElGamal(); break;
-	case 17: result = ValidateDSA(thorough); break;
-//	case 18: result = ValidateHAVAL(); break;
-	case 19: result = ValidateSAFER(); break;
-	case 20: result = ValidateLUC(); break;
-	case 21: result = ValidateRabin(); break;
-//	case 22: result = ValidateBlumGoldwasser(); break;
-	case 23: result = ValidateECP(); break;
-	case 24: result = ValidateEC2N(); break;
-//	case 25: result = ValidateMD5MAC(); break;
-	case 26: result = ValidateGOST(); break;
-	case 27: result = ValidateTiger(); break;
-	case 28: result = ValidateRIPEMD(); break;
-	case 29: result = ValidateHMAC(); break;
-//	case 30: result = ValidateXMACC(); break;
-	case 31: result = ValidateSHARK(); break;
+	case 3: result = ValidateMD5(); break;
+	case 4: result = ValidateSHA(); break;
+	case 5: result = ValidateDES(); break;
+	case 6: result = ValidateIDEA(); break;
+	case 7: result = ValidateARC4(); break;
+	case 8: result = ValidateRC5(); break;
+	case 9: result = ValidateBlowfish(); break;
+//	case 10: result = ValidateDiamond2(); break;
+	case 11: result = ValidateThreeWay(); break;
+	case 12: result = ValidateBBS(); break;
+	case 13: result = ValidateDH(); break;
+	case 14: result = ValidateRSA(); break;
+	case 15: result = ValidateElGamal(); break;
+	case 16: result = ValidateDSA(thorough); break;
+//	case 17: result = ValidateHAVAL(); break;
+	case 18: result = ValidateSAFER(); break;
+	case 19: result = ValidateLUC(); break;
+	case 20: result = ValidateRabin(); break;
+//	case 21: result = ValidateBlumGoldwasser(); break;
+	case 22: result = ValidateECP(); break;
+	case 23: result = ValidateEC2N(); break;
+//	case 24: result = ValidateMD5MAC(); break;
+	case 25: result = ValidateGOST(); break;
+	case 26: result = ValidateTiger(); break;
+	case 27: result = ValidateRIPEMD(); break;
+	case 28: result = ValidateHMAC(); break;
+//	case 29: result = ValidateXMACC(); break;
+	case 30: result = ValidateSHARK(); break;
 	case 32: result = ValidateLUC_DH(); break;
 	case 33: result = ValidateLUC_DL(); break;
 	case 34: result = ValidateSEAL(); break;
@@ -946,48 +944,30 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	case 46: result = ValidateSerpent(); break;
 	case 47: result = ValidateCipherModes(); break;
 	case 48: result = ValidateCRC32(); break;
-	case 49: result = ValidateCRC32C(); break;
-	case 50: result = ValidateECDSA(); break;
-	case 51: result = ValidateECGDSA(); break;
-	case 52: result = ValidateXTR_DH(); break;
-	case 53: result = ValidateSKIPJACK(); break;
-	case 54: result = ValidateSHA2(); break;
-	case 55: result = ValidatePanama(); break;
-	case 56: result = ValidateAdler32(); break;
-	case 57: result = ValidateMD4(); break;
-	case 58: result = ValidatePBKDF(); break;
-	case 59: result = ValidateESIGN(); break;
-	case 60: result = ValidateDLIES(); break;
-	case 61: result = ValidateBaseCode(); break;
-	case 62: result = ValidateSHACAL2(); break;
-	case 63: result = ValidateCamellia(); break;
-	case 64: result = ValidateWhirlpool(); break;
-	case 65: result = ValidateTTMAC(); break;
-	case 66: result = ValidateSalsa(); break;
-	case 67: result = ValidateSosemanuk(); break;
-	case 68: result = ValidateVMAC(); break;
-	case 69: result = ValidateCCM(); break;
-	case 70: result = ValidateGCM(); break;
-	case 71: result = ValidateCMAC(); break;
-	case 72: result = ValidateHKDF(); break;
-	case 73: result = ValidateBLAKE2s(); break;
-	case 74: result = ValidateBLAKE2b(); break;
-	case 75: result = ValidatePoly1305(); break;
-	case 76: result = ValidateSipHash(); break;
-
-#if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_IMPORTS)
-	// http://github.com/weidai11/cryptopp/issues/92
-	case 9999: result = TestSecBlock(); break;
-	// http://github.com/weidai11/cryptopp/issues/64
-	case 9998: result = TestPolynomialMod2(); break;
-	// http://github.com/weidai11/cryptopp/issues/336
-	case 9997: result = TestIntegerBitops(); break;
-	// http://github.com/weidai11/cryptopp/issues/242
-	case 9996: result = TestHuffmanCodes(); break;
-	// http://github.com/weidai11/cryptopp/issues/346
-	case 9995: result = TestASN1Parse(); break;
-#endif
-
+	case 49: result = ValidateECDSA(); break;
+	case 50: result = ValidateXTR_DH(); break;
+	case 51: result = ValidateSKIPJACK(); break;
+	case 52: result = ValidateSHA2(); break;
+	case 53: result = ValidatePanama(); break;
+	case 54: result = ValidateAdler32(); break;
+	case 55: result = ValidateMD4(); break;
+	case 56: result = ValidatePBKDF(); break;
+	case 57: result = ValidateESIGN(); break;
+	case 58: result = ValidateDLIES(); break;
+	case 59: result = ValidateBaseCode(); break;
+	case 60: result = ValidateSHACAL2(); break;
+	case 61: result = ValidateCamellia(); break;
+	case 62: result = ValidateWhirlpool(); break;
+	case 63: result = ValidateTTMAC(); break;
+	case 64: result = ValidateSalsa(); break;
+	case 65: result = ValidateSosemanuk(); break;
+	case 66: result = ValidateVMAC(); break;
+	case 67: result = ValidateCCM(); break;
+	case 68: result = ValidateGCM(); break;
+	case 69: result = ValidateCMAC(); break;
+	case 70: result = ValidateHKDF(); break;
+	case 71: result = ValidateBLAKE2s(); break;
+	case 72: result = ValidateBLAKE2b(); break;
 	default: return false;
 	}
 

@@ -18,12 +18,6 @@
 
 #include <iostream>
 
-// Issue 340
-#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
-# pragma GCC diagnostic ignored "-Wconversion"
-# pragma GCC diagnostic ignored "-Wsign-conversion"
-#endif
-
 NAMESPACE_BEGIN(CryptoPP)
 
 PolynomialMod2::PolynomialMod2()
@@ -331,7 +325,7 @@ PolynomialMod2 PolynomialMod2::Modulo(const PolynomialMod2 &b) const
 
 PolynomialMod2& PolynomialMod2::operator<<=(unsigned int n)
 {
-#if defined(CRYPTOPP_DEBUG)
+#if CRYPTOPP_DEBUG
 	int x; CRYPTOPP_UNUSED(x);
 	CRYPTOPP_ASSERT(SafeConvert(n,x));
 #endif
@@ -503,7 +497,7 @@ std::ostream& operator<<(std::ostream& out, const PolynomialMod2 &a)
 
 	static const char upper[]="0123456789ABCDEF";
 	static const char lower[]="0123456789abcdef";
-	const char* const vec = (out.flags() & std::ios::uppercase) ? upper : lower;
+	const char* vec = (out.flags() & std::ios::uppercase) ? upper : lower;
 
 	for (i=0; i*bits < a.BitCount(); i++)
 	{

@@ -1,0 +1,1 @@
+ccache /usr/bin/c++    -std=c++11 -Wall -Wextra -Wfatal-errors -O2 -g -DNDEBUG   CMakeFiles/algebra_fields_test.dir/algebra/fields/tests/test_fields.cpp.o  -o algebra_fields_test -rdynamic libff.a /usr/lib/x86_64-linux-gnu/libgmp.so -lprocps ../depends/libzm.a 

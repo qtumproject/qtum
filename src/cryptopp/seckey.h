@@ -1,27 +1,21 @@
 // seckey.h - written and placed in the public domain by Wei Dai
 
-//! \file seckey.h
+//! \file
 //! \brief Classes and functions for implementing secret key algorithms.
 
 #ifndef CRYPTOPP_SECKEY_H
 #define CRYPTOPP_SECKEY_H
 
 #include "config.h"
-#include "cryptlib.h"
-#include "misc.h"
-#include "simple.h"
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)
 # pragma warning(disable: 4189)
 #endif
 
-// Issue 340
-#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
-# pragma GCC diagnostic push
-# pragma GCC diagnostic ignored "-Wconversion"
-# pragma GCC diagnostic ignored "-Wsign-conversion"
-#endif
+#include "cryptlib.h"
+#include "misc.h"
+#include "simple.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -61,7 +55,7 @@ public:
 //! \brief Inherited by algorithms with variable number of rounds
 //! \tparam D Default number of rounds
 //! \tparam N Minimum number of rounds
-//! \tparam M Maximum number of rounds
+//! \tparam D Maximum number of rounds
 template <unsigned int D, unsigned int N=1, unsigned int M=INT_MAX>		// use INT_MAX here because enums are treated as signed ints
 class VariableRounds
 {
@@ -76,9 +70,16 @@ public:
 	//!   provided by a static function.
 	//! \param keylength the size of the key, in bytes
 	//! \details keylength is unused in the default implementation.
-	CRYPTOPP_STATIC_CONSTEXPR unsigned int StaticGetDefaultRounds(size_t keylength)
+	CRYPTOPP_CONSTEXPR static unsigned int StaticGetDefaultRounds(size_t keylength)
 	{
+		// Comma operator breaks Debug builds with GCC 4.0 - 4.6.
+		// Also see http://github.com/weidai11/cryptopp/issues/255
+#if defined(CRYPTOPP_CXX11_CONSTEXPR)
 		return CRYPTOPP_UNUSED(keylength), static_cast<unsigned int>(DEFAULT_ROUNDS);
+#else
+		CRYPTOPP_UNUSED(keylength);
+		return static_cast<unsigned int>(DEFAULT_ROUNDS);
+#endif
 	}
 
 protected:
@@ -150,9 +151,16 @@ public:
 	//! \param keylength the size of the key, in bytes
 	//! \details The default implementation returns KEYLENGTH. keylength is unused
 	//!   in the default implementation.
-	CRYPTOPP_STATIC_CONSTEXPR size_t CRYPTOPP_API StaticGetValidKeyLength(size_t keylength)
+	CRYPTOPP_CONSTEXPR static size_t CRYPTOPP_API StaticGetValidKeyLength(size_t keylength)
 	{
+		// Comma operator breaks Debug builds with GCC 4.0 - 4.6.
+		// Also see http://github.com/weidai11/cryptopp/issues/255
+#if defined(CRYPTOPP_CXX11_CONSTEXPR)
 		return CRYPTOPP_UNUSED(keylength), static_cast<size_t>(KEYLENGTH);
+#else
+		CRYPTOPP_UNUSED(keylength);
+		return static_cast<size_t>(KEYLENGTH);
+#endif
 	}
 };
 
@@ -161,7 +169,7 @@ public:
 //! \tparam D Default key length, in bytes
 //! \tparam N Minimum key length, in bytes
 //! \tparam M Maximum key length, in bytes
-//! \tparam Q Default key length multiple, in bytes. The default multiple is 1.
+//! \tparam M Default key length multiple, in bytes. The default multiple is 1.
 //! \tparam IV_REQ the \ref SimpleKeyingInterface::IV_Requirement "IV requirements"
 //! \tparam IV_L default IV length, in bytes. The default length is 0.
 //! \sa SimpleKeyingInterface
@@ -204,11 +212,18 @@ public:
 	//!   then keylength is returned. Otherwise, the function returns keylength rounded
 	//!   \a down to the next smaller multiple of KEYLENGTH_MULTIPLE.
 	//! \details keylength is provided in bytes, not bits.
-	CRYPTOPP_STATIC_CONSTEXPR size_t CRYPTOPP_API StaticGetValidKeyLength(size_t keylength)
+	// TODO: Figure out how to make this CRYPTOPP_CONSTEXPR
+	static size_t CRYPTOPP_API StaticGetValidKeyLength(size_t keylength)
 	{
-		return (keylength <= N) ? N :
-			(keylength >= M) ? M :
-			(keylength+Q-1) - (keylength+Q-1)%Q;
+		if (keylength < (size_t)MIN_KEYLENGTH)
+			return MIN_KEYLENGTH;
+		else if (keylength > (size_t)MAX_KEYLENGTH)
+			return (size_t)MAX_KEYLENGTH;
+		else
+		{
+			keylength += KEYLENGTH_MULTIPLE-1;
+			return keylength - keylength%KEYLENGTH_MULTIPLE;
+		}
 	}
 };
 
@@ -246,7 +261,7 @@ public:
 	//!   then keylength is returned. Otherwise, the function returns keylength rounded
 	//!   \a down to the next smaller multiple of KEYLENGTH_MULTIPLE.
 	//! \details keylength is provided in bytes, not bits.
-	CRYPTOPP_STATIC_CONSTEXPR size_t CRYPTOPP_API StaticGetValidKeyLength(size_t keylength)
+	CRYPTOPP_CONSTEXPR static size_t CRYPTOPP_API StaticGetValidKeyLength(size_t keylength)
 		{return T::StaticGetValidKeyLength(keylength);}
 };
 
@@ -280,7 +295,7 @@ public:
 
 	//! \brief Provides a valid key length for the algorithm
 	//! \param keylength the size of the key, in bytes
-	//! \returns the valid key length, in bytes
+	//! \returns the valid key lenght, in bytes
 	//! \details keylength is provided in bytes, not bits. If keylength is less than MIN_KEYLENGTH,
 	//!   then the function returns MIN_KEYLENGTH. If keylength is greater than MAX_KEYLENGTH,
 	//!   then the function returns MAX_KEYLENGTH. if If keylength is a multiple of KEYLENGTH_MULTIPLE,
@@ -446,11 +461,6 @@ NAMESPACE_END
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(pop)
-#endif
-
-// Issue 340
-#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
-# pragma GCC diagnostic pop
 #endif
 
 #endif

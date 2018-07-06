@@ -36,7 +36,9 @@ NAMESPACE_BEGIN(CryptoPP)
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Filter : public BufferedTransformation, public NotCopyable
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~Filter() {}
+#endif
 
 	//!	\name ATTACHMENT
 	//@{
@@ -159,8 +161,6 @@ protected:
 //! \brief Create a working space in a BufferedTransformation
 struct CRYPTOPP_DLL FilterPutSpaceHelper
 {
-	virtual ~FilterPutSpaceHelper() {}
-
 	//! \brief Create a working space in a BufferedTransformation
 	//! \param target BufferedTransformation for the working space
 	//! \param channel channel for the working space
@@ -220,8 +220,6 @@ struct CRYPTOPP_DLL FilterPutSpaceHelper
 class CRYPTOPP_DLL MeterFilter : public Bufferless<Filter>
 {
 public:
-	virtual ~MeterFilter() {}
-
 	//! \brief Construct a MeterFilter
 	//! \param attachment an optional attached transformation
 	//! \param transparent flag indicating if the filter should function transparently
@@ -317,7 +315,11 @@ public:
 class CRYPTOPP_DLL FilterWithBufferedInput : public Filter
 {
 public:
-	virtual ~FilterWithBufferedInput() {}
+
+#if !defined(CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562)
+	//! default FilterWithBufferedInput for temporaries
+	FilterWithBufferedInput();
+#endif
 
 	//! \brief Construct a FilterWithBufferedInput with an attached transformation
 	//! \param attachment an attached transformation
@@ -371,21 +373,15 @@ protected:
 	virtual void NextPutSingle(const byte *inString)
 		{CRYPTOPP_UNUSED(inString); CRYPTOPP_ASSERT(false);}
 	// Same as NextPut() except length can be a multiple of blockSize
-	// Either NextPut() or NextPutMultiple() must be overridden
+	// Either NextPut() or NextPutMultiple() must be overriden
 	virtual void NextPutMultiple(const byte *inString, size_t length);
 	// Same as NextPutMultiple(), but inString can be modified
 	virtual void NextPutModifiable(byte *inString, size_t length)
 		{NextPutMultiple(inString, length);}
-	//! \brief Input the last block of data
-	//! \param inString the input byte buffer
-	//! \param length the size of the input buffer, in bytes
-	//! \details LastPut() processes the last block of data and signals attached filters to do the same.
-	//!   LastPut() is always called. The pseudo algorithm for the logic is:
-	//! <pre>
-	//!     if totalLength < firstSize then length == totalLength
-	//!     else if totalLength <= firstSize+lastSize then length == totalLength-firstSize
-	//!     else lastSize <= length < lastSize+blockSize
-	//! </pre>
+	// LastPut() is always called
+	// if totalLength < firstSize then length == totalLength
+	// else if totalLength <= firstSize+lastSize then length == totalLength-firstSize
+	// else lastSize <= length < lastSize+blockSize
 	virtual void LastPut(const byte *inString, size_t length) =0;
 	virtual void FlushDerived() {}
 
@@ -432,8 +428,6 @@ protected:
 class CRYPTOPP_DLL FilterWithInputQueue : public Filter
 {
 public:
-	virtual ~FilterWithInputQueue() {}
-
 	//! \brief Construct a FilterWithInputQueue
 	//! \param attachment an optional attached transformation
 	FilterWithInputQueue(BufferedTransformation *attachment=NULL) : Filter(attachment) {}
@@ -487,12 +481,10 @@ struct BlockPaddingSchemeDef
 
 //! \class StreamTransformationFilter
 //! \brief Filter wrapper for StreamTransformation
-//! \details StreamTransformationFilter is a filter wrapper for StreamTransformation. The filter will optionally handle padding/unpadding when needed
+//! \details Filter wrapper for StreamTransformation. The filter will optionally handle padding/unpadding when needed
 class CRYPTOPP_DLL StreamTransformationFilter : public FilterWithBufferedInput, public BlockPaddingSchemeDef, private FilterPutSpaceHelper
 {
 public:
-	virtual ~StreamTransformationFilter() {}
-
 	//! \brief Construct a StreamTransformationFilter
 	//! \param c reference to a StreamTransformation
 	//! \param attachment an optional attached transformation
@@ -516,13 +508,15 @@ protected:
 	unsigned int m_optimalBufferSize;
 };
 
+#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
+typedef StreamTransformationFilter StreamCipherFilter;
+#endif
+
 //! \class HashFilter
 //! \brief Filter wrapper for HashTransformation
 class CRYPTOPP_DLL HashFilter : public Bufferless<Filter>, private FilterPutSpaceHelper
 {
 public:
-	virtual ~HashFilter() {}
-
 	//! \brief Construct a HashFilter
 	//! \param hm reference to a HashTransformation
 	//! \param attachment an optional attached transformation
@@ -550,8 +544,6 @@ private:
 class CRYPTOPP_DLL HashVerificationFilter : public FilterWithBufferedInput
 {
 public:
-	virtual ~HashVerificationFilter() {}
-
 	//! \class HashVerificationFailed
 	//! \brief Exception thrown when a data integrity check failure is encountered
 	class HashVerificationFailed : public Exception
@@ -608,17 +600,14 @@ private:
 	SecByteBlock m_expectedHash;
 };
 
+typedef HashVerificationFilter HashVerifier;	// for backwards compatibility
+
 //! \class AuthenticatedEncryptionFilter
 //! \brief Filter wrapper for encrypting with AuthenticatedSymmetricCipher
-//! \details AuthenticatedEncryptionFilter() is a wrapper for encrypting with AuthenticatedSymmetricCipher(),
-//!   optionally handling padding/unpadding when needed.
-//! \sa AuthenticatedDecryptionFilter, EAX, CCM, GCM, AuthenticatedSymmetricCipher
-//! \since Crypto++ 5.6.0
+//! \details Filter wrapper for encrypting with AuthenticatedSymmetricCipher, optionally handling padding/unpadding when needed
 class CRYPTOPP_DLL AuthenticatedEncryptionFilter : public StreamTransformationFilter
 {
 public:
-	virtual ~AuthenticatedEncryptionFilter() {}
-
 	//! \brief Construct a AuthenticatedEncryptionFilter
 	//! \param c reference to a AuthenticatedSymmetricCipher
 	//! \param attachment an optional attached transformation
@@ -627,23 +616,11 @@ public:
 	//! \param macChannel the channel on which the MAC should be output
 	//! \param padding the \ref BlockPaddingSchemeDef "padding scheme"
 	//! \details <tt>truncatedDigestSize = -1</tt> indicates \ref HashTransformation::DigestSize() "DigestSize" should be used.
-	//! \since Crypto++ 5.6.0
 	AuthenticatedEncryptionFilter(AuthenticatedSymmetricCipher &c, BufferedTransformation *attachment = NULL, bool putAAD=false, int truncatedDigestSize=-1, const std::string &macChannel=DEFAULT_CHANNEL, BlockPaddingScheme padding = DEFAULT_PADDING);
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
 	byte * ChannelCreatePutSpace(const std::string &channel, size_t &size);
 	size_t ChannelPut2(const std::string &channel, const byte *begin, size_t length, int messageEnd, bool blocking);
-
-	//! \brief Input the last block of data
-	//! \param inString the input byte buffer
-	//! \param length the size of the input buffer, in bytes
-	//! \details LastPut() processes the last block of data and signals attached filters to do the same.
-	//!   LastPut() is always called. The pseudo algorithm for the logic is:
-	//! <pre>
-	//!     if totalLength < firstSize then length == totalLength
-	//!     else if totalLength <= firstSize+lastSize then length == totalLength-firstSize
-	//!     else lastSize <= length < lastSize+blockSize
-	//! </pre>
 	void LastPut(const byte *inString, size_t length);
 
 protected:
@@ -652,10 +629,7 @@ protected:
 
 //! \class AuthenticatedDecryptionFilter
 //! \brief Filter wrapper for decrypting with AuthenticatedSymmetricCipher
-//! \details AuthenticatedDecryptionFilter() is a wrapper for decrypting with AuthenticatedSymmetricCipher(),
-//!   optionally handling padding/unpadding when needed.
-//! \sa AuthenticatedEncryptionFilter, EAX, CCM, GCM, AuthenticatedSymmetricCipher
-//! \since Crypto++ 5.6.0
+//! \details Filter wrapper wrapper for decrypting with AuthenticatedSymmetricCipher, optionally handling padding/unpadding when needed.
 class CRYPTOPP_DLL AuthenticatedDecryptionFilter : public FilterWithBufferedInput, public BlockPaddingSchemeDef
 {
 public:
@@ -673,8 +647,6 @@ public:
 		DEFAULT_FLAGS = THROW_EXCEPTION
 	};
 
-	virtual ~AuthenticatedDecryptionFilter() {}
-
 	//! \brief Construct a AuthenticatedDecryptionFilter
 	//! \param c reference to a AuthenticatedSymmetricCipher
 	//! \param attachment an optional attached transformation
@@ -683,7 +655,6 @@ public:
 	//! \param padding the \ref BlockPaddingSchemeDef "padding scheme"
 	//! \details Additional authenticated data should be given in channel "AAD".
 	//! \details <tt>truncatedDigestSize = -1</tt> indicates \ref HashTransformation::DigestSize() "DigestSize" should be used.
-	//! \since Crypto++ 5.6.0
 	AuthenticatedDecryptionFilter(AuthenticatedSymmetricCipher &c, BufferedTransformation *attachment = NULL, word32 flags = DEFAULT_FLAGS, int truncatedDigestSize=-1, BlockPaddingScheme padding = DEFAULT_PADDING);
 
 	std::string AlgorithmName() const {return m_hashVerifier.AlgorithmName();}
@@ -695,17 +666,6 @@ protected:
 	void InitializeDerivedAndReturnNewSizes(const NameValuePairs &parameters, size_t &firstSize, size_t &blockSize, size_t &lastSize);
 	void FirstPut(const byte *inString);
 	void NextPutMultiple(const byte *inString, size_t length);
-
-	//! \brief Input the last block of data
-	//! \param inString the input byte buffer
-	//! \param length the size of the input buffer, in bytes
-	//! \details LastPut() processes the last block of data and signals attached filters to do the same.
-	//!   LastPut() is always called. The pseudo algorithm for the logic is:
-	//! <pre>
-	//!     if totalLength < firstSize then length == totalLength
-	//!     else if totalLength <= firstSize+lastSize then length == totalLength-firstSize
-	//!     else lastSize <= length < lastSize+blockSize
-	//! </pre>
 	void LastPut(const byte *inString, size_t length);
 
 	HashVerificationFilter m_hashVerifier;
@@ -717,8 +677,6 @@ protected:
 class CRYPTOPP_DLL SignerFilter : public Unflushable<Filter>
 {
 public:
-	virtual ~SignerFilter() {}
-
 	//! \brief Construct a SignerFilter
 	//! \param rng a RandomNumberGenerator derived class
 	//! \param signer a PK_Signer derived class
@@ -773,8 +731,6 @@ public:
 		DEFAULT_FLAGS = SIGNATURE_AT_BEGIN | PUT_RESULT
 	};
 
-	virtual ~SignatureVerificationFilter() {}
-
 	//! \brief Construct a SignatureVerificationFilter
 	//! \param verifier a PK_Verifier derived class
 	//! \param attachment an optional attached transformation
@@ -822,8 +778,6 @@ public:
 		//! \details PASS_EVERYTHING is default
 		PASS_EVERYTHING = PASS_SIGNALS | PASS_WAIT_OBJECTS
 	};
-
-	virtual ~Redirector() {}
 
 	//! \brief Construct a Redirector
 	Redirector() : m_target(NULL), m_behavior(PASS_EVERYTHING) {}
@@ -897,24 +851,13 @@ private:
 	word32 m_behavior;
 };
 
-//! \class OutputProxy
-//! \brief Filter class that is a proxy for a sink
-//! \details Used By ProxyFilter
+// Used By ProxyFilter
 class CRYPTOPP_DLL OutputProxy : public CustomSignalPropagation<Sink>
 {
 public:
-	virtual ~OutputProxy() {}
-
-	//! \brief Construct an OutputProxy
-	//! \param owner the owning transformation
-	//! \param passSignal flag indicating if signals should be passed
 	OutputProxy(BufferedTransformation &owner, bool passSignal) : m_owner(owner), m_passSignal(passSignal) {}
 
-	//! \brief Retrieve passSignal flag
-	//! \returns flag indicating if signals should be passed
 	bool GetPassSignal() const {return m_passSignal;}
-	//! \brief Set passSignal flag
-	//! \param passSignal flag indicating if signals should be passed
 	void SetPassSignal(bool passSignal) {m_passSignal = passSignal;}
 
 	byte * CreatePutSpace(size_t &size)
@@ -951,8 +894,6 @@ private:
 class CRYPTOPP_DLL ProxyFilter : public FilterWithBufferedInput
 {
 public:
-	virtual ~ProxyFilter() {}
-
 	//! \brief Construct a ProxyFilter
 	//! \param filter an output filter
 	//! \param firstSize the first Put size
@@ -985,17 +926,6 @@ public:
 
 	void FirstPut(const byte * inString)
 		{CRYPTOPP_UNUSED(inString);}
-
-	//! \brief Input the last block of data
-	//! \param inString the input byte buffer
-	//! \param length the size of the input buffer, in bytes
-	//! \details LastPut() processes the last block of data and signals attached filters to do the same.
-	//!   LastPut() is always called. The pseudo algorithm for the logic is:
-	//! <pre>
-	//!     if totalLength < firstSize then length == totalLength
-	//!     else if totalLength <= firstSize+lastSize then length == totalLength-firstSize
-	//!     else lastSize <= length < lastSize+blockSize
-	//! </pre>
 	void LastPut(const byte *inString, size_t length)
 		{CRYPTOPP_UNUSED(inString), CRYPTOPP_UNUSED(length); m_filter->MessageEnd();}
 };
@@ -1038,7 +968,8 @@ template <class T>
 class StringSinkTemplate : public Bufferless<Sink>
 {
 public:
-	virtual ~StringSinkTemplate() {}
+	// VC60 workaround: no T::char_type
+	typedef typename T::traits_type::char_type char_type;
 
 	//! \brief Construct a StringSinkTemplate
 	//! \param output std::basic_string<char> type
@@ -1051,8 +982,6 @@ public:
 	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
 	{
 		CRYPTOPP_UNUSED(messageEnd); CRYPTOPP_UNUSED(blocking);
-		typedef typename T::traits_type::char_type char_type;
-
 		if (length > 0)
 		{
 			typename T::size_type size = m_output->size();
@@ -1067,19 +996,14 @@ private:
 	T *m_output;
 };
 
-//! \class StringSink
-//! \brief Append input to a string object
-//! \details StringSink is a typedef for StringSinkTemplate<std::string>.
-DOCUMENTED_TYPEDEF(StringSinkTemplate<std::string>, StringSink);
 CRYPTOPP_DLL_TEMPLATE_CLASS StringSinkTemplate<std::string>;
+DOCUMENTED_TYPEDEF(StringSinkTemplate<std::string>, StringSink);
 
 //! \class RandomNumberSink
 //! \brief Incorporates input into RNG as additional entropy
 class RandomNumberSink : public Bufferless<Sink>
 {
 public:
-	virtual ~RandomNumberSink() {}
-
 	//! \brief Construct a RandomNumberSink
 	RandomNumberSink()
 		: m_rng(NULL) {}
@@ -1101,8 +1025,6 @@ private:
 class CRYPTOPP_DLL ArraySink : public Bufferless<Sink>
 {
 public:
-	virtual ~ArraySink() {}
-
 	//! \brief Construct an ArraySink
 	//! \param parameters a set of NameValuePairs to initialize this object
 	//! \details Name::OutputBuffer() is a mandatory parameter using this constructor.
@@ -1138,8 +1060,6 @@ protected:
 class CRYPTOPP_DLL ArrayXorSink : public ArraySink
 {
 public:
-	virtual ~ArrayXorSink() {}
-
 	//! \brief Construct an ArrayXorSink
 	//! \param buf pointer to a memory buffer
 	//! \param size length of the memory buffer
@@ -1186,8 +1106,6 @@ private:
 class CRYPTOPP_DLL RandomNumberStore : public Store
 {
 public:
-	virtual ~RandomNumberStore() {}
-
 	RandomNumberStore()
 		: m_rng(NULL), m_length(0), m_count(0) {}
 
@@ -1239,7 +1157,9 @@ private:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Source : public InputRejecting<Filter>
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~Source() {}
+#endif
 
 	//! \brief Construct a Source
 	//! \param attachment an optional attached transformation
@@ -1312,8 +1232,6 @@ template <class T>
 class SourceTemplate : public Source
 {
 public:
-	virtual ~SourceTemplate() {}
-
 	//! \brief Construct a SourceTemplate
 	//! \tparam T the class or type
 	//! \param attachment an attached transformation
@@ -1350,32 +1268,19 @@ public:
 
 	//! \brief Construct a StringSource
 	//! \param string C-String
-	//! \param pumpAll flag indicating if source data should be pumped to its attached transformation
+	//! \param pumpAll C-String
 	//! \param attachment an optional attached transformation
 	StringSource(const char *string, bool pumpAll, BufferedTransformation *attachment = NULL)
 		: SourceTemplate<StringStore>(attachment) {SourceInitialize(pumpAll, MakeParameters("InputBuffer", ConstByteArrayParameter(string)));}
-
-	//! \brief Construct a StringSource
-	//! \param string binary byte array
-	//! \param length size of the byte array
-	//! \param pumpAll flag indicating if source data should be pumped to its attached transformation
-	//! \param attachment an optional attached transformation
+	//! binary byte array as source
 	StringSource(const byte *string, size_t length, bool pumpAll, BufferedTransformation *attachment = NULL)
 		: SourceTemplate<StringStore>(attachment) {SourceInitialize(pumpAll, MakeParameters("InputBuffer", ConstByteArrayParameter(string, length)));}
-
-	//! \brief Construct a StringSource
-	//! \param string std::string
-	//! \param pumpAll flag indicating if source data should be pumped to its attached transformation
-	//! \param attachment an optional attached transformation
+	//! std::string as source
 	StringSource(const std::string &string, bool pumpAll, BufferedTransformation *attachment = NULL)
 		: SourceTemplate<StringStore>(attachment) {SourceInitialize(pumpAll, MakeParameters("InputBuffer", ConstByteArrayParameter(string)));}
 };
 
-//! \class ArraySource
-//! \brief Pointer-based implementation of the Source interface
-//! \details ArraySource is a typedef for StringSource. Use the third constructor for an array source.
-//!   The third constructor takes a pointer and length.
-//! \since Crypto++ 5.6.0
+// Use the third constructor for an array source
 DOCUMENTED_TYPEDEF(StringSource, ArraySource);
 
 //! RNG-based implementation of Source interface

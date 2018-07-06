@@ -13,13 +13,6 @@
 #include "queue.h"
 #include "misc.h"
 
-// Issue 340
-#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
-# pragma GCC diagnostic push
-# pragma GCC diagnostic ignored "-Wconversion"
-# pragma GCC diagnostic ignored "-Wsign-conversion"
-#endif
-
 NAMESPACE_BEGIN(CryptoPP)
 
 //! \brief ASN.1 types
@@ -55,14 +48,13 @@ enum ASNTag
 //! \note These tags and flags are not complete
 enum ASNIdFlag
 {
-	UNIVERSAL           = 0x00,
-//	DATA                = 0x01,
-//	HEADER              = 0x02,
-	PRIMITIVE           = 0x00,
-	CONSTRUCTED         = 0x20,
-	APPLICATION         = 0x40,
-	CONTEXT_SPECIFIC    = 0x80,
-	PRIVATE             = 0xc0
+	UNIVERSAL			= 0x00,
+//	DATA				= 0x01,
+//	HEADER				= 0x02,
+	CONSTRUCTED 		= 0x20,
+	APPLICATION 		= 0x40,
+	CONTEXT_SPECIFIC	= 0x80,
+	PRIVATE 			= 0xc0
 };
 
 //! \brief Raises a BERDecodeErr
@@ -166,8 +158,6 @@ CRYPTOPP_DLL void CRYPTOPP_API DERReencode(BufferedTransformation &bt, BufferedT
 class CRYPTOPP_DLL OID
 {
 public:
-	virtual ~OID() {}
-
 	//! \brief Construct an OID
 	OID() {}
 	//! \brief Construct an OID
@@ -214,8 +204,6 @@ class EncodedObjectFilter : public Filter
 public:
 	enum Flag {PUT_OBJECTS=1, PUT_MESSANGE_END_AFTER_EACH_OBJECT=2, PUT_MESSANGE_END_AFTER_ALL_OBJECTS=4, PUT_MESSANGE_SERIES_END_AFTER_ALL_OBJECTS=8};
 
-	virtual ~EncodedObjectFilter() {}
-
 	//! \brief Construct an EncodedObjectFilter
 	//! \param attachment a BufferedTrasformation to attach to this object
 	//! \param nObjects
@@ -246,10 +234,9 @@ private:
 class CRYPTOPP_DLL BERGeneralDecoder : public Store
 {
 public:
-	virtual ~BERGeneralDecoder();
-
 	explicit BERGeneralDecoder(BufferedTransformation &inQueue, byte asnTag);
 	explicit BERGeneralDecoder(BERGeneralDecoder &inQueue, byte asnTag);
+	~BERGeneralDecoder();
 
 	bool IsDefiniteLength() const {return m_definiteLength;}
 	lword RemainingLength() const {CRYPTOPP_ASSERT(m_definiteLength); return m_length;}
@@ -284,10 +271,14 @@ private:
 class CRYPTOPP_DLL DERGeneralEncoder : public ByteQueue
 {
 public:
-	virtual ~DERGeneralEncoder();
-
+#if defined(CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562)
 	explicit DERGeneralEncoder(BufferedTransformation &outQueue, byte asnTag = SEQUENCE | CONSTRUCTED);
 	explicit DERGeneralEncoder(DERGeneralEncoder &outQueue, byte asnTag = SEQUENCE | CONSTRUCTED);
+#else
+	explicit DERGeneralEncoder(BufferedTransformation &outQueue, byte asnTag /*= SEQUENCE | CONSTRUCTED*/);
+	explicit DERGeneralEncoder(DERGeneralEncoder &outQueue, byte asnTag /*= SEQUENCE | CONSTRUCTED*/);
+#endif
+	~DERGeneralEncoder();
 
 	// call this to denote end of sequence
 	void MessageEnd();
@@ -392,8 +383,6 @@ public:
 class CRYPTOPP_DLL X509PublicKey : public ASN1CryptoMaterial<PublicKey>
 {
 public:
-	virtual ~X509PublicKey() {}
-
 	void BERDecode(BufferedTransformation &bt);
 	void DEREncode(BufferedTransformation &bt) const;
 
@@ -415,8 +404,6 @@ public:
 class CRYPTOPP_DLL PKCS8PrivateKey : public ASN1CryptoMaterial<PrivateKey>
 {
 public:
-	virtual ~PKCS8PrivateKey() {}
-
 	void BERDecode(BufferedTransformation &bt);
 	void DEREncode(BufferedTransformation &bt) const;
 
@@ -479,9 +466,9 @@ size_t DEREncodeUnsigned(BufferedTransformation &out, T w, byte asnTag = INTEGER
 }
 
 //! \brief BER Decode unsigned value
-//! \tparam T fundamental C++ type
+//! \tparam T class or type
 //! \param in BufferedTransformation object
-//! \param w the decoded value
+//! \param w unsigned value to encode
 //! \param asnTag the ASN.1 type
 //! \param minValue the minimum expected value
 //! \param maxValue the maximum expected value
@@ -489,7 +476,7 @@ size_t DEREncodeUnsigned(BufferedTransformation &out, T w, byte asnTag = INTEGER
 //! \details DEREncodeUnsigned() can be used with INTEGER, BOOLEAN, and ENUM
 template <class T>
 void BERDecodeUnsigned(BufferedTransformation &in, T &w, byte asnTag = INTEGER,
-					   T minValue = 0, T maxValue = T(0xffffffff))
+					   T minValue = 0, T maxValue = ((std::numeric_limits<T>::max)()))
 {
 	byte b;
 	if (!in.Get(b) || b != asnTag)
@@ -499,23 +486,12 @@ void BERDecodeUnsigned(BufferedTransformation &in, T &w, byte asnTag = INTEGER,
 	bool definite = BERLengthDecode(in, bc);
 	if (!definite)
 		BERDecodeError();
-	if (bc > in.MaxRetrievable())  // Issue 346
-		BERDecodeError();
-	if (asnTag == BOOLEAN && bc != 1) // X.690, 8.2.1
-		BERDecodeError();
-	if ((asnTag == INTEGER || asnTag == ENUMERATED) && bc == 0) // X.690, 8.3.1 and 8.4
-		BERDecodeError();
 
 	SecByteBlock buf(bc);
 
 	if (bc != in.Get(buf, bc))
 		BERDecodeError();
 
-	// This consumes leading 0 octets. According to X.690, 8.3.2, it could be non-conforming behavior.
-	//  X.690, 8.3.2 says "the bits of the first octet and bit 8 of the second octet ... (a) shall
-	//  not all be ones and (b) shall not all be zeros ... These rules ensure that an integer value
-	//  is always encoded in the smallest possible number of octet".
-	// We invented AER (Alternate Encoding Rules), which is more relaxed than BER, CER, and DER.
 	const byte *ptr = buf;
 	while (bc > sizeof(w) && *ptr == 0)
 	{
@@ -566,10 +542,5 @@ inline ::CryptoPP::OID operator+(const ::CryptoPP::OID &lhs, unsigned long rhs)
 #endif
 
 NAMESPACE_END
-
-// Issue 340
-#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
-# pragma GCC diagnostic pop
-#endif
 
 #endif

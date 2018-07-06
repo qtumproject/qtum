@@ -21,7 +21,7 @@
 //!   to take a policy class as a template parameter (although this is allowed), so that
 //!   their code is not duplicated for each new cipher. Instead they each
 //!   get a reference to an abstract policy interface by calling AccessPolicy() on itself, so
-//!   AccessPolicy() must be overridden to return the actual policy reference. This is done
+//!   AccessPolicy() must be overriden to return the actual policy reference. This is done
 //!   by the ConceretePolicyHolder class. Finally, SymmetricCipherFinal implements the constructors and
 //!   other functions that must be implemented by the most derived class.
 
@@ -62,11 +62,13 @@ protected:
 //! \brief Stream cipher policy object
 //! \tparam POLICY class implementing AbstractPolicyHolder
 //! \tparam BASE class or type to use as a base class
-template <class POLICY, class BASE, class POLICY_INTERFACE = typename BASE::PolicyInterface>
+template <class POLICY, class BASE, class POLICY_INTERFACE = CPP_TYPENAME BASE::PolicyInterface>
 class ConcretePolicyHolder : public BASE, protected POLICY
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~ConcretePolicyHolder() {}
+#endif
 protected:
 	const POLICY_INTERFACE & GetPolicy() const {return *this;}
 	POLICY_INTERFACE & AccessPolicy() {return *this;}
@@ -267,13 +269,11 @@ template <class BASE = AbstractPolicyHolder<AdditiveCipherAbstractPolicy, Symmet
 class CRYPTOPP_NO_VTABLE AdditiveCipherTemplate : public BASE, public RandomNumberGenerator
 {
 public:
-	virtual ~AdditiveCipherTemplate() {}
-
 	//! \brief Generate random array of bytes
 	//! \param output the byte buffer
 	//! \param size the length of the buffer, in bytes
 	//! \details All generated values are uniformly distributed over the range specified within the
-	//!   the constraints of a particular generator.
+	//!   the contraints of a particular generator.
 	void GenerateBlock(byte *output, size_t size);
 
 	//! \brief Apply keystream to data
@@ -426,7 +426,7 @@ struct CRYPTOPP_NO_VTABLE CFB_CipherConcretePolicy : public BASE
 	void TransformRegister() {this->Iterate(NULL, NULL, ENCRYPTION, 1);}
 
 	//! \brief
-	//! \tparam B enumeration indicating endianness
+	//! \tparam B enumeration indicating endianess
 	//! \details RegisterOutput() provides alternate access to the feedback register. The
 	//!   enumeration B is BigEndian or LittleEndian. Repeatedly applying operator()
 	//!   results in advancing in the register.
@@ -584,8 +584,6 @@ template <class BASE, class INFO = BASE>
 class SymmetricCipherFinal : public AlgorithmImpl<SimpleKeyingInterfaceImpl<BASE, INFO>, INFO>
 {
 public:
-	virtual ~SymmetricCipherFinal() {}
-
 	//! \brief Construct a stream cipher
  	SymmetricCipherFinal() {}
 

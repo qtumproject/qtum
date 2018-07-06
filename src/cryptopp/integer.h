@@ -6,9 +6,8 @@
 //!   with absolute value less than (256**sizeof(word))<sup>(256**sizeof(int))</sup>.
 //! \details Internally, the library uses a sign magnitude representation, and the class
 //!   has two data members. The first is a IntegerSecBlock (a SecBlock<word>) and it is
-//!   used to hold the representation. The second is a Sign (an enumeration), and it is
-//!   used to track the sign of the Integer.
-//! \since Crypto++ 1.0
+//!   used to hold the representation. The second is a Sign, and its is used to track
+//!   the sign of the Integer.
 
 #ifndef CRYPTOPP_INTEGER_H
 #define CRYPTOPP_INTEGER_H
@@ -22,23 +21,26 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 //! \struct InitializeInteger
-//! \brief Performs static initialization of the Integer class
+//! Performs static intialization of the Integer class
 struct InitializeInteger
 {
 	InitializeInteger();
 };
 
-// Always align, http://github.com/weidai11/cryptopp/issues/256
+// http://github.com/weidai11/cryptopp/issues/256
+#if defined(CRYPTOPP_WORD128_AVAILABLE)
 typedef SecBlock<word, AllocatorWithCleanup<word, true> > IntegerSecBlock;
+#else
+typedef SecBlock<word, AllocatorWithCleanup<word, CRYPTOPP_BOOL_X86> > IntegerSecBlock;
+#endif
 
 //! \brief Multiple precision integer with arithmetic operations
 //! \details The Integer class can represent positive and negative integers
 //!   with absolute value less than (256**sizeof(word))<sup>(256**sizeof(int))</sup>.
 //! \details Internally, the library uses a sign magnitude representation, and the class
 //!   has two data members. The first is a IntegerSecBlock (a SecBlock<word>) and it is
-//!   used to hold the representation. The second is a Sign (an enumeration), and it is
-//!   used to track the sign of the Integer.
-//! \since Crypto++ 1.0
+//!   used to hold the representation. The second is a Sign, and its is used to track
+//!   the sign of the Integer.
 //! \nosubgrouping
 class CRYPTOPP_DLL Integer : private InitializeInteger, public ASN1Object
 {
@@ -63,7 +65,7 @@ public:
 		//! \enum Sign
 		//! \brief Used internally to represent the integer
 		//! \details Sign is used internally to represent the integer. It is also used in a few API functions.
-		//! \sa SetPositive(), SetNegative(), Signedness
+		//! \sa Signedness
 		enum Sign {
 			//! \brief the value is positive or 0
 			POSITIVE=0,
@@ -113,7 +115,7 @@ public:
 
 		//! \brief Convert from a C-string
 		//! \param str C-string value
-		//! \param order the ByteOrder of the string to be processed
+		//! \param order byte order
 		//! \details \p str can be in base 2, 8, 10, or 16. Base is determined by a case
 		//!   insensitive suffix of 'h', 'o', or 'b'.  No suffix means base 10.
 		//! \details Byte order was added at Crypto++ 5.7 to allow use of little-endian
@@ -122,7 +124,7 @@ public:
 
 		//! \brief Convert from a wide C-string
 		//! \param str wide C-string value
-		//! \param order the ByteOrder of the string to be processed
+		//! \param order byte order
 		//! \details \p str can be in base 2, 8, 10, or 16. Base is determined by a case
 		//!   insensitive suffix of 'h', 'o', or 'b'.  No suffix means base 10.
 		//! \details Byte order was added at Crypto++ 5.7 to allow use of little-endian
@@ -133,7 +135,7 @@ public:
 		//! \param encodedInteger big-endian byte array
 		//! \param byteCount length of the byte array
 		//! \param sign enumeration indicating Signedness
-		//! \param order the ByteOrder of the array to be processed
+		//! \param order byte order
 		//! \details Byte order was added at Crypto++ 5.7 to allow use of little-endian
 		//!   integers with curve25519, Poly1305 and Microsoft CAPI.
 		Integer(const byte *encodedInteger, size_t byteCount, Signedness sign=UNSIGNED, ByteOrder order = BIG_ENDIAN_ORDER);
@@ -142,7 +144,7 @@ public:
 		//! \param bt BufferedTransformation object with big-endian byte array
 		//! \param byteCount length of the byte array
 		//! \param sign enumeration indicating Signedness
-		//! \param order the ByteOrder of the data to be processed
+		//! \param order byte order
 		//! \details Byte order was added at Crypto++ 5.7 to allow use of little-endian
 		//!   integers with curve25519, Poly1305 and Microsoft CAPI.
 		Integer(BufferedTransformation &bt, size_t byteCount, Signedness sign=UNSIGNED, ByteOrder order = BIG_ENDIAN_ORDER);
@@ -196,7 +198,7 @@ public:
 
 	//! \name ENCODE/DECODE
 	//@{
-		//! \brief Minimum number of bytes to encode this integer
+		//! \brief The minimum number of bytes to encode this integer
 		//! \param sign enumeration indicating Signedness
 		//! \note The MinEncodedSize() of 0 is 1.
 		size_t MinEncodedSize(Signedness sign=UNSIGNED) const;
@@ -225,7 +227,7 @@ public:
 		//!   The result is placed into a BufferedTransformation object
 		void DEREncode(BufferedTransformation &bt) const;
 
-		//! \brief Encode absolute value as big-endian octet string
+		//! encode absolute value as big-endian octet string
 		//! \param bt BufferedTransformation object
 		//! \param length the number of mytes to decode
 		void DEREncodeAsOctetString(BufferedTransformation &bt, size_t length) const;
@@ -347,68 +349,31 @@ public:
 
 	//! \name MANIPULATORS
 	//@{
-		//! \brief Assignment
+		//!
 		Integer&  operator=(const Integer& t);
 
-		//! \brief Addition Assignment
+		//!
 		Integer&  operator+=(const Integer& t);
-		//! \brief Subtraction Assignment
+		//!
 		Integer&  operator-=(const Integer& t);
-		//! \brief Multiplication Assignment
+		//!
 		//! \sa a_times_b_mod_c() and a_exp_b_mod_c()
 		Integer&  operator*=(const Integer& t)	{return *this = Times(t);}
-		//! \brief Division Assignment
+		//!
 		Integer&  operator/=(const Integer& t)	{return *this = DividedBy(t);}
-		//! \brief Remainder Assignment
+		//!
 		//! \sa a_times_b_mod_c() and a_exp_b_mod_c()
 		Integer&  operator%=(const Integer& t)	{return *this = Modulo(t);}
-		//! \brief Division Assignment
+		//!
 		Integer&  operator/=(word t)  {return *this = DividedBy(t);}
-		//! \brief Remainder Assignment
+		//!
 		//! \sa a_times_b_mod_c() and a_exp_b_mod_c()
 		Integer&  operator%=(word t)  {return *this = Integer(POSITIVE, 0, Modulo(t));}
 
-		//! \brief Left-shift Assignment
-		Integer&  operator<<=(size_t n);
-		//! \brief Right-shift Assignment
-		Integer&  operator>>=(size_t n);
-
-		//! \brief Bitwise AND Assignment
-		//! \param t the other Integer
-		//! \returns the result of *this & t
-		//! \details operator&=() performs a bitwise AND on *this. Missing bits are truncated
-		//!   at the most significant bit positions, so the result is as small as the
-		//!   smaller of the operands.
-		//! \details Internally, Crypto++ uses a sign-magnitude representation. The library
-		//!   does not attempt to interpret bits, and the result is always POSITIVE. If needed,
-		//!   the integer should be converted to a 2's compliment representation before performing
-		//!   the operation.
-		//! \since Crypto++ 5.7
-		Integer& operator&=(const Integer& t);
-		//! \brief Bitwise OR Assignment
-		//! \param t the second Integer
-		//! \returns the result of *this | t
-		//! \details operator|=() performs a bitwise OR on *this. Missing bits are shifted in
-		//!   at the most significant bit positions, so the result is as large as the
-		//!   larger of the operands.
-		//! \details Internally, Crypto++ uses a sign-magnitude representation. The library
-		//!   does not attempt to interpret bits, and the result is always POSITIVE. If needed,
-		//!   the integer should be converted to a 2's compliment representation before performing
-		//!   the operation.
-		//! \since Crypto++ 5.7
-		Integer& operator|=(const Integer& t);
-		//! \brief Bitwise XOR Assignment
-		//! \param t the other Integer
-		//! \returns the result of *this ^ t
-		//! \details operator^=() performs a bitwise XOR on *this. Missing bits are shifted
-		//!   in at the most significant bit positions, so the result is as large as the
-		//!   larger of the operands.
-		//! \details Internally, Crypto++ uses a sign-magnitude representation. The library
-		//!   does not attempt to interpret bits, and the result is always POSITIVE. If needed,
-		//!   the integer should be converted to a 2's compliment representation before performing
-		//!   the operation.
-		//! \since Crypto++ 5.7
-		Integer& operator^=(const Integer& t);
+		//!
+		Integer&  operator<<=(size_t);
+		//!
+		Integer&  operator>>=(size_t);
 
 		//! \brief Set this Integer to random integer
 		//! \param rng RandomNumberGenerator used to generate material
@@ -471,19 +436,19 @@ public:
 
 	//! \name UNARY OPERATORS
 	//@{
-		//! \brief Negation
+		//!
 		bool		operator!() const;
-		//! \brief Addition
+		//!
 		Integer 	operator+() const {return *this;}
-		//! \brief Subtraction
+		//!
 		Integer 	operator-() const;
-		//! \brief Pre-increment
+		//!
 		Integer&	operator++();
-		//! \brief Pre-decrement
+		//!
 		Integer&	operator--();
-		//! \brief Post-increment
+		//!
 		Integer 	operator++(int) {Integer temp = *this; ++*this; return temp;}
-		//! \brief Post-decrement
+		//!
 		Integer 	operator--(int) {Integer temp = *this; --*this; return temp;}
 	//@}
 
@@ -496,82 +461,42 @@ public:
 		//!   \retval  1 if <tt>*this > a</tt>
 		int Compare(const Integer& a) const;
 
-		//! \brief Addition
+		//!
 		Integer Plus(const Integer &b) const;
-		//! \brief Subtraction
+		//!
 		Integer Minus(const Integer &b) const;
-		//! \brief Multiplication
+		//!
 		//! \sa a_times_b_mod_c() and a_exp_b_mod_c()
 		Integer Times(const Integer &b) const;
-		//! \brief Division
+		//!
 		Integer DividedBy(const Integer &b) const;
-		//! \brief Remainder
+		//!
 		//! \sa a_times_b_mod_c() and a_exp_b_mod_c()
 		Integer Modulo(const Integer &b) const;
-		//! \brief Division
+		//!
 		Integer DividedBy(word b) const;
-		//! \brief Remainder
+		//!
 		//! \sa a_times_b_mod_c() and a_exp_b_mod_c()
 		word Modulo(word b) const;
 
-		//! \brief Bitwise AND
-		//! \param t the other Integer
-		//! \returns the result of <tt>*this & t</tt>
-		//! \details And() performs a bitwise AND on the operands. Missing bits are truncated
-		//!   at the most significant bit positions, so the result is as small as the
-		//!   smaller of the operands.
-		//! \details Internally, Crypto++ uses a sign-magnitude representation. The library
-		//!   does not attempt to interpret bits, and the result is always POSITIVE. If needed,
-		//!   the integer should be converted to a 2's compliment representation before performing
-		//!   the operation.
-		//! \since Crypto++ 5.7
-		Integer And(const Integer&) const;
-
-		//! \brief Bitwise OR
-		//! \param t the other Integer
-		//! \returns the result of <tt>*this | t</tt>
-		//! \details Or() performs a bitwise OR on the operands. Missing bits are shifted in
-		//!   at the most significant bit positions, so the result is as large as the
-		//!   larger of the operands.
-		//! \details Internally, Crypto++ uses a sign-magnitude representation. The library
-		//!   does not attempt to interpret bits, and the result is always POSITIVE. If needed,
-		//!   the integer should be converted to a 2's compliment representation before performing
-		//!   the operation.
-		//! \since Crypto++ 5.7
-		Integer Or(const Integer&) const;
-
-		//! \brief Bitwise XOR
-		//! \param t the other Integer
-		//! \returns the result of <tt>*this ^ t</tt>
-		//! \details Xor() performs a bitwise XOR on the operands. Missing bits are shifted in
-		//!   at the most significant bit positions, so the result is as large as the
-		//!   larger of the operands.
-		//! \details Internally, Crypto++ uses a sign-magnitude representation. The library
-		//!   does not attempt to interpret bits, and the result is always POSITIVE. If needed,
-		//!   the integer should be converted to a 2's compliment representation before performing
-		//!   the operation.
-		//! \since Crypto++ 5.7
-		Integer Xor(const Integer&) const;
-
-		//! \brief Right-shift
+		//!
 		Integer operator>>(size_t n) const	{return Integer(*this)>>=n;}
-		//! \brief Left-shift
+		//!
 		Integer operator<<(size_t n) const	{return Integer(*this)<<=n;}
 	//@}
 
 	//! \name OTHER ARITHMETIC FUNCTIONS
 	//@{
-		//! \brief Retrieve the absolute value of this integer
+		//!
 		Integer AbsoluteValue() const;
-		//! \brief Add this integer to itself
+		//!
 		Integer Doubled() const {return Plus(*this);}
-		//! \brief Multiply this integer by itself
+		//!
 		//! \sa a_times_b_mod_c() and a_exp_b_mod_c()
 		Integer Squared() const {return Times(*this);}
-		//! \brief Extract square root
-		//! \details if negative return 0, else return floor of square root
+		//! extract square root, if negative return 0, else return floor of square root
 		Integer SquareRoot() const;
-		//! \brief Determine whether this integer is a perfect square
+		//! return whether this integer is a perfect square
 		bool IsSquare() const;
 
 		//! is 1 or -1
@@ -579,17 +504,18 @@ public:
 		//! return inverse if 1 or -1, otherwise return 0
 		Integer MultiplicativeInverse() const;
 
-		//! \brief calculate r and q such that (a == d*q + r) && (0 <= r < abs(d))
+		//! calculate r and q such that (a == d*q + r) && (0 <= r < abs(d))
 		static void CRYPTOPP_API Divide(Integer &r, Integer &q, const Integer &a, const Integer &d);
-		//! \brief use a faster division algorithm when divisor is short
+		//! use a faster division algorithm when divisor is short
 		static void CRYPTOPP_API Divide(word &r, Integer &q, const Integer &a, word d);
 
-		//! \brief returns same result as Divide(r, q, a, Power2(n)), but faster
+		//! returns same result as Divide(r, q, a, Power2(n)), but faster
 		static void CRYPTOPP_API DivideByPowerOf2(Integer &r, Integer &q, const Integer &a, unsigned int n);
 
 		//! greatest common divisor
 		static Integer CRYPTOPP_API Gcd(const Integer &a, const Integer &n);
-		//! \brief calculate multiplicative inverse of *this mod n
+		//! calculate multiplicative inverse of *this mod n
+		//! \sa a_times_b_mod_c() and a_exp_b_mod_c()
 		Integer InverseMod(const Integer &n) const;
 		//!
 		//! \sa a_times_b_mod_c() and a_exp_b_mod_c()
@@ -610,7 +536,7 @@ public:
 		//! \returns a reference to a std::ostream reference
 		//! \details The output integer responds to std::hex, std::oct, std::hex, std::upper and
 		//!   std::lower. The output includes the suffix \a \b h (for hex), \a \b . (\a \b dot, for dec)
-		//!   and \a \b o (for octal). There is currently no way to suppress the suffix.
+		//!   and \a \b o (for octal). There is currently no way to supress the suffix.
 		//! \details If you want to print an Integer without the suffix or using an arbitrary base, then
 		//!   use IntToString<Integer>().
 		//! \sa IntToString<Integer>
@@ -644,77 +570,35 @@ private:
 #endif
 };
 
-//! \brief Comparison
+//!
 inline bool operator==(const CryptoPP::Integer& a, const CryptoPP::Integer& b) {return a.Compare(b)==0;}
-//! \brief Comparison
+//!
 inline bool operator!=(const CryptoPP::Integer& a, const CryptoPP::Integer& b) {return a.Compare(b)!=0;}
-//! \brief Comparison
+//!
 inline bool operator> (const CryptoPP::Integer& a, const CryptoPP::Integer& b) {return a.Compare(b)> 0;}
-//! \brief Comparison
+//!
 inline bool operator>=(const CryptoPP::Integer& a, const CryptoPP::Integer& b) {return a.Compare(b)>=0;}
-//! \brief Comparison
+//!
 inline bool operator< (const CryptoPP::Integer& a, const CryptoPP::Integer& b) {return a.Compare(b)< 0;}
-//! \brief Comparison
+//!
 inline bool operator<=(const CryptoPP::Integer& a, const CryptoPP::Integer& b) {return a.Compare(b)<=0;}
-//! \brief Addition
+//!
 inline CryptoPP::Integer operator+(const CryptoPP::Integer &a, const CryptoPP::Integer &b) {return a.Plus(b);}
-//! \brief Subtraction
+//!
 inline CryptoPP::Integer operator-(const CryptoPP::Integer &a, const CryptoPP::Integer &b) {return a.Minus(b);}
-//! \brief Multiplication
+//!
 //! \sa a_times_b_mod_c() and a_exp_b_mod_c()
 inline CryptoPP::Integer operator*(const CryptoPP::Integer &a, const CryptoPP::Integer &b) {return a.Times(b);}
-//! \brief Division
+//!
 inline CryptoPP::Integer operator/(const CryptoPP::Integer &a, const CryptoPP::Integer &b) {return a.DividedBy(b);}
-//! \brief Remainder
+//!
 //! \sa a_times_b_mod_c() and a_exp_b_mod_c()
 inline CryptoPP::Integer operator%(const CryptoPP::Integer &a, const CryptoPP::Integer &b) {return a.Modulo(b);}
-//! \brief Division
+//!
 inline CryptoPP::Integer operator/(const CryptoPP::Integer &a, CryptoPP::word b) {return a.DividedBy(b);}
-//! \brief Remainder
+//!
 //! \sa a_times_b_mod_c() and a_exp_b_mod_c()
 inline CryptoPP::word    operator%(const CryptoPP::Integer &a, CryptoPP::word b) {return a.Modulo(b);}
-
-//! \brief Bitwise AND
-//! \param a the first Integer
-//! \param b the second Integer
-//! \returns the result of a & b
-//! \details operator&() performs a bitwise AND on the operands. Missing bits are truncated
-//!   at the most significant bit positions, so the result is as small as the
-//!   smaller of the operands.
-//! \details Internally, Crypto++ uses a sign-magnitude representation. The library
-//!   does not attempt to interpret bits, and the result is always POSITIVE. If needed,
-//!   the integer should be converted to a 2's compliment representation before performing
-//!   the operation.
-//! \since Crypto++ 5.7
-inline CryptoPP::Integer operator&(const CryptoPP::Integer &a, const CryptoPP::Integer &b) {return a.And(b);}
-
-//! \brief Bitwise OR
-//! \param a the first Integer
-//! \param b the second Integer
-//! \returns the result of a | b
-//! \details operator|() performs a bitwise OR on the operands. Missing bits are shifted in
-//!   at the most significant bit positions, so the result is as large as the
-//!   larger of the operands.
-//! \details Internally, Crypto++ uses a sign-magnitude representation. The library
-//!   does not attempt to interpret bits, and the result is always POSITIVE. If needed,
-//!   the integer should be converted to a 2's compliment representation before performing
-//!   the operation.
-//! \since Crypto++ 5.7
-inline CryptoPP::Integer operator|(const CryptoPP::Integer &a, const CryptoPP::Integer &b) {return a.Or(b);}
-
-//! \brief Bitwise XOR
-//! \param a the first Integer
-//! \param b the second Integer
-//! \returns the result of a ^ b
-//! \details operator^() performs a bitwise XOR on the operands. Missing bits are shifted
-//!   in at the most significant bit positions, so the result is as large as the
-//!   larger of the operands.
-//! \details Internally, Crypto++ uses a sign-magnitude representation. The library
-//!   does not attempt to interpret bits, and the result is always POSITIVE. If needed,
-//!   the integer should be converted to a 2's compliment representation before performing
-//!   the operation.
-//! \since Crypto++ 5.7
-inline CryptoPP::Integer operator^(const CryptoPP::Integer &a, const CryptoPP::Integer &b) {return a.Xor(b);}
 
 NAMESPACE_END
 

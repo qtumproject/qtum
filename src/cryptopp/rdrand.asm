@@ -74,13 +74,12 @@ OPTION LANGUAGE:C
 OPTION PROLOGUE:NONE
 OPTION EPILOGUE:NONE
 
-;; Caller pushes on stack following CDECL (right to left)
-;; arg1: byte* buffer
-;; arg2: size_t bsize
-;; arg3: unsigned int safety
+;; Base relative (in): arg1, byte* buffer
+;; Base relative (in): arg2, size_t bsize
+;; Base relative (in): arg3, unsigned int safety
 ;; EAX (out): success (1), failure (0)
 
-MASM_RRA_GenerateBlock PROC   ;; arg1:DWORD, arg2:DWORD, arg3:DWORD
+MASM_RRA_GenerateBlock PROC arg1:DWORD,arg2:DWORD,arg3:DWORD
 
 	MWSIZE EQU 04h    ;; machine word size
 	buffer EQU edi
@@ -89,9 +88,9 @@ MASM_RRA_GenerateBlock PROC   ;; arg1:DWORD, arg2:DWORD, arg3:DWORD
 
 Load_Arguments:
 
-	mov		buffer, DWORD PTR [esp+04h]    ;; arg1
-	mov		bsize,  DWORD PTR [esp+08h]    ;; arg2
-	mov		safety, DWORD PTR [esp+0Ch]    ;; arg3
+	mov		buffer, arg1
+	mov		bsize,  arg2
+	mov		safety, arg3
 
 Validate_Pointer:
 
@@ -182,9 +181,6 @@ GenerateBlock_Success:
 MASM_RRA_GenerateBlock ENDP
 
 ENDIF    ;; _M_X86
-
-OPTION PROLOGUE:PrologueDef
-OPTION EPILOGUE:EpilogueDef
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -311,9 +307,6 @@ MASM_RRA_GenerateBlock ENDP
 
 ENDIF    ;; _M_X64
 
-OPTION PROLOGUE:PrologueDef
-OPTION EPILOGUE:EpilogueDef
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -325,13 +318,12 @@ OPTION LANGUAGE:C
 OPTION PROLOGUE:NONE
 OPTION EPILOGUE:NONE
 
-;; Caller pushes on stack following CDECL (right to left)
-;; arg1: byte* buffer
-;; arg2: size_t bsize
-;; arg3: unsigned int safety
+;; Base relative (in): arg1, byte* buffer
+;; Base relative (in): arg2, size_t bsize
+;; Base relative (in): arg3, unsigned int safety
 ;; EAX (out): success (1), failure (0)
 
-MASM_RSA_GenerateBlock PROC   ;; arg1:DWORD, arg2:DWORD, arg3:DWORD
+MASM_RSA_GenerateBlock PROC arg1:DWORD,arg2:DWORD,arg3:DWORD
 
 	MWSIZE EQU 04h    ;; machine word size
 	buffer EQU edi
@@ -340,9 +332,9 @@ MASM_RSA_GenerateBlock PROC   ;; arg1:DWORD, arg2:DWORD, arg3:DWORD
 
 Load_Arguments:
 
-	mov		buffer, DWORD PTR [esp+04h]    ;; arg1
-	mov		bsize,  DWORD PTR [esp+08h]    ;; arg2
-	mov		safety, DWORD PTR [esp+0Ch]    ;; arg3
+	mov		buffer, arg1
+	mov		bsize,  arg2
+	mov		safety, arg3
 
 Validate_Pointer:
 
@@ -433,9 +425,6 @@ GenerateBlock_Success:
 MASM_RSA_GenerateBlock ENDP
 
 ENDIF    ;; _M_X86
-
-OPTION PROLOGUE:PrologueDef
-OPTION EPILOGUE:EpilogueDef
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -561,9 +550,6 @@ GenerateBlock_Success:
 MASM_RSA_GenerateBlock ENDP
 
 ENDIF    ;; _M_X64
-
-OPTION PROLOGUE:PrologueDef
-OPTION EPILOGUE:EpilogueDef
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

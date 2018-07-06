@@ -13,12 +13,6 @@
 # pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 
-// Issue 340
-#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
-# pragma GCC diagnostic ignored "-Wconversion"
-# pragma GCC diagnostic ignored "-Wsign-conversion"
-#endif
-
 #ifndef CRYPTOPP_IMPORTS
 
 #include "integer.h"
@@ -46,6 +40,10 @@
 	#include <c_asm.h>
 #endif
 
+#ifdef CRYPTOPP_MSVC6_NO_PP
+	#pragma message("You do not seem to have the Visual C++ Processor Pack installed, so use of SSE2 instructions will be disabled.")
+#endif
+
 // "Error: The operand ___LKDB cannot be assigned to", http://github.com/weidai11/cryptopp/issues/188
 #if (__SUNPRO_CC >= 0x5130)
 # define MAYBE_CONST
@@ -66,7 +64,7 @@
 # define CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE 0
 # define CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE 0
 #else
-# define CRYPTOPP_INTEGER_SSE2 (CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && (CRYPTOPP_BOOL_X86))
+# define CRYPTOPP_INTEGER_SSE2 (CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && CRYPTOPP_BOOL_X86)
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -414,7 +412,7 @@ S DivideThreeWordsByTwo(S *A, S B0, S B1, D *dummy=NULL)
 {
 	CRYPTOPP_UNUSED(dummy);
 
-	// Assert {A[2],A[1]} < {B1,B0}, so quotient can fit in a S
+	// CRYPTOPP_ASSERT {A[2],A[1]} < {B1,B0}, so quotient can fit in a S
 	CRYPTOPP_ASSERT(A[2] < B1 || (A[2]==B1 && A[1] < B0));
 
 	// estimate the quotient: do a 2 S by 1 S divide.
@@ -563,8 +561,13 @@ inline word DWord::operator%(word a)
 		__asm	pop esi \
 		__asm	pop edi \
 		__asm	ret 8
+#if _MSC_VER < 1300
+	#define SaveEBX		__asm push ebx
+	#define RestoreEBX	__asm pop ebx
+#else
 	#define SaveEBX
 	#define RestoreEBX
+#endif
 	#define SquPrologue					\
 		AS2(	mov		eax, A)			\
 		AS2(	mov		ecx, C)			\
@@ -853,8 +856,8 @@ CRYPTOPP_NAKED int CRYPTOPP_FASTCALL SSE2_Sub(size_t N, word *C, const word *A, 
 
 	AddEpilogue
 }
-#endif	// CRYPTOPP_INTEGER_SSE2
-#else   // CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#endif	// #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#else
 int CRYPTOPP_FASTCALL Baseline_Add(size_t N, word *C, const word *A, const word *B)
 {
 	CRYPTOPP_ASSERT (N%2 == 0);
@@ -2073,7 +2076,7 @@ static PAdd s_pAdd = &Baseline_Add, s_pSub = &Baseline_Sub;
 static size_t s_recursionLimit = 8;
 #else
 static const size_t s_recursionLimit = 16;
-#endif  // CRYPTOPP_INTEGER_SSE2
+#endif
 
 static PMul s_pMul[9], s_pBot[9];
 static PSqu s_pSqu[9];
@@ -2090,11 +2093,13 @@ static void SetFunctionPointers()
 #if CRYPTOPP_INTEGER_SSE2
 	if (HasSSE2())
 	{
+#if _MSC_VER != 1200 || !(CRYPTOPP_DEBUG)
 		if (IsP4())
 		{
 			s_pAdd = &SSE2_Add;
 			s_pSub = &SSE2_Sub;
 		}
+#endif
 
 		s_recursionLimit = 32;
 
@@ -2118,7 +2123,7 @@ static void SetFunctionPointers()
 		s_pTop[8] = &SSE2_MultiplyTop32;
 	}
 	else
-#endif  // CRYPTOPP_INTEGER_SSE2
+#endif
 	{
 		s_pMul[1] = &Baseline_Multiply4;
 		s_pMul[2] = &Baseline_Multiply8;
@@ -2136,7 +2141,7 @@ static void SetFunctionPointers()
 		s_pBot[4] = &Baseline_MultiplyBottom16;
 		s_pSqu[4] = &Baseline_Square16;
 		s_pTop[4] = &Baseline_MultiplyTop16;
-#endif  // !CRYPTOPP_INTEGER_SSE2
+#endif
 	}
 }
 
@@ -2146,7 +2151,7 @@ inline int Add(word *C, const word *A, const word *B, size_t N)
 	return s_pAdd(N, C, A, B);
 #else
 	return Baseline_Add(N, C, A, B);
-#endif  // CRYPTOPP_INTEGER_SSE2
+#endif
 }
 
 inline int Subtract(word *C, const word *A, const word *B, size_t N)
@@ -2155,7 +2160,7 @@ inline int Subtract(word *C, const word *A, const word *B, size_t N)
 	return s_pSub(N, C, A, B);
 #else
 	return Baseline_Sub(N, C, A, B);
-#endif  // CRYPTOPP_INTEGER_SSE2
+#endif
 }
 
 // ********************************************************
@@ -2584,7 +2589,7 @@ void HalfMontgomeryReduce(word *R, word *T, const word *X, const word *M, const 
 // do a 3 word by 2 word divide, returns quotient and leaves remainder in A
 static word SubatomicDivide(word *A, word B0, word B1)
 {
-	// Assert {A[2],A[1]} < {B1,B0}, so quotient can fit in a word
+	// CRYPTOPP_ASSERT {A[2],A[1]} < {B1,B0}, so quotient can fit in a word
 	CRYPTOPP_ASSERT(A[2] < B1 || (A[2]==B1 && A[1] < B0));
 
 	// estimate the quotient: do a 2 word by 1 word divide
@@ -2632,7 +2637,7 @@ static inline void AtomicDivide(word *Q, const word *A, const word *B)
 		Q[1] = SubatomicDivide(T+1, B[0], B[1]);
 		Q[0] = SubatomicDivide(T, B[0], B[1]);
 
-#if defined(CRYPTOPP_DEBUG)
+#if CRYPTOPP_DEBUG
 		// multiply quotient and divisor and add remainder, make sure it equals dividend
 		CRYPTOPP_ASSERT(!T[2] && !T[3] && (T[1] < B[1] || (T[1]==B[1] && T[0]<B[0])));
 		word P[4];
@@ -2651,7 +2656,7 @@ static inline void AtomicDivide(word *Q, const word *A, const word *B)
 	Q[0] = q.GetLowHalf();
 	Q[1] = q.GetHighHalf();
 
-#if defined(CRYPTOPP_DEBUG)
+#if CRYPTOPP_DEBUG
 	if (B[0] || B[1])
 	{
 		// multiply quotient and divisor and add remainder, make sure it equals dividend
@@ -3733,84 +3738,6 @@ Integer& Integer::operator--()
 	return *this;
 }
 
-// This is a bit operation. We set sign to POSITIVE, so there's no need to
-//  worry about negative zero. Also see http://stackoverflow.com/q/11644362.
-Integer Integer::And(const Integer& t) const
-{
-	if (this == &t)
-	{
-		return AbsoluteValue();
-	}
-	else if (reg.size() >= t.reg.size())
-	{
-		Integer result(t);
-		AndWords(result.reg, reg, t.reg.size());
-
-		result.sign = POSITIVE;
-		return result;
-	}
-	else // reg.size() < t.reg.size()
-	{
-		Integer result(*this);
-		AndWords(result.reg, t.reg, reg.size());
-
-		result.sign = POSITIVE;
-		return result;
-	}
-}
-
-// This is a bit operation. We set sign to POSITIVE, so there's no need to
-//  worry about negative zero. Also see http://stackoverflow.com/q/11644362.
-Integer Integer::Or(const Integer& t) const
-{
-	if (this == &t)
-	{
-		return AbsoluteValue();
-	}
-	else if (reg.size() >= t.reg.size())
-	{
-		Integer result(*this);
-		OrWords(result.reg, t.reg, t.reg.size());
-
-		result.sign = POSITIVE;
-		return result;
-	}
-	else // reg.size() < t.reg.size()
-	{
-		Integer result(t);
-		OrWords(result.reg, reg, reg.size());
-
-		result.sign = POSITIVE;
-		return result;
-	}
-}
-
-// This is a bit operation. We set sign to POSITIVE, so there's no need to
-//  worry about negative zero. Also see http://stackoverflow.com/q/11644362.
-Integer Integer::Xor(const Integer& t) const
-{
-	if (this == &t)
-	{
-		return Integer::Zero();
-	}
-	else if (reg.size() >= t.reg.size())
-	{
-		Integer result(*this);
-		XorWords(result.reg, t.reg, t.reg.size());
-
-		result.sign = POSITIVE;
-		return result;
-	}
-	else // reg.size() < t.reg.size()
-	{
-		Integer result(t);
-		XorWords(result.reg, reg, reg.size());
-
-		result.sign = POSITIVE;
-		return result;
-	}
-}
-
 void PositiveAdd(Integer &sum, const Integer &a, const Integer& b)
 {
 	// Profiling tells us the original second Else If was dominant, so it was promoted to the first If statement.
@@ -4002,64 +3929,6 @@ Integer& Integer::operator>>=(size_t n)
 		ShiftWordsRightByBits(reg, wordCount-shiftWords, shiftBits);
 	if (IsNegative() && WordCount()==0)   // avoid -0
 		*this = Zero();
-	return *this;
-}
-
-Integer& Integer::operator&=(const Integer& t)
-{
-	if (this != &t)
-	{
-		const size_t size = STDMIN(reg.size(), t.reg.size());
-		reg.resize(size);
-		AndWords(reg, t.reg, size);
-	}
-	sign = POSITIVE;
-	return *this;
-}
-
-Integer& Integer::operator|=(const Integer& t)
-{
-	if (this != &t)
-	{
-		if (reg.size() >= t.reg.size())
-		{
-			OrWords(reg, t.reg, t.reg.size());
-		}
-		else  // reg.size() < t.reg.size()
-		{
-			const size_t head = reg.size();
-			const size_t tail = t.reg.size() - reg.size();
-			reg.resize(head+tail);
-			OrWords(reg, t.reg, head);
-			CopyWords(reg+head,t.reg+head,tail);
-		}
-	}
-	sign = POSITIVE;
-	return *this;
-}
-
-Integer& Integer::operator^=(const Integer& t)
-{
-	if (this == &t)
-	{
-		*this = Zero();
-	}
-	else
-	{
-		if (reg.size() >= t.reg.size())
-		{
-			XorWords(reg, t.reg, t.reg.size());
-		}
-		else  // reg.size() < t.reg.size()
-		{
-			const size_t head = reg.size();
-			const size_t tail = t.reg.size() - reg.size();
-			reg.resize(head+tail);
-			XorWords(reg, t.reg, head);
-			CopyWords(reg+head,t.reg+head,tail);
-		}
-	}
-	sign = POSITIVE;
 	return *this;
 }
 

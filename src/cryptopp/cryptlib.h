@@ -3,7 +3,7 @@
 //! \file cryptlib.h
 //! \brief Abstract base classes that provide a uniform interface to this library.
 
-/*!	\mainpage Crypto++ Library 5.7 API Reference
+/*!	\mainpage Crypto++ Library 5.6.5 API Reference
 <dl>
 <dt>Abstract Base Classes<dd>
 	cryptlib.h
@@ -21,7 +21,7 @@ Square, TEA, \ref ThreeWay "3-Way", Twofish, XTEA
 <dt>Non-Cryptographic Checksums<dd>
 	CRC32, Adler32
 <dt>Message Authentication Codes<dd>
-	VMAC, HMAC, CBC_MAC, CMAC, DMAC, TTMAC, \ref GCM "GCM (GMAC)", BLAKE2 (BLAKE2b and BLAKE2s), Poly1305
+	VMAC, HMAC, CBC_MAC, CMAC, DMAC, TTMAC, \ref GCM "GCM (GMAC)", BLAKE2
 <dt>Random Number Generators<dd>
 	NullRNG(), LC_RNG, RandomPool, BlockingRng, NonblockingRng, AutoSeededRandomPool, AutoSeededX917RNG,
 	\ref MersenneTwister "MersenneTwister (MT19937 and MT19937-AR)", RDRAND, RDSEED
@@ -45,7 +45,7 @@ Square, TEA, \ref ThreeWay "3-Way", Twofish, XTEA
 <dt>Output Sink Classes<dd>
 	StringSinkTemplate, StringSink, ArraySink, FileSink, SocketSink, WindowsPipeSink, RandomNumberSink
 <dt>Filter Wrappers<dd>
-	StreamTransformationFilter, AuthenticatedEncryptionFilter, AuthenticatedDecryptionFilter, HashFilter, HashVerificationFilter, SignerFilter, SignatureVerificationFilter
+	StreamTransformationFilter, HashFilter, HashVerificationFilter, SignerFilter, SignatureVerificationFilter
 <dt>Binary to Text Encoders and Decoders<dd>
 	HexEncoder, HexDecoder, Base64Encoder, Base64Decoder, Base64URLEncoder, Base64URLDecoder, Base32Encoder, Base32Decoder
 <dt>Wrappers for OS features<dd>
@@ -87,6 +87,10 @@ and getting us started on the manual.
 #include "stdcpp.h"
 #include "trap.h"
 
+#if defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE)
+# include <signal.h>
+#endif
+
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)
 # pragma warning(disable: 4127 4189 4702)
@@ -111,7 +115,7 @@ enum CipherDir {
 const unsigned long INFINITE_TIME = ULONG_MAX;
 
 // VC60 workaround: using enums as template parameters causes problems
-//! \brief Converts an enumeration to a type suitable for use as a template parameter
+//! \brief Converts a typename to an enumerated value
 template <typename ENUM_TYPE, int VALUE>
 struct EnumToType
 {
@@ -159,10 +163,9 @@ public:
 		OTHER_ERROR
 	};
 
-	virtual ~Exception() throw() {}
-
 	//! \brief Construct a new  Exception
 	explicit Exception(ErrorType errorType, const std::string &s) : m_errorType(errorType), m_what(s) {}
+	virtual ~Exception() throw() {}
 
 	//! \brief Retrieves a C-string describing the exception
 	const char *what() const throw() {return (m_what.c_str());}
@@ -219,9 +222,9 @@ public:
 class CRYPTOPP_DLL OS_Error : public Exception
 {
 public:
-	virtual ~OS_Error() throw() {}
 	OS_Error(ErrorType errorType, const std::string &s, const std::string& operation, int errorCode)
 		: Exception(errorType, s), m_operation(operation), m_errorCode(errorCode) {}
+	~OS_Error() throw() {}
 
 	//! \brief Retrieve the operating system API that reported the error
 	const std::string & GetOperation() const {return m_operation;}
@@ -260,9 +263,9 @@ struct CRYPTOPP_DLL DecodingResult
 	//! \brief Recovered message length if isValidCoding is true, undefined otherwise
 	size_t messageLength;
 
-	//#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
-	//operator size_t() const {return isValidCoding ? messageLength : 0;}
-	//#endif
+#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
+	operator size_t() const {return isValidCoding ? messageLength : 0;}
+#endif
 };
 
 //! \class NameValuePairs
@@ -431,7 +434,7 @@ public:
 	//! \param valueType reference to a variable that receives the value
 	//! \param pValue void pointer to a variable that receives the value
 	//! \returns true if the value was retrieved, false otherwise
-	//! \details GetVoidValue() retrieves the value of  name if it exists.
+	//! \details GetVoidValue() retrives the value of  name if it exists.
 	//! \note  GetVoidValue() is an internal function and should be implemented
 	//!   by derived classes. Users should use one of the other functions instead.
 	//! \sa GetValue(), GetValueWithDefault(), GetIntValue(), GetIntValueWithDefault(),
@@ -497,7 +500,9 @@ public:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Algorithm : public Clonable
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~Algorithm() {}
+#endif
 
 	//! \brief Interface for all crypto algorithms
 	//! \param checkSelfTestStatus determines whether the object can proceed if the self
@@ -526,27 +531,19 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE SimpleKeyingInterface
 public:
 	virtual ~SimpleKeyingInterface() {}
 
-	//! \brief Returns smallest valid key length
-	//! \returns the minimum key length, in bytes
+	//! \brief Returns smallest valid key length in bytes
 	virtual size_t MinKeyLength() const =0;
-	//! \brief Returns largest valid key length
-	//! \returns the maximum key length, in bytes
+	//! \brief Returns largest valid key length in bytes
 	virtual size_t MaxKeyLength() const =0;
-	//! \brief Returns default key length
-	//! \returns the default (recommended) key length, in bytes
+	//! \brief Returns default (recommended) key length in bytes
 	virtual size_t DefaultKeyLength() const =0;
 
-	//! \brief Returns a valid key length for the algorithm
-	//! \param keylength the size of the key, in bytes
-	//! \returns the valid key length, in bytes
-	//! \details keylength is provided in bytes, not bits. If keylength is less than MIN_KEYLENGTH,
-	//!   then the function returns MIN_KEYLENGTH. If keylength is greater than MAX_KEYLENGTH,
-	//!   then the function returns MAX_KEYLENGTH. if If keylength is a multiple of KEYLENGTH_MULTIPLE,
-	//!   then keylength is returned. Otherwise, the function returns a \a lower multiple of
-	//!   KEYLENGTH_MULTIPLE.
-	virtual size_t GetValidKeyLength(size_t keylength) const =0;
+	//! \brief
+	//! \param n the desired keylength
+	//! \return the smallest valid key length in bytes that is greater than or equal to <tt>min(n, GetMaxKeyLength())</tt>
+	virtual size_t GetValidKeyLength(size_t n) const =0;
 
-	//! \brief Returns whether keylength is a valid key length
+	//! \brief Returns whether  keylength is a valid key length
 	//! \param keylength the requested keylength
 	//! \return true if keylength is valid, false otherwise
 	//! \details Internally the function calls GetValidKeyLength()
@@ -591,7 +588,7 @@ public:
 		{SetKeyWithIV(key, length, iv, IVSize());}
 
 	//! \brief Secure IVs requirements as enumerated values.
-	//! \details Provides secure IV requirements as a monotonically increasing enumerated values. Requirements can be
+	//! \details Provides secure IV requirements as a monotomically increasing enumerated values. Requirements can be
 	//!    compared using less than (&lt;) and greater than (&gt;). For example, <tt>UNIQUE_IV &lt; RANDOM_IV</tt>
 	//!    and <tt>UNPREDICTABLE_RANDOM_IV &gt; RANDOM_IV</tt>.
 	//! \sa IsResynchronizable(), CanUseRandomIVs(), CanUsePredictableIVs(), CanUseStructuredIVs()
@@ -734,7 +731,9 @@ protected:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE BlockTransformation : public Algorithm
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~BlockTransformation() {}
+#endif
 
 	//! \brief Encrypt or decrypt a block
 	//! \param inBlock the input message before processing
@@ -823,7 +822,9 @@ public:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE StreamTransformation : public Algorithm
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~StreamTransformation() {}
+#endif
 
 	//! \brief Provides a reference to this object
 	//! \return A reference to this object
@@ -930,7 +931,9 @@ public:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE HashTransformation : public Algorithm
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~HashTransformation() {}
+#endif
 
 	//! \brief Provides a reference to this object
 	//! \return A reference to this object
@@ -1121,7 +1124,9 @@ protected:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AuthenticatedSymmetricCipher : public MessageAuthenticationCode, public StreamTransformation
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~AuthenticatedSymmetricCipher() {}
+#endif
 
 	//! \brief Exception thrown when the object is in the wrong state for the operation
 	//! \details this indicates that a member function was called in the wrong state, for example trying to encrypt
@@ -1177,9 +1182,9 @@ protected:
 		{CRYPTOPP_UNUSED(headerLength); CRYPTOPP_UNUSED(messageLength); CRYPTOPP_UNUSED(footerLength);}
 };
 
-//#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
-//typedef SymmetricCipher StreamCipher;
-//#endif
+#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
+typedef SymmetricCipher StreamCipher;
+#endif
 
 //! \class RandomNumberGenerator
 //! \brief Interface for random number generators
@@ -1188,7 +1193,9 @@ protected:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE RandomNumberGenerator : public Algorithm
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~RandomNumberGenerator() {}
+#endif
 
 	//! \brief Update RNG state with additional unpredictable values
 	//! \param input the entropy to add to the generator
@@ -1212,14 +1219,14 @@ public:
 	//! \return a random 8-bit byte
 	//! \details Default implementation calls GenerateBlock() with one byte.
 	//! \details All generated values are uniformly distributed over the range specified within the
-	//!   the constraints of a particular generator.
+	//!   the contraints of a particular generator.
 	virtual byte GenerateByte();
 
 	//! \brief Generate new random bit and return it
 	//! \return a random bit
 	//! \details The default implementation calls GenerateByte() and return its lowest bit.
 	//! \details All generated values are uniformly distributed over the range specified within the
-	//!   the constraints of a particular generator.
+	//!   the contraints of a particular generator.
 	virtual unsigned int GenerateBit();
 
 	//! \brief Generate a random 32 bit word in the range min to max, inclusive
@@ -1229,14 +1236,14 @@ public:
 	//! \details The default implementation calls Crop() on the difference between max and
 	//!    min, and then returns the result added to min.
 	//! \details All generated values are uniformly distributed over the range specified within the
-	//!   the constraints of a particular generator.
+	//!   the contraints of a particular generator.
 	virtual word32 GenerateWord32(word32 min=0, word32 max=0xffffffffUL);
 
 	//! \brief Generate random array of bytes
 	//! \param output the byte buffer
 	//! \param size the length of the buffer, in bytes
 	//! \details All generated values are uniformly distributed over the range specified within the
-	//!   the constraints of a particular generator.
+	//!   the contraints of a particular generator.
 	//! \note A derived generator \a must override either GenerateBlock() or
 	//!    GenerateIntoBufferedTransformation(). They can override both, or have one call the other.
 	virtual void GenerateBlock(byte *output, size_t size);
@@ -1248,7 +1255,7 @@ public:
 	//! \details The default implementation calls GenerateBlock() and pumps the result into
 	//!   the  DEFAULT_CHANNEL of the target.
 	//! \details All generated values are uniformly distributed over the range specified within the
-	//!   the constraints of a particular generator.
+	//!   the contraints of a particular generator.
 	//! \note A derived generator \a must override either GenerateBlock() or
 	//!    GenerateIntoBufferedTransformation(). They can override both, or have one call the other.
 	virtual void GenerateIntoBufferedTransformation(BufferedTransformation &target, const std::string &channel, lword length);
@@ -1268,13 +1275,13 @@ public:
 			std::iter_swap(begin, begin + GenerateWord32(0, end-begin-1));
 	}
 
-	//#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
-	//byte GetByte() {return GenerateByte();}
-	//unsigned int GetBit() {return GenerateBit();}
-	//word32 GetLong(word32 a=0, word32 b=0xffffffffL) {return GenerateWord32(a, b);}
-	//word16 GetShort(word16 a=0, word16 b=0xffff) {return (word16)GenerateWord32(a, b);}
-	//void GetBlock(byte *output, size_t size) {GenerateBlock(output, size);}
-	//#endif
+#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
+	byte GetByte() {return GenerateByte();}
+	unsigned int GetBit() {return GenerateBit();}
+	word32 GetLong(word32 a=0, word32 b=0xffffffffL) {return GenerateWord32(a, b);}
+	word16 GetShort(word16 a=0, word16 b=0xffff) {return (word16)GenerateWord32(a, b);}
+	void GetBlock(byte *output, size_t size) {GenerateBlock(output, size);}
+#endif
 
 };
 
@@ -1355,7 +1362,9 @@ public:
 	// placed up here for CW8
 	static const std::string &NULL_CHANNEL;	// same as DEFAULT_CHANNEL, for backwards compatibility
 
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~BufferedTransformation() {}
+#endif
 
 	//! \brief Construct a BufferedTransformation
 	BufferedTransformation() : Algorithm(false) {}
@@ -1387,14 +1396,14 @@ public:
 
 		//! Input a 16-bit word for processing.
 		//! \param value the 16-bit value to be processed
-		//! \param order the ByteOrder of the value to be processed.
+		//! \param order the  ByteOrder in which the word should be processed
 		//! \param blocking specifies whether the object should block when processing input
 		//! \return the number of bytes that remain in the block (i.e., bytes not processed)
 		size_t PutWord16(word16 value, ByteOrder order=BIG_ENDIAN_ORDER, bool blocking=true);
 
 		//! Input a 32-bit word for processing.
 		//! \param value the 32-bit value to be processed.
-		//! \param order the ByteOrder of the value to be processed.
+		//! \param order the  ByteOrder in which the word should be processed.
 		//! \param blocking specifies whether the object should block when processing input.
 		//! \return the number of bytes that remain in the block (i.e., bytes not processed)
 		size_t PutWord32(word32 value, ByteOrder order=BIG_ENDIAN_ORDER, bool blocking=true);
@@ -1411,7 +1420,7 @@ public:
 		virtual byte * CreatePutSpace(size_t &size)
 			{size=0; return NULL;}
 
-		//! \brief Determines whether input can be modified by the callee
+		//! \brief Determines whether input can be modifed by the callee
 		//! \return true if input can be modified, false otherwise
 		//! \details The base class implementation returns  false.
 		virtual bool CanModifyInput() const
@@ -1494,7 +1503,7 @@ public:
 		//! \param parameters a set of NameValuePairs to initialize this object
 		//! \throws NotImplemented
 		//! \details IsolatedInitialize() is used to initialize or reinitialize an object using a variable
-		//!   number of  arbitrarily typed arguments. The function avoids the need for multiple constructors providing
+		//!   number of  arbitrarily typed arguments. The function avoids the need for multiple constuctors providing
 		//!   all possible combintations of configurable parameters.
 		//! \details IsolatedInitialize() does not call Initialize() on attached transformations. If initialization
 		//!   should be propagated, then use the Initialize() function.
@@ -1521,7 +1530,7 @@ public:
 		//! \param parameters a set of NameValuePairs to initialize or reinitialize this object
 		//! \param propagation the number of attached transformations the Initialize() signal should be passed
 		//! \details Initialize() is used to initialize or reinitialize an object using a variable number of
-		//!   arbitrarily typed arguments. The function avoids the need for multiple constructors providing
+		//!   arbitrarily typed arguments. The function avoids the need for multiple constuctors providing
 		//!   all possible combintations of configurable parameters.
 		//! \details propagation count includes this object. Setting propagation to <tt>1</tt> means this
 		//!   object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
@@ -1555,20 +1564,20 @@ public:
 
 		//! \brief Set propagation of automatically generated and transferred signals
 		//! \param propagation then new value
-		//! \details Setting propagation to <tt>0</tt> means do not automatically generate signals. Setting
+		//! \details Setting propagation to <tt>0</tt> means do not automaticly generate signals. Setting
 		//!    propagation to <tt>-1</tt> means unlimited propagation.
 		virtual void SetAutoSignalPropagation(int propagation)
 			{CRYPTOPP_UNUSED(propagation);}
 
 		//! \brief Retrieve automatic signal propagation value
-		//! \return the number of attached transformations the signal is propagated to. 0 indicates
+		//! \return the number of attached transformations the signal is propogated to. 0 indicates
 		//!   the signal is only witnessed by this object
 		virtual int GetAutoSignalPropagation() const {return 0;}
 public:
 
-	//#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
-	//void Close() {MessageEnd();}
-	//#endif
+#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
+		void Close() {MessageEnd();}
+#endif
 	//@}
 
 	//!	\name RETRIEVAL OF ONE MESSAGE
@@ -1614,21 +1623,21 @@ public:
 
 		//! \brief Retrieve a 16-bit word
 		//! \param value the 16-bit value to be retrieved
-		//! \param order the ByteOrder of the value to be processed.
+		//! \param order the  ByteOrder in which the word should be retrieved
 		//! \return the number of bytes consumed during the call.
 		//! \details Use the return value of  GetWord16 to detect short reads.
 		size_t GetWord16(word16 &value, ByteOrder order=BIG_ENDIAN_ORDER);
 
 		//! \brief Retrieve a 32-bit word
 		//! \param value the 32-bit value to be retrieved
-		//! \param order the ByteOrder of the value to be processed.
+		//! \param order the  ByteOrder in which the word should be retrieved
 		//! \return the number of bytes consumed during the call.
 		//! \details Use the return value of  GetWord16 to detect short reads.
 		size_t GetWord32(word32 &value, ByteOrder order=BIG_ENDIAN_ORDER);
 
 		//! \brief Peek a 16-bit word
 		//! \param value the 16-bit value to be retrieved
-		//! \param order the ByteOrder of the value to be processed.
+		//! \param order the  ByteOrder in which the word should be retrieved
 		//! \return the number of bytes consumed during the call.
 		//! \details Peek does not consume bytes in the stream. Use the return value
 		//!    of  GetWord16 to detect short reads.
@@ -1636,7 +1645,7 @@ public:
 
 		//! \brief Peek a 32-bit word
 		//! \param value the 32-bit value to be retrieved
-		//! \param order the ByteOrder of the value to be processed.
+		//! \param order the  ByteOrder in which the word should be retrieved
 		//! \return the number of bytes consumed during the call.
 		//! \details Peek does not consume bytes in the stream. Use the return value
 		//!    of  GetWord16 to detect short reads.
@@ -1657,13 +1666,12 @@ public:
 		//! \brief Discard skipMax bytes from the output buffer
 		//! \param skipMax the number of bytes to discard
 		//! \details Skip() discards bytes from the output buffer, which is the AttachedTransformation(), if present.
-		//!   The function always returns the parameter <tt>skipMax</tt>.
+		//!   The function always returns skipMax.
 		//! \details If you want to skip bytes from a Source, then perform the following.
-		//! <pre>
-		//!     StringSource ss(str, false, new Redirector(TheBitBucket()));
-		//!     ss.Pump(10);    // Skip 10 bytes from Source
-		//!     ss.Detach(new FilterChain(...));
-		//!     ss.PumpAll();
+		//! <pre>StringSource ss(str, false, new Redirector(TheBitBucket()));
+		//! ss.Pump(10);    // Skip 10 bytes from Source
+		//! ss.Detach(new FilterChain(...));
+		//! ss.PumpAll();
 		//! </pre>
 		virtual lword Skip(lword skipMax=LWORD_MAX);
 
@@ -1692,9 +1700,9 @@ public:
 		lword CopyRangeTo(BufferedTransformation &target, lword position, lword copyMax=LWORD_MAX, const std::string &channel=DEFAULT_CHANNEL) const
 			{lword i = position; CopyRangeTo2(target, i, i+copyMax, channel); return i-position;}
 
-		//#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
-		//unsigned long MaxRetrieveable() const {return MaxRetrievable();}
-		//#endif
+#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
+		unsigned long MaxRetrieveable() const {return MaxRetrievable();}
+#endif
 	//@}
 
 	//!	\name RETRIEVAL OF MULTIPLE MESSAGES
@@ -1784,7 +1792,7 @@ public:
 	//!	\name NON-BLOCKING TRANSFER OF OUTPUT
 	//@{
 
-		// upon return, byteCount contains number of bytes that have finished being transferred,
+		// upon return, byteCount contains number of bytes that have finished being transfered,
 		// and returns the number of bytes left in the current transfer block
 
 		//! \brief Transfer bytes from this object to another BufferedTransformation
@@ -1820,7 +1828,7 @@ public:
 		//!   subsequent calls to  CopyRangeTo2.
 		virtual size_t CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end=LWORD_MAX, const std::string &channel=DEFAULT_CHANNEL, bool blocking=true) const =0;
 
-		// upon return, messageCount contains number of messages that have finished being transferred,
+		// upon return, messageCount contains number of messages that have finished being transfered,
 		// and returns the number of bytes left in the current transfer block
 
 		//! \brief Transfer messages from this object to another BufferedTransformation
@@ -1887,7 +1895,7 @@ public:
 		//! \brief Input a 16-bit word for processing on a channel.
 		//! \param channel the channel to process the data.
 		//! \param value the 16-bit value to be processed.
-		//! \param order the ByteOrder of the value to be processed.
+		//! \param order the  ByteOrder in which the word should be processed.
 		//! \param blocking specifies whether the object should block when processing input.
 		//! \return 0 indicates all bytes were processed during the call. Non-0 indicates the
 		//!   number of bytes that were \a not processed.
@@ -1896,7 +1904,7 @@ public:
 		//! \brief Input a 32-bit word for processing on a channel.
 		//! \param channel the channel to process the data.
 		//! \param value the 32-bit value to be processed.
-		//! \param order the ByteOrder of the value to be processed.
+		//! \param order the  ByteOrder in which the word should be processed.
 		//! \param blocking specifies whether the object should block when processing input.
 		//! \return 0 indicates all bytes were processed during the call. Non-0 indicates the
 		//!   number of bytes that were \a not processed.
@@ -2042,14 +2050,16 @@ CRYPTOPP_DLL BufferedTransformation & TheBitBucket();
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CryptoMaterial : public NameValuePairs
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~CryptoMaterial() {}
+#endif
+
 	//! Exception thrown when invalid crypto material is detected
 	class CRYPTOPP_DLL InvalidMaterial : public InvalidDataFormat
 	{
 	public:
 		explicit InvalidMaterial(const std::string &s) : InvalidDataFormat(s) {}
 	};
-
-	virtual ~CryptoMaterial() {}
 
 	//! \brief Assign values to this object
 	//! \details This function can be used to create a public key from a private key.
@@ -2155,7 +2165,9 @@ public:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE GeneratableCryptoMaterial : virtual public CryptoMaterial
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~GeneratableCryptoMaterial() {}
+#endif
 
 	//! \brief Generate a random key or crypto parameters
 	//! \param rng a RandomNumberGenerator to produce keying material
@@ -2196,7 +2208,9 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CryptoParameters : public GeneratableCrypt
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AsymmetricAlgorithm : public Algorithm
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~AsymmetricAlgorithm() {}
+#endif
 
 	//! \brief Retrieves a reference to CryptoMaterial
 	//! \return a reference to the crypto material
@@ -2223,7 +2237,9 @@ public:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PublicKeyAlgorithm : public AsymmetricAlgorithm
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~PublicKeyAlgorithm() {}
+#endif
 
 	// VC60 workaround: no co-variant return type
 
@@ -2249,7 +2265,9 @@ public:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PrivateKeyAlgorithm : public AsymmetricAlgorithm
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~PrivateKeyAlgorithm() {}
+#endif
 
 	//! \brief Retrieves a reference to a Private Key
 	//! \return a reference the private key
@@ -2270,7 +2288,9 @@ public:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE KeyAgreementAlgorithm : public AsymmetricAlgorithm
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~KeyAgreementAlgorithm() {}
+#endif
 
 	//! \brief Retrieves a reference to Crypto Parameters
 	//! \return a reference the crypto parameters
@@ -2325,10 +2345,10 @@ public:
 	//!   length, if one exists, otherwise return 0.
 	virtual size_t FixedMaxPlaintextLength() const {return 0;}
 
-	//#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
-	//size_t MaxPlainTextLength(size_t cipherTextLength) const {return MaxPlaintextLength(cipherTextLength);}
-	//size_t CipherTextLength(size_t plainTextLength) const {return CiphertextLength(plainTextLength);}
-	//#endif
+#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
+	size_t MaxPlainTextLength(size_t cipherTextLength) const {return MaxPlaintextLength(cipherTextLength);}
+	size_t CipherTextLength(size_t plainTextLength) const {return CiphertextLength(plainTextLength);}
+#endif
 };
 
 //! \class PK_Encryptor
@@ -2372,7 +2392,9 @@ public:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_Decryptor : public PK_CryptoSystem, public PrivateKeyAlgorithm
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~PK_Decryptor() {}
+#endif
 
 	//! \brief Decrypt a byte string
 	//! \param rng a RandomNumberGenerator derived class
@@ -2418,16 +2440,15 @@ public:
 		{return Decrypt(rng, ciphertext, FixedCiphertextLength(), plaintext, parameters);}
 };
 
-//#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
-//typedef PK_CryptoSystem PK_FixedLengthCryptoSystem;
-//typedef PK_Encryptor PK_FixedLengthEncryptor;
-//typedef PK_Decryptor PK_FixedLengthDecryptor;
-//#endif
+#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
+typedef PK_CryptoSystem PK_FixedLengthCryptoSystem;
+typedef PK_Encryptor PK_FixedLengthEncryptor;
+typedef PK_Decryptor PK_FixedLengthDecryptor;
+#endif
 
 //! \class PK_SignatureScheme
 //! \brief Interface for public-key signers and verifiers
 //! \details This class provides an interface common to signers and verifiers for querying scheme properties
-//! \sa DL_SignatureSchemeBase, TF_SignatureSchemeBase, DL_SignerBase, TF_SignerBase
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_SignatureScheme
 {
 public:
@@ -2527,7 +2548,9 @@ public:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_Signer : public PK_SignatureScheme, public PrivateKeyAlgorithm
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~PK_Signer() {}
+#endif
 
 	//! \brief Create a new HashTransformation to accumulate the message to be signed
 	//! \param rng a RandomNumberGenerator derived class
@@ -2592,7 +2615,9 @@ public:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_Verifier : public PK_SignatureScheme, public PublicKeyAlgorithm
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~PK_Verifier() {}
+#endif
 
 	//! \brief Create a new HashTransformation to accumulate the message to be verified
 	//! \return a pointer to a PK_MessageAccumulator
@@ -2664,7 +2689,9 @@ public:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE SimpleKeyAgreementDomain : public KeyAgreementAlgorithm
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~SimpleKeyAgreementDomain() {}
+#endif
 
 	//! \brief Provides the size of the agreed value
 	//! \return size of agreed value produced  in this domain
@@ -2714,10 +2741,10 @@ public:
 	//! \pre <tt>COUNTOF(otherPublicKey) == PublicKeyLength()</tt>
 	virtual bool Agree(byte *agreedValue, const byte *privateKey, const byte *otherPublicKey, bool validateOtherPublicKey=true) const =0;
 
-	//#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
-	//bool ValidateDomainParameters(RandomNumberGenerator &rng) const
-	//	{return GetCryptoParameters().Validate(rng, 2);}
-	//#endif
+#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
+	bool ValidateDomainParameters(RandomNumberGenerator &rng) const
+		{return GetCryptoParameters().Validate(rng, 2);}
+#endif
 };
 
 //! \brief Interface for domains of authenticated key agreement protocols
@@ -2727,7 +2754,9 @@ public:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AuthenticatedKeyAgreementDomain : public KeyAgreementAlgorithm
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~AuthenticatedKeyAgreementDomain() {}
+#endif
 
 	//! \brief Provides the size of the agreed value
 	//! \return size of agreed value produced  in this domain
@@ -2812,10 +2841,10 @@ public:
 		const byte *staticOtherPublicKey, const byte *ephemeralOtherPublicKey,
 		bool validateStaticOtherPublicKey=true) const =0;
 
-	//#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
-	// bool ValidateDomainParameters(RandomNumberGenerator &rng) const
-	//	{return GetCryptoParameters().Validate(rng, 2);}
-	//#endif
+#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
+	bool ValidateDomainParameters(RandomNumberGenerator &rng) const
+		{return GetCryptoParameters().Validate(rng, 2);}
+#endif
 };
 
 // interface for password authenticated key agreement protocols, not implemented yet
@@ -2859,9 +2888,8 @@ public:
 		UnexpectedMethodCall(const std::string &s) : Exception(OTHER_ERROR, s) {}
 	};
 
-	virtual ~ProtocolSession() {}
-
 	ProtocolSession() : m_rng(NULL), m_throwOnProtocolError(true), m_validState(false) {}
+	virtual ~ProtocolSession() {}
 
 	virtual void InitializeSession(RandomNumberGenerator &rng, const NameValuePairs &parameters) =0;
 
@@ -2891,7 +2919,9 @@ private:
 class KeyAgreementSession : public ProtocolSession
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~KeyAgreementSession() {}
+#endif
 
 	virtual unsigned int GetAgreedValueLength() const =0;
 	virtual void GetAgreedValue(byte *agreedValue) const =0;
@@ -2900,7 +2930,9 @@ public:
 class PasswordAuthenticatedKeyAgreementSession : public KeyAgreementSession
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~PasswordAuthenticatedKeyAgreementSession() {}
+#endif
 
 	void InitializePasswordAuthenticatedKeyAgreementSession(RandomNumberGenerator &rng,
 		const byte *myId, unsigned int myIdLength,
@@ -2911,7 +2943,9 @@ public:
 class PasswordAuthenticatedKeyAgreementDomain : public KeyAgreementAlgorithm
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~PasswordAuthenticatedKeyAgreementDomain() {}
+#endif
 
 	//! return whether the domain parameters stored in this object are valid
 	virtual bool ValidateDomainParameters(RandomNumberGenerator &rng) const
@@ -2961,11 +2995,11 @@ public:
 	virtual void BEREncode(BufferedTransformation &bt) const {DEREncode(bt);}
 };
 
-//#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
-//typedef PK_SignatureScheme PK_SignatureSystem;
-//typedef SimpleKeyAgreementDomain PK_SimpleKeyAgreementDomain;
-//typedef AuthenticatedKeyAgreementDomain PK_AuthenticatedKeyAgreementDomain;
-//#endif
+#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
+typedef PK_SignatureScheme PK_SignatureSystem;
+typedef SimpleKeyAgreementDomain PK_SimpleKeyAgreementDomain;
+typedef AuthenticatedKeyAgreementDomain PK_AuthenticatedKeyAgreementDomain;
+#endif
 
 NAMESPACE_END
 

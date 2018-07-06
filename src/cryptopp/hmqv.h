@@ -19,7 +19,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //!   Secure Diffie-Hellman Protocol</a>. Note: this implements HMQV only. HMQV-C with Key Confirmation is not provided.
 //! \sa MQV, HMQV, FHMQV, and AuthenticatedKeyAgreementDomain
 //! \since Crypto++ 5.6.4
-template <class GROUP_PARAMETERS, class COFACTOR_OPTION = typename GROUP_PARAMETERS::DefaultCofactorOption, class HASH = SHA512>
+template <class GROUP_PARAMETERS, class COFACTOR_OPTION = CPP_TYPENAME GROUP_PARAMETERS::DefaultCofactorOption, class HASH = SHA512>
 class HMQV_Domain: public AuthenticatedKeyAgreementDomain
 {
 public:
@@ -27,7 +27,9 @@ public:
   typedef typename GroupParameters::Element Element;
   typedef HMQV_Domain<GROUP_PARAMETERS, COFACTOR_OPTION, HASH> Domain;
 
-  virtual ~HMQV_Domain() {}
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~HMQV_Domain() {}
+#endif
 
   HMQV_Domain(bool clientRole = true): m_role(clientRole ? RoleClient : RoleServer) {}
 
@@ -256,7 +258,7 @@ protected:
     if(sigma)
     {
       if (e1len != 0 || s1len != 0) {
-        CRYPTOPP_ASSERT(0);
+	CRYPTOPP_ASSERT(0);
       }
       Integer x = GetAbstractGroupParameters().ConvertElementToInteger(*sigma);
       SecByteBlock sbb(x.MinEncodedSize());
@@ -264,7 +266,7 @@ protected:
       hash.Update(sbb.BytePtr(), sbb.SizeInBytes());
     } else {
       if (e1len == 0 || s1len == 0) {
-        CRYPTOPP_ASSERT(0);
+	CRYPTOPP_ASSERT(0);
       }
       hash.Update(e1, e1len);
       hash.Update(s1, s1len);

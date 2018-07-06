@@ -7,13 +7,13 @@
 #include "modes.h"
 #include "misc.h"
 
-#if defined(CRYPTOPP_DEBUG)
+//#if CRYPTOPP_DEBUG
 #include "des.h"
-#endif
+//#endif
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if CRYPTOPP_DEBUG && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 void Modes_TestInstantiations()
 {
 	CFB_Mode<DES>::Encryption m0;
@@ -25,10 +25,13 @@ void Modes_TestInstantiations()
 }
 #endif
 
+// Thanks to Zireael, http://github.com/weidai11/cryptopp/pull/46
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 void CipherModeBase::ResizeBuffers()
 {
 	m_register.New(m_cipher->BlockSize());
 }
+#endif
 
 void CFB_ModePolicy::Iterate(byte *output, const byte *input, CipherDir dir, size_t iterationCount)
 {
@@ -160,11 +163,14 @@ void BlockOrientedCipherModeBase::UncheckedSetKey(const byte *key, unsigned int 
 	}
 }
 
+// Thanks to Zireael, http://github.com/weidai11/cryptopp/pull/46
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 void BlockOrientedCipherModeBase::ResizeBuffers()
 {
 	CipherModeBase::ResizeBuffers();
 	m_buffer.New(BlockSize());
 }
+#endif
 
 void ECB_OneWay::ProcessData(byte *outString, const byte *inString, size_t length)
 {
@@ -212,11 +218,14 @@ void CBC_CTS_Encryption::ProcessLastBlock(byte *outString, const byte *inString,
 	memcpy(outString, m_register, BlockSize());
 }
 
+// Thanks to Zireael, http://github.com/weidai11/cryptopp/pull/46
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 void CBC_Decryption::ResizeBuffers()
 {
 	BlockOrientedCipherModeBase::ResizeBuffers();
 	m_temp.New(BlockSize());
 }
+#endif
 
 void CBC_Decryption::ProcessData(byte *outString, const byte *inString, size_t length)
 {

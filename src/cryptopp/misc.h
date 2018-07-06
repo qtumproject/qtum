@@ -9,21 +9,14 @@
 
 #include "config.h"
 
-#if !defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if !CRYPTOPP_DOXYGEN_PROCESSING
 
-#if (CRYPTOPP_MSC_VERSION)
+#if CRYPTOPP_MSC_VERSION
 # pragma warning(push)
 # pragma warning(disable: 4146 4514)
 # if (CRYPTOPP_MSC_VERSION >= 1400)
 #  pragma warning(disable: 6326)
 # endif
-#endif
-
-// Issue 340
-#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
-# pragma GCC diagnostic push
-# pragma GCC diagnostic ignored "-Wconversion"
-# pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
 
 #include "cryptlib.h"
@@ -185,7 +178,7 @@ class CRYPTOPP_DLL Empty
 {
 };
 
-#if !defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if !CRYPTOPP_DOXYGEN_PROCESSING
 template <class BASE1, class BASE2>
 class CRYPTOPP_NO_VTABLE TwoBases : public BASE1, public BASE2
 {
@@ -473,7 +466,7 @@ inline void * memset_z(void *ptr, int value, size_t num)
 //! \param a the first value
 //! \param b the second value
 //! \returns the minimum value based on a comparison of <tt>b \< a</tt> using <tt>operator\<</tt>
-//! \details STDMIN was provided because the library could not easily use std::min or std::max in Windows or Cygwin 1.1.0
+//! \details STDMIN was provided because the library could not use std::min or std::max in MSVC60 or Cygwin 1.1.0
 template <class T> inline const T& STDMIN(const T& a, const T& b)
 {
 	return b < a ? b : a;
@@ -483,9 +476,10 @@ template <class T> inline const T& STDMIN(const T& a, const T& b)
 //! \param a the first value
 //! \param b the second value
 //! \returns the minimum value based on a comparison of <tt>a \< b</tt> using <tt>operator\<</tt>
-//! \details STDMAX was provided because the library could not easily use std::min or std::max in Windows or Cygwin 1.1.0
+//! \details STDMAX was provided because the library could not use std::min or std::max in MSVC60 or Cygwin 1.1.0
 template <class T> inline const T& STDMAX(const T& a, const T& b)
 {
+	// can't use std::min or std::max in MSVC60 or Cygwin 1.1.0
 	return a < b ? b : a;
 }
 
@@ -910,6 +904,7 @@ inline T1 RoundUpToMultipleOf(const T1 &n, const T2 &m)
 }
 
 //! \brief Returns the minimum alignment requirements of a type
+//! \param dummy an unused Visual C++ 6.0 workaround
 //! \returns the minimum alignment requirements of a type, in bytes
 //! \details Internally the function calls C++11's <tt>alignof</tt> if available. If not available,
 //!   then the function uses compiler specific extensions such as <tt>__alignof</tt> and
@@ -919,14 +914,14 @@ inline T1 RoundUpToMultipleOf(const T1 &n, const T2 &m)
 //!   In <em>all</em> cases, if <tt>CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS</tt> is defined, then the
 //!   function returns 1.
 template <class T>
-inline unsigned int GetAlignmentOf()
+inline unsigned int GetAlignmentOf(T *dummy=NULL)	// VC60 workaround
 {
 // GCC 4.6 (circa 2008) and above aggressively uses vectorization.
 #if defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS)
 	if (sizeof(T) < 16)
 		return 1;
 #endif
-
+	CRYPTOPP_UNUSED(dummy);
 #if defined(CRYPTOPP_CXX11_ALIGNOF)
 	return alignof(T);
 #elif (_MSC_VER >= 1300)
@@ -958,11 +953,13 @@ inline bool IsAlignedOn(const void *ptr, unsigned int alignment)
 
 //! \brief Determines whether ptr is minimally aligned
 //! \param ptr the pointer to check for alignment
+//! \param dummy an unused Visual C++ 6.0 workaround
 //! \returns true if ptr follows native byte ordering, false otherwise
 //! \details Internally the function calls IsAlignedOn with a second parameter of GetAlignmentOf<T>
 template <class T>
-inline bool IsAligned(const void *ptr)
+inline bool IsAligned(const void *ptr, T *dummy=NULL)	// VC60 workaround
 {
+	CRYPTOPP_UNUSED(dummy);
 	return IsAlignedOn(ptr, GetAlignmentOf<T>());
 }
 
@@ -1087,7 +1084,7 @@ void SecureWipeBuffer(T *buf, size_t n)
 	// GCC 4.3.2 on Cygwin optimizes away the first store if this loop is done in the forward direction
 	volatile T *p = buf+n;
 	while (n--)
-		*(--p) = 0;
+		*((volatile T*)(--p)) = 0;
 }
 
 #if (_MSC_VER >= 1400 || defined(__GNUC__)) && (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X86)
@@ -1213,7 +1210,65 @@ inline void SecureWipeArray(T *buf, size_t n)
 //! \note If you try to convert, say, the Chinese character for "bone" from UTF-16 (0x9AA8) to UTF-8
 //!   (0xE9 0xAA 0xA8), then you must ensure the locale is available. If the locale is not available,
 //!   then a 0x21 error is returned on Windows which eventually results in an InvalidArgument() exception.
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 std::string StringNarrow(const wchar_t *str, bool throwOnError = true);
+#else
+static std::string StringNarrow(const wchar_t *str, bool throwOnError = true)
+{
+	CRYPTOPP_ASSERT(str);
+	std::string result;
+
+	// Safer functions on Windows for C&A, https://github.com/weidai11/cryptopp/issues/55
+#if (CRYPTOPP_MSC_VERSION >= 1400)
+	size_t len=0, size=0;
+	errno_t err = 0;
+
+	//const wchar_t* ptr = str;
+	//while (*ptr++) len++;
+	len = wcslen(str)+1;
+
+	err = wcstombs_s(&size, NULL, 0, str, len*sizeof(wchar_t));
+	CRYPTOPP_ASSERT(err == 0);
+	if (err != 0) {goto CONVERSION_ERROR;}
+
+	result.resize(size);
+	err = wcstombs_s(&size, &result[0], size, str, len*sizeof(wchar_t));
+	CRYPTOPP_ASSERT(err == 0);
+
+	if (err != 0)
+	{
+CONVERSION_ERROR:
+		if (throwOnError)
+			throw InvalidArgument("StringNarrow: wcstombs_s() call failed with error " + IntToString(err));
+		else
+			return std::string();
+	}
+
+	// The safe routine's size includes the NULL.
+	if (!result.empty() && result[size - 1] == '\0')
+		result.erase(size - 1);
+#else
+	size_t size = wcstombs(NULL, str, 0);
+	CRYPTOPP_ASSERT(size != (size_t)-1);
+	if (size == (size_t)-1) {goto CONVERSION_ERROR;}
+
+	result.resize(size);
+	size = wcstombs(&result[0], str, size);
+	CRYPTOPP_ASSERT(size != (size_t)-1);
+
+	if (size == (size_t)-1)
+	{
+CONVERSION_ERROR:
+		if (throwOnError)
+			throw InvalidArgument("StringNarrow: wcstombs() call failed");
+		else
+			return std::string();
+	}
+#endif
+
+	return result;
+}
+#endif // StringNarrow and CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 
 #ifdef CRYPTOPP_DOXYGEN_PROCESSING
 
@@ -1446,7 +1501,7 @@ template<> inline word32 rotrMod<word32>(word32 x, unsigned int y)
 
 #endif // #ifdef _MSC_VER
 
-#if (_MSC_VER >= 1400) || (defined(_MSC_VER) && !defined(_DLL))
+#if _MSC_VER >= 1300 && !defined(__INTEL_COMPILER)
 // Intel C++ Compiler 10.0 calls a function instead of using the rotate instruction when using these instructions
 
 //! \brief Performs a left rotate
@@ -1673,7 +1728,7 @@ inline word16 ByteReverse(word16 value)
 {
 #ifdef CRYPTOPP_BYTESWAP_AVAILABLE
 	return bswap_16(value);
-#elif (_MSC_VER >= 1400) || (defined(_MSC_VER) && !defined(_DLL))
+#elif defined(_MSC_VER) && _MSC_VER >= 1300
 	return _byteswap_ushort(value);
 #else
 	return rotlFixed(value, 8U);
@@ -1693,7 +1748,7 @@ inline word32 ByteReverse(word32 value)
 	return bswap_32(value);
 #elif defined(__MWERKS__) && TARGET_CPU_PPC
 	return (word32)__lwbrx(&value,0);
-#elif (_MSC_VER >= 1400) || (defined(_MSC_VER) && !defined(_DLL))
+#elif _MSC_VER >= 1400 || (_MSC_VER >= 1300 && !defined(_DLL))
 	return _byteswap_ulong(value);
 #elif CRYPTOPP_FAST_ROTATE(32)
 	// 5 instructions with rotate instruction, 9 without
@@ -1716,7 +1771,7 @@ inline word64 ByteReverse(word64 value)
 	return value;
 #elif defined(CRYPTOPP_BYTESWAP_AVAILABLE)
 	return bswap_64(value);
-#elif (_MSC_VER >= 1400) || (defined(_MSC_VER) && !defined(_DLL))
+#elif defined(_MSC_VER) && _MSC_VER >= 1300
 	return _byteswap_uint64(value);
 #elif CRYPTOPP_BOOL_SLOW_WORD64
 	return (word64(ByteReverse(word32(value))) << 32) | ByteReverse(word32(value>>32));
@@ -1796,9 +1851,9 @@ inline T BitReverse(T value)
 	}
 }
 
-//! \brief Reverses bytes in a value depending upon endianness
+//! \brief Reverses bytes in a value depending upon endianess
 //! \tparam T the class or type
-//! \param order the ByteOrder of the data
+//! \param order the ByteOrder the data is represented
 //! \param value the value to conditionally reverse
 //! \details Internally, the ConditionalByteReverse calls NativeByteOrderIs.
 //!   If order matches native byte order, then the original value is returned.
@@ -1855,12 +1910,12 @@ void ByteReverse(T *out, const T *in, size_t byteCount)
 
 //! \brief Conditionally reverses bytes in an element from an array of elements
 //! \tparam T the class or type
-//! \param order the ByteOrder of the data
+//! \param order the ByteOrder the data is represented
 //! \param out the output array of elements
 //! \param in the input array of elements
 //! \param byteCount the byte count of the arrays
 //! \details Internally, ByteReverse visits each element in the in array
-//!   calls ByteReverse on it depending on the desired endianness, and writes the result to out.
+//!   calls ByteReverse on it depending on the desired endianess, and writes the result to out.
 //! \details ByteReverse does not process tail byes, or bytes that are
 //!   \a not part of a full element. If T is int (and int is 4 bytes), then
 //!   <tt>byteCount = 10</tt> means only the first 2 elements or 8 bytes are
@@ -2058,25 +2113,15 @@ inline void UnalignedbyteNonTemplate(ByteOrder order, byte *block, word64 value,
 }
 #endif	// #ifndef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
 
-//! \brief Access a block of memory
-//! \tparam T class or type
-//! \param assumeAligned flag indicating alignment
-//! \param order the ByteOrder of the data
-//! \param block the byte buffer to be processed
-//! \returns the word in the specified byte order
-//! \details GetWord() provides alternate read access to a block of memory. The flag assumeAligned indicates
-//!   if the memory block is aligned for class or type T. The enumeration ByteOrder is BIG_ENDIAN_ORDER or
-//!   LITTLE_ENDIAN_ORDER.
-//! \details An example of reading two word32 values from a block of memory is shown below. <tt>w</tt>
-//!   will be <tt>0x03020100</tt>.
-//! <pre>
-//!    word32 w;
-//!    byte buffer[4] = {0,1,2,3};
-//!    w = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, buffer);
-//! </pre>
 template <class T>
 inline T GetWord(bool assumeAligned, ByteOrder order, const byte *block)
 {
+//#ifndef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
+//	if (!assumeAligned)
+//		return UnalignedGetWordNonTemplate(order, block, (T*)NULL);
+//	CRYPTOPP_ASSERT(IsAligned<T>(block));
+//#endif
+//	return ConditionalByteReverse(order, *reinterpret_cast<const T *>(block));
 	CRYPTOPP_UNUSED(assumeAligned);
 #ifdef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
 	return ConditionalByteReverse(order, *reinterpret_cast<const T *>((const void *)block));
@@ -2087,56 +2132,37 @@ inline T GetWord(bool assumeAligned, ByteOrder order, const byte *block)
 #endif
 }
 
-//! \brief Access a block of memory
-//! \tparam T class or type
-//! \param assumeAligned flag indicating alignment
-//! \param order the ByteOrder of the data
-//! \param result the word in the specified byte order
-//! \param block the byte buffer to be processed
-//! \details GetWord() provides alternate read access to a block of memory. The flag assumeAligned indicates
-//!   if the memory block is aligned for class or type T. The enumeration ByteOrder is BIG_ENDIAN_ORDER or
-//!   LITTLE_ENDIAN_ORDER.
-//! \details An example of reading two word32 values from a block of memory is shown below. <tt>w</tt>
-//!   will be <tt>0x03020100</tt>.
-//! <pre>
-//!    word32 w;
-//!    byte buffer[4] = {0,1,2,3};
-//!    w = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, buffer);
-//! </pre>
 template <class T>
 inline void GetWord(bool assumeAligned, ByteOrder order, T &result, const byte *block)
 {
 	result = GetWord<T>(assumeAligned, order, block);
 }
 
-//! \brief Access a block of memory
-//! \tparam T class or type
-//! \param assumeAligned flag indicating alignment
-//! \param order the ByteOrder of the data
-//! \param block the destination byte buffer
-//! \param value the word in the specified byte order
-//! \param xorBlock an optional byte buffer to xor
-//! \details PutWord() provides alternate write access to a block of memory. The flag assumeAligned indicates
-//!   if the memory block is aligned for class or type T. The enumeration ByteOrder is BIG_ENDIAN_ORDER or
-//!   LITTLE_ENDIAN_ORDER.
 template <class T>
 inline void PutWord(bool assumeAligned, ByteOrder order, byte *block, T value, const byte *xorBlock = NULL)
 {
+//#ifndef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
+//	if (!assumeAligned)
+//		return UnalignedbyteNonTemplate(order, block, value, xorBlock);
+//	CRYPTOPP_ASSERT(IsAligned<T>(block));
+//	CRYPTOPP_ASSERT(IsAligned<T>(xorBlock));
+//#endif
+//	*reinterpret_cast<T *>(block) = ConditionalByteReverse(order, value) ^ (xorBlock ? *reinterpret_cast<const T *>(xorBlock) : 0);
 	CRYPTOPP_UNUSED(assumeAligned);
 #ifdef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
 	*reinterpret_cast<T *>((void *)block) = ConditionalByteReverse(order, value) ^ (xorBlock ? *reinterpret_cast<const T *>((const void *)xorBlock) : 0);
 #else
-	T t1, t2;
+	T t1, t2 = 0;
 	t1 = ConditionalByteReverse(order, value);
-	if (xorBlock) {memcpy(&t2, xorBlock, sizeof(T)); t1 ^= t2;}
-	memcpy(block, &t1, sizeof(T));
+	if (xorBlock) memcpy(&t2, xorBlock, sizeof(T));
+	memmove(block, &(t1 ^= t2), sizeof(T));
 #endif
 }
 
 //! \class GetBlock
 //! \brief Access a block of memory
 //! \tparam T class or type
-//! \tparam B enumeration indicating endianness
+//! \tparam B enumeration indicating endianess
 //! \tparam A flag indicating alignment
 //! \details GetBlock() provides alternate read access to a block of memory. The enumeration B is
 //!   BigEndian or LittleEndian. The flag A indicates if the memory block is aligned for class or type T.
@@ -2178,7 +2204,7 @@ private:
 //! \class PutBlock
 //! \brief Access a block of memory
 //! \tparam T class or type
-//! \tparam B enumeration indicating endianness
+//! \tparam B enumeration indicating endianess
 //! \tparam A flag indicating alignment
 //! \details PutBlock() provides alternate write access to a block of memory. The enumeration B is
 //!   BigEndian or LittleEndian. The flag A indicates if the memory block is aligned for class or type T.
@@ -2223,7 +2249,7 @@ private:
 //! \class BlockGetAndPut
 //! \brief Access a block of memory
 //! \tparam T class or type
-//! \tparam B enumeration indicating endianness
+//! \tparam B enumeration indicating endianess
 //! \tparam GA flag indicating alignment for the Get operation
 //! \tparam PA flag indicating alignment for the Put operation
 //! \details GetBlock() provides alternate write access to a block of memory. The enumeration B is
@@ -2369,12 +2395,8 @@ inline T SafeLeftShift(T value)
 
 NAMESPACE_END
 
-#if (CRYPTOPP_MSC_VERSION)
+#if CRYPTOPP_MSC_VERSION
 # pragma warning(pop)
-#endif
-
-#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
-# pragma GCC diagnostic pop
 #endif
 
 #endif

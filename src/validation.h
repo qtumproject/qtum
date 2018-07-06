@@ -37,6 +37,7 @@
 #include <qtum/qtumstate.h>
 #include <qtum/qtumDGP.h>
 #include <libethereum/ChainParams.h>
+#include <libethereum/LastBlockHashesFace.h>
 #include <libethashseal/Ethash.h>
 #include <libethashseal/GenesisInfo.h>
 #include <script/standard.h>
@@ -791,6 +792,34 @@ private:
 
     const uint64_t blockGasLimit;
 
+};
+
+class LastHashes : public dev::eth::LastBlockHashesFace {
+
+public:
+
+	explicit LastHashes(CBlockIndex* _tip): m_tip(_tip) {}
+
+    dev::h256s precedingHashes(dev::h256 const& _mostRecentHash) const override
+    {
+       m_lastHashes.resize(256);
+	    for(int i=0;i<256;i++){
+	        if(!m_tip)
+	            break;
+	        m_lastHashes[i]= uintToh256(*m_tip->phashBlock);
+	        m_tip = m_tip->pprev;
+	    }
+        return m_lastHashes;
+    }
+
+    void clear() override
+    {
+        m_lastHashes.clear();
+    }
+
+private:
+	mutable CBlockIndex* m_tip;
+    mutable dev::h256s m_lastHashes;
 };
 ////////////////////////////////////////////////////////
 

@@ -290,7 +290,7 @@ void CAST256::Base::UncheckedSetKey(const byte *userKey, unsigned int keylength,
 		}
 	}
 
-	SecureWipeBuffer(kappa, 8);
+	memset(kappa, 0, sizeof(kappa));
 }
 
 NAMESPACE_END

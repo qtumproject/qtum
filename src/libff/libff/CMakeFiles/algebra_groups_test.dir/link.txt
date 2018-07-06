@@ -1,0 +1,1 @@
+ccache /usr/bin/c++    -std=c++11 -Wall -Wextra -Wfatal-errors -O2 -g -DNDEBUG   CMakeFiles/algebra_groups_test.dir/algebra/curves/tests/test_groups.cpp.o  -o algebra_groups_test -rdynamic libff.a /usr/lib/x86_64-linux-gnu/libgmp.so -lprocps ../depends/libzm.a 

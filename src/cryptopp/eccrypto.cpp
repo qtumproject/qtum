@@ -31,7 +31,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 #if 0
-#if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if CRYPTOPP_DEBUG && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 static void ECDSA_TestInstantiations()
 {
 	ECDSA<EC2N>::Signer t1;
@@ -46,8 +46,8 @@ static void ECDSA_TestInstantiations()
 #endif
 #endif
 
-ANONYMOUS_NAMESPACE_BEGIN
-Integer ConvertToInteger(const PolynomialMod2 &x)
+// VC60 workaround: complains when these functions are put into an anonymous namespace
+static Integer ConvertToInteger(const PolynomialMod2 &x)
 {
 	unsigned int l = x.ByteCount();
 	SecByteBlock temp(l);
@@ -55,12 +55,12 @@ Integer ConvertToInteger(const PolynomialMod2 &x)
 	return Integer(temp, l);
 }
 
-inline Integer ConvertToInteger(const Integer &x)
+static inline Integer ConvertToInteger(const Integer &x)
 {
 	return x;
 }
 
-bool CheckMOVCondition(const Integer &q, const Integer &r)
+static bool CheckMOVCondition(const Integer &q, const Integer &r)
 {
 	// see "Updated standards for validating elliptic curves", http://eprint.iacr.org/2007/343
 	Integer t = 1;
@@ -77,7 +77,6 @@ bool CheckMOVCondition(const Integer &q, const Integer &r)
 	}
 	return true;
 }
-ANONYMOUS_NAMESPACE_END
 
 // ******************************************************************
 
@@ -627,13 +626,13 @@ void DL_GroupParameters_EC<EC>::SimultaneousExponentiate(Element *results, const
 }
 
 template <class EC>
-typename DL_GroupParameters_EC<EC>::Element DL_GroupParameters_EC<EC>::MultiplyElements(const Element &a, const Element &b) const
+CPP_TYPENAME DL_GroupParameters_EC<EC>::Element DL_GroupParameters_EC<EC>::MultiplyElements(const Element &a, const Element &b) const
 {
 	return GetCurve().Add(a, b);
 }
 
 template <class EC>
-typename DL_GroupParameters_EC<EC>::Element DL_GroupParameters_EC<EC>::CascadeExponentiate(const Element &element1, const Integer &exponent1, const Element &element2, const Integer &exponent2) const
+CPP_TYPENAME DL_GroupParameters_EC<EC>::Element DL_GroupParameters_EC<EC>::CascadeExponentiate(const Element &element1, const Integer &exponent1, const Element &element2, const Integer &exponent2) const
 {
 	return GetCurve().CascadeMultiply(exponent1, element1, exponent2, element2);
 }
@@ -706,77 +705,6 @@ void DL_PrivateKey_EC<EC>::BERDecodePrivateKey(BufferedTransformation &bt, bool 
 
 template <class EC>
 void DL_PrivateKey_EC<EC>::DEREncodePrivateKey(BufferedTransformation &bt) const
-{
-	DERSequenceEncoder privateKey(bt);
-		DEREncodeUnsigned<word32>(privateKey, 1);	// version
-		// SEC 1 ver 1.0 says privateKey (m_d) has the same length as order of the curve
-		// this will be changed to order of base point in a future version
-		this->GetPrivateExponent().DEREncodeAsOctetString(privateKey, this->GetGroupParameters().GetSubgroupOrder().ByteCount());
-	privateKey.MessageEnd();
-}
-
-// ******************************************************************
-
-template <class EC>
-void DL_PublicKey_ECGDSA_ISO15946<EC>::BERDecodePublicKey(BufferedTransformation &bt, bool parametersPresent, size_t size)
-{
-	CRYPTOPP_UNUSED(parametersPresent);
-
-	typename EC::Point P;
-	if (!this->GetGroupParameters().GetCurve().DecodePoint(P, bt, size))
-		BERDecodeError();
-	this->SetPublicElement(P);
-}
-
-template <class EC>
-void DL_PublicKey_ECGDSA_ISO15946<EC>::DEREncodePublicKey(BufferedTransformation &bt) const
-{
-	this->GetGroupParameters().GetCurve().EncodePoint(bt, this->GetPublicElement(), this->GetGroupParameters().GetPointCompression());
-}
-
-// ******************************************************************
-
-template <class EC>
-void DL_PrivateKey_ECGDSA_ISO15946<EC>::BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPresent, size_t size)
-{
-	CRYPTOPP_UNUSED(size);
-	BERSequenceDecoder seq(bt);
-		word32 version;
-		BERDecodeUnsigned<word32>(seq, version, INTEGER, 1, 1);	// check version
-
-		BERGeneralDecoder dec(seq, OCTET_STRING);
-		if (!dec.IsDefiniteLength())
-			BERDecodeError();
-		Integer x;
-		x.Decode(dec, (size_t)dec.RemainingLength());
-		dec.MessageEnd();
-		if (!parametersPresent && seq.PeekByte() != (CONTEXT_SPECIFIC | CONSTRUCTED | 0))
-			BERDecodeError();
-		if (!seq.EndReached() && seq.PeekByte() == (CONTEXT_SPECIFIC | CONSTRUCTED | 0))
-		{
-			BERGeneralDecoder parameters(seq, CONTEXT_SPECIFIC | CONSTRUCTED | 0);
-			this->AccessGroupParameters().BERDecode(parameters);
-			parameters.MessageEnd();
-		}
-		if (!seq.EndReached())
-		{
-			// skip over the public element
-			SecByteBlock subjectPublicKey;
-			unsigned int unusedBits;
-			BERGeneralDecoder publicKey(seq, CONTEXT_SPECIFIC | CONSTRUCTED | 1);
-			BERDecodeBitString(publicKey, subjectPublicKey, unusedBits);
-			publicKey.MessageEnd();
-			Element Q;
-			if (!(unusedBits == 0 && this->GetGroupParameters().GetCurve().DecodePoint(Q, subjectPublicKey, subjectPublicKey.size())))
-				BERDecodeError();
-		}
-	seq.MessageEnd();
-
-	this->SetPrivateExponent(x);
-}
-
-template <class EC>
-void DL_PrivateKey_ECGDSA_ISO15946<EC>::DEREncodePrivateKey(BufferedTransformation &bt) const
 {
 	DERSequenceEncoder privateKey(bt);
 		DEREncodeUnsigned<word32>(privateKey, 1);	// version

@@ -93,8 +93,10 @@ void X917RNG_KnownAnswerTest(
 	const char *key,
 	const char *seed,
 	const char *deterministicTimeVector,
-	const char *output)
+	const char *output,
+	CIPHER *dummy = NULL)
 {
+	CRYPTOPP_UNUSED(dummy);
 #ifdef OS_RNG_AVAILABLE
 	std::string decodedKey, decodedSeed, decodedDeterministicTimeVector;
 	StringSource(key, true, new HexDecoder(new StringSink(decodedKey)));
@@ -132,8 +134,10 @@ void SymmetricEncryptionKnownAnswerTest(
 	const char *cbc,
 	const char *cfb,
 	const char *ofb,
-	const char *ctr)
+	const char *ctr,
+	CIPHER *dummy = NULL)
 {
+	CRYPTOPP_UNUSED(dummy);
 	std::string decodedKey;
 	StringSource(key, true, new HexDecoder(new StringSink(decodedKey)));
 
@@ -166,15 +170,17 @@ void KnownAnswerTest(HashTransformation &hash, const char *message, const char *
 }
 
 template <class HASH>
-void SecureHashKnownAnswerTest(const char *message, const char *digest)
+void SecureHashKnownAnswerTest(const char *message, const char *digest, HASH *dummy = NULL)
 {
+	CRYPTOPP_UNUSED(dummy);
 	HASH hash;
 	KnownAnswerTest(hash, message, digest);
 }
 
 template <class MAC>
-void MAC_KnownAnswerTest(const char *key, const char *message, const char *digest)
+void MAC_KnownAnswerTest(const char *key, const char *message, const char *digest, MAC *dummy = NULL)
 {
+	CRYPTOPP_UNUSED(dummy);
 	std::string decodedKey;
 	StringSource(key, true, new HexDecoder(new StringSink(decodedKey)));
 
@@ -183,11 +189,12 @@ void MAC_KnownAnswerTest(const char *key, const char *message, const char *diges
 }
 
 template <class SCHEME>
-void SignatureKnownAnswerTest(const char *key, const char *message, const char *signature)
+void SignatureKnownAnswerTest(const char *key, const char *message, const char *signature, SCHEME *dummy = NULL)
 {
 	typename SCHEME::Signer signer(StringSource(key, true, new HexDecoder).Ref());
 	typename SCHEME::Verifier verifier(signer);
 
+	CRYPTOPP_UNUSED(dummy);
 	RandomPool rng;
 	EqualityComparisonFilter comparison;
 
@@ -260,11 +267,12 @@ void SignaturePairwiseConsistencyTest(const PK_Signer &signer, const PK_Verifier
 }
 
 template <class SCHEME>
-void SignaturePairwiseConsistencyTest(const char *key)
+void SignaturePairwiseConsistencyTest(const char *key, SCHEME *dummy = NULL)
 {
 	typename SCHEME::Signer signer(StringSource(key, true, new HexDecoder).Ref());
 	typename SCHEME::Verifier verifier(signer);
 
+	CRYPTOPP_UNUSED(dummy);
 	SignaturePairwiseConsistencyTest(signer, verifier);
 }
 

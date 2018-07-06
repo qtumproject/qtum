@@ -18,12 +18,12 @@
 
 #include "config.h"
 
-#if defined(CRYPTOPP_DEBUG)
+#if CRYPTOPP_DEBUG
 #  include <iostream>
 #  include <sstream>
-#  if defined(UNIX_SIGNALS_AVAILABLE)
+#  if defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE)
 #    include "ossig.h"
-#  elif defined(CRYPTOPP_WIN32_AVAILABLE) && !defined(__CYGWIN__)
+#  elif defined(CRYPTOPP_WIN32_AVAILABLE)
 #    if (_MSC_VER >= 1400)
 #      include <intrin.h>
 #    endif
@@ -37,16 +37,16 @@
 //! \details <tt>CRYPTOPP_ASSERT</tt> is the library's debugging and diagnostic assertion. <tt>CRYPTOPP_ASSERT</tt>
 //!   is enabled by the preprocessor macros <tt>CRYPTOPP_DEBUG</tt>, <tt>DEBUG</tt> or <tt>_DEBUG</tt>.
 //! \details <tt>CRYPTOPP_ASSERT</tt> raises a <tt>SIGTRAP</tt> (Unix) or calls <tt>DebugBreak()</tt> (Windows).
-//!   <tt>CRYPTOPP_ASSERT</tt> is only in effect when the user explicitly requests a debug configuration.
+//!   <tt>CRYPTOPP_ASSERT</tt> is only in effect when the user explictly requests a debug configuration.
 //! \details If you want to ensure <tt>CRYPTOPP_ASSERT</tt> is inert, then <em>do not</em> define
 //!   <tt>CRYPTOPP_DEBUG</tt>, <tt>DEBUG</tt> or <tt>_DEBUG</tt>. Avoiding the defines means <tt>CRYPTOPP_ASSERT</tt>
-//!   is preprocessed into an empty string.
+//!   is processed into <tt>((void)(exp))</tt>.
 //! \details The traditional Posix define <tt>NDEBUG</tt> has no effect on <tt>CRYPTOPP_DEBUG</tt>, <tt>CRYPTOPP_ASSERT</tt>
 //!   or DebugTrapHandler.
 //! \details An example of using \ref CRYPTOPP_ASSERT "CRYPTOPP_ASSERT" and DebugTrapHandler is shown below. The library's
 //!   test program, <tt>cryptest.exe</tt> (from test.cpp), exercises the structure:
 //!  <pre>
-//!    #if defined(CRYPTOPP_DEBUG) && defined(UNIX_SIGNALS_AVAILABLE)
+//!    #if CRYPTOPP_DEBUG && (defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE))
 //!    static const DebugTrapHandler g_dummyHandler;
 //!    #endif
 //!
@@ -62,7 +62,7 @@
 #  define CRYPTOPP_ASSERT(exp) { ... }
 #endif
 
-#if defined(CRYPTOPP_DEBUG) && defined(UNIX_SIGNALS_AVAILABLE)
+#if CRYPTOPP_DEBUG && (defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE))
 #  define CRYPTOPP_ASSERT(exp) {                                  \
     if (!(exp)) {                                                 \
       std::ostringstream oss;                                     \
@@ -73,7 +73,7 @@
       raise(SIGTRAP);                                             \
     }                                                             \
   }
-#elif CRYPTOPP_DEBUG && defined(CRYPTOPP_WIN32_AVAILABLE) && !defined(__CYGWIN__)
+#elif CRYPTOPP_DEBUG && defined(CRYPTOPP_WIN32_AVAILABLE)
 #  define CRYPTOPP_ASSERT(exp) {                                  \
     if (!(exp)) {                                                 \
       std::ostringstream oss;                                     \
@@ -89,14 +89,14 @@
 // Remove CRYPTOPP_ASSERT in non-debug builds.
 //  Can't use CRYPTOPP_UNUSED due to circular dependency
 #ifndef CRYPTOPP_ASSERT
-#  define CRYPTOPP_ASSERT(exp) (void)0
+#  define CRYPTOPP_ASSERT(exp) ((void)(exp))
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
 
 // ************** SIGTRAP handler ***************
 
-#if (CRYPTOPP_DEBUG && defined(UNIX_SIGNALS_AVAILABLE)) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if (CRYPTOPP_DEBUG && (defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE))) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 //! \brief Default SIGTRAP handler
 //! \details DebugTrapHandler() can be used by a program to install an empty SIGTRAP handler. If present,
 //!   the handler ensures there is a signal handler in place for <tt>SIGTRAP</tt> raised by
@@ -106,7 +106,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //!   some Linuxes terminate the program.
 //! \details If DebugTrapHandler detects another handler in place, then it will not install a handler. This
 //!   ensures a debugger can gain control of the <tt>SIGTRAP</tt> signal without contention. It also allows multiple
-//!   DebugTrapHandler to be created without contentious or unusual behavior. Though multiple DebugTrapHandler can be
+//!   DebugTrapHandler to be created without contentious or unusual behavior. Though muliple DebugTrapHandler can be
 //!   created, a program should only create one, if needed.
 //! \details A DebugTrapHandler is subject to C++ static initialization [dis]order. If you need to install a handler
 //!   and it must be installed early, then reference the code associated with <tt>CRYPTOPP_INIT_PRIORITY</tt> in
@@ -119,7 +119,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //! \details An example of using \ref CRYPTOPP_ASSERT "CRYPTOPP_ASSERT" and DebugTrapHandler is shown below. The library's
 //!   test program, <tt>cryptest.exe</tt> (from test.cpp), exercises the structure:
 //!  <pre>
-//!    #if defined(CRYPTOPP_DEBUG) && defined(UNIX_SIGNALS_AVAILABLE)
+//!    #if CRYPTOPP_DEBUG && (defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE))
 //!    static const DebugTrapHandler g_dummyHandler;
 //!    #endif
 //!

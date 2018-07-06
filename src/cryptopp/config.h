@@ -63,7 +63,7 @@
 // ***************** Less Important Settings ***************
 
 // Library version
-#define CRYPTOPP_VERSION 570
+#define CRYPTOPP_VERSION 565
 
 // Define this if you want to set a prefix for TestData/ and TestVectors/
 //   Be mindful of the trailing slash since its simple concatenation.
@@ -74,6 +74,10 @@
 
 // define this to retain (as much as possible) old deprecated function and class names
 // #define CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
+
+// Define this to retain (as much as possible) ABI and binary compatibility with Crypto++ 5.6.2.
+// Also see https://cryptopp.com/wiki/Config.h#Avoid_MAINTAIN_BACKWARDS_COMPATIBILITY
+// #define CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 
 // Define this if you want or need the library's memcpy_s and memmove_s.
 //   See http://github.com/weidai11/cryptopp/issues/28.
@@ -329,8 +333,19 @@ NAMESPACE_END
 	#endif
 #endif
 
+#if defined(_MSC_VER)
+	#if _MSC_VER == 1200
+		#include <malloc.h>
+	#endif
+	#if _MSC_VER > 1200 || defined(_mm_free)
+		#define CRYPTOPP_MSVC6PP_OR_LATER		// VC 6 processor pack or later
+	#else
+		#define CRYPTOPP_MSVC6_NO_PP			// VC 6 without processor pack
+	#endif
+#endif
+
 #ifndef CRYPTOPP_ALIGN_DATA
-	#if defined(_MSC_VER)
+	#if defined(CRYPTOPP_MSVC6PP_OR_LATER)
 		#define CRYPTOPP_ALIGN_DATA(x) __declspec(align(x))
 	#elif defined(__GNUC__)
 		#define CRYPTOPP_ALIGN_DATA(x) __attribute__((aligned(x)))
@@ -349,9 +364,9 @@ NAMESPACE_END
 #endif
 
 // The section attribute attempts to initialize CPU flags to avoid Valgrind findings above -O1
-#if ((defined(__MACH__) && defined(__APPLE__)) && ((CRYPTOPP_LLVM_CLANG_VERSION >= 30600) || (CRYPTOPP_APPLE_CLANG_VERSION >= 70100) || (CRYPTOPP_GCC_VERSION >= 40300)))
+#if ((__MACH__ >= 1) && ((CRYPTOPP_LLVM_CLANG_VERSION >= 30600) || (CRYPTOPP_APPLE_CLANG_VERSION >= 70100) || (CRYPTOPP_GCC_VERSION >= 40300)))
 	#define CRYPTOPP_SECTION_INIT __attribute__((section ("__DATA,__data")))
-#elif (defined(__ELF__) && (CRYPTOPP_GCC_VERSION >= 40300))
+#elif ((__ELF__ >= 1) && (CRYPTOPP_GCC_VERSION >= 40300))
 	#define CRYPTOPP_SECTION_INIT __attribute__((section ("nocommon")))
 #else
 	#define CRYPTOPP_SECTION_INIT
@@ -361,6 +376,20 @@ NAMESPACE_END
 	#define CRYPTOPP_FASTCALL __fastcall
 #else
 	#define CRYPTOPP_FASTCALL
+#endif
+
+// VC60 workaround: it doesn't allow typename in some places
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
+#define CPP_TYPENAME
+#else
+#define CPP_TYPENAME typename
+#endif
+
+// VC60 workaround: can't cast unsigned __int64 to float or double
+#if defined(_MSC_VER) && !defined(CRYPTOPP_MSVC6PP_OR_LATER)
+#define CRYPTOPP_VC6_INT64 (__int64)
+#else
+#define CRYPTOPP_VC6_INT64
 #endif
 
 #ifdef _MSC_VER
@@ -379,7 +408,7 @@ NAMESPACE_END
 	// 4512: assignment operator not generated
 	// 4660: explicitly instantiating a class that's already implicitly instantiated
 	// 4661: no suitable definition provided for explicit template instantiation request
-	// 4786: identifier was truncated in debug information
+	// 4786: identifer was truncated in debug information
 	// 4355: 'this' : used in base member initializer list
 	// 4910: '__declspec(dllexport)' and 'extern' are incompatible on an explicit instantiation
 #	pragma warning(disable: 4127 4231 4250 4251 4275 4505 4512 4660 4661 4786 4355 4910)
@@ -410,6 +439,11 @@ NAMESPACE_END
 #define CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE
 #endif
 
+#ifdef CRYPTOPP_DISABLE_X86ASM		// for backwards compatibility: this macro had both meanings
+#define CRYPTOPP_DISABLE_ASM
+#define CRYPTOPP_DISABLE_SSE2
+#endif
+
 // Apple's Clang prior to 5.0 cannot handle SSE2 (and Apple does not use LLVM Clang numbering...)
 #if defined(CRYPTOPP_APPLE_CLANG_VERSION) && (CRYPTOPP_APPLE_CLANG_VERSION < 50000)
 # define CRYPTOPP_DISABLE_ASM
@@ -425,7 +459,7 @@ NAMESPACE_END
 	// C++Builder 2010 does not allow "call label" where label is defined within inline assembly
 	#define CRYPTOPP_X86_ASM_AVAILABLE
 
-	#if !defined(CRYPTOPP_DISABLE_SSE2) && (defined(_MSC_VER) || CRYPTOPP_GCC_VERSION >= 30300 || defined(__SSE2__))
+	#if !defined(CRYPTOPP_DISABLE_SSE2) && (defined(CRYPTOPP_MSVC6PP_OR_LATER) || CRYPTOPP_GCC_VERSION >= 30300 || defined(__SSE2__))
 		#define CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE 1
 	#else
 		#define CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE 0
@@ -446,7 +480,7 @@ NAMESPACE_END
 	#define CRYPTOPP_X64_ASM_AVAILABLE
 #endif
 
-#if !defined(CRYPTOPP_DISABLE_ASM) && (defined(_MSC_VER) || defined(__SSE2__)) && !defined(_M_ARM)
+#if !defined(CRYPTOPP_DISABLE_ASM) && (defined(CRYPTOPP_MSVC6PP_OR_LATER) || defined(__SSE2__)) && !defined(_M_ARM)
 	#define CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE 1
 #else
 	#define CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE 0
@@ -468,10 +502,11 @@ NAMESPACE_END
 	#define CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE 0
 #endif
 
-#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SHA) && !defined(_M_ARM) && ((_MSC_VER >= 1900) || defined(__SHA__))
-	#define CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE 1
+// AVX2 in MSC 18.00
+#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_AVX) && !defined(_M_ARM) && ((_MSC_VER >= 1600) || (defined(__RDRND__) || defined(__RDSEED__) || defined(__AVX__)))
+	#define CRYPTOPP_BOOL_AVX_AVAILABLE 1
 #else
-	#define CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE 0
+	#define CRYPTOPP_BOOL_AVX_AVAILABLE 0
 #endif
 
 // Requires ARMv7 and ACLE 1.0. Testing shows ARMv7 is really ARMv7a under most toolchains.
@@ -506,7 +541,7 @@ NAMESPACE_END
 #endif
 
 // how to allocate 16-byte aligned memory (for SSE2)
-#if defined(_MSC_VER)
+#if defined(CRYPTOPP_MSVC6PP_OR_LATER)
 	#define CRYPTOPP_MM_MALLOC_AVAILABLE
 #elif defined(__APPLE__)
 	#define CRYPTOPP_APPLE_MALLOC_AVAILABLE
@@ -522,7 +557,7 @@ NAMESPACE_END
 // http://developer.apple.com/library/mac/documentation/Performance/Conceptual/ManagingMemory/Articles/MemoryAlloc.html
 
 // how to disable inlining
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) && _MSC_VER >= 1300
 #	define CRYPTOPP_NOINLINE_DOTDOTDOT
 #	define CRYPTOPP_NOINLINE __declspec(noinline)
 #elif defined(__GNUC__)
@@ -534,7 +569,8 @@ NAMESPACE_END
 #endif
 
 // How to declare class constants
-#if (_MSC_VER == 1300) || defined(__INTEL_COMPILER) || defined(__BORLANDC__)
+// Use enum for OS X 10.5 ld, http://github.com/weidai11/cryptopp/issues/255
+#if (defined(_MSC_VER) && _MSC_VER <= 1300) || defined(__INTEL_COMPILER) || defined(__BORLANDC__)
 #	define CRYPTOPP_CONSTANT(x) enum {x};
 #else
 #	define CRYPTOPP_CONSTANT(x) static const int x;
@@ -542,8 +578,8 @@ NAMESPACE_END
 
 // Linux provides X32, which is 32-bit integers, longs and pointers on x86_64 using the full x86_64 register set.
 // Detect via __ILP32__ (http://wiki.debian.org/X32Port). However, __ILP32__ shows up in more places than
-// the System V ABI specs calls out, like on some Solaris installations and just about any 32-bit system with Clang.
-#if (defined(__ILP32__) || defined(_ILP32)) && defined(__x86_64__)
+// the System V ABI specs calls out, like on just about any 32-bit system with Clang.
+#if ((__ILP32__ >= 1) || (_ILP32 >= 1)) && defined(__x86_64__)
 	#define CRYPTOPP_BOOL_X32 1
 #else
 	#define CRYPTOPP_BOOL_X32 0
@@ -654,9 +690,7 @@ NAMESPACE_END
 #	define THREADS_AVAILABLE
 #endif
 
-// Newlib on Cygwin is a problem. __NEWLIB__ is not defined yet; use __CYGWIN__ as a proxy
-//   Also see https://github.com/weidai11/cryptopp/issues/315
-#if defined(CRYPTOPP_UNIX_AVAILABLE) && !defined(__CYGWIN__)
+#if defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE) || defined(__CYGWIN__)
 # define UNIX_SIGNALS_AVAILABLE 1
 #endif
 
@@ -884,12 +918,9 @@ NAMESPACE_END
 #  define CRYPTOPP_NO_THROW
 #endif // CRYPTOPP_CXX11_NOEXCEPT
 
-// http://stackoverflow.com/a/13867690/608639
 #if defined(CRYPTOPP_CXX11_CONSTEXPR)
-#  define CRYPTOPP_STATIC_CONSTEXPR static constexpr
 #  define CRYPTOPP_CONSTEXPR constexpr
 #else
-#  define CRYPTOPP_STATIC_CONSTEXPR static
 #  define CRYPTOPP_CONSTEXPR
 #endif // CRYPTOPP_CXX11_CONSTEXPR
 
@@ -900,7 +931,6 @@ NAMESPACE_END
 #endif  // CRYPTOPP_CXX11_ALIGNAS
 
 // Hack... CRYPTOPP_CONSTANT is defined earlier, before C++11 constexpr availability is determined
-// http://stackoverflow.com/q/35213098/608639
 #if defined(CRYPTOPP_CXX11_CONSTEXPR)
 # undef CRYPTOPP_CONSTANT
 # define CRYPTOPP_CONSTANT(x) constexpr static int x;
