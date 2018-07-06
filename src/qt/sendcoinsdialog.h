@@ -13,7 +13,6 @@
 #include <QTimer>
 
 class ClientModel;
-class OptionsModel;
 class PlatformStyle;
 class SendCoinsEntry;
 class SendCoinsRecipient;
@@ -66,6 +65,8 @@ private:
     // of a message and message flags for use in Q_EMIT message().
     // Additional parameter msgArg can be used via .arg(msgArg).
     void processSendCoinsReturn(const WalletModel::SendCoinsReturn &sendCoinsReturn, const QString &msgArg = QString());
+    // Update the passed in CCoinControl with state from the GUI
+    void updateCoinControlState(CCoinControl& ctrl);
 
 private Q_SLOTS:
     void on_sendButton_clicked();
@@ -87,7 +88,6 @@ private Q_SLOTS:
     void updateFeeSectionControls();
     void updateMinFeeLabel();
     void updateSmartFeeLabel();
-    void updateGlobalFeeVariables();
 
 Q_SIGNALS:
     // Fired when a message should be reported to the user
@@ -95,13 +95,14 @@ Q_SIGNALS:
 };
 
 
+#define SEND_CONFIRM_DELAY   3
 
 class SendConfirmationDialog : public QMessageBox
 {
     Q_OBJECT
 
 public:
-    SendConfirmationDialog(const QString &title, const QString &text, int secDelay = 0, QWidget *parent = 0);
+    SendConfirmationDialog(const QString &title, const QString &text, int secDelay = SEND_CONFIRM_DELAY, QWidget *parent = 0);
     int exec();
 
 private Q_SLOTS:

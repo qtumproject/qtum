@@ -41,6 +41,23 @@
         <source>&amp;Delete</source>
         <translation>&amp;amp;मेटाउनुहोस्</translation>
     </message>
+    <message>
+        <source>C&amp;hoose</source>
+        <translation>छनौट गर्नुहोस्...</translation>
+    </message>
+    <message>
+        <source>Sending addresses</source>
+        <translation>पठाउने ठेगानाहरू...</translation>
+    </message>
+    <message>
+        <source>Receiving addresses</source>
+        <translation>प्राप्त गर्ने ठेगानाहरू...</translation>
+    </message>
+    <message>
+        <source>&amp;Copy Address</source>
+        <translation>ठेगाना कपी गर्नुहोस्
+</translation>
+    </message>
     </context>
 <context>
     <name>AddressTableModel</name>
@@ -167,7 +184,7 @@
     </message>
     <message>
         <source>Send coins to a Qtum address</source>
-        <translation>बिटकोइन ठेगानामा सिक्का पठाउनुहोस्</translation>
+        <translation>क्तुम ठेगानामा सिक्का पठाउनुहोस्</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -192,6 +209,11 @@
         <source>Amount</source>
         <translation>रकम</translation>
     </message>
+    <message>
+        <source>Copy address</source>
+        <translation>ठेगाना कपी गर्नुहोस्
+</translation>
+    </message>
     </context>
 <context>
     <name>EditAddressDialog</name>
@@ -204,6 +226,10 @@
     </context>
 <context>
     <name>Intro</name>
+    <message>
+        <source>%1 will download and store a copy of the Qtum block chain. At least %2GB of data will be stored in this directory, and it will grow over time. The wallet will also be stored in this directory.</source>
+        <translation>%1 ले क्तुम ब्लक चेनको एउटा प्रतिलिपि डाउनलोड र भण्डारण गर्नेछ । यो निर्देशिकामा कम्तिमा पनि %2GB डाटा भण्डारण गरिनेछ, र यो समयसँगै बढ्नेछ । वालेटलाई पनि यो निर्देशिकामा भण्डारण गरिनेछ ।</translation>
+    </message>
     </context>
 <context>
     <name>ModalOverlay</name>
@@ -213,12 +239,16 @@
     </context>
 <context>
     <name>OptionsDialog</name>
+    <message>
+        <source>Choose the default subdivision unit to show in the interface and when sending coins.</source>
+        <translation>इन्टरफेसमा र सिक्का पठाउँदा देखिने डिफल्ट उपविभाजन एकाइ चयन गर्नुहोस् ।</translation>
+    </message>
     </context>
 <context>
     <name>OverviewPage</name>
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
-        <translation>देखाइएको सूचना पूरानो हुन सक्छ । कनेक्सन स्थापित भएपछि, तपाईंको वालेट बिटकोइन नेटवर्कमा स्वचालित रूपमा समिकरण हुन्छ , तर यो प्रक्रिया अहिले सम्म पूरा भएको छैन ।</translation>
+        <translation>देखाइएको सूचना पूरानो हुन सक्छ । कनेक्सन स्थापित भएपछि, तपाईंको वालेट क्तुम नेटवर्कमा स्वचालित रूपमा समिकरण हुन्छ , तर यो प्रक्रिया अहिले सम्म पूरा भएको छैन ।</translation>
     </message>
     <message>
         <source>Watch-only:</source>
@@ -281,6 +311,10 @@
         <source>Amount</source>
         <translation>रकम</translation>
     </message>
+    <message>
+        <source>Enter a Qtum address (e.g. %1)</source>
+        <translation>कृपया क्तुम ठेगाना प्रवेश गर्नुहोस् (उदाहरण %1)</translation>
+    </message>
     </context>
 <context>
     <name>QObject::QObject</name>
@@ -310,16 +344,28 @@
     </context>
 <context>
     <name>SendCoinsDialog</name>
+    <message>
+        <source>Choose...</source>
+        <translation>छनौट गर्नुहोस्...</translation>
+    </message>
     </context>
 <context>
     <name>SendCoinsEntry</name>
     <message>
+        <source>Choose previously used address</source>
+        <translation>पहिला प्रयोग गरिएको ठेगाना प्रयोग गर्नुहोस्</translation>
+    </message>
+    <message>
         <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
-        <translation>पठाइँदै गरेको रकमबाट शुल्क कटौती गरिनेछ । प्राप्तकर्ताले तपाईंले रकम क्षेत्रमा प्रवेष गरेको भन्दा थोरै बिटकोइन प्राप्त गर्ने छन् । धेरै प्राप्तकर्ता चयन गरिएको छ भने समान रूपमा शुल्क विभाजित गरिनेछ ।</translation>
+        <translation>पठाइँदै गरेको रकमबाट शुल्क कटौती गरिनेछ । प्राप्तकर्ताले तपाईंले रकम क्षेत्रमा प्रवेष गरेको भन्दा थोरै क्तुम प्राप्त गर्ने छन् । धेरै प्राप्तकर्ता चयन गरिएको छ भने समान रूपमा शुल्क विभाजित गरिनेछ ।</translation>
+    </message>
+    <message>
+        <source>Enter a label for this address to add it to the list of used addresses</source>
+        <translation>यो ठेगानालाई प्रयोग गरिएको ठेगानाको सूचीमा थप्न एउटा लेबल प्रविष्ट गर्नुहोस्</translation>
     </message>
     <message>
         <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
-        <translation>बिटकोइनमा संलग्न गरिएको सन्देश: तपाईंको मध्यस्थको लागि कारोबारको साथमा भण्डारण गरिने URI । नोट: यो सन्देश बिटकोइन नेटवर्क मार्फत पठाइने छैन ।</translation>
+        <translation>क्तुममा संलग्न गरिएको सन्देश: तपाईंको मध्यस्थको लागि कारोबारको साथमा भण्डारण गरिने URI । नोट: यो सन्देश क्तुम नेटवर्क मार्फत पठाइने छैन ।</translation>
     </message>
     </context>
 <context>
@@ -332,7 +378,19 @@
     <name>SignVerifyMessageDialog</name>
     <message>
         <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
-        <translation>आफ्नो ठेगानामा पठाइएको बिटकोइन प्राप्त गर्न सकिन्छ भनेर प्रमाणित गर्न तपाईंले ती ठेगानाले सन्देश/सम्झौताहरूमा हस्ताक्षर गर्न सक्नुहुन्छ । फिसिङ आक्रमणले तपाईंलाई छक्याएर अरूका लागि तपाईंको परिचयमा हस्ताक्षर गराउने प्रयास गर्न सक्ने भएकाले अस्पष्ट वा जथाभावीमा हस्ताक्षर गर्दा ध्यान दिनुहोस् । आफू सहमत भएको पूर्ण विस्तृत-कथनमा मात्र हस्ताक्षर गर्नुहोस् ।</translation>
+        <translation>आफ्नो ठेगानामा पठाइएको क्तुम प्राप्त गर्न सकिन्छ भनेर प्रमाणित गर्न तपाईंले ती ठेगानाले सन्देश/सम्झौताहरूमा हस्ताक्षर गर्न सक्नुहुन्छ । फिसिङ आक्रमणले तपाईंलाई छक्याएर अरूका लागि तपाईंको परिचयमा हस्ताक्षर गराउने प्रयास गर्न सक्ने भएकाले अस्पष्ट वा जथाभावीमा हस्ताक्षर गर्दा ध्यान दिनुहोस् । आफू सहमत भएको पूर्ण विस्तृत-कथनमा मात्र हस्ताक्षर गर्नुहोस् ।</translation>
+    </message>
+    <message>
+        <source>Choose previously used address</source>
+        <translation>पहिला प्रयोग गरिएको ठेगाना प्रयोग गर्नुहोस्</translation>
+    </message>
+    <message>
+        <source>Copy the current signature to the system clipboard</source>
+        <translation>वर्तमान हस्ताक्षरलाई प्रणाली क्लिपबोर्डमा कपी गर्नुहोस्</translation>
+    </message>
+    <message>
+        <source>Enter the receiver's address, message (ensure you copy line breaks, spaces, tabs, etc. exactly) and signature below to verify the message. Be careful not to read more into the signature than what is in the signed message itself, to avoid being tricked by a man-in-the-middle attack. Note that this only proves the signing party receives with the address, it cannot prove sendership of any transaction!</source>
+        <translation>सन्देश प्रमाणित गर्न, तल दिइएको स्थानमा प्राप्तकर्ता ठेगाना, सन्देश (लाइन ब्रेक, स्पेस, ट्याब, आदि उस्तै गरी कपी गर्ने कुरा सुनिश्चित गर्नुहोस्) र हस्ताक्षर &amp;apos;s प्रविष्ट गर्नुहोस् । बीचमा-मानिसको-आक्रमणबाट बच्न हस्ताक्षर पढ्दा हस्ताक्षर गरिएको सन्देशमा जे छ त्यो भन्दा धेरै कुरामा ध्यान नदिनुहोस् । यो कार्यले हस्ताक्षर गर्ने पक्षले मात्र यो ठेगानाले प्राप्त गर्छ भन्ने कुरा प्रमाणित गर्छ, यसले कुनै पनि कारोबारको प्रेषककर्तालाई प्रमाणित गर्न सक्दैन भन्ने कुरा याद गर्नुहोस्!</translation>
     </message>
     </context>
 <context>
@@ -352,6 +410,11 @@
     </context>
 <context>
     <name>TransactionView</name>
+    <message>
+        <source>Copy address</source>
+        <translation>ठेगाना कपी गर्नुहोस्
+</translation>
+    </message>
     </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
@@ -364,9 +427,22 @@
     </context>
 <context>
     <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>&amp;amp;निर्यात गर्नुहोस्
+</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>वर्तमान ट्याबको डाटालाई फाइलमा निर्यात गर्नुहोस्</translation>
+    </message>
     </context>
 <context>
     <name>qtum-core</name>
+    <message>
+        <source>Delete all wallet transactions and only recover those parts of the blockchain through -rescan on startup</source>
+        <translation>वालेटको सबै कारोबार मेटाउनुहोस् र -स्टार्टअपको पुनः स्क्यान मार्फत ब्लकचेनका ती भागहरूलाई मात्र पुनः प्राप्त गर्नुहोस्</translation>
+    </message>
     <message>
         <source>The block database contains a block which appears to be from the future. This may be due to your computer's date and time being set incorrectly. Only rebuild the block database if you are sure that your computer's date and time are correct</source>
         <translation>ब्लक डाटाबेसमा भविष्यबाट आए जस्तो देखिने एउटा ब्लक हुन्छ । तपाईंको कम्प्युटरको मिति र समय गलत तरिकाले सेट गरिएकाले यस्तो हुन सक्छ । तपाईं आफ्नो कम्प्युटरको मिति र समय सही छ भनेर पक्का हुनुहुन्छ भने मात्र ब्लक डाटाबेस पुनर्निर्माण गर्नुहोस् ।</translation>

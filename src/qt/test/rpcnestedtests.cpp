@@ -6,18 +6,17 @@
 
 #include "chainparams.h"
 #include "consensus/validation.h"
+#include "fs.h"
 #include "validation.h"
 #include "rpc/register.h"
 #include "rpc/server.h"
 #include "rpcconsole.h"
-#include "test/testutil.h"
+#include "test/test_bitcoin.h"
 #include "univalue.h"
 #include "util.h"
 
 #include <QDir>
 #include <QtGlobal>
-
-#include <boost/filesystem.hpp>
 
 static UniValue rpcNestedTest_rpc(const JSONRPCRequest& request)
 {
@@ -34,44 +33,13 @@ static const CRPCCommand vRPCCommands[] =
 
 void RPCNestedTests::rpcNestedTests()
 {
-    UniValue jsonRPCError;
-
     // do some test setup
     // could be moved to a more generic place when we add more tests on QT level
-    const CChainParams& chainparams = Params();
-    RegisterAllCoreRPCCommands(tableRPC);
     tableRPC.appendCommand("rpcNestedTest", &vRPCCommands[0]);
-    ClearDatadirCache();
-    std::string path = QDir::tempPath().toStdString() + "/" + strprintf("test_bitcoin_qt_%lu_%i", (unsigned long)GetTime(), (int)(GetRand(100000)));
-    QDir dir(QString::fromStdString(path));
-    dir.mkpath(".");
-    ForceSetArg("-datadir", path);
     //mempool.setSanityCheck(1.0);
-    pblocktree = new CBlockTreeDB(1 << 20, true);
-    pcoinsdbview = new CCoinsViewDB(1 << 23, true);
-    pcoinsTip = new CCoinsViewCache(pcoinsdbview);
-    InitBlockIndex(chainparams);
-    /////////////////////////////////////////////////////////// qtum
-    dev::eth::Ethash::init();		
-    boost::filesystem::path pathTemp = GetTempPath() / strprintf("test_bitcoin_%lu_%i", (unsigned long)GetTime(), (int)(GetRand(100000)));
-    boost::filesystem::create_directories(pathTemp);
-    const dev::h256 hashDB(dev::sha3(dev::rlp("")));
-    globalState = std::unique_ptr<QtumState>(new QtumState(dev::u256(0), QtumState::openDB(pathTemp.string(), hashDB, dev::WithExisting::Trust), pathTemp.string(), dev::eth::BaseState::Empty));
-    dev::eth::ChainParams cp((dev::eth::genesisInfo(dev::eth::Network::qtumTestNetwork)));
-    globalSealEngine = std::unique_ptr<dev::eth::SealEngineFace>(cp.createSealEngine());
-    globalState->populateFrom(cp.genesisState);
-    globalState->setRootUTXO(uintToh256(chainparams.GenesisBlock().hashUTXORoot));
-    globalState->db().commit();
-    globalState->dbUtxo().commit();
-    ///////////////////////////////////////////////////////////
-    {
-        CValidationState state;
-        bool ok = ActivateBestChain(state, chainparams);
-        QVERIFY(ok);
-    }
-    delete globalState.release();
-    globalSealEngine.reset();
-    
+
+    TestingSetup test;
+
     SetRPCWarmupFinished();
 
     std::string result;
@@ -162,10 +130,4 @@ void RPCNestedTests::rpcNestedTests()
     QVERIFY_EXCEPTION_THROWN(RPCConsole::RPCExecuteCommandLine(result, "rpcNestedTest(abc,,abc)"), std::runtime_error); //don't tollerate empty arguments when using ,
     QVERIFY_EXCEPTION_THROWN(RPCConsole::RPCExecuteCommandLine(result, "rpcNestedTest(abc,,)"), std::runtime_error); //don't tollerate empty arguments when using ,
 #endif
-
-    delete pcoinsTip;
-    delete pcoinsdbview;
-    delete pblocktree;
-
-    boost::filesystem::remove_all(boost::filesystem::path(path));
 }

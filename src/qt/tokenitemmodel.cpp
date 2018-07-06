@@ -4,7 +4,6 @@
 #include "wallet/wallet.h"
 #include "validation.h"
 #include "bitcoinunits.h"
-#include <boost/foreach.hpp>
 #include <algorithm>
 
 #include <QDateTime>

@@ -15,8 +15,6 @@
 #include <utility>
 #include <vector>
 
-#include <boost/function.hpp>
-
 #include <validation.h> // temp
 
 class CBlockIndex;
@@ -29,6 +27,8 @@ static constexpr int DB_PEAK_USAGE_FACTOR = 2;
 static constexpr int MAX_BLOCK_COINSDB_USAGE = 10 * DB_PEAK_USAGE_FACTOR;
 //! -dbcache default (MiB)
 static const int64_t nDefaultDbCache = 450;
+//! -dbbatchsize default (bytes)
+static const int64_t nDefaultDbBatchSize = 16 << 20;
 //! max. -dbcache (MiB)
 static const int64_t nMaxDbCache = sizeof(void*) > 4 ? 16384 : 1024;
 //! min. -dbcache (MiB)
@@ -78,6 +78,7 @@ public:
     bool GetCoin(const COutPoint &outpoint, Coin &coin) const override;
     bool HaveCoin(const COutPoint &outpoint) const override;
     uint256 GetBestBlock() const override;
+    std::vector<uint256> GetHeadBlocks() const override;
     bool BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock) override;
     CCoinsViewCursor *Cursor() const override;
 
@@ -92,12 +93,12 @@ class CCoinsViewDBCursor: public CCoinsViewCursor
 public:
     ~CCoinsViewDBCursor() {}
 
-    bool GetKey(COutPoint &key) const;
-    bool GetValue(Coin &coin) const;
-    unsigned int GetValueSize() const;
+    bool GetKey(COutPoint &key) const override;
+    bool GetValue(Coin &coin) const override;
+    unsigned int GetValueSize() const override;
 
-    bool Valid() const;
-    void Next();
+    bool Valid() const override;
+    void Next() override;
 
 private:
     CCoinsViewDBCursor(CDBIterator* pcursorIn, const uint256 &hashBlockIn):
@@ -126,8 +127,8 @@ public:
     bool WriteTxIndex(const std::vector<std::pair<uint256, CDiskTxPos> > &list);
     bool WriteFlag(const std::string &name, bool fValue);
     bool ReadFlag(const std::string &name, bool &fValue);
-    bool LoadBlockIndexGuts(boost::function<CBlockIndex*(const uint256&)> insertBlockIndex);
-    
+    bool LoadBlockIndexGuts(const Consensus::Params& consensusParams, std::function<CBlockIndex*(const uint256&)> insertBlockIndex);
+
     ////////////////////////////////////////////////////////////////////////////// // qtum
     bool WriteHeightIndex(const CHeightTxIndexKey &heightIndex, const std::vector<uint256>& hash);
 
@@ -155,6 +156,7 @@ public:
     bool EraseStakeIndex(unsigned int height);
 
     //////////////////////////////////////////////////////////////////////////////
+
 };
 
 #endif // BITCOIN_TXDB_H
