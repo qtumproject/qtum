@@ -2167,9 +2167,9 @@ bool ByteCodeExec::processingResults(ByteCodeExecResult& resultBCE){
 
 dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(){
     CBlockIndex* tip = chainActive.Tip();
-    LastHashes lh(tip);
-    lh.precedingHashes(dev::h256(0));
-    dev::eth::EnvInfo env(lh);
+    lasthashes = std::unique_ptr<LastHashes>(new LastHashes(std::move(tip)));
+    dev::eth::EnvInfo env(*lasthashes.get());
+    lasthashes->precedingHashes(dev::h256(0));
     env.setNumber(tip->nHeight + 1);
     env.setTimestamp(block.nTime);
     env.setDifficulty(dev::u256(block.nBits));

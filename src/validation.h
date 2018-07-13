@@ -669,6 +669,35 @@ private:
 
 };
 
+class LastHashes : public dev::eth::LastBlockHashesFace {
+
+public:
+
+	explicit LastHashes(CBlockIndex const* _tip): m_tip(_tip) {}
+
+    dev::h256s precedingHashes(dev::h256 const& _mostRecentHash) const override
+    {
+        CBlockIndex* temp_tip = const_cast<CBlockIndex*>(m_tip);
+        m_lastHashes.resize(256);
+        for(unsigned i=0; i < 256; i++){
+            if(!temp_tip)
+                break;
+            m_lastHashes[i] = uintToh256(*temp_tip->phashBlock);
+            temp_tip = temp_tip->pprev;
+        }
+		return m_lastHashes;
+    }
+
+    void clear() override
+    {
+        m_lastHashes.clear();
+    }
+
+private:
+    CBlockIndex const* m_tip;
+    mutable dev::h256s m_lastHashes;
+};
+
 class ByteCodeExec {
 
 public:
@@ -695,35 +724,10 @@ private:
 
     const uint64_t blockGasLimit;
 
+    std::unique_ptr<LastHashes> lasthashes;
+
 };
 
-class LastHashes : public dev::eth::LastBlockHashesFace {
-
-public:
-
-	explicit LastHashes(CBlockIndex* _tip): m_tip(_tip) {}
-
-    dev::h256s precedingHashes(dev::h256 const& _mostRecentHash) const override
-    {
-       m_lastHashes.resize(256);
-	    for(int i=0;i<256;i++){
-	        if(!m_tip)
-	            break;
-	        m_lastHashes[i]= uintToh256(*m_tip->phashBlock);
-	        m_tip = m_tip->pprev;
-	    }
-        return m_lastHashes;
-    }
-
-    void clear() override
-    {
-        m_lastHashes.clear();
-    }
-
-private:
-	mutable CBlockIndex* m_tip;
-    mutable dev::h256s m_lastHashes;
-};
 ////////////////////////////////////////////////////////
 
 #endif // BITCOIN_VALIDATION_H
