@@ -66,7 +66,7 @@ private:
 
     void parseDataOneUint64(uint64_t& value);
 
-    dev::eth::EVMSchedule createEVMSchedule();
+    dev::eth::EVMSchedule createEVMSchedule(unsigned int blockHeight);
 
     void clear();    
 

@@ -34,8 +34,10 @@ bool QtumDGP::checkLimitSchedule(const std::vector<uint32_t>& defaultData, const
 dev::eth::EVMSchedule QtumDGP::getGasSchedule(unsigned int blockHeight){
     clear();
     dev::eth::EVMSchedule schedule = dev::eth::EIP158Schedule;
+    if(blockHeight >= globalSealEngine->chainParams().byzantiumForkBlock)
+        schedule = dev::eth::ByzantiumSchedule;
     if(initStorages(GasScheduleDGP, blockHeight, ParseHex("26fadbe2"))){
-        schedule = createEVMSchedule();
+        schedule = createEVMSchedule(blockHeight);
     }
     return schedule;
 }
@@ -160,6 +162,7 @@ void QtumDGP::parseStorageScheduleContract(std::vector<uint32_t>& uint32Values){
             uint32Values.push_back(uint32_t(uint64Value));
         }
     }
+    uint32Values.erase(uint32Values.end() - 1);     
 }
 
 void QtumDGP::parseDataScheduleContract(std::vector<uint32_t>& uint32Values){
@@ -184,9 +187,13 @@ void QtumDGP::parseDataOneUint64(uint64_t& value){
     }
 }
 
-dev::eth::EVMSchedule QtumDGP::createEVMSchedule(){
+dev::eth::EVMSchedule QtumDGP::createEVMSchedule(unsigned int blockHeight){
     dev::eth::EVMSchedule schedule = dev::eth::EIP158Schedule;
     std::vector<uint32_t> uint32Values;
+
+    if(blockHeight >= globalSealEngine->chainParams().byzantiumForkBlock){
+        schedule = dev::eth::ByzantiumSchedule;
+    }
 
     if(!dgpevm){
         parseStorageScheduleContract(uint32Values);
