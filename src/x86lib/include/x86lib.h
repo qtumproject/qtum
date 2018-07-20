@@ -645,11 +645,6 @@ class x86CPU{
     void Read(void* buffer, uint32_t off, size_t count, MemAccessReason reason = Data);
     void Write(uint32_t off, void* buffer, size_t count, MemAccessReason reason = Data);
 
-    /*End public interface*/
-	#ifdef X86LIB_BUILD
-	private:
-	#include <opcode_def.h>
-	#endif
 
 	inline uint32_t A(uint32_t a){
 		if(AddressSize16){
@@ -749,6 +744,12 @@ class x86CPU{
 	inline int OperandSize(){
 		return OperandSize16 ? 2 : 4;
 	}
+
+	/*End public interface*/
+private:
+#ifdef X86LIB_BUILD
+	#include <opcode_def.h>
+#endif
 
 };
 

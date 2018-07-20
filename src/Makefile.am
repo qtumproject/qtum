@@ -6,7 +6,7 @@ DIST_SUBDIRS = secp256k1 univalue
 
 AM_LDFLAGS = $(PTHREAD_CFLAGS) $(LIBTOOL_LDFLAGS) $(HARDENED_LDFLAGS)
 AM_CXXFLAGS = $(HARDENED_CXXFLAGS) $(ERROR_CXXFLAGS) -DETH_FATDB=1
-AM_CPPFLAGS = $(HARDENED_CPPFLAGS) -DQTUM_BUILD
+AM_CPPFLAGS = $(HARDENED_CPPFLAGS) -DQTUM_BUILD -DX86LIB_BUILD
 EXTRA_LIBRARIES =
 
 if EMBEDDED_UNIVALUE
@@ -25,6 +25,7 @@ BITCOIN_INCLUDES += -I$(srcdir)/secp256k1/include
 BITCOIN_INCLUDES += $(UNIVALUE_CFLAGS)
 
 BITCOIN_INCLUDES += -I$(srcdir)/cpp-ethereum
+BITCOIN_INCLUDES += -I$(srcdir)/x86lib/include
 
 LIBBITCOIN_SERVER=libbitcoin_server.a
 LIBBITCOIN_COMMON=libbitcoin_common.a
@@ -35,7 +36,6 @@ LIBBITCOIN_CRYPTO=crypto/libbitcoin_crypto.a
 LIBBITCOINQT=qt/libbitcoinqt.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
 LIBCRYPTOPP=cryptopp/libcryptopp.a
-LIBX86LIB=-lx86lib
 
 
 if ENABLE_ZMQ
@@ -339,7 +339,13 @@ libbitcoin_consensus_a_SOURCES = \
   uint256.h \
   utilstrencodings.cpp \
   utilstrencodings.h \
-  version.h
+  version.h \
+  x86lib/include/config.h \
+  x86lib/include/opcode_def.h \
+  x86lib/include/x86lib.h \
+  x86lib/include/x86lib_internal.h \
+  x86lib/include/elfloader.h
+
 
 # common: shared between bitcoind, and bitcoin-qt and non-server tools
 libbitcoin_common_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) -DQTUM_BUILD
@@ -362,6 +368,18 @@ libbitcoin_common_a_SOURCES = \
   script/sign.cpp \
   script/standard.cpp \
   warnings.cpp \
+  x86lib/vm/x86lib.cpp \
+  x86lib/vm/modrm.cpp \
+  x86lib/vm/device_manager.cpp \
+  x86lib/vm/cpu_helpers.cpp \
+  x86lib/vm/ops/strings.cpp \
+  x86lib/vm/ops/store.cpp \
+  x86lib/vm/ops/maths.cpp \
+  x86lib/vm/ops/groups.cpp \
+  x86lib/vm/ops/flow.cpp \
+  x86lib/vm/ops/flags.cpp \
+  x86lib/vm/ops/etc.cpp \
+  x86lib/utils/elfloader.cpp \
   cpp-ethereum/libdevcore/Base64.cpp \
   cpp-ethereum/libdevcore/Base64.h \
   cpp-ethereum/libdevcore/Common.cpp \
@@ -609,7 +627,7 @@ qtumd_LDADD = \
   $(LIBCRYPTOPP) \
   $(LIBSECP256K1)
 
-qtumd_LDADD += $(LIBX86LIB) $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS)
+qtumd_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS)
 
 # bitcoin-cli binary #
 qtum_cli_SOURCES = bitcoin-cli.cpp
@@ -630,7 +648,6 @@ qtum_cli_LDADD = \
   $(LIBLEVELDB_SSE42) \
   $(LIBMEMENV) \
   $(LIBCRYPTOPP) \
-  $(LIBX86LIB) \
   $(LIBSECP256K1)
 
 qtum_cli_LDADD += $(BOOST_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(EVENT_LIBS)
@@ -656,7 +673,6 @@ qtum_tx_LDADD = \
   $(LIBLEVELDB_SSE42) \
   $(LIBMEMENV) \
   $(LIBCRYPTOPP) \
-  $(LIBX86LIB) \
   $(LIBSECP256K1)
 
 qtum_tx_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS)
