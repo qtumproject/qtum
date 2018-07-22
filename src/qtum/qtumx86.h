@@ -10,7 +10,7 @@ class ContractVM;
 
 class x86ContractVM : public ContractVM{
 public:
-    x86ContractVM(DeltaDB &db, const ContractEnvironment &env, uint64_t remainingGasLimit)
+    x86ContractVM(DeltaDBWrapper &db, const ContractEnvironment &env, uint64_t remainingGasLimit)
             : ContractVM(db, env, remainingGasLimit)
     {}
     virtual bool execute(ContractOutput &output, ContractExecutionResult &result, bool commit);
@@ -22,12 +22,13 @@ private:
 };
 
 class QtumHypervisor : public x86Lib::InterruptHypervisor{
-    QtumHypervisor(x86ContractVM &vm, const ContractOutput& out) : contractVM(vm), output(out){
+    QtumHypervisor(x86ContractVM &vm, const ContractOutput& out, DeltaDBWrapper& db_) : contractVM(vm), output(out), db(db_){
     }
     virtual void HandleInt(int number, x86Lib::x86CPU &vm);
 private:
     x86ContractVM &contractVM;
     ContractOutput output;
+    DeltaDBWrapper &db;
 
     friend x86ContractVM;
 };

@@ -160,6 +160,14 @@ struct ContractEnvironment{
     //todo for x86: tx info
 };
 
+
+struct DeltaEntry{
+    DeltaEntry(std::vector<uint8_t> k, std::vector<uint8_t> v) : K(k), V(v)
+    {}
+    std::vector<uint8_t> K;
+    std::vector<uint8_t> V;
+};
+
 class DeltaDB : public CDBWrapper
 {
 
@@ -167,46 +175,60 @@ public:
 	DeltaDB(size_t nCacheSize, bool fMemory, bool fWipe) : CDBWrapper(GetDataDir() / "deltaDB", nCacheSize, fMemory, fWipe) { }	
 	DeltaDB() : CDBWrapper(GetDataDir() / "deltaDB", 4, false, false) { }
 	~DeltaDB() {    }
-	
-	/*************** Live data *****************/
-	/* newest data associated with the contract. */
+};
+
+
+class DeltaDBWrapper{
+    DeltaDB* db;
+public:
+    DeltaDBWrapper(DeltaDB* db_) : db(db_){}
+
+    void commit(); //commits everything to disk
+    void revert(); //reverts all uncommitted changes
+
+    /*************** Live data *****************/
+    /* newest data associated with the contract. */
     bool writeState(UniversalAddress address, valtype key, valtype value);
     bool readState(UniversalAddress address, valtype key, valtype& value);
 
-	/* bytecode of the contract. */
-	bool writeByteCode(UniversalAddress address,valtype byteCode);
-	bool readByteCode(UniversalAddress address,valtype& byteCode);
+    /* bytecode of the contract. */
+    bool writeByteCode(UniversalAddress address,valtype byteCode);
+    bool readByteCode(UniversalAddress address,valtype& byteCode);
 
     bool writeAalData(UniversalAddress address, uint256 txid, unsigned int vout, uint64_t balance);
     bool readAalData(UniversalAddress address, uint256 &txid, unsigned int &vout, uint64_t &balance);
 
-	/* data updated point of the keys in a contract. */
-	bool writeUpdatedKey(UniversalAddress address, valtype key, unsigned int blk_num, uint256 blk_hash);
-	bool readUpdatedKey(UniversalAddress address, valtype key, unsigned int &blk_num, uint256 &blk_hash);
+    /* data updated point of the keys in a contract. */
+    bool writeUpdatedKey(UniversalAddress address, valtype key, unsigned int blk_num, uint256 blk_hash);
+    bool readUpdatedKey(UniversalAddress address, valtype key, unsigned int &blk_num, uint256 &blk_hash);
 
 
-	/*************** Change log data *****************/
-	/* raw name of the keys in a contract. */
-	bool writeRawKey(UniversalAddress address,      valtype key, valtype rawkey);
-	bool readRawKey(UniversalAddress address,     valtype key, valtype &rawkey);
-	
-	/* current iterator of the keys in a contract. */
-	bool writeCurrentIterator(UniversalAddress address,      valtype key, uint64_t iterator);
-	bool readCurrentIterator(UniversalAddress address,      valtype key, uint64_t &iterator);
-	
-	/* data of the keys in a contract, indexed by iterator. */
-	bool writeStateWithIterator(UniversalAddress address,        valtype key, uint64_t iterator, valtype value);
-	bool readStateWithIterator(UniversalAddress address,        valtype key, uint64_t iterator, valtype &value);
-	
-	/* info of the keys in a contract, indexed by iterator. */
-	bool writeInfoWithIterator(UniversalAddress address,        valtype key, uint64_t iterator, unsigned int blk_num, uint256 blk_hash, uint256 txid, unsigned int vout);
-	bool readInfoWithIterator(UniversalAddress address,        valtype key, uint64_t iterator, unsigned int &blk_num, uint256 &blk_hash, uint256 &txid, unsigned int &vout);
+    /*************** Change log data *****************/
+    /* raw name of the keys in a contract. */
+    bool writeRawKey(UniversalAddress address,      valtype key, valtype rawkey);
+    bool readRawKey(UniversalAddress address,     valtype key, valtype &rawkey);
 
-	/* Oldest iterator and the respect block info that exists in the changelog database. */
-	bool writeOldestIterator(UniversalAddress address,        valtype key, uint64_t iterator, unsigned int blk_num, uint256 blk_hash);
-	bool readOldestIterator(UniversalAddress address,        valtype key, uint64_t &iterator, unsigned int &blk_num, uint256 &blk_hash);
-	
+    /* current iterator of the keys in a contract. */
+    bool writeCurrentIterator(UniversalAddress address,      valtype key, uint64_t iterator);
+    bool readCurrentIterator(UniversalAddress address,      valtype key, uint64_t &iterator);
 
+    /* data of the keys in a contract, indexed by iterator. */
+    bool writeStateWithIterator(UniversalAddress address,        valtype key, uint64_t iterator, valtype value);
+    bool readStateWithIterator(UniversalAddress address,        valtype key, uint64_t iterator, valtype &value);
+
+    /* info of the keys in a contract, indexed by iterator. */
+    bool writeInfoWithIterator(UniversalAddress address,        valtype key, uint64_t iterator, unsigned int blk_num, uint256 blk_hash, uint256 txid, unsigned int vout);
+    bool readInfoWithIterator(UniversalAddress address,        valtype key, uint64_t iterator, unsigned int &blk_num, uint256 &blk_hash, uint256 &txid, unsigned int &vout);
+
+    /* Oldest iterator and the respect block info that exists in the changelog database. */
+    bool writeOldestIterator(UniversalAddress address,        valtype key, uint64_t iterator, unsigned int blk_num, uint256 blk_hash);
+    bool readOldestIterator(UniversalAddress address,        valtype key, uint64_t &iterator, unsigned int &blk_num, uint256 &blk_hash);
+
+private:
+    bool Write(valtype K, valtype V);
+    bool Read(valtype K, valtype& V);
+    bool Write(valtype K, uint64_t V);
+    bool Read(valtype K, uint64_t& V);
 };
 
 enum ContractStatus{
@@ -221,6 +243,7 @@ struct ContractExecutionResult{
     CAmount refundSender = 0;
     ContractStatus status;
     CMutableTransaction transferTx;
+    bool commitState;
 };
 
 class QtumTransaction;
@@ -230,12 +253,12 @@ class x86ContractVM;
 class ContractVM{
     //todo database
 protected:
-    ContractVM(DeltaDB &_db, const ContractEnvironment &_env, uint64_t _remainingGasLimit)
+    ContractVM(DeltaDBWrapper &_db, const ContractEnvironment &_env, uint64_t _remainingGasLimit)
     : db(db), env(_env), remainingGasLimit(_remainingGasLimit) {}
 public:
     virtual bool execute(ContractOutput &output, ContractExecutionResult &result, bool commit)=0;
 protected:
-    DeltaDB &db;
+    DeltaDBWrapper &db;
     const ContractEnvironment &env;
     const uint64_t remainingGasLimit;
 };
@@ -244,7 +267,7 @@ protected:
 
 class EVMContractVM : public ContractVM {
 public:
-    EVMContractVM(DeltaDB &db, const ContractEnvironment &env, uint64_t remainingGasLimit)
+    EVMContractVM(DeltaDBWrapper &db, const ContractEnvironment &env, uint64_t remainingGasLimit)
             : ContractVM(db, env, remainingGasLimit)
     {}
     virtual bool execute(ContractOutput &output, ContractExecutionResult &result, bool commit);

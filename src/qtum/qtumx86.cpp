@@ -7,7 +7,9 @@
 #include <validation.h>
 
 using namespace x86Lib;
+//TODO: don't use a global for this so we can execute things in parallel
 DeltaDB* pdeltaDB = nullptr;
+DeltaDBWrapper* pdeltaWrapper = nullptr;
 
 
 //The data field available is only a flat data field, so we need some format for storing
@@ -55,6 +57,7 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
     //default results
     result.usedGas = output.gasLimit;
     result.refundSender = 0;
+    result.commitState = false;
     result.status = ContractStatus::CODE_ERROR;
     const uint8_t *code;
     const uint8_t *data;
@@ -69,7 +72,7 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
         }
     }else {
 
-        pdeltaDB->readByteCode(output.address, bytecode);
+        db.readByteCode(output.address, bytecode);
         map = parseContractData(bytecode.data(), &code, &data, &options);
     }
 
@@ -103,7 +106,7 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
         memsys.Add(TX_CALL_DATA_ADDRESS, TX_CALL_DATA_ADDRESS + output.data.size(), &callDataMemory);
     }
 
-    QtumHypervisor qtumhv(*this, output);
+    QtumHypervisor qtumhv(*this, output, db);
 
     x86CPU cpu;
     cpu.Memory = &memsys;
@@ -126,7 +129,7 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
     LogPrintf("Execution successful!");
     if(output.OpCreate){
         //no error, so save to database
-        pdeltaDB->writeByteCode(output.address, output.data);
+        db.writeByteCode(output.address, output.data);
     }else{
         //later, store a receipt or something
     }
@@ -134,6 +137,7 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
     result.usedGas = std::min((uint64_t)1000, output.gasLimit);
     result.refundSender = 0;
     result.status = ContractStatus::SUCCESS;
+    result.commitState = true;
 
     return true;
 }
@@ -206,7 +210,7 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
             valtype key(k,k+vm.Reg32(ECX));
             valtype value;
             bool ret;
-			ret = pdeltaDB->readState(output.address, key, value);
+			ret = db.readState(output.address, key, value);
             status = 0;
             if(ret==true){
                 status = (value.size() <= vm.Reg32(ESI))? value.size() : vm.Reg32(ESI);					
@@ -223,7 +227,7 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
             vm.ReadMemory(vm.Reg32(EDX), vm.Reg32(ESI), v);
             valtype key(k,k+vm.Reg32(ECX));
             valtype value(v,v+vm.Reg32(ESI));
-            pdeltaDB->writeState(output.address, key, value);
+            db.writeState(output.address, key, value);
             delete []k;
             delete []v;
         }

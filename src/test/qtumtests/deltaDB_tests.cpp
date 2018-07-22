@@ -12,14 +12,15 @@ BOOST_FIXTURE_TEST_SUITE(deltaDB_tests, TestingSetup)
 BOOST_AUTO_TEST_CASE(byteCode_read_write_test){
 	size_t nCacheSize=8;
 	bool fWipe=false,ret;
-	DeltaDB* pDeltaDB= new DeltaDB(nCacheSize,false,fWipe);
+	DeltaDB* pDeltaDB = new DeltaDB(nCacheSize,false,fWipe);
+	DeltaDBWrapper wrapper(pDeltaDB);
 	UniversalAddress addr(X86,valtype(ParseHex("0c4c1d7375918557df2ef8f1d1f0b2329cb248a1")));
 	valtype byteCode = valtype(ParseHex("bf5f1283000000000000000000000000c4c1d7375918557df2ef8f1d1f0b2329cb248a150000000000000000000000000000000000000000000000000000000000000002"));
 	valtype byteCode2;
 	
-	ret = pDeltaDB->writeByteCode(addr, byteCode);
+	ret = wrapper.writeByteCode(addr, byteCode);
 	BOOST_CHECK(ret);
-	ret = pDeltaDB->readByteCode(addr, byteCode2);	
+	ret = wrapper.readByteCode(addr, byteCode2);
     BOOST_CHECK(byteCode2==byteCode);
 
     delete pDeltaDB;	
@@ -29,6 +30,7 @@ BOOST_AUTO_TEST_CASE(state_read_write_test){
 	size_t nCacheSize=8;
 	bool fWipe=false,ret;
 	DeltaDB* pDeltaDB= new DeltaDB(nCacheSize,false,fWipe);
+    DeltaDBWrapper wrapper(pDeltaDB);
 	UniversalAddress addr(X86,valtype(ParseHex("0c4c1d7375918557df2ef8f1d1f0b2329cb248a0")));
 	valtype v = valtype(ParseHex("bf5f1e32000000000000000000000000c4c1d7375918557df2ef8f1d1f0b2329cb248a150000000000000000000000000000000000000000000000000000000000000002"));
 	valtype v2;
@@ -36,15 +38,15 @@ BOOST_AUTO_TEST_CASE(state_read_write_test){
 	uint256 r;
 	unsigned int blk;
 
-	ret = pDeltaDB->writeState(addr, valtype(ParseHex("3c4c1d737591848a9")),v);
+	ret = wrapper.writeState(addr, valtype(ParseHex("3c4c1d737591848a9")),v);
 	BOOST_CHECK(ret);	
-	ret = pDeltaDB->readState(addr, valtype(ParseHex("3c4c1d737591848a9")),v2);
+	ret = wrapper.readState(addr, valtype(ParseHex("3c4c1d737591848a9")),v2);
 	BOOST_CHECK(ret);	
     BOOST_CHECK(v2==v);
 	
-	ret = pDeltaDB->writeUpdatedKey(addr, valtype(ParseHex("7c4c1d737591848a3")), 111222, w);
+	ret = wrapper.writeUpdatedKey(addr, valtype(ParseHex("7c4c1d737591848a3")), 111222, w);
 	BOOST_CHECK(ret);
-	ret = pDeltaDB->readUpdatedKey(addr, valtype(ParseHex("7c4c1d737591848a3")), blk, r);
+	ret = wrapper.readUpdatedKey(addr, valtype(ParseHex("7c4c1d737591848a3")), blk, r);
 	BOOST_CHECK(ret);
     BOOST_CHECK(blk==111222);
     BOOST_CHECK(r==w);
@@ -54,13 +56,13 @@ BOOST_AUTO_TEST_CASE(state_read_write_test){
     unsigned int vout = 2;
     uint64_t balance = 13212315444;
 
-    ret = pDeltaDB->writeAalData(addr, txid, vout, balance);
+    ret = wrapper.writeAalData(addr, txid, vout, balance);
 	BOOST_CHECK(ret);
 
 	uint256 txid2;
     unsigned int vout2;
     uint64_t balance2;
-    ret = pDeltaDB->readAalData(addr, txid2, vout2, balance2);
+    ret = wrapper.readAalData(addr, txid2, vout2, balance2);
     BOOST_CHECK(ret);
 	BOOST_CHECK(txid2==txid && vout2==vout && balance2==balance);
     
@@ -71,6 +73,7 @@ BOOST_AUTO_TEST_CASE(change_log_read_write_test){
 	size_t nCacheSize=8;
 	bool fWipe=false,ret;
 	DeltaDB* pDeltaDB= new DeltaDB(nCacheSize,false,fWipe);
+    DeltaDBWrapper wrapper(pDeltaDB);
 	UniversalAddress addr(X86,valtype(ParseHex("0c4c1d7375918557df2ef8f1d1f0b2329cb24851")));
 	valtype v = valtype(ParseHex("bf5f1e83000000000000000000000000c4c1d7375918557df2ef8f1d1f0b2329cb248a150000000000000000000000000000000000000000000000000000000000000002"));
 	valtype v2;
@@ -85,33 +88,33 @@ BOOST_AUTO_TEST_CASE(change_log_read_write_test){
 	uint256 txid2;
 	unsigned int vout=3,vout2;
 
-	ret = pDeltaDB->writeRawKey(addr, key,v);
+	ret = wrapper.writeRawKey(addr, key,v);
 	BOOST_CHECK(ret);	
-	ret = pDeltaDB->readRawKey(addr, key,v2);
+	ret = wrapper.readRawKey(addr, key,v2);
 	BOOST_CHECK(ret);	
     BOOST_CHECK(v2==v);
 	
-	ret = pDeltaDB->writeCurrentIterator(addr, key, it);
+	ret = wrapper.writeCurrentIterator(addr, key, it);
 	BOOST_CHECK(ret);
-	ret = pDeltaDB->readCurrentIterator(addr, key, it2);
+	ret = wrapper.readCurrentIterator(addr, key, it2);
 	BOOST_CHECK(ret);
     BOOST_CHECK(it==it2);
 
-	ret = pDeltaDB->writeStateWithIterator(addr, key, it, v);
+	ret = wrapper.writeStateWithIterator(addr, key, it, v);
 	BOOST_CHECK(ret);
-	ret = pDeltaDB->readStateWithIterator(addr, key, it, v2);
+	ret = wrapper.readStateWithIterator(addr, key, it, v2);
 	BOOST_CHECK(ret);
     BOOST_CHECK(v2==v);
 
-	ret = pDeltaDB->writeInfoWithIterator(addr, key, it, blk_num, blk_hash, txid, vout);
+	ret = wrapper.writeInfoWithIterator(addr, key, it, blk_num, blk_hash, txid, vout);
 	BOOST_CHECK(ret);
-	ret = pDeltaDB->readInfoWithIterator(addr, key, it, blk_num2, blk_hash2, txid2, vout2);
+	ret = wrapper.readInfoWithIterator(addr, key, it, blk_num2, blk_hash2, txid2, vout2);
 	BOOST_CHECK(ret);
 	BOOST_CHECK(blk_num2==blk_num && blk_hash2==blk_hash && txid2==txid && vout2==vout);
 
-	ret = pDeltaDB->writeOldestIterator(addr, key, it, blk_num, blk_hash);
+	ret = wrapper.writeOldestIterator(addr, key, it, blk_num, blk_hash);
 	BOOST_CHECK(ret);
-	ret = pDeltaDB->readOldestIterator(addr, key, it2, blk_num2, blk_hash2);
+	ret = wrapper.readOldestIterator(addr, key, it2, blk_num2, blk_hash2);
 	BOOST_CHECK(ret);
 	BOOST_CHECK(it2==it && blk_num2==blk_num && blk_hash2==blk_hash);
 		

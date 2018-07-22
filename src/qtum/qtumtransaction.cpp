@@ -205,16 +205,21 @@ ContractExecutor::ContractExecutor(const CBlock &_block, ContractOutput _output,
 
 bool ContractExecutor::execute(ContractExecutionResult &result, bool commit)
 {
+    DeltaDBWrapper wrapper(pdeltaDB);
     ContractEnvironment env=buildEnv();
     if(output.version.rootVM == ROOT_VM_EVM){
-        EVMContractVM evm(*pdeltaDB, env, blockGasLimit);
+        EVMContractVM evm(wrapper, env, blockGasLimit);
         evm.execute(output, result, commit);
     }else if(output.version.rootVM == ROOT_VM_X86){
-        x86ContractVM x86(*pdeltaDB, env, blockGasLimit);
+        x86ContractVM x86(wrapper, env, blockGasLimit);
         x86.execute(output, result, commit);
     }else{
         return false;
     }
+    if(commit && result.commitState){
+        wrapper.commit();
+    }
+    //no need to revert if not committing
     return true;
 }
 
@@ -332,7 +337,7 @@ static const uint8_t infoPre[]={'i','n','f','o','_'};
 static const uint8_t oldPre[]={'o','l','d','_'};
 
 /* Bytecode of contract: KEY is derived from %bytecode%_%address% */
-bool DeltaDB:: writeByteCode(UniversalAddress address,valtype byteCode){
+bool DeltaDBWrapper:: writeByteCode(UniversalAddress address,valtype byteCode){
 	std::vector<uint8_t> K;
 	std::vector<uint8_t> V;
 	K.insert(K.end(), address.version);
@@ -342,7 +347,7 @@ bool DeltaDB:: writeByteCode(UniversalAddress address,valtype byteCode){
 	return Write(K, byteCode);
 }
 
-bool DeltaDB:: readByteCode(UniversalAddress address,valtype& byteCode){
+bool DeltaDBWrapper:: readByteCode(UniversalAddress address,valtype& byteCode){
 	std::vector<uint8_t> K;
 	std::vector<uint8_t> V;
 	K.insert(K.end(), address.version);
@@ -352,7 +357,7 @@ bool DeltaDB:: readByteCode(UniversalAddress address,valtype& byteCode){
     return Read(K, byteCode);   
 }
 
-bool DeltaDB:: writeAalData(UniversalAddress address, uint256 txid, unsigned int vout, uint64_t balance){
+bool DeltaDBWrapper:: writeAalData(UniversalAddress address, uint256 txid, unsigned int vout, uint64_t balance){
 	std::vector<uint8_t> K;
 	std::vector<uint8_t> V;
 	K.insert(K.end(), address.version);
@@ -368,7 +373,7 @@ bool DeltaDB:: writeAalData(UniversalAddress address, uint256 txid, unsigned int
 	return Write(K, V);
 }
 
-bool DeltaDB:: readAalData(UniversalAddress address, uint256 &txid, unsigned int &vout, uint64_t &balance){
+bool DeltaDBWrapper:: readAalData(UniversalAddress address, uint256 &txid, unsigned int &vout, uint64_t &balance){
 	std::vector<uint8_t> K;
 	std::vector<uint8_t> V;
 	K.insert(K.end(), address.version);
@@ -386,7 +391,7 @@ bool DeltaDB:: readAalData(UniversalAddress address, uint256 &txid, unsigned int
 	}
 }
 
-bool DeltaDB:: writeState(UniversalAddress address, valtype key, valtype value){
+bool DeltaDBWrapper:: writeState(UniversalAddress address, valtype key, valtype value){
 	std::vector<uint8_t> K;
     std::vector<unsigned char> keyHash(32);
 
@@ -403,7 +408,7 @@ bool DeltaDB:: writeState(UniversalAddress address, valtype key, valtype value){
 	return Write(K, value);
 }
 
-bool DeltaDB:: readState(UniversalAddress address, valtype key, valtype& value){
+bool DeltaDBWrapper:: readState(UniversalAddress address, valtype key, valtype& value){
 	std::vector<uint8_t> K;
     std::vector<unsigned char> keyHash(32);
 
@@ -423,7 +428,7 @@ bool DeltaDB:: readState(UniversalAddress address, valtype key, valtype& value){
 
 
 /* Live data of contract updated:  %address%_updated_%key%_ */
-bool DeltaDB:: writeUpdatedKey(UniversalAddress address, valtype key, unsigned int blk_num, uint256 blk_hash){
+bool DeltaDBWrapper:: writeUpdatedKey(UniversalAddress address, valtype key, unsigned int blk_num, uint256 blk_hash){
 	std::vector<uint8_t> K;
 	std::vector<uint8_t> V;
 	K.insert(K.end(), address.version);
@@ -440,7 +445,7 @@ bool DeltaDB:: writeUpdatedKey(UniversalAddress address, valtype key, unsigned i
 
 }
 
-bool DeltaDB:: readUpdatedKey(UniversalAddress address, valtype key, unsigned int &blk_num, uint256 &blk_hash){
+bool DeltaDBWrapper:: readUpdatedKey(UniversalAddress address, valtype key, unsigned int &blk_num, uint256 &blk_hash){
 	std::vector<uint8_t> K;
 	std::vector<uint8_t> V;
 	K.insert(K.end(), address.version);
@@ -459,7 +464,7 @@ bool DeltaDB:: readUpdatedKey(UniversalAddress address, valtype key, unsigned in
 }
 
 /* the raw unhashed key to be looked up by hash: %address%_keys_%key% */
-bool DeltaDB:: writeRawKey(UniversalAddress address,	valtype key, valtype rawkey){
+bool DeltaDBWrapper:: writeRawKey(UniversalAddress address,	valtype key, valtype rawkey){
 	std::vector<uint8_t> K;
 	K.insert(K.end(), address.version);
 	K.insert(K.end(), address.data.begin(), address.data.end());	
@@ -469,7 +474,7 @@ bool DeltaDB:: writeRawKey(UniversalAddress address,	valtype key, valtype rawkey
 	return Write(K, rawkey);
 }
 
-bool DeltaDB:: readRawKey(UniversalAddress address, valtype key, valtype &rawkey){
+bool DeltaDBWrapper:: readRawKey(UniversalAddress address, valtype key, valtype &rawkey){
 	std::vector<uint8_t> K;
 	K.insert(K.end(), address.version);
 	K.insert(K.end(), address.data.begin(), address.data.end());	
@@ -480,7 +485,7 @@ bool DeltaDB:: readRawKey(UniversalAddress address, valtype key, valtype &rawkey
 }
 
 /* current iterator of a key: %address%_iterator_%key% */
-bool DeltaDB:: writeCurrentIterator(UniversalAddress address, valtype key, uint64_t iterator){
+bool DeltaDBWrapper:: writeCurrentIterator(UniversalAddress address, valtype key, uint64_t iterator){
 	std::vector<uint8_t> K;
 	K.insert(K.end(), address.version);
 	K.insert(K.end(), address.data.begin(), address.data.end());	
@@ -490,7 +495,7 @@ bool DeltaDB:: writeCurrentIterator(UniversalAddress address, valtype key, uint6
 	return Write(K, iterator);
 }
 
-bool DeltaDB:: readCurrentIterator(UniversalAddress address,		valtype key, uint64_t &iterator){
+bool DeltaDBWrapper:: readCurrentIterator(UniversalAddress address,		valtype key, uint64_t &iterator){
 	std::vector<uint8_t> K;
 	K.insert(K.end(), address.version);
 	K.insert(K.end(), address.data.begin(), address.data.end());	
@@ -501,7 +506,7 @@ bool DeltaDB:: readCurrentIterator(UniversalAddress address,		valtype key, uint6
 }
 
 /*  key's data at point of iterator: %address%_data_%key%_%iterator% */
-bool DeltaDB:: writeStateWithIterator(UniversalAddress address,		 valtype key, uint64_t iterator, valtype value){
+bool DeltaDBWrapper:: writeStateWithIterator(UniversalAddress address,		 valtype key, uint64_t iterator, valtype value){
 	std::vector<uint8_t> K;
 	CDataStream dsKey(SER_DISK,0);
 	dsKey<<iterator;
@@ -514,7 +519,7 @@ bool DeltaDB:: writeStateWithIterator(UniversalAddress address,		 valtype key, u
 }
 
 
-bool DeltaDB:: readStateWithIterator(UniversalAddress address,		valtype key, uint64_t iterator, valtype &value){
+bool DeltaDBWrapper:: readStateWithIterator(UniversalAddress address,		valtype key, uint64_t iterator, valtype &value){
 	std::vector<uint8_t> K;
 	CDataStream dsKey(SER_DISK,0);
 	dsKey<<iterator;
@@ -527,7 +532,7 @@ bool DeltaDB:: readStateWithIterator(UniversalAddress address,		valtype key, uin
 }
 
 /* block number + block hash + txid/vout at point of iterator: %address%_info_%key%_%iterator%  */
-bool DeltaDB:: writeInfoWithIterator(UniversalAddress address,		valtype key, uint64_t iterator, unsigned int blk_num, uint256 blk_hash, uint256 txid, unsigned int vout){
+bool DeltaDBWrapper:: writeInfoWithIterator(UniversalAddress address,		valtype key, uint64_t iterator, unsigned int blk_num, uint256 blk_hash, uint256 txid, unsigned int vout){
 	std::vector<uint8_t> K;
 	std::vector<uint8_t> V;
 	CDataStream dsKey(SER_DISK,0);
@@ -548,7 +553,7 @@ bool DeltaDB:: writeInfoWithIterator(UniversalAddress address,		valtype key, uin
 	return Write(K, V);
 }
 
-bool DeltaDB:: readInfoWithIterator(UniversalAddress address, 	   valtype key, uint64_t iterator, unsigned int &blk_num, uint256 &blk_hash, uint256 &txid, unsigned int &vout){
+bool DeltaDBWrapper:: readInfoWithIterator(UniversalAddress address, 	   valtype key, uint64_t iterator, unsigned int &blk_num, uint256 &blk_hash, uint256 &txid, unsigned int &vout){
 	std::vector<uint8_t> K;
 	std::vector<uint8_t> V;
 	CDataStream dsKey(SER_DISK,0);
@@ -572,7 +577,7 @@ bool DeltaDB:: readInfoWithIterator(UniversalAddress address, 	   valtype key, u
 }
 
 /* Oldest iterator that exists in the changelog database: %address%_old_%key% */
-bool DeltaDB:: writeOldestIterator(UniversalAddress address,		  valtype key, uint64_t iterator, unsigned int blk_num, uint256 blk_hash){
+bool DeltaDBWrapper:: writeOldestIterator(UniversalAddress address,		  valtype key, uint64_t iterator, unsigned int blk_num, uint256 blk_hash){
 	std::vector<uint8_t> K;
 	std::vector<uint8_t> V;
 	K.insert(K.end(), address.version);
@@ -589,7 +594,7 @@ bool DeltaDB:: writeOldestIterator(UniversalAddress address,		  valtype key, uin
 	return Write(K, V);
 }
 
-bool DeltaDB:: readOldestIterator(UniversalAddress address,		 valtype key, uint64_t &iterator, unsigned int &blk_num, uint256 &blk_hash){
+bool DeltaDBWrapper:: readOldestIterator(UniversalAddress address,		 valtype key, uint64_t &iterator, unsigned int &blk_num, uint256 &blk_hash){
 	std::vector<uint8_t> K;
 	std::vector<uint8_t> V;
 	K.insert(K.end(), address.version);
