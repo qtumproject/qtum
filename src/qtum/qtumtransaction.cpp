@@ -336,6 +336,39 @@ static const uint8_t iteratorPre[]={'i','t','e','r','t', 'o', 'r','_'};
 static const uint8_t infoPre[]={'i','n','f','o','_'};
 static const uint8_t oldPre[]={'o','l','d','_'};
 
+bool DeltaDBWrapper::Write(valtype K, valtype V){
+    std::string k(K.begin(), K.end());
+    deltas[k] = V;
+    return true;
+    //return db->Write(K, V);
+}
+bool DeltaDBWrapper::Read(valtype K, valtype& V){
+    std::string k(K.begin(), K.end());
+    if(deltas.find(k) != deltas.end()){
+        V = deltas[k];
+        return true;
+    }
+    return db->Read(K, V);
+}
+bool DeltaDBWrapper::Write(valtype K, uint64_t V){
+    std::vector<uint8_t> v(sizeof(uint64_t));
+    memcpy(v.data(), (void*) &V, sizeof(uint8_t));
+    return Write(K, v);
+}
+bool DeltaDBWrapper::Read(valtype K, uint64_t& V){
+    std::vector<uint8_t> v(sizeof(uint64_t));
+    int status = db->Read(K, v);
+    if(status){
+        memcpy((void*)&V, v.data(), sizeof(uint64_t));
+    }
+    return status;
+}
+
+void DeltaDBWrapper::commit() {
+    //todo
+}
+
+
 /* Bytecode of contract: KEY is derived from %bytecode%_%address% */
 bool DeltaDBWrapper:: writeByteCode(UniversalAddress address,valtype byteCode){
 	std::vector<uint8_t> K;

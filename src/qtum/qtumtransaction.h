@@ -1,6 +1,8 @@
 #ifndef QTUMTRANSACTION_H
 #define QTUMTRANSACTION_H
 
+#include <unordered_map>
+
 #include <libethcore/Transaction.h>
 #include <libethereum/Transaction.h>
 #include <coins.h>
@@ -161,13 +163,6 @@ struct ContractEnvironment{
 };
 
 
-struct DeltaEntry{
-    DeltaEntry(std::vector<uint8_t> k, std::vector<uint8_t> v) : K(k), V(v)
-    {}
-    std::vector<uint8_t> K;
-    std::vector<uint8_t> V;
-};
-
 class DeltaDB : public CDBWrapper
 {
 
@@ -180,6 +175,7 @@ public:
 
 class DeltaDBWrapper{
     DeltaDB* db;
+    std::unordered_map<std::string, std::vector<uint8_t>> deltas;
 public:
     DeltaDBWrapper(DeltaDB* db_) : db(db_){}
 
