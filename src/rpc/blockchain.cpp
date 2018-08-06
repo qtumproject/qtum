@@ -1489,12 +1489,20 @@ UniValue searchlogs(const JSONRPCRequest& request)
 
     auto topics = params.topics;
 
+    std::set<uint256> dupes;
+
     for(const auto& hashesTx : hashesToBlock)
     {
         for(const auto& e : hashesTx)
         {
+
+            if(dupes.find(e) != dupes.end()) {
+                continue;
+            }
+            dupes.insert(e);
+
             std::vector<TransactionReceiptInfo> receipts = pstorageresult->getResult(uintToh256(e));
-            
+
             for(const auto& receipt : receipts) {
                 if(receipt.logs.empty()) {
                     continue;
