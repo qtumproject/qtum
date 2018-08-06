@@ -1359,8 +1359,16 @@ UniValue waitforlogs(const JSONRPCRequest& request_) {
 
     UniValue jsonLogs(UniValue::VARR);
 
+    std::set<uint256> dupes;
+
     for (const auto& txHashes : hashesToBlock) {
         for (const auto& txHash : txHashes) {
+
+            if(dupes.find(txHash) != dupes.end()) {
+                continue;
+            }
+            dupes.insert(txHash);
+
             std::vector<TransactionReceiptInfo> receipts = pstorageresult->getResult(
                     uintToh256(txHash));
 
