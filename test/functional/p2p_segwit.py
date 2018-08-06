@@ -33,6 +33,24 @@ def get_virtual_size(witness_block):
     vsize = int((3*base_size + total_size + 3)/4)
     return vsize
 
+def submit_old_blocks(node, n):
+    address = node.getnewaddress()
+    pubkey = node.validateaddress(address)['pubkey']
+    num_blocks_old = node.getblockcount()
+    for i in range(0, n):
+        tip = node.getbestblockhash()
+        height = node.getblockcount() + 1
+        block_time = node.getblockheader(tip)["mediantime"] + 1
+        block = create_block(int(tip, 16), create_coinbase(height), block_time)
+        block.vtx[0].vout[0].scriptPubKey = CScript([hex_str_to_bytes(pubkey), OP_CHECKSIG])
+        block.vtx[0].rehash()
+        block.hashMerkleRoot = block.calc_merkle_root()
+        block.rehash()
+        block.solve()
+        node.submitblock(bytes_to_hex_str(block.serialize()))
+    assert_equal(node.getblockcount(), num_blocks_old+n)
+
+
 def test_transaction_acceptance(rpc, p2p, tx, with_witness, accepted, reason=None):
     """Send a transaction to the node and check that it's accepted to the mempool
 
