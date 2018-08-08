@@ -329,6 +329,7 @@ QtumTransaction EVMContractVM::buildQtumTx(const ContractOutput &output)
 }
 
 static const uint8_t byteCodePre[]={'b','y','t','e','c','o','d','e','_'};
+static const uint8_t aalPre[]={'a', 'a', 'l', '_'};
 static const uint8_t dataPre[]={'_','d','a','t','a','_'};
 static const uint8_t updatePre[]={'u','p','d','a','t','e','d','_'};
 static const uint8_t keysPre[]={'k','e','y','s','_'};
@@ -365,7 +366,15 @@ bool DeltaDBWrapper::Read(valtype K, uint64_t& V){
 }
 
 void DeltaDBWrapper::commit() {
-    //todo
+    CDBBatch b(*db);
+    for(auto kv : deltas){
+        if(kv.second.size() == 0){
+            b.Erase(kv.first);
+        }else{
+            b.Write(kv.first, kv.second);
+        }
+    }
+    db->WriteBatch(b, true); //need fSync?
 }
 
 
@@ -375,7 +384,7 @@ bool DeltaDBWrapper:: writeByteCode(UniversalAddress address,valtype byteCode){
 	std::vector<uint8_t> V;
 	K.insert(K.end(), address.version);
 	K.insert(K.end(), address.data.begin(), address.data.end());	
-	K.insert(K.end(), dataPre, dataPre + sizeof(dataPre)/sizeof(uint8_t));
+	K.insert(K.end(), byteCodePre, byteCodePre + sizeof(byteCodePre)/sizeof(uint8_t));
 	K.insert(K.end(), 'c');	
 	return Write(K, byteCode);
 }
@@ -385,7 +394,7 @@ bool DeltaDBWrapper:: readByteCode(UniversalAddress address,valtype& byteCode){
 	std::vector<uint8_t> V;
 	K.insert(K.end(), address.version);
 	K.insert(K.end(), address.data.begin(), address.data.end());	
-	K.insert(K.end(), dataPre, dataPre + sizeof(dataPre)/sizeof(uint8_t));
+	K.insert(K.end(), byteCodePre, byteCodePre + sizeof(byteCodePre)/sizeof(uint8_t));
 	K.insert(K.end(), 'c');	
     return Read(K, byteCode);   
 }
@@ -395,7 +404,7 @@ bool DeltaDBWrapper:: writeAalData(UniversalAddress address, uint256 txid, unsig
 	std::vector<uint8_t> V;
 	K.insert(K.end(), address.version);
 	K.insert(K.end(), address.data.begin(), address.data.end());	
-	K.insert(K.end(), dataPre, dataPre + sizeof(dataPre)/sizeof(uint8_t));
+	K.insert(K.end(), aalPre, aalPre + sizeof(aalPre)/sizeof(uint8_t));
 	K.insert(K.end(), 'u');	
 
 	CDataStream dsValue(SER_DISK,0);
@@ -411,7 +420,7 @@ bool DeltaDBWrapper:: readAalData(UniversalAddress address, uint256 &txid, unsig
 	std::vector<uint8_t> V;
 	K.insert(K.end(), address.version);
 	K.insert(K.end(), address.data.begin(), address.data.end());	
-	K.insert(K.end(), dataPre, dataPre + sizeof(dataPre)/sizeof(uint8_t));
+	K.insert(K.end(), aalPre , aalPre + sizeof(aalPre)/sizeof(uint8_t));
 	K.insert(K.end(), 'u');	
 	if(Read(K, V)){
 		CDataStream dsValue(V,SER_DISK,0);
