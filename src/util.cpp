@@ -222,10 +222,18 @@ bool OpenDebugLog()
     fs::path pathDebugVM = GetDebugVMLogPath(); // qtum
     fileout = fsbridge::fopen(pathDebug, "a");
     fileoutVM = fsbridge::fopen(pathDebugVM, "a"); // qtum
-    if (!fileout) {
+    if (!fileout || !fileoutVM) {
         return false;
     }
 
+    if (fileout) {
+        setbuf(fileout, nullptr); // unbuffered
+        // dump buffered messages from before we opened the log
+        while (!vMsgsBeforeOpenLog->empty()) {
+            FileWriteStr(vMsgsBeforeOpenLog->front(), fileout);
+            vMsgsBeforeOpenLog->pop_front();
+        }
+    }
     ///////////////////////////////////////////// // qtum
     if (fileoutVM) {
         setbuf(fileoutVM, nullptr); // unbuffered
