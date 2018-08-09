@@ -1895,30 +1895,28 @@ CBlockIndex* CWallet::ScanForWalletTransactions(CBlockIndex* pindexStart, CBlock
         double dProgressStart;
         double dProgressTip;
         {
-            LOCK(cs_main);
+            LOCK2(cs_main, cs_wallet);
             tip = chainActive.Tip();
             dProgressStart = GuessVerificationProgress(chainParams.TxData(), pindex);
             dProgressTip = GuessVerificationProgress(chainParams.TxData(), tip);
         }
         while (pindex && !fAbortRescan)
         {
+            LOCK2(cs_main, cs_wallet);
             if (pindex->nHeight % 100 == 0 && dProgressTip - dProgressStart > 0.0) {
                 double gvp = 0;
                 {
-                    LOCK(cs_main);
                     gvp = GuessVerificationProgress(chainParams.TxData(), pindex);
                 }
                 ShowProgress(_("Rescanning..."), std::max(1, std::min(99, (int)((gvp - dProgressStart) / (dProgressTip - dProgressStart) * 100))));
             }
             if (GetTime() >= nNow + 60) {
                 nNow = GetTime();
-                LOCK(cs_main);
                 LogPrintf("Still rescanning. At block %d. Progress=%f\n", pindex->nHeight, GuessVerificationProgress(chainParams.TxData(), pindex));
             }
 
             CBlock block;
             if (ReadBlockFromDisk(block, pindex, Params().GetConsensus())) {
-                LOCK2(cs_main, cs_wallet);
                 if (pindex && !chainActive.Contains(pindex)) {
                     // Abort scan if current block is no longer active, to prevent
                     // marking transactions as coming from the wrong block.
@@ -1935,7 +1933,6 @@ CBlockIndex* CWallet::ScanForWalletTransactions(CBlockIndex* pindexStart, CBlock
                 break;
             }
             {
-                LOCK(cs_main);
                 pindex = chainActive.Next(pindex);
                 if (tip != chainActive.Tip()) {
                     tip = chainActive.Tip();
