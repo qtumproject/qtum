@@ -122,14 +122,11 @@ BASE_SCRIPTS= [
     'wallet_listsinceblock.py',
     'p2p_leak.py',
     'wallet_encryption.py',
-    'feature_dersig.py',
-    'feature_cltv.py',
     'rpc_uptime.py',
     'wallet_resendwallettransactions.py',
     'feature_minchainwork.py',
     'p2p_fingerprint.py',
     'feature_uacomment.py',
-    'p2p_unrequested_blocks.py',
     'feature_logging.py',
     'p2p_node_network_limited.py',
     'feature_config_args.py',
@@ -201,6 +198,10 @@ EXTENDED_SCRIPTS = [
     'feature_notifications.py',
     'rpc_invalidateblock.py',
     'feature_rbf.py',
+    # Version <4 blocks are never allowed in regtest on qtum
+    'p2p_unrequested_blocks.py',
+    'feature_dersig.py',
+    'feature_cltv.py'
 ]
 
 # Place EXTENDED_SCRIPTS first since it has the 3 longest running tests
