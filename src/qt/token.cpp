@@ -627,7 +627,7 @@ bool Token::execEvents(int64_t fromBlock, int64_t toBlock, int func, std::vector
         for(int i = 0; i < listLog.size(); i++)
         {
             // Skip the not needed events
-            QVariantMap variantLog = listLog[0].toMap();
+            QVariantMap variantLog = listLog[i].toMap();
             QList<QVariant> topicsList = variantLog.value("topics").toList();
             if(topicsList.count() < 3) continue;
             if(topicsList[0].toString().toStdString() != eventName) continue;
