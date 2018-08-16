@@ -163,6 +163,9 @@ IsMineResult IsMineInner(const CKeyStore& keystore, const CScript& scriptPubKey,
         }
         break;
     }
+
+    default:
+        break;
     }
 
     if (ret == IsMineResult::NO && keystore.HaveWatchOnly(scriptPubKey)) {
