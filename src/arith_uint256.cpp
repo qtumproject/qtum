@@ -165,6 +165,26 @@ void base_uint<BITS>::SetHex(const std::string& str)
 }
 
 template <unsigned int BITS>
+std::string base_uint<BITS>::GetReverseHex() const
+{
+    return ArithToUint256(*this).GetReverseHex();
+}
+
+template <unsigned int BITS>
+void base_uint<BITS>::SetReverseHex(const char* psz)
+{
+    uint256 tmp;
+    tmp.SetReverseHex(psz);
+    *this = UintToArith256(tmp);
+}
+
+template <unsigned int BITS>
+void base_uint<BITS>::SetReverseHex(const std::string& str)
+{
+    SetReverseHex(str.c_str());
+}
+
+template <unsigned int BITS>
 std::string base_uint<BITS>::ToString() const
 {
     return (GetHex());
@@ -196,9 +216,12 @@ template int base_uint<256>::CompareTo(const base_uint<256>&) const;
 template bool base_uint<256>::EqualTo(uint64_t) const;
 template double base_uint<256>::getdouble() const;
 template std::string base_uint<256>::GetHex() const;
+template std::string base_uint<256>::GetReverseHex() const;
 template std::string base_uint<256>::ToString() const;
 template void base_uint<256>::SetHex(const char*);
 template void base_uint<256>::SetHex(const std::string&);
+template void base_uint<256>::SetReverseHex(const char*);
+template void base_uint<256>::SetReverseHex(const std::string&);
 template unsigned int base_uint<256>::bits() const;
 
 // This implementation directly uses shifts instead of going
