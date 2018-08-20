@@ -181,7 +181,7 @@ extern CTxMemPool mempool;
 extern std::atomic_bool g_is_mempool_loaded;
 typedef std::unordered_map<uint256, CBlockIndex*, BlockHasher> BlockMap;
 extern BlockMap& mapBlockIndex;
-extern std::set<std::pair<COutPoint, unsigned int>> setStakeSeen;
+extern std::set<std::pair<COutPoint, unsigned int>>& setStakeSeen;
 extern int64_t nLastCoinStakeSearchInterval;
 extern uint64_t nLastBlockTx;
 extern uint64_t nLastBlockWeight;
@@ -571,6 +571,7 @@ extern std::unique_ptr<CCoinsViewCache> pcoinsTip;
 /** Global variable that points to the active block tree (protected by cs_main) */
 extern std::unique_ptr<CBlockTreeDB> pblocktree;
 
+extern std::unique_ptr<StorageResults> pstorageresult;
 /**
  * Return the spend height, which is one more than the inputs.GetBestBlock().
  * While checking, GetBestBlock() refers to the parent block. (protected by cs_main)
