@@ -231,7 +231,9 @@ enum ContractStatus{
     SUCCESS = 0,
     OUT_OF_GAS = 1,
     CODE_ERROR = 2,
-    DOESNT_EXIST = 3
+    DOESNT_EXIST = 3,
+    RETURNED_ERROR = 4,
+    ERROR_WITH_COMMIT = 5
 };
 
 struct ContractExecutionResult{

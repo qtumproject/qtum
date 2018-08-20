@@ -11,7 +11,6 @@ using namespace x86Lib;
 DeltaDB* pdeltaDB = nullptr;
 DeltaDBWrapper* pdeltaWrapper = nullptr;
 
-
 //The data field available is only a flat data field, so we need some format for storing
 //Code, data, and options.
 //Thus, it is prefixed with 4 uint32 integers.
@@ -126,20 +125,31 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
         result.refundSender = output.value;
         return false;
     }
-    LogPrintf("Execution successful!");
-    if(output.OpCreate){
-        //no error, so save to database
-        db.writeByteCode(output.address, output.data);
+    HypervisorEffect effects = qtumhv.getEffects();
+    if(effects.exitCode == 0) {
+        LogPrintf("Execution successful!");
+        if (output.OpCreate) {
+            //no error, so save to database
+            db.writeByteCode(output.address, output.data);
+
+            result.usedGas = std::min((uint64_t) 1000, output.gasLimit);
+            result.refundSender = 0;
+            result.status = ContractStatus::SUCCESS;
+            result.commitState = true;
+            return true;
+        } else {
+            //later, store a receipt or something
+        }
     }else{
-        //later, store a receipt or something
+        LogPrintf("Execution ended with error: %i", effects.exitCode);
+
+        result.usedGas = std::min((uint64_t) 1000, output.gasLimit);
+        result.refundSender = output.value; //refund all
+        result.status = ContractStatus::RETURNED_ERROR;
+        result.commitState = false;
+        return false;
     }
-
-    result.usedGas = std::min((uint64_t)1000, output.gasLimit);
-    result.refundSender = 0;
-    result.status = ContractStatus::SUCCESS;
-    result.commitState = true;
-
-    return true;
+    return false;
 }
 
 struct TxDataABI{
@@ -154,12 +164,12 @@ const std::vector<uint8_t> x86ContractVM::buildAdditionalData(ContractOutput &ou
     uint8_t* p=data.data();
     int i=0;
     *((uint32_t*)&p[i]) = 0x1000; //data size
-    i+=4;
+    i+=4; //4
     *((uint32_t*)&p[i]) = output.data.size();
-    i+=4;
+    i+=4; //8
     UniversalAddressABI sender = output.sender.toAbi();
     *((UniversalAddressABI*)&p[i]) = sender;
-    i += 33;
+    i += 33; //41
     return data;
 }
 
@@ -167,6 +177,7 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
 {
     if(number == 0xF0){
         //exit code
+        effects.exitCode = vm.Reg32(EAX);
         vm.Stop();
         return;
     }
@@ -177,33 +188,33 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
     }
     uint32_t status = 0;
     switch(vm.GetRegister32(EAX)){
-        case QtumSystemCall::PreviousBlockTime:
+        case QSC_PreviousBlockTime:
             status = contractVM.getEnv().blockTime;
             break;
-        case QtumSystemCall ::BlockCreator:
+        case QSC_BlockCreator:
         {
             auto creator = contractVM.getEnv().blockCreator.toAbi();
             vm.WriteMemory(vm.Reg32(EBX), sizeof(creator), &creator);
         }
-        case QtumSystemCall ::BlockDifficulty:
+        case QSC_BlockDifficulty:
             vm.WriteMemory(vm.Reg32(EBX), sizeof(uint64_t), (void*) &contractVM.getEnv().difficulty);
             break;
-        case QtumSystemCall::BlockGasLimit:
+        case QSC_BlockGasLimit:
             vm.WriteMemory(vm.Reg32(EBX), sizeof(uint64_t), (void*) &contractVM.getEnv().gasLimit);
             break;
-        case QtumSystemCall::BlockHeight:
+        case QSC_BlockHeight:
             status = contractVM.getEnv().blockNumber;
             break;
-        case QtumSystemCall::IsCreate:
+        case QSC_IsCreate:
             status = output.OpCreate ? 1 : 0;
             break;
-        case QtumSystemCall::SelfAddress:
+        case QSC_SelfAddress:
         {
             UniversalAddressABI selfAddr = output.address.toAbi();
             vm.WriteMemory(vm.Reg32(EBX), sizeof(selfAddr), &selfAddr);
         }
             break;
-        case QtumSystemCall::ReadStorage:
+        case QSC_ReadStorage:
         {
             unsigned char *k = new unsigned char[vm.Reg32(ECX)];
             vm.ReadMemory(vm.Reg32(EBX), vm.Reg32(ECX), k);
@@ -219,7 +230,7 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
             delete []k;
        }
             break;
-        case QtumSystemCall::WriteStorage:
+        case QSC_WriteStorage:
         {
             unsigned char *k = new unsigned char[vm.Reg32(ECX)];
             unsigned char *v = new unsigned char[vm.Reg32(ESI)];
