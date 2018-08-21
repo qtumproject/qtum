@@ -7,6 +7,7 @@
 #include <utiltime.h>
 
 const char * const DEFAULT_DEBUGLOGFILE = "debug.log";
+const char * const DEFAULT_DEBUGVMLOGFILE = "vm.log";
 
 /**
  * NOTE: the logger instances is leaked on exit. This is ugly, but will be
@@ -35,19 +36,35 @@ bool BCLog::Logger::OpenDebugLog()
     std::lock_guard<std::mutex> scoped_lock(m_file_mutex);
 
     assert(m_fileout == nullptr);
+    assert(m_fileoutVM == nullptr); // qtum
     assert(!m_file_path.empty());
+    assert(!m_file_pathVM.empty()); // qtum
 
     m_fileout = fsbridge::fopen(m_file_path, "a");
-    if (!m_fileout) {
+    m_fileoutVM = fsbridge::fopen(m_file_pathVM, "a");
+
+    if (!m_fileout || !m_fileoutVM) {
         return false;
     }
 
-    setbuf(m_fileout, nullptr); // unbuffered
-    // dump buffered messages from before we opened the log
-    while (!m_msgs_before_open.empty()) {
-        FileWriteStr(m_msgs_before_open.front(), m_fileout);
-        m_msgs_before_open.pop_front();
+    if (m_fileout) {
+        setbuf(m_fileout, nullptr); // unbuffered
+        // dump buffered messages from before we opened the log
+        while (!m_msgs_before_open.empty()) {
+            FileWriteStr(m_msgs_before_open.front(), m_fileout);
+            m_msgs_before_open.pop_front();
+        }
     }
+    ///////////////////////////////////////////// // qtum
+    if (m_fileoutVM) {
+        setbuf(m_fileoutVM, nullptr); // unbuffered
+        // dump buffered messages from before we opened the log
+        while (!m_msgs_before_open.empty()) {
+            FileWriteStr(m_msgs_before_open.front(), m_fileoutVM);
+            m_msgs_before_open.pop_front();
+        }
+    }
+    /////////////////////////////////////////////
 
     return true;
 }
@@ -119,6 +136,8 @@ const CLogCategoryDesc LogCategories[] =
     {BCLog::COINDB, "coindb"},
     {BCLog::QT, "qt"},
     {BCLog::LEVELDB, "leveldb"},
+    {BCLog::COINSTAKE, "coinstake"},
+    {BCLog::HTTPPOLL, "http-poll"},
     {BCLog::ALL, "1"},
     {BCLog::ALL, "all"},
 };
@@ -198,8 +217,15 @@ std::string BCLog::Logger::LogTimestampStr(const std::string &str)
     return strStamped;
 }
 
-void BCLog::Logger::LogPrintStr(const std::string &str)
+void BCLog::Logger::LogPrintStr(const std::string &str, bool useVMLog)
 {
+    //////////////////////////////// // qtum
+    FILE* file = m_fileout;
+    if(useVMLog){
+        file = m_fileoutVM;
+    }
+    ////////////////////////////////
+
     std::string strTimestamped = LogTimestampStr(str);
 
     if (m_print_to_console) {
@@ -211,7 +237,7 @@ void BCLog::Logger::LogPrintStr(const std::string &str)
         std::lock_guard<std::mutex> scoped_lock(m_file_mutex);
 
         // buffer if we haven't opened the log yet
-        if (m_fileout == nullptr) {
+        if (file == nullptr) {
             m_msgs_before_open.push_back(strTimestamped);
         }
         else
@@ -219,14 +245,17 @@ void BCLog::Logger::LogPrintStr(const std::string &str)
             // reopen the log file, if requested
             if (m_reopen_file) {
                 m_reopen_file = false;
-                m_fileout = fsbridge::freopen(m_file_path, "a", m_fileout);
-                if (!m_fileout) {
+                fs::path file_path = m_file_path;
+                if(useVMLog)
+                    file_path = m_file_pathVM;
+                file = fsbridge::freopen(file_path, "a", file);
+                if (!file) {
                     return;
                 }
-                setbuf(m_fileout, nullptr); // unbuffered
+                setbuf(file, nullptr); // unbuffered
             }
 
-            FileWriteStr(strTimestamped, m_fileout);
+            FileWriteStr(strTimestamped, file);
         }
     }
 }
