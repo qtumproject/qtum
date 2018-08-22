@@ -507,6 +507,7 @@ bool ReadBlockFromDisk(Block& block, const CDiskBlockPos& pos, const Consensus::
 bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex, const Consensus::Params& consensusParams);
 bool ReadRawBlockFromDisk(std::vector<uint8_t>& block, const CDiskBlockPos& pos, const CMessageHeader::MessageStartChars& message_start);
 bool ReadRawBlockFromDisk(std::vector<uint8_t>& block, const CBlockIndex* pindex, const CMessageHeader::MessageStartChars& message_start);
+bool CheckIndexProof(const CBlockIndex& block, const Consensus::Params& consensusParams);
 
 /** Functions for validating blocks and updating the block tree */
 

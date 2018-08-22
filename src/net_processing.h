@@ -10,12 +10,16 @@
 #include <validationinterface.h>
 #include <consensus/params.h>
 
+class CChainParams;
+
 /** Default for -maxorphantx, maximum number of orphan transactions kept in memory */
 static const unsigned int DEFAULT_MAX_ORPHAN_TRANSACTIONS = 100;
 /** Default number of orphan+recently-replaced txn to keep around for block reconstruction */
 static const unsigned int DEFAULT_BLOCK_RECONSTRUCTION_EXTRA_TXN = 100;
 /** Default for BIP61 (sending reject messages) */
 static constexpr bool DEFAULT_ENABLE_BIP61 = true;
+/** Default maximum orphan blocks */
+static const unsigned int DEFAULT_MAX_ORPHAN_BLOCKS = 40;
 
 class PeerLogicValidation final : public CValidationInterface, public NetEventsInterface {
 private:
@@ -83,5 +87,7 @@ struct CNodeStateStats {
 
 /** Get statistics from node state */
 bool GetNodeStateStats(NodeId nodeid, CNodeStateStats &stats);
+/** Process network block received from a given node */
+bool ProcessNetBlock(const CChainParams& chainparams, const std::shared_ptr<const CBlock> pblock, bool fForceProcessing, bool* fNewBlock, CNode* pfrom, CConnman& connman);
 
 #endif // BITCOIN_NET_PROCESSING_H
