@@ -16,8 +16,21 @@
 #include <string>
 
 #include <univalue.h>
+#include <httpserver.h>
+#include <mutex>
+#include <condition_variable>
 
 static const unsigned int DEFAULT_RPC_SERIALIZE_VERSION = 1;
+
+struct CUpdatedBlock
+{
+    uint256 hash;
+    int height;
+};
+
+static std::mutex cs_blockchange;
+static std::condition_variable cond_blockchange;
+static CUpdatedBlock latestblock;
 
 class CRPCCommand;
 
@@ -47,8 +60,51 @@ public:
     std::string authUser;
     std::string peerAddr;
 
-    JSONRPCRequest() : id(NullUniValue), params(NullUniValue), fHelp(false) {}
+    bool isLongPolling;
+
+    /**
+     * If using batch JSON request, this object won't get the underlying HTTPRequest.
+     */
+    JSONRPCRequest() {
+        id = NullUniValue;
+        params = NullUniValue;
+        fHelp = false;
+        req = NULL;
+        isLongPolling = false;
+    };
+
+    JSONRPCRequest(HTTPRequest *_req);
+
+    /**
+     * Start long-polling
+     */
+    void PollStart();
+
+    /**
+     * Ping long-poll connection with an empty character to make sure it's still alive.
+     */
+    void PollPing();
+
+    /**
+     * Returns whether the underlying long-poll connection is still alive.
+     */
+    bool PollAlive();
+
+    /**
+     * End a long poll request.
+     */
+    void PollCancel();
+
+    /**
+     * Return the JSON result of a long poll request
+     */
+    void PollReply(const UniValue& result);
+
     void parse(const UniValue& valRequest);
+
+
+    // FIXME: make this private?
+    HTTPRequest *req;
 };
 
 /** Query whether RPC is running */
@@ -203,7 +259,7 @@ extern std::string HelpExampleRpc(const std::string& methodname, const std::stri
 void StartRPC();
 void InterruptRPC();
 void StopRPC();
-std::string JSONRPCExecBatch(const JSONRPCRequest& jreq, const UniValue& vReq);
+std::string JSONRPCExecBatch(const UniValue& vReq);
 
 // Retrieves any serialization flags requested in command line argument
 int RPCSerializationFlags();
