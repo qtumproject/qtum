@@ -175,12 +175,20 @@ public:
 
 class DeltaDBWrapper{
     DeltaDB* db;
-    std::unordered_map<std::string, std::vector<uint8_t>> deltas;
+    //list of maps. 0 is 0th checkpoint, 1 is 1st checkpoint etc
+    std::vector<std::unordered_map<std::string, std::vector<uint8_t>>> checkpoints;
+    std::unordered_map<std::string, std::vector<uint8_t>> *deltas; //points to current checkpoint
 public:
-    DeltaDBWrapper(DeltaDB* db_) : db(db_){}
+    DeltaDBWrapper(DeltaDB* db_) : db(db_){
+        checkpoints.push_back(std::unordered_map<std::string, std::vector<uint8_t>>());
+        deltas = &checkpoints[0];
+    }
 
     void commit(); //commits everything to disk
-    void revert(); //reverts all uncommitted changes
+    int checkpoint(); //advanced to next checkpoint; returns new checkpoint number
+    int revertCheckpoint(); //Discard latest checkpoint and revert to previous checkpoint; returns new checkpoint number
+    void condenseAllCheckpoints(); //condences all outstanding checkpoints to 0th
+    void condenseSingleCheckpoint(); //condenses only the latest checkpoint into the previous
 
     /*************** Live data *****************/
     /* newest data associated with the contract. */
@@ -252,7 +260,7 @@ class ContractVM{
     //todo database
 protected:
     ContractVM(DeltaDBWrapper &_db, const ContractEnvironment &_env, uint64_t _remainingGasLimit)
-    : db(db), env(_env), remainingGasLimit(_remainingGasLimit) {}
+    : db(_db), env(_env), remainingGasLimit(_remainingGasLimit) {}
 public:
     virtual bool execute(ContractOutput &output, ContractExecutionResult &result, bool commit)=0;
 protected:

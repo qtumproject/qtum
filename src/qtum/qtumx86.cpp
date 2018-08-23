@@ -189,33 +189,43 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
     uint32_t status = 0;
     switch(vm.GetRegister32(EAX)){
         case QSC_PreviousBlockTime:
+            //eax = block time
             status = contractVM.getEnv().blockTime;
             break;
         case QSC_BlockCreator:
         {
+            //ebx = block creator (address/33 byte buffer)
             auto creator = contractVM.getEnv().blockCreator.toAbi();
             vm.WriteMemory(vm.Reg32(EBX), sizeof(creator), &creator);
         }
         case QSC_BlockDifficulty:
+            //ebx = block difficulty (64 bit integer)
             vm.WriteMemory(vm.Reg32(EBX), sizeof(uint64_t), (void*) &contractVM.getEnv().difficulty);
             break;
         case QSC_BlockGasLimit:
+            //ebx = gas limit (64 bit integer)
             vm.WriteMemory(vm.Reg32(EBX), sizeof(uint64_t), (void*) &contractVM.getEnv().gasLimit);
             break;
         case QSC_BlockHeight:
+            //eax = block height
             status = contractVM.getEnv().blockNumber;
             break;
         case QSC_IsCreate:
+            //eax = 1 if contract creation is in progress
             status = output.OpCreate ? 1 : 0;
             break;
         case QSC_SelfAddress:
         {
+            //ebx = address (address/33 byte buffer)
             UniversalAddressABI selfAddr = output.address.toAbi();
             vm.WriteMemory(vm.Reg32(EBX), sizeof(selfAddr), &selfAddr);
         }
             break;
         case QSC_ReadStorage:
         {
+            //ebx = key, ecx = key size
+            //edi = value, esi = max value size
+            //eax = actual value size
             unsigned char *k = new unsigned char[vm.Reg32(ECX)];
             vm.ReadMemory(vm.Reg32(EBX), vm.Reg32(ECX), k);
             valtype key(k,k+vm.Reg32(ECX));
@@ -232,6 +242,9 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
             break;
         case QSC_WriteStorage:
         {
+            //ebx = key, ecx = key size
+            //edi = value, esi = value size
+            //eax = 0
             unsigned char *k = new unsigned char[vm.Reg32(ECX)];
             unsigned char *v = new unsigned char[vm.Reg32(ESI)];
             vm.ReadMemory(vm.Reg32(EBX), vm.Reg32(ECX), k);

@@ -339,15 +339,19 @@ static const uint8_t oldPre[]={'o','l','d','_'};
 
 bool DeltaDBWrapper::Write(valtype K, valtype V){
     std::string k(K.begin(), K.end());
-    deltas[k] = V;
+    (*deltas)[k] = V;
     return true;
     //return db->Write(K, V);
 }
 bool DeltaDBWrapper::Read(valtype K, valtype& V){
     std::string k(K.begin(), K.end());
-    if(deltas.find(k) != deltas.end()){
-        V = deltas[k];
-        return true;
+    //check from the latest checkpoint to the oldest before giving up and going to database
+    for(int i = checkpoints.size() - 1; i >= 0; i++){
+        auto *check = &checkpoints[i];
+        if(check->find(k) != check->end()){
+            V = (*check)[k];
+            return true;
+        }
     }
     return db->Read(K, V);
 }
@@ -367,7 +371,8 @@ bool DeltaDBWrapper::Read(valtype K, uint64_t& V){
 
 void DeltaDBWrapper::commit() {
     CDBBatch b(*db);
-    for(auto kv : deltas){
+    condenseAllCheckpoints(); //make sure we only have one checkpoint to deal with
+    for(auto kv : *deltas){
         if(kv.second.size() == 0){
             b.Erase(kv.first);
         }else{
@@ -375,7 +380,52 @@ void DeltaDBWrapper::commit() {
         }
     }
     db->WriteBatch(b, true); //need fSync?
+
+    //clear data stored and reinit
+    checkpoints.clear();
+    checkpoints.push_back(std::unordered_map<std::string, std::vector<uint8_t>>());
+    deltas = &checkpoints[0];
 }
+int DeltaDBWrapper::checkpoint() {
+    checkpoints.push_back(std::unordered_map<std::string, std::vector<uint8_t>>());
+    deltas = &checkpoints[checkpoints.size() - 1];
+    return checkpoints.size() - 1;
+}
+int DeltaDBWrapper::revertCheckpoint() {
+    checkpoints.pop_back();
+    deltas = &checkpoints[checkpoints.size() - 1];
+    return checkpoints.size() - 1;
+}
+
+void DeltaDBWrapper::condenseAllCheckpoints() {
+    if(checkpoints.size() == 1){
+        return;
+    }
+    //can't refactor this to just do multiple condenseSingle
+    //without data being touched several times unnecessarily
+    deltas = &checkpoints[0];
+    for(int i=checkpoints.size() - 1;i>0;i++){
+        auto* check = &checkpoints[i];
+        for(auto &kv : *check){
+            (*deltas)[kv.first] = kv.second;
+        }
+        checkpoints.pop_back();
+    }
+}
+
+void DeltaDBWrapper::condenseSingleCheckpoint() {
+    if(checkpoints.size() == 1){
+        return;
+    }
+    deltas = &checkpoints[checkpoints.size() - 2]; //set to previous checkpoint
+    auto* check = &checkpoints[checkpoints.size() - 1]; // set to latest checkpoiint
+    for(auto &kv : *check){
+        (*deltas)[kv.first] = kv.second;
+    }
+    checkpoints.pop_back(); //remove latest
+}
+
+
 
 
 /* Bytecode of contract: KEY is derived from %bytecode%_%address% */
