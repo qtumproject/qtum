@@ -5362,3 +5362,8 @@ bool CWallet::LoadContractData(const std::string &address, const std::string &ke
     }
     return ret;
 }
+
+void CWallet::StakeQtums(bool fStake, CConnman* connman)
+{
+    ::StakeQtums(fStake, this, connman, stakeThread);
+}

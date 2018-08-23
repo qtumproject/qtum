@@ -83,6 +83,7 @@ class CTokenTx;
 class CContractBookData;
 struct FeeCalculation;
 enum class FeeEstimateMode;
+namespace boost { class thread_group; }
 
 /** (client) version numbers for particular wallet features */
 enum WalletFeature
@@ -785,6 +786,8 @@ private:
      */
     const CBlockIndex* m_last_block_processed = nullptr;
 
+    boost::thread_group* stakeThread = nullptr;
+
 public:
     /*
      * Main wallet lock.
@@ -1289,6 +1292,8 @@ public:
     /* Remove token entry from the wallet */
     bool RemoveTokenEntry(const uint256& tokenHash, bool fFlushOnClose=true);
 
+    /* Staking coins */
+    void StakeQtums(bool fStake, CConnman* connman);
 };
 
 /** A key allocated from the key pool. */
