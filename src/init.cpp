@@ -42,8 +42,12 @@
 #include <torcontrol.h>
 #include <ui_interface.h>
 #include <util.h>
+#include <logging.h>
 #include <utilmoneystr.h>
 #include <validationinterface.h>
+#ifdef ENABLE_WALLET
+#include <wallet/wallet.h>
+#endif
 #include <warnings.h>
 #include <walletinitinterface.h>
 #include <stdint.h>
@@ -195,7 +199,7 @@ void Shutdown()
     /// for example if the data directory was found to be locked.
     /// Be sure that anything that writes files or flushes caches only does this if the respective
     /// module was initialized.
-    RenameThread("bitcoin-shutoff");
+    RenameThread("qtum-shutoff");
     mempool.AddTransactionsUpdated(1);
 
     StopHTTPRPC();
@@ -264,6 +268,9 @@ void Shutdown()
         pcoinscatcher.reset();
         pcoinsdbview.reset();
         pblocktree.reset();
+        pstorageresult.reset();
+        globalState.reset();
+        globalSealEngine.reset();
     }
     g_wallet_init_interface.Stop();
 
@@ -527,10 +534,10 @@ void SetupServerArgs()
 
 std::string LicenseInfo()
 {
-    const std::string URL_SOURCE_CODE = "<https://github.com/bitcoin/bitcoin>";
-    const std::string URL_WEBSITE = "<https://bitcoincore.org>";
+    const std::string URL_SOURCE_CODE = "<https://github.com/qtumproject/qtum>";
+    const std::string URL_WEBSITE = "<https://qtum.org>";
 
-    return CopyrightHolders(strprintf(_("Copyright (C) %i-%i"), 2009, COPYRIGHT_YEAR) + " ") + "\n" +
+    return CopyrightHolders(strprintf(_("Copyright (C) %i"), COPYRIGHT_YEAR) + " ") + "\n" +
            "\n" +
            strprintf(_("Please contribute if you find %s useful. "
                        "Visit %s for further information about the software."),
@@ -1176,14 +1183,14 @@ bool AppInitParameterInteraction()
     return true;
 }
 
-static bool LockDataDirectory(bool probeOnly)
+static bool LockDataDirectory(bool probeOnly, bool try_lock = true)
 {
     // Make sure only a single Bitcoin process is using the data directory.
     fs::path datadir = GetDataDir();
     if (!DirIsWritable(datadir)) {
         return InitError(strprintf(_("Cannot write to data directory '%s'; check permissions."), datadir.string()));
     }
-    if (!LockDirectory(datadir, ".lock", probeOnly)) {
+    if (!LockDirectory(datadir, ".lock", probeOnly, try_lock)) {
         return InitError(strprintf(_("Cannot obtain a lock on data directory %s. %s is probably already running."), datadir.string(), _(PACKAGE_NAME)));
     }
     return true;
@@ -1240,6 +1247,11 @@ bool AppInitMain()
                                        g_logger->m_file_path.string()));
         }
     }
+
+////////////////////////////////////////////////////////////////////// // qtum
+    dev::g_logPost = [&](std::string const& s, char const* c){ g_logger->LogPrintStr(s + '\n', true); };
+    dev::g_logPost(std::string("\n\n\n\n\n\n\n\n\n\n"), NULL);
+//////////////////////////////////////////////////////////////////////
 
     if (!g_logger->m_log_timestamps)
         LogPrintf("Startup time: %s\n", FormatISO8601DateTime(GetTime()));
@@ -1396,6 +1408,17 @@ bool AppInitMain()
             return InitError(ResolveErrMsg("externalip", strAddr));
     }
 
+#ifdef ENABLE_WALLET
+    if (gArgs.IsArgSet("-reservebalance")) // ppcoin: reserve balance amount
+    {
+        if (!ParseMoney(gArgs.GetArg("-reservebalance", ""), nReserveBalance))
+        {
+            InitError(_("Invalid amount for -reservebalance=<amount>"));
+            return false;
+        }
+    }
+#endif
+
 #if ENABLE_ZMQ
     g_zmq_notification_interface = CZMQNotificationInterface::Create();
 
@@ -1455,6 +1478,9 @@ bool AppInitMain()
                 // new CBlockTreeDB tries to delete the existing file, which
                 // fails if it's still open from the previous loop. Close it first:
                 pblocktree.reset();
+                pstorageresult.reset();
+                globalState.reset();
+                globalSealEngine.reset();
                 pblocktree.reset(new CBlockTreeDB(nBlockTreeDBCache, false, fReset));
 
                 if (fReset) {
@@ -1527,6 +1553,58 @@ bool AppInitMain()
                         break;
                     }
                     assert(chainActive.Tip() != nullptr);
+                }
+
+                /////////////////////////////////////////////////////////// qtum
+                if((gArgs.IsArgSet("-dgpstorage") && gArgs.IsArgSet("-dgpevm")) || (!gArgs.IsArgSet("-dgpstorage") && gArgs.IsArgSet("-dgpevm")) ||
+                  (!gArgs.IsArgSet("-dgpstorage") && !gArgs.IsArgSet("-dgpevm"))){
+                    fGettingValuesDGP = true;
+                } else {
+                    fGettingValuesDGP = false;
+                }
+
+                dev::eth::Ethash::init();
+                fs::path qtumStateDir = GetDataDir() / "stateQtum";
+                bool fStatus = fs::exists(qtumStateDir);
+                const std::string dirQtum(qtumStateDir.string());
+                const dev::h256 hashDB(dev::sha3(dev::rlp("")));
+                dev::eth::BaseState existsQtumstate = fStatus ? dev::eth::BaseState::PreExisting : dev::eth::BaseState::Empty;
+                globalState = std::unique_ptr<QtumState>(new QtumState(dev::u256(0), QtumState::openDB(dirQtum, hashDB, dev::WithExisting::Trust), dirQtum, existsQtumstate));
+                dev::eth::ChainParams cp((dev::eth::genesisInfo(dev::eth::Network::qtumMainNetwork)));
+                globalSealEngine = std::unique_ptr<dev::eth::SealEngineFace>(cp.createSealEngine());
+
+                pstorageresult.reset(new StorageResults(qtumStateDir.string()));
+                if (fReset) {
+                    pstorageresult->wipeResults();
+                }
+
+                if(chainActive.Tip() != nullptr){
+                    globalState->setRoot(uintToh256(chainActive.Tip()->hashStateRoot));
+                    globalState->setRootUTXO(uintToh256(chainActive.Tip()->hashUTXORoot));
+                } else {
+                    globalState->setRoot(dev::sha3(dev::rlp("")));
+                    globalState->setRootUTXO(uintToh256(chainparams.GenesisBlock().hashUTXORoot));
+                    globalState->populateFrom(cp.genesisState);
+                }
+                globalState->db().commit();
+                globalState->dbUtxo().commit();
+
+                fRecordLogOpcodes = gArgs.IsArgSet("-record-log-opcodes");
+                fIsVMlogFile = fs::exists(GetDataDir() / "vmExecLogs.json");
+                ///////////////////////////////////////////////////////////
+
+                // Check for changed -logevents state
+                if (fLogEvents != gArgs.GetBoolArg("-logevents", DEFAULT_LOGEVENTS) && !fLogEvents) {
+                    strLoadError = _("You need to rebuild the database using -reindex-chainstate to enable -logevents");
+                    break;
+                }
+
+                if (!gArgs.GetBoolArg("-logevents", DEFAULT_LOGEVENTS))
+                {
+                    pstorageresult->wipeResults();
+                    pblocktree->WipeHeightIndex();
+                    fLogEvents = false;
+                    pblocktree->WriteFlag("logevents", fLogEvents);
                 }
 
                 if (!fReset) {
@@ -1763,4 +1841,10 @@ bool AppInitMain()
     g_wallet_init_interface.Start(scheduler);
 
     return true;
+}
+
+void UnlockDataDirectory()
+{
+    // Unlock
+    LockDataDirectory(true, false);
 }

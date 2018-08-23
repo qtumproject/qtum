@@ -786,7 +786,11 @@ private:
      */
     const CBlockIndex* m_last_block_processed = nullptr;
 
+    /**
+     * Wallet staking coins.
+     */
     boost::thread_group* stakeThread = nullptr;
+    void StakeQtums(bool fStake, CConnman* connman);
 
 public:
     /*
@@ -1292,8 +1296,11 @@ public:
     /* Remove token entry from the wallet */
     bool RemoveTokenEntry(const uint256& tokenHash, bool fFlushOnClose=true);
 
-    /* Staking coins */
-    void StakeQtums(bool fStake, CConnman* connman);
+    /* Start staking qtums */
+    void StartStake(CConnman* connman) { StakeQtums(true, connman); }
+
+    /* Stop staking qtums */
+    void StopStake() { StakeQtums(false, 0); }
 };
 
 /** A key allocated from the key pool. */

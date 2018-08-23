@@ -15,6 +15,7 @@
 #include <wallet/rpcwallet.h>
 #include <wallet/wallet.h>
 #include <wallet/walletutil.h>
+#include <miner.h>
 
 class WalletInit : public WalletInitInterface {
 public:
@@ -244,6 +245,17 @@ void WalletInit::Start(CScheduler& scheduler) const
         pwallet->postInitProcess();
     }
 
+    // Mine proof-of-stake blocks in the background
+    if (!gArgs.GetBoolArg("-staking", DEFAULT_STAKE)) {
+        LogPrintf("Staking disabled\n");
+    }
+    else {
+        CConnman& connman = *g_connman;
+        for (const std::shared_ptr<CWallet>& pwallet : GetWallets()) {
+            pwallet->StartStake(&connman);
+        }
+    }
+
     // Run a thread to flush wallet periodically
     scheduler.scheduleEvery(MaybeCompactWalletDB, 500);
 }
@@ -251,6 +263,7 @@ void WalletInit::Start(CScheduler& scheduler) const
 void WalletInit::Flush() const
 {
     for (const std::shared_ptr<CWallet>& pwallet : GetWallets()) {
+        pwallet->StopStake();
         pwallet->Flush(false);
     }
 }
