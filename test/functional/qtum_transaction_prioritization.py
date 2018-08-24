@@ -176,6 +176,14 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
         if use_staking:
             block_txs.pop(1) # Ignore the coinstake tx so we can reuse the tests for both pow and pos
 
+        for t in block_txs[1:]:
+            print(t)
+        print()
+        print(tx1)
+        print(tx2)
+        print(tx3)
+        print(tx4)
+
         assert_equal(len(block_txs), 5)
         assert_equal(block_txs[1], tx1)
         assert_equal(block_txs[2], tx2)

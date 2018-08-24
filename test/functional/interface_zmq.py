@@ -13,7 +13,9 @@ from test_framework.util import (assert_equal,
                                  bytes_to_hex_str,
                                  hash256,
                                 )
+from test_framework.messages import CBlock
 from io import BytesIO
+
 
 class ZMQSubscriber:
     def __init__(self, socket, topic):
@@ -107,8 +109,12 @@ class ZMQTest (BitcoinTestFramework):
             assert_equal([bytes_to_hex_str(txid)], self.nodes[1].getblock(hash)["tx"])
 
             # Should receive the generated raw block.
-            block = self.rawblock.receive()
-            assert_equal(genhashes[x], bytes_to_hex_str(hash256(block[:80])))
+            raw_block = self.rawblock.receive()
+            block = CBlock()
+            f = BytesIO(raw_block)
+            block.deserialize(f)
+            block.calc_sha256()
+            assert_equal(genhashes[x], block.hash)
 
         self.log.info("Wait for tx from second node")
         payment_txid = self.nodes[1].sendtoaddress(self.nodes[0].getnewaddress(), 1.0)
