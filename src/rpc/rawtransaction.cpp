@@ -63,6 +63,62 @@ static void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& 
     }
 }
 
+static UniValue gethexaddress(const JSONRPCRequest& request) {
+    if (request.fHelp || request.params.size() < 1 || request.params.size() > 1)
+        throw std::runtime_error(
+                "gethexaddress \"address\"\n"
+
+                        "\nConverts a base58 pubkeyhash address to a hex address for use in smart contracts.\n"
+
+                        "\nArguments:\n"
+                        "1. \"address\"      (string, required) The base58 address\n"
+
+                        "\nResult:\n"
+                        "\"hexaddress\"      (string) The raw hex pubkeyhash address for use in smart contracts\n"
+
+                        "\nExamples:\n"
+                + HelpExampleCli("gethexaddress", "\"address\"")
+                + HelpExampleRpc("gethexaddress", "\"address\"")
+        );
+
+    CTxDestination dest = DecodeDestination(request.params[0].get_str());
+    if (!IsValidDestination(dest)) {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Qtum address");
+    }
+
+    const CKeyID *keyID = boost::get<CKeyID>(&dest);
+    if(!keyID)
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Only pubkeyhash addresses are supported");
+
+    return keyID->GetReverseHex();
+}
+
+static UniValue fromhexaddress(const JSONRPCRequest& request) {
+    if (request.fHelp || request.params.size() < 1 || request.params.size() > 1)
+        throw std::runtime_error(
+                "fromhexaddress \"hexaddress\"\n"
+
+                        "\nConverts a raw hex address to a base58 pubkeyhash address\n"
+
+                        "\nArguments:\n"
+                        "1. \"hexaddress\"      (string, required) The raw hex address\n"
+
+                        "\nResult:\n"
+                        "\"address\"      (string) The base58 pubkeyhash address\n"
+
+                        "\nExamples:\n"
+                + HelpExampleCli("fromhexaddress", "\"hexaddress\"")
+                + HelpExampleRpc("fromhexaddress", "\"hexaddress\"")
+        );
+    if (request.params[0].get_str().size() != 40)
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid pubkeyhash hex size (should be 40 hex characters)");
+    CKeyID raw;
+    raw.SetReverseHex(request.params[0].get_str());
+    CTxDestination dest(raw);
+
+    return EncodeDestination(dest);
+}
+
 static UniValue getrawtransaction(const JSONRPCRequest& request)
 {
     if (request.fHelp || request.params.size() < 1 || request.params.size() > 3)
@@ -1818,6 +1874,8 @@ static const CRPCCommand commands[] =
     { "rawtransactions",    "finalizepsbt",                 &finalizepsbt,              {"psbt", "extract"} },
     { "rawtransactions",    "createpsbt",                   &createpsbt,                {"inputs","outputs","locktime","replaceable"} },
     { "rawtransactions",    "converttopsbt",                &converttopsbt,             {"hexstring","permitsigdata","iswitness"} },
+    { "rawtransactions",    "gethexaddress",                &gethexaddress,             {"address",} },
+    { "rawtransactions",    "fromhexaddress",               &fromhexaddress,            {"hexaddress",} },
 
     { "blockchain",         "gettxoutproof",                &gettxoutproof,             {"txids", "blockhash"} },
     { "blockchain",         "verifytxoutproof",             &verifytxoutproof,          {"proof"} },
