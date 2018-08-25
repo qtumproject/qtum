@@ -67,6 +67,7 @@ private:
     TokenItemPriv* priv;
     TokenTxWorker* worker;
     QThread t;
+    bool tokenTxCleaned;
 
     friend class TokenItemPriv;
 };
