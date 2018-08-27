@@ -1320,6 +1320,126 @@ static UniValue sendmany(const JSONRPCRequest& request)
     return tx->GetHash().GetHex();
 }
 
+static UniValue sendmanywithdupes(const JSONRPCRequest& request)
+{
+    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
+    CWallet* const pwallet = wallet.get();
+
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+
+    if (request.fHelp || request.params.size() < 2 || request.params.size() > 5)
+        throw std::runtime_error(
+            "sendmanywithdupes \"fromaccount\" {\"address\":amount,...} ( minconf \"comment\" [\"address\",...] )\n"
+            "\nSend multiple times. Amounts are double-precision floating point numbers. Supports duplicate addresses"
+            + HelpRequiringPassphrase(pwallet) + "\n"
+            "\nArguments:\n"
+            "1. \"fromaccount\"         (string, required) DEPRECATED. The account to send the funds from. Should be \"\" for the default account\n"
+            "2. \"amounts\"             (string, required) A json object with addresses and amounts\n"
+            "    {\n"
+            "      \"address\":amount   (numeric or string) The qtum address is the key, the numeric amount (can be string) in " + CURRENCY_UNIT + " is the value\n"
+            "      ,...\n"
+            "    }\n"
+            "3. minconf                 (numeric, optional, default=1) Only use the balance confirmed at least this many times.\n"
+            "4. \"comment\"             (string, optional) A comment\n"
+            "5. subtractfeefrom         (array, optional) A json array with addresses.\n"
+            "                           The fee will be equally deducted from the amount of each selected address.\n"
+            "                           Those recipients will receive less qtums than you enter in their corresponding amount field.\n"
+            "                           If no addresses are specified here, the sender pays the fee.\n"
+            "    [\n"
+            "      \"address\"          (string) Subtract fee from this address\n"
+            "      ,...\n"
+            "    ]\n"
+            "\nResult:\n"
+            "\"txid\"                   (string) The transaction id for the send. Only 1 transaction is created regardless of \n"
+            "                                    the number of addresses.\n"
+            "\nExamples:\n"
+            "\nSend two amounts to two different addresses:\n"
+            + HelpExampleCli("sendmanywithdupes", "\"\" \"{\\\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\\\":0.01,\\\"Q353tsE8YMTA4EuV7dgUXGjNFf9KpVvKHz\\\":0.02}\"") +
+            "\nSend two amounts to two different addresses setting the confirmation and comment:\n"
+            + HelpExampleCli("sendmanywithdupes", "\"\" \"{\\\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\\\":0.01,\\\"Q353tsE8YMTA4EuV7dgUXGjNFf9KpVvKHz\\\":0.02}\" 6 \"testing\"") +
+            "\nSend two amounts to two different addresses, subtract fee from amount:\n"
+            + HelpExampleCli("sendmanywithdupes", "\"\" \"{\\\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\\\":0.01,\\\"Q353tsE8YMTA4EuV7dgUXGjNFf9KpVvKHz\\\":0.02}\" 1 \"\" \"[\\\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\\\",\\\"Q353tsE8YMTA4EuV7dgUXGjNFf9KpVvKHz\\\"]\"") +
+            "\nAs a json rpc call\n"
+            + HelpExampleRpc("sendmanywithdupes", "\"\", \"{\\\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\\\":0.01,\\\"Q353tsE8YMTA4EuV7dgUXGjNFf9KpVvKHz\\\":0.02}\", 6, \"testing\"")
+        );
+
+    LOCK2(cs_main, pwallet->cs_wallet);
+
+    if (pwallet->GetBroadcastTransactions() && !g_connman)
+        throw JSONRPCError(RPC_CLIENT_P2P_DISABLED, "Error: Peer-to-peer functionality missing or disabled");
+
+    std::string strAccount = LabelFromValue(request.params[0]);
+    UniValue sendTo = request.params[1].get_obj();
+    int nMinDepth = 1;
+    if (request.params.size() > 2)
+        nMinDepth = request.params[2].get_int();
+
+    mapValue_t mapValue;
+    if (request.params.size() > 3 && !request.params[3].isNull() && !request.params[3].get_str().empty())
+        mapValue["comment"] = request.params[3].get_str();
+
+    UniValue subtractFeeFromAmount(UniValue::VARR);
+    if (request.params.size() > 4)
+        subtractFeeFromAmount = request.params[4].get_array();
+
+    std::set<CTxDestination> setAddress;
+    std::vector<CRecipient> vecSend;
+
+    CAmount totalAmount = 0;
+    std::vector<std::string> keys = sendTo.getKeys();
+    for (const std::string& name_ : keys)
+    {
+        CTxDestination address = DecodeDestination(name_);
+        if (!IsValidDestination(address))
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, std::string("Invalid Qtum address: ")+name_);
+
+        setAddress.insert(address);
+
+        CScript scriptPubKey = GetScriptForDestination(address);
+        CAmount nAmount = AmountFromValue(sendTo[name_]);
+        if (nAmount <= 0)
+            throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
+        totalAmount += nAmount;
+
+        bool fSubtractFeeFromAmount = false;
+        for (unsigned int idx = 0; idx < subtractFeeFromAmount.size(); idx++) {
+            const UniValue& addr = subtractFeeFromAmount[idx];
+            if (addr.get_str() == name_)
+                fSubtractFeeFromAmount = true;
+        }
+
+        CRecipient recipient = {scriptPubKey, nAmount, fSubtractFeeFromAmount};
+        vecSend.push_back(recipient);
+    }
+
+    EnsureWalletIsUnlocked(pwallet);
+
+    // Check funds
+    CAmount nBalance = pwallet->GetLegacyBalance(ISMINE_SPENDABLE, nMinDepth, &strAccount);
+    if (totalAmount > nBalance)
+        throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Account has insufficient funds");
+
+    // Send
+    CTransactionRef tx;
+    CReserveKey keyChange(pwallet);
+    CAmount nFeeRequired = 0;
+    int nChangePosRet = -1;
+    std::string strFailReason;
+    CCoinControl coin_control;
+    bool fCreated = pwallet->CreateTransaction(vecSend, tx, keyChange, nFeeRequired, nChangePosRet, strFailReason, coin_control);
+    if (!fCreated)
+        throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, strFailReason);
+    CValidationState state;
+    if (!pwallet->CommitTransaction(tx,  std::move(mapValue), {} /* orderForm */, std::move(strAccount), keyChange, g_connman.get(), state)) {
+        strFailReason = strprintf("Transaction commit failed:: %s", state.GetRejectReason());
+        throw JSONRPCError(RPC_WALLET_ERROR, strFailReason);
+    }
+
+    return tx->GetHash().GetHex();
+}
+
 static UniValue addmultisigaddress(const JSONRPCRequest& request)
 {
     std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
@@ -4912,6 +5032,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "loadwallet",                       &loadwallet,                    {"filename"} },
     { "wallet",             "lockunspent",                      &lockunspent,                   {"unlock","transactions"} },
     { "wallet",             "sendmany",                         &sendmany,                      {"fromaccount|dummy","amounts","minconf","comment","subtractfeefrom","replaceable","conf_target","estimate_mode"} },
+    { "wallet",             "sendmanywithdupes",                &sendmanywithdupes,             {"fromaccount","amounts","minconf","comment","subtractfeefrom"} },
     { "wallet",             "sendtoaddress",                    &sendtoaddress,                 {"address","amount","comment","comment_to","subtractfeefromamount","replaceable","conf_target","estimate_mode"} },
     { "wallet",             "settxfee",                         &settxfee,                      {"amount"} },
     { "wallet",             "signmessage",                      &signmessage,                   {"address","message"} },
@@ -4919,11 +5040,12 @@ static const CRPCCommand commands[] =
     { "wallet",             "unloadwallet",                     &unloadwallet,                  {"wallet_name"} },
     { "wallet",             "walletlock",                       &walletlock,                    {} },
     { "wallet",             "walletpassphrasechange",           &walletpassphrasechange,        {"oldpassphrase","newpassphrase"} },
-    { "wallet",             "walletpassphrase",                 &walletpassphrase,              {"passphrase","timeout"} },
+    { "wallet",             "walletpassphrase",                 &walletpassphrase,              {"passphrase","timeout", "stakingonly"} },
     { "wallet",             "removeprunedfunds",                &removeprunedfunds,             {"txid"} },
     { "wallet",             "rescanblockchain",                 &rescanblockchain,              {"start_height", "stop_height"} },
     { "wallet",             "sethdseed",                        &sethdseed,                     {"newkeypool","seed"} },
     { "wallet",             "reservebalance",                   &reservebalance,                {"reserve", "amount"} },
+    { "wallet",             "walletpassphrase",         &walletpassphrase,         {"passphrase","timeout", "stakingonly"} },
 
     /** Account functions (deprecated) */
     { "wallet",             "getaccountaddress",                &getaccountaddress,             {"account"} },
