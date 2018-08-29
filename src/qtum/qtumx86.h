@@ -3,9 +3,10 @@
 
 #include "qtumstate.h"
 #include "qtumtransaction.h"
-
+#include "uint256.h"
+#include <map>
+#include <utility>
 #include <x86lib.h>
-
 class ContractVM;
 
 class x86ContractVM : public ContractVM{
@@ -23,6 +24,7 @@ private:
 
 struct HypervisorEffect{
     int exitCode;
+    std::vector<std::pair<uint256, unsigned int>> transfers; //pair<txid, vout>
 };
 
 class QtumHypervisor : public x86Lib::InterruptHypervisor{

@@ -238,8 +238,8 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
                 vm.WriteMemory(vm.Reg32(EDX), status, value.data());
             }
             delete []k;
-       }
             break;
+       }
         case QSC_WriteStorage:
         {
             //ebx = key, ecx = key size
@@ -254,8 +254,16 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
             db.writeState(output.address, key, value);
             delete []k;
             delete []v;
-        }
             break;
+        }
+        case QSC_GetBalance:
+        {
+            uint64_t v = output.value;
+            uint256 txid;
+            unsigned int vout;
+            uint64_t value;
+            //db.readAalData(output.address, txid, vout, value);
+        }
         case 0xFFFF0001:
             //internal debug printf
             //Remove before production!

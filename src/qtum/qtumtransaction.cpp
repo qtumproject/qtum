@@ -389,11 +389,22 @@ void DeltaDBWrapper::commit() {
 int DeltaDBWrapper::checkpoint() {
     checkpoints.push_back(std::unordered_map<std::string, std::vector<uint8_t>>());
     deltas = &checkpoints[checkpoints.size() - 1];
+    balanceCheckpoints.push_back(std::map<UniversalAddress, uint64_t>());
+    currentBalances = &balanceCheckpoints[balanceCheckpoints.size() - 1];
+    vinCheckpoints.push_back(std::set<COutPoint>());
+    currentVins = &vinCheckpoints[vinCheckpoints.size() - 1];
     return checkpoints.size() - 1;
 }
 int DeltaDBWrapper::revertCheckpoint() {
+    if(checkpoints.size() == 1){
+        return 0;
+    }
     checkpoints.pop_back();
     deltas = &checkpoints[checkpoints.size() - 1];
+    balanceCheckpoints.pop_back();
+    currentBalances = &balanceCheckpoints[balanceCheckpoints.size() - 1];
+    vinCheckpoints.pop_back();
+    currentVins = &vinCheckpoints[vinCheckpoints.size() - 1];
     return checkpoints.size() - 1;
 }
 
@@ -404,12 +415,34 @@ void DeltaDBWrapper::condenseAllCheckpoints() {
     //can't refactor this to just do multiple condenseSingle
     //without data being touched several times unnecessarily
     deltas = &checkpoints[0];
-    for(int i=checkpoints.size() - 1;i>0;i++){
+    //apply from 1 to latest
+    for(int i=1;i<checkpoints.size();i++){
         auto* check = &checkpoints[i];
         for(auto &kv : *check){
             (*deltas)[kv.first] = kv.second;
         }
+    }
+    for(int i=1;i<checkpoints.size();i++){
         checkpoints.pop_back();
+    }
+    currentBalances = &balanceCheckpoints[0];
+    for(int i=1; i < balanceCheckpoints.size(); i++){
+        auto *b = &balanceCheckpoints[i];
+        for(auto &kv : *b){
+            (*currentBalances)[kv.first] = (*b)[kv.first];
+        }
+    }
+    for(int i=1;i<balanceCheckpoints.size();i++){
+        balanceCheckpoints.pop_back();
+    }
+    currentVins = &vinCheckpoints[0];
+    for(int i = 1;i < vinCheckpoints.size(); i++){
+        for(auto &v : vinCheckpoints[i]){
+            currentVins->insert(v);
+        }
+    }
+    for(int i=1;i<vinCheckpoints.size();i++){
+        vinCheckpoints.pop_back();
     }
 }
 
@@ -423,6 +456,20 @@ void DeltaDBWrapper::condenseSingleCheckpoint() {
         (*deltas)[kv.first] = kv.second;
     }
     checkpoints.pop_back(); //remove latest
+
+    auto *b = currentBalances;
+    currentBalances = &balanceCheckpoints[balanceCheckpoints.size() - 2];
+    for(auto &kv : *b){
+        (*currentBalances)[kv.first] = (*b)[kv.first];
+    }
+    balanceCheckpoints.pop_back();
+
+    auto* vins = currentVins;
+    currentVins = &vinCheckpoints[vinCheckpoints.size() - 2];
+    for(auto &v : *vins){
+        currentVins->insert(v);
+    }
+    vinCheckpoints.pop_back();
 }
 
 
@@ -469,7 +516,7 @@ bool DeltaDBWrapper:: readAalData(UniversalAddress address, uint256 &txid, unsig
 	std::vector<uint8_t> K;
 	std::vector<uint8_t> V;
 	K.insert(K.end(), address.version);
-	K.insert(K.end(), address.data.begin(), address.data.end());	
+	K.insert(K.end(), address.data.begin(), address.data.end());
 	K.insert(K.end(), aalPre , aalPre + sizeof(aalPre)/sizeof(uint8_t));
 	K.insert(K.end(), 'u');	
 	if(Read(K, V)){

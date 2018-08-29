@@ -11,6 +11,7 @@
 #include <dbwrapper.h>
 #include <util.h>
 #include <uint256.h>
+#include "qtumstate.h"
 
 struct VersionVM{
     //this should be portable, see https://stackoverflow.com/questions/31726191/is-there-a-portable-alternative-to-c-bitfields
@@ -93,7 +94,7 @@ struct UniversalAddress{
     : version(v), data(begin, end) {}
 
     bool operator<(const UniversalAddress& a) const{
-        return data < a.data;
+        return version < a.version || data < a.data;
     }
     bool operator==(const UniversalAddress& a) const{
         return version == a.version && data == a.data;
@@ -172,16 +173,19 @@ public:
 	~DeltaDB() {    }
 };
 
-
 class DeltaDBWrapper{
     DeltaDB* db;
     //list of maps. 0 is 0th checkpoint, 1 is 1st checkpoint etc
     std::vector<std::unordered_map<std::string, std::vector<uint8_t>>> checkpoints;
     std::unordered_map<std::string, std::vector<uint8_t>> *deltas; //points to current checkpoint
+
+    std::vector<std::set<COutPoint>> vinCheckpoints; //spent vins
+    std::set<COutPoint> *currentVins;
+    std::vector<std::map<UniversalAddress, uint64_t>> balanceCheckpoints;
+    std::map<UniversalAddress, uint64_t> *currentBalances;
 public:
     DeltaDBWrapper(DeltaDB* db_) : db(db_){
-        checkpoints.push_back(std::unordered_map<std::string, std::vector<uint8_t>>());
-        deltas = &checkpoints[0];
+        checkpoint(); //this will add the initial "0" checkpoint and set all pointers
     }
 
     void commit(); //commits everything to disk
@@ -189,6 +193,15 @@ public:
     int revertCheckpoint(); //Discard latest checkpoint and revert to previous checkpoint; returns new checkpoint number
     void condenseAllCheckpoints(); //condences all outstanding checkpoints to 0th
     void condenseSingleCheckpoint(); //condenses only the latest checkpoint into the previous
+
+    //AAL access
+    uint64_t getBalance(UniversalAddress a);
+    void transfer(UniversalAddress from, UniversalAddress to, uint64_t value);
+
+    //note: order of these vectors is consensus critical!
+    //These functions can only be used when there is no pending state
+    std::vector<CTxIn> spentVins();
+    std::vector<std::pair<UniversalAddress, uint64_t>> newBalances();
 
     /*************** Live data *****************/
     /* newest data associated with the contract. */
@@ -199,8 +212,6 @@ public:
     bool writeByteCode(UniversalAddress address,valtype byteCode);
     bool readByteCode(UniversalAddress address,valtype& byteCode);
 
-    bool writeAalData(UniversalAddress address, uint256 txid, unsigned int vout, uint64_t balance);
-    bool readAalData(UniversalAddress address, uint256 &txid, unsigned int &vout, uint64_t &balance);
 
     /* data updated point of the keys in a contract. */
     bool writeUpdatedKey(UniversalAddress address, valtype key, unsigned int blk_num, uint256 blk_hash);
@@ -229,6 +240,9 @@ public:
     bool readOldestIterator(UniversalAddress address,        valtype key, uint64_t &iterator, unsigned int &blk_num, uint256 &blk_hash);
 
 private:
+    //AAL is more complicated, so don't allow direct access
+    bool writeAalData(UniversalAddress address, uint256 txid, unsigned int vout, uint64_t balance);
+    bool readAalData(UniversalAddress address, uint256 &txid, unsigned int &vout, uint64_t &balance);
     bool Write(valtype K, valtype V);
     bool Read(valtype K, valtype& V);
     bool Write(valtype K, uint64_t V);
