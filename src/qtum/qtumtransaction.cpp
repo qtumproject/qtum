@@ -385,6 +385,7 @@ void DeltaDBWrapper::commit() {
     checkpoints.clear();
     checkpoints.push_back(std::unordered_map<std::string, std::vector<uint8_t>>());
     deltas = &checkpoints[0];
+    hasNoAAL.clear();
 }
 int DeltaDBWrapper::checkpoint() {
     checkpoints.push_back(std::unordered_map<std::string, std::vector<uint8_t>>());
@@ -406,6 +407,99 @@ int DeltaDBWrapper::revertCheckpoint() {
     vinCheckpoints.pop_back();
     currentVins = &vinCheckpoints[vinCheckpoints.size() - 1];
     return checkpoints.size() - 1;
+}
+
+uint64_t DeltaDBWrapper::getBalance(UniversalAddress a) {
+    for(int i=balanceCheckpoints.size() - 1; i >= 0; i--){
+        if(balanceCheckpoints[i].find(a) != balanceCheckpoints[i].end()){
+            return balanceCheckpoints[i][a];
+        }
+    }
+    uint256 txid;
+    unsigned int vout;
+    uint64_t balance = 0;
+    if(readAalData(a, txid, vout, balance)){
+        //(*currentBalances)[a] = balance; //cache it
+        return balance;
+    }
+    return 0;
+}
+
+bool DeltaDBWrapper::transfer(UniversalAddress from, UniversalAddress to, uint64_t value) {
+    if(value == 0) { return true; }
+    uint64_t fromOldBalance = 0;
+    bool foundOldBalance = false;
+    for (int i = balanceCheckpoints.size() - 1; i >= 0; i--) {
+        if (balanceCheckpoints[i].find(from) != balanceCheckpoints[i].end()) {
+            fromOldBalance = balanceCheckpoints[i][from];
+            foundOldBalance = true;
+            break;
+        }
+    }
+    uint256 txid;
+    unsigned int vout;
+    uint64_t balance;
+    if(!foundOldBalance){
+        //hasn't been touched in this execution, so lookup from database
+        if(readAalData(from, txid, vout, balance)){
+            fromOldBalance = balance;
+            //since there is a vout being used, we should spend it
+            currentVins->insert(COutPoint(txid, vout));
+        }
+    }
+    if (value > fromOldBalance) {
+        //not enough balance to cover transfer
+        return false;
+    }
+    (*currentBalances)[from] = fromOldBalance - value;
+
+    if(initialCoinsReceiver == from){
+        //if initial coins receiver, then just spend that vin
+        //result is either initialCoins is already in currentVins and there is no oldvout
+        //OR that both initialCoins and oldvout is already in currentVins
+        //OR that initialCoins is not in currentvins and there is no oldvout
+        //either way, we don't need to go to database and we must spend the initialCoins vout
+        currentVins->insert(initialCoins);
+    }else{
+        //coins are normal, not from initial coins receiver
+        if(readAalData(from, txid, vout, balance)){
+            currentVins->insert(COutPoint(txid, vout));
+        }
+        //if readAalData is false, then no previous vout to spend
+        //So it must be "virtual" transfers without an associated UTXO
+        //This can happen when transfering coins from A -> B -> C where B had no UTXO before A's execution
+    }
+    uint64_t toOldBalance = 0;
+    //now spend the 'to' utxo if it has one so that both from and to UTXOs are spent for condensing
+    for (int i = balanceCheckpoints.size() - 1; i >= 0; i--) {
+        if (balanceCheckpoints[i].find(to) != balanceCheckpoints[i].end()) {
+            toOldBalance = balanceCheckpoints[i][to];
+            break;
+        }
+    }
+
+
+}
+
+void DeltaDBWrapper::setInitialCoins(UniversalAddress a, COutPoint vout, uint64_t value) {
+    if(balanceCheckpoints.size() != 1){
+        return; //this shouldn't be called other than at the very beginning
+    }
+    uint256 oldtxid;
+    unsigned int oldvout;
+    uint64_t oldbalance;
+    if(readAalData(a, oldtxid, oldvout, oldbalance)){
+        //need to spend old vout and sum balance+value
+        (*currentBalances)[a] = oldbalance + value;
+        //need to spend both old vout and new vout to condense into a single vout
+        currentVins->insert(COutPoint(oldtxid, oldvout));
+        currentVins->insert(vout);
+    }else{
+        //no previous record, so just set balance, no need to spend vin
+        (*currentBalances)[a] = value;
+    }
+    initialCoins = vout;
+    initialCoinsReceiver = a;
 }
 
 void DeltaDBWrapper::condenseAllCheckpoints() {
@@ -513,6 +607,9 @@ bool DeltaDBWrapper:: writeAalData(UniversalAddress address, uint256 txid, unsig
 }
 
 bool DeltaDBWrapper:: readAalData(UniversalAddress address, uint256 &txid, unsigned int &vout, uint64_t &balance){
+    if(hasNoAAL.find(address) == hasNoAAL.end()){
+        return false;
+    }
 	std::vector<uint8_t> K;
 	std::vector<uint8_t> V;
 	K.insert(K.end(), address.version);
@@ -526,6 +623,7 @@ bool DeltaDBWrapper:: readAalData(UniversalAddress address, uint256 &txid, unsig
 		dsValue>>balance;
 		return true;
 	}else{
+        hasNoAAL.insert(address);
         return false;
 	}
 }

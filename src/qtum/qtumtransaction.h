@@ -112,6 +112,11 @@ struct UniversalAddress{
         memset(&abi.data[0], 0, ADDRESS_DATA_SIZE);
         memcpy(&abi.data[0], data.data(), data.size());
     }
+    //hasAAL means this type of address should have an AAL record in DeltaDB
+    bool hasAAL(){
+        return version == AddressVersion::EVM ||
+               version == AddressVersion::X86;
+    }
 
     static UniversalAddress FromScript(const CScript& script);
     static UniversalAddress FromOutput(AddressVersion v, uint256 txid, uint32_t vout);
@@ -173,6 +178,13 @@ public:
 	~DeltaDB() {    }
 };
 
+struct DeltaCheckpoint{
+    std::unordered_map<std::string, std::vector<uint8_t>> deltas;
+    std::set<COutPoint> spentVins;
+    std::map<UniversalAddress, uint64_t> balances;
+    std::set<UniversalAddress> needsUtxo; //if in this set, the address needs a UTXO built in the condensing tx
+};
+
 class DeltaDBWrapper{
     DeltaDB* db;
     //list of maps. 0 is 0th checkpoint, 1 is 1st checkpoint etc
@@ -183,6 +195,10 @@ class DeltaDBWrapper{
     std::set<COutPoint> *currentVins;
     std::vector<std::map<UniversalAddress, uint64_t>> balanceCheckpoints;
     std::map<UniversalAddress, uint64_t> *currentBalances;
+
+    std::unordered_set<UniversalAddress> hasNoAAL; //a cache to keep track of which addresses have no AAL data in the disk-database
+    COutPoint initialCoins; //initial coins sent by origin tx
+    UniversalAddress initialCoinsReceiver;
 public:
     DeltaDBWrapper(DeltaDB* db_) : db(db_){
         checkpoint(); //this will add the initial "0" checkpoint and set all pointers
@@ -193,10 +209,10 @@ public:
     int revertCheckpoint(); //Discard latest checkpoint and revert to previous checkpoint; returns new checkpoint number
     void condenseAllCheckpoints(); //condences all outstanding checkpoints to 0th
     void condenseSingleCheckpoint(); //condenses only the latest checkpoint into the previous
-
+    void setInitialCoins(UniversalAddress a, COutPoint vout, uint64_t value); //initial coins sent with origin tx
     //AAL access
     uint64_t getBalance(UniversalAddress a);
-    void transfer(UniversalAddress from, UniversalAddress to, uint64_t value);
+    bool transfer(UniversalAddress from, UniversalAddress to, uint64_t value);
 
     //note: order of these vectors is consensus critical!
     //These functions can only be used when there is no pending state
