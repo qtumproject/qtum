@@ -187,14 +187,9 @@ struct DeltaCheckpoint{
 
 class DeltaDBWrapper{
     DeltaDB* db;
-    //list of maps. 0 is 0th checkpoint, 1 is 1st checkpoint etc
-    std::vector<std::unordered_map<std::string, std::vector<uint8_t>>> checkpoints;
-    std::unordered_map<std::string, std::vector<uint8_t>> *deltas; //points to current checkpoint
-
-    std::vector<std::set<COutPoint>> vinCheckpoints; //spent vins
-    std::set<COutPoint> *currentVins;
-    std::vector<std::map<UniversalAddress, uint64_t>> balanceCheckpoints;
-    std::map<UniversalAddress, uint64_t> *currentBalances;
+    //0 is 0th checkpoint, 1 is 1st checkpoint etc
+    std::vector<DeltaCheckpoint> checkpoints;
+    DeltaCheckpoint *current;
 
     std::unordered_set<UniversalAddress> hasNoAAL; //a cache to keep track of which addresses have no AAL data in the disk-database
     COutPoint initialCoins; //initial coins sent by origin tx

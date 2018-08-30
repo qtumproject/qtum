@@ -339,7 +339,7 @@ static const uint8_t oldPre[]={'o','l','d','_'};
 
 bool DeltaDBWrapper::Write(valtype K, valtype V){
     std::string k(K.begin(), K.end());
-    (*deltas)[k] = V;
+    current->deltas[k] = V;
     return true;
     //return db->Write(K, V);
 }
@@ -348,8 +348,8 @@ bool DeltaDBWrapper::Read(valtype K, valtype& V){
     //check from the latest checkpoint to the oldest before giving up and going to database
     for(int i = checkpoints.size() - 1; i >= 0; i++){
         auto *check = &checkpoints[i];
-        if(check->find(k) != check->end()){
-            V = (*check)[k];
+        if(current->deltas.find(k) != current->deltas.end()){
+            V = current->deltas[k];
             return true;
         }
     }
@@ -372,7 +372,7 @@ bool DeltaDBWrapper::Read(valtype K, uint64_t& V){
 void DeltaDBWrapper::commit() {
     CDBBatch b(*db);
     condenseAllCheckpoints(); //make sure we only have one checkpoint to deal with
-    for(auto kv : *deltas){
+    for(auto kv : current->deltas){
         if(kv.second.size() == 0){
             b.Erase(kv.first);
         }else{
@@ -383,17 +383,13 @@ void DeltaDBWrapper::commit() {
 
     //clear data stored and reinit
     checkpoints.clear();
-    checkpoints.push_back(std::unordered_map<std::string, std::vector<uint8_t>>());
-    deltas = &checkpoints[0];
+    checkpoints.push_back(DeltaCheckpoint());
+    current = &checkpoints[0];
     hasNoAAL.clear();
 }
 int DeltaDBWrapper::checkpoint() {
-    checkpoints.push_back(std::unordered_map<std::string, std::vector<uint8_t>>());
-    deltas = &checkpoints[checkpoints.size() - 1];
-    balanceCheckpoints.push_back(std::map<UniversalAddress, uint64_t>());
-    currentBalances = &balanceCheckpoints[balanceCheckpoints.size() - 1];
-    vinCheckpoints.push_back(std::set<COutPoint>());
-    currentVins = &vinCheckpoints[vinCheckpoints.size() - 1];
+    checkpoints.push_back(DeltaCheckpoint());
+    current = &checkpoints[checkpoints.size() - 1];
     return checkpoints.size() - 1;
 }
 int DeltaDBWrapper::revertCheckpoint() {
@@ -401,18 +397,14 @@ int DeltaDBWrapper::revertCheckpoint() {
         return 0;
     }
     checkpoints.pop_back();
-    deltas = &checkpoints[checkpoints.size() - 1];
-    balanceCheckpoints.pop_back();
-    currentBalances = &balanceCheckpoints[balanceCheckpoints.size() - 1];
-    vinCheckpoints.pop_back();
-    currentVins = &vinCheckpoints[vinCheckpoints.size() - 1];
+    current = &checkpoints[checkpoints.size() - 1];
     return checkpoints.size() - 1;
 }
 
 uint64_t DeltaDBWrapper::getBalance(UniversalAddress a) {
-    for(int i=balanceCheckpoints.size() - 1; i >= 0; i--){
-        if(balanceCheckpoints[i].find(a) != balanceCheckpoints[i].end()){
-            return balanceCheckpoints[i][a];
+    for(int i=checkpoints.size() - 1; i >= 0; i--){
+        if(checkpoints[i].balances.find(a) !=checkpoints[i].balances.end()){
+            return checkpoints[i].balances[a];
         }
     }
     uint256 txid;
@@ -429,9 +421,9 @@ bool DeltaDBWrapper::transfer(UniversalAddress from, UniversalAddress to, uint64
     if(value == 0) { return true; }
     uint64_t fromOldBalance = 0;
     bool foundOldBalance = false;
-    for (int i = balanceCheckpoints.size() - 1; i >= 0; i--) {
-        if (balanceCheckpoints[i].find(from) != balanceCheckpoints[i].end()) {
-            fromOldBalance = balanceCheckpoints[i][from];
+    for (int i = checkpoints.size() - 1; i >= 0; i--) {
+        if (checkpoints[i].balances.find(from) != checkpoints[i].balances.end()) {
+            fromOldBalance = checkpoints[i].balances[from];
             foundOldBalance = true;
             break;
         }
@@ -444,14 +436,14 @@ bool DeltaDBWrapper::transfer(UniversalAddress from, UniversalAddress to, uint64
         if(readAalData(from, txid, vout, balance)){
             fromOldBalance = balance;
             //since there is a vout being used, we should spend it
-            currentVins->insert(COutPoint(txid, vout));
+            current->spentVins.insert(COutPoint(txid, vout));
         }
     }
     if (value > fromOldBalance) {
         //not enough balance to cover transfer
         return false;
     }
-    (*currentBalances)[from] = fromOldBalance - value;
+    current->balances[from] = fromOldBalance - value;
 
     if(initialCoinsReceiver == from){
         //if initial coins receiver, then just spend that vin
@@ -459,11 +451,11 @@ bool DeltaDBWrapper::transfer(UniversalAddress from, UniversalAddress to, uint64
         //OR that both initialCoins and oldvout is already in currentVins
         //OR that initialCoins is not in currentvins and there is no oldvout
         //either way, we don't need to go to database and we must spend the initialCoins vout
-        currentVins->insert(initialCoins);
+        current->spentVins.insert(initialCoins);
     }else{
         //coins are normal, not from initial coins receiver
         if(readAalData(from, txid, vout, balance)){
-            currentVins->insert(COutPoint(txid, vout));
+            current->spentVins.insert(COutPoint(txid, vout));
         }
         //if readAalData is false, then no previous vout to spend
         //So it must be "virtual" transfers without an associated UTXO
@@ -471,9 +463,9 @@ bool DeltaDBWrapper::transfer(UniversalAddress from, UniversalAddress to, uint64
     }
     uint64_t toOldBalance = 0;
     //now spend the 'to' utxo if it has one so that both from and to UTXOs are spent for condensing
-    for (int i = balanceCheckpoints.size() - 1; i >= 0; i--) {
-        if (balanceCheckpoints[i].find(to) != balanceCheckpoints[i].end()) {
-            toOldBalance = balanceCheckpoints[i][to];
+    for (int i = checkpoints.size() - 1; i >= 0; i--) {
+        if (checkpoints[i].balances.find(to) != checkpoints[i].balances.end()) {
+            toOldBalance = checkpoints[i].balances[to];
             break;
         }
     }
@@ -482,7 +474,7 @@ bool DeltaDBWrapper::transfer(UniversalAddress from, UniversalAddress to, uint64
 }
 
 void DeltaDBWrapper::setInitialCoins(UniversalAddress a, COutPoint vout, uint64_t value) {
-    if(balanceCheckpoints.size() != 1){
+    if(checkpoints.size() != 1){
         return; //this shouldn't be called other than at the very beginning
     }
     uint256 oldtxid;
@@ -490,13 +482,13 @@ void DeltaDBWrapper::setInitialCoins(UniversalAddress a, COutPoint vout, uint64_
     uint64_t oldbalance;
     if(readAalData(a, oldtxid, oldvout, oldbalance)){
         //need to spend old vout and sum balance+value
-        (*currentBalances)[a] = oldbalance + value;
+        current->balances[a] = oldbalance + value;
         //need to spend both old vout and new vout to condense into a single vout
-        currentVins->insert(COutPoint(oldtxid, oldvout));
-        currentVins->insert(vout);
+        current->spentVins.insert(COutPoint(oldtxid, oldvout));
+        current->spentVins.insert(vout);
     }else{
         //no previous record, so just set balance, no need to spend vin
-        (*currentBalances)[a] = value;
+        current->balances[a] = value;
     }
     initialCoins = vout;
     initialCoinsReceiver = a;
@@ -508,35 +500,22 @@ void DeltaDBWrapper::condenseAllCheckpoints() {
     }
     //can't refactor this to just do multiple condenseSingle
     //without data being touched several times unnecessarily
-    deltas = &checkpoints[0];
+    current = &checkpoints[0];
     //apply from 1 to latest
     for(int i=1;i<checkpoints.size();i++){
-        auto* check = &checkpoints[i];
-        for(auto &kv : *check){
-            (*deltas)[kv.first] = kv.second;
+        DeltaCheckpoint* check = &checkpoints[i];
+        for(auto &kv : check->deltas){
+            current->deltas[kv.first] = kv.second;
+        }
+        for(auto &kv : check->balances){
+            current->balances[kv.first] = check->balances[kv.first];
+        }
+        for(auto &v : check->spentVins){
+            current->spentVins.insert(v);
         }
     }
     for(int i=1;i<checkpoints.size();i++){
         checkpoints.pop_back();
-    }
-    currentBalances = &balanceCheckpoints[0];
-    for(int i=1; i < balanceCheckpoints.size(); i++){
-        auto *b = &balanceCheckpoints[i];
-        for(auto &kv : *b){
-            (*currentBalances)[kv.first] = (*b)[kv.first];
-        }
-    }
-    for(int i=1;i<balanceCheckpoints.size();i++){
-        balanceCheckpoints.pop_back();
-    }
-    currentVins = &vinCheckpoints[0];
-    for(int i = 1;i < vinCheckpoints.size(); i++){
-        for(auto &v : vinCheckpoints[i]){
-            currentVins->insert(v);
-        }
-    }
-    for(int i=1;i<vinCheckpoints.size();i++){
-        vinCheckpoints.pop_back();
     }
 }
 
@@ -544,26 +523,18 @@ void DeltaDBWrapper::condenseSingleCheckpoint() {
     if(checkpoints.size() == 1){
         return;
     }
-    deltas = &checkpoints[checkpoints.size() - 2]; //set to previous checkpoint
-    auto* check = &checkpoints[checkpoints.size() - 1]; // set to latest checkpoiint
-    for(auto &kv : *check){
-        (*deltas)[kv.first] = kv.second;
+    current = &checkpoints[checkpoints.size() - 2]; //set to previous checkpoint
+    DeltaCheckpoint* check = &checkpoints[checkpoints.size() - 1]; // set to latest checkpoiint
+    for(auto &kv : check->deltas){
+        current->deltas[kv.first] = kv.second;
+    }
+    for(auto &kv : check->balances){
+        current->balances[kv.first] = check->balances[kv.first];
+    }
+    for(auto &v : check->spentVins){
+        current->spentVins.insert(v);
     }
     checkpoints.pop_back(); //remove latest
-
-    auto *b = currentBalances;
-    currentBalances = &balanceCheckpoints[balanceCheckpoints.size() - 2];
-    for(auto &kv : *b){
-        (*currentBalances)[kv.first] = (*b)[kv.first];
-    }
-    balanceCheckpoints.pop_back();
-
-    auto* vins = currentVins;
-    currentVins = &vinCheckpoints[vinCheckpoints.size() - 2];
-    for(auto &v : *vins){
-        currentVins->insert(v);
-    }
-    vinCheckpoints.pop_back();
 }
 
 
