@@ -42,6 +42,15 @@ struct VersionVM{
         x.vmVersion=0;
         return x;
     }
+    static VersionVM GetNoExecVersion2(){
+        //for new AAL
+        VersionVM x;
+        x.flagOptions = 0;
+        x.rootVM = 0;
+        x.format = 0;
+        x.vmVersion = 2;
+        return x;
+    }
     static VersionVM GetEVMDefault(){
         VersionVM x;
         x.flagOptions=0;

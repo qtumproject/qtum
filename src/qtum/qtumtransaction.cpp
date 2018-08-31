@@ -583,7 +583,8 @@ CTransaction DeltaDBWrapper::createCondensingTx() {
     CMutableTransaction tx;
     //first, spend all vins
     for(auto& v : sortedVins){
-        tx.vin.push_back(CTxIn(v.hash, v.n, CScript() << OP_SPEND));
+        //op_spend, AAL version 2
+        tx.vin.push_back(CTxIn(v.hash, v.n, CScript() << valtype{2} << OP_SPEND));
     }
 
     //now set vouts to modified balances
@@ -600,7 +601,7 @@ CTransaction DeltaDBWrapper::createCondensingTx() {
             //TODO
         } else {
             //create a no-exec contract output
-            script = CScript() << valtype{0} << valtype{0} << valtype{0} << valtype{0} << dest.toFlatData() << OP_CALL;
+            script = CScript() << VersionVM::GetNoExecVersion2().toRaw() << valtype{0} << valtype{0} << valtype{0} << dest.toFlatData() << OP_CALL;
         }
         tx.vout.push_back(CTxOut(current->balances[dest], script));
         if (n + 1 > MAX_CONTRACT_VOUTS) {
