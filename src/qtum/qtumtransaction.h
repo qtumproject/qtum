@@ -112,6 +112,13 @@ struct UniversalAddress{
         memset(&abi.data[0], 0, ADDRESS_DATA_SIZE);
         memcpy(&abi.data[0], data.data(), data.size());
     }
+    std::vector<uint8_t> toFlatData(){
+        std::vector<uint8_t> tmp;
+        tmp.resize(ADDRESS_DATA_SIZE + sizeof(uint32_t));
+        UniversalAddressABI abi = toAbi();
+        memcpy(&tmp.front(), &abi, tmp.size());
+        return tmp;
+    }
     //hasAAL means this type of address should have an AAL record in DeltaDB
     bool hasAAL(){
         return version == AddressVersion::EVM ||
@@ -179,10 +186,13 @@ public:
 };
 
 struct DeltaCheckpoint{
+    //all state changes in current checkpoint
     std::unordered_map<std::string, std::vector<uint8_t>> deltas;
+    //all vins spent in transfers within the current checkpoint
     std::set<COutPoint> spentVins;
+    //all addresses with modified balances in the current checkpoint
+    //note: do not use this as a cache. It should only be used to track modified balances
     std::map<UniversalAddress, uint64_t> balances;
-    std::set<UniversalAddress> needsUtxo; //if in this set, the address needs a UTXO built in the condensing tx
 };
 
 class DeltaDBWrapper{
@@ -191,7 +201,7 @@ class DeltaDBWrapper{
     std::vector<DeltaCheckpoint> checkpoints;
     DeltaCheckpoint *current;
 
-    std::unordered_set<UniversalAddress> hasNoAAL; //a cache to keep track of which addresses have no AAL data in the disk-database
+    std::set<UniversalAddress> hasNoAAL; //a cache to keep track of which addresses have no AAL data in the disk-database
     COutPoint initialCoins; //initial coins sent by origin tx
     UniversalAddress initialCoinsReceiver;
 public:
@@ -209,10 +219,11 @@ public:
     uint64_t getBalance(UniversalAddress a);
     bool transfer(UniversalAddress from, UniversalAddress to, uint64_t value);
 
-    //note: order of these vectors is consensus critical!
-    //These functions can only be used when there is no pending state
-    std::vector<CTxIn> spentVins();
-    std::vector<std::pair<UniversalAddress, uint64_t>> newBalances();
+    DeltaCheckpoint getLatestModifiedState(){
+        return *current;
+    }
+
+    CTransaction createCondensingTx();
 
     /*************** Live data *****************/
     /* newest data associated with the contract. */
@@ -275,6 +286,7 @@ struct ContractExecutionResult{
     ContractStatus status;
     CMutableTransaction transferTx;
     bool commitState;
+    DeltaCheckpoint modifiedData;
 };
 
 class QtumTransaction;

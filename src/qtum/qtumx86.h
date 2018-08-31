@@ -24,7 +24,6 @@ private:
 
 struct HypervisorEffect{
     int exitCode;
-    std::vector<std::pair<uint256, unsigned int>> transfers; //pair<txid, vout>
 };
 
 class QtumHypervisor : public x86Lib::InterruptHypervisor{

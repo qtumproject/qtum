@@ -26,49 +26,6 @@ BOOST_AUTO_TEST_CASE(byteCode_read_write_test){
     delete pDeltaDB;	
 }
 
-BOOST_AUTO_TEST_CASE(state_read_write_test){
-	size_t nCacheSize=8;
-	bool fWipe=false,ret;
-	DeltaDB* pDeltaDB= new DeltaDB(nCacheSize,false,fWipe);
-    DeltaDBWrapper wrapper(pDeltaDB);
-	UniversalAddress addr(X86,valtype(ParseHex("0c4c1d7375918557df2ef8f1d1f0b2329cb248a0")));
-	valtype v = valtype(ParseHex("bf5f1e32000000000000000000000000c4c1d7375918557df2ef8f1d1f0b2329cb248a150000000000000000000000000000000000000000000000000000000000000002"));
-	valtype v2;
-	uint256 w(ParseHex("1c4c1d7375918557df2ef8f1d1f0b2329cb248a10c4c1d7370c4c1d73748a1488"));
-	uint256 r;
-	unsigned int blk;
-
-	ret = wrapper.writeState(addr, valtype(ParseHex("3c4c1d737591848a9")),v);
-	BOOST_CHECK(ret);	
-	ret = wrapper.readState(addr, valtype(ParseHex("3c4c1d737591848a9")),v2);
-	BOOST_CHECK(ret);	
-    BOOST_CHECK(v2==v);
-	
-	ret = wrapper.writeUpdatedKey(addr, valtype(ParseHex("7c4c1d737591848a3")), 111222, w);
-	BOOST_CHECK(ret);
-	ret = wrapper.readUpdatedKey(addr, valtype(ParseHex("7c4c1d737591848a3")), blk, r);
-	BOOST_CHECK(ret);
-    BOOST_CHECK(blk==111222);
-    BOOST_CHECK(r==w);
-
-    
-	uint256 txid(ParseHex("1cc1133115918557df2ef8f1d1f0b2329cb248a10c4c111170c4c1d73748a1481"));
-    unsigned int vout = 2;
-    uint64_t balance = 13212315444;
-
-    ret = wrapper.writeAalData(addr, txid, vout, balance);
-	BOOST_CHECK(ret);
-
-	uint256 txid2;
-    unsigned int vout2;
-    uint64_t balance2;
-    ret = wrapper.readAalData(addr, txid2, vout2, balance2);
-    BOOST_CHECK(ret);
-	BOOST_CHECK(txid2==txid && vout2==vout && balance2==balance);
-    
-    delete pDeltaDB;
-}
-
 BOOST_AUTO_TEST_CASE(change_log_read_write_test){
 	size_t nCacheSize=8;
 	bool fWipe=false,ret;

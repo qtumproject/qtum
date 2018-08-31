@@ -407,31 +407,42 @@ uint64_t DeltaDBWrapper::getBalance(UniversalAddress a) {
             return checkpoints[i].balances[a];
         }
     }
+    //not found in modified balances, so go to database
     uint256 txid;
     unsigned int vout;
     uint64_t balance = 0;
     if(readAalData(a, txid, vout, balance)){
-        //(*currentBalances)[a] = balance; //cache it
         return balance;
     }
     return 0;
 }
 
 bool DeltaDBWrapper::transfer(UniversalAddress from, UniversalAddress to, uint64_t value) {
+    /*Operation:
+     * Look up from and to balances
+     * If they are in any checkpoint balance map, then simply use that and put the new balances in the latest checkpoint
+     * If either are not located in the checkpoints, then lookup the utxo info from disk
+     *      After lookup, add previous utxo to spentVin list and then put new balances into latest checkpoint
+     * In this way, spentVin only needs to be touched if the address balance was previously unmodified
+     * If the address balance was modified, then the utxo will already be placed into spentVin
+     * This works independently of if the outputs are contracts, pubkeyhash, or anything else
+     */
+
     if(value == 0) { return true; }
+
     uint64_t fromOldBalance = 0;
-    bool foundOldBalance = false;
+    bool foundFromBalance = false;
     for (int i = checkpoints.size() - 1; i >= 0; i--) {
         if (checkpoints[i].balances.find(from) != checkpoints[i].balances.end()) {
             fromOldBalance = checkpoints[i].balances[from];
-            foundOldBalance = true;
+            foundFromBalance = true;
             break;
         }
     }
     uint256 txid;
     unsigned int vout;
     uint64_t balance;
-    if(!foundOldBalance){
+    if(!foundFromBalance){
         //hasn't been touched in this execution, so lookup from database
         if(readAalData(from, txid, vout, balance)){
             fromOldBalance = balance;
@@ -462,15 +473,25 @@ bool DeltaDBWrapper::transfer(UniversalAddress from, UniversalAddress to, uint64
         //This can happen when transfering coins from A -> B -> C where B had no UTXO before A's execution
     }
     uint64_t toOldBalance = 0;
+    bool foundToBalance = false;
     //now spend the 'to' utxo if it has one so that both from and to UTXOs are spent for condensing
     for (int i = checkpoints.size() - 1; i >= 0; i--) {
         if (checkpoints[i].balances.find(to) != checkpoints[i].balances.end()) {
             toOldBalance = checkpoints[i].balances[to];
+            foundToBalance = true;
             break;
         }
     }
-
-
+    if(!foundToBalance){
+        //hasn't been touched in this execution, so lookup from database
+        if(readAalData(to, txid, vout, balance)){
+            toOldBalance = balance;
+            //this vout will need to be spent and condensed into a new single vout
+            current->spentVins.insert(COutPoint(txid, vout));
+        }
+    }
+    current->balances[to] = toOldBalance + value;
+    return true;
 }
 
 void DeltaDBWrapper::setInitialCoins(UniversalAddress a, COutPoint vout, uint64_t value) {
@@ -537,6 +558,69 @@ void DeltaDBWrapper::condenseSingleCheckpoint() {
     checkpoints.pop_back(); //remove latest
 }
 
+CTransaction DeltaDBWrapper::createCondensingTx() {
+    //note: this is the new AAL support
+    //see qtumstate.cpp for legacy EVM support for the AAL
+    condenseAllCheckpoints();
+    if(current->spentVins.size() == 0){
+        return CTransaction();
+    }
+
+    //sort vouts and vins so that the consensus critical order is easy to verify and implementation details can be changed easily
+    //vouts are sorted by address
+    //vins are sorted by txid + vout number
+
+    std::vector<COutPoint> sortedVins(current->spentVins.begin(), current->spentVins.end());
+    std::sort(sortedVins.begin(), sortedVins.end());
+
+    std::vector<UniversalAddress> sortedVoutTargets;
+    for(auto& t : current->balances){
+        sortedVoutTargets.push_back(t.first);
+    }
+    std::sort(sortedVoutTargets.begin(), sortedVoutTargets.end());
+
+
+    CMutableTransaction tx;
+    //first, spend all vins
+    for(auto& v : sortedVins){
+        tx.vin.push_back(CTxIn(v.hash, v.n, CScript() << OP_SPEND));
+    }
+
+    //now set vouts to modified balances
+    int n=0;
+    for(auto &dest : sortedVoutTargets) {
+        if (current->balances[dest] == 0) {
+            //no need for 0 coin outputs
+            continue;
+        }
+        CScript script;
+        if (dest.version == AddressVersion::PUBKEYHASH) {
+            script = CScript() << OP_DUP << OP_HASH160 << dest.data << OP_EQUALVERIFY << OP_CHECKSIG;
+        } else if (dest.version == AddressVersion::SCRIPTHASH) {
+            //TODO
+        } else {
+            //create a no-exec contract output
+            script = CScript() << valtype{0} << valtype{0} << valtype{0} << valtype{0} << dest.toFlatData() << OP_CALL;
+        }
+        tx.vout.push_back(CTxOut(current->balances[dest], script));
+        if (n + 1 > MAX_CONTRACT_VOUTS) {
+            LogPrintf("AAL Transaction has exceeded MAX_CONTRACT_VOUTS!");
+            return CTransaction();
+        }
+        n++;
+    }
+
+    if(!tx.vin.size() && tx.vout.size()>0){
+        LogPrintf("AAL Transaction has a vout, but no vins");
+        return CTransaction();
+    }
+    if(!tx.vout.size() && tx.vin.size()>0){
+        LogPrintf("AAL Transaction has a vin, but no vouts");
+        return CTransaction();
+    }
+
+    return CTransaction(tx);
+}
 
 
 
