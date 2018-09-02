@@ -40,6 +40,8 @@
 
 extern void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& entry);
 
+extern DeltaDB *pdelta;
+
 double GetDifficulty(const CBlockIndex* blockindex)
 {
     if (blockindex == nullptr)
@@ -739,6 +741,38 @@ UniValue getblockhash(const JSONRPCRequest& request)
 
     CBlockIndex* pblockindex = chainActive[nHeight];
     return pblockindex->GetBlockHash().GetHex();
+}
+
+UniValue x86readstorage(const JSONRPCRequest& request)
+{
+    if (request.fHelp || request.params.size() != 2)
+        throw std::runtime_error(
+            "x86readstorage address key\n"
+            "\nReturns the value stored at <key> for address <address>.\n"
+            "\nArguments:\n"
+            "1. address         (address, required) The x86 address index\n"
+            "2. key             (string, required) The x86 key index\n"
+            "\nResult:\n"
+            "\"value\"         (string) The value stored at that address' key\n"
+        );
+
+    LOCK(cs_main);
+
+
+    std::string strAddr = request.params[0].get_str();
+    if(strAddr.size() != 40 || !CheckHex(strAddr))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect address");
+
+    std::string strKey = request.params[1].get_str();
+
+    dev::Address addrAccount(strAddr);
+    UniversalAddress address(AddressVersion::X86, addrAccount.data(), addrAccount.data()+20);
+    valtype value;
+
+    DeltaDBWrapper wrapper(pdeltaDB);    
+    wrapper.readState(address, valtype(strKey.begin(), strKey.end()), value);
+
+    return HexStr(value);
 }
 
 UniValue getaccountinfo(const JSONRPCRequest& request)
@@ -2412,6 +2446,8 @@ static const CRPCCommand commands[] =
     { "blockchain",         "searchlogs",             &searchlogs,             true,  {"fromBlock", "toBlock", "address", "topics"} },
 
     { "blockchain",         "waitforlogs",            &waitforlogs,            true,  {"fromBlock", "nblocks", "address", "topics"} },
+
+    { "blockchain",         "x86readstorage",         &x86readstorage,         true,  {"address", "key"} },
 };
 
 void RegisterBlockchainRPCCommands(CRPCTable &t)
