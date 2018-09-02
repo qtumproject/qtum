@@ -33,6 +33,7 @@ from .util import (
     sync_blocks,
     sync_mempools,
 )
+from .qtumconfig import COINBASE_MATURITY
 
 class TestStatus(Enum):
     PASSED = 1
@@ -333,7 +334,7 @@ class BitcoinTestFramework(object):
         For backwared compatibility of the python scripts with previous
         versions of the cache, this helper function sets mocktime to Jan 1,
         2014 + (201 * 10 * 60)"""
-        self.mocktime = 1388534400 + (201 * 10 * 60)
+        self.mocktime = 1504695029 + (601 * 2 * 64) # int(time.time()) - 100*24*60*60 + (201 * 10 * 60)
 
     def disable_mocktime(self):
         self.mocktime = 0
@@ -392,7 +393,7 @@ class BitcoinTestFramework(object):
             # Create cache directories, run bitcoinds:
             for i in range(MAX_NODES):
                 datadir = initialize_datadir(self.options.cachedir, i)
-                args = [os.getenv("BITCOIND", "bitcoind"), "-server", "-keypool=1", "-datadir=" + datadir, "-discover=0"]
+                args = [os.getenv("BITCOIND", "qtumd"), "-server", "-keypool=1", "-datadir=" + datadir, "-discover=0"]
                 if i > 0:
                     args.append("-connect=127.0.0.1:" + str(p2p_port(0)))
                 self.nodes.append(TestNode(i, self.options.cachedir, extra_args=[], rpchost=None, timewait=None, binary=None, stderr=None, mocktime=self.mocktime, coverage_dir=None))
@@ -411,15 +412,25 @@ class BitcoinTestFramework(object):
             # blocks are created with timestamps 10 minutes apart
             # starting from 2010 minutes in the past
             self.enable_mocktime()
-            block_time = self.mocktime - (201 * 10 * 60)
-            for i in range(2):
+            block_time = self.mocktime - (601 * 2 * 64)
+            for i in range(1):
                 for peer in range(4):
                     for j in range(25):
                         set_node_times(self.nodes, block_time)
                         self.nodes[peer].generate(1)
-                        block_time += 10 * 60
+                        block_time += 2 * 64
                     # Must sync before next peer starts generating blocks
                     sync_blocks(self.nodes)
+
+            # since blocks mature after 15 blocks we only generate 115 blocks initially. A lot of the tests rely on the behaviour of having 100 mature blocks.
+            # The last blocks (that have not matured on a test where setup_clean_chain is set to false) are generated at the 0th node.
+            peer = 0
+            for j in range(COINBASE_MATURITY):
+                set_node_times(self.nodes, block_time)
+                self.nodes[peer].generate(1)
+                block_time += 2 * 64
+            # Must sync before next peer starts generating blocks
+            sync_blocks(self.nodes)
 
             # Shut them down, and clean up cache directories:
             self.stop_nodes()
@@ -459,10 +470,10 @@ class ComparisonTestFramework(BitcoinTestFramework):
 
     def add_options(self, parser):
         parser.add_option("--testbinary", dest="testbinary",
-                          default=os.getenv("BITCOIND", "bitcoind"),
+                          default=os.getenv("BITCOIND", "qtumd"),
                           help="bitcoind binary to test")
         parser.add_option("--refbinary", dest="refbinary",
-                          default=os.getenv("BITCOIND", "bitcoind"),
+                          default=os.getenv("BITCOIND", "qtumd"),
                           help="bitcoind binary to use for reference nodes (if any)")
 
     def setup_network(self):

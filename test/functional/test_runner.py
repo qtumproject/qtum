@@ -117,12 +117,49 @@ BASE_SCRIPTS= [
     'listsinceblock.py',
     'p2p-leaktests.py',
     'wallet-encryption.py',
-    'bipdersig-p2p.py',
-    'bip65-cltv-p2p.py',
     'uptime.py',
     'resendwallettransactions.py',
     'minchainwork.py',
-    'p2p-acceptblock.py',
+
+    # qtum
+    'qtum-dgp.py',
+    'qtum-pos.py',
+    'qtum-opcall.py',
+    'qtum-opcreate.py',
+    'qtum-8mb-block.py',
+    'qtum-gas-limit.py',
+    'qtum-searchlog.py',
+    'qtum-pos-segwit.py',
+    'qtum-state-root.py',
+    'qtum_x86_globals.py',
+    'qtum-evm-globals.py',
+    'qtum-null-sender.py',
+    'qtum-waitforlogs.py',
+    'qtum-block-header.py',
+    'qtum-callcontract.py',
+    'qtum-spend-op-call.py',
+    'qtum-condensing-txs.py',
+    'qtum-createcontract.py',
+    'qtum-sendtocontract.py',
+    'qtum-identical-refunds.py',
+    'qtum-create-eth-op-code.py',
+    'qtum-gas-limit-overflow.py',
+    'qtum-call-empty-contract.py',
+    'qtum-dgp-block-size-sync.py',
+    'qtum-pos-conflicting-txs.py',
+    'qtum-globals-state-changer.py',
+    'qtum-no-exec-call-disabled.py',
+    'qtum-soft-block-gas-limits.py',
+    'qtum-dgp-block-size-restart.py',
+    'qtum-searchlog-restart-node.py',
+    'qtum-immature-coinstake-spend.py',
+    'qtum_staking_from_wrong_fork.py',
+    'qtum-transaction-prioritization.py',
+    'qtum-assign-mpos-fees-to-gas-refund.py',
+    'qtum-ignore-mpos-participant-reward.py',
+    'qtum-many-value-refunds-from-same-tx.py',
+    'qtum-combined-outputs-exceed-gas-limit.py',
+    'qtum-dgp-gas-price-lingering-mempool-tx.py',
 ]
 
 EXTENDED_SCRIPTS = [
@@ -139,6 +176,10 @@ EXTENDED_SCRIPTS = [
     'bip68-sequence.py',
     'getblocktemplate_longpoll.py',
     'p2p-timeouts.py',
+    # Version <4 blocks are never allowed in regtest on qtum
+    'bipdersig-p2p.py',
+    'bip65-cltv-p2p.py',
+    'p2p-acceptblock.py',
     # vv Tests less than 60s vv
     'bip9-softforks.py',
     'p2p-feefilter.py',
@@ -151,6 +192,10 @@ EXTENDED_SCRIPTS = [
     'forknotify.py',
     'invalidateblock.py',
     'replace-by-fee.py',
+]
+
+QTUM_X86_SCRIPTS = [
+    'qtum_x86_globals.py'
 ]
 
 # Place EXTENDED_SCRIPTS first since it has the 3 longest running tests
@@ -174,6 +219,7 @@ def main():
     parser.add_argument('--coverage', action='store_true', help='generate a basic coverage report for the RPC interface')
     parser.add_argument('--exclude', '-x', help='specify a comma-seperated-list of scripts to exclude.')
     parser.add_argument('--extended', action='store_true', help='run the extended test suite in addition to the basic tests')
+    parser.add_argument('--x86', action='store_true', help='run only the x86 tests')
     parser.add_argument('--force', '-f', action='store_true', help='run tests even on platforms where they are disabled by default (e.g. windows).')
     parser.add_argument('--help', '-h', '-?', action='store_true', help='print help text and exit')
     parser.add_argument('--jobs', '-j', type=int, default=4, help='how many test scripts to run in parallel. Default=4.')
@@ -238,6 +284,9 @@ def main():
             # are there and the list is shorter
             test_list = EXTENDED_SCRIPTS + test_list
 
+        if args.x86:
+            test_list = QTUM_X86_SCRIPTS
+
     # Remove the test cases that the user has explicitly asked to exclude.
     if args.exclude:
         tests_excl = [re.sub("\.py$", "", t) + ".py" for t in args.exclude.split(',')]
@@ -268,8 +317,8 @@ def main():
 def run_tests(test_list, src_dir, build_dir, exeext, tmpdir, jobs=1, enable_coverage=False, args=[]):
     # Warn if bitcoind is already running (unix only)
     try:
-        if subprocess.check_output(["pidof", "bitcoind"]) is not None:
-            print("%sWARNING!%s There is already a bitcoind process running on this system. Tests may fail unexpectedly due to resource contention!" % (BOLD[1], BOLD[0]))
+        if subprocess.check_output(["pidof", "qtumd"]) is not None:
+            print("%sWARNING!%s There is already a qtumd process running on this system. Tests may fail unexpectedly due to resource contention!" % (BOLD[1], BOLD[0]))
     except (OSError, subprocess.SubprocessError):
         pass
 
@@ -280,8 +329,8 @@ def run_tests(test_list, src_dir, build_dir, exeext, tmpdir, jobs=1, enable_cove
 
     #Set env vars
     if "BITCOIND" not in os.environ:
-        os.environ["BITCOIND"] = build_dir + '/src/bitcoind' + exeext
-        os.environ["BITCOINCLI"] = build_dir + '/src/bitcoin-cli' + exeext
+        os.environ["BITCOIND"] = build_dir + '/src/qtumd' + exeext
+        os.environ["BITCOINCLI"] = build_dir + '/src/qtum-cli' + exeext
 
     tests_dir = src_dir + '/test/functional/'
 
