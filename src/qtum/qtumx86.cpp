@@ -198,6 +198,7 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
             auto creator = contractVM.getEnv().blockCreator.toAbi();
             vm.WriteMemory(vm.Reg32(EBX), sizeof(creator), &creator);
         }
+            break;
         case QSC_BlockDifficulty:
             //ebx = block difficulty (64 bit integer)
             vm.WriteMemory(vm.Reg32(EBX), sizeof(uint64_t), (void*) &contractVM.getEnv().difficulty);
