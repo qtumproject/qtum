@@ -50,8 +50,7 @@ public Q_SLOTS:
     /**
      * @brief setBalance Slot for changing the balance
      */
-    void setBalance(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& immatureBalance, const CAmount& stake,
-                    const CAmount& watchBalance, const CAmount& watchUnconfirmedBalance, const CAmount& watchImmatureBalance, const CAmount& watchStake);
+    void setBalance(const interfaces::WalletBalances& balances);
 
     /**
      * @brief on_navigationResized Slot for changing the size of the navigation bar
