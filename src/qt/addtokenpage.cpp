@@ -42,6 +42,7 @@ AddTokenPage::AddTokenPage(QWidget *parent) :
     ui->lineEditSenderAddress->setAddressColumn(AddressTableModel::Address);
     ui->lineEditSenderAddress->setTypeRole(AddressTableModel::TypeRole);
     ui->lineEditSenderAddress->setReceive(AddressTableModel::Receive);
+    ui->lineEditSenderAddress->setSenderAddress(true);
     if(ui->lineEditSenderAddress->isEditable())
         ((QValidatedLineEdit*)ui->lineEditSenderAddress->lineEdit())->setEmptyIsValid(false);
     m_validTokenAddress = false;
@@ -91,29 +92,29 @@ void AddTokenPage::on_confirmButton_clicked()
 {
     if(ui->lineEditSenderAddress->isValidAddress())
     {
-        CTokenInfo tokenInfo;
-        tokenInfo.strContractAddress = ui->lineEditContractAddress->text().toStdString();
-        tokenInfo.strTokenName = ui->lineEditTokenName->text().toStdString();
-        tokenInfo.strTokenSymbol = ui->lineEditTokenSymbol->text().toStdString();
-        tokenInfo.nDecimals = ui->lineEditDecimals->text().toInt();
-        tokenInfo.strSenderAddress = ui->lineEditSenderAddress->currentText().toStdString();
+        interfaces::TokenInfo tokenInfo;
+        tokenInfo.contract_address = ui->lineEditContractAddress->text().toStdString();
+        tokenInfo.token_name = ui->lineEditTokenName->text().toStdString();
+        tokenInfo.token_symbol = ui->lineEditTokenSymbol->text().toStdString();
+        tokenInfo.decimals = ui->lineEditDecimals->text().toInt();
+        tokenInfo.sender_address = ui->lineEditSenderAddress->currentText().toStdString();
 
         if(m_model)
         {
-            if(!m_model->isMineAddress(tokenInfo.strSenderAddress))
+            if(!m_model->wallet().isMineAddress(tokenInfo.sender_address))
             {
-                QString symbol = QString::fromStdString(tokenInfo.strTokenSymbol);
-                QString address = QString::fromStdString(tokenInfo.strSenderAddress);
+                QString symbol = QString::fromStdString(tokenInfo.token_symbol);
+                QString address = QString::fromStdString(tokenInfo.sender_address);
                 QString message = tr("The %1 address \"%2\" is not yours, please change it to new one.\n").arg(symbol, address);
                 QMessageBox::warning(this, tr("Invalid token address"), message);
             }
-            else if(m_model->existTokenEntry(tokenInfo))
+            else if(m_model->wallet().existTokenEntry(tokenInfo))
             {
                 QMessageBox::information(this, tr("Token exist"), tr("The token already exist with the specified contract and sender addresses."));
             }
             else
             {
-                m_model->addTokenEntry(tokenInfo);
+                m_model->wallet().addTokenEntry(tokenInfo);
 
                 clearAll();
 

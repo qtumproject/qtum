@@ -24,6 +24,7 @@
 #include <wallet/feebumper.h>
 #include <wallet/fees.h>
 #include <wallet/wallet.h>
+#include <key_io.h>
 
 namespace interfaces {
 namespace {
@@ -111,6 +112,46 @@ WalletTxOut MakeWalletTxOut(CWallet& wallet, const CWalletTx& wtx, int n, int de
     result.time = wtx.GetTxTime();
     result.depth_in_main_chain = depth;
     result.is_spent = wallet.IsSpent(wtx.GetHash(), n);
+    return result;
+}
+
+//! Construct token info.
+CTokenInfo MakeTokenInfo(const TokenInfo& token)
+{
+    CTokenInfo result;
+    result.strContractAddress = token.contract_address;
+    result.strTokenName = token.token_name;
+    result.strTokenSymbol = token.token_symbol;
+    result.nDecimals = token.decimals;
+    result.strSenderAddress = token.sender_address;
+    return result;
+}
+
+//! Construct wallet token info.
+TokenInfo MakeWalletTokenInfo(const CTokenInfo& token)
+{
+    TokenInfo result;
+    result.contract_address = token.strContractAddress;
+    result.token_name = token.strTokenName;
+    result.token_symbol = token.strTokenSymbol;
+    result.decimals = token.nDecimals;
+    result.sender_address = token.strSenderAddress;
+    result.time = token.nCreateTime;
+    result.block_hash = token.blockHash;
+    result.block_number = token.blockNumber;
+    result.hash = token.GetHash();
+    return result;
+}
+
+//! Construct token transaction.
+CTokenTx MakeTokenTx(const TokenTx& tokenTx)
+{
+    CTokenTx result;
+    result.strContractAddress = tokenTx.contract_address;
+    result.strSenderAddress = tokenTx.sender_address;
+    result.strReceiverAddress = tokenTx.receiver_address;
+    result.nValue = tokenTx.value;
+    result.transactionHash = tokenTx.tx_hash;
     return result;
 }
 
@@ -336,11 +377,13 @@ public:
         result.balance = m_wallet.GetBalance();
         result.unconfirmed_balance = m_wallet.GetUnconfirmedBalance();
         result.immature_balance = m_wallet.GetImmatureBalance();
+        result.stake = m_wallet.GetStake();
         result.have_watch_only = m_wallet.HaveWatchOnly();
         if (result.have_watch_only) {
             result.watch_only_balance = m_wallet.GetBalance(ISMINE_WATCH_ONLY);
             result.unconfirmed_watch_only_balance = m_wallet.GetUnconfirmedWatchOnlyBalance();
             result.immature_watch_only_balance = m_wallet.GetImmatureWatchOnlyBalance();
+            result.watch_only_stake = m_wallet.GetWatchOnlyStake();
         }
         return result;
     }
@@ -380,6 +423,36 @@ public:
     {
         LOCK2(::cs_main, m_wallet.cs_wallet);
         return m_wallet.GetCredit(txout, filter);
+    }
+    bool isUnspentAddress(const std::string &qtumAddress) override
+    {
+        LOCK2(::cs_main, m_wallet.cs_wallet);
+
+        std::vector<COutput> vecOutputs;
+        m_wallet.AvailableCoins(vecOutputs);
+        for (const COutput& out : vecOutputs)
+        {
+            CTxDestination address;
+            const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
+            bool fValidAddress = ExtractDestination(scriptPubKey, address);
+
+            if(fValidAddress && EncodeDestination(address) == qtumAddress && out.tx->tx->vout[out.i].nValue)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    bool isMineAddress(const std::string &strAddress) override
+    {
+        LOCK2(::cs_main, m_wallet.cs_wallet);
+
+        CTxDestination address = DecodeDestination(strAddress);
+        if(!IsValidDestination(address) || !IsMine(m_wallet, address))
+        {
+            return false;
+        }
+        return true;
     }
     CoinsList listCoins() override
     {
@@ -429,6 +502,44 @@ public:
     bool IsWalletFlagSet(uint64_t flag) override { return m_wallet.IsWalletFlagSet(flag); }
     OutputType getDefaultAddressType() override { return m_wallet.m_default_address_type; }
     OutputType getDefaultChangeType() override { return m_wallet.m_default_change_type; }
+    bool addTokenEntry(const TokenInfo &token) override
+    {
+        return m_wallet.AddTokenEntry(MakeTokenInfo(token), true);
+    }
+    bool addTokenTxEntry(const TokenTx& tokenTx, bool fFlushOnClose) override
+    {
+        return m_wallet.AddTokenTxEntry(MakeTokenTx(tokenTx), fFlushOnClose);
+    }
+    bool existTokenEntry(const TokenInfo &token) override
+    {
+        LOCK2(::cs_main, m_wallet.cs_wallet);
+
+        uint256 hash = MakeTokenInfo(token).GetHash();
+        std::map<uint256, CTokenInfo>::iterator it = m_wallet.mapToken.find(hash);
+
+        return it != m_wallet.mapToken.end();
+    }
+    bool removeTokenEntry(const std::string &sHash) override
+    {
+        return m_wallet.RemoveTokenEntry(uint256S(sHash), true);
+    }
+    std::vector<TokenInfo> getInvalidTokens() override
+    {
+        LOCK2(::cs_main, m_wallet.cs_wallet);
+
+        std::vector<TokenInfo> listInvalid;
+        for(auto& info : m_wallet.mapToken)
+        {
+            std::string strAddress = info.second.strSenderAddress;
+            CTxDestination address = DecodeDestination(strAddress);
+            if(!IsMine(m_wallet, address))
+            {
+                listInvalid.push_back(MakeWalletTokenInfo(info.second));
+            }
+        }
+
+        return listInvalid;
+    }
     std::unique_ptr<Handler> handleUnload(UnloadFn fn) override
     {
         return MakeHandler(m_wallet.NotifyUnload.connect(fn));

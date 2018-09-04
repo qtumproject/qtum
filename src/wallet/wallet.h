@@ -43,6 +43,7 @@ std::shared_ptr<CWallet> GetWallet(const std::string& name);
 extern CAmount nReserveBalance;
 extern bool fWalletUnlockStakingOnly;
 extern bool fNotUseChangeAddress;
+extern bool fBatchProcessingMode;
 
 //! Default for -keypool
 static const unsigned int DEFAULT_KEYPOOL_SIZE = 1000;

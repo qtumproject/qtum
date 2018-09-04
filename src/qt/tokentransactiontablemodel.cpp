@@ -322,9 +322,6 @@ QString TokenTransactionTableModel::formatTxStatus(const TokenTransactionRecord 
 
     switch(wtx->status.status)
     {
-    case TokenTransactionStatus::Offline:
-        status = tr("Offline");
-        break;
     case TokenTransactionStatus::Unconfirmed:
         status = tr("Unconfirmed");
         break;
@@ -469,8 +466,6 @@ QVariant TokenTransactionTableModel::txStatusDecoration(const TokenTransactionRe
 {
     switch(wtx->status.status)
     {
-    case TokenTransactionStatus::Offline:
-        return COLOR_TX_STATUS_OFFLINE;
     case TokenTransactionStatus::Unconfirmed:
         return platformStyle->TableColorIcon(":/icons/transaction_0", PlatformStyle::Normal);
     case TokenTransactionStatus::Confirming: {

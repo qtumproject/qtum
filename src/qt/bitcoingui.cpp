@@ -22,6 +22,7 @@
 #include <qt/walletframe.h>
 #include <qt/walletmodel.h>
 #include <qt/walletview.h>
+#include <wallet/wallet.h>
 #endif // ENABLE_WALLET
 
 #ifdef Q_OS_MAC
@@ -831,6 +832,13 @@ void BitcoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
 
         progressBarLabel->setVisible(false);
         progressBar->setVisible(false);
+
+        // notify tip changed when the sync is finished
+        if(fBatchProcessingMode)
+        {
+            fBatchProcessingMode = false;
+            QMetaObject::invokeMethod(clientModel, "tipChanged", Qt::QueuedConnection);
+        }
     }
     else
     {

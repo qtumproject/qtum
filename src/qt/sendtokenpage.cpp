@@ -15,6 +15,7 @@
 #include <qt/bitcoinaddressvalidator.h>
 #include <uint256.h>
 #include <qt/styleSheet.h>
+#include <interfaces/node.h>
 
 static const CAmount SINGLE_STEP = 0.00000001*COIN;
 
@@ -61,7 +62,7 @@ SendTokenPage::SendTokenPage(QWidget *parent) :
     connect(ui->lineEditAmount, SIGNAL(valueChanged()), SLOT(on_updateConfirmButton()));
     connect(ui->confirmButton, SIGNAL(clicked()), SLOT(on_confirmClicked()));
 
-    ui->lineEditPayTo->setCheckValidator(new BitcoinAddressCheckValidator(parent));
+    ui->lineEditPayTo->setCheckValidator(new BitcoinAddressCheckValidator(parent, true));
 }
 
 SendTokenPage::~SendTokenPage()
@@ -132,7 +133,7 @@ void SendTokenPage::on_numBlocksChanged()
         uint64_t blockGasLimit = 0;
         uint64_t minGasPrice = 0;
         uint64_t nGasPrice = 0;
-        m_clientModel->getGasInfo(blockGasLimit, minGasPrice, nGasPrice);
+        m_clientModel->node().getGasInfo(blockGasLimit, minGasPrice, nGasPrice);
 
         ui->labelGasLimit->setToolTip(tr("Gas limit: Default = %1, Max = %2.").arg(DEFAULT_GAS_LIMIT_OP_SEND).arg(blockGasLimit));
         ui->labelGasPrice->setToolTip(tr("Gas price: QTUM price per gas unit. Default = %1, Min = %2.").arg(QString::fromStdString(FormatMoney(DEFAULT_GAS_PRICE))).arg(QString::fromStdString(FormatMoney(minGasPrice))));
@@ -163,7 +164,7 @@ void SendTokenPage::on_confirmClicked()
         return;
     }
 
-    if(m_model && m_model->isUnspentAddress(m_selectedToken->sender))
+    if(m_model && m_model->wallet().isUnspentAddress(m_selectedToken->sender))
     {
         int unit = m_model->getOptionsModel()->getDisplayUnit();
         uint64_t gasLimit = ui->lineEditGasLimit->value();
@@ -192,15 +193,15 @@ void SendTokenPage::on_confirmClicked()
         {
             if(m_tokenABI->transfer(toAddress, amountToSend, true))
             {
-                CTokenTx tokenTx;
-                tokenTx.strContractAddress = m_selectedToken->address;
-                tokenTx.strSenderAddress = m_selectedToken->sender;
-                tokenTx.strReceiverAddress = toAddress;
+                interfaces::TokenTx tokenTx;
+                tokenTx.contract_address = m_selectedToken->address;
+                tokenTx.sender_address = m_selectedToken->sender;
+                tokenTx.receiver_address = toAddress;
                 dev::u256 nValue(amountToSend);
-                tokenTx.nValue = u256Touint(nValue);
-                tokenTx.transactionHash = uint256S(m_tokenABI->getTxId());
-                tokenTx.strLabel = label;
-                m_model->addTokenTxEntry(tokenTx);
+                tokenTx.value = u256Touint(nValue);
+                tokenTx.tx_hash = uint256S(m_tokenABI->getTxId());
+                tokenTx.label = label;
+                m_model->wallet().addTokenTxEntry(tokenTx);
             }
             clearAll();
         }
@@ -208,7 +209,7 @@ void SendTokenPage::on_confirmClicked()
     else
     {
         QString message = tr("To send %1 you need QTUM on address <br /> %2.")
-                .arg(QString::fromStdString(m_selectedToken->symbol)).arg(QString::fromStdString(CBitcoinAddress(m_selectedToken->sender).ToString()));
+                .arg(QString::fromStdString(m_selectedToken->symbol)).arg(QString::fromStdString(m_selectedToken->sender));
 
         QMessageBox::warning(this, tr("Send token"), message);
     }

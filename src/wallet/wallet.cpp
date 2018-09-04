@@ -40,6 +40,7 @@
 
 CAmount nReserveBalance = 0;
 bool fNotUseChangeAddress = DEFAULT_NOT_USE_CHANGE_ADDRESS;
+bool fBatchProcessingMode = false;
 
 static const size_t OUTPUT_GROUP_MAX_ENTRIES = 10;
 

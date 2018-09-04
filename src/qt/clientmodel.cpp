@@ -22,6 +22,7 @@
 #include <ui_interface.h>
 #include <util.h>
 #include <warnings.h>
+#include <wallet/wallet.h>
 
 #include <stdint.h>
 
@@ -218,6 +219,21 @@ static void BannedListChanged(ClientModel *clientmodel)
 
 static void BlockTipChanged(ClientModel *clientmodel, bool initialSync, int height, int64_t blockTime, double verificationProgress, bool fHeader)
 {
+    // Wallet batch mode checks
+    if(height > 0)
+    {
+        int64_t secs = GetTime() - blockTime;
+        bool batchMode = secs >= 90*60 ? true : false;
+        if(batchMode)
+        {
+            initialSync |= batchMode;
+            if(!fBatchProcessingMode)
+            {
+                fBatchProcessingMode = true;
+            }
+        }
+    }
+
     // lock free async UI updates in case we have a new block tip
     // during initial sync, only update the UI if the last update
     // was > 250ms (MODEL_UPDATE_DELAY) ago
@@ -240,6 +256,10 @@ static void BlockTipChanged(ClientModel *clientmodel, bool initialSync, int heig
                                   Q_ARG(QDateTime, QDateTime::fromTime_t(blockTime)),
                                   Q_ARG(double, verificationProgress),
                                   Q_ARG(bool, fHeader));
+        if(!fHeader && !fBatchProcessingMode)
+        {
+            QMetaObject::invokeMethod(clientmodel, "tipChanged", Qt::QueuedConnection);
+        }
         nLastUpdateNotification = now;
     }
 }

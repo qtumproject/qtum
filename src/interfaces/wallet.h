@@ -38,6 +38,8 @@ struct WalletBalances;
 struct WalletTx;
 struct WalletTxOut;
 struct WalletTxStatus;
+struct TokenInfo;
+struct TokenTx;
 
 using WalletOrderForm = std::vector<std::pair<std::string, std::string>>;
 using WalletValueMap = std::map<std::string, std::string>;
@@ -213,6 +215,12 @@ public:
     //! Return credit amount if transaction input belongs to wallet.
     virtual CAmount getCredit(const CTxOut& txout, isminefilter filter) = 0;
 
+    //! Check if address have unspent coins
+    virtual bool isUnspentAddress(const std::string& address) = 0;
+
+    //! Check if address is mine
+    virtual bool isMineAddress(const std::string &strAddress) = 0;
+
     //! Return AvailableCoins + LockedCoins grouped by wallet address.
     //! (put change in one group with wallet address)
     using CoinsList = std::map<CTxDestination, std::vector<std::tuple<COutPoint, WalletTxOut>>>;
@@ -244,6 +252,21 @@ public:
 
     // Get default change type.
     virtual OutputType getDefaultChangeType() = 0;
+
+    // Add wallet token entry.
+    virtual bool addTokenEntry(const TokenInfo &token) = 0;
+
+    // Add wallet token transaction entry.
+    virtual bool addTokenTxEntry(const TokenTx& tokenTx, bool fFlushOnClose=true) = 0;
+
+    // Check if exist wallet token entry.
+    virtual bool existTokenEntry(const TokenInfo &token) = 0;
+
+    // Remove wallet token entry.
+    virtual bool removeTokenEntry(const std::string &sHash) = 0;
+
+    // Get invalid wallet tokens
+    virtual std::vector<TokenInfo> getInvalidTokens() = 0;
 
     //! Register handler for unload message.
     using UnloadFn = std::function<void()>;
@@ -313,17 +336,19 @@ struct WalletBalances
     CAmount balance = 0;
     CAmount unconfirmed_balance = 0;
     CAmount immature_balance = 0;
+    CAmount stake = 0;
     bool have_watch_only = false;
     CAmount watch_only_balance = 0;
     CAmount unconfirmed_watch_only_balance = 0;
     CAmount immature_watch_only_balance = 0;
+    CAmount watch_only_stake = 0;
 
     bool balanceChanged(const WalletBalances& prev) const
     {
         return balance != prev.balance || unconfirmed_balance != prev.unconfirmed_balance ||
-               immature_balance != prev.immature_balance || watch_only_balance != prev.watch_only_balance ||
+               immature_balance != prev.immature_balance || stake != prev.stake || watch_only_balance != prev.watch_only_balance ||
                unconfirmed_watch_only_balance != prev.unconfirmed_watch_only_balance ||
-               immature_watch_only_balance != prev.immature_watch_only_balance;
+               immature_watch_only_balance != prev.immature_watch_only_balance || watch_only_stake != prev.watch_only_stake;
     }
 };
 
@@ -365,6 +390,35 @@ struct WalletTxOut
     int64_t time;
     int depth_in_main_chain = -1;
     bool is_spent = false;
+};
+
+// Wallet token information.
+struct TokenInfo
+{
+    std::string contract_address;
+    std::string token_name;
+    std::string token_symbol;
+    uint8_t decimals;
+    std::string sender_address;
+    int64_t time;
+    uint256 block_hash;
+    int64_t block_number;
+    uint256 hash;
+};
+
+// Wallet token transaction
+struct TokenTx
+{
+    std::string contract_address;
+    std::string sender_address;
+    std::string receiver_address;
+    uint256 value;
+    uint256 tx_hash;
+    int64_t time;
+    uint256 block_hash;
+    int64_t block_number;
+    std::string label;
+    uint256 hash;
 };
 
 //! Return implementation of Wallet interface. This function will be undefined

@@ -320,6 +320,6 @@ void QRCToken::removeToken()
 
         QModelIndex index = selection[0];
         std::string sHash = index.data(TokenItemModel::HashRole).toString().toStdString();
-        m_model->removeTokenEntry(sHash);
+        m_model->wallet().removeTokenEntry(sHash);
     }
 }

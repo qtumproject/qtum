@@ -21,6 +21,7 @@
 #include <qt/guiutil.h>
 #include <qt/sendcoinsdialog.h>
 #include <QClipboard>
+#include <interfaces/node.h>
 
 namespace SendToContract_NS
 {
@@ -261,7 +262,7 @@ void SendToContract::on_numBlocksChanged()
         uint64_t blockGasLimit = 0;
         uint64_t minGasPrice = 0;
         uint64_t nGasPrice = 0;
-        m_clientModel->getGasInfo(blockGasLimit, minGasPrice, nGasPrice);
+        m_clientModel->node().getGasInfo(blockGasLimit, minGasPrice, nGasPrice);
 
         ui->labelGasLimit->setToolTip(tr("Gas limit: Default = %1, Max = %2.").arg(DEFAULT_GAS_LIMIT_OP_SEND).arg(blockGasLimit));
         ui->labelGasPrice->setToolTip(tr("Gas price: QTUM price per gas unit. Default = %1, Min = %2.").arg(QString::fromStdString(FormatMoney(DEFAULT_GAS_PRICE))).arg(QString::fromStdString(FormatMoney(minGasPrice))));

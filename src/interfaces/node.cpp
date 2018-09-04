@@ -231,6 +231,15 @@ class NodeImpl : public Node
         throw std::logic_error("Node::getWallets() called in non-wallet build.");
 #endif
     }
+    void getGasInfo(uint64_t& blockGasLimit, uint64_t& minGasPrice, uint64_t& nGasPrice)
+    {
+        LOCK(::cs_main);
+
+        QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
+        blockGasLimit = qtumDGP.getBlockGasLimit(chainActive.Height());
+        minGasPrice = CAmount(qtumDGP.getMinGasPrice(chainActive.Height()));
+        nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
+    }
     std::unique_ptr<Handler> handleInitMessage(InitMessageFn fn) override
     {
         return MakeHandler(::uiInterface.InitMessage.connect(fn));
