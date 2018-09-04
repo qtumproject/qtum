@@ -253,20 +253,32 @@ public:
     // Get default change type.
     virtual OutputType getDefaultChangeType() = 0;
 
-    // Add wallet token entry.
+    //! Add wallet token entry.
     virtual bool addTokenEntry(const TokenInfo &token) = 0;
 
-    // Add wallet token transaction entry.
+    //! Add wallet token transaction entry.
     virtual bool addTokenTxEntry(const TokenTx& tokenTx, bool fFlushOnClose=true) = 0;
 
-    // Check if exist wallet token entry.
+    //! Check if exist wallet token entry.
     virtual bool existTokenEntry(const TokenInfo &token) = 0;
 
-    // Remove wallet token entry.
+    //! Remove wallet token entry.
     virtual bool removeTokenEntry(const std::string &sHash) = 0;
 
-    // Get invalid wallet tokens
+    //! Get invalid wallet tokens
     virtual std::vector<TokenInfo> getInvalidTokens() = 0;
+
+    //! Get token transaction information.
+    virtual TokenTx getTokenTx(const uint256& txid) = 0;
+
+    //! Get list of all wallet token transactions.
+    virtual std::vector<TokenTx> getTokenTxs() = 0;
+
+    //! Get token information.
+    virtual TokenInfo getToken(const uint256& id) = 0;
+
+    //! Get list of all tokens.
+    virtual std::vector<TokenInfo> getTokens() = 0;
 
     //! Register handler for unload message.
     using UnloadFn = std::function<void()>;
@@ -291,6 +303,10 @@ public:
     //! Register handler for transaction changed messages.
     using TransactionChangedFn = std::function<void(const uint256& txid, ChangeType status)>;
     virtual std::unique_ptr<Handler> handleTransactionChanged(TransactionChangedFn fn) = 0;
+
+    //! Register handler for token changed messages.
+    using TokenChangedFn = std::function<void(const uint256& id, ChangeType status)>;
+    virtual std::unique_ptr<Handler> handleTokenChanged(TokenChangedFn fn) = 0;
 
     //! Register handler for watchonly changed messages.
     using WatchOnlyChangedFn = std::function<void(bool have_watch_only)>;
@@ -398,11 +414,11 @@ struct TokenInfo
     std::string contract_address;
     std::string token_name;
     std::string token_symbol;
-    uint8_t decimals;
+    uint8_t decimals = 0;
     std::string sender_address;
-    int64_t time;
+    int64_t time = 0;
     uint256 block_hash;
-    int64_t block_number;
+    int64_t block_number = -1;
     uint256 hash;
 };
 
@@ -414,9 +430,9 @@ struct TokenTx
     std::string receiver_address;
     uint256 value;
     uint256 tx_hash;
-    int64_t time;
+    int64_t time = 0;
     uint256 block_hash;
-    int64_t block_number;
+    int64_t block_number = -1;
     std::string label;
     uint256 hash;
 };

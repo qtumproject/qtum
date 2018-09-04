@@ -131,6 +131,9 @@ public:
     //! Get last block time.
     virtual int64_t getLastBlockTime() = 0;
 
+    //! Get block hash.
+    virtual uint256 getBlockHash(int blockNumber) = 0;
+
     //! Get verification progress.
     virtual double getVerificationProgress() = 0;
 

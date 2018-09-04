@@ -173,6 +173,17 @@ class NodeImpl : public Node
         }
         return Params().GenesisBlock().GetBlockTime(); // Genesis block's time of current network
     }
+    uint256 getBlockHash(int blockNumber) override
+    {
+        LOCK(::cs_main);
+        uint256 result;
+        result.SetNull();
+        if (::chainActive.Tip()) {
+            CBlockIndex* index = ::chainActive[blockNumber];
+            if(index) result = index->GetBlockHash();
+        }
+        return result;
+    }
     double getVerificationProgress() override
     {
         const CBlockIndex* tip;

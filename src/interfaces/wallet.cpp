@@ -124,6 +124,9 @@ CTokenInfo MakeTokenInfo(const TokenInfo& token)
     result.strTokenSymbol = token.token_symbol;
     result.nDecimals = token.decimals;
     result.strSenderAddress = token.sender_address;
+    result.nCreateTime = token.time;
+    result.blockHash = token.block_hash;
+    result.blockNumber = token.block_number;
     return result;
 }
 
@@ -152,6 +155,27 @@ CTokenTx MakeTokenTx(const TokenTx& tokenTx)
     result.strReceiverAddress = tokenTx.receiver_address;
     result.nValue = tokenTx.value;
     result.transactionHash = tokenTx.tx_hash;
+    result.nCreateTime = tokenTx.time;
+    result.blockHash = tokenTx.block_hash;
+    result.blockNumber = tokenTx.block_number;
+    result.strLabel = tokenTx.label;
+    return result;
+}
+
+//! Construct wallet token transaction.
+TokenTx MakeWalletTokenTx(const CTokenTx& tokenTx)
+{
+    TokenTx result;
+    result.contract_address = tokenTx.strContractAddress;
+    result.sender_address = tokenTx.strSenderAddress;
+    result.receiver_address = tokenTx.strReceiverAddress;
+    result.value = tokenTx.nValue;
+    result.tx_hash = tokenTx.transactionHash;
+    result.time = tokenTx.nCreateTime;
+    result.block_hash = tokenTx.blockHash;
+    result.block_number = tokenTx.blockNumber;
+    result.label = tokenTx.strLabel;
+    result.hash = tokenTx.GetHash();
     return result;
 }
 
@@ -540,6 +564,44 @@ public:
 
         return listInvalid;
     }
+    TokenTx getTokenTx(const uint256& txid) override
+    {
+        LOCK2(::cs_main, m_wallet.cs_wallet);
+        auto mi = m_wallet.mapTokenTx.find(txid);
+        if (mi != m_wallet.mapTokenTx.end()) {
+            return MakeWalletTokenTx(mi->second);
+        }
+        return {};
+    }
+    std::vector<TokenTx> getTokenTxs() override
+    {
+        LOCK2(::cs_main, m_wallet.cs_wallet);
+        std::vector<TokenTx> result;
+        result.reserve(m_wallet.mapTokenTx.size());
+        for (const auto& entry : m_wallet.mapTokenTx) {
+            result.emplace_back(MakeWalletTokenTx(entry.second));
+        }
+        return result;
+    }
+    TokenInfo getToken(const uint256& id) override
+    {
+        LOCK2(::cs_main, m_wallet.cs_wallet);
+        auto mi = m_wallet.mapToken.find(id);
+        if (mi != m_wallet.mapToken.end()) {
+            return MakeWalletTokenInfo(mi->second);
+        }
+        return {};
+    }
+    std::vector<TokenInfo> getTokens() override
+    {
+        LOCK2(::cs_main, m_wallet.cs_wallet);
+        std::vector<TokenInfo> result;
+        result.reserve(m_wallet.mapToken.size());
+        for (const auto& entry : m_wallet.mapToken) {
+            result.emplace_back(MakeWalletTokenInfo(entry.second));
+        }
+        return result;
+    }
     std::unique_ptr<Handler> handleUnload(UnloadFn fn) override
     {
         return MakeHandler(m_wallet.NotifyUnload.connect(fn));
@@ -562,6 +624,11 @@ public:
     {
         return MakeHandler(m_wallet.NotifyTransactionChanged.connect(
             [fn](CWallet*, const uint256& txid, ChangeType status) { fn(txid, status); }));
+    }
+    std::unique_ptr<Handler> handleTokenChanged(TokenChangedFn fn) override
+    {
+        return MakeHandler(m_wallet.NotifyTokenChanged.connect(
+            [fn](CWallet*, const uint256& id, ChangeType status) { fn(id, status); }));
     }
     std::unique_ptr<Handler> handleWatchOnlyChanged(WatchOnlyChangedFn fn) override
     {

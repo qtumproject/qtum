@@ -17,13 +17,12 @@ class TokenTransactionStatus
 public:
     TokenTransactionStatus():
         countsForBalance(false), sortKey(""),
-        status(Offline), depth(0), cur_num_blocks(-1)
+        status(Unconfirmed), depth(0), cur_num_blocks(-1)
     { }
 
     enum Status {
         Confirmed,          /**< Have 6 or more confirmations (normal tx) or fully mature (mined tx) **/
         /// Normal (sent/received) token transactions
-        Offline,            /**< Not sent to any other nodes **/
         Unconfirmed,        /**< Not yet mined into a block **/
         Confirming         /**< Confirmed, but waiting for the recommended number of confirmations **/
     };
