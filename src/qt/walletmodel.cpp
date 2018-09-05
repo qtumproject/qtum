@@ -48,6 +48,7 @@ WalletModel::WalletModel(std::unique_ptr<interfaces::Wallet> wallet, interfaces:
     transactionTableModel = new TransactionTableModel(platformStyle, this);
     recentRequestsTableModel = new RecentRequestsTableModel(this);
     tokenItemModel = new TokenItemModel(this);
+    tokenTransactionTableModel = new TokenTransactionTableModel(platformStyle, this);
 
     // This timer will be fired repeatedly to update the balance
     pollTimer = new QTimer(this);

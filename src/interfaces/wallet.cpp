@@ -179,6 +179,22 @@ TokenTx MakeWalletTokenTx(const CTokenTx& tokenTx)
     return result;
 }
 
+bool TokenTxStatus(CWallet& wallet, const uint256& txid, int& block_number, bool& in_mempool, int& num_blocks)
+{
+    auto mi = wallet.mapTokenTx.find(txid);
+    if (mi == wallet.mapTokenTx.end()) {
+        return false;
+    }
+    block_number = mi->second.blockNumber;
+    auto it = wallet.mapWallet.find(mi->second.transactionHash); 
+    if(it != wallet.mapWallet.end())
+    {
+        in_mempool = it->second.InMempool();
+    }
+    num_blocks = ::chainActive.Height();
+    return true;
+}
+
 class WalletImpl : public Wallet
 {
 public:
@@ -602,6 +618,27 @@ public:
         }
         return result;
     }
+    bool tryGetTokenTxStatus(const uint256& txid, int& block_number, bool& in_mempool, int& num_blocks) override
+    {
+        TRY_LOCK(::cs_main, locked_chain);
+        if (!locked_chain) {
+            return false;
+        }
+        TRY_LOCK(m_wallet.cs_wallet, locked_wallet);
+        if (!locked_wallet) {
+            return false;
+        }
+        return TokenTxStatus(m_wallet, txid, block_number, in_mempool, num_blocks);
+    }
+    bool getTokenTxStatus(const uint256& txid, int& block_number, bool& in_mempool, int& num_blocks) override
+    {
+        LOCK2(::cs_main, m_wallet.cs_wallet);
+        return TokenTxStatus(m_wallet, txid, block_number, in_mempool, num_blocks);
+    }
+    bool getTokenTxDetails(const TokenTx &wtx, uint256& credit, uint256& debit, std::string& tokenSymbol, uint8_t& decimals) override
+    {
+        return m_wallet.GetTokenTxDetails(MakeTokenTx(wtx), credit, debit, tokenSymbol, decimals);
+    }
     std::unique_ptr<Handler> handleUnload(UnloadFn fn) override
     {
         return MakeHandler(m_wallet.NotifyUnload.connect(fn));
@@ -624,6 +661,11 @@ public:
     {
         return MakeHandler(m_wallet.NotifyTransactionChanged.connect(
             [fn](CWallet*, const uint256& txid, ChangeType status) { fn(txid, status); }));
+    }
+    std::unique_ptr<Handler> handleTokenTransactionChanged(TokenTransactionChangedFn fn) override
+    {
+        return MakeHandler(m_wallet.NotifyTokenTransactionChanged.connect(
+            [fn](CWallet*, const uint256& id, ChangeType status) { fn(id, status); }));
     }
     std::unique_ptr<Handler> handleTokenChanged(TokenChangedFn fn) override
     {

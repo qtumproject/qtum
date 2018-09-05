@@ -280,6 +280,15 @@ public:
     //! Get list of all tokens.
     virtual std::vector<TokenInfo> getTokens() = 0;
 
+    //! Try to get updated status for a particular token transaction, if possible without blocking.
+    virtual bool tryGetTokenTxStatus(const uint256& txid, int& block_number, bool& in_mempool, int& num_blocks) = 0;
+
+    //! Get updated status for a particular token transaction.
+    virtual bool getTokenTxStatus(const uint256& txid, int& block_number, bool& in_mempool, int& num_blocks) = 0;
+
+    //! Get token transaction details
+    virtual bool getTokenTxDetails(const TokenTx &wtx, uint256& credit, uint256& debit, std::string& tokenSymbol, uint8_t& decimals) = 0;
+
     //! Register handler for unload message.
     using UnloadFn = std::function<void()>;
     virtual std::unique_ptr<Handler> handleUnload(UnloadFn fn) = 0;
@@ -303,6 +312,10 @@ public:
     //! Register handler for transaction changed messages.
     using TransactionChangedFn = std::function<void(const uint256& txid, ChangeType status)>;
     virtual std::unique_ptr<Handler> handleTransactionChanged(TransactionChangedFn fn) = 0;
+
+    //! Register handler for token transaction changed messages.
+    using TokenTransactionChangedFn = std::function<void(const uint256& id, ChangeType status)>;
+    virtual std::unique_ptr<Handler> handleTokenTransactionChanged(TokenTransactionChangedFn fn) = 0;
 
     //! Register handler for token changed messages.
     using TokenChangedFn = std::function<void(const uint256& id, ChangeType status)>;

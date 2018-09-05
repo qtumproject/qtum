@@ -6,6 +6,12 @@
 #include <QAbstractTableModel>
 #include <QStringList>
 
+#include <memory>
+
+namespace interfaces {
+class Handler;
+}
+
 class PlatformStyle;
 class TokenTransactionRecord;
 class TokenTransactionTablePriv;
@@ -20,7 +26,7 @@ class TokenTransactionTableModel : public QAbstractTableModel
     Q_OBJECT
 
 public:
-    explicit TokenTransactionTableModel(const PlatformStyle *platformStyle, CWallet* wallet, WalletModel *parent = 0);
+    explicit TokenTransactionTableModel(const PlatformStyle *platformStyle, WalletModel *parent = 0);
     ~TokenTransactionTableModel();
 
     enum ColumnIndex {
@@ -76,8 +82,9 @@ public:
     bool processingQueuedTransactions() { return fProcessingQueuedTransactions; }
 
 private:
-    CWallet* wallet;
     WalletModel *walletModel;
+    std::unique_ptr<interfaces::Handler> m_handler_token_transaction_changed;
+    std::unique_ptr<interfaces::Handler> m_handler_show_progress;
     QStringList columns;
     TokenTransactionTablePriv *priv;
     bool fProcessingQueuedTransactions;

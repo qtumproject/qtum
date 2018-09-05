@@ -6,8 +6,10 @@
 
 class TokenTransactionRecord;
 
-class CWallet;
-class CTokenTx;
+namespace interfaces {
+class Wallet;
+struct TokenTx;
+}
 
 /** Provide a human-readable extended HTML description of a token transaction.
  */
@@ -16,12 +18,12 @@ class TokenTransactionDesc: public QObject
     Q_OBJECT
 
 public:
-    static QString toHTML(CWallet *wallet, CTokenTx &wtx, TokenTransactionRecord *rec);
+    static QString toHTML(interfaces::Wallet& wallet, interfaces::TokenTx& wtx, TokenTransactionRecord *rec);
 
 private:
     TokenTransactionDesc() {}
 
-    static QString FormatTxStatus(CWallet *wallet, const CTokenTx& wtx);
+    static QString FormatTxStatus(interfaces::Wallet& wallet, const interfaces::TokenTx& wtx);
 };
 
 #endif // QTUM_QT_TOKENTRANSACTIONDESC_H

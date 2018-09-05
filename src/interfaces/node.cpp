@@ -176,13 +176,14 @@ class NodeImpl : public Node
     uint256 getBlockHash(int blockNumber) override
     {
         LOCK(::cs_main);
-        uint256 result;
-        result.SetNull();
-        if (::chainActive.Tip()) {
-            CBlockIndex* index = ::chainActive[blockNumber];
-            if(index) result = index->GetBlockHash();
-        }
-        return result;
+        CBlockIndex* index = ::chainActive[blockNumber];
+        return index ? index->GetBlockHash() : uint256();
+    }
+    int64_t getBlockTime(int blockNumber) override
+    {
+        LOCK(::cs_main);
+        CBlockIndex* index = ::chainActive[blockNumber];
+        return index ? index->GetBlockTime() : 0;
     }
     double getVerificationProgress() override
     {
