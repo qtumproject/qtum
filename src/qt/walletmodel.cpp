@@ -45,6 +45,7 @@ WalletModel::WalletModel(std::unique_ptr<interfaces::Wallet> wallet, interfaces:
     fForceCheckBalanceChanged = false;
 
     addressTableModel = new AddressTableModel(this);
+    contractTableModel = new ContractTableModel(this);
     transactionTableModel = new TransactionTableModel(platformStyle, this);
     recentRequestsTableModel = new RecentRequestsTableModel(this);
     tokenItemModel = new TokenItemModel(this);
@@ -459,6 +460,21 @@ static void NotifyWatchonlyChanged(WalletModel *walletmodel, bool fHaveWatchonly
                               Q_ARG(bool, fHaveWatchonly));
 }
 
+static void NotifyContractBookChanged(WalletModel *walletmodel,
+        const std::string &address, const std::string &label, const std::string &abi, ChangeType status)
+{
+    QString strAddress = QString::fromStdString(address);
+    QString strLabel = QString::fromStdString(label);
+    QString strAbi = QString::fromStdString(abi);
+
+    qDebug() << "NotifyContractBookChanged: " + strAddress + " " + strLabel + " status=" + QString::number(status);
+    QMetaObject::invokeMethod(walletmodel, "updateContractBook", Qt::QueuedConnection,
+                              Q_ARG(QString, strAddress),
+                              Q_ARG(QString, strLabel),
+                              Q_ARG(QString, strAbi),
+                              Q_ARG(int, status));
+}
+
 void WalletModel::subscribeToCoreSignals()
 {
     // Connect signals to wallet
@@ -468,6 +484,7 @@ void WalletModel::subscribeToCoreSignals()
     m_handler_transaction_changed = m_wallet->handleTransactionChanged(boost::bind(NotifyTransactionChanged, this, _1, _2));
     m_handler_show_progress = m_wallet->handleShowProgress(boost::bind(ShowProgress, this, _1, _2));
     m_handler_watch_only_changed = m_wallet->handleWatchOnlyChanged(boost::bind(NotifyWatchonlyChanged, this, _1));
+    m_handler_contract_book_changed = m_wallet->handleContractBookChanged(boost::bind(NotifyContractBookChanged, this, _1, _2, _3, _4));
 }
 
 void WalletModel::unsubscribeFromCoreSignals()
@@ -479,6 +496,7 @@ void WalletModel::unsubscribeFromCoreSignals()
     m_handler_transaction_changed->disconnect();
     m_handler_show_progress->disconnect();
     m_handler_watch_only_changed->disconnect();
+    m_handler_contract_book_changed->disconnect();
 }
 
 // WalletModel::UnlockContext implementation

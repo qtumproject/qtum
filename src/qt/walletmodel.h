@@ -222,6 +222,7 @@ private:
     std::unique_ptr<interfaces::Handler> m_handler_token_changed;
     std::unique_ptr<interfaces::Handler> m_handler_show_progress;
     std::unique_ptr<interfaces::Handler> m_handler_watch_only_changed;
+    std::unique_ptr<interfaces::Handler> m_handler_contract_book_changed;
     interfaces::Node& m_node;
 
     bool fHaveWatchOnly;

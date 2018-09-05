@@ -40,6 +40,7 @@ struct WalletTxOut;
 struct WalletTxStatus;
 struct TokenInfo;
 struct TokenTx;
+struct ContractBookData;
 
 using WalletOrderForm = std::vector<std::pair<std::string, std::string>>;
 using WalletValueMap = std::map<std::string, std::string>;
@@ -289,6 +290,21 @@ public:
     //! Get token transaction details
     virtual bool getTokenTxDetails(const TokenTx &wtx, uint256& credit, uint256& debit, std::string& tokenSymbol, uint8_t& decimals) = 0;
 
+    //! Get contract book data.
+    virtual ContractBookData getContractBook(const std::string& address) = 0;
+
+    //! Get list of all contract book data.
+    virtual std::vector<ContractBookData> getContractBooks() = 0;
+
+    //! Check if exist contract book.
+    virtual bool existContractBook(const std::string& address) = 0;
+
+    //! Delete contract book data.
+    virtual bool delContractBook(const std::string& address) = 0;
+
+    //! Set contract book data.
+    virtual bool setContractBook(const std::string& address, const std::string& name, const std::string& abi) = 0;
+
     //! Register handler for unload message.
     using UnloadFn = std::function<void()>;
     virtual std::unique_ptr<Handler> handleUnload(UnloadFn fn) = 0;
@@ -324,6 +340,13 @@ public:
     //! Register handler for watchonly changed messages.
     using WatchOnlyChangedFn = std::function<void(bool have_watch_only)>;
     virtual std::unique_ptr<Handler> handleWatchOnlyChanged(WatchOnlyChangedFn fn) = 0;
+
+    //! Register handler for contract book changed messages.
+    using ContractBookChangedFn = std::function<void( const std::string& address,
+        const std::string& label,
+        const std::string& abi,
+        ChangeType status)>;
+    virtual std::unique_ptr<Handler> handleContractBookChanged(ContractBookChangedFn fn) = 0;
 };
 
 //! Tracking object returned by CreateTransaction and passed to CommitTransaction.
@@ -448,6 +471,14 @@ struct TokenTx
     int64_t block_number = -1;
     std::string label;
     uint256 hash;
+};
+
+// Wallet contract book data */
+struct ContractBookData
+{
+    std::string address;
+    std::string name;
+    std::string abi;
 };
 
 //! Return implementation of Wallet interface. This function will be undefined

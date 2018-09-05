@@ -179,6 +179,15 @@ TokenTx MakeWalletTokenTx(const CTokenTx& tokenTx)
     return result;
 }
 
+ContractBookData MakeContractBook(const std::string& id, const CContractBookData& data)
+{
+    ContractBookData result;
+    result.address = id;
+    result.name = data.name;
+    result.abi = data.abi;
+    return result;
+}
+
 bool TokenTxStatus(CWallet& wallet, const uint256& txid, int& block_number, bool& in_mempool, int& num_blocks)
 {
     auto mi = wallet.mapTokenTx.find(txid);
@@ -639,6 +648,39 @@ public:
     {
         return m_wallet.GetTokenTxDetails(MakeTokenTx(wtx), credit, debit, tokenSymbol, decimals);
     }
+    ContractBookData getContractBook(const std::string& id) override
+    {
+        LOCK(m_wallet.cs_wallet);
+        auto mi = m_wallet.mapContractBook.find(id);
+        if (mi != m_wallet.mapContractBook.end()) {
+            return MakeContractBook(id, mi->second);
+        }
+        return {};
+    }
+    std::vector<ContractBookData> getContractBooks() override
+    {
+        LOCK(m_wallet.cs_wallet);
+        std::vector<ContractBookData> result;
+        result.reserve(m_wallet.mapContractBook.size());
+        for (const auto& entry : m_wallet.mapContractBook) {
+            result.emplace_back(MakeContractBook(entry.first, entry.second));
+        }
+        return result;
+    }
+    bool existContractBook(const std::string& id) override
+    {
+        LOCK(m_wallet.cs_wallet);
+        auto mi = m_wallet.mapContractBook.find(id);
+        return mi != m_wallet.mapContractBook.end();
+    }
+    bool delContractBook(const std::string& id) override
+    {
+        return m_wallet.DelContractBook(id);
+    }
+    bool setContractBook(const std::string& id, const std::string& name, const std::string& abi) override
+    {
+        return m_wallet.SetContractBook(id, name, abi);
+    }
     std::unique_ptr<Handler> handleUnload(UnloadFn fn) override
     {
         return MakeHandler(m_wallet.NotifyUnload.connect(fn));
@@ -675,6 +717,12 @@ public:
     std::unique_ptr<Handler> handleWatchOnlyChanged(WatchOnlyChangedFn fn) override
     {
         return MakeHandler(m_wallet.NotifyWatchonlyChanged.connect(fn));
+    }
+    std::unique_ptr<Handler> handleContractBookChanged(ContractBookChangedFn fn) override
+    {
+        return MakeHandler(m_wallet.NotifyContractBookChanged.connect(
+            [fn](CWallet*, const std::string& address, const std::string& label,
+                const std::string& abi, ChangeType status) { fn(address, label, abi, status); }));
     }
 
     std::shared_ptr<CWallet> m_shared_wallet;

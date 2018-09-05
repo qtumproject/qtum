@@ -17,7 +17,7 @@ class ContractTableModel : public QAbstractTableModel
     Q_OBJECT
 
 public:
-    explicit ContractTableModel(CWallet *wallet, WalletModel *parent = 0);
+    explicit ContractTableModel(WalletModel *parent = 0);
     ~ContractTableModel();
 
     enum ColumnIndex {
