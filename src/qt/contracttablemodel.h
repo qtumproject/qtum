@@ -7,8 +7,6 @@
 class ContractTablePriv;
 class WalletModel;
 
-class CWallet;
-
 /**
    Qt model of the contract book in the core. This allows views to access and modify the contract book.
  */
@@ -68,7 +66,6 @@ public:
 
 private:
     WalletModel *walletModel;
-    CWallet *wallet;
     ContractTablePriv *priv;
     QStringList columns;
     EditStatus editStatus;

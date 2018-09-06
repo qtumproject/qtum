@@ -119,6 +119,7 @@ void CreateContract::setLinkLabels()
 void CreateContract::setModel(WalletModel *_model)
 {
     m_model = _model;
+    ui->lineEditSenderAddress->setWalletModel(m_model);
 }
 
 bool CreateContract::isValidBytecode()

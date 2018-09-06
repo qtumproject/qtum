@@ -1,7 +1,7 @@
 ﻿#include <qt/tokenitemmodel.h>
 #include <qt/token.h>
 #include <qt/walletmodel.h>
-#include <wallet/wallet.h>
+#include <interfaces/wallet.h>
 #include <validation.h>
 #include <qt/bitcoinunits.h>
 #include <interfaces/node.h>

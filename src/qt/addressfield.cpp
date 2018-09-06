@@ -3,11 +3,12 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <qt/addressfield.h>
-#include <wallet/wallet.h>
+#include <qt/walletmodel.h>
 #include <validation.h>
-#include <base58.h>
+#include <key_io.h>
 #include <qt/qvalidatedlineedit.h>
 #include <qt/bitcoinaddressvalidator.h>
+#include <script/standard.h>
 #include <QLineEdit>
 #include <QCompleter>
 
@@ -17,9 +18,11 @@ AddressField::AddressField(QWidget *parent) :
     QComboBox(parent),
     m_addressType(AddressField::UTXO),
     m_addressTableModel(0),
+    m_walletModel(0),
     m_addressColumn(0),
     m_typeRole(Qt::UserRole),
-    m_receive("R")
+    m_receive("R"),
+    m_senderAddress(false)
 
 {
     // Set editable state
@@ -67,7 +70,7 @@ void AddressField::setComboBoxEditable(bool editable)
     if(editable)
     {
         QValidatedLineEdit *validatedLineEdit = (QValidatedLineEdit*)lineEdit();
-        validatedLineEdit->setCheckValidator(new BitcoinAddressCheckValidator(parent()));
+        validatedLineEdit->setCheckValidator(new BitcoinAddressCheckValidator(parent(), m_senderAddress));
         completer()->setCompletionMode(QCompleter::InlineCompletion);
         connect(validatedLineEdit, SIGNAL(editingFinished()), this, SLOT(on_editingFinished()));
     }
@@ -78,17 +81,12 @@ void AddressField::on_refresh()
     // Initialize variables
     QString currentAddress = currentText();
     m_stringList.clear();
-    vector<COutput> vecOutputs;
-    if(!vpwallets.empty())
+    if(m_walletModel)
     {
-        CWalletRef pwalletMain = vpwallets[0];
-        assert(pwalletMain != NULL);
-
         // Fill the list with address
         if(m_addressType == AddressField::UTXO)
         {
-            // Fill the list with UTXO
-            LOCK2(cs_main, pwalletMain->cs_wallet);
+            std::vector<std::string> addresses;
 
             // Add all available addresses if 0 address ballance for token is enabled
             if(m_addressTableModel)
@@ -106,24 +104,16 @@ void AddressField::on_refresh()
                 }
 
                 // Include zero or unconfirmed coins too
-                pwalletMain->AvailableCoins(vecOutputs, false, NULL, true);
+                addresses = m_walletModel->wallet().availableAddresses(true);
             }
             else
             {
                 // List only the spendable coins
-                pwalletMain->AvailableCoins(vecOutputs);
+                addresses = m_walletModel->wallet().availableAddresses();
             }
 
-            for(const COutput& out : vecOutputs) {
-                CTxDestination address;
-                const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
-                bool fValidAddress = ExtractDestination(scriptPubKey, address);
-
-                if (fValidAddress)
-                {
-                    QString strAddress = QString::fromStdString(CBitcoinAddress(address).ToString());
-                    appendAddress(strAddress);
-                }
+            for(std::string address : addresses) {
+                appendAddress(QString::fromStdString(address));
             }
         }
     }
@@ -148,12 +138,14 @@ void AddressField::on_editingFinished()
 
 void AddressField::appendAddress(const QString &strAddress)
 {
-    CBitcoinAddress address(strAddress.toStdString());
-    if(!vpwallets.empty())
+    if(m_walletModel)
     {
-        CWalletRef pwalletMain = vpwallets[0];
+        CTxDestination address = DecodeDestination(strAddress.toStdString());
+        if(m_senderAddress && !IsValidContractSenderAddress(address))
+            return;
+
         if(!m_stringList.contains(strAddress) &&
-                IsMine(*pwalletMain, address.Get()))
+                m_walletModel->wallet().isMineAddress(strAddress.toStdString()))
         {
             m_stringList.append(strAddress);
         }
@@ -188,4 +180,14 @@ void AddressField::setAddressTableModel(QAbstractItemModel *addressTableModel)
     connect(m_addressTableModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(on_refresh()));
 
     on_refresh();
+}
+
+void AddressField::setSenderAddress(bool senderAddress)
+{
+    m_senderAddress = senderAddress;
+}
+
+void AddressField::setWalletModel(WalletModel *walletModel)
+{
+    m_walletModel = walletModel;
 }

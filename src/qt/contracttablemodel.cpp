@@ -3,7 +3,6 @@
 #include <qt/guiutil.h>
 #include <qt/walletmodel.h>
 
-#include <wallet/wallet.h>
 #include <interfaces/wallet.h>
 
 #include <QFont>

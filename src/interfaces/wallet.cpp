@@ -25,6 +25,7 @@
 #include <wallet/fees.h>
 #include <wallet/wallet.h>
 #include <key_io.h>
+#include <algorithm>
 
 namespace interfaces {
 namespace {
@@ -494,14 +495,38 @@ public:
     }
     bool isMineAddress(const std::string &strAddress) override
     {
-        LOCK2(::cs_main, m_wallet.cs_wallet);
-
         CTxDestination address = DecodeDestination(strAddress);
         if(!IsValidDestination(address) || !IsMine(m_wallet, address))
         {
             return false;
         }
         return true;
+    }
+    std::vector<std::string> availableAddresses(bool fIncludeZeroValue) override
+    {
+        LOCK2(::cs_main, m_wallet.cs_wallet);
+
+        std::vector<std::string> result;
+        std::vector<COutput> vecOutputs;
+
+        if(fIncludeZeroValue)
+            m_wallet.AvailableCoins(vecOutputs, false, nullptr, 0);
+        else
+            m_wallet.AvailableCoins(vecOutputs);
+
+        for (const COutput& out : vecOutputs)
+        {
+            CTxDestination address;
+            const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
+            bool fValidAddress = ExtractDestination(scriptPubKey, address);
+
+            if (!fValidAddress) continue;
+
+            std::string strAddress = EncodeDestination(address);
+            if (std::find(result.begin(), result.end(), strAddress) == result.end())
+                result.push_back(strAddress);
+        }
+        return result;
     }
     CoinsList listCoins() override
     {

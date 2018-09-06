@@ -11,7 +11,6 @@ namespace interfaces {
 class Handler;
 }
 
-class CWallet;
 class WalletModel;
 class Token;
 class TokenItemPriv;

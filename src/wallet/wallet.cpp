@@ -39,6 +39,7 @@
 #include <boost/algorithm/string/replace.hpp>
 
 CAmount nReserveBalance = 0;
+bool bZeroBalanceAddressToken = DEFAULT_ZERO_BALANCE_ADDRESS_TOKEN;
 bool fNotUseChangeAddress = DEFAULT_NOT_USE_CHANGE_ADDRESS;
 bool fBatchProcessingMode = false;
 

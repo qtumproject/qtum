@@ -17,8 +17,6 @@ class TokenTransactionRecord;
 class TokenTransactionTablePriv;
 class WalletModel;
 
-class CWallet;
-
 /** UI model for the transaction table of a wallet.
  */
 class TokenTransactionTableModel : public QAbstractTableModel

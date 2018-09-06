@@ -222,6 +222,9 @@ public:
     //! Check if address is mine
     virtual bool isMineAddress(const std::string &strAddress) = 0;
 
+    //! Get available coins addresses
+    virtual std::vector<std::string> availableAddresses(bool fIncludeZeroValue = false) = 0;
+
     //! Return AvailableCoins + LockedCoins grouped by wallet address.
     //! (put change in one group with wallet address)
     using CoinsList = std::map<CTxDestination, std::vector<std::tuple<COutPoint, WalletTxOut>>>;

@@ -9,6 +9,7 @@
 #include <QStringList>
 #include <QStringListModel>
 
+class WalletModel;
 
 /** Drop down list of addresses
   */
@@ -67,6 +68,10 @@ public:
 
     void setReceive(const QString &receive);
 
+    void setSenderAddress(bool senderAddress);
+
+    void setWalletModel(WalletModel* walletModel);
+
 Q_SIGNALS:
     /**
      * @brief addressTypeChanged Signal that the address type is changed
@@ -97,9 +102,11 @@ private:
     QStringListModel m_stringModel;
     AddressType m_addressType;
     QAbstractItemModel* m_addressTableModel;
+    WalletModel* m_walletModel;
     int m_addressColumn;
     int m_typeRole;
     QString m_receive;
+    bool m_senderAddress;
 };
 
 #endif // ADDRESSFIELD_H

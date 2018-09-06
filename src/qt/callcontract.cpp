@@ -114,6 +114,7 @@ void CallContract::setModel(WalletModel *_model)
 {
     m_model = _model;
     m_contractModel = m_model->getContractTableModel();
+    ui->lineEditSenderAddress->setWalletModel(m_model);
 }
 
 bool CallContract::isValidContractAddress()
