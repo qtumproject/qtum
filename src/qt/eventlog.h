@@ -4,6 +4,8 @@
 #include <vector>
 #include <QMap>
 #include <QVariant>
+#include <interfaces/node.h>
+#include <interfaces/wallet.h>
 
 class ExecRPCCommand;
 
@@ -22,6 +24,8 @@ public:
 
     /**
      * @brief searchTokenTx Search the event log for token transactions
+     * @param node Select node to search
+     * @param wallet Select wallet to search
      * @param fromBlock Begin from block
      * @param toBlock End to block
      * @param strContractAddress Token contract address
@@ -29,10 +33,12 @@ public:
      * @param result Result of the performed call
      * @return success of the operation
      */
-    bool searchTokenTx(int64_t fromBlock, int64_t toBlock, std::string strContractAddress, std::string strSenderAddress, QVariant& result);
+    bool searchTokenTx(interfaces::Node& node, interfaces::Wallet& wallet, int64_t fromBlock, int64_t toBlock, std::string strContractAddress, std::string strSenderAddress, QVariant& result);
 
     /**
      * @brief search Search for log events
+     * @param node Select node to search
+     * @param wallet Select wallet to search
      * @param fromBlock Begin from block
      * @param toBlock End to block
      * @param addresses Contract address
@@ -40,7 +46,7 @@ public:
      * @param result Result of the performed call
      * @return success of the operation
      */
-    bool search(int64_t fromBlock, int64_t toBlock, const std::vector<std::string> addresses, const std::vector<std::string> topics, QVariant& result);
+    bool search(interfaces::Node& node, interfaces::Wallet& wallet, int64_t fromBlock, int64_t toBlock, const std::vector<std::string> addresses, const std::vector<std::string> topics, QVariant& result);
 
 private:
     // Set command data

@@ -214,7 +214,7 @@ void CreateContract::on_createContractClicked()
         if(retval == QMessageBox::Yes)
         {
             // Execute RPC command line
-            if(errorMessage.isEmpty() && m_execRPCCommand->exec(lstParams, result, resultJson, errorMessage))
+            if(errorMessage.isEmpty() && m_execRPCCommand->exec(m_model->node(), m_model->wallet(), lstParams, result, resultJson, errorMessage))
             {
                 ContractResult *widgetResult = new ContractResult(ui->stackedWidget);
                 widgetResult->setResultData(result, FunctionABI(), QList<QStringList>(), ContractResult::CreateResult);

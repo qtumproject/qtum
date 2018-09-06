@@ -287,6 +287,7 @@ TokenItemModel::TokenItemModel(WalletModel *parent):
 {
     columns << tr("Token Name") << tr("Token Symbol") << tr("Balance");
     tokenAbi = new Token();
+    tokenAbi->setModel(walletModel);
 
     priv = new TokenItemPriv(this);
     priv->refreshTokenItem(walletModel->wallet());

@@ -5,6 +5,8 @@
 #include <QString>
 #include <QStringList>
 #include <QVariant>
+#include <interfaces/node.h>
+#include <interfaces/wallet.h>
 
 /**
  * @brief The ExecRPCCommand class Execution of RPC command line
@@ -24,13 +26,15 @@ public:
 
     /**
      * @brief exec Execute the RPC command
+     * @param node Select node for execution of the command
+     * @param wallet Select wallet for execution of the command
      * @param params Map of the parameter name and the parameter value
      * @param result Returned data from the PRC call execution
      * @param resultJson Raw JSON string from the PRC call execution
      * @param errorMessage Error message from the execution
      * @return Result of the execution
      */
-    bool exec(const QMap<QString, QString>& params, QVariant& result, QString& resultJson, QString& errorMessage);
+    bool exec(interfaces::Node& node, interfaces::Wallet& wallet, const QMap<QString, QString>& params, QVariant& result, QString& resultJson, QString& errorMessage);
 
     /**
      * @brief appendParam Append paramether to the list

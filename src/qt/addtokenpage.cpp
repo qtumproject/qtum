@@ -83,6 +83,7 @@ void AddTokenPage::setModel(WalletModel *_model)
     connect(m_model->getOptionsModel(), SIGNAL(zeroBalanceAddressTokenChanged(bool)), this, SLOT(on_zeroBalanceAddressToken(bool)));
 
     ui->lineEditSenderAddress->setWalletModel(m_model);
+    m_tokenABI->setModel(m_model);
 }
 
 void AddTokenPage::on_clearButton_clicked()

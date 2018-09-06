@@ -77,6 +77,7 @@ SendTokenPage::~SendTokenPage()
 void SendTokenPage::setModel(WalletModel *_model)
 {
     m_model = _model;
+    m_tokenABI->setModel(m_model);
 }
 
 void SendTokenPage::setClientModel(ClientModel *_clientModel)
