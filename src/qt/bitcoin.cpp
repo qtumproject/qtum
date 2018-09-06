@@ -28,6 +28,7 @@
 
 #include <interfaces/handler.h>
 #include <interfaces/node.h>
+#include <init.h>
 #include <rpc/server.h>
 #include <ui_interface.h>
 #include <uint256.h>
@@ -51,6 +52,8 @@
 #include <QTimer>
 #include <QTranslator>
 #include <QSslConfiguration>
+#include <QFile>
+#include <QProcess>
 
 #if defined(QT_STATICPLUGIN)
 #include <QtPlugin>
@@ -148,6 +151,15 @@ void DebugMessageHandler(QtMsgType type, const QMessageLogContext& context, cons
     }
 }
 
+void removeParam(QStringList& list, const QString& param)
+{
+    int index = list.indexOf(param);
+    if(index != -1)
+    {
+        list.removeAt(index);
+    }
+}
+
 /** Class encapsulating Bitcoin Core startup and shutdown.
  * Allows running startup and shutdown in a different thread from the UI thread.
  */
@@ -208,6 +220,9 @@ public:
     /// Setup platform style
     void setupPlatformStyle();
 
+    /// Restore wallet
+    void restoreWallet();
+
 public Q_SLOTS:
     void initializeResult(bool success);
     void shutdownResult();
@@ -239,6 +254,9 @@ private:
     std::unique_ptr<QWidget> shutdownWindow;
 
     void startThread();
+
+    QString restorePath;
+    QString restoreParam;
 };
 
 #include <qt/bitcoin.moc>
@@ -420,6 +438,10 @@ void BitcoinApplication::requestShutdown()
 #ifdef ENABLE_WALLET
     window->removeAllWallets();
     for (WalletModel *walletModel : m_wallet_models) {
+        if(walletModel->restore()) {
+            restoreParam = walletModel->getRestoreParam();
+            restorePath = walletModel->getRestorePath();
+        }
         delete walletModel;
     }
     m_wallet_models.clear();
@@ -536,6 +558,41 @@ WId BitcoinApplication::getMainWinId() const
         return 0;
 
     return window->winId();
+}
+
+void BitcoinApplication::restoreWallet()
+{
+#ifdef ENABLE_WALLET
+    // Restart the wallet if needed
+    if(!restorePath.isEmpty())
+    {
+        // Create command line
+        QString commandLine;
+        QStringList arg = arguments();
+        removeParam(arg, "-reindex");
+        removeParam(arg, "-salvagewallet");
+        if(!arg.contains(restoreParam))
+        {
+            arg.append(restoreParam);
+        }
+        commandLine = arg.join(' ');
+
+        // Copy the new wallet.dat to the data folder
+        fs::path path = GetDataDir() / "wallet.dat";
+        QString pathWallet = QString::fromStdString(path.string());
+        QFile::remove(pathWallet);
+        if(QFile::copy(restorePath, pathWallet))
+        {
+            // Unlock the data folder
+            UnlockDataDirectory();
+            QThread::currentThread()->sleep(2);
+
+            // Create new process and start the wallet
+            QProcess *process = new QProcess();
+            process->start(commandLine);
+        }
+    }
+#endif
 }
 
 static void SetupUIArgs()
@@ -735,6 +792,7 @@ int main(int argc, char *argv[])
         PrintExceptionContinue(nullptr, "Runaway exception");
         app.handleRunawayException(QString::fromStdString(node->getWarnings("gui")));
     }
+    app.restoreWallet();
     return rv;
 }
 #endif // BITCOIN_QT_TEST
