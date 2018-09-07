@@ -254,7 +254,7 @@ namespace GUIUtil
         bool eventFilter(QObject *object, QEvent *event);
     };
 
-    void formatToolButtons(QToolButton* btn1, QToolButton* btn2 = 0, QToolButton* btn3 = 0);//QTUM_INSERT_LINE
+    void formatToolButtons(QToolButton* btn1, QToolButton* btn2 = 0, QToolButton* btn3 = 0);
 
 } // namespace GUIUtil
 
