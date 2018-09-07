@@ -28,7 +28,6 @@ Basic usage resources:
 * [Unofficial guide for keeping your wallet safe](https://steemit.com/qtum/@cryptominder/encrypting-backing-up-and-restoring-your-qtum-wallet)
 * [Block explorer](https://explorer.qtum.org)
 * [Unofficial block explorer](https://qtumexplorer.io/)
-* [Unofficial Raspberry Pi Web UI](https://github.com/rpiwalletui/qtum-ui)
 
 Development resources:
 
