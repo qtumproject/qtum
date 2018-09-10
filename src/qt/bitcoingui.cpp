@@ -17,6 +17,7 @@
 #include <qt/platformstyle.h>
 #include <qt/rpcconsole.h>
 #include <qt/utilitydialog.h>
+#include <qt/qtumversionchecker.h>
 
 #ifdef ENABLE_WALLET
 #include <qt/walletframe.h>
@@ -197,6 +198,15 @@ BitcoinGUI::BitcoinGUI(interfaces::Node& node, const PlatformStyle *_platformSty
     connect(connectionsControl, SIGNAL(clicked(QPoint)), this, SLOT(toggleNetworkActive()));
 
     modalOverlay = new ModalOverlay(this->centralWidget());
+    qtumVersionChecker = new QtumVersionChecker(this);
+
+    if(fCheckForUpdates && qtumVersionChecker->newVersionAvailable())
+    {
+        QString link = QString("<a href=%1>%2</a>").arg(QTUM_RELEASES, QTUM_RELEASES);
+        QString message(tr("New version of Qtum wallet is available on the Qtum source code repository: <br /> %1. <br />It is recommended to download it and update this application").arg(link));
+        QMessageBox::information(this, tr("Check for updates"), message);
+    }
+
 #ifdef ENABLE_WALLET
     if(enableWallet) {
         connect(walletFrame, SIGNAL(requestedSyncWarningInfo()), this, SLOT(showModalOverlay()));

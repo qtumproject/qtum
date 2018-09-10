@@ -18,6 +18,11 @@
 #include <txdb.h> // for -dbcache defaults
 #include <qt/intro.h>
 
+#ifdef ENABLE_WALLET
+#include <wallet/wallet.h>
+#include <wallet/walletdb.h>
+#endif
+
 #include <QNetworkProxy>
 #include <QSettings>
 #include <QStringList>
@@ -118,6 +123,14 @@ void OptionsModel::Init(bool resetSettings)
     if (!m_node.softSetBoolArg("-spendzeroconfchange", settings.value("bSpendZeroConfChange").toBool()))
         addOverriddenOption("-spendzeroconfchange");
 #endif
+    if (!settings.contains("bZeroBalanceAddressToken"))
+        settings.setValue("bZeroBalanceAddressToken", true);
+    if (!gArgs.SoftSetBoolArg("-zerobalanceaddresstoken", settings.value("bZeroBalanceAddressToken").toBool()))
+        addOverriddenOption("-zerobalanceaddresstoken");
+
+    if (!settings.contains("fCheckForUpdates"))
+        settings.setValue("fCheckForUpdates", DEFAULT_CHECK_FOR_UPDATES);
+    fCheckForUpdates = settings.value("fCheckForUpdates").toBool();
 
     // Network
     if (!settings.contains("fUseUPnP"))
@@ -301,6 +314,8 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
             return settings.value("nThreadsScriptVerif");
         case Listen:
             return settings.value("fListen");
+        case CheckForUpdates:
+            return settings.value("fCheckForUpdates");
         default:
             return QVariant();
         }
@@ -447,6 +462,12 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             if (settings.value("fListen") != value) {
                 settings.setValue("fListen", value);
                 setRestartRequired(true);
+            }
+            break;
+        case CheckForUpdates:
+            if (settings.value("fCheckForUpdates") != value) {
+                settings.setValue("fCheckForUpdates", value);
+                fCheckForUpdates = value.toBool();
             }
             break;
         default:

@@ -45,6 +45,7 @@ extern bool bZeroBalanceAddressToken;
 extern bool fWalletUnlockStakingOnly;
 extern bool fNotUseChangeAddress;
 extern bool fBatchProcessingMode;
+extern bool fCheckForUpdates;
 
 //! Default for -keypool
 static const unsigned int DEFAULT_KEYPOOL_SIZE = 1000;
@@ -74,6 +75,8 @@ static const bool DEFAULT_WALLETBROADCAST = true;
 static const bool DEFAULT_DISABLE_WALLET = false;
 
 static const bool DEFAULT_NOT_USE_CHANGE_ADDRESS = false;
+
+static const bool DEFAULT_CHECK_FOR_UPDATES = true;
 
 class CBlockIndex;
 class CCoinControl;

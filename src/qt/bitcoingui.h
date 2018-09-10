@@ -32,6 +32,7 @@ class WalletFrame;
 class WalletModel;
 class HelpMessageDialog;
 class ModalOverlay;
+class QtumVersionChecker;
 
 namespace interfaces {
 class Handler;
@@ -135,6 +136,7 @@ private:
     RPCConsole* rpcConsole = nullptr;
     HelpMessageDialog* helpMessageDialog = nullptr;
     ModalOverlay* modalOverlay = nullptr;
+    QtumVersionChecker *qtumVersionChecker = nullptr;
 
     /** Keep track of previous number of blocks, to detect progress */
     int prevBlocks = 0;

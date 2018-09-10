@@ -42,6 +42,7 @@ CAmount nReserveBalance = 0;
 bool bZeroBalanceAddressToken = DEFAULT_ZERO_BALANCE_ADDRESS_TOKEN;
 bool fNotUseChangeAddress = DEFAULT_NOT_USE_CHANGE_ADDRESS;
 bool fBatchProcessingMode = false;
+bool fCheckForUpdates = DEFAULT_CHECK_FOR_UPDATES;
 
 static const size_t OUTPUT_GROUP_MAX_ENTRIES = 10;
 
