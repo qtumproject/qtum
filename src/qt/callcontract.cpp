@@ -1,20 +1,20 @@
-#include "callcontract.h"
-#include "ui_callcontract.h"
-#include "platformstyle.h"
-#include "walletmodel.h"
-#include "clientmodel.h"
-#include "guiconstants.h"
-#include "rpcconsole.h"
-#include "execrpccommand.h"
-#include "abifunctionfield.h"
-#include "contractabi.h"
-#include "tabbarinfo.h"
-#include "contractresult.h"
-#include "contractbookpage.h"
-#include "editcontractinfodialog.h"
-#include "contracttablemodel.h"
-#include "styleSheet.h"
-#include "guiutil.h"
+#include <qt/callcontract.h>
+#include <qt/forms/ui_callcontract.h>
+#include <qt/platformstyle.h>
+#include <qt/walletmodel.h>
+#include <qt/clientmodel.h>
+#include <qt/guiconstants.h>
+#include <qt/rpcconsole.h>
+#include <qt/execrpccommand.h>
+#include <qt/abifunctionfield.h>
+#include <qt/contractabi.h>
+#include <qt/tabbarinfo.h>
+#include <qt/contractresult.h>
+#include <qt/contractbookpage.h>
+#include <qt/editcontractinfodialog.h>
+#include <qt/contracttablemodel.h>
+#include <qt/styleSheet.h>
+#include <qt/guiutil.h>
 #include <QClipboard>
 
 namespace CallContract_NS
@@ -57,6 +57,7 @@ CallContract::CallContract(const PlatformStyle *platformStyle, QWidget *parent) 
     ui->labelContractAddress->setToolTip(tr("The account address."));
     ui->labelSenderAddress->setToolTip(tr("The sender address hex string."));
     ui->pushButtonCallContract->setEnabled(false);
+    ui->lineEditSenderAddress->setSenderAddress(true);
     ui->lineEditSenderAddress->setComboBoxEditable(true);
 
     m_tabInfo = new TabBarInfo(ui->stackedWidget);

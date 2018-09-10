@@ -1,8 +1,8 @@
-﻿#include "tokenamountfield.h"
+﻿#include <qt/tokenamountfield.h>
 
-#include "bitcoinunits.h"
-#include "styleSheet.h"
-#include "qvaluecombobox.h"
+#include <qt/bitcoinunits.h>
+#include <qt/styleSheet.h>
+#include <qt/qvaluecombobox.h>
 
 #include <QApplication>
 #include <QAbstractSpinBox>

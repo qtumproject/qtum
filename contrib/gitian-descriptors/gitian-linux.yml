@@ -1,5 +1,5 @@
 ---
-name: "qtum-linux-0.15"
+name: "qtum-linux-0.16"
 enable_cache: true
 suites:
 - "trusty"
@@ -125,7 +125,6 @@ script: |
   done
 
   cd qtum
-
   BASEPREFIX=`pwd`/depends
   # Build dependencies for each host
   for i in $HOSTS; do

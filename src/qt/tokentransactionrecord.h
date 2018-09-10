@@ -1,8 +1,8 @@
 #ifndef QTUM_QT_TOKENTRANSACTIONRECORD_H
 #define QTUM_QT_TOKENTRANSACTIONRECORD_H
 
-#include "amount.h"
-#include "uint256.h"
+#include <amount.h>
+#include <uint256.h>
 
 #include <QList>
 #include <QString>

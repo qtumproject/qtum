@@ -41,8 +41,8 @@ version		Version number, commit, or branch to build. If building a commit or bra
 Options:
 -c|--commit	Indicate that the version argument is for a commit or branch
 -u|--url	Specify the URL of the repository. Default is https://github.com/qtumproject/qtum
--v|--verify 	Verify the gitian build
--b|--build	Do a gitian build
+-v|--verify 	Verify the Gitian build
+-b|--build	Do a Gitian build
 -s|--sign	Make signed binaries for Windows and Mac OSX
 -B|--buildsign	Build both signed and unsigned binaries
 -o|--os		Specify which Operating Systems the build is for. Default is lwx. l for linux, w for windows, x for osx
@@ -107,7 +107,7 @@ while :; do
 		fi
 		shift
 	    else
-		echo 'Error: "--os" requires an argument containing an l (for linux), w (for windows), or x (for Mac OSX)\n'
+		echo 'Error: "--os" requires an argument containing an l (for linux), w (for windows), or x (for Mac OSX)'
 		exit 1
 	    fi
 	    ;;
@@ -180,8 +180,6 @@ done
 if [[ $lxc = true ]]
 then
     export USE_LXC=1
-    export LXC_BRIDGE=lxcbr0
-    sudo ifconfig lxcbr0 up 10.0.2.2
 fi
 
 # Check for OSX SDK
@@ -263,7 +261,7 @@ then
 	# Linux
 	if [[ $linux = true ]]
 	then
-        echo ""
+            echo ""
 	    echo "Compiling ${VERSION} Linux"
 	    echo ""
 	    ./bin/gbuild -j ${proc} -m ${mem} --commit qtum=${COMMIT},cpp-eth-qtum=develop --url qtum=${url},cpp-eth-qtum=${ethurl} ../qtum/contrib/gitian-descriptors/gitian-linux.yml
@@ -350,7 +348,7 @@ then
 	    echo "Try $scriptName --help for more information"
 	    exit 1
 	fi
-    pushd ./gitian-builder
+        pushd ./gitian-builder
 	# Sign Windows
 	if [[ $windows = true ]]
 	then

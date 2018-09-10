@@ -32,7 +32,7 @@
       <number>0</number>
      </property>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
        <property name="leftMargin">
         <number>10</number>
        </property>
@@ -228,7 +228,7 @@
   <customwidget>
    <class>QRImageWidget</class>
    <extends>QLabel</extends>
-   <header>receiverequestdialog.h</header>
+   <header>qt/receiverequestdialog.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

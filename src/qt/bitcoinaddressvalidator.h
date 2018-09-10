@@ -27,12 +27,12 @@ class BitcoinAddressCheckValidator : public QValidator
     Q_OBJECT
 
 public:
-    explicit BitcoinAddressCheckValidator(QObject *parent, bool allowScript = true);
+    explicit BitcoinAddressCheckValidator(QObject *parent, bool senderAddress = false);
 
     State validate(QString &input, int &pos) const;
 
 private:
-    bool bAllowScript;
+    bool m_senderAddress;
 };
 
 #endif // BITCOIN_QT_BITCOINADDRESSVALIDATOR_H

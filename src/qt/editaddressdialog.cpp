@@ -1,17 +1,19 @@
-// Copyright (c) 2011-2016 The Bitcoin Core developers
+// Copyright (c) 2011-2017 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "editaddressdialog.h"
-#include "ui_editaddressdialog.h"
+#include <qt/editaddressdialog.h>
+#include <qt/forms/ui_editaddressdialog.h>
 
-#include "addresstablemodel.h"
-#include "guiutil.h"
-#include "styleSheet.h"
+#include <qt/addresstablemodel.h>
+#include <qt/guiutil.h>
+#include <qt/styleSheet.h>
 
 #include <QDataWidgetMapper>
 #include <QMessageBox>
 #include <QPushButton>
+
+extern OutputType g_address_type;
 
 EditAddressDialog::EditAddressDialog(Mode _mode, QWidget *parent) :
     QDialog(parent),
@@ -82,7 +84,8 @@ bool EditAddressDialog::saveCurrentRow()
         address = model->addRow(
                 mode == NewSendingAddress ? AddressTableModel::Send : AddressTableModel::Receive,
                 ui->labelEdit->text(),
-                ui->addressEdit->text());
+                ui->addressEdit->text(),
+                g_address_type);
         break;
     case EditReceivingAddress:
     case EditSendingAddress:

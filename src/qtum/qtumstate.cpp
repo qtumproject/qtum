@@ -1,8 +1,8 @@
 #include <sstream>
 #include <util.h>
 #include <validation.h>
-#include "chainparams.h"
-#include "qtumstate.h"
+#include <chainparams.h>
+#include <qtum/qtumstate.h>
 
 using namespace std;
 using namespace dev;

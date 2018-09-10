@@ -1,16 +1,16 @@
-#include "addtokenpage.h"
-#include "ui_addtokenpage.h"
-#include "guiconstants.h"
-#include "wallet/wallet.h"
-#include "clientmodel.h"
-#include "walletmodel.h"
-#include "token.h"
-#include "qvalidatedlineedit.h"
-#include "contractabi.h"
-#include "validation.h"
-#include "addresstablemodel.h"
-#include "optionsmodel.h"
-#include "styleSheet.h"
+#include <qt/addtokenpage.h>
+#include <qt/forms/ui_addtokenpage.h>
+#include <qt/guiconstants.h>
+#include <wallet/wallet.h>
+#include <qt/clientmodel.h>
+#include <qt/walletmodel.h>
+#include <qt/token.h>
+#include <qt/qvalidatedlineedit.h>
+#include <qt/contractabi.h>
+#include <validation.h>
+#include <qt/addresstablemodel.h>
+#include <qt/optionsmodel.h>
+#include <qt/styleSheet.h>
 
 #include <QRegularExpressionValidator>
 #include <QMessageBox>
@@ -42,6 +42,7 @@ AddTokenPage::AddTokenPage(QWidget *parent) :
     ui->lineEditSenderAddress->setAddressColumn(AddressTableModel::Address);
     ui->lineEditSenderAddress->setTypeRole(AddressTableModel::TypeRole);
     ui->lineEditSenderAddress->setReceive(AddressTableModel::Receive);
+    ui->lineEditSenderAddress->setSenderAddress(true);
     if(ui->lineEditSenderAddress->isEditable())
         ((QValidatedLineEdit*)ui->lineEditSenderAddress->lineEdit())->setEmptyIsValid(false);
     m_validTokenAddress = false;

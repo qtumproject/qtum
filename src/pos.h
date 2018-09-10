@@ -4,17 +4,17 @@
 #ifndef QUANTUM_POS_H
 #define QUANTUM_POS_H
 
-#include "chain.h"
-#include "primitives/transaction.h"
-#include "consensus/validation.h"
-#include "txdb.h"
-#include "validation.h"
-#include "arith_uint256.h"
-#include "hash.h"
-#include "timedata.h"
-#include "chainparams.h"
-#include "script/sign.h"
-#include "consensus/consensus.h"
+#include <chain.h>
+#include <primitives/transaction.h>
+#include <consensus/validation.h>
+#include <txdb.h>
+#include <validation.h>
+#include <arith_uint256.h>
+#include <hash.h>
+#include <timedata.h>
+#include <chainparams.h>
+#include <script/sign.h>
+#include <consensus/consensus.h>
 
 // To decrease granularity of timestamp
 // Supposed to be 2^n-1

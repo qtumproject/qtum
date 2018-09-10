@@ -1,9 +1,9 @@
 #ifndef QRCTOKEN_H
 #define QRCTOKEN_H
 
-#include "sendtokenpage.h"
-#include "receivetokenpage.h"
-#include "addtokenpage.h"
+#include <qt/sendtokenpage.h>
+#include <qt/receivetokenpage.h>
+#include <qt/addtokenpage.h>
 
 #include <QWidget>
 #include <QModelIndex>
