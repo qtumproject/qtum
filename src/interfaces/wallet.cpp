@@ -706,6 +706,20 @@ public:
     {
         return m_wallet.SetContractBook(id, name, abi);
     }
+    bool tryGetStakeWeight(uint64_t& nWeight) override
+    {
+        TRY_LOCK(::cs_main, locked_chain);
+        if (!locked_chain) {
+            return false;
+        }
+        TRY_LOCK(m_wallet.cs_wallet, locked_wallet);
+        if (!locked_wallet) {
+            return false;
+        }
+
+        nWeight = m_wallet.GetStakeWeight();
+        return true;
+    }
     std::unique_ptr<Handler> handleUnload(UnloadFn fn) override
     {
         return MakeHandler(m_wallet.NotifyUnload.connect(fn));

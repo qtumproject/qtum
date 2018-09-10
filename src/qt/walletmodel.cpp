@@ -40,7 +40,8 @@ WalletModel::WalletModel(std::unique_ptr<interfaces::Wallet> wallet, interfaces:
     tokenItemModel(0),
     tokenTransactionTableModel(0),
     cachedEncryptionStatus(Unencrypted),
-    cachedNumBlocks(0)
+    cachedNumBlocks(0),
+    nWeight(0)
 {
     fHaveWatchOnly = m_wallet->haveWatchOnly();
     fForceCheckBalanceChanged = false;
@@ -686,4 +687,10 @@ QString WalletModel::getRestoreParam()
 bool WalletModel::restore()
 {
     return !restorePath.isEmpty();
+}
+
+uint64_t WalletModel::tryGetStakeWeight()
+{
+    m_wallet->tryGetStakeWeight(nWeight);
+    return nWeight;
 }

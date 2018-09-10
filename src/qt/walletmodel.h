@@ -218,6 +218,8 @@ public:
     QString getRestoreParam();
     bool restore();
 
+    uint64_t tryGetStakeWeight();
+
     AddressTableModel* getAddressTableModel() const { return addressTableModel; }
 private:
     std::unique_ptr<interfaces::Wallet> m_wallet;
@@ -254,6 +256,8 @@ private:
 
     QString restorePath;
     QString restoreParam;
+
+    uint64_t nWeight;
 
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();

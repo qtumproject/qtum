@@ -308,6 +308,9 @@ public:
     //! Set contract book data.
     virtual bool setContractBook(const std::string& address, const std::string& name, const std::string& abi) = 0;
 
+    //! Try get the stake weight
+    virtual bool tryGetStakeWeight(uint64_t& nWeight) = 0;
+
     //! Register handler for unload message.
     using UnloadFn = std::function<void()>;
     virtual std::unique_ptr<Handler> handleUnload(UnloadFn fn) = 0;

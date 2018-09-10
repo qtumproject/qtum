@@ -100,6 +100,7 @@ private:
     QLabel* progressBarLabel = nullptr;
     QProgressBar* progressBar = nullptr;
     QProgressDialog* progressDialog = nullptr;
+    QLabel *labelStakingIcon = nullptr;
 
     QMenuBar* appMenuBar = nullptr;
     QToolBar* appToolBar = nullptr;
@@ -258,6 +259,8 @@ private Q_SLOTS:
     void showNormalIfMinimized(bool fToggleHidden = false);
     /** Simply calls showNormalIfMinimized(true) for use in SLOT() macro */
     void toggleHidden();
+    /** Update staking icon **/
+    void updateStakingIcon();
 
     /** called by a timer to check if ShutdownRequested() has been set **/
     void detectShutdown();
