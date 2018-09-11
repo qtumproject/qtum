@@ -8,7 +8,7 @@ architectures:
 packages:
 - "curl"
 - "g++"
-- "git-core"
+- "git"
 - "pkg-config"
 - "autoconf"
 - "libtool"
@@ -21,6 +21,7 @@ packages:
 - "zip"
 - "ca-certificates"
 - "python"
+- "rename"
 remotes:
 - "url": "https://github.com/qtumproject/qtum.git"
   "dir": "qtum"
