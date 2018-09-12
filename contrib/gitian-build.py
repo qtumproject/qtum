@@ -24,11 +24,11 @@ def setup():
     subprocess.check_call(['sudo', 'apt-get', 'install', '-qq'] + programs)
     if not os.path.isdir('gitian.sigs'):
         subprocess.check_call(['git', 'clone', 'https://github.com/qtumproject/gitian.sigs.git'])
-    if not os.path.isdir('bitcoin-detached-sigs'):
+    if not os.path.isdir('qtum-detached-sigs'):
         subprocess.check_call(['git', 'clone', 'https://github.com/qtumproject/qtum-detached-sigs.git'])
     if not os.path.isdir('gitian-builder'):
         subprocess.check_call(['git', 'clone', 'https://github.com/devrandom/gitian-builder.git'])
-    if not os.path.isdir('bitcoin'):
+    if not os.path.isdir('qtum'):
         subprocess.check_call(['git', 'clone', 'https://github.com/qtumproject/qtum.git'])
     os.chdir('gitian-builder')
     make_image_prog = ['bin/make-base-vm', '--suite', 'bionic', '--arch', 'amd64']
@@ -46,7 +46,7 @@ def setup():
 def build():
     global args, workdir
 
-    os.makedirs('bitcoin-binaries/' + args.version, exist_ok=True)
+    os.makedirs('qtum-binaries/' + args.version, exist_ok=True)
     print('\nBuilding Dependencies\n')
     os.chdir('gitian-builder')
     os.makedirs('inputs', exist_ok=True)
@@ -57,20 +57,20 @@ def build():
 
     if args.linux:
         print('\nCompiling ' + args.version + ' Linux')
-        subprocess.check_call(['bin/gbuild', '-j', args.jobs, '-m', args.memory, '--commit', 'bitcoin='+args.commit, '--url', 'bitcoin='+args.url, '../qtum/contrib/gitian-descriptors/gitian-linux.yml'])
+        subprocess.check_call(['bin/gbuild', '-j', args.jobs, '-m', args.memory, '--commit', 'qtum='+args.commit+',cpp-eth-qtum=develop', '--url', 'qtum='+args.url, '../qtum/contrib/gitian-descriptors/gitian-linux.yml'])
         subprocess.check_call(['bin/gsign', '-p', args.sign_prog, '--signer', args.signer, '--release', args.version+'-linux', '--destination', '../gitian.sigs/', '../qtum/contrib/gitian-descriptors/gitian-linux.yml'])
         subprocess.check_call('mv build/out/qtum-*.tar.gz build/out/src/qtum-*.tar.gz ../qtum-binaries/'+args.version, shell=True)
 
     if args.windows:
         print('\nCompiling ' + args.version + ' Windows')
-        subprocess.check_call(['bin/gbuild', '-j', args.jobs, '-m', args.memory, '--commit', 'bitcoin='+args.commit, '--url', 'bitcoin='+args.url, '../qtum/contrib/gitian-descriptors/gitian-win.yml'])
+        subprocess.check_call(['bin/gbuild', '-j', args.jobs, '-m', args.memory, '--commit', 'qtum='+args.commit,',cpp-eth-qtum=develop', '--url', 'qtum='+args.url, '../qtum/contrib/gitian-descriptors/gitian-win.yml'])
         subprocess.check_call(['bin/gsign', '-p', args.sign_prog, '--signer', args.signer, '--release', args.version+'-win-unsigned', '--destination', '../gitian.sigs/', '../qtum/contrib/gitian-descriptors/gitian-win.yml'])
         subprocess.check_call('mv build/out/qtum-*-win-unsigned.tar.gz inputs/qtum-win-unsigned.tar.gz', shell=True)
         subprocess.check_call('mv build/out/qtum-*.zip build/out/qtum-*.exe ../qtum-binaries/'+args.version, shell=True)
 
     if args.macos:
         print('\nCompiling ' + args.version + ' MacOS')
-        subprocess.check_call(['bin/gbuild', '-j', args.jobs, '-m', args.memory, '--commit', 'bitcoin='+args.commit, '--url', 'bitcoin='+args.url, '../qtum/contrib/gitian-descriptors/gitian-osx.yml'])
+        subprocess.check_call(['bin/gbuild', '-j', args.jobs, '-m', args.memory, '--commit', 'qtum='+args.commit+',cpp-eth-qtum=develop', '--url', 'qtum='+args.url, '../qtum/contrib/gitian-descriptors/gitian-osx.yml'])
         subprocess.check_call(['bin/gsign', '-p', args.sign_prog, '--signer', args.signer, '--release', args.version+'-osx-unsigned', '--destination', '../gitian.sigs/', '../qtum/contrib/gitian-descriptors/gitian-osx.yml'])
         subprocess.check_call('mv build/out/qtum-*-osx-unsigned.tar.gz inputs/qtum-osx-unsigned.tar.gz', shell=True)
         subprocess.check_call('mv build/out/qtum-*.tar.gz build/out/qtum-*.dmg ../qtum-binaries/'+args.version, shell=True)
