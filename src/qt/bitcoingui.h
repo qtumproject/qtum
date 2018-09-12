@@ -35,7 +35,6 @@ class ModalOverlay;
 class TitleBar;
 class NavigationBar;
 class QtumVersionChecker;
-class CWallet;
 
 namespace interfaces {
 class Handler;
@@ -49,8 +48,6 @@ class QProgressBar;
 class QProgressDialog;
 class QDockWidget;
 QT_END_NAMESPACE
-
-typedef CWallet* CWalletRef;
 
 /**
   Bitcoin GUI main class. This class represents the main window of the Bitcoin UI. It communicates with both the client and
