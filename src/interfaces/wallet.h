@@ -410,7 +410,7 @@ struct WalletBalances
     }
 };
 
-// Wallet transaction information.
+//! Wallet transaction information.
 struct WalletTx
 {
     CTransactionRef tx;
@@ -424,6 +424,12 @@ struct WalletTx
     int64_t time;
     std::map<std::string, std::string> value_map;
     bool is_coinbase;
+    bool is_coinstake;
+
+    // Contract tx params
+    bool has_create_or_call;
+    CKeyID tx_sender_key;
+    std::vector<CKeyID> txout_keys;
 };
 
 //! Updated transaction status.
@@ -438,6 +444,7 @@ struct WalletTxStatus
     bool is_trusted;
     bool is_abandoned;
     bool is_coinbase;
+    bool is_coinstake;
     bool is_in_main_chain;
 };
 
