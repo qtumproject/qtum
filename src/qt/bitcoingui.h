@@ -32,7 +32,10 @@ class WalletFrame;
 class WalletModel;
 class HelpMessageDialog;
 class ModalOverlay;
+class TitleBar;
+class NavigationBar;
 class QtumVersionChecker;
+class CWallet;
 
 namespace interfaces {
 class Handler;
@@ -44,7 +47,10 @@ class QAction;
 class QComboBox;
 class QProgressBar;
 class QProgressDialog;
+class QDockWidget;
 QT_END_NAMESPACE
+
+typedef CWallet* CWalletRef;
 
 /**
   Bitcoin GUI main class. This class represents the main window of the Bitcoin UI. It communicates with both the client and
@@ -73,6 +79,7 @@ public:
     bool addWallet(WalletModel *walletModel);
     bool removeWallet(WalletModel* walletModel);
     void removeAllWallets();
+    void setTabBarInfo(QObject* into);
 #endif // ENABLE_WALLET
     bool enableWallet = false;
 
@@ -104,6 +111,8 @@ private:
 
     QMenuBar* appMenuBar = nullptr;
     QToolBar* appToolBar = nullptr;
+    TitleBar *appTitleBar = nullptr;
+    NavigationBar *appNavigationBar = nullptr;
     QAction* overviewAction = nullptr;
     QAction* historyAction = nullptr;
     QAction* quitAction = nullptr;
@@ -127,6 +136,17 @@ private:
     QAction* showHelpMessageAction = nullptr;
     QAction* m_wallet_selector_label_action = nullptr;
     QAction* m_wallet_selector_action = nullptr;
+    QAction *restoreWalletAction = nullptr;
+    QAction *unlockWalletAction = nullptr;
+    QAction *lockWalletAction = nullptr;
+    QAction* smartContractAction = nullptr;
+    QAction* createContractAction = nullptr;
+    QAction* sendToContractAction = nullptr;
+    QAction* callContractAction = nullptr;
+    QAction* QRCTokenAction = nullptr;
+    QAction* sendTokenAction = nullptr;
+    QAction* receiveTokenAction = nullptr;
+    QAction* addTokenAction = nullptr;
 
     QLabel *m_wallet_selector_label = nullptr;
     QComboBox* m_wallet_selector = nullptr;
@@ -137,6 +157,7 @@ private:
     RPCConsole* rpcConsole = nullptr;
     HelpMessageDialog* helpMessageDialog = nullptr;
     ModalOverlay* modalOverlay = nullptr;
+    ModalOverlay *modalBackupOverlay = nullptr;
     QtumVersionChecker *qtumVersionChecker = nullptr;
 
     /** Keep track of previous number of blocks, to detect progress */
@@ -151,6 +172,8 @@ private:
     void createMenuBar();
     /** Create the toolbars */
     void createToolBars();
+    /** Create title bar */
+    void createTitleBars();
     /** Create system tray icon and notification */
     void createTrayIcon(const NetworkStyle *networkStyle);
     /** Create system tray menu (or setup the dock menu) */
@@ -168,6 +191,9 @@ private:
     void updateNetworkState();
 
     void updateHeadersSyncProgressLabel();
+
+    /** Add docking windows to the main windows */
+    void addDockWindows(Qt::DockWidgetArea area, QWidget* widget);
 
 Q_SIGNALS:
     /** Signal raised when a URI was entered or dragged to the GUI */
@@ -215,6 +241,9 @@ public Q_SLOTS:
 
     /** Show incoming transaction notification for new transactions. */
     void incomingTransaction(const QString& date, int unit, const CAmount& amount, const QString& type, const QString& address, const QString& label, const QString& walletName);
+
+    /** Show incoming transaction notification for new token transactions. */
+    void incomingTokenTransaction(const QString& date, const QString& amount, const QString& type, const QString& address, const QString& label, const QString& title);
 #endif // ENABLE_WALLET
 
 private:
@@ -231,6 +260,18 @@ private Q_SLOTS:
     void gotoReceiveCoinsPage();
     /** Switch to send coins page */
     void gotoSendCoinsPage(QString addr = "");
+    /** Switch to create contract page */
+    void gotoCreateContractPage();
+    /** Switch to send contract page */
+    void gotoSendToContractPage();
+    /** Switch to call contract page */
+    void gotoCallContractPage();
+    /** Switch to Send Token page */
+    void gotoSendTokenPage();
+    /** Switch to Receive Token page */
+    void gotoReceiveTokenPage();
+    /** Switch to Add Token page */
+    void gotoAddTokenPage();
 
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");
@@ -275,6 +316,8 @@ private Q_SLOTS:
     void toggleNetworkActive();
 
     void showModalOverlay();
+
+    void showModalBackupOverlay();
 };
 
 class UnitDisplayStatusBarControl : public QLabel

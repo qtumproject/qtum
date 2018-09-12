@@ -46,6 +46,7 @@ extern bool fWalletUnlockStakingOnly;
 extern bool fNotUseChangeAddress;
 extern bool fBatchProcessingMode;
 extern bool fCheckForUpdates;
+extern int64_t nLastCoinStakeSearchInterval;
 
 //! Default for -keypool
 static const unsigned int DEFAULT_KEYPOOL_SIZE = 1000;
