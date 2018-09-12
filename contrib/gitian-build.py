@@ -63,7 +63,7 @@ def build():
 
     if args.windows:
         print('\nCompiling ' + args.version + ' Windows')
-        subprocess.check_call(['bin/gbuild', '-j', args.jobs, '-m', args.memory, '--commit', 'qtum='+args.commit,',cpp-eth-qtum=develop', '--url', 'qtum='+args.url, '../qtum/contrib/gitian-descriptors/gitian-win.yml'])
+        subprocess.check_call(['bin/gbuild', '-j', args.jobs, '-m', args.memory, '--commit', 'qtum='+args.commit+',cpp-eth-qtum=develop', '--url', 'qtum='+args.url, '../qtum/contrib/gitian-descriptors/gitian-win.yml'])
         subprocess.check_call(['bin/gsign', '-p', args.sign_prog, '--signer', args.signer, '--release', args.version+'-win-unsigned', '--destination', '../gitian.sigs/', '../qtum/contrib/gitian-descriptors/gitian-win.yml'])
         subprocess.check_call('mv build/out/qtum-*-win-unsigned.tar.gz inputs/qtum-win-unsigned.tar.gz', shell=True)
         subprocess.check_call('mv build/out/qtum-*.zip build/out/qtum-*.exe ../qtum-binaries/'+args.version, shell=True)
