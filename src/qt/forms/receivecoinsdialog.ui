@@ -245,12 +245,6 @@
               <height>0</height>
              </size>
             </property>
-            <property name="maximumSize">
-             <size>
-              <width>1000</width>
-              <height>100</height>
-             </size>
-            </property>
             <property name="toolTip">
              <string>An optional amount to request. Leave this empty or zero to not request a specific amount.</string>
             </property>
