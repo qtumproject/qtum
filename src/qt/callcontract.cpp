@@ -57,6 +57,7 @@ CallContract::CallContract(const PlatformStyle *platformStyle, QWidget *parent) 
     ui->labelContractAddress->setToolTip(tr("The account address."));
     ui->labelSenderAddress->setToolTip(tr("The sender address hex string."));
     ui->pushButtonCallContract->setEnabled(false);
+    ui->lineEditSenderAddress->setSenderAddress(true);
     ui->lineEditSenderAddress->setComboBoxEditable(true);
 
     m_tabInfo = new TabBarInfo(ui->stackedWidget);
