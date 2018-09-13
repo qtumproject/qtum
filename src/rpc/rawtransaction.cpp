@@ -27,6 +27,7 @@
 #include <txmempool.h>
 #include <uint256.h>
 #include <utilstrencodings.h>
+#include <utilmoneystr.h>
 #ifdef ENABLE_WALLET
 #include <wallet/rpcwallet.h>
 #endif
@@ -39,10 +40,10 @@
 
 static void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& entry)
 {
-    // Call into TxToUniv() in bitcoin-common to decode the transaction hex.
+    // Call into TxToUniv() in qtum-common to decode the transaction hex.
     //
     // Blockchain contextual information (confirmations and blocktime) is not
-    // available to code in bitcoin-common, so we query them here and push the
+    // available to code in qtum-common, so we query them here and push the
     // data into the returned UniValue.
     TxToUniv(tx, uint256(), entry, true, RPCSerializationFlags());
 
@@ -474,10 +475,83 @@ CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniVal
 
             CTxOut out(0, CScript() << OP_RETURN << data);
             rawTx.vout.push_back(out);
+        } else if (name_ == "contract") {
+            // Get the call object
+            UniValue Contract = outputs[name_];
+            if(!Contract.isObject())
+                throw JSONRPCError(RPC_INVALID_PARAMETER, std::string("Invalid parameter, need to be object: ")+name_);
+
+            // Get dgp gas limit and gas price
+            LOCK(cs_main);
+            QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
+            uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(chainActive.Height());
+            uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(chainActive.Height()));
+            CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
+
+            // Get the contract address
+            if(!Contract.exists("contractAddress") || !Contract["contractAddress"].isStr())
+                throw JSONRPCError(RPC_INVALID_PARAMETER, std::string("Invalid parameter, contract address is mandatory."));
+
+            std::string contractaddress = Contract["contractAddress"].get_str();
+            if(contractaddress.size() != 40 || !CheckHex(contractaddress))
+                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect contract address");
+
+            dev::Address addrAccount(contractaddress);
+            if(!globalState->addressInUse(addrAccount))
+                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "contract address does not exist");
+
+            // Get the contract data
+            if(!Contract.exists("data") || !Contract["data"].isStr())
+                throw JSONRPCError(RPC_INVALID_PARAMETER, std::string("Invalid parameter, contract data is mandatory."));
+
+            std::string datahex = Contract["data"].get_str();
+            if(datahex.size() % 2 != 0 || !CheckHex(datahex))
+                throw JSONRPCError(RPC_TYPE_ERROR, "Invalid data (data not hex)");
+
+            // Get amount
+            CAmount nAmount = 0;
+            if (Contract.exists("amount")){
+                nAmount = AmountFromValue(Contract["amount"]);
+                if (nAmount < 0)
+                    throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for call contract");
+            }
+
+            // Get gas limit
+            uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
+            if (Contract.exists("gasLimit")){
+                nGasLimit = Contract["gasLimit"].get_int64();
+                if (nGasLimit > blockGasLimit)
+                    throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasLimit (Maximum is: "+i64tostr(blockGasLimit)+")");
+                if (nGasLimit < MINIMUM_GAS_LIMIT)
+                    throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasLimit (Minimum is: "+i64tostr(MINIMUM_GAS_LIMIT)+")");
+                if (nGasLimit <= 0)
+                    throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasLimit");
+            }
+
+            // Get gas price
+            if (Contract.exists("gasPrice")){
+                UniValue uGasPrice = Contract["gasPrice"];
+                if(!ParseMoney(uGasPrice.getValStr(), nGasPrice))
+                {
+                    throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasPrice");
+                }
+                CAmount maxRpcGasPrice = gArgs.GetArg("-rpcmaxgasprice", MAX_RPC_GAS_PRICE);
+                if (nGasPrice > (int64_t)maxRpcGasPrice)
+                    throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasPrice, Maximum allowed in RPC calls is: "+FormatMoney(maxRpcGasPrice)+" (use -rpcmaxgasprice to change it)");
+                if (nGasPrice < (int64_t)minGasPrice)
+                    throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasPrice (Minimum is: "+FormatMoney(minGasPrice)+")");
+                if (nGasPrice <= 0)
+                    throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasPrice");
+            }
+
+            // Add call contract output
+            CScript scriptPubKey = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(nGasLimit) << CScriptNum(nGasPrice) << ParseHex(datahex) << ParseHex(contractaddress) << OP_CALL;
+            CTxOut out(nAmount, scriptPubKey);
+            rawTx.vout.push_back(out);
         } else {
             CTxDestination destination = DecodeDestination(name_);
             if (!IsValidDestination(destination)) {
-                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, std::string("Invalid Bitcoin address: ") + name_);
+                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, std::string("Invalid Qtum address: ") + name_);
             }
 
             if (!destinations.insert(destination).second) {
@@ -528,7 +602,16 @@ static UniValue createrawtransaction(const JSONRPCRequest& request)
             "    },\n"
             "    {\n"
             "      \"data\": \"hex\"        (obj, optional) A key-value pair. The key must be \"data\", the value is hex encoded data\n"
-            "    }\n"
+            "    },\n"
+            "    {\n"
+            "      \"contract\":{\n"
+            "         \"contractAddress\":\"address\", (string, required) Valid contract address (valid hash160 hex data)\n"
+            "         \"data\":\"hex\",                (string, required) Hex data to add in the call output\n"
+            "         \"amount\":x.xxx,                (numeric, optional) Value in QTUM to send with the call, should be a valid amount, default 0\n"
+            "         \"gasLimit\":x,                  (numeric, optional) The gas limit for the transaction\n"
+            "         \"gasPrice\":x.xxx               (numeric, optional) The gas price for the transaction\n"
+            "       } \n"
+            "    {\n"
             "    ,...                     More key-value pairs of the above form. For compatibility reasons, a dictionary, which holds the key-value pairs directly, is also\n"
             "                             accepted as second parameter.\n"
             "   ]\n"
@@ -541,8 +624,12 @@ static UniValue createrawtransaction(const JSONRPCRequest& request)
             "\nExamples:\n"
             + HelpExampleCli("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\" \"[{\\\"address\\\":0.01}]\"")
             + HelpExampleCli("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\" \"[{\\\"data\\\":\\\"00010203\\\"}]\"")
+            + HelpExampleCli("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\" \"[{\\\"contract\\\":{\\\"contractAddress\\\":\\\"mycontract\\\","
+                                                     "\\\"data\\\":\\\"00\\\", \\\"gasLimit\\\":250000, \\\"gasPrice\\\":0.00000040, \\\"amount\\\":0}}]\"")
             + HelpExampleRpc("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\", \"[{\\\"address\\\":0.01}]\"")
             + HelpExampleRpc("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\", \"[{\\\"data\\\":\\\"00010203\\\"}]\"")
+            + HelpExampleRpc("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\", \"[{\\\"contract\\\":{\\\"contractAddress\\\":\\\"mycontract\\\","
+                                                     "\\\"data\\\":\\\"00\\\", \\\"gasLimit\\\":250000, \\\"gasPrice\\\":0.00000040, \\\"amount\\\":0}}]\"")
             // clang-format on
         );
     }
@@ -1103,7 +1190,7 @@ UniValue signrawtransaction(const JSONRPCRequest& request)
 
     if (!IsDeprecatedRPCEnabled("signrawtransaction")) {
         throw JSONRPCError(RPC_METHOD_DEPRECATED, "signrawtransaction is deprecated and will be fully removed in v0.18. "
-            "To use signrawtransaction in v0.17, restart bitcoind with -deprecatedrpc=signrawtransaction.\n"
+            "To use signrawtransaction in v0.17, restart qtumd with -deprecatedrpc=signrawtransaction.\n"
             "Projects should transition to using signrawtransactionwithkey and signrawtransactionwithwallet before upgrading to v0.18");
     }
 
@@ -1188,7 +1275,7 @@ static UniValue sendrawtransaction(const JSONRPCRequest& request)
         CValidationState state;
         bool fMissingInputs;
         if (!AcceptToMemoryPool(mempool, state, std::move(tx), &fMissingInputs,
-                                nullptr /* plTxnReplaced */, false /* bypass_limits */, nMaxRawTxFee)) {
+                                nullptr /* plTxnReplaced */, false /* bypass_limits */, nMaxRawTxFee, false, true)) {
             if (state.IsInvalid()) {
                 throw JSONRPCError(RPC_TRANSACTION_REJECTED, FormatStateMessage(state));
             } else {
@@ -1334,7 +1421,7 @@ UniValue decodepsbt(const JSONRPCRequest& request)
     if (request.fHelp || request.params.size() != 1)
         throw std::runtime_error(
             "decodepsbt \"psbt\"\n"
-            "\nReturn a JSON object representing the serialized, base64-encoded partially signed Bitcoin transaction.\n"
+            "\nReturn a JSON object representing the serialized, base64-encoded partially signed Qtum transaction.\n"
 
             "\nArguments:\n"
             "1. \"psbt\"            (string, required) The PSBT base64 string\n"
@@ -1359,7 +1446,7 @@ UniValue decodepsbt(const JSONRPCRequest& request)
             "          \"asm\" : \"asm\",            (string) The asm\n"
             "          \"hex\" : \"hex\",            (string) The hex\n"
             "          \"type\" : \"pubkeyhash\",    (string) The type, eg 'pubkeyhash'\n"
-            "          \"address\" : \"address\"     (string) Bitcoin address if there is one\n"
+            "          \"address\" : \"address\"     (string) Qtum address if there is one\n"
             "        }\n"
             "      },\n"
             "      \"partial_signatures\" : {             (json object, optional)\n"
@@ -1616,7 +1703,7 @@ UniValue combinepsbt(const JSONRPCRequest& request)
     if (request.fHelp || request.params.size() != 1)
         throw std::runtime_error(
             "combinepsbt [\"psbt\",...]\n"
-            "\nCombine multiple partially signed Bitcoin transactions into one transaction.\n"
+            "\nCombine multiple partially signed Qtum transactions into one transaction.\n"
             "Implements the Combiner role.\n"
             "\nArguments:\n"
             "1. \"txs\"                   (string) A json array of base64 strings of partially signed transactions\n"
@@ -1748,7 +1835,7 @@ UniValue createpsbt(const JSONRPCRequest& request)
                             "2. \"outputs\"               (array, required) a json array with outputs (key-value pairs)\n"
                             "   [\n"
                             "    {\n"
-                            "      \"address\": x.xxx,    (obj, optional) A key-value pair. The key (string) is the bitcoin address, the value (float or string) is the amount in " + CURRENCY_UNIT + "\n"
+                            "      \"address\": x.xxx,    (obj, optional) A key-value pair. The key (string) is the qtum address, the value (float or string) is the amount in " + CURRENCY_UNIT + "\n"
                             "    },\n"
                             "    {\n"
                             "      \"data\": \"hex\"        (obj, optional) A key-value pair. The key must be \"data\", the value is hex encoded data\n"
