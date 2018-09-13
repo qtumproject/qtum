@@ -1107,7 +1107,7 @@ UniValue callcontract(const JSONRPCRequest& request)
     dev::Address senderAddress;
     if(request.params.size() == 3){
         CTxDestination qtumSenderAddress = DecodeDestination(request.params[2].get_str());
-        if (!IsValidDestination(qtumSenderAddress)) {
+        if (IsValidDestination(qtumSenderAddress)) {
             const CKeyID *keyid = boost::get<CKeyID>(&qtumSenderAddress);
             senderAddress = dev::Address(HexStr(valtype(keyid->begin(),keyid->end())));
         }else{
