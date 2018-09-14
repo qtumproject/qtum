@@ -15,6 +15,7 @@ using namespace TitleBar_NS;
 TitleBar::TitleBar(const PlatformStyle *platformStyle, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::TitleBar),
+    m_model(0),
     m_tab(0)
 {
     ui->setupUi(this);
@@ -31,15 +32,20 @@ TitleBar::~TitleBar()
     delete ui;
 }
 
-void TitleBar::setModel(WalletModel *_model)
+void TitleBar::setModel(WalletModel *model)
 {
-    this->model = _model;
-
-    if(model && model->getOptionsModel())
+    if(m_model)
     {
-        setBalance(model->wallet().getBalances());
+        disconnect(m_model, SIGNAL(balanceChanged(interfaces::WalletBalances)), this, SLOT(setBalance(interfaces::WalletBalances)));
+    }
 
-        connect(model, SIGNAL(balanceChanged(interfaces::WalletBalances)), this, SLOT(setBalance(interfaces::WalletBalances)));
+    m_model = model;
+
+    if(m_model && m_model->getOptionsModel())
+    {
+        setBalance(m_model->wallet().getBalances());
+
+        connect(m_model, SIGNAL(balanceChanged(interfaces::WalletBalances)), this, SLOT(setBalance(interfaces::WalletBalances)));
     }
 }
 
@@ -60,9 +66,9 @@ void TitleBar::setTabBarInfo(QObject *info)
 
 void TitleBar::setBalance(const interfaces::WalletBalances& balances)
 {
-    if(model && model->getOptionsModel())
+    if(m_model && m_model->getOptionsModel())
     {
-        ui->lblBalance->setText(BitcoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), balances.balance));
+        ui->lblBalance->setText(BitcoinUnits::formatWithUnit(m_model->getOptionsModel()->getDisplayUnit(), balances.balance));
     }
 }
 

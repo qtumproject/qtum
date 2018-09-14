@@ -513,6 +513,7 @@ void BitcoinGUI::createToolBars()
         QWidget *spacer = new QWidget();
         spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         toolbar->addWidget(spacer);
+        appToolBar = toolbar;
 
         m_wallet_selector = new QComboBox();
         connect(m_wallet_selector, SIGNAL(currentIndexChanged(int)), this, SLOT(setCurrentWalletBySelectorIndex(int)));
@@ -645,7 +646,10 @@ bool BitcoinGUI::setCurrentWallet(const QString& name)
 {
     if(!walletFrame)
         return false;
-    return walletFrame->setCurrentWallet(name);
+    bool ret = walletFrame->setCurrentWallet(name);
+    WalletModel *walletModel = ret ? walletFrame->currentWalletView()->getWalletModel() : 0;
+    appTitleBar->setModel(walletModel);
+    return ret;
 }
 
 bool BitcoinGUI::setCurrentWalletBySelectorIndex(int index)

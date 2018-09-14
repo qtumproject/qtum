@@ -60,7 +60,7 @@ public Q_SLOTS:
 
 private:
     Ui::TitleBar *ui;
-    WalletModel *model;
+    WalletModel *m_model;
     TabBarInfo* m_tab;
     QIcon m_iconCloseTab;
 };
