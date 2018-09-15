@@ -211,7 +211,7 @@ bool onlyAssemble=false;
 
 int main(int argc, char* argv[]){
 	if(argc < 2){
-		cout << "./x86test {program.elf | program.bin} [-singlestep, -singlestep-short, -assemble]" << endl;
+		cout << "./x86test {program | program.bin} [-singlestep, -singlestep-short, -assemble]" << endl;
 		return 1;
 	}
 	if(argc > 2){
@@ -258,13 +258,13 @@ int main(int argc, char* argv[]){
 	memset(coderom.GetMemory(), 0x66, 0x1000);
 	memset(scratch.GetMemory(), 0x00, 0x100000);
 
-	bool doElf = false;
+	bool doElf = true;
 	string::size_type extensionIndex;
 	extensionIndex = fileName.rfind('.');
 	if(extensionIndex != string::npos){
 		string extension = fileName.substr(extensionIndex + 1);
-		if(extension == "elf"){
-			doElf = true;
+		if(extension == "bin"){
+			doElf = false;
 		}
 	} //else no extension
 
@@ -273,7 +273,7 @@ int main(int argc, char* argv[]){
 
 	if(doElf){
 		//load ELF32 file
-		cout << "Found .elf file extension. Attempting to load ELF file" << endl;
+		cout << "Attempting to load ELF file, should be named .bin if not ELF format" << endl;
 		if(!loadElf(coderom.GetMemory(), &codesize, scratch.GetMemory(), &datasize, fileData, fileLength)){
 			cout << "error loading ELF" << endl;
 			return -1;
