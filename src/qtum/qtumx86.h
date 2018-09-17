@@ -23,7 +23,8 @@ private:
 };
 
 struct HypervisorEffect{
-    int exitCode;
+    int exitCode = 0;
+    uint64_t gasUsed = 0;
 };
 
 class QtumHypervisor : public x86Lib::InterruptHypervisor{

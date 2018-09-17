@@ -2639,7 +2639,7 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
                         return state.DoS(100, error("can't yet handle non-pubkeyhash refunds"));
                     }
                 }
-                gasRefunds += result.refundSender;
+                gasRefunds += output.gasLimit - result.usedGas;
                 if(result.transferTx.vin.size() > 0) {
                     checkBlock.vtx.push_back(MakeTransactionRef(std::move(result.transferTx)));
                 }

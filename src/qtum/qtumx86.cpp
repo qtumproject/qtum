@@ -114,13 +114,13 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
         cpu.Exec(output.gasLimit);
     }
     catch(CPUFaultException err){
-        LogPrintf("CPU Panic! Message: %s, code: %x, opcode: %s, hex: %x", err.desc, err.code, cpu.GetLastOpcodeName(), cpu.GetLastOpcode());
+        LogPrintf("CPU Panic! Message: %s, code: %x, opcode: %s, hex: %x, location: %x\n", err.desc, err.code, cpu.GetLastOpcodeName(), cpu.GetLastOpcode(), cpu.GetLocation());
         result.usedGas = output.gasLimit;
         result.refundSender = output.value;
         return false;
     }
     catch(MemoryException *err){
-        LogPrintf("Memory error! address: %x, opcode: %s, hex: %x", err->address, cpu.GetLastOpcodeName(), cpu.GetLastOpcode());
+        LogPrintf("Memory error! address: %x, opcode: %s, hex: %x, location: %x\n", err->address, cpu.GetLastOpcodeName(), cpu.GetLastOpcode(), cpu.GetLocation());
         result.usedGas = output.gasLimit;
         result.refundSender = output.value;
         return false;
@@ -187,6 +187,7 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
         return;
     }
     uint32_t status = 0;
+
     switch(vm.GetRegister32(EAX)){
         case QSC_PreviousBlockTime:
             //eax = block time

@@ -208,27 +208,38 @@ static ContractMapInfo* parseContractData(const uint8_t* contract, const uint8_t
 bool singleStep=false;
 bool singleStepShort=false;
 bool onlyAssemble=false;
+bool rawOutput = false;
 
 int main(int argc, char* argv[]){
-	if(argc < 2){
-		cout << "./x86test {program | program.bin} [-singlestep, -singlestep-short, -assemble]" << endl;
+	if(argc == 1){
+		cout << "./x86test {program | program.bin} [-singlestep, -singlestep-short, -assemble] [-raw]" << endl;
 		return 1;
 	}
-	if(argc > 2){
-		if(strcmp(argv[2], "-singlestep") == 0){
+	string fileName = "";
+	for(int i = 1; i < argc ; i++){
+		if(argv[i][0] != '-'){
+			fileName = argv[i];
+		}
+		if(strcmp(argv[i], "-singlestep") == 0){
 			singleStep = true;
 		}
-		if(strcmp(argv[2], "-singlestep-short") == 0){
+		if(strcmp(argv[i], "-singlestep-short") == 0){
 			singleStep = true;
 			singleStepShort=true;
 		}
-		if(strcmp(argv[2], "-assemble") == 0){
+		if(strcmp(argv[i], "-assemble") == 0){
 			//Assemble elf file into flat data suitable for Qtum blockchain
 			onlyAssemble = true;
 		}
+		if(strcmp(argv[i], "-raw") == 0){
+			rawOutput = true;
+		}
 	}
 
-	//init_memory(argv[1]);
+	if(fileName == ""){
+		cerr << "No file specified" << endl;
+	}
+
 	PortSystem Ports;
 	ROMemory coderom(0x1000, "code");
 	RAMemory config(0x1000, "config");
@@ -243,7 +254,6 @@ int main(int argc, char* argv[]){
 
 	int maxSize=0x10000;
 	char* fileData=new char[maxSize];
-	string fileName = argv[1];
 	ifstream file(fileName.c_str(), ios::binary);
 	if(!file){
 		cout << "file " << argv[1] << " does not exist" << endl;
@@ -273,14 +283,18 @@ int main(int argc, char* argv[]){
 
 	if(doElf){
 		//load ELF32 file
-		cout << "Attempting to load ELF file, should be named .bin if not ELF format" << endl;
+		if(!rawOutput){
+			cout << "Attempting to load ELF file, should be named .bin if not ELF format" << endl;
+		}
 		if(!loadElf(coderom.GetMemory(), &codesize, scratch.GetMemory(), &datasize, fileData, fileLength)){
-			cout << "error loading ELF" << endl;
+			cerr << "error loading ELF" << endl;
 			return -1;
 		}
 	}else{
 		//load BIN file (no option to load data with bin files)
-		cout << "Attempting to load BIN file. Warning: It is not possible to load data with this" << endl;
+		if(!rawOutput){
+			cout << "Attempting to load BIN file. Warning: It is not possible to load data with this" << endl;
+		}
 		memcpy(coderom.GetMemory(), fileData, fileLength);
 		datasize = 0;
 		codesize = fileLength;
@@ -289,7 +303,9 @@ int main(int argc, char* argv[]){
 	if(onlyAssemble){
 		//don't execute anything, just dump the flat memory to a file
 		int totalSize = 16 + codesize + datasize;
-		cout << "code: " << codesize << " data: " << datasize << endl;
+		if(!rawOutput){
+			cout << "code: " << codesize << " data: " << datasize << endl;
+		}
 		char *out = new char[totalSize];
 		ContractMapInfo map;
 		map.optionsSize = 0;
@@ -316,7 +332,9 @@ int main(int argc, char* argv[]){
 	cpu=new x86CPU();
 	cpu->Memory=&Memory;
 	cpu->Ports=&Ports;
-	cout << "Loaded! Beginning execution..." << endl;
+	if(!rawOutput){
+		cout << "Loaded! Beginning execution..." << endl;
+	}
 
 	
 	for(;;){
@@ -329,7 +347,9 @@ int main(int argc, char* argv[]){
 				}
 			}else{
 				cpu->Exec(1);
-				cout <<"OPCODE: " << cpu->GetLastOpcodeName() << "; hex: 0x" << hex << cpu->GetLastOpcode() << endl;
+				if(!rawOutput){
+					cout <<"OPCODE: " << cpu->GetLastOpcodeName() << "; hex: 0x" << hex << cpu->GetLastOpcode() << endl;
+				}
 				if(singleStepShort){
 					cout << "EIP: 0x" << cpu->GetLocation() << endl;
 				}else{
