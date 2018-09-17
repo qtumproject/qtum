@@ -112,6 +112,11 @@ void x86CPU::op_rep(){ //repe and repne..(different opcodes, but I make them pos
         case 0xAE:
         case 0xAF:
         break;
+        case 0xC3:
+        //stupid AMD hack for a 2 byte rep used in GCC optimizations
+        //see http://repzret.org/p/repzret/
+        //don't do anything, just ignore and treat the REP like NOP
+        return;
         default:
         eip++;
         op_unknown();
