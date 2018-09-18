@@ -5,6 +5,8 @@
 #include <QSize>
 #include <QTabBar>
 #include <QIcon>
+#include <QLabel>
+#include <QComboBox>
 #include <qt/walletmodel.h>
 
 namespace Ui {
@@ -43,6 +45,13 @@ public:
      * @param info Information about tabs
      */
     void setTabBarInfo(QObject* info);
+
+    /**
+     * @brief setWalletSelector Set wallet selector
+     * @param walletSelectorLabel Wallet selector label
+     * @param walletSelector Wallet selector
+     */
+    void setWalletSelector(QLabel *walletSelectorLabel, QComboBox* walletSelector);
 
 Q_SIGNALS:
 

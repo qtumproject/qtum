@@ -76,3 +76,22 @@ void TitleBar::on_navigationResized(const QSize &_size)
 {
     ui->widgetLogo->setFixedWidth(_size.width());
 }
+
+void TitleBar::setWalletSelector(QLabel *walletSelectorLabel, QComboBox *walletSelector)
+{
+    QLayout* layout = ui->widgetLogo->layout();
+
+    if(walletSelectorLabel)
+    {
+        layout->addWidget(walletSelectorLabel);
+    }
+
+    if(walletSelector)
+    {
+        layout->addWidget(walletSelector);
+    }
+
+    QWidget *spacer = new QWidget();
+    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    layout->addWidget(spacer);
+}

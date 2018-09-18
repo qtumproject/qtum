@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2018 The Bitcoin Core developers
+﻿// Copyright (c) 2011-2018 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -107,7 +107,6 @@ private:
     QLabel *labelStakingIcon = nullptr;
 
     QMenuBar* appMenuBar = nullptr;
-    QToolBar* appToolBar = nullptr;
     TitleBar *appTitleBar = nullptr;
     NavigationBar *appNavigationBar = nullptr;
     QAction* overviewAction = nullptr;
@@ -131,8 +130,6 @@ private:
     QAction* openRPCConsoleAction = nullptr;
     QAction* openAction = nullptr;
     QAction* showHelpMessageAction = nullptr;
-    QAction* m_wallet_selector_label_action = nullptr;
-    QAction* m_wallet_selector_action = nullptr;
     QAction *restoreWalletAction = nullptr;
     QAction *unlockWalletAction = nullptr;
     QAction *lockWalletAction = nullptr;

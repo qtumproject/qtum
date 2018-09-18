@@ -9,7 +9,7 @@
 
 namespace NavigationBar_NS
 {
-static const int ToolButtonWidth = 200;
+static const int ToolButtonWidth = 220;
 static const int ToolButtonHeight = 54;
 static const int ToolButtonIconSize = 32;
 static const int MarginLeft = 0;
