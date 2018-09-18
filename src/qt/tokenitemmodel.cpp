@@ -293,6 +293,7 @@ TokenItemModel::TokenItemModel(WalletModel *parent):
     priv->refreshTokenItem(walletModel->wallet());
 
     worker = new TokenTxWorker(walletModel);
+    worker->tokenTxAbi.setModel(walletModel);
     worker->moveToThread(&(t));
 
     t.start();

@@ -285,15 +285,32 @@ void WalletFrame::outOfSyncWarningClicked()
 
 void WalletFrame::pageChanged(int index)
 {
-    QObject* obj = sender();
-    if(obj->inherits("WalletView"))
+    updateTabBar(0, index);
+}
+
+void WalletFrame::updateTabBar(WalletView *walletView, int index)
+{
+    // update default parameters
+    if(walletView == 0)
     {
-        WalletView* walletView = (WalletView*)obj;
-        if(walletView->count() > index)
-        {
-            QWidget* currentPage = walletView->widget(index);
-            QObject* info = currentPage->findChild<TabBarInfo *>("");
-            gui->setTabBarInfo(info);
-        }
+        walletView = currentWalletView();
+    }
+    if(walletView && index == -1)
+    {
+        index = walletView->currentIndex();
+    }
+
+    // update the tab bar into the title bar
+    bool found = false;
+    if(walletView && walletView->count() > index)
+    {
+        QWidget* currentPage = walletView->widget(index);
+        QObject* info = currentPage->findChild<TabBarInfo *>("");
+        gui->setTabBarInfo(info);
+        found = true;
+    }
+    if(!found)
+    {
+        gui->setTabBarInfo(0);
     }
 }

@@ -649,6 +649,7 @@ bool BitcoinGUI::setCurrentWallet(const QString& name)
     bool ret = walletFrame->setCurrentWallet(name);
     WalletModel *walletModel = ret ? walletFrame->currentWalletView()->getWalletModel() : 0;
     appTitleBar->setModel(walletModel);
+    walletFrame->updateTabBar();
     return ret;
 }
 

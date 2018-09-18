@@ -62,6 +62,8 @@ private:
 public:
     WalletView *currentWalletView();
 
+    void updateTabBar(WalletView* walletView = 0, int index = -1);
+
 public Q_SLOTS:
     /** Switch to overview (home) page */
     void gotoOverviewPage();
