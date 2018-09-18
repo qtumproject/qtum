@@ -878,7 +878,12 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
     SetThreadPriority(THREAD_PRIORITY_LOWEST);
 
     // Make this thread recognisable as the mining thread
-    RenameThread("qtumcoin-miner");
+    std::string threadName = "qtumstake";
+    if(pwallet && pwallet->GetName() != "")
+    {
+        threadName = threadName + "-" + pwallet->GetName();
+    }
+    RenameThread(threadName.c_str());
 
     CReserveKey reservekey(pwallet);
 
