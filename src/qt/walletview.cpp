@@ -123,7 +123,7 @@ void WalletView::setBitcoinGUI(BitcoinGUI *gui)
         connect(this, SIGNAL(incomingTransaction(QString,int,CAmount,QString,QString,QString,QString)), gui, SLOT(incomingTransaction(QString,int,CAmount,QString,QString,QString,QString)));
 
         // Pass through token transaction notifications
-        connect(this, SIGNAL(incomingTokenTransaction(QString,QString,QString,QString,QString,QString)), gui, SLOT(incomingTokenTransaction(QString,QString,QString,QString,QString,QString)));
+        connect(this, SIGNAL(incomingTokenTransaction(QString,QString,QString,QString,QString,QString,QString)), gui, SLOT(incomingTokenTransaction(QString,QString,QString,QString,QString,QString,QString)));
 
         // Connect HD enabled state signal
         connect(this, SIGNAL(hdEnabledStatusChanged()), gui, SLOT(updateWalletStatus()));
@@ -237,7 +237,7 @@ void WalletView::processNewTokenTransaction(const QModelIndex &parent, int start
         title = tr("Sent transaction");
         break;
     }
-    Q_EMIT incomingTokenTransaction(date, amount, type, address, label, title);
+    Q_EMIT incomingTokenTransaction(date, amount, type, address, label, walletModel->getWalletName(), title);
 }
 
 void WalletView::gotoOverviewPage()

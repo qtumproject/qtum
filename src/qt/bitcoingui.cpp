@@ -1155,12 +1155,15 @@ void BitcoinGUI::incomingTransaction(const QString& date, int unit, const CAmoun
              msg, CClientUIInterface::MSG_INFORMATION);
 }
 
-void BitcoinGUI::incomingTokenTransaction(const QString& date, const QString& amount, const QString& type, const QString& address, const QString& label, const QString& title)
+void BitcoinGUI::incomingTokenTransaction(const QString& date, const QString& amount, const QString& type, const QString& address, const QString& label, const QString& walletName, const QString& title)
 {
     // On new transaction, make an info balloon
     QString msg = tr("Date: %1\n").arg(date) +
-                  tr("Amount: %1\n").arg(amount) +
-                  tr("Type: %1\n").arg(type);
+                  tr("Amount: %1\n").arg(amount);
+    if (m_node.getWallets().size() > 1 && !walletName.isEmpty()) {
+        msg += tr("Wallet: %1\n").arg(walletName);
+    }
+    msg += tr("Type: %1\n").arg(type);
     if (!label.isEmpty())
         msg += tr("Label: %1\n").arg(label);
     else if (!address.isEmpty())
