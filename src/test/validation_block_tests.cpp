@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE(processnewblock_signals_ordering)
             for (auto block : blocks) {
                 if (block->vtx.size() == 1) {
                     bool processed = ProcessNewBlock(Params(), block, true, &ignored);
-                    //assert(processed);
+                    assert(processed);
                 }
             }
         });
