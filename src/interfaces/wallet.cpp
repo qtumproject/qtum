@@ -88,7 +88,8 @@ WalletTx MakeWalletTx(CWallet& wallet, const CWalletTx& wtx)
     if(result.has_create_or_call)
     {
         CTxDestination tx_sender_address;
-        if(ExtractDestination(wallet.mapWallet.at(wtx.tx->vin[0].prevout.hash).tx->vout[wtx.tx->vin[0].prevout.n].scriptPubKey, tx_sender_address)) {
+        if(wtx.tx && wtx.tx->vin.size() > 0 && wallet.mapWallet.find(wtx.tx->vin[0].prevout.hash) != wallet.mapWallet.end() &&
+                ExtractDestination(wallet.mapWallet.at(wtx.tx->vin[0].prevout.hash).tx->vout[wtx.tx->vin[0].prevout.n].scriptPubKey, tx_sender_address)) {
             result.tx_sender_key = GetKeyForDestination(wallet, tx_sender_address);
         }
 
