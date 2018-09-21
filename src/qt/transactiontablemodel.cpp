@@ -133,6 +133,11 @@ public:
                     qWarning() << "TransactionTablePriv::updateWallet: Warning: Got CT_NEW, but transaction is not in wallet";
                     break;
                 }
+                // Ensures we show generated coins / mined transactions at depth 1
+                if((wtx.is_coinbase || wtx.is_coinstake) && !wtx.is_in_main_chain)
+                {
+                    break;
+                }
                 // Added -- insert at the right position
                 QList<TransactionRecord> toInsert =
                         TransactionRecord::decomposeTransaction(wtx);

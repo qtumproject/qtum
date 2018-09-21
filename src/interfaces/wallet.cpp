@@ -84,6 +84,7 @@ WalletTx MakeWalletTx(CWallet& wallet, const CWalletTx& wtx)
     result.value_map = wtx.mapValue;
     result.is_coinbase = wtx.IsCoinBase();
     result.is_coinstake = wtx.IsCoinStake();
+    result.is_in_main_chain = wtx.IsInMainChain();
     result.has_create_or_call = wtx.tx->HasCreateOrCall();
     if(result.has_create_or_call)
     {
