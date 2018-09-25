@@ -222,13 +222,6 @@ BitcoinGUI::BitcoinGUI(interfaces::Node& node, const PlatformStyle *_platformSty
     modalBackupOverlay = new ModalOverlay(this, ModalOverlay::Backup);
     qtumVersionChecker = new QtumVersionChecker(this);
 
-    if(fCheckForUpdates && qtumVersionChecker->newVersionAvailable())
-    {
-        QString link = QString("<a href=%1>%2</a>").arg(QTUM_RELEASES, QTUM_RELEASES);
-        QString message(tr("New version of Qtum wallet is available on the Qtum source code repository: <br /> %1. <br />It is recommended to download it and update this application").arg(link));
-        QMessageBox::information(this, tr("Check for updates"), message);
-    }
-
 #ifdef ENABLE_WALLET
     if(enableWallet) {
         connect(walletFrame, SIGNAL(requestedSyncWarningInfo()), this, SLOT(showModalOverlay()));
@@ -538,6 +531,14 @@ void BitcoinGUI::setClientModel(ClientModel *_clientModel)
     this->clientModel = _clientModel;
     if(_clientModel)
     {
+        // Check for updates
+        if(_clientModel->getOptionsModel()->getCheckForUpdates() && qtumVersionChecker->newVersionAvailable())
+        {
+            QString link = QString("<a href=%1>%2</a>").arg(QTUM_RELEASES, QTUM_RELEASES);
+            QString message(tr("New version of Qtum wallet is available on the Qtum source code repository: <br /> %1. <br />It is recommended to download it and update this application").arg(link));
+            QMessageBox::information(this, tr("Check for updates"), message);
+        }
+
         // Create system tray menu (or setup the dock menu) that late to prevent users from calling actions,
         // while the client has not yet fully loaded
         createTrayIconMenu();
@@ -974,9 +975,9 @@ void BitcoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
         progressBar->setVisible(false);
 
         // notify tip changed when the sync is finished
-        if(fBatchProcessingMode)
+        if(clientModel->fBatchProcessingMode)
         {
-            fBatchProcessingMode = false;
+            clientModel->fBatchProcessingMode = false;
             QMetaObject::invokeMethod(clientModel, "tipChanged", Qt::QueuedConnection);
         }
     }
@@ -1226,8 +1227,9 @@ void BitcoinGUI::setHDStatus(int hdEnabled)
     labelWalletHDStatusIcon->setEnabled(hdEnabled);
 }
 
-void BitcoinGUI::setEncryptionStatus(int status)
+void BitcoinGUI::setEncryptionStatus(WalletModel *walletModel)
 {
+    int status = walletModel->getEncryptionStatus();
     switch(status)
     {
     case WalletModel::Unencrypted:
@@ -1240,7 +1242,7 @@ void BitcoinGUI::setEncryptionStatus(int status)
         break;
     case WalletModel::Unlocked:
         labelWalletEncryptionIcon->show();
-        if(fWalletUnlockStakingOnly)
+        if(walletModel->getWalletUnlockStakingOnly())
         {
             labelWalletEncryptionIcon->setPixmap(QIcon(":/icons/lock_staking").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
             labelWalletEncryptionIcon->setToolTip(tr("Wallet is <b>encrypted</b> and currently <b>unlocked for staking only</b>"));
@@ -1279,7 +1281,7 @@ void BitcoinGUI::updateWalletStatus()
         return;
     }
     WalletModel * const walletModel = walletView->getWalletModel();
-    setEncryptionStatus(walletModel->getEncryptionStatus());
+    setEncryptionStatus(walletModel);
     setHDStatus(walletModel->wallet().hdEnabled());
 }
 #endif // ENABLE_WALLET
@@ -1347,7 +1349,7 @@ void BitcoinGUI::updateStakingIcon()
     WalletModel * const walletModel = walletView->getWalletModel();
 
     uint64_t nWeight= walletModel->tryGetStakeWeight();
-    if (nLastCoinStakeSearchInterval && nWeight)
+    if (walletModel->wallet().getLastCoinStakeSearchInterval() && nWeight)
     {
         uint64_t nNetworkWeight = GetPoSKernelPS();
         const Consensus::Params& consensusParams = Params().GetConsensus();

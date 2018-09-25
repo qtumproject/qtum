@@ -45,7 +45,6 @@ AskPassphraseDialog::AskPassphraseDialog(Mode _mode, QWidget *parent) :
     ui->passEdit2->installEventFilter(this);
     ui->passEdit3->installEventFilter(this);
 
-    ui->stakingCheckBox->setChecked(fWalletUnlockStakingOnly);
     ui->stakingCheckBox->hide();
 
     switch(mode)
@@ -96,6 +95,7 @@ AskPassphraseDialog::~AskPassphraseDialog()
 void AskPassphraseDialog::setModel(WalletModel *_model)
 {
     this->model = _model;
+    if(model) ui->stakingCheckBox->setChecked(model->getWalletUnlockStakingOnly());
 }
 
 void AskPassphraseDialog::accept()
@@ -172,7 +172,7 @@ void AskPassphraseDialog::accept()
         }
         else
         {
-            fWalletUnlockStakingOnly = ui->stakingCheckBox->isChecked();
+            model->setWalletUnlockStakingOnly(ui->stakingCheckBox->isChecked());
             QDialog::accept(); // Success
         }
         break;

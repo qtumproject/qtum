@@ -222,7 +222,7 @@ private:
        @param[in] status            current encryption status
        @see WalletModel::EncryptionStatus
     */
-    void setEncryptionStatus(int status);
+    void setEncryptionStatus(WalletModel *walletModel);
 
     /** Set the hd-enabled status as shown in the UI.
      @param[in] status            current hd enabled status

@@ -736,6 +736,18 @@ public:
         nWeight = m_wallet.GetStakeWeight();
         return true;
     }
+    int64_t getLastCoinStakeSearchInterval() override 
+    { 
+        return m_wallet.m_last_coin_stake_search_interval;
+    }
+    bool getWalletUnlockStakingOnly() override
+    {
+        return m_wallet.m_wallet_unlock_staking_only;
+    }
+    void setWalletUnlockStakingOnly(bool unlock) override
+    {
+        m_wallet.m_wallet_unlock_staking_only = unlock;
+    }
     std::unique_ptr<Handler> handleUnload(UnloadFn fn) override
     {
         return MakeHandler(m_wallet.NotifyUnload.connect(fn));

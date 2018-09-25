@@ -237,9 +237,21 @@ static UniValue getmininginfo(const JSONRPCRequest& request)
     obj.pushKV("currentblockweight", (uint64_t)nLastBlockWeight);
     obj.pushKV("currentblocktx",   (uint64_t)nLastBlockTx);
 
+    uint64_t nWeight = 0;
+    uint64_t lastCoinStakeSearchInterval = 0;
+#ifdef ENABLE_WALLET
+    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
+    CWallet* const pwallet = wallet.get();
+    if (pwallet)
+    {
+        nWeight = pwallet->GetStakeWeight();
+        lastCoinStakeSearchInterval = pwallet->m_last_coin_stake_search_interval;
+    }
+#endif
+
     diff.pushKV("proof-of-work",   GetDifficulty(GetLastBlockIndex(pindexBestHeader, false)));
     diff.pushKV("proof-of-stake",  GetDifficulty(GetLastBlockIndex(pindexBestHeader, true)));
-    diff.pushKV("search-interval", (int)nLastCoinStakeSearchInterval);
+    diff.pushKV("search-interval", (int)lastCoinStakeSearchInterval);
     obj.pushKV("difficulty",       diff);
 
     const Consensus::Params& consensusParams = Params().GetConsensus();
@@ -251,13 +263,6 @@ static UniValue getmininginfo(const JSONRPCRequest& request)
     obj.pushKV("networkhashps",    getnetworkhashps(request));
     obj.pushKV("pooledtx",         (uint64_t)mempool.size());
 
-    uint64_t nWeight = 0;
-#ifdef ENABLE_WALLET
-    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
-    CWallet* const pwallet = wallet.get();
-    if (pwallet)
-        nWeight = pwallet->GetStakeWeight(); 
-#endif
     weight.pushKV("minimum",       (uint64_t)nWeight);
     weight.pushKV("maximum",       (uint64_t)0);
     weight.pushKV("combined",      (uint64_t)nWeight);
@@ -278,6 +283,7 @@ static UniValue getstakinginfo(const JSONRPCRequest& request)
     LOCK(cs_main);
 
     uint64_t nWeight = 0;
+    uint64_t lastCoinStakeSearchInterval = 0;
 #ifdef ENABLE_WALLET
     std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
     CWallet* const pwallet = wallet.get();
@@ -285,11 +291,12 @@ static UniValue getstakinginfo(const JSONRPCRequest& request)
     if (pwallet)
     {
         nWeight = pwallet->GetStakeWeight();
+        lastCoinStakeSearchInterval = pwallet->m_last_coin_stake_search_interval;
     }
 #endif
 
     uint64_t nNetworkWeight = GetPoSKernelPS();
-    bool staking = nLastCoinStakeSearchInterval && nWeight;
+    bool staking = lastCoinStakeSearchInterval && nWeight;
     const Consensus::Params& consensusParams = Params().GetConsensus();
     int64_t nTargetSpacing = consensusParams.nPowTargetSpacing;
     uint64_t nExpectedTime = staking ? (nTargetSpacing * nNetworkWeight / nWeight) : 0;
@@ -304,7 +311,7 @@ static UniValue getstakinginfo(const JSONRPCRequest& request)
     obj.pushKV("pooledtx", (uint64_t)mempool.size());
 
     obj.pushKV("difficulty", GetDifficulty(GetLastBlockIndex(pindexBestHeader, true)));
-    obj.pushKV("search-interval", (int)nLastCoinStakeSearchInterval);
+    obj.pushKV("search-interval", (int)lastCoinStakeSearchInterval);
 
     obj.pushKV("weight", (uint64_t)nWeight);
     obj.pushKV("netstakeweight", (uint64_t)nNetworkWeight);

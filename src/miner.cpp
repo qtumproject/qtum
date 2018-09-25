@@ -38,7 +38,6 @@
 
 uint64_t nLastBlockTx = 0;
 uint64_t nLastBlockWeight = 0;
-int64_t nLastCoinStakeSearchInterval = 0;
 unsigned int nMinerSleep = STAKER_POLLING_PERIOD;
 
 int64_t UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParams, const CBlockIndex* pindexPrev)
@@ -897,13 +896,13 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
     {
         while (pwallet->IsLocked())
         {
-            nLastCoinStakeSearchInterval = 0;
+            pwallet->m_last_coin_stake_search_interval = 0;
             MilliSleep(10000);
         }
         //don't disable PoS mining for no connections if in regtest mode
         if(!regtestMode && !gArgs.GetBoolArg("-emergencystaking", false)) {
             while (connman->GetNodeCount(CConnman::CONNECTIONS_ALL) == 0 || IsInitialBlockDownload()) {
-                nLastCoinStakeSearchInterval = 0;
+                pwallet->m_last_coin_stake_search_interval = 0;
                 fTryToSync = true;
                 MilliSleep(1000);
             }
@@ -933,9 +932,9 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
             for(uint32_t i=beginningTime;i<beginningTime + MAX_STAKE_LOOKAHEAD;i+=STAKE_TIMESTAMP_MASK+1) {
 
                 // The information is needed for status bar to determine if the staker is trying to create block and when it will be created approximately,
-                static int64_t nLastCoinStakeSearchTime = GetAdjustedTime(); // startup timestamp
+                if(pwallet->m_last_coin_stake_search_time == 0) pwallet->m_last_coin_stake_search_time = GetAdjustedTime(); // startup timestamp
                 // nLastCoinStakeSearchInterval > 0 mean that the staker is running
-                nLastCoinStakeSearchInterval = i - nLastCoinStakeSearchTime;
+                pwallet->m_last_coin_stake_search_interval = i - pwallet->m_last_coin_stake_search_time;
 
                 // Try to sign a block (this also checks for a PoS stake)
                 pblocktemplate->block.nTime = i;
@@ -995,7 +994,7 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
                         if(validBlock) {
                             CheckStake(pblockfilled, *pwallet);
                             // Update the search time when new valid block is created, needed for status bar icon
-                            nLastCoinStakeSearchTime = pblockfilled->GetBlockTime();
+                            pwallet->m_last_coin_stake_search_time = pblockfilled->GetBlockTime();
                         }
                         break;
                     }

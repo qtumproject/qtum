@@ -47,6 +47,7 @@ ClientModel::ClientModel(interfaces::Node& node, OptionsModel *_optionsModel, QO
     pollTimer = new QTimer(this);
     connect(pollTimer, SIGNAL(timeout()), this, SLOT(updateTimer()));
     pollTimer->start(MODEL_UPDATE_DELAY);
+    fBatchProcessingMode = false;
 
     subscribeToCoreSignals();
 }
@@ -227,9 +228,9 @@ static void BlockTipChanged(ClientModel *clientmodel, bool initialSync, int heig
         if(batchMode)
         {
             initialSync |= batchMode;
-            if(!fBatchProcessingMode)
+            if(!clientmodel->fBatchProcessingMode)
             {
-                fBatchProcessingMode = true;
+                clientmodel->fBatchProcessingMode = true;
             }
         }
     }
@@ -256,7 +257,7 @@ static void BlockTipChanged(ClientModel *clientmodel, bool initialSync, int heig
                                   Q_ARG(QDateTime, QDateTime::fromTime_t(blockTime)),
                                   Q_ARG(double, verificationProgress),
                                   Q_ARG(bool, fHeader));
-        if(!fHeader && !fBatchProcessingMode)
+        if(!fHeader && !clientmodel->fBatchProcessingMode)
         {
             QMetaObject::invokeMethod(clientmodel, "tipChanged", Qt::QueuedConnection);
         }

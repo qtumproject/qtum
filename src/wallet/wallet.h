@@ -40,14 +40,6 @@ bool HasWallets();
 std::vector<std::shared_ptr<CWallet>> GetWallets();
 std::shared_ptr<CWallet> GetWallet(const std::string& name);
 
-extern CAmount nReserveBalance;
-extern bool bZeroBalanceAddressToken;
-extern bool fWalletUnlockStakingOnly;
-extern bool fNotUseChangeAddress;
-extern bool fBatchProcessingMode;
-extern bool fCheckForUpdates;
-extern int64_t nLastCoinStakeSearchInterval;
-
 //! Default for -keypool
 static const unsigned int DEFAULT_KEYPOOL_SIZE = 1000;
 //! -paytxfee default
@@ -62,7 +54,7 @@ static const CAmount DEFAULT_TRANSACTION_MINFEE = 1000;
 static const CAmount WALLET_INCREMENTAL_RELAY_FEE = 5000;
 //! Default for -spendzeroconfchange
 static const bool DEFAULT_SPEND_ZEROCONF_CHANGE = true;
-//! Default for -zerobalanceaddresstoken
+//! Default for zero balance address token
 static const bool DEFAULT_ZERO_BALANCE_ADDRESS_TOKEN = true;
 //! Default for -walletrejectlongchains
 static const bool DEFAULT_WALLET_REJECT_LONG_CHAINS = false;
@@ -74,10 +66,8 @@ static const unsigned int DEFAULT_TX_CONFIRM_TARGET = 6;
 static const bool DEFAULT_WALLET_RBF = false;
 static const bool DEFAULT_WALLETBROADCAST = true;
 static const bool DEFAULT_DISABLE_WALLET = false;
-
 static const bool DEFAULT_NOT_USE_CHANGE_ADDRESS = false;
-
-static const bool DEFAULT_CHECK_FOR_UPDATES = true;
+static const CAmount DEFAULT_RESERVE_BALANCE = 0;
 
 class CBlockIndex;
 class CCoinControl;
@@ -1058,6 +1048,14 @@ public:
     CFeeRate m_discard_rate{DEFAULT_DISCARD_FEE};
     OutputType m_default_address_type{DEFAULT_ADDRESS_TYPE};
     OutputType m_default_change_type{DEFAULT_CHANGE_TYPE};
+    // optional setting to unlock wallet for staking only
+    // serves to disable the trivial sendmoney when OS account compromised
+    // provides no real security
+    std::atomic<bool> m_wallet_unlock_staking_only{false};
+    bool m_not_use_change_address{DEFAULT_NOT_USE_CHANGE_ADDRESS};
+    CAmount m_reserve_balance{DEFAULT_RESERVE_BALANCE};
+    int64_t m_last_coin_stake_search_time{0};
+    int64_t m_last_coin_stake_search_interval{0};
 
     bool NewKeyPool();
     size_t KeypoolCountExternalKeys() EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);

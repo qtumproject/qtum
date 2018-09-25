@@ -75,6 +75,7 @@ public:
     // caches for the best header
     mutable std::atomic<int> cachedBestHeaderHeight;
     mutable std::atomic<int64_t> cachedBestHeaderTime;
+    bool fBatchProcessingMode;
 
 private:
     interfaces::Node& m_node;

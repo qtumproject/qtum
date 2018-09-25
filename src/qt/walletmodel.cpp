@@ -523,7 +523,7 @@ WalletModel::UnlockContext WalletModel::requestUnlock()
 {
     bool was_locked = getEncryptionStatus() == Locked;
 
-    if ((!was_locked) && fWalletUnlockStakingOnly)
+    if ((!was_locked) && getWalletUnlockStakingOnly())
     {
        setWalletLocked(true);
        was_locked = getEncryptionStatus() == Locked;
@@ -537,7 +537,7 @@ WalletModel::UnlockContext WalletModel::requestUnlock()
     // If wallet is still locked, unlock was failed or cancelled, mark context as invalid
     bool valid = getEncryptionStatus() != Locked;
 
-    return UnlockContext(this, valid, was_locked && !fWalletUnlockStakingOnly);
+    return UnlockContext(this, valid, was_locked && !getWalletUnlockStakingOnly());
 }
 
 WalletModel::UnlockContext::UnlockContext(WalletModel *_wallet, bool _valid, bool _relock):
@@ -548,8 +548,8 @@ WalletModel::UnlockContext::UnlockContext(WalletModel *_wallet, bool _valid, boo
 {
     if(!relock)
     {
-        stakingOnly = fWalletUnlockStakingOnly;
-        fWalletUnlockStakingOnly = false;
+        stakingOnly = wallet->getWalletUnlockStakingOnly();
+        wallet->setWalletUnlockStakingOnly(false);
     }
 }
 
@@ -562,7 +562,7 @@ WalletModel::UnlockContext::~UnlockContext()
 
     if(!relock)
     {
-        fWalletUnlockStakingOnly = stakingOnly;
+        wallet->setWalletUnlockStakingOnly(stakingOnly);
         wallet->updateStatus();
     }
 }
@@ -693,4 +693,14 @@ uint64_t WalletModel::tryGetStakeWeight()
 {
     m_wallet->tryGetStakeWeight(nWeight);
     return nWeight;
+}
+
+bool WalletModel::getWalletUnlockStakingOnly()
+{
+    return m_wallet->getWalletUnlockStakingOnly();
+}
+
+void WalletModel::setWalletUnlockStakingOnly(bool unlock)
+{
+    m_wallet->setWalletUnlockStakingOnly(unlock);
 }

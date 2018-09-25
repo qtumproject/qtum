@@ -38,12 +38,6 @@
 
 #include <boost/algorithm/string/replace.hpp>
 
-CAmount nReserveBalance = 0;
-bool bZeroBalanceAddressToken = DEFAULT_ZERO_BALANCE_ADDRESS_TOKEN;
-bool fNotUseChangeAddress = DEFAULT_NOT_USE_CHANGE_ADDRESS;
-bool fBatchProcessingMode = false;
-bool fCheckForUpdates = DEFAULT_CHECK_FOR_UPDATES;
-
 static const size_t OUTPUT_GROUP_MAX_ENTRIES = 10;
 
 static CCriticalSection cs_wallets;
@@ -543,11 +537,6 @@ bool CWallet::AddCScript(const CScript& redeemScript)
         return false;
     return WalletBatch(*database).WriteCScript(Hash160(redeemScript), redeemScript);
 }
-
-// optional setting to unlock wallet for staking only
-// serves to disable the trivial sendmoney when OS account compromised
-// provides no real security
-bool fWalletUnlockStakingOnly = false;
 
 bool CWallet::LoadCScript(const CScript& redeemScript)
 {
@@ -3201,7 +3190,7 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CTransac
                 if (nChange > 0)
                 {
                     // send change to existing address
-                    if (fNotUseChangeAddress &&
+                    if (m_not_use_change_address &&
                             boost::get<CNoDestination>(&coin_control.destChange) &&
                             setCoins.size() > 0)
                     {
@@ -3433,7 +3422,7 @@ uint64_t CWallet::GetStakeWeight() const
     // Choose coins to use
     CAmount nBalance = GetBalance();
 
-    if (nBalance <= nReserveBalance)
+    if (nBalance <= m_reserve_balance)
         return 0;
 
     std::vector<const CWalletTx*> vwtxPrev;
@@ -3441,7 +3430,7 @@ uint64_t CWallet::GetStakeWeight() const
     std::set<std::pair<const CWalletTx*,unsigned int> > setCoins;
     CAmount nValueIn = 0;
 
-    CAmount nTargetValue = nBalance - nReserveBalance;
+    CAmount nTargetValue = nBalance - m_reserve_balance;
     if (!SelectCoinsForStaking(nTargetValue, setCoins, nValueIn))
         return 0;
 
@@ -3478,7 +3467,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, con
     // Choose coins to use
     CAmount nBalance = GetBalance();
 
-    if (nBalance <= nReserveBalance)
+    if (nBalance <= m_reserve_balance)
         return false;
 
     std::vector<const CWalletTx*> vwtxPrev;
@@ -3487,7 +3476,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, con
     CAmount nValueIn = 0;
 
     // Select coins with suitable depth
-    CAmount nTargetValue = nBalance - nReserveBalance;
+    CAmount nTargetValue = nBalance - m_reserve_balance;
     if (!SelectCoinsForStaking(nTargetValue, setCoins, nValueIn))
         return false;
 
@@ -3584,7 +3573,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, con
             break; // if kernel is found stop searching
     }
 
-    if (nCredit == 0 || nCredit > nBalance - nReserveBalance)
+    if (nCredit == 0 || nCredit > nBalance - m_reserve_balance)
         return false;
 
     for(const std::pair<const CWalletTx*,unsigned int> &pcoin : setCoins)
@@ -3598,7 +3587,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, con
             if (txNew.vin.size() >= GetStakeMaxCombineInputs())
                 break;
             // Stop adding inputs if reached reserve limit
-            if (nCredit + pcoin.first->tx->vout[pcoin.second].nValue > nBalance - nReserveBalance)
+            if (nCredit + pcoin.first->tx->vout[pcoin.second].nValue > nBalance - m_reserve_balance)
                 break;
             // Do not add additional significant input
             if (pcoin.first->tx->vout[pcoin.second].nValue >= GetStakeCombineThreshold())
@@ -4883,6 +4872,8 @@ std::shared_ptr<CWallet> CWallet::CreateWalletFromFile(const std::string& name, 
     walletInstance->m_confirm_target = gArgs.GetArg("-txconfirmtarget", DEFAULT_TX_CONFIRM_TARGET);
     walletInstance->m_spend_zero_conf_change = gArgs.GetBoolArg("-spendzeroconfchange", DEFAULT_SPEND_ZEROCONF_CHANGE);
     walletInstance->m_signal_rbf = gArgs.GetBoolArg("-walletrbf", DEFAULT_WALLET_RBF);
+    ParseMoney(gArgs.GetArg("-reservebalance", FormatMoney(DEFAULT_RESERVE_BALANCE)), walletInstance->m_reserve_balance);
+    walletInstance->m_not_use_change_address = gArgs.GetBoolArg("-notusechangeaddress", DEFAULT_NOT_USE_CHANGE_ADDRESS);
 
     walletInstance->WalletLogPrintf("Wallet completed loading in %15dms\n", GetTimeMillis() - nStart);
 

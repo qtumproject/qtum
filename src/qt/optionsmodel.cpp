@@ -110,17 +110,13 @@ void OptionsModel::Init(bool resetSettings)
 
     if (!settings.contains("fLogEvents"))
         settings.setValue("fLogEvents", fLogEvents);
-    if (!gArgs.SoftSetBoolArg("-logevents", settings.value("fLogEvents").toBool()))
+    if (!m_node.softSetBoolArg("-logevents", settings.value("fLogEvents").toBool()))
         addOverriddenOption("-logevents");
 
     if (!settings.contains("nReserveBalance"))
-        settings.setValue("nReserveBalance", (qint64)nReserveBalance);
-    if (!gArgs.SoftSetArg("-reservebalance", FormatMoney(settings.value("nReserveBalance").toLongLong())))
-        ParseMoney(gArgs.GetArg("-reservebalance", ""), nReserveBalance);
-    else
-        nReserveBalance = settings.value("nReserveBalance").toLongLong();
-
-    Q_EMIT reserveBalanceChanged(nReserveBalance);
+        settings.setValue("nReserveBalance", (long long)DEFAULT_RESERVE_BALANCE);
+    if (!m_node.softSetArg("-reservebalance", FormatMoney(settings.value("nReserveBalance").toLongLong())))
+        addOverriddenOption("-reservebalance");
 
     if (!settings.contains("nThreadsScriptVerif"))
         settings.setValue("nThreadsScriptVerif", DEFAULT_SCRIPTCHECK_THREADS);
@@ -137,10 +133,10 @@ void OptionsModel::Init(bool resetSettings)
     if (!m_node.softSetBoolArg("-spendzeroconfchange", settings.value("bSpendZeroConfChange").toBool()))
         addOverriddenOption("-spendzeroconfchange");
 #endif
+
     if (!settings.contains("bZeroBalanceAddressToken"))
-        settings.setValue("bZeroBalanceAddressToken", true);
-    if (!gArgs.SoftSetBoolArg("-zerobalanceaddresstoken", settings.value("bZeroBalanceAddressToken").toBool()))
-        addOverriddenOption("-zerobalanceaddresstoken");
+        settings.setValue("bZeroBalanceAddressToken", DEFAULT_ZERO_BALANCE_ADDRESS_TOKEN);
+    bZeroBalanceAddressToken = settings.value("bZeroBalanceAddressToken").toBool();
 
     if (!settings.contains("fCheckForUpdates"))
         settings.setValue("fCheckForUpdates", DEFAULT_CHECK_FOR_UPDATES);
@@ -159,7 +155,8 @@ void OptionsModel::Init(bool resetSettings)
 
     if (!settings.contains("fNotUseChangeAddress"))
         settings.setValue("fNotUseChangeAddress", DEFAULT_NOT_USE_CHANGE_ADDRESS);
-    fNotUseChangeAddress = settings.value("fNotUseChangeAddress").toBool();
+    if (!m_node.softSetBoolArg("-notusechangeaddress", settings.value("fNotUseChangeAddress").toBool()))
+        addOverriddenOption("-notusechangeaddress");
 
     if (!settings.contains("fUseProxy"))
         settings.setValue("fUseProxy", false);
@@ -317,7 +314,7 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
         case ZeroBalanceAddressToken:
             return settings.value("bZeroBalanceAddressToken");
         case ReserveBalance:
-            return (qint64) nReserveBalance;
+            return settings.value("nReserveBalance");
         case DisplayUnit:
             return nDisplayUnit;
         case ThirdPartyTxUrls:
@@ -492,8 +489,7 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
         case ReserveBalance:
             if (settings.value("nReserveBalance") != value) {
                 settings.setValue("nReserveBalance", value);
-                nReserveBalance = value.toLongLong();
-                Q_EMIT reserveBalanceChanged(nReserveBalance);
+                setRestartRequired(true);
             }
             break;
         case ThreadsScriptVerif:
@@ -511,7 +507,7 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
         case NotUseChangeAddress:
             if (settings.value("fNotUseChangeAddress") != value) {
                 settings.setValue("fNotUseChangeAddress", value);
-                fNotUseChangeAddress = value.toBool();
+                setRestartRequired(true);
             }
             break;
         case CheckForUpdates:

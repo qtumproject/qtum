@@ -90,7 +90,7 @@ void EnsureWalletIsUnlocked(CWallet * const pwallet)
     if (pwallet->IsLocked()) {
         throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Please enter the wallet passphrase with walletpassphrase first.");
     }
-    if (fWalletUnlockStakingOnly) {
+    if (pwallet->m_wallet_unlock_staking_only) {
         throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Wallet is unlocked for staking only.");
     }
 }
@@ -483,7 +483,7 @@ static CTransactionRef SendMoney(CWallet * const pwallet, const CTxDestination &
         throw JSONRPCError(RPC_CLIENT_P2P_DISABLED, "Error: Peer-to-peer functionality missing or disabled");
     }
 
-    if (fWalletUnlockStakingOnly)
+    if (pwallet->m_wallet_unlock_staking_only)
     {
         std::string strError = _("Error: Wallet unlocked for staking only, unable to create transaction.");
         throw JSONRPCError(RPC_WALLET_ERROR, strError);
@@ -3237,17 +3237,17 @@ static UniValue walletpassphrase(const JSONRPCRequest& request)
 
     if (strWalletPass.length() > 0)
     {
-        // Used to restore fWalletUnlockStakingOnly value in case of unlock failure 
-        bool tmpStakingOnly = fWalletUnlockStakingOnly;
+        // Used to restore m_wallet_unlock_staking_only value in case of unlock failure 
+        bool tmpStakingOnly = pwallet->m_wallet_unlock_staking_only;
 
         // ppcoin: if user OS account compromised prevent trivial sendmoney commands
         if (request.params.size() > 2)
-            fWalletUnlockStakingOnly = request.params[2].get_bool();
+            pwallet->m_wallet_unlock_staking_only = request.params[2].get_bool();
         else
-            fWalletUnlockStakingOnly = false;
+            pwallet->m_wallet_unlock_staking_only = false;
     
         if (!pwallet->Unlock(strWalletPass)) {
-            fWalletUnlockStakingOnly = tmpStakingOnly;
+            pwallet->m_wallet_unlock_staking_only = tmpStakingOnly;
             throw JSONRPCError(RPC_WALLET_PASSPHRASE_INCORRECT, "Error: The wallet passphrase entered was incorrect.");
         }
     }
@@ -3420,6 +3420,13 @@ static UniValue encryptwallet(const JSONRPCRequest& request)
 
 static UniValue reservebalance(const JSONRPCRequest& request)
 {
+    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
+    CWallet* const pwallet = wallet.get();
+
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+
     if (request.fHelp || request.params.size() > 2)
         throw std::runtime_error(
             "reservebalance [<reserve> [amount]]\n"
@@ -3439,19 +3446,19 @@ static UniValue reservebalance(const JSONRPCRequest& request)
             nAmount = (nAmount / CENT) * CENT;  // round to cent
             if (nAmount < 0)
                 throw std::runtime_error("amount cannot be negative.\n");
-            nReserveBalance = nAmount;
+            pwallet->m_reserve_balance = nAmount;
         }
         else
         {
             if (request.params.size() > 1)
                 throw std::runtime_error("cannot specify amount to turn off reserve.\n");
-            nReserveBalance = 0;
+            pwallet->m_reserve_balance = 0;
         }
     }
 
     UniValue result(UniValue::VOBJ);
-    result.pushKV("reserve", (nReserveBalance > 0));
-    result.pushKV("amount", ValueFromAmount(nReserveBalance));
+    result.pushKV("reserve", (pwallet->m_reserve_balance > 0));
+    result.pushKV("amount", ValueFromAmount(pwallet->m_reserve_balance));
     return result;
 }
 
