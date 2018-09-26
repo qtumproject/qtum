@@ -11,6 +11,7 @@
 #include <dbwrapper.h>
 #include <util.h>
 #include <uint256.h>
+#include <base58.h>
 #include "qtumstate.h"
 
 struct VersionVM{
@@ -73,7 +74,9 @@ static const uint8_t ROOT_VM_NULL = 0;
 static const uint8_t ROOT_VM_EVM = 1;
 static const uint8_t ROOT_VM_X86 = 2;
 
-
+//Note: we don't use Params().Base58Prefixes for these version numbers because otherwise
+//contracts would need to use two different SDKs since the the base58 version for pubkeyhash etc changes
+//between regtest, testnet, and mainnet
 enum AddressVersion{
     UNKNOWN = 0,
     //legacy is either pubkeyhash or EVM, depending on if the address already exists
@@ -101,6 +104,9 @@ struct UniversalAddress{
     : version(v), data(d) {}
     UniversalAddress(AddressVersion v, const unsigned char* begin, const unsigned char* end)
     : version(v), data(begin, end) {}
+    UniversalAddress(CBitcoinAddress &address){
+        fromBitcoinAddress(address);
+    }
 
     bool operator<(const UniversalAddress& a) const{
         return version < a.version || data < a.data;
@@ -133,10 +139,53 @@ struct UniversalAddress{
         return version == AddressVersion::EVM ||
                version == AddressVersion::X86;
     }
+    bool isContract(){
+        return hasAAL();
+    }
 
     static UniversalAddress FromScript(const CScript& script);
     static UniversalAddress FromOutput(AddressVersion v, uint256 txid, uint32_t vout);
 
+    CBitcoinAddress asBitcoinAddress(){
+        CBitcoinAddress a;
+        std::vector<unsigned char> v;
+        v.push_back(version);
+        a.setVersion(convertUniversalVersion(version));
+        a.setData(data);
+        return a;
+    }
+    void fromBitcoinAddress(CBitcoinAddress &address) {
+        version = convertBitcoinVersion(address.getVersion());
+        data = address.getData();
+    }
+
+    static AddressVersion convertBitcoinVersion(std::vector<unsigned char> version){
+        unsigned char v = version[0];
+        if(Params().Base58Prefix(CChainParams::PUBKEY_ADDRESS)[0] == v){
+            return AddressVersion::PUBKEYHASH;
+        }else if(Params().Base58Prefix(CChainParams::SCRIPT_ADDRESS)[0] == v){
+            return AddressVersion::SCRIPTHASH;
+        }else if(Params().Base58Prefix(CChainParams::EVM_ADDRESS)[0] == v) {
+            return AddressVersion::EVM;
+        }else if(Params().Base58Prefix(CChainParams::X86VM_ADDRESS)[0] == v) {
+            return AddressVersion::X86;
+        }else {
+            return AddressVersion::UNKNOWN;
+        }
+    }
+    static std::vector<unsigned char> convertUniversalVersion(AddressVersion v){
+        if(v == AddressVersion::EVM){
+            return Params().Base58Prefix(CChainParams::EVM_ADDRESS);
+        }else if(v == AddressVersion::X86){
+            return Params().Base58Prefix(CChainParams::X86VM_ADDRESS);
+        }else if(v == AddressVersion::PUBKEYHASH){
+            return Params().Base58Prefix(CChainParams::PUBKEY_ADDRESS);
+        }else if(v == AddressVersion::SCRIPTHASH){
+            return Params().Base58Prefix(CChainParams::SCRIPT_ADDRESS);
+        }else{
+            return std::vector<unsigned char>();
+        }
+    }
 
 
     AddressVersion version;

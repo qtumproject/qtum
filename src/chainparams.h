@@ -54,6 +54,10 @@ public:
         EXT_PUBLIC_KEY,
         EXT_SECRET_KEY,
 
+        //Qtum VMs
+        EVM_ADDRESS,
+        X86VM_ADDRESS,
+
         MAX_BASE58_TYPES
     };
 

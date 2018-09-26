@@ -244,16 +244,24 @@ bool CBitcoinAddress::Set(const CTxDestination& dest)
     return boost::apply_visitor(CBitcoinAddressVisitor(this), dest);
 }
 
-bool CBitcoinAddress::IsValid() const
+bool CBitcoinAddress::IsValid(bool allowContracts) const
 {
-    return IsValid(Params());
+    return IsValid(Params(), allowContracts);
 }
 
-bool CBitcoinAddress::IsValid(const CChainParams& params) const
+bool CBitcoinAddress::IsValid(const CChainParams& params, bool allowContracts) const
 {
     bool fCorrectSize = vchData.size() == 20;
-    bool fKnownVersion = vchVersion == params.Base58Prefix(CChainParams::PUBKEY_ADDRESS) ||
-                         vchVersion == params.Base58Prefix(CChainParams::SCRIPT_ADDRESS);
+    bool fKnownVersion;
+    if(allowContracts) {
+        vchVersion == params.Base58Prefix(CChainParams::PUBKEY_ADDRESS) ||
+        vchVersion == params.Base58Prefix(CChainParams::SCRIPT_ADDRESS) ||
+        vchVersion == params.Base58Prefix(CChainParams::EVM_ADDRESS)    ||
+        vchVersion == params.Base58Prefix(CChainParams::X86VM_ADDRESS)  ;
+    }else{
+        vchVersion == params.Base58Prefix(CChainParams::PUBKEY_ADDRESS) ||
+        vchVersion == params.Base58Prefix(CChainParams::SCRIPT_ADDRESS);
+    }
     return fCorrectSize && fKnownVersion;
 }
 

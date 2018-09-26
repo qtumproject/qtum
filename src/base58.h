@@ -88,6 +88,23 @@ public:
     std::string ToString() const;
     int CompareTo(const CBase58Data& b58) const;
 
+    std::vector<unsigned char> getVersion(){
+        std::vector<unsigned char> copy(vchVersion.begin(), vchVersion.end());
+        return copy;
+    }
+
+    std::vector<unsigned char> getData(){
+        std::vector<unsigned char> copy(vchData.begin(), vchData.end());
+        return copy;
+    }
+
+    void setVersion(std::vector<unsigned char> v){
+        vchVersion.assign(v.begin(), v.end());
+    }
+    void setData(std::vector<unsigned char> d){
+        vchData.assign(d.begin(), d.end());
+    }
+
     bool operator==(const CBase58Data& b58) const { return CompareTo(b58) == 0; }
     bool operator<=(const CBase58Data& b58) const { return CompareTo(b58) <= 0; }
     bool operator>=(const CBase58Data& b58) const { return CompareTo(b58) >= 0; }
@@ -106,8 +123,8 @@ public:
     bool Set(const CKeyID &id);
     bool Set(const CScriptID &id);
     bool Set(const CTxDestination &dest);
-    bool IsValid() const;
-    bool IsValid(const CChainParams &params) const;
+    bool IsValid(bool allowContract = false) const;
+    bool IsValid(const CChainParams &params, bool allowContract = false) const;
 
     CBitcoinAddress() {}
     CBitcoinAddress(const CTxDestination &dest) { Set(dest); }

@@ -677,40 +677,42 @@ UniValue createcontract(const JSONRPCRequest& request){
 
     UniValue result(UniValue::VOBJ);
     if(fBroadcast){
-    CValidationState state;
-    if (!pwallet->CommitTransaction(wtx, reservekey, g_connman.get(), state))
-        throw JSONRPCError(RPC_WALLET_ERROR, "Error: The transaction was rejected! This might happen if some of the coins in your wallet were already spent, such as if you used a copy of the wallet and coins were spent in the copy but not marked as spent here.");
+        CValidationState state;
+        if (!pwallet->CommitTransaction(wtx, reservekey, g_connman.get(), state))
+            throw JSONRPCError(RPC_WALLET_ERROR, "Error: The transaction was rejected! This might happen if some of the coins in your wallet were already spent, such as if you used a copy of the wallet and coins were spent in the copy but not marked as spent here.");
 
-    std::string txId=wtx.GetHash().GetHex();
-    result.push_back(Pair("txid", txId));
+        std::string txId=wtx.GetHash().GetHex();
+        result.push_back(Pair("txid", txId));
 
-    CBitcoinAddress txSenderAdress(txSenderDest);
-    CKeyID keyid;
-    txSenderAdress.GetKeyID(keyid);
+        CBitcoinAddress txSenderAdress(txSenderDest);
+        CKeyID keyid;
+        txSenderAdress.GetKeyID(keyid);
 
-    result.push_back(Pair("sender", txSenderAdress.ToString()));
-    result.push_back(Pair("hash160", HexStr(valtype(keyid.begin(),keyid.end()))));
+        result.push_back(Pair("sender", txSenderAdress.ToString()));
+        result.push_back(Pair("hash160", HexStr(valtype(keyid.begin(),keyid.end()))));
 
-    std::vector<unsigned char> SHA256TxVout(32);
-    std::vector<unsigned char> contractAddress(20);
-    std::vector<unsigned char> txIdAndVout(wtx.GetHash().begin(), wtx.GetHash().end());
-    uint32_t voutNumber=0;
-    for (const CTxOut& txout : wtx.tx->vout) {
-        if(txout.scriptPubKey.HasOpCreate()){
-            std::vector<unsigned char> voutNumberChrs;
-            if (voutNumberChrs.size() < sizeof(voutNumber))voutNumberChrs.resize(sizeof(voutNumber));
-            std::memcpy(voutNumberChrs.data(), &voutNumber, sizeof(voutNumber));
-            txIdAndVout.insert(txIdAndVout.end(),voutNumberChrs.begin(),voutNumberChrs.end());
-            break;
+        std::vector<unsigned char> SHA256TxVout(32);
+        std::vector<unsigned char> contractAddress(20);
+        std::vector<unsigned char> txIdAndVout(wtx.GetHash().begin(), wtx.GetHash().end());
+        uint32_t voutNumber=0;
+        for (const CTxOut& txout : wtx.tx->vout) {
+            if(txout.scriptPubKey.HasOpCreate()){
+                std::vector<unsigned char> voutNumberChrs;
+                if (voutNumberChrs.size() < sizeof(voutNumber))voutNumberChrs.resize(sizeof(voutNumber));
+                std::memcpy(voutNumberChrs.data(), &voutNumber, sizeof(voutNumber));
+                txIdAndVout.insert(txIdAndVout.end(),voutNumberChrs.begin(),voutNumberChrs.end());
+                break;
+            }
+            voutNumber++;
         }
-        voutNumber++;
-    }
-    CSHA256().Write(txIdAndVout.data(), txIdAndVout.size()).Finalize(SHA256TxVout.data());
-    CRIPEMD160().Write(SHA256TxVout.data(), SHA256TxVout.size()).Finalize(contractAddress.data());
-    result.push_back(Pair("address", HexStr(contractAddress)));
+        CSHA256().Write(txIdAndVout.data(), txIdAndVout.size()).Finalize(SHA256TxVout.data());
+        CRIPEMD160().Write(SHA256TxVout.data(), SHA256TxVout.size()).Finalize(contractAddress.data());
+        result.push_back(Pair("hexaddress", HexStr(contractAddress)));
+        UniversalAddress tmp(AddressVersion::X86, contractAddress); //todo, handle evm
+        result.push_back(Pair("address", tmp.asBitcoinAddress().ToString()));
     }else{
-    std::string strHex = EncodeHexTx(*wtx.tx, RPCSerializationFlags());
-    result.push_back(Pair("raw transaction", strHex));
+        std::string strHex = EncodeHexTx(*wtx.tx, RPCSerializationFlags());
+        result.push_back(Pair("raw transaction", strHex));
     }
     return result;
 }
@@ -756,10 +758,21 @@ UniValue sendtocontract(const JSONRPCRequest& request){
 
 
     std::string contractaddress = request.params[0].get_str();
-    if(contractaddress.size() != 40 || !CheckHex(contractaddress))
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect contract address");
+    UniversalAddress address;
+    if(contractaddress.size() != 40 || !CheckHex(contractaddress)){
+        CBitcoinAddress a(contractaddress);
+        if(!a.IsValid()){
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address provided is not a valid hex string or base58 address");
+        }
+        address.fromBitcoinAddress(a);
+        if(!address.isContract())
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address provided is not a contract address");
+    }else{
+        //hex assumes EVM
+        address.version = AddressVersion::EVM;
+        address.data = ParseHex(contractaddress);
+    }
 
-    dev::Address addrAccount(contractaddress);
     //if(!globalState->addressInUse(addrAccount))
     //    throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "contract address does not exist");
 
@@ -875,7 +888,19 @@ UniValue sendtocontract(const JSONRPCRequest& request){
         throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Insufficient funds");
 
     // Build OP_EXEC_ASSIGN script
-    CScript scriptPubKey = CScript() << CScriptNum(VersionVM::Getx86Default().toRaw()) << CScriptNum(nGasLimit) << CScriptNum(nGasPrice) << ParseHex(datahex) << ParseHex(contractaddress) << OP_CALL;
+    CScript scriptPubKey;
+    if(address.version == AddressVersion::EVM) {
+
+         scriptPubKey = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(nGasLimit)
+                                         << CScriptNum(nGasPrice) << ParseHex(datahex) << ParseHex(contractaddress)
+                                         << OP_CALL;
+    }else if(address.version == AddressVersion::X86){
+        scriptPubKey = CScript() << CScriptNum(VersionVM::Getx86Default().toRaw()) << CScriptNum(nGasLimit)
+                                         << CScriptNum(nGasPrice) << ParseHex(datahex) << ParseHex(contractaddress)
+                                         << OP_CALL;
+    }else{
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Unknown VM version for address");
+    }
 
     // Create and send the transaction
     CReserveKey reservekey(pwallet);
@@ -917,6 +942,7 @@ UniValue sendtocontract(const JSONRPCRequest& request){
 
         result.push_back(Pair("sender", txSenderAdress.ToString()));
         result.push_back(Pair("hash160", HexStr(valtype(keyid.begin(),keyid.end()))));
+        result.push_back(Pair("address", address.asBitcoinAddress().ToString()));
     }else{
         std::string strHex = EncodeHexTx(*wtx.tx, RPCSerializationFlags());
         result.push_back(Pair("raw transaction", strHex));
