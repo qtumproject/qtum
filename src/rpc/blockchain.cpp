@@ -1024,49 +1024,97 @@ UniValue callcontract(const JSONRPCRequest& request)
  
     LOCK(cs_main);
     
-    std::string strAddr = request.params[0].get_str();
     std::string data = request.params[1].get_str();
 
-    if(data.size() % 2 != 0 || !CheckHex(data))
-        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid data (data not hex)");
+    std::string contractaddress = request.params[0].get_str();
+    UniversalAddress address;
+    if(contractaddress.size() != 40 || !CheckHex(contractaddress)){
+        CBitcoinAddress a(contractaddress);
+        if(!a.IsValid()){
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address provided is not a valid hex string or base58 address");
+        }
+        address.fromBitcoinAddress(a);
+        if(!address.isContract())
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address provided is not a contract address");
+    }else{
+        //hex assumes EVM
+        address.version = AddressVersion::EVM;
+        address.data = ParseHex(contractaddress);
+    }
 
-    if(strAddr.size() != 40 || !CheckHex(strAddr))
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect address");
- 
-    dev::Address addrAccount(strAddr);
-    if(!globalState->addressInUse(addrAccount))
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
+    if(address.version == AddressVersion::EVM){
+        dev::Address addrAccount(contractaddress);
+        if(!globalState->addressInUse(addrAccount))
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
     
-    dev::Address senderAddress;
-    if(request.params.size() == 3){
-        CBitcoinAddress qtumSenderAddress(request.params[2].get_str());
-        if(qtumSenderAddress.IsValid()){
-            CKeyID keyid;
-            qtumSenderAddress.GetKeyID(keyid);
-            senderAddress = dev::Address(HexStr(valtype(keyid.begin(),keyid.end())));
-        }else{
-            senderAddress = dev::Address(request.params[2].get_str());
+        dev::Address senderAddress;
+        if(request.params.size() == 3){
+            CBitcoinAddress qtumSenderAddress(request.params[2].get_str());
+            if(qtumSenderAddress.IsValid()){
+                CKeyID keyid;
+                qtumSenderAddress.GetKeyID(keyid);
+                senderAddress = dev::Address(HexStr(valtype(keyid.begin(),keyid.end())));
+            }else{
+                senderAddress = dev::Address(request.params[2].get_str());
+            }
+
+        }
+        uint64_t gasLimit=0;
+        if(request.params.size() == 4){
+            gasLimit = request.params[3].get_int();
         }
 
+
+        std::vector<ResultExecute> execResults = CallContract(addrAccount, ParseHex(data), senderAddress, gasLimit);
+
+        if(fRecordLogOpcodes){
+            writeVMlog(execResults);
+        }
+
+        UniValue result(UniValue::VOBJ);
+        result.push_back(Pair("address", contractaddress));
+        result.push_back(Pair("executionResult", executionResultToJSON(execResults[0].execRes)));
+        result.push_back(Pair("transactionReceipt", transactionReceiptToJSON(execResults[0].txRec)));
+    
+        return result;
     }
-    uint64_t gasLimit=0;
-    if(request.params.size() == 4){
-        gasLimit = request.params[3].get_int();
+
+    //other VMs
+    DeltaDBWrapper db(pdeltaDB);
+    std::vector<uint8_t> bytecode;
+    if(!db.readByteCode(address, bytecode)){
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Contract does not exist at that address");
     }
+    CBlock block;
+    CBlockIndex* pblockindex = mapBlockIndex[pcoinsTip->GetBestBlock()];
+
+    if (!ReadBlockFromDisk(block, pblockindex, Params().GetConsensus()))
+        // Block not found on disk. This could be because we have the block
+        // header in our index but don't have the block (for example if a
+        // non-whitelisted node sends us an unrequested long chain of valid
+        // blocks, we add the headers to our index, but don't accept the
+        // block).
+        throw JSONRPCError(RPC_MISC_ERROR, "Block not found on disk");
+    
+    ContractOutput output;
+
+    output.version = VersionVM::Getx86Default();
+    output.value = 0;
+    output.gasPrice = 1;
+    output.gasLimit = 10000000000;
+    output.address = address;
+    output.data = ParseHex(data);
+    //output.sender = 0; //??
+    output.sender.version = AddressVersion::PUBKEYHASH;
+    //output.vout = 0; //?
+    output.OpCreate = false;
+
+    ContractExecutor exec(block, output, 10000000000);
+    ContractExecutionResult result;
+    bool success = exec.execute(result, false);
+    //todo need a result to json for ContractExecutionResult
 
 
-    std::vector<ResultExecute> execResults = CallContract(addrAccount, ParseHex(data), senderAddress, gasLimit);
-
-    if(fRecordLogOpcodes){
-        writeVMlog(execResults);
-    }
-
-    UniValue result(UniValue::VOBJ);
-    result.push_back(Pair("address", strAddr));
-    result.push_back(Pair("executionResult", executionResultToJSON(execResults[0].execRes)));
-    result.push_back(Pair("transactionReceipt", transactionReceiptToJSON(execResults[0].txRec)));
- 
-    return result;
 }
 
 void assignJSON(UniValue& entry, const TransactionReceiptInfo& resExec) {

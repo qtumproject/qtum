@@ -595,6 +595,7 @@ CTransaction DeltaDBWrapper::createCondensingTx() {
             continue;
         }
         CScript script;
+        CScriptBase c;
         if (dest.version == AddressVersion::PUBKEYHASH) {
             script = CScript() << OP_DUP << OP_HASH160 << dest.data << OP_EQUALVERIFY << OP_CHECKSIG;
         } else if (dest.version == AddressVersion::SCRIPTHASH) {
@@ -609,6 +610,8 @@ CTransaction DeltaDBWrapper::createCondensingTx() {
             return CTransaction();
         }
         n++;
+        CScript s;
+        s.data();
     }
 
     if(!tx.vin.size() && tx.vout.size()>0){
