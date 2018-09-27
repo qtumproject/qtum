@@ -60,13 +60,11 @@ public:
     bool isValidAddress();
     void setComboBoxEditable(bool editable);
 
-    void setAddressTableModel(QAbstractItemModel *addressTableModel);
+    void setIncludeZeroValue(bool includeZeroValue);
 
     void setAddressColumn(int addressColumn);
 
     void setTypeRole(int typeRole);
-
-    void setReceive(const QString &receive);
 
     void setSenderAddress(bool senderAddress);
 
@@ -94,6 +92,11 @@ public Q_SLOTS:
      */
     void on_editingFinished();
 
+    /**
+     * @brief on_availableAddressesChanged Available addresses changed
+     */
+    void on_availableAddressesChanged(QStringList spendableAddresses, QStringList allAddresses);
+
 private:
     void appendAddress(const QString& strAddress);
 
@@ -105,8 +108,10 @@ private:
     WalletModel* m_walletModel;
     int m_addressColumn;
     int m_typeRole;
-    QString m_receive;
     bool m_senderAddress;
+    QStringList m_spendableAddresses;
+    QStringList m_allAddresses;
+    bool m_includeZeroValue;
 };
 
 #endif // ADDRESSFIELD_H

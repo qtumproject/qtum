@@ -18,8 +18,11 @@
 
 #include <map>
 #include <vector>
+#include <atomic>
 
 #include <QObject>
+#include <QStringList>
+#include <QThread>
 
 enum class OutputType;
 
@@ -220,7 +223,7 @@ public:
     QString getRestoreParam();
     bool restore();
 
-    uint64_t tryGetStakeWeight();
+    uint64_t getStakeWeight();
 
     AddressTableModel* getAddressTableModel() const { return addressTableModel; }
 private:
@@ -260,10 +263,14 @@ private:
     QString restoreParam;
 
     uint64_t nWeight;
+    std::atomic<bool> updateStakeWeight;
+    std::atomic<bool> updateCoinAddresses;
+
+    QThread t;
 
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();
-    void checkBalanceChanged(const interfaces::WalletBalances& new_balances);
+    bool checkBalanceChanged(const interfaces::WalletBalances& new_balances);
     void checkTokenBalanceChanged();
 
 Q_SIGNALS:
@@ -293,6 +300,9 @@ Q_SIGNALS:
     // Signal that wallet is about to be removed
     void unload();
 
+    // Signal that available coin addresses are changed
+    void availableAddressesChanged(QStringList spendableAddresses, QStringList allAddresses);
+
 public Q_SLOTS:
     /* Wallet status might have changed */
     void updateStatus();
@@ -306,6 +316,12 @@ public Q_SLOTS:
     void pollBalanceChanged();
     /* New, updated or removed contract book entry */
     void updateContractBook(const QString &address, const QString &label, const QString &abi, int status);
+    /* Set that update for coin address is needed */
+    void checkCoinAddresses();
+    /* Update coin addresses when changed*/
+    void checkCoinAddressesChanged();
+    /* Update stake weight when changed*/
+    void checkStakeWeightChanged();
 };
 
 #endif // BITCOIN_QT_WALLETMODEL_H

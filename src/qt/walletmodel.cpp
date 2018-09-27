@@ -31,6 +31,24 @@
 #include <QTimer>
 #include <QFile>
 
+class WalletWorker : public QObject
+{
+    Q_OBJECT
+public:
+    WalletModel *walletModel;
+    WalletWorker(WalletModel *_walletModel):
+        walletModel(_walletModel){}
+
+private Q_SLOTS:
+    void updateModel()
+    {
+        // Update the model with results of task that take more time to be completed
+        walletModel->checkCoinAddressesChanged();
+        walletModel->checkStakeWeightChanged();
+    }
+};
+
+#include "walletmodel.moc"
 
 WalletModel::WalletModel(std::unique_ptr<interfaces::Wallet> wallet, interfaces::Node& node, const PlatformStyle *platformStyle, OptionsModel *_optionsModel, QObject *parent) :
     QObject(parent), m_wallet(std::move(wallet)), m_node(node), optionsModel(_optionsModel), addressTableModel(0),
@@ -41,7 +59,9 @@ WalletModel::WalletModel(std::unique_ptr<interfaces::Wallet> wallet, interfaces:
     tokenTransactionTableModel(0),
     cachedEncryptionStatus(Unencrypted),
     cachedNumBlocks(0),
-    nWeight(0)
+    nWeight(0),
+    updateStakeWeight(true),
+    updateCoinAddresses(true)
 {
     fHaveWatchOnly = m_wallet->haveWatchOnly();
     fForceCheckBalanceChanged = false;
@@ -54,9 +74,16 @@ WalletModel::WalletModel(std::unique_ptr<interfaces::Wallet> wallet, interfaces:
     tokenTransactionTableModel = new TokenTransactionTableModel(platformStyle, this);
 
     // This timer will be fired repeatedly to update the balance
+    WalletWorker * worker = new WalletWorker(this);
+    worker->moveToThread(&(t));
+    t.start();
     pollTimer = new QTimer(this);
     connect(pollTimer, SIGNAL(timeout()), this, SLOT(pollBalanceChanged()));
+    connect(pollTimer, SIGNAL(timeout()), worker, SLOT(updateModel()));
     pollTimer->start(MODEL_UPDATE_DELAY);
+
+    connect(addressTableModel, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(checkCoinAddresses()));
+    connect(addressTableModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(checkCoinAddresses()));
 
     subscribeToCoreSignals();
 }
@@ -64,6 +91,9 @@ WalletModel::WalletModel(std::unique_ptr<interfaces::Wallet> wallet, interfaces:
 WalletModel::~WalletModel()
 {
     unsubscribeFromCoreSignals();
+
+    t.quit();
+    t.wait();
 }
 
 void WalletModel::updateStatus()
@@ -87,15 +117,16 @@ void WalletModel::pollBalanceChanged()
         return;
     }
 
-    bool cachedNumBlocksChanged = m_node.getNumBlocks() != cachedNumBlocks;
+    numBlocks = m_node.getNumBlocks();
+    bool cachedNumBlocksChanged = numBlocks != cachedNumBlocks;
     if(fForceCheckBalanceChanged || cachedNumBlocksChanged)
     {
         fForceCheckBalanceChanged = false;
 
         // Balance and number of transactions might have changed
-        cachedNumBlocks = m_node.getNumBlocks();
+        cachedNumBlocks = numBlocks;
 
-        checkBalanceChanged(new_balances);
+        bool balanceChanged = checkBalanceChanged(new_balances);
         if(transactionTableModel)
             transactionTableModel->updateConfirmations();
 
@@ -106,6 +137,12 @@ void WalletModel::pollBalanceChanged()
         {
             checkTokenBalanceChanged();
         }
+
+        if(balanceChanged)
+        {
+            updateStakeWeight = true;
+            updateCoinAddresses = true;
+        }
     }
 }
 void WalletModel::updateContractBook(const QString &address, const QString &label, const QString &abi, int status)
@@ -114,12 +151,14 @@ void WalletModel::updateContractBook(const QString &address, const QString &labe
         contractTableModel->updateEntry(address, label, abi, status);
 }
 
-void WalletModel::checkBalanceChanged(const interfaces::WalletBalances& new_balances)
+bool WalletModel::checkBalanceChanged(const interfaces::WalletBalances& new_balances)
 {
     if(new_balances.balanceChanged(m_cached_balances)) {
         m_cached_balances = new_balances;
         Q_EMIT balanceChanged(new_balances);
+        return true;
     }
+    return false;
 }
 
 void WalletModel::checkTokenBalanceChanged()
@@ -689,9 +728,8 @@ bool WalletModel::restore()
     return !restorePath.isEmpty();
 }
 
-uint64_t WalletModel::tryGetStakeWeight()
+uint64_t WalletModel::getStakeWeight()
 {
-    m_wallet->tryGetStakeWeight(nWeight);
     return nWeight;
 }
 
@@ -703,4 +741,38 @@ bool WalletModel::getWalletUnlockStakingOnly()
 void WalletModel::setWalletUnlockStakingOnly(bool unlock)
 {
     m_wallet->setWalletUnlockStakingOnly(unlock);
+}
+
+void WalletModel::checkCoinAddressesChanged()
+{
+    // Get the list of coin addresses and emit it to the subscribers
+    std::vector<std::string> spendableAddresses;
+    std::vector<std::string> allAddresses;
+    if(updateCoinAddresses && m_wallet->tryGetAvailableAddresses(spendableAddresses, allAddresses))
+    {
+        QStringList listSpendableAddresses;
+        for(std::string address : spendableAddresses)
+            listSpendableAddresses.append(QString::fromStdString(address));
+
+        QStringList listAllAddresses;
+        for(std::string address : allAddresses)
+            listAllAddresses.append(QString::fromStdString(address));
+
+        Q_EMIT availableAddressesChanged(listSpendableAddresses, listAllAddresses);
+
+        updateCoinAddresses = false;
+    }
+}
+
+void WalletModel::checkStakeWeightChanged()
+{
+    if(updateStakeWeight && m_wallet->tryGetStakeWeight(nWeight))
+    {
+        updateStakeWeight = false;
+    }
+}
+
+void WalletModel::checkCoinAddresses()
+{
+    updateCoinAddresses = true;
 }

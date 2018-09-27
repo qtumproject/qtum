@@ -21,8 +21,8 @@ AddressField::AddressField(QWidget *parent) :
     m_walletModel(0),
     m_addressColumn(0),
     m_typeRole(Qt::UserRole),
-    m_receive("R"),
-    m_senderAddress(false)
+    m_senderAddress(false),
+    m_includeZeroValue(false)
 
 {
     // Set editable state
@@ -86,34 +86,22 @@ void AddressField::on_refresh()
         // Fill the list with address
         if(m_addressType == AddressField::UTXO)
         {
-            std::vector<std::string> addresses;
+            QStringList addresses;
 
             // Add all available addresses if 0 address ballance for token is enabled
-            if(m_addressTableModel)
+            if(m_includeZeroValue)
             {
-                // Fill the list with user defined address
-                for(int row = 0; row < m_addressTableModel->rowCount(); row++)
-                {
-                    QModelIndex index = m_addressTableModel->index(row, m_addressColumn);
-                    QString strAddress = m_addressTableModel->data(index).toString();
-                    QString type = m_addressTableModel->data(index, m_typeRole).toString();
-                    if(type == m_receive)
-                    {
-                        appendAddress(strAddress);
-                    }
-                }
-
                 // Include zero or unconfirmed coins too
-                addresses = m_walletModel->wallet().availableAddresses(true);
+                addresses = m_allAddresses;
             }
             else
             {
                 // List only the spendable coins
-                addresses = m_walletModel->wallet().availableAddresses();
+                addresses = m_spendableAddresses;
             }
 
-            for(std::string address : addresses) {
-                appendAddress(QString::fromStdString(address));
+            for(QString address : addresses) {
+                appendAddress(address);
             }
         }
     }
@@ -144,17 +132,8 @@ void AddressField::appendAddress(const QString &strAddress)
         if(m_senderAddress && !IsValidContractSenderAddress(address))
             return;
 
-        if(!m_stringList.contains(strAddress) &&
-                m_walletModel->wallet().isMineAddress(strAddress.toStdString()))
-        {
-            m_stringList.append(strAddress);
-        }
+        m_stringList.append(strAddress);
     }
-}
-
-void AddressField::setReceive(const QString &receive)
-{
-    m_receive = receive;
 }
 
 void AddressField::setTypeRole(int typeRole)
@@ -167,21 +146,6 @@ void AddressField::setAddressColumn(int addressColumn)
     m_addressColumn = addressColumn;
 }
 
-void AddressField::setAddressTableModel(QAbstractItemModel *addressTableModel)
-{
-    if(m_addressTableModel)
-    {
-        disconnect(m_addressTableModel, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(on_refresh()));
-        disconnect(m_addressTableModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(on_refresh()));
-    }
-
-    m_addressTableModel = addressTableModel;
-    connect(m_addressTableModel, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(on_refresh()));
-    connect(m_addressTableModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(on_refresh()));
-
-    on_refresh();
-}
-
 void AddressField::setSenderAddress(bool senderAddress)
 {
     m_senderAddress = senderAddress;
@@ -190,4 +154,22 @@ void AddressField::setSenderAddress(bool senderAddress)
 void AddressField::setWalletModel(WalletModel *walletModel)
 {
     m_walletModel = walletModel;
+
+    connect(m_walletModel, SIGNAL(availableAddressesChanged(QStringList,QStringList)), this, SLOT(on_availableAddressesChanged(QStringList,QStringList)));
+}
+
+void AddressField::on_availableAddressesChanged(QStringList spendableAddresses, QStringList allAddresses)
+{
+    // The addresses are checked that are mine in the model
+    m_spendableAddresses = spendableAddresses;
+    m_allAddresses = allAddresses;
+
+    on_refresh();
+}
+
+void AddressField::setIncludeZeroValue(bool includeZeroValue)
+{
+    m_includeZeroValue = includeZeroValue;
+
+    on_refresh();
 }

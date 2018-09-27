@@ -518,31 +518,66 @@ public:
         }
         return true;
     }
-    std::vector<std::string> availableAddresses(bool fIncludeZeroValue) override
+    std::vector<std::string> availableAddresses(bool fIncludeZeroValue)
     {
-        LOCK2(::cs_main, m_wallet.cs_wallet);
-
         std::vector<std::string> result;
         std::vector<COutput> vecOutputs;
+        std::map<std::string, bool> mapAddress;
 
         if(fIncludeZeroValue)
-            m_wallet.AvailableCoins(vecOutputs, false, nullptr, 0);
-        else
-            m_wallet.AvailableCoins(vecOutputs);
+        {
+            // Get the user created addresses in from the address book and add them if they are mine
+            for (const auto& item : m_wallet.mapAddressBook) {
+                if(!IsMine(m_wallet, item.first)) continue;
 
+                std::string strAddress = EncodeDestination(item.first);
+                if (mapAddress.find(strAddress) == mapAddress.end())
+                {
+                    mapAddress[strAddress] = true;
+                    result.push_back(strAddress);
+                }
+            }
+
+            // Get all coins including the 0 values
+            m_wallet.AvailableCoins(vecOutputs, false, nullptr, 0);
+        }
+        else
+        {
+            // Get all spendable coins
+            m_wallet.AvailableCoins(vecOutputs);
+        }
+
+        // Extract all coins addresses and add them in the list
         for (const COutput& out : vecOutputs)
         {
             CTxDestination address;
             const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
             bool fValidAddress = ExtractDestination(scriptPubKey, address);
 
-            if (!fValidAddress) continue;
+            if (!fValidAddress || !IsMine(m_wallet, address)) continue;
 
             std::string strAddress = EncodeDestination(address);
-            if (std::find(result.begin(), result.end(), strAddress) == result.end())
+            if (mapAddress.find(strAddress) == mapAddress.end())
+            {
+                mapAddress[strAddress] = true;
                 result.push_back(strAddress);
+            }
         }
+
         return result;
+    }
+    bool tryGetAvailableAddresses(std::vector<std::string> &spendableAddresses, std::vector<std::string> &allAddresses) override
+    {
+        TRY_LOCK(cs_main, locked_chain);
+        if (!locked_chain) return false;
+        TRY_LOCK(m_wallet.cs_wallet, locked_wallet);
+        if (!locked_wallet) {
+            return false;
+        }
+
+        spendableAddresses = availableAddresses(false);
+        allAddresses = availableAddresses(true);
+        return true;
     }
     CoinsList listCoins() override
     {

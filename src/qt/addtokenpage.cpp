@@ -41,7 +41,6 @@ AddTokenPage::AddTokenPage(QWidget *parent) :
 
     ui->lineEditSenderAddress->setAddressColumn(AddressTableModel::Address);
     ui->lineEditSenderAddress->setTypeRole(AddressTableModel::TypeRole);
-    ui->lineEditSenderAddress->setReceive(AddressTableModel::Receive);
     ui->lineEditSenderAddress->setSenderAddress(true);
     if(ui->lineEditSenderAddress->isEditable())
         ((QValidatedLineEdit*)ui->lineEditSenderAddress->lineEdit())->setEmptyIsValid(false);
@@ -60,11 +59,6 @@ AddTokenPage::~AddTokenPage()
 void AddTokenPage::setClientModel(ClientModel *clientModel)
 {
     m_clientModel = clientModel;
-    if (m_clientModel)
-    {
-        connect(m_clientModel, SIGNAL(tipChanged()), this, SLOT(on_numBlocksChanged()));
-        on_numBlocksChanged();
-    }
 }
 
 void AddTokenPage::clearAll()
@@ -148,11 +142,6 @@ void AddTokenPage::on_addressChanged()
     ui->confirmButton->setEnabled(m_validTokenAddress);
 }
 
-void AddTokenPage::on_numBlocksChanged()
-{
-    ui->lineEditSenderAddress->on_refresh();
-}
-
 void AddTokenPage::on_updateConfirmButton()
 {
     bool enabled = true;
@@ -170,10 +159,5 @@ void AddTokenPage::on_updateConfirmButton()
 
 void AddTokenPage::on_zeroBalanceAddressToken(bool enable)
 {
-    QAbstractItemModel *addressTableModel = 0;
-    if(enable && m_model)
-    {
-        addressTableModel = m_model->getAddressTableModel();
-    }
-    ui->lineEditSenderAddress->setAddressTableModel(addressTableModel);
+    ui->lineEditSenderAddress->setIncludeZeroValue(enable);
 }

@@ -642,6 +642,7 @@ bool BitcoinGUI::setCurrentWallet(const QString& name)
     WalletModel *walletModel = ret ? walletFrame->currentWalletView()->getWalletModel() : 0;
     appTitleBar->setModel(walletModel);
     walletFrame->updateTabBar();
+    clientModel->updateTip();
     return ret;
 }
 
@@ -1348,7 +1349,7 @@ void BitcoinGUI::updateStakingIcon()
     }
     WalletModel * const walletModel = walletView->getWalletModel();
 
-    uint64_t nWeight= walletModel->tryGetStakeWeight();
+    uint64_t nWeight= walletModel->getStakeWeight();
     if (walletModel->wallet().getLastCoinStakeSearchInterval() && nWeight)
     {
         uint64_t nNetworkWeight = GetPoSKernelPS();

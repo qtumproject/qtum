@@ -156,8 +156,7 @@ void CreateContract::setClientModel(ClientModel *_clientModel)
 
     if (m_clientModel)
     {
-        connect(m_clientModel, SIGNAL(tipChanged()), this, SLOT(on_numBlocksChanged()));
-        on_numBlocksChanged();
+        connect(m_clientModel, SIGNAL(gasInfoChanged(quint64, quint64, quint64)), this, SLOT(on_gasInfoChanged(quint64, quint64, quint64)));
     }
 }
 
@@ -233,22 +232,13 @@ void CreateContract::on_createContractClicked()
     }
 }
 
-void CreateContract::on_numBlocksChanged()
+void CreateContract::on_gasInfoChanged(quint64 blockGasLimit, quint64 minGasPrice, quint64 nGasPrice)
 {
-    if(m_clientModel)
-    {
-        uint64_t blockGasLimit = 0;
-        uint64_t minGasPrice = 0;
-        uint64_t nGasPrice = 0;
-        m_clientModel->node().getGasInfo(blockGasLimit, minGasPrice, nGasPrice);
-
-        ui->labelGasLimit->setToolTip(tr("Gas limit. Default = %1, Max = %2").arg(DEFAULT_GAS_LIMIT_OP_CREATE).arg(blockGasLimit));
-        ui->labelGasPrice->setToolTip(tr("Gas price: QTUM price per gas unit. Default = %1, Min = %2").arg(QString::fromStdString(FormatMoney(DEFAULT_GAS_PRICE))).arg(QString::fromStdString(FormatMoney(minGasPrice))));
-        ui->lineEditGasPrice->setMinimum(minGasPrice);
-        ui->lineEditGasLimit->setMaximum(blockGasLimit);
-
-        ui->lineEditSenderAddress->on_refresh();
-    }
+    Q_UNUSED(nGasPrice);
+    ui->labelGasLimit->setToolTip(tr("Gas limit. Default = %1, Max = %2").arg(DEFAULT_GAS_LIMIT_OP_CREATE).arg(blockGasLimit));
+    ui->labelGasPrice->setToolTip(tr("Gas price: QTUM price per gas unit. Default = %1, Min = %2").arg(QString::fromStdString(FormatMoney(DEFAULT_GAS_PRICE))).arg(QString::fromStdString(FormatMoney(minGasPrice))));
+    ui->lineEditGasPrice->setMinimum(minGasPrice);
+    ui->lineEditGasLimit->setMaximum(blockGasLimit);
 }
 
 void CreateContract::on_updateCreateButton()

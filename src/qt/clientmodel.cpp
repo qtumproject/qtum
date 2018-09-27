@@ -46,6 +46,7 @@ ClientModel::ClientModel(interfaces::Node& node, OptionsModel *_optionsModel, QO
     banTableModel = new BanTableModel(m_node, this);
     pollTimer = new QTimer(this);
     connect(pollTimer, SIGNAL(timeout()), this, SLOT(updateTimer()));
+    connect(this, SIGNAL(tipChanged()), this, SLOT(updateTip()));
     pollTimer->start(MODEL_UPDATE_DELAY);
     fBatchProcessingMode = false;
 
@@ -297,4 +298,14 @@ bool ClientModel::getProxyInfo(std::string& ip_port) const
       return true;
     }
     return false;
+}
+
+void ClientModel::updateTip()
+{
+    // Get the new gas info
+    uint64_t blockGasLimit = 0;
+    uint64_t minGasPrice = 0;
+    uint64_t nGasPrice = 0;
+    m_node.getGasInfo(blockGasLimit, minGasPrice, nGasPrice);
+    Q_EMIT gasInfoChanged(blockGasLimit, minGasPrice, nGasPrice);
 }

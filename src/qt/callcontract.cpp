@@ -103,12 +103,6 @@ CallContract::~CallContract()
 void CallContract::setClientModel(ClientModel *_clientModel)
 {
     m_clientModel = _clientModel;
-
-    if (m_clientModel)
-    {
-        connect(m_clientModel, SIGNAL(tipChanged()), this, SLOT(on_numBlocksChanged()));
-        on_numBlocksChanged();
-    }
 }
 
 void CallContract::setModel(WalletModel *_model)
@@ -192,14 +186,6 @@ void CallContract::on_callContractClicked()
         {
             QMessageBox::warning(this, tr("Call contract"), errorMessage);
         }
-    }
-}
-
-void CallContract::on_numBlocksChanged()
-{
-    if(m_clientModel)
-    {
-        ui->lineEditSenderAddress->on_refresh();
     }
 }
 
