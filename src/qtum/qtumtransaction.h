@@ -3,6 +3,7 @@
 
 #include <unordered_map>
 
+#include <univalue.h>
 #include <libethcore/Transaction.h>
 #include <libethereum/Transaction.h>
 #include <coins.h>
@@ -127,7 +128,7 @@ struct UniversalAddress{
         memset(&abi.data[0], 0, ADDRESS_DATA_SIZE);
         memcpy(&abi.data[0], data.data(), data.size());
     }
-    std::vector<uint8_t> toFlatData(){
+    std::vector<uint8_t> toFlatData() const{
         std::vector<uint8_t> tmp;
         tmp.resize(ADDRESS_DATA_SIZE + sizeof(uint32_t));
         UniversalAddressABI abi = toAbi();
@@ -135,18 +136,18 @@ struct UniversalAddress{
         return tmp;
     }
     //hasAAL means this type of address should have an AAL record in DeltaDB
-    bool hasAAL(){
+    bool hasAAL() const{
         return version == AddressVersion::EVM ||
                version == AddressVersion::X86;
     }
-    bool isContract(){
+    bool isContract() const{
         return hasAAL();
     }
 
     static UniversalAddress FromScript(const CScript& script);
     static UniversalAddress FromOutput(AddressVersion v, uint256 txid, uint32_t vout);
 
-    CBitcoinAddress asBitcoinAddress(){
+    CBitcoinAddress asBitcoinAddress() const{
         CBitcoinAddress a;
         std::vector<unsigned char> v;
         v.push_back(version);
@@ -251,6 +252,8 @@ struct DeltaCheckpoint{
     //all addresses with modified balances in the current checkpoint
     //note: do not use this as a cache. It should only be used to track modified balances
     std::map<UniversalAddress, uint64_t> balances;
+
+    UniValue toJSON();
 };
 
 class DeltaDBWrapper{
@@ -345,6 +348,17 @@ struct ContractExecutionResult{
     CMutableTransaction transferTx;
     bool commitState;
     DeltaCheckpoint modifiedData;
+
+    UniValue toJSON(){
+        UniValue result(UniValue::VOBJ);
+        result.push_back(Pair("used-gas", usedGas));
+        result.push_back(Pair("sender-refund", refundSender));
+        result.push_back(Pair("status", (int) status));
+        result.push_back(Pair("transfer-txid", transferTx.GetHash().ToString()));
+        result.push_back(Pair("commit-state", commitState));
+        result.push_back(Pair("modified-state", modifiedData.toJSON()));
+        return result;
+    }
 };
 
 class QtumTransaction;

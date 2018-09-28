@@ -1117,6 +1117,62 @@ UniValue callcontract(const JSONRPCRequest& request)
 
 }
 
+////////////////////////////////////////////////////////////////////// // qtum
+UniValue executecontract(const JSONRPCRequest& request)
+{
+    if (request.fHelp || request.params.size() < 2)
+        throw std::runtime_error(
+             "executecontract \"bytecode\" ( address ) ( gasLimit )\n"
+             "\nArgument:\n"
+             "1. \"bytecode\"         (string, required) The contract bytecode hex string\n"
+             "2. address              (string, optional) The sender address hex string\n"
+             "3. gasLimit             (string, optional) The gas limit for executing the contract\n"
+         );
+ 
+    LOCK(cs_main);
+    
+    std::string bytecodeStr = request.params[0].get_str();
+
+    uint64_t gasLimit=0;
+    if(request.params.size() == 3){
+        gasLimit = request.params[3].get_int();
+    }
+
+    //other VMs
+    DeltaDBWrapper db(pdeltaDB);
+    std::vector<uint8_t> bytecode = ParseHex(bytecodeStr);
+
+    CBlock block;
+    CBlockIndex* pblockindex = mapBlockIndex[pcoinsTip->GetBestBlock()];
+
+    if (!ReadBlockFromDisk(block, pblockindex, Params().GetConsensus()))
+        // Block not found on disk. This could be because we have the block
+        // header in our index but don't have the block (for example if a
+        // non-whitelisted node sends us an unrequested long chain of valid
+        // blocks, we add the headers to our index, but don't accept the
+        // block).
+        throw JSONRPCError(RPC_MISC_ERROR, "Block not found on disk");
+    
+    ContractOutput output;
+
+    output.version = VersionVM::Getx86Default();
+    output.value = 0;
+    output.gasPrice = 1;
+    output.gasLimit = 10000000000;
+    //output.address = add;
+    output.data = bytecode;
+    //output.sender = 0; //??
+    output.sender.version = AddressVersion::PUBKEYHASH;
+    //output.vout = 0; //?
+    output.OpCreate = true;
+
+    ContractExecutor exec(block, output, 10000000000);
+    ContractExecutionResult result;
+    bool success = exec.execute(result, false);
+
+    return result.toJSON();
+}
+
 void assignJSON(UniValue& entry, const TransactionReceiptInfo& resExec) {
     entry.push_back(Pair("blockHash", resExec.blockHash.GetHex()));
     entry.push_back(Pair("blockNumber", uint64_t(resExec.blockNumber)));
@@ -2449,6 +2505,7 @@ static const CRPCCommand commands[] =
     { "blockchain",         "preciousblock",          &preciousblock,          true,  {"blockhash"} },
 
     { "blockchain",         "callcontract",           &callcontract,           true,  {"address","data"} },
+    { "blockchain",         "executecontract",        &executecontract,        true,  {"address","bytecode"} },
     /* Not shown in help */
     { "hidden",             "invalidateblock",        &invalidateblock,        true,  {"blockhash"} },
     { "hidden",             "reconsiderblock",        &reconsiderblock,        true,  {"blockhash"} },

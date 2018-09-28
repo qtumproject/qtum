@@ -15,6 +15,8 @@
 #include <uint256.h>
 #include <string>
 
+#include <univalue.h>
+
 
 bool ContractOutputParser::parseOutput(ContractOutput& output){
     output.sender = getSenderAddress();
@@ -566,6 +568,7 @@ CTransaction DeltaDBWrapper::createCondensingTx() {
         return CTransaction();
     }
 
+
     //sort vouts and vins so that the consensus critical order is easy to verify and implementation details can be changed easily
     //vouts are sorted by address
     //vins are sorted by txid + vout number
@@ -610,8 +613,6 @@ CTransaction DeltaDBWrapper::createCondensingTx() {
             return CTransaction();
         }
         n++;
-        CScript s;
-        s.data();
     }
 
     if(!tx.vin.size() && tx.vout.size()>0){
@@ -909,4 +910,31 @@ bool DeltaDBWrapper:: readOldestIterator(UniversalAddress address,		 valtype key
 	}
 }
 
+
+
+UniValue DeltaCheckpoint::toJSON(){
+    UniValue result(UniValue::VOBJ); //root
+    UniValue deltasJson(UniValue::VOBJ);
+    UniValue deltasRawJson(UniValue::VOBJ);
+    for(auto &p : deltas){
+        deltasRawJson.push_back(Pair(p.first, HexStr(p.second)));
+        deltasJson.push_back(Pair(p.first, std::string(p.second.begin(), p.second.end())));
+    }
+    result.push_back(Pair("deltas", deltasJson));
+    result.push_back(Pair("deltas-raw", deltasRawJson));
+    
+    UniValue balancesJson(UniValue::VOBJ);
+    for(auto &p : balances){
+        balancesJson.push_back(Pair(p.first.asBitcoinAddress().ToString(), p.second));
+    }
+    result.push_back(Pair("modified-balances", balancesJson));
+
+    UniValue vinsJson(UniValue::VARR);
+    for(auto &v : spentVins){
+        vinsJson.push_back(v.ToString());
+    }
+    result.push_back(Pair("spent-vins", vinsJson));
+
+    return result;
+}
 
