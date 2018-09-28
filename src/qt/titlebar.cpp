@@ -34,18 +34,10 @@ TitleBar::~TitleBar()
 
 void TitleBar::setModel(WalletModel *model)
 {
-    if(m_model)
-    {
-        disconnect(m_model, SIGNAL(balanceChanged(interfaces::WalletBalances)), this, SLOT(setBalance(interfaces::WalletBalances)));
-    }
-
     m_model = model;
-
-    if(m_model && m_model->getOptionsModel())
+    if(m_models.count(m_model))
     {
-        setBalance(m_model->wallet().getBalances());
-
-        connect(m_model, SIGNAL(balanceChanged(interfaces::WalletBalances)), this, SLOT(setBalance(interfaces::WalletBalances)));
+        setBalanceLabel(m_models[m_model]);
     }
 }
 
@@ -66,9 +58,14 @@ void TitleBar::setTabBarInfo(QObject *info)
 
 void TitleBar::setBalance(const interfaces::WalletBalances& balances)
 {
-    if(m_model && m_model->getOptionsModel())
+    QObject* _model = sender();
+    if(m_models.count(_model))
     {
-        ui->lblBalance->setText(BitcoinUnits::formatWithUnit(m_model->getOptionsModel()->getDisplayUnit(), balances.balance));
+        m_models[_model] = balances;
+        if(_model == m_model)
+        {
+            setBalanceLabel(balances);
+        }
     }
 }
 
@@ -94,4 +91,30 @@ void TitleBar::setWalletSelector(QLabel *walletSelectorLabel, QComboBox *walletS
     QWidget *spacer = new QWidget();
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     layout->addWidget(spacer);
+}
+
+void TitleBar::addWallet(WalletModel *_model)
+{
+    if(_model)
+    {
+        m_models[_model] = _model->wallet().getBalances();
+        connect(_model, SIGNAL(balanceChanged(interfaces::WalletBalances)), this, SLOT(setBalance(interfaces::WalletBalances)));
+    }
+}
+
+void TitleBar::removeWallet(WalletModel *_model)
+{
+    if(_model)
+    {
+        disconnect(_model, SIGNAL(balanceChanged(interfaces::WalletBalances)), this, SLOT(setBalance(interfaces::WalletBalances)));
+        m_models.erase(_model);
+    }
+}
+
+void TitleBar::setBalanceLabel(const interfaces::WalletBalances &balances)
+{
+    if(m_model && m_model->getOptionsModel())
+    {
+        ui->lblBalance->setText(BitcoinUnits::formatWithUnit(m_model->getOptionsModel()->getDisplayUnit(), balances.balance));
+    }
 }

@@ -615,6 +615,8 @@ bool BitcoinGUI::addWallet(WalletModel *walletModel)
         m_wallet_selector->setVisible(true);
     }
     rpcConsole->addWallet(walletModel);
+    appTitleBar->addWallet(walletModel);
+    QTimer::singleShot(MODEL_UPDATE_DELAY, clientModel, SLOT(updateTip()));
     return walletFrame->addWallet(walletModel);
 }
 
@@ -631,6 +633,7 @@ bool BitcoinGUI::removeWallet(WalletModel* walletModel)
         m_wallet_selector->setVisible(false);
     }
     rpcConsole->removeWallet(walletModel);
+    appTitleBar->removeWallet(walletModel);
     return walletFrame->removeWallet(name);
 }
 
@@ -642,7 +645,6 @@ bool BitcoinGUI::setCurrentWallet(const QString& name)
     WalletModel *walletModel = ret ? walletFrame->currentWalletView()->getWalletModel() : 0;
     appTitleBar->setModel(walletModel);
     walletFrame->updateTabBar();
-    clientModel->updateTip();
     return ret;
 }
 

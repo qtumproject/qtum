@@ -41,6 +41,18 @@ public:
     void setModel(WalletModel *_model);
 
     /**
+     * @brief addWallet Add wallet model
+     * @param _model Wallet model
+     */
+    void addWallet(WalletModel *_model);
+
+    /**
+     * @brief removeWallet Remove wallet model
+     * @param _model Wallet model
+     */
+    void removeWallet(WalletModel *_model);
+
+    /**
      * @brief setTabBarInfo Set the tab bar info
      * @param info Information about tabs
      */
@@ -52,6 +64,7 @@ public:
      * @param walletSelector Wallet selector
      */
     void setWalletSelector(QLabel *walletSelectorLabel, QComboBox* walletSelector);
+
 
 Q_SIGNALS:
 
@@ -68,10 +81,17 @@ public Q_SLOTS:
     void on_navigationResized(const QSize& _size);
 
 private:
+    /**
+     * @brief setBalanceLabel Changing the displayed balance
+     */
+    void setBalanceLabel(const interfaces::WalletBalances& balances);
+
+private:
     Ui::TitleBar *ui;
     WalletModel *m_model;
     TabBarInfo* m_tab;
     QIcon m_iconCloseTab;
+    std::map<QObject*, interfaces::WalletBalances> m_models;
 };
 
 #endif // TITLEBAR_H
