@@ -79,7 +79,7 @@ public:
         cachedWallet.clear();
         {
             for (const auto& wtx : wallet.getWalletTxs()) {
-                if (TransactionRecord::showTransaction()) {
+                if (TransactionRecord::showTransaction(wtx)) {
                     cachedWallet.append(TransactionRecord::decomposeTransaction(wtx));
                 }
             }
@@ -93,6 +93,11 @@ public:
      */
     void updateWallet(interfaces::Wallet& wallet, const uint256 &hash, int status, bool showTransaction)
     {
+        // Find transaction in wallet
+        interfaces::WalletTx wtx = wallet.getWalletTx(hash);
+        // Determine whether to show transaction or not (determine this here so that no relocking is needed in GUI thread)
+        showTransaction &= TransactionRecord::showTransaction(wtx);
+
         qDebug() << "TransactionTablePriv::updateWallet: " + QString::fromStdString(hash.ToString()) + " " + QString::number(status);
 
         // Find bounds of this transaction in model
@@ -126,16 +131,9 @@ public:
             }
             if(showTransaction)
             {
-                // Find transaction in wallet
-                interfaces::WalletTx wtx = wallet.getWalletTx(hash);
                 if(!wtx.tx)
                 {
                     qWarning() << "TransactionTablePriv::updateWallet: Warning: Got CT_NEW, but transaction is not in wallet";
-                    break;
-                }
-                // Ensures we show generated coins / mined transactions at depth 1
-                if((wtx.is_coinbase || wtx.is_coinstake) && !wtx.is_in_main_chain)
-                {
                     break;
                 }
                 // Added -- insert at the right position
@@ -718,11 +716,7 @@ static std::vector< TransactionNotification > vQueueNotifications;
 
 static void NotifyTransactionChanged(TransactionTableModel *ttm, const uint256 &hash, ChangeType status)
 {
-    // Find transaction in wallet
-    // Determine whether to show transaction or not (determine this here so that no relocking is needed in GUI thread)
-    bool showTransaction = TransactionRecord::showTransaction();
-
-    TransactionNotification notification(hash, status, showTransaction);
+    TransactionNotification notification(hash, status, true);
 
     if (fQueueNotifications)
     {

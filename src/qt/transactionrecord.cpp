@@ -21,10 +21,13 @@ std::string toStringHash160(const CKeyID& keyid)
 
 /* Return positive answer if transaction should be shown in list.
  */
-bool TransactionRecord::showTransaction()
+bool TransactionRecord::showTransaction(const interfaces::WalletTx& wtx)
 {
-    // There are currently no cases where we hide transactions, but
-    // we may want to use this in the future for things like RBF.
+    // Ensures we show generated coins / mined transactions at depth 1
+    if((wtx.is_coinbase || wtx.is_coinstake) && !wtx.is_in_main_chain)
+    {
+        return false;
+    }
     return true;
 }
 
