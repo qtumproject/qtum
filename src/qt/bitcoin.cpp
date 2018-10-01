@@ -152,12 +152,29 @@ void DebugMessageHandler(QtMsgType type, const QMessageLogContext& context, cons
     }
 }
 
-void removeParam(QStringList& list, const QString& param)
+void removeParam(QStringList& list, const QString& param, bool startWith)
 {
-    int index = list.indexOf(param);
-    if(index != -1)
+    for(int index = 0; index < list.size();)
     {
-        list.removeAt(index);
+        QString item = list[index];
+        bool remove = false;
+        if(startWith)
+        {
+            remove = item.startsWith(param);
+        }
+        else
+        {
+            remove = item == param;
+        }
+
+        if(remove)
+        {
+            list.removeAt(index);
+        }
+        else
+        {
+            index++;
+        }
     }
 }
 
@@ -258,6 +275,7 @@ private:
 
     QString restorePath;
     QString restoreParam;
+    QString restoreName;
 };
 
 #include <qt/bitcoin.moc>
@@ -442,6 +460,7 @@ void BitcoinApplication::requestShutdown()
         if(walletModel->restore()) {
             restoreParam = walletModel->getRestoreParam();
             restorePath = walletModel->getRestorePath();
+            restoreName = walletModel->getWalletName();
         }
         delete walletModel;
     }
@@ -568,18 +587,27 @@ void BitcoinApplication::restoreWallet()
     if(!restorePath.isEmpty())
     {
         // Create command line
+        QString walletParam = "-wallet=" + restoreName;
         QString commandLine;
         QStringList arg = arguments();
-        removeParam(arg, "-reindex");
-        removeParam(arg, "-salvagewallet");
+        removeParam(arg, "-reindex", false);
+        removeParam(arg, "-salvagewallet", false);
+        removeParam(arg, "-wallet", true);
         if(!arg.contains(restoreParam))
         {
             arg.append(restoreParam);
         }
+        arg.append(restoreParam);
+        arg.append(walletParam);
         commandLine = arg.join(' ');
 
         // Copy the new wallet.dat to the data folder
-        fs::path path = GetDataDir() / "wallet.dat";
+        fs::path path = GetDataDir() / "wallets";
+        if(!restoreName.isEmpty())
+        {
+            path /= restoreName.toStdString();
+        }
+        path /= "wallet.dat";
         QString pathWallet = QString::fromStdString(path.string());
         QFile::remove(pathWallet);
         if(QFile::copy(restorePath, pathWallet))
