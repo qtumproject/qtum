@@ -169,6 +169,11 @@ private Q_SLOTS:
             walletModel->wallet().addTokenEntry(tokenInfo);
         }
     }
+
+    void cleanTokenTxEntries()
+    {
+        if(walletModel) walletModel->wallet().cleanTokenTxEntries();
+    }
 };
 
 #include "tokenitemmodel.moc"
@@ -283,7 +288,8 @@ TokenItemModel::TokenItemModel(WalletModel *parent):
     tokenAbi(0),
     walletModel(parent),
     priv(0),
-    worker(0)
+    worker(0),
+    tokenTxCleaned(false)
 {
     columns << tr("Token Name") << tr("Token Symbol") << tr("Balance");
     tokenAbi = new Token();
@@ -451,6 +457,13 @@ void TokenItemModel::checkTokenBalanceChanged()
             QMetaObject::invokeMethod(worker, "updateTokenTx", Qt::QueuedConnection,
                                       Q_ARG(QString, hash));
         }
+    }
+
+    // Clean token transactions
+    if(fLogEvents && !tokenTxCleaned)
+    {
+        tokenTxCleaned = true;
+        QMetaObject::invokeMethod(worker, "cleanTokenTxEntries", Qt::QueuedConnection);
     }
 }
 

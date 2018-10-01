@@ -48,7 +48,7 @@ from test_framework.mininode import (
 class BlockchainTest(BitcoinTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
-        self.extra_args = [['-stopatheight=207', '-prune=1']]
+        self.extra_args = [['-stopatheight=607', '-prune=1']]
 
     def run_test(self):
         self._test_getblockchaininfo()
@@ -74,6 +74,7 @@ class BlockchainTest(BitcoinTestFramework):
             'headers',
             'initialblockdownload',
             'mediantime',
+            'moneysupply',
             'pruned',
             'size_on_disk',
             'softforks',
@@ -95,12 +96,12 @@ class BlockchainTest(BitcoinTestFramework):
         assert res['pruned']
         assert not res['automatic_pruning']
 
-        self.restart_node(0, ['-stopatheight=207'])
+        self.restart_node(0, ['-stopatheight=607'])
         res = self.nodes[0].getblockchaininfo()
         # should have exact keys
         assert_equal(sorted(res.keys()), keys)
 
-        self.restart_node(0, ['-stopatheight=207', '-prune=550'])
+        self.restart_node(0, ['-stopatheight=607', '-prune=550'])
         res = self.nodes[0].getblockchaininfo()
         # result should have these additional pruning keys if prune=550
         assert_equal(sorted(res.keys()), sorted(['pruneheight', 'automatic_pruning', 'prune_target_size'] + keys))
@@ -140,18 +141,18 @@ class BlockchainTest(BitcoinTestFramework):
 
         b1_hash = self.nodes[0].getblockhash(1)
         b1 = self.nodes[0].getblock(b1_hash)
-        b200_hash = self.nodes[0].getblockhash(200)
+        b200_hash = self.nodes[0].getblockhash(600)
         b200 = self.nodes[0].getblock(b200_hash)
         time_diff = b200['mediantime'] - b1['mediantime']
 
         chaintxstats = self.nodes[0].getchaintxstats()
         assert_equal(chaintxstats['time'], b200['time'])
-        assert_equal(chaintxstats['txcount'], 201)
+        assert_equal(chaintxstats['txcount'], 601)
         assert_equal(chaintxstats['window_final_block_hash'], b200_hash)
-        assert_equal(chaintxstats['window_block_count'], 199)
-        assert_equal(chaintxstats['window_tx_count'], 199)
+        assert_equal(chaintxstats['window_block_count'], 599)
+        assert_equal(chaintxstats['window_tx_count'], 599)
         assert_equal(chaintxstats['window_interval'], time_diff)
-        assert_equal(round(chaintxstats['txrate'] * time_diff, 10), Decimal(199))
+        assert_equal(round(chaintxstats['txrate'] * time_diff, 10), Decimal(599))
 
         chaintxstats = self.nodes[0].getchaintxstats(blockhash=b1_hash)
         assert_equal(chaintxstats['time'], b1['time'])
@@ -250,7 +251,7 @@ class BlockchainTest(BitcoinTestFramework):
         self.log.debug('Node should stop at this height...')
         self.nodes[0].wait_until_stopped()
         self.start_node(0)
-        assert_equal(self.nodes[0].getblockcount(), 207)
+        assert_equal(self.nodes[0].getblockcount(), 607)
 
     def _test_waitforblockheight(self):
         self.log.info("Test waitforblockheight")

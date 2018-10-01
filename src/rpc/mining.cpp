@@ -1041,7 +1041,6 @@ static const CRPCCommand commands[] =
     { "mining",             "getsubsidy",             &getsubsidy,             {"height"} },
     { "mining",             "getstakinginfo",         &getstakinginfo,         {} },
 
-
     { "generating",         "generatetoaddress",      &generatetoaddress,      {"nblocks","address","maxtries"} },
 
     { "hidden",             "estimatefee",            &estimatefee,            {} },

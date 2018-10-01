@@ -1363,6 +1363,9 @@ UniValue waitforlogs(const JSONRPCRequest& request_) {
     if (!fLogEvents)
         throw JSONRPCError(RPC_INTERNAL_ERROR, "Events indexing disabled");
 
+    if(!request.req)
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "HTTP connection not available");
+
     WaitForLogsParams params(request.params);
 
     request.PollStart();
@@ -1423,8 +1426,16 @@ UniValue waitforlogs(const JSONRPCRequest& request_) {
 
     UniValue jsonLogs(UniValue::VARR);
 
+    std::set<uint256> dupes;
+
     for (const auto& txHashes : hashesToBlock) {
         for (const auto& txHash : txHashes) {
+
+            if(dupes.find(txHash) != dupes.end()) {
+                continue;
+            }
+            dupes.insert(txHash);
+
             std::vector<TransactionReceiptInfo> receipts = pstorageresult->getResult(
                     uintToh256(txHash));
 
@@ -1553,12 +1564,20 @@ UniValue searchlogs(const JSONRPCRequest& request)
 
     auto topics = params.topics;
 
+    std::set<uint256> dupes;
+
     for(const auto& hashesTx : hashesToBlock)
     {
         for(const auto& e : hashesTx)
         {
+
+            if(dupes.find(e) != dupes.end()) {
+                continue;
+            }
+            dupes.insert(e);
+
             std::vector<TransactionReceiptInfo> receipts = pstorageresult->getResult(uintToh256(e));
-            
+
             for(const auto& receipt : receipts) {
                 if(receipt.logs.empty()) {
                     continue;

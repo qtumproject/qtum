@@ -1307,6 +1307,9 @@ public:
 
     /* Stop staking qtums */
     void StopStake() { StakeQtums(false, 0); }
+
+    /* Clean token transaction entries in the wallet */
+    bool CleanTokenTxEntries(bool fFlushOnClose=true);
 };
 
 /** A key allocated from the key pool. */

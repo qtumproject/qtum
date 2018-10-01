@@ -320,6 +320,9 @@ public:
     //! Set wallet unlock for staking only
     virtual void setWalletUnlockStakingOnly(bool unlock) = 0;
 
+    /* Clean token transaction entries in the wallet */
+    virtual bool cleanTokenTxEntries() = 0;
+
     //! Register handler for unload message.
     using UnloadFn = std::function<void()>;
     virtual std::unique_ptr<Handler> handleUnload(UnloadFn fn) = 0;

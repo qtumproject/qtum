@@ -1127,7 +1127,7 @@
     </message>
     <message>
         <source>Enter a Qtum address (e.g. %1)</source>
-        <translation>Введите биткоин-адрес (напр. %1)</translation>
+        <translation>Введите Qtum адрес (напр. %1)</translation>
     </message>
     <message>
         <source>%1 d</source>

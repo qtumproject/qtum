@@ -43,22 +43,22 @@ class TxnMallTest(BitcoinTestFramework):
         self.nodes[0].settxfee(.001)
 
         node0_address1 = self.nodes[0].getnewaddress(address_type=output_type)
-        node0_txid1 = self.nodes[0].sendtoaddress(node0_address1, 1219)
+        node0_txid1 = self.nodes[0].sendtoaddress(node0_address1, 487600)
         node0_tx1 = self.nodes[0].gettransaction(node0_txid1)
 
         node0_address2 = self.nodes[0].getnewaddress(address_type=output_type)
-        node0_txid2 = self.nodes[0].sendtoaddress(node0_address2, 29)
+        node0_txid2 = self.nodes[0].sendtoaddress(node0_address2, 11600)
         node0_tx2 = self.nodes[0].gettransaction(node0_txid2)
 
         assert_equal(self.nodes[0].getbalance(),
                      starting_balance + node0_tx1["fee"] + node0_tx2["fee"])
 
         # Coins are sent to node1_address
-        node1_address = self.nodes[1].getnewaddress()
+        node1_address = self.nodes[1].getnewaddress(output_type)
 
         # Send tx1, and another transaction tx2 that won't be cloned
-        txid1 = self.nodes[0].sendtoaddress(node1_address, 40)
-        txid2 = self.nodes[0].sendtoaddress(node1_address, 20)
+        txid1 = self.nodes[0].sendtoaddress(node1_address, 16000)
+        txid2 = self.nodes[0].sendtoaddress(node1_address, 8000)
 
         # Construct a clone of tx1, to be malleated
         rawtx1 = self.nodes[0].getrawtransaction(txid1, 1)
@@ -67,17 +67,6 @@ class TxnMallTest(BitcoinTestFramework):
                          rawtx1["vout"][1]["scriptPubKey"]["addresses"][0]: rawtx1["vout"][1]["value"]}
         clone_locktime = rawtx1["locktime"]
         clone_raw = self.nodes[0].createrawtransaction(clone_inputs, clone_outputs, clone_locktime)
-
-        # createrawtransaction randomizes the order of its outputs, so swap them if necessary.
-        # output 0 is at version+#inputs+input+sigstub+sequence+#outputs
-        # 40 BTC serialized is 00286bee00000000
-        pos0 = 2 * (4 + 1 + 36 + 1 + 4 + 1)
-        hex40 = "00286bee00000000"
-        output_len = 16 + 2 + 2 * int("0x" + clone_raw[pos0 + 16:pos0 + 16 + 2], 0)
-        if (rawtx1["vout"][0]["value"] == 40 and clone_raw[pos0:pos0 + 16] != hex40 or rawtx1["vout"][0]["value"] != 40 and clone_raw[pos0:pos0 + 16] == hex40):
-            output0 = clone_raw[pos0:pos0 + output_len]
-            output1 = clone_raw[pos0 + output_len:pos0 + 2 * output_len]
-            clone_raw = clone_raw[:pos0] + output1 + output0 + clone_raw[pos0 + 2 * output_len:]
 
         # Use a different signature hash type to sign.  This creates an equivalent but malleated clone.
         # Don't send the clone anywhere yet
@@ -96,7 +85,7 @@ class TxnMallTest(BitcoinTestFramework):
         # matured block, minus tx1 and tx2 amounts, and minus transaction fees:
         expected = starting_balance + node0_tx1["fee"] + node0_tx2["fee"]
         if self.options.mine_block:
-            expected += 50
+            expected += INITIAL_BLOCK_REWARD
         expected += tx1["amount"] + tx1["fee"]
         expected += tx2["amount"] + tx2["fee"]
         assert_equal(self.nodes[0].getbalance(), expected)
@@ -137,9 +126,9 @@ class TxnMallTest(BitcoinTestFramework):
 
         # Check node0's total balance; should be same as before the clone, + 100 BTC for 2 matured,
         # less possible orphaned matured subsidy
-        expected += 100
+        expected += 2*INITIAL_BLOCK_REWARD
         if (self.options.mine_block):
-            expected -= 50
+            expected -= INITIAL_BLOCK_REWARD
         assert_equal(self.nodes[0].getbalance(), expected)
 
 if __name__ == '__main__':

@@ -783,6 +783,10 @@ public:
     {
         m_wallet.m_wallet_unlock_staking_only = unlock;
     }
+    bool cleanTokenTxEntries() override
+    {
+        return m_wallet.CleanTokenTxEntries();
+    }
     std::unique_ptr<Handler> handleUnload(UnloadFn fn) override
     {
         return MakeHandler(m_wallet.NotifyUnload.connect(fn));

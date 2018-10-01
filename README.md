@@ -24,10 +24,10 @@ Basic usage resources:
 * [Official Qtum Usage Guide](https://github.com/qtumproject/qtum/wiki/Qtum-Wallet-Tutorial)
 * [Unofficial Qtum staking tutorial](https://steemit.com/qtum/@cryptominder/qtum-staking-tutorial-using-qtum-qt)
 * [Unofficial Qtum staking tutorial on Raspberry Pi](https://steemit.com/qtum/@cryptominder/qtum-staking-tutorial-using-qtumd-on-a-raspberry-pi-3)
+* [Unofficial Qtum staking tutorial on AWS EC2](https://github.com/aaronmboyd/qtum-staking-on-aws-ec2)
 * [Unofficial guide for keeping your wallet safe](https://steemit.com/qtum/@cryptominder/encrypting-backing-up-and-restoring-your-qtum-wallet)
 * [Block explorer](https://explorer.qtum.org)
 * [Unofficial block explorer](https://qtumexplorer.io/)
-* [Unofficial Raspberry Pi Web UI](https://github.com/rpiwalletui/qtum-ui)
 
 Development resources:
 

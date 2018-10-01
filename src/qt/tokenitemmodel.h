@@ -72,6 +72,7 @@ private:
     TokenTxWorker* worker;
     QThread t;
     std::unique_ptr<interfaces::Handler> m_handler_token_changed;
+    bool tokenTxCleaned;
 
     friend class TokenItemPriv;
 };

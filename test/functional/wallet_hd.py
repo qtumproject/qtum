@@ -54,7 +54,7 @@ class WalletHDTest(BitcoinTestFramework):
         for i in range(NUM_HD_ADDS):
             hd_add = self.nodes[1].getnewaddress()
             hd_info = self.nodes[1].getaddressinfo(hd_add)
-            assert_equal(hd_info["hdkeypath"], "m/0'/0'/"+str(i)+"'")
+            assert_equal(hd_info["hdkeypath"], "m/88'/0'/"+str(i)+"'")
             assert_equal(hd_info["hdseedid"], masterkeyid)
             assert_equal(hd_info["hdmasterkeyid"], masterkeyid)
             self.nodes[0].sendtoaddress(hd_add, 1)
@@ -84,7 +84,7 @@ class WalletHDTest(BitcoinTestFramework):
         for i in range(NUM_HD_ADDS):
             hd_add_2 = self.nodes[1].getnewaddress()
             hd_info_2 = self.nodes[1].getaddressinfo(hd_add_2)
-            assert_equal(hd_info_2["hdkeypath"], "m/0'/0'/"+str(i)+"'")
+            assert_equal(hd_info_2["hdkeypath"], "m/88'/0'/"+str(i)+"'")
             assert_equal(hd_info_2["hdseedid"], masterkeyid)
             assert_equal(hd_info_2["hdmasterkeyid"], masterkeyid)
         assert_equal(hd_add, hd_add_2)
@@ -122,7 +122,7 @@ class WalletHDTest(BitcoinTestFramework):
             if out['value'] != 1:
                 keypath = self.nodes[1].getaddressinfo(out['scriptPubKey']['addresses'][0])['hdkeypath']
 
-        assert_equal(keypath[0:7], "m/0'/1'")
+        assert_equal(keypath[0:8], "m/88'/1'")
 
         # Generate a new HD seed on node 1 and make sure it is set
         orig_masterkeyid = self.nodes[1].getwalletinfo()['hdseedid']
