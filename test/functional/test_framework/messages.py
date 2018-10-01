@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # Copyright (c) 2010 ArtForz -- public domain half-a-node
 # Copyright (c) 2012 Jeff Garzik
-# Copyright (c) 2010-2017 The Bitcoin Core developers
+# Copyright (c) 2010-2018 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
-"""Bitcoin test framework primitive and message strcutures
+"""Bitcoin test framework primitive and message structures
 
 CBlock, CTransaction, CBlockHeader, CTxIn, CTxOut, etc....:
     data structures that should map to corresponding structures in
@@ -32,17 +32,23 @@ MY_SUBVERSION = b"/python-mininode-tester:0.0.3/"
 MY_RELAY = 1 # from version 70001 onwards, fRelay should be appended to version messages (BIP37)
 
 MAX_INV_SZ = 50000
+MAX_LOCATOR_SZ = 101
 MAX_BLOCK_BASE_SIZE = 1000000
 
-COIN = 100000000 # 1 btc in satoshis
+COIN = 100000000  # 1 btc in satoshis
+
+BIP125_SEQUENCE_NUMBER = 0xfffffffd  # Sequence number that is BIP 125 opt-in and BIP 68-opt-out
 
 NODE_NETWORK = (1 << 0)
 # NODE_GETUTXO = (1 << 1)
 NODE_BLOOM = (1 << 2)
 NODE_WITNESS = (1 << 3)
-NODE_UNSUPPORTED_SERVICE_BIT_5 = (1 << 5)
-NODE_UNSUPPORTED_SERVICE_BIT_7 = (1 << 7)
 NODE_NETWORK_LIMITED = (1 << 10)
+
+MSG_TX = 1
+MSG_BLOCK = 2
+MSG_WITNESS_FLAG = 1 << 30
+MSG_TYPE_MASK = 0xffffffff >> 2
 
 # Serialization/deserialization tools
 def sha256(s):
@@ -181,19 +187,24 @@ def ToHex(obj):
 
 class CAddress():
     def __init__(self):
+        self.time = 0
         self.nServices = 1
         self.pchReserved = b"\x00" * 10 + b"\xff" * 2
         self.ip = "0.0.0.0"
         self.port = 0
 
-    def deserialize(self, f):
+    def deserialize(self, f, with_time=True):
+        if with_time:
+            self.time = struct.unpack("<i", f.read(4))[0]
         self.nServices = struct.unpack("<Q", f.read(8))[0]
         self.pchReserved = f.read(12)
         self.ip = socket.inet_ntoa(f.read(4))
         self.port = struct.unpack(">H", f.read(2))[0]
 
-    def serialize(self):
+    def serialize(self, with_time=True):
         r = b""
+        if with_time:
+            r += struct.pack("<i", self.time)
         r += struct.pack("<Q", self.nServices)
         r += self.pchReserved
         r += socket.inet_aton(self.ip)
@@ -203,8 +214,6 @@ class CAddress():
     def __repr__(self):
         return "CAddress(nServices=%i ip=%s port=%i)" % (self.nServices,
                                                          self.ip, self.port)
-
-MSG_WITNESS_FLAG = 1<<30
 
 class CInv():
     typemap = {
@@ -462,6 +471,7 @@ class CTransaction():
     def rehash(self):
         self.sha256 = None
         self.calc_sha256()
+        return self.hash
 
     # We will only cache the serialization without witness in
     # self.sha256 and self.hash -- those are expected to be the txid.
@@ -830,6 +840,52 @@ class BlockTransactions():
     def __repr__(self):
         return "BlockTransactions(hash=%064x transactions=%s)" % (self.blockhash, repr(self.transactions))
 
+class CPartialMerkleTree():
+    def __init__(self):
+        self.nTransactions = 0
+        self.vHash = []
+        self.vBits = []
+        self.fBad = False
+
+    def deserialize(self, f):
+        self.nTransactions = struct.unpack("<i", f.read(4))[0]
+        self.vHash = deser_uint256_vector(f)
+        vBytes = deser_string(f)
+        self.vBits = []
+        for i in range(len(vBytes) * 8):
+            self.vBits.append(vBytes[i//8] & (1 << (i % 8)) != 0)
+
+    def serialize(self):
+        r = b""
+        r += struct.pack("<i", self.nTransactions)
+        r += ser_uint256_vector(self.vHash)
+        vBytesArray = bytearray([0x00] * ((len(self.vBits) + 7)//8))
+        for i in range(len(self.vBits)):
+            vBytesArray[i // 8] |= self.vBits[i] << (i % 8)
+        r += ser_string(bytes(vBytesArray))
+        return r
+
+    def __repr__(self):
+        return "CPartialMerkleTree(nTransactions=%d, vHash=%s, vBits=%s)" % (self.nTransactions, repr(self.vHash), repr(self.vBits))
+
+class CMerkleBlock():
+    def __init__(self):
+        self.header = CBlockHeader()
+        self.txn = CPartialMerkleTree()
+
+    def deserialize(self, f):
+        self.header.deserialize(f)
+        self.txn.deserialize(f)
+
+    def serialize(self):
+        r = b""
+        r += self.header.serialize()
+        r += self.txn.serialize()
+        return r
+
+    def __repr__(self):
+        return "CMerkleBlock(header=%s, txn=%s)" % (repr(self.header), repr(self.txn))
+
 
 # Objects that correspond to messages on the wire
 class msg_version():
@@ -853,11 +909,11 @@ class msg_version():
         self.nServices = struct.unpack("<Q", f.read(8))[0]
         self.nTime = struct.unpack("<q", f.read(8))[0]
         self.addrTo = CAddress()
-        self.addrTo.deserialize(f)
+        self.addrTo.deserialize(f, False)
 
         if self.nVersion >= 106:
             self.addrFrom = CAddress()
-            self.addrFrom.deserialize(f)
+            self.addrFrom.deserialize(f, False)
             self.nNonce = struct.unpack("<Q", f.read(8))[0]
             self.strSubVer = deser_string(f)
         else:
@@ -885,8 +941,8 @@ class msg_version():
         r += struct.pack("<i", self.nVersion)
         r += struct.pack("<Q", self.nServices)
         r += struct.pack("<q", self.nTime)
-        r += self.addrTo.serialize()
-        r += self.addrFrom.serialize()
+        r += self.addrTo.serialize(False)
+        r += self.addrFrom.serialize(False)
         r += struct.pack("<Q", self.nNonce)
         r += ser_string(self.strSubVer)
         r += struct.pack("<i", self.nStartingHeight)

@@ -623,10 +623,6 @@
     </context>
 <context>
     <name>HelpMessageDialog</name>
-    <message>
-        <source>Usage:</source>
-        <translation>Cynefod:</translation>
-    </message>
     </context>
 <context>
     <name>Intro</name>
@@ -777,6 +773,10 @@
     <message>
         <source>Label</source>
         <translation>Label</translation>
+    </message>
+    <message>
+        <source>Wallet</source>
+        <translation>Waled</translation>
     </message>
     </context>
 <context>
@@ -1037,10 +1037,6 @@
     </context>
 <context>
     <name>qtum-core</name>
-    <message>
-        <source>Options:</source>
-        <translation>Opsiynau:</translation>
-    </message>
     <message>
         <source>Qtum Core</source>
         <translation>Craidd Qtum</translation>

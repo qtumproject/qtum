@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2017 The Bitcoin Core developers
+// Copyright (c) 2011-2018 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -21,6 +21,41 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QSortFilterProxyModel>
+
+class AddressBookSortFilterProxyModel final : public QSortFilterProxyModel
+{
+    const QString m_type;
+
+public:
+    AddressBookSortFilterProxyModel(const QString& type, QObject* parent)
+        : QSortFilterProxyModel(parent)
+        , m_type(type)
+    {
+        setDynamicSortFilter(true);
+        setFilterCaseSensitivity(Qt::CaseInsensitive);
+        setSortCaseSensitivity(Qt::CaseInsensitive);
+    }
+
+protected:
+    bool filterAcceptsRow(int row, const QModelIndex& parent) const
+    {
+        auto model = sourceModel();
+        auto label = model->index(row, AddressTableModel::Label, parent);
+
+        if (model->data(label, AddressTableModel::TypeRole).toString() != m_type) {
+            return false;
+        }
+
+        auto address = model->index(row, AddressTableModel::Address, parent);
+
+        if (filterRegExp().indexIn(model->data(address).toString()) < 0 &&
+            filterRegExp().indexIn(model->data(label).toString()) < 0) {
+            return false;
+        }
+
+        return true;
+    }
+};
 
 AddressBookPage::AddressBookPage(const PlatformStyle *platformStyle, Mode _mode, Tabs _tab, QWidget *parent) :
     QDialog(parent),
@@ -78,10 +113,12 @@ AddressBookPage::AddressBookPage(const PlatformStyle *platformStyle, Mode _mode,
     case SendingTab:
         ui->labelExplanation->setText(tr("These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins."));
         ui->deleteAddress->setVisible(true);
+        ui->newAddress->setVisible(true);
         break;
     case ReceivingTab:
         ui->labelExplanation->setText(tr("These are your Qtum addresses for receiving payments. It is recommended to use a new receiving address for each transaction."));
         ui->deleteAddress->setVisible(false);
+        ui->newAddress->setVisible(false);
         break;
     }
 
@@ -122,35 +159,18 @@ void AddressBookPage::setModel(AddressTableModel *_model)
     if(!_model)
         return;
 
-    proxyModel = new QSortFilterProxyModel(this);
+    auto type = tab == ReceivingTab ? AddressTableModel::Receive : AddressTableModel::Send;
+    proxyModel = new AddressBookSortFilterProxyModel(type, this);
     proxyModel->setSourceModel(_model);
-    proxyModel->setDynamicSortFilter(true);
-    proxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
-    proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-    switch(tab)
-    {
-    case ReceivingTab:
-        // Receive filter
-        proxyModel->setFilterRole(AddressTableModel::TypeRole);
-        proxyModel->setFilterFixedString(AddressTableModel::Receive);
-        break;
-    case SendingTab:
-        // Send filter
-        proxyModel->setFilterRole(AddressTableModel::TypeRole);
-        proxyModel->setFilterFixedString(AddressTableModel::Send);
-        break;
-    }
+
+    connect(ui->searchLineEdit, SIGNAL(textChanged(QString)), proxyModel, SLOT(setFilterWildcard(QString)));
+
     ui->tableView->setModel(proxyModel);
     ui->tableView->sortByColumn(0, Qt::AscendingOrder);
 
     // Set column widths
-#if QT_VERSION < 0x050000
-    ui->tableView->horizontalHeader()->setResizeMode(AddressTableModel::Label, QHeaderView::Stretch);
-    ui->tableView->horizontalHeader()->setResizeMode(AddressTableModel::Address, QHeaderView::ResizeToContents);
-#else
     ui->tableView->horizontalHeader()->setSectionResizeMode(AddressTableModel::Label, QHeaderView::Stretch);
     ui->tableView->horizontalHeader()->setSectionResizeMode(AddressTableModel::Address, QHeaderView::ResizeToContents);
-#endif
 
     connect(ui->tableView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
         this, SLOT(selectionChanged()));
@@ -197,10 +217,11 @@ void AddressBookPage::on_newAddress_clicked()
     if(!model)
         return;
 
-    EditAddressDialog dlg(
-        tab == SendingTab ?
-        EditAddressDialog::NewSendingAddress :
-        EditAddressDialog::NewReceivingAddress, this);
+    if (tab == ReceivingTab) {
+        return;
+    }
+
+    EditAddressDialog dlg(EditAddressDialog::NewSendingAddress, this);
     dlg.setModel(model);
     if(dlg.exec())
     {

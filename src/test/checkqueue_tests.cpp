@@ -1,4 +1,4 @@
-// Copyright (c) 2012-2017 The Bitcoin Core developers
+// Copyright (c) 2012-2018 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -146,7 +146,7 @@ typedef CCheckQueue<FrozenCleanupCheck> FrozenCleanup_Queue;
 /** This test case checks that the CCheckQueue works properly
  * with each specified size_t Checks pushed.
  */
-void Correct_Queue_range(std::vector<size_t> range)
+static void Correct_Queue_range(std::vector<size_t> range)
 {
     auto small_queue = std::unique_ptr<Correct_Queue>(new Correct_Queue {QUEUE_BATCH_SIZE});
     boost::thread_group tg;
@@ -331,7 +331,7 @@ BOOST_AUTO_TEST_CASE(test_CheckQueue_Memory)
                 control.Add(vChecks);
             }
         }
-        BOOST_REQUIRE_EQUAL(MemoryCheck::fake_allocated_memory, 0);
+        BOOST_REQUIRE_EQUAL(MemoryCheck::fake_allocated_memory, 0U);
     }
     tg.interrupt_all();
     tg.join_all();
@@ -406,11 +406,11 @@ BOOST_AUTO_TEST_CASE(test_CheckQueueControl_Locks)
         boost::thread_group tg;
         std::mutex m;
         std::condition_variable cv;
+        bool has_lock{false};
+        bool has_tried{false};
+        bool done{false};
+        bool done_ack{false};
         {
-            bool has_lock {false};
-            bool has_tried {false};
-            bool done {false};
-            bool done_ack {false};
             std::unique_lock<std::mutex> l(m);
             tg.create_thread([&]{
                     CCheckQueueControl<FakeCheck> control(queue.get());

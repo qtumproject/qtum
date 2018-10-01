@@ -7,9 +7,10 @@
 #include <QList>
 #include <QString>
 
-class CWallet;
-class CTokenTx;
-
+namespace interfaces {
+class Wallet;
+struct TokenTx;
+}
 /** UI model for token transaction status. The token transaction status is the part of a token transaction that will change over time.
  */
 class TokenTransactionStatus
@@ -17,13 +18,12 @@ class TokenTransactionStatus
 public:
     TokenTransactionStatus():
         countsForBalance(false), sortKey(""),
-        status(Offline), depth(0), cur_num_blocks(-1)
+        status(Unconfirmed), depth(0), cur_num_blocks(-1)
     { }
 
     enum Status {
         Confirmed,          /**< Have 6 or more confirmations (normal tx) or fully mature (mined tx) **/
         /// Normal (sent/received) token transactions
-        Offline,            /**< Not sent to any other nodes **/
         Unconfirmed,        /**< Not yet mined into a block **/
         Confirming         /**< Confirmed, but waiting for the recommended number of confirmations **/
     };
@@ -70,7 +70,7 @@ public:
 
     /** Decompose Token transaction into a record.
      */
-    static QList<TokenTransactionRecord> decomposeTransaction(const CWallet *wallet, const CTokenTx &wtx);
+    static QList<TokenTransactionRecord> decomposeTransaction(interfaces::Wallet &wallet, const interfaces::TokenTx &wtx);
 
     /** @name Immutable token transaction attributes
       @{*/
@@ -94,11 +94,11 @@ public:
 
     /** Update status from core wallet tx.
      */
-    void updateStatus(const CWallet *wallet, const CTokenTx &wtx);
+    void updateStatus(int block_number, int num_blocks);
 
     /** Return whether a status update is needed.
      */
-    bool statusUpdateNeeded();
+    bool statusUpdateNeeded(int numBlocks);
 };
 
 #endif // BITCOIN_QT_TRANSACTIONRECORD_H

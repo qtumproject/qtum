@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2017 The Bitcoin Core developers
+// Copyright (c) 2011-2018 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -15,7 +15,7 @@
 #include <qt/transactiontablemodel.h>
 #include <qt/walletmodel.h>
 #include <qt/tokenitemmodel.h>
-#include <wallet/wallet.h>
+#include <interfaces/wallet.h>
 #include <qt/transactiondescdialog.h>
 #include <qt/styleSheet.h>
 
@@ -38,6 +38,8 @@
 #define DATE_WIDTH 110
 #define TYPE_WIDTH 140
 #define AMOUNT_WIDTH 205
+
+Q_DECLARE_METATYPE(interfaces::WalletBalances)
 
 class TxViewDelegate : public QAbstractItemDelegate
 {
@@ -215,14 +217,6 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     ui(new Ui::OverviewPage),
     clientModel(0),
     walletModel(0),
-    currentBalance(-1),
-    currentUnconfirmedBalance(-1),
-    currentImmatureBalance(-1),
-    currentStake(-1),
-    currentWatchOnlyBalance(-1),
-    currentWatchUnconfBalance(-1),
-    currentWatchImmatureBalance(-1),
-    currentWatchOnlyStake(-1),
     txdelegate(new TxViewDelegate(platformStyle, this)),
     tkndelegate(new TknViewDelegate(platformStyle, this))
 {
@@ -233,14 +227,18 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     SetObjectStyleSheet(ui->labelTokenStatus, StyleSheetNames::ButtonTransparent);
     SetObjectStyleSheet(ui->labelTransactionsStatus, StyleSheetNames::ButtonTransparent);
 
+    m_balances.balance = -1;
+
     if (!platformStyle->getImagesOnButtons()) {
         ui->buttonAddToken->setIcon(QIcon());
     } else {
         ui->buttonAddToken->setIcon(platformStyle->MultiStatesIcon(":/icons/add", PlatformStyle::PushButton));
     }
 
+
     // use a MultiStatesIcon for the "out of sync warning" icon
     QIcon icon = platformStyle->MultiStatesIcon(":/icons/warning", PlatformStyle::PushButton);
+
     ui->labelTransactionsStatus->setIcon(icon);
     ui->labelWalletStatus->setIcon(icon);
     ui->labelTokenStatus->setIcon(icon);
@@ -270,6 +268,7 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     // Token list
     ui->listTokens->setItemDelegate(tkndelegate);
     ui->listTokens->setAttribute(Qt::WA_MacShowFocusRect, false);
+
     // start with displaying the "out of sync" warnings
     showOutOfSyncWarning(true);
     connect(ui->labelWalletStatus, SIGNAL(clicked()), this, SLOT(handleOutOfSyncWarningClicks()));
@@ -287,34 +286,27 @@ OverviewPage::~OverviewPage()
     delete ui;
 }
 
-void OverviewPage::setBalance(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& immatureBalance, const CAmount& stake, const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance, const CAmount& watchOnlyStake)
+void OverviewPage::setBalance(const interfaces::WalletBalances& balances)
 {
     int unit = walletModel->getOptionsModel()->getDisplayUnit();
-    currentBalance = balance;
-    currentUnconfirmedBalance = unconfirmedBalance;
-    currentImmatureBalance = immatureBalance;
-    currentStake = stake;
-    currentWatchOnlyBalance = watchOnlyBalance;
-    currentWatchUnconfBalance = watchUnconfBalance;
-    currentWatchImmatureBalance = watchImmatureBalance;
-    currentWatchOnlyStake = watchOnlyStake;
-    ui->labelBalance->setText(BitcoinUnits::formatWithUnit(unit, balance, false, BitcoinUnits::separatorAlways));
-    ui->labelUnconfirmed->setText(BitcoinUnits::formatWithUnit(unit, unconfirmedBalance, false, BitcoinUnits::separatorAlways));
-    ui->labelImmature->setText(BitcoinUnits::formatWithUnit(unit, immatureBalance, false, BitcoinUnits::separatorAlways));
-    ui->labelStake->setText(BitcoinUnits::formatWithUnit(unit, stake, false, BitcoinUnits::separatorAlways));
-    ui->labelTotal->setText(BitcoinUnits::formatWithUnit(unit, balance + unconfirmedBalance + immatureBalance + stake, false, BitcoinUnits::separatorAlways));
-    ui->labelWatchAvailable->setText(BitcoinUnits::formatWithUnit(unit, watchOnlyBalance, false, BitcoinUnits::separatorAlways));
-    ui->labelWatchPending->setText(BitcoinUnits::formatWithUnit(unit, watchUnconfBalance, false, BitcoinUnits::separatorAlways));
-    ui->labelWatchImmature->setText(BitcoinUnits::formatWithUnit(unit, watchImmatureBalance, false, BitcoinUnits::separatorAlways));
-    ui->labelWatchStake->setText(BitcoinUnits::formatWithUnit(unit, watchOnlyStake, false, BitcoinUnits::separatorAlways));
-    ui->labelWatchTotal->setText(BitcoinUnits::formatWithUnit(unit, watchOnlyBalance + watchUnconfBalance + watchImmatureBalance + watchOnlyStake, false, BitcoinUnits::separatorAlways));
+    m_balances = balances;
+    ui->labelBalance->setText(BitcoinUnits::formatWithUnit(unit, balances.balance, false, BitcoinUnits::separatorAlways));
+    ui->labelUnconfirmed->setText(BitcoinUnits::formatWithUnit(unit, balances.unconfirmed_balance, false, BitcoinUnits::separatorAlways));
+    ui->labelImmature->setText(BitcoinUnits::formatWithUnit(unit, balances.immature_balance, false, BitcoinUnits::separatorAlways));
+    ui->labelStake->setText(BitcoinUnits::formatWithUnit(unit, balances.stake, false, BitcoinUnits::separatorAlways));
+    ui->labelTotal->setText(BitcoinUnits::formatWithUnit(unit, balances.balance + balances.unconfirmed_balance + balances.immature_balance + balances.stake, false, BitcoinUnits::separatorAlways));
+    ui->labelWatchAvailable->setText(BitcoinUnits::formatWithUnit(unit, balances.watch_only_balance, false, BitcoinUnits::separatorAlways));
+    ui->labelWatchPending->setText(BitcoinUnits::formatWithUnit(unit, balances.unconfirmed_watch_only_balance, false, BitcoinUnits::separatorAlways));
+    ui->labelWatchImmature->setText(BitcoinUnits::formatWithUnit(unit, balances.immature_watch_only_balance, false, BitcoinUnits::separatorAlways));
+    ui->labelWatchStake->setText(BitcoinUnits::formatWithUnit(unit, balances.watch_only_stake, false, BitcoinUnits::separatorAlways));
+    ui->labelWatchTotal->setText(BitcoinUnits::formatWithUnit(unit, balances.watch_only_balance + balances.unconfirmed_watch_only_balance + balances.immature_watch_only_balance + balances.watch_only_stake, false, BitcoinUnits::separatorAlways));
 
     // only show immature (newly mined) balance if it's non-zero, so as not to complicate things
     // for the non-mining users
-    bool showImmature = immatureBalance != 0;
-    bool showStake = stake != 0;
-    bool showWatchOnlyImmature = watchImmatureBalance != 0;
-    bool showWatchOnlyStake = watchOnlyStake != 0;
+    bool showImmature = balances.immature_balance != 0;
+    bool showStake = balances.stake != 0;
+    bool showWatchOnlyImmature = balances.immature_watch_only_balance != 0;
+    bool showWatchOnlyStake = balances.watch_only_stake != 0;
 
     // for symmetry reasons also show immature label when the watch-only one is shown
     ui->labelImmature->setVisible(showImmature || showWatchOnlyImmature);
@@ -329,14 +321,14 @@ void OverviewPage::checkForInvalidTokens()
 {
     if(walletModel)
     {
-        std::vector<CTokenInfo> invalidTokens = walletModel->getInvalidTokens();
+        std::vector<interfaces::TokenInfo> invalidTokens = walletModel->wallet().getInvalidTokens();
         if(invalidTokens.size() > 0)
         {
             QString message;
-            for(CTokenInfo& tokenInfo : invalidTokens)
+            for(interfaces::TokenInfo& tokenInfo : invalidTokens)
             {
-                QString symbol = QString::fromStdString(tokenInfo.strTokenSymbol);
-                QString address = QString::fromStdString(tokenInfo.strSenderAddress);
+                QString symbol = QString::fromStdString(tokenInfo.token_symbol);
+                QString address = QString::fromStdString(tokenInfo.sender_address);
                 message += tr("The %1 address \"%2\" is not yours, please change it to new one.\n").arg(symbol, address);
             }
             QMessageBox::warning(this, tr("Invalid token address"), message);
@@ -389,13 +381,14 @@ void OverviewPage::setWalletModel(WalletModel *model)
         ui->listTransactions->setModelColumn(TransactionTableModel::ToAddress);
 
         // Keep up to date with wallet
-        setBalance(model->getBalance(), model->getUnconfirmedBalance(), model->getImmatureBalance(), model->getStake(),
-                   model->getWatchBalance(), model->getWatchUnconfirmedBalance(), model->getWatchImmatureBalance(), model->getWatchStake());
-        connect(model, SIGNAL(balanceChanged(CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount)), this, SLOT(setBalance(CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount)));
+        interfaces::Wallet& wallet = model->wallet();
+        interfaces::WalletBalances balances = wallet.getBalances();
+        setBalance(balances);
+        connect(model, SIGNAL(balanceChanged(interfaces::WalletBalances)), this, SLOT(setBalance(interfaces::WalletBalances)));
 
         connect(model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
 
-        updateWatchOnlyLabels(model->haveWatchOnly());
+        updateWatchOnlyLabels(wallet.haveWatchOnly());
         connect(model, SIGNAL(notifyWatchonlyChanged(bool)), this, SLOT(updateWatchOnlyLabels(bool)));
     }
 
@@ -422,9 +415,10 @@ void OverviewPage::updateDisplayUnit()
 {
     if(walletModel && walletModel->getOptionsModel())
     {
-        if(currentBalance != -1)
-            setBalance(currentBalance, currentUnconfirmedBalance, currentImmatureBalance, currentStake,
-                       currentWatchOnlyBalance, currentWatchUnconfBalance, currentWatchImmatureBalance, currentWatchOnlyStake);
+        if (m_balances.balance != -1) {
+            setBalance(m_balances);
+        }
+
         // Update txdelegate->unit with the current unit
         txdelegate->unit = walletModel->getOptionsModel()->getDisplayUnit();
 

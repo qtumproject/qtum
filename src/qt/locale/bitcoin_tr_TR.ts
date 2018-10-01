@@ -395,6 +395,10 @@
         <translation>Tarih</translation>
     </message>
     <message>
+        <source>Confirmations</source>
+        <translation>Onaylamalar</translation>
+    </message>
+    <message>
         <source>Confirmed</source>
         <translation>Kabul edilen</translation>
     </message>
@@ -442,10 +446,6 @@
         <translation>Adres</translation>
     </message>
     <message>
-        <source>New receiving address</source>
-        <translation>Yeni alış adresi</translation>
-    </message>
-    <message>
         <source>New sending address</source>
         <translation>Yeni gönderim adresi</translation>
     </message>
@@ -460,10 +460,6 @@
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source>
         <translation>Girilen adres "%1" Qtum adresiyle eşleşmiyor.</translation>
-    </message>
-    <message>
-        <source>The entered address "%1" is already in the address book.</source>
-        <translation>Girilen adres "%1" adres defterinde zaten kayıtlı.</translation>
     </message>
     <message>
         <source>New key generation failed.</source>
@@ -491,23 +487,7 @@
         <source>Command-line options</source>
         <translation>Komut satırı ayarları</translation>
     </message>
-    <message>
-        <source>Usage:</source>
-        <translation>Kullanım:</translation>
-    </message>
-    <message>
-        <source>command-line options</source>
-        <translation>komut satırı ayarları</translation>
-    </message>
-    <message>
-        <source>UI Options:</source>
-        <translation>UI Ayarları:</translation>
-    </message>
-    <message>
-        <source>Set language, for example "de_DE" (default: system locale)</source>
-        <translation>Bir dil seçin, örneğin "de_DE" (seçilen: Sistem dili)</translation>
-    </message>
-    </context>
+</context>
 <context>
     <name>Intro</name>
     <message>
@@ -526,6 +506,10 @@
     </context>
 <context>
     <name>ModalOverlay</name>
+    <message>
+        <source>Form</source>
+        <translation>Form</translation>
+    </message>
     <message>
         <source>Number of blocks left</source>
         <translation>Kalan blokların sayısı</translation>
@@ -617,15 +601,47 @@
         <translation>Konfigürasyon ayarları</translation>
     </message>
     <message>
+        <source>The configuration file is used to specify advanced user options which override GUI settings. Additionally, any command-line options will override this configuration file.</source>
+        <translation>Konfigürasyon dosyası GUI ayarlarını geçersiz kılmak için gelişmiş kullanıcı ayarlarını değiştirir. Ek olarak, herhangi bir komut satırı seçeneği konfigürasyon dosyasını geçersiz kılar.</translation>
+    </message>
+    <message>
         <source>Error</source>
         <translation>Hata</translation>
     </message>
-    </context>
+    <message>
+        <source>The configuration file could not be opened.</source>
+        <translation>Konfigürasyon dosyası açılamadı.</translation>
+    </message>
+    <message>
+        <source>This change would require a client restart.</source>
+        <translation>Bu değişiklik istemcinin yeniden başlatılmasını gerektirir.</translation>
+    </message>
+    <message>
+        <source>The supplied proxy address is invalid.</source>
+        <translation>Sağlanan proxy adresi geçerli değil.</translation>
+    </message>
+</context>
 <context>
     <name>OverviewPage</name>
     <message>
+        <source>Form</source>
+        <translation>Form</translation>
+    </message>
+    <message>
+        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
+        <translation>Gösterilen bilgi geçerli olmayabilir. Bağlantı tekrar sağlandıktan sonra cüzdanınız otomatik olarak senkronize olacaktır. Henüz senkronize olma işlemi tamamlanmadı.</translation>
+    </message>
+    <message>
+        <source>Watch-only:</source>
+        <translation>Sadece görüntülenebilir:</translation>
+    </message>
+    <message>
         <source>Available:</source>
         <translation>Kullanılabilir:</translation>
+    </message>
+    <message>
+        <source>Your current spendable balance</source>
+        <translation>Mevcut harcanabilir tutarınız</translation>
     </message>
     <message>
         <source>Pending:</source>
@@ -635,9 +651,41 @@
         <source>Total:</source>
         <translation>Toplam:</translation>
     </message>
-    </context>
+    <message>
+        <source>Your current total balance</source>
+        <translation>Toplam mevcut miktarınız</translation>
+    </message>
+    <message>
+        <source>Your current balance in watch-only addresses</source>
+        <translation>Sadece görüntülenebilir adreslerdeki mevcut miktarınız</translation>
+    </message>
+    <message>
+        <source>Spendable:</source>
+        <translation>Harcanabilir:</translation>
+    </message>
+    <message>
+        <source>Recent transactions</source>
+        <translation>Yakın zamanda yapılmış işlemler</translation>
+    </message>
+    <message>
+        <source>Unconfirmed transactions to watch-only addresses</source>
+        <translation>Sadece görüntülenebilir adreslerdeki doğrulanmamış işlemler</translation>
+    </message>
+    <message>
+        <source>Current total balance in watch-only addresses</source>
+        <translation>Sadece görüntülenebilir adreslerdeki mevcut toplam miktar</translation>
+    </message>
+</context>
 <context>
     <name>PaymentServer</name>
+    <message>
+        <source>Payment request error</source>
+        <translation>Ödeme isteği hatası</translation>
+    </message>
+    <message>
+        <source>Payment request fetch URL is invalid: %1</source>
+        <translation>Ödeme isteği URL'si hatalı: %1</translation>
+    </message>
     <message>
         <source>Invalid payment address %1</source>
         <translation>Hatalı ödeme adresi %1</translation>
@@ -881,10 +929,6 @@
         <translation>Temizle</translation>
     </message>
     <message>
-        <source>Generate Bech32 address</source>
-        <translation>Bech32 adresi oluştur</translation>
-    </message>
-    <message>
         <source>Show</source>
         <translation>Göster</translation>
     </message>
@@ -942,6 +986,10 @@
     <message>
         <source>Message</source>
         <translation>Mesaj</translation>
+    </message>
+    <message>
+        <source>Wallet</source>
+        <translation>Cüzdan</translation>
     </message>
     </context>
 <context>
@@ -1036,6 +1084,10 @@
     <message>
         <source>or</source>
         <translation>ya da</translation>
+    </message>
+    <message>
+        <source>Transaction fee</source>
+        <translation>Gönderim ücreti</translation>
     </message>
     <message>
         <source>Confirm send coins</source>
@@ -1335,36 +1387,12 @@
 <context>
     <name>qtum-core</name>
     <message>
-        <source>Options:</source>
-        <translation>Ayarlar:</translation>
-    </message>
-    <message>
-        <source>Accept command line and JSON-RPC commands</source>
-        <translation>JSON-RPC komutları ile komut satırını onaylayın</translation>
-    </message>
-    <message>
         <source>Qtum Core</source>
         <translation>Qtum Çekirdeği</translation>
     </message>
     <message>
-        <source>&lt;category&gt; can be:</source>
-        <translation>&lt;category&gt; can be:</translation>
-    </message>
-    <message>
-        <source>Block creation options:</source>
-        <translation>Blok oluşturma ayarları:</translation>
-    </message>
-    <message>
-        <source>Connection options:</source>
-        <translation>Bağlantı ayarları:</translation>
-    </message>
-    <message>
         <source>Copyright (C) %i-%i</source>
         <translation>Copyright (C) %i-%i</translation>
-    </message>
-    <message>
-        <source>Debugging/Testing options:</source>
-        <translation>Hata giderme/test ayarları:</translation>
     </message>
     <message>
         <source>Error: Disk space is low!</source>
@@ -1379,28 +1407,12 @@
         <translation>Ban listesi yükleniyor...</translation>
     </message>
     <message>
-        <source>Print this help message and exit</source>
-        <translation>Bu yardım mesajını yazdır ve çıkış yap</translation>
-    </message>
-    <message>
-        <source>Print version and exit</source>
-        <translation>Versiyonu yazdır ve çıkış yap</translation>
-    </message>
-    <message>
         <source>Verifying blocks...</source>
         <translation>Bloklar Onaylanıyor...</translation>
     </message>
     <message>
         <source>Wallet needed to be rewritten: restart %s to complete</source>
         <translation>%s tamamlanması için cüzdanın yeniden başlatılması gerekiyor</translation>
-    </message>
-    <message>
-        <source>Wallet options:</source>
-        <translation>Cüzdan Ayarları</translation>
-    </message>
-    <message>
-        <source>(default: %u)</source>
-        <translation>(varsayılan: %u)</translation>
     </message>
     <message>
         <source>Error reading from database, shutting down.</source>
@@ -1415,24 +1427,12 @@
         <translation>Hatalı -onion adresi ya da host adı: '%s'</translation>
     </message>
     <message>
-        <source>RPC server options:</source>
-        <translation>RPC sunucu ayarları</translation>
-    </message>
-    <message>
         <source>This is experimental software.</source>
         <translation>Bu deneysel bir yazılımdır.</translation>
     </message>
     <message>
-        <source>Tor control port password (default: empty)</source>
-        <translation>Tor kontrolü portu şifresi (varsayılan: boş bırakınız)</translation>
-    </message>
-    <message>
         <source>Transaction too large</source>
         <translation>İşlem çok büyük</translation>
-    </message>
-    <message>
-        <source>Username for JSON-RPC connections</source>
-        <translation>JSON-RPC bağlantıları için kullanıcı adı</translation>
     </message>
     <message>
         <source>Verifying wallet(s)...</source>
@@ -1441,30 +1441,6 @@
     <message>
         <source>Warning</source>
         <translation>Uyarı</translation>
-    </message>
-    <message>
-        <source>Password for JSON-RPC connections</source>
-        <translation>JSON-RPC bağlantıları için şifre</translation>
-    </message>
-    <message>
-        <source>(default: %s)</source>
-        <translation>(varsayılan: %s)</translation>
-    </message>
-    <message>
-        <source>Specify configuration file (default: %s)</source>
-        <translation>Yapılandırma dosyasını belirle (varsayılan: %s)</translation>
-    </message>
-    <message>
-        <source>Specify connection timeout in milliseconds (minimum: 1, default: %d)</source>
-        <translation>Milisaniyelik zaman aşımına uğramış bağlantıyı belirle (minimum: 1, varsayılan: %d)</translation>
-    </message>
-    <message>
-        <source>Specify pid file (default: %s)</source>
-        <translation>Pid dosyasını belirle (Varsayılan: %s)</translation>
-    </message>
-    <message>
-        <source>Spend unconfirmed change when sending transactions (default: %u)</source>
-        <translation>İşlem gönderiminde onaylanmamış değişimi öde (Varsayılan: %u)</translation>
     </message>
     <message>
         <source>Starting network threads...</source>
@@ -1481,10 +1457,6 @@
     <message>
         <source>This is the transaction fee you will pay if you send a transaction.</source>
         <translation>Bir işlem göndermeniz durumunda işlem ücretiniz budur</translation>
-    </message>
-    <message>
-        <source>Threshold for disconnecting misbehaving peers (default: %u)</source>
-        <translation>Sorunlu emsalleri koparma eşiği (Varsayılan: %u)</translation>
     </message>
     <message>
         <source>Transaction amounts must not be negative</source>

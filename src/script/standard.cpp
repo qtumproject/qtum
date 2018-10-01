@@ -1,10 +1,11 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2017 The Bitcoin Core developers
+// Copyright (c) 2009-2018 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <script/standard.h>
 
+#include <crypto/sha256.h>
 #include <pubkey.h>
 #include <script/script.h>
 #include <util.h>
@@ -20,6 +21,11 @@ bool fAcceptDatacarrier = DEFAULT_ACCEPT_DATACARRIER;
 unsigned nMaxDatacarrierBytes = MAX_OP_RETURN_RELAY;
 
 CScriptID::CScriptID(const CScript& in) : uint160(Hash160(in.begin(), in.end())) {}
+
+WitnessV0ScriptHash::WitnessV0ScriptHash(const CScript& in)
+{
+    CSHA256().Write(in.data(), in.size()).Finalize(begin());
+}
 
 const char* GetTxnOutputType(txnouttype t)
 {
@@ -64,7 +70,6 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<std::v
 
         // Call contract tx
         mTemplates.insert(std::make_pair(TX_CALL, CScript() << OP_VERSION << OP_GAS_LIMIT << OP_GAS_PRICE << OP_DATA << OP_PUBKEYHASH << OP_CALL));
-
     }
 
     vSolutionsRet.clear();
@@ -82,12 +87,12 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<std::v
     int witnessversion;
     std::vector<unsigned char> witnessprogram;
     if (scriptPubKey.IsWitnessProgram(witnessversion, witnessprogram)) {
-        if (witnessversion == 0 && witnessprogram.size() == 20) {
+        if (witnessversion == 0 && witnessprogram.size() == WITNESS_V0_KEYHASH_SIZE) {
             typeRet = TX_WITNESS_V0_KEYHASH;
             vSolutionsRet.push_back(witnessprogram);
             return true;
         }
-        if (witnessversion == 0 && witnessprogram.size() == 32) {
+        if (witnessversion == 0 && witnessprogram.size() == WITNESS_V0_SCRIPTHASH_SIZE) {
             typeRet = TX_WITNESS_V0_SCRIPTHASH;
             vSolutionsRet.push_back(witnessprogram);
             return true;
@@ -98,6 +103,7 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<std::v
             vSolutionsRet.push_back(std::move(witnessprogram));
             return true;
         }
+        typeRet = TX_NONSTANDARD;
         return false;
     }
 
@@ -282,6 +288,7 @@ bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet,
         *typeRet = whichType;
     }
 
+
     if (whichType == TX_PUBKEY)
     {
         CPubKey pubKey(vSolutions[0]);
@@ -437,8 +444,6 @@ CScript GetScriptForMultisig(int nRequired, const std::vector<CPubKey>& keys)
 
 CScript GetScriptForWitness(const CScript& redeemscript)
 {
-    CScript ret;
-
     txnouttype typ;
     std::vector<std::vector<unsigned char> > vSolutions;
     if (Solver(redeemscript, typ, vSolutions)) {
@@ -448,9 +453,7 @@ CScript GetScriptForWitness(const CScript& redeemscript)
             return GetScriptForDestination(WitnessV0KeyHash(vSolutions[0]));
         }
     }
-    uint256 hash;
-    CSHA256().Write(&redeemscript[0], redeemscript.size()).Finalize(hash.begin());
-    return GetScriptForDestination(WitnessV0ScriptHash(hash));
+    return GetScriptForDestination(WitnessV0ScriptHash(redeemscript));
 }
 
 bool IsValidDestination(const CTxDestination& dest) {

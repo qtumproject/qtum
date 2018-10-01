@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2017 The Bitcoin Core developers
+# Copyright (c) 2017-2018 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """An example functional test
@@ -21,8 +21,6 @@ from test_framework.mininode import (
     mininode_lock,
     msg_block,
     msg_getdata,
-    network_thread_join,
-    network_thread_start,
 )
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import (
@@ -38,7 +36,7 @@ class BaseNode(P2PInterface):
     def __init__(self):
         """Initialize the P2PInterface
 
-        Used to inialize custom properties for the Node that aren't
+        Used to initialize custom properties for the Node that aren't
         included by default in the base class. Be aware that the P2PInterface
         base class already stores a counter for each P2P message type and the
         last received message of each type, which should be sufficient for the
@@ -132,14 +130,8 @@ class ExampleTest(BitcoinTestFramework):
     def run_test(self):
         """Main test logic"""
 
-        # Create P2P connections to two of the nodes
+        # Create P2P connections will wait for a verack to make sure the connection is fully up
         self.nodes[0].add_p2p_connection(BaseNode())
-
-        # Start up network handling in another thread. This needs to be called
-        # after the P2P connections have been created.
-        network_thread_start()
-        # wait_for_verack ensures that the P2P connection is fully up.
-        self.nodes[0].p2p.wait_for_verack()
 
         # Generating a block on one of the nodes will get us out of IBD
         blocks = [int(self.nodes[0].generate(nblocks=1)[0], 16)]
@@ -189,15 +181,9 @@ class ExampleTest(BitcoinTestFramework):
         connect_nodes(self.nodes[1], 2)
 
         self.log.info("Add P2P connection to node2")
-        # We can't add additional P2P connections once the network thread has started. Disconnect the connection
-        # to node0, wait for the network thread to terminate, then connect to node2. This is specific to
-        # the current implementation of the network thread and may be improved in future.
         self.nodes[0].disconnect_p2ps()
-        network_thread_join()
 
         self.nodes[2].add_p2p_connection(BaseNode())
-        network_thread_start()
-        self.nodes[2].p2p.wait_for_verack()
 
         self.log.info("Wait for node2 reach current tip. Test that it has propagated all the blocks to us")
 

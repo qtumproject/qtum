@@ -35,7 +35,7 @@ Q_SIGNALS:
 public Q_SLOTS:
     void on_clearAllClicked();
     void on_createContractClicked();
-    void on_numBlocksChanged();
+    void on_gasInfoChanged(quint64 blockGasLimit, quint64 minGasPrice, quint64 nGasPrice);
     void on_updateCreateButton();
     void on_newContractABI();
 

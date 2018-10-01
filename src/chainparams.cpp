@@ -1,5 +1,5 @@
 // Copyright (c) 2010 Satoshi Nakamoto
-// Copyright (c) 2009-2017 The Bitcoin Core developers
+// Copyright (c) 2009-2018 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -84,7 +84,7 @@ public:
     CMainParams() {
         strNetworkID = "main";
         consensus.nSubsidyHalvingInterval = 985500; // qtum halving every 4 years
-        consensus.BIP16Height = 0;
+        consensus.BIP16Exception = uint256S("0x000075aef83cf2853580f8ae8ce6f8c3096cfa21d98334d6e3f95e5582ed986c");
         consensus.BIP34Height = 0;
         consensus.BIP34Hash = uint256S("0x000075aef83cf2853580f8ae8ce6f8c3096cfa21d98334d6e3f95e5582ed986c");
         consensus.BIP65Height = 0; // 000000000000000004c2b624ed5d7756c508d90fd0da2c7c679febfa6c4735f0
@@ -137,10 +137,13 @@ public:
 
         // Note that of those which support the service bits prefix, most only support a subset of
         // possible options.
-        // This is fine at runtime as we'll fall back to using them as a oneshot if they dont support the
+        // This is fine at runtime as we'll fall back to using them as a oneshot if they don't support the
         // service bits we want, but we should get them updated to support all service bits wanted by any
         // release ASAP to avoid it where possible.
-        vSeeds.emplace_back("qtum3.dynu.net", false); // Qtum mainnet
+        vSeeds.emplace_back("qtum3.dynu.net"); // Qtum mainnet
+        vSeeds.emplace_back("qtum5.dynu.net"); // Qtum mainnet
+        vSeeds.emplace_back("qtum6.dynu.net"); // Qtum mainnet
+        vSeeds.emplace_back("qtum7.dynu.net"); // Qtum mainnet
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,58);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,50);
@@ -172,6 +175,10 @@ public:
                             //   (the tx=... number in the SetBestChain debug.log lines)
             0.125 // * estimated number of transactions per second after that timestamp
         };
+
+        /* disable fallback fee on mainnet */
+        m_fallback_fee_enabled = false;
+
         consensus.nLastPOWBlock = 5000;
         consensus.nMPoSRewardRecipients = 10;
         consensus.nFirstMPoSBlock = consensus.nLastPOWBlock + 
@@ -190,7 +197,7 @@ public:
     CTestNetParams() {
         strNetworkID = "test";
         consensus.nSubsidyHalvingInterval = 985500; // qtum halving every 4 years
-        consensus.BIP16Height = 0;
+        consensus.BIP16Exception = uint256S("0x0000e803ee215c0684ca0d2f9220594d3f828617972aad66feb2ba51f5e14222");
         consensus.BIP34Height = 0;
         consensus.BIP34Hash = uint256S("0x0000e803ee215c0684ca0d2f9220594d3f828617972aad66feb2ba51f5e14222");
         consensus.BIP65Height = 0; // 00000000007f6655f22f98e72ed80d8b06dc761d5da09df0fa1dc4be4f861eb6
@@ -239,7 +246,7 @@ public:
         vFixedSeeds.clear();
         vSeeds.clear();
         // nodes with support for servicebits filtering should be at the top
-        vSeeds.emplace_back("qtum4.dynu.net", false); // Qtum testnet
+        vSeeds.emplace_back("qtum4.dynu.net"); // Qtum testnet
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,120);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,110);
@@ -271,6 +278,9 @@ public:
             0.0132
         };
 
+        /* enable fallback fee on testnet */
+        m_fallback_fee_enabled = true;
+
         consensus.nLastPOWBlock = 5000;
         consensus.nMPoSRewardRecipients = 10;
         consensus.nFirstMPoSBlock = consensus.nLastPOWBlock + 
@@ -289,7 +299,7 @@ public:
     CRegTestParams() {
         strNetworkID = "regtest";
         consensus.nSubsidyHalvingInterval = 150;
-        consensus.BIP16Height = 0;
+        consensus.BIP16Exception = uint256S("0x665ed5b402ac0b44efc37d8926332994363e8a7278b7ee9a58fb972efadae943");
         consensus.BIP34Height = 0; // BIP34 has not activated on regtest (far in the future so block v1 are not rejected in tests) // activate for qtum
         consensus.BIP34Hash = uint256S("0x665ed5b402ac0b44efc37d8926332994363e8a7278b7ee9a58fb972efadae943");
         consensus.BIP65Height = 0; // BIP65 activated on regtest (Used in rpc activation tests)
@@ -362,6 +372,9 @@ public:
         base58Prefixes[EXT_SECRET_KEY] = {0x04, 0x35, 0x83, 0x94};
 
         bech32_hrp = "qcrt";
+
+        /* enable fallback fee on regtest */
+        m_fallback_fee_enabled = true;
     }
 };
 
@@ -374,8 +387,9 @@ public:
     CUnitTestParams()
     {
         // Activate the the BIPs for regtest as in Bitcoin
-        consensus.BIP16Height = 0;
+        consensus.BIP16Exception = uint256();
         consensus.BIP34Height = 100000000; // BIP34 has not activated on regtest (far in the future so block v1 are not rejected in tests)
+        consensus.BIP34Hash = uint256();
         consensus.BIP65Height = 1351; // BIP65 activated on regtest (Used in rpc activation tests)
         consensus.BIP66Height = 1251; // BIP66 activated on regtest (Used in rpc activation tests)
 

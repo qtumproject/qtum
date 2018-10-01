@@ -12,7 +12,7 @@ ExecRPCCommand::ExecRPCCommand(const QString &command, const QStringList &mandat
     m_translations = translations;
 }
 
-bool ExecRPCCommand::exec(const QMap<QString, QString> &params, QVariant &result, QString &resultJson, QString &errorMessage)
+bool ExecRPCCommand::exec(interfaces::Node &node, interfaces::Wallet &wallet, const QMap<QString, QString> &params, QVariant &result, QString &resultJson, QString &errorMessage)
 {
     QStringList commandLine;
     commandLine.append(m_command);
@@ -68,7 +68,8 @@ bool ExecRPCCommand::exec(const QMap<QString, QString> &params, QVariant &result
     {
         std::string strResult;
         std::string strCommand = commandLine.join(' ').toStdString();
-        if(RPCConsole::RPCExecuteCommandLine(strResult, strCommand))
+        std::string walletID = wallet.getWalletName();
+        if(RPCConsole::RPCExecuteCommandLine(node, strResult, strCommand, nullptr, &walletID))
         {
             resultJson = strResult.c_str();
             QJsonDocument doc = QJsonDocument::fromJson(strResult.c_str());

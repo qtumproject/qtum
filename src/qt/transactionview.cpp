@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2017 The Bitcoin Core developers
+// Copyright (c) 2011-2018 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -85,15 +85,11 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
     hlayout->addWidget(typeWidget);
 
     search_widget = new QLineEdit(this);
-#if QT_VERSION >= 0x040700
     search_widget->setPlaceholderText(tr("Enter address, transaction id, or label to search"));
-#endif
     hlayout->addWidget(search_widget);
 
     amountWidget = new QLineEdit(this);
-#if QT_VERSION >= 0x040700
     amountWidget->setPlaceholderText(tr("Min amount"));
-#endif
     amountWidget->setFixedWidth(AMOUNT_MINIMUM_COLUMN_WIDTH -10);
     amountWidget->setValidator(new QDoubleValidator(0, 1e20, 8, this));
     hlayout->addWidget(amountWidget);
@@ -240,7 +236,7 @@ void TransactionView::setModel(WalletModel *_model)
         }
 
         // show/hide column Watch-only
-        updateWatchOnlyColumn(_model->haveWatchOnly());
+        updateWatchOnlyColumn(_model->wallet().haveWatchOnly());
 
         // Watch-only signal
         connect(_model, SIGNAL(notifyWatchonlyChanged(bool)), this, SLOT(updateWatchOnlyColumn(bool)));
@@ -249,8 +245,7 @@ void TransactionView::setModel(WalletModel *_model)
 
 void TransactionView::chooseDate(int idx)
 {
-    if(!transactionProxyModel)
-        return;
+    if (!transactionProxyModel) return;
     QDate current = QDate::currentDate();
     dateRangeWidget->setVisible(false);
     switch(dateWidget->itemData(idx).toInt())
@@ -308,7 +303,7 @@ void TransactionView::chooseWatchonly(int idx)
     if(!transactionProxyModel)
         return;
     transactionProxyModel->setWatchOnlyFilter(
-        (TransactionFilterProxy::WatchOnlyFilter)watchOnlyWidget->itemData(idx).toInt());
+        static_cast<TransactionFilterProxy::WatchOnlyFilter>(watchOnlyWidget->itemData(idx).toInt()));
 }
 
 void TransactionView::changedSearch()
@@ -351,14 +346,14 @@ void TransactionView::exportClicked()
     // name, column, role
     writer.setModel(transactionProxyModel);
     writer.addColumn(tr("Confirmed"), 0, TransactionTableModel::ConfirmedRole);
-    if (model->haveWatchOnly())
+    if (model->wallet().haveWatchOnly())
         writer.addColumn(tr("Watch-only"), TransactionTableModel::Watchonly);
     writer.addColumn(tr("Date"), 0, TransactionTableModel::DateRole);
     writer.addColumn(tr("Type"), TransactionTableModel::Type, Qt::EditRole);
     writer.addColumn(tr("Label"), 0, TransactionTableModel::LabelRole);
     writer.addColumn(tr("Address"), 0, TransactionTableModel::AddressRole);
     writer.addColumn(BitcoinUnits::getAmountColumnTitle(model->getOptionsModel()->getDisplayUnit()), 0, TransactionTableModel::FormattedAmountRole);
-    writer.addColumn(tr("ID"), 0, TransactionTableModel::TxIDRole);
+    writer.addColumn(tr("ID"), 0, TransactionTableModel::TxHashRole);
 
     if(!writer.write()) {
         Q_EMIT message(tr("Exporting Failed"), tr("There was an error trying to save the transaction history to %1.").arg(filename),
@@ -380,8 +375,8 @@ void TransactionView::contextualMenu(const QPoint &point)
     // check if transaction can be abandoned, disable context menu action in case it doesn't
     uint256 hash;
     hash.SetHex(selection.at(0).data(TransactionTableModel::TxHashRole).toString().toStdString());
-    abandonAction->setEnabled(model->transactionCanBeAbandoned(hash));
-    bumpFeeAction->setEnabled(model->transactionCanBeBumped(hash));
+    abandonAction->setEnabled(model->wallet().transactionCanBeAbandoned(hash));
+    bumpFeeAction->setEnabled(model->wallet().transactionCanBeBumped(hash));
 
     if(index.isValid())
     {
@@ -401,7 +396,7 @@ void TransactionView::abandonTx()
     hash.SetHex(hashQStr.toStdString());
 
     // Abandon the wallet transaction over the walletModel
-    model->abandonTransaction(hash);
+    model->wallet().abandonTransaction(hash);
 
     // Update the table
     model->getTransactionTableModel()->updateTransaction(hashQStr, CT_UPDATED, false);
@@ -442,7 +437,7 @@ void TransactionView::copyAmount()
 
 void TransactionView::copyTxID()
 {
-    GUIUtil::copyEntryData(transactionView, 0, TransactionTableModel::TxIDRole);
+    GUIUtil::copyEntryData(transactionView, 0, TransactionTableModel::TxHashRole);
 }
 
 void TransactionView::copyTxHex()
@@ -576,6 +571,32 @@ void TransactionView::focusTransaction(const QModelIndex &idx)
     transactionView->scrollTo(targetIdx);
     transactionView->setCurrentIndex(targetIdx);
     transactionView->setFocus();
+}
+
+void TransactionView::focusTransaction(const uint256& txid)
+{
+    if (!transactionProxyModel)
+        return;
+
+    const QModelIndexList results = this->model->getTransactionTableModel()->match(
+        this->model->getTransactionTableModel()->index(0,0),
+        TransactionTableModel::TxHashRole,
+        QString::fromStdString(txid.ToString()), -1);
+
+    transactionView->setFocus();
+    transactionView->selectionModel()->clearSelection();
+    for (const QModelIndex& index : results) {
+        const QModelIndex targetIndex = transactionProxyModel->mapFromSource(index);
+        transactionView->selectionModel()->select(
+            targetIndex,
+            QItemSelectionModel::Rows | QItemSelectionModel::Select);
+        // Called once per destination to ensure all results are in view, unless
+        // transactions are not ordered by (ascending or descending) date.
+        transactionView->scrollTo(targetIndex);
+        // scrollTo() does not scroll far enough the first time when transactions
+        // are ordered by ascending date.
+        if (index == results[0]) transactionView->scrollTo(targetIndex);
+    }
 }
 
 // We override the virtual resizeEvent of the QWidget to adjust tables column

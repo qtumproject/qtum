@@ -1,9 +1,9 @@
-// Copyright (c) 2016-2017 The Bitcoin Core developers
+// Copyright (c) 2016-2018 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_BLOCK_ENCODINGS_H
-#define BITCOIN_BLOCK_ENCODINGS_H
+#ifndef BITCOIN_BLOCKENCODINGS_H
+#define BITCOIN_BLOCKENCODINGS_H
 
 #include <primitives/block.h>
 
@@ -90,11 +90,11 @@ public:
             while (txn.size() < txn_size) {
                 txn.resize(std::min((uint64_t)(1000 + txn.size()), txn_size));
                 for (; i < txn.size(); i++)
-                    READWRITE(REF(TransactionCompressor(txn[i])));
+                    READWRITE(TransactionCompressor(txn[i]));
             }
         } else {
             for (size_t i = 0; i < txn.size(); i++)
-                READWRITE(REF(TransactionCompressor(txn[i])));
+                READWRITE(TransactionCompressor(txn[i]));
         }
     }
 };
@@ -115,7 +115,7 @@ struct PrefilledTransaction {
         if (idx > std::numeric_limits<uint16_t>::max())
             throw std::ios_base::failure("index overflowed 16-bits");
         index = idx;
-        READWRITE(REF(TransactionCompressor(tx)));
+        READWRITE(TransactionCompressor(tx));
     }
 };
 
@@ -206,4 +206,4 @@ public:
     ReadStatus FillBlock(CBlock& block, const std::vector<CTransactionRef>& vtx_missing);
 };
 
-#endif
+#endif // BITCOIN_BLOCKENCODINGS_H

@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2017 The Bitcoin Core developers
+// Copyright (c) 2009-2018 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -76,7 +76,7 @@ public:
         nHeight = code >> 2;
         fCoinBase = code & 1;
         fCoinStake = (code >> 1) & 1;
-        ::Unserialize(s, REF(CTxOutCompressor(out)));
+        ::Unserialize(s, CTxOutCompressor(out));
     }
 
     bool IsSpent() const {
@@ -210,7 +210,7 @@ class CCoinsViewCache : public CCoinsViewBacked
 protected:
     /**
      * Make mutable so that we can "fill the cache" even from Get-methods
-     * declared as "const".  
+     * declared as "const".
      */
     mutable uint256 hashBlock;
     mutable CCoinsMap cacheCoins;
@@ -287,7 +287,7 @@ public:
     //! Calculate the size of the cache (in bytes)
     size_t DynamicMemoryUsage() const;
 
-    /** 
+    /**
      * Amount of bitcoins coming in to a transaction
      * Note that lightweight clients may not know anything besides the hash of previous transactions,
      * so may not be able to calculate this.

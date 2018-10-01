@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2017 The Bitcoin Core developers
+// Copyright (c) 2009-2018 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -40,7 +40,7 @@ public:
     }
 
     template<typename T>
-    TxInputStream& operator>>(T& obj)
+    TxInputStream& operator>>(T&& obj)
     {
         ::Unserialize(*this, obj);
         return *this;
@@ -81,7 +81,7 @@ static int verify_script(const unsigned char *scriptPubKey, unsigned int scriptP
                                     unsigned int nIn, unsigned int flags, bitcoinconsensus_error* err)
 {
     if (!verify_flags(flags)) {
-        return bitcoinconsensus_ERR_INVALID_FLAGS;
+        return set_error(err, bitcoinconsensus_ERR_INVALID_FLAGS);
     }
     try {
         TxInputStream stream(SER_NETWORK, PROTOCOL_VERSION, txTo, txToLen);

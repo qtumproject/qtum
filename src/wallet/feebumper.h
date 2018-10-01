@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Bitcoin Core developers
+// Copyright (c) 2017-2018 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -26,7 +26,7 @@ enum class Result
 };
 
 //! Return whether transaction can be bumped.
-bool TransactionCanBeBumped(CWallet* wallet, const uint256& txid);
+bool TransactionCanBeBumped(const CWallet* wallet, const uint256& txid);
 
 //! Create bumpfee transaction.
 Result CreateTransaction(const CWallet* wallet,

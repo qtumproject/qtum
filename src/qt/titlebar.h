@@ -5,6 +5,8 @@
 #include <QSize>
 #include <QTabBar>
 #include <QIcon>
+#include <QLabel>
+#include <QComboBox>
 #include <qt/walletmodel.h>
 
 namespace Ui {
@@ -39,10 +41,30 @@ public:
     void setModel(WalletModel *_model);
 
     /**
+     * @brief addWallet Add wallet model
+     * @param _model Wallet model
+     */
+    void addWallet(WalletModel *_model);
+
+    /**
+     * @brief removeWallet Remove wallet model
+     * @param _model Wallet model
+     */
+    void removeWallet(WalletModel *_model);
+
+    /**
      * @brief setTabBarInfo Set the tab bar info
      * @param info Information about tabs
      */
     void setTabBarInfo(QObject* info);
+
+    /**
+     * @brief setWalletSelector Set wallet selector
+     * @param walletSelectorLabel Wallet selector label
+     * @param walletSelector Wallet selector
+     */
+    void setWalletSelector(QLabel *walletSelectorLabel, QComboBox* walletSelector);
+
 
 Q_SIGNALS:
 
@@ -50,8 +72,7 @@ public Q_SLOTS:
     /**
      * @brief setBalance Slot for changing the balance
      */
-    void setBalance(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& immatureBalance, const CAmount& stake,
-                    const CAmount& watchBalance, const CAmount& watchUnconfirmedBalance, const CAmount& watchImmatureBalance, const CAmount& watchStake);
+    void setBalance(const interfaces::WalletBalances& balances);
 
     /**
      * @brief on_navigationResized Slot for changing the size of the navigation bar
@@ -60,10 +81,17 @@ public Q_SLOTS:
     void on_navigationResized(const QSize& _size);
 
 private:
+    /**
+     * @brief setBalanceLabel Changing the displayed balance
+     */
+    void setBalanceLabel(const interfaces::WalletBalances& balances);
+
+private:
     Ui::TitleBar *ui;
-    WalletModel *model;
+    WalletModel *m_model;
     TabBarInfo* m_tab;
     QIcon m_iconCloseTab;
+    std::map<QObject*, interfaces::WalletBalances> m_models;
 };
 
 #endif // TITLEBAR_H

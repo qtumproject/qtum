@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2017 The Bitcoin Core developers
+// Copyright (c) 2015-2018 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -13,6 +13,8 @@
 #include <scheduler.h>
 #include <txdb.h>
 #include <txmempool.h>
+
+#include <memory>
 
 #include <boost/thread.hpp>
 
@@ -43,6 +45,11 @@ struct BasicTestingSetup {
 
     explicit BasicTestingSetup(const std::string& chainName = CBaseChainParams::MAIN);
     ~BasicTestingSetup();
+
+    fs::path SetDataDir(const std::string& name);
+
+private:
+    const fs::path m_path_root;
 };
 
 /** Testing setup that configures a complete environment.
@@ -57,7 +64,6 @@ struct CConnmanTest {
 
 class PeerLogicValidation;
 struct TestingSetup: public BasicTestingSetup {
-    fs::path pathTemp;
     boost::thread_group threadGroup;
     CConnman* connman;
     CScheduler scheduler;
@@ -85,7 +91,7 @@ struct TestChain100Setup : public TestingSetup {
 
     ~TestChain100Setup();
 
-    std::vector<CTransaction> coinbaseTxns; // For convenience, coinbase transactions
+    std::vector<CTransactionRef> m_coinbase_txns; // For convenience, coinbase transactions
     CKey coinbaseKey; // private/public key needed to spend coinbase transactions
 };
 
@@ -105,8 +111,8 @@ struct TestMemPoolEntryHelper
         nFee(0), nTime(0), nHeight(1),
         spendsCoinbase(false), sigOpCost(4) { }
 
-    CTxMemPoolEntry FromTx(const CMutableTransaction &tx);
-    CTxMemPoolEntry FromTx(const CTransaction &tx);
+    CTxMemPoolEntry FromTx(const CMutableTransaction& tx);
+    CTxMemPoolEntry FromTx(const CTransactionRef& tx);
 
     // Change the default value
     TestMemPoolEntryHelper &Fee(CAmount _fee) { nFee = _fee; return *this; }
@@ -117,5 +123,8 @@ struct TestMemPoolEntryHelper
 };
 
 CBlock getBlock13b8a();
+
+// define an implicit conversion here so that uint256 may be used directly in BOOST_CHECK_*
+std::ostream& operator<<(std::ostream& os, const uint256& num);
 
 #endif

@@ -8,7 +8,7 @@ EXTRA_LIBRARIES += $(LIBCRYPTOPP_INT)
 
 LIBCRYPTOPP += $(LIBCRYPTOPP_INT)
 
-CRYPTOPP_CPPFLAGS += -I$(srcdir)/cryptopp/include
+CRYPTOPP_CPPFLAGS = -I$(srcdir)/cryptopp/include
 
 CRYPTOPP_CPPFLAGS_INT =
 CRYPTOPP_CPPFLAGS_INT += -I$(srcdir)/cryptopp

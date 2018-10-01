@@ -6,30 +6,32 @@
 #include <validation.h>
 #include <wallet/wallet.h>
 #include <timedata.h>
+#include <interfaces/wallet.h>
 
-QString TokenTransactionDesc::FormatTxStatus(CWallet *wallet, const CTokenTx& wtx)
+QString TokenTransactionDesc::FormatTxStatus(interfaces::Wallet &wallet, const interfaces::TokenTx &wtx)
 {
-    AssertLockHeld(cs_main);
+    // Get token tx status
+    int blockNumber = -1;
+    bool inMempool = false;
+    int numBlocks = -1;
+    wallet.getTokenTxStatus(wtx.hash, blockNumber, inMempool, numBlocks);
 
     // Determine transaction status
     int nDepth= 0;
-    if(wtx.blockNumber == -1)
+    if(wtx.block_number == -1)
     {
         nDepth = 0;
     }
     else
     {
-        nDepth = chainActive.Height() - wtx.blockNumber + 1;
+        nDepth = numBlocks - wtx.block_number + 1;
     }
 
-    auto mi = wallet->mapWallet.find(wtx.transactionHash);
     if (nDepth < 0)
         return tr("conflicted with a transaction with %1 confirmations").arg(-nDepth);
-    else if (mi != wallet->mapWallet.end() && (GetAdjustedTime() - mi->second.nTimeReceived > 2 * 60) && mi->second.GetRequestCount() == 0)
-        return tr("%1/offline").arg(nDepth);
     else if (nDepth == 0)
     {
-        if(mi != wallet->mapWallet.end() && mi->second.InMempool())
+        if(inMempool)
             return tr("0/unconfirmed, in memory pool");
         else
             return tr("0/unconfirmed, not in memory pool");
@@ -40,11 +42,10 @@ QString TokenTransactionDesc::FormatTxStatus(CWallet *wallet, const CTokenTx& wt
         return tr("%1 confirmations").arg(nDepth);
 }
 
-QString TokenTransactionDesc::toHTML(CWallet *wallet, CTokenTx &wtx, TokenTransactionRecord *rec)
+QString TokenTransactionDesc::toHTML(interfaces::Wallet &wallet, interfaces::TokenTx &wtx, TokenTransactionRecord *rec)
 {
     QString strHTML;
 
-    LOCK2(cs_main, wallet->cs_wallet);
     strHTML.reserve(4000);
     strHTML += "<html><font face='verdana, arial, helvetica, sans-serif'>";
 
@@ -62,11 +63,11 @@ QString TokenTransactionDesc::toHTML(CWallet *wallet, CTokenTx &wtx, TokenTransa
 
     strHTML += "<b>" + tr("Transaction ID") + ":</b> " + rec->getTxID() + "<br>";
 
-    strHTML += "<b>" + tr("Token Address") + ":</b> " + QString::fromStdString(wtx.strContractAddress) + "<br>";
+    strHTML += "<b>" + tr("Token Address") + ":</b> " + QString::fromStdString(wtx.contract_address) + "<br>";
 
-    strHTML += "<b>" + tr("From") + ":</b> " + QString::fromStdString(wtx.strSenderAddress) + "<br>";
+    strHTML += "<b>" + tr("From") + ":</b> " + QString::fromStdString(wtx.sender_address) + "<br>";
 
-    strHTML += "<b>" + tr("To") + ":</b> " + QString::fromStdString(wtx.strReceiverAddress) + "<br>";
+    strHTML += "<b>" + tr("To") + ":</b> " + QString::fromStdString(wtx.receiver_address) + "<br>";
 
     if(nCredit > 0)
     {

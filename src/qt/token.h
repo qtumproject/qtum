@@ -28,12 +28,15 @@ struct TokenEvent{
 };
 
 struct TokenData;
+class WalletModel;
 
 class Token
 {
 public:
     Token();
     ~Token();
+
+    void setModel(WalletModel *model);
 
     // Set command data
     void setAddress(const std::string &address);

@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2017 The Bitcoin Core developers
+// Copyright (c) 2015-2018 The Bitcoin Core developers
 // Copyright (c) 2017 The Zcash developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -91,7 +91,7 @@ public:
     /**
      * Disconnect from Tor control port.
      */
-    bool Disconnect();
+    void Disconnect();
 
     /** Send a command, register a handler for the reply.
      * A trailing CRLF is automatically added.
@@ -133,7 +133,7 @@ TorControlConnection::~TorControlConnection()
 
 void TorControlConnection::readcb(struct bufferevent *bev, void *ctx)
 {
-    TorControlConnection *self = (TorControlConnection*)ctx;
+    TorControlConnection *self = static_cast<TorControlConnection*>(ctx);
     struct evbuffer *input = bufferevent_get_input(bev);
     size_t n_read_out = 0;
     char *line;
@@ -178,7 +178,7 @@ void TorControlConnection::readcb(struct bufferevent *bev, void *ctx)
 
 void TorControlConnection::eventcb(struct bufferevent *bev, short what, void *ctx)
 {
-    TorControlConnection *self = (TorControlConnection*)ctx;
+    TorControlConnection *self = static_cast<TorControlConnection*>(ctx);
     if (what & BEV_EVENT_CONNECTED) {
         LogPrint(BCLog::TOR, "tor: Successfully connected!\n");
         self->connected(*self);
@@ -223,12 +223,11 @@ bool TorControlConnection::Connect(const std::string &target, const ConnectionCB
     return true;
 }
 
-bool TorControlConnection::Disconnect()
+void TorControlConnection::Disconnect()
 {
     if (b_conn)
         bufferevent_free(b_conn);
     b_conn = nullptr;
-    return true;
 }
 
 bool TorControlConnection::Command(const std::string &cmd, const ReplyHandlerCB& reply_handler)
@@ -251,7 +250,7 @@ bool TorControlConnection::Command(const std::string &cmd, const ReplyHandlerCB&
  * Grammar is implicitly defined in https://spec.torproject.org/control-spec by
  * the server reply formats for PROTOCOLINFO (S3.21) and AUTHCHALLENGE (S3.24).
  */
-static std::pair<std::string,std::string> SplitTorReplyLine(const std::string &s)
+std::pair<std::string,std::string> SplitTorReplyLine(const std::string &s)
 {
     size_t ptr=0;
     std::string type;
@@ -270,7 +269,7 @@ static std::pair<std::string,std::string> SplitTorReplyLine(const std::string &s
  * the server reply formats for PROTOCOLINFO (S3.21), AUTHCHALLENGE (S3.24),
  * and ADD_ONION (S3.27). See also sections 2.1 and 2.3.
  */
-static std::map<std::string,std::string> ParseTorReplyMapping(const std::string &s)
+std::map<std::string,std::string> ParseTorReplyMapping(const std::string &s)
 {
     std::map<std::string,std::string> mapping;
     size_t ptr=0;
@@ -528,8 +527,8 @@ void TorController::auth_cb(TorControlConnection& _conn, const TorControlReply& 
         if (gArgs.GetArg("-onion", "") == "") {
             CService resolved(LookupNumeric("127.0.0.1", 9050));
             proxyType addrOnion = proxyType(resolved, true);
-            SetProxy(NET_TOR, addrOnion);
-            SetLimited(NET_TOR, false);
+            SetProxy(NET_ONION, addrOnion);
+            SetLimited(NET_ONION, false);
         }
 
         // Finally - now create the service
@@ -725,13 +724,13 @@ fs::path TorController::GetPrivateKeyFile()
 
 void TorController::reconnect_cb(evutil_socket_t fd, short what, void *arg)
 {
-    TorController *self = (TorController*)arg;
+    TorController *self = static_cast<TorController*>(arg);
     self->Reconnect();
 }
 
 /****** Thread ********/
 static struct event_base *gBase;
-static boost::thread torControlThread;
+static std::thread torControlThread;
 
 static void TorControlThread()
 {
@@ -740,7 +739,7 @@ static void TorControlThread()
     event_base_dispatch(gBase);
 }
 
-void StartTorControl(boost::thread_group& threadGroup, CScheduler& scheduler)
+void StartTorControl()
 {
     assert(!gBase);
 #ifdef WIN32
@@ -754,7 +753,7 @@ void StartTorControl(boost::thread_group& threadGroup, CScheduler& scheduler)
         return;
     }
 
-    torControlThread = boost::thread(boost::bind(&TraceThread<void (*)()>, "torcontrol", &TorControlThread));
+    torControlThread = std::thread(std::bind(&TraceThread<void (*)()>, "torcontrol", &TorControlThread));
 }
 
 void InterruptTorControl()
@@ -773,4 +772,3 @@ void StopTorControl()
         gBase = nullptr;
     }
 }
-

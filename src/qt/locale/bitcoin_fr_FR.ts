@@ -30,6 +30,10 @@
         <translation>Supprimer l'adresse sélectionnée de la liste</translation>
     </message>
     <message>
+        <source>Enter address or label to search</source>
+        <translation>Entrez une adresse ou une étiquette à rechercher</translation>
+    </message>
+    <message>
         <source>Export the data in the current tab to a file</source>
         <translation>Exporter les données de l'onglet courant vers un fichier</translation>
     </message>
@@ -726,10 +730,6 @@
         <translation>&amp;Adresse</translation>
     </message>
     <message>
-        <source>New receiving address</source>
-        <translation>Nouvelle adresse de réception</translation>
-    </message>
-    <message>
         <source>New sending address</source>
         <translation>Nouvelle adresse d'envoi</translation>
     </message>
@@ -744,10 +744,6 @@
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source>
         <translation>L'adresse entrée "%1" n'est pas une adresse Qtum valide.</translation>
-    </message>
-    <message>
-        <source>The entered address "%1" is already in the address book.</source>
-        <translation>L'adresse fournie « %1 » est déjà présente dans le carnet d'adresses.</translation>
     </message>
     <message>
         <source>Could not unlock wallet.</source>
@@ -799,31 +795,7 @@
         <source>Command-line options</source>
         <translation>Options de ligne de commande</translation>
     </message>
-    <message>
-        <source>Usage:</source>
-        <translation>Utilisation :</translation>
-    </message>
-    <message>
-        <source>command-line options</source>
-        <translation>Options de ligne de commande</translation>
-    </message>
-    <message>
-        <source>UI Options:</source>
-        <translation>Options interface graphique:</translation>
-    </message>
-    <message>
-        <source>Set language, for example "de_DE" (default: system locale)</source>
-        <translation>Définir la langue, par exemple "de_DE" (défaut: locale système)</translation>
-    </message>
-    <message>
-        <source>Start minimized</source>
-        <translation>Démarrer sous forme minimisée</translation>
-    </message>
-    <message>
-        <source>Set SSL root certificates for payment request (default: -system-)</source>
-        <translation>Définir les certificats SSL racines pour les requêtes de paiement (défaut:-système-)</translation>
-    </message>
-    </context>
+</context>
 <context>
     <name>Intro</name>
     <message>
@@ -845,6 +817,18 @@
     <message>
         <source>Qtum</source>
         <translation>Qtum</translation>
+    </message>
+    <message>
+        <source>At least %1 GB of data will be stored in this directory, and it will grow over time.</source>
+        <translation>Environ %1 GB de données seront stockées dans ce répertoire, et cela augmentera au cours du temps.</translation>
+    </message>
+    <message>
+        <source>Approximately %1 GB of data will be stored in this directory.</source>
+        <translation>Environ %1 GB de données seront stockées dans ce répertoire.</translation>
+    </message>
+    <message>
+        <source>The wallet will also be stored in this directory.</source>
+        <translation>Le porte-monnaie sera aussi stocké dans ce répertoire.</translation>
     </message>
     <message>
         <source>Error: Specified data directory "%1" cannot be created.</source>
@@ -1502,6 +1486,10 @@
         <source>Message</source>
         <translation>Message</translation>
     </message>
+    <message>
+        <source>Wallet</source>
+        <translation>Portefeuille</translation>
+    </message>
     </context>
 <context>
     <name>RecentRequestsTableModel</name>
@@ -1657,16 +1645,12 @@
         <translation>Êtes-vous sûr de vouloir envoyer ?</translation>
     </message>
     <message>
-        <source>added as transaction fee</source>
-        <translation>Ajoute en tant que frais de transaction</translation>
-    </message>
-    <message>
-        <source>Total Amount %1</source>
-        <translation>Montant Total %1</translation>
-    </message>
-    <message>
         <source>or</source>
         <translation>ou</translation>
+    </message>
+    <message>
+        <source>Transaction fee</source>
+        <translation>Frais de transaction</translation>
     </message>
     <message>
         <source>Confirm send coins</source>
@@ -1878,10 +1862,6 @@
         <translation>État</translation>
     </message>
     <message>
-        <source>, has not been successfully broadcast yet</source>
-        <translation>, n'a pas encore été diffusée avec succès</translation>
-    </message>
-    <message>
         <source>Date</source>
         <translation>Date</translation>
     </message>
@@ -2012,10 +1992,6 @@
         <translation>Ouvert jusqu'à %1</translation>
     </message>
     <message>
-        <source>Offline</source>
-        <translation>Hors ligne</translation>
-    </message>
-    <message>
         <source>Unconfirmed</source>
         <translation>Non Confirmé</translation>
     </message>
@@ -2026,10 +2002,6 @@
     <message>
         <source>Confirmed (%1 confirmations)</source>
         <translation>Confirmée (%1 confirmations)</translation>
-    </message>
-    <message>
-        <source>This block was not received by any other nodes and will probably not be accepted!</source>
-        <translation>Ce bloc n'a été reçu par aucun autre nœud et ne sera probablement pas accepté !</translation>
     </message>
     <message>
         <source>Generated but not accepted</source>
@@ -2258,48 +2230,12 @@
 <context>
     <name>qtum-core</name>
     <message>
-        <source>Options:</source>
-        <translation>Options :</translation>
-    </message>
-    <message>
-        <source>Specify data directory</source>
-        <translation>Spécifier le répertoire de données</translation>
-    </message>
-    <message>
-        <source>Specify your own public address</source>
-        <translation>Spécifier votre adresse publique </translation>
-    </message>
-    <message>
-        <source>Accept command line and JSON-RPC commands</source>
-        <translation>Accepter les commandes de JSON-RPC et de la ligne de commande</translation>
-    </message>
-    <message>
-        <source>Run in the background as a daemon and accept commands</source>
-        <translation>Fonctionner en arrière-plan en tant que démon et accepter les commandes</translation>
-    </message>
-    <message>
         <source>Unable to start HTTP server. See debug log for details.</source>
         <translation>Impossible de démarrer le serveur HTTP. Voir le journal de débogage pour plus de détails.</translation>
     </message>
     <message>
         <source>Qtum Core</source>
         <translation>Qtum Core</translation>
-    </message>
-    <message>
-        <source>&lt;category&gt; can be:</source>
-        <translation>&lt;category&gt; peut être:</translation>
-    </message>
-    <message>
-        <source>Block creation options:</source>
-        <translation>Options de création de bloc:</translation>
-    </message>
-    <message>
-        <source>Connection options:</source>
-        <translation>Options de connexion:</translation>
-    </message>
-    <message>
-        <source>Debugging/Testing options:</source>
-        <translation>Options de débogage/test </translation>
     </message>
     <message>
         <source>Importing...</source>
@@ -2309,18 +2245,6 @@ Importation ...</translation>
     <message>
         <source>Verifying blocks...</source>
         <translation>Vérifications des blocs...</translation>
-    </message>
-    <message>
-        <source>Wallet options:</source>
-        <translation>Options du portefeuille:</translation>
-    </message>
-    <message>
-        <source>(default: %u)</source>
-        <translation>(défaut: %u)</translation>
-    </message>
-    <message>
-        <source>Connect through SOCKS5 proxy</source>
-        <translation>Connecté au travers du proxy SOCKS5</translation>
     </message>
     <message>
         <source>Information</source>
@@ -2333,18 +2257,6 @@ Importation ...</translation>
     <message>
         <source>Invalid -proxy address or hostname: '%s'</source>
         <translation>Adresse -proxy invalide: '%s'</translation>
-    </message>
-    <message>
-        <source>Node relay options:</source>
-        <translation>Options du relais de nœud: </translation>
-    </message>
-    <message>
-        <source>RPC server options:</source>
-        <translation>Options de serveur RPC:</translation>
-    </message>
-    <message>
-        <source>Send trace/debug info to console instead of debug.log file</source>
-        <translation>Envoyer les informations de débogage/trace à la console au lieu du fichier debug.log</translation>
     </message>
     <message>
         <source>Signing transaction failed</source>
@@ -2367,24 +2279,8 @@ Importation ...</translation>
         <translation>Transaction trop grande</translation>
     </message>
     <message>
-        <source>Username for JSON-RPC connections</source>
-        <translation>Nom d'utilisateur pour les connexions JSON-RPC</translation>
-    </message>
-    <message>
         <source>Warning</source>
         <translation>Attention</translation>
-    </message>
-    <message>
-        <source>Password for JSON-RPC connections</source>
-        <translation>Mot de passe pour les connexions JSON-RPC</translation>
-    </message>
-    <message>
-        <source>(default: %s)</source>
-        <translation>(défaut: %s)</translation>
-    </message>
-    <message>
-        <source>Specify pid file (default: %s)</source>
-        <translation>Spécifier le pid du fichier (défaut: %s)</translation>
     </message>
     <message>
         <source>Insufficient funds</source>

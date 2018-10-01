@@ -15,6 +15,7 @@ using namespace TitleBar_NS;
 TitleBar::TitleBar(const PlatformStyle *platformStyle, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::TitleBar),
+    m_model(0),
     m_tab(0)
 {
     ui->setupUi(this);
@@ -31,14 +32,13 @@ TitleBar::~TitleBar()
     delete ui;
 }
 
-void TitleBar::setModel(WalletModel *_model)
+void TitleBar::setModel(WalletModel *model)
 {
-    this->model = _model;
-
-    setBalance(model->getBalance(), model->getUnconfirmedBalance(), model->getImmatureBalance(),  model->getStake(),
-               model->getWatchBalance(), model->getWatchUnconfirmedBalance(), model->getWatchImmatureBalance(), model->getWatchStake());
-
-    connect(model, SIGNAL(balanceChanged(CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount)), this, SLOT(setBalance(CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount)));
+    m_model = model;
+    if(m_models.count(m_model))
+    {
+        setBalanceLabel(m_models[m_model]);
+    }
 }
 
 void TitleBar::setTabBarInfo(QObject *info)
@@ -56,24 +56,65 @@ void TitleBar::setTabBarInfo(QObject *info)
     }
 }
 
-void TitleBar::setBalance(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& immatureBalance, const CAmount& stake,
-                                 const CAmount& watchBalance, const CAmount& watchUnconfirmedBalance, const CAmount& watchImmatureBalance, const CAmount& watchStake)
+void TitleBar::setBalance(const interfaces::WalletBalances& balances)
 {
-    Q_UNUSED(unconfirmedBalance);
-    Q_UNUSED(immatureBalance);
-    Q_UNUSED(watchBalance);
-    Q_UNUSED(stake);
-    Q_UNUSED(watchUnconfirmedBalance);
-    Q_UNUSED(watchImmatureBalance);
-    Q_UNUSED(watchStake);
-
-    if(model && model->getOptionsModel())
+    QObject* _model = sender();
+    if(m_models.count(_model))
     {
-        ui->lblBalance->setText(BitcoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), balance));
+        m_models[_model] = balances;
+        if(_model == m_model)
+        {
+            setBalanceLabel(balances);
+        }
     }
 }
 
 void TitleBar::on_navigationResized(const QSize &_size)
 {
     ui->widgetLogo->setFixedWidth(_size.width());
+}
+
+void TitleBar::setWalletSelector(QLabel *walletSelectorLabel, QComboBox *walletSelector)
+{
+    QLayout* layout = ui->widgetLogo->layout();
+
+    if(walletSelectorLabel)
+    {
+        layout->addWidget(walletSelectorLabel);
+    }
+
+    if(walletSelector)
+    {
+        layout->addWidget(walletSelector);
+    }
+
+    QWidget *spacer = new QWidget();
+    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    layout->addWidget(spacer);
+}
+
+void TitleBar::addWallet(WalletModel *_model)
+{
+    if(_model)
+    {
+        m_models[_model] = _model->wallet().getBalances();
+        connect(_model, SIGNAL(balanceChanged(interfaces::WalletBalances)), this, SLOT(setBalance(interfaces::WalletBalances)));
+    }
+}
+
+void TitleBar::removeWallet(WalletModel *_model)
+{
+    if(_model)
+    {
+        disconnect(_model, SIGNAL(balanceChanged(interfaces::WalletBalances)), this, SLOT(setBalance(interfaces::WalletBalances)));
+        m_models.erase(_model);
+    }
+}
+
+void TitleBar::setBalanceLabel(const interfaces::WalletBalances &balances)
+{
+    if(m_model && m_model->getOptionsModel())
+    {
+        ui->lblBalance->setText(BitcoinUnits::formatWithUnit(m_model->getOptionsModel()->getDisplayUnit(), balances.balance));
+    }
 }

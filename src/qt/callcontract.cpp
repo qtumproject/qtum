@@ -103,18 +103,13 @@ CallContract::~CallContract()
 void CallContract::setClientModel(ClientModel *_clientModel)
 {
     m_clientModel = _clientModel;
-
-    if (m_clientModel)
-    {
-        connect(m_clientModel, SIGNAL(tipChanged()), this, SLOT(on_numBlocksChanged()));
-        on_numBlocksChanged();
-    }
 }
 
 void CallContract::setModel(WalletModel *_model)
 {
     m_model = _model;
     m_contractModel = m_model->getContractTableModel();
+    ui->lineEditSenderAddress->setWalletModel(m_model);
 }
 
 bool CallContract::isValidContractAddress()
@@ -176,7 +171,7 @@ void CallContract::on_callContractClicked()
         ExecRPCCommand::appendParam(lstParams, PARAM_SENDER, ui->lineEditSenderAddress->currentText());
 
         // Execute RPC command line
-        if(errorMessage.isEmpty() && m_execRPCCommand->exec(lstParams, result, resultJson, errorMessage))
+        if(errorMessage.isEmpty() && m_execRPCCommand->exec(m_model->node(), m_model->wallet(), lstParams, result, resultJson, errorMessage))
         {
             ContractResult *widgetResult = new ContractResult(ui->stackedWidget);
             widgetResult->setResultData(result, m_contractABI->functions[func], m_ABIFunctionField->getParamsValues(), ContractResult::CallResult);
@@ -191,14 +186,6 @@ void CallContract::on_callContractClicked()
         {
             QMessageBox::warning(this, tr("Call contract"), errorMessage);
         }
-    }
-}
-
-void CallContract::on_numBlocksChanged()
-{
-    if(m_clientModel)
-    {
-        ui->lineEditSenderAddress->on_refresh();
     }
 }
 

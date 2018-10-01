@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2017 The Bitcoin Core developers
+// Copyright (c) 2011-2018 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -221,7 +221,6 @@ BitcoinAmountField::BitcoinAmountField(QWidget *parent) :
     unit->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     unit->setMinimumWidth(120);
     layout->addWidget(unit);
-
     layout->setContentsMargins(0,0,0,0);
 
     setLayout(layout);

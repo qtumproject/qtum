@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2017 The Bitcoin Core developers
+// Copyright (c) 2015-2018 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -54,7 +54,7 @@ QPixmap MakeSingleColorPixmap(QImage& img, const QColor& colorbase, double opaci
 QIcon ColorizeIcon(const QIcon& ico, const QColor& colorbase, double opacity = 1)
 {
     QIcon new_ico;
-    for (const QSize sz : ico.availableSizes())
+    for (const QSize& sz : ico.availableSizes())
     {
         QImage img(ico.pixmap(sz).toImage());
         MakeSingleColorImage(img, colorbase, opacity);
