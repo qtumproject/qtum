@@ -862,7 +862,7 @@
     </message>
     <message>
         <source>Qtum</source>
-        <translation>비트코인</translation>
+        <translation>큐텀</translation>
     </message>
     <message>
         <source>At least %1 GB of data will be stored in this directory, and it will grow over time.</source>
@@ -2750,7 +2750,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     </message>
     <message>
         <source>Generated coins must mature %1 blocks before they can be spent. When you generated this block, it was broadcast to the network to be added to the block chain. If it fails to get into the chain, its state will change to "not accepted" and it won't be spendable. This may occasionally happen if another node generates a block within a few seconds of yours.</source>
-        <translation>신규 채굴된 코인이 사용되기 위해서는 %1 개의 블록이 경과되어야 합니다. 블록을 생성할 때 블록체인에 추가되도록 네트워크에 전파되는 과정을 거치는데, 블록체인에 포함되지 못하고 실패한다면 해당 블록의 상태는 '미승인'으로 표현되고 비트코인 또한 사용될 수 없습니다. 이 현상은 다른 노드가 비슷한 시간대에 동시에 블록을 생성할 때 종종 발생할 수 있습니다. </translation>
+        <translation>신규 채굴된 코인이 사용되기 위해서는 %1 개의 블록이 경과되어야 합니다. 블록을 생성할 때 블록체인에 추가되도록 네트워크에 전파되는 과정을 거치는데, 블록체인에 포함되지 못하고 실패한다면 해당 블록의 상태는 '미승인'으로 표현되고 큐텀 또한 사용될 수 없습니다. 이 현상은 다른 노드가 비슷한 시간대에 동시에 블록을 생성할 때 종종 발생할 수 있습니다. </translation>
     </message>
     <message>
         <source>Debug information</source>
@@ -3234,7 +3234,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     </message>
     <message>
         <source>Warning: We do not appear to fully agree with our peers! You may need to upgrade, or other nodes may need to upgrade.</source>
-        <translation>경고: 현재 비트코인 버전이 다른 네트워크 참여자들과 동일하지 않은 것 같습니다. 당신 또는 다른 참여자들이 동일한 비트코인 버전으로 업그레이드 할 필요가 있습니다.</translation>
+        <translation>경고: 현재 큐텀 버전이 다른 네트워크 참여자들과 동일하지 않은 것 같습니다. 당신 또는 다른 참여자들이 동일한 큐텀 버전으로 업그레이드 할 필요가 있습니다.</translation>
     </message>
     <message>
         <source>%d of last 100 blocks have unexpected version</source>

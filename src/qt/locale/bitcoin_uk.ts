@@ -1313,7 +1313,7 @@
     </message>
     <message>
         <source>Cannot start qtum: click-to-pay handler</source>
-        <translation>Не вдається запустити біткойн: обробник клацни-плати</translation>
+        <translation>Не вдається запустити qtum: обробник клацни-плати</translation>
     </message>
     <message>
         <source>URI handling</source>
@@ -1333,7 +1333,7 @@
     </message>
     <message>
         <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source>
-        <translation>Неможливо обробити URI! Причиною цього може бути некоректна Біткойн-адреса або неправильні параметри URI.</translation>
+        <translation>Неможливо обробити URI! Причиною цього може бути некоректна Qtum-адреса або неправильні параметри URI.</translation>
     </message>
     <message>
         <source>Payment request file handling</source>
@@ -2318,7 +2318,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     </message>
     <message>
         <source>Warning: Invalid Qtum address</source>
-        <translation>Увага: Неприпустима Біткойн-адреса.</translation>
+        <translation>Увага: Неприпустима Qtum-адреса.</translation>
     </message>
     <message>
         <source>Warning: Unknown change address</source>

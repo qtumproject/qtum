@@ -629,7 +629,7 @@
     </message>
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source>
-        <translation>آدرس وارد شده "%1" آدرس معتبر بیت کوین نیست.</translation>
+        <translation>آدرس وارد شده "%1" آدرس معتبر كونتم نیست.</translation>
     </message>
     </context>
 <context>

@@ -13,7 +13,7 @@
     "args": ["-"],
     "input": "blanktxv2.hex",
     "output_cmp": "blanktxv2.hex",
-    "description": "Creates a blank transaction when nothing is piped into bitcoin-tx"
+    "description": "Creates a blank transaction when nothing is piped into qtum-tx"
   },
   { "exec": "./qtum-tx",
     "args": ["-json","-create"],
@@ -24,15 +24,15 @@
     "args": ["-json","-"],
     "input": "blanktxv2.hex",
     "output_cmp": "blanktxv2.json",
-    "description": "Creates a blank transaction when nothing is piped into bitcoin-tx (output in json)"
+    "description": "Creates a blank transaction when nothing is piped into qtum-tx (output in json)"
   },
-  { "exec": "./bitcoin-tx",
+  { "exec": "./qtum-tx",
     "args": ["-create", "nversion=1foo"],
     "return_code": 1,
     "error_txt": "error: Invalid TX version requested",
     "description": "Tests the check for invalid nversion value"
   },
-  { "exec": "./bitcoin-tx",
+  { "exec": "./qtum-tx",
     "args": ["-", "delin=1"],
     "input": "tx394b54bb.hex",
     "output_cmp": "tt-delin1-out.hex",
@@ -51,14 +51,14 @@
     "error_txt": "error: Invalid TX input index '31'",
     "description": "Attempts to delete an input with a bad index from a transaction. Expected to fail."
   },
-  { "exec": "./bitcoin-tx",
+  { "exec": "./qtum-tx",
     "args": ["-", "delin=1foo"],
     "input": "tx394b54bb.hex",
     "return_code": 1,
     "error_txt": "error: Invalid TX input index",
     "description": "Tests the check for an invalid input index with delin"
   },
-  { "exec": "./bitcoin-tx",
+  { "exec": "./qtum-tx",
     "args": ["-", "delout=1"],
     "input": "tx394b54bb.hex",
     "output_cmp": "tt-delout1-out.hex",
@@ -77,14 +77,14 @@
     "error_txt": "error: Invalid TX output index '2'",
     "description": "Attempts to delete an output with a bad index from a transaction. Expected to fail."
   },
-  { "exec": "./bitcoin-tx",
+  { "exec": "./qtum-tx",
     "args": ["-", "delout=1foo"],
     "input": "tx394b54bb.hex",
     "return_code": 1,
     "error_txt": "error: Invalid TX output index",
     "description": "Tests the check for an invalid output index with delout"
   },
-  { "exec": "./bitcoin-tx",
+  { "exec": "./qtum-tx",
     "args": ["-", "locktime=317000"],
     "input": "tx394b54bb.hex",
     "output_cmp": "tt-locktime317000-out.hex",
@@ -96,13 +96,13 @@
     "output_cmp": "tt-locktime317000-out.json",
     "description": "Adds an nlocktime to a transaction (output in json)"
   },
-  { "exec": "./bitcoin-tx",
+  { "exec": "./qtum-tx",
     "args": ["-create", "locktime=317000foo"],
     "return_code": 1,
     "error_txt": "error: Invalid TX locktime requested",
     "description": "Tests the check for invalid locktime value"
   },
-  { "exec": "./bitcoin-tx",
+  { "exec": "./qtum-tx",
     "args":
     ["-create",
      "in=5897de6bd6027a475eadd57019d4e6872c396d0716c4875a5f1a6fcfdf385c1f:0",
@@ -111,7 +111,7 @@
     "error_txt": "error: Invalid TX input index",
     "description": "Tests the check for an invalid input index with replaceable"
   },
-  { "exec": "./bitcoin-tx",
+  { "exec": "./qtum-tx",
     "args":
     ["-create",
      "in=5897de6bd6027a475eadd57019d4e6872c396d0716c4875a5f1a6fcfdf385c1f:0x"],
@@ -119,7 +119,7 @@
     "error_txt": "error: invalid TX input vout",
     "description": "Tests the check for an invalid vout value when adding an input"
   },
-  { "exec": "./bitcoin-tx",
+  { "exec": "./qtum-tx",
     "args":
     ["-create",
      "outaddr=1"],
@@ -280,7 +280,7 @@
     "error_txt": "error: prevtxs internal object typecheck fail",
     "description": "Tests the check for invalid vout index in prevtxs for sign"
   },
-  { "exec": "./bitcoin-tx",
+  { "exec": "./qtum-tx",
     "args":
     ["-create", "outpubkey=0:02a5613bd857b7048924264d1e70e08fb2a7e6527d32b7ab1bb993ac59964ff397", "nversion=1"],
     "output_cmp": "txcreateoutpubkey1.hex",
