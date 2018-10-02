@@ -164,8 +164,8 @@ UniversalAddress ContractOutputParser::getSenderAddress(){
 ContractEnvironment ContractExecutor::buildEnv() {
     ContractEnvironment env;
     CBlockIndex* tip = chainActive.Tip();
-    assert(*tip->phashBlock == block.hashPrevBlock);
-    env.blockNumber = tip->nHeight + 1;
+    //assert(*tip->phashBlock == block.hashPrevBlock); //TODO, currently blockNumber and hashes will be wrong
+    env.blockNumber = tip-> nHeight + 1;
     env.blockTime = block.nTime;
     env.difficulty = block.nBits;
     env.gasLimit = blockGasLimit;
@@ -239,7 +239,7 @@ bool EVMContractVM::execute(ContractOutput &output, ContractExecutionResult &res
         //contract is not in database
         result.usedGas = output.gasLimit;
         result.refundSender = 0;
-        result.status = ContractStatus::DOESNT_EXIST;
+        result.status = ContractStatus::DoesntExist();
         return false;
     }
     dev::eth::Permanence p = commit ? dev::eth::Permanence::Committed : dev::eth::Permanence::Reverted;
@@ -247,10 +247,10 @@ bool EVMContractVM::execute(ContractOutput &output, ContractExecutionResult &res
     //TODO, make proper status
     switch(ethres.execRes.excepted){
         case dev::eth::TransactionException::None:
-            result.status = ContractStatus::SUCCESS;
+            result.status = ContractStatus::Success();
             break;
         default:
-            result.status = ContractStatus ::CODE_ERROR;
+            result.status = ContractStatus ::CodeError();
             break;
     }
     result.refundSender = (uint64_t) ethres.execRes.gasRefunded * output.gasPrice;
@@ -910,15 +910,35 @@ bool DeltaDBWrapper:: readOldestIterator(UniversalAddress address,		 valtype key
 	}
 }
 
-
+static bool containsOnlyASCII(const std::string& path) {
+  for (auto c: path) {
+    if (static_cast<unsigned char>(c) > 127 || static_cast<unsigned char>(c) < 32) {
+      return false;
+    }
+  }
+  return true;
+}
 
 UniValue DeltaCheckpoint::toJSON(){
     UniValue result(UniValue::VOBJ); //root
     UniValue deltasJson(UniValue::VOBJ);
     UniValue deltasRawJson(UniValue::VOBJ);
     for(auto &p : deltas){
-        deltasRawJson.push_back(Pair(p.first, HexStr(p.second)));
-        deltasJson.push_back(Pair(p.first, std::string(p.second.begin(), p.second.end())));
+        deltasRawJson.push_back(Pair(HexStr(p.first), HexStr(p.second)));
+        std::string value(p.second.begin(), p.second.end());
+        if(containsOnlyASCII(p.first)){
+            if(containsOnlyASCII(value)){
+                deltasJson.push_back(Pair(p.first, value));
+            }else{
+                deltasJson.push_back(Pair(p.first, HexStr(p.second)));
+            }
+        }else{
+            if(containsOnlyASCII(value)){
+                deltasJson.push_back(Pair(HexStr(p.first), value));
+            }else{
+                deltasJson.push_back(Pair(HexStr(p.first), HexStr(p.second)));
+            }
+        }
     }
     result.push_back(Pair("deltas", deltasJson));
     result.push_back(Pair("deltas-raw", deltasRawJson));

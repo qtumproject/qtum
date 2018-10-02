@@ -332,19 +332,53 @@ private:
     bool Read(valtype K, uint64_t& V);
 };
 
-enum ContractStatus{
-    SUCCESS = 0,
-    OUT_OF_GAS = 1,
-    CODE_ERROR = 2,
-    DOESNT_EXIST = 3,
-    RETURNED_ERROR = 4,
-    ERROR_WITH_COMMIT = 5
+class ContractStatus{
+    int status;
+    std::string statusString;
+    std::string extraString;
+    ContractStatus(){}
+    ContractStatus(int code, std::string str, std::string extra) : status(code), statusString(str), extraString(extra) {}
+
+    public:
+
+    int getCode(){
+        return status;
+    }
+    bool isError(){
+        return status != 0;
+    }
+    std::string toString(){
+        if(extraString == ""){
+            return statusString;
+        }else{
+            return statusString + "; Extra info: " + extraString;
+        }
+    }
+
+    static ContractStatus Success(std::string extra=""){
+        return ContractStatus(0, "Success", extra);
+    }
+    static ContractStatus OutOfGas(std::string extra=""){
+        return ContractStatus(1, "Out of gas", extra);
+    }
+    static ContractStatus CodeError(std::string extra=""){
+        return ContractStatus(2, "Unhandled exception triggered in execution ", extra);
+    }
+    static ContractStatus DoesntExist(std::string extra=""){
+        return ContractStatus(3, "Contract does not exist", extra);
+    }
+    static ContractStatus ReturnedError(std::string extra=""){
+        return ContractStatus(4, "Contract executed successfully but returned an error code", extra);
+    }
+    static ContractStatus ErrorWithCommit(std::string extra=""){
+        return ContractStatus(5, "Contract chose to commit state, but returned an error code", extra);
+    }
 };
 
 struct ContractExecutionResult{
     uint64_t usedGas;
     CAmount refundSender = 0;
-    ContractStatus status;
+    ContractStatus status = ContractStatus::CodeError();
     CMutableTransaction transferTx;
     bool commitState;
     DeltaCheckpoint modifiedData;
@@ -353,7 +387,8 @@ struct ContractExecutionResult{
         UniValue result(UniValue::VOBJ);
         result.push_back(Pair("used-gas", usedGas));
         result.push_back(Pair("sender-refund", refundSender));
-        result.push_back(Pair("status", (int) status));
+        result.push_back(Pair("status", status.toString()));
+        result.push_back(Pair("status-code", status.getCode()));
         result.push_back(Pair("transfer-txid", transferTx.GetHash().ToString()));
         result.push_back(Pair("commit-state", commitState));
         result.push_back(Pair("modified-state", modifiedData.toJSON()));

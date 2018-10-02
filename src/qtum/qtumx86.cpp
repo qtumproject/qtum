@@ -51,27 +51,36 @@ const ContractEnvironment& x86ContractVM::getEnv() {
 
 #define TX_CALL_DATA_ADDRESS 0x210000
 
+
+
 bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &result, bool commit)
 {
     //default results
     result.usedGas = output.gasLimit;
     result.refundSender = 0;
     result.commitState = false;
-    result.status = ContractStatus::CODE_ERROR;
+    result.status = ContractStatus::CodeError();
     const uint8_t *code;
     const uint8_t *data;
     const uint8_t *options;
     ContractMapInfo *map;
     std::vector<uint8_t> bytecode;
     if(output.OpCreate) {
+        if(output.data.size() <= sizeof(ContractMapInfo)){
+            result.status = ContractStatus::CodeError("Contract bytecode is not big enough to be valid");
+            return false;
+        }
         map = parseContractData(output.data.data(), &code, &data, &options);
         if (map->optionsSize != 0) {
-            LogPrintf("Options specified in x86 contract, but none exist yet!");
+            result.status = ContractStatus::CodeError("Option data is specified, but no options are valid yet for x86");
             return false;
         }
     }else {
-
         db.readByteCode(output.address, bytecode);
+        if(bytecode.size() <= sizeof(ContractMapInfo)){
+            result.status = ContractStatus::CodeError("Contract bytecode is not big enough to be valid");
+            return false;
+        }
         map = parseContractData(bytecode.data(), &code, &data, &options);
     }
 
@@ -114,13 +123,19 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
         cpu.Exec(output.gasLimit);
     }
     catch(CPUFaultException err){
-        LogPrintf("CPU Panic! Message: %s, code: %x, opcode: %s, hex: %x, location: %x\n", err.desc, err.code, cpu.GetLastOpcodeName(), cpu.GetLastOpcode(), cpu.GetLocation());
+        std::string msg;
+        msg = tfm::format("CPU Panic! Message: %s, code: %x, opcode: %s, hex: %x, location: %x\n", err.desc, err.code, cpu.GetLastOpcodeName(), cpu.GetLastOpcode(), cpu.GetLocation());
+        result.modifiedData = db.getLatestModifiedState();
+        result.status = ContractStatus::CodeError(msg);
         result.usedGas = output.gasLimit;
         result.refundSender = output.value;
         return false;
     }
     catch(MemoryException *err){
-        LogPrintf("Memory error! address: %x, opcode: %s, hex: %x, location: %x\n", err->address, cpu.GetLastOpcodeName(), cpu.GetLastOpcode(), cpu.GetLocation());
+        std::string msg;
+        msg = tfm::format("Memory error! address: %x, opcode: %s, hex: %x, location: %x\n", err->address, cpu.GetLastOpcodeName(), cpu.GetLastOpcode(), cpu.GetLocation());
+        result.modifiedData = db.getLatestModifiedState();
+        result.status = ContractStatus::CodeError(msg);
         result.usedGas = output.gasLimit;
         result.refundSender = output.value;
         return false;
@@ -132,9 +147,10 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
             //no error, so save to database
             db.writeByteCode(output.address, output.data);
 
+            result.modifiedData = db.getLatestModifiedState();
             result.usedGas = std::min((uint64_t) 1000, output.gasLimit);
             result.refundSender = 0;
-            result.status = ContractStatus::SUCCESS;
+            result.status = ContractStatus::Success();
             result.commitState = true;
             return true;
         } else {
@@ -143,9 +159,10 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
     }else{
         LogPrintf("Execution ended with error: %i", effects.exitCode);
 
+        result.modifiedData = db.getLatestModifiedState();
         result.usedGas = std::min((uint64_t) 1000, output.gasLimit);
         result.refundSender = output.value; //refund all
-        result.status = ContractStatus::RETURNED_ERROR;
+        result.status = ContractStatus::ReturnedError(std::to_string(effects.exitCode));
         result.commitState = false;
         return false;
     }

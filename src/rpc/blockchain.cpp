@@ -1120,7 +1120,7 @@ UniValue callcontract(const JSONRPCRequest& request)
 ////////////////////////////////////////////////////////////////////// // qtum
 UniValue executecontract(const JSONRPCRequest& request)
 {
-    if (request.fHelp || request.params.size() < 2)
+    if (request.fHelp || request.params.size() < 1)
         throw std::runtime_error(
              "executecontract \"bytecode\" ( address ) ( gasLimit )\n"
              "\nArgument:\n"
