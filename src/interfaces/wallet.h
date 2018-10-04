@@ -293,6 +293,12 @@ public:
     //! Get token transaction details
     virtual bool getTokenTxDetails(const TokenTx &wtx, uint256& credit, uint256& debit, std::string& tokenSymbol, uint8_t& decimals) = 0;
 
+    //! Clean token transaction entries in the wallet
+    virtual bool cleanTokenTxEntries() = 0;
+
+    //! Check if token transaction is mine
+    virtual bool isTokenTxMine(const TokenTx &wtx) = 0;
+
     //! Get contract book data.
     virtual ContractBookData getContractBook(const std::string& address) = 0;
 
@@ -319,9 +325,6 @@ public:
 
     //! Set wallet unlock for staking only
     virtual void setWalletUnlockStakingOnly(bool unlock) = 0;
-
-    /* Clean token transaction entries in the wallet */
-    virtual bool cleanTokenTxEntries() = 0;
 
     //! Register handler for unload message.
     using UnloadFn = std::function<void()>;

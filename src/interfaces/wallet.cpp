@@ -724,6 +724,10 @@ public:
     {
         return m_wallet.GetTokenTxDetails(MakeTokenTx(wtx), credit, debit, tokenSymbol, decimals);
     }
+    bool isTokenTxMine(const TokenTx &wtx) override
+    {
+        return m_wallet.IsTokenTxMine(MakeTokenTx(wtx));
+    }
     ContractBookData getContractBook(const std::string& id) override
     {
         LOCK(m_wallet.cs_wallet);

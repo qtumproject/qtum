@@ -109,6 +109,17 @@ public:
         int upperIndex = (upper - cachedWallet.begin());
         bool inModel = (lower != upper);
 
+        // Find transaction in wallet
+        interfaces::TokenTx wtokenTx = wallet.getTokenTx(hash);
+        if(wtokenTx.hash == hash)
+        {
+            showTransaction &= wallet.isTokenTxMine(wtokenTx);
+        }
+        else
+        {
+            showTransaction = false;
+        }
+
         if(status == CT_UPDATED)
         {
             if(showTransaction && !inModel)
@@ -131,8 +142,6 @@ public:
             }
             if(showTransaction)
             {
-                // Find transaction in wallet
-                interfaces::TokenTx wtokenTx = wallet.getTokenTx(hash);
                 if(wtokenTx.hash != hash)
                 {
                     qWarning() << "TokenTransactionTablePriv::updateWallet: Warning: Got CT_NEW, but transaction is not in wallet";
@@ -173,8 +182,6 @@ public:
             }
             if(showTransaction)
             {
-                // Find transaction in wallet
-                interfaces::TokenTx wtokenTx = wallet.getTokenTx(hash);
                 if(wtokenTx.hash != hash)
                 {
                     qWarning() << "TokenTransactionTablePriv::updateWallet: Warning: Got CT_UPDATED, but transaction is not in wallet";
