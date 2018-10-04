@@ -257,6 +257,34 @@ UniValue transactionReceiptToJSON(const dev::eth::TransactionReceipt& txRec)
     result.push_back(Pair("log", logEntries));
     return result;
 }
+
+UniValue touniversaladdress(const JSONRPCRequest& request)
+{
+    if (request.fHelp || request.params.size() != 1)
+        throw std::runtime_error(
+            "touniversaladdress base58address\n"
+            "\nConverts the given base58 address to an appropriate universaladdress for contracts as a hex string\n"
+            "\nArguments:\n"
+            "1. base58address      (string, required) The base58 address to convert\n"
+            "\nResult:\n"
+            "\"hex\"         (string) The hex string of the converted universaladdress\n"
+            "\nExamples:\n"
+            + HelpExampleCli("touniversaladdress", "QZWKeCcirs7JpoVgesm3NaG9RnD3CtWaTo")
+            + HelpExampleRpc("touniversaladdress", "QZWKeCcirs7JpoVgesm3NaG9RnD3CtWaTo")
+        );
+
+    CBitcoinAddress btcaddr(request.params[0].get_str());
+    UniversalAddress addr;
+    addr.fromBitcoinAddress(btcaddr);
+    if(addr.version == AddressVersion::UNKNOWN){
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Address version is not supported (are you using a mismatched testnet/mainnet address?)");
+    }
+    UniversalAddressABI raw = addr.toAbi();
+    std::vector<uint8_t> tmp((uint8_t*)&raw, ((uint8_t*)&raw) + sizeof(UniversalAddressABI)); 
+
+    return HexStr(tmp);
+}
+
 ////////////////////////////////////////////////////////////////////////////
 UniValue getblockcount(const JSONRPCRequest& request)
 {
@@ -2506,6 +2534,7 @@ static const CRPCCommand commands[] =
 
     { "blockchain",         "callcontract",           &callcontract,           true,  {"address","data"} },
     { "blockchain",         "executecontract",        &executecontract,        true,  {"address","bytecode"} },
+    { "blockchain",         "touniversaladdress",     &touniversaladdress,     true,  {"base58address"} },
     /* Not shown in help */
     { "hidden",             "invalidateblock",        &invalidateblock,        true,  {"blockhash"} },
     { "hidden",             "reconsiderblock",        &reconsiderblock,        true,  {"blockhash"} },

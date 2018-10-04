@@ -15,6 +15,9 @@
 #include <base58.h>
 #include "qtumstate.h"
 
+
+std::string parseABIToString(std::string abidata);
+
 struct VersionVM{
     //this should be portable, see https://stackoverflow.com/questions/31726191/is-there-a-portable-alternative-to-c-bitfields
 # if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -107,6 +110,10 @@ struct UniversalAddress{
     : version(v), data(begin, end) {}
     UniversalAddress(CBitcoinAddress &address){
         fromBitcoinAddress(address);
+    }
+    UniversalAddress(UniversalAddressABI &abi)
+    : version((AddressVersion)abi.version), data(&abi.data[0], &abi.data[sizeof(abi.data)])
+    {
     }
 
     bool operator<(const UniversalAddress& a) const{
@@ -382,6 +389,7 @@ struct ContractExecutionResult{
     CMutableTransaction transferTx;
     bool commitState;
     DeltaCheckpoint modifiedData;
+    std::map<std::string, std::string> returnValues;
 
     UniValue toJSON(){
         UniValue result(UniValue::VOBJ);
@@ -392,6 +400,11 @@ struct ContractExecutionResult{
         result.push_back(Pair("transfer-txid", transferTx.GetHash().ToString()));
         result.push_back(Pair("commit-state", commitState));
         result.push_back(Pair("modified-state", modifiedData.toJSON()));
+        UniValue returnjson(UniValue::VOBJ);
+        for(auto& kvp : returnValues){
+            returnjson.push_back(Pair(parseABIToString(kvp.first), parseABIToString(kvp.second)));
+        }
+        result.push_back(Pair("return-values", returnjson));
         return result;
     }
 };

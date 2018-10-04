@@ -178,7 +178,8 @@ typedef struct DeviceRange
 typedef enum _MemAccessReason {
     CodeFetch = 0,
     Data,
-    Internal
+    Internal,
+	Syscall
 } MemAccessReason;
 
 class MemorySystem{

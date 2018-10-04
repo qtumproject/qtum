@@ -192,6 +192,9 @@ const std::vector<uint8_t> x86ContractVM::buildAdditionalData(ContractOutput &ou
 
 void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
 {
+    //available registers:
+    //status: EAX
+    //arguments (in order) : EBX, ECX, EDX, ESI, EDI, EBP
     if(number == 0xF0){
         //exit code
         effects.exitCode = vm.Reg32(EAX);
@@ -261,7 +264,7 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
         case QSC_WriteStorage:
         {
             //ebx = key, ecx = key size
-            //edi = value, esi = value size
+            //edx = value, esi = value size
             //eax = 0
             unsigned char *k = new unsigned char[vm.Reg32(ECX)];
             unsigned char *v = new unsigned char[vm.Reg32(ESI)];
@@ -282,6 +285,43 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
             uint64_t value;
             //db.readAalData(output.address, txid, vout, value);
         }
+        case QSC_AddReturnData:
+        {
+            //Adds a key value pair for the return data
+            //ebx = key, ecx = key size
+            //edx = value, esi = value size
+            //edi = (key type) << 4 | value type 
+            //eax = 0
+
+            uint8_t keytype = (vm.GetRegister32(EDI) & 0xF0) >> 4;
+            uint8_t valuetype = vm.GetRegister32(EDI) & 0x0F;
+
+            //todo put in some memory limits
+            uint32_t keysize = vm.GetRegister32(ECX) + 1;
+            uint8_t* key = new uint8_t[keysize];
+            key[0] = keytype;
+            vm.ReadMemory(vm.GetRegister32(EBX), vm.GetRegister32(ECX), &key[1], MemAccessReason::Syscall);
+
+            uint32_t valuesize = vm.GetRegister32(ESI) + 1;
+            uint8_t* value = new uint8_t[valuesize];
+            value[0] = valuetype;
+            vm.ReadMemory(vm.GetRegister32(EDX), vm.GetRegister32(EDX), &value[1], MemAccessReason::Syscall);
+
+            effects.returnValues[std::string(&key[0], &key[vm.GetRegister32(ECX)])] = 
+                std::string(&value[0], &value[valuesize]);
+
+            //we could use status to return if a key was overwritten, but leaving that blind
+            //allows us to more easily change implementation in the future
+            status = 0;
+        }
+
+        case QSC_SenderAddress:
+        {
+            //ebx = address (address/33 byte buffer)
+            UniversalAddressABI addr = output.sender.toAbi();
+            vm.WriteMemory(vm.Reg32(EBX), sizeof(addr), &addr);
+        }
+
         case 0xFFFF0001:
             //internal debug printf
             //Remove before production!
@@ -298,4 +338,73 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
     }
     vm.SetReg32(EAX, status);
     return;
+}
+
+/*
+#define ABI_TYPE_UNKNOWN 0
+#define ABI_TYPE_INT 1
+#define ABI_TYPE_UINT 2
+#define ABI_TYPE_HEX 3
+#define ABI_TYPE_STRING 4
+#define ABI_TYPE_BOOL 5
+#define ABI_TYPE_ADDRESS 6
+*/
+
+
+std::string parseABIToString(std::string abidata){
+    uint8_t type = abidata[0];
+    abidata = std::string(abidata.begin() + 1, abidata.end());
+    switch(type){
+        case ABI_TYPE_UNKNOWN:
+        case ABI_TYPE_HEX:
+            return HexStr(abidata);
+        case ABI_TYPE_STRING:
+            return abidata;
+        case ABI_TYPE_BOOL:
+            return abidata[0] > 0 ? "true" : "false";
+        case ABI_TYPE_ADDRESS:
+        {
+            UniversalAddress tmp;
+            if(abidata.size() != sizeof(UniversalAddressABI)){
+                return "invalid address data";
+            }
+            UniversalAddressABI abi = *((const UniversalAddressABI*) abidata.data());
+            UniversalAddress address(abi);
+            return address.asBitcoinAddress().ToString();
+        }
+        case ABI_TYPE_INT:
+        {
+            if(abidata.size() == 1){
+                int8_t tmp = *(int8_t*)abidata.data();
+                return std::to_string((int) tmp);
+            }else if(abidata.size() == 2){
+                int16_t tmp = *(int16_t*)abidata.data();
+                return std::to_string((int) tmp);
+            }else if(abidata.size() == 4){
+                int32_t tmp = *(int32_t*)abidata.data();
+                return std::to_string((int) tmp);
+            }else if(abidata.size() == 8){
+                int64_t tmp = *(int64_t*)abidata.data();
+                return std::to_string((int64_t) tmp);
+            }
+            return "invalid integer size";
+        }
+        case ABI_TYPE_UINT:
+        {
+            if(abidata.size() == 1){
+                uint8_t tmp = *(uint8_t*)abidata.data();
+                return std::to_string((unsigned int) tmp);
+            }else if(abidata.size() == 2){
+                uint16_t tmp = *(uint16_t*)abidata.data();
+                return std::to_string((unsigned int) tmp);
+            }else if(abidata.size() == 4){
+                uint32_t tmp = *(uint32_t*)abidata.data();
+                return std::to_string((unsigned int) tmp);
+            }else if(abidata.size() == 8){
+                uint64_t tmp = *(uint64_t*)abidata.data();
+                return std::to_string((uint64_t) tmp);
+            }
+            return "invalid integer size";
+        }
+    }
 }

@@ -9,6 +9,8 @@
 #include <x86lib.h>
 class ContractVM;
 
+
+
 class x86ContractVM : public ContractVM{
 public:
     x86ContractVM(DeltaDBWrapper &db, const ContractEnvironment &env, uint64_t remainingGasLimit)
@@ -25,6 +27,7 @@ private:
 struct HypervisorEffect{
     int exitCode = 0;
     uint64_t gasUsed = 0;
+    std::map<std::string, std::string> returnValues;
 };
 
 class QtumHypervisor : public x86Lib::InterruptHypervisor{
@@ -48,6 +51,8 @@ private:
 };
 
 
+//constants below this line should exactly match libqtum's qtum.h! 
+
 static const int QTUM_SYSTEM_ERROR_INT = 0xFF;
 
 //interrupt 0x40
@@ -70,6 +75,7 @@ static const int QTUM_SYSTEM_ERROR_INT = 0xFF;
 #define QSC_DataSize                13
 #define QSC_ScratchSize             14
 #define QSC_SelfDestruct            15
+#define QSC_AddReturnData           16
 
 
     //storage commands, 0x1000
@@ -93,6 +99,16 @@ static const int QTUM_SYSTEM_ERROR_INT = 0xFF;
 #define QSC_CallContract            0x4000
 #define QSC_CallLibrary             0x4001
 
+
+//ABI type prefixes
+//note the limit for this is 15, since it should fit into a nibble
+#define ABI_TYPE_UNKNOWN 0
+#define ABI_TYPE_INT 1
+#define ABI_TYPE_UINT 2
+#define ABI_TYPE_HEX 3
+#define ABI_TYPE_STRING 4
+#define ABI_TYPE_BOOL 5
+#define ABI_TYPE_ADDRESS 6
 
 enum QtumEndpoint{
     QtumSystem = 0x40,
