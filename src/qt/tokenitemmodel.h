@@ -51,10 +51,11 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     /*@}*/
     
-    Token *getTokenAbi();
+    void updateBalance(const TokenItemEntry& entry);
 
 public Q_SLOTS:
     void checkTokenBalanceChanged();
+    void balanceChanged(QString hash, QString balance);
 
 private Q_SLOTS:
     void updateToken(const QString &hash, int status, bool showToken);
