@@ -20,6 +20,7 @@
 
 bool ContractOutputParser::parseOutput(ContractOutput& output){
     output.sender = getSenderAddress();
+    output.value = tx.vout[nvout].nValue;
     try{
         if(!receiveStack(tx.vout[nvout].scriptPubKey)){
             return false;
@@ -348,7 +349,7 @@ bool DeltaDBWrapper::Write(valtype K, valtype V){
 bool DeltaDBWrapper::Read(valtype K, valtype& V){
     std::string k(K.begin(), K.end());
     //check from the latest checkpoint to the oldest before giving up and going to database
-    for(int i = checkpoints.size() - 1; i >= 0; i++){
+    for(int i = checkpoints.size() - 1; i >= 0; i--){
         auto *check = &checkpoints[i];
         if(current->deltas.find(k) != current->deltas.end()){
             V = current->deltas[k];

@@ -254,13 +254,13 @@ bool CBitcoinAddress::IsValid(const CChainParams& params, bool allowContracts) c
     bool fCorrectSize = vchData.size() == 20;
     bool fKnownVersion;
     if(allowContracts) {
-        vchVersion == params.Base58Prefix(CChainParams::PUBKEY_ADDRESS) ||
-        vchVersion == params.Base58Prefix(CChainParams::SCRIPT_ADDRESS) ||
-        vchVersion == params.Base58Prefix(CChainParams::EVM_ADDRESS)    ||
-        vchVersion == params.Base58Prefix(CChainParams::X86VM_ADDRESS)  ;
+        fKnownVersion = vchVersion == params.Base58Prefix(CChainParams::PUBKEY_ADDRESS) ||
+            vchVersion == params.Base58Prefix(CChainParams::SCRIPT_ADDRESS) ||
+            vchVersion == params.Base58Prefix(CChainParams::EVM_ADDRESS)    ||
+            vchVersion == params.Base58Prefix(CChainParams::X86VM_ADDRESS)  ;
     }else{
-        vchVersion == params.Base58Prefix(CChainParams::PUBKEY_ADDRESS) ||
-        vchVersion == params.Base58Prefix(CChainParams::SCRIPT_ADDRESS);
+        fKnownVersion = vchVersion == params.Base58Prefix(CChainParams::PUBKEY_ADDRESS) ||
+            vchVersion == params.Base58Prefix(CChainParams::SCRIPT_ADDRESS);
     }
     return fCorrectSize && fKnownVersion;
 }

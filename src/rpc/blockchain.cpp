@@ -1058,7 +1058,7 @@ UniValue callcontract(const JSONRPCRequest& request)
     UniversalAddress address;
     if(contractaddress.size() != 40 || !CheckHex(contractaddress)){
         CBitcoinAddress a(contractaddress);
-        if(!a.IsValid()){
+        if(!a.IsValid(true)){
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address provided is not a valid hex string or base58 address");
         }
         address.fromBitcoinAddress(a);
@@ -1142,7 +1142,7 @@ UniValue callcontract(const JSONRPCRequest& request)
     bool success = exec.execute(result, false);
     //todo need a result to json for ContractExecutionResult
 
-
+    return result.toJSON();
 }
 
 ////////////////////////////////////////////////////////////////////// // qtum

@@ -218,6 +218,7 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
             //ebx = block creator (address/33 byte buffer)
             auto creator = contractVM.getEnv().blockCreator.toAbi();
             vm.WriteMemory(vm.Reg32(EBX), sizeof(creator), &creator);
+            break;
         }
         case QSC_BlockDifficulty:
             //ebx = block difficulty (64 bit integer)
@@ -284,6 +285,7 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
             unsigned int vout;
             uint64_t value;
             //db.readAalData(output.address, txid, vout, value);
+            break;
         }
         case QSC_AddReturnData:
         {
@@ -305,7 +307,7 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
             uint32_t valuesize = vm.GetRegister32(ESI) + 1;
             uint8_t* value = new uint8_t[valuesize];
             value[0] = valuetype;
-            vm.ReadMemory(vm.GetRegister32(EDX), vm.GetRegister32(EDX), &value[1], MemAccessReason::Syscall);
+            vm.ReadMemory(vm.GetRegister32(EDX), vm.GetRegister32(ESI), &value[1], MemAccessReason::Syscall);
 
             effects.returnValues[std::string(&key[0], &key[vm.GetRegister32(ECX)])] = 
                 std::string(&value[0], &value[valuesize]);
@@ -313,6 +315,7 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
             //we could use status to return if a key was overwritten, but leaving that blind
             //allows us to more easily change implementation in the future
             status = 0;
+            break;
         }
 
         case QSC_SenderAddress:
@@ -320,6 +323,7 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
             //ebx = address (address/33 byte buffer)
             UniversalAddressABI addr = output.sender.toAbi();
             vm.WriteMemory(vm.Reg32(EBX), sizeof(addr), &addr);
+            break;
         }
 
         case 0xFFFF0001:
@@ -355,6 +359,7 @@ std::string parseABIToString(std::string abidata){
     uint8_t type = abidata[0];
     abidata = std::string(abidata.begin() + 1, abidata.end());
     switch(type){
+        default:
         case ABI_TYPE_UNKNOWN:
         case ABI_TYPE_HEX:
             return HexStr(abidata);
