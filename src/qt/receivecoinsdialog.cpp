@@ -114,6 +114,8 @@ void ReceiveCoinsDialog::setModel(WalletModel *_model)
             ui->useBech32->setCheckState(Qt::Unchecked);
         }
 
+        ui->useBech32->setVisible(model->wallet().getDefaultAddressType() != OutputType::LEGACY);
+
         // eventually disable the main receive button if private key operations are disabled
         ui->receiveButton->setEnabled(!model->privateKeysDisabled());
     }
