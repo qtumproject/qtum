@@ -595,7 +595,8 @@ static UniValue sendtoaddress(const JSONRPCRequest& request)
     }
 
     if (request.params.size() > 7 && !request.params[7].isNull()) {
-        if (!FeeModeFromString(request.params[7].get_str(), coin_control.m_fee_mode)) {
+        std::string estimate_mode = request.params[7].get_str();
+        if (!estimate_mode.empty() && !FeeModeFromString(estimate_mode, coin_control.m_fee_mode)) {
             throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid estimate_mode parameter");
         }
     }
