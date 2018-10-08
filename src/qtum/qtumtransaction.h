@@ -103,17 +103,23 @@ struct UniversalAddressABI{
 struct UniversalAddress{
     UniversalAddress(){
         version = AddressVersion::UNKNOWN;
+        convertData();
     }
     UniversalAddress(AddressVersion v, const std::vector<uint8_t> &d)
-    : version(v), data(d) {}
+    : version(v), data(d.begin(), d.end()) {
+        convertData();
+    }
     UniversalAddress(AddressVersion v, const unsigned char* begin, const unsigned char* end)
-    : version(v), data(begin, end) {}
+    : version(v), data(begin, end) {
+        convertData();
+    }
     UniversalAddress(CBitcoinAddress &address){
         fromBitcoinAddress(address);
     }
     UniversalAddress(UniversalAddressABI &abi)
     : version((AddressVersion)abi.version), data(&abi.data[0], &abi.data[sizeof(abi.data)])
     {
+        convertData();
     }
 
     bool operator<(const UniversalAddress& a) const{
@@ -137,7 +143,7 @@ struct UniversalAddress{
     }
     std::vector<uint8_t> toFlatData() const{
         std::vector<uint8_t> tmp;
-        tmp.resize(ADDRESS_DATA_SIZE + sizeof(uint32_t));
+        tmp.resize(sizeof(UniversalAddressABI));
         UniversalAddressABI abi = toAbi();
         memcpy(&tmp.front(), &abi, tmp.size());
         return tmp;
@@ -155,13 +161,16 @@ struct UniversalAddress{
     static UniversalAddress FromOutput(AddressVersion v, uint256 txid, uint32_t vout);
 
     CBitcoinAddress asBitcoinAddress() const{
-        size_t sz = getRealAddressSize(version);
-        CBitcoinAddress a(convertUniversalVersion(version), data.data() + (ADDRESS_DATA_SIZE - sz), sz);
+        CBitcoinAddress a(convertUniversalVersion(version), data.data(), getRealAddressSize(version));
         return a;
     }
     void fromBitcoinAddress(CBitcoinAddress &address) {
         version = convertBitcoinVersion(address.getVersion());
         data = address.getData();
+        convertData();
+    }
+    void convertData(){
+        data.resize(ADDRESS_DATA_SIZE);
     }
 
     static AddressVersion convertBitcoinVersion(std::vector<unsigned char> version){
