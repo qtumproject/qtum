@@ -98,13 +98,6 @@ public:
         return copy;
     }
 
-    void setVersion(std::vector<unsigned char> v){
-        vchVersion.assign(v.begin(), v.end());
-    }
-    void setData(std::vector<unsigned char> d){
-        vchData.assign(d.begin(), d.end());
-    }
-
     bool operator==(const CBase58Data& b58) const { return CompareTo(b58) == 0; }
     bool operator<=(const CBase58Data& b58) const { return CompareTo(b58) <= 0; }
     bool operator>=(const CBase58Data& b58) const { return CompareTo(b58) >= 0; }
@@ -130,6 +123,9 @@ public:
     CBitcoinAddress(const CTxDestination &dest) { Set(dest); }
     CBitcoinAddress(const std::string& strAddress) { SetString(strAddress); }
     CBitcoinAddress(const char* pszAddress) { SetString(pszAddress); }
+    CBitcoinAddress(const std::vector<unsigned char> &vchVersionIn, const void* pdata, size_t nSize){
+        SetData(vchVersionIn, pdata, nSize);
+    }
 
     CTxDestination Get() const;
     bool GetKeyID(CKeyID &keyID) const;

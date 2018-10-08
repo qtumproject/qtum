@@ -91,6 +91,7 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
     std::vector<uint8_t> txData = buildAdditionalData(output);
     PointerROMemory txDataMemory(txData.data(), txData.size(), "txdata");
 
+
     //TODO how is .bss loaded!?
 
     //zero memory for consensus
@@ -138,6 +139,7 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
         result.status = ContractStatus::CodeError(msg);
         result.usedGas = output.gasLimit;
         result.refundSender = output.value;
+        result.returnValues = qtumhv.getEffects().returnValues;
         return false;
     }
     HypervisorEffect effects = qtumhv.getEffects();
@@ -146,16 +148,16 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
         if (output.OpCreate) {
             //no error, so save to database
             db.writeByteCode(output.address, output.data);
-
-            result.modifiedData = db.getLatestModifiedState();
-            result.usedGas = std::min((uint64_t) 1000, output.gasLimit);
-            result.refundSender = 0;
-            result.status = ContractStatus::Success();
-            result.commitState = true;
-            return true;
         } else {
             //later, store a receipt or something
         }
+        result.modifiedData = db.getLatestModifiedState();
+        result.usedGas = std::min((uint64_t) 1000, output.gasLimit);
+        result.refundSender = 0;
+        result.status = ContractStatus::Success();
+        result.commitState = true;
+        result.returnValues = qtumhv.getEffects().returnValues;
+        return true;
     }else{
         LogPrintf("Execution ended with error: %i", effects.exitCode);
 
@@ -164,6 +166,7 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
         result.refundSender = output.value; //refund all
         result.status = ContractStatus::ReturnedError(std::to_string(effects.exitCode));
         result.commitState = false;
+        result.returnValues = qtumhv.getEffects().returnValues;
         return false;
     }
     return false;
@@ -309,7 +312,7 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
             value[0] = valuetype;
             vm.ReadMemory(vm.GetRegister32(EDX), vm.GetRegister32(ESI), &value[1], MemAccessReason::Syscall);
 
-            effects.returnValues[std::string(&key[0], &key[vm.GetRegister32(ECX)])] = 
+            effects.returnValues[std::string(&key[0], &key[keysize])] = 
                 std::string(&value[0], &value[valuesize]);
 
             //we could use status to return if a key was overwritten, but leaving that blind

@@ -155,11 +155,8 @@ struct UniversalAddress{
     static UniversalAddress FromOutput(AddressVersion v, uint256 txid, uint32_t vout);
 
     CBitcoinAddress asBitcoinAddress() const{
-        CBitcoinAddress a;
-        std::vector<unsigned char> v;
-        v.push_back(version);
-        a.setVersion(convertUniversalVersion(version));
-        a.setData(data);
+        size_t sz = getRealAddressSize(version);
+        CBitcoinAddress a(convertUniversalVersion(version), data.data() + (ADDRESS_DATA_SIZE - sz), sz);
         return a;
     }
     void fromBitcoinAddress(CBitcoinAddress &address) {
@@ -192,6 +189,18 @@ struct UniversalAddress{
             return Params().Base58Prefix(CChainParams::SCRIPT_ADDRESS);
         }else{
             return std::vector<unsigned char>();
+        }
+    }
+    static size_t getRealAddressSize(AddressVersion v){
+        switch(v){
+            case AddressVersion::EVM:
+            case AddressVersion::X86:
+            case AddressVersion::PUBKEYHASH:
+            case AddressVersion::LEGACYEVM:
+            case AddressVersion::SCRIPTHASH:
+            return 20;
+            default:
+            return 32;
         }
     }
 
