@@ -1108,6 +1108,12 @@ UniValue callcontract(const JSONRPCRequest& request)
     }
 
     //other VMs
+    UniversalAddress sender;
+    sender.version = AddressVersion::PUBKEYHASH;
+    if(request.params.size() == 3){
+        CBitcoinAddress sendertmp(request.params[2].get_str());
+        sender.fromBitcoinAddress(sendertmp);
+    }
     DeltaDBWrapper db(pdeltaDB);
     std::vector<uint8_t> bytecode;
     if(!db.readByteCode(address, bytecode)){
@@ -1133,7 +1139,7 @@ UniValue callcontract(const JSONRPCRequest& request)
     output.address = address;
     output.data = ParseHex(data);
     //output.sender = 0; //??
-    output.sender.version = AddressVersion::PUBKEYHASH;
+    output.sender = sender;
     //output.vout = 0; //?
     output.OpCreate = false;
 
