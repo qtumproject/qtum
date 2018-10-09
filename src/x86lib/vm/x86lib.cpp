@@ -202,6 +202,9 @@ void x86CPU::Exec(int cyclecount){
 	while(!done){
 		try{
 			for(;i<cyclecount;i++){
+				if(gasExceeded()){
+					return;
+				}
 				Cycle();
                 if(DoStop){
                     DoStop=false;
@@ -281,6 +284,7 @@ void x86CPU::Cycle(){
         (this->*Opcodes[opbyte])();
     }
 	eip=eip+1;
+	addGasUsed(1); //todo: variable cost per opcode
 }
 
 

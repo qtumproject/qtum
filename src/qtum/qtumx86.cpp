@@ -120,8 +120,10 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
     x86CPU cpu;
     cpu.Memory = &memsys;
     cpu.Hypervisor = &qtumhv;
+    cpu.setGasLimit(output.gasLimit);
+    cpu.addGasUsed(50000); //base execution cost
     try{
-        cpu.Exec(output.gasLimit);
+        cpu.Exec(INT32_MAX);
     }
     catch(CPUFaultException err){
         std::string msg;
@@ -143,30 +145,37 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
         return false;
     }
     HypervisorEffect effects = qtumhv.getEffects();
+    result.modifiedData = db.getLatestModifiedState();
+    result.usedGas = (uint64_t)cpu.getGasUsed();
+    result.refundSender = 0;
+    result.returnValues = qtumhv.getEffects().returnValues;
+
+    if(cpu.gasExceeded()){
+        LogPrintf("Execution ended due to OutOfGas. Gas used: %i\n", cpu.getGasUsed());
+        result.status = ContractStatus::OutOfGas();
+        result.refundSender = output.value;
+        result.commitState = false;
+        //potentially possible for usedGas to be greater than gasLimit, so set to gasLimit to prevent insanity
+        result.usedGas = output.gasLimit;
+        return false;
+    }
     if(effects.exitCode == 0) {
-        LogPrintf("Execution successful!");
+        LogPrintf("Execution successful!\n");
         if (output.OpCreate) {
             //no error, so save to database
             db.writeByteCode(output.address, output.data);
         } else {
             //later, store a receipt or something
         }
-        result.modifiedData = db.getLatestModifiedState();
-        result.usedGas = std::min((uint64_t) 1000, output.gasLimit);
-        result.refundSender = 0;
         result.status = ContractStatus::Success();
         result.commitState = true;
-        result.returnValues = qtumhv.getEffects().returnValues;
         return true;
     }else{
-        LogPrintf("Execution ended with error: %i", effects.exitCode);
-
-        result.modifiedData = db.getLatestModifiedState();
-        result.usedGas = std::min((uint64_t) 1000, output.gasLimit);
+        LogPrintf("Execution ended with error: %i\n", effects.exitCode);
+        result.usedGas = output.gasLimit;
         result.refundSender = output.value; //refund all
         result.status = ContractStatus::ReturnedError(std::to_string(effects.exitCode));
         result.commitState = false;
-        result.returnValues = qtumhv.getEffects().returnValues;
         return false;
     }
     return false;
@@ -210,6 +219,8 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
         return;
     }
     uint32_t status = 0;
+    //todo: estimate gas cost first, so that if out of gas no operation is needed
+    int64_t gasCost = 1;
 
     switch(vm.GetRegister32(EAX)){
         case QSC_PreviousBlockTime:
@@ -262,6 +273,7 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
                 status = (value.size() <= vm.Reg32(ESI))? value.size() : vm.Reg32(ESI);					
                 vm.WriteMemory(vm.Reg32(EDX), status, value.data());
             }
+            gasCost = 500 + ((key.size() + value.size()) * 1);
             delete []k;
             break;
        }
@@ -277,6 +289,7 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
             valtype key(k,k+vm.Reg32(ECX));
             valtype value(v,v+vm.Reg32(ESI));
             db.writeState(output.address, key, value);
+            gasCost = 1000 + ((value.size() + key.size()) * 20);
             delete []k;
             delete []v;
             break;
@@ -315,6 +328,7 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
             effects.returnValues[std::string(&key[0], &key[keysize])] = 
                 std::string(&value[0], &value[valuesize]);
 
+            gasCost = 100 + ((valuesize + keysize) * 1);
             //we could use status to return if a key was overwritten, but leaving that blind
             //allows us to more easily change implementation in the future
             status = 0;
@@ -340,10 +354,12 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
             LogPrintf("Contract message: ");
             LogPrintf(msg);
             status = 0;
+            gasCost = 10;
             delete[] msg;
             break;
     }
     vm.SetReg32(EAX, status);
+    vm.addGasUsed(gasCost);
     return;
 }
 

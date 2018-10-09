@@ -532,6 +532,9 @@ class x86CPU{
     uint32_t ReadCodeW(int index);
     void ReadCode(void* buf, int index, size_t count);
 
+	int64_t gasUsed = 0;
+	int64_t gasLimit = 0;
+
 	public:
 	MemorySystem *Memory;
 	PortSystem *Ports;
@@ -549,6 +552,20 @@ class x86CPU{
     uint32_t GetLastOpcode(){
         return lastOpcode;
     }
+
+	int64_t addGasUsed(int64_t diff){
+		gasUsed += diff;
+		return gasUsed;
+	}
+	void setGasLimit(int64_t limit){
+		gasLimit = limit;
+	}
+	int64_t getGasUsed(){
+		return gasUsed;
+	}
+	inline bool gasExceeded(){
+		return gasUsed > gasLimit;
+	}
 
 	/*!
 	\param cpu_level The CPU level to use(default argument is default level)
