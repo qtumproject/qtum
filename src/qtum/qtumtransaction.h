@@ -141,11 +141,21 @@ struct UniversalAddress{
         memset(&abi.data[0], 0, ADDRESS_DATA_SIZE);
         memcpy(&abi.data[0], data.data(), data.size());
     }
+    //converts to flat data suitable for passing to contract code
     std::vector<uint8_t> toFlatData() const{
         std::vector<uint8_t> tmp;
         tmp.resize(sizeof(UniversalAddressABI));
         UniversalAddressABI abi = toAbi();
         memcpy(&tmp.front(), &abi, tmp.size());
+        return tmp;
+    }
+
+    //converts to flat data suitable for placing in blockchain
+    std::vector<uint8_t> toChainData() const{
+        std::vector<uint8_t> tmp;
+        size_t sz = getRealAddressSize(version);
+        tmp.resize(sz);
+        memcpy(&tmp.front(), data.data(), sz);
         return tmp;
     }
     //hasAAL means this type of address should have an AAL record in DeltaDB

@@ -2624,6 +2624,7 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
                 if(!executor.execute(result, true)){
                     return state.DoS(100, error("ConnectBlock(): Error processing VM execution results"), REJECT_INVALID, "bad-vm-exec-processing");
                 }
+                LogPrintf("contract exec:\n %s\n\n", result.toJSON().write(1, 2)); //todo: find better way of logging this
                 blockGasUsed += result.usedGas;
                 if(blockGasUsed > blockGasLimit){
                     return state.DoS(1000, error("ConnectBlock(): Block exceeds gas limit"), REJECT_INVALID, "bad-blk-gaslimit");

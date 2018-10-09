@@ -761,7 +761,7 @@ UniValue sendtocontract(const JSONRPCRequest& request){
     UniversalAddress address;
     if(contractaddress.size() != 40 || !CheckHex(contractaddress)){
         CBitcoinAddress a(contractaddress);
-        if(!a.IsValid()){
+        if(!a.IsValid(true)){
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address provided is not a valid hex string or base58 address");
         }
         address.fromBitcoinAddress(a);
@@ -890,13 +890,12 @@ UniValue sendtocontract(const JSONRPCRequest& request){
     // Build OP_EXEC_ASSIGN script
     CScript scriptPubKey;
     if(address.version == AddressVersion::EVM) {
-
          scriptPubKey = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(nGasLimit)
-                                         << CScriptNum(nGasPrice) << ParseHex(datahex) << ParseHex(contractaddress)
+                                         << CScriptNum(nGasPrice) << ParseHex(datahex) << address.toChainData()
                                          << OP_CALL;
     }else if(address.version == AddressVersion::X86){
         scriptPubKey = CScript() << CScriptNum(VersionVM::Getx86Default().toRaw()) << CScriptNum(nGasLimit)
-                                         << CScriptNum(nGasPrice) << ParseHex(datahex) << ParseHex(contractaddress)
+                                         << CScriptNum(nGasPrice) << ParseHex(datahex) << address.toChainData()
                                          << OP_CALL;
     }else{
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Unknown VM version for address");
