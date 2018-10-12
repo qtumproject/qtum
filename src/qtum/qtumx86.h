@@ -58,7 +58,7 @@ struct QtumSyscall{
 struct HypervisorEffect{
     int exitCode = 0;
     int64_t gasUsed = 0;
-    std::map<std::string, std::string> returnValues;
+    std::map<std::string, std::string> events;
 };
 
 class QtumHypervisor : public x86Lib::InterruptHypervisor{
@@ -98,7 +98,7 @@ private:
     uint32_t SelfAddress(uint32_t,x86Lib::x86CPU&);
     uint32_t PreviousBlockTime(uint32_t,x86Lib::x86CPU&);
     uint32_t UsedGas(uint32_t,x86Lib::x86CPU&);
-    uint32_t AddReturnData(uint32_t,x86Lib::x86CPU&);
+    uint32_t AddEvent(uint32_t,x86Lib::x86CPU&);
 
     uint32_t ReadStorage(uint32_t,x86Lib::x86CPU&);
     uint32_t WriteStorage(uint32_t,x86Lib::x86CPU&);
@@ -131,7 +131,12 @@ static const int QTUM_SYSTEM_ERROR_INT = 0xFF;
 #define QSC_DataSize                13
 #define QSC_ScratchSize             14
 #define QSC_SelfDestruct            15
-#define QSC_AddReturnData           16
+
+#define QSC_AddEvent                16
+#define QSC_GetEvent                17
+#define QSC_GetEventSize            18
+#define QSC_ExecutingCallID         19
+#define QSC_NextCallID              20
 
 
     //storage commands, 0x1000
@@ -150,6 +155,16 @@ static const int QTUM_SYSTEM_ERROR_INT = 0xFF;
 #define QSC_OriginAddress           0x3003
 #define QSC_SenderAddress           0x3004
 #define QSC_CallStackSize           0x3005
+
+#define QSC_SCCSCount               0x3006
+#define QSC_SCCSMaxItems            0x3007
+#define QSC_SCCSMaxSize             0x3008
+#define QSC_SCCSSize                0x3009
+#define QSC_SCCSItemSize            0x300A
+#define QSC_SCCSPop                 0x300B
+#define QSC_SCCSPeek                0x300C
+#define QSC_SCCSPush                0x300D
+#define QSC_SCCSClear               0x300E
 
     //call commands, 0x4000
 #define QSC_CallContract            0x4000

@@ -132,6 +132,7 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
         result.status = ContractStatus::CodeError(msg);
         result.usedGas = output.gasLimit;
         result.refundSender = output.value;
+        result.events = qtumhv.getEffects().events;
         return false;
     }
     catch(MemoryException *err){
@@ -141,14 +142,14 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
         result.status = ContractStatus::CodeError(msg);
         result.usedGas = output.gasLimit;
         result.refundSender = output.value;
-        result.returnValues = qtumhv.getEffects().returnValues;
+        result.events = qtumhv.getEffects().events;
         return false;
     }
     HypervisorEffect effects = qtumhv.getEffects();
     result.modifiedData = db.getLatestModifiedState();
     result.usedGas = (uint64_t)cpu.getGasUsed();
     result.refundSender = 0;
-    result.returnValues = qtumhv.getEffects().returnValues;
+    result.events = qtumhv.getEffects().events;
 
     if(cpu.gasExceeded()){
         LogPrintf("Execution ended due to OutOfGas. Gas used: %i\n", cpu.getGasUsed());
@@ -169,6 +170,7 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
         }
         result.status = ContractStatus::Success();
         result.commitState = true;
+        result.modifiedData = db.getLatestModifiedState();
         return true;
     }else{
         LogPrintf("Execution ended with error: %i\n", effects.exitCode);
@@ -263,7 +265,7 @@ uint32_t QtumHypervisor::PreviousBlockTime(uint32_t syscall, x86Lib::x86CPU &vm)
 uint32_t QtumHypervisor::UsedGas(uint32_t syscall, x86Lib::x86CPU &vm){
     return 0;
 }
-uint32_t QtumHypervisor::AddReturnData(uint32_t syscall, x86Lib::x86CPU &vm){
+uint32_t QtumHypervisor::AddEvent(uint32_t syscall, x86Lib::x86CPU &vm){
     //Adds a key value pair for the return data
     //ebx = key, ecx = key size
     //edx = value, esi = value size
@@ -284,7 +286,7 @@ uint32_t QtumHypervisor::AddReturnData(uint32_t syscall, x86Lib::x86CPU &vm){
     value[0] = valuetype;
     vm.ReadMemory(vm.GetRegister32(EDX), vm.GetRegister32(ESI), &value[1], MemAccessReason::Syscall);
 
-    effects.returnValues[std::string(&key[0], &key[keysize])] = 
+    effects.events[std::string(&key[0], &key[keysize])] = 
         std::string(&value[0], &value[valuesize]);
 
     vm.addGasUsed(100 + ((valuesize + keysize) * 1));
@@ -349,7 +351,7 @@ void QtumHypervisor::setupSyscalls(){
     INSTALL_QSC(BlockGasLimit, QSCCAP_BLOCKCHAIN);
     INSTALL_QSC(BlockCreator, QSCCAP_BLOCKCHAIN);
     INSTALL_QSC(BlockDifficulty, QSCCAP_BLOCKCHAIN);
-    INSTALL_QSC_COST(AddReturnData, QSCCAP_EVENTS, 100);
+    INSTALL_QSC_COST(AddEvent, QSCCAP_EVENTS, 100);
     INSTALL_QSC(BlockHeight, QSCCAP_BLOCKCHAIN);
     INSTALL_QSC(GetBlockHash, QSCCAP_BLOCKCHAIN);
     INSTALL_QSC(IsCreate, QSCCAP_BLOCKCHAIN);

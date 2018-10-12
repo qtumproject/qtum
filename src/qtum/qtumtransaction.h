@@ -417,7 +417,7 @@ struct ContractExecutionResult{
     CMutableTransaction transferTx;
     bool commitState;
     DeltaCheckpoint modifiedData;
-    std::map<std::string, std::string> returnValues;
+    std::map<std::string, std::string> events;
 
     UniValue toJSON(){
         UniValue result(UniValue::VOBJ);
@@ -429,10 +429,10 @@ struct ContractExecutionResult{
         result.push_back(Pair("commit-state", commitState));
         result.push_back(Pair("modified-state", modifiedData.toJSON()));
         UniValue returnjson(UniValue::VOBJ);
-        for(auto& kvp : returnValues){
+        for(auto& kvp : events){
             returnjson.push_back(Pair(parseABIToString(kvp.first), parseABIToString(kvp.second)));
         }
-        result.push_back(Pair("return-values", returnjson));
+        result.push_back(Pair("events", returnjson));
         return result;
     }
 };
