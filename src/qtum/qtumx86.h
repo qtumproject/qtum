@@ -57,7 +57,7 @@ struct QtumSyscall{
 
 struct HypervisorEffect{
     int exitCode = 0;
-    uint64_t gasUsed = 0;
+    int64_t gasUsed = 0;
     std::map<std::string, std::string> returnValues;
 };
 

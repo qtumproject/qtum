@@ -218,11 +218,15 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
         vm.Int(QTUM_SYSTEM_ERROR_INT);
         return;
     }
-    uint32_t status = 0;
-    //todo: estimate gas cost first, so that if out of gas no operation is needed
-    int64_t gasCost = 1;
-
-    vm.SetReg32(EAX, status);
+    uint32_t syscall = vm.Reg32(EAX);
+    if(qsc_syscalls.find(syscall) == qsc_syscalls.end()){
+        LogPrintf("Invalid Qtum syscall received");
+        vm.Int(QTUM_SYSTEM_ERROR_INT);
+        return;
+    }
+    QtumSyscall s = qsc_syscalls[syscall];
+    vm.addGasUsed(s.gasCost);
+    (this->*s.function)(syscall, vm);
     return;
 }
 
@@ -347,6 +351,14 @@ void QtumHypervisor::setupSyscalls(){
     INSTALL_QSC(BlockDifficulty, QSCCAP_BLOCKCHAIN);
     INSTALL_QSC_COST(AddReturnData, QSCCAP_EVENTS, 100);
     INSTALL_QSC(BlockHeight, QSCCAP_BLOCKCHAIN);
+    INSTALL_QSC(GetBlockHash, QSCCAP_BLOCKCHAIN);
+    INSTALL_QSC(IsCreate, QSCCAP_BLOCKCHAIN);
+    INSTALL_QSC(SelfAddress, QSCCAP_BLOCKCHAIN);
+    INSTALL_QSC(SenderAddress, QSCCAP_BLOCKCHAIN);
+    INSTALL_QSC(PreviousBlockTime, QSCCAP_BLOCKCHAIN);
+    INSTALL_QSC(UsedGas, 0);
+    INSTALL_QSC_COST(ReadStorage, QSCCAP_READSTATE, 1000);
+    INSTALL_QSC_COST(WriteStorage, QSCCAP_WRITESTATE, 5000);
 }
 
 
