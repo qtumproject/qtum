@@ -24,6 +24,37 @@ private:
     friend class QtumHypervisor;
 };
 
+class QtumHypervisor;
+
+typedef uint32_t (QtumHypervisor::*SyscallFunction)(uint32_t, x86Lib::x86CPU&);
+
+//ability to read state
+#define QSCCAP_READSTATE 1
+//ability to write state
+#define QSCCAP_WRITESTATE 2
+//ability to send coins
+#define QSCCAP_SENDCOINS 4
+//ability to call contract (and potentially change state)
+#define QSCCAP_CALL 8
+//ability to self destruct
+#define QSCCAP_DESTRUCT 16
+//ability to read and write events
+#define QSCCAP_EVENTS 32
+//ability to get basic blockchain info
+#define QSCCAP_BLOCKCHAIN 64
+
+struct QtumSyscall{
+    SyscallFunction function;
+    uint64_t gasCost;
+    int caps;
+    QtumSyscall(SyscallFunction f, int c=0, uint64_t cost=1){
+        function = f;
+        gasCost = cost;
+        caps = c;
+    }
+    QtumSyscall(){}
+};
+
 struct HypervisorEffect{
     int exitCode = 0;
     uint64_t gasUsed = 0;
@@ -32,6 +63,9 @@ struct HypervisorEffect{
 
 class QtumHypervisor : public x86Lib::InterruptHypervisor{
     QtumHypervisor(x86ContractVM &vm, const ContractOutput& out, DeltaDBWrapper& db_) : contractVM(vm), output(out), db(db_){
+        if(qsc_syscalls.size() == 0){
+            setupSyscalls();
+        }
         clearEffects();
     }
     virtual void HandleInt(int number, x86Lib::x86CPU &vm);
@@ -41,6 +75,7 @@ class QtumHypervisor : public x86Lib::InterruptHypervisor{
     void clearEffects(){
         effects.exitCode = 0;
     }
+    static void setupSyscalls();
 private:
     x86ContractVM &contractVM;
     ContractOutput output;
@@ -48,6 +83,27 @@ private:
     HypervisorEffect effects;
 
     friend x86ContractVM;
+
+    //syscalls map. Key is the syscall number
+    //qsc is interrupt 0x40
+    static std::map<uint32_t, QtumSyscall> qsc_syscalls;
+
+    //syscalls
+    uint32_t BlockGasLimit(uint32_t,x86Lib::x86CPU&);
+    uint32_t BlockCreator(uint32_t,x86Lib::x86CPU&);
+    uint32_t BlockDifficulty(uint32_t,x86Lib::x86CPU&);
+    uint32_t BlockHeight(uint32_t,x86Lib::x86CPU&);
+    uint32_t GetBlockHash(uint32_t,x86Lib::x86CPU&);
+    uint32_t IsCreate(uint32_t,x86Lib::x86CPU&);
+    uint32_t SelfAddress(uint32_t,x86Lib::x86CPU&);
+    uint32_t PreviousBlockTime(uint32_t,x86Lib::x86CPU&);
+    uint32_t UsedGas(uint32_t,x86Lib::x86CPU&);
+    uint32_t AddReturnData(uint32_t,x86Lib::x86CPU&);
+
+    uint32_t ReadStorage(uint32_t,x86Lib::x86CPU&);
+    uint32_t WriteStorage(uint32_t,x86Lib::x86CPU&);
+
+    uint32_t SenderAddress(uint32_t syscall, x86Lib::x86CPU& vm);
 };
 
 
@@ -98,6 +154,12 @@ static const int QTUM_SYSTEM_ERROR_INT = 0xFF;
     //call commands, 0x4000
 #define QSC_CallContract            0x4000
 #define QSC_CallLibrary             0x4001
+//pushes data onto invisible arg stack
+#define QSC_PushCallArg             0x4002
+//pops data off of the invisible arg stack
+#define QSC_PopCallArg              0x4003
+//clears all data from the arg stack, potentially issuing a gas refund
+#define QSC_ClearCallArgs           0x4004
 
 
 //ABI type prefixes

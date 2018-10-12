@@ -222,146 +222,133 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
     //todo: estimate gas cost first, so that if out of gas no operation is needed
     int64_t gasCost = 1;
 
-    switch(vm.GetRegister32(EAX)){
-        case QSC_PreviousBlockTime:
-            //eax = block time
-            status = contractVM.getEnv().blockTime;
-            break;
-        case QSC_BlockCreator:
-        {
-            //ebx = block creator (address/33 byte buffer)
-            auto creator = contractVM.getEnv().blockCreator.toAbi();
-            vm.WriteMemory(vm.Reg32(EBX), sizeof(creator), &creator);
-            break;
-        }
-        case QSC_BlockDifficulty:
-            //ebx = block difficulty (64 bit integer)
-            vm.WriteMemory(vm.Reg32(EBX), sizeof(uint64_t), (void*) &contractVM.getEnv().difficulty);
-            break;
-        case QSC_BlockGasLimit:
-            //ebx = gas limit (64 bit integer)
-            vm.WriteMemory(vm.Reg32(EBX), sizeof(uint64_t), (void*) &contractVM.getEnv().gasLimit);
-            break;
-        case QSC_BlockHeight:
-            //eax = block height
-            status = contractVM.getEnv().blockNumber;
-            break;
-        case QSC_IsCreate:
-            //eax = 1 if contract creation is in progress
-            status = output.OpCreate ? 1 : 0;
-            break;
-        case QSC_SelfAddress:
-        {
-            //ebx = address (address/33 byte buffer)
-            UniversalAddressABI selfAddr = output.address.toAbi();
-            vm.WriteMemory(vm.Reg32(EBX), sizeof(selfAddr), &selfAddr);
-        }
-            break;
-        case QSC_ReadStorage:
-        {
-            //ebx = key, ecx = key size
-            //edi = value, esi = max value size
-            //eax = actual value size
-            unsigned char *k = new unsigned char[vm.Reg32(ECX)];
-            vm.ReadMemory(vm.Reg32(EBX), vm.Reg32(ECX), k);
-            valtype key(k,k+vm.Reg32(ECX));
-            valtype value;
-            bool ret;
-			ret = db.readState(output.address, key, value);
-            status = 0;
-            if(ret==true){
-                status = (value.size() <= vm.Reg32(ESI))? value.size() : vm.Reg32(ESI);					
-                vm.WriteMemory(vm.Reg32(EDX), status, value.data());
-            }
-            gasCost = 500 + ((key.size() + value.size()) * 1);
-            delete []k;
-            break;
-       }
-        case QSC_WriteStorage:
-        {
-            //ebx = key, ecx = key size
-            //edx = value, esi = value size
-            //eax = 0
-            unsigned char *k = new unsigned char[vm.Reg32(ECX)];
-            unsigned char *v = new unsigned char[vm.Reg32(ESI)];
-            vm.ReadMemory(vm.Reg32(EBX), vm.Reg32(ECX), k);
-            vm.ReadMemory(vm.Reg32(EDX), vm.Reg32(ESI), v);
-            valtype key(k,k+vm.Reg32(ECX));
-            valtype value(v,v+vm.Reg32(ESI));
-            db.writeState(output.address, key, value);
-            gasCost = 1000 + ((value.size() + key.size()) * 20);
-            delete []k;
-            delete []v;
-            break;
-        }
-        case QSC_GetBalance:
-        {
-            uint64_t v = output.value;
-            uint256 txid;
-            unsigned int vout;
-            uint64_t value;
-            //db.readAalData(output.address, txid, vout, value);
-            break;
-        }
-        case QSC_AddReturnData:
-        {
-            //Adds a key value pair for the return data
-            //ebx = key, ecx = key size
-            //edx = value, esi = value size
-            //edi = (key type) << 4 | value type 
-            //eax = 0
-
-            uint8_t keytype = (vm.GetRegister32(EDI) & 0xF0) >> 4;
-            uint8_t valuetype = vm.GetRegister32(EDI) & 0x0F;
-
-            //todo put in some memory limits
-            uint32_t keysize = vm.GetRegister32(ECX) + 1;
-            uint8_t* key = new uint8_t[keysize];
-            key[0] = keytype;
-            vm.ReadMemory(vm.GetRegister32(EBX), vm.GetRegister32(ECX), &key[1], MemAccessReason::Syscall);
-
-            uint32_t valuesize = vm.GetRegister32(ESI) + 1;
-            uint8_t* value = new uint8_t[valuesize];
-            value[0] = valuetype;
-            vm.ReadMemory(vm.GetRegister32(EDX), vm.GetRegister32(ESI), &value[1], MemAccessReason::Syscall);
-
-            effects.returnValues[std::string(&key[0], &key[keysize])] = 
-                std::string(&value[0], &value[valuesize]);
-
-            gasCost = 100 + ((valuesize + keysize) * 1);
-            //we could use status to return if a key was overwritten, but leaving that blind
-            //allows us to more easily change implementation in the future
-            status = 0;
-            break;
-        }
-
-        case QSC_SenderAddress:
-        {
-            //ebx = address (address/33 byte buffer)
-            UniversalAddressABI addr = output.sender.toAbi();
-            vm.WriteMemory(vm.Reg32(EBX), sizeof(addr), &addr);
-            break;
-        }
-
-        case 0xFFFF0001:
-            //internal debug printf
-            //Remove before production!
-            //ecx is string length
-            //ebx is string pointer
-            char* msg = new char[vm.GetRegister32(ECX) + 1];
-            vm.ReadMemory(vm.GetRegister32(EBX), vm.GetRegister32(ECX), msg, Data);
-            msg[vm.GetRegister32(ECX)] = 0; //null termination
-            LogPrintf("Contract message: ");
-            LogPrintf(msg);
-            status = 0;
-            gasCost = 10;
-            delete[] msg;
-            break;
-    }
     vm.SetReg32(EAX, status);
-    vm.addGasUsed(gasCost);
     return;
 }
+
+uint32_t QtumHypervisor::BlockCreator(uint32_t syscall, x86Lib::x86CPU &vm){
+    auto creator = contractVM.getEnv().blockCreator.toAbi();
+    vm.WriteMemory(vm.Reg32(EBX), sizeof(creator), &creator);
+    return 0;
+}
+uint32_t QtumHypervisor::BlockDifficulty(uint32_t syscall,x86Lib::x86CPU& vm){
+    //ebx = block difficulty (64 bit integer)
+    vm.WriteMemory(vm.Reg32(EBX), sizeof(uint64_t), (void*) &contractVM.getEnv().difficulty);
+    return 0;
+}
+uint32_t QtumHypervisor::BlockHeight(uint32_t syscall, x86Lib::x86CPU &vm){
+    //eax = block height
+    return contractVM.getEnv().blockNumber;
+}
+uint32_t QtumHypervisor::GetBlockHash(uint32_t syscall, x86Lib::x86CPU &vm){
+    return 0; //todo
+}
+uint32_t QtumHypervisor::IsCreate(uint32_t syscall, x86Lib::x86CPU &vm){
+    //eax = 1 if contract creation is in progress
+    return output.OpCreate ? 1 : 0;
+}
+uint32_t QtumHypervisor::SelfAddress(uint32_t syscall, x86Lib::x86CPU &vm){
+    //ebx = address (address/33 byte buffer)
+    UniversalAddressABI selfAddr = output.address.toAbi();
+    vm.WriteMemory(vm.Reg32(EBX), sizeof(selfAddr), &selfAddr);
+    return 0;
+}
+uint32_t QtumHypervisor::PreviousBlockTime(uint32_t syscall, x86Lib::x86CPU &vm){
+    return contractVM.getEnv().blockTime;
+}
+uint32_t QtumHypervisor::UsedGas(uint32_t syscall, x86Lib::x86CPU &vm){
+    return 0;
+}
+uint32_t QtumHypervisor::AddReturnData(uint32_t syscall, x86Lib::x86CPU &vm){
+    //Adds a key value pair for the return data
+    //ebx = key, ecx = key size
+    //edx = value, esi = value size
+    //edi = (key type) << 4 | value type 
+    //eax = 0
+
+    uint8_t keytype = (vm.GetRegister32(EDI) & 0xF0) >> 4;
+    uint8_t valuetype = vm.GetRegister32(EDI) & 0x0F;
+
+    //todo put in some memory limits
+    uint32_t keysize = vm.GetRegister32(ECX) + 1;
+    uint8_t* key = new uint8_t[keysize];
+    key[0] = keytype;
+    vm.ReadMemory(vm.GetRegister32(EBX), vm.GetRegister32(ECX), &key[1], MemAccessReason::Syscall);
+
+    uint32_t valuesize = vm.GetRegister32(ESI) + 1;
+    uint8_t* value = new uint8_t[valuesize];
+    value[0] = valuetype;
+    vm.ReadMemory(vm.GetRegister32(EDX), vm.GetRegister32(ESI), &value[1], MemAccessReason::Syscall);
+
+    effects.returnValues[std::string(&key[0], &key[keysize])] = 
+        std::string(&value[0], &value[valuesize]);
+
+    vm.addGasUsed(100 + ((valuesize + keysize) * 1));
+    //we could use status to return if a key was overwritten, but leaving that blind
+    //allows us to more easily change implementation in the future
+    return 0;
+}
+
+uint32_t QtumHypervisor::ReadStorage(uint32_t syscall, x86Lib::x86CPU &vm){
+        //ebx = key, ecx = key size
+        //edi = value, esi = max value size
+        //eax = actual value size
+        uint32_t status = 0;
+        unsigned char *k = new unsigned char[vm.Reg32(ECX)];
+        vm.ReadMemory(vm.Reg32(EBX), vm.Reg32(ECX), k);
+        valtype key(k,k+vm.Reg32(ECX));
+        valtype value;
+        bool ret;
+        ret = db.readState(output.address, key, value);
+        if(ret==true){
+            status = (value.size() <= vm.Reg32(ESI))? value.size() : vm.Reg32(ESI);					
+            vm.WriteMemory(vm.Reg32(EDX), status, value.data());
+        }
+        vm.addGasUsed(500 + ((key.size() + value.size()) * 1));
+        delete []k;
+        return status;
+}
+uint32_t QtumHypervisor::WriteStorage(uint32_t syscall, x86Lib::x86CPU &vm){
+    //ebx = key, ecx = key size
+    //edx = value, esi = value size
+    //eax = 0
+    unsigned char *k = new unsigned char[vm.Reg32(ECX)];
+    unsigned char *v = new unsigned char[vm.Reg32(ESI)];
+    vm.ReadMemory(vm.Reg32(EBX), vm.Reg32(ECX), k);
+    vm.ReadMemory(vm.Reg32(EDX), vm.Reg32(ESI), v);
+    valtype key(k,k+vm.Reg32(ECX));
+    valtype value(v,v+vm.Reg32(ESI));
+    db.writeState(output.address, key, value);
+    vm.addGasUsed(1000 + ((value.size() + key.size()) * 20));
+    delete []k;
+    delete []v;
+    return 0;
+}
+
+uint32_t QtumHypervisor::SenderAddress(uint32_t syscall, x86Lib::x86CPU& vm){
+    //ebx = address (address/33 byte buffer)
+    UniversalAddressABI addr = output.sender.toAbi();
+    vm.WriteMemory(vm.Reg32(EBX), sizeof(addr), &addr);
+    return 0;
+}
+
+uint32_t QtumHypervisor::BlockGasLimit(uint32_t syscall, x86Lib::x86CPU& vm){
+    //ebx = gas limit (64 bit integer)
+    vm.WriteMemory(vm.Reg32(EBX), sizeof(uint64_t), (void*) contractVM.getEnv().gasLimit);
+    return 0;
+}
+
+std::map<uint32_t, QtumSyscall> QtumHypervisor::qsc_syscalls;
+#define INSTALL_QSC(func, cap) do {qsc_syscalls[QSC_##func] = QtumSyscall(&QtumHypervisor::func, cap);}while(0)
+#define INSTALL_QSC_COST(func, cap, cost) do {qsc_syscalls[QSC_##func] = QtumSyscall(&QtumHypervisor::func, cap, cost);}while(0)
+void QtumHypervisor::setupSyscalls(){
+    INSTALL_QSC(BlockGasLimit, QSCCAP_BLOCKCHAIN);
+    INSTALL_QSC(BlockCreator, QSCCAP_BLOCKCHAIN);
+    INSTALL_QSC(BlockDifficulty, QSCCAP_BLOCKCHAIN);
+    INSTALL_QSC_COST(AddReturnData, QSCCAP_EVENTS, 100);
+    INSTALL_QSC(BlockHeight, QSCCAP_BLOCKCHAIN);
+}
+
 
 /*
 #define ABI_TYPE_UNKNOWN 0
