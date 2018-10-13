@@ -228,7 +228,7 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
     }
     QtumSyscall s = qsc_syscalls[syscall];
     vm.addGasUsed(s.gasCost);
-    (this->*s.function)(syscall, vm);
+    vm.SetReg32(EAX, (this->*s.function)(syscall, vm));
     return;
 }
 
