@@ -336,14 +336,10 @@ int main(int argc, char* argv[]){
 			cout << endl;
 			delete[] out;
 		}else{
-			cout << "foo!" << endl;
 			std::vector<uint8_t> payload(&out[sizeof(ContractMapInfo)], out + totalSize);
-			cout << "foo!" << endl;
 			std::vector<uint8_t> compressed = qtumCompressPayload(payload);
-			cout << "foo!" << endl;
 			int contractSize = sizeof(uint32_t) + sizeof(ContractMapInfo) + compressed.size();
 			uint8_t *contract = new uint8_t[contractSize];
-			cout << "foo!" << endl;
 			uint32_t tmp = compressed.size(); 
 			memcpy(&contract[0], &tmp, sizeof(uint32_t));
 			memcpy(&contract[4], &map, sizeof(ContractMapInfo));
