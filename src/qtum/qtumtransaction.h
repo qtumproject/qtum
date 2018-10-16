@@ -418,9 +418,12 @@ struct ContractExecutionResult{
     bool commitState;
     DeltaCheckpoint modifiedData;
     std::map<std::string, std::string> events;
+    std::vector<ContractExecutionResult> callResults;
+    UniversalAddress address;
 
     UniValue toJSON(){
         UniValue result(UniValue::VOBJ);
+        result.push_back(Pair("address", address.asBitcoinAddress().ToString()));
         result.push_back(Pair("used-gas", usedGas));
         result.push_back(Pair("sender-refund", refundSender));
         result.push_back(Pair("status", status.toString()));
@@ -433,6 +436,11 @@ struct ContractExecutionResult{
             returnjson.push_back(Pair(parseABIToString(kvp.first), parseABIToString(kvp.second)));
         }
         result.push_back(Pair("events", returnjson));
+        UniValue calls(UniValue::VARR);
+        for(auto& res : callResults){
+            calls.push_back(res.toJSON());
+        }
+        result.push_back(Pair("calls", calls));
         return result;
     }
 };

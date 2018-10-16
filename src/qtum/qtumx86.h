@@ -155,7 +155,7 @@ static const int QTUM_SYSTEM_ERROR_INT = 0xFF;
 #define QSC_OriginAddress           0x3003
 #define QSC_SenderAddress           0x3004
 #define QSC_CallStackSize           0x3005
-
+//SCCS = Smart Contract Communication Stack
 #define QSC_SCCSCount               0x3006
 #define QSC_SCCSMaxItems            0x3007
 #define QSC_SCCSMaxSize             0x3008

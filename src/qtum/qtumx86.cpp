@@ -146,6 +146,7 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
         return false;
     }
     HypervisorEffect effects = qtumhv.getEffects();
+    result.address = output.address;
     result.modifiedData = db.getLatestModifiedState();
     result.usedGas = (uint64_t)cpu.getGasUsed();
     result.refundSender = 0;
@@ -271,7 +272,6 @@ uint32_t QtumHypervisor::AddEvent(uint32_t syscall, x86Lib::x86CPU &vm){
     //edx = value, esi = value size
     //edi = (key type) << 4 | value type 
     //eax = 0
-
     uint8_t keytype = (vm.GetRegister32(EDI) & 0xF0) >> 4;
     uint8_t valuetype = vm.GetRegister32(EDI) & 0x0F;
 
