@@ -82,6 +82,9 @@ void x86CPU::Reset(){
     AddressSize16=false;
     DoStop=false;
     PrefixCount = 0;
+
+	gasLimit = 0;
+	gasUsed = 0;
 }
 
 
@@ -202,7 +205,7 @@ void x86CPU::Exec(int cyclecount){
 	while(!done){
 		try{
 			for(;i<cyclecount;i++){
-				if(gasExceeded()){
+				if(gasLimit != 0 && gasExceeded()){
 					return;
 				}
 				Cycle();
@@ -863,6 +866,76 @@ void x86CPU::WriteMemory(uint32_t address, uint32_t size, void* buffer, MemAcces
 
 
 
+//format: decoded payload length (uint32_t) | map (uint32_t * 4) | payload
+//the compression only compresses 0 bytes. 
+//when 0x00 is encountered in the bytestream, it is transformed converted to a run-length encoding
+//encoding examples:
+//0x00 00 00 00 -> 0x00 04
+//0x00 -> 0x00 01
+//0x00 00 -> 0x00 02
+//0x00 (repeated 500 times) -> 0x00 0xFF 0x00 0xF5
+
+#define MAX_QTUM_PAYLOAD_SIZE 0xFFFFF
+namespace x86Lib{
+std::vector<uint8_t> qtumCompressPayload(std::vector<uint8_t> payload){
+	int zeros = 0;
+	bool inZero = false;
+	std::vector<uint8_t> result;
+	for(uint8_t b : payload){
+		if(inZero){
+			//previous byte was zero, so just count the zeros now
+			if(b == 0){
+				if(zeros == UINT8_MAX){
+					result.push_back(zeros);
+					zeros = 0;
+					result.push_back(0);
+				}
+				zeros++;
+				continue;
+			}else{
+				result.push_back(zeros);
+				zeros = 0;
+			}
+		}
+
+		if(b == 0x00){
+			inZero = true;
+			zeros = 1;
+		}else{
+			inZero = false;
+		}
+		result.push_back(b);
+	}
+	return result;
+}
 
 
+std::vector<uint8_t> qtumDecompressPayload(uint32_t size, std::vector<uint8_t> payload){
+	std::vector<uint8_t> result;
+	result.reserve(size);
+	bool inZero = false;
+	for(uint8_t b : payload){
+		if(inZero){
+			if(b == 0){
+				//be strict about encoding and error when this happens
+				return std::vector<uint8_t>();
+			}
+			for(unsigned int i = 0; i < (unsigned int) b ; i++){
+				result.push_back(0);
+			}
+			inZero = false;
+		}else{
+			if(b == 0x00){
+				inZero = true;
+			}else{
+				result.push_back(b);
+			}
+		}
+	}
+	if(size != result.size()){
+		return std::vector<uint8_t>();
+	}
+	return result;
+}
 
+}

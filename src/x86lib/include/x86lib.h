@@ -532,8 +532,8 @@ class x86CPU{
     uint32_t ReadCodeW(int index);
     void ReadCode(void* buf, int index, size_t count);
 
-	int64_t gasUsed = 0;
-	int64_t gasLimit = 0;
+	int64_t gasUsed;
+	int64_t gasLimit;
 
 	public:
 	MemorySystem *Memory;
@@ -771,7 +771,8 @@ private:
 
 };
 
-
+std::vector<uint8_t> qtumCompressPayload(std::vector<uint8_t> payload);
+std::vector<uint8_t> qtumDecompressPayload(uint32_t size, std::vector<uint8_t> payload);
 
 }
 

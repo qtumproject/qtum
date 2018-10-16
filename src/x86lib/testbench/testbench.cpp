@@ -210,6 +210,47 @@ bool singleStepShort=false;
 bool onlyAssemble=false;
 bool rawOutput = false;
 
+//format: decoded payload length (uint32_t) | map (uint32_t * 4) | payload
+//the compression only compresses 0 bytes. 
+//when 0x00 is encountered in the bytestream, it is transformed converted to a run-length encoding
+//encoding examples:
+//0x00 00 00 00 -> 0x00 04
+//0x00 -> 0x00 01
+//0x00 00 -> 0x00 02
+//0x00 (repeated 500 times) -> 0x00 0xFF 0x00 0xF5
+
+std::vector<uint8_t> compressContract(std::vector<uint8_t> payload){
+	int zeros = 0;
+	bool inZero = false;
+	std::vector<uint8_t> result;
+	for(uint8_t b : payload){
+		if(inZero){
+			//previous byte was zero, so just count the zeros now
+			if(b == 0){
+				if(zeros == UINT8_MAX){
+					result.push_back(zeros);
+					zeros = 0;
+					result.push_back(0);
+				}
+				zeros++;
+				continue;
+			}else{
+				result.push_back(zeros);
+				zeros = 0;
+			}
+		}
+
+		if(b == 0x00){
+			inZero = true;
+			zeros = 1;
+		}else{
+			inZero = false;
+		}
+		result.push_back(b);
+	}
+	return result;
+}
+
 int main(int argc, char* argv[]){
 	if(argc == 1){
 		cout << "./x86test {program | program.bin} [-singlestep, -singlestep-short, -assemble] [-raw]" << endl;
