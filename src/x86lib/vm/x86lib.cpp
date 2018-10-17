@@ -921,6 +921,7 @@ std::vector<uint8_t> qtumDecompressPayload(std::vector<uint8_t> payload){
 	}
 	uint32_t size = 0;
 	memcpy(&size, payload.data(), sizeof(uint32_t));
+	size &= 0xFFFFFF; //remove top byte. It can potentially be used for version info or something
 	std::vector<uint8_t> result;
 	result.reserve(size);
 	bool inZero = false;

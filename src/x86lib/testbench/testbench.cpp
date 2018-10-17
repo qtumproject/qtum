@@ -338,22 +338,14 @@ int main(int argc, char* argv[]){
 		}else{
 			std::vector<uint8_t> payload(&out[sizeof(ContractMapInfo)], out + totalSize);
 			std::vector<uint8_t> compressed = qtumCompressPayload(payload);
-			int contractSize = sizeof(uint32_t) + sizeof(ContractMapInfo) + compressed.size();
-			uint8_t *contract = new uint8_t[contractSize];
-			uint32_t tmp = compressed.size(); 
-			memcpy(&contract[0], &tmp, sizeof(uint32_t));
-			memcpy(&contract[4], &map, sizeof(ContractMapInfo));
-			memcpy(&contract[4 + sizeof(ContractMapInfo)], compressed.data(), compressed.size());
 			if(!rawOutput){
-				cout << "Compressed total size: " << dec << contractSize << endl;;
+				cout << "Compressed total size: " << dec << compressed.size() << endl;;
 			}
-			for(int i=0;i<contractSize;i++){
-				cout << hex << setfill('0') << setw(2) << (int)(uint8_t)contract[i];
+			for(int i=0;i<compressed.size();i++){
+				cout << hex << setfill('0') << setw(2) << (int)(uint8_t)compressed[i];
 			}
 			cout << endl;
 			delete[] out;
-			delete[] contract;
-			
 		}
 		return 0;
 	}

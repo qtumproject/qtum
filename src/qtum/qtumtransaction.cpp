@@ -15,6 +15,8 @@
 #include <uint256.h>
 #include <string>
 
+#include <x86lib.h>
+
 #include <univalue.h>
 
 bool ContractOutputParser::decompress(std::vector<uint8_t> data){
@@ -91,7 +93,11 @@ bool ContractOutputParser::parseOutput(ContractOutput& output){
             return false;
         }
         if(version.rootVM == ROOT_VM_X86){
-           // output.data = qtumDecompressPayload()
+            output.data = x86Lib::qtumDecompressPayload(code);
+            if(output.data.size() == 0){
+                LogPrintf("Error decoding contract data/code");
+                return false;
+            }
         }else{
             output.data = code;
         }
