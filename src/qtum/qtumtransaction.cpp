@@ -19,9 +19,6 @@
 
 #include <univalue.h>
 
-bool ContractOutputParser::decompress(std::vector<uint8_t> data){
-    
-}
 
 bool ContractOutputParser::parseOutput(ContractOutput& output){
     output.sender = getSenderAddress();
