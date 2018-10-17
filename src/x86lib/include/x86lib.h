@@ -772,7 +772,7 @@ private:
 };
 
 std::vector<uint8_t> qtumCompressPayload(std::vector<uint8_t> payload);
-std::vector<uint8_t> qtumDecompressPayload(uint32_t size, std::vector<uint8_t> payload);
+std::vector<uint8_t> qtumDecompressPayload(std::vector<uint8_t> payload);
 
 }
 

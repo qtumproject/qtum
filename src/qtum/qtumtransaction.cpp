@@ -17,6 +17,9 @@
 
 #include <univalue.h>
 
+bool ContractOutputParser::decompress(std::vector<uint8_t> data){
+    
+}
 
 bool ContractOutputParser::parseOutput(ContractOutput& output){
     output.sender = getSenderAddress();
@@ -87,7 +90,11 @@ bool ContractOutputParser::parseOutput(ContractOutput& output){
             LogPrintf("Invalid contract address!");
             return false;
         }
-        output.data = code;
+        if(version.rootVM == ROOT_VM_X86){
+           // output.data = qtumDecompressPayload()
+        }else{
+            output.data = code;
+        }
         output.gasLimit = gasLimit;
         output.vout.n = nvout;
         output.vout.hash = tx.GetHash();

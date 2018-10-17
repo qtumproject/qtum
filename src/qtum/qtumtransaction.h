@@ -249,6 +249,7 @@ public:
 
 private:
     bool receiveStack(const CScript& scriptPubKey);
+    static bool decompress(std::vector<uint8_t> data);
     const CTransaction &tx;
     const uint32_t nvout;
     const CCoinsViewCache* view;

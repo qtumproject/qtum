@@ -866,7 +866,7 @@ void x86CPU::WriteMemory(uint32_t address, uint32_t size, void* buffer, MemAcces
 
 
 
-//format: decoded payload length (uint32_t) | map (uint32_t * 4) | payload
+//format: decoded payload length (uint32_t) | payload
 //the compression only compresses 0 bytes. 
 //when 0x00 is encountered in the bytestream, it is transformed converted to a run-length encoding
 //encoding examples:
@@ -874,6 +874,7 @@ void x86CPU::WriteMemory(uint32_t address, uint32_t size, void* buffer, MemAcces
 //0x00 -> 0x00 01
 //0x00 00 -> 0x00 02
 //0x00 (repeated 500 times) -> 0x00 0xFF 0x00 0xF5
+//as part of the encoding process, a 32 bit length field is prefixed to the payload
 
 #define MAX_QTUM_PAYLOAD_SIZE 0xFFFFF
 namespace x86Lib{
@@ -881,6 +882,7 @@ std::vector<uint8_t> qtumCompressPayload(std::vector<uint8_t> payload){
 	int zeros = 0;
 	bool inZero = false;
 	std::vector<uint8_t> result;
+	result.resize(4); //add room for the size integer
 	for(uint8_t b : payload){
 		if(inZero){
 			//previous byte was zero, so just count the zeros now
@@ -906,15 +908,24 @@ std::vector<uint8_t> qtumCompressPayload(std::vector<uint8_t> payload){
 		}
 		result.push_back(b);
 	}
+	uint32_t size = payload.size();
+	memcpy(result.data(), &size, sizeof(uint32_t));
+	//std::copy((uint8_t*)&size, ((uint8_t*)&size) + sizeof(uint32_t), result.begin());
 	return result;
 }
 
 
-std::vector<uint8_t> qtumDecompressPayload(uint32_t size, std::vector<uint8_t> payload){
+std::vector<uint8_t> qtumDecompressPayload(std::vector<uint8_t> payload){
+	if(payload.size() < 5){
+		return std::vector<uint8_t>();
+	}
+	uint32_t size = 0;
+	memcpy(&size, payload.data(), sizeof(uint32_t));
 	std::vector<uint8_t> result;
 	result.reserve(size);
 	bool inZero = false;
-	for(uint8_t b : payload){
+	for(int i = 4; i < payload.size() ; i++){
+		uint8_t b = payload[i];
 		if(inZero){
 			if(b == 0){
 				//be strict about encoding and error when this happens
