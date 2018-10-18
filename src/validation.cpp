@@ -4047,12 +4047,70 @@ bool CheckBlockSignature(const CBlock& block)
     return CPubKey(vchPubKey).Verify(block.GetHashWithoutSign(), block.vchBlockSig);
 }
 
-static bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW = true)
+static bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, const Consensus::Params& consensusParams, bool fCheckProof = true, bool fAcceptHeader = false)
 {
-    // Check proof of work matches claimed amount
-    if (fCheckPOW && block.IsProofOfWork() && !CheckHeaderPoW(block, consensusParams))
-        return state.DoS(50, false, REJECT_INVALID, "high-hash", false, "proof of work failed");
-    // PoS header proofs are not validated and always return true
+    if(!fAcceptHeader)
+    {
+        // Check proof of work matches claimed amount
+        if (fCheckProof && block.IsProofOfWork() && !CheckHeaderPoW(block, consensusParams))
+            return state.DoS(50, false, REJECT_INVALID, "high-hash", false, "proof of work failed");
+        // PoS header proofs are not validated and always return true
+        return true;
+    }
+    else
+    {
+        // Check proof when accepting header
+        if(fCheckProof)
+        {
+            // Get prev block index
+            CBlockIndex* pindexPrev = nullptr;
+            BlockMap::iterator mi = mapBlockIndex.find(block.hashPrevBlock);
+            if (mi == mapBlockIndex.end())
+                return state.DoS(10, false, REJECT_INVALID, "prev-blk-not-found", false, "prev block not found");
+            pindexPrev = (*mi).second;
+            int nHeight = pindexPrev->nHeight + 1;
+
+            // Check proof of work matches claimed amount
+            if(block.IsProofOfWork())
+            {
+                // Reject proof of work at height consensusParams.nLastPOWBlock
+                if (nHeight > consensusParams.nLastPOWBlock)
+                    return state.DoS(100, false, REJECT_INVALID, "reject-pow", false, strprintf("reject proof-of-work at height %d", nHeight));
+
+                // Check proof of work matches claimed amount
+                if (!CheckHeaderPoW(block, consensusParams))
+                    return state.DoS(50, false, REJECT_INVALID, "high-hash", false, "proof of work failed");
+            }
+
+            // Check proof of stake matches claimed amount
+            if(block.IsProofOfStake())
+            {
+                // Reject proof of stake before height COINBASE_MATURITY
+                if (nHeight < COINBASE_MATURITY)
+                    return state.DoS(100, false, REJECT_INVALID, "reject-pos", false, strprintf("reject proof-of-stake at height %d", nHeight));
+
+                // Check coin stake timestamp
+                if(!CheckCoinStakeTimestamp(block.nTime))
+                    return state.DoS(100, false, REJECT_INVALID, "timestamp-invalid", false, "proof of stake failed due to invalid timestamp");
+
+                // Check if the header can be fully validated (is in main chain)
+                CBlockIndex* prev = pindexPrev;
+                bool bCheckValid = false;
+                for(int i = 0; i < COINBASE_MATURITY; i++)
+                {
+                    if(prev == chainActive.Tip())
+                    {
+                        bCheckValid = true;
+                        break;
+                    }
+                    prev = prev->pprev;
+                }
+                if(bCheckValid && !CheckHeaderPoS(block, consensusParams))
+                    return state.DoS(100, false, REJECT_INVALID, "bad-cb-header", false, "invalid coinbase header");
+            }
+        }
+    }
+
     return true;
 }
 
@@ -4413,7 +4471,7 @@ bool CChainState::AcceptBlockHeader(const CBlockHeader& block, CValidationState&
             return true;
         }
 
-        if (!CheckBlockHeader(block, state, chainparams.GetConsensus()))
+        if (!CheckBlockHeader(block, state, chainparams.GetConsensus(), true, true))
             return error("%s: Consensus::CheckBlockHeader: %s, %s", __func__, hash.ToString(), FormatStateMessage(state));
 
         // Get prev block index
