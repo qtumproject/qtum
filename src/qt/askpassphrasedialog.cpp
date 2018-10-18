@@ -95,6 +95,7 @@ AskPassphraseDialog::~AskPassphraseDialog()
 void AskPassphraseDialog::setModel(WalletModel *_model)
 {
     this->model = _model;
+    if(model) ui->stakingCheckBox->setChecked(model->getWalletUnlockStakingOnly() || mode == UnlockStaking);
 }
 
 void AskPassphraseDialog::accept()
