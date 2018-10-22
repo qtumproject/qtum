@@ -4052,10 +4052,26 @@ static bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state,
     if(!fAcceptHeader)
     {
         // Check proof of work matches claimed amount
-        if (fCheckProof && block.IsProofOfWork() && !CheckHeaderPoW(block, consensusParams))
-            return state.DoS(50, false, REJECT_INVALID, "high-hash", false, "proof of work failed");
-        // PoS header proofs are not validated and always return true
-        return true;
+    if (fCheckProof && block.IsProofOfWork() && !CheckHeaderPoW(block, consensusParams))
+        return state.DoS(50, false, REJECT_INVALID, "high-hash", false, "CheckBlockHeader(): Check Proof of work failed");
+        // Check against rolling checkpoint
+    if (fCheckProof && block.IsProofOfStake() && !IsInitialBlockDownload()){
+        if (chainActive.Tip() && block.hashPrevBlock != chainActive.Tip()->GetBlockHash())
+        {
+            const CBlockIndex* pcheckpoint = Checkpoints::AutoSelectSyncCheckpoint();
+
+            int64_t deltaTime = block.GetBlockTime() - pcheckpoint->nTime;
+            std::cout << block.GetBlockTime() << " || " << pcheckpoint->nTime << " || " << deltaTime << std::endl;
+            std::cout << block.GetHash().ToString() << " || " << pcheckpoint->GetBlockHash().ToString() << std::endl;
+            if (deltaTime < 0)
+            {
+                return state.DoS(50, false, REJECT_INVALID, "older-than-checkpoint", false,"CheckBlockHeader(): Block with a timestamp before last checkpoint");
+            }
+        }
+        // Check PoS
+        if(!CheckHeaderPoS(block, consensusParams))
+            return state.DoS(50, false, REJECT_INVALID, "kernel-hash", false, "CheckBlockHeader(): Check proof of stake failed");
+    }
     }
     else
     {
@@ -4110,7 +4126,6 @@ static bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state,
             }
         }
     }
-
     return true;
 }
 
@@ -5190,7 +5205,7 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CCoinsView *coinsview,
         if (!ReadBlockFromDisk(block, pindex, chainparams.GetConsensus()))
             return error("VerifyDB(): *** ReadBlockFromDisk failed at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
         // check level 1: verify block validity
-        if (nCheckLevel >= 1 && !CheckBlock(block, state, chainparams.GetConsensus()))
+        if (nCheckLevel >= 1 && !CheckBlock(block, state, chainparams.GetConsensus(),false))
             return error("%s: *** found bad block at %d, hash=%s (%s)\n", __func__,
                          pindex->nHeight, pindex->GetBlockHash().ToString(), FormatStateMessage(state));
         // check level 2: verify undo validity
