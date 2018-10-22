@@ -172,7 +172,7 @@ public:
 
     bool addHeaders(const CBlockIndex *pindexFirst, const CBlockIndex *pindexLast)
     {
-        if(pindexFirst && pindexLast)
+        if(pindexFirst && pindexLast && maxSize && maxAvg)
         {
             // Get the begin block index
             int nBegin = pindexFirst->nHeight;
@@ -196,7 +196,7 @@ public:
         // No headers
         size_t size = points.size();
         if(size == 0)
-            return true;
+            return ret;
 
         // Compute the number of the received headers
         size_t nHeaders = 0;
