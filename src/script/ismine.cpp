@@ -61,9 +61,10 @@ IsMineResult IsMineInner(const CKeyStore& keystore, const CScript& scriptPubKey,
 
     std::vector<valtype> vSolutions;
     txnouttype whichType;
-    Solver(scriptPubKey, whichType, vSolutions);
+    bool solved = Solver(scriptPubKey, whichType, vSolutions);
 
     CKeyID keyID;
+    if(solved)
     switch (whichType)
     {
     case TX_NONSTANDARD:
