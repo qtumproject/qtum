@@ -52,7 +52,6 @@ const ContractEnvironment& x86ContractVM::getEnv() {
 #define TX_CALL_DATA_ADDRESS 0x210000
 
 
-
 bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &result, bool commit)
 {
     //default results
@@ -110,12 +109,14 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
     memsys.Add(TX_DATA_ADDRESS, TX_DATA_ADDRESS_END, &txDataMemory);
 
     PointerROMemory callDataMemory(output.data.data(), output.data.size(), "call-data");
-    if(!output.OpCreate){
-        //load call data into memory space if not create
-        memsys.Add(TX_CALL_DATA_ADDRESS, TX_CALL_DATA_ADDRESS + output.data.size(), &callDataMemory);
-    }
 
     QtumHypervisor qtumhv(*this, output, db);
+    if(!output.OpCreate){
+        //load call data into memory space if not create
+        //memsys.Add(TX_CALL_DATA_ADDRESS, TX_CALL_DATA_ADDRESS + output.data.size(), &callDataMemory);
+
+        pushArguments(qtumhv, output.data);
+    }
 
     x86CPU cpu;
     cpu.Memory = &memsys;
@@ -182,6 +183,23 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
         return false;
     }
     return false;
+}
+
+void x86ContractVM::pushArguments(QtumHypervisor& hv, std::vector<uint8_t> args){
+    for(size_t i=0;i<args.size();){
+        uint32_t size=0;
+        std::vector<uint8_t> buffer;
+        if(args.size() - i < sizeof(uint32_t)){
+            return;
+        }
+        memcpy(&size, &args.data()[i], sizeof(uint32_t));
+        i += sizeof(uint32_t);
+        if(args.size() - i < size){
+            return;
+        }
+        buffer.resize(size);
+        memcpy(buffer.data(), &args.data()[i], size);
+    }
 }
 
 struct TxDataABI{
@@ -341,6 +359,54 @@ uint32_t QtumHypervisor::SenderAddress(uint32_t syscall, x86Lib::x86CPU& vm){
 uint32_t QtumHypervisor::BlockGasLimit(uint32_t syscall, x86Lib::x86CPU& vm){
     //ebx = gas limit (64 bit integer)
     vm.WriteMemory(vm.Reg32(EBX), sizeof(uint64_t), (void*) contractVM.getEnv().gasLimit);
+    return 0;
+}
+
+uint32_t QtumHypervisor::SCCSItemCount(uint32_t syscall, x86Lib::x86CPU& vm){
+    return sccs.size();
+}
+uint32_t QtumHypervisor::SCCSSize(uint32_t syscall, x86Lib::x86CPU& vm){
+    return sccsSize;
+}
+uint32_t QtumHypervisor::SCCSItemSize(uint32_t syscall, x86Lib::x86CPU& vm){
+    return sccs.top().size();
+}
+uint32_t QtumHypervisor::SCCSPop(uint32_t syscall, x86Lib::x86CPU& vm){
+    //EBX = output buffer
+    //ECX = buffer size
+    //returns actual size
+    uint32_t actual = sccs.top().size();
+    uint32_t size = std::min(actual, (uint32_t)vm.Reg32(ECX));
+    vm.WriteMemory(vm.Reg32(EBX), vm.Reg32(ECX), sccs.top().data(), Syscall);
+    sccs.pop();
+    return actual;
+}
+uint32_t QtumHypervisor::SCCSPeek(uint32_t syscall, x86Lib::x86CPU& vm){
+    //EBX = output buffer
+    //ECX = buffer size
+    //returns actual size
+    uint32_t actual = sccs.top().size();
+    uint32_t size = std::min(actual, (uint32_t)vm.Reg32(ECX));
+    vm.WriteMemory(vm.Reg32(EBX), vm.Reg32(ECX), sccs.top().data(), Syscall);
+    return actual;
+}
+uint32_t QtumHypervisor::SCCSPush(uint32_t syscall, x86Lib::x86CPU& vm){
+    //EBX = output buffer
+    //ECX = buffer size
+    //EAX = 0
+    std::vector<uint8_t> tmp;
+    tmp.resize(vm.Reg32(ECX));
+    vm.ReadMemory(vm.Reg32(EBX), vm.Reg32(ECX), tmp.data(), Syscall);
+    return 0;
+}
+uint32_t QtumHypervisor::SCCSDiscard(uint32_t syscall, x86Lib::x86CPU& vm){
+    //EAX = 0
+    sccs.pop();
+    return 0;
+}
+uint32_t QtumHypervisor::SCCSClear(uint32_t syscall, x86Lib::x86CPU& vm){
+    //EAX = 0
+    sccs = std::stack<std::vector<uint8_t>>();
     return 0;
 }
 

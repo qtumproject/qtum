@@ -9,7 +9,7 @@
 #include <x86lib.h>
 class ContractVM;
 
-
+class QtumHypervisor;
 
 class x86ContractVM : public ContractVM{
 public:
@@ -20,6 +20,8 @@ public:
 private:
     const ContractEnvironment &getEnv();
     const std::vector<uint8_t> buildAdditionalData(ContractOutput &output);
+
+    void pushArguments(QtumHypervisor& hv, std::vector<uint8_t> args);
 
     friend class QtumHypervisor;
 };
@@ -74,13 +76,31 @@ class QtumHypervisor : public x86Lib::InterruptHypervisor{
     }
     void clearEffects(){
         effects.exitCode = 0;
+        sccs = std::stack<std::vector<uint8_t>>();
+        sccsSize = 0;
     }
     static void setupSyscalls();
+
+
+    void pushSCCS(std::vector<uint8_t> v){
+        sccs.push(v);
+    }
+    std::vector<uint8_t> popSCCS(){
+        std::vector<uint8_t> tmp = sccs.top();
+        sccs.pop();
+        return tmp;
+    }
+    size_t sizeofSCCS(){
+        return sccs.size();
+    }
+    
 private:
     x86ContractVM &contractVM;
     ContractOutput output;
     DeltaDBWrapper &db;
     HypervisorEffect effects;
+    std::stack<std::vector<uint8_t>> sccs; //smart contract communication stack
+    size_t sccsSize;
 
     friend x86ContractVM;
 
@@ -104,6 +124,16 @@ private:
     uint32_t WriteStorage(uint32_t,x86Lib::x86CPU&);
 
     uint32_t SenderAddress(uint32_t syscall, x86Lib::x86CPU& vm);
+
+    //SCCS
+    uint32_t SCCSItemCount(uint32_t syscall, x86Lib::x86CPU& vm);
+    uint32_t SCCSSize(uint32_t syscall, x86Lib::x86CPU& vm);
+    uint32_t SCCSItemSize(uint32_t syscall, x86Lib::x86CPU& vm);
+    uint32_t SCCSPop(uint32_t syscall, x86Lib::x86CPU& vm);
+    uint32_t SCCSPeek(uint32_t syscall, x86Lib::x86CPU& vm);
+    uint32_t SCCSPush(uint32_t syscall, x86Lib::x86CPU& vm);
+    uint32_t SCCSDiscard(uint32_t syscall, x86Lib::x86CPU& vm);
+    uint32_t SCCSClear(uint32_t syscall, x86Lib::x86CPU& vm);
 };
 
 
@@ -133,10 +163,12 @@ static const int QTUM_SYSTEM_ERROR_INT = 0xFF;
 #define QSC_SelfDestruct            15
 
 #define QSC_AddEvent                16
+/* -- this quickly gets very complicated. Defer/cancel implementation
 #define QSC_GetEvent                17
 #define QSC_GetEventSize            18
 #define QSC_ExecutingCallID         19
 #define QSC_NextCallID              20
+*/
 
 
     //storage commands, 0x1000
@@ -148,7 +180,7 @@ static const int QTUM_SYSTEM_ERROR_INT = 0xFF;
 #define QSC_GetBalance              0x2001
 #define QSC_SendValueAndCall        0x2002
 
-    //caller commands, 0x3000
+    //callee commands, 0x3000
 #define QSC_GasProvided             0x3000
 #define QSC_CallerTransaction       0x3001 //provides output scripts, etc
 #define QSC_ValueProvided           0x3002
@@ -156,25 +188,21 @@ static const int QTUM_SYSTEM_ERROR_INT = 0xFF;
 #define QSC_SenderAddress           0x3004
 #define QSC_CallStackSize           0x3005
 //SCCS = Smart Contract Communication Stack
-#define QSC_SCCSCount               0x3006
-#define QSC_SCCSMaxItems            0x3007
-#define QSC_SCCSMaxSize             0x3008
+//note: Upon contract error, this stack is not cleared. Thus an error contract can have side effects
+#define QSC_SCCSItemCount               0x3006
+//#define QSC_SCCSMaxItems            0x3007
+//#define QSC_SCCSMaxSize             0x3008
 #define QSC_SCCSSize                0x3009
 #define QSC_SCCSItemSize            0x300A
 #define QSC_SCCSPop                 0x300B
 #define QSC_SCCSPeek                0x300C
 #define QSC_SCCSPush                0x300D
-#define QSC_SCCSClear               0x300E
+#define QSC_SCCSDiscard             0x300E //pops off the stack without any data transfer possible (for cheaper gas cost)
+#define QSC_SCCSClear               0x300F
 
-    //call commands, 0x4000
+    //caller commands, 0x4000
 #define QSC_CallContract            0x4000
 #define QSC_CallLibrary             0x4001
-//pushes data onto invisible arg stack
-#define QSC_PushCallArg             0x4002
-//pops data off of the invisible arg stack
-#define QSC_PopCallArg              0x4003
-//clears all data from the arg stack, potentially issuing a gas refund
-#define QSC_ClearCallArgs           0x4004
 
 
 //ABI type prefixes
