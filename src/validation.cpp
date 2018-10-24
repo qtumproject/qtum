@@ -4055,7 +4055,8 @@ static bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state,
 
     // Check proof of stake matches claimed amount
     if (fCheckPOS && block.IsProofOfStake() && !CheckHeaderPoS(block, consensusParams))
-        return state.DoS(50, false, REJECT_INVALID, "bad-cb-header", false, "proof of stake failed");
+        // May occur if behind on block chain sync
+        return state.DoS(1, false, REJECT_INVALID, "bad-cb-header", false, "proof of stake failed");
 
     return true;
 }
@@ -4400,23 +4401,8 @@ bool CChainState::UpdateHashProof(const CBlock& block, CValidationState& state, 
 
 bool CheckPOS(const CBlockHeader& block, CBlockIndex* pindexPrev)
 {
-    // First check for determining if PoS is possible to be checked in the header
-    bool fCheckPOS = pindexPrev && block.IsProofOfStake() && !IsInitialBlockDownload();
-
-    /*// Second check for determining if PoS is possible to be checked in the header
-    bool fCheckPOS = false;
-    CBlockIndex* prev = pindexPrev;
-    for(int i = 0; i < COINBASE_MATURITY; i++)
-    {
-        if(prev == chainActive.Tip())
-        {
-            fCheckPOS = true;
-            break;
-        }
-        prev = prev->pprev;
-    }*/
-
-    return fCheckPOS;
+    // Determining if PoS is possible to be checked in the header
+    return pindexPrev && block.IsProofOfStake() && !IsInitialBlockDownload();
 }
 
 bool CChainState::AcceptBlockHeader(const CBlockHeader& block, CValidationState& state, const CChainParams& chainparams, CBlockIndex** ppindex)
@@ -4492,6 +4478,7 @@ bool CChainState::AcceptBlockHeader(const CBlockHeader& block, CValidationState&
                 return state.DoS(100, false, REJECT_INVALID, "timestamp-invalid", false, "proof of stake failed due to invalid timestamp");
         }
 
+        // Check block header
         if (!CheckBlockHeader(block, state, chainparams.GetConsensus(), true, CheckPOS(block, pindexPrev)))
             return error("%s: Consensus::CheckBlockHeader: %s, %s", __func__, hash.ToString(), FormatStateMessage(state));
     }
