@@ -3903,7 +3903,7 @@ bool ProcessNetBlock(const CChainParams& chainparams, const std::shared_ptr<cons
         }
 
         // Check for the signiture encoding
-        if (!CheckCanonicalBlockSignature(pblock)) 
+        if (!CheckCanonicalBlockSignature(pblock.get())) 
         {
             if (pfrom)
                 Misbehaving(pfrom->GetId(), 100);
