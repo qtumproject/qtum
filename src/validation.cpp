@@ -4402,7 +4402,10 @@ bool CChainState::UpdateHashProof(const CBlock& block, CValidationState& state, 
 bool CheckPOS(const CBlockHeader& block, CBlockIndex* pindexPrev)
 {
     // Determining if PoS is possible to be checked in the header
-    return pindexPrev && block.IsProofOfStake() && !IsInitialBlockDownload();
+    return pindexPrev && block.IsProofOfStake() && !IsInitialBlockDownload()
+    // Additional check if not triggered initial block download, like when PoW blocks were initially created
+    // CheckPOS is called after ContextualCheckBlockHeader where future block headers are not accepted
+            && (pindexPrev->nHeight + 1 - chainActive.Height() < COINBASE_MATURITY);
 }
 
 bool CChainState::AcceptBlockHeader(const CBlockHeader& block, CValidationState& state, const CChainParams& chainparams, CBlockIndex** ppindex)
