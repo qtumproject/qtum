@@ -214,6 +214,8 @@ public:
                        (nHeaders >= maxSize * 3);
         if(banNode)
         {
+            // Clear the points and ban the node
+            points.clear();
             return state.DoS(100, false, REJECT_INVALID, "header-spam", false, "ban node for sending spam");
         }
 
