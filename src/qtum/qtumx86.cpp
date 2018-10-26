@@ -202,12 +202,6 @@ void x86ContractVM::pushArguments(QtumHypervisor& hv, std::vector<uint8_t> args)
     }
 }
 
-struct TxDataABI{
-    uint32_t size;
-    uint32_t callDataSize;
-    UniversalAddressABI sender;
-}  __attribute__((__packed__));
-
 const std::vector<uint8_t> x86ContractVM::buildAdditionalData(ContractOutput &output) {
     std::vector<uint8_t> data;
     data.resize(0x1000);
@@ -230,7 +224,8 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
     //arguments (in order) : EBX, ECX, EDX, ESI, EDI, EBP
     if(number == 0xF0){
         //exit code
-        effects.exitCode = vm.Reg32(EAX);
+        
+        effects.exitCode = vm.Reg32(EAX) & 0x07; //only allow success, has data, error, or revert here
         vm.Stop();
         return;
     }
@@ -377,7 +372,7 @@ uint32_t QtumHypervisor::SCCSPop(uint32_t syscall, x86Lib::x86CPU& vm){
     //returns actual size
     uint32_t actual = sccs.top().size();
     uint32_t size = std::min(actual, (uint32_t)vm.Reg32(ECX));
-    vm.WriteMemory(vm.Reg32(EBX), vm.Reg32(ECX), sccs.top().data(), Syscall);
+    vm.WriteMemory(vm.Reg32(EBX), size, sccs.top().data(), Syscall);
     sccs.pop();
     return actual;
 }
@@ -387,7 +382,7 @@ uint32_t QtumHypervisor::SCCSPeek(uint32_t syscall, x86Lib::x86CPU& vm){
     //returns actual size
     uint32_t actual = sccs.top().size();
     uint32_t size = std::min(actual, (uint32_t)vm.Reg32(ECX));
-    vm.WriteMemory(vm.Reg32(EBX), vm.Reg32(ECX), sccs.top().data(), Syscall);
+    vm.WriteMemory(vm.Reg32(EBX), size, sccs.top().data(), Syscall);
     return actual;
 }
 uint32_t QtumHypervisor::SCCSPush(uint32_t syscall, x86Lib::x86CPU& vm){
@@ -427,6 +422,15 @@ void QtumHypervisor::setupSyscalls(){
     INSTALL_QSC(UsedGas, 0);
     INSTALL_QSC_COST(ReadStorage, QSCCAP_READSTATE, 1000);
     INSTALL_QSC_COST(WriteStorage, QSCCAP_WRITESTATE, 5000);
+
+    INSTALL_QSC(SCCSItemCount, 0);
+    INSTALL_QSC(SCCSSize, 0);
+    INSTALL_QSC(SCCSItemSize, 0);
+    INSTALL_QSC(SCCSPeek, 0);
+    INSTALL_QSC(SCCSPop, 0);
+    INSTALL_QSC(SCCSPush, 0);
+    INSTALL_QSC(SCCSDiscard, 0);
+    INSTALL_QSC(SCCSClear, 0);
 }
 
 
