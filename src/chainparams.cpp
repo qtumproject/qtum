@@ -170,11 +170,11 @@ public:
         };
 
         chainTxData = ChainTxData{
-            // Data as of block a1bab8db27f26952ce94fff6563931943554e36fc3a23f99cc8513270d685b2c (height 92662)
-            1517516912, // * UNIX timestamp of last known number of transactions
-            904678, // * total number of transactions between genesis and that timestamp
+            // Data as of block 3e76a9f460f5df039f828e3c259da03e1b4e1ec883cbf687a228e346cc457360 (height 253817)
+        	1540769472, // * UNIX timestamp of last known number of transactions
+			2361221, // * total number of transactions between genesis and that timestamp
                             //   (the tx=... number in the SetBestChain debug.log lines)
-            0.125 // * estimated number of transactions per second after that timestamp
+			0.04623395247200218 // * estimated number of transactions per second after that timestamp
         };
         consensus.nLastPOWBlock = 5000;
         consensus.nMPoSRewardRecipients = 10;
