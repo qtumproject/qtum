@@ -180,7 +180,8 @@ BITCOIN_CORE_H = \
   qtum/qtumtransaction.h \
   qtum/qtumDGP.h \
   qtum/storageresults.h \
-  qtum/qtumx86.h
+  qtum/qtumx86.h \
+  qtum/shared-x86.h
 
 
 obj/build.h: FORCE

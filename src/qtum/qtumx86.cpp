@@ -39,18 +39,6 @@ const ContractEnvironment& x86ContractVM::getEnv() {
     return env;
 }
 
-#define CODE_ADDRESS 0x1000
-#define MAX_CODE_SIZE 0x10000
-#define DATA_ADDRESS 0x100000
-#define MAX_DATA_SIZE 0x10000
-#define STACK_ADDRESS 0x200000
-#define MAX_STACK_SIZE 1024 * 8
-
-#define TX_DATA_ADDRESS 0xD0000000
-#define TX_DATA_ADDRESS_END 0xF0000000
-
-#define TX_CALL_DATA_ADDRESS 0x210000
-
 
 bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &result, bool commit)
 {
@@ -106,7 +94,7 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
     memsys.Add(CODE_ADDRESS, CODE_ADDRESS + MAX_CODE_SIZE, &codeMemory);
     memsys.Add(DATA_ADDRESS, DATA_ADDRESS + MAX_DATA_SIZE, &dataMemory);
     memsys.Add(STACK_ADDRESS, STACK_ADDRESS + MAX_STACK_SIZE, &stackMemory);
-    memsys.Add(TX_DATA_ADDRESS, TX_DATA_ADDRESS_END, &txDataMemory);
+    memsys.Add(TX_DATA_ADDRESS, TX_DATA_ADDRESS + TX_DATA_SIZE, &txDataMemory);
 
     PointerROMemory callDataMemory(output.data.data(), output.data.size(), "call-data");
 
