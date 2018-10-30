@@ -150,7 +150,7 @@ void MemorySystem::Read(uint32_t address,int size,void *b, MemAccessReason reaso
 
 
 
-void MemorySystem::Write(uint32_t address,int size,void *b, MemAccessReason reason)
+void MemorySystem::Write(uint32_t address,int size, const void *b, MemAccessReason reason)
 {
 	uint8_t *buffer=(uint8_t*)b;
 	DeviceRange_t device;

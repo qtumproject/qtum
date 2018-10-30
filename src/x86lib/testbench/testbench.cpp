@@ -50,7 +50,7 @@ public:
         //nothing yet
         memset(buffer, 0, count);
     }
-    virtual void Write(uint32_t address,int count,void *buffer){
+    virtual void Write(uint32_t address,int count, const void *buffer){
         //note memmap prefix is already subtracted out
         if(range(address, 0, 4)) {
             cout << hex << *((uint32_t *) buffer) << endl;
@@ -151,7 +151,7 @@ void port_read(x86CPU *thiscpu,uint16_t port,int size,void *buffer){
 		throw;
 	}
 }
-void port_write(x86CPU *thiscpu,uint16_t port,int size,void *buffer){
+void port_write(x86CPU *thiscpu,uint16_t port,int size, const void *buffer){
 	uint32_t val;
 	if(size==1){
 		val=*(uint8_t*)buffer;
@@ -171,8 +171,8 @@ class PCPorts : public PortDevice{
 	virtual void Read(uint16_t port,int size,void *buffer){
 		port_read(NULL,port,size,buffer);
 	}
-	virtual void Write(uint16_t port,int size,void *buffer){
-		port_write(NULL,port,size,buffer);
+	virtual void Write(uint16_t port,int size, const void *buffer){
+		port_write(NULL,port,size, buffer);
 	}
 };
 

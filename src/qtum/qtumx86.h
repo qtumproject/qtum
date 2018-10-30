@@ -20,6 +20,9 @@ public:
             : ContractVM(db, env, remainingGasLimit)
     {}
     virtual bool execute(ContractOutput &output, ContractExecutionResult &result, bool commit);
+
+    BlockDataABI getBlockData();
+    TxDataABI getTxData();
 private:
     const ContractEnvironment &getEnv();
     const std::vector<uint8_t> buildAdditionalData(ContractOutput &output);
@@ -66,6 +69,21 @@ struct HypervisorEffect{
     std::map<std::string, std::string> events;
 };
 
+class x86VMData{
+    //because memory management is awful
+    x86Lib::MemorySystem memory;
+    x86Lib::ROMemory code;
+    x86Lib::RAMemory stack;
+    x86Lib::RAMemory data;
+
+    //todo, block/tx can be shared and not require more memory
+    x86Lib::ROMemory block;
+    x86Lib::ROMemory tx;
+    x86Lib::ROMemory exec;
+    public:
+    friend QtumHypervisor;
+};
+
 class QtumHypervisor : public x86Lib::InterruptHypervisor{
     QtumHypervisor(x86ContractVM &vm, const ContractOutput& out, DeltaDBWrapper& db_) : contractVM(vm), output(out), db(db_){
         if(qsc_syscalls.size() == 0){
@@ -96,6 +114,8 @@ class QtumHypervisor : public x86Lib::InterruptHypervisor{
     size_t sizeofSCCS(){
         return sccs.size();
     }
+
+    bool initVM(x86Lib::x86CPU& cpu, std::vector<uint8_t> bytecode, BlockDataABI &block, TxDataABI &tx, ExecDataABI &exec, x86VMData& vmdata);
     
 private:
     x86ContractVM &contractVM;
@@ -110,6 +130,9 @@ private:
     //syscalls map. Key is the syscall number
     //qsc is interrupt 0x40
     static std::map<uint32_t, QtumSyscall> qsc_syscalls;
+
+    ContractExecutionResult execute(UniversalAddress address, ExecDataABI exec);
+
 
     //syscalls
     uint32_t BlockGasLimit(uint32_t,x86Lib::x86CPU&);

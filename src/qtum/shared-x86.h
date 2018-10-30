@@ -12,14 +12,6 @@ typedef struct qtum_hash32 { uint8_t data[32]; } __attribute__((__packed__)) qtu
 //use defines here so that we can use it in C easily
 
 //basic execution calls, 0x0000
-#define QSC_BlockGasLimit           1
-#define QSC_BlockCreator            2
-#define QSC_BlockDifficulty         3
-#define QSC_BlockHeight             4
-#define QSC_GetBlockHash            5
-#define QSC_IsCreate                6
-#define QSC_SelfAddress             7
-#define QSC_PreviousBlockTime       8
 #define QSC_UsedGas                 9
 #define QSC_SetFaultHandler         10
 #define QSC_SetDoubleFaultHandler   11
@@ -47,11 +39,6 @@ typedef struct qtum_hash32 { uint8_t data[32]; } __attribute__((__packed__)) qtu
 #define QSC_SendValueAndCall        0x2002
 
     //callee commands, 0x3000
-#define QSC_GasProvided             0x3000
-#define QSC_CallerTransaction       0x3001 //provides output scripts, etc
-#define QSC_ValueProvided           0x3002
-#define QSC_OriginAddress           0x3003
-#define QSC_SenderAddress           0x3004
 #define QSC_CallStackSize           0x3005
 //SCCS = Smart Contract Communication Stack
 //note: Upon contract error, this stack is not cleared. Thus an error contract can have side effects
@@ -127,6 +114,7 @@ struct ExecDataABI{
     uint64_t valueSent;
     UniversalAddressABI origin;
     UniversalAddressABI self;
+    uint32_t nestLevel; //how many calls exist above this one, 0 = top level
      
 }  __attribute__((aligned(4)));
 
@@ -159,11 +147,11 @@ struct TxDataABI{
     //total size of txdata area
     uint32_t size; 
     
-    const QtumTxInput const *inputsBegin; //points to VM memory space, NOT physical memory space
-    const QtumTxInput const *inputsEnd; //points to VM memory space, NOT physical memory space
+    const QtumTxInput *const inputsBegin; //points to VM memory space, NOT physical memory space
+    const QtumTxInput *const inputsEnd; //points to VM memory space, NOT physical memory space
 
-    const QtumTxOutput const *outputsBegin; //points to VM memory space, NOT physical memory space
-    const QtumTxOutput const *outputsEnd; //points to VM memory space, NOT physical memory space
+    const QtumTxOutput *const outputsBegin; //points to VM memory space, NOT physical memory space
+    const QtumTxOutput *const outputsEnd; //points to VM memory space, NOT physical memory space
     
     uint32_t rawTxDataSize;
     uint8_t beginRawTxData; //at this point is where raw transaction bytes begin

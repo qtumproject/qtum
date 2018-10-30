@@ -135,7 +135,7 @@ class x86CPU;
 class MemoryDevice{
 	public:
 	virtual void Read(uint32_t address,int count,void *buffer)=0;
-	virtual void Write(uint32_t address,int count,void *data)=0;
+	virtual void Write(uint32_t address,int count,const void *data)=0;
 	virtual int Readable(uint32_t address,int count){
 		return 1;
 		//This is optional. It is currently not used in the CPU code
@@ -153,7 +153,7 @@ inline MemoryDevice::~MemoryDevice(){}
 class PortDevice{
 	public:
 	virtual void Read(uint16_t address,int count,void *buffer)=0;
-	virtual void Write(uint16_t address,int count,void *data)=0;
+	virtual void Write(uint16_t address,int count,const void *data)=0;
 	virtual inline ~PortDevice()=0;
 };
 
@@ -194,7 +194,7 @@ class MemorySystem{
 	void Remove(MemoryDevice *memdev);
 	int RangeFree(uint32_t low,uint32_t high);
 	void Read(uint32_t address,int count,void *buffer, MemAccessReason reason = Data);
-	void Write(uint32_t address,int count,void *data, MemAccessReason reason = Data);
+	void Write(uint32_t address,int count,const void *data, MemAccessReason reason = Data);
 	//! Tells if memory is locked
 	/*!
 	\return 1 if memory is locked, 0 if not locked.
@@ -238,11 +238,19 @@ class RAMemory : public MemoryDevice{
     std::string id;
     public:
     RAMemory(uint32_t size_, std::string id_){
+		Init(size_, id_);
+    }
+	RAMemory(){
+		id = "not set";
+		size = 0;
+		ptr = nullptr;
+	}
+	void Init(uint32_t size_, std::string id_){
         size = size_;
         id = id_;
         ptr = new char[size];;
         std::memset(ptr, 0, size);
-    }
+	}
     virtual ~RAMemory(){
         delete[] ptr;
     }
@@ -252,10 +260,10 @@ class RAMemory : public MemoryDevice{
 	}
         std::memcpy(buffer,&ptr[address],count);
     }
-    virtual void Write(uint32_t address,int count,void *buffer){
-	if(address + count > size){
-	    throw new MemoryException(address);
-	}
+    virtual void Write(uint32_t address,int count, const void *buffer){
+		if(address + count > size){
+			throw new MemoryException(address);
+		}
         std::memcpy(&ptr[address],buffer,count);
     }
     virtual char* GetMemory(){
@@ -269,9 +277,13 @@ class ROMemory : public RAMemory{
         : RAMemory(size_, id_){
     }
 
-    virtual void Write(uint32_t address,int count,void *buffer){
+    virtual void Write(uint32_t address,int count, const void *buffer){
         throw new MemoryException(address);
     }
+	//This is a way to bypass the write protection 
+	void BypassWrite(uint32_t address, int count, const void* buffer){
+		RAMemory::Write(address, count, buffer);
+	}
 };
 
 class PointerMemory : public MemoryDevice{
@@ -291,7 +303,7 @@ class PointerMemory : public MemoryDevice{
 	}
         std::memcpy(buffer,&ptr[address],count);
     }
-    virtual void Write(uint32_t address,int count,void *buffer){
+    virtual void Write(uint32_t address,int count, const void *buffer){
 	if(address + count > size){
 	    throw new MemoryException(address);
 	}
@@ -311,9 +323,14 @@ class PointerROMemory : public PointerMemory{
         id = id_;
         ptr = mem;
     }
-    virtual void Write(uint32_t address,int count,void *buffer){
+    virtual void Write(uint32_t address,int count, const void *buffer){
         throw new MemoryException(address);
     }
+
+	//This is a way to bypass the write protection 
+	void BypassWrite(uint32_t address, int count, const void* buffer){
+		PointerMemory::Write(address, count, buffer);
+	}
 };
 
 
