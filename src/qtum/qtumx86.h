@@ -81,6 +81,7 @@ class x86VMData{
     x86Lib::ROMemory tx;
     x86Lib::ROMemory exec;
     public:
+    x86VMData(){}
     friend QtumHypervisor;
 };
 
@@ -115,8 +116,8 @@ class QtumHypervisor : public x86Lib::InterruptHypervisor{
         return sccs.size();
     }
 
-    bool initVM(x86Lib::x86CPU& cpu, std::vector<uint8_t> bytecode, BlockDataABI &block, TxDataABI &tx, ExecDataABI &exec, x86VMData& vmdata);
-    
+    bool initVM(x86Lib::x86CPU& cpu, const std::vector<uint8_t> bytecode, const BlockDataABI &block, const TxDataABI &tx, const ExecDataABI &exec, x86VMData& vmdata);
+
 private:
     x86ContractVM &contractVM;
     ContractOutput output;

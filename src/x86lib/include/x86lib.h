@@ -276,6 +276,11 @@ class ROMemory : public RAMemory{
     ROMemory(uint32_t size_, std::string id_)
         : RAMemory(size_, id_){
     }
+	ROMemory(){
+		id = "not set";
+		size = 0;
+		ptr = nullptr;
+	}
 
     virtual void Write(uint32_t address,int count, const void *buffer){
         throw new MemoryException(address);

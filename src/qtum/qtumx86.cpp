@@ -53,6 +53,9 @@ BlockDataABI x86ContractVM::getBlockData(){
     return b;
 }
 
+TxDataABI x86ContractVM::getTxData(){
+    return TxDataABI();
+}
 
 
 bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &result, bool commit)
@@ -62,59 +65,40 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
     result.refundSender = 0;
     result.commitState = false;
     result.status = ContractStatus::CodeError();
-    const uint8_t *code;
-    const uint8_t *data;
-    const uint8_t *options;
-    ContractMapInfo *map;
+    //const uint8_t *options; //todo: eventually need to get this from initVM
     std::vector<uint8_t> bytecode;
+
     if(output.OpCreate) {
-        if(output.data.size() <= sizeof(ContractMapInfo)){
-            result.status = ContractStatus::CodeError("Contract bytecode is not big enough to be valid");
-            return false;
-        }
-        map = parseContractData(output.data.data(), &code, &data, &options);
-        if (map->optionsSize != 0) {
-            result.status = ContractStatus::CodeError("Option data is specified, but no options are valid yet for x86");
-            return false;
-        }
+        bytecode = output.data;
     }else {
         db.readByteCode(output.address, bytecode);
-        if(bytecode.size() <= sizeof(ContractMapInfo)){
-            result.status = ContractStatus::CodeError("Contract bytecode is not big enough to be valid");
-            return false;
-        }
-        map = parseContractData(bytecode.data(), &code, &data, &options);
+    }
+    if(bytecode.size() <= sizeof(ContractMapInfo)){
+        result.status = ContractStatus::CodeError("Contract bytecode is not big enough to be valid");
+        return false;
     }
 
-    MemorySystem memory;
-    ROMemory codeMemory(MAX_CODE_SIZE, "code");
-    RAMemory dataMemory(MAX_DATA_SIZE, "data");
-    RAMemory stackMemory(MAX_STACK_SIZE, "stack");
-
-    //zero memory for consensus
-    memset(codeMemory.GetMemory(), 0, MAX_CODE_SIZE);
-    memset(dataMemory.GetMemory(), 0, MAX_DATA_SIZE);
-    memset(stackMemory.GetMemory(), MAX_STACK_SIZE, 0);
-
-    //init memory
-    memcpy(codeMemory.GetMemory(), code, map->codeSize);
-    memcpy(dataMemory.GetMemory(), data, map->dataSize);
-
-    MemorySystem memsys;
-    memsys.Add(CODE_ADDRESS, CODE_ADDRESS + MAX_CODE_SIZE, &codeMemory);
-    memsys.Add(DATA_ADDRESS, DATA_ADDRESS + MAX_DATA_SIZE, &dataMemory);
-    memsys.Add(STACK_ADDRESS, STACK_ADDRESS + MAX_STACK_SIZE, &stackMemory);
-
     QtumHypervisor qtumhv(*this, output, db);
+
+    BlockDataABI blockdata = getBlockData();
+    TxDataABI txdata = getTxData();
+
+    ExecDataABI execdata;
+    execdata.gasLimit = output.gasLimit;
+    execdata.isCreate = output.OpCreate;
+    execdata.nestLevel = 0;
+    execdata.origin = output.sender.toAbi();
+    execdata.size = sizeof(execdata);
+    execdata.valueSent = output.value;
+
     if(!output.OpCreate){
         //load call data into memory space if not create
         pushArguments(qtumhv, output.data);
     }
 
     x86CPU cpu;
-    cpu.Memory = &memsys;
-    cpu.Hypervisor = &qtumhv;
-    cpu.setGasLimit(output.gasLimit);
+    x86VMData vmdata;
+    qtumhv.initVM(cpu, bytecode, blockdata, txdata, execdata, vmdata);
     cpu.addGasUsed(50000); //base execution cost
     try{
         cpu.Exec(INT32_MAX);
@@ -196,7 +180,7 @@ void x86ContractVM::pushArguments(QtumHypervisor& hv, std::vector<uint8_t> args)
 }
 
 
-bool QtumHypervisor::initVM(x86CPU& cpu, std::vector<uint8_t> bytecode, BlockDataABI &block, TxDataABI &tx, ExecDataABI &exec, x86VMData& vmdata){
+bool QtumHypervisor::initVM(x86CPU& cpu, const std::vector<uint8_t> bytecode, const BlockDataABI &block, const TxDataABI &tx, const ExecDataABI &exec, x86VMData& vmdata){
     const uint8_t *code;
     const uint8_t *data;
     const uint8_t *options;
@@ -213,17 +197,30 @@ bool QtumHypervisor::initVM(x86CPU& cpu, std::vector<uint8_t> bytecode, BlockDat
     vmdata.data.Init(MAX_DATA_SIZE, "data");
     vmdata.stack.Init(MAX_STACK_SIZE, "stack");
 
+    vmdata.block.Init(sizeof(BlockDataABI), "block");
+    vmdata.tx.Init(1, "tx"); //TODO, this is dynamic size
+    vmdata.exec.Init(sizeof(ExecDataABI), "exec");
+
     //init memory
-    //just use memcpy instead of Write as many of these are readonly and will error if we use the VM interface
     vmdata.code.BypassWrite(0, map->codeSize, code);
     vmdata.data.Write(0, map->dataSize, data);
+    //stack is not written to
+    vmdata.block.BypassWrite(0, sizeof(BlockDataABI), &block);
+    //todo tx
+    vmdata.exec.BypassWrite(0, sizeof(ExecDataABI), &exec);
 
     MemorySystem memsys;
     vmdata.memory.Add(CODE_ADDRESS, CODE_ADDRESS + MAX_CODE_SIZE, &vmdata.code);
     vmdata.memory.Add(DATA_ADDRESS, DATA_ADDRESS + MAX_DATA_SIZE, &vmdata.data);
     vmdata.memory.Add(STACK_ADDRESS, STACK_ADDRESS + MAX_STACK_SIZE, &vmdata.stack);
+
+    vmdata.memory.Add(BLOCK_DATA_ADDRESS, BLOCK_DATA_ADDRESS + sizeof(BlockDataABI), &vmdata.block);
+    //todo tx
+    vmdata.memory.Add(EXEC_DATA_ADDRESS, EXEC_DATA_ADDRESS + sizeof(ExecDataABI), &vmdata.exec);
+
     cpu.Memory = &vmdata.memory;
     cpu.Hypervisor = this;
+    cpu.setGasLimit(exec.gasLimit);
     return true;
 }
 

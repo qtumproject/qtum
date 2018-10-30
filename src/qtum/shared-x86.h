@@ -115,7 +115,6 @@ struct ExecDataABI{
     UniversalAddressABI origin;
     UniversalAddressABI self;
     uint32_t nestLevel; //how many calls exist above this one, 0 = top level
-     
 }  __attribute__((aligned(4)));
 
 //Read only fixed-size per-block data
@@ -147,11 +146,11 @@ struct TxDataABI{
     //total size of txdata area
     uint32_t size; 
     
-    const QtumTxInput *const inputsBegin; //points to VM memory space, NOT physical memory space
-    const QtumTxInput *const inputsEnd; //points to VM memory space, NOT physical memory space
+    const QtumTxInput *inputsBegin; //points to VM memory space, NOT physical memory space
+    const QtumTxInput *inputsEnd; //points to VM memory space, NOT physical memory space
 
-    const QtumTxOutput *const outputsBegin; //points to VM memory space, NOT physical memory space
-    const QtumTxOutput *const outputsEnd; //points to VM memory space, NOT physical memory space
+    const QtumTxOutput *outputsBegin; //points to VM memory space, NOT physical memory space
+    const QtumTxOutput *outputsEnd; //points to VM memory space, NOT physical memory space
     
     uint32_t rawTxDataSize;
     uint8_t beginRawTxData; //at this point is where raw transaction bytes begin
