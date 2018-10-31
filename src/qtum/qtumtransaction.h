@@ -14,7 +14,7 @@
 #include <uint256.h>
 #include <base58.h>
 #include "qtumstate.h"
-
+#include "shared-x86.h"
 
 std::string parseABIToString(std::string abidata);
 
@@ -90,15 +90,6 @@ enum AddressVersion{
     X86 = 4,
     SCRIPTHASH = 5,
 };
-
-static const size_t ADDRESS_DATA_SIZE = 32;
-
-struct UniversalAddressABI{
-    //Do not modify this struct's fields
-    //This is consensus critical!
-    uint32_t version;
-    uint8_t data[ADDRESS_DATA_SIZE];
-}__attribute__((__packed__));
 
 struct UniversalAddress{
     UniversalAddress(){

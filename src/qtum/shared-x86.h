@@ -1,6 +1,19 @@
 #ifndef SHARED_X86_H
 #define SHARED_X86_H
 
+#include <stdint.h>
+#include <stddef.h>
+
+//structs
+#define ADDRESS_DATA_SIZE 32
+
+typedef struct{
+    //Do not modify this struct's fields
+    //This is consensus critical!
+    uint32_t version;
+    uint8_t data[ADDRESS_DATA_SIZE];
+} __attribute__((__packed__)) UniversalAddressABI;
+
 //constants below this line should exactly match libqtum's qtum.h! 
 
 static const int QTUM_SYSTEM_ERROR_INT = 0xFF;
@@ -146,11 +159,11 @@ struct TxDataABI{
     //total size of txdata area
     uint32_t size; 
     
-    const QtumTxInput *inputsBegin; //points to VM memory space, NOT physical memory space
-    const QtumTxInput *inputsEnd; //points to VM memory space, NOT physical memory space
+    const struct QtumTxInput *inputsBegin; //points to VM memory space, NOT physical memory space
+    const struct QtumTxInput *inputsEnd; //points to VM memory space, NOT physical memory space
 
-    const QtumTxOutput *outputsBegin; //points to VM memory space, NOT physical memory space
-    const QtumTxOutput *outputsEnd; //points to VM memory space, NOT physical memory space
+    const struct QtumTxOutput *outputsBegin; //points to VM memory space, NOT physical memory space
+    const struct QtumTxOutput *outputsEnd; //points to VM memory space, NOT physical memory space
     
     uint32_t rawTxDataSize;
     uint8_t beginRawTxData; //at this point is where raw transaction bytes begin
