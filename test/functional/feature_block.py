@@ -823,7 +823,7 @@ class FullBlockTest(ComparisonTestFramework):
         yield rejected(RejectResult(16, b'bad-txns-vout-empty'))
 
         # tx with output value > input value out of range
-        tip(57)
+        tip("57p2")
         b59 = block(59)
         tx = create_and_sign_tx(out[17].tx, out[17].n, (int(INITIAL_BLOCK_REWARD)+1)*COIN)
         b59 = update_block(59, [tx])
