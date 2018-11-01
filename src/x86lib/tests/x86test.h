@@ -193,7 +193,7 @@ public:
             cpu->Stop();
         }
     }
-    virtual void Write(uint16_t port,int size,void *buffer){
+    virtual void Write(uint16_t port,int size, const void *buffer){
         if(port == 0xff){
             cpu->SetLocation(cpu->GetLocation() - 2);
             cpu->Stop();

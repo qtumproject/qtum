@@ -794,7 +794,7 @@ private:
 };
 
 std::vector<uint8_t> qtumCompressPayload(std::vector<uint8_t> payload);
-std::vector<uint8_t> qtumDecompressPayload(std::vector<uint8_t> payload);
+std::vector<uint8_t> qtumDecompressPayload(std::vector<uint8_t> payload, bool force = false);
 
 }
 

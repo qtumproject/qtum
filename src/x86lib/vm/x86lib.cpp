@@ -908,6 +908,9 @@ std::vector<uint8_t> qtumCompressPayload(std::vector<uint8_t> payload){
 		}
 		result.push_back(b);
 	}
+	if(inZero){
+		result.push_back(zeros);
+	}
 	uint32_t size = payload.size();
 	memcpy(result.data(), &size, sizeof(uint32_t));
 	//std::copy((uint8_t*)&size, ((uint8_t*)&size) + sizeof(uint32_t), result.begin());
@@ -915,7 +918,7 @@ std::vector<uint8_t> qtumCompressPayload(std::vector<uint8_t> payload){
 }
 
 
-std::vector<uint8_t> qtumDecompressPayload(std::vector<uint8_t> payload){
+std::vector<uint8_t> qtumDecompressPayload(std::vector<uint8_t> payload, bool force){
 	if(payload.size() < 5){
 		return std::vector<uint8_t>();
 	}
@@ -944,7 +947,7 @@ std::vector<uint8_t> qtumDecompressPayload(std::vector<uint8_t> payload){
 			}
 		}
 	}
-	if(size != result.size()){
+	if(size != result.size() && !force){
 		return std::vector<uint8_t>();
 	}
 	return result;
