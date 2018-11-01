@@ -107,7 +107,7 @@ struct UniversalAddress{
     UniversalAddress(CBitcoinAddress &address){
         fromBitcoinAddress(address);
     }
-    UniversalAddress(UniversalAddressABI &abi)
+    UniversalAddress(const UniversalAddressABI &abi)
     : version((AddressVersion)abi.version), data(&abi.data[0], &abi.data[sizeof(abi.data)])
     {
         convertData();

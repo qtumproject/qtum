@@ -336,7 +336,7 @@ int main(int argc, char* argv[]){
 			cout << endl;
 			delete[] out;
 		}else{
-			std::vector<uint8_t> payload(&out[sizeof(ContractMapInfo)], out + totalSize);
+			std::vector<uint8_t> payload(std::vector<uint8_t>(&out[0], &out[totalSize]));
 			std::vector<uint8_t> compressed = qtumCompressPayload(payload);
 			if(!rawOutput){
 				cout << "Compressed total size: " << dec << compressed.size() << endl;;

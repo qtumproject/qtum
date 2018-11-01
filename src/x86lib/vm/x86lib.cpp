@@ -947,6 +947,9 @@ std::vector<uint8_t> qtumDecompressPayload(std::vector<uint8_t> payload, bool fo
 			}
 		}
 	}
+	if(inZero){
+		return std::vector<uint8_t>();
+	}
 	if(size != result.size() && !force){
 		return std::vector<uint8_t>();
 	}

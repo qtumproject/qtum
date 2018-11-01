@@ -78,7 +78,6 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
         return false;
     }
 
-    QtumHypervisor qtumhv(*this, output, db);
 
     BlockDataABI blockdata = getBlockData();
     TxDataABI txdata = getTxData();
@@ -91,13 +90,14 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
     execdata.size = sizeof(execdata);
     execdata.valueSent = output.value;
 
+
+    x86CPU cpu;
+    x86VMData vmdata;
+    QtumHypervisor qtumhv(*this, db, execdata);
     if(!output.OpCreate){
         //load call data into memory space if not create
         pushArguments(qtumhv, output.data);
     }
-
-    x86CPU cpu;
-    x86VMData vmdata;
     qtumhv.initVM(cpu, bytecode, blockdata, txdata, execdata, vmdata);
     cpu.addGasUsed(50000); //base execution cost
     try{
@@ -253,39 +253,6 @@ void QtumHypervisor::HandleInt(int number, x86Lib::x86CPU &vm)
     return;
 }
 
-uint32_t QtumHypervisor::BlockCreator(uint32_t syscall, x86Lib::x86CPU &vm){
-    auto creator = contractVM.getEnv().blockCreator.toAbi();
-    vm.WriteMemory(vm.Reg32(EBX), sizeof(creator), &creator);
-    return 0;
-}
-uint32_t QtumHypervisor::BlockDifficulty(uint32_t syscall,x86Lib::x86CPU& vm){
-    //ebx = block difficulty (64 bit integer)
-    vm.WriteMemory(vm.Reg32(EBX), sizeof(uint64_t), (void*) &contractVM.getEnv().difficulty);
-    return 0;
-}
-uint32_t QtumHypervisor::BlockHeight(uint32_t syscall, x86Lib::x86CPU &vm){
-    //eax = block height
-    return contractVM.getEnv().blockNumber;
-}
-uint32_t QtumHypervisor::GetBlockHash(uint32_t syscall, x86Lib::x86CPU &vm){
-    return 0; //todo
-}
-uint32_t QtumHypervisor::IsCreate(uint32_t syscall, x86Lib::x86CPU &vm){
-    //eax = 1 if contract creation is in progress
-    return output.OpCreate ? 1 : 0;
-}
-uint32_t QtumHypervisor::SelfAddress(uint32_t syscall, x86Lib::x86CPU &vm){
-    //ebx = address (address/33 byte buffer)
-    UniversalAddressABI selfAddr = output.address.toAbi();
-    vm.WriteMemory(vm.Reg32(EBX), sizeof(selfAddr), &selfAddr);
-    return 0;
-}
-uint32_t QtumHypervisor::PreviousBlockTime(uint32_t syscall, x86Lib::x86CPU &vm){
-    return contractVM.getEnv().blockTime;
-}
-uint32_t QtumHypervisor::UsedGas(uint32_t syscall, x86Lib::x86CPU &vm){
-    return 0;
-}
 uint32_t QtumHypervisor::AddEvent(uint32_t syscall, x86Lib::x86CPU &vm){
     //Adds a key value pair for the return data
     //ebx = key, ecx = key size
@@ -325,7 +292,7 @@ uint32_t QtumHypervisor::ReadStorage(uint32_t syscall, x86Lib::x86CPU &vm){
         valtype key(k,k+vm.Reg32(ECX));
         valtype value;
         bool ret;
-        ret = db.readState(output.address, key, value);
+        ret = db.readState(UniversalAddress(execData.self), key, value);
         if(ret==true){
             status = (value.size() <= vm.Reg32(ESI))? value.size() : vm.Reg32(ESI);					
             vm.WriteMemory(vm.Reg32(EDX), status, value.data());
@@ -344,23 +311,14 @@ uint32_t QtumHypervisor::WriteStorage(uint32_t syscall, x86Lib::x86CPU &vm){
     vm.ReadMemory(vm.Reg32(EDX), vm.Reg32(ESI), v);
     valtype key(k,k+vm.Reg32(ECX));
     valtype value(v,v+vm.Reg32(ESI));
-    db.writeState(output.address, key, value);
+    db.writeState(UniversalAddress(execData.self), key, value);
     vm.addGasUsed(1000 + ((value.size() + key.size()) * 20));
     delete []k;
     delete []v;
     return 0;
 }
 
-uint32_t QtumHypervisor::SenderAddress(uint32_t syscall, x86Lib::x86CPU& vm){
-    //ebx = address (address/33 byte buffer)
-    UniversalAddressABI addr = output.sender.toAbi();
-    vm.WriteMemory(vm.Reg32(EBX), sizeof(addr), &addr);
-    return 0;
-}
-
-uint32_t QtumHypervisor::BlockGasLimit(uint32_t syscall, x86Lib::x86CPU& vm){
-    //ebx = gas limit (64 bit integer)
-    vm.WriteMemory(vm.Reg32(EBX), sizeof(uint64_t), (void*) contractVM.getEnv().gasLimit);
+uint32_t QtumHypervisor::UsedGas(uint32_t syscall, x86Lib::x86CPU &vm){
     return 0;
 }
 
@@ -412,6 +370,10 @@ uint32_t QtumHypervisor::SCCSClear(uint32_t syscall, x86Lib::x86CPU& vm){
     return 0;
 }
 
+uint32_t QtumHypervisor::CallContract(uint32_t syscall, x86Lib::x86CPU& vm){
+
+    return 0;
+}
 std::map<uint32_t, QtumSyscall> QtumHypervisor::qsc_syscalls;
 #define INSTALL_QSC(func, cap) do {qsc_syscalls[QSC_##func] = QtumSyscall(&QtumHypervisor::func, cap);}while(0)
 #define INSTALL_QSC_COST(func, cap, cost) do {qsc_syscalls[QSC_##func] = QtumSyscall(&QtumHypervisor::func, cap, cost);}while(0)
@@ -429,6 +391,8 @@ void QtumHypervisor::setupSyscalls(){
     INSTALL_QSC(SCCSPush, 0);
     INSTALL_QSC(SCCSDiscard, 0);
     INSTALL_QSC(SCCSClear, 0);
+
+    INSTALL_QSC_COST(CallContract, QSCCAP_CALL, 10000);
 }
 
 

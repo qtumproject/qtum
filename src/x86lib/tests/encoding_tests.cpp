@@ -162,6 +162,9 @@ TEST_CASE("Bug test 1", "[Encoding]"){
     std::vector<uint8_t> payload = HexToBytes(bugString);
     std::vector<uint8_t> compressed = qtumCompressPayload(payload);
     std::vector<uint8_t> decompressed = qtumDecompressPayload(compressed);
+    REQUIRE(decompressed.size() == payload.size());
+    REQUIRE(decompressed.size() == 3284);
+    REQUIRE(compressed.size() == 3179);
     REQUIRE(decompressed == payload);
 }
 

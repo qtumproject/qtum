@@ -86,7 +86,7 @@ class x86VMData{
 };
 
 class QtumHypervisor : public x86Lib::InterruptHypervisor{
-    QtumHypervisor(x86ContractVM &vm, const ContractOutput& out, DeltaDBWrapper& db_) : contractVM(vm), output(out), db(db_){
+    QtumHypervisor(x86ContractVM &vm, DeltaDBWrapper& db_, const ExecDataABI& execdata) : contractVM(vm), execData(execdata), db(db_){
         if(qsc_syscalls.size() == 0){
             setupSyscalls();
         }
@@ -120,7 +120,7 @@ class QtumHypervisor : public x86Lib::InterruptHypervisor{
 
 private:
     x86ContractVM &contractVM;
-    ContractOutput output;
+    const ExecDataABI &execData;
     DeltaDBWrapper &db;
     HypervisorEffect effects;
     std::stack<std::vector<uint8_t>> sccs; //smart contract communication stack
@@ -161,6 +161,9 @@ private:
     uint32_t SCCSPush(uint32_t syscall, x86Lib::x86CPU& vm);
     uint32_t SCCSDiscard(uint32_t syscall, x86Lib::x86CPU& vm);
     uint32_t SCCSClear(uint32_t syscall, x86Lib::x86CPU& vm);
+
+    uint32_t CallContract(uint32_t syscall, x86Lib::x86CPU& vm);
+
 };
 
 

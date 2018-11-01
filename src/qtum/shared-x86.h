@@ -101,6 +101,17 @@ enum QtumEndpoint{
     InteralUI = 0x50
 };
 
+
+//Syscall parameter/return value ABIs
+struct QtumCallResultABI{
+    uint64_t usedGas;
+    uint64_t refundedValue;
+    uint32_t errorCode;
+    
+}  __attribute__((__packed__));
+
+
+
 //memory areas
 #define CODE_ADDRESS 0x1000
 #define MAX_CODE_SIZE 0x10000
