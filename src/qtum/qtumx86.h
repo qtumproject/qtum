@@ -116,15 +116,22 @@ class QtumHypervisor : public x86Lib::InterruptHypervisor{
         return sccs.size();
     }
 
-    bool initVM(x86Lib::x86CPU& cpu, const std::vector<uint8_t> bytecode, const BlockDataABI &block, const TxDataABI &tx, const ExecDataABI &exec, x86VMData& vmdata);
-
+    bool initVM(const std::vector<uint8_t> bytecode, const BlockDataABI &block, const TxDataABI &tx);
+    int64_t useGas(int64_t v){
+        return cpu.addGasUsed(v);
+    }
+    ContractExecutionResult execute();
 private:
+    x86Lib::x86CPU cpu;
+    bool initSubVM(const std::vector<uint8_t> bytecode, x86VMData& data);
     x86ContractVM &contractVM;
     const ExecDataABI &execData;
     DeltaDBWrapper &db;
     HypervisorEffect effects;
     std::stack<std::vector<uint8_t>> sccs; //smart contract communication stack
     size_t sccsSize;
+
+    x86VMData vmdata;
 
     friend x86ContractVM;
 

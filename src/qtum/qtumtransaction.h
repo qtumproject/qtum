@@ -405,11 +405,11 @@ struct ContractExecutionResult{
     uint64_t usedGas;
     CAmount refundSender = 0;
     ContractStatus status = ContractStatus::CodeError();
-    CMutableTransaction transferTx;
+    CMutableTransaction transferTx; //not yet used
     bool commitState;
     DeltaCheckpoint modifiedData;
     std::map<std::string, std::string> events;
-    std::vector<ContractExecutionResult> callResults;
+    std::vector<ContractExecutionResult> callResults; //not yet used
     UniversalAddress address;
 
     UniValue toJSON(){
