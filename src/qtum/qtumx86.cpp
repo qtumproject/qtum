@@ -377,6 +377,9 @@ uint32_t QtumHypervisor::SCCSPop(uint32_t syscall, x86Lib::x86CPU& vm){
     //EBX = output buffer
     //ECX = buffer size
     //returns actual size
+    if(sccs.size() == 0){
+        return 0;
+    }
     uint32_t actual = sccs.top().size();
     uint32_t size = std::min(actual, (uint32_t)vm.Reg32(ECX));
     vm.WriteMemory(vm.Reg32(EBX), size, sccs.top().data(), Syscall);
@@ -387,6 +390,9 @@ uint32_t QtumHypervisor::SCCSPeek(uint32_t syscall, x86Lib::x86CPU& vm){
     //EBX = output buffer
     //ECX = buffer size
     //returns actual size
+    if(sccs.size() == 0){
+        return 0;
+    }
     uint32_t actual = sccs.top().size();
     uint32_t size = std::min(actual, (uint32_t)vm.Reg32(ECX));
     vm.WriteMemory(vm.Reg32(EBX), size, sccs.top().data(), Syscall);
@@ -395,10 +401,11 @@ uint32_t QtumHypervisor::SCCSPeek(uint32_t syscall, x86Lib::x86CPU& vm){
 uint32_t QtumHypervisor::SCCSPush(uint32_t syscall, x86Lib::x86CPU& vm){
     //EBX = output buffer
     //ECX = buffer size
-    //EAX = 0
+    //EAX = success
     std::vector<uint8_t> tmp;
     tmp.resize(vm.Reg32(ECX));
     vm.ReadMemory(vm.Reg32(EBX), vm.Reg32(ECX), tmp.data(), Syscall);
+    //todo SCCS item and memory limits
     return 0;
 }
 uint32_t QtumHypervisor::SCCSDiscard(uint32_t syscall, x86Lib::x86CPU& vm){
@@ -413,21 +420,25 @@ uint32_t QtumHypervisor::SCCSClear(uint32_t syscall, x86Lib::x86CPU& vm){
 }
 
 uint32_t QtumHypervisor::CallContract(uint32_t syscall, x86Lib::x86CPU& vm){
-    //EAX = 0 if success, otherwise error
+    //EAX = error code (0 for success)
     //EBX = address
-    //EDX:ECX = gas -- gas = (EDX << 32) | ECX
-    //EDI:ESI = value -- value = (EDI << 32) | ESI
+    //ECX = gas provided
+    //EDX = buffer for CallResultABI
+    //ESI = size of buffer
+    //EBP:EDI = value -- value = (EBP << 32) | EDI
+
+    //rationale: CallResultABI could later be extended
     ExecDataABI exec;
     UniversalAddressABI addressabi;
     vm.ReadMemory(vm.Reg32(EBX), sizeof(UniversalAddressABI), &addressabi, Syscall);
-    exec.gasLimit = (((uint64_t)vm.Reg32(EDX)) << 32) | (uint64_t)(vm.Reg32(ECX));
+    exec.gasLimit = (uint64_t) vm.Reg32(ECX);
     exec.nestLevel = execData.nestLevel + 1;
     exec.origin = execData.origin;
     exec.isCreate = false;
     exec.self = addressabi;
     exec.sender = execData.self;
     exec.size = sizeof(exec);
-    exec.valueSent = (((uint64_t)vm.Reg32(EDI)) << 32) | (uint64_t)(vm.Reg32(ESI));
+    exec.valueSent = (((uint64_t)vm.Reg32(EBP)) << 32) | (uint64_t)(vm.Reg32(EDI));
     std::vector<uint8_t> bytecode;
     if(!db.readByteCode(UniversalAddress(exec.self), bytecode)){
         return 1;
@@ -447,16 +458,13 @@ uint32_t QtumHypervisor::CallContract(uint32_t syscall, x86Lib::x86CPU& vm){
         db.revertCheckpoint(); //discard sub state
     }
 
-    //push call result to SCCS
     std::vector<uint8_t> ret;
     QtumCallResultABI cr;
     cr.errorCode = hv.effects.exitCode;
     cr.refundedValue = result.refundSender;
     cr.usedGas = result.usedGas;
-    ret.resize(sizeof(QtumCallResultABI));
-    memcpy(ret.data(), &cr, sizeof(QtumCallResultABI));
-    pushSCCS(ret);
 
+    cpu.WriteMemory(cpu.Reg32(EDX), std::min(cpu.Reg32(ESI), (uint32_t)sizeof(cr)), &cr, Syscall);
     return cr.errorCode;
 }
 
