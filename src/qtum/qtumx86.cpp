@@ -431,7 +431,7 @@ uint32_t QtumHypervisor::CallContract(uint32_t syscall, x86Lib::x86CPU& vm){
     ExecDataABI exec;
     UniversalAddressABI addressabi;
     vm.ReadMemory(vm.Reg32(EBX), sizeof(UniversalAddressABI), &addressabi, Syscall);
-    exec.gasLimit = (uint64_t) vm.Reg32(ECX);
+    exec.gasLimit = std::min((uint64_t) vm.Reg32(ECX), (uint64_t) (execData.gasLimit - cpu.getGasUsed()));
     exec.nestLevel = execData.nestLevel + 1;
     exec.origin = execData.origin;
     exec.isCreate = false;
