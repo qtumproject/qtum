@@ -28,6 +28,7 @@
 #include "libdevcore/CommonData.h"
 #include "pos.h"
 #include "txdb.h"
+#include <x86lib.h>
 
 #include <stdint.h>
 
@@ -1152,6 +1153,30 @@ UniValue callcontract(const JSONRPCRequest& request)
 }
 
 ////////////////////////////////////////////////////////////////////// // qtum
+
+UniValue encodedata(const JSONRPCRequest& request){
+    if (request.fHelp || request.params.size() < 1)
+        throw std::runtime_error(
+             "encodedata hex-data (hex-data) (hex-data) ...\n"
+             "\nArgument:\n"
+             "1. \"hex-data\"         (string, required) The hex data to encode into an ABI string\n"
+        );
+    std::vector<uint8_t> data;
+    for(int i=0;i<request.params.size(); i++){
+        if(!CheckHex(request.params[i].get_str()) || request.params[i].get_str().size() % 2 != 0){
+            throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid hex data");
+        }
+        auto tmp = ParseHex(request.params[i].get_str());
+        uint32_t len = tmp.size();
+        uint8_t* lentmp = (uint8_t*)&len;
+        data.insert(data.end(), &lentmp[0], &lentmp[sizeof(uint32_t) - 1]);
+        data.insert(data.end(), tmp.begin(), tmp.end());
+    }
+    data = x86Lib::qtumCompressPayload(data);
+    return UniValue(HexStr(data));
+}
+
+
 UniValue executecontract(const JSONRPCRequest& request)
 {
     if (request.fHelp || request.params.size() < 1)
@@ -2540,6 +2565,7 @@ static const CRPCCommand commands[] =
 
     { "blockchain",         "callcontract",           &callcontract,           true,  {"address","data"} },
     { "blockchain",         "executecontract",        &executecontract,        true,  {"address","bytecode"} },
+    { "blockchain",         "encodedata",             &encodedata,             true,  {"hex-data"}},
     { "blockchain",         "touniversaladdress",     &touniversaladdress,     true,  {"base58address"} },
     /* Not shown in help */
     { "hidden",             "invalidateblock",        &invalidateblock,        true,  {"blockhash"} },
