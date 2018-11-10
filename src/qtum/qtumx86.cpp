@@ -111,6 +111,7 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
         result.usedGas = output.gasLimit;
         result.refundSender = output.value;
         result.events = qtumhv.getEffects().events;
+        result.callResults = qtumhv.getEffects().callResults;
         return false;
     }
     catch(MemoryException *err){
@@ -121,6 +122,7 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
         result.usedGas = output.gasLimit;
         result.refundSender = output.value;
         result.events = qtumhv.getEffects().events;
+        result.callResults = qtumhv.getEffects().callResults;
         return false;
     }
     HypervisorEffect effects = qtumhv.getEffects();
@@ -129,6 +131,7 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
     result.usedGas = (uint64_t)qtumhv.cpu.getGasUsed();
     result.refundSender = 0;
     result.events = qtumhv.getEffects().events;
+    result.callResults = qtumhv.getEffects().callResults;
 
     if(qtumhv.cpu.gasExceeded()){
         LogPrintf("Execution ended due to OutOfGas. Gas used: %i\n", qtumhv.cpu.getGasUsed());
@@ -465,11 +468,12 @@ uint32_t QtumHypervisor::CallContract(uint32_t syscall, x86Lib::x86CPU& vm){
     if(!db.readByteCode(UniversalAddress(exec.self), bytecode)){
         return 1;
     }
-    QtumHypervisor hv(contractVM, db, execData);
+    QtumHypervisor hv(contractVM, db, exec);
     hv.initSubVM(bytecode, vmdata);
     hv.sccs = this->sccs;
     db.checkpoint();
     ContractExecutionResult result = hv.execute();
+    this->effects.callResults.push_back(result);
 
     //propogate results from sub execution into this one
     useGas(result.usedGas);

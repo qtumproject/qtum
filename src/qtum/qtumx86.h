@@ -67,6 +67,7 @@ struct HypervisorEffect{
     int exitCode = 0;
     int64_t gasUsed = 0;
     std::map<std::string, std::string> events;
+    std::vector<ContractExecutionResult> callResults;
 };
 
 class x86VMData{
@@ -97,7 +98,7 @@ class QtumHypervisor : public x86Lib::InterruptHypervisor{
         return effects;
     }
     void clearEffects(){
-        effects.exitCode = 0;
+        effects = HypervisorEffect();
         sccs = std::stack<std::vector<uint8_t>>();
         sccsSize = 0;
     }
