@@ -170,6 +170,7 @@ private:
     uint32_t SCCSClear(uint32_t syscall, x86Lib::x86CPU& vm);
 
     uint32_t CallContract(uint32_t syscall, x86Lib::x86CPU& vm);
+    uint32_t ParseAddress(uint32_t syscall, x86Lib::x86CPU& vm);
 
 };
 

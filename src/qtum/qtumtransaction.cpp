@@ -89,11 +89,14 @@ bool ContractOutputParser::parseOutput(ContractOutput& output){
             LogPrintf("Invalid contract address!");
             return false;
         }
+        output.data = code;
         if(version.rootVM == ROOT_VM_X86){
-            output.data = x86Lib::qtumDecompressPayload(code);
-            if(output.data.size() == 0){
-                LogPrintf("Error decoding contract data/code");
-                return false;
+            if(output.data.size() > 4){
+                output.data = x86Lib::qtumDecompressPayload(code);
+                if(output.data.size() == 0){
+                    LogPrintf("Error decoding contract data/code");
+                    return false;
+                }
             }
         }else{
             output.data = code;

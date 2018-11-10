@@ -175,6 +175,9 @@ struct UniversalAddress{
     }
 
     static AddressVersion convertBitcoinVersion(std::vector<unsigned char> version){
+        if(version.size() == 0){
+            return AddressVersion::UNKNOWN;
+        }
         unsigned char v = version[0];
         if(Params().Base58Prefix(CChainParams::PUBKEY_ADDRESS)[0] == v){
             return AddressVersion::PUBKEYHASH;

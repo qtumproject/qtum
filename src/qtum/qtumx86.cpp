@@ -87,24 +87,25 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
     execdata.isCreate = output.OpCreate;
     execdata.nestLevel = 0;
     execdata.origin = output.sender.toAbi();
+    execdata.sender = execdata.origin;
     execdata.size = sizeof(execdata);
     execdata.valueSent = output.value;
+    execdata.self = output.address.toAbi();
 
 
-    x86CPU cpu;
     QtumHypervisor qtumhv(*this, db, execdata);
     if(!output.OpCreate){
         //load call data into memory space if not create
         pushArguments(qtumhv, output.data);
     }
     qtumhv.initVM(bytecode, blockdata, txdata);
-    cpu.addGasUsed(50000); //base execution cost
+    qtumhv.cpu.addGasUsed(50000); //base execution cost
     try{
-        cpu.Exec(INT32_MAX);
+        qtumhv.cpu.Exec(INT32_MAX);
     }
     catch(CPUFaultException err){
         std::string msg;
-        msg = tfm::format("CPU Panic! Message: %s, code: %x, opcode: %s, hex: %x, location: %x\n", err.desc, err.code, cpu.GetLastOpcodeName(), cpu.GetLastOpcode(), cpu.GetLocation());
+        msg = tfm::format("CPU Panic! Message: %s, code: %x, opcode: %s, hex: %x, location: %x\n", err.desc, err.code, qtumhv.cpu.GetLastOpcodeName(), qtumhv.cpu.GetLastOpcode(), qtumhv.cpu.GetLocation());
         result.modifiedData = db.getLatestModifiedState();
         result.status = ContractStatus::CodeError(msg);
         result.usedGas = output.gasLimit;
@@ -114,7 +115,7 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
     }
     catch(MemoryException *err){
         std::string msg;
-        msg = tfm::format("Memory error! address: %x, opcode: %s, hex: %x, location: %x\n", err->address, cpu.GetLastOpcodeName(), cpu.GetLastOpcode(), cpu.GetLocation());
+        msg = tfm::format("Memory error! address: %x, opcode: %s, hex: %x, location: %x\n", err->address, qtumhv.cpu.GetLastOpcodeName(), qtumhv.cpu.GetLastOpcode(), qtumhv.cpu.GetLocation());
         result.modifiedData = db.getLatestModifiedState();
         result.status = ContractStatus::CodeError(msg);
         result.usedGas = output.gasLimit;
@@ -125,12 +126,12 @@ bool x86ContractVM::execute(ContractOutput &output, ContractExecutionResult &res
     HypervisorEffect effects = qtumhv.getEffects();
     result.address = output.address;
     result.modifiedData = db.getLatestModifiedState();
-    result.usedGas = (uint64_t)cpu.getGasUsed();
+    result.usedGas = (uint64_t)qtumhv.cpu.getGasUsed();
     result.refundSender = 0;
     result.events = qtumhv.getEffects().events;
 
-    if(cpu.gasExceeded()){
-        LogPrintf("Execution ended due to OutOfGas. Gas used: %i\n", cpu.getGasUsed());
+    if(qtumhv.cpu.gasExceeded()){
+        LogPrintf("Execution ended due to OutOfGas. Gas used: %i\n", qtumhv.cpu.getGasUsed());
         result.status = ContractStatus::OutOfGas();
         result.refundSender = output.value;
         result.commitState = false;
@@ -258,7 +259,7 @@ bool QtumHypervisor::initSubVM(const std::vector<uint8_t> bytecode, x86VMData& p
 
     vmdata.memory.Add(BLOCK_DATA_ADDRESS, BLOCK_DATA_ADDRESS + sizeof(BlockDataABI), &parentvmdata.block);
     //todo tx
-    vmdata.memory.Add(EXEC_DATA_ADDRESS, EXEC_DATA_ADDRESS + sizeof(ExecDataABI), &parentvmdata.block);
+    vmdata.memory.Add(EXEC_DATA_ADDRESS, EXEC_DATA_ADDRESS + sizeof(ExecDataABI), &vmdata.exec);
 
     cpu.Memory = &vmdata.memory;
     cpu.Hypervisor = this;
@@ -405,6 +406,7 @@ uint32_t QtumHypervisor::SCCSPush(uint32_t syscall, x86Lib::x86CPU& vm){
     std::vector<uint8_t> tmp;
     tmp.resize(vm.Reg32(ECX));
     vm.ReadMemory(vm.Reg32(EBX), vm.Reg32(ECX), tmp.data(), Syscall);
+    sccs.push(tmp);
     //todo SCCS item and memory limits
     return 0;
 }
@@ -416,6 +418,26 @@ uint32_t QtumHypervisor::SCCSDiscard(uint32_t syscall, x86Lib::x86CPU& vm){
 uint32_t QtumHypervisor::SCCSClear(uint32_t syscall, x86Lib::x86CPU& vm){
     //EAX = 0
     sccs = std::stack<std::vector<uint8_t>>();
+    return 0;
+}
+
+uint32_t QtumHypervisor::ParseAddress(uint32_t syscall, x86Lib::x86CPU& vm){
+    //EAX = 0 if success, otherwise 1
+    //EBX = address string ptr
+    //ECX = string size
+    //EDX = UniversalAdressABI buffer output
+    std::vector<char> tmp;
+    static const uint32_t maxsize = 40;
+    tmp.resize(std::min(vm.Reg32(ECX), maxsize));
+    vm.ReadMemory(vm.Reg32(EBX), tmp.size(), tmp.data(), Syscall);
+    UniversalAddress a;
+    CBitcoinAddress btc(std::string(tmp.begin(), tmp.end()));
+    a.fromBitcoinAddress(btc);
+    if(a.version == AddressVersion::UNKNOWN){
+        return 1;
+    }
+    UniversalAddressABI abi = a.toAbi();
+    vm.WriteMemory(vm.Reg32(EDX), sizeof(abi), &abi, Syscall);
     return 0;
 }
 
@@ -445,6 +467,7 @@ uint32_t QtumHypervisor::CallContract(uint32_t syscall, x86Lib::x86CPU& vm){
     }
     QtumHypervisor hv(contractVM, db, execData);
     hv.initSubVM(bytecode, vmdata);
+    hv.sccs = this->sccs;
     db.checkpoint();
     ContractExecutionResult result = hv.execute();
 
@@ -458,6 +481,7 @@ uint32_t QtumHypervisor::CallContract(uint32_t syscall, x86Lib::x86CPU& vm){
         db.revertCheckpoint(); //discard sub state
     }
 
+    this->sccs = hv.sccs;
     std::vector<uint8_t> ret;
     QtumCallResultABI cr;
     cr.errorCode = hv.effects.exitCode;
@@ -471,6 +495,7 @@ uint32_t QtumHypervisor::CallContract(uint32_t syscall, x86Lib::x86CPU& vm){
 ContractExecutionResult QtumHypervisor::execute(){
     ContractExecutionResult result;
     result.address = UniversalAddress(execData.self);
+    result.commitState = false;
     try{
         cpu.Exec(INT32_MAX);
     }
@@ -516,11 +541,14 @@ ContractExecutionResult QtumHypervisor::execute(){
         LogPrintf("Execution Reverting!\n");
         result.commitState = false;
         result.refundSender = execData.valueSent; //refund all
+        return result;
     }
     if(effects.exitCode == QTUM_EXIT_SUCCESS || effects.exitCode == QTUM_EXIT_HAS_DATA){
         LogPrintf("Execution successful!\n");
         result.status = ContractStatus::Success();
         result.modifiedData = db.getLatestModifiedState();
+        result.commitState = true;
+        return result;
     }
 
     LogPrintf("Execution ended with error: %i\n", effects.exitCode);
@@ -547,6 +575,8 @@ void QtumHypervisor::setupSyscalls(){
     INSTALL_QSC(SCCSClear, 0);
 
     INSTALL_QSC_COST(CallContract, QSCCAP_CALL, 10000);
+
+    INSTALL_QSC_COST(ParseAddress, 0, 10);
 }
 
 
