@@ -123,12 +123,11 @@ UniValue importprivkey(const JSONRPCRequest& request)
             + HelpExampleRpc("importprivkey", "\"mykey\", \"testing\", false")
         );
 
+    LOCK2(cs_main, pwallet->cs_wallet);
 
     WalletRescanReserver reserver(pwallet);
     bool fRescan = true;
     {
-        LOCK2(cs_main, pwallet->cs_wallet);
-
         EnsureWalletIsUnlocked(pwallet);
 
         std::string strSecret = request.params[0].get_str();
