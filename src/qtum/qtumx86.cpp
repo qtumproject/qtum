@@ -444,6 +444,21 @@ uint32_t QtumHypervisor::ParseAddress(uint32_t syscall, x86Lib::x86CPU& vm){
     return 0;
 }
 
+uint32_t QtumHypervisor::GetBalance(uint32_t syscall, x86Lib::x86CPU& vm){
+    //EAX = 0 if contract address, otherwise 1 (error)
+    //EBX = address
+    //ECX = uint64 output memory buffer
+    UniversalAddressABI abi;
+    vm.ReadMemory(vm.Reg32(EBX), sizeof(UniversalAddressABI), &abi, Syscall);
+    UniversalAddress a(abi);
+    if(!a.isContract()){
+        return 1;
+    }
+    uint64_t b = db.getBalance(a);
+    vm.WriteMemory(vm.Reg32(ECX), sizeof(uint64_t), &b, Syscall);
+    return 0;
+}
+
 uint32_t QtumHypervisor::CallContract(uint32_t syscall, x86Lib::x86CPU& vm){
     //EAX = error code (0 for success)
     //EBX = address
@@ -581,6 +596,8 @@ void QtumHypervisor::setupSyscalls(){
     INSTALL_QSC_COST(CallContract, QSCCAP_CALL, 10000);
 
     INSTALL_QSC_COST(ParseAddress, 0, 10);
+
+    INSTALL_QSC_COST(GetBalance, QSCCAP_BLOCKCHAIN, 100);
 }
 
 

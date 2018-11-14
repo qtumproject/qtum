@@ -144,7 +144,7 @@ struct ExecDataABI{
     UniversalAddressABI origin;
     UniversalAddressABI self;
     uint32_t nestLevel; //how many calls exist above this one, 0 = top level
-}  __attribute__((aligned(4)));
+} __attribute__((__packed__));
 
 //Read only fixed-size per-block data
 struct BlockDataABI{
@@ -157,7 +157,7 @@ struct BlockDataABI{
     uint32_t blockHeight;
     uint64_t previousTime;
     qtum_hash32 blockHashes[256];
-}  __attribute__((aligned(4)));
+} __attribute__((__packed__));
 
 
 struct QtumTxInput{
