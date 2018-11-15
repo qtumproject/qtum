@@ -4507,7 +4507,8 @@ bool CChainState::AcceptBlockHeader(const CBlockHeader& block, CValidationState&
         }
 
         // Check block header
-        if (!CheckBlockHeader(block, state, chainparams.GetConsensus(), true, CheckPOS(block, pindexPrev)))
+        // if (!CheckBlockHeader(block, state, chainparams.GetConsensus(), true, CheckPOS(block, pindexPrev)))
+        if (!CheckBlockHeader(block, state, chainparams.GetConsensus()))
             return error("%s: Consensus::CheckBlockHeader: %s, %s", __func__, hash.ToString(), FormatStateMessage(state));
     }
     if (pindex == nullptr)
