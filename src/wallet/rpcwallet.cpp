@@ -2947,13 +2947,13 @@ UniValue walletpassphrase(const JSONRPCRequest& request)
 
     if (pwallet->IsCrypted() && (request.fHelp || request.params.size() < 2 || request.params.size() > 3)) {
         throw std::runtime_error(
-            "walletpassphrase \"passphrase\" timeout\n"
+        	"walletpassphrase \"passphrase\" timeout stakingonly\n"
             "\nStores the wallet decryption key in memory for 'timeout' seconds.\n"
-            "This is needed prior to performing transactions related to private keys such as sending qtums\n"
+        	"This is needed prior to performing transactions related to private keys such as sending QTUM and staking\n"
             "\nArguments:\n"
             "1. \"passphrase\"     (string, required) The wallet passphrase\n"
             "2. timeout            (numeric, required) The time to keep the decryption key in seconds; capped at 100000000 (~3 years).\n"
-            "3. staking            (bool, optional, default=false) Unlock wallet for staking only.\n"
+        	"3. staking only       (bool, optional, omitted=false, enabled=true) Unlock wallet for staking only.\n"
             "\nNote:\n"
             "Issuing the walletpassphrase command while the wallet is already unlocked will set a new unlock\n"
             "time that overrides the old one.\n"
@@ -2962,6 +2962,8 @@ UniValue walletpassphrase(const JSONRPCRequest& request)
             + HelpExampleCli("walletpassphrase", "\"my pass phrase\" 60") +
             "\nLock the wallet again (before 60 seconds)\n"
             + HelpExampleCli("walletlock", "") +
+			"\nUnlock the wallet for staking only, for a long time\n"
+			+ HelpExampleCli("walletpassphrase","\"my pass phrase\" 99999999 true") +
             "\nAs json rpc call\n"
             + HelpExampleRpc("walletpassphrase", "\"my pass phrase\", 60")
         );
@@ -3012,7 +3014,7 @@ UniValue walletpassphrase(const JSONRPCRequest& request)
     }
     else
         throw std::runtime_error(
-            "walletpassphrase <passphrase> <timeout>\n"
+        	"walletpassphrase <passphrase> <timeout> <stakingonly>\n"
             "Stores the wallet decryption key in memory for <timeout> seconds.");
 
     pwallet->TopUpKeyPool();
