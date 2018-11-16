@@ -735,7 +735,7 @@ class FullBlockTest(BitcoinTestFramework):
 
         # tx with output value > input value
         self.log.info("Reject a block with a transaction with outputs > inputs")
-        self.move_tip(57)
+        self.move_tip("57p2")
         b59 = self.next_block(59)
         tx = self.create_and_sign_transaction(out[17], 51 * COIN)
         b59 = self.update_block(59, [tx])

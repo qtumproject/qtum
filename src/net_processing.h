@@ -9,6 +9,7 @@
 #include <net.h>
 #include <validationinterface.h>
 #include <consensus/params.h>
+#include <consensus/consensus.h>
 
 class CChainParams;
 
@@ -20,6 +21,12 @@ static const unsigned int DEFAULT_BLOCK_RECONSTRUCTION_EXTRA_TXN = 100;
 static constexpr bool DEFAULT_ENABLE_BIP61 = true;
 /** Default maximum orphan blocks */
 static const unsigned int DEFAULT_MAX_ORPHAN_BLOCKS = 40;
+/** Default for -headerspamfilter, use header spam filter */
+static const bool DEFAULT_HEADER_SPAM_FILTER = true;
+/** Default for -headerspamfiltermaxsize, maximum size of the list of indexes in the header spam filter */
+static const unsigned int DEFAULT_HEADER_SPAM_FILTER_MAX_SIZE = COINBASE_MATURITY;
+/** Default for -headerspamfiltermaxavg, maximum average size of an index occurrence in the header spam filter */
+static const unsigned int DEFAULT_HEADER_SPAM_FILTER_MAX_AVG = 10;
 
 class PeerLogicValidation final : public CValidationInterface, public NetEventsInterface {
 private:
