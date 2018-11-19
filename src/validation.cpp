@@ -2621,7 +2621,7 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
 
                 ContractExecutor executor(block, output, blockGasLimit);
                 ContractExecutionResult result;
-                if(!executor.execute(result, true)){
+                if(!executor.execute(result, !fJustCheck)){
                     return state.DoS(100, error("ConnectBlock(): Error processing VM execution results"), REJECT_INVALID, "bad-vm-exec-processing");
                 }
                 LogPrintf("contract exec:\n %s\n\n", result.toJSON().write(1, 2)); //todo: find better way of logging this
@@ -2895,13 +2895,13 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
             }else if(block.vtx.size() < checkBlock.vtx.size()){
                 LogPrintf("Actual block is missing AAL transactions. Actual txs: %i, expected txs: %i\n", block.vtx.size(), checkBlock.vtx.size());
                 for(size_t i=0;i<checkBlock.vtx.size();i++){
-                    if(i > block.vtx.size()){
+                    if(i >= block.vtx.size()){
                         LogPrintf("Missing transaction: %s\n", checkBlock.vtx[i]->ToString());
                     }else {
                         if (block.vtx[i]->GetHash() != checkBlock.vtx[i]->GetHash()) {
                             LogPrintf("Mismatched transaction at entry %i\n", i);
-                            LogPrintf("Actual: %s\n", block.vtx[i]->ToString());
-                            LogPrintf("Expected: %s\n", checkBlock.vtx[i]->ToString());
+                      //      LogPrintf("Actual: %s\n", block.vtx[i]->ToString());
+                      //      LogPrintf("Expected: %s\n", checkBlock.vtx[i]->ToString());
                         }
                     }
                 }
@@ -2910,8 +2910,8 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
                 for(size_t i=0;i<checkBlock.vtx.size();i++){
                     if (block.vtx[i]->GetHash() != block.vtx[i]->GetHash()) {
                         LogPrintf("Mismatched transaction at entry %i\n", i);
-                        LogPrintf("Actual: %s\n", block.vtx[i]->ToString());
-                        LogPrintf("Expected: %s\n", checkBlock.vtx[i]->ToString());
+              //          LogPrintf("Actual: %s\n", block.vtx[i]->ToString());
+              //          LogPrintf("Expected: %s\n", checkBlock.vtx[i]->ToString());
                     }
                 }
             }

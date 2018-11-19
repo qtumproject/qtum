@@ -515,7 +515,7 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64
 
         ContractExecutor executor(*pblock, output, hardBlockGasLimit);
         ContractExecutionResult result;
-        if(!executor.execute(result, true)){
+        if(!executor.execute(result, false)){
             globalState->setRoot(oldHashStateRoot);
             globalState->setRootUTXO(oldHashUTXORoot);
             //todo revert deltadb
@@ -551,11 +551,6 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64
         }
 
 
-    }
-
-    //add value transfers
-    for(auto &t : addTxs) {
-        pblock->vtx.push_back(MakeTransactionRef(t));
     }
     //rebuild coinbase/stake to include new refund outputs
     int proofTx = pblock->IsProofOfStake() ? 1 : 0;

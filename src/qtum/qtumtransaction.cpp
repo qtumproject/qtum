@@ -227,8 +227,10 @@ bool ContractExecutor::execute(ContractExecutionResult &result, bool commit)
         EVMContractVM evm(wrapper, env, blockGasLimit);
         evm.execute(output, result, commit);
     }else if(output.version.rootVM == ROOT_VM_X86){
+        wrapper.setInitialCoins(output.address, output.vout, output.value);
         x86ContractVM x86(wrapper, env, blockGasLimit);
         x86.execute(output, result, commit);
+        result.transferTx = CMutableTransaction(wrapper.createCondensingTx());
     }else{
         return false;
     }
@@ -238,12 +240,6 @@ bool ContractExecutor::execute(ContractExecutionResult &result, bool commit)
     //no need to revert if not committing
     return true;
 }
-
-bool ContractExecutor::buildTransferTx(ContractExecutionResult &res)
-{
-    return false;
-}
-
 
 
 bool EVMContractVM::execute(ContractOutput &output, ContractExecutionResult &result, bool commit) {
@@ -511,6 +507,9 @@ bool DeltaDBWrapper::transfer(UniversalAddress from, UniversalAddress to, uint64
 }
 
 void DeltaDBWrapper::setInitialCoins(UniversalAddress a, COutPoint vout, uint64_t value) {
+    if(value == 0){
+        return;
+    }
     if(checkpoints.size() != 1){
         return; //this shouldn't be called other than at the very beginning
     }
@@ -526,6 +525,8 @@ void DeltaDBWrapper::setInitialCoins(UniversalAddress a, COutPoint vout, uint64_
     }else{
         //no previous record, so just set balance, no need to spend vin
         current->balances[a] = value;
+        //if the contract exec causes a spend, this AAL record will be overwritten
+        writeAalData(a, vout.hash, vout.n, value);
     }
     initialCoins = vout;
     initialCoinsReceiver = a;
@@ -619,7 +620,8 @@ CTransaction DeltaDBWrapper::createCondensingTx() {
             //TODO
         } else {
             //create a no-exec contract output
-            script = CScript() << VersionVM::GetNoExecVersion2().toRaw() << valtype{0} << valtype{0} << valtype{0} << dest.toFlatData() << OP_CALL;
+            CBitcoinAddress btc = dest.asBitcoinAddress();
+            script = CScript() << VersionVM::GetNoExecVersion2().toRaw() << valtype{0} << valtype{0} << valtype{0} << btc.getData() << OP_CALL;
         }
         tx.vout.push_back(CTxOut(current->balances[dest], script));
         if (n + 1 > MAX_CONTRACT_VOUTS) {
@@ -628,7 +630,6 @@ CTransaction DeltaDBWrapper::createCondensingTx() {
         }
         n++;
     }
-
     if(!tx.vin.size() && tx.vout.size()>0){
         LogPrintf("AAL Transaction has a vout, but no vins");
         return CTransaction();
@@ -636,6 +637,16 @@ CTransaction DeltaDBWrapper::createCondensingTx() {
     if(!tx.vout.size() && tx.vin.size()>0){
         LogPrintf("AAL Transaction has a vin, but no vouts");
         return CTransaction();
+    }
+    auto txid = tx.GetHash();
+    n = 0;
+    for(auto &dest : sortedVoutTargets){
+        if (current->balances[dest] == 0) {
+            removeAalData(dest);
+            continue;
+        }
+        writeAalData(dest, txid, n, current->balances[dest]);
+        n++;
     }
 
     return CTransaction(tx);
@@ -680,8 +691,18 @@ bool DeltaDBWrapper:: writeAalData(UniversalAddress address, uint256 txid, unsig
 	return Write(K, V);
 }
 
+bool DeltaDBWrapper::removeAalData(UniversalAddress address){
+	std::vector<uint8_t> K;
+	std::vector<uint8_t> V;
+	K.insert(K.end(), address.version);
+	K.insert(K.end(), address.data.begin(), address.data.end());	
+	K.insert(K.end(), aalPre, aalPre + sizeof(aalPre)/sizeof(uint8_t));
+	K.insert(K.end(), 'u');	
+    return Write(K, V);
+}
+
 bool DeltaDBWrapper:: readAalData(UniversalAddress address, uint256 &txid, unsigned int &vout, uint64_t &balance){
-    if(hasNoAAL.find(address) == hasNoAAL.end()){
+    if(hasNoAAL.find(address) != hasNoAAL.end()){
         return false;
     }
 	std::vector<uint8_t> K;

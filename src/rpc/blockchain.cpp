@@ -258,6 +258,9 @@ UniValue transactionReceiptToJSON(const dev::eth::TransactionReceipt& txRec)
     result.push_back(Pair("log", logEntries));
     return result;
 }
+UniValue getstate(const JSONRPCRequest& request){
+    DeltaDBWrapper wrap(pdeltaDB);
+}
 
 UniValue touniversaladdress(const JSONRPCRequest& request)
 {

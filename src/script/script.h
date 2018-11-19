@@ -702,7 +702,26 @@ public:
     }
     bool HasOpSpend() const
     {
-        return size()==1 && *begin() == OP_SPEND;
+        if(size() == 1){
+            return size()==1 && *begin() == OP_SPEND;
+        }else if(size() == 3){
+            //check for v2 op_spend
+            auto iter = begin();
+            if(*iter != 0x01){
+                return false;
+            }
+            iter++;
+            if(*iter != 0x02){
+                return false;
+            }
+            iter++;
+            if(*iter != OP_SPEND){
+                return false;
+            }
+            return true;
+        }else{
+            return false;
+        }
     }
     /////////////////////////////////////////
 

@@ -351,10 +351,12 @@ public:
     bool writeOldestIterator(UniversalAddress address,        valtype key, uint64_t iterator, unsigned int blk_num, uint256 blk_hash);
     bool readOldestIterator(UniversalAddress address,        valtype key, uint64_t &iterator, unsigned int &blk_num, uint256 &blk_hash);
 
+
 private:
     //AAL is more complicated, so don't allow direct access
     bool writeAalData(UniversalAddress address, uint256 txid, unsigned int vout, uint64_t balance);
     bool readAalData(UniversalAddress address, uint256 &txid, unsigned int &vout, uint64_t &balance);
+    bool removeAalData(UniversalAddress address);
     bool Write(valtype K, valtype V);
     bool Read(valtype K, valtype& V);
     bool Write(valtype K, uint64_t V);
@@ -474,7 +476,6 @@ public:
     ContractExecutor(const CBlock& _block, ContractOutput _output, uint64_t _blockGasLimit);
     bool execute(ContractExecutionResult &result, bool commit);
 private:
-    bool buildTransferTx(ContractExecutionResult& res);
     ContractEnvironment buildEnv();
     const CBlock& block;
     ContractOutput output;
