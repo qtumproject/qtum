@@ -91,11 +91,10 @@ BITCOIN_TESTS =\
   test/util_tests.cpp \
   test/validation_block_tests.cpp \
   test/versionbits_tests.cpp \
+  test/qtumtests/test_utils.h \
   test/qtumtests/qtumtxconverter_tests.cpp \
   test/qtumtests/bytecodeexec_tests.cpp \
   test/qtumtests/condensingtransaction_tests.cpp \
-  test/qtumtests/test_utils.cpp \
-  test/qtumtests/test_utils.h \
   test/qtumtests/dgp_tests.cpp
 
 if ENABLE_WALLET
