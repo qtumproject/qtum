@@ -78,18 +78,6 @@ static const uint8_t ROOT_VM_NULL = 0;
 static const uint8_t ROOT_VM_EVM = 1;
 static const uint8_t ROOT_VM_X86 = 2;
 
-//Note: we don't use Params().Base58Prefixes for these version numbers because otherwise
-//contracts would need to use two different SDKs since the the base58 version for pubkeyhash etc changes
-//between regtest, testnet, and mainnet
-enum AddressVersion{
-    UNKNOWN = 0,
-    //legacy is either pubkeyhash or EVM, depending on if the address already exists
-    LEGACYEVM = 1,
-    PUBKEYHASH = 2,
-    EVM = 3,
-    X86 = 4,
-    SCRIPTHASH = 5,
-};
 
 struct UniversalAddress{
     UniversalAddress(){

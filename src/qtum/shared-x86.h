@@ -16,6 +16,20 @@ typedef struct{
 
 //constants below this line should exactly match libqtum's qtum.h! 
 
+//Note: we don't use Params().Base58Prefixes for these version numbers because otherwise
+//contracts would need to use two different SDKs since the the base58 version for pubkeyhash etc changes
+//between regtest, testnet, and mainnet
+enum AddressVersion{
+    UNKNOWN = 0,
+    //legacy is either pubkeyhash or EVM, depending on if the address already exists
+    LEGACYEVM = 1,
+    PUBKEYHASH = 2,
+    EVM = 3,
+    X86 = 4,
+    SCRIPTHASH = 5,
+};
+
+
 static const int QTUM_SYSTEM_ERROR_INT = 0xFF;
 
 typedef struct qtum_hash32 { uint8_t data[32]; } __attribute__((__packed__)) qtum_hash32;
