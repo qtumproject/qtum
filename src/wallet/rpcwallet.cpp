@@ -665,6 +665,8 @@ UniValue createcontract(const JSONRPCRequest& request){
         senderAddress = DecodeDestination(request.params[3].get_str());
         if (!IsValidDestination(senderAddress))
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Qtum address to send from");
+        if (!IsValidContractSenderAddress(senderAddress))
+        	throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid contract sender address. Only P2PK and P2PKH allowed");
         else
             fHasSender=true;
     }
@@ -881,6 +883,8 @@ UniValue sendtocontract(const JSONRPCRequest& request){
         senderAddress = DecodeDestination(request.params[5].get_str());
         if (!IsValidDestination(senderAddress))
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Qtum address to send from");
+        if (!IsValidContractSenderAddress(senderAddress))
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid contract sender address. Only P2PK and P2PKH allowed");
         else
             fHasSender=true;
     }
