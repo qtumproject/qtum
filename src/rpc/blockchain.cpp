@@ -778,7 +778,9 @@ UniValue getaccountinfo(const JSONRPCRequest& request)
         throw std::runtime_error(
             "getaccountinfo \"address\"\n"
             "\nArgument:\n"
-            "1. \"address\"          (string, required) The account address\n"
+        	"1. \"address\"		(string, required) The contract address \n"
+        	"\nResult:\n"
+        	"Contract details including balance, storage data and code\n"
         );
 
     LOCK(cs_main);
