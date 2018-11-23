@@ -345,6 +345,8 @@ public:
     bool HasCreateOrCall() const;
     bool HasOpSpend() const;
 ////////////////////////////////////////
+    bool HasOpCreate() const;
+    bool HasOpCall() const;
 
     bool IsCoinBase() const
     {
