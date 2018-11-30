@@ -139,6 +139,14 @@ const char* GetOpName(opcodetype opcode)
     case OP_NOP9                   : return "OP_NOP9";
     case OP_NOP10                  : return "OP_NOP10";
 
+    // decred ss*
+    case OP_SSTX				   : return "OP_SSTX";
+    case OP_SSGEN				   : return "OP_SSGEN";
+    case OP_SSRTX				   : return "OP_SSRTX";
+    case OP_SSTXCHANGE			   : return "OP_SSTXCHANGE";
+    case OP_CHECKSIGALT			   : return "OP_CHECKSIGALT";
+    case OP_CHECKSIGALTVERIFY	   : return "OP_CHECKSIGALTVERIFY";
+
     // byte code execution
     case OP_CREATE                 : return "OP_CREATE";
     case OP_CALL                   : return "OP_CALL";

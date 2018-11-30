@@ -1028,6 +1028,25 @@ bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& 
                 }
                 break;
 
+                //////////////////////////////////////////////////////// dcrd
+                case OP_SSTX:
+                case OP_SSGEN:
+                case OP_SSRTX:
+                case OP_SSTXCHANGE:
+                {
+                	return true;	//temp
+                }
+                case OP_CHECKSIGALT:
+                {
+                	// To be filled
+                	return true;
+                }
+                case OP_CHECKSIGALTVERIFY:
+                {
+                	// To be filled
+                	return true;
+                }
+
                 //////////////////////////////////////////////////////// qtum
                 case OP_SPEND:
                 {

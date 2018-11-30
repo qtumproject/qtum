@@ -180,6 +180,12 @@ enum opcodetype
     OP_NOP8 = 0xb7,
     OP_NOP9 = 0xb8,
     OP_NOP10 = 0xb9,
+	OP_SSTX = 0xba, // 186 DECRED
+	OP_SSGEN = 0xbb, // 187 DECRED
+	OP_SSRTX = 0xbc, // 188 DECRED
+	OP_SSTXCHANGE = 0xbd, // 189 DECRED
+	OP_CHECKSIGALT = 0xbe, // 190 DECRED
+	OP_CHECKSIGALTVERIFY = 0xbf, // 191 DECRED
 
     // Execute EXT byte code.
     OP_CREATE = 0xc1,
