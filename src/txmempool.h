@@ -317,14 +317,20 @@ class CompareTxMemPoolEntryByAncestorFeeOrGasPrice
 public:
     bool operator()(const CTxMemPoolEntry& a, const CTxMemPoolEntry& b) const
     {
-        bool fAHasCreateOrCall = a.GetTx().HasCreateOrCall();
-        bool fBHasCreateOrCall = b.GetTx().HasCreateOrCall();
+        int fAHasCreateOrCall = a.GetTx().GetCreateOrCall();
+        int fBHasCreateOrCall = b.GetTx().GetCreateOrCall();
 
         // If either of the two entries that we are comparing has a contract scriptPubKey, the comparison here takes precedence
         if(fAHasCreateOrCall || fBHasCreateOrCall) {
             // Prioritze non-contract txs
-            if(fAHasCreateOrCall != fBHasCreateOrCall) {
-                return fAHasCreateOrCall ? false : true;
+            if((fAHasCreateOrCall > CTransaction::OpNone) != (fBHasCreateOrCall > CTransaction::OpNone)) {
+                return fAHasCreateOrCall > CTransaction::OpNone ? false : true;
+            }
+
+            // Prioritze create contract txs over send to contract txs
+            if((fAHasCreateOrCall > CTransaction::OpNone) && (fBHasCreateOrCall > CTransaction::OpNone) &&
+                    (fAHasCreateOrCall != fBHasCreateOrCall) && (fAHasCreateOrCall == CTransaction::OpCall || fBHasCreateOrCall == CTransaction::OpCall)){
+                return fAHasCreateOrCall == CTransaction::OpCall ? false : true;
             }
 
             // Prioritize the contract txs that have the least number of ancestors
