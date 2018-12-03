@@ -5,7 +5,7 @@
 #include <stddef.h>
 
 //structs
-#define ADDRESS_DATA_SIZE 32
+#define ADDRESS_DATA_SIZE 40
 
 typedef struct{
     //Do not modify this struct's fields
@@ -118,12 +118,12 @@ enum QtumEndpoint{
 
 
 //Syscall parameter/return value ABIs
-struct QtumCallResultABI{
+typedef struct{
     uint64_t usedGas;
     uint64_t refundedValue;
     uint32_t errorCode;
     
-}  __attribute__((__packed__));
+}  __attribute__((__packed__)) QtumCallResultABI;
 
 #ifndef QTUM_MOCK
 //Don't expose these in the mocking because it's not really possible to keep it equivalent

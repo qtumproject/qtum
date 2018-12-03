@@ -19,6 +19,15 @@
 
 #include <univalue.h>
 
+//key prefixes for each table section in deltadb
+static const std::string DELTADB_PREFIX_STATE = "state_";
+
+//prefixes for "state" entries in deltadb
+static const char DELTADB_STATE_BYTECODE = 'c';
+static const char DELTADB_STATE_KEY = '_';
+static const char DELTADB_STATE_AAL = 'a';
+
+
 
 bool ContractOutputParser::parseOutput(ContractOutput& output){
     output.sender = getSenderAddress();
@@ -340,14 +349,7 @@ QtumTransaction EVMContractVM::buildQtumTx(const ContractOutput &output)
     return txEth;
 }
 
-static const uint8_t byteCodePre[]={'b','y','t','e','c','o','d','e','_'};
-static const uint8_t aalPre[]={'a', 'a', 'l', '_'};
-static const uint8_t dataPre[]={'_','d','a','t','a','_'};
-static const uint8_t updatePre[]={'u','p','d','a','t','e','d','_'};
-static const uint8_t keysPre[]={'k','e','y','s','_'};
-static const uint8_t iteratorPre[]={'i','t','e','r','t', 'o', 'r','_'};
-static const uint8_t infoPre[]={'i','n','f','o','_'};
-static const uint8_t oldPre[]={'o','l','d','_'};
+
 
 bool DeltaDBWrapper::Write(valtype K, valtype V){
     std::string k(K.begin(), K.end());
@@ -652,36 +654,36 @@ CTransaction DeltaDBWrapper::createCondensingTx() {
     return CTransaction(tx);
 }
 
+//live state key format: state_%address%_%key%
 
-
-/* Bytecode of contract: KEY is derived from %bytecode%_%address% */
+//live bytecode: state_%address%c
 bool DeltaDBWrapper:: writeByteCode(UniversalAddress address,valtype byteCode){
 	std::vector<uint8_t> K;
 	std::vector<uint8_t> V;
+    K.insert(K.end(), DELTADB_PREFIX_STATE.begin(), DELTADB_PREFIX_STATE.end());
 	K.insert(K.end(), address.version);
 	K.insert(K.end(), address.data.begin(), address.data.end());	
-	K.insert(K.end(), byteCodePre, byteCodePre + sizeof(byteCodePre)/sizeof(uint8_t));
-	K.insert(K.end(), 'c');	
+	K.insert(K.end(), DELTADB_STATE_BYTECODE);	
 	return Write(K, byteCode);
 }
 
 bool DeltaDBWrapper:: readByteCode(UniversalAddress address,valtype& byteCode){
 	std::vector<uint8_t> K;
 	std::vector<uint8_t> V;
+    K.insert(K.end(), DELTADB_PREFIX_STATE.begin(), DELTADB_PREFIX_STATE.end());
 	K.insert(K.end(), address.version);
 	K.insert(K.end(), address.data.begin(), address.data.end());	
-	K.insert(K.end(), byteCodePre, byteCodePre + sizeof(byteCodePre)/sizeof(uint8_t));
-	K.insert(K.end(), 'c');	
+	K.insert(K.end(), DELTADB_STATE_BYTECODE);	
     return Read(K, byteCode);   
 }
 
 bool DeltaDBWrapper:: writeAalData(UniversalAddress address, uint256 txid, unsigned int vout, uint64_t balance){
 	std::vector<uint8_t> K;
 	std::vector<uint8_t> V;
+    K.insert(K.end(), DELTADB_PREFIX_STATE.begin(), DELTADB_PREFIX_STATE.end());
 	K.insert(K.end(), address.version);
 	K.insert(K.end(), address.data.begin(), address.data.end());	
-	K.insert(K.end(), aalPre, aalPre + sizeof(aalPre)/sizeof(uint8_t));
-	K.insert(K.end(), 'u');	
+	K.insert(K.end(), DELTADB_STATE_AAL);	
 
 	CDataStream dsValue(SER_DISK,0);
 	dsValue<<txid;	
@@ -694,10 +696,10 @@ bool DeltaDBWrapper:: writeAalData(UniversalAddress address, uint256 txid, unsig
 bool DeltaDBWrapper::removeAalData(UniversalAddress address){
 	std::vector<uint8_t> K;
 	std::vector<uint8_t> V;
+    K.insert(K.end(), DELTADB_PREFIX_STATE.begin(), DELTADB_PREFIX_STATE.end());
 	K.insert(K.end(), address.version);
 	K.insert(K.end(), address.data.begin(), address.data.end());	
-	K.insert(K.end(), aalPre, aalPre + sizeof(aalPre)/sizeof(uint8_t));
-	K.insert(K.end(), 'u');	
+	K.insert(K.end(), DELTADB_STATE_AAL);	
     return Write(K, V);
 }
 
@@ -707,10 +709,10 @@ bool DeltaDBWrapper:: readAalData(UniversalAddress address, uint256 &txid, unsig
     }
 	std::vector<uint8_t> K;
 	std::vector<uint8_t> V;
+    K.insert(K.end(), DELTADB_PREFIX_STATE.begin(), DELTADB_PREFIX_STATE.end());
 	K.insert(K.end(), address.version);
 	K.insert(K.end(), address.data.begin(), address.data.end());
-	K.insert(K.end(), aalPre , aalPre + sizeof(aalPre)/sizeof(uint8_t));
-	K.insert(K.end(), 'u');	
+	K.insert(K.end(), DELTADB_STATE_AAL);	
 	if(Read(K, V)){
 		CDataStream dsValue(V,SER_DISK,0);
 		dsValue>>txid;	
@@ -727,9 +729,10 @@ bool DeltaDBWrapper:: writeState(UniversalAddress address, valtype key, valtype 
 	std::vector<uint8_t> K;
     std::vector<unsigned char> keyHash(32);
 
+    K.insert(K.end(), DELTADB_PREFIX_STATE.begin(), DELTADB_PREFIX_STATE.end());
 	K.insert(K.end(), address.version);
 	K.insert(K.end(), address.data.begin(), address.data.end());	
-	K.insert(K.end(), dataPre, dataPre + sizeof(dataPre)/sizeof(uint8_t));
+	K.insert(K.end(), DELTADB_STATE_KEY);
 	if(key.size() > 31){
 		CSHA256().Write(key.data(), key.size()).Finalize(keyHash.data());
 		K.insert(K.end(), keyHash.begin(),keyHash.end());	
@@ -744,9 +747,10 @@ bool DeltaDBWrapper:: readState(UniversalAddress address, valtype key, valtype& 
 	std::vector<uint8_t> K;
     std::vector<unsigned char> keyHash(32);
 
+    K.insert(K.end(), DELTADB_PREFIX_STATE.begin(), DELTADB_PREFIX_STATE.end());
 	K.insert(K.end(), address.version);
 	K.insert(K.end(), address.data.begin(), address.data.end());	
-	K.insert(K.end(), dataPre, dataPre + sizeof(dataPre)/sizeof(uint8_t));
+	K.insert(K.end(), DELTADB_STATE_KEY);
 	if(key.size() > 31){
 		CSHA256().Write(key.data(), key.size()).Finalize(keyHash.data());
 		K.insert(K.end(), keyHash.begin(),keyHash.end());	
@@ -766,7 +770,7 @@ bool DeltaDBWrapper:: writeUpdatedKey(UniversalAddress address, valtype key, uns
 	K.insert(K.end(), address.version);
 	K.insert(K.end(), address.data.begin(), address.data.end());	
 	K.insert(K.end(), '_');
-	K.insert(K.end(), updatePre, updatePre + sizeof(updatePre)/sizeof(uint8_t));
+	//K.insert(K.end(), updatePre, updatePre + sizeof(updatePre)/sizeof(uint8_t));
 	K.insert(K.end(), key.begin(),key.end());	
 	
 	CDataStream dsValue(SER_DISK,0);
@@ -783,7 +787,7 @@ bool DeltaDBWrapper:: readUpdatedKey(UniversalAddress address, valtype key, unsi
 	K.insert(K.end(), address.version);
 	K.insert(K.end(), address.data.begin(), address.data.end());	
 	K.insert(K.end(), '_');
-	K.insert(K.end(), updatePre, updatePre + sizeof(updatePre)/sizeof(uint8_t));
+	//K.insert(K.end(), updatePre, updatePre + sizeof(updatePre)/sizeof(uint8_t));
 	K.insert(K.end(), key.begin(),key.end());	
 	if(Read(K, V)){
 		CDataStream dsValue(V,SER_DISK,0);
@@ -801,7 +805,7 @@ bool DeltaDBWrapper:: writeRawKey(UniversalAddress address,	valtype key, valtype
 	K.insert(K.end(), address.version);
 	K.insert(K.end(), address.data.begin(), address.data.end());	
 	K.insert(K.end(), '_');
-	K.insert(K.end(), keysPre, keysPre + sizeof(keysPre)/sizeof(uint8_t));
+	//K.insert(K.end(), keysPre, keysPre + sizeof(keysPre)/sizeof(uint8_t));
 	K.insert(K.end(), key.begin(),key.end());	
 	return Write(K, rawkey);
 }
@@ -811,7 +815,7 @@ bool DeltaDBWrapper:: readRawKey(UniversalAddress address, valtype key, valtype 
 	K.insert(K.end(), address.version);
 	K.insert(K.end(), address.data.begin(), address.data.end());	
 	K.insert(K.end(), '_');
-	K.insert(K.end(), keysPre, keysPre + sizeof(keysPre)/sizeof(uint8_t));
+	//K.insert(K.end(), keysPre, keysPre + sizeof(keysPre)/sizeof(uint8_t));
 	K.insert(K.end(), key.begin(),key.end());	
 	return Read(K, rawkey);
 }
@@ -822,7 +826,7 @@ bool DeltaDBWrapper:: writeCurrentIterator(UniversalAddress address, valtype key
 	K.insert(K.end(), address.version);
 	K.insert(K.end(), address.data.begin(), address.data.end());	
 	K.insert(K.end(), '_');
-	K.insert(K.end(), iteratorPre, iteratorPre + sizeof(iteratorPre)/sizeof(uint8_t));
+	//K.insert(K.end(), iteratorPre, iteratorPre + sizeof(iteratorPre)/sizeof(uint8_t));
 	K.insert(K.end(), key.begin(),key.end());	
 	return Write(K, iterator);
 }
@@ -832,7 +836,7 @@ bool DeltaDBWrapper:: readCurrentIterator(UniversalAddress address,		valtype key
 	K.insert(K.end(), address.version);
 	K.insert(K.end(), address.data.begin(), address.data.end());	
 	K.insert(K.end(), '_');
-	K.insert(K.end(), iteratorPre, iteratorPre + sizeof(iteratorPre)/sizeof(uint8_t));
+	//K.insert(K.end(), iteratorPre, iteratorPre + sizeof(iteratorPre)/sizeof(uint8_t));
 	K.insert(K.end(), key.begin(),key.end());	
 	return Read(K, iterator);
 }
@@ -844,7 +848,7 @@ bool DeltaDBWrapper:: writeStateWithIterator(UniversalAddress address,		 valtype
 	dsKey<<iterator;
 	K.insert(K.end(), address.version);
 	K.insert(K.end(), address.data.begin(), address.data.end());	
-	K.insert(K.end(), dataPre, dataPre + sizeof(dataPre)/sizeof(uint8_t));
+	//K.insert(K.end(), dataPre, dataPre + sizeof(dataPre)/sizeof(uint8_t));
 	K.insert(K.end(), key.begin(),key.end());
 	K.insert(K.end(), dsKey.begin(),dsKey.end());	
 	return Write(K, value);
@@ -857,7 +861,7 @@ bool DeltaDBWrapper:: readStateWithIterator(UniversalAddress address,		valtype k
 	dsKey<<iterator;
 	K.insert(K.end(), address.version);
 	K.insert(K.end(), address.data.begin(), address.data.end());	
-	K.insert(K.end(), dataPre, dataPre + sizeof(dataPre)/sizeof(uint8_t));
+	//K.insert(K.end(), dataPre, dataPre + sizeof(dataPre)/sizeof(uint8_t));
 	K.insert(K.end(), key.begin(),key.end());	
 	K.insert(K.end(), dsKey.begin(),dsKey.end());	
 	return Read(K, value);
@@ -872,7 +876,7 @@ bool DeltaDBWrapper:: writeInfoWithIterator(UniversalAddress address,		valtype k
 	K.insert(K.end(), address.version);
 	K.insert(K.end(), address.data.begin(), address.data.end());	
 	K.insert(K.end(), '_');
-	K.insert(K.end(), infoPre, infoPre + sizeof(infoPre)/sizeof(uint8_t));
+	//K.insert(K.end(), infoPre, infoPre + sizeof(infoPre)/sizeof(uint8_t));
 	K.insert(K.end(), key.begin(),key.end());	
 	K.insert(K.end(), dsKey.begin(),dsKey.end());
 
@@ -893,7 +897,7 @@ bool DeltaDBWrapper:: readInfoWithIterator(UniversalAddress address, 	   valtype
 	K.insert(K.end(), address.version);
 	K.insert(K.end(), address.data.begin(), address.data.end());	
 	K.insert(K.end(), '_');
-	K.insert(K.end(), infoPre, infoPre + sizeof(infoPre)/sizeof(uint8_t));
+	//K.insert(K.end(), infoPre, infoPre + sizeof(infoPre)/sizeof(uint8_t));
 	K.insert(K.end(), key.begin(),key.end());
 	K.insert(K.end(), dsKey.begin(),dsKey.end());
 	if(Read(K, V)){
@@ -915,7 +919,7 @@ bool DeltaDBWrapper:: writeOldestIterator(UniversalAddress address,		  valtype k
 	K.insert(K.end(), address.version);
 	K.insert(K.end(), address.data.begin(), address.data.end());	
 	K.insert(K.end(), '_');
-	K.insert(K.end(), oldPre, oldPre + sizeof(oldPre)/sizeof(uint8_t));
+	//K.insert(K.end(), oldPre, oldPre + sizeof(oldPre)/sizeof(uint8_t));
 	K.insert(K.end(), key.begin(),key.end());	
 
 	CDataStream dsValue(SER_DISK,0);
@@ -932,7 +936,7 @@ bool DeltaDBWrapper:: readOldestIterator(UniversalAddress address,		 valtype key
 	K.insert(K.end(), address.version);
 	K.insert(K.end(), address.data.begin(), address.data.end());	
 	K.insert(K.end(), '_');
-	K.insert(K.end(), oldPre, oldPre + sizeof(oldPre)/sizeof(uint8_t));
+	//K.insert(K.end(), oldPre, oldPre + sizeof(oldPre)/sizeof(uint8_t));
 	K.insert(K.end(), key.begin(),key.end());
 	if(Read(K, V)){
 		CDataStream dsValue(V,SER_DISK,0);

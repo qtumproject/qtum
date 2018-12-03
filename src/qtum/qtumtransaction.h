@@ -13,8 +13,8 @@
 #include <util.h>
 #include <uint256.h>
 #include <base58.h>
-#include "qtumstate.h"
 #include "shared-x86.h"
+#include "qtumstate.h"
 
 std::string parseABIToString(std::string abidata);
 
@@ -398,11 +398,11 @@ struct ContractExecutionResult{
     uint64_t usedGas;
     CAmount refundSender = 0;
     ContractStatus status = ContractStatus::CodeError();
-    CMutableTransaction transferTx; //not yet used
+    CMutableTransaction transferTx;
     bool commitState;
     DeltaCheckpoint modifiedData;
     std::map<std::string, std::string> events;
-    std::vector<ContractExecutionResult> callResults; //not yet used
+    std::vector<ContractExecutionResult> callResults;
     UniversalAddress address;
 
     UniValue toJSON(){
