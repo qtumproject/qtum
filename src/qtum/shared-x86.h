@@ -5,7 +5,7 @@
 #include <stddef.h>
 
 //structs
-#define ADDRESS_DATA_SIZE 40
+#define ADDRESS_DATA_SIZE 64
 
 typedef struct{
     //Do not modify this struct's fields
@@ -27,6 +27,8 @@ enum AddressVersion{
     EVM = 3,
     X86 = 4,
     SCRIPTHASH = 5,
+    P2WSH = 6,
+    P2WPKH = 7,
 };
 
 
