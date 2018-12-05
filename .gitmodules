@@ -3,4 +3,4 @@
 	url = https://github.com/qtumproject/cpp-eth-qtum.git
 [submodule "src/eos"]
 	path = src/eos
-	url = https://gitlab.pixelplex.by/593_qtum/eos
+	url = https://github.com/qtumproject/wasm-eosio.git
