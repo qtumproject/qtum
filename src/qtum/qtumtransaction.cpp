@@ -232,6 +232,9 @@ bool ContractExecutor::execute(ContractExecutionResult &result, bool commit)
 {
     DeltaDBWrapper wrapper(pdeltaDB);
     ContractEnvironment env=buildEnv();
+    if(result.blockHash == uint256()){
+        result.blockHash = block.GetHash();
+    }
     if(output.version.rootVM == ROOT_VM_EVM){
         EVMContractVM evm(wrapper, env, blockGasLimit);
         evm.execute(output, result, commit);
@@ -654,27 +657,43 @@ CTransaction DeltaDBWrapper::createCondensingTx() {
     return CTransaction(tx);
 }
 
+std::vector<uint8_t> getBytecodeKey(UniversalAddress address){
+    std::vector<uint8_t> K;
+    K.insert(K.end(), DELTADB_PREFIX_STATE.begin(), DELTADB_PREFIX_STATE.end());
+	K.insert(K.end(), address.version);
+	K.insert(K.end(), address.data.begin(), address.data.end());	
+	K.insert(K.end(), DELTADB_STATE_BYTECODE);	
+    return K;
+}
+
+std::vector<uint8_t> getStateKey(UniversalAddress address, std::vector<uint8_t> key){
+	std::vector<uint8_t> K;
+    std::vector<unsigned char> keyHash(32);
+
+    K.insert(K.end(), DELTADB_PREFIX_STATE.begin(), DELTADB_PREFIX_STATE.end());
+	K.insert(K.end(), address.version);
+	K.insert(K.end(), address.data.begin(), address.data.end());	
+	K.insert(K.end(), DELTADB_STATE_KEY);
+	if(key.size() > 31){
+		CSHA256().Write(key.data(), key.size()).Finalize(keyHash.data());
+		K.insert(K.end(), keyHash.begin(),keyHash.end());	
+	}else{
+		K.insert(K.end(), '_'); 
+		K.insert(K.end(), key.begin(),key.end());	
+	}
+
+    return K;
+}
+
 //live state key format: state_%address%_%key%
 
 //live bytecode: state_%address%c
 bool DeltaDBWrapper:: writeByteCode(UniversalAddress address,valtype byteCode){
-	std::vector<uint8_t> K;
-	std::vector<uint8_t> V;
-    K.insert(K.end(), DELTADB_PREFIX_STATE.begin(), DELTADB_PREFIX_STATE.end());
-	K.insert(K.end(), address.version);
-	K.insert(K.end(), address.data.begin(), address.data.end());	
-	K.insert(K.end(), DELTADB_STATE_BYTECODE);	
-	return Write(K, byteCode);
+	return Write(getBytecodeKey(address), byteCode);
 }
 
 bool DeltaDBWrapper:: readByteCode(UniversalAddress address,valtype& byteCode){
-	std::vector<uint8_t> K;
-	std::vector<uint8_t> V;
-    K.insert(K.end(), DELTADB_PREFIX_STATE.begin(), DELTADB_PREFIX_STATE.end());
-	K.insert(K.end(), address.version);
-	K.insert(K.end(), address.data.begin(), address.data.end());	
-	K.insert(K.end(), DELTADB_STATE_BYTECODE);	
-    return Read(K, byteCode);   
+    return Read(getBytecodeKey(address), byteCode);   
 }
 
 bool DeltaDBWrapper:: writeAalData(UniversalAddress address, uint256 txid, unsigned int vout, uint64_t balance){
@@ -726,39 +745,11 @@ bool DeltaDBWrapper:: readAalData(UniversalAddress address, uint256 &txid, unsig
 }
 
 bool DeltaDBWrapper:: writeState(UniversalAddress address, valtype key, valtype value){
-	std::vector<uint8_t> K;
-    std::vector<unsigned char> keyHash(32);
-
-    K.insert(K.end(), DELTADB_PREFIX_STATE.begin(), DELTADB_PREFIX_STATE.end());
-	K.insert(K.end(), address.version);
-	K.insert(K.end(), address.data.begin(), address.data.end());	
-	K.insert(K.end(), DELTADB_STATE_KEY);
-	if(key.size() > 31){
-		CSHA256().Write(key.data(), key.size()).Finalize(keyHash.data());
-		K.insert(K.end(), keyHash.begin(),keyHash.end());	
-	}else{
-		K.insert(K.end(), '_'); 
-		K.insert(K.end(), key.begin(),key.end());	
-	}
-	return Write(K, value);
+	return Write(getStateKey(address, key), value);
 }
 
 bool DeltaDBWrapper:: readState(UniversalAddress address, valtype key, valtype& value){
-	std::vector<uint8_t> K;
-    std::vector<unsigned char> keyHash(32);
-
-    K.insert(K.end(), DELTADB_PREFIX_STATE.begin(), DELTADB_PREFIX_STATE.end());
-	K.insert(K.end(), address.version);
-	K.insert(K.end(), address.data.begin(), address.data.end());	
-	K.insert(K.end(), DELTADB_STATE_KEY);
-	if(key.size() > 31){
-		CSHA256().Write(key.data(), key.size()).Finalize(keyHash.data());
-		K.insert(K.end(), keyHash.begin(),keyHash.end());	
-	}else{
-		K.insert(K.end(), '_'); 
-		K.insert(K.end(), key.begin(),key.end());	
-	}
-    return Read(K, value);
+    return Read(getStateKey(address, key), value);
 }
 
 
