@@ -2621,6 +2621,7 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
 
                 ContractExecutor executor(block, output, blockGasLimit);
                 ContractExecutionResult result;
+                result.blockHash = block.GetHash();
                 if(!executor.execute(result, !fJustCheck)){
                     return state.DoS(100, error("ConnectBlock(): Error processing VM execution results"), REJECT_INVALID, "bad-vm-exec-processing");
                 }
