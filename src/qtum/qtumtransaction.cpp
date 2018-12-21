@@ -988,3 +988,121 @@ UniValue DeltaCheckpoint::toJSON(){
     return result;
 }
 
+
+//EventDB implementation
+
+/*Internal database consists of two sections
+
+Height index: h_%blockheight%_%address% -> [vout1, vout2, ...]
+
+Result index: r_%blockheight%_%vout% -> ContractExecutionResult
+
+Terrible efficiency, but ContractExecutionResult is for now stored as JSON
+
+vout is stored {hash, n}
+
+blockheight must be stored big-endian so that leveldb can iterate bytewise 
+*/
+static const std::string EVENTDB_PREFIX_HEIGHT = "h_";
+static const std::string EVENTDB_PREFIX_RESULT = "r_";
+
+std::vector<uint8_t> createHeightKey(uint32_t blockheight, UniversalAddress address){
+    blockheight = htobe32(blockheight);
+    std::vector<uint8_t> k;
+    k.insert(k.end(), EVENTDB_PREFIX_HEIGHT.begin(), EVENTDB_PREFIX_HEIGHT.end());
+    k.insert(k.end(), blockheight);
+	k.insert(k.end(), address.version);
+	k.insert(k.end(), address.data.begin(), address.data.end());	
+    return k;
+}
+std::vector<uint8_t> createResultKey(uint32_t blockheight, COutPoint vout = COutPoint()){
+    blockheight = htobe32(blockheight);
+    std::vector<uint8_t> k;
+    k.insert(k.end(), EVENTDB_PREFIX_RESULT.begin(), EVENTDB_PREFIX_RESULT.end());
+    k.insert(k.end(), blockheight);
+    if(!vout.IsNull()){
+        k.insert(k.end(), vout.hash.begin(), vout.hash.end());
+        k.insert(k.end(), vout.n);
+    }
+    return k;
+}
+
+bool EventDB::commit(uint32_t height){
+    auto map = buildAddressMap();
+    CDBBatch b(*this);
+    //build height index first
+    for(auto &pair : map){
+        std::vector<uint8_t> v;
+        v.reserve (pair.second.size() * (32 + 4)); //size * (sizeof(txid) + sizeof(n))
+        for(auto vout : pair.second){
+            v.insert(v.end(), vout.hash.begin(), vout.hash.end());
+            v.insert(v.end(), vout.n);
+        }
+        b.Write(createHeightKey(height, pair.first), v);
+    }
+    //build result index
+    for(auto res : results){
+        b.Write(createResultKey(height, res.tx), res.toJSON().write(1, 2));
+    }
+
+    return WriteBatch(b);
+}
+
+void getResultTouches(const ContractExecutionResult &result, std::unordered_set<UniversalAddress>& touches){
+    touches.insert(result.address);
+    for(auto &sub : result.callResults){
+        getResultTouches(sub, touches);
+    }
+}
+
+std::map<UniversalAddress, std::vector<COutPoint>> EventDB::buildAddressMap(){
+    std::map<UniversalAddress, std::vector<COutPoint>> map;
+    
+    for(auto &res : results){
+        std::unordered_set<UniversalAddress> touches;
+        getResultTouches(res, touches);
+        for(auto &a : touches){
+            if(map.find(a) == map.end()){
+                map[a] = std::vector<COutPoint>();
+            }
+            map[a].push_back(res.tx);
+        }
+    }
+    return map;
+}
+
+    //adds a result to the buffer
+    //used during block validation after each contract execution
+bool EventDB::addResult(const ContractExecutionResult &result){
+    results.push_back(result);
+    return true;
+}
+bool EventDB::revert(){
+    results.clear();
+}
+bool EventDB::eraseBlock(uint32_t height){
+    //todo. search for h_%blockheight% and r_%blockheight% and delete
+    return false;
+}
+
+
+std::vector<std::string> EventDB::getResults(UniversalAddress address, uint32_t minheight, uint32_t maxheight){
+    std::vector<std::string> results;
+    CDBIterator* it = NewIterator();
+    auto tmp = createResultKey(minheight);
+    std::string start(tmp.begin(), tmp.end());
+    tmp = createResultKey(maxheight+1);
+    std::string end(tmp.begin(), tmp.end());
+    std::string k;
+    while(it->GetKey(k)){
+        if(k >= end){
+            break;
+        }
+        std::string v;
+        if(!this->Read(k, v)){
+            break; //needed? 
+        }
+    }
+    delete it;
+    return results;
+}

@@ -210,6 +210,20 @@ struct UniversalAddress{
     std::vector<uint8_t> data;
 };
 
+namespace std
+{
+  template<>
+    struct hash<UniversalAddress>
+    {
+      size_t
+      operator()(const UniversalAddress& a) const
+      {
+          auto tmp = a.toFlatData();
+          std::string s(tmp.begin(), tmp.end());
+        return hash<string>()(s);
+      }
+    };
+}
 
 struct ContractOutput{
     VersionVM version;
@@ -260,14 +274,13 @@ class EventDB : public CDBWrapper
 
     //goes through results and builds a map of all addresses and the coutpoints that mention them
     std::map<UniversalAddress, std::vector<COutPoint>> buildAddressMap();
-
 public:
 	EventDB(size_t nCacheSize, bool fMemory, bool fWipe) : CDBWrapper(GetDataDir() / "eventDB", nCacheSize, fMemory, fWipe) { }	
 	EventDB() : CDBWrapper(GetDataDir() / "eventDB", 4, false, false) { }
 	~EventDB() {    }
     //adds a result to the buffer
     //used during block validation after each contract execution
-    bool addResult(ContractExecutionResult result);
+    bool addResult(const ContractExecutionResult& result);
     //commits all the buffers to the database as the block height specified
     //used when the block is fully validated
     bool commit(uint32_t height);
@@ -279,7 +292,8 @@ public:
     bool eraseBlock(uint32_t height);
 
     //returns list of ContractExecutionResults that touch address at specified block height
-    std::vector<ContractExecutionResult> getResults(UniversalAddress address, uint32_t height, bool successOnly=false);
+    //note, for now this returns ContractExecutionResult as a JSON string
+    std::vector<std::string> getResults(UniversalAddress address, uint32_t minheight, uint32_t maxheight);
 
     //returns true and sets result if a result is found for the specified vout
     bool getResult(COutPoint vout, ContractExecutionResult &result);
@@ -430,6 +444,7 @@ class ContractStatus{
 struct ContractExecutionResult{
     uint256 blockHash;
     uint32_t blockHeight;
+    COutPoint tx;
     uint64_t usedGas;
     CAmount refundSender = 0;
     ContractStatus status = ContractStatus::CodeError();
@@ -444,6 +459,8 @@ struct ContractExecutionResult{
         UniValue result(UniValue::VOBJ);
         result.push_back(Pair("block-hash", blockHash.GetHex()));
         result.push_back(Pair("blockh-height", (uint64_t) blockHeight));
+        result.push_back(Pair("tx-hash", tx.hash.GetHex()));
+        result.push_back(Pair("tx-n", (uint64_t) tx.n));
         result.push_back(Pair("address", address.asBitcoinAddress().ToString()));
         result.push_back(Pair("used-gas", usedGas));
         result.push_back(Pair("sender-refund", refundSender));

@@ -225,6 +225,7 @@ CCoinsViewDB *pcoinsdbview = nullptr;
 CCoinsViewCache *pcoinsTip = nullptr;
 CBlockTreeDB *pblocktree = nullptr;
 StorageResults *pstorageresult = nullptr;
+EventDB *peventdb = nullptr;
 
 enum FlushStateMode {
     FLUSH_STATE_NONE,
@@ -1753,6 +1754,7 @@ static DisconnectResult DisconnectBlock(const CBlock& block, const CBlockIndex* 
     if(pfClean == NULL && fLogEvents){
         pstorageresult->deleteResults(block.vtx);
         pblocktree->EraseHeightIndex(pindex->nHeight);
+        peventdb->eraseBlock(pindex->nHeight);
     }
     pblocktree->EraseStakeIndex(pindex->nHeight);
 
@@ -2472,6 +2474,11 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
     uint64_t nValueOut=0;
     uint64_t nValueIn=0;
 
+    //use revert just in case there are uncommitted results from a failed block
+    if(fLogEvents){
+        peventdb->revert();
+    }
+
     for (unsigned int i = 0; i < block.vtx.size(); i++)
     {
         const CTransaction &tx = *(block.vtx[i]);
@@ -2624,6 +2631,9 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
                 result.blockHash = block.GetHash();
                 if(!executor.execute(result, !fJustCheck)){
                     return state.DoS(100, error("ConnectBlock(): Error processing VM execution results"), REJECT_INVALID, "bad-vm-exec-processing");
+                }
+                if(fLogEvents){
+                    peventdb->addResult(result);
                 }
                 LogPrintf("contract exec:\n %s\n\n", result.toJSON().write(1, 2)); //todo: find better way of logging this
                 blockGasUsed += result.usedGas;
@@ -2977,6 +2987,7 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
             if (!pblocktree->WriteHeightIndex(e.second.first, e.second.second))
                 return AbortNode(state, "Failed to write height index");
         }
+        peventdb->commit(pindex->nHeight);
     }    
     if(block.IsProofOfStake()){
         // Read the public key from the second output
