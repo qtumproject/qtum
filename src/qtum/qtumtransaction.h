@@ -1,7 +1,7 @@
 #ifndef QTUMTRANSACTION_H
 #define QTUMTRANSACTION_H
 
-#include <libethcore/Transaction.h>
+#include <libethereum/Transaction.h>
 
 struct VersionVM{
     //this should be portable, see https://stackoverflow.com/questions/31726191/is-there-a-portable-alternative-to-c-bitfields
