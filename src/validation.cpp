@@ -2232,6 +2232,32 @@ void writeVMlog(const std::vector<ResultExecute>& res, const CTransaction& tx, c
     fIsVMlogFile = true;
 }
 
+LastHashes::LastHashes()
+{}
+
+void LastHashes::set(const CBlockIndex *tip)
+{
+    clear();
+
+    m_lastHashes.resize(256);
+    for(int i=0;i<256;i++){
+        if(!tip)
+            break;
+        m_lastHashes[i]= uintToh256(*tip->phashBlock);
+        tip = tip->pprev;
+    }
+}
+
+dev::h256s LastHashes::precedingHashes(const dev::h256 &) const
+{
+    return m_lastHashes;
+}
+
+void LastHashes::clear()
+{
+    m_lastHashes.clear();
+}
+
 bool ByteCodeExec::performByteCode(dev::eth::Permanence type){
     for(QtumTransaction& tx : txs){
         //validate VM version
@@ -2293,27 +2319,22 @@ bool ByteCodeExec::processingResults(ByteCodeExecResult& resultBCE){
 }
 
 dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(){
-    dev::eth::EnvInfo env;
     CBlockIndex* tip = chainActive.Tip();
-    env.setNumber(dev::u256(tip->nHeight + 1));
-    env.setTimestamp(dev::u256(block.nTime));
-    env.setDifficulty(dev::u256(block.nBits));
+    dev::eth::BlockHeader header;
+    header.setNumber(tip->nHeight + 1);
+    header.setTimestamp(block.nTime);
+    header.setDifficulty(dev::u256(block.nBits));
+    header.setGasLimit(blockGasLimit);
 
-    dev::eth::LastHashes lh;
-    lh.resize(256);
-    for(int i=0;i<256;i++){
-        if(!tip)
-            break;
-        lh[i]= uintToh256(*tip->phashBlock);
-        tip = tip->pprev;
-    }
-    env.setLastHashes(std::move(lh));
-    env.setGasLimit(blockGasLimit);
+    lastHashes.set(tip);
+
     if(block.IsProofOfStake()){
-        env.setAuthor(EthAddrFromScript(block.vtx[1]->vout[1].scriptPubKey));
+        header.setAuthor(EthAddrFromScript(block.vtx[1]->vout[1].scriptPubKey));
     }else {
-        env.setAuthor(EthAddrFromScript(block.vtx[0]->vout[0].scriptPubKey));
+        header.setAuthor(EthAddrFromScript(block.vtx[0]->vout[0].scriptPubKey));
     }
+    dev::u256 gasUsed;
+    dev::eth::EnvInfo env(header, lastHashes, gasUsed);
     return env;
 }
 

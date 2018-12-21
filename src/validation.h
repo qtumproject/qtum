@@ -37,6 +37,7 @@
 #include <qtum/qtumstate.h>
 #include <qtum/qtumDGP.h>
 #include <libethereum/ChainParams.h>
+#include <libethereum/LastBlockHashesFace.h>
 #include <libethashseal/Ethash.h>
 #include <libethashseal/GenesisInfo.h>
 #include <script/standard.h>
@@ -681,6 +682,21 @@ private:
 
 };
 
+class LastHashes: public dev::eth::LastBlockHashesFace
+{
+public:
+    explicit LastHashes();
+
+    void set(CBlockIndex const* tip);
+
+    dev::h256s precedingHashes(dev::h256 const&) const;
+
+    void clear();
+
+private:
+    dev::h256s m_lastHashes;
+};
+
 class ByteCodeExec {
 
 public:
@@ -707,6 +723,7 @@ private:
 
     const uint64_t blockGasLimit;
 
+    LastHashes lastHashes;
 };
 ////////////////////////////////////////////////////////
 
