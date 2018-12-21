@@ -12,7 +12,7 @@
 #include <libethcore/SealEngine.h>
 
 using OnOpFunc = std::function<void(uint64_t, uint64_t, dev::eth::Instruction, dev::bigint, dev::bigint, 
-    dev::bigint, dev::eth::VM*, dev::eth::ExtVMFace const*)>;
+    dev::bigint, dev::eth::VMFace const*, dev::eth::ExtVMFace const*)>;
 using plusAndMinus = std::pair<dev::u256, dev::u256>;
 using valtype = std::vector<unsigned char>;
 
