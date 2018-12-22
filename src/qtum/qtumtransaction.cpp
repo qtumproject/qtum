@@ -1010,7 +1010,9 @@ std::vector<uint8_t> createHeightKey(uint32_t blockheight, UniversalAddress addr
     blockheight = htobe32(blockheight);
     std::vector<uint8_t> k;
     k.insert(k.end(), EVENTDB_PREFIX_HEIGHT.begin(), EVENTDB_PREFIX_HEIGHT.end());
-    k.insert(k.end(), blockheight);
+    for(int i = 0; i < sizeof(uint32_t) ; i++){
+        k.push_back(((uint8_t*)&blockheight)[i]);
+    }
 	k.insert(k.end(), address.version);
 	k.insert(k.end(), address.data.begin(), address.data.end());	
     return k;
@@ -1019,7 +1021,9 @@ std::vector<uint8_t> createResultKey(uint32_t blockheight, COutPoint vout = COut
     blockheight = htobe32(blockheight);
     std::vector<uint8_t> k;
     k.insert(k.end(), EVENTDB_PREFIX_RESULT.begin(), EVENTDB_PREFIX_RESULT.end());
-    k.insert(k.end(), blockheight);
+    for(int i = 0; i < sizeof(uint32_t) ; i++){
+        k.push_back(((uint8_t*)&blockheight)[i]);
+    }
     if(!vout.IsNull()){
         k.insert(k.end(), vout.hash.begin(), vout.hash.end());
         k.insert(k.end(), vout.n);
@@ -1079,6 +1083,7 @@ bool EventDB::addResult(const ContractExecutionResult &result){
 }
 bool EventDB::revert(){
     results.clear();
+    return true;
 }
 bool EventDB::eraseBlock(uint32_t height){
     //todo. search for h_%blockheight% and r_%blockheight% and delete
@@ -1086,22 +1091,29 @@ bool EventDB::eraseBlock(uint32_t height){
 }
 
 
-std::vector<std::string> EventDB::getResults(UniversalAddress address, uint32_t minheight, uint32_t maxheight){
+std::vector<std::string> EventDB::getResults(UniversalAddress address, int minheight, int maxheight, int maxresults){
     std::vector<std::string> results;
     CDBIterator* it = NewIterator();
-    auto tmp = createResultKey(minheight);
+    std::vector<uint8_t> tmp;
+    tmp = createResultKey(minheight);
     std::string start(tmp.begin(), tmp.end());
     tmp = createResultKey(maxheight+1);
     std::string end(tmp.begin(), tmp.end());
     std::string k;
+    it->Seek(start);
     while(it->GetKey(k)){
-        if(k >= end){
+        if(k >= end || k.size() == 0 ||  k[0] != 'r'){
             break;
         }
         std::string v;
         if(!this->Read(k, v)){
             break; //needed? 
         }
+        results.push_back(v);
+        if(results.size() >= maxresults){
+            break;
+        }
+        it->Next();
     }
     delete it;
     return results;

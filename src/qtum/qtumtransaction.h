@@ -162,6 +162,11 @@ struct UniversalAddress{
         data.resize(ADDRESS_DATA_SIZE);
     }
 
+    bool isNull(){
+        //todo, later check data for 0
+        return version == AddressVersion::UNKNOWN;
+    }
+
     static AddressVersion convertBitcoinVersion(std::vector<unsigned char> version){
         if(version.size() == 0){
             return AddressVersion::UNKNOWN;
@@ -205,6 +210,7 @@ struct UniversalAddress{
         }
     }
 
+    
 
     AddressVersion version;
     std::vector<uint8_t> data;
@@ -291,12 +297,18 @@ public:
     //used when disconnecting a block
     bool eraseBlock(uint32_t height);
 
+    //result functions:
+
     //returns list of ContractExecutionResults that touch address at specified block height
+    //address can be set to unknown version in order to not apply an address filter
     //note, for now this returns ContractExecutionResult as a JSON string
-    std::vector<std::string> getResults(UniversalAddress address, uint32_t minheight, uint32_t maxheight);
+    std::vector<std::string> getResults(UniversalAddress address, int minheight, int maxheight, int maxresults);
+
+    //returns results in descending order, ie, results are ordered from maxheight to minheight
+    std::vector<std::string> getDescendingResults(UniversalAddress address, int minheight, int maxheight, int maxresults);
 
     //returns true and sets result if a result is found for the specified vout
-    bool getResult(COutPoint vout, ContractExecutionResult &result);
+    //bool getResult(COutPoint vout, ContractExecutionResult &result);
 };
 
 class DeltaDB : public CDBWrapper
