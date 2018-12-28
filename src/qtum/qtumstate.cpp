@@ -272,7 +272,7 @@ void QtumState::updateUTXO(const std::unordered_map<dev::Address, Vin>& vins){
 void QtumState::printfErrorLog(const dev::eth::TransactionException er){
     std::stringstream ss;
     ss << er;
-    clog(ExecutiveWarnChannel) << "VM exception:" << ss.str();
+    clog(dev::VerbosityWarning, "exec") << "VM exception:" << ss.str();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
