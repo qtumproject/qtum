@@ -1617,6 +1617,44 @@ private:
 
 };
 
+UniValue searchevents(const JSONRPCRequest& request)
+{
+    if (request.fHelp)
+        throw std::runtime_error(
+             "searchevents \"address\" [fromblock] [toblock] [maxcount]\n" 
+             "\nArgument:\n"
+             "1. \"address\"          (string, optional) An address or a list of addresses to only get logs from particular account(s)\n"
+             "2. \"fromBlock\"        (numeric, optional) The number of the earliest block (latest may be given to mean the most recent block) (default: 1)\n"
+             "3. \"toBlock\"          (string, optional) The number of the latest block (-1 may be given to mean the most recent block) (default: -1)\n"
+             "4. \"maxCount\"         (numeric, optional) The maximum number of execution results (default: 10)\n"
+
+         );
+    //eventually, have this go in descending order, so that the most recent events are the first result
+    LOCK(cs_main);
+    /*
+    std::string data = request.params[1].get_str();
+
+    std::string contractaddress = request.params[0].get_str();
+    UniversalAddress address;
+    CBitcoinAddress a(contractaddress);
+    if(!a.IsValid(true)){
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address provided is not a valid hex string or base58 address");
+    }
+    address.fromBitcoinAddress(a);
+    if(!address.isContract())
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address provided is not a contract address");
+    */
+    auto list = peventdb->getResults(UniversalAddress(), 1, chainActive.Height(), 10);
+    UniValue result(UniValue::VARR);
+    for(auto& s : list){
+        UniValue item(UniValue::VOBJ);
+        item.read(s);
+        result.push_back(item);
+    }
+    return result;
+}
+
+
 UniValue searchlogs(const JSONRPCRequest& request)
 {
     if (request.fHelp || request.params.size() < 2)
@@ -2579,6 +2617,7 @@ static const CRPCCommand commands[] =
     { "blockchain",         "listcontracts",          &listcontracts,          true,  {"start", "maxDisplay"} },
     { "blockchain",         "gettransactionreceipt",  &gettransactionreceipt,  true,  {"hash"} },
     { "blockchain",         "searchlogs",             &searchlogs,             true,  {"fromBlock", "toBlock", "address", "topics"} },
+    { "blockchain",         "searchevents",           &searchevents,           true,  {"address", "fromBlock", "toBlock", "maxCount"} },
 
     { "blockchain",         "waitforlogs",            &waitforlogs,            true,  {"fromBlock", "nblocks", "address", "topics"} },
 };

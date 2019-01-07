@@ -250,6 +250,8 @@ void Shutdown()
         pblocktree = nullptr;
         delete pstorageresult;
         pstorageresult = nullptr;
+        delete peventdb;
+        peventdb = nullptr;
         delete globalState.release();
         globalSealEngine.reset();
     }
@@ -1461,12 +1463,14 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
                 delete pblocktree;
                 delete pstorageresult;
                 delete pdeltaDB;
+                delete peventdb;
                 globalState.reset();
                 globalSealEngine.reset();
 
                 pblocktree = new CBlockTreeDB(nBlockTreeDBCache, false, fReset);
 
                 pdeltaDB = new DeltaDB(nBlockTreeDBCache, false, fReset);
+                peventdb = new EventDB(nBlockTreeDBCache, false, fReset);
 
                 if (fReset) {
                     pblocktree->WriteReindexing(true);
@@ -1596,6 +1600,7 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
                     pblocktree->WipeHeightIndex();
                     fLogEvents = false;
                     pblocktree->WriteFlag("logevents", fLogEvents);
+                    //need eventdb setup? 
                 }
 
                 if (!fReset) {

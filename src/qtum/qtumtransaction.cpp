@@ -232,6 +232,9 @@ bool ContractExecutor::execute(ContractExecutionResult &result, bool commit)
 {
     DeltaDBWrapper wrapper(pdeltaDB);
     ContractEnvironment env=buildEnv();
+    if(result.blockHash == uint256()){
+        result.blockHash = block.GetHash();
+    }
     if(output.version.rootVM == ROOT_VM_EVM){
         EVMContractVM evm(wrapper, env, blockGasLimit);
         evm.execute(output, result, commit);
@@ -654,27 +657,43 @@ CTransaction DeltaDBWrapper::createCondensingTx() {
     return CTransaction(tx);
 }
 
+std::vector<uint8_t> getBytecodeKey(UniversalAddress address){
+    std::vector<uint8_t> K;
+    K.insert(K.end(), DELTADB_PREFIX_STATE.begin(), DELTADB_PREFIX_STATE.end());
+	K.insert(K.end(), address.version);
+	K.insert(K.end(), address.data.begin(), address.data.end());	
+	K.insert(K.end(), DELTADB_STATE_BYTECODE);	
+    return K;
+}
+
+std::vector<uint8_t> getStateKey(UniversalAddress address, std::vector<uint8_t> key){
+	std::vector<uint8_t> K;
+    std::vector<unsigned char> keyHash(32);
+
+    K.insert(K.end(), DELTADB_PREFIX_STATE.begin(), DELTADB_PREFIX_STATE.end());
+	K.insert(K.end(), address.version);
+	K.insert(K.end(), address.data.begin(), address.data.end());	
+	K.insert(K.end(), DELTADB_STATE_KEY);
+	if(key.size() > 31){
+		CSHA256().Write(key.data(), key.size()).Finalize(keyHash.data());
+		K.insert(K.end(), keyHash.begin(),keyHash.end());	
+	}else{
+		K.insert(K.end(), '_'); 
+		K.insert(K.end(), key.begin(),key.end());	
+	}
+
+    return K;
+}
+
 //live state key format: state_%address%_%key%
 
 //live bytecode: state_%address%c
 bool DeltaDBWrapper:: writeByteCode(UniversalAddress address,valtype byteCode){
-	std::vector<uint8_t> K;
-	std::vector<uint8_t> V;
-    K.insert(K.end(), DELTADB_PREFIX_STATE.begin(), DELTADB_PREFIX_STATE.end());
-	K.insert(K.end(), address.version);
-	K.insert(K.end(), address.data.begin(), address.data.end());	
-	K.insert(K.end(), DELTADB_STATE_BYTECODE);	
-	return Write(K, byteCode);
+	return Write(getBytecodeKey(address), byteCode);
 }
 
 bool DeltaDBWrapper:: readByteCode(UniversalAddress address,valtype& byteCode){
-	std::vector<uint8_t> K;
-	std::vector<uint8_t> V;
-    K.insert(K.end(), DELTADB_PREFIX_STATE.begin(), DELTADB_PREFIX_STATE.end());
-	K.insert(K.end(), address.version);
-	K.insert(K.end(), address.data.begin(), address.data.end());	
-	K.insert(K.end(), DELTADB_STATE_BYTECODE);	
-    return Read(K, byteCode);   
+    return Read(getBytecodeKey(address), byteCode);   
 }
 
 bool DeltaDBWrapper:: writeAalData(UniversalAddress address, uint256 txid, unsigned int vout, uint64_t balance){
@@ -726,39 +745,11 @@ bool DeltaDBWrapper:: readAalData(UniversalAddress address, uint256 &txid, unsig
 }
 
 bool DeltaDBWrapper:: writeState(UniversalAddress address, valtype key, valtype value){
-	std::vector<uint8_t> K;
-    std::vector<unsigned char> keyHash(32);
-
-    K.insert(K.end(), DELTADB_PREFIX_STATE.begin(), DELTADB_PREFIX_STATE.end());
-	K.insert(K.end(), address.version);
-	K.insert(K.end(), address.data.begin(), address.data.end());	
-	K.insert(K.end(), DELTADB_STATE_KEY);
-	if(key.size() > 31){
-		CSHA256().Write(key.data(), key.size()).Finalize(keyHash.data());
-		K.insert(K.end(), keyHash.begin(),keyHash.end());	
-	}else{
-		K.insert(K.end(), '_'); 
-		K.insert(K.end(), key.begin(),key.end());	
-	}
-	return Write(K, value);
+	return Write(getStateKey(address, key), value);
 }
 
 bool DeltaDBWrapper:: readState(UniversalAddress address, valtype key, valtype& value){
-	std::vector<uint8_t> K;
-    std::vector<unsigned char> keyHash(32);
-
-    K.insert(K.end(), DELTADB_PREFIX_STATE.begin(), DELTADB_PREFIX_STATE.end());
-	K.insert(K.end(), address.version);
-	K.insert(K.end(), address.data.begin(), address.data.end());	
-	K.insert(K.end(), DELTADB_STATE_KEY);
-	if(key.size() > 31){
-		CSHA256().Write(key.data(), key.size()).Finalize(keyHash.data());
-		K.insert(K.end(), keyHash.begin(),keyHash.end());	
-	}else{
-		K.insert(K.end(), '_'); 
-		K.insert(K.end(), key.begin(),key.end());	
-	}
-    return Read(K, value);
+    return Read(getStateKey(address, key), value);
 }
 
 
@@ -997,3 +988,133 @@ UniValue DeltaCheckpoint::toJSON(){
     return result;
 }
 
+
+//EventDB implementation
+
+/*Internal database consists of two sections
+
+Height index: h_%blockheight%_%address% -> [vout1, vout2, ...]
+
+Result index: r_%blockheight%_%vout% -> ContractExecutionResult
+
+Terrible efficiency, but ContractExecutionResult is for now stored as JSON
+
+vout is stored {hash, n}
+
+blockheight must be stored big-endian so that leveldb can iterate bytewise 
+*/
+static const std::string EVENTDB_PREFIX_HEIGHT = "h_";
+static const std::string EVENTDB_PREFIX_RESULT = "r_";
+
+std::vector<uint8_t> createHeightKey(uint32_t blockheight, UniversalAddress address){
+    blockheight = htobe32(blockheight);
+    std::vector<uint8_t> k;
+    k.insert(k.end(), EVENTDB_PREFIX_HEIGHT.begin(), EVENTDB_PREFIX_HEIGHT.end());
+    for(int i = 0; i < sizeof(uint32_t) ; i++){
+        k.push_back(((uint8_t*)&blockheight)[i]);
+    }
+	k.insert(k.end(), address.version);
+	k.insert(k.end(), address.data.begin(), address.data.end());	
+    return k;
+}
+std::vector<uint8_t> createResultKey(uint32_t blockheight, COutPoint vout = COutPoint()){
+    blockheight = htobe32(blockheight);
+    std::vector<uint8_t> k;
+    k.insert(k.end(), EVENTDB_PREFIX_RESULT.begin(), EVENTDB_PREFIX_RESULT.end());
+    for(int i = 0; i < sizeof(uint32_t) ; i++){
+        k.push_back(((uint8_t*)&blockheight)[i]);
+    }
+    if(!vout.IsNull()){
+        k.insert(k.end(), vout.hash.begin(), vout.hash.end());
+        k.insert(k.end(), vout.n);
+    }
+    return k;
+}
+
+bool EventDB::commit(uint32_t height){
+    auto map = buildAddressMap();
+    CDBBatch b(*this);
+    //build height index first
+    for(auto &pair : map){
+        std::vector<uint8_t> v;
+        v.reserve (pair.second.size() * (32 + 4)); //size * (sizeof(txid) + sizeof(n))
+        for(auto vout : pair.second){
+            v.insert(v.end(), vout.hash.begin(), vout.hash.end());
+            v.insert(v.end(), vout.n);
+        }
+        b.Write(createHeightKey(height, pair.first), v);
+    }
+    //build result index
+    for(auto res : results){
+        b.Write(createResultKey(height, res.tx), res.toJSON().write(1, 2));
+    }
+
+    return WriteBatch(b);
+}
+
+void getResultTouches(const ContractExecutionResult &result, std::unordered_set<UniversalAddress>& touches){
+    touches.insert(result.address);
+    for(auto &sub : result.callResults){
+        getResultTouches(sub, touches);
+    }
+}
+
+std::map<UniversalAddress, std::vector<COutPoint>> EventDB::buildAddressMap(){
+    std::map<UniversalAddress, std::vector<COutPoint>> map;
+    
+    for(auto &res : results){
+        std::unordered_set<UniversalAddress> touches;
+        getResultTouches(res, touches);
+        for(auto &a : touches){
+            if(map.find(a) == map.end()){
+                map[a] = std::vector<COutPoint>();
+            }
+            map[a].push_back(res.tx);
+        }
+    }
+    return map;
+}
+
+    //adds a result to the buffer
+    //used during block validation after each contract execution
+bool EventDB::addResult(const ContractExecutionResult &result){
+    results.push_back(result);
+    return true;
+}
+bool EventDB::revert(){
+    results.clear();
+    return true;
+}
+bool EventDB::eraseBlock(uint32_t height){
+    //todo. search for h_%blockheight% and r_%blockheight% and delete
+    return false;
+}
+
+
+std::vector<std::string> EventDB::getResults(UniversalAddress address, int minheight, int maxheight, int maxresults){
+    std::vector<std::string> results;
+    CDBIterator* it = NewIterator();
+    std::vector<uint8_t> tmp;
+    tmp = createResultKey(minheight);
+    std::string start(tmp.begin(), tmp.end());
+    tmp = createResultKey(maxheight+1);
+    std::string end(tmp.begin(), tmp.end());
+    std::string k;
+    it->Seek(start);
+    while(it->GetKey(k)){
+        if(k >= end || k.size() == 0 ||  k[0] != 'r'){
+            break;
+        }
+        std::string v;
+        if(!this->Read(k, v)){
+            break; //needed? 
+        }
+        results.push_back(v);
+        if(results.size() >= maxresults){
+            break;
+        }
+        it->Next();
+    }
+    delete it;
+    return results;
+}
