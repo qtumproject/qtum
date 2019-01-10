@@ -582,6 +582,7 @@ case $host in
 esac
 
 CRYPTOPP_TARGET_FLAGS=""
+LIBFF_TARGET_FLAGS=""
 
 if test x$use_pkgconfig = xyes; then
   m4_ifndef([PKG_PROG_PKG_CONFIG], [AC_MSG_ERROR(PKG_PROG_PKG_CONFIG macro not found. Please install pkg-config and re-run autogen.sh.)])
@@ -869,6 +870,12 @@ LIBCRYPTOPP=
 AM_CONDITIONAL([EMBEDDED_CRYPTOPP],[true])
 AC_SUBST(CRYPTOPP_CPPFLAGS)
 AC_SUBST(LIBCRYPTOPP)
+
+LIBFF_CPPFLAGS=
+LIBFF=
+AM_CONDITIONAL([EMBEDDED_LIBFF],[true])
+AC_SUBST(LIBFF_CPPFLAGS)
+AC_SUBST(LIBFF)
 
 if test x$enable_wallet != xno; then
     dnl Check for libdb_cxx only if wallet enabled
