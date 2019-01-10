@@ -33,10 +33,13 @@ struct VersionVM{
     // Do not add any other fields to this struct
 
     uint32_t toRaw(){
-        return *(uint32_t*)this;
+        uint32_t t;
+        memcpy(&t, this, sizeof(t));
+        return t;
     }
     static VersionVM fromRaw(uint32_t val){
-        VersionVM x = *(VersionVM*)&val;
+        VersionVM x;
+        memcpy(&x, &val, sizeof(x));
         return x;
     }
     static VersionVM GetNoExec(){
