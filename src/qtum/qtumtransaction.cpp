@@ -1101,6 +1101,10 @@ std::vector<std::string> EventDB::getResults(UniversalAddress address, int minhe
     std::string end(tmp.begin(), tmp.end());
     std::string k;
     it->Seek(start);
+    if(!it->Valid()){
+        return results;
+    }
+    
     while(it->GetKey(k)){
         if(k >= end || k.size() == 0 ||  k[0] != 'r'){
             break;
