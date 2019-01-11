@@ -2898,10 +2898,10 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
             if(block.vtx.size() > checkBlock.vtx.size()){
                 LogPrintf("Unexpected AAL transactions in block. Actual txs: %i, expected txs: %i\n", block.vtx.size(), checkBlock.vtx.size());
                 for(size_t i=0;i<block.vtx.size();i++){
-                    if(i > checkBlock.vtx.size()){
+                    if(i > checkBlock.vtx.size()-1){
                         LogPrintf("Unexpected transaction: %s\n", block.vtx[i]->ToString());
                     }else {
-                        if (block.vtx[i]->GetHash() != block.vtx[i]->GetHash()) {
+                        if (block.vtx[i]->GetHash() != checkBlock.vtx[i]->GetHash()) {
                             LogPrintf("Mismatched transaction at entry %i\n", i);
                             LogPrintf("Actual: %s\n", block.vtx[i]->ToString());
                             LogPrintf("Expected: %s\n", checkBlock.vtx[i]->ToString());
@@ -2911,10 +2911,10 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
             }else if(block.vtx.size() < checkBlock.vtx.size()){
                 LogPrintf("Actual block is missing AAL transactions. Actual txs: %i, expected txs: %i\n", block.vtx.size(), checkBlock.vtx.size());
                 for(size_t i=0;i<checkBlock.vtx.size();i++){
-                    if(i > block.vtx.size()){
+                    if(i > block.vtx.size()-1){
                         LogPrintf("Missing transaction: %s\n", checkBlock.vtx[i]->ToString());
                     }else {
-                        if (block.vtx[i]->GetHash() != block.vtx[i]->GetHash()) {
+                        if (block.vtx[i]->GetHash() != checkBlock.vtx[i]->GetHash()) {
                             LogPrintf("Mismatched transaction at entry %i\n", i);
                             LogPrintf("Actual: %s\n", block.vtx[i]->ToString());
                             LogPrintf("Expected: %s\n", checkBlock.vtx[i]->ToString());
@@ -2924,7 +2924,7 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
             }else{
                 //count is correct, but a tx is wrong
                 for(size_t i=0;i<checkBlock.vtx.size();i++){
-                    if (block.vtx[i]->GetHash() != block.vtx[i]->GetHash()) {
+                    if (block.vtx[i]->GetHash() != checkBlock.vtx[i]->GetHash()) {
                         LogPrintf("Mismatched transaction at entry %i\n", i);
                         LogPrintf("Actual: %s\n", block.vtx[i]->ToString());
                         LogPrintf("Expected: %s\n", checkBlock.vtx[i]->ToString());

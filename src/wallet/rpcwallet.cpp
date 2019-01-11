@@ -730,6 +730,8 @@ static UniValue createcontract(const JSONRPCRequest& request){
         senderAddress = DecodeDestination(request.params[3].get_str());
         if (!IsValidDestination(senderAddress))
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Qtum address to send from");
+        if (!IsValidContractSenderAddress(senderAddress))
+        	throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid contract sender address. Only P2PK and P2PKH allowed");
         else
             fHasSender=true;
     }
@@ -946,6 +948,8 @@ static UniValue sendtocontract(const JSONRPCRequest& request){
         senderAddress = DecodeDestination(request.params[5].get_str());
         if (!IsValidDestination(senderAddress))
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Qtum address to send from");
+        if (!IsValidContractSenderAddress(senderAddress))
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid contract sender address. Only P2PK and P2PKH allowed");
         else
             fHasSender=true;
     }
@@ -3189,7 +3193,7 @@ static UniValue walletpassphrase(const JSONRPCRequest& request)
         return NullUniValue;
     }
 
-    if (pwallet->IsCrypted() && (request.fHelp || request.params.size() < 2 || request.params.size() > 3)) {
+    if (request.fHelp || (pwallet->IsCrypted() && (request.params.size() < 2 || request.params.size() > 3))) {
         throw std::runtime_error(
         	"walletpassphrase \"passphrase\" timeout stakingonly\n"
             "\nStores the wallet decryption key in memory for 'timeout' seconds.\n"
@@ -3279,7 +3283,7 @@ static UniValue walletpassphrasechange(const JSONRPCRequest& request)
         return NullUniValue;
     }
 
-    if (pwallet->IsCrypted() && (request.fHelp || request.params.size() != 2)) {
+    if (request.fHelp || (pwallet->IsCrypted() && (request.params.size() != 2))) {
         throw std::runtime_error(
             "walletpassphrasechange \"oldpassphrase\" \"newpassphrase\"\n"
             "\nChanges the wallet passphrase from 'oldpassphrase' to 'newpassphrase'.\n"
@@ -3332,7 +3336,7 @@ static UniValue walletlock(const JSONRPCRequest& request)
         return NullUniValue;
     }
 
-    if (pwallet->IsCrypted() && (request.fHelp || request.params.size() != 0)) {
+    if (request.fHelp || (pwallet->IsCrypted() && (request.params.size() != 0))) {
         throw std::runtime_error(
             "walletlock\n"
             "\nRemoves the wallet encryption key from memory, locking the wallet.\n"
@@ -3374,7 +3378,7 @@ static UniValue encryptwallet(const JSONRPCRequest& request)
         return NullUniValue;
     }
 
-    if (!pwallet->IsCrypted() && (request.fHelp || request.params.size() != 1)) {
+    if (request.fHelp || (!pwallet->IsCrypted() && (request.params.size() != 1))) {
         throw std::runtime_error(
             "encryptwallet \"passphrase\"\n"
             "\nEncrypts the wallet with 'passphrase'. This is for first time encryption.\n"
