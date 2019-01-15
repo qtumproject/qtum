@@ -18,9 +18,9 @@ std::vector<uint32_t> createDataSchedule(const dev::eth::EVMSchedule& schedule)
     return tempData;
 }
 
-std::vector<uint32_t> const& scheduleDataForBlockNumber(unsigned int blockHeight)
+std::vector<uint32_t> scheduleDataForBlockNumber(unsigned int blockHeight)
 {
-    const dev::eth::EVMSchedule& schedule = globalSealEngine->chainParams().scheduleForBlockNumber(blockHeight);
+    dev::eth::EVMSchedule schedule = globalSealEngine->chainParams().scheduleForBlockNumber(blockHeight);
     return createDataSchedule(schedule);
 }
 
