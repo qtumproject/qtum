@@ -13,6 +13,9 @@ class ListSinceBlockTest (BitcoinTestFramework):
         self.num_nodes = 4
         self.setup_clean_chain = True
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
+
     def run_test(self):
         self.nodes[2].generate(COINBASE_MATURITY+1)
         self.sync_all()

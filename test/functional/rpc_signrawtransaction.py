@@ -14,6 +14,9 @@ class SignRawTransactionsTest(BitcoinTestFramework):
         self.num_nodes = 1
         self.extra_args = [["-deprecatedrpc=signrawtransaction"]]
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
+
     def successful_signing_test(self):
         """Create and sign a valid raw transaction with one input.
 
@@ -45,6 +48,14 @@ class SignRawTransactionsTest(BitcoinTestFramework):
         # Perform the same test on signrawtransaction
         rawTxSigned2 = self.nodes[0].signrawtransaction(rawTx, inputs, privKeys)
         assert_equal(rawTxSigned, rawTxSigned2)
+
+    def test_with_lock_outputs(self):
+        """Test correct error reporting when trying to sign a locked output"""
+        self.nodes[0].encryptwallet("password")
+        self.restart_node(0)
+        rawTx = '020000000156b958f78e3f24e0b2f4e4db1255426b0902027cb37e3ddadb52e37c3557dddb0000000000ffffffff01c0a6b929010000001600149a2ee8c77140a053f36018ac8124a6ececc1668a00000000'
+
+        assert_raises_rpc_error(-13, "Please enter the wallet passphrase with walletpassphrase first", self.nodes[0].signrawtransactionwithwallet, rawTx)
 
     def script_verification_error_test(self):
         """Create and sign a raw transaction with valid (vin 0), invalid (vin 1) and one missing (vin 2) input script.
@@ -147,6 +158,7 @@ class SignRawTransactionsTest(BitcoinTestFramework):
     def run_test(self):
         self.successful_signing_test()
         self.script_verification_error_test()
+        self.test_with_lock_outputs()
 
 
 if __name__ == '__main__':

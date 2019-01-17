@@ -12,6 +12,9 @@ class ImportMultiTest (BitcoinTestFramework):
         self.extra_args = [["-addresstype=legacy"], ["-addresstype=legacy"]]
         self.setup_clean_chain = True
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
+
     def setup_network(self):
         self.setup_nodes()
 
@@ -37,7 +40,7 @@ class ImportMultiTest (BitcoinTestFramework):
 
         # RPC importmulti -----------------------------------------------
 
-        # Bitcoin Address
+        # Bitcoin Address (implicit non-internal)
         self.log.info("Should import an address")
         address = self.nodes[0].getaddressinfo(self.nodes[0].getnewaddress())
         result = self.nodes[1].importmulti([{
@@ -95,7 +98,7 @@ class ImportMultiTest (BitcoinTestFramework):
         assert_equal('timestamp' in address_assert, False)
 
 
-        # Address + Public key + !Internal
+        # Address + Public key + !Internal(explicit)
         self.log.info("Should import an address with public key")
         address = self.nodes[0].getaddressinfo(self.nodes[0].getnewaddress())
         result = self.nodes[1].importmulti([{
@@ -103,7 +106,8 @@ class ImportMultiTest (BitcoinTestFramework):
                 "address": address['address']
             },
             "timestamp": "now",
-            "pubkeys": [ address['pubkey'] ]
+            "pubkeys": [ address['pubkey'] ],
+            "internal": False
         }])
         assert_equal(result[0]['success'], True)
         address_assert = self.nodes[1].getaddressinfo(address['address'])
