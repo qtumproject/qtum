@@ -22,6 +22,7 @@
 #include <wallet/walletdb.h>
 #include <wallet/rpcwallet.h>
 #include <consensus/params.h>
+#include <pos.h>
 
 #include <algorithm>
 #include <atomic>
@@ -699,6 +700,8 @@ private:
     int64_t nNextResend = 0;
     int64_t nLastResend = 0;
     bool fBroadcastTransactions = false;
+
+    std::map<COutPoint, CStakeCache> stakeCache;
 
     /**
      * Used to keep track of spent outpoints, and

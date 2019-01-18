@@ -29,7 +29,6 @@
 #include <txdb.h>
 #include <wallet/fees.h>
 #include <wallet/walletutil.h>
-#include <pos.h>
 #include <miner.h>
 
 #include <algorithm>
@@ -3493,7 +3492,6 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, con
     if (setCoins.empty())
         return false;
 
-    static std::map<COutPoint, CStakeCache> stakeCache;
     if(stakeCache.size() > setCoins.size() + 100){
         //Determining if the cache is still valid is harder than just clearing it when it gets too big, so instead just clear it
         //when it has more than 100 entries more than the actual setCoins.
