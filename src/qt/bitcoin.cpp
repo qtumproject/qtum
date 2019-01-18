@@ -35,6 +35,7 @@
 #include <uint256.h>
 #include <util.h>
 #include <warnings.h>
+#include <validation.h> 
 
 #include <walletinitinterface.h>
 
@@ -522,15 +523,18 @@ void BitcoinApplication::initializeResult(bool success)
         window->setClientModel(clientModel);
 
 #ifdef ENABLE_WALLET
-        m_handler_load_wallet = m_node.handleLoadWallet([this](std::unique_ptr<interfaces::Wallet> wallet) {
-            WalletModel* wallet_model = new WalletModel(std::move(wallet), m_node, platformStyle, optionsModel, nullptr);
-            // Fix wallet model thread affinity.
-            wallet_model->moveToThread(thread());
-            QMetaObject::invokeMethod(this, "addWallet", Qt::QueuedConnection, Q_ARG(WalletModel*, wallet_model));
-        });
+        {
+            LOCK(cs_main);
+            m_handler_load_wallet = m_node.handleLoadWallet([this](std::unique_ptr<interfaces::Wallet> wallet) {
+                WalletModel* wallet_model = new WalletModel(std::move(wallet), m_node, platformStyle, optionsModel, nullptr);
+                // Fix wallet model thread affinity.
+                wallet_model->moveToThread(thread());
+                QMetaObject::invokeMethod(this, "addWallet", Qt::QueuedConnection, Q_ARG(WalletModel*, wallet_model));
+            });
 
-        for (auto& wallet : m_node.getWallets()) {
-            addWallet(new WalletModel(std::move(wallet), m_node, platformStyle, optionsModel));
+            for (auto& wallet : m_node.getWallets()) {
+                addWallet(new WalletModel(std::move(wallet), m_node, platformStyle, optionsModel));
+            }
         }
 #endif
 
