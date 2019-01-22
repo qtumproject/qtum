@@ -31,7 +31,7 @@ class QtumDGPBlockSizeSyncTest(BitcoinTestFramework):
             tx.vin = [CTxIn(COutPoint(int(unspent['txid'], 16), unspent['vout']), nSequence=0)]
             for i in range(50):
                 tx.vout.append(CTxOut(int(unspent['amount']*COIN/100 - 11000), scriptPubKey=CScript([OP_TRUE]*10000)))
-            tx_hex = self.node.signrawtransaction(bytes_to_hex_str(tx.serialize()))['hex']
+            tx_hex = self.node.signrawtransactionwithwallet(bytes_to_hex_str(tx.serialize()))['hex']
             f = io.BytesIO(hex_str_to_bytes(tx_hex))
             block.vtx.append(CTransaction())
             block.vtx[-1].deserialize(f)
@@ -40,7 +40,7 @@ class QtumDGPBlockSizeSyncTest(BitcoinTestFramework):
             block.vtx[-1].vout.pop(-1)
             if not block.vtx[-1].vout:
                 block.vtx.pop(-1)
-        tx_hex = self.node.signrawtransaction(bytes_to_hex_str(block.vtx[-1].serialize()))['hex']
+        tx_hex = self.node.signrawtransactionwithwallet(bytes_to_hex_str(block.vtx[-1].serialize()))['hex']
         f = io.BytesIO(hex_str_to_bytes(tx_hex))
         block.vtx[-1] = CTransaction()
         block.vtx[-1].deserialize(f)
@@ -127,7 +127,7 @@ class QtumDGPBlockSizeSyncTest(BitcoinTestFramework):
         self.BLOCK_SIZE_DGP.send_set_initial_admin(admin_address)
         self.node.generate(1)
 
-        possible_block_sizes = [4000000, 2000000, 1000000, 32000000,  8000000]
+        possible_block_sizes = [1000000, 2000000, 4000000, 8000000]
         ascending_block_sizes = sorted(possible_block_sizes)
 
         for max_block_size in possible_block_sizes:

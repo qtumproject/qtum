@@ -32,7 +32,7 @@ class MempoolLimitTest(BitcoinTestFramework):
         self.log.info('Create a mempool tx that will be evicted')
         us0 = utxos.pop()
         inputs = [{ "txid" : us0["txid"], "vout" : us0["vout"]}]
-        outputs = {self.nodes[0].getnewaddress() : 0.001}
+        outputs = {self.nodes[0].getnewaddress() : 0.01}
         tx = self.nodes[0].createrawtransaction(inputs, outputs)
         self.nodes[0].settxfee(relayfee) # specifically fund this tx with low fee
         txF = self.nodes[0].fundrawtransaction(tx)
@@ -58,7 +58,7 @@ class MempoolLimitTest(BitcoinTestFramework):
         self.log.info('Create a mempool tx that will not pass mempoolminfee')
         us0 = utxos.pop()
         inputs = [{ "txid" : us0["txid"], "vout" : us0["vout"]}]
-        outputs = {self.nodes[0].getnewaddress() : 0.0001}
+        outputs = {self.nodes[0].getnewaddress() : 0.01}
         tx = self.nodes[0].createrawtransaction(inputs, outputs)
         # specifically fund this tx with a fee < mempoolminfee, >= than minrelaytxfee
         txF = self.nodes[0].fundrawtransaction(tx, {'feeRate': relayfee})

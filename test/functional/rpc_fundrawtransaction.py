@@ -16,6 +16,7 @@ from test_framework.util import (
     count_bytes,
     find_vout_for_address,
 )
+from test_framework.qtumconfig import *
 
 
 def get_unspent(listunspent, amount):

@@ -14,6 +14,7 @@ from struct import pack, unpack
 import http.client
 import urllib.parse
 from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD
+from test_framework.qtum import convert_btc_address_to_qtum
 
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import (
@@ -78,11 +79,11 @@ class RESTTest (BitcoinTestFramework):
         self.log.info("Mine blocks and send Bitcoin to node 1")
 
         # Random address so node1's balance doesn't increase
-        not_related_address = "2MxqoHEdNQTyYeX1mHcbrrpzgojbosTpCvJ"
+        not_related_address = convert_btc_address_to_qtum("2MxqoHEdNQTyYeX1mHcbrrpzgojbosTpCvJ")
 
         self.nodes[0].generate(1)
         self.sync_all()
-        self.nodes[1].generatetoaddress(100, not_related_address)
+        self.nodes[1].generatetoaddress(COINBASE_MATURITY, not_related_address)
         self.sync_all()
 
         assert_equal(self.nodes[0].getbalance(), INITIAL_BLOCK_REWARD)
@@ -147,7 +148,7 @@ class RESTTest (BitcoinTestFramework):
         response_hash = binascii.hexlify(output.read(32)[::-1]).decode('ascii')
 
         assert_equal(bb_hash, response_hash)  # check if getutxo's chaintip during calculation was fine
-        assert_equal(chain_height, 102)  # chain height must be 102
+        assert_equal(chain_height, COINBASE_MATURITY+2)  # chain height must be 102
 
         self.log.info("Test the /getutxos URI with and without /checkmempool")
         # Create a transaction, check that it's found with /checkmempool, but
@@ -209,9 +210,9 @@ class RESTTest (BitcoinTestFramework):
 
         # Compare with block header
         response_header = self.test_rest_request("/headers/1/{}".format(bb_hash), req_type=ReqType.BIN, ret_type=RetType.OBJ)
-        assert_equal(int(response_header.getheader('content-length')), 80)
+        assert_equal(int(response_header.getheader('content-length')), 181)
         response_header_bytes = response_header.read()
-        assert_equal(response_bytes[:80], response_header_bytes)
+        assert_equal(response_bytes[:181], response_header_bytes)
 
         # Check block hex format
         response_hex = self.test_rest_request("/block/{}".format(bb_hash), req_type=ReqType.HEX, ret_type=RetType.OBJ)

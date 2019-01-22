@@ -45,7 +45,7 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
         tx.vin = [CTxIn(COutPoint(int(unspent['txid'], 16), unspent['vout']), nSequence=0)]
         amount = int((float(str(unspent['amount'])) - fee)*COIN)
         tx.vout = [CTxOut(amount, scriptPubKey=CScript([OP_DUP, OP_HASH160, hex_str_to_bytes(haddr), OP_EQUALVERIFY, OP_CHECKSIG]))]
-        tx_hex_signed = self.node.signrawtransaction(bytes_to_hex_str(tx.serialize()))['hex']
+        tx_hex_signed = self.node.signrawtransactionwithwallet(bytes_to_hex_str(tx.serialize()))['hex']
         return self.node.sendrawtransaction(tx_hex_signed)
 
     # Creates and op_call tx that calls the fallback function of the only contract that should be in existance
@@ -72,7 +72,7 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
         tx.vout.append(CTxOut(0, scriptPubKey=CScript([b"\x04", CScriptNum(gas_limit), CScriptNum(int(gas_price*COIN)), b"\x00", hex_str_to_bytes(contract_address), OP_CALL])))
         change = int((float(str(output['value'])) - gas_price*gas_limit) * COIN)
         tx.vout.append(CTxOut(change, scriptPubKey=CScript([OP_DUP, OP_HASH160, hex_str_to_bytes(haddr), OP_EQUALVERIFY, OP_CHECKSIG])))
-        tx_hex_signed = self.node.signrawtransaction(bytes_to_hex_str(tx.serialize()))['hex']
+        tx_hex_signed = self.node.signrawtransactionwithwallet(bytes_to_hex_str(tx.serialize()))['hex']
         return self.node.sendrawtransaction(tx_hex_signed)
 
     def send_op_call_outputs_with_gas_price(self, contract_address, gas_prices, spends_txid=None, spends_vout=None):
@@ -101,7 +101,7 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
             tx.vout.append(CTxOut(0, scriptPubKey=CScript([b"\x04", CScriptNum(gas_limit), CScriptNum(int(gas_price*COIN)), b"\x00", hex_str_to_bytes(contract_address), OP_CALL])))
         change = int((float(str(output['value'])) - sum(gas_prices)*gas_limit) * COIN)
         tx.vout.append(CTxOut(change, scriptPubKey=CScript([OP_DUP, OP_HASH160, hex_str_to_bytes(haddr), OP_EQUALVERIFY, OP_CHECKSIG])))
-        tx_hex_signed = self.node.signrawtransaction(bytes_to_hex_str(tx.serialize()))['hex']
+        tx_hex_signed = self.node.signrawtransactionwithwallet(bytes_to_hex_str(tx.serialize()))['hex']
         return self.node.sendrawtransaction(tx_hex_signed)
 
     def verify_contract_txs_are_added_last_test(self, with_restart=False, use_staking=False):
@@ -206,7 +206,7 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
                 CTxOut(0, scriptPubKey=CScript([b"\x04", CScriptNum(30000), CScriptNum(gas_price), b"\x00", hex_str_to_bytes(contract_address), OP_CALL])),
                 CTxOut(int((unspent['amount'] - Decimal('0.1'))*COIN), scriptPubKey=CScript([OP_DUP, OP_HASH160, hex_str_to_bytes(p2pkh_to_hex_hash(address)), OP_EQUALVERIFY, OP_CHECKSIG]))
                 ]
-            tx_raw = self.node.signrawtransaction(bytes_to_hex_str(tx.serialize()))['hex']
+            tx_raw = self.node.signrawtransactionwithwallet(bytes_to_hex_str(tx.serialize()))['hex']
 
             # Make the next vin refer to this tx.
             unspent['amount'] -= Decimal('0.1')
@@ -226,7 +226,7 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
                 CTxOut(0, scriptPubKey=CScript([b"\x04", CScriptNum(30000), CScriptNum(gas_price), b"\x00", hex_str_to_bytes(contract_address), OP_CALL])),
                 CTxOut(int((unspent['amount'] - Decimal('0.1'))*COIN), scriptPubKey=CScript([OP_DUP, OP_HASH160, hex_str_to_bytes(p2pkh_to_hex_hash(address)), OP_EQUALVERIFY, OP_CHECKSIG]))
                 ]
-            tx_raw = self.node.signrawtransaction(bytes_to_hex_str(tx.serialize()))['hex']
+            tx_raw = self.node.signrawtransactionwithwallet(bytes_to_hex_str(tx.serialize()))['hex']
 
             # Make the next vin refer to this tx.
             unspent['amount'] -= Decimal('0.1')

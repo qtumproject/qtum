@@ -5,6 +5,7 @@
 """Test transaction signing using the signrawtransaction* RPCs."""
 
 from test_framework.test_framework import BitcoinTestFramework
+from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD
 import decimal
 
 class RpcCreateMultiSigTest(BitcoinTestFramework):
@@ -26,7 +27,7 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
         node0,node1,node2 = self.nodes
 
         # 50 BTC each, rest will be 25 BTC each
-        node0.generate(149)
+        node0.generate(49 + COINBASE_MATURITY)
         self.sync_all()
 
         self.moved = 0
@@ -40,7 +41,7 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
 
     def checkbalances(self):
         node0,node1,node2 = self.nodes
-        node0.generate(100)
+        node0.generate(COINBASE_MATURITY)
         self.sync_all()
 
         bal0 = node0.getbalance()
@@ -48,8 +49,8 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
         bal2 = node2.getbalance()
 
         height = node0.getblockchaininfo()["blocks"]
-        assert 150 < height < 350
-        total = 149*50 + (height-149-100)*25
+        assert COINBASE_MATURITY+50 < height < 2*COINBASE_MATURITY+100
+        total = (height-COINBASE_MATURITY)*INITIAL_BLOCK_REWARD
         assert bal1 == 0
         assert bal2 == self.moved
         assert bal0+bal1+bal2 == total
@@ -61,7 +62,7 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
         madd = msig["address"]
         mredeem = msig["redeemScript"]
         if self.output_type == 'bech32':
-            assert madd[0:4] == "bcrt"  # actually a bech32 address
+            assert madd[0:4] == "qcrt"  # actually a bech32 address
 
         # compare against addmultisigaddress
         msigw = node1.addmultisigaddress(self.nsigs, self.pub, None, self.output_type)
@@ -83,7 +84,7 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
 
         node0.generate(1)
 
-        outval = value - decimal.Decimal("0.00001000")
+        outval = value - decimal.Decimal("0.01000000")
         rawtx = node2.createrawtransaction([{"txid": txid, "vout": vout}], [{self.final: outval}])
 
         rawtx2 = node2.signrawtransactionwithkey(rawtx, self.priv[0:self.nsigs-1], prevtxs)

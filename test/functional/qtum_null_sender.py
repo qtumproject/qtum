@@ -17,13 +17,13 @@ class QtumNullSenderTest(BitcoinTestFramework):
         self.node.generate(10+COINBASE_MATURITY)
         tx = CTransaction()
         tx.vin = [make_vin(self.node, COIN + 1000000)]
-        tx.vout = [CTxOut(int(COIN), CScript([OP_TRUE]))]
-        tx_hex = self.node.signrawtransaction(bytes_to_hex_str(tx.serialize()))['hex']
+        tx.vout = [CTxOut(int(COIN), CScript([OP_TRUE]*21))]
+        tx_hex = self.node.signrawtransactionwithwallet(bytes_to_hex_str(tx.serialize()))['hex']
         parent_tx_id = self.node.sendrawtransaction(tx_hex)
         self.node.generate(1)
 
         tx = CTransaction()
-        tx.vin = [CTxIn(COutPoint(int(parent_tx_id, 16), 0), scriptSig=CScript([]), nSequence=0)]
+        tx.vin = [CTxIn(COutPoint(int(parent_tx_id, 16), 0), scriptSig=CScript([OP_DROP]*20), nSequence=0)]
         tx.vout = [CTxOut(0, CScript([b"\x04", CScriptNum(1000000), CScriptNum(QTUM_MIN_GAS_PRICE), b"\x00", OP_CREATE]))]
         tx_hex = bytes_to_hex_str(tx.serialize())
         assert_raises_rpc_error(-26, 'bad-txns-invalid-sender-script', self.node.sendrawtransaction, tx_hex)

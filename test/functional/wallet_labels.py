@@ -19,6 +19,8 @@ from collections import defaultdict
 
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal, assert_raises_rpc_error
+from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD
+from test_framework.qtum import convert_btc_address_to_qtum
 
 class WalletLabelsTest(BitcoinTestFramework):
     def set_test_params(self):
@@ -47,8 +49,8 @@ class WalletLabelsTest(BitcoinTestFramework):
         # Note each time we call generate, all generated coins go into
         # the same address, so we call twice to get two addresses w/50 each
         node.generate(1)
-        node.generate(101)
-        assert_equal(node.getbalance(), 100)
+        node.generate(1+COINBASE_MATURITY)
+        assert_equal(node.getbalance(), 2*INITIAL_BLOCK_REWARD)
 
         # there should be 2 address groups
         # each with 1 address with a balance of 50 Bitcoins
@@ -60,16 +62,16 @@ class WalletLabelsTest(BitcoinTestFramework):
         for address_group in address_groups:
             assert_equal(len(address_group), 1)
             assert_equal(len(address_group[0]), 2)
-            assert_equal(address_group[0][1], 50)
+            assert_equal(address_group[0][1], INITIAL_BLOCK_REWARD)
             linked_addresses.add(address_group[0][0])
 
         # send 50 from each address to a third address not in this wallet
         # There's some fee that will come back to us when the miner reward
         # matures.
-        common_address = "msf4WtN1YQKXvNtvdFYt9JBnUD2FB41kjr"
+        common_address = convert_btc_address_to_qtum("msf4WtN1YQKXvNtvdFYt9JBnUD2FB41kjr")
         txid = node.sendmany(
             fromaccount="",
-            amounts={common_address: 100},
+            amounts={common_address: 2*INITIAL_BLOCK_REWARD},
             subtractfeefrom=[common_address],
             minconf=1,
         )
@@ -142,13 +144,13 @@ class WalletLabelsTest(BitcoinTestFramework):
             if accounts_api:
                 node.move(label.name, "", node.getbalance(label.name))
             label.verify(node)
-        node.generate(101)
-        expected_account_balances = {"": 5200}
+        node.generate(1+COINBASE_MATURITY)
+        expected_account_balances = {"": 504*INITIAL_BLOCK_REWARD}
         for label in labels:
             expected_account_balances[label.name] = 0
         if accounts_api:
             assert_equal(node.listaccounts(), expected_account_balances)
-            assert_equal(node.getbalance(""), 5200)
+            assert_equal(node.getbalance(""), 504*INITIAL_BLOCK_REWARD)
 
         # Check that setlabel can assign a label to a new unused address.
         for label in labels:
