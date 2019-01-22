@@ -23,7 +23,7 @@ class Qtum8MBBlock(BitcoinTestFramework):
         tx.vin = [make_vin(self.node, 2*COIN)]
         tx.vout = [CTxOut(2*COIN - 100000, CScript([OP_TRUE]))]
         tx.rehash()
-        tx_hex = self.node.signrawtransaction(bytes_to_hex_str(tx.serialize()))['hex']
+        tx_hex = self.node.signrawtransactionwithwallet(bytes_to_hex_str(tx.serialize()))['hex']
         txid = self.node.sendrawtransaction(tx_hex)
         self.node.generate(1)
         self.sync_all()

@@ -5,7 +5,7 @@
 """Test deprecation of RPC calls."""
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_raises_rpc_error
-
+from test_framework.qtum import convert_btc_address_to_qtum
 class DeprecatedRpcTest(BitcoinTestFramework):
     def set_test_params(self):
         self.num_nodes = 2
@@ -24,7 +24,7 @@ class DeprecatedRpcTest(BitcoinTestFramework):
         # self.nodes[1].createmultisig(1, [self.nodes[1].getnewaddress()])
 
         self.log.info("Test validateaddress deprecation")
-        SOME_ADDRESS = "mnvGjUy3NMj67yJ6gkK5o9e5RS33Z2Vqcu"  # This is just some random address to pass as a parameter to validateaddress
+        SOME_ADDRESS = convert_btc_address_to_qtum("mnvGjUy3NMj67yJ6gkK5o9e5RS33Z2Vqcu")  # This is just some random address to pass as a parameter to validateaddress
         dep_validate_address = self.nodes[0].validateaddress(SOME_ADDRESS)
         assert "ismine" not in dep_validate_address
         not_dep_val = self.nodes[1].validateaddress(SOME_ADDRESS)

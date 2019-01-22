@@ -175,7 +175,7 @@ class BlockchainTest(BitcoinTestFramework):
         assert_equal(res['transactions'], 600)
         assert_equal(res['height'], 600)
         assert_equal(res['txouts'], 600)
-        assert_equal(res['bogosize'], 51000),
+        assert_equal(res['bogosize'], 45000),
         assert_equal(res['bestblock'], node.getblockhash(600))
         size = res['disk_size']
         assert size > 6400
@@ -192,7 +192,7 @@ class BlockchainTest(BitcoinTestFramework):
         assert_equal(res2['total_amount'], Decimal('10000000'))
         assert_equal(res2['height'], 500)
         assert_equal(res2['txouts'], 500)
-        assert_equal(res2['bogosize'], 42500),
+        assert_equal(res2['bogosize'], 37500),
         assert_equal(res2['bestblock'], node.getblockhash(500))
         assert_equal(len(res2['hash_serialized_2']), 64)
 
@@ -271,7 +271,7 @@ class BlockchainTest(BitcoinTestFramework):
         # (Previously this was broken based on setting
         # `rpc/blockchain.cpp:latestblock` incorrectly.)
         #
-        b20hash = node.getblockhash(20)
+        b20hash = node.getblockhash(200)
         b20 = node.getblock(b20hash)
 
         def solve_and_send_block(prevhash, height, time):
@@ -281,8 +281,8 @@ class BlockchainTest(BitcoinTestFramework):
             node.p2p.sync_with_ping()
             return b
 
-        b21f = solve_and_send_block(int(b20hash, 16), 21, b20['time'] + 1)
-        b22f = solve_and_send_block(b21f.sha256, 22, b21f.nTime + 1)
+        b21f = solve_and_send_block(int(b20hash, 16), 201, b20['time'] + 1)
+        b22f = solve_and_send_block(b21f.sha256, 202, b21f.nTime + 1)
 
         node.invalidateblock(b22f.hash)
 

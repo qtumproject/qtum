@@ -47,7 +47,7 @@ class QtumPOSSegwitTest(BitcoinTestFramework):
         stake_tx_unsigned.vout.append(CTxOut(int(10002*COIN), scriptPubKey))
         stake_tx_unsigned.vout.append(CTxOut(int(10002*COIN), scriptPubKey))
 
-        stake_tx_signed_raw_hex = self.node.signrawtransaction(bytes_to_hex_str(stake_tx_unsigned.serialize()))['hex']
+        stake_tx_signed_raw_hex = self.node.signrawtransactionwithwallet(bytes_to_hex_str(stake_tx_unsigned.serialize()))['hex']
         f = io.BytesIO(hex_str_to_bytes(stake_tx_signed_raw_hex))
         stake_tx_signed = CTransaction()
         stake_tx_signed.deserialize(f)
@@ -88,7 +88,7 @@ class QtumPOSSegwitTest(BitcoinTestFramework):
         tx.vin = [make_vin(self.node, 2*COIN)]
         tx.vout = [CTxOut(2*COIN - 100000, CScript([OP_TRUE]))]
         tx.rehash()
-        tx_hex = self.node.signrawtransaction(bytes_to_hex_str(tx.serialize()))['hex']
+        tx_hex = self.node.signrawtransactionwithwallet(bytes_to_hex_str(tx.serialize()))['hex']
         txid = self.node.sendrawtransaction(tx_hex)
         self.node.generate(1)
 

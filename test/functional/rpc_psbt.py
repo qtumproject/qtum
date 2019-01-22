@@ -7,7 +7,7 @@
 
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal, assert_raises_rpc_error, find_output, disconnect_nodes, connect_nodes_bi, sync_blocks
-
+from test_framework.qtum import convert_btc_bech32_address_to_qtum
 import json
 import os
 
@@ -19,6 +19,7 @@ class PSBTTest(BitcoinTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = False
         self.num_nodes = 3
+        self.extra_args = [['-addresstype=p2sh-segwit', '-minrelaytxfee=0.00001'], ['-addresstype=p2sh-segwit', '-minrelaytxfee=0.00001'], ['-addresstype=p2sh-segwit', '-minrelaytxfee=0.00001', '-blockmintxfee=0.0000001']]
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
@@ -250,6 +251,12 @@ class PSBTTest(BitcoinTestFramework):
 
         # Creator Tests
         for creator in creators:
+            new_outputs = {}
+            for k in creator['outputs']:
+                new_key = convert_btc_bech32_address_to_qtum(list(k.keys())[0])
+                new_value = list(k.values())[0]
+                new_outputs[new_key] = new_value
+            creator['outputs'] = new_outputs
             created_tx = self.nodes[0].createpsbt(creator['inputs'], creator['outputs'])
             assert_equal(created_tx, creator['result'])
 

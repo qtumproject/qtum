@@ -13,6 +13,7 @@ from test_framework.util import (
     connect_nodes_bi,
     assert_raises_rpc_error
 )
+from test_framework.qtumconfig import COINBASE_MATURITY
 
 
 class WalletHDTest(BitcoinTestFramework):
@@ -39,7 +40,7 @@ class WalletHDTest(BitcoinTestFramework):
         # create an internal key
         change_addr = self.nodes[1].getrawchangeaddress()
         change_addrV= self.nodes[1].getaddressinfo(change_addr)
-        assert_equal(change_addrV["hdkeypath"], "m/0'/1'/0'") #first internal child key
+        assert_equal(change_addrV["hdkeypath"], "m/88'/1'/0'") #first internal child key
 
         # Import a non-HD private key in the HD wallet
         non_hd_add = self.nodes[0].getnewaddress()
@@ -68,7 +69,7 @@ class WalletHDTest(BitcoinTestFramework):
         # create an internal key (again)
         change_addr = self.nodes[1].getrawchangeaddress()
         change_addrV= self.nodes[1].getaddressinfo(change_addr)
-        assert_equal(change_addrV["hdkeypath"], "m/0'/1'/1'") #second internal child key
+        assert_equal(change_addrV["hdkeypath"], "m/88'/1'/1'") #second internal child key
 
         self.sync_all()
         assert_equal(self.nodes[1].getbalance(), NUM_HD_ADDS + 1)
@@ -133,7 +134,7 @@ class WalletHDTest(BitcoinTestFramework):
         new_masterkeyid = self.nodes[1].getwalletinfo()['hdseedid']
         assert orig_masterkeyid != new_masterkeyid
         addr = self.nodes[1].getnewaddress()
-        assert_equal(self.nodes[1].getaddressinfo(addr)['hdkeypath'], 'm/0\'/0\'/0\'') # Make sure the new address is the first from the keypool
+        assert_equal(self.nodes[1].getaddressinfo(addr)['hdkeypath'], 'm/88\'/0\'/0\'') # Make sure the new address is the first from the keypool
         self.nodes[1].keypoolrefill(1) # Fill keypool with 1 key
 
         # Set a new HD seed on node 1 without flushing the keypool
@@ -144,13 +145,13 @@ class WalletHDTest(BitcoinTestFramework):
         assert orig_masterkeyid != new_masterkeyid
         addr = self.nodes[1].getnewaddress()
         assert_equal(orig_masterkeyid, self.nodes[1].getaddressinfo(addr)['hdseedid'])
-        assert_equal(self.nodes[1].getaddressinfo(addr)['hdkeypath'], 'm/0\'/0\'/1\'') # Make sure the new address continues previous keypool
+        assert_equal(self.nodes[1].getaddressinfo(addr)['hdkeypath'], 'm/88\'/0\'/1\'') # Make sure the new address continues previous keypool
 
         # Check that the next address is from the new seed
         self.nodes[1].keypoolrefill(1)
         next_addr = self.nodes[1].getnewaddress()
         assert_equal(new_masterkeyid, self.nodes[1].getaddressinfo(next_addr)['hdseedid'])
-        assert_equal(self.nodes[1].getaddressinfo(next_addr)['hdkeypath'], 'm/0\'/0\'/0\'') # Make sure the new address is not from previous keypool
+        assert_equal(self.nodes[1].getaddressinfo(next_addr)['hdkeypath'], 'm/88\'/0\'/0\'') # Make sure the new address is not from previous keypool
         assert next_addr != addr
 
         # Sethdseed parameter validity

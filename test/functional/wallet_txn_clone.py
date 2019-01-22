@@ -11,6 +11,7 @@ from test_framework.util import (
     disconnect_nodes,
     sync_blocks,
 )
+from test_framework.qtumconfig import *
 
 class TxnMallTest(BitcoinTestFramework):
     def set_test_params(self):

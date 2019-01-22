@@ -94,7 +94,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         self.nodes = []
         self.network_thread = None
         self.mocktime = 0
-        self.rpc_timewait = 60  # Wait for up to 60 seconds for the RPC server to respond
+        self.rpc_timewait = 180  # Wait for up to 60 seconds for the RPC server to respond
         self.supports_cli = False
         self.bind_to_localhost_only = True
         self.set_test_params()
@@ -476,7 +476,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
             peer = 0
             for j in range(COINBASE_MATURITY):
                 set_node_times(self.nodes, block_time)
-                self.nodes[peer].generate(1)
+                self.nodes[peer].generatetoaddress(1, self.nodes[peer].get_deterministic_priv_key()[0])
                 block_time += 2 * 64
             # Must sync before next peer starts generating blocks
             sync_blocks(self.nodes)
@@ -492,7 +492,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
             for i in range(MAX_NODES):
                 os.rmdir(cache_path(i, 'wallets'))  # Remove empty wallets dir
                 for entry in os.listdir(cache_path(i)):
-                    if entry not in ['chainstate', 'blocks']:
+                    if entry not in ['chainstate', 'blocks', 'stateQtum']:
                         os.remove(cache_path(i, entry))
 
         for i in range(self.num_nodes):

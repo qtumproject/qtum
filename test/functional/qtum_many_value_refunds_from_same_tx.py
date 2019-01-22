@@ -32,7 +32,7 @@ class QtumManyValueRefundsFromSameTxTest(BitcoinTestFramework):
         tx.vout.append(CTxOut(int(COIN), CScript([b"\x04", CScriptNum(100000), CScriptNum(QTUM_MIN_GAS_PRICE), hex_str_to_bytes("00"), hex_str_to_bytes(contract_address), OP_CALL])))
         tx.vout.append(CTxOut(int(COIN), CScript([b"\x04", CScriptNum(100000), CScriptNum(QTUM_MIN_GAS_PRICE), hex_str_to_bytes("00"), hex_str_to_bytes(contract_address), OP_CALL])))
 
-        signed_tx_raw = self.node.signrawtransaction(bytes_to_hex_str(tx.serialize()))['hex']
+        signed_tx_raw = self.node.signrawtransactionwithwallet(bytes_to_hex_str(tx.serialize()))['hex']
         self.node.sendrawtransaction(signed_tx_raw)
         block_count = self.node.getblockcount()
         self.node.generate(1)

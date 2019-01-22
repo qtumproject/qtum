@@ -71,7 +71,7 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
         stake_tx_unsigned.vout.append(CTxOut(int(out_value), scriptPubKey))
         stake_tx_unsigned.vout.append(CTxOut(int(out_value), scriptPubKey))
 
-        stake_tx_signed_raw_hex = node.signrawtransaction(bytes_to_hex_str(stake_tx_unsigned.serialize()))['hex']
+        stake_tx_signed_raw_hex = node.signrawtransactionwithwallet(bytes_to_hex_str(stake_tx_unsigned.serialize()))['hex']
         f = io.BytesIO(hex_str_to_bytes(stake_tx_signed_raw_hex))
         stake_tx_signed = CTransaction()
         stake_tx_signed.deserialize(f)
@@ -81,15 +81,10 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
         return block, block_sig_key
 
     def start_p2p_connection(self):
-        self.p2p_node = P2PInterface()
-        self.p2p_node.peer_connect(dstaddr="127.0.0.1", dstport=p2p_port(0), send_version=True)
-        NetworkThread().start()
-        self.p2p_node.wait_for_verack()
+        self.p2p_node = self.node.add_p2p_connection(P2PInterface())
 
     def close_p2p_connection(self):
-        self.p2p_node.disconnect_node()
-        self.p2p_node.wait_for_disconnect()
-        network_thread_join()
+        self.node.disconnect_p2ps()
 
     def _create_pos_header(self, node, staking_prevouts, prevBlockHash, nTime=None):
         return CBlockHeader(self._create_pos_block(node, staking_prevouts, prevBlockHash, nTime)[0])
@@ -161,7 +156,6 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
             msg.headers.extend([block_header])
             self.p2p_node.send_message(msg)
         self.p2p_node.wait_for_disconnect(timeout=5)
-        network_thread_join()
 
     # Variable height header spam cause ban (in our case disconnect) after a max of 1504(?) headers
     def dos_protection_triggered_via_spam_on_variable_height_test(self):
@@ -175,7 +169,6 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
             msg.headers.extend([block_header])
             self.p2p_node.send_message(msg)
         self.p2p_node.wait_for_disconnect(timeout=5)
-        network_thread_join()
 
     
     def can_sync_after_offline_period_test(self):
@@ -219,7 +212,7 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
             tip['height'] += 1
             tip['hash'] = block.hash
             tip['time'] += 0x10
-            tip['modifier'] = encode(hash256(ser_uint256(block.prevoutStake.hash) + ser_uint256(int(tip['modifier'], 16)))[::-1], 'hex_codec').decode('ascii')
+            tip['modifier'] = bytes_to_hex_str(hash256(ser_uint256(block.prevoutStake.hash) + ser_uint256(int(tip['modifier'], 16)))[::-1])
 
         msg = msg_headers()
         msg.headers.extend([CBlockHeader(b) for b in blocks])

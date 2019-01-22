@@ -19,6 +19,7 @@ from test_framework.util import (
     assert_equal,
     wait_until,
 )
+from test_framework.qtumconfig import *
 
 
 class InvalidTxRequestTest(BitcoinTestFramework):
@@ -64,7 +65,7 @@ class InvalidTxRequestTest(BitcoinTestFramework):
         node.p2p.send_blocks_and_test([block], node, success=True)
 
         self.log.info("Mature the block.")
-        self.nodes[0].generate(100)
+        self.nodes[0].generate(COINBASE_MATURITY)
 
         # b'\x64' is OP_NOTIF
         # Transaction will be rejected with code 16 (REJECT_INVALID)
@@ -101,7 +102,7 @@ class InvalidTxRequestTest(BitcoinTestFramework):
         # A valid transaction with sufficient fee
         tx_orphan_2_valid = CTransaction()
         tx_orphan_2_valid.vin.append(CTxIn(outpoint=COutPoint(tx_orphan_1.sha256, 1)))
-        tx_orphan_2_valid.vout.append(CTxOut(nValue=10 * COIN - 12000, scriptPubKey=SCRIPT_PUB_KEY_OP_TRUE))
+        tx_orphan_2_valid.vout.append(CTxOut(nValue=10 * COIN - 1200000, scriptPubKey=SCRIPT_PUB_KEY_OP_TRUE))
         tx_orphan_2_valid.calc_sha256()
 
         # An invalid transaction with negative fee

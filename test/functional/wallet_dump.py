@@ -161,7 +161,7 @@ class WalletDumpTest(BitcoinTestFramework):
         assert(result['ismine'] == True)
 
         # Overwriting should fail
-        assert_raises_rpc_error(-8, "already exists", self.nodes[0].dumpwallet, tmpdir + "/node0/wallet.unencrypted.dump")
+        assert_raises_rpc_error(-8, "already exists", lambda: self.nodes[0].dumpwallet(wallet_enc_dump))
 
 if __name__ == '__main__':
     WalletDumpTest().main()

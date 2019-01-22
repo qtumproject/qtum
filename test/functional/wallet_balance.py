@@ -10,8 +10,10 @@ from test_framework.util import (
     assert_equal,
     assert_raises_rpc_error,
 )
+from test_framework.qtum import convert_btc_address_to_qtum
+from test_framework.qtumconfig import INITIAL_BLOCK_REWARD, COINBASE_MATURITY
 
-RANDOM_COINBASE_ADDRESS = 'mneYUmWYsuk7kySiURxCi3AGxrAqZxLgPZ'
+RANDOM_COINBASE_ADDRESS = convert_btc_address_to_qtum('mneYUmWYsuk7kySiURxCi3AGxrAqZxLgPZ')
 
 def create_transactions(node, address, amt, fees):
     # Create and sign raw transactions from node to address for amt.
@@ -39,7 +41,7 @@ def create_transactions(node, address, amt, fees):
 
 class WalletTest(BitcoinTestFramework):
     def set_test_params(self):
-        self.num_nodes = 2
+        self.num_nodes = 3
         self.setup_clean_chain = True
 
     def skip_test_if_missing_module(self):
@@ -50,13 +52,14 @@ class WalletTest(BitcoinTestFramework):
         assert_equal(len(self.nodes[0].listunspent()), 0)
         assert_equal(len(self.nodes[1].listunspent()), 0)
 
-        self.log.info("Mining one block for each node")
+        self.log.info("We use a third node here that sends 50 qtum to each of the two other nodes to keep compatibility with bitcoin")
 
-        self.nodes[0].generate(1)
+        self.nodes[2].generate(1)
         self.sync_all()
-        self.nodes[1].generate(1)
-        self.nodes[1].generatetoaddress(100, RANDOM_COINBASE_ADDRESS)
+        self.nodes[2].generatetoaddress(COINBASE_MATURITY, RANDOM_COINBASE_ADDRESS)
         self.sync_all()
+        self.nodes[2].sendmany("", {self.nodes[0].getnewaddress(): 50, self.nodes[1].getnewaddress(): 50})
+        self.nodes[2].generatetoaddress(COINBASE_MATURITY, RANDOM_COINBASE_ADDRESS)
 
         assert_equal(self.nodes[0].getbalance(), 50)
         assert_equal(self.nodes[1].getbalance(), 50)

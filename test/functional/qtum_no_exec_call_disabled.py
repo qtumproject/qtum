@@ -13,7 +13,7 @@ import time
 import io
 
 def rpc_sign_transaction(node, tx):
-    tx_signed_raw_hex = node.signrawtransaction(bytes_to_hex_str(tx.serialize()))['hex']
+    tx_signed_raw_hex = node.signrawtransactionwithwallet(bytes_to_hex_str(tx.serialize()))['hex']
     f = io.BytesIO(hex_str_to_bytes(tx_signed_raw_hex))
     tx_signed = CTransaction()
     tx_signed.deserialize(f)

@@ -56,7 +56,7 @@ class QtumSoftMinerGasRelatedLimitsTest(BitcoinTestFramework):
         amount = int((float(str(unspent['amount']))*COIN)) // num_outputs -  gas_price*gas_limit
 
         tx.vout = [CTxOut(amount, scriptPubKey=CScript([b"\x04", CScriptNum(gas_limit), CScriptNum(gas_price), b"\x00", hex_str_to_bytes(contract_address), OP_CALL])) for i in range(num_outputs)]
-        tx_hex_signed = node.signrawtransaction(bytes_to_hex_str(tx.serialize()))['hex']
+        tx_hex_signed = node.signrawtransactionwithwallet(bytes_to_hex_str(tx.serialize()))['hex']
         return node.sendrawtransaction(tx_hex_signed)
 
     def run_test(self):

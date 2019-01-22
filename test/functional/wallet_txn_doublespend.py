@@ -6,13 +6,8 @@
 from decimal import Decimal
 
 from test_framework.test_framework import BitcoinTestFramework
-from test_framework.util import (
-    assert_equal,
-    connect_nodes,
-    disconnect_nodes,
-    find_output,
-    sync_blocks,
-)
+from test_framework.util import *
+from test_framework.qtumconfig import INITIAL_BLOCK_REWARD
 
 class TxnMallTest(BitcoinTestFramework):
     def set_test_params(self):
@@ -38,13 +33,17 @@ class TxnMallTest(BitcoinTestFramework):
             assert_equal(self.nodes[i].getbalance(), starting_balance)
             self.nodes[i].getnewaddress("")  # bug workaround, coins generated assigned to first getnewaddress!
 
+        spend_from_foo = starting_balance - INITIAL_BLOCK_REWARD*5
+        spend_from_bar = INITIAL_BLOCK_REWARD*5 - 100
+        spend_from_doublespend = spend_from_foo + spend_from_bar - 8
+
         # Assign coins to foo and bar addresses:
         node0_address_foo = self.nodes[0].getnewaddress()
-        fund_foo_txid = self.nodes[0].sendtoaddress(node0_address_foo, 1219)
+        fund_foo_txid = self.nodes[0].sendtoaddress(node0_address_foo, spend_from_foo)
         fund_foo_tx = self.nodes[0].gettransaction(fund_foo_txid)
 
         node0_address_bar = self.nodes[0].getnewaddress()
-        fund_bar_txid = self.nodes[0].sendtoaddress(node0_address_bar, 29)
+        fund_bar_txid = self.nodes[0].sendtoaddress(node0_address_bar, spend_from_bar)
         fund_bar_tx = self.nodes[0].gettransaction(fund_bar_txid)
 
         assert_equal(self.nodes[0].getbalance(),
@@ -72,8 +71,8 @@ class TxnMallTest(BitcoinTestFramework):
         assert_equal(doublespend["complete"], True)
 
         # Create two spends using 1 50 BTC coin each
-        txid1 = self.nodes[0].sendtoaddress(node1_address, 40)
-        txid2 = self.nodes[0].sendtoaddress(node1_address, 20)
+        txid1 = self.nodes[0].sendtoaddress(node1_address, (INITIAL_BLOCK_REWARD/5) * 4)
+        txid2 = self.nodes[0].sendtoaddress(node1_address, (INITIAL_BLOCK_REWARD/5) * 2)
 
         # Have node0 mine a block:
         if (self.options.mine_block):
@@ -87,7 +86,7 @@ class TxnMallTest(BitcoinTestFramework):
         # matured block, minus 40, minus 20, and minus transaction fees:
         expected = starting_balance + fund_foo_tx["fee"] + fund_bar_tx["fee"]
         if self.options.mine_block:
-            expected += 50
+            expected += INITIAL_BLOCK_REWARD
         expected += tx1["amount"] + tx1["fee"]
         expected += tx2["amount"] + tx2["fee"]
         assert_equal(self.nodes[0].getbalance(), expected)
@@ -95,8 +94,8 @@ class TxnMallTest(BitcoinTestFramework):
         if self.options.mine_block:
             assert_equal(tx1["confirmations"], 1)
             assert_equal(tx2["confirmations"], 1)
-            # Node1's balance should be both transaction amounts:
-            assert_equal(self.nodes[1].getbalance(), starting_balance - tx1["amount"] - tx2["amount"])
+            # Node1's "from0" balance should be both transaction amounts:
+            assert_equal(self.nodes[1].getbalance(), starting_balance - (tx1["amount"]+tx2["amount"]))
         else:
             assert_equal(tx1["confirmations"], 0)
             assert_equal(tx2["confirmations"], 0)
@@ -128,8 +127,16 @@ class TxnMallTest(BitcoinTestFramework):
         expected = starting_balance + 2*INITIAL_BLOCK_REWARD - spend_from_doublespend + fund_foo_tx["fee"] + fund_bar_tx["fee"] + doublespend_fee
         assert_equal(self.nodes[0].getbalance(), expected)
 
-        # Node1's balance should be its initial balance (1250 for 25 block rewards) plus the doublespend:
-        assert_equal(self.nodes[1].getbalance(), 1250 + 1240)
+        assert_equal(self.nodes[0].getbalance("*"), expected)
+
+        # Final "" balance is starting_balance - amount moved to accounts - doublespend + subsidies +
+        # fees (which are negative)
+        assert_equal(self.nodes[0].getbalance(), starting_balance
+                                                              - spend_from_doublespend
+                                                              + 2*INITIAL_BLOCK_REWARD
+                                                              + fund_foo_tx["fee"]
+                                                              + fund_bar_tx["fee"]
+                                                              + doublespend_fee)
 
 if __name__ == '__main__':
     TxnMallTest().main()

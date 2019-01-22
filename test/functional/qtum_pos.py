@@ -3,8 +3,7 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-from test_framework.test_framework import ComparisonTestFramework
-from test_framework.comptool import TestManager, TestInstance, RejectResult
+from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
 from test_framework.script import *
 from test_framework.mininode import *
@@ -13,94 +12,56 @@ from test_framework.key import CECKey
 import io
 import struct
 
-class QtumPOSTest(ComparisonTestFramework):
-    def __init__(self):
-        super().__init__()
+class QtumPOSTest(BitcoinTestFramework):
+    def set_test_params(self):
         self.num_nodes = 1
+        self.setup_clean_chain = True
+        self.extra_args = [[]]
         self.tip = None
 
-    def add_options(self, parser):
-        super().add_options(parser)
-        parser.add_option("--runbarelyexpensive", dest="runbarelyexpensive", default=True)
+    def bootstrap_p2p(self):
+        """Add a P2P connection to the node.
+
+        Helper to connect and wait for version handshake."""
+        self.nodes[0].add_p2p_connection(P2PDataStore())
+        # We need to wait for the initial getheaders from the peer before we
+        # start populating our blockstore. If we don't, then we may run ahead
+        # to the next subtest before we receive the getheaders. We'd then send
+        # an INV for the next block and receive two getheaders - one for the
+        # IBD and one for the INV. We'd respond to both and could get
+        # unexpectedly disconnected if the DoS score for that error is 50.
+        self.nodes[0].p2p.wait_for_getheaders(timeout=5)
+
+    def reconnect_p2p(self):
+        """Tear down and bootstrap the P2P connection to the node.
+
+        The node gets disconnected several times in this test. This helper
+        method reconnects the p2p and restarts the network thread."""
+        self.nodes[0].disconnect_p2ps()
+        self.bootstrap_p2p()
+
+
+    def sync_blocks(self, blocks, success=True, reject_code=None, reject_reason=None, request_block=True, reconnect=False, timeout=5):
+        """Sends blocks to test node. Syncs and verifies that tip has advanced to most recent block.
+
+        Call with success = False if the tip shouldn't advance to the most recent block."""
+        self.nodes[0].p2p.send_blocks_and_test(blocks, self.nodes[0], success=success, reject_code=reject_code, reject_reason=reject_reason, request_block=request_block, timeout=timeout)
+
+        if reconnect:
+            self.reconnect_p2p()
+
 
     def run_test(self):
-        self.test = TestManager(self, self.options.tmpdir)
-        self.test.add_all_connections(self.nodes)
-        NetworkThread().start() # Start up network handling in another thread
-        self.test.run()
-
-    def create_unsigned_pos_block(self, staking_prevouts, nTime=None, outNValue=10002, signStakeTx=True, bestBlockHash=None, coinStakePrevout=None):
-        if not nTime:
-            current_time = int(time.time()) + 15
-            nTime = current_time & 0xfffffff0
-
-        if not bestBlockHash:
-            bestBlockHash = self.node.getbestblockhash()
-            block_height = self.node.getblockcount()
-        else:
-            block_height = self.node.getblock(bestBlockHash)['height']
-
-        parent_block_stake_modifier = int(self.node.getblock(bestBlockHash)['modifier'], 16)
-        parent_block_raw_hex = self.node.getblock(bestBlockHash, False)
-        f = io.BytesIO(hex_str_to_bytes(parent_block_raw_hex))
-        parent_block = CBlock()
-        parent_block.deserialize(f)
-        coinbase = create_coinbase(block_height+1)
-        coinbase.vout[0].nValue = 0
-        coinbase.vout[0].scriptPubKey = b""
-        coinbase.rehash()
-        block = create_block(int(bestBlockHash, 16), coinbase, nTime)
-        block.hashPrevBlock = int(bestBlockHash, 16)
-        if not block.solve_stake(parent_block_stake_modifier, staking_prevouts):
-            return None
-
-        # create a new private key used for block signing.
-        block_sig_key = CECKey()
-        block_sig_key.set_secretbytes(hash256(struct.pack('<I', 0xffff)))
-        pubkey = block_sig_key.get_pubkey()
-        scriptPubKey = CScript([pubkey, OP_CHECKSIG])
-        stake_tx_unsigned = CTransaction()
-
-        if not coinStakePrevout:
-            coinStakePrevout = block.prevoutStake
-
-        stake_tx_unsigned.vin.append(CTxIn(coinStakePrevout))
-        stake_tx_unsigned.vout.append(CTxOut())
-        stake_tx_unsigned.vout.append(CTxOut(int(outNValue*COIN), scriptPubKey))
-        stake_tx_unsigned.vout.append(CTxOut(int(outNValue*COIN), scriptPubKey))
-
-        if signStakeTx:
-            stake_tx_signed_raw_hex = self.node.signrawtransaction(bytes_to_hex_str(stake_tx_unsigned.serialize()))['hex']
-            f = io.BytesIO(hex_str_to_bytes(stake_tx_signed_raw_hex))
-            stake_tx_signed = CTransaction()
-            stake_tx_signed.deserialize(f)
-            block.vtx.append(stake_tx_signed)
-        else:
-            block.vtx.append(stake_tx_unsigned)
-        block.hashMerkleRoot = block.calc_merkle_root()
-        return (block, block_sig_key)
-
-
-    def get_tests(self):
         self.node = self.nodes[0]
+        self.bootstrap_p2p()
         # returns a test case that asserts that the current tip was accepted
-        def accepted():
-            return TestInstance([[self.tip, True]])
-
-        # returns a test case that asserts that the current tip was rejected
-        def rejected(reject = None):
-            if reject is None:
-                return TestInstance([[self.tip, False]])
-            else:
-                return TestInstance([[self.tip, reject]])
-
         # First generate some blocks so we have some spendable coins
         block_hashes = self.node.generate(25)
 
         for i in range(COINBASE_MATURITY):
             self.tip = create_block(int(self.node.getbestblockhash(), 16), create_coinbase(self.node.getblockcount()+1), int(time.time()))
             self.tip.solve()
-            yield accepted()
+            self.sync_blocks([self.tip], success=True)
 
         for _ in range(10):
             self.node.sendtoaddress(self.node.getnewaddress(), 1000)
@@ -147,14 +108,14 @@ class QtumPOSTest(ComparisonTestFramework):
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.staking_prevouts, nTime=t)
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        yield rejected()
+        self.sync_blocks([self.tip], success=False, request_block=False, reconnect=True)
 
 
         # 2 A block that with a too high reward
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.staking_prevouts, outNValue=30006)
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        yield rejected()
+        self.sync_blocks([self.tip], success=False, reconnect=True)
 
 
         # 3 A block with an incorrect block sig
@@ -163,14 +124,14 @@ class QtumPOSTest(ComparisonTestFramework):
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.staking_prevouts)
         self.tip.sign_block(bad_key)
         self.tip.rehash()
-        yield rejected()
+        self.sync_blocks([self.tip], success=False, reconnect=True)
 
 
         # 4 A block that stakes with txs with too few confirmations
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.unconfirmed_staking_prevouts)
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        yield rejected()
+        self.sync_blocks([self.tip], success=False, reconnect=True)
 
 
         # 5 A block that with a coinbase reward
@@ -179,7 +140,7 @@ class QtumPOSTest(ComparisonTestFramework):
         self.tip.hashMerkleRoot = self.tip.calc_merkle_root()
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        yield rejected()
+        self.sync_blocks([self.tip], success=False, reconnect=True)
 
 
         # 6 A block that with no vout in the coinbase
@@ -188,7 +149,7 @@ class QtumPOSTest(ComparisonTestFramework):
         self.tip.hashMerkleRoot = self.tip.calc_merkle_root()
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        yield rejected()
+        self.sync_blocks([self.tip], success=False, reconnect=True)
 
 
         # 7 A block way into the future
@@ -196,7 +157,7 @@ class QtumPOSTest(ComparisonTestFramework):
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.staking_prevouts, nTime=t)
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        yield rejected()
+        self.sync_blocks([self.tip], success=False, request_block=False, reconnect=True)
 
 
         # 8 No vout in the staking tx
@@ -205,14 +166,14 @@ class QtumPOSTest(ComparisonTestFramework):
         self.tip.hashMerkleRoot = self.tip.calc_merkle_root()
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        yield rejected()
+        self.sync_blocks([self.tip], success=False, reconnect=True)
 
 
         # 9 Unsigned coinstake.
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.staking_prevouts, signStakeTx=False)
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        yield rejected()
+        self.sync_blocks([self.tip], success=False, reconnect=True)
         
 
         # 10 A block without a coinstake tx.
@@ -221,7 +182,7 @@ class QtumPOSTest(ComparisonTestFramework):
         self.tip.hashMerkleRoot = self.tip.calc_merkle_root()
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        yield rejected()
+        self.sync_blocks([self.tip], success=False, reconnect=True)
 
 
         # 11 A block without a coinbase.
@@ -230,7 +191,7 @@ class QtumPOSTest(ComparisonTestFramework):
         self.tip.hashMerkleRoot = self.tip.calc_merkle_root()
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        yield rejected()
+        self.sync_blocks([self.tip], success=False, reconnect=True)
 
 
         # 12 A block where the coinbase has no outputs
@@ -239,21 +200,21 @@ class QtumPOSTest(ComparisonTestFramework):
         self.tip.hashMerkleRoot = self.tip.calc_merkle_root()
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        yield rejected()
+        self.sync_blocks([self.tip], success=False, reconnect=True)
 
 
         # 13 A block where the coinstake has no outputs
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.staking_prevouts)
         self.tip.vtx[1].vout.pop(-1)
         self.tip.vtx[1].vout.pop(-1)
-        stake_tx_signed_raw_hex = self.node.signrawtransaction(bytes_to_hex_str(self.tip.vtx[1].serialize()))['hex']
+        stake_tx_signed_raw_hex = self.node.signrawtransactionwithwallet(bytes_to_hex_str(self.tip.vtx[1].serialize()))['hex']
         f = io.BytesIO(hex_str_to_bytes(stake_tx_signed_raw_hex))
         self.tip.vtx[1] = CTransaction()
         self.tip.vtx[1].deserialize(f)
         self.tip.hashMerkleRoot = self.tip.calc_merkle_root()
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        yield rejected()
+        self.sync_blocks([self.tip], success=False, reconnect=True)
 
 
         # 14 A block with an incorrect hashStateRoot
@@ -261,7 +222,7 @@ class QtumPOSTest(ComparisonTestFramework):
         self.tip.hashStateRoot = 0xe
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        yield rejected()
+        self.sync_blocks([self.tip], success=False, reconnect=True)
 
 
         # 15 A block with an incorrect hashUTXORoot
@@ -269,7 +230,7 @@ class QtumPOSTest(ComparisonTestFramework):
         self.tip.hashUTXORoot = 0xe
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        yield rejected()
+        self.sync_blocks([self.tip], success=False, reconnect=True)
 
 
         # 16 A block with an a signature on wrong header data
@@ -277,7 +238,7 @@ class QtumPOSTest(ComparisonTestFramework):
         self.tip.sign_block(block_sig_key)
         self.tip.nNonce = 0xfffe
         self.tip.rehash()
-        yield rejected()
+        self.sync_blocks([self.tip], success=False, reconnect=True)
 
         # 17 A block with where the pubkey of the second output of the coinstake has been modified after block signing
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.staking_prevouts)
@@ -285,21 +246,21 @@ class QtumPOSTest(ComparisonTestFramework):
         # Modify a byte of the pubkey
         self.tip.vtx[1].vout[1].scriptPubKey = scriptPubKey[0:20] + bytes.fromhex(hex(ord(scriptPubKey[20:21])+1)[2:4]) + scriptPubKey[21:] 
         assert_equal(len(scriptPubKey), len(self.tip.vtx[1].vout[1].scriptPubKey))
-        stake_tx_signed_raw_hex = self.node.signrawtransaction(bytes_to_hex_str(self.tip.vtx[1].serialize()))['hex']
+        stake_tx_signed_raw_hex = self.node.signrawtransactionwithwallet(bytes_to_hex_str(self.tip.vtx[1].serialize()))['hex']
         f = io.BytesIO(hex_str_to_bytes(stake_tx_signed_raw_hex))
         self.tip.vtx[1] = CTransaction()
         self.tip.vtx[1].deserialize(f)
         self.tip.hashMerkleRoot = self.tip.calc_merkle_root()
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        yield rejected()
+        self.sync_blocks([self.tip], success=False, reconnect=True)
 
         # 18. A block in the past
         t = (int(time.time())-700) & 0xfffffff0
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.staking_prevouts, nTime=t)
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        yield rejected()
+        self.sync_blocks([self.tip], success=False, request_block=False, reconnect=True)
 
 
         # 19. A block with too many coinbase vouts
@@ -309,28 +270,28 @@ class QtumPOSTest(ComparisonTestFramework):
         self.tip.hashMerkleRoot = self.tip.calc_merkle_root()
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        yield rejected()
+        self.sync_blocks([self.tip], success=False, reconnect=True)
 
 
         # 20. A block where the coinstake's vin is not the prevout specified in the block
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.staking_prevouts, coinStakePrevout=self.staking_prevouts[-1][0])
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        yield rejected()
+        self.sync_blocks([self.tip], success=False, reconnect=True)
 
 
         # 21. A block that stakes with valid txs but invalid vouts
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.bad_vout_staking_prevouts)
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        yield rejected()
+        self.sync_blocks([self.tip], success=False, reconnect=True)
 
 
         # 22. A block that stakes with txs that do not exist
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.bad_txid_staking_prevouts)
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        yield rejected()
+        self.sync_blocks([self.tip], success=False, reconnect=True)
 
 
         # Make sure for certain that no blocks were accepted. (This is also to make sure that no segfaults ocurred)
@@ -340,8 +301,62 @@ class QtumPOSTest(ComparisonTestFramework):
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.staking_prevouts)
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        yield accepted()
+        self.sync_blocks([self.tip], success=True)
         assert_equal(self.node.getblockcount(), block_count+1)
+
+
+
+
+    def create_unsigned_pos_block(self, staking_prevouts, nTime=None, outNValue=10002, signStakeTx=True, bestBlockHash=None, coinStakePrevout=None):
+        if not nTime:
+            current_time = int(time.time()) + 15
+            nTime = current_time & 0xfffffff0
+
+        if not bestBlockHash:
+            bestBlockHash = self.node.getbestblockhash()
+            block_height = self.node.getblockcount()
+        else:
+            block_height = self.node.getblock(bestBlockHash)['height']
+
+        parent_block_stake_modifier = int(self.node.getblock(bestBlockHash)['modifier'], 16)
+        parent_block_raw_hex = self.node.getblock(bestBlockHash, False)
+        f = io.BytesIO(hex_str_to_bytes(parent_block_raw_hex))
+        parent_block = CBlock()
+        parent_block.deserialize(f)
+        coinbase = create_coinbase(block_height+1)
+        coinbase.vout[0].nValue = 0
+        coinbase.vout[0].scriptPubKey = b""
+        coinbase.rehash()
+        block = create_block(int(bestBlockHash, 16), coinbase, nTime)
+        block.hashPrevBlock = int(bestBlockHash, 16)
+        if not block.solve_stake(parent_block_stake_modifier, staking_prevouts):
+            return None
+
+        # create a new private key used for block signing.
+        block_sig_key = CECKey()
+        block_sig_key.set_secretbytes(hash256(struct.pack('<I', 0xffff)))
+        pubkey = block_sig_key.get_pubkey()
+        scriptPubKey = CScript([pubkey, OP_CHECKSIG])
+        stake_tx_unsigned = CTransaction()
+
+        if not coinStakePrevout:
+            coinStakePrevout = block.prevoutStake
+
+        stake_tx_unsigned.vin.append(CTxIn(coinStakePrevout))
+        stake_tx_unsigned.vout.append(CTxOut())
+        stake_tx_unsigned.vout.append(CTxOut(int(outNValue*COIN), scriptPubKey))
+        stake_tx_unsigned.vout.append(CTxOut(int(outNValue*COIN), scriptPubKey))
+
+        if signStakeTx:
+            stake_tx_signed_raw_hex = self.node.signrawtransactionwithwallet(bytes_to_hex_str(stake_tx_unsigned.serialize()))['hex']
+            f = io.BytesIO(hex_str_to_bytes(stake_tx_signed_raw_hex))
+            stake_tx_signed = CTransaction()
+            stake_tx_signed.deserialize(f)
+            block.vtx.append(stake_tx_signed)
+        else:
+            block.vtx.append(stake_tx_unsigned)
+        block.hashMerkleRoot = block.calc_merkle_root()
+        return (block, block_sig_key)
 
 if __name__ == '__main__':
     QtumPOSTest().main()
