@@ -25,6 +25,7 @@
 #ifdef ENABLE_WALLET
 #include <qt/paymentserver.h>
 #include <qt/walletmodel.h>
+#include <wallet/walletutil.h>
 #endif
 
 #include <interfaces/handler.h>
@@ -603,12 +604,11 @@ void BitcoinApplication::restoreWallet()
         {
             arg.append(restoreParam);
         }
-        arg.append(restoreParam);
         arg.append(walletParam);
         commandLine = arg.join(' ');
 
         // Copy the new wallet.dat to the data folder
-        fs::path path = GetDataDir() / "wallets";
+        fs::path path = GetWalletDir();
         if(!restoreName.isEmpty())
         {
             path /= restoreName.toStdString();
@@ -623,8 +623,7 @@ void BitcoinApplication::restoreWallet()
             QThread::currentThread()->sleep(2);
 
             // Create new process and start the wallet
-            QProcess *process = new QProcess();
-            process->start(commandLine);
+            QProcess::startDetached(commandLine);
         }
     }
 #endif
