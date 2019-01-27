@@ -592,6 +592,11 @@ bool CBlockPolicyEstimator::processBlockTx(unsigned int nBlockHeight, const CTxM
         return false;
     }
 
+    if(entry->GetTx().HasCreateOrCall()){
+    	//Exclude contract transactions
+    	return false;
+    }
+
     // How many blocks did it take for miners to include this transaction?
     // blocksToConfirm is 1-based, so a transaction included in the earliest
     // possible block has confirmation count of 1
