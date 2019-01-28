@@ -9,6 +9,7 @@
 #include <random.h>
 #include <serialize.h>
 #include <utilstrencodings.h>
+#include <regex>
 
 #include <stdarg.h>
 
@@ -34,7 +35,6 @@
 #include <sched.h>
 #include <sys/resource.h>
 #include <sys/stat.h>
-#include <regex>
 
 #else
 
