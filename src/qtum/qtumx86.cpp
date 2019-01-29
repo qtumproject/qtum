@@ -330,7 +330,7 @@ uint32_t QtumHypervisor::AddEvent(uint32_t syscall, x86Lib::x86CPU &vm){
 
 uint32_t QtumHypervisor::ReadStorage(uint32_t syscall, x86Lib::x86CPU &vm){
         //ebx = key, ecx = key size
-        //edi = value, esi = max value size
+        //edx = value, esi = max value size
         //eax = actual value size
         uint32_t status = 0;
         unsigned char *k = new unsigned char[vm.Reg32(ECX)];
@@ -347,6 +347,43 @@ uint32_t QtumHypervisor::ReadStorage(uint32_t syscall, x86Lib::x86CPU &vm){
         delete []k;
         return status;
 }
+
+uint32_t QtumHypervisor::ReadExternalStorage(uint32_t syscall, x86Lib::x86CPU& vm){
+    //eax = actual size
+    //ebx = key, ecx = key size
+    //edx = value, esi = max value size
+    //edi = universal address
+    uint32_t status = 0;
+    unsigned char *k = new unsigned char[vm.Reg32(ECX)];
+    vm.ReadMemory(vm.Reg32(EBX), vm.Reg32(ECX), k);
+    valtype key(k,k+vm.Reg32(ECX));
+    valtype value;
+    bool ret;
+    UniversalAddressABI a;
+    vm.ReadMemory(vm.Reg32(EDI), sizeof(UniversalAddressABI), &a, Syscall);
+    ret = db.readState(UniversalAddress(a), key, value);
+    if(ret==true){
+        status = (value.size() <= vm.Reg32(ESI))? value.size() : vm.Reg32(ESI);					
+        vm.WriteMemory(vm.Reg32(EDX), status, value.data());
+    }
+    vm.addGasUsed(500 + ((key.size() + value.size()) * 1));
+    delete []k;
+    return status;
+}
+
+uint32_t QtumHypervisor::UpdateBytecode(uint32_t syscall, x86Lib::x86CPU& vm){
+    //eax = success
+    //ebx = bytecode, ecx = bytecode size
+    //edx = flag options, esi = flag options size
+    unsigned char *v = new unsigned char[vm.Reg32(ESI)];
+    vm.ReadMemory(vm.Reg32(EBX), vm.Reg32(ESI), v);
+    valtype value(v,v+vm.Reg32(ESI));
+    db.writeByteCode(UniversalAddress(execData.self), value);
+    vm.addGasUsed(10000 + ((value.size()) * 30));
+    delete []v;
+    return 0;
+}
+
 uint32_t QtumHypervisor::WriteStorage(uint32_t syscall, x86Lib::x86CPU &vm){
     //ebx = key, ecx = key size
     //edx = value, esi = value size
@@ -497,6 +534,7 @@ uint32_t QtumHypervisor::CallContract(uint32_t syscall, x86Lib::x86CPU& vm){
         //Go back to our own checkpoint, carrying the sub execution state with it
         db.condenseSingleCheckpoint();
     }else{
+        hv.sccs = std::stack<std::vector<uint8_t>>(); //clear stack upon error
         db.revertCheckpoint(); //discard sub state
     }
 
@@ -510,6 +548,7 @@ uint32_t QtumHypervisor::CallContract(uint32_t syscall, x86Lib::x86CPU& vm){
     cpu.WriteMemory(cpu.Reg32(EDX), std::min(cpu.Reg32(ESI), (uint32_t)sizeof(cr)), &cr, Syscall);
     return cr.errorCode;
 }
+
 
 ContractExecutionResult QtumHypervisor::execute(){
     ContractExecutionResult result;
@@ -583,6 +622,8 @@ void QtumHypervisor::setupSyscalls(){
     INSTALL_QSC(UsedGas, 0);
     INSTALL_QSC_COST(ReadStorage, QSCCAP_READSTATE, 1000);
     INSTALL_QSC_COST(WriteStorage, QSCCAP_WRITESTATE, 5000);
+    INSTALL_QSC_COST(ReadExternalStorage, QSCCAP_READSTATE, 2000);
+    INSTALL_QSC_COST(UpdateBytecode, QSCCAP_WRITESTATE, 10000);
 
     INSTALL_QSC(SCCSItemCount, 0);
     INSTALL_QSC(SCCSSize, 0);
@@ -599,6 +640,10 @@ void QtumHypervisor::setupSyscalls(){
 
     INSTALL_QSC_COST(GetBalance, QSCCAP_BLOCKCHAIN, 100);
 }
+
+
+
+
 
 
 /*

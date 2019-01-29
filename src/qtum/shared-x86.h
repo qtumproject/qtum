@@ -62,6 +62,8 @@ typedef struct qtum_hash32 { uint8_t data[32]; } __attribute__((__packed__)) qtu
     //storage commands, 0x1000
 #define QSC_ReadStorage             0x1000
 #define QSC_WriteStorage            0x1001
+#define QSC_ReadExternalStorage     0x1002
+#define QSC_UpdateBytecode          0x1003
 
     //value commands, 0x2000
 #define QSC_SendValue               0x2000 //send coins somewhere
@@ -82,10 +84,12 @@ typedef struct qtum_hash32 { uint8_t data[32]; } __attribute__((__packed__)) qtu
 #define QSC_SCCSPush                0x300D
 #define QSC_SCCSDiscard             0x300E //pops off the stack without any data transfer possible (for cheaper gas cost)
 #define QSC_SCCSClear               0x300F
+#define QSC_SelfCalled              0x3010
 
     //caller commands, 0x4000
 #define QSC_CallContract            0x4000
 #define QSC_CallLibrary             0x4001
+
 
 //error code types
 //These will cause appropriate revert of state etc

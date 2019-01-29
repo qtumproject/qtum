@@ -157,6 +157,7 @@ private:
 
     uint32_t ReadStorage(uint32_t,x86Lib::x86CPU&);
     uint32_t WriteStorage(uint32_t,x86Lib::x86CPU&);
+    uint32_t ReadExternalStorage(uint32_t syscall, x86Lib::x86CPU& vm);
 
     uint32_t SenderAddress(uint32_t syscall, x86Lib::x86CPU& vm);
 
@@ -175,6 +176,9 @@ private:
 
     uint32_t GetBalance(uint32_t syscall, x86Lib::x86CPU& vm);
 
+    uint32_t UpdateBytecode(uint32_t syscall, x86Lib::x86CPU& vm);
+    
+    uint32_t SelfCalled(uint32_t syscall, x86Lib::x86CPU& vm);
 
 };
 
