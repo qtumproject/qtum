@@ -194,7 +194,8 @@ BASE_SCRIPTS = [
     'qtum_dgp_gas_price_lingering_mempool_tx.py',
     'qtum_header_spam.py',
     'qtum_divergence_dos.py',
-    'qtum_prioritize_create_over_call.py'
+    'qtum_prioritize_create_over_call.py',
+    'qtum_callcontract_timestamp.py',
 ]
 
 EXTENDED_SCRIPTS = [
