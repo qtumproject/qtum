@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2016-2017 The Bitcoin Core developers
+# Copyright (c) 2016-2018 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test Wallet encryption"""
@@ -18,6 +18,9 @@ class WalletEncryptionTest(BitcoinTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 1
+
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
 
     def run_test(self):
         passphrase = "WalletPassphrase"
@@ -72,7 +75,7 @@ class WalletEncryptionTest(BitcoinTestFramework):
         assert_greater_than(expected_time + 5, actual_time) # 5 second buffer
         # Check a time greater than the limit
         expected_time = int(time.time()) + MAX_VALUE - 1
-        self.nodes[0].walletpassphrase(passphrase2, MAX_VALUE+1000)
+        self.nodes[0].walletpassphrase(passphrase2, MAX_VALUE + 1000)
         actual_time = self.nodes[0].getwalletinfo()['unlocked_until']
         assert_greater_than_or_equal(actual_time, expected_time)
         assert_greater_than(expected_time + 5, actual_time) # 5 second buffer

@@ -3,10 +3,11 @@
 #include <qt/contractabi.h>
 #include <validation.h>
 #include <utilmoneystr.h>
-#include <base58.h>
+#include <key_io.h>
 #include <utilstrencodings.h>
 #include <qt/eventlog.h>
 #include <libethcore/ABI.h>
+#include <qt/walletmodel.h>
 
 namespace Token_NS
 {
@@ -34,6 +35,7 @@ struct TokenData
     ExecRPCCommand* send;
     EventLog* eventLog;
     ContractABI* ABI;
+    WalletModel* model;
     int funcName;
     int funcApprove;
     int funcTotalSupply;
@@ -55,6 +57,7 @@ struct TokenData
         call(0),
         send(0),
         ABI(0),
+        model(0),
         funcName(-1),
         funcApprove(-1),
         funcTotalSupply(-1),
@@ -521,7 +524,7 @@ bool Token::exec(const std::vector<std::string> &input, int func, std::vector<st
 {
     // Convert the input data into hex encoded binary data
     d->txid = "";
-    if(func == -1)
+    if(func == -1 || d->model == 0)
         return false;
     std::string strData;
     FunctionABI function = d->ABI->functions[func];
@@ -542,7 +545,7 @@ bool Token::exec(const std::vector<std::string> &input, int func, std::vector<st
     QVariant result;
     QString resultJson;
     QString errorMessage;
-    if(!cmd->exec(d->lstParams, result, resultJson, errorMessage))
+    if(!cmd->exec(d->model->node(), d->model->wallet(), d->lstParams, result, resultJson, errorMessage))
         return false;
 
     // Get the result from calling function
@@ -601,7 +604,7 @@ void addTokenEvent(std::vector<TokenEvent> &tokenEvents, TokenEvent tokenEvent)
 bool Token::execEvents(int64_t fromBlock, int64_t toBlock, int func, std::vector<TokenEvent> &tokenEvents)
 {
     // Check parameters
-    if(func == -1 || fromBlock < 0)
+    if(func == -1 || fromBlock < 0 || d->model == 0)
         return false;
 
     //  Get function
@@ -614,7 +617,7 @@ bool Token::execEvents(int64_t fromBlock, int64_t toBlock, int func, std::vector
     std::string senderAddress = d->lstParams[PARAM_SENDER].toStdString();
     ToHash160(senderAddress, senderAddress);
     senderAddress  = "000000000000000000000000" + senderAddress;
-    if(!(d->eventLog->searchTokenTx(fromBlock, toBlock, contractAddress, senderAddress, result)))
+    if(!(d->eventLog->searchTokenTx(d->model->node(), d->model->wallet(), fromBlock, toBlock, contractAddress, senderAddress, result)))
         return false;
 
     // Parse the result events
@@ -655,4 +658,9 @@ bool Token::execEvents(int64_t fromBlock, int64_t toBlock, int func, std::vector
     }
 
     return true;
+}
+
+void Token::setModel(WalletModel *model)
+{
+    d->model = model;
 }

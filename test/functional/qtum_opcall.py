@@ -21,8 +21,8 @@ class OpCallTest(BitcoinTestFramework):
     def send_one_op_call_tx_with_counter_check(self, outputs, counter_should_increase_by=0, input_value=500000000, should_throw=False):
         # 61bc221a counter()
         old_out = int(self.node.callcontract(self.contract_address, "61bc221a")['executionResult']['output'], 16)
-
-        tx = make_transaction(self.node, [make_vin(self.node, input_value)], outputs)
+        inpt = make_vin(self.node, input_value)
+        tx = make_transaction(self.node, [inpt], outputs)
 
         if should_throw:
             try:
@@ -49,9 +49,7 @@ class OpCallTest(BitcoinTestFramework):
         while i < num_txs and len(unspents) > 0:
             # Select as input a tx which has at least 5 qtum spendable
             for tx_i in range(len(unspents)):
-                print(int(unspents[tx_i]['amount']*COIN), 1000000*QTUM_MIN_GAS_PRICE, unspents[tx_i]['spendable'])
                 if int(unspents[tx_i]['amount']*COIN) == 1000000*QTUM_MIN_GAS_PRICE and unspents[tx_i]['spendable']:
-                    print('FOUND')
                     break
             else:
                 assert(False)

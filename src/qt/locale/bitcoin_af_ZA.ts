@@ -181,15 +181,19 @@
     </message>
     <message>
         <source>Wallet encrypted</source>
-        <translation>Beursie Enkripteer</translation>
+        <translation>Beursie enkriptasie voltooi</translation>
     </message>
     <message>
         <source>%1 will close now to finish the encryption process. Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
         <translation>%1 gaan nou toe maak om die enkripsie proses klaar te maak. Onthou dat jou qtums nie ten volle beskerm kan word deur die beursie te enkrip teen "malware" wat jou rekenaar besmet.</translation>
     </message>
     <message>
+        <source>IMPORTANT: Any previous backups you have made of your wallet file should be replaced with the newly generated, encrypted wallet file. For security reasons, previous backups of the unencrypted wallet file will become useless as soon as you start using the new, encrypted wallet.</source>
+        <translation>BELANGRIK: Enige vorige rugsteune wat u gemaak het van u beursie-lêer moet vervang word met die nuut-gegenereerde, versleutelde beursie-lêer. Vir sekuriteitsredes sal vorige rugsteune van die onversleutelde beursie-lêer onbruikbaar word sodra u die nuwe, versleutelde beursie begin gebruik.</translation>
+    </message>
+    <message>
         <source>Wallet encryption failed</source>
-        <translation>Die beursie kon nie bewaak word nie</translation>
+        <translation>Beursie enkriptasie het misluk</translation>
     </message>
     <message>
         <source>Wallet encryption failed due to an internal error. Your wallet was not encrypted.</source>
@@ -266,6 +270,10 @@
         <translation>Sluit af</translation>
     </message>
     <message>
+        <source>&amp;About %1</source>
+        <translation>&amp;Oor %1</translation>
+    </message>
+    <message>
         <source>Show information about %1</source>
         <translation>Wys inligting oor %1</translation>
     </message>
@@ -290,6 +298,10 @@
         <translation>&amp;Enkripteer Beursie...</translation>
     </message>
     <message>
+        <source>&amp;Backup Wallet...</source>
+        <translation>&amp;Rugsteun Beursie...</translation>
+    </message>
+    <message>
         <source>&amp;Change Passphrase...</source>
         <translation>Verander wagwoord frase...</translation>
     </message>
@@ -298,12 +310,40 @@
         <translation>Uitstuur adresse...</translation>
     </message>
     <message>
+        <source>&amp;Receiving addresses...</source>
+        <translation>&amp;Ontvang adresse...</translation>
+    </message>
+    <message>
         <source>Open &amp;URI...</source>
         <translation>Maak &amp;URI oop...</translation>
     </message>
     <message>
+        <source>Click to disable network activity.</source>
+        <translation>Klik om netwerk aktiwiteit af te skakel.</translation>
+    </message>
+    <message>
         <source>Network activity disabled.</source>
         <translation>Netwerk aktiwiteid afgeskakel.</translation>
+    </message>
+    <message>
+        <source>Click to enable network activity again.</source>
+        <translation>Klik om netwerk aktiwiteit weer aan te skakel.</translation>
+    </message>
+    <message>
+        <source>Send coins to a Qtum address</source>
+        <translation>Stuur muntstukke na 'n Qtum adres</translation>
+    </message>
+    <message>
+        <source>Backup wallet to another location</source>
+        <translation>Rugsteun beursie na 'n ander plek</translation>
+    </message>
+    <message>
+        <source>Change the passphrase used for wallet encryption</source>
+        <translation>Verander die wagwoordfrase wat vir beursie-versleuteling gebruik word</translation>
+    </message>
+    <message>
+        <source>&amp;Debug window</source>
+        <translation>&amp;Ontfoutvenster</translation>
     </message>
     <message>
         <source>&amp;Verify message...</source>
@@ -326,6 +366,26 @@
         <translation>&amp;Ontvang</translation>
     </message>
     <message>
+        <source>&amp;Show / Hide</source>
+        <translation>&amp;Wys / Versteek</translation>
+    </message>
+    <message>
+        <source>Show or hide the main Window</source>
+        <translation>Wys of versteek die hoof Venster</translation>
+    </message>
+    <message>
+        <source>Encrypt the private keys that belong to your wallet</source>
+        <translation>Versleutel die private sleutels wat aan u beursie behoort</translation>
+    </message>
+    <message>
+        <source>Sign messages with your Qtum addresses to prove you own them</source>
+        <translation>Teken boodskappe met u Qtum adresse om te bewys dat u hul besit</translation>
+    </message>
+    <message>
+        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
+        <translation>Bevestig boodskappe om te verseker dat hulle geteken was met gespesifiseerde Qtum adresse</translation>
+    </message>
+    <message>
         <source>&amp;File</source>
         <translation>&amp;Lêer</translation>
     </message>
@@ -340,6 +400,18 @@
     <message>
         <source>Tabs toolbar</source>
         <translation>Blad nutsbalk</translation>
+    </message>
+    <message>
+        <source>Request payments (generates QR codes and qtum: URIs)</source>
+        <translation>Versoek betalings (genereer QR kodes en qtum: URIs)</translation>
+    </message>
+    <message>
+        <source>Show the list of used sending addresses and labels</source>
+        <translation>Wys die lys van gebruikte stuur adresse en etikette</translation>
+    </message>
+    <message>
+        <source>Show the list of used receiving addresses and labels</source>
+        <translation>Wys die lys van gebruikte ontvangsadresse en etikette</translation>
     </message>
     <message>
         <source>&amp;Command-line options</source>
@@ -572,10 +644,6 @@
         <translation>&amp;Adres</translation>
     </message>
     <message>
-        <source>New receiving address</source>
-        <translation>Nuwe ontvangende adres</translation>
-    </message>
-    <message>
         <source>New sending address</source>
         <translation>Nuwe stuurende adres</translation>
     </message>
@@ -633,27 +701,7 @@
         <source>Command-line options</source>
         <translation>Opdrag lys opsies</translation>
     </message>
-    <message>
-        <source>Usage:</source>
-        <translation>Gebruik:</translation>
-    </message>
-    <message>
-        <source>command-line options</source>
-        <translation>opdrag lys opsies</translation>
-    </message>
-    <message>
-        <source>UI Options:</source>
-        <translation>Gebruikerskoppelvlak Opsies:</translation>
-    </message>
-    <message>
-        <source>Choose data directory on startup (default: %u)</source>
-        <translation>Kies data gids op aanvang (standaard: %u)</translation>
-    </message>
-    <message>
-        <source>Start minimized</source>
-        <translation>Begin verminderd</translation>
-    </message>
-    </context>
+</context>
 <context>
     <name>Intro</name>
     <message>
@@ -872,6 +920,10 @@
         <source>Message</source>
         <translation>Boodskap</translation>
     </message>
+    <message>
+        <source>Wallet</source>
+        <translation>Beursie</translation>
+    </message>
     </context>
 <context>
     <name>RecentRequestsTableModel</name>
@@ -981,6 +1033,10 @@
     <message>
         <source>or</source>
         <translation>of</translation>
+    </message>
+    <message>
+        <source>Transaction fee</source>
+        <translation>Transaksie fooi</translation>
     </message>
     <message>
         <source>(no label)</source>
@@ -1287,10 +1343,6 @@
     </context>
 <context>
     <name>qtum-core</name>
-    <message>
-        <source>Options:</source>
-        <translation>Opsies:</translation>
-    </message>
     <message>
         <source>Error: Disk space is low!</source>
         <translation>Fout: Hardeskyf spasie is baie laag!</translation>

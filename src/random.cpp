@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2017 The Bitcoin Core developers
+// Copyright (c) 2009-2018 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -11,15 +11,15 @@
 #include <compat.h> // for Windows API
 #include <wincrypt.h>
 #endif
-#include <util.h>             // for LogPrint()
-#include <utilstrencodings.h> // for GetTime()
+#include <logging.h>  // for LogPrint()
+#include <utiltime.h> // for GetTime()
 
 #include <stdlib.h>
-#include <limits>
 #include <chrono>
 #include <thread>
 
 #ifndef WIN32
+#include <fcntl.h>
 #include <sys/time.h>
 #endif
 
@@ -34,6 +34,7 @@
 #include <sys/random.h>
 #endif
 #ifdef HAVE_SYSCTL_ARND
+#include <utilstrencodings.h> // for ARRAYLEN
 #include <sys/sysctl.h>
 #endif
 
@@ -179,7 +180,7 @@ static void RandAddSeedPerfmon()
 /** Fallback: get 32 bytes of system entropy from /dev/urandom. The most
  * compatible way to get cryptographic randomness on UNIX-ish platforms.
  */
-void GetDevURandom(unsigned char *ent32)
+static void GetDevURandom(unsigned char *ent32)
 {
     int f = open("/dev/urandom", O_RDONLY);
     if (f == -1) {

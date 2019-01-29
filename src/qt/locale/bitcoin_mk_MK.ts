@@ -498,6 +498,10 @@
         <source>&amp;Save Image...</source>
         <translation>&amp;Сними Слика...</translation>
     </message>
+    <message>
+        <source>Wallet</source>
+        <translation>Паричник</translation>
+    </message>
     </context>
 <context>
     <name>RecentRequestsTableModel</name>
@@ -585,10 +589,6 @@
     </context>
 <context>
     <name>qtum-core</name>
-    <message>
-        <source>Options:</source>
-        <translation>Опции:</translation>
-    </message>
     <message>
         <source>Qtum Core</source>
         <translation>Биткоин Core</translation>

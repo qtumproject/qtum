@@ -1,10 +1,10 @@
-// Copyright (c) 2012-2017 The Bitcoin Core developers
+// Copyright (c) 2012-2018 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <key.h>
 
-#include <base58.h>
+#include <key_io.h>
 #include <script/script.h>
 #include <uint256.h>
 #include <util.h>
@@ -32,21 +32,16 @@ BOOST_FIXTURE_TEST_SUITE(key_tests, BasicTestingSetup)
 
 BOOST_AUTO_TEST_CASE(key_test1)
 {
-    CBitcoinSecret bsecret1, bsecret2, bsecret1C, bsecret2C, baddress1;
-    BOOST_CHECK( bsecret1.SetString (strSecret1));
-    BOOST_CHECK( bsecret2.SetString (strSecret2));
-    BOOST_CHECK( bsecret1C.SetString(strSecret1C));
-    BOOST_CHECK( bsecret2C.SetString(strSecret2C));
-    BOOST_CHECK(!baddress1.SetString(strAddressBad));
-
-    CKey key1  = bsecret1.GetKey();
-    BOOST_CHECK(key1.IsCompressed() == false);
-    CKey key2  = bsecret2.GetKey();
-    BOOST_CHECK(key2.IsCompressed() == false);
-    CKey key1C = bsecret1C.GetKey();
-    BOOST_CHECK(key1C.IsCompressed() == true);
-    CKey key2C = bsecret2C.GetKey();
-    BOOST_CHECK(key2C.IsCompressed() == true);
+    CKey key1  = DecodeSecret(strSecret1);
+    BOOST_CHECK(key1.IsValid() && !key1.IsCompressed());
+    CKey key2  = DecodeSecret(strSecret2);
+    BOOST_CHECK(key2.IsValid() && !key2.IsCompressed());
+    CKey key1C = DecodeSecret(strSecret1C);
+    BOOST_CHECK(key1C.IsValid() && key1C.IsCompressed());
+    CKey key2C = DecodeSecret(strSecret2C);
+    BOOST_CHECK(key2C.IsValid() && key2C.IsCompressed());
+    CKey bad_key = DecodeSecret(strAddressBad);
+    BOOST_CHECK(!bad_key.IsValid());
 
     CPubKey pubkey1  = key1. GetPubKey();
     CPubKey pubkey2  = key2. GetPubKey();
@@ -139,12 +134,12 @@ BOOST_AUTO_TEST_CASE(key_test1)
     std::vector<unsigned char> detsig, detsigc;
     std::string strMsg = "Very deterministic message";
     uint256 hashMsg = Hash(strMsg.begin(), strMsg.end());
-    BOOST_CHECK(key1.Sign(hashMsg, detsig));
-    BOOST_CHECK(key1C.Sign(hashMsg, detsigc));
+    BOOST_CHECK(key1.Sign(hashMsg, detsig, false));
+    BOOST_CHECK(key1C.Sign(hashMsg, detsigc, false));
     BOOST_CHECK(detsig == detsigc);
     BOOST_CHECK(detsig == ParseHex("3045022100e7d7797d494619d8f6a618fbb6769bb1898fe6e69254d49c9d9ab1635e46008602205ad3b0fd16bf634d5c43e0dc7d6be831d69010a72f82412f3630a59cbf64f18f"));
-    BOOST_CHECK(key2.Sign(hashMsg, detsig));
-    BOOST_CHECK(key2C.Sign(hashMsg, detsigc));
+    BOOST_CHECK(key2.Sign(hashMsg, detsig, false));
+    BOOST_CHECK(key2C.Sign(hashMsg, detsigc, false));
     BOOST_CHECK(detsig == detsigc);
     BOOST_CHECK(detsig == ParseHex("3045022100ca7ce68eef69a05dc2f58612d107ed2e26536a97db5eafadab9719a7b942a9d30220698007e5b93ba2a51c292c2cd58e9c80eecf3f913168e7e4cd7dd000b6c3a20f"));
     BOOST_CHECK(key1.SignCompact(hashMsg, detsig));
@@ -155,6 +150,42 @@ BOOST_AUTO_TEST_CASE(key_test1)
     BOOST_CHECK(key2C.SignCompact(hashMsg, detsigc));
     BOOST_CHECK(detsig == ParseHex("1bca7ce68eef69a05dc2f58612d107ed2e26536a97db5eafadab9719a7b942a9d3698007e5b93ba2a51c292c2cd58e9c80eecf3f913168e7e4cd7dd000b6c3a20f"));
     BOOST_CHECK(detsigc == ParseHex("1fca7ce68eef69a05dc2f58612d107ed2e26536a97db5eafadab9719a7b942a9d3698007e5b93ba2a51c292c2cd58e9c80eecf3f913168e7e4cd7dd000b6c3a20f"));
+}
+
+BOOST_AUTO_TEST_CASE(key_signature_tests)
+{
+    // When entropy is specified, we should see at least one high R signature within 20 signatures
+    CKey key = DecodeSecret(strSecret1);
+    std::string msg = "A message to be signed";
+    uint256 msg_hash = Hash(msg.begin(), msg.end());
+    std::vector<unsigned char> sig;
+    bool found = false;
+
+    for (int i = 1; i <=20; ++i) {
+        sig.clear();
+        key.Sign(msg_hash, sig, false, i);
+        found = sig[3] == 0x21 && sig[4] == 0x00;
+        if (found) {
+            break;
+        }
+    }
+    BOOST_CHECK(found);
+
+    // When entropy is not specified, we should always see low R signatures that are less than 70 bytes in 256 tries
+    // We should see at least one signature that is less than 70 bytes.
+    found = true;
+    bool found_small = false;
+    for (int i = 0; i < 256; ++i) {
+        sig.clear();
+        std::string msg = "A message to be signed" + std::to_string(i);
+        msg_hash = Hash(msg.begin(), msg.end());
+        key.Sign(msg_hash, sig);
+        found = sig[3] == 0x20;
+        BOOST_CHECK(sig.size() <= 70);
+        found_small |= sig.size() < 70;
+    }
+    BOOST_CHECK(found);
+    BOOST_CHECK(found_small);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

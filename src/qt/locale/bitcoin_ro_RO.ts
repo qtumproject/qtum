@@ -30,6 +30,10 @@
         <translation>Şterge adresa selectată din listă</translation>
     </message>
     <message>
+        <source>Enter address or label to search</source>
+        <translation>Introduceţi adresa sau eticheta pentru căutare</translation>
+    </message>
+    <message>
         <source>Export the data in the current tab to a file</source>
         <translation>Exportă datele din tab-ul curent într-un fişier</translation>
     </message>
@@ -322,6 +326,14 @@
         <translation>Deschide &amp;URI...</translation>
     </message>
     <message>
+        <source>Wallet:</source>
+        <translation>Portofel:</translation>
+    </message>
+    <message>
+        <source>default wallet</source>
+        <translation>portofel implicit</translation>
+    </message>
+    <message>
         <source>Click to disable network activity.</source>
         <translation>Click pentru a opri activitatea retelei.</translation>
     </message>
@@ -340,6 +352,10 @@
     <message>
         <source>Reindexing blocks on disk...</source>
         <translation>Se reindexează blocurile pe disc...</translation>
+    </message>
+    <message>
+        <source>Proxy is &lt;b&gt;enabled&lt;/b&gt;: %1</source>
+        <translation>Proxy este&lt;b&gt;activat&lt;/b&gt;:%1</translation>
     </message>
     <message>
         <source>Send coins to a Qtum address</source>
@@ -507,6 +523,12 @@
         <source>Amount: %1
 </source>
         <translation>Sumă: %1
+</translation>
+    </message>
+    <message>
+        <source>Wallet: %1
+</source>
+        <translation>Portofel: %1
 </translation>
     </message>
     <message>
@@ -726,10 +748,6 @@
         <translation>&amp;Adresă</translation>
     </message>
     <message>
-        <source>New receiving address</source>
-        <translation>Noua adresă de primire</translation>
-    </message>
-    <message>
         <source>New sending address</source>
         <translation>Noua adresă de trimitere</translation>
     </message>
@@ -746,8 +764,12 @@
         <translation>Adresa introdusă "%1" nu este o adresă Qtum validă.</translation>
     </message>
     <message>
-        <source>The entered address "%1" is already in the address book.</source>
-        <translation>Adresa introdusă "%1" se află deja în lista de adrese.</translation>
+        <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
+        <translation>Adresa "%1" exista deja ca si adresa de primire cu eticheta "%2" si deci nu poate fi folosita ca si adresa de trimitere.</translation>
+    </message>
+    <message>
+        <source>The entered address "%1" is already in the address book with label "%2".</source>
+        <translation>Adresa introdusa "%1" este deja in lista de adrese cu eticheta "%2"</translation>
     </message>
     <message>
         <source>Could not unlock wallet.</source>
@@ -798,42 +820,6 @@
     <message>
         <source>Command-line options</source>
         <translation>Opţiuni linie de comandă</translation>
-    </message>
-    <message>
-        <source>Usage:</source>
-        <translation>Uz:</translation>
-    </message>
-    <message>
-        <source>command-line options</source>
-        <translation>Opţiuni linie de comandă</translation>
-    </message>
-    <message>
-        <source>UI Options:</source>
-        <translation>Opţiuni UI:</translation>
-    </message>
-    <message>
-        <source>Choose data directory on startup (default: %u)</source>
-        <translation>Alege dosarul de date la pornire (implicit: %u)</translation>
-    </message>
-    <message>
-        <source>Set language, for example "de_DE" (default: system locale)</source>
-        <translation>Setează limba, de exemplu: "ro_RO" (implicit: sistem local)</translation>
-    </message>
-    <message>
-        <source>Start minimized</source>
-        <translation>Porniţi minimizat</translation>
-    </message>
-    <message>
-        <source>Set SSL root certificates for payment request (default: -system-)</source>
-        <translation>Setare rădăcină certificat SSL pentru cerere de plată (implicit: -sistem- )</translation>
-    </message>
-    <message>
-        <source>Show splash screen on startup (default: %u)</source>
-        <translation>Afişează ecran splash la pornire (implicit: %u)</translation>
-    </message>
-    <message>
-        <source>Reset all settings changed in the GUI</source>
-        <translation>Resetează toate schimbările făcute în GUI</translation>
     </message>
 </context>
 <context>
@@ -1531,10 +1517,6 @@
         <translation>Eroare: Directorul de date specificat "%1" nu există.</translation>
     </message>
     <message>
-        <source>Error: Cannot parse configuration file: %1. Only use key=value syntax.</source>
-        <translation>Eroare: Nu se poate procesa fişierul de configuraţie: %1. Folosiţi doar sintaxa cheie=valoare.</translation>
-    </message>
-    <message>
         <source>Error: %1</source>
         <translation>Eroare: %1</translation>
     </message>
@@ -1793,6 +1775,10 @@
         <translation>&amp;Unban</translation>
     </message>
     <message>
+        <source>default wallet</source>
+        <translation>portofel implicit</translation>
+    </message>
+    <message>
         <source>Welcome to the %1 RPC console.</source>
         <translation>Bun venit la consola %1 RPC.</translation>
     </message>
@@ -1888,20 +1874,20 @@
         <translation>Curăţă</translation>
     </message>
     <message>
+        <source>Native segwit addresses (aka Bech32 or BIP-173) reduce your transaction fees later on and offer better protection against typos, but old wallets don't support them. When unchecked, an address compatible with older wallets will be created instead.</source>
+        <translation>Adresele native segwit (aka Bech32 sau BIP-173) vor reduce mai tarziu comisioanele de tranzactionare si vor oferi o mai buna protectie impotriva introducerii gresite, dar portofelele vechi nu sunt compatibile. Daca optiunea nu e bifata, se va crea o adresa compatibila cu portofelele vechi.</translation>
+    </message>
+    <message>
+        <source>Generate native segwit (Bech32) address</source>
+        <translation>Genereaza adresa nativa segwit (Bech32)</translation>
+    </message>
+    <message>
         <source>Requested payments history</source>
         <translation>Istoricul plăţilor cerute</translation>
     </message>
     <message>
         <source>&amp;Request payment</source>
         <translation>&amp;Cerere plată</translation>
-    </message>
-    <message>
-        <source>Bech32 addresses (BIP-173) are cheaper to spend from and offer better protection against typos. When unchecked a P2SH wrapped SegWit address will be created, compatible with older wallets.</source>
-        <translation>Adresele de tip Bech32 (BIP-173) sunt mai ieftin de folosit si ofera o protectie mai buna impotriva greselilor de tastare. Daca nu este bifat se creaza o adresa SegWit impachetata in P2SH, compatibila cu portofelele mai vechi.</translation>
-    </message>
-    <message>
-        <source>Generate Bech32 address</source>
-        <translation>Genereaza adresa Bech32</translation>
     </message>
     <message>
         <source>Show the selected request (does the same as double clicking an entry)</source>
@@ -1981,6 +1967,10 @@
     <message>
         <source>Message</source>
         <translation>Mesaj</translation>
+    </message>
+    <message>
+        <source>Wallet</source>
+        <translation>Portofel</translation>
     </message>
     <message>
         <source>Resulting URI too long, try to reduce the text for label / message.</source>
@@ -2101,10 +2091,6 @@
         <translation>per kilooctet</translation>
     </message>
     <message>
-        <source>If the custom fee is set to 1000 satoshis and the transaction is only 250 bytes, then "per kilobyte" only pays 250 satoshis in fee, while "total at least" pays 1000 satoshis. For transactions bigger than a kilobyte both pay by kilobyte.</source>
-        <translation>Daca taxa personalizata este setata la 1000 satoshi si tranzactia este doar de 250 bytes, atunci "per kilobyte" plateste o taxa de doar 250 satoshi, in timp ce "total minim" plateste 1000 satoshi. Pentru tranzactii mai mari de un kilobyte ambele platesc per kilobyte. </translation>
-    </message>
-    <message>
         <source>Hide</source>
         <translation>Ascunde</translation>
     </message>
@@ -2213,20 +2199,16 @@
         <translation>Sigur doriţi să trimiteţi?</translation>
     </message>
     <message>
-        <source>added as transaction fee</source>
-        <translation>adăugat ca taxă de tranzacţie</translation>
-    </message>
-    <message>
-        <source>Total Amount %1</source>
-        <translation>Suma totală %1</translation>
-    </message>
-    <message>
         <source>or</source>
         <translation>sau</translation>
     </message>
     <message>
         <source>You can increase the fee later (signals Replace-By-Fee, BIP-125).</source>
         <translation>Puteti creste taxa mai tarziu (semnaleaza Replace-By-Fee, BIP-125).</translation>
+    </message>
+    <message>
+        <source>Transaction fee</source>
+        <translation>Taxă tranzacţie</translation>
     </message>
     <message>
         <source>Not signalling Replace-By-Fee, BIP-125.</source>
@@ -2574,10 +2556,6 @@
         <translation>in conflict cu o tranzactie cu %1 confirmari</translation>
     </message>
     <message>
-        <source>%1/offline</source>
-        <translation>%1/offline</translation>
-    </message>
-    <message>
         <source>0/unconfirmed, %1</source>
         <translation>0/neconfirmat, %1</translation>
     </message>
@@ -2604,14 +2582,6 @@
     <message>
         <source>Status</source>
         <translation>Stare</translation>
-    </message>
-    <message>
-        <source>, has not been successfully broadcast yet</source>
-        <translation>, nu a fost încă publicată</translation>
-    </message>
-    <message numerus="yes">
-        <source>, broadcast through %n node(s)</source>
-        <translation><numerusform>, difuzare printr-un nod</numerusform><numerusform>, difuzare prin %n noduri</numerusform><numerusform>, difuzare prin %n noduri</numerusform></translation>
     </message>
     <message>
         <source>Date</source>
@@ -2764,10 +2734,6 @@
         <translation>Deschis pînă la %1</translation>
     </message>
     <message>
-        <source>Offline</source>
-        <translation>Deconectat</translation>
-    </message>
-    <message>
         <source>Unconfirmed</source>
         <translation>Neconfirmat</translation>
     </message>
@@ -2790,10 +2756,6 @@
     <message>
         <source>Immature (%1 confirmations, will be available after %2)</source>
         <translation>Imatur (%1 confirmari, va fi disponibil după %2)</translation>
-    </message>
-    <message>
-        <source>This block was not received by any other nodes and will probably not be accepted!</source>
-        <translation>Acest bloc nu a fost recepţionat de nici un alt nod şi probabil nu va fi acceptat!</translation>
     </message>
     <message>
         <source>Generated but not accepted</source>
@@ -3106,36 +3068,12 @@
         <source>The wallet data was successfully saved to %1.</source>
         <translation>Datele portofelului s-au salvat cu succes la %1.</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>qtum-core</name>
     <message>
-        <source>Options:</source>
-        <translation>Opţiuni:</translation>
-    </message>
-    <message>
-        <source>Specify data directory</source>
-        <translation>Specificaţi dosarul de date</translation>
-    </message>
-    <message>
-        <source>Connect to a node to retrieve peer addresses, and disconnect</source>
-        <translation>Se conectează la un nod pentru a obţine adresele partenerilor, şi apoi se deconectează</translation>
-    </message>
-    <message>
-        <source>Specify your own public address</source>
-        <translation>Specificaţi adresa dvs. publică</translation>
-    </message>
-    <message>
-        <source>Accept command line and JSON-RPC commands</source>
-        <translation>Acceptă comenzi din linia de comandă şi comenzi JSON-RPC</translation>
-    </message>
-    <message>
         <source>Distributed under the MIT software license, see the accompanying file %s or %s</source>
         <translation>Distribuit sub licenţa de programe MIT, vezi fişierul însoţitor %s sau %s</translation>
-    </message>
-    <message>
-        <source>If &lt;category&gt; is not supplied or if &lt;category&gt; = 1, output all debugging information.</source>
-        <translation>Dacă &lt;category&gt; nu este furnizat sau &lt;category&gt;=1, produce toate informaţiile de depanare.</translation>
     </message>
     <message>
         <source>Prune configured below the minimum of %d MiB.  Please use a higher number.</source>
@@ -3154,16 +3092,8 @@
         <translation>Eroare: S-a produs o eroare interna fatala, vedeti debug.log pentru detalii</translation>
     </message>
     <message>
-        <source>Fee (in %s/kB) to add to transactions you send (default: %s)</source>
-        <translation>Taxa (în %s/kB) de adăugat la tranzacţiile pe care le trimiteţi(implicit: %s)</translation>
-    </message>
-    <message>
         <source>Pruning blockstore...</source>
         <translation>Reductie blockstore...</translation>
-    </message>
-    <message>
-        <source>Run in the background as a daemon and accept commands</source>
-        <translation>Rulează în fundal ca un demon şi acceptă comenzi</translation>
     </message>
     <message>
         <source>Unable to start HTTP server. See debug log for details.</source>
@@ -3178,22 +3108,6 @@
         <translation>Dezvoltatorii %s</translation>
     </message>
     <message>
-        <source>A fee rate (in %s/kB) that will be used when fee estimation has insufficient data (default: %s)</source>
-        <translation>O rata de taxare (in %s/kB) ce va fi folosita atunci cand estimarea taxei are date insuficiente (implicit: %s)</translation>
-    </message>
-    <message>
-        <source>Accept relayed transactions received from whitelisted peers even when not relaying transactions (default: %d)</source>
-        <translation>Accepta retransmiterea tranzactiilor primite de la parteneri din whitelist chiar si atunci cand nu se retransmit tranzactii (implicit: %d)</translation>
-    </message>
-    <message>
-        <source>Add a node to connect to and attempt to keep the connection open (see the `addnode` RPC command help for more info)</source>
-        <translation>Adaugă un nod la care te poţi conecta pentru a menţine conexiunea deschisă (vezi ajutorul de comanda RPC 'addnode' pentru mai multe informatii)</translation>
-    </message>
-    <message>
-        <source>Bind to given address and always listen on it. Use [host]:port notation for IPv6</source>
-        <translation>Ataşaţi adresei date şi ascultaţi totdeauna pe ea. Folosiţi notaţia [host]:port pentru IPv6</translation>
-    </message>
-    <message>
         <source>Cannot obtain a lock on data directory %s. %s is probably already running.</source>
         <translation>Nu se poate obține o blocare a directorului de date %s. %s probabil rulează deja.</translation>
     </message>
@@ -3202,40 +3116,8 @@
         <translation>Nu se pot furniza conexiuni specifice in acelasi timp in care addrman este folosit pentru a gasi conexiuni de iesire.</translation>
     </message>
     <message>
-        <source>Connect only to the specified node(s); -connect=0 disables automatic connections (the rules for this peer are the same as for -addnode)</source>
-        <translation>Conectare doar la nodul(rile) specificate; -connect=0 dezactiveaza conexiuni automate (regula pentru aceasta pereche este aceiasi ca pentru -addnode)</translation>
-    </message>
-    <message>
-        <source>Delete all wallet transactions and only recover those parts of the blockchain through -rescan on startup</source>
-        <translation>Sterge toate tranzactiile din portofel si recupereaza doar acele parti din blockchain prin -rescan la startup</translation>
-    </message>
-    <message>
         <source>Error reading %s! All keys read correctly, but transaction data or address book entries might be missing or incorrect.</source>
         <translation>Eroare la citirea %s! Toate cheile sînt citite corect, dar datele tranzactiei sau anumite intrări din agenda sînt incorecte sau lipsesc.</translation>
-    </message>
-    <message>
-        <source>Exclude debugging information for a category. Can be used in conjunction with -debug=1 to output debug logs for all categories except one or more specified categories.</source>
-        <translation>Exclude informatia de depanare pentru o categorie. Poate fi folosit impreuna cu -debug=1 pentru a produce loguri de depanare pentru toate categoriile mai ptin una sau mai multe categorii specificate.</translation>
-    </message>
-    <message>
-        <source>Execute command when a wallet transaction changes (%s in cmd is replaced by TxID)</source>
-        <translation>Execută comanda cînd o tranzacţie a portofelului se schimbă (%s în cmd este înlocuit de TxID)</translation>
-    </message>
-    <message>
-        <source>Extra transactions to keep in memory for compact block reconstructions (default: %u)</source>
-        <translation>Extra tranzactii de tinut in memorie pentru reconstructia compacta a blocurilor (implicit: %u)</translation>
-    </message>
-    <message>
-        <source>If this block is in the chain assume that it and its ancestors are valid and potentially skip their script verification (0 to verify all, default: %s, testnet: %s)</source>
-        <translation>Daca acest bloc este in lant se asuma ca el si predecesorii sai sunt valizi si potential se sare peste verificarea scriptului (0 pentru a verifica tot, implicit %s, testnet: %s)</translation>
-    </message>
-    <message>
-        <source>Maximum allowed median peer time offset adjustment. Local perspective of time may be influenced by peers forward or backward by this amount. (default: %u seconds)</source>
-        <translation>Timpul mediu maxim permis pentru ajustarea intarzierii partenerilor din retea. Perspectiva temporala locala poate fi influentata de parteneri aflati inainte sau inapoi cu aceasta valoare. (implicit: %u secunde)</translation>
-    </message>
-    <message>
-        <source>Maximum total fees (in %s) to use in a single wallet transaction or raw transaction; setting this too low may abort large transactions (default: %s)</source>
-        <translation>Valoarea maxima totala a taxelor (in %s) care va fi folosita intr-o singura tranzactie din portofel sau tranzactie bruta; daca valoarea este prea mica poate conduce la esuarea tranzactiilor mari (implicit: %s)</translation>
     </message>
     <message>
         <source>Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly.</source>
@@ -3244,22 +3126,6 @@
     <message>
         <source>Please contribute if you find %s useful. Visit %s for further information about the software.</source>
         <translation>Va rugam sa contribuiti daca apreciati ca %s va este util. Vizitati %s pentru mai multe informatii despre software.</translation>
-    </message>
-    <message>
-        <source>Query for peer addresses via DNS lookup, if low on addresses (default: 1 unless -connect used)</source>
-        <translation>Găseşte parteneri folosind căutarea DNS, daca adresele sunt reduse (implicit: 1 doar dacă nu s-a folosit -connect)</translation>
-    </message>
-    <message>
-        <source>Reduce storage requirements by enabling pruning (deleting) of old blocks. This allows the pruneblockchain RPC to be called to delete specific blocks, and enables automatic pruning of old blocks if a target size in MiB is provided. This mode is incompatible with -txindex and -rescan. Warning: Reverting this setting requires re-downloading the entire blockchain. (default: 0 = disable pruning blocks, 1 = allow manual pruning via RPC, &gt;%u = automatically prune block files to stay under the specified target size in MiB)</source>
-        <translation>Micsorarea cerintelor de stocare prin activarea reductiei (stergerii) blocurilor vechi. Aceasta permite RPC pruneblockchain sa fie solicitata pentru a sterge anumite blocuri, si permite reductia automata a blocurilor vechi daca este furnizata o valoare anume in MiB. Acest mod este incompatibil cu -txindex si -rescan. Atentie: Inversarea acestei setari necesita re-descarcarea intregului blockchain. (implicit: 0 = dezactiveaza reductia blocurilor, 1 = permite reductia manuala via RPC, &gt;%u = reductie automata a fisierelor blocurilor pentru a ramane sub valoarea specificata in MiB)</translation>
-    </message>
-    <message>
-        <source>Set lowest fee rate (in %s/kB) for transactions to be included in block creation. (default: %s)</source>
-        <translation>Seteaza cea mai mica taxa (în %s/kB) pentru tranzactiile de adăugat la crearea blocului (implicit: %s)</translation>
-    </message>
-    <message>
-        <source>Set the number of script verification threads (%u to %d, 0 = auto, &lt;0 = leave that many cores free, default: %d)</source>
-        <translation>Setează numărul de thread-uri de verificare a script-urilor (%u la %d, 0 = auto, &lt;0 = lasă atîtea nuclee libere, implicit: %d)</translation>
     </message>
     <message>
         <source>The block database contains a block which appears to be from the future. This may be due to your computer's date and time being set incorrectly. Only rebuild the block database if you are sure that your computer's date and time are correct</source>
@@ -3282,28 +3148,12 @@
         <translation>Imposibil de a readuce baza de date la statusul pre-fork. Va trebui redescarcat blockchainul.</translation>
     </message>
     <message>
-        <source>Use UPnP to map the listening port (default: 1 when listening and no -proxy)</source>
-        <translation>Foloseşte UPnP pentru a vedea porturile (implicit: 1 cînd ascultă si fara -proxy)</translation>
-    </message>
-    <message>
-        <source>Username and hashed password for JSON-RPC connections. The field &lt;userpw&gt; comes in the format: &lt;USERNAME&gt;:&lt;SALT&gt;$&lt;HASH&gt;. A canonical python script is included in share/rpcuser. The client then connects normally using the rpcuser=&lt;USERNAME&gt;/rpcpassword=&lt;PASSWORD&gt; pair of arguments. This option can be specified multiple times</source>
-        <translation>Nume utilizator si hash al parolei pentru conexiuni JSON-RPC. Campul &lt;userpw&gt;vine in formatul: &lt;USERNAME&gt;:&lt;SALT&gt;$&lt;HASH&gt;. Un script python canonic este inclus in share/rpcuser. Clientul se conecteaza normal folosind perechea de argumente rpcuser=&lt;USERNAME&gt;/rpcpassword=&lt;PASSWORD&gt;. Aceasta optiune poate fi specificata de mai multe ori</translation>
-    </message>
-    <message>
-        <source>Wallet will not create transactions that violate mempool chain limits (default: %u)</source>
-        <translation>Portofelul nu va crea tranzactii care violeaza limitele mempool chain (implicit: %u)</translation>
-    </message>
-    <message>
         <source>Warning: The network does not appear to fully agree! Some miners appear to be experiencing issues.</source>
         <translation>Atenţie: Reţeaua nu pare să fie de acord în totalitate! Aparent nişte mineri au probleme.</translation>
     </message>
     <message>
         <source>Warning: We do not appear to fully agree with our peers! You may need to upgrade, or other nodes may need to upgrade.</source>
         <translation>Atenţie: Aparent, nu sîntem de acord cu toţi partenerii noştri! Va trebui să faceţi o actualizare, sau alte noduri necesită actualizare.</translation>
-    </message>
-    <message>
-        <source>Whether to save the mempool on shutdown and load on restart (default: %u)</source>
-        <translation>Daca se salveaza mempool la shutdown si se incarca la restart (implicit: %u)</translation>
     </message>
     <message>
         <source>%d of last 100 blocks have unexpected version</source>
@@ -3318,40 +3168,12 @@
         <translation>-maxmempool trebuie sa fie macar %d MB</translation>
     </message>
     <message>
-        <source>&lt;category&gt; can be:</source>
-        <translation>&lt;category&gt; poate fi:</translation>
-    </message>
-    <message>
-        <source>Accept connections from outside (default: 1 if no -proxy or -connect)</source>
-        <translation>Acceptă conexiuni din afară (implicit: 1 dacă nu se foloseşte -proxy sau -connect)</translation>
-    </message>
-    <message>
-        <source>Append comment to the user agent string</source>
-        <translation>Ataseaza comentariul la string-ul agentului utilizator</translation>
-    </message>
-    <message>
-        <source>Attempt to recover private keys from a corrupt wallet on startup</source>
-        <translation>Încercare de recuperare a cheilor private dintr-un portofel corupt la initiere</translation>
-    </message>
-    <message>
-        <source>Block creation options:</source>
-        <translation>Opţiuni creare bloc:</translation>
-    </message>
-    <message>
         <source>Cannot resolve -%s address: '%s'</source>
         <translation>Nu se poate rezolva adresa -%s: '%s'</translation>
     </message>
     <message>
-        <source>Chain selection options:</source>
-        <translation>Optiuni de selectie a chain-ului:</translation>
-    </message>
-    <message>
         <source>Change index out of range</source>
         <translation>Indexul de schimbare este iesit din parametrii</translation>
-    </message>
-    <message>
-        <source>Connection options:</source>
-        <translation>Opţiuni conexiune:</translation>
     </message>
     <message>
         <source>Copyright (C) %i-%i</source>
@@ -3362,36 +3184,8 @@
         <translation>Bloc defect din baza de date detectat</translation>
     </message>
     <message>
-        <source>Debugging/Testing options:</source>
-        <translation>Opţiuni Depanare/Test:</translation>
-    </message>
-    <message>
-        <source>Do not load the wallet and disable wallet RPC calls</source>
-        <translation>Nu încarcă portofelul şi dezactivează solicitările portofel RPC</translation>
-    </message>
-    <message>
         <source>Do you want to rebuild the block database now?</source>
         <translation>Doriţi să reconstruiţi baza de date blocuri acum?</translation>
-    </message>
-    <message>
-        <source>Enable publish hash block in &lt;address&gt;</source>
-        <translation>Activeaza publicarea hashului blocului in &lt;address&gt;</translation>
-    </message>
-    <message>
-        <source>Enable publish hash transaction in &lt;address&gt;</source>
-        <translation>Activeaza publicarea hashului tranzactiei in &lt;address&gt;</translation>
-    </message>
-    <message>
-        <source>Enable publish raw block in &lt;address&gt;</source>
-        <translation>Activeaza publicarea blocului brut in &lt;address&gt;</translation>
-    </message>
-    <message>
-        <source>Enable publish raw transaction in &lt;address&gt;</source>
-        <translation>Activeaza publicarea tranzactiei brute in &lt;address&gt;</translation>
-    </message>
-    <message>
-        <source>Enable transaction replacement in the memory pool (default: %u)</source>
-        <translation>Activeaza inlocuirea tranzactiei in mempool (implicit: %u)</translation>
     </message>
     <message>
         <source>Error creating %s: You can't create non-HD wallets with this version.</source>
@@ -3462,10 +3256,6 @@
         <translation>Suma nevalidă pentru -fallbackfee=&lt;amount&gt;: '%s'</translation>
     </message>
     <message>
-        <source>Keep the transaction memory pool below &lt;n&gt; megabytes (default: %u)</source>
-        <translation>Pastreaza tranzactia in mempool sub &lt;n&gt; megaocteti (implicit: %u)</translation>
-    </message>
-    <message>
         <source>Loading P2P addresses...</source>
         <translation>Încărcare adrese P2P...</translation>
     </message>
@@ -3474,24 +3264,8 @@
         <translation>Încărcare banlist...</translation>
     </message>
     <message>
-        <source>Location of the auth cookie (default: data dir)</source>
-        <translation>Locatia cookie-ului auth (implicit: data dir)</translation>
-    </message>
-    <message>
         <source>Not enough file descriptors available.</source>
         <translation>Nu sînt destule descriptoare disponibile.</translation>
-    </message>
-    <message>
-        <source>Only connect to nodes in network &lt;net&gt; (ipv4, ipv6 or onion)</source>
-        <translation>Se conectează doar la noduri în reţeaua &lt;net&gt; (ipv4, ipv6 sau onion)</translation>
-    </message>
-    <message>
-        <source>Print this help message and exit</source>
-        <translation>Tipareste acest mesaj de ajutor si iesi</translation>
-    </message>
-    <message>
-        <source>Print version and exit</source>
-        <translation>Tipareste versiunea si iesi</translation>
     </message>
     <message>
         <source>Prune cannot be configured with a negative value.</source>
@@ -3502,32 +3276,12 @@
         <translation>Modul redus este incompatibil cu -txindex.</translation>
     </message>
     <message>
-        <source>Rebuild chain state and block index from the blk*.dat files on disk</source>
-        <translation>Reconstruieste statusul chainului si indexul blocurilor din fisierele blk*.dat de pe disc.</translation>
-    </message>
-    <message>
-        <source>Rebuild chain state from the currently indexed blocks</source>
-        <translation>Reconstruieste statusul chainului din blocurile indexate in acest moment.</translation>
-    </message>
-    <message>
         <source>Replaying blocks...</source>
         <translation>Se reiau blocurile...</translation>
     </message>
     <message>
         <source>Rewinding blocks...</source>
         <translation>Se deruleaza blocurile...</translation>
-    </message>
-    <message>
-        <source>Send transactions with full-RBF opt-in enabled (RPC only, default: %u)</source>
-        <translation>Trimite tranzactii cu optiunea full-RBF activata (doar RPC, implicit: %u)</translation>
-    </message>
-    <message>
-        <source>Set database cache size in megabytes (%d to %d, default: %d)</source>
-        <translation>Setează mărimea bazei de date cache în megaocteţi (%d la %d, implicit: %d)</translation>
-    </message>
-    <message>
-        <source>Specify wallet file (within data directory)</source>
-        <translation>Specifică fişierul portofel (în dosarul de date)</translation>
     </message>
     <message>
         <source>The source code is available from %s.</source>
@@ -3562,14 +3316,6 @@
         <translation>Actualizarea bazei de date UTXO</translation>
     </message>
     <message>
-        <source>Use UPnP to map the listening port (default: %u)</source>
-        <translation>Foloseşte mapare UPnP pentru asculatere port (implicit: %u)</translation>
-    </message>
-    <message>
-        <source>Use the test chain</source>
-        <translation>Utilizează reţeaua de test</translation>
-    </message>
-    <message>
         <source>User Agent comment (%s) contains unsafe characters.</source>
         <translation>Comentariul (%s) al Agentului Utilizator contine caractere nesigure.</translation>
     </message>
@@ -3578,84 +3324,20 @@
         <translation>Se verifică blocurile...</translation>
     </message>
     <message>
-        <source>Wallet debugging/testing options:</source>
-        <translation>Opţiuni depanare/testare portofel:</translation>
-    </message>
-    <message>
-        <source>Wallet options:</source>
-        <translation>Opţiuni portofel:</translation>
-    </message>
-    <message>
-        <source>Allow JSON-RPC connections from specified source. Valid for &lt;ip&gt; are a single IP (e.g. 1.2.3.4), a network/netmask (e.g. 1.2.3.4/255.255.255.0) or a network/CIDR (e.g. 1.2.3.4/24). This option can be specified multiple times</source>
-        <translation>Permite conexiunile JSON-RPC din sursa specificată. Valid pentru &lt;ip&gt; sînt IP singulare (ex. 1.2.3.4), o reţea/mască-reţea (ex. 1.2.3.4/255.255.255.0) sau o reţea/CIDR (ex. 1.2.3.4/24). Această opţiune poate fi specificată de mai multe ori</translation>
-    </message>
-    <message>
-        <source>Bind to given address and whitelist peers connecting to it. Use [host]:port notation for IPv6</source>
-        <translation>Legare la o adresa anume si whitelisting pentru toti partenerii conectati la ea. Folositi notatia [host]:port pentru IPv6</translation>
-    </message>
-    <message>
-        <source>Create new files with system default permissions, instead of umask 077 (only effective with disabled wallet functionality)</source>
-        <translation>Creare de fisiere noi cu permisiunile implicite de sistem, in loc de umask 077 (in efect doar cu dezactivarea functionalitatii portofelului)</translation>
-    </message>
-    <message>
-        <source>Discover own IP addresses (default: 1 when listening and no -externalip or -proxy)</source>
-        <translation>Descoperă propriile adrese IP (inţial: 1 cand asculta si fara -proxy sau -externalip)</translation>
-    </message>
-    <message>
         <source>Error: Listening for incoming connections failed (listen returned error %s)</source>
         <translation>Eroare: Ascultarea conexiunilor de intrare nu a reuşit (ascultarea a reurnat eroarea %s)</translation>
-    </message>
-    <message>
-        <source>Execute command when a relevant alert is received or we see a really long fork (%s in cmd is replaced by message)</source>
-        <translation>Execută comanda cînd o alertă relevantă este primită sau vedem o bifurcaţie foarte lungă (%s în cmd este înlocuit de mesaj)</translation>
-    </message>
-    <message>
-        <source>Fees (in %s/kB) smaller than this are considered zero fee for relaying, mining and transaction creation (default: %s)</source>
-        <translation>Taxe (in %s/kB) mai mici decît aceasta sumă sînt considerate taxe nule pentru transmiterea, minarea si crearea tranzacţiilor (implicit: %s)</translation>
-    </message>
-    <message>
-        <source>If paytxfee is not set, include enough fee so transactions begin confirmation on average within n blocks (default: %u)</source>
-        <translation>Daca nu este stabilita paytxfee, includeti o taxa suficienta pentru ca tranzactiile sa inceapa sa fie confirmate in medie in n blocuri (implicit: %u)</translation>
     </message>
     <message>
         <source>Invalid amount for -maxtxfee=&lt;amount&gt;: '%s' (must be at least the minrelay fee of %s to prevent stuck transactions)</source>
         <translation>Sumă nevalidă pentru -maxtxfee=&lt;amount&gt;: '%s' (trebuie să fie cel puţin taxa minrelay de %s pentru a preveni blocarea tranzactiilor)</translation>
     </message>
     <message>
-        <source>Maximum size of data in data carrier transactions we relay and mine (default: %u)</source>
-        <translation>Marimea maxima a datelor in operațiunile de transport de date de tranzactii pe care le retransmitem si le minam (implicit: %u)</translation>
-    </message>
-    <message>
-        <source>Randomize credentials for every proxy connection. This enables Tor stream isolation (default: %u)</source>
-        <translation>Randomizati acreditarile pentru fiecare conexiune proxy. Aceasta permite izolarea fluxului Tor (implicit: %u)</translation>
-    </message>
-    <message>
         <source>The transaction amount is too small to send after the fee has been deducted</source>
         <translation>Suma tranzactiei este prea mica pentru a fi trimisa dupa ce se scade taxa.</translation>
     </message>
     <message>
-        <source>Whitelisted peers cannot be DoS banned and their transactions are always relayed, even if they are already in the mempool, useful e.g. for a gateway</source>
-        <translation>Partenerii din whitelist nu pot fi interzisi DoS si tranzactiile lor sunt intotdeauna retransmise, chiar daca sunt deja in mempool, folositor spre exemplu pentru un gateway</translation>
-    </message>
-    <message>
         <source>You need to rebuild the database using -reindex to go back to unpruned mode.  This will redownload the entire blockchain</source>
         <translation>Trebuie reconstruita intreaga baza de date folosind -reindex pentru a va intoarce la modul non-redus. Aceasta va determina descarcarea din nou a intregului blockchain</translation>
-    </message>
-    <message>
-        <source>(default: %u)</source>
-        <translation>(implicit: %u)</translation>
-    </message>
-    <message>
-        <source>Accept public REST requests (default: %u)</source>
-        <translation>Acceptă cererile publice REST (implicit: %u)</translation>
-    </message>
-    <message>
-        <source>Automatically create Tor hidden service (default: %d)</source>
-        <translation>Crează automat un serviciu Tor ascuns (implicit: %d)</translation>
-    </message>
-    <message>
-        <source>Connect through SOCKS5 proxy</source>
-        <translation>Conectare prin proxy SOCKS5</translation>
     </message>
     <message>
         <source>Error loading %s: You can't disable HD on an already existing HD wallet</source>
@@ -3668,10 +3350,6 @@
     <message>
         <source>Error upgrading chainstate database</source>
         <translation>Eroare la actualizarea bazei de date chainstate</translation>
-    </message>
-    <message>
-        <source>Imports blocks from external blk000??.dat file on startup</source>
-        <translation>Importa blocuri de la un fisier extern blk000??.dat la pornire</translation>
     </message>
     <message>
         <source>Information</source>
@@ -3694,40 +3372,12 @@
         <translation>Mască reţea nevalidă specificată în -whitelist: '%s'</translation>
     </message>
     <message>
-        <source>Keep at most &lt;n&gt; unconnectable transactions in memory (default: %u)</source>
-        <translation>Menţine cel mult &lt;n&gt; tranzactii neconectabile in memorie (implicit: %u)</translation>
-    </message>
-    <message>
         <source>Need to specify a port with -whitebind: '%s'</source>
         <translation>Trebuie să specificaţi un port cu -whitebind: '%s'</translation>
     </message>
     <message>
-        <source>Node relay options:</source>
-        <translation>Optiuni de releu pentru nod</translation>
-    </message>
-    <message>
-        <source>RPC server options:</source>
-        <translation>Opţiuni server RPC:</translation>
-    </message>
-    <message>
         <source>Reducing -maxconnections from %d to %d, because of system limitations.</source>
         <translation>Se micsoreaza -maxconnections de la %d la %d, datorita limitarilor de sistem.</translation>
-    </message>
-    <message>
-        <source>Rescan the block chain for missing wallet transactions on startup</source>
-        <translation>Rescanează lanţul de blocuri pentru tranzacţiile lipsa la pornire</translation>
-    </message>
-    <message>
-        <source>Send trace/debug info to console instead of debug.log file</source>
-        <translation>Trimite informaţiile trace/debug la consolă în locul fişierului debug.log</translation>
-    </message>
-    <message>
-        <source>Show all debugging options (usage: --help -help-debug)</source>
-        <translation>Arată toate opţiunile de depanare (uz: --help -help-debug)</translation>
-    </message>
-    <message>
-        <source>Shrink debug.log file on client startup (default: 1 when no -debug)</source>
-        <translation>Micşorează fişierul debug.log la pornirea clientului (implicit: 1 cînd nu se foloseşte -debug)</translation>
     </message>
     <message>
         <source>Signing transaction failed</source>
@@ -3750,14 +3400,6 @@
         <translation>Acesta este un program experimental.</translation>
     </message>
     <message>
-        <source>Tor control port password (default: empty)</source>
-        <translation>Parola portului de control Tor (implicit: fara parola)</translation>
-    </message>
-    <message>
-        <source>Tor control port to use if onion listening enabled (default: %s)</source>
-        <translation>Portul de control Tor de folosit daca se activeaza ascultarea onion (implicit: %s)</translation>
-    </message>
-    <message>
         <source>Transaction amount too small</source>
         <translation>Suma tranzacţionată este prea mică</translation>
     </message>
@@ -3778,14 +3420,6 @@
         <translation>Nu s-au putut genera cheile initiale</translation>
     </message>
     <message>
-        <source>Upgrade wallet to latest format on startup</source>
-        <translation>Actualizează portofelul la ultimul format la pornire</translation>
-    </message>
-    <message>
-        <source>Username for JSON-RPC connections</source>
-        <translation>Utilizator pentru conexiunile JSON-RPC</translation>
-    </message>
-    <message>
         <source>Verifying wallet(s)...</source>
         <translation>Se verifică portofelul(ele)...</translation>
     </message>
@@ -3802,108 +3436,16 @@
         <translation>Atentie: se activeaza reguli noi necunoscute (versionbit %i)</translation>
     </message>
     <message>
-        <source>Whether to operate in a blocks only mode (default: %u)</source>
-        <translation>Setare daca se opereaza in modul exclusiv blocuri (implicit: %u)</translation>
-    </message>
-    <message>
-        <source>You need to rebuild the database using -reindex to change -txindex</source>
-        <translation>Trebuie să reconstruiţi baza de date folosind -reindex pentru a schimba -txindex</translation>
-    </message>
-    <message>
         <source>Zapping all transactions from wallet...</source>
         <translation>Şterge toate tranzacţiile din portofel...</translation>
-    </message>
-    <message>
-        <source>ZeroMQ notification options:</source>
-        <translation>Optiuni de notificare ZeroMQ:</translation>
-    </message>
-    <message>
-        <source>Password for JSON-RPC connections</source>
-        <translation>Parola pentru conexiunile JSON-RPC</translation>
-    </message>
-    <message>
-        <source>Execute command when the best block changes (%s in cmd is replaced by block hash)</source>
-        <translation>Execută comanda cînd cel mai bun bloc se modifică (%s în cmd este înlocuit cu hash-ul blocului)</translation>
-    </message>
-    <message>
-        <source>Allow DNS lookups for -addnode, -seednode and -connect</source>
-        <translation>Permite căutări DNS pentru -addnode, -seednode şi -connect</translation>
-    </message>
-    <message>
-        <source>(1 = keep tx meta data e.g. account owner and payment request information, 2 = drop tx meta data)</source>
-        <translation>(1 = pastreaza tx meta data ex. detinator cont si informatie cerere plata, 2 = elimina tx meta data)</translation>
     </message>
     <message>
         <source>-maxtxfee is set very high! Fees this large could be paid on a single transaction.</source>
         <translation>-maxtxfee este setata foarte sus! Se pot plati taxe de aceasta marime pe o singura tranzactie.</translation>
     </message>
     <message>
-        <source>Bind to given address to listen for JSON-RPC connections. This option is ignored unless -rpcallowip is also passed. Port is optional and overrides -rpcport. Use [host]:port notation for IPv6. This option can be specified multiple times (default: 127.0.0.1 and ::1 i.e., localhost, or if -rpcallowip has been specified, 0.0.0.0 and :: i.e., all addresses)</source>
-        <translation>Legarre la o anumita adresa pentru a asculta dupa conexiuni JSON-RPC. Aceasta actiune este ignorata, mai putin cand -rpcallowip e si el trecut. Portul este optional si nu tine cont de -rpcport. Foloseste notatia pentru IPv6 [host]:port. Aceasta optiune poate fi folosita de mai multe ori (implicit:127.0.0.1 si ::1 adica localhost, sau daca -rpcallowip a fost specificat, 0.0.0.0 si :: adica toate adresele)</translation>
-    </message>
-    <message>
-        <source>Do not keep transactions in the mempool longer than &lt;n&gt; hours (default: %u)</source>
-        <translation>Nu pastra in mempool tranzactii mai mult de &lt;n&gt;ore (implicit: %u)</translation>
-    </message>
-    <message>
-        <source>Equivalent bytes per sigop in transactions for relay and mining (default: %u)</source>
-        <translation>Echivalent octeti per sigop in tranzactii pentru retransmitere si minat (implicit: %u)</translation>
-    </message>
-    <message>
         <source>Error loading %s: You can't enable HD on an already existing non-HD wallet</source>
         <translation>Eroare la incarcarea %s: Nu se poate activa HD la un portofel care este deja non-HD.</translation>
-    </message>
-    <message>
-        <source>Error loading wallet %s. -wallet parameter must only specify a filename (not a path).</source>
-        <translation>Eroare la incarcarea portofelului %s. Parametrul -wallet trebuie sa specifice doar un nume de fisier (nu o cale)</translation>
-    </message>
-    <message>
-        <source>Fees (in %s/kB) smaller than this are considered zero fee for transaction creation (default: %s)</source>
-        <translation>Taxe (in %s/kB) mai mici decît aceasta sumă sînt considerate taxe nule pentru crearea tranzacţiilor (implicit: %s)</translation>
-    </message>
-    <message>
-        <source>Force relay of transactions from whitelisted peers even if they violate local relay policy (default: %d)</source>
-        <translation>Forteaza retransmiterea tranzactiilor primite de la parteneri din whitelist chiar si atunci cand violeaza politica locala de restransmitere (implicit: %d)</translation>
-    </message>
-    <message>
-        <source>How thorough the block verification of -checkblocks is (0-4, default: %u)</source>
-        <translation>Cît de minuţioasă este verificatea blocurilor prin -checkblocks (0-4, implicit: %u)</translation>
-    </message>
-    <message>
-        <source>Maintain a full transaction index, used by the getrawtransaction rpc call (default: %u)</source>
-        <translation>Păstrează un index complet al tranzacţiilor folosite de functia rpc getrawtransaction (implicit: %u)</translation>
-    </message>
-    <message>
-        <source>Number of seconds to keep misbehaving peers from reconnecting (default: %u)</source>
-        <translation>Numărul de secunde pentru a preveni reconectarea partenerilor care nu se comporta corect (implicit: %u)</translation>
-    </message>
-    <message>
-        <source>Output debugging information (default: %u, supplying &lt;category&gt; is optional)</source>
-        <translation>Produce toate informaţiile de depanare (implicit: %u &lt;category&gt; furnizată este opţională)</translation>
-    </message>
-    <message>
-        <source>Set maximum BIP141 block weight to this * 4. Deprecated, use blockmaxweight</source>
-        <translation>Seteaza greutatea maxima a blocurilor BIP141 la aceasta valoare *4. In caz de depreciere, foloseste blockmaxwheight</translation>
-    </message>
-    <message>
-        <source>Sets the serialization of raw transaction or block hex returned in non-verbose mode, non-segwit(0) or segwit(1) (default: %d)</source>
-        <translation>Stabileste serializarea tranzactiilor brute sau hexul blocurile returnate in mod non-verbose, non-segwit(0) sau segwit(1) (implicit: %d)</translation>
-    </message>
-    <message>
-        <source>Specify directory to hold wallets (default: &lt;datadir&gt;/wallets if it exists, otherwise &lt;datadir&gt;)</source>
-        <translation>Specifica directorul in care vor fi tinute portofelele (implicit:&lt;datadir&gt;/wallets daca exista, alternativ &lt;datadir&gt;)</translation>
-    </message>
-    <message>
-        <source>Specify location of debug log file: this can be an absolute path or a path relative to the data directory (default: %s)</source>
-        <translation>Specifica locatia fisierului de log pentru depanare: aceasta poate fi o cale absoluta sau o cale relativa la directorul de date (implicit: %s)</translation>
-    </message>
-    <message>
-        <source>Support filtering of blocks and transaction with bloom filters (default: %u)</source>
-        <translation>Suport pentru filtrarea blocurilor si tranzactiilor cu filtre bloom (implicit: %u)</translation>
-    </message>
-    <message>
-        <source>The fee rate (in %s/kB) that indicates your tolerance for discarding change by adding it to the fee (default: %s). Note: An output is discarded if it is dust at this rate, but we will always discard up to the dust relay fee and a discard fee above that is limited by the fee estimate for the longest target</source>
-        <translation>Nivelul taxei (in %s/kB) care indica toleranta personala pentru renuntarea la rest prin adaugarea restului la taxa (implicit: %s). Nota: o tranzactie este inlaturata daca este praf la acest nivel, dar vom inlatura intotdeauna suma pana la taxa de retransmitere a prafului si o taxa de inlaturare peste aceasta valoare este limitata de estimarea taxei pentru tinta cea mai indepartata.</translation>
     </message>
     <message>
         <source>This is the transaction fee you may pay when fee estimates are not available.</source>
@@ -3918,20 +3460,12 @@
         <translation>Lungimea totala a sirului versiunii retelei (%i) depaseste lungimea maxima (%i). Reduceti numarul sa dimensiunea uacomments. </translation>
     </message>
     <message>
-        <source>Tries to keep outbound traffic under the given target (in MiB per 24h), 0 = no limit (default: %d)</source>
-        <translation>Incearca sa mentina traficul de iesire sub tinta stabilita (in MiB per 24h), 0 = no limit (implicit: %d)</translation>
-    </message>
-    <message>
         <source>Unsupported argument -socks found. Setting SOCKS version isn't possible anymore, only SOCKS5 proxies are supported.</source>
         <translation>S-a gasit un argument -socks nesuportat. Setarea versiunii SOCKS nu mai este posibila, sunt suportate doar proxiurile SOCKS5.</translation>
     </message>
     <message>
         <source>Unsupported argument -whitelistalwaysrelay ignored, use -whitelistrelay and/or -whitelistforcerelay.</source>
         <translation>Se ignora argumentul nesuportat -whitelistalwaysrelay, folositi -whitelistrelay si/sau -whitelistforcerelay.</translation>
-    </message>
-    <message>
-        <source>Use separate SOCKS5 proxy to reach peers via Tor hidden services (default: %s)</source>
-        <translation>Foloseste un proxy SOCKS5 separat pentru a gasi parteneri via servicii TOR ascunse (implicit: %s)</translation>
     </message>
     <message>
         <source>Warning: Unknown block versions being mined! It's possible unknown rules are in effect</source>
@@ -3942,108 +3476,16 @@
         <translation>Atenţie: fişierul portofelului este corupt, date salvate! Fişierul %s a fost salvat ca %s in %s; dacă balanta sau tranzactiile sunt incorecte ar trebui să restauraţi dintr-o copie de siguranţă.</translation>
     </message>
     <message>
-        <source>Whitelist peers connecting from the given IP address (e.g. 1.2.3.4) or CIDR notated network (e.g. 1.2.3.0/24). Can be specified multiple times.</source>
-        <translation>Parteneri din whitelist ce se conecteaza de la adresa IP specificata (ex. 1.2.3.4) sau o retea cu notatia CIDR (ex. 1.2.3.0/24). Poate fi specificat de mai multe ori.</translation>
-    </message>
-    <message>
         <source>%s is set very high!</source>
         <translation>%s este setata foarte sus!</translation>
-    </message>
-    <message>
-        <source>(default: %s)</source>
-        <translation>(implicit: %s)</translation>
-    </message>
-    <message>
-        <source>Always query for peer addresses via DNS lookup (default: %u)</source>
-        <translation>Cauta intotdeauna adrese de parteneri via cautare DNS (implicit:%u)</translation>
-    </message>
-    <message>
-        <source>Error loading wallet %s. -wallet filename must be a regular file.</source>
-        <translation>Eroare la incarcarea portofelului %s. Fisierul cu numele -wallet trebuie sa fie un fisier normal. </translation>
     </message>
     <message>
         <source>Error loading wallet %s. Duplicate -wallet filename specified.</source>
         <translation>Eroare la incarcarea portofelului %s. Este specificat un fisier -wallet duplicat.</translation>
     </message>
     <message>
-        <source>Error loading wallet %s. Invalid characters in -wallet filename.</source>
-        <translation>Eroare la incarcarea portofelului %s. Sunt caractere invalide in numele fisierului -wallet.</translation>
-    </message>
-    <message>
-        <source>How many blocks to check at startup (default: %u, 0 = all)</source>
-        <translation>Cîte blocuri verifică la pornire (implicit: %u, 0 = toate)</translation>
-    </message>
-    <message>
-        <source>Include IP addresses in debug output (default: %u)</source>
-        <translation>Include adresele IP in rezultatul depanarii (default: %u)</translation>
-    </message>
-    <message>
         <source>Keypool ran out, please call keypoolrefill first</source>
         <translation>Keypool epuizat, folositi intai functia keypoolrefill</translation>
-    </message>
-    <message>
-        <source>Listen for JSON-RPC connections on &lt;port&gt; (default: %u or testnet: %u)</source>
-        <translation>Ascultă pentru conexiuni JSON-RPC pe &lt;port&gt; (implicit: %u sau testnet: %u)</translation>
-    </message>
-    <message>
-        <source>Listen for connections on &lt;port&gt; (default: %u or testnet: %u)</source>
-        <translation>Ascultă pentru conexiuni pe &lt;port&gt; (implicit: %u sau testnet: %u)</translation>
-    </message>
-    <message>
-        <source>Maintain at most &lt;n&gt; connections to peers (default: %u)</source>
-        <translation>Menţine cel mult &lt;n&gt; conexiuni cu partenerii (implicit: %u)</translation>
-    </message>
-    <message>
-        <source>Make the wallet broadcast transactions</source>
-        <translation>Seteaza portofelul sa difuzeze tranzactii</translation>
-    </message>
-    <message>
-        <source>Maximum per-connection receive buffer, &lt;n&gt;*1000 bytes (default: %u)</source>
-        <translation>Tampon maxim pentru recepţie per conexiune, &lt;n&gt;*1000 octeti (implicit: %u)</translation>
-    </message>
-    <message>
-        <source>Maximum per-connection send buffer, &lt;n&gt;*1000 bytes (default: %u)</source>
-        <translation>Tampon maxim pentru transmitere per conexiune, &lt;n&gt;*1000 octeti (implicit: %u)</translation>
-    </message>
-    <message>
-        <source>Prepend debug output with timestamp (default: %u)</source>
-        <translation>Prefixeaza rezultatul depanarii cu marcaj de timp (implicit: %u)</translation>
-    </message>
-    <message>
-        <source>Relay and mine data carrier transactions (default: %u)</source>
-        <translation>Retransmitere si minare a tranzactiilor de transport de date (implicit: %u)</translation>
-    </message>
-    <message>
-        <source>Relay non-P2SH multisig (default: %u)</source>
-        <translation>Retransmite multisig non-P2SH (implicit: %u)</translation>
-    </message>
-    <message>
-        <source>Set key pool size to &lt;n&gt; (default: %u)</source>
-        <translation>Setează mărimea keypool la &lt;n&gt; (implicit: %u)</translation>
-    </message>
-    <message>
-        <source>Set maximum BIP141 block weight (default: %d)</source>
-        <translation>Seteaza greutatea maxima a blocurilor BIP141 (implicit: %d)</translation>
-    </message>
-    <message>
-        <source>Set the number of threads to service RPC calls (default: %d)</source>
-        <translation>Seteaza numarul de thread-uri care deservesc functii RPC (implicit: %d)</translation>
-    </message>
-    <message>
-        <source>Specify configuration file (default: %s)</source>
-        <translation>Specificaţi fişierul configuraţie (implicit: %s)</translation>
-    </message>
-    <message>
-        <source>Specify connection timeout in milliseconds (minimum: 1, default: %d)</source>
-        <translation>Specificati expirarea timpului conexiunii in milisecunde (minim: 1, implicit %d)</translation>
-    </message>
-    <message>
-        <source>Specify pid file (default: %s)</source>
-        <translation>Specifică fişierul pid (implicit: %s)</translation>
-    </message>
-    <message>
-        <source>Spend unconfirmed change when sending transactions (default: %u)</source>
-        <translation>Cheltuie restul neconfirmat la trimiterea tranzacţiilor (implicit: %u)</translation>
     </message>
     <message>
         <source>Starting network threads...</source>
@@ -4060,10 +3502,6 @@
     <message>
         <source>This is the transaction fee you will pay if you send a transaction.</source>
         <translation>Aceasta este taxa de tranzactie pe care o platiti cand trimiteti o tranzactie.</translation>
-    </message>
-    <message>
-        <source>Threshold for disconnecting misbehaving peers (default: %u)</source>
-        <translation>Prag pentru deconectarea partenerilor care nu se comporta corect (implicit: %u)</translation>
     </message>
     <message>
         <source>Transaction amounts must not be negative</source>

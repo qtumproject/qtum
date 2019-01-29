@@ -33,7 +33,7 @@ class QtumDGPActivation(BitcoinTestFramework):
             tx.vin = [CTxIn(COutPoint(int(unspent['txid'], 16), unspent['vout']), nSequence=0)]
             for i in range(50):
                 tx.vout.append(CTxOut(int(unspent['amount']*COIN/100 - 11000), scriptPubKey=CScript([OP_TRUE]*10000)))
-            tx_hex = self.node.signrawtransaction(bytes_to_hex_str(tx.serialize()))['hex']
+            tx_hex = self.node.signrawtransactionwithwallet(bytes_to_hex_str(tx.serialize()))['hex']
             f = io.BytesIO(hex_str_to_bytes(tx_hex))
             block.vtx.append(CTransaction())
             block.vtx[-1].deserialize(f)
@@ -42,7 +42,7 @@ class QtumDGPActivation(BitcoinTestFramework):
             block.vtx[-1].vout.pop(-1)
             if not block.vtx[-1].vout:
                 block.vtx.pop(-1)
-        tx_hex = self.node.signrawtransaction(bytes_to_hex_str(block.vtx[-1].serialize()))['hex']
+        tx_hex = self.node.signrawtransactionwithwallet(bytes_to_hex_str(block.vtx[-1].serialize()))['hex']
         f = io.BytesIO(hex_str_to_bytes(tx_hex))
         block.vtx[-1] = CTransaction()
         block.vtx[-1].deserialize(f)

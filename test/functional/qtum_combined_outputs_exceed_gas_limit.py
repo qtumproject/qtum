@@ -37,7 +37,7 @@ class QtumCombinedOutputsExceedGasLimitTest(BitcoinTestFramework):
             CTxOut(0, CScript([b"\x04", CScriptNum(19998999), CScriptNum(QTUM_MIN_GAS_PRICE), hex_str_to_bytes("00"), hex_str_to_bytes(contract_address), OP_CALL])),
             CTxOut(0, CScript([b"\x04", CScriptNum(19998999), CScriptNum(QTUM_MIN_GAS_PRICE), hex_str_to_bytes("00"), hex_str_to_bytes(contract_address), OP_CALL]))
         ]
-        signed_tx_raw = self.node.signrawtransaction(bytes_to_hex_str(tx.serialize()))['hex']
+        signed_tx_raw = self.node.signrawtransactionwithwallet(bytes_to_hex_str(tx.serialize()))['hex']
         #
         assert_raises_rpc_error(-26, "bad-txns-gas-exceeds-blockgaslimit", self.node.sendrawtransaction, signed_tx_raw)
         block_count = self.node.getblockcount()

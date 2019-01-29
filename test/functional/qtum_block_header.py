@@ -3,9 +3,8 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-from test_framework.test_framework import ComparisonTestFramework
+from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
-from test_framework.comptool import TestManager, TestInstance, RejectResult
 from test_framework.blocktools import *
 from test_framework.mininode import *
 from test_framework.address import *
@@ -23,30 +22,15 @@ def find_unspent(node, amount):
             return CTxIn(COutPoint(int(unspent['txid'], 16), unspent['vout']), nSequence=0)
     assert(False)
 
-
-class QtumBlockHeaderTest(ComparisonTestFramework):
+class QtumBlockHeaderTest(BitcoinTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
-        self.tip = None
         self.setup_clean_chain = True
+        self.extra_args = [[]]
 
     def run_test(self):
-        self.test = TestManager(self, self.options.tmpdir)
-        self.test.add_all_connections(self.nodes)
-        NetworkThread().start() # Start up network handling in another thread
-        self.test.run()
-
-    def get_tests(self):
-        # returns a test case that asserts that the current tip was accepted
-        def accepted():
-            return TestInstance([[self.tip, True]])
-
-        # returns a test case that asserts that the current tip was rejected
-        def rejected(reject = None):
-            if reject is None:
-                return TestInstance([[self.tip, False]])
-            else:
-                return TestInstance([[self.tip, reject]])
+        self.nodes[0].add_p2p_connection(P2PDataStore())
+        self.nodes[0].p2p.wait_for_getheaders(timeout=5)
 
         node = self.nodes[0]
         #mocktime = 1490247077
@@ -57,7 +41,7 @@ class QtumBlockHeaderTest(ComparisonTestFramework):
         for i in range(500):
             self.tip = create_block(int(node.getbestblockhash(), 16), create_coinbase(node.getblockcount()+1), self.block_time+i)
             self.tip.solve()
-            yield accepted()
+            self.sync_blocks([self.tip])
 
         #node.generate(COINBASE_MATURITY+50)
         mocktime = COINBASE_MATURITY+50
@@ -72,8 +56,11 @@ class QtumBlockHeaderTest(ComparisonTestFramework):
         self.tip = create_block(int(node.getbestblockhash(), 16), coinbase, int(time.time()+mocktime+100))
         self.tip.hashMerkleRoot = self.tip.calc_merkle_root()
         self.tip.solve()
-        yield accepted()
+        self.sync_blocks([self.tip])
 
+        coinbase = create_coinbase(node.getblockcount()+1)
+        coinbase.rehash()
+ 
         # A block that has an OP_CREATE tx, butwith an incorrect state root
         """
             pragma solidity ^0.4.11;
@@ -92,7 +79,7 @@ class QtumBlockHeaderTest(ComparisonTestFramework):
         self.tip.vtx.append(tx)
         self.tip.hashMerkleRoot = self.tip.calc_merkle_root()
         self.tip.solve()
-        yield rejected()
+        self.sync_blocks([self.tip], success=False, reconnect=True)
 
 
         # Create a contract for use later.
@@ -116,7 +103,7 @@ class QtumBlockHeaderTest(ComparisonTestFramework):
         self.tip.hashStateRoot = 0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
         self.tip.hashMerkleRoot = self.tip.calc_merkle_root()
         self.tip.solve()
-        yield rejected()
+        self.sync_blocks([self.tip], success=False, reconnect=True)
 
 
         # A block with a tx, but without updated state hashes
@@ -133,7 +120,7 @@ class QtumBlockHeaderTest(ComparisonTestFramework):
         self.tip.vtx.append(tx)
         self.tip.hashMerkleRoot = self.tip.calc_merkle_root()
         self.tip.solve()
-        yield rejected()
+        self.sync_blocks([self.tip], success=False, reconnect=True)
 
         # A block with an invalid hashUTXORoot
         coinbase = create_coinbase(node.getblockcount()+1)
@@ -143,7 +130,7 @@ class QtumBlockHeaderTest(ComparisonTestFramework):
         self.tip.hashUTXORoot = 0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
         self.tip.hashMerkleRoot = self.tip.calc_merkle_root()
         self.tip.solve()
-        yield rejected()
+        self.sync_blocks([self.tip], success=False, reconnect=True)
 
         # A block with an invalid hashStateRoot
         coinbase = create_coinbase(node.getblockcount()+1)
@@ -153,7 +140,7 @@ class QtumBlockHeaderTest(ComparisonTestFramework):
         self.tip.hashStateRoot = 0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
         self.tip.hashMerkleRoot = self.tip.calc_merkle_root()
         self.tip.solve()
-        yield rejected()
+        self.sync_blocks([self.tip], success=False, reconnect=True)
 
         # Verify that blocks with a correct hashStateRoot and hashUTXORoot are accepted.
         coinbase = create_coinbase(node.getblockcount()+1)
@@ -163,8 +150,26 @@ class QtumBlockHeaderTest(ComparisonTestFramework):
         self.tip.hashStateRoot = realHashStateRoot
         self.tip.hashMerkleRoot = self.tip.calc_merkle_root()
         self.tip.solve()
-        yield accepted()
+        self.sync_blocks([self.tip])
 
+
+    def reconnect_p2p(self):
+        """Tear down and bootstrap the P2P connection to the node.
+
+        The node gets disconnected several times in this test. This helper
+        method reconnects the p2p and restarts the network thread."""
+        self.nodes[0].disconnect_p2ps()
+        self.nodes[0].add_p2p_connection(P2PDataStore())
+        self.nodes[0].p2p.wait_for_getheaders(timeout=5)
+
+    def sync_blocks(self, blocks, success=True, reject_code=None, reject_reason=None, request_block=True, reconnect=False, timeout=60):
+        """Sends blocks to test node. Syncs and verifies that tip has advanced to most recent block.
+
+        Call with success = False if the tip shouldn't advance to the most recent block."""
+        self.nodes[0].p2p.send_blocks_and_test(blocks, self.nodes[0], success=success, reject_code=reject_code, reject_reason=reject_reason, request_block=request_block, timeout=timeout)
+
+        if reconnect:
+            self.reconnect_p2p()
 
 if __name__ == '__main__':
     QtumBlockHeaderTest().main()

@@ -1,4 +1,4 @@
-// Copyright (c) 2009-2017 The Bitcoin Core developers
+// Copyright (c) 2009-2018 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -8,6 +8,8 @@
 #include <qt/test/paymentrequestdata.h>
 
 #include <amount.h>
+#include <chainparams.h>
+#include <interfaces/node.h>
 #include <random.h>
 #include <script/script.h>
 #include <script/standard.h>
@@ -65,7 +67,8 @@ static SendCoinsRecipient handleRequest(PaymentServer* server, std::vector<unsig
 void PaymentServerTests::paymentServerTests()
 {
     SelectParams(CBaseChainParams::MAIN);
-    OptionsModel optionsModel;
+    auto node = interfaces::MakeNode();
+    OptionsModel optionsModel(*node);
     PaymentServer* server = new PaymentServer(nullptr, false);
     X509_STORE* caStore = X509_STORE_new();
     X509_STORE_add_cert(caStore, parse_b64der_cert(caCert1_BASE64));
@@ -144,7 +147,7 @@ void PaymentServerTests::paymentServerTests()
     // Ensure the request is initialized, because network "main" is default, even for
     // uninitialized payment requests and that will fail our test here.
     QVERIFY(r.paymentRequest.IsInitialized());
-    QCOMPARE(PaymentServer::verifyNetwork(r.paymentRequest.getDetails()), false);
+    QCOMPARE(PaymentServer::verifyNetwork(*node, r.paymentRequest.getDetails()), false);
 
     // Expired payment request (expires is set to 1 = 1970-01-01 00:00:01):
     data = DecodeBase64(paymentrequest2_cert2_BASE64);

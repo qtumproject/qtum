@@ -1,18 +1,17 @@
 #!/usr/bin/env python3
-# Copyright (c) 2015-2017 The Bitcoin Core developers
+# Copyright (c) 2015-2018 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test the ZMQ notification interface."""
-import configparser
-import os
 import struct
 
-from test_framework.test_framework import BitcoinTestFramework, SkipTest
-from test_framework.mininode import CTransaction
-from test_framework.util import (assert_equal,
-                                 bytes_to_hex_str,
-                                 hash256,
-                                )
+from test_framework.test_framework import BitcoinTestFramework
+from test_framework.messages import CTransaction
+from test_framework.util import (
+    assert_equal,
+    bytes_to_hex_str,
+    hash256,
+)
 from test_framework.messages import CBlock
 from io import BytesIO
 
@@ -40,21 +39,19 @@ class ZMQTest (BitcoinTestFramework):
     def set_test_params(self):
         self.num_nodes = 2
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_py3_zmq()
+        self.skip_if_no_bitcoind_zmq()
+        self.skip_if_no_wallet()
+
     def setup_nodes(self):
-        # Try to import python3-zmq. Skip this test if the import fails.
-        try:
-            import zmq
-        except ImportError:
-            raise SkipTest("python3-zmq module not available.")
+        # Import keys
+        self.add_nodes(self.num_nodes)
+        self.start_nodes()
+        super().import_deterministic_coinbase_privkeys()
+        self.stop_nodes()
 
-        # Check that bitcoin has been built with ZMQ enabled.
-        config = configparser.ConfigParser()
-        if not self.options.configfile:
-            self.options.configfile = os.path.abspath(os.path.join(os.path.dirname(__file__), "../config.ini"))
-        config.read_file(open(self.options.configfile))
-
-        if not config["components"].getboolean("ENABLE_ZMQ"):
-            raise SkipTest("bitcoind has not been built with zmq enabled.")
+        import zmq
 
         # Initialize ZMQ context and socket.
         # All messages are received in the same socket which means
@@ -73,9 +70,11 @@ class ZMQTest (BitcoinTestFramework):
         self.rawblock = ZMQSubscriber(socket, b"rawblock")
         self.rawtx = ZMQSubscriber(socket, b"rawtx")
 
-        self.extra_args = [["-zmqpub%s=%s" % (sub.topic.decode(), address) for sub in [self.hashblock, self.hashtx, self.rawblock, self.rawtx]], []]
-        self.add_nodes(self.num_nodes, self.extra_args)
+        self.nodes[0].extra_args = ["-zmqpub%s=%s" % (sub.topic.decode(), address) for sub in [self.hashblock, self.hashtx, self.rawblock, self.rawtx]]
         self.start_nodes()
+
+    def import_deterministic_coinbase_privkeys(self):
+        pass
 
     def run_test(self):
         try:

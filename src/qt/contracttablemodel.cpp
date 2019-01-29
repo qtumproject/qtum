@@ -3,7 +3,7 @@
 #include <qt/guiutil.h>
 #include <qt/walletmodel.h>
 
-#include <wallet/wallet.h>
+#include <interfaces/wallet.h>
 
 #include <QFont>
 #include <QDebug>
@@ -40,29 +40,23 @@ struct ContractTableEntryLessThan
 class ContractTablePriv
 {
 public:
-    CWallet *wallet;
     QList<ContractTableEntry> cachedContractTable;
     ContractTableModel *parent;
 
-    ContractTablePriv(CWallet *_wallet, ContractTableModel *_parent):
-        wallet(_wallet), parent(_parent) {}
+    ContractTablePriv(ContractTableModel *_parent):
+        parent(_parent) {}
 
-    void refreshContractTable()
+    void refreshContractTable(interfaces::Wallet& wallet)
     {
         cachedContractTable.clear();
+        for(interfaces::ContractBookData item : wallet.getContractBooks())
         {
-            LOCK(wallet->cs_wallet);
-            for(const std::pair<std::string, CContractBookData>& item : wallet->mapContractBook)
-            {
-                const std::string& address = item.first;
-                const std::string& strName = item.second.name;
-                const std::string& strAbi = item.second.abi;
-                cachedContractTable.append(ContractTableEntry(
-                                  QString::fromStdString(strName),
-                                  QString::fromStdString(address),
-                                  QString::fromStdString(strAbi)));
-            }
+            cachedContractTable.append(ContractTableEntry(
+                              QString::fromStdString(item.name),
+                              QString::fromStdString(item.address),
+                              QString::fromStdString(item.abi)));
         }
+
         // qLowerBound() and qUpperBound() require our cachedContractTable list to be sorted in asc order
         qSort(cachedContractTable.begin(), cachedContractTable.end(), ContractTableEntryLessThan());
     }
@@ -131,12 +125,12 @@ public:
     }
 };
 
-ContractTableModel::ContractTableModel(CWallet *_wallet, WalletModel *parent) :
-    QAbstractTableModel(parent),walletModel(parent),wallet(_wallet),priv(0)
+ContractTableModel::ContractTableModel(WalletModel *parent) :
+    QAbstractTableModel(parent),walletModel(parent),priv(0)
 {
     columns << tr("Label") << tr("Contract Address") << tr("Interface (ABI)");
-    priv = new ContractTablePriv(wallet, this);
-    priv->refreshContractTable();
+    priv = new ContractTablePriv(this);
+    priv->refreshContractTable(walletModel->wallet());
 }
 
 ContractTableModel::~ContractTableModel()
@@ -203,7 +197,6 @@ bool ContractTableModel::setData(const QModelIndex &index, const QVariant &value
 
     if(role == Qt::EditRole)
     {
-        LOCK(wallet->cs_wallet); /* For SetContractBook / DelContractBook */
         std::string curAddress = rec->address.toStdString();
         std::string curLabel = rec->label.toStdString();
         std::string curAbi = rec->abi.toStdString();
@@ -215,7 +208,7 @@ bool ContractTableModel::setData(const QModelIndex &index, const QVariant &value
                 updateEditStatus(NO_CHANGES);
                 return false;
             }
-            wallet->SetContractBook(curAddress, value.toString().toStdString(), curAbi);
+            walletModel->wallet().setContractBook(curAddress, value.toString().toStdString(), curAbi);
         } else if(index.column() == Address) {
             std::string newAddress = value.toString().toStdString();
 
@@ -227,7 +220,7 @@ bool ContractTableModel::setData(const QModelIndex &index, const QVariant &value
             }
             // Check for duplicate addresses to prevent accidental deletion of addresses, if you try
             // to paste an existing address over another address (with a different label)
-            else if(wallet->mapContractBook.count(newAddress))
+            else if(walletModel->wallet().existContractBook(newAddress))
             {
                 updateEditStatus(DUPLICATE_ADDRESS);
                 return false;
@@ -235,9 +228,9 @@ bool ContractTableModel::setData(const QModelIndex &index, const QVariant &value
             else
             {
                 // Remove old entry
-                wallet->DelContractBook(curAddress);
+                walletModel->wallet().delContractBook(curAddress);
                 // Add new entry with new address
-                wallet->SetContractBook(newAddress, curLabel, curAbi);
+                walletModel->wallet().setContractBook(newAddress, curLabel, curAbi);
             }
         }
         else if(index.column() == ABI) {
@@ -247,7 +240,7 @@ bool ContractTableModel::setData(const QModelIndex &index, const QVariant &value
                 updateEditStatus(NO_CHANGES);
                 return false;
             }
-            wallet->SetContractBook(curAddress, curLabel, value.toString().toStdString());
+            walletModel->wallet().setContractBook(curAddress, curLabel, value.toString().toStdString());
         }
         return true;
     }
@@ -301,10 +294,7 @@ QString ContractTableModel::addRow(const QString &label, const QString &address,
     std::string strAddress = address.toStdString();
     std::string strAbi = abi.toStdString();
     editStatus = OK;
-    {
-        LOCK(wallet->cs_wallet);
-        wallet->SetContractBook(strAddress, strLabel, strAbi);
-    }
+    walletModel->wallet().setContractBook(strAddress, strLabel, strAbi);
     return address;
 }
 
@@ -317,10 +307,7 @@ bool ContractTableModel::removeRows(int row, int count, const QModelIndex &paren
         // Can only remove one row at a time, and cannot remove rows not in model.
         return false;
     }
-    {
-        LOCK(wallet->cs_wallet);
-        wallet->DelContractBook(rec->address.toStdString());
-    }
+    walletModel->wallet().delContractBook(rec->address.toStdString());
     return true;
 }
 
@@ -328,32 +315,16 @@ bool ContractTableModel::removeRows(int row, int count, const QModelIndex &paren
  */
 QString ContractTableModel::labelForAddress(const QString &address) const
 {
-    {
-        LOCK(wallet->cs_wallet);
-        std::string address_parsed(address.toStdString());
-        std::map<std::string, CContractBookData>::iterator mi = wallet->mapContractBook.find(address_parsed);
-        if (mi != wallet->mapContractBook.end())
-        {
-            return QString::fromStdString(mi->second.name);
-        }
-    }
-    return QString();
+    interfaces::ContractBookData item = walletModel->wallet().getContractBook(address.toStdString());
+    return QString::fromStdString(item.name);
 }
 
 /* ABI for address in contract book, if not found return empty string.
  */
 QString ContractTableModel::abiForAddress(const QString &address) const
 {
-    {
-        LOCK(wallet->cs_wallet);
-        std::string address_parsed(address.toStdString());
-        std::map<std::string, CContractBookData>::iterator mi = wallet->mapContractBook.find(address_parsed);
-        if (mi != wallet->mapContractBook.end())
-        {
-            return QString::fromStdString(mi->second.abi);
-        }
-    }
-    return QString();
+    interfaces::ContractBookData item = walletModel->wallet().getContractBook(address.toStdString());
+    return QString::fromStdString(item.abi);
 }
 
 int ContractTableModel::lookupAddress(const QString &address) const

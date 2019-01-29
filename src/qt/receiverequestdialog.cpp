@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2017 The Bitcoin Core developers
+// Copyright (c) 2011-2018 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -17,9 +17,6 @@
 #include <QMimeData>
 #include <QMouseEvent>
 #include <QPixmap>
-#if QT_VERSION < 0x050000
-#include <QUrl>
-#endif
 
 #if defined(HAVE_CONFIG_H)
 #include <config/bitcoin-config.h> /* for USE_QRCODE */
@@ -113,12 +110,12 @@ ReceiveRequestDialog::~ReceiveRequestDialog()
     delete ui;
 }
 
-void ReceiveRequestDialog::setModel(OptionsModel *_model)
+void ReceiveRequestDialog::setModel(WalletModel *_model)
 {
     this->model = _model;
 
     if (_model)
-        connect(_model, SIGNAL(displayUnitChanged(int)), this, SLOT(update()));
+        connect(_model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(update()));
 
     // update the display unit if necessary
     update();
@@ -169,9 +166,13 @@ bool ReceiveRequestDialog::createQRCode(QLabel *label, SendCoinsRecipient _info,
             if(showAddress)
             {
                 QFont font = GUIUtil::fixedPitchFont();
-                font.setPixelSize(12);
-                painter.setFont(font);
                 QRect paddedRect = qrAddrImage.rect();
+
+                // calculate ideal font size
+                qreal font_size = GUIUtil::calculateIdealFontSize(paddedRect.width() - 20, _info.address, font);
+                font.setPointSizeF(font_size);
+
+                painter.setFont(font);
                 paddedRect.setHeight(QR_IMAGE_SIZE+12);
                 painter.drawText(paddedRect, Qt::AlignBottom|Qt::AlignCenter, _info.address);
                 painter.end();
@@ -206,11 +207,14 @@ void ReceiveRequestDialog::update()
     html += "<a href=\""+uri+"\">" + GUIUtil::HtmlEscape(uri) + "</a><br>";
     html += tr("Address")+": <font color='#ffffff'>" + GUIUtil::HtmlEscape(info.address) + "</font><br>";
     if(info.amount)
-        html += tr("Amount")+": <font color='#ffffff'>" + BitcoinUnits::formatHtmlWithUnit(model->getDisplayUnit(), info.amount) + "</font><br>";
+        html += tr("Amount")+": <font color='#ffffff'>" + BitcoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), info.amount) + "</font><br>";
     if(!info.label.isEmpty())
         html += tr("Label")+": <font color='#ffffff'>" + GUIUtil::HtmlEscape(info.label) + "</font><br>";
     if(!info.message.isEmpty())
         html += tr("Message")+": <font color='#ffffff'>" + GUIUtil::HtmlEscape(info.message) + "</font><br>";
+    if(model->isMultiwallet()) {
+        html += tr("Wallet")+": <font color='#ffffff'>" + GUIUtil::HtmlEscape(model->getWalletName()) + "</font><br>";
+    }
     ui->outUri->setText(html);
 
 #ifdef USE_QRCODE

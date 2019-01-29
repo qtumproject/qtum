@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2017 The Bitcoin Core developers
+// Copyright (c) 2009-2018 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -14,7 +14,6 @@
 #include <consensus/merkle.h>
 #include <consensus/validation.h>
 #include <hash.h>
-#include <validation.h>
 #include <net.h>
 #include <policy/feerate.h>
 #include <policy/policy.h>
@@ -32,12 +31,6 @@
 #include <queue>
 #include <utility>
 
-//////////////////////////////////////////////////////////////////////////////
-//
-// BitcoinMiner
-//
-
-//
 // Unconfirmed transactions in the memory pool often depend on other
 // transactions in the memory pool. When we select transactions from the
 // pool, we select by highest fee rate of a transaction combined with all
@@ -45,7 +38,6 @@
 
 uint64_t nLastBlockTx = 0;
 uint64_t nLastBlockWeight = 0;
-int64_t nLastCoinStakeSearchInterval = 0;
 unsigned int nMinerSleep = STAKER_POLLING_PERIOD;
 
 int64_t UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParams, const CBlockIndex* pindexPrev)
@@ -75,12 +67,10 @@ BlockAssembler::BlockAssembler(const CChainParams& params, const Options& option
     nBlockMaxWeight = std::max<size_t>(4000, std::min<size_t>(dgpMaxBlockWeight - 4000, options.nBlockMaxWeight));
 }
 
-static BlockAssembler::Options DefaultOptions(const CChainParams& params)
+static BlockAssembler::Options DefaultOptions()
 {
     // Block resource limits
-    // If neither -blockmaxsize or -blockmaxweight is given, limit to DEFAULT_BLOCK_MAX_*
-    // If only one is given, only restrict the specified resource.
-    // If both are given, restrict both.
+    // If -blockmaxweight is not given, limit to DEFAULT_BLOCK_MAX_WEIGHT
     BlockAssembler::Options options;
     options.nBlockMaxWeight = gArgs.GetArg("-blockmaxweight", DEFAULT_BLOCK_MAX_WEIGHT);
     if (gArgs.IsArgSet("-blockmintxfee")) {
@@ -93,7 +83,7 @@ static BlockAssembler::Options DefaultOptions(const CChainParams& params)
     return options;
 }
 
-BlockAssembler::BlockAssembler(const CChainParams& params) : BlockAssembler(params, DefaultOptions(params)) {}
+BlockAssembler::BlockAssembler(const CChainParams& params) : BlockAssembler(params, DefaultOptions()) {}
 
 void BlockAssembler::resetBlock()
 {
@@ -177,8 +167,11 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
 
     // Decide whether to include witness transactions
     // This is only needed in case the witness softfork activation is reverted
-    // (which would require a very deep reorganization) or when
-    // -promiscuousmempoolflags is used.
+    // (which would require a very deep reorganization).
+    // Note that the mempool would accept transactions with witness data before
+    // IsWitnessEnabled, but we would only ever mine blocks after IsWitnessEnabled
+    // unless there is a massive block reorganization with the witness softfork
+    // not activated.
     // TODO: replace this with a call to main to assess validity of a mempool
     // transaction (which in most cases can be a no-op).
     fIncludeWitness = IsWitnessEnabled(pindexPrev, chainparams.GetConsensus()) && fMineWitnessTx;
@@ -425,7 +418,7 @@ bool BlockAssembler::TestPackage(uint64_t packageSize, int64_t packageSigOpsCost
 //   segwit activation)
 bool BlockAssembler::TestPackageTransactions(const CTxMemPool::setEntries& package)
 {
-    for (const CTxMemPool::txiter it : package) {
+    for (CTxMemPool::txiter it : package) {
         if (!IsFinalTx(it->GetTx(), nHeight, nLockTimeCutoff))
             return false;
         if (!fIncludeWitness && it->GetTx().HasWitness())
@@ -592,7 +585,7 @@ int BlockAssembler::UpdatePackagesForAdded(const CTxMemPool::setEntries& already
         indexed_modified_transaction_set &mapModifiedTx)
 {
     int nDescendantsUpdated = 0;
-    for (const CTxMemPool::txiter it : alreadyAdded) {
+    for (CTxMemPool::txiter it : alreadyAdded) {
         CTxMemPool::setEntries descendants;
         mempool.CalculateDescendants(it, descendants);
         // Insert all descendants (not yet in block) into the modified set
@@ -630,7 +623,7 @@ bool BlockAssembler::SkipMapTxEntry(CTxMemPool::txiter it, indexed_modified_tran
     return mapModifiedTx.count(it) || inBlock.count(it) || failedTx.count(it);
 }
 
-void BlockAssembler::SortForBlock(const CTxMemPool::setEntries& package, CTxMemPool::txiter entry, std::vector<CTxMemPool::txiter>& sortedEntries)
+void BlockAssembler::SortForBlock(const CTxMemPool::setEntries& package, std::vector<CTxMemPool::txiter>& sortedEntries)
 {
     // Sort package by ancestor count
     // If a transaction A depends on transaction B, then A's ancestor count
@@ -770,7 +763,7 @@ void BlockAssembler::addPackageTxs(int &nPackagesSelected, int &nDescendantsUpda
 
         // Package can be added. Sort the entries in a valid order.
         std::vector<CTxMemPool::txiter> sortedEntries;
-        SortForBlock(ancestors, iter, sortedEntries);
+        SortForBlock(ancestors, sortedEntries);
 
         bool wasAdded=true;
         for (size_t i=0; i<sortedEntries.size(); ++i) {
@@ -879,12 +872,17 @@ bool CheckStake(const std::shared_ptr<const CBlock> pblock, CWallet& wallet)
     return true;
 }
 
-void ThreadStakeMiner(CWallet *pwallet)
+void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
 {
     SetThreadPriority(THREAD_PRIORITY_LOWEST);
 
     // Make this thread recognisable as the mining thread
-    RenameThread("qtumcoin-miner");
+    std::string threadName = "qtumstake";
+    if(pwallet && pwallet->GetName() != "")
+    {
+        threadName = threadName + "-" + pwallet->GetName();
+    }
+    RenameThread(threadName.c_str());
 
     CReserveKey reservekey(pwallet);
 
@@ -898,19 +896,19 @@ void ThreadStakeMiner(CWallet *pwallet)
     {
         while (pwallet->IsLocked())
         {
-            nLastCoinStakeSearchInterval = 0;
+            pwallet->m_last_coin_stake_search_interval = 0;
             MilliSleep(10000);
         }
         //don't disable PoS mining for no connections if in regtest mode
         if(!regtestMode && !gArgs.GetBoolArg("-emergencystaking", false)) {
-            while (g_connman->GetNodeCount(CConnman::CONNECTIONS_ALL) == 0 || IsInitialBlockDownload()) {
-                nLastCoinStakeSearchInterval = 0;
+            while (connman->GetNodeCount(CConnman::CONNECTIONS_ALL) == 0 || IsInitialBlockDownload()) {
+                pwallet->m_last_coin_stake_search_interval = 0;
                 fTryToSync = true;
                 MilliSleep(1000);
             }
             if (fTryToSync) {
                 fTryToSync = false;
-                if (g_connman->GetNodeCount(CConnman::CONNECTIONS_ALL) < 3 ||
+                if (connman->GetNodeCount(CConnman::CONNECTIONS_ALL) < 3 ||
                     pindexBestHeader->GetBlockTime() < GetTime() - 10 * 60) {
                     MilliSleep(60000);
                     continue;
@@ -934,9 +932,9 @@ void ThreadStakeMiner(CWallet *pwallet)
             for(uint32_t i=beginningTime;i<beginningTime + MAX_STAKE_LOOKAHEAD;i+=STAKE_TIMESTAMP_MASK+1) {
 
                 // The information is needed for status bar to determine if the staker is trying to create block and when it will be created approximately,
-                static int64_t nLastCoinStakeSearchTime = GetAdjustedTime(); // startup timestamp
+                if(pwallet->m_last_coin_stake_search_time == 0) pwallet->m_last_coin_stake_search_time = GetAdjustedTime(); // startup timestamp
                 // nLastCoinStakeSearchInterval > 0 mean that the staker is running
-                nLastCoinStakeSearchInterval = i - nLastCoinStakeSearchTime;
+                pwallet->m_last_coin_stake_search_interval = i - pwallet->m_last_coin_stake_search_time;
 
                 // Try to sign a block (this also checks for a PoS stake)
                 pblocktemplate->block.nTime = i;
@@ -996,7 +994,7 @@ void ThreadStakeMiner(CWallet *pwallet)
                         if(validBlock) {
                             CheckStake(pblockfilled, *pwallet);
                             // Update the search time when new valid block is created, needed for status bar icon
-                            nLastCoinStakeSearchTime = pblockfilled->GetBlockTime();
+                            pwallet->m_last_coin_stake_search_time = pblockfilled->GetBlockTime();
                         }
                         break;
                     }
@@ -1009,20 +1007,18 @@ void ThreadStakeMiner(CWallet *pwallet)
     }
 }
 
-void StakeQtums(bool fStake, CWallet *pwallet)
+void StakeQtums(bool fStake, CWallet *pwallet, CConnman* connman, boost::thread_group*& stakeThread)
 {
-    static boost::thread_group* stakeThread = NULL;
-
-    if (stakeThread != NULL)
+    if (stakeThread != nullptr)
     {
         stakeThread->interrupt_all();
         delete stakeThread;
-        stakeThread = NULL;
+        stakeThread = nullptr;
     }
 
     if(fStake)
     {
         stakeThread = new boost::thread_group();
-        stakeThread->create_thread(boost::bind(&ThreadStakeMiner, pwallet));
+        stakeThread->create_thread(boost::bind(&ThreadStakeMiner, pwallet, connman));
     }
 }

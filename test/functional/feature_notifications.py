@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2014-2017 The Bitcoin Core developers
+# Copyright (c) 2014-2018 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test the -alertnotify, -blocknotify and -walletnotify options."""
@@ -12,6 +12,9 @@ class NotificationsTest(BitcoinTestFramework):
     def set_test_params(self):
         self.num_nodes = 2
         self.setup_clean_chain = True
+
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
 
     def setup_network(self):
         self.alert_filename = os.path.join(self.options.tmpdir, "alert.txt")
@@ -36,8 +39,8 @@ class NotificationsTest(BitcoinTestFramework):
         wait_until(lambda: os.path.isfile(self.block_filename) and os.stat(self.block_filename).st_size >= (block_count * 65), timeout=10)
 
         # file content should equal the generated blocks hashes
-        with open(self.block_filename, 'r') as f:
-            assert_equal(sorted(blocks), sorted(f.read().splitlines()))
+        with open(self.block_filename, 'r', encoding="utf-8") as f:
+            assert_equal(sorted(blocks), sorted(l.strip() for l in f.read().splitlines()))
 
         self.log.info("test -walletnotify")
         # wait at most 10 seconds for expected file size before reading the content
@@ -45,8 +48,8 @@ class NotificationsTest(BitcoinTestFramework):
 
         # file content should equal the generated transaction hashes
         txids_rpc = list(map(lambda t: t['txid'], self.nodes[1].listtransactions("*", block_count)))
-        with open(self.tx_filename, 'r') as f:
-            assert_equal(sorted(txids_rpc), sorted(f.read().splitlines()))
+        with open(self.tx_filename, 'r', encoding="ascii") as f:
+            assert_equal(sorted(txids_rpc), sorted(l.strip() for l in f.read().splitlines()))
         os.remove(self.tx_filename)
 
         self.log.info("test -walletnotify after rescan")
@@ -58,8 +61,8 @@ class NotificationsTest(BitcoinTestFramework):
 
         # file content should equal the generated transaction hashes
         txids_rpc = list(map(lambda t: t['txid'], self.nodes[1].listtransactions("*", block_count)))
-        with open(self.tx_filename, 'r') as f:
-            assert_equal(sorted(txids_rpc), sorted(f.read().splitlines()))
+        with open(self.tx_filename, 'r', encoding="ascii") as f:
+            assert_equal(sorted(txids_rpc), sorted(l.strip() for l in f.read().splitlines()))
 
         # Mine another 41 up-version blocks. -alertnotify should trigger on the 51st.
         self.log.info("test -alertnotify")

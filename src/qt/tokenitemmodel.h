@@ -5,7 +5,12 @@
 #include <QStringList>
 #include <QThread>
 
-class CWallet;
+#include <memory>
+
+namespace interfaces {
+class Handler;
+}
+
 class WalletModel;
 class Token;
 class TokenItemPriv;
@@ -33,7 +38,7 @@ public:
         RawBalanceRole = Qt::UserRole + 8,
     };
 
-    TokenItemModel(CWallet *wallet, WalletModel *parent = 0);
+    TokenItemModel(WalletModel *parent = 0);
     ~TokenItemModel();
 
     /** @name Methods overridden from QAbstractItemModel
@@ -46,10 +51,11 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     /*@}*/
     
-    Token *getTokenAbi();
+    void updateBalance(const TokenItemEntry& entry);
 
 public Q_SLOTS:
     void checkTokenBalanceChanged();
+    void balanceChanged(QString hash, QString balance);
 
 private Q_SLOTS:
     void updateToken(const QString &hash, int status, bool showToken);
@@ -63,10 +69,10 @@ private:
     Token *tokenAbi;
     QStringList columns;
     WalletModel *walletModel;
-    CWallet *wallet;
     TokenItemPriv* priv;
     TokenTxWorker* worker;
     QThread t;
+    std::unique_ptr<interfaces::Handler> m_handler_token_changed;
     bool tokenTxCleaned;
 
     friend class TokenItemPriv;

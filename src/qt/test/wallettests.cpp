@@ -1,5 +1,7 @@
 #include <qt/test/wallettests.h>
+#include <qt/test/util.h>
 
+#include <interfaces/node.h>
 #include <qt/bitcoinamountfield.h>
 #include <qt/callback.h>
 #include <qt/optionsmodel.h>
@@ -10,6 +12,7 @@
 #include <qt/transactiontablemodel.h>
 #include <qt/transactionview.h>
 #include <qt/walletmodel.h>
+#include <key_io.h>
 #include <test/test_bitcoin.h>
 #include <validation.h>
 #include <wallet/wallet.h>
@@ -17,6 +20,8 @@
 #include <qt/receivecoinsdialog.h>
 #include <qt/recentrequeststablemodel.h>
 #include <qt/receiverequestdialog.h>
+
+#include <memory>
 
 #include <QAbstractButton>
 #include <QAction>
@@ -31,21 +36,6 @@
 
 namespace
 {
-//! Press "Ok" button in message box dialog.
-void ConfirmMessage(QString* text = nullptr)
-{
-    QTimer::singleShot(0, makeCallback([text](Callback* callback) {
-        for (QWidget* widget : QApplication::topLevelWidgets()) {
-            if (widget->inherits("QMessageBox")) {
-                QMessageBox* messageBox = qobject_cast<QMessageBox*>(widget);
-                if (text) *text = messageBox->text();
-                messageBox->defaultButton()->click();
-            }
-        }
-        delete callback;
-    }), SLOT(call()));
-}
-
 //! Press "Yes" or "Cancel" buttons in modal send confirmation dialog.
 void ConfirmSend(QString* text = nullptr, bool cancel = false)
 {
@@ -97,17 +87,6 @@ QModelIndex FindTx(const QAbstractItemModel& model, const uint256& txid)
     return {};
 }
 
-//! Request context menu (call method that is public in qt5, but protected in qt4).
-void RequestContextMenu(QWidget* widget)
-{
-    class Qt4Hack : public QWidget
-    {
-    public:
-        using QWidget::customContextMenuRequested;
-    };
-    static_cast<Qt4Hack*>(widget)->customContextMenuRequested({});
-}
-
 //! Invoke bumpfee on txid and check results.
 void BumpFee(TransactionView& view, const uint256& txid, bool expectDisabled, std::string expectError, bool cancel)
 {
@@ -120,7 +99,7 @@ void BumpFee(TransactionView& view, const uint256& txid, bool expectDisabled, st
     QAction* action = view.findChild<QAction*>("bumpFeeAction");
     table->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
     action->setEnabled(expectDisabled);
-    RequestContextMenu(table);
+    table->customContextMenuRequested({});
     QCOMPARE(action->isEnabled(), !expectDisabled);
 
     action->setEnabled(true);
@@ -149,46 +128,44 @@ void BumpFee(TransactionView& view, const uint256& txid, bool expectDisabled, st
 //     src/qt/test/test_bitcoin-qt -platform cocoa    # macOS
 void TestGUI()
 {
-    g_address_type = OUTPUT_TYPE_P2SH_SEGWIT;
-    g_change_type = OUTPUT_TYPE_P2SH_SEGWIT;
-
     // Set up wallet and chain with 105 blocks (5 mature blocks for spending).
     TestChain100Setup test;
     for (int i = 0; i < 5; ++i) {
         test.CreateAndProcessBlock({}, GetScriptForRawPubKey(test.coinbaseKey.GetPubKey()));
     }
-    bitdb.MakeMock();
-    std::unique_ptr<CWalletDBWrapper> dbw(new CWalletDBWrapper(&bitdb, "wallet_test.dat"));
-    CWallet wallet(std::move(dbw));
+    std::shared_ptr<CWallet> wallet = std::make_shared<CWallet>("mock", WalletDatabase::CreateMock());
     bool firstRun;
-    wallet.LoadWallet(firstRun);
+    wallet->LoadWallet(firstRun);
     {
-        LOCK(wallet.cs_wallet);
-        wallet.SetAddressBook(GetDestinationForKey(test.coinbaseKey.GetPubKey(), g_address_type), "", "receive");
-        wallet.AddKeyPubKey(test.coinbaseKey, test.coinbaseKey.GetPubKey());
+        LOCK(wallet->cs_wallet);
+        wallet->SetAddressBook(GetDestinationForKey(test.coinbaseKey.GetPubKey(), wallet->m_default_address_type), "", "receive");
+        wallet->AddKeyPubKey(test.coinbaseKey, test.coinbaseKey.GetPubKey());
     }
     {
         LOCK(cs_main);
-        WalletRescanReserver reserver(&wallet);
+        WalletRescanReserver reserver(wallet.get());
         reserver.reserve();
-        wallet.ScanForWalletTransactions(chainActive.Genesis(), nullptr, reserver, true);
+        wallet->ScanForWalletTransactions(chainActive.Genesis(), nullptr, reserver, true);
     }
-    wallet.SetBroadcastTransactions(true);
+    wallet->SetBroadcastTransactions(true);
 
     // Create widgets for sending coins and listing transactions.
     std::unique_ptr<const PlatformStyle> platformStyle(PlatformStyle::instantiate("other"));
     SendCoinsDialog sendCoinsDialog(platformStyle.get());
     TransactionView transactionView(platformStyle.get());
-    OptionsModel optionsModel;
-    WalletModel walletModel(platformStyle.get(), &wallet, &optionsModel);
+    auto node = interfaces::MakeNode();
+    OptionsModel optionsModel(*node);
+    AddWallet(wallet);
+    WalletModel walletModel(std::move(node->getWallets().back()), *node, platformStyle.get(), &optionsModel);
+    RemoveWallet(wallet);
     sendCoinsDialog.setModel(&walletModel);
     transactionView.setModel(&walletModel);
 
     // Send two transactions, and verify they are added to transaction list.
     TransactionTableModel* transactionTableModel = walletModel.getTransactionTableModel();
     QCOMPARE(transactionTableModel->rowCount({}), 505);
-    uint256 txid1 = SendCoins(wallet, sendCoinsDialog, CKeyID(), 5 * COIN, false /* rbf */);
-    uint256 txid2 = SendCoins(wallet, sendCoinsDialog, CKeyID(), 10 * COIN, true /* rbf */);
+    uint256 txid1 = SendCoins(*wallet.get(), sendCoinsDialog, CKeyID(), 5 * COIN, false /* rbf */);
+    uint256 txid2 = SendCoins(*wallet.get(), sendCoinsDialog, CKeyID(), 10 * COIN, true /* rbf */);
     QCOMPARE(transactionTableModel->rowCount({}), 507);
     QVERIFY(FindTx(*transactionTableModel, txid1).isValid());
     QVERIFY(FindTx(*transactionTableModel, txid2).isValid());
@@ -205,7 +182,7 @@ void TestGUI()
     QLabel* balanceLabel = overviewPage.findChild<QLabel*>("labelBalance");
     QString balanceText = balanceLabel->text();
     int unit = walletModel.getOptionsModel()->getDisplayUnit();
-    CAmount balance = walletModel.getBalance();
+    CAmount balance = walletModel.wallet().getBalance();
     QString balanceComparison = BitcoinUnits::formatWithUnit(unit, balance, false, BitcoinUnits::separatorAlways);
     QCOMPARE(balanceText, balanceComparison);
 
@@ -260,12 +237,9 @@ void TestGUI()
     QPushButton* removeRequestButton = receiveCoinsDialog.findChild<QPushButton*>("removeRequestButton");
     removeRequestButton->click();
     QCOMPARE(requestTableModel->rowCount({}), currentRowCount-1);
-
-    bitdb.Flush(true);
-    bitdb.Reset();
 }
 
-}
+} // namespace
 
 void WalletTests::walletTests()
 {

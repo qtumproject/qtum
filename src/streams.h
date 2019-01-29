@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2017 The Bitcoin Core developers
+// Copyright (c) 2009-2018 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -42,7 +42,7 @@ public:
     }
 
     template<typename T>
-    OverrideStream<Stream>& operator>>(T& obj)
+    OverrideStream<Stream>& operator>>(T&& obj)
     {
         // Unserialize from this stream
         ::Unserialize(*this, obj);
@@ -61,6 +61,7 @@ public:
 
     int GetVersion() const { return nVersion; }
     int GetType() const { return nType; }
+    size_t size() const { return stream->size(); }
 };
 
 template<typename S>
@@ -82,7 +83,7 @@ class CVectorWriter
  * @param[in]  nVersionIn Serialization Version (including any flags)
  * @param[in]  vchDataIn  Referenced byte vector to overwrite/append
  * @param[in]  nPosIn Starting position. Vector index where writes should start. The vector will initially
- *                    grow as necessary to  max(nPosIn, vec.size()). So to append, use vec.size().
+ *                    grow as necessary to max(nPosIn, vec.size()). So to append, use vec.size().
 */
     CVectorWriter(int nTypeIn, int nVersionIn, std::vector<unsigned char>& vchDataIn, size_t nPosIn) : nType(nTypeIn), nVersion(nVersionIn), vchData(vchDataIn), nPos(nPosIn)
     {
@@ -348,7 +349,7 @@ public:
         if (nReadPosNext > vch.size()) {
             throw std::ios_base::failure("CDataStream::read(): end of data");
         }
-        memcpy(pch, &vch[nReadPos], nSize);        
+        memcpy(pch, &vch[nReadPos], nSize);
         if (nReadPosNext == vch.size())
         {
             nReadPos = 0;
@@ -399,7 +400,7 @@ public:
     }
 
     template<typename T>
-    CDataStream& operator>>(T& obj)
+    CDataStream& operator>>(T&& obj)
     {
         // Unserialize from this stream
         ::Unserialize(*this, obj);
@@ -456,7 +457,7 @@ private:
     const int nType;
     const int nVersion;
 
-    FILE* file;	
+    FILE* file;
 
 public:
     CAutoFile(FILE* filenew, int nTypeIn, int nVersionIn) : nType(nTypeIn), nVersion(nVersionIn)
@@ -543,7 +544,7 @@ public:
     }
 
     template<typename T>
-    CAutoFile& operator>>(T& obj)
+    CAutoFile& operator>>(T&& obj)
     {
         // Unserialize from this stream
         if (!file)
@@ -686,7 +687,7 @@ public:
     }
 
     template<typename T>
-    CBufferedFile& operator>>(T& obj) {
+    CBufferedFile& operator>>(T&& obj) {
         // Unserialize from this stream
         ::Unserialize(*this, obj);
         return (*this);

@@ -1,18 +1,23 @@
 #!/usr/bin/env python3
-# Copyright (c) 2015-2017 The Bitcoin Core developers
+# Copyright (c) 2015-2018 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test the prioritisetransaction mining RPC."""
 
+import time
+
+from test_framework.messages import COIN, MAX_BLOCK_BASE_SIZE
 from test_framework.test_framework import BitcoinTestFramework
-from test_framework.util import *
-from test_framework.mininode import COIN, MAX_BLOCK_BASE_SIZE
+from test_framework.util import assert_equal, assert_raises_rpc_error, create_confirmed_utxos, create_lots_of_big_transactions, gen_return_txouts
 
 class PrioritiseTransactionTest(BitcoinTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 2
         self.extra_args = [["-printpriority=1"], ["-printpriority=1"]]
+
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
 
     def run_test(self):
         # Test `prioritisetransaction` required parameters
@@ -116,15 +121,15 @@ class PrioritiseTransactionTest(BitcoinTestFramework):
         inputs.append({"txid" : utxo["txid"], "vout" : utxo["vout"]})
         outputs[self.nodes[0].getnewaddress()] = utxo["amount"]
         raw_tx = self.nodes[0].createrawtransaction(inputs, outputs)
-        tx_hex = self.nodes[0].signrawtransaction(raw_tx)["hex"]
+        tx_hex = self.nodes[0].signrawtransactionwithwallet(raw_tx)["hex"]
         tx_id = self.nodes[0].decoderawtransaction(tx_hex)["txid"]
 
         # This will raise an exception due to min relay fee not being met
-        assert_raises_rpc_error(-26, "66: min relay fee not met", self.nodes[0].sendrawtransaction, tx_hex)
+        assert_raises_rpc_error(-26, "min relay fee not met", self.nodes[0].sendrawtransaction, tx_hex)
         assert(tx_id not in self.nodes[0].getrawmempool())
 
         # This is a less than 1000-byte transaction, so just set the fee
-        # to be the minimum for a 1000 byte transaction and check that it is
+        # to be the minimum for a 1000-byte transaction and check that it is
         # accepted.
         self.nodes[0].prioritisetransaction(txid=tx_id, fee_delta=int(self.relayfee*COIN))
 

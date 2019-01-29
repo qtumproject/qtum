@@ -5,6 +5,7 @@ from .util import *
 from .qtumconfig import *
 from .blocktools import *
 from .key import *
+from .segwit_addr import *
 import io
 
 def make_transaction(node, vin, vout):
@@ -14,11 +15,11 @@ def make_transaction(node, vin, vout):
     tx.rehash()
     
     unsigned_raw_tx = bytes_to_hex_str(tx.serialize_without_witness())
-    signed_raw_tx = node.signrawtransaction(unsigned_raw_tx)['hex']
+    signed_raw_tx = node.signrawtransactionwithwallet(unsigned_raw_tx)['hex']
     return signed_raw_tx
 
 def make_vin(node, value):
-    addr = node.getrawchangeaddress()
+    addr = node.getnewaddress()
     txid_hex = node.sendtoaddress(addr, value/COIN)
     txid = int(txid_hex, 16)
     node.generate(1)
@@ -60,6 +61,10 @@ def convert_btc_address_to_qtum(addr, main=False):
         return scripthash_to_p2sh(binascii.unhexlify(hsh), main)
     assert(False)
 
+def convert_btc_bech32_address_to_qtum(addr, main=False):
+    hdr, data = bech32_decode(addr)
+    return bech32_encode('qcrt', data)
+
 
 def p2pkh_to_hex_hash(address):
     return str(base58_to_byte(address, 25)[1])[2:-1]
@@ -88,7 +93,7 @@ def assert_vout(tx, expected_vout):
     assert_equal(len(matches), len(expected_vout))
 
 def rpc_sign_transaction(node, tx):
-    ret = node.signrawtransaction(bytes_to_hex_str(tx.serialize()))
+    ret = node.signrawtransactionwithwallet(bytes_to_hex_str(tx.serialize()))
     assert(ret['complete'])
     tx_signed_raw_hex = ret['hex']
     f = io.BytesIO(hex_str_to_bytes(tx_signed_raw_hex))
@@ -393,7 +398,7 @@ def create_unsigned_pos_block(node, staking_prevouts, nTime=None):
     stake_tx_unsigned.vout.append(CTxOut(int(out_value), scriptPubKey))
     stake_tx_unsigned.vout.append(CTxOut(int(out_value), scriptPubKey))
 
-    stake_tx_signed_raw_hex = node.signrawtransaction(bytes_to_hex_str(stake_tx_unsigned.serialize()))['hex']
+    stake_tx_signed_raw_hex = node.signrawtransactionwithwallet(bytes_to_hex_str(stake_tx_unsigned.serialize()))['hex']
     f = io.BytesIO(hex_str_to_bytes(stake_tx_signed_raw_hex))
     stake_tx_signed = CTransaction()
     stake_tx_signed.deserialize(f)
@@ -424,7 +429,7 @@ def create_unsigned_mpos_block(node, staking_prevouts, nTime=None, block_fees=0)
     mpos_block.vtx[1].vout[1].nValue = main_staker_reward // 2
     mpos_block.vtx[1].vout[2].nValue = main_staker_reward // 2
 
-    stake_tx_signed_raw_hex = node.signrawtransaction(bytes_to_hex_str(mpos_block.vtx[1].serialize()))['hex']
+    stake_tx_signed_raw_hex = node.signrawtransactionwithwallet(bytes_to_hex_str(mpos_block.vtx[1].serialize()))['hex']
     f = io.BytesIO(hex_str_to_bytes(stake_tx_signed_raw_hex))
     stake_tx_signed = CTransaction()
     stake_tx_signed.deserialize(f)

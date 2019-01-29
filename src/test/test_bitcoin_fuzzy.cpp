@@ -1,4 +1,4 @@
-// Copyright (c) 2009-2017 The Bitcoin Core developers
+// Copyright (c) 2009-2018 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -25,6 +25,7 @@
 #include <unistd.h>
 
 #include <algorithm>
+#include <memory>
 #include <vector>
 
 enum TEST_ID {
@@ -51,7 +52,7 @@ enum TEST_ID {
     TEST_ID_END
 };
 
-bool read_stdin(std::vector<uint8_t> &data) {
+static bool read_stdin(std::vector<uint8_t> &data) {
     uint8_t buffer[1024];
     ssize_t length=0;
     while((length = read(STDIN_FILENO, buffer, 1024)) > 0) {
@@ -62,7 +63,7 @@ bool read_stdin(std::vector<uint8_t> &data) {
     return length==0;
 }
 
-int test_one_input(std::vector<uint8_t> buffer) {
+static int test_one_input(std::vector<uint8_t> buffer) {
     if (buffer.size() < sizeof(uint32_t)) return 0;
 
     uint32_t test_id = 0xffffffff;

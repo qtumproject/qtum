@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2017 The Bitcoin Core developers
+// Copyright (c) 2015-2018 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -86,23 +86,34 @@ private:
 
 /**
  * Class used by CScheduler clients which may schedule multiple jobs
- * which are required to be run serially. Does not require such jobs
- * to be executed on the same thread, but no two jobs will be executed
- * at the same time.
+ * which are required to be run serially. Jobs may not be run on the
+ * same thread, but no two jobs will be executed
+ * at the same time and memory will be release-acquire consistent
+ * (the scheduler will internally do an acquire before invoking a callback
+ * as well as a release at the end). In practice this means that a callback
+ * B() will be able to observe all of the effects of callback A() which executed
+ * before it.
  */
 class SingleThreadedSchedulerClient {
 private:
     CScheduler *m_pscheduler;
 
     CCriticalSection m_cs_callbacks_pending;
-    std::list<std::function<void (void)>> m_callbacks_pending;
-    bool m_are_callbacks_running = false;
+    std::list<std::function<void (void)>> m_callbacks_pending GUARDED_BY(m_cs_callbacks_pending);
+    bool m_are_callbacks_running GUARDED_BY(m_cs_callbacks_pending) = false;
 
     void MaybeScheduleProcessQueue();
     void ProcessQueue();
 
 public:
     explicit SingleThreadedSchedulerClient(CScheduler *pschedulerIn) : m_pscheduler(pschedulerIn) {}
+
+    /**
+     * Add a callback to be executed. Callbacks are executed serially
+     * and memory is release-acquire consistent between callback executions.
+     * Practially, this means that callbacks can behave as if they are executed
+     * in order by a single thread.
+     */
     void AddToProcessQueue(std::function<void (void)> func);
 
     // Processes all remaining queue members on the calling thread, blocking until queue is empty

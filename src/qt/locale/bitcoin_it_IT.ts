@@ -15,7 +15,7 @@
     </message>
     <message>
         <source>Copy the currently selected address to the system clipboard</source>
-        <translation>copia l'indirizzo selezionato correntemente nella clipboard di sistema</translation>
+        <translation>Copia l'indirizzo selezionato nella clipboard di sistema</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
@@ -28,6 +28,10 @@
     <message>
         <source>Delete the currently selected address from the list</source>
         <translation>Cancella l'indirizzo attualmente selezionato dalla lista.</translation>
+    </message>
+    <message>
+        <source>Enter address or label to search</source>
+        <translation>Inserire indirizzo o etichetta da cercare</translation>
     </message>
     <message>
         <source>Export the data in the current tab to a file</source>
@@ -316,6 +320,14 @@
     <message>
         <source>Open &amp;URI...</source>
         <translation>Apri &amp;URI...</translation>
+    </message>
+    <message>
+        <source>Wallet:</source>
+        <translation>Portafoglio</translation>
+    </message>
+    <message>
+        <source>default wallet</source>
+        <translation>Portafoglio predefinito</translation>
     </message>
     <message>
         <source>Click to disable network activity.</source>
@@ -674,10 +686,6 @@
         <translation>&amp;Indirizzo</translation>
     </message>
     <message>
-        <source>New receiving address</source>
-        <translation>Nuovo indirizzo di ricezione</translation>
-    </message>
-    <message>
         <source>New sending address</source>
         <translation>Nuovo indirizzo di invio</translation>
     </message>
@@ -692,10 +700,6 @@
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source>
         <translation>L'indirizzo inserito "%1" non è un indirizzo Qtum valido.</translation>
-    </message>
-    <message>
-        <source>The entered address "%1" is already in the address book.</source>
-        <translation>L'indirizzo inserito "%1" è già nella rubrica.</translation>
     </message>
     <message>
         <source>Could not unlock wallet.</source>
@@ -743,19 +747,7 @@
         <source>Command-line options</source>
         <translation>Opzioni linea di comando</translation>
     </message>
-    <message>
-        <source>Usage:</source>
-        <translation>Utilizzo:</translation>
-    </message>
-    <message>
-        <source>command-line options</source>
-        <translation>opzioni linea di comando</translation>
-    </message>
-    <message>
-        <source>UI Options:</source>
-        <translation>Opzioni UI</translation>
-    </message>
-    </context>
+</context>
 <context>
     <name>Intro</name>
     <message>
@@ -856,6 +848,10 @@
         <source>Sent</source>
         <translation>Inviato</translation>
     </message>
+    <message>
+        <source>default wallet</source>
+        <translation>Portafoglio predefinito</translation>
+    </message>
     </context>
 <context>
     <name>ReceiveCoinsDialog</name>
@@ -881,6 +877,10 @@
     <message>
         <source>Label</source>
         <translation>Etichetta</translation>
+    </message>
+    <message>
+        <source>Wallet</source>
+        <translation>Portafoglio</translation>
     </message>
     </context>
 <context>

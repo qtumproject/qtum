@@ -376,10 +376,6 @@
 <context>
     <name>qtum-core</name>
     <message>
-        <source>Options:</source>
-        <translation>هەڵبژاردنەکان:</translation>
-    </message>
-    <message>
         <source>Information</source>
         <translation>زانیاری</translation>
     </message>

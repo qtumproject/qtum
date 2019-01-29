@@ -220,7 +220,6 @@ The contribution workflow is described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 Developer IRC can be found on Freenode at #qtum-dev.
 
-
 Testing
 -------
 

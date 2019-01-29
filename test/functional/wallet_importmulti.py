@@ -1,17 +1,20 @@
 #!/usr/bin/env python3
-# Copyright (c) 2014-2017 The Bitcoin Core developers
+# Copyright (c) 2014-2018 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test the importmulti RPC."""
 from test_framework.test_framework import BitcoinTestFramework
-from test_framework.util import *
-from test_framework.qtumconfig import COINBASE_MATURITY
+from test_framework.util import assert_equal, assert_greater_than, assert_raises_rpc_error
+from test_framework.qtumconfig import *
 
 class ImportMultiTest (BitcoinTestFramework):
     def set_test_params(self):
         self.num_nodes = 2
         self.extra_args = [["-addresstype=legacy"], ["-addresstype=legacy"]]
         self.setup_clean_chain = True
+
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
 
     def setup_network(self):
         self.setup_nodes()
@@ -22,7 +25,7 @@ class ImportMultiTest (BitcoinTestFramework):
         self.nodes[1].generate(1)
         timestamp = self.nodes[1].getblock(self.nodes[1].getbestblockhash())['mediantime']
 
-        node0_address1 = self.nodes[0].validateaddress(self.nodes[0].getnewaddress())
+        node0_address1 = self.nodes[0].getaddressinfo(self.nodes[0].getnewaddress())
 
         #Check only one address
         assert_equal(node0_address1['ismine'], True)
@@ -31,16 +34,16 @@ class ImportMultiTest (BitcoinTestFramework):
         assert_equal(self.nodes[1].getblockcount(),1)
 
         #Address Test - before import
-        address_info = self.nodes[1].validateaddress(node0_address1['address'])
+        address_info = self.nodes[1].getaddressinfo(node0_address1['address'])
         assert_equal(address_info['iswatchonly'], False)
         assert_equal(address_info['ismine'], False)
 
 
         # RPC importmulti -----------------------------------------------
 
-        # Bitcoin Address
+        # Bitcoin Address (implicit non-internal)
         self.log.info("Should import an address")
-        address = self.nodes[0].validateaddress(self.nodes[0].getnewaddress())
+        address = self.nodes[0].getaddressinfo(self.nodes[0].getnewaddress())
         result = self.nodes[1].importmulti([{
             "scriptPubKey": {
                 "address": address['address']
@@ -48,7 +51,7 @@ class ImportMultiTest (BitcoinTestFramework):
             "timestamp": "now",
         }])
         assert_equal(result[0]['success'], True)
-        address_assert = self.nodes[1].validateaddress(address['address'])
+        address_assert = self.nodes[1].getaddressinfo(address['address'])
         assert_equal(address_assert['iswatchonly'], True)
         assert_equal(address_assert['ismine'], False)
         assert_equal(address_assert['timestamp'], timestamp)
@@ -68,21 +71,21 @@ class ImportMultiTest (BitcoinTestFramework):
 
         # ScriptPubKey + internal
         self.log.info("Should import a scriptPubKey with internal flag")
-        address = self.nodes[0].validateaddress(self.nodes[0].getnewaddress())
+        address = self.nodes[0].getaddressinfo(self.nodes[0].getnewaddress())
         result = self.nodes[1].importmulti([{
             "scriptPubKey": address['scriptPubKey'],
             "timestamp": "now",
             "internal": True
         }])
         assert_equal(result[0]['success'], True)
-        address_assert = self.nodes[1].validateaddress(address['address'])
+        address_assert = self.nodes[1].getaddressinfo(address['address'])
         assert_equal(address_assert['iswatchonly'], True)
         assert_equal(address_assert['ismine'], False)
         assert_equal(address_assert['timestamp'], timestamp)
 
         # ScriptPubKey + !internal
         self.log.info("Should not import a scriptPubKey without internal flag")
-        address = self.nodes[0].validateaddress(self.nodes[0].getnewaddress())
+        address = self.nodes[0].getaddressinfo(self.nodes[0].getnewaddress())
         result = self.nodes[1].importmulti([{
             "scriptPubKey": address['scriptPubKey'],
             "timestamp": "now",
@@ -90,24 +93,25 @@ class ImportMultiTest (BitcoinTestFramework):
         assert_equal(result[0]['success'], False)
         assert_equal(result[0]['error']['code'], -8)
         assert_equal(result[0]['error']['message'], 'Internal must be set for hex scriptPubKey')
-        address_assert = self.nodes[1].validateaddress(address['address'])
+        address_assert = self.nodes[1].getaddressinfo(address['address'])
         assert_equal(address_assert['iswatchonly'], False)
         assert_equal(address_assert['ismine'], False)
         assert_equal('timestamp' in address_assert, False)
 
 
-        # Address + Public key + !Internal
+        # Address + Public key + !Internal(explicit)
         self.log.info("Should import an address with public key")
-        address = self.nodes[0].validateaddress(self.nodes[0].getnewaddress())
+        address = self.nodes[0].getaddressinfo(self.nodes[0].getnewaddress())
         result = self.nodes[1].importmulti([{
             "scriptPubKey": {
                 "address": address['address']
             },
             "timestamp": "now",
-            "pubkeys": [ address['pubkey'] ]
+            "pubkeys": [ address['pubkey'] ],
+            "internal": False
         }])
         assert_equal(result[0]['success'], True)
-        address_assert = self.nodes[1].validateaddress(address['address'])
+        address_assert = self.nodes[1].getaddressinfo(address['address'])
         assert_equal(address_assert['iswatchonly'], True)
         assert_equal(address_assert['ismine'], False)
         assert_equal(address_assert['timestamp'], timestamp)
@@ -115,7 +119,7 @@ class ImportMultiTest (BitcoinTestFramework):
 
         # ScriptPubKey + Public key + internal
         self.log.info("Should import a scriptPubKey with internal and with public key")
-        address = self.nodes[0].validateaddress(self.nodes[0].getnewaddress())
+        address = self.nodes[0].getaddressinfo(self.nodes[0].getnewaddress())
         request = [{
             "scriptPubKey": address['scriptPubKey'],
             "timestamp": "now",
@@ -124,14 +128,14 @@ class ImportMultiTest (BitcoinTestFramework):
         }]
         result = self.nodes[1].importmulti(request)
         assert_equal(result[0]['success'], True)
-        address_assert = self.nodes[1].validateaddress(address['address'])
+        address_assert = self.nodes[1].getaddressinfo(address['address'])
         assert_equal(address_assert['iswatchonly'], True)
         assert_equal(address_assert['ismine'], False)
         assert_equal(address_assert['timestamp'], timestamp)
 
         # ScriptPubKey + Public key + !internal
         self.log.info("Should not import a scriptPubKey without internal and with public key")
-        address = self.nodes[0].validateaddress(self.nodes[0].getnewaddress())
+        address = self.nodes[0].getaddressinfo(self.nodes[0].getnewaddress())
         request = [{
             "scriptPubKey": address['scriptPubKey'],
             "timestamp": "now",
@@ -141,14 +145,14 @@ class ImportMultiTest (BitcoinTestFramework):
         assert_equal(result[0]['success'], False)
         assert_equal(result[0]['error']['code'], -8)
         assert_equal(result[0]['error']['message'], 'Internal must be set for hex scriptPubKey')
-        address_assert = self.nodes[1].validateaddress(address['address'])
+        address_assert = self.nodes[1].getaddressinfo(address['address'])
         assert_equal(address_assert['iswatchonly'], False)
         assert_equal(address_assert['ismine'], False)
         assert_equal('timestamp' in address_assert, False)
 
         # Address + Private key + !watchonly
         self.log.info("Should import an address with private key")
-        address = self.nodes[0].validateaddress(self.nodes[0].getnewaddress())
+        address = self.nodes[0].getaddressinfo(self.nodes[0].getnewaddress())
         result = self.nodes[1].importmulti([{
             "scriptPubKey": {
                 "address": address['address']
@@ -157,7 +161,7 @@ class ImportMultiTest (BitcoinTestFramework):
             "keys": [ self.nodes[0].dumpprivkey(address['address']) ]
         }])
         assert_equal(result[0]['success'], True)
-        address_assert = self.nodes[1].validateaddress(address['address'])
+        address_assert = self.nodes[1].getaddressinfo(address['address'])
         assert_equal(address_assert['iswatchonly'], False)
         assert_equal(address_assert['ismine'], True)
         assert_equal(address_assert['timestamp'], timestamp)
@@ -176,7 +180,7 @@ class ImportMultiTest (BitcoinTestFramework):
 
         # Address + Private key + watchonly
         self.log.info("Should not import an address with private key and with watchonly")
-        address = self.nodes[0].validateaddress(self.nodes[0].getnewaddress())
+        address = self.nodes[0].getaddressinfo(self.nodes[0].getnewaddress())
         result = self.nodes[1].importmulti([{
             "scriptPubKey": {
                 "address": address['address']
@@ -188,14 +192,14 @@ class ImportMultiTest (BitcoinTestFramework):
         assert_equal(result[0]['success'], False)
         assert_equal(result[0]['error']['code'], -8)
         assert_equal(result[0]['error']['message'], 'Incompatibility found between watchonly and keys')
-        address_assert = self.nodes[1].validateaddress(address['address'])
+        address_assert = self.nodes[1].getaddressinfo(address['address'])
         assert_equal(address_assert['iswatchonly'], False)
         assert_equal(address_assert['ismine'], False)
         assert_equal('timestamp' in address_assert, False)
 
         # ScriptPubKey + Private key + internal
         self.log.info("Should import a scriptPubKey with internal and with private key")
-        address = self.nodes[0].validateaddress(self.nodes[0].getnewaddress())
+        address = self.nodes[0].getaddressinfo(self.nodes[0].getnewaddress())
         result = self.nodes[1].importmulti([{
             "scriptPubKey": address['scriptPubKey'],
             "timestamp": "now",
@@ -203,14 +207,14 @@ class ImportMultiTest (BitcoinTestFramework):
             "internal": True
         }])
         assert_equal(result[0]['success'], True)
-        address_assert = self.nodes[1].validateaddress(address['address'])
+        address_assert = self.nodes[1].getaddressinfo(address['address'])
         assert_equal(address_assert['iswatchonly'], False)
         assert_equal(address_assert['ismine'], True)
         assert_equal(address_assert['timestamp'], timestamp)
 
         # ScriptPubKey + Private key + !internal
         self.log.info("Should not import a scriptPubKey without internal and with private key")
-        address = self.nodes[0].validateaddress(self.nodes[0].getnewaddress())
+        address = self.nodes[0].getaddressinfo(self.nodes[0].getnewaddress())
         result = self.nodes[1].importmulti([{
             "scriptPubKey": address['scriptPubKey'],
             "timestamp": "now",
@@ -219,19 +223,19 @@ class ImportMultiTest (BitcoinTestFramework):
         assert_equal(result[0]['success'], False)
         assert_equal(result[0]['error']['code'], -8)
         assert_equal(result[0]['error']['message'], 'Internal must be set for hex scriptPubKey')
-        address_assert = self.nodes[1].validateaddress(address['address'])
+        address_assert = self.nodes[1].getaddressinfo(address['address'])
         assert_equal(address_assert['iswatchonly'], False)
         assert_equal(address_assert['ismine'], False)
         assert_equal('timestamp' in address_assert, False)
 
 
         # P2SH address
-        sig_address_1 = self.nodes[0].validateaddress(self.nodes[0].getnewaddress())
-        sig_address_2 = self.nodes[0].validateaddress(self.nodes[0].getnewaddress())
-        sig_address_3 = self.nodes[0].validateaddress(self.nodes[0].getnewaddress())
+        sig_address_1 = self.nodes[0].getaddressinfo(self.nodes[0].getnewaddress())
+        sig_address_2 = self.nodes[0].getaddressinfo(self.nodes[0].getnewaddress())
+        sig_address_3 = self.nodes[0].getaddressinfo(self.nodes[0].getnewaddress())
         multi_sig_script = self.nodes[0].createmultisig(2, [sig_address_1['pubkey'], sig_address_2['pubkey'], sig_address_3['pubkey']])
         self.nodes[1].generate(COINBASE_MATURITY)
-        transactionid = self.nodes[1].sendtoaddress(multi_sig_script['address'], 10.00)
+        self.nodes[1].sendtoaddress(multi_sig_script['address'], 10.00)
         self.nodes[1].generate(1)
         timestamp = self.nodes[1].getblock(self.nodes[1].getbestblockhash())['mediantime']
 
@@ -243,7 +247,7 @@ class ImportMultiTest (BitcoinTestFramework):
             "timestamp": "now",
         }])
         assert_equal(result[0]['success'], True)
-        address_assert = self.nodes[1].validateaddress(multi_sig_script['address'])
+        address_assert = self.nodes[1].getaddressinfo(multi_sig_script['address'])
         assert_equal(address_assert['isscript'], True)
         assert_equal(address_assert['iswatchonly'], True)
         assert_equal(address_assert['timestamp'], timestamp)
@@ -253,12 +257,12 @@ class ImportMultiTest (BitcoinTestFramework):
 
 
         # P2SH + Redeem script
-        sig_address_1 = self.nodes[0].validateaddress(self.nodes[0].getnewaddress())
-        sig_address_2 = self.nodes[0].validateaddress(self.nodes[0].getnewaddress())
-        sig_address_3 = self.nodes[0].validateaddress(self.nodes[0].getnewaddress())
+        sig_address_1 = self.nodes[0].getaddressinfo(self.nodes[0].getnewaddress())
+        sig_address_2 = self.nodes[0].getaddressinfo(self.nodes[0].getnewaddress())
+        sig_address_3 = self.nodes[0].getaddressinfo(self.nodes[0].getnewaddress())
         multi_sig_script = self.nodes[0].createmultisig(2, [sig_address_1['pubkey'], sig_address_2['pubkey'], sig_address_3['pubkey']])
         self.nodes[1].generate(100)
-        transactionid = self.nodes[1].sendtoaddress(multi_sig_script['address'], 10.00)
+        self.nodes[1].sendtoaddress(multi_sig_script['address'], 10.00)
         self.nodes[1].generate(1)
         timestamp = self.nodes[1].getblock(self.nodes[1].getbestblockhash())['mediantime']
 
@@ -271,7 +275,7 @@ class ImportMultiTest (BitcoinTestFramework):
             "redeemscript": multi_sig_script['redeemScript']
         }])
         assert_equal(result[0]['success'], True)
-        address_assert = self.nodes[1].validateaddress(multi_sig_script['address'])
+        address_assert = self.nodes[1].getaddressinfo(multi_sig_script['address'])
         assert_equal(address_assert['timestamp'], timestamp)
 
         p2shunspent = self.nodes[1].listunspent(0,999999, [multi_sig_script['address']])[0]
@@ -280,12 +284,12 @@ class ImportMultiTest (BitcoinTestFramework):
 
 
         # P2SH + Redeem script + Private Keys + !Watchonly
-        sig_address_1 = self.nodes[0].validateaddress(self.nodes[0].getnewaddress())
-        sig_address_2 = self.nodes[0].validateaddress(self.nodes[0].getnewaddress())
-        sig_address_3 = self.nodes[0].validateaddress(self.nodes[0].getnewaddress())
+        sig_address_1 = self.nodes[0].getaddressinfo(self.nodes[0].getnewaddress())
+        sig_address_2 = self.nodes[0].getaddressinfo(self.nodes[0].getnewaddress())
+        sig_address_3 = self.nodes[0].getaddressinfo(self.nodes[0].getnewaddress())
         multi_sig_script = self.nodes[0].createmultisig(2, [sig_address_1['pubkey'], sig_address_2['pubkey'], sig_address_3['pubkey']])
         self.nodes[1].generate(100)
-        transactionid = self.nodes[1].sendtoaddress(multi_sig_script['address'], 10.00)
+        self.nodes[1].sendtoaddress(multi_sig_script['address'], 10.00)
         self.nodes[1].generate(1)
         timestamp = self.nodes[1].getblock(self.nodes[1].getbestblockhash())['mediantime']
 
@@ -299,7 +303,7 @@ class ImportMultiTest (BitcoinTestFramework):
             "keys": [ self.nodes[0].dumpprivkey(sig_address_1['address']), self.nodes[0].dumpprivkey(sig_address_2['address'])]
         }])
         assert_equal(result[0]['success'], True)
-        address_assert = self.nodes[1].validateaddress(multi_sig_script['address'])
+        address_assert = self.nodes[1].getaddressinfo(multi_sig_script['address'])
         assert_equal(address_assert['timestamp'], timestamp)
 
         p2shunspent = self.nodes[1].listunspent(0,999999, [multi_sig_script['address']])[0]
@@ -307,12 +311,12 @@ class ImportMultiTest (BitcoinTestFramework):
         assert_equal(p2shunspent['solvable'], True)
 
         # P2SH + Redeem script + Private Keys + Watchonly
-        sig_address_1 = self.nodes[0].validateaddress(self.nodes[0].getnewaddress())
-        sig_address_2 = self.nodes[0].validateaddress(self.nodes[0].getnewaddress())
-        sig_address_3 = self.nodes[0].validateaddress(self.nodes[0].getnewaddress())
+        sig_address_1 = self.nodes[0].getaddressinfo(self.nodes[0].getnewaddress())
+        sig_address_2 = self.nodes[0].getaddressinfo(self.nodes[0].getnewaddress())
+        sig_address_3 = self.nodes[0].getaddressinfo(self.nodes[0].getnewaddress())
         multi_sig_script = self.nodes[0].createmultisig(2, [sig_address_1['pubkey'], sig_address_2['pubkey'], sig_address_3['pubkey']])
         self.nodes[1].generate(100)
-        transactionid = self.nodes[1].sendtoaddress(multi_sig_script['address'], 10.00)
+        self.nodes[1].sendtoaddress(multi_sig_script['address'], 10.00)
         self.nodes[1].generate(1)
         timestamp = self.nodes[1].getblock(self.nodes[1].getbestblockhash())['mediantime']
 
@@ -333,8 +337,8 @@ class ImportMultiTest (BitcoinTestFramework):
 
         # Address + Public key + !Internal + Wrong pubkey
         self.log.info("Should not import an address with a wrong public key")
-        address = self.nodes[0].validateaddress(self.nodes[0].getnewaddress())
-        address2 = self.nodes[0].validateaddress(self.nodes[0].getnewaddress())
+        address = self.nodes[0].getaddressinfo(self.nodes[0].getnewaddress())
+        address2 = self.nodes[0].getaddressinfo(self.nodes[0].getnewaddress())
         result = self.nodes[1].importmulti([{
             "scriptPubKey": {
                 "address": address['address']
@@ -345,7 +349,7 @@ class ImportMultiTest (BitcoinTestFramework):
         assert_equal(result[0]['success'], False)
         assert_equal(result[0]['error']['code'], -5)
         assert_equal(result[0]['error']['message'], 'Consistency check failed')
-        address_assert = self.nodes[1].validateaddress(address['address'])
+        address_assert = self.nodes[1].getaddressinfo(address['address'])
         assert_equal(address_assert['iswatchonly'], False)
         assert_equal(address_assert['ismine'], False)
         assert_equal('timestamp' in address_assert, False)
@@ -353,8 +357,8 @@ class ImportMultiTest (BitcoinTestFramework):
 
         # ScriptPubKey + Public key + internal + Wrong pubkey
         self.log.info("Should not import a scriptPubKey with internal and with a wrong public key")
-        address = self.nodes[0].validateaddress(self.nodes[0].getnewaddress())
-        address2 = self.nodes[0].validateaddress(self.nodes[0].getnewaddress())
+        address = self.nodes[0].getaddressinfo(self.nodes[0].getnewaddress())
+        address2 = self.nodes[0].getaddressinfo(self.nodes[0].getnewaddress())
         request = [{
             "scriptPubKey": address['scriptPubKey'],
             "timestamp": "now",
@@ -365,7 +369,7 @@ class ImportMultiTest (BitcoinTestFramework):
         assert_equal(result[0]['success'], False)
         assert_equal(result[0]['error']['code'], -5)
         assert_equal(result[0]['error']['message'], 'Consistency check failed')
-        address_assert = self.nodes[1].validateaddress(address['address'])
+        address_assert = self.nodes[1].getaddressinfo(address['address'])
         assert_equal(address_assert['iswatchonly'], False)
         assert_equal(address_assert['ismine'], False)
         assert_equal('timestamp' in address_assert, False)
@@ -373,8 +377,8 @@ class ImportMultiTest (BitcoinTestFramework):
 
         # Address + Private key + !watchonly + Wrong private key
         self.log.info("Should not import an address with a wrong private key")
-        address = self.nodes[0].validateaddress(self.nodes[0].getnewaddress())
-        address2 = self.nodes[0].validateaddress(self.nodes[0].getnewaddress())
+        address = self.nodes[0].getaddressinfo(self.nodes[0].getnewaddress())
+        address2 = self.nodes[0].getaddressinfo(self.nodes[0].getnewaddress())
         result = self.nodes[1].importmulti([{
             "scriptPubKey": {
                 "address": address['address']
@@ -385,7 +389,7 @@ class ImportMultiTest (BitcoinTestFramework):
         assert_equal(result[0]['success'], False)
         assert_equal(result[0]['error']['code'], -5)
         assert_equal(result[0]['error']['message'], 'Consistency check failed')
-        address_assert = self.nodes[1].validateaddress(address['address'])
+        address_assert = self.nodes[1].getaddressinfo(address['address'])
         assert_equal(address_assert['iswatchonly'], False)
         assert_equal(address_assert['ismine'], False)
         assert_equal('timestamp' in address_assert, False)
@@ -393,8 +397,8 @@ class ImportMultiTest (BitcoinTestFramework):
 
         # ScriptPubKey + Private key + internal + Wrong private key
         self.log.info("Should not import a scriptPubKey with internal and with a wrong private key")
-        address = self.nodes[0].validateaddress(self.nodes[0].getnewaddress())
-        address2 = self.nodes[0].validateaddress(self.nodes[0].getnewaddress())
+        address = self.nodes[0].getaddressinfo(self.nodes[0].getnewaddress())
+        address2 = self.nodes[0].getaddressinfo(self.nodes[0].getnewaddress())
         result = self.nodes[1].importmulti([{
             "scriptPubKey": address['scriptPubKey'],
             "timestamp": "now",
@@ -404,7 +408,7 @@ class ImportMultiTest (BitcoinTestFramework):
         assert_equal(result[0]['success'], False)
         assert_equal(result[0]['error']['code'], -5)
         assert_equal(result[0]['error']['message'], 'Consistency check failed')
-        address_assert = self.nodes[1].validateaddress(address['address'])
+        address_assert = self.nodes[1].getaddressinfo(address['address'])
         assert_equal(address_assert['iswatchonly'], False)
         assert_equal(address_assert['ismine'], False)
         assert_equal('timestamp' in address_assert, False)
@@ -420,7 +424,7 @@ class ImportMultiTest (BitcoinTestFramework):
             "timestamp": "now",
         }])
         assert_equal(result[0]['success'], True)
-        address_assert = self.nodes[1].validateaddress(watchonly_address)
+        address_assert = self.nodes[1].getaddressinfo(watchonly_address)
         assert_equal(address_assert['iswatchonly'], True)
         assert_equal(address_assert['ismine'], False)
         assert_equal(address_assert['timestamp'], timestamp)
@@ -430,7 +434,7 @@ class ImportMultiTest (BitcoinTestFramework):
         # restart nodes to check for proper serialization/deserialization of watch only address
         self.stop_nodes()
         self.start_nodes()
-        address_assert = self.nodes[1].validateaddress(watchonly_address)
+        address_assert = self.nodes[1].getaddressinfo(watchonly_address)
         assert_equal(address_assert['iswatchonly'], True)
         assert_equal(address_assert['ismine'], False)
         assert_equal(address_assert['timestamp'], watchonly_timestamp)
