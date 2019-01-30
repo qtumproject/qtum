@@ -601,7 +601,7 @@ ContractExecutionResult QtumHypervisor::execute(){
         result.refundSender = execData.valueSent; //refund all
         return result;
     }
-    if(effects.exitCode == QTUM_EXIT_SUCCESS || effects.exitCode == QTUM_EXIT_HAS_DATA){
+    if(effects.exitCode == QTUM_EXIT_SUCCESS || effects.exitCode == QTUM_EXIT_USER){
         LogPrintf("Execution successful!\n");
         result.status = ContractStatus::Success();
         result.modifiedData = db.getLatestModifiedState();

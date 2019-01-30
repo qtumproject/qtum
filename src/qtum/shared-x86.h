@@ -95,14 +95,14 @@ typedef struct qtum_hash32 { uint8_t data[32]; } __attribute__((__packed__)) qtu
 //These will cause appropriate revert of state etc
 //note, this is the last value pushed onto SCCS upon contract termination
 #define QTUM_EXIT_SUCCESS 0 //successful execution
-#define QTUM_EXIT_HAS_DATA 1 //there is user defined data pushed onto the stack (optional, no consensus function)
+#define QTUM_EXIT_USER 1 //user defined flag (optional, no consensus function, treated the same as success)
 #define QTUM_EXIT_REVERT 2 //execution that reverted state
 #define QTUM_EXIT_ERROR 4 //error execution (which may or may not revert state)
 #define QTUM_EXIT_OUT_OF_GAS 8 //execution which ended in out of gas exception
 #define QTUM_EXIT_CRASH 16 //execution which ended due to CPU or memory errors
 #define QTUM_EXIT_SYSCALL_EXCEPTION 32 //execution which ended due to an exception by a syscall, such as transfering more money than the contract owns
 
-//NOTE: only QTUM_EXIT_SUCCESS, QTUM_EXIT_ERROR, QTUM_EXIT_REVERT, and QTUM_HAS_DATA may be specified by __qtum_terminate
+//NOTE: only QTUM_EXIT_SUCCESS, QTUM_EXIT_ERROR, QTUM_EXIT_REVERT, and QTUM_USER may be specified by __qtum_terminate
 
 
 //ABI type prefixes
