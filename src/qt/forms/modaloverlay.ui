@@ -420,7 +420,7 @@
              <item>
               <widget class="QLabel" name="labelNote">
                <property name="text">
-                <string>IMPORATANT NOTE!</string>
+                <string>IMPORTANT NOTE!</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignCenter</set>
