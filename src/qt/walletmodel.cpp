@@ -140,8 +140,12 @@ void WalletModel::pollBalanceChanged()
 
         if(balanceChanged)
         {
-            updateStakeWeight = true;
             updateCoinAddresses = true;
+        }
+
+        if(balanceChanged || cachedNumBlocksChanged)
+        {
+            updateStakeWeight = true;
         }
     }
 }
