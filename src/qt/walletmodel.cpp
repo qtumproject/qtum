@@ -117,7 +117,9 @@ void WalletModel::pollBalanceChanged()
         return;
     }
 
-    numBlocks = m_node.getNumBlocks();
+    // Get node info
+    bool isSyncing = false;
+    m_node.getInfo(numBlocks, isSyncing);
     bool cachedNumBlocksChanged = numBlocks != cachedNumBlocks;
     if(fForceCheckBalanceChanged || cachedNumBlocksChanged)
     {
@@ -143,7 +145,9 @@ void WalletModel::pollBalanceChanged()
             updateCoinAddresses = true;
         }
 
-        if(balanceChanged || cachedNumBlocksChanged)
+        // The stake weight is used for the staking icon status
+        // Get the stake weight only when not syncing because it is time consuming
+        if(!isSyncing && (balanceChanged || cachedNumBlocksChanged))
         {
             updateStakeWeight = true;
         }

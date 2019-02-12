@@ -252,6 +252,16 @@ class NodeImpl : public Node
         minGasPrice = CAmount(qtumDGP.getMinGasPrice(chainActive.Height()));
         nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
     }
+    void getInfo(int& numBlocks, bool& isSyncing)
+    {
+        LOCK(::cs_main);
+        // Get node info with minimal locks
+        numBlocks = ::chainActive.Height();
+        int64_t blockTime = ::chainActive.Tip() ? ::chainActive.Tip()->GetBlockTime() :
+                                                  Params().GenesisBlock().GetBlockTime();
+        int64_t secs = GetTime() - blockTime;
+        isSyncing = secs >= 90*60 ? true : false;
+    }
     std::unique_ptr<Handler> handleInitMessage(InitMessageFn fn) override
     {
         return MakeHandler(::uiInterface.InitMessage.connect(fn));
