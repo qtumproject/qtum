@@ -117,9 +117,9 @@ void WalletModel::pollBalanceChanged()
         return;
     }
 
-    // Get node info
+    // Get node synchronization information
     bool isSyncing = false;
-    m_node.getInfo(numBlocks, isSyncing);
+    m_node.getSyncInfo(numBlocks, isSyncing);
     bool cachedNumBlocksChanged = numBlocks != cachedNumBlocks;
     if(fForceCheckBalanceChanged || cachedNumBlocksChanged)
     {

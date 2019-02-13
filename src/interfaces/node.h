@@ -158,8 +158,8 @@ public:
     //! Get max tx fee.
     virtual CAmount getMaxTxFee() = 0;
 
-    //! Get node info.
-    virtual void getInfo(int& numBlocks, bool& isSyncing) = 0;
+    //! Get node synchronization information.
+    virtual void getSyncInfo(int& numBlocks, bool& isSyncing) = 0;
 
     //! Estimate smart fee.
     virtual CFeeRate estimateSmartFee(int num_blocks, bool conservative, int* returned_target = nullptr) = 0;

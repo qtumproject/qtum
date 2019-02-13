@@ -252,10 +252,10 @@ class NodeImpl : public Node
         minGasPrice = CAmount(qtumDGP.getMinGasPrice(chainActive.Height()));
         nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
     }
-    void getInfo(int& numBlocks, bool& isSyncing)
+    void getSyncInfo(int& numBlocks, bool& isSyncing)
     {
         LOCK(::cs_main);
-        // Get node info with minimal locks
+        // Get node synchronization information with minimal locks
         numBlocks = ::chainActive.Height();
         int64_t blockTime = ::chainActive.Tip() ? ::chainActive.Tip()->GetBlockTime() :
                                                   Params().GenesisBlock().GetBlockTime();
