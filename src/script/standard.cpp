@@ -42,6 +42,8 @@ const char* GetTxnOutputType(txnouttype t)
     case TX_WITNESS_UNKNOWN: return "witness_unknown";
     case TX_CREATE: return "create";
     case TX_CALL: return "call";
+    case TX_CREATE_SENDER: return "create_sender";
+    case TX_CALL_SENDER: return "call_sender";
     }
     return nullptr;
 }
@@ -70,6 +72,12 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<std::v
 
         // Call contract tx
         mTemplates.insert(std::make_pair(TX_CALL, CScript() << OP_VERSION << OP_GAS_LIMIT << OP_GAS_PRICE << OP_DATA << OP_PUBKEYHASH << OP_CALL));
+
+        // Contract creation tx with sender
+        mTemplates.insert(std::make_pair(TX_CREATE_SENDER, CScript() << OP_ADDRESS_TYPE << OP_ADDRESS << OP_SCRIPT_SIG << OP_SENDER << OP_VERSION << OP_GAS_LIMIT << OP_GAS_PRICE << OP_DATA << OP_CREATE));
+
+        // Call contract tx with sender
+        mTemplates.insert(std::make_pair(TX_CALL_SENDER, CScript() << OP_ADDRESS_TYPE << OP_ADDRESS << OP_SCRIPT_SIG << OP_SENDER << OP_VERSION << OP_GAS_LIMIT << OP_GAS_PRICE << OP_DATA << OP_PUBKEYHASH << OP_CALL));
     }
 
     vSolutionsRet.clear();
@@ -262,6 +270,18 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<std::v
                     if(vch1.empty())
                         break;
                 }
+            }
+            else if(opcode2 == OP_ADDRESS_TYPE)
+            {
+                //TBD
+            }
+            else if(opcode2 == OP_ADDRESS)
+            {
+                //TBD
+            }
+            else if(opcode2 == OP_SCRIPT_SIG)
+            {
+                //TBD
             }
             ///////////////////////////////////////////////////////////
             else if (opcode1 != opcode2 || vch1 != vch2)

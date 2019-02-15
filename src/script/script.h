@@ -185,8 +185,12 @@ enum opcodetype
     OP_CREATE = 0xc1,
     OP_CALL = 0xc2,
     OP_SPEND = 0xc3,
+    OP_SENDER = 0xc4,
 
     // template matching params
+    OP_ADDRESS_TYPE = 0xf2,
+    OP_ADDRESS = 0xf3,
+    OP_SCRIPT_SIG = 0xf4,
     OP_GAS_PRICE = 0xf5,
     OP_VERSION = 0xf6,
     OP_GAS_LIMIT = 0xf7,
@@ -613,9 +617,15 @@ public:
     {
         return Find(OP_CALL) == 1;
     }
+
     bool HasOpSpend() const
     {
         return size()==1 && *begin() == OP_SPEND;
+    }
+
+    bool HasOpSender() const
+    {
+        return Find(OP_SENDER) == 1;
     }
     /////////////////////////////////////////
 
