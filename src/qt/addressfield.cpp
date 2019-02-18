@@ -110,7 +110,14 @@ void AddressField::on_refresh()
     int index = m_stringList.indexOf(currentAddress);
     m_stringModel.setStringList(m_stringList);
     setModel(&m_stringModel);
-    setCurrentIndex(index);
+    if(!isEditable())
+    {
+        setCurrentIndex(index);
+    }
+    else
+    {
+        setCurrentText(currentAddress);
+    }
 }
 
 void AddressField::on_addressTypeChanged()
