@@ -1255,7 +1255,7 @@ template PrecomputedTransactionData::PrecomputedTransactionData(const CTransacti
 template PrecomputedTransactionData::PrecomputedTransactionData(const CMutableTransaction& txTo);
 
 template <class T>
-uint256 SignatureHashOut(const CScript& scriptCode, const T& txTo, unsigned int nOut, int nHashType, const CScript& scriptSender, SigVersion sigversion, const PrecomputedTransactionData* cache)
+uint256 SignatureHashOutput(const CScript& scriptCode, const T& txTo, unsigned int nOut, int nHashType, const CScript& scriptSender, SigVersion sigversion, const PrecomputedTransactionData* cache)
 {
     assert(nOut < txTo.vout.size());
 
@@ -1301,10 +1301,6 @@ uint256 SignatureHashOut(const CScript& scriptCode, const T& txTo, unsigned int 
 
     return ss.GetHash();
 }
-
-// explicit instantiation
-template uint256 SignatureHashOut(const CScript& scriptCode, const CTransaction& txTo, unsigned int nOut, int nHashType, const CScript& scriptSender, SigVersion sigversion, const PrecomputedTransactionData* cache);
-template uint256 SignatureHashOut(const CScript& scriptCode, const CMutableTransaction& txTo, unsigned int nOut, int nHashType, const CScript& scriptSender, SigVersion sigversion, const PrecomputedTransactionData* cache);
 
 template <class T>
 uint256 SignatureHash(const CScript& scriptCode, const T& txTo, unsigned int nIn, int nHashType, const CAmount& amount, SigVersion sigversion, const PrecomputedTransactionData* cache)
@@ -1491,6 +1487,38 @@ bool GenericTransactionSignatureChecker<T>::CheckSequence(const CScriptNum& nSeq
 // explicit instantiation
 template class GenericTransactionSignatureChecker<CTransaction>;
 template class GenericTransactionSignatureChecker<CMutableTransaction>;
+
+template <class T>
+bool GenericTransactionSignatureOutputChecker<T>::VerifySignature(const std::vector<unsigned char>& vchSig, const CPubKey& pubkey, const uint256& sighash) const
+{
+    return pubkey.Verify(sighash, vchSig);
+}
+
+template <class T>
+bool GenericTransactionSignatureOutputChecker<T>::CheckSig(const std::vector<unsigned char>& vchSigIn, const std::vector<unsigned char>& vchPubKey, const CScript& scriptCode, SigVersion sigversion) const
+{
+    CPubKey pubkey(vchPubKey);
+    if (!pubkey.IsValid())
+        return false;
+
+    // Hash type is one byte tacked on to the end of the signature
+    std::vector<unsigned char> vchSig(vchSigIn);
+    if (vchSig.empty())
+        return false;
+    int nHashType = vchSig.back();
+    vchSig.pop_back();
+
+    uint256 sighash = SignatureHashOutput(scriptCode, *txTo, nOut, nHashType, scriptSender, sigversion, this->txdata);
+
+    if (!VerifySignature(vchSig, pubkey, sighash))
+        return false;
+
+    return true;
+}
+
+// explicit instantiation
+template class GenericTransactionSignatureOutputChecker<CTransaction>;
+template class GenericTransactionSignatureOutputChecker<CMutableTransaction>;
 
 static bool VerifyWitnessProgram(const CScriptWitness& witness, int witversion, const std::vector<unsigned char>& program, unsigned int flags, const BaseSignatureChecker& checker, ScriptError* serror)
 {
