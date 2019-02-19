@@ -11,6 +11,7 @@
 #include <pubkey.h>
 #include <script/script.h>
 #include <uint256.h>
+#include <script/standard.h>
 
 
 namespace {
@@ -1252,6 +1253,58 @@ PrecomputedTransactionData::PrecomputedTransactionData(const T& txTo)
 // explicit instantiation
 template PrecomputedTransactionData::PrecomputedTransactionData(const CTransaction& txTo);
 template PrecomputedTransactionData::PrecomputedTransactionData(const CMutableTransaction& txTo);
+
+template <class T>
+uint256 SignatureHashOut(const CScript& scriptCode, const T& txTo, unsigned int nOut, int nHashType, const CScript& scriptSender, SigVersion sigversion, const PrecomputedTransactionData* cache)
+{
+    assert(nOut < txTo.vout.size());
+
+    uint256 hashPrevouts;
+    uint256 hashSequence;
+    uint256 hashOutputs;
+    const bool cacheready = cache && cache->ready;
+
+    if (!(nHashType & SIGHASH_ANYONECANPAY)) {
+        hashPrevouts = cacheready ? cache->hashPrevouts : GetPrevoutHash(txTo);
+    }
+
+    if (!(nHashType & SIGHASH_ANYONECANPAY) && (nHashType & 0x1f) != SIGHASH_SINGLE && (nHashType & 0x1f) != SIGHASH_NONE) {
+        hashSequence = cacheready ? cache->hashSequence : GetSequenceHash(txTo);
+    }
+
+
+    if ((nHashType & 0x1f) != SIGHASH_SINGLE && (nHashType & 0x1f) != SIGHASH_NONE) {
+        hashOutputs = cacheready ? cache->hashOutputs : GetOutputsHash(txTo);
+    } else if ((nHashType & 0x1f) == SIGHASH_SINGLE && nOut < txTo.vout.size()) {
+        CHashWriter ss(SER_GETHASH, 0);
+        ss << txTo.vout[nOut];
+        hashOutputs = ss.GetHash();
+    }
+
+    CHashWriter ss(SER_GETHASH, 0);
+
+    // Version
+    ss << txTo.nVersion;
+    // Input prevouts/nSequence (none/all, depending on flags)
+    ss << hashPrevouts;
+    ss << hashSequence;
+    // The output being signed
+    ss << txTo.vout[nOut];
+    ss << scriptCode;
+    ss << scriptSender;
+    // Outputs (none/one/all, depending on flags)
+    ss << hashOutputs;
+    // Locktime
+    ss << txTo.nLockTime;
+    // Sighash type
+    ss << nHashType;
+
+    return ss.GetHash();
+}
+
+// explicit instantiation
+template uint256 SignatureHashOut(const CScript& scriptCode, const CTransaction& txTo, unsigned int nOut, int nHashType, const CScript& scriptSender, SigVersion sigversion, const PrecomputedTransactionData* cache);
+template uint256 SignatureHashOut(const CScript& scriptCode, const CMutableTransaction& txTo, unsigned int nOut, int nHashType, const CScript& scriptSender, SigVersion sigversion, const PrecomputedTransactionData* cache);
 
 template <class T>
 uint256 SignatureHash(const CScript& scriptCode, const T& txTo, unsigned int nIn, int nHashType, const CAmount& amount, SigVersion sigversion, const PrecomputedTransactionData* cache)

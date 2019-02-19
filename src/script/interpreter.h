@@ -147,6 +147,9 @@ static constexpr size_t WITNESS_V0_KEYHASH_SIZE = 20;
 template <class T>
 uint256 SignatureHash(const CScript& scriptCode, const T& txTo, unsigned int nIn, int nHashType, const CAmount& amount, SigVersion sigversion, const PrecomputedTransactionData* cache = nullptr);
 
+template <class T>
+uint256 SignatureHashOut(const CScript& scriptCode, const T& txTo, unsigned int nOut, int nHashType, const CScript& scriptSender, SigVersion sigversion, const PrecomputedTransactionData* cache = nullptr);
+
 class BaseSignatureChecker
 {
 public:
