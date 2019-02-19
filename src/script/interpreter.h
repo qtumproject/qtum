@@ -207,8 +207,8 @@ protected:
     virtual bool VerifySignature(const std::vector<unsigned char>& vchSig, const CPubKey& vchPubKey, const uint256& sighash) const;
 
 public:
-    GenericTransactionSignatureOutputChecker(const T* txToIn, unsigned int nInOut, const CScript& scriptSenderIn) : txTo(txToIn), nOut(nInOut), scriptSender(scriptSenderIn), txdata(nullptr) {}
-    GenericTransactionSignatureOutputChecker(const T* txToIn, unsigned int nInOut, const CScript& scriptSenderIn, const PrecomputedTransactionData& txdataIn) : txTo(txToIn), nOut(nInOut), scriptSender(scriptSenderIn), txdata(&txdataIn) {}
+    GenericTransactionSignatureOutputChecker(const T* txToIn, unsigned int nOutIn, const CScript& scriptSenderIn) : txTo(txToIn), nOut(nOutIn), scriptSender(scriptSenderIn), txdata(nullptr) {}
+    GenericTransactionSignatureOutputChecker(const T* txToIn, unsigned int nOutIn, const CScript& scriptSenderIn, const PrecomputedTransactionData& txdataIn) : txTo(txToIn), nOut(nOutIn), scriptSender(scriptSenderIn), txdata(&txdataIn) {}
     bool CheckSig(const std::vector<unsigned char>& scriptSig, const std::vector<unsigned char>& vchPubKey, const CScript& scriptCode, SigVersion sigversion) const override;
 };
 

@@ -81,6 +81,20 @@ public:
     bool CreateSig(const SigningProvider& provider, std::vector<unsigned char>& vchSig, const CKeyID& keyid, const CScript& scriptCode, SigVersion sigversion) const override;
 };
 
+/** A signature creator for transactions outputs. */
+class MutableTransactionSignatureOutputCreator : public BaseSignatureCreator {
+    const CMutableTransaction* txTo;
+    unsigned int nOut;
+    int nHashType;
+    CScript scriptSender;
+    const MutableTransactionSignatureOutputChecker checker;
+
+public:
+    MutableTransactionSignatureOutputCreator(const CMutableTransaction* txToIn, unsigned int nOutIn, const CScript& scriptSenderIn, int nHashTypeIn = SIGHASH_ALL);
+    const BaseSignatureChecker& Checker() const override { return checker; }
+    bool CreateSig(const SigningProvider& provider, std::vector<unsigned char>& vchSig, const CKeyID& keyid, const CScript& scriptCode, SigVersion sigversion) const override;
+};
+
 /** A signature creator that just produces 71-byte empty signatures. */
 extern const BaseSignatureCreator& DUMMY_SIGNATURE_CREATOR;
 /** A signature creator that just produces 72-byte empty signatures. */
