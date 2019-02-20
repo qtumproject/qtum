@@ -627,6 +627,8 @@ public:
     {
         return Find(OP_SENDER) == 1;
     }
+
+    CScript WithoutOpSender() const;
     /////////////////////////////////////////
 
     void clear()

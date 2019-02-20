@@ -359,3 +359,16 @@ bool GetScriptOp(CScriptBase::const_iterator& pc, CScriptBase::const_iterator en
     opcodeRet = static_cast<opcodetype>(opcode);
     return true;
 }
+
+CScript CScript::WithoutOpSender() const
+{
+    opcodetype opcode;
+    for (const_iterator pc = begin(); pc != end() && GetOp(pc, opcode);)
+    {
+        if (opcode == OP_SENDER)
+        {
+            return CScript(pc, end());
+        }
+    }
+    return CScript(begin(), end());
+}
