@@ -155,3 +155,24 @@ bool CTransaction::HasOpCall() const
     }
     return false;
 }
+
+template <class T>
+bool hasOpSender(const T& txTo)
+{
+    for(const CTxOut& v : txTo.vout){
+        if(v.scriptPubKey.HasOpSender()){
+            return true;
+        }
+    }
+    return false;
+}
+
+bool CTransaction::HasOpSender() const
+{
+    return hasOpSender(*this);
+}
+
+bool CMutableTransaction::HasOpSender() const
+{
+    return hasOpSender(*this);
+}
