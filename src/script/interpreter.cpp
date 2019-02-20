@@ -1236,6 +1236,28 @@ uint256 GetOutputsHash(const T& txTo)
     return ss.GetHash();
 }
 
+CTxOut GetOutputWithoutSender(const CTxOut& output)
+{
+    return CTxOut(output.nValue, output.scriptPubKey.WithoutOpSender());
+}
+
+template <class T>
+uint256 GetOutputsOpSenderHash(const T& txTo)
+{
+    CHashWriter ss(SER_GETHASH, 0);
+    for (const auto& txout : txTo.vout) {
+        if(txout.scriptPubKey.HasOpSender())
+        {
+            ss << GetOutputWithoutSender(txout);
+        }
+        else
+        {
+            ss << txout;
+        }
+    }
+    return ss.GetHash();
+}
+
 } // namespace
 
 template <class T>
@@ -1246,6 +1268,10 @@ PrecomputedTransactionData::PrecomputedTransactionData(const T& txTo)
         hashPrevouts = GetPrevoutHash(txTo);
         hashSequence = GetSequenceHash(txTo);
         hashOutputs = GetOutputsHash(txTo);
+        if(txTo.HasOpSender())
+        {
+            hashOutputsOpSender = GetOutputsOpSenderHash(txTo);
+        }
         ready = true;
     }
 }
@@ -1274,10 +1300,10 @@ uint256 SignatureHashOutput(const CScript& scriptCode, const T& txTo, unsigned i
 
 
     if ((nHashType & 0x1f) != SIGHASH_SINGLE && (nHashType & 0x1f) != SIGHASH_NONE) {
-        hashOutputs = cacheready ? cache->hashOutputs : GetOutputsHash(txTo);
+        hashOutputs = cacheready ? cache->hashOutputsOpSender : GetOutputsOpSenderHash(txTo);
     } else if ((nHashType & 0x1f) == SIGHASH_SINGLE && nOut < txTo.vout.size()) {
         CHashWriter ss(SER_GETHASH, 0);
-        ss << txTo.vout[nOut];
+        ss << GetOutputWithoutSender(txTo.vout[nOut]);
         hashOutputs = ss.GetHash();
     }
 
@@ -1289,7 +1315,7 @@ uint256 SignatureHashOutput(const CScript& scriptCode, const T& txTo, unsigned i
     ss << hashPrevouts;
     ss << hashSequence;
     // The output being signed
-    ss << txTo.vout[nOut];
+    ss << GetOutputWithoutSender(txTo.vout[nOut]);
     ss << scriptCode;
     ss << scriptSender;
     // Outputs (none/one/all, depending on flags)
