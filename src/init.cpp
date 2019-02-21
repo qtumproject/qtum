@@ -1597,7 +1597,7 @@ bool AppInitMain()
 
                 // Check for changed -logevents state
                 if (fLogEvents != gArgs.GetBoolArg("-logevents", DEFAULT_LOGEVENTS) && !fLogEvents) {
-                    strLoadError = _("You need to rebuild the database using -reindex-chainstate to enable -logevents");
+                    strLoadError = _("You need to rebuild the database using -reindex to enable -logevents");
                     break;
                 }
 
