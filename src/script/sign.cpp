@@ -32,7 +32,7 @@ bool MutableTransactionSignatureCreator::CreateSig(const SigningProvider& provid
     return true;
 }
 
-MutableTransactionSignatureOutputCreator::MutableTransactionSignatureOutputCreator(const CMutableTransaction* txToIn, unsigned int nOutIn, const CScript& scriptSenderIn, int nHashTypeIn) : txTo(txToIn), nOut(nOutIn), nHashType(nHashTypeIn), scriptSender(scriptSenderIn), checker(txTo, nOut, scriptSenderIn) {}
+MutableTransactionSignatureOutputCreator::MutableTransactionSignatureOutputCreator(const CMutableTransaction* txToIn, unsigned int nOutIn, const CAmount& amountIn, int nHashTypeIn) : txTo(txToIn), nOut(nOutIn), nHashType(nHashTypeIn), amount(amountIn), checker(txTo, nOut, amountIn) {}
 
 bool MutableTransactionSignatureOutputCreator::CreateSig(const SigningProvider& provider, std::vector<unsigned char>& vchSig, const CKeyID& address, const CScript& scriptCode, SigVersion sigversion) const
 {
@@ -40,7 +40,7 @@ bool MutableTransactionSignatureOutputCreator::CreateSig(const SigningProvider& 
     if (!provider.GetKey(address, key))
         return false;
 
-    uint256 hash = SignatureHashOutput(scriptCode, *txTo, nOut, nHashType, scriptSender, sigversion);
+    uint256 hash = SignatureHashOutput(scriptCode, *txTo, nOut, nHashType, amount, sigversion);
     if (!key.Sign(hash, vchSig))
         return false;
     vchSig.push_back((unsigned char)nHashType);
@@ -718,5 +718,19 @@ FlatSigningProvider Merge(const FlatSigningProvider& a, const FlatSigningProvide
     ret.pubkeys.insert(b.pubkeys.begin(), b.pubkeys.end());
     ret.keys = a.keys;
     ret.keys.insert(b.keys.begin(), b.keys.end());
+    return ret;
+}
+
+bool UpdateOutput(CTxOut &output, const SignatureData &data)
+{
+    bool ret = false;
+    CDataStream streamSig(SER_NETWORK, PROTOCOL_VERSION);
+    streamSig << data.scriptSig;
+    CScript scriptPubKey;
+    if(output.scriptPubKey.UpdateSenderSig(ToByteVector(streamSig), scriptPubKey))
+    {
+        output.scriptPubKey = scriptPubKey;
+        ret = true;
+    }
     return ret;
 }

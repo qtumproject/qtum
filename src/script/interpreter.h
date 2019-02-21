@@ -148,7 +148,7 @@ template <class T>
 uint256 SignatureHash(const CScript& scriptCode, const T& txTo, unsigned int nIn, int nHashType, const CAmount& amount, SigVersion sigversion, const PrecomputedTransactionData* cache = nullptr);
 
 template <class T>
-uint256 SignatureHashOutput(const CScript& scriptCode, const T& txTo, unsigned int nOut, int nHashType, const CScript& scriptSender, SigVersion sigversion, const PrecomputedTransactionData* cache = nullptr);
+uint256 SignatureHashOutput(const CScript& scriptCode, const T& txTo, unsigned int nOut, int nHashType, const CAmount& amount, SigVersion sigversion, const PrecomputedTransactionData* cache = nullptr);
 
 class BaseSignatureChecker
 {
@@ -200,15 +200,15 @@ class GenericTransactionSignatureOutputChecker : public BaseSignatureChecker
 private:
     const T* txTo;
     unsigned int nOut;
-    const CScript scriptSender;
+    const CAmount amount;
     const PrecomputedTransactionData* txdata;
 
 protected:
     virtual bool VerifySignature(const std::vector<unsigned char>& vchSig, const CPubKey& vchPubKey, const uint256& sighash) const;
 
 public:
-    GenericTransactionSignatureOutputChecker(const T* txToIn, unsigned int nOutIn, const CScript& scriptSenderIn) : txTo(txToIn), nOut(nOutIn), scriptSender(scriptSenderIn), txdata(nullptr) {}
-    GenericTransactionSignatureOutputChecker(const T* txToIn, unsigned int nOutIn, const CScript& scriptSenderIn, const PrecomputedTransactionData& txdataIn) : txTo(txToIn), nOut(nOutIn), scriptSender(scriptSenderIn), txdata(&txdataIn) {}
+    GenericTransactionSignatureOutputChecker(const T* txToIn, unsigned int nOutIn, const CAmount& amountIn) : txTo(txToIn), nOut(nOutIn), amount(amountIn), txdata(nullptr) {}
+    GenericTransactionSignatureOutputChecker(const T* txToIn, unsigned int nOutIn, const CAmount& amountIn, const PrecomputedTransactionData& txdataIn) : txTo(txToIn), nOut(nOutIn), amount(amountIn), txdata(&txdataIn) {}
     bool CheckSig(const std::vector<unsigned char>& scriptSig, const std::vector<unsigned char>& vchPubKey, const CScript& scriptCode, SigVersion sigversion) const override;
 };
 

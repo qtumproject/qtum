@@ -86,11 +86,11 @@ class MutableTransactionSignatureOutputCreator : public BaseSignatureCreator {
     const CMutableTransaction* txTo;
     unsigned int nOut;
     int nHashType;
-    CScript scriptSender;
+    CAmount amount;
     const MutableTransactionSignatureOutputChecker checker;
 
 public:
-    MutableTransactionSignatureOutputCreator(const CMutableTransaction* txToIn, unsigned int nOutIn, const CScript& scriptSenderIn, int nHashTypeIn = SIGHASH_ALL);
+    MutableTransactionSignatureOutputCreator(const CMutableTransaction* txToIn, unsigned int nOutIn, const CAmount& amountIn, int nHashTypeIn = SIGHASH_ALL);
     const BaseSignatureChecker& Checker() const override { return checker; }
     bool CreateSig(const SigningProvider& provider, std::vector<unsigned char>& vchSig, const CKeyID& keyid, const CScript& scriptCode, SigVersion sigversion) const override;
 };
@@ -739,6 +739,8 @@ bool SignPSBTInput(const SigningProvider& provider, PartiallySignedTransaction& 
 /** Extract signature data from a transaction input, and insert it. */
 SignatureData DataFromTransaction(const CMutableTransaction& tx, unsigned int nIn, const CTxOut& txout);
 void UpdateInput(CTxIn& input, const SignatureData& data);
+
+bool UpdateOutput(CTxOut& output, const SignatureData& data);
 
 /* Check whether we know how to sign for an output like this, assuming we
  * have all private keys. While this function does not need private keys, the passed

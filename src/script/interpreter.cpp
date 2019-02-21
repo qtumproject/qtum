@@ -1236,9 +1236,9 @@ uint256 GetOutputsHash(const T& txTo)
     return ss.GetHash();
 }
 
-CTxOut GetOutputWithoutSender(const CTxOut& output)
+CTxOut GetOutputWithoutSenderSig(const CTxOut& output)
 {
-    return CTxOut(output.nValue, output.scriptPubKey.WithoutOpSender());
+    return CTxOut(output.nValue, output.scriptPubKey.WithoutSenderSig());
 }
 
 template <class T>
@@ -1248,7 +1248,7 @@ uint256 GetOutputsOpSenderHash(const T& txTo)
     for (const auto& txout : txTo.vout) {
         if(txout.scriptPubKey.HasOpSender())
         {
-            ss << GetOutputWithoutSender(txout);
+            ss << GetOutputWithoutSenderSig(txout);
         }
         else
         {
@@ -1281,7 +1281,7 @@ template PrecomputedTransactionData::PrecomputedTransactionData(const CTransacti
 template PrecomputedTransactionData::PrecomputedTransactionData(const CMutableTransaction& txTo);
 
 template <class T>
-uint256 SignatureHashOutput(const CScript& scriptCode, const T& txTo, unsigned int nOut, int nHashType, const CScript& scriptSender, SigVersion sigversion, const PrecomputedTransactionData* cache)
+uint256 SignatureHashOutput(const CScript& scriptCode, const T& txTo, unsigned int nOut, int nHashType, const CAmount& amount, SigVersion sigversion, const PrecomputedTransactionData* cache)
 {
     assert(nOut < txTo.vout.size());
 
@@ -1303,7 +1303,7 @@ uint256 SignatureHashOutput(const CScript& scriptCode, const T& txTo, unsigned i
         hashOutputs = cacheready ? cache->hashOutputsOpSender : GetOutputsOpSenderHash(txTo);
     } else if ((nHashType & 0x1f) == SIGHASH_SINGLE && nOut < txTo.vout.size()) {
         CHashWriter ss(SER_GETHASH, 0);
-        ss << GetOutputWithoutSender(txTo.vout[nOut]);
+        ss << GetOutputWithoutSenderSig(txTo.vout[nOut]);
         hashOutputs = ss.GetHash();
     }
 
@@ -1315,9 +1315,9 @@ uint256 SignatureHashOutput(const CScript& scriptCode, const T& txTo, unsigned i
     ss << hashPrevouts;
     ss << hashSequence;
     // The output being signed
-    ss << GetOutputWithoutSender(txTo.vout[nOut]);
+    ss << GetOutputWithoutSenderSig(txTo.vout[nOut]);
     ss << scriptCode;
-    ss << scriptSender;
+    ss << amount;
     // Outputs (none/one/all, depending on flags)
     ss << hashOutputs;
     // Locktime
@@ -1534,7 +1534,7 @@ bool GenericTransactionSignatureOutputChecker<T>::CheckSig(const std::vector<uns
     int nHashType = vchSig.back();
     vchSig.pop_back();
 
-    uint256 sighash = SignatureHashOutput(scriptCode, *txTo, nOut, nHashType, scriptSender, sigversion, this->txdata);
+    uint256 sighash = SignatureHashOutput(scriptCode, *txTo, nOut, nHashType, amount, sigversion, this->txdata);
 
     if (!VerifySignature(vchSig, pubkey, sighash))
         return false;

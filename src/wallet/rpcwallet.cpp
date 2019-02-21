@@ -800,6 +800,16 @@ static UniValue createcontract(const JSONRPCRequest& request){
 
     // Build OP_EXEC script
     CScript scriptPubKey = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(nGasLimit) << CScriptNum(nGasPrice) << ParseHex(bytecode) <<OP_CREATE;
+    if(IsValidDestination(signSenderAddress))
+    {
+        CKeyID key_id = GetKeyForDestination(*pwallet, signSenderAddress);
+        CKey key;
+        if (!pwallet->GetKey(key_id, key)) {
+            throw JSONRPCError(RPC_WALLET_ERROR, "Private key not available");
+        }
+        std::vector<unsigned char> scriptSig;
+        scriptPubKey = (CScript() << CScriptNum(1) << ToByteVector(key_id) << ToByteVector(scriptSig) << OP_SENDER) + scriptPubKey;
+    }
 
     // Create and send the transaction
     CReserveKey reservekey(pwallet);
@@ -1025,6 +1035,16 @@ static UniValue sendtocontract(const JSONRPCRequest& request){
 
     // Build OP_EXEC_ASSIGN script
     CScript scriptPubKey = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(nGasLimit) << CScriptNum(nGasPrice) << ParseHex(datahex) << ParseHex(contractaddress) << OP_CALL;
+    if(IsValidDestination(signSenderAddress))
+    {
+        CKeyID key_id = GetKeyForDestination(*pwallet, signSenderAddress);
+        CKey key;
+        if (!pwallet->GetKey(key_id, key)) {
+            throw JSONRPCError(RPC_WALLET_ERROR, "Private key not available");
+        }
+        std::vector<unsigned char> scriptSig;
+        scriptPubKey = (CScript() << CScriptNum(1) << ToByteVector(key_id) << ToByteVector(scriptSig) << OP_SENDER) + scriptPubKey;
+    }
 
     // Create and send the transaction
     CReserveKey reservekey(pwallet);
