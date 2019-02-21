@@ -1263,8 +1263,8 @@ uint256 GetOutputsOpSenderHash(const T& txTo)
 template <class T>
 PrecomputedTransactionData::PrecomputedTransactionData(const T& txTo)
 {
-    // Cache is calculated only for transactions with witness
-    if (txTo.HasWitness()) {
+    // Cache is calculated only for transactions with witness or those that have op sender output signature
+    if (txTo.HasWitness() || txTo.HasOpSender()) {
         hashPrevouts = GetPrevoutHash(txTo);
         hashSequence = GetSequenceHash(txTo);
         hashOutputs = GetOutputsHash(txTo);
