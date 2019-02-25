@@ -485,3 +485,8 @@ bool IsValidContractSenderAddress(const CTxDestination &dest)
     const CKeyID *keyID = boost::get<CKeyID>(&dest);
     return keyID != 0;
 }
+
+bool ExtractSenderData(const CScript &outputPubKey, CScript *senderPubKey, CScript *senderSig)
+{
+    return false;
+}
