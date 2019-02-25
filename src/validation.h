@@ -661,7 +661,7 @@ class QtumTxConverter{
 
 public:
 
-    QtumTxConverter(CTransaction tx, CCoinsViewCache* v = NULL, const std::vector<CTransactionRef>* blockTxs = NULL) : txBit(tx), view(v), blockTransactions(blockTxs){}
+    QtumTxConverter(CTransaction tx, CCoinsViewCache* v = NULL, const std::vector<CTransactionRef>* blockTxs = NULL) : txBit(tx), view(v), blockTransactions(blockTxs), sender(false){}
 
     bool extractionQtumTransactions(ExtractQtumTX& qtumTx);
 
@@ -673,11 +673,14 @@ private:
 
     QtumTransaction createEthTX(const EthTransactionParams& etp, const uint32_t nOut);
 
+    size_t stackSize(size_t size);
+
     const CTransaction txBit;
     const CCoinsViewCache* view;
     std::vector<valtype> stack;
     opcodetype opcode;
     const std::vector<CTransactionRef> *blockTransactions;
+    bool sender;
 
 };
 

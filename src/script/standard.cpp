@@ -279,12 +279,12 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<std::v
                 try {
                     uint64_t val = CScriptNum::vch_to_uint64(vch1);
                     if(val < 1 && val > 5)
-                        return false;
+                        break;
 
                     addressType = val;
                 }
                 catch (const scriptnum_error &err) {
-                    return false;
+                    break;
                 }
             }
             else if(opcode2 == OP_ADDRESS)
@@ -296,9 +296,7 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<std::v
                     dest = CKeyID(uint160(vch1));
                 }
                 else
-                {
-                    return false;
-                }
+                    break;
 
                 // Get the public key for the destination
                 CScript senderPubKey = GetScriptForDestination(dest);
@@ -311,7 +309,7 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<std::v
                 if(0 <= opcode1 && opcode1 <= OP_PUSHDATA4)
                 {
                     if(vch1.empty())
-                        return false;
+                        break;
 
                     vSolutionsRet.push_back(vch1);
                 }

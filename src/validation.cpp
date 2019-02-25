@@ -2358,16 +2358,19 @@ bool QtumTxConverter::extractionQtumTransactions(ExtractQtumTX& qtumtx){
 }
 
 bool QtumTxConverter::receiveStack(const CScript& scriptPubKey){
+    sender = false;
     EvalScript(stack, scriptPubKey, SCRIPT_EXEC_BYTE_CODE, BaseSignatureChecker(), SigVersion::BASE, nullptr);
     if (stack.empty())
         return false;
 
     CScript scriptRest(stack.back().begin(), stack.back().end());
     stack.pop_back();
+    sender = scriptPubKey.HasOpSender();
 
     opcode = (opcodetype)(*scriptRest.begin());
-    if((opcode == OP_CREATE && stack.size() < 4) || (opcode == OP_CALL && stack.size() < 5)){
+    if((opcode == OP_CREATE && stack.size() < stackSize(4)) || (opcode == OP_CALL && stack.size() < stackSize(5))){
         stack.clear();
+        sender = false;
         return false;
     }
 
@@ -2384,10 +2387,10 @@ bool QtumTxConverter::parseEthTXParams(EthTransactionParams& params){
             stack.pop_back();
             receiveAddress = dev::Address(vecAddr);
         }
-        if(stack.size() < 4)
+        if(stack.size() < stackSize(4))
             return false;
 
-        if(stack.back().size() < 1){
+        if(stack.back().size() < stackSize(1)){
             return false;
         }
         valtype code(stack.back());
@@ -2404,7 +2407,7 @@ bool QtumTxConverter::parseEthTXParams(EthTransactionParams& params){
             //overflows past 64bits, reject this tx
             return false;
         }
-        if(stack.back().size() > 4){
+        if(stack.back().size() > stackSize(4)){
             return false;
         }
         VersionVM version = VersionVM::fromRaw((uint32_t)CScriptNum::vch_to_uint64(stack.back()));
@@ -2437,6 +2440,11 @@ QtumTransaction QtumTxConverter::createEthTX(const EthTransactionParams& etp, ui
     txEth.setVersion(etp.version);
 
     return txEth;
+}
+
+size_t QtumTxConverter::stackSize(size_t size){
+    // OP_SENDER add 3 more parameters in stack besides those for OP_CREATE or OP_CALL
+    return sender ? size + 3 : size;
 }
 ///////////////////////////////////////////////////////////////////////
 
