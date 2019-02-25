@@ -1072,6 +1072,7 @@ bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& 
 
                 //////////////////////////////////////////////////////// qtum
                 case OP_SENDER:
+                    break;
                 case OP_SPEND:
                 {
                     return true; // temp
