@@ -523,20 +523,25 @@ bool ExtractSenderData(const CScript &outputPubKey, CScript *senderPubKey, CScri
     {
         try
         {
+            // Solve the contract with or without contract consensus
             txnouttype typ;
             std::vector<valtype> vSolutions;
-            if (!Solver(outputPubKey, typ, vSolutions))
+            if (!Solver(outputPubKey, typ, vSolutions, true) &&
+                    !Solver(outputPubKey, typ, vSolutions, false))
                 return false;
 
+            // Check the size of the returned data
             if(vSolutions.size() < 2)
                 return false;
 
+            // Get the sender public key
             if(senderPubKey)
             {
                 CDataStream ss(vSolutions[0], SER_NETWORK, PROTOCOL_VERSION);
                 ss >> *senderPubKey;
             }
 
+            // Get the sender signature
             if(senderSig)
             {
                 CDataStream ss(vSolutions[1], SER_NETWORK, PROTOCOL_VERSION);
