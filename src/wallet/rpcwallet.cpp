@@ -66,6 +66,34 @@ std::shared_ptr<CWallet> GetWalletForJSONRPCRequest(const JSONRPCRequest& reques
     return wallets.size() == 1 || (request.fHelp && wallets.size() > 0) ? wallets[0] : nullptr;
 }
 
+bool GetSenderDest(CWallet * const pwallet, const CTransactionRef& tx, CTxDestination& txSenderDest)
+{
+    // Initialize variables
+    CScript senderPubKey;
+
+    // Get sender destination
+    if(tx->HasOpSender())
+    {
+        // Get destination from the outputs
+        for(CTxOut out : tx->vout)
+        {
+            if(out.scriptPubKey.HasOpSender())
+            {
+                ExtractSenderData(out.scriptPubKey, &senderPubKey, 0);
+                break;
+            }
+        }
+    }
+    else
+    {
+        // Get destination from the inputs
+        senderPubKey = pwallet->mapWallet.at(tx->vin[0].prevout.hash).tx->vout[tx->vin[0].prevout.n].scriptPubKey;
+    }
+
+    // Extract destination from script
+    return ExtractDestination(senderPubKey, txSenderDest);
+}
+
 std::string HelpRequiringPassphrase(CWallet * const pwallet)
 {
     return pwallet && pwallet->IsCrypted()
@@ -828,9 +856,9 @@ static UniValue createcontract(const JSONRPCRequest& request){
     }
 
     CTxDestination txSenderDest;
-    ExtractDestination(pwallet->mapWallet.at(tx->vin[0].prevout.hash).tx->vout[tx->vin[0].prevout.n].scriptPubKey,txSenderDest);
+    GetSenderDest(pwallet, tx, txSenderDest);
 
-    if (fHasSender && coinControl.HasSelected() && !(senderAddress == txSenderDest)){
+    if (fHasSender && !(senderAddress == txSenderDest)){
            throw JSONRPCError(RPC_TYPE_ERROR, "Sender could not be set, transaction was not committed!");
     }
 
@@ -1063,9 +1091,9 @@ static UniValue sendtocontract(const JSONRPCRequest& request){
     }
 
     CTxDestination txSenderDest;
-    ExtractDestination(pwallet->mapWallet.at(tx->vin[0].prevout.hash).tx->vout[tx->vin[0].prevout.n].scriptPubKey,txSenderDest);
+    GetSenderDest(pwallet, tx, txSenderDest);
 
-    if (fHasSender && coinControl.HasSelected() && !(senderAddress == txSenderDest)){
+    if (fHasSender && !(senderAddress == txSenderDest)){
         throw JSONRPCError(RPC_TYPE_ERROR, "Sender could not be set, transaction was not committed!");
     }
 
