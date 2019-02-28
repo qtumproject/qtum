@@ -31,6 +31,9 @@ static const int MAX_PUBKEYS_PER_MULTISIG = 20;
 // Maximum script length in bytes
 static const int MAX_SCRIPT_SIZE = 129000; // (129 kb)
 
+// Maximum base script length in bytes
+static const int MAX_BASE_SCRIPT_SIZE = 10000;
+
 // Maximum number of values on script interpreter stack
 static const int MAX_STACK_SIZE = 1000;
 

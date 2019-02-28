@@ -311,6 +311,10 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<std::v
                     if(vch1.empty())
                         break;
 
+                    // Check the max size of the signature script
+                    if(vch1.size() > MAX_BASE_SCRIPT_SIZE)
+                        return false;
+
                     vSolutionsRet.push_back(vch1);
                 }
             }
