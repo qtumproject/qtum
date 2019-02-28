@@ -68,10 +68,15 @@ public:
     VersionVM getVersion() const{
         return version;
     }
+
+    void setRefundSender(const dev::Address _refundSender) { refundSender = _refundSender; }
+
+    dev::Address getRefundSender() const { return refundSender; }
+
 private:
 
     uint32_t nVout;
     VersionVM version;
-
+    dev::Address refundSender;
 };
 #endif

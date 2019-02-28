@@ -2151,12 +2151,13 @@ bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, cons
     return true;
 }
 
-valtype GetSenderAddress(const CTransaction& tx, const CCoinsViewCache* coinsView, const std::vector<CTransactionRef>* blockTxs, uint32_t nOut){
+valtype GetSenderAddress(const CTransaction& tx, const CCoinsViewCache* coinsView, const std::vector<CTransactionRef>* blockTxs, int nOut = -1){
     CScript script;
     bool scriptFilled=false; //can't use script.empty() because an empty script is technically valid
 
     // Try get the sender script from the output script
-    scriptFilled = ExtractSenderData(tx.vout[nOut].scriptPubKey, &script, nullptr);
+    if(nOut > -1)
+        scriptFilled = ExtractSenderData(tx.vout[nOut].scriptPubKey, &script, nullptr);
 
     // Check the current (or in-progress) block for zero-confirmation change spending that won't yet be in txindex
     if(!scriptFilled && blockTxs){
@@ -2307,7 +2308,8 @@ bool ByteCodeExec::processingResults(ByteCodeExecResult& resultBCE){
                 return false;
             }
             if(amount > 0){
-                CScript script(CScript() << OP_DUP << OP_HASH160 << txs[i].sender().asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
+                // Refund the rest of the amount to the sender that provide the coins for the contract
+                CScript script(CScript() << OP_DUP << OP_HASH160 << txs[i].getRefundSender().asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
                 resultBCE.refundOutputs.push_back(CTxOut(amount, script));
                 resultBCE.refundSender += amount;
             }
@@ -2360,6 +2362,10 @@ dev::Address ByteCodeExec::EthAddrFromScript(const CScript& script){
 }
 
 bool QtumTxConverter::extractionQtumTransactions(ExtractQtumTX& qtumtx){
+    // Get the address of the sender that pay the coins for the contract transactions
+    refundSender = dev::Address(GetSenderAddress(txBit, view, blockTransactions));
+
+    // Extract contract transactions
     std::vector<QtumTransaction> resultTX;
     std::vector<EthTransactionParams> resultETP;
     for(size_t i = 0; i < txBit.vout.size(); i++){
@@ -2457,11 +2463,12 @@ QtumTransaction QtumTxConverter::createEthTX(const EthTransactionParams& etp, ui
     else{
         txEth = QtumTransaction(txBit.vout[nOut].nValue, etp.gasPrice, etp.gasLimit, etp.receiveAddress, etp.code, dev::u256(0));
     }
-    dev::Address sender(GetSenderAddress(txBit, view, blockTransactions, nOut));
+    dev::Address sender(GetSenderAddress(txBit, view, blockTransactions, (int)nOut));
     txEth.forceSender(sender);
     txEth.setHashWith(uintToh256(txBit.GetHash()));
     txEth.setNVout(nOut);
     txEth.setVersion(etp.version);
+    txEth.setRefundSender(refundSender);
 
     return txEth;
 }

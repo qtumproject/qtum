@@ -687,7 +687,7 @@ private:
     opcodetype opcode;
     const std::vector<CTransactionRef> *blockTransactions;
     bool sender;
-
+    dev::Address refundSender;
 };
 
 class ByteCodeExec {
