@@ -629,6 +629,8 @@ bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, cons
 //////////////////////////////////////////////////////// qtum
 std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, const dev::Address& sender = dev::Address(), uint64_t gasLimit=0);
 
+bool CheckOpSender(const CTransaction& tx);
+
 bool CheckSenderScript(const CCoinsViewCache& view, const CTransaction& tx);
 
 bool CheckMinGasPrice(std::vector<EthTransactionParams>& etps, const uint64_t& minGasPrice);

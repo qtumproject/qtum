@@ -744,6 +744,9 @@ static bool AcceptToMemoryPoolWorker(const CChainParams& chainparams, CTxMemPool
         dev::u256 txMinGasPrice = 0;
 
         //////////////////////////////////////////////////////////// // qtum
+        if(!CheckOpSender(tx)){
+            return state.DoS(100, false, REJECT_INVALID, "bad-txns-invalid-sender");
+        }
         if(tx.HasCreateOrCall()){
 
             if(!CheckSenderScript(view, tx)){
@@ -2024,6 +2027,24 @@ static int64_t nTimeTotal = 0;
 static int64_t nBlocksTotal = 0;
 
 /////////////////////////////////////////////////////////////////////// qtum
+bool CheckOpSender(const CTransaction& tx){
+    if(!tx.HasOpSender())
+        return true;
+
+    // Check that the sender address inside the output is only valid for contract outputs
+    for (const CTxOut& txout : tx.vout)
+    {
+        if(txout.scriptPubKey.HasOpSender() &&
+                !(txout.scriptPubKey.HasOpCreate() ||
+                  txout.scriptPubKey.HasOpCall()))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 bool CheckSenderScript(const CCoinsViewCache& view, const CTransaction& tx){
     // Check for the sender that pays the coins
     CScript script = view.AccessCoin(tx.vin[0].prevout).out.scriptPubKey;
@@ -2031,11 +2052,11 @@ bool CheckSenderScript(const CCoinsViewCache& view, const CTransaction& tx){
         return false;
     }
 
-    // Check for additional EVM sender
+    // Check for additional VM sender
     if(!tx.HasOpSender())
         return true;
 
-    // Check for the EVM sender that is encoded into the output
+    // Check for the VM sender that is encoded into the output
     for (const CTxOut& txout : tx.vout)
     {
         if(txout.scriptPubKey.HasOpSender())
@@ -2045,7 +2066,7 @@ bool CheckSenderScript(const CCoinsViewCache& view, const CTransaction& tx){
             if(!ExtractSenderData(txout.scriptPubKey, &senderPubKey, &senderSig))
                 return false;
 
-            // Check that the pub key is valid sender that can be used in the EVM
+            // Check that the pub key is valid sender that can be used in the VM
             if(!senderPubKey.IsPayToPubkeyHash() && !senderPubKey.IsPayToPubkey())
                 return false;
 
@@ -2824,6 +2845,9 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
         }
 
 ///////////////////////////////////////////////////////////////////////////////////////// qtum
+        if(!CheckOpSender(tx)){
+            return state.DoS(100, false, REJECT_INVALID, "bad-txns-invalid-sender");
+        }
         if(!tx.HasOpSpend()){
             checkBlock.vtx.push_back(block.vtx[i]);
         }
