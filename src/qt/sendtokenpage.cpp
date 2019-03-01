@@ -196,6 +196,10 @@ void SendTokenPage::on_confirmClicked()
                 tokenTx.label = label;
                 m_model->wallet().addTokenTxEntry(tokenTx);
             }
+            else
+            {
+                QMessageBox::warning(this, tr("Send token"), QString::fromStdString(m_tokenABI->getErrorMessage()));
+            }
             clearAll();
         }
     }
