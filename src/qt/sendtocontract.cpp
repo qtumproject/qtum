@@ -84,7 +84,6 @@ SendToContract::SendToContract(const PlatformStyle *platformStyle, QWidget *pare
     ui->textEditInterface->setIsValidManually(true);
     ui->pushButtonSendToContract->setEnabled(false);
     ui->lineEditSenderAddress->setSenderAddress(true);
-    ui->lineEditSenderAddress->setComboBoxEditable(true);
 
     // Create new PRC command line interface
     QStringList lstMandatory;

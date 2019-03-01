@@ -22,7 +22,7 @@ AddressField::AddressField(QWidget *parent) :
     m_addressColumn(0),
     m_typeRole(Qt::UserRole),
     m_senderAddress(false),
-    m_includeZeroValue(false)
+    m_includeZeroValue(true)
 
 {
     // Set editable state
@@ -88,7 +88,7 @@ void AddressField::on_refresh()
         {
             QStringList addresses;
 
-            // Add all available addresses if 0 address ballance for token is enabled
+            // Add all available addresses
             if(m_includeZeroValue)
             {
                 // Include zero or unconfirmed coins too
@@ -110,14 +110,7 @@ void AddressField::on_refresh()
     int index = m_stringList.indexOf(currentAddress);
     m_stringModel.setStringList(m_stringList);
     setModel(&m_stringModel);
-    if(!isEditable())
-    {
-        setCurrentIndex(index);
-    }
-    else
-    {
-        setCurrentText(currentAddress);
-    }
+    setCurrentIndex(index);
 }
 
 void AddressField::on_addressTypeChanged()
