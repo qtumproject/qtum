@@ -22,7 +22,8 @@ AddressField::AddressField(QWidget *parent) :
     m_addressColumn(0),
     m_typeRole(Qt::UserRole),
     m_senderAddress(false),
-    m_includeZeroValue(true)
+    m_includeZeroValue(false),
+    m_isSetIncludeZeroValue(false)
 
 {
     // Set editable state
@@ -155,14 +156,20 @@ void AddressField::setWalletModel(WalletModel *walletModel)
 {
     m_walletModel = walletModel;
 
-    connect(m_walletModel, SIGNAL(availableAddressesChanged(QStringList,QStringList)), this, SLOT(on_availableAddressesChanged(QStringList,QStringList)));
+    connect(m_walletModel, SIGNAL(availableAddressesChanged(QStringList,QStringList,bool)), this, SLOT(on_availableAddressesChanged(QStringList,QStringList,bool)));
 }
 
-void AddressField::on_availableAddressesChanged(QStringList spendableAddresses, QStringList allAddresses)
+void AddressField::on_availableAddressesChanged(QStringList spendableAddresses, QStringList allAddresses, bool includeZeroValue)
 {
     // The addresses are checked that are mine in the model
     m_spendableAddresses = spendableAddresses;
     m_allAddresses = allAddresses;
+
+    // Use the slot value as default in case the Include Zero Value is not set in the component
+    if(!m_isSetIncludeZeroValue)
+    {
+        m_includeZeroValue = includeZeroValue;
+    }
 
     on_refresh();
 }
@@ -170,6 +177,7 @@ void AddressField::on_availableAddressesChanged(QStringList spendableAddresses, 
 void AddressField::setIncludeZeroValue(bool includeZeroValue)
 {
     m_includeZeroValue = includeZeroValue;
+    m_isSetIncludeZeroValue = true;
 
     on_refresh();
 }
