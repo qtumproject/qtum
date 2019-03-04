@@ -744,7 +744,7 @@ static bool AcceptToMemoryPoolWorker(const CChainParams& chainparams, CTxMemPool
         dev::u256 txMinGasPrice = 0;
 
         //////////////////////////////////////////////////////////// // qtum
-        if(!CheckOpSender(tx)){
+        if(!CheckOpSender(tx, chainparams, GetSpendHeight(view))){
             return state.DoS(100, false, REJECT_INVALID, "bad-txns-invalid-sender");
         }
         if(tx.HasCreateOrCall()){
@@ -2027,9 +2027,12 @@ static int64_t nTimeTotal = 0;
 static int64_t nBlocksTotal = 0;
 
 /////////////////////////////////////////////////////////////////////// qtum
-bool CheckOpSender(const CTransaction& tx){
+bool CheckOpSender(const CTransaction& tx, const CChainParams& chainparams, int nHeight){
     if(!tx.HasOpSender())
         return true;
+
+    if(!(nHeight >= chainparams.GetConsensus().QIP5Height))
+        return false;
 
     // Check that the sender address inside the output is only valid for contract outputs
     for (const CTxOut& txout : tx.vout)
@@ -2845,7 +2848,7 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
         }
 
 ///////////////////////////////////////////////////////////////////////////////////////// qtum
-        if(!CheckOpSender(tx)){
+        if(!CheckOpSender(tx, chainparams, pindex->nHeight)){
             return state.DoS(100, false, REJECT_INVALID, "bad-txns-invalid-sender");
         }
         if(!tx.HasOpSpend()){
