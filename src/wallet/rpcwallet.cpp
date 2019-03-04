@@ -32,6 +32,7 @@
 #include <wallet/walletdb.h>
 #include <wallet/walletutil.h>
 #include <miner.h>
+#include <chainparams.h>
 
 #include <stdint.h>
 
@@ -809,6 +810,11 @@ static UniValue createcontract(const JSONRPCRequest& request){
         }
         else
         {
+            // Create op sender transaction when op sender is activated
+            int nHeight = chainActive.Height();
+            if(!(nHeight >= Params().GetConsensus().QIP5Height))
+                throw JSONRPCError(RPC_TYPE_ERROR, "Sender address does not have any unspent outputs");
+
             // Sign the sender in case of no UTXO
             signSenderAddress = senderAddress;
         }
@@ -1043,6 +1049,11 @@ static UniValue sendtocontract(const JSONRPCRequest& request){
         }
         else
         {
+            // Create op sender transaction when op sender is activated
+            int nHeight = chainActive.Height();
+            if(!(nHeight >= Params().GetConsensus().QIP5Height))
+                throw JSONRPCError(RPC_TYPE_ERROR, "Sender address does not have any unspent outputs");
+
             // Sign the sender in case of no UTXO
             signSenderAddress = senderAddress;
         }
