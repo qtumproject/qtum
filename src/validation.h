@@ -681,7 +681,7 @@ private:
 
     QtumTransaction createEthTX(const EthTransactionParams& etp, const uint32_t nOut);
 
-    size_t stackSize(size_t size);
+    size_t correctedStackSize(size_t size);
 
     const CTransaction txBit;
     const CCoinsViewCache* view;

@@ -2460,7 +2460,7 @@ bool QtumTxConverter::receiveStack(const CScript& scriptPubKey){
     sender = scriptPubKey.HasOpSender();
 
     opcode = (opcodetype)(*scriptRest.begin());
-    if((opcode == OP_CREATE && stack.size() < stackSize(4)) || (opcode == OP_CALL && stack.size() < stackSize(5))){
+    if((opcode == OP_CREATE && stack.size() < correctedStackSize(4)) || (opcode == OP_CALL && stack.size() < correctedStackSize(5))){
         stack.clear();
         sender = false;
         return false;
@@ -2479,10 +2479,10 @@ bool QtumTxConverter::parseEthTXParams(EthTransactionParams& params){
             stack.pop_back();
             receiveAddress = dev::Address(vecAddr);
         }
-        if(stack.size() < stackSize(4))
+        if(stack.size() < correctedStackSize(4))
             return false;
 
-        if(stack.back().size() < stackSize(1)){
+        if(stack.back().size() < correctedStackSize(1)){
             return false;
         }
         valtype code(stack.back());
@@ -2499,7 +2499,7 @@ bool QtumTxConverter::parseEthTXParams(EthTransactionParams& params){
             //overflows past 64bits, reject this tx
             return false;
         }
-        if(stack.back().size() > stackSize(4)){
+        if(stack.back().size() > correctedStackSize(4)){
             return false;
         }
         VersionVM version = VersionVM::fromRaw((uint32_t)CScriptNum::vch_to_uint64(stack.back()));
@@ -2535,7 +2535,7 @@ QtumTransaction QtumTxConverter::createEthTX(const EthTransactionParams& etp, ui
     return txEth;
 }
 
-size_t QtumTxConverter::stackSize(size_t size){
+size_t QtumTxConverter::correctedStackSize(size_t size){
     // OP_SENDER add 3 more parameters in stack besides those for OP_CREATE or OP_CALL
     return sender ? size + 3 : size;
 }
