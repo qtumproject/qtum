@@ -842,7 +842,7 @@ static UniValue createcontract(const JSONRPCRequest& request){
             throw JSONRPCError(RPC_WALLET_ERROR, "Private key not available");
         }
         std::vector<unsigned char> scriptSig;
-        scriptPubKey = (CScript() << CScriptNum(1) << ToByteVector(key_id) << ToByteVector(scriptSig) << OP_SENDER) + scriptPubKey;
+        scriptPubKey = (CScript() << CScriptNum(addresstype::PUBKEYHASH) << ToByteVector(key_id) << ToByteVector(scriptSig) << OP_SENDER) + scriptPubKey;
     }
 
     // Create and send the transaction
@@ -1082,7 +1082,7 @@ static UniValue sendtocontract(const JSONRPCRequest& request){
             throw JSONRPCError(RPC_WALLET_ERROR, "Private key not available");
         }
         std::vector<unsigned char> scriptSig;
-        scriptPubKey = (CScript() << CScriptNum(1) << ToByteVector(key_id) << ToByteVector(scriptSig) << OP_SENDER) + scriptPubKey;
+        scriptPubKey = (CScript() << CScriptNum(addresstype::PUBKEYHASH) << ToByteVector(key_id) << ToByteVector(scriptSig) << OP_SENDER) + scriptPubKey;
     }
 
     // Create and send the transaction

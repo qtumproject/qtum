@@ -278,7 +278,7 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<std::v
             {
                 try {
                     uint64_t val = CScriptNum::vch_to_uint64(vch1);
-                    if(val < 1 && val > 5)
+                    if(val < addresstype::PUBKEYHASH || val > addresstype::NONSTANDARD)
                         break;
 
                     addressType = val;
@@ -291,7 +291,7 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<std::v
             {
                 // Get the destination
                 CTxDestination dest;
-                if(addressType == 1 && vch1.size() == sizeof(CKeyID))
+                if(addressType == addresstype::PUBKEYHASH && vch1.size() == sizeof(CKeyID))
                 {
                     dest = CKeyID(uint160(vch1));
                 }
