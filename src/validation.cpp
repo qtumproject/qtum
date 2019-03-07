@@ -2037,12 +2037,17 @@ bool CheckOpSender(const CTransaction& tx, const CChainParams& chainparams, int 
     // Check that the sender address inside the output is only valid for contract outputs
     for (const CTxOut& txout : tx.vout)
     {
-        if(txout.scriptPubKey.HasOpSender() &&
+        bool hashOpSender = txout.scriptPubKey.HasOpSender();
+        if(hashOpSender &&
                 !(txout.scriptPubKey.HasOpCreate() ||
                   txout.scriptPubKey.HasOpCall()))
         {
             return false;
         }
+
+        // Solve the script that match the sender templates
+        if(hashOpSender && !ExtractSenderData(txout.scriptPubKey, nullptr, nullptr))
+            return false;
     }
 
     return true;
@@ -4314,8 +4319,8 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
             return state.DoS(100, false, REJECT_INVALID, "bad-cb-multiple", false, "more than one coinbase");
 
     //Don't allow contract opcodes in coinbase
-    if(block.vtx[0]->HasOpSpend() || block.vtx[0]->HasCreateOrCall()){
-        return state.DoS(100, false, REJECT_INVALID, "bad-cb-contract", false, "coinbase must not contain OP_SPEND, OP_CALL, or OP_CREATE");
+    if(block.vtx[0]->HasOpSpend() || block.vtx[0]->HasCreateOrCall() || block.vtx[0]->HasOpSender()){
+        return state.DoS(100, false, REJECT_INVALID, "bad-cb-contract", false, "coinbase must not contain OP_SPEND, OP_CALL, OP_CREATE or OP_SENDER");
     }
 
     // Second transaction must be coinbase in case of PoS block, the rest must not be
@@ -4340,8 +4345,8 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
 
         //Don't allow contract opcodes in coinstake
         //We might allow this later, but it hasn't been tested enough to determine if safe
-        if(block.vtx[1]->HasOpSpend() || block.vtx[1]->HasCreateOrCall()){
-            return state.DoS(100, false, REJECT_INVALID, "bad-cs-contract", false, "coinstake must not contain OP_SPEND, OP_CALL, or OP_CREATE");
+        if(block.vtx[1]->HasOpSpend() || block.vtx[1]->HasCreateOrCall() || block.vtx[1]->HasOpSender()){
+            return state.DoS(100, false, REJECT_INVALID, "bad-cs-contract", false, "coinstake must not contain OP_SPEND, OP_CALL, OP_CREATE or OP_SENDER");
         }
     }
 
