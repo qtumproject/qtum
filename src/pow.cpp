@@ -55,7 +55,7 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
         {
             // Return the last non-special-min-difficulty-rules-block
             const CBlockIndex* pindex = pindexLast;
-            while (pindex->pprev && pindex->nHeight % params.DifficultyAdjustmentInterval() != 0 && pindex->nBits == nTargetLimit)
+            while (pindex->pprev && pindex->nHeight % params.DifficultyAdjustmentInterval(pindex->nHeight) != 0 && pindex->nBits == nTargetLimit)
                 pindex = pindex->pprev;
             return pindex->nBits;
         }
@@ -88,7 +88,7 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
     // ppcoin: retarget with exponential moving toward target spacing
     arith_uint256 bnNew;
     bnNew.SetCompact(pindexLast->nBits);
-    int64_t nInterval = params.DifficultyAdjustmentInterval();
+    int64_t nInterval = params.DifficultyAdjustmentInterval(pindexLast->nHeight);
     bnNew *= ((nInterval - 1) * nTargetSpacing + nActualSpacing + nActualSpacing);
     bnNew /= ((nInterval + 1) * nTargetSpacing);
 
