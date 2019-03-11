@@ -111,6 +111,13 @@ double GetPoSKernelPS()
     CBlockIndex* pindex = pindexBestHeader;
     CBlockIndex* pindexPrevStake = NULL;
 
+    const Consensus::Params& consensusParams = Params().GetConsensus();
+    bool dynamicStakeSpacing = true;
+    if(pindex)
+    {
+        dynamicStakeSpacing = pindex->nHeight < consensusParams.QIP9Height;
+    }
+
     while (pindex && nStakesHandled < nPoSInterval)
     {
         if (pindex->IsProofOfStake())
@@ -118,13 +125,20 @@ double GetPoSKernelPS()
             if (pindexPrevStake)
             {
                 dStakeKernelsTriedAvg += GetDifficulty(pindexPrevStake) * 4294967296.0;
-                nStakesTime += pindexPrevStake->nTime - pindex->nTime;
+                if(dynamicStakeSpacing)
+                    nStakesTime += pindexPrevStake->nTime - pindex->nTime;
                 nStakesHandled++;
             }
             pindexPrevStake = pindex;
         }
 
         pindex = pindex->pprev;
+    }
+
+    if(!dynamicStakeSpacing)
+    {
+        // Using a fixed denominator reduces the variation spikes
+        nStakesTime = consensusParams.nPowTargetSpacing * nStakesHandled;
     }
 
     double result = 0;
