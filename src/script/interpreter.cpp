@@ -1228,6 +1228,22 @@ uint256 GetSequenceHash(const T& txTo)
 }
 
 template <class T>
+uint256 GetFirstPrevoutHash(const T& txTo)
+{
+    CHashWriter ss(SER_GETHASH, 0);
+    ss << txTo.vin[0].prevout;
+    return ss.GetHash();
+}
+
+template <class T>
+uint256 GetFirstSequenceHash(const T& txTo)
+{
+    CHashWriter ss(SER_GETHASH, 0);
+    ss << txTo.vin[0].nSequence;
+    return ss.GetHash();
+}
+
+template <class T>
 uint256 GetOutputsHash(const T& txTo)
 {
     CHashWriter ss(SER_GETHASH, 0);
@@ -1291,6 +1307,12 @@ uint256 SignatureHashOutput(const CScript& scriptCode, const T& txTo, unsigned i
     uint256 hashOutputs;
     const bool cacheready = cache && cache->ready;
 
+    if (nHashType & SIGHASH_ANYONECANPAY) {
+        assert(0 < txTo.vin.size());
+        hashPrevouts = GetFirstPrevoutHash(txTo);
+        hashSequence = GetFirstSequenceHash(txTo);
+    }
+
     if (!(nHashType & SIGHASH_ANYONECANPAY)) {
         hashPrevouts = cacheready ? cache->hashPrevouts : GetPrevoutHash(txTo);
     }
@@ -1312,7 +1334,7 @@ uint256 SignatureHashOutput(const CScript& scriptCode, const T& txTo, unsigned i
 
     // Version
     ss << txTo.nVersion;
-    // Input prevouts/nSequence (none/all, depending on flags)
+    // Input prevouts/nSequence (none/first/all, depending on flags)
     ss << hashPrevouts;
     ss << hashSequence;
     // The output being signed
