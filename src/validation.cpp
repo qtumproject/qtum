@@ -2487,7 +2487,7 @@ bool QtumTxConverter::parseEthTXParams(EthTransactionParams& params){
         if(stack.size() < correctedStackSize(4))
             return false;
 
-        if(stack.back().size() < correctedStackSize(1)){
+        if(stack.back().size() < 1){
             return false;
         }
         valtype code(stack.back());
@@ -2504,7 +2504,7 @@ bool QtumTxConverter::parseEthTXParams(EthTransactionParams& params){
             //overflows past 64bits, reject this tx
             return false;
         }
-        if(stack.back().size() > correctedStackSize(4)){
+        if(stack.back().size() > 4){
             return false;
         }
         VersionVM version = VersionVM::fromRaw((uint32_t)CScriptNum::vch_to_uint64(stack.back()));
