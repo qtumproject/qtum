@@ -378,6 +378,8 @@ std::string CopyrightHolders(const std::string& strPrefix);
 
 bool CheckHex(const std::string& str);
 
+void ReplaceInt(const int64_t& number, const std::string& key, std::string& str);
+
 /**
  * On platforms that support it, tell the kernel the calling thread is
  * CPU-intensive and non-interactive. See SCHED_BATCH in sched(7) for details.

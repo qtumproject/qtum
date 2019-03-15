@@ -10,6 +10,7 @@
 #include <consensus/params.h>
 #include <primitives/block.h>
 #include <protocol.h>
+#include <libethashseal/GenesisInfo.h>
 
 #include <memory>
 #include <vector>
@@ -81,6 +82,7 @@ public:
     const CCheckpointData& Checkpoints() const { return checkpointData; }
     const ChainTxData& TxData() const { return chainTxData; }
     void UpdateVersionBitsParameters(Consensus::DeploymentPos d, int64_t nStartTime, int64_t nTimeout);
+    std::string EVMGenesisInfo(dev::eth::Network network) const;
 protected:
     CChainParams() {}
 
