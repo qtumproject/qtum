@@ -627,6 +627,8 @@ inline bool IsBlockPruned(const CBlockIndex* pblockindex)
 bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, const Consensus::Params& consensusParams, CAmount nFees, CAmount gasRefunds, CAmount nActualStakeReward, const std::vector<CTxOut>& vouts);
 
 //////////////////////////////////////////////////////// qtum
+unsigned int GetContractScriptFlags(int nHeight, const Consensus::Params& consensusparams);
+
 std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, const dev::Address& sender = dev::Address(), uint64_t gasLimit=0);
 
 bool CheckOpSender(const CTransaction& tx, const CChainParams& chainparams, int nHeight);
@@ -669,7 +671,7 @@ class QtumTxConverter{
 
 public:
 
-    QtumTxConverter(CTransaction tx, CCoinsViewCache* v = NULL, const std::vector<CTransactionRef>* blockTxs = NULL) : txBit(tx), view(v), blockTransactions(blockTxs), sender(false){}
+    QtumTxConverter(CTransaction tx, CCoinsViewCache* v = NULL, const std::vector<CTransactionRef>* blockTxs = NULL, unsigned int flags = SCRIPT_EXEC_BYTE_CODE) : txBit(tx), view(v), blockTransactions(blockTxs), sender(false), nFlags(flags){}
 
     bool extractionQtumTransactions(ExtractQtumTX& qtumTx);
 
@@ -690,6 +692,7 @@ private:
     const std::vector<CTransactionRef> *blockTransactions;
     bool sender;
     dev::Address refundSender;
+    unsigned int nFlags;
 };
 
 class ByteCodeExec {

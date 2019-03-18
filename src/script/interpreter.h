@@ -118,6 +118,10 @@ enum
     //
     SCRIPT_VERIFY_CONST_SCRIPTCODE = (1U << 16),
 
+    // Support sender address in contract output
+    //
+    SCRIPT_OUTPUT_SENDER = (1U << 29),
+
     // Performs the compiled byte code
     //
     SCRIPT_EXEC_BYTE_CODE = (1U << 30),

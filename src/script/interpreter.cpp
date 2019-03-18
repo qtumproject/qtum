@@ -1072,7 +1072,11 @@ bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& 
 
                 //////////////////////////////////////////////////////// qtum
                 case OP_SENDER:
-                    break;
+                {
+                    if(!(flags & SCRIPT_OUTPUT_SENDER))
+                        return set_error(serror, SCRIPT_ERR_BAD_OPCODE);
+                }
+                break;
                 case OP_SPEND:
                 {
                     return true; // temp
