@@ -80,7 +80,7 @@ void createNewBlocks(TestChain100Setup* testChain100Setup, size_t n){
 }
 BOOST_FIXTURE_TEST_SUITE(btcecrecoverfork_tests, TestChain100Setup)
 
-BOOST_AUTO_TEST_CASE(checking_constantinople_after_fork){
+BOOST_AUTO_TEST_CASE(checking_btcecrecover_after_fork){
     // Initialize
     initState();
     genesisLoading();
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE(checking_constantinople_after_fork){
     BOOST_CHECK(dev::h256(output) == dev::h256(CODE[2]));
 }
 
-BOOST_AUTO_TEST_CASE(checking_constantinople_before_fork){
+BOOST_AUTO_TEST_CASE(checking_btcecrecover_before_fork){
     // Initialize
     initState();
     genesisLoading();
