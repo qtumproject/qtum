@@ -6,6 +6,13 @@ using namespace dev;
 
 bool qtumutils::btc_ecrecover(const dev::h256 &hash, const dev::u256 &v, const dev::h256 &r, const dev::h256 &s, dev::h256 &key)
 {
+    // Check input parameters
+    if(v >= 256)
+    {
+        // Does not fit into 1 byte
+        return false;
+    }
+
     // Convert the data into format usable for btc
     CPubKey pubKey;
     std::vector<unsigned char> vchSig;
