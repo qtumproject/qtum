@@ -62,6 +62,8 @@ struct Params {
     int QIP7Height;
     /** Block height at which QIP6 becomes active */
     int QIP6Height;
+    /** Block height at which QIP9 becomes active */
+    int QIP9Height;
     /**
      * Minimum blocks including miner confirmation of the total of 2016 blocks in a retargeting period,
      * (nPowTargetTimespan / nPowTargetSpacing) which is also used for BIP9 deployments.
@@ -78,7 +80,12 @@ struct Params {
     bool fPoSNoRetargeting;
     int64_t nPowTargetSpacing;
     int64_t nPowTargetTimespan;
-    int64_t DifficultyAdjustmentInterval() const { return nPowTargetTimespan / nPowTargetSpacing; }
+    int64_t nPowTargetTimespanV2;
+    int64_t DifficultyAdjustmentInterval(int height) const
+    {
+        int64_t targetSpacing = height < QIP9Height ? nPowTargetTimespan : nPowTargetTimespanV2;
+        return targetSpacing / nPowTargetSpacing;
+    }
     uint256 nMinimumChainWork;
     uint256 defaultAssumeValid;
     int nLastPOWBlock;

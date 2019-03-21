@@ -91,9 +91,11 @@ public:
         consensus.BIP66Height = 0; // 00000000000000000379eaa19dce8c9b722d46ae6a57c2f1a988119488b50931
         consensus.QIP7Height = 0x7fffffff;
         consensus.QIP6Height = 0x7fffffff;
+        consensus.QIP9Height = 0x7fffffff;
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 16 * 60; // 16 minutes
+        consensus.nPowTargetTimespanV2 = 20128; // 5.59 hours
         consensus.nPowTargetSpacing = 2 * 64;
         consensus.fPowAllowMinDifficultyBlocks = false;
         consensus.fPowNoRetargeting = true;
@@ -207,9 +209,11 @@ public:
         consensus.BIP66Height = 0; // 000000002104c8c45e99a8853285a3b592602a3ccde2b832481da85e9e4ba182
         consensus.QIP7Height = 0x7fffffff;
         consensus.QIP6Height = 0x7fffffff;
+        consensus.QIP9Height = 0x7fffffff;
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 16 * 60; // 16 minutes
+        consensus.nPowTargetTimespanV2 = 20128; // 5.59 hours
         consensus.nPowTargetSpacing = 2 * 64;
         consensus.fPowAllowMinDifficultyBlocks = false;
         consensus.fPowNoRetargeting = true;
@@ -312,9 +316,11 @@ public:
         consensus.BIP66Height = 0; // BIP66 activated on regtest (Used in rpc activation tests)
         consensus.QIP7Height = 0x7fffffff;
         consensus.QIP6Height = 0x7fffffff;
+        consensus.QIP9Height = 0x7fffffff;
         consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-        consensus.nPowTargetTimespan = 16 * 60; // 16 minutes
+        consensus.nPowTargetTimespan = 16 * 60; // 16 minutes (960 = 832 + 128; multiplier is 832)
+        consensus.nPowTargetTimespanV2 = 20128; // 5.59 hours (20128 = 20000 + 128; multiplier is 20000)
         consensus.nPowTargetSpacing = 2 * 64;
         consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.fPowNoRetargeting = true;
