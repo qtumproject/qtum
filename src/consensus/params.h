@@ -60,6 +60,8 @@ struct Params {
     int BIP66Height;
     /** Block height at which QIP7 becomes active */
     int QIP7Height;
+    /** Block height at which QIP6 becomes active */
+    int QIP6Height;
     /**
      * Minimum blocks including miner confirmation of the total of 2016 blocks in a retargeting period,
      * (nPowTargetTimespan / nPowTargetSpacing) which is also used for BIP9 deployments.

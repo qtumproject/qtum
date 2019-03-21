@@ -96,7 +96,8 @@ BITCOIN_TESTS =\
   test/qtumtests/bytecodeexec_tests.cpp \
   test/qtumtests/condensingtransaction_tests.cpp \
   test/qtumtests/dgp_tests.cpp \
-  test/qtumtests/constantinoplefork_tests.cpp
+  test/qtumtests/constantinoplefork_tests.cpp \
+  test/qtumtests/btcecrecoverfork_tests.cpp
 
 if ENABLE_WALLET
 BITCOIN_TESTS += \

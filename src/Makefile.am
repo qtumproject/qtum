@@ -218,7 +218,8 @@ BITCOIN_CORE_H = \
   qtum/qtumstate.h \
   qtum/qtumtransaction.h \
   qtum/qtumDGP.h \
-  qtum/storageresults.h
+  qtum/storageresults.h \
+  qtum/qtumutils.h
 
 
 obj/build.h: FORCE
@@ -433,6 +434,7 @@ libbitcoin_common_a_SOURCES = \
   script/sign.cpp \
   script/standard.cpp \
   warnings.cpp \
+  qtum/qtumutils.cpp \
   cpp-ethereum/aleth/buildinfo.c \
   cpp-ethereum/aleth/buildinfo.h \
   cpp-ethereum/evmc/lib/instructions/instruction_metrics.c \
