@@ -196,6 +196,7 @@ BASE_SCRIPTS = [
     'qtum_divergence_dos.py',
     'qtum_prioritize_create_over_call.py',
     'qtum_callcontract_timestamp.py',
+    'qtum_transaction_receipt_origin_contract_address.py',
 ]
 
 EXTENDED_SCRIPTS = [

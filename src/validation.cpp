@@ -2859,11 +2859,12 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
             if (fLogEvents && !fJustCheck)
             {
                 for(size_t k = 0; k < resultConvertQtumTX.first.size(); k ++){
-                    dev::Address key = resultExec[k].execRes.newAddress;
-                    if(!heightIndexes.count(key)){
-                        heightIndexes[key].first = CHeightTxIndexKey(pindex->nHeight, resultExec[k].execRes.newAddress);
+                    for(auto& log : resultExec[k].txRec.log()) {
+                        if(!heightIndexes.count(log.address)){
+                            heightIndexes[log.address].first = CHeightTxIndexKey(pindex->nHeight, log.address);
+                        }
+                        heightIndexes[log.address].second.push_back(tx.GetHash());
                     }
-                    heightIndexes[key].second.push_back(tx.GetHash());
                     tri.push_back(TransactionReceiptInfo{block.GetHash(), uint32_t(pindex->nHeight), tx.GetHash(), uint32_t(i), resultConvertQtumTX.first[k].from(), resultConvertQtumTX.first[k].to(),
                                 countCumulativeGasUsed, uint64_t(resultExec[k].execRes.gasUsed), resultExec[k].execRes.newAddress, resultExec[k].txRec.log(), resultExec[k].execRes.excepted});
                 }
