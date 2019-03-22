@@ -92,6 +92,7 @@ public:
         consensus.QIP7Height = 0x7fffffff;
         consensus.QIP6Height = 0x7fffffff;
         consensus.QIP9Height = 0x7fffffff;
+        consensus.QIP5Height = 0x7fffffff;
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 16 * 60; // 16 minutes
@@ -210,6 +211,7 @@ public:
         consensus.QIP7Height = 0x7fffffff;
         consensus.QIP6Height = 0x7fffffff;
         consensus.QIP9Height = 0x7fffffff;
+        consensus.QIP5Height = 0x7fffffff;
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 16 * 60; // 16 minutes
@@ -317,6 +319,7 @@ public:
         consensus.QIP7Height = 0x7fffffff;
         consensus.QIP6Height = 0x7fffffff;
         consensus.QIP9Height = 0x7fffffff;
+        consensus.QIP5Height = 0x7fffffff;
         consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 16 * 60; // 16 minutes (960 = 832 + 128; multiplier is 832)
@@ -453,4 +456,14 @@ std::string CChainParams::EVMGenesisInfo(dev::eth::Network network) const
     ReplaceInt(consensus.QIP7Height, "QIP7_STARTING_BLOCK", genesisInfo);
     ReplaceInt(consensus.QIP6Height, "QIP6_STARTING_BLOCK", genesisInfo);
     return genesisInfo;
+}
+
+void CChainParams::UpdateOpSenderBlockHeight(int nHeight)
+{
+    consensus.QIP5Height = nHeight;
+}
+
+void UpdateOpSenderBlockHeight(int nHeight)
+{
+    globalChainParams->UpdateOpSenderBlockHeight(nHeight);
 }

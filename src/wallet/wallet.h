@@ -1022,7 +1022,7 @@ public:
      * @note passing nChangePosInOut as -1 will result in setting a random position
      */
     bool CreateTransaction(const std::vector<CRecipient>& vecSend, CTransactionRef& tx, CReserveKey& reservekey, CAmount& nFeeRet, int& nChangePosInOut,
-                           std::string& strFailReason, const CCoinControl& coin_control, bool sign = true, CAmount nGasFee=0, bool hasSender=false);
+                           std::string& strFailReason, const CCoinControl& coin_control, bool sign = true, CAmount nGasFee=0, bool hasSender=false, const CTxDestination& signSenderAddress = CNoDestination());
     bool CommitTransaction(CTransactionRef tx, mapValue_t mapValue, std::vector<std::pair<std::string, std::string>> orderForm, std::string fromAccount, CReserveKey& reservekey, CConnman* connman, CValidationState& state);
 
     void ListAccountCreditDebit(const std::string& strAccount, std::list<CAccountingEntry>& entries);

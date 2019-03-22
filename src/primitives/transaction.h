@@ -357,6 +357,7 @@ public:
     {
         return (HasOpCall() ? OpCode::OpCall : 0) + (HasOpCreate() ? OpCode::OpCreate : 0);
     }
+    bool HasOpSender() const;
 
     bool IsCoinBase() const
     {
@@ -429,6 +430,8 @@ struct CMutableTransaction
      * fly, as opposed to GetHash() in CTransaction, which uses a cached result.
      */
     uint256 GetHash() const;
+
+    bool HasOpSender() const;
 
     bool HasWitness() const
     {

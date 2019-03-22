@@ -157,7 +157,7 @@ void SendTokenPage::on_confirmClicked()
         return;
     }
 
-    if(m_model && m_model->wallet().isUnspentAddress(m_selectedToken->sender))
+    if(m_model)
     {
         int unit = m_model->getOptionsModel()->getDisplayUnit();
         uint64_t gasLimit = ui->lineEditGasLimit->value();
@@ -196,15 +196,12 @@ void SendTokenPage::on_confirmClicked()
                 tokenTx.label = label;
                 m_model->wallet().addTokenTxEntry(tokenTx);
             }
+            else
+            {
+                QMessageBox::warning(this, tr("Send token"), QString::fromStdString(m_tokenABI->getErrorMessage()));
+            }
             clearAll();
         }
-    }
-    else
-    {
-        QString message = tr("To send %1 you need QTUM on address <br /> %2.")
-                .arg(QString::fromStdString(m_selectedToken->symbol)).arg(QString::fromStdString(m_selectedToken->sender));
-
-        QMessageBox::warning(this, tr("Send token"), message);
     }
 }
 

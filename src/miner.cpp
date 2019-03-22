@@ -442,7 +442,8 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64
     uint64_t nBlockWeight = this->nBlockWeight;
     uint64_t nBlockSigOpsCost = this->nBlockSigOpsCost;
 
-    QtumTxConverter convert(iter->GetTx(), NULL, &pblock->vtx);
+    unsigned int contractflags = GetContractScriptFlags(nHeight, chainparams.GetConsensus());
+    QtumTxConverter convert(iter->GetTx(), NULL, &pblock->vtx, contractflags);
 
     ExtractQtumTX resultConverter;
     if(!convert.extractionQtumTransactions(resultConverter)){
