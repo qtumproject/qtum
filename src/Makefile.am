@@ -613,7 +613,7 @@ libbitcoin_common_a_SOURCES = \
   cpp-ethereum/libethashseal/genesis/test/constantinopleTest.cpp \
   cpp-ethereum/libethashseal/genesis/test/constantinopleNoProofTest.cpp \
   cpp-ethereum/libethashseal/genesis/test/byzantiumTransitionTest.cpp \
-  cpp-ethereum/libethashseal/genesis/test/ByzantiumToConstantinopleAt5Test.cpp \
+  cpp-ethereum/libethashseal/genesis/test/ByzantiumToConstantinopleFixAt5Test.cpp \
   cpp-ethereum/libethashseal/genesis/test/byzantiumTest.cpp \
   cpp-ethereum/libethashseal/genesis/test/byzantiumNoProofTest.cpp \
   cpp-ethereum/utils/json_spirit/JsonSpiritHeaders.h \
