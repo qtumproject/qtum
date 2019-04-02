@@ -2143,7 +2143,7 @@ std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::v
     callTransaction.setVersion(VersionVM::GetEVMDefault());
 
     
-    ByteCodeExec exec(block, std::vector<QtumTransaction>(1, callTransaction), blockGasLimit);
+    ByteCodeExec exec(block, std::vector<QtumTransaction>(1, callTransaction), blockGasLimit, pblockindex);
     exec.performByteCode(dev::eth::Permanence::Reverted);
     return exec.getResult();
 }
@@ -2431,7 +2431,7 @@ bool ByteCodeExec::processingResults(ByteCodeExecResult& resultBCE){
 }
 
 dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(){
-    CBlockIndex* tip = chainActive.Tip();
+    CBlockIndex* tip = pindex;
     dev::eth::BlockHeader header;
     header.setNumber(tip->nHeight + 1);
     header.setTimestamp(block.nTime);
@@ -2914,7 +2914,7 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
 
 
             dev::u256 gasAllTxs = dev::u256(0);
-            ByteCodeExec exec(block, resultConvertQtumTX.first, blockGasLimit);
+            ByteCodeExec exec(block, resultConvertQtumTX.first, blockGasLimit, pindex->pprev);
             //validate VM version and other ETH params before execution
             //Reject anything unknown (could be changed later by DGP)
             //TODO evaluate if this should be relaxed for soft-fork purposes

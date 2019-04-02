@@ -198,6 +198,7 @@ BASE_SCRIPTS = [
     'qtum_callcontract_timestamp.py',
     'qtum_transaction_receipt_origin_contract_address.py',
     'qtum_op_sender.py',
+    'qtum_block_number_corruption.py',
 ]
 
 EXTENDED_SCRIPTS = [
