@@ -163,6 +163,18 @@ bool timestampSort(std::pair<CMempoolAddressDeltaKey, CMempoolAddressDelta> a,
     return a.second.time < b.second.time;
 }
 
+bool getAddressFromIndex(const int &type, const uint160 &hash, std::string &address)
+{
+    if (type == 2) {
+        address = EncodeDestination(CScriptID(hash));
+    } else if (type == 1) {
+        address = EncodeDestination(CKeyID(hash));
+    } else {
+        return false;
+    }
+    return true;
+}
+
 // Needed even with !ENABLE_WALLET, to pass (ignored) pointers around
 class CWallet;
 
