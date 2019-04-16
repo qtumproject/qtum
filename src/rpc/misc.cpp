@@ -359,6 +359,93 @@ UniValue getaddressbalance(const JSONRPCRequest& request)
     return result;
 }
 
+UniValue getaddressutxos(const JSONRPCRequest& request)
+{
+    if (request.fHelp || request.params.size() != 1)
+        throw std::runtime_error(
+            "getaddressutxos\n"
+            "\nReturns all unspent outputs for an address (requires addressindex to be enabled).\n"
+            "\nArguments:\n"
+            "{\n"
+            "  \"addresses\"\n"
+            "    [\n"
+            "      \"address\"  (string) The base58check encoded address\n"
+            "      ,...\n"
+            "    ],\n"
+            "  \"chainInfo\"  (boolean) Include chain info with results\n"
+            "}\n"
+            "\nResult\n"
+            "[\n"
+            "  {\n"
+            "    \"address\"  (string) The address base58check encoded\n"
+            "    \"txid\"  (string) The output txid\n"
+            "    \"height\"  (number) The block height\n"
+            "    \"outputIndex\"  (number) The output index\n"
+            "    \"script\"  (strin) The script hex encoded\n"
+            "    \"satoshis\"  (number) The number of satoshis of the output\n"
+            "  }\n"
+            "]\n"
+            "\nExamples:\n"
+            + HelpExampleCli("getaddressutxos", "'{\"addresses\": [\"12c6DSiU4Rq3P4ZxziKxzrL5LmMBrzjrJX\"]}'")
+            + HelpExampleRpc("getaddressutxos", "{\"addresses\": [\"12c6DSiU4Rq3P4ZxziKxzrL5LmMBrzjrJX\"]}")
+            );
+
+    bool includeChainInfo = false;
+    if (request.params[0].isObject()) {
+        UniValue chainInfo = find_value(request.params[0].get_obj(), "chainInfo");
+        if (chainInfo.isBool()) {
+            includeChainInfo = chainInfo.get_bool();
+        }
+    }
+
+    std::vector<std::pair<uint160, int> > addresses;
+
+    if (!getAddressesFromParams(request.params, addresses)) {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
+    }
+
+    std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > unspentOutputs;
+
+    for (std::vector<std::pair<uint160, int> >::iterator it = addresses.begin(); it != addresses.end(); it++) {
+        if (!GetAddressUnspent((*it).first, (*it).second, unspentOutputs)) {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "No information available for address");
+        }
+    }
+
+    std::sort(unspentOutputs.begin(), unspentOutputs.end(), heightSort);
+
+    UniValue utxos(UniValue::VARR);
+
+    for (std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> >::const_iterator it=unspentOutputs.begin(); it!=unspentOutputs.end(); it++) {
+        UniValue output(UniValue::VOBJ);
+        std::string address;
+        if (!getAddressFromIndex(it->first.type, it->first.hashBytes, address)) {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Unknown address type");
+        }
+
+        output.pushKV("address", address);
+        output.pushKV("txid", it->first.txhash.GetHex());
+        output.pushKV("outputIndex", (int)it->first.index);
+        output.pushKV("script", HexStr(it->second.script.begin(), it->second.script.end()));
+        output.pushKV("satoshis", it->second.satoshis);
+        output.pushKV("height", it->second.blockHeight);
+        output.pushKV("isStake", it->second.coinStake);
+        utxos.push_back(output);
+    }
+
+    if (includeChainInfo) {
+        UniValue result(UniValue::VOBJ);
+        result.pushKV("utxos", utxos);
+
+        LOCK(cs_main);
+        result.pushKV("hash", chainActive.Tip()->GetBlockHash().GetHex());
+        result.pushKV("height", (int)chainActive.Height());
+        return result;
+    } else {
+        return utxos;
+    }
+}
+
 // Needed even with !ENABLE_WALLET, to pass (ignored) pointers around
 class CWallet;
 
