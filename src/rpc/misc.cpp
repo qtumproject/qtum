@@ -17,6 +17,7 @@
 #include <rpc/server.h>
 #include <rpc/util.h>
 #include <timedata.h>
+#include <txmempool.h>
 #include <util.h>
 #include <utilstrencodings.h>
 #ifdef ENABLE_WALLET
@@ -32,6 +33,36 @@
 #endif
 
 #include <univalue.h>
+
+UniValue getdgpinfo(const JSONRPCRequest& request)
+{
+    if (request.fHelp || request.params.size() != 0)
+        throw std::runtime_error(
+            "getdgpinfo\n"
+            "\nReturns an object containing DGP state info.\n"
+            "\nResult:\n"
+            "{\n"
+            "  \"maxblocksize\": xxxxx,           (numeric) current maximum block size\n"
+            "  \"mingasprice\": xxxxx,   (numeric) current minimum gas price\n"
+            "  \"blockgaslimit\": xxxxx,     (numeric) current block gas limit\n"
+            "}\n"
+            "\nExamples:\n"
+            + HelpExampleCli("getdgpinfo", "")
+            + HelpExampleRpc("getdgpinfo", "")
+        );
+
+
+    LOCK(cs_main);
+
+    QtumDGP qtumDGP(globalState.get());
+
+    UniValue obj(UniValue::VOBJ);
+    obj.pushKV("maxblocksize", (uint64_t)qtumDGP.getBlockSize(chainActive.Height()));
+    obj.pushKV("mingasprice", (uint64_t)qtumDGP.getMinGasPrice(chainActive.Height()));
+    obj.pushKV("blockgaslimit", (uint64_t)qtumDGP.getBlockGasLimit(chainActive.Height()));
+
+    return obj;
+}
 
 static UniValue validateaddress(const JSONRPCRequest& request)
 {
@@ -473,6 +504,9 @@ static const CRPCCommand commands[] =
   //  --------------------- ------------------------  -----------------------  ----------
     { "control",            "getmemoryinfo",          &getmemoryinfo,          {"mode"} },
     { "control",            "logging",                &logging,                {"include", "exclude"}},
+#ifdef ENABLE_BLOCK_EXPLORER
+    { "control",            "getdgpinfo",             &getdgpinfo,             {} },
+#endif
     { "util",               "validateaddress",        &validateaddress,        {"address"} }, /* uses wallet if enabled */
     { "util",               "createmultisig",         &createmultisig,         {"nrequired","keys","address_type"} },
     { "util",               "verifymessage",          &verifymessage,          {"address","signature","message"} },
