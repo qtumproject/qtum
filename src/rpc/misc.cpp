@@ -300,6 +300,65 @@ UniValue getaddressdeltas(const JSONRPCRequest& request)
     }
 }
 
+UniValue getaddressbalance(const JSONRPCRequest& request)
+{
+    if (request.fHelp || request.params.size() != 1)
+        throw std::runtime_error(
+            "getaddressbalance\n"
+            "\nReturns the balance for an address(es) (requires addressindex to be enabled).\n"
+            "\nArguments:\n"
+            "{\n"
+            "  \"addresses\"\n"
+            "    [\n"
+            "      \"address\"  (string) The base58check encoded address\n"
+            "      ,...\n"
+            "    ]\n"
+            "}\n"
+            "\nResult:\n"
+            "{\n"
+            "  \"balance\"  (string) The current balance in satoshis\n"
+            "  \"received\"  (string) The total number of satoshis received (including change)\n"
+            "}\n"
+            "\nExamples:\n"
+            + HelpExampleCli("getaddressbalance", "'{\"addresses\": [\"12c6DSiU4Rq3P4ZxziKxzrL5LmMBrzjrJX\"]}'")
+            + HelpExampleRpc("getaddressbalance", "{\"addresses\": [\"12c6DSiU4Rq3P4ZxziKxzrL5LmMBrzjrJX\"]}")
+        );
+
+    std::vector<std::pair<uint160, int> > addresses;
+
+    if (!getAddressesFromParams(request.params, addresses)) {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
+    }
+
+    std::vector<std::pair<CAddressIndexKey, CAmount> > addressIndex;
+
+    for (std::vector<std::pair<uint160, int> >::iterator it = addresses.begin(); it != addresses.end(); it++) {
+        if (!GetAddressIndex((*it).first, (*it).second, addressIndex)) {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "No information available for address");
+        }
+    }
+
+    CAmount balance = 0;
+    CAmount received = 0;
+    CAmount immature = 0;
+
+    for (std::vector<std::pair<CAddressIndexKey, CAmount> >::const_iterator it=addressIndex.begin(); it!=addressIndex.end(); it++) {
+        if (it->second > 0) {
+            received += it->second;
+        }
+        balance += it->second;
+        if (it->first.txindex == 1 && ((chainActive.Height() - it->first.blockHeight) < COINBASE_MATURITY))
+            immature += it->second; //immature stake outputs
+    }
+
+    UniValue result(UniValue::VOBJ);
+    result.pushKV("balance", balance);
+    result.pushKV("received", received);
+    result.pushKV("immature", immature);
+
+    return result;
+}
+
 // Needed even with !ENABLE_WALLET, to pass (ignored) pointers around
 class CWallet;
 
