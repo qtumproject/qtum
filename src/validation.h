@@ -833,6 +833,18 @@ public:
 /** Initializes the script-execution cache */
 void InitScriptExecutionCache();
 
+///////////////////////////////////////////////////////////////// // qtum
+bool GetAddressIndex(uint160 addressHash, int type,
+                     std::vector<std::pair<CAddressIndexKey, CAmount> > &addressIndex,
+                     int start = 0, int end = 0);
+
+bool GetSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value);
+
+bool GetAddressUnspent(uint160 addressHash, int type,
+                       std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > &unspentOutputs);
+
+bool GetTimestampIndex(const unsigned int &high, const unsigned int &low, const bool fActiveOnly, std::vector<std::pair<uint256, unsigned int> > &hashes);
+/////////////////////////////////////////////////////////////////
 
 /** Functions for disk access for blocks */
 //Template function that read the whole block or the header only depending on the type (CBlock or CBlockHeader)
