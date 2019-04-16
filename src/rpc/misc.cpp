@@ -1113,6 +1113,17 @@ static const CRPCCommand commands[] =
     { "util",               "createmultisig",         &createmultisig,         {"nrequired","keys","address_type"} },
     { "util",               "verifymessage",          &verifymessage,          {"address","signature","message"} },
     { "util",               "signmessagewithprivkey", &signmessagewithprivkey, {"privkey","message"} },
+#ifdef ENABLE_BLOCK_EXPLORER
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////// // qtum
+    { "util",               "getaddresstxids",        &getaddresstxids,        {"addresses"} },
+    { "util",               "getaddressdeltas",       &getaddressdeltas,       {"addresses"} },
+    { "util",               "getaddressbalance",      &getaddressbalance,      {"addresses"} },
+    { "util",               "getaddressutxos",        &getaddressutxos,        {"addresses"} },
+    { "util",               "getaddressmempool",      &getaddressmempool,      {"addresses"} },
+    { "util",               "getblockhashes",         &getblockhashes,         {"high","low","options"} },
+    { "util",               "getspentinfo",           &getspentinfo,           {"argument"} },
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#endif
 
     /* Not shown in help */
     { "hidden",             "setmocktime",            &setmocktime,            {"timestamp"}},
