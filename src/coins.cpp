@@ -233,6 +233,12 @@ CAmount CCoinsViewCache::GetValueIn(const CTransaction& tx) const
     return nResult;
 }
 
+const CTxOut &CCoinsViewCache::GetOutputFor(const CTxIn& input) const
+{
+    const Coin& coins = AccessCoin(input.prevout);
+    return coins.out;
+}
+
 bool CCoinsViewCache::HaveInputs(const CTransaction& tx) const
 {
     if (!tx.IsCoinBase()) {
