@@ -22,6 +22,13 @@ unsigned nMaxDatacarrierBytes = MAX_OP_RETURN_RELAY;
 
 CScriptID::CScriptID(const CScript& in) : uint160(Hash160(in.begin(), in.end())) {}
 
+valtype DataVisitor::operator()(const CNoDestination& noDest) const { return valtype(); }
+valtype DataVisitor::operator()(const CKeyID& keyID) const { return valtype(keyID.begin(), keyID.end()); }
+valtype DataVisitor::operator()(const CScriptID& scriptID) const { return valtype(scriptID.begin(), scriptID.end()); }
+valtype DataVisitor::operator()(const WitnessV0ScriptHash& witnessScriptHash) const { return valtype(witnessScriptHash.begin(), witnessScriptHash.end()); }
+valtype DataVisitor::operator()(const WitnessV0KeyHash& witnessKeyHash) const { return valtype(witnessKeyHash.begin(), witnessKeyHash.end()); }
+valtype DataVisitor::operator()(const WitnessUnknown&) const { return valtype(); }
+
 WitnessV0ScriptHash::WitnessV0ScriptHash(const CScript& in)
 {
     CSHA256().Write(in.data(), in.size()).Finalize(begin());
@@ -367,6 +374,20 @@ bool ExtractDestinations(const CScript& scriptPubKey, txnouttype& typeRet, std::
     }
 
     return true;
+}
+
+bool ExtractDestination(const COutPoint& prevout, const CScript& scriptPubKey, CTxDestination& addressRet, txnouttype* typeRet) {
+    if (!typeRet) {
+        txnouttype type;
+        typeRet = &type;
+    }
+    if (ExtractDestination(scriptPubKey, addressRet, typeRet))
+        return true;
+    if (*typeRet == TX_CREATE) {
+        addressRet = CKeyID(uint160(QtumState::createQtumAddress(uintToh256(prevout.hash), prevout.n).asBytes()));
+        return true;
+    }
+    return false;
 }
 
 namespace
