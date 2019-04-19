@@ -419,12 +419,20 @@ void CWallet::DeriveNewChildKey(WalletBatch &batch, CKeyMetadata& metadata, CKey
         // example: 1 | BIP32_HARDENED_KEY_LIMIT == 0x80000001 == 2147483649
         if (internal) {
             chainChildKey.Derive(childKey, hdChain.nInternalChainCounter | BIP32_HARDENED_KEY_LIMIT);
+#ifdef ENABLE_BITCORE_RPC
+            metadata.hdKeypath = "m/0'/1'/" + std::to_string(hdChain.nInternalChainCounter) + "'";
+#else
             metadata.hdKeypath = "m/88'/1'/" + std::to_string(hdChain.nInternalChainCounter) + "'";
+#endif
             hdChain.nInternalChainCounter++;
         }
         else {
             chainChildKey.Derive(childKey, hdChain.nExternalChainCounter | BIP32_HARDENED_KEY_LIMIT);
+#ifdef ENABLE_BITCORE_RPC
+            metadata.hdKeypath = "m/0'/0'/" + std::to_string(hdChain.nExternalChainCounter) + "'";
+#else
             metadata.hdKeypath = "m/88'/0'/" + std::to_string(hdChain.nExternalChainCounter) + "'";
+#endif
             hdChain.nExternalChainCounter++;
         }
     } while (HaveKey(childKey.key.GetPubKey().GetID()));
