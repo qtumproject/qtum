@@ -582,6 +582,10 @@ void CTxMemPool::removeForBlock(const std::vector<CTransactionRef>& vtx, unsigne
         }
         removeConflicts(*tx);
         ClearPrioritisation(tx->GetHash());
+#ifdef ENABLE_BITCORE_RPC
+        removeAddressIndex(tx->GetHash());
+        removeSpentIndex(tx->GetHash());
+#endif
     }
     lastRollingFeeUpdate = GetTime();
     blockSinceLastRollingFeeBump = true;
