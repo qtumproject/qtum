@@ -1445,6 +1445,16 @@ bool AppInitMain()
     nTotalCache = std::max(nTotalCache, nMinDbCache << 20); // total cache cannot be less than nMinDbCache
     nTotalCache = std::min(nTotalCache, nMaxDbCache << 20); // total cache cannot be greater than nMaxDbcache
     int64_t nBlockTreeDBCache = std::min(nTotalCache / 8, nMaxBlockDBCache << 20);
+#ifdef ENABLE_BITCORE_RPC
+    if (gArgs.GetBoolArg("-addrindex", DEFAULT_ADDRINDEX)) {
+        // enable 3/4 of the cache if addressindex and/or spentindex is enabled
+        nBlockTreeDBCache = nTotalCache * 3 / 4;
+    } else {
+        if (nBlockTreeDBCache > (1 << 21) && !gArgs.GetBoolArg("-txindex", DEFAULT_TXINDEX)) {
+            nBlockTreeDBCache = (1 << 21); // block tree db cache shouldn't be larger than 2 MiB
+        }
+    }
+#endif
     nTotalCache -= nBlockTreeDBCache;
     int64_t nTxIndexCache = std::min(nTotalCache / 8, gArgs.GetBoolArg("-txindex", DEFAULT_TXINDEX) ? nMaxTxIndexCache << 20 : 0);
     nTotalCache -= nTxIndexCache;
@@ -1595,6 +1605,14 @@ bool AppInitMain()
                 fIsVMlogFile = fs::exists(GetDataDir() / "vmExecLogs.json");
                 ///////////////////////////////////////////////////////////
 
+#ifdef ENABLE_BITCORE_RPC
+                /////////////////////////////////////////////////////////////// // qtum
+                if (fAddressIndex != gArgs.GetBoolArg("-addrindex", DEFAULT_ADDRINDEX)) {
+                    strLoadError = _("You need to rebuild the database using -reindex-chainstate to change -addrindex");
+                    break;
+                }
+                ///////////////////////////////////////////////////////////////
+#endif
                 // Check for changed -logevents state
                 if (fLogEvents != gArgs.GetBoolArg("-logevents", DEFAULT_LOGEVENTS) && !fLogEvents) {
                     strLoadError = _("You need to rebuild the database using -reindex to enable -logevents");
