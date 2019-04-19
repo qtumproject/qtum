@@ -215,7 +215,11 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<std::v
                         if (version.rootVM != 0 && val < 1) {
                             return false;
                         }
+#ifdef ENABLE_BITCORE_RPC
+                        if (val > MAX_BLOCK_GAS_LIMIT_DGP / 2) {
+#else
                         if (val > MAX_BLOCK_GAS_LIMIT_DGP) {
+#endif
                             //do not allow transactions that could use more gas than is in a block
                             return false;
                         }
@@ -225,11 +229,12 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<std::v
                         if (version.rootVM != 0 && val < STANDARD_MINIMUM_GAS_LIMIT) {
                             return false;
                         }
+#ifndef ENABLE_BITCORE_RPC
                         if (val > DEFAULT_BLOCK_GAS_LIMIT_DGP / 2) {
                             //don't allow transactions that use more than 1/2 block of gas to be broadcast on the mempool
                             return false;
                         }
-
+#endif
                     }
                 }
                 catch (const scriptnum_error &err) {
@@ -307,17 +312,39 @@ bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet,
     {
         addressRet = CScriptID(uint160(vSolutions[0]));
         return true;
-    } else if (whichType == TX_WITNESS_V0_KEYHASH) {
+    }
+#ifdef ENABLE_BITCORE_RPC
+    /////////////////////////////////////////////////////////////// // qtum
+    else if(whichType == TX_CALL){
+        addressRet = CKeyID(uint160(vSolutions[0]));
+        return true;
+    }
+    else if(whichType == TX_WITNESS_V0_KEYHASH)
+    {
+        addressRet = CKeyID(uint160(vSolutions[0]));
+        return true;
+    }
+    else if(whichType == TX_WITNESS_V0_SCRIPTHASH)
+    {
+        addressRet = CScriptID(Hash160(vSolutions[0]));
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////
+#else
+    else if (whichType == TX_WITNESS_V0_KEYHASH) {
         WitnessV0KeyHash hash;
         std::copy(vSolutions[0].begin(), vSolutions[0].end(), hash.begin());
         addressRet = hash;
         return true;
-    } else if (whichType == TX_WITNESS_V0_SCRIPTHASH) {
+    }
+    else if (whichType == TX_WITNESS_V0_SCRIPTHASH) {
         WitnessV0ScriptHash hash;
         std::copy(vSolutions[0].begin(), vSolutions[0].end(), hash.begin());
         addressRet = hash;
         return true;
-    } else if (whichType == TX_WITNESS_UNKNOWN) {
+    }
+#endif
+    else if (whichType == TX_WITNESS_UNKNOWN) {
         WitnessUnknown unk;
         unk.version = vSolutions[0][0];
         std::copy(vSolutions[1].begin(), vSolutions[1].end(), unk.program);
