@@ -49,6 +49,7 @@ struct LockPoints
 
 class CTxMemPool;
 
+#ifdef ENABLE_BITCORE_RPC
 //////////////////////////////////////////////////////// // qtum
 struct CSpentIndexKeyCompare
 {
@@ -131,6 +132,7 @@ struct CMempoolAddressDeltaKeyCompare
     }
 };
 ////////////////////////////////////////////////////////
+#endif
 
 /** \class CTxMemPoolEntry
  *
@@ -654,6 +656,7 @@ private:
     typedef std::map<txiter, TxLinks, CompareIteratorByHash> txlinksMap;
     txlinksMap mapLinks;
 
+#ifdef ENABLE_BITCORE_RPC
     //////////////////////////////////////////////////////////////// // qtum
     typedef std::map<CMempoolAddressDeltaKey, CMempoolAddressDelta, CMempoolAddressDeltaKeyCompare> addressDeltaMap;
     addressDeltaMap mapAddress;
@@ -667,6 +670,7 @@ private:
     typedef std::map<uint256, std::vector<CSpentIndexKey> > mapSpentIndexInserted;
     mapSpentIndexInserted mapSpentInserted;
     ////////////////////////////////////////////////////////////////
+#endif
 
     void UpdateParent(txiter entry, txiter parent, bool add);
     void UpdateChild(txiter entry, txiter child, bool add);
@@ -700,6 +704,7 @@ public:
     void addUnchecked(const uint256& hash, const CTxMemPoolEntry& entry, bool validFeeEstimate = true) EXCLUSIVE_LOCKS_REQUIRED(cs);
     void addUnchecked(const uint256& hash, const CTxMemPoolEntry& entry, setEntries& setAncestors, bool validFeeEstimate = true) EXCLUSIVE_LOCKS_REQUIRED(cs);
 
+#ifdef ENABLE_BITCORE_RPC
     ///////////////////////////////////////////////////////// // qtum
     void addAddressIndex(const CTxMemPoolEntry &entry, const CCoinsViewCache &view);
     bool getAddressIndex(std::vector<std::pair<uint160, int> > &addresses,
@@ -710,6 +715,7 @@ public:
     bool getSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value);
     bool removeSpentIndex(const uint256 txhash);
     /////////////////////////////////////////////////////////
+#endif
 
     void removeRecursive(const CTransaction &tx, MemPoolRemovalReason reason = MemPoolRemovalReason::UNKNOWN);
     void removeForReorg(const CCoinsViewCache *pcoins, unsigned int nMemPoolHeight, int flags);

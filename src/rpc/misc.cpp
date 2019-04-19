@@ -17,7 +17,9 @@
 #include <rpc/server.h>
 #include <rpc/util.h>
 #include <timedata.h>
+#ifdef ENABLE_BITCORE_RPC
 #include <txmempool.h>
+#endif
 #include <util.h>
 #include <utilstrencodings.h>
 #ifdef ENABLE_WALLET
@@ -33,36 +35,6 @@
 #endif
 
 #include <univalue.h>
-
-UniValue getdgpinfo(const JSONRPCRequest& request)
-{
-    if (request.fHelp || request.params.size() != 0)
-        throw std::runtime_error(
-            "getdgpinfo\n"
-            "\nReturns an object containing DGP state info.\n"
-            "\nResult:\n"
-            "{\n"
-            "  \"maxblocksize\": xxxxx,           (numeric) current maximum block size\n"
-            "  \"mingasprice\": xxxxx,   (numeric) current minimum gas price\n"
-            "  \"blockgaslimit\": xxxxx,     (numeric) current block gas limit\n"
-            "}\n"
-            "\nExamples:\n"
-            + HelpExampleCli("getdgpinfo", "")
-            + HelpExampleRpc("getdgpinfo", "")
-        );
-
-
-    LOCK(cs_main);
-
-    QtumDGP qtumDGP(globalState.get());
-
-    UniValue obj(UniValue::VOBJ);
-    obj.pushKV("maxblocksize", (uint64_t)qtumDGP.getBlockSize(chainActive.Height()));
-    obj.pushKV("mingasprice", (uint64_t)qtumDGP.getMinGasPrice(chainActive.Height()));
-    obj.pushKV("blockgaslimit", (uint64_t)qtumDGP.getBlockGasLimit(chainActive.Height()));
-
-    return obj;
-}
 
 static UniValue validateaddress(const JSONRPCRequest& request)
 {
@@ -118,7 +90,38 @@ static UniValue validateaddress(const JSONRPCRequest& request)
     return ret;
 }
 
+#ifdef ENABLE_BITCORE_RPC
 /////////////////////////////////////////////////////////////////////// // qtum
+UniValue getdgpinfo(const JSONRPCRequest& request)
+{
+    if (request.fHelp || request.params.size() != 0)
+        throw std::runtime_error(
+            "getdgpinfo\n"
+            "\nReturns an object containing DGP state info.\n"
+            "\nResult:\n"
+            "{\n"
+            "  \"maxblocksize\": xxxxx,           (numeric) current maximum block size\n"
+            "  \"mingasprice\": xxxxx,   (numeric) current minimum gas price\n"
+            "  \"blockgaslimit\": xxxxx,     (numeric) current block gas limit\n"
+            "}\n"
+            "\nExamples:\n"
+            + HelpExampleCli("getdgpinfo", "")
+            + HelpExampleRpc("getdgpinfo", "")
+        );
+
+
+    LOCK(cs_main);
+
+    QtumDGP qtumDGP(globalState.get());
+
+    UniValue obj(UniValue::VOBJ);
+    obj.pushKV("maxblocksize", (uint64_t)qtumDGP.getBlockSize(chainActive.Height()));
+    obj.pushKV("mingasprice", (uint64_t)qtumDGP.getMinGasPrice(chainActive.Height()));
+    obj.pushKV("blockgaslimit", (uint64_t)qtumDGP.getBlockGasLimit(chainActive.Height()));
+
+    return obj;
+}
+
 bool getAddressesFromParams(const UniValue& params, std::vector<std::pair<uint160, int> > &addresses)
 {
     if (params[0].isStr()) {
@@ -719,6 +722,7 @@ UniValue getaddresstxids(const JSONRPCRequest& request)
     return result;
 }
 ///////////////////////////////////////////////////////////////////////
+#endif
 
 // Needed even with !ENABLE_WALLET, to pass (ignored) pointers around
 class CWallet;
@@ -1106,15 +1110,20 @@ static const CRPCCommand commands[] =
   //  --------------------- ------------------------  -----------------------  ----------
     { "control",            "getmemoryinfo",          &getmemoryinfo,          {"mode"} },
     { "control",            "logging",                &logging,                {"include", "exclude"}},
-#ifdef ENABLE_BLOCK_EXPLORER
-    { "control",            "getdgpinfo",             &getdgpinfo,             {} },
-#endif
     { "util",               "validateaddress",        &validateaddress,        {"address"} }, /* uses wallet if enabled */
     { "util",               "createmultisig",         &createmultisig,         {"nrequired","keys","address_type"} },
     { "util",               "verifymessage",          &verifymessage,          {"address","signature","message"} },
     { "util",               "signmessagewithprivkey", &signmessagewithprivkey, {"privkey","message"} },
-#ifdef ENABLE_BLOCK_EXPLORER
+
+    /* Not shown in help */
+    { "hidden",             "setmocktime",            &setmocktime,            {"timestamp"}},
+    { "hidden",             "echo",                   &echo,                   {"arg0","arg1","arg2","arg3","arg4","arg5","arg6","arg7","arg8","arg9"}},
+    { "hidden",             "echojson",               &echo,                   {"arg0","arg1","arg2","arg3","arg4","arg5","arg6","arg7","arg8","arg9"}},
+    { "hidden",             "getinfo",                &getinfo_deprecated,     {}},
+
+#ifdef ENABLE_BITCORE_RPC
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////// // qtum
+    { "control",            "getdgpinfo",             &getdgpinfo,             {} },
     { "util",               "getaddresstxids",        &getaddresstxids,        {"addresses"} },
     { "util",               "getaddressdeltas",       &getaddressdeltas,       {"addresses"} },
     { "util",               "getaddressbalance",      &getaddressbalance,      {"addresses"} },
@@ -1124,12 +1133,6 @@ static const CRPCCommand commands[] =
     { "util",               "getspentinfo",           &getspentinfo,           {"argument"} },
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #endif
-
-    /* Not shown in help */
-    { "hidden",             "setmocktime",            &setmocktime,            {"timestamp"}},
-    { "hidden",             "echo",                   &echo,                   {"arg0","arg1","arg2","arg3","arg4","arg5","arg6","arg7","arg8","arg9"}},
-    { "hidden",             "echojson",               &echo,                   {"arg0","arg1","arg2","arg3","arg4","arg5","arg6","arg7","arg8","arg9"}},
-    { "hidden",             "getinfo",                &getinfo_deprecated,     {}},
 };
 
 void RegisterMiscRPCCommands(CRPCTable &t)

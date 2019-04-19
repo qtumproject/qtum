@@ -23,9 +23,12 @@ std::string EncodeExtPubKey(const CExtPubKey& extpubkey);
 
 std::string EncodeDestination(const CTxDestination& dest);
 CTxDestination DecodeDestination(const std::string& str);
-bool DecodeIndexKey(const std::string& str, uint160& hashBytes, int& type);
 bool IsValidDestinationString(const std::string& str);
 bool IsValidDestinationString(const std::string& str, const CChainParams& params);
 bool IsValidContractSenderAddressString(const std::string& str);
+
+#ifdef ENABLE_BITCORE_RPC
+bool DecodeIndexKey(const std::string& str, uint160& hashBytes, int& type);
+#endif
 
 #endif // BITCOIN_KEY_IO_H

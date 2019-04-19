@@ -17,7 +17,9 @@
 #include <util.h>
 #include <utilmoneystr.h>
 #include <utiltime.h>
+#ifdef ENABLE_BITCORE_RPC
 #include <script/sign.h>
+#endif
 
 CTxMemPoolEntry::CTxMemPoolEntry(const CTransactionRef& _tx, const CAmount& _nFee,
                                  int64_t _nTime, unsigned int _entryHeight,
@@ -1090,6 +1092,7 @@ void CTxMemPool::GetTransactionAncestry(const uint256& txid, size_t& ancestors, 
 
 SaltedTxidHasher::SaltedTxidHasher() : k0(GetRand(std::numeric_limits<uint64_t>::max())), k1(GetRand(std::numeric_limits<uint64_t>::max())) {}
 
+#ifdef ENABLE_BITCORE_RPC
 /////////////////////////////////////////////////////// // qtum
 void CTxMemPool::addAddressIndex(const CTxMemPoolEntry &entry, const CCoinsViewCache &view)
 {
@@ -1234,3 +1237,4 @@ bool CTxMemPool::removeSpentIndex(const uint256 txhash)
     return true;
 }
 ///////////////////////////////////////////////////////
+#endif

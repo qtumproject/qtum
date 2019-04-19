@@ -131,16 +131,6 @@ struct WitnessUnknown
  */
 typedef boost::variant<CNoDestination, CKeyID, CScriptID, WitnessV0ScriptHash, WitnessV0KeyHash, WitnessUnknown> CTxDestination;
 
-struct DataVisitor : public boost::static_visitor<valtype>
-{
-    valtype operator()(const CNoDestination& noDest) const;
-    valtype operator()(const CKeyID& keyID) const;
-    valtype operator()(const CScriptID& scriptID) const;
-    valtype operator()(const WitnessV0ScriptHash& witnessScriptHash) const;
-    valtype operator()(const WitnessV0KeyHash& witnessKeyHash) const;
-    valtype operator()(const WitnessUnknown& witnessUnknown) const;
-};
-
 /** Check whether a CTxDestination is a CNoDestination. */
 bool IsValidDestination(const CTxDestination& dest);
 
@@ -185,8 +175,6 @@ bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet,
  */
 bool ExtractDestinations(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<CTxDestination>& addressRet, int& nRequiredRet);
 
-bool ExtractDestination(const COutPoint& prevout, const CScript& scriptPubKey, CTxDestination& addressRet, txnouttype* typeRet = NULL);
-
 /**
  * Generate a Bitcoin scriptPubKey for the given CTxDestination. Returns a P2PKH
  * script for a CKeyID destination, a P2SH script for a CScriptID, and an empty
@@ -209,5 +197,19 @@ CScript GetScriptForMultisig(int nRequired, const std::vector<CPubKey>& keys);
  * the various witness-specific CTxDestination subtypes.
  */
 CScript GetScriptForWitness(const CScript& redeemscript);
+
+#ifdef ENABLE_BITCORE_RPC
+struct DataVisitor : public boost::static_visitor<valtype>
+{
+    valtype operator()(const CNoDestination& noDest) const;
+    valtype operator()(const CKeyID& keyID) const;
+    valtype operator()(const CScriptID& scriptID) const;
+    valtype operator()(const WitnessV0ScriptHash& witnessScriptHash) const;
+    valtype operator()(const WitnessV0KeyHash& witnessKeyHash) const;
+    valtype operator()(const WitnessUnknown& witnessUnknown) const;
+};
+
+bool ExtractDestination(const COutPoint& prevout, const CScript& scriptPubKey, CTxDestination& addressRet, txnouttype* typeRet = NULL);
+#endif
 
 #endif // BITCOIN_SCRIPT_STANDARD_H

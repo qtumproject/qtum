@@ -419,6 +419,7 @@ struct CHeightTxIndexKey {
     }
 };
 
+#ifdef ENABLE_BITCORE_RPC
 struct CTimestampIndexIteratorKey {
     unsigned int timestamp;
 
@@ -754,6 +755,7 @@ struct CAddressIndexIteratorKey {
         hashBytes.SetNull();
     }
 };
+#endif
 ////////////////////////////////////////////////////////////
 
 /** Get the numerical statistics for the BIP9 state for a given deployment at the current tip. */
@@ -833,6 +835,7 @@ public:
 /** Initializes the script-execution cache */
 void InitScriptExecutionCache();
 
+#ifdef ENABLE_BITCORE_RPC
 ///////////////////////////////////////////////////////////////// // qtum
 bool GetAddressIndex(uint160 addressHash, int type,
                      std::vector<std::pair<CAddressIndexKey, CAmount> > &addressIndex,
@@ -845,6 +848,7 @@ bool GetAddressUnspent(uint160 addressHash, int type,
 
 bool GetTimestampIndex(const unsigned int &high, const unsigned int &low, const bool fActiveOnly, std::vector<std::pair<uint256, unsigned int> > &hashes);
 /////////////////////////////////////////////////////////////////
+#endif
 
 /** Functions for disk access for blocks */
 //Template function that read the whole block or the header only depending on the type (CBlock or CBlockHeader)

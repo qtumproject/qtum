@@ -246,7 +246,9 @@ uint256 g_best_block;
 int nScriptCheckThreads = 0;
 std::atomic_bool fImporting(false);
 std::atomic_bool fReindex(false);
+#ifdef ENABLE_BITCORE_RPC
 bool fAddressIndex = false; // qtum
+#endif
 bool fLogEvents = false;
 bool fHavePruned = false;
 bool fPruneMode = false;
@@ -6235,6 +6237,7 @@ public:
     }
 } instance_of_cmaincleanup;
 
+#ifdef ENABLE_BITCORE_RPC
 ////////////////////////////////////////////////////////////////////////////////// // qtum
 bool GetAddressIndex(uint160 addressHash, int type, std::vector<std::pair<CAddressIndexKey, CAmount> > &addressIndex, int start, int end)
 {
@@ -6283,3 +6286,4 @@ bool GetTimestampIndex(const unsigned int &high, const unsigned int &low, const 
     return true;
 }
 //////////////////////////////////////////////////////////////////////////////////
+#endif
