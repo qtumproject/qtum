@@ -1829,7 +1829,7 @@ DisconnectResult CChainState::DisconnectBlock(const CBlock& block, const CBlockI
 
 #ifdef ENABLE_BITCORE_RPC
         /////////////////////////////////////////////////////////// // qtum
-        if (fAddressIndex && pfClean && (*pfClean)) {
+        if (fAddressIndex && (*pfClean)) {
 
             for (unsigned int k = tx.vout.size(); k-- > 0;) {
                 const CTxOut &out = tx.vout[k];
@@ -1860,6 +1860,25 @@ DisconnectResult CChainState::DisconnectBlock(const CBlock& block, const CBlockI
                 int res = ApplyTxInUndo(std::move(txundo.vprevout[j]), view, out);
                 if (res == DISCONNECT_FAILED) return DISCONNECT_FAILED;
                 fClean = fClean && res != DISCONNECT_UNCLEAN;
+
+#ifdef ENABLE_BITCORE_RPC
+                const auto &undo = txundo.vprevout[j];
+                const bool isTxCoinStake = tx.IsCoinStake();
+                const CTxIn input = tx.vin[j];
+                if (fAddressIndex && (*pfClean)) {
+                    const CTxOut &prevout = view.GetOutputFor(input);
+
+                    CTxDestination dest;
+                    if (ExtractDestination(input.prevout, prevout.scriptPubKey, dest)) {
+                        valtype bytesID(boost::apply_visitor(DataVisitor(), dest));
+
+                        // undo spending activity
+                        addressIndex.push_back(std::make_pair(CAddressIndexKey(dest.which(), uint160(bytesID), pindex->nHeight, i, hash, j, true), prevout.nValue * -1));
+                        // restore unspent index
+                        addressUnspentIndex.push_back(std::make_pair(CAddressUnspentKey(dest.which(), uint160(bytesID), input.prevout.hash, input.prevout.n), CAddressUnspentValue(prevout.nValue, prevout.scriptPubKey, undo.nHeight, isTxCoinStake)));
+                    }
+                }
+#endif
             }
             // At this point, all of txundo.vprevout should have been moved out.
         }
@@ -5552,7 +5571,11 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CCoinsView *coinsview,
         // check level 3: check for inconsistencies during memory-only disconnect of tip blocks
         if (nCheckLevel >= 3 && (coins.DynamicMemoryUsage() + pcoinsTip->DynamicMemoryUsage()) <= nCoinCacheUsage) {
             assert(coins.GetBestBlock() == pindex->GetBlockHash());
+#ifdef ENABLE_BITCORE_RPC
+            bool fClean=false;
+#else
             bool fClean=true;
+#endif
             DisconnectResult res = g_chainstate.DisconnectBlock(block, pindex, coins, &fClean);
             if (res == DISCONNECT_FAILED) {
                 return error("VerifyDB(): *** irrecoverable inconsistency in block data at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
