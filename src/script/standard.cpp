@@ -313,24 +313,6 @@ bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet,
         addressRet = CScriptID(uint160(vSolutions[0]));
         return true;
     }
-#ifdef ENABLE_BITCORE_RPC
-    /////////////////////////////////////////////////////////////// // qtum
-    else if(whichType == TX_CALL){
-        addressRet = CKeyID(uint160(vSolutions[0]));
-        return true;
-    }
-    else if(whichType == TX_WITNESS_V0_KEYHASH)
-    {
-        addressRet = CKeyID(uint160(vSolutions[0]));
-        return true;
-    }
-    else if(whichType == TX_WITNESS_V0_SCRIPTHASH)
-    {
-        addressRet = CScriptID(Hash160(vSolutions[0]));
-        return true;
-    }
-    ///////////////////////////////////////////////////////////////
-#else
     else if (whichType == TX_WITNESS_V0_KEYHASH) {
         WitnessV0KeyHash hash;
         std::copy(vSolutions[0].begin(), vSolutions[0].end(), hash.begin());
@@ -343,7 +325,6 @@ bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet,
         addressRet = hash;
         return true;
     }
-#endif
     else if (whichType == TX_WITNESS_UNKNOWN) {
         WitnessUnknown unk;
         unk.version = vSolutions[0][0];
@@ -501,14 +482,60 @@ valtype DataVisitor::operator()(const WitnessV0ScriptHash& witnessScriptHash) co
 valtype DataVisitor::operator()(const WitnessV0KeyHash& witnessKeyHash) const { return valtype(witnessKeyHash.begin(), witnessKeyHash.end()); }
 valtype DataVisitor::operator()(const WitnessUnknown&) const { return valtype(); }
 
-bool ExtractDestination(const COutPoint& prevout, const CScript& scriptPubKey, CTxDestination& addressRet, txnouttype* typeRet) {
-    if (!typeRet) {
-        txnouttype type;
-        typeRet = &type;
+bool ExtractDestination(const COutPoint& prevout, const CScript& scriptPubKey, CTxDestination& addressRet, txnouttype* typeRet)
+{
+    std::vector<valtype> vSolutions;
+    txnouttype whichType;
+    if (!Solver(scriptPubKey, whichType, vSolutions))
+        return false;
+
+    if(typeRet){
+        *typeRet = whichType;
     }
-    if (ExtractDestination(scriptPubKey, addressRet, typeRet))
+
+
+    if (whichType == TX_PUBKEY)
+    {
+        CPubKey pubKey(vSolutions[0]);
+        if (!pubKey.IsValid())
+            return false;
+
+        addressRet = pubKey.GetID();
         return true;
-    if (*typeRet == TX_CREATE) {
+    }
+    else if (whichType == TX_PUBKEYHASH)
+    {
+        addressRet = CKeyID(uint160(vSolutions[0]));
+        return true;
+    }
+    else if (whichType == TX_SCRIPTHASH)
+    {
+        addressRet = CScriptID(uint160(vSolutions[0]));
+        return true;
+    }
+    else if(whichType == TX_CALL){
+        addressRet = CKeyID(uint160(vSolutions[0]));
+        return true;
+    }
+    else if(whichType == TX_WITNESS_V0_KEYHASH)
+    {
+        addressRet = CKeyID(uint160(vSolutions[0]));
+        return true;
+    }
+    else if(whichType == TX_WITNESS_V0_SCRIPTHASH)
+    {
+        addressRet = CScriptID(Hash160(vSolutions[0]));
+        return true;
+    }
+    else if (whichType == TX_WITNESS_UNKNOWN) {
+        WitnessUnknown unk;
+        unk.version = vSolutions[0][0];
+        std::copy(vSolutions[1].begin(), vSolutions[1].end(), unk.program);
+        unk.length = vSolutions[1].size();
+        addressRet = unk;
+        return true;
+    }
+    else if (whichType == TX_CREATE) {
         addressRet = CKeyID(uint160(QtumState::createQtumAddress(uintToh256(prevout.hash), prevout.n).asBytes()));
         return true;
     }
