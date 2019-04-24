@@ -363,6 +363,7 @@ static UniValue getrawtransaction(const JSONRPCRequest& request)
     UniValue result(UniValue::VOBJ);
     if (blockindex) result.pushKV("in_active_chain", in_active_chain);
 #ifdef ENABLE_BITCORE_RPC
+    result.push_back(Pair("hex", EncodeHexTx(*tx, RPCSerializationFlags())));
     TxToJSONExpanded(*tx, hash_block, result, nHeight, nConfirmations, nBlockTime);
 #else
     TxToJSON(*tx, hash_block, result);
