@@ -139,7 +139,7 @@ static const int64_t BLOCK_DOWNLOAD_TIMEOUT_BASE = 1000000;
 /** Additional block download timeout per parallel downloading peer (i.e. 5 min) */
 static const int64_t BLOCK_DOWNLOAD_TIMEOUT_PER_PEER = 500000;
 
-static const int64_t DEFAULT_MAX_TIP_AGE = 30 * 24 * 60 * 60; //bitcoin value is 24 hours. Ours is 30 days in case something causes the chain to get stuck in testnet
+static const int64_t DEFAULT_MAX_TIP_AGE = 12 * 60 * 60; //Changed to 12 hours so that isInitialBlockDownload() is more accurate
 /** Maximum age of our tip in seconds for us to be considered current for fee estimation */
 static const int64_t MAX_FEE_ESTIMATION_TIP_AGE = 3 * 60 * 60;
 

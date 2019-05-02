@@ -4156,10 +4156,10 @@ static bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state,
     if (fCheckPOW && block.IsProofOfWork() && !CheckHeaderPoW(block, consensusParams))
         return state.DoS(50, false, REJECT_INVALID, "high-hash", false, "proof of work failed");
 
-//    // Check proof of stake matches claimed amount
-//    if (fCheckPOS && block.IsProofOfStake() && !CheckHeaderPoS(block, consensusParams))
-//        // May occur if behind on block chain sync
-//        return state.DoS(1, false, REJECT_INVALID, "bad-cb-header", false, "proof of stake failed");
+    // Check proof of stake matches claimed amount
+    if (fCheckPOS && !IsInitialBlockDownload() && block.IsProofOfStake() && !CheckHeaderPoS(block, consensusParams))
+        // May occur if behind on block chain sync
+        return state.DoS(1, false, REJECT_INVALID, "bad-cb-header", false, "proof of stake failed");
 
     return true;
 }
