@@ -308,7 +308,7 @@ public:
         consensus.BIP34Hash = uint256S("0x665ed5b402ac0b44efc37d8926332994363e8a7278b7ee9a58fb972efadae943");
         consensus.BIP65Height = 0; // BIP65 activated on regtest (Used in rpc activation tests)
         consensus.BIP66Height = 0; // BIP66 activated on regtest (Used in rpc activation tests)
-        consensus.QIP7Height = 0x7fffffff;
+        consensus.QIP7Height = 0;
         consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 16 * 60; // 16 minutes
@@ -397,7 +397,7 @@ public:
         consensus.BIP34Hash = uint256();
         consensus.BIP65Height = 1351; // BIP65 activated on regtest (Used in rpc activation tests)
         consensus.BIP66Height = 1251; // BIP66 activated on regtest (Used in rpc activation tests)
-        consensus.QIP7Height = 0x7fffffff; // QIP7 is not activated by default for all unit tests, it is activated when tested by specific unit tests
+        consensus.QIP7Height = 0; // QIP7 activated on regtest
 
         // QTUM have 500 blocks of maturity, increased values for regtest in unit tests in order to correspond with it
         consensus.nSubsidyHalvingInterval = 750;
@@ -439,7 +439,22 @@ void UpdateVersionBitsParameters(Consensus::DeploymentPos d, int64_t nStartTime,
 
 std::string CChainParams::EVMGenesisInfo(dev::eth::Network network) const
 {
+    return EVMGenesisInfo(network, consensus.QIP7Height);
+}
+
+std::string CChainParams::EVMGenesisInfo(dev::eth::Network network, int nHeight) const
+{
     std::string genesisInfo = dev::eth::genesisInfo(network);
-    ReplaceInt(consensus.QIP7Height, "QIP7_STARTING_BLOCK", genesisInfo);
+    ReplaceInt(nHeight, "QIP7_STARTING_BLOCK", genesisInfo);
     return genesisInfo;
+}
+
+void CChainParams::UpdateConstantinopleBlockHeight(int nHeight)
+{
+    consensus.QIP7Height = nHeight;
+}
+
+void UpdateConstantinopleBlockHeight(int nHeight)
+{
+    globalChainParams->UpdateConstantinopleBlockHeight(nHeight);
 }

@@ -84,6 +84,8 @@ public:
     const ChainTxData& TxData() const { return chainTxData; }
     void UpdateVersionBitsParameters(Consensus::DeploymentPos d, int64_t nStartTime, int64_t nTimeout);
     std::string EVMGenesisInfo(dev::eth::Network network) const;
+    std::string EVMGenesisInfo(dev::eth::Network network, int nHeight) const;
+    void UpdateConstantinopleBlockHeight(int nHeight);
 protected:
     CChainParams() {}
 
@@ -128,5 +130,10 @@ void SelectParams(const std::string& chain);
  * Allows modifying the Version Bits regtest parameters.
  */
 void UpdateVersionBitsParameters(Consensus::DeploymentPos d, int64_t nStartTime, int64_t nTimeout);
+
+/**
+ * Allows modifying the constantinople block height regtest parameter.
+ */
+void UpdateConstantinopleBlockHeight(int nHeight);
 
 #endif // BITCOIN_CHAINPARAMS_H
