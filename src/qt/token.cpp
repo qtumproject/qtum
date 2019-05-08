@@ -2,9 +2,9 @@
 #include <qt/execrpccommand.h>
 #include <qt/contractabi.h>
 #include <validation.h>
-#include <utilmoneystr.h>
+#include <util/moneystr.h>
 #include <key_io.h>
-#include <utilstrencodings.h>
+#include <util/strencodings.h>
 #include <qt/eventlog.h>
 #include <libethcore/ABI.h>
 #include <qt/walletmodel.h>

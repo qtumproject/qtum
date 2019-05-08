@@ -1,5 +1,6 @@
 #include <sstream>
-#include <util.h>
+#include <util/system.h>
+#include <util/convert.h>
 #include <validation.h>
 #include "chainparams.h"
 #include "qtumstate.h"

@@ -17,16 +17,45 @@
  * in the block is a special one that creates a new coin owned by the creator
  * of the block.
  */
-class CBlockHeader
+
+// Base class for block header, used to serialize the header without signature
+// Workaround due to removing serialization templates in Bitcoin Core 0.18
+class CBlockHeaderBase
 {
 public:
-    // header
+    // header without signature
     int32_t nVersion;
     uint256 hashPrevBlock;
     uint256 hashMerkleRoot;
     uint32_t nTime;
     uint32_t nBits;
     uint32_t nNonce;
+    uint256 hashStateRoot; // qtum
+    uint256 hashUTXORoot; // qtum
+    // proof-of-stake specific fields
+    COutPoint prevoutStake;
+
+    ADD_SERIALIZE_METHODS;
+
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action) {
+        READWRITE(this->nVersion);
+        READWRITE(hashPrevBlock);
+        READWRITE(hashMerkleRoot);
+        READWRITE(nTime);
+        READWRITE(nBits);
+        READWRITE(nNonce);
+        READWRITE(hashStateRoot); // qtum
+        READWRITE(hashUTXORoot); // qtum
+        READWRITE(prevoutStake);
+    }
+};
+
+class CBlockHeader : public CBlockHeaderBase
+{
+public:
+    // header
+    std::vector<unsigned char> vchBlockSig;
 
     CBlockHeader()
     {
@@ -43,6 +72,10 @@ public:
         READWRITE(nTime);
         READWRITE(nBits);
         READWRITE(nNonce);
+        READWRITE(hashStateRoot); // qtum
+        READWRITE(hashUTXORoot); // qtum
+        READWRITE(prevoutStake);
+        READWRITE(vchBlockSig);
     }
 
     void SetNull()
@@ -53,6 +86,10 @@ public:
         nTime = 0;
         nBits = 0;
         nNonce = 0;
+        hashStateRoot.SetNull(); // qtum
+        hashUTXORoot.SetNull(); // qtum
+        vchBlockSig.clear();
+        prevoutStake.SetNull();
     }
 
     bool IsNull() const
@@ -62,9 +99,50 @@ public:
 
     uint256 GetHash() const;
 
+    uint256 GetHashWithoutSign() const;
+
     int64_t GetBlockTime() const
     {
         return (int64_t)nTime;
+    }
+    
+    // ppcoin: two types of block: proof-of-work or proof-of-stake
+    virtual bool IsProofOfStake() const //qtum
+    {
+        return !prevoutStake.IsNull();
+    }
+
+    virtual bool IsProofOfWork() const
+    {
+        return !IsProofOfStake();
+    }
+    
+    virtual uint32_t StakeTime() const
+    {
+        uint32_t ret = 0;
+        if(IsProofOfStake())
+        {
+            ret = nTime;
+        }
+        return ret;
+    }
+
+    CBlockHeader& operator=(const CBlockHeader& other) //qtum
+    {
+        if (this != &other)
+        {
+            this->nVersion       = other.nVersion;
+            this->hashPrevBlock  = other.hashPrevBlock;
+            this->hashMerkleRoot = other.hashMerkleRoot;
+            this->nTime          = other.nTime;
+            this->nBits          = other.nBits;
+            this->nNonce         = other.nNonce;
+            this->hashStateRoot  = other.hashStateRoot;
+            this->hashUTXORoot   = other.hashUTXORoot;
+            this->vchBlockSig    = other.vchBlockSig;
+            this->prevoutStake   = other.prevoutStake;
+        }
+        return *this;
     }
 };
 
@@ -104,6 +182,11 @@ public:
         fChecked = false;
     }
 
+    std::pair<COutPoint, unsigned int> GetProofOfStake() const //qtum
+    {
+        return IsProofOfStake()? std::make_pair(prevoutStake, nTime) : std::make_pair(COutPoint(), (unsigned int)0);
+    }
+    
     CBlockHeader GetBlockHeader() const
     {
         CBlockHeader block;
@@ -113,6 +196,10 @@ public:
         block.nTime          = nTime;
         block.nBits          = nBits;
         block.nNonce         = nNonce;
+        block.hashStateRoot  = hashStateRoot; // qtum
+        block.hashUTXORoot   = hashUTXORoot; // qtum
+        block.vchBlockSig    = vchBlockSig;
+        block.prevoutStake   = prevoutStake;
         return block;
     }
 
