@@ -215,7 +215,8 @@ QT_MOC = \
   qt/overviewpage.moc \
   qt/rpcconsole.moc \
   qt/tokenamountfield.moc \
-  qt/tokenitemmodel.moc
+  qt/tokenitemmodel.moc \
+  qt/walletmodel.moc
 
 QT_QRC_CPP = qt/qrc_bitcoin.cpp
 QT_QRC = qt/bitcoin.qrc
