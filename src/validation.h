@@ -621,6 +621,8 @@ inline bool IsBlockPruned(const CBlockIndex* pblockindex)
 bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, const Consensus::Params& consensusParams, CAmount nFees, CAmount gasRefunds, CAmount nActualStakeReward, const std::vector<CTxOut>& vouts);
 
 //////////////////////////////////////////////////////// qtum
+bool GetSpentCoinFromTip(COutPoint prevout, Coin* coin);
+
 std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, const dev::Address& sender = dev::Address(), uint64_t gasLimit=0);
 
 bool CheckSenderScript(const CCoinsViewCache& view, const CTransaction& tx);

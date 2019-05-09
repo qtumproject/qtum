@@ -152,18 +152,26 @@ bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBloc
         //not found in cache (shouldn't happen during staking, only during verification which does not use cache)
         Coin coinPrev;
         if(!view.GetCoin(prevout, coinPrev)){
-            return false;
+            if(pindexPrev->GetBlockHash() != chainActive.Tip()->pprev->GetBlockHash()) {
+                return error("CheckKernel(): Could not find coin and did not fork at tip");
+            }
+
+            if(!GetSpentCoinFromTip(prevout, &coinPrev)) {
+                return error("CheckKernel(): Could not find coin and it was not at the tip");
+            }
+
+            LogPrintf("CheckKernel(): Uses spent stake from tip\n");
         }
 
         if(pindexPrev->nHeight + 1 - coinPrev.nHeight < COINBASE_MATURITY){
-            return false;
+            return error("CheckKernel(): Coin not matured");
         }
         CBlockIndex* blockFrom = pindexPrev->GetAncestor(coinPrev.nHeight);
         if(!blockFrom) {
-            return false;
+            return error("CheckKernel(): Could not find block");
         }
         if(coinPrev.IsSpent()){
-            return false;
+            return error("CheckKernel(): Coin is spent");
         }
 
         return CheckStakeKernelHash(pindexPrev, nBits, blockFrom->nTime, coinPrev.out.nValue, prevout,
