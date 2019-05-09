@@ -98,7 +98,7 @@ void TitleBar::addWallet(WalletModel *_model)
     if(_model)
     {
         m_models[_model] = _model->wallet().getBalances();
-        connect(_model, SIGNAL(balanceChanged(interfaces::WalletBalances)), this, SLOT(setBalance(interfaces::WalletBalances)));
+        connect(_model, &WalletModel::balanceChanged, this, &TitleBar::setBalance);
     }
 }
 
@@ -106,7 +106,7 @@ void TitleBar::removeWallet(WalletModel *_model)
 {
     if(_model)
     {
-        disconnect(_model, SIGNAL(balanceChanged(interfaces::WalletBalances)), this, SLOT(setBalance(interfaces::WalletBalances)));
+        disconnect(_model, &WalletModel::balanceChanged, this, &TitleBar::setBalance);
         m_models.erase(_model);
     }
 }

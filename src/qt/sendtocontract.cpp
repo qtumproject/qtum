@@ -104,16 +104,16 @@ SendToContract::SendToContract(const PlatformStyle *platformStyle, QWidget *pare
     m_contractABI = new ContractABI();
 
     // Connect signals with slots
-    connect(ui->pushButtonClearAll, SIGNAL(clicked()), SLOT(on_clearAllClicked()));
-    connect(ui->pushButtonSendToContract, SIGNAL(clicked()), SLOT(on_sendToContractClicked()));
-    connect(ui->lineEditContractAddress, SIGNAL(textChanged(QString)), SLOT(on_updateSendToContractButton()));
-    connect(ui->textEditInterface, SIGNAL(textChanged()), SLOT(on_newContractABI()));
-    connect(ui->stackedWidget, SIGNAL(currentChanged(int)), SLOT(on_updateSendToContractButton()));
-    connect(m_ABIFunctionField, SIGNAL(functionChanged()), SLOT(on_functionChanged()));
-    connect(ui->saveInfoButton, SIGNAL(clicked()), SLOT(on_saveInfoClicked()));
-    connect(ui->loadInfoButton, SIGNAL(clicked()), SLOT(on_loadInfoClicked()));
-    connect(ui->pasteAddressButton, SIGNAL(clicked()), SLOT(on_pasteAddressClicked()));
-    connect(ui->lineEditContractAddress, SIGNAL(textChanged(QString)), SLOT(on_contractAddressChanged()));
+    connect(ui->pushButtonClearAll, &QPushButton::clicked, this, &SendToContract::on_clearAllClicked);
+    connect(ui->pushButtonSendToContract, &QPushButton::clicked, this, &SendToContract::on_sendToContractClicked);
+    connect(ui->lineEditContractAddress, &QValidatedLineEdit::textChanged, this, &SendToContract::on_updateSendToContractButton);
+    connect(ui->textEditInterface, &QValidatedTextEdit::textChanged, this, &SendToContract::on_newContractABI);
+    connect(ui->stackedWidget, &QStackedWidget::currentChanged, this, &SendToContract::on_updateSendToContractButton);
+    connect(m_ABIFunctionField, &ABIFunctionField::functionChanged, this, &SendToContract::on_functionChanged);
+    connect(ui->saveInfoButton, &QToolButton::clicked, this, &SendToContract::on_saveInfoClicked);
+    connect(ui->loadInfoButton, &QToolButton::clicked, this, &SendToContract::on_loadInfoClicked);
+    connect(ui->pasteAddressButton, &QToolButton::clicked, this, &SendToContract::on_pasteAddressClicked);
+    connect(ui->lineEditContractAddress, &QValidatedLineEdit::textChanged, this, &SendToContract::on_contractAddressChanged);
 
     // Set contract address validator
     QRegularExpression regEx;
