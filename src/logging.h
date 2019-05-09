@@ -20,6 +20,7 @@ static const bool DEFAULT_LOGTIMEMICROS = false;
 static const bool DEFAULT_LOGIPS        = false;
 static const bool DEFAULT_LOGTIMESTAMPS = true;
 extern const char * const DEFAULT_DEBUGLOGFILE;
+extern const char * const DEFAULT_DEBUGVMLOGFILE;
 
 extern bool fLogIPs;
 
@@ -62,6 +63,7 @@ namespace BCLog {
     {
     private:
         FILE* m_fileout = nullptr;
+        FILE* m_fileoutVM = nullptr;
         std::mutex m_file_mutex;
         std::list<std::string> m_msgs_before_open;
 
@@ -85,10 +87,11 @@ namespace BCLog {
         bool m_log_time_micros = DEFAULT_LOGTIMEMICROS;
 
         fs::path m_file_path;
+        fs::path m_file_pathVM;
         std::atomic<bool> m_reopen_file{false};
 
         /** Send a string to the log output */
-        void LogPrintStr(const std::string &str);
+        void LogPrintStr(const std::string &str, bool useVMLog = false);
 
         /** Returns whether logs will be written to any output */
         bool Enabled() const { return m_print_to_console || m_print_to_file; }

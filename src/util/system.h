@@ -36,6 +36,12 @@
 
 #include <boost/thread/condition_variable.hpp> // for boost::thread_interrupted
 
+#ifndef WIN32
+#include <sys/types.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+#endif
+
 // Application startup time (used for uptime calculation)
 int64_t GetStartupTime();
 
@@ -69,7 +75,7 @@ bool TruncateFile(FILE *file, unsigned int length);
 int RaiseFileDescriptorLimit(int nMinFD);
 void AllocateFileRange(FILE *file, unsigned int offset, unsigned int length);
 bool RenameOver(fs::path src, fs::path dest);
-bool LockDirectory(const fs::path& directory, const std::string lockfile_name, bool probe_only=false);
+bool LockDirectory(const fs::path& directory, const std::string lockfile_name, bool probe_only=false, bool try_lock = true);
 void UnlockDirectory(const fs::path& directory, const std::string& lockfile_name);
 bool DirIsWritable(const fs::path& directory);
 
@@ -317,6 +323,30 @@ std::string HelpMessageOpt(const std::string& option, const std::string& message
  */
 int GetNumCores();
 
+#ifdef WIN32
+inline void SetThreadPriority(int nPriority)
+{
+    SetThreadPriority(GetCurrentThread(), nPriority);
+}
+#else
+
+#define THREAD_PRIORITY_LOWEST          PRIO_MAX
+#define THREAD_PRIORITY_BELOW_NORMAL    2
+#define THREAD_PRIORITY_NORMAL          0
+#define THREAD_PRIORITY_ABOVE_NORMAL    0
+
+inline void SetThreadPriority(int nPriority)
+{
+    // It's unclear if it's even possible to change thread priorities on Linux,
+    // but we really and truly need it for the generation threads.
+#ifdef PRIO_THREAD
+    setpriority(PRIO_THREAD, 0, nPriority);
+#else
+    setpriority(PRIO_PROCESS, 0, nPriority);
+#endif
+}
+#endif
+
 void RenameThread(const char* name);
 
 /**
@@ -348,6 +378,8 @@ template <typename Callable> void TraceThread(const char* name,  Callable func)
 }
 
 std::string CopyrightHolders(const std::string& strPrefix);
+
+bool CheckHex(const std::string& str);
 
 /**
  * On platforms that support it, tell the kernel the calling thread is

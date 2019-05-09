@@ -97,7 +97,7 @@ static const char* FEE_ESTIMATES_FILENAME="fee_estimates.dat";
 /**
  * The PID file facilities.
  */
-static const char* BITCOIN_PID_FILENAME = "bitcoind.pid";
+static const char* BITCOIN_PID_FILENAME = "qtum.pid";
 
 static fs::path GetPidFile()
 {
@@ -858,6 +858,7 @@ void InitLogging()
 {
     LogInstance().m_print_to_file = !gArgs.IsArgNegated("-debuglogfile");
     LogInstance().m_file_path = AbsPathForConfigVal(gArgs.GetArg("-debuglogfile", DEFAULT_DEBUGLOGFILE));
+    LogInstance().m_file_pathVM = AbsPathForConfigVal(gArgs.GetArg("-debugvmlogfile", DEFAULT_DEBUGVMLOGFILE));
 
     // Add newlines to the logfile to distinguish this execution from the last
     // one; called before console logging is set up, so this is only sent to
