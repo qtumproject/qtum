@@ -1201,7 +1201,7 @@ bool AppInitParameterInteraction()
             return InitError("Constantinople block height may only be overridden on regtest.");
         }
 
-        int constantinopleBlock = gArgs.GetArg("-constantinopleheight", 0x7fffffff);
+        int constantinopleBlock = gArgs.GetArg("-constantinopleheight", 0);
         if(constantinopleBlock >= 0)
         {
             UpdateConstantinopleBlockHeight(constantinopleBlock);
