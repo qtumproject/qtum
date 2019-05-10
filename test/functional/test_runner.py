@@ -197,6 +197,8 @@ BASE_SCRIPTS = [
     'qtum_prioritize_create_over_call.py',
     'qtum_callcontract_timestamp.py',
     'qtum_transaction_receipt_origin_contract_address.py',
+    'qtum_block_number_corruption.py',
+    'qtum_duplicate_stake.py',
     'qtum_op_sender.py',
 ]
 
