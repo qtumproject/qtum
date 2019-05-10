@@ -131,7 +131,7 @@ class QtumPOSTest(BitcoinTestFramework):
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.unconfirmed_staking_prevouts)
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, reconnect=True)
+        self.sync_blocks([self.tip], success=False, reconnect=True, request_block=False)
 
 
         # 5 A block that with a coinbase reward
@@ -284,14 +284,14 @@ class QtumPOSTest(BitcoinTestFramework):
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.bad_vout_staking_prevouts)
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, reconnect=True)
+        self.sync_blocks([self.tip], success=False, reconnect=True, request_block=False)
 
 
         # 22. A block that stakes with txs that do not exist
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.bad_txid_staking_prevouts)
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, reconnect=True)
+        self.sync_blocks([self.tip], success=False, reconnect=True, request_block=False)
 
 
         # Make sure for certain that no blocks were accepted. (This is also to make sure that no segfaults ocurred)
