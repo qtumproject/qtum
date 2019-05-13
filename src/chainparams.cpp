@@ -311,7 +311,7 @@ public:
         consensus.BIP34Hash = uint256S("0x665ed5b402ac0b44efc37d8926332994363e8a7278b7ee9a58fb972efadae943");
         consensus.BIP65Height = 0; // BIP65 activated on regtest (Used in rpc activation tests)
         consensus.BIP66Height = 0; // BIP66 activated on regtest (Used in rpc activation tests)
-        consensus.QIP6Height = 0x7fffffff;
+        consensus.QIP6Height = 0;
         consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 16 * 60; // 16 minutes
@@ -445,4 +445,14 @@ std::string CChainParams::EVMGenesisInfo(dev::eth::Network network) const
     std::string genesisInfo = dev::eth::genesisInfo(network);
     ReplaceInt(consensus.QIP6Height, "QIP6_STARTING_BLOCK", genesisInfo);
     return genesisInfo;
+}
+
+void CChainParams::UpdateBtcEcrecoverBlockHeight(int nHeight)
+{
+    consensus.QIP6Height = nHeight;
+}
+
+void UpdateBtcEcrecoverBlockHeight(int nHeight)
+{
+    globalChainParams->UpdateBtcEcrecoverBlockHeight(nHeight);
 }
