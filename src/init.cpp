@@ -493,7 +493,7 @@ void SetupServerArgs()
     gArgs.AddArg("-printtoconsole", "Send trace/debug info to console (default: 1 when no -daemon. To disable logging to file, set -nodebuglogfile)", false, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-shrinkdebugfile", "Shrink debug.log file on client startup (default: 1 when no -debug)", false, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-uacomment=<cmt>", "Append comment to the user agent string", false, OptionsCategory::DEBUG_TEST);
-    gArgs.AddArg("-opsender-block=<n>", "Use given block height to check opsender fork (regtest-only)", true, OptionsCategory::DEBUG_TEST);
+    gArgs.AddArg("-opsenderheight=<n>", "Use given block height to check opsender fork (regtest-only)", true, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-difficultychangeheight=<n>", "Use given block height to check difficulty change fork (regtest-only)", true, OptionsCategory::DEBUG_TEST);
 
     SetupChainParamsBaseOptions();
@@ -1196,13 +1196,13 @@ bool AppInitParameterInteraction()
         }
     }
 
-    if (gArgs.IsArgSet("-opsender-block")) {
+    if (gArgs.IsArgSet("-opsenderheight")) {
         // Allow overriding opsender block for testing
         if (!chainparams.MineBlocksOnDemand()) {
             return InitError("Op Sender block height may only be overridden on regtest.");
         }
 
-        int opsenderBlock = gArgs.GetArg("-opsender-block", 0x7fffffff);
+        int opsenderBlock = gArgs.GetArg("-opsenderheight", 0);
         if(opsenderBlock >= 0)
         {
             UpdateOpSenderBlockHeight(opsenderBlock);

@@ -322,7 +322,7 @@ public:
         consensus.QIP7Height = 0x7fffffff;
         consensus.QIP6Height = 0x7fffffff;
         consensus.QIP9Height = 0;
-        consensus.QIP5Height = 0x7fffffff;
+        consensus.QIP5Height = 0;
         consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 16 * 60; // 16 minutes (960 = 832 + 128; multiplier is 832)
