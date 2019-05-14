@@ -84,9 +84,11 @@ public:
     const ChainTxData& TxData() const { return chainTxData; }
     void UpdateVersionBitsParameters(Consensus::DeploymentPos d, int64_t nStartTime, int64_t nTimeout);
     std::string EVMGenesisInfo(dev::eth::Network network) const;
+    std::string EVMGenesisInfo(dev::eth::Network network, int nHeight) const;
     void UpdateOpSenderBlockHeight(int nHeight);
     void UpdateDifficultyChangeBlockHeight(int nHeight);
     void UpdateBtcEcrecoverBlockHeight(int nHeight);
+    void UpdateConstantinopleBlockHeight(int nHeight);
 protected:
     CChainParams() {}
 
@@ -145,5 +147,10 @@ void UpdateDifficultyChangeBlockHeight(int nHeight);
  * Allows modifying the btc_ecrecover block height regtest parameter.
  */
 void UpdateBtcEcrecoverBlockHeight(int nHeight);
+
+/**
+ * Allows modifying the constantinople block height regtest parameter.
+ */
+void UpdateConstantinopleBlockHeight(int nHeight);
 
 #endif // BITCOIN_CHAINPARAMS_H
