@@ -144,6 +144,7 @@ void UpdateOpSenderBlockHeight(int nHeight);
  */
 void UpdateDifficultyChangeBlockHeight(int nHeight);
 
+/**
  * Allows modifying the btc_ecrecover block height regtest parameter.
  */
 void UpdateBtcEcrecoverBlockHeight(int nHeight);
