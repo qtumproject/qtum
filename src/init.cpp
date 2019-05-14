@@ -495,6 +495,7 @@ void SetupServerArgs()
     gArgs.AddArg("-uacomment=<cmt>", "Append comment to the user agent string", false, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-opsenderheight=<n>", "Use given block height to check opsender fork (regtest-only)", true, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-difficultychangeheight=<n>", "Use given block height to check difficulty change fork (regtest-only)", true, OptionsCategory::DEBUG_TEST);
+    gArgs.AddArg("-btcecrecoverheight=<n>", "Use given block height to check btc_ecrecover fork (regtest-only)", true, OptionsCategory::DEBUG_TEST);
 
     SetupChainParamsBaseOptions();
 
@@ -1221,6 +1222,20 @@ bool AppInitParameterInteraction()
         {
             UpdateDifficultyChangeBlockHeight(difficultyChangeBlock);
             LogPrintf("Activate difficulty change at block height %d\n.", difficultyChangeBlock);
+        }
+    }
+
+    if (gArgs.IsArgSet("-btcecrecoverheight")) {
+        // Allow overriding btc_ecrecover block for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError("Btc_ecrecover block height may only be overridden on regtest.");
+        }
+
+        int btcEcrecoverBlock = gArgs.GetArg("-btcecrecoverheight", 0);
+        if(btcEcrecoverBlock >= 0)
+        {
+            UpdateBtcEcrecoverBlockHeight(btcEcrecoverBlock);
+            LogPrintf("Activate btc_ecrecover at block height %d\n.", btcEcrecoverBlock);
         }
     }
 

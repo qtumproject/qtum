@@ -86,6 +86,7 @@ public:
     std::string EVMGenesisInfo(dev::eth::Network network) const;
     void UpdateOpSenderBlockHeight(int nHeight);
     void UpdateDifficultyChangeBlockHeight(int nHeight);
+    void UpdateBtcEcrecoverBlockHeight(int nHeight);
 protected:
     CChainParams() {}
 
@@ -140,5 +141,9 @@ void UpdateOpSenderBlockHeight(int nHeight);
  * Allows modifying the difficulty change block height regtest parameter.
  */
 void UpdateDifficultyChangeBlockHeight(int nHeight);
+
+ * Allows modifying the btc_ecrecover block height regtest parameter.
+ */
+void UpdateBtcEcrecoverBlockHeight(int nHeight);
 
 #endif // BITCOIN_CHAINPARAMS_H

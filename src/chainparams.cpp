@@ -320,7 +320,7 @@ public:
         consensus.BIP65Height = 0; // BIP65 activated on regtest (Used in rpc activation tests)
         consensus.BIP66Height = 0; // BIP66 activated on regtest (Used in rpc activation tests)
         consensus.QIP7Height = 0x7fffffff;
-        consensus.QIP6Height = 0x7fffffff;
+        consensus.QIP6Height = 0;
         consensus.QIP9Height = 0;
         consensus.QIP5Height = 0;
         consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
@@ -489,4 +489,14 @@ void CChainParams::UpdateDifficultyChangeBlockHeight(int nHeight)
 void UpdateDifficultyChangeBlockHeight(int nHeight)
 {
     globalChainParams->UpdateDifficultyChangeBlockHeight(nHeight);
+}
+
+void CChainParams::UpdateBtcEcrecoverBlockHeight(int nHeight)
+{
+    consensus.QIP6Height = nHeight;
+}
+
+void UpdateBtcEcrecoverBlockHeight(int nHeight)
+{
+    globalChainParams->UpdateBtcEcrecoverBlockHeight(nHeight);
 }
