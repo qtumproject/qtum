@@ -85,6 +85,7 @@ public:
     void UpdateVersionBitsParameters(Consensus::DeploymentPos d, int64_t nStartTime, int64_t nTimeout);
     std::string EVMGenesisInfo(dev::eth::Network network) const;
     void UpdateOpSenderBlockHeight(int nHeight);
+    void UpdateDifficultyChangeBlockHeight(int nHeight);
 protected:
     CChainParams() {}
 
@@ -134,5 +135,10 @@ void UpdateVersionBitsParameters(Consensus::DeploymentPos d, int64_t nStartTime,
  * Allows modifying the Op Sender block height regtest parameter.
  */
 void UpdateOpSenderBlockHeight(int nHeight);
+
+/**
+ * Allows modifying the difficulty change block height regtest parameter.
+ */
+void UpdateDifficultyChangeBlockHeight(int nHeight);
 
 #endif // BITCOIN_CHAINPARAMS_H

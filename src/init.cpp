@@ -494,6 +494,7 @@ void SetupServerArgs()
     gArgs.AddArg("-shrinkdebugfile", "Shrink debug.log file on client startup (default: 1 when no -debug)", false, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-uacomment=<cmt>", "Append comment to the user agent string", false, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-opsender-block=<n>", "Use given block height to check opsender fork (regtest-only)", true, OptionsCategory::DEBUG_TEST);
+    gArgs.AddArg("-difficultychangeheight=<n>", "Use given block height to check difficulty change fork (regtest-only)", true, OptionsCategory::DEBUG_TEST);
 
     SetupChainParamsBaseOptions();
 
@@ -1206,6 +1207,20 @@ bool AppInitParameterInteraction()
         {
             UpdateOpSenderBlockHeight(opsenderBlock);
             LogPrintf("Activate Op Sender at block height %d\n.", opsenderBlock);
+        }
+    }
+
+    if (gArgs.IsArgSet("-difficultychangeheight")) {
+        // Allow overriding difficulty change block for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError("Difficulty change block height may only be overridden on regtest.");
+        }
+
+        int difficultyChangeBlock = gArgs.GetArg("-difficultychangeheight", 0);
+        if(difficultyChangeBlock >= 0)
+        {
+            UpdateDifficultyChangeBlockHeight(difficultyChangeBlock);
+            LogPrintf("Activate difficulty change at block height %d\n.", difficultyChangeBlock);
         }
     }
 

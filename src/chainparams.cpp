@@ -321,7 +321,7 @@ public:
         consensus.BIP66Height = 0; // BIP66 activated on regtest (Used in rpc activation tests)
         consensus.QIP7Height = 0x7fffffff;
         consensus.QIP6Height = 0x7fffffff;
-        consensus.QIP9Height = 0x7fffffff;
+        consensus.QIP9Height = 0;
         consensus.QIP5Height = 0x7fffffff;
         consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
@@ -469,4 +469,24 @@ void CChainParams::UpdateOpSenderBlockHeight(int nHeight)
 void UpdateOpSenderBlockHeight(int nHeight)
 {
     globalChainParams->UpdateOpSenderBlockHeight(nHeight);
+}
+
+void CChainParams::UpdateDifficultyChangeBlockHeight(int nHeight)
+{
+    consensus.nSubsidyHalvingInterval = 985500; // qtum halving every 4 years
+    consensus.posLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+    consensus.QIP9Height = nHeight;
+    consensus.fPowAllowMinDifficultyBlocks = false;
+    consensus.fPowNoRetargeting = true;
+    consensus.fPoSNoRetargeting = false;
+    consensus.nLastPOWBlock = 5000;
+    consensus.nMPoSRewardRecipients = 10;
+    consensus.nFirstMPoSBlock = consensus.nLastPOWBlock + 
+                                consensus.nMPoSRewardRecipients + 
+                                COINBASE_MATURITY;
+}
+
+void UpdateDifficultyChangeBlockHeight(int nHeight)
+{
+    globalChainParams->UpdateDifficultyChangeBlockHeight(nHeight);
 }
