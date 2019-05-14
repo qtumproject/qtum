@@ -118,10 +118,10 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = 999999999999ULL;
 
         // The best chain should have at least this much work.
-        consensus.nMinimumChainWork = uint256S("0x0000000000000000000000000000000000000000000000b440c752306b906b13"); // qtum
+        consensus.nMinimumChainWork = uint256S("0x0000000000000000000000000000000000000000000000fe9a0a868307506a7b"); // qtum
 
         // By default assume that the signatures in ancestors of this block are valid.
-        consensus.defaultAssumeValid = uint256S("0xaaef09196d25c83a31d2c82f7795a63dc99ef11d07cd6d508cdbd506ed3043b4"); //253809
+        consensus.defaultAssumeValid = uint256S("0x739f1472b1725adcd493fc5ccefa5fec81066f4dcbf18c9e7ac4f217ef98def5"); // 363604
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -171,15 +171,17 @@ public:
                 { 45000, uint256S("060c6af680f6975184c7a17059f2ff4970544fcfd4104e73744fe7ab7be14cfc")},
                 { 90000, uint256S("66fcf426b0aa6f2c9e3330cb2775e9e13c4a2b8ceedb50f8931ae0e12078ad50")},
                 { 245000, uint256S("ed79607feeadcedf5b94f1c43df684af5106e79b0989a008a88f9dc2221cc12a")},
+                { 353000, uint256S("d487896851fed42b07771f950fcc4469fbfa79211cfefed800f6d7806255e23f")},
+                { 367795, uint256S("1209326b73e38e44ec5dc210f51dc5d8c3494e9c698521032dd754747d4c1685")},
             }
         };
 
         chainTxData = ChainTxData{
             // Data as of block 3e76a9f460f5df039f828e3c259da03e1b4e1ec883cbf687a228e346cc457360 (height 253817)
-        	1540769472, // * UNIX timestamp of last known number of transactions
-			2361221, // * total number of transactions between genesis and that timestamp
+        	1556671680, // * UNIX timestamp of last known number of transactions
+			2880533, // * total number of transactions between genesis and that timestamp
                             //   (the tx=... number in the SetBestChain debug.log lines)
-			0.04623395247200218 // * estimated number of transactions per second after that timestamp
+			0.03862537503359533 // * estimated number of transactions per second after that timestamp
         };
 
         /* disable fallback fee on mainnet */
@@ -237,10 +239,10 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = 999999999999ULL;
 
         // The best chain should have at least this much work.
-        consensus.nMinimumChainWork = uint256S("0x000000000000000000000000000000000000000000000032688a8f5f0e1e15d5"); // qtum
+        consensus.nMinimumChainWork = uint256S("0x000000000000000000000000000000000000000000000042d96d1fbba9348aca"); // qtum
 
         // By default assume that the signatures in ancestors of this block are valid.
-        consensus.defaultAssumeValid = uint256S("0x1781c14b737983eba5b68a1813599e3e0d2c6561e36989281f370a2107a3027b"); //224905
+        consensus.defaultAssumeValid = uint256S("0x91dc4e3901b6f00a14db9d9bd43a1e8700510c24b692294fdf7fc0b53af76899"); // 320000
 
         pchMessageStart[0] = 0x0d;
         pchMessageStart[1] = 0x22;
@@ -280,14 +282,15 @@ public:
                 {5000, uint256S("000000302bc22f2f65995506e757fff5c824545db5413e871d57d27a0997e8a0")}, //last PoW block
                 {77000, uint256S("f41e2e8d09bca38827c23cad46ed6d434902da08415d2314d0c8ce285b1970cb")},
                 {230000, uint256S("cd17baf80fa817dd543b83897ccb1e07350019e5b812f4956f69efe855d62601")},
+				{343000, uint256S("ac66f1de1a5fa473b5097b313c203e97d45669485e4c235a32a0f80df64f6948")},
             }
         };
 
         chainTxData = ChainTxData{
             // Data as of block 2820e75dd90210a1dcf59efe839a1e5f212e272c6bcb7fd94e749f5e01822813 (height 239905)
-        	1540769920,
-			544173,
-			0.01654274965800273
+        	1556671936,
+			790629,
+			0.01697943121376204
         };
 
         /* enable fallback fee on testnet */

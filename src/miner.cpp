@@ -910,7 +910,7 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
             if (fTryToSync) {
                 fTryToSync = false;
                 if (connman->GetNodeCount(CConnman::CONNECTIONS_ALL) < 3 ||
-                    pindexBestHeader->GetBlockTime() < GetTime() - 10 * 60) {
+                	chainActive.Tip()->GetBlockTime() < GetTime() - 10 * 60) {
                     MilliSleep(60000);
                     continue;
                 }
