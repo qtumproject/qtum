@@ -23,6 +23,7 @@
 #include <wallet/walletdb.h>
 #include <wallet/walletutil.h>
 #include <consensus/params.h>
+#include <pos.h>
 
 #include <algorithm>
 #include <atomic>
@@ -78,11 +79,13 @@ static const CAmount DEFAULT_FALLBACK_FEE = 20000;
 //! -discardfee default
 static const CAmount DEFAULT_DISCARD_FEE = 10000;
 //! -mintxfee default
-static const CAmount DEFAULT_TRANSACTION_MINFEE = 1000;
+static const CAmount DEFAULT_TRANSACTION_MINFEE = 400000;
 //! minimum recommended increment for BIP 125 replacement txs
 static const CAmount WALLET_INCREMENTAL_RELAY_FEE = 5000;
 //! Default for -spendzeroconfchange
 static const bool DEFAULT_SPEND_ZEROCONF_CHANGE = true;
+//! Default for zero balance address token
+static const bool DEFAULT_ZERO_BALANCE_ADDRESS_TOKEN = true;
 //! Default for -walletrejectlongchains
 static const bool DEFAULT_WALLET_REJECT_LONG_CHAINS = false;
 //! Default for -avoidpartialspends
@@ -93,6 +96,8 @@ static const unsigned int DEFAULT_TX_CONFIRM_TARGET = 6;
 static const bool DEFAULT_WALLET_RBF = false;
 static const bool DEFAULT_WALLETBROADCAST = true;
 static const bool DEFAULT_DISABLE_WALLET = false;
+static const bool DEFAULT_NOT_USE_CHANGE_ADDRESS = false;
+static const CAmount DEFAULT_RESERVE_BALANCE = 0;
 
 //! Pre-calculated constants for input size estimation in *virtual size*
 static constexpr size_t DUMMY_NESTED_P2WPKH_INPUT_SIZE = 91;
@@ -669,6 +674,8 @@ private:
     int64_t nLastResend = 0;
     bool fBroadcastTransactions = false;
 
+    std::map<COutPoint, CStakeCache> stakeCache;
+
     /**
      * Used to keep track of spent outpoints, and
      * detect and report conflicts (double-spends or
@@ -1004,6 +1011,7 @@ public:
     bool CommitTransaction(CTransactionRef tx, mapValue_t mapValue, std::vector<std::pair<std::string, std::string>> orderForm, CReserveKey& reservekey, CConnman* connman, CValidationState& state);
 
     uint64_t GetStakeWeight(interfaces::Chain::Lock& locked_chain) const;
+    bool CreateCoinStake(interfaces::Chain::Lock& locked_chain, const CKeyStore &keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key);
     bool DummySignTx(CMutableTransaction &txNew, const std::set<CTxOut> &txouts, bool use_max_sig = false) const
     {
         std::vector<CTxOut> v_txouts(txouts.size());
@@ -1013,7 +1021,6 @@ public:
     bool DummySignTx(CMutableTransaction &txNew, const std::vector<CTxOut> &txouts, bool use_max_sig = false) const;
     bool DummySignInput(CTxIn &tx_in, const CTxOut &txout, bool use_max_sig = false) const;
 
-    CAmount m_reserve_balance{0};
     CFeeRate m_pay_tx_fee{DEFAULT_PAY_TX_FEE};
     unsigned int m_confirm_target{DEFAULT_TX_CONFIRM_TARGET};
     bool m_spend_zero_conf_change{DEFAULT_SPEND_ZEROCONF_CHANGE};
@@ -1033,6 +1040,10 @@ public:
     // serves to disable the trivial sendmoney when OS account compromised
     // provides no real security
     std::atomic<bool> m_wallet_unlock_staking_only{false};
+    bool m_not_use_change_address{DEFAULT_NOT_USE_CHANGE_ADDRESS};
+    CAmount m_reserve_balance{DEFAULT_RESERVE_BALANCE};
+    int64_t m_last_coin_stake_search_time{0};
+    int64_t m_last_coin_stake_search_interval{0};
 
     bool NewKeyPool();
     size_t KeypoolCountExternalKeys() EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);

@@ -42,6 +42,11 @@
 #include <validationinterface.h>
 #include <warnings.h>
 
+#include <serialize.h>
+#include <pubkey.h>
+#include <key.h>
+#include <wallet/wallet.h>
+
 #include <future>
 #include <sstream>
 
@@ -49,7 +54,7 @@
 #include <boost/thread.hpp>
 
 #if defined(NDEBUG)
-# error "Bitcoin cannot be compiled without assertions."
+# error "Qtum cannot be compiled without assertions."
 #endif
 
 #define MICRO 0.000001
@@ -258,7 +263,7 @@ std::atomic_bool g_is_mempool_loaded{false};
 /** Constant stuff for coinbase transactions we create: */
 CScript COINBASE_FLAGS;
 
-const std::string strMessageMagic = "Bitcoin Signed Message:\n";
+const std::string strMessageMagic = "Qtum Signed Message:\n";
 
 // Internal stuff
 namespace {
@@ -316,6 +321,7 @@ enum class FlushStateMode {
 };
 
 // See definition for documentation
+static int GetWitnessCommitmentIndex(const CBlock& block);
 static bool FlushStateToDisk(const CChainParams& chainParams, CValidationState &state, FlushStateMode mode, int nManualPruneHeight=0);
 static void FindFilesToPruneManual(std::set<int>& setFilesToPrune, int nManualPruneHeight);
 static void FindFilesToPrune(std::set<int>& setFilesToPrune, uint64_t nPruneAfterHeight);
@@ -3127,6 +3133,133 @@ static bool FindUndoPos(CValidationState &state, int nFile, CDiskBlockPos &pos, 
     return true;
 }
 
+bool CheckFirstCoinstakeOutput(const CBlock& block)
+{
+    // Coinbase output should be empty if proof-of-stake block
+    int commitpos = GetWitnessCommitmentIndex(block);
+    if(commitpos < 0)
+    {
+        if (block.vtx[0]->vout.size() != 1 || !block.vtx[0]->vout[0].IsEmpty())
+            return false;
+    }
+    else
+    {
+        if (block.vtx[0]->vout.size() != 2 || !block.vtx[0]->vout[0].IsEmpty() || block.vtx[0]->vout[1].nValue)
+            return false;
+    }
+
+    return true;
+}
+
+#ifdef ENABLE_WALLET
+// novacoin: attempt to generate suitable proof-of-stake
+bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& nTotalFees, uint32_t nTime)
+{
+    // if we are trying to sign
+    //    something except proof-of-stake block template
+    if (!CheckFirstCoinstakeOutput(*pblock))
+        return false;
+
+    // if we are trying to sign
+    //    a complete proof-of-stake block
+    if (pblock->IsProofOfStake() && !pblock->vchBlockSig.empty())
+        return true;
+
+    CKey key;
+    CMutableTransaction txCoinStake(*pblock->vtx[1]);
+    uint32_t nTimeBlock = nTime;
+    nTimeBlock &= ~STAKE_TIMESTAMP_MASK;
+    //original line:
+    //int64_t nSearchInterval = IsProtocolV2(nBestHeight+1) ? 1 : nSearchTime - nLastCoinStakeSearchTime;
+    //IsProtocolV2 mean POS 2 or higher, so the modified line is:
+    auto locked_chain = wallet.chain().lock();
+    LOCK(wallet.cs_wallet);
+    if (wallet.CreateCoinStake(*locked_chain, wallet, pblock->nBits, nTotalFees, nTimeBlock, txCoinStake, key))
+    {
+        if (nTimeBlock >= chainActive.Tip()->GetMedianTimePast()+1)
+        {
+            // make sure coinstake would meet timestamp protocol
+            //    as it would be the same as the block timestamp
+            pblock->nTime = nTimeBlock;
+            pblock->vtx[1] = MakeTransactionRef(std::move(txCoinStake));
+            pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
+            pblock->prevoutStake = pblock->vtx[1]->vin[0].prevout;
+
+            // Check timestamp against prev
+            if(pblock->GetBlockTime() <= chainActive.Tip()->GetBlockTime() || FutureDrift(pblock->GetBlockTime()) < chainActive.Tip()->GetBlockTime())
+            {
+                return false;
+            }
+
+            // append a signature to our block and ensure that is LowS
+            return key.Sign(pblock->GetHashWithoutSign(), pblock->vchBlockSig) &&
+                       EnsureLowS(pblock->vchBlockSig) &&
+                       CheckHeaderPoS(*pblock, Params().GetConsensus());
+        }
+    }
+
+    return false;
+}
+#endif
+
+bool GetBlockPublicKey(const CBlock& block, std::vector<unsigned char>& vchPubKey)
+{
+    if (block.IsProofOfWork())
+        return false;
+
+    if (block.vchBlockSig.empty())
+        return false;
+
+    std::vector<valtype> vSolutions;
+    const CTxOut& txout = block.vtx[1]->vout[1];
+    txnouttype whichType = Solver(txout.scriptPubKey, vSolutions);
+
+    if (whichType == TX_NONSTANDARD)
+        return false;
+
+    if (whichType == TX_PUBKEY)
+    {
+        vchPubKey = vSolutions[0];
+        return true;
+    }
+    else
+    {
+        // Block signing key also can be encoded in the nonspendable output
+        // This allows to not pollute UTXO set with useless outputs e.g. in case of multisig staking
+
+        const CScript& script = txout.scriptPubKey;
+        CScript::const_iterator pc = script.begin();
+        opcodetype opcode;
+        valtype vchPushValue;
+
+        if (!script.GetOp(pc, opcode, vchPubKey))
+            return false;
+        if (opcode != OP_RETURN)
+            return false;
+        if (!script.GetOp(pc, opcode, vchPubKey))
+            return false;
+        if (!IsCompressedOrUncompressedPubKey(vchPubKey))
+            return false;
+        return true;
+    }
+
+    return false;
+}
+
+bool CheckBlockSignature(const CBlock& block)
+{
+    if (block.IsProofOfWork())
+        return block.vchBlockSig.empty();
+
+    std::vector<unsigned char> vchPubKey;
+    if(!GetBlockPublicKey(block, vchPubKey))
+    {
+        return false;
+    }
+
+    return CPubKey(vchPubKey).Verify(block.GetHashWithoutSign(), block.vchBlockSig);
+}
+
 static bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW = true)
 {
     // Check proof of work matches claimed amount
@@ -3136,7 +3269,7 @@ static bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state,
     return true;
 }
 
-bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW, bool fCheckMerkleRoot)
+bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig)
 {
     // These are checks that are independent of context.
 
@@ -3147,6 +3280,9 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
     // redundant with the call in AcceptBlockHeader.
     if (!CheckBlockHeader(block, state, consensusParams, fCheckPOW))
         return false;
+
+    if (block.IsProofOfStake() &&  block.GetBlockTime() > FutureDrift(GetAdjustedTime()))
+        return error("CheckBlock() : block timestamp too far in the future");
 
     // Check the merkle root.
     if (fCheckMerkleRoot) {
@@ -3179,11 +3315,57 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
         if (block.vtx[i]->IsCoinBase())
             return state.DoS(100, false, REJECT_INVALID, "bad-cb-multiple", false, "more than one coinbase");
 
+    //Don't allow contract opcodes in coinbase
+    if(block.vtx[0]->HasOpSpend() || block.vtx[0]->HasCreateOrCall()){
+        return state.DoS(100, false, REJECT_INVALID, "bad-cb-contract", false, "coinbase must not contain OP_SPEND, OP_CALL, or OP_CREATE");
+    }
+
+    // Second transaction must be coinbase in case of PoS block, the rest must not be
+    if (block.IsProofOfStake())
+    {
+        // Coinbase output should be empty if proof-of-stake block
+        if (!CheckFirstCoinstakeOutput(block))
+            return state.DoS(100, false, REJECT_INVALID, "bad-cb-missing", false, "coinbase output not empty for proof-of-stake block");
+
+        // Second transaction must be coinstake
+        if (block.vtx.empty() || block.vtx.size() < 2 || !block.vtx[1]->IsCoinStake())
+            return state.DoS(100, false, REJECT_INVALID, "bad-cs-missing", false, "second tx is not coinstake");
+
+        //prevoutStake must exactly match the coinstake in the block body
+        if(block.vtx[1]->vin.empty() || block.prevoutStake != block.vtx[1]->vin[0].prevout){
+            return state.DoS(100, false, REJECT_INVALID, "bad-cs-invalid", false, "prevoutStake in block header does not match coinstake in block body");
+        }
+        //the rest of the transactions must not be coinstake
+        for (unsigned int i = 2; i < block.vtx.size(); i++)
+            if (block.vtx[i]->IsCoinStake())
+               return state.DoS(100, false, REJECT_INVALID, "bad-cs-multiple", false, "more than one coinstake");
+
+        //Don't allow contract opcodes in coinstake
+        //We might allow this later, but it hasn't been tested enough to determine if safe
+        if(block.vtx[1]->HasOpSpend() || block.vtx[1]->HasCreateOrCall()){
+            return state.DoS(100, false, REJECT_INVALID, "bad-cs-contract", false, "coinstake must not contain OP_SPEND, OP_CALL, or OP_CREATE");
+        }
+    }
+
+    // Check proof-of-stake block signature
+    if (fCheckSig && !CheckBlockSignature(block))
+        return state.DoS(100, false, REJECT_INVALID, "bad-blk-signature", false, "bad proof-of-stake block signature");
+
+    bool lastWasContract=false;
     // Check transactions
-    for (const auto& tx : block.vtx)
+    for (const auto& tx : block.vtx) {
         if (!CheckTransaction(*tx, state, true))
             return state.Invalid(false, state.GetRejectCode(), state.GetRejectReason(),
                                  strprintf("Transaction check failed (tx hash %s) %s", tx->GetHash().ToString(), state.GetDebugMessage()));
+        //OP_SPEND can only exist immediately after a contract tx in a block, or after another OP_SPEND
+        //So, if the previous tx was not a contract tx, fail it.
+        if(tx->HasOpSpend()){
+            if(!lastWasContract){
+                return state.DoS(100, false, REJECT_INVALID, "bad-opspend-tx", false, "OP_SPEND transaction without corresponding contract transaction");
+            }
+        }
+        lastWasContract = tx->HasCreateOrCall() || tx->HasOpSpend();
+    }
 
     unsigned int nSigOps = 0;
     for (const auto& tx : block.vtx)
