@@ -247,7 +247,7 @@ public:
         // Ban the node if try to spam
         bool banNode = (nAvgValue >= 1.5 * maxAvg && size >= maxAvg) ||
                        (nAvgValue >= maxAvg && nHeaders >= maxSize) ||
-                       (nHeaders >= maxSize * 3);
+                       (nHeaders >= maxSize * 4.1);
         if(banNode)
         {
             // Clear the points and ban the node
@@ -3975,6 +3975,21 @@ bool ProcessNetBlock(const CChainParams& chainparams, const std::shared_ptr<cons
             if (pfrom)
                 Misbehaving(pfrom->GetId(), 100);
             return error("ProcessNetBlock() : coinstake transaction does not exist");
+        }
+
+        // Process the header before processing the block
+        const CBlockIndex *pindex = nullptr;
+        CValidationState state;
+        if (!ProcessNetBlockHeaders(pfrom, {*pblock}, state, chainparams, &pindex)) {
+            int nDoS;
+            if (state.IsInvalid(nDoS)) {
+                if (nDoS > 0) {
+                    Misbehaving(pfrom->GetId(), nDoS, strprintf("Peer %d sent us invalid header\n", pfrom->GetId()));
+                } else {
+                    LogPrint(BCLog::NET, "Peer %d sent us invalid header\n", pfrom->GetId());
+                }
+                return error("ProcessNetBlock() : invalid header received");
+            }
         }
 
         // Check for duplicate orphan block

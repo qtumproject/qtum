@@ -161,13 +161,14 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
     def dos_protection_triggered_via_spam_on_variable_height_test(self):
         self.start_p2p_connection()
 
-        for i in range(1504):
+        for i in range(2055):
             block_header = self._create_pos_header(self.node, self.staking_prevouts, self.node.getblockhash(self.node.getblockcount()-500+(i%500)))
             block_header.rehash()
             msg = msg_headers()
             block_header.nNonce = i
             msg.headers.extend([block_header])
             self.p2p_node.send_message(msg)
+
         self.p2p_node.wait_for_disconnect(timeout=5)
 
     
