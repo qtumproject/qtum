@@ -247,7 +247,7 @@ public:
         // Ban the node if try to spam
         bool banNode = (nAvgValue >= 1.5 * maxAvg && size >= maxAvg) ||
                        (nAvgValue >= maxAvg && nHeaders >= maxSize) ||
-                       (nHeaders >= maxSize * 3);
+                       (nHeaders >= maxSize * 4.1);
         if(banNode)
         {
             // Clear the points and ban the node
