@@ -1867,6 +1867,15 @@ std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::v
     CBlock block;
     CMutableTransaction tx;
 
+    CBlockIndex* pblockindex = mapBlockIndex[chainActive.Tip()->GetBlockHash()];
+    ReadBlockFromDisk(block, pblockindex, Params().GetConsensus());
+    block.nTime = GetAdjustedTime();
+
+    if(block.IsProofOfStake())
+    	block.vtx.erase(block.vtx.begin()+2,block.vtx.end());
+    else
+    	block.vtx.erase(block.vtx.begin()+1,block.vtx.end());
+
     QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
     uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(chainActive.Tip()->nHeight + 1);
 
@@ -1882,7 +1891,7 @@ std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::v
     callTransaction.setVersion(VersionVM::GetEVMDefault());
 
     
-    ByteCodeExec exec(block, std::vector<QtumTransaction>(1, callTransaction), blockGasLimit);
+    ByteCodeExec exec(block, std::vector<QtumTransaction>(1, callTransaction), blockGasLimit, pblockindex);
     exec.performByteCode(dev::eth::Permanence::Reverted);
     return exec.getResult();
 }
@@ -2140,7 +2149,7 @@ bool ByteCodeExec::processingResults(ByteCodeExecResult& resultBCE){
 
 dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(){
     dev::eth::EnvInfo env;
-    CBlockIndex* tip = chainActive.Tip();
+    CBlockIndex* tip = pindex;
     env.setNumber(dev::u256(tip->nHeight + 1));
     env.setTimestamp(dev::u256(block.nTime));
     env.setDifficulty(dev::u256(block.nBits));
