@@ -46,7 +46,12 @@
 #include <ui_interface.h>
 #include <util/system.h>
 #include <util/moneystr.h>
+#include <util/convert.h>
+#include <logging.h>
 #include <validationinterface.h>
+#ifdef ENABLE_WALLET
+#include <wallet/wallet.h>
+#endif
 #include <warnings.h>
 #include <walletinitinterface.h>
 #include <stdint.h>
@@ -203,7 +208,7 @@ void Shutdown(InitInterfaces& interfaces)
     /// for example if the data directory was found to be locked.
     /// Be sure that anything that writes files or flushes caches only does this if the respective
     /// module was initialized.
-    RenameThread("bitcoin-shutoff");
+    RenameThread("qtum-shutoff");
     mempool.AddTransactionsUpdated(1);
 
     StopHTTPRPC();
@@ -275,6 +280,9 @@ void Shutdown(InitInterfaces& interfaces)
         pcoinscatcher.reset();
         pcoinsdbview.reset();
         pblocktree.reset();
+        pstorageresult.reset();
+        globalState.reset();
+        globalSealEngine.reset();
     }
     for (const auto& client : interfaces.chain_clients) {
         client->stop();
@@ -398,12 +406,14 @@ void SetupServerArgs()
             "(default: 0 = disable pruning blocks, 1 = allow manual pruning via RPC, >=%u = automatically prune block files to stay under the specified target size in MiB)", MIN_DISK_SPACE_FOR_BLOCK_FILES / 1024 / 1024), false, OptionsCategory::OPTIONS);
     gArgs.AddArg("-reindex", "Rebuild chain state and block index from the blk*.dat files on disk", false, OptionsCategory::OPTIONS);
     gArgs.AddArg("-reindex-chainstate", "Rebuild chain state from the currently indexed blocks. When in pruning mode or if blocks on disk might be corrupted, use full -reindex instead.", false, OptionsCategory::OPTIONS);
+    gArgs.AddArg("-record-log-opcodes", "Logs all EVM LOG opcode operations to the file vmExecLogs.json", false, OptionsCategory::OPTIONS);
 #ifndef WIN32
     gArgs.AddArg("-sysperms", "Create new files with system default permissions, instead of umask 077 (only effective with disabled wallet functionality)", false, OptionsCategory::OPTIONS);
 #else
     hidden_args.emplace_back("-sysperms");
 #endif
     gArgs.AddArg("-txindex", strprintf("Maintain a full transaction index, used by the getrawtransaction rpc call (default: %u)", DEFAULT_TXINDEX), false, OptionsCategory::OPTIONS);
+    gArgs.AddArg("-logevents", strprintf("Maintain a full EVM log index, used by searchlogs and gettransactionreceipt rpc calls (default: %u)", DEFAULT_LOGEVENTS), false, OptionsCategory::OPTIONS);
 
     gArgs.AddArg("-addnode=<ip>", "Add a node to connect to and attempt to keep the connection open (see the `addnode` RPC command help for more info). This option can be specified multiple times to add multiple nodes.", false, OptionsCategory::CONNECTION);
     gArgs.AddArg("-banscore=<n>", strprintf("Threshold for disconnecting misbehaving peers (default: %u)", DEFAULT_BANSCORE_THRESHOLD), false, OptionsCategory::CONNECTION);
@@ -435,6 +445,8 @@ void SetupServerArgs()
     gArgs.AddArg("-peertimeout=<n>", strprintf("Specify p2p connection timeout in seconds. This option determines the amount of time a peer may be inactive before the connection to it is dropped. (minimum: 1, default: %d)", DEFAULT_PEER_CONNECT_TIMEOUT), true, OptionsCategory::CONNECTION);
     gArgs.AddArg("-torcontrol=<ip>:<port>", strprintf("Tor control port to use if onion listening enabled (default: %s)", DEFAULT_TOR_CONTROL), false, OptionsCategory::CONNECTION);
     gArgs.AddArg("-torpassword=<pass>", "Tor control port password (default: empty)", false, OptionsCategory::CONNECTION);
+    gArgs.AddArg("-dgpstorage", "Receiving data from DGP via storage (default: -dgpevm)", false, OptionsCategory::CONNECTION);
+    gArgs.AddArg("-dgpevm", "Receiving data from DGP via a contract call (default: -dgpevm)", false, OptionsCategory::CONNECTION);
 #ifdef USE_UPNP
 #if USE_UPNP
     gArgs.AddArg("-upnp", "Use UPnP to map the listening port (default: 1 when listening and no -proxy)", false, OptionsCategory::CONNECTION);
@@ -500,6 +512,7 @@ void SetupServerArgs()
     gArgs.AddArg("-mocktime=<n>", "Replace actual time with <n> seconds since epoch (default: 0)", true, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-maxsigcachesize=<n>", strprintf("Limit sum of signature cache and script execution cache sizes to <n> MiB (default: %u)", DEFAULT_MAX_SIG_CACHE_SIZE), true, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-maxtipage=<n>", strprintf("Maximum tip age in seconds to consider node in initial block download (default: %u)", DEFAULT_MAX_TIP_AGE), true, OptionsCategory::DEBUG_TEST);
+    gArgs.AddArg("-minmempoolgaslimit=<limit>", strprintf("The minimum transaction gas limit we are willing to accept into the mempool (default: %s)",MEMPOOL_MIN_GAS_LIMIT), true, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-maxtxfee=<amt>", strprintf("Maximum total fees (in %s) to use in a single wallet transaction or raw transaction; setting this too low may abort large transactions (default: %s)",
         CURRENCY_UNIT, FormatMoney(DEFAULT_TRANSACTION_MAXFEE)), false, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-printpriority", strprintf("Log transaction fee per kB when mining blocks (default: %u)", DEFAULT_PRINTPRIORITY), true, OptionsCategory::DEBUG_TEST);
@@ -526,6 +539,11 @@ void SetupServerArgs()
     gArgs.AddArg("-blockmintxfee=<amt>", strprintf("Set lowest fee rate (in %s/kB) for transactions to be included in block creation. (default: %s)", CURRENCY_UNIT, FormatMoney(DEFAULT_BLOCK_MIN_TX_FEE)), false, OptionsCategory::BLOCK_CREATION);
     gArgs.AddArg("-blockversion=<n>", "Override block version to test forking scenarios", true, OptionsCategory::BLOCK_CREATION);
 
+    gArgs.AddArg("-staker-min-tx-gas-price=<amt>", "Any contract execution with a gas price below this will not be included in a block (defaults to the value specified by the DGP)", false, OptionsCategory::BLOCK_CREATION);
+    gArgs.AddArg("-staker-max-tx-gas-limit=<n>", "Any contract execution with a gas limit over this amount will not be included in a block (defaults to soft block gas limit)", false, OptionsCategory::BLOCK_CREATION);
+    gArgs.AddArg("-staker-soft-block-gas-limit=<n>", "After this amount of gas is surpassed in a block, no more contract executions will be added to the block (defaults to consensus-critical maximum block gas limit)", false, OptionsCategory::BLOCK_CREATION);
+    gArgs.AddArg("-aggressive-staking", "Check more often to publish immediately when valid block is found.", false, OptionsCategory::BLOCK_CREATION);
+
     gArgs.AddArg("-rest", strprintf("Accept public REST requests (default: %u)", DEFAULT_REST_ENABLE), false, OptionsCategory::RPC);
     gArgs.AddArg("-rpcallowip=<ip>", "Allow JSON-RPC connections from specified source. Valid for <ip> are a single IP (e.g. 1.2.3.4), a network/netmask (e.g. 1.2.3.4/255.255.255.0) or a network/CIDR (e.g. 1.2.3.4/24). This option can be specified multiple times", false, OptionsCategory::RPC);
     gArgs.AddArg("-rpcauth=<userpw>", "Username and HMAC-SHA-256 hashed password for JSON-RPC connections. The field <userpw> comes in the format: <USERNAME>:<SALT>$<HASH>. A canonical python script is included in share/rpcauth. The client then connects normally using the rpcuser=<USERNAME>/rpcpassword=<PASSWORD> pair of arguments. This option can be specified multiple times", false, OptionsCategory::RPC);
@@ -545,6 +563,9 @@ void SetupServerArgs()
 #else
     hidden_args.emplace_back("-daemon");
 #endif
+    gArgs.AddArg("-headerspamfilter=<n>", strprintf("Use header spam filter (default: %u)", DEFAULT_HEADER_SPAM_FILTER), false, OptionsCategory::OPTIONS);
+    gArgs.AddArg("-headerspamfiltermaxsize=<n>", strprintf("Maximum size of the list of indexes in the header spam filter (default: %u)", DEFAULT_HEADER_SPAM_FILTER_MAX_SIZE), false, OptionsCategory::OPTIONS);
+    gArgs.AddArg("-headerspamfiltermaxavg=<n>", strprintf("Maximum average size of an index occurrence in the header spam filter (default: %u)", DEFAULT_HEADER_SPAM_FILTER_MAX_AVG), false, OptionsCategory::OPTIONS);
 
     // Add the hidden options
     gArgs.AddHiddenArgs(hidden_args);
@@ -552,10 +573,10 @@ void SetupServerArgs()
 
 std::string LicenseInfo()
 {
-    const std::string URL_SOURCE_CODE = "<https://github.com/bitcoin/bitcoin>";
-    const std::string URL_WEBSITE = "<https://bitcoincore.org>";
+    const std::string URL_SOURCE_CODE = "<https://github.com/qtumproject/qtum>";
+    const std::string URL_WEBSITE = "<https://qtum.org>";
 
-    return CopyrightHolders(strprintf(_("Copyright (C) %i-%i"), 2009, COPYRIGHT_YEAR) + " ") + "\n" +
+    return CopyrightHolders(strprintf(_("Copyright (C) %i"), COPYRIGHT_YEAR) + " ") + "\n" +
            "\n" +
            strprintf(_("Please contribute if you find %s useful. "
                        "Visit %s for further information about the software."),
@@ -1175,14 +1196,14 @@ bool AppInitParameterInteraction()
     return true;
 }
 
-static bool LockDataDirectory(bool probeOnly)
+static bool LockDataDirectory(bool probeOnly, bool try_lock = true)
 {
     // Make sure only a single Bitcoin process is using the data directory.
     fs::path datadir = GetDataDir();
     if (!DirIsWritable(datadir)) {
         return InitError(strprintf(_("Cannot write to data directory '%s'; check permissions."), datadir.string()));
     }
-    if (!LockDirectory(datadir, ".lock", probeOnly)) {
+    if (!LockDirectory(datadir, ".lock", probeOnly, try_lock)) {
         return InitError(strprintf(_("Cannot obtain a lock on data directory %s. %s is probably already running."), datadir.string(), _(PACKAGE_NAME)));
     }
     return true;
@@ -1240,6 +1261,11 @@ bool AppInitMain(InitInterfaces& interfaces)
                 LogInstance().m_file_path.string()));
         }
     }
+
+////////////////////////////////////////////////////////////////////// // qtum
+    dev::g_logPost = [&](std::string const& s, char const* c){ LogInstance().LogPrintStr(s + '\n', true); };
+    dev::g_logPost(std::string("\n\n\n\n\n\n\n\n\n\n"), NULL);
+//////////////////////////////////////////////////////////////////////
 
     if (!LogInstance().m_log_timestamps)
         LogPrintf("Startup time: %s\n", FormatISO8601DateTime(GetTime()));
@@ -1481,6 +1507,9 @@ bool AppInitMain(InitInterfaces& interfaces)
                 // new CBlockTreeDB tries to delete the existing file, which
                 // fails if it's still open from the previous loop. Close it first:
                 pblocktree.reset();
+                pstorageresult.reset();
+                globalState.reset();
+                globalSealEngine.reset();
                 pblocktree.reset(new CBlockTreeDB(nBlockTreeDBCache, false, fReset));
 
                 if (fReset) {
@@ -1559,6 +1588,58 @@ bool AppInitMain(InitInterfaces& interfaces)
                 strLoadError = _("Error opening block database");
                 break;
             }
+
+                /////////////////////////////////////////////////////////// qtum
+                if((gArgs.IsArgSet("-dgpstorage") && gArgs.IsArgSet("-dgpevm")) || (!gArgs.IsArgSet("-dgpstorage") && gArgs.IsArgSet("-dgpevm")) ||
+                  (!gArgs.IsArgSet("-dgpstorage") && !gArgs.IsArgSet("-dgpevm"))){
+                    fGettingValuesDGP = true;
+                } else {
+                    fGettingValuesDGP = false;
+                }
+
+                dev::eth::Ethash::init();
+                fs::path qtumStateDir = GetDataDir() / "stateQtum";
+                bool fStatus = fs::exists(qtumStateDir);
+                const std::string dirQtum(qtumStateDir.string());
+                const dev::h256 hashDB(dev::sha3(dev::rlp("")));
+                dev::eth::BaseState existsQtumstate = fStatus ? dev::eth::BaseState::PreExisting : dev::eth::BaseState::Empty;
+                globalState = std::unique_ptr<QtumState>(new QtumState(dev::u256(0), QtumState::openDB(dirQtum, hashDB, dev::WithExisting::Trust), dirQtum, existsQtumstate));
+                dev::eth::ChainParams cp((dev::eth::genesisInfo(dev::eth::Network::qtumMainNetwork)));
+                globalSealEngine = std::unique_ptr<dev::eth::SealEngineFace>(cp.createSealEngine());
+
+                pstorageresult.reset(new StorageResults(qtumStateDir.string()));
+                if (fReset) {
+                    pstorageresult->wipeResults();
+                }
+
+                if(chainActive.Tip() != nullptr){
+                    globalState->setRoot(uintToh256(chainActive.Tip()->hashStateRoot));
+                    globalState->setRootUTXO(uintToh256(chainActive.Tip()->hashUTXORoot));
+                } else {
+                    globalState->setRoot(dev::sha3(dev::rlp("")));
+                    globalState->setRootUTXO(uintToh256(chainparams.GenesisBlock().hashUTXORoot));
+                    globalState->populateFrom(cp.genesisState);
+                }
+                globalState->db().commit();
+                globalState->dbUtxo().commit();
+
+                fRecordLogOpcodes = gArgs.IsArgSet("-record-log-opcodes");
+                fIsVMlogFile = fs::exists(GetDataDir() / "vmExecLogs.json");
+                ///////////////////////////////////////////////////////////
+
+                // Check for changed -logevents state
+                if (fLogEvents != gArgs.GetBoolArg("-logevents", DEFAULT_LOGEVENTS) && !fLogEvents) {
+                    strLoadError = _("You need to rebuild the database using -reindex to enable -logevents");
+                    break;
+                }
+
+                if (!gArgs.GetBoolArg("-logevents", DEFAULT_LOGEVENTS))
+                {
+                    pstorageresult->wipeResults();
+                    pblocktree->WipeHeightIndex();
+                    fLogEvents = false;
+                    pblocktree->WriteFlag("logevents", fLogEvents);
+                }
 
             if (!fReset) {
                 // Note that RewindBlockIndex MUST run even if we're about to -reindex-chainstate.
@@ -1814,4 +1895,10 @@ bool AppInitMain(InitInterfaces& interfaces)
     }, DUMP_BANS_INTERVAL * 1000);
 
     return true;
+}
+
+void UnlockDataDirectory()
+{
+    // Unlock
+    LockDataDirectory(true, false);
 }

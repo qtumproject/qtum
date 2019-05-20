@@ -16,6 +16,7 @@
 #include <wallet/rpcwallet.h>
 #include <wallet/wallet.h>
 #include <wallet/walletutil.h>
+#include <miner.h>
 
 class WalletInit : public WalletInitInterface {
 public:
@@ -63,6 +64,11 @@ void WalletInit::AddWalletOptions() const
     gArgs.AddArg("-walletrbf", strprintf("Send transactions with full-RBF opt-in enabled (RPC only, default: %u)", DEFAULT_WALLET_RBF), false, OptionsCategory::WALLET);
     gArgs.AddArg("-zapwallettxes=<mode>", "Delete all wallet transactions and only recover those parts of the blockchain through -rescan on startup"
                                " (1 = keep tx meta data e.g. payment request information, 2 = drop tx meta data)", false, OptionsCategory::WALLET);
+    gArgs.AddArg("-staking=<true/false>", "Enables or disables staking (enabled by default)", false, OptionsCategory::WALLET);
+    gArgs.AddArg("-stakecache=<true/false>", "Enables or disables the staking cache; significantly improves staking performance, but can use a lot of memory (enabled by default)", false, OptionsCategory::WALLET);
+    gArgs.AddArg("-rpcmaxgasprice", strprintf("The max value (in satoshis) for gas price allowed through RPC (default: %u)", MAX_RPC_GAS_PRICE), false, OptionsCategory::WALLET);
+    gArgs.AddArg("-reservebalance", strprintf("Reserved balance not used for staking (default: %u)", DEFAULT_RESERVE_BALANCE), false, OptionsCategory::WALLET);
+    gArgs.AddArg("-notusechangeaddress", strprintf("Don't use change address (default: %u)", DEFAULT_NOT_USE_CHANGE_ADDRESS), false, OptionsCategory::WALLET);
 
     gArgs.AddArg("-dblogsize=<n>", strprintf("Flush wallet database activity from memory to disk log every <n> megabytes (default: %u)", DEFAULT_WALLET_DBLOGSIZE), true, OptionsCategory::WALLET_DEBUG_TEST);
     gArgs.AddArg("-flushwallet", strprintf("Run a thread to flush wallet periodically (default: %u)", DEFAULT_FLUSHWALLET), true, OptionsCategory::WALLET_DEBUG_TEST);
@@ -207,6 +213,17 @@ void StartWallets(CScheduler& scheduler)
         pwallet->postInitProcess();
     }
 
+    // Mine proof-of-stake blocks in the background
+    if (!gArgs.GetBoolArg("-staking", DEFAULT_STAKE)) {
+        LogPrintf("Staking disabled\n");
+    }
+    else {
+        CConnman& connman = *g_connman;
+        for (const std::shared_ptr<CWallet>& pwallet : GetWallets()) {
+            pwallet->StartStake(&connman);
+        }
+    }
+
     // Run a thread to flush wallet periodically
     scheduler.scheduleEvery(MaybeCompactWalletDB, 500);
 }
@@ -214,6 +231,7 @@ void StartWallets(CScheduler& scheduler)
 void FlushWallets()
 {
     for (const std::shared_ptr<CWallet>& pwallet : GetWallets()) {
+        pwallet->StopStake();
         pwallet->Flush(false);
     }
 }

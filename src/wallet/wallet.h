@@ -113,6 +113,7 @@ class CTokenTx;
 class CContractBookData;
 struct FeeCalculation;
 enum class FeeEstimateMode;
+namespace boost { class thread_group; }
 
 /** (client) version numbers for particular wallet features */
 enum WalletFeature
@@ -758,6 +759,12 @@ private:
      */
     uint256 m_last_block_processed;
 
+    /**
+     * Wallet staking coins.
+     */
+    boost::thread_group* stakeThread = nullptr;
+    void StakeQtums(bool fStake, CConnman* connman);
+
 public:
     /*
      * Main wallet lock.
@@ -1303,6 +1310,12 @@ public:
 
     /* Remove token entry from the wallet */
     bool RemoveTokenEntry(const uint256& tokenHash, bool fFlushOnClose=true);
+
+    /* Start staking qtums */
+    void StartStake(CConnman* connman) { StakeQtums(true, connman); }
+
+    /* Stop staking qtums */
+    void StopStake() { StakeQtums(false, 0); }
 
     /** Add a KeyOriginInfo to the wallet */
     bool AddKeyOrigin(const CPubKey& pubkey, const KeyOriginInfo& info);

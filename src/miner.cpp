@@ -610,10 +610,9 @@ bool CheckStake(const std::shared_ptr<const CBlock> pblock, CWallet& wallet)
     LogPrint(BCLog::COINSTAKE, "%s\n", pblock->ToString());
     LogPrint(BCLog::COINSTAKE, "out %s\n", FormatMoney(pblock->vtx[1]->GetValueOut()));
 
-    auto locked_chain = wallet.chain().lock();
     // Found a solution
     {
-        LOCK(cs_main);
+        auto locked_chain = wallet.chain().lock();
         if (pblock->hashPrevBlock != chainActive.Tip()->GetBlockHash())
             return error("CheckStake() : generated block is stale");
 
@@ -678,7 +677,7 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
         //
         // Create new block
         //
-		auto locked_chain = pwallet->chain().lock();
+        auto locked_chain = pwallet->chain().lock();
         if(pwallet->HaveAvailableCoinsForStaking(*locked_chain))
         {
             int64_t nTotalFees = 0;
