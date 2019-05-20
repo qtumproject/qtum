@@ -168,5 +168,8 @@ class WalletDumpTest(BitcoinTestFramework):
         result = self.nodes[0].getaddressinfo(multisig_addr)
         assert result['ismine']
 
+        # Overwriting should fail
+        assert_raises_rpc_error(-8, "already exists", lambda: self.nodes[0].dumpwallet(wallet_enc_dump))
+
 if __name__ == '__main__':
     WalletDumpTest().main()

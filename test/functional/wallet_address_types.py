@@ -66,6 +66,7 @@ from test_framework.util import (
     sync_blocks,
     sync_mempools,
 )
+from test_framework.qtumconfig import COINBASE_MATURITY
 
 
 class AddressTypeTest(BitcoinTestFramework):
@@ -219,7 +220,7 @@ class AddressTypeTest(BitcoinTestFramework):
     def run_test(self):
         # Mine 101 blocks on node5 to bring nodes out of IBD and make sure that
         # no coinbases are maturing for the nodes-under-test during the test
-        self.nodes[5].generate(101)
+        self.nodes[5].generate(COINBASE_MATURITY+1)
         sync_blocks(self.nodes)
 
         uncompressed_1 = "0496b538e853519c726a2c91e61ec11600ae1390813a627c66fb8be7947be63c52da7589379515d4e0a604f8141781e62294721166bf621e73a82cbf2342c858ee"

@@ -60,7 +60,9 @@ from test_framework.util import (
     assert_equal,
     get_bip9_status,
     hex_str_to_bytes,
+    bytes_to_hex_str
 )
+from test_framework.qtumconfig import *
 
 BASE_RELATIVE_LOCKTIME = 10
 SEQ_DISABLE_FLAG = 1 << 31
@@ -99,6 +101,13 @@ def create_bip112special(node, input, txversion, address):
     signtx = sign_transaction(node, tx)
     signtx.vin[0].scriptSig = CScript([-1, OP_CHECKSEQUENCEVERIFY, OP_DROP] + list(CScript(signtx.vin[0].scriptSig)))
     return signtx
+
+def send_generic_unspent_input_tx(node, unspent, address):
+    inputs = [{'txid': unspent[0], 'vout': unspent[1]}]
+    outputs = {address : unspent[2]-Decimal("0.01")}
+    rawtx = node.createrawtransaction(inputs, outputs)
+    rawtx = node.signrawtransactionwithwallet(rawtx)['hex']
+    return node.sendrawtransaction(rawtx)
 
 def send_generic_input_tx(node, coinbases, address):
     return node.sendrawtransaction(ToHex(sign_transaction(node, create_transaction(node, node.getblock(coinbases.pop())['tx'][0], address, amount=Decimal("49.99")))))
@@ -148,15 +157,16 @@ class BIP68_112_113Test(BitcoinTestFramework):
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
 
-    def generate_blocks(self, number, version, test_blocks=None):
+    def generate_blocks(self, number, version, test_blocks=None, extend_txs = []):
         if test_blocks is None:
             test_blocks = []
         for i in range(number):
-            block = self.create_test_block([], version)
+            block = self.create_test_block(extend_txs, version)
             test_blocks.append(block)
             self.last_block_time += 600
             self.tip = block.sha256
             self.tipheight += 1
+            extend_txs = []
         return test_blocks
 
     def create_test_block(self, txs, version=536870912):
@@ -178,7 +188,8 @@ class BIP68_112_113Test(BitcoinTestFramework):
         self.nodes[0].add_p2p_connection(P2PDataStore())
 
         self.log.info("Generate blocks in the past for coinbase outputs.")
-        long_past_time = int(time.time()) - 600 * 1000  # enough to build up to 1000 blocks 10 minutes apart without worrying about getting into the future
+        start_time = 1510247077 + 600 * 1000 + 101
+        long_past_time = start_time - 600 * 1000 # enough to build up to 1000 blocks 10 minutes apart without worrying about getting into the future
         self.nodes[0].setmocktime(long_past_time - 100)  # enough so that the generated blocks will still all be before long_past_time
         self.coinbase_blocks = self.nodes[0].generate(1 + 16 + 2 * 32 + 1)  # 82 blocks generated for inputs
         self.nodes[0].setmocktime(0)  # set time back to present so yielded blocks aren't in the future as we advance last_block_time
@@ -190,39 +201,71 @@ class BIP68_112_113Test(BitcoinTestFramework):
         self.log.info("Test that the csv softfork is DEFINED")
         assert_equal(get_bip9_status(self.nodes[0], 'csv')['status'], 'defined')
         test_blocks = self.generate_blocks(61, 4)
-        self.sync_blocks(test_blocks)
+        # Fail to achieve LOCKED_IN 100 out of 144 signal bit 0
+        # using a variety of bits to simulate multiple parallel softforks
+        test_blocks = self.generate_blocks(50, 536870913, test_blocks) # 0x20000001 (signalling ready)
+        test_blocks = self.generate_blocks(20, 4, test_blocks) # 0x00000004 (signalling not)
+        test_blocks = self.generate_blocks(50, 536871169, test_blocks) # 0x20000101 (signalling ready)
+        test_blocks = self.generate_blocks(24, 536936448, test_blocks) # 0x20010000 (signalling not)
 
-        self.log.info("Advance from DEFINED to STARTED, height = 143")
-        assert_equal(get_bip9_status(self.nodes[0], 'csv')['status'], 'started')
-
-        self.log.info("Fail to achieve LOCKED_IN")
-        # 100 out of 144 signal bit 0. Use a variety of bits to simulate multiple parallel softforks
-
-        test_blocks = self.generate_blocks(50, 536870913)  # 0x20000001 (signalling ready)
-        test_blocks = self.generate_blocks(20, 4, test_blocks)  # 0x00000004 (signalling not)
-        test_blocks = self.generate_blocks(50, 536871169, test_blocks)  # 0x20000101 (signalling ready)
-        test_blocks = self.generate_blocks(24, 536936448, test_blocks)  # 0x20010000 (signalling not)
-        self.sync_blocks(test_blocks)
-
-        self.log.info("Failed to advance past STARTED, height = 287")
-        assert_equal(get_bip9_status(self.nodes[0], 'csv')['status'], 'started')
-
-        self.log.info("Generate blocks to achieve LOCK-IN")
         # 108 out of 144 signal bit 0 to achieve lock-in
         # using a variety of bits to simulate multiple parallel softforks
-        test_blocks = self.generate_blocks(58, 536870913)  # 0x20000001 (signalling ready)
-        test_blocks = self.generate_blocks(26, 4, test_blocks)  # 0x00000004 (signalling not)
-        test_blocks = self.generate_blocks(50, 536871169, test_blocks)  # 0x20000101 (signalling ready)
-        test_blocks = self.generate_blocks(10, 536936448, test_blocks)  # 0x20010000 (signalling not)
-        self.sync_blocks(test_blocks)
+        test_blocks = self.generate_blocks(58, 536870913, test_blocks) # 0x20000001 (signalling ready)
+        test_blocks = self.generate_blocks(26, 4, test_blocks) # 0x00000004 (signalling not)
+        test_blocks = self.generate_blocks(50, 536871169, test_blocks) # 0x20000101 (signalling ready)
+        test_blocks = self.generate_blocks(10, 536936448, test_blocks) # 0x20010000 (signalling not)
 
-        self.log.info("Advanced from STARTED to LOCKED_IN, height = 431")
+        # 140 more version 4 blocks
+        test_blocks = self.generate_blocks(130, 4, test_blocks)
+
+        extend_txs = []
+        # split 50 coinbases into 2 unspents so we have enough unspent txs
+        for coinbase_block in self.coinbase_blocks[0:50]:
+            amount = (INITIAL_BLOCK_REWARD-0.01) / 2.0
+            addr_a = self.nodes[0].getnewaddress()
+            addr_b = self.nodes[0].getnewaddress()
+            inputs = [{'txid': self.nodes[0].getblock(coinbase_block)['tx'][0], 'vout': 0}]
+            outputs = {
+                addr_a : amount,
+                addr_b : amount
+            }
+            rawtx = self.nodes[0].createrawtransaction(inputs, outputs)
+            res = self.nodes[0].signrawtransactionwithwallet(rawtx)
+            rawtx = res['hex']
+            tx = CTransaction()
+            f = BytesIO(hex_str_to_bytes(rawtx))
+            tx.deserialize(f)
+            extend_txs.append(tx)
+        test_blocks = self.generate_blocks(10, 4, test_blocks, extend_txs=extend_txs)
+
+        self.sync_blocks(test_blocks[0:61], request_block=True)
+        # Advanced from DEFINED to STARTED, height = 143
+        print(self.nodes[0].getblockcount())
+
+        #self.log.info("Advance from DEFINED to STARTED, height = 143")
+        assert_equal(get_bip9_status(self.nodes[0], 'csv')['status'], 'started')
+
+        #self.log.info("Fail to achieve LOCKED_IN")
+        self.sync_blocks(test_blocks[61:61+144]) # 2
+        # Failed to advance past STARTED, height = 287
+        assert_equal(get_bip9_status(self.nodes[0], 'csv')['status'], 'started')
+        self.sync_blocks(test_blocks[61+144:61+144+144]) # 3
+        # Advanced from STARTED to LOCKED_IN, height = 431
         assert_equal(get_bip9_status(self.nodes[0], 'csv')['status'], 'locked_in')
 
-        # Generate 140 more version 4 blocks
-        test_blocks = self.generate_blocks(140, 4)
-        self.sync_blocks(test_blocks)
+        self.sync_blocks(test_blocks[61+144+144:61+144+144+130]) # 4
 
+        self.sync_blocks(test_blocks[61+144+144+130:61+144+144+130+10]) # 4
+
+        self.nodes[0].generate(1)
+        self.tip = int("0x" + self.nodes[0].getbestblockhash(), 0)
+        self.tipheight += 1
+        self.last_block_time += 600
+
+        self.unspents = []
+        for unspent in self.nodes[0].listunspent():
+            if unspent['spendable']:
+                self.unspents.append((unspent['txid'], unspent['vout'], unspent['amount']))
         # Inputs at height = 572
         #
         # Put inputs for all tests in the chain at height 572 (tip now = 571) (time increases by 600s per block)
@@ -230,14 +273,14 @@ class BIP68_112_113Test(BitcoinTestFramework):
         # 16 normal inputs
         bip68inputs = []
         for i in range(16):
-            bip68inputs.append(send_generic_input_tx(self.nodes[0], self.coinbase_blocks, self.nodeaddress))
+            bip68inputs.append(send_generic_unspent_input_tx(self.nodes[0], self.unspents.pop(), self.nodeaddress))
 
         # 2 sets of 16 inputs with 10 OP_CSV OP_DROP (actually will be prepended to spending scriptSig)
         bip112basicinputs = []
         for j in range(2):
             inputs = []
             for i in range(16):
-                inputs.append(send_generic_input_tx(self.nodes[0], self.coinbase_blocks, self.nodeaddress))
+                inputs.append(send_generic_unspent_input_tx(self.nodes[0], self.unspents.pop(), self.nodeaddress))
             bip112basicinputs.append(inputs)
 
         # 2 sets of 16 varied inputs with (relative_lock_time) OP_CSV OP_DROP (actually will be prepended to spending scriptSig)
@@ -245,14 +288,14 @@ class BIP68_112_113Test(BitcoinTestFramework):
         for j in range(2):
             inputs = []
             for i in range(16):
-                inputs.append(send_generic_input_tx(self.nodes[0], self.coinbase_blocks, self.nodeaddress))
+                inputs.append(send_generic_unspent_input_tx(self.nodes[0], self.unspents.pop(), self.nodeaddress))
             bip112diverseinputs.append(inputs)
 
         # 1 special input with -1 OP_CSV OP_DROP (actually will be prepended to spending scriptSig)
-        bip112specialinput = send_generic_input_tx(self.nodes[0], self.coinbase_blocks, self.nodeaddress)
+        bip112specialinput = send_generic_unspent_input_tx(self.nodes[0], self.unspents.pop(), self.nodeaddress)
 
         # 1 normal input
-        bip113input = send_generic_input_tx(self.nodes[0], self.coinbase_blocks, self.nodeaddress)
+        bip113input = send_generic_unspent_input_tx(self.nodes[0], self.unspents.pop(), self.nodeaddress)
 
         self.nodes[0].setmocktime(self.last_block_time + 600)
         inputblockhash = self.nodes[0].generate(1)[0]  # 1 block generated for inputs to be in chain at height 572
@@ -263,7 +306,7 @@ class BIP68_112_113Test(BitcoinTestFramework):
         assert_equal(len(self.nodes[0].getblock(inputblockhash, True)["tx"]), 82 + 1)
 
         # 2 more version 4 blocks
-        test_blocks = self.generate_blocks(2, 4)
+        test_blocks = self.generate_blocks(1, 4)
         self.sync_blocks(test_blocks)
 
         self.log.info("Not yet advanced to ACTIVE, height = 574 (will activate for block 576, not 575)")
@@ -403,8 +446,8 @@ class BIP68_112_113Test(BitcoinTestFramework):
         for tx in bip68heighttxs:
             self.sync_blocks([self.create_test_block([tx])], success=False)
 
-        # Advance one block to 582
-        test_blocks = self.generate_blocks(1, 1234)
+        # Advance one block to 583
+        test_blocks = self.generate_blocks(2, 1234)
         self.sync_blocks(test_blocks)
 
         # All BIP 68 txs should pass

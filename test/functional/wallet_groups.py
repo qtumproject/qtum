@@ -9,6 +9,7 @@ from test_framework.messages import CTransaction, FromHex, ToHex
 from test_framework.util import (
     assert_equal,
 )
+from test_framework.qtumconfig import COINBASE_MATURITY
 
 def assert_approx(v, vexp, vspan=0.00001):
     if v < vexp - vspan:
@@ -28,7 +29,7 @@ class WalletGroupTest(BitcoinTestFramework):
 
     def run_test(self):
         # Mine some coins
-        self.nodes[0].generate(110)
+        self.nodes[0].generate(10+COINBASE_MATURITY)
 
         # Get some addresses from the two nodes
         addr1 = [self.nodes[1].getnewaddress() for i in range(3)]
@@ -55,7 +56,7 @@ class WalletGroupTest(BitcoinTestFramework):
         v = [vout["value"] for vout in tx1["vout"]]
         v.sort()
         assert_approx(v[0], 0.2)
-        assert_approx(v[1], 0.3, 0.0001)
+        assert_approx(v[1], 0.3, 0.01)
 
         txid2 = self.nodes[2].sendtoaddress(self.nodes[0].getnewaddress(), 0.2)
         tx2 = self.nodes[2].getrawtransaction(txid2, True)
@@ -66,7 +67,7 @@ class WalletGroupTest(BitcoinTestFramework):
         v = [vout["value"] for vout in tx2["vout"]]
         v.sort()
         assert_approx(v[0], 0.2)
-        assert_approx(v[1], 1.3, 0.0001)
+        assert_approx(v[1], 1.3, 0.01)
 
         # Empty out node2's wallet
         self.nodes[2].sendtoaddress(address=self.nodes[0].getnewaddress(), amount=self.nodes[2].getbalance(), subtractfeefromamount=True)

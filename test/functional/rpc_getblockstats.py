@@ -11,6 +11,7 @@ from test_framework.util import (
     assert_equal,
     assert_raises_rpc_error,
 )
+from test_framework.qtumconfig import *
 import json
 import os
 import time
@@ -19,7 +20,7 @@ TESTSDIR = os.path.dirname(os.path.realpath(__file__))
 
 class GetblockstatsTest(BitcoinTestFramework):
 
-    start_height = 101
+    start_height = COINBASE_MATURITY+1
     max_stat_pos = 2
     STATS_NEED_TXINDEX = [
         'avgfee',
@@ -45,7 +46,7 @@ class GetblockstatsTest(BitcoinTestFramework):
 
     def set_test_params(self):
         self.num_nodes = 2
-        self.extra_args = [['-txindex'], ['-paytxfee=0.003']]
+        self.extra_args = [['-txindex'], ['-paytxfee=0.004']]
         self.setup_clean_chain = True
 
     def get_stats(self):
@@ -53,7 +54,7 @@ class GetblockstatsTest(BitcoinTestFramework):
 
     def generate_test_data(self, filename):
         mocktime = time.time()
-        self.nodes[0].generate(101)
+        self.nodes[0].generate(1+COINBASE_MATURITY)
 
         self.nodes[0].sendtoaddress(address=self.nodes[1].getnewaddress(), amount=10, subtractfeefromamount=True)
         self.nodes[0].generate(1)

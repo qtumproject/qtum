@@ -16,7 +16,7 @@ class TestBitcoinCli(BitcoinTestFramework):
         """Main test logic"""
 
         cli_response = self.nodes[0].cli("-version").send_cli()
-        assert("Bitcoin Core RPC client version" in cli_response)
+        assert("Qtum Core RPC client version" in cli_response)
 
         self.log.info("Compare responses from getwalletinfo RPC and `bitcoin-cli getwalletinfo`")
         if self.is_wallet_compiled():
@@ -64,7 +64,7 @@ class TestBitcoinCli(BitcoinTestFramework):
         assert_equal(cli_get_info['timeoffset'], network_info['timeoffset'])
         assert_equal(cli_get_info['connections'], network_info['connections'])
         assert_equal(cli_get_info['proxy'], network_info['networks'][0]['proxy'])
-        assert_equal(cli_get_info['difficulty'], blockchain_info['difficulty'])
+        assert_equal(cli_get_info['difficulty']['proof-of-work'], blockchain_info['difficulty'])
         assert_equal(cli_get_info['testnet'], blockchain_info['chain'] == "test")
         if self.is_wallet_compiled():
             assert_equal(cli_get_info['balance'], wallet_info['balance'])

@@ -6,6 +6,7 @@
 
 from .script import hash256, hash160, sha256, CScript, OP_0
 from .util import bytes_to_hex_str, hex_str_to_bytes
+import binascii
 
 from . import segwit_addr
 
@@ -30,15 +31,46 @@ def byte_to_base58(b, version):
     return result
 
 # TODO: def base58_decode
+def base58_to_byte(v, length):
+  """ decode v into a string of len bytes
+  """
+  __b58chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
+  __b58base = len(__b58chars)
+  long_value = 0
+  for (i, c) in enumerate(v[::-1]):
+    long_value += __b58chars.find(c) * (__b58base**i)
+
+  result = ''
+  while long_value >= 256:
+    div, mod = divmod(long_value, 256)
+    result = chr(mod) + result
+    long_value = div
+  result = chr(long_value) + result
+
+  nPad = 0
+  for c in v:
+    if c == __b58chars[0]: nPad += 1
+    else: break
+
+  result = chr(0)*nPad + result
+  if length is not None and len(result) != length:
+    return None
+
+  hexresult = binascii.hexlify(bytes(result.encode('latin-1')))
+
+  version = int(hexresult[0:2], 16)
+  hsh = hexresult[2:42]
+  checksum = hexresult[42:]
+  return (version, hsh, checksum)
 
 def keyhash_to_p2pkh(hash, main = False):
     assert (len(hash) == 20)
-    version = 0 if main else 111
+    version = 58 if main else 120
     return byte_to_base58(hash, version)
 
 def scripthash_to_p2sh(hash, main = False):
     assert (len(hash) == 20)
-    version = 5 if main else 196
+    version = 50 if main else 110
     return byte_to_base58(hash, version)
 
 def key_to_p2pkh(key, main = False):
@@ -60,7 +92,7 @@ def program_to_witness(version, program, main = False):
     assert 0 <= version <= 16
     assert 2 <= len(program) <= 40
     assert version > 0 or len(program) in [20, 32]
-    return segwit_addr.encode("bc" if main else "bcrt", version, program)
+    return segwit_addr.encode("qc" if main else "qcrt", version, program)
 
 def script_to_p2wsh(script, main = False):
     script = check_script(script)
