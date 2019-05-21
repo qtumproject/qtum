@@ -135,3 +135,23 @@ bool CTransaction::HasOpSpend() const{
     return false;
 }
 /////////////////////////////////////////////////////////////
+
+bool CTransaction::HasOpCreate() const
+{
+    for(const CTxOut& v : vout){
+        if(v.scriptPubKey.HasOpCreate()){
+            return true;
+        }
+    }
+    return false;
+}
+
+bool CTransaction::HasOpCall() const
+{
+    for(const CTxOut& v : vout){
+        if(v.scriptPubKey.HasOpCall()){
+            return true;
+        }
+    }
+    return false;
+}

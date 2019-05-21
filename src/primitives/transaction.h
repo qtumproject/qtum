@@ -296,6 +296,14 @@ public:
     const int32_t nVersion;
     const uint32_t nLockTime;
 
+    // Operation codes
+    enum OpCode
+    {
+        OpNone = 0,
+        OpCall = 1,
+        OpCreate = 2
+    };
+
 private:
     /** Memory only. */
     const uint256 hash;
@@ -309,7 +317,7 @@ public:
     CTransaction();
 
     /** Convert a CMutableTransaction into a CTransaction. */
-    explicit CTransaction(const CMutableTransaction &tx);
+    CTransaction(const CMutableTransaction &tx);
     CTransaction(CMutableTransaction &&tx);
 
     template <typename Stream>
@@ -345,6 +353,12 @@ public:
     bool HasCreateOrCall() const;
     bool HasOpSpend() const;
 ////////////////////////////////////////
+    bool HasOpCreate() const;
+    bool HasOpCall() const;
+    inline int GetCreateOrCall() const
+    {
+        return (HasOpCall() ? OpCode::OpCall : 0) + (HasOpCreate() ? OpCode::OpCreate : 0);
+    }
 
     bool IsCoinBase() const
     {
