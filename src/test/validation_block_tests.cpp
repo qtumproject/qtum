@@ -15,7 +15,7 @@
 #include <validationinterface.h>
 
 struct RegtestingSetup : public TestingSetup {
-    RegtestingSetup() : TestingSetup(CBaseChainParams::REGTEST) {}
+    RegtestingSetup() : TestingSetup(CBaseChainParams::UNITTEST) {}
 };
 
 BOOST_FIXTURE_TEST_SUITE(validation_block_tests, RegtestingSetup)
