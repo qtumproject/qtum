@@ -174,6 +174,7 @@ private:
 public:
     CChain chainActive;
     BlockMap mapBlockIndex GUARDED_BY(cs_main);
+    std::set<std::pair<COutPoint, unsigned int>> setStakeSeen;
     std::multimap<CBlockIndex*, CBlockIndex*> mapBlocksUnlinked;
     CBlockIndex *pindexBestInvalid = nullptr;
 
@@ -246,6 +247,7 @@ private:
 RecursiveMutex cs_main;
 
 BlockMap& mapBlockIndex = g_chainstate.mapBlockIndex;
+std::set<std::pair<COutPoint, unsigned int>>& setStakeSeen = g_chainstate.setStakeSeen;
 CChain& chainActive = g_chainstate.chainActive;
 CBlockIndex *pindexBestHeader = nullptr;
 Mutex g_best_block_mutex;
@@ -1100,6 +1102,19 @@ bool CheckHeaderProof(const CBlockHeader& block, const Consensus::Params& consen
     return false;
 }
 
+bool CheckIndexProof(const CBlockIndex& block, const Consensus::Params& consensusParams)
+{
+    // Get the hash of the proof
+    // After validating the PoS block the computed hash proof is saved in the block index, which is used to check the index
+    uint256 hashProof = block.IsProofOfWork() ? block.GetBlockHash() : block.hashProof;
+    // Check for proof after the hash proof is computed
+    if(block.IsProofOfStake()){
+        //blocks are loaded out of order, so checking PoS kernels here is not practical
+        return true; //CheckKernel(block.pprev, block.nBits, block.nTime, block.prevoutStake);
+    }else{
+        return CheckProofOfWork(hashProof, block.nBits, consensusParams, false);
+    }
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -4126,11 +4141,12 @@ bool CChainState::AcceptBlockHeader(const CBlockHeader& block, CValidationState&
 }
 
 // Exposed wrapper for AcceptBlockHeader
-bool ProcessNewBlockHeaders(const std::vector<CBlockHeader>& headers, CValidationState& state, const CChainParams& chainparams, const CBlockIndex** ppindex, CBlockHeader *first_invalid)
+bool ProcessNewBlockHeaders(const std::vector<CBlockHeader>& headers, CValidationState& state, const CChainParams& chainparams, const CBlockIndex** ppindex, CBlockHeader *first_invalid,  const CBlockIndex** pindexFirst)
 {
     if (first_invalid != nullptr) first_invalid->SetNull();
     {
         LOCK(cs_main);
+        bool bFirst = true;
         for (const CBlockHeader& header : headers) {
             CBlockIndex *pindex = nullptr; // Use a temp pindex instead of ppindex to avoid a const_cast
             if (!g_chainstate.AcceptBlockHeader(header, state, chainparams, &pindex)) {
@@ -4139,6 +4155,11 @@ bool ProcessNewBlockHeaders(const std::vector<CBlockHeader>& headers, CValidatio
             }
             if (ppindex) {
                 *ppindex = pindex;
+                if(bFirst && pindexFirst)
+                {
+                    *pindexFirst = pindex;
+                    bFirst = false;
+                }
             }
         }
     }
@@ -4243,6 +4264,26 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     CheckBlockIndex(chainparams.GetConsensus());
 
     return true;
+}
+
+bool IsCanonicalBlockSignature(const CBlockHeader* pblock, bool checkLowS)
+{
+    if (pblock->IsProofOfWork()) {
+        return pblock->vchBlockSig.empty();
+    }
+
+    return checkLowS ? IsLowDERSignature(pblock->vchBlockSig, NULL, false) : IsDERSignature(pblock->vchBlockSig, NULL, false);
+}
+
+bool CheckCanonicalBlockSignature(const CBlockHeader* pblock)
+{
+    //block signature encoding
+    bool ret = IsCanonicalBlockSignature(pblock, false);
+
+    //block signature encoding (low-s)
+    if(ret) ret = IsCanonicalBlockSignature(pblock, true);
+
+    return ret;
 }
 
 bool ProcessNewBlock(const CChainParams& chainparams, const std::shared_ptr<const CBlock> pblock, bool fForceProcessing, bool *fNewBlock)
