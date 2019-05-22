@@ -227,3 +227,8 @@ bool IsValidDestinationString(const std::string& str)
 {
     return IsValidDestinationString(str, Params());
 }
+
+bool IsValidContractSenderAddressString(const std::string& str)
+{
+    return IsValidContractSenderAddress(DecodeDestination(str));
+}
