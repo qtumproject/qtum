@@ -141,6 +141,12 @@ public:
     //! Get last block time.
     virtual int64_t getLastBlockTime() = 0;
 
+    //! Get block hash.
+    virtual uint256 getBlockHash(int blockNumber) = 0;
+
+    //! Get block time.
+    virtual int64_t getBlockTime(int blockNumber) = 0;
+
     //! Get verification progress.
     virtual double getVerificationProgress() = 0;
 
@@ -161,6 +167,9 @@ public:
 
     //! Get max tx fee.
     virtual CAmount getMaxTxFee() = 0;
+
+    //! Get node synchronization information.
+    virtual void getSyncInfo(int& numBlocks, bool& isSyncing) = 0;
 
     //! Estimate smart fee.
     virtual CFeeRate estimateSmartFee(int num_blocks, bool conservative, int* returned_target = nullptr) = 0;
@@ -191,6 +200,9 @@ public:
 
     //! Return interfaces for accessing wallets (if any).
     virtual std::vector<std::unique_ptr<Wallet>> getWallets() = 0;
+
+    //! Get the information about the needed gas
+    virtual void getGasInfo(uint64_t& blockGasLimit, uint64_t& minGasPrice, uint64_t& nGasPrice) = 0;
 
     //! Attempts to load a wallet from file or directory.
     //! The loaded wallet is also notified to handlers previously registered

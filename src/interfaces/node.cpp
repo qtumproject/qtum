@@ -187,6 +187,18 @@ public:
         }
         return Params().GenesisBlock().GetBlockTime(); // Genesis block's time of current network
     }
+    uint256 getBlockHash(int blockNumber) override
+    {
+        LOCK(::cs_main);
+        CBlockIndex* index = ::chainActive[blockNumber];
+        return index ? index->GetBlockHash() : uint256();
+    }
+    int64_t getBlockTime(int blockNumber) override
+    {
+        LOCK(::cs_main);
+        CBlockIndex* index = ::chainActive[blockNumber];
+        return index ? index->GetBlockTime() : 0;
+    }
     double getVerificationProgress() override
     {
         const CBlockIndex* tip;
@@ -252,6 +264,25 @@ public:
             wallets.emplace_back(MakeWallet(wallet));
         }
         return wallets;
+    }
+    void getGasInfo(uint64_t& blockGasLimit, uint64_t& minGasPrice, uint64_t& nGasPrice)
+    {
+        LOCK(::cs_main);
+
+        QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
+        blockGasLimit = qtumDGP.getBlockGasLimit(chainActive.Height());
+        minGasPrice = CAmount(qtumDGP.getMinGasPrice(chainActive.Height()));
+        nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
+    }
+    void getSyncInfo(int& numBlocks, bool& isSyncing)
+    {
+        LOCK(::cs_main);
+        // Get node synchronization information with minimal locks
+        numBlocks = ::chainActive.Height();
+        int64_t blockTime = ::chainActive.Tip() ? ::chainActive.Tip()->GetBlockTime() :
+                                                  Params().GenesisBlock().GetBlockTime();
+        int64_t secs = GetTime() - blockTime;
+        isSyncing = secs >= 90*60 ? true : false;
     }
     std::unique_ptr<Wallet> loadWallet(const std::string& name, std::string& error, std::string& warning) override
     {
