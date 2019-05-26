@@ -126,7 +126,7 @@ class QtumOpSenderTest(BitcoinTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 2
-        self.extra_args = [[], []]
+        self.extra_args = [['-opsenderheight=10000'], ['-opsenderheight=10000']]
 
     def create_op_sender_tx(self, keys, outputs, hashtypes, gasCost, publish=True):
         unspent = self.unspents.pop()
@@ -461,8 +461,8 @@ class QtumOpSenderTest(BitcoinTestFramework):
         self.sync_all()
 
         # Trigger the HF
-        self.restart_node(0, ['-opsender-block=602'])
-        self.restart_node(1, ['-opsender-block=602'])
+        self.restart_node(0, ['-opsenderheight=602'])
+        self.restart_node(1, ['-opsenderheight=602'])
         connect_nodes_bi(self.nodes, 0, 1)
         
         self.single_op_sender_op_create_tx_test()
