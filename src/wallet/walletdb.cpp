@@ -411,16 +411,6 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
             CHDChain chain;
             ssValue >> chain;
             pwallet->SetHDChain(chain, true);
-        } else if (strType == "flags") {
-            uint64_t flags;
-            ssValue >> flags;
-            if (!pwallet->SetWalletFlags(flags, true)) {
-                strErr = "Error reading wallet database: Unknown non-tolerable wallet flags found";
-                return false;
-            }
-        } else if (strType != "bestblock" && strType != "bestblock_nomerkle" &&
-                strType != "minversion" && strType != "acentry") {
-            wss.m_unknown_records++;
         }
         else if (strType == "token")
         {
@@ -461,6 +451,16 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
                 strErr = "Error reading wallet database: LoadContractData failed";
                 return false;
             }
+        } else if (strType == "flags") {
+            uint64_t flags;
+            ssValue >> flags;
+            if (!pwallet->SetWalletFlags(flags, true)) {
+                strErr = "Error reading wallet database: Unknown non-tolerable wallet flags found";
+                return false;
+            }
+        } else if (strType != "bestblock" && strType != "bestblock_nomerkle" &&
+                strType != "minversion" && strType != "acentry") {
+            wss.m_unknown_records++;
         }
     } catch (...)
     {
