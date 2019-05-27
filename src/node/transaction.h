@@ -32,6 +32,6 @@ std::string TransactionErrorString(const TransactionError error);
  * @param[in]  highfee Reject txs with fees higher than this (if 0, accept any fee)
  * return error
  */
-NODISCARD TransactionError BroadcastTransaction(CTransactionRef tx, uint256& txid, std::string& err_string, const CAmount& highfee);
+NODISCARD TransactionError BroadcastTransaction(CTransactionRef tx, uint256& txid, std::string& err_string, const CAmount& highfee, bool test_accept=false, bool rawTx = false);
 
 #endif // BITCOIN_NODE_TRANSACTION_H
