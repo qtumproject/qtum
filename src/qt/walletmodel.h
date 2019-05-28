@@ -24,8 +24,11 @@
 
 #include <map>
 #include <vector>
+#include <atomic>
 
 #include <QObject>
+#include <QStringList>
+#include <QThread>
 
 enum class OutputType;
 
@@ -191,6 +194,8 @@ public:
     bool setWalletLocked(bool locked, const SecureString &passPhrase=SecureString());
     bool changePassphrase(const SecureString &oldPass, const SecureString &newPass);
     bool restoreWallet(const QString &filename, const QString &param);
+    bool getWalletUnlockStakingOnly();
+    void setWalletUnlockStakingOnly(bool unlock);
 
     // RAI object for unlocking wallet, returned by requestUnlock()
     class UnlockContext
@@ -208,6 +213,7 @@ public:
         WalletModel *wallet;
         bool valid;
         mutable bool relock; // mutable, as it can be set to false by copying
+        bool stakingOnly;
 
         void CopyFrom(const UnlockContext& rhs);
     };
@@ -231,6 +237,12 @@ public:
 
     bool isMultiwallet();
 
+    QString getRestorePath();
+    QString getRestoreParam();
+    bool restore();
+
+    uint64_t getStakeWeight();
+
     AddressTableModel* getAddressTableModel() const { return addressTableModel; }
 private:
     std::unique_ptr<interfaces::Wallet> m_wallet;
@@ -238,9 +250,11 @@ private:
     std::unique_ptr<interfaces::Handler> m_handler_status_changed;
     std::unique_ptr<interfaces::Handler> m_handler_address_book_changed;
     std::unique_ptr<interfaces::Handler> m_handler_transaction_changed;
+    std::unique_ptr<interfaces::Handler> m_handler_token_changed;
     std::unique_ptr<interfaces::Handler> m_handler_show_progress;
     std::unique_ptr<interfaces::Handler> m_handler_watch_only_changed;
     std::unique_ptr<interfaces::Handler> m_handler_can_get_addrs_changed;
+    std::unique_ptr<interfaces::Handler> m_handler_contract_book_changed;
     interfaces::Node& m_node;
 
     bool fHaveWatchOnly;
@@ -264,9 +278,19 @@ private:
 
     QTimer *pollTimer;
 
+    QString restorePath;
+    QString restoreParam;
+
+    uint64_t nWeight;
+    std::atomic<bool> updateStakeWeight;
+    std::atomic<bool> updateCoinAddresses;
+
+    QThread t;
+
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();
-    void checkBalanceChanged(const interfaces::WalletBalances& new_balances);
+    bool checkBalanceChanged(const interfaces::WalletBalances& new_balances);
+    void checkTokenBalanceChanged();
 
 Q_SIGNALS:
     // Signal that balance in wallet changed
@@ -312,6 +336,14 @@ public Q_SLOTS:
     void updateWatchOnlyFlag(bool fHaveWatchonly);
     /* Current, immature or unconfirmed balance might have changed - emit 'balanceChanged' if so */
     void pollBalanceChanged();
+    /* New, updated or removed contract book entry */
+    void updateContractBook(const QString &address, const QString &label, const QString &abi, int status);
+    /* Set that update for coin address is needed */
+    void checkCoinAddresses();
+    /* Update coin addresses when changed*/
+    void checkCoinAddressesChanged();
+    /* Update stake weight when changed*/
+    void checkStakeWeightChanged();
 };
 
 #endif // BITCOIN_QT_WALLETMODEL_H
