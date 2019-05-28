@@ -122,6 +122,11 @@ void ReceiveRequestDialog::setInfo(const SendCoinsRecipient &_info)
     update();
 }
 
+bool ReceiveRequestDialog::createQRCode(QLabel *label, SendCoinsRecipient _info, bool showAddress)
+{
+    return false;
+}
+
 void ReceiveRequestDialog::update()
 {
     if(!model)

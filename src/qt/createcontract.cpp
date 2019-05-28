@@ -9,7 +9,7 @@
 #include <qt/bitcoinunits.h>
 #include <qt/optionsmodel.h>
 #include <validation.h>
-#include <utilmoneystr.h>
+#include <util/moneystr.h>
 #include <qt/addressfield.h>
 #include <qt/abifunctionfield.h>
 #include <qt/contractabi.h>

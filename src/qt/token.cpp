@@ -5,6 +5,7 @@
 #include <util/moneystr.h>
 #include <key_io.h>
 #include <util/strencodings.h>
+#include <util/convert.h>
 #include <qt/eventlog.h>
 #include <libethcore/ABI.h>
 #include <qt/walletmodel.h>

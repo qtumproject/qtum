@@ -15,6 +15,9 @@
 #include <qt/recentrequeststablemodel.h>
 #include <qt/sendcoinsdialog.h>
 #include <qt/transactiontablemodel.h>
+#include <qt/tokenitemmodel.h>
+#include <qt/tokentransactiontablemodel.h>
+#include <qt/contracttablemodel.h>
 
 #include <interfaces/handler.h>
 #include <interfaces/node.h>
@@ -312,6 +315,11 @@ AddressTableModel *WalletModel::getAddressTableModel()
     return addressTableModel;
 }
 
+ContractTableModel *WalletModel::getContractTableModel()
+{
+    return contractTableModel;
+}
+
 TransactionTableModel *WalletModel::getTransactionTableModel()
 {
     return transactionTableModel;
@@ -320,6 +328,16 @@ TransactionTableModel *WalletModel::getTransactionTableModel()
 RecentRequestsTableModel *WalletModel::getRecentRequestsTableModel()
 {
     return recentRequestsTableModel;
+}
+
+TokenItemModel *WalletModel::getTokenItemModel()
+{
+    return tokenItemModel;
+}
+
+TokenTransactionTableModel *WalletModel::getTokenTransactionTableModel()
+{
+    return tokenTransactionTableModel;
 }
 
 WalletModel::EncryptionStatus WalletModel::getEncryptionStatus() const
@@ -370,6 +388,11 @@ bool WalletModel::changePassphrase(const SecureString &oldPass, const SecureStri
 {
     m_wallet->lock(); // Make sure wallet is locked before attempting pass change
     return m_wallet->changeWalletPassphrase(oldPass, newPass);
+}
+
+bool WalletModel::restoreWallet(const QString &filename, const QString &param)
+{
+    return false;
 }
 
 // Handlers for core signals

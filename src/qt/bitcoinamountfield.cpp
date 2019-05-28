@@ -23,7 +23,8 @@ class AmountSpinBox: public QAbstractSpinBox
 
 public:
     explicit AmountSpinBox(QWidget *parent):
-        QAbstractSpinBox(parent)
+        QAbstractSpinBox(parent),
+        minAmount(0)
     {
         setAlignment(Qt::AlignRight);
 
@@ -146,10 +147,22 @@ public:
         return cachedMinimumSizeHint;
     }
 
+    CAmount minimum() const
+    {
+        return minAmount;
+    }
+
+    void setMinimum(const CAmount& min)
+    {
+        minAmount = min;
+        Q_EMIT valueChanged();
+    }
+
 private:
     int currentUnit{BitcoinUnits::BTC};
     CAmount singleStep{CAmount(100000)}; // satoshis
     mutable QSize cachedMinimumSizeHint;
+    CAmount minAmount;
     bool m_allow_empty{true};
     CAmount m_min_amount{CAmount(0)};
     CAmount m_max_amount{BitcoinUnits::maxMoney()};

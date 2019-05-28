@@ -5,7 +5,8 @@
 #include <qt/clientmodel.h>
 #include <qt/optionsmodel.h>
 #include <validation.h>
-#include <utilmoneystr.h>
+#include <util/moneystr.h>
+#include <util/convert.h>
 #include <qt/token.h>
 #include <qt/bitcoinunits.h>
 #include <wallet/wallet.h>

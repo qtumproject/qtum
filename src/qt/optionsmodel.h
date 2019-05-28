@@ -76,6 +76,7 @@ public:
     bool getProxySettings(QNetworkProxy& proxy) const;
     bool getCoinControlFeatures() const { return fCoinControlFeatures; }
     const QString& getOverriddenByCommandLine() { return strOverriddenByCommandLine; }
+    bool getZeroBalanceAddressToken() const { return bZeroBalanceAddressToken; }
 
     /* Restart flag helper */
     void setRestartRequired(bool fRequired);
@@ -95,6 +96,7 @@ private:
     bool fCoinControlFeatures;
     /* settings that were overridden by command-line */
     QString strOverriddenByCommandLine;
+    bool bZeroBalanceAddressToken;
 
     // Add option to list of GUI options overridden through command line/config file
     void addOverriddenOption(const std::string &option);

@@ -35,6 +35,9 @@ class PlatformStyle;
 class RecentRequestsTableModel;
 class TransactionTableModel;
 class WalletModelTransaction;
+class TokenItemModel;
+class TokenTransactionTableModel;
+class ContractTableModel;
 
 class CCoinControl;
 class CKeyID;
@@ -153,8 +156,11 @@ public:
 
     OptionsModel *getOptionsModel();
     AddressTableModel *getAddressTableModel();
+    ContractTableModel *getContractTableModel();
     TransactionTableModel *getTransactionTableModel();
     RecentRequestsTableModel *getRecentRequestsTableModel();
+    TokenItemModel *getTokenItemModel();
+    TokenTransactionTableModel *getTokenTransactionTableModel();
 
     EncryptionStatus getEncryptionStatus() const;
 
@@ -184,6 +190,7 @@ public:
     // Passphrase only needed when unlocking
     bool setWalletLocked(bool locked, const SecureString &passPhrase=SecureString());
     bool changePassphrase(const SecureString &oldPass, const SecureString &newPass);
+    bool restoreWallet(const QString &filename, const QString &param);
 
     // RAI object for unlocking wallet, returned by requestUnlock()
     class UnlockContext
@@ -244,8 +251,11 @@ private:
     OptionsModel *optionsModel;
 
     AddressTableModel *addressTableModel;
+    ContractTableModel *contractTableModel;
     TransactionTableModel *transactionTableModel;
     RecentRequestsTableModel *recentRequestsTableModel;
+    TokenItemModel *tokenItemModel;
+    TokenTransactionTableModel *tokenTransactionTableModel;
 
     // Cache some values to be able to detect changes
     interfaces::WalletBalances m_cached_balances;
@@ -287,6 +297,9 @@ Q_SIGNALS:
 
     // Notify that there are now keys in the keypool
     void canGetAddressesChanged();
+
+    // Signal that available coin addresses are changed
+    void availableAddressesChanged(QStringList spendableAddresses, QStringList allAddresses);
 
 public Q_SLOTS:
     /* Wallet status might have changed */

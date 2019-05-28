@@ -53,6 +53,7 @@ public:
 
     void setModel(WalletModel *model);
     void setInfo(const SendCoinsRecipient &info);
+    static bool createQRCode(QLabel * label, SendCoinsRecipient info, bool showAddress = false);
 
 private Q_SLOTS:
     void on_btnCopyURI_clicked();
