@@ -22,6 +22,7 @@
 #include <ui_interface.h>
 #include <util/system.h>
 #include <warnings.h>
+#include <wallet/wallet.h>
 
 #include <stdint.h>
 
@@ -45,7 +46,9 @@ ClientModel::ClientModel(interfaces::Node& node, OptionsModel *_optionsModel, QO
     banTableModel = new BanTableModel(m_node, this);
     pollTimer = new QTimer(this);
     connect(pollTimer, &QTimer::timeout, this, &ClientModel::updateTimer);
+    connect(this, &ClientModel::tipChanged, this, &ClientModel::updateTip);
     pollTimer->start(MODEL_UPDATE_DELAY);
+    fBatchProcessingMode = false;
 
     subscribeToCoreSignals();
 }
@@ -223,6 +226,20 @@ static void BannedListChanged(ClientModel *clientmodel)
 
 static void BlockTipChanged(ClientModel *clientmodel, bool initialSync, int height, int64_t blockTime, double verificationProgress, bool fHeader)
 {
+    // Wallet batch mode checks
+    if(height > 0)
+    {
+        int64_t secs = GetTime() - blockTime;
+        bool batchMode = secs >= 90*60 ? true : false;
+        if(batchMode)
+        {
+            initialSync |= batchMode;
+            if(!clientmodel->fBatchProcessingMode)
+            {
+                clientmodel->fBatchProcessingMode = true;
+            }
+        }
+    }
     // lock free async UI updates in case we have a new block tip
     // during initial sync, only update the UI if the last update
     // was > 250ms (MODEL_UPDATE_DELAY) ago
@@ -245,6 +262,10 @@ static void BlockTipChanged(ClientModel *clientmodel, bool initialSync, int heig
                                   Q_ARG(QDateTime, QDateTime::fromTime_t(blockTime)),
                                   Q_ARG(double, verificationProgress),
                                   Q_ARG(bool, fHeader));
+        if(!fHeader && !clientmodel->fBatchProcessingMode)
+        {
+            QMetaObject::invokeMethod(clientmodel, "tipChanged", Qt::QueuedConnection);
+        }
         nLastUpdateNotification = now;
     }
 }
@@ -281,4 +302,14 @@ bool ClientModel::getProxyInfo(std::string& ip_port) const
       return true;
     }
     return false;
+}
+
+void ClientModel::updateTip()
+{
+    // Get the new gas info
+    uint64_t blockGasLimit = 0;
+    uint64_t minGasPrice = 0;
+    uint64_t nGasPrice = 0;
+    m_node.getGasInfo(blockGasLimit, minGasPrice, nGasPrice);
+    Q_EMIT gasInfoChanged(blockGasLimit, minGasPrice, nGasPrice);
 }
