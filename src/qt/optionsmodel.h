@@ -19,6 +19,7 @@ QT_END_NAMESPACE
 
 extern const char *DEFAULT_GUI_PROXY_HOST;
 static constexpr unsigned short DEFAULT_GUI_PROXY_PORT = 9050;
+static const bool DEFAULT_CHECK_FOR_UPDATES = true;
 
 /** Interface from Qt to configuration data structure for Bitcoin client.
    To Qt, the options are presented as a list with the different options
@@ -53,8 +54,13 @@ public:
         Prune,                  // bool
         PruneSize,              // int
         DatabaseCache,          // int
+        LogEvents,              // bool
         SpendZeroConfChange,    // bool
+        ZeroBalanceAddressToken,// bool
         Listen,                 // bool
+        NotUseChangeAddress,    // bool
+        CheckForUpdates,        // bool
+        ReserveBalance,         // CAmount
         OptionIDRowCount,
     };
 
@@ -76,6 +82,7 @@ public:
     bool getProxySettings(QNetworkProxy& proxy) const;
     bool getCoinControlFeatures() const { return fCoinControlFeatures; }
     const QString& getOverriddenByCommandLine() { return strOverriddenByCommandLine; }
+    bool getCheckForUpdates() const { return fCheckForUpdates; }
     bool getZeroBalanceAddressToken() const { return bZeroBalanceAddressToken; }
 
     /* Restart flag helper */
@@ -96,6 +103,7 @@ private:
     bool fCoinControlFeatures;
     /* settings that were overridden by command-line */
     QString strOverriddenByCommandLine;
+    bool fCheckForUpdates;
     bool bZeroBalanceAddressToken;
 
     // Add option to list of GUI options overridden through command line/config file
@@ -107,6 +115,7 @@ Q_SIGNALS:
     void displayUnitChanged(int unit);
     void coinControlFeaturesChanged(bool);
     void hideTrayIconChanged(bool);
+    void zeroBalanceAddressTokenChanged(bool);
 };
 
 #endif // BITCOIN_QT_OPTIONSMODEL_H

@@ -19,10 +19,15 @@
 #include <txdb.h> // for -dbcache defaults
 #include <qt/intro.h>
 
+#ifdef ENABLE_WALLET
+#include <wallet/wallet.h>
+#include <wallet/walletdb.h>
+#endif
+
 #include <QNetworkProxy>
 #include <QSettings>
 #include <QStringList>
-
+#include <util/moneystr.h>
 const char *DEFAULT_GUI_PROXY_HOST = "127.0.0.1";
 
 static const QString GetDefaultProxyAddress();
@@ -104,6 +109,16 @@ void OptionsModel::Init(bool resetSettings)
     if (!m_node.softSetArg("-dbcache", settings.value("nDatabaseCache").toString().toStdString()))
         addOverriddenOption("-dbcache");
 
+    if (!settings.contains("fLogEvents"))
+        settings.setValue("fLogEvents", fLogEvents);
+    if (!m_node.softSetBoolArg("-logevents", settings.value("fLogEvents").toBool()))
+        addOverriddenOption("-logevents");
+
+    if (!settings.contains("nReserveBalance"))
+        settings.setValue("nReserveBalance", (long long)DEFAULT_RESERVE_BALANCE);
+    if (!m_node.softSetArg("-reservebalance", FormatMoney(settings.value("nReserveBalance").toLongLong())))
+        addOverriddenOption("-reservebalance");
+
     if (!settings.contains("nThreadsScriptVerif"))
         settings.setValue("nThreadsScriptVerif", DEFAULT_SCRIPTCHECK_THREADS);
     if (!m_node.softSetArg("-par", settings.value("nThreadsScriptVerif").toString().toStdString()))
@@ -120,6 +135,14 @@ void OptionsModel::Init(bool resetSettings)
         addOverriddenOption("-spendzeroconfchange");
 #endif
 
+    if (!settings.contains("bZeroBalanceAddressToken"))
+        settings.setValue("bZeroBalanceAddressToken", DEFAULT_ZERO_BALANCE_ADDRESS_TOKEN);
+    bZeroBalanceAddressToken = settings.value("bZeroBalanceAddressToken").toBool();
+
+    if (!settings.contains("fCheckForUpdates"))
+        settings.setValue("fCheckForUpdates", DEFAULT_CHECK_FOR_UPDATES);
+    fCheckForUpdates = settings.value("fCheckForUpdates").toBool();
+
     // Network
     if (!settings.contains("fUseUPnP"))
         settings.setValue("fUseUPnP", DEFAULT_UPNP);
@@ -130,6 +153,11 @@ void OptionsModel::Init(bool resetSettings)
         settings.setValue("fListen", DEFAULT_LISTEN);
     if (!m_node.softSetBoolArg("-listen", settings.value("fListen").toBool()))
         addOverriddenOption("-listen");
+
+    if (!settings.contains("fNotUseChangeAddress"))
+        settings.setValue("fNotUseChangeAddress", DEFAULT_NOT_USE_CHANGE_ADDRESS);
+    if (!m_node.softSetBoolArg("-notusechangeaddress", settings.value("fNotUseChangeAddress").toBool()))
+        addOverriddenOption("-notusechangeaddress");
 
     if (!settings.contains("fUseProxy"))
         settings.setValue("fUseProxy", false);
@@ -284,6 +312,10 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
         case SpendZeroConfChange:
             return settings.value("bSpendZeroConfChange");
 #endif
+        case ZeroBalanceAddressToken:
+            return settings.value("bZeroBalanceAddressToken");
+        case ReserveBalance:
+            return settings.value("nReserveBalance");
         case DisplayUnit:
             return nDisplayUnit;
         case ThirdPartyTxUrls:
@@ -298,10 +330,16 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
             return settings.value("nPruneSize");
         case DatabaseCache:
             return settings.value("nDatabaseCache");
+        case LogEvents:
+            return settings.value("fLogEvents");
         case ThreadsScriptVerif:
             return settings.value("nThreadsScriptVerif");
         case Listen:
             return settings.value("fListen");
+        case NotUseChangeAddress:
+            return settings.value("fNotUseChangeAddress");
+        case CheckForUpdates:
+            return settings.value("fCheckForUpdates");
         default:
             return QVariant();
         }
@@ -399,6 +437,11 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             }
             break;
 #endif
+        case ZeroBalanceAddressToken:
+            bZeroBalanceAddressToken = value.toBool();
+            settings.setValue("bZeroBalanceAddressToken", bZeroBalanceAddressToken);
+            Q_EMIT zeroBalanceAddressTokenChanged(bZeroBalanceAddressToken);
+            break;
         case DisplayUnit:
             setDisplayUnit(value);
             break;
@@ -438,6 +481,18 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
                 setRestartRequired(true);
             }
             break;
+        case LogEvents:
+            if (settings.value("fLogEvents") != value) {
+                settings.setValue("fLogEvents", value);
+                setRestartRequired(true);
+            }
+            break;
+        case ReserveBalance:
+            if (settings.value("nReserveBalance") != value) {
+                settings.setValue("nReserveBalance", value);
+                setRestartRequired(true);
+            }
+            break;
         case ThreadsScriptVerif:
             if (settings.value("nThreadsScriptVerif") != value) {
                 settings.setValue("nThreadsScriptVerif", value);
@@ -448,6 +503,18 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             if (settings.value("fListen") != value) {
                 settings.setValue("fListen", value);
                 setRestartRequired(true);
+            }
+            break;
+        case NotUseChangeAddress:
+            if (settings.value("fNotUseChangeAddress") != value) {
+                settings.setValue("fNotUseChangeAddress", value);
+                setRestartRequired(true);
+            }
+            break;
+        case CheckForUpdates:
+            if (settings.value("fCheckForUpdates") != value) {
+                settings.setValue("fCheckForUpdates", value);
+                fCheckForUpdates = value.toBool();
             }
             break;
         default:
