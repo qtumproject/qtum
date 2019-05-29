@@ -13,6 +13,7 @@
 class ClientModel;
 class TransactionFilterProxy;
 class TxViewDelegate;
+class TknViewDelegate;
 class PlatformStyle;
 class WalletModel;
 
@@ -39,10 +40,13 @@ public:
 
 public Q_SLOTS:
     void setBalance(const interfaces::WalletBalances& balances);
+    void checkForInvalidTokens();
 
 Q_SIGNALS:
+    void showMoreClicked();
     void transactionClicked(const QModelIndex &index);
     void outOfSyncWarningClicked();
+    void addTokenClicked();
 
 private:
     Ui::OverviewPage *ui;
@@ -51,14 +55,18 @@ private:
     interfaces::WalletBalances m_balances;
 
     TxViewDelegate *txdelegate;
+    TknViewDelegate *tkndelegate;
     std::unique_ptr<TransactionFilterProxy> filter;
 
 private Q_SLOTS:
     void updateDisplayUnit();
-    void handleTransactionClicked(const QModelIndex &index);
     void updateAlerts(const QString &warnings);
     void updateWatchOnlyLabels(bool showWatchOnly);
     void handleOutOfSyncWarningClicks();
+
+    void on_buttonAddToken_clicked();
+    void on_showMoreButton_clicked();
+    void showDetails();
 };
 
 #endif // BITCOIN_QT_OVERVIEWPAGE_H
