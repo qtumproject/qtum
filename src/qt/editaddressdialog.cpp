@@ -7,9 +7,11 @@
 
 #include <qt/addresstablemodel.h>
 #include <qt/guiutil.h>
+#include <qt/styleSheet.h>
 
 #include <QDataWidgetMapper>
 #include <QMessageBox>
+#include <QPushButton>
 
 
 EditAddressDialog::EditAddressDialog(Mode _mode, QWidget *parent) :
@@ -20,6 +22,9 @@ EditAddressDialog::EditAddressDialog(Mode _mode, QWidget *parent) :
     model(nullptr)
 {
     ui->setupUi(this);
+
+    SetObjectStyleSheet(ui->buttonBox->button(QDialogButtonBox::Cancel), StyleSheetNames::ButtonWhite);
+    SetObjectStyleSheet(ui->buttonBox->button(QDialogButtonBox::Ok), StyleSheetNames::ButtonBlue);
 
     GUIUtil::setupAddressWidget(ui->addressEdit, this);
 
