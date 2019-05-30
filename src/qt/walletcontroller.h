@@ -46,6 +46,8 @@ public:
     OpenWalletActivity* openWallet(const std::string& name, QWidget* parent = nullptr);
     void closeWallet(WalletModel* wallet_model, QWidget* parent = nullptr);
 
+    void getRestoreData(QString& restorePath, QString& restoreParam, QString& restoreName) const;
+
 private Q_SLOTS:
     void addWallet(WalletModel* wallet_model);
 

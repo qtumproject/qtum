@@ -167,3 +167,18 @@ void OpenWalletActivity::open()
     }
     Q_EMIT finished();
 }
+
+void WalletController::getRestoreData(QString &restorePath, QString &restoreParam, QString &restoreName) const
+{
+    QMutexLocker locker(&m_mutex);
+    for (WalletModel *walletModel : m_wallets)
+    {
+        if(walletModel->restore())
+        {
+            restoreParam = walletModel->getRestoreParam();
+            restorePath = walletModel->getRestorePath();
+            restoreName = walletModel->getWalletName();
+            return;
+        }
+    }
+}
