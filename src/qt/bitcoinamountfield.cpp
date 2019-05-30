@@ -24,8 +24,7 @@ class AmountSpinBox: public QAbstractSpinBox
 
 public:
     explicit AmountSpinBox(QWidget *parent):
-        QAbstractSpinBox(parent),
-        minAmount(0)
+        QAbstractSpinBox(parent)
     {
         setAlignment(Qt::AlignRight);
 
@@ -69,7 +68,8 @@ public:
 
     void setValue(const CAmount& value)
     {
-        lineEdit()->setText(BitcoinUnits::format(currentUnit, value, false, BitcoinUnits::separatorAlways));
+        CAmount val = qBound(m_min_amount, value, m_max_amount);
+        lineEdit()->setText(BitcoinUnits::format(currentUnit, val, false, BitcoinUnits::separatorAlways));
         Q_EMIT valueChanged();
     }
 
@@ -148,22 +148,10 @@ public:
         return cachedMinimumSizeHint;
     }
 
-    CAmount minimum() const
-    {
-        return minAmount;
-    }
-
-    void setMinimum(const CAmount& min)
-    {
-        minAmount = min;
-        Q_EMIT valueChanged();
-    }
-
 private:
     int currentUnit{BitcoinUnits::BTC};
     CAmount singleStep{CAmount(100000)}; // satoshis
     mutable QSize cachedMinimumSizeHint;
-    CAmount minAmount;
     bool m_allow_empty{true};
     CAmount m_min_amount{CAmount(0)};
     CAmount m_max_amount{BitcoinUnits::maxMoney()};
@@ -235,14 +223,15 @@ BitcoinAmountField::BitcoinAmountField(QWidget *parent) :
     amount = new AmountSpinBox(this);
     amount->setLocale(QLocale::c());
     amount->installEventFilter(this);
-    amount->setMaximumWidth(240);
+    amount->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->addWidget(amount);
     unit = new QValueComboBox(this);
     unit->setModel(new BitcoinUnits(this));
+    unit->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    unit->setMinimumWidth(120);
     layout->addWidget(unit);
-    layout->addStretch(1);
     layout->setContentsMargins(0,0,0,0);
 
     setLayout(layout);

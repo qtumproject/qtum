@@ -65,9 +65,6 @@ public:
     */
     QWidget *setupTabChain(QWidget *prev);
 
-    CAmount minimum() const;
-    void setMinimum(const CAmount& min);
-
 Q_SIGNALS:
     void valueChanged();
 
