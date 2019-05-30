@@ -7,6 +7,8 @@
 
 #include <qt/bitcoingui.h>
 #include <qt/walletview.h>
+#include <qt/tabbarinfo.h>
+#include <wallet/wallet.h>
 
 #include <cassert>
 #include <cstdio>
@@ -73,6 +75,8 @@ bool WalletFrame::addWallet(WalletModel *walletModel)
 
     connect(walletView, &WalletView::outOfSyncWarningClicked, this, &WalletFrame::outOfSyncWarningClicked);
 
+    connect(walletView, SIGNAL(currentChanged(int)), this, SLOT(pageChanged(int)));
+
     return true;
 }
 
@@ -138,6 +142,27 @@ void WalletFrame::gotoHistoryPage()
         i.value()->gotoHistoryPage();
 }
 
+void WalletFrame::gotoSendTokenPage()
+{
+    QMap<WalletModel*, WalletView*>::const_iterator i;
+    for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
+        i.value()->gotoSendTokenPage();
+}
+
+void WalletFrame::gotoReceiveTokenPage()
+{
+    QMap<WalletModel*, WalletView*>::const_iterator i;
+    for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
+        i.value()->gotoReceiveTokenPage();
+}
+
+void WalletFrame::gotoAddTokenPage()
+{
+    QMap<WalletModel*, WalletView*>::const_iterator i;
+    for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
+        i.value()->gotoAddTokenPage();
+}
+
 void WalletFrame::gotoReceiveCoinsPage()
 {
     QMap<WalletModel*, WalletView*>::const_iterator i;
@@ -150,6 +175,27 @@ void WalletFrame::gotoSendCoinsPage(QString addr)
     QMap<WalletModel*, WalletView*>::const_iterator i;
     for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
         i.value()->gotoSendCoinsPage(addr);
+}
+
+void WalletFrame::gotoCreateContractPage()
+{
+    QMap<WalletModel*, WalletView*>::const_iterator i;
+    for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
+        i.value()->gotoCreateContractPage();
+}
+
+void WalletFrame::gotoSendToContractPage()
+{
+    QMap<WalletModel*, WalletView*>::const_iterator i;
+    for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
+        i.value()->gotoSendToContractPage();
+}
+
+void WalletFrame::gotoCallContractPage()
+{
+    QMap<WalletModel*, WalletView*>::const_iterator i;
+    for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
+        i.value()->gotoCallContractPage();
 }
 
 void WalletFrame::gotoSignMessageTab(QString addr)
@@ -180,6 +226,13 @@ void WalletFrame::backupWallet()
         walletView->backupWallet();
 }
 
+void WalletFrame::restoreWallet()
+{
+    WalletView *walletView = currentWalletView();
+    if (walletView)
+        walletView->restoreWallet();
+}
+
 void WalletFrame::changePassphrase()
 {
     WalletView *walletView = currentWalletView();
@@ -189,9 +242,22 @@ void WalletFrame::changePassphrase()
 
 void WalletFrame::unlockWallet()
 {
+    QObject* object = sender();
+    QString objectName = object ? object->objectName() : "";
+    bool fromMenu = objectName == "unlockWalletAction";
     WalletView *walletView = currentWalletView();
     if (walletView)
-        walletView->unlockWallet();
+        walletView->unlockWallet(fromMenu);
+}
+
+void WalletFrame::lockWallet()
+{
+    WalletView *walletView = currentWalletView();
+    if (walletView)
+    {
+        walletView->lockWallet();
+        walletView->getWalletModel()->setWalletUnlockStakingOnly(false);
+    }
 }
 
 void WalletFrame::usedSendingAddresses()
@@ -222,4 +288,36 @@ WalletModel* WalletFrame::currentWalletModel() const
 void WalletFrame::outOfSyncWarningClicked()
 {
     Q_EMIT requestedSyncWarningInfo();
+}
+
+void WalletFrame::pageChanged(int index)
+{
+    updateTabBar(0, index);
+}
+
+void WalletFrame::updateTabBar(WalletView *walletView, int index)
+{
+    // update default parameters
+    if(walletView == 0)
+    {
+        walletView = currentWalletView();
+    }
+    if(walletView && index == -1)
+    {
+        index = walletView->currentIndex();
+    }
+
+    // update the tab bar into the title bar
+    bool found = false;
+    if(walletView && walletView->count() > index)
+    {
+        QWidget* currentPage = walletView->widget(index);
+        QObject* info = currentPage->findChild<TabBarInfo *>("");
+        gui->setTabBarInfo(info);
+        found = true;
+    }
+    if(!found)
+    {
+        gui->setTabBarInfo(0);
+    }
 }
