@@ -914,8 +914,7 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
         //
         // Create new block
         //
-        auto locked_chain = pwallet->chain().lock();
-        if(pwallet->HaveAvailableCoinsForStaking(*locked_chain))
+        if(pwallet->HaveAvailableCoinsForStaking())
         {
             int64_t nTotalFees = 0;
             // First just create an empty block. No need to process transactions until we know we can create a block

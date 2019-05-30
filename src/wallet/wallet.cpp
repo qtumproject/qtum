@@ -2679,10 +2679,13 @@ void CWallet::AvailableCoinsForStaking(interfaces::Chain::Lock& locked_chain, st
     }
 }
 
-bool CWallet::HaveAvailableCoinsForStaking(interfaces::Chain::Lock& locked_chain) const
+bool CWallet::HaveAvailableCoinsForStaking() const
 {
+    auto locked_chain = chain().lock();
+    LOCK(cs_wallet);
+
     std::vector<COutput> vCoins;
-    AvailableCoinsForStaking(locked_chain, vCoins);
+    AvailableCoinsForStaking(*locked_chain, vCoins);
     return vCoins.size() > 0;
 }
 
