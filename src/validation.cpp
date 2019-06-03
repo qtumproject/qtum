@@ -715,12 +715,6 @@ static bool AcceptToMemoryPoolWorker(const CChainParams& chainparams, CTxMemPool
             }
         }
 
-#ifdef ENABLE_BITCORE_RPC
-        // are the actual inputs available?
-        if (!view.HaveInputs(tx))
-            return state.Invalid(false, REJECT_DUPLICATE, "bad-txns-inputs-spent");
-#endif
-
         // Bring the best block into scope
         view.GetBestBlock();
 
