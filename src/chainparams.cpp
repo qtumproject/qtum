@@ -251,10 +251,6 @@ public:
         // nodes with support for servicebits filtering should be at the top
         vSeeds.emplace_back("qtum4.dynu.net"); // Qtum testnet
 
-#ifdef ENABLE_BITCORE_RPC
-        vSeeds.emplace_back("qtum-testnet1.earlz.net"); // Qtum testnet
-#endif
-
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,120);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,110);
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,239);
