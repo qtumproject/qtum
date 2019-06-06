@@ -80,6 +80,9 @@ public Q_SLOTS:
      */
     void on_navigationResized(const QSize& _size);
 
+private Q_SLOTS:
+    void updateDisplayUnit();
+
 private:
     /**
      * @brief setBalanceLabel Changing the displayed balance

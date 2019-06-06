@@ -120,6 +120,12 @@ void CreateContract::setModel(WalletModel *_model)
 {
     m_model = _model;
     ui->lineEditSenderAddress->setWalletModel(m_model);
+
+    if (m_model && m_model->getOptionsModel())
+        connect(m_model->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &CreateContract::updateDisplayUnit);
+
+    // update the display unit, to not use the default ("QTUM")
+    updateDisplayUnit();
 }
 
 bool CreateContract::isValidBytecode()
@@ -268,6 +274,15 @@ void CreateContract::on_newContractABI()
     m_ABIFunctionField->setContractABI(m_contractABI);
 
     on_updateCreateButton();
+}
+
+void CreateContract::updateDisplayUnit()
+{
+    if(m_model && m_model->getOptionsModel())
+    {
+        // Update gasPriceAmount with the current unit
+        ui->lineEditGasPrice->setDisplayUnit(m_model->getOptionsModel()->getDisplayUnit());
+    }
 }
 
 QString CreateContract::toDataHex(int func, QString& errorMessage)

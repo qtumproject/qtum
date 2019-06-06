@@ -39,6 +39,12 @@ void TitleBar::setModel(WalletModel *model)
     {
         setBalanceLabel(m_models[m_model]);
     }
+
+    if (m_model && m_model->getOptionsModel())
+        connect(m_model->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &TitleBar::updateDisplayUnit);
+
+    // update the display unit, to not use the default ("QTUM")
+    updateDisplayUnit();
 }
 
 void TitleBar::setTabBarInfo(QObject *info)
@@ -72,6 +78,14 @@ void TitleBar::setBalance(const interfaces::WalletBalances& balances)
 void TitleBar::on_navigationResized(const QSize &_size)
 {
     ui->widgetLogo->setFixedWidth(_size.width());
+}
+
+void TitleBar::updateDisplayUnit()
+{
+    if(m_model && m_model->getOptionsModel())
+    {
+        ui->lblBalance->setText(BitcoinUnits::formatWithUnit(m_model->getOptionsModel()->getDisplayUnit(), m_models[m_model].balance));
+    }
 }
 
 void TitleBar::setWalletSelector(QLabel *walletSelectorLabel, QComboBox *walletSelector)

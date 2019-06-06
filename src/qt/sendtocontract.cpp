@@ -134,6 +134,12 @@ void SendToContract::setModel(WalletModel *_model)
     m_model = _model;
     m_contractModel = m_model->getContractTableModel();
     ui->lineEditSenderAddress->setWalletModel(m_model);
+
+    if (m_model && m_model->getOptionsModel())
+        connect(m_model->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &SendToContract::updateDisplayUnit);
+
+    // update the display unit, to not use the default ("QTUM")
+    updateDisplayUnit();
 }
 
 bool SendToContract::isValidContractAddress()
@@ -369,6 +375,16 @@ void SendToContract::on_contractAddressChanged()
                 ui->textEditInterface->setText(m_contractModel->abiForAddress(contractAddress));
             }
         }
+    }
+}
+
+void SendToContract::updateDisplayUnit()
+{
+    if(m_model && m_model->getOptionsModel())
+    {
+        // Update sendAmount and gasPriceAmount with the current unit
+        ui->lineEditGasPrice->setDisplayUnit(m_model->getOptionsModel()->getDisplayUnit());
+        ui->lineEditAmount->setDisplayUnit(m_model->getOptionsModel()->getDisplayUnit());
     }
 }
 
