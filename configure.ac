@@ -1491,7 +1491,7 @@ esac
 echo
 echo "Options used to compile and link:"
 echo "  with wallet   = $enable_wallet"
-echo "  with explorer = $enable_bitcore_rpc"
+echo "  with bitcore  = $enable_bitcore_rpc"
 echo "  with gui / qt = $bitcoin_enable_qt"
 if test x$bitcoin_enable_qt != xno; then
     echo "    with qr     = $use_qr"
