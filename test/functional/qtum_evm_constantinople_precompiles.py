@@ -200,14 +200,28 @@ class QtumEVMConstantinoplePrecompiledContractsTest(BitcoinTestFramework):
             test(None)
 
     def ripemd160_test(self, should_fail=False):
-        for _ in range(100):
-            in_val = hex_str_to_bytes(hex(random.randint(0, 2**256))[2:].zfill(64))
+        def test(message):
+            if message is None:
+                message = hex(random.randint(0, 2**256))[2:].zfill(64)
+            else:
+                message = message.encode('utf-8').hex().zfill(64)
+            in_val = hex_str_to_bytes(message)
             abi = "e3c87216"
             abi += "20".zfill(64)
             abi += hex(len(in_val))[2:].zfill(64)
             abi += bytes_to_hex_str(in_val) + ("00" * (32 - len(in_val)))
             ret = self.send_and_call_method(abi)
             assert_equal(ret[0:40], hashlib.new('ripemd160', in_val).hexdigest())
+
+        test("")
+        test("a")
+        test("abc")
+        test("abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq")
+        test("abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu")
+        test("abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmno"*1024)
+
+        for _ in range(100):
+            test(None)
 
     def identity_test(self, should_fail=False):
         for i in range(100):        
