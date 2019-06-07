@@ -1496,11 +1496,11 @@ void BitcoinGUI::updateStakingIcon()
     if(m_node.shutdownRequested())
         return;
 
-    if (!walletFrame) {
-        return;
-    }
-    WalletView * const walletView = walletFrame->currentWalletView();
+    WalletView * const walletView = walletFrame ? walletFrame->currentWalletView() : 0;
     if (!walletView) {
+        // Not staking because wallet is closed
+        labelStakingIcon->setPixmap(QIcon(":/icons/staking_off").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
+        labelStakingIcon->setToolTip(tr("Not staking"));
         return;
     }
     WalletModel * const walletModel = walletView->getWalletModel();
