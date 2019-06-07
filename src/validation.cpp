@@ -1777,10 +1777,8 @@ int ApplyTxInUndo(Coin&& undo, CCoinsViewCache& view, const COutPoint& out)
 DisconnectResult CChainState::DisconnectBlock(const CBlock& block, const CBlockIndex* pindex, CCoinsViewCache& view, bool* pfClean)
 {
     assert(pindex->GetBlockHash() == view.GetBestBlock());
-#ifndef ENABLE_BITCORE_RPC
     if (pfClean)
         *pfClean = false;
-#endif
     bool fClean = true;
 
     CBlockUndo blockUndo;
@@ -1823,7 +1821,7 @@ DisconnectResult CChainState::DisconnectBlock(const CBlock& block, const CBlockI
 
 #ifdef ENABLE_BITCORE_RPC
         /////////////////////////////////////////////////////////// // qtum
-        if (fAddressIndex && (*pfClean)) {
+        if (pfClean == NULL && fAddressIndex) {
 
             for (unsigned int k = tx.vout.size(); k-- > 0;) {
                 const CTxOut &out = tx.vout[k];
@@ -1859,7 +1857,7 @@ DisconnectResult CChainState::DisconnectBlock(const CBlock& block, const CBlockI
                 const auto &undo = txundo.vprevout[j];
                 const bool isTxCoinStake = tx.IsCoinStake();
                 const CTxIn input = tx.vin[j];
-                if (fAddressIndex && (*pfClean)) {
+                if (pfClean == NULL && fAddressIndex) {
                     const CTxOut &prevout = view.GetOutputFor(input);
 
                     CTxDestination dest;
@@ -1884,11 +1882,7 @@ DisconnectResult CChainState::DisconnectBlock(const CBlock& block, const CBlockI
     globalState->setRoot(uintToh256(pindex->pprev->hashStateRoot)); // qtum
     globalState->setRootUTXO(uintToh256(pindex->pprev->hashUTXORoot)); // qtum
 
-#ifdef ENABLE_BITCORE_RPC
-    if(fLogEvents && (*pfClean)){
-#else
     if(pfClean == NULL && fLogEvents){
-#endif
         pstorageresult->deleteResults(block.vtx);
         pblocktree->EraseHeightIndex(pindex->nHeight);
     }
@@ -1896,7 +1890,7 @@ DisconnectResult CChainState::DisconnectBlock(const CBlock& block, const CBlockI
 
 #ifdef ENABLE_BITCORE_RPC
     //////////////////////////////////////////////////// // qtum
-    if (fAddressIndex && (*pfClean)) {
+    if (pfClean == NULL && fAddressIndex) {
         if (!pblocktree->EraseAddressIndex(addressIndex)) {
             error("Failed to delete address index");
             return DISCONNECT_FAILED;
@@ -3458,12 +3452,7 @@ bool CChainState::DisconnectTip(CValidationState& state, const CChainParams& cha
     {
         CCoinsViewCache view(pcoinsTip.get());
         assert(view.GetBestBlock() == pindexDelete->GetBlockHash());
-#ifdef ENABLE_BITCORE_RPC
-        bool fClean=true;
-        if (DisconnectBlock(block, pindexDelete, view, &fClean) != DISCONNECT_OK)
-#else
         if (DisconnectBlock(block, pindexDelete, view, nullptr) != DISCONNECT_OK)
-#endif
             return error("DisconnectTip(): DisconnectBlock %s failed", pindexDelete->GetBlockHash().ToString());
         bool flushed = view.Flush();
         assert(flushed);
@@ -5565,11 +5554,7 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CCoinsView *coinsview,
         // check level 3: check for inconsistencies during memory-only disconnect of tip blocks
         if (nCheckLevel >= 3 && (coins.DynamicMemoryUsage() + pcoinsTip->DynamicMemoryUsage()) <= nCoinCacheUsage) {
             assert(coins.GetBestBlock() == pindex->GetBlockHash());
-#ifdef ENABLE_BITCORE_RPC
-            bool fClean=false;
-#else
             bool fClean=true;
-#endif
             DisconnectResult res = g_chainstate.DisconnectBlock(block, pindex, coins, &fClean);
             if (res == DISCONNECT_FAILED) {
                 return error("VerifyDB(): *** irrecoverable inconsistency in block data at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
