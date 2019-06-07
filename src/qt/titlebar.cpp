@@ -39,12 +39,6 @@ void TitleBar::setModel(WalletModel *model)
     {
         setBalanceLabel(m_models[m_model]);
     }
-
-    if (m_model && m_model->getOptionsModel())
-        connect(m_model->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &TitleBar::updateDisplayUnit);
-
-    // update the display unit, to not use the default ("QTUM")
-    updateDisplayUnit();
 }
 
 void TitleBar::setTabBarInfo(QObject *info)
