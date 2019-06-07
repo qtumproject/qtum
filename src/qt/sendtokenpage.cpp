@@ -166,7 +166,7 @@ void SendTokenPage::on_confirmClicked()
 
     if(m_model && m_model->wallet().isUnspentAddress(m_selectedToken->sender))
     {
-        int unit = m_model->getOptionsModel()->getDisplayUnit();
+        int unit = BitcoinUnits::BTC;
         uint64_t gasLimit = ui->lineEditGasLimit->value();
         CAmount gasPrice = ui->lineEditGasPrice->value();
         std::string label = ui->lineEditDescription->text().trimmed().toStdString();

@@ -211,7 +211,7 @@ void SendToContract::on_sendToContractClicked()
         QVariant result;
         QString errorMessage;
         QString resultJson;
-        int unit = m_model->getOptionsModel()->getDisplayUnit();
+        int unit = BitcoinUnits::BTC;
         uint64_t gasLimit = ui->lineEditGasLimit->value();
         CAmount gasPrice = ui->lineEditGasPrice->value();
         int func = m_ABIFunctionField->getSelectedFunction();
