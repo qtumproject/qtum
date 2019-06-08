@@ -1829,7 +1829,9 @@ DisconnectResult CChainState::DisconnectBlock(const CBlock& block, const CBlockI
                 CTxDestination dest;
                 if (ExtractDestination({hash, k}, out.scriptPubKey, dest)) {
                     valtype bytesID(boost::apply_visitor(DataVisitor(), dest));
-
+                    if(bytesID.empty()) {
+                        continue;
+                    }
                     // undo receiving activity
                     addressIndex.push_back(std::make_pair(CAddressIndexKey(dest.which(), uint160(bytesID), pindex->nHeight, i, hash, k, false), out.nValue));
                     // undo unspent index
@@ -1863,7 +1865,9 @@ DisconnectResult CChainState::DisconnectBlock(const CBlock& block, const CBlockI
                     CTxDestination dest;
                     if (ExtractDestination(input.prevout, prevout.scriptPubKey, dest)) {
                         valtype bytesID(boost::apply_visitor(DataVisitor(), dest));
-
+                        if(bytesID.empty()) {
+                            continue;
+                        }
                         // undo spending activity
                         addressIndex.push_back(std::make_pair(CAddressIndexKey(dest.which(), uint160(bytesID), pindex->nHeight, i, hash, j, true), prevout.nValue * -1));
                         // restore unspent index
@@ -2829,7 +2833,9 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
                     CTxDestination dest;
                     if (ExtractDestination(input.prevout, prevout.scriptPubKey, dest)) {
                         valtype bytesID(boost::apply_visitor(DataVisitor(), dest));
-
+                        if(bytesID.empty()) {
+                            continue;
+                        }
                         addressIndex.push_back(std::make_pair(CAddressIndexKey(dest.which(), uint160(bytesID), pindex->nHeight, i, tx.GetHash(), j, true), prevout.nValue * -1));
 
                         // remove address from unspent index
@@ -3029,7 +3035,9 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
                 CTxDestination dest;
                 if (ExtractDestination({tx.GetHash(), k}, out.scriptPubKey, dest)) {
                     valtype bytesID(boost::apply_visitor(DataVisitor(), dest));
-
+                    if(bytesID.empty()) {
+                        continue;
+                    }
                     // record receiving activity
                     addressIndex.push_back(std::make_pair(CAddressIndexKey(dest.which(), uint160(bytesID), pindex->nHeight, i, tx.GetHash(), k, false), out.nValue));
 
