@@ -183,6 +183,21 @@ bool CPubKey::Verify(const uint256 &hash, const std::vector<unsigned char>& vchS
     return secp256k1_ecdsa_verify(secp256k1_context_verify, &sig, hash.begin(), &pubkey);
 }
 
+bool CPubKey::RecoverLaxDER(const uint256 &hash, const std::vector<unsigned char>& vchSig, uint8_t recid) {
+    secp256k1_ecdsa_signature sig;
+    if (!ecdsa_signature_parse_der_lax(secp256k1_context_verify, &sig, vchSig.data(), vchSig.size())) {
+        return false;
+    }
+
+    std::vector<unsigned char> strictVchSig(65);
+    strictVchSig[0] = recid;
+    if(!secp256k1_ecdsa_signature_serialize_compact(secp256k1_context_verify, strictVchSig.data()+1, &sig)) {
+        return false;
+    }
+
+    return RecoverCompact(hash, strictVchSig);
+}
+
 bool CPubKey::RecoverCompact(const uint256 &hash, const std::vector<unsigned char>& vchSig) {
     if (vchSig.size() != COMPACT_SIGNATURE_SIZE)
         return false;

@@ -43,6 +43,9 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, CValidationState& state, const C
 // Check whether the coinstake timestamp meets protocol
 bool CheckCoinStakeTimestamp(uint32_t nTimeBlock);
 
+// Recover the pubkey and check that it matches the prevoutStake's scriptPubKey.
+bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBlockHeader& block, CCoinsViewCache& view);
+
 // Wrapper around CheckStakeKernelHash()
 // Also checks existence of kernel input and min age
 // Convenient for searching a kernel

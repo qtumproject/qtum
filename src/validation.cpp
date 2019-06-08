@@ -1197,6 +1197,10 @@ bool CheckHeaderPoS(const CBlockHeader& block, const Consensus::Params& consensu
 
     // Check the kernel hash
     CBlockIndex* pindexPrev = (*mi).second;
+    if(!CheckRecoveredPubKeyFromBlockSignature(pindexPrev, block, *pcoinsTip)) {
+        return error("Failed signature check");
+    }
+
     return CheckKernel(pindexPrev, block.nBits, block.StakeTime(), block.prevoutStake, *pcoinsTip);
 }
 
@@ -2000,12 +2004,11 @@ static int64_t nTimeTotal = 0;
 static int64_t nBlocksTotal = 0;
 
 /////////////////////////////////////////////////////////////////////// qtum
-bool GetSpentCoinFromTip(COutPoint prevout, Coin* coin) {
-    CBlockIndex* tip = chainActive.Tip();
+bool GetSpentCoinFromBlock(const CBlockIndex* pindex, COutPoint prevout, Coin* coin) {
     std::shared_ptr<CBlock> pblock = std::make_shared<CBlock>();
     CBlock& block = *pblock;
-    if (!ReadBlockFromDisk(block, tip, Params().GetConsensus())) {
-        return error("GetSpentCoinFromTip(): Could not read block from disk");
+    if (!ReadBlockFromDisk(block, pindex, Params().GetConsensus())) {
+        return error("GetSpentCoinFromBlock(): Could not read block from disk");
     }
 
     for(size_t j = 1; j < block.vtx.size(); ++j) {
@@ -2014,18 +2017,18 @@ bool GetSpentCoinFromTip(COutPoint prevout, Coin* coin) {
             const COutPoint& tmpprevout = tx->vin[k].prevout;
             if(tmpprevout == prevout) {
                 CBlockUndo undo;
-                if(!UndoReadFromDisk(undo, tip)) {
-                    return error("GetSpentCoinFromTip(): Could not read undo block from disk");
+                if(!UndoReadFromDisk(undo, pindex)) {
+                    return error("GetSpentCoinFromBlock(): Could not read undo block from disk");
                 }
 
                 if(undo.vtxundo.size() != block.vtx.size() - 1) {
-                    return error("GetSpentCoinFromTip(): undo tx size not equal to block tx size");
+                    return error("GetSpentCoinFromBlock(): undo tx size not equal to block tx size");
                 }
 
                 CTxUndo &txundo = undo.vtxundo[j-1]; // no vtxundo for coinbase
 
                 if(txundo.vprevout.size() != tx->vin.size()) {
-                    return error("GetSpentCoinFromTip(): undo tx vin size not equal to block tx vin size");
+                    return error("GetSpentCoinFromBlock(): undo tx vin size not equal to block tx vin size");
                 }
 
                 *coin = txundo.vprevout[k];
@@ -2036,6 +2039,46 @@ bool GetSpentCoinFromTip(COutPoint prevout, Coin* coin) {
     }
     return false;
 }
+
+
+bool GetSpentCoinFromMainChain(const CBlockIndex* pforkPrev, COutPoint prevoutStake, Coin* coin) {
+    const CBlockIndex* pforkBase = chainActive.FindFork(pforkPrev);
+
+    // If the forkbase is more than COINBASE_MATURITY blocks in the past, do not attempt to scan the main chain.
+    if(chainActive.Tip()->nHeight - pforkBase->nHeight > COINBASE_MATURITY) {
+        return error("The fork's base is behind by more than 500 blocks");
+    }
+
+    // First, we make sure that the prevout has not been spent in any of pforktip's ancestors as the prevoutStake.
+    // This is done to prevent a single staker building a long chain based on only a single prevout.
+    {
+        const CBlockIndex* pindex = pforkPrev;
+        while(pindex && pindex != pforkBase) {
+            // The coinstake has already been spent in the fork.
+            if(pindex->prevoutStake == prevoutStake) {
+                return error("prevout already spent in the orphan chain");
+            }
+            pindex = pindex->pprev;
+        }
+    }
+
+
+    // Scan through blocks until we reach the forkbase to check if the prevoutStake has been spent in one of those blocks
+    // If it not in any of those blocks, and not in the utxo set, it can't be spendable in the orphan chain.
+    {
+        CBlockIndex* pindex = chainActive.Tip();
+        while(pindex && pindex != pforkBase) {
+            if(GetSpentCoinFromBlock(pindex, prevoutStake, coin)) {
+                return true;
+            }
+            pindex = pindex->pprev;
+        }
+    }
+
+    return false;
+}
+
+
 
 bool CheckSenderScript(const CCoinsViewCache& view, const CTransaction& tx){
     CScript script = view.AccessCoin(tx.vin[0].prevout).out.scriptPubKey;
@@ -4207,6 +4250,11 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
 
     if (block.fChecked)
         return true;
+
+
+    if(block.IsProofOfStake() && !CheckHeaderPoS(block, consensusParams)) {
+        return error("CheckHeaderPoS failed");
+    }
 
     // Check that the header is valid (particularly PoW).  This is mostly
     // redundant with the call in AcceptBlockHeader.
