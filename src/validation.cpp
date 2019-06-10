@@ -2551,6 +2551,10 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
         return state.DoS(100, false, REJECT_INVALID, "bad-blk-weight", false, strprintf("%s : weight limit failed", __func__));
     }
 
+    if (block.IsProofOfStake() && !CheckBlockInputPubKeyMatchesOutputPubKey(block, view)) {
+        return state.DoS(100, false, REJECT_INVALID, "bad-blk-coinstake-input-output-mismatch");
+    }
+
     // Check it again in case a previous version let a bad block in
     // NOTE: We don't currently (re-)invoke ContextualCheckBlock() or
     // ContextualCheckBlockHeader() here. This means that if we add a new
@@ -4251,16 +4255,15 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
     if (block.fChecked)
         return true;
 
-
-    if(block.IsProofOfStake() && !CheckHeaderPoS(block, consensusParams)) {
-        return error("CheckHeaderPoS failed");
-    }
-
     // Check that the header is valid (particularly PoW).  This is mostly
     // redundant with the call in AcceptBlockHeader.
     if (!CheckBlockHeader(block, state, consensusParams, fCheckPOW, false))
         return false;
 
+    if(block.IsProofOfStake() && !CheckHeaderPoS(block, consensusParams)) {
+        return error("CheckHeaderPoS failed");
+    }
+    
     if (block.IsProofOfStake() &&  block.GetBlockTime() > FutureDrift(GetAdjustedTime()))
         return error("CheckBlock() : block timestamp too far in the future");
 
@@ -5853,6 +5856,7 @@ bool LoadExternalBlockFile(const CChainParams& chainparams, FILE* fileIn, CDiskB
                     if (!ActivateBestChain(state, chainparams)) {
                         break;
                     }
+                    LogPrintf("ACTIVATED %d\n", chainActive.Tip()->nHeight);
                 }
 
                 NotifyHeaderTip();
@@ -5881,6 +5885,16 @@ bool LoadExternalBlockFile(const CChainParams& chainparams, FILE* fileIn, CDiskB
                         }
                         range.first++;
                         mapBlocksUnknownParent.erase(it);
+                        // In Bitcoin this only needed to be done for genesis and at the end of block indexing
+                        // But for Qtum PoS we need to sync this after every block to ensure txdb is populated for
+                        // validating PoS proofs
+                        {
+                            CValidationState state;
+                            if (!ActivateBestChain(state, chainparams)) {
+                                break;
+                            }
+                            LogPrintf("ACTIVATED %d\n", chainActive.Tip()->nHeight);
+                        }
                         NotifyHeaderTip();
                     }
                 }

@@ -43,6 +43,10 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, CValidationState& state, const C
 // Check whether the coinstake timestamp meets protocol
 bool CheckCoinStakeTimestamp(uint32_t nTimeBlock);
 
+// Should be called in ConnectBlock to make sure that the input pubkey == output pubkey
+// Since ConnectBlock is used here, we assume we have access to the full contextual utxo set
+bool CheckBlockInputPubKeyMatchesOutputPubKey(const CBlock& block, CCoinsViewCache& view);
+
 // Recover the pubkey and check that it matches the prevoutStake's scriptPubKey.
 bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBlockHeader& block, CCoinsViewCache& view);
 
