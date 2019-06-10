@@ -218,8 +218,28 @@ class BlockDataCopier:
                 return
             inLenLE = inhdr[4:]
             su = struct.unpack("<I", inLenLE)
-            inLen = su[0] - 80 # length without header
-            blk_hdr = self.inF.read(80)
+            inLen = su[0] - 180 # length without header
+            blk_hdr = self.inF.read(181)
+            sig_length = blk_hdr[-1]
+            if sig_length < 253:
+                inLen -= 1
+            elif sig_length == 253:
+                s = self.inF.read(2)
+                sig_length = struct.unpack('<H', s)[0]
+                blk_hdr += s
+                inLen -= 3
+            elif sig_length == 254:
+                s = self.inF.read(4)
+                sig_length = struct.unpack('<I', s)[0]
+                blk_hdr += s
+                inLen -= 5
+            else:
+                s = self.inF.read(8)
+                sig_length = struct.unpack('<Q', s)[0]
+                blk_hdr += s
+                inLen -= 9
+            blk_hdr += self.inF.read(sig_length)
+            inLen -= sig_length
             inExtent = BlockExtent(self.inFn, self.inF.tell(), inhdr, blk_hdr, inLen)
 
             self.hash_str = calc_hash_str(blk_hdr)
