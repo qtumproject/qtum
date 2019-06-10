@@ -386,8 +386,9 @@ def create_unsigned_pos_block(node, staking_prevouts, nTime=None):
 
     # create a new private key used for block signing.
     block_sig_key = CECKey()
-    block_sig_key.set_secretbytes(hash256(struct.pack('<I', random.randint(0, 0xff))))
+    block_sig_key.set_secretbytes(hash256(struct.pack('<I', 0)))
     pubkey = block_sig_key.get_pubkey()
+    print(key_to_p2pkh(pubkey))
     scriptPubKey = CScript([pubkey, OP_CHECKSIG])
     stake_tx_unsigned = CTransaction()
 
