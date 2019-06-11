@@ -87,12 +87,12 @@ struct CMempoolAddressDelta
 struct CMempoolAddressDeltaKey
 {
     int type;
-    uint160 addressBytes;
+    uint256 addressBytes;
     uint256 txhash;
     unsigned int index;
     int spending;
 
-    CMempoolAddressDeltaKey(int addressType, uint160 addressHash, uint256 hash, unsigned int i, int s) {
+    CMempoolAddressDeltaKey(int addressType, uint256 addressHash, uint256 hash, unsigned int i, int s) {
         type = addressType;
         addressBytes = addressHash;
         txhash = hash;
@@ -100,7 +100,7 @@ struct CMempoolAddressDeltaKey
         spending = s;
     }
 
-    CMempoolAddressDeltaKey(int addressType, uint160 addressHash) {
+    CMempoolAddressDeltaKey(int addressType, uint256 addressHash) {
         type = addressType;
         addressBytes = addressHash;
         txhash.SetNull();
@@ -707,7 +707,7 @@ public:
 #ifdef ENABLE_BITCORE_RPC
     ///////////////////////////////////////////////////////// // qtum
     void addAddressIndex(const CTxMemPoolEntry &entry, const CCoinsViewCache &view);
-    bool getAddressIndex(std::vector<std::pair<uint160, int> > &addresses,
+    bool getAddressIndex(std::vector<std::pair<uint256, int> > &addresses,
                          std::vector<std::pair<CMempoolAddressDeltaKey, CMempoolAddressDelta> > &results);
     bool removeAddressIndex(const uint256 txhash);
 

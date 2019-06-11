@@ -548,12 +548,12 @@ struct CTimestampBlockIndexValue {
 
 struct CAddressUnspentKey {
     unsigned int type;
-    uint160 hashBytes;
+    uint256 hashBytes;
     uint256 txhash;
     size_t index;
 
     size_t GetSerializeSize(int nType, int nVersion) const {
-        return 57;
+        return 69;
     }
     template<typename Stream>
     void Serialize(Stream& s) const {
@@ -570,7 +570,7 @@ struct CAddressUnspentKey {
         index = ser_readdata32(s);
     }
 
-    CAddressUnspentKey(unsigned int addressType, uint160 addressHash, uint256 txid, size_t indexValue) {
+    CAddressUnspentKey(unsigned int addressType, uint256 addressHash, uint256 txid, size_t indexValue) {
         type = addressType;
         hashBytes = addressHash;
         txhash = txid;
@@ -630,7 +630,7 @@ struct CAddressUnspentValue {
 
 struct CAddressIndexKey {
     unsigned int type;
-    uint160 hashBytes;
+    uint256 hashBytes;
     int blockHeight;
     unsigned int txindex;
     uint256 txhash;
@@ -638,7 +638,7 @@ struct CAddressIndexKey {
     bool spending;
 
     size_t GetSerializeSize(int nType, int nVersion) const {
-        return 66;
+        return 78;
     }
     template<typename Stream>
    void Serialize(Stream& s) const {
@@ -664,7 +664,7 @@ struct CAddressIndexKey {
         spending = f;
     }
 
-    CAddressIndexKey(unsigned int addressType, uint160 addressHash, int height, int blockindex,
+    CAddressIndexKey(unsigned int addressType, uint256 addressHash, int height, int blockindex,
                      uint256 txid, size_t indexValue, bool isSpending) {
         type = addressType;
         hashBytes = addressHash;
@@ -693,11 +693,11 @@ struct CAddressIndexKey {
 
 struct CAddressIndexIteratorHeightKey {
     unsigned int type;
-    uint160 hashBytes;
+    uint256 hashBytes;
     int blockHeight;
 
     size_t GetSerializeSize(int nType, int nVersion) const {
-        return 25;
+        return 37;
     }
     template<typename Stream>
     void Serialize(Stream& s) const {
@@ -712,7 +712,7 @@ struct CAddressIndexIteratorHeightKey {
         blockHeight = ser_readdata32be(s);
     }
 
-    CAddressIndexIteratorHeightKey(unsigned int addressType, uint160 addressHash, int height) {
+    CAddressIndexIteratorHeightKey(unsigned int addressType, uint256 addressHash, int height) {
         type = addressType;
         hashBytes = addressHash;
         blockHeight = height;
@@ -731,10 +731,10 @@ struct CAddressIndexIteratorHeightKey {
 
 struct CAddressIndexIteratorKey {
     unsigned int type;
-    uint160 hashBytes;
+    uint256 hashBytes;
 
     size_t GetSerializeSize(int nType, int nVersion) const {
-        return 21;
+        return 33;
     }
     template<typename Stream>
     void Serialize(Stream& s) const {
@@ -747,7 +747,7 @@ struct CAddressIndexIteratorKey {
         hashBytes.Unserialize(s);
     }
 
-    CAddressIndexIteratorKey(unsigned int addressType, uint160 addressHash) {
+    CAddressIndexIteratorKey(unsigned int addressType, uint256 addressHash) {
         type = addressType;
         hashBytes = addressHash;
     }
@@ -843,13 +843,13 @@ void InitScriptExecutionCache();
 
 #ifdef ENABLE_BITCORE_RPC
 ///////////////////////////////////////////////////////////////// // qtum
-bool GetAddressIndex(uint160 addressHash, int type,
+bool GetAddressIndex(uint256 addressHash, int type,
                      std::vector<std::pair<CAddressIndexKey, CAmount> > &addressIndex,
                      int start = 0, int end = 0);
 
 bool GetSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value);
 
-bool GetAddressUnspent(uint160 addressHash, int type,
+bool GetAddressUnspent(uint256 addressHash, int type,
                        std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > &unspentOutputs);
 
 bool GetTimestampIndex(const unsigned int &high, const unsigned int &low, const bool fActiveOnly, std::vector<std::pair<uint256, unsigned int> > &hashes);

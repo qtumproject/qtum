@@ -5,6 +5,7 @@
 
 #include <txmempool.h>
 
+#include <algorithm>
 #include <consensus/consensus.h>
 #include <consensus/tx_verify.h>
 #include <consensus/validation.h>
@@ -1115,7 +1116,9 @@ void CTxMemPool::addAddressIndex(const CTxMemPoolEntry &entry, const CCoinsViewC
             if(bytesID.empty()) {
                 continue;
             }
-            CMempoolAddressDeltaKey key(dest.which(), uint160(bytesID), txhash, j, 1);
+            valtype addressBytes(32);
+            std::copy(bytesID.begin(), bytesID.end(), addressBytes.begin());
+            CMempoolAddressDeltaKey key(dest.which(), uint256(addressBytes), txhash, j, 1);
             CMempoolAddressDelta delta(entry.GetTime(), prevout.nValue * -1, input.prevout.hash, input.prevout.n);
             mapAddress.insert(std::make_pair(key, delta));
             inserted.push_back(key);
@@ -1131,7 +1134,9 @@ void CTxMemPool::addAddressIndex(const CTxMemPoolEntry &entry, const CCoinsViewC
             if(bytesID.empty()) {
                 continue;
             }
-            CMempoolAddressDeltaKey key(dest.which(), uint160(bytesID), txhash, k, 0);
+            valtype addressBytes(32);
+            std::copy(bytesID.begin(), bytesID.end(), addressBytes.begin());
+            CMempoolAddressDeltaKey key(dest.which(), uint256(addressBytes), txhash, k, 0);
             mapAddress.insert(std::make_pair(key, CMempoolAddressDelta(entry.GetTime(), out.nValue)));
             inserted.push_back(key);
         }
@@ -1140,10 +1145,10 @@ void CTxMemPool::addAddressIndex(const CTxMemPoolEntry &entry, const CCoinsViewC
     mapAddressInserted.insert(std::make_pair(txhash, inserted));
 }
 
-bool CTxMemPool::getAddressIndex(std::vector<std::pair<uint160, int> > &addresses, std::vector<std::pair<CMempoolAddressDeltaKey, CMempoolAddressDelta> > &results)
+bool CTxMemPool::getAddressIndex(std::vector<std::pair<uint256, int> > &addresses, std::vector<std::pair<CMempoolAddressDeltaKey, CMempoolAddressDelta> > &results)
 {
     LOCK(cs);
-    for (std::vector<std::pair<uint160, int> >::iterator it = addresses.begin(); it != addresses.end(); it++) {
+    for (std::vector<std::pair<uint256, int> >::iterator it = addresses.begin(); it != addresses.end(); it++) {
         addressDeltaMap::iterator ait = mapAddress.lower_bound(CMempoolAddressDeltaKey((*it).second, (*it).first));
         while (ait != mapAddress.end() && (*ait).first.addressBytes == (*it).first && (*ait).first.type == (*it).second) {
             results.push_back(*ait);
@@ -1180,27 +1185,32 @@ void CTxMemPool::addSpentIndex(const CTxMemPoolEntry &entry, const CCoinsViewCac
     for (unsigned int j = 0; j < tx.vin.size(); j++) {
         const CTxIn input = tx.vin[j];
         const CTxOut &prevout = view.GetOutputFor(input);
-        uint160 addressHash;
+        uint256 addressHash;
         int addressType;
+        std::vector<unsigned char> addressBytes(32);
 
         if (prevout.scriptPubKey.IsPayToScriptHash()) {
-            addressHash = uint160(std::vector<unsigned char> (prevout.scriptPubKey.begin()+2, prevout.scriptPubKey.begin()+22));
+            std::copy(prevout.scriptPubKey.begin() + 2, prevout.scriptPubKey.begin() + 22, addressBytes.begin());
+            addressHash = uint256(addressBytes);
             addressType = 2;
         } else if (prevout.scriptPubKey.IsPayToPubkeyHash()) {
-            addressHash = uint160(std::vector<unsigned char> (prevout.scriptPubKey.begin()+3, prevout.scriptPubKey.begin()+23));
+            std::copy(prevout.scriptPubKey.begin() + 3, prevout.scriptPubKey.begin() + 23, addressBytes.begin());
+            addressHash = uint256(addressBytes);
             addressType = 1;
         } else if (prevout.scriptPubKey.IsPayToPubkey()) {
             std::vector<unsigned char> pubkeyBytes(prevout.scriptPubKey.begin() + 1, prevout.scriptPubKey.end()-1);
-            addressHash = Hash160(pubkeyBytes);
+            uint160 hashBytes = Hash160(pubkeyBytes);
+            std::copy(hashBytes.begin(), hashBytes.end(), addressBytes.begin());
+            addressHash = uint256(addressBytes);
             addressType = 1;
         } else if (prevout.scriptPubKey.IsPayToWitnessPubkeyHash()) {
-            std::vector<unsigned char> hashBytes(prevout.scriptPubKey.begin()+2, prevout.scriptPubKey.end());
-            addressHash = uint160(hashBytes);
-            addressType = 1;
+            std::copy(prevout.scriptPubKey.begin() + 2, prevout.scriptPubKey.end(), addressBytes.begin());
+            addressHash = uint256(addressBytes);
+            addressType = 4;
         } else if (prevout.scriptPubKey.IsPayToWitnessScriptHash()) {
-            std::vector<unsigned char> hashBytes(prevout.scriptPubKey.begin() + 2, prevout.scriptPubKey.end());
-            addressHash = Hash160(hashBytes);
-            addressType = 2;
+            std::copy(prevout.scriptPubKey.begin() + 2, prevout.scriptPubKey.end(), addressBytes.begin());
+            addressHash = uint256(addressBytes);
+            addressType = 3;
         } else {
             addressHash.SetNull();
             addressType = 0;
