@@ -416,6 +416,19 @@ static CNodeHeaders &ServiceHeaders(const CService& address) EXCLUSIVE_LOCKS_REQ
     return mapServiceHeaders[address];
 }
 
+static void CleanAddressHeaders(const CAddress& addr) EXCLUSIVE_LOCKS_REQUIRED(cs_main) {
+    CSubNet subNet(addr);
+    for (std::map<CService, CNodeHeaders>::iterator it=mapServiceHeaders.begin(); it!=mapServiceHeaders.end();){
+        if(subNet.Match(it->first))
+        {
+            it = mapServiceHeaders.erase(it);
+        }
+        else{
+            it++;
+        }
+    }
+}
+
 bool ProcessNetBlockHeaders(CNode* pfrom, const std::vector<CBlockHeader>& block, CValidationState& state, const CChainParams& chainparams, const CBlockIndex** ppindex=nullptr, CBlockHeader *first_invalid=nullptr)
 {
     const CBlockIndex *pindexFirst = nullptr;
@@ -3094,6 +3107,8 @@ static bool SendRejectsAndCheckIfBanned(CNode* pnode, CConnman* connman, bool en
             else
             {
                 connman->Ban(pnode->addr, BanReasonNodeMisbehaving);
+                // Remove all data from the header spam filter when the address is banned
+                CleanAddressHeaders(pnode->addr);
             }
         }
         return true;
