@@ -104,11 +104,16 @@ void TxToJSONExpanded(const CTransaction& tx, const uint256 hashBlock, UniValue&
                 in.push_back(Pair("value", ValueFromAmount(spentInfo.satoshis)));
                 in.push_back(Pair("valueSat", spentInfo.satoshis));
                 if (spentInfo.addressType == 1) {
-                    in.push_back(Pair("address", EncodeDestination(CTxDestination(CKeyID(spentInfo.addressHash)))));
+                    std::vector<unsigned char> addressBytes(spentInfo.addressHash.begin(), spentInfo.addressHash.begin() + 20);
+                    in.push_back(Pair("address", EncodeDestination(CTxDestination(CKeyID(uint160(addressBytes))))));
                 } else if (spentInfo.addressType == 2)  {
-                    in.push_back(Pair("address", EncodeDestination(CTxDestination(CScriptID(spentInfo.addressHash)))));
+                    std::vector<unsigned char> addressBytes(spentInfo.addressHash.begin(), spentInfo.addressHash.begin() + 20);
+                    in.push_back(Pair("address", EncodeDestination(CTxDestination(CScriptID(uint160(addressBytes))))));
                 } else if (spentInfo.addressType == 3)  {
-                    in.push_back(Pair("address", EncodeDestination(CTxDestination(CKeyID(spentInfo.addressHash)))));
+                    in.push_back(Pair("address", EncodeDestination(CTxDestination(WitnessV0ScriptHash(spentInfo.addressHash)))));
+                } else if (spentInfo.addressType == 4) {
+                    std::vector<unsigned char> addressBytes(spentInfo.addressHash.begin(), spentInfo.addressHash.begin() + 20);
+                    in.push_back(Pair("address", EncodeDestination(CTxDestination(WitnessV0KeyHash(uint160(addressBytes))))));
                 }
              }
         }

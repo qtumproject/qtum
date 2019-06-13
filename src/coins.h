@@ -54,7 +54,7 @@ struct CSpentIndexValue {
     int blockHeight;
     CAmount satoshis;
     int addressType;
-    uint160 addressHash;
+    uint256 addressHash;
 
     ADD_SERIALIZE_METHODS;
     template <typename Stream, typename Operation>
@@ -67,7 +67,7 @@ struct CSpentIndexValue {
         READWRITE(addressHash);
     }
 
-    CSpentIndexValue(uint256 t, unsigned int i, int h, CAmount s, int type, uint160 a) {
+    CSpentIndexValue(uint256 t, unsigned int i, int h, CAmount s, int type, uint256 a) {
         txid = t;
         inputIndex = i;
         blockHeight = h;
