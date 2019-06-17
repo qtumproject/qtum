@@ -3297,11 +3297,6 @@ static UniValue loadwallet(const JSONRPCRequest& request)
     std::shared_ptr<CWallet> const wallet = LoadWallet(*g_rpc_interfaces->chain, location, error, warning);
     if (!wallet) throw JSONRPCError(RPC_WALLET_ERROR, error);
 
-    // Mine proof-of-stake blocks in the background
-    if (gArgs.GetBoolArg("-staking", DEFAULT_STAKE)) {
-        CConnman& connman = *g_connman;
-        wallet->StartStake(&connman);
-    }
 
     UniValue obj(UniValue::VOBJ);
     obj.pushKV("name", wallet->GetName());
@@ -3363,12 +3358,6 @@ static UniValue createwallet(const JSONRPCRequest& request)
 
     wallet->postInitProcess();
 
-    // Mine proof-of-stake blocks in the background
-    if (gArgs.GetBoolArg("-staking", DEFAULT_STAKE)) {
-        CConnman& connman = *g_connman;
-        wallet->StartStake(&connman);
-    }
-
     UniValue obj(UniValue::VOBJ);
     obj.pushKV("name", wallet->GetName());
     obj.pushKV("warning", warning);
@@ -3414,9 +3403,6 @@ static UniValue unloadwallet(const JSONRPCRequest& request)
     if (!RemoveWallet(wallet)) {
         throw JSONRPCError(RPC_MISC_ERROR, "Requested wallet already unloaded");
     }
-
-    // Stop wallet from staking
-    wallet->StopStake();
 
     UnloadWallet(std::move(wallet));
 

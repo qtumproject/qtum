@@ -45,6 +45,7 @@ static const size_t OUTPUT_GROUP_MAX_ENTRIES = 10;
 
 static CCriticalSection cs_wallets;
 static std::vector<std::shared_ptr<CWallet>> vpwallets GUARDED_BY(cs_wallets);
+CConnman* CWallet::defaultConnman = 0;
 
 bool AddWallet(const std::shared_ptr<CWallet>& wallet)
 {
@@ -97,6 +98,7 @@ static void ReleaseWallet(CWallet* wallet)
     // Unregister and delete the wallet right after BlockUntilSyncedToCurrentChain
     // so that it's in sync with the current chainstate.
     wallet->WalletLogPrintf("Releasing wallet\n");
+    wallet->StopStake();
     wallet->BlockUntilSyncedToCurrentChain();
     wallet->Flush();
     UnregisterValidationInterface(wallet);
@@ -814,6 +816,9 @@ bool CWallet::HasWalletSpend(const uint256& txid) const
 
 void CWallet::Flush(bool shutdown)
 {
+    if(shutdown)
+        StopStake();
+
     database->Flush(shutdown);
 }
 
@@ -5076,6 +5081,11 @@ void CWallet::postInitProcess()
 
     // Update wallet transactions with current mempool transactions.
     chain().requestMempoolTransactions([this](const CTransactionRef& tx) { TransactionAddedToMempool(tx); });
+
+    // Start mine proof-of-stake blocks in the background
+    if (gArgs.GetBoolArg("-staking", DEFAULT_STAKE)) {
+        StartStake();
+    }
 }
 
 bool CWallet::BackupWallet(const std::string& strDest)
@@ -5547,4 +5557,20 @@ bool CWallet::LoadContractData(const std::string &address, const std::string &ke
 void CWallet::StakeQtums(bool fStake, CConnman* connman)
 {
     ::StakeQtums(fStake, this, connman, stakeThread);
+}
+
+void CWallet::StartStake(CConnman *connman)
+{
+    StakeQtums(true, connman);
+}
+
+void CWallet::StopStake()
+{
+    if(stakeThread)
+    {
+        auto locked_chain = chain().lock();
+        LOCK(cs_wallet);
+        StakeQtums(false, 0);
+    }
+    stakeThread = 0;
 }

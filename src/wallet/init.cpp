@@ -213,17 +213,6 @@ void StartWallets(CScheduler& scheduler)
         pwallet->postInitProcess();
     }
 
-    // Mine proof-of-stake blocks in the background
-    if (!gArgs.GetBoolArg("-staking", DEFAULT_STAKE)) {
-        LogPrintf("Staking disabled\n");
-    }
-    else {
-        CConnman& connman = *g_connman;
-        for (const std::shared_ptr<CWallet>& pwallet : GetWallets()) {
-            pwallet->StartStake(&connman);
-        }
-    }
-
     // Run a thread to flush wallet periodically
     scheduler.scheduleEvery(MaybeCompactWalletDB, 500);
 }
@@ -231,7 +220,6 @@ void StartWallets(CScheduler& scheduler)
 void FlushWallets()
 {
     for (const std::shared_ptr<CWallet>& pwallet : GetWallets()) {
-        pwallet->StopStake();
         pwallet->Flush(false);
     }
 }

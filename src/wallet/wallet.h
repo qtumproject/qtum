@@ -818,6 +818,9 @@ public:
 
     ~CWallet()
     {
+        // Stop stake
+        StopStake();
+
         // Should not have slots connected at this point.
         assert(NotifyUnload.empty());
         delete encrypted_batch;
@@ -1320,13 +1323,15 @@ public:
     bool RemoveTokenEntry(const uint256& tokenHash, bool fFlushOnClose=true);
 
     /* Start staking qtums */
-    void StartStake(CConnman* connman) { StakeQtums(true, connman); }
+    void StartStake(CConnman* connman = CWallet::defaultConnman);
 
     /* Stop staking qtums */
-    void StopStake() { StakeQtums(false, 0); }
+    void StopStake();
 
     /* Clean token transaction entries in the wallet */
     bool CleanTokenTxEntries(bool fFlushOnClose=true);
+
+    static CConnman* defaultConnman;
 };
 
 /** A key allocated from the key pool. */

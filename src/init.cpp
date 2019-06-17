@@ -1362,6 +1362,10 @@ bool AppInitMain(InitInterfaces& interfaces)
     peerLogic.reset(new PeerLogicValidation(g_connman.get(), g_banman.get(), scheduler, gArgs.GetBoolArg("-enablebip61", DEFAULT_ENABLE_BIP61)));
     RegisterValidationInterface(peerLogic.get());
 
+#ifdef ENABLE_WALLET
+    CWallet::defaultConnman = g_connman.get();
+#endif
+
     // sanitize comments per BIP-0014, format user agent and check total size
     std::vector<std::string> uacomments;
     for (const std::string& cmt : gArgs.GetArgs("-uacomment")) {
