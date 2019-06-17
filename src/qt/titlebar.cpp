@@ -14,9 +14,7 @@ using namespace TitleBar_NS;
 
 TitleBar::TitleBar(const PlatformStyle *platformStyle, QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::TitleBar),
-    m_model(0),
-    m_tab(0)
+    ui(new Ui::TitleBar)
 {
     ui->setupUi(this);
     // Set size policy

@@ -7,6 +7,7 @@
 #include <QIcon>
 #include <QLabel>
 #include <QComboBox>
+#include <QPointer>
 #include <qt/walletmodel.h>
 
 namespace Ui {
@@ -90,8 +91,8 @@ private:
 
 private:
     Ui::TitleBar *ui;
-    WalletModel *m_model;
-    TabBarInfo* m_tab;
+    QPointer<WalletModel> m_model;
+    QPointer<TabBarInfo> m_tab;
     QIcon m_iconCloseTab;
     std::map<QObject*, interfaces::WalletBalances> m_models;
 };
