@@ -23,14 +23,13 @@ class QtumIgnoreMPOSParticipantRewardTest(BitcoinTestFramework):
                 break
 
     def run_test(self):
+        privkey = byte_to_base58(hash256(struct.pack('<I', 0)), 239)
+        for n in self.nodes:
+            n.importprivkey(privkey)
+
         self.node = self.nodes[0]
         self.node.setmocktime(int(time.time()) - 1000000)
-        self.node.generate(10 + COINBASE_MATURITY)
-        # These are the privkeys that corresponds to the pubkeys in the pos outputs
-        # These are used by default by create_pos_block
-        for i in range(0xff+1):
-            privkey = byte_to_base58(hash256(struct.pack('<I', i)), 239)
-            self.node.importprivkey(privkey)
+        self.node.generatetoaddress(10 + COINBASE_MATURITY, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
 
         """
         pragma solidity ^0.4.12;

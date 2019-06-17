@@ -33,7 +33,7 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
                 self.staking_prevouts.pop(j)
                 break
 
-    def _create_pos_block(self, node, staking_prevouts, prevBlockHash=None, nTime=None, tip=None):
+    def _create_pos_block(self, node, staking_prevouts, prevBlockHash=None, nTime=None, tip=None, nNonce=0):
         if not tip:
             tip = node.getblock(prevBlockHash if prevBlockHash else node.getbestblockhash())
 
@@ -47,6 +47,7 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
         coinbase.vout[0].scriptPubKey = b""
         coinbase.rehash()
         block = create_block(int(tip['hash'], 16), coinbase, nTime)
+        block.nNonce = nNonce
         block.hashStateRoot = int(tip['hashStateRoot'], 16)
         block.hashUTXORoot = int(tip['hashUTXORoot'], 16)
 
@@ -59,7 +60,7 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
 
         # create a new private key used for block signing.
         block_sig_key = CECKey()
-        block_sig_key.set_secretbytes(hash256(struct.pack('<I', random.randint(0, 0xff))))
+        block_sig_key.set_secretbytes(hash256(struct.pack('<I', 0)))
         pubkey = block_sig_key.get_pubkey()
         scriptPubKey = CScript([pubkey, OP_CHECKSIG])
         stake_tx_unsigned = CTransaction()
@@ -81,13 +82,15 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
         return block, block_sig_key
 
     def start_p2p_connection(self):
+        self.restart_node(0)
+        time.sleep(1)
         self.p2p_node = self.node.add_p2p_connection(P2PInterface())
 
     def close_p2p_connection(self):
         self.node.disconnect_p2ps()
 
-    def _create_pos_header(self, node, staking_prevouts, prevBlockHash, nTime=None):
-        return CBlockHeader(self._create_pos_block(node, staking_prevouts, prevBlockHash, nTime)[0])
+    def _create_pos_header(self, node, staking_prevouts, prevBlockHash, nTime=None, nNonce=0):
+        return CBlockHeader(self._create_pos_block(node, staking_prevouts, prevBlockHash, nTime, nNonce=nNonce)[0])
 
     def assert_chain_tip_rejected(self, header_hash):
         tips = self.node.getchaintips()
@@ -148,11 +151,10 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
     def dos_protection_triggered_via_spam_on_same_height_test(self):
         self.start_p2p_connection()
 
-        block_header = self._create_pos_header(self.node, self.staking_prevouts, self.node.getblockhash(self.node.getblockcount()-500))
-        block_header.rehash()
         for i in range(500):
+            block_header = self._create_pos_header(self.node, self.staking_prevouts, self.node.getblockhash(self.node.getblockcount()-500), nNonce=i)
+            block_header.rehash()
             msg = msg_headers()
-            block_header.nNonce = i
             msg.headers.extend([block_header])
             self.p2p_node.send_message(msg)
         self.p2p_node.wait_for_disconnect(timeout=5)
@@ -162,10 +164,9 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
         self.start_p2p_connection()
 
         for i in range(2055):
-            block_header = self._create_pos_header(self.node, self.staking_prevouts, self.node.getblockhash(self.node.getblockcount()-500+(i%500)))
+            block_header = self._create_pos_header(self.node, self.staking_prevouts, self.node.getblockhash(self.node.getblockcount()-500+(i%500)), nNonce=i)
             block_header.rehash()
             msg = msg_headers()
-            block_header.nNonce = i
             msg.headers.extend([block_header])
             self.p2p_node.send_message(msg)
 
@@ -176,7 +177,7 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
         connect_nodes(self.node, 1)
         sync_blocks(self.nodes)
         assert_equal(self.node.getblockchaininfo()['initialblockdownload'], False)
-        assert_equal(self.node.getblockchaininfo()['initialblockdownload'], False)
+        assert_equal(self.nodes[1].getblockchaininfo()['initialblockdownload'], False)
         disconnect_nodes(self.node, 1)
         block_time = int(time.time() - 10*24*60*60) & 0xfffffff0
         for i in range(502):
@@ -259,9 +260,11 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
 
     def run_test(self):
         self.node = self.nodes[0]
+        privkey = byte_to_base58(hash256(struct.pack('<I', 0)), 239)        
+        self.node.importprivkey(privkey)
         disconnect_nodes(self.node, 1)
         self.node.setmocktime(int(time.time() - 100*24*60*60))
-        self.node.generate(1500)
+        self.node.generatetoaddress(1500, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
         self.staking_prevouts = collect_prevouts(self.node)
         self.node.generate(500)
         self.node.setmocktime(0)
@@ -271,11 +274,13 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
         self.can_submit_header_after_rolling_checkpoint_test()
         #self.cannot_submit_invalid_prevout_test()
         self.cannot_submit_header_oversized_signature_test()
+        self.node.generate(1)
         self.can_sync_after_offline_period_test()
         self.reorg_requires_more_chainwork_test()
         self.dos_protection_triggered_via_spam_on_same_height_test()
         self.dos_protection_triggered_via_spam_on_variable_height_test()
         self.spam_same_stake_block_test()
+        connect_nodes(self.node, 1)
 
         # None of the spam should have been relayed to our other node
         assert_equal(len(self.nodes[1].getchaintips()), 1)
