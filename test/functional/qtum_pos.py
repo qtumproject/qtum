@@ -8,6 +8,7 @@ from test_framework.util import *
 from test_framework.script import *
 from test_framework.mininode import *
 from test_framework.blocktools import *
+from test_framework.address import *
 from test_framework.key import CECKey
 import io
 import struct
@@ -53,10 +54,12 @@ class QtumPOSTest(BitcoinTestFramework):
 
     def run_test(self):
         self.node = self.nodes[0]
+        privkey = byte_to_base58(hash256(struct.pack('<I', 0)), 239)
+        self.node.importprivkey(privkey)
         self.bootstrap_p2p()
         # returns a test case that asserts that the current tip was accepted
         # First generate some blocks so we have some spendable coins
-        block_hashes = self.node.generate(25)
+        block_hashes = self.node.generatetoaddress(25, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
 
         for i in range(COINBASE_MATURITY):
             self.tip = create_block(int(self.node.getbestblockhash(), 16), create_coinbase(self.node.getblockcount()+1), int(time.time()))
@@ -64,8 +67,8 @@ class QtumPOSTest(BitcoinTestFramework):
             self.sync_blocks([self.tip], success=True)
 
         for _ in range(10):
-            self.node.sendtoaddress(self.node.getnewaddress(), 1000)
-        block_hashes += self.node.generate(1)
+            self.node.sendtoaddress("qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq", 1000)
+        block_hashes += self.node.generatetoaddress(1, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
 
         blocks = []
         for block_hash in block_hashes:
@@ -124,7 +127,7 @@ class QtumPOSTest(BitcoinTestFramework):
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.staking_prevouts)
         self.tip.sign_block(bad_key)
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, reconnect=True)
+        self.sync_blocks([self.tip], success=False, reconnect=True, request_block=False)
 
 
         # 4 A block that stakes with txs with too few confirmations
@@ -238,7 +241,7 @@ class QtumPOSTest(BitcoinTestFramework):
         self.tip.sign_block(block_sig_key)
         self.tip.nNonce = 0xfffe
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, reconnect=True)
+        self.sync_blocks([self.tip], success=False, reconnect=True, request_block=False)
 
         # 17 A block with where the pubkey of the second output of the coinstake has been modified after block signing
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.staking_prevouts)
@@ -334,7 +337,7 @@ class QtumPOSTest(BitcoinTestFramework):
 
         # create a new private key used for block signing.
         block_sig_key = CECKey()
-        block_sig_key.set_secretbytes(hash256(struct.pack('<I', 0xffff)))
+        block_sig_key.set_secretbytes(hash256(struct.pack('<I', 0)))
         pubkey = block_sig_key.get_pubkey()
         scriptPubKey = CScript([pubkey, OP_CHECKSIG])
         stake_tx_unsigned = CTransaction()

@@ -18,6 +18,13 @@ class QtumDuplicateStakeTest(BitcoinTestFramework):
         self.p2p_node = self.node.add_p2p_connection(P2PInterface())
         self.p2p_alt_node = self.nodes[1].add_p2p_connection(P2PInterface())
 
+    def _remove_from_staking_prevouts(self, staking_prevouts, remove_prevout):
+        for j in range(len(staking_prevouts)):
+            prevout = staking_prevouts[j]
+            if prevout[0].serialize() == remove_prevout.serialize():
+                staking_prevouts.pop(j)
+                break
+
     def verify_duplicate_stakes_are_accepted_test(self):
         tip = self.node.getblock(self.node.getbestblockhash())
         t = (tip['time']+0x10) & 0xfffffff0
@@ -46,6 +53,7 @@ class QtumDuplicateStakeTest(BitcoinTestFramework):
         # Build a longer chain on alt_node
         self.alt_node.generate(1)
         self.sync_all()
+        self._remove_from_staking_prevouts(self.staking_prevouts, block.prevoutStake)
 
     def verify_spent_stake_is_accepted_in_fork_test(self):
         tip = self.node.getblock(self.node.getbestblockhash())
@@ -78,6 +86,8 @@ class QtumDuplicateStakeTest(BitcoinTestFramework):
         # Build a longer chain on alt_node
         self.alt_node.generate(1)
         self.sync_all()
+        self._remove_from_staking_prevouts(self.staking_prevouts, block.prevoutStake)
+        self._remove_from_staking_prevouts(self.alt_staking_prevouts, alt_block.prevoutStake)
 
     def verify_spent_stake_in_old_block_is_rejected_test(self):
         tip = self.node.getblock(self.node.getbestblockhash())
@@ -102,7 +112,7 @@ class QtumDuplicateStakeTest(BitcoinTestFramework):
         # Send <alt_block> to alt_node
         self.p2p_alt_node.send_message(msg_block(alt_block))
         time.sleep(2)
-        self.alt_node.generate(1)
+        self.alt_node.generate(500)
         time.sleep(2)
         
         # Send <block> to node
@@ -112,40 +122,56 @@ class QtumDuplicateStakeTest(BitcoinTestFramework):
 
         time.sleep(2)
         self.sync_all()
+        self._remove_from_staking_prevouts(self.staking_prevouts, alt_block.prevoutStake)
+        self._remove_from_staking_prevouts(self.alt_staking_prevouts, alt_block.prevoutStake)
 
     def run_test(self):
+        privkey = byte_to_base58(hash256(struct.pack('<I', 0)), 239)
+        for n in self.nodes:
+            n.importprivkey(privkey)
+
         self.node = self.nodes[0]
         self.alt_node = self.nodes[1]
         self.node.setmocktime(int(time.time() - 100*24*60*60))
         self.alt_node.setmocktime(int(time.time() - 100*24*60*60))
-        self.alt_node.generate(50)
+        self.alt_node.generatetoaddress(50, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
         self.sync_all()
-        self.node.generate(550)
+
+        self.node.generatetoaddress(500, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
+        self.sync_all()
+        self.alt_staking_prevouts = collect_prevouts(self.alt_node)
+
+        self.node.generatetoaddress(50, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
         self.sync_all()
         self.staking_prevouts = collect_prevouts(self.node)
-        self.alt_staking_prevouts = collect_prevouts(self.alt_node)
+
+        print(len(self.staking_prevouts), len(self.alt_staking_prevouts))
+        for prevout in self.alt_staking_prevouts:
+            self._remove_from_staking_prevouts(self.staking_prevouts, prevout[0])
+        print(len(self.staking_prevouts), len(self.alt_staking_prevouts))
+
+
         self.node.setmocktime(0)
         self.alt_node.setmocktime(0)
         self.start_p2p_connection()
 
         time.sleep(0x10)
 
+        print(len(self.staking_prevouts), len(self.alt_staking_prevouts))
         self.verify_duplicate_stakes_are_accepted_test()
         assert_equal(self.node.getblockcount(), self.alt_node.getblockcount())
         assert_equal(self.node.getbestblockhash(), self.alt_node.getbestblockhash())
 
         time.sleep(0x10)
 
-        self.staking_prevouts = collect_prevouts(self.node)
-        self.alt_staking_prevouts = collect_prevouts(self.alt_node)
+        print(len(self.staking_prevouts), len(self.alt_staking_prevouts))
         self.verify_spent_stake_is_accepted_in_fork_test()
         assert_equal(self.node.getblockcount(), self.alt_node.getblockcount())
         assert_equal(self.node.getbestblockhash(), self.alt_node.getbestblockhash())
 
         time.sleep(0x10)
 
-        self.staking_prevouts = collect_prevouts(self.node)
-        self.alt_staking_prevouts = collect_prevouts(self.alt_node)
+        print(len(self.staking_prevouts), len(self.alt_staking_prevouts))
         self.verify_spent_stake_in_old_block_is_rejected_test()
 
 
