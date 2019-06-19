@@ -16,6 +16,7 @@
 #include <util/time.h>
 #include <validation.h>
 #include <validationinterface.h>
+#include <util/convert.h>
 
 #include <boost/thread.hpp>
 
@@ -41,6 +42,32 @@ static void DuplicateInputs(benchmark::State& state)
         ::pblocktree.reset(new CBlockTreeDB(1 << 20, true));
         ::pcoinsdbview.reset(new CCoinsViewDB(1 << 23, true));
         ::pcoinsTip.reset(new CCoinsViewCache(pcoinsdbview.get()));
+        ::pstorageresult.reset();
+        ::globalState.reset();
+        ::globalSealEngine.reset();
+
+        ::fRequireStandard=false;
+        fs::path qtumStateDir = GetDataDir() / "stateQtum";
+        bool fStatus = fs::exists(qtumStateDir);
+        const std::string dirQtum(qtumStateDir.string());
+        const dev::h256 hashDB(dev::sha3(dev::rlp("")));
+        dev::eth::BaseState existsQtumstate = fStatus ? dev::eth::BaseState::PreExisting : dev::eth::BaseState::Empty;
+        ::globalState = std::unique_ptr<QtumState>(new QtumState(dev::u256(0), QtumState::openDB(dirQtum, hashDB, dev::WithExisting::Trust), dirQtum, existsQtumstate));
+        dev::eth::ChainParams cp((dev::eth::genesisInfo(dev::eth::Network::qtumMainNetwork)));
+        ::globalSealEngine = std::unique_ptr<dev::eth::SealEngineFace>(cp.createSealEngine());
+
+        ::pstorageresult.reset(new StorageResults(qtumStateDir.string()));
+
+        if(chainActive.Tip() != nullptr){
+            ::globalState->setRoot(uintToh256(chainActive.Tip()->hashStateRoot));
+            ::globalState->setRootUTXO(uintToh256(chainActive.Tip()->hashUTXORoot));
+        } else {
+            ::globalState->setRoot(dev::sha3(dev::rlp("")));
+            ::globalState->setRootUTXO(uintToh256(chainparams.GenesisBlock().hashUTXORoot));
+            ::globalState->populateFrom(cp.genesisState);
+        }
+        ::globalState->db().commit();
+        ::globalState->dbUtxo().commit();
     }
     {
         thread_group.create_thread(std::bind(&CScheduler::serviceQueue, &scheduler));
@@ -76,7 +103,7 @@ static void DuplicateInputs(benchmark::State& state)
     naughtyTx.vout[0].nValue = 0;
     naughtyTx.vout[0].scriptPubKey = SCRIPT_PUB;
 
-    uint64_t n_inputs = (((dgpMaxBlockSerSize / WITNESS_SCALE_FACTOR) - (CTransaction(coinbaseTx).GetTotalSize() + CTransaction(naughtyTx).GetTotalSize())) / 41) - 100;
+    uint64_t n_inputs = ((std::min((uint64_t)(dgpMaxBlockSerSize / WITNESS_SCALE_FACTOR), (uint64_t)MAX_TRANSACTION_BASE_SIZE) - (CTransaction(coinbaseTx).GetTotalSize() + CTransaction(naughtyTx).GetTotalSize())) / 41) - 100;
     for (uint64_t x = 0; x < (n_inputs - 1); ++x) {
         naughtyTx.vin.emplace_back(GetRandHash(), 0, CScript(), 0);
     }

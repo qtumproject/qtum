@@ -9,6 +9,7 @@
 #include <util/system.h>
 #include <util/strencodings.h>
 #include <validation.h>
+#include <libethashseal/Ethash.h>
 
 #include <memory>
 
@@ -38,7 +39,7 @@ static void SetupBenchArgs()
 
 static fs::path SetDataDir()
 {
-    fs::path ret = fs::temp_directory_path() / "bench_bitcoin" / fs::unique_path();
+    fs::path ret = fs::temp_directory_path() / "bench_qtum" / fs::unique_path();
     fs::create_directories(ret);
     gArgs.ForceSetArg("-datadir", ret.string());
     return ret;
@@ -61,6 +62,9 @@ int main(int argc, char** argv)
 
     // Set the datadir after parsing the bench options
     const fs::path bench_datadir{SetDataDir()};
+
+    // Overwrite arguments for bench
+    gArgs.ForceSetArg("-vbparams", "segwit:-1:999999999999");
 
     SHA256AutoDetect();
     ECC_Start();
@@ -85,6 +89,8 @@ int main(int argc, char** argv)
             gArgs.GetArg("-plot-width", DEFAULT_PLOT_WIDTH),
             gArgs.GetArg("-plot-height", DEFAULT_PLOT_HEIGHT)));
     }
+
+    dev::eth::Ethash::init();
 
     benchmark::BenchRunner::RunAll(*printer, evaluations, scaling_factor, regex_filter, is_list_only);
 

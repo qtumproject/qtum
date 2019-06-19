@@ -17,6 +17,7 @@
 #include <util/time.h>
 #include <validation.h>
 #include <validationinterface.h>
+#include <util/convert.h>
 
 #include <boost/thread.hpp>
 
@@ -72,14 +73,40 @@ static void AssembleBlock(benchmark::State& state)
 
     boost::thread_group thread_group;
     CScheduler scheduler;
+    const CChainParams& chainparams = Params();
     {
         LOCK(cs_main);
         ::pblocktree.reset(new CBlockTreeDB(1 << 20, true));
         ::pcoinsdbview.reset(new CCoinsViewDB(1 << 23, true));
         ::pcoinsTip.reset(new CCoinsViewCache(pcoinsdbview.get()));
+        ::pstorageresult.reset();
+        ::globalState.reset();
+        ::globalSealEngine.reset();
+
+        ::fRequireStandard=false;
+        fs::path qtumStateDir = GetDataDir() / "stateQtum";
+        bool fStatus = fs::exists(qtumStateDir);
+        const std::string dirQtum(qtumStateDir.string());
+        const dev::h256 hashDB(dev::sha3(dev::rlp("")));
+        dev::eth::BaseState existsQtumstate = fStatus ? dev::eth::BaseState::PreExisting : dev::eth::BaseState::Empty;
+        ::globalState = std::unique_ptr<QtumState>(new QtumState(dev::u256(0), QtumState::openDB(dirQtum, hashDB, dev::WithExisting::Trust), dirQtum, existsQtumstate));
+        dev::eth::ChainParams cp((dev::eth::genesisInfo(dev::eth::Network::qtumMainNetwork)));
+        ::globalSealEngine = std::unique_ptr<dev::eth::SealEngineFace>(cp.createSealEngine());
+
+        ::pstorageresult.reset(new StorageResults(qtumStateDir.string()));
+
+        if(chainActive.Tip() != nullptr){
+            ::globalState->setRoot(uintToh256(chainActive.Tip()->hashStateRoot));
+            ::globalState->setRootUTXO(uintToh256(chainActive.Tip()->hashUTXORoot));
+        } else {
+            ::globalState->setRoot(dev::sha3(dev::rlp("")));
+            ::globalState->setRootUTXO(uintToh256(chainparams.GenesisBlock().hashUTXORoot));
+            ::globalState->populateFrom(cp.genesisState);
+        }
+        ::globalState->db().commit();
+        ::globalState->dbUtxo().commit();
     }
     {
-        const CChainParams& chainparams = Params();
         thread_group.create_thread(std::bind(&CScheduler::serviceQueue, &scheduler));
         GetMainSignals().RegisterBackgroundSignalScheduler(scheduler);
         LoadGenesisBlock(chainparams);
