@@ -1455,7 +1455,7 @@ static UniValue sendmanywithdupes(const JSONRPCRequest& request)
             HelpRequiringPassphrase(pwallet) + "\n",
             {
                 {"fromaccount", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "DEPRECATED. The account to send the funds from. Should be \"\" for the default account"},
-                {"amounts", RPCArg::Type::STR, RPCArg::Optional::NO, "A json object with addresses and amounts",
+                {"amounts", RPCArg::Type::OBJ, RPCArg::Optional::NO, "A json object with addresses and amounts",
                     {
                         {"address", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED, "The qtum address is the key, the numeric amount (can be string) in " + CURRENCY_UNIT + " is the value"},
                     },

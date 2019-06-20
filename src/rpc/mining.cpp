@@ -294,7 +294,19 @@ static UniValue getstakinginfo(const JSONRPCRequest& request)
             RPCHelpMan{"getstakinginfo",
                 "\nReturns an object containing staking-related information.",
                 {},
-                RPCResult{""},
+                RPCResult{
+                           "{\n"
+                           "  \"enabled\": xxx,             (bool) 'true' if staking is enabled\n"
+                           "  \"staking\": xxx,             (bool) 'true' if wallet is currently staking\n"
+                           "  \"errors\": nnn,              (string) \n"
+                           "  \"pooledtx\": n               (numeric) The size of the mempool\n"
+                           "  \"difficulty\": xxx.xxxxx     (numeric) The current difficulty\n"
+                           "  \"search-interval\": nnn,     (numeric) \n"
+                           "  \"weight\": \"xxxx\",         (numeric) \n"
+                           "  \"netstakeweight\": \"...\"   (numeric) \n"
+                           "  \"expectedtime\": \"...\"     (numeric) Expected time to earn reward\n"
+                           "}\n"
+                       },
                 RPCExamples{
                     HelpExampleCli("getstakinginfo", "")
             + HelpExampleRpc("getstakinginfo", "")
