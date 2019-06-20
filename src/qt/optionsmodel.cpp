@@ -154,7 +154,17 @@ void OptionsModel::Init(bool resetSettings)
         addOverriddenOption("-listen");
 
     if (!settings.contains("fUseChangeAddress"))
-        settings.setValue("fUseChangeAddress", DEFAULT_USE_CHANGE_ADDRESS);
+    {
+        // Set the default value
+        bool useChangeAddress = DEFAULT_USE_CHANGE_ADDRESS;
+
+        // Get the old parameter value if exist
+        if(settings.contains("fNotUseChangeAddress"))
+            useChangeAddress = !settings.value("fNotUseChangeAddress").toBool();
+
+        // Set the parameter value
+        settings.setValue("fUseChangeAddress", useChangeAddress);
+    }
     if (!m_node.softSetBoolArg("-usechangeaddress", settings.value("fUseChangeAddress").toBool()))
         addOverriddenOption("-usechangeaddress");
 
@@ -507,6 +517,8 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
         case UseChangeAddress:
             if (settings.value("fUseChangeAddress") != value) {
                 settings.setValue("fUseChangeAddress", value);
+                // Set fNotUseChangeAddress for backward compatibility reason
+                settings.setValue("fNotUseChangeAddress", !value.toBool());
                 setRestartRequired(true);
             }
             break;
