@@ -3195,7 +3195,7 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CTransac
                 if (nChange > 0)
                 {
                     // send change to existing address
-                    if (m_not_use_change_address &&
+                    if (!m_use_change_address &&
                             boost::get<CNoDestination>(&coin_control.destChange) &&
                             setCoins.size() > 0)
                     {
@@ -4881,7 +4881,7 @@ std::shared_ptr<CWallet> CWallet::CreateWalletFromFile(const std::string& name, 
     walletInstance->m_spend_zero_conf_change = gArgs.GetBoolArg("-spendzeroconfchange", DEFAULT_SPEND_ZEROCONF_CHANGE);
     walletInstance->m_signal_rbf = gArgs.GetBoolArg("-walletrbf", DEFAULT_WALLET_RBF);
     ParseMoney(gArgs.GetArg("-reservebalance", FormatMoney(DEFAULT_RESERVE_BALANCE)), walletInstance->m_reserve_balance);
-    walletInstance->m_not_use_change_address = gArgs.GetBoolArg("-notusechangeaddress", DEFAULT_NOT_USE_CHANGE_ADDRESS);
+    walletInstance->m_use_change_address = gArgs.GetBoolArg("-usechangeaddress", DEFAULT_USE_CHANGE_ADDRESS);
 
     walletInstance->WalletLogPrintf("Wallet completed loading in %15dms\n", GetTimeMillis() - nStart);
 

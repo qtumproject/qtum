@@ -153,10 +153,10 @@ void OptionsModel::Init(bool resetSettings)
     if (!m_node.softSetBoolArg("-listen", settings.value("fListen").toBool()))
         addOverriddenOption("-listen");
 
-    if (!settings.contains("fNotUseChangeAddress"))
-        settings.setValue("fNotUseChangeAddress", DEFAULT_NOT_USE_CHANGE_ADDRESS);
-    if (!m_node.softSetBoolArg("-notusechangeaddress", settings.value("fNotUseChangeAddress").toBool()))
-        addOverriddenOption("-notusechangeaddress");
+    if (!settings.contains("fUseChangeAddress"))
+        settings.setValue("fUseChangeAddress", DEFAULT_USE_CHANGE_ADDRESS);
+    if (!m_node.softSetBoolArg("-usechangeaddress", settings.value("fUseChangeAddress").toBool()))
+        addOverriddenOption("-usechangeaddress");
 
     if (!settings.contains("fUseProxy"))
         settings.setValue("fUseProxy", false);
@@ -335,8 +335,8 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
             return settings.value("nThreadsScriptVerif");
         case Listen:
             return settings.value("fListen");
-        case NotUseChangeAddress:
-            return settings.value("fNotUseChangeAddress");
+        case UseChangeAddress:
+            return settings.value("fUseChangeAddress");
         case CheckForUpdates:
             return settings.value("fCheckForUpdates");
         default:
@@ -504,9 +504,9 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
                 setRestartRequired(true);
             }
             break;
-        case NotUseChangeAddress:
-            if (settings.value("fNotUseChangeAddress") != value) {
-                settings.setValue("fNotUseChangeAddress", value);
+        case UseChangeAddress:
+            if (settings.value("fUseChangeAddress") != value) {
+                settings.setValue("fUseChangeAddress", value);
                 setRestartRequired(true);
             }
             break;
