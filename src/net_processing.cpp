@@ -4023,7 +4023,6 @@ bool ProcessNetBlock(const CChainParams& chainparams, const std::shared_ptr<cons
         }
 
         // Check for duplicate orphan block
-        uint256 hash = pblock->GetHash();
         if (mapOrphanBlocks.count(hash))
             return error("ProcessNetBlock() : already have block (orphan) %s", hash.ToString());
 
