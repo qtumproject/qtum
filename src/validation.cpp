@@ -4904,6 +4904,7 @@ bool ProcessNewBlockHeaders(const std::vector<CBlockHeader>& headers, CValidatio
 {
     if (first_invalid != nullptr) first_invalid->SetNull();
 
+
     if(headers.size() > 0) {
         const CBlockHeader last_header = headers[headers.size()-1];
         if (last_header.IsProofOfStake() && last_header.GetBlockTime() > FutureDrift(GetAdjustedTime())) {
