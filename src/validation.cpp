@@ -4902,6 +4902,8 @@ bool CChainState::AcceptBlockHeader(const CBlockHeader& block, CValidationState&
 // Exposed wrapper for AcceptBlockHeader
 bool ProcessNewBlockHeaders(const std::vector<CBlockHeader>& headers, CValidationState& state, const CChainParams& chainparams, const CBlockIndex** ppindex, CBlockHeader *first_invalid,  const CBlockIndex** pindexFirst)
 {
+    if (first_invalid != nullptr) first_invalid->SetNull();
+
     if(headers.size() > 0) {
         const CBlockHeader last_header = headers[headers.size()-1];
         if (last_header.IsProofOfStake() && last_header.GetBlockTime() > FutureDrift(GetAdjustedTime())) {
@@ -4909,7 +4911,6 @@ bool ProcessNewBlockHeaders(const std::vector<CBlockHeader>& headers, CValidatio
         }
     }
 
-    if (first_invalid != nullptr) first_invalid->SetNull();
     {
         LOCK(cs_main);
         bool bFirst = true;
