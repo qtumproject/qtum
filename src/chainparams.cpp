@@ -189,7 +189,7 @@ public:
                                     COINBASE_MATURITY;
 
         consensus.nFixUTXOCacheHFHeight=100000;
-        consensus.nEnableHeaderSignatureHeight = 396669;
+        consensus.nEnableHeaderSignatureHeight = 399100;
     }
 };
 
@@ -294,7 +294,7 @@ public:
                                     COINBASE_MATURITY;
 
         consensus.nFixUTXOCacheHFHeight=84500;
-        consensus.nEnableHeaderSignatureHeight = 389428;
+        consensus.nEnableHeaderSignatureHeight = 391993;
     }
 };
 
