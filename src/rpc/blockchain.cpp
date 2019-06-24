@@ -31,6 +31,7 @@
 #include <validationinterface.h>
 #include <warnings.h>
 #include <libdevcore/CommonData.h>
+#include <libethcore/ABI.h>
 #include <pow.h>
 #include <pos.h>
 #include <txdb.h>
@@ -231,6 +232,25 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool tx
 }
 
 //////////////////////////////////////////////////////////////////////////// // qtum
+std::string revertMessage(const dev::bytes& rawData)
+{
+    std::string message;
+    try
+    {
+        dev::bytesConstRef oRawData(&rawData);
+        dev::bytes errorFunc = oRawData.cropped(0, 4).toBytes();
+        if(dev::toHex(errorFunc) == "08c379a0")
+        {
+            dev::bytesConstRef oData = oRawData.cropped(4);
+            message = dev::eth::ABIDeserialiser<std::string>::deserialise(oData);
+        }
+    }
+    catch(...)
+    {}
+
+    return message;
+}
+
 UniValue executionResultToJSON(const dev::eth::ExecutionResult& exRes)
 {
     UniValue result(UniValue::VOBJ);
@@ -244,6 +264,7 @@ UniValue executionResultToJSON(const dev::eth::ExecutionResult& exRes)
     result.pushKV("gasRefunded", CAmount(exRes.gasRefunded));
     result.pushKV("depositSize", static_cast<int32_t>(exRes.depositSize));
     result.pushKV("gasForDeposit", CAmount(exRes.gasForDeposit));
+    result.pushKV("revertMessage", revertMessage(exRes.output));
     return result;
 }
 
