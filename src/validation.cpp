@@ -4903,13 +4903,46 @@ bool CChainState::AcceptBlockHeader(const CBlockHeader& block, CValidationState&
 bool ProcessNewBlockHeaders(const std::vector<CBlockHeader>& headers, CValidationState& state, const CChainParams& chainparams, const CBlockIndex** ppindex, CBlockHeader *first_invalid,  const CBlockIndex** pindexFirst)
 {
     if (first_invalid != nullptr) first_invalid->SetNull();
+
+    if(!IsInitialBlockDownload() && headers.size() > 1) {
+        const CBlockHeader last_header = headers[headers.size()-1];
+        if (last_header.IsProofOfStake() && last_header.GetBlockTime() > FutureDrift(GetAdjustedTime())) {
+            return state.Invalid(false, REJECT_INVALID, "time-too-new", "block timestamp too far in the future");
+        }
+    }
+
     {
         LOCK(cs_main);
         bool bFirst = true;
-        for (const CBlockHeader& header : headers) {
+        bool fInstantBan = false;
+        for (size_t i = 0; i < headers.size(); ++i) {
+            const CBlockHeader& header = headers[i];
+
+            // If the stake has been seen and the header has not yet been seen
+            if (!fReindex && !fImporting && !IsInitialBlockDownload() && header.IsProofOfStake() && setStakeSeen.count(std::make_pair(header.prevoutStake, header.nTime)) && !mapBlockIndex.count(header.GetHash())) {
+                // if it is the last header of the list
+                if(i+1 == headers.size()) {
+                    if (first_invalid) *first_invalid = header;
+                    if(fInstantBan) {
+                        // if we've seen a dupe stake header already in this list, then instaban
+                        return state.DoS(100, error("%s: duplicate proof-of-stake instant ban (%s, %d) for header %s", __func__, header.prevoutStake.ToString(), header.nTime, header.GetHash().ToString()), REJECT_INVALID, "dupe-stake");
+                    } else {
+                        // otherwise just reject the block until it is part of a longer list
+                        return state.DoS(0, error("%s: duplicate proof-of-stake (%s, %d) for header %s", __func__, header.prevoutStake.ToString(), header.nTime, header.GetHash().ToString()), REJECT_INVALID, "dupe-stake");
+                    }
+                } else {
+                    // if it is not part of the longest chain, then any error on a subsequent header should result in an instant ban
+                    fInstantBan = true;
+                }
+            }
+
             CBlockIndex *pindex = nullptr; // Use a temp pindex instead of ppindex to avoid a const_cast
             if (!g_chainstate.AcceptBlockHeader(header, state, chainparams, &pindex)) {
                 if (first_invalid) *first_invalid = header;
+                // if we have seen a duplicate stake in this header list previously, then ban immediately.
+                if(fInstantBan) {
+                    state.DoS(100, error("instant ban, due to duplicate header in the chain"), REJECT_INVALID, state.GetRejectReason());
+                }
                 return false;
             }
             if (ppindex) {

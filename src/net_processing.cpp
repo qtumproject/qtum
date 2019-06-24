@@ -3999,6 +3999,13 @@ bool ProcessNetBlock(const CChainParams& chainparams, const std::shared_ptr<cons
             return error("ProcessNetBlock() : coinstake transaction does not exist");
         }
 
+        // Check for duplicate orphan block
+        // Duplicate stake allowed only when there is orphan child block
+        // if the block header is already known, allow it (to account for headers being sent before the block itself)
+        uint256 hash = pblock->GetHash();
+        if (!fReindex && !fImporting && pblock->IsProofOfStake() && setStakeSeen.count(pblock->GetProofOfStake()) && !mapBlockIndex.count(hash) && !mapOrphanBlocksByPrev.count(hash))
+            return error("ProcessNetBlock() : duplicate proof-of-stake (%s, %d) for block %s", pblock->GetProofOfStake().first.ToString(), pblock->GetProofOfStake().second, hash.ToString());
+
         // Process the header before processing the block
         const CBlockIndex *pindex = nullptr;
         CValidationState state;
@@ -4014,16 +4021,8 @@ bool ProcessNetBlock(const CChainParams& chainparams, const std::shared_ptr<cons
             }
         }
 
-        // Check for duplicate orphan block
-        uint256 hash = pblock->GetHash();
         if (mapOrphanBlocks.count(hash))
             return error("ProcessNetBlock() : already have block (orphan) %s", hash.ToString());
-
-        // ppcoin: check proof-of-stake
-        // Limited duplicity on stake: prevents block flood attack
-        // Duplicate stake allowed only when there is orphan child block
-        if (!fReindex && !fImporting && pblock->IsProofOfStake() && (setStakeSeen.count(pblock->GetProofOfStake()) > 1) && !mapOrphanBlocksByPrev.count(hash))
-            return error("ProcessNetBlock() : duplicate proof-of-stake (%s, %d) for block %s", pblock->GetProofOfStake().first.ToString(), pblock->GetProofOfStake().second, hash.ToString());
 
         // Check for the checkpoint
         if (chainActive.Tip() && pblock->hashPrevBlock != chainActive.Tip()->GetBlockHash())
