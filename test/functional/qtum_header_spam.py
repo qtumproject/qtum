@@ -151,8 +151,10 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
     def dos_protection_triggered_via_spam_on_same_height_test(self):
         self.start_p2p_connection()
 
-        for i in range(500):
-            block_header = self._create_pos_header(self.node, self.staking_prevouts, self.node.getblockhash(self.node.getblockcount()-500), nNonce=i)
+        prevblock = self.node.getblock(self.node.getblockhash(self.node.getblockcount()-500))
+        t = prevblock['time'] & 0xfffffff0
+        for i in range(501):
+            block_header = self._create_pos_header(self.node, self.staking_prevouts, prevblock['hash'], nTime=t+0x10*i, nNonce=i)
             block_header.rehash()
             msg = msg_headers()
             msg.headers.extend([block_header])
@@ -162,15 +164,19 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
     # Variable height header spam cause ban (in our case disconnect) after a max of 1504(?) headers
     def dos_protection_triggered_via_spam_on_variable_height_test(self):
         self.start_p2p_connection()
+        self.node.setmocktime(int(time.time())+100000)
+        t = (int(time.time()) + 1000) & 0xfffffff0
 
         for i in range(2055):
-            block_header = self._create_pos_header(self.node, self.staking_prevouts, self.node.getblockhash(self.node.getblockcount()-500+(i%500)), nNonce=i)
+            prevblock = self.node.getblock(self.node.getblockhash(self.node.getblockcount()-500+(i%500)))
+            block_header = self._create_pos_header(self.node, self.staking_prevouts, prevblock['hash'], nTime=t+0x10*i, nNonce=i)
             block_header.rehash()
             msg = msg_headers()
             msg.headers.extend([block_header])
             self.p2p_node.send_message(msg)
 
         self.p2p_node.wait_for_disconnect(timeout=5)
+        self.node.setmocktime(0)
 
     
     def can_sync_after_offline_period_test(self):
