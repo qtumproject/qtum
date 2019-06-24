@@ -36,7 +36,7 @@ class QtumPOSSegwitTest(BitcoinTestFramework):
 
         # create a new private key used for block signing.
         block_sig_key = CECKey()
-        block_sig_key.set_secretbytes(hash256(struct.pack('<I', 0xffff)))
+        block_sig_key.set_secretbytes(hash256(struct.pack('<I', 0)))
         pubkey = block_sig_key.get_pubkey()
         scriptPubKey = CScript([pubkey, OP_CHECKSIG])
         stake_tx_unsigned = CTransaction()
@@ -77,9 +77,13 @@ class QtumPOSSegwitTest(BitcoinTestFramework):
         return staking_prevouts
 
     def run_test(self):
+        privkey = byte_to_base58(hash256(struct.pack('<I', 0)), 239)
+        for n in self.nodes:
+            n.importprivkey(privkey)
+
         self.node = self.nodes[0]
         self.node.setmocktime(int(time.time()) - 2*COINBASE_MATURITY)
-        self.node.generate(50+COINBASE_MATURITY)
+        self.node.generatetoaddress(50+COINBASE_MATURITY, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
 
         staking_prevouts = self.collect_staking_prevouts()
 

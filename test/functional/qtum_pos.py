@@ -8,6 +8,7 @@ from test_framework.util import *
 from test_framework.script import *
 from test_framework.mininode import *
 from test_framework.blocktools import *
+from test_framework.address import *
 from test_framework.key import CECKey
 import io
 import struct
@@ -50,13 +51,21 @@ class QtumPOSTest(BitcoinTestFramework):
         if reconnect:
             self.reconnect_p2p()
 
+    def _remove_from_staking_prevouts(self, block):
+        for j in range(len(self.staking_prevouts)):
+            prevout = self.staking_prevouts[j]
+            if prevout[0].serialize() == block.prevoutStake.serialize():
+                self.staking_prevouts.pop(j)
+                break
 
     def run_test(self):
         self.node = self.nodes[0]
+        privkey = byte_to_base58(hash256(struct.pack('<I', 0)), 239)
+        self.node.importprivkey(privkey)
         self.bootstrap_p2p()
         # returns a test case that asserts that the current tip was accepted
         # First generate some blocks so we have some spendable coins
-        block_hashes = self.node.generate(25)
+        block_hashes = self.node.generatetoaddress(100, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
 
         for i in range(COINBASE_MATURITY):
             self.tip = create_block(int(self.node.getbestblockhash(), 16), create_coinbase(self.node.getblockcount()+1), int(time.time()))
@@ -64,8 +73,8 @@ class QtumPOSTest(BitcoinTestFramework):
             self.sync_blocks([self.tip], success=True)
 
         for _ in range(10):
-            self.node.sendtoaddress(self.node.getnewaddress(), 1000)
-        block_hashes += self.node.generate(1)
+            self.node.sendtoaddress("qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq", 1000)
+        block_hashes += self.node.generatetoaddress(1, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
 
         blocks = []
         for block_hash in block_hashes:
@@ -109,6 +118,7 @@ class QtumPOSTest(BitcoinTestFramework):
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
         self.sync_blocks([self.tip], success=False, request_block=False, reconnect=True)
+        self._remove_from_staking_prevouts(self.tip)
 
 
         # 2 A block that with a too high reward
@@ -116,6 +126,7 @@ class QtumPOSTest(BitcoinTestFramework):
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
         self.sync_blocks([self.tip], success=False, reconnect=True)
+        self._remove_from_staking_prevouts(self.tip)
 
 
         # 3 A block with an incorrect block sig
@@ -124,7 +135,8 @@ class QtumPOSTest(BitcoinTestFramework):
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.staking_prevouts)
         self.tip.sign_block(bad_key)
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, reconnect=True)
+        self.sync_blocks([self.tip], success=False, reconnect=True, request_block=False)
+        self._remove_from_staking_prevouts(self.tip)
 
 
         # 4 A block that stakes with txs with too few confirmations
@@ -132,6 +144,7 @@ class QtumPOSTest(BitcoinTestFramework):
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
         self.sync_blocks([self.tip], success=False, reconnect=True, request_block=False)
+        self._remove_from_staking_prevouts(self.tip)
 
 
         # 5 A block that with a coinbase reward
@@ -141,6 +154,7 @@ class QtumPOSTest(BitcoinTestFramework):
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
         self.sync_blocks([self.tip], success=False, reconnect=True)
+        self._remove_from_staking_prevouts(self.tip)
 
 
         # 6 A block that with no vout in the coinbase
@@ -150,6 +164,7 @@ class QtumPOSTest(BitcoinTestFramework):
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
         self.sync_blocks([self.tip], success=False, reconnect=True)
+        self._remove_from_staking_prevouts(self.tip)
 
 
         # 7 A block way into the future
@@ -158,6 +173,7 @@ class QtumPOSTest(BitcoinTestFramework):
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
         self.sync_blocks([self.tip], success=False, request_block=False, reconnect=True)
+        self._remove_from_staking_prevouts(self.tip)
 
 
         # 8 No vout in the staking tx
@@ -167,6 +183,7 @@ class QtumPOSTest(BitcoinTestFramework):
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
         self.sync_blocks([self.tip], success=False, reconnect=True)
+        self._remove_from_staking_prevouts(self.tip)
 
 
         # 9 Unsigned coinstake.
@@ -174,6 +191,7 @@ class QtumPOSTest(BitcoinTestFramework):
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
         self.sync_blocks([self.tip], success=False, reconnect=True)
+        self._remove_from_staking_prevouts(self.tip)
         
 
         # 10 A block without a coinstake tx.
@@ -183,6 +201,7 @@ class QtumPOSTest(BitcoinTestFramework):
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
         self.sync_blocks([self.tip], success=False, reconnect=True)
+        self._remove_from_staking_prevouts(self.tip)
 
 
         # 11 A block without a coinbase.
@@ -192,6 +211,7 @@ class QtumPOSTest(BitcoinTestFramework):
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
         self.sync_blocks([self.tip], success=False, reconnect=True)
+        self._remove_from_staking_prevouts(self.tip)
 
 
         # 12 A block where the coinbase has no outputs
@@ -201,6 +221,7 @@ class QtumPOSTest(BitcoinTestFramework):
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
         self.sync_blocks([self.tip], success=False, reconnect=True)
+        self._remove_from_staking_prevouts(self.tip)
 
 
         # 13 A block where the coinstake has no outputs
@@ -215,6 +236,7 @@ class QtumPOSTest(BitcoinTestFramework):
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
         self.sync_blocks([self.tip], success=False, reconnect=True)
+        self._remove_from_staking_prevouts(self.tip)
 
 
         # 14 A block with an incorrect hashStateRoot
@@ -223,6 +245,7 @@ class QtumPOSTest(BitcoinTestFramework):
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
         self.sync_blocks([self.tip], success=False, reconnect=True)
+        self._remove_from_staking_prevouts(self.tip)
 
 
         # 15 A block with an incorrect hashUTXORoot
@@ -231,6 +254,7 @@ class QtumPOSTest(BitcoinTestFramework):
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
         self.sync_blocks([self.tip], success=False, reconnect=True)
+        self._remove_from_staking_prevouts(self.tip)
 
 
         # 16 A block with an a signature on wrong header data
@@ -238,7 +262,8 @@ class QtumPOSTest(BitcoinTestFramework):
         self.tip.sign_block(block_sig_key)
         self.tip.nNonce = 0xfffe
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, reconnect=True)
+        self.sync_blocks([self.tip], success=False, reconnect=True, request_block=False)
+        self._remove_from_staking_prevouts(self.tip)
 
         # 17 A block with where the pubkey of the second output of the coinstake has been modified after block signing
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.staking_prevouts)
@@ -254,6 +279,7 @@ class QtumPOSTest(BitcoinTestFramework):
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
         self.sync_blocks([self.tip], success=False, reconnect=True)
+        self._remove_from_staking_prevouts(self.tip)
 
         # 18. A block in the past
         t = (int(time.time())-700) & 0xfffffff0
@@ -261,6 +287,7 @@ class QtumPOSTest(BitcoinTestFramework):
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
         self.sync_blocks([self.tip], success=False, request_block=False, reconnect=True)
+        self._remove_from_staking_prevouts(self.tip)
 
 
         # 19. A block with too many coinbase vouts
@@ -271,6 +298,7 @@ class QtumPOSTest(BitcoinTestFramework):
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
         self.sync_blocks([self.tip], success=False, reconnect=True)
+        self._remove_from_staking_prevouts(self.tip)
 
 
         # 20. A block where the coinstake's vin is not the prevout specified in the block
@@ -278,6 +306,7 @@ class QtumPOSTest(BitcoinTestFramework):
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
         self.sync_blocks([self.tip], success=False, reconnect=True)
+        self._remove_from_staking_prevouts(self.tip)
 
 
         # 21. A block that stakes with valid txs but invalid vouts
@@ -285,6 +314,7 @@ class QtumPOSTest(BitcoinTestFramework):
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
         self.sync_blocks([self.tip], success=False, reconnect=True, request_block=False)
+        self._remove_from_staking_prevouts(self.tip)
 
 
         # 22. A block that stakes with txs that do not exist
@@ -292,6 +322,7 @@ class QtumPOSTest(BitcoinTestFramework):
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
         self.sync_blocks([self.tip], success=False, reconnect=True, request_block=False)
+        self._remove_from_staking_prevouts(self.tip)
 
 
         # Make sure for certain that no blocks were accepted. (This is also to make sure that no segfaults ocurred)
@@ -334,7 +365,7 @@ class QtumPOSTest(BitcoinTestFramework):
 
         # create a new private key used for block signing.
         block_sig_key = CECKey()
-        block_sig_key.set_secretbytes(hash256(struct.pack('<I', 0xffff)))
+        block_sig_key.set_secretbytes(hash256(struct.pack('<I', 0)))
         pubkey = block_sig_key.get_pubkey()
         scriptPubKey = CScript([pubkey, OP_CHECKSIG])
         stake_tx_unsigned = CTransaction()
