@@ -7,6 +7,7 @@
 #include <QIcon>
 #include <QLabel>
 #include <QComboBox>
+#include <QPointer>
 #include <qt/walletmodel.h>
 
 namespace Ui {
@@ -80,6 +81,8 @@ public Q_SLOTS:
      */
     void on_navigationResized(const QSize& _size);
 
+    void updateDisplayUnit();
+
 private:
     /**
      * @brief setBalanceLabel Changing the displayed balance
@@ -88,8 +91,8 @@ private:
 
 private:
     Ui::TitleBar *ui;
-    WalletModel *m_model;
-    TabBarInfo* m_tab;
+    QPointer<WalletModel> m_model;
+    QPointer<TabBarInfo> m_tab;
     QIcon m_iconCloseTab;
     std::map<QObject*, interfaces::WalletBalances> m_models;
 };

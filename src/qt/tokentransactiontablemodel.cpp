@@ -13,7 +13,7 @@
 #include <validation.h>
 #include <sync.h>
 #include <uint256.h>
-#include <util.h>
+#include <util/system.h>
 #include <interfaces/wallet.h>
 #include <interfaces/handler.h>
 #include <interfaces/node.h>

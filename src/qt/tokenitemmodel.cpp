@@ -309,7 +309,7 @@ TokenItemModel::TokenItemModel(WalletModel *parent):
     worker = new TokenTxWorker(walletModel);
     worker->tokenAbi.setModel(walletModel);
     worker->moveToThread(&(t));
-    connect(worker, SIGNAL(balanceChanged(QString,QString)), this, SLOT(balanceChanged(QString,QString)));
+    connect(worker, &TokenTxWorker::balanceChanged, this, &TokenItemModel::balanceChanged);
 
     t.start();
 

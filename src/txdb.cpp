@@ -11,7 +11,7 @@
 #include <pow.h>
 #include <shutdown.h>
 #include <uint256.h>
-#include <util.h>
+#include <util/system.h>
 #include <ui_interface.h>
 
 #include <stdint.h>
@@ -315,7 +315,7 @@ int CBlockTreeDB::ReadHeightIndex(int low, int high, int minconf,
 
 bool CBlockTreeDB::EraseHeightIndex(const unsigned int &height) {
 
-    boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
+    std::unique_ptr<CDBIterator> pcursor(NewIterator());
     CDBBatch batch(*this);
 
     pcursor->Seek(std::make_pair(DB_HEIGHTINDEX, CHeightTxIndexIteratorKey(height)));
@@ -336,7 +336,7 @@ bool CBlockTreeDB::EraseHeightIndex(const unsigned int &height) {
 
 bool CBlockTreeDB::WipeHeightIndex() {
 
-    boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
+    std::unique_ptr<CDBIterator> pcursor(NewIterator());
     CDBBatch batch(*this);
 
     pcursor->Seek(DB_HEIGHTINDEX);
@@ -363,7 +363,7 @@ bool CBlockTreeDB::WriteStakeIndex(unsigned int height, uint160 address) {
 }
 
 bool CBlockTreeDB::ReadStakeIndex(unsigned int height, uint160& address){
-    boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
+    std::unique_ptr<CDBIterator> pcursor(NewIterator());
 
     pcursor->Seek(std::make_pair(DB_STAKEINDEX, height));
 
@@ -381,7 +381,7 @@ bool CBlockTreeDB::ReadStakeIndex(unsigned int height, uint160& address){
     return false;
 }
 bool CBlockTreeDB::ReadStakeIndex(unsigned int high, unsigned int low, std::vector<uint160> addresses){
-    boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
+    std::unique_ptr<CDBIterator> pcursor(NewIterator());
 
     pcursor->Seek(std::make_pair(DB_STAKEINDEX, low));
 
@@ -404,7 +404,7 @@ bool CBlockTreeDB::ReadStakeIndex(unsigned int high, unsigned int low, std::vect
 
 bool CBlockTreeDB::EraseStakeIndex(unsigned int height) {
 
-    boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
+    std::unique_ptr<CDBIterator> pcursor(NewIterator());
     CDBBatch batch(*this);
 
     pcursor->Seek(std::make_pair(DB_STAKEINDEX, height));
@@ -464,7 +464,6 @@ bool CBlockTreeDB::LoadBlockIndexGuts(const Consensus::Params& consensusParams, 
                 // NovaCoin: build setStakeSeen
                 if (pindexNew->IsProofOfStake())
                     setStakeSeen.insert(std::make_pair(pindexNew->prevoutStake, pindexNew->nTime));
-
                 pcursor->Next();
             } else {
                 return error("%s: failed to read value", __func__);

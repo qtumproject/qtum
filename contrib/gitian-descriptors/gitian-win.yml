@@ -1,5 +1,5 @@
 ---
-name: "qtum-win-0.17"
+name: "qtum-win-0.18"
 enable_cache: true
 suites:
 - "bionic"
@@ -29,11 +29,13 @@ remotes:
   "dir": "cpp-eth-qtum"
 files: []
 script: |
+  set -e -o pipefail
+
   #this is a hack since gitian has no natural support for submodules
   cp -r cpp-eth-qtum/* qtum/src/cpp-ethereum
   #make sure this file exists... 
-  cat qtum/src/cpp-ethereum/utils/libscrypt/b64.c 
-  
+  cat qtum/src/cpp-ethereum/utils/libscrypt/b64.c
+
   WRAP_DIR=$HOME/wrapped
   HOSTS="i686-w64-mingw32 x86_64-w64-mingw32"
   CONFIGFLAGS="--enable-reduce-exports --disable-bench --disable-gui-tests"

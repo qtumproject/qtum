@@ -11,7 +11,7 @@
 #include <crypto/hmac_sha256.h>
 #include <crypto/hmac_sha512.h>
 #include <random.h>
-#include <utilstrencodings.h>
+#include <util/strencodings.h>
 #include <test/test_bitcoin.h>
 
 #include <vector>
@@ -200,7 +200,7 @@ static void TestChaCha20(const std::string &hexkey, uint64_t nonce, uint64_t see
     BOOST_CHECK(out == outres);
 }
 
-static std::string LongTestString(void) {
+static std::string LongTestString() {
     std::string ret;
     for (int i=0; i<200000; i++) {
         ret += (unsigned char)(i);
@@ -532,7 +532,7 @@ BOOST_AUTO_TEST_CASE(countbits_tests)
             // Check handling of zero.
             BOOST_CHECK_EQUAL(CountBits(0), 0U);
         } else if (i < 10) {
-            for (uint64_t j = 1 << (i - 1); (j >> i) == 0; ++j) {
+            for (uint64_t j = (uint64_t)1 << (i - 1); (j >> i) == 0; ++j) {
                 // Exhaustively test up to 10 bits
                 BOOST_CHECK_EQUAL(CountBits(j), i);
             }

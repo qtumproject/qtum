@@ -6,12 +6,14 @@
 
 #include <crypto/sha256.h>
 #include <key.h>
-#include <random.h>
-#include <util.h>
-#include <utilstrencodings.h>
+#include <util/system.h>
+#include <util/strencodings.h>
 #include <validation.h>
+#include <libethashseal/Ethash.h>
 
 #include <memory>
+
+const std::function<std::string(const char*)> G_TRANSLATION_FUN = nullptr;
 
 static const int64_t DEFAULT_BENCH_EVALUATIONS = 5;
 static const char* DEFAULT_BENCH_FILTER = ".*";
@@ -23,7 +25,8 @@ static const int64_t DEFAULT_PLOT_HEIGHT = 768;
 
 static void SetupBenchArgs()
 {
-    gArgs.AddArg("-?", "Print this help message and exit", false, OptionsCategory::OPTIONS);
+    SetupHelpOptions(gArgs);
+
     gArgs.AddArg("-list", "List benchmarks without executing them. Can be combined with -scaling and -filter", false, OptionsCategory::OPTIONS);
     gArgs.AddArg("-evals=<n>", strprintf("Number of measurement evaluations to perform. (default: %u)", DEFAULT_BENCH_EVALUATIONS), false, OptionsCategory::OPTIONS);
     gArgs.AddArg("-filter=<regex>", strprintf("Regular expression filter to select benchmark by name (default: %s)", DEFAULT_BENCH_FILTER), false, OptionsCategory::OPTIONS);
@@ -32,15 +35,11 @@ static void SetupBenchArgs()
     gArgs.AddArg("-plot-plotlyurl=<uri>", strprintf("URL to use for plotly.js (default: %s)", DEFAULT_PLOT_PLOTLYURL), false, OptionsCategory::OPTIONS);
     gArgs.AddArg("-plot-width=<x>", strprintf("Plot width in pixel (default: %u)", DEFAULT_PLOT_WIDTH), false, OptionsCategory::OPTIONS);
     gArgs.AddArg("-plot-height=<x>", strprintf("Plot height in pixel (default: %u)", DEFAULT_PLOT_HEIGHT), false, OptionsCategory::OPTIONS);
-
-    // Hidden
-    gArgs.AddArg("-h", "", false, OptionsCategory::HIDDEN);
-    gArgs.AddArg("-help", "", false, OptionsCategory::HIDDEN);
 }
 
 static fs::path SetDataDir()
 {
-    fs::path ret = fs::temp_directory_path() / "bench_bitcoin" / fs::unique_path();
+    fs::path ret = fs::temp_directory_path() / "bench_qtum" / fs::unique_path();
     fs::create_directories(ret);
     gArgs.ForceSetArg("-datadir", ret.string());
     return ret;
@@ -64,8 +63,10 @@ int main(int argc, char** argv)
     // Set the datadir after parsing the bench options
     const fs::path bench_datadir{SetDataDir()};
 
+    // Overwrite arguments for bench
+    gArgs.ForceSetArg("-vbparams", "segwit:-1:999999999999");
+
     SHA256AutoDetect();
-    RandomInit();
     ECC_Start();
     SetupEnvironment();
 
@@ -80,7 +81,7 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-    std::unique_ptr<benchmark::Printer> printer(new benchmark::ConsolePrinter());
+    std::unique_ptr<benchmark::Printer> printer = MakeUnique<benchmark::ConsolePrinter>();
     std::string printer_arg = gArgs.GetArg("-printer", DEFAULT_BENCH_PRINTER);
     if ("plot" == printer_arg) {
         printer.reset(new benchmark::PlotlyPrinter(
@@ -88,6 +89,8 @@ int main(int argc, char** argv)
             gArgs.GetArg("-plot-width", DEFAULT_PLOT_WIDTH),
             gArgs.GetArg("-plot-height", DEFAULT_PLOT_HEIGHT)));
     }
+
+    dev::eth::Ethash::init();
 
     benchmark::BenchRunner::RunAll(*printer, evaluations, scaling_factor, regex_filter, is_list_only);
 
