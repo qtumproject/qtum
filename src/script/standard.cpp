@@ -465,9 +465,7 @@ valtype DataVisitor::operator()(const WitnessUnknown&) const { return valtype();
 bool ExtractDestination(const COutPoint& prevout, const CScript& scriptPubKey, CTxDestination& addressRet, txnouttype* typeRet)
 {
     std::vector<valtype> vSolutions;
-    txnouttype whichType;
-    if (!Solver(scriptPubKey, whichType, vSolutions))
-        return false;
+    txnouttype whichType = Solver(scriptPubKey, vSolutions);
 
     if(typeRet){
         *typeRet = whichType;
