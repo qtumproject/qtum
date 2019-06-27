@@ -251,7 +251,7 @@ public:
         // Ban the node if try to spam
         bool banNode = (nAvgValue >= 1.5 * maxAvg && size >= maxAvg) ||
                        (nAvgValue >= maxAvg && nHeaders >= maxSize) ||
-                       (nHeaders >= maxSize * 3);
+                       (nHeaders >= maxSize * 4.1);
         if(banNode)
         {
             // Clear the points and ban the node
@@ -375,8 +375,6 @@ struct CNodeState {
 
     ChainSyncTimeoutState m_chain_sync;
 
-    CNodeHeaders headers;
-
     //! Time of last new block announcement
     int64_t m_last_block_announcement;
 
@@ -409,12 +407,33 @@ struct CNodeState {
 
 /** Map maintaining per-node state. */
 static std::map<NodeId, CNodeState> mapNodeState GUARDED_BY(cs_main);
+static std::map<CService, CNodeHeaders> mapServiceHeaders GUARDED_BY(cs_main);
 
 static CNodeState *State(NodeId pnode) EXCLUSIVE_LOCKS_REQUIRED(cs_main) {
     std::map<NodeId, CNodeState>::iterator it = mapNodeState.find(pnode);
     if (it == mapNodeState.end())
         return nullptr;
     return &it->second;
+}
+
+static CNodeHeaders &ServiceHeaders(const CService& address) EXCLUSIVE_LOCKS_REQUIRED(cs_main) {
+    unsigned short port =
+            gArgs.GetBoolArg("-headerspamfilterignoreport", DEFAULT_HEADER_SPAM_FILTER_IGNORE_PORT) ? 0 : address.GetPort();
+    CService addr(address, port);
+    return mapServiceHeaders[addr];
+}
+
+static void CleanAddressHeaders(const CAddress& addr) EXCLUSIVE_LOCKS_REQUIRED(cs_main) {
+    CSubNet subNet(addr);
+    for (std::map<CService, CNodeHeaders>::iterator it=mapServiceHeaders.begin(); it!=mapServiceHeaders.end();){
+        if(subNet.Match(it->first))
+        {
+            it = mapServiceHeaders.erase(it);
+        }
+        else{
+            it++;
+        }
+    }
 }
 
 bool ProcessNetBlockHeaders(CNode* pfrom, const std::vector<CBlockHeader>& block, CValidationState& state, const CChainParams& chainparams, const CBlockIndex** ppindex=nullptr, CBlockHeader *first_invalid=nullptr)
@@ -425,9 +444,10 @@ bool ProcessNetBlockHeaders(CNode* pfrom, const std::vector<CBlockHeader>& block
     {
         LOCK(cs_main);
         CNodeState *nodestate = State(pfrom->GetId());
+        CNodeHeaders& headers = ServiceHeaders(nodestate->address);
         const CBlockIndex *pindexLast = ppindex == nullptr ? nullptr : *ppindex;
-        nodestate->headers.addHeaders(pindexFirst, pindexLast);
-        return nodestate->headers.updateState(state, ret);
+        headers.addHeaders(pindexFirst, pindexLast);
+        return headers.updateState(state, ret);
     }
     return ret;
 }
@@ -3110,6 +3130,8 @@ bool PeerLogicValidation::SendRejectsAndCheckIfBanned(CNode* pnode, bool enable_
             // Disconnect and ban all nodes sharing the address
             if (m_banman) {
                 m_banman->Ban(pnode->addr, BanReasonNodeMisbehaving);
+                // Remove all data from the header spam filter when the address is banned
+                CleanAddressHeaders(pnode->addr);
             }
             connman->DisconnectNode(pnode->addr);
         }
@@ -4007,15 +4029,29 @@ bool ProcessNetBlock(const CChainParams& chainparams, const std::shared_ptr<cons
         }
 
         // Check for duplicate orphan block
+        // Duplicate stake allowed only when there is orphan child block
+        // if the block header is already known, allow it (to account for headers being sent before the block itself)
         uint256 hash = pblock->GetHash();
+        if (!fReindex && !fImporting && pblock->IsProofOfStake() && setStakeSeen.count(pblock->GetProofOfStake()) && !mapBlockIndex.count(hash) && !mapOrphanBlocksByPrev.count(hash))
+            return error("ProcessNetBlock() : duplicate proof-of-stake (%s, %d) for block %s", pblock->GetProofOfStake().first.ToString(), pblock->GetProofOfStake().second, hash.ToString());
+
+        // Process the header before processing the block
+        const CBlockIndex *pindex = nullptr;
+        CValidationState state;
+        if (!ProcessNetBlockHeaders(pfrom, {*pblock}, state, chainparams, &pindex)) {
+            int nDoS;
+            if (state.IsInvalid(nDoS)) {
+                if (nDoS > 0) {
+                    Misbehaving(pfrom->GetId(), nDoS, strprintf("Peer %d sent us invalid header\n", pfrom->GetId()));
+                } else {
+                    LogPrint(BCLog::NET, "Peer %d sent us invalid header\n", pfrom->GetId());
+                }
+                return error("ProcessNetBlock() : invalid header received");
+            }
+        }
+
         if (mapOrphanBlocks.count(hash))
             return error("ProcessNetBlock() : already have block (orphan) %s", hash.ToString());
-
-        // ppcoin: check proof-of-stake
-        // Limited duplicity on stake: prevents block flood attack
-        // Duplicate stake allowed only when there is orphan child block
-        if (!fReindex && !fImporting && pblock->IsProofOfStake() && (setStakeSeen.count(pblock->GetProofOfStake()) > 1) && !mapOrphanBlocksByPrev.count(hash))
-            return error("ProcessNetBlock() : duplicate proof-of-stake (%s, %d) for block %s", pblock->GetProofOfStake().first.ToString(), pblock->GetProofOfStake().second, hash.ToString());
 
         // Check for the checkpoint
         if (chainActive.Tip() && pblock->hashPrevBlock != chainActive.Tip()->GetBlockHash())

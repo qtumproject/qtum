@@ -1,6 +1,5 @@
 #include <sstream>
 #include <util/system.h>
-#include <util/convert.h>
 #include <validation.h>
 #include <chainparams.h>
 #include <qtum/qtumstate.h>
@@ -225,23 +224,6 @@ void QtumState::addBalance(dev::Address const& _id, dev::u256 const& _amount)
 
     if (_amount)
         m_changeLog.emplace_back(dev::eth::detail::Change::Balance, _id, _amount);
-}
-
-dev::Address QtumState::createQtumAddress(dev::h256 hashTx, uint32_t voutNumber){
-    uint256 hashTXid(h256Touint(hashTx));
-	std::vector<unsigned char> txIdAndVout(hashTXid.begin(), hashTXid.end());
-	std::vector<unsigned char> voutNumberChrs;
-	if (voutNumberChrs.size() < sizeof(voutNumber))voutNumberChrs.resize(sizeof(voutNumber));
-	std::memcpy(voutNumberChrs.data(), &voutNumber, sizeof(voutNumber));
-	txIdAndVout.insert(txIdAndVout.end(),voutNumberChrs.begin(),voutNumberChrs.end());
-		
-	std::vector<unsigned char> SHA256TxVout(32);
-    CSHA256().Write(txIdAndVout.data(), txIdAndVout.size()).Finalize(SHA256TxVout.data());
-
-	std::vector<unsigned char> hashTxIdAndVout(20);
-    CRIPEMD160().Write(SHA256TxVout.data(), SHA256TxVout.size()).Finalize(hashTxIdAndVout.data());
-		
-	return dev::Address(hashTxIdAndVout);
 }
 
 void QtumState::deleteAccounts(std::set<dev::Address>& addrs){

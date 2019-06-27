@@ -15,6 +15,15 @@ static const int nCheckpointSpan = 500;
 
 namespace Checkpoints {
 
+    bool CheckHardened(int nHeight, const uint256& hash, const CCheckpointData& data)
+    {
+        const MapCheckpoints& checkpoints = data.mapCheckpoints;
+
+        MapCheckpoints::const_iterator i = checkpoints.find(nHeight);
+        if (i == checkpoints.end()) return true;
+        return hash == i->second;
+    }
+
     CBlockIndex* GetLastCheckpoint(const CCheckpointData& data)
     {
         const MapCheckpoints& checkpoints = data.mapCheckpoints;

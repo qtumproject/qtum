@@ -22,6 +22,17 @@
 class CBlockIndex;
 class CCoinsViewDBCursor;
 class uint256;
+#ifdef ENABLE_BITCORE_RPC
+//////////////////////////////////// //qtum
+struct CAddressIndexKey;
+struct CAddressUnspentKey;
+struct CAddressUnspentValue;
+struct CMempoolAddressDeltaKey;
+struct CTimestampIndexKey;
+struct CTimestampBlockIndexKey;
+struct CTimestampBlockIndexValue;
+////////////////////////////////////
+#endif
 
 //! Compensate for extra memory peak (x1.5-x1.9) at flush time.
 static constexpr int DB_PEAK_USAGE_FACTOR = 2;
@@ -151,6 +162,25 @@ public:
     bool ReadStakeIndex(unsigned int height, uint160& address);
     bool ReadStakeIndex(unsigned int high, unsigned int low, std::vector<uint160> addresses);
     bool EraseStakeIndex(unsigned int height);
+
+#ifdef ENABLE_BITCORE_RPC
+    // Block explorer database functions
+    bool WriteAddressIndex(const std::vector<std::pair<CAddressIndexKey, CAmount> > &vect);
+    bool EraseAddressIndex(const std::vector<std::pair<CAddressIndexKey, CAmount> > &vect);
+    bool ReadAddressIndex(uint256 addressHash, int type,
+                        std::vector<std::pair<CAddressIndexKey, CAmount> > &addressIndex,
+                        int start = 0, int end = 0);
+    bool UpdateAddressUnspentIndex(const std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue > >&vect);
+    bool ReadAddressUnspentIndex(uint256 addressHash, int type,
+                                std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > &vect);
+    bool WriteTimestampIndex(const CTimestampIndexKey &timestampIndex);
+    bool ReadTimestampIndex(const unsigned int &high, const unsigned int &low, const bool fActiveOnly, std::vector<std::pair<uint256, unsigned int> > &vect);
+    bool WriteTimestampBlockIndex(const CTimestampBlockIndexKey &blockhashIndex, const CTimestampBlockIndexValue &logicalts);
+    bool ReadTimestampBlockIndex(const uint256 &hash, unsigned int &logicalTS);
+    bool ReadSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value);
+    bool UpdateSpentIndex(const std::vector<std::pair<CSpentIndexKey, CSpentIndexValue> >&vect);
+    bool blockOnchainActive(const uint256 &hash);
+#endif
 
     //////////////////////////////////////////////////////////////////////////////
 

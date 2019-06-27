@@ -1153,7 +1153,7 @@ static UniValue getblock(const JSONRPCRequest& request)
 ////////////////////////////////////////////////////////////////////// // qtum
 UniValue callcontract(const JSONRPCRequest& request)
 {
-    if (request.fHelp || request.params.size() < 2)
+    if (request.fHelp || request.params.size() < 2 || request.params.size() > 4)
         throw std::runtime_error(
              "callcontract \"address\" \"data\" ( address )\n"
              "\nArgument:\n"
@@ -1179,7 +1179,7 @@ UniValue callcontract(const JSONRPCRequest& request)
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
     
     dev::Address senderAddress;
-    if(request.params.size() == 3){
+    if(request.params.size() >= 3){
         CTxDestination qtumSenderAddress = DecodeDestination(request.params[2].get_str());
         if (IsValidDestination(qtumSenderAddress)) {
             const CKeyID *keyid = boost::get<CKeyID>(&qtumSenderAddress);
@@ -1190,8 +1190,8 @@ UniValue callcontract(const JSONRPCRequest& request)
 
     }
     uint64_t gasLimit=0;
-    if(request.params.size() == 4){
-        gasLimit = request.params[3].get_int();
+    if(request.params.size() >= 4){
+        gasLimit = request.params[3].get_int64();
     }
 
 
@@ -2791,7 +2791,7 @@ static UniValue getblockstats(const JSONRPCRequest& request)
             }
         }
 
-        if (tx->IsCoinBase()) {
+        if (tx->IsCoinBase() || tx->IsCoinStake()) {
             continue;
         }
 
@@ -3193,7 +3193,7 @@ static const CRPCCommand commands[] =
     { "blockchain",         "preciousblock",          &preciousblock,          {"blockhash"} },
     { "blockchain",         "scantxoutset",           &scantxoutset,           {"action", "scanobjects"} },
 
-    { "blockchain",         "callcontract",           &callcontract,           {"address","data"} },
+    { "blockchain",         "callcontract",           &callcontract,           {"address","data", "senderAddress", "gasLimit"} },
     /* Not shown in help */
     { "hidden",             "invalidateblock",        &invalidateblock,        {"blockhash"} },
     { "hidden",             "reconsiderblock",        &reconsiderblock,        {"blockhash"} },

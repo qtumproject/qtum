@@ -330,9 +330,9 @@
            </widget>
           </item>
           <item>
-           <widget class="QCheckBox" name="notUseChangeAddress">
+           <widget class="QCheckBox" name="useChangeAddress">
             <property name="text">
-             <string>Don't use change &amp;address</string>
+             <string>Use change &amp;address</string>
             </property>
            </widget>
           </item>
