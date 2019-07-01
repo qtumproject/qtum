@@ -856,12 +856,24 @@ static UniValue getaccountinfo(const JSONRPCRequest& request)
 {
     if (request.fHelp || request.params.size() < 1)
         throw std::runtime_error(
-            "getaccountinfo \"address\"\n"
-            "\nArgument:\n"
-        	"1. \"address\"		(string, required) The contract address \n"
-        	"\nResult:\n"
-        	"Contract details including balance, storage data and code\n"
-        );
+            RPCHelpMan{"getaccountinfo",
+                "\nGet contract details including balance, storage data and code.\n",
+                {
+                    {"address", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
+                },
+                RPCResult{
+            "{\n"
+            "  \"address\": \"contract address\",    (string)  address of the contract\n"
+            "  \"balance\": n,                     (numeric) balance of the contract\n"
+            "  \"storage\": {...},                 (object)  storage data of the contract\n"
+            "  \"code\": \"bytecode\"                (string)  bytecode of the contract\n"
+            "}\n"
+                },
+                RPCExamples{
+                    HelpExampleCli("getaccountinfo", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
+            + HelpExampleRpc("getaccountinfo", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
+                },
+            }.ToString());
 
     LOCK(cs_main);
 
@@ -908,12 +920,21 @@ static UniValue getstorage(const JSONRPCRequest& request)
 {
     if (request.fHelp || request.params.size() < 1)
         throw std::runtime_error(
-            "getstorage \"address\"\n"
-            "\nArgument:\n"
-            "1. \"address\"          (string, required) The address to get the storage from\n"
-            "2. \"blockNum\"         (string, optional) Number of block to get state from, \"latest\" keyword supported. Latest if not passed.\n"
-            "3. \"index\"            (number, optional) Zero-based index position of the storage\n"
-        );
+            RPCHelpMan{"getstorage",
+                "\nGet contract storage data.\n",
+                {
+                    {"address", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
+                    {"blockNum", RPCArg::Type::NUM,  /* default */ "latest", "Number of block to get state from."},
+                    {"index", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "Zero-based index position of the storage"},
+                },
+                RPCResult{
+            "(object)  storage data of the contract\n"
+                },
+                RPCExamples{
+                    HelpExampleCli("getstorage", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
+            + HelpExampleRpc("getstorage", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
+                },
+            }.ToString());
 
     LOCK(cs_main);
 
@@ -1155,13 +1176,49 @@ UniValue callcontract(const JSONRPCRequest& request)
 {
     if (request.fHelp || request.params.size() < 2 || request.params.size() > 4)
         throw std::runtime_error(
-             "callcontract \"address\" \"data\" ( address )\n"
-             "\nArgument:\n"
-             "1. \"address\"          (string, required) The account address\n"
-             "2. \"data\"             (string, required) The data hex string\n"
-             "3. address              (string, optional) The sender address hex string\n"
-             "4. gasLimit             (string, optional) The gas limit for executing the contract\n"
-         );
+            RPCHelpMan{"callcontract",
+                "\nCall contract methods offline.\n",
+                {
+                    {"address", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
+                    {"data", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The data hex string"},
+                    {"senderAddress", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "The sender address string"},
+                    {"gasLimit", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "The gas limit for executing the contract."},
+                },
+                RPCResult{
+            "{\n"
+            "  \"address\": \"contract address\",             (string)  address of the contract\n"
+            "  \"executionResult\": {                       (object)  method execution result\n"
+            "    \"gasUsed\": n,                            (numeric) gas used\n"
+            "    \"excepted\": \"exception\",                 (string)  thrown exception\n"
+            "    \"newAddress\": \"contract address\",        (string)  new address of the contract\n"
+            "    \"output\": \"data\",                        (string)  returned data from the method\n"
+            "    \"codeDeposit\": n,                        (numeric) code deposit\n"
+            "    \"gasRefunded\": n,                        (numeric) gas refunded\n"
+            "    \"depositSize\": n,                        (numeric) deposit size\n"
+            "    \"gasForDeposit\": n                       (numeric) gas for deposit\n"
+            "  },\n"
+            "  \"transactionReceipt\": {                    (object)  transaction receipt\n"
+            "    \"stateRoot\": \"hash\",                     (string)  state root hash\n"
+            "    \"gasUsed\": n,                            (numeric) gas used\n"
+            "    \"bloom\": \"bloom\",                        (string)  bloom\n"
+            "    \"log\": [                                 (array)  logs from the receipt\n"
+            "      {\n"
+            "        \"address\": \"address\",                (string)  contract address\n"
+            "        \"topics\":                            (array)  topics\n"
+            "        [\n"
+            "          \"topic\",                           (string)  topic\n"
+            "        ],\n"
+            "        \"data\": \"data\"                       (string)  logged data\n"
+            "      }\n"
+            "    ]\n"
+            "  }\n"
+            "}\n"
+                },
+                RPCExamples{
+                    HelpExampleCli("callcontract", "eb23c0b3e6042821da281a2e2364feb22dd543e3 06fdde03")
+            + HelpExampleRpc("callcontract", "eb23c0b3e6042821da281a2e2364feb22dd543e3 06fdde03")
+                },
+            }.ToString());
  
     LOCK(cs_main);
     
@@ -1408,17 +1465,18 @@ UniValue waitforlogs(const JSONRPCRequest& request_) {
 
     if (request.fHelp) {
         throw std::runtime_error(
-                "waitforlogs (fromBlock) (toBlock) (filter) (minconf)\n"
+            RPCHelpMan{"waitforlogs",
                 "requires -logevents to be enabled\n"
                 "\nWaits for a new logs and return matching log entries. When the call returns, it also specifies the next block number to start waiting for new logs.\n"
                 "By calling waitforlogs repeatedly using the returned `nextBlock` number, a client can receive a stream of up-to-date log entires.\n"
-                "\nThis call is different from the similarly named `waitforlogs`. This call returns individual matching log entries, `searchlogs` returns a transaction receipt if one of the log entries of that transaction matches the filter conditions.\n"
-                "\nArguments:\n"
-                "1. fromBlock (int | \"latest\", optional, default=null) The block number to start looking for logs. ()\n"
-                "2. toBlock   (int | \"latest\", optional, default=null) The block number to stop looking for logs. If null, will wait indefinitely into the future.\n"
-                "3. filter    ({ addresses?: Hex160String[], topics?: Hex256String[] }, optional default={}) Filter conditions for logs. Addresses and topics are specified as array of hexadecimal strings\n"
-                "4. minconf   (uint, optional, default=6) Minimal number of confirmations before a log is returned\n"
-                "\nResult:\n"
+                "\nThis call is different from the similarly named `waitforlogs`. This call returns individual matching log entries, `searchlogs` returns a transaction receipt if one of the log entries of that transaction matches the filter conditions.\n",
+                {
+                    {"fromBlock", RPCArg::Type::NUM, /* default */ "null", "The block number to start looking for logs."},
+                    {"toBlock", RPCArg::Type::NUM, /* default */ "null", "The block number to stop looking for logs. If null, will wait indefinitely into the future."},
+                    {"filter", RPCArg::Type::STR, /* default */ "{}", "\"{ addresses?: Hex160String[], topics?: Hex256String[] }\", Filter conditions for logs."},
+                    {"minconf", RPCArg::Type::NUM, /* default */ "6", "Minimal number of confirmations before a log is returned"},
+                },
+                RPCResult{
                 "An object with the following properties:\n"
                 "1. logs (LogEntry[]) Array of matchiing log entries. This may be empty if `filter` removed all entries."
                 "2. count (int) How many log entries are returned."
@@ -1431,7 +1489,15 @@ UniValue waitforlogs(const JSONRPCRequest& request_) {
                 "`waitforlogs null null` { \"addresses\": [ \"ff0011...\" ], \"topics\": [ \"c0fefe\"] }` waits for logs in the future matching the specified conditions\n"
                 "\nSample Output:\n"
                 "{\n  \"entries\": [\n    {\n      \"blockHash\": \"56d5f1f5ec239ef9c822d9ed600fe9aa63727071770ac7c0eabfc903bf7316d4\",\n      \"blockNumber\": 3286,\n      \"transactionHash\": \"00aa0f041ce333bc3a855b2cba03c41427cda04f0334d7f6cb0acad62f338ddc\",\n      \"transactionIndex\": 2,\n      \"from\": \"3f6866e2b59121ada1ddfc8edc84a92d9655675f\",\n      \"to\": \"8e1ee0b38b719abe8fa984c986eabb5bb5071b6b\",\n      \"cumulativeGasUsed\": 23709,\n      \"gasUsed\": 23709,\n      \"contractAddress\": \"8e1ee0b38b719abe8fa984c986eabb5bb5071b6b\",\n      \"topics\": [\n        \"f0e1159fa6dc12bb31e0098b7a1270c2bd50e760522991c6f0119160028d9916\",\n        \"0000000000000000000000000000000000000000000000000000000000000002\"\n      ],\n      \"data\": \"00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003\"\n    }\n  ],\n\n  \"count\": 7,\n  \"nextblock\": 801\n}\n"
-                );
+                },
+                RPCExamples{
+                    HelpExampleCli("waitforlogs", "") + HelpExampleCli("waitforlogs", "600") + HelpExampleCli("waitforlogs", "600 700") + HelpExampleCli("waitforlogs", "null null")
+                    + HelpExampleCli("waitforlogs", "null null '{ \"addresses\": [ \"12ae42729af478ca92c8c66773a3e32115717be4\" ], \"topics\": [ \"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"] }'")
+            + HelpExampleRpc("waitforlogs", "") + HelpExampleRpc("waitforlogs", "600") + HelpExampleRpc("waitforlogs", "600 700") + HelpExampleRpc("waitforlogs", "null null")
+            + HelpExampleRpc("waitforlogs", "null null '{ \"addresses\": [ \"12ae42729af478ca92c8c66773a3e32115717be4\" ], \"topics\": [ \"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"] }'")
+
+                },
+            }.ToString());
     }
 
     if (!fLogEvents)
@@ -1604,18 +1670,46 @@ UniValue searchlogs(const JSONRPCRequest& request)
 {
     if (request.fHelp || request.params.size() < 2)
         throw std::runtime_error(
-             "searchlogs <fromBlock> <toBlock> (address) (topics)\n"
-             "requires -logevents to be enabled"
-             "\nArgument:\n"
-             "1. \"fromBlock\"        (numeric, required) The number of the earliest block (latest may be given to mean the most recent block).\n"
-             "2. \"toBlock\"          (string, required) The number of the latest block (-1 may be given to mean the most recent block).\n"
-             "3. \"address\"          (string, optional) An address or a list of addresses to only get logs from particular account(s).\n"
-             "4. \"topics\"           (string, optional) An array of values from which at least one must appear in the log entries. The order is important, if you want to leave topics out use null, e.g. [\"null\", \"0x00...\"]. \n"
-             "5. \"minconf\"          (uint, optional, default=0) Minimal number of confirmations before a log is returned\n"
-             "\nExamples:\n"
-            + HelpExampleCli("searchlogs", "0 100 '{\"addresses\": [\"12ae42729af478ca92c8c66773a3e32115717be4\"]}' '{\"topics\": [\"null\",\"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"]}'")
-            + HelpExampleRpc("searchlogs", "0 100 {\"addresses\": [\"12ae42729af478ca92c8c66773a3e32115717be4\"]} {\"topics\": [\"null\",\"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"]}")
-         );
+            RPCHelpMan{"searchlogs",
+                "\nSearch logs, requires -logevents to be enabled.\n",
+                {
+                    {"fromBlock", RPCArg::Type::NUM, RPCArg::Optional::NO, "The number of the earliest block (latest may be given to mean the most recent block)."},
+                    {"toBlock", RPCArg::Type::NUM, RPCArg::Optional::NO, "The number of the latest block (-1 may be given to mean the most recent block)."},
+                    {"address", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "An address or a list of addresses to only get logs from particular account(s)."},
+                    {"topics", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "An array of values from which at least one must appear in the log entries. The order is important, if you want to leave topics out use null, e.g. [\"null\", \"0x00...\"]."},
+                    {"minconf", RPCArg::Type::NUM, /* default */ "0", "Minimal number of confirmations before a log is returned"},
+                },
+                RPCResult{
+            "[\n"
+            "  {\n"
+            "    \"blockHash\": \"hash\",             (string)  block hash\n"
+            "    \"blockNumber\": n,                (numeric)  block number\n"
+            "    \"transactionHash\": \"hash\",       (string)  transaction hash\n"
+            "    \"transactionIndex\": n,           (numeric)  transaction index\n"
+            "    \"from\": \"address\",               (string)  from address\n"
+            "    \"to\": \"address\",                 (string)  to address\n"
+            "    \"cumulativeGasUsed\": n,          (numeric)  cumulative gas used\n"
+            "    \"gasUsed\": n,                    (numeric)  gas used\n"
+            "    \"contractAddress\": \"address\",    (string)  contract address\n"
+            "    \"excepted\": \"exception\",         (string)  thrown exception\n"
+            "    \"log\": [                         (array)  logs from the receipt\n"
+            "      {\n"
+            "        \"address\": \"address\",        (string)  contract address\n"
+            "        \"topics\":                    (array)  topics\n"
+            "        [\n"
+            "          \"topics\",                  (string)  topic\n"
+            "        ],\n"
+            "        \"data\": \"data\"               (string)  logged data\n"
+            "      }\n"
+            "    ]\n"
+            "  }\n"
+            "]\n"
+                },
+                RPCExamples{
+                    HelpExampleCli("searchlogs", "0 100 '{\"addresses\": [\"12ae42729af478ca92c8c66773a3e32115717be4\"]}' '{\"topics\": [\"null\",\"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"]}'")
+            + HelpExampleRpc("searchlogs", "0 100 '{\"addresses\": [\"12ae42729af478ca92c8c66773a3e32115717be4\"]} {\"topics\": [\"null\",\"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"]}'")
+                },
+            }.ToString());
 
     if(!fLogEvents)
         throw JSONRPCError(RPC_INTERNAL_ERROR, "Events indexing disabled");
@@ -1698,11 +1792,42 @@ UniValue gettransactionreceipt(const JSONRPCRequest& request)
 {
     if (request.fHelp || request.params.size() < 1)
         throw std::runtime_error(
-             "gettransactionreceipt \"hash\"\n"
-             "requires -logevents to be enabled"
-             "\nArgument:\n"
-             "1. \"hash\"          (string, required) The transaction hash\n"
-         );
+            RPCHelpMan{"gettransactionreceipt",
+                "\nGet the transaction receipt.\n",
+                {
+                    {"hash", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The transaction hash"},
+                },
+                RPCResult{
+            "[\n"
+            "  {\n"
+            "    \"blockHash\": \"hash\",             (string)  block hash\n"
+            "    \"blockNumber\": n,                (numeric)  block number\n"
+            "    \"transactionHash\": \"hash\",       (string)  transaction hash\n"
+            "    \"transactionIndex\": n,           (numeric)  transaction index\n"
+            "    \"from\": \"address\",               (string)  from address\n"
+            "    \"to\": \"address\",                 (string)  to address\n"
+            "    \"cumulativeGasUsed\": n,          (numeric)  cumulative gas used\n"
+            "    \"gasUsed\": n,                    (numeric)  gas used\n"
+            "    \"contractAddress\": \"address\",    (string)  contract address\n"
+            "    \"excepted\": \"exception\",         (string)  thrown exception\n"
+            "    \"log\": [                         (array)  logs from the receipt\n"
+            "      {\n"
+            "        \"address\": \"address\",        (string)  contract address\n"
+            "        \"topics\":                    (array)  topics\n"
+            "        [\n"
+            "          \"topic\",                   (string)  topic\n"
+            "        ],\n"
+            "        \"data\": \"data\"               (string)  logged data\n"
+            "      }\n"
+            "    ]\n"
+            "  }\n"
+            "]\n"
+                },
+                RPCExamples{
+                    HelpExampleCli("gettransactionreceipt", "3b04bc73afbbcf02cfef2ca1127b60fb0baf5f8946a42df67f1659671a2ec53c")
+            + HelpExampleRpc("gettransactionreceipt", "3b04bc73afbbcf02cfef2ca1127b60fb0baf5f8946a42df67f1659671a2ec53c")
+                },
+            }.ToString());
  
     if(!fLogEvents)
         throw JSONRPCError(RPC_INTERNAL_ERROR, "Events indexing disabled");
@@ -1731,12 +1856,24 @@ UniValue gettransactionreceipt(const JSONRPCRequest& request)
 UniValue listcontracts(const JSONRPCRequest& request)
 {
 	if (request.fHelp)
-		throw std::runtime_error(
-				"listcontracts (start maxDisplay)\n"
-				"\nArgument:\n"
-				"1. start     (numeric or string, optional) The starting account index, default 1\n"
-				"2. maxDisplay       (numeric or string, optional) Max accounts to list, default 20\n"
-		);
+        throw std::runtime_error(
+            RPCHelpMan{"listcontracts",
+                "\nGet the contracts list.\n",
+                {
+                    {"start", RPCArg::Type::NUM, /* default */ "1", "The starting account index"},
+                    {"maxDisplay", RPCArg::Type::NUM, /* default */ "20", "Max accounts to list"},
+                },
+                RPCResult{
+            "{\n"
+            "  \"account\": n,                            (numeric) balance for the account\n"
+            "  ...\n"
+            "}\n"
+                },
+                RPCExamples{
+                    HelpExampleCli("listcontracts", "")
+            + HelpExampleRpc("listcontracts", "")
+                },
+            }.ToString());
 
 	LOCK(cs_main);
 
