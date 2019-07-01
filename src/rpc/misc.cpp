@@ -83,18 +83,21 @@ UniValue getdgpinfo(const JSONRPCRequest& request)
 {
     if (request.fHelp || request.params.size() != 0)
         throw std::runtime_error(
-            "getdgpinfo\n"
-            "\nReturns an object containing DGP state info.\n"
-            "\nResult:\n"
+            RPCHelpMan{"getdgpinfo",
+                "\nReturns an object containing DGP state info.\n",
+                {},
+                RPCResult{
             "{\n"
-            "  \"maxblocksize\": xxxxx,           (numeric) current maximum block size\n"
-            "  \"mingasprice\": xxxxx,   (numeric) current minimum gas price\n"
-            "  \"blockgaslimit\": xxxxx,     (numeric) current block gas limit\n"
+            "  \"maxblocksize\" : xxxxx,       (numeric) Current maximum block size\n"
+            "  \"mingasprice\" : xxxxx,        (numeric) Current minimum gas price\n"
+            "  \"blockgaslimit\" : xxxxx,      (numeric) Current block gas limit\n"
             "}\n"
-            "\nExamples:\n"
-            + HelpExampleCli("getdgpinfo", "")
+                },
+                RPCExamples{
+                    HelpExampleCli("getdgpinfo", "")
             + HelpExampleRpc("getdgpinfo", "")
-        );
+                },
+            }.ToString());
 
 
     LOCK(cs_main);
@@ -174,35 +177,34 @@ bool getAddressFromIndex(const int &type, const uint256 &hash, std::string &addr
 
 UniValue getaddressdeltas(const JSONRPCRequest& request)
 {
-    if (request.fHelp || request.params.size() != 1 || !request.params[0].isObject())
-        throw std::runtime_error(
-            "getaddressdeltas\n"
-            "\nReturns all changes for an address (requires addressindex to be enabled).\n"
-            "\nArguments:\n"
-            "{\n"
-            "  \"addresses\"\n"
-            "    [\n"
-            "      \"address\"  (string) The qtum address\n"
-            "      ,...\n"
-            "    ]\n"
-            "  \"start\" (number) The start block height\n"
-            "  \"end\" (number) The end block height\n"
-            "  \"chainInfo\" (boolean) Include chain info in results, only applies if start and end specified\n"
-            "}\n"
-            "\nResult:\n"
-            "[\n"
-            "  {\n"
-            "    \"satoshis\"  (number) The difference of satoshis\n"
-            "    \"txid\"  (string) The related txid\n"
-            "    \"index\"  (number) The related input or output index\n"
-            "    \"height\"  (number) The block height\n"
-            "    \"address\"  (string) The qtum address\n"
-            "  }\n"
-            "]\n"
-            "\nExamples:\n"
-            + HelpExampleCli("getaddressdeltas", "'{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}'")
-            + HelpExampleRpc("getaddressdeltas", "{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}")
-        );
+    throw std::runtime_error(
+        RPCHelpMan{"getaddressdeltas",
+            "\nReturns all changes for an address (requires addressindex to be enabled).\n",
+            {
+                {"addresses", RPCArg::Type::ARR, RPCArg::Optional::NO, "The qtum addresses",
+                    {
+                        {"address", RPCArg::Type::STR, RPCArg::Optional::OMITTED, "The qtum address"},
+                    }},
+                {"start", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "The start block height"},
+                {"end", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "The end block height"},
+                {"chainInfo", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED_NAMED_ARG, "Include chain info in results, only applies if start and end specified"},
+            },
+            RPCResult{
+        "[\n"
+        "  {\n"
+        "    \"satoshis\"  (number) The difference of satoshis\n"
+        "    \"txid\"  (string) The related txid\n"
+        "    \"index\"  (number) The related input or output index\n"
+        "    \"height\"  (number) The block height\n"
+        "    \"address\"  (string) The qtum address\n"
+        "  }\n"
+        "]\n"
+            },
+            RPCExamples{
+                HelpExampleCli("getaddressdeltas", "'{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}'")
+        + HelpExampleRpc("getaddressdeltas", "{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}")
+            },
+        }.ToString());
 
 
     UniValue startValue = find_value(request.params[0].get_obj(), "start");
@@ -301,25 +303,25 @@ UniValue getaddressbalance(const JSONRPCRequest& request)
 {
     if (request.fHelp || request.params.size() != 1)
         throw std::runtime_error(
-            "getaddressbalance\n"
-            "\nReturns the balance for an address(es) (requires addressindex to be enabled).\n"
-            "\nArguments:\n"
-            "{\n"
-            "  \"addresses\"\n"
-            "    [\n"
-            "      \"address\"  (string) The qtum address\n"
-            "      ,...\n"
-            "    ]\n"
-            "}\n"
-            "\nResult:\n"
+            RPCHelpMan{"getaddressbalance",
+                "\nReturns the balance for an address(es) (requires addressindex to be enabled).\n",
+                {
+                    {"addresses", RPCArg::Type::ARR, RPCArg::Optional::NO, "The qtum addresses",
+                        {
+                            {"address", RPCArg::Type::STR, RPCArg::Optional::OMITTED, "The qtum address"},
+                        }},
+                },
+                RPCResult{
             "{\n"
             "  \"balance\"  (string) The current balance in satoshis\n"
             "  \"received\"  (string) The total number of satoshis received (including change)\n"
             "}\n"
-            "\nExamples:\n"
-            + HelpExampleCli("getaddressbalance", "'{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}'")
+                },
+                RPCExamples{
+                    HelpExampleCli("getaddressbalance", "'{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}'")
             + HelpExampleRpc("getaddressbalance", "{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}")
-        );
+                },
+            }.ToString());
 
     std::vector<std::pair<uint256, int> > addresses;
 
@@ -360,18 +362,16 @@ UniValue getaddressutxos(const JSONRPCRequest& request)
 {
     if (request.fHelp || request.params.size() != 1)
         throw std::runtime_error(
-            "getaddressutxos\n"
-            "\nReturns all unspent outputs for an address (requires addressindex to be enabled).\n"
-            "\nArguments:\n"
-            "{\n"
-            "  \"addresses\"\n"
-            "    [\n"
-            "      \"address\"  (string) The qtum address\n"
-            "      ,...\n"
-            "    ],\n"
-            "  \"chainInfo\"  (boolean) Include chain info with results\n"
-            "}\n"
-            "\nResult\n"
+            RPCHelpMan{"getaddressutxos",
+                "\nReturns all unspent outputs for an address (requires addressindex to be enabled).\n",
+                {
+                    {"addresses", RPCArg::Type::ARR, RPCArg::Optional::NO, "The qtum addresses",
+                        {
+                            {"address", RPCArg::Type::STR, RPCArg::Optional::OMITTED, "The qtum address"},
+                        }},
+                    {"chainInfo", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED_NAMED_ARG, "Include chain info with results"},
+                },
+                RPCResult{
             "[\n"
             "  {\n"
             "    \"address\"  (string) The address base58check encoded\n"
@@ -382,10 +382,12 @@ UniValue getaddressutxos(const JSONRPCRequest& request)
             "    \"satoshis\"  (number) The number of satoshis of the output\n"
             "  }\n"
             "]\n"
-            "\nExamples:\n"
-            + HelpExampleCli("getaddressutxos", "'{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}'")
+                },
+                RPCExamples{
+                    HelpExampleCli("getaddressutxos", "'{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}'")
             + HelpExampleRpc("getaddressutxos", "{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}")
-            );
+                },
+            }.ToString());
 
     bool includeChainInfo = false;
     if (request.params[0].isObject()) {
@@ -447,32 +449,31 @@ UniValue getaddressmempool(const JSONRPCRequest& request)
 {
     if (request.fHelp || request.params.size() != 1)
         throw std::runtime_error(
-            "getaddressmempool\n"
-            "\nReturns all mempool deltas for an address (requires addressindex to be enabled).\n"
-            "\nArguments:\n"
-            "{\n"
-            "  \"addresses\"\n"
-            "    [\n"
-            "      \"address\"  (string) The qtum address\n"
-            "      ,...\n"
-            "    ]\n"
-            "}\n"
-            "\nResult:\n"
+            RPCHelpMan{"getaddressmempool",
+                "\nReturns all mempool deltas for an address (requires addressindex to be enabled).\n",
+                {
+                    {"addresses", RPCArg::Type::ARR, RPCArg::Optional::NO, "The qtum addresses",
+                        {
+                            {"address", RPCArg::Type::STR, RPCArg::Optional::OMITTED, "The qtum address"},
+                        }},
+                },
+                RPCResult{
             "[\n"
             "  {\n"
-            "    \"address\"  (string) The qtum address\n"
-            "    \"txid\"  (string) The related txid\n"
-            "    \"index\"  (number) The related input or output index\n"
-            "    \"satoshis\"  (number) The difference of satoshis\n"
-            "    \"timestamp\"  (number) The time the transaction entered the mempool (seconds)\n"
-            "    \"prevtxid\"  (string) The previous txid (if spending)\n"
-            "    \"prevout\"  (string) The previous transaction output index (if spending)\n"
+            "    \"address\"  (string) The address base58check encoded\n"
+            "    \"txid\"  (string) The output txid\n"
+            "    \"height\"  (number) The block height\n"
+            "    \"outputIndex\"  (number) The output index\n"
+            "    \"script\"  (strin) The script hex encoded\n"
+            "    \"satoshis\"  (number) The number of satoshis of the output\n"
             "  }\n"
             "]\n"
-            "\nExamples:\n"
-            + HelpExampleCli("getaddressmempool", "'{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}'")
+                },
+                RPCExamples{
+                    HelpExampleCli("getaddressmempool", "'{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}'")
             + HelpExampleRpc("getaddressmempool", "{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}")
-        );
+                },
+            }.ToString());
 
     std::vector<std::pair<uint256, int> > addresses;
 
@@ -518,17 +519,19 @@ UniValue getblockhashes(const JSONRPCRequest& request)
 {
     if (request.fHelp || request.params.size() < 2)
         throw std::runtime_error(
-            "getblockhashes timestamp\n"
-            "\nReturns array of hashes of blocks within the timestamp range provided.\n"
-            "\nArguments:\n"
-            "1. high         (numeric, required) The newer block timestamp\n"
-            "2. low          (numeric, required) The older block timestamp\n"
-            "3. options      (string, required) A json object\n"
-            "    {\n"
-            "      \"noOrphans\":true   (boolean) will only include blocks on the main chain\n"
-            "      \"logicalTimes\":true   (boolean) will include logical timestamps with hashes\n"
-            "    }\n"
-            "\nResult:\n"
+            RPCHelpMan{"getblockhashes",
+                "\nReturns array of hashes of blocks within the timestamp range provided.\n",
+                {
+                    {"high", RPCArg::Type::NUM, RPCArg::Optional::NO, "The newer block timestamp"},
+                    {"low", RPCArg::Type::NUM, RPCArg::Optional::NO, "The older block timestamp"},
+                    {"options", RPCArg::Type::OBJ, RPCArg::Optional::OMITTED, "An object with options",
+                        {
+                            {"noOrphans", RPCArg::Type::BOOL, /* default */ "false", "Will only include blocks on the main chain"},
+                            {"logicalTimes", RPCArg::Type::BOOL, /* default */ "false", "Will include logical timestamps with hashes"},
+                        },
+                    },
+                },
+                RPCResult{
             "[\n"
             "  \"hash\"         (string) The block hash\n"
             "]\n"
@@ -538,11 +541,13 @@ UniValue getblockhashes(const JSONRPCRequest& request)
             "    \"logicalts\": (numeric) The logical timestamp\n"
             "  }\n"
             "]\n"
-            "\nExamples:\n"
-            + HelpExampleCli("getblockhashes", "1231614698 1231024505")
+                },
+                RPCExamples{
+                    HelpExampleCli("getblockhashes", "1231614698 1231024505")
+                    + HelpExampleCli("getblockhashes", "1231614698 1231024505 '{\"noOrphans\":false, \"logicalTimes\":true}'")
             + HelpExampleRpc("getblockhashes", "1231614698, 1231024505")
-            + HelpExampleCli("getblockhashes", "1231614698 1231024505 '{\"noOrphans\":false, \"logicalTimes\":true}'")
-            );
+                },
+            }.ToString());
 
     unsigned int high = request.params[0].get_int();
     unsigned int low = request.params[1].get_int();
@@ -591,23 +596,28 @@ UniValue getspentinfo(const JSONRPCRequest& request)
 {
     if (request.fHelp || request.params.size() != 1 || !request.params[0].isObject())
         throw std::runtime_error(
-            "getspentinfo\n"
-            "\nReturns the txid and index where an output is spent.\n"
-            "\nArguments:\n"
-            "{\n"
-            "  \"txid\" (string) The hex string of the txid\n"
-            "  \"index\" (number) The start block height\n"
-            "}\n"
-            "\nResult:\n"
+            RPCHelpMan{"getspentinfo",
+                "\nReturns the txid and index where an output is spent.\n",
+                {
+                    {"data", RPCArg::Type::OBJ, RPCArg::Optional::NO, "Transaction data",
+                        {
+                            {"txid", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The hex string of the txid"},
+                            {"index", RPCArg::Type::NUM, RPCArg::Optional::NO, "The start block height"},
+                        },
+                    },
+                },
+                RPCResult{
             "{\n"
             "  \"txid\"  (string) The transaction id\n"
             "  \"index\"  (number) The spending input index\n"
             "  ,...\n"
             "}\n"
-            "\nExamples:\n"
-            + HelpExampleCli("getspentinfo", "'{\"txid\": \"0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9\", \"index\": 0}'")
+                },
+                RPCExamples{
+                    HelpExampleCli("getspentinfo", "'{\"txid\": \"0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9\", \"index\": 0}'")
             + HelpExampleRpc("getspentinfo", "{\"txid\": \"0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9\", \"index\": 0}")
-        );
+                },
+            }.ToString());
 
     UniValue txidValue = find_value(request.params[0].get_obj(), "txid");
     UniValue indexValue = find_value(request.params[0].get_obj(), "index");
@@ -638,27 +648,27 @@ UniValue getaddresstxids(const JSONRPCRequest& request)
 {
     if (request.fHelp || request.params.size() != 1)
         throw std::runtime_error(
-            "getaddresstxids\n"
-            "\nReturns the txids for an address(es) (requires addressindex to be enabled).\n"
-            "\nArguments:\n"
-            "{\n"
-            "  \"addresses\"\n"
-            "    [\n"
-            "      \"address\"  (string) The qtum address\n"
-            "      ,...\n"
-            "    ]\n"
-            "  \"start\" (number) The start block height\n"
-            "  \"end\" (number) The end block height\n"
-            "}\n"
-            "\nResult:\n"
+            RPCHelpMan{"getaddresstxids",
+                "\nReturns the txids for an address(es) (requires addressindex to be enabled).\n",
+                {
+                    {"addresses", RPCArg::Type::ARR, RPCArg::Optional::NO, "The qtum addresses",
+                        {
+                            {"address", RPCArg::Type::STR, RPCArg::Optional::OMITTED, "The qtum address"},
+                        }},
+                    {"start", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "The start block height"},
+                    {"end", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "The end block height"},
+                },
+                RPCResult{
             "[\n"
             "  \"transactionid\"  (string) The transaction id\n"
             "  ,...\n"
             "]\n"
-            "\nExamples:\n"
-            + HelpExampleCli("getaddresstxids", "'{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}'")
+                },
+                RPCExamples{
+                    HelpExampleCli("getaddresstxids", "'{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}'")
             + HelpExampleRpc("getaddresstxids", "{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}")
-        );
+                },
+            }.ToString());
 
     std::vector<std::pair<uint256, int> > addresses;
 
