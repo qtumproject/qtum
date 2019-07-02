@@ -459,13 +459,14 @@ UniValue getaddressmempool(const JSONRPCRequest& request)
                 },
                 RPCResult{
             "[\n"
-            "  {\n"
-            "    \"address\"  (string) The address base58check encoded\n"
-            "    \"txid\"  (string) The output txid\n"
-            "    \"height\"  (number) The block height\n"
-            "    \"outputIndex\"  (number) The output index\n"
-            "    \"script\"  (strin) The script hex encoded\n"
-            "    \"satoshis\"  (number) The number of satoshis of the output\n"
+            "  {\n" 
+            "    \"address\"  (string) The qtum address\n"
+            "    \"txid\"  (string) The related txid\n"
+            "    \"index\"  (number) The related input or output index\n"
+            "    \"satoshis\"  (number) The difference of satoshis\n"
+            "    \"timestamp\"  (number) The time the transaction entered the mempool (seconds)\n"
+            "    \"prevtxid\"  (string) The previous txid (if spending)\n"
+            "    \"prevout\"  (string) The previous transaction output index (if spending)\n"
             "  }\n"
             "]\n"
                 },
