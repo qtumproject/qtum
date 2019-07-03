@@ -244,6 +244,7 @@ UniValue executionResultToJSON(const dev::eth::ExecutionResult& exRes)
     result.pushKV("gasRefunded", CAmount(exRes.gasRefunded));
     result.pushKV("depositSize", static_cast<int32_t>(exRes.depositSize));
     result.pushKV("gasForDeposit", CAmount(exRes.gasForDeposit));
+    result.pushKV("exceptedMessage", exceptedMessage(exRes.excepted, exRes.output));
     return result;
 }
 
@@ -1150,6 +1151,7 @@ void assignJSON(UniValue& entry, const TransactionReceiptInfo& resExec) {
     std::stringstream ss;
     ss << resExec.excepted;
     entry.pushKV("excepted",ss.str());
+    entry.pushKV("exceptedMessage", resExec.exceptedMessage);
 }
 
 void assignJSON(UniValue& logEntry, const dev::eth::LogEntry& log,

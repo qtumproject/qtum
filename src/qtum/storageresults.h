@@ -19,6 +19,7 @@ struct TransactionReceiptInfo{
     dev::Address contractAddress;
     dev::eth::LogEntries logs;
     dev::eth::TransactionException excepted;
+    std::string exceptedMessage;
 };
 
 struct TransactionReceiptInfoSerialized{
@@ -33,6 +34,7 @@ struct TransactionReceiptInfoSerialized{
     std::vector<dev::h160> contractAddresses;
     std::vector<logEntriesSerializ> logs;
     std::vector<uint32_t> excepted;
+    std::vector<std::string> exceptedMessage;
 };
 
 class StorageResults{
