@@ -303,7 +303,6 @@ libbitcoin_wallet_a_SOURCES = \
   wallet/walletdb.cpp \
   wallet/walletutil.cpp \
   wallet/coinselection.cpp \
-  pos.cpp \
   $(BITCOIN_CORE_H)
 
 # crypto primitives library

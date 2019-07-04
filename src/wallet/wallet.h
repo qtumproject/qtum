@@ -216,12 +216,6 @@ struct COutputEntry
     int vout;
 };
 
-unsigned int GetStakeSplitOutputs();
-
-int64_t GetStakeSplitThreshold();
-
-bool GetMPoSOutputScripts(std::vector<CScript> &mposScroptList, int nHeight, const Consensus::Params& consensusParams);
-
 /** A transaction with a merkle branch linking it to the block chain. */
 class CMerkleTx
 {
