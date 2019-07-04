@@ -146,6 +146,13 @@ static void AssembleBlock(benchmark::State& state)
     thread_group.join_all();
     GetMainSignals().FlushBackgroundCallbacks();
     GetMainSignals().UnregisterBackgroundSignalScheduler();
+
+    ::pblocktree.reset();
+    ::pcoinsdbview.reset();
+    ::pcoinsTip.reset();
+    ::pstorageresult.reset();
+    ::globalState.reset();
+    ::globalSealEngine.reset();
 }
 
 BENCHMARK(AssembleBlock, 700);
