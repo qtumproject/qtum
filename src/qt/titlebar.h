@@ -1,6 +1,10 @@
 #ifndef TITLEBAR_H
 #define TITLEBAR_H
 
+#if defined(HAVE_CONFIG_H)
+#include <config/bitcoin-config.h>
+#endif
+
 #include <QWidget>
 #include <QSize>
 #include <QTabBar>
