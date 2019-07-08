@@ -177,17 +177,23 @@ bool getAddressFromIndex(const int &type, const uint256 &hash, std::string &addr
 
 UniValue getaddressdeltas(const JSONRPCRequest& request)
 {
+    if (request.fHelp || request.params.size() != 1 || !request.params[0].isObject())
     throw std::runtime_error(
         RPCHelpMan{"getaddressdeltas",
             "\nReturns all changes for an address (requires addressindex to be enabled).\n",
             {
-                {"addresses", RPCArg::Type::ARR, RPCArg::Optional::NO, "The qtum addresses",
+                {"Input params", RPCArg::Type::OBJ, RPCArg::Optional::NO, "Json object",
                     {
-                        {"address", RPCArg::Type::STR, RPCArg::Optional::OMITTED, "The qtum address"},
-                    }},
-                {"start", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "The start block height"},
-                {"end", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "The end block height"},
-                {"chainInfo", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED_NAMED_ARG, "Include chain info in results, only applies if start and end specified"},
+                        {"addresses", RPCArg::Type::ARR, RPCArg::Optional::NO, "The qtum addresses",
+                            {
+                                {"address", RPCArg::Type::STR, RPCArg::Optional::OMITTED, "The qtum address"},
+                            }
+                        },
+                        {"start", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "The start block height"},
+                        {"end", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "The end block height"},
+                        {"chainInfo", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED_NAMED_ARG, "Include chain info in results, only applies if start and end specified"},
+                    }
+                }
             },
             RPCResult{
         "[\n"
@@ -202,7 +208,9 @@ UniValue getaddressdeltas(const JSONRPCRequest& request)
             },
             RPCExamples{
                 HelpExampleCli("getaddressdeltas", "'{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}'")
-        + HelpExampleRpc("getaddressdeltas", "{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}")
+        + HelpExampleRpc("getaddressdeltas", "{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}") +
+                HelpExampleCli("getaddressdeltas", "'{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"], \"start\": 5000, \"end\": 5500, \"chainInfo\": true}'")
+        + HelpExampleRpc("getaddressdeltas", "{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"], \"start\": 5000, \"end\": 5500, \"chainInfo\": true}")
             },
         }.ToString());
 
@@ -365,11 +373,16 @@ UniValue getaddressutxos(const JSONRPCRequest& request)
             RPCHelpMan{"getaddressutxos",
                 "\nReturns all unspent outputs for an address (requires addressindex to be enabled).\n",
                 {
-                    {"addresses", RPCArg::Type::ARR, RPCArg::Optional::NO, "The qtum addresses",
+                    {"Input params", RPCArg::Type::OBJ, RPCArg::Optional::NO, "Json object",
                         {
-                            {"address", RPCArg::Type::STR, RPCArg::Optional::OMITTED, "The qtum address"},
-                        }},
-                    {"chainInfo", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED_NAMED_ARG, "Include chain info with results"},
+                            {"addresses", RPCArg::Type::ARR, RPCArg::Optional::NO, "The qtum addresses",
+                                {
+                                    {"address", RPCArg::Type::STR, RPCArg::Optional::OMITTED, "The qtum address"},
+                                }
+                            },
+                            {"chainInfo", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED_NAMED_ARG, "Include chain info with results"},
+                        }
+                    }
                 },
                 RPCResult{
             "[\n"
@@ -385,7 +398,9 @@ UniValue getaddressutxos(const JSONRPCRequest& request)
                 },
                 RPCExamples{
                     HelpExampleCli("getaddressutxos", "'{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}'")
-            + HelpExampleRpc("getaddressutxos", "{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}")
+            + HelpExampleRpc("getaddressutxos", "{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}") +
+                    HelpExampleCli("getaddressutxos", "'{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"], \"chainInfo\": true}'")
+            + HelpExampleRpc("getaddressutxos", "{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"], \"chainInfo\": true}")
                 },
             }.ToString());
 
@@ -652,12 +667,17 @@ UniValue getaddresstxids(const JSONRPCRequest& request)
             RPCHelpMan{"getaddresstxids",
                 "\nReturns the txids for an address(es) (requires addressindex to be enabled).\n",
                 {
-                    {"addresses", RPCArg::Type::ARR, RPCArg::Optional::NO, "The qtum addresses",
+                    {"Input params", RPCArg::Type::OBJ, RPCArg::Optional::NO, "Json object",
                         {
-                            {"address", RPCArg::Type::STR, RPCArg::Optional::OMITTED, "The qtum address"},
-                        }},
-                    {"start", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "The start block height"},
-                    {"end", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "The end block height"},
+                            {"addresses", RPCArg::Type::ARR, RPCArg::Optional::NO, "The qtum addresses",
+                                {
+                                    {"address", RPCArg::Type::STR, RPCArg::Optional::OMITTED, "The qtum address"},
+                                }
+                            },
+                            {"start", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "The start block height"},
+                            {"end", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "The end block height"},
+                        }
+                    }
                 },
                 RPCResult{
             "[\n"
@@ -667,7 +687,9 @@ UniValue getaddresstxids(const JSONRPCRequest& request)
                 },
                 RPCExamples{
                     HelpExampleCli("getaddresstxids", "'{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}'")
-            + HelpExampleRpc("getaddresstxids", "{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}")
+            + HelpExampleRpc("getaddresstxids", "{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}") +
+                    HelpExampleCli("getaddresstxids", "'{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"], \"start\": 5000, \"end\": 5500}'")
+            + HelpExampleRpc("getaddresstxids", "{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"], \"start\": 5000, \"end\": 5500}")
                 },
             }.ToString());
 
