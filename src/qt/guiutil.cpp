@@ -408,7 +408,7 @@ bool openBitcoinConf()
     /* Open qtum.conf with the associated application */
     bool res = QDesktopServices::openUrl(QUrl::fromLocalFile(boostPathToQString(pathConfig)));
 #ifdef Q_OS_MAC
-    // Workaround for macOS-specific behavior; see #689.
+    // Workaround for macOS-specific behavior; see #15409.
     if (!res) {
         res = QProcess::startDetached("/usr/bin/open", QStringList{"-t", boostPathToQString(pathConfig)});
     }
