@@ -19,6 +19,9 @@ struct CCheckpointData;
 namespace Checkpoints
 {
 
+//! Checks that the block hash at height nHeight matches the expected hardened checkpoint
+bool CheckHardened(int nHeight, const uint256& hash, const CCheckpointData& data);
+
 //! Returns last CBlockIndex* that is a checkpoint
 CBlockIndex* GetLastCheckpoint(const CCheckpointData& data);
 

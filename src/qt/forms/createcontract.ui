@@ -74,13 +74,6 @@
            </property>
           </widget>
          </item>
-         <item>
-          <widget class="QLabel" name="labelToken">
-           <property name="text">
-            <string>Token</string>
-           </property>
-          </widget>
-         </item>
         </layout>
        </item>
        <item>

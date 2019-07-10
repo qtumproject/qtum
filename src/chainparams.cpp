@@ -190,6 +190,7 @@ public:
                                     COINBASE_MATURITY;
 
         consensus.nFixUTXOCacheHFHeight=100000;
+        consensus.nEnableHeaderSignatureHeight = 399100;
     }
 };
 
@@ -295,6 +296,7 @@ public:
                                     COINBASE_MATURITY;
 
         consensus.nFixUTXOCacheHFHeight=84500;
+        consensus.nEnableHeaderSignatureHeight = 391993;
     }
 };
 
@@ -372,6 +374,7 @@ public:
         consensus.nFirstMPoSBlock = 5000;
 
         consensus.nFixUTXOCacheHFHeight=0;
+        consensus.nEnableHeaderSignatureHeight = 0;
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,120);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,110);

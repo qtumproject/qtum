@@ -391,3 +391,13 @@ bool CScript::ReplaceParam(opcodetype findOp, int posBefore, const std::vector<u
 
     return ret;
 }
+
+#ifdef ENABLE_BITCORE_RPC
+bool CScript::IsPayToWitnessPubkeyHash() const
+{
+    // Extra-fast test for pay-to-witness-pubkey-hash CScripts:
+    return (this->size() == 22 &&
+            (*this)[0] == OP_0 &&
+            (*this)[1] == 0x14);
+}
+#endif

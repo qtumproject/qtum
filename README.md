@@ -26,8 +26,8 @@ Basic usage resources:
 * [Unofficial Qtum staking tutorial on Raspberry Pi](https://steemit.com/qtum/@cryptominder/qtum-staking-tutorial-using-qtumd-on-a-raspberry-pi-3)
 * [Unofficial Qtum staking tutorial on AWS EC2](https://github.com/aaronmboyd/qtum-staking-on-aws-ec2)
 * [Unofficial guide for keeping your wallet safe](https://steemit.com/qtum/@cryptominder/encrypting-backing-up-and-restoring-your-qtum-wallet)
-* [Block explorer](https://explorer.qtum.org)
-* [Unofficial block explorer](https://qtumexplorer.io/)
+* [Block explorer](https://qtum.info/)
+* [Alternative block explorer](https://explorer.qtum.org/)
 
 Development resources:
 

@@ -386,7 +386,7 @@ def create_unsigned_pos_block(node, staking_prevouts, nTime=None):
 
     # create a new private key used for block signing.
     block_sig_key = CECKey()
-    block_sig_key.set_secretbytes(hash256(struct.pack('<I', random.randint(0, 0xff))))
+    block_sig_key.set_secretbytes(hash256(struct.pack('<I', 0)))
     pubkey = block_sig_key.get_pubkey()
     scriptPubKey = CScript([pubkey, OP_CHECKSIG])
     stake_tx_unsigned = CTransaction()
@@ -442,7 +442,7 @@ def create_unsigned_mpos_block(node, staking_prevouts, nTime=None, block_fees=0)
 def activate_mpos(node, use_cache=True):
     if not node.getblockcount():
         node.setmocktime(int(time.time()) - 1000000)
-    node.generate(4490-node.getblockcount())
+    node.generatetoaddress(4490-node.getblockcount(), "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
     staking_prevouts = collect_prevouts(node)
 
     for i in range(510):
