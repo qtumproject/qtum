@@ -5,7 +5,8 @@
 #include <qt/clientmodel.h>
 #include <qt/optionsmodel.h>
 #include <validation.h>
-#include <utilmoneystr.h>
+#include <util/moneystr.h>
+#include <util/convert.h>
 #include <qt/token.h>
 #include <qt/bitcoinunits.h>
 #include <wallet/wallet.h>
@@ -58,9 +59,9 @@ SendTokenPage::SendTokenPage(QWidget *parent) :
     ui->confirmButton->setEnabled(false);
 
     // Connect signals with slots
-    connect(ui->lineEditPayTo, SIGNAL(textChanged(QString)), SLOT(on_updateConfirmButton()));
-    connect(ui->lineEditAmount, SIGNAL(valueChanged()), SLOT(on_updateConfirmButton()));
-    connect(ui->confirmButton, SIGNAL(clicked()), SLOT(on_confirmClicked()));
+    connect(ui->lineEditPayTo, &QValidatedLineEdit::textChanged, this, &SendTokenPage::on_updateConfirmButton);
+    connect(ui->lineEditAmount, &TokenAmountField::valueChanged,this, &SendTokenPage::on_updateConfirmButton);
+    connect(ui->confirmButton, &QPushButton::clicked, this, &SendTokenPage::on_confirmClicked);
 
     ui->lineEditPayTo->setCheckValidator(new BitcoinAddressCheckValidator(parent, true));
 }
@@ -78,6 +79,12 @@ void SendTokenPage::setModel(WalletModel *_model)
 {
     m_model = _model;
     m_tokenABI->setModel(m_model);
+
+    if (m_model && m_model->getOptionsModel())
+        connect(m_model->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &SendTokenPage::updateDisplayUnit);
+
+    // update the display unit, to not use the default ("QTUM")
+    updateDisplayUnit();
 }
 
 void SendTokenPage::setClientModel(ClientModel *_clientModel)
@@ -131,7 +138,7 @@ void SendTokenPage::on_gasInfoChanged(quint64 blockGasLimit, quint64 minGasPrice
     Q_UNUSED(nGasPrice);
     ui->labelGasLimit->setToolTip(tr("Gas limit. Default = %1, Max = %2").arg(DEFAULT_GAS_LIMIT_OP_CREATE).arg(blockGasLimit));
     ui->labelGasPrice->setToolTip(tr("Gas price: QTUM price per gas unit. Default = %1, Min = %2").arg(QString::fromStdString(FormatMoney(DEFAULT_GAS_PRICE))).arg(QString::fromStdString(FormatMoney(minGasPrice))));
-    ui->lineEditGasPrice->setMinimum(minGasPrice);
+    ui->lineEditGasPrice->SetMinValue(minGasPrice);
     ui->lineEditGasLimit->setMaximum(blockGasLimit);
 }
 
@@ -159,7 +166,7 @@ void SendTokenPage::on_confirmClicked()
 
     if(m_model)
     {
-        int unit = m_model->getOptionsModel()->getDisplayUnit();
+        int unit = BitcoinUnits::BTC;
         uint64_t gasLimit = ui->lineEditGasLimit->value();
         CAmount gasPrice = ui->lineEditGasPrice->value();
         std::string label = ui->lineEditDescription->text().trimmed().toStdString();
@@ -202,6 +209,15 @@ void SendTokenPage::on_confirmClicked()
             }
             clearAll();
         }
+    }
+}
+
+void SendTokenPage::updateDisplayUnit()
+{
+    if(m_model && m_model->getOptionsModel())
+    {
+        // Update gasPriceAmount with the current unit
+        ui->lineEditGasPrice->setDisplayUnit(m_model->getOptionsModel()->getDisplayUnit());
     }
 }
 

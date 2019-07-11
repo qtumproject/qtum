@@ -10,11 +10,9 @@ This test takes 30 mins or more (up to 2 hours)
 """
 
 from test_framework.test_framework import BitcoinTestFramework
-from test_framework.util import assert_equal, assert_greater_than, assert_raises_rpc_error, connect_nodes, mine_large_block, sync_blocks, wait_until
+from test_framework.util import assert_equal, assert_raises_rpc_error, connect_nodes, mine_large_block, sync_blocks, wait_until
 
 import os
-
-MIN_BLOCKS_TO_KEEP = 288
 
 # Rescans start at the earliest block up to 2 hours before a key timestamp, so
 # the manual prune RPC avoids pruning blocks in the same window to be
@@ -29,7 +27,7 @@ class PruneTest(BitcoinTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 6
-        self.rpc_timewait = 900
+        self.rpc_timeout = 900
 
         # Create nodes 0 and 1 to mine.
         # Create node 2 to test pruning.
@@ -63,6 +61,8 @@ class PruneTest(BitcoinTestFramework):
     def setup_nodes(self):
         self.add_nodes(self.num_nodes, self.extra_args)
         self.start_nodes()
+        for n in self.nodes:
+            n.importprivkey(privkey=n.get_deterministic_priv_key().key, label='coinbase', rescan=False)
 
     def create_big_chain(self):
         # Start by creating some coinbases we can spend later
@@ -189,6 +189,8 @@ class PruneTest(BitcoinTestFramework):
     def reorg_back(self):
         # Verify that a block on the old main chain fork has been pruned away
         assert_raises_rpc_error(-1, "Block not available (pruned data)", self.nodes[2].getblock, self.forkhash)
+        with self.nodes[2].assert_debug_log(expected_msgs=['block verification stopping at height', '(pruning, no data)']):
+            self.nodes[2].verifychain(checklevel=4, nblocks=0)
         self.log.info("Will need to redownload block %d" % self.forkheight)
 
         # Verify that we have enough history to reorg back to the fork point
@@ -246,20 +248,9 @@ class PruneTest(BitcoinTestFramework):
             else:
                 return index
 
-        def prune(index, expected_ret=None):
-            ret = node.pruneblockchain(height(index))
-            # Check the return value. When use_timestamp is True, just check
-            # that the return value is less than or equal to the expected
-            # value, because when more than one block is generated per second,
-            # a timestamp will not be granular enough to uniquely identify an
-            # individual block.
-            if expected_ret is None:
-                expected_ret = index
-            if use_timestamp:
-                assert_greater_than(ret, 0)
-                assert_greater_than(expected_ret + 1, ret)
-            else:
-                assert_equal(ret, expected_ret)
+        def prune(index):
+            ret = node.pruneblockchain(height=height(index))
+            assert_equal(ret, node.getblockchaininfo()['pruneheight'])
 
         def has_block(index):
             return os.path.isfile(os.path.join(self.nodes[node_number].datadir, "regtest", "blocks", "blk{:05}.dat".format(index)))
@@ -304,7 +295,7 @@ class PruneTest(BitcoinTestFramework):
             raise AssertionError("blk00001.dat is still there, should be pruned by now")
 
         # height=1000 should not prune anything more, because tip-288 is in blk00002.dat.
-        prune(1000, 1001 - MIN_BLOCKS_TO_KEEP)
+        prune(1000)
         if not has_block(2):
             raise AssertionError("blk00002.dat is still there, should be pruned by now")
 
@@ -316,7 +307,7 @@ class PruneTest(BitcoinTestFramework):
         if has_block(3):
             raise AssertionError("blk00003.dat is still there, should be pruned by now")
 
-        # stop node, start back up with auto-prune at 550MB, make sure still runs
+        # stop node, start back up with auto-prune at 550 MiB, make sure still runs
         self.stop_node(node_number)
         self.start_node(node_number, extra_args=["-prune=550"])
 

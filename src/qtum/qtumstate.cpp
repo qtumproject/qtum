@@ -1,5 +1,5 @@
 #include <sstream>
-#include <util.h>
+#include <util/system.h>
 #include <validation.h>
 #include <chainparams.h>
 #include <qtum/qtumstate.h>

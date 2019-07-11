@@ -9,6 +9,7 @@
 #include <qt/optionsmodel.h>
 
 #include <qt/bitcoinunits.h>
+#include <qt/guiconstants.h>
 #include <qt/guiutil.h>
 
 #include <interfaces/node.h>
@@ -26,7 +27,7 @@
 #include <QNetworkProxy>
 #include <QSettings>
 #include <QStringList>
-#include <utilmoneystr.h>
+#include <util/moneystr.h>
 const char *DEFAULT_GUI_PROXY_HOST = "127.0.0.1";
 
 static const QString GetDefaultProxyAddress();
@@ -97,10 +98,10 @@ void OptionsModel::Init(bool resetSettings)
         settings.setValue("bPrune", false);
     if (!settings.contains("nPruneSize"))
         settings.setValue("nPruneSize", 2);
-    // Convert prune size to MB:
-    const uint64_t nPruneSizeMB = settings.value("nPruneSize").toInt() * 1000;
-    if (!m_node.softSetArg("-prune", settings.value("bPrune").toBool() ? std::to_string(nPruneSizeMB) : "0")) {
-      addOverriddenOption("-prune");
+    // Convert prune size from GB to MiB:
+    const uint64_t nPruneSizeMiB = (settings.value("nPruneSize").toInt() * GB_BYTES) >> 20;
+    if (!m_node.softSetArg("-prune", settings.value("bPrune").toBool() ? std::to_string(nPruneSizeMiB) : "0")) {
+        addOverriddenOption("-prune");
     }
 
     if (!settings.contains("nDatabaseCache"))

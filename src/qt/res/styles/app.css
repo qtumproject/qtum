@@ -816,7 +816,7 @@ QScrollArea {
     background: transparent;
     border:none;
 }
-QWidget#scrollAreaWidgetContents{
+QWidget#scrollAreaWidgetContents, QWidget#detailWidget {
     background: #2e2e2e;
 }
 .ABIFunctionField{

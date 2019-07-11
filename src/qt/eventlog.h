@@ -5,7 +5,7 @@
 #include <QMap>
 #include <QVariant>
 #include <interfaces/node.h>
-#include <interfaces/wallet.h>
+#include <qt/walletmodel.h>
 
 class ExecRPCCommand;
 
@@ -33,7 +33,7 @@ public:
      * @param result Result of the performed call
      * @return success of the operation
      */
-    bool searchTokenTx(interfaces::Node& node, interfaces::Wallet& wallet, int64_t fromBlock, int64_t toBlock, std::string strContractAddress, std::string strSenderAddress, QVariant& result);
+    bool searchTokenTx(interfaces::Node& node, const WalletModel* wallet_model, int64_t fromBlock, int64_t toBlock, std::string strContractAddress, std::string strSenderAddress, QVariant& result);
 
     /**
      * @brief search Search for log events
@@ -46,7 +46,7 @@ public:
      * @param result Result of the performed call
      * @return success of the operation
      */
-    bool search(interfaces::Node& node, interfaces::Wallet& wallet, int64_t fromBlock, int64_t toBlock, const std::vector<std::string> addresses, const std::vector<std::string> topics, QVariant& result);
+    bool search(interfaces::Node& node,  const WalletModel* wallet_model, int64_t fromBlock, int64_t toBlock, const std::vector<std::string> addresses, const std::vector<std::string> topics, QVariant& result);
 
 private:
     // Set command data

@@ -4,8 +4,11 @@
 
 #include <rpc/server.h>
 #include <rpc/client.h>
+#include <rpc/util.h>
 
 #include <core_io.h>
+#include <init.h>
+#include <interfaces/chain.h>
 #include <key_io.h>
 #include <netbase.h>
 
@@ -112,10 +115,14 @@ BOOST_AUTO_TEST_CASE(rpc_rawsign)
     std::string notsigned = r.get_str();
     std::string privkey1 = "\"KzsXybp9jX64P5ekX1KUxRQ79Jht9uzW7LorgwE65i5rWACL6LQe\"";
     std::string privkey2 = "\"Kyhdf5LuKTRx4ge69ybABsiUAWjVRK4XGxAKk2FQLp2HjGMy87Z4\"";
+    InitInterfaces interfaces;
+    interfaces.chain = interfaces::MakeChain();
+    g_rpc_interfaces = &interfaces;
     r = CallRPC(std::string("signrawtransactionwithkey ")+notsigned+" [] "+prevout);
     BOOST_CHECK(find_value(r.get_obj(), "complete").get_bool() == false);
     r = CallRPC(std::string("signrawtransactionwithkey ")+notsigned+" ["+privkey1+","+privkey2+"] "+prevout);
     BOOST_CHECK(find_value(r.get_obj(), "complete").get_bool() == true);
+    g_rpc_interfaces = nullptr;
 }
 
 BOOST_AUTO_TEST_CASE(rpc_createraw_op_return)
@@ -144,7 +151,6 @@ BOOST_AUTO_TEST_CASE(rpc_format_monetary_values)
     BOOST_CHECK(ValueFromAmount(10782240624999990LL).write() == "107822406.24999990");
     BOOST_CHECK(ValueFromAmount(10782240624999999LL).write() == "107822406.24999999");
     BOOST_CHECK(ValueFromAmount(10782240625000000LL).write() == "107822406.25000000");
-
     BOOST_CHECK_EQUAL(ValueFromAmount(0).write(), "0.00000000");
     BOOST_CHECK_EQUAL(ValueFromAmount((COIN/10000)*123456789).write(), "12345.67890000");
     BOOST_CHECK_EQUAL(ValueFromAmount(-COIN).write(), "-1.00000000");

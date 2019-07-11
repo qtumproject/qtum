@@ -7,15 +7,17 @@
 #include <coins.h>
 #include <consensus/merkle.h>
 #include <consensus/validation.h>
+#include <crypto/sha256.h>
 #include <miner.h>
 #include <policy/policy.h>
 #include <pow.h>
 #include <scheduler.h>
 #include <txdb.h>
 #include <txmempool.h>
-#include <utiltime.h>
+#include <util/time.h>
 #include <validation.h>
 #include <validationinterface.h>
+#include <util/convert.h>
 
 #include <boost/thread.hpp>
 
@@ -26,7 +28,7 @@ static std::shared_ptr<CBlock> PrepareBlock(const CScript& coinbase_scriptPubKey
 {
     auto block = std::make_shared<CBlock>(
         BlockAssembler{Params()}
-            .CreateNewBlock(coinbase_scriptPubKey, /* fMineWitnessTx */ true)
+            .CreateNewBlock(coinbase_scriptPubKey)
             ->block);
 
     block->nTime = ::chainActive.Tip()->GetMedianTimePast() + 1;
@@ -41,7 +43,8 @@ static CTxIn MineBlock(const CScript& coinbase_scriptPubKey)
     auto block = PrepareBlock(coinbase_scriptPubKey);
 
     while (!CheckProofOfWork(block->GetHash(), block->nBits, Params().GetConsensus())) {
-        assert(++block->nNonce);
+        ++block->nNonce;
+        assert(block->nNonce);
     }
 
     bool processed{ProcessNewBlock(Params(), block, true, nullptr)};
@@ -70,13 +73,41 @@ static void AssembleBlock(benchmark::State& state)
 
     boost::thread_group thread_group;
     CScheduler scheduler;
+    const CChainParams& chainparams = Params();
     {
+        LOCK(cs_main);
         ::pblocktree.reset(new CBlockTreeDB(1 << 20, true));
         ::pcoinsdbview.reset(new CCoinsViewDB(1 << 23, true));
         ::pcoinsTip.reset(new CCoinsViewCache(pcoinsdbview.get()));
+        ::pstorageresult.reset();
+        ::globalState.reset();
+        ::globalSealEngine.reset();
 
-        const CChainParams& chainparams = Params();
-        thread_group.create_thread(boost::bind(&CScheduler::serviceQueue, &scheduler));
+        ::fRequireStandard=false;
+        fs::path qtumStateDir = GetDataDir() / "stateQtum";
+        bool fStatus = fs::exists(qtumStateDir);
+        const std::string dirQtum(qtumStateDir.string());
+        const dev::h256 hashDB(dev::sha3(dev::rlp("")));
+        dev::eth::BaseState existsQtumstate = fStatus ? dev::eth::BaseState::PreExisting : dev::eth::BaseState::Empty;
+        ::globalState = std::unique_ptr<QtumState>(new QtumState(dev::u256(0), QtumState::openDB(dirQtum, hashDB, dev::WithExisting::Trust), dirQtum, existsQtumstate));
+        dev::eth::ChainParams cp((chainparams.EVMGenesisInfo(dev::eth::Network::qtumMainNetwork)));
+        ::globalSealEngine = std::unique_ptr<dev::eth::SealEngineFace>(cp.createSealEngine());
+
+        ::pstorageresult.reset(new StorageResults(qtumStateDir.string()));
+
+        if(chainActive.Tip() != nullptr){
+            ::globalState->setRoot(uintToh256(chainActive.Tip()->hashStateRoot));
+            ::globalState->setRootUTXO(uintToh256(chainActive.Tip()->hashUTXORoot));
+        } else {
+            ::globalState->setRoot(dev::sha3(dev::rlp("")));
+            ::globalState->setRootUTXO(uintToh256(chainparams.GenesisBlock().hashUTXORoot));
+            ::globalState->populateFrom(cp.genesisState);
+        }
+        ::globalState->db().commit();
+        ::globalState->dbUtxo().commit();
+    }
+    {
+        thread_group.create_thread(std::bind(&CScheduler::serviceQueue, &scheduler));
         GetMainSignals().RegisterBackgroundSignalScheduler(scheduler);
         LoadGenesisBlock(chainparams);
         CValidationState state;
@@ -115,6 +146,13 @@ static void AssembleBlock(benchmark::State& state)
     thread_group.join_all();
     GetMainSignals().FlushBackgroundCallbacks();
     GetMainSignals().UnregisterBackgroundSignalScheduler();
+
+    ::pblocktree.reset();
+    ::pcoinsdbview.reset();
+    ::pcoinsTip.reset();
+    ::pstorageresult.reset();
+    ::globalState.reset();
+    ::globalSealEngine.reset();
 }
 
 BENCHMARK(AssembleBlock, 700);

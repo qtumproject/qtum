@@ -5,6 +5,7 @@
 #include <crypto/sha256.h>
 #include <crypto/ripemd160.h>
 #include <uint256.h>
+#include <util/convert.h>
 #include <primitives/transaction.h>
 #include <qtum/qtumtransaction.h>
 

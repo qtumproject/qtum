@@ -5,7 +5,7 @@ Upstream-Contact: Satoshi Nakamoto <satoshin@gmx.com>
 Source: https://github.com/bitcoin/bitcoin
 
 Files: *
-Copyright: 2009-2018, Bitcoin Core Developers
+Copyright: 2009-2019, Bitcoin Core Developers
 License: Expat
 Comment: The Bitcoin Core Developers encompasses the current developers listed on bitcoin.org,
          as well as the numerous contributors to the project.
@@ -96,7 +96,7 @@ Comment: Site: https://bitcointalk.org/?topic=1756.0
 Files: src/qt/res/icons/proxy.png
        src/qt/res/src/proxy.svg
 Copyright: Cristian Mircea Messel
-Licese: public-domain
+License: public-domain
 
 
 License: Expat

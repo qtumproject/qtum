@@ -13,7 +13,7 @@ is testing and *how* it's being tested
 # libraries then local imports).
 from collections import defaultdict
 
-# Avoid wildcard * imports if possible
+# Avoid wildcard * imports
 from test_framework.blocktools import (create_block, create_coinbase)
 from test_framework.messages import CInv
 from test_framework.mininode import (
@@ -77,7 +77,7 @@ class ExampleTest(BitcoinTestFramework):
     def set_test_params(self):
         """Override test parameters for your individual test.
 
-        This method must be overridden and num_nodes must be exlicitly set."""
+        This method must be overridden and num_nodes must be explicitly set."""
         self.setup_clean_chain = True
         self.num_nodes = 3
         # Use self.extra_args to change command-line arguments for the nodes
@@ -85,6 +85,8 @@ class ExampleTest(BitcoinTestFramework):
 
         # self.log.info("I've finished set_test_params")  # Oops! Can't run self.log before run_test()
 
+    # Use skip_test_if_missing_module() to skip the test if your test requires certain modules to be present.
+    # This test uses generate which requires wallet to be compiled
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
 
@@ -162,7 +164,7 @@ class ExampleTest(BitcoinTestFramework):
         self.tip = int(self.nodes[0].getbestblockhash(), 16)
         self.block_time = self.nodes[0].getblock(self.nodes[0].getbestblockhash())['time'] + 1
 
-        height = 1
+        height = self.nodes[0].getblockcount()
 
         for i in range(10):
             # Use the mininode and blocktools functionality to manually build a block
