@@ -1006,6 +1006,8 @@ void EnforceContractVoutLimit(ByteCodeExecResult& bcer, ByteCodeExecResult& bcer
 
 void writeVMlog(const std::vector<ResultExecute>& res, const CTransaction& tx = CTransaction(), const CBlock& block = CBlock());
 
+std::string exceptedMessage(const dev::eth::TransactionException& excepted, const dev::bytes& output);
+
 struct EthTransactionParams{
     VersionVM version;
     dev::u256 gasLimit;
