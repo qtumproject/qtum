@@ -76,7 +76,24 @@ public:
 
     dev::OverlayDB const& dbUtxo() const { return dbUTXO; }
 
-	dev::OverlayDB& dbUtxo() { return dbUTXO; }
+    dev::OverlayDB& dbUtxo() { return dbUTXO; }
+
+    static const dev::Address createQtumAddress(dev::h256 hashTx, uint32_t voutNumber){
+        uint256 hashTXid(h256Touint(hashTx));
+        std::vector<unsigned char> txIdAndVout(hashTXid.begin(), hashTXid.end());
+        std::vector<unsigned char> voutNumberChrs;
+        if (voutNumberChrs.size() < sizeof(voutNumber))voutNumberChrs.resize(sizeof(voutNumber));
+        std::memcpy(voutNumberChrs.data(), &voutNumber, sizeof(voutNumber));
+        txIdAndVout.insert(txIdAndVout.end(),voutNumberChrs.begin(),voutNumberChrs.end());
+
+        std::vector<unsigned char> SHA256TxVout(32);
+        CSHA256().Write(txIdAndVout.data(), txIdAndVout.size()).Finalize(SHA256TxVout.data());
+
+        std::vector<unsigned char> hashTxIdAndVout(20);
+        CRIPEMD160().Write(SHA256TxVout.data(), SHA256TxVout.size()).Finalize(hashTxIdAndVout.data());
+
+        return dev::Address(hashTxIdAndVout);
+    }
 
     virtual ~QtumState(){}
 
@@ -95,8 +112,6 @@ private:
     void kill(dev::Address _addr);
 
     void addBalance(dev::Address const& _id, dev::u256 const& _amount);
-
-    dev::Address createQtumAddress(dev::h256 hashTx, uint32_t voutNumber);
 
     void deleteAccounts(std::set<dev::Address>& addrs);
 

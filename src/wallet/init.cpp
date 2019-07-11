@@ -84,7 +84,7 @@ void WalletInit::AddWalletOptions() const
     gArgs.AddArg("-stakecache=<true/false>", "Enables or disables the staking cache; significantly improves staking performance, but can use a lot of memory (enabled by default)", false, OptionsCategory::WALLET);
     gArgs.AddArg("-rpcmaxgasprice", strprintf("The max value (in satoshis) for gas price allowed through RPC (default: %u)", MAX_RPC_GAS_PRICE), false, OptionsCategory::WALLET);
     gArgs.AddArg("-reservebalance", strprintf("Reserved balance not used for staking (default: %u)", DEFAULT_RESERVE_BALANCE), false, OptionsCategory::WALLET);
-    gArgs.AddArg("-notusechangeaddress", strprintf("Don't use change address (default: %u)", DEFAULT_NOT_USE_CHANGE_ADDRESS), false, OptionsCategory::WALLET);
+    gArgs.AddArg("-usechangeaddress", strprintf("Use change address (default: %u)", DEFAULT_USE_CHANGE_ADDRESS), false, OptionsCategory::WALLET);
 
 
     gArgs.AddArg("-dblogsize=<n>", strprintf("Flush wallet database activity from memory to disk log every <n> megabytes (default: %u)", DEFAULT_WALLET_DBLOGSIZE), true, OptionsCategory::WALLET_DEBUG_TEST);

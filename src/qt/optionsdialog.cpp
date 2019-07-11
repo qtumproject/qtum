@@ -181,7 +181,7 @@ void OptionsDialog::setModel(OptionsModel *_model)
     connect(ui->reserveBalance, SIGNAL(valueChanged()), this, SLOT(showRestartWarning()));
     /* Wallet */
     connect(ui->spendZeroConfChange, SIGNAL(clicked(bool)), this, SLOT(showRestartWarning()));
-    connect(ui->notUseChangeAddress, SIGNAL(clicked(bool)), this, SLOT(showRestartWarning()));
+    connect(ui->useChangeAddress, SIGNAL(clicked(bool)), this, SLOT(showRestartWarning()));
     /* Network */
     connect(ui->allowIncoming, SIGNAL(clicked(bool)), this, SLOT(showRestartWarning()));
     connect(ui->connectSocks, SIGNAL(clicked(bool)), this, SLOT(showRestartWarning()));
@@ -206,7 +206,7 @@ void OptionsDialog::setMapper()
     mapper->addMapping(ui->spendZeroConfChange, OptionsModel::SpendZeroConfChange);
     mapper->addMapping(ui->coinControlFeatures, OptionsModel::CoinControlFeatures);
     mapper->addMapping(ui->zeroBalanceAddressToken, OptionsModel::ZeroBalanceAddressToken);
-    mapper->addMapping(ui->notUseChangeAddress, OptionsModel::NotUseChangeAddress);
+    mapper->addMapping(ui->useChangeAddress, OptionsModel::UseChangeAddress);
     mapper->addMapping(ui->checkForUpdates, OptionsModel::CheckForUpdates);
 
     /* Network */

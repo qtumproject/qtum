@@ -67,7 +67,7 @@ static const unsigned int DEFAULT_TX_CONFIRM_TARGET = 6;
 static const bool DEFAULT_WALLET_RBF = false;
 static const bool DEFAULT_WALLETBROADCAST = true;
 static const bool DEFAULT_DISABLE_WALLET = false;
-static const bool DEFAULT_NOT_USE_CHANGE_ADDRESS = false;
+static const bool DEFAULT_USE_CHANGE_ADDRESS = true;
 static const CAmount DEFAULT_RESERVE_BALANCE = 0;
 
 //! Pre-calculated constants for input size estimation in *virtual size*
@@ -1058,7 +1058,7 @@ public:
     // serves to disable the trivial sendmoney when OS account compromised
     // provides no real security
     std::atomic<bool> m_wallet_unlock_staking_only{false};
-    bool m_not_use_change_address{DEFAULT_NOT_USE_CHANGE_ADDRESS};
+    bool m_use_change_address{DEFAULT_USE_CHANGE_ADDRESS};
     CAmount m_reserve_balance{DEFAULT_RESERVE_BALANCE};
     int64_t m_last_coin_stake_search_time{0};
     int64_t m_last_coin_stake_search_interval{0};

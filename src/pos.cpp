@@ -137,6 +137,86 @@ bool CheckCoinStakeTimestamp(uint32_t nTimeBlock)
     return (nTimeBlock & STAKE_TIMESTAMP_MASK) == 0;
 }
 
+bool CheckBlockInputPubKeyMatchesOutputPubKey(const CBlock& block, CCoinsViewCache& view) {
+    Coin coinIn;
+    if(!view.GetCoin(block.prevoutStake, coinIn)) {
+        return error("%s: Could not fetch prevoutStake from UTXO set", __func__);
+    }
+
+    CTransactionRef coinstakeTx = block.vtx[1];
+    if(coinstakeTx->vout.size() < 2) {
+        return error("%s: coinstake transaction does not have the minimum number of outputs", __func__);
+    }
+
+    const CTxOut& txout = coinstakeTx->vout[1];
+
+    if(coinIn.out.scriptPubKey == txout.scriptPubKey) {
+        return true;
+    }
+
+    // If the input does not exactly match the output, it MUST be on P2PKH spent and P2PK out.
+    CTxDestination inputAddress;
+    txnouttype inputTxType=TX_NONSTANDARD;
+    if(!ExtractDestination(coinIn.out.scriptPubKey, inputAddress, &inputTxType)) {
+        return error("%s: Could not extract address from input", __func__);
+    }
+
+    if(inputTxType != TX_PUBKEYHASH || inputAddress.type() != typeid(CKeyID)) {
+        return error("%s: non-exact match input must be P2PKH", __func__);
+    }
+
+    CTxDestination outputAddress;
+    txnouttype outputTxType=TX_NONSTANDARD;
+    if(!ExtractDestination(txout.scriptPubKey, outputAddress, &outputTxType)) {
+        return error("%s: Could not extract address from output", __func__);
+    }
+
+    if(outputTxType != TX_PUBKEY || outputAddress.type() != typeid(CKeyID)) {
+        return error("%s: non-exact match output must be P2PK", __func__);
+    }
+
+    if(boost::get<CKeyID>(inputAddress) != boost::get<CKeyID>(outputAddress)) {
+        return error("%s: input P2PKH pubkey does not match output P2PK pubkey", __func__);
+    }
+
+    return true;
+}
+
+bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBlockHeader& block, CCoinsViewCache& view) {
+    Coin coinPrev;
+    if(!view.GetCoin(block.prevoutStake, coinPrev)){
+        if(!GetSpentCoinFromMainChain(pindexPrev, block.prevoutStake, &coinPrev)) {
+            return error("CheckRecoveredPubKeyFromBlockSignature(): Could not find %s and it was not at the tip", block.prevoutStake.hash.GetHex());
+        }
+    }
+
+    uint256 hash = block.GetHashWithoutSign();
+    CPubKey pubkey;
+
+    if(block.vchBlockSig.empty()) {
+        return error("CheckRecoveredPubKeyFromBlockSignature(): Signature is empty\n");
+    }
+
+    for(uint8_t recid = 0; recid <= 3; ++recid) {
+        for(uint8_t compressed = 0; compressed < 2; ++compressed) {
+            if(!pubkey.RecoverLaxDER(hash, block.vchBlockSig, recid, compressed)) {
+                continue;
+            }
+
+            CTxDestination address;
+            txnouttype txType=TX_NONSTANDARD;
+            if(ExtractDestination(coinPrev.out.scriptPubKey, address, &txType)){
+                if ((txType == TX_PUBKEY || txType == TX_PUBKEYHASH) && address.type() == typeid(CKeyID)) {
+                    if(pubkey.GetID() == boost::get<CKeyID>(address)) {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+
+    return false;
+}
 
 bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint& prevout, CCoinsViewCache& view)
 {
@@ -152,15 +232,9 @@ bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBloc
         //not found in cache (shouldn't happen during staking, only during verification which does not use cache)
         Coin coinPrev;
         if(!view.GetCoin(prevout, coinPrev)){
-            if(pindexPrev->GetBlockHash() != chainActive.Tip()->pprev->GetBlockHash()) {
-                return error("CheckKernel(): Could not find coin and did not fork at tip");
-            }
-
-            if(!GetSpentCoinFromTip(prevout, &coinPrev)) {
+            if(!GetSpentCoinFromMainChain(pindexPrev, prevout, &coinPrev)) {
                 return error("CheckKernel(): Could not find coin and it was not at the tip");
             }
-
-            LogPrintf("CheckKernel(): Uses spent stake from tip\n");
         }
 
         if(pindexPrev->nHeight + 1 - coinPrev.nHeight < COINBASE_MATURITY){
