@@ -26,6 +26,9 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
         self.setup_clean_chain = True
         self.num_nodes = 2
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
+
     def _remove_from_staking_prevouts(self, remove_prevout):
         for j in range(len(self.staking_prevouts)):
             prevout = self.staking_prevouts[j]

@@ -16,6 +16,9 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
         self.num_nodes = 1
         self.extra_args = [['-staking=1', '-rpcmaxgasprice=10000000']]
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
+
     def restart_node(self):
         self.stop_nodes()
         self.start_nodes()

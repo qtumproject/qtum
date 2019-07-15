@@ -17,6 +17,9 @@ class OpCreateTest(BitcoinTestFramework):
         self.num_nodes = 2
         self.extra_args = [['-txindex=1']]*2
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
+
     # Creates a simple contract via a raw tx
     def basic_contract_is_created_raw_tx_test(self):
         for i in range(2):

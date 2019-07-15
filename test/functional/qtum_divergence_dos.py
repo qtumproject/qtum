@@ -13,6 +13,9 @@ class QtumDivergenceDosTest(BitcoinTestFramework):
         self.num_nodes = 1
         self.extra_args = [[]]
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
+
     def submit_block_with_txs(self, txs):
         tip = self.node.getblock(self.node.getbestblockhash())
         block = create_block(int(tip['hash'], 16), create_coinbase(tip['height']+1), tip['time']+1)
