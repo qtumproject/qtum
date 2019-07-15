@@ -14,6 +14,9 @@ class QtumDuplicateStakeTest(BitcoinTestFramework):
         self.setup_clean_chain = True
         self.num_nodes = 2
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
+
     def start_p2p_connection(self):
         self.p2p_node = self.node.add_p2p_connection(P2PInterface())
         self.p2p_alt_node = self.nodes[1].add_p2p_connection(P2PInterface())

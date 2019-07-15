@@ -17,6 +17,9 @@ class QtumGasLimit(BitcoinTestFramework):
         self.num_nodes = 1
         self.extra_args = [["-staking=1"]]
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
+
     def run_test(self):
         self.node = self.nodes[0]
         self.node.generate(100+COINBASE_MATURITY)

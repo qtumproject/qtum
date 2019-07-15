@@ -76,8 +76,8 @@ public:
     bool addWallet(WalletModel *walletModel);
     bool removeWallet(WalletModel* walletModel);
     void removeAllWallets();
-    void setTabBarInfo(QObject* into);
 #endif // ENABLE_WALLET
+    void setTabBarInfo(QObject* into);
     bool enableWallet = false;
 
 protected:
@@ -297,8 +297,10 @@ private Q_SLOTS:
     void showNormalIfMinimized(bool fToggleHidden = false);
     /** Simply calls showNormalIfMinimized(true) for use in SLOT() macro */
     void toggleHidden();
+#ifdef ENABLE_WALLET
     /** Update staking icon **/
     void updateStakingIcon();
+#endif // ENABLE_WALLET
 
     /** called by a timer to check if ShutdownRequested() has been set **/
     void detectShutdown();

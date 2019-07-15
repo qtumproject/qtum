@@ -25,6 +25,9 @@ class QtumSoftMinerGasRelatedLimitsTest(BitcoinTestFramework):
             ["-staker-min-tx-gas-price=0.0001", '-rpcmaxgasprice=10000000']
         ]
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
+
     # Make sure that the hard block gas limit never differs in the evm.
     def verify_hard_block_gas_limit_test(self):
         """

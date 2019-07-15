@@ -15,7 +15,9 @@ using namespace TitleBar_NS;
 TitleBar::TitleBar(const PlatformStyle *platformStyle, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::TitleBar),
+#ifdef ENABLE_WALLET
     m_model(0),
+#endif
     m_tab(0)
 {
     ui->setupUi(this);
@@ -32,6 +34,7 @@ TitleBar::~TitleBar()
     delete ui;
 }
 
+#ifdef ENABLE_WALLET
 void TitleBar::setModel(WalletModel *model)
 {
     m_model = model;
@@ -40,6 +43,7 @@ void TitleBar::setModel(WalletModel *model)
         setBalanceLabel(m_models[m_model]);
     }
 }
+#endif
 
 void TitleBar::setTabBarInfo(QObject *info)
 {
@@ -56,6 +60,7 @@ void TitleBar::setTabBarInfo(QObject *info)
     }
 }
 
+#ifdef ENABLE_WALLET
 void TitleBar::setBalance(const interfaces::WalletBalances& balances)
 {
     QObject* _model = sender();
@@ -68,6 +73,7 @@ void TitleBar::setBalance(const interfaces::WalletBalances& balances)
         }
     }
 }
+#endif
 
 void TitleBar::on_navigationResized(const QSize &_size)
 {
@@ -93,6 +99,7 @@ void TitleBar::setWalletSelector(QLabel *walletSelectorLabel, QComboBox *walletS
     layout->addWidget(spacer);
 }
 
+#ifdef ENABLE_WALLET
 void TitleBar::addWallet(WalletModel *_model)
 {
     if(_model)
@@ -118,3 +125,4 @@ void TitleBar::setBalanceLabel(const interfaces::WalletBalances &balances)
         ui->lblBalance->setText(BitcoinUnits::formatWithUnit(m_model->getOptionsModel()->getDisplayUnit(), balances.balance));
     }
 }
+#endif

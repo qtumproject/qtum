@@ -18,6 +18,8 @@ class CondensingTxsTest(BitcoinTestFramework):
         self.num_nodes = 1
         self.extra_args = [['-txindex=1', '-rpcmaxgasprice=10000000']]
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
 
     # verify that the state hash is not 0 on genesis
     def setup_contracts(self):
