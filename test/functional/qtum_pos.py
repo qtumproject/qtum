@@ -20,6 +20,9 @@ class QtumPOSTest(BitcoinTestFramework):
         self.extra_args = [[]]
         self.tip = None
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
+
     def bootstrap_p2p(self):
         """Add a P2P connection to the node.
 

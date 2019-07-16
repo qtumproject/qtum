@@ -26,7 +26,9 @@
 #include <util/moneystr.h>
 #include <util/system.h>
 #include <validationinterface.h>
+#ifdef ENABLE_WALLET
 #include <wallet/wallet.h>
+#endif
 
 #include <algorithm>
 #include <queue>
@@ -820,6 +822,7 @@ void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned
     pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
 }
 
+#ifdef ENABLE_WALLET
 //////////////////////////////////////////////////////////////////////////////
 //
 // Proof of Stake miner
@@ -1018,3 +1021,4 @@ void StakeQtums(bool fStake, CWallet *pwallet, CConnman* connman, boost::thread_
         stakeThread->create_thread(boost::bind(&ThreadStakeMiner, pwallet, connman));
     }
 }
+#endif

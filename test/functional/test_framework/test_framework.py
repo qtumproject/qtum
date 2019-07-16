@@ -334,6 +334,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
                 extra_args=extra_args[i],
                 use_cli=self.options.usecli,
                 start_perf=self.options.perf,
+                enable_wallet=self.is_wallet_compiled(),
             ))
 
     def start_node(self, i, *args, **kwargs):
@@ -481,6 +482,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
                     bitcoin_cli=self.options.bitcoincli,
                     coverage_dir=None,
                     cwd=self.options.tmpdir,
+                    enable_wallet=self.is_wallet_compiled(),
                 ))
                 self.nodes[i].args = args
                 self.start_node(i)

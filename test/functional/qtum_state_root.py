@@ -16,6 +16,9 @@ class StateRootTest(BitcoinTestFramework):
         self.setup_clean_chain = True
         self.num_nodes = 1
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
+
     # verify that the state hash is not 0 on genesis
     def verify_not_null_test(self):
         block_hash = self.node.getblockhash(0)

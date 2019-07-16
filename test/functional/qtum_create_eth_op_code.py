@@ -13,6 +13,9 @@ class QtumCreateEthOpCodeTest(BitcoinTestFramework):
         self.setup_clean_chain = True
         self.num_nodes = 1
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
+
     def assert_address_with_value_in_unspents(self, address, value):
         for unspent in self.node.listunspent():
             if unspent['address'] == address:
