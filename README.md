@@ -89,7 +89,7 @@ Qtum Core uses a full node model, and thus requires downloading the entire block
 
 ### Qtum Web Wallet
 
-A browser wallet that supports the Ledger hardware wallet, offline cold wallet, and restoration from moblie wallets.
+A browser wallet that supports the Ledger hardware wallet, offline cold wallet, and restoration from mobile wallets.
 
 Web site https://qtumwallet.org
 
@@ -97,7 +97,7 @@ User documentation https://github.com/qtumproject/documents/tree/master/en/QTUM-
 
 ### Qtum Electrum
 
-A light wallet that supports the Ledger and Trezor hardware wallets and is based on the well known Electrum wallet software. 
+A light wallet that supports the Ledger and Trezor hardware wallets and is based on the well-known Electrum wallet software. 
 
 Download: https://github.com/qtumproject/qtum-electrum/releases
 
@@ -131,7 +131,7 @@ Make sure to check out these resources as well for more information and to keep 
 
 ### Qtum Smart Contract Limitations
 
-*	EVM smart contracts can not receive coins from or send coins to any address type other than pay-to-pubkeyhash (starts with Q) addresses. This is due to a limitation in the EVM
+*	EVM smart contracts cannot receive coins from or send coins to any address type other than pay-to-pubkeyhash (starts with Q) addresses. This is due to a limitation in the EVM
 *	Contracts are not allowed to create contracts with an initial endowment of coins. The contract must first be created, and then be sent coins in a separate transaction. Humans are also not allowed to create contracts with an initial endowment of coins.
 *	Although all of the infrastructure is present, Qtum Core does not currently parse Solidity event data. You must parse this yourself using either searchlogs or -record-log-opcodes features.
 *	It is not possible to send a contract coins without also executing the contract. This is also the case of Ethereum. This was promised in earlier discussions and technically does work, but due to lack of time for testing this feature was disabled. We hope to reenable this feature with release of the x86 virtual machine in 2020.
@@ -147,7 +147,7 @@ Qtum uses a tool called Gitian to make reproducible builds that can be verified 
 
 ### Build on Ubuntu
 
-This is a quick start script for compiling Qtum on  Ubuntu
+This is a quick start script for compiling Qtum on Ubuntu
 
 
     sudo apt-get install build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils git cmake libboost-all-dev
@@ -240,8 +240,6 @@ NOTE: Building with Qt4 is still supported, however, could result in a broken UI
 ### Run
 
 Then you can either run the command-line daemon using `src/qtumd` and `src/qtum-cli`, or you can run the Qt GUI using `src/qt/qtum-qt`
-
-For in-depth description of Sparknet and how to use Qtum for interacting with contracts, please see [sparknet-guide](doc/sparknet-guide.md).
 
 License
 -------
