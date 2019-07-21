@@ -88,7 +88,7 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
     // ppcoin: retarget with exponential moving toward target spacing
     arith_uint256 bnNew;
     bnNew.SetCompact(pindexLast->nBits);
-    int64_t nInterval = params.DifficultyAdjustmentInterval(pindexLast->nHeight);
+    int64_t nInterval = params.DifficultyAdjustmentInterval(pindexLast->nHeight + 1);
     bnNew *= ((nInterval - 1) * nTargetSpacing + nActualSpacing + nActualSpacing);
     bnNew /= ((nInterval + 1) * nTargetSpacing);
 
