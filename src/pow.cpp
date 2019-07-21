@@ -10,6 +10,27 @@
 #include <primitives/block.h>
 #include <uint256.h>
 
+namespace {
+    // returns a * exp(p/q) where |p/q| is small
+    arith_uint256 mul_exp(arith_uint256 a, int64_t p, int64_t q)
+    {
+        bool isNegative = p < 0;
+        uint64_t abs_p = p >= 0 ? p : -p;
+        arith_uint256 result = a;
+        uint64_t n = 0;
+        while (a > 0) {
+            ++n;
+            a = a * abs_p / q / n;
+            if (isNegative && (n % 2 == 1)) {
+                result -= a;
+            } else {
+                result += a;
+            }
+        }
+        return result;
+    }
+}
+
 // ppcoin: find last block index up to pindex
 const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfStake)
 {
@@ -77,20 +98,28 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
     // Limit adjustment step
     int64_t nTargetSpacing = params.nPowTargetSpacing;
     int64_t nActualSpacing = pindexLast->GetBlockTime() - nFirstBlockTime;
-    if (nActualSpacing < 0)
-        nActualSpacing = nTargetSpacing;
-    if (nActualSpacing > nTargetSpacing * 10)
-        nActualSpacing = nTargetSpacing * 10;
-
-	// Retarget
+    // Retarget
     const arith_uint256 bnTargetLimit = GetLimit(params, fProofOfStake);
     // ppcoin: target change every block
     // ppcoin: retarget with exponential moving toward target spacing
     arith_uint256 bnNew;
     bnNew.SetCompact(pindexLast->nBits);
     int64_t nInterval = params.DifficultyAdjustmentInterval(pindexLast->nHeight + 1);
-    bnNew *= ((nInterval - 1) * nTargetSpacing + nActualSpacing + nActualSpacing);
-    bnNew /= ((nInterval + 1) * nTargetSpacing);
+
+    if (pindexLast->nHeight + 1 < params.QIP9Height) {
+        if (nActualSpacing < 0)
+            nActualSpacing = nTargetSpacing;
+        if (nActualSpacing > nTargetSpacing * 10)
+            nActualSpacing = nTargetSpacing * 10;
+        bnNew *= ((nInterval - 1) * nTargetSpacing + nActualSpacing + nActualSpacing);
+        bnNew /= ((nInterval + 1) * nTargetSpacing);
+    } else {
+        if (nActualSpacing < 0)
+            nActualSpacing = nTargetSpacing;
+        if (nActualSpacing > nTargetSpacing * 20)
+            nActualSpacing = nTargetSpacing * 20;
+        bnNew = mul_exp(bnNew, 2 * (nActualSpacing - nTargetSpacing) / 16, (nInterval + 1) * nTargetSpacing / 16);
+    }
 
     if (bnNew <= 0 || bnNew > bnTargetLimit)
         bnNew = bnTargetLimit;
