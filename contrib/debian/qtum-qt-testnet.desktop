@@ -2,11 +2,11 @@
 Version=0.17.6
 Name=Qtum Core
 Comment=Connect to the Qtum P2P Network
-Exec=qtum-qt %u
+Exec=qtum-qt -testnet %u
 Terminal=false
 Type=Application
-Icon=qtum128
+Icon=qtumtestnet128
 MimeType=x-scheme-handler/qtum;
 Categories=Office;Finance;
-StartupWMClass=Qtum-qt
-Name[en_US]=qtum-qt
+StartupWMClass=Qtum-qt-testnet
+Name[en_US]=qtum-qt-testnet
