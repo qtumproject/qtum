@@ -1,7 +1,7 @@
 [Desktop Entry]
 Version=0.17.6
-Name=Qtum Core
-Comment=Connect to the Qtum P2P Network
+Name=Qtum Core Testnet
+Comment=Connect to the Qtum P2P Network Testnet
 Exec=qtum-qt -testnet %u
 Terminal=false
 Type=Application
