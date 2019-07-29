@@ -160,7 +160,7 @@
            <item>
             <widget class="BitcoinAmountField" name="reserveBalance">
              <property name="toolTip">
-              <string>(0 = auto, &lt;0 = leave that many cores free)</string>
+              <string>Reserve amount that will not be used for staking</string>
              </property>
             </widget>
            </item>
