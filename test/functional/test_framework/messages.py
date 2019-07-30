@@ -523,7 +523,7 @@ class CTransaction:
 
 
 class CBlockHeader(object):
-    __slots__ = ("hash", "hashMerkleRoot", "hashPrevBlock", "nBits", "nNonce",
+    __slots__ = ("hash", "hashMerkleRoot", "hashPrevBlock", "hashStateRoot", "hashUTXORoot", "prevoutStake", "vchBlockSig", "nBits", "nNonce",
                  "nTime", "nVersion", "sha256")
 
     def __init__(self, header=None):
@@ -633,8 +633,8 @@ class CBlockHeader(object):
             % (self.nVersion, self.hashPrevBlock, self.hashMerkleRoot,
                time.ctime(self.nTime), self.nBits, self.nNonce)
 
-BLOCK_HEADER_SIZE = len(CBlockHeader().serialize())
-assert_equal(BLOCK_HEADER_SIZE, 80)
+# BLOCK_HEADER_SIZE = len(CBlockHeader().serialize())
+# assert_equal(BLOCK_HEADER_SIZE, 80)
 
 class CBlock(CBlockHeader):
     __slots__ = ("vtx",)
