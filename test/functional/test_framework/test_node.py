@@ -74,7 +74,7 @@ class TestNode():
         self.stdout_dir = os.path.join(self.datadir, "stdout")
         self.stderr_dir = os.path.join(self.datadir, "stderr")
         self.rpchost = rpchost
-        self.rpc_timeout = timewait
+        self.rpc_timewait = timewait
         self.binary = bitcoind
         self.coverage_dir = coverage_dir
         self.cwd = cwd
@@ -211,12 +211,12 @@ class TestNode():
         """Sets up an RPC connection to the bitcoind process. Returns False if unable to connect."""
         # Poll at a rate of four times per second
         poll_per_s = 4
-        for _ in range(poll_per_s * self.rpc_timeout):
+        for _ in range(poll_per_s * self.rpc_timewait):
             if self.process.poll() is not None:
                 raise FailedToStartError(self._node_msg(
                     'bitcoind exited with status {} during initialization'.format(self.process.returncode)))
             try:
-                rpc = get_rpc_proxy(rpc_url(self.datadir, self.index, self.rpchost), self.index, timeout=self.rpc_timeout, coveragedir=self.coverage_dir)
+                rpc = get_rpc_proxy(rpc_url(self.datadir, self.index, self.rpchost), self.index, timeout=self.rpc_timewait, coveragedir=self.coverage_dir)
                 rpc.getblockcount()
                 # If the call to getblockcount() succeeds then the RPC connection is up
                 self.log.debug("RPC successfully started")
