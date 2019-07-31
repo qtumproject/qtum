@@ -2594,13 +2594,22 @@ void CWallet::AvailableCoinsForStaking(std::vector<COutput>& vCoins) const
                 continue;
 
             for (unsigned int i = 0; i < pcoin->tx->vout.size(); i++) {
+                if(IsSpent(wtxid, i))
+                    continue;
+
                 isminetype mine = IsMine(pcoin->tx->vout[i]);
+                if(mine == ISMINE_NO)
+                    continue;
+
+                if(IsLockedCoin((*it).first, i) || pcoin->tx->vout[i].nValue <= 0)
+                    continue;
+
+                if(pcoin->tx->vout[i].scriptPubKey.HasOpCall() || pcoin->tx->vout[i].scriptPubKey.HasOpCreate())
+                    continue;
+
                 bool solvable = IsSolvable(*this, pcoin->tx->vout[i].scriptPubKey);
                 bool spendable = ((mine & ISMINE_SPENDABLE) != ISMINE_NO) || (((mine & ISMINE_WATCH_ONLY) != ISMINE_NO) && solvable);
-                if (!(IsSpent(wtxid, i)) && mine != ISMINE_NO &&
-                    !IsLockedCoin((*it).first, i) && (pcoin->tx->vout[i].nValue > 0) &&
-                    !pcoin->tx->vout[i].scriptPubKey.HasOpCall() && !pcoin->tx->vout[i].scriptPubKey.HasOpCreate())
-                        vCoins.push_back(COutput(pcoin, i, nDepth, spendable, solvable, pcoin->IsTrusted()));
+                vCoins.push_back(COutput(pcoin, i, nDepth, spendable, solvable, pcoin->IsTrusted()));
             }
         }
     }
