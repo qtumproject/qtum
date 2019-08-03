@@ -7,6 +7,6 @@ Terminal=false
 Type=Application
 Icon=qtum128
 MimeType=x-scheme-handler/qtum;
-Categories=Office;Finance;
+Categories=Network;
 StartupWMClass=Qtum-qt
 Name[en_US]=qtum-qt
