@@ -921,7 +921,12 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
         //
         // Create new block
         //
-        if(pwallet->HaveAvailableCoinsForStaking())
+        CAmount nBalance = pwallet->GetBalance();
+        CAmount nTargetValue = nBalance - pwallet->m_reserve_balance;
+        CAmount nValueIn = 0;
+        std::set<std::pair<const CWalletTx*,unsigned int> > setCoins;
+        int64_t start = GetAdjustedTime();
+        if(pwallet->SelectCoinsForStaking(nTargetValue, setCoins, nValueIn) && setCoins.size() > 0)
         {
             int64_t nTotalFees = 0;
             // First just create an empty block. No need to process transactions until we know we can create a block
@@ -942,7 +947,7 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
                 // Try to sign a block (this also checks for a PoS stake)
                 pblocktemplate->block.nTime = i;
                 std::shared_ptr<CBlock> pblock = std::make_shared<CBlock>(pblocktemplate->block);
-                if (SignBlock(pblock, *pwallet, nTotalFees, i)) {
+                if (SignBlock(pblock, *pwallet, nTotalFees, i, setCoins)) {
                     // increase priority so we can build the full PoS block ASAP to ensure the timestamp doesn't expire
                     SetThreadPriority(THREAD_PRIORITY_ABOVE_NORMAL);
 
@@ -964,7 +969,7 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
                     }
                     // Sign the full block and use the timestamp from earlier for a valid stake
                     std::shared_ptr<CBlock> pblockfilled = std::make_shared<CBlock>(pblocktemplatefilled->block);
-                    if (SignBlock(pblockfilled, *pwallet, nTotalFees, i)) {
+                    if (SignBlock(pblockfilled, *pwallet, nTotalFees, i, setCoins)) {
                         // Should always reach here unless we spent too much time processing transactions and the timestamp is now invalid
                         // CheckStake also does CheckBlock and AcceptBlock to propogate it to the network
                         bool validBlock = false;
