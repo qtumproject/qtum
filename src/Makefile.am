@@ -359,8 +359,18 @@ crypto_libbitcoin_crypto_base_a_SOURCES = \
   crypto/hmac_sha256.h \
   crypto/hmac_sha512.cpp \
   crypto/hmac_sha512.h \
+  crypto/scrypt.cpp \
   crypto/ripemd160.cpp \
   crypto/ripemd160.h \
+  crypto/aes_helper.c \
+  crypto/echo.c \
+  crypto/cubehash.c \
+  crypto/jh.c \
+  crypto/skein.c \
+  crypto/gost.c \
+  crypto/fugue.c \
+  crypto/lyra2/Lyra2.c \
+  crypto/lyra2/Sponge.c  \
   crypto/sha1.cpp \
   crypto/sha1.h \
   crypto/sha256.cpp \
@@ -369,6 +379,15 @@ crypto_libbitcoin_crypto_base_a_SOURCES = \
   crypto/sha512.h \
   crypto/siphash.cpp \
   crypto/siphash.h \
+  crypto/sph_types.h \
+  crypto/sph_jh.h \
+  crypto/sph_skein.h \
+  crypto/sph_fugue.h \
+  crypto/sph_gost.h \
+  crypto/sph_cubehash.h \
+  crypto/sph_echo.h \
+  crypto/lyra2/Lyra2.h \
+  crypto/lyra2/Sponge.h \
   cpp-ethereum/utils/libscrypt/b64.c \
   cpp-ethereum/utils/libscrypt/b64.h \
   cpp-ethereum/utils/libscrypt/crypto-mcf.c \

@@ -9,10 +9,17 @@
 #include <tinyformat.h>
 #include <util/strencodings.h>
 #include <crypto/common.h>
+#include <util/strencodings.h>
 
 uint256 CBlockHeader::GetHash() const
 {
-    return SerializeHash(*this);
+    if (nTime >= 1533491000)
+        return phi2_hash(BEGIN(nVersion), END(hashUTXORoot));
+    else if (nTime >= 1530246081 && nTime < 1533491000) {
+        return phi2_hash(BEGIN(nVersion), END(nNonce));
+    } else {
+        return Phi1612(BEGIN(nVersion), END(nNonce));
+    }
 }
 
 uint256 CBlockHeader::GetHashWithoutSign() const
