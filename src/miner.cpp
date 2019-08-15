@@ -922,7 +922,11 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
         CAmount nValueIn = 0;
         std::set<std::pair<const CWalletTx*,unsigned int> > setCoins;
         int64_t start = GetAdjustedTime();
-        if(pwallet->SelectCoinsForStaking(nTargetValue, setCoins, nValueIn) && setCoins.size() > 0)
+        {
+            auto locked_chain = pwallet->chain().lock();
+            pwallet->SelectCoinsForStaking(*locked_chain, nTargetValue, setCoins, nValueIn);
+        }
+        if(setCoins.size() > 0)
         {
             int64_t nTotalFees = 0;
             // First just create an empty block. No need to process transactions until we know we can create a block

@@ -3389,7 +3389,7 @@ uint64_t CWallet::GetStakeWeight(interfaces::Chain::Lock& locked_chain) const
     return nWeight;
 }
 
-bool CWallet::CreateCoinStake(interfaces::Chain::Lock& locked_chain, const CKeyStore& keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key)
+bool CWallet::CreateCoinStake(interfaces::Chain::Lock& locked_chain, const CKeyStore& keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins)
 {
     CBlockIndex* pindexPrev = chainActive.Tip();
     arith_uint256 bnTargetPerCoinDay;
@@ -3411,14 +3411,6 @@ bool CWallet::CreateCoinStake(interfaces::Chain::Lock& locked_chain, const CKeyS
         return false;
 
     std::vector<const CWalletTx*> vwtxPrev;
-
-    std::set<std::pair<const CWalletTx*,unsigned int> > setCoins;
-    CAmount nValueIn = 0;
-
-    // Select coins with suitable depth
-    CAmount nTargetValue = nBalance - m_reserve_balance;
-    if (!SelectCoinsForStaking(locked_chain, nTargetValue, setCoins, nValueIn))
-        return false;
 
     if (setCoins.empty())
         return false;
