@@ -68,11 +68,11 @@ class BlockchainTest(BitcoinTestFramework):
     def mine_chain(self):
         self.log.info('Create some old blocks')
         address = self.nodes[0].get_deterministic_priv_key().address
-        for t in range(TIME_GENESIS_BLOCK, TIME_GENESIS_BLOCK + 200 * 600, 600):
+        for t in range(TIME_GENESIS_BLOCK, TIME_GENESIS_BLOCK + 128 * 600, 128):
             # ten-minute steps from genesis block time
             self.nodes[0].setmocktime(t)
             self.nodes[0].generatetoaddress(1, address)
-        assert_equal(self.nodes[0].getblockchaininfo()['blocks'], 200)
+        assert_equal(self.nodes[0].getblockchaininfo()['blocks'], 600)
 
     def _test_getblockchaininfo(self):
         self.log.info("Test getblockchaininfo")
@@ -142,7 +142,7 @@ class BlockchainTest(BitcoinTestFramework):
         assert_raises_rpc_error(-8, "blockhash must be of length 64 (not 1, for '0')", self.nodes[0].getchaintxstats, blockhash='0')
         assert_raises_rpc_error(-8, "blockhash must be hexadecimal string (not 'ZZZ0000000000000000000000000000000000000000000000000000000000000')", self.nodes[0].getchaintxstats, blockhash='ZZZ0000000000000000000000000000000000000000000000000000000000000')
         assert_raises_rpc_error(-5, "Block not found", self.nodes[0].getchaintxstats, blockhash='0000000000000000000000000000000000000000000000000000000000000000')
-        blockhash = self.nodes[0].getblockhash(200)
+        blockhash = self.nodes[0].getblockhash(600)
         self.nodes[0].invalidateblock(blockhash)
         assert_raises_rpc_error(-8, "Block is not in main chain", self.nodes[0].getchaintxstats, blockhash=blockhash)
         self.nodes[0].reconsiderblock(blockhash)

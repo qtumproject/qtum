@@ -11,6 +11,7 @@ class Qtum8MBBlock(BitcoinTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 2
+        self.extra_args = [['-txindex']] * 2
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()

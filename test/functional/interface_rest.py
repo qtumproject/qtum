@@ -24,7 +24,9 @@ from test_framework.util import (
     hex_str_to_bytes,
 )
 
-from test_framework.messages import BLOCK_HEADER_SIZE
+from test_framework.messages import CBlockHeader
+
+BLOCK_HEADER_SIZE = len(CBlockHeader().serialize())
 
 class ReqType(Enum):
     JSON = 1

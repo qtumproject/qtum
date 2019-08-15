@@ -164,7 +164,7 @@ class MultiWalletTest(BitcoinTestFramework):
         assert_raises_rpc_error(-19, "Wallet file not specified", node.getwalletinfo)
 
         w1, w2, w3, w4, *_ = wallets
-        w1.generate(COINBASE_MATURITY+1)
+        w1.generatetoaddress(nblocks=COINBASE_MATURITY+1, address=w1.getnewaddress())
         assert_equal(w1.getbalance(), 2*INITIAL_BLOCK_REWARD)
         assert_equal(w2.getbalance(), 0)
         assert_equal(w3.getbalance(), 0)
