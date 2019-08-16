@@ -342,7 +342,7 @@ class DGPState:
             assert_equal(int(real, 16), int(expected, 16))
 
 
-def collect_prevouts(node, amount=None):
+def collect_prevouts(node, amount=None, address=None):
     blocks = []
     for block_no in range(1, node.getblockcount()+1):
         blocks.append(node.getblock(node.getblockhash(block_no)))
@@ -357,7 +357,7 @@ def collect_prevouts(node, amount=None):
         else:
             assert(False)
 
-        if unspent['confirmations'] > COINBASE_MATURITY and (not amount or amount == unspent['amount']):
+        if unspent['confirmations'] > COINBASE_MATURITY and (not amount or amount == unspent['amount']) and (not address or address == unspent['address']):
             staking_prevouts.append((COutPoint(int(unspent['txid'], 16), unspent['vout']), int(unspent['amount']*COIN), tx_block_time))
     return staking_prevouts
 
@@ -443,7 +443,8 @@ def activate_mpos(node, use_cache=True):
     if not node.getblockcount():
         node.setmocktime(int(time.time()) - 1000000)
     node.generatetoaddress(4490-node.getblockcount(), "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
-    staking_prevouts = collect_prevouts(node)
+    staking_prevouts = collect_prevouts(node, address="qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
+
 
     for i in range(510):
         time.sleep(0.05)

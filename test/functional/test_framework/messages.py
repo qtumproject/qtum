@@ -623,7 +623,7 @@ class CBlockHeader(object):
             data += prevout.serialize()
             data += struct.pack("<I", self.nTime)
             posHash = uint256_from_str(hash256(data))
-            if posHash <= target:
+            if posHash <= (target*nValue) & (2**256 - 1):
                 self.prevoutStake = prevout
                 return True
         return False

@@ -555,6 +555,18 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         if not self.is_cli_compiled():
             raise SkipTest("bitcoin-cli has not been compiled.")
 
+    def skip_if_no_bitcore(self):
+        """Skip the running test if bitcoin-cli has not been compiled."""
+        if not self.is_bitcore_compiled():
+            raise SkipTest("bitcore has not been compiled.")
+
+    def is_bitcore_compiled(self):
+        """Checks whether bitcoin-cli was compiled."""
+        config = configparser.ConfigParser()
+        config.read_file(open(self.options.configfile))
+
+        return config["components"].getboolean("ENABLE_BITCORE")
+
     def is_cli_compiled(self):
         """Checks whether bitcoin-cli was compiled."""
         config = configparser.ConfigParser()
