@@ -23,7 +23,7 @@ def make_vin(node, value):
     txid_hex = node.sendtoaddress(addr, value/COIN)
     txid = int(txid_hex, 16)
     node.generate(1)
-    raw_tx = node.getrawtransaction(txid_hex, 1)
+    raw_tx = node.decoderawtransaction(node.gettransaction(txid_hex)['hex'])
 
     for vout_index, txout in enumerate(raw_tx['vout']):
         if txout['scriptPubKey']['addresses'] == [addr]:
@@ -416,7 +416,7 @@ def create_unsigned_mpos_block(node, staking_prevouts, nTime=None, block_fees=0)
 
     for i in range(MPOS_PARTICIPANTS-1):
         partipant_block = node.getblock(node.getblockhash(tip['height']-500-i))
-        participant_tx = node.getrawtransaction(partipant_block['tx'][1], True)
+        participant_tx = node.decoderawtransaction(node.gettransaction(partipant_block['tx'][1])['hex'])
         participant_pubkey = hex_str_to_bytes(participant_tx['vout'][1]['scriptPubKey']['asm'].split(' ')[0])
         mpos_block.vtx[1].vout.append(CTxOut(stake_per_participant, CScript([OP_DUP, OP_HASH160, hash160(participant_pubkey), OP_EQUALVERIFY, OP_CHECKSIG])))
 
