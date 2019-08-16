@@ -69,24 +69,22 @@ TEST_EXIT_SKIPPED = 77
 BASE_SCRIPTS = [
     # Scripts that are run by the travis build process.
     # Longest test should go first, to favor running tests in parallel
-    'feature_fee_estimation.py',
     'wallet_hd.py',
     'wallet_backup.py',
-    # vv Tests less than 5m vv
+    # # vv Tests less than 5m vv
     'mining_getblocktemplate_longpoll.py',
-    'feature_maxuploadtarget.py',
     'feature_block.py',
     'rpc_fundrawtransaction.py',
     'p2p_compactblocks.py',
     'feature_segwit.py',
-    # vv Tests less than 2m vv
+    # # vv Tests less than 2m vv
     'wallet_basic.py',
     'wallet_labels.py',
     'p2p_segwit.py',
     'p2p_timeouts.py',
     'wallet_dump.py',
     'wallet_listtransactions.py',
-    # vv Tests less than 60s vv
+    # # vv Tests less than 60s vv
     'p2p_sendheaders.py',
     'wallet_zapwallettxes.py',
     'wallet_importmulti.py',
@@ -97,10 +95,9 @@ BASE_SCRIPTS = [
     'feature_csv_activation.py',
     'rpc_rawtransaction.py',
     'wallet_address_types.py',
-    'feature_bip68_sequence.py',
     'p2p_feefilter.py',
     'feature_reindex.py',
-    # vv Tests less than 30s vv
+    # # vv Tests less than 30s vv
     'wallet_keypool_topup.py',
     'interface_zmq.py',
     'interface_bitcoin_cli.py',
@@ -189,10 +186,10 @@ BASE_SCRIPTS = [
     'rpc_help.py',
     'feature_help.py',
     'feature_shutdown.py',
-    # Don't append tests at the end to avoid merge conflicts
-    # Put them in a random line within the section that fits their approximate run-time
+    # # Don't append tests at the end to avoid merge conflicts
+    # # Put them in a random line within the section that fits their approximate run-time
 
-    # qtum
+    # # qtum
     'qtum_dgp.py',
     'qtum_pos.py',
     'qtum_opcall.py',
@@ -236,14 +233,19 @@ BASE_SCRIPTS = [
     'qtum_transaction_receipt_origin_contract_address.py',
     'qtum_block_number_corruption.py',
     'qtum_duplicate_stake.py',
+    'qtum_rpc_bitcore.py',
+    'qtum_faulty_header_chain.py',
 ]
 
 EXTENDED_SCRIPTS = [
     # These tests are not run by the travis build process.
     # Longest test should go first, to favor running tests in parallel
+    'feature_maxuploadtarget.py',
+    'feature_fee_estimation.py',
     'feature_pruning.py',
     'feature_dbcrash.py',
     # Version <4 blocks are never allowed in regtest on qtum
+    'feature_bip68_sequence.py',
     'p2p_unrequested_blocks.py',
     'feature_dersig.py',
     'feature_cltv.py'

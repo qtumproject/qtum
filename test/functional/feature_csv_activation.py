@@ -238,9 +238,8 @@ class BIP68_112_113Test(BitcoinTestFramework):
             extend_txs.append(tx)
         test_blocks = self.generate_blocks(10, 4, test_blocks, extend_txs=extend_txs)
 
-        self.sync_blocks(test_blocks[0:61], request_block=True)
+        self.sync_blocks(test_blocks[0:61])
         # Advanced from DEFINED to STARTED, height = 143
-        print(self.nodes[0].getblockcount())
 
         #self.log.info("Advance from DEFINED to STARTED, height = 143")
         assert_equal(get_bip9_status(self.nodes[0], 'csv')['status'], 'started')

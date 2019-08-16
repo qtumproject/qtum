@@ -3112,7 +3112,7 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
         return state.DoS(1000, error("ConnectBlock(): Less total fees than gas refund fees"), REJECT_INVALID, "bad-blk-fees-greater-gasrefund");
     }
     if(!CheckReward(block, state, pindex->nHeight, chainparams.GetConsensus(), nFees, gasRefunds, nActualStakeReward, checkVouts))
-        return state.DoS(100,error("ConnectBlock(): Reward check failed"));
+        return state.DoS(100,error("ConnectBlock(): Reward check failed"), REJECT_INVALID, "block-reward-invalid");
     if (!control.Wait())
         return state.DoS(100, error("%s: CheckQueue failed", __func__), REJECT_INVALID, "block-validation-failed");
     int64_t nTime4 = GetTimeMicros(); nTimeVerify += nTime4 - nTime2;
@@ -4342,7 +4342,7 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
     //IsProtocolV2 mean POS 2 or higher, so the modified line is:
     auto locked_chain = wallet.chain().lock();
     LOCK(wallet.cs_wallet);
-    if (wallet.CreateCoinStake(*locked_chain, wallet, pblock->nBits, nTotalFees, nTimeBlock, txCoinStake, key))
+    if (wallet.CreateCoinStake(*locked_chain, wallet, pblock->nBits, nTotalFees, nTimeBlock, txCoinStake, key, setCoins))
     {
         if (nTimeBlock >= chainActive.Tip()->GetMedianTimePast()+1)
         {

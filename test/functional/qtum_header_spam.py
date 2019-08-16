@@ -57,14 +57,14 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
         if not block.solve_stake(parent_block_stake_modifier, staking_prevouts):
             return None
 
-        txout = node.gettxout(hex(block.prevoutStake.hash)[2:], block.prevoutStake.n)
+        txout = node.gettxout(hex(block.prevoutStake.hash)[2:].zfill(64), block.prevoutStake.n)
         # input value + block reward
         out_value = int((float(str(txout['value'])) + INITIAL_BLOCK_REWARD) * COIN) // 2
 
         # create a new private key used for block signing.
-        block_sig_key = CECKey()
-        block_sig_key.set_secretbytes(hash256(struct.pack('<I', 0)))
-        pubkey = block_sig_key.get_pubkey()
+        block_sig_key = ECKey()
+        block_sig_key.set(hash256(struct.pack('<I', 0)), False)
+        pubkey = block_sig_key.get_pubkey().get_bytes()
         scriptPubKey = CScript([pubkey, OP_CHECKSIG])
         stake_tx_unsigned = CTransaction()
 

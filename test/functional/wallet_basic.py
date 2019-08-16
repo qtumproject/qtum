@@ -190,7 +190,7 @@ class WalletTest(BitcoinTestFramework):
         txid = self.nodes[2].sendtoaddress(address, 10, "", "", False)
         self.nodes[2].generate(1)
         self.sync_all([self.nodes[0:3]])
-        node_2_bal = self.check_fee_amount(self.nodes[2].getbalance(), 2*INITIAL_BLOCK_REWARD-16, fee_per_byte, self.get_vsize(self.nodes[2].getrawtransaction(txid)))
+        node_2_bal = self.check_fee_amount(self.nodes[2].getbalance(), 2*INITIAL_BLOCK_REWARD-16, fee_per_byte, self.get_vsize(self.nodes[2].gettransaction(txid)['hex']))
         assert_equal(self.nodes[0].getbalance(), Decimal('10'))
 
         # Send 10 BTC with subtract fee from amount
@@ -335,16 +335,16 @@ class WalletTest(BitcoinTestFramework):
         assert_raises_rpc_error(-5, "Cannot use the p2sh flag with an address - use a script instead", self.nodes[0].importaddress, temp_address, "label", False, True)
 
         # This will raise an exception for attempting to dump the private key of an address you do not own
-        assert_raises_rpc_error(-3, "Address does not refer to a key", self.nodes[0].dumpprivkey, temp_address)
+        assert_raises_rpc_error(-4, "is not known", self.nodes[0].dumpprivkey, temp_address)
 
         # This will raise an exception for attempting to get the private key of an invalid Bitcoin address
-        assert_raises_rpc_error(-5, "Invalid Bitcoin address", self.nodes[0].dumpprivkey, "invalid")
+        assert_raises_rpc_error(-5, "Invalid Qtum address", self.nodes[0].dumpprivkey, "invalid")
 
         # This will raise an exception for attempting to set a label for an invalid Bitcoin address
-        assert_raises_rpc_error(-5, "Invalid Bitcoin address", self.nodes[0].setlabel, "invalid address", "label")
+        assert_raises_rpc_error(-5, "Invalid Qtum address", self.nodes[0].setlabel, "invalid address", "label")
 
         # This will raise an exception for importing an invalid address
-        assert_raises_rpc_error(-5, "Invalid Bitcoin address or script", self.nodes[0].importaddress, "invalid")
+        assert_raises_rpc_error(-5, "Invalid Qtum address or script", self.nodes[0].importaddress, "invalid")
 
         # This will raise an exception for attempting to import a pubkey that isn't in hex
         assert_raises_rpc_error(-5, "Pubkey must be a hex string", self.nodes[0].importpubkey, "not hex")

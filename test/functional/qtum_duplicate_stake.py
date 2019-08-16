@@ -39,7 +39,7 @@ class QtumDuplicateStakeTest(BitcoinTestFramework):
         # Create a slightly different block using the same staking utxo (only difference is the nonce)
         alt_block = CBlock(block)
         alt_block.vtx = block.vtx[:]
-        alt_block.nNone = 1
+        alt_block.nNonce = 1
         alt_block.rehash()
         alt_block.sign_block(block_sig_key)
         alt_block.rehash()

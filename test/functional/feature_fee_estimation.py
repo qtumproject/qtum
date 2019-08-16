@@ -125,6 +125,7 @@ def check_estimates(node, fees_seen):
 class EstimateFeeTest(BitcoinTestFramework):
     def set_test_params(self):
         self.num_nodes = 3
+        self.extra_args = [['-minrelaytxfee=0.000001']] * 3
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
@@ -179,7 +180,7 @@ class EstimateFeeTest(BitcoinTestFramework):
         self.log.info("Splitting inputs so we can generate tx's")
 
         # Start node0
-        self.start_node(0)
+        self.start_node(0, ['-minrelaytxfee=0.000001'])
         self.txouts = []
         self.txouts2 = []
         # Split a coinbase into two transaction puzzle outputs

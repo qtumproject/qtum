@@ -30,6 +30,8 @@ from .messages import (
 )
 from .script import (
     CScript,
+    CScriptNum,
+    CScriptOp,
     OP_0,
     OP_1,
     OP_CHECKMULTISIG,
@@ -45,13 +47,12 @@ from io import BytesIO
 MAX_BLOCK_SIGOPS = 20000
 
 # Genesis block time (regtest)
-TIME_GENESIS_BLOCK = 1296688602
+TIME_GENESIS_BLOCK = 1504695029
 
 # From BIP141
 WITNESS_COMMITMENT_HEADER = b"\xaa\x21\xa9\xed"
 
-
-def create_block(hashprev, coinbase, ntime=None, *, version=1):
+def create_block(hashprev, coinbase, ntime=None, *, version=4):
     """Create a block (with regtest difficulty)."""
     block = CBlock()
     block.nVersion = version
@@ -106,14 +107,21 @@ def serialize_script_num(value):
         r[-1] |= 0x80
     return r
 
+
+def script_BIP34_coinbase_height(height):
+    if height <= 16:
+        res = CScriptOp.encode_op_n(height)
+        # Append dummy to increase scriptSig size above 2 (see bad-cb-length consensus rule)
+        return CScript([res, OP_1])
+    return CScript([CScriptNum(height)])
+
 def create_coinbase(height, pubkey=None):
     """Create a coinbase transaction, assuming no miner fees.
 
     If pubkey is passed in, the coinbase output will be a P2PK output;
     otherwise an anyone-can-spend output."""
     coinbase = CTransaction()
-    coinbase.vin.append(CTxIn(COutPoint(0, 0xffffffff), 
-                CScript() + height + b"\x00", 0xffffffff)) #Fix for BIP34
+    coinbase.vin.append(CTxIn(COutPoint(0, 0xffffffff), script_BIP34_coinbase_height(height), 0xffffffff)) #Fix for BIP34
     coinbaseoutput = CTxOut()
     coinbaseoutput.nValue = INITIAL_BLOCK_REWARD * COIN
     #halvings = int(height / 150)  # regtest

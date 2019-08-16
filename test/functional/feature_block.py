@@ -609,7 +609,7 @@ class FullBlockTest(BitcoinTestFramework):
         self.tip = b46
         assert 46 not in self.blocks
         self.blocks[46] = b46
-        self.sync_blocks([b46], success=False, reject_code=16, reject_reason=b'bad-cb-missing', reconnect=True)
+        self.sync_blocks([b46], success=False, reject_reason='bad-cb-missing', reconnect=True)
 
         self.log.info("Reject a block with invalid work")
         self.move_tip(44)
@@ -625,7 +625,7 @@ class FullBlockTest(BitcoinTestFramework):
         b48 = self.next_block(48, solve=False)
         b48.nBits -= 1
         b48.solve()
-        self.sync_blocks([b48], False, request_block=False, reconnect=True)
+        self.sync_blocks([b48], False, force_send=True, reconnect=True)
 
         self.log.info("Reject a block with invalid merkle hash")
         self.move_tip(44)
@@ -662,21 +662,21 @@ class FullBlockTest(BitcoinTestFramework):
         #
         self.move_tip(43)
         b53 = self.next_block(53, spend=out[14])
-        self.sync_blocks([b53], False, request_block=False)
+        self.sync_blocks([b53], False, force_send=False)
         self.save_spendable_output()
 
         self.log.info("Reject a block with timestamp before MedianTimePast")
         b54 = self.next_block(54, spend=out[15])
         b54.nBits -= 1
         b54.solve()
-        self.sync_blocks([b54], False, request_block=False, reconnect=True)
+        self.sync_blocks([b54], False, force_send=True, reconnect=True)
 
         # valid timestamp
         self.move_tip(53)
         b55 = self.next_block(55, spend=out[15])
         b55.nTime = b35.nTime
         self.update_block(55, [])
-        self.sync_blocks([b55], True)
+        self.sync_blocks([b55], True, force_send=True)
         self.save_spendable_output()
 
         # Test Merkle tree malleability
@@ -1242,6 +1242,7 @@ class FullBlockTest(BitcoinTestFramework):
         block = self.next_block(chain1_tip + 2, version=4)
         self.sync_blocks([block], True, timeout=480)
 
+        time.sleep(1)
         self.log.info("Reject a block with an invalid block header version")
         b_v1 = self.next_block('b_v1', version=1)
         self.sync_blocks([b_v1], success=False, force_send=True, reject_reason='bad-version(0x00000001)')
@@ -1252,10 +1253,10 @@ class FullBlockTest(BitcoinTestFramework):
         b_cb34.vtx[0].rehash()
         b_cb34.hashMerkleRoot = b_cb34.calc_merkle_root()
         b_cb34.solve()
-        self.sync_blocks([b_cb34], success=False, reject_reason='bad-cb-height', reconnect=True)
+        self.sync_blocks([b_cb34], success=False, reject_reason='block height mismatch in coinbase', force_send=True)
 
     # Helper methods
-    ################
+    ################force_send
 
     def add_transactions_to_block(self, block, tx_list):
         [tx.rehash() for tx in tx_list]
@@ -1281,7 +1282,7 @@ class FullBlockTest(BitcoinTestFramework):
         tx.rehash()
         return tx
 
-    def next_block(self, number, spend=None, additional_coinbase_value=0, script=CScript([OP_TRUE]), solve=True, *, version=1):
+    def next_block(self, number, spend=None, additional_coinbase_value=0, script=CScript([OP_TRUE]), solve=True, *, version=4):
         if self.tip is None:
             base_block_hash = self.genesis_hash
             block_time = int(time.time()) + 1
