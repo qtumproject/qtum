@@ -64,7 +64,7 @@ class InvalidMessagesTest(BitcoinTestFramework):
         msg_at_size = msg_unrecognized(str_data="b" * valid_data_limit)
         assert len(msg_at_size.serialize()) == msg_limit
 
-        increase_allowed = 0.5
+        increase_allowed = 2
         if [s for s in os.environ.get("BITCOIN_CONFIG", "").split(" ") if "--with-sanitizers" in s and "address" in s]:
             increase_allowed = 3.5
         with node.assert_memory_usage_stable(increase_allowed=increase_allowed):
