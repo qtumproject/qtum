@@ -2,9 +2,10 @@
 #include <qt/execrpccommand.h>
 #include <qt/contractabi.h>
 #include <validation.h>
-#include <utilmoneystr.h>
+#include <util/moneystr.h>
 #include <key_io.h>
-#include <utilstrencodings.h>
+#include <util/strencodings.h>
+#include <util/convert.h>
 #include <qt/eventlog.h>
 #include <libethcore/ABI.h>
 #include <qt/walletmodel.h>
@@ -545,7 +546,7 @@ bool Token::exec(const std::vector<std::string> &input, int func, std::vector<st
     QVariant result;
     QString resultJson;
     QString errorMessage;
-    if(!cmd->exec(d->model->node(), d->model->wallet(), d->lstParams, result, resultJson, errorMessage))
+    if(!cmd->exec(d->model->node(), d->model, d->lstParams, result, resultJson, errorMessage))
         return false;
 
     // Get the result from calling function
@@ -617,7 +618,7 @@ bool Token::execEvents(int64_t fromBlock, int64_t toBlock, int func, std::vector
     std::string senderAddress = d->lstParams[PARAM_SENDER].toStdString();
     ToHash160(senderAddress, senderAddress);
     senderAddress  = "000000000000000000000000" + senderAddress;
-    if(!(d->eventLog->searchTokenTx(d->model->node(), d->model->wallet(), fromBlock, toBlock, contractAddress, senderAddress, result)))
+    if(!(d->eventLog->searchTokenTx(d->model->node(), d->model, fromBlock, toBlock, contractAddress, senderAddress, result)))
         return false;
 
     // Parse the result events

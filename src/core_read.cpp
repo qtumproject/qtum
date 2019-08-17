@@ -4,6 +4,7 @@
 
 #include <core_io.h>
 
+#include <psbt.h>
 #include <primitives/block.h>
 #include <primitives/transaction.h>
 #include <script/script.h>
@@ -11,8 +12,8 @@
 #include <serialize.h>
 #include <streams.h>
 #include <univalue.h>
-#include <util.h>
-#include <utilstrencodings.h>
+#include <util/system.h>
+#include <util/strencodings.h>
 #include <version.h>
 
 #include <boost/algorithm/string/classification.hpp>
@@ -145,6 +146,20 @@ bool DecodeHexTx(CMutableTransaction& tx, const std::string& hex_tx, bool try_no
     return false;
 }
 
+bool DecodeHexBlockHeader(CBlockHeader& header, const std::string& hex_header)
+{
+    if (!IsHex(hex_header)) return false;
+
+    const std::vector<unsigned char> header_data{ParseHex(hex_header)};
+    CDataStream ser_header(header_data, SER_NETWORK, PROTOCOL_VERSION);
+    try {
+        ser_header >> header;
+    } catch (const std::exception&) {
+        return false;
+    }
+    return true;
+}
+
 bool DecodeHexBlk(CBlock& block, const std::string& strHexBlk)
 {
     if (!IsHex(strHexBlk))
@@ -162,10 +177,20 @@ bool DecodeHexBlk(CBlock& block, const std::string& strHexBlk)
     return true;
 }
 
-bool DecodePSBT(PartiallySignedTransaction& psbt, const std::string& base64_tx, std::string& error)
+bool DecodeBase64PSBT(PartiallySignedTransaction& psbt, const std::string& base64_tx, std::string& error)
 {
-    std::vector<unsigned char> tx_data = DecodeBase64(base64_tx.c_str());
-    CDataStream ss_data(tx_data, SER_NETWORK, PROTOCOL_VERSION);
+    bool invalid;
+    std::string tx_data = DecodeBase64(base64_tx, &invalid);
+    if (invalid) {
+        error = "invalid base64";
+        return false;
+    }
+    return DecodeRawPSBT(psbt, tx_data, error);
+}
+
+bool DecodeRawPSBT(PartiallySignedTransaction& psbt, const std::string& tx_data, std::string& error)
+{
+    CDataStream ss_data(tx_data.data(), tx_data.data() + tx_data.size(), SER_NETWORK, PROTOCOL_VERSION);
     try {
         ss_data >> psbt;
         if (!ss_data.empty()) {
@@ -179,14 +204,13 @@ bool DecodePSBT(PartiallySignedTransaction& psbt, const std::string& base64_tx, 
     return true;
 }
 
-uint256 ParseHashStr(const std::string& strHex, const std::string& strName)
+bool ParseHashStr(const std::string& strHex, uint256& result)
 {
-    if (!IsHex(strHex)) // Note: IsHex("") is false
-        throw std::runtime_error(strName + " must be hexadecimal string (not '" + strHex + "')");
+    if ((strHex.size() != 64) || !IsHex(strHex))
+        return false;
 
-    uint256 result;
     result.SetHex(strHex);
-    return result;
+    return true;
 }
 
 std::vector<unsigned char> ParseHexUV(const UniValue& v, const std::string& strName)

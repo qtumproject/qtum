@@ -67,7 +67,7 @@ class QtumEVMGlobalsTest(BitcoinTestFramework):
 
         block = self.node.getblock(blockhash)
         blocktxids = block['tx']
-        coinbase_tx = self.node.getrawtransaction(blocktxids[authorTxIndexAndVoutIndex], True)
+        coinbase_tx = self.node.decoderawtransaction(self.node.gettransaction(blocktxids[authorTxIndexAndVoutIndex])['hex'])
         coinbase_address = coinbase_tx['vout'][authorTxIndexAndVoutIndex]['scriptPubKey']['addresses'][0]
         coinbase_pkh = p2pkh_to_hex_hash(coinbase_address)
 

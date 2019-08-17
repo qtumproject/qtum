@@ -4,11 +4,13 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <logging.h>
-#include <utiltime.h>
+#include <util/time.h>
 
 const char * const DEFAULT_DEBUGLOGFILE = "debug.log";
 const char * const DEFAULT_DEBUGVMLOGFILE = "vm.log";
 
+BCLog::Logger& LogInstance()
+{
 /**
  * NOTE: the logger instances is leaked on exit. This is ugly, but will be
  * cleaned up by the OS/libc. Defining a logger as a global object doesn't work
@@ -18,11 +20,15 @@ const char * const DEFAULT_DEBUGVMLOGFILE = "vm.log";
  * access the logger. When the shutdown sequence is fully audited and tested,
  * explicit destruction of these objects can be implemented by changing this
  * from a raw pointer to a std::unique_ptr.
+ * Since the destructor is never called, the logger and all its members must
+ * have a trivial destructor.
  *
  * This method of initialization was originally introduced in
  * ee3374234c60aba2cc4c5cd5cac1c0aefc2d817c.
  */
-BCLog::Logger* const g_logger = new BCLog::Logger();
+    static BCLog::Logger* g_logger{new BCLog::Logger()};
+    return *g_logger;
+}
 
 bool fLogIPs = DEFAULT_LOGIPS;
 
@@ -248,11 +254,13 @@ void BCLog::Logger::LogPrintStr(const std::string &str, bool useVMLog)
                 fs::path file_path = m_file_path;
                 if(useVMLog)
                     file_path = m_file_pathVM;
-                file = fsbridge::freopen(file_path, "a", file);
-                if (!file) {
+                FILE* new_fileout = fsbridge::fopen(file_path, "a");
+                if (!new_fileout) {
                     return;
                 }
-                setbuf(file, nullptr); // unbuffered
+                setbuf(new_fileout, nullptr); // unbuffered
+                fclose(file);
+                file = new_fileout;
             }
 
             FileWriteStr(strTimestamped, file);
@@ -274,7 +282,7 @@ void BCLog::Logger::ShrinkDebugFile()
     size_t log_size = 0;
     try {
         log_size = fs::file_size(m_file_path);
-    } catch (boost::filesystem::filesystem_error &) {}
+    } catch (const fs::filesystem_error&) {}
 
     // If debug.log file is more than 10% bigger the RECENT_DEBUG_HISTORY_SIZE
     // trim it down by saving only the last RECENT_DEBUG_HISTORY_SIZE bytes

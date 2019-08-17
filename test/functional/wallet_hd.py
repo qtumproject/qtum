@@ -26,15 +26,8 @@ class WalletHDTest(BitcoinTestFramework):
         self.skip_if_no_wallet()
 
     def run_test(self):
-        # Make sure can't switch off usehd after wallet creation
-        self.stop_node(1)
-        self.nodes[1].assert_start_raises_init_error(['-usehd=0'], "Error: Error loading : You can't disable HD on an already existing HD wallet")
-        self.start_node(1)
-        connect_nodes_bi(self.nodes, 0, 1)
-
         # Make sure we use hd, keep masterkeyid
         masterkeyid = self.nodes[1].getwalletinfo()['hdseedid']
-        assert_equal(masterkeyid, self.nodes[1].getwalletinfo()['hdmasterkeyid'])
         assert_equal(len(masterkeyid), 40)
 
         # create an internal key
@@ -60,7 +53,6 @@ class WalletHDTest(BitcoinTestFramework):
             hd_info = self.nodes[1].getaddressinfo(hd_add)
             assert_equal(hd_info["hdkeypath"], "m/88'/0'/"+str(i)+"'")
             assert_equal(hd_info["hdseedid"], masterkeyid)
-            assert_equal(hd_info["hdmasterkeyid"], masterkeyid)
             self.nodes[0].sendtoaddress(hd_add, 1)
             self.nodes[0].generate(1)
         self.nodes[0].sendtoaddress(non_hd_add, 1)
@@ -90,7 +82,6 @@ class WalletHDTest(BitcoinTestFramework):
             hd_info_2 = self.nodes[1].getaddressinfo(hd_add_2)
             assert_equal(hd_info_2["hdkeypath"], "m/88'/0'/"+str(i)+"'")
             assert_equal(hd_info_2["hdseedid"], masterkeyid)
-            assert_equal(hd_info_2["hdmasterkeyid"], masterkeyid)
         assert_equal(hd_add, hd_add_2)
         connect_nodes_bi(self.nodes, 0, 1)
         self.sync_all()

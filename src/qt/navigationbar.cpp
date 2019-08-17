@@ -223,7 +223,7 @@ void NavigationBar::buildUi()
                 }
                 vboxLayout2->addWidget(subNavBar);
                 subNavBar->buildUi();
-                connect(action, SIGNAL(toggled(bool)), subNavBar, SLOT(onSubBarClick(bool)));
+                connect(action, &QAction::toggled, subNavBar, &NavigationBar::onSubBarClick);
             }
             else
             {

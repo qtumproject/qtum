@@ -56,6 +56,7 @@ class WalletTest(BitcoinTestFramework):
 
         self.nodes[2].generate(1)
         self.sync_all()
+        self.nodes[2].generate(1)
         self.nodes[2].generatetoaddress(COINBASE_MATURITY, RANDOM_COINBASE_ADDRESS)
         self.sync_all()
         self.nodes[2].sendmany("", {self.nodes[0].getnewaddress(): 50, self.nodes[1].getnewaddress(): 50})
@@ -131,6 +132,18 @@ class WalletTest(BitcoinTestFramework):
 
         # getbalance with minconf=2 will show the new balance.
         assert_equal(self.nodes[1].getbalance(minconf=2), Decimal('0'))
+
+        # check mempool transactions count for wallet unconfirmed balance after
+        # dynamically loading the wallet.
+        before = self.nodes[1].getunconfirmedbalance()
+        dst = self.nodes[1].getnewaddress()
+        self.nodes[1].unloadwallet('')
+        self.nodes[0].sendtoaddress(dst, 0.1)
+        self.sync_all()
+        self.nodes[1].loadwallet('')
+        after = self.nodes[1].getunconfirmedbalance()
+        assert_equal(before + Decimal('0.1'), after)
+
 
 if __name__ == '__main__':
     WalletTest().main()

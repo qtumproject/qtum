@@ -33,6 +33,7 @@ private Q_SLOTS:
     void on_gasInfoChanged(quint64 blockGasLimit, quint64 minGasPrice, quint64 nGasPrice);
     void on_updateConfirmButton();
     void on_confirmClicked();
+    void updateDisplayUnit();
 
 private:
     Ui::SendTokenPage *ui;
