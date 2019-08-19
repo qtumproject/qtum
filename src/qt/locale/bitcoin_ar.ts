@@ -188,10 +188,6 @@
         <translation>محفظة مشفرة</translation>
     </message>
     <message>
-        <source>%1 will close now to finish the encryption process. Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
-        <translation>سيتم إغلاق %1 الآن لإنهاء عملية التشفير. تذكر أن تشفير محفظتك لا يمكن أن يحمي البتكوين الخاص بك بالكامل من السرقة عبر البرامج الضارة التي بامكانها أن تصيب جهاز الكمبيوتر الخاص بك.</translation>
-    </message>
-    <message>
         <source>IMPORTANT: Any previous backups you have made of your wallet file should be replaced with the newly generated, encrypted wallet file. For security reasons, previous backups of the unencrypted wallet file will become useless as soon as you start using the new, encrypted wallet.</source>
         <translation>هام: أي نسخة إحتياطية سابقة  قمت بها لمحفظتك يجب استبدالها  بأخرى حديثة، مشفرة. لأسباب أمنية، النسخ الاحتياطية السابقة لملفات المحفظة الغير مشفرة تصبح عديمة الفائدة مع بداية استخدام المحفظة المشفرة الجديدة.</translation>
     </message>
@@ -254,10 +250,6 @@
         <translation>&amp;نظرة عامة</translation>
     </message>
     <message>
-        <source>Node</source>
-        <translation>جهاز</translation>
-    </message>
-    <message>
         <source>Show general overview of wallet</source>
         <translation>إظهار نظرة عامة على المحفظة</translation>
     </message>
@@ -314,16 +306,12 @@
         <translation>&amp;تغيير كلمة المرور</translation>
     </message>
     <message>
-        <source>&amp;Sending addresses...</source>
-        <translation>&amp;عناوين الإرسال...</translation>
-    </message>
-    <message>
-        <source>&amp;Receiving addresses...</source>
-        <translation>&amp;عناوين الاستقبال...</translation>
-    </message>
-    <message>
         <source>Open &amp;URI...</source>
         <translation>افتح &amp;URI...</translation>
+    </message>
+    <message>
+        <source>Wallet:</source>
+        <translation>محفظة:</translation>
     </message>
     <message>
         <source>Click to disable network activity.</source>
@@ -372,10 +360,6 @@
     <message>
         <source>Qtum</source>
         <translation>بتكوين</translation>
-    </message>
-    <message>
-        <source>Wallet</source>
-        <translation>محفظة</translation>
     </message>
     <message>
         <source>&amp;Send</source>
@@ -478,8 +462,36 @@
         <translation>محدث</translation>
     </message>
     <message>
+        <source>&amp;Sending addresses</source>
+        <translation>&amp;عناوين الإرسال</translation>
+    </message>
+    <message>
+        <source>&amp;Receiving addresses</source>
+        <translation>&amp;عناوين الإستقبال</translation>
+    </message>
+    <message>
         <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
         <translation>بين اشارة المساعدة %1 للحصول على قائمة من خيارات اوامر البت كوين المحتملة </translation>
+    </message>
+    <message>
+        <source>&amp;Window</source>
+        <translation>نافذه</translation>
+    </message>
+    <message>
+        <source>Minimize</source>
+        <translation>تصغير</translation>
+    </message>
+    <message>
+        <source>Zoom</source>
+        <translation>تكبير</translation>
+    </message>
+    <message>
+        <source>Restore</source>
+        <translation>إرجاع</translation>
+    </message>
+    <message>
+        <source>Main Window</source>
+        <translation>النافذة الرئيسية</translation>
     </message>
     <message>
         <source>%1 client</source>
@@ -895,11 +907,7 @@
         <source>Hide</source>
         <translation>إخفاء</translation>
     </message>
-    <message>
-        <source>Unknown. Syncing Headers (%1)...</source>
-        <translation>غير معروف. مزامنة الرؤوس (%1) ...</translation>
-    </message>
-</context>
+    </context>
 <context>
     <name>OpenURIDialog</name>
     <message>
@@ -946,10 +954,6 @@
         <translation>حجم ذاكرة التخزين المؤقت لقاعدة البيانات</translation>
     </message>
     <message>
-        <source>MB</source>
-        <translation>م ب</translation>
-    </message>
-    <message>
         <source>Number of script &amp;verification threads</source>
         <translation>عدد مؤشرات التحقق من البرنامج النصي</translation>
     </message>
@@ -972,10 +976,6 @@
     <message>
         <source>Minimize instead of exit the application when the window is closed. When this option is enabled, the application will be closed only after selecting Exit in the menu.</source>
         <translation>التصغير بدلاً من الخروج من التطبيق عند إغلاق النافذة. عند تفعيل هذا الخيار، سيتم إغلاق التطبيق فقط بعد اختيار الخروج من القائمة.</translation>
-    </message>
-    <message>
-        <source>Active command-line options that override above options:</source>
-        <translation>خيارات سطر الأوامر النشطة التي تتجاوز الخيارات أعلاه:</translation>
     </message>
     <message>
         <source>Open the %1 configuration file from the working directory.</source>
@@ -1975,14 +1975,6 @@
         <translation>إخفاء</translation>
     </message>
     <message>
-        <source>Paying only the minimum fee is just fine as long as there is less transaction volume than space in the blocks. But be aware that this can end up in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
-        <translation>إن دفع الحد الأدنى فقط من الرسوم يجوز طالما أن حجم المعاملات أقل من المساحة الموجودة في الكتل. ولكن كن على علم بأن هذا يمكن أن ينتهي في معاملة غير مؤكدة أبداً عندما يكون هناك طلب أكبر على معاملات البتكوين مما تستطيع الشبكة معالجته.</translation>
-    </message>
-    <message>
-        <source>(read the tooltip)</source>
-        <translation>(اقرأ تلميح الأدوات)</translation>
-    </message>
-    <message>
         <source>Recommended:</source>
         <translation>موصى به:</translation>
     </message>
@@ -2133,10 +2125,6 @@
     <message>
         <source>Payment request expired.</source>
         <translation>انتهاء صلاحية طلب الدفع.</translation>
-    </message>
-    <message>
-        <source>Pay only the required fee of %1</source>
-        <translation>دفع فقط الرسوم المطلوبة ل %1</translation>
     </message>
     <message>
         <source>Warning: Invalid Qtum address</source>
@@ -2825,6 +2813,9 @@
     </message>
 </context>
 <context>
+    <name>WalletController</name>
+    </context>
+<context>
     <name>WalletFrame</name>
     <message>
         <source>No wallet has been loaded.</source>
@@ -2873,7 +2864,7 @@
         <source>Could not commit transaction</source>
         <translation>لا يمكن تنفيذ المعاملة</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>WalletView</name>
     <message>
@@ -2936,6 +2927,11 @@
         <translation>يرجى المساهمة إذا وجدت %s مفيداً. تفضل بزيارة %s لمزيد من المعلومات حول البرنامج.</translation>
     </message>
     <message>
+        <source>%s corrupt, salvage failed</source>
+        <translation>
+%s تالف, فشل الانقاذ.</translation>
+    </message>
+    <message>
         <source>Change index out of range</source>
         <translation>فهرس الفكة خارج النطاق</translation>
     </message>
@@ -2952,12 +2948,20 @@
         <translation>هل تريد إعادة بناء قاعدة بيانات الكتل الآن؟</translation>
     </message>
     <message>
-        <source>Error creating %s: You can't create non-HD wallets with this version.</source>
-        <translation>خطأ في إنشاء %s: لا يمكنك إنشاء محافظ بلا خاصية الهرمية الحتمية non-HD باستخدام هذا الإصدار.</translation>
-    </message>
-    <message>
         <source>Error loading %s</source>
         <translation>خطأ في تحميل %s</translation>
+    </message>
+    <message>
+        <source>Error loading %s: Private keys can only be disabled during creation</source>
+        <translation>خطأ في تحميل %s:  لا يمكن تعطيل المفاتيح الخاصة إلا أثناء الإنشاء.</translation>
+    </message>
+    <message>
+        <source>Error loading %s: Wallet corrupted</source>
+        <translation>خطأ في التحميل %s: المحفظة تالفة.</translation>
+    </message>
+    <message>
+        <source>Error loading %s: Wallet requires newer version of %s</source>
+        <translation>خطا تحميل %s: المحفظة تتطلب النسخة الجديدة من %s.</translation>
     </message>
     <message>
         <source>Error loading block database</source>
@@ -2974,6 +2978,10 @@
     <message>
         <source>Failed to listen on any port. Use -listen=0 if you want this.</source>
         <translation>فشل في الاستماع على أي منفذ. استخدام الاستماع = 0 إذا كنت تريد هذا.</translation>
+    </message>
+    <message>
+        <source>Failed to rescan the wallet during initialization</source>
+        <translation>فشل في اعادة مسح المحفظة خلال عملية التهيئة.</translation>
     </message>
     <message>
         <source>Importing...</source>
@@ -3020,8 +3028,8 @@
         <translation>شفرة المصدر متاحة من %s.</translation>
     </message>
     <message>
-        <source>Unsupported argument -tor found, use -onion.</source>
-        <translation>تم العثور على وسيطة غير مدعومة -tor ، استخدم -onion.</translation>
+        <source>Unable to generate keys</source>
+        <translation> غير قادر على توليد مفاتيح.</translation>
     </message>
     <message>
         <source>Upgrading UTXO database</source>
@@ -3042,10 +3050,6 @@
     <message>
         <source>You need to rebuild the database using -reindex to go back to unpruned mode.  This will redownload the entire blockchain</source>
         <translation>تحتاج إلى إعادة إنشاء قاعدة البيانات باستخدام -reindex للعودة إلى الوضعية الغير مجردة. هذا سوف يعيد تحميل سلسلة الكتل بأكملها</translation>
-    </message>
-    <message>
-        <source>Error loading %s: You can't disable HD on an already existing HD wallet</source>
-        <translation>خطأ أثناء تحميل %s: لا يمكنك تعطيل خاصية الهرمية الحتمية HD في محفظة مفعلة بخاصية الهرمية الحتمية HD مسبقاً</translation>
     </message>
     <message>
         <source>Error reading from database, shutting down.</source>
@@ -3104,10 +3108,6 @@
         <translation>إزالة جميع المعاملات من المحفظة...</translation>
     </message>
     <message>
-        <source>Error loading %s: You can't enable HD on an already existing non-HD wallet</source>
-        <translation>خطأ أثناء تحميل %s: لا يمكنك تفعيل خاصية الهرمية الحتمية HD في محفظة لا تملك خاصية الهرمية الحتمية non-HD مسبقاً</translation>
-    </message>
-    <message>
         <source>Warning: Wallet file corrupt, data salvaged! Original %s saved as %s in %s; if your balance or transactions are incorrect you should restore from a backup.</source>
         <translation>تحذير: ملف المحفظة فاسد ، تم انقاذ البيانات! تم حفظ %s الأصلي ك %s في %s؛ إذا كان رصيدك أو كانت معاملاتك غير صحيحة، فيجب عليك الإستعادة من نسخة احتياطية.</translation>
     </message>
@@ -3128,12 +3128,20 @@
         <translation>يجب ألا تكون قيمة المعاملة سلبية</translation>
     </message>
     <message>
+        <source>Transaction has too long of a mempool chain</source>
+        <translation>المعاملات طويلة جداً على حجم سلسلة الذاكرة </translation>
+    </message>
+    <message>
         <source>Transaction must have at least one recipient</source>
         <translation>يجب أن تحتوي المعاملة على مستلم واحد على الأقل</translation>
     </message>
     <message>
         <source>Insufficient funds</source>
         <translation>اموال غير كافية</translation>
+    </message>
+    <message>
+        <source>Cannot write to data directory '%s'; check permissions.</source>
+        <translation>لايمكن الكتابة على دليل البيانات '%s'؛ تحقق من السماحيات.</translation>
     </message>
     <message>
         <source>Loading block index...</source>

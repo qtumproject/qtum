@@ -71,7 +71,7 @@ void TabBarInfo::attach(QTabBar *tabBar, QIcon* iconCloseTab)
     m_iconCloseTab = iconCloseTab;
     if(m_tabBar)
     {
-        connect(m_tabBar, SIGNAL(currentChanged(int)), SLOT(on_currentChanged(int)));
+        connect(m_tabBar, &QTabBar::currentChanged, this, &TabBarInfo::on_currentChanged);
     }
     update();
     m_attached = true;
@@ -189,7 +189,7 @@ void TabBarInfo::update()
                             tool->setObjectName("tabBarTool");
                             tool->setFixedSize(16, 16);
                             m_tabBar->setTabButton(count - 1, QTabBar::RightSide, tool);
-                            connect(tool, SIGNAL(clicked(bool)), SLOT(on_closeButtonClick()));
+                            connect(tool, &QToolButton::clicked, this, &TabBarInfo::on_closeButtonClick);
                         }
                     }
                 }

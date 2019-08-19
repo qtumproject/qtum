@@ -10,7 +10,10 @@ import binascii
 
 from . import segwit_addr
 
+ADDRESS_BCRT1_UNSPENDABLE = 'qcrt1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqen882c'
+
 chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
+
 
 def byte_to_base58(b, version):
     result = ''

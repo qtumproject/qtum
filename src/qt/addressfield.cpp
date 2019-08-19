@@ -30,7 +30,7 @@ AddressField::AddressField(QWidget *parent) :
     setComboBoxEditable(false);
 
     // Connect signals and slots
-    connect(this, SIGNAL(addressTypeChanged(AddressType)), SLOT(on_addressTypeChanged()));
+    connect(this, &AddressField::addressTypeChanged, this, &AddressField::on_addressTypeChanged);
 }
 
 QString AddressField::currentText() const
@@ -73,7 +73,7 @@ void AddressField::setComboBoxEditable(bool editable)
         QValidatedLineEdit *validatedLineEdit = (QValidatedLineEdit*)lineEdit();
         validatedLineEdit->setCheckValidator(new BitcoinAddressCheckValidator(parent(), m_senderAddress));
         completer()->setCompletionMode(QCompleter::InlineCompletion);
-        connect(validatedLineEdit, SIGNAL(editingFinished()), this, SLOT(on_editingFinished()));
+        connect(validatedLineEdit, &QValidatedLineEdit::editingFinished, this, &AddressField::on_editingFinished);
     }
 }
 
@@ -156,7 +156,7 @@ void AddressField::setWalletModel(WalletModel *walletModel)
 {
     m_walletModel = walletModel;
 
-    connect(m_walletModel, SIGNAL(availableAddressesChanged(QStringList,QStringList,bool)), this, SLOT(on_availableAddressesChanged(QStringList,QStringList,bool)));
+    connect(m_walletModel, &WalletModel::availableAddressesChanged, this, &AddressField::on_availableAddressesChanged);
 }
 
 void AddressField::on_availableAddressesChanged(QStringList spendableAddresses, QStringList allAddresses, bool includeZeroValue)

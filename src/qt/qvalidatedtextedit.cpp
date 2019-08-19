@@ -10,7 +10,7 @@ QValidatedTextEdit::QValidatedTextEdit(QWidget *parent) :
     emptyIsValid(true),
     isValidManually(false)
 {
-    connect(this, SIGNAL(textChanged()), this, SLOT(markValid()));
+    connect(this, &QValidatedTextEdit::textChanged, this, &QValidatedTextEdit::markValid);
     setStyleSheet("");
 }
 

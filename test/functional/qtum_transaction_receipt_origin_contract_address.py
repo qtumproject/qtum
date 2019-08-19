@@ -18,6 +18,9 @@ class QtumTransactionReceiptOriginContractAddressTest(BitcoinTestFramework):
         self.num_nodes = 1
         self.extra_args = [['-logevents', '-txindex']]
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
+
     def run_test(self):
         self.node = self.nodes[0]
         self.nodes[0].generate(10 + COINBASE_MATURITY)

@@ -13,13 +13,16 @@ class QtumDivergenceDosTest(BitcoinTestFramework):
         self.num_nodes = 1
         self.extra_args = [[]]
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
+
     def submit_block_with_txs(self, txs):
         tip = self.node.getblock(self.node.getbestblockhash())
         block = create_block(int(tip['hash'], 16), create_coinbase(tip['height']+1), tip['time']+1)
         block.hashStateRoot = int(tip['hashStateRoot'], 16)
         block.hashUTXORoot = int(tip['hashUTXORoot'], 16)
         if txs:
-            address = self.node.gettxout(hex(txs[0].vin[0].prevout.hash)[2:], txs[0].vin[0].prevout.n)['scriptPubKey']['addresses'][0]
+            address = self.node.gettxout(hex(txs[0].vin[0].prevout.hash)[2:].zfill(64), txs[0].vin[0].prevout.n)['scriptPubKey']['addresses'][0]
             haddress = hex_str_to_bytes(p2pkh_to_hex_hash(address))
             block.vtx[0].vout.append(CTxOut(100, CScript([OP_DUP, OP_HASH160, haddress, OP_EQUALVERIFY, OP_CHECKSIG])))
             if len(txs) > 1:

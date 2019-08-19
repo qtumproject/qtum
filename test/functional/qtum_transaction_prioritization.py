@@ -16,6 +16,9 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
         self.num_nodes = 1
         self.extra_args = [['-staking=1', '-rpcmaxgasprice=10000000']]
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
+
     def restart_node(self):
         self.stop_nodes()
         self.start_nodes()
@@ -57,7 +60,7 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
             spends_vout = unspent['vout']
 
         # Fetch the amount of the vout of the txid that we are spending
-        spends_tx = self.node.getrawtransaction(spends_txid, True)
+        spends_tx = self.node.decoderawtransaction(self.node.gettransaction(spends_txid)['hex'])
         for output in spends_tx['vout']:
             if output['n'] == spends_vout:
                 break
@@ -85,7 +88,7 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
                     break
 
         # Fetch the amount of the vout of the txid that we are spending
-        spends_tx = self.node.getrawtransaction(spends_txid, True)
+        spends_tx = self.node.decoderawtransaction(self.node.gettransaction(spends_txid)['hex'])
         for output in spends_tx['vout']:
             if output['n'] == spends_vout:
                 break

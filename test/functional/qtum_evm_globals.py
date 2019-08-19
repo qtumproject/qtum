@@ -20,7 +20,8 @@ class QtumEVMGlobalsTest(BitcoinTestFramework):
         self.num_nodes = 2
         self.extra_args = [['-staking=1'], []]
 
-
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
 
     def get_contract_call_output(self, abi_param):
         out = self.node.callcontract(self.contract_address, abi_param)
@@ -66,7 +67,7 @@ class QtumEVMGlobalsTest(BitcoinTestFramework):
 
         block = self.node.getblock(blockhash)
         blocktxids = block['tx']
-        coinbase_tx = self.node.getrawtransaction(blocktxids[authorTxIndexAndVoutIndex], True)
+        coinbase_tx = self.node.decoderawtransaction(self.node.gettransaction(blocktxids[authorTxIndexAndVoutIndex])['hex'])
         coinbase_address = coinbase_tx['vout'][authorTxIndexAndVoutIndex]['scriptPubKey']['addresses'][0]
         coinbase_pkh = p2pkh_to_hex_hash(coinbase_address)
 

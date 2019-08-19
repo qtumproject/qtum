@@ -10,8 +10,6 @@
 #include <serialize.h>
 #include <uint256.h>
 
-static const int SER_WITHOUT_SIGNATURE = 1 << 3;
-
 /** Nodes collect new transactions into a block, hash them into a hash tree,
  * and scan through nonce values to make the block's hash satisfy proof-of-work
  * requirements.  When they solve the proof-of-work, they broadcast the block
@@ -19,10 +17,13 @@ static const int SER_WITHOUT_SIGNATURE = 1 << 3;
  * in the block is a special one that creates a new coin owned by the creator
  * of the block.
  */
-class CBlockHeader
+
+// Base class for block header, used to serialize the header without signature
+// Workaround due to removing serialization templates in Bitcoin Core 0.18
+class CBlockHeaderBase
 {
 public:
-    // header
+    // header without signature
     int32_t nVersion;
     uint256 hashPrevBlock;
     uint256 hashMerkleRoot;
@@ -33,6 +34,27 @@ public:
     uint256 hashUTXORoot; // qtum
     // proof-of-stake specific fields
     COutPoint prevoutStake;
+
+    ADD_SERIALIZE_METHODS;
+
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action) {
+        READWRITE(this->nVersion);
+        READWRITE(hashPrevBlock);
+        READWRITE(hashMerkleRoot);
+        READWRITE(nTime);
+        READWRITE(nBits);
+        READWRITE(nNonce);
+        READWRITE(hashStateRoot); // qtum
+        READWRITE(hashUTXORoot); // qtum
+        READWRITE(prevoutStake);
+    }
+};
+
+class CBlockHeader : public CBlockHeaderBase
+{
+public:
+    // header
     std::vector<unsigned char> vchBlockSig;
 
     CBlockHeader()
@@ -53,8 +75,7 @@ public:
         READWRITE(hashStateRoot); // qtum
         READWRITE(hashUTXORoot); // qtum
         READWRITE(prevoutStake);
-        if (!(s.GetType() & SER_WITHOUT_SIGNATURE))
-            READWRITE(vchBlockSig);
+        READWRITE(vchBlockSig);
     }
 
     void SetNull()
