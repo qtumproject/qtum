@@ -35,9 +35,9 @@ AddTokenPage::AddTokenPage(QWidget *parent) :
 
     m_tokenABI = new Token();
 
-    connect(ui->lineEditContractAddress, SIGNAL(textChanged(const QString &)), this, SLOT(on_addressChanged()));
-    connect(ui->lineEditTokenName, SIGNAL(textChanged(const QString &)), SLOT(on_updateConfirmButton()));
-    connect(ui->lineEditTokenSymbol, SIGNAL(textChanged(const QString &)), SLOT(on_updateConfirmButton()));
+    connect(ui->lineEditContractAddress, &QLineEdit::textChanged, this, &AddTokenPage::on_addressChanged);
+    connect(ui->lineEditTokenName, &QLineEdit::textChanged, this, &AddTokenPage::on_updateConfirmButton);
+    connect(ui->lineEditTokenSymbol, &QLineEdit::textChanged, this, &AddTokenPage::on_updateConfirmButton);
 
     ui->lineEditSenderAddress->setAddressColumn(AddressTableModel::Address);
     ui->lineEditSenderAddress->setTypeRole(AddressTableModel::TypeRole);

@@ -38,6 +38,7 @@ namespace Checkpoints {
         }
         return nullptr;
     }
+
     // Automatically select a suitable sync-checkpoint 
     const CBlockIndex* AutoSelectSyncCheckpoint()
     {
@@ -60,6 +61,4 @@ namespace Checkpoints {
             return false;
         return true;
     }
-
-
 } // namespace Checkpoints

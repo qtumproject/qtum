@@ -125,6 +125,7 @@ def check_estimates(node, fees_seen):
 class EstimateFeeTest(BitcoinTestFramework):
     def set_test_params(self):
         self.num_nodes = 3
+        self.extra_args = [['-minrelaytxfee=0.000001']] * 3
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
@@ -144,6 +145,9 @@ class EstimateFeeTest(BitcoinTestFramework):
         # (68k weight is room enough for 120 or so transactions)
         # Node2 is a stingy miner, that
         # produces too small blocks (room for only 55 or so transactions)
+        self.start_nodes()
+        self.import_deterministic_coinbase_privkeys()
+        self.stop_nodes()
 
     def transact_and_mine(self, numblocks, mining_node):
         min_fee = Decimal("0.00001")
@@ -171,17 +175,12 @@ class EstimateFeeTest(BitcoinTestFramework):
                     newmem.append(utx)
             self.memutxo = newmem
 
-    def import_deterministic_coinbase_privkeys(self):
-        self.start_nodes()
-        super().import_deterministic_coinbase_privkeys()
-        self.stop_nodes()
-
     def run_test(self):
         self.log.info("This test is time consuming, please be patient")
         self.log.info("Splitting inputs so we can generate tx's")
 
         # Start node0
-        self.start_node(0)
+        self.start_node(0, ['-minrelaytxfee=0.000001'])
         self.txouts = []
         self.txouts2 = []
         # Split a coinbase into two transaction puzzle outputs

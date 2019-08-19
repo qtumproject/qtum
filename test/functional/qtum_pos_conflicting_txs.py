@@ -16,6 +16,9 @@ class QtumPOSConflictingStakingMempoolTxTest(BitcoinTestFramework):
         self.setup_clean_chain = True
         self.extra_args = [['-staking=1', '-txindex=1', '-aggressive-staking'], ['-staking=1', '-txindex=1']]
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
+
     def sync_disconnected_nodes(self, receive_from, sync_to):
         for block_number in range(sync_to.getblockcount(), receive_from.getblockcount()+1):
             block_hash = receive_from.getblockhash(block_number)

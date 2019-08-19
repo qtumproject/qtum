@@ -1,6 +1,7 @@
 #include <qtum/qtumutils.h>
 #include <libdevcore/CommonData.h>
 #include <pubkey.h>
+#include <util/convert.h>
 
 using namespace dev;
 

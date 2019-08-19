@@ -18,6 +18,8 @@ class CallContractTest(BitcoinTestFramework):
         self.num_nodes = 1
         self.extra_args = [['-txindex=1']]
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
 
     # Verifies that the fallback function is correctly called
     def callcontract_fallback_function_test(self):

@@ -29,6 +29,14 @@ class TxnMallTest(BitcoinTestFramework):
     def run_test(self):
         # All nodes should start with 1,250 BTC:
         starting_balance = 25*INITIAL_BLOCK_REWARD
+
+        # All nodes should be out of IBD.
+        # If the nodes are not all out of IBD, that can interfere with
+        # blockchain sync later in the test when nodes are connected, due to
+        # timing issues.
+        for n in self.nodes:
+            assert n.getblockchaininfo()["initialblockdownload"] == False
+
         for i in range(4):
             assert_equal(self.nodes[i].getbalance(), starting_balance)
             self.nodes[i].getnewaddress("")  # bug workaround, coins generated assigned to first getnewaddress!

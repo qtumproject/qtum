@@ -21,6 +21,10 @@ class QtumBitcoreTest(BitcoinTestFramework):
         self.extra_args = [['-addrindex=1'], ['-addrindex=0']]
         self.setup_clean_chain = True
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_bitcore()
+        self.skip_if_no_wallet()
+
     def unknown_segwit_address_test(self):
         unspent = self.nodes[0].listunspent()[0]
         script_pubkey = CScript([CScriptOp(OP_16), sha256(b"\x00")])
@@ -91,7 +95,7 @@ class QtumBitcoreTest(BitcoinTestFramework):
         assert_equal(set(ret), set(node.getblockhash(991+i) for i in range(3)))
         time.sleep(1)
 
-        txinfo = node.getrawtransaction(expected_address_txids[0], True)
+        txinfo = node.decoderawtransaction(node.gettransaction(expected_address_txids[0])['hex'])
         spent_prevout = txinfo['vin'][0]
         ret = node.getspentinfo({"txid": spent_prevout['txid'], "index": spent_prevout['vout']})
         assert_equal(ret, {"txid": expected_address_txids[0], "index": 0, "height": 1002})

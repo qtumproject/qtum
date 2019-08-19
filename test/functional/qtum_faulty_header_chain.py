@@ -18,6 +18,9 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
         self.setup_clean_chain = True
         self.num_nodes = 2
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
+
     def start_p2p_connection(self):
         self.p2p_node = self.node.add_p2p_connection(P2PInterface())
 
@@ -29,8 +32,8 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
                 break
 
     def sign_block_with_standard_private_key(self, block):
-        block_sig_key = CECKey()
-        block_sig_key.set_secretbytes(hash256(struct.pack('<I', 0)))
+        block_sig_key = ECKey()
+        block_sig_key.set(hash256(struct.pack('<I', 0)), False)
         block.sign_block(block_sig_key)
 
     def create_pos_block(self, staking_prevouts, parent_block, parent_block_stake_modifier, block_height, block_reward=2000400000000):
@@ -43,9 +46,9 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
             return None
 
         # create a new private key used for block signing.
-        block_sig_key = CECKey()
-        block_sig_key.set_secretbytes(hash256(struct.pack('<I', 0)))
-        pubkey = block_sig_key.get_pubkey()
+        block_sig_key = ECKey()
+        block_sig_key.set(hash256(struct.pack('<I', 0)), False)
+        pubkey = block_sig_key.get_pubkey().get_bytes()
         scriptPubKey = CScript([pubkey, OP_CHECKSIG])
         stake_tx_unsigned = CTransaction()
 

@@ -12,7 +12,7 @@ ReceiveTokenPage::ReceiveTokenPage(const PlatformStyle *_platformStyle, QWidget 
     platformStyle(_platformStyle)
 {
     ui->setupUi(this);
-    connect(ui->copyAddressButton, SIGNAL(clicked()), this, SLOT(on_copyAddressClicked()));
+    connect(ui->copyAddressButton, &QToolButton::clicked, this, &ReceiveTokenPage::on_copyAddressClicked);
     ui->copyAddressButton->setIcon(platformStyle->MultiStatesIcon(":/icons/editcopy", PlatformStyle::PushButton));
     ui->copyAddressButton->setVisible(false);
     setAddress("");
