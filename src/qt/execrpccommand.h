@@ -6,7 +6,7 @@
 #include <QStringList>
 #include <QVariant>
 #include <interfaces/node.h>
-#include <interfaces/wallet.h>
+#include <qt/walletmodel.h>
 
 /**
  * @brief The ExecRPCCommand class Execution of RPC command line
@@ -34,7 +34,7 @@ public:
      * @param errorMessage Error message from the execution
      * @return Result of the execution
      */
-    bool exec(interfaces::Node& node, interfaces::Wallet& wallet, const QMap<QString, QString>& params, QVariant& result, QString& resultJson, QString& errorMessage);
+    bool exec(interfaces::Node& node, const WalletModel* wallet_model, const QMap<QString, QString>& params, QVariant& result, QString& resultJson, QString& errorMessage);
 
     /**
      * @brief appendParam Append paramether to the list

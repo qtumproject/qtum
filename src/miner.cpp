@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2018 The Bitcoin Core developers
+// Copyright (c) 2009-2019 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -10,8 +10,8 @@
 #include <chainparams.h>
 #include <coins.h>
 #include <consensus/consensus.h>
-#include <consensus/tx_verify.h>
 #include <consensus/merkle.h>
+#include <consensus/tx_verify.h>
 #include <consensus/validation.h>
 #include <hash.h>
 #include <net.h>
@@ -22,8 +22,9 @@
 #include <primitives/transaction.h>
 #include <script/standard.h>
 #include <timedata.h>
-#include <util.h>
-#include <utilmoneystr.h>
+#include <util/convert.h>
+#include <util/moneystr.h>
+#include <util/system.h>
 #include <validationinterface.h>
 #ifdef ENABLE_WALLET
 #include <wallet/wallet.h>
@@ -33,13 +34,6 @@
 #include <queue>
 #include <utility>
 
-// Unconfirmed transactions in the memory pool often depend on other
-// transactions in the memory pool. When we select transactions from the
-// pool, we select by highest fee rate of a transaction combined with all
-// its ancestors.
-
-uint64_t nLastBlockTx = 0;
-uint64_t nLastBlockWeight = 0;
 unsigned int nMinerSleep = STAKER_POLLING_PERIOD;
 
 int64_t UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParams, const CBlockIndex* pindexPrev)
@@ -75,9 +69,8 @@ static BlockAssembler::Options DefaultOptions()
     // If -blockmaxweight is not given, limit to DEFAULT_BLOCK_MAX_WEIGHT
     BlockAssembler::Options options;
     options.nBlockMaxWeight = gArgs.GetArg("-blockmaxweight", DEFAULT_BLOCK_MAX_WEIGHT);
-    if (gArgs.IsArgSet("-blockmintxfee")) {
-        CAmount n = 0;
-        ParseMoney(gArgs.GetArg("-blockmintxfee", ""), n);
+    CAmount n = 0;
+    if (gArgs.IsArgSet("-blockmintxfee") && ParseMoney(gArgs.GetArg("-blockmintxfee", ""), n)) {
         options.blockMinFeeRate = CFeeRate(n);
     } else {
         options.blockMinFeeRate = CFeeRate(DEFAULT_BLOCK_MIN_TX_FEE);
@@ -118,6 +111,9 @@ void BlockAssembler::RebuildRefundTransaction(){
     }
     pblock->vtx[refundtx] = MakeTransactionRef(std::move(contrTx));
 }
+
+Optional<int64_t> BlockAssembler::m_last_block_num_txs{nullopt};
+Optional<int64_t> BlockAssembler::m_last_block_weight{nullopt};
 
 std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bool fMineWitnessTx, bool fProofOfStake, int64_t* pTotalFees, int32_t txProofTime, int32_t nTimeLimit)
 {
@@ -176,12 +172,12 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     // not activated.
     // TODO: replace this with a call to main to assess validity of a mempool
     // transaction (which in most cases can be a no-op).
-    fIncludeWitness = IsWitnessEnabled(pindexPrev, chainparams.GetConsensus()) && fMineWitnessTx;
+    fIncludeWitness = IsWitnessEnabled(pindexPrev, chainparams.GetConsensus());
 
     int64_t nTime1 = GetTimeMicros();
 
-    nLastBlockTx = nBlockTx;
-    nLastBlockWeight = nBlockWeight;
+    m_last_block_num_txs = nBlockTx;
+    m_last_block_weight = nBlockWeight;
 
     // Create coinbase transaction.
     CMutableTransaction coinbaseTx;
@@ -323,8 +319,8 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateEmptyBlock(const CScript& 
     // transaction (which in most cases can be a no-op).
     fIncludeWitness = IsWitnessEnabled(pindexPrev, chainparams.GetConsensus()) && fMineWitnessTx;
 
-    nLastBlockTx = nBlockTx;
-    nLastBlockWeight = nBlockWeight;
+    m_last_block_num_txs = nBlockTx;
+    m_last_block_weight = nBlockWeight;
 
     // Create coinbase transaction.
     CMutableTransaction coinbaseTx;
@@ -856,12 +852,12 @@ bool CheckStake(const std::shared_ptr<const CBlock> pblock, CWallet& wallet)
 
     // Found a solution
     {
-        LOCK(cs_main);
+        auto locked_chain = wallet.chain().lock();
         if (pblock->hashPrevBlock != chainActive.Tip()->GetBlockHash())
             return error("CheckStake() : generated block is stale");
 
         for(const CTxIn& vin : pblock->vtx[1]->vin) {
-            if (wallet.IsSpent(vin.prevout.hash, vin.prevout.n)) {
+            if (wallet.IsSpent(*locked_chain, vin.prevout.hash, vin.prevout.n)) {
                 return error("CheckStake() : generated block became invalid due to stake UTXO being spent");
             }
         }
@@ -926,7 +922,11 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
         CAmount nValueIn = 0;
         std::set<std::pair<const CWalletTx*,unsigned int> > setCoins;
         int64_t start = GetAdjustedTime();
-        if(pwallet->SelectCoinsForStaking(nTargetValue, setCoins, nValueIn) && setCoins.size() > 0)
+        {
+            auto locked_chain = pwallet->chain().lock();
+            pwallet->SelectCoinsForStaking(*locked_chain, nTargetValue, setCoins, nValueIn);
+        }
+        if(setCoins.size() > 0)
         {
             int64_t nTotalFees = 0;
             // First just create an empty block. No need to process transactions until we know we can create a block

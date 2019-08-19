@@ -178,11 +178,11 @@ class BIP68_112_113Test(BitcoinTestFramework):
         block.solve()
         return block
 
-    def sync_blocks(self, blocks, success=True, reject_code=None, reject_reason=None, request_block=True):
+    def sync_blocks(self, blocks, success=True):
         """Sends blocks to test node. Syncs and verifies that tip has advanced to most recent block.
 
         Call with success = False if the tip shouldn't advance to the most recent block."""
-        self.nodes[0].p2p.send_blocks_and_test(blocks, self.nodes[0], success=success, reject_code=reject_code, reject_reason=reject_reason, request_block=request_block)
+        self.nodes[0].p2p.send_blocks_and_test(blocks, self.nodes[0], success=success)
 
     def run_test(self):
         self.nodes[0].add_p2p_connection(P2PDataStore())
@@ -238,9 +238,8 @@ class BIP68_112_113Test(BitcoinTestFramework):
             extend_txs.append(tx)
         test_blocks = self.generate_blocks(10, 4, test_blocks, extend_txs=extend_txs)
 
-        self.sync_blocks(test_blocks[0:61], request_block=True)
+        self.sync_blocks(test_blocks[0:61])
         # Advanced from DEFINED to STARTED, height = 143
-        print(self.nodes[0].getblockcount())
 
         #self.log.info("Advance from DEFINED to STARTED, height = 143")
         assert_equal(get_bip9_status(self.nodes[0], 'csv')['status'], 'started')
@@ -266,7 +265,6 @@ class BIP68_112_113Test(BitcoinTestFramework):
         for unspent in self.nodes[0].listunspent():
             if unspent['spendable']:
                 self.unspents.append((unspent['txid'], unspent['vout'], unspent['amount']))
-
         # Inputs at height = 572
         #
         # Put inputs for all tests in the chain at height 572 (tip now = 571) (time increases by 600s per block)

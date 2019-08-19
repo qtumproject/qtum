@@ -9,7 +9,7 @@ from test_framework.script import *
 from test_framework.mininode import *
 from test_framework.blocktools import *
 from test_framework.address import *
-from test_framework.key import CECKey
+from test_framework.key import ECKey
 import io
 import struct
 
@@ -45,11 +45,11 @@ class QtumPOSTest(BitcoinTestFramework):
         self.bootstrap_p2p()
 
 
-    def sync_blocks(self, blocks, success=True, reject_code=None, reject_reason=None, request_block=True, reconnect=False, timeout=5):
+    def sync_blocks(self, blocks, success=True, reject_code=None, reject_reason=None, force_send=False, reconnect=False, timeout=5):
         """Sends blocks to test node. Syncs and verifies that tip has advanced to most recent block.
 
         Call with success = False if the tip shouldn't advance to the most recent block."""
-        self.nodes[0].p2p.send_blocks_and_test(blocks, self.nodes[0], success=success, reject_code=reject_code, reject_reason=reject_reason, request_block=request_block, timeout=timeout)
+        self.nodes[0].p2p.send_blocks_and_test(blocks, self.nodes[0], success=success, reject_reason=reject_reason, force_send=force_send, timeout=timeout, expect_disconnect=reconnect)
 
         if reconnect:
             self.reconnect_p2p()
@@ -120,7 +120,7 @@ class QtumPOSTest(BitcoinTestFramework):
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.staking_prevouts, nTime=t)
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, request_block=False, reconnect=True)
+        self.sync_blocks([self.tip], success=False, force_send=True, reconnect=True)
         self._remove_from_staking_prevouts(self.tip)
 
 
@@ -133,12 +133,12 @@ class QtumPOSTest(BitcoinTestFramework):
 
 
         # 3 A block with an incorrect block sig
-        bad_key = CECKey()
-        bad_key.set_secretbytes(hash256(b'horse staple battery'))
+        bad_key = ECKey()
+        bad_key.set(hash256(b'horse staple battery'), False)
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.staking_prevouts)
         self.tip.sign_block(bad_key)
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, reconnect=True, request_block=False)
+        self.sync_blocks([self.tip], success=False, reconnect=False, force_send=True)
         self._remove_from_staking_prevouts(self.tip)
 
 
@@ -146,7 +146,7 @@ class QtumPOSTest(BitcoinTestFramework):
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.unconfirmed_staking_prevouts)
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, reconnect=True, request_block=False)
+        self.sync_blocks([self.tip], success=False, reconnect=True, force_send=True)
         self._remove_from_staking_prevouts(self.tip)
 
 
@@ -175,7 +175,7 @@ class QtumPOSTest(BitcoinTestFramework):
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.staking_prevouts, nTime=t)
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, request_block=False, reconnect=True)
+        self.sync_blocks([self.tip], success=False, force_send=True)
         self._remove_from_staking_prevouts(self.tip)
 
 
@@ -193,7 +193,7 @@ class QtumPOSTest(BitcoinTestFramework):
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.staking_prevouts, signStakeTx=False)
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, reconnect=True)
+        self.sync_blocks([self.tip], success=False)
         self._remove_from_staking_prevouts(self.tip)
         
 
@@ -265,7 +265,7 @@ class QtumPOSTest(BitcoinTestFramework):
         self.tip.sign_block(block_sig_key)
         self.tip.nNonce = 0xfffe
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, reconnect=True, request_block=False)
+        self.sync_blocks([self.tip], success=False, force_send=True)
         self._remove_from_staking_prevouts(self.tip)
 
         # 17 A block with where the pubkey of the second output of the coinstake has been modified after block signing
@@ -289,7 +289,7 @@ class QtumPOSTest(BitcoinTestFramework):
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.staking_prevouts, nTime=t)
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, request_block=False, reconnect=True)
+        self.sync_blocks([self.tip], success=False, force_send=True)
         self._remove_from_staking_prevouts(self.tip)
 
 
@@ -316,7 +316,7 @@ class QtumPOSTest(BitcoinTestFramework):
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.bad_vout_staking_prevouts)
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, reconnect=True, request_block=False)
+        self.sync_blocks([self.tip], success=False, reconnect=False, force_send=True)
         self._remove_from_staking_prevouts(self.tip)
 
 
@@ -324,7 +324,7 @@ class QtumPOSTest(BitcoinTestFramework):
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.bad_txid_staking_prevouts)
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, reconnect=True, request_block=False)
+        self.sync_blocks([self.tip], success=False, reconnect=True, force_send=True)
         self._remove_from_staking_prevouts(self.tip)
 
 
@@ -367,9 +367,9 @@ class QtumPOSTest(BitcoinTestFramework):
             return None
 
         # create a new private key used for block signing.
-        block_sig_key = CECKey()
-        block_sig_key.set_secretbytes(hash256(struct.pack('<I', 0)))
-        pubkey = block_sig_key.get_pubkey()
+        block_sig_key = ECKey()
+        block_sig_key.set(hash256(struct.pack('<I', 0)), False)
+        pubkey = block_sig_key.get_pubkey().get_bytes()
         scriptPubKey = CScript([pubkey, OP_CHECKSIG])
         stake_tx_unsigned = CTransaction()
 

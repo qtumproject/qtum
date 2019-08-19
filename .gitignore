@@ -5,6 +5,7 @@ src/bitcoin
 src/bitcoind
 src/bitcoin-cli
 src/bitcoin-tx
+src/bitcoin-wallet
 src/test/test_bitcoin
 src/test/test_bitcoin_fuzzy
 src/qt/test/test_bitcoin-qt
@@ -65,6 +66,7 @@ src/qt/bitcoin-qt.includes
 *.a
 *.pb.cc
 *.pb.h
+*.dat
 
 *.log
 *.trs
@@ -116,12 +118,20 @@ test/cache/*
 
 libbitcoinconsensus.pc
 contrib/devtools/split-debug.sh
+
+# Output from running db4 installation
+db4/
+
+# clang-check
+*.plist
+
 .cproject
 .project
 .settings/language.settings.xml
 src/qtum-cli
 src/qtum-tx
 src/qtumd
+src/qtum-wallet
 src/bench/bench_qtum
 src/qt/qtum-qt
 src/qt/test/test_qtum-qt

@@ -13,7 +13,6 @@
 #include <boost/multiprecision/cpp_int.hpp>
 using namespace boost::multiprecision;
 
-
 // U+2009 THIN SPACE = UTF-8 E2 80 89
 #define REAL_THIN_SP_CP 0x2009
 #define REAL_THIN_SP_UTF8 "\xE2\x80\x89"

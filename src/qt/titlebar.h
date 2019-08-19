@@ -11,6 +11,7 @@
 #include <QIcon>
 #include <QLabel>
 #include <QComboBox>
+#include <QPointer>
 #ifdef ENABLE_WALLET
 #include <qt/walletmodel.h>
 #endif
@@ -90,6 +91,10 @@ public Q_SLOTS:
      */
     void on_navigationResized(const QSize& _size);
 
+#ifdef ENABLE_WALLET
+    void updateDisplayUnit();
+#endif
+
 private:
 #ifdef ENABLE_WALLET
     /**
@@ -101,9 +106,9 @@ private:
 private:
     Ui::TitleBar *ui;
 #ifdef ENABLE_WALLET
-    WalletModel *m_model;
+    QPointer<WalletModel> m_model;
 #endif
-    TabBarInfo* m_tab;
+    QPointer<TabBarInfo> m_tab;
     QIcon m_iconCloseTab;
 #ifdef ENABLE_WALLET
     std::map<QObject*, interfaces::WalletBalances> m_models;

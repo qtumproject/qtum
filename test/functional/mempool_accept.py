@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-# Copyright (c) 2017 The Bitcoin Core developers
+# Copyright (c) 2017-2018 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test mempool acceptance of raw transactions."""
 
 from io import BytesIO
+import math
+
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.messages import (
     BIP125_SEQUENCE_NUMBER,
@@ -27,7 +29,6 @@ from test_framework.util import (
     assert_raises_rpc_error,
     bytes_to_hex_str,
     hex_str_to_bytes,
-    wait_until,
 )
 
 
@@ -36,7 +37,6 @@ class MempoolAcceptanceTest(BitcoinTestFramework):
         self.num_nodes = 1
         self.extra_args = [[
             '-txindex',
-            '-reindex',  # Need reindex for txindex
             '-acceptnonstdtxn=0',  # Try to mimic main-net
             '-minrelaytxfee=0.0000001'
         ]] * self.num_nodes
@@ -55,8 +55,9 @@ class MempoolAcceptanceTest(BitcoinTestFramework):
 
         self.log.info('Start with empty mempool, and 200 blocks')
         self.mempool_size = 0
-        wait_until(lambda: node.getblockcount() == 600)
+        assert_equal(node.getblockcount(), 600)
         assert_equal(node.getmempoolinfo()['size'], self.mempool_size)
+        coins = node.listunspent()
 
         self.log.info('Should not accept garbage to testmempoolaccept')
         assert_raises_rpc_error(-3, 'Expected type array, got string', lambda: node.testmempoolaccept(rawtxs='ff00baar'))
@@ -64,13 +65,14 @@ class MempoolAcceptanceTest(BitcoinTestFramework):
         assert_raises_rpc_error(-22, 'TX decode failed', lambda: node.testmempoolaccept(rawtxs=['ff00baar']))
 
         self.log.info('A transaction already in the blockchain')
-        coin = node.listunspent()[0]  # Pick a random coin(base) to spend
+        coin = coins.pop()  # Pick a random coin(base) to spend
         raw_tx_in_block = node.signrawtransactionwithwallet(node.createrawtransaction(
             inputs=[{'txid': coin['txid'], 'vout': coin['vout']}],
             outputs=[{node.getnewaddress(): 0.3}, {node.getnewaddress(): 49}],
         ))['hex']
         txid_in_block = node.sendrawtransaction(hexstring=raw_tx_in_block, allowhighfees=True)
         node.generate(1)
+        self.mempool_size = 0
         self.check_mempool_result(
             result_expected=[{'txid': txid_in_block, 'allowed': False, 'reject-reason': '18: txn-already-known'}],
             rawtxs=[raw_tx_in_block],
@@ -90,9 +92,25 @@ class MempoolAcceptanceTest(BitcoinTestFramework):
             rawtxs=[raw_tx_0],
         )
 
+        self.log.info('A final transaction not in the mempool')
+        coin = coins.pop()  # Pick a random coin(base) to spend
+        raw_tx_final = node.signrawtransactionwithwallet(node.createrawtransaction(
+            inputs=[{'txid': coin['txid'], 'vout': coin['vout'], "sequence": 0xffffffff}],  # SEQUENCE_FINAL
+            outputs=[{node.getnewaddress(): 0.025}],
+            locktime=node.getblockcount() + 2000,  # Can be anything
+        ))['hex']
+        tx.deserialize(BytesIO(hex_str_to_bytes(raw_tx_final)))
+        self.check_mempool_result(
+            result_expected=[{'txid': tx.rehash(), 'allowed': True}],
+            rawtxs=[bytes_to_hex_str(tx.serialize())],
+            allowhighfees=True,
+        )
+        node.sendrawtransaction(hexstring=raw_tx_final, allowhighfees=True)
+        self.mempool_size += 1
+
         self.log.info('A transaction in the mempool')
         node.sendrawtransaction(hexstring=raw_tx_0)
-        self.mempool_size = 1
+        self.mempool_size += 1
         self.check_mempool_result(
             result_expected=[{'txid': txid_0, 'allowed': False, 'reject-reason': '18: txn-already-in-mempool'}],
             rawtxs=[raw_tx_0],

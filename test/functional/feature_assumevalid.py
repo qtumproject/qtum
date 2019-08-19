@@ -32,7 +32,7 @@ Start three nodes:
 import time
 
 from test_framework.blocktools import (create_block, create_coinbase)
-from test_framework.key import CECKey
+from test_framework.key import ECKey
 from test_framework.messages import (
     CBlockHeader,
     COutPoint,
@@ -46,6 +46,7 @@ from test_framework.mininode import P2PInterface
 from test_framework.script import (CScript, OP_TRUE)
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal
+from test_framework.qtumconfig import COINBASE_MATURITY
 
 class BaseNode(P2PInterface):
     def send_header_for_blocks(self, new_blocks):
@@ -104,9 +105,9 @@ class AssumeValidTest(BitcoinTestFramework):
         self.blocks = []
 
         # Get a pubkey for the coinbase TXO
-        coinbase_key = CECKey()
-        coinbase_key.set_secretbytes(b"horsebattery")
-        coinbase_pubkey = coinbase_key.get_pubkey()
+        coinbase_key = ECKey()
+        coinbase_key.generate()
+        coinbase_pubkey = coinbase_key.get_pubkey().get_bytes()
 
         # Create the first block with a coinbase output to our key
         height = 1
@@ -120,7 +121,7 @@ class AssumeValidTest(BitcoinTestFramework):
         height += 1
 
         # Bury the block 100 deep so the coinbase output is spendable
-        for i in range(100):
+        for i in range(COINBASE_MATURITY):
             block = create_block(self.tip, create_coinbase(height), self.block_time)
             block.solve()
             self.blocks.append(block)
@@ -146,7 +147,7 @@ class AssumeValidTest(BitcoinTestFramework):
         height += 1
 
         # Bury the assumed valid block 2100 deep
-        for i in range(2100):
+        for i in range(10000):
             block = create_block(self.tip, create_coinbase(height), self.block_time)
             block.nVersion = 4
             block.solve()
@@ -167,25 +168,38 @@ class AssumeValidTest(BitcoinTestFramework):
 
         # send header lists to all three nodes
         p2p0.send_header_for_blocks(self.blocks[0:2000])
-        p2p0.send_header_for_blocks(self.blocks[2000:])
+        p2p0.send_header_for_blocks(self.blocks[2000:4000])
+        p2p0.send_header_for_blocks(self.blocks[4000:6000])
+        p2p0.send_header_for_blocks(self.blocks[6000:8000])
+        p2p0.send_header_for_blocks(self.blocks[8000:10000])
+        p2p0.send_header_for_blocks(self.blocks[10000:])
+
         p2p1.send_header_for_blocks(self.blocks[0:2000])
-        p2p1.send_header_for_blocks(self.blocks[2000:])
-        p2p2.send_header_for_blocks(self.blocks[0:200])
+        p2p1.send_header_for_blocks(self.blocks[2000:4000])
+        p2p1.send_header_for_blocks(self.blocks[4000:6000])
+        p2p1.send_header_for_blocks(self.blocks[6000:8000])
+        p2p1.send_header_for_blocks(self.blocks[8000:10000])
+        p2p1.send_header_for_blocks(self.blocks[10000:])
+
+        p2p2.send_header_for_blocks(self.blocks[0:600])
 
         # Send blocks to node0. Block 102 will be rejected.
         self.send_blocks_until_disconnected(p2p0)
-        self.assert_blockchain_height(self.nodes[0], 101)
+        self.assert_blockchain_height(self.nodes[0], COINBASE_MATURITY+1)
 
         # Send all blocks to node1. All blocks will be accepted.
-        for i in range(2202):
+        # Send only a subset to speed this up
+        for i in range(1000):
             p2p1.send_message(msg_block(self.blocks[i]))
         # Syncing 2200 blocks can take a while on slow systems. Give it plenty of time to sync.
-        p2p1.sync_with_ping(120)
-        assert_equal(self.nodes[1].getblock(self.nodes[1].getbestblockhash())['height'], 2202)
-
+        timeout = time.time() + 200
+        while time.time() < timeout:
+            if self.nodes[1].getblock(self.nodes[1].getbestblockhash())['height'] == 1000:
+                break
+        assert_equal(self.nodes[1].getblock(self.nodes[1].getbestblockhash())['height'], 1000)
         # Send blocks to node2. Block 102 will be rejected.
         self.send_blocks_until_disconnected(p2p2)
-        self.assert_blockchain_height(self.nodes[2], 101)
+        self.assert_blockchain_height(self.nodes[2], COINBASE_MATURITY+1)
 
 if __name__ == '__main__':
     AssumeValidTest().main()

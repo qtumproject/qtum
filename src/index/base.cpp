@@ -7,7 +7,7 @@
 #include <shutdown.h>
 #include <tinyformat.h>
 #include <ui_interface.h>
-#include <util.h>
+#include <util/system.h>
 #include <validation.h>
 #include <warnings.h>
 
@@ -60,12 +60,16 @@ bool BaseIndex::Init()
     }
 
     LOCK(cs_main);
-    m_best_block_index = FindForkInGlobalIndex(chainActive, locator);
+    if (locator.IsNull()) {
+        m_best_block_index = nullptr;
+    } else {
+        m_best_block_index = FindForkInGlobalIndex(chainActive, locator);
+    }
     m_synced = m_best_block_index.load() == chainActive.Tip();
     return true;
 }
 
-static const CBlockIndex* NextSyncBlock(const CBlockIndex* pindex_prev)
+static const CBlockIndex* NextSyncBlock(const CBlockIndex* pindex_prev) EXCLUSIVE_LOCKS_REQUIRED(cs_main)
 {
     AssertLockHeld(cs_main);
 

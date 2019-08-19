@@ -1,6 +1,7 @@
-#include <util.h>
+#include <util/system.h>
 #include <validation.h>
-#include <utilstrencodings.h>
+#include <util/strencodings.h>
+#include <util/convert.h>
 #include <test/test_bitcoin.h>
 #include <boost/filesystem/operations.hpp>
 #include <fs.h>

@@ -31,7 +31,7 @@ class OverviewPage : public QWidget
     Q_OBJECT
 
 public:
-    explicit OverviewPage(const PlatformStyle *platformStyle, QWidget *parent = 0);
+    explicit OverviewPage(const PlatformStyle *platformStyle, QWidget *parent = nullptr);
     ~OverviewPage();
 
     void setClientModel(ClientModel *clientModel);
@@ -44,6 +44,7 @@ public Q_SLOTS:
 
 Q_SIGNALS:
     void showMoreClicked();
+    void transactionClicked(const QModelIndex &index);
     void outOfSyncWarningClicked();
     void addTokenClicked();
 
