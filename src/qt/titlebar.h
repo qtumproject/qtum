@@ -1,13 +1,20 @@
 #ifndef TITLEBAR_H
 #define TITLEBAR_H
 
+#if defined(HAVE_CONFIG_H)
+#include <config/bitcoin-config.h>
+#endif
+
 #include <QWidget>
 #include <QSize>
 #include <QTabBar>
 #include <QIcon>
 #include <QLabel>
 #include <QComboBox>
+#include <QPointer>
+#ifdef ENABLE_WALLET
 #include <qt/walletmodel.h>
+#endif
 
 namespace Ui {
 class TitleBar;
@@ -34,6 +41,7 @@ public:
      */
     ~TitleBar();
 
+#ifdef ENABLE_WALLET
     /**
      * @brief setModel Set wallet model
      * @param _model Wallet model
@@ -51,6 +59,7 @@ public:
      * @param _model Wallet model
      */
     void removeWallet(WalletModel *_model);
+#endif
 
     /**
      * @brief setTabBarInfo Set the tab bar info
@@ -69,10 +78,12 @@ public:
 Q_SIGNALS:
 
 public Q_SLOTS:
+#ifdef ENABLE_WALLET
     /**
      * @brief setBalance Slot for changing the balance
      */
     void setBalance(const interfaces::WalletBalances& balances);
+#endif
 
     /**
      * @brief on_navigationResized Slot for changing the size of the navigation bar
@@ -80,18 +91,28 @@ public Q_SLOTS:
      */
     void on_navigationResized(const QSize& _size);
 
+#ifdef ENABLE_WALLET
+    void updateDisplayUnit();
+#endif
+
 private:
+#ifdef ENABLE_WALLET
     /**
      * @brief setBalanceLabel Changing the displayed balance
      */
     void setBalanceLabel(const interfaces::WalletBalances& balances);
+#endif
 
 private:
     Ui::TitleBar *ui;
-    WalletModel *m_model;
-    TabBarInfo* m_tab;
+#ifdef ENABLE_WALLET
+    QPointer<WalletModel> m_model;
+#endif
+    QPointer<TabBarInfo> m_tab;
     QIcon m_iconCloseTab;
+#ifdef ENABLE_WALLET
     std::map<QObject*, interfaces::WalletBalances> m_models;
+#endif
 };
 
 #endif // TITLEBAR_H

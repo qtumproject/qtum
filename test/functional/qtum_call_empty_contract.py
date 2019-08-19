@@ -14,6 +14,9 @@ class QtumCallContractStateNotRevertedTest(BitcoinTestFramework):
         self.setup_clean_chain = True
         self.num_nodes = 2
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
+
     def run_test(self):
         connect_nodes_bi(self.nodes, 0, 1)
         self.nodes[0].generate(600)

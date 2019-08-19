@@ -7,7 +7,7 @@
 
 #include <hash.h>
 #include <tinyformat.h>
-#include <utilstrencodings.h>
+#include <util/strencodings.h>
 #include <crypto/common.h>
 
 uint256 CBlockHeader::GetHash() const
@@ -17,7 +17,7 @@ uint256 CBlockHeader::GetHash() const
 
 uint256 CBlockHeader::GetHashWithoutSign() const
 {
-    return SerializeHash(*this, SER_GETHASH | SER_WITHOUT_SIGNATURE);
+    return SerializeHash(*(CBlockHeaderBase*)this, SER_GETHASH);
 }
 
 std::string CBlock::ToString() const

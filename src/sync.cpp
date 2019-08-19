@@ -5,7 +5,7 @@
 #include <sync.h>
 
 #include <logging.h>
-#include <utilstrencodings.h>
+#include <util/strencodings.h>
 
 #include <stdio.h>
 
@@ -73,7 +73,11 @@ struct LockData {
     LockOrders lockorders;
     InvLockOrders invlockorders;
     std::mutex dd_mutex;
-} static lockdata;
+};
+LockData& GetLockData() {
+    static LockData lockdata;
+    return lockdata;
+}
 
 static thread_local LockStack g_lockstack;
 
@@ -100,11 +104,16 @@ static void potential_deadlock_detected(const std::pair<void*, void*>& mismatch,
         }
         LogPrintf(" %s\n", i.second.ToString());
     }
-    assert(false);
+    if (g_debug_lockorder_abort) {
+        tfm::format(std::cerr, "Assertion failed: detected inconsistent lock order at %s:%i, details in debug log.\n", __FILE__, __LINE__);
+        abort();
+    }
+    throw std::logic_error("potential deadlock detected");
 }
 
 static void push_lock(void* c, const CLockLocation& locklocation)
 {
+    LockData& lockdata = GetLockData();
     std::lock_guard<std::mutex> lock(lockdata.dd_mutex);
 
     g_lockstack.push_back(std::make_pair(c, locklocation));
@@ -153,7 +162,7 @@ void AssertLockHeldInternal(const char* pszName, const char* pszFile, int nLine,
     for (const std::pair<void*, CLockLocation>& i : g_lockstack)
         if (i.first == cs)
             return;
-    fprintf(stderr, "Assertion failed: lock %s not held in %s:%i; locks held:\n%s", pszName, pszFile, nLine, LocksHeld().c_str());
+    tfm::format(std::cerr, "Assertion failed: lock %s not held in %s:%i; locks held:\n%s", pszName, pszFile, nLine, LocksHeld().c_str());
     abort();
 }
 
@@ -161,7 +170,7 @@ void AssertLockNotHeldInternal(const char* pszName, const char* pszFile, int nLi
 {
     for (const std::pair<void*, CLockLocation>& i : g_lockstack) {
         if (i.first == cs) {
-            fprintf(stderr, "Assertion failed: lock %s held in %s:%i; locks held:\n%s", pszName, pszFile, nLine, LocksHeld().c_str());
+            tfm::format(std::cerr, "Assertion failed: lock %s held in %s:%i; locks held:\n%s", pszName, pszFile, nLine, LocksHeld().c_str());
             abort();
         }
     }
@@ -169,6 +178,7 @@ void AssertLockNotHeldInternal(const char* pszName, const char* pszFile, int nLi
 
 void DeleteLock(void* cs)
 {
+    LockData& lockdata = GetLockData();
     if (!lockdata.available) {
         // We're already shutting down.
         return;
@@ -188,5 +198,7 @@ void DeleteLock(void* cs)
         lockdata.invlockorders.erase(invit++);
     }
 }
+
+bool g_debug_lockorder_abort = true;
 
 #endif /* DEBUG_LOCKORDER */

@@ -23,7 +23,7 @@ def make_vin(node, value):
     txid_hex = node.sendtoaddress(addr, value/COIN)
     txid = int(txid_hex, 16)
     node.generate(1)
-    raw_tx = node.getrawtransaction(txid_hex, 1)
+    raw_tx = node.decoderawtransaction(node.gettransaction(txid_hex)['hex'])
 
     for vout_index, txout in enumerate(raw_tx['vout']):
         if txout['scriptPubKey']['addresses'] == [addr]:
@@ -342,7 +342,7 @@ class DGPState:
             assert_equal(int(real, 16), int(expected, 16))
 
 
-def collect_prevouts(node, amount=None):
+def collect_prevouts(node, amount=None, address=None):
     blocks = []
     for block_no in range(1, node.getblockcount()+1):
         blocks.append(node.getblock(node.getblockhash(block_no)))
@@ -357,7 +357,7 @@ def collect_prevouts(node, amount=None):
         else:
             assert(False)
 
-        if unspent['confirmations'] > COINBASE_MATURITY and (not amount or amount == unspent['amount']):
+        if unspent['confirmations'] > COINBASE_MATURITY and (not amount or amount == unspent['amount']) and (not address or address == unspent['address']):
             staking_prevouts.append((COutPoint(int(unspent['txid'], 16), unspent['vout']), int(unspent['amount']*COIN), tx_block_time))
     return staking_prevouts
 
@@ -380,14 +380,14 @@ def create_unsigned_pos_block(node, staking_prevouts, nTime=None):
     if not block.solve_stake(parent_block_stake_modifier, staking_prevouts):
         return None
 
-    txout = node.gettxout(hex(block.prevoutStake.hash)[2:], block.prevoutStake.n)
+    txout = node.gettxout(hex(block.prevoutStake.hash)[2:].zfill(64), block.prevoutStake.n)
     # input value + block reward
     out_value = int((float(str(txout['value'])) + INITIAL_BLOCK_REWARD) * COIN) // 2
 
     # create a new private key used for block signing.
-    block_sig_key = CECKey()
-    block_sig_key.set_secretbytes(hash256(struct.pack('<I', 0)))
-    pubkey = block_sig_key.get_pubkey()
+    block_sig_key = ECKey()
+    block_sig_key.set(hash256(struct.pack('<I', 0)), False)
+    pubkey = block_sig_key.get_pubkey().get_bytes()
     scriptPubKey = CScript([pubkey, OP_CHECKSIG])
     stake_tx_unsigned = CTransaction()
 
@@ -416,7 +416,7 @@ def create_unsigned_mpos_block(node, staking_prevouts, nTime=None, block_fees=0)
 
     for i in range(MPOS_PARTICIPANTS-1):
         partipant_block = node.getblock(node.getblockhash(tip['height']-500-i))
-        participant_tx = node.getrawtransaction(partipant_block['tx'][1], True)
+        participant_tx = node.decoderawtransaction(node.gettransaction(partipant_block['tx'][1])['hex'])
         participant_pubkey = hex_str_to_bytes(participant_tx['vout'][1]['scriptPubKey']['asm'].split(' ')[0])
         mpos_block.vtx[1].vout.append(CTxOut(stake_per_participant, CScript([OP_DUP, OP_HASH160, hash160(participant_pubkey), OP_EQUALVERIFY, OP_CHECKSIG])))
 
@@ -443,9 +443,11 @@ def activate_mpos(node, use_cache=True):
     if not node.getblockcount():
         node.setmocktime(int(time.time()) - 1000000)
     node.generatetoaddress(4490-node.getblockcount(), "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
-    staking_prevouts = collect_prevouts(node)
+    staking_prevouts = collect_prevouts(node, address="qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
+
 
     for i in range(510):
+        time.sleep(0.05)
         nTime = (node.getblock(node.getbestblockhash())['time']+45) & 0xfffffff0
         node.setmocktime(nTime)
         block, block_sig_key = create_unsigned_pos_block(node, staking_prevouts, nTime=nTime)

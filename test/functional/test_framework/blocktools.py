@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2015-2018 The Bitcoin Core developers
+# Copyright (c) 2015-2019 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Utilities for manipulating blocks and transactions."""
@@ -30,6 +30,8 @@ from .messages import (
 )
 from .script import (
     CScript,
+    CScriptNum,
+    CScriptOp,
     OP_0,
     OP_1,
     OP_CHECKMULTISIG,
@@ -42,12 +44,18 @@ from .util import assert_equal
 from .qtumconfig import INITIAL_BLOCK_REWARD
 from io import BytesIO
 
+MAX_BLOCK_SIGOPS = 20000
+
+# Genesis block time (regtest)
+TIME_GENESIS_BLOCK = 1504695029
+
 # From BIP141
 WITNESS_COMMITMENT_HEADER = b"\xaa\x21\xa9\xed"
 
-def create_block(hashprev, coinbase, ntime=None):
+def create_block(hashprev, coinbase, ntime=None, *, version=4):
     """Create a block (with regtest difficulty)."""
     block = CBlock()
+    block.nVersion = version
     if ntime is None:
         import time
         block.nTime = int(time.time() + 600)
@@ -99,17 +107,24 @@ def serialize_script_num(value):
         r[-1] |= 0x80
     return r
 
+
+def script_BIP34_coinbase_height(height):
+    if height <= 16:
+        res = CScriptOp.encode_op_n(height)
+        # Append dummy to increase scriptSig size above 2 (see bad-cb-length consensus rule)
+        return CScript([res, OP_1])
+    return CScript([CScriptNum(height)])
+
 def create_coinbase(height, pubkey=None):
     """Create a coinbase transaction, assuming no miner fees.
 
     If pubkey is passed in, the coinbase output will be a P2PK output;
     otherwise an anyone-can-spend output."""
     coinbase = CTransaction()
-    coinbase.vin.append(CTxIn(COutPoint(0, 0xffffffff), 
-                CScript() + height + b"\x00", 0xffffffff)) #Fix for BIP34
+    coinbase.vin.append(CTxIn(COutPoint(0, 0xffffffff), script_BIP34_coinbase_height(height), 0xffffffff)) #Fix for BIP34
     coinbaseoutput = CTxOut()
     coinbaseoutput.nValue = INITIAL_BLOCK_REWARD * COIN
-    #halvings = int(height/150) # regtest
+    #halvings = int(height / 150)  # regtest
     #coinbaseoutput.nValue >>= halvings
     if (pubkey is not None):
         coinbaseoutput.scriptPubKey = CScript([pubkey, OP_CHECKSIG])
@@ -123,7 +138,7 @@ def create_tx_with_script(prevtx, n, script_sig=b"", *, amount, script_pub_key=C
     """Return one-input, one-output transaction object
        spending the prevtx's n-th output with the given amount.
 
-       Can optionally pass scriptPubKey and scriptSig, default is anyone-can-spend ouput.
+       Can optionally pass scriptPubKey and scriptSig, default is anyone-can-spend output.
     """
     tx = CTransaction()
     assert(n < len(prevtx.vout))
@@ -170,7 +185,7 @@ def get_legacy_sigopcount_tx(tx, accurate=True):
     return count
 
 def witness_script(use_p2wsh, pubkey):
-    """Create a scriptPubKey for a pay-to-wtiness TxOut.
+    """Create a scriptPubKey for a pay-to-witness TxOut.
 
     This is either a P2WPKH output for the given pubkey, or a P2WSH output of a
     1-of-1 multisig for the given pubkey. Returns the hex encoding of the

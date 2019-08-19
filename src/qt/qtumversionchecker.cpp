@@ -31,7 +31,7 @@ QList<Version> QtumVersionChecker::getVersions()
     QNetworkAccessManager manager;
     QNetworkReply *response = manager.get(QNetworkRequest(QUrl(QTUM_RELEASES)));
     QEventLoop event;
-    connect(response, SIGNAL(finished()), &event, SLOT(quit()));
+    connect(response, &QNetworkReply::finished, &event, &QEventLoop::quit);
     event.exec();
     QString html = response->readAll();
 
