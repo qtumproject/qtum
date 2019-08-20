@@ -481,9 +481,9 @@ void SelectParams(const std::string& network)
 
 std::string CChainParams::EVMGenesisInfo(dev::eth::Network network) const
 {
-    std::string genesisInfo = dev::eth::genesisInfo(network);
-    ReplaceInt(consensus.QIP6Height, "QIP6_STARTING_BLOCK", genesisInfo);
-    return genesisInfo;
+    dev::eth::QtumParams qtumParams;
+    qtumParams.QIP6Height = consensus.QIP6Height;
+    return dev::eth::genesisInfo(network, &qtumParams);
 }
 
 void CChainParams::UpdateBtcEcrecoverBlockHeight(int nHeight)
