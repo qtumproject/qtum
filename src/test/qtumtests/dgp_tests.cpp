@@ -1,7 +1,6 @@
 #include <boost/test/unit_test.hpp>
 #include <qtumtests/test_utils.h>
 #include <script/standard.h>
-#include <chainparams.h>
 
 namespace dgpTest{
 
@@ -284,8 +283,9 @@ EVMScheduleCustom EVMScheduleContractGasSchedule3(true,true,true,true,{{13,13,10
 dev::h256 hash = dev::h256(ParseHex("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"));
 
 void contractLoading(){
-    const CChainParams& chainparams = Params();
-    dev::eth::ChainParams cp((chainparams.EVMGenesisInfo(dev::eth::Network::qtumMainNetwork, 1400)));
+    dev::eth::QtumParams qtumParams;
+    qtumParams.QIP7Height = 1400;
+    dev::eth::ChainParams cp(dev::eth::genesisInfo(dev::eth::Network::qtumMainNetwork, &qtumParams));
     globalState->populateFrom(cp.genesisState);
     globalSealEngine = std::unique_ptr<dev::eth::SealEngineFace>(cp.createSealEngine());
     globalState->db().commit();

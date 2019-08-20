@@ -87,7 +87,6 @@ public:
     const CCheckpointData& Checkpoints() const { return checkpointData; }
     const ChainTxData& TxData() const { return chainTxData; }
     std::string EVMGenesisInfo(dev::eth::Network network) const;
-    std::string EVMGenesisInfo(dev::eth::Network network, int nHeight) const;
     void UpdateConstantinopleBlockHeight(int nHeight);
 protected:
     CChainParams() {}

@@ -481,14 +481,9 @@ void SelectParams(const std::string& network)
 
 std::string CChainParams::EVMGenesisInfo(dev::eth::Network network) const
 {
-    return EVMGenesisInfo(network, consensus.QIP7Height);
-}
-
-std::string CChainParams::EVMGenesisInfo(dev::eth::Network network, int nHeight) const
-{
-    std::string genesisInfo = dev::eth::genesisInfo(network);
-    ReplaceInt(nHeight, "QIP7_STARTING_BLOCK", genesisInfo);
-    return genesisInfo;
+    dev::eth::QtumParams qtumParams;
+    qtumParams.QIP7Height = consensus.QIP7Height;
+    return dev::eth::genesisInfo(network, &qtumParams);
 }
 
 void CChainParams::UpdateConstantinopleBlockHeight(int nHeight)
