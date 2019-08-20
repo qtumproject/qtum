@@ -56,4 +56,16 @@ bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBloc
 bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint& prevout, CCoinsViewCache& view);
 bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint& prevout, CCoinsViewCache& view, const std::map<COutPoint, CStakeCache>& cache);
 
+unsigned int GetStakeMaxCombineInputs();
+
+int64_t GetStakeCombineThreshold();
+
+unsigned int GetStakeSplitOutputs();
+
+int64_t GetStakeSplitThreshold();
+
+bool GetMPoSOutputScripts(std::vector<CScript> &mposScroptList, int nHeight, const Consensus::Params& consensusParams);
+
+bool CreateMPoSOutputs(CMutableTransaction& txNew, int64_t nRewardPiece, int nHeight, const Consensus::Params& consensusParams);
+
 #endif // QUANTUM_POS_H

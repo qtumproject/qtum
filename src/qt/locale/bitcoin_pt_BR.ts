@@ -3,7 +3,7 @@
     <name>AddressBookPage</name>
     <message>
         <source>Right-click to edit address or label</source>
-        <translation>Clique com o botão direito para editar o endereço ou rótulo</translation>
+        <translation>Clique com o botão direito para editar o endereço ou rótulo </translation>
     </message>
     <message>
         <source>Create a new address</source>
@@ -23,7 +23,7 @@
     </message>
     <message>
         <source>C&amp;lose</source>
-        <translation>Fe&amp;char</translation>
+        <translation>&amp;Fechar</translation>
     </message>
     <message>
         <source>Delete the currently selected address from the list</source>
@@ -43,7 +43,7 @@
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation>&amp;Excluir</translation>
+        <translation>E&amp;xcluir</translation>
     </message>
     <message>
         <source>Choose the address to send coins to</source>
@@ -55,7 +55,7 @@
     </message>
     <message>
         <source>C&amp;hoose</source>
-        <translation>E&amp;scolha</translation>
+        <translation>E&amp;scolher</translation>
     </message>
     <message>
         <source>Sending addresses</source>
@@ -63,7 +63,7 @@
     </message>
     <message>
         <source>Receiving addresses</source>
-        <translation>Endereços de recebimento</translation>
+        <translation>Endereço de &amp;recebimento</translation>
     </message>
     <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
@@ -141,7 +141,7 @@
     </message>
     <message>
         <source>Enter the new passphrase to the wallet.&lt;br/&gt;Please use a passphrase of &lt;b&gt;ten or more random characters&lt;/b&gt;, or &lt;b&gt;eight or more words&lt;/b&gt;.</source>
-        <translation>Insira a nova senha para a carteira.&lt;br/&gt;Favor usar uma senha com &lt;b&gt;dez ou mais caracteres aleatórios&lt;/b&gt;, ou &lt;b&gt;oito ou mais palavras&lt;/b&gt;.</translation>
+        <translation>Insira a nova frase de segurança para a carteira.&lt;br/&gt;Use uma frase de segurança com &lt;b&gt;dez ou mais caracteres aleatórios&lt;/b&gt;, ou &lt;b&gt;oito ou mais palavras&lt;/b&gt;.</translation>
     </message>
     <message>
         <source>Encrypt wallet</source>
@@ -149,7 +149,7 @@
     </message>
     <message>
         <source>This operation needs your wallet passphrase to unlock the wallet.</source>
-        <translation>Esta operação precisa da sua senha para desbloquear a carteira.</translation>
+        <translation>Esta operação precisa da sua frase de segurança para desbloquear a carteira.</translation>
     </message>
     <message>
         <source>Unlock wallet</source>
@@ -157,7 +157,7 @@
     </message>
     <message>
         <source>This operation needs your wallet passphrase to decrypt the wallet.</source>
-        <translation>Esta operação precisa da sua senha para descriptografar a carteira</translation>
+        <translation>Esta operação precisa da sua frase de segurança para descriptografar a carteira</translation>
     </message>
     <message>
         <source>Decrypt wallet</source>
@@ -165,11 +165,11 @@
     </message>
     <message>
         <source>Change passphrase</source>
-        <translation>Alterar senha</translation>
+        <translation>Alterar frase de segurança</translation>
     </message>
     <message>
         <source>Enter the old passphrase and new passphrase to the wallet.</source>
-        <translation>Insira a senha antiga e a nova para a carteira.</translation>
+        <translation>Insira a frase de segurança antiga e a nova para a carteira.</translation>
     </message>
     <message>
         <source>Confirm wallet encryption</source>
@@ -177,7 +177,7 @@
     </message>
     <message>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
-        <translation>Aviso: Se você criptografar sua carteira e perder sua senha, você vai &lt;b&gt;PERDER TODOS OS SEUS QTUMS&lt;/b&gt;!</translation>
+        <translation>Aviso: Se você criptografar sua carteira e perder sua frase de segurança, você vai &lt;b&gt;PERDER TODOS OS SEUS QTUMS&lt;/b&gt;!</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -186,6 +186,10 @@
     <message>
         <source>Wallet encrypted</source>
         <translation>Carteira criptografada</translation>
+    </message>
+    <message>
+        <source>Your wallet is now encrypted. Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
+        <translation>Sua carteira está agora criptografada. Lembre-se que criptografar sua carteira não protege totalmente seus qtums de serem roubados por malwares infectando seu computador.</translation>
     </message>
     <message>
         <source>IMPORTANT: Any previous backups you have made of your wallet file should be replaced with the newly generated, encrypted wallet file. For security reasons, previous backups of the unencrypted wallet file will become useless as soon as you start using the new, encrypted wallet.</source>
@@ -201,7 +205,7 @@
     </message>
     <message>
         <source>The supplied passphrases do not match.</source>
-        <translation>As senhas não conferem.</translation>
+        <translation>As frases de segurança não conferem.</translation>
     </message>
     <message>
         <source>Wallet unlock failed</source>
@@ -209,7 +213,7 @@
     </message>
     <message>
         <source>The passphrase entered for the wallet decryption was incorrect.</source>
-        <translation>A senha inserida para descriptografar a carteira está incorreta.</translation>
+        <translation>A frase de segurança inserida para descriptografar a carteira está incorreta.</translation>
     </message>
     <message>
         <source>Wallet decryption failed</source>
@@ -217,7 +221,7 @@
     </message>
     <message>
         <source>Wallet passphrase was successfully changed.</source>
-        <translation>A senha da carteira foi alterada com êxito.</translation>
+        <translation>A frase de segurança da carteira foi alterada com êxito.</translation>
     </message>
     <message>
         <source>Warning: The Caps Lock key is on!</source>
@@ -248,10 +252,6 @@
     <message>
         <source>&amp;Overview</source>
         <translation>&amp;Visão geral</translation>
-    </message>
-    <message>
-        <source>Node</source>
-        <translation>Nó</translation>
     </message>
     <message>
         <source>Show general overview of wallet</source>
@@ -310,24 +310,12 @@
         <translation>&amp;Mudar frase de segurança...</translation>
     </message>
     <message>
-        <source>&amp;Sending addresses...</source>
-        <translation>Endereço&amp;s de envio...</translation>
-    </message>
-    <message>
-        <source>&amp;Receiving addresses...</source>
-        <translation>Endereços de &amp;recebimento...</translation>
-    </message>
-    <message>
         <source>Open &amp;URI...</source>
         <translation>Abrir &amp;URI...</translation>
     </message>
     <message>
         <source>Wallet:</source>
         <translation>Carteira:</translation>
-    </message>
-    <message>
-        <source>default wallet</source>
-        <translation>carteira padrão</translation>
     </message>
     <message>
         <source>Click to disable network activity.</source>
@@ -380,10 +368,6 @@
     <message>
         <source>Qtum</source>
         <translation>Qtum</translation>
-    </message>
-    <message>
-        <source>Wallet</source>
-        <translation>Carteira</translation>
     </message>
     <message>
         <source>&amp;Send</source>
@@ -494,12 +478,68 @@
         <translation>Atualizado</translation>
     </message>
     <message>
+        <source>&amp;Sending addresses</source>
+        <translation>Endereços de &amp;envio</translation>
+    </message>
+    <message>
+        <source>&amp;Receiving addresses</source>
+        <translation>Endereço de &amp;recebimento</translation>
+    </message>
+    <message>
+        <source>Open Wallet</source>
+        <translation>Abrir carteira</translation>
+    </message>
+    <message>
+        <source>Open a wallet</source>
+        <translation>Abrir uma carteira</translation>
+    </message>
+    <message>
+        <source>Close Wallet...</source>
+        <translation>Fechar carteira...</translation>
+    </message>
+    <message>
+        <source>Close wallet</source>
+        <translation>Fechar carteira</translation>
+    </message>
+    <message>
         <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
         <translation>Mostrar a mensagem de ajuda do %1 para obter uma lista com possíveis opções de linha de comando Qtum</translation>
     </message>
     <message>
+        <source>default wallet</source>
+        <translation>carteira padrão</translation>
+    </message>
+    <message>
+        <source>Opening Wallet &lt;b&gt;%1&lt;/b&gt;...</source>
+        <translation>Abrindo carteira &lt;b&gt;%1&lt;/b&gt;...</translation>
+    </message>
+    <message>
+        <source>Open Wallet Failed</source>
+        <translation>Falha ao abrir a carteira</translation>
+    </message>
+    <message>
+        <source>&amp;Window</source>
+        <translation>&amp;Janelas</translation>
+    </message>
+    <message>
+        <source>Minimize</source>
+        <translation>Minimizar</translation>
+    </message>
+    <message>
+        <source>Zoom</source>
+        <translation>Ampliar</translation>
+    </message>
+    <message>
+        <source>Restore</source>
+        <translation>Restaurar</translation>
+    </message>
+    <message>
+        <source>Main Window</source>
+        <translation>Janela Principal</translation>
+    </message>
+    <message>
         <source>%1 client</source>
-        <translation>%1 cliente</translation>
+        <translation>Cliente %1</translation>
     </message>
     <message>
         <source>Connecting to peers...</source>
@@ -560,6 +600,10 @@
     <message>
         <source>HD key generation is &lt;b&gt;disabled&lt;/b&gt;</source>
         <translation>Geração de chave HD está &lt;b&gt;desativada&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Private key &lt;b&gt;disabled&lt;/b&gt;</source>
+        <translation>Chave privada &lt;b&gt;desabilitada&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;unlocked&lt;/b&gt;</source>
@@ -940,8 +984,8 @@
         <translation>Ocultar</translation>
     </message>
     <message>
-        <source>Unknown. Syncing Headers (%1)...</source>
-        <translation>Desconhecido. Sincronizando cabeçalhos (%1)...</translation>
+        <source>Unknown. Syncing Headers (%1, %2%)...</source>
+        <translation>Desconhecido. Sincronizando cabeçalhos (%1, %2%)...</translation>
     </message>
 </context>
 <context>
@@ -990,10 +1034,6 @@
         <translation>Tamanho do banco de &amp;dados do cache</translation>
     </message>
     <message>
-        <source>MB</source>
-        <translation>MB</translation>
-    </message>
-    <message>
         <source>Number of script &amp;verification threads</source>
         <translation>Número de threads do script de &amp;verificação</translation>
     </message>
@@ -1026,10 +1066,6 @@
         <translation>URLs de terceiros (exemplo: explorador de blocos) que aparecem na aba de transações como itens do menu de contexto. %s na URL é substituido pela hash da transação. Múltiplas URLs são separadas pela barra vertical |.</translation>
     </message>
     <message>
-        <source>Active command-line options that override above options:</source>
-        <translation>Opções de linha de comando ativas que sobrescrevem as opções acima:</translation>
-    </message>
-    <message>
         <source>Open the %1 configuration file from the working directory.</source>
         <translation>Abrir o arquivo de configuração %1 apartir do diretório trabalho.</translation>
     </message>
@@ -1039,7 +1075,7 @@
     </message>
     <message>
         <source>Reset all client options to default.</source>
-        <translation>Redefinir todas as opções do cliente para opções padrão.</translation>
+        <translation>Redefinir todas as opções do cliente para a opções padrão.</translation>
     </message>
     <message>
         <source>&amp;Reset Options</source>
@@ -1064,6 +1100,10 @@
     <message>
         <source>Reverting this setting requires re-downloading the entire blockchain.</source>
         <translation>Reverter esta configuração requer baixar de novo a blockchain inteira.</translation>
+    </message>
+    <message>
+        <source>MiB</source>
+        <translation>MiB</translation>
     </message>
     <message>
         <source>(0 = auto, &lt;0 = leave that many cores free)</source>
@@ -1091,7 +1131,7 @@
     </message>
     <message>
         <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Abrir as portas do cliente Qtum automaticamente no roteador. Isto só funcionará se seu roteador suportar UPnP e esta função estiver habilitada.</translation>
+        <translation>Abrir automaticamente no roteador as portas do cliente Qtum. Isto só funcionará se seu roteador suportar UPnP e esta função estiver habilitada.</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
@@ -1188,6 +1228,10 @@
     <message>
         <source>&amp;Third party transaction URLs</source>
         <translation>&amp;URLs de transação de terceiros</translation>
+    </message>
+    <message>
+        <source>Options set in this dialog are overridden by the command line or in the configuration file:</source>
+        <translation>Opções nesta tela foram sobreescritas por comandos ou no arquivo de configuração:</translation>
     </message>
     <message>
         <source>&amp;OK</source>
@@ -1336,8 +1380,16 @@
         <translation>'qtum://' não é um URI válido. Use 'qtum:'.</translation>
     </message>
     <message>
+        <source>You are using a BIP70 URL which will be unsupported in the future.</source>
+        <translation>Você está usando uma URL do BIP70 que será desativado no futuro.</translation>
+    </message>
+    <message>
         <source>Payment request fetch URL is invalid: %1</source>
         <translation>URL de cobrança é inválida: %1</translation>
+    </message>
+    <message>
+        <source>Cannot process payment request because BIP70 support was not compiled in.</source>
+        <translation>O pagamento não pode ser processado porque o suporte ao BIP70 foi desativado.</translation>
     </message>
     <message>
         <source>Invalid payment address %1</source>
@@ -1361,7 +1413,7 @@
     </message>
     <message>
         <source>Payment request network doesn't match client network.</source>
-        <translation>Rede do pedido de pagamento não corresponde rede do cliente.</translation>
+        <translation>Rede do pedido de pagamento não corresponde à rede do cliente.</translation>
     </message>
     <message>
         <source>Payment request expired.</source>
@@ -1599,6 +1651,18 @@
         <translation>Datadir</translation>
     </message>
     <message>
+        <source>To specify a non-default location of the data directory use the '%1' option.</source>
+        <translation>Para especificar um local não padrão do diretório de dados, use a opção '%1'.</translation>
+    </message>
+    <message>
+        <source>Blocksdir</source>
+        <translation>Blocksdir</translation>
+    </message>
+    <message>
+        <source>To specify a non-default location of the blocks directory use the '%1' option.</source>
+        <translation>Para especificar um local não padrão do diretório dos blocos, use a opção '%1'.</translation>
+    </message>
+    <message>
         <source>Startup time</source>
         <translation>Horário de inicialização</translation>
     </message>
@@ -1811,10 +1875,6 @@
         <translation>&amp;Desbanir</translation>
     </message>
     <message>
-        <source>default wallet</source>
-        <translation>carteira padrão</translation>
-    </message>
-    <message>
         <source>Welcome to the %1 RPC console.</source>
         <translation>Bem-vindo ao console RPC do %1.</translation>
     </message>
@@ -1832,7 +1892,7 @@
     </message>
     <message>
         <source>WARNING: Scammers have been active, telling users to type commands here, stealing their wallet contents. Do not use this console without fully understanding the ramifications of a command.</source>
-        <translation>ATENÇÃO: Fraudadores tem solicitado a usuários que digitem comandos aqui, e assim roubando o conteúdo de suas carteiras. Não utilize este console sem antes conhecer os comandos e seus efeitos.</translation>
+        <translation>ATENÇÃO: Fraudadores solicitam a usuários que digitem comandos aqui, e assim roubão o conteúdo de suas carteiras. Não utilize este console sem antes conhecer os comandos e seus efeitos.</translation>
     </message>
     <message>
         <source>Network activity disabled</source>
@@ -2147,14 +2207,6 @@ Nota:  Como a taxa é calculada por byte, uma taxa de "100 satoshis por kB" por 
         <translation>Ocultar</translation>
     </message>
     <message>
-        <source>Paying only the minimum fee is just fine as long as there is less transaction volume than space in the blocks. But be aware that this can end up in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
-        <translation>Pagando apenas a taxa mínima é bom, desde que haja pouco volume de transações. Mas esteja ciente de que isso pode acabar em uma transação nunca confirmanda uma vez que há mais demanda por transações do que a rede pode processar.</translation>
-    </message>
-    <message>
-        <source>(read the tooltip)</source>
-        <translation>(Leia o popup)</translation>
-    </message>
-    <message>
         <source>Recommended:</source>
         <translation>Recomendado:</translation>
     </message>
@@ -2181,6 +2233,14 @@ Nota:  Como a taxa é calculada por byte, uma taxa de "100 satoshis por kB" por 
     <message>
         <source>Dust:</source>
         <translation>Poeira:</translation>
+    </message>
+    <message>
+        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
+        <translation>Quando o volume de transações é maior que o espaço nos blocos, os mineradores, bem como os nós de retransmissão, podem impor uma taxa mínima. Pagando apenas esta taxa mínima é muito bom, mas esteja ciente de que isso pode resultar em uma transação nunca confirmada, uma vez que há mais demanda por transações do que a rede pode processar.</translation>
+    </message>
+    <message>
+        <source>A too low fee might result in a never confirming transaction (read the tooltip)</source>
+        <translation>Uma taxa muito pequena pode resultar em uma transação nunca confirmada (leia a dica)</translation>
     </message>
     <message>
         <source>Confirmation time target:</source>
@@ -2317,10 +2377,6 @@ Nota:  Como a taxa é calculada por byte, uma taxa de "100 satoshis por kB" por 
     <message>
         <source>Payment request expired.</source>
         <translation>Pedido de pagamento expirado.</translation>
-    </message>
-    <message>
-        <source>Pay only the required fee of %1</source>
-        <translation>Pagar somente a taxa requerida de %1</translation>
     </message>
     <message numerus="yes">
         <source>Estimated to begin confirmation within %n block(s).</source>
@@ -3057,6 +3113,21 @@ Nota:  Como a taxa é calculada por byte, uma taxa de "100 satoshis por kB" por 
     </message>
 </context>
 <context>
+    <name>WalletController</name>
+    <message>
+        <source>Close wallet</source>
+        <translation>Fechar carteira</translation>
+    </message>
+    <message>
+        <source>Are you sure you wish to close wallet &lt;i&gt;%1&lt;/i&gt;?</source>
+        <translation>Tem certeza que deseja fechar a carteira &lt;i&gt;%1&lt;/i&gt;?</translation>
+    </message>
+    <message>
+        <source>Closing the wallet for too long can result in having to resync the entire chain if pruning is enabled.</source>
+        <translation>Manter a carteira fechada por muito tempo pode resultar na necessidade de ressincronizar a block chain se prune está ativado.</translation>
+    </message>
+</context>
+<context>
     <name>WalletFrame</name>
     <message>
         <source>No wallet has been loaded.</source>
@@ -3104,6 +3175,10 @@ Nota:  Como a taxa é calculada por byte, uma taxa de "100 satoshis por kB" por 
     <message>
         <source>Could not commit transaction</source>
         <translation>Não foi possível mandar a transação</translation>
+    </message>
+    <message>
+        <source>default wallet</source>
+        <translation>carteira padrão</translation>
     </message>
 </context>
 <context>
@@ -3184,6 +3259,10 @@ Nota:  Como a taxa é calculada por byte, uma taxa de "100 satoshis por kB" por 
         <translation>Desenvolvedores do %s</translation>
     </message>
     <message>
+        <source>Can't generate a change-address key. No keys in the internal keypool and can't generate any keys.</source>
+        <translation>Não é possível criar uma chave de endereço de troco. Nenhuma chave disponível na keypool interna e não é possível gerar novas chaves.</translation>
+    </message>
+    <message>
         <source>Cannot obtain a lock on data directory %s. %s is probably already running.</source>
         <translation>Não foi possível obter exclusividade de escrita no endereço %s. O %s provavelmente já está sendo executado.</translation>
     </message>
@@ -3252,6 +3331,10 @@ Nota:  Como a taxa é calculada por byte, uma taxa de "100 satoshis por kB" por 
         <translation>Índice de mudança fora do intervalo</translation>
     </message>
     <message>
+        <source>Config setting for %s only applied on %s network when in [%s] section.</source>
+        <translation>A configuração %s somente é aplicada na rede %s quando na sessão [%s].</translation>
+    </message>
+    <message>
         <source>Copyright (C) %i-%i</source>
         <translation>Copyright (C) %i-%i</translation>
     </message>
@@ -3262,10 +3345,6 @@ Nota:  Como a taxa é calculada por byte, uma taxa de "100 satoshis por kB" por 
     <message>
         <source>Do you want to rebuild the block database now?</source>
         <translation>Você quer reconstruir o banco de dados de blocos agora?</translation>
-    </message>
-    <message>
-        <source>Error creating %s: You can't create non-HD wallets with this version.</source>
-        <translation>Erro ao criar %s: Você não pode criar carteiras não-HD com esta versão.</translation>
     </message>
     <message>
         <source>Error initializing block database</source>
@@ -3341,6 +3420,10 @@ Nota:  Como a taxa é calculada por byte, uma taxa de "100 satoshis por kB" por 
 Diretório de blocos especificados "%s" não existe.</translation>
     </message>
     <message>
+        <source>Unable to create the PID file '%s': %s</source>
+        <translation>Não foi possível criar arquivo de PID '%s': %s</translation>
+    </message>
+    <message>
         <source>Upgrading txindex database</source>
         <translation>Atualizando banco de dados txindex</translation>
     </message>
@@ -3389,18 +3472,6 @@ Diretório de blocos especificados "%s" não existe.</translation>
         <translation>Não foi possível gerar chaves</translation>
     </message>
     <message>
-        <source>Unsupported argument -benchmark ignored, use -debug=bench.</source>
-        <translation>Argumento não suportado -benchmark ignorado, use -debug=bench.</translation>
-    </message>
-    <message>
-        <source>Unsupported argument -debugnet ignored, use -debug=net.</source>
-        <translation>Argumento não suportado -debugnet ignorado, use -debug=net</translation>
-    </message>
-    <message>
-        <source>Unsupported argument -tor found, use -onion.</source>
-        <translation>Argumento não suportado encontrado: -tor. Use -onion.</translation>
-    </message>
-    <message>
         <source>Unsupported logging category %s=%s.</source>
         <translation>Categoria de log desconhecida %s=%s.</translation>
     </message>
@@ -3437,16 +3508,16 @@ Diretório de blocos especificados "%s" não existe.</translation>
         <translation>Você precisa reconstruir o banco de dados usando -reindex para sair do modo prune. Isso irá causar o download de todo o blockchain novamente.</translation>
     </message>
     <message>
-        <source>Error loading %s: You can't disable HD on an already existing HD wallet</source>
-        <translation>Erro carregando %s: Você não pode desabilitar o HD em uma carteira HD existente</translation>
-    </message>
-    <message>
         <source>Error reading from database, shutting down.</source>
         <translation>Erro ao ler o banco de dados. Encerrando.</translation>
     </message>
     <message>
         <source>Error upgrading chainstate database</source>
         <translation>Erro ao atualizar banco de dados do chainstate</translation>
+    </message>
+    <message>
+        <source>Error: Disk space is low for %s</source>
+        <translation>Erro: Espaço em disco menor que %s</translation>
     </message>
     <message>
         <source>Information</source>
@@ -3477,6 +3548,10 @@ Diretório de blocos especificados "%s" não existe.</translation>
         <translation>Reduzindo -maxconnections de %d para %d, devido a limitações do sistema.</translation>
     </message>
     <message>
+        <source>Section [%s] is not recognized.</source>
+        <translation>Sessão [%s] não reconhecida.</translation>
+    </message>
+    <message>
         <source>Signing transaction failed</source>
         <translation>Assinatura de transação falhou</translation>
     </message>
@@ -3491,6 +3566,12 @@ Diretório de blocos especificados "%s" não existe.</translation>
     <message>
         <source>Specified -walletdir "%s" is not a directory</source>
         <translation>O -walletdir "%s" especificado não é um diretório</translation>
+    </message>
+    <message>
+        <source>The specified config file %s does not exist
+</source>
+        <translation>O Arquivo de configuração especificado %s não existe
+</translation>
     </message>
     <message>
         <source>The transaction amount is too small to pay the fee</source>
@@ -3545,10 +3626,6 @@ Diretório de blocos especificados "%s" não existe.</translation>
         <translation>A valor especificado de -maxtxfee está muito alto! Taxas grandes assim podem ser atribuidas numa transação única.</translation>
     </message>
     <message>
-        <source>Error loading %s: You can't enable HD on an already existing non-HD wallet</source>
-        <translation>Erro carregando %s: Não é permitido habilitar HD em uma carteira não-HD já existente</translation>
-    </message>
-    <message>
         <source>This is the transaction fee you may pay when fee estimates are not available.</source>
         <translation>Esta é a taxa que você deve pagar quando a taxa estimada não está disponível.</translation>
     </message>
@@ -3559,18 +3636,6 @@ Diretório de blocos especificados "%s" não existe.</translation>
     <message>
         <source>Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.</source>
         <translation>O tamanho total da string de versão da rede (%i) excede o tamanho máximo (%i). Reduza o número ou tamanho de uacomments.</translation>
-    </message>
-    <message>
-        <source>Unsupported argument -socks found. Setting SOCKS version isn't possible anymore, only SOCKS5 proxies are supported.</source>
-        <translation>Argumento inválido -socks encontrado. Definir a versão do SOCKS não é mais possível, somente proxys SOCK5 são suportados.</translation>
-    </message>
-    <message>
-        <source>Unsupported argument -whitelistalwaysrelay ignored, use -whitelistrelay and/or -whitelistforcerelay.</source>
-        <translation>Argumento não suportado -whitelistalwaysrelay foi ignorado, utilize -whitelistrelay e/ou -whitelistforcerelay.</translation>
-    </message>
-    <message>
-        <source>Warning: Unknown block versions being mined! It's possible unknown rules are in effect</source>
-        <translation>Aviso: Versões de bloco desconhecidas sendo mineradas! É possível que regras desconhecidas estejam ativas</translation>
     </message>
     <message>
         <source>Warning: Wallet file corrupt, data salvaged! Original %s saved as %s in %s; if your balance or transactions are incorrect you should restore from a backup.</source>
@@ -3623,10 +3688,6 @@ Diretório de blocos especificados "%s" não existe.</translation>
     <message>
         <source>Insufficient funds</source>
         <translation>Saldo insuficiente</translation>
-    </message>
-    <message>
-        <source>Can't generate a change-address key. Private keys are disabled for this wallet.</source>
-        <translation>Não é possível gerar um endereço de troco. Chaves privadas estão desabilitadas para essa carteira.</translation>
     </message>
     <message>
         <source>Cannot upgrade a non HD split wallet without upgrading to support pre split keypool. Please use -upgradewallet=169900 or -upgradewallet with no version specified.</source>

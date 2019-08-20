@@ -105,6 +105,30 @@
   { "exec": "./qtum-tx",
     "args":
     ["-create",
+     "in=Z897de6bd6027a475eadd57019d4e6872c396d0716c4875a5f1a6fcfdf385c1f:0"],
+    "return_code": 1,
+    "error_txt": "error: invalid TX input txid",
+    "description": "Tests the check for an invalid txid invalid hex"
+  },
+  { "exec": "./qtum-tx",
+    "args":
+    ["-create",
+     "in=5897de6bd6:0"],
+    "return_code": 1,
+    "error_txt": "error: invalid TX input txid",
+    "description": "Tests the check for an invalid txid valid hex but too short"
+  },
+  { "exec": "./qtum-tx",
+    "args":
+    ["-create",
+     "in=5897de6bd6027a475eadd57019d4e6872c396d0716c4875a5f1a6fcfdf385c1f12:0"],
+    "return_code": 1,
+    "error_txt": "error: invalid TX input txid",
+    "description": "Tests the check for an invalid txid valid hex but too long"
+  },
+  { "exec": "./qtum-tx",
+    "args":
+    ["-create",
      "in=5897de6bd6027a475eadd57019d4e6872c396d0716c4875a5f1a6fcfdf385c1f:0",
      "replaceable=0foo"],
     "return_code": 1,
@@ -282,6 +306,42 @@
   },
   { "exec": "./qtum-tx",
     "args":
+    ["-create",
+      "in=4d49a71ec9da436f71ec4ee231d04f292a29cd316f598bb7068feccabdc59485:0",
+      "set=privatekeys:[\"5HpHagT65TZzG1PH3CSu63k8DbpvD8s5ip4nEB3kEsreAnchuDf\"]",
+      "set=prevtxs:[{\"txid\":\"Zd49a71ec9da436f71ec4ee231d04f292a29cd316f598bb7068feccabdc59412\",\"vout\":0,\"scriptPubKey\":\"76a91491b24bf9f5288532960ac687abb035127b1d28a588ac\"}]",
+      "sign=ALL",
+      "outaddr=0.001:QUeNCeBdcXf2DtJwmVE1uHUVwgnQG6z1Y9"],
+    "return_code": 1,
+    "error_txt": "error: txid must be hexadecimal string (not 'Zd49a71ec9da436f71ec4ee231d04f292a29cd316f598bb7068feccabdc59412')",
+    "description": "Tests the check for invalid txid due to invalid hex"
+  },
+  { "exec": "./qtum-tx",
+    "args":
+    ["-create",
+      "in=4d49a71ec9da436f71ec4ee231d04f292a29cd316f598bb7068feccabdc59485:0",
+      "set=privatekeys:[\"5HpHagT65TZzG1PH3CSu63k8DbpvD8s5ip4nEB3kEsreAnchuDf\"]",
+      "set=prevtxs:[{\"txid\":\"4d49a71ec9da436f71ec4ee231d04f292a29cd316f598bb7068feccabdc594\",\"vout\":0,\"scriptPubKey\":\"76a91491b24bf9f5288532960ac687abb035127b1d28a588ac\"}]",
+      "sign=ALL",
+      "outaddr=0.001:QUeNCeBdcXf2DtJwmVE1uHUVwgnQG6z1Y9"],
+    "return_code": 1,
+    "error_txt": "error: txid must be hexadecimal string (not '4d49a71ec9da436f71ec4ee231d04f292a29cd316f598bb7068feccabdc594')",
+    "description": "Tests the check for invalid txid valid hex, but too short"
+  },
+  { "exec": "./qtum-tx",
+    "args":
+    ["-create",
+      "in=4d49a71ec9da436f71ec4ee231d04f292a29cd316f598bb7068feccabdc59485:0",
+      "set=privatekeys:[\"5HpHagT65TZzG1PH3CSu63k8DbpvD8s5ip4nEB3kEsreAnchuDf\"]",
+      "set=prevtxs:[{\"txid\":\"4d49a71ec9da436f71ec4ee231d04f292a29cd316f598bb7068feccabdc5948512\",\"vout\":0,\"scriptPubKey\":\"76a91491b24bf9f5288532960ac687abb035127b1d28a588ac\"}]",
+      "sign=ALL",
+      "outaddr=0.001:QUeNCeBdcXf2DtJwmVE1uHUVwgnQG6z1Y9"],
+    "return_code": 1,
+    "error_txt": "error: txid must be hexadecimal string (not '4d49a71ec9da436f71ec4ee231d04f292a29cd316f598bb7068feccabdc5948512')",
+    "description": "Tests the check for invalid txid valid hex, but too long"
+  },
+  { "exec": "./qtum-tx",
+    "args":
     ["-create", "outpubkey=0:02a5613bd857b7048924264d1e70e08fb2a7e6527d32b7ab1bb993ac59964ff397", "nversion=1"],
     "output_cmp": "txcreateoutpubkey1.hex",
     "description": "Creates a new transaction with a single pay-to-pubkey output"
@@ -314,13 +374,6 @@
     "args":
     ["-json", "-create", "outpubkey=0:02a5613bd857b7048924264d1e70e08fb2a7e6527d32b7ab1bb993ac59964ff397:WS", "nversion=1"],
     "output_cmp": "txcreateoutpubkey3.json",
-    "description": "Creates a new transaction with a single pay-to-pub-key output, wrapped in P2SH (output as json)"
-  },
-  { "exec": "./qtum-tx",
-    "args":
-    ["-json", "-create", "outpubkey=0:047d1368ba7ae01c94bc32293efd70bd7e3be7aa7912d07d0b1c659c1008d179b8642f5fb90f47580feb29f045e216ff5a4716d3a0fed36da414d332046303c44a:WS", "nversion=1"],
-    "return_code": 1,
-    "error_txt": "error: Uncompressed pubkeys are not useable for SegWit outputs",
     "description": "Creates a new transaction with a single pay-to-pub-key output, wrapped in P2SH (output as json)"
   },
   { "exec": "./qtum-tx",

@@ -17,6 +17,9 @@ class QtumRPCSearchlogsTestModified(BitcoinTestFramework):
         self.num_nodes = 1
         self.extra_args=[["-logevents"]]
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
+
     def create_contracts_with_logs(self):
         contract_addresses = []
         send_result = []

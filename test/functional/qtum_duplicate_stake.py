@@ -14,6 +14,9 @@ class QtumDuplicateStakeTest(BitcoinTestFramework):
         self.setup_clean_chain = True
         self.num_nodes = 2
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
+
     def start_p2p_connection(self):
         self.p2p_node = self.node.add_p2p_connection(P2PInterface())
         self.p2p_alt_node = self.nodes[1].add_p2p_connection(P2PInterface())
@@ -36,7 +39,7 @@ class QtumDuplicateStakeTest(BitcoinTestFramework):
         # Create a slightly different block using the same staking utxo (only difference is the nonce)
         alt_block = CBlock(block)
         alt_block.vtx = block.vtx[:]
-        alt_block.nNone = 1
+        alt_block.nNonce = 1
         alt_block.rehash()
         alt_block.sign_block(block_sig_key)
         alt_block.rehash()

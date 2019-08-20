@@ -13,6 +13,9 @@ class QtumCreateEthOpCodeTest(BitcoinTestFramework):
         self.setup_clean_chain = True
         self.num_nodes = 1
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
+
     def assert_address_with_value_in_unspents(self, address, value):
         for unspent in self.node.listunspent():
             if unspent['address'] == address:
@@ -59,7 +62,7 @@ class QtumCreateEthOpCodeTest(BitcoinTestFramework):
         # Make sure that the call to create resulted in an out of gas exception (all gas will have been assigned to the miner)
         # The total gas is equal to 1 qtum (10^6 * 10^2) + a minor txfee
         block = self.node.getblock(blockhash)
-        coinbase_tx = self.node.getrawtransaction(block['tx'][0], True)
+        coinbase_tx = self.node.decoderawtransaction(self.node.gettransaction(block['tx'][0])['hex'])
         assert(coinbase_tx['vout'][0]['value'] >= 20000+1)
         
         # Since the call to the contract threw an out of gas exception the origin contract should have a zero balance

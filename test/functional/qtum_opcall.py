@@ -18,6 +18,9 @@ class OpCallTest(BitcoinTestFramework):
         self.num_nodes = 2
         self.extra_args = [['-txindex=1']]*2
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
+
     def send_one_op_call_tx_with_counter_check(self, outputs, counter_should_increase_by=0, input_value=500000000, should_throw=False):
         # 61bc221a counter()
         old_out = int(self.node.callcontract(self.contract_address, "61bc221a")['executionResult']['output'], 16)

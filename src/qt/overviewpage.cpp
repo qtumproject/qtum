@@ -210,13 +210,14 @@ public:
 
     const PlatformStyle *platformStyle;
 };
+
 #include <qt/overviewpage.moc>
 
 OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::OverviewPage),
-    clientModel(0),
-    walletModel(0),
+    clientModel(nullptr),
+    walletModel(nullptr),
     txdelegate(new TxViewDelegate(platformStyle, this)),
     tkndelegate(new TknViewDelegate(platformStyle, this))
 {
@@ -271,9 +272,9 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
 
     // start with displaying the "out of sync" warnings
     showOutOfSyncWarning(true);
-    connect(ui->labelWalletStatus, SIGNAL(clicked()), this, SLOT(handleOutOfSyncWarningClicks()));
+    connect(ui->labelWalletStatus, &QPushButton::clicked, this, &OverviewPage::handleOutOfSyncWarningClicks);
     connect(ui->labelTokenStatus, SIGNAL(clicked()), this, SLOT(handleOutOfSyncWarningClicks()));
-    connect(ui->labelTransactionsStatus, SIGNAL(clicked()), this, SLOT(handleOutOfSyncWarningClicks()));
+    connect(ui->labelTransactionsStatus, &QPushButton::clicked, this, &OverviewPage::handleOutOfSyncWarningClicks);
 }
 
 void OverviewPage::handleOutOfSyncWarningClicks()
@@ -290,17 +291,24 @@ void OverviewPage::setBalance(const interfaces::WalletBalances& balances)
 {
     int unit = walletModel->getOptionsModel()->getDisplayUnit();
     m_balances = balances;
-    ui->labelBalance->setText(BitcoinUnits::formatWithUnit(unit, balances.balance, false, BitcoinUnits::separatorAlways));
-    ui->labelUnconfirmed->setText(BitcoinUnits::formatWithUnit(unit, balances.unconfirmed_balance, false, BitcoinUnits::separatorAlways));
-    ui->labelImmature->setText(BitcoinUnits::formatWithUnit(unit, balances.immature_balance, false, BitcoinUnits::separatorAlways));
-    ui->labelStake->setText(BitcoinUnits::formatWithUnit(unit, balances.stake, false, BitcoinUnits::separatorAlways));
-    ui->labelTotal->setText(BitcoinUnits::formatWithUnit(unit, balances.balance + balances.unconfirmed_balance + balances.immature_balance + balances.stake, false, BitcoinUnits::separatorAlways));
-    ui->labelWatchAvailable->setText(BitcoinUnits::formatWithUnit(unit, balances.watch_only_balance, false, BitcoinUnits::separatorAlways));
-    ui->labelWatchPending->setText(BitcoinUnits::formatWithUnit(unit, balances.unconfirmed_watch_only_balance, false, BitcoinUnits::separatorAlways));
-    ui->labelWatchImmature->setText(BitcoinUnits::formatWithUnit(unit, balances.immature_watch_only_balance, false, BitcoinUnits::separatorAlways));
-    ui->labelWatchStake->setText(BitcoinUnits::formatWithUnit(unit, balances.watch_only_stake, false, BitcoinUnits::separatorAlways));
-    ui->labelWatchTotal->setText(BitcoinUnits::formatWithUnit(unit, balances.watch_only_balance + balances.unconfirmed_watch_only_balance + balances.immature_watch_only_balance + balances.watch_only_stake, false, BitcoinUnits::separatorAlways));
-
+    if (walletModel->privateKeysDisabled()) {
+        ui->labelBalance->setText(BitcoinUnits::formatWithUnit(unit, balances.watch_only_balance, false, BitcoinUnits::separatorAlways));
+        ui->labelUnconfirmed->setText(BitcoinUnits::formatWithUnit(unit, balances.unconfirmed_watch_only_balance, false, BitcoinUnits::separatorAlways));
+        ui->labelImmature->setText(BitcoinUnits::formatWithUnit(unit, balances.immature_watch_only_balance, false, BitcoinUnits::separatorAlways));
+        ui->labelStake->setText(BitcoinUnits::formatWithUnit(unit, balances.watch_only_stake, false, BitcoinUnits::separatorAlways));
+        ui->labelTotal->setText(BitcoinUnits::formatWithUnit(unit, balances.watch_only_balance + balances.unconfirmed_watch_only_balance + balances.immature_watch_only_balance + balances.watch_only_stake, false, BitcoinUnits::separatorAlways));
+    } else {
+        ui->labelBalance->setText(BitcoinUnits::formatWithUnit(unit, balances.balance, false, BitcoinUnits::separatorAlways));
+        ui->labelUnconfirmed->setText(BitcoinUnits::formatWithUnit(unit, balances.unconfirmed_balance, false, BitcoinUnits::separatorAlways));
+        ui->labelImmature->setText(BitcoinUnits::formatWithUnit(unit, balances.immature_balance, false, BitcoinUnits::separatorAlways));
+        ui->labelStake->setText(BitcoinUnits::formatWithUnit(unit, balances.stake, false, BitcoinUnits::separatorAlways));
+        ui->labelTotal->setText(BitcoinUnits::formatWithUnit(unit, balances.balance + balances.unconfirmed_balance + balances.immature_balance + balances.stake, false, BitcoinUnits::separatorAlways));
+        ui->labelWatchAvailable->setText(BitcoinUnits::formatWithUnit(unit, balances.watch_only_balance, false, BitcoinUnits::separatorAlways));
+        ui->labelWatchPending->setText(BitcoinUnits::formatWithUnit(unit, balances.unconfirmed_watch_only_balance, false, BitcoinUnits::separatorAlways));
+        ui->labelWatchImmature->setText(BitcoinUnits::formatWithUnit(unit, balances.immature_watch_only_balance, false, BitcoinUnits::separatorAlways));
+        ui->labelWatchStake->setText(BitcoinUnits::formatWithUnit(unit, balances.watch_only_stake, false, BitcoinUnits::separatorAlways));
+        ui->labelWatchTotal->setText(BitcoinUnits::formatWithUnit(unit, balances.watch_only_balance + balances.unconfirmed_watch_only_balance + balances.immature_watch_only_balance + balances.watch_only_stake, false, BitcoinUnits::separatorAlways));
+    }
     // only show immature (newly mined) balance if it's non-zero, so as not to complicate things
     // for the non-mining users
     bool showImmature = balances.immature_balance != 0;
@@ -311,10 +319,10 @@ void OverviewPage::setBalance(const interfaces::WalletBalances& balances)
     // for symmetry reasons also show immature label when the watch-only one is shown
     ui->labelImmature->setVisible(showImmature || showWatchOnlyImmature);
     ui->labelImmatureText->setVisible(showImmature || showWatchOnlyImmature);
-    ui->labelWatchImmature->setVisible(showWatchOnlyImmature); // show watch-only immature balance
+    ui->labelWatchImmature->setVisible(!walletModel->privateKeysDisabled() && showWatchOnlyImmature); // show watch-only immature balance
     ui->labelStake->setVisible(showStake || showWatchOnlyStake);
     ui->labelStakeText->setVisible(showStake || showWatchOnlyStake);
-    ui->labelWatchStake->setVisible(showWatchOnlyStake); // show watch-only stake balance
+    ui->labelWatchStake->setVisible(!walletModel->privateKeysDisabled() && showWatchOnlyStake); // show watch-only stake balance
 }
 
 void OverviewPage::checkForInvalidTokens()
@@ -358,7 +366,7 @@ void OverviewPage::setClientModel(ClientModel *model)
     if(model)
     {
         // Show warning if this is a prerelease version
-        connect(model, SIGNAL(alertsChanged(QString)), this, SLOT(updateAlerts(QString)));
+        connect(model, &ClientModel::alertsChanged, this, &OverviewPage::updateAlerts);
         updateAlerts(model->getStatusBarWarnings());
     }
 }
@@ -384,12 +392,14 @@ void OverviewPage::setWalletModel(WalletModel *model)
         interfaces::Wallet& wallet = model->wallet();
         interfaces::WalletBalances balances = wallet.getBalances();
         setBalance(balances);
-        connect(model, SIGNAL(balanceChanged(interfaces::WalletBalances)), this, SLOT(setBalance(interfaces::WalletBalances)));
+        connect(model, &WalletModel::balanceChanged, this, &OverviewPage::setBalance);
 
-        connect(model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
+        connect(model->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &OverviewPage::updateDisplayUnit);
 
-        updateWatchOnlyLabels(wallet.haveWatchOnly());
-        connect(model, SIGNAL(notifyWatchonlyChanged(bool)), this, SLOT(updateWatchOnlyLabels(bool)));
+        updateWatchOnlyLabels(wallet.haveWatchOnly() && !model->privateKeysDisabled());
+        connect(model, &WalletModel::notifyWatchonlyChanged, [this](bool showWatchOnly) {
+            updateWatchOnlyLabels(showWatchOnly && !walletModel->privateKeysDisabled());
+        });
     }
 
     if(model && model->getTokenItemModel())

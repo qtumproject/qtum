@@ -40,6 +40,7 @@ public Q_SLOTS:
     void on_newContractABI();
 
 private Q_SLOTS:
+    void updateDisplayUnit();
 
 private:
     QString toDataHex(int func, QString& errorMessage);

@@ -19,6 +19,7 @@
 #include <httpserver.h>
 #include <mutex>
 #include <condition_variable>
+#include <util/system.h>
 
 static const unsigned int DEFAULT_RPC_SERIALIZE_VERSION = 1;
 
@@ -28,7 +29,7 @@ struct CUpdatedBlock
     int height;
 };
 
-static std::mutex cs_blockchange;
+static Mutex cs_blockchange;
 static std::condition_variable cond_blockchange;
 static CUpdatedBlock latestblock;
 
@@ -166,7 +167,7 @@ public:
      * This is needed to cope with the case in which there is no HTTP server, but
      * only GUI RPC console, and to break the dependency of pcserver on httprpc.
      */
-    virtual RPCTimerBase* NewTimer(std::function<void(void)>& func, int64_t millis) = 0;
+    virtual RPCTimerBase* NewTimer(std::function<void()>& func, int64_t millis) = 0;
 };
 
 /** Set the factory function for timers */
@@ -180,7 +181,7 @@ void RPCUnsetTimerInterface(RPCTimerInterface *iface);
  * Run func nSeconds from now.
  * Overrides previous timer <name> (if any).
  */
-void RPCRunLater(const std::string& name, std::function<void(void)> func, int64_t nSeconds);
+void RPCRunLater(const std::string& name, std::function<void()> func, int64_t nSeconds);
 
 typedef UniValue(*rpcfn_type)(const JSONRPCRequest& jsonRequest);
 

@@ -38,7 +38,7 @@ EditContractInfoDialog::EditContractInfoDialog(Mode _mode, QWidget *parent) :
     mapper = new QDataWidgetMapper(this);
     mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
 
-    connect(ui->ABIEdit, SIGNAL(textChanged()), SLOT(on_newContractABI()));
+    connect(ui->ABIEdit, &QValidatedTextEdit::textChanged, this, &EditContractInfoDialog::on_newContractABI);
 
     // Set contract address validator
     QRegularExpression regEx;

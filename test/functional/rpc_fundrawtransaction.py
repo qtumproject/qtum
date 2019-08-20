@@ -33,7 +33,7 @@ class RawTransactionsTest(BitcoinTestFramework):
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
 
-    def setup_network(self, split=False):
+    def setup_network(self):
         self.setup_nodes()
 
         connect_nodes_bi(self.nodes, 0, 1)
@@ -479,10 +479,8 @@ class RawTransactionsTest(BitcoinTestFramework):
 
         ############################################################
         # locked wallet test
-        self.stop_node(0)
-        self.nodes[1].node_encrypt_wallet("test")
-        self.stop_node(2)
-        self.stop_node(3)
+        self.nodes[1].encryptwallet("test")
+        self.stop_nodes()
 
         self.start_nodes()
         # This test is not meant to test fee estimation and we'd like

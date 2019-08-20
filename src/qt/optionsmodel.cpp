@@ -9,6 +9,7 @@
 #include <qt/optionsmodel.h>
 
 #include <qt/bitcoinunits.h>
+#include <qt/guiconstants.h>
 #include <qt/guiutil.h>
 
 #include <interfaces/node.h>
@@ -26,7 +27,7 @@
 #include <QNetworkProxy>
 #include <QSettings>
 #include <QStringList>
-#include <utilmoneystr.h>
+#include <util/moneystr.h>
 const char *DEFAULT_GUI_PROXY_HOST = "127.0.0.1";
 
 static const QString GetDefaultProxyAddress();
@@ -97,10 +98,10 @@ void OptionsModel::Init(bool resetSettings)
         settings.setValue("bPrune", false);
     if (!settings.contains("nPruneSize"))
         settings.setValue("nPruneSize", 2);
-    // Convert prune size to MB:
-    const uint64_t nPruneSizeMB = settings.value("nPruneSize").toInt() * 1000;
-    if (!m_node.softSetArg("-prune", settings.value("bPrune").toBool() ? std::to_string(nPruneSizeMB) : "0")) {
-      addOverriddenOption("-prune");
+    // Convert prune size from GB to MiB:
+    const uint64_t nPruneSizeMiB = (settings.value("nPruneSize").toInt() * GB_BYTES) >> 20;
+    if (!m_node.softSetArg("-prune", settings.value("bPrune").toBool() ? std::to_string(nPruneSizeMiB) : "0")) {
+        addOverriddenOption("-prune");
     }
 
     if (!settings.contains("nDatabaseCache"))
@@ -113,10 +114,12 @@ void OptionsModel::Init(bool resetSettings)
     if (!m_node.softSetBoolArg("-logevents", settings.value("fLogEvents").toBool()))
         addOverriddenOption("-logevents");
 
+#ifdef ENABLE_WALLET
     if (!settings.contains("nReserveBalance"))
         settings.setValue("nReserveBalance", (long long)DEFAULT_RESERVE_BALANCE);
     if (!m_node.softSetArg("-reservebalance", FormatMoney(settings.value("nReserveBalance").toLongLong())))
         addOverriddenOption("-reservebalance");
+#endif
 
     if (!settings.contains("nThreadsScriptVerif"))
         settings.setValue("nThreadsScriptVerif", DEFAULT_SCRIPTCHECK_THREADS);
@@ -132,11 +135,11 @@ void OptionsModel::Init(bool resetSettings)
         settings.setValue("bSpendZeroConfChange", true);
     if (!m_node.softSetBoolArg("-spendzeroconfchange", settings.value("bSpendZeroConfChange").toBool()))
         addOverriddenOption("-spendzeroconfchange");
-#endif
 
     if (!settings.contains("bZeroBalanceAddressToken"))
         settings.setValue("bZeroBalanceAddressToken", DEFAULT_ZERO_BALANCE_ADDRESS_TOKEN);
     bZeroBalanceAddressToken = settings.value("bZeroBalanceAddressToken").toBool();
+#endif
 
     if (!settings.contains("fCheckForUpdates"))
         settings.setValue("fCheckForUpdates", DEFAULT_CHECK_FOR_UPDATES);
@@ -153,6 +156,7 @@ void OptionsModel::Init(bool resetSettings)
     if (!m_node.softSetBoolArg("-listen", settings.value("fListen").toBool()))
         addOverriddenOption("-listen");
 
+#ifdef ENABLE_WALLET
     if (!settings.contains("fUseChangeAddress"))
     {
         // Set the default value
@@ -167,6 +171,7 @@ void OptionsModel::Init(bool resetSettings)
     }
     if (!m_node.softSetBoolArg("-usechangeaddress", settings.value("fUseChangeAddress").toBool()))
         addOverriddenOption("-usechangeaddress");
+#endif
 
     if (!settings.contains("fUseProxy"))
         settings.setValue("fUseProxy", false);
@@ -320,11 +325,11 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
 #ifdef ENABLE_WALLET
         case SpendZeroConfChange:
             return settings.value("bSpendZeroConfChange");
-#endif
         case ZeroBalanceAddressToken:
             return settings.value("bZeroBalanceAddressToken");
         case ReserveBalance:
             return settings.value("nReserveBalance");
+#endif
         case DisplayUnit:
             return nDisplayUnit;
         case ThirdPartyTxUrls:
@@ -345,8 +350,10 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
             return settings.value("nThreadsScriptVerif");
         case Listen:
             return settings.value("fListen");
+#ifdef ENABLE_WALLET
         case UseChangeAddress:
             return settings.value("fUseChangeAddress");
+#endif
         case CheckForUpdates:
             return settings.value("fCheckForUpdates");
         default:
@@ -445,12 +452,12 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
                 setRestartRequired(true);
             }
             break;
-#endif
         case ZeroBalanceAddressToken:
             bZeroBalanceAddressToken = value.toBool();
             settings.setValue("bZeroBalanceAddressToken", bZeroBalanceAddressToken);
             Q_EMIT zeroBalanceAddressTokenChanged(bZeroBalanceAddressToken);
             break;
+#endif
         case DisplayUnit:
             setDisplayUnit(value);
             break;
@@ -496,12 +503,14 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
                 setRestartRequired(true);
             }
             break;
+#ifdef ENABLE_WALLET
         case ReserveBalance:
             if (settings.value("nReserveBalance") != value) {
                 settings.setValue("nReserveBalance", value);
                 setRestartRequired(true);
             }
             break;
+#endif
         case ThreadsScriptVerif:
             if (settings.value("nThreadsScriptVerif") != value) {
                 settings.setValue("nThreadsScriptVerif", value);
@@ -514,6 +523,7 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
                 setRestartRequired(true);
             }
             break;
+#ifdef ENABLE_WALLET
         case UseChangeAddress:
             if (settings.value("fUseChangeAddress") != value) {
                 settings.setValue("fUseChangeAddress", value);
@@ -522,6 +532,7 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
                 setRestartRequired(true);
             }
             break;
+#endif
         case CheckForUpdates:
             if (settings.value("fCheckForUpdates") != value) {
                 settings.setValue("fCheckForUpdates", value);
