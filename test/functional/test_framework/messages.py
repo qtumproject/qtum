@@ -523,7 +523,7 @@ class CTransaction:
 
 
 class CBlockHeader(object):
-    __slots__ = ("hash", "hashMerkleRoot", "hashPrevBlock", "nBits", "nNonce",
+    __slots__ = ("hash", "hashMerkleRoot", "hashPrevBlock", "hashStateRoot", "hashUTXORoot", "prevoutStake", "vchBlockSig", "nBits", "nNonce",
                  "nTime", "nVersion", "sha256")
 
     def __init__(self, header=None):
@@ -623,7 +623,7 @@ class CBlockHeader(object):
             data += prevout.serialize()
             data += struct.pack("<I", self.nTime)
             posHash = uint256_from_str(hash256(data))
-            if posHash <= target:
+            if posHash <= (target*nValue) & (2**256 - 1):
                 self.prevoutStake = prevout
                 return True
         return False
@@ -633,8 +633,8 @@ class CBlockHeader(object):
             % (self.nVersion, self.hashPrevBlock, self.hashMerkleRoot,
                time.ctime(self.nTime), self.nBits, self.nNonce)
 
-BLOCK_HEADER_SIZE = len(CBlockHeader().serialize())
-assert_equal(BLOCK_HEADER_SIZE, 80)
+# BLOCK_HEADER_SIZE = len(CBlockHeader().serialize())
+# assert_equal(BLOCK_HEADER_SIZE, 80)
 
 class CBlock(CBlockHeader):
     __slots__ = ("vtx",)
@@ -721,7 +721,7 @@ class CBlock(CBlockHeader):
         data += ser_uint256(self.hashUTXORoot)
         data += self.prevoutStake.serialize()
         sha256NoSig = hash256(data)
-        self.vchBlockSig = key.sign(sha256NoSig, low_s=low_s)
+        self.vchBlockSig = key.sign_ecdsa(sha256NoSig, low_s=low_s)
 
     def __repr__(self):
         return "CBlock(nVersion=%i hashPrevBlock=%064x hashMerkleRoot=%064x nTime=%s nBits=%08x nNonce=%08x vtx=%s)" \

@@ -155,7 +155,7 @@ class SignRawTransactionsTest(BitcoinTestFramework):
         embedded_privkey = self.nodes[1].dumpprivkey(embedded_address["address"])
         p2sh_p2wsh_address = self.nodes[1].addmultisigaddress(1, [embedded_address["pubkey"]], "", "p2sh-segwit")
         # send transaction to P2SH-P2WSH 1-of-1 multisig address
-        self.nodes[0].generate(101)
+        self.nodes[0].generate(COINBASE_MATURITY + 1)
         self.nodes[0].sendtoaddress(p2sh_p2wsh_address["address"], 49.999)
         self.nodes[0].generate(1)
         self.sync_all()

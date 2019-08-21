@@ -60,13 +60,13 @@ def read_dump(file_name, addrs, script_addrs, hd_master_addr_old):
                 # count key types
                 for addrObj in addrs:
                     if addrObj['address'] == addr.split(",")[0] and addrObj['hdkeypath'] == keypath and keytype == "label=":
-                        if addr.startswith('m') or addr.startswith('n'):
+                        if addr.startswith('q') and not addr.startswith('qcrt'):
                             # P2PKH address
                             found_legacy_addr += 1
-                        elif addr.startswith('2'):
+                        elif addr.startswith('m'):
                             # P2SH-segwit address
                             found_p2sh_segwit_addr += 1
-                        elif addr.startswith('bcrt1'):
+                        elif addr.startswith('qcrt'):
                             found_bech32_addr += 1
                         break
                     elif keytype == "change=1":
@@ -89,7 +89,7 @@ class WalletDumpTest(BitcoinTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
         self.extra_args = [["-keypool=90", "-addresstype=legacy"]]
-        self.rpc_timeout = 120
+        self.rpc_timewait = 120
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()

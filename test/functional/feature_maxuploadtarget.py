@@ -51,7 +51,7 @@ class MaxUploadTest(BitcoinTestFramework):
         self.nodes[0].setmocktime(old_time)
 
         # Generate some old blocks
-        self.nodes[0].generate(130)
+        self.nodes[0].generate(530)
 
         # p2p_conns[0] will only request old blocks
         # p2p_conns[1] will only request new blocks
@@ -93,6 +93,7 @@ class MaxUploadTest(BitcoinTestFramework):
         # 576MB will be reserved for relaying new blocks, so expect this to
         # succeed for ~235 tries.
         for i in range(success_count):
+            print(i)
             p2p_conns[0].send_message(getdata_request)
             p2p_conns[0].sync_with_ping()
             assert_equal(p2p_conns[0].block_receive_map[big_old_block], i+1)

@@ -26,7 +26,9 @@
 #include <util/moneystr.h>
 #include <util/system.h>
 #include <validationinterface.h>
+#ifdef ENABLE_WALLET
 #include <wallet/wallet.h>
+#endif
 
 #include <algorithm>
 #include <queue>
@@ -821,6 +823,7 @@ void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned
     pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
 }
 
+#ifdef ENABLE_WALLET
 //////////////////////////////////////////////////////////////////////////////
 //
 // Proof of Stake miner
@@ -915,7 +918,16 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
         //
         // Create new block
         //
-        if(pwallet->HaveAvailableCoinsForStaking())
+        CAmount nBalance = pwallet->GetBalance();
+        CAmount nTargetValue = nBalance - pwallet->m_reserve_balance;
+        CAmount nValueIn = 0;
+        std::set<std::pair<const CWalletTx*,unsigned int> > setCoins;
+        int64_t start = GetAdjustedTime();
+        {
+            auto locked_chain = pwallet->chain().lock();
+            pwallet->SelectCoinsForStaking(*locked_chain, nTargetValue, setCoins, nValueIn);
+        }
+        if(setCoins.size() > 0)
         {
             int64_t nTotalFees = 0;
             // First just create an empty block. No need to process transactions until we know we can create a block
@@ -936,7 +948,7 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
                 // Try to sign a block (this also checks for a PoS stake)
                 pblocktemplate->block.nTime = i;
                 std::shared_ptr<CBlock> pblock = std::make_shared<CBlock>(pblocktemplate->block);
-                if (SignBlock(pblock, *pwallet, nTotalFees, i)) {
+                if (SignBlock(pblock, *pwallet, nTotalFees, i, setCoins)) {
                     // increase priority so we can build the full PoS block ASAP to ensure the timestamp doesn't expire
                     SetThreadPriority(THREAD_PRIORITY_ABOVE_NORMAL);
 
@@ -958,7 +970,7 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
                     }
                     // Sign the full block and use the timestamp from earlier for a valid stake
                     std::shared_ptr<CBlock> pblockfilled = std::make_shared<CBlock>(pblocktemplatefilled->block);
-                    if (SignBlock(pblockfilled, *pwallet, nTotalFees, i)) {
+                    if (SignBlock(pblockfilled, *pwallet, nTotalFees, i, setCoins)) {
                         // Should always reach here unless we spent too much time processing transactions and the timestamp is now invalid
                         // CheckStake also does CheckBlock and AcceptBlock to propogate it to the network
                         bool validBlock = false;
@@ -1019,3 +1031,4 @@ void StakeQtums(bool fStake, CWallet *pwallet, CConnman* connman, boost::thread_
         stakeThread->create_thread(boost::bind(&ThreadStakeMiner, pwallet, connman));
     }
 }
+#endif

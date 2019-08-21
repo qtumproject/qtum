@@ -10,7 +10,7 @@ from test_framework.mininode import *
 from test_framework.address import *
 from test_framework.qtum import *
 import time
-from test_framework.key import CECKey
+from test_framework.key import ECKey
 from test_framework.script import *
 import struct
 import io
@@ -27,6 +27,9 @@ class QtumBlockHeaderTest(BitcoinTestFramework):
         self.num_nodes = 1
         self.setup_clean_chain = True
         self.extra_args = [[]]
+
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
 
     def run_test(self):
         self.nodes[0].add_p2p_connection(P2PDataStore())
@@ -115,8 +118,8 @@ class QtumBlockHeaderTest(BitcoinTestFramework):
         coinbase = create_coinbase(node.getblockcount()+1)
         coinbase.rehash()
         self.tip = create_block(int(node.getbestblockhash(), 16), coinbase, int(mocktime+400))
-        self.tip.realHashUTXORoot = realHashUTXORoot
-        self.tip.realHashStateRoot = realHashStateRoot
+        self.tip.hashUTXORoot = realHashUTXORoot
+        self.tip.hashStateRoot = realHashStateRoot
         self.tip.vtx.append(tx)
         self.tip.hashMerkleRoot = self.tip.calc_merkle_root()
         self.tip.solve()
@@ -162,11 +165,11 @@ class QtumBlockHeaderTest(BitcoinTestFramework):
         self.nodes[0].add_p2p_connection(P2PDataStore())
         self.nodes[0].p2p.wait_for_getheaders(timeout=5)
 
-    def sync_blocks(self, blocks, success=True, reject_code=None, reject_reason=None, request_block=True, reconnect=False, timeout=60):
+    def sync_blocks(self, blocks, success=True, reject_code=None, reject_reason=None, force_send=False, reconnect=False, timeout=5):
         """Sends blocks to test node. Syncs and verifies that tip has advanced to most recent block.
 
         Call with success = False if the tip shouldn't advance to the most recent block."""
-        self.nodes[0].p2p.send_blocks_and_test(blocks, self.nodes[0], success=success, reject_code=reject_code, reject_reason=reject_reason, request_block=request_block, timeout=timeout)
+        self.nodes[0].p2p.send_blocks_and_test(blocks, self.nodes[0], success=success, reject_reason=reject_reason, force_send=force_send, timeout=timeout, expect_disconnect=reconnect)
 
         if reconnect:
             self.reconnect_p2p()

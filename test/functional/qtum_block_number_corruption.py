@@ -13,6 +13,9 @@ class QtumBlockNumberCorruptionTest(BitcoinTestFramework):
         self.num_nodes = 1
         self.extra_args = [['-txindex=1']]
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
+
     def run_test(self):
         self.nodes[0].generate(COINBASE_MATURITY+50)
         self.node = self.nodes[0]

@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=0.17.6
+Name=Qtum Core Testnet
+Comment=Connect to the Qtum P2P Network Testnet
+Exec=qtum-qt -testnet %u
+Terminal=false
+Type=Application
+Icon=qtumtestnet128
+MimeType=x-scheme-handler/qtum;
+Categories=Network;
+StartupWMClass=Qtum-qt-testnet
+Name[en_US]=qtum-qt-testnet

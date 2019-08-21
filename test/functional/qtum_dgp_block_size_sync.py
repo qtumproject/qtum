@@ -17,6 +17,8 @@ class QtumDGPBlockSizeSyncTest(BitcoinTestFramework):
         self.setup_clean_chain = True
         self.num_nodes = 8
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
 
     def create_block_of_approx_max_size(self, size_in_bytes):
         tip = self.node.getblock(self.node.getbestblockhash())

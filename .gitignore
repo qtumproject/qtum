@@ -131,6 +131,7 @@ db4/
 src/qtum-cli
 src/qtum-tx
 src/qtumd
+src/qtum-wallet
 src/bench/bench_qtum
 src/qt/qtum-qt
 src/qt/test/test_qtum-qt

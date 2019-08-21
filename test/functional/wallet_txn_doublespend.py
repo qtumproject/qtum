@@ -132,7 +132,7 @@ class TxnMallTest(BitcoinTestFramework):
         # Node0's total balance should be starting balance, plus 100BTC for
         # two more matured blocks, minus 1240 for the double-spend, plus fees (which are
         # negative):
-        expected = starting_balance + 2*INITIAL_BLOCK_REWARD - spend_from_doublespend + fund_foo_tx["fee"] + fund_bar_tx["fee"] + doublespend_fee//QTUM_LINE
+        expected = starting_balance + 2*INITIAL_BLOCK_REWARD - spend_from_doublespend + fund_foo_tx["fee"] + fund_bar_tx["fee"] + doublespend_fee
         assert_equal(self.nodes[0].getbalance(), expected)
 
         assert_equal(self.nodes[0].getbalance("*"), expected)

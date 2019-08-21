@@ -62,7 +62,7 @@ class TestNode():
     To make things easier for the test writer, any unrecognised messages will
     be dispatched to the RPC connection."""
 
-    def __init__(self, i, datadir, *, rpchost, timewait, bitcoind, bitcoin_cli, coverage_dir, cwd, extra_conf=None, extra_args=None, use_cli=False, start_perf=False):
+    def __init__(self, i, datadir, *, rpchost, timewait, bitcoind, bitcoin_cli, coverage_dir, cwd, extra_conf=None, extra_args=None, use_cli=False, start_perf=False, enable_wallet=False):
         """
         Kwargs:
             start_perf (bool): If True, begin profiling the node with `perf` as soon as
@@ -74,10 +74,11 @@ class TestNode():
         self.stdout_dir = os.path.join(self.datadir, "stdout")
         self.stderr_dir = os.path.join(self.datadir, "stderr")
         self.rpchost = rpchost
-        self.rpc_timeout = timewait
+        self.rpc_timewait = timewait
         self.binary = bitcoind
         self.coverage_dir = coverage_dir
         self.cwd = cwd
+        self.enable_wallet = enable_wallet
         if extra_conf is not None:
             append_config(datadir, extra_conf)
         # Most callers will just need to add extra args to the standard list below.
@@ -115,15 +116,15 @@ class TestNode():
         AddressKeyPair = collections.namedtuple('AddressKeyPair', ['address', 'key'])
         PRIV_KEYS = [
             # address , privkey
-            (convert_btc_address_to_qtum('mjTkW3DjgyZck4KbiRusZsqTgaYTxdSz6z'), 'cVpF924EspNh8KjYsfhgY96mmxvT6DgdWiTYMtMjuM74hJaU5psW'),
-            (convert_btc_address_to_qtum('msX6jQXvxiNhx3Q62PKeLPrhrqZQdSimTg'), 'cUxsWyKyZ9MAQTaAhUQWJmBbSvHMwSmuv59KgxQV7oZQU3PXN3KE'),
-            (convert_btc_address_to_qtum('mnonCMyH9TmAsSj3M59DsbH8H63U3RKoFP'), 'cTrh7dkEAeJd6b3MRX9bZK8eRmNqVCMH3LSUkE3dSFDyzjU38QxK'),
-            (convert_btc_address_to_qtum('mqJupas8Dt2uestQDvV2NH3RU8uZh2dqQR'), 'cVuKKa7gbehEQvVq717hYcbE9Dqmq7KEBKqWgWrYBa2CKKrhtRim'),
-            (convert_btc_address_to_qtum('msYac7Rvd5ywm6pEmkjyxhbCDKqWsVeYws'), 'cQDCBuKcjanpXDpCqacNSjYfxeQj8G6CAtH1Dsk3cXyqLNC4RPuh'),
-            (convert_btc_address_to_qtum('n2rnuUnwLgXqf9kk2kjvVm8R5BZK1yxQBi'), 'cQakmfPSLSqKHyMFGwAqKHgWUiofJCagVGhiB4KCainaeCSxeyYq'),
-            (convert_btc_address_to_qtum('myzuPxRwsf3vvGzEuzPfK9Nf2RfwauwYe6'), 'cQMpDLJwA8DBe9NcQbdoSb1BhmFxVjWD5gRyrLZCtpuF9Zi3a9RK'),
-            (convert_btc_address_to_qtum('mumwTaMtbxEPUswmLBBN3vM9oGRtGBrys8'), 'cSXmRKXVcoouhNNVpcNKFfxsTsToY5pvB9DVsFksF1ENunTzRKsy'),
-            (convert_btc_address_to_qtum('mpV7aGShMkJCZgbW7F6iZgrvuPHjZjH9qg'), 'cSoXt6tm3pqy43UMabY6eUTmR3eSUYFtB2iNQDGgb3VUnRsQys2k'),
+            AddressKeyPair(convert_btc_address_to_qtum('mjTkW3DjgyZck4KbiRusZsqTgaYTxdSz6z'), 'cVpF924EspNh8KjYsfhgY96mmxvT6DgdWiTYMtMjuM74hJaU5psW'),
+            AddressKeyPair(convert_btc_address_to_qtum('msX6jQXvxiNhx3Q62PKeLPrhrqZQdSimTg'), 'cUxsWyKyZ9MAQTaAhUQWJmBbSvHMwSmuv59KgxQV7oZQU3PXN3KE'),
+            AddressKeyPair(convert_btc_address_to_qtum('mnonCMyH9TmAsSj3M59DsbH8H63U3RKoFP'), 'cTrh7dkEAeJd6b3MRX9bZK8eRmNqVCMH3LSUkE3dSFDyzjU38QxK'),
+            AddressKeyPair(convert_btc_address_to_qtum('mqJupas8Dt2uestQDvV2NH3RU8uZh2dqQR'), 'cVuKKa7gbehEQvVq717hYcbE9Dqmq7KEBKqWgWrYBa2CKKrhtRim'),
+            AddressKeyPair(convert_btc_address_to_qtum('msYac7Rvd5ywm6pEmkjyxhbCDKqWsVeYws'), 'cQDCBuKcjanpXDpCqacNSjYfxeQj8G6CAtH1Dsk3cXyqLNC4RPuh'),
+            AddressKeyPair(convert_btc_address_to_qtum('n2rnuUnwLgXqf9kk2kjvVm8R5BZK1yxQBi'), 'cQakmfPSLSqKHyMFGwAqKHgWUiofJCagVGhiB4KCainaeCSxeyYq'),
+            AddressKeyPair(convert_btc_address_to_qtum('myzuPxRwsf3vvGzEuzPfK9Nf2RfwauwYe6'), 'cQMpDLJwA8DBe9NcQbdoSb1BhmFxVjWD5gRyrLZCtpuF9Zi3a9RK'),
+            AddressKeyPair(convert_btc_address_to_qtum('mumwTaMtbxEPUswmLBBN3vM9oGRtGBrys8'), 'cSXmRKXVcoouhNNVpcNKFfxsTsToY5pvB9DVsFksF1ENunTzRKsy'),
+            AddressKeyPair(convert_btc_address_to_qtum('mpV7aGShMkJCZgbW7F6iZgrvuPHjZjH9qg'), 'cSoXt6tm3pqy43UMabY6eUTmR3eSUYFtB2iNQDGgb3VUnRsQys2k'),
         ]
         return PRIV_KEYS[self.index]
 
@@ -196,7 +197,7 @@ class TestNode():
         # add environment variable LIBC_FATAL_STDERR_=1 so that libc errors are written to stderr and not the terminal
         subp_env = dict(os.environ, LIBC_FATAL_STDERR_="1")
 
-        if not any(arg.startswith('-staking=') for arg in extra_args):
+        if self.enable_wallet and not any(arg.startswith('-staking=') for arg in extra_args):
             extra_args.append('-staking=0')
         self.process = subprocess.Popen(self.args + extra_args, env=subp_env, stdout=stdout, stderr=stderr, cwd=cwd, **kwargs)
 
@@ -210,12 +211,12 @@ class TestNode():
         """Sets up an RPC connection to the bitcoind process. Returns False if unable to connect."""
         # Poll at a rate of four times per second
         poll_per_s = 4
-        for _ in range(poll_per_s * self.rpc_timeout):
+        for _ in range(poll_per_s * self.rpc_timewait):
             if self.process.poll() is not None:
                 raise FailedToStartError(self._node_msg(
                     'bitcoind exited with status {} during initialization'.format(self.process.returncode)))
             try:
-                rpc = get_rpc_proxy(rpc_url(self.datadir, self.index, self.rpchost), self.index, timeout=self.rpc_timeout, coveragedir=self.coverage_dir)
+                rpc = get_rpc_proxy(rpc_url(self.datadir, self.index, self.rpchost), self.index, timeout=self.rpc_timewait, coveragedir=self.coverage_dir)
                 rpc.getblockcount()
                 # If the call to getblockcount() succeeds then the RPC connection is up
                 self.log.debug("RPC successfully started")

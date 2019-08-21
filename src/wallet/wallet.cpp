@@ -34,6 +34,7 @@
 #include <wallet/fees.h>
 #include <pos.h>
 #include <miner.h>
+#include <pos.h>
 
 #include <algorithm>
 #include <assert.h>
@@ -162,182 +163,6 @@ std::shared_ptr<CWallet> LoadWallet(interfaces::Chain& chain, const std::string&
 const uint32_t BIP32_HARDENED_KEY_LIMIT = 0x80000000;
 
 const uint256 CMerkleTx::ABANDON_HASH(uint256S("0000000000000000000000000000000000000000000000000000000000000001"));
-
-/**
- * Proof-of-stake functions needed in the wallet but wallet independent
- */
-struct ScriptsElement{
-    CScript script;
-    uint256 hash;
-};
-
-/**
- * Cache of the recent mpos scripts for the block reward recipients
- * The max size of the map is 2 * nCacheScripts - nMPoSRewardRecipients, so in this case it is 20
- */
-std::map<int, ScriptsElement> scriptsMap;
-
-unsigned int GetStakeMaxCombineInputs() { return 100; }
-
-int64_t GetStakeCombineThreshold() { return 100 * COIN; }
-
-unsigned int GetStakeSplitOutputs() { return 2; }
-
-int64_t GetStakeSplitThreshold() { return GetStakeSplitOutputs() * GetStakeCombineThreshold(); }
-
-bool NeedToEraseScriptFromCache(int nBlockHeight, int nCacheScripts, int nScriptHeight, const ScriptsElement& scriptElement)
-{
-    // Erase element from cache if not in range [nBlockHeight - nCacheScripts, nBlockHeight + nCacheScripts]
-    if(nScriptHeight < (nBlockHeight - nCacheScripts) ||
-            nScriptHeight > (nBlockHeight + nCacheScripts))
-        return true;
-
-    // Erase element from cache if hash different
-    CBlockIndex* pblockindex = chainActive[nScriptHeight];
-    if(pblockindex && pblockindex->GetBlockHash() != scriptElement.hash)
-        return true;
-
-    return false;
-}
-
-void CleanScriptCache(int nHeight, const Consensus::Params& consensusParams)
-{
-    int nCacheScripts = consensusParams.nMPoSRewardRecipients * 1.5;
-
-    // Remove the scripts from cache that are not used
-    for (std::map<int, ScriptsElement>::iterator it=scriptsMap.begin(); it!=scriptsMap.end();){
-        if(NeedToEraseScriptFromCache(nHeight, nCacheScripts, it->first, it->second))
-        {
-            it = scriptsMap.erase(it);
-        }
-        else{
-            it++;
-        }
-    }
-}
-
-bool ReadFromScriptCache(CScript &script, CBlockIndex* pblockindex, int nHeight, const Consensus::Params& consensusParams)
-{
-    CleanScriptCache(nHeight, consensusParams);
-
-    // Find the script in the cache
-    std::map<int, ScriptsElement>::iterator it = scriptsMap.find(nHeight);
-    if(it != scriptsMap.end())
-    {
-        if(it->second.hash == pblockindex->GetBlockHash())
-        {
-            script = it->second.script;
-            return true;
-        }
-    }
-
-    return false;
-}
-
-void AddToScriptCache(CScript script, CBlockIndex* pblockindex, int nHeight, const Consensus::Params& consensusParams)
-{
-    CleanScriptCache(nHeight, consensusParams);
-
-    // Add the script into the cache
-    ScriptsElement listElement;
-    listElement.script = script;
-    listElement.hash = pblockindex->GetBlockHash();
-    scriptsMap.insert(std::pair<int, ScriptsElement>(nHeight, listElement));
-}
-
-bool AddMPoSScript(std::vector<CScript> &mposScriptList, int nHeight, const Consensus::Params& consensusParams)
-{
-    // Check if the block index exist into the active chain
-    CBlockIndex* pblockindex = chainActive[nHeight];
-    if(!pblockindex)
-    {
-        LogPrint(BCLog::COINSTAKE, "Block index not found\n");
-        return false;
-    }
-
-    // Try find the script from the cache
-    CScript script;
-    if(ReadFromScriptCache(script, pblockindex, nHeight, consensusParams))
-    {
-        mposScriptList.push_back(script);
-        return true;
-    }
-
-    // Read the block
-    uint160 stakeAddress;
-    if(!pblocktree->ReadStakeIndex(nHeight, stakeAddress)){
-        return false;
-    }
-
-    // The block reward for PoS is in the second transaction (coinstake) and the second or third output
-    if(pblockindex->IsProofOfStake())
-    {
-        if(stakeAddress == uint160())
-        {
-            LogPrint(BCLog::COINSTAKE, "Fail to solve script for mpos reward recipient\n");
-            //This should never fail, but in case it somehow did we don't want it to bring the network to a halt
-            //So, use an OP_RETURN script to burn the coins for the unknown staker
-            script = CScript() << OP_RETURN;
-        }else{
-            // Make public key hash script
-            script = CScript() << OP_DUP << OP_HASH160 << ToByteVector(stakeAddress) << OP_EQUALVERIFY << OP_CHECKSIG;
-        }
-
-        // Add the script into the list
-        mposScriptList.push_back(script);
-
-        // Update script cache
-        AddToScriptCache(script, pblockindex, nHeight, consensusParams);
-    }
-    else
-    {
-        if(consensusParams.fPoSNoRetargeting){
-            //this could happen in regtest. Just ignore and add an empty script
-            script = CScript() << OP_RETURN;
-            mposScriptList.push_back(script);
-            return true;
-
-        }
-        LogPrint(BCLog::COINSTAKE, "The block is not proof-of-stake\n");
-        return false;
-    }
-
-    return true;
-}
-
-bool GetMPoSOutputScripts(std::vector<CScript>& mposScriptList, int nHeight, const Consensus::Params& consensusParams)
-{
-    bool ret = true;
-    nHeight -= COINBASE_MATURITY;
-
-    // Populate the list of scripts for the reward recipients
-    for(int i = 0; (i < consensusParams.nMPoSRewardRecipients - 1) && ret; i++)
-    {
-        ret &= AddMPoSScript(mposScriptList, nHeight - i, consensusParams);
-    }
-
-    return ret;
-}
-
-bool CreateMPoSOutputs(CMutableTransaction& txNew, int64_t nRewardPiece, int nHeight, const Consensus::Params& consensusParams)
-{
-    std::vector<CScript> mposScriptList;
-    if(!GetMPoSOutputScripts(mposScriptList, nHeight, consensusParams))
-    {
-        LogPrint(BCLog::COINSTAKE, "Fail to get the list of recipients\n");
-        return false;
-    }
-
-    // Split the block reward with the recipients
-    for(unsigned int i = 0; i < mposScriptList.size(); i++)
-    {
-        CTxOut txOut(CTxOut(0, mposScriptList[i]));
-        txOut.nValue = nRewardPiece;
-        txNew.vout.push_back(txOut);
-    }
-
-    return true;
-}
 
 /** @defgroup mapWallet
  *
@@ -3591,7 +3416,7 @@ uint64_t CWallet::GetStakeWeight(interfaces::Chain::Lock& locked_chain) const
     return nWeight;
 }
 
-bool CWallet::CreateCoinStake(interfaces::Chain::Lock& locked_chain, const CKeyStore& keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key)
+bool CWallet::CreateCoinStake(interfaces::Chain::Lock& locked_chain, const CKeyStore& keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins)
 {
     CBlockIndex* pindexPrev = chainActive.Tip();
     arith_uint256 bnTargetPerCoinDay;
@@ -3614,14 +3439,6 @@ bool CWallet::CreateCoinStake(interfaces::Chain::Lock& locked_chain, const CKeyS
 
     std::vector<const CWalletTx*> vwtxPrev;
 
-    std::set<std::pair<const CWalletTx*,unsigned int> > setCoins;
-    CAmount nValueIn = 0;
-
-    // Select coins with suitable depth
-    CAmount nTargetValue = nBalance - m_reserve_balance;
-    if (!SelectCoinsForStaking(locked_chain, nTargetValue, setCoins, nValueIn))
-        return false;
-
     if (setCoins.empty())
         return false;
 
@@ -3641,6 +3458,8 @@ bool CWallet::CreateCoinStake(interfaces::Chain::Lock& locked_chain, const CKeyS
     }
     int64_t nCredit = 0;
     CScript scriptPubKeyKernel;
+    CScript aggregateScriptPubKeyHashKernel;
+
     for(const std::pair<const CWalletTx*,unsigned int> &pcoin : setCoins)
     {
         bool fKernelFound = false;
@@ -3678,6 +3497,7 @@ bool CWallet::CreateCoinStake(interfaces::Chain::Lock& locked_chain, const CKeyS
                     break;  // unable to find corresponding public key
                 }
                 scriptPubKeyOut << key.GetPubKey().getvch() << OP_CHECKSIG;
+                aggregateScriptPubKeyHashKernel = scriptPubKeyKernel;
             }
             if (whichType == TX_PUBKEY)
             {
@@ -3698,6 +3518,7 @@ bool CWallet::CreateCoinStake(interfaces::Chain::Lock& locked_chain, const CKeyS
                 }
 
                 scriptPubKeyOut = scriptPubKeyKernel;
+                aggregateScriptPubKeyHashKernel = CScript() << OP_DUP << OP_HASH160 << ToByteVector(hash160) << OP_EQUALVERIFY << OP_CHECKSIG;
             }
 
             txNew.vin.push_back(CTxIn(pcoin.first->GetHash(), pcoin.second));
@@ -3721,7 +3542,7 @@ bool CWallet::CreateCoinStake(interfaces::Chain::Lock& locked_chain, const CKeyS
     {
         // Attempt to add more inputs
         // Only add coins of the same key/address as kernel
-        if (txNew.vout.size() == 2 && ((pcoin.first->tx->vout[pcoin.second].scriptPubKey == scriptPubKeyKernel || pcoin.first->tx->vout[pcoin.second].scriptPubKey == txNew.vout[1].scriptPubKey))
+        if (txNew.vout.size() == 2 && ((pcoin.first->tx->vout[pcoin.second].scriptPubKey == scriptPubKeyKernel || pcoin.first->tx->vout[pcoin.second].scriptPubKey == aggregateScriptPubKeyHashKernel))
                 && pcoin.first->GetHash() != txNew.vin[0].prevout.hash)
         {
             // Stop adding more inputs if already too many inputs

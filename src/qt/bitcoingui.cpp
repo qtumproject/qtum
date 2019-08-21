@@ -178,6 +178,7 @@ BitcoinGUI::BitcoinGUI(interfaces::Node& node, const PlatformStyle *_platformSty
     frameBlocksLayout->addWidget(labelBlocksIcon);
     frameBlocksLayout->addStretch();
 
+#ifdef ENABLE_WALLET
     if (gArgs.GetBoolArg("-staking", true))
     {
         QTimer *timerStakingIcon = new QTimer(labelStakingIcon);
@@ -186,6 +187,7 @@ BitcoinGUI::BitcoinGUI(interfaces::Node& node, const PlatformStyle *_platformSty
 
         updateStakingIcon();
     }
+#endif // ENABLE_WALLET
 
     // Progress bar and label for blocks download
     progressBarLabel = new QLabel();
@@ -703,9 +705,11 @@ void BitcoinGUI::setClientModel(ClientModel *_clientModel)
             setTrayIconVisible(optionsModel->getHideTrayIcon());
         }
 
+#ifdef ENABLE_WALLET
         if (optionsModel && appTitleBar) {
             connect(optionsModel, &OptionsModel::displayUnitChanged, appTitleBar, &TitleBar::updateDisplayUnit);
         }
+#endif // ENABLE_WALLET
 
         modalOverlay->setKnownBestHeight(clientModel->getHeaderTipHeight(), QDateTime::fromTime_t(clientModel->getHeaderTipTime()));
     } else {
@@ -1508,6 +1512,7 @@ void BitcoinGUI::toggleHidden()
     showNormalIfMinimized(true);
 }
 
+#ifdef ENABLE_WALLET
 void BitcoinGUI::updateStakingIcon()
 {
     if(m_node.shutdownRequested())
@@ -1571,6 +1576,7 @@ void BitcoinGUI::updateStakingIcon()
             labelStakingIcon->setToolTip(tr("Not staking"));
     }
 }
+#endif // ENABLE_WALLET
 
 void BitcoinGUI::detectShutdown()
 {

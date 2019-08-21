@@ -214,6 +214,7 @@ BITCOIN_CORE_H = \
   util/memory.h \
   util/moneystr.h \
   util/time.h \
+  util/convert.h \
   validation.h \
   validationinterface.h \
   versionbits.h \
@@ -343,7 +344,6 @@ libbitcoin_wallet_a_SOURCES = \
   wallet/walletdb.cpp \
   wallet/walletutil.cpp \
   wallet/coinselection.cpp \
-  pos.cpp \
   $(BITCOIN_CORE_H)
 
 libbitcoin_wallet_tool_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
