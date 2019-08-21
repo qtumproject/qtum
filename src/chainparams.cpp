@@ -86,7 +86,7 @@ public:
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 16 * 60; // 16 minutes
-        consensus.nPowTargetTimespanV2 = 20128; // 5.59 hours
+        consensus.nPowTargetTimespanV2 = 4000;
         consensus.nPowTargetSpacing = 2 * 64;
         consensus.fPowAllowMinDifficultyBlocks = false;
         consensus.fPowNoRetargeting = true;
@@ -210,7 +210,7 @@ public:
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 16 * 60; // 16 minutes
-        consensus.nPowTargetTimespanV2 = 20128; // 5.59 hours
+        consensus.nPowTargetTimespanV2 = 4000;
         consensus.nPowTargetSpacing = 2 * 64;
         consensus.fPowAllowMinDifficultyBlocks = false;
         consensus.fPowNoRetargeting = true;
@@ -322,7 +322,7 @@ public:
         consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 16 * 60; // 16 minutes (960 = 832 + 128; multiplier is 832)
-        consensus.nPowTargetTimespanV2 = 20128; // 5.59 hours (20128 = 20000 + 128; multiplier is 20000)
+        consensus.nPowTargetTimespanV2 = 4000;
         consensus.nPowTargetSpacing = 2 * 64;
         consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.fPowNoRetargeting = true;
