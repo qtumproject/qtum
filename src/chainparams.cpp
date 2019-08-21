@@ -499,7 +499,6 @@ std::string CChainParams::EVMGenesisInfo(dev::eth::Network network) const
     ReplaceInt(consensus.QIP6Height, "QIP6_STARTING_BLOCK", genesisInfo);
     return genesisInfo;
 }
-
 std::string CChainParams::EVMGenesisInfo(dev::eth::Network network, int nHeight) const
 {
     std::string genesisInfo = dev::eth::genesisInfo(network);
