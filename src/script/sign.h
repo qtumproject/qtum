@@ -113,6 +113,20 @@ public:
     bool CreateSig(const SigningProvider& provider, std::vector<unsigned char>& vchSig, const CKeyID& keyid, const CScript& scriptCode, SigVersion sigversion) const override;
 };
 
+/** A signature creator for transactions outputs. */
+class MutableTransactionSignatureOutputCreator : public BaseSignatureCreator {
+    const CMutableTransaction* txTo;
+    unsigned int nOut;
+    int nHashType;
+    CAmount amount;
+    const MutableTransactionSignatureOutputChecker checker;
+
+public:
+    MutableTransactionSignatureOutputCreator(const CMutableTransaction* txToIn, unsigned int nOutIn, const CAmount& amountIn, int nHashTypeIn = SIGHASH_ALL);
+    const BaseSignatureChecker& Checker() const override { return checker; }
+    bool CreateSig(const SigningProvider& provider, std::vector<unsigned char>& vchSig, const CKeyID& keyid, const CScript& scriptCode, SigVersion sigversion) const override;
+};
+
 /** A signature creator that just produces 71-byte empty signatures. */
 extern const BaseSignatureCreator& DUMMY_SIGNATURE_CREATOR;
 /** A signature creator that just produces 72-byte empty signatures. */
@@ -227,6 +241,8 @@ bool VerifySignature(const Coin& coin, uint256 txFromHash, const CTransaction& t
 /** Extract signature data from a transaction input, and insert it. */
 SignatureData DataFromTransaction(const CMutableTransaction& tx, unsigned int nIn, const CTxOut& txout);
 void UpdateInput(CTxIn& input, const SignatureData& data);
+
+bool UpdateOutput(CTxOut& output, const SignatureData& data);
 
 /* Check whether we know how to sign for an output like this, assuming we
  * have all private keys. While this function does not need private keys, the passed

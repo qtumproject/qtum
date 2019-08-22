@@ -59,8 +59,8 @@ def base58_to_byte(v, length):
   hexresult = binascii.hexlify(bytes(result.encode('latin-1')))
 
   version = int(hexresult[0:2], 16)
-  hsh = hexresult[2:42]
-  checksum = hexresult[42:]
+  hsh = hexresult[2:-8]
+  checksum = hexresult[-8:]
   return (version, hsh, checksum)
 
 def keyhash_to_p2pkh(hash, main = False):

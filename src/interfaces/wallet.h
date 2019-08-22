@@ -222,7 +222,7 @@ public:
     virtual bool isMineAddress(const std::string &strAddress) = 0;
 
     //! Try get available coins addresses
-    virtual bool tryGetAvailableAddresses(std::vector<std::string> &spendableAddresses, std::vector<std::string> &allAddresses) = 0;
+    virtual bool tryGetAvailableAddresses(std::vector<std::string> &spendableAddresses, std::vector<std::string> &allAddresses, bool &includeZeroValue) = 0;
 
     //! Return AvailableCoins + LockedCoins grouped by wallet address.
     //! (put change in one group with wallet address)

@@ -782,7 +782,8 @@ void WalletModel::checkCoinAddressesChanged()
     // Get the list of coin addresses and emit it to the subscribers
     std::vector<std::string> spendableAddresses;
     std::vector<std::string> allAddresses;
-    if(updateCoinAddresses && m_wallet->tryGetAvailableAddresses(spendableAddresses, allAddresses))
+    bool includeZeroValue = false;
+    if(updateCoinAddresses && m_wallet->tryGetAvailableAddresses(spendableAddresses, allAddresses, includeZeroValue))
     {
         QStringList listSpendableAddresses;
         for(std::string address : spendableAddresses)
@@ -792,7 +793,7 @@ void WalletModel::checkCoinAddressesChanged()
         for(std::string address : allAddresses)
             listAllAddresses.append(QString::fromStdString(address));
 
-        Q_EMIT availableAddressesChanged(listSpendableAddresses, listAllAddresses);
+        Q_EMIT availableAddressesChanged(listSpendableAddresses, listAllAddresses, includeZeroValue);
 
         updateCoinAddresses = false;
     }

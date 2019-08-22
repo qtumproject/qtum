@@ -235,6 +235,7 @@ BASE_SCRIPTS = [
     'qtum_duplicate_stake.py',
     'qtum_rpc_bitcore.py',
     'qtum_faulty_header_chain.py',
+    'qtum_op_sender.py',
 ]
 
 EXTENDED_SCRIPTS = [

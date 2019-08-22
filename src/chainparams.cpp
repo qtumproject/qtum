@@ -79,6 +79,7 @@ public:
         consensus.BIP34Hash = uint256S("0x000075aef83cf2853580f8ae8ce6f8c3096cfa21d98334d6e3f95e5582ed986c");
         consensus.BIP65Height = 0; // 000000000000000004c2b624ed5d7756c508d90fd0da2c7c679febfa6c4735f0
         consensus.BIP66Height = 0; // 00000000000000000379eaa19dce8c9b722d46ae6a57c2f1a988119488b50931
+        consensus.QIP5Height = 0x7fffffff;
         consensus.QIP6Height = 0x7fffffff;
         consensus.QIP7Height = 0x7fffffff;
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
@@ -200,6 +201,7 @@ public:
         consensus.BIP34Hash = uint256S("0x0000e803ee215c0684ca0d2f9220594d3f828617972aad66feb2ba51f5e14222");
         consensus.BIP65Height = 0; // 00000000007f6655f22f98e72ed80d8b06dc761d5da09df0fa1dc4be4f861eb6
         consensus.BIP66Height = 0; // 000000002104c8c45e99a8853285a3b592602a3ccde2b832481da85e9e4ba182
+        consensus.QIP5Height = 0x7fffffff;
         consensus.QIP6Height = 0x7fffffff;
         consensus.QIP7Height = 0x7fffffff;
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
@@ -309,6 +311,7 @@ public:
         consensus.BIP34Hash = uint256S("0x665ed5b402ac0b44efc37d8926332994363e8a7278b7ee9a58fb972efadae943");
         consensus.BIP65Height = 0; // BIP65 activated on regtest (Used in rpc activation tests)
         consensus.BIP66Height = 0; // BIP66 activated on regtest (Used in rpc activation tests)
+        consensus.QIP5Height = 0;
         consensus.QIP6Height = 0;
         consensus.QIP7Height = 0;
         consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
@@ -497,6 +500,16 @@ std::string CChainParams::EVMGenesisInfo(dev::eth::Network network, int nHeight)
     ReplaceInt(nHeight, "QIP7_STARTING_BLOCK", genesisInfo);
     ReplaceInt(nHeight, "QIP6_STARTING_BLOCK", genesisInfo);
     return genesisInfo;
+}
+
+void CChainParams::UpdateOpSenderBlockHeight(int nHeight)
+{
+    consensus.QIP5Height = nHeight;
+}
+
+void UpdateOpSenderBlockHeight(int nHeight)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdateOpSenderBlockHeight(nHeight);
 }
 
 void CChainParams::UpdateBtcEcrecoverBlockHeight(int nHeight)

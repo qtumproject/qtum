@@ -758,6 +758,9 @@ static bool AcceptToMemoryPoolWorker(const CChainParams& chainparams, CTxMemPool
         dev::u256 txMinGasPrice = 0;
 
         //////////////////////////////////////////////////////////// // qtum
+        if(!CheckOpSender(tx, chainparams, GetSpendHeight(view))){
+            return state.DoS(100, false, REJECT_INVALID, "bad-txns-invalid-sender");
+        }
         if(tx.HasCreateOrCall()){
 
             if(!CheckSenderScript(view, tx)){
@@ -770,7 +773,8 @@ static bool AcceptToMemoryPoolWorker(const CChainParams& chainparams, CTxMemPool
             size_t count = 0;
             for(const CTxOut& o : tx.vout)
                 count += o.scriptPubKey.HasOpCreate() || o.scriptPubKey.HasOpCall() ? 1 : 0;
-            QtumTxConverter converter(tx, NULL);
+            unsigned int contractflags = GetContractScriptFlags(GetSpendHeight(view), chainparams.GetConsensus());
+            QtumTxConverter converter(tx, NULL, NULL, contractflags);
             ExtractQtumTX resultConverter;
             if(!converter.extractionQtumTransactions(resultConverter)){
                 return state.DoS(100, error("AcceptToMempool(): Contract transaction of the wrong format"), REJECT_INVALID, "bad-tx-bad-contract-format");
@@ -1544,6 +1548,16 @@ void UpdateCoins(const CTransaction& tx, CCoinsViewCache& inputs, int nHeight)
 }
 
 bool CScriptCheck::operator()() {
+    if(checkOutput())
+    {
+        // Check the sender signature inside the output, used to identify VM sender
+        CScript senderPubKey, senderSig;
+        if(!ExtractSenderData(ptxTo->vout[nOut].scriptPubKey, &senderPubKey, &senderSig))
+            return false;
+        return VerifyScript(senderSig, senderPubKey, nullptr, nFlags, CachingTransactionSignatureOutputChecker(ptxTo, nOut, ptxTo->vout[nOut].nValue, cacheStore, *txdata), &error);
+    }
+
+    // Check the input signature
     const CScript &scriptSig = ptxTo->vin[nIn].scriptSig;
     const CScriptWitness *witness = &ptxTo->vin[nIn].scriptWitness;
     return VerifyScript(scriptSig, m_tx_out.scriptPubKey, witness, nFlags, CachingTransactionSignatureChecker(ptxTo, nIn, m_tx_out.nValue, cacheStore, *txdata), &error);
@@ -1652,6 +1666,20 @@ bool CheckInputs(const CTransaction& tx, CValidationState &state, const CCoinsVi
                     // peering with non-upgraded nodes even after soft-fork
                     // super-majority signaling has occurred.
                     return state.DoS(100,false, REJECT_INVALID, strprintf("mandatory-script-verify-flag-failed (%s)", ScriptErrorString(check.GetScriptError())));
+                }
+            }
+
+            for (unsigned int i = 0; i < tx.vout.size(); i++) {
+                // Verify sender output signature
+                if(tx.vout[i].scriptPubKey.HasOpSender())
+                {
+                    CScriptCheck check(tx, i, 0, cacheSigStore, &txdata);
+                    if (pvChecks) {
+                        pvChecks->push_back(CScriptCheck());
+                        check.swap(pvChecks->back());
+                    } else if (!check()) {
+                        return state.DoS(100,false, REJECT_INVALID, strprintf("sender-output-script-verify-failed (%s)", ScriptErrorString(check.GetScriptError())));
+                    }
                 }
             }
 
@@ -2072,9 +2100,24 @@ static unsigned int GetBlockScriptFlags(const CBlockIndex* pindex, const Consens
         flags |= SCRIPT_VERIFY_NULLDUMMY;
     }
 
+    // Start support sender address in contract output
+    if (pindex->nHeight >= consensusparams.QIP5Height) {
+        flags |= SCRIPT_OUTPUT_SENDER;
+    }
+
     return flags;
 }
 
+unsigned int GetContractScriptFlags(int nHeight, const Consensus::Params& consensusparams) {
+    unsigned int flags = SCRIPT_EXEC_BYTE_CODE;
+
+    // Start support sender address in contract output
+    if (nHeight >= consensusparams.QIP5Height) {
+        flags |= SCRIPT_OUTPUT_SENDER;
+    }
+
+    return flags;
+}
 
 
 static int64_t nTimeCheck = 0;
@@ -2159,11 +2202,75 @@ bool GetSpentCoinFromMainChain(const CBlockIndex* pforkPrev, COutPoint prevoutSt
     return false;
 }
 
+bool CheckOpSender(const CTransaction& tx, const CChainParams& chainparams, int nHeight){
+    if(!tx.HasOpSender())
+        return true;
+
+    if(!(nHeight >= chainparams.GetConsensus().QIP5Height))
+        return false;
+
+    // Check that the sender address inside the output is only valid for contract outputs
+    for (const CTxOut& txout : tx.vout)
+    {
+        bool hashOpSender = txout.scriptPubKey.HasOpSender();
+        if(hashOpSender &&
+                !(txout.scriptPubKey.HasOpCreate() ||
+                  txout.scriptPubKey.HasOpCall()))
+        {
+            return false;
+        }
+
+        // Solve the script that match the sender templates
+        if(hashOpSender && !ExtractSenderData(txout.scriptPubKey, nullptr, nullptr))
+            return false;
+    }
+
+    return true;
+}
+
 bool CheckSenderScript(const CCoinsViewCache& view, const CTransaction& tx){
+    // Check for the sender that pays the coins
     CScript script = view.AccessCoin(tx.vin[0].prevout).out.scriptPubKey;
     if(!script.IsPayToPubkeyHash() && !script.IsPayToPubkey()){
         return false;
     }
+
+    // Check for additional VM sender
+    if(!tx.HasOpSender())
+        return true;
+
+    // Check for the VM sender that is encoded into the output
+    for (const CTxOut& txout : tx.vout)
+    {
+        if(txout.scriptPubKey.HasOpSender())
+        {
+            // Extract the sender data
+            CScript senderPubKey, senderSig;
+            if(!ExtractSenderData(txout.scriptPubKey, &senderPubKey, &senderSig))
+                return false;
+
+            // Check that the pub key is valid sender that can be used in the VM
+            if(!senderPubKey.IsPayToPubkeyHash() && !senderPubKey.IsPayToPubkey())
+                return false;
+
+            // Get the signature stack
+            std::vector <std::vector<unsigned char> > stack;
+            if (!EvalScript(stack, senderSig, SCRIPT_VERIFY_NONE, BaseSignatureChecker(), SigVersion::BASE))
+                return false;
+
+            // Check that the signature script contains only signature and public key (2 items)
+            if(stack.size() != STANDARD_SENDER_STACK_ITEMS)
+                return false;
+
+            // Check that the items size is no more than 80 bytes
+            for(size_t i=0; i < stack.size(); i++)
+            {
+                if(stack[i].size() > MAX_STANDARD_SENDER_STACK_ITEM_SIZE)
+                    return false;
+            }
+        }
+    }
+
     return true;
 }
 
@@ -2286,12 +2393,16 @@ bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, cons
     return true;
 }
 
-valtype GetSenderAddress(const CTransaction& tx, const CCoinsViewCache* coinsView, const std::vector<CTransactionRef>* blockTxs){
+valtype GetSenderAddress(const CTransaction& tx, const CCoinsViewCache* coinsView, const std::vector<CTransactionRef>* blockTxs, int nOut = -1){
     CScript script;
     bool scriptFilled=false; //can't use script.empty() because an empty script is technically valid
 
-    // First check the current (or in-progress) block for zero-confirmation change spending that won't yet be in txindex
-    if(blockTxs){
+    // Try get the sender script from the output script
+    if(nOut > -1)
+        scriptFilled = ExtractSenderData(tx.vout[nOut].scriptPubKey, &script, nullptr);
+
+    // Check the current (or in-progress) block for zero-confirmation change spending that won't yet be in txindex
+    if(!scriptFilled && blockTxs){
         for(auto btx : *blockTxs){
             if(btx->GetHash() == tx.vin[0].prevout.hash){
                 script = btx->vout[tx.vin[0].prevout.n].scriptPubKey;
@@ -2465,7 +2576,8 @@ bool ByteCodeExec::processingResults(ByteCodeExecResult& resultBCE){
                 return false;
             }
             if(amount > 0){
-                CScript script(CScript() << OP_DUP << OP_HASH160 << txs[i].sender().asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
+                // Refund the rest of the amount to the sender that provide the coins for the contract
+                CScript script(CScript() << OP_DUP << OP_HASH160 << txs[i].getRefundSender().asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
                 resultBCE.refundOutputs.push_back(CTxOut(amount, script));
                 resultBCE.refundSender += amount;
             }
@@ -2513,6 +2625,10 @@ dev::Address ByteCodeExec::EthAddrFromScript(const CScript& script){
 }
 
 bool QtumTxConverter::extractionQtumTransactions(ExtractQtumTX& qtumtx){
+    // Get the address of the sender that pay the coins for the contract transactions
+    refundSender = dev::Address(GetSenderAddress(txBit, view, blockTransactions));
+
+    // Extract contract transactions
     std::vector<QtumTransaction> resultTX;
     std::vector<EthTransactionParams> resultETP;
     for(size_t i = 0; i < txBit.vout.size(); i++){
@@ -2535,16 +2651,19 @@ bool QtumTxConverter::extractionQtumTransactions(ExtractQtumTX& qtumtx){
 }
 
 bool QtumTxConverter::receiveStack(const CScript& scriptPubKey){
-    EvalScript(stack, scriptPubKey, SCRIPT_EXEC_BYTE_CODE, BaseSignatureChecker(), SigVersion::BASE, nullptr);
+    sender = false;
+    EvalScript(stack, scriptPubKey, nFlags, BaseSignatureChecker(), SigVersion::BASE, nullptr);
     if (stack.empty())
         return false;
 
     CScript scriptRest(stack.back().begin(), stack.back().end());
     stack.pop_back();
+    sender = scriptPubKey.HasOpSender();
 
     opcode = (opcodetype)(*scriptRest.begin());
-    if((opcode == OP_CREATE && stack.size() < 4) || (opcode == OP_CALL && stack.size() < 5)){
+    if((opcode == OP_CREATE && stack.size() < correctedStackSize(4)) || (opcode == OP_CALL && stack.size() < correctedStackSize(5))){
         stack.clear();
+        sender = false;
         return false;
     }
 
@@ -2561,7 +2680,7 @@ bool QtumTxConverter::parseEthTXParams(EthTransactionParams& params){
             stack.pop_back();
             receiveAddress = dev::Address(vecAddr);
         }
-        if(stack.size() < 4)
+        if(stack.size() < correctedStackSize(4))
             return false;
 
         if(stack.back().size() < 1){
@@ -2607,13 +2726,19 @@ QtumTransaction QtumTxConverter::createEthTX(const EthTransactionParams& etp, ui
     else{
         txEth = QtumTransaction(txBit.vout[nOut].nValue, etp.gasPrice, etp.gasLimit, etp.receiveAddress, etp.code, dev::u256(0));
     }
-    dev::Address sender(GetSenderAddress(txBit, view, blockTransactions));
+    dev::Address sender(GetSenderAddress(txBit, view, blockTransactions, (int)nOut));
     txEth.forceSender(sender);
     txEth.setHashWith(uintToh256(txBit.GetHash()));
     txEth.setNVout(nOut);
     txEth.setVersion(etp.version);
+    txEth.setRefundSender(refundSender);
 
     return txEth;
+}
+
+size_t QtumTxConverter::correctedStackSize(size_t size){
+    // OP_SENDER add 3 more parameters in stack besides those for OP_CREATE or OP_CALL
+    return sender ? size + 3 : size;
 }
 ///////////////////////////////////////////////////////////////////////
 
@@ -2828,6 +2953,7 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
 
     // Get the script flags for this block
     unsigned int flags = GetBlockScriptFlags(pindex, chainparams.GetConsensus());
+    unsigned int contractflags = GetContractScriptFlags(pindex->nHeight, chainparams.GetConsensus());
 
     int64_t nTime2 = GetTimeMicros(); nTimeForks += nTime2 - nTime1;
     LogPrint(BCLog::BENCH, "    - Fork checks: %.2fms [%.2fs (%.2fms/blk)]\n", MILLI * (nTime2 - nTime1), nTimeForks * MICRO, nTimeForks * MILLI / nBlocksTotal);
@@ -2966,6 +3092,9 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
         }
 
 ///////////////////////////////////////////////////////////////////////////////////////// qtum
+        if(!CheckOpSender(tx, chainparams, pindex->nHeight)){
+            return state.DoS(100, false, REJECT_INVALID, "bad-txns-invalid-sender");
+        }
         if(!tx.HasOpSpend()){
             checkBlock.vtx.push_back(block.vtx[i]);
         }
@@ -2975,7 +3104,7 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
                 return state.DoS(100, false, REJECT_INVALID, "bad-txns-invalid-sender-script");
             }
 
-            QtumTxConverter convert(tx, &view, &block.vtx);
+            QtumTxConverter convert(tx, &view, &block.vtx, contractflags);
 
             ExtractQtumTX resultConvertQtumTX;
             if(!convert.extractionQtumTransactions(resultConvertQtumTX)){
@@ -4507,8 +4636,8 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
             return state.DoS(100, false, REJECT_INVALID, "bad-cb-multiple", false, "more than one coinbase");
 
     //Don't allow contract opcodes in coinbase
-    if(block.vtx[0]->HasOpSpend() || block.vtx[0]->HasCreateOrCall()){
-        return state.DoS(100, false, REJECT_INVALID, "bad-cb-contract", false, "coinbase must not contain OP_SPEND, OP_CALL, or OP_CREATE");
+    if(block.vtx[0]->HasOpSpend() || block.vtx[0]->HasCreateOrCall() || block.vtx[0]->HasOpSender()){
+        return state.DoS(100, false, REJECT_INVALID, "bad-cb-contract", false, "coinbase must not contain OP_SPEND, OP_CALL, OP_CREATE or OP_SENDER");
     }
 
     // Second transaction must be coinbase in case of PoS block, the rest must not be
@@ -4533,8 +4662,8 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
 
         //Don't allow contract opcodes in coinstake
         //We might allow this later, but it hasn't been tested enough to determine if safe
-        if(block.vtx[1]->HasOpSpend() || block.vtx[1]->HasCreateOrCall()){
-            return state.DoS(100, false, REJECT_INVALID, "bad-cs-contract", false, "coinstake must not contain OP_SPEND, OP_CALL, or OP_CREATE");
+        if(block.vtx[1]->HasOpSpend() || block.vtx[1]->HasCreateOrCall() || block.vtx[1]->HasOpSender()){
+            return state.DoS(100, false, REJECT_INVALID, "bad-cs-contract", false, "coinstake must not contain OP_SPEND, OP_CALL, OP_CREATE or OP_SENDER");
         }
     }
 

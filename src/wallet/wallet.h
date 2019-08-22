@@ -1015,7 +1015,7 @@ public:
      * @note passing nChangePosInOut as -1 will result in setting a random position
      */
     bool CreateTransaction(interfaces::Chain::Lock& locked_chain, const std::vector<CRecipient>& vecSend, CTransactionRef& tx, CReserveKey& reservekey, CAmount& nFeeRet, int& nChangePosInOut,
-                           std::string& strFailReason, const CCoinControl& coin_control, bool sign = true, CAmount nGasFee=0, bool hasSender=false);
+                           std::string& strFailReason, const CCoinControl& coin_control, bool sign = true, CAmount nGasFee=0, bool hasSender=false, const CTxDestination& signSenderAddress = CNoDestination());
     bool CommitTransaction(CTransactionRef tx, mapValue_t mapValue, std::vector<std::pair<std::string, std::string>> orderForm, CReserveKey& reservekey, CConnman* connman, CValidationState& state);
 
     uint64_t GetStakeWeight(interfaces::Chain::Lock& locked_chain) const;

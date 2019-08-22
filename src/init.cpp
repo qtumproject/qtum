@@ -521,6 +521,7 @@ void SetupServerArgs()
     gArgs.AddArg("-printtoconsole", "Send trace/debug info to console (default: 1 when no -daemon. To disable logging to file, set -nodebuglogfile)", false, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-shrinkdebugfile", "Shrink debug.log file on client startup (default: 1 when no -debug)", false, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-uacomment=<cmt>", "Append comment to the user agent string", false, OptionsCategory::DEBUG_TEST);
+    gArgs.AddArg("-opsenderheight=<n>", "Use given block height to check opsender fork (regtest-only)", true, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-btcecrecoverheight=<n>", "Use given block height to check btc_ecrecover fork (regtest-only)", true, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-constantinopleheight=<n>", "Use given block height to check constantinople fork (regtest-only)", true, OptionsCategory::DEBUG_TEST);
 
@@ -1196,6 +1197,20 @@ bool AppInitParameterInteraction()
         std::vector<std::string> vstrReplacementModes;
         boost::split(vstrReplacementModes, strReplacementModeList, boost::is_any_of(","));
         fEnableReplacement = (std::find(vstrReplacementModes.begin(), vstrReplacementModes.end(), "fee") != vstrReplacementModes.end());
+    }
+
+    if (gArgs.IsArgSet("-opsenderheight")) {
+        // Allow overriding opsender block for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError("Op Sender block height may only be overridden on regtest.");
+        }
+
+        int opsenderBlock = gArgs.GetArg("-opsenderheight", 0);
+        if(opsenderBlock >= 0)
+        {
+            UpdateOpSenderBlockHeight(opsenderBlock);
+            LogPrintf("Activate Op Sender at block height %d\n.", opsenderBlock);
+        }
     }
 
     if (gArgs.IsArgSet("-btcecrecoverheight")) {

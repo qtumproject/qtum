@@ -38,6 +38,7 @@
 #include <wallet/walletdb.h>
 #include <wallet/walletutil.h>
 #include <miner.h>
+#include <chainparams.h>
 
 #include <stdint.h>
 
@@ -70,6 +71,34 @@ std::shared_ptr<CWallet> GetWalletForJSONRPCRequest(const JSONRPCRequest& reques
 
     std::vector<std::shared_ptr<CWallet>> wallets = GetWallets();
     return wallets.size() == 1 || (request.fHelp && wallets.size() > 0) ? wallets[0] : nullptr;
+}
+
+bool GetSenderDest(CWallet * const pwallet, const CTransactionRef& tx, CTxDestination& txSenderDest)
+{
+    // Initialize variables
+    CScript senderPubKey;
+
+    // Get sender destination
+    if(tx->HasOpSender())
+    {
+        // Get destination from the outputs
+        for(CTxOut out : tx->vout)
+        {
+            if(out.scriptPubKey.HasOpSender())
+            {
+                ExtractSenderData(out.scriptPubKey, &senderPubKey, 0);
+                break;
+            }
+        }
+    }
+    else
+    {
+        // Get destination from the inputs
+        senderPubKey = pwallet->mapWallet.at(tx->vin[0].prevout.hash).tx->vout[tx->vin[0].prevout.n].scriptPubKey;
+    }
+
+    // Extract destination from script
+    return ExtractDestination(senderPubKey, txSenderDest);
 }
 
 std::string HelpRequiringPassphrase(CWallet * const pwallet)
@@ -603,36 +632,46 @@ static UniValue createcontract(const JSONRPCRequest& request){
 
     CCoinControl coinControl;
 
+    CTxDestination signSenderAddress = CNoDestination();
     if(fHasSender){
-    //find a UTXO with sender address
+        // Find a UTXO with sender address
+        std::vector<COutput> vecOutputs;
 
-     UniValue results(UniValue::VARR);
-     std::vector<COutput> vecOutputs;
+        coinControl.fAllowOtherInputs=true;
 
-     coinControl.fAllowOtherInputs=true;
+        assert(pwallet != NULL);
+        pwallet->AvailableCoins(*locked_chain, vecOutputs, false, NULL, true);
 
-     assert(pwallet != NULL);
-     pwallet->AvailableCoins(*locked_chain, vecOutputs, false, NULL, true);
+        for (const COutput& out : vecOutputs) {
+            CTxDestination destAdress;
+            const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
+            bool fValidAddress = ExtractDestination(scriptPubKey, destAdress);
 
-     for (const COutput& out : vecOutputs) {
-         CTxDestination destAdress;
-         const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
-         bool fValidAddress = ExtractDestination(scriptPubKey, destAdress);
+            if (!fValidAddress || senderAddress != destAdress)
+                continue;
 
-         if (!fValidAddress || senderAddress != destAdress)
-             continue;
+            coinControl.Select(COutPoint(out.tx->GetHash(),out.i));
 
-         coinControl.Select(COutPoint(out.tx->GetHash(),out.i));
+            break;
 
-         break;
-
-     }
-
-        if(!coinControl.HasSelected()){
-            throw JSONRPCError(RPC_TYPE_ERROR, "Sender address does not have any unspent outputs");
         }
-        if(fChangeToSender){
-            coinControl.destChange=senderAddress;
+
+        if(coinControl.HasSelected())
+        {
+            // Change to the sender
+            if(fChangeToSender){
+                coinControl.destChange=senderAddress;
+            }
+        }
+        else
+        {
+            // Create op sender transaction when op sender is activated
+            int nHeight = chainActive.Height();
+            if(!(nHeight >= Params().GetConsensus().QIP5Height))
+                throw JSONRPCError(RPC_TYPE_ERROR, "Sender address does not have any unspent outputs");
+
+            // Sign the sender in case of no UTXO
+            signSenderAddress = senderAddress;
         }
     }
     EnsureWalletIsUnlocked(pwallet);
@@ -650,6 +689,16 @@ static UniValue createcontract(const JSONRPCRequest& request){
 
     // Build OP_EXEC script
     CScript scriptPubKey = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(nGasLimit) << CScriptNum(nGasPrice) << ParseHex(bytecode) <<OP_CREATE;
+    if(IsValidDestination(signSenderAddress))
+    {
+        CKeyID key_id = GetKeyForDestination(*pwallet, signSenderAddress);
+        CKey key;
+        if (!pwallet->GetKey(key_id, key)) {
+            throw JSONRPCError(RPC_WALLET_ERROR, "Private key not available");
+        }
+        std::vector<unsigned char> scriptSig;
+        scriptPubKey = (CScript() << CScriptNum(addresstype::PUBKEYHASH) << ToByteVector(key_id) << ToByteVector(scriptSig) << OP_SENDER) + scriptPubKey;
+    }
 
     // Create and send the transaction
     CReserveKey reservekey(pwallet);
@@ -661,14 +710,14 @@ static UniValue createcontract(const JSONRPCRequest& request){
     vecSend.push_back(recipient);
 
     CTransactionRef tx;
-    if (!pwallet->CreateTransaction(*locked_chain, vecSend, tx, reservekey, nFeeRequired, nChangePosRet, strError, coinControl, true, nGasFee, fHasSender)) {
+    if (!pwallet->CreateTransaction(*locked_chain, vecSend, tx, reservekey, nFeeRequired, nChangePosRet, strError, coinControl, true, nGasFee, fHasSender, signSenderAddress)) {
         if (nFeeRequired > pwallet->GetBalance())
             strError = strprintf("Error: This transaction requires a transaction fee of at least %s because of its amount, complexity, or use of recently received funds!", FormatMoney(nFeeRequired));
         throw JSONRPCError(RPC_WALLET_ERROR, strError);
     }
 
     CTxDestination txSenderDest;
-    ExtractDestination(pwallet->mapWallet.at(tx->vin[0].prevout.hash).tx->vout[tx->vin[0].prevout.n].scriptPubKey,txSenderDest);
+    GetSenderDest(pwallet, tx, txSenderDest);
 
     if (fHasSender && !(senderAddress == txSenderDest)){
            throw JSONRPCError(RPC_TYPE_ERROR, "Sender could not be set, transaction was not committed!");
@@ -826,9 +875,9 @@ static UniValue sendtocontract(const JSONRPCRequest& request){
 
     CCoinControl coinControl;
 
+    CTxDestination signSenderAddress = CNoDestination();
     if(fHasSender){
-
-        UniValue results(UniValue::VARR);
+        // Find a UTXO with sender address
         std::vector<COutput> vecOutputs;
 
         coinControl.fAllowOtherInputs=true;
@@ -851,11 +900,22 @@ static UniValue sendtocontract(const JSONRPCRequest& request){
 
         }
 
-        if(!coinControl.HasSelected()){
-            throw JSONRPCError(RPC_TYPE_ERROR, "Sender address does not have any unspent outputs");
+        if(coinControl.HasSelected())
+        {
+            // Change to the sender
+            if(fChangeToSender){
+                coinControl.destChange=senderAddress;
+            }
         }
-        if(fChangeToSender){
-            coinControl.destChange=senderAddress;
+        else
+        {
+            // Create op sender transaction when op sender is activated
+            int nHeight = chainActive.Height();
+            if(!(nHeight >= Params().GetConsensus().QIP5Height))
+                throw JSONRPCError(RPC_TYPE_ERROR, "Sender address does not have any unspent outputs");
+
+            // Sign the sender in case of no UTXO
+            signSenderAddress = senderAddress;
         }
     }
 
@@ -874,6 +934,16 @@ static UniValue sendtocontract(const JSONRPCRequest& request){
 
     // Build OP_EXEC_ASSIGN script
     CScript scriptPubKey = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(nGasLimit) << CScriptNum(nGasPrice) << ParseHex(datahex) << ParseHex(contractaddress) << OP_CALL;
+    if(IsValidDestination(signSenderAddress))
+    {
+        CKeyID key_id = GetKeyForDestination(*pwallet, signSenderAddress);
+        CKey key;
+        if (!pwallet->GetKey(key_id, key)) {
+            throw JSONRPCError(RPC_WALLET_ERROR, "Private key not available");
+        }
+        std::vector<unsigned char> scriptSig;
+        scriptPubKey = (CScript() << CScriptNum(addresstype::PUBKEYHASH) << ToByteVector(key_id) << ToByteVector(scriptSig) << OP_SENDER) + scriptPubKey;
+    }
 
     // Create and send the transaction
     CReserveKey reservekey(pwallet);
@@ -885,14 +955,14 @@ static UniValue sendtocontract(const JSONRPCRequest& request){
     vecSend.push_back(recipient);
 
     CTransactionRef tx;
-    if (!pwallet->CreateTransaction(*locked_chain, vecSend, tx, reservekey, nFeeRequired, nChangePosRet, strError, coinControl, true, nGasFee, fHasSender)) {
+    if (!pwallet->CreateTransaction(*locked_chain, vecSend, tx, reservekey, nFeeRequired, nChangePosRet, strError, coinControl, true, nGasFee, fHasSender, signSenderAddress)) {
         if (nFeeRequired > pwallet->GetBalance())
             strError = strprintf("Error: This transaction requires a transaction fee of at least %s because of its amount, complexity, or use of recently received funds!", FormatMoney(nFeeRequired));
         throw JSONRPCError(RPC_WALLET_ERROR, strError);
     }
 
     CTxDestination txSenderDest;
-    ExtractDestination(pwallet->mapWallet.at(tx->vin[0].prevout.hash).tx->vout[tx->vin[0].prevout.n].scriptPubKey,txSenderDest);
+    GetSenderDest(pwallet, tx, txSenderDest);
 
     if (fHasSender && !(senderAddress == txSenderDest)){
         throw JSONRPCError(RPC_TYPE_ERROR, "Sender could not be set, transaction was not committed!");
