@@ -102,7 +102,7 @@ static const char* FEE_ESTIMATES_FILENAME="fee_estimates.dat";
 /**
  * The PID file facilities.
  */
-static const char* BITCOIN_PID_FILENAME = "qtum.pid";
+static const char* BITCOIN_PID_FILENAME = "qtumd.pid";
 
 static fs::path GetPidFile()
 {
