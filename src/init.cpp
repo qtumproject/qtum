@@ -521,6 +521,7 @@ void SetupServerArgs()
     gArgs.AddArg("-printtoconsole", "Send trace/debug info to console (default: 1 when no -daemon. To disable logging to file, set -nodebuglogfile)", false, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-shrinkdebugfile", "Shrink debug.log file on client startup (default: 1 when no -debug)", false, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-uacomment=<cmt>", "Append comment to the user agent string", false, OptionsCategory::DEBUG_TEST);
+    gArgs.AddArg("-btcecrecoverheight=<n>", "Use given block height to check btc_ecrecover fork (regtest-only)", true, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-constantinopleheight=<n>", "Use given block height to check constantinople fork (regtest-only)", true, OptionsCategory::DEBUG_TEST);
 
     SetupChainParamsBaseOptions();
@@ -1197,6 +1198,19 @@ bool AppInitParameterInteraction()
         fEnableReplacement = (std::find(vstrReplacementModes.begin(), vstrReplacementModes.end(), "fee") != vstrReplacementModes.end());
     }
 
+    if (gArgs.IsArgSet("-btcecrecoverheight")) {
+        // Allow overriding btc_ecrecover block for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError("Btc_ecrecover block height may only be overridden on regtest.");
+        }
+
+        int btcEcrecoverBlock = gArgs.GetArg("-btcecrecoverheight", 0);
+        if(btcEcrecoverBlock >= 0)
+        {
+            UpdateBtcEcrecoverBlockHeight(btcEcrecoverBlock);
+            LogPrintf("Activate btc_ecrecover at block height %d\n.", btcEcrecoverBlock);
+        }
+    }
 
     if (gArgs.IsArgSet("-constantinopleheight")) {
         // Allow overriding constantinople block for testing

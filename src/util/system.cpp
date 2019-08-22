@@ -1249,17 +1249,15 @@ int ScheduleBatchPriority()
 }
 
 std::string toHexString(int64_t intValue) {
+    //Store big endian representation in a vector
+    uint64_t num = (uint64_t)intValue;
+    std::vector<unsigned char> bigEndian;
+    for(int i=sizeof(num) -1; i>=0; i--){
+       bigEndian.push_back( (num>>(8*i)) & 0xff );
+    }
 
-    std::string hexStr;
-
-    // Integer value to hex string
-    std::stringstream sstream;
-    sstream << "0x" << std::setfill ('0') << std::setw(2) << std::hex << (int64_t)intValue;
-
-    hexStr= sstream.str();
-    sstream.clear();
-
-    return hexStr;
+    //Convert the vector into hex string
+    return "0x" + HexStr(bigEndian.begin(), bigEndian.end());
 }
 
 void ReplaceInt(const int64_t& number, const std::string& key, std::string& str)
