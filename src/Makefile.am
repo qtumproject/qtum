@@ -477,13 +477,13 @@ libbitcoin_common_a_SOURCES = \
   script/standard.cpp \
   versionbitsinfo.cpp \
   warnings.cpp \
+  qtum/qtumutils.cpp \
   cpp-ethereum/aleth/buildinfo.c \
   cpp-ethereum/aleth/buildinfo.h \
   cpp-ethereum/evmc/lib/instructions/instruction_metrics.c \
   cpp-ethereum/evmc/lib/instructions/instruction_names.c \
   cpp-ethereum/libdevcore/Address.cpp \
   cpp-ethereum/libdevcore/Address.h \
-  qtum/qtumutils.cpp \
   cpp-ethereum/libdevcore/Base64.cpp \
   cpp-ethereum/libdevcore/Base64.h \
   cpp-ethereum/libdevcore/Common.cpp \

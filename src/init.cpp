@@ -524,6 +524,7 @@ void SetupServerArgs()
     gArgs.AddArg("-opsenderheight=<n>", "Use given block height to check opsender fork (regtest-only)", true, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-btcecrecoverheight=<n>", "Use given block height to check btc_ecrecover fork (regtest-only)", true, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-constantinopleheight=<n>", "Use given block height to check constantinople fork (regtest-only)", true, OptionsCategory::DEBUG_TEST);
+    gArgs.AddArg("-difficultychangeheight=<n>", "Use given block height to check difficulty change fork (regtest-only)", true, OptionsCategory::DEBUG_TEST);
 
     SetupChainParamsBaseOptions();
 
@@ -1238,6 +1239,20 @@ bool AppInitParameterInteraction()
         {
             UpdateConstantinopleBlockHeight(constantinopleBlock);
             LogPrintf("Activate constantinople at block height %d\n.", constantinopleBlock);
+        }
+    }
+
+    if (gArgs.IsArgSet("-difficultychangeheight")) {
+        // Allow overriding difficulty change block for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError("Difficulty change block height may only be overridden on regtest.");
+        }
+
+        int difficultyChangeBlock = gArgs.GetArg("-difficultychangeheight", 0);
+        if(difficultyChangeBlock >= 0)
+        {
+            UpdateDifficultyChangeBlockHeight(difficultyChangeBlock);
+            LogPrintf("Activate difficulty change at block height %d\n.", difficultyChangeBlock);
         }
     }
 

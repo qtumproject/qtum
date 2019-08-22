@@ -91,6 +91,7 @@ public:
     void UpdateOpSenderBlockHeight(int nHeight);
     void UpdateBtcEcrecoverBlockHeight(int nHeight);
     void UpdateConstantinopleBlockHeight(int nHeight);
+    void UpdateDifficultyChangeBlockHeight(int nHeight);
 protected:
     CChainParams() {}
 
@@ -147,5 +148,10 @@ void UpdateBtcEcrecoverBlockHeight(int nHeight);
  * Allows modifying the constantinople block height regtest parameter.
  */
 void UpdateConstantinopleBlockHeight(int nHeight);
+
+/**
+ * Allows modifying the difficulty change block height regtest parameter.
+ */
+void UpdateDifficultyChangeBlockHeight(int nHeight);
 
 #endif // BITCOIN_CHAINPARAMS_H
