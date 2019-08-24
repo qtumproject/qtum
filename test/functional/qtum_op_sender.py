@@ -7,6 +7,7 @@ from test_framework.mininode import *
 from test_framework.qtum import *
 from test_framework.address import *
 from test_framework.blocktools import *
+from test_framework.key import *
 
 
 # If this is an OP_SENDER output, make sure that the signature is an empty byte vector
@@ -78,10 +79,10 @@ def sign_op_spend_outputs(tx, keys, hashtypes):
     for i in range(len(tx.vout)):
         outputOperations = [op for op in CScript(tx.vout[i].scriptPubKey)]
         if any(op == OP_SENDER for op in outputOperations):
-            inputScriptCode = [OP_DUP, OP_HASH160, hash160(keys[key_index].get_pubkey()), OP_EQUALVERIFY, OP_CHECKSIG]
+            inputScriptCode = [OP_DUP, OP_HASH160, hash160(keys[key_index].get_pubkey().get_bytes()), OP_EQUALVERIFY, OP_CHECKSIG]
             sighash = SignatureHashOutput(CScript(inputScriptCode), tx, i, hashtypes[i], tx.vout[i].nValue)
-            signature = keys[key_index].sign(sighash)
-            outputOperations[2] = ser_string(CScript([signature + struct.pack('B', hashtypes[i]), keys[key_index].get_pubkey()]))
+            signature = keys[key_index].sign_ecdsa(sighash)
+            outputOperations[2] = ser_string(CScript([signature + struct.pack('B', hashtypes[i]), keys[key_index].get_pubkey().get_bytes()]))
             tx.vout[key_index].scriptPubKey = CScript(outputOperations)
             key_index += 1
     return tx
@@ -92,7 +93,7 @@ def sign_transaction_sighash_all(tx, key):
     pre_input_sigs = []
     post_input_sigs = []
     for inpt in tx.vin:
-        pre_input_sigs.append(CScript([key.get_pubkey(), OP_CHECKSIG]))
+        pre_input_sigs.append(CScript([key.get_pubkey().get_bytes(), OP_CHECKSIG]))
 
     for i in range(len(tx.vin)):
         for j in range(len(tx.vin)):
@@ -103,7 +104,7 @@ def sign_transaction_sighash_all(tx, key):
 
         sigdata = tx.serialize() + b'\x01\x00\x00\x00'
         sighash = hash256(sigdata)
-        sigtx = key.sign(sighash, low_s=True)
+        sigtx = key.sign_ecdsa(sighash, low_s=True)
         post_input_sigs.append(CScript([sigtx + b'\x01']))
 
     for i in range(len(tx.vin)):
@@ -111,13 +112,12 @@ def sign_transaction_sighash_all(tx, key):
 
     return tx
 
-def wif_to_ceckey(wif):
+def wif_to_ECKey(wif):
     _, privkey, _ = base58_to_byte(wif, 38)
     bytes_privkey = hex_str_to_bytes(str(privkey)[2:-1])
-    key = CECKey()
+    key = ECKey()
     # Assume always compressed, ignore last byte which specifies compression
-    key.set_compressed(True)
-    key.set_secretbytes(bytes_privkey[:-1])
+    key.set(bytes_privkey[:-1], True)
     return key
 
 HASHTYPES = [SIGHASH_ALL, SIGHASH_SINGLE, SIGHASH_NONE, SIGHASH_ANYONECANPAY]
@@ -126,17 +126,17 @@ class QtumOpSenderTest(BitcoinTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 2
-        self.extra_args = [[], []]
+        self.extra_args = [['-opsenderheight=1000000']] * 2
 
     def create_op_sender_tx(self, keys, outputs, hashtypes, gasCost, publish=True):
         unspent = self.unspents.pop()
         amount = sum(output.nValue for output in outputs)
         change = int(unspent['amount'])*COIN - gasCost - amount
         wif = self.nodes[0].dumpprivkey(unspent['address'])
-        vin_key = wif_to_ceckey(wif)
+        vin_key = wif_to_ECKey(wif)
         tx = CTransaction()
         prevout = COutPoint(int(unspent['txid'], 16), unspent['vout'])
-        tx.vin = [CTxIn(prevout, scriptSig=CScript([vin_key.get_pubkey(), OP_CHECKSIG]))]
+        tx.vin = [CTxIn(prevout, scriptSig=CScript([vin_key.get_pubkey().get_bytes(), OP_CHECKSIG]))]
         tx.vout = outputs[:]
         tx.vout.append(CTxOut(change, scriptPubKey=CScript([OP_TRUE])))
         # Sign the outputs
@@ -154,9 +154,9 @@ class QtumOpSenderTest(BitcoinTestFramework):
     def single_op_sender_op_create_tx_test(self):
         num_contracts = len(self.nodes[0].listcontracts().keys())
         bytecode = '60606040523415600b57fe5b5b60398060196000396000f30060606040525b600b5b5b565b0000a165627a7a72305820e3bed070fd3a81dd00e02efd22d18a3b47b70860155d6063e47e1e2674fc5acb0029'
-        key = CECKey()
-        key.set_secretbytes(b'\x00')
-        output = CTxOut(0, CScript([CScriptNum(1), hash160(key.get_pubkey()), b'', OP_SENDER, b'\x04', CScriptNum(1000000), CScriptNum(40), hex_str_to_bytes(bytecode), OP_CREATE]))
+        key = ECKey()
+        key.set(hash256(b'\x01'), True)
+        output = CTxOut(0, CScript([CScriptNum(1), hash160(key.get_pubkey().get_bytes()), b'', OP_SENDER, b'\x04', CScriptNum(1000000), CScriptNum(40), hex_str_to_bytes(bytecode), OP_CREATE]))
 
         for hashtype in HASHTYPES:
             self.create_op_sender_tx([key], [output], [hashtype], 40000000)
@@ -168,9 +168,9 @@ class QtumOpSenderTest(BitcoinTestFramework):
 
     def single_op_sender_op_call_tx_test(self):
         contract_address = sorted(self.nodes[0].listcontracts().keys())[-1]
-        key = CECKey()
-        key.set_secretbytes(b'\x01')
-        output = CTxOut(COIN, CScript([CScriptNum(1), hash160(key.get_pubkey()), b'', OP_SENDER, 
+        key = ECKey()
+        key.set(hash256(b'\x01'), True)
+        output = CTxOut(COIN, CScript([CScriptNum(1), hash160(key.get_pubkey().get_bytes()), b'', OP_SENDER, 
                 b'\x04', CScriptNum(1000000), CScriptNum(40), hex_str_to_bytes("00"), hex_str_to_bytes(contract_address), OP_CALL]))
 
         for hashtype in HASHTYPES:
@@ -186,9 +186,9 @@ class QtumOpSenderTest(BitcoinTestFramework):
         outputs = []
         keys = []
         for i, hashtype in enumerate(HASHTYPES):
-            key = CECKey()
-            key.set_secretbytes(hex_str_to_bytes(hex(i)[2:].zfill(4)))
-            output = CTxOut(COIN, CScript([CScriptNum(1), hash160(key.get_pubkey()), b'', OP_SENDER, 
+            key = ECKey()
+            key.set(hash256(hex_str_to_bytes(hex(i)[2:].zfill(4))), True)
+            output = CTxOut(COIN, CScript([CScriptNum(1), hash160(key.get_pubkey().get_bytes()), b'', OP_SENDER, 
                     b'\x04', CScriptNum(1000000), CScriptNum(40), hex_str_to_bytes("00"), hex_str_to_bytes(contract_address), OP_CALL]))
             keys.append(key)
             outputs.append(output)
@@ -203,10 +203,10 @@ class QtumOpSenderTest(BitcoinTestFramework):
     def replay_sighash_op_sender_output_test(self):
         contract_address = sorted(self.nodes[0].listcontracts().keys())[-1]
         old_balance = self.nodes[0].listcontracts()[contract_address]
-        key = CECKey()
-        key.set_secretbytes(b'\x01')
+        key = ECKey()
+        key.set(hash256(b'\x01'), True)
         for hashtype in HASHTYPES:
-            output = CTxOut(COIN, CScript([CScriptNum(1), hash160(key.get_pubkey()), b'', OP_SENDER, 
+            output = CTxOut(COIN, CScript([CScriptNum(1), hash160(key.get_pubkey().get_bytes()), b'', OP_SENDER, 
                     b'\x04', CScriptNum(1000000), CScriptNum(40), hex_str_to_bytes("00"), hex_str_to_bytes(contract_address), OP_CALL]))
             old_tx, input_txout = self.create_op_sender_tx([key], [output], [hashtype], 40000000, publish=True)
             self.nodes[0].generate(1)
@@ -215,10 +215,10 @@ class QtumOpSenderTest(BitcoinTestFramework):
             amount = COIN
             change = int(unspent['amount'])*COIN - 40000000 - amount
             wif = self.nodes[0].dumpprivkey(unspent['address'])
-            vin_key = wif_to_ceckey(wif)
+            vin_key = wif_to_ECKey(wif)
             tx = CTransaction()
             prevout = COutPoint(int(unspent['txid'], 16), unspent['vout'])
-            tx.vin = [CTxIn(prevout, scriptSig=CScript([vin_key.get_pubkey(), OP_CHECKSIG]))]
+            tx.vin = [CTxIn(prevout, scriptSig=CScript([vin_key.get_pubkey().get_bytes(), OP_CHECKSIG]))]
             tx.vout = [old_tx.vout[0]]
             tx.vout.append(CTxOut(change, scriptPubKey=CScript([OP_TRUE])))
             # Sign the inputs
@@ -256,10 +256,10 @@ class QtumOpSenderTest(BitcoinTestFramework):
         0ee2cb10: getCreator()
         """
         bytecode = "608060405234801561001057600080fd5b50336000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055506101ef806100606000396000f3fe608060405260043610610046576000357c0100000000000000000000000000000000000000000000000000000000900480630ee2cb1014610095578063f8b2cb4f146100ec575b34600160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008282540192505081905550005b3480156100a157600080fd5b506100aa610151565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b3480156100f857600080fd5b5061013b6004803603602081101561010f57600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff16906020019092919050505061017a565b6040518082815260200191505060405180910390f35b60008060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff16905090565b6000600160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054905091905056fea165627a7a72305820cec11cb4c48d27aed8e6cd757d284387d8a017d594555d9b0d1b6f4d331441ac0029"
-        key = CECKey()
-        key.set_secretbytes(b'\x00')
+        key = ECKey()
+        key.set(hash256(b'\x00'), True)
         outputs = [
-            CTxOut(0, CScript([CScriptNum(1), hash160(key.get_pubkey()), b'', OP_SENDER, b'\x04', CScriptNum(1000000), CScriptNum(40), hex_str_to_bytes(bytecode), OP_CREATE])),
+            CTxOut(0, CScript([CScriptNum(1), hash160(key.get_pubkey().get_bytes()), b'', OP_SENDER, b'\x04', CScriptNum(1000000), CScriptNum(40), hex_str_to_bytes(bytecode), OP_CREATE])),
             CTxOut(0, CScript([b'\x04', CScriptNum(1000000), CScriptNum(40), hex_str_to_bytes(bytecode), OP_CREATE]))
         ]
         tx, input_txout = self.create_op_sender_tx([key], outputs, [SIGHASH_ALL], 2*40000000)
@@ -273,34 +273,34 @@ class QtumOpSenderTest(BitcoinTestFramework):
         ]
 
         expected_creators = [
-            bytes_to_hex_str(hash160(key.get_pubkey())),
+            bytes_to_hex_str(hash160(key.get_pubkey().get_bytes())),
             p2pkh_to_hex_hash(input_txout['address'])
         ]
         assert_equal(sorted(creators), sorted(expected_creators))
 
         # Make sure that gas is refunded to vin0's address
         coinbase_txid = self.nodes[0].getblock(block_hash)['tx'][0]
-        coinbase_vout = self.nodes[0].getrawtransaction(coinbase_txid, True)['vout']
+        coinbase_vout = self.nodes[0].decoderawtransaction(self.nodes[0].gettransaction(coinbase_txid, True)['hex'])['vout']
         assert_equal(input_txout['address'], coinbase_vout[1]['scriptPubKey']['addresses'][0])
         assert_equal(input_txout['address'], coinbase_vout[2]['scriptPubKey']['addresses'][0])
 
         contract_address = new_contracts[0]
-        key = CECKey()
-        key.set_secretbytes(b'\x01')
+        key = ECKey()
+        key.set(hash256(b'\x01'), True)
         outputs = [
-            CTxOut(COIN, CScript([CScriptNum(1), hash160(key.get_pubkey()), b'', OP_SENDER, b'\x04', CScriptNum(1000000), CScriptNum(40), hex_str_to_bytes("00"), hex_str_to_bytes(contract_address), OP_CALL])),
+            CTxOut(COIN, CScript([CScriptNum(1), hash160(key.get_pubkey().get_bytes()), b'', OP_SENDER, b'\x04', CScriptNum(1000000), CScriptNum(40), hex_str_to_bytes("00"), hex_str_to_bytes(contract_address), OP_CALL])),
             CTxOut(COIN, CScript([b'\x04', CScriptNum(1000000), CScriptNum(40), hex_str_to_bytes("00"), hex_str_to_bytes(contract_address), OP_CALL]))
         ]
         tx, input_txout = self.create_op_sender_tx([key], outputs, [SIGHASH_ALL], 2*40000000)
         self.nodes[0].generate(1)
-        for sender in [bytes_to_hex_str(hash160(key.get_pubkey())), p2pkh_to_hex_hash(input_txout['address'])]:
+        for sender in [bytes_to_hex_str(hash160(key.get_pubkey().get_bytes())), p2pkh_to_hex_hash(input_txout['address'])]:
             balance = int(self.nodes[0].callcontract(new_contracts[0], "f8b2cb4f"+(sender.zfill(64)))['executionResult']['output'], 16)
             assert_equal(COIN, balance)
 
     def large_contract_deployment_tx_test(self):
-        key = CECKey()
-        key.set_secretbytes(b'\x01')
-        output = CTxOut(0, CScript([CScriptNum(1), hash160(key.get_pubkey()), b'', OP_SENDER, b'\x04', CScriptNum(1000000), CScriptNum(50), b'\x00'*100000, OP_CREATE]))
+        key = ECKey()
+        key.set(hash256(b'\x01'), True)
+        output = CTxOut(0, CScript([CScriptNum(1), hash160(key.get_pubkey().get_bytes()), b'', OP_SENDER, b'\x04', CScriptNum(1000000), CScriptNum(50), b'\x00'*100000, OP_CREATE]))
         tx, input_txout = self.create_op_sender_tx([key], [output], [SIGHASH_ALL], 50*1000000)
         txid = self.nodes[0].sendrawtransaction(bytes_to_hex_str(tx.serialize()))
         self.nodes[0].getrawtransaction(txid)
@@ -309,9 +309,9 @@ class QtumOpSenderTest(BitcoinTestFramework):
 
     def invalid_op_sender_signature_tx_test(self):
         contract_address = sorted(self.nodes[0].listcontracts().keys())[-1]
-        key = CECKey()
-        key.set_secretbytes(b'\x01')
-        output = CTxOut(COIN, CScript([CScriptNum(1), hash160(key.get_pubkey()), b'', OP_SENDER, 
+        key = ECKey()
+        key.set(hash256(b'\x01'), False)
+        output = CTxOut(COIN, CScript([CScriptNum(1), hash160(key.get_pubkey().get_bytes()), b'', OP_SENDER, 
                 b'\x04', CScriptNum(1000000), CScriptNum(40), hex_str_to_bytes("00"), OP_CREATE]))
 
         for hashtype in HASHTYPES:
@@ -351,9 +351,9 @@ class QtumOpSenderTest(BitcoinTestFramework):
 
     def invalid_op_sender_address_tx_test(self):
         contract_address = sorted(self.nodes[0].listcontracts().keys())[-1]
-        key = CECKey()
-        key.set_secretbytes(b'\x01')
-        output = CTxOut(COIN, CScript([CScriptNum(1), hash160(key.get_pubkey()), b'', OP_SENDER, 
+        key = ECKey()
+        key.set(hash256(b'\x01'), True)
+        output = CTxOut(COIN, CScript([CScriptNum(1), hash160(key.get_pubkey().get_bytes()), b'', OP_SENDER, 
                 b'\x04', CScriptNum(1000000), CScriptNum(40), hex_str_to_bytes("00"), OP_CREATE]))
 
         for hashtype in HASHTYPES:
@@ -399,9 +399,9 @@ class QtumOpSenderTest(BitcoinTestFramework):
     def pre_hf_single_op_sender_op_create_tx_rejected_test(self):
         num_contracts = len(self.nodes[0].listcontracts().keys())
         bytecode = '60606040523415600b57fe5b5b60398060196000396000f30060606040525b600b5b5b565b0000a165627a7a72305820e3bed070fd3a81dd00e02efd22d18a3b47b70860155d6063e47e1e2674fc5acb0029'
-        key = CECKey()
-        key.set_secretbytes(b'\x00')
-        output = CTxOut(0, CScript([CScriptNum(1), hash160(key.get_pubkey()), b'', OP_SENDER, b'\x04', CScriptNum(1000000), CScriptNum(40), hex_str_to_bytes(bytecode), OP_CREATE]))
+        key = ECKey()
+        key.set(hash256(b'\x01'), True)
+        output = CTxOut(0, CScript([CScriptNum(1), hash160(key.get_pubkey().get_bytes()), b'', OP_SENDER, b'\x04', CScriptNum(1000000), CScriptNum(40), hex_str_to_bytes(bytecode), OP_CREATE]))
 
         for hashtype in HASHTYPES:
             tx, _ = self.create_op_sender_tx([key], [output], [hashtype], 40000000, publish=False)
@@ -422,7 +422,7 @@ class QtumOpSenderTest(BitcoinTestFramework):
         spending_tx.vout = [CTxOut(int(unspent['amount'])*COIN-200000, scriptPubKey=CScript([OP_TRUE]*40))]
         try:
             txid = self.nodes[0].sendrawtransaction(bytes_to_hex_str(spending_tx.serialize()))
-            self.nodes[0].getrawtransaction(txid)
+            self.nodes[0].gettransaction(txid)
         except:
             # Success
             return
@@ -442,7 +442,7 @@ class QtumOpSenderTest(BitcoinTestFramework):
         spending_tx.vout = [CTxOut(int(unspent['amount'])*COIN-200000, scriptPubKey=CScript([OP_TRUE]*40))]
         try:
             txid = self.nodes[0].sendrawtransaction(bytes_to_hex_str(spending_tx.serialize()))
-            pp.pprint(self.nodes[0].getrawtransaction(txid, True))
+            pp.pprint(self.nodes[0].gettransaction(txid, True))
         except:
             # Success
             return
@@ -450,7 +450,16 @@ class QtumOpSenderTest(BitcoinTestFramework):
         assert(False)
 
     def run_test(self):
-        self.nodes[0].generate(100+COINBASE_MATURITY)
+        wif = self.nodes[0].dumpprivkey(self.nodes[0].getnewaddress())
+        key = wif_to_ECKey(wif)
+        for i in range(100+COINBASE_MATURITY):
+            block = create_block(int(self.nodes[0].getbestblockhash(), 16), create_coinbase(self.nodes[0].getblockcount()+1), int(time.time()))
+            block.vtx[0].vout[0].scriptPubKey = CScript([key.get_pubkey().get_bytes(), OP_CHECKSIG])
+            block.vtx[0].rehash()
+            block.hashMerkleRoot = block.calc_merkle_root()
+            block.solve()
+            self.nodes[0].submitblock(bytes_to_hex_str(block.serialize()))
+
         self.unspents = self.nodes[0].listunspent()
         
         # Make sure that op_sender txs are not accepted before the HF
@@ -461,8 +470,8 @@ class QtumOpSenderTest(BitcoinTestFramework):
         self.sync_all()
 
         # Trigger the HF
-        self.restart_node(0, ['-opsender-block=602'])
-        self.restart_node(1, ['-opsender-block=602'])
+        self.restart_node(0, ['-opsenderheight=602'])
+        self.restart_node(1, ['-opsenderheight=602'])
         connect_nodes_bi(self.nodes, 0, 1)
         
         self.single_op_sender_op_create_tx_test()
