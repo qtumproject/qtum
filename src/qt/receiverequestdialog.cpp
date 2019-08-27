@@ -93,9 +93,9 @@ ReceiveRequestDialog::ReceiveRequestDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    SetObjectStyleSheet(ui->btnCopyURI, StyleSheetNames::ButtonWhite);
-    SetObjectStyleSheet(ui->btnSaveAs, StyleSheetNames::ButtonWhite);
-    SetObjectStyleSheet(ui->btnCopyAddress, StyleSheetNames::ButtonWhite);
+    SetObjectStyleSheet(ui->btnCopyURI, StyleSheetNames::ButtonLight);
+    SetObjectStyleSheet(ui->btnSaveAs, StyleSheetNames::ButtonLight);
+    SetObjectStyleSheet(ui->btnCopyAddress, StyleSheetNames::ButtonLight);
 
 #ifndef USE_QRCODE
     ui->btnSaveAs->setVisible(false);

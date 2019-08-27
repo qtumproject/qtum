@@ -12,7 +12,7 @@ RestoreDialog::RestoreDialog(QWidget *parent) :
     model(0)
 {
     ui->setupUi(this);
-    SetObjectStyleSheet(ui->btnReset, StyleSheetNames::ButtonWhite);
+    SetObjectStyleSheet(ui->btnReset, StyleSheetNames::ButtonLight);
 }
 
 RestoreDialog::~RestoreDialog()

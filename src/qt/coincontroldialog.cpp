@@ -56,7 +56,7 @@ CoinControlDialog::CoinControlDialog(const PlatformStyle *_platformStyle, QWidge
     ui->setupUi(this);
 
     // Set stylesheet
-    SetObjectStyleSheet(ui->pushButtonSelectAll, StyleSheetNames::ButtonBlack);
+    SetObjectStyleSheet(ui->pushButtonSelectAll, StyleSheetNames::ButtonDark);
     SetObjectStyleSheet(ui->treeWidget, StyleSheetNames::TreeView);
 
     // context menu actions

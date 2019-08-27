@@ -36,10 +36,10 @@ SignVerifyMessageDialog::SignVerifyMessageDialog(const PlatformStyle *_platformS
     ui->verifyMessageButton_VM->setIcon(platformStyle->MultiStatesIcon(":/icons/transaction_0", PlatformStyle::PushButton));
     ui->clearButton_VM->setIcon(platformStyle->MultiStatesIcon(":/icons/remove", PlatformStyle::PushButton, 0x5a5a5d));
 
-    SetObjectStyleSheet(ui->clearButton_SM, StyleSheetNames::ButtonWhite);
-    SetObjectStyleSheet(ui->clearButton_VM, StyleSheetNames::ButtonWhite);
-    SetObjectStyleSheet(ui->signMessageButton_SM, StyleSheetNames::ButtonBlue);
-    SetObjectStyleSheet(ui->verifyMessageButton_VM, StyleSheetNames::ButtonBlue);
+    SetObjectStyleSheet(ui->clearButton_SM, StyleSheetNames::ButtonLight);
+    SetObjectStyleSheet(ui->clearButton_VM, StyleSheetNames::ButtonLight);
+    SetObjectStyleSheet(ui->signMessageButton_SM, StyleSheetNames::ButtonGray);
+    SetObjectStyleSheet(ui->verifyMessageButton_VM, StyleSheetNames::ButtonGray);
     SetObjectStyleSheet(ui->addressBookButton_SM, StyleSheetNames::ButtonTransparent);
     SetObjectStyleSheet(ui->pasteButton_SM, StyleSheetNames::ButtonTransparent);
     SetObjectStyleSheet(ui->copySignatureButton_SM, StyleSheetNames::ButtonTransparent);

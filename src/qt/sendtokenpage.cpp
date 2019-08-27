@@ -43,7 +43,7 @@ SendTokenPage::SendTokenPage(QWidget *parent) :
     ui->setupUi(this);
 
     // Set stylesheet
-    SetObjectStyleSheet(ui->clearButton, StyleSheetNames::ButtonBlack);
+    SetObjectStyleSheet(ui->clearButton, StyleSheetNames::ButtonDark);
 
     ui->labelPayTo->setToolTip(tr("The address that will receive the tokens."));
     ui->labelAmount->setToolTip(tr("The amount in Token to send."));

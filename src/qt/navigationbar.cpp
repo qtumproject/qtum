@@ -194,11 +194,11 @@ void NavigationBar::buildUi()
             toolButton->setIconSize(QSize(ToolButtonIconSize, ToolButtonIconSize));
             if(m_subBar)
             {
-                SetObjectStyleSheet(toolButton, StyleSheetNames::ToolSubBlack);
+                SetObjectStyleSheet(toolButton, StyleSheetNames::NavSubGroupButton);
             }
             else
             {
-                SetObjectStyleSheet(toolButton, StyleSheetNames::ToolBlack);
+                SetObjectStyleSheet(toolButton, StyleSheetNames::NavButton);
             }
 
             if(m_groups.contains(action))
@@ -210,7 +210,7 @@ void NavigationBar::buildUi()
                 vboxLayout2->setSpacing(0);
                 if(!m_subBar)
                 {
-                    SetObjectStyleSheet(toolButton, StyleSheetNames::ToolGroupBlack);
+                    SetObjectStyleSheet(toolButton, StyleSheetNames::NavGroupButton);
                 }
 
                 // Add sub-navigation bar for the group of actions

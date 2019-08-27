@@ -33,11 +33,11 @@ ContractBookPage::ContractBookPage(const PlatformStyle *platformStyle, QWidget *
         ui->exportButton->setIcon(platformStyle->MultiStatesIcon(":/icons/export"));
     }
 
-    SetObjectStyleSheet(ui->newContractInfo, StyleSheetNames::ButtonWhite);
-    SetObjectStyleSheet(ui->copyAddress, StyleSheetNames::ButtonWhite);
-    SetObjectStyleSheet(ui->deleteContractInfo, StyleSheetNames::ButtonWhite);
-    SetObjectStyleSheet(ui->exportButton, StyleSheetNames::ButtonBlue);
-    SetObjectStyleSheet(ui->chooseContractInfo, StyleSheetNames::ButtonBlue);
+    SetObjectStyleSheet(ui->newContractInfo, StyleSheetNames::ButtonLight);
+    SetObjectStyleSheet(ui->copyAddress, StyleSheetNames::ButtonLight);
+    SetObjectStyleSheet(ui->deleteContractInfo, StyleSheetNames::ButtonLight);
+    SetObjectStyleSheet(ui->exportButton, StyleSheetNames::ButtonGray);
+    SetObjectStyleSheet(ui->chooseContractInfo, StyleSheetNames::ButtonGray);
 
     setWindowTitle(tr("Choose the contract for send/call"));
     ui->labelExplanation->setText(tr("These are your saved contracts. Always check the contract address and the ABI before sending/calling."));

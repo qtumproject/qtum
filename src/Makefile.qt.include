@@ -509,18 +509,18 @@ RES_IMAGES =
 RES_MOVIES = $(wildcard $(srcdir)/qt/res/movies/spinner-*.png)
 
 RES_STYLES = qt/res/styles/buttontransparentbordered.css \
-qt/res/styles/buttonblack.css \
-qt/res/styles/toolgroupblack.css \
-qt/res/styles/toolblack.css \
-qt/res/styles/toolsubblack.css \
+qt/res/styles/buttondark.css \
+qt/res/styles/navgroupbutton.css \
+qt/res/styles/navbutton.css \
+qt/res/styles/navsubgroupbutton.css \
 qt/res/styles/app.css \
 qt/res/styles/scrollbarlight.css \
-qt/res/styles/buttonwhite.css \
+qt/res/styles/buttonlight.css \
 qt/res/styles/buttontransparent.css \
 qt/res/styles/invalid.css \
 qt/res/styles/treeview.css \
 qt/res/styles/scrollbardark.css \
-qt/res/styles/buttonblue.css \
+qt/res/styles/buttongray.css \
 qt/res/styles/tableviewlight.css \
 qt/res/styles/app-icons/toolbutton_right_arrow.png \
 qt/res/styles/app-icons/spinBoxHover.png \

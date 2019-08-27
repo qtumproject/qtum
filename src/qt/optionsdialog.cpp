@@ -36,10 +36,10 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
 {
     ui->setupUi(this);
 
-    SetObjectStyleSheet(ui->resetButton, StyleSheetNames::ButtonWhite);
-    SetObjectStyleSheet(ui->openBitcoinConfButton, StyleSheetNames::ButtonWhite);
-    SetObjectStyleSheet(ui->okButton, StyleSheetNames::ButtonBlue);
-    SetObjectStyleSheet(ui->cancelButton, StyleSheetNames::ButtonBlue);
+    SetObjectStyleSheet(ui->resetButton, StyleSheetNames::ButtonLight);
+    SetObjectStyleSheet(ui->openBitcoinConfButton, StyleSheetNames::ButtonLight);
+    SetObjectStyleSheet(ui->okButton, StyleSheetNames::ButtonGray);
+    SetObjectStyleSheet(ui->cancelButton, StyleSheetNames::ButtonGray);
 
     /* Main elements init */
     ui->databaseCache->setMinimum(nMinDbCache);
