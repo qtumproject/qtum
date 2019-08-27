@@ -353,7 +353,15 @@ void WalletView::backupWallet()
     if (filename.isEmpty())
         return;
 
-    if (!walletModel->wallet().backupWallet(filename.toLocal8Bit().data())) {
+#ifndef WIN32
+    // Use local encoding for non Windows OS
+    std::string strFilename = filename.toLocal8Bit().data();
+#else
+    // Use utf8 encoding for Windows OS, the path will be converted into utf16 when the file is opened
+    std::string strFilename = filename.toUtf8().data();
+#endif
+
+    if (!walletModel->wallet().backupWallet(strFilename)) {
         Q_EMIT message(tr("Backup Failed"), tr("There was an error trying to save the wallet data to %1.").arg(filename),
             CClientUIInterface::MSG_ERROR);
         }
