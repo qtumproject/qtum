@@ -12,8 +12,9 @@
 #include <QPainter>
 #include <QLineEdit>
 #include <QtGlobal>
+#include <QSettings>
 
-static const QString STYLE_FORMAT = ":/styles/theme1/%1";
+static const QString STYLE_FORMAT = ":/styles/%1/%2";
 static const QColor LINK_COLOR = "#2d9ad0";
 
 class QtumStyle : public QProxyStyle
@@ -88,7 +89,10 @@ StyleSheet &StyleSheet::instance()
 }
 
 StyleSheet::StyleSheet()
-{}
+{
+    QSettings settings;
+    m_theme = settings.value("Theme", getDefaultTheme()).toString();
+}
 
 void StyleSheet::setStyleSheet(QWidget *widget, const QString &style_name)
 {
@@ -122,7 +126,7 @@ void StyleSheet::setStyleSheet(QApplication *app, const QString& style_name)
 QString StyleSheet::getStyleSheet(const QString &style_name)
 {
     QString style;
-    QFile file(STYLE_FORMAT.arg(style_name));
+    QFile file(STYLE_FORMAT.arg(m_theme, style_name));
     if(file.open(QIODevice::ReadOnly))
     {
         style = file.readAll();
@@ -136,4 +140,30 @@ void StyleSheet::setObjectStyleSheet(T *object, const QString &style_name)
 {
     QString style_value = m_cacheStyles.contains(style_name) ? m_cacheStyles[style_name] : getStyleSheet(style_name);
     object->setStyleSheet(style_value);
+}
+
+QString StyleSheet::getCurrentTheme()
+{
+    return m_theme;
+}
+
+QStringList StyleSheet::getSupportedThemes()
+{
+    return QStringList() << "theme1";
+}
+
+QString StyleSheet::getDefaultTheme()
+{
+    return "theme1";
+}
+
+bool StyleSheet::setTheme(const QString &theme)
+{
+    if(getSupportedThemes().contains(theme))
+    {
+        QSettings settings;
+        settings.setValue("Theme", theme);
+        return true;
+    }
+    return false;
 }
