@@ -59,7 +59,7 @@ SplashScreen::SplashScreen(interfaces::Node& node, Qt::WindowFlags f, const Netw
 
     // draw background
     QRect rectBg(QPoint(-50, -50), QSize(splashSize.width() + 50, splashSize.height() + 50));
-    QPixmap bg(":/styles/app-icons/splash_bg");
+    QPixmap bg(":/styles/theme1/app-icons/splash_bg");
     pixPaint.drawPixmap(rectBg, bg);
 
     pixPaint.setFont(QFont(font, 32*fontFactor, QFont::Bold));

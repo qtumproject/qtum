@@ -388,8 +388,8 @@
                  </property>
                  <property name="icon">
                   <iconset>
-                   <normaloff>:/styles/app-icons/message_warning</normaloff>
-                   <disabledoff>:/styles/app-icons/message_warning</disabledoff>:/styles/app-icons/message_warning</iconset>
+                   <normaloff>:/styles/theme1/app-icons/message_warning</normaloff>
+                   <disabledoff>:/styles/theme1/app-icons/message_warning</disabledoff>:/styles/theme1/app-icons/message_warning</iconset>
                  </property>
                  <property name="iconSize">
                   <size>

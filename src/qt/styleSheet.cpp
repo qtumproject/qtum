@@ -13,7 +13,7 @@
 #include <QLineEdit>
 #include <QtGlobal>
 
-static const QString STYLE_FORMAT = ":/styles/%1";
+static const QString STYLE_FORMAT = ":/styles/theme1/%1";
 static const QColor LINK_COLOR = "#2d9ad0";
 
 class QtumStyle : public QProxyStyle
@@ -46,16 +46,16 @@ public:
             switch (icon)
             {
             case QMessageBox::Information:
-                iconPixmap = QPixmap(":/styles/app-icons/message_info");
+                iconPixmap = QPixmap(":/styles/theme1/app-icons/message_info");
                 break;
             case QMessageBox::Warning:
-                iconPixmap = QPixmap(":/styles/app-icons/message_warning");
+                iconPixmap = QPixmap(":/styles/theme1/app-icons/message_warning");
                 break;
             case QMessageBox::Critical:
-                iconPixmap = QPixmap(":/styles/app-icons/message_critical");
+                iconPixmap = QPixmap(":/styles/theme1/app-icons/message_critical");
                 break;
             case QMessageBox::Question:
-                iconPixmap = QPixmap(":/styles/app-icons/message_question");
+                iconPixmap = QPixmap(":/styles/theme1/app-icons/message_question");
                 break;
             default:
                 QProxyStyle::polish(widget);

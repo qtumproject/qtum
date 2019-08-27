@@ -12,7 +12,7 @@ QToolButton:pressed, QToolButton:hover:pressed, QToolButton:checked {
     color: rgba(255, 255, 255, 85%);
     background: #009ee5;
     padding: 3px 30px 5px 10px;
-    background-image: url(":/styles/app-icons/toolbutton_down_arrow");
+    background-image: url(":/styles/theme1/app-icons/toolbutton_down_arrow");
     background-position: center right;
     background-repeat: no-repeat;
 }
