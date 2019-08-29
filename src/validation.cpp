@@ -2585,7 +2585,9 @@ bool ByteCodeExec::processingResults(ByteCodeExecResult& resultBCE){
         		tx.vout.push_back(CTxOut(CAmount(txs[i].value()), script));
         		resultBCE.valueTransfers.push_back(CTransaction(tx));
         	}
+        	if(!(chainActive.Height() >= consensusParams.QIP7Height && result[i].execRes.excepted == dev::eth::TransactionException::RevertInstruction)){
         	resultBCE.usedGas += gasUsed;
+        	}
         }
 
         if(result[i].tx != CTransaction()){
