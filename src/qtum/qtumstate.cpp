@@ -44,6 +44,7 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
 
     CTransactionRef tx;
     u256 startGasUsed;
+    const Consensus::Params& consensusParams = Params().GetConsensus();
     try{
         if (_t.isCreation() && _t.value())
             BOOST_THROW_EXCEPTION(CreateWithValue());
@@ -68,13 +69,14 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
                 CondensingTX ctx(this, transfers, _t, _sealEngine.deleteAddresses);
                 tx = MakeTransactionRef(ctx.createCondensingTX());
                 if(ctx.reachedVoutLimit()){
-
                     voutLimit = true;
                     e.revert();
                     throw Exception();
                 }
                 std::unordered_map<dev::Address, Vin> vins = ctx.createVin(*tx);
                 updateUTXO(vins);
+            } else if(chainActive.Height() >= consensusParams.QIP7Height && res.excepted == TransactionException::RevertInstruction) {
+            	e.revert();
             } else {
                 printfErrorLog(res.excepted);
             }
@@ -86,11 +88,9 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
         }
     }
     catch(Exception const& _e){
-
         printfErrorLog(dev::eth::toTransactionException(_e));
         res.excepted = dev::eth::toTransactionException(_e);
         res.gasUsed = _t.gas();
-        const Consensus::Params& consensusParams = Params().GetConsensus();
         if(chainActive.Height() < consensusParams.nFixUTXOCacheHFHeight  && _p != Permanence::Reverted){
             deleteAccounts(_sealEngine.deleteAddresses);
             commit(CommitBehaviour::RemoveEmptyAccounts);
