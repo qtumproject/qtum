@@ -21,6 +21,15 @@ static const QColor LINK_COLOR = "#2d9ad0";
 class QtumStyle : public QProxyStyle
 {
 public:
+    QtumStyle()
+    {
+        message_info_path = GetStyleValue("appstyle/message-info-icon", ":/styles/theme1/app-icons/message_info").toString();
+        message_warning_path = GetStyleValue("appstyle/message-warning-icon", ":/styles/theme1/app-icons/message_warning").toString();
+        message_critical_path = GetStyleValue("appstyle/message-critical-icon", ":/styles/theme1/app-icons/message_critical").toString();
+        message_question_path = GetStyleValue("appstyle/message-question-icon", ":/styles/theme1/app-icons/message_question").toString();
+        message_icon_weight = GetStyleValue("appstyle/message-icon-weight", 45).toInt();
+        message_icon_height = GetStyleValue("appstyle/message-icon-height", 49).toInt();
+    }
 
     void polish(QWidget *widget)
     {
@@ -48,22 +57,22 @@ public:
             switch (icon)
             {
             case QMessageBox::Information:
-                iconPixmap = QPixmap(":/styles/theme1/app-icons/message_info");
+                iconPixmap = QPixmap(message_info_path);
                 break;
             case QMessageBox::Warning:
-                iconPixmap = QPixmap(":/styles/theme1/app-icons/message_warning");
+                iconPixmap = QPixmap(message_warning_path);
                 break;
             case QMessageBox::Critical:
-                iconPixmap = QPixmap(":/styles/theme1/app-icons/message_critical");
+                iconPixmap = QPixmap(message_critical_path);
                 break;
             case QMessageBox::Question:
-                iconPixmap = QPixmap(":/styles/theme1/app-icons/message_question");
+                iconPixmap = QPixmap(message_question_path);
                 break;
             default:
                 QProxyStyle::polish(widget);
                 return;
             }
-            messageBox->setIconPixmap(iconPixmap.scaled(45,49));
+            messageBox->setIconPixmap(iconPixmap.scaled(message_icon_weight, message_icon_height));
         }
         if(widget && widget->inherits("QPushButton"))
         {
@@ -81,6 +90,14 @@ public:
 
         QProxyStyle::polish(widget);
     }
+
+private:
+    QString message_info_path;
+    QString message_warning_path;
+    QString message_critical_path;
+    QString message_question_path;
+    int message_icon_weight;
+    int message_icon_height;
 };
 
 StyleSheet &StyleSheet::instance()
@@ -109,7 +126,7 @@ void StyleSheet::setStyleSheet(QApplication *app, const QString& style_name)
     app->setStyle(qtumStyle);
 
     QPalette mainPalette(app->palette());
-    mainPalette.setColor(QPalette::Link, LINK_COLOR);
+    mainPalette.setColor(QPalette::Link, GetStyleValue("appstyle/link-color", LINK_COLOR).toString());
     app->setPalette(mainPalette);
 
     // Increase the font size slightly for Windows and MAC
@@ -170,7 +187,12 @@ bool StyleSheet::setTheme(const QString &theme)
     return false;
 }
 
-const QSettings *StyleSheet::getStyleConfig()
+QVariant StyleSheet::getStyleValue(const QString &key, const QVariant &defaultValue)
 {
-    return m_config.data();
+    if(m_config)
+    {
+        return m_config->value(key, defaultValue);
+    }
+
+    return defaultValue;
 }

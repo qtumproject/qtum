@@ -11,6 +11,7 @@ class QWidget;
 class QApplication;
 
 #define SetObjectStyleSheet(object, name) StyleSheet::instance().setStyleSheet(object, name)
+#define GetStyleValue(key, defaultValue) StyleSheet::instance().getStyleValue(key, defaultValue)
 
 /** Names of the styles that will be used for the GUI components appearance
  */
@@ -40,7 +41,7 @@ public:
     static StyleSheet& instance();
     void setStyleSheet(QWidget* widget, const QString& style_name);
     void setStyleSheet(QApplication* app, const QString& style_name);
-    const QSettings *getStyleConfig();
+    QVariant getStyleValue(const QString& key, const QVariant &defaultValue);
 
     QString getCurrentTheme();
     static QStringList getSupportedThemes();
