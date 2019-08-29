@@ -15,6 +15,7 @@
 #include <QSettings>
 
 static const QString STYLE_FORMAT = ":/styles/%1/%2";
+static const QString STYLE_CONFIG_FORMAT = ":/styles/%1/config";
 static const QColor LINK_COLOR = "#2d9ad0";
 
 class QtumStyle : public QProxyStyle
@@ -92,6 +93,7 @@ StyleSheet::StyleSheet()
 {
     QSettings settings;
     m_theme = settings.value("Theme", getDefaultTheme()).toString();
+    m_config = new QSettings(STYLE_CONFIG_FORMAT.arg(m_theme), QSettings::IniFormat);
 }
 
 void StyleSheet::setStyleSheet(QWidget *widget, const QString &style_name)
@@ -166,4 +168,9 @@ bool StyleSheet::setTheme(const QString &theme)
         return true;
     }
     return false;
+}
+
+const QSettings *StyleSheet::getStyleConfig()
+{
+    return m_config.data();
 }

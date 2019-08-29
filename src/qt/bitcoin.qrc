@@ -125,6 +125,7 @@
         <file alias="treeview">res/styles/theme1/treeview.css</file>
         <file alias="scrollbarlight">res/styles/theme1/scrollbarlight.css</file>
         <file alias="scrollbardark">res/styles/theme1/scrollbardark.css</file>
+        <file alias="config">res/styles/theme1/config.ini</file>
     </qresource>
     <qresource prefix="/styles/theme1/app-icons">
         <file alias="bg">res/styles/theme1/app-icons/bg.png</file>

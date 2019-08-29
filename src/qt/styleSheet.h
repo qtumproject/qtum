@@ -4,6 +4,8 @@
 #include <QMap>
 #include <QString>
 #include <QStringList>
+#include <QSettings>
+#include <QPointer>
 
 class QWidget;
 class QApplication;
@@ -38,6 +40,7 @@ public:
     static StyleSheet& instance();
     void setStyleSheet(QWidget* widget, const QString& style_name);
     void setStyleSheet(QApplication* app, const QString& style_name);
+    const QSettings *getStyleConfig();
 
     QString getCurrentTheme();
     static QStringList getSupportedThemes();
@@ -53,5 +56,6 @@ private:
     explicit StyleSheet();
     QMap<QString, QString> m_cacheStyles;
     QString m_theme;
+    QPointer<QSettings> m_config;
 };
 #endif // STYLESHEET_H
