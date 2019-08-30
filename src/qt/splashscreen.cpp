@@ -17,6 +17,7 @@
 #include <ui_interface.h>
 #include <util/system.h>
 #include <version.h>
+#include "styleSheet.h"
 
 #include <QApplication>
 #include <QCloseEvent>
@@ -52,14 +53,16 @@ SplashScreen::SplashScreen(interfaces::Node& node, Qt::WindowFlags f, const Netw
     pixmap.setDevicePixelRatio(devicePixelRatio);
 
     QPainter pixPaint(&pixmap);
-    pixPaint.setPen(QColor("#ffffff"));
+    QColor foreground_color = GetStringStyleValue("splashscreen/foreground-color", "#ffffff");
+    pixPaint.setPen(foreground_color);
 
     QRect mainRect(QPoint(0,0), splashSize);
-    pixPaint.fillRect(mainRect, QColor("#030509"));
+    QColor background_color     = GetStringStyleValue("splashscreen/background-color", "#030509");
+    pixPaint.fillRect(mainRect, background_color);
 
     // draw background
     QRect rectBg(QPoint(-50, -50), QSize(splashSize.width() + 50, splashSize.height() + 50));
-    QPixmap bg(":/styles/theme1/app-icons/splash_bg");
+    QPixmap bg(GetStringStyleValue("splashscreen/background-image", ":/styles/theme1/app-icons/splash_bg"));
     pixPaint.drawPixmap(rectBg, bg);
 
     pixPaint.setFont(QFont(font, 32*fontFactor, QFont::Bold));
