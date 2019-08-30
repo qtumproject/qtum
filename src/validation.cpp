@@ -2554,6 +2554,20 @@ bool ByteCodeExec::processingResults(ByteCodeExecResult& resultBCE){
     for(size_t i = 0; i < result.size(); i++){
         uint64_t gasUsed = (uint64_t) result[i].execRes.gasUsed;
 
+        if(result[i].execRes.excepted != dev::eth::TransactionException::None){
+        	// refund coins sent to the contract to the sender
+        	if(txs[i].value() > 0){
+        		CMutableTransaction tx;
+        		tx.vin.push_back(CTxIn(h256Touint(txs[i].getHashWith()), txs[i].getNVout(), CScript() << OP_SPEND));
+        		CScript script(CScript() << OP_DUP << OP_HASH160 << txs[i].sender().asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
+        		tx.vout.push_back(CTxOut(CAmount(txs[i].value()), script));
+        		resultBCE.valueTransfers.push_back(CTransaction(tx));
+        	}
+        	if(!(chainActive.Height() >= consensusParams.QIP7Height && result[i].execRes.excepted == dev::eth::TransactionException::RevertInstruction)){
+        	resultBCE.usedGas += gasUsed;
+        	}
+        }
+
         if(result[i].execRes.excepted == dev::eth::TransactionException::None || (chainActive.Height() >= consensusParams.QIP7Height && result[i].execRes.excepted == dev::eth::TransactionException::RevertInstruction)){
         	if(txs[i].gas() > UINT64_MAX ||
         			result[i].execRes.gasUsed > UINT64_MAX ||
@@ -2573,20 +2587,6 @@ bool ByteCodeExec::processingResults(ByteCodeExecResult& resultBCE){
 				CScript script(CScript() << OP_DUP << OP_HASH160 << txs[i].getRefundSender().asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
 				resultBCE.refundOutputs.push_back(CTxOut(amount, script));
 				resultBCE.refundSender += amount;
-        	}
-        }
-
-        if(result[i].execRes.excepted != dev::eth::TransactionException::None){
-        	// refund coins sent to the contract to the sender
-        	if(txs[i].value() > 0){
-        		CMutableTransaction tx;
-        		tx.vin.push_back(CTxIn(h256Touint(txs[i].getHashWith()), txs[i].getNVout(), CScript() << OP_SPEND));
-        		CScript script(CScript() << OP_DUP << OP_HASH160 << txs[i].sender().asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
-        		tx.vout.push_back(CTxOut(CAmount(txs[i].value()), script));
-        		resultBCE.valueTransfers.push_back(CTransaction(tx));
-        	}
-        	if(!(chainActive.Height() >= consensusParams.QIP7Height && result[i].execRes.excepted == dev::eth::TransactionException::RevertInstruction)){
-        	resultBCE.usedGas += gasUsed;
         	}
         }
 

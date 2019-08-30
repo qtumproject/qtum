@@ -77,6 +77,13 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
                 updateUTXO(vins);
             } else if(chainActive.Height() >= consensusParams.QIP7Height && res.excepted == TransactionException::RevertInstruction) {
             	e.revert();
+            	if(chainActive.Height() < consensusParams.nFixUTXOCacheHFHeight  && _p != Permanence::Reverted){
+            		deleteAccounts(_sealEngine.deleteAddresses);
+            		commit(CommitBehaviour::RemoveEmptyAccounts);
+            	} else {
+            		m_cache.clear();
+            		cacheUTXO.clear();
+            	}
             } else {
                 printfErrorLog(res.excepted);
             }
