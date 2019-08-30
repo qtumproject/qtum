@@ -62,7 +62,7 @@ public:
     };
     QIcon TableColorIcon(const QString& resourcename, TableColorType type) const;
     QImage TableColorImage(const QString& resourcename, TableColorType type) const;
-    void TableColor(TableColorType type, int& color, double& opacity) const;
+    void TableColor(TableColorType type, QColor& color, double& opacity) const;
 
 private:
     PlatformStyle(const QString &name, bool imagesOnButtons, bool colorizeIcons, bool useExtraSpacing);
@@ -74,6 +74,11 @@ private:
     QColor singleColor;
     QColor textColor;
     QColor menuColor;
+    QColor tableColorNormal;
+    QColor tableColorInput;
+    QColor tableColorInout;
+    QColor tableColorOutput;
+    QColor tableColorError;
     /* ... more to come later */
 };
 

@@ -5,6 +5,7 @@
 #include <qt/platformstyle.h>
 
 #include <qt/guiconstants.h>
+#include "styleSheet.h"
 
 #include <QApplication>
 #include <QColor>
@@ -89,11 +90,18 @@ PlatformStyle::PlatformStyle(const QString &_name, bool _imagesOnButtons, bool _
 {
     // Determine icon highlighting color
     if (colorizeIcons) {
-        singleColor = 0x008ac8;
+        singleColor = GetStringStyleValue("platformstyle/single-color", "#008ac8");
     }
     // Determine text color
-    textColor = 0xe6f0f0;
+    textColor = GetStringStyleValue("platformstyle/text-color", "#e6f0f0");
     menuColor = QColor(QApplication::palette().color(QPalette::WindowText));
+
+    // Determine table color
+    tableColorNormal = GetStringStyleValue("platformstyle/table-color-normal", "#ffffff");
+    tableColorInput = GetStringStyleValue("platformstyle/table-color-input", "#2fa5df");
+    tableColorInout = GetStringStyleValue("platformstyle/table-color-inout", "#40bb00");
+    tableColorOutput = GetStringStyleValue("platformstyle/table-color-output", "#40bb00");
+    tableColorError = GetStringStyleValue("platformstyle/table-color-error", "#d02e49");
 }
 
 QImage PlatformStyle::SingleColorImage(const QString& filename) const
@@ -179,8 +187,8 @@ QIcon PlatformStyle::TableColorIcon(const QString &resourcename, TableColorType 
     QImage img2(img1);
     double opacity = 1;
     double opacitySelected = 0.8;
-    int color = 0xffffff;
-    int colorSelected = 0xffffff;
+    QColor color = 0xffffff;
+    QColor colorSelected = 0xffffff;
 
     // Choose color
     TableColor(type, color, opacity);
@@ -203,7 +211,7 @@ QImage PlatformStyle::TableColorImage(const QString &resourcename, PlatformStyle
     // Initialize variables
     QImage img(resourcename);
     double opacity = 1;
-    int color = 0xffffff;
+    QColor color = 0xffffff;
 
     // Choose color
     TableColor(type, color, opacity);
@@ -214,7 +222,7 @@ QImage PlatformStyle::TableColorImage(const QString &resourcename, PlatformStyle
     return img;
 }
 
-void PlatformStyle::TableColor(PlatformStyle::TableColorType type, int &color, double &opacity) const
+void PlatformStyle::TableColor(PlatformStyle::TableColorType type, QColor &color, double &opacity) const
 {
     // Initialize variables
     opacity = 1;
@@ -224,23 +232,23 @@ void PlatformStyle::TableColor(PlatformStyle::TableColorType type, int &color, d
     switch (type) {
     case Normal:
         opacity = 0.3;
-        color = 0xffffff;
+        color = tableColorNormal;
         break;
     case Input:
         opacity = 0.8;
-        color = 0x2fa5df;
+        color = tableColorInput;
         break;
     case Inout:
         opacity = 0.8;
-        color = 0x40bb00;
+        color = tableColorInout;
         break;
     case Output:
         opacity = 0.8;
-        color = 0x40bb00;
+        color = tableColorOutput;
         break;
     case Error:
         opacity = 0.8;
-        color = 0xd02e49;
+        color = tableColorError;
         break;
     default:
         break;
