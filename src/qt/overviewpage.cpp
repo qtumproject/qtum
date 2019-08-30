@@ -49,7 +49,11 @@ public:
         QAbstractItemDelegate(parent), unit(BitcoinUnits::BTC),
         platformStyle(_platformStyle)
     {
-
+        border_color_selected = GetStringStyleValue("txviewdelegate/border-color-selected", "#009ee5");
+        background_color = GetStringStyleValue("txviewdelegate/background-color", "#393939");
+        alternate_background_color = GetStringStyleValue("txviewdelegate/alternate-background-color", "#2e2e2e");
+        foreground_color = GetStringStyleValue("txviewdelegate/foreground-color", "#dedede");
+        amount_color = GetStringStyleValue("txviewdelegate/amount-color", "#ffffff");
     }
 
     inline void paint(QPainter *painter, const QStyleOptionViewItem &option,
@@ -66,12 +70,12 @@ public:
         QString typeString = ind.data(Qt::DisplayRole).toString();
 
         QRect mainRect = option.rect;
-        QColor txColor = index.row() % 2 ? QColor("#393939") : QColor("#2e2e2e");
+        QColor txColor = index.row() % 2 ? background_color : alternate_background_color;
         painter->fillRect(mainRect, txColor);
 
         QPen pen;
         pen.setWidth(2);
-        pen.setColor(QColor("#009ee5"));
+        pen.setColor(border_color_selected);
         painter->setPen(pen);
         bool selected = option.state & QStyle::State_Selected;
         if(selected)
@@ -79,7 +83,7 @@ public:
             painter->drawRect(mainRect.x()+1, mainRect.y()+1, mainRect.width()-2, mainRect.height()-2);
         }
 
-        QColor foreground("#dedede");
+        QColor foreground = foreground_color;
         painter->setPen(foreground);
 
         QRect dateRect(mainRect.left() + MARGIN, mainRect.top(), DATE_WIDTH, TX_SIZE);
@@ -129,7 +133,7 @@ public:
         }
         else
         {
-            foreground = QColor("#ffffff");
+            foreground = amount_color;
         }
         painter->setPen(foreground);
 
@@ -152,6 +156,13 @@ public:
 
     int unit;
     const PlatformStyle *platformStyle;
+
+private:
+    QColor border_color_selected;
+    QColor background_color;
+    QColor alternate_background_color;
+    QColor foreground_color;
+    QColor amount_color;
 };
 
 class TknViewDelegate : public QAbstractItemDelegate
@@ -160,7 +171,11 @@ public:
     TknViewDelegate(const PlatformStyle *_platformStyle, QObject *parent) :
         QAbstractItemDelegate(parent),
         platformStyle(_platformStyle)
-    {}
+    {
+        background_color = GetStringStyleValue("tknviewdelegate/background-color", "#383938");
+        hline_color = GetStringStyleValue("tknviewdelegate/hline-color", "#2e2e2e");
+        foreground_color = GetStringStyleValue("tknviewdelegate/foreground-color", "#dedede");
+    }
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &index) const
@@ -173,12 +188,12 @@ public:
         QRect mainRect = option.rect;
         mainRect.setWidth(option.rect.width());
 
-        painter->fillRect(mainRect, QColor("#383938"));
+        painter->fillRect(mainRect, background_color);
 
         QRect hLineRect(mainRect.left(), mainRect.bottom(), mainRect.width(), 1);
-        painter->fillRect(hLineRect, QColor("#2e2e2e"));
+        painter->fillRect(hLineRect, hline_color);
 
-        QColor foreground("#dedede");
+        QColor foreground = foreground_color;
         painter->setPen(foreground);
         
         QFont font = option.font;
@@ -209,6 +224,11 @@ public:
     }
 
     const PlatformStyle *platformStyle;
+
+private:
+    QColor background_color;
+    QColor hline_color;
+    QColor foreground_color;
 };
 
 #include <qt/overviewpage.moc>
