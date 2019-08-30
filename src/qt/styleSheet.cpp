@@ -23,12 +23,12 @@ class QtumStyle : public QProxyStyle
 public:
     QtumStyle()
     {
-        message_info_path = GetStyleValue("appstyle/message-info-icon", ":/styles/theme1/app-icons/message_info").toString();
-        message_warning_path = GetStyleValue("appstyle/message-warning-icon", ":/styles/theme1/app-icons/message_warning").toString();
-        message_critical_path = GetStyleValue("appstyle/message-critical-icon", ":/styles/theme1/app-icons/message_critical").toString();
-        message_question_path = GetStyleValue("appstyle/message-question-icon", ":/styles/theme1/app-icons/message_question").toString();
-        message_icon_weight = GetStyleValue("appstyle/message-icon-weight", 45).toInt();
-        message_icon_height = GetStyleValue("appstyle/message-icon-height", 49).toInt();
+        message_info_path = GetStringStyleValue("appstyle/message-info-icon", ":/styles/theme1/app-icons/message_info");
+        message_warning_path = GetStringStyleValue("appstyle/message-warning-icon", ":/styles/theme1/app-icons/message_warning");
+        message_critical_path = GetStringStyleValue("appstyle/message-critical-icon", ":/styles/theme1/app-icons/message_critical");
+        message_question_path = GetStringStyleValue("appstyle/message-question-icon", ":/styles/theme1/app-icons/message_question");
+        message_icon_weight = GetIntStyleValue("appstyle/message-icon-weight", 45);
+        message_icon_height = GetIntStyleValue("appstyle/message-icon-height", 49);
     }
 
     void polish(QWidget *widget)

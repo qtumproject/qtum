@@ -25,7 +25,16 @@ public:
     TokenViewDelegate(const PlatformStyle *_platformStyle, QObject *parent) :
         QAbstractItemDelegate(parent),
         platformStyle(_platformStyle)
-    {}
+    {
+        token_size = GetIntStyleValue("tokenviewdelegate/token-size", TOKEN_SIZE);
+        symbol_width = GetIntStyleValue("tokenviewdelegate/symbol-width", SYMBOL_WIDTH);
+        margin = GetIntStyleValue("tokenviewdelegate/margin", MARGIN);
+        background_color_selected = GetStringStyleValue("tokenviewdelegate/background-color-selected", "#009ee5");
+        background_color = GetStringStyleValue("tokenviewdelegate/background-color", "#383938");
+        hline_color = GetStringStyleValue("tokenviewdelegate/hline-color", "#2e2e2e");
+        foreground_color = GetStringStyleValue("tokenviewdelegate/foreground-color", "#dddddd");
+        amount_color = GetStringStyleValue("tokenviewdelegate/amount-color", "#ffffff");
+    }
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &index) const
@@ -41,42 +50,42 @@ public:
         bool selected = option.state & QStyle::State_Selected;
         if(selected)
         {
-            painter->fillRect(mainRect,QColor("#009ee5"));
+            painter->fillRect(mainRect, background_color_selected);
         }
         else
         {
-            painter->fillRect(mainRect,QColor("#383938"));
+            painter->fillRect(mainRect, background_color);
         }
 
         QRect hLineRect(mainRect.left(), mainRect.bottom(), mainRect.width(), 1);
-        painter->fillRect(hLineRect, QColor("#2e2e2e"));
+        painter->fillRect(hLineRect, hline_color);
 
-        QColor foreground("#dddddd");
+        QColor foreground = foreground_color;
         painter->setPen(foreground);
 
         QFont font = option.font;
         font.setPointSizeF(option.font.pointSizeF() * 1.1);
         font.setBold(true);
         painter->setFont(font);
-        QColor amountColor("#ffffff");
+        QColor amountColor = amount_color;
         painter->setPen(amountColor);
 
         QFontMetrics fmName(option.font);
-        QString clippedSymbol = fmName.elidedText(tokenSymbol, Qt::ElideRight, SYMBOL_WIDTH);
-        QRect tokenSymbolRect(mainRect.left() + MARGIN, mainRect.top() + MARGIN, SYMBOL_WIDTH, mainRect.height() / 2 - MARGIN);
+        QString clippedSymbol = fmName.elidedText(tokenSymbol, Qt::ElideRight, symbol_width);
+        QRect tokenSymbolRect(mainRect.left() + margin, mainRect.top() + margin, symbol_width, mainRect.height() / 2 - margin);
         painter->drawText(tokenSymbolRect, Qt::AlignLeft|Qt::AlignVCenter, clippedSymbol);
 
-        int amountWidth = (mainRect.width() - 4 * MARGIN - tokenSymbolRect.width());
+        int amountWidth = (mainRect.width() - 4 * margin - tokenSymbolRect.width());
         QFontMetrics fmAmount(font);
         QString clippedAmount = fmAmount.elidedText(tokenBalance, Qt::ElideRight, amountWidth);
-        QRect tokenBalanceRect(tokenSymbolRect.right() + 2 * MARGIN, tokenSymbolRect.top(), amountWidth, tokenSymbolRect.height());
+        QRect tokenBalanceRect(tokenSymbolRect.right() + 2 * margin, tokenSymbolRect.top(), amountWidth, tokenSymbolRect.height());
         painter->drawText(tokenBalanceRect, Qt::AlignLeft|Qt::AlignVCenter, clippedAmount);
 
         QFont addressFont = option.font;
         addressFont.setPointSizeF(option.font.pointSizeF() * 0.8);
         painter->setFont(addressFont);
         painter->setPen(foreground);
-        QRect receiveAddressRect(mainRect.left() + MARGIN, tokenSymbolRect.bottom(), mainRect.width() - 2 * MARGIN, mainRect.height() / 2 - 2 * MARGIN);
+        QRect receiveAddressRect(mainRect.left() + margin, tokenSymbolRect.bottom(), mainRect.width() - 2 * margin, mainRect.height() / 2 - 2 * margin);
         painter->drawText(receiveAddressRect, Qt::AlignLeft|Qt::AlignVCenter, receiveAddress);
 
         painter->restore();
@@ -84,10 +93,20 @@ public:
 
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
     {
-        return QSize(TOKEN_SIZE, TOKEN_SIZE);
+        return QSize(token_size, token_size);
     }
 
     const PlatformStyle *platformStyle;
+
+private:
+    int token_size;
+    int symbol_width;
+    int margin;
+    QColor background_color_selected;
+    QColor background_color;
+    QColor hline_color;
+    QColor foreground_color;
+    QColor amount_color;
 };
 
 QRCToken::QRCToken(const PlatformStyle *platformStyle, QWidget *parent) :

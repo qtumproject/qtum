@@ -11,7 +11,11 @@ class QWidget;
 class QApplication;
 
 #define SetObjectStyleSheet(object, name) StyleSheet::instance().setStyleSheet(object, name)
+
 #define GetStyleValue(key, defaultValue) StyleSheet::instance().getStyleValue(key, defaultValue)
+#define GetStringStyleValue(key, defaultValue) GetStyleValue(key, defaultValue).toString()
+#define GetIntStyleValue(key, defaultValue) GetStyleValue(key, defaultValue).toInt()
+#define GetPercentStyleValue(key, defaultValue) GetIntStyleValue(key, defaultValue) / 100.0
 
 /** Names of the styles that will be used for the GUI components appearance
  */
