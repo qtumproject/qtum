@@ -237,6 +237,8 @@ BASE_SCRIPTS = [
     'qtum_faulty_header_chain.py',
     'qtum_op_sender.py',
     'qtum_evm_revert.py',
+    'qtum_evm_constantinople_precompiles.py',
+    'qtum_evm_constantinople_opcodes.py',
 ]
 
 EXTENDED_SCRIPTS = [
