@@ -407,8 +407,9 @@ class QtumEVMConstantinopleOpcodesTest(BitcoinTestFramework):
         self.reset()
         self.extcodehash_test(should_fail=True)
 
-        print('BEFORE RESTART', self.node.getblockcount())
-        self.restart_node(0, ['-constantinopleheight=2609', '-logevents'])
+        switch_height = self.node.getblockcount()
+        print('BEFORE RESTART', switch_height)
+        self.restart_node(0, ['-constantinopleheight={}'.format(switch_height), '-logevents'])
 
         self.reset()
         self.revert_test(should_fail=False)
