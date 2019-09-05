@@ -227,6 +227,40 @@ class QtumEVMConstantinopleOpcodesTest(BitcoinTestFramework):
             else:
                 assert_equal(codehash, expected_codehash)
 
+        # precompiled contract btc_ecrecover
+        contract_address = '0000000000000000000000000000000000000085'
+        # according to eip-1052, extcodehash(precompiled contract) should return hash of empty data or 0
+        expected_codehash = self.keccak256('')
+
+        self.reset()
+        abi = "4f2f0adc"
+        abi += contract_address.zfill(64)
+        self.send(abi)
+        codehash = self.get_value_at_index(0)
+        if should_fail:
+            assert_equal(codehash, "")
+        else:
+            try:
+                assert_equal(codehash, '0'.zfill(64))
+            except AssertionError:
+                assert_equal(codehash, expected_codehash)
+
+        # non-existent address
+        contract_address = '0123456789abcdefedcba9876543210123456789'
+        # according to eip-1052, extcodehash(non-existent address) should return 0
+        expected_codehash = '0'.zfill(64)
+
+        self.reset()
+        abi = "4f2f0adc"
+        abi += contract_address.zfill(64)
+        self.send(abi)
+        codehash = self.get_value_at_index(0)
+        if should_fail:
+            assert_equal(codehash, "")
+        else:
+            assert_equal(codehash, expected_codehash)
+
+
     def run_test(self):
         self.nodes[0].generate(COINBASE_MATURITY+50)
         self.node = self.nodes[0]
