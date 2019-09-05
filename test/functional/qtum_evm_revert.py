@@ -99,10 +99,11 @@ class QtumEVMRevertTest(BitcoinTestFramework):
                 function () payable external {
                     emit TestTest();
                     revert();
+                    emit TestTest(); // check if revert() can prevent execution from continuing
                 }
             }
         """
-        bytecode = "6080604052348015600f57600080fd5b50606a80601d6000396000f3fe60806040527f902ab12fc657922f9e7e1085a23c967a546ad6f8a771c0b5c7db57f7aac0076e60405160405180910390a1600080fdfea265627a7a72315820f34015f936ea31587945269e841f6b9be1c85f068d25d05e23ebd9dcae356c8c64736f6c634300050b0032"
+        bytecode = "6080604052348015600f57600080fd5b50606a80601d6000396000f3fe60806040527f902ab12fc657922f9e7e1085a23c967a546ad6f8a771c0b5c7db57f7aac0076e60405160405180910390a1600080fdfea265627a7a72305820fea288c1e5cdb52afd4c9f5be9081c6199bc47960599fcc1655dd7a900e39cdc64736f6c634300050a0032"
         contract_address = self.nodes[0].createcontract(bytecode)['address']
         self.nodes[0].generatetoaddress(1, dummy_address)
 
