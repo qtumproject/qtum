@@ -129,6 +129,8 @@ private:
 	dev::eth::SecureTrieDB<dev::Address, dev::OverlayDB> stateUTXO;
 
 	std::unordered_map<dev::Address, Vin> cacheUTXO;
+
+	void validateTransfersWithChangeLog();
 };
 
 
