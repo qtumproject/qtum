@@ -1,0 +1,177 @@
+/*-------------------------------------------- 
+Line Edit CSS
+--------------------------------------------*/
+QLineEdit{
+    border: 1px solid #49587A;
+    border-radius: 12px;
+    background-color: #1A233A;
+    color: #6f80ab;
+    padding: 4px;
+}
+QLineEdit::disabled{
+    color: rgba(111, 128, 171, 20%);
+}
+/*--------------------------------------------
+Combo Box CSS
+--------------------------------------------*/
+QComboBox {
+    border: 1px solid #49587A;
+    border-radius: 12px;
+    background-color: #1A233A;
+    color: #6f80ab;
+    padding: 4px;
+    padding-left: 10px;
+    padding-right: 8px;
+    combobox-popup: 0;
+}
+QComboBox:drop-down {
+    border: 0px;
+    border-left: 1px solid #49587A;
+    margin-left: -8px;
+}
+QComboBox:down-arrow {
+    image: url(":/styles/theme1/app-icons/down_arrow");
+    width: 6px;
+    height: 10px;
+    top: 1px;
+}
+QComboBox QAbstractItemView::item {
+    background-color: #49587a;
+    color: #1A233A;
+    padding: 4px;
+    padding-left: 10px;
+}
+QComboBox QAbstractItemView::item:selected {
+    background-color: #1A233A;
+    color: #ffffff;
+}
+QComboBox QAbstractItemView{
+    background-color: #49587a;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 0px;
+    margin-top: 5px;
+    margin-bottom: 3px;
+}
+/*--------------------------------------------
+Spin Box CSS
+--------------------------------------------*/
+QAbstractSpinBox {
+    padding: 4px;
+    background-color: #1A233A;
+    background-position: right;
+    background-repeat: no-repeat;
+    border: 1px solid #49587a;
+    border-radius: 12px;
+    color: #6f80ab;
+    padding-left: 12px;
+}
+QAbstractSpinBox::up-button {
+    border: none;
+    border-left: 1px solid #686868;
+    width: 22px;
+    background-color: transparent;
+    border-top-right-radius: 12px;
+}
+QAbstractSpinBox::down-button {
+    border: none;
+    border-left: 1px solid #686868;
+    margin-top: -1px;
+    width: 22px;
+    background-color: transparent;
+    border-bottom-right-radius: 12px;
+}
+QAbstractSpinBox::up-arrow {
+    image: url(":/styles/theme1/app-icons/up_arrow");
+    width: 6px;
+    height: 4px;
+    margin-right: 5px;
+    margin-top: 5px;
+}
+QAbstractSpinBox::down-arrow {
+    image: url(":/styles/theme1/app-icons/down_arrow");
+    width: 6px;
+    height: 4px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+/*--------------------------------------------
+Table View CSS
+--------------------------------------------*/
+QHeaderView{
+    color: #6f80ab;
+    background-color: transparent;
+    border: none;
+}
+QHeaderView:section{
+    padding: 6px 20px 6px 6px;
+    border: none;
+    background-color: #252f49;
+}
+QHeaderView::down-arrow {
+    image: url(":/styles/theme1/app-icons/down_arrow");
+    width: 6px;
+    height: 4px;
+    margin-right: 5px;
+    margin-bottom: 1px;
+}
+QHeaderView::up-arrow {
+    image: url(":/styles/theme1/app-icons/up_arrow");
+    width: 6px;
+    height: 4px;
+    margin-right: 5px;
+    margin-bottom: 1px;
+}
+QTableView{
+    color: #6f80ab;
+    background-color: #1d2843;
+    border: none;
+    font: normal;
+    qproperty-showGrid: false;
+    qproperty-alternatingRowColors: false;
+    qproperty-selectionBehavior: SelectRows;
+}
+QTableView::item{
+    border: none;
+}
+QTableView::item:selected{
+    qproperty-showGrid: false;
+    background: #4f9fdd;
+    color: #ffffff;
+}
+/*--------------------------------------------
+QTextEdit CSS
+--------------------------------------------*/
+QTextEdit {
+    border: 1px solid #49587A;
+    border-radius: 12px;
+    background-color: #1A233A;
+    color: #ffffff;
+    padding-left: 5px;
+}
+/*--------------------------------------------
+QPlainTextEdit CSS
+--------------------------------------------*/
+QPlainTextEdit {
+    border: 1px solid #49587A;
+    border-radius: 12px;
+    background-color: #1A233A;
+    color: #ffffff;
+    padding-left: 5px;
+}
+/*--------------------------------------------
+Push Button CSS
+--------------------------------------------*/
+QPushButton {
+    color: #4f9fdd;
+    background: #1d2843;
+    border: 1px solid #49587a;
+    border-radius: 12px;
+    min-width: 5em;
+    padding: 6px;
+    margin: 0px;
+}
+QPushButton:pressed {
+    background: #4697D9;
+    color: #ffffff;
+}
