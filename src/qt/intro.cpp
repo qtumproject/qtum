@@ -300,6 +300,7 @@ void Intro::on_dataDirCustom_clicked()
 {
     ui->dataDirectory->setEnabled(true);
     ui->ellipsisButton->setEnabled(true);
+    setDataDirectory(QDir::homePath());
 }
 
 void Intro::startThread()
