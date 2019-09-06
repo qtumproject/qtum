@@ -238,6 +238,7 @@ BASE_SCRIPTS = [
     'qtum_op_sender.py',
     'qtum_evm_revert.py',
     'qtum_evm_create2.py',
+    'qtum_evm_staticcall.py',
     'qtum_evm_constantinople_precompiles.py',
     'qtum_evm_constantinople_opcodes.py',
 ]
