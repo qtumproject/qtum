@@ -22,7 +22,22 @@ RestoreDialog::~RestoreDialog()
 
 QString RestoreDialog::getParam()
 {
-    return ui->rbReindex->isChecked() ? "-reindex" : "-salvagewallet";
+    QString param;
+
+    if(ui->rbReindex->isChecked())
+    {
+        param = "-reindex";
+    }
+    else if(ui->rbZapWallet->isChecked())
+    {
+        param = "-zapwallettxes=2";
+    }
+    else
+    {
+        param = "-deleteblockchaindata";
+    }
+
+    return param;
 }
 
 QString RestoreDialog::getFileName()
