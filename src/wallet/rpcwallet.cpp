@@ -735,9 +735,11 @@ static UniValue createcontract(const JSONRPCRequest& request){
     CRecipient recipient = {scriptPubKey, 0, false};
     vecSend.push_back(recipient);
 
+    if(!(chainActive.Height() >= Params().GetConsensus().QIP5Height)){
     // Select default sender address unspent output
     if(!coinControl.HasSelected() && !SetDefaultSenderAddress(pwallet, *locked_chain, coinControl))
         throw JSONRPCError(RPC_TYPE_ERROR, "Sender address fail to set. Does not have any P2PK or P2PKH unspent outputs.");
+    }
 
     CTransactionRef tx;
     if (!pwallet->CreateTransaction(*locked_chain, vecSend, tx, reservekey, nFeeRequired, nChangePosRet, strError, coinControl, true, nGasFee, true, signSenderAddress)) {
@@ -984,9 +986,11 @@ static UniValue sendtocontract(const JSONRPCRequest& request){
     CRecipient recipient = {scriptPubKey, nAmount, false};
     vecSend.push_back(recipient);
 
-    // Select default sender address unspent output
-    if(!coinControl.HasSelected() && !SetDefaultSenderAddress(pwallet, *locked_chain, coinControl))
-        throw JSONRPCError(RPC_TYPE_ERROR, "Sender address fail to set. Does not have any P2PK or P2PKH unspent outputs.");
+    if(!(chainActive.Height() >= Params().GetConsensus().QIP5Height)){
+        // Select default sender address unspent output
+        if(!coinControl.HasSelected() && !SetDefaultSenderAddress(pwallet, *locked_chain, coinControl))
+            throw JSONRPCError(RPC_TYPE_ERROR, "Sender address fail to set. Does not have any P2PK or P2PKH unspent outputs.");
+    }
 
     CTransactionRef tx;
     if (!pwallet->CreateTransaction(*locked_chain, vecSend, tx, reservekey, nFeeRequired, nChangePosRet, strError, coinControl, true, nGasFee, true, signSenderAddress)) {
