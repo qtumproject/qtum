@@ -300,7 +300,9 @@ void Intro::on_dataDirCustom_clicked()
 {
     ui->dataDirectory->setEnabled(true);
     ui->ellipsisButton->setEnabled(true);
-    setDataDirectory(QDir::homePath());
+	#ifdef MAC_OSX
+	setDataDirectory(QDir::homePath()+"/Qtum");
+	#endif
 }
 
 void Intro::startThread()
