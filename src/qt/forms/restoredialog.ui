@@ -84,7 +84,7 @@
         <item>
          <widget class="QRadioButton" name="rbReindex">
           <property name="text">
-           <string>Rebuild block chain index</string>
+           <string>Rebuild blockchain index</string>
           </property>
           <property name="checked">
            <bool>true</bool>
