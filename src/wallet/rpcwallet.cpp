@@ -180,6 +180,32 @@ static std::string LabelFromValue(const UniValue& value)
     return label;
 }
 
+bool SetDefaultSenderAddress(CWallet* const pwallet, interfaces::Chain::Lock& locked_chain, CCoinControl & coinControl)
+{
+    // Set default sender address if none provided
+    // Select any valid unspent output that can be used for contract sender address
+    std::vector<COutput> vecOutputs;
+    coinControl.fAllowOtherInputs=true;
+
+    assert(pwallet != NULL);
+    pwallet->AvailableCoins(locked_chain, vecOutputs, false, NULL, true);
+
+    for (const COutput& out : vecOutputs) {
+        CTxDestination destAdress;
+        const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
+        bool fValidAddress = ExtractDestination(scriptPubKey, destAdress)
+                && IsValidContractSenderAddress(destAdress);
+
+        if (!fValidAddress)
+            continue;
+
+        coinControl.Select(COutPoint(out.tx->GetHash(),out.i));
+        break;
+    }
+
+    return coinControl.HasSelected();
+}
+
 static UniValue getnewaddress(const JSONRPCRequest& request)
 {
     std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
@@ -709,8 +735,12 @@ static UniValue createcontract(const JSONRPCRequest& request){
     CRecipient recipient = {scriptPubKey, 0, false};
     vecSend.push_back(recipient);
 
+    // Select default sender address unspent output
+    if(!coinControl.HasSelected() && !SetDefaultSenderAddress(pwallet, *locked_chain, coinControl))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Sender address fail to set. Does not have any P2PK or P2PKH unspent outputs.");
+
     CTransactionRef tx;
-    if (!pwallet->CreateTransaction(*locked_chain, vecSend, tx, reservekey, nFeeRequired, nChangePosRet, strError, coinControl, true, nGasFee, fHasSender, signSenderAddress)) {
+    if (!pwallet->CreateTransaction(*locked_chain, vecSend, tx, reservekey, nFeeRequired, nChangePosRet, strError, coinControl, true, nGasFee, true, signSenderAddress)) {
         if (nFeeRequired > pwallet->GetBalance())
             strError = strprintf("Error: This transaction requires a transaction fee of at least %s because of its amount, complexity, or use of recently received funds!", FormatMoney(nFeeRequired));
         throw JSONRPCError(RPC_WALLET_ERROR, strError);
@@ -954,8 +984,12 @@ static UniValue sendtocontract(const JSONRPCRequest& request){
     CRecipient recipient = {scriptPubKey, nAmount, false};
     vecSend.push_back(recipient);
 
+    // Select default sender address unspent output
+    if(!coinControl.HasSelected() && !SetDefaultSenderAddress(pwallet, *locked_chain, coinControl))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Sender address fail to set. Does not have any P2PK or P2PKH unspent outputs.");
+
     CTransactionRef tx;
-    if (!pwallet->CreateTransaction(*locked_chain, vecSend, tx, reservekey, nFeeRequired, nChangePosRet, strError, coinControl, true, nGasFee, fHasSender, signSenderAddress)) {
+    if (!pwallet->CreateTransaction(*locked_chain, vecSend, tx, reservekey, nFeeRequired, nChangePosRet, strError, coinControl, true, nGasFee, true, signSenderAddress)) {
         if (nFeeRequired > pwallet->GetBalance())
             strError = strprintf("Error: This transaction requires a transaction fee of at least %s because of its amount, complexity, or use of recently received funds!", FormatMoney(nFeeRequired));
         throw JSONRPCError(RPC_WALLET_ERROR, strError);
