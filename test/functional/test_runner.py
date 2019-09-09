@@ -226,6 +226,7 @@ BASE_SCRIPTS = [
     'qtum_many_value_refunds_from_same_tx.py',
     'qtum_combined_outputs_exceed_gas_limit.py',
     'qtum_dgp_gas_price_lingering_mempool_tx.py',
+    'qtum_dgp_gas_schedule.py',
     'qtum_header_spam.py',
     'qtum_divergence_dos.py',
     'qtum_prioritize_create_over_call.py',
