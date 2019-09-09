@@ -40,15 +40,23 @@ const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfSta
     return pindex;
 }
 
-inline arith_uint256 GetLimit(const Consensus::Params& params, bool fProofOfStake)
+inline arith_uint256 GetLimit(int nHeight, const Consensus::Params& params, bool fProofOfStake)
 {
-    return fProofOfStake ? UintToArith256(params.posLimit) : UintToArith256(params.powLimit);
+    if(fProofOfStake) {
+        if(nHeight < params.QIP9Height) {
+            return UintToArith256(params.posLimit);
+        } else {
+            return UintToArith256(params.QIP9PosLimit);
+        }
+    } else {
+        return UintToArith256(params.powLimit);
+    }
 }
 
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params, bool fProofOfStake)
 {
 
-    unsigned int  nTargetLimit = GetLimit(params, fProofOfStake).GetCompact();
+    unsigned int  nTargetLimit = GetLimit(pindexLast ? pindexLast->nHeight+1 : 0, params, fProofOfStake).GetCompact();
 
     // genesis block
     if (pindexLast == NULL)
@@ -99,7 +107,7 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
     int64_t nTargetSpacing = params.nPowTargetSpacing;
     int64_t nActualSpacing = pindexLast->GetBlockTime() - nFirstBlockTime;
     // Retarget
-    const arith_uint256 bnTargetLimit = GetLimit(params, fProofOfStake);
+    const arith_uint256 bnTargetLimit = GetLimit(pindexLast ? pindexLast->nHeight+1 : 0, params, fProofOfStake);
     // ppcoin: target change every block
     // ppcoin: retarget with exponential moving toward target spacing
     arith_uint256 bnNew;
@@ -136,7 +144,7 @@ bool CheckProofOfWork(uint256 hash, unsigned int nBits, const Consensus::Params&
     bnTarget.SetCompact(nBits, &fNegative, &fOverflow);
 
     // Check range
-    if (fNegative || bnTarget == 0 || fOverflow || bnTarget > GetLimit(params, fProofOfStake))
+    if (fNegative || bnTarget == 0 || fOverflow || bnTarget > UintToArith256(params.powLimit))
         return false;
 
     // Check proof of work matches claimed amount
