@@ -1,18 +1,17 @@
-dist: xenial
 os: linux
+dist: bionic
 language: minimal
+git:
+  depth: 2
 cache:
   ccache: true
   directories:
-    - depends/built
-    - depends/sdk-sources
     - $HOME/.ccache
 stages:
-  - lint
   - test
 env:
   global:
-    - MAKEJOBS=-j3
+    - MAKEJOBS=-j2
     - RUN_UNIT_TESTS=true
     - RUN_FUNCTIONAL_TESTS=true
     - RUN_FUZZ_TESTS=false
@@ -22,10 +21,7 @@ env:
     - CCACHE_TEMPDIR=/tmp/.ccache-temp
     - CCACHE_COMPRESS=1
     - CCACHE_DIR=$HOME/.ccache
-    - BASE_OUTDIR=$TRAVIS_BUILD_DIR/out
-    - SDK_URL=https://bitcoincore.org/depends-sources/sdks
-    - WINEDEBUG=fixme-all
-    - DOCKER_PACKAGES="build-essential libtool autotools-dev automake pkg-config bsdmainutils curl git ca-certificates ccache"
+    - DOCKER_PACKAGES="software-properties-common build-essential libtool autotools-dev automake pkg-config bsdmainutils curl git ca-certificates ccache cmake"
 before_install:
   - set -o errexit; source .travis/test_03_before_install.sh
 install:
@@ -33,134 +29,37 @@ install:
 before_script:
   - set -o errexit; source .travis/test_05_before_script.sh
 script:
-  - if [ $SECONDS -gt 1200 ]; then set +o errexit; echo "Travis early exit to cache current state"; false; else set -o errexit; source .travis/test_06_script_a.sh; fi
-  - if [ $SECONDS -gt 1800 ]; then set +o errexit; echo "Travis early exit to cache current state"; false; else set -o errexit; source .travis/test_06_script_b.sh; fi
+  - export CONTINUE=1
+  - if [[ $SECONDS -gt 800 ]]; then export CONTINUE=0; fi # likely the depends build took very long
+  - if [[ $CONTINUE = "1" ]]; then set -o errexit; source .travis/test_06_script_a.sh; else set +o errexit; echo "The depends took too long to prepare, exit to cache current state"; false; fi
+  - if [[ $SECONDS -gt 1500 && $RUN_FUNCTIONAL_TESTS = "true" ]]; then export CONTINUE=0; fi
+  - if [[ $CONTINUE = "1" ]]; then set -o errexit; source .travis/test_06_script_b.sh; else set +o errexit; echo "The build took too long, exit to cache current state"; false; fi
 after_script:
   - echo $TRAVIS_COMMIT_RANGE
   - echo $TRAVIS_COMMIT_LOG
 jobs:
   include:
 
-    - stage: lint
-      name: 'lint'
-      env:
-      cache: false
-      language: python
-      python: '3.4' # Oldest supported version according to doc/dependencies.md
-      install:
-        - set -o errexit; source .travis/lint_04_install.sh
-      before_script:
-        - set -o errexit; source .travis/lint_05_before_script.sh
-      script:
-        - set -o errexit; source .travis/lint_06_script.sh
+    - stage: test
+      name: 'x86_64 Linux  [GOAL: unit test]  [bionic]'
+      env: >-
+        HOST=""
+        RUN_UNIT_TESTS=true
+        RUN_FUNCTIONAL_TESTS=false
+        RUN_FUZZ_TESTS=false
+        PACKAGES="clang llvm libssl-dev libevent-dev bsdmainutils libboost-all-dev libgmp-dev"
+        NO_DEPENDS=1
+        GOAL=""
+        QTUM_CONFIG="--enable-bitcore-rpc --with-gui=no CC=clang CXX=clang++"
 
     - stage: test
-      name: 'ARM  [GOAL: install]  [no unit or functional tests]'
+      name: 'x86_64 Linux  [GOAL: functional test]  [bionic]'
       env: >-
-        HOST=arm-linux-gnueabihf
-        PACKAGES="python3 g++-arm-linux-gnueabihf"
+        HOST=""
         RUN_UNIT_TESTS=false
-        RUN_FUNCTIONAL_TESTS=false
-        GOAL="install"
-        # -Wno-psabi is to disable ABI warnings: "note: parameter passing for argument of type ... changed in GCC 7.1"
-        # This could be removed once the ABI change warning does not show up by default
-        BITCOIN_CONFIG="--enable-glibc-back-compat --enable-reduce-exports CXXFLAGS=-Wno-psabi"
-
-    - stage: test
-      name: 'Win32  [GOAL: deploy]  [no gui or functional tests]'
-      env: >-
-        HOST=i686-w64-mingw32
-        DPKG_ADD_ARCH="i386"
-        PACKAGES="python3 nsis g++-mingw-w64-i686 wine-binfmt wine32"
-        RUN_FUNCTIONAL_TESTS=false
-        GOAL="deploy"
-        BITCOIN_CONFIG="--enable-reduce-exports --disable-gui-tests"
-
-    - stage: test
-      name: 'Win64  [GOAL: deploy]  [no gui or functional tests]'
-      env: >-
-        HOST=x86_64-w64-mingw32
-        PACKAGES="python3 nsis g++-mingw-w64-x86-64 wine-binfmt wine64"
-        RUN_FUNCTIONAL_TESTS=false
-        GOAL="deploy"
-        BITCOIN_CONFIG="--enable-reduce-exports --disable-gui-tests"
-
-    - stage: test
-      name: '32-bit + dash  [GOAL: install]  [GUI: no BIP70]'
-      env: >-
-        HOST=i686-pc-linux-gnu
-        PACKAGES="g++-multilib python3-zmq"
-        GOAL="install"
-        BITCOIN_CONFIG="--enable-zmq --with-gui=qt5 --disable-bip70 --enable-glibc-back-compat --enable-reduce-exports LDFLAGS=-static-libstdc++"
-        CONFIG_SHELL="/bin/dash"
-
-    - stage: test
-      name: 'x86_64 Linux  [GOAL: install]  [bionic]  [uses qt5 dev package instead of depends Qt to speed up build and avoid timeout]'
-      env: >-
-        HOST=x86_64-unknown-linux-gnu
-        PACKAGES="python3-zmq qtbase5-dev qttools5-dev-tools protobuf-compiler libdbus-1-dev libharfbuzz-dev libprotobuf-dev"
-        DEP_OPTS="NO_QT=1 NO_UPNP=1 DEBUG=1 ALLOW_HOST_PACKAGES=1"
-        GOAL="install"
-        BITCOIN_CONFIG="--enable-zmq --with-gui=qt5 --enable-glibc-back-compat --enable-reduce-exports --enable-debug CXXFLAGS=\"-g0 -O2\""
-
-    - stage: test
-      name: 'x86_64 Linux  [GOAL: install]  [trusty]  [no functional tests, no depends, only system libs]'
-      env: >-
-        HOST=x86_64-unknown-linux-gnu
-        DOCKER_NAME_TAG=ubuntu:14.04
-        PACKAGES="python3-zmq qtbase5-dev qttools5-dev-tools libicu-dev libpng-dev libssl-dev libevent-dev bsdmainutils libboost-system-dev libboost-filesystem-dev libboost-chrono-dev libboost-test-dev libboost-thread-dev libdb5.1++-dev libminiupnpc-dev libzmq3-dev libprotobuf-dev protobuf-compiler libqrencode-dev"
+        RUN_FUNCTIONAL_TESTS=true
+        RUN_FUZZ_TESTS=false
+        PACKAGES="clang llvm libssl-dev libevent-dev bsdmainutils libboost-all-dev libgmp-dev"
         NO_DEPENDS=1
-        RUN_FUNCTIONAL_TESTS=false
-        GOAL="install"
-        BITCOIN_CONFIG="--enable-zmq --with-incompatible-bdb --with-gui=no"
-
-    - stage: test
-      name: 'x86_64 Linux  [GOAL: install]  [xenial]  [no depends, only system libs, sanitizers: thread (TSan), no wallet]'
-      env: >-
-        HOST=x86_64-unknown-linux-gnu
-        DOCKER_NAME_TAG=ubuntu:16.04
-        PACKAGES="clang llvm python3-zmq qtbase5-dev qttools5-dev-tools libssl-dev libevent-dev bsdmainutils libboost-system-dev libboost-filesystem-dev libboost-chrono-dev libboost-test-dev libboost-thread-dev libdb5.3++-dev libminiupnpc-dev libzmq3-dev libprotobuf-dev protobuf-compiler libqrencode-dev"
-        NO_DEPENDS=1
-        GOAL="install"
-        BITCOIN_CONFIG="--enable-zmq --disable-wallet --with-gui=qt5 CPPFLAGS=-DDEBUG_LOCKORDER --with-sanitizers=thread --disable-hardening --disable-asm CC=clang CXX=clang++"
-
-    - stage: test
-      name: 'x86_64 Linux  [GOAL: install]  [bionic]  [no depends, only system libs, sanitizers: address/leak (ASan + LSan) + undefined (UBSan) + integer]'
-      env: >-
-        HOST=x86_64-unknown-linux-gnu
-        PACKAGES="clang llvm python3-zmq qtbase5-dev qttools5-dev-tools libssl1.0-dev libevent-dev bsdmainutils libboost-system-dev libboost-filesystem-dev libboost-chrono-dev libboost-test-dev libboost-thread-dev libdb5.3++-dev libminiupnpc-dev libzmq3-dev libprotobuf-dev protobuf-compiler libqrencode-dev"
-        NO_DEPENDS=1
-        GOAL="install"
-        BITCOIN_CONFIG="--enable-zmq --with-incompatible-bdb --with-gui=qt5 CPPFLAGS=-DDEBUG_LOCKORDER --with-sanitizers=address,integer,undefined CC=clang CXX=clang++"
-
-    - stage: test
-      name: 'x86_64 Linux  [GOAL: install]  [bionic]  [no depends, only system libs, sanitizers: fuzzer,address]'
-      env: >-
-        HOST=x86_64-unknown-linux-gnu
-        PACKAGES="clang llvm python3 libssl1.0-dev libevent-dev bsdmainutils libboost-system-dev libboost-filesystem-dev libboost-chrono-dev libboost-test-dev libboost-thread-dev"
-        NO_DEPENDS=1
-        RUN_UNIT_TESTS=false
-        RUN_FUNCTIONAL_TESTS=false
-        RUN_FUZZ_TESTS=true
-        GOAL="install"
-        BITCOIN_CONFIG="--disable-wallet --disable-bench --with-utils=no --with-daemon=no --with-libs=no --with-gui=no --enable-fuzz --with-sanitizers=fuzzer,address CC=clang CXX=clang++"
-
-    - stage: test
-      name: 'x86_64 Linux  [GOAL: install]  [bionic]  [no wallet]'
-      env: >-
-        HOST=x86_64-unknown-linux-gnu
-        PACKAGES="python3-zmq"
-        DEP_OPTS="NO_WALLET=1"
-        GOAL="install"
-        BITCOIN_CONFIG="--enable-glibc-back-compat --enable-reduce-exports"
-
-    - stage: test
-      name: 'macOS 10.10  [GOAL: deploy] [no functional tests]'
-      env: >-
-        HOST=x86_64-apple-darwin14
-        PACKAGES="cmake imagemagick libcap-dev librsvg2-bin libz-dev libbz2-dev libtiff-tools python-dev python3-setuptools-git"
-        OSX_SDK=10.11
-        RUN_UNIT_TESTS=false
-        RUN_FUNCTIONAL_TESTS=false
-        GOAL="deploy"
-        BITCOIN_CONFIG="--enable-gui --enable-reduce-exports --enable-werror"
+        GOAL=""
+        QTUM_CONFIG="--enable-bitcore-rpc --with-gui=no CC=clang CXX=clang++"
