@@ -39,6 +39,10 @@ QFrame#hLine,
 #hLine4{
     border-top: 1px solid transparent;
 }
+QFrame#hContractLine,
+#hContractLine2{
+    border-top: 4px solid #252f49;
+}
 QFrame#vLine,
 #vLine2{
     border-left: 1px solid transparent;
