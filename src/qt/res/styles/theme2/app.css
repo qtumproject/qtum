@@ -600,6 +600,9 @@ QTabWidget::pane {
 TitleBar QTabBar::tab {
     padding: 5px 10px;
 }
+#widgetTitle {
+    background-color: #1a2946;
+}
 /*--------------------------------------------
 MenuBar CSS
 --------------------------------------------*/
