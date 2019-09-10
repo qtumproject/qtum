@@ -136,11 +136,12 @@ void SplashScreen::finish()
 
 static void InitMessage(SplashScreen *splash, const std::string &message)
 {
+    QColor foreground_color = GetStringStyleValue("splashscreen/foreground-color", "#ffffff");
     QMetaObject::invokeMethod(splash, "showMessage",
         Qt::QueuedConnection,
         Q_ARG(QString, QString::fromStdString(message)),
         Q_ARG(int, Qt::AlignBottom|Qt::AlignRight),
-        Q_ARG(QColor, QColor("#ffffff")));
+        Q_ARG(QColor, foreground_color));
 }
 
 static void ShowProgress(SplashScreen *splash, const std::string &title, int nProgress, bool resume_possible)

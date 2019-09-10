@@ -168,5 +168,6 @@
     </qresource>
     <qresource prefix="/styles/theme2">
         <file alias="app">res/styles/theme2/app.css</file>
+        <file alias="config">res/styles/theme2/config.ini</file>
     </qresource>
 </RCC>
