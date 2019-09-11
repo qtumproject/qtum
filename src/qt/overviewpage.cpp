@@ -49,10 +49,11 @@ public:
         QAbstractItemDelegate(parent), unit(BitcoinUnits::BTC),
         platformStyle(_platformStyle)
     {
-        border_color_selected = GetStringStyleValue("txviewdelegate/border-color-selected", "#009ee5");
+        background_color_selected = GetStringStyleValue("txviewdelegate/background-color-selected", "#009ee5");
         background_color = GetStringStyleValue("txviewdelegate/background-color", "#393939");
         alternate_background_color = GetStringStyleValue("txviewdelegate/alternate-background-color", "#2e2e2e");
         foreground_color = GetStringStyleValue("txviewdelegate/foreground-color", "#dedede");
+        foreground_color_selected = GetStringStyleValue("txviewdelegate/foreground-color-selected", "#dedede");
         amount_color = GetStringStyleValue("txviewdelegate/amount-color", "#ffffff");
     }
 
@@ -73,17 +74,17 @@ public:
         QColor txColor = index.row() % 2 ? background_color : alternate_background_color;
         painter->fillRect(mainRect, txColor);
 
-        QPen pen;
-        pen.setWidth(2);
-        pen.setColor(border_color_selected);
-        painter->setPen(pen);
         bool selected = option.state & QStyle::State_Selected;
         if(selected)
         {
-            painter->drawRect(mainRect.x()+1, mainRect.y()+1, mainRect.width()-2, mainRect.height()-2);
+            painter->fillRect(mainRect.x()+1, mainRect.y()+1, mainRect.width()-2, mainRect.height()-2, background_color_selected);
         }
 
         QColor foreground = foreground_color;
+        if(selected)
+        {
+            foreground = foreground_color_selected;
+        }
         painter->setPen(foreground);
 
         QRect dateRect(mainRect.left() + MARGIN, mainRect.top(), DATE_WIDTH, TX_SIZE);
@@ -158,10 +159,11 @@ public:
     const PlatformStyle *platformStyle;
 
 private:
-    QColor border_color_selected;
+    QColor background_color_selected;
     QColor background_color;
     QColor alternate_background_color;
     QColor foreground_color;
+    QColor foreground_color_selected;
     QColor amount_color;
 };
 

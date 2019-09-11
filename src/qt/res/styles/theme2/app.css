@@ -67,6 +67,9 @@ QLabel#labelTotal,
 #labelMempoolTitle{
     color: #049ee8;
 }
+.QWidget#widget_header{
+    background-color: #252f49;
+}
 QLabel#overriddenByCommandLineLabel{
     color: #6f80ab;
 }
