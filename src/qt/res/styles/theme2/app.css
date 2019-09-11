@@ -395,6 +395,23 @@ QPlainTextEdit QScrollBar::handle:vertical {
 QPlainTextEdit QScrollBar::handle:vertical:disabled {
     background: rgba(29, 40, 67, 40%);
 }
+QAbstractItemView QScrollBar:vertical {
+    border-radius: 0px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    background: #49587a;
+    width: 10px;
+    padding: 0px 0px;
+}
+QAbstractItemView QScrollBar::handle:vertical {
+    border: none;
+    background: #1A233A;
+    border-radius: 5px;
+    min-height: 30px;
+}
+QAbstractItemView QScrollBar::handle:vertical:disabled {
+    background: rgba(29, 40, 67, 40%);
+}
 /*--------------------------------------------
 Scroll Bar Horizontal CSS
 --------------------------------------------*/
