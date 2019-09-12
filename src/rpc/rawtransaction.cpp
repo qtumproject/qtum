@@ -1242,6 +1242,19 @@ UniValue SignTransaction(interfaces::Chain& chain, CMutableTransaction& mtx, con
         const CScript& prevPubKey = coin.out.scriptPubKey;
         const CAmount& amount = coin.out.nValue;
 
+        // Check the input used to pay for the contract
+        if(i == 0 && txConst.HasCreateOrCall())
+        {
+            CTxDestination destAdress;
+            bool fValidAddress = ExtractDestination(prevPubKey, destAdress)
+                    && IsValidContractSenderAddress(destAdress);
+            if(!fValidAddress)
+            {
+                TxInErrorToJSON(txin, vErrors, "Input not have P2PK or P2PKH unspent output to pay for the contract.");
+                continue;
+            }
+        }
+
         SignatureData sigdata = DataFromTransaction(mtx, i, coin.out);
         // Only sign SIGHASH_SINGLE if there's a corresponding output:
         if (!fHashSingle || (i < mtx.vout.size())) {
