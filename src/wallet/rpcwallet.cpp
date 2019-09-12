@@ -720,7 +720,7 @@ static UniValue createcontract(const JSONRPCRequest& request){
 
         if(chainActive.Height() >= Params().GetConsensus().QIP5Height)
         {
-            // Sign the sender in case of no UTXO
+            // Set the sender address
             signSenderAddress = senderAddress;
         }
     }
@@ -728,7 +728,7 @@ static UniValue createcontract(const JSONRPCRequest& request){
     {
         if(chainActive.Height() >= Params().GetConsensus().QIP5Height)
         {
-            // If no sender provided set to the default
+            // If no sender address provided set to the default sender address
             SetDefaultSignSenderAddress(pwallet, *locked_chain, signSenderAddress);
         }
     }
@@ -986,7 +986,7 @@ static UniValue sendtocontract(const JSONRPCRequest& request){
 
         if(chainActive.Height() >= Params().GetConsensus().QIP5Height)
         {
-            // Sign the sender in case of no UTXO
+            // Set the sender address
             signSenderAddress = senderAddress;
         }
     }
@@ -994,7 +994,7 @@ static UniValue sendtocontract(const JSONRPCRequest& request){
     {
         if(chainActive.Height() >= Params().GetConsensus().QIP5Height)
         {
-            // If no sender provided set to the default
+            // If no sender address provided set to the default sender address
             SetDefaultSignSenderAddress(pwallet, *locked_chain, signSenderAddress);
         }
     }
