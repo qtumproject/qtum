@@ -1365,11 +1365,9 @@ static UniValue signrawsendertransactionwithkey(const JSONRPCRequest& request)
     if (request.fHelp || request.params.size() < 2 || request.params.size() > 3)
         throw std::runtime_error(
             RPCHelpMan{"signrawsendertransactionwithkey",
-                "\nSign inputs for raw transaction (serialized, hex-encoded).\n"
+                "\nSign OP_SENDER outputs for raw transaction (serialized, hex-encoded).\n"
                 "The second argument is an array of base58-encoded private\n"
-                "keys that will be the only keys used to sign the transaction.\n"
-                "The third optional argument (may be null) is an array of previous transaction outputs that\n"
-                "this transaction depends on but may not yet be in the block chain.\n",
+                "keys that will be the only keys used to sign the transaction.\n",
                 {
                     {"hexstring", RPCArg::Type::STR, RPCArg::Optional::NO, "The transaction hex string"},
                     {"privkeys", RPCArg::Type::ARR, RPCArg::Optional::NO, "A json array of base58-encoded private keys for signing",
@@ -1392,11 +1390,9 @@ static UniValue signrawsendertransactionwithkey(const JSONRPCRequest& request)
             "  \"complete\" : true|false,          (boolean) If the transaction has a complete set of signatures\n"
             "  \"errors\" : [                      (json array of objects) Script verification errors (if there are any)\n"
             "    {\n"
-            "      \"txid\" : \"hash\",              (string) The hash of the referenced, previous transaction\n"
-            "      \"vout\" : n,                   (numeric) The index of the output to spent and used as input\n"
-            "      \"scriptSig\" : \"hex\",          (string) The hex-encoded signature script\n"
-            "      \"sequence\" : n,               (numeric) Script sequence number\n"
-            "      \"error\" : \"text\"              (string) Verification or signing error related to the input\n"
+            "      \"amount\" : n,                   (numeric) The amount of the output\n"
+            "      \"scriptPubKey\" : \"hex\",          (string) The hex-encoded public key script of the output\n"
+            "      \"error\" : \"text\"              (string) Verification or signing error related to the output\n"
             "    }\n"
             "    ,...\n"
             "  ]\n"
@@ -1426,7 +1422,7 @@ static UniValue signrawsendertransactionwithkey(const JSONRPCRequest& request)
         keystore.AddKey(key);
     }
 
-    return SignTransactionSender(*g_rpc_interfaces->chain, mtx, &keystore, request.params[3]);
+    return SignTransactionSender(*g_rpc_interfaces->chain, mtx, &keystore, request.params[2]);
 }
 
 UniValue signrawtransaction(const JSONRPCRequest& request)
@@ -2463,6 +2459,7 @@ static const CRPCCommand commands[] =
     { "rawtransactions",    "combinerawtransaction",        &combinerawtransaction,     {"txs"} },
     { "hidden",             "signrawtransaction",           &signrawtransaction,        {"hexstring","prevtxs","privkeys","sighashtype"} },
     { "rawtransactions",    "signrawtransactionwithkey",    &signrawtransactionwithkey, {"hexstring","privkeys","prevtxs","sighashtype"} },
+    { "rawtransactions",    "signrawsendertransactionwithkey", &signrawsendertransactionwithkey, {"hexstring","privkeys","sighashtype"} },
     { "rawtransactions",    "testmempoolaccept",            &testmempoolaccept,         {"rawtxs","allowhighfees"} },
     { "rawtransactions",    "decodepsbt",                   &decodepsbt,                {"psbt"} },
     { "rawtransactions",    "combinepsbt",                  &combinepsbt,               {"txs"} },
