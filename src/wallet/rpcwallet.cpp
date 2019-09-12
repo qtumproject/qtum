@@ -180,10 +180,10 @@ static std::string LabelFromValue(const UniValue& value)
     return label;
 }
 
-bool SetDefaultSenderAddress(CWallet* const pwallet, interfaces::Chain::Lock& locked_chain, CCoinControl & coinControl)
+bool SetDefaultPayForContractAddress(CWallet* const pwallet, interfaces::Chain::Lock& locked_chain, CCoinControl & coinControl)
 {
-    // Set default sender address if none provided
-    // Select any valid unspent output that can be used for contract sender address
+    // Set default coin to pay for the contract
+    // Select any valid unspent output that can be used to pay for the contract
     std::vector<COutput> vecOutputs;
     coinControl.fAllowOtherInputs=true;
 
@@ -204,6 +204,28 @@ bool SetDefaultSenderAddress(CWallet* const pwallet, interfaces::Chain::Lock& lo
     }
 
     return coinControl.HasSelected();
+}
+
+bool SetDefaultSignSenderAddress(CWallet* const pwallet, interfaces::Chain::Lock& locked_chain, CTxDestination& destAdress)
+{
+    // Set default sender address if none provided
+    // Select any valid unspent output that can be used for contract sender address
+    std::vector<COutput> vecOutputs;
+
+    assert(pwallet != NULL);
+    pwallet->AvailableCoins(locked_chain, vecOutputs, false, NULL, true);
+
+    for (const COutput& out : vecOutputs) {
+        const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
+        bool fValidAddress = ExtractDestination(scriptPubKey, destAdress)
+                && IsValidContractSenderAddress(destAdress);
+
+        if (!fValidAddress)
+            continue;
+        break;
+    }
+
+    return !boost::get<CNoDestination>(&destAdress);
 }
 
 static UniValue getnewaddress(const JSONRPCRequest& request)
@@ -692,12 +714,22 @@ static UniValue createcontract(const JSONRPCRequest& request){
         else
         {
             // Create op sender transaction when op sender is activated
-            int nHeight = chainActive.Height();
-            if(!(nHeight >= Params().GetConsensus().QIP5Height))
+            if(!(chainActive.Height() >= Params().GetConsensus().QIP5Height))
                 throw JSONRPCError(RPC_TYPE_ERROR, "Sender address does not have any unspent outputs");
+        }
 
+        if(chainActive.Height() >= Params().GetConsensus().QIP5Height)
+        {
             // Sign the sender in case of no UTXO
             signSenderAddress = senderAddress;
+        }
+    }
+    else
+    {
+        if(chainActive.Height() >= Params().GetConsensus().QIP5Height)
+        {
+            // If no sender provided set to the default
+            SetDefaultSignSenderAddress(pwallet, *locked_chain, signSenderAddress);
         }
     }
     EnsureWalletIsUnlocked(pwallet);
@@ -713,17 +745,29 @@ static UniValue createcontract(const JSONRPCRequest& request){
     if (nGasFee > curBalance)
         throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Insufficient funds");
 
+    // Select default coin that will pay for the contract if none selected
+    if(!coinControl.HasSelected() && !SetDefaultPayForContractAddress(pwallet, *locked_chain, coinControl))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Does not have any P2PK or P2PKH unspent outputs to pay for the contract.");
+
     // Build OP_EXEC script
     CScript scriptPubKey = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(nGasLimit) << CScriptNum(nGasPrice) << ParseHex(bytecode) <<OP_CREATE;
-    if(IsValidDestination(signSenderAddress))
+    if(chainActive.Height() >= Params().GetConsensus().QIP5Height)
     {
-        CKeyID key_id = GetKeyForDestination(*pwallet, signSenderAddress);
-        CKey key;
-        if (!pwallet->GetKey(key_id, key)) {
-            throw JSONRPCError(RPC_WALLET_ERROR, "Private key not available");
+        if(IsValidDestination(signSenderAddress))
+        {
+            CKeyID key_id = GetKeyForDestination(*pwallet, signSenderAddress);
+            CKey key;
+            if (!pwallet->GetKey(key_id, key)) {
+                throw JSONRPCError(RPC_WALLET_ERROR, "Private key not available");
+            }
+            std::vector<unsigned char> scriptSig;
+            scriptPubKey = (CScript() << CScriptNum(addresstype::PUBKEYHASH) << ToByteVector(key_id) << ToByteVector(scriptSig) << OP_SENDER) + scriptPubKey;
         }
-        std::vector<unsigned char> scriptSig;
-        scriptPubKey = (CScript() << CScriptNum(addresstype::PUBKEYHASH) << ToByteVector(key_id) << ToByteVector(scriptSig) << OP_SENDER) + scriptPubKey;
+        else
+        {
+            // OP_SENDER will always be used when QIP5Height is active
+            throw JSONRPCError(RPC_TYPE_ERROR, "Sender address fail to set for OP_SENDER.");
+        }
     }
 
     // Create and send the transaction
@@ -734,12 +778,6 @@ static UniValue createcontract(const JSONRPCRequest& request){
     int nChangePosRet = -1;
     CRecipient recipient = {scriptPubKey, 0, false};
     vecSend.push_back(recipient);
-
-    if(!(chainActive.Height() >= Params().GetConsensus().QIP5Height)){
-    // Select default sender address unspent output
-    if(!coinControl.HasSelected() && !SetDefaultSenderAddress(pwallet, *locked_chain, coinControl))
-        throw JSONRPCError(RPC_TYPE_ERROR, "Sender address fail to set. Does not have any P2PK or P2PKH unspent outputs.");
-    }
 
     CTransactionRef tx;
     if (!pwallet->CreateTransaction(*locked_chain, vecSend, tx, reservekey, nFeeRequired, nChangePosRet, strError, coinControl, true, nGasFee, true, signSenderAddress)) {
@@ -942,12 +980,22 @@ static UniValue sendtocontract(const JSONRPCRequest& request){
         else
         {
             // Create op sender transaction when op sender is activated
-            int nHeight = chainActive.Height();
-            if(!(nHeight >= Params().GetConsensus().QIP5Height))
+            if(!(chainActive.Height() >= Params().GetConsensus().QIP5Height))
                 throw JSONRPCError(RPC_TYPE_ERROR, "Sender address does not have any unspent outputs");
+        }
 
+        if(chainActive.Height() >= Params().GetConsensus().QIP5Height)
+        {
             // Sign the sender in case of no UTXO
             signSenderAddress = senderAddress;
+        }
+    }
+    else
+    {
+        if(chainActive.Height() >= Params().GetConsensus().QIP5Height)
+        {
+            // If no sender provided set to the default
+            SetDefaultSignSenderAddress(pwallet, *locked_chain, signSenderAddress);
         }
     }
 
@@ -964,17 +1012,29 @@ static UniValue sendtocontract(const JSONRPCRequest& request){
     if (nAmount+nGasFee > curBalance)
         throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Insufficient funds");
 
+    // Select default coin that will pay for the contract if none selected
+    if(!coinControl.HasSelected() && !SetDefaultPayForContractAddress(pwallet, *locked_chain, coinControl))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Does not have any P2PK or P2PKH unspent outputs to pay for the contract.");
+
     // Build OP_EXEC_ASSIGN script
     CScript scriptPubKey = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(nGasLimit) << CScriptNum(nGasPrice) << ParseHex(datahex) << ParseHex(contractaddress) << OP_CALL;
-    if(IsValidDestination(signSenderAddress))
+    if(chainActive.Height() >= Params().GetConsensus().QIP5Height)
     {
-        CKeyID key_id = GetKeyForDestination(*pwallet, signSenderAddress);
-        CKey key;
-        if (!pwallet->GetKey(key_id, key)) {
-            throw JSONRPCError(RPC_WALLET_ERROR, "Private key not available");
+        if(IsValidDestination(signSenderAddress))
+        {
+            CKeyID key_id = GetKeyForDestination(*pwallet, signSenderAddress);
+            CKey key;
+            if (!pwallet->GetKey(key_id, key)) {
+                throw JSONRPCError(RPC_WALLET_ERROR, "Private key not available");
+            }
+            std::vector<unsigned char> scriptSig;
+            scriptPubKey = (CScript() << CScriptNum(addresstype::PUBKEYHASH) << ToByteVector(key_id) << ToByteVector(scriptSig) << OP_SENDER) + scriptPubKey;
         }
-        std::vector<unsigned char> scriptSig;
-        scriptPubKey = (CScript() << CScriptNum(addresstype::PUBKEYHASH) << ToByteVector(key_id) << ToByteVector(scriptSig) << OP_SENDER) + scriptPubKey;
+        else
+        {
+            // OP_SENDER will always be used when QIP5Height is active
+            throw JSONRPCError(RPC_TYPE_ERROR, "Sender address fail to set for OP_SENDER.");
+        }
     }
 
     // Create and send the transaction
@@ -985,12 +1045,6 @@ static UniValue sendtocontract(const JSONRPCRequest& request){
     int nChangePosRet = -1;
     CRecipient recipient = {scriptPubKey, nAmount, false};
     vecSend.push_back(recipient);
-
-    if(!(chainActive.Height() >= Params().GetConsensus().QIP5Height)){
-        // Select default sender address unspent output
-        if(!coinControl.HasSelected() && !SetDefaultSenderAddress(pwallet, *locked_chain, coinControl))
-            throw JSONRPCError(RPC_TYPE_ERROR, "Sender address fail to set. Does not have any P2PK or P2PKH unspent outputs.");
-    }
 
     CTransactionRef tx;
     if (!pwallet->CreateTransaction(*locked_chain, vecSend, tx, reservekey, nFeeRequired, nChangePosRet, strError, coinControl, true, nGasFee, true, signSenderAddress)) {
@@ -2739,7 +2793,7 @@ static UniValue walletpassphrase(const JSONRPCRequest& request)
         throw JSONRPCError(RPC_INVALID_PARAMETER, "passphrase can not be empty");
     }
 
-    // Used to restore m_wallet_unlock_staking_only value in case of unlock failure 
+    // Used to restore m_wallet_unlock_staking_only value in case of unlock failure
     bool tmpStakingOnly = pwallet->m_wallet_unlock_staking_only;
 
     // ppcoin: if user OS account compromised prevent trivial sendmoney commands
@@ -2949,13 +3003,13 @@ static UniValue reservebalance(const JSONRPCRequest& request)
     if (request.fHelp || request.params.size() > 2)
         throw std::runtime_error(
             RPCHelpMan{"reservebalance",
-			"\nSet reserve amount not participating in network protection."
+            "\nSet reserve amount not participating in network protection."
             "\nIf no parameters provided current setting is printed.\n",
-			{
-            	{"reserve", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED,"is true or false to turn balance reserve on or off."},
-            	{"amount", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "is a real and rounded to cent."},
-			},
-			 RPCResults{},
+            {
+                {"reserve", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED,"is true or false to turn balance reserve on or off."},
+                {"amount", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "is a real and rounded to cent."},
+            },
+             RPCResults{},
              RPCExamples{
             "\nSet reserve balance to 100\n"
             + HelpExampleCli("reservebalance", "true 100") +
@@ -2963,9 +3017,9 @@ static UniValue reservebalance(const JSONRPCRequest& request)
             + HelpExampleCli("reservebalance", "false") +
             "\nGet reserve balance\n"
             + HelpExampleCli("reservebalance", "")			},
-			}.ToString()
-		);
-            
+            }.ToString()
+        );
+
 
     if (request.params.size() > 0)
     {
