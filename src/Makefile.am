@@ -663,6 +663,13 @@ libbitcoin_common_a_SOURCES = \
   cpp-ethereum/utils/json_spirit/json_spirit_value.h \
   cpp-ethereum/utils/json_spirit/json_spirit_writer.h \
   cpp-ethereum/utils/json_spirit/json_spirit_writer_template.h \
+  cpp-ethereum/evmc/include/evmc/evmc.h \
+  cpp-ethereum/evmc/include/evmc/evmc.hpp \
+  cpp-ethereum/evmc/include/evmc/helpers.h \
+  cpp-ethereum/evmc/include/evmc/helpers.hpp \
+  cpp-ethereum/evmc/include/evmc/instructions.h \
+  cpp-ethereum/evmc/include/evmc/loader.h \
+  cpp-ethereum/evmc/include/evmc/utils.h \
   cpp-ethereum/ethash/include/ethash/ethash.h \
   cpp-ethereum/ethash/include/ethash/ethash.hpp \
   cpp-ethereum/ethash/include/ethash/hash_types.h \
