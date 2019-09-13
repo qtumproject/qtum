@@ -81,7 +81,7 @@ class QtumEVMConstantinopleOpcodesTest(BitcoinTestFramework):
             assert_equal(self.get_value_at_index(0), "0000000000000000000000000000000000000000000000000000000000000000")
 
     def shl_test(self, should_fail):
-        for i in range(500):
+        for i in range(50):
             x = random.randint(0, 256)
             y = random.randint(0, 255)
             self.reset()
@@ -95,7 +95,7 @@ class QtumEVMConstantinopleOpcodesTest(BitcoinTestFramework):
                 assert_equal(self.get_value_at_index(0), hex(((1 << y) << x) & (2**256-1))[2:].zfill(64))
 
     def shr_test(self, should_fail):
-        for i in range(500):
+        for i in range(50):
             x = random.randint(0, 256)
             y = random.randint(0, 255)
             self.reset()

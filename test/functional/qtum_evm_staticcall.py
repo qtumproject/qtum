@@ -53,7 +53,7 @@ class QtumEVMStaticCallTest(BitcoinTestFramework):
         sender_address = sender_utxo['scriptPubKey']['addresses'][0]
 
         for op_call_vout_index in range(len(call_tx['vout'])):
-            if call_tx['vout'][op_call_vout_index]['scriptPubKey']['type'] == 'call':
+            if call_tx['vout'][op_call_vout_index]['scriptPubKey']['type'] == 'call_sender':
                 break
 
         # Check that the transaction receipt is correct
