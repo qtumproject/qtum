@@ -582,13 +582,11 @@ libbitcoin_common_a_SOURCES = \
   cpp-ethereum/libethereum/ValidationSchemes.h \
   cpp-ethereum/libethereum/ValidationSchemes.cpp \
   cpp-ethereum/libethereum/Account.h \
-  cpp-ethereum/libethereum/Defaults.h \
   cpp-ethereum/libethereum/GasPricer.h \
   cpp-ethereum/libethereum/State.h \
   cpp-ethereum/libethcore/ABI.h \
   cpp-ethereum/libethcore/ChainOperationParams.h \
   cpp-ethereum/libethcore/Common.h \
-  cpp-ethereum/libethcore/ICAP.h \
   cpp-ethereum/libethcore/Precompiled.h \
   cpp-ethereum/libethcore/LogEntry.h \
   cpp-ethereum/libethcore/LogEntry.cpp \
@@ -596,7 +594,6 @@ libbitcoin_common_a_SOURCES = \
   cpp-ethereum/libdevcrypto/Common.h \
   cpp-ethereum/libdevcrypto/CryptoPP.h \
   cpp-ethereum/libdevcrypto/AES.h \
-  cpp-ethereum/libdevcrypto/ECDHE.h \
   cpp-ethereum/libdevcrypto/LibSnark.h \
   cpp-ethereum/libethashseal/GenesisInfo.h \
   cpp-ethereum/libethereum/ChainParams.h \
@@ -618,7 +615,6 @@ libbitcoin_common_a_SOURCES = \
   cpp-ethereum/libethereum/GenesisInfo.h \
   cpp-ethereum/libethashseal/Ethash.h \
   cpp-ethereum/libethashseal/EthashCPUMiner.h \
-  cpp-ethereum/libethashseal/EthashAux.h \
   cpp-ethereum/libethashseal/EthashProofOfWork.h \
   cpp-ethereum/libdevcore/vector_ref.h \
   cpp-ethereum/libdevcore/Exceptions.h \
@@ -628,15 +624,11 @@ libbitcoin_common_a_SOURCES = \
   cpp-ethereum/libethereum/CodeSizeCache.h \
   cpp-ethereum/libethereum/VerifiedBlock.h \
   cpp-ethereum/libdevcore/Assertions.h \
-  cpp-ethereum/libdevcore/debugbreak.h \
   cpp-ethereum/libethereum/GenericMiner.h \
   cpp-ethereum/libevm/VMFace.h \
   cpp-ethereum/libethereum/GenericFarm.h \
   cpp-ethereum/libethereum/Interface.h \
   cpp-ethereum/libethcore/CommonJS.h \
-  cpp-ethereum/libdevcore/picosha2.h \
-  cpp-ethereum/libevm/VMConfig.h \
-  cpp-ethereum/libethereum/LogFilter.h \
   cpp-ethereum/libdevcrypto/Exceptions.h \
   cpp-ethereum/libethashseal/genesis/mainNetwork.cpp \
   cpp-ethereum/libethashseal/genesis/qtumMainNetwork.cpp \
