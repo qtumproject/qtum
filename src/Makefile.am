@@ -583,6 +583,7 @@ libbitcoin_common_a_SOURCES = \
   cpp-ethereum/libethereum/ValidationSchemes.cpp \
   cpp-ethereum/libethereum/Account.h \
   cpp-ethereum/libethereum/GasPricer.h \
+  cpp-ethereum/libethereum/SecureTrieDB.h \
   cpp-ethereum/libethereum/State.h \
   cpp-ethereum/libethcore/ABI.h \
   cpp-ethereum/libethcore/ChainOperationParams.h \
