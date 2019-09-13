@@ -44,6 +44,7 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
 
     CTransactionRef tx;
     u256 startGasUsed;
+    const Consensus::Params& consensusParams = Params().GetConsensus();
     try{
         if (_t.isCreation() && _t.value())
             BOOST_THROW_EXCEPTION(CreateWithValue());
@@ -53,8 +54,10 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
         startGasUsed = _envInfo.gasUsed();
         if (!e.execute()){
             e.go(onOp);
+            if(chainActive.Height() >= consensusParams.QIP7Height){
+            	validateTransfersWithChangeLog();
+            }
         } else {
-
             e.revert();
             throw Exception();
         }
@@ -77,7 +80,7 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
             } else {
                 printfErrorLog(res.excepted);
             }
-            
+
             qtum::commit(cacheUTXO, stateUTXO, m_cache);
             cacheUTXO.clear();
             bool removeEmptyAccounts = _envInfo.number() >= _sealEngine.chainParams().EIP158ForkBlock;
@@ -88,7 +91,6 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
         printfErrorLog(dev::eth::toTransactionException(_e));
         res.excepted = dev::eth::toTransactionException(_e);
         res.gasUsed = _t.gas();
-        const Consensus::Params& consensusParams = Params().GetConsensus();
         if(chainActive.Height() < consensusParams.nFixUTXOCacheHFHeight  && _p != Permanence::Reverted){
             deleteAccounts(_sealEngine.deleteAddresses);
             commit(CommitBehaviour::RemoveEmptyAccounts);
@@ -256,6 +258,32 @@ void QtumState::printfErrorLog(const dev::eth::TransactionException er){
     clog(dev::VerbosityWarning, "exec") << "VM exception:" << ss.str();
 }
 
+void QtumState::validateTransfersWithChangeLog(){
+	ChangeLog tmpChangeLog = m_changeLog;
+	std::vector<TransferInfo> validatedTransfers;
+
+	for(const TransferInfo& ti : transfers){
+		for(std::size_t i=0; i<tmpChangeLog.size(); ++i){
+			//find the log entry for the receiver of the transfer
+			if(tmpChangeLog[i].kind==Change::Balance && tmpChangeLog[i].address==ti.to && tmpChangeLog[i].value==ti.value){
+				for(std::size_t j=0; j<tmpChangeLog.size(); ++j){
+					//find the log entry for the sender of the transfer
+					if(tmpChangeLog[j].kind==Change::Balance && tmpChangeLog[j].address==ti.from && tmpChangeLog[j].value==0-ti.value){
+						// transfer is valid
+						validatedTransfers.push_back(ti);
+						// zero out found elements to avoid matching again
+						tmpChangeLog[i].address=dev::Address(0);
+						tmpChangeLog[j].address=dev::Address(0);
+						break;
+					}
+				}
+				break;
+			}
+		}
+	}
+
+	transfers=validatedTransfers;
+}
 ///////////////////////////////////////////////////////////////////////////////////////////
 CTransaction CondensingTX::createCondensingTX(){
     selectionVin();

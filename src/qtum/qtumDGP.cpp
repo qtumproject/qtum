@@ -1,4 +1,5 @@
 #include <qtum/qtumDGP.h>
+#include <chainparams.h>
 
 std::vector<uint32_t> createDataSchedule(const dev::eth::EVMSchedule& schedule)
 {
@@ -28,8 +29,10 @@ void QtumDGP::initDataSchedule(){
     dataSchedule = scheduleDataForBlockNumber(0);
 }
 
-bool QtumDGP::checkLimitSchedule(const std::vector<uint32_t>& defaultData, const std::vector<uint32_t>& checkData){
-    if(defaultData.size() == 39 && checkData.size() == 39){
+bool QtumDGP::checkLimitSchedule(const std::vector<uint32_t>& defaultData, const std::vector<uint32_t>& checkData, int blockHeight){
+    const Consensus::Params& consensusParams = Params().GetConsensus();
+
+    if(defaultData.size() == 39 && (checkData.size() == 39 || (checkData.size() == 40 && blockHeight >= consensusParams.QIP7Height))) {
         for(size_t i = 0; i < defaultData.size(); i++){
             uint32_t max = defaultData[i] * 1000 > 0 ? defaultData[i] * 1000 : 1 * 1000;
             uint32_t min = defaultData[i] / 100 > 0 ? defaultData[i] / 100 : 1;
@@ -42,12 +45,12 @@ bool QtumDGP::checkLimitSchedule(const std::vector<uint32_t>& defaultData, const
     return false;
 }
 
-dev::eth::EVMSchedule QtumDGP::getGasSchedule(unsigned int blockHeight){
+dev::eth::EVMSchedule QtumDGP::getGasSchedule(int blockHeight){
     clear();
     dataSchedule = scheduleDataForBlockNumber(blockHeight);
     dev::eth::EVMSchedule schedule = globalSealEngine->chainParams().scheduleForBlockNumber(blockHeight);
     if(initStorages(GasScheduleDGP, blockHeight, ParseHex("26fadbe2"))){
-        schedule = createEVMSchedule(schedule);
+        schedule = createEVMSchedule(schedule, blockHeight);
     }
     return schedule;
 }
@@ -196,7 +199,7 @@ void QtumDGP::parseDataOneUint64(uint64_t& value){
     }
 }
 
-dev::eth::EVMSchedule QtumDGP::createEVMSchedule(const dev::eth::EVMSchedule &_schedule){
+dev::eth::EVMSchedule QtumDGP::createEVMSchedule(const dev::eth::EVMSchedule &_schedule, int blockHeight){
     dev::eth::EVMSchedule schedule = _schedule;
     std::vector<uint32_t> uint32Values;
 
@@ -206,7 +209,7 @@ dev::eth::EVMSchedule QtumDGP::createEVMSchedule(const dev::eth::EVMSchedule &_s
         parseDataScheduleContract(uint32Values);
     }
 
-    if(!checkLimitSchedule(dataSchedule, uint32Values))
+    if(!checkLimitSchedule(dataSchedule, uint32Values, blockHeight))
         return schedule;
 
     if(uint32Values.size() >= 39){

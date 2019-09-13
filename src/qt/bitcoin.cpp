@@ -448,7 +448,8 @@ void BitcoinApplication::restoreWallet()
         QString commandLine;
         QStringList arg = arguments();
         removeParam(arg, "-reindex", false);
-        removeParam(arg, "-salvagewallet", false);
+        removeParam(arg, "-zapwallettxes=2", false);
+        removeParam(arg, "-deleteblockchaindata", false);
         removeParam(arg, "-wallet", true);
         if(!arg.contains(restoreParam))
         {

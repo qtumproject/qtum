@@ -416,6 +416,7 @@ void SetupServerArgs()
 #ifdef ENABLE_BITCORE_RPC
     gArgs.AddArg("-addrindex", strprintf("Maintain a full address index (default: %u)", DEFAULT_ADDRINDEX), false, OptionsCategory::OPTIONS);
 #endif
+    gArgs.AddArg("-deleteblockchaindata", "Delete the local copy of the block chain data", false, OptionsCategory::OPTIONS);
 
     gArgs.AddArg("-addnode=<ip>", "Add a node to connect to and attempt to keep the connection open (see the `addnode` RPC command help for more info). This option can be specified multiple times to add multiple nodes.", false, OptionsCategory::CONNECTION);
     gArgs.AddArg("-banscore=<n>", strprintf("Threshold for disconnecting misbehaving peers (default: %u)", DEFAULT_BANSCORE_THRESHOLD), false, OptionsCategory::CONNECTION);
@@ -681,6 +682,18 @@ static void CleanupBlockRevFiles()
         }
         remove(item.second);
     }
+}
+
+// Delete local blockchain data
+void DeleteBlockChainData()
+{
+    // Delete block chain data paths
+    fs::remove_all(GetDataDir() / "chainstate");
+    fs::remove_all(GetBlocksDir());
+    fs::remove_all(GetDataDir() / "stateQtum");
+    fs::remove(GetDataDir() / "banlist.dat");
+    fs::remove(GetDataDir() / FEE_ESTIMATES_FILENAME);
+    fs::remove(GetDataDir() / "mempool.dat");
 }
 
 static void ThreadImport(std::vector<fs::path> vImportFiles)
@@ -1356,6 +1369,11 @@ bool AppInitMain(InitInterfaces& interfaces)
                   "from a different location, it will be unable to locate the current data files. There could "
                   "also be data loss if bitcoin is started while in a temporary directory.\n",
             gArgs.GetArg("-datadir", ""), fs::current_path().string());
+    }
+
+    if(gArgs.GetBoolArg("-deleteblockchaindata", false))
+    {
+        DeleteBlockChainData();
     }
 
     InitSignatureCache();
