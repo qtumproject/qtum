@@ -692,8 +692,32 @@ CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniVal
                     throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasPrice");
             }
 
+            // Get sender address
+            bool fHasSender=false;
+            CTxDestination senderAddress;
+            if (Contract.exists("senderAddress")){
+                senderAddress = DecodeDestination(Contract["senderAddress"].get_str());
+                if (!IsValidDestination(senderAddress))
+                    throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Qtum address to send from");
+                if (!IsValidContractSenderAddress(senderAddress))
+                    throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid contract sender address. Only P2PK and P2PKH allowed");
+                else
+                    fHasSender=true;
+            }
+
             // Add call contract output
             CScript scriptPubKey = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(nGasLimit) << CScriptNum(nGasPrice) << ParseHex(datahex) << ParseHex(contractaddress) << OP_CALL;
+
+             // Build op_sender script
+            if(fHasSender && chainActive.Height() >= Params().GetConsensus().QIP5Height)
+            {
+                const CKeyID *keyID = boost::get<CKeyID>(&senderAddress);
+                if(!keyID)
+                    throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Only pubkeyhash addresses are supported");
+                std::vector<unsigned char> scriptSig;
+                scriptPubKey = (CScript() << CScriptNum(addresstype::PUBKEYHASH) << ToByteVector(*keyID) << ToByteVector(scriptSig) << OP_SENDER) + scriptPubKey;
+            }
+
             CTxOut out(nAmount, scriptPubKey);
             rawTx.vout.push_back(out);
         } else {
