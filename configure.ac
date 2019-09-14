@@ -870,6 +870,9 @@ if test "x$use_thread_local" = xyes || { test "x$use_thread_local" = xauto && te
           # https://groups.google.com/d/msg/bsdmailinglist/22ncTZAbDp4/Dii_pII5AwAJ)
           AC_MSG_RESULT(no)
           ;;
+        i686-*-linux-*)
+          AC_MSG_RESULT(no)
+          ;;	
         *)
           AC_DEFINE(HAVE_THREAD_LOCAL,1,[Define if thread_local is supported.])
           AC_MSG_RESULT(yes)
