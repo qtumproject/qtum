@@ -709,6 +709,21 @@ libbitcoin_common_a_SOURCES = \
   cpp-ethereum/libethereum/ClientTest.h \
   cpp-ethereum/libethereum/LogFilter.h \
   cpp-ethereum/libethereum/CommonNet.h \
+  cpp-ethereum/libp2p/All.h \
+  cpp-ethereum/libp2p/Capability.h \
+  cpp-ethereum/libp2p/CapabilityHost.h \
+  cpp-ethereum/libp2p/Common.h \
+  cpp-ethereum/libp2p/Host.h \
+  cpp-ethereum/libp2p/Network.h \
+  cpp-ethereum/libp2p/NodeTable.h \
+  cpp-ethereum/libp2p/Peer.h \
+  cpp-ethereum/libp2p/RLPXFrameCoder.h \
+  cpp-ethereum/libp2p/RLPXPacket.h \
+  cpp-ethereum/libp2p/RLPXSocket.h \
+  cpp-ethereum/libp2p/RLPxHandshake.h \
+  cpp-ethereum/libp2p/Session.h \
+  cpp-ethereum/libp2p/UDP.h \
+  cpp-ethereum/libp2p/UPnP.h \
   $(BITCOIN_CORE_H)
 
 #only added json_spirit so that `make dist` works properly
