@@ -619,6 +619,7 @@ libbitcoin_common_a_SOURCES = \
   cpp-ethereum/libethashseal/EthashProofOfWork.h \
   cpp-ethereum/libdevcore/vector_ref.h \
   cpp-ethereum/libdevcore/Exceptions.h \
+  cpp-ethereum/libdevcore/dbfwd.h \
   cpp-ethereum/libdevcore/db.h \
   cpp-ethereum/libdevcore/concurrent_queue.h \
   cpp-ethereum/libdevcore/Terminal.h \
