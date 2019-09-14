@@ -724,6 +724,7 @@ libbitcoin_common_a_SOURCES = \
   cpp-ethereum/libp2p/Session.h \
   cpp-ethereum/libp2p/UDP.h \
   cpp-ethereum/libp2p/UPnP.h \
+  cpp-ethereum/libethashseal/genesis/test/constantinopleFixTest.cpp \
   $(BITCOIN_CORE_H)
 
 #only added json_spirit so that `make dist` works properly
