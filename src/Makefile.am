@@ -629,6 +629,7 @@ libbitcoin_common_a_SOURCES = \
   cpp-ethereum/libethereum/GenericMiner.h \
   cpp-ethereum/libevm/VMFace.h \
   cpp-ethereum/libethereum/GenericFarm.h \
+  cpp-ethereum/libethereum/LastBlockHashesFace.h \
   cpp-ethereum/libethereum/Interface.h \
   cpp-ethereum/libethcore/CommonJS.h \
   cpp-ethereum/libdevcrypto/Exceptions.h \
