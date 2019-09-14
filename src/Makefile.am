@@ -697,6 +697,14 @@ libbitcoin_common_a_SOURCES = \
   cpp-ethereum/ethash/lib/ethash/progpow.cpp \
   libff/libff/algebra/curves/public_params.hpp \
   libff/libff/algebra/curves/curve_utils.hpp \
+  cpp-ethereum/libethereum/BlockChainImporter.h \
+  cpp-ethereum/libethereum/EthereumCapability.h \
+  cpp-ethereum/libethereum/ImportPerformanceLogger.h \
+  cpp-ethereum/libethereum/SnapshotImporter.h \
+  cpp-ethereum/libethereum/SnapshotStorage.h \
+  cpp-ethereum/libethereum/StateImporter.h \
+  cpp-ethereum/libethereum/ValidationSchemes.h \
+  cpp-ethereum/libethereum/WarpCapability.h \
   $(BITCOIN_CORE_H)
 
 #only added json_spirit so that `make dist` works properly
