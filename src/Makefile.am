@@ -608,6 +608,7 @@ libbitcoin_common_a_SOURCES = \
   cpp-ethereum/libethereum/BlockDetails.h \
   cpp-ethereum/libethereum/TransactionQueue.h \
   cpp-ethereum/libethereum/BlockQueue.h \
+  cpp-ethereum/libethereum/LastBlockHashesFace.h \
   cpp-ethereum/libethcore/BlockHeader.h \
   cpp-ethereum/libdevcore/RLP.h \
   cpp-ethereum/libethereum/TransactionReceipt.h \
