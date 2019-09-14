@@ -526,6 +526,7 @@ libbitcoin_common_a_SOURCES = \
   cpp-ethereum/libdevcore/DBFactory.cpp \
   cpp-ethereum/libdevcore/JsonUtils.h \
   cpp-ethereum/libdevcore/JsonUtils.cpp \
+  cpp-ethereum/libdevcore/dbfwd.h \
   cpp-ethereum/libevm/EVMC.cpp \
   cpp-ethereum/libevm/EVMC.h \
   cpp-ethereum/libevm/ExtVMFace.cpp \
