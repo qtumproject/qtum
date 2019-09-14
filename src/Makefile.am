@@ -631,6 +631,7 @@ libbitcoin_common_a_SOURCES = \
   cpp-ethereum/libethereum/GenericFarm.h \
   cpp-ethereum/libethereum/LastBlockHashesFace.h \
   cpp-ethereum/libethereum/Interface.h \
+  cpp-ethereum/libethereum/Client.h \
   cpp-ethereum/libethcore/CommonJS.h \
   cpp-ethereum/libdevcrypto/Exceptions.h \
   cpp-ethereum/libethashseal/genesis/mainNetwork.cpp \
@@ -694,6 +695,7 @@ libbitcoin_common_a_SOURCES = \
   cpp-ethereum/ethash/lib/ethash/primes.c \
   cpp-ethereum/ethash/lib/ethash/primes.h \
   cpp-ethereum/ethash/lib/ethash/progpow.cpp \
+  libff/algebra/curves/public_params.hpp \
   $(BITCOIN_CORE_H)
 
 #only added json_spirit so that `make dist` works properly
