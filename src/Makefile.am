@@ -681,7 +681,7 @@ libbitcoin_common_a_SOURCES = \
   cpp-ethereum/ethash/include/ethash/keccak.h \
   cpp-ethereum/ethash/include/ethash/keccak.hpp \
   cpp-ethereum/ethash/include/ethash/progpow.hpp \
-  cpp-ethereum/ethash/lib/ethash/support/attributes.h \ 
+  cpp-ethereum/ethash/lib/ethash/support/attributes.h \
   cpp-ethereum/ethash/lib/ethash/bit_manipulation.h \
   cpp-ethereum/ethash/lib/ethash/builtins.h \
   cpp-ethereum/ethash/lib/ethash/endianness.hpp \
@@ -695,7 +695,8 @@ libbitcoin_common_a_SOURCES = \
   cpp-ethereum/ethash/lib/ethash/primes.c \
   cpp-ethereum/ethash/lib/ethash/primes.h \
   cpp-ethereum/ethash/lib/ethash/progpow.cpp \
-  libff/algebra/curves/public_params.hpp \
+  libff/libff/algebra/curves/public_params.hpp \
+  libff/libff/algebra/curves/curve_utils.hpp \
   $(BITCOIN_CORE_H)
 
 #only added json_spirit so that `make dist` works properly
