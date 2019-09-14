@@ -708,6 +708,7 @@ libbitcoin_common_a_SOURCES = \
   cpp-ethereum/libethereum/ClientBase.h \
   cpp-ethereum/libethereum/ClientTest.h \
   cpp-ethereum/libethereum/LogFilter.h \
+  cpp-ethereum/libethereum/CommonNet.h \
   $(BITCOIN_CORE_H)
 
 #only added json_spirit so that `make dist` works properly
