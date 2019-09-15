@@ -186,10 +186,7 @@ script: |
     CONFIG_SITE=${BASEPREFIX}/${i}/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking ${CONFIGFLAGS} CFLAGS="${HOST_CFLAGS}" CXXFLAGS="${HOST_CXXFLAGS}" LDFLAGS="${HOST_LDFLAGS}"
     make V=1 ${MAKEOPTS}
     make V=1 ${MAKEOPTS} -C src check-security
-    # TODO Fix symbols check
-    # test/test_qtum: symbol __cxa_thread_atexit_impl from unsupported version GLIBC_2.18
-    # qt/qtum-qt: symbol __cxa_thread_atexit_impl from unsupported version GLIBC_2.18
-    # make V=1 ${MAKEOPTS} -C src check-symbols
+    make V=1 ${MAKEOPTS} -C src check-symbols
     make install DESTDIR=${INSTALLPATH}
     cd installed
     find . -name "lib*.la" -delete
