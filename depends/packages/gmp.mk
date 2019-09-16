@@ -7,12 +7,11 @@ $(package)_download_path=https://gmplib.org/download/$(package)
 $(package)_patches=0001-fix-darwin-gitian-configure.patch 0002-disable-private-extern-in-darwin.patch
 
 define $(package)_preprocess_cmds
-   patch -p1 < $($(package)_patch_dir)/0001-fix-darwin-gitian-configure.patch && \
    patch -p1 < $($(package)_patch_dir)/0002-disable-private-extern-in-darwin.patch
 endef
 
 define $(package)_config_cmds
-  ../configure --enable-static=yes --enable-shared=no --enable-cxx -without-readline --host=$(host) --prefix=$(host_prefix) --build=$(build)
+  ../configure NM=nm --enable-static=yes --enable-shared=no --enable-cxx -without-readline --host=$(host) --prefix=$(host_prefix) --build=$(build)
 endef
 
 define $(package)_build_cmds
