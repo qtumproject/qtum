@@ -624,7 +624,7 @@ CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniVal
             CTxOut out(0, CScript() << OP_RETURN << data);
             rawTx.vout.push_back(out);
         } else if (name_ == "contract") {
-            // Get the call object
+            // Get the contract object
             UniValue Contract = outputs[name_];
             if(!Contract.isObject())
                 throw JSONRPCError(RPC_INVALID_PARAMETER, std::string("Invalid parameter, need to be object: ")+name_);
@@ -636,36 +636,12 @@ CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniVal
             uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(chainActive.Height()));
             CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
 
-            // Get the contract address
-            if(!Contract.exists("contractAddress") || !Contract["contractAddress"].isStr())
-                throw JSONRPCError(RPC_INVALID_PARAMETER, std::string("Invalid parameter, contract address is mandatory."));
-
-            std::string contractaddress = Contract["contractAddress"].get_str();
-            if(contractaddress.size() != 40 || !CheckHex(contractaddress))
-                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect contract address");
-
-            dev::Address addrAccount(contractaddress);
-            if(!globalState->addressInUse(addrAccount))
-                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "contract address does not exist");
-
-            // Get the contract data
-            if(!Contract.exists("data") || !Contract["data"].isStr())
-                throw JSONRPCError(RPC_INVALID_PARAMETER, std::string("Invalid parameter, contract data is mandatory."));
-
-            std::string datahex = Contract["data"].get_str();
-            if(datahex.size() % 2 != 0 || !CheckHex(datahex))
-                throw JSONRPCError(RPC_TYPE_ERROR, "Invalid data (data not hex)");
-
-            // Get amount
+            bool createContract = Contract.exists("bytecode") && Contract["bytecode"].isStr();
+            CScript scriptPubKey;
             CAmount nAmount = 0;
-            if (Contract.exists("amount")){
-                nAmount = AmountFromValue(Contract["amount"]);
-                if (nAmount < 0)
-                    throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for call contract");
-            }
 
             // Get gas limit
-            uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
+            uint64_t nGasLimit=createContract ? DEFAULT_GAS_LIMIT_OP_CREATE : DEFAULT_GAS_LIMIT_OP_SEND;
             if (Contract.exists("gasLimit")){
                 nGasLimit = Contract["gasLimit"].get_int64();
                 if (nGasLimit > blockGasLimit)
@@ -705,8 +681,51 @@ CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniVal
                     fHasSender=true;
             }
 
-            // Add call contract output
-            CScript scriptPubKey = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(nGasLimit) << CScriptNum(nGasPrice) << ParseHex(datahex) << ParseHex(contractaddress) << OP_CALL;
+            if(createContract)
+            {
+                // Get the new contract bytecode
+                if(!Contract.exists("bytecode") || !Contract["bytecode"].isStr())
+                    throw JSONRPCError(RPC_INVALID_PARAMETER, std::string("Invalid parameter, bytecode is mandatory."));
+
+                std::string bytecodehex = Contract["bytecode"].get_str();
+                if(bytecodehex.size() % 2 != 0 || !CheckHex(bytecodehex))
+                    throw JSONRPCError(RPC_TYPE_ERROR, "Invalid bytecode (bytecode not hex)");
+
+                // Add create contract output
+                scriptPubKey = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(nGasLimit) << CScriptNum(nGasPrice) << ParseHex(bytecodehex) <<OP_CREATE;
+            }
+            else
+            {
+                // Get the contract address
+                if(!Contract.exists("contractAddress") || !Contract["contractAddress"].isStr())
+                    throw JSONRPCError(RPC_INVALID_PARAMETER, std::string("Invalid parameter, contract address is mandatory."));
+
+                std::string contractaddress = Contract["contractAddress"].get_str();
+                if(contractaddress.size() != 40 || !CheckHex(contractaddress))
+                    throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect contract address");
+
+                dev::Address addrAccount(contractaddress);
+                if(!globalState->addressInUse(addrAccount))
+                    throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "contract address does not exist");
+
+                // Get the contract data
+                if(!Contract.exists("data") || !Contract["data"].isStr())
+                    throw JSONRPCError(RPC_INVALID_PARAMETER, std::string("Invalid parameter, contract data is mandatory."));
+
+                std::string datahex = Contract["data"].get_str();
+                if(datahex.size() % 2 != 0 || !CheckHex(datahex))
+                    throw JSONRPCError(RPC_TYPE_ERROR, "Invalid data (data not hex)");
+
+                // Get amount
+                if (Contract.exists("amount")){
+                    nAmount = AmountFromValue(Contract["amount"]);
+                    if (nAmount < 0)
+                        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for call contract");
+                }
+
+                // Add call contract output
+                scriptPubKey = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(nGasLimit) << CScriptNum(nGasPrice) << ParseHex(datahex) << ParseHex(contractaddress) << OP_CALL;
+            }
 
              // Build op_sender script
             if(fHasSender && chainActive.Height() >= Params().GetConsensus().QIP5Height)
