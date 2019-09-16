@@ -5,6 +5,10 @@ $(package)_build_subdir=$(package)-$($(package)_version)
 $(package)_file_name=$(package)-$($(package)_version).tar.xz
 $(package)_download_path=https://gmplib.org/download/$(package)
 
+define $(package)_preprocess_cmds
+   patch -p1 < $($(package)_patch_dir)/0001-fix-darwin-gitian-configure.patch
+endef
+
 define $(package)_config_cmds
   ../configure --enable-static=yes --enable-shared=no --enable-cxx -without-readline --host=$(host) --prefix=$(host_prefix) --build=$(build)
 endef
