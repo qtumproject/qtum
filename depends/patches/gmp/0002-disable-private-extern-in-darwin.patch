@@ -1,0 +1,13 @@
+diff --git a/mpn/x86_64/darwin.m4 b/mpn/x86_64/darwin.m4
+index 6f8ec78..a34e35e 100644
+--- a/mpn/x86_64/darwin.m4
++++ b/mpn/x86_64/darwin.m4
+@@ -75,7 +75,7 @@ dnl  Used for private GMP symbols that should never be overridden by users.
+ dnl  This can save reloc entries and improve shlib sharing as well as
+ dnl  application startup times
+ 
+-define(`PROTECT',  `.private_extern $1')
++dnl define(`PROTECT',  `.private_extern $1')
+ 
+ 
+ divert`'dnl
