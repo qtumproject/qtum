@@ -57,18 +57,18 @@ def build():
     subprocess.check_call(["echo 'f9a8cdb38b9c309326764ebc937cba1523a3a751a7ab05df3ecc99d18ae466c9 inputs/osslsigncode-1.7.1.tar.gz' | sha256sum -c"], shell=True)
     subprocess.check_call(['make', '-C', '../qtum/depends', 'download', 'SOURCES_PATH=' + os.getcwd() + '/cache/common'])
 
-#     if args.linux:
-#         print('\nCompiling ' + args.version + ' Linux')
-#         subprocess.check_call(['bin/gbuild', '-j', args.jobs, '-m', args.memory, '--commit', 'qtum='+args.commit+',cpp-eth-qtum=hfcorebuildtest', '--url', 'qtum='+args.url, '../qtum/contrib/gitian-descriptors/gitian-linux.yml'])
-#         subprocess.check_call(['bin/gsign', '-p', args.sign_prog, '--signer', args.signer, '--release', args.version+'-linux', '--destination', '../gitian.sigs/', '../qtum/contrib/gitian-descriptors/gitian-linux.yml'])
-#         subprocess.check_call('mv build/out/qtum-*.tar.gz build/out/src/qtum-*.tar.gz ../qtum-binaries/'+args.version, shell=True)
-# 
-#     if args.windows:
-#         print('\nCompiling ' + args.version + ' Windows')
-#         subprocess.check_call(['bin/gbuild', '-j', args.jobs, '-m', args.memory, '--commit', 'qtum='+args.commit+',cpp-eth-qtum=hfcorebuildtest', '--url', 'qtum='+args.url, '../qtum/contrib/gitian-descriptors/gitian-win.yml'])
-#         subprocess.check_call(['bin/gsign', '-p', args.sign_prog, '--signer', args.signer, '--release', args.version+'-win-unsigned', '--destination', '../gitian.sigs/', '../qtum/contrib/gitian-descriptors/gitian-win.yml'])
-#         subprocess.check_call('mv build/out/qtum-*-win-unsigned.tar.gz inputs/', shell=True)
-#         subprocess.check_call('mv build/out/qtum-*.zip build/out/qtum-*.exe ../qtum-binaries/'+args.version, shell=True)
+    if args.linux:
+        print('\nCompiling ' + args.version + ' Linux')
+        subprocess.check_call(['bin/gbuild', '-j', args.jobs, '-m', args.memory, '--commit', 'qtum='+args.commit+',cpp-eth-qtum=hfcorebuildtest', '--url', 'qtum='+args.url, '../qtum/contrib/gitian-descriptors/gitian-linux.yml'])
+        subprocess.check_call(['bin/gsign', '-p', args.sign_prog, '--signer', args.signer, '--release', args.version+'-linux', '--destination', '../gitian.sigs/', '../qtum/contrib/gitian-descriptors/gitian-linux.yml'])
+        subprocess.check_call('mv build/out/qtum-*.tar.gz build/out/src/qtum-*.tar.gz ../qtum-binaries/'+args.version, shell=True)
+ 
+    if args.windows:
+        print('\nCompiling ' + args.version + ' Windows')
+        subprocess.check_call(['bin/gbuild', '-j', args.jobs, '-m', args.memory, '--commit', 'qtum='+args.commit+',cpp-eth-qtum=hfcorebuildtest', '--url', 'qtum='+args.url, '../qtum/contrib/gitian-descriptors/gitian-win.yml'])
+        subprocess.check_call(['bin/gsign', '-p', args.sign_prog, '--signer', args.signer, '--release', args.version+'-win-unsigned', '--destination', '../gitian.sigs/', '../qtum/contrib/gitian-descriptors/gitian-win.yml'])
+        subprocess.check_call('mv build/out/qtum-*-win-unsigned.tar.gz inputs/', shell=True)
+        subprocess.check_call('mv build/out/qtum-*.zip build/out/qtum-*.exe ../qtum-binaries/'+args.version, shell=True)
 
     if args.macos:
         print('\nCompiling ' + args.version + ' MacOS')
