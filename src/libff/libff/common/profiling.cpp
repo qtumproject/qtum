@@ -47,6 +47,7 @@ long long get_nsec_cpu_time()
 	return 0;
 #else
     #if MAC_OSX
+	    ::timespec ts;
         clock_serv_t cclock;
         mach_timespec_t mts;
         host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
