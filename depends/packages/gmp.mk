@@ -11,7 +11,7 @@ define $(package)_preprocess_cmds
 endef
 
 define $(package)_config_cmds
-  ../configure ABI=64 NM=nm --enable-static=yes --enable-shared=no --enable-cxx -without-readline --host=$(host) --prefix=$(host_prefix) --build=$(build)
+  ../configure CC=clang ABI=64 NM=nm --enable-static=yes --enable-shared=no --enable-cxx -without-readline --host=$(host) --prefix=$(host_prefix) --build=$(build)
 endef
 
 define $(package)_build_cmds
