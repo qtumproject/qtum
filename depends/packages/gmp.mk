@@ -6,7 +6,7 @@ $(package)_file_name=$(package)-$($(package)_version).tar.xz
 $(package)_download_path=https://gmplib.org/download/$(package)
 
 define $(package)_config_cmds
-  ../configure --enable-static=yes --enable-shared=no --enable-cxx -without-readline --host=$(host) --prefix=$(host_prefix) --build=$(build)
+  ../configure CC=clang NM=nm --enable-static=yes --enable-shared=no --enable-cxx -without-readline --host=$(host) --prefix=$(host_prefix) --build=$(build)
 endef
 
 define $(package)_build_cmds
