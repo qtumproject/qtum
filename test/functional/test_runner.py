@@ -223,6 +223,7 @@ BASE_SCRIPTS = [
     'qtum_transaction_prioritization.py',
     'qtum_assign_mpos_fees_to_gas_refund.py',
     'qtum_ignore_mpos_participant_reward.py',
+    'qtum_evm_constantinople_activation.py',
     'qtum_many_value_refunds_from_same_tx.py',
     'qtum_combined_outputs_exceed_gas_limit.py',
     'qtum_dgp_gas_price_lingering_mempool_tx.py',
@@ -238,6 +239,10 @@ BASE_SCRIPTS = [
     'qtum_faulty_header_chain.py',
     'qtum_op_sender.py',
     'qtum_evm_revert.py',
+    'qtum_evm_create2.py',
+    'qtum_evm_staticcall.py',
+    'qtum_evm_constantinople_precompiles.py',
+    'qtum_evm_constantinople_opcodes.py',
 ]
 
 EXTENDED_SCRIPTS = [

@@ -4,11 +4,11 @@ $(package)_download_path=https://github.com/theuni/cctools-port/archive
 $(package)_file_name=$($(package)_version).tar.gz
 $(package)_sha256_hash=a09c9ba4684670a0375e42d9d67e7f12c1f62581a27f28f7c825d6d7032ccc6a
 $(package)_build_subdir=cctools
-$(package)_clang_version=3.7.1
+$(package)_clang_version=8.0.0
 $(package)_clang_download_path=http://llvm.org/releases/$($(package)_clang_version)
-$(package)_clang_download_file=clang+llvm-$($(package)_clang_version)-x86_64-linux-gnu-ubuntu-14.04.tar.xz
-$(package)_clang_file_name=clang-llvm-$($(package)_clang_version)-x86_64-linux-gnu-ubuntu-14.04.tar.xz
-$(package)_clang_sha256_hash=99b28a6b48e793705228a390471991386daa33a9717cd9ca007fcdde69608fd9
+$(package)_clang_download_file=clang+llvm-$($(package)_clang_version)-x86_64-linux-gnu-ubuntu-18.04.tar.xz
+$(package)_clang_file_name=clang-llvm-$($(package)_clang_version)-x86_64-linux-gnu-ubuntu-18.04.tar.xz
+$(package)_clang_sha256_hash=0f5c314f375ebd5c35b8c1d5e5b161d9efaeff0523bac287f8b4e5b751272f51
 $(package)_extra_sources=$($(package)_clang_file_name)
 
 define $(package)_fetch_cmds
@@ -59,7 +59,7 @@ define $(package)_stage_cmds
   cp -P bin/clang++ $($(package)_staging_prefix_dir)/bin/ &&\
   cp lib/libLTO.so $($(package)_staging_prefix_dir)/lib/ && \
   cp -rf lib/clang/$($(package)_clang_version)/include/* $($(package)_staging_prefix_dir)/lib/clang/$($(package)_clang_version)/include/ && \
-  cp bin/llvm-dsymutil $($(package)_staging_prefix_dir)/bin/$(host)-dsymutil && \
+  cp bin/dsymutil $($(package)_staging_prefix_dir)/bin/$(host)-dsymutil && \
   if `test -d include/c++/`; then cp -rf include/c++/ $($(package)_staging_prefix_dir)/include/; fi && \
   if `test -d lib/c++/`; then cp -rf lib/c++/ $($(package)_staging_prefix_dir)/lib/; fi
 endef
