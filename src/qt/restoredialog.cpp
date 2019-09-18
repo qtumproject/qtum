@@ -66,6 +66,7 @@ void RestoreDialog::on_btnBoxRestore_accepted()
         if(ui->rbRestoreFile->isChecked())
         {
             QMessageBox::information(this, tr("File not selected"), tr("Please select a file to restore your wallet."), QMessageBox::Ok);
+            return;
         }
         else
         {
@@ -94,6 +95,7 @@ void RestoreDialog::on_btnBoxRestore_accepted()
                 QApplication::quit();
             }
         }
+        else return;
     }
     accept();
 }
