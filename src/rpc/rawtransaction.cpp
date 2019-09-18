@@ -613,6 +613,7 @@ CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniVal
     std::set<CTxDestination> destinations;
     bool has_data{false};
 
+    int i = 0;
     for (const std::string& name_ : outputs.getKeys()) {
         if (name_ == "data") {
             if (has_data) {
@@ -625,7 +626,7 @@ CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniVal
             rawTx.vout.push_back(out);
         } else if (name_ == "contract") {
             // Get the contract object
-            UniValue Contract = outputs[name_];
+            UniValue Contract = outputs[i];
             if(!Contract.isObject())
                 throw JSONRPCError(RPC_INVALID_PARAMETER, std::string("Invalid parameter, need to be object: ")+name_);
 
@@ -755,6 +756,7 @@ CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniVal
             CTxOut out(nAmount, scriptPubKey);
             rawTx.vout.push_back(out);
         }
+        ++i;
     }
 
     if (!rbf.isNull() && rawTx.vin.size() > 0 && rbfOptIn != SignalsOptInRBF(CTransaction(rawTx))) {
@@ -1551,7 +1553,41 @@ static UniValue sendrawtransaction(const JSONRPCRequest& request)
         throw JSONRPCTransactionError(err, err_string);
     }
 
-    return txid.GetHex();
+    uint32_t voutNumber=0;
+
+    UniValue result(UniValue::VOBJ);
+    result.pushKV("txid", txid.GetHex());
+
+    if(tx->HasOpCreate()){
+        UniValue contracts(UniValue::VARR);
+        for (const CTxOut& txout : tx->vout) {
+            if(txout.scriptPubKey.HasOpCreate()){
+                std::vector<unsigned char> SHA256TxVout(32);
+                std::vector<unsigned char> contractAddress(20);
+                std::vector<unsigned char> txIdAndVout(tx->GetHash().begin(), tx->GetHash().end());
+                std::vector<unsigned char> voutNumberChrs;
+
+                if (voutNumberChrs.size() < sizeof(voutNumber))voutNumberChrs.resize(sizeof(voutNumber));
+                std::memcpy(voutNumberChrs.data(), &voutNumber, sizeof(voutNumber));
+                txIdAndVout.insert(txIdAndVout.end(),voutNumberChrs.begin(),voutNumberChrs.end());
+                CSHA256().Write(txIdAndVout.data(), txIdAndVout.size()).Finalize(SHA256TxVout.data());
+                CRIPEMD160().Write(SHA256TxVout.data(), SHA256TxVout.size()).Finalize(contractAddress.data());
+
+                UniValue contract(UniValue::VOBJ);
+                contract.pushKV("address", HexStr(contractAddress));
+                contract.pushKV("index", (int64_t)voutNumber);
+                contracts.push_back(contract);
+
+                SHA256TxVout.clear();
+                contractAddress.clear();
+                txIdAndVout.clear();
+            }
+            voutNumber++;
+        }
+        result.pushKV("contracts", contracts);
+    }
+
+    return result;
 }
 
 static UniValue testmempoolaccept(const JSONRPCRequest& request)
