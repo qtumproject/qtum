@@ -522,6 +522,10 @@ void SetupServerArgs()
     gArgs.AddArg("-printtoconsole", "Send trace/debug info to console (default: 1 when no -daemon. To disable logging to file, set -nodebuglogfile)", false, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-shrinkdebugfile", "Shrink debug.log file on client startup (default: 1 when no -debug)", false, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-uacomment=<cmt>", "Append comment to the user agent string", false, OptionsCategory::DEBUG_TEST);
+    gArgs.AddArg("-opsenderheight=<n>", "Use given block height to check opsender fork (regtest-only)", true, OptionsCategory::DEBUG_TEST);
+    gArgs.AddArg("-btcecrecoverheight=<n>", "Use given block height to check btc_ecrecover fork (regtest-only)", true, OptionsCategory::DEBUG_TEST);
+    gArgs.AddArg("-constantinopleheight=<n>", "Use given block height to check constantinople fork (regtest-only)", true, OptionsCategory::DEBUG_TEST);
+    gArgs.AddArg("-difficultychangeheight=<n>", "Use given block height to check difficulty change fork (regtest-only)", true, OptionsCategory::DEBUG_TEST);
 
     SetupChainParamsBaseOptions();
 
@@ -1209,6 +1213,62 @@ bool AppInitParameterInteraction()
         fEnableReplacement = (std::find(vstrReplacementModes.begin(), vstrReplacementModes.end(), "fee") != vstrReplacementModes.end());
     }
 
+    if (gArgs.IsArgSet("-opsenderheight")) {
+        // Allow overriding opsender block for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError("Op Sender block height may only be overridden on regtest.");
+        }
+
+        int opsenderBlock = gArgs.GetArg("-opsenderheight", 0);
+        if(opsenderBlock >= 0)
+        {
+            UpdateOpSenderBlockHeight(opsenderBlock);
+            LogPrintf("Activate Op Sender at block height %d\n.", opsenderBlock);
+        }
+    }
+
+    if (gArgs.IsArgSet("-btcecrecoverheight")) {
+        // Allow overriding btc_ecrecover block for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError("Btc_ecrecover block height may only be overridden on regtest.");
+        }
+
+        int btcEcrecoverBlock = gArgs.GetArg("-btcecrecoverheight", 0);
+        if(btcEcrecoverBlock >= 0)
+        {
+            UpdateBtcEcrecoverBlockHeight(btcEcrecoverBlock);
+            LogPrintf("Activate btc_ecrecover at block height %d\n.", btcEcrecoverBlock);
+        }
+    }
+
+    if (gArgs.IsArgSet("-constantinopleheight")) {
+        // Allow overriding constantinople block for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError("Constantinople block height may only be overridden on regtest.");
+        }
+
+        int constantinopleBlock = gArgs.GetArg("-constantinopleheight", 0);
+        if(constantinopleBlock >= 0)
+        {
+            UpdateConstantinopleBlockHeight(constantinopleBlock);
+            LogPrintf("Activate constantinople at block height %d\n.", constantinopleBlock);
+        }
+    }
+
+    if (gArgs.IsArgSet("-difficultychangeheight")) {
+        // Allow overriding difficulty change block for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError("Difficulty change block height may only be overridden on regtest.");
+        }
+
+        int difficultyChangeBlock = gArgs.GetArg("-difficultychangeheight", 0);
+        if(difficultyChangeBlock >= 0)
+        {
+            UpdateDifficultyChangeBlockHeight(difficultyChangeBlock);
+            LogPrintf("Activate difficulty change at block height %d\n.", difficultyChangeBlock);
+        }
+    }
+
     return true;
 }
 
@@ -1639,7 +1699,7 @@ bool AppInitMain(InitInterfaces& interfaces)
                 const dev::h256 hashDB(dev::sha3(dev::rlp("")));
                 dev::eth::BaseState existsQtumstate = fStatus ? dev::eth::BaseState::PreExisting : dev::eth::BaseState::Empty;
                 globalState = std::unique_ptr<QtumState>(new QtumState(dev::u256(0), QtumState::openDB(dirQtum, hashDB, dev::WithExisting::Trust), dirQtum, existsQtumstate));
-                dev::eth::ChainParams cp((dev::eth::genesisInfo(dev::eth::Network::qtumMainNetwork)));
+                dev::eth::ChainParams cp((chainparams.EVMGenesisInfo(dev::eth::Network::qtumMainNetwork)));
                 globalSealEngine = std::unique_ptr<dev::eth::SealEngineFace>(cp.createSealEngine());
 
                 pstorageresult.reset(new StorageResults(qtumStateDir.string()));

@@ -135,7 +135,7 @@ class CreatecontractTest(BitcoinTestFramework):
 
         # verify that at least one output has a scriptPubKey of type create
         for out in decoded_tx['vout']:
-            if out['scriptPubKey']['type'] == 'create':
+            if out['scriptPubKey']['type'] == 'create' or out['scriptPubKey']['type'] == 'create_sender':
                 return
         assert(False)
 

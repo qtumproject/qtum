@@ -2950,7 +2950,7 @@ OutputType CWallet::TransactionChangeType(OutputType change_type, const std::vec
 }
 
 bool CWallet::CreateTransaction(interfaces::Chain::Lock& locked_chain, const std::vector<CRecipient>& vecSend, CTransactionRef& tx, CReserveKey& reservekey, CAmount& nFeeRet,
-                         int& nChangePosInOut, std::string& strFailReason, const CCoinControl& coin_control, bool sign, CAmount nGasFee, bool hasSender)
+                         int& nChangePosInOut, std::string& strFailReason, const CCoinControl& coin_control, bool sign, CAmount nGasFee, bool hasSender, const CTxDestination& signSenderAddress)
 {
     CAmount nValue = 0;
     int nChangePosRequest = nChangePosInOut;
@@ -3301,6 +3301,33 @@ bool CWallet::CreateTransaction(interfaces::Chain::Lock& locked_chain, const std
 
         if (sign)
         {
+            // Signing transaction outputs
+            int nOut = 0;
+            for (const auto& output : txNew.vout)
+            {
+                if(output.scriptPubKey.HasOpSender())
+                {
+                    const CScript& scriptPubKey = GetScriptForDestination(signSenderAddress);
+                    SignatureData sigdata;
+
+                    if (!ProduceSignature(*this, MutableTransactionSignatureOutputCreator(&txNew, nOut, output.nValue, SIGHASH_ALL), scriptPubKey, sigdata))
+                    {
+                        strFailReason = _("Signing transaction output failed");
+                        return false;
+                    }
+                    else
+                    {
+                        if(!UpdateOutput(txNew.vout.at(nOut), sigdata))
+                        {
+                            strFailReason = _("Update transaction output failed");
+                            return false;
+                        }
+                    }
+                }
+                nOut++;
+            }
+
+            // Signing transaction inputs
             int nIn = 0;
             for (const auto& coin : selected_coins)
             {

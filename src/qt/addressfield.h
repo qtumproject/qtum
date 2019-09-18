@@ -95,7 +95,7 @@ public Q_SLOTS:
     /**
      * @brief on_availableAddressesChanged Available addresses changed
      */
-    void on_availableAddressesChanged(QStringList spendableAddresses, QStringList allAddresses);
+    void on_availableAddressesChanged(QStringList spendableAddresses, QStringList allAddresses, bool includeZeroValue);
 
 private:
     void appendAddress(const QString& strAddress);
@@ -112,6 +112,7 @@ private:
     QStringList m_spendableAddresses;
     QStringList m_allAddresses;
     bool m_includeZeroValue;
+    bool m_isSetIncludeZeroValue;
 };
 
 #endif // ADDRESSFIELD_H

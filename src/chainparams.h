@@ -10,9 +10,11 @@
 #include <consensus/params.h>
 #include <primitives/block.h>
 #include <protocol.h>
+#include <libethashseal/GenesisInfo.h>
 
 #include <memory>
 #include <vector>
+#include <string>
 
 struct SeedSpec6 {
     uint8_t addr[16];
@@ -84,6 +86,12 @@ public:
     const std::vector<SeedSpec6>& FixedSeeds() const { return vFixedSeeds; }
     const CCheckpointData& Checkpoints() const { return checkpointData; }
     const ChainTxData& TxData() const { return chainTxData; }
+    std::string EVMGenesisInfo(dev::eth::Network network) const;
+    std::string EVMGenesisInfo(dev::eth::Network network, int nHeight) const;
+    void UpdateOpSenderBlockHeight(int nHeight);
+    void UpdateBtcEcrecoverBlockHeight(int nHeight);
+    void UpdateConstantinopleBlockHeight(int nHeight);
+    void UpdateDifficultyChangeBlockHeight(int nHeight);
 protected:
     CChainParams() {}
 
@@ -125,5 +133,25 @@ const CChainParams &Params();
  * @throws std::runtime_error when the chain is not supported.
  */
 void SelectParams(const std::string& chain);
+
+/**
+ * Allows modifying the Op Sender block height regtest parameter.
+ */
+void UpdateOpSenderBlockHeight(int nHeight);
+
+/**
+ * Allows modifying the btc_ecrecover block height regtest parameter.
+ */
+void UpdateBtcEcrecoverBlockHeight(int nHeight);
+
+/**
+ * Allows modifying the constantinople block height regtest parameter.
+ */
+void UpdateConstantinopleBlockHeight(int nHeight);
+
+/**
+ * Allows modifying the difficulty change block height regtest parameter.
+ */
+void UpdateDifficultyChangeBlockHeight(int nHeight);
 
 #endif // BITCOIN_CHAINPARAMS_H
