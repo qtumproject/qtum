@@ -82,12 +82,19 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QRadioButton" name="rbReindex">
+         <widget class="QRadioButton" name="rbRestoreFile">
           <property name="text">
-           <string>Rebuild blockchain index</string>
+           <string>Restore file</string>
           </property>
           <property name="checked">
            <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="rbReindex">
+          <property name="text">
+           <string>Rebuild blockchain index</string>
           </property>
          </widget>
         </item>
