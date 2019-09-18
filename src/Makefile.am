@@ -526,6 +526,7 @@ libbitcoin_common_a_SOURCES = \
   cpp-ethereum/libdevcore/DBFactory.cpp \
   cpp-ethereum/libdevcore/JsonUtils.h \
   cpp-ethereum/libdevcore/JsonUtils.cpp \
+  cpp-ethereum/libdevcore/dbfwd.h \
   cpp-ethereum/libevm/EVMC.cpp \
   cpp-ethereum/libevm/EVMC.h \
   cpp-ethereum/libevm/ExtVMFace.cpp \
@@ -582,13 +583,12 @@ libbitcoin_common_a_SOURCES = \
   cpp-ethereum/libethereum/ValidationSchemes.h \
   cpp-ethereum/libethereum/ValidationSchemes.cpp \
   cpp-ethereum/libethereum/Account.h \
-  cpp-ethereum/libethereum/Defaults.h \
   cpp-ethereum/libethereum/GasPricer.h \
+  cpp-ethereum/libethereum/SecureTrieDB.h \
   cpp-ethereum/libethereum/State.h \
   cpp-ethereum/libethcore/ABI.h \
   cpp-ethereum/libethcore/ChainOperationParams.h \
   cpp-ethereum/libethcore/Common.h \
-  cpp-ethereum/libethcore/ICAP.h \
   cpp-ethereum/libethcore/Precompiled.h \
   cpp-ethereum/libethcore/LogEntry.h \
   cpp-ethereum/libethcore/LogEntry.cpp \
@@ -596,7 +596,6 @@ libbitcoin_common_a_SOURCES = \
   cpp-ethereum/libdevcrypto/Common.h \
   cpp-ethereum/libdevcrypto/CryptoPP.h \
   cpp-ethereum/libdevcrypto/AES.h \
-  cpp-ethereum/libdevcrypto/ECDHE.h \
   cpp-ethereum/libdevcrypto/LibSnark.h \
   cpp-ethereum/libethashseal/GenesisInfo.h \
   cpp-ethereum/libethereum/ChainParams.h \
@@ -618,7 +617,6 @@ libbitcoin_common_a_SOURCES = \
   cpp-ethereum/libethereum/GenesisInfo.h \
   cpp-ethereum/libethashseal/Ethash.h \
   cpp-ethereum/libethashseal/EthashCPUMiner.h \
-  cpp-ethereum/libethashseal/EthashAux.h \
   cpp-ethereum/libethashseal/EthashProofOfWork.h \
   cpp-ethereum/libdevcore/vector_ref.h \
   cpp-ethereum/libdevcore/Exceptions.h \
@@ -628,15 +626,13 @@ libbitcoin_common_a_SOURCES = \
   cpp-ethereum/libethereum/CodeSizeCache.h \
   cpp-ethereum/libethereum/VerifiedBlock.h \
   cpp-ethereum/libdevcore/Assertions.h \
-  cpp-ethereum/libdevcore/debugbreak.h \
   cpp-ethereum/libethereum/GenericMiner.h \
   cpp-ethereum/libevm/VMFace.h \
   cpp-ethereum/libethereum/GenericFarm.h \
+  cpp-ethereum/libethereum/LastBlockHashesFace.h \
   cpp-ethereum/libethereum/Interface.h \
+  cpp-ethereum/libethereum/Client.h \
   cpp-ethereum/libethcore/CommonJS.h \
-  cpp-ethereum/libdevcore/picosha2.h \
-  cpp-ethereum/libevm/VMConfig.h \
-  cpp-ethereum/libethereum/LogFilter.h \
   cpp-ethereum/libdevcrypto/Exceptions.h \
   cpp-ethereum/libethashseal/genesis/mainNetwork.cpp \
   cpp-ethereum/libethashseal/genesis/qtumMainNetwork.cpp \
@@ -671,7 +667,21 @@ libbitcoin_common_a_SOURCES = \
   cpp-ethereum/utils/json_spirit/json_spirit_value.h \
   cpp-ethereum/utils/json_spirit/json_spirit_writer.h \
   cpp-ethereum/utils/json_spirit/json_spirit_writer_template.h \
-  cpp-ethereum/ethash/lib/ethash/support/attributes.h \ 
+  cpp-ethereum/evmc/include/evmc/evmc.h \
+  cpp-ethereum/evmc/include/evmc/evmc.hpp \
+  cpp-ethereum/evmc/include/evmc/helpers.h \
+  cpp-ethereum/evmc/include/evmc/helpers.hpp \
+  cpp-ethereum/evmc/include/evmc/instructions.h \
+  cpp-ethereum/evmc/include/evmc/loader.h \
+  cpp-ethereum/evmc/include/evmc/utils.h \
+  cpp-ethereum/ethash/include/ethash/ethash.h \
+  cpp-ethereum/ethash/include/ethash/ethash.hpp \
+  cpp-ethereum/ethash/include/ethash/hash_types.h \
+  cpp-ethereum/ethash/include/ethash/hash_types.hpp \
+  cpp-ethereum/ethash/include/ethash/keccak.h \
+  cpp-ethereum/ethash/include/ethash/keccak.hpp \
+  cpp-ethereum/ethash/include/ethash/progpow.hpp \
+  cpp-ethereum/ethash/lib/ethash/support/attributes.h \
   cpp-ethereum/ethash/lib/ethash/bit_manipulation.h \
   cpp-ethereum/ethash/lib/ethash/builtins.h \
   cpp-ethereum/ethash/lib/ethash/endianness.hpp \
@@ -685,6 +695,36 @@ libbitcoin_common_a_SOURCES = \
   cpp-ethereum/ethash/lib/ethash/primes.c \
   cpp-ethereum/ethash/lib/ethash/primes.h \
   cpp-ethereum/ethash/lib/ethash/progpow.cpp \
+  libff/libff/algebra/curves/public_params.hpp \
+  libff/libff/algebra/curves/curve_utils.hpp \
+  cpp-ethereum/libethereum/BlockChainImporter.h \
+  cpp-ethereum/libethereum/EthereumCapability.h \
+  cpp-ethereum/libethereum/ImportPerformanceLogger.h \
+  cpp-ethereum/libethereum/SnapshotImporter.h \
+  cpp-ethereum/libethereum/SnapshotStorage.h \
+  cpp-ethereum/libethereum/StateImporter.h \
+  cpp-ethereum/libethereum/ValidationSchemes.h \
+  cpp-ethereum/libethereum/WarpCapability.h \
+  cpp-ethereum/libethereum/ClientBase.h \
+  cpp-ethereum/libethereum/ClientTest.h \
+  cpp-ethereum/libethereum/LogFilter.h \
+  cpp-ethereum/libethereum/CommonNet.h \
+  cpp-ethereum/libp2p/All.h \
+  cpp-ethereum/libp2p/Capability.h \
+  cpp-ethereum/libp2p/CapabilityHost.h \
+  cpp-ethereum/libp2p/Common.h \
+  cpp-ethereum/libp2p/Host.h \
+  cpp-ethereum/libp2p/Network.h \
+  cpp-ethereum/libp2p/NodeTable.h \
+  cpp-ethereum/libp2p/Peer.h \
+  cpp-ethereum/libp2p/RLPXFrameCoder.h \
+  cpp-ethereum/libp2p/RLPXPacket.h \
+  cpp-ethereum/libp2p/RLPXSocket.h \
+  cpp-ethereum/libp2p/RLPxHandshake.h \
+  cpp-ethereum/libp2p/Session.h \
+  cpp-ethereum/libp2p/UDP.h \
+  cpp-ethereum/libp2p/UPnP.h \
+  cpp-ethereum/libethashseal/genesis/test/constantinopleFixTest.cpp \
   $(BITCOIN_CORE_H)
 
 #only added json_spirit so that `make dist` works properly
