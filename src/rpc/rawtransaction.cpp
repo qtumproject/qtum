@@ -803,15 +803,24 @@ static UniValue createrawtransaction(const JSONRPCRequest& request)
                                     {"data", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "A key-value pair. The key must be \"data\", the value is hex-encoded data"},
                                 },
                                 },
-                            {"contract", RPCArg::Type::OBJ, RPCArg::Optional::OMITTED, "",
+                            {"contract", RPCArg::Type::OBJ, RPCArg::Optional::OMITTED, "(send to contract)",
                                 {
                                     {"contractAddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "Valid contract address (valid hash160 hex data)"},
                                     {"data", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "Hex data to add in the call output"},
                                     {"amount", RPCArg::Type::AMOUNT,  /* default */ "0", "Value in QTUM to send with the call, should be a valid amount, default 0"},
                                     {"gasLimit", RPCArg::Type::NUM,  RPCArg::Optional::OMITTED, "The gas limit for the transaction"},
                                     {"gasPrice", RPCArg::Type::NUM,  RPCArg::Optional::OMITTED, "The gas price for the transaction"},
+                                    {"senderaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED, "The quantum address that will be used to create the contract."},
                                 },
                                 },
+                             {"contract", RPCArg::Type::OBJ, RPCArg::Optional::OMITTED, "(create contract)",
+                                 {
+                                     {"bytecode", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "contract bytcode."},
+                                     {"gasLimit", RPCArg::Type::NUM,  RPCArg::Optional::OMITTED, "The gas limit for the transaction"},
+                                     {"gasPrice", RPCArg::Type::NUM,  RPCArg::Optional::OMITTED, "The gas price for the transaction"},
+                                     {"senderaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED, "The quantum address that will be used to create the contract."},
+                                 },
+                                 },
                         },
                         },
                     {"locktime", RPCArg::Type::NUM, /* default */ "0", "Raw locktime. Non-0 value also locktime-activates inputs"},
@@ -826,10 +835,14 @@ static UniValue createrawtransaction(const JSONRPCRequest& request)
             + HelpExampleCli("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\" \"[{\\\"data\\\":\\\"00010203\\\"}]\"")
             + HelpExampleCli("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\" \"[{\\\"contract\\\":{\\\"contractAddress\\\":\\\"mycontract\\\","
                                                      "\\\"data\\\":\\\"00\\\", \\\"gasLimit\\\":250000, \\\"gasPrice\\\":0.00000040, \\\"amount\\\":0}}]\"")
+            + HelpExampleCli("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\" \"[{\\\"contract\\\":{\\\"bytecode\\\":\\\"contractbytecode\\\","
+                                                     "\\\"gasLimit\\\":2500000, \\\"gasPrice\\\":0.00000040, \\\"senderaddress\\\":\\\"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\\\"}}]\"")
             + HelpExampleRpc("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\", \"[{\\\"address\\\":0.01}]\"")
             + HelpExampleRpc("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\", \"[{\\\"data\\\":\\\"00010203\\\"}]\"")
             + HelpExampleRpc("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\", \"[{\\\"contract\\\":{\\\"contractAddress\\\":\\\"mycontract\\\","
                                                      "\\\"data\\\":\\\"00\\\", \\\"gasLimit\\\":250000, \\\"gasPrice\\\":0.00000040, \\\"amount\\\":0}}]\"")
+            + HelpExampleRpc("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\" \"[{\\\"contract\\\":{\\\"bytecode\\\":\\\"contractbytecode\\\","
+                                                     "\\\"gasLimit\\\":2500000, \\\"gasPrice\\\":0.00000040, \\\"senderaddress\\\":\\\"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\\\"}}]\"")
                 },
             }.ToString());
     }
