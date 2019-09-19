@@ -1,6 +1,7 @@
 #include <boost/test/unit_test.hpp>
 #include <qtumtests/test_utils.h>
 #include <script/standard.h>
+#include <chainparams.h>
 
 namespace dgpTest{
 
@@ -283,7 +284,8 @@ EVMScheduleCustom EVMScheduleContractGasSchedule3(true,true,true,true,{{13,13,10
 dev::h256 hash = dev::h256(ParseHex("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"));
 
 void contractLoading(){
-    dev::eth::ChainParams cp((dev::eth::genesisInfo(dev::eth::Network::qtumMainNetwork)));
+    const CChainParams& chainparams = Params();
+    dev::eth::ChainParams cp((chainparams.EVMGenesisInfo(dev::eth::Network::qtumMainNetwork, 1400)));
     globalState->populateFrom(cp.genesisState);
     globalSealEngine = std::unique_ptr<dev::eth::SealEngineFace>(cp.createSealEngine());
     globalState->db().commit();
@@ -302,7 +304,9 @@ bool compareEVMSchedule(const dev::eth::EVMSchedule& a, const dev::eth::EVMSched
     a.txDataNonZeroGas == b.txDataNonZeroGas && a.copyGas == b.copyGas && a.extcodesizeGas == b.extcodesizeGas &&
     a.extcodecopyGas == b.extcodecopyGas && a.balanceGas == b.balanceGas && a.suicideGas == b.suicideGas &&
     a.maxCodeSize == b.maxCodeSize && a.exceptionalFailedCodeDeposit == b.exceptionalFailedCodeDeposit &&
-    a.haveDelegateCall == b.haveDelegateCall && a.eip150Mode == b.eip150Mode && a.eip158Mode == b.eip158Mode)
+    a.haveDelegateCall == b.haveDelegateCall && a.eip150Mode == b.eip150Mode && a.eip158Mode == b.eip158Mode&&
+    a.haveRevert == b.haveRevert && a.haveStaticCall == b.haveStaticCall && a.haveReturnData == b.haveReturnData &&
+    a.blockRewardOverwrite == b.blockRewardOverwrite)
         return true;
     return false;
 }
@@ -371,6 +375,14 @@ BOOST_AUTO_TEST_CASE(gas_schedule_default_state_test2){
     QtumDGP qtumDGP(globalState.get());
     dev::eth::EVMSchedule schedule = qtumDGP.getGasSchedule(0);
     BOOST_CHECK(compareEVMSchedule(schedule, dev::eth::EIP158Schedule));
+}
+
+BOOST_AUTO_TEST_CASE(gas_schedule_default_state_test3){
+    initState();
+    contractLoading();
+    QtumDGP qtumDGP(globalState.get());
+    dev::eth::EVMSchedule schedule = qtumDGP.getGasSchedule(1400);
+    BOOST_CHECK(compareEVMSchedule(schedule, dev::eth::ConstantinopleSchedule));
 }
 
 BOOST_AUTO_TEST_CASE(gas_schedule_one_paramsInstance_introductory_block_1_test1){

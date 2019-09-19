@@ -133,7 +133,9 @@ BITCOIN_TESTS =\
   test/qtumtests/qtumtxconverter_tests.cpp \
   test/qtumtests/bytecodeexec_tests.cpp \
   test/qtumtests/condensingtransaction_tests.cpp \
-  test/qtumtests/dgp_tests.cpp
+  test/qtumtests/dgp_tests.cpp \
+  test/qtumtests/constantinoplefork_tests.cpp \
+  test/qtumtests/btcecrecoverfork_tests.cpp
 
 if ENABLE_PROPERTY_TESTS
 BITCOIN_TESTS += \
@@ -172,7 +174,7 @@ test_test_qtum_LDADD += $(LIBBITCOIN_SERVER) $(LIBBITCOIN_CLI) $(LIBBITCOIN_COMM
   $(LIBDEVCORE) $(LIBJSONCPP) $(LIBEVM) $(LIBEVMCORE) $(LIBDEVCRYPTO) $(LIBCRYPTOPP) $(LIBSECP256K1) $(LIBSCRYIPT) $(BOOST_LIBS)
 test_test_qtum_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 
-test_test_qtum_LDADD += $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(RAPIDCHECK_LIBS)
+test_test_qtum_LDADD += $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(RAPIDCHECK_LIBS) $(LIBFF) $(GMP_LIBS) $(GMPXX_LIBS)
 test_test_qtum_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) -static
 
 if ENABLE_ZMQ

@@ -89,16 +89,16 @@ class QtumDivergenceDosTest(BitcoinTestFramework):
         pragma solidity ^0.4.24;
         contract Ballot {
             function() payable public {
-                throw;
+                while(true){}
             }
         }
         """
-        bytecode = "6080604052348015600f57600080fd5b50603580601d6000396000f3006080604052600080fd00a165627a7a723058208efda2b7aa7d6a6c3e6e24d1ad3dae8c44b399c5764ea9614e34720227dbd04b0029"
+        bytecode = "6080604052348015600f57600080fd5b50603d80601d6000396000f30060806040525b600115600f576005565b0000a165627a7a72305820046fe704d7206dd7bd828449504709b4786e72b5b8cb47633add96fec4d343410029"
         self.contract_address = self.node.createcontract(bytecode)['address']
         self.node.generate(1)
         self.too_few_txs_test()
         self.different_but_same_number_aal_txs_test()
         self.too_many_txs_test()
-        
+         
 if __name__ == '__main__':
     QtumDivergenceDosTest().main()

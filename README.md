@@ -150,7 +150,7 @@ Qtum uses a tool called Gitian to make reproducible builds that can be verified 
 This is a quick start script for compiling Qtum on Ubuntu
 
 
-    sudo apt-get install build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils git cmake libboost-all-dev
+    sudo apt-get install build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils git cmake libboost-all-dev libgmp3-dev
     sudo apt-get install software-properties-common
     sudo add-apt-repository ppa:bitcoin/bitcoin
     sudo apt-get update
@@ -183,7 +183,7 @@ Here is a brief description for compiling Qtum on CentOS, for more details pleas
     
     # Installing Dependencies for Qtum
     sudo yum install epel-release
-    sudo yum install libtool libdb4-cxx-devel openssl-devel libevent-devel
+    sudo yum install libtool libdb4-cxx-devel openssl-devel libevent-devel gmp-devel
     
     # If you want to build the Qt GUI:
     sudo yum install qt5-qttools-devel protobuf-devel qrencode-devel
@@ -212,7 +212,7 @@ Then install [Homebrew](https://brew.sh).
 
 #### Dependencies
 
-    brew install cmake automake berkeley-db4 libtool boost --c++11 --without-single --without-static miniupnpc openssl pkg-config protobuf qt5 libevent imagemagick --with-librsvg qrencode
+    brew install cmake automake berkeley-db4 libtool boost --c++11 --without-single --without-static miniupnpc openssl pkg-config protobuf qt5 libevent imagemagick --with-librsvg qrencode gmp
 
 NOTE: Building with Qt4 is still supported, however, could result in a broken UI. Building with Qt5 is recommended.
 

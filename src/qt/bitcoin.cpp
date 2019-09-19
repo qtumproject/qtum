@@ -58,6 +58,7 @@
 #include <QTranslator>
 #include <QFile>
 #include <QProcess>
+#include <QFileInfo>
 
 #if defined(QT_STATICPLUGIN)
 #include <QtPlugin>
@@ -448,7 +449,8 @@ void BitcoinApplication::restoreWallet()
         QString commandLine;
         QStringList arg = arguments();
         removeParam(arg, "-reindex", false);
-        removeParam(arg, "-salvagewallet", false);
+        removeParam(arg, "-zapwallettxes=2", false);
+        removeParam(arg, "-deleteblockchaindata", false);
         removeParam(arg, "-wallet", true);
         if(!arg.contains(restoreParam))
         {
@@ -465,8 +467,13 @@ void BitcoinApplication::restoreWallet()
         }
         path /= "wallet.dat";
         QString pathWallet = QString::fromStdString(path.string());
-        QFile::remove(pathWallet);
-        if(QFile::copy(restorePath, pathWallet))
+        bool ret = QFile::exists(restorePath) && QFile::exists(pathWallet);
+        if(ret && QFileInfo(restorePath) != QFileInfo(pathWallet))
+        {
+            ret &= QFile::remove(pathWallet);
+            ret &= QFile::copy(restorePath, pathWallet);
+        }
+        if(ret)
         {
             // Unlock the data folder
             UnlockDataDirectory();

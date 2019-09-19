@@ -53,6 +53,7 @@ struct TokenData
     int evtBurn;
 
     std::string txid;
+    QString errorMessage;
 
     TokenData():
         call(0),
@@ -545,8 +546,8 @@ bool Token::exec(const std::vector<std::string> &input, int func, std::vector<st
     ExecRPCCommand* cmd = sendTo ? d->send : d->call;
     QVariant result;
     QString resultJson;
-    QString errorMessage;
-    if(!cmd->exec(d->model->node(), d->model, d->lstParams, result, resultJson, errorMessage))
+    d->errorMessage.clear();
+    if(!cmd->exec(d->model->node(), d->model, d->lstParams, result, resultJson, d->errorMessage))
         return false;
 
     // Get the result from calling function
@@ -664,4 +665,9 @@ bool Token::execEvents(int64_t fromBlock, int64_t toBlock, int func, std::vector
 void Token::setModel(WalletModel *model)
 {
     d->model = model;
+}
+
+std::string Token::getErrorMessage()
+{
+    return d->errorMessage.toStdString();
 }
