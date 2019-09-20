@@ -11,6 +11,7 @@
 #include <qt/transactiontablemodel.h>
 #include <qt/walletmodel.h>
 #include <interfaces/wallet.h>
+#include <interfaces/node.h>
 #include <qt/transactiondescdialog.h>
 #include <qt/styleSheet.h>
 
@@ -37,9 +38,17 @@ StakePage::~StakePage()
     delete ui;
 }
 
-void StakePage::setClientModel(ClientModel *model)
+void StakePage::setClientModel(ClientModel *_clientModel)
 {
-    this->clientModel = model;
+    this->clientModel = _clientModel;
+
+    if (_clientModel) {
+        connect(_clientModel, &ClientModel::numBlocksChanged, this, &StakePage::numBlocksChanged);
+        int height = _clientModel->node().getNumBlocks();
+        ui->labelHeight->setText(QString::number(height));
+        m_subsidy = _clientModel->node().getBlockSubsidy(height);
+        updateNetworkWeight();
+    }
 }
 
 void StakePage::setWalletModel(WalletModel *model)
@@ -82,5 +91,30 @@ void StakePage::updateDisplayUnit()
         if (m_balances.balance != -1) {
             setBalance(m_balances);
         }
+        updateSubsidy();
     }
+}
+
+void StakePage::numBlocksChanged(int count, const QDateTime &blockDate, double nVerificationProgress, bool headers)
+{
+    if(!headers)
+    {
+        ui->labelHeight->setText(QString::number(count));
+        m_subsidy = clientModel->node().getBlockSubsidy(count);
+        updateSubsidy();
+        updateNetworkWeight();
+    }
+}
+
+void StakePage::updateSubsidy()
+{
+    int unit = walletModel->getOptionsModel()->getDisplayUnit();
+    QString strSubsidy = BitcoinUnits::formatWithUnit(unit, m_subsidy, false, BitcoinUnits::separatorAlways) + "/Block";
+    ui->labelReward->setText(strSubsidy);
+}
+
+void StakePage::updateNetworkWeight()
+{
+    uint64_t networkWeight = clientModel->node().getNetworkStakeWeight();
+    ui->labelWeight->setText(QString::number(networkWeight));
 }

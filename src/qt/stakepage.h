@@ -33,6 +33,7 @@ public:
 
 public Q_SLOTS:
     void setBalance(const interfaces::WalletBalances& balances);
+    void numBlocksChanged(int count, const QDateTime& blockDate, double nVerificationProgress, bool headers);
 
 Q_SIGNALS:
     void transactionClicked(const QModelIndex &index);
@@ -43,10 +44,15 @@ private:
     ClientModel *clientModel;
     WalletModel *walletModel;
     interfaces::WalletBalances m_balances;
+    int64_t m_subsidy;
 
 private Q_SLOTS:
     void updateDisplayUnit();
     void on_checkStake_clicked(bool checked);
+
+private:
+    void updateSubsidy();
+    void updateNetworkWeight();
 };
 
 #endif // QTUM_QT_STAKEPAGE_H
