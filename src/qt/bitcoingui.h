@@ -165,6 +165,7 @@ private:
     QAction* sendTokenAction = nullptr;
     QAction* receiveTokenAction = nullptr;
     QAction* addTokenAction = nullptr;
+    QAction* stakeAction = nullptr;
     QAction* m_open_wallet_action{nullptr};
     QMenu* m_open_wallet_menu{nullptr};
     QAction* m_close_wallet_action{nullptr};
@@ -304,6 +305,8 @@ public Q_SLOTS:
     void gotoReceiveTokenPage();
     /** Switch to Add Token page */
     void gotoAddTokenPage();
+    /** Switch to stake page */
+    void gotoStakePage();
 
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");

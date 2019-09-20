@@ -25,6 +25,7 @@
 #include <qt/callcontract.h>
 #include <qt/qrctoken.h>
 #include <qt/restoredialog.h>
+#include <qt/stakepage.h>
 
 #include <interfaces/node.h>
 #include <ui_interface.h>
@@ -73,6 +74,8 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
 
     QRCTokenPage = new QRCToken(platformStyle);
 
+    stakePage = new StakePage(platformStyle);
+
     addWidget(overviewPage);
     addWidget(transactionsPage);
     addWidget(receiveCoinsPage);
@@ -81,6 +84,7 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
     addWidget(sendToContractPage);
     addWidget(callContractPage);
     addWidget(QRCTokenPage);
+    addWidget(stakePage);
 
     connect(overviewPage, &OverviewPage::outOfSyncWarningClicked, this, &WalletView::requestedSyncWarningInfo);
 
@@ -142,6 +146,7 @@ void WalletView::setClientModel(ClientModel *_clientModel)
     sendToContractPage->setClientModel(_clientModel);
     callContractPage->setClientModel(_clientModel);
     QRCTokenPage->setClientModel(_clientModel);
+    stakePage->setClientModel(_clientModel);
 }
 
 void WalletView::setWalletModel(WalletModel *_walletModel)
@@ -157,6 +162,7 @@ void WalletView::setWalletModel(WalletModel *_walletModel)
     sendToContractPage->setModel(_walletModel);
     callContractPage->setModel(_walletModel);
     QRCTokenPage->setModel(_walletModel);
+    stakePage->setWalletModel(_walletModel);
     usedReceivingAddressesPage->setModel(_walletModel ? _walletModel->getAddressTableModel() : nullptr);
     usedSendingAddressesPage->setModel(_walletModel ? _walletModel->getAddressTableModel() : nullptr);
 
@@ -292,6 +298,11 @@ void WalletView::gotoAddTokenPage()
 {
     setCurrentWidget(QRCTokenPage);
     QRCTokenPage->on_goToAddTokenPage();
+}
+
+void WalletView::gotoStakePage()
+{
+    setCurrentWidget(stakePage);
 }
 
 void WalletView::gotoSignMessageTab(QString addr)

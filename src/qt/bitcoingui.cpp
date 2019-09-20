@@ -306,18 +306,25 @@ void BitcoinGUI::createActions()
     sendToContractAction = new QAction(tr("Send To"), this);
     callContractAction = new QAction(tr("Call"), this);
 
+    stakeAction = new QAction(platformStyle->MultiStatesIcon(":/icons/tx_mined"), tr("&Stake"), this);
+    stakeAction->setStatusTip(tr("Show stake of wallet"));
+    stakeAction->setToolTip(stakeAction->statusTip());
+    stakeAction->setCheckable(true);
+    stakeAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_5));
+    tabGroup->addAction(stakeAction);
+
     historyAction = new QAction(platformStyle->MultiStatesIcon(":/icons/history"), tr("&Transactions"), this);//QTUM_LINE
     historyAction->setStatusTip(tr("Browse transaction history"));
     historyAction->setToolTip(historyAction->statusTip());
     historyAction->setCheckable(true);
-    historyAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_5));
+    historyAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_6));
     tabGroup->addAction(historyAction);
 
     QRCTokenAction = new QAction(platformStyle->MultiStatesIcon(":/icons/qrctoken"), tr("&QRC Tokens"), this);
     QRCTokenAction->setStatusTip(tr("QRC Tokens (send, receive or add Tokens in list)"));
     QRCTokenAction->setToolTip(QRCTokenAction->statusTip());
     QRCTokenAction->setCheckable(true);
-    QRCTokenAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_6));
+    QRCTokenAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_7));
     tabGroup->addAction(QRCTokenAction);
 
     sendTokenAction = new QAction(tr("Send"), this);
@@ -351,6 +358,8 @@ void BitcoinGUI::createActions()
     connect(receiveTokenAction, SIGNAL(triggered()), this, SLOT(gotoReceiveTokenPage()));
     connect(addTokenAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(addTokenAction, SIGNAL(triggered()), this, SLOT(gotoAddTokenPage()));
+    connect(stakeAction, &QAction::triggered, [this]{ showNormalIfMinimized(); });
+    connect(stakeAction, &QAction::triggered, this, &BitcoinGUI::gotoStakePage);
 #endif // ENABLE_WALLET
 
     quitAction = new QAction(platformStyle->MenuColorIcon(":/icons/quit"), tr("E&xit"), this);
@@ -617,6 +626,7 @@ void BitcoinGUI::createToolBars()
         contractActions.append(sendToContractAction);
         contractActions.append(callContractAction);
         appNavigationBar->mapGroup(smartContractAction, contractActions);
+        appNavigationBar->addAction(stakeAction);
         QList<QAction*> tokenActions;
         tokenActions.append(sendTokenAction);
         tokenActions.append(receiveTokenAction);
@@ -1004,6 +1014,12 @@ void BitcoinGUI::gotoSendToContractPage()
 void BitcoinGUI::gotoCallContractPage()
 {
     if (walletFrame) walletFrame->gotoCallContractPage();
+}
+
+void BitcoinGUI::gotoStakePage()
+{
+    stakeAction->setChecked(true);
+    if (walletFrame) walletFrame->gotoStakePage();
 }
 
 void BitcoinGUI::gotoSignMessageTab(QString addr)

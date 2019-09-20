@@ -85,6 +85,8 @@ public Q_SLOTS:
     void gotoReceiveTokenPage();
     /** Switch to Add Token page */
     void gotoAddTokenPage();
+    /** Switch to stake page */
+    void gotoStakePage();
 
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");
