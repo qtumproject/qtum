@@ -856,6 +856,14 @@ public:
     {
         return m_wallet->CleanTokenTxEntries();
     }
+    void setEnabledStaking(bool enabled) override
+    {
+        m_wallet->m_enabled_staking = enabled;
+    }
+    bool getEnabledStaking() override
+    {
+        return m_wallet->m_enabled_staking;
+    }
     std::unique_ptr<Handler> handleUnload(UnloadFn fn) override
     {
         return MakeHandler(m_wallet->NotifyUnload.connect(fn));

@@ -11,6 +11,8 @@
 #include <qt/transactiondescdialog.h>
 #include <qt/styleSheet.h>
 
+#include <miner.h>
+
 #include <QSortFilterProxyModel>
 
 Q_DECLARE_METATYPE(interfaces::WalletBalances)
@@ -24,6 +26,7 @@ StakePage::StakePage(const PlatformStyle *platformStyle, QWidget *parent) :
     walletModel(nullptr)
 {
     ui->setupUi(this);
+    ui->checkStake->setEnabled(gArgs.GetBoolArg("-staking", DEFAULT_STAKE));
 }
 
 StakePage::~StakePage()
@@ -39,8 +42,17 @@ void StakePage::setClientModel(ClientModel *model)
 void StakePage::setWalletModel(WalletModel *model)
 {
     this->walletModel = model;
+    if(this->walletModel)
+    {
+        ui->checkStake->setChecked(this->walletModel->wallet().getEnabledStaking());
+    }
 }
 
 void StakePage::setBalance(const interfaces::WalletBalances& balances)
 {
+}
+
+void StakePage::on_checkStake_clicked(bool checked)
+{
+    this->walletModel->wallet().setEnabledStaking(checked);
 }

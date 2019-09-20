@@ -331,6 +331,12 @@ public:
     //! Set wallet unlock for staking only
     virtual void setWalletUnlockStakingOnly(bool unlock) = 0;
 
+    //! Set wallet enabled for staking
+    virtual void setEnabledStaking(bool enabled) = 0;
+
+    //! Get wallet enabled for staking
+    virtual bool getEnabledStaking() = 0;
+
     //! Register handler for unload message.
     using UnloadFn = std::function<void()>;
     virtual std::unique_ptr<Handler> handleUnload(UnloadFn fn) = 0;

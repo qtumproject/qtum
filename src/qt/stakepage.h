@@ -37,12 +37,14 @@ public Q_SLOTS:
 Q_SIGNALS:
     void transactionClicked(const QModelIndex &index);
 
+
 private:
     Ui::StakePage *ui;
     ClientModel *clientModel;
     WalletModel *walletModel;
 
 private Q_SLOTS:
+    void on_checkStake_clicked(bool checked);
 };
 
 #endif // QTUM_QT_STAKEPAGE_H
