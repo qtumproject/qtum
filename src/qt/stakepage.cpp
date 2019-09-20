@@ -3,6 +3,9 @@
 
 #include <qt/bitcoinunits.h>
 #include <qt/clientmodel.h>
+#include <qt/guiconstants.h>
+#include <qt/guiutil.h>
+#include <qt/optionsmodel.h>
 #include <qt/platformstyle.h>
 #include <qt/transactionfilterproxy.h>
 #include <qt/transactiontablemodel.h>
@@ -42,17 +45,42 @@ void StakePage::setClientModel(ClientModel *model)
 void StakePage::setWalletModel(WalletModel *model)
 {
     this->walletModel = model;
-    if(this->walletModel)
+    if(model && model->getOptionsModel())
     {
-        ui->checkStake->setChecked(this->walletModel->wallet().getEnabledStaking());
+        ui->checkStake->setChecked(model->wallet().getEnabledStaking());
+
+        // Keep up to date with wallet
+        interfaces::Wallet& wallet = model->wallet();
+        interfaces::WalletBalances balances = wallet.getBalances();
+        setBalance(balances);
+        connect(model, &WalletModel::balanceChanged, this, &StakePage::setBalance);
+
+        connect(model->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &StakePage::updateDisplayUnit);
     }
+
+    // update the display unit, to not use the default ("BTC")
+    updateDisplayUnit();
 }
 
 void StakePage::setBalance(const interfaces::WalletBalances& balances)
 {
+    int unit = walletModel->getOptionsModel()->getDisplayUnit();
+    m_balances = balances;
+    ui->labelAssets->setText(BitcoinUnits::formatWithUnit(unit, balances.balance, false, BitcoinUnits::separatorAlways));
+    ui->labelStake->setText(BitcoinUnits::formatWithUnit(unit, balances.stake, false, BitcoinUnits::separatorAlways));
 }
 
 void StakePage::on_checkStake_clicked(bool checked)
 {
     this->walletModel->wallet().setEnabledStaking(checked);
+}
+
+void StakePage::updateDisplayUnit()
+{
+    if(walletModel && walletModel->getOptionsModel())
+    {
+        if (m_balances.balance != -1) {
+            setBalance(m_balances);
+        }
+    }
 }

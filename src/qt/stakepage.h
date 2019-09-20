@@ -42,8 +42,10 @@ private:
     Ui::StakePage *ui;
     ClientModel *clientModel;
     WalletModel *walletModel;
+    interfaces::WalletBalances m_balances;
 
 private Q_SLOTS:
+    void updateDisplayUnit();
     void on_checkStake_clicked(bool checked);
 };
 

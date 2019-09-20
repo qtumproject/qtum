@@ -216,7 +216,6 @@ QT_MOC = \
   qt/intro.moc \
   qt/overviewpage.moc \
   qt/rpcconsole.moc \
-  qt/stakepage.moc \
   qt/tokenamountfield.moc \
   qt/tokenitemmodel.moc \
   qt/walletmodel.moc
