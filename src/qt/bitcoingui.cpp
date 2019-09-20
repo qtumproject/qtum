@@ -1544,7 +1544,8 @@ void BitcoinGUI::updateStakingIcon()
     WalletModel * const walletModel = walletView->getWalletModel();
 
     uint64_t nWeight= walletModel->getStakeWeight();
-    if (walletModel->wallet().getLastCoinStakeSearchInterval() && nWeight)
+    if (walletModel->wallet().getLastCoinStakeSearchInterval() &&
+            walletModel->wallet().getEnabledStaking() && nWeight)
     {
         uint64_t nNetworkWeight = GetPoSKernelPS();
         const Consensus::Params& consensusParams = Params().GetConsensus();
