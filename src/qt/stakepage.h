@@ -10,6 +10,7 @@ class ClientModel;
 class TransactionFilterProxy;
 class PlatformStyle;
 class WalletModel;
+class TransactionView;
 
 namespace Ui {
     class StakePage;
@@ -41,6 +42,7 @@ private:
     ClientModel *clientModel;
     WalletModel *walletModel;
     const PlatformStyle* const platformStyle;
+    TransactionView* transactionView;
     interfaces::WalletBalances m_balances;
     int64_t m_subsidy;
     int64_t m_moneySupply;

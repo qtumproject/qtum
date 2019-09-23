@@ -14,6 +14,7 @@
 #include <interfaces/node.h>
 #include <qt/transactiondescdialog.h>
 #include <qt/styleSheet.h>
+#include <qt/transactionview.h>
 
 #include <miner.h>
 
@@ -27,6 +28,7 @@ StakePage::StakePage(const PlatformStyle *_platformStyle, QWidget *parent) :
     clientModel(nullptr),
     walletModel(nullptr),
     platformStyle(_platformStyle),
+    transactionView(0),
     m_subsidy(0),
     m_moneySupply(0),
     m_networkWeight(0),
@@ -34,6 +36,8 @@ StakePage::StakePage(const PlatformStyle *_platformStyle, QWidget *parent) :
 {
     ui->setupUi(this);
     ui->checkStake->setEnabled(gArgs.GetBoolArg("-staking", DEFAULT_STAKE));
+    transactionView = new TransactionView(platformStyle, this, true);
+    ui->frameStakeRecords->layout()->addWidget(transactionView);
 }
 
 StakePage::~StakePage()
@@ -61,6 +65,8 @@ void StakePage::setWalletModel(WalletModel *model)
     this->walletModel = model;
     if(model && model->getOptionsModel())
     {
+        transactionView->setModel(model);
+        transactionView->chooseType(6);
         ui->checkStake->setChecked(model->wallet().getEnabledStaking());
 
         // Keep up to date with wallet
