@@ -293,6 +293,10 @@ public:
     {
         return GetPoSKernelPS();
     }
+    int64_t getMoneySupply() override
+    {
+        return pindexBestHeader ? pindexBestHeader->nMoneySupply / COIN : 0;
+    }
     std::unique_ptr<Wallet> loadWallet(const std::string& name, std::string& error, std::string& warning) override
     {
         return MakeWallet(LoadWallet(*m_interfaces.chain, name, error, warning));
