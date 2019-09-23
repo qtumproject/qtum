@@ -258,4 +258,5 @@ void SendTokenPage::setTokenData(std::string address, std::string sender, std::s
     {
         ui->lineEditAmount->setValue(value);
     }
+    ui->labelTokenBalance->setText(BitcoinUnits::formatToken(m_selectedToken->decimals, totalSupply, false, BitcoinUnits::separatorAlways));
 }
