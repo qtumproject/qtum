@@ -21,13 +21,12 @@
 
 Q_DECLARE_METATYPE(interfaces::WalletBalances)
 
-#include <qt/stakepage.moc>
-
-StakePage::StakePage(const PlatformStyle *platformStyle, QWidget *parent) :
+StakePage::StakePage(const PlatformStyle *_platformStyle, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::StakePage),
     clientModel(nullptr),
     walletModel(nullptr),
+    platformStyle(_platformStyle),
     m_subsidy(0),
     m_moneySupply(0),
     m_networkWeight(0),

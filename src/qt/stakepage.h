@@ -35,14 +35,12 @@ public Q_SLOTS:
     void setBalance(const interfaces::WalletBalances& balances);
     void numBlocksChanged(int count, const QDateTime& blockDate, double nVerificationProgress, bool headers);
 
-Q_SIGNALS:
-    void transactionClicked(const QModelIndex &index);
-
 
 private:
     Ui::StakePage *ui;
     ClientModel *clientModel;
     WalletModel *walletModel;
+    const PlatformStyle* const platformStyle;
     interfaces::WalletBalances m_balances;
     int64_t m_subsidy;
     int64_t m_moneySupply;
