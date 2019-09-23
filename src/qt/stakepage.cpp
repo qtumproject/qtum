@@ -27,7 +27,11 @@ StakePage::StakePage(const PlatformStyle *platformStyle, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::StakePage),
     clientModel(nullptr),
-    walletModel(nullptr)
+    walletModel(nullptr),
+    m_subsidy(0),
+    m_moneySupply(0),
+    m_networkWeight(0),
+    m_stakeWeight(0)
 {
     ui->setupUi(this);
     ui->checkStake->setEnabled(gArgs.GetBoolArg("-staking", DEFAULT_STAKE));
@@ -47,6 +51,8 @@ void StakePage::setClientModel(ClientModel *_clientModel)
         int height = _clientModel->node().getNumBlocks();
         ui->labelHeight->setText(QString::number(height));
         m_subsidy = _clientModel->node().getBlockSubsidy(height);
+        m_networkWeight = _clientModel->node().getNetworkStakeWeight();
+        m_moneySupply = _clientModel->node().getMoneySupply();
         updateNetworkWeight();
     }
 }
@@ -61,6 +67,7 @@ void StakePage::setWalletModel(WalletModel *model)
         // Keep up to date with wallet
         interfaces::Wallet& wallet = model->wallet();
         interfaces::WalletBalances balances = wallet.getBalances();
+        m_stakeWeight = wallet.getStakeWeight();
         setBalance(balances);
         connect(model, &WalletModel::balanceChanged, this, &StakePage::setBalance);
 
@@ -77,6 +84,7 @@ void StakePage::setBalance(const interfaces::WalletBalances& balances)
     m_balances = balances;
     ui->labelAssets->setText(BitcoinUnits::formatWithUnit(unit, balances.balance, false, BitcoinUnits::separatorAlways));
     ui->labelStake->setText(BitcoinUnits::formatWithUnit(unit, balances.stake, false, BitcoinUnits::separatorAlways));
+    updateAnnualROI();
 }
 
 void StakePage::on_checkStake_clicked(bool checked)
@@ -95,14 +103,19 @@ void StakePage::updateDisplayUnit()
     }
 }
 
-void StakePage::numBlocksChanged(int count, const QDateTime &blockDate, double nVerificationProgress, bool headers)
+void StakePage::numBlocksChanged(int count, const QDateTime &, double, bool headers)
 {
-    if(!headers)
+    if(!headers && clientModel && walletModel)
     {
         ui->labelHeight->setText(QString::number(count));
         m_subsidy = clientModel->node().getBlockSubsidy(count);
+        m_networkWeight = clientModel->node().getNetworkStakeWeight();
+        m_moneySupply = clientModel->node().getMoneySupply();
+        interfaces::Wallet& wallet = walletModel->wallet();
+        m_stakeWeight = wallet.getStakeWeight();
         updateSubsidy();
         updateNetworkWeight();
+        updateAnnualROI();
     }
 }
 
@@ -115,6 +128,20 @@ void StakePage::updateSubsidy()
 
 void StakePage::updateNetworkWeight()
 {
-    uint64_t networkWeight = clientModel->node().getNetworkStakeWeight();
-    ui->labelWeight->setText(QString::number(networkWeight));
+    ui->labelWeight->setText(QString::number(m_networkWeight));
+}
+
+void StakePage::updateAnnualROI()
+{
+    double annualROI = 0;
+    int64_t totalAmount = m_balances.balance + m_balances.unconfirmed_balance + m_balances.immature_balance + m_balances.stake;
+    if(m_networkWeight > 0 && totalAmount > 0)
+    {
+        double inflation = 0.01; // Target annual inflation of 1%
+        int64_t totalReward = m_moneySupply * inflation;
+        double stakeShare = (double) m_stakeWeight / m_networkWeight;
+        int64_t walletReward =  stakeShare * totalReward;
+        annualROI =(double) walletReward / totalAmount * 100;
+    }
+    ui->labelROI->setText(QString::number(annualROI, 'f', 1) + "%");
 }
