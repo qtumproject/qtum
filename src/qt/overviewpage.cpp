@@ -167,72 +167,6 @@ private:
     QColor amount_color;
 };
 
-class TknViewDelegate : public QAbstractItemDelegate
-{
-public:
-    TknViewDelegate(const PlatformStyle *_platformStyle, QObject *parent) :
-        QAbstractItemDelegate(parent),
-        platformStyle(_platformStyle)
-    {
-        background_color = GetStringStyleValue("tknviewdelegate/background-color", "#383938");
-        hline_color = GetStringStyleValue("tknviewdelegate/hline-color", "#2e2e2e");
-        foreground_color = GetStringStyleValue("tknviewdelegate/foreground-color", "#dedede");
-    }
-
-    void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               const QModelIndex &index) const
-    {
-        painter->save();
-
-        QString tokenSymbol = index.data(TokenItemModel::SymbolRole).toString();
-        QString tokenBalance = index.data(TokenItemModel::BalanceRole).toString();
-
-        QRect mainRect = option.rect;
-        mainRect.setWidth(option.rect.width());
-
-        painter->fillRect(mainRect, background_color);
-
-        QRect hLineRect(mainRect.left(), mainRect.bottom(), mainRect.width(), 1);
-        painter->fillRect(hLineRect, hline_color);
-
-        QColor foreground = foreground_color;
-        painter->setPen(foreground);
-        
-        QFont font = option.font;
-
-        QFontMetrics fmName(font);
-        QString clippedSymbol = fmName.elidedText(tokenSymbol, Qt::ElideRight, SYMBOL_WIDTH);
-
-        QRect symbolRect(mainRect.left() + MARGIN, mainRect.top(), SYMBOL_WIDTH, mainRect.height());
-        painter->drawText(symbolRect, Qt::AlignLeft|Qt::AlignVCenter, clippedSymbol);
-
-        int balanceWidth = mainRect.width() - symbolRect.width() - 3 * MARGIN;
-        QRect balanceRect(symbolRect.right() + MARGIN, symbolRect.top(), balanceWidth, mainRect.height());
-        painter->drawText(balanceRect, Qt::AlignRight|Qt::AlignVCenter, tokenBalance);
-
-        painter->restore();
-    }
-
-    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
-    {
-        QFont font = option.font;
-
-        QString balanceString = index.data(TokenItemModel::BalanceRole).toString();
-        QFontMetrics fm(font);
-        int balanceWidth = fm.width(balanceString);
-
-        int width = SYMBOL_WIDTH + balanceWidth + 3*MARGIN;
-        return QSize(width, TOKEN_SIZE);
-    }
-
-    const PlatformStyle *platformStyle;
-
-private:
-    QColor background_color;
-    QColor hline_color;
-    QColor foreground_color;
-};
-
 #include <qt/overviewpage.moc>
 
 OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) :
@@ -240,23 +174,15 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     ui(new Ui::OverviewPage),
     clientModel(nullptr),
     walletModel(nullptr),
-    txdelegate(new TxViewDelegate(platformStyle, this)),
-    tkndelegate(new TknViewDelegate(platformStyle, this))
+    txdelegate(new TxViewDelegate(platformStyle, this))
 {
     ui->setupUi(this);
 
     // Set stylesheet
     SetObjectStyleSheet(ui->labelWalletStatus, StyleSheetNames::ButtonTransparent);
-    SetObjectStyleSheet(ui->labelTokenStatus, StyleSheetNames::ButtonTransparent);
     SetObjectStyleSheet(ui->labelTransactionsStatus, StyleSheetNames::ButtonTransparent);
 
     m_balances.balance = -1;
-
-    if (!platformStyle->getImagesOnButtons()) {
-        ui->buttonAddToken->setIcon(QIcon());
-    } else {
-        ui->buttonAddToken->setIcon(platformStyle->MultiStatesIcon(":/icons/add", PlatformStyle::PushButton));
-    }
 
 
     // use a MultiStatesIcon for the "out of sync warning" icon
@@ -264,7 +190,6 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
 
     ui->labelTransactionsStatus->setIcon(icon);
     ui->labelWalletStatus->setIcon(icon);
-    ui->labelTokenStatus->setIcon(icon);
 
     QFont font = ui->labelTotal->font();
     font.setPointSizeF(font.pointSizeF() * 1.5);
@@ -288,14 +213,9 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
 
     connect(ui->listTransactions, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(showDetails()));
 
-    // Token list
-    ui->listTokens->setItemDelegate(tkndelegate);
-    ui->listTokens->setAttribute(Qt::WA_MacShowFocusRect, false);
-
     // start with displaying the "out of sync" warnings
     showOutOfSyncWarning(true);
     connect(ui->labelWalletStatus, &QPushButton::clicked, this, &OverviewPage::handleOutOfSyncWarningClicks);
-    connect(ui->labelTokenStatus, SIGNAL(clicked()), this, SLOT(handleOutOfSyncWarningClicks()));
     connect(ui->labelTransactionsStatus, &QPushButton::clicked, this, &OverviewPage::handleOutOfSyncWarningClicks);
 }
 
@@ -431,9 +351,6 @@ void OverviewPage::setWalletModel(WalletModel *model)
         TokenItemModel* tokenModel = model->getTokenItemModel();
         proxyModel->setSourceModel(tokenModel);
         proxyModel->sort(0, Qt::AscendingOrder);
-
-        // Set tokens model
-        ui->listTokens->setModel(proxyModel);
     }
 
     // update the display unit, to not use the default ("BTC")
@@ -468,12 +385,6 @@ void OverviewPage::showOutOfSyncWarning(bool fShow)
 {
     ui->labelWalletStatus->setVisible(fShow);
     ui->labelTransactionsStatus->setVisible(fShow);
-    ui->labelTokenStatus->setVisible(fShow);
-}
-
-void OverviewPage::on_buttonAddToken_clicked()
-{
-    Q_EMIT addTokenClicked();
 }
 
 void OverviewPage::on_showMoreButton_clicked()

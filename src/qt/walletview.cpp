@@ -130,9 +130,6 @@ void WalletView::setBitcoinGUI(BitcoinGUI *gui)
 
         // Connect HD enabled state signal
         connect(this, &WalletView::hdEnabledStatusChanged, gui, &BitcoinGUI::updateWalletStatus);
-
-        // Clicking on add token button sends you to add token page
-        connect(overviewPage, &OverviewPage::addTokenClicked, gui, &BitcoinGUI::gotoAddTokenPage);
     }
 }
 

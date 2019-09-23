@@ -46,7 +46,6 @@ Q_SIGNALS:
     void showMoreClicked();
     void transactionClicked(const QModelIndex &index);
     void outOfSyncWarningClicked();
-    void addTokenClicked();
 
 private:
     Ui::OverviewPage *ui;
@@ -55,7 +54,6 @@ private:
     interfaces::WalletBalances m_balances;
 
     TxViewDelegate *txdelegate;
-    TknViewDelegate *tkndelegate;
     std::unique_ptr<TransactionFilterProxy> filter;
 
 private Q_SLOTS:
@@ -64,7 +62,6 @@ private Q_SLOTS:
     void updateWatchOnlyLabels(bool showWatchOnly);
     void handleOutOfSyncWarningClicks();
 
-    void on_buttonAddToken_clicked();
     void on_showMoreButton_clicked();
     void showDetails();
 };
