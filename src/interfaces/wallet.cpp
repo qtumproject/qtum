@@ -840,6 +840,12 @@ public:
         nWeight = m_wallet->GetStakeWeight(*locked_chain);
         return true;
     }
+    uint64_t getStakeWeight() override
+    {
+        auto locked_chain = m_wallet->chain().lock();
+        LOCK(m_wallet->cs_wallet);
+        return m_wallet->GetStakeWeight(*locked_chain);
+    }
     int64_t getLastCoinStakeSearchInterval() override 
     { 
         return m_wallet->m_last_coin_stake_search_interval;

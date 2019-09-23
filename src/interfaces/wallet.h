@@ -322,6 +322,9 @@ public:
     //! Try get the stake weight
     virtual bool tryGetStakeWeight(uint64_t& nWeight) = 0;
 
+    //! Get the stake weight
+    virtual uint64_t getStakeWeight() = 0;
+
     //! Get last coin stake search interval
     virtual int64_t getLastCoinStakeSearchInterval() = 0;
 
