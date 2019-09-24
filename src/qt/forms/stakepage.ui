@@ -162,12 +162,9 @@
          </widget>
         </item>
         <item row="1" column="5">
-         <widget class="QCheckBox" name="checkStake">
+         <widget class="QSwitchControl" name="checkStake">
           <property name="enabled">
            <bool>false</bool>
-          </property>
-          <property name="text">
-           <string/>
           </property>
          </widget>
         </item>
@@ -485,6 +482,13 @@
    </property>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QSwitchControl</class>
+   <extends>QCheckBox</extends>
+   <header>qt/qswitchcontrol.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

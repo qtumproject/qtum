@@ -9,13 +9,12 @@ static const QSize FrameSize = QSize(68, 30);
 static const QSize SwitchSize = QSize (26, 26);
 static const int SwitchOffset = (FrameSize.height() - SwitchSize.height()) / 2;
 
-static const QString CustomFrameOnStlye = QString("QFrame { border: none; border-radius: %1; background-color: #4697D9;}").arg(FrameSize.height() / 2);
-static const QString CustomFrameOffStlye = QString("QFrame { border: none; border-radius: %1; background-color: #6f80ab;}").arg(FrameSize.height() / 2);
-static const QString CustomButtonStlye = QString("QPushButton { border-radius: %1; background-color: white;}").arg(SwitchSize.height() / 2);
+static const QString CustomFrameOnStlye = QString("QAbstractButton { border: none; border-radius: %1; background-color: #4697D9;}").arg(FrameSize.height() / 2);
+static const QString CustomFrameOffStlye = QString("QAbstractButton { border: none; border-radius: %1; background-color: #6f80ab;}").arg(FrameSize.height() / 2);
+static const QString CustomButtonStlye = QString("QPushButton { min-width: 0em; border-radius: %1; background-color: white;}").arg(SwitchSize.height() / 2);
 
 QSwitchControl::QSwitchControl(QWidget *parent):
-    QFrame(parent),
-    isOn(false)
+    QAbstractButton(parent)
 {
     this->setFixedSize(FrameSize);
 
@@ -26,17 +25,15 @@ QSwitchControl::QSwitchControl(QWidget *parent):
     animation = new QPropertyAnimation(pbSwitch, "geometry", this);
     animation->setDuration(200);
 
-    setSwitchedOn(true);
-
     connect(this, &QSwitchControl::mouseClicked, this, &QSwitchControl::onStatusChanged);
     connect(pbSwitch, &QPushButton::clicked, this, &QSwitchControl::onStatusChanged);
+    setCheckable(true);
+    setChecked(false);
 }
 
-void QSwitchControl::setSwitchedOn(bool on)
+void QSwitchControl::setChecked(bool checked)
 {
-    isOn = on;
-
-    if(on)
+    if(checked)
     {
         pbSwitch->move(this->width() - pbSwitch->width() - SwitchOffset, this->y() + SwitchOffset);
         this->setStyleSheet(CustomFrameOnStlye);
@@ -46,23 +43,20 @@ void QSwitchControl::setSwitchedOn(bool on)
         pbSwitch->move(this->x() + SwitchOffset, this->y() + SwitchOffset);
         this->setStyleSheet(CustomFrameOffStlye);
     }
-}
 
-bool QSwitchControl::getSwitchedOn()
-{
-    return isOn;
+    QAbstractButton::setChecked(checked);
 }
 
 void QSwitchControl::onStatusChanged()
 {
-    isOn = !isOn;
+    bool checked = !isChecked();
 
     QRect currentGeometry(pbSwitch->x(), pbSwitch->y(), pbSwitch->width(), pbSwitch->height());
 
     if(animation->state() == QAbstractAnimation::Running)
         animation->stop();
 
-    if(isOn)
+    if(checked)
     {
         this->setStyleSheet(CustomFrameOnStlye);
 
@@ -78,22 +72,19 @@ void QSwitchControl::onStatusChanged()
     }
     animation->start();
 
-    emit statusChanged(isOn);
+    setChecked(checked);
+    Q_EMIT clicked(checked);
 }
 
-void QSwitchControl::mousePressEvent(QMouseEvent *event)
+void QSwitchControl::mousePressEvent(QMouseEvent *)
 {
-    Q_UNUSED(event)
-
-    emit mouseClicked();
+    Q_EMIT mouseClicked();
 }
 
-void QSwitchControl::paintEvent(QPaintEvent *event)
+void QSwitchControl::paintEvent(QPaintEvent *)
 {
     QStyleOption opt;
     opt.init(this);
     QPainter p(this);
     style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
-
-    QFrame::paintEvent(event);
 }

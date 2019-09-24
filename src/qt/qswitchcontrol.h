@@ -1,34 +1,31 @@
 #ifndef QSWITCHCONTROL_H
 #define QSWITCHCONTROL_H
 
-#include <QFrame>
+#include <QAbstractButton>
 
 class QPushButton;
 class QPropertyAnimation;
 
-class QSwitchControl : public QFrame
+class QSwitchControl : public QAbstractButton
 {
     Q_OBJECT
-
 public:
     QSwitchControl(QWidget *parent = nullptr);
 
-    void setSwitchedOn(bool on);
-    bool getSwitchedOn();
+public Q_SLOTS:
+    void setChecked(bool);
 
-private slots:
+private Q_SLOTS:
     void onStatusChanged();
 
-signals:
+Q_SIGNALS:
     void mouseClicked();
-    void statusChanged(bool isOn);
 
 protected:
     void mousePressEvent(QMouseEvent *event);
     void paintEvent(QPaintEvent *event);
 
 private:
-    bool isOn;
     QPushButton *pbSwitch;
     QPropertyAnimation *animation;
 };
