@@ -958,3 +958,29 @@ QToolButton#tabBarTool::hover{
     padding-top: 1px; 
     padding-bottom: 1px; 
 }
+/*--------------------------------------------
+Stake Page Widget CSS
+--------------------------------------------*/
+#StakePage QLabel{
+    color: #47587d;
+}
+#frameStakeInfo {
+    background-color: #222f4b;
+    border: 1px dotted #47587d;
+    color: #47587d;
+    border-radius: 4px;
+}
+#frameStakeInfo #labelAssets{
+    color: white;
+    font: 17pt;
+}
+#frameStakeInfo #labelHeight,
+#frameStakeInfo #labelWeight,
+#frameStakeInfo #labelReward,
+#frameStakeInfo #labelROI,
+#frameStakeInfo #labelStaking{
+    color: #6f80ab;
+}
+#frameStakeInfo #hLine{
+    border-top: 1px solid #1a2845;
+}
