@@ -40,7 +40,8 @@ QFrame#hLine,
     border-top: 1px solid transparent;
 }
 QFrame#hContractLine,
-#hContractLine2{
+#hContractLine2,
+#OverviewPage #hLine{
     border-top: 4px solid #252f49;
 }
 QFrame#vLine,
@@ -59,9 +60,7 @@ QLabel{
 QLabel::disabled{
     color: rgba(111, 128, 171, 20%);
 }
-QLabel#labelTotal,
-#labelWatchTotal,
-#labelGeneral,
+QLabel#labelGeneral,
 #labelNetwork,
 #labelBlockChain,
 #labelMempoolTitle{
@@ -983,4 +982,28 @@ Stake Page Widget CSS
 }
 #frameStakeInfo #hLine{
     border-top: 1px solid #1a2845;
+}
+/*--------------------------------------------
+Overview Page Widget CSS
+--------------------------------------------*/
+#widgetWallet #widgetTotal QLabel,
+#widgetWatch #widgetWatchTotal QLabel{
+    color: white;
+    font: 17pt;
+}
+#widgetPending #vLine,
+#widgetImmature #vLine_2,
+#widgetStake #vLine_3,
+#widgetWatchPending #vLine_4
+#widgetWatchImmature #vLine_5,
+#widgetWatchStake #vLine_6{
+    border-left: 1px solid rgba(111, 128, 171, 60%);
+}
+#widgetStatus #labelLogo{
+    width: 32px;
+    height: 32px;
+    border-radius: 16px;
+    background-color: #1d3456;
+    image:url(":/icons/bitcoin");
+    padding: 5px;
 }
