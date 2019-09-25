@@ -29,6 +29,7 @@ public:
         message_question_path = GetStringStyleValue("appstyle/message-question-icon", ":/styles/theme1/app-icons/message_question");
         message_icon_weight = GetIntStyleValue("appstyle/message-icon-weight", 45);
         message_icon_height = GetIntStyleValue("appstyle/message-icon-height", 49);
+        button_text_upper = GetIntStyleValue("appstyle/button_text_upper", true);
     }
 
     void polish(QWidget *widget)
@@ -74,7 +75,7 @@ public:
             }
             messageBox->setIconPixmap(iconPixmap.scaled(message_icon_weight, message_icon_height));
         }
-        if(widget && widget->inherits("QPushButton"))
+        if(widget && widget->inherits("QPushButton") && button_text_upper)
         {
             QPushButton* button = (QPushButton*)widget;
             button->setText(button->text().toUpper());
@@ -98,6 +99,7 @@ private:
     QString message_question_path;
     int message_icon_weight;
     int message_icon_height;
+    bool button_text_upper;
 };
 
 StyleSheet &StyleSheet::instance()
