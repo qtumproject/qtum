@@ -933,6 +933,14 @@ Modal Overlay CSS
 #ModalOverlay #labelNote {
     font: 20pt;
 }
+#contentWidget{
+    background: white;
+    border-radius: 12px;
+}
+#contentWidget #buttonsContainerWhite{
+    border-bottom-right-radius: 12px;
+    border-bottom-left-radius: 12px;
+}
 /*--------------------------------------------
 Watch Only Widget CSS
 --------------------------------------------*/

@@ -82,7 +82,13 @@
           </spacer>
          </item>
          <item>
-          <widget class="QLabel" name="labelLogo" native="true">
+          <widget class="QLabel" name="labelLogo">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>32</width>
