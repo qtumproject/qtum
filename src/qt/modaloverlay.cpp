@@ -39,6 +39,8 @@ type(_type)
     setVisible(false);
 
     ui->stackedWidget->setCurrentIndex(type);
+    ui->walletBackupButton->setVisible(type == OverlayType::Backup);
+    ui->closeButton->setText(type == OverlayType::Backup ? tr("Maybe later") : tr("Hide"));
 }
 
 ModalOverlay::~ModalOverlay()

@@ -920,14 +920,13 @@ Modal Overlay CSS
     border-radius: 4px;
 }
 #ModalOverlay QLabel { 
-    color: black;  
+    color: #6f80ab;  
 }
 #ModalOverlay #labelNumberOfBlocksLeft, 
 #ModalOverlay #labelLastBlockTime, 
 #ModalOverlay #labelSyncDone, 
 #ModalOverlay #labelProgressIncrease, 
-#ModalOverlay #labelEstimatedTimeLeft,
-#ModalOverlay #labelMessage  {
+#ModalOverlay #labelEstimatedTimeLeft{
     color: #9c9c9c;
 }
 #ModalOverlay #labelNote {

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>640</width>
-    <height>513</height>
+    <width>896</width>
+    <height>588</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -50,23 +50,23 @@
       <item>
        <widget class="QWidget" name="contentWidget" native="true">
         <property name="styleSheet">
-         <string notr="true">#contentWidget { background: white; border-radius: 6px; }</string>
+         <string notr="true">#contentWidget { background: #252f49; border-radius: 6px; }</string>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_3" stretch="1,0,0">
+        <layout class="QVBoxLayout" name="verticalLayout_3" stretch="1,0">
          <property name="spacing">
           <number>0</number>
          </property>
          <property name="leftMargin">
-          <number>20</number>
+          <number>0</number>
          </property>
          <property name="topMargin">
-          <number>10</number>
+          <number>0</number>
          </property>
          <property name="rightMargin">
-          <number>20</number>
+          <number>0</number>
          </property>
          <property name="bottomMargin">
-          <number>10</number>
+          <number>0</number>
          </property>
          <item>
           <widget class="QStackedWidget" name="stackedWidget">
@@ -79,17 +79,33 @@
               <number>0</number>
              </property>
              <property name="leftMargin">
-              <number>0</number>
+              <number>30</number>
              </property>
              <property name="topMargin">
-              <number>0</number>
+              <number>10</number>
              </property>
              <property name="rightMargin">
-              <number>0</number>
+              <number>30</number>
              </property>
              <property name="bottomMargin">
-              <number>0</number>
+              <number>10</number>
              </property>
+             <item>
+              <spacer name="verticalSpacer_3">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeType">
+                <enum>QSizePolicy::Expanding</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
              <item>
               <layout class="QHBoxLayout" name="horizontalLayoutIconText" stretch="0,1">
                <property name="spacing">
@@ -350,6 +366,19 @@
                </item>
               </layout>
              </item>
+             <item>
+              <spacer name="verticalSpacer_4">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
             </layout>
            </widget>
            <widget class="QWidget" name="page_2">
@@ -357,31 +386,85 @@
              <property name="spacing">
               <number>15</number>
              </property>
+             <property name="leftMargin">
+              <number>30</number>
+             </property>
              <property name="topMargin">
-              <number>40</number>
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>30</number>
              </property>
              <property name="bottomMargin">
-              <number>40</number>
+              <number>0</number>
              </property>
              <item>
-              <layout class="QHBoxLayout" name="horizontalLayout_2">
-               <item>
-                <spacer name="horizontalSpacer_4">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
+              <spacer name="verticalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <layout class="QGridLayout" name="gridLayout">
+               <item row="0" column="1">
+                <widget class="QLabel" name="labelNote">
+                 <property name="layoutDirection">
+                  <enum>Qt::LeftToRight</enum>
                  </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>40</width>
-                   <height>20</height>
-                  </size>
+                 <property name="text">
+                  <string>Wallet backup prompt</string>
                  </property>
-                </spacer>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
                </item>
-               <item>
+               <item row="1" column="1">
+                <widget class="QLabel" name="labelMessage">
+                 <property name="text">
+                  <string>Please backup your wallet as soon
+Please make sure to keep an updated antivirus and operating system. We can not recover Your funds if you visit phishing site or lose your backup. Please make sure to keep backups of your private keys or files. We do not store your private keys on this wallet. And you as a user, are entirely responsible for your funds and your own security.</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                 </property>
+                 <property name="wordWrap">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0">
                 <widget class="QPushButton" name="warningIconBackup">
                  <property name="enabled">
                   <bool>false</bool>
+                 </property>
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>30</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>30</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true"/>
                  </property>
                  <property name="text">
                   <string/>
@@ -393,8 +476,8 @@
                  </property>
                  <property name="iconSize">
                   <size>
-                   <width>120</width>
-                   <height>120</height>
+                   <width>30</width>
+                   <height>30</height>
                   </size>
                  </property>
                  <property name="flat">
@@ -402,43 +485,23 @@
                  </property>
                 </widget>
                </item>
-               <item>
-                <spacer name="horizontalSpacer_5">
+               <item row="1" column="0">
+                <spacer name="horizontalSpacer_2">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
                  </property>
+                 <property name="sizeType">
+                  <enum>QSizePolicy::Fixed</enum>
+                 </property>
                  <property name="sizeHint" stdset="0">
                   <size>
-                   <width>40</width>
+                   <width>30</width>
                    <height>20</height>
                   </size>
                  </property>
                 </spacer>
                </item>
               </layout>
-             </item>
-             <item>
-              <widget class="QLabel" name="labelNote">
-               <property name="text">
-                <string>IMPORTANT NOTE!</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="labelMessage">
-               <property name="text">
-                <string>Making a backup of your wallet helps ensure you can always maintain access to your funds. Please backup your wallet in order to avoid losing funds.</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignCenter</set>
-               </property>
-               <property name="wordWrap">
-                <bool>true</bool>
-               </property>
-              </widget>
              </item>
              <item>
               <spacer name="verticalSpacer">
@@ -456,95 +519,57 @@
                </property>
               </spacer>
              </item>
-             <item>
-              <layout class="QHBoxLayout" name="horizontalLayout">
-               <item>
-                <spacer name="horizontalSpacer_2">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>40</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-               <item>
-                <widget class="QPushButton" name="walletBackupButton">
-                 <property name="text">
-                  <string>Wallet backup</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <spacer name="horizontalSpacer_3">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>40</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-              </layout>
-             </item>
             </layout>
            </widget>
           </widget>
          </item>
          <item>
-          <spacer name="verticalSpacerAfterText">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayoutButtons">
-           <property name="leftMargin">
-            <number>10</number>
-           </property>
-           <property name="topMargin">
-            <number>10</number>
-           </property>
-           <item>
-            <spacer name="horizontalSpacer">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QPushButton" name="closeButton">
-             <property name="focusPolicy">
-              <enum>Qt::StrongFocus</enum>
-             </property>
-             <property name="text">
-              <string>Hide</string>
-             </property>
-             <property name="default">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
+          <widget class="QWidget" name="buttonsContainerWhite" native="true">
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <property name="leftMargin">
+             <number>30</number>
+            </property>
+            <property name="topMargin">
+             <number>15</number>
+            </property>
+            <property name="rightMargin">
+             <number>30</number>
+            </property>
+            <item>
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="closeButton">
+              <property name="focusPolicy">
+               <enum>Qt::StrongFocus</enum>
+              </property>
+              <property name="text">
+               <string>Maybe later</string>
+              </property>
+              <property name="default">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="walletBackupButton">
+              <property name="text">
+               <string>Wallet backup</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
          </item>
         </layout>
        </widget>
