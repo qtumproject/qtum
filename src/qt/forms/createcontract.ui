@@ -52,6 +52,9 @@
          </property>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout">
+           <property name="rightMargin">
+            <number>9</number>
+           </property>
            <item>
             <widget class="QLabel" name="labelTitle">
              <property name="font">
@@ -119,6 +122,9 @@
               <property name="leftMargin">
                <number>12</number>
               </property>
+              <property name="rightMargin">
+               <number>9</number>
+              </property>
               <property name="horizontalSpacing">
                <number>15</number>
               </property>
@@ -175,7 +181,7 @@
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>100</width>
+                    <width>160</width>
                     <height>0</height>
                    </size>
                   </property>
@@ -183,19 +189,6 @@
                    <string>Interface (ABI)</string>
                   </property>
                  </widget>
-                </item>
-                <item>
-                 <spacer name="verticalSpacer">
-                  <property name="orientation">
-                   <enum>Qt::Vertical</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>20</width>
-                    <height>40</height>
-                   </size>
-                  </property>
-                 </spacer>
                 </item>
                </layout>
               </item>
@@ -211,7 +204,7 @@
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>100</width>
+                    <width>160</width>
                     <height>0</height>
                    </size>
                   </property>
@@ -219,19 +212,6 @@
                    <string>Bytecode</string>
                   </property>
                  </widget>
-                </item>
-                <item>
-                 <spacer name="verticalSpacer_2">
-                  <property name="orientation">
-                   <enum>Qt::Vertical</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>20</width>
-                    <height>40</height>
-                   </size>
-                  </property>
-                 </spacer>
                 </item>
                </layout>
               </item>
@@ -345,7 +325,7 @@
               </property>
               <property name="minimumSize">
                <size>
-                <width>130</width>
+                <width>160</width>
                 <height>0</height>
                </size>
               </property>
@@ -383,7 +363,7 @@
               </property>
               <property name="minimumSize">
                <size>
-                <width>130</width>
+                <width>160</width>
                 <height>0</height>
                </size>
               </property>

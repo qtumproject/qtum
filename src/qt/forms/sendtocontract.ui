@@ -86,12 +86,34 @@
               <property name="leftMargin">
                <number>12</number>
               </property>
+              <property name="rightMargin">
+               <number>9</number>
+              </property>
               <property name="horizontalSpacing">
                <number>15</number>
               </property>
               <property name="verticalSpacing">
                <number>12</number>
               </property>
+              <item row="1" column="2">
+               <widget class="QValidatedTextEdit" name="textEditInterface">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>65</height>
+                 </size>
+                </property>
+                <property name="horizontalScrollBarPolicy">
+                 <enum>Qt::ScrollBarAlwaysOff</enum>
+                </property>
+               </widget>
+              </item>
               <item row="0" column="2">
                <layout class="QHBoxLayout" name="horizontalLayout_2">
                 <property name="spacing">
@@ -176,38 +198,39 @@
                 </item>
                </layout>
               </item>
+              <item row="1" column="0">
+               <layout class="QVBoxLayout" name="verticalLayout_8">
+                <item>
+                 <widget class="QLabel" name="labelInterface">
+                  <property name="minimumSize">
+                   <size>
+                    <width>160</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>Interface (ABI)</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
               <item row="0" column="0">
-               <widget class="QLabel" name="labelContractAddress">
-                <property name="text">
-                 <string>Contract Address</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="2">
-               <widget class="QValidatedTextEdit" name="textEditInterface">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>65</height>
-                 </size>
-                </property>
-                <property name="horizontalScrollBarPolicy">
-                 <enum>Qt::ScrollBarAlwaysOff</enum>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0" alignment="Qt::AlignTop">
-               <widget class="QLabel" name="labelInterface">
-                <property name="text">
-                 <string>Interface (ABI)</string>
-                </property>
-               </widget>
+               <layout class="QVBoxLayout" name="verticalLayout_9">
+                <item>
+                 <widget class="QLabel" name="labelContractAddress">
+                  <property name="minimumSize">
+                   <size>
+                    <width>160</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>Contract Address</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </item>
              </layout>
             </item>
@@ -314,7 +337,7 @@
               </property>
               <property name="minimumSize">
                <size>
-                <width>130</width>
+                <width>160</width>
                 <height>0</height>
                </size>
               </property>
@@ -362,7 +385,7 @@
               </property>
               <property name="minimumSize">
                <size>
-                <width>130</width>
+                <width>160</width>
                 <height>0</height>
                </size>
               </property>
@@ -384,7 +407,7 @@
               </property>
               <property name="minimumSize">
                <size>
-                <width>130</width>
+                <width>160</width>
                 <height>0</height>
                </size>
               </property>
