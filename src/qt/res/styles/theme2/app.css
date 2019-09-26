@@ -1014,3 +1014,16 @@ Overview Page Widget CSS
     image:url(":/icons/bitcoin");
     padding: 5px;
 }
+#widgetRecent #showMoreButton{
+    min-width: 3em;
+    padding: 1px;
+    border-radius: 8px;
+    min-height: 16px;
+    font: 8pt;
+}
+#widgetTransaction #buttonSend,
+#widgetTransaction #buttonReceive{
+    padding: 9px;
+    min-width: 8em;
+    border-radius: 18px;
+}
