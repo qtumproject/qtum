@@ -621,8 +621,6 @@ void BitcoinGUI::createToolBars()
 
         // Fill the component with actions
         appNavigationBar->addAction(overviewAction);
-        appNavigationBar->addAction(sendCoinsAction);
-        appNavigationBar->addAction(receiveCoinsAction);
         appNavigationBar->addAction(historyAction);
         QList<QAction*> contractActions;
         contractActions.append(createContractAction);
@@ -630,11 +628,7 @@ void BitcoinGUI::createToolBars()
         contractActions.append(callContractAction);
         appNavigationBar->mapGroup(smartContractAction, contractActions);
         appNavigationBar->addAction(stakeAction);
-        QList<QAction*> tokenActions;
-        tokenActions.append(sendTokenAction);
-        tokenActions.append(receiveTokenAction);
-        tokenActions.append(addTokenAction);
-        appNavigationBar->mapGroup(QRCTokenAction, tokenActions);
+        appNavigationBar->addAction(QRCTokenAction);
         appNavigationBar->buildUi();
         overviewAction->setChecked(true);
     }
