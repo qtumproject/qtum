@@ -286,22 +286,9 @@ void WalletView::gotoCallContractPage()
     setCurrentWidget(callContractPage);
 }
 
-void WalletView::gotoSendTokenPage()
+void WalletView::gotoTokenPage()
 {
     setCurrentWidget(QRCTokenPage);
-    QRCTokenPage->on_goToSendTokenPage();
-}
-
-void WalletView::gotoReceiveTokenPage()
-{
-    setCurrentWidget(QRCTokenPage);
-    QRCTokenPage->on_goToReceiveTokenPage();
-}
-
-void WalletView::gotoAddTokenPage()
-{
-    setCurrentWidget(QRCTokenPage);
-    QRCTokenPage->on_goToAddTokenPage();
 }
 
 void WalletView::gotoStakePage()

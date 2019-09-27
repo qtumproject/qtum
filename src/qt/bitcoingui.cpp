@@ -281,7 +281,6 @@ void BitcoinGUI::createActions()
     sendCoinsAction->setStatusTip(tr("Send coins to a Qtum address"));
     sendCoinsAction->setToolTip(sendCoinsAction->statusTip());
     sendCoinsAction->setCheckable(true);
-    sendCoinsAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_2));
     tabGroup->addAction(sendCoinsAction);
 
     sendCoinsMenuAction = new QAction(platformStyle->MenuColorIcon(":/icons/send"), sendCoinsAction->text(), this);
@@ -291,7 +290,6 @@ void BitcoinGUI::createActions()
     receiveCoinsAction->setStatusTip(tr("Request payments (generates QR codes and qtum: URIs)"));
     receiveCoinsAction->setToolTip(receiveCoinsAction->statusTip());
     receiveCoinsAction->setCheckable(true);
-    receiveCoinsAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_3));
     tabGroup->addAction(receiveCoinsAction);
 
     receiveCoinsMenuAction = new QAction(platformStyle->MenuColorIcon(":/icons/receiving_addresses"), receiveCoinsAction->text(), this);
@@ -302,7 +300,7 @@ void BitcoinGUI::createActions()
     smartContractAction->setStatusTip(tr("Smart contracts"));
     smartContractAction->setToolTip(smartContractAction->statusTip());
     smartContractAction->setCheckable(true);
-    smartContractAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_4));
+    smartContractAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_2));
     tabGroup->addAction(smartContractAction);
 
     createContractAction = new QAction(tr("Create"), this);
@@ -313,26 +311,22 @@ void BitcoinGUI::createActions()
     stakeAction->setStatusTip(tr("Show stake of wallet"));
     stakeAction->setToolTip(stakeAction->statusTip());
     stakeAction->setCheckable(true);
-    stakeAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_5));
+    stakeAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_3));
     tabGroup->addAction(stakeAction);
 
     historyAction = new QAction(platformStyle->MultiStatesIcon(":/icons/history"), tr("&Transactions"), this);//QTUM_LINE
     historyAction->setStatusTip(tr("Browse transaction history"));
     historyAction->setToolTip(historyAction->statusTip());
     historyAction->setCheckable(true);
-    historyAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_6));
+    historyAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_4));
     tabGroup->addAction(historyAction);
 
     QRCTokenAction = new QAction(platformStyle->MultiStatesIcon(":/icons/qrctoken"), tr("&QRC Tokens"), this);
     QRCTokenAction->setStatusTip(tr("QRC Tokens (send, receive or add Tokens in list)"));
     QRCTokenAction->setToolTip(QRCTokenAction->statusTip());
     QRCTokenAction->setCheckable(true);
-    QRCTokenAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_7));
+    QRCTokenAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_5));
     tabGroup->addAction(QRCTokenAction);
-
-    sendTokenAction = new QAction(tr("Send"), this);
-    receiveTokenAction = new QAction(tr("Receive"), this);
-    addTokenAction = new QAction(tr("Add Token"), this);
 
 #ifdef ENABLE_WALLET
     // These showNormalIfMinimized are needed because Send Coins and Receive Coins
@@ -355,12 +349,8 @@ void BitcoinGUI::createActions()
     connect(sendToContractAction, SIGNAL(triggered()), this, SLOT(gotoSendToContractPage()));
     connect(callContractAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(callContractAction, SIGNAL(triggered()), this, SLOT(gotoCallContractPage()));
-    connect(sendTokenAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
-    connect(sendTokenAction, SIGNAL(triggered()), this, SLOT(gotoSendTokenPage()));
-    connect(receiveTokenAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
-    connect(receiveTokenAction, SIGNAL(triggered()), this, SLOT(gotoReceiveTokenPage()));
-    connect(addTokenAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
-    connect(addTokenAction, SIGNAL(triggered()), this, SLOT(gotoAddTokenPage()));
+    connect(QRCTokenAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
+    connect(QRCTokenAction, SIGNAL(triggered()), this, SLOT(gotoTokenPage()));
     connect(stakeAction, &QAction::triggered, [this]{ showNormalIfMinimized(); });
     connect(stakeAction, &QAction::triggered, this, &BitcoinGUI::gotoStakePage);
 #endif // ENABLE_WALLET
@@ -965,25 +955,10 @@ void BitcoinGUI::gotoHistoryPage()
     if (walletFrame) walletFrame->gotoHistoryPage();
 }
 
-void BitcoinGUI::gotoSendTokenPage()
+void BitcoinGUI::gotoTokenPage()
 {
-    sendTokenAction->setChecked(true);
     QRCTokenAction->setChecked(true);
-    if (walletFrame) walletFrame->gotoSendTokenPage();
-}
-
-void BitcoinGUI::gotoReceiveTokenPage()
-{
-    receiveTokenAction->setChecked(true);
-    QRCTokenAction->setChecked(true);
-    if (walletFrame) walletFrame->gotoReceiveTokenPage();
-}
-
-void BitcoinGUI::gotoAddTokenPage()
-{
-    addTokenAction->setChecked(true);
-    QRCTokenAction->setChecked(true);
-    if (walletFrame) walletFrame->gotoAddTokenPage();
+    if (walletFrame) walletFrame->gotoTokenPage();
 }
 
 void BitcoinGUI::gotoReceiveCoinsPage()

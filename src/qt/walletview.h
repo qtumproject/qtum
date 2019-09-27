@@ -96,12 +96,8 @@ public Q_SLOTS:
     void gotoSendToContractPage();
     /** Switch to call contract page */
     void gotoCallContractPage();
-    /** Switch to Send Token page */
-    void gotoSendTokenPage();
-    /** Switch to Receive Token page */
-    void gotoReceiveTokenPage();
-    /** Switch to Add Token page */
-    void gotoAddTokenPage();
+    /** Switch to token page */
+    void gotoTokenPage();
     /** Switch to stake page */
     void gotoStakePage();
 
