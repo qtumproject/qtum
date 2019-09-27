@@ -75,6 +75,12 @@ QLabel#overriddenByCommandLineLabel{
 #labelTokenAddressText{
     color: #969696;
 }
+NavigationBar #labelLogo{
+    image:url(":/icons/qtum_logo");
+}
+NavigationBar #hLineLogo{
+    border-top: 1px solid #1d2843;
+}
 /*-------------------------------------------- 
 Line Edit CSS
 --------------------------------------------*/

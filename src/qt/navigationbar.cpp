@@ -5,6 +5,7 @@
 #include <QStylePainter>
 #include <QStyleOptionToolButton>
 #include <QStyle>
+#include <QLabel>
 #include <qt/styleSheet.h>
 
 namespace NavigationBar_NS
@@ -180,6 +181,24 @@ void NavigationBar::buildUi()
                                        m_subBar ? 0 : MarginBottom);
         vboxLayout->setSpacing(m_subBar ? 0 : ButtonSpacing);
 
+        if(!m_subBar)
+        {
+            QHBoxLayout *hLayout = new QHBoxLayout();
+            hLayout->setContentsMargins(0,0,0,15);
+            QLabel *labelLogo = new QLabel(this);
+            labelLogo->setFixedSize(100,150);
+            labelLogo->setObjectName("labelLogo");
+            hLayout->addWidget(labelLogo);
+
+            QFrame *line = new QFrame(this);
+            line->setObjectName("hLineLogo");
+            line->setFrameShape(QFrame::HLine);
+            line->setFrameShadow(QFrame::Sunken);
+
+            vboxLayout->addLayout(hLayout);
+            vboxLayout->addWidget(line);
+            vboxLayout->addSpacerItem(new QSpacerItem(20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed));
+        }
         // List all actions
         for(int i = 0; i < m_actions.count(); i++)
         {
