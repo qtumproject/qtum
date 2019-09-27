@@ -63,8 +63,8 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
     vbox->addLayout(hbox_buttons);
     transactionsPage->setLayout(vbox);
 
-    receiveCoinsPage = new ReceiveCoinsDialog(platformStyle);
-    sendCoinsPage = new SendCoinsDialog(platformStyle);
+    receiveCoinsPage = new ReceiveCoinsDialog(platformStyle, overviewPage);
+    sendCoinsPage = new SendCoinsDialog(platformStyle, overviewPage);
 
     usedSendingAddressesPage = new AddressBookPage(platformStyle, AddressBookPage::ForEditing, AddressBookPage::SendingTab, this);
     usedReceivingAddressesPage = new AddressBookPage(platformStyle, AddressBookPage::ForEditing, AddressBookPage::ReceivingTab, this);
@@ -79,8 +79,6 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
 
     addWidget(overviewPage);
     addWidget(transactionsPage);
-    addWidget(receiveCoinsPage);
-    addWidget(sendCoinsPage);
     addWidget(createContractPage);
     addWidget(sendToContractPage);
     addWidget(callContractPage);
@@ -111,6 +109,12 @@ void WalletView::setBitcoinGUI(BitcoinGUI *gui)
     {
         // Clicking on a transaction on the overview page simply sends you to transaction history page
         connect(overviewPage, &OverviewPage::showMoreClicked, gui, &BitcoinGUI::gotoHistoryPage);
+
+        // Clicking send coins button show send coins dialog
+        connect(overviewPage, &OverviewPage::sendCoinsClicked, gui, &BitcoinGUI::gotoSendCoinsPage);
+
+        // Clicking receive coins button show receive coins dialog
+        connect(overviewPage, &OverviewPage::receiveCoinsClicked, gui, &BitcoinGUI::gotoReceiveCoinsPage);
 
         // Navigate to transaction history page after send
         connect(sendCoinsPage, &SendCoinsDialog::coinsSent, gui, &BitcoinGUI::gotoHistoryPage);
@@ -254,15 +258,17 @@ void WalletView::gotoHistoryPage()
 
 void WalletView::gotoReceiveCoinsPage()
 {
-    setCurrentWidget(receiveCoinsPage);
+    setCurrentWidget(overviewPage);
+    receiveCoinsPage->show();
 }
 
 void WalletView::gotoSendCoinsPage(QString addr)
 {
-    setCurrentWidget(sendCoinsPage);
+    setCurrentWidget(overviewPage);
 
     if (!addr.isEmpty())
         sendCoinsPage->setAddress(addr);
+    sendCoinsPage->show();
 }
 
 void WalletView::gotoCreateContractPage()

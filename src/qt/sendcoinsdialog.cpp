@@ -412,11 +412,13 @@ void SendCoinsDialog::clear()
 void SendCoinsDialog::reject()
 {
     clear();
+    QDialog::reject();
 }
 
 void SendCoinsDialog::accept()
 {
     clear();
+    QDialog::accept();
 }
 
 SendCoinsEntry *SendCoinsDialog::addEntry()

@@ -396,3 +396,13 @@ void OverviewPage::showDetails()
         dlg->show();
     }
 }
+
+void OverviewPage::on_buttonSend_clicked()
+{
+    Q_EMIT sendCoinsClicked();
+}
+
+void OverviewPage::on_buttonReceive_clicked()
+{
+    Q_EMIT receiveCoinsClicked();
+}

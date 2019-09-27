@@ -46,6 +46,8 @@ Q_SIGNALS:
     void showMoreClicked();
     void transactionClicked(const QModelIndex &index);
     void outOfSyncWarningClicked();
+    void sendCoinsClicked(QString addr = "");
+    void receiveCoinsClicked();
 
 private:
     Ui::OverviewPage *ui;
@@ -63,6 +65,8 @@ private Q_SLOTS:
     void handleOutOfSyncWarningClicks();
 
     void on_showMoreButton_clicked();
+    void on_buttonSend_clicked();
+    void on_buttonReceive_clicked();
     void showDetails();
 };
 
