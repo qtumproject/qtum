@@ -19,6 +19,8 @@ static const int MarginTop = 0;
 static const int MarginBottom = 8;
 static const int ButtonSpacing = 2;
 static const int SubNavPaddingRight = 40;
+static const int LogoHeight = 60;
+static const int LogoWidth = 90;
 }
 using namespace NavigationBar_NS;
 
@@ -184,9 +186,9 @@ void NavigationBar::buildUi()
         if(!m_subBar)
         {
             QHBoxLayout *hLayout = new QHBoxLayout();
-            hLayout->setContentsMargins(0,0,0,15);
+            hLayout->setContentsMargins(0,0,0,5);
             QLabel *labelLogo = new QLabel(this);
-            labelLogo->setFixedSize(100,150);
+            labelLogo->setFixedSize(LogoHeight, LogoWidth);
             labelLogo->setObjectName("labelLogo");
             hLayout->addWidget(labelLogo);
 
@@ -197,7 +199,7 @@ void NavigationBar::buildUi()
 
             vboxLayout->addLayout(hLayout);
             vboxLayout->addWidget(line);
-            vboxLayout->addSpacerItem(new QSpacerItem(20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed));
+            vboxLayout->addSpacerItem(new QSpacerItem(5, 5, QSizePolicy::Fixed, QSizePolicy::Fixed));
         }
         // List all actions
         for(int i = 0; i < m_actions.count(); i++)
