@@ -158,7 +158,8 @@ bool ReceiveRequestDialog::createQRCode(QLabel *label, SendCoinsRecipient _info,
             }
             QRcode_free(code);
 
-            QImage qrAddrImage = QImage(QR_IMAGE_SIZE, QR_IMAGE_SIZE+20, QImage::Format_ARGB32);
+            int padding = showAddress ? 20 : 0;
+            QImage qrAddrImage = QImage(QR_IMAGE_SIZE, QR_IMAGE_SIZE+padding, QImage::Format_ARGB32);
             qrAddrImage.fill(qRgba(0, 0, 0, 0));
             QPainter painter(&qrAddrImage);
             painter.drawImage(0, 0, qrImage.scaled(QR_IMAGE_SIZE, QR_IMAGE_SIZE));

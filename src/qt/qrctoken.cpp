@@ -130,10 +130,6 @@ QRCToken::QRCToken(const PlatformStyle *platformStyle, QWidget *parent) :
     m_sendTokenPage->setEnabled(false);
     m_receiveTokenPage->setEnabled(false);
 
-    ui->stackedWidgetToken->addWidget(m_sendTokenPage);
-    ui->stackedWidgetToken->addWidget(m_receiveTokenPage);
-    ui->stackedWidgetToken->addWidget(m_addTokenPage);
-
     m_tokenTransactionView = new TokenTransactionView(m_platformStyle, this);
     m_tokenTransactionView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->tokenViewLayout->addWidget(m_tokenTransactionView);
@@ -163,8 +159,6 @@ QRCToken::QRCToken(const PlatformStyle *platformStyle, QWidget *parent) :
 
     connect(ui->tokensList, &QListView::clicked, this, &QRCToken::on_currentTokenChanged);
     connect(ui->tokensList, &QListView::customContextMenuRequested, this, &QRCToken::contextualMenu);
-
-    on_goToSendTokenPage();
 }
 
 QRCToken::~QRCToken()
@@ -212,17 +206,17 @@ void QRCToken::setClientModel(ClientModel *_clientModel)
 
 void QRCToken::on_goToSendTokenPage()
 {
-    ui->stackedWidgetToken->setCurrentIndex(0);
+    m_sendTokenPage->show();
 }
 
 void QRCToken::on_goToReceiveTokenPage()
 {
-    ui->stackedWidgetToken->setCurrentIndex(1);
+    m_receiveTokenPage->show();
 }
 
 void QRCToken::on_goToAddTokenPage()
 {
-    ui->stackedWidgetToken->setCurrentIndex(2);
+    m_addTokenPage->show();
 }
 
 void QRCToken::on_currentTokenChanged(QModelIndex index)

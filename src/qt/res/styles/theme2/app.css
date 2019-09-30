@@ -72,9 +72,6 @@ QLabel#labelGeneral,
 QLabel#overriddenByCommandLineLabel{
     color: #6f80ab;
 }
-#labelTokenAddressText{
-    color: #969696;
-}
 NavigationBar #labelLogo{
     image:url(":/icons/qtum_logo");
 }
@@ -1032,4 +1029,19 @@ Overview Page Widget CSS
     padding: 9px;
     min-width: 8em;
     border-radius: 18px;
+}
+/*--------------------------------------------
+Token Page Widget CSS
+--------------------------------------------*/
+#labelTokenBalance{
+    color: white;
+}
+#widgetQRFrame{
+    background-color: white;
+    border-radius: 20px;
+}
+#widgetQRMargin{
+    background-color: #263450;
+    border-radius: 20px;
+    border: 1px solid #384869;
 }

@@ -1,7 +1,7 @@
 #ifndef ADDTOKENPAGE_H
 #define ADDTOKENPAGE_H
 
-#include <QWidget>
+#include <QDialog>
 class Token;
 class WalletModel;
 class ClientModel;
@@ -10,7 +10,7 @@ namespace Ui {
 class AddTokenPage;
 }
 
-class AddTokenPage : public QWidget
+class AddTokenPage : public QDialog
 {
     Q_OBJECT
 

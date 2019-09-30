@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>SendTokenPage</class>
- <widget class="QWidget" name="SendTokenPage">
+ <widget class="QDialog" name="SendTokenPage">
   <property name="enabled">
    <bool>true</bool>
   </property>
@@ -9,12 +9,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>520</width>
-    <height>310</height>
+    <width>600</width>
+    <height>360</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Send</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="leftMargin">
@@ -80,7 +80,7 @@
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="TokenAmountField" name="lineEditAmount" native="true"/>
+      <widget class="TokenAmountField" name="lineEditAmount"/>
      </item>
      <item row="3" column="1">
       <widget class="QLineEdit" name="lineEditDescription"/>
@@ -191,6 +191,9 @@
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::MinimumExpanding</enum>
+     </property>
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
@@ -273,11 +276,20 @@
   </customwidget>
   <customwidget>
    <class>TokenAmountField</class>
-   <extends>QWidget</extends>
+   <extends>QLineEdit</extends>
    <header>qt/tokenamountfield.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>lineEditPayTo</tabstop>
+  <tabstop>lineEditAmount</tabstop>
+  <tabstop>lineEditDescription</tabstop>
+  <tabstop>lineEditGasLimit</tabstop>
+  <tabstop>lineEditGasPrice</tabstop>
+  <tabstop>confirmButton</tabstop>
+  <tabstop>clearButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

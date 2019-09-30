@@ -1,7 +1,7 @@
 #ifndef SENDTOKENPAGE_H
 #define SENDTOKENPAGE_H
 
-#include <QWidget>
+#include <QDialog>
 
 class WalletModel;
 class ClientModel;
@@ -12,7 +12,7 @@ namespace Ui {
 class SendTokenPage;
 }
 
-class SendTokenPage : public QWidget
+class SendTokenPage : public QDialog
 {
     Q_OBJECT
 
