@@ -31,7 +31,12 @@ public:
         QToolButton(parent),
         m_subBar(subBar),
         m_iconCached(false)
-    {}
+    {
+        m_colorEnabled = GetStringStyleValue("navtoolbutton/color-enabled", "#1a96ce");
+        m_colorPressed = GetStringStyleValue("navtoolbutton/color-pressed", "#e5f3f9");
+        m_colorHover = GetStringStyleValue("navtoolbutton/color-hover", "#b3dcef");
+        m_colorDisabled = GetStringStyleValue("navtoolbutton/color-disabled", "#7fc4e3");
+    }
 
 protected:
     void paintEvent(QPaintEvent *) Q_DECL_OVERRIDE
@@ -72,19 +77,19 @@ protected:
             QColor color;
             if(!(toolbutton->state & QStyle::State_Enabled))
             {
-                color = 0x1a96ce;
+                color = m_colorEnabled;
             }
             else if(toolbutton->state & (QStyle::State_Sunken | QStyle::State_On))
             {
-                color = 0xe5f3f9;
+                color = m_colorPressed;
             }
             else if(toolbutton->state & QStyle::State_MouseOver)
             {
-                color = 0xb3dcef;
+                color = m_colorHover;
             }
             else
             {
-                color = 0x7fc4e3;
+                color = m_colorDisabled;
             }
 
             // Determine area
@@ -132,6 +137,10 @@ private:
     bool m_subBar;
     bool m_iconCached;
     QIcon m_hoverIcon;
+    QColor m_colorEnabled;
+    QColor m_colorPressed;
+    QColor m_colorHover;
+    QColor m_colorDisabled;
 };
 
 NavigationBar::NavigationBar(QWidget *parent) :
