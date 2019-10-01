@@ -152,7 +152,7 @@ QComboBox:drop-down {
     margin-left: -8px;
 }
 QComboBox:down-arrow {
-    image: url(":/styles/theme1/app-icons/down_arrow");
+    image: url(":/styles/theme2/app-icons/down_arrow");
     width: 6px;
     height: 10px;
     top: 1px;
@@ -183,7 +183,7 @@ QComboBox:drop-down:disabled {
     border-left: 1px solid rgba(23, 35, 62, 40%);
 }
 QComboBox::down-arrow:disabled {
-    image: url(":/styles/theme1/app-icons/down_arrow_disabled");
+    image: url(":/styles/theme2/app-icons/down_arrow_disabled");
 }
 /*--------------------------------------------
 Group Box CSS
@@ -287,24 +287,24 @@ QAbstractSpinBox::down-button {
     border-bottom-right-radius: 12px;
 }
 QAbstractSpinBox::up-arrow {
-    image: url(":/styles/theme1/app-icons/up_arrow");
+    image: url(":/styles/theme2/app-icons/up_arrow");
     width: 6px;
     height: 4px;
     margin-right: 5px;
     margin-top: 5px;
 }
 QAbstractSpinBox::down-arrow {
-    image: url(":/styles/theme1/app-icons/down_arrow");
+    image: url(":/styles/theme2/app-icons/down_arrow");
     width: 6px;
     height: 4px;
     margin-right: 5px;
     margin-bottom: 5px;
 }
 QAbstractSpinBox::up-arrow:hover{
-    image: url(":/styles/theme1/app-icons/up_arrow_hover");
+    image: url(":/styles/theme2/app-icons/up_arrow_hover");
 }
 QAbstractSpinBox::down-arrow:hover{
-    image: url(":/styles/theme1/app-icons/down_arrow_hover");
+    image: url(":/styles/theme2/app-icons/down_arrow_hover");
 }
 QAbstractSpinBox::disabled {
     border: 1px solid rgba(23, 35, 62, 40%);
@@ -318,11 +318,11 @@ QAbstractSpinBox::down-button:disabled {
 }
 QAbstractSpinBox::up-arrow:disabled,
 QAbstractSpinBox::up-arrow:off {
-    image: url(":/styles/theme1/app-icons/up_arrow_disabled");
+    image: url(":/styles/theme2/app-icons/up_arrow_disabled");
 }
 QAbstractSpinBox::down-arrow:disabled,
 QAbstractSpinBox::down-arrow:off {
-    image: url(":/styles/theme1/app-icons/down_arrow_disabled");
+    image: url(":/styles/theme2/app-icons/down_arrow_disabled");
 }
 /*--------------------------------------------
 Scroll Area CSS
@@ -471,14 +471,14 @@ QHeaderView:section{
     background-color: #252f49;
 }
 QHeaderView::down-arrow {
-    image: url(":/styles/theme1/app-icons/down_arrow");
+    image: url(":/styles/theme2/app-icons/down_arrow");
     width: 6px;
     height: 4px;
     margin-right: 5px;
     margin-bottom: 1px;
 }
 QHeaderView::up-arrow {
-    image: url(":/styles/theme1/app-icons/up_arrow");
+    image: url(":/styles/theme2/app-icons/up_arrow");
     width: 6px;
     height: 4px;
     margin-right: 5px;
@@ -505,12 +505,12 @@ QHeaderView::disabled{
     color: rgba(111, 128, 171, 20%);
 }
 QHeaderView::down-arrow:disabled {
-    image: url(":/styles/theme1/app-icons/down_arrow_disabled");
+    image: url(":/styles/theme2/app-icons/down_arrow_disabled");
     width: 6px;
     height: 4px;
 }
 QHeaderView::up-arrow:disabled {
-    image: url(":/styles/theme1/app-icons/up_arrow_disabled");
+    image: url(":/styles/theme2/app-icons/up_arrow_disabled");
     width: 6px;
     height: 4px;
 }

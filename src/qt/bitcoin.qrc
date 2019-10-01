@@ -177,4 +177,12 @@
         <file alias="navgroupbutton">res/styles/theme2/navgroupbutton.css</file>
         <file alias="navsubgroupbutton">res/styles/theme2/navsubgroupbutton.css</file>
     </qresource>
+    <qresource prefix="/styles/theme2/app-icons">
+        <file alias="up_arrow">res/styles/theme2/app-icons/up_arrow.png</file>
+        <file alias="down_arrow">res/styles/theme2/app-icons/down_arrow.png</file>
+        <file alias="up_arrow_hover">res/styles/theme2/app-icons/up_arrow_hover.png</file>
+        <file alias="down_arrow_hover">res/styles/theme2/app-icons/down_arrow_hover.png</file>
+        <file alias="up_arrow_disabled">res/styles/theme2/app-icons/up_arrow_disabled.png</file>
+        <file alias="down_arrow_disabled">res/styles/theme2/app-icons/down_arrow_disabled.png</file>
+    </qresource>
 </RCC>
