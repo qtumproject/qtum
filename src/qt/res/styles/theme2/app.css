@@ -75,8 +75,15 @@ QLabel#overriddenByCommandLineLabel{
 NavigationBar #labelLogo{
     image:url(":/icons/qtum_logo");
 }
-NavigationBar #hLineLogo{
+NavigationBar #hLineLogo,
+NavigationBar #hLineStatus{
     border-top: 1px solid #1d2843;
+}
+QLabel#unitDisplayControl {
+    color: #6f80ab; 
+    background: transparent;
+    border: 1px solid #3B4767;
+    border-radius: 12px;
 }
 /*-------------------------------------------- 
 Line Edit CSS

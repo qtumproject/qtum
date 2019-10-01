@@ -80,6 +80,9 @@ const std::string BitcoinGUI::DEFAULT_UIPLATFORM =
 #endif
         ;
 
+const int DISPLAY_UNIT_CONTROL_MARGIN = 25;
+const int DISPLAY_UNIT_CONTROL_HEIGHT = 24;
+
 BitcoinGUI::BitcoinGUI(interfaces::Node& node, const PlatformStyle *_platformStyle, const NetworkStyle *networkStyle, QWidget *parent) :
     QMainWindow(parent),
     m_node(node),
@@ -150,33 +153,38 @@ BitcoinGUI::BitcoinGUI(interfaces::Node& node, const PlatformStyle *_platformSty
     // Status bar notification icons
     QFrame *frameBlocks = new QFrame();
     frameBlocks->setContentsMargins(0,0,0,0);
-    frameBlocks->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-    QHBoxLayout *frameBlocksLayout = new QHBoxLayout(frameBlocks);
-    frameBlocksLayout->setContentsMargins(3,0,0,0);
-    frameBlocksLayout->setSpacing(3);
+    frameBlocks->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    QVBoxLayout *frameBlocksLayout = new QVBoxLayout(frameBlocks);
+    QHBoxLayout *hLayIcons = new QHBoxLayout();
+    frameBlocksLayout->setContentsMargins(0,20,0,20);
+    frameBlocksLayout->setSpacing(10);
     unitDisplayControl = new UnitDisplayStatusBarControl(platformStyle);
+    unitDisplayControl->setObjectName("unitDisplayControl");
     labelWalletEncryptionIcon = new QLabel();
     labelWalletHDStatusIcon = new QLabel();
     labelProxyIcon = new GUIUtil::ClickableLabel();
     connectionsControl = new GUIUtil::ClickableLabel();
     labelBlocksIcon = new GUIUtil::ClickableLabel();
     labelStakingIcon = new QLabel();
+    hLayIcons->addStretch();
     if(enableWallet)
     {
-        frameBlocksLayout->addStretch();
-        frameBlocksLayout->addWidget(unitDisplayControl);
-        frameBlocksLayout->addStretch();
-        frameBlocksLayout->addWidget(labelWalletEncryptionIcon);
-        frameBlocksLayout->addWidget(labelWalletHDStatusIcon);
+        QHBoxLayout *hLayUnit = new QHBoxLayout();
+        hLayUnit->addStretch();
+        hLayUnit->addWidget(unitDisplayControl);
+        hLayUnit->addStretch();
+        frameBlocksLayout->addLayout(hLayUnit);
+        hLayIcons->addWidget(labelWalletEncryptionIcon);
+        hLayIcons->addWidget(labelWalletHDStatusIcon);
     }
-    frameBlocksLayout->addWidget(labelProxyIcon);
-    frameBlocksLayout->addStretch();
-    frameBlocksLayout->addWidget(labelStakingIcon);
-    frameBlocksLayout->addStretch();
-    frameBlocksLayout->addWidget(connectionsControl);
-    frameBlocksLayout->addStretch();
-    frameBlocksLayout->addWidget(labelBlocksIcon);
-    frameBlocksLayout->addStretch();
+    hLayIcons->addWidget(labelProxyIcon);
+    hLayIcons->addWidget(labelStakingIcon);
+    hLayIcons->addWidget(connectionsControl);
+    hLayIcons->addWidget(labelBlocksIcon);
+    hLayIcons->addStretch();
+
+    frameBlocksLayout->addLayout(hLayIcons);
+    addDockWindows(Qt::LeftDockWidgetArea, frameBlocks);
 
 #ifdef ENABLE_WALLET
     if (gArgs.GetBoolArg("-staking", true))
@@ -207,7 +215,6 @@ BitcoinGUI::BitcoinGUI(interfaces::Node& node, const PlatformStyle *_platformSty
 
     statusBar()->addWidget(progressBarLabel);
     statusBar()->addWidget(progressBar);
-    statusBar()->addPermanentWidget(frameBlocks);
 
     // Install event filter to be able to catch status tip events (QEvent::StatusTip)
     this->installEventFilter(this);
@@ -1681,8 +1688,8 @@ UnitDisplayStatusBarControl::UnitDisplayStatusBarControl(const PlatformStyle *pl
     {
         max_width = qMax(max_width, fm.width(BitcoinUnits::longName(unit)));
     }
-    setMinimumSize(max_width, 0);
-    setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    setMinimumSize(DISPLAY_UNIT_CONTROL_MARGIN + max_width + DISPLAY_UNIT_CONTROL_MARGIN, DISPLAY_UNIT_CONTROL_HEIGHT);
+    setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 }
 
 /** So that it responds to button clicks */

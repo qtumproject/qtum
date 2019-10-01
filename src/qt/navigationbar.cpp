@@ -195,7 +195,6 @@ void NavigationBar::buildUi()
             QFrame *line = new QFrame(this);
             line->setObjectName("hLineLogo");
             line->setFrameShape(QFrame::HLine);
-            line->setFrameShadow(QFrame::Sunken);
 
             vboxLayout->addLayout(hLayout);
             vboxLayout->addWidget(line);
@@ -261,7 +260,11 @@ void NavigationBar::buildUi()
                 m_actions[0]->setChecked(true);
             }
             setMinimumWidth(defButtonWidth + MarginLeft + MarginRight);
+            QFrame *lineStatus = new QFrame(this);
+            lineStatus->setObjectName("hLineStatus");
+            lineStatus->setFrameShape(QFrame::HLine);
             vboxLayout->addStretch(1);
+            vboxLayout->addWidget(lineStatus);
         }
 
         // The component is built
