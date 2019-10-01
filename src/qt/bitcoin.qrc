@@ -173,5 +173,8 @@
         <file alias="scrollbardark">res/styles/theme2/scrollbardark.css</file>
         <file alias="treeview">res/styles/theme2/treeview.css</file>
         <file alias="config">res/styles/theme2/config.ini</file>
+        <file alias="navbutton">res/styles/theme2/navbutton.css</file>
+        <file alias="navgroupbutton">res/styles/theme2/navgroupbutton.css</file>
+        <file alias="navsubgroupbutton">res/styles/theme2/navsubgroupbutton.css</file>
     </qresource>
 </RCC>
