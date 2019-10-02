@@ -223,12 +223,12 @@ QSlider::groove:horizontal {
     right: 7px;
 }
 QSlider::handle:horizontal {
-    background-image: url(":/styles/theme1/app-icons/slider_switcher");
+    background-image: url(":/styles/theme2/app-icons/slider_switcher");
     background-repeat: none;
     margin: 2px -10px -2px;
 }
 QSlider::handle:horizontal:active {
-    background-image: url(":/styles/theme1/app-icons/slider_switcher_hover");
+    background-image: url(":/styles/theme2/app-icons/slider_switcher_hover");
     background-repeat: none;
     margin: 2px -10px -2px;
 }
@@ -253,7 +253,7 @@ QSlider::sub-page:horizontal:disabled {
     border-left: 1px solid rgba(73, 142, 169, 40%);
 }
 QSlider::handle:horizontal:disabled {
-    background-image: url(":/styles/theme1/app-icons/slider_switcher_disabled");
+    background-image: url(":/styles/theme2/app-icons/slider_switcher_disabled");
 }
 /*--------------------------------------------
 Spin Box CSS
@@ -695,31 +695,31 @@ QCheckBox::indicator {
     height: 16px;
 }
 QCheckBox::indicator::unchecked {
-    image: url(:/styles/theme1/app-icons/checkbox_unchecked);
+    image: url(:/styles/theme2/app-icons/checkbox_unchecked);
 }
 QCheckBox::indicator::checked {
-    image: url(:/styles/theme1/app-icons/checkbox_checked);
+    image: url(:/styles/theme2/app-icons/checkbox_checked);
 }
 QCheckBox:indicator:indeterminate {
-    image: url(:/styles/theme1/app-icons/checkbox_indeterminate);
+    image: url(:/styles/theme2/app-icons/checkbox_indeterminate);
 }
 QCheckBox::indicator::unchecked:hover {
-    image: url(:/styles/theme1/app-icons/checkbox_unchecked_hover);
+    image: url(:/styles/theme2/app-icons/checkbox_unchecked_hover);
 }
 QCheckBox::indicator::checked:hover {
-    image: url(:/styles/theme1/app-icons/checkbox_checked_hover);
+    image: url(:/styles/theme2/app-icons/checkbox_checked_hover);
 }
 QCheckBox:indicator:indeterminate:hover {
-    image: url(:/styles/theme1/app-icons/checkbox_indeterminate_hover);
+    image: url(:/styles/theme2/app-icons/checkbox_indeterminate_hover);
 }
 QCheckBox:indicator:unchecked:disabled {
-    image: url(:/styles/theme1/app-icons/checkbox_unchecked_disabled);  
+    image: url(:/styles/theme2/app-icons/checkbox_unchecked_disabled);  
 }
 QCheckBox:indicator:checked:disabled {
-    image: url(:/styles/theme1/app-icons/checkbox_checked_disabled);
+    image: url(:/styles/theme2/app-icons/checkbox_checked_disabled);
 }
 QCheckBox:indicator:indeterminate:disabled {
-    image: url(:/styles/theme1/app-icons/checkbox_indeterminate_disabled);
+    image: url(:/styles/theme2/app-icons/checkbox_indeterminate_disabled);
 }
 /*--------------------------------------------
 Radio Button CSS
@@ -739,22 +739,22 @@ QRadioButton::indicator {
     height: 16px;
 }
 QRadioButton::indicator::unchecked {
-    image: url(:/styles/theme1/app-icons/radiobutton_unchecked);
+    image: url(:/styles/theme2/app-icons/radiobutton_unchecked);
 }
 QRadioButton::indicator::checked {
-    image: url(:/styles/theme1/app-icons/radiobutton_checked);
+    image: url(:/styles/theme2/app-icons/radiobutton_checked);
 }
 QRadioButton::indicator::unchecked:hover {
-    image: url(:/styles/theme1/app-icons/radiobutton_unchecked_hover);
+    image: url(:/styles/theme2/app-icons/radiobutton_unchecked_hover);
 }
 QRadioButton::indicator::checked:hover {
-    image: url(:/styles/theme1/app-icons/radiobutton_checked_hover);
+    image: url(:/styles/theme2/app-icons/radiobutton_checked_hover);
 }
 QRadioButton:indicator:unchecked:disabled {
-    image: url(:/styles/theme1/app-icons/radiobutton_unchecked_disabled);  
+    image: url(:/styles/theme2/app-icons/radiobutton_unchecked_disabled);  
 }
 QRadioButton:indicator:checked:disabled {
-    image: url(:/styles/theme1/app-icons/radiobutton_checked_disabled);
+    image: url(:/styles/theme2/app-icons/radiobutton_checked_disabled);
 }
 /*--------------------------------------------
 Dialogs CSS

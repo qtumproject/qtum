@@ -580,7 +580,25 @@ qt/res/styles/theme2/app-icons/down_arrow_hover.png \
 qt/res/styles/theme2/app-icons/down_arrow_disabled.png \
 qt/res/styles/theme2/app-icons/down_arrow.png \
 qt/res/styles/theme2/app-icons/down_arrow_hover.png \
-qt/res/styles/theme2/app-icons/down_arrow_disabled.png
+qt/res/styles/theme2/app-icons/down_arrow_disabled.png \
+qt/res/styles/theme2/app-icons/checkbox_checked.png \
+qt/res/styles/theme2/app-icons/checkbox_checked_disabled.png \
+qt/res/styles/theme2/app-icons/checkbox_checked_hover.png \
+qt/res/styles/theme2/app-icons/checkbox_indeterminate.png \
+qt/res/styles/theme2/app-icons/checkbox_indeterminate_disabled.png \
+qt/res/styles/theme2/app-icons/checkbox_indeterminate_hover.png \
+qt/res/styles/theme2/app-icons/checkbox_unchecked.png \
+qt/res/styles/theme2/app-icons/checkbox_unchecked_disabled.png \
+qt/res/styles/theme2/app-icons/checkbox_unchecked_hover.png \
+qt/res/styles/theme2/app-icons/radiobutton_checked.png \
+qt/res/styles/theme2/app-icons/radiobutton_checked_disabled.png \
+qt/res/styles/theme2/app-icons/radiobutton_checked_hover.png \
+qt/res/styles/theme2/app-icons/radiobutton_unchecked.png \
+qt/res/styles/theme2/app-icons/radiobutton_unchecked_disabled.png \
+qt/res/styles/theme2/app-icons/radiobutton_unchecked_hover.png \
+qt/res/styles/theme2/app-icons/slider_switcher.png \
+qt/res/styles/theme2/app-icons/slider_switcher_disabled.png \
+qt/res/styles/theme2/app-icons/slider_switcher_hover.png
 
 
 BITCOIN_RC = qt/res/bitcoin-qt-res.rc

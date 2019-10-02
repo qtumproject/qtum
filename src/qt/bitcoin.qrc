@@ -184,5 +184,23 @@
         <file alias="down_arrow_hover">res/styles/theme2/app-icons/down_arrow_hover.png</file>
         <file alias="up_arrow_disabled">res/styles/theme2/app-icons/up_arrow_disabled.png</file>
         <file alias="down_arrow_disabled">res/styles/theme2/app-icons/down_arrow_disabled.png</file>
+        <file alias="checkbox_unchecked">res/styles/theme2/app-icons/checkbox_unchecked.png</file>
+        <file alias="checkbox_unchecked_hover">res/styles/theme2/app-icons/checkbox_unchecked_hover.png</file>
+        <file alias="checkbox_unchecked_disabled">res/styles/theme2/app-icons/checkbox_unchecked_disabled.png</file>
+        <file alias="checkbox_checked">res/styles/theme2/app-icons/checkbox_checked.png</file>
+        <file alias="checkbox_checked_hover">res/styles/theme2/app-icons/checkbox_checked_hover.png</file>
+        <file alias="checkbox_checked_disabled">res/styles/theme2/app-icons/checkbox_checked_disabled.png</file>
+        <file alias="checkbox_indeterminate">res/styles/theme2/app-icons/checkbox_indeterminate.png</file>
+        <file alias="checkbox_indeterminate_hover">res/styles/theme2/app-icons/checkbox_indeterminate_hover.png</file>
+        <file alias="checkbox_indeterminate_disabled">res/styles/theme2/app-icons/checkbox_indeterminate_disabled.png</file>
+        <file alias="radiobutton_unchecked">res/styles/theme2/app-icons/radiobutton_unchecked.png</file>
+        <file alias="radiobutton_unchecked_hover">res/styles/theme2/app-icons/radiobutton_unchecked_hover.png</file>
+        <file alias="radiobutton_unchecked_disabled">res/styles/theme2/app-icons/radiobutton_unchecked_disabled.png</file>
+        <file alias="radiobutton_checked">res/styles/theme2/app-icons/radiobutton_checked.png</file>
+        <file alias="radiobutton_checked_hover">res/styles/theme2/app-icons/radiobutton_checked_hover.png</file>
+        <file alias="radiobutton_checked_disabled">res/styles/theme2/app-icons/radiobutton_checked_disabled.png</file>
+        <file alias="slider_switcher">res/styles/theme2/app-icons/slider_switcher.png</file>
+        <file alias="slider_switcher_disabled">res/styles/theme2/app-icons/slider_switcher_disabled.png</file>
+        <file alias="slider_switcher_hover">res/styles/theme2/app-icons/slider_switcher_hover.png</file>
     </qresource>
 </RCC>
