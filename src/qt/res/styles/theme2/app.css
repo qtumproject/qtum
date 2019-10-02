@@ -873,13 +873,14 @@ Calendar CSS
 --------------------------------------------*/
 QDateTimeEdit{
     padding: 4px;
-    background-image: url(":/styles/theme1/app-icons/spinBoxHover");
 }
 QDateTimeEdit:drop-down {
-    border: none;
+    border: 0px;
+    border-left: 1px solid #49587A;
+    margin-left: -8px;
 }
 QDateTimeEdit::down-arrow:hover, QDateTimeEdit:down-arrow {
-    image: url(":/styles/theme1/app-icons/cb_up_down_arrow");
+    image: url(":/styles/theme2/app-icons/cb_up_down_arrow");
     width: 6px;
     height: 10px;
     top: 1px;

@@ -202,5 +202,6 @@
         <file alias="slider_switcher">res/styles/theme2/app-icons/slider_switcher.png</file>
         <file alias="slider_switcher_disabled">res/styles/theme2/app-icons/slider_switcher_disabled.png</file>
         <file alias="slider_switcher_hover">res/styles/theme2/app-icons/slider_switcher_hover.png</file>
+        <file alias="cb_up_down_arrow">res/styles/theme2/app-icons/cb_up_down_arrow.png</file>
     </qresource>
 </RCC>
