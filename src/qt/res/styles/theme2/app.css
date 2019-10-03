@@ -1034,7 +1034,7 @@ Overview Page Widget CSS
 }
 #widgetTransaction #buttonSend,
 #widgetTransaction #buttonReceive{
-    padding: 9px;
+    padding: 6px;
     min-width: 8em;
     border-radius: 18px;
 }

@@ -39,6 +39,8 @@
 #define TYPE_WIDTH 140
 #define AMOUNT_WIDTH 205
 
+#define BUTTON_ICON_SIZE 24
+
 Q_DECLARE_METATYPE(interfaces::WalletBalances)
 
 class TxViewDelegate : public QAbstractItemDelegate
@@ -194,6 +196,12 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     ui->labelDate->setFixedWidth(DATE_WIDTH);
     ui->labelType->setFixedWidth(TYPE_WIDTH);
     ui->labelAmount->setFixedWidth(AMOUNT_WIDTH);
+
+    // Set send/receive icons
+    ui->buttonSend->setIcon(platformStyle->MultiStatesIcon(":/icons/send", PlatformStyle::PushButton));
+    ui->buttonSend->setIconSize(QSize(BUTTON_ICON_SIZE, BUTTON_ICON_SIZE));
+    ui->buttonReceive->setIcon(platformStyle->MultiStatesIcon(":/icons/receiving_addresses", PlatformStyle::PushButton));
+    ui->buttonReceive->setIconSize(QSize(BUTTON_ICON_SIZE, BUTTON_ICON_SIZE));
 
     // Recent transactions
     ui->listTransactions->setItemDelegate(txdelegate);

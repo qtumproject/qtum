@@ -49,9 +49,9 @@ ReceiveCoinsDialog::ReceiveCoinsDialog(const PlatformStyle *_platformStyle, QWid
         ui->removeRequestButton->setIcon(_platformStyle->MultiStatesIcon(":/icons/remove", PlatformStyle::PushButton));
     }
 
-    ui->copyAddressButton->setIcon(platformStyle->MultiStatesIcon(":/icons/editcopy", PlatformStyle::PushButton));
+    ui->copyAddressButton->setIcon(platformStyle->MultiStatesIcon(":/icons/editcopy", PlatformStyle::PushButtonIcon));
     ui->copyAddressButton->setEnabled(false);
-    ui->refreshButton->setIcon(platformStyle->MultiStatesIcon(":/movies/spinner-010", PlatformStyle::PushButton));
+    ui->refreshButton->setIcon(platformStyle->MultiStatesIcon(":/movies/spinner-010", PlatformStyle::PushButtonIcon));
     ui->refreshButton->setVisible(false);
     ui->leAddress->setReadOnly(true);
 

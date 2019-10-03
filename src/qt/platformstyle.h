@@ -49,7 +49,8 @@ public:
     enum StateType{
         NavBar = 0,
         PushButton = 1,
-        PushButtonLight = 2
+        PushButtonLight = 2,
+        PushButtonIcon = 3
     };
     /** Get multi-states icon*/
     QIcon MultiStatesIcon(const QString& resourcename, StateType type = NavBar) const;
@@ -67,8 +68,11 @@ public:
 
 private:
     PlatformStyle(const QString &name, bool imagesOnButtons, bool colorizeIcons, bool useExtraSpacing);
+    QIcon MultiStatesIconV1(const QString& resourcename, StateType type = NavBar) const;
+    QIcon MultiStatesIconV2(const QString& resourcename, StateType type = NavBar) const;
 
     QString name;
+    int version;
     bool imagesOnButtons;
     bool colorizeIcons;
     bool useExtraSpacing;
@@ -80,6 +84,9 @@ private:
     QColor tableColorInout;
     QColor tableColorOutput;
     QColor tableColorError;
+    QColor multiStatesIconColor1;
+    QColor multiStatesIconColor2;
+    QColor multiStatesIconColor3;
     /* ... more to come later */
 };
 

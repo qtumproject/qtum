@@ -81,6 +81,7 @@ QIcon ColorizeIcon(const QString& filename, const QColor& colorbase, double opac
 
 PlatformStyle::PlatformStyle(const QString &_name, bool _imagesOnButtons, bool _colorizeIcons, bool _useExtraSpacing):
     name(_name),
+    version(1),
     imagesOnButtons(_imagesOnButtons),
     colorizeIcons(_colorizeIcons),
     useExtraSpacing(_useExtraSpacing),
@@ -88,6 +89,9 @@ PlatformStyle::PlatformStyle(const QString &_name, bool _imagesOnButtons, bool _
     textColor(0,0,0),
     menuColor(0,0,0)
 {
+    // Get version
+    version = GetIntStyleValue("platformstyle/version", version);
+
     // Determine icon highlighting color
     if (colorizeIcons) {
         singleColor = GetStringStyleValue("platformstyle/single-color", "#008ac8");
@@ -102,6 +106,11 @@ PlatformStyle::PlatformStyle(const QString &_name, bool _imagesOnButtons, bool _
     tableColorInout = GetStringStyleValue("platformstyle/table-color-inout", "#40bb00");
     tableColorOutput = GetStringStyleValue("platformstyle/table-color-output", "#40bb00");
     tableColorError = GetStringStyleValue("platformstyle/table-color-error", "#d02e49");
+
+    // Determine multi states icon colors
+    multiStatesIconColor1 = GetStringStyleValue("platformstyle/multi-states-icon-color1", "#ffffff");
+    multiStatesIconColor2 = GetStringStyleValue("platformstyle/multi-states-icon-color2", "#2d2d2d");
+    multiStatesIconColor3 = GetStringStyleValue("platformstyle/multi-states-icon-color3", "#5a5a5d");
 }
 
 QImage PlatformStyle::SingleColorImage(const QString& filename) const
@@ -147,42 +156,10 @@ QIcon PlatformStyle::MenuColorIcon(const QIcon &icon) const
 
 QIcon PlatformStyle::MultiStatesIcon(const QString &resourcename, StateType type) const
 {
-    QColor color = Qt::white;
-    QColor colorAlt = 0x2d2d2d;
-    QIcon icon;
-    switch (type) {
-    case NavBar:
-    {
-        QImage img1(resourcename);
-        QImage img2(img1);
-        QImage img3(img1);
-        QPixmap pix1 = MakeSingleColorPixmap(img1, color, 1);
-        QPixmap pix2 = MakeSingleColorPixmap(img2, color, 0.8);
-        QPixmap pix3 = MakeSingleColorPixmap(img3, colorAlt, 0.8);
-        icon.addPixmap(pix1, QIcon::Normal, QIcon::On);
-        icon.addPixmap(pix2, QIcon::Normal, QIcon::Off);
-        icon.addPixmap(pix3, QIcon::Selected, QIcon::On);
-        break;
-    }
-    case PushButtonLight:
-    {
-        color = 0x5a5a5d;
-    }
-    case PushButton:
-    {
-        QImage img1(resourcename);
-        QImage img2(img1);
-        QPixmap pix1 = MakeSingleColorPixmap(img1, color, 1);
-        QPixmap pix2 = MakeSingleColorPixmap(img2, color, 0.2);
-        icon.addPixmap(pix1, QIcon::Normal, QIcon::Off);
-        icon.addPixmap(pix2, QIcon::Disabled, QIcon::On);
-        icon.addPixmap(pix2, QIcon::Disabled, QIcon::Off);
-        break;
-    }
-    default:
-        break;
-    }
-    return icon;
+    if(version == 2)
+        return MultiStatesIconV2(resourcename, type);
+
+    return MultiStatesIconV1(resourcename, type);
 }
 
 QIcon PlatformStyle::TableColorIcon(const QString &resourcename, TableColorType type) const
@@ -277,3 +254,101 @@ const PlatformStyle *PlatformStyle::instantiate(const QString &platformId)
     return nullptr;
 }
 
+
+QIcon PlatformStyle::MultiStatesIconV1(const QString &resourcename, PlatformStyle::StateType type) const
+{
+    QColor color = multiStatesIconColor1;
+    QColor colorAlt = multiStatesIconColor2;
+    QIcon icon;
+    switch (type) {
+    case NavBar:
+    {
+        QImage img1(resourcename);
+        QImage img2(img1);
+        QImage img3(img1);
+        QPixmap pix1 = MakeSingleColorPixmap(img1, color, 1);
+        QPixmap pix2 = MakeSingleColorPixmap(img2, color, 0.8);
+        QPixmap pix3 = MakeSingleColorPixmap(img3, colorAlt, 0.8);
+        icon.addPixmap(pix1, QIcon::Normal, QIcon::On);
+        icon.addPixmap(pix2, QIcon::Normal, QIcon::Off);
+        icon.addPixmap(pix3, QIcon::Selected, QIcon::On);
+        break;
+    }
+    case PushButtonLight:
+    {
+        color = multiStatesIconColor3;
+    }
+    case PushButtonIcon:
+    case PushButton:
+    {
+        QImage img1(resourcename);
+        QImage img2(img1);
+        QPixmap pix1 = MakeSingleColorPixmap(img1, color, 1);
+        QPixmap pix2 = MakeSingleColorPixmap(img2, color, 0.2);
+        icon.addPixmap(pix1, QIcon::Normal, QIcon::Off);
+        icon.addPixmap(pix2, QIcon::Disabled, QIcon::On);
+        icon.addPixmap(pix2, QIcon::Disabled, QIcon::Off);
+        break;
+    }
+    default:
+        break;
+    }
+    return icon;
+}
+
+QIcon PlatformStyle::MultiStatesIconV2(const QString &resourcename, PlatformStyle::StateType type) const
+{
+    QColor color = multiStatesIconColor1;
+    QColor colorAlt = multiStatesIconColor2;
+    QIcon icon;
+    switch (type) {
+    case NavBar:
+    {
+        QImage img1(resourcename);
+        QImage img2(img1);
+        QPixmap pix1 = MakeSingleColorPixmap(img1, color, 1);
+        QPixmap pix2 = MakeSingleColorPixmap(img2, colorAlt, 1);
+        icon.addPixmap(pix1, QIcon::Normal, QIcon::On);
+        icon.addPixmap(pix2, QIcon::Normal, QIcon::Off);
+        icon.addPixmap(pix1, QIcon::Selected, QIcon::Off);
+        icon.addPixmap(pix2, QIcon::Selected, QIcon::On);
+        break;
+    }
+    case PushButtonIcon:
+    {
+        QImage img1(resourcename);
+        QImage img2(img1);
+        QImage img3(img1);
+        QPixmap pix1 = MakeSingleColorPixmap(img1, color, 1);
+        QPixmap pix2 = MakeSingleColorPixmap(img2, colorAlt, 1);
+        QPixmap pix3 = MakeSingleColorPixmap(img3, colorAlt, 0.2);
+        icon.addPixmap(pix1, QIcon::Normal, QIcon::On);
+        icon.addPixmap(pix2, QIcon::Normal, QIcon::Off);
+        icon.addPixmap(pix1, QIcon::Active, QIcon::Off);
+        icon.addPixmap(pix2, QIcon::Active, QIcon::On);
+        icon.addPixmap(pix3, QIcon::Disabled, QIcon::On);
+        icon.addPixmap(pix3, QIcon::Disabled, QIcon::Off);
+        break;
+    }
+    case PushButtonLight:
+    case PushButton:
+    {
+        colorAlt = multiStatesIconColor3;
+        QImage img1(resourcename);
+        QImage img2(img1);
+        QImage img3(img1);
+        QPixmap pix1 = MakeSingleColorPixmap(img1, color, 1);
+        QPixmap pix2 = MakeSingleColorPixmap(img2, colorAlt, 1);
+        QPixmap pix3 = MakeSingleColorPixmap(img3, color, 0.2);
+        icon.addPixmap(pix2, QIcon::Normal, QIcon::On);
+        icon.addPixmap(pix1, QIcon::Normal, QIcon::Off);
+        icon.addPixmap(pix2, QIcon::Active, QIcon::Off);
+        icon.addPixmap(pix3, QIcon::Disabled, QIcon::On);
+        icon.addPixmap(pix3, QIcon::Disabled, QIcon::Off);
+        break;
+    }
+    default:
+        break;
+    }
+    return icon;
+}
