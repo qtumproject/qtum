@@ -145,8 +145,10 @@ QIcon PlatformStyle::MenuColorIcon(const QIcon &icon) const
     return ColorizeIcon(icon, MenuColor(), 0.8);
 }
 
-QIcon PlatformStyle::MultiStatesIcon(const QString &resourcename, StateType type, QColor color, QColor colorAlt) const
+QIcon PlatformStyle::MultiStatesIcon(const QString &resourcename, StateType type) const
 {
+    QColor color = Qt::white;
+    QColor colorAlt = 0x2d2d2d;
     QIcon icon;
     switch (type) {
     case NavBar:
@@ -161,6 +163,10 @@ QIcon PlatformStyle::MultiStatesIcon(const QString &resourcename, StateType type
         icon.addPixmap(pix2, QIcon::Normal, QIcon::Off);
         icon.addPixmap(pix3, QIcon::Selected, QIcon::On);
         break;
+    }
+    case PushButtonLight:
+    {
+        color = 0x5a5a5d;
     }
     case PushButton:
     {
