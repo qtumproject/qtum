@@ -8,10 +8,12 @@ QToolButton {
     border-radius: 0px;
     padding: 10px;
 }
+QToolButton:checked {
+    border-right: 3px solid #1498df;
+}
 QToolButton:pressed, QToolButton:hover:pressed, QToolButton:checked {
     color: #1498df;
     background: #1e2b47;
-    border-right: 3px solid #1498df;
 }
 QToolButton:hover:!checked {
     color: #7388b7;

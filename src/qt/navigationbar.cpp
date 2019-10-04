@@ -7,6 +7,7 @@
 #include <QStyle>
 #include <QLabel>
 #include <qt/styleSheet.h>
+#include <qt/platformstyle.h>
 
 namespace NavigationBar_NS
 {
@@ -36,6 +37,12 @@ public:
         m_colorPressed = GetStringStyleValue("navtoolbutton/color-pressed", "#e5f3f9");
         m_colorHover = GetStringStyleValue("navtoolbutton/color-hover", "#b3dcef");
         m_colorDisabled = GetStringStyleValue("navtoolbutton/color-disabled", "#7fc4e3");
+        m_subIcon = QImage(GetStringStyleValue("navtoolbutton/sub-icon", ""));
+        m_subPaddingRight = GetIntStyleValue("navtoolbutton/sub-padding-right", SubNavPaddingRight);
+        m_subPaddingLeft = GetIntStyleValue("navtoolbutton/sub-padding-left", 0);
+        m_subAlignment = GetIntStyleValue("navtoolbutton/sub-alignment", Qt::AlignRight);
+        m_subIconHeight = GetIntStyleValue("navtoolbutton/sub-icon-height", 6);
+        m_subIconWidth = GetIntStyleValue("navtoolbutton/sub-icon-width", 3);
     }
 
 protected:
@@ -94,9 +101,10 @@ protected:
 
             // Determine area
             QRect rect = toolbutton->rect;
-            int w = rect.width() - SubNavPaddingRight;
+            int w = rect.width() - m_subPaddingRight - m_subPaddingLeft;
             w = qMax(w, 0);
             rect.setWidth(w);
+            rect.setLeft(m_subPaddingLeft);
             int shiftX = 0;
             int shiftY = 0;
             if (toolbutton->state & (QStyle::State_Sunken | QStyle::State_On)) {
@@ -104,9 +112,18 @@ protected:
                 shiftY = style()->pixelMetric(QStyle::PM_ButtonShiftVertical, toolbutton, this);
             }
 
+            // Draw icon
+            if(!m_subIcon.isNull())
+            {
+                QImage image = m_subIcon;
+                PlatformStyle::SingleColorImage(image, color);
+                QRect rectImage(rect.left() -m_subIconHeight -2, rect.top() + (rect.height() - m_subIconHeight)/2, m_subIconWidth, m_subIconHeight);
+                p->drawImage(rectImage, image);
+            }
+
             // Draw text
             if (!toolbutton->text.isEmpty()) {
-                int alignment = Qt::AlignRight | Qt::AlignVCenter | Qt::TextShowMnemonic;
+                int alignment = m_subAlignment | Qt::AlignVCenter | Qt::TextShowMnemonic;
                 rect.translate(shiftX, shiftY);
                 p->setFont(toolbutton->font);
                 p->setPen(color);
@@ -141,6 +158,12 @@ private:
     QColor m_colorPressed;
     QColor m_colorHover;
     QColor m_colorDisabled;
+    QImage m_subIcon;
+    int m_subPaddingRight;
+    int m_subPaddingLeft;
+    int m_subAlignment;
+    int m_subIconHeight;
+    int m_subIconWidth;
 };
 
 NavigationBar::NavigationBar(QWidget *parent) :

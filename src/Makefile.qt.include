@@ -599,7 +599,8 @@ qt/res/styles/theme2/app-icons/radiobutton_unchecked_hover.png \
 qt/res/styles/theme2/app-icons/slider_switcher.png \
 qt/res/styles/theme2/app-icons/slider_switcher_disabled.png \
 qt/res/styles/theme2/app-icons/slider_switcher_hover.png \
-qt/res/styles/theme2/app-icons/cb_up_down_arrow.png
+qt/res/styles/theme2/app-icons/cb_up_down_arrow.png \
+qt/res/styles/theme2/app-icons/right_arrow.png
 
 
 BITCOIN_RC = qt/res/bitcoin-qt-res.rc
