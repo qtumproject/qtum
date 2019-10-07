@@ -218,7 +218,7 @@ void NavigationBar::buildUi()
         if(!m_subBar)
         {
             QHBoxLayout *hLayout = new QHBoxLayout();
-            hLayout->setContentsMargins(0,0,0,5);
+            hLayout->setContentsMargins(0,0,0,10);
             QLabel *labelLogo = new QLabel(this);
             labelLogo->setFixedSize(LogoHeight, LogoWidth);
             labelLogo->setObjectName("labelLogo");
@@ -230,7 +230,7 @@ void NavigationBar::buildUi()
 
             vboxLayout->addLayout(hLayout);
             vboxLayout->addWidget(line);
-            vboxLayout->addSpacerItem(new QSpacerItem(5, 5, QSizePolicy::Fixed, QSizePolicy::Fixed));
+            vboxLayout->addSpacerItem(new QSpacerItem(20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed));
         }
         // List all actions
         for(int i = 0; i < m_actions.count(); i++)

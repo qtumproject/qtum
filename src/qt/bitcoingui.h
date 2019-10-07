@@ -367,6 +367,10 @@ protected:
 private:
     OptionsModel *optionsModel;
     QMenu* menu;
+    int menuMargin;
+    int iconHeight;
+    int iconWidth;
+    QString iconPath;
 
     /** Shows context menu with Display Unit options by the mouse coordinates */
     void onDisplayUnitsClicked(const QPoint& point);

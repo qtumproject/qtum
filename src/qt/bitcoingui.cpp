@@ -21,6 +21,7 @@
 #include <qt/navigationbar.h>
 #include <qt/titlebar.h>
 #include <qt/qtumversionchecker.h>
+#include <qt/styleSheet.h>
 
 #ifdef ENABLE_WALLET
 #include <qt/walletcontroller.h>
@@ -1038,7 +1039,7 @@ void BitcoinGUI::updateNetworkState()
     tooltip = QString("<nobr>") + tooltip + QString("</nobr>");
     connectionsControl->setToolTip(tooltip);
 
-    connectionsControl->setPixmap(QIcon(icon).pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+    connectionsControl->setPixmap(platformStyle->MultiStatesIcon(icon).pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
 }
 
 void BitcoinGUI::setNumConnections(int count)
@@ -1130,7 +1131,7 @@ void BitcoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
     // Set icon state: spinning if catching up, tick otherwise
     if (secs < MAX_BLOCK_TIME_GAP) {
         tooltip = tr("Up to date") + QString(".<br>") + tooltip;
-        labelBlocksIcon->setPixmap(QIcon(":/icons/synced").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
+        labelBlocksIcon->setPixmap(platformStyle->MultiStatesIcon(":/icons/synced", PlatformStyle::PushButtonIcon).pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
 
 #ifdef ENABLE_WALLET
         if(walletFrame)
@@ -1163,7 +1164,7 @@ void BitcoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
         tooltip = tr("Catching up...") + QString("<br>") + tooltip;
         if(count != prevBlocks)
         {
-            labelBlocksIcon->setPixmap(QIcon(QString(
+            labelBlocksIcon->setPixmap(platformStyle->MultiStatesIcon(QString(
                 ":/movies/spinner-%1").arg(spinnerFrame, 3, 10, QChar('0')))
                 .pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
             spinnerFrame = (spinnerFrame + 1) % SPINNER_FRAMES;
@@ -1389,7 +1390,7 @@ bool BitcoinGUI::handlePaymentRequest(const SendCoinsRecipient& recipient)
 
 void BitcoinGUI::setHDStatus(bool privkeyDisabled, int hdEnabled)
 {
-    labelWalletHDStatusIcon->setPixmap(QIcon(privkeyDisabled ? ":/icons/eye" : hdEnabled ? ":/icons/hd_enabled" : ":/icons/hd_disabled").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+    labelWalletHDStatusIcon->setPixmap(platformStyle->MultiStatesIcon(privkeyDisabled ? ":/icons/eye" : hdEnabled ? ":/icons/hd_enabled" : ":/icons/hd_disabled").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
     labelWalletHDStatusIcon->setToolTip(privkeyDisabled ? tr("Private key <b>disabled</b>") : hdEnabled ? tr("HD key generation is <b>enabled</b>") : tr("HD key generation is <b>disabled</b>"));
 
     // eventually disable the QLabel to set its opacity to 50%
@@ -1413,12 +1414,12 @@ void BitcoinGUI::setEncryptionStatus(WalletModel *walletModel)
         labelWalletEncryptionIcon->show();
         if(walletModel->getWalletUnlockStakingOnly())
         {
-            labelWalletEncryptionIcon->setPixmap(QIcon(":/icons/lock_staking").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+            labelWalletEncryptionIcon->setPixmap(platformStyle->MultiStatesIcon(":/icons/lock_staking").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
             labelWalletEncryptionIcon->setToolTip(tr("Wallet is <b>encrypted</b> and currently <b>unlocked for staking only</b>"));
         }
         else
         {
-            labelWalletEncryptionIcon->setPixmap(QIcon(":/icons/lock_open").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+            labelWalletEncryptionIcon->setPixmap(platformStyle->MultiStatesIcon(":/icons/lock_open").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
             labelWalletEncryptionIcon->setToolTip(tr("Wallet is <b>encrypted</b> and currently <b>unlocked</b>"));
         }
         encryptWalletAction->setChecked(true);
@@ -1429,7 +1430,7 @@ void BitcoinGUI::setEncryptionStatus(WalletModel *walletModel)
         break;
     case WalletModel::Locked:
         labelWalletEncryptionIcon->show();
-        labelWalletEncryptionIcon->setPixmap(QIcon(":/icons/lock_closed").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+        labelWalletEncryptionIcon->setPixmap(platformStyle->MultiStatesIcon(":/icons/lock_closed").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
         labelWalletEncryptionIcon->setToolTip(tr("Wallet is <b>encrypted</b> and currently <b>locked</b>"));
         encryptWalletAction->setChecked(true);
         changePassphraseAction->setEnabled(true);
@@ -1516,7 +1517,7 @@ void BitcoinGUI::updateStakingIcon()
     WalletView * const walletView = walletFrame ? walletFrame->currentWalletView() : 0;
     if (!walletView) {
         // Not staking because wallet is closed
-        labelStakingIcon->setPixmap(QIcon(":/icons/staking_off").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
+        labelStakingIcon->setPixmap(platformStyle->MultiStatesIcon(":/icons/staking_off", PlatformStyle::PushButtonIcon).pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
         labelStakingIcon->setToolTip(tr("Not staking"));
         return;
     }
@@ -1553,12 +1554,12 @@ void BitcoinGUI::updateStakingIcon()
         nWeight /= COIN;
         nNetworkWeight /= COIN;
 
-        labelStakingIcon->setPixmap(QIcon(":/icons/staking_on").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
+        labelStakingIcon->setPixmap(platformStyle->MultiStatesIcon(":/icons/staking_on", PlatformStyle::PushButtonIcon).pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
         labelStakingIcon->setToolTip(tr("Staking.<br>Your weight is %1<br>Network weight is %2<br>Expected time to earn reward is %3").arg(nWeight).arg(nNetworkWeight).arg(text));
     }
     else
     {
-        labelStakingIcon->setPixmap(QIcon(":/icons/staking_off").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
+        labelStakingIcon->setPixmap(platformStyle->MultiStatesIcon(":/icons/staking_off", PlatformStyle::PushButtonIcon).pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
 
         if (m_node.getNodeCount(CConnman::CONNECTIONS_ALL) == 0)
             labelStakingIcon->setToolTip(tr("Not staking because wallet is offline"));
@@ -1679,6 +1680,12 @@ UnitDisplayStatusBarControl::UnitDisplayStatusBarControl(const PlatformStyle *pl
     optionsModel(nullptr),
     menu(nullptr)
 {
+    // Get params
+    menuMargin = GetIntStyleValue("unitdisplaystatusbarcontrol/menu-margin", 5);
+    iconHeight = GetIntStyleValue("unitdisplaystatusbarcontrol/icon-height", 0);
+    iconWidth = GetIntStyleValue("unitdisplaystatusbarcontrol/icon-width", 0);
+    iconPath = GetStringStyleValue("unitdisplaystatusbarcontrol/icon-path", "");
+
     createContextMenu();
     setToolTip(tr("Unit to show amounts in. Click to select another unit."));
     QList<BitcoinUnits::Unit> units = BitcoinUnits::availableUnits();
@@ -1690,18 +1697,23 @@ UnitDisplayStatusBarControl::UnitDisplayStatusBarControl(const PlatformStyle *pl
     }
     setMinimumSize(DISPLAY_UNIT_CONTROL_MARGIN + max_width + DISPLAY_UNIT_CONTROL_MARGIN, DISPLAY_UNIT_CONTROL_HEIGHT);
     setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+    setTextFormat(Qt::RichText);
 }
 
 /** So that it responds to button clicks */
-void UnitDisplayStatusBarControl::mousePressEvent(QMouseEvent *event)
+void UnitDisplayStatusBarControl::mousePressEvent(QMouseEvent *)
 {
-    onDisplayUnitsClicked(event->pos());
+    menu->adjustSize();
+    onDisplayUnitsClicked(QPoint((width() -menu->width())/2, -menu->height() -menuMargin));
 }
 
 /** Creates context menu, its actions, and wires up all the relevant signals for mouse events. */
 void UnitDisplayStatusBarControl::createContextMenu()
 {
     menu = new QMenu(this);
+    menu->setWindowFlag(Qt::Window);
+    menu->setWindowFlag(Qt::FramelessWindowHint);
+    menu->setAttribute(Qt::WA_TranslucentBackground);
     for (const BitcoinUnits::Unit u : BitcoinUnits::availableUnits())
     {
         QAction *menuAction = new QAction(QString(BitcoinUnits::longName(u)), this);
@@ -1729,7 +1741,8 @@ void UnitDisplayStatusBarControl::setOptionsModel(OptionsModel *_optionsModel)
 /** When Display Units are changed on OptionsModel it will refresh the display text of the control on the status bar */
 void UnitDisplayStatusBarControl::updateDisplayUnit(int newUnits)
 {
-    setText(BitcoinUnits::longName(newUnits));
+    static const QString INIT_DISPLAY_FORMAT = "<html>%1<img src='%2' width='%3' height='%4'></html>";
+    setText(INIT_DISPLAY_FORMAT.arg(BitcoinUnits::longName(newUnits), iconPath, QString::number(iconWidth), QString::number(iconHeight)));
 }
 
 /** Shows context menu with Display Unit options by the mouse coordinates */

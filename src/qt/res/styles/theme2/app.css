@@ -79,12 +79,6 @@ NavigationBar #hLineLogo,
 NavigationBar #hLineStatus{
     border-top: 1px solid #1d2843;
 }
-QLabel#unitDisplayControl {
-    color: #6f80ab; 
-    background: transparent;
-    border: 1px solid #3B4767;
-    border-radius: 12px;
-}
 /*-------------------------------------------- 
 Line Edit CSS
 --------------------------------------------*/
@@ -575,9 +569,30 @@ QStatusBar QLabel::disabled{
     border: 1px solid transparent;
     color: rgba(0, 0, 0, 10%);
 }
-#unitDisplayControl{
+UnitDisplayStatusBarControl {
+    color: #6f80ab; 
+    background: transparent;
+    border: 1px solid #3B4767;
+    border-radius: 12px;
     font: 16px;
     padding: 0px;
+}
+UnitDisplayStatusBarControl QMenu::item {
+    background-color: #49587a;
+    color: #1A233A;
+    padding: 4px;
+    padding-left: 10px;
+}
+UnitDisplayStatusBarControl QMenu::item:selected {
+    background-color: #1A233A;
+    color: #ffffff;
+}
+UnitDisplayStatusBarControl QMenu{
+    background-color: #49587a;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 0px;
+    margin: 0px;
 }
 /*--------------------------------------------
 Progress Bar CSS
