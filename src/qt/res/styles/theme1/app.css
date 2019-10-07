@@ -26,7 +26,7 @@ QMainWindow::separator {
     padding: 0px;
     margin: 0px;
 }
-QMainWindow .QFrame#frameBalances, 
+QMainWindow
 #frameOtherTokens, 
 #frameRecentTransactions,
 #frameRequest,
@@ -77,13 +77,11 @@ NavigationBar #labelLogo{
     image:url(":/icons/qtum_logo");
 }
 .QFrame#frameBlocks {
-    background: #1f1f1f;
-}
-QLabel#unitDisplayControl {
-    color: rgba(255, 255, 255, 60%);; 
     background: transparent;
-    border: 1px solid #5a5a5d;
-    border-radius: 12px;
+}
+NavigationBar #hLineLogo,
+NavigationBar #hLineStatus{
+    border-top: 1px solid rgba(255, 255, 255, 10%);
 }
 /*-------------------------------------------- 
 Line Edit CSS
@@ -579,9 +577,35 @@ QStatusBar QLabel::disabled{
     border: 1px solid transparent;
     color: rgba(0, 0, 0, 10%);
 }
-#unitDisplayControl{
+UnitDisplayStatusBarControl {
+    color: #ababab;
+    background: rgba(25, 25, 25, 80%);
+    border: 1px solid #5a5a5d;
+    border-radius: 12px;
     font: 16px;
     padding: 0px;
+}
+UnitDisplayStatusBarControl QMenu::item {
+    border: none;
+    border-radius: 10px;
+    background-color: #2e2e2e;
+    color: #ffffff;
+    padding: 4px;
+    padding-left: 10px;
+}
+UnitDisplayStatusBarControl QMenu::item:selected {
+    background-color: #545454;
+    color: #ffffff;
+    padding: 4px;
+}
+UnitDisplayStatusBarControl QMenu{
+    background-color: #2e2e2e;
+    border: none;
+    border-top: 1px solid #727272;
+    border-bottom: 1px solid #727272;
+    border-radius: 10px;
+    padding: 4px;
+    margin: 0px;
 }
 /*--------------------------------------------
 Progress Bar CSS
@@ -1004,6 +1028,14 @@ Stake Page Widget CSS
 /*--------------------------------------------
 Overview Page Widget CSS
 --------------------------------------------*/
+#widgetPending #vLine,
+#widgetImmature #vLine_2,
+#widgetStake #vLine_3,
+#widgetWatchPending #vLine_4,
+#widgetWatchImmature #vLine_5,
+#widgetWatchStake #vLine_6{
+    border-left: 1px solid #404041;
+}
 #widgetStatus #labelLogo{
     width: 32px;
     height: 32px;

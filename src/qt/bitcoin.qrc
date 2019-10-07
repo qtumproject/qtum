@@ -166,6 +166,7 @@
         <file alias="message_question">res/styles/theme1/app-icons/message_question.png</file>
         <file alias="toolbutton_down_arrow">res/styles/theme1/app-icons/toolbutton_down_arrow.png</file>
         <file alias="toolbutton_right_arrow">res/styles/theme1/app-icons/toolbutton_right_arrow.png</file>
+        <file alias="down_arrow_unit">res/styles/theme1/app-icons/down_arrow_unit.png</file>
     </qresource>
     <qresource prefix="/styles/theme2">
         <file alias="app">res/styles/theme2/app.css</file>

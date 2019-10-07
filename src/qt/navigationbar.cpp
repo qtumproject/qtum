@@ -170,8 +170,10 @@ NavigationBar::NavigationBar(QWidget *parent) :
     QWidget(parent),
     m_toolStyle(Qt::ToolButtonTextBesideIcon),
     m_subBar(false),
-    m_built(false)
+    m_built(false),
+    m_logoSpace(0)
 {
+    m_logoSpace = GetIntStyleValue("navigationbar/logo-space", 0);
 }
 
 void NavigationBar::addAction(QAction *action)
@@ -223,14 +225,16 @@ void NavigationBar::buildUi()
             labelLogo->setFixedSize(LogoHeight, LogoWidth);
             labelLogo->setObjectName("labelLogo");
             hLayout->addWidget(labelLogo);
-
-            QFrame *line = new QFrame(this);
-            line->setObjectName("hLineLogo");
-            line->setFrameShape(QFrame::HLine);
-
             vboxLayout->addLayout(hLayout);
-            vboxLayout->addWidget(line);
-            vboxLayout->addSpacerItem(new QSpacerItem(20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed));
+
+            if(m_logoSpace)
+            {
+                QFrame *line = new QFrame(this);
+                line->setObjectName("hLineLogo");
+                line->setFrameShape(QFrame::HLine);
+                vboxLayout->addWidget(line);
+                vboxLayout->addSpacerItem(new QSpacerItem(m_logoSpace, m_logoSpace, QSizePolicy::Fixed, QSizePolicy::Fixed));
+            }
         }
         // List all actions
         for(int i = 0; i < m_actions.count(); i++)

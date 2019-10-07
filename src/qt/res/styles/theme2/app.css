@@ -1027,7 +1027,7 @@ Overview Page Widget CSS
 #widgetPending #vLine,
 #widgetImmature #vLine_2,
 #widgetStake #vLine_3,
-#widgetWatchPending #vLine_4
+#widgetWatchPending #vLine_4,
 #widgetWatchImmature #vLine_5,
 #widgetWatchStake #vLine_6{
     border-left: 1px solid rgba(111, 128, 171, 60%);

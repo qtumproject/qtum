@@ -89,6 +89,7 @@ private:
     Qt::ToolButtonStyle m_toolStyle;
     bool m_subBar;
     bool m_built;
+    int m_logoSpace;
 };
 
 #endif // NAVIGATIONBAR_H
