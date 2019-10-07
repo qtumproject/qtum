@@ -73,8 +73,17 @@ QLabel#labelTotal,
 QLabel#overriddenByCommandLineLabel{
     color: #bdbdbd;
 }
-#labelTokenAddressText{
-    color: #969696;
+NavigationBar #labelLogo{
+    image:url(":/icons/qtum_logo");
+}
+.QFrame#frameBlocks {
+    background: #1f1f1f;
+}
+QLabel#unitDisplayControl {
+    color: rgba(255, 255, 255, 60%);; 
+    background: transparent;
+    border: 1px solid #5a5a5d;
+    border-radius: 12px;
 }
 /*-------------------------------------------- 
 Line Edit CSS
@@ -964,4 +973,74 @@ QToolButton#tabBarTool {
 QToolButton#tabBarTool::hover{ 
     padding-top: 1px; 
     padding-bottom: 1px; 
+}
+/*--------------------------------------------
+Stake Page Widget CSS
+--------------------------------------------*/
+#StakePage QLabel{
+    color: #9c9c9c;
+}
+#frameStakeInfo {
+    background-color: #2e2e2e;
+    border: 1px dotted #9c9c9c;
+    color: #9c9c9c;
+    border-radius: 4px;
+    margin-top: 20px;
+}
+#frameStakeInfo #labelAssets{
+    color: #049ee8;
+    font: 17pt;
+}
+#frameStakeInfo #labelHeight,
+#frameStakeInfo #labelWeight,
+#frameStakeInfo #labelReward,
+#frameStakeInfo #labelROI,
+#frameStakeInfo #labelStaking{
+    color: white;
+}
+#frameStakeInfo #hLine{
+    border-top: 1px solid #404041;
+}
+/*--------------------------------------------
+Overview Page Widget CSS
+--------------------------------------------*/
+#widgetStatus #labelLogo{
+    width: 32px;
+    height: 32px;
+    border-radius: 16px;
+    background-color: transparent;
+    image:url(":/icons/bitcoin");
+    margin-top: 4px;
+}
+#widgetRecent #showMoreButton{
+    min-width: 3em;
+    padding: 1px;
+    border-radius: 8px;
+    min-height: 16px;
+    font: 8pt;
+}
+#widgetTransaction #buttonSend,
+#widgetTransaction #buttonReceive{
+    padding: 6px;
+    min-width: 8em;
+    border-radius: 18px;
+}
+/*--------------------------------------------
+Token Page Widget CSS
+--------------------------------------------*/
+#labelTokenAddressText, 
+#labelTokenBalanceText{
+    color: #969696;
+}
+#labelTokenBalance{
+    color: white;
+}
+#widgetQRFrame{
+    background-color: white;
+    border-radius: 20px;
+}
+#widgetQRMargin{
+    background-color: #2e2e2e;
+    border-radius: 20px;
+    border: 1px solid #9c9c9c;
 }
