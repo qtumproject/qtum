@@ -66,6 +66,7 @@ public:
     QImage TableColorImage(const QString& resourcename, TableColorType type) const;
     void TableColor(TableColorType type, QColor& color, double& opacity) const;
     static void SingleColorImage(QImage& img, const QColor& colorbase, double opacity = 1);
+    static QIcon SingleColorIcon(const QString& resourcename, const QColor& colorbase, double opacity = 1);
 
 private:
     PlatformStyle(const QString &name, bool imagesOnButtons, bool colorizeIcons, bool useExtraSpacing);

@@ -385,7 +385,7 @@ void BitcoinGUI::createActions()
     encryptWalletAction = new QAction(platformStyle->MenuColorIcon(":/icons/encrypt"), tr("&Encrypt Wallet..."), this);
     encryptWalletAction->setStatusTip(tr("Encrypt the private keys that belong to your wallet"));
     encryptWalletAction->setCheckable(true);
-    backupWalletAction = new QAction(platformStyle->MenuColorIcon(":/icons/filesave"), tr("&Backup Wallet..."), this);
+    backupWalletAction = new QAction(platformStyle->MenuColorIcon(":/icons/backup_wallet"), tr("&Backup Wallet..."), this);
     backupWalletAction->setStatusTip(tr("Backup wallet to another location"));
     restoreWalletAction = new QAction(platformStyle->MenuColorIcon(":/icons/restore"), tr("&Restore Wallet..."), this);
     restoreWalletAction->setStatusTip(tr("Restore wallet from another location"));

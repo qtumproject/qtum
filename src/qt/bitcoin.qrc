@@ -72,6 +72,7 @@
         <file alias="token">res/icons/token.png</file>
         <file alias="show">res/icons/show.png</file>
         <file alias="qtum_logo">res/icons/qtum_logo.png</file>
+        <file alias="backup_wallet">res/icons/backup_wallet.png</file>
     </qresource>
     <qresource prefix="/movies">
         <file alias="spinner-000">res/movies/spinner-000.png</file>

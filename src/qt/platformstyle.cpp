@@ -357,3 +357,16 @@ void PlatformStyle::SingleColorImage(QImage &img, const QColor &colorbase, doubl
 {
     MakeSingleColorImage(img, colorbase, opacity);
 }
+
+QIcon PlatformStyle::SingleColorIcon(const QString &resourcename, const QColor &colorbase, double opacity)
+{
+    QImage img(resourcename);
+    QPixmap pix = MakeSingleColorPixmap(img, colorbase, opacity);
+    QIcon icon;
+    icon.addPixmap(pix, QIcon::Normal, QIcon::On);
+    icon.addPixmap(pix, QIcon::Normal, QIcon::Off);
+    icon.addPixmap(pix, QIcon::Disabled, QIcon::On);
+    icon.addPixmap(pix, QIcon::Disabled, QIcon::Off);
+
+    return icon;
+}

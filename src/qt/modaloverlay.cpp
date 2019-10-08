@@ -7,6 +7,7 @@
 
 #include <qt/guiutil.h>
 #include <qt/styleSheet.h>
+#include <qt/platformstyle.h>
 
 #include <chainparams.h>
 
@@ -27,6 +28,9 @@ type(_type)
     // Set stylesheet
     SetObjectStyleSheet(ui->warningIcon, StyleSheetNames::ButtonTransparent);
     SetObjectStyleSheet(ui->warningIconBackup, StyleSheetNames::ButtonTransparent);
+    QColor warningIconColor = GetStringStyleValue("modaloverlay/warning-icon-color", "#000000");
+    ui->warningIcon->setIcon(PlatformStyle::SingleColorIcon(":/icons/warning", warningIconColor));
+    ui->warningIconBackup->setIcon(PlatformStyle::SingleColorIcon(":/icons/backup_wallet", warningIconColor));
 
     connect(ui->closeButton, &QPushButton::clicked, this, &ModalOverlay::closeClicked);
     connect(ui->walletBackupButton, &QPushButton::clicked, this, &ModalOverlay::backupWalletClicked);
