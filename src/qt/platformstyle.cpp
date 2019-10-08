@@ -213,7 +213,7 @@ void PlatformStyle::TableColor(PlatformStyle::TableColorType type, QColor &color
     // Choose color
     switch (type) {
     case Normal:
-        opacity = 0.3;
+        opacity = 0.4;
         color = tableColorNormal;
         break;
     case Input:

@@ -55,7 +55,7 @@ public:
         background_color = GetStringStyleValue("txviewdelegate/background-color", "#393939");
         alternate_background_color = GetStringStyleValue("txviewdelegate/alternate-background-color", "#2e2e2e");
         foreground_color = GetStringStyleValue("txviewdelegate/foreground-color", "#dedede");
-        foreground_color_selected = GetStringStyleValue("txviewdelegate/foreground-color-selected", "#dedede");
+        foreground_color_selected = GetStringStyleValue("txviewdelegate/foreground-color-selected", "#ffffff");
         amount_color = GetStringStyleValue("txviewdelegate/amount-color", "#ffffff");
         color_unconfirmed = GetColorStyleValue("guiconstants/color-unconfirmed", COLOR_UNCONFIRMED);
         color_negative = GetColorStyleValue("guiconstants/color-negative", COLOR_NEGATIVE);
@@ -110,6 +110,10 @@ public:
         if (watchOnly)
         {
             QIcon iconWatchonly = qvariant_cast<QIcon>(index.data(TransactionTableModel::WatchonlyDecorationRole));
+            if(selected)
+            {
+                iconWatchonly = PlatformStyle::SingleColorIcon(iconWatchonly, foreground_color_selected);
+            }
             QRect watchonlyRect(typeRect.right() + MARGIN, mainRect.top() + topMargin, DECORATION_SIZE, DECORATION_SIZE);
             iconWatchonly.paint(painter, watchonlyRect);
         }
