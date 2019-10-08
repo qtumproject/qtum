@@ -57,14 +57,21 @@ public:
         foreground_color = GetStringStyleValue("txviewdelegate/foreground-color", "#dedede");
         foreground_color_selected = GetStringStyleValue("txviewdelegate/foreground-color-selected", "#dedede");
         amount_color = GetStringStyleValue("txviewdelegate/amount-color", "#ffffff");
+        color_unconfirmed = GetColorStyleValue("guiconstants/color-unconfirmed", COLOR_UNCONFIRMED);
+        color_negative = GetColorStyleValue("guiconstants/color-negative", COLOR_NEGATIVE);
     }
 
     inline void paint(QPainter *painter, const QStyleOptionViewItem &option,
                       const QModelIndex &index ) const
     {
         painter->save();
+        bool selected = option.state & QStyle::State_Selected;
         QDateTime date = index.data(TransactionTableModel::DateRole).toDateTime();
         QIcon icon = qvariant_cast<QIcon>(index.data(TransactionTableModel::RawDecorationRole));
+        if(selected)
+        {
+            icon = PlatformStyle::SingleColorIcon(icon, foreground_color_selected);
+        }
         QString address = index.data(Qt::DisplayRole).toString();
         qint64 amount = index.data(TransactionTableModel::AmountRole).toLongLong();
         bool confirmed = index.data(TransactionTableModel::ConfirmedRole).toBool();
@@ -76,7 +83,6 @@ public:
         QColor txColor = index.row() % 2 ? background_color : alternate_background_color;
         painter->fillRect(mainRect, txColor);
 
-        bool selected = option.state & QStyle::State_Selected;
         if(selected)
         {
             painter->fillRect(mainRect.x()+1, mainRect.y()+1, mainRect.width()-2, mainRect.height()-2, background_color_selected);
@@ -123,20 +129,24 @@ public:
         painter->drawText(addressRect, Qt::AlignLeft|Qt::AlignVCenter, clippedAddress);
 
         QFont amountFont = option.font;
-        amountFont.setBold(true);
         painter->setFont(amountFont);
 
         if(amount < 0)
         {
-            foreground = COLOR_NEGATIVE;
+            foreground = color_negative;
         }
         else if(!confirmed)
         {
-            foreground = COLOR_UNCONFIRMED;
+            foreground = color_unconfirmed;
         }
         else
         {
             foreground = amount_color;
+        }
+
+        if(selected)
+        {
+            foreground = foreground_color_selected;
         }
         painter->setPen(foreground);
 
@@ -167,6 +177,8 @@ private:
     QColor foreground_color;
     QColor foreground_color_selected;
     QColor amount_color;
+    QColor color_unconfirmed;
+    QColor color_negative;
 };
 
 #include <qt/overviewpage.moc>

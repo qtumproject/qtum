@@ -208,7 +208,6 @@ QImage PlatformStyle::TableColorImage(const QString &resourcename, PlatformStyle
 void PlatformStyle::TableColor(PlatformStyle::TableColorType type, QColor &color, double &opacity) const
 {
     // Initialize variables
-    opacity = 1;
     color = 0xffffff;
 
     // Choose color
@@ -234,8 +233,12 @@ void PlatformStyle::TableColor(PlatformStyle::TableColorType type, QColor &color
         color = tableColorError;
         break;
     default:
+        opacity = 1;
         break;
     }
+
+    if(version > 1)
+        opacity = 1;
 }
 
 const PlatformStyle *PlatformStyle::instantiate(const QString &platformId)
@@ -369,4 +372,9 @@ QIcon PlatformStyle::SingleColorIcon(const QString &resourcename, const QColor &
     icon.addPixmap(pix, QIcon::Disabled, QIcon::Off);
 
     return icon;
+}
+
+QIcon PlatformStyle::SingleColorIcon(const QIcon &icon, const QColor &colorbase, double opacity)
+{
+    return ColorizeIcon(icon, colorbase, opacity);
 }

@@ -16,6 +16,7 @@ class QApplication;
 #define GetStringStyleValue(key, defaultValue) GetStyleValue(key, defaultValue).toString()
 #define GetIntStyleValue(key, defaultValue) GetStyleValue(key, defaultValue).toInt()
 #define GetPercentStyleValue(key, defaultValue) GetIntStyleValue(key, defaultValue) / 100.0
+#define GetColorStyleValue(key, defaultValue) GetStyleValue(key, defaultValue.name()).toString()
 
 /** Names of the styles that will be used for the GUI components appearance
  */
