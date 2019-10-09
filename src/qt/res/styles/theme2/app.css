@@ -618,23 +618,25 @@ Tab Bar CSS
 --------------------------------------------*/
 QTabBar::tab {
     background-color: transparent;
-    color: rgba(255, 255, 255, 60%);
-    padding: 10px 15px;
+    color: #4d6087;
+    padding: 11px 0px;
     border-width: 0px;
     border-radius: 0px;
     border-style: none;
-    border-bottom: 5px solid transparent;
+    border-bottom: 3px solid transparent;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 QTabBar::tab:selected {
-    color: #6f80ab;
-    border-bottom: 5px solid rgba(0, 138, 200, 40%);
+    color: #4d6087;
+    border-bottom: 3px solid #4d6087;
 }
 QTabBar::tab:hover:!selected {
-    color: rgba(255, 255, 255, 85%);
-    border-bottom: 5px solid rgba(0, 138, 200, 90%);
+    color: #18aae0;
+    border-bottom: 3px solid #18aae0;
 }
 QTabBar::tab:disabled {
-    color: rgba(255, 255, 255, 30%);
+    color: rgba(111, 128, 171, 20%);
 }
 QTabWidget::pane {
     border: none;
@@ -642,7 +644,7 @@ QTabWidget::pane {
     background-color: #1a2946;
 }
 TitleBar QTabBar::tab {
-    padding: 5px 10px;
+    padding: 5px 0px;
 }
 #widgetTitle {
     background-color: #1a2946;
@@ -871,14 +873,12 @@ QToolButton {
 	border: none;
 }
 QToolButton::hover{
-	background-color: rgba(89, 89, 92, 20%);
-	border-top: 1px solid #2c2c2c;
-	border-bottom: 1px solid #2c2c2c;
+	background-color: rgba(73, 88, 122, 20%);
 	padding-top: 5px;
 	padding-bottom: 5px;
 }
 QToolButton::pressed{
-	background-color: rgba(89, 89, 92, 30%);
+	background-color: rgba(73, 88, 122, 30%);
 }
 QToolButton::disabled{
 	background-color: transparent;
