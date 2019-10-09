@@ -74,7 +74,7 @@ QLabel#overriddenByCommandLineLabel{
     color: #bdbdbd;
 }
 NavigationBar #labelLogo{
-    image:url(":/icons/qtum_logo");
+    image:url(":/icons/logo");
 }
 .QFrame#frameBlocks {
     background: transparent;

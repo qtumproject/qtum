@@ -73,7 +73,7 @@ QLabel#overriddenByCommandLineLabel{
     color: #6f80ab;
 }
 NavigationBar #labelLogo{
-    image:url(":/icons/qtum_logo");
+    image:url(":/icons/logo");
 }
 NavigationBar #hLineLogo,
 NavigationBar #hLineStatus{
