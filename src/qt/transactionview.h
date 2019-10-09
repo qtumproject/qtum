@@ -24,6 +24,7 @@ class QLineEdit;
 class QMenu;
 class QModelIndex;
 class QSignalMapper;
+class QSpacerItem;
 class QTableView;
 QT_END_NAMESPACE
 
@@ -70,6 +71,7 @@ private:
     QComboBox *watchOnlyWidget;
     QLineEdit *search_widget;
     QLineEdit *amountWidget;
+    QSpacerItem *hSpacer;
 
     QMenu *contextMenu;
     QSignalMapper *mapperThirdPartyTxUrls;

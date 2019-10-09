@@ -46,9 +46,10 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
     setContentsMargins(0,0,0,0);
 
     QHBoxLayout *hlayout = new QHBoxLayout();
-    hlayout->setContentsMargins(6,6,6,6);
+    hlayout->setContentsMargins(0,6,0,6);
     hlayout->setSpacing(10);
-    hlayout->addSpacing(STATUS_COLUMN_WIDTH);
+    hSpacer = new QSpacerItem(0, 20, QSizePolicy::Fixed, QSizePolicy::Fixed);
+    hlayout->addSpacerItem(hSpacer);
 
     watchOnlyWidget = new QComboBox(this);
     watchOnlyWidget->setObjectName("watchOnlyWidget");
@@ -660,4 +661,7 @@ void TransactionView::updateWatchOnlyColumn(bool fHaveWatchOnly)
 {
     watchOnlyWidget->setVisible(fHaveWatchOnly);
     transactionView->setColumnHidden(TransactionTableModel::Watchonly, !fHaveWatchOnly);
+
+    int spacerWidth = fHaveWatchOnly ? 0 : STATUS_COLUMN_WIDTH + 6;
+    hSpacer->changeSize(spacerWidth, 20, QSizePolicy::Fixed, QSizePolicy::Fixed);
 }

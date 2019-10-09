@@ -702,6 +702,7 @@ void RPCConsole::setClientModel(ClientModel *model)
         autoCompleter->popup()->installEventFilter(this);
         autoCompleter->popup()->setItemDelegate(new QStyledItemDelegate(this));
         autoCompleter->popup()->setObjectName("autoCompleterPopup");
+        SetObjectStyleSheet(autoCompleter->popup(), StyleSheetNames::ScrollBarDark);
 
         // Start thread to execute RPC commands.
         startExecutor();

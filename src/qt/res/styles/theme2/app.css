@@ -100,22 +100,19 @@ QLineEdit::disabled{
     color: rgba(111, 128, 171, 20%);
 }
 QAbstractItemView#autoCompleterPopup{
-    background-color: #1a2946;
+    background-color: #49587a;
     border: none;
     padding: 4px;
 }
 QAbstractItemView#autoCompleterPopup::item{
-    border: none;
-    border-radius: 10px;
-    background-color: #1a2946;
-    color: #6f80ab;
+    background-color: #49587a;
+    color: #1A233A;
     padding: 4px;
     padding-left: 10px;
 }
 QAbstractItemView#autoCompleterPopup::item:selected {
-    background-color: #545454;
-    color: #6f80ab;
-    padding: 4px;
+    background-color: #1A233A;
+    color: #ffffff;
 }
 /*--------------------------------------------
 List Viev CSS
@@ -969,16 +966,19 @@ Modal Overlay CSS
 /*--------------------------------------------
 Watch Only Widget CSS
 --------------------------------------------*/
+#watchOnlyWidget{
+    padding: 4px;
+}
 #watchOnlyWidget QAbstractItemView::item, 
-#watchOnlyWidget QAbstractItemView::item:selected, 
-#watchOnlyWidget QAbstractItemView{
-    padding-left: 0px; 
-    padding: 4px; 
+#watchOnlyWidget QAbstractItemView::item:selected {
+    padding: 4px;
+    padding-left: 8px;
+    padding-right: 8px;
 } 
-#watchOnlyWidget {
+#watchOnlyWidget QAbstractItemView {
+    padding: 4px;
     padding-left: 0px;
     padding-right: 0px;
-    padding: 4px;
 }
 /*--------------------------------------------
 Tab Bar close button CSS

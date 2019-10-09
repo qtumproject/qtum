@@ -33,3 +33,16 @@ QScrollBar::handle:horizontal {
 QScrollBar::handle:horizontal:disabled {
     background: rgba(29, 40, 67, 40%);
 }
+#autoCompleterPopup QScrollBar:vertical {
+    border-radius: 0px;
+    background: transparent;
+    width: 13px;
+    padding: 0px 0px;
+    margin-left: 3px;
+}
+#autoCompleterPopup QScrollBar::handle:vertical {
+    border: none;
+    background: #1A233A;
+    border-radius: 5px;
+    min-height: 30px;
+}
