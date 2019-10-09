@@ -200,6 +200,11 @@ void OptionsModel::Init(bool resetSettings)
         addOverriddenOption("-lang");
 
     language = settings.value("language").toString();
+
+    if (!settings.contains("Theme"))
+        settings.setValue("Theme", "");
+
+    theme = settings.value("Theme").toString();
 }
 
 /** Helper function to copy contents from one QSettings to another.
@@ -356,6 +361,8 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
 #endif
         case CheckForUpdates:
             return settings.value("fCheckForUpdates");
+        case Theme:
+            return settings.value("Theme");
         default:
             return QVariant();
         }
@@ -537,6 +544,12 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             if (settings.value("fCheckForUpdates") != value) {
                 settings.setValue("fCheckForUpdates", value);
                 fCheckForUpdates = value.toBool();
+            }
+            break;
+        case Theme:
+            if (settings.value("Theme") != value) {
+                settings.setValue("Theme", value);
+                setRestartRequired(true);
             }
             break;
         default:

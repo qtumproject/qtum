@@ -51,6 +51,7 @@ public:
     QString getCurrentTheme();
     static QStringList getSupportedThemes();
     static QString getDefaultTheme();
+    static QStringList getSupportedThemesNames();
     static bool setTheme(const QString& theme);
 
 private:

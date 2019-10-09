@@ -112,6 +112,9 @@ StyleSheet::StyleSheet()
 {
     QSettings settings;
     m_theme = settings.value("Theme", getDefaultTheme()).toString();
+    QStringList supportedThemes = getSupportedThemes();
+    if(!supportedThemes.contains(m_theme))
+        m_theme = getDefaultTheme();
     m_config = new QSettings(STYLE_CONFIG_FORMAT.arg(m_theme), QSettings::IniFormat);
 }
 
@@ -170,12 +173,18 @@ QString StyleSheet::getCurrentTheme()
 
 QStringList StyleSheet::getSupportedThemes()
 {
-    return QStringList() << "theme1" << "theme2";
+    return QStringList() << "theme2" << "theme1";
 }
+
+QStringList StyleSheet::getSupportedThemesNames()
+{
+    return QStringList() << "Dark blue theme" << "Black theme";
+}
+
 
 QString StyleSheet::getDefaultTheme()
 {
-    return "theme1";
+    return "theme2";
 }
 
 bool StyleSheet::setTheme(const QString &theme)

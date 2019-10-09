@@ -61,6 +61,7 @@ public:
         UseChangeAddress,       // bool
         CheckForUpdates,        // bool
         ReserveBalance,         // CAmount
+        Theme,                  // QString
         OptionIDRowCount,
     };
 
@@ -105,6 +106,7 @@ private:
     QString strOverriddenByCommandLine;
     bool fCheckForUpdates;
     bool bZeroBalanceAddressToken;
+    QString theme;
 
     // Add option to list of GUI options overridden through command line/config file
     void addOverriddenOption(const std::string &option);
