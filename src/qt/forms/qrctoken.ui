@@ -19,13 +19,6 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
-        <widget class="QListView" name="tokensList">
-         <property name="styleSheet">
-          <string notr="true"/>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QScrollArea" name="scrollArea">
          <property name="widgetResizable">
           <bool>true</bool>
@@ -36,7 +29,7 @@
             <x>0</x>
             <y>0</y>
             <width>699</width>
-            <height>200</height>
+            <height>409</height>
            </rect>
           </property>
          </widget>

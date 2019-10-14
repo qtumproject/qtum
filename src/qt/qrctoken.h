@@ -59,8 +59,6 @@ private:
     AddTokenPage* m_addTokenPage;
     WalletModel* m_model;
     ClientModel* m_clientModel;
-    QAbstractItemModel* m_tokenModel;
-    TokenViewDelegate* m_tokenDelegate;
     QAction *m_sendAction;
     QAction *m_receiveAction;
     QAction *m_addTokenAction;
@@ -69,7 +67,6 @@ private:
     const PlatformStyle *m_platformStyle;
     QMenu *contextMenu;
     QModelIndex indexMenu;
-
     TokenListWidget* m_tokenList;
 };
 
