@@ -1068,3 +1068,10 @@ Token Page Widget CSS
     border-radius: 20px;
     border: 1px solid #384869;
 }
+#tokenItemFrame{
+    background-color: #222f4b;
+    border-radius: 6px;
+}
+TokenListWidget{
+    background-color: #1a2845;
+}
