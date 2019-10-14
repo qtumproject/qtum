@@ -72,6 +72,8 @@
         <file alias="token">res/icons/token.png</file>
         <file alias="show">res/icons/show.png</file>
         <file alias="backup_wallet">res/icons/backup_wallet.png</file>
+        <file alias="add_token">res/icons/add_token.png</file>
+        <file alias="plus_full">res/icons/plus_full.png</file>
     </qresource>
     <qresource prefix="/movies">
         <file alias="spinner-000">res/movies/spinner-000.png</file>

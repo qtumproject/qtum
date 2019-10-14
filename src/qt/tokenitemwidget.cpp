@@ -6,6 +6,7 @@
 #include <qt/platformstyle.h>
 #include <qt/forms/ui_tokenitemwidget.h>
 
+#define TOKEN_ITEM_ICONSIZE 24
 TokenItemWidget::TokenItemWidget(const PlatformStyle *platformStyle, QWidget *parent, ItemType type) :
     QWidget(parent),
     ui(new Ui::TokenItemWidget),
@@ -18,6 +19,8 @@ TokenItemWidget::TokenItemWidget(const PlatformStyle *platformStyle, QWidget *pa
     ui->stackedWidget->setCurrentIndex(type);
     ui->buttonSend->setIcon(m_platfromStyle->MultiStatesIcon(":/icons/send", PlatformStyle::PushButton));
     ui->buttonReceive->setIcon(platformStyle->MultiStatesIcon(":/icons/receiving_addresses", PlatformStyle::PushButton));
+    ui->buttonAdd->setIcon(platformStyle->MultiStatesIcon(":/icons/plus_full", PlatformStyle::PushButtonIcon));
+    ui->tokenLogo->setPixmap(platformStyle->MultiStatesIcon(m_type == New ? ":/icons/add_token" : ":/icons/token", PlatformStyle::PushButtonIcon).pixmap(TOKEN_ITEM_ICONSIZE, TOKEN_ITEM_ICONSIZE));
 }
 
 TokenItemWidget::~TokenItemWidget()

@@ -1087,3 +1087,7 @@ TokenItemWidget #senderAddress{
     color: #49587a;
     font: 10pt;
 }
+TokenItemWidget #tokenLogo{
+    background-color: #334263;
+    border-radius: 20px;
+}
