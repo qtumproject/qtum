@@ -27,9 +27,11 @@ public:
     explicit TokenItemWidget(QWidget *parent = 0, ItemType type = Record);
     ~TokenItemWidget();
 
-    void setData(const QString& tokenName, const QString& tokenBalance, const QString& receiveAddress, const QString& filename = 0);
+    void setData(const QString& tokenName, const QString& tokenBalance, const QString& senderAddress, const QString& filename = 0);
 
     void setPosition(int position);
+
+    int position() const;
 
 Q_SIGNALS:
     void clicked(int position, int button);

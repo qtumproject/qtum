@@ -68,6 +68,7 @@ private:
     TokenTransactionView *m_tokenTransactionView;
     const PlatformStyle *m_platformStyle;
     QMenu *contextMenu;
+    QModelIndex indexMenu;
 
     TokenListWidget* m_tokenList;
 };

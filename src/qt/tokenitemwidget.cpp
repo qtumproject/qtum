@@ -21,11 +21,14 @@ TokenItemWidget::~TokenItemWidget()
     delete ui;
 }
 
-void TokenItemWidget::setData(const QString &tokenName, const QString &tokenBalance, const QString &receiveAddress, const QString &filename)
+void TokenItemWidget::setData(const QString &tokenName, const QString &tokenBalance, const QString &senderAddress, const QString &filename)
 {
-    ui->tokenName->setText(tokenName);
-    ui->tokenBalance->setText(tokenBalance);
-    ui->receiveAddress->setText(receiveAddress);
+    if(tokenName != ui->tokenName->text())
+        ui->tokenName->setText(tokenName);
+    if(tokenBalance != ui->tokenBalance->text())
+        ui->tokenBalance->setText(tokenBalance);
+    if(senderAddress != ui->senderAddress->text())
+        ui->senderAddress->setText(senderAddress);
 }
 
 void TokenItemWidget::setPosition(int position)
@@ -46,4 +49,9 @@ void TokenItemWidget::on_buttonSend_clicked()
 void TokenItemWidget::on_buttonReceive_clicked()
 {
     Q_EMIT clicked(m_position, Buttons::Receive);
+}
+
+int TokenItemWidget::position() const
+{
+    return m_position;
 }

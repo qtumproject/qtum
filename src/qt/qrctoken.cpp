@@ -146,7 +146,16 @@ QRCToken::QRCToken(const PlatformStyle *platformStyle, QWidget *parent) :
     QAction *copyTokenAddressAction = new QAction(tr("Copy contract address"), this);
     QAction *removeTokenAction = new QAction(tr("Remove token"), this);
 
-    contextMenu = new QMenu(ui->tokensList);
+    m_tokenList = new TokenListWidget(platformStyle, this);
+    m_tokenList->setContextMenuPolicy(Qt::CustomContextMenu);
+    new QVBoxLayout(ui->scrollArea);
+    ui->scrollArea->setWidget(m_tokenList);
+    ui->scrollArea->setWidgetResizable(true);
+    connect(m_tokenList, &TokenListWidget::sendToken, this, &QRCToken::on_sendToken);
+    connect(m_tokenList, &TokenListWidget::receiveToken, this, &QRCToken::on_receiveToken);
+    connect(m_tokenList, &TokenListWidget::addToken, this, &QRCToken::on_addToken);
+
+    contextMenu = new QMenu(m_tokenList);
     contextMenu->addAction(copySenderAction);
     contextMenu->addAction(copyTokenBalanceAction);
     contextMenu->addAction(copyTokenNameAction);
@@ -160,15 +169,7 @@ QRCToken::QRCToken(const PlatformStyle *platformStyle, QWidget *parent) :
     connect(removeTokenAction, &QAction::triggered, this, &QRCToken::removeToken);
 
     connect(ui->tokensList, &QListView::clicked, this, &QRCToken::on_currentTokenChanged);
-    connect(ui->tokensList, &QListView::customContextMenuRequested, this, &QRCToken::contextualMenu);
-
-    m_tokenList = new TokenListWidget(platformStyle, this);
-    new QVBoxLayout(ui->scrollArea);
-    ui->scrollArea->setWidget(m_tokenList);
-    ui->scrollArea->setWidgetResizable(true);
-    connect(m_tokenList, &TokenListWidget::sendToken, this, &QRCToken::on_sendToken);
-    connect(m_tokenList, &TokenListWidget::receiveToken, this, &QRCToken::on_receiveToken);
-    connect(m_tokenList, &TokenListWidget::addToken, this, &QRCToken::on_addToken);
+    connect(m_tokenList, &TokenListWidget::customContextMenuRequested, this, &QRCToken::contextualMenu);
 }
 
 QRCToken::~QRCToken()
@@ -300,35 +301,48 @@ void QRCToken::on_rowsInserted(QModelIndex index, int first, int last)
 
 void QRCToken::contextualMenu(const QPoint &point)
 {
-    QModelIndex index = ui->tokensList->indexAt(point);
-    QModelIndexList selection = ui->tokensList->selectionModel()->selectedIndexes();
-    if (selection.empty())
-        return;
-
+    QModelIndex index = m_tokenList->indexAt(point);
     if(index.isValid())
     {
+        indexMenu = index;
         contextMenu->exec(QCursor::pos());
     }
 }
 
 void QRCToken::copyTokenAddress()
 {
-    GUIUtil::copyEntryDataFromList(ui->tokensList, TokenItemModel::AddressRole);
+    if(indexMenu.isValid())
+    {
+        GUIUtil::setClipboard(indexMenu.data(TokenItemModel::AddressRole).toString());
+        indexMenu = QModelIndex();
+    }
 }
 
 void QRCToken::copyTokenBalance()
 {
-    GUIUtil::copyEntryDataFromList(ui->tokensList, TokenItemModel::BalanceRole);
+    if(indexMenu.isValid())
+    {
+        GUIUtil::setClipboard(indexMenu.data(TokenItemModel::BalanceRole).toString());
+        indexMenu = QModelIndex();
+    }
 }
 
 void QRCToken::copyTokenName()
 {
-    GUIUtil::copyEntryDataFromList(ui->tokensList, TokenItemModel::NameRole);
+    if(indexMenu.isValid())
+    {
+        GUIUtil::setClipboard(indexMenu.data(TokenItemModel::NameRole).toString());
+        indexMenu = QModelIndex();
+    }
 }
 
 void QRCToken::copySenderAddress()
 {
-    GUIUtil::copyEntryDataFromList(ui->tokensList, TokenItemModel::SenderRole);
+    if(indexMenu.isValid())
+    {
+        GUIUtil::setClipboard(indexMenu.data(TokenItemModel::SenderRole).toString());
+        indexMenu = QModelIndex();
+    }
 }
 
 void QRCToken::removeToken()
@@ -338,13 +352,10 @@ void QRCToken::removeToken()
 
     if(btnRetVal == QMessageBox::Yes)
     {
-        QModelIndexList selection = ui->tokensList->selectionModel()->selectedIndexes();
-        if (selection.empty() && !m_model)
-            return;
-
-        QModelIndex index = selection[0];
+        QModelIndex index = indexMenu;
         std::string sHash = index.data(TokenItemModel::HashRole).toString().toStdString();
         m_model->wallet().removeTokenEntry(sHash);
+        indexMenu = QModelIndex();
     }
 }
 

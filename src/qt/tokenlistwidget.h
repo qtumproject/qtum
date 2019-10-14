@@ -27,10 +27,13 @@ public:
 
     QAbstractItemModel *tokenModel() const;
 
+    QModelIndex indexAt(const QPoint &p) const;
+
 Q_SIGNALS:
     void sendToken(const QModelIndex& index);
     void receiveToken(const QModelIndex& index);
     void addToken();
+    void clicked(const QModelIndex& index);
 
 public Q_SLOTS:
     void on_rowsInserted(const QModelIndex& parent, int start, int end);
@@ -46,6 +49,7 @@ private:
     void updateRow(const QModelIndex &index, int position);
     TokenItemWidget *removeRow(int position);
     void insertItem(int position, TokenItemWidget* item);
+    QModelIndex indexAt(int position) const;
 
 private:
     QVBoxLayout *m_mainLayout;

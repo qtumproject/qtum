@@ -7,6 +7,7 @@
 #include <qt/tokenitemwidget.h>
 #include <qt/tokenitemmodel.h>
 #include <qt/walletmodel.h>
+#include <qt/bitcoinunits.h>
 
 #include <QAbstractItemModel>
 #include <QSortFilterProxyModel>
@@ -124,16 +125,16 @@ void TokenListWidget::updateRow(const QModelIndex &index, int position)
 {
     if(index.isValid())
     {
-        std::string hash = m_tokenModel->data(index, TokenItemModel::HashRole).toString().toStdString();
-        std::string address = m_tokenModel->data(index, TokenItemModel::AddressRole).toString().toStdString();
+        std::string name = m_tokenModel->data(index, TokenItemModel::NameRole).toString().toStdString();
         std::string symbol = m_tokenModel->data(index, TokenItemModel::SymbolRole).toString().toStdString();
         std::string sender = m_tokenModel->data(index, TokenItemModel::SenderRole).toString().toStdString();
         int8_t decimals = m_tokenModel->data(index, TokenItemModel::DecimalsRole).toInt();
         std::string balance = m_tokenModel->data(index, TokenItemModel::RawBalanceRole).toString().toStdString();
-
+        int256_t totalSupply(balance);
         TokenItemWidget* item = m_rows[position];
         item->setPosition(position);
-        item->setData(QString::fromStdString(symbol), QString::fromStdString(balance), QString::fromStdString(sender));
+        item->setData(QString::fromStdString(name), BitcoinUnits::formatTokenWithUnit(QString::fromStdString(symbol), decimals, totalSupply, false, BitcoinUnits::separatorAlways), QString::fromStdString(sender));
+
     }
 }
 
@@ -158,7 +159,7 @@ void TokenListWidget::insertItem(int position, TokenItemWidget *item)
 
 void TokenListWidget::on_clicked(int position, int button)
 {
-    QModelIndex index = m_tokenModel->index(position, 0);
+    QModelIndex index = indexAt(position);
     if(button == TokenItemWidget::Add)
     {
         Q_EMIT addToken();
@@ -171,4 +172,35 @@ void TokenListWidget::on_clicked(int position, int button)
     {
         Q_EMIT receiveToken(index);
     }
+}
+
+QModelIndex TokenListWidget::indexAt(const QPoint &p) const
+{
+    QModelIndex index;
+    QWidget* child = childAt(p);
+    while(child != 0)
+    {
+        if(child->inherits("TokenItemWidget"))
+        {
+            TokenItemWidget* item = (TokenItemWidget*)child;
+            index = indexAt(item->position());
+            child = 0;
+        }
+        else
+        {
+            child = child->parentWidget();
+        }
+    }
+
+    return index;
+}
+
+QModelIndex TokenListWidget::indexAt(int position) const
+{
+    QModelIndex index;
+    if(position >= 0 && position < m_tokenModel->rowCount())
+    {
+        index = m_tokenModel->index(position, 0);
+    }
+    return index;
 }

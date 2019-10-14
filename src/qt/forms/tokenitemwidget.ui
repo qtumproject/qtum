@@ -121,7 +121,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QLabel" name="receiveAddress">
+               <widget class="QLabel" name="senderAddress">
                 <property name="text">
                  <string>address</string>
                 </property>
