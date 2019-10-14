@@ -1075,3 +1075,15 @@ Token Page Widget CSS
 TokenListWidget{
     background-color: #1a2845;
 }
+TokenItemWidget #tokenName{
+    color: #6f80ab;
+    font: 13pt;
+}
+TokenItemWidget #tokenBalance{
+    color: white;
+    font: 13pt;
+}
+TokenItemWidget #senderAddress{
+    color: #49587a;
+    font: 10pt;
+}

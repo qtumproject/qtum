@@ -3,17 +3,21 @@
 #endif
 
 #include <qt/tokenitemwidget.h>
+#include <qt/platformstyle.h>
 #include <qt/forms/ui_tokenitemwidget.h>
 
-TokenItemWidget::TokenItemWidget(QWidget *parent, ItemType type) :
+TokenItemWidget::TokenItemWidget(const PlatformStyle *platformStyle, QWidget *parent, ItemType type) :
     QWidget(parent),
     ui(new Ui::TokenItemWidget),
+    m_platfromStyle(platformStyle),
     m_type(type),
     m_position(-1)
 
 {
     ui->setupUi(this);
     ui->stackedWidget->setCurrentIndex(type);
+    ui->buttonSend->setIcon(m_platfromStyle->MultiStatesIcon(":/icons/send", PlatformStyle::PushButton));
+    ui->buttonReceive->setIcon(platformStyle->MultiStatesIcon(":/icons/receiving_addresses", PlatformStyle::PushButton));
 }
 
 TokenItemWidget::~TokenItemWidget()

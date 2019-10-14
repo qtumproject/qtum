@@ -1076,3 +1076,23 @@ Token Page Widget CSS
     border-radius: 20px;
     border: 1px solid #9c9c9c;
 }
+#tokenItemFrame{
+    background-color: #393939;
+    border-radius: 6px;
+}
+TokenListWidget{
+    background-color: #2e2e2e;
+}
+TokenItemWidget #tokenName,
+#labelNewToken{
+    color: #C5C5C5;
+    font: 13pt;
+}
+TokenItemWidget #tokenBalance{
+    color: white;
+    font: 13pt;
+}
+TokenItemWidget #senderAddress{
+    color: #9c9c9c;
+    font: 10pt;
+}

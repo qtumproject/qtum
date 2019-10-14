@@ -3,6 +3,8 @@
 
 #include <QWidget>
 
+class PlatformStyle;
+
 namespace Ui {
 class TokenItemWidget;
 }
@@ -24,7 +26,7 @@ public:
         Receive = 2
     };
 
-    explicit TokenItemWidget(QWidget *parent = 0, ItemType type = Record);
+    explicit TokenItemWidget(const PlatformStyle *platformStyle, QWidget *parent = 0, ItemType type = Record);
     ~TokenItemWidget();
 
     void setData(const QString& tokenName, const QString& tokenBalance, const QString& senderAddress, const QString& filename = 0);
@@ -45,6 +47,7 @@ private Q_SLOTS:
 
 private:
     Ui::TokenItemWidget *ui;
+    const PlatformStyle *m_platfromStyle;
     ItemType m_type;
     int m_position;
 };

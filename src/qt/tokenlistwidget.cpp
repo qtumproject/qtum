@@ -22,7 +22,7 @@ TokenListWidget::TokenListWidget(const PlatformStyle *platformStyle, QWidget *pa
     m_mainLayout->setSpacing(5);
     m_mainLayout->setContentsMargins(0,0,0,0);
     this->setLayout(m_mainLayout);
-    TokenItemWidget* item = new TokenItemWidget(this, TokenItemWidget::New);
+    TokenItemWidget* item = new TokenItemWidget(platformStyle, this, TokenItemWidget::New);
     insertItem(0, item);
     m_mainLayout->addStretch();
 }
@@ -99,7 +99,7 @@ void TokenListWidget::on_modelReset()
 
 void TokenListWidget::insertRow(const QModelIndex &index, int position)
 {
-    TokenItemWidget* item = new TokenItemWidget();
+    TokenItemWidget* item = new TokenItemWidget(m_platfromStyle);
     m_rows.insert(position, item);
     insertItem(position, item);
     updateRow(index, position);
