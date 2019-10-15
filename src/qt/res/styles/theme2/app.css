@@ -643,7 +643,7 @@ QTabWidget::pane {
 TitleBar QTabBar::tab {
     padding: 5px 0px;
 }
-#widgetTitle {
+#widgetTitle, #widgetWallet {
     background-color: #1a2946;
 }
 /*--------------------------------------------

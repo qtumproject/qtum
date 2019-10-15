@@ -89,7 +89,7 @@ void TitleBar::updateDisplayUnit()
 
 void TitleBar::setWalletSelector(QLabel *walletSelectorLabel, QComboBox *walletSelector)
 {
-    QLayout* layout = ui->widgetLogo->layout();
+    QLayout* layout = ui->widgetWallet->layout();
 
     if(walletSelectorLabel)
     {
@@ -100,10 +100,6 @@ void TitleBar::setWalletSelector(QLabel *walletSelectorLabel, QComboBox *walletS
     {
         layout->addWidget(walletSelector);
     }
-
-    QWidget *spacer = new QWidget();
-    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    layout->addWidget(spacer);
 }
 
 #ifdef ENABLE_WALLET
