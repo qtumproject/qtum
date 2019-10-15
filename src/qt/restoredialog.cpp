@@ -55,7 +55,7 @@ void RestoreDialog::setModel(WalletModel *model)
 void RestoreDialog::on_btnReset_clicked()
 {
     ui->txtWalletPath->setText("");
-    ui->rbReindex->setChecked(true);
+    ui->rbRestoreFile->setChecked(true);
 }
 
 void RestoreDialog::on_btnBoxRestore_accepted()

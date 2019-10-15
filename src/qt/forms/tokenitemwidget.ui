@@ -10,6 +10,12 @@
     <height>107</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
@@ -101,12 +107,18 @@
                    <property name="text">
                     <string>name</string>
                    </property>
+                   <property name="textInteractionFlags">
+                    <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+                   </property>
                   </widget>
                  </item>
                  <item>
                   <widget class="QLabel" name="tokenBalance">
                    <property name="text">
                     <string>100000.0000 TKN</string>
+                   </property>
+                   <property name="textInteractionFlags">
+                    <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
                    </property>
                   </widget>
                  </item>
@@ -130,6 +142,9 @@
                <widget class="QLabel" name="senderAddress">
                 <property name="text">
                  <string>address</string>
+                </property>
+                <property name="textInteractionFlags">
+                 <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
                 </property>
                </widget>
               </item>
