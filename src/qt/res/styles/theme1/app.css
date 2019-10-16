@@ -1100,3 +1100,6 @@ TokenItemWidget #tokenLogo{
     background-color: #575757;
     border-radius: 20px;
 }
+#coinControlContentsWidget{
+    background-color: #2e2e2e;
+}
