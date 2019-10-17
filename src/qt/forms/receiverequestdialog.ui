@@ -288,7 +288,7 @@
         <item>
          <widget class="QPushButton" name="btnRefreshAddress">
           <property name="text">
-           <string>&amp;Address refresh</string>
+           <string>Address Re&amp;fresh</string>
           </property>
          </widget>
         </item>
@@ -308,14 +308,14 @@
         <item>
          <widget class="QPushButton" name="btnRequestPayment">
           <property name="text">
-           <string>&amp;Request payment</string>
+           <string>&amp;Request Payment</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QPushButton" name="btnClear">
           <property name="text">
-           <string>Clear all</string>
+           <string>Clear &amp;All</string>
           </property>
          </widget>
         </item>

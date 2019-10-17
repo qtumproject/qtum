@@ -11,6 +11,9 @@
 #include <qt/optionsmodel.h>
 #include <qt/styleSheet.h>
 #include <qt/platformstyle.h>
+#include <qt/addresstablemodel.h>
+#include <qt/recentrequeststablemodel.h>
+#include <qt/receivecoinsdialog.h>
 
 #include <QClipboard>
 #include <QDrag>
@@ -91,12 +94,14 @@ ReceiveRequestDialog::ReceiveRequestDialog(const PlatformStyle *_platformStyle, 
     QDialog(parent),
     ui(new Ui::ReceiveRequestDialog),
     model(nullptr),
-    platformStyle(_platformStyle)
+    platformStyle(_platformStyle),
+    requestPaymentDialog(0)
 {
     ui->setupUi(this);
 
-    SetObjectStyleSheet(ui->btnCopyURI, StyleSheetNames::ButtonLight);
-    SetObjectStyleSheet(ui->btnCopyAddress, StyleSheetNames::ButtonLight);
+    requestPaymentDialog = new ReceiveCoinsDialog(platformStyle, this);
+
+    SetObjectStyleSheet(ui->btnRefreshAddress, StyleSheetNames::ButtonLight);
     ui->btnCopyAddress->setIcon(platformStyle->MultiStatesIcon(":/icons/editcopy", PlatformStyle::PushButtonIcon));
     ui->btnCopyURI->setIcon(platformStyle->MultiStatesIcon(":/icons/editcopy", PlatformStyle::PushButtonIcon));
 
@@ -114,8 +119,20 @@ void ReceiveRequestDialog::setModel(WalletModel *_model)
 {
     this->model = _model;
 
-    if (_model)
+    if(_model && _model->getOptionsModel())
+    {
         connect(_model->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &ReceiveRequestDialog::update);
+
+        // Set the button to be enabled or disabled based on whether the wallet can give out new addresses.
+        ui->btnRefreshAddress->setEnabled(model->canGetAddresses());
+
+        // Enable/disable the receive button if the wallet is now able/unable to give out new addresses.
+        connect(model, &WalletModel::canGetAddressesChanged, [this] {
+            ui->btnRefreshAddress->setEnabled(model->canGetAddresses());
+        });
+    }
+
+    requestPaymentDialog->setModel(model);
 
     // update the display unit if necessary
     update();
@@ -199,20 +216,30 @@ void ReceiveRequestDialog::update()
         target = info.address;
     setWindowTitle(tr("Request payment to %1").arg(target));
 
-#ifdef USE_QRCODE
-    if(createQRCode(ui->lblQRCode, info))
+    if(!info.address.isEmpty())
     {
-        ui->lblQRCode->setScaledContents(true);
-    }
+#ifdef USE_QRCODE
+        if(createQRCode(ui->lblQRCode, info))
+        {
+            ui->lblQRCode->setScaledContents(true);
+        }
 #endif
 
-    ui->labelAddress->setText(info.address);
-    SendCoinsRecipient _info;
-    _info.address = info.address;
-    QString _uri = GUIUtil::formatBitcoinURI(_info);
-    ui->labelURI->setText(_uri);
-    QString uri = GUIUtil::formatBitcoinURI(info);
-    ui->labelURI->setToolTip(uri);
+        ui->btnCopyAddress->setEnabled(true);
+        ui->btnCopyURI->setEnabled(true);
+
+        ui->labelAddress->setText(info.address);
+        SendCoinsRecipient _info;
+        _info.address = info.address;
+        QString _uri = GUIUtil::formatBitcoinURI(_info);
+        ui->labelURI->setText(_uri);
+        QString uri = GUIUtil::formatBitcoinURI(info);
+        ui->labelURI->setToolTip(uri);
+    }
+    else
+    {
+        clear();
+    }
 }
 
 void ReceiveRequestDialog::on_btnCopyURI_clicked()
@@ -223,4 +250,57 @@ void ReceiveRequestDialog::on_btnCopyURI_clicked()
 void ReceiveRequestDialog::on_btnCopyAddress_clicked()
 {
     GUIUtil::setClipboard(info.address);
+}
+
+void ReceiveRequestDialog::on_btnRefreshAddress_clicked()
+{
+    if(!model || !model->getAddressTableModel() || !model->getRecentRequestsTableModel())
+        return;
+
+    /* Generate new receiving address */
+    OutputType address_type = model->wallet().getDefaultAddressType();
+    info.address = model->getAddressTableModel()->addRow(AddressTableModel::Receive, info.label, "", address_type);
+
+    /* Store request for later reference */
+    model->getRecentRequestsTableModel()->addNewRequest(info);
+
+    update();
+}
+
+void ReceiveRequestDialog::on_btnRequestPayment_clicked()
+{
+    if(requestPaymentDialog->exec() == QDialog::Accepted)
+    {
+        setInfo(requestPaymentDialog->getInfo());
+    }
+}
+
+void ReceiveRequestDialog::on_btnClear_clicked()
+{
+    clear();
+}
+
+void ReceiveRequestDialog::clear()
+{
+    setWindowTitle(tr("Request payment to %1").arg(""));
+    info = SendCoinsRecipient();
+#ifdef USE_QRCODE
+    ui->lblQRCode->clear();
+#endif
+    ui->labelURI->clear();
+    ui->labelAddress->clear();
+    ui->btnCopyAddress->setEnabled(false);
+    ui->btnCopyURI->setEnabled(false);
+}
+
+void ReceiveRequestDialog::reject()
+{
+    clear();
+    QDialog::reject();
+}
+
+void ReceiveRequestDialog::accept()
+{
+    clear();
+    QDialog::accept();
 }
