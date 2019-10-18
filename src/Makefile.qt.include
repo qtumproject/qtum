@@ -585,6 +585,7 @@ qt/res/styles/theme2/treeview.css \
 qt/res/styles/theme2/navgroupbutton.css \
 qt/res/styles/theme2/navbutton.css \
 qt/res/styles/theme2/navsubgroupbutton.css \
+qt/res/styles/theme2/tableviewlight.css \
 qt/res/styles/theme2/invalid.css \
 qt/res/styles/theme2/app-icons/down_arrow.png \
 qt/res/styles/theme2/app-icons/down_arrow_hover.png \
@@ -612,7 +613,17 @@ qt/res/styles/theme2/app-icons/slider_switcher_disabled.png \
 qt/res/styles/theme2/app-icons/slider_switcher_hover.png \
 qt/res/styles/theme2/app-icons/cb_up_down_arrow.png \
 qt/res/styles/theme2/app-icons/right_arrow.png \
-qt/res/styles/theme2/app-icons/down_arrow_unit.png
+qt/res/styles/theme2/app-icons/down_arrow_unit.png \
+qt/res/styles/theme3/app.css \
+qt/res/styles/theme3/config.ini \
+qt/res/styles/theme3/buttontransparent.css \
+qt/res/styles/theme3/scrollbardark.css \
+qt/res/styles/theme3/treeview.css \
+qt/res/styles/theme3/navgroupbutton.css \
+qt/res/styles/theme3/navbutton.css \
+qt/res/styles/theme3/navsubgroupbutton.css \
+qt/res/styles/theme3/tableviewlight.css \
+qt/res/styles/theme3/invalid.css
 
 BITCOIN_RC = qt/res/bitcoin-qt-res.rc
 

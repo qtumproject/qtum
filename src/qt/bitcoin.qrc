@@ -211,4 +211,16 @@
         <file alias="right_arrow">res/styles/theme2/app-icons/right_arrow.png</file>
         <file alias="down_arrow_unit">res/styles/theme2/app-icons/down_arrow_unit.png</file>
     </qresource>
+    <qresource prefix="/styles/theme3">
+        <file alias="app">res/styles/theme3/app.css</file>
+        <file alias="buttontransparent">res/styles/theme3/buttontransparent.css</file>
+        <file alias="scrollbardark">res/styles/theme3/scrollbardark.css</file>
+        <file alias="treeview">res/styles/theme3/treeview.css</file>
+        <file alias="config">res/styles/theme3/config.ini</file>
+        <file alias="navbutton">res/styles/theme3/navbutton.css</file>
+        <file alias="navgroupbutton">res/styles/theme3/navgroupbutton.css</file>
+        <file alias="navsubgroupbutton">res/styles/theme3/navsubgroupbutton.css</file>
+        <file alias="tableviewlight">res/styles/theme3/tableviewlight.css</file>
+        <file alias="invalid">res/styles/theme3/invalid.css</file>
+    </qresource>
 </RCC>
