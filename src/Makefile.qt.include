@@ -585,6 +585,7 @@ qt/res/styles/theme2/treeview.css \
 qt/res/styles/theme2/navgroupbutton.css \
 qt/res/styles/theme2/navbutton.css \
 qt/res/styles/theme2/navsubgroupbutton.css \
+qt/res/styles/theme2/invalid.css \
 qt/res/styles/theme2/app-icons/down_arrow.png \
 qt/res/styles/theme2/app-icons/down_arrow_hover.png \
 qt/res/styles/theme2/app-icons/down_arrow_disabled.png \

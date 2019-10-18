@@ -180,6 +180,7 @@
         <file alias="navgroupbutton">res/styles/theme2/navgroupbutton.css</file>
         <file alias="navsubgroupbutton">res/styles/theme2/navsubgroupbutton.css</file>
         <file alias="tableviewlight">res/styles/theme2/tableviewlight.css</file>
+        <file alias="invalid">res/styles/theme2/invalid.css</file>
     </qresource>
     <qresource prefix="/styles/theme2/app-icons">
         <file alias="up_arrow">res/styles/theme2/app-icons/up_arrow.png</file>
