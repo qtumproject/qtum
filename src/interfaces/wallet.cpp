@@ -607,7 +607,7 @@ public:
 
         return result;
     }
-    bool tryGetAvailableAddresses(std::vector<std::string> &spendableAddresses, std::vector<std::string> &allAddresses) override
+    bool tryGetAvailableAddresses(std::vector<std::string> &spendableAddresses, std::vector<std::string> &allAddresses, bool &includeZeroValue) override
     {
         auto locked_chain = m_wallet->chain().lock(true);
         if (!locked_chain) return false;
@@ -618,6 +618,8 @@ public:
 
         spendableAddresses = availableAddresses(*locked_chain, false);
         allAddresses = availableAddresses(*locked_chain, true);
+        includeZeroValue = ::chainActive.Height() >= Params().GetConsensus().QIP5Height;
+
         return true;
     }
     CoinsList listCoins() override

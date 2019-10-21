@@ -49,6 +49,7 @@ public:
 
     // Get transaction data
     std::string getTxId();
+    std::string getErrorMessage();
 
     // ABI Functions
     bool name(std::string& result, bool sendTo = false);

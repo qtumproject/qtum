@@ -4785,4 +4785,27 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation>Error</translation>
     </message>
 </context>
+<context>
+    <name>RestoreDialog</name>
+    <message>
+        <source>Rebuild blockchain index</source>
+        <translation>rescan – rescan the blockchain for missing transactions.
+          Fixes missing transactions, low balance.</translation>
+    </message>
+    <message>
+        <source>Recover transactions without metadata</source>
+        <translation>zapwallettxes=2 - recover transactions without metadata.
+          Fixes problems with missing transactions, low balance, orphan blocks, and split chains.
+          Backup your wallet again after running this command.</translation>
+    </message>
+    <message>
+        <source>Delete the local copy of the block chain</source>
+        <translation>delete blockchain data - delete the local copy of the blockchain, resync the entire blockchain.
+          Fixes problems syncing the blockchain, corrupted blockchains, and split chains.</translation>
+    </message>
+    <message>
+        <source>The wallet.dat will be restored from the selected location and the Qt Wallet will be restarted with the -reindex, -zapwallettxes=2 or -deleteblockchaindata option.</source>
+        <translation>Backup your wallet first, requires client restart after selecting option.</translation>
+    </message>
+</context>
 </TS>

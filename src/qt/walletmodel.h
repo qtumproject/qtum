@@ -323,7 +323,7 @@ Q_SIGNALS:
     void canGetAddressesChanged();
 
     // Signal that available coin addresses are changed
-    void availableAddressesChanged(QStringList spendableAddresses, QStringList allAddresses);
+    void availableAddressesChanged(QStringList spendableAddresses, QStringList allAddresses, bool includeZeroValue);
 
 public Q_SLOTS:
     /* Wallet status might have changed */

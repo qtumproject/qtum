@@ -110,7 +110,7 @@ class SendToContractTest(BitcoinTestFramework):
         decoded_tx = self.node.decoderawtransaction(ret['raw transaction'])
         # verify that at least one output has a scriptPubKey of type call
         for out in decoded_tx['vout']:
-            if out['scriptPubKey']['type'] == 'call':
+            if out['scriptPubKey']['type'] == 'call' or out['scriptPubKey']['type'] == 'call_sender':
                 return
         assert(False)
 

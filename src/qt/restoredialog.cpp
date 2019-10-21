@@ -5,6 +5,8 @@
 #include <QMessageBox>
 #include <QFile>
 #include <qt/styleSheet.h>
+#include <wallet/walletutil.h>
+#include <fs.h>
 
 RestoreDialog::RestoreDialog(QWidget *parent) :
     QDialog(parent),
@@ -22,7 +24,22 @@ RestoreDialog::~RestoreDialog()
 
 QString RestoreDialog::getParam()
 {
-    return ui->rbReindex->isChecked() ? "-reindex" : "-salvagewallet";
+    QString param;
+
+    if(ui->rbReindex->isChecked())
+    {
+        param = "-reindex";
+    }
+    else if(ui->rbZapWallet->isChecked())
+    {
+        param = "-zapwallettxes=2";
+    }
+    else if(ui->rbLocalDeleteData->isChecked())
+    {
+        param = "-deleteblockchaindata";
+    }
+
+    return param;
 }
 
 QString RestoreDialog::getFileName()
@@ -44,6 +61,25 @@ void RestoreDialog::on_btnReset_clicked()
 void RestoreDialog::on_btnBoxRestore_accepted()
 {
     QString filename = getFileName();
+    if(filename.isEmpty())
+    {
+        if(ui->rbRestoreFile->isChecked())
+        {
+            QMessageBox::information(this, tr("File not selected"), tr("Please select a file to restore your wallet."), QMessageBox::Ok);
+            return;
+        }
+        else
+        {
+            fs::path path = GetWalletDir();
+            QString restoreName = model ? model->getWalletName() : "";
+            if(!restoreName.isEmpty())
+            {
+                path /= restoreName.toStdString();
+            }
+            path /= "wallet.dat";
+            filename = QString::fromStdString(path.string());
+        }
+    }
     QString param = getParam();
     if(model && QFile::exists(filename))
     {
@@ -54,11 +90,12 @@ void RestoreDialog::on_btnBoxRestore_accepted()
                  QMessageBox::Cancel);
         if(retval == QMessageBox::Yes)
         {
-            if(model->restoreWallet(getFileName(), getParam()))
+            if(model->restoreWallet(filename, param))
             {
                 QApplication::quit();
             }
         }
+        else return;
     }
     accept();
 }

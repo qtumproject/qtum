@@ -32,6 +32,21 @@ bool MutableTransactionSignatureCreator::CreateSig(const SigningProvider& provid
     return true;
 }
 
+MutableTransactionSignatureOutputCreator::MutableTransactionSignatureOutputCreator(const CMutableTransaction* txToIn, unsigned int nOutIn, const CAmount& amountIn, int nHashTypeIn) : txTo(txToIn), nOut(nOutIn), nHashType(nHashTypeIn), amount(amountIn), checker(txTo, nOut, amountIn) {}
+
+bool MutableTransactionSignatureOutputCreator::CreateSig(const SigningProvider& provider, std::vector<unsigned char>& vchSig, const CKeyID& address, const CScript& scriptCode, SigVersion sigversion) const
+{
+    CKey key;
+    if (!provider.GetKey(address, key))
+        return false;
+
+    uint256 hash = SignatureHashOutput(scriptCode, *txTo, nOut, nHashType, amount, sigversion);
+    if (!key.Sign(hash, vchSig))
+        return false;
+    vchSig.push_back((unsigned char)nHashType);
+    return true;
+}
+
 static bool GetCScript(const SigningProvider& provider, const SignatureData& sigdata, const CScriptID& scriptid, CScript& script)
 {
     if (provider.GetCScript(scriptid, script)) {
@@ -520,5 +535,19 @@ FlatSigningProvider Merge(const FlatSigningProvider& a, const FlatSigningProvide
     ret.keys.insert(b.keys.begin(), b.keys.end());
     ret.origins = a.origins;
     ret.origins.insert(b.origins.begin(), b.origins.end());
+    return ret;
+}
+
+bool UpdateOutput(CTxOut &output, const SignatureData &data)
+{
+    bool ret = false;
+    CDataStream streamSig(SER_NETWORK, PROTOCOL_VERSION);
+    streamSig << data.scriptSig;
+    CScript scriptPubKey;
+    if(output.scriptPubKey.UpdateSenderSig(ToByteVector(streamSig), scriptPubKey))
+    {
+        output.scriptPubKey = scriptPubKey;
+        ret = true;
+    }
     return ret;
 }

@@ -118,6 +118,10 @@ enum
     //
     SCRIPT_VERIFY_CONST_SCRIPTCODE = (1U << 16),
 
+    // Support sender address in contract output
+    //
+    SCRIPT_OUTPUT_SENDER = (1U << 29),
+
     // Performs the compiled byte code
     //
     SCRIPT_EXEC_BYTE_CODE = (1U << 30),
@@ -127,7 +131,7 @@ bool CheckSignatureEncoding(const std::vector<unsigned char> &vchSig, unsigned i
 
 struct PrecomputedTransactionData
 {
-    uint256 hashPrevouts, hashSequence, hashOutputs;
+    uint256 hashPrevouts, hashSequence, hashOutputs, hashOutputsOpSender;
     bool ready = false;
 
     template <class T>
@@ -146,6 +150,9 @@ static constexpr size_t WITNESS_V0_KEYHASH_SIZE = 20;
 
 template <class T>
 uint256 SignatureHash(const CScript& scriptCode, const T& txTo, unsigned int nIn, int nHashType, const CAmount& amount, SigVersion sigversion, const PrecomputedTransactionData* cache = nullptr);
+
+template <class T>
+uint256 SignatureHashOutput(const CScript& scriptCode, const T& txTo, unsigned int nOut, int nHashType, const CAmount& amount, SigVersion sigversion, const PrecomputedTransactionData* cache = nullptr);
 
 class BaseSignatureChecker
 {
@@ -190,6 +197,27 @@ public:
 
 using TransactionSignatureChecker = GenericTransactionSignatureChecker<CTransaction>;
 using MutableTransactionSignatureChecker = GenericTransactionSignatureChecker<CMutableTransaction>;
+
+template <class T>
+class GenericTransactionSignatureOutputChecker : public BaseSignatureChecker
+{
+private:
+    const T* txTo;
+    unsigned int nOut;
+    const CAmount amount;
+    const PrecomputedTransactionData* txdata;
+
+protected:
+    virtual bool VerifySignature(const std::vector<unsigned char>& vchSig, const CPubKey& vchPubKey, const uint256& sighash) const;
+
+public:
+    GenericTransactionSignatureOutputChecker(const T* txToIn, unsigned int nOutIn, const CAmount& amountIn) : txTo(txToIn), nOut(nOutIn), amount(amountIn), txdata(nullptr) {}
+    GenericTransactionSignatureOutputChecker(const T* txToIn, unsigned int nOutIn, const CAmount& amountIn, const PrecomputedTransactionData& txdataIn) : txTo(txToIn), nOut(nOutIn), amount(amountIn), txdata(&txdataIn) {}
+    bool CheckSig(const std::vector<unsigned char>& scriptSig, const std::vector<unsigned char>& vchPubKey, const CScript& scriptCode, SigVersion sigversion) const override;
+};
+
+using TransactionSignatureOutputChecker = GenericTransactionSignatureOutputChecker<CTransaction>;
+using MutableTransactionSignatureOutputChecker = GenericTransactionSignatureOutputChecker<CMutableTransaction>;
 
 bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& script, unsigned int flags, const BaseSignatureChecker& checker, SigVersion sigversion, ScriptError* error = nullptr);
 bool VerifyScript(const CScript& scriptSig, const CScript& scriptPubKey, const CScriptWitness* witness, unsigned int flags, const BaseSignatureChecker& checker, ScriptError* serror = nullptr);

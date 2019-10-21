@@ -75,6 +75,11 @@ static constexpr unsigned int STANDARD_NOT_MANDATORY_VERIFY_FLAGS = STANDARD_SCR
 static constexpr unsigned int STANDARD_LOCKTIME_VERIFY_FLAGS = LOCKTIME_VERIFY_SEQUENCE |
                                                                LOCKTIME_MEDIAN_TIME_PAST;
 
+/** The number of sender stack items in a standard sender signature script */
+static const unsigned int STANDARD_SENDER_STACK_ITEMS = 2;
+/** The maximum size of each sender stack item in a standard sender signature script */
+static const unsigned int MAX_STANDARD_SENDER_STACK_ITEM_SIZE = 80;
+
 CAmount GetDustThreshold(const CTxOut& txout, const CFeeRate& dustRelayFee);
 
 bool IsDust(const CTxOut& txout, const CFeeRate& dustRelayFee);

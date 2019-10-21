@@ -440,7 +440,8 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64
     uint64_t nBlockWeight = this->nBlockWeight;
     uint64_t nBlockSigOpsCost = this->nBlockSigOpsCost;
 
-    QtumTxConverter convert(iter->GetTx(), NULL, &pblock->vtx);
+    unsigned int contractflags = GetContractScriptFlags(nHeight, chainparams.GetConsensus());
+    QtumTxConverter convert(iter->GetTx(), NULL, &pblock->vtx, contractflags);
 
     ExtractQtumTX resultConverter;
     if(!convert.extractionQtumTransactions(resultConverter)){
@@ -886,7 +887,7 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
     CReserveKey reservekey(pwallet);
 
     bool fTryToSync = true;
-    bool regtestMode = Params().GetConsensus().fPoSNoRetargeting;
+    bool regtestMode = Params().MineBlocksOnDemand();
     if(regtestMode){
         nMinerSleep = 30000; //limit regtest to 30s, otherwise it'll create 2 blocks per second
     }

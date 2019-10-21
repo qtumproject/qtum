@@ -36,6 +36,7 @@ These dependencies are required:
  libssl      | Crypto           | Random Number Generation, Elliptic Curve Cryptography
  libboost    | Utility          | Library for threading, data structures, etc
  libevent    | Networking       | OS independent asynchronous networking
+ libgmp      | Math             | The GNU Multiple Precision Arithmetic Library
 
 Optional dependencies:
 
@@ -70,7 +71,7 @@ tuned to conserve memory with additional CXXFLAGS:
 
 Build requirements:
 
-    sudo apt-get install build-essential libtool autotools-dev automake pkg-config bsdmainutils python3
+    sudo apt-get install build-essential libtool autotools-dev automake pkg-config bsdmainutils python3 libgmp3-dev
 
 Now, you can either build from self-compiled [depends](/depends/README.md) or install the required dependencies:
 
@@ -120,7 +121,7 @@ built by default.
 
 Build requirements:
 
-    sudo dnf install gcc-c++ libtool make autoconf automake openssl-devel libevent-devel boost-devel libdb4-devel libdb4-cxx-devel python3
+    sudo dnf install gcc-c++ libtool make autoconf automake openssl-devel libevent-devel boost-devel libdb4-devel libdb4-cxx-devel python3 gmp-devel
 
 Optional:
 
@@ -142,7 +143,7 @@ You need to build boost manually, and if it's not in standard library paths, you
 Build requirements:
 
     sudo yum install epel-release
-    sudo yum install gcc-c++ libtool libdb4-cxx-devel openssl-devel libevent-devel
+    sudo yum install gcc-c++ libtool libdb4-cxx-devel openssl-devel libevent-devel gmp-devel
     
 To build with Qt 5 (recommended) you need the following:
 
@@ -257,7 +258,7 @@ Setup and Build Example: Arch Linux
 -----------------------------------
 This example lists the steps necessary to setup and build a command line only, non-wallet distribution of the latest changes on Arch Linux:
 
-    pacman -S git base-devel boost libevent python
+    pacman -S git base-devel boost libevent python gmp
     git clone https://github.com/qtumproject/qtum --recursive
     cd qtum/
     ./autogen.sh

@@ -455,4 +455,31 @@
         <translation>송금액은 마이너스가 될 수 없습니다</translation>
     </message>
     </context>
+<context>
+    <name>RestoreDialog</name>
+    <message>
+        <source>Select wallet file to restore from</source>
+        <translation>복원 할 지갑 파일을 선택하십시오</translation>
+    </message>
+    <message>
+        <source>Rebuild blockchain index</source>
+        <translation>재 검색 – 누락된 트랜잭션에 대해 블록체인 다시 검색
+누락된 트랜잭션과 낮은 잔액 수정</translation>
+    </message>
+    <message>
+        <source>Recover transactions without metadata</source>
+        <translation>zapwallettxes=2 – 메타데이터 없이 트랜잭션 복구
+누락된 트랜잭션, 낮은 잔액, 고아 블록 및 분할 체인 문제 해결
+이 명령을 실행한 뒤에 지갑을 다시 백업하십시오.</translation>
+    </message>
+    <message>
+        <source>Delete the local copy of the block chain</source>
+        <translation>블록체인 데이터 삭제 – 블록체인 로컬 사본을 삭제하고 전체 블록체인 재 동기화
+손상된 블록체인 및 분할 체인 동기화 문제 해결</translation>
+    </message>
+    <message>
+        <source>The wallet.dat will be restored from the selected location and the Qt Wallet will be restarted with the -reindex, -zapwallettxes=2 or -deleteblockchaindata option.</source>
+        <translation>먼저 지갑을 백업하고, 옵션을 선택한 뒤 클라이언트를 재 시작하십시오.</translation>
+    </message>
+</context>
 </TS>

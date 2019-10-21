@@ -519,4 +519,31 @@
         <translation>Ошибка</translation>
     </message>
 </context>
+<context>
+    <name>RestoreDialog</name>
+    <message>
+        <source>Select wallet file to restore from</source>
+        <translation>Выберите файл кошелька для восстановления</translation>
+    </message>
+    <message>
+        <source>Rebuild blockchain index</source>
+        <translation>rescan – проверка блокчейна на наличие потерянных транзакций.
+         Исправляет ошибку утерянных транзакций, слишком низкий баланс.</translation>
+    </message>
+    <message>
+        <source>Recover transactions without metadata</source>
+        <translation>zapwallettxes=2 - восстановление транзакций без метаданных.
+         Решает проблемы потерянных транзакций, потерянных блоков, низкого баланса и форков.
+         Снова создайте резервную копию кошелька после ввода этой команды.</translation>
+    </message>
+    <message>
+        <source>Delete the local copy of the block chain</source>
+        <translation>delete blockchain data - удалить локальную копию блокчейна, перезагрузка всего блокчейна.
+         Исправляет проблемы синхронизации с блокчейном, повреждённых блокчейнов и форков.</translation>
+    </message>
+    <message>
+        <source>The wallet.dat will be restored from the selected location and the Qt Wallet will be restarted with the -reindex, -zapwallettxes=2 or -deleteblockchaindata option.</source>
+        <translation>Сначала создайте резервную копию кошелька, так как понадобится перезапустить  кошелек.</translation>
+    </message>
+</context>
 </TS>

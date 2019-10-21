@@ -413,7 +413,7 @@ bool AddMPoSScript(std::vector<CScript> &mposScriptList, int nHeight, const Cons
     }
     else
     {
-        if(consensusParams.fPoSNoRetargeting){
+        if(Params().MineBlocksOnDemand()){
             //this could happen in regtest. Just ignore and add an empty script
             script = CScript() << OP_RETURN;
             mposScriptList.push_back(script);
