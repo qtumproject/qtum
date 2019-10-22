@@ -8,7 +8,7 @@ QWidget{
 Main Window CSS
 --------------------------------------------*/
 QMainWindow{
-    background-color: #4f9fde;
+    background-color: #26a1e4;
     border: 0px solid transparent;
 }
 QMainWindow .QFrame{
@@ -111,8 +111,8 @@ QAbstractItemView#autoCompleterPopup::item{
     padding-left: 10px;
 }
 QAbstractItemView#autoCompleterPopup::item:selected {
-    background-color: #ffffff;
-    color: #6b80af;
+    background-color: #6b80af;
+    color: #ffffff;
 }
 /*--------------------------------------------
 List Viev CSS
@@ -155,8 +155,8 @@ QComboBox QAbstractItemView::item {
     padding-left: 10px;
 }
 QComboBox QAbstractItemView::item:selected {
-    background-color: #ffffff;
-    color: #6b80af;
+    background-color: #6b80af;
+    color: #ffffff;
 }
 QComboBox QAbstractItemView{
     background-color: #d1dbe7;
@@ -515,7 +515,7 @@ QTextEdit {
     border: 1px solid #d1dbe7;
     border-radius: 12px;
     background-color: #ffffff;
-    color: #ffffff;
+    color: #000000;
     padding-left: 5px;
 }
 QTextEdit::hover:!read-only{
@@ -525,8 +525,8 @@ QTextEdit::focus:!read-only{
     border: 1px solid #cbd5e1;
 }
 QTextEdit::disabled {
-    border: 1px solid rgba(90, 90, 93, 40%);
-    color: rgba(42, 42, 42, 10%);
+    border: 1px solid rgba(231, 219, 231, 40%);
+    color: rgba(0, 0, 0, 10%);
 }
 /*--------------------------------------------
 QPlainTextEdit CSS
@@ -535,7 +535,7 @@ QPlainTextEdit {
     border: 1px solid #d1dbe7;
     border-radius: 12px;
     background-color: #ffffff;
-    color: #ffffff;
+    color: #000000;
     padding-left: 5px;
 }
 QPlainTextEdit::hover:!read-only{
@@ -545,8 +545,8 @@ QPlainTextEdit::focus:!read-only{
     border: 1px solid #cbd5e1;
 }
 QPlainTextEdit::disabled {
-    border: 1px solid rgba(90, 90, 93, 40%);
-    color: rgba(42, 42, 42, 10%);
+    border: 1px solid rgba(231, 219, 231, 40%);
+    color: rgba(0, 0, 0, 10%);
 }
 /*--------------------------------------------
 Status Bar CSS
@@ -581,8 +581,8 @@ UnitDisplayStatusBarControl QMenu::item {
     padding-left: 10px;
 }
 UnitDisplayStatusBarControl QMenu::item:selected {
-    background-color: #ffffff;
-    color: #6b80af;
+    background-color: #6b80af;
+    color: #ffffff;
 }
 UnitDisplayStatusBarControl QMenu{
     background-color: #d1dbe7;

@@ -223,4 +223,7 @@
         <file alias="tableviewlight">res/styles/theme3/tableviewlight.css</file>
         <file alias="invalid">res/styles/theme3/invalid.css</file>
     </qresource>
+    <qresource prefix="/styles/theme3/app-icons">
+        <file alias="down_arrow_unit">res/styles/theme3/app-icons/down_arrow_unit.png</file>
+    </qresource>
 </RCC>
