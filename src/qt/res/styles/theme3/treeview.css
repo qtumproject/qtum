@@ -26,7 +26,7 @@ QTreeView::item:selected{
     color: #ffffff;
 }
 QTreeView::disabled{
-    color: rgba(111, 128, 171, 20%);
+    color: rgba(107, 128, 175, 20%);
 }
 /*--------------------------------------------
 Scroll bar dark CSS
@@ -44,7 +44,7 @@ QScrollBar::handle:vertical {
     min-height: 45px;
 }
 QScrollBar::handle:vertical:disabled {
-    background: rgba(29, 40, 67, 40%);
+    background: rgba(209, 219, 231, 40%);
 }
 
 QScrollBar:horizontal {
@@ -60,7 +60,7 @@ QScrollBar::handle:horizontal {
     min-width: 45px;
 }
 QScrollBar::handle:horizontal:disabled {
-    background: rgba(29, 40, 67, 40%);
+    background: rgba(209, 219, 231, 40%);
 }
 /*--------------------------------------------
 Check Box CSS

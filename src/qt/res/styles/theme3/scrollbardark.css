@@ -16,7 +16,7 @@ QScrollBar::handle:vertical {
     min-height: 30px;
 }
 QScrollBar::handle:vertical:disabled {
-    background: rgba(29, 40, 67, 40%);
+    background: rgba(209, 219, 231, 40%);
 }
 
 QScrollBar:horizontal {
@@ -31,7 +31,7 @@ QScrollBar::handle:horizontal {
     min-width: 35px;
 }
 QScrollBar::handle:horizontal:disabled {
-    background: rgba(29, 40, 67, 40%);
+    background: rgba(209, 219, 231, 40%);
 }
 #autoCompleterPopup QScrollBar:vertical {
     border-radius: 0px;

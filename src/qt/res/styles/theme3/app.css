@@ -96,7 +96,7 @@ QLineEdit::focus:!read-only{
     border: 1px solid #cbd5e1;
 }
 QLineEdit::disabled{
-    border: 1px solid rgba(223, 232, 242, 40%);
+    border: 1px solid rgba(209, 219, 231, 40%);
     color: rgba(107, 128, 175, 20%);
 }
 QAbstractItemView#autoCompleterPopup{
@@ -167,11 +167,11 @@ QComboBox QAbstractItemView{
     margin-bottom: 3px;
 }
 QComboBox::disabled {
-    border: 1px solid rgba(223, 232, 242, 40%);
+    border: 1px solid rgba(209, 219, 231, 40%);
     color: rgba(107, 128, 175, 20%);
 }
 QComboBox:drop-down:disabled {
-    border-left: 1px solid rgba(223, 232, 242, 40%);
+    border-left: 1px solid rgba(209, 219, 231, 40%);
 }
 QComboBox::down-arrow:disabled {
     image: url(":/styles/theme2/app-icons/down_arrow_disabled");
@@ -298,14 +298,14 @@ QAbstractSpinBox::down-arrow:hover{
     image: url(":/styles/theme2/app-icons/down_arrow_hover");
 }
 QAbstractSpinBox::disabled {
-    border: 1px solid rgba(223, 232, 242, 40%);
-    color: rgba(189, 189, 189, 10%);
+    border: 1px solid rgba(209, 219, 231, 40%);
+    color: rgba(107, 128, 175, 10%);
 }
 QAbstractSpinBox::up-button:disabled {
-    border-left: 1px solid rgba(223, 232, 242, 40%);
+    border-left: 1px solid rgba(209, 219, 231, 40%);
 }
 QAbstractSpinBox::down-button:disabled {
-    border-left: 1px solid rgba(223, 232, 242, 40%);
+    border-left: 1px solid rgba(209, 219, 231, 40%);
 }
 QAbstractSpinBox::up-arrow:disabled,
 QAbstractSpinBox::up-arrow:off {
@@ -359,7 +359,7 @@ QScrollBar::handle:vertical {
     min-height: 45px;
 }
 QScrollBar::handle:vertical:disabled {
-    background: rgba(29, 40, 67, 40%);
+    background: rgba(209, 219, 231, 40%);
 }
 QTextEdit QScrollBar:vertical {
     border-radius: 0px;
@@ -376,7 +376,7 @@ QTextEdit QScrollBar::handle:vertical {
     min-height: 30px;
 }
 QTextEdit QScrollBar::handle:vertical:disabled {
-    background: rgba(29, 40, 67, 40%);
+    background: rgba(209, 219, 231, 40%);
 }
 QPlainTextEdit QScrollBar:vertical {
     border-radius: 0px;
@@ -393,7 +393,7 @@ QPlainTextEdit QScrollBar::handle:vertical {
     min-height: 30px;
 }
 QPlainTextEdit QScrollBar::handle:vertical:disabled {
-    background: rgba(29, 40, 67, 40%);
+    background: rgba(209, 219, 231, 40%);
 }
 QComboBox QScrollBar:vertical {
     border-radius: 0px;
@@ -410,7 +410,7 @@ QComboBox QScrollBar::handle:vertical {
     min-height: 30px;
 }
 QComboBox QScrollBar::handle:vertical:disabled {
-    background: rgba(29, 40, 67, 40%);
+    background: rgba(209, 219, 231, 40%);
 }
 /*--------------------------------------------
 Scroll Bar Horizontal CSS
@@ -446,7 +446,7 @@ QScrollBar::handle:horizontal {
     min-width: 45px;
 }
 QScrollBar::handle:horizontal:disabled {
-    background: rgba(29, 40, 67, 40%);
+    background: rgba(209, 219, 231, 40%);
 }
 /*--------------------------------------------
 Table View CSS
@@ -525,7 +525,7 @@ QTextEdit::focus:!read-only{
     border: 1px solid #cbd5e1;
 }
 QTextEdit::disabled {
-    border: 1px solid rgba(231, 219, 231, 40%);
+    border: 1px solid rgba(209, 219, 231, 40%);
     color: rgba(0, 0, 0, 10%);
 }
 /*--------------------------------------------
@@ -545,7 +545,7 @@ QPlainTextEdit::focus:!read-only{
     border: 1px solid #cbd5e1;
 }
 QPlainTextEdit::disabled {
-    border: 1px solid rgba(231, 219, 231, 40%);
+    border: 1px solid rgba(209, 219, 231, 40%);
     color: rgba(0, 0, 0, 10%);
 }
 /*--------------------------------------------
@@ -1054,6 +1054,7 @@ Overview Page Widget CSS
     padding: 6px;
     min-width: 8em;
     border-radius: 18px;
+    border: 1px solid #26a1e4;
 }
 /*--------------------------------------------
 Token Page Widget CSS

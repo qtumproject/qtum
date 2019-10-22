@@ -159,6 +159,9 @@ QIcon PlatformStyle::MultiStatesIcon(const QString &resourcename, StateType type
     if(version == 2)
         return MultiStatesIconV2(resourcename, type);
 
+    if(version == 3)
+        return MultiStatesIconV3(resourcename, type);
+
     return MultiStatesIconV1(resourcename, type);
 }
 
@@ -377,4 +380,25 @@ QIcon PlatformStyle::SingleColorIcon(const QString &resourcename, const QColor &
 QIcon PlatformStyle::SingleColorIcon(const QIcon &icon, const QColor &colorbase, double opacity)
 {
     return ColorizeIcon(icon, colorbase, opacity);
+}
+
+QIcon PlatformStyle::MultiStatesIconV3(const QString &resourcename, PlatformStyle::StateType type) const
+{
+    if(type == NavBar)
+    {
+        QColor color = multiStatesIconColor3;
+        QIcon icon;
+        QImage img1(resourcename);
+        QImage img2(img1);
+        QPixmap pix1 = MakeSingleColorPixmap(img1, color, 1);
+        QPixmap pix2 = MakeSingleColorPixmap(img2, color, 1);
+        icon.addPixmap(pix1, QIcon::Normal, QIcon::On);
+        icon.addPixmap(pix2, QIcon::Normal, QIcon::Off);
+        icon.addPixmap(pix1, QIcon::Selected, QIcon::Off);
+        icon.addPixmap(pix2, QIcon::Selected, QIcon::On);
+
+        return icon;
+    }
+
+    return MultiStatesIconV2(resourcename, type);
 }
