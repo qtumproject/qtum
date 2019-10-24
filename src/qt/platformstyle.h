@@ -43,9 +43,6 @@ public:
     /** Colorize an icon (given filename) with the menu text color */
     QIcon MenuColorIcon(const QString& filename) const;
 
-    /** Colorize an icon (given object) with the menu text color */
-    QIcon MenuColorIcon(const QIcon& icon) const;
-
     enum StateType{
         NavBar = 0,
         PushButton = 1,
@@ -74,6 +71,8 @@ private:
     QIcon MultiStatesIconV1(const QString& resourcename, StateType type = NavBar) const;
     QIcon MultiStatesIconV2(const QString& resourcename, StateType type = NavBar) const;
     QIcon MultiStatesIconV3(const QString& resourcename, StateType type = NavBar) const;
+    QIcon MenuColorIconV1(const QString& resourcename) const;
+    QIcon MenuColorIconV2(const QString& resourcename) const;
 
     QString name;
     int version;

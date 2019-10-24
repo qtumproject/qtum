@@ -98,7 +98,7 @@ PlatformStyle::PlatformStyle(const QString &_name, bool _imagesOnButtons, bool _
     }
     // Determine text color
     textColor = GetStringStyleValue("platformstyle/text-color", "#e6f0f0");
-    menuColor = QColor(QApplication::palette().color(QPalette::WindowText));
+    menuColor = GetColorStyleValue("platformstyle/menu-color", QColor(QApplication::palette().color(QPalette::WindowText)));
 
     // Determine table color
     tableColorNormal = GetStringStyleValue("platformstyle/table-color-normal", "#ffffff");
@@ -146,12 +146,10 @@ QIcon PlatformStyle::TextColorIcon(const QIcon& icon) const
 
 QIcon PlatformStyle::MenuColorIcon(const QString &filename) const
 {
-    return ColorizeIcon(filename, MenuColor(), 0.8);
-}
+    if(version == 2 || version == 3)
+        return MenuColorIconV2(filename);
 
-QIcon PlatformStyle::MenuColorIcon(const QIcon &icon) const
-{
-    return ColorizeIcon(icon, MenuColor(), 0.8);
+    return MenuColorIconV1(filename);
 }
 
 QIcon PlatformStyle::MultiStatesIcon(const QString &resourcename, StateType type) const
@@ -401,4 +399,24 @@ QIcon PlatformStyle::MultiStatesIconV3(const QString &resourcename, PlatformStyl
     }
 
     return MultiStatesIconV2(resourcename, type);
+}
+
+QIcon PlatformStyle::MenuColorIconV1(const QString &filename) const
+{
+    return ColorizeIcon(filename, MenuColor(), 0.8);
+}
+
+QIcon PlatformStyle::MenuColorIconV2(const QString &filename) const
+{
+    QIcon icon;
+    QImage img1(filename);
+    QImage img2(img1);
+    QColor color = MenuColor();
+    QPixmap pix1 = MakeSingleColorPixmap(img1, color, 1);
+    QPixmap pix2 = MakeSingleColorPixmap(img2, color, 0.3);
+    icon.addPixmap(pix1, QIcon::Normal, QIcon::On);
+    icon.addPixmap(pix1, QIcon::Normal, QIcon::Off);
+    icon.addPixmap(pix2, QIcon::Disabled, QIcon::Off);
+    icon.addPixmap(pix2, QIcon::Disabled, QIcon::On);
+    return icon;
 }
