@@ -9,14 +9,12 @@ QPushButton {
 	border-radius: 0px;
 }
 QPushButton::hover{
-	background-color: rgba(89, 89, 92, 20%);
-	border-top: 1px solid #2c2c2c;
-	border-bottom: 1px solid #2c2c2c;
+	background-color: rgba(73, 88, 122, 20%);
 	padding-top: 5px;
 	padding-bottom: 5px;
 }
 QPushButton::pressed{
-	background-color: rgba(89, 89, 92, 30%);
+	background-color: rgba(73, 88, 122, 30%);
 }
 QPushButton::disabled{
 	background-color: transparent;

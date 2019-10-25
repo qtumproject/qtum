@@ -11,15 +11,20 @@ QHeaderView{
 QHeaderView:section{
     background-color: #ffffff;
 }
-
 QTableView{
     background-color: #ffffff;
     border: 1px solid #d1dbe7;
     border-radius: 6px;
 
 }
-
 QScrollBar:vertical {
     border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+QScrollBar:horizontal {
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+QAbstractScrollArea::corner {
     border-bottom-right-radius: 6px;
 }

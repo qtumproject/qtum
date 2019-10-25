@@ -1102,7 +1102,9 @@ SendCoinsDialog #labelBalance{
 SendCoinsDialog QScrollArea{
     border: 1px solid #d1dbe7;
     border-radius: 5px;
-    padding-top: 3px;
+}
+SendCoinsDialog #scrollAreaWidgetContents{
+    margin: 3px;
 }
 QFrame #frameFee,
 QWidget #coinControlContentsWidget{
