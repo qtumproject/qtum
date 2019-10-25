@@ -26,6 +26,7 @@
 #include <qt/qrctoken.h>
 #include <qt/restoredialog.h>
 #include <qt/stakepage.h>
+#include <qt/walletframe.h>
 
 #include <interfaces/node.h>
 #include <ui_interface.h>
@@ -43,7 +44,8 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
     QStackedWidget(parent),
     clientModel(nullptr),
     walletModel(nullptr),
-    platformStyle(_platformStyle)
+    platformStyle(_platformStyle),
+    gui(nullptr)
 {
     // Create tabs
     overviewPage = new OverviewPage(platformStyle);
@@ -136,6 +138,7 @@ void WalletView::setBitcoinGUI(BitcoinGUI *gui)
         // Connect HD enabled state signal
         connect(this, &WalletView::hdEnabledStatusChanged, gui, &BitcoinGUI::updateWalletStatus);
     }
+    this->gui = gui;
 }
 
 void WalletView::setClientModel(ClientModel *_clientModel)
@@ -259,16 +262,23 @@ void WalletView::gotoHistoryPage()
 void WalletView::gotoReceiveCoinsPage()
 {
     setCurrentWidget(overviewPage);
-    receiveCoinsPage->show();
+    if(gui && gui->getWalletFrame() &&
+            gui->getWalletFrame()->currentWalletView() == this)
+    {
+        receiveCoinsPage->show();
+    }
 }
 
 void WalletView::gotoSendCoinsPage(QString addr)
 {
     setCurrentWidget(overviewPage);
-
-    if (!addr.isEmpty())
-        sendCoinsPage->setAddress(addr);
-    sendCoinsPage->show();
+    if(gui && gui->getWalletFrame() &&
+            gui->getWalletFrame()->currentWalletView() == this)
+    {
+        if (!addr.isEmpty())
+            sendCoinsPage->setAddress(addr);
+        sendCoinsPage->show();
+    }
 }
 
 void WalletView::gotoCreateContractPage()

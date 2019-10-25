@@ -103,6 +103,8 @@ public:
     /** Disconnect core signals from GUI client */
     void unsubscribeFromCoreSignals();
 
+    WalletFrame *getWalletFrame() const;
+
 protected:
     void changeEvent(QEvent *e);
     void closeEvent(QCloseEvent *event);

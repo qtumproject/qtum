@@ -840,6 +840,7 @@ void BitcoinGUI::setWalletActionsEnabled(bool enabled)
     usedSendingAddressesAction->setEnabled(enabled);
     usedReceivingAddressesAction->setEnabled(enabled);
     openAction->setEnabled(enabled);
+    stakeAction->setEnabled(enabled);
     m_close_wallet_action->setEnabled(enabled);
 }
 
@@ -1760,4 +1761,9 @@ void UnitDisplayStatusBarControl::onMenuSelection(QAction* action)
     {
         optionsModel->setDisplayUnit(action->data());
     }
+}
+
+WalletFrame *BitcoinGUI::getWalletFrame() const
+{
+    return walletFrame;
 }

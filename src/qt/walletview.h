@@ -81,6 +81,8 @@ private:
     QProgressDialog *progressDialog;
     const PlatformStyle *platformStyle;
 
+    BitcoinGUI *gui;
+
 public Q_SLOTS:
     /** Switch to overview (home) page */
     void gotoOverviewPage();

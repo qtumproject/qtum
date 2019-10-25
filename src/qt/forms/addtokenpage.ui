@@ -7,8 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>600</width>
-    <height>360</height>
+    <height>350</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>600</width>
+    <height>350</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>ADD Token</string>
@@ -146,12 +152,6 @@
        </item>
        <item>
         <widget class="QLabel" name="labelDescription">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
          <property name="text">
           <string/>
          </property>
