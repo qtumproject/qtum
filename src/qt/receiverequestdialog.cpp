@@ -225,8 +225,7 @@ void ReceiveRequestDialog::update()
         }
 #endif
 
-        ui->btnCopyAddress->setEnabled(true);
-        ui->btnCopyURI->setEnabled(true);
+        ui->widgetPaymentInformation->setEnabled(true);
 
         ui->labelAddress->setText(info.address);
         SendCoinsRecipient _info;
@@ -289,8 +288,7 @@ void ReceiveRequestDialog::clear()
 #endif
     ui->labelURI->clear();
     ui->labelAddress->clear();
-    ui->btnCopyAddress->setEnabled(false);
-    ui->btnCopyURI->setEnabled(false);
+    ui->widgetPaymentInformation->setEnabled(false);
 }
 
 void ReceiveRequestDialog::reject()

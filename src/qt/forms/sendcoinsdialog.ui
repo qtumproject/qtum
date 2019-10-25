@@ -26,13 +26,13 @@
    <item>
     <layout class="QVBoxLayout" name="verticalLayout_11">
      <property name="leftMargin">
-      <number>20</number>
+      <number>30</number>
      </property>
      <property name="topMargin">
       <number>9</number>
      </property>
      <property name="rightMargin">
-      <number>20</number>
+      <number>30</number>
      </property>
      <item>
       <widget class="QWidget" name="coinControlWidget" native="true">
@@ -484,7 +484,7 @@
                 <number>5</number>
                </property>
                <property name="rightMargin">
-                <number>5</number>
+                <number>0</number>
                </property>
                <item>
                 <widget class="QCheckBox" name="checkBoxCoinControlChange">
@@ -569,13 +569,13 @@
        <number>0</number>
       </property>
       <property name="leftMargin">
-       <number>20</number>
+       <number>30</number>
       </property>
       <property name="topMargin">
        <number>0</number>
       </property>
       <property name="rightMargin">
-       <number>20</number>
+       <number>30</number>
       </property>
       <property name="bottomMargin">
        <number>0</number>
@@ -586,7 +586,7 @@
          <number>3</number>
         </property>
         <property name="rightMargin">
-         <number>6</number>
+         <number>0</number>
         </property>
         <property name="bottomMargin">
          <number>0</number>
@@ -693,7 +693,7 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>893</width>
+           <width>873</width>
            <height>68</height>
           </rect>
          </property>
@@ -756,10 +756,10 @@
    <item>
     <layout class="QVBoxLayout" name="verticalLayout_10">
      <property name="leftMargin">
-      <number>20</number>
+      <number>30</number>
      </property>
      <property name="rightMargin">
-      <number>20</number>
+      <number>30</number>
      </property>
      <property name="bottomMargin">
       <number>20</number>

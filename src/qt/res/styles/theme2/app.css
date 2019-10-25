@@ -1062,10 +1062,17 @@ Token Page Widget CSS
     background-color: white;
     border-radius: 20px;
 }
+#widgetQRFrame::disabled{
+    background-color: rgba(255, 255, 255, 20%);
+}
 #widgetQRMargin{
     background-color: #263450;
     border-radius: 20px;
     border: 1px solid #384869;
+}
+#widgetQRMargin::disabled{
+    background-color: rgba(38, 52, 80, 20%);
+    border: 1px solid rgba(56, 72, 105, 20%);
 }
 #tokenItemFrame{
     background-color: #222f4b;

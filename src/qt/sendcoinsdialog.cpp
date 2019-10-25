@@ -88,6 +88,7 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *_platformStyle, QWidget *p
     connect(ui->pushButtonCoinControl, &QPushButton::clicked, this, &SendCoinsDialog::coinControlButtonClicked);
     connect(ui->checkBoxCoinControlChange, &QCheckBox::stateChanged, this, &SendCoinsDialog::coinControlChangeChecked);
     connect(ui->lineEditCoinControlChange, &QValidatedLineEdit::textEdited, this, &SendCoinsDialog::coinControlChangeEdited);
+    ui->labelCoinControlChangeLabel->setVisible(false);
 
     // Coin Control: clipboard actions
     QAction *clipboardQuantityAction = new QAction(tr("Copy quantity"), this);
@@ -748,6 +749,7 @@ void SendCoinsDialog::coinControlChangeChecked(int state)
     {
         CoinControlDialog::coinControl()->destChange = CNoDestination();
         ui->labelCoinControlChangeLabel->clear();
+        ui->labelCoinControlChangeLabel->setVisible(false);
     }
     else
         // use this to re-validate an already entered address
@@ -766,6 +768,8 @@ void SendCoinsDialog::coinControlChangeEdited(const QString& text)
         ui->labelCoinControlChangeLabel->setStyleSheet("QLabel{color:red;}");
 
         const CTxDestination dest = DecodeDestination(text.toStdString());
+
+        ui->labelCoinControlChangeLabel->setVisible(!text.isEmpty());
 
         if (text.isEmpty()) // Nothing entered
         {
