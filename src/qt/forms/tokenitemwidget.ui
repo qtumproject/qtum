@@ -177,14 +177,14 @@
              </spacer>
             </item>
             <item>
-             <widget class="QPushButton" name="buttonSend">
+             <widget class="QtumPushButton" name="buttonSend">
               <property name="text">
                <string>Send</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="buttonReceive">
+             <widget class="QtumPushButton" name="buttonReceive">
               <property name="text">
                <string>Receive</string>
               </property>
@@ -238,6 +238,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QtumPushButton</class>
+   <extends>QPushButton</extends>
+   <header>qt/qtumpushbutton.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

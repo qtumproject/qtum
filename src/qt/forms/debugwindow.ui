@@ -399,7 +399,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="openDebugLogfileButton">
+          <widget class="QtumPushButton" name="openDebugLogfileButton">
            <property name="toolTip">
             <string>Open the %1 debug log file from the current data directory. This can take a few seconds for large log files.</string>
            </property>
@@ -477,7 +477,7 @@
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="fontSmallerButton">
+          <widget class="QtumPushButton" name="fontSmallerButton">
            <property name="maximumSize">
             <size>
              <width>24</width>
@@ -509,7 +509,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="fontBiggerButton">
+          <widget class="QtumPushButton" name="fontBiggerButton">
            <property name="maximumSize">
             <size>
              <width>24</width>
@@ -541,7 +541,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="clearButton">
+          <widget class="QtumPushButton" name="clearButton">
            <property name="maximumSize">
             <size>
              <width>24</width>
@@ -599,7 +599,7 @@
           <number>3</number>
          </property>
          <item>
-          <widget class="QPushButton" name="promptIcon">
+          <widget class="QtumPushButton" name="promptIcon">
            <property name="enabled">
             <bool>false</bool>
            </property>
@@ -1506,6 +1506,11 @@
    <slots>
     <slot>clear()</slot>
    </slots>
+  </customwidget>
+  <customwidget>
+   <class>QtumPushButton</class>
+   <extends>QPushButton</extends>
+   <header>qt/qtumpushbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources>

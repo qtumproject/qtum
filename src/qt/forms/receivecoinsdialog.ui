@@ -256,7 +256,7 @@
          </spacer>
         </item>
         <item>
-         <widget class="QPushButton" name="showRequestButton">
+         <widget class="QtumPushButton" name="showRequestButton">
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -298,7 +298,7 @@
          </spacer>
         </item>
         <item>
-         <widget class="QPushButton" name="removeRequestButton">
+         <widget class="QtumPushButton" name="removeRequestButton">
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -428,6 +428,11 @@
    <extends>QLineEdit</extends>
    <header>qt/bitcoinamountfield.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QtumPushButton</class>
+   <extends>QPushButton</extends>
+   <header>qt/qtumpushbutton.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

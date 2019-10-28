@@ -665,7 +665,7 @@
          </spacer>
         </item>
         <item>
-         <widget class="QPushButton" name="addButton">
+         <widget class="QtumPushButton" name="addButton">
           <property name="toolTip">
            <string>Send to multiple recipients at once</string>
           </property>
@@ -1207,6 +1207,11 @@
    <extends>QLineEdit</extends>
    <header>qt/bitcoinamountfield.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QtumPushButton</class>
+   <extends>QPushButton</extends>
+   <header>qt/qtumpushbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources>

@@ -328,8 +328,8 @@ QIcon PlatformStyle::MultiStatesIconV2(const QString &resourcename, PlatformStyl
         QPixmap pix3 = MakeSingleColorPixmap(img3, colorAlt, 0.2);
         icon.addPixmap(pix1, QIcon::Normal, QIcon::On);
         icon.addPixmap(pix2, QIcon::Normal, QIcon::Off);
-        icon.addPixmap(pix1, QIcon::Active, QIcon::Off);
-        icon.addPixmap(pix2, QIcon::Active, QIcon::On);
+        icon.addPixmap(pix1, QIcon::Selected, QIcon::Off);
+        icon.addPixmap(pix1, QIcon::Selected, QIcon::On);
         icon.addPixmap(pix3, QIcon::Disabled, QIcon::On);
         icon.addPixmap(pix3, QIcon::Disabled, QIcon::Off);
         break;
@@ -346,7 +346,8 @@ QIcon PlatformStyle::MultiStatesIconV2(const QString &resourcename, PlatformStyl
         QPixmap pix3 = MakeSingleColorPixmap(img3, color, 0.2);
         icon.addPixmap(pix2, QIcon::Normal, QIcon::On);
         icon.addPixmap(pix1, QIcon::Normal, QIcon::Off);
-        icon.addPixmap(pix2, QIcon::Active, QIcon::Off);
+        icon.addPixmap(pix2, QIcon::Selected, QIcon::Off);
+        icon.addPixmap(pix2, QIcon::Selected, QIcon::On);
         icon.addPixmap(pix3, QIcon::Disabled, QIcon::On);
         icon.addPixmap(pix3, QIcon::Disabled, QIcon::Off);
         break;

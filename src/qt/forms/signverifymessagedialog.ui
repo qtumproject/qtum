@@ -80,7 +80,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="addressBookButton_SM">
+              <widget class="QtumPushButton" name="addressBookButton_SM">
                <property name="toolTip">
                 <string>Choose previously used address</string>
                </property>
@@ -113,7 +113,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="pasteButton_SM">
+              <widget class="QtumPushButton" name="pasteButton_SM">
                <property name="toolTip">
                 <string>Paste address from clipboard</string>
                </property>
@@ -159,7 +159,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="copySignatureButton_SM">
+              <widget class="QtumPushButton" name="copySignatureButton_SM">
                <property name="toolTip">
                 <string>Copy the current signature to the system clipboard</string>
                </property>
@@ -259,7 +259,7 @@
            </spacer>
           </item>
           <item>
-           <widget class="QPushButton" name="clearButton_SM">
+           <widget class="QtumPushButton" name="clearButton_SM">
             <property name="toolTip">
              <string>Reset all sign message fields</string>
             </property>
@@ -276,7 +276,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="signMessageButton_SM">
+           <widget class="QtumPushButton" name="signMessageButton_SM">
             <property name="toolTip">
              <string>Sign the message to prove you own this Qtum address</string>
             </property>
@@ -357,7 +357,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="addressBookButton_VM">
+            <widget class="QtumPushButton" name="addressBookButton_VM">
              <property name="toolTip">
               <string>Choose previously used address</string>
              </property>
@@ -441,7 +441,7 @@
            </spacer>
           </item>
           <item>
-           <widget class="QPushButton" name="clearButton_VM">
+           <widget class="QtumPushButton" name="clearButton_VM">
             <property name="toolTip">
              <string>Reset all verify message fields</string>
             </property>
@@ -458,7 +458,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="verifyMessageButton_VM">
+           <widget class="QtumPushButton" name="verifyMessageButton_VM">
             <property name="toolTip">
              <string>Verify the message to ensure it was signed with the specified Qtum address</string>
             </property>
@@ -488,6 +488,11 @@
    <class>QValidatedLineEdit</class>
    <extends>QLineEdit</extends>
    <header>qt/qvalidatedlineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QtumPushButton</class>
+   <extends>QPushButton</extends>
+   <header>qt/qtumpushbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources>
