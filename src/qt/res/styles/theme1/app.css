@@ -375,8 +375,8 @@ QScrollBar::handle:vertical:disabled {
 }
 QTextEdit QScrollBar:vertical {
     border-radius: 0px;
-    border-top-right-radius: 11px;
-    border-bottom-right-radius: 11px;
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
     background: #222222;
     width: 19px;
     padding: 10px 4px;
@@ -392,8 +392,8 @@ QTextEdit QScrollBar::handle:vertical:disabled {
 }
 QPlainTextEdit QScrollBar:vertical {
     border-radius: 0px;
-    border-top-right-radius: 11px;
-    border-bottom-right-radius: 11px;
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
     background: #222222;
     width: 19px;
     padding: 10px 4px;

@@ -363,11 +363,11 @@ QScrollBar::handle:vertical:disabled {
 }
 QTextEdit QScrollBar:vertical {
     border-radius: 0px;
-    border-top-right-radius: 10px;
-    border-bottom-right-radius: 10px;
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
     background: #ffffff;
-    width: 10px;
-    padding: 5px 0px;
+    width: 12px;
+    padding: 5px 0px 5px 2px;
 }
 QTextEdit QScrollBar::handle:vertical {
     border: none;
@@ -380,11 +380,11 @@ QTextEdit QScrollBar::handle:vertical:disabled {
 }
 QPlainTextEdit QScrollBar:vertical {
     border-radius: 0px;
-    border-top-right-radius: 10px;
-    border-bottom-right-radius: 10px;
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
     background: #ffffff;
-    width: 10px;
-    padding: 5px 0px;
+    width: 12px;
+    padding: 5px 0px 5px 2px;
 }
 QPlainTextEdit QScrollBar::handle:vertical {
     border: none;

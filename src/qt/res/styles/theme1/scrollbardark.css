@@ -3,8 +3,8 @@ Scroll bar dark CSS
 --------------------------------------------*/
 QScrollBar:vertical {
     border-radius: 0px;
-    border-top-right-radius: 10px;
-    border-bottom-right-radius: 10px;
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
     background: #222222;
     width: 19px;
     padding: 10px 4px;
