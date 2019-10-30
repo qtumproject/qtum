@@ -1,4 +1,4 @@
-﻿#include <qt/tokenitemmodel.h>
+#include <qt/tokenitemmodel.h>
 #include <qt/token.h>
 #include <qt/walletmodel.h>
 #include <interfaces/wallet.h>

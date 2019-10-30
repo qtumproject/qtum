@@ -1,4 +1,4 @@
-﻿#include <qt/tokenamountfield.h>
+#include <qt/tokenamountfield.h>
 
 #include <qt/bitcoinunits.h>
 #include <qt/styleSheet.h>
