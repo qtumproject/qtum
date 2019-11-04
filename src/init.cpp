@@ -1888,6 +1888,8 @@ bool AppInitMain(InitInterfaces& interfaces)
 
     threadGroup.create_thread(std::bind(&ThreadImport, vImportFiles));
 
+    threadGroup.create_thread(std::bind(&CleanBlockIndex));
+
     // Wait for genesis block to be processed
     {
         WAIT_LOCK(g_genesis_wait_mutex, lock);

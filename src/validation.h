@@ -988,6 +988,8 @@ inline bool IsBlockPruned(const CBlockIndex* pblockindex)
 
 bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, const Consensus::Params& consensusParams, CAmount nFees, CAmount gasRefunds, CAmount nActualStakeReward, const std::vector<CTxOut>& vouts);
 
+void CleanBlockIndex();
+
 //////////////////////////////////////////////////////// qtum
 bool GetSpentCoinFromBlock(const CBlockIndex* pindex, COutPoint prevout, Coin* coin);
 

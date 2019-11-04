@@ -6750,6 +6750,59 @@ std::string exceptedMessage(const dev::eth::TransactionException& excepted, cons
     return message;
 }
 
+bool NeedToEraseBlockIndex(const CBlockIndex *pindex, const CBlockIndex *pindexCheck)
+{
+    if(!chainActive.Contains(pindex))
+    {
+        if(pindex->nHeight <= pindexCheck->nHeight) return true;
+        const CBlockIndex *pindexBlock = pindex;
+        while(pindexBlock)
+        {
+           pindexBlock = pindexBlock->pprev;
+           if(pindexBlock->nHeight == pindexCheck->nHeight) return pindexBlock != pindexCheck;
+        }
+    }
+    return false;
+}
+
+void CleanBlockIndex()
+{
+    while(!ShutdownRequested())
+    {
+        {
+            LOCK(cs_main);
+
+            std::vector<uint256> indexNeedErase;
+
+            const CBlockIndex *pindexCheck = chainActive[chainActive.Height() - nCheckpointSpan -1];
+
+            if(!IsInitialBlockDownload() && pindexCheck)
+            {
+                for (BlockMap::iterator it=mapBlockIndex.begin(); it!=mapBlockIndex.end(); it++)
+                {
+                    CBlockIndex *pindex = (*it).second;
+                    if(NeedToEraseBlockIndex(pindex, pindexCheck))
+                    {
+                        indexNeedErase.push_back(pindex->GetBlockHash());
+                    }
+                }
+
+                for(uint256 blockHash : indexNeedErase)
+                {
+                    BlockMap::iterator it=mapBlockIndex.find(blockHash);
+                    if(it!=mapBlockIndex.end())
+                    {
+                        delete (*it).second;
+                        mapBlockIndex.erase(it);
+                    }
+                }
+            }
+        }
+
+        MilliSleep(6000);
+    }
+}
+
 class CMainCleanup
 {
 public:
