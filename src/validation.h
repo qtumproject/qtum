@@ -181,6 +181,12 @@ static const CAmount MAX_RPC_GAS_PRICE=0.00000100*COIN;
 
 static const size_t MAX_CONTRACT_VOUTS = 1000; // qtum
 
+/** Default for -cleanblockindex. */
+static const bool DEFAULT_CLEANBLOCKINDEX = true;
+
+/** Default for -cleanblockindextimeout. */
+static const unsigned int DEFAULT_CLEANBLOCKINDEXTIMEOUT = 600;
+
 struct BlockHasher
 {
     // this used to call `GetCheapHash()` in uint256, which was later moved; the

@@ -574,6 +574,8 @@ void SetupServerArgs()
     gArgs.AddArg("-headerspamfiltermaxsize=<n>", strprintf("Maximum size of the list of indexes in the header spam filter (default: %u)", DEFAULT_HEADER_SPAM_FILTER_MAX_SIZE), false, OptionsCategory::OPTIONS);
     gArgs.AddArg("-headerspamfiltermaxavg=<n>", strprintf("Maximum average size of an index occurrence in the header spam filter (default: %u)", DEFAULT_HEADER_SPAM_FILTER_MAX_AVG), false, OptionsCategory::OPTIONS);
     gArgs.AddArg("-headerspamfilterignoreport=<n>", strprintf("Ignore the port in the ip address when looking for header spam, determine whether or not multiple nodes can be on the same IP (default: %u)", DEFAULT_HEADER_SPAM_FILTER_IGNORE_PORT), false, OptionsCategory::OPTIONS);
+    gArgs.AddArg("-cleanblockindex=<true/false>", "Clean block index (enabled by default)", false, OptionsCategory::OPTIONS);
+    gArgs.AddArg("-cleanblockindextimeout=<n>", "Clean block index periodically after some time (default 600 seconds)", false, OptionsCategory::OPTIONS);
 
     // Add the hidden options
     gArgs.AddHiddenArgs(hidden_args);
@@ -1888,7 +1890,8 @@ bool AppInitMain(InitInterfaces& interfaces)
 
     threadGroup.create_thread(std::bind(&ThreadImport, vImportFiles));
 
-    threadGroup.create_thread(std::bind(&CleanBlockIndex));
+    if(gArgs.GetBoolArg("-cleanblockindex", DEFAULT_CLEANBLOCKINDEX))
+        threadGroup.create_thread(std::bind(&CleanBlockIndex));
 
     // Wait for genesis block to be processed
     {
