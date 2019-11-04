@@ -213,6 +213,8 @@ public:
 
     void UnloadBlockIndex();
 
+    bool RemoveBlockIndex(CBlockIndex *pindex);
+
 private:
     bool ActivateBestChainStep(CValidationState& state, const CChainParams& chainparams, CBlockIndex* pindexMostWork, const std::shared_ptr<const CBlock>& pblock, bool& fInvalidFound, ConnectTrace& connectTrace) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
     bool ConnectTip(CValidationState& state, const CChainParams& chainparams, CBlockIndex* pindexNew, const std::shared_ptr<const CBlock>& pblock, ConnectTrace& connectTrace, DisconnectedBlockTransactions &disconnectpool) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
@@ -6545,6 +6547,42 @@ void CChainState::CheckBlockIndex(const Consensus::Params& consensusParams)
     assert(nNodes == forward.size());
 }
 
+bool CChainState::RemoveBlockIndex(CBlockIndex *pindex)
+{
+    // Check if the block index is present in any variable and remove it
+    if(pindexBestInvalid == pindex)
+        pindexBestInvalid = nullptr;
+
+    if(pindexBestHeader == pindex)
+        pindexBestHeader = nullptr;
+
+    if(pindexBestForkTip == pindex)
+        pindexBestForkTip = nullptr;
+
+    if(pindexBestForkBase == pindex)
+        pindexBestForkBase = nullptr;
+
+
+    // Check if the block index is present in any list and remove it
+    for (auto it=mapBlocksUnlinked.begin(); it!=mapBlocksUnlinked.end();){
+        if(it->first == pindex || it->second == pindex)
+        {
+            it = mapBlocksUnlinked.erase(it);
+        }
+        else{
+            it++;
+        }
+    }
+
+    setBlockIndexCandidates.erase(pindex);
+
+    m_failed_blocks.erase(pindex);
+
+    setDirtyBlockIndex.erase(pindex);
+
+    return true;
+}
+
 std::string CBlockFileInfo::ToString() const
 {
     return strprintf("CBlockFileInfo(blocks=%u, size=%u, heights=%u...%u, time=%s...%s)", nBlocks, nSize, nHeightFirst, nHeightLast, FormatISO8601Date(nTimeFirst), FormatISO8601Date(nTimeLast));
@@ -6765,6 +6803,11 @@ bool NeedToEraseBlockIndex(const CBlockIndex *pindex, const CBlockIndex *pindexC
     return false;
 }
 
+bool RemoveBlockIndex(CBlockIndex *pindex)
+{
+    return g_chainstate.RemoveBlockIndex(pindex);
+}
+
 void CleanBlockIndex()
 {
     while(!ShutdownRequested())
@@ -6792,8 +6835,12 @@ void CleanBlockIndex()
                     BlockMap::iterator it=mapBlockIndex.find(blockHash);
                     if(it!=mapBlockIndex.end())
                     {
-                        delete (*it).second;
-                        mapBlockIndex.erase(it);
+                        CBlockIndex *pindex = (*it).second;
+                        if(RemoveBlockIndex(pindex))
+                        {
+                            delete pindex;
+                            mapBlockIndex.erase(it);
+                        }
                     }
                 }
             }
