@@ -32,6 +32,7 @@
 #include <checkpoints.h>
 #include <clientversion.h>
 #include <consensus/merkle.h>
+#include <shutdown.h>
 
 #include <memory>
 
@@ -4167,6 +4168,95 @@ bool ProcessNetBlock(const CChainParams& chainparams, const std::shared_ptr<cons
     LogPrintf("ProcessNetBlock: ACCEPTED\n");
 
     return true;
+}
+
+bool RemoveNetBlockIndex(CBlockIndex *pindex)
+{
+    for (std::map<NodeId, CNodeState>::iterator it=mapNodeState.begin(); it!=mapNodeState.end(); it++)
+    {
+        CNodeState * state = &it->second;
+
+        if(state->pindexBestKnownBlock == pindex)
+            state->pindexBestKnownBlock = nullptr;
+
+        if(state->pindexLastCommonBlock == pindex)
+            state->pindexLastCommonBlock = nullptr;
+
+        if(state->pindexBestHeaderSent == pindex)
+            state->pindexBestHeaderSent = nullptr;
+
+        if(state->m_chain_sync.m_work_header == pindex)
+            state->m_chain_sync.m_work_header = nullptr;
+    }
+
+    return true;
+}
+
+bool NeedToEraseBlockIndex(const CBlockIndex *pindex, const CBlockIndex *pindexCheck)
+{
+    if(!chainActive.Contains(pindex))
+    {
+        if(pindex->nHeight <= pindexCheck->nHeight) return true;
+        const CBlockIndex *pindexBlock = pindex;
+        while(pindexBlock)
+        {
+           pindexBlock = pindexBlock->pprev;
+           if(pindexBlock->nHeight == pindexCheck->nHeight) return pindexBlock != pindexCheck;
+        }
+    }
+    return false;
+}
+
+bool RemoveBlockIndex(CBlockIndex *pindex)
+{
+    bool ret = RemoveStateBlockIndex(pindex);
+    ret &= RemoveNetBlockIndex(pindex);
+    return ret;
+}
+
+void CleanBlockIndex()
+{
+    unsigned int cleanTimeout = gArgs.GetArg("-cleanblockindextimeout", DEFAULT_CLEANBLOCKINDEXTIMEOUT) * 1000;
+    if(cleanTimeout == 0) cleanTimeout = DEFAULT_CLEANBLOCKINDEXTIMEOUT * 1000;
+
+    while(!ShutdownRequested())
+    {
+        {
+            LOCK(cs_main);
+
+            std::vector<uint256> indexNeedErase;
+
+            const CBlockIndex *pindexCheck = chainActive[chainActive.Height() - nCheckpointSpan -1];
+
+            if(!IsInitialBlockDownload() && pindexCheck)
+            {
+                for (BlockMap::iterator it=mapBlockIndex.begin(); it!=mapBlockIndex.end(); it++)
+                {
+                    CBlockIndex *pindex = (*it).second;
+                    if(NeedToEraseBlockIndex(pindex, pindexCheck))
+                    {
+                        indexNeedErase.push_back(pindex->GetBlockHash());
+                    }
+                }
+
+                for(uint256 blockHash : indexNeedErase)
+                {
+                    BlockMap::iterator it=mapBlockIndex.find(blockHash);
+                    if(it!=mapBlockIndex.end())
+                    {
+                        CBlockIndex *pindex = (*it).second;
+                        if(RemoveBlockIndex(pindex))
+                        {
+                            delete pindex;
+                            mapBlockIndex.erase(it);
+                        }
+                    }
+                }
+            }
+        }
+
+        MilliSleep(cleanTimeout);
+    }
 }
 
 class CNetProcessingCleanup

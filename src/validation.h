@@ -181,12 +181,6 @@ static const CAmount MAX_RPC_GAS_PRICE=0.00000100*COIN;
 
 static const size_t MAX_CONTRACT_VOUTS = 1000; // qtum
 
-/** Default for -cleanblockindex. */
-static const bool DEFAULT_CLEANBLOCKINDEX = true;
-
-/** Default for -cleanblockindextimeout. */
-static const unsigned int DEFAULT_CLEANBLOCKINDEXTIMEOUT = 600;
-
 struct BlockHasher
 {
     // this used to call `GetCheapHash()` in uint256, which was later moved; the
@@ -994,7 +988,7 @@ inline bool IsBlockPruned(const CBlockIndex* pblockindex)
 
 bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, const Consensus::Params& consensusParams, CAmount nFees, CAmount gasRefunds, CAmount nActualStakeReward, const std::vector<CTxOut>& vouts);
 
-void CleanBlockIndex();
+bool RemoveStateBlockIndex(CBlockIndex *pindex);
 
 //////////////////////////////////////////////////////// qtum
 bool GetSpentCoinFromBlock(const CBlockIndex* pindex, COutPoint prevout, Coin* coin);
