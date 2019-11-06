@@ -4172,6 +4172,9 @@ bool ProcessNetBlock(const CChainParams& chainparams, const std::shared_ptr<cons
 
 bool RemoveNetBlockIndex(CBlockIndex *pindex)
 {
+    // Make sure it's not listed somewhere already.
+    MarkBlockAsReceived(pindex->GetBlockHash());
+
     for (std::map<NodeId, CNodeState>::iterator it=mapNodeState.begin(); it!=mapNodeState.end(); it++)
     {
         CNodeState * state = &it->second;

@@ -6581,6 +6581,14 @@ bool CChainState::RemoveBlockIndex(CBlockIndex *pindex)
 
     setDirtyBlockIndex.erase(pindex);
 
+    for (int b = 0; b < VERSIONBITS_NUM_BITS; b++) {
+        warningcache[b].erase(pindex);
+    }
+
+    for (int b = 0; b < Consensus::MAX_VERSION_BITS_DEPLOYMENTS; b++) {
+        versionbitscache.caches[b].erase(pindex);
+    }
+
     return true;
 }
 
