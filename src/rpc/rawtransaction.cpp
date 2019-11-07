@@ -1532,6 +1532,7 @@ static UniValue sendrawtransaction(const JSONRPCRequest& request)
                 {
                     {"hexstring", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The hex string of the raw transaction"},
                     {"allowhighfees", RPCArg::Type::BOOL, /* default */ "false", "Allow high fees"},
+                    {"showcontractdata", RPCArg::Type::BOOL, /* default */ "false", "Show create contracts data: txid, contract address, output index"},
                 },
                 RPCResult{
             "\"hex\"             (string) The transaction hash in hex\n"
@@ -1566,12 +1567,14 @@ static UniValue sendrawtransaction(const JSONRPCRequest& request)
         throw JSONRPCTransactionError(err, err_string);
     }
 
-    uint32_t voutNumber=0;
+    bool showcontractdata = false;
+    if (!request.params[2].isNull()) showcontractdata = request.params[2].get_bool();
 
-    UniValue result(UniValue::VOBJ);
-    result.pushKV("txid", txid.GetHex());
+    if(showcontractdata && tx->HasOpCreate()){
+        uint32_t voutNumber=0;
+        UniValue result(UniValue::VOBJ);
+        result.pushKV("txid", txid.GetHex());
 
-    if(tx->HasOpCreate()){
         UniValue contracts(UniValue::VARR);
         for (const CTxOut& txout : tx->vout) {
             if(txout.scriptPubKey.HasOpCreate()){
@@ -1598,9 +1601,11 @@ static UniValue sendrawtransaction(const JSONRPCRequest& request)
             voutNumber++;
         }
         result.pushKV("contracts", contracts);
+
+        return result;
     }
 
-    return result;
+    return txid.GetHex();
 }
 
 static UniValue testmempoolaccept(const JSONRPCRequest& request)
@@ -2578,7 +2583,7 @@ static const CRPCCommand commands[] =
     { "rawtransactions",    "createrawtransaction",         &createrawtransaction,      {"inputs","outputs","locktime","replaceable"} },
     { "rawtransactions",    "decoderawtransaction",         &decoderawtransaction,      {"hexstring","iswitness"} },
     { "rawtransactions",    "decodescript",                 &decodescript,              {"hexstring"} },
-    { "rawtransactions",    "sendrawtransaction",           &sendrawtransaction,        {"hexstring","allowhighfees"} },
+    { "rawtransactions",    "sendrawtransaction",           &sendrawtransaction,        {"hexstring","allowhighfees", "showcontractdata"} },
     { "rawtransactions",    "combinerawtransaction",        &combinerawtransaction,     {"txs"} },
     { "hidden",             "signrawtransaction",           &signrawtransaction,        {"hexstring","prevtxs","privkeys","sighashtype"} },
     { "rawtransactions",    "signrawtransactionwithkey",    &signrawtransactionwithkey, {"hexstring","privkeys","prevtxs","sighashtype"} },
