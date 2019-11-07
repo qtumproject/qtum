@@ -1,4 +1,4 @@
-﻿#include <qt/tokenamountfield.h>
+#include <qt/tokenamountfield.h>
 
 #include <qt/bitcoinunits.h>
 #include <qt/styleSheet.h>
@@ -178,7 +178,7 @@ Q_SIGNALS:
     void valueChanged();
 };
 
-#include "tokenamountfield.moc"
+#include <qt/tokenamountfield.moc>
 
 TokenAmountField::TokenAmountField(QWidget *parent) :
     QWidget(parent),
