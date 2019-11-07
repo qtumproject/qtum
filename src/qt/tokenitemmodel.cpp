@@ -1,4 +1,4 @@
-﻿#include <qt/tokenitemmodel.h>
+#include <qt/tokenitemmodel.h>
 #include <qt/token.h>
 #include <qt/walletmodel.h>
 #include <interfaces/wallet.h>
@@ -64,7 +64,7 @@ public:
     Token tokenAbi;
     TokenTxWorker(WalletModel *_walletModel):
         walletModel(_walletModel), first(true) {}
-    
+
 private Q_SLOTS:
     void updateTokenTx(const QString &hash)
     {
@@ -161,7 +161,7 @@ Q_SIGNALS:
     void balanceChanged(QString hash, QString balance);
 };
 
-#include "tokenitemmodel.moc"
+#include <qt/tokenitemmodel.moc>
 
 struct TokenItemEntryLessThan
 {

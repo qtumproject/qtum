@@ -163,7 +163,7 @@ BITCOIN_TEST_SUITE += \
 endif
 
 test_test_qtum_SOURCES = $(BITCOIN_TEST_SUITE) $(BITCOIN_TESTS) $(JSON_TEST_FILES) $(RAW_TEST_FILES)
-test_test_qtum_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) -I$(builddir)/test/ $(TESTDEFS) $(EVENT_CFLAGS)
+test_test_qtum_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) -I$(srcdir)/test/ $(TESTDEFS) $(EVENT_CFLAGS)
 test_test_qtum_LDADD =
 if ENABLE_WALLET
 test_test_qtum_LDADD += $(LIBBITCOIN_WALLET)
