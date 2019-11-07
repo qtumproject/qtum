@@ -1524,7 +1524,7 @@ UniValue signrawtransaction(const JSONRPCRequest& request)
 
 static UniValue sendrawtransaction(const JSONRPCRequest& request)
 {
-    if (request.fHelp || request.params.size() < 1 || request.params.size() > 2)
+    if (request.fHelp || request.params.size() < 1 || request.params.size() > 3)
         throw std::runtime_error(
             RPCHelpMan{"sendrawtransaction",
                 "\nSubmits raw transaction (serialized, hex-encoded) to local node and network.\n"
@@ -1532,10 +1532,22 @@ static UniValue sendrawtransaction(const JSONRPCRequest& request)
                 {
                     {"hexstring", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The hex string of the raw transaction"},
                     {"allowhighfees", RPCArg::Type::BOOL, /* default */ "false", "Allow high fees"},
-                    {"showcontractdata", RPCArg::Type::BOOL, /* default */ "false", "Show create contracts data: txid, contract address, output index"},
+                    {"showcontractdata", RPCArg::Type::BOOL, /* default */ "false", "Show created contract data, ignored when no contracts created"},
                 },
-                RPCResult{
-            "\"hex\"             (string) The transaction hash in hex\n"
+                {
+                    RPCResult{
+                        "\"hex\"             (string) The transaction hash in hex\n"
+                    },
+                    RPCResult{"for create contract with showcontractdata = true",
+                        "{\n"
+                        "  \"txid\": \"hash\",                      (string) The transaction hash in hex\n"
+                        "  \"contracts\": [\n"
+                        "    {\n"
+                        "      \"address\": \"contract address\",   (string) The expected contract address \n"
+                        "      \"index\": n                       (numeric) The index of the output\n"
+                        "    }\n"
+                        "}\n"
+                    }
                 },
                 RPCExamples{
             "\nCreate a transaction\n"
@@ -1549,7 +1561,7 @@ static UniValue sendrawtransaction(const JSONRPCRequest& request)
                 },
             }.ToString());
 
-    RPCTypeCheck(request.params, {UniValue::VSTR, UniValue::VBOOL});
+    RPCTypeCheck(request.params, {UniValue::VSTR, UniValue::VBOOL, UniValue::VBOOL});
 
     // parse hex string from parameter
     CMutableTransaction mtx;
