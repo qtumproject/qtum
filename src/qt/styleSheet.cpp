@@ -173,18 +173,18 @@ QString StyleSheet::getCurrentTheme()
 
 QStringList StyleSheet::getSupportedThemes()
 {
-    return QStringList() << "theme2" << "theme3" << "theme1";
+    return QStringList() << "theme3" << "theme2" << "theme1";
 }
 
 QStringList StyleSheet::getSupportedThemesNames()
 {
-    return QStringList() << "Dark blue theme" << "Light blue theme" << "Black theme";
+    return QStringList() << "Light blue theme" << "Dark blue theme" << "Dark theme";
 }
 
 
 QString StyleSheet::getDefaultTheme()
 {
-    return "theme2";
+    return "theme3";
 }
 
 bool StyleSheet::setTheme(const QString &theme)
