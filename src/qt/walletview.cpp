@@ -38,7 +38,6 @@
 #include <QProgressDialog>
 #include <QPushButton>
 #include <QVBoxLayout>
-#include <QSettings>
 #include <qt/qtumpushbutton.h>
 
 WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
@@ -381,10 +380,6 @@ void WalletView::backupWallet()
     else {
         Q_EMIT message(tr("Backup Successful"), tr("The wallet data was successfully saved to %1.").arg(filename),
             CClientUIInterface::MSG_INFORMATION);
-
-        QSettings settings;
-        if(!settings.value("Backuped", false).toBool())
-            settings.setValue("Backuped", true);
     }
 }
 

@@ -253,8 +253,12 @@ BitcoinGUI::BitcoinGUI(interfaces::Node& node, const PlatformStyle *_platformSty
     m_app_nap_inhibitor = new CAppNapInhibitor;
 #endif
 
-    if(!settings.value("Backuped", false).toBool())
+    // Show the backup overlay screen the first time the application is started
+    if(settings.value("ShowBackupOverlay", true).toBool())
+    {
         showModalBackupOverlay();
+        settings.setValue("ShowBackupOverlay", false);
+    }
 }
 
 BitcoinGUI::~BitcoinGUI()
