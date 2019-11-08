@@ -92,6 +92,9 @@ public:
 
     interfaces::Node& node() const { return m_node; }
 
+    bool getRestartApp() const;
+    void setRestartApp(bool value);
+
 private:
     interfaces::Node& m_node;
     /* Qt-only settings */
@@ -107,6 +110,7 @@ private:
     bool fCheckForUpdates;
     bool bZeroBalanceAddressToken;
     QString theme;
+    bool restartApp;
 
     // Add option to list of GUI options overridden through command line/config file
     void addOverriddenOption(const std::string &option);
