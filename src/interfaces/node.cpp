@@ -295,7 +295,7 @@ public:
     }
     int64_t getMoneySupply() override
     {
-        return pindexBestHeader ? pindexBestHeader->nMoneySupply / COIN : 0;
+        return pindexBestHeader ? pindexBestHeader->nMoneySupply : 0;
     }
     std::unique_ptr<Wallet> loadWallet(const std::string& name, std::string& error, std::string& warning) override
     {
