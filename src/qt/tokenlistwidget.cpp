@@ -45,6 +45,7 @@ void TokenListWidget::setModel(WalletModel *_model)
         connect(m_tokenModel, SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)),this, SLOT(on_rowsMoved(QModelIndex,int,int,QModelIndex,int)));
         connect(m_tokenModel, SIGNAL(modelReset()),this, SLOT(on_modelReset()));
         connect(m_tokenModel, SIGNAL(layoutChanged()), this, SLOT(on_layoutChanged()));
+        connect(m_tokenModel, SIGNAL(dataChanged(QModelIndex, QModelIndex)), this, SLOT(on_dataChanged(QModelIndex, QModelIndex)));
 
         // Add items
         on_rowsInserted(QModelIndex(), 0, m_tokenModel->rowCount() - 1);
