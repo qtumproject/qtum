@@ -6,7 +6,7 @@ QToolButton {
     background: #1e2b47;
     border: 0px solid transparent;
     border-radius: 0px;
-    padding: 6px 30px 6px 6px;
+    padding: 6px 20px 6px 6px;
     border-right: 3px solid #1498df;
 }
 QToolButton:pressed, QToolButton:hover:pressed, QToolButton:checked {
