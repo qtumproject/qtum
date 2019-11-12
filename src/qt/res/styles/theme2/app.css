@@ -8,7 +8,7 @@ QWidget{
 Main Window CSS
 --------------------------------------------*/
 QMainWindow{
-    background-color: #242f4d;
+    background-color: #252f49;
     border: 0px solid transparent;
 }
 QMainWindow .QFrame{
@@ -28,10 +28,10 @@ QMainWindow .QFrame#frameBalances,
 #frameRecentTransactions,
 #frameRequest,
 #frameFee{
-    background-color: #1a2946;
+    background-color: #1d2843;
 }
 QMainWindow .QFrame#frameContract{
-    background-color: #1a2946;
+    background-color: #1d2843;
 }
 QFrame#hLine,
 #hLine2,
@@ -49,10 +49,10 @@ QFrame#vLine,
     border-left: 1px solid transparent;
 }
 WalletFrame{
-    background-color: #1a2946;
+    background-color: #1d2843;
 }
 QDialog{
-    background-color: #1a2946;
+    background-color: #1d2843;
 }
 QLabel{
     color: #6f80ab;
@@ -84,7 +84,7 @@ Line Edit CSS
 --------------------------------------------*/
 QLineEdit{
     border: 1px solid #49587A;
-    border-radius: 12px;
+    border-radius: 14px;
     background-color: #1a233a;
     color: #6f80ab;
     padding: 4px;
@@ -118,7 +118,7 @@ QAbstractItemView#autoCompleterPopup::item:selected {
 List Viev CSS
 --------------------------------------------*/
 QListView {
-    background-color: #1a2946;
+    background-color: #1d2843;
     border: none;
 }
 /*--------------------------------------------
@@ -126,7 +126,7 @@ Combo Box CSS
 --------------------------------------------*/
 QComboBox {
     border: 1px solid #49587A;
-    border-radius: 12px;
+    border-radius: 14px;
     background-color: #1A233A;
     color: #6f80ab;
     padding: 4px;
@@ -183,7 +183,7 @@ QGroupBox
 {
     border: 0px solid transparent; 
     margin-top: 20px;
-    background-color: #1a2946;
+    background-color: #1d2843;
 }
 QGroupBox::title {
     color: #6f80ab;
@@ -255,7 +255,7 @@ QAbstractSpinBox {
     background-position: right;
     background-repeat: no-repeat;
     border: 1px solid #49587A;
-    border-radius: 12px;
+    border-radius: 14px;
     color: #6f80ab;
     padding-left: 12px;
 }
@@ -513,7 +513,7 @@ QTextEdit CSS
 --------------------------------------------*/
 QTextEdit {
     border: 1px solid #49587A;
-    border-radius: 12px;
+    border-radius: 14px;
     background-color: #1a233a;
     color: #ffffff;
     padding-left: 5px;
@@ -533,7 +533,7 @@ QPlainTextEdit CSS
 --------------------------------------------*/
 QPlainTextEdit {
     border: 1px solid #49587A;
-    border-radius: 12px;
+    border-radius: 14px;
     background-color: #1a233a;
     color: #ffffff;
     padding-left: 5px;
@@ -552,7 +552,7 @@ QPlainTextEdit::disabled {
 Status Bar CSS
 --------------------------------------------*/
 QStatusBar{
-    background: #252f49;
+    background: #29334e;
     color: #6f80ab;
 }
 QStatusBar QLabel{
@@ -637,19 +637,19 @@ QTabBar::tab:disabled {
 QTabWidget::pane {
     border: none;
     border-top: none;
-    background-color: #1a2946;
+    background-color: #1d2843;
 }
 TitleBar QTabBar::tab {
     padding: 5px 0px;
 }
 #widgetTitle, #widgetWallet {
-    background-color: #1a2946;
+    background-color: #1d2843;
 }
 /*--------------------------------------------
 MenuBar CSS
 --------------------------------------------*/
 QMenuBar {
-    background: #252f49;
+    background: #29334e;
 }
 QMenuBar::item {
     background-color: transparent;
@@ -780,7 +780,7 @@ QWidget#buttonsContainerWhite,
     background: #19233c;
 }
 QWidget#ReceiveRequestDialog {
-    background: #1a2946;
+    background: #1d2843;
 }
 QTextEdit#outUri {
     border: none;
@@ -816,9 +816,9 @@ Push Button CSS
 --------------------------------------------*/
 QPushButton {
     color: #4f9fdd; 
-    background: #1d2843;
+    background: transparent;
     border: 1px solid #49587a;
-    border-radius: 12px;
+    border-radius: 14px;
     min-width: 5em;
     padding: 6px;
     margin: 0px;
@@ -843,7 +843,7 @@ QScrollArea {
     border:none;
 }
 QWidget#scrollAreaWidgetContents, QWidget#detailWidget {
-    background: #1a2946;
+    background: #1d2843;
 }
 .ABIFunctionField{
 	background: transparent;
@@ -852,13 +852,13 @@ QWidget#scrollAreaWidgetContents, QWidget#detailWidget {
 Debug Dialog CSS
 --------------------------------------------*/
 QWidget#RPCConsole{
-    background-color: #1a2946;
+    background-color: #1d2843;
 }
 /*--------------------------------------------
 Shut Down Window CSS
 --------------------------------------------*/
 QWidget#shutdownWindow{
-    background-color: #1a2946;
+    background-color: #1d2843;
 }
 /*--------------------------------------------
 Tool Button CSS
@@ -956,7 +956,7 @@ Modal Overlay CSS
 }
 #contentWidget{
     background: #252f49;
-    border-radius: 12px;
+    border-radius: 14px;
 }
 #contentWidget #buttonsContainerWhite{
     border-bottom-right-radius: 12px;

@@ -2,7 +2,7 @@
 Table View light CSS
 --------------------------------------------*/
 QHeaderView{
-    color: #d1dbe7;
+    color: #d5dde9;
     background-color: #ffffff;
     border-top-left-radius: 6px;
     border-top-right-radius: 6px;
@@ -19,7 +19,7 @@ QHeaderView::up-arrow {
 }
 QTableView{
     background-color: #ffffff;
-    border: 1px solid #d1dbe7;
+    border: 1px solid #d5dde9;
     border-radius: 6px;
 }
 QScrollBar:vertical {
