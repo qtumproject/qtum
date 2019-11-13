@@ -207,6 +207,50 @@ bool ReceiveRequestDialog::createQRCode(QLabel *label, SendCoinsRecipient _info,
     return false;
 }
 
+bool ReceiveRequestDialog::refreshAddress()
+{
+    if(!model || !model->getAddressTableModel() || !model->getRecentRequestsTableModel())
+        return false;
+
+    /* Generate new receiving address */
+    OutputType address_type = model->wallet().getDefaultAddressType();
+    info.address = model->getAddressTableModel()->addRow(AddressTableModel::Receive, info.label, "", address_type);
+
+    /* Store request for later reference */
+    model->getRecentRequestsTableModel()->addNewRequest(info);
+
+    return true;
+}
+
+bool ReceiveRequestDialog::getDefaultAddress()
+{
+    if(!model || !model->getRecentRequestsTableModel())
+        return false;
+
+    // Get the last address from the request history list that have empty label, message and amount
+    const RecentRequestsTableModel *submodel = model->getRecentRequestsTableModel();
+    bool foundDefault = false;
+    for(int i = submodel->rowCount(QModelIndex()) -1; i >= 0; i--)
+    {
+        SendCoinsRecipient entry = submodel->entry(i).recipient;
+        if(entry.label.isEmpty() && entry.message.isEmpty() && entry.amount == 0)
+        {
+            info = entry;
+            foundDefault = true;
+            break;
+        }
+    }
+
+    // Generate new address if no default found
+    if(!foundDefault)
+    {
+        info = SendCoinsRecipient();
+        refreshAddress();
+    }
+    
+    return !info.address.isEmpty();
+}
+
 void ReceiveRequestDialog::update()
 {
     if(!model)
@@ -253,17 +297,9 @@ void ReceiveRequestDialog::on_btnCopyAddress_clicked()
 
 void ReceiveRequestDialog::on_btnRefreshAddress_clicked()
 {
-    if(!model || !model->getAddressTableModel() || !model->getRecentRequestsTableModel())
-        return;
-
-    /* Generate new receiving address */
-    OutputType address_type = model->wallet().getDefaultAddressType();
-    info.address = model->getAddressTableModel()->addRow(AddressTableModel::Receive, info.label, "", address_type);
-
-    /* Store request for later reference */
-    model->getRecentRequestsTableModel()->addNewRequest(info);
-
-    update();
+    // Refresh address
+    if(refreshAddress())
+        update();
 }
 
 void ReceiveRequestDialog::on_btnRequestPayment_clicked()
@@ -281,14 +317,21 @@ void ReceiveRequestDialog::on_btnClear_clicked()
 
 void ReceiveRequestDialog::clear()
 {
-    setWindowTitle(tr("Request payment to %1").arg(""));
-    info = SendCoinsRecipient();
+    if(getDefaultAddress())
+    {
+        update();
+    }
+    else
+    {
+        setWindowTitle(tr("Request payment to %1").arg(""));
+        info = SendCoinsRecipient();
 #ifdef USE_QRCODE
-    ui->lblQRCode->clear();
+        ui->lblQRCode->clear();
 #endif
-    ui->labelURI->clear();
-    ui->labelAddress->clear();
-    ui->widgetPaymentInformation->setEnabled(false);
+        ui->labelURI->clear();
+        ui->labelAddress->clear();
+        ui->widgetPaymentInformation->setEnabled(false);
+    }
 }
 
 void ReceiveRequestDialog::reject()

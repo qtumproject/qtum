@@ -73,6 +73,10 @@ private Q_SLOTS:
     void update();
 
 private:
+    bool refreshAddress();
+    bool getDefaultAddress();
+
+private:
     Ui::ReceiveRequestDialog *ui;
     WalletModel *model;
     SendCoinsRecipient info;
