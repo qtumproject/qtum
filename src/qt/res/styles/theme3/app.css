@@ -1021,7 +1021,7 @@ Overview Page Widget CSS
 #widgetWallet #widgetTotal QLabel,
 #widgetWatch #widgetWatchTotal QLabel{
     color: #000000;
-    font: 17pt;
+    font: 23pt;
 }
 #widgetPending #vLine,
 #widgetImmature #vLine_2,

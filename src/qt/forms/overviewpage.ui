@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>583</width>
-    <height>435</height>
+    <width>738</width>
+    <height>446</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -178,7 +178,7 @@
              <widget class="QLabel" name="labelSpendable">
               <property name="font">
                <font>
-                <pointsize>17</pointsize>
+                <pointsize>23</pointsize>
                </font>
               </property>
               <property name="text">
@@ -193,7 +193,7 @@
              <widget class="QLabel" name="labelTotal">
               <property name="font">
                <font>
-                <pointsize>17</pointsize>
+                <pointsize>23</pointsize>
                </font>
               </property>
               <property name="cursor">
@@ -273,11 +273,6 @@
               </property>
               <item>
                <widget class="QLabel" name="labelBalanceText">
-                <property name="font">
-                 <font>
-                  <pointsize>9</pointsize>
-                 </font>
-                </property>
                 <property name="text">
                  <string>Available:</string>
                 </property>
@@ -288,11 +283,6 @@
               </item>
               <item>
                <widget class="QLabel" name="labelBalance">
-                <property name="font">
-                 <font>
-                  <pointsize>9</pointsize>
-                 </font>
-                </property>
                 <property name="cursor">
                  <cursorShape>IBeamCursor</cursorShape>
                 </property>
@@ -333,7 +323,7 @@
                 <property name="maximumSize">
                  <size>
                   <width>1</width>
-                  <height>10</height>
+                  <height>12</height>
                  </size>
                 </property>
                 <property name="orientation">
@@ -343,11 +333,6 @@
               </item>
               <item>
                <widget class="QLabel" name="labelPendingText">
-                <property name="font">
-                 <font>
-                  <pointsize>9</pointsize>
-                 </font>
-                </property>
                 <property name="text">
                  <string>Pending:</string>
                 </property>
@@ -358,11 +343,6 @@
               </item>
               <item>
                <widget class="QLabel" name="labelUnconfirmed">
-                <property name="font">
-                 <font>
-                  <pointsize>9</pointsize>
-                 </font>
-                </property>
                 <property name="cursor">
                  <cursorShape>IBeamCursor</cursorShape>
                 </property>
@@ -403,7 +383,7 @@
                 <property name="maximumSize">
                  <size>
                   <width>1</width>
-                  <height>10</height>
+                  <height>12</height>
                  </size>
                 </property>
                 <property name="orientation">
@@ -413,11 +393,6 @@
               </item>
               <item>
                <widget class="QLabel" name="labelImmatureText">
-                <property name="font">
-                 <font>
-                  <pointsize>9</pointsize>
-                 </font>
-                </property>
                 <property name="text">
                  <string>Immature:</string>
                 </property>
@@ -428,11 +403,6 @@
               </item>
               <item>
                <widget class="QLabel" name="labelImmature">
-                <property name="font">
-                 <font>
-                  <pointsize>9</pointsize>
-                 </font>
-                </property>
                 <property name="cursor">
                  <cursorShape>IBeamCursor</cursorShape>
                 </property>
@@ -473,7 +443,7 @@
                 <property name="maximumSize">
                  <size>
                   <width>1</width>
-                  <height>10</height>
+                  <height>12</height>
                  </size>
                 </property>
                 <property name="orientation">
@@ -483,11 +453,6 @@
               </item>
               <item>
                <widget class="QLabel" name="labelStakeText">
-                <property name="font">
-                 <font>
-                  <pointsize>9</pointsize>
-                 </font>
-                </property>
                 <property name="text">
                  <string>Stake:</string>
                 </property>
@@ -498,11 +463,6 @@
               </item>
               <item>
                <widget class="QLabel" name="labelStake">
-                <property name="font">
-                 <font>
-                  <pointsize>9</pointsize>
-                 </font>
-                </property>
                 <property name="text">
                  <string>0.000 000 00</string>
                 </property>
@@ -579,7 +539,7 @@
              <widget class="QLabel" name="labelWatchonly">
               <property name="font">
                <font>
-                <pointsize>17</pointsize>
+                <pointsize>23</pointsize>
                </font>
               </property>
               <property name="text">
@@ -594,7 +554,7 @@
              <widget class="QLabel" name="labelWatchTotal">
               <property name="font">
                <font>
-                <pointsize>17</pointsize>
+                <pointsize>23</pointsize>
                </font>
               </property>
               <property name="cursor">
@@ -668,11 +628,6 @@
               </property>
               <item>
                <widget class="QLabel" name="labelWatchAvailableText">
-                <property name="font">
-                 <font>
-                  <pointsize>9</pointsize>
-                 </font>
-                </property>
                 <property name="text">
                  <string>Available:</string>
                 </property>
@@ -683,11 +638,6 @@
               </item>
               <item>
                <widget class="QLabel" name="labelWatchAvailable">
-                <property name="font">
-                 <font>
-                  <pointsize>9</pointsize>
-                 </font>
-                </property>
                 <property name="cursor">
                  <cursorShape>IBeamCursor</cursorShape>
                 </property>
@@ -728,7 +678,7 @@
                 <property name="maximumSize">
                  <size>
                   <width>1</width>
-                  <height>10</height>
+                  <height>12</height>
                  </size>
                 </property>
                 <property name="orientation">
@@ -738,11 +688,6 @@
               </item>
               <item>
                <widget class="QLabel" name="labelWatchPendingText">
-                <property name="font">
-                 <font>
-                  <pointsize>9</pointsize>
-                 </font>
-                </property>
                 <property name="text">
                  <string>Pending:</string>
                 </property>
@@ -753,11 +698,6 @@
               </item>
               <item>
                <widget class="QLabel" name="labelWatchPending">
-                <property name="font">
-                 <font>
-                  <pointsize>9</pointsize>
-                 </font>
-                </property>
                 <property name="cursor">
                  <cursorShape>IBeamCursor</cursorShape>
                 </property>
@@ -798,7 +738,7 @@
                 <property name="maximumSize">
                  <size>
                   <width>1</width>
-                  <height>10</height>
+                  <height>12</height>
                  </size>
                 </property>
                 <property name="orientation">
@@ -808,11 +748,6 @@
               </item>
               <item>
                <widget class="QLabel" name="labelWatchImmatureText">
-                <property name="font">
-                 <font>
-                  <pointsize>9</pointsize>
-                 </font>
-                </property>
                 <property name="text">
                  <string>Immature:</string>
                 </property>
@@ -823,11 +758,6 @@
               </item>
               <item>
                <widget class="QLabel" name="labelWatchImmature">
-                <property name="font">
-                 <font>
-                  <pointsize>9</pointsize>
-                 </font>
-                </property>
                 <property name="cursor">
                  <cursorShape>IBeamCursor</cursorShape>
                 </property>
@@ -868,7 +798,7 @@
                 <property name="maximumSize">
                  <size>
                   <width>1</width>
-                  <height>10</height>
+                  <height>12</height>
                  </size>
                 </property>
                 <property name="orientation">
@@ -878,11 +808,6 @@
               </item>
               <item>
                <widget class="QLabel" name="labelWatchStakeText">
-                <property name="font">
-                 <font>
-                  <pointsize>9</pointsize>
-                 </font>
-                </property>
                 <property name="text">
                  <string>Stake:</string>
                 </property>
@@ -893,11 +818,6 @@
               </item>
               <item>
                <widget class="QLabel" name="labelWatchStake">
-                <property name="font">
-                 <font>
-                  <pointsize>9</pointsize>
-                 </font>
-                </property>
                 <property name="text">
                  <string>0.000 000 00</string>
                 </property>
@@ -996,7 +916,7 @@
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>15</height>
+       <height>12</height>
       </size>
      </property>
     </spacer>
