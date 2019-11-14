@@ -128,6 +128,7 @@ void WalletView::setBitcoinGUI(BitcoinGUI *gui)
 
         // Pass through encryption status changed signals
         connect(this, &WalletView::encryptionStatusChanged, gui, &BitcoinGUI::updateWalletStatus);
+        connect(this, &WalletView::encryptionStatusChanged, stakePage, &StakePage::updateEncryptionStatus);
 
         // Pass through transaction notifications
         connect(this, &WalletView::incomingTransaction, gui, &BitcoinGUI::incomingTransaction);
@@ -192,6 +193,7 @@ void WalletView::setWalletModel(WalletModel *_walletModel)
 
         // Ask for passphrase if needed
         connect(_walletModel, SIGNAL(requireUnlock()), this, SLOT(unlockWallet()));
+        connect(stakePage, SIGNAL(requireUnlock(bool)), this, SLOT(unlockWallet(bool)));
 
         // Show progress dialog
         connect(_walletModel, &WalletModel::showProgress, this, &WalletView::showProgress);
@@ -409,6 +411,9 @@ void WalletView::unlockWallet(bool fromMenu)
         AskPassphraseDialog dlg(mode, this);
         dlg.setModel(walletModel);
         dlg.exec();
+
+        if(sender() == stakePage)
+            stakePage->updateEncryptionStatus();
     }
 }
 

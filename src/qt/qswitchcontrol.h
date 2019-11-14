@@ -14,8 +14,6 @@ public:
 
 public Q_SLOTS:
     void setChecked(bool);
-
-private Q_SLOTS:
     void onStatusChanged();
 
 Q_SIGNALS:

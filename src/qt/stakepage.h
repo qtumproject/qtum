@@ -35,6 +35,10 @@ public:
 public Q_SLOTS:
     void setBalance(const interfaces::WalletBalances& balances);
     void numBlocksChanged(int count, const QDateTime& blockDate, double nVerificationProgress, bool headers);
+    void updateEncryptionStatus();
+
+Q_SIGNALS:
+    void requireUnlock(bool fromMenu);
 
 
 private:

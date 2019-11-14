@@ -94,7 +94,13 @@ void StakePage::setBalance(const interfaces::WalletBalances& balances)
 
 void StakePage::on_checkStake_clicked(bool checked)
 {
+    if(!walletModel)
+        return;
+
     this->walletModel->wallet().setEnabledStaking(checked);
+
+    if(checked && WalletModel::Locked == walletModel->getEncryptionStatus())
+        Q_EMIT requireUnlock(true);
 }
 
 void StakePage::updateDisplayUnit()
@@ -149,4 +155,19 @@ void StakePage::updateAnnualROI()
         annualROI =(double) walletReward / totalAmount * 100;
     }
     ui->labelROI->setText(QString::number(annualROI, 'f', 1) + "%");
+}
+
+void StakePage::updateEncryptionStatus()
+{
+    if(!walletModel)
+        return;
+
+    int status = walletModel->getEncryptionStatus();
+    switch(status)
+    {
+    case WalletModel::Locked:
+        bool checked = ui->checkStake->isChecked();
+        if(checked) ui->checkStake->onStatusChanged();
+        break;
+    }
 }
