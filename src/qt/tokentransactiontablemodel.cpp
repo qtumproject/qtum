@@ -385,10 +385,10 @@ QVariant TokenTransactionTableModel::txAddressDecoration(const TokenTransactionR
     {
     case TokenTransactionRecord::RecvWithAddress:
     case TokenTransactionRecord::RecvFromOther:
-        return platformStyle->TableColorIcon(":/icons/tx_input", PlatformStyle::Input);
+        return platformStyle->TableColorIcon(":/icons/receive_from", PlatformStyle::Input);
     case TokenTransactionRecord::SendToAddress:
     case TokenTransactionRecord::SendToOther:
-        return platformStyle->TableColorIcon(":/icons/tx_output", PlatformStyle::Output);
+        return platformStyle->TableColorIcon(":/icons/send_to", PlatformStyle::Output);
     default:
         return platformStyle->TableColorIcon(":/icons/tx_inout", PlatformStyle::Inout);
     }
