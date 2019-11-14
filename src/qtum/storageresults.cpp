@@ -3,6 +3,7 @@
 
 StorageResults::StorageResults(std::string const& _path){
 	path = _path + "/resultsDB";
+    leveldb::Options options;
     options.create_if_missing = true;
     leveldb::Status status = leveldb::DB::Open(options, path, &db);
     assert(status.ok());
@@ -25,7 +26,17 @@ void StorageResults::clearCacheResult(){
 
 void StorageResults::wipeResults(){
     LogPrintf("Wiping LevelDB in %s\n", path);
+    bool opened = db;
+    if (opened) {
+        delete db;
+    }
     leveldb::Status result = leveldb::DestroyDB(path, leveldb::Options());
+    if (opened) {
+        leveldb::Options options;
+        options.create_if_missing = true;
+        leveldb::Status status = leveldb::DB::Open(options, path, &db);
+        assert(status.ok());
+    }
 }
 
 void StorageResults::deleteResults(std::vector<CTransactionRef> const& txs){

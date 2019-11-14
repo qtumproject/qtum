@@ -70,7 +70,5 @@ private:
 
     leveldb::DB* db;
 
-    leveldb::Options options;
-
 	std::unordered_map<dev::h256, std::vector<TransactionReceiptInfo>> m_cache_result;
 };
