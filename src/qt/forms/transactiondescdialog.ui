@@ -37,11 +37,17 @@
     </widget>
    </item>
    <item>
-    <widget class="QTextEdit" name="detailText">
+    <widget class="QTextBrowser" name="detailText">
      <property name="toolTip">
       <string>This pane shows a detailed description of the transaction</string>
      </property>
      <property name="readOnly">
+      <bool>true</bool>
+     </property>
+     <property name="textInteractionFlags">
+      <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+     </property>
+     <property name="openExternalLinks">
       <bool>true</bool>
      </property>
     </widget>

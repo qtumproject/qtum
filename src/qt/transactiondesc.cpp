@@ -24,6 +24,8 @@
 #include <wallet/db.h>
 #include <wallet/wallet.h>
 #include <policy/policy.h>
+#include <consensus/params.h>
+#include <qt/guiconstants.h>
 
 #include <stdint.h>
 #include <string>
@@ -36,6 +38,7 @@ public:
         itemNameColor = GetStringStyleValue("transactiondesc/item-name-color", "#ffffff");
         itemColor = GetStringStyleValue("transactiondesc/item-color", "#ffffff");
         itemFontBold = GetIntStyleValue("transactiondesc/item-font-bold", true);
+        network = Params().NetworkIDString();
     }
 
     static const TransactionFormater& instance()
@@ -69,10 +72,21 @@ public:
         return ret;
     }
 
+    static QString TxIdLink(const QString& txHash)
+    {
+        if(instance().network == "main")
+        {
+            return QTUM_INFO_MAINNET.arg("tx", txHash);
+        }
+
+        return txHash;
+    }
+
 private:
     QString itemNameColor;
     QString itemColor;
     bool itemFontBold;
+    std::string network;
 };
 
 QString TransactionDesc::FormatTxStatus(const interfaces::WalletTx& wtx, const interfaces::WalletTxStatus& status, bool inMempool, int numBlocks)
@@ -124,7 +138,7 @@ QString TransactionDesc::toHTML(interfaces::Node& node, interfaces::Wallet& wall
     //
     // From
     //
-    if (wtx.is_coinbase)
+    if (wtx.is_coinbase || wtx.is_coinstake)
     {
         strHTML += TransactionFormater::ItemNameColor(tr("Source")) + tr("Generated") + "<br>";
     }
@@ -298,7 +312,7 @@ QString TransactionDesc::toHTML(interfaces::Node& node, interfaces::Wallet& wall
     if (wtx.value_map.count("comment") && !wtx.value_map["comment"].empty())
         strHTML += "<br>" + TransactionFormater::ItemNameColor(tr("Comment"), false) + "<br>" + GUIUtil::HtmlEscape(wtx.value_map["comment"], true) + "<br>";
 
-    strHTML += TransactionFormater::ItemNameColor(tr("Transaction ID")) + rec->getTxHash() + "<br>";
+    strHTML += TransactionFormater::ItemNameColor(tr("Transaction ID")) + TransactionFormater::TxIdLink(rec->getTxHash()) + "<br>";
     strHTML += TransactionFormater::ItemNameColor(tr("Transaction total size")) + QString::number(wtx.tx->GetTotalSize()) + " bytes<br>";
     strHTML += TransactionFormater::ItemNameColor(tr("Transaction virtual size")) + QString::number(GetVirtualTransactionSize(*wtx.tx)) + " bytes<br>";
     strHTML += TransactionFormater::ItemNameColor(tr("Output index")) + QString::number(rec->getOutputIndex()) + "<br>";

@@ -8,6 +8,8 @@
 #include <wallet/wallet.h>
 #include <timedata.h>
 #include <interfaces/wallet.h>
+#include <consensus/params.h>
+#include <qt/guiconstants.h>
 
 class TokenTransactionFormater
 {
@@ -17,6 +19,7 @@ public:
         itemNameColor = GetStringStyleValue("tokentransactiondesc/item-name-color", "#ffffff");
         itemColor = GetStringStyleValue("tokentransactiondesc/item-color", "#ffffff");
         itemFontBold = GetIntStyleValue("tokentransactiondesc/item-font-bold", true);
+        network = Params().NetworkIDString();
     }
 
     static const TokenTransactionFormater& instance()
@@ -50,10 +53,21 @@ public:
         return ret;
     }
 
+    static QString TxIdLink(const QString& txHash)
+    {
+        if(instance().network == "main")
+        {
+            return QTUM_INFO_MAINNET.arg("tx", txHash);
+        }
+
+        return txHash;
+    }
+
 private:
     QString itemNameColor;
     QString itemColor;
     bool itemFontBold;
+    std::string network;
 };
 
 QString TokenTransactionDesc::FormatTxStatus(interfaces::Wallet &wallet, const interfaces::TokenTx &wtx)
@@ -109,7 +123,7 @@ QString TokenTransactionDesc::toHTML(interfaces::Wallet &wallet, interfaces::Tok
 
     strHTML += TokenTransactionFormater::ItemNameColor(tr("Date")) + (nTime ? GUIUtil::dateTimeStr(nTime) : "") + "<br>";
 
-    strHTML += TokenTransactionFormater::ItemNameColor(tr("Transaction ID")) + rec->getTxID() + "<br>";
+    strHTML += TokenTransactionFormater::ItemNameColor(tr("Transaction ID")) + TokenTransactionFormater::TxIdLink(rec->getTxID()) + "<br>";
 
     strHTML += TokenTransactionFormater::ItemNameColor(tr("Token Address")) + QString::fromStdString(wtx.contract_address) + "<br>";
 
