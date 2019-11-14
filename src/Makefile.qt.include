@@ -527,6 +527,18 @@ RES_IMAGES =
 
 RES_MOVIES = $(wildcard $(srcdir)/qt/res/movies/spinner-*.png)
 
+RES_TOKENS = qt/res/tokens/6b8bf98ff497c064e8f0bde13e0c4f5ed5bf8ce7.png \
+qt/res/tokens/9d3d4cc1986d81f9109f2b091b7732e7d9bcf63b.png \
+qt/res/tokens/57931faffdec114056a49adfcaa1caac159a1a25.png \
+qt/res/tokens/09800417b097c61b9fd26b3ddde4238304a110d5.png \
+qt/res/tokens/49665919e437a4bedb92faa45ed33ebb5a33ee63.png \
+qt/res/tokens/b6c48b3a7c888713dd96eed92a4ee0397dd64e71.png \
+qt/res/tokens/b27d7bf95b03e02b55d5eb63d3f1692762101bf9.png \
+qt/res/tokens/d8dec2b605005749abbf4b060edad3070e23cf5c.png \
+qt/res/tokens/f2033ede578e17fa6231047265010445bca8cf1c.png \
+qt/res/tokens/f2703e93f87b846a7aacec1247beaec1c583daa4.png \
+qt/res/tokens/fe59cbc1704e89a698571413a81f0de9d8f00c69.png
+
 RES_STYLES = qt/res/styles/theme1/buttontransparentbordered.css \
 qt/res/styles/theme1/buttondark.css \
 qt/res/styles/theme1/navgroupbutton.css \
@@ -638,7 +650,7 @@ qt_libbitcoinqt_a_CXXFLAGS = $(AM_CXXFLAGS) $(QT_PIE_FLAGS)
 qt_libbitcoinqt_a_OBJCXXFLAGS = $(AM_OBJCXXFLAGS) $(QT_PIE_FLAGS)
 
 qt_libbitcoinqt_a_SOURCES = $(BITCOIN_QT_CPP) $(BITCOIN_QT_H) $(QT_FORMS_UI) \
-  $(QT_QRC) $(QT_QRC_LOCALE) $(QT_TS) $(PROTOBUF_PROTO) $(RES_ICONS) $(RES_IMAGES) $(RES_MOVIES) $(RES_STYLES)
+  $(QT_QRC) $(QT_QRC_LOCALE) $(QT_TS) $(PROTOBUF_PROTO) $(RES_ICONS) $(RES_IMAGES) $(RES_MOVIES) $(RES_TOKENS) $(RES_STYLES)
 if TARGET_DARWIN
   qt_libbitcoinqt_a_SOURCES += $(BITCOIN_MM)
 endif
@@ -710,7 +722,7 @@ $(QT_QRC_LOCALE_CPP): $(QT_QRC_LOCALE) $(QT_QM)
 	  $(SED) -e '/^\*\*.*Created:/d' -e '/^\*\*.*by:/d' > $@
 	@rm $(@D)/temp_$(<F)
 
-$(QT_QRC_CPP): $(QT_QRC) $(QT_FORMS_H) $(RES_ICONS) $(RES_IMAGES) $(RES_MOVIES) $(RES_STYLES) $(PROTOBUF_H)
+$(QT_QRC_CPP): $(QT_QRC) $(QT_FORMS_H) $(RES_ICONS) $(RES_IMAGES) $(RES_MOVIES) $(RES_TOKENS) $(RES_STYLES) $(PROTOBUF_H)
 	@test -f $(RCC)
 	$(AM_V_GEN) QT_SELECT=$(QT_SELECT) $(RCC) -name bitcoin $< | \
 	  $(SED) -e '/^\*\*.*Created:/d' -e '/^\*\*.*by:/d' > $@

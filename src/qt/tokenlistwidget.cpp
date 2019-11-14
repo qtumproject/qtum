@@ -14,6 +14,8 @@
 
 #include <QObject>
 
+static const QString TOKEN_ICON_FORMAT = ":/tokens/%1";
+
 TokenListWidget::TokenListWidget(const PlatformStyle *platformStyle, QWidget *parent) :
     QWidget(parent),
     m_mainLayout(new QVBoxLayout(this))
@@ -131,10 +133,12 @@ void TokenListWidget::updateRow(const QModelIndex &index, int position)
         std::string sender = m_tokenModel->data(index, TokenItemModel::SenderRole).toString().toStdString();
         int8_t decimals = m_tokenModel->data(index, TokenItemModel::DecimalsRole).toInt();
         std::string balance = m_tokenModel->data(index, TokenItemModel::RawBalanceRole).toString().toStdString();
+        std::string address = m_tokenModel->data(index, TokenItemModel::AddressRole).toString().toStdString();
+        QString tokenIconPath = TOKEN_ICON_FORMAT.arg(QString::fromStdString(address));
         int256_t totalSupply(balance);
         TokenItemWidget* item = m_rows[position];
         item->setPosition(position);
-        item->setData(QString::fromStdString(name), BitcoinUnits::formatTokenWithUnit(QString::fromStdString(symbol), decimals, totalSupply, false, BitcoinUnits::separatorAlways), QString::fromStdString(sender));
+        item->setData(QString::fromStdString(name), BitcoinUnits::formatTokenWithUnit(QString::fromStdString(symbol), decimals, totalSupply, false, BitcoinUnits::separatorAlways), QString::fromStdString(sender), tokenIconPath);
 
     }
 }

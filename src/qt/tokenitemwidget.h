@@ -29,7 +29,7 @@ public:
     explicit TokenItemWidget(const PlatformStyle *platformStyle, QWidget *parent = 0, ItemType type = Record);
     ~TokenItemWidget();
 
-    void setData(const QString& tokenName, const QString& tokenBalance, const QString& senderAddress, const QString& filename = 0);
+    void setData(const QString& tokenName, const QString& tokenBalance, const QString& senderAddress, const QString& filename);
 
     void setPosition(int position);
 
@@ -46,10 +46,14 @@ private Q_SLOTS:
     void on_buttonReceive_clicked();
 
 private:
+    void updateLogo();
+
+private:
     Ui::TokenItemWidget *ui;
     const PlatformStyle *m_platfromStyle;
     ItemType m_type;
     int m_position;
+    QString m_filename;
 };
 
 #endif // TOKENITEMWIDGET_H

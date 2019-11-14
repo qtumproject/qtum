@@ -113,6 +113,19 @@
         <file alias="spinner-034">res/movies/spinner-034.png</file>
         <file alias="spinner-035">res/movies/spinner-035.png</file>
     </qresource>
+    <qresource prefix="/tokens">
+        <file alias="6b8bf98ff497c064e8f0bde13e0c4f5ed5bf8ce7">res/tokens/6b8bf98ff497c064e8f0bde13e0c4f5ed5bf8ce7.png</file>
+        <file alias="9d3d4cc1986d81f9109f2b091b7732e7d9bcf63b">res/tokens/9d3d4cc1986d81f9109f2b091b7732e7d9bcf63b.png</file>
+        <file alias="57931faffdec114056a49adfcaa1caac159a1a25">res/tokens/57931faffdec114056a49adfcaa1caac159a1a25.png</file>
+        <file alias="09800417b097c61b9fd26b3ddde4238304a110d5">res/tokens/09800417b097c61b9fd26b3ddde4238304a110d5.png</file>
+        <file alias="49665919e437a4bedb92faa45ed33ebb5a33ee63">res/tokens/49665919e437a4bedb92faa45ed33ebb5a33ee63.png</file>
+        <file alias="b6c48b3a7c888713dd96eed92a4ee0397dd64e71">res/tokens/b6c48b3a7c888713dd96eed92a4ee0397dd64e71.png</file>
+        <file alias="b27d7bf95b03e02b55d5eb63d3f1692762101bf9">res/tokens/b27d7bf95b03e02b55d5eb63d3f1692762101bf9.png</file>
+        <file alias="d8dec2b605005749abbf4b060edad3070e23cf5c">res/tokens/d8dec2b605005749abbf4b060edad3070e23cf5c.png</file>
+        <file alias="f2033ede578e17fa6231047265010445bca8cf1c">res/tokens/f2033ede578e17fa6231047265010445bca8cf1c.png</file>
+        <file alias="f2703e93f87b846a7aacec1247beaec1c583daa4">res/tokens/f2703e93f87b846a7aacec1247beaec1c583daa4.png</file>
+        <file alias="fe59cbc1704e89a698571413a81f0de9d8f00c69">res/tokens/fe59cbc1704e89a698571413a81f0de9d8f00c69.png</file>
+    </qresource>
     <qresource prefix="/styles/theme1">
         <file alias="app">res/styles/theme1/app.css</file>
         <file alias="invalid">res/styles/theme1/invalid.css</file>

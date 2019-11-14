@@ -6,6 +6,8 @@
 #include <qt/platformstyle.h>
 #include <qt/forms/ui_tokenitemwidget.h>
 
+#include <QFile>
+
 #define TOKEN_ITEM_ICONSIZE 24
 TokenItemWidget::TokenItemWidget(const PlatformStyle *platformStyle, QWidget *parent, ItemType type) :
     QWidget(parent),
@@ -36,6 +38,11 @@ void TokenItemWidget::setData(const QString &tokenName, const QString &tokenBala
         ui->tokenBalance->setText(tokenBalance);
     if(senderAddress != ui->senderAddress->text())
         ui->senderAddress->setText(senderAddress);
+    if(m_filename != filename)
+    {
+        m_filename = filename;
+        updateLogo();
+    }
 }
 
 void TokenItemWidget::setPosition(int position)
@@ -61,4 +68,19 @@ void TokenItemWidget::on_buttonReceive_clicked()
 int TokenItemWidget::position() const
 {
     return m_position;
+}
+
+void TokenItemWidget::updateLogo()
+{
+    QPixmap pixmap;
+    if(QFile::exists(m_filename))
+    {
+        QIcon icon(m_filename);
+        pixmap = icon.pixmap(ui->tokenLogo->width(), ui->tokenLogo->height());
+    }
+    else
+    {
+        pixmap = m_platfromStyle->MultiStatesIcon(":/icons/token").pixmap(TOKEN_ITEM_ICONSIZE, TOKEN_ITEM_ICONSIZE);
+    }
+    ui->tokenLogo->setPixmap(pixmap);
 }
