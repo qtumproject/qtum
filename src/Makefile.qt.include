@@ -628,6 +628,8 @@ qt/res/styles/theme2/app-icons/slider_switcher_hover.png \
 qt/res/styles/theme2/app-icons/cb_up_down_arrow.png \
 qt/res/styles/theme2/app-icons/right_arrow.png \
 qt/res/styles/theme2/app-icons/down_arrow_unit.png \
+qt/res/styles/theme2/app-icons/splash_bg.png \
+qt/res/styles/theme2/app-icons/bg.png \
 qt/res/styles/theme3/app.css \
 qt/res/styles/theme3/config.ini \
 qt/res/styles/theme3/buttontransparent.css \
@@ -638,7 +640,9 @@ qt/res/styles/theme3/navbutton.css \
 qt/res/styles/theme3/navsubgroupbutton.css \
 qt/res/styles/theme3/tableviewlight.css \
 qt/res/styles/theme3/invalid.css \
-qt/res/styles/theme3/app-icons/down_arrow_unit.png
+qt/res/styles/theme3/app-icons/down_arrow_unit.png \
+qt/res/styles/theme3/app-icons/splash_bg.png \
+qt/res/styles/theme3/app-icons/bg.png
 
 BITCOIN_RC = qt/res/bitcoin-qt-res.rc
 

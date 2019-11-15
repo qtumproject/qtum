@@ -3,7 +3,7 @@ Tool Button Black CSS
 --------------------------------------------*/
 QToolButton {
     color: #ffffff;
-    background: #4f9fde;
+    background: transparent;
     border: 0px solid transparent;
     border-radius: 0px;
     padding: 10px 20px 10px 10px;

@@ -223,6 +223,8 @@
         <file alias="cb_up_down_arrow">res/styles/theme2/app-icons/cb_up_down_arrow.png</file>
         <file alias="right_arrow">res/styles/theme2/app-icons/right_arrow.png</file>
         <file alias="down_arrow_unit">res/styles/theme2/app-icons/down_arrow_unit.png</file>
+        <file alias="bg">res/styles/theme2/app-icons/bg.png</file>
+        <file alias="splash_bg">res/styles/theme2/app-icons/splash_bg.png</file>
     </qresource>
     <qresource prefix="/styles/theme3">
         <file alias="app">res/styles/theme3/app.css</file>
@@ -238,5 +240,7 @@
     </qresource>
     <qresource prefix="/styles/theme3/app-icons">
         <file alias="down_arrow_unit">res/styles/theme3/app-icons/down_arrow_unit.png</file>
+        <file alias="bg">res/styles/theme3/app-icons/bg.png</file>
+        <file alias="splash_bg">res/styles/theme3/app-icons/splash_bg.png</file>
     </qresource>
 </RCC>
