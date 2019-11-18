@@ -50,6 +50,7 @@ private:
     interfaces::WalletBalances m_balances;
     int64_t m_subsidy;
     uint64_t m_networkWeight;
+    double m_expectedAnnualROI;
 
 private Q_SLOTS:
     void updateDisplayUnit();

@@ -291,7 +291,13 @@ public:
     }
     uint64_t getNetworkStakeWeight() override
     {
+        LOCK(::cs_main);
         return GetPoSKernelPS();
+    }
+    double getAdjustedNetworkWeight() override
+    {
+        LOCK(::cs_main);
+        return GetAdjustedNetworkWeight();
     }
     int64_t getMoneySupply() override
     {

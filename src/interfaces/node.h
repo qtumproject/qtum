@@ -210,6 +210,9 @@ public:
     //! Get the network stake weight
     virtual uint64_t getNetworkStakeWeight() = 0;
 
+    //! Get the adjusted network weight
+    virtual double getAdjustedNetworkWeight() = 0;
+
     //! Get the money supply
     virtual int64_t getMoneySupply() = 0;
 

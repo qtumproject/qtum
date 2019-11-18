@@ -31,7 +31,8 @@ StakePage::StakePage(const PlatformStyle *_platformStyle, QWidget *parent) :
     platformStyle(_platformStyle),
     transactionView(0),
     m_subsidy(0),
-    m_networkWeight(0)
+    m_networkWeight(0),
+    m_expectedAnnualROI(0)
 {
     ui->setupUi(this);
     ui->checkStake->setEnabled(gArgs.GetBoolArg("-staking", DEFAULT_STAKE));
@@ -54,7 +55,9 @@ void StakePage::setClientModel(ClientModel *_clientModel)
         ui->labelHeight->setText(QString::number(height));
         m_subsidy = _clientModel->node().getBlockSubsidy(height);
         m_networkWeight = _clientModel->node().getNetworkStakeWeight();
+        m_expectedAnnualROI = _clientModel->node().getAdjustedNetworkWeight();
         updateNetworkWeight();
+        updateAnnualROI();
     }
 }
 
@@ -86,7 +89,6 @@ void StakePage::setBalance(const interfaces::WalletBalances& balances)
     m_balances = balances;
     ui->labelAssets->setText(BitcoinUnits::formatWithUnit(unit, balances.balance, false, BitcoinUnits::separatorAlways));
     ui->labelStake->setText(BitcoinUnits::formatWithUnit(unit, balances.stake, false, BitcoinUnits::separatorAlways));
-    updateAnnualROI();
 }
 
 void StakePage::on_checkStake_clicked(bool checked)
@@ -118,6 +120,7 @@ void StakePage::numBlocksChanged(int count, const QDateTime &, double, bool head
         ui->labelHeight->setText(BitcoinUnits::formatInt(count));
         m_subsidy = clientModel->node().getBlockSubsidy(count);
         m_networkWeight = clientModel->node().getNetworkStakeWeight();
+        m_expectedAnnualROI = clientModel->node().getAdjustedNetworkWeight();
         updateSubsidy();
         updateNetworkWeight();
         updateAnnualROI();
@@ -138,8 +141,7 @@ void StakePage::updateNetworkWeight()
 
 void StakePage::updateAnnualROI()
 {
-    double annualROI = 0;
-    ui->labelROI->setText(QString::number(annualROI, 'f', 2) + "%");
+    ui->labelROI->setText(QString::number(m_expectedAnnualROI, 'f', 2) + "%");
 }
 
 void StakePage::updateEncryptionStatus()
