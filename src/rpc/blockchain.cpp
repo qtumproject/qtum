@@ -1286,6 +1286,7 @@ void assignJSON(UniValue& entry, const TransactionReceiptInfo& resExec) {
     entry.pushKV("blockNumber", uint64_t(resExec.blockNumber));
     entry.pushKV("transactionHash", resExec.transactionHash.GetHex());
     entry.pushKV("transactionIndex", uint64_t(resExec.transactionIndex));
+    entry.pushKV("outputIndex", uint64_t(resExec.outputIndex));
     entry.pushKV("from", resExec.from.hex());
     entry.pushKV("to", resExec.to.hex());
     entry.pushKV("cumulativeGasUsed", CAmount(resExec.cumulativeGasUsed));
