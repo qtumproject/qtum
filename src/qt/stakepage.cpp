@@ -15,6 +15,7 @@
 #include <qt/transactiondescdialog.h>
 #include <qt/styleSheet.h>
 #include <qt/transactionview.h>
+#include <amount.h>
 
 #include <miner.h>
 
@@ -118,7 +119,7 @@ void StakePage::numBlocksChanged(int count, const QDateTime &, double, bool head
 {
     if(!headers && clientModel && walletModel)
     {
-        ui->labelHeight->setText(QString::number(count));
+        ui->labelHeight->setText(BitcoinUnits::formatInt(count));
         m_subsidy = clientModel->node().getBlockSubsidy(count);
         m_networkWeight = clientModel->node().getNetworkStakeWeight();
         m_moneySupply = clientModel->node().getMoneySupply();
@@ -139,7 +140,7 @@ void StakePage::updateSubsidy()
 
 void StakePage::updateNetworkWeight()
 {
-    ui->labelWeight->setText(QString::number(m_networkWeight));
+    ui->labelWeight->setText(BitcoinUnits::formatInt(m_networkWeight / COIN));
 }
 
 void StakePage::updateAnnualROI()
