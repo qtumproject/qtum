@@ -31,9 +31,7 @@ StakePage::StakePage(const PlatformStyle *_platformStyle, QWidget *parent) :
     platformStyle(_platformStyle),
     transactionView(0),
     m_subsidy(0),
-    m_moneySupply(0),
-    m_networkWeight(0),
-    m_stakeWeight(0)
+    m_networkWeight(0)
 {
     ui->setupUi(this);
     ui->checkStake->setEnabled(gArgs.GetBoolArg("-staking", DEFAULT_STAKE));
@@ -56,7 +54,6 @@ void StakePage::setClientModel(ClientModel *_clientModel)
         ui->labelHeight->setText(QString::number(height));
         m_subsidy = _clientModel->node().getBlockSubsidy(height);
         m_networkWeight = _clientModel->node().getNetworkStakeWeight();
-        m_moneySupply = _clientModel->node().getMoneySupply();
         updateNetworkWeight();
     }
 }
@@ -73,7 +70,6 @@ void StakePage::setWalletModel(WalletModel *model)
         // Keep up to date with wallet
         interfaces::Wallet& wallet = model->wallet();
         interfaces::WalletBalances balances = wallet.getBalances();
-        m_stakeWeight = wallet.getStakeWeight();
         setBalance(balances);
         connect(model, &WalletModel::balanceChanged, this, &StakePage::setBalance);
 
@@ -122,9 +118,6 @@ void StakePage::numBlocksChanged(int count, const QDateTime &, double, bool head
         ui->labelHeight->setText(BitcoinUnits::formatInt(count));
         m_subsidy = clientModel->node().getBlockSubsidy(count);
         m_networkWeight = clientModel->node().getNetworkStakeWeight();
-        m_moneySupply = clientModel->node().getMoneySupply();
-        interfaces::Wallet& wallet = walletModel->wallet();
-        m_stakeWeight = wallet.getStakeWeight();
         updateSubsidy();
         updateNetworkWeight();
         updateAnnualROI();
@@ -146,16 +139,7 @@ void StakePage::updateNetworkWeight()
 void StakePage::updateAnnualROI()
 {
     double annualROI = 0;
-    int64_t totalAmount = m_balances.balance + m_balances.unconfirmed_balance + m_balances.immature_balance + m_balances.stake;
-    if(m_networkWeight > 0 && totalAmount > 0)
-    {
-        double inflation = 0.01; // Target annual inflation of 1%
-        int64_t totalReward = m_moneySupply * inflation;
-        double stakeShare = (double) m_stakeWeight / m_networkWeight;
-        int64_t walletReward =  stakeShare * totalReward;
-        annualROI =(double) walletReward / totalAmount * 100;
-    }
-    ui->labelROI->setText(QString::number(annualROI, 'f', 1) + "%");
+    ui->labelROI->setText(QString::number(annualROI, 'f', 2) + "%");
 }
 
 void StakePage::updateEncryptionStatus()

@@ -49,9 +49,7 @@ private:
     TransactionView* transactionView;
     interfaces::WalletBalances m_balances;
     int64_t m_subsidy;
-    int64_t m_moneySupply;
     uint64_t m_networkWeight;
-    uint64_t m_stakeWeight;
 
 private Q_SLOTS:
     void updateDisplayUnit();
