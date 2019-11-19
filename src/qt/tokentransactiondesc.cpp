@@ -59,6 +59,10 @@ public:
         {
             return QTUM_INFO_MAINNET.arg("tx", txHash);
         }
+        else if(instance().network == "test")
+        {
+            return QTUM_INFO_TESTNET.arg("tx", txHash);
+        }
 
         return txHash;
     }
