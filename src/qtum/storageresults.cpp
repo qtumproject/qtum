@@ -3,6 +3,7 @@
 
 StorageResults::StorageResults(std::string const& _path){
 	path = _path + "/resultsDB";
+    leveldb::Options options;
     options.create_if_missing = true;
     leveldb::Status status = leveldb::DB::Open(options, path, &db);
     assert(status.ok());
@@ -25,7 +26,17 @@ void StorageResults::clearCacheResult(){
 
 void StorageResults::wipeResults(){
     LogPrintf("Wiping LevelDB in %s\n", path);
+    bool opened = db;
+    if (opened) {
+        delete db;
+    }
     leveldb::Status result = leveldb::DestroyDB(path, leveldb::Options());
+    if (opened) {
+        leveldb::Options options;
+        options.create_if_missing = true;
+        leveldb::Status status = leveldb::DB::Open(options, path, &db);
+        assert(status.ok());
+    }
 }
 
 void StorageResults::deleteResults(std::vector<CTransactionRef> const& txs){
@@ -79,11 +90,12 @@ void StorageResults::commitResults(){
                     tris.logs.push_back(logEntriesSerialization(i.second[j].logs));
                     tris.excepted.push_back(uint32_t(static_cast<int>(i.second[j].excepted)));
                     tris.exceptedMessage.push_back(i.second[j].exceptedMessage);
+                    tris.outputIndexes.push_back(i.second[j].outputIndex);
                 }
 
-                dev::RLPStream streamRLP(12);
+                dev::RLPStream streamRLP(13);
                 streamRLP << tris.blockHashes << tris.blockNumbers << tris.transactionHashes << tris.transactionIndexes << tris.senders;
-                streamRLP << tris.receivers << tris.cumulativeGasUsed << tris.gasUsed << tris.contractAddresses << tris.logs << tris.excepted << tris.exceptedMessage;
+                streamRLP << tris.receivers << tris.cumulativeGasUsed << tris.gasUsed << tris.contractAddresses << tris.logs << tris.excepted << tris.exceptedMessage << tris.outputIndexes;
 
                 dev::bytes data = streamRLP.out();
                 std::string stringData(data.begin(), data.end());
@@ -117,18 +129,30 @@ bool StorageResults::readResult(dev::h256 const& _key, std::vector<TransactionRe
         tris.cumulativeGasUsed = state[6].toVector<dev::u256>();
         tris.gasUsed = state[7].toVector<dev::u256>();
         tris.contractAddresses = state[8].toVector<dev::h160>();
-        tris.logs = state[9].toVector<logEntriesSerializ>();
+        tris.logs = state[9].toVector<logEntriesSerialize>();
         if(state.itemCount() >= 11)
             tris.excepted = state[10].toVector<uint32_t>();
         if(state.itemCount() >= 12)
             tris.exceptedMessage = state[11].toVector<std::string>();
+        if(state.itemCount() >= 13)
+            tris.outputIndexes = state[12].toVector<uint32_t>();
 
         for(size_t j = 0; j < tris.blockHashes.size(); j++){
-            TransactionReceiptInfo tri{h256Touint(tris.blockHashes[j]), tris.blockNumbers[j], h256Touint(tris.transactionHashes[j]), tris.transactionIndexes[j], tris.senders[j],
-                                       tris.receivers[j], uint64_t(tris.cumulativeGasUsed[j]), uint64_t(tris.gasUsed[j]), tris.contractAddresses[j], logEntriesDeserialize(tris.logs[j]), 
-                                       state.itemCount() >= 11 ? static_cast<dev::eth::TransactionException>(tris.excepted[j]) : dev::eth::TransactionException::NoInformation,
-                                       state.itemCount() >= 12 ? tris.exceptedMessage[j] : ""
-                                    };
+            TransactionReceiptInfo tri{
+                h256Touint(tris.blockHashes[j]),
+                tris.blockNumbers[j],
+                h256Touint(tris.transactionHashes[j]),
+                tris.transactionIndexes[j],
+                tris.senders[j],
+                tris.receivers[j],
+                uint64_t(tris.cumulativeGasUsed[j]),
+                uint64_t(tris.gasUsed[j]),
+                tris.contractAddresses[j],
+                logEntriesDeserialize(tris.logs[j]), 
+                state.itemCount() >= 11 ? static_cast<dev::eth::TransactionException>(tris.excepted[j]) : dev::eth::TransactionException::NoInformation,
+                state.itemCount() >= 12 ? tris.exceptedMessage[j] : "",
+                state.itemCount() >= 13 ? tris.outputIndexes[j] : 0xffffffff
+            };
             _result.push_back(tri);
         }
 		return true;
@@ -136,15 +160,15 @@ bool StorageResults::readResult(dev::h256 const& _key, std::vector<TransactionRe
 	return false;
 }
 
-logEntriesSerializ StorageResults::logEntriesSerialization(dev::eth::LogEntries const& _logs){
-	logEntriesSerializ result;
+logEntriesSerialize StorageResults::logEntriesSerialization(dev::eth::LogEntries const& _logs){
+	logEntriesSerialize result;
 	for(dev::eth::LogEntry i : _logs){
 		result.push_back(std::make_pair(i.address, std::make_pair(i.topics, i.data)));
 	}
 	return result;
 }
 
-dev::eth::LogEntries StorageResults::logEntriesDeserialize(logEntriesSerializ const& _logs){
+dev::eth::LogEntries StorageResults::logEntriesDeserialize(logEntriesSerialize const& _logs){
 	dev::eth::LogEntries result;
 	for(std::pair<dev::Address, std::pair<dev::h256s, dev::bytes>> i : _logs){
 		result.push_back(dev::eth::LogEntry(i.first, i.second.first, dev::bytes(i.second.second)));
