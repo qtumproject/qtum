@@ -613,6 +613,7 @@ CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniVal
     std::set<CTxDestination> destinations;
     bool has_data{false};
 
+    int i = 0;
     for (const std::string& name_ : outputs.getKeys()) {
         if (name_ == "data") {
             if (has_data) {
@@ -624,8 +625,8 @@ CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniVal
             CTxOut out(0, CScript() << OP_RETURN << data);
             rawTx.vout.push_back(out);
         } else if (name_ == "contract") {
-            // Get the call object
-            UniValue Contract = outputs[name_];
+            // Get the contract object
+            UniValue Contract = outputs[i];
             if(!Contract.isObject())
                 throw JSONRPCError(RPC_INVALID_PARAMETER, std::string("Invalid parameter, need to be object: ")+name_);
 
@@ -636,36 +637,12 @@ CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniVal
             uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(chainActive.Height()));
             CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
 
-            // Get the contract address
-            if(!Contract.exists("contractAddress") || !Contract["contractAddress"].isStr())
-                throw JSONRPCError(RPC_INVALID_PARAMETER, std::string("Invalid parameter, contract address is mandatory."));
-
-            std::string contractaddress = Contract["contractAddress"].get_str();
-            if(contractaddress.size() != 40 || !CheckHex(contractaddress))
-                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect contract address");
-
-            dev::Address addrAccount(contractaddress);
-            if(!globalState->addressInUse(addrAccount))
-                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "contract address does not exist");
-
-            // Get the contract data
-            if(!Contract.exists("data") || !Contract["data"].isStr())
-                throw JSONRPCError(RPC_INVALID_PARAMETER, std::string("Invalid parameter, contract data is mandatory."));
-
-            std::string datahex = Contract["data"].get_str();
-            if(datahex.size() % 2 != 0 || !CheckHex(datahex))
-                throw JSONRPCError(RPC_TYPE_ERROR, "Invalid data (data not hex)");
-
-            // Get amount
+            bool createContract = Contract.exists("bytecode") && Contract["bytecode"].isStr();
+            CScript scriptPubKey;
             CAmount nAmount = 0;
-            if (Contract.exists("amount")){
-                nAmount = AmountFromValue(Contract["amount"]);
-                if (nAmount < 0)
-                    throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for call contract");
-            }
 
             // Get gas limit
-            uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
+            uint64_t nGasLimit=createContract ? DEFAULT_GAS_LIMIT_OP_CREATE : DEFAULT_GAS_LIMIT_OP_SEND;
             if (Contract.exists("gasLimit")){
                 nGasLimit = Contract["gasLimit"].get_int64();
                 if (nGasLimit > blockGasLimit)
@@ -692,8 +669,75 @@ CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniVal
                     throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasPrice");
             }
 
-            // Add call contract output
-            CScript scriptPubKey = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(nGasLimit) << CScriptNum(nGasPrice) << ParseHex(datahex) << ParseHex(contractaddress) << OP_CALL;
+            // Get sender address
+            bool fHasSender=false;
+            CTxDestination senderAddress;
+            if (Contract.exists("senderAddress")){
+                senderAddress = DecodeDestination(Contract["senderAddress"].get_str());
+                if (!IsValidDestination(senderAddress))
+                    throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Qtum address to send from");
+                if (!IsValidContractSenderAddress(senderAddress))
+                    throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid contract sender address. Only P2PK and P2PKH allowed");
+                else
+                    fHasSender=true;
+            }
+
+            if(createContract)
+            {
+                // Get the new contract bytecode
+                if(!Contract.exists("bytecode") || !Contract["bytecode"].isStr())
+                    throw JSONRPCError(RPC_INVALID_PARAMETER, std::string("Invalid parameter, bytecode is mandatory."));
+
+                std::string bytecodehex = Contract["bytecode"].get_str();
+                if(bytecodehex.size() % 2 != 0 || !CheckHex(bytecodehex))
+                    throw JSONRPCError(RPC_TYPE_ERROR, "Invalid bytecode (bytecode not hex)");
+
+                // Add create contract output
+                scriptPubKey = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(nGasLimit) << CScriptNum(nGasPrice) << ParseHex(bytecodehex) <<OP_CREATE;
+            }
+            else
+            {
+                // Get the contract address
+                if(!Contract.exists("contractAddress") || !Contract["contractAddress"].isStr())
+                    throw JSONRPCError(RPC_INVALID_PARAMETER, std::string("Invalid parameter, contract address is mandatory."));
+
+                std::string contractaddress = Contract["contractAddress"].get_str();
+                if(contractaddress.size() != 40 || !CheckHex(contractaddress))
+                    throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect contract address");
+
+                dev::Address addrAccount(contractaddress);
+                if(!globalState->addressInUse(addrAccount))
+                    throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "contract address does not exist");
+
+                // Get the contract data
+                if(!Contract.exists("data") || !Contract["data"].isStr())
+                    throw JSONRPCError(RPC_INVALID_PARAMETER, std::string("Invalid parameter, contract data is mandatory."));
+
+                std::string datahex = Contract["data"].get_str();
+                if(datahex.size() % 2 != 0 || !CheckHex(datahex))
+                    throw JSONRPCError(RPC_TYPE_ERROR, "Invalid data (data not hex)");
+
+                // Get amount
+                if (Contract.exists("amount")){
+                    nAmount = AmountFromValue(Contract["amount"]);
+                    if (nAmount < 0)
+                        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for call contract");
+                }
+
+                // Add call contract output
+                scriptPubKey = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(nGasLimit) << CScriptNum(nGasPrice) << ParseHex(datahex) << ParseHex(contractaddress) << OP_CALL;
+            }
+
+             // Build op_sender script
+            if(fHasSender && chainActive.Height() >= Params().GetConsensus().QIP5Height)
+            {
+                const CKeyID *keyID = boost::get<CKeyID>(&senderAddress);
+                if(!keyID)
+                    throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Only pubkeyhash addresses are supported");
+                std::vector<unsigned char> scriptSig;
+                scriptPubKey = (CScript() << CScriptNum(addresstype::PUBKEYHASH) << ToByteVector(*keyID) << ToByteVector(scriptSig) << OP_SENDER) + scriptPubKey;
+            }
+
             CTxOut out(nAmount, scriptPubKey);
             rawTx.vout.push_back(out);
         } else {
@@ -712,6 +756,7 @@ CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniVal
             CTxOut out(nAmount, scriptPubKey);
             rawTx.vout.push_back(out);
         }
+        ++i;
     }
 
     if (!rbf.isNull() && rawTx.vin.size() > 0 && rbfOptIn != SignalsOptInRBF(CTransaction(rawTx))) {
@@ -758,15 +803,24 @@ static UniValue createrawtransaction(const JSONRPCRequest& request)
                                     {"data", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "A key-value pair. The key must be \"data\", the value is hex-encoded data"},
                                 },
                                 },
-                            {"contract", RPCArg::Type::OBJ, RPCArg::Optional::OMITTED, "",
+                            {"contract", RPCArg::Type::OBJ, RPCArg::Optional::OMITTED, "(send to contract)",
                                 {
                                     {"contractAddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "Valid contract address (valid hash160 hex data)"},
                                     {"data", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "Hex data to add in the call output"},
                                     {"amount", RPCArg::Type::AMOUNT,  /* default */ "0", "Value in QTUM to send with the call, should be a valid amount, default 0"},
                                     {"gasLimit", RPCArg::Type::NUM,  RPCArg::Optional::OMITTED, "The gas limit for the transaction"},
                                     {"gasPrice", RPCArg::Type::NUM,  RPCArg::Optional::OMITTED, "The gas price for the transaction"},
+                                    {"senderaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED, "The quantum address that will be used to create the contract."},
                                 },
                                 },
+                             {"contract", RPCArg::Type::OBJ, RPCArg::Optional::OMITTED, "(create contract)",
+                                 {
+                                     {"bytecode", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "contract bytcode."},
+                                     {"gasLimit", RPCArg::Type::NUM,  RPCArg::Optional::OMITTED, "The gas limit for the transaction"},
+                                     {"gasPrice", RPCArg::Type::NUM,  RPCArg::Optional::OMITTED, "The gas price for the transaction"},
+                                     {"senderaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED, "The quantum address that will be used to create the contract."},
+                                 },
+                                 },
                         },
                         },
                     {"locktime", RPCArg::Type::NUM, /* default */ "0", "Raw locktime. Non-0 value also locktime-activates inputs"},
@@ -781,10 +835,14 @@ static UniValue createrawtransaction(const JSONRPCRequest& request)
             + HelpExampleCli("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\" \"[{\\\"data\\\":\\\"00010203\\\"}]\"")
             + HelpExampleCli("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\" \"[{\\\"contract\\\":{\\\"contractAddress\\\":\\\"mycontract\\\","
                                                      "\\\"data\\\":\\\"00\\\", \\\"gasLimit\\\":250000, \\\"gasPrice\\\":0.00000040, \\\"amount\\\":0}}]\"")
+            + HelpExampleCli("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\" \"[{\\\"contract\\\":{\\\"bytecode\\\":\\\"contractbytecode\\\","
+                                                     "\\\"gasLimit\\\":2500000, \\\"gasPrice\\\":0.00000040, \\\"senderaddress\\\":\\\"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\\\"}}]\"")
             + HelpExampleRpc("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\", \"[{\\\"address\\\":0.01}]\"")
             + HelpExampleRpc("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\", \"[{\\\"data\\\":\\\"00010203\\\"}]\"")
             + HelpExampleRpc("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\", \"[{\\\"contract\\\":{\\\"contractAddress\\\":\\\"mycontract\\\","
                                                      "\\\"data\\\":\\\"00\\\", \\\"gasLimit\\\":250000, \\\"gasPrice\\\":0.00000040, \\\"amount\\\":0}}]\"")
+            + HelpExampleRpc("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\" \"[{\\\"contract\\\":{\\\"bytecode\\\":\\\"contractbytecode\\\","
+                                                     "\\\"gasLimit\\\":2500000, \\\"gasPrice\\\":0.00000040, \\\"senderaddress\\\":\\\"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\\\"}}]\"")
                 },
             }.ToString());
     }
@@ -982,6 +1040,15 @@ static void TxInErrorToJSON(const CTxIn& txin, UniValue& vErrorsRet, const std::
     vErrorsRet.push_back(entry);
 }
 
+static void TxOutErrorToJSON(const CTxOut& output, UniValue& vErrorsRet, const std::string& strMessage)
+{
+    UniValue entry(UniValue::VOBJ);
+    entry.pushKV("amount", ValueFromAmount(output.nValue));
+    entry.pushKV("scriptPubKey", HexStr(output.scriptPubKey.begin(), output.scriptPubKey.end()));
+    entry.pushKV("error", strMessage);
+    vErrorsRet.push_back(entry);
+}
+
 static UniValue combinerawtransaction(const JSONRPCRequest& request)
 {
     if (request.fHelp || request.params.size() != 1)
@@ -1064,6 +1131,56 @@ static UniValue combinerawtransaction(const JSONRPCRequest& request)
     }
 
     return EncodeHexTx(CTransaction(mergedTx));
+}
+
+UniValue SignTransactionSender(interfaces::Chain& chain, CMutableTransaction& mtx, CBasicKeyStore *keystore, const UniValue& hashType)
+{
+    int nHashType = ParseSighashString(hashType);
+
+    // Script verification errors
+    UniValue vErrors(UniValue::VARR);
+
+    // Signing transaction outputs
+    int nOut = 0;
+    for (const auto& output : mtx.vout)
+    {
+        if(output.scriptPubKey.HasOpSender())
+        {
+            CScript scriptPubKey;
+            if(!GetSenderPubKey(output.scriptPubKey, scriptPubKey))
+            {
+                TxOutErrorToJSON(output, vErrors, "Fail to get sender public key");
+                continue;
+            }
+
+            SignatureData sigdata;
+
+            if (!ProduceSignature(*keystore, MutableTransactionSignatureOutputCreator(&mtx, nOut, output.nValue, nHashType), scriptPubKey, sigdata))
+            {
+                TxOutErrorToJSON(output, vErrors, "Signing transaction output failed");
+                continue;
+            }
+            else
+            {
+                if(!UpdateOutput(mtx.vout.at(nOut), sigdata))
+                {
+                    TxOutErrorToJSON(output, vErrors, "Update transaction output failed");
+                    continue;
+                }
+            }
+        }
+        nOut++;
+    }
+    bool fComplete = vErrors.empty();
+
+    UniValue result(UniValue::VOBJ);
+    result.pushKV("hex", EncodeHexTx(CTransaction(mtx)));
+    result.pushKV("complete", fComplete);
+    if (!vErrors.empty()) {
+        result.pushKV("errors", vErrors);
+    }
+
+    return result;
 }
 
 UniValue SignTransaction(interfaces::Chain& chain, CMutableTransaction& mtx, const UniValue& prevTxsUnival, CBasicKeyStore *keystore, bool is_temp_keystore, const UniValue& hashType)
@@ -1172,6 +1289,24 @@ UniValue SignTransaction(interfaces::Chain& chain, CMutableTransaction& mtx, con
     // Use CTransaction for the constant parts of the
     // transaction to avoid rehashing.
     const CTransaction txConst(mtx);
+
+    // Check the sender signatures are inside the outputs, before signing the inputs
+    if(txConst.HasOpSender())
+    {
+        int nOut = 0;
+        for (const auto& output : mtx.vout)
+        {
+            if(output.scriptPubKey.HasOpSender())
+            {
+                CScript senderPubKey, senderSig;
+                if(!ExtractSenderData(output.scriptPubKey, &senderPubKey, &senderSig))
+                    throw JSONRPCError(RPC_INVALID_PARAMETER, "Missing contract sender signature,"
+                                                              "use signrawsendertransactionwithwallet or signrawsendertransactionwithkey to sign the outputs");
+            }
+            nOut++;
+        }
+    }
+
     // Sign what we can:
     for (unsigned int i = 0; i < mtx.vin.size(); i++) {
         CTxIn& txin = mtx.vin[i];
@@ -1182,6 +1317,19 @@ UniValue SignTransaction(interfaces::Chain& chain, CMutableTransaction& mtx, con
         }
         const CScript& prevPubKey = coin.out.scriptPubKey;
         const CAmount& amount = coin.out.nValue;
+
+        // Check the input used to pay for the contract
+        if(i == 0 && txConst.HasCreateOrCall())
+        {
+            CTxDestination destAdress;
+            bool fValidAddress = ExtractDestination(prevPubKey, destAdress)
+                    && IsValidContractSenderAddress(destAdress);
+            if(!fValidAddress)
+            {
+                TxInErrorToJSON(txin, vErrors, "Input not have P2PK or P2PKH unspent output to pay for the contract.");
+                continue;
+            }
+        }
 
         SignatureData sigdata = DataFromTransaction(mtx, i, coin.out);
         // Only sign SIGHASH_SINGLE if there's a corresponding output:
@@ -1301,6 +1449,71 @@ static UniValue signrawtransactionwithkey(const JSONRPCRequest& request)
     return SignTransaction(*g_rpc_interfaces->chain, mtx, request.params[2], &keystore, true, request.params[3]);
 }
 
+static UniValue signrawsendertransactionwithkey(const JSONRPCRequest& request)
+{
+    if (request.fHelp || request.params.size() < 2 || request.params.size() > 3)
+        throw std::runtime_error(
+            RPCHelpMan{"signrawsendertransactionwithkey",
+                "\nSign OP_SENDER outputs for raw transaction (serialized, hex-encoded).\n"
+                "The second argument is an array of base58-encoded private\n"
+                "keys that will be the only keys used to sign the transaction.\n",
+                {
+                    {"hexstring", RPCArg::Type::STR, RPCArg::Optional::NO, "The transaction hex string"},
+                    {"privkeys", RPCArg::Type::ARR, RPCArg::Optional::NO, "A json array of base58-encoded private keys for signing",
+                        {
+                            {"privatekey", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED, "private key in base58-encoding"},
+                        },
+                        },
+                    {"sighashtype", RPCArg::Type::STR, /* default */ "ALL", "The signature hash type. Must be one of:\n"
+            "       \"ALL\"\n"
+            "       \"NONE\"\n"
+            "       \"SINGLE\"\n"
+            "       \"ALL|ANYONECANPAY\"\n"
+            "       \"NONE|ANYONECANPAY\"\n"
+            "       \"SINGLE|ANYONECANPAY\"\n"
+                    },
+                },
+                RPCResult{
+            "{\n"
+            "  \"hex\" : \"value\",                  (string) The hex-encoded raw transaction with signature(s)\n"
+            "  \"complete\" : true|false,          (boolean) If the transaction has a complete set of signatures\n"
+            "  \"errors\" : [                      (json array of objects) Script verification errors (if there are any)\n"
+            "    {\n"
+            "      \"amount\" : n,                   (numeric) The amount of the output\n"
+            "      \"scriptPubKey\" : \"hex\",          (string) The hex-encoded public key script of the output\n"
+            "      \"error\" : \"text\"              (string) Verification or signing error related to the output\n"
+            "    }\n"
+            "    ,...\n"
+            "  ]\n"
+            "}\n"
+                },
+                RPCExamples{
+                    HelpExampleCli("signrawsendertransactionwithkey", "\"myhex\" \"[\\\"key1\\\",\\\"key2\\\"]\"")
+            + HelpExampleRpc("signrawsendertransactionwithkey", "\"myhex\", \"[\\\"key1\\\",\\\"key2\\\"]\"")
+                },
+            }.ToString());
+
+    RPCTypeCheck(request.params, {UniValue::VSTR, UniValue::VARR, UniValue::VSTR}, true);
+
+    CMutableTransaction mtx;
+    if (!DecodeHexTx(mtx, request.params[0].get_str(), true)) {
+        throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "TX decode failed");
+    }
+
+    CBasicKeyStore keystore;
+    const UniValue& keys = request.params[1].get_array();
+    for (unsigned int idx = 0; idx < keys.size(); ++idx) {
+        UniValue k = keys[idx];
+        CKey key = DecodeSecret(k.get_str());
+        if (!key.IsValid()) {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid private key");
+        }
+        keystore.AddKey(key);
+    }
+
+    return SignTransactionSender(*g_rpc_interfaces->chain, mtx, &keystore, request.params[2]);
+}
+
 UniValue signrawtransaction(const JSONRPCRequest& request)
 {
     // This method should be removed entirely in V0.19, along with the entries in the
@@ -1311,7 +1524,7 @@ UniValue signrawtransaction(const JSONRPCRequest& request)
 
 static UniValue sendrawtransaction(const JSONRPCRequest& request)
 {
-    if (request.fHelp || request.params.size() < 1 || request.params.size() > 2)
+    if (request.fHelp || request.params.size() < 1 || request.params.size() > 3)
         throw std::runtime_error(
             RPCHelpMan{"sendrawtransaction",
                 "\nSubmits raw transaction (serialized, hex-encoded) to local node and network.\n"
@@ -1319,9 +1532,22 @@ static UniValue sendrawtransaction(const JSONRPCRequest& request)
                 {
                     {"hexstring", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The hex string of the raw transaction"},
                     {"allowhighfees", RPCArg::Type::BOOL, /* default */ "false", "Allow high fees"},
+                    {"showcontractdata", RPCArg::Type::BOOL, /* default */ "false", "Show created contract data, ignored when no contracts created"},
                 },
-                RPCResult{
-            "\"hex\"             (string) The transaction hash in hex\n"
+                {
+                    RPCResult{
+                        "\"hex\"             (string) The transaction hash in hex\n"
+                    },
+                    RPCResult{"for create contract with showcontractdata = true",
+                        "{\n"
+                        "  \"txid\": \"hash\",                      (string) The transaction hash in hex\n"
+                        "  \"contracts\": [\n"
+                        "    {\n"
+                        "      \"address\": \"contract address\",   (string) The expected contract address \n"
+                        "      \"index\": n                       (numeric) The index of the output\n"
+                        "    }\n"
+                        "}\n"
+                    }
                 },
                 RPCExamples{
             "\nCreate a transaction\n"
@@ -1335,7 +1561,7 @@ static UniValue sendrawtransaction(const JSONRPCRequest& request)
                 },
             }.ToString());
 
-    RPCTypeCheck(request.params, {UniValue::VSTR, UniValue::VBOOL});
+    RPCTypeCheck(request.params, {UniValue::VSTR, UniValue::VBOOL, UniValue::VBOOL});
 
     // parse hex string from parameter
     CMutableTransaction mtx;
@@ -1351,6 +1577,44 @@ static UniValue sendrawtransaction(const JSONRPCRequest& request)
     const TransactionError err = BroadcastTransaction(tx, txid, err_string, highfee, false, true);
     if (TransactionError::OK != err) {
         throw JSONRPCTransactionError(err, err_string);
+    }
+
+    bool showcontractdata = false;
+    if (!request.params[2].isNull()) showcontractdata = request.params[2].get_bool();
+
+    if(showcontractdata && tx->HasOpCreate()){
+        uint32_t voutNumber=0;
+        UniValue result(UniValue::VOBJ);
+        result.pushKV("txid", txid.GetHex());
+
+        UniValue contracts(UniValue::VARR);
+        for (const CTxOut& txout : tx->vout) {
+            if(txout.scriptPubKey.HasOpCreate()){
+                std::vector<unsigned char> SHA256TxVout(32);
+                std::vector<unsigned char> contractAddress(20);
+                std::vector<unsigned char> txIdAndVout(tx->GetHash().begin(), tx->GetHash().end());
+                std::vector<unsigned char> voutNumberChrs;
+
+                if (voutNumberChrs.size() < sizeof(voutNumber))voutNumberChrs.resize(sizeof(voutNumber));
+                std::memcpy(voutNumberChrs.data(), &voutNumber, sizeof(voutNumber));
+                txIdAndVout.insert(txIdAndVout.end(),voutNumberChrs.begin(),voutNumberChrs.end());
+                CSHA256().Write(txIdAndVout.data(), txIdAndVout.size()).Finalize(SHA256TxVout.data());
+                CRIPEMD160().Write(SHA256TxVout.data(), SHA256TxVout.size()).Finalize(contractAddress.data());
+
+                UniValue contract(UniValue::VOBJ);
+                contract.pushKV("address", HexStr(contractAddress));
+                contract.pushKV("index", (int64_t)voutNumber);
+                contracts.push_back(contract);
+
+                SHA256TxVout.clear();
+                contractAddress.clear();
+                txIdAndVout.clear();
+            }
+            voutNumber++;
+        }
+        result.pushKV("contracts", contracts);
+
+        return result;
     }
 
     return txid.GetHex();
@@ -2331,10 +2595,11 @@ static const CRPCCommand commands[] =
     { "rawtransactions",    "createrawtransaction",         &createrawtransaction,      {"inputs","outputs","locktime","replaceable"} },
     { "rawtransactions",    "decoderawtransaction",         &decoderawtransaction,      {"hexstring","iswitness"} },
     { "rawtransactions",    "decodescript",                 &decodescript,              {"hexstring"} },
-    { "rawtransactions",    "sendrawtransaction",           &sendrawtransaction,        {"hexstring","allowhighfees"} },
+    { "rawtransactions",    "sendrawtransaction",           &sendrawtransaction,        {"hexstring","allowhighfees", "showcontractdata"} },
     { "rawtransactions",    "combinerawtransaction",        &combinerawtransaction,     {"txs"} },
     { "hidden",             "signrawtransaction",           &signrawtransaction,        {"hexstring","prevtxs","privkeys","sighashtype"} },
     { "rawtransactions",    "signrawtransactionwithkey",    &signrawtransactionwithkey, {"hexstring","privkeys","prevtxs","sighashtype"} },
+    { "rawtransactions",    "signrawsendertransactionwithkey", &signrawsendertransactionwithkey, {"hexstring","privkeys","sighashtype"} },
     { "rawtransactions",    "testmempoolaccept",            &testmempoolaccept,         {"rawtxs","allowhighfees"} },
     { "rawtransactions",    "decodepsbt",                   &decodepsbt,                {"psbt"} },
     { "rawtransactions",    "combinepsbt",                  &combinepsbt,               {"txs"} },

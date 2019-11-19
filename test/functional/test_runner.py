@@ -237,6 +237,7 @@ BASE_SCRIPTS = [
     'qtum_duplicate_stake.py',
     'qtum_rpc_bitcore.py',
     'qtum_faulty_header_chain.py',
+    'qtum_signrawsender.py',
     'qtum_op_sender.py',
     'qtum_evm_revert.py',
     'qtum_evm_create2.py',
