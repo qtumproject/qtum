@@ -55,7 +55,7 @@ void StakePage::setClientModel(ClientModel *_clientModel)
         ui->labelHeight->setText(QString::number(height));
         m_subsidy = _clientModel->node().getBlockSubsidy(height);
         m_networkWeight = _clientModel->node().getNetworkStakeWeight();
-        m_expectedAnnualROI = _clientModel->node().getAdjustedNetworkWeight();
+        m_expectedAnnualROI = _clientModel->node().getEstimatedAnnualROI();
         updateNetworkWeight();
         updateAnnualROI();
     }
@@ -120,7 +120,7 @@ void StakePage::numBlocksChanged(int count, const QDateTime &, double, bool head
         ui->labelHeight->setText(BitcoinUnits::formatInt(count));
         m_subsidy = clientModel->node().getBlockSubsidy(count);
         m_networkWeight = clientModel->node().getNetworkStakeWeight();
-        m_expectedAnnualROI = clientModel->node().getAdjustedNetworkWeight();
+        m_expectedAnnualROI = clientModel->node().getEstimatedAnnualROI();
         updateSubsidy();
         updateNetworkWeight();
         updateAnnualROI();

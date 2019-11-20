@@ -151,7 +151,7 @@ double GetPoSKernelPS()
     return result;
 }
 
-double GetAdjustedNetworkWeight()
+double GetEstimatedAnnualROI()
 {
     double result = 0;
     double networkWeight = GetPoSKernelPS();
@@ -305,24 +305,24 @@ UniValue transactionReceiptToJSON(const dev::eth::TransactionReceipt& txRec)
 }
 ////////////////////////////////////////////////////////////////////////////
 
-static UniValue getadjustednetworkweight(const JSONRPCRequest& request)
+static UniValue getestimatedannualroi(const JSONRPCRequest& request)
 {
     if (request.fHelp || request.params.size() != 0)
         throw std::runtime_error(
-            RPCHelpMan{"getadjustednetworkweight",
-                "\nReturns the adjusted network weight.\n",
+            RPCHelpMan{"getestimatedannualroi",
+                "\nReturns the estimated annual roi.\n",
                 {},
                 RPCResult{
-            "n    (numeric) The current adjusted network weight\n"
+            "n    (numeric) The current estimated annual roi\n"
                 },
                 RPCExamples{
-                    HelpExampleCli("getadjustednetworkweight", "")
-            + HelpExampleRpc("getadjustednetworkweight", "")
+                    HelpExampleCli("getestimatedannualroi", "")
+            + HelpExampleRpc("getestimatedannualroi", "")
                 },
             }.ToString());
 
     LOCK(cs_main);
-    return GetAdjustedNetworkWeight();
+    return GetEstimatedAnnualROI();
 }
 
 static UniValue getblockcount(const JSONRPCRequest& request)
@@ -3402,7 +3402,7 @@ static const CRPCCommand commands[] =
     { "blockchain",         "searchlogs",             &searchlogs,             {"fromBlock", "toBlock", "address", "topics"} },
 
     { "blockchain",         "waitforlogs",            &waitforlogs,            {"fromBlock", "nblocks", "address", "topics"} },
-    { "blockchain",         "getadjustednetworkweight",          &getadjustednetworkweight,          {} },
+    { "blockchain",         "getestimatedannualroi",  &getestimatedannualroi,  {} },
 };
 // clang-format on
 
