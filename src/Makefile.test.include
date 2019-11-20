@@ -163,6 +163,10 @@ BITCOIN_TEST_SUITE += \
 endif
 
 test_test_qtum_SOURCES = $(BITCOIN_TEST_SUITE) $(BITCOIN_TESTS) $(JSON_TEST_FILES) $(RAW_TEST_FILES)
+if GLIBC_BACK_COMPAT
+test_test_qtum_SOURCES += compat/glibc_compat.cpp
+AM_LDFLAGS += $(COMPAT_LDFLAGS)
+endif
 test_test_qtum_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) -I$(srcdir)/test/ $(TESTDEFS) $(EVENT_CFLAGS)
 test_test_qtum_LDADD =
 if ENABLE_WALLET
