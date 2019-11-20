@@ -294,10 +294,10 @@ public:
         LOCK(::cs_main);
         return GetPoSKernelPS();
     }
-    double getAdjustedNetworkWeight() override
+    double getEstimatedAnnualROI() override
     {
         LOCK(::cs_main);
-        return GetAdjustedNetworkWeight();
+        return GetEstimatedAnnualROI();
     }
     int64_t getMoneySupply() override
     {
