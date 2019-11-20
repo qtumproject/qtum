@@ -16,6 +16,9 @@ class Chain;
 /** Sign a transaction with the given keystore and previous transactions */
 UniValue SignTransaction(interfaces::Chain& chain, CMutableTransaction& mtx, const UniValue& prevTxs, CBasicKeyStore *keystore, bool tempKeystore, const UniValue& hashType);
 
+/** Sign op_sender outputs in a transaction with the given keystore and previous transactions */
+UniValue SignTransactionSender(interfaces::Chain& chain, CMutableTransaction& mtx, CBasicKeyStore *keystore, const UniValue& hashType);
+
 /** Create a transaction from univalue parameters */
 CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniValue& outputs_in, const UniValue& locktime, const UniValue& rbf);
 
