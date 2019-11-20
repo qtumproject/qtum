@@ -478,7 +478,9 @@ int TableViewLastColumnResizingFixer::getColumnsWidth()
 
 int TableViewLastColumnResizingFixer::getAvailableWidthForColumn(int column)
 {
-    int nResult = lastColumnMinimumWidth;
+    int nResult = allColumnsMinimumWidth;
+    if(column == lastColumnIndex)
+        nResult = lastColumnMinimumWidth;
     int nTableWidth = tableView->horizontalHeader()->width();
 
     if (nTableWidth > 0)

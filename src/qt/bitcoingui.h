@@ -103,6 +103,8 @@ public:
     /** Disconnect core signals from GUI client */
     void unsubscribeFromCoreSignals();
 
+    WalletFrame *getWalletFrame() const;
+
 protected:
     void changeEvent(QEvent *e);
     void closeEvent(QCloseEvent *event);
@@ -162,9 +164,7 @@ private:
     QAction* sendToContractAction = nullptr;
     QAction* callContractAction = nullptr;
     QAction* QRCTokenAction = nullptr;
-    QAction* sendTokenAction = nullptr;
-    QAction* receiveTokenAction = nullptr;
-    QAction* addTokenAction = nullptr;
+    QAction* stakeAction = nullptr;
     QAction* m_open_wallet_action{nullptr};
     QMenu* m_open_wallet_menu{nullptr};
     QAction* m_close_wallet_action{nullptr};
@@ -298,12 +298,10 @@ public Q_SLOTS:
     void gotoSendToContractPage();
     /** Switch to call contract page */
     void gotoCallContractPage();
-    /** Switch to Send Token page */
-    void gotoSendTokenPage();
-    /** Switch to Receive Token page */
-    void gotoReceiveTokenPage();
-    /** Switch to Add Token page */
-    void gotoAddTokenPage();
+    /** Switch to token page */
+    void gotoTokenPage();
+    /** Switch to stake page */
+    void gotoStakePage();
 
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");
@@ -371,6 +369,10 @@ protected:
 private:
     OptionsModel *optionsModel;
     QMenu* menu;
+    int menuMargin;
+    int iconHeight;
+    int iconWidth;
+    QString iconPath;
 
     /** Shows context menu with Display Unit options by the mouse coordinates */
     void onDisplayUnitsClicked(const QPoint& point);

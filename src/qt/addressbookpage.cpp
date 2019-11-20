@@ -75,17 +75,17 @@ AddressBookPage::AddressBookPage(const PlatformStyle *platformStyle, Mode _mode,
         ui->deleteAddress->setIcon(QIcon());
         ui->exportButton->setIcon(QIcon());
     } else {
-        ui->newAddress->setIcon(platformStyle->MultiStatesIcon(":/icons/add", PlatformStyle::PushButton, 0x5a5a5d));
-        ui->copyAddress->setIcon(platformStyle->MultiStatesIcon(":/icons/editcopy", PlatformStyle::PushButton, 0x5a5a5d));
-        ui->deleteAddress->setIcon(platformStyle->MultiStatesIcon(":/icons/remove", PlatformStyle::PushButton, 0x5a5a5d));
+        ui->newAddress->setIcon(platformStyle->MultiStatesIcon(":/icons/add", PlatformStyle::PushButtonLight));
+        ui->copyAddress->setIcon(platformStyle->MultiStatesIcon(":/icons/editcopy", PlatformStyle::PushButtonLight));
+        ui->deleteAddress->setIcon(platformStyle->MultiStatesIcon(":/icons/remove", PlatformStyle::PushButtonLight));
         ui->exportButton->setIcon(platformStyle->MultiStatesIcon(":/icons/export", PlatformStyle::PushButton));
     }
 
-    SetObjectStyleSheet(ui->newAddress, StyleSheetNames::ButtonWhite);
-    SetObjectStyleSheet(ui->copyAddress, StyleSheetNames::ButtonWhite);
-    SetObjectStyleSheet(ui->deleteAddress, StyleSheetNames::ButtonWhite);
-    SetObjectStyleSheet(ui->exportButton, StyleSheetNames::ButtonBlue);
-    SetObjectStyleSheet(ui->closeButton, StyleSheetNames::ButtonBlue);
+    SetObjectStyleSheet(ui->newAddress, StyleSheetNames::ButtonLight);
+    SetObjectStyleSheet(ui->copyAddress, StyleSheetNames::ButtonLight);
+    SetObjectStyleSheet(ui->deleteAddress, StyleSheetNames::ButtonLight);
+    SetObjectStyleSheet(ui->exportButton, StyleSheetNames::ButtonGray);
+    SetObjectStyleSheet(ui->closeButton, StyleSheetNames::ButtonGray);
     switch(mode)
     {
     case ForSelection:

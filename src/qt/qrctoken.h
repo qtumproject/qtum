@@ -13,6 +13,7 @@ class TokenViewDelegate;
 class WalletModel;
 class ClientModel;
 class TokenTransactionView;
+class TokenListWidget;
 class PlatformStyle;
 class QMenu;
 
@@ -47,6 +48,9 @@ public Q_SLOTS:
     void copyTokenName();
     void copySenderAddress();
     void removeToken();
+    void on_sendToken(const QModelIndex& index);
+    void on_receiveToken(const QModelIndex& index);
+    void on_addToken();
 
 private:
     Ui::QRCToken *ui;
@@ -55,8 +59,6 @@ private:
     AddTokenPage* m_addTokenPage;
     WalletModel* m_model;
     ClientModel* m_clientModel;
-    QAbstractItemModel* m_tokenModel;
-    TokenViewDelegate* m_tokenDelegate;
     QAction *m_sendAction;
     QAction *m_receiveAction;
     QAction *m_addTokenAction;
@@ -64,6 +66,8 @@ private:
     TokenTransactionView *m_tokenTransactionView;
     const PlatformStyle *m_platformStyle;
     QMenu *contextMenu;
+    QModelIndex indexMenu;
+    TokenListWidget* m_tokenList;
 };
 
 #endif // QRCTOKEN_H

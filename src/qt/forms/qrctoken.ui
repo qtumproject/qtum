@@ -15,20 +15,27 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,1">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="1">
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
-        <widget class="QListView" name="tokensList">
-         <property name="styleSheet">
-          <string notr="true"/>
+        <widget class="QScrollArea" name="scrollArea">
+         <property name="widgetResizable">
+          <bool>true</bool>
          </property>
+         <widget class="QWidget" name="scrollAreaWidgetContents">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>699</width>
+            <height>409</height>
+           </rect>
+          </property>
+         </widget>
         </widget>
        </item>
       </layout>
-     </item>
-     <item>
-      <widget class="QStackedWidget" name="stackedWidgetToken"/>
      </item>
     </layout>
    </item>

@@ -12,14 +12,14 @@ QHeaderView:section{
     background-color: transparent;
 }
 QHeaderView::down-arrow {
-    image: url(":/styles/app-icons/down_arrow");
+    image: url(":/styles/theme1/app-icons/down_arrow");
     width: 6px;
     height: 4px;
     margin-right: 5px;
     margin-bottom: 1px;
 }
 QHeaderView::up-arrow {
-    image: url(":/styles/app-icons/up_arrow");
+    image: url(":/styles/theme1/app-icons/up_arrow");
     width: 6px;
     height: 4px;
     margin-right: 5px;

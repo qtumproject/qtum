@@ -43,15 +43,14 @@ public:
     /** Colorize an icon (given filename) with the menu text color */
     QIcon MenuColorIcon(const QString& filename) const;
 
-    /** Colorize an icon (given object) with the menu text color */
-    QIcon MenuColorIcon(const QIcon& icon) const;
-
     enum StateType{
         NavBar = 0,
-        PushButton = 1
+        PushButton = 1,
+        PushButtonLight = 2,
+        PushButtonIcon = 3
     };
     /** Get multi-states icon*/
-    QIcon MultiStatesIcon(const QString& resourcename, StateType type = NavBar, QColor color = Qt::white, QColor colorAlt = 0x2d2d2d) const;
+    QIcon MultiStatesIcon(const QString& resourcename, StateType type = NavBar) const;
 
     enum TableColorType{
         Normal = 0,
@@ -62,18 +61,35 @@ public:
     };
     QIcon TableColorIcon(const QString& resourcename, TableColorType type) const;
     QImage TableColorImage(const QString& resourcename, TableColorType type) const;
-    void TableColor(TableColorType type, int& color, double& opacity) const;
+    void TableColor(TableColorType type, QColor& color, double& opacity) const;
+    static void SingleColorImage(QImage& img, const QColor& colorbase, double opacity = 1);
+    static QIcon SingleColorIcon(const QString& resourcename, const QColor& colorbase, double opacity = 1);
+    static QIcon SingleColorIcon(const QIcon& icon, const QColor& colorbase, double opacity = 1);
 
 private:
     PlatformStyle(const QString &name, bool imagesOnButtons, bool colorizeIcons, bool useExtraSpacing);
+    QIcon MultiStatesIconV1(const QString& resourcename, StateType type = NavBar) const;
+    QIcon MultiStatesIconV2(const QString& resourcename, StateType type = NavBar) const;
+    QIcon MultiStatesIconV3(const QString& resourcename, StateType type = NavBar) const;
+    QIcon MenuColorIconV1(const QString& resourcename) const;
+    QIcon MenuColorIconV2(const QString& resourcename) const;
 
     QString name;
+    int version;
     bool imagesOnButtons;
     bool colorizeIcons;
     bool useExtraSpacing;
     QColor singleColor;
     QColor textColor;
     QColor menuColor;
+    QColor tableColorNormal;
+    QColor tableColorInput;
+    QColor tableColorInout;
+    QColor tableColorOutput;
+    QColor tableColorError;
+    QColor multiStatesIconColor1;
+    QColor multiStatesIconColor2;
+    QColor multiStatesIconColor3;
     /* ... more to come later */
 };
 

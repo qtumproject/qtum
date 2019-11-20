@@ -3,8 +3,8 @@ Scroll bar dark CSS
 --------------------------------------------*/
 QScrollBar:vertical {
     border-radius: 0px;
-    border-top-right-radius: 10px;
-    border-bottom-right-radius: 10px;
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
     background: #222222;
     width: 19px;
     padding: 10px 4px;
@@ -32,4 +32,16 @@ QScrollBar::handle:horizontal {
 }
 QScrollBar::handle:horizontal:disabled {
     background: rgba(46, 46, 46, 40%);
+}
+#autoCompleterPopup QScrollBar:vertical {
+    border-radius: 0px;
+    background: #222222;
+    width: 16px;
+    padding: 5px 4px;
+}
+#autoCompleterPopup QScrollBar::handle:vertical {
+    border: none;
+    background: #2e2e2e;
+    border-radius: 4px;
+    min-height: 35px;
 }

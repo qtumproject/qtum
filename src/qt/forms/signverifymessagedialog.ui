@@ -66,133 +66,137 @@
           <number>20</number>
          </property>
          <item>
-          <widget class="QLabel" name="infoLabel_SM">
-           <property name="text">
-            <string>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</string>
-           </property>
-           <property name="textFormat">
-            <enum>Qt::PlainText</enum>
-           </property>
-           <property name="wordWrap">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_1_SM">
-           <property name="spacing">
-            <number>6</number>
-           </property>
-           <item>
-            <widget class="QValidatedLineEdit" name="addressIn_SM">
+          <layout class="QGridLayout" name="gridLayout">
+           <item row="1" column="1">
+            <layout class="QHBoxLayout" name="horizontalLayout_1_SM">
+             <property name="spacing">
+              <number>6</number>
+             </property>
+             <item>
+              <widget class="QValidatedLineEdit" name="addressIn_SM">
+               <property name="toolTip">
+                <string>The Qtum address to sign the message with</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QtumPushButton" name="addressBookButton_SM">
+               <property name="toolTip">
+                <string>Choose previously used address</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset resource="../bitcoin.qrc">
+                 <normaloff>:/icons/address-book</normaloff>:/icons/address-book</iconset>
+               </property>
+               <property name="shortcut">
+                <string>Alt+A</string>
+               </property>
+               <property name="autoDefault">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="Line" name="vLine">
+               <property name="maximumSize">
+                <size>
+                 <width>1</width>
+                 <height>22</height>
+                </size>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QtumPushButton" name="pasteButton_SM">
+               <property name="toolTip">
+                <string>Paste address from clipboard</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset resource="../bitcoin.qrc">
+                 <normaloff>:/icons/editpaste</normaloff>:/icons/editpaste</iconset>
+               </property>
+               <property name="shortcut">
+                <string>Alt+P</string>
+               </property>
+               <property name="autoDefault">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="2" column="1">
+            <widget class="QPlainTextEdit" name="messageIn_SM">
              <property name="toolTip">
-              <string>The Qtum address to sign the message with</string>
+              <string>Enter the message you want to sign here</string>
              </property>
             </widget>
            </item>
-           <item>
-            <widget class="QPushButton" name="addressBookButton_SM">
-             <property name="toolTip">
-              <string>Choose previously used address</string>
+           <item row="3" column="1">
+            <layout class="QHBoxLayout" name="horizontalLayout_2_SM">
+             <property name="spacing">
+              <number>6</number>
              </property>
+             <item>
+              <widget class="QLineEdit" name="signatureOut_SM">
+               <property name="font">
+                <font>
+                 <italic>true</italic>
+                </font>
+               </property>
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QtumPushButton" name="copySignatureButton_SM">
+               <property name="toolTip">
+                <string>Copy the current signature to the system clipboard</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset resource="../bitcoin.qrc">
+                 <normaloff>:/icons/editcopy</normaloff>:/icons/editcopy</iconset>
+               </property>
+               <property name="autoDefault">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="signatureLabel_SM">
              <property name="text">
-              <string/>
+              <string>Signature</string>
              </property>
-             <property name="icon">
-              <iconset resource="../bitcoin.qrc">
-               <normaloff>:/icons/address-book</normaloff>:/icons/address-book</iconset>
-             </property>
-             <property name="shortcut">
-              <string>Alt+A</string>
-             </property>
-             <property name="autoDefault">
-              <bool>false</bool>
+             <property name="textFormat">
+              <enum>Qt::PlainText</enum>
              </property>
             </widget>
            </item>
-           <item>
-            <widget class="Line" name="vLine">
-             <property name="maximumSize">
-              <size>
-               <width>1</width>
-               <height>22</height>
-              </size>
-             </property>
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="pasteButton_SM">
-             <property name="toolTip">
-              <string>Paste address from clipboard</string>
-             </property>
+           <item row="0" column="0" colspan="2">
+            <widget class="QLabel" name="infoLabel_SM">
              <property name="text">
-              <string/>
+              <string>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</string>
              </property>
-             <property name="icon">
-              <iconset resource="../bitcoin.qrc">
-               <normaloff>:/icons/editpaste</normaloff>:/icons/editpaste</iconset>
+             <property name="textFormat">
+              <enum>Qt::PlainText</enum>
              </property>
-             <property name="shortcut">
-              <string>Alt+P</string>
-             </property>
-             <property name="autoDefault">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <widget class="QPlainTextEdit" name="messageIn_SM">
-           <property name="toolTip">
-            <string>Enter the message you want to sign here</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="signatureLabel_SM">
-           <property name="text">
-            <string>Signature</string>
-           </property>
-           <property name="textFormat">
-            <enum>Qt::PlainText</enum>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_2_SM">
-           <property name="spacing">
-            <number>6</number>
-           </property>
-           <item>
-            <widget class="QLineEdit" name="signatureOut_SM">
-             <property name="font">
-              <font>
-               <italic>true</italic>
-              </font>
-             </property>
-             <property name="readOnly">
+             <property name="wordWrap">
               <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="copySignatureButton_SM">
-             <property name="toolTip">
-              <string>Copy the current signature to the system clipboard</string>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="icon">
-              <iconset resource="../bitcoin.qrc">
-               <normaloff>:/icons/editcopy</normaloff>:/icons/editcopy</iconset>
-             </property>
-             <property name="autoDefault">
-              <bool>false</bool>
              </property>
             </widget>
            </item>
@@ -212,40 +216,6 @@
           <property name="rightMargin">
            <number>30</number>
           </property>
-          <item>
-           <widget class="QPushButton" name="clearButton_SM">
-            <property name="toolTip">
-             <string>Reset all sign message fields</string>
-            </property>
-            <property name="text">
-             <string>Clear &amp;All</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../bitcoin.qrc">
-              <normaloff>:/icons/remove</normaloff>:/icons/remove</iconset>
-            </property>
-            <property name="autoDefault">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="signMessageButton_SM">
-            <property name="toolTip">
-             <string>Sign the message to prove you own this Qtum address</string>
-            </property>
-            <property name="text">
-             <string>Sign &amp;Message</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../bitcoin.qrc">
-              <normaloff>:/icons/edit</normaloff>:/icons/edit</iconset>
-            </property>
-            <property name="autoDefault">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
           <item>
            <spacer name="horizontalSpacer_1_SM">
             <property name="orientation">
@@ -287,6 +257,40 @@
              </size>
             </property>
            </spacer>
+          </item>
+          <item>
+           <widget class="QtumPushButton" name="clearButton_SM">
+            <property name="toolTip">
+             <string>Reset all sign message fields</string>
+            </property>
+            <property name="text">
+             <string>Clear &amp;All</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../bitcoin.qrc">
+              <normaloff>:/icons/remove</normaloff>:/icons/remove</iconset>
+            </property>
+            <property name="autoDefault">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QtumPushButton" name="signMessageButton_SM">
+            <property name="toolTip">
+             <string>Sign the message to prove you own this Qtum address</string>
+            </property>
+            <property name="text">
+             <string>Sign &amp;Message</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../bitcoin.qrc">
+              <normaloff>:/icons/edit</normaloff>:/icons/edit</iconset>
+            </property>
+            <property name="autoDefault">
+             <bool>false</bool>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -353,7 +357,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="addressBookButton_VM">
+            <widget class="QtumPushButton" name="addressBookButton_VM">
              <property name="toolTip">
               <string>Choose previously used address</string>
              </property>
@@ -394,40 +398,6 @@
           <property name="rightMargin">
            <number>30</number>
           </property>
-          <item>
-           <widget class="QPushButton" name="clearButton_VM">
-            <property name="toolTip">
-             <string>Reset all verify message fields</string>
-            </property>
-            <property name="text">
-             <string>Clear &amp;All</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../bitcoin.qrc">
-              <normaloff>:/icons/remove</normaloff>:/icons/remove</iconset>
-            </property>
-            <property name="autoDefault">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="verifyMessageButton_VM">
-            <property name="toolTip">
-             <string>Verify the message to ensure it was signed with the specified Qtum address</string>
-            </property>
-            <property name="text">
-             <string>Verify &amp;Message</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../bitcoin.qrc">
-              <normaloff>:/icons/transaction_0</normaloff>:/icons/transaction_0</iconset>
-            </property>
-            <property name="autoDefault">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
           <item>
            <spacer name="horizontalSpacer_1_VM">
             <property name="orientation">
@@ -470,6 +440,40 @@
             </property>
            </spacer>
           </item>
+          <item>
+           <widget class="QtumPushButton" name="clearButton_VM">
+            <property name="toolTip">
+             <string>Reset all verify message fields</string>
+            </property>
+            <property name="text">
+             <string>Clear &amp;All</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../bitcoin.qrc">
+              <normaloff>:/icons/remove</normaloff>:/icons/remove</iconset>
+            </property>
+            <property name="autoDefault">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QtumPushButton" name="verifyMessageButton_VM">
+            <property name="toolTip">
+             <string>Verify the message to ensure it was signed with the specified Qtum address</string>
+            </property>
+            <property name="text">
+             <string>Verify &amp;Message</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../bitcoin.qrc">
+              <normaloff>:/icons/transaction_0</normaloff>:/icons/transaction_0</iconset>
+            </property>
+            <property name="autoDefault">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
@@ -484,6 +488,11 @@
    <class>QValidatedLineEdit</class>
    <extends>QLineEdit</extends>
    <header>qt/qvalidatedlineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QtumPushButton</class>
+   <extends>QPushButton</extends>
+   <header>qt/qtumpushbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources>

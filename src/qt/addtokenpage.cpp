@@ -16,7 +16,7 @@
 #include <QMessageBox>
 
 AddTokenPage::AddTokenPage(QWidget *parent) :
-    QWidget(parent),
+    QDialog(parent),
     ui(new Ui::AddTokenPage),
     m_tokenABI(0),
     m_model(0),
@@ -25,7 +25,7 @@ AddTokenPage::AddTokenPage(QWidget *parent) :
     ui->setupUi(this);
 
     // Set stylesheet
-    SetObjectStyleSheet(ui->clearButton, StyleSheetNames::ButtonBlack);
+    SetObjectStyleSheet(ui->clearButton, StyleSheetNames::ButtonDark);
 
     ui->labelDescription->setText(tr("(This is your wallet address which will be tied to the token for send/receive operations)"));
     QFont font = QApplication::font();
@@ -38,6 +38,7 @@ AddTokenPage::AddTokenPage(QWidget *parent) :
     connect(ui->lineEditContractAddress, &QLineEdit::textChanged, this, &AddTokenPage::on_addressChanged);
     connect(ui->lineEditTokenName, &QLineEdit::textChanged, this, &AddTokenPage::on_updateConfirmButton);
     connect(ui->lineEditTokenSymbol, &QLineEdit::textChanged, this, &AddTokenPage::on_updateConfirmButton);
+    connect(ui->lineEditSenderAddress, &QComboBox::currentTextChanged, this, &AddTokenPage::on_updateConfirmButton);
 
     ui->lineEditSenderAddress->setAddressColumn(AddressTableModel::Address);
     ui->lineEditSenderAddress->setTypeRole(AddressTableModel::TypeRole);
@@ -83,6 +84,7 @@ void AddTokenPage::setModel(WalletModel *_model)
 void AddTokenPage::on_clearButton_clicked()
 {
     clearAll();
+    QDialog::reject();
 }
 
 void AddTokenPage::on_confirmButton_clicked()
@@ -113,12 +115,13 @@ void AddTokenPage::on_confirmButton_clicked()
             {
                 m_model->wallet().addTokenEntry(tokenInfo);
 
-                clearAll();
-
                 if(!fLogEvents)
                 {
                     QMessageBox::information(this, tr("Log events"), tr("Enable log events from the option menu in order to receive token transactions."));
                 }
+
+                clearAll();
+                QDialog::accept();
             }
         }
     }
@@ -139,7 +142,7 @@ void AddTokenPage::on_addressChanged()
         ui->lineEditDecimals->setText(QString::fromStdString(decimals));
         m_validTokenAddress = ret;
     }
-    ui->confirmButton->setEnabled(m_validTokenAddress);
+    on_updateConfirmButton();
 }
 
 void AddTokenPage::on_updateConfirmButton()
@@ -150,6 +153,10 @@ void AddTokenPage::on_updateConfirmButton()
         enabled = false;
     }
     if(ui->lineEditTokenSymbol->text().isEmpty())
+    {
+        enabled = false;
+    }
+    if(!ui->lineEditSenderAddress->isValidAddress())
     {
         enabled = false;
     }

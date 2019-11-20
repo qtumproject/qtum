@@ -5,6 +5,7 @@
 #include <qt/tokentransactionview.h>
 #include <qt/platformstyle.h>
 #include <qt/styleSheet.h>
+#include <qt/tokenlistwidget.h>
 
 #include <QPainter>
 #include <QAbstractItemDelegate>
@@ -14,89 +15,11 @@
 #include <QSizePolicy>
 #include <QMenu>
 
-#define TOKEN_SIZE 54
-#define SYMBOL_WIDTH 60
-#define MARGIN 5
-
-class TokenViewDelegate : public QAbstractItemDelegate
-{
-public:
-
-    TokenViewDelegate(const PlatformStyle *_platformStyle, QObject *parent) :
-        QAbstractItemDelegate(parent),
-        platformStyle(_platformStyle)
-    {}
-
-    void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               const QModelIndex &index) const
-    {
-        painter->save();
-
-        QString tokenSymbol = index.data(TokenItemModel::SymbolRole).toString();
-        QString tokenBalance = index.data(TokenItemModel::BalanceRole).toString();
-        QString receiveAddress = index.data(TokenItemModel::SenderRole).toString();
-
-        QRect mainRect = option.rect;
-
-        bool selected = option.state & QStyle::State_Selected;
-        if(selected)
-        {
-            painter->fillRect(mainRect,QColor("#009ee5"));
-        }
-        else
-        {
-            painter->fillRect(mainRect,QColor("#383938"));
-        }
-
-        QRect hLineRect(mainRect.left(), mainRect.bottom(), mainRect.width(), 1);
-        painter->fillRect(hLineRect, QColor("#2e2e2e"));
-
-        QColor foreground("#dddddd");
-        painter->setPen(foreground);
-
-        QFont font = option.font;
-        font.setPointSizeF(option.font.pointSizeF() * 1.1);
-        font.setBold(true);
-        painter->setFont(font);
-        QColor amountColor("#ffffff");
-        painter->setPen(amountColor);
-
-        QFontMetrics fmName(option.font);
-        QString clippedSymbol = fmName.elidedText(tokenSymbol, Qt::ElideRight, SYMBOL_WIDTH);
-        QRect tokenSymbolRect(mainRect.left() + MARGIN, mainRect.top() + MARGIN, SYMBOL_WIDTH, mainRect.height() / 2 - MARGIN);
-        painter->drawText(tokenSymbolRect, Qt::AlignLeft|Qt::AlignVCenter, clippedSymbol);
-
-        int amountWidth = (mainRect.width() - 4 * MARGIN - tokenSymbolRect.width());
-        QFontMetrics fmAmount(font);
-        QString clippedAmount = fmAmount.elidedText(tokenBalance, Qt::ElideRight, amountWidth);
-        QRect tokenBalanceRect(tokenSymbolRect.right() + 2 * MARGIN, tokenSymbolRect.top(), amountWidth, tokenSymbolRect.height());
-        painter->drawText(tokenBalanceRect, Qt::AlignLeft|Qt::AlignVCenter, clippedAmount);
-
-        QFont addressFont = option.font;
-        addressFont.setPointSizeF(option.font.pointSizeF() * 0.8);
-        painter->setFont(addressFont);
-        painter->setPen(foreground);
-        QRect receiveAddressRect(mainRect.left() + MARGIN, tokenSymbolRect.bottom(), mainRect.width() - 2 * MARGIN, mainRect.height() / 2 - 2 * MARGIN);
-        painter->drawText(receiveAddressRect, Qt::AlignLeft|Qt::AlignVCenter, receiveAddress);
-
-        painter->restore();
-    }
-
-    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
-    {
-        return QSize(TOKEN_SIZE, TOKEN_SIZE);
-    }
-
-    const PlatformStyle *platformStyle;
-};
-
 QRCToken::QRCToken(const PlatformStyle *platformStyle, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::QRCToken),
     m_model(0),
     m_clientModel(0),
-    m_tokenModel(0),
-    m_tokenDelegate(0),
     m_tokenTransactionView(0)
 {
     ui->setupUi(this);
@@ -106,22 +29,13 @@ QRCToken::QRCToken(const PlatformStyle *platformStyle, QWidget *parent) :
     m_sendTokenPage = new SendTokenPage(this);
     m_receiveTokenPage = new ReceiveTokenPage(platformStyle, this);
     m_addTokenPage = new AddTokenPage(this);
-    m_tokenDelegate = new TokenViewDelegate(platformStyle, this);
 
     m_sendTokenPage->setEnabled(false);
     m_receiveTokenPage->setEnabled(false);
 
-    ui->stackedWidgetToken->addWidget(m_sendTokenPage);
-    ui->stackedWidgetToken->addWidget(m_receiveTokenPage);
-    ui->stackedWidgetToken->addWidget(m_addTokenPage);
-
     m_tokenTransactionView = new TokenTransactionView(m_platformStyle, this);
     m_tokenTransactionView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->tokenViewLayout->addWidget(m_tokenTransactionView);
-
-    ui->tokensList->setItemDelegate(m_tokenDelegate);
-    ui->tokensList->setContextMenuPolicy(Qt::CustomContextMenu);
-    ui->tokensList->setAttribute(Qt::WA_MacShowFocusRect, false);
 
     QAction *copySenderAction = new QAction(tr("Copy receive address"), this);
     QAction *copyTokenBalanceAction = new QAction(tr("Copy token balance"), this);
@@ -129,7 +43,16 @@ QRCToken::QRCToken(const PlatformStyle *platformStyle, QWidget *parent) :
     QAction *copyTokenAddressAction = new QAction(tr("Copy contract address"), this);
     QAction *removeTokenAction = new QAction(tr("Remove token"), this);
 
-    contextMenu = new QMenu(ui->tokensList);
+    m_tokenList = new TokenListWidget(platformStyle, this);
+    m_tokenList->setContextMenuPolicy(Qt::CustomContextMenu);
+    new QVBoxLayout(ui->scrollArea);
+    ui->scrollArea->setWidget(m_tokenList);
+    ui->scrollArea->setWidgetResizable(true);
+    connect(m_tokenList, &TokenListWidget::sendToken, this, &QRCToken::on_sendToken);
+    connect(m_tokenList, &TokenListWidget::receiveToken, this, &QRCToken::on_receiveToken);
+    connect(m_tokenList, &TokenListWidget::addToken, this, &QRCToken::on_addToken);
+
+    contextMenu = new QMenu(m_tokenList);
     contextMenu->addAction(copySenderAction);
     contextMenu->addAction(copyTokenBalanceAction);
     contextMenu->addAction(copyTokenNameAction);
@@ -142,10 +65,7 @@ QRCToken::QRCToken(const PlatformStyle *platformStyle, QWidget *parent) :
     connect(copySenderAction, &QAction::triggered, this, &QRCToken::copySenderAddress);
     connect(removeTokenAction, &QAction::triggered, this, &QRCToken::removeToken);
 
-    connect(ui->tokensList, &QListView::clicked, this, &QRCToken::on_currentTokenChanged);
-    connect(ui->tokensList, &QListView::customContextMenuRequested, this, &QRCToken::contextualMenu);
-
-    on_goToSendTokenPage();
+    connect(m_tokenList, &TokenListWidget::customContextMenuRequested, this, &QRCToken::contextualMenu);
 }
 
 QRCToken::~QRCToken()
@@ -158,27 +78,16 @@ void QRCToken::setModel(WalletModel *_model)
     m_model = _model;
     m_addTokenPage->setModel(m_model);
     m_sendTokenPage->setModel(m_model);
+    m_tokenList->setModel(m_model);
     m_tokenTransactionView->setModel(_model);
     if(m_model && m_model->getTokenItemModel())
     {
-        // Sort tokens by symbol
-        QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(this);
-        TokenItemModel* tokenModel = m_model->getTokenItemModel();
-        proxyModel->setSourceModel(tokenModel);
-        proxyModel->sort(1, Qt::AscendingOrder);
-        m_tokenModel = proxyModel;
-
-        // Set tokens model
-        ui->tokensList->setModel(m_tokenModel);
-        connect(ui->tokensList->selectionModel(), &QItemSelectionModel::currentChanged, this, &QRCToken::on_currentChanged);
-
         // Set current token
-        connect(m_tokenModel, &QAbstractItemModel::dataChanged, this, &QRCToken::on_dataChanged);
-        connect(m_tokenModel, &QAbstractItemModel::rowsInserted, this, &QRCToken::on_rowsInserted);
-        if(m_tokenModel->rowCount() > 0)
+        connect(m_tokenList->tokenModel(), &QAbstractItemModel::dataChanged, this, &QRCToken::on_dataChanged);
+        connect(m_tokenList->tokenModel(), &QAbstractItemModel::rowsInserted, this, &QRCToken::on_rowsInserted);
+        if(m_tokenList->tokenModel()->rowCount() > 0)
         {
-            QModelIndex currentToken(m_tokenModel->index(0, 0));
-            ui->tokensList->setCurrentIndex(currentToken);
+            QModelIndex currentToken(m_tokenList->tokenModel()->index(0, 0));
             on_currentTokenChanged(currentToken);
         }
     }
@@ -193,31 +102,31 @@ void QRCToken::setClientModel(ClientModel *_clientModel)
 
 void QRCToken::on_goToSendTokenPage()
 {
-    ui->stackedWidgetToken->setCurrentIndex(0);
+    m_sendTokenPage->show();
 }
 
 void QRCToken::on_goToReceiveTokenPage()
 {
-    ui->stackedWidgetToken->setCurrentIndex(1);
+    m_receiveTokenPage->show();
 }
 
 void QRCToken::on_goToAddTokenPage()
 {
-    ui->stackedWidgetToken->setCurrentIndex(2);
+    m_addTokenPage->show();
 }
 
 void QRCToken::on_currentTokenChanged(QModelIndex index)
 {
-    if(m_tokenModel)
+    if(m_tokenList->tokenModel())
     {
         if(index.isValid())
         {
-            m_selectedTokenHash = m_tokenModel->data(index, TokenItemModel::HashRole).toString();
-            std::string address = m_tokenModel->data(index, TokenItemModel::AddressRole).toString().toStdString();
-            std::string symbol = m_tokenModel->data(index, TokenItemModel::SymbolRole).toString().toStdString();
-            std::string sender = m_tokenModel->data(index, TokenItemModel::SenderRole).toString().toStdString();
-            int8_t decimals = m_tokenModel->data(index, TokenItemModel::DecimalsRole).toInt();
-            std::string balance = m_tokenModel->data(index, TokenItemModel::RawBalanceRole).toString().toStdString();
+            m_selectedTokenHash = m_tokenList->tokenModel()->data(index, TokenItemModel::HashRole).toString();
+            std::string address = m_tokenList->tokenModel()->data(index, TokenItemModel::AddressRole).toString().toStdString();
+            std::string symbol = m_tokenList->tokenModel()->data(index, TokenItemModel::SymbolRole).toString().toStdString();
+            std::string sender = m_tokenList->tokenModel()->data(index, TokenItemModel::SenderRole).toString().toStdString();
+            int8_t decimals = m_tokenList->tokenModel()->data(index, TokenItemModel::DecimalsRole).toInt();
+            std::string balance = m_tokenList->tokenModel()->data(index, TokenItemModel::RawBalanceRole).toString().toStdString();
             m_sendTokenPage->setTokenData(address, sender, symbol, decimals, balance);
             m_receiveTokenPage->setAddress(QString::fromStdString(sender));
             m_receiveTokenPage->setSymbol(QString::fromStdString(symbol));
@@ -242,9 +151,9 @@ void QRCToken::on_dataChanged(const QModelIndex &topLeft, const QModelIndex &bot
     Q_UNUSED(bottomRight);
     Q_UNUSED(roles);
 
-    if(m_tokenModel)
+    if(m_tokenList->tokenModel())
     {
-        QString tokenHash = m_tokenModel->data(topLeft, TokenItemModel::HashRole).toString();
+        QString tokenHash = m_tokenList->tokenModel()->data(topLeft, TokenItemModel::HashRole).toString();
         if(m_selectedTokenHash.isEmpty() ||
                 tokenHash == m_selectedTokenHash)
         {
@@ -266,45 +175,57 @@ void QRCToken::on_rowsInserted(QModelIndex index, int first, int last)
     Q_UNUSED(first);
     Q_UNUSED(last);
 
-    if(m_tokenModel->rowCount() == 1)
+    if(m_tokenList->tokenModel()->rowCount() == 1)
     {
-        QModelIndex currentToken(m_tokenModel->index(0, 0));
-        ui->tokensList->setCurrentIndex(currentToken);
+        QModelIndex currentToken(m_tokenList->tokenModel()->index(0, 0));
         on_currentTokenChanged(currentToken);
     }
 }
 
 void QRCToken::contextualMenu(const QPoint &point)
 {
-    QModelIndex index = ui->tokensList->indexAt(point);
-    QModelIndexList selection = ui->tokensList->selectionModel()->selectedIndexes();
-    if (selection.empty())
-        return;
-
+    QModelIndex index = m_tokenList->indexAt(point);
     if(index.isValid())
     {
+        indexMenu = index;
         contextMenu->exec(QCursor::pos());
     }
 }
 
 void QRCToken::copyTokenAddress()
 {
-    GUIUtil::copyEntryDataFromList(ui->tokensList, TokenItemModel::AddressRole);
+    if(indexMenu.isValid())
+    {
+        GUIUtil::setClipboard(indexMenu.data(TokenItemModel::AddressRole).toString());
+        indexMenu = QModelIndex();
+    }
 }
 
 void QRCToken::copyTokenBalance()
 {
-    GUIUtil::copyEntryDataFromList(ui->tokensList, TokenItemModel::BalanceRole);
+    if(indexMenu.isValid())
+    {
+        GUIUtil::setClipboard(indexMenu.data(TokenItemModel::BalanceRole).toString());
+        indexMenu = QModelIndex();
+    }
 }
 
 void QRCToken::copyTokenName()
 {
-    GUIUtil::copyEntryDataFromList(ui->tokensList, TokenItemModel::NameRole);
+    if(indexMenu.isValid())
+    {
+        GUIUtil::setClipboard(indexMenu.data(TokenItemModel::NameRole).toString());
+        indexMenu = QModelIndex();
+    }
 }
 
 void QRCToken::copySenderAddress()
 {
-    GUIUtil::copyEntryDataFromList(ui->tokensList, TokenItemModel::SenderRole);
+    if(indexMenu.isValid())
+    {
+        GUIUtil::setClipboard(indexMenu.data(TokenItemModel::SenderRole).toString());
+        indexMenu = QModelIndex();
+    }
 }
 
 void QRCToken::removeToken()
@@ -314,12 +235,26 @@ void QRCToken::removeToken()
 
     if(btnRetVal == QMessageBox::Yes)
     {
-        QModelIndexList selection = ui->tokensList->selectionModel()->selectedIndexes();
-        if (selection.empty() && !m_model)
-            return;
-
-        QModelIndex index = selection[0];
+        QModelIndex index = indexMenu;
         std::string sHash = index.data(TokenItemModel::HashRole).toString().toStdString();
         m_model->wallet().removeTokenEntry(sHash);
+        indexMenu = QModelIndex();
     }
+}
+
+void QRCToken::on_sendToken(const QModelIndex &index)
+{
+    on_currentTokenChanged(index);
+    on_goToSendTokenPage();
+}
+
+void QRCToken::on_receiveToken(const QModelIndex &index)
+{
+    on_currentTokenChanged(index);
+    on_goToReceiveTokenPage();
+}
+
+void QRCToken::on_addToken()
+{
+    on_goToAddTokenPage();
 }

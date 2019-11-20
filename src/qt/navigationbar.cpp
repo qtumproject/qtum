@@ -5,19 +5,23 @@
 #include <QStylePainter>
 #include <QStyleOptionToolButton>
 #include <QStyle>
+#include <QLabel>
 #include <qt/styleSheet.h>
+#include <qt/platformstyle.h>
 
 namespace NavigationBar_NS
 {
-static const int ToolButtonWidth = 220;
+static const int ToolButtonWidth = 190;
 static const int ToolButtonHeight = 54;
-static const int ToolButtonIconSize = 32;
+static const int ToolButtonIconSize = 28;
 static const int MarginLeft = 0;
 static const int MarginRight = 0;
 static const int MarginTop = 0;
 static const int MarginBottom = 8;
 static const int ButtonSpacing = 2;
 static const int SubNavPaddingRight = 40;
+static const int LogoHeight = 60;
+static const int LogoWidth = 90;
 }
 using namespace NavigationBar_NS;
 
@@ -28,7 +32,18 @@ public:
         QToolButton(parent),
         m_subBar(subBar),
         m_iconCached(false)
-    {}
+    {
+        m_colorEnabled = GetStringStyleValue("navtoolbutton/color-enabled", "#1a96ce");
+        m_colorPressed = GetStringStyleValue("navtoolbutton/color-pressed", "#e5f3f9");
+        m_colorHover = GetStringStyleValue("navtoolbutton/color-hover", "#b3dcef");
+        m_colorDisabled = GetStringStyleValue("navtoolbutton/color-disabled", "#7fc4e3");
+        m_subIcon = QImage(GetStringStyleValue("navtoolbutton/sub-icon", ""));
+        m_subPaddingRight = GetIntStyleValue("navtoolbutton/sub-padding-right", SubNavPaddingRight);
+        m_subPaddingLeft = GetIntStyleValue("navtoolbutton/sub-padding-left", 0);
+        m_subAlignment = GetIntStyleValue("navtoolbutton/sub-alignment", Qt::AlignRight);
+        m_subIconHeight = GetIntStyleValue("navtoolbutton/sub-icon-height", 6);
+        m_subIconWidth = GetIntStyleValue("navtoolbutton/sub-icon-width", 3);
+    }
 
 protected:
     void paintEvent(QPaintEvent *) Q_DECL_OVERRIDE
@@ -69,26 +84,27 @@ protected:
             QColor color;
             if(!(toolbutton->state & QStyle::State_Enabled))
             {
-                color = 0x1a96ce;
+                color = m_colorEnabled;
             }
             else if(toolbutton->state & (QStyle::State_Sunken | QStyle::State_On))
             {
-                color = 0xe5f3f9;
+                color = m_colorPressed;
             }
             else if(toolbutton->state & QStyle::State_MouseOver)
             {
-                color = 0xb3dcef;
+                color = m_colorHover;
             }
             else
             {
-                color = 0x7fc4e3;
+                color = m_colorDisabled;
             }
 
             // Determine area
             QRect rect = toolbutton->rect;
-            int w = rect.width() - SubNavPaddingRight;
+            int w = rect.width() - m_subPaddingRight;
             w = qMax(w, 0);
             rect.setWidth(w);
+            rect.setLeft(m_subPaddingLeft);
             int shiftX = 0;
             int shiftY = 0;
             if (toolbutton->state & (QStyle::State_Sunken | QStyle::State_On)) {
@@ -96,9 +112,18 @@ protected:
                 shiftY = style()->pixelMetric(QStyle::PM_ButtonShiftVertical, toolbutton, this);
             }
 
+            // Draw icon
+            if(!m_subIcon.isNull())
+            {
+                QImage image = m_subIcon;
+                PlatformStyle::SingleColorImage(image, color);
+                QRect rectImage(rect.left() -m_subIconHeight -2, rect.top() + (rect.height() - m_subIconHeight)/2, m_subIconWidth, m_subIconHeight);
+                p->drawImage(rectImage, image);
+            }
+
             // Draw text
             if (!toolbutton->text.isEmpty()) {
-                int alignment = Qt::AlignRight | Qt::AlignVCenter | Qt::TextShowMnemonic;
+                int alignment = m_subAlignment | Qt::AlignVCenter | Qt::TextShowMnemonic;
                 rect.translate(shiftX, shiftY);
                 p->setFont(toolbutton->font);
                 p->setPen(color);
@@ -129,14 +154,26 @@ private:
     bool m_subBar;
     bool m_iconCached;
     QIcon m_hoverIcon;
+    QColor m_colorEnabled;
+    QColor m_colorPressed;
+    QColor m_colorHover;
+    QColor m_colorDisabled;
+    QImage m_subIcon;
+    int m_subPaddingRight;
+    int m_subPaddingLeft;
+    int m_subAlignment;
+    int m_subIconHeight;
+    int m_subIconWidth;
 };
 
 NavigationBar::NavigationBar(QWidget *parent) :
     QWidget(parent),
     m_toolStyle(Qt::ToolButtonTextBesideIcon),
     m_subBar(false),
-    m_built(false)
+    m_built(false),
+    m_logoSpace(0)
 {
+    m_logoSpace = GetIntStyleValue("navigationbar/logo-space", 0);
 }
 
 void NavigationBar::addAction(QAction *action)
@@ -180,6 +217,25 @@ void NavigationBar::buildUi()
                                        m_subBar ? 0 : MarginBottom);
         vboxLayout->setSpacing(m_subBar ? 0 : ButtonSpacing);
 
+        if(!m_subBar)
+        {
+            QHBoxLayout *hLayout = new QHBoxLayout();
+            hLayout->setContentsMargins(0,0,0,10);
+            QLabel *labelLogo = new QLabel(this);
+            labelLogo->setFixedSize(LogoHeight, LogoWidth);
+            labelLogo->setObjectName("labelLogo");
+            hLayout->addWidget(labelLogo);
+            vboxLayout->addLayout(hLayout);
+
+            if(m_logoSpace)
+            {
+                QFrame *line = new QFrame(this);
+                line->setObjectName("hLineLogo");
+                line->setFrameShape(QFrame::HLine);
+                vboxLayout->addWidget(line);
+                vboxLayout->addSpacerItem(new QSpacerItem(m_logoSpace, m_logoSpace, QSizePolicy::Fixed, QSizePolicy::Fixed));
+            }
+        }
         // List all actions
         for(int i = 0; i < m_actions.count(); i++)
         {
@@ -194,11 +250,11 @@ void NavigationBar::buildUi()
             toolButton->setIconSize(QSize(ToolButtonIconSize, ToolButtonIconSize));
             if(m_subBar)
             {
-                SetObjectStyleSheet(toolButton, StyleSheetNames::ToolSubBlack);
+                SetObjectStyleSheet(toolButton, StyleSheetNames::NavSubGroupButton);
             }
             else
             {
-                SetObjectStyleSheet(toolButton, StyleSheetNames::ToolBlack);
+                SetObjectStyleSheet(toolButton, StyleSheetNames::NavButton);
             }
 
             if(m_groups.contains(action))
@@ -210,7 +266,7 @@ void NavigationBar::buildUi()
                 vboxLayout2->setSpacing(0);
                 if(!m_subBar)
                 {
-                    SetObjectStyleSheet(toolButton, StyleSheetNames::ToolGroupBlack);
+                    SetObjectStyleSheet(toolButton, StyleSheetNames::NavGroupButton);
                 }
 
                 // Add sub-navigation bar for the group of actions
@@ -240,7 +296,11 @@ void NavigationBar::buildUi()
                 m_actions[0]->setChecked(true);
             }
             setMinimumWidth(defButtonWidth + MarginLeft + MarginRight);
+            QFrame *lineStatus = new QFrame(this);
+            lineStatus->setObjectName("hLineStatus");
+            lineStatus->setFrameShape(QFrame::HLine);
             vboxLayout->addStretch(1);
+            vboxLayout->addWidget(lineStatus);
         }
 
         // The component is built

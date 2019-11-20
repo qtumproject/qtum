@@ -151,6 +151,23 @@ double GetPoSKernelPS()
     return result;
 }
 
+double GetAdjustedNetworkWeight()
+{
+    double result = 0;
+    double networkWeight = GetPoSKernelPS();
+    CBlockIndex* pindex = pindexBestHeader == 0 ? chainActive.Tip() : pindexBestHeader;
+    int nHeight = pindex ? pindex->nHeight : 0;
+    const Consensus::Params& consensusParams = Params().GetConsensus();
+    double subsidy = GetBlockSubsidy(nHeight, consensusParams);
+    if(networkWeight > 0)
+    {
+        // Formula: 100 * 675 blocks/day * 365 days * subsidy) / Network Weight
+        result = 24637500 * subsidy / networkWeight;
+    }
+
+    return result;
+}
+
 static int ComputeNextBlockAndDepth(const CBlockIndex* tip, const CBlockIndex* blockindex, const CBlockIndex*& next)
 {
     next = tip->GetAncestor(blockindex->nHeight + 1);
@@ -287,6 +304,26 @@ UniValue transactionReceiptToJSON(const dev::eth::TransactionReceipt& txRec)
     return result;
 }
 ////////////////////////////////////////////////////////////////////////////
+
+static UniValue getadjustednetworkweight(const JSONRPCRequest& request)
+{
+    if (request.fHelp || request.params.size() != 0)
+        throw std::runtime_error(
+            RPCHelpMan{"getadjustednetworkweight",
+                "\nReturns the adjusted network weight.\n",
+                {},
+                RPCResult{
+            "n    (numeric) The current adjusted network weight\n"
+                },
+                RPCExamples{
+                    HelpExampleCli("getadjustednetworkweight", "")
+            + HelpExampleRpc("getadjustednetworkweight", "")
+                },
+            }.ToString());
+
+    LOCK(cs_main);
+    return GetAdjustedNetworkWeight();
+}
 
 static UniValue getblockcount(const JSONRPCRequest& request)
 {
@@ -3365,6 +3402,7 @@ static const CRPCCommand commands[] =
     { "blockchain",         "searchlogs",             &searchlogs,             {"fromBlock", "toBlock", "address", "topics"} },
 
     { "blockchain",         "waitforlogs",            &waitforlogs,            {"fromBlock", "nblocks", "address", "topics"} },
+    { "blockchain",         "getadjustednetworkweight",          &getadjustednetworkweight,          {} },
 };
 // clang-format on
 

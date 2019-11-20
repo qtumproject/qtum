@@ -96,7 +96,7 @@
        <number>15</number>
       </property>
       <item>
-       <widget class="QPushButton" name="newContractInfo">
+       <widget class="QtumPushButton" name="newContractInfo">
         <property name="toolTip">
          <string>Create a new contract info</string>
         </property>
@@ -106,7 +106,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="copyAddress">
+       <widget class="QtumPushButton" name="copyAddress">
         <property name="toolTip">
          <string>Copy the currently selected contract address to the system clipboard</string>
         </property>
@@ -116,7 +116,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="deleteContractInfo">
+       <widget class="QtumPushButton" name="deleteContractInfo">
         <property name="toolTip">
          <string>Delete the currently selected contract info from the list</string>
         </property>
@@ -139,7 +139,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="exportButton">
+       <widget class="QtumPushButton" name="exportButton">
         <property name="toolTip">
          <string>Export the data to a file</string>
         </property>
@@ -160,6 +160,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QtumPushButton</class>
+   <extends>QPushButton</extends>
+   <header>qt/qtumpushbutton.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

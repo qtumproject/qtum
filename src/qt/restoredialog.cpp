@@ -14,7 +14,7 @@ RestoreDialog::RestoreDialog(QWidget *parent) :
     model(0)
 {
     ui->setupUi(this);
-    SetObjectStyleSheet(ui->btnReset, StyleSheetNames::ButtonWhite);
+    SetObjectStyleSheet(ui->btnReset, StyleSheetNames::ButtonLight);
 }
 
 RestoreDialog::~RestoreDialog()
@@ -55,7 +55,7 @@ void RestoreDialog::setModel(WalletModel *model)
 void RestoreDialog::on_btnReset_clicked()
 {
     ui->txtWalletPath->setText("");
-    ui->rbReindex->setChecked(true);
+    ui->rbRestoreFile->setChecked(true);
 }
 
 void RestoreDialog::on_btnBoxRestore_accepted()
@@ -83,7 +83,7 @@ void RestoreDialog::on_btnBoxRestore_accepted()
     QString param = getParam();
     if(model && QFile::exists(filename))
     {
-        QMessageBox::StandardButton retval = QMessageBox::question(this, tr("Confirm wallet restoration"),
+        QMessageBox::StandardButton retval = QMessageBox::warning(this, tr("Confirm wallet restoration"),
                  tr("Warning: The wallet will be restored from location <b>%1</b> and restarted with parameter <b>%2</b>.").arg(filename, param)
                  + tr("<br><br>Are you sure you wish to restore your wallet?"),
                  QMessageBox::Yes|QMessageBox::Cancel,
