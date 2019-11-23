@@ -90,7 +90,7 @@ int main(int argc, char** argv)
             gArgs.GetArg("-plot-height", DEFAULT_PLOT_HEIGHT)));
     }
 
-    dev::eth::Ethash::init();
+    //dev::eth::Ethash::init();
 
     benchmark::BenchRunner::RunAll(*printer, evaluations, scaling_factor, regex_filter, is_list_only);
 
