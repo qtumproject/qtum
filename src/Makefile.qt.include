@@ -602,9 +602,9 @@ qt/res/styles/theme2/navbutton.css \
 qt/res/styles/theme2/navsubgroupbutton.css \
 qt/res/styles/theme2/tableviewlight.css \
 qt/res/styles/theme2/invalid.css \
-qt/res/styles/theme2/app-icons/down_arrow.png \
-qt/res/styles/theme2/app-icons/down_arrow_hover.png \
-qt/res/styles/theme2/app-icons/down_arrow_disabled.png \
+qt/res/styles/theme2/app-icons/up_arrow.png \
+qt/res/styles/theme2/app-icons/up_arrow_hover.png \
+qt/res/styles/theme2/app-icons/up_arrow_disabled.png \
 qt/res/styles/theme2/app-icons/down_arrow.png \
 qt/res/styles/theme2/app-icons/down_arrow_hover.png \
 qt/res/styles/theme2/app-icons/down_arrow_disabled.png \
