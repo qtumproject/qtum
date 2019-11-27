@@ -1692,7 +1692,7 @@ bool AppInitMain(InitInterfaces& interfaces)
                     fGettingValuesDGP = false;
                 }
 
-                dev::eth::Ethash::init();
+                dev::eth::NoProof::init();
                 fs::path qtumStateDir = GetDataDir() / "stateQtum";
                 bool fStatus = fs::exists(qtumStateDir);
                 const std::string dirQtum(qtumStateDir.string());

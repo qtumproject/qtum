@@ -9,7 +9,7 @@
 #include <util/system.h>
 #include <util/strencodings.h>
 #include <validation.h>
-#include <libethashseal/Ethash.h>
+#include <libethcore/SealEngine.h>
 
 #include <memory>
 
@@ -90,7 +90,7 @@ int main(int argc, char** argv)
             gArgs.GetArg("-plot-height", DEFAULT_PLOT_HEIGHT)));
     }
 
-    dev::eth::Ethash::init();
+    dev::eth::NoProof::init();
 
     benchmark::BenchRunner::RunAll(*printer, evaluations, scaling_factor, regex_filter, is_list_only);
 
