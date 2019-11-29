@@ -60,13 +60,24 @@ namespace BCLog {
         ALL         = ~(uint32_t)0,
     };
 
+    struct LogMsg
+    {
+        LogMsg(const std::string& _msg, bool _useVMLog) :
+            msg(_msg),
+            useVMLog(_useVMLog)
+        {}
+
+        std::string msg;
+        bool useVMLog;
+    };
+
     class Logger
     {
     private:
         FILE* m_fileout = nullptr;
         FILE* m_fileoutVM = nullptr;
         std::mutex m_file_mutex;
-        std::list<std::string> m_msgs_before_open;
+        std::list<LogMsg> m_msgs_before_open;
 
         /**
          * m_started_new_line is a state variable that will suppress printing of

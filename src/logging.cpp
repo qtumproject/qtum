@@ -55,20 +55,22 @@ bool BCLog::Logger::OpenDebugLog()
 
     if (m_fileout) {
         setbuf(m_fileout, nullptr); // unbuffered
-        // dump buffered messages from before we opened the log
-        while (!m_msgs_before_open.empty()) {
-            FileWriteStr(m_msgs_before_open.front(), m_fileout);
-            m_msgs_before_open.pop_front();
-        }
     }
+
     ///////////////////////////////////////////// // qtum
     if (m_fileoutVM) {
         setbuf(m_fileoutVM, nullptr); // unbuffered
-        // dump buffered messages from before we opened the log
-        while (!m_msgs_before_open.empty()) {
-            FileWriteStr(m_msgs_before_open.front(), m_fileoutVM);
-            m_msgs_before_open.pop_front();
+    }
+
+    // dump buffered messages from before we opened the log
+    while (!m_msgs_before_open.empty()) {
+        LogMsg logmsg= m_msgs_before_open.front();
+        FILE* file = logmsg.useVMLog ? m_fileoutVM : m_fileout;
+        if(file)
+        {
+            FileWriteStr(logmsg.msg, file);
         }
+        m_msgs_before_open.pop_front();
     }
     /////////////////////////////////////////////
 
@@ -225,13 +227,6 @@ std::string BCLog::Logger::LogTimestampStr(const std::string &str)
 
 void BCLog::Logger::LogPrintStr(const std::string &str, bool useVMLog)
 {
-    //////////////////////////////// // qtum
-    FILE* file = m_fileout;
-    if(useVMLog){
-        file = m_fileoutVM;
-    }
-    ////////////////////////////////
-
     std::string strTimestamped = LogTimestampStr(str);
     bool print_to_console = m_print_to_console;
     if(print_to_console && useVMLog && !m_show_evm_logs) print_to_console = false;
@@ -244,9 +239,17 @@ void BCLog::Logger::LogPrintStr(const std::string &str, bool useVMLog)
     if (m_print_to_file) {
         std::lock_guard<std::mutex> scoped_lock(m_file_mutex);
 
+        //////////////////////////////// // qtum
+        FILE* file = m_fileout;
+        if(useVMLog){
+            file = m_fileoutVM;
+        }
+        ////////////////////////////////
+
         // buffer if we haven't opened the log yet
         if (file == nullptr) {
-            m_msgs_before_open.push_back(strTimestamped);
+            LogMsg logmsg(strTimestamped, useVMLog);
+            m_msgs_before_open.push_back(logmsg);
         }
         else
         {
