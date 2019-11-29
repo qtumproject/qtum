@@ -24,11 +24,13 @@
 #include <wallet/load.h>
 #include <wallet/wallet.h>
 #include <wallet/walletutil.h>
+#include <key_io.h>
 
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
+#include <algorithm>
 
 namespace interfaces {
 namespace {
@@ -400,6 +402,87 @@ public:
         LOCK(m_wallet->cs_wallet);
         return m_wallet->GetCredit(txout, filter);
     }
+    bool isUnspentAddress(const std::string &qtumAddress) override
+    {
+        auto locked_chain = m_wallet->chain().lock();
+        LOCK(m_wallet->cs_wallet);
+
+        std::vector<COutput> vecOutputs;
+        m_wallet->AvailableCoins(*locked_chain, vecOutputs);
+        for (const COutput& out : vecOutputs)
+        {
+            CTxDestination address;
+            const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
+            bool fValidAddress = ExtractDestination(scriptPubKey, address);
+
+            if(fValidAddress && EncodeDestination(address) == qtumAddress && out.tx->tx->vout[out.i].nValue)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    bool isMineAddress(const std::string &strAddress) override
+    {
+        CTxDestination address = DecodeDestination(strAddress);
+        if(!IsValidDestination(address) || !IsMine(*m_wallet, address))
+        {
+            return false;
+        }
+        return true;
+    }
+    std::vector<std::string> availableAddresses(interfaces::Chain::Lock& locked_chain, bool fIncludeZeroValue)
+    {
+        std::vector<std::string> result;
+        std::vector<COutput> vecOutputs;
+        std::map<std::string, bool> mapAddress;
+
+        if(fIncludeZeroValue)
+        {
+            // Get the user created addresses in from the address book and add them if they are mine
+            for (const auto& item : m_wallet->mapAddressBook) {
+                if(!IsMine(*m_wallet, item.first)) continue;
+
+                std::string strAddress = EncodeDestination(item.first);
+                if (mapAddress.find(strAddress) == mapAddress.end())
+                {
+                    mapAddress[strAddress] = true;
+                    result.push_back(strAddress);
+                }
+            }
+
+            // Get all coins including the 0 values
+            m_wallet->AvailableCoins(locked_chain, vecOutputs, false, nullptr, 0);
+        }
+        else
+        {
+            // Get all spendable coins
+            m_wallet->AvailableCoins(locked_chain, vecOutputs);
+        }
+
+        // Extract all coins addresses and add them in the list
+        for (const COutput& out : vecOutputs)
+        {
+            CTxDestination address;
+            const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
+            bool fValidAddress = ExtractDestination(scriptPubKey, address);
+
+            if (!fValidAddress || !IsMine(*m_wallet, address)) continue;
+
+            std::string strAddress = EncodeDestination(address);
+            if (mapAddress.find(strAddress) == mapAddress.end())
+            {
+                mapAddress[strAddress] = true;
+                result.push_back(strAddress);
+            }
+        }
+
+        return result;
+    }
+    bool tryGetAvailableAddresses(std::vector<std::string> &spendableAddresses, std::vector<std::string> &allAddresses, bool &includeZeroValue) override
+    {
+        return true;
+    }
     CoinsList listCoins() override
     {
         auto locked_chain = m_wallet->chain().lock();
@@ -456,6 +539,97 @@ public:
     {
         RemoveWallet(m_wallet);
     }
+    bool addTokenEntry(const TokenInfo &token) override
+    {
+        return true;
+    }
+    bool addTokenTxEntry(const TokenTx& tokenTx, bool fFlushOnClose) override
+    {
+        return true;
+    }
+    bool existTokenEntry(const TokenInfo &token) override
+    {
+        return true;
+    }
+    bool removeTokenEntry(const std::string &sHash) override
+    {
+        return true;
+    }
+    std::vector<TokenInfo> getInvalidTokens() override
+    {
+        return {};
+    }
+    TokenTx getTokenTx(const uint256& txid) override
+    {
+        return {};
+    }
+    std::vector<TokenTx> getTokenTxs() override
+    {
+        return {};
+    }
+    TokenInfo getToken(const uint256& id) override
+    {
+        return {};
+    }
+    std::vector<TokenInfo> getTokens() override
+    {
+        return {};
+    }
+    bool tryGetTokenTxStatus(const uint256& txid, int& block_number, bool& in_mempool, int& num_blocks) override
+    {
+        return true;
+    }
+    bool getTokenTxStatus(const uint256& txid, int& block_number, bool& in_mempool, int& num_blocks) override
+    {
+        return true;
+    }
+    bool getTokenTxDetails(const TokenTx &wtx, uint256& credit, uint256& debit, std::string& tokenSymbol, uint8_t& decimals) override
+    {
+        return true;
+    }
+    bool isTokenTxMine(const TokenTx &wtx) override
+    {
+        return true;
+    }
+    ContractBookData getContractBook(const std::string& id) override
+    {
+        return {};
+    }
+    std::vector<ContractBookData> getContractBooks() override
+    {
+        return {};
+    }
+    bool existContractBook(const std::string& id) override
+    {
+        return true;
+    }
+    bool delContractBook(const std::string& id) override
+    {
+        return true;
+    }
+    bool setContractBook(const std::string& id, const std::string& name, const std::string& abi) override
+    {
+        return true;
+    }
+    bool tryGetStakeWeight(uint64_t& nWeight) override
+    {
+        return true;
+    }
+    int64_t getLastCoinStakeSearchInterval() override 
+    { 
+        return 0;
+    }
+    bool getWalletUnlockStakingOnly() override
+    {
+        return true;
+    }
+    void setWalletUnlockStakingOnly(bool unlock) override
+    {
+    }
+    bool cleanTokenTxEntries() override
+    {
+        return true;
+    }
     std::unique_ptr<Handler> handleUnload(UnloadFn fn) override
     {
         return MakeHandler(m_wallet->NotifyUnload.connect(fn));
@@ -479,6 +653,16 @@ public:
         return MakeHandler(m_wallet->NotifyTransactionChanged.connect(
             [fn](CWallet*, const uint256& txid, ChangeType status) { fn(txid, status); }));
     }
+    std::unique_ptr<Handler> handleTokenTransactionChanged(TokenTransactionChangedFn fn) override
+    {
+        return MakeHandler(m_wallet->NotifyTokenTransactionChanged.connect(
+            [fn](CWallet*, const uint256& id, ChangeType status) { fn(id, status); }));
+    }
+    std::unique_ptr<Handler> handleTokenChanged(TokenChangedFn fn) override
+    {
+        return MakeHandler(m_wallet->NotifyTokenChanged.connect(
+            [fn](CWallet*, const uint256& id, ChangeType status) { fn(id, status); }));
+    }
     std::unique_ptr<Handler> handleWatchOnlyChanged(WatchOnlyChangedFn fn) override
     {
         return MakeHandler(m_wallet->NotifyWatchonlyChanged.connect(fn));
@@ -486,6 +670,12 @@ public:
     std::unique_ptr<Handler> handleCanGetAddressesChanged(CanGetAddressesChangedFn fn) override
     {
         return MakeHandler(m_wallet->NotifyCanGetAddressesChanged.connect(fn));
+    }
+    std::unique_ptr<Handler> handleContractBookChanged(ContractBookChangedFn fn) override
+    {
+        return MakeHandler(m_wallet->NotifyContractBookChanged.connect(
+            [fn](CWallet*, const std::string& address, const std::string& label,
+                const std::string& abi, ChangeType status) { fn(address, label, abi, status); }));
     }
 
     std::shared_ptr<CWallet> m_wallet;

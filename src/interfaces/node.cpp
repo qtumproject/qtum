@@ -191,6 +191,14 @@ public:
         }
         return Params().GenesisBlock().GetBlockTime(); // Genesis block's time of current network
     }
+    uint256 getBlockHash(int blockNumber) override
+    {
+        return {};
+    }
+    int64_t getBlockTime(int blockNumber) override
+    {
+        return 0;
+    }
     double getVerificationProgress() override
     {
         const CBlockIndex* tip;
@@ -256,6 +264,12 @@ public:
             wallets.emplace_back(MakeWallet(wallet));
         }
         return wallets;
+    }
+    void getGasInfo(uint64_t& blockGasLimit, uint64_t& minGasPrice, uint64_t& nGasPrice)
+    {
+    }
+    void getSyncInfo(int& numBlocks, bool& isSyncing)
+    {
     }
     std::unique_ptr<Wallet> loadWallet(const std::string& name, std::string& error, std::string& warning) override
     {
