@@ -233,8 +233,10 @@ void BCLog::Logger::LogPrintStr(const std::string &str, bool useVMLog)
     ////////////////////////////////
 
     std::string strTimestamped = LogTimestampStr(str);
+    bool print_to_console = m_print_to_console;
+    if(print_to_console && useVMLog && !m_show_evm_logs) print_to_console = false;
 
-    if (m_print_to_console) {
+    if (print_to_console) {
         // print to console
         fwrite(strTimestamped.data(), 1, strTimestamped.size(), stdout);
         fflush(stdout);
