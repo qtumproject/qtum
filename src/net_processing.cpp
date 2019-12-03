@@ -4224,24 +4224,32 @@ void CleanBlockIndex()
 
     while(!ShutdownRequested())
     {
+        if(!IsInitialBlockDownload())
         {
-            LOCK(cs_main);
-
+            // Select block indexes to delete
             std::vector<uint256> indexNeedErase;
-
-            const CBlockIndex *pindexCheck = chainActive[chainActive.Height() - nCheckpointSpan -1];
-
-            if(!IsInitialBlockDownload() && pindexCheck)
             {
-                for (BlockMap::iterator it=mapBlockIndex.begin(); it!=mapBlockIndex.end(); it++)
+                LOCK(cs_main);
+                const CBlockIndex *pindexCheck = chainActive[chainActive.Height() - nCheckpointSpan -1];
+                if(pindexCheck)
                 {
-                    CBlockIndex *pindex = (*it).second;
-                    if(NeedToEraseBlockIndex(pindex, pindexCheck))
+                    for (BlockMap::iterator it=mapBlockIndex.begin(); it!=mapBlockIndex.end(); it++)
                     {
-                        indexNeedErase.push_back(pindex->GetBlockHash());
+                        CBlockIndex *pindex = (*it).second;
+                        if(NeedToEraseBlockIndex(pindex, pindexCheck))
+                        {
+                            indexNeedErase.push_back(pindex->GetBlockHash());
+                        }
                     }
                 }
+            }
 
+            // Delete selected block indexes
+            if(indexNeedErase.size() > 0)
+            {
+                SyncWithValidationInterfaceQueue();
+
+                LOCK(cs_main);
                 for(uint256 blockHash : indexNeedErase)
                 {
                     BlockMap::iterator it=mapBlockIndex.find(blockHash);
