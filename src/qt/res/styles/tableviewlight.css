@@ -1,0 +1,88 @@
+/*--------------------------------------------
+Table View light CSS
+--------------------------------------------*/
+QHeaderView{
+    color: #5a5a5d;
+    background-color: #e1e1e1;
+    border: none;
+}
+QHeaderView:section{
+    padding: 6px 20px 6px 6px;
+    border: none;
+    background-color: transparent;
+}
+QHeaderView::down-arrow {
+    image: url(":/styles/app-icons/down_arrow");
+    width: 6px;
+    height: 4px;
+    margin-right: 5px;
+    margin-bottom: 1px;
+}
+QHeaderView::up-arrow {
+    image: url(":/styles/app-icons/up_arrow");
+    width: 6px;
+    height: 4px;
+    margin-right: 5px;
+    margin-bottom: 1px;
+}
+QTableView{
+    background-color: #f3f3f3;
+    alternate-background-color: #ededed;
+    border: 1px solid #919192;
+    font: normal;
+    qproperty-showGrid: false;
+    qproperty-alternatingRowColors: true;
+    qproperty-selectionBehavior: SelectRows;
+}
+QTableView::item{
+    border: none;
+    color: #989898;
+}
+QTableView::item:selected{
+    qproperty-showGrid: false;
+    background-color: #ffffff;
+    color: #5a5a5d;
+}
+
+/*--------------------------------------------
+Scroll Bar Vertical CSS
+--------------------------------------------*/
+QScrollBar:vertical {
+    border-radius: 0px;
+    border-left: 1px solid #6a6a6d;
+    background: #747474;
+    width: 19px;
+    padding: 10px 4px;
+}
+QScrollBar::handle:vertical {
+    border: 1px solid #646464;
+    background: #4c4c4c;
+    border-radius: 5px;
+    min-height: 30px;
+}
+QScrollBar::handle:vertical:disabled {
+    background: rgba(76, 76, 76, 40%);
+}
+/*--------------------------------------------
+Scroll Bar Horizontal CSS
+--------------------------------------------*/
+QScrollBar:horizontal {
+    border-radius: 0px;
+    border-left: 1px solid #6a6a6d;
+    background: #747474;
+    height: 19px;
+    padding: 4px 10px;
+}
+QScrollBar::handle:horizontal {
+    border: 1px solid #646464;
+    background: #4c4c4c;
+    border-radius: 5px;
+    min-height: 30px;
+}
+QScrollBar::handle:horizontal:disabled {
+    background: rgba(76, 76, 76, 40%);
+}
+QAbstractScrollArea::corner {
+    background: #747474;
+    border: 0px;
+}
