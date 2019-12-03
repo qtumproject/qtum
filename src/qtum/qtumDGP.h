@@ -1,10 +1,10 @@
 #ifndef QTUMDGP_H
 #define QTUMDGP_H
 
-#include "qtumstate.h"
-#include "primitives/block.h"
-#include "validation.h"
-#include "utilstrencodings.h"
+#include <qtum/qtumstate.h>
+#include <primitives/block.h>
+#include <validation.h>
+#include <util/strencodings.h>
 
 static const dev::Address GasScheduleDGP = dev::Address("0000000000000000000000000000000000000080");
 static const dev::Address BlockSizeDGP = dev::Address("0000000000000000000000000000000000000081");
@@ -28,9 +28,9 @@ class QtumDGP {
     
 public:
 
-    QtumDGP(QtumState* _state, bool _dgpevm = true) : dgpevm(_dgpevm), state(_state) { initDataEIP158(); }
+    QtumDGP(QtumState* _state, bool _dgpevm = true) : dgpevm(_dgpevm), state(_state) { initDataSchedule(); }
 
-    dev::eth::EVMSchedule getGasSchedule(unsigned int blockHeight);
+    dev::eth::EVMSchedule getGasSchedule(int blockHeight);
 
     uint32_t getBlockSize(unsigned int blockHeight);
 
@@ -48,9 +48,9 @@ private:
 
     void initDataTemplate(const dev::Address& addr, std::vector<unsigned char>& data);
 
-    void initDataEIP158();
+    void initDataSchedule();
 
-    bool checkLimitSchedule(const std::vector<uint32_t>& defaultData, const std::vector<uint32_t>& checkData);
+    bool checkLimitSchedule(const std::vector<uint32_t>& defaultData, const std::vector<uint32_t>& checkData, int blockHeight);
 
     void createParamsInstance();
 
@@ -66,7 +66,7 @@ private:
 
     void parseDataOneUint64(uint64_t& value);
 
-    dev::eth::EVMSchedule createEVMSchedule();
+    dev::eth::EVMSchedule createEVMSchedule(const dev::eth::EVMSchedule& schedule, int blockHeight);
 
     void clear();    
 
@@ -86,7 +86,7 @@ private:
 
     std::vector<std::pair<unsigned int, dev::Address>> paramsInstance;
 
-    std::vector<uint32_t> dataEIP158Schedule;
+    std::vector<uint32_t> dataSchedule;
 
 };
 #endif
