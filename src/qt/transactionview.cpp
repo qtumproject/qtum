@@ -38,7 +38,7 @@
 #include <QUrl>
 #include <QVBoxLayout>
 
-TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *parent) :
+TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *parent, bool hideFilter) :
     QWidget(parent), model(nullptr), transactionProxyModel(nullptr),
     transactionView(nullptr), abandonAction(nullptr), bumpFeeAction(nullptr), columnResizingFixer(nullptr)
 {
@@ -46,9 +46,10 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
     setContentsMargins(0,0,0,0);
 
     QHBoxLayout *hlayout = new QHBoxLayout();
-    hlayout->setContentsMargins(6,6,6,6);
+    hlayout->setContentsMargins(0,6,0,6);
     hlayout->setSpacing(10);
-    hlayout->addSpacing(STATUS_COLUMN_WIDTH);
+    hSpacer = new QSpacerItem(0, 20, QSizePolicy::Fixed, QSizePolicy::Fixed);
+    hlayout->addSpacerItem(hSpacer);
 
     watchOnlyWidget = new QComboBox(this);
     watchOnlyWidget->setObjectName("watchOnlyWidget");
@@ -115,8 +116,15 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
     vlayout->setSpacing(0);
 
     QTableView *view = new QTableView(this);
-    vlayout->addLayout(hlayout);
-    vlayout->addWidget(createDateRangeWidget());
+    if(hideFilter)
+    {
+        createDateRangeWidget();
+    }
+    else
+    {
+        vlayout->addLayout(hlayout);
+        vlayout->addWidget(createDateRangeWidget());
+    }
     vlayout->addWidget(view);
     vlayout->setSpacing(0);
     int width = view->verticalScrollBar()->sizeHint().width();
@@ -195,6 +203,16 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
     connect(this, &TransactionView::bumpedFee, [this](const uint256& txid) {
       focusTransaction(txid);
     });
+
+    if(hideFilter)
+    {
+        dateWidget->setVisible(false);
+        typeWidget->setVisible(false);
+        watchOnlyWidget->setVisible(false);
+        search_widget->setVisible(false);
+        amountWidget->setVisible(false);
+        dateRangeWidget->setVisible(false);
+    }
 }
 
 void TransactionView::setModel(WalletModel *_model)
@@ -643,4 +661,7 @@ void TransactionView::updateWatchOnlyColumn(bool fHaveWatchOnly)
 {
     watchOnlyWidget->setVisible(fHaveWatchOnly);
     transactionView->setColumnHidden(TransactionTableModel::Watchonly, !fHaveWatchOnly);
+
+    int spacerWidth = fHaveWatchOnly ? 0 : STATUS_COLUMN_WIDTH + 6;
+    hSpacer->changeSize(spacerWidth, 20, QSizePolicy::Fixed, QSizePolicy::Fixed);
 }

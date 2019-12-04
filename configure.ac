@@ -7,7 +7,7 @@ define(_CLIENT_VERSION_BUILD, 0)
 define(_CLIENT_VERSION_RC, 0)
 define(_CLIENT_VERSION_IS_RELEASE, true)
 define(_COPYRIGHT_YEAR, 2019)
-define(_COPYRIGHT_HOLDERS,[The %s developers])
+define(_COPYRIGHT_HOLDERS,[The %s Developers])
 define(_COPYRIGHT_HOLDERS_SUBSTITUTION,[[Qtum Core]])
 AC_INIT([Qtum Core],m4_join([.], _CLIENT_VERSION_MAJOR, _CLIENT_VERSION_MINOR, _CLIENT_VERSION_REVISION, m4_if(_CLIENT_VERSION_BUILD, [0], [], _CLIENT_VERSION_BUILD))m4_if(_CLIENT_VERSION_RC, [0], [], [rc]_CLIENT_VERSION_RC),[https://github.com/qtumproject/qtum/issues],[qtum],[https://qtum.org/])
 AC_CONFIG_SRCDIR([src/validation.cpp])
@@ -202,6 +202,12 @@ AC_ARG_ENABLE([glibc-back-compat],
   [enable backwards compatibility with glibc])],
   [use_glibc_compat=$enableval],
   [use_glibc_compat=no])
+
+AC_ARG_ENABLE([threadlocal],
+  [AS_HELP_STRING([--enable-threadlocal],
+  [enable features that depend on the c++ thread_local keyword (currently just thread names in debug logs). (default is to enabled if there is platform support and glibc-back-compat is not enabled)])],
+  [use_thread_local=$enableval],
+  [use_thread_local=auto])
 
 AC_ARG_ENABLE([asm],
   [AS_HELP_STRING([--enable-asm],
@@ -833,27 +839,49 @@ AC_LINK_IFELSE([AC_LANG_SOURCE([
   ]
 )
 
-TEMP_LDFLAGS="$LDFLAGS"
-LDFLAGS="$TEMP_LDFLAGS $PTHREAD_CFLAGS"
-AC_MSG_CHECKING([for thread_local support])
-AC_LINK_IFELSE([AC_LANG_SOURCE([
-  #include <thread>
-  static thread_local int foo = 0;
-  static void run_thread() { foo++;}
-  int main(){
-  for(int i = 0; i < 10; i++) { std::thread(run_thread).detach();}
-  return foo;
-  }
-  ])],
-  [
-    AC_DEFINE(HAVE_THREAD_LOCAL,1,[Define if thread_local is supported.])
-    AC_MSG_RESULT(yes)
-  ],
-  [
-    AC_MSG_RESULT(no)
-  ]
-)
-LDFLAGS="$TEMP_LDFLAGS"
+if test "x$use_thread_local" = xyes || { test "x$use_thread_local" = xauto && test "x$use_glibc_compat" = xno; }; then
+  TEMP_LDFLAGS="$LDFLAGS"
+  LDFLAGS="$TEMP_LDFLAGS $PTHREAD_CFLAGS"
+  AC_MSG_CHECKING([for thread_local support])
+  AC_LINK_IFELSE([AC_LANG_SOURCE([
+    #include <thread>
+    static thread_local int foo = 0;
+    static void run_thread() { foo++;}
+    int main(){
+    for(int i = 0; i < 10; i++) { std::thread(run_thread).detach();}
+    return foo;
+    }
+    ])],
+    [
+     case $host in
+       *mingw*)
+          # mingw32's implementation of thread_local has also been shown to behave
+          # erroneously under concurrent usage; see:
+          # https://gist.github.com/jamesob/fe9a872051a88b2025b1aa37bfa98605
+          AC_MSG_RESULT(no)
+          ;;
+        *darwin*)
+          # TODO enable thread_local on later versions of Darwin where it is
+          # supported (per https://stackoverflow.com/a/29929949)
+          AC_MSG_RESULT(no)
+          ;;
+        *freebsd*)
+          # FreeBSD's implementation of thread_local is also buggy (per
+          # https://groups.google.com/d/msg/bsdmailinglist/22ncTZAbDp4/Dii_pII5AwAJ)
+          AC_MSG_RESULT(no)
+          ;;
+        *)
+          AC_DEFINE(HAVE_THREAD_LOCAL,1,[Define if thread_local is supported.])
+          AC_MSG_RESULT(yes)
+          ;;
+      esac
+    ],
+    [
+      AC_MSG_RESULT(no)
+    ]
+  )
+  LDFLAGS="$TEMP_LDFLAGS"
+fi
 
 # Check for different ways of gathering OS randomness
 AC_MSG_CHECKING(for Linux getrandom syscall)

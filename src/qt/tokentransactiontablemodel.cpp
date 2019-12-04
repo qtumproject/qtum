@@ -4,6 +4,7 @@
 #include <qt/guiconstants.h>
 #include <qt/guiutil.h>
 #include <qt/optionsmodel.h>
+#include <qt/styleSheet.h>
 #include <qt/platformstyle.h>
 #include <qt/tokentransactiondesc.h>
 #include <qt/tokentransactionrecord.h>
@@ -262,6 +263,11 @@ TokenTransactionTableModel::TokenTransactionTableModel(const PlatformStyle *_pla
         fProcessingQueuedTransactions(false),
         platformStyle(_platformStyle)
 {
+    color_unconfirmed = GetColorStyleValue("guiconstants/color-unconfirmed", COLOR_UNCONFIRMED);
+    color_negative = GetColorStyleValue("guiconstants/color-negative", COLOR_NEGATIVE);
+    color_bareaddress = GetColorStyleValue("guiconstants/color-bareaddress", COLOR_BAREADDRESS);
+    color_black = GetColorStyleValue("guiconstants/color-black", COLOR_BLACK);
+
     columns << QString() << tr("Date") << tr("Type") << tr("Label") << tr("Name") << tr("Amount");
     priv->refreshWallet(walletModel->node(), walletModel->wallet());
 
@@ -379,10 +385,10 @@ QVariant TokenTransactionTableModel::txAddressDecoration(const TokenTransactionR
     {
     case TokenTransactionRecord::RecvWithAddress:
     case TokenTransactionRecord::RecvFromOther:
-        return platformStyle->TableColorIcon(":/icons/tx_input", PlatformStyle::Input);
+        return platformStyle->TableColorIcon(":/icons/receive_from", PlatformStyle::Input);
     case TokenTransactionRecord::SendToAddress:
     case TokenTransactionRecord::SendToOther:
-        return platformStyle->TableColorIcon(":/icons/tx_output", PlatformStyle::Output);
+        return platformStyle->TableColorIcon(":/icons/send_to", PlatformStyle::Output);
     default:
         return platformStyle->TableColorIcon(":/icons/tx_inout", PlatformStyle::Inout);
     }
@@ -420,10 +426,10 @@ QVariant TokenTransactionTableModel::addressColor(const TokenTransactionRecord *
         {
         QString label = walletModel->getAddressTableModel()->labelForAddress(QString::fromStdString(wtx->address));
         if(label.isEmpty())
-            return COLOR_BAREADDRESS;
+            return color_bareaddress;
         } break;
     case TokenTransactionRecord::SendToSelf:
-        return COLOR_BAREADDRESS;
+        return color_bareaddress;
     default:
         break;
     }
@@ -464,7 +470,7 @@ QVariant TokenTransactionTableModel::txStatusDecoration(const TokenTransactionRe
     case TokenTransactionStatus::Confirmed:
         return platformStyle->TableColorIcon(":/icons/transaction_confirmed", PlatformStyle::Normal);
     default:
-        return COLOR_BLACK;
+        return color_black;
     }
 }
 
@@ -541,11 +547,11 @@ QVariant TokenTransactionTableModel::data(const QModelIndex &index, int role) co
         // Non-confirmed as transactions are grey
         if(!rec->status.countsForBalance)
         {
-            return COLOR_UNCONFIRMED;
+            return color_unconfirmed;
         }
         if(index.column() == Amount && (rec->credit+rec->debit) < 0)
         {
-            return COLOR_NEGATIVE;
+            return color_negative;
         }
         if(index.column() == ToAddress)
         {

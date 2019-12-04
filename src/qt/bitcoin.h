@@ -89,8 +89,8 @@ public:
     /// Setup platform style
     void setupPlatformStyle();
 
-    /// Restore wallet
-    void restoreWallet();
+    /// Restart wallet if needed
+    void restartWallet();
 
 public Q_SLOTS:
     void initializeResult(bool success);
@@ -120,10 +120,12 @@ private:
     std::unique_ptr<QWidget> shutdownWindow;
 
     void startThread();
+    void restart(const QString& commandLine);
 
     QString restorePath;
     QString restoreParam;
     QString restoreName;
+    bool restartApp;
 };
 
 int GuiMain(int argc, char* argv[]);

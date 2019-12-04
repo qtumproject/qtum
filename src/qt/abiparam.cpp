@@ -35,7 +35,7 @@ ABIParam::ABIParam(const PlatformStyle *platformStyle, int ID, const ParameterAB
 
     QFontMetrics metrix(m_paramName->font());
     int width = m_paramName->width() + 10;
-    QString text(QString("%2 <b>%1").arg(QString::fromStdString(param.name)).arg(QString::fromStdString(param.type)));
+    QString text(QString("%2 %1").arg(QString::fromStdString(param.name)).arg(QString::fromStdString(param.type)));
     QString clippedText = metrix.elidedText(text, Qt::ElideRight, width);
     m_paramName->setText(clippedText);
 

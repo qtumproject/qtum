@@ -66,10 +66,10 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *_platformStyle, QWidget *p
     ui->setupUi(this);
 
     // Set stylesheet
-    SetObjectStyleSheet(ui->clearButton, StyleSheetNames::ButtonBlack);
-    SetObjectStyleSheet(ui->addButton, StyleSheetNames::ButtonBlue);
-    SetObjectStyleSheet(ui->sendButton, StyleSheetNames::ButtonBlue);
-    SetObjectStyleSheet(ui->pushButtonCoinControl, StyleSheetNames::ButtonBlack);
+    SetObjectStyleSheet(ui->clearButton, StyleSheetNames::ButtonDark);
+    SetObjectStyleSheet(ui->addButton, StyleSheetNames::ButtonGray);
+    SetObjectStyleSheet(ui->sendButton, StyleSheetNames::ButtonGray);
+    SetObjectStyleSheet(ui->pushButtonCoinControl, StyleSheetNames::ButtonDark);
 
     if (!_platformStyle->getImagesOnButtons()) {
         ui->addButton->setIcon(QIcon());
@@ -88,6 +88,7 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *_platformStyle, QWidget *p
     connect(ui->pushButtonCoinControl, &QPushButton::clicked, this, &SendCoinsDialog::coinControlButtonClicked);
     connect(ui->checkBoxCoinControlChange, &QCheckBox::stateChanged, this, &SendCoinsDialog::coinControlChangeChecked);
     connect(ui->lineEditCoinControlChange, &QValidatedLineEdit::textEdited, this, &SendCoinsDialog::coinControlChangeEdited);
+    ui->labelCoinControlChangeLabel->setVisible(false);
 
     // Coin Control: clipboard actions
     QAction *clipboardQuantityAction = new QAction(tr("Copy quantity"), this);
@@ -162,7 +163,7 @@ void SendCoinsDialog::setModel(WalletModel *_model)
         // Coin Control
         connect(_model->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &SendCoinsDialog::coinControlUpdateLabels);
         connect(_model->getOptionsModel(), &OptionsModel::coinControlFeaturesChanged, this, &SendCoinsDialog::coinControlFeatureChanged);
-        ui->groupBoxCoinControl->setVisible(_model->getOptionsModel()->getCoinControlFeatures());
+        ui->coinControlWidget->setVisible(_model->getOptionsModel()->getCoinControlFeatures());
         coinControlUpdateLabels();
 
         // fee section
@@ -412,11 +413,13 @@ void SendCoinsDialog::clear()
 void SendCoinsDialog::reject()
 {
     clear();
+    QDialog::reject();
 }
 
 void SendCoinsDialog::accept()
 {
     clear();
+    QDialog::accept();
 }
 
 SendCoinsEntry *SendCoinsDialog::addEntry()
@@ -722,7 +725,7 @@ void SendCoinsDialog::coinControlClipboardChange()
 // Coin Control: settings menu - coin control enabled/disabled by user
 void SendCoinsDialog::coinControlFeatureChanged(bool checked)
 {
-    ui->groupBoxCoinControl->setVisible(checked);
+    ui->coinControlWidget->setVisible(checked);
 
     if (!checked && model) // coin control features disabled
         CoinControlDialog::coinControl()->SetNull();
@@ -746,6 +749,7 @@ void SendCoinsDialog::coinControlChangeChecked(int state)
     {
         CoinControlDialog::coinControl()->destChange = CNoDestination();
         ui->labelCoinControlChangeLabel->clear();
+        ui->labelCoinControlChangeLabel->setVisible(false);
     }
     else
         // use this to re-validate an already entered address
@@ -764,6 +768,8 @@ void SendCoinsDialog::coinControlChangeEdited(const QString& text)
         ui->labelCoinControlChangeLabel->setStyleSheet("QLabel{color:red;}");
 
         const CTxDestination dest = DecodeDestination(text.toStdString());
+
+        ui->labelCoinControlChangeLabel->setVisible(!text.isEmpty());
 
         if (text.isEmpty()) // Nothing entered
         {

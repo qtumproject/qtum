@@ -32,7 +32,7 @@ struct SelectedToken{
 };
 
 SendTokenPage::SendTokenPage(QWidget *parent) :
-    QWidget(parent),
+    QDialog(parent),
     ui(new Ui::SendTokenPage),
     m_model(0),
     m_clientModel(0),
@@ -43,7 +43,7 @@ SendTokenPage::SendTokenPage(QWidget *parent) :
     ui->setupUi(this);
 
     // Set stylesheet
-    SetObjectStyleSheet(ui->clearButton, StyleSheetNames::ButtonBlack);
+    SetObjectStyleSheet(ui->clearButton, StyleSheetNames::ButtonDark);
 
     ui->labelPayTo->setToolTip(tr("The address that will receive the tokens."));
     ui->labelAmount->setToolTip(tr("The amount in Token to send."));
@@ -131,6 +131,7 @@ bool SendTokenPage::isDataValid()
 void SendTokenPage::on_clearButton_clicked()
 {
     clearAll();
+    QDialog::reject();
 }
 
 void SendTokenPage::on_gasInfoChanged(quint64 blockGasLimit, quint64 minGasPrice, quint64 nGasPrice)
@@ -145,7 +146,7 @@ void SendTokenPage::on_gasInfoChanged(quint64 blockGasLimit, quint64 minGasPrice
 void SendTokenPage::on_updateConfirmButton()
 {
     bool enabled = true;
-    if(ui->lineEditPayTo->text().isEmpty() || ui->lineEditAmount->text().isEmpty())
+    if(ui->lineEditPayTo->text().isEmpty() || ui->lineEditAmount->text().isEmpty() || !isDataValid())
     {
         enabled = false;
     }
@@ -208,6 +209,7 @@ void SendTokenPage::on_confirmClicked()
                 QMessageBox::warning(this, tr("Send token"), QString::fromStdString(m_tokenABI->getErrorMessage()));
             }
             clearAll();
+            QDialog::accept();
         }
     }
 }
@@ -230,6 +232,7 @@ void SendTokenPage::setTokenData(std::string address, std::string sender, std::s
     m_selectedToken->symbol = symbol;
     m_selectedToken->decimals = decimals;
     m_selectedToken->balance = balance;
+    QString unit = QString::fromStdString(symbol);
 
     // Convert values for different number of decimals
     int256_t totalSupply(balance);
@@ -258,4 +261,6 @@ void SendTokenPage::setTokenData(std::string address, std::string sender, std::s
     {
         ui->lineEditAmount->setValue(value);
     }
+    ui->labelTokenBalance->setText(BitcoinUnits::formatTokenWithUnit(unit, m_selectedToken->decimals, totalSupply, false, BitcoinUnits::separatorAlways));
+    setWindowTitle(tr("Send") + " " + unit);
 }

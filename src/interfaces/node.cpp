@@ -265,7 +265,7 @@ public:
         }
         return wallets;
     }
-    void getGasInfo(uint64_t& blockGasLimit, uint64_t& minGasPrice, uint64_t& nGasPrice)
+    void getGasInfo(uint64_t& blockGasLimit, uint64_t& minGasPrice, uint64_t& nGasPrice) override
     {
         LOCK(::cs_main);
 
@@ -274,7 +274,7 @@ public:
         minGasPrice = CAmount(qtumDGP.getMinGasPrice(chainActive.Height()));
         nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
     }
-    void getSyncInfo(int& numBlocks, bool& isSyncing)
+    void getSyncInfo(int& numBlocks, bool& isSyncing) override
     {
         LOCK(::cs_main);
         // Get node synchronization information with minimal locks
@@ -283,6 +283,25 @@ public:
                                                   Params().GenesisBlock().GetBlockTime();
         int64_t secs = GetTime() - blockTime;
         isSyncing = secs >= 90*60 ? true : false;
+    }
+    int64_t getBlockSubsidy(int nHeight) override
+    {
+        const CChainParams& chainparams = Params();
+        return GetBlockSubsidy(nHeight, chainparams.GetConsensus());
+    }
+    uint64_t getNetworkStakeWeight() override
+    {
+        LOCK(::cs_main);
+        return GetPoSKernelPS();
+    }
+    double getEstimatedAnnualROI() override
+    {
+        LOCK(::cs_main);
+        return GetEstimatedAnnualROI();
+    }
+    int64_t getMoneySupply() override
+    {
+        return pindexBestHeader ? pindexBestHeader->nMoneySupply : 0;
     }
     std::unique_ptr<Wallet> loadWallet(const std::string& name, std::string& error, std::string& warning) override
     {

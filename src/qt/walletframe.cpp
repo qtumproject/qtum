@@ -142,25 +142,11 @@ void WalletFrame::gotoHistoryPage()
         i.value()->gotoHistoryPage();
 }
 
-void WalletFrame::gotoSendTokenPage()
+void WalletFrame::gotoTokenPage()
 {
     QMap<WalletModel*, WalletView*>::const_iterator i;
     for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
-        i.value()->gotoSendTokenPage();
-}
-
-void WalletFrame::gotoReceiveTokenPage()
-{
-    QMap<WalletModel*, WalletView*>::const_iterator i;
-    for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
-        i.value()->gotoReceiveTokenPage();
-}
-
-void WalletFrame::gotoAddTokenPage()
-{
-    QMap<WalletModel*, WalletView*>::const_iterator i;
-    for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
-        i.value()->gotoAddTokenPage();
+        i.value()->gotoTokenPage();
 }
 
 void WalletFrame::gotoReceiveCoinsPage()
@@ -196,6 +182,13 @@ void WalletFrame::gotoCallContractPage()
     QMap<WalletModel*, WalletView*>::const_iterator i;
     for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
         i.value()->gotoCallContractPage();
+}
+
+void WalletFrame::gotoStakePage()
+{
+    QMap<WalletModel*, WalletView*>::const_iterator i;
+    for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
+        i.value()->gotoStakePage();
 }
 
 void WalletFrame::gotoSignMessageTab(QString addr)

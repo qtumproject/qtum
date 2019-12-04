@@ -5,6 +5,7 @@
 
 #include <QAbstractTableModel>
 #include <QStringList>
+#include <QColor>
 
 #include <memory>
 
@@ -87,6 +88,10 @@ private:
     TokenTransactionTablePriv *priv;
     bool fProcessingQueuedTransactions;
     const PlatformStyle *platformStyle;
+    QColor color_unconfirmed;
+    QColor color_negative;
+    QColor color_bareaddress;
+    QColor color_black;
 
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();

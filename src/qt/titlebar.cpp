@@ -22,7 +22,8 @@ TitleBar::TitleBar(const PlatformStyle *platformStyle, QWidget *parent) :
     ui->tabWidget->setDrawBase(false);
     ui->tabWidget->setTabsClosable(true);
     setFixedHeight(titleHeight);
-    m_iconCloseTab = platformStyle->TextColorIcon(":/icons/quit");
+    m_iconCloseTab = platformStyle->MultiStatesIcon(":/icons/quit", PlatformStyle::PushButtonIcon);
+    ui->lblBalance->setVisible(false);
 }
 
 TitleBar::~TitleBar()
@@ -88,7 +89,7 @@ void TitleBar::updateDisplayUnit()
 
 void TitleBar::setWalletSelector(QLabel *walletSelectorLabel, QComboBox *walletSelector)
 {
-    QLayout* layout = ui->widgetLogo->layout();
+    QLayout* layout = ui->widgetWallet->layout();
 
     if(walletSelectorLabel)
     {
@@ -99,10 +100,6 @@ void TitleBar::setWalletSelector(QLabel *walletSelectorLabel, QComboBox *walletS
     {
         layout->addWidget(walletSelector);
     }
-
-    QWidget *spacer = new QWidget();
-    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    layout->addWidget(spacer);
 }
 
 #ifdef ENABLE_WALLET

@@ -10,6 +10,10 @@
 #include <qt/guiutil.h>
 #include <qt/optionsmodel.h>
 #include <qt/styleSheet.h>
+#include <qt/platformstyle.h>
+#include <qt/addresstablemodel.h>
+#include <qt/recentrequeststablemodel.h>
+#include <qt/receivecoinsdialog.h>
 
 #include <QClipboard>
 #include <QDrag>
@@ -86,23 +90,24 @@ void QRImageWidget::contextMenuEvent(QContextMenuEvent *event)
     contextMenu->exec(event->globalPos());
 }
 
-ReceiveRequestDialog::ReceiveRequestDialog(QWidget *parent) :
+ReceiveRequestDialog::ReceiveRequestDialog(const PlatformStyle *_platformStyle, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ReceiveRequestDialog),
-    model(nullptr)
+    model(nullptr),
+    platformStyle(_platformStyle),
+    requestPaymentDialog(0)
 {
     ui->setupUi(this);
 
-    SetObjectStyleSheet(ui->btnCopyURI, StyleSheetNames::ButtonWhite);
-    SetObjectStyleSheet(ui->btnSaveAs, StyleSheetNames::ButtonWhite);
-    SetObjectStyleSheet(ui->btnCopyAddress, StyleSheetNames::ButtonWhite);
+    requestPaymentDialog = new ReceiveCoinsDialog(platformStyle, this);
+
+    SetObjectStyleSheet(ui->btnRefreshAddress, StyleSheetNames::ButtonLight);
+    ui->btnCopyAddress->setIcon(platformStyle->MultiStatesIcon(":/icons/editcopy", PlatformStyle::PushButtonIcon));
+    ui->btnCopyURI->setIcon(platformStyle->MultiStatesIcon(":/icons/editcopy", PlatformStyle::PushButtonIcon));
 
 #ifndef USE_QRCODE
-    ui->btnSaveAs->setVisible(false);
-    ui->lblQRCode->setVisible(false);
+    ui->widgetQRMargin->setVisible(false);
 #endif
-
-    connect(ui->btnSaveAs, &QPushButton::clicked, ui->lblQRCode, &QRImageWidget::saveImage);
 }
 
 ReceiveRequestDialog::~ReceiveRequestDialog()
@@ -114,8 +119,20 @@ void ReceiveRequestDialog::setModel(WalletModel *_model)
 {
     this->model = _model;
 
-    if (_model)
+    if(_model && _model->getOptionsModel())
+    {
         connect(_model->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &ReceiveRequestDialog::update);
+
+        // Set the button to be enabled or disabled based on whether the wallet can give out new addresses.
+        ui->btnRefreshAddress->setEnabled(model->canGetAddresses());
+
+        // Enable/disable the receive button if the wallet is now able/unable to give out new addresses.
+        connect(model, &WalletModel::canGetAddressesChanged, [this] {
+            ui->btnRefreshAddress->setEnabled(model->canGetAddresses());
+        });
+    }
+
+    requestPaymentDialog->setModel(model);
 
     // update the display unit if necessary
     update();
@@ -158,7 +175,8 @@ bool ReceiveRequestDialog::createQRCode(QLabel *label, SendCoinsRecipient _info,
             }
             QRcode_free(code);
 
-            QImage qrAddrImage = QImage(QR_IMAGE_SIZE, QR_IMAGE_SIZE+20, QImage::Format_ARGB32);
+            int padding = showAddress ? 20 : 0;
+            QImage qrAddrImage = QImage(QR_IMAGE_SIZE, QR_IMAGE_SIZE+padding, QImage::Format_ARGB32);
             qrAddrImage.fill(qRgba(0, 0, 0, 0));
             QPainter painter(&qrAddrImage);
             painter.drawImage(0, 0, qrImage.scaled(QR_IMAGE_SIZE, QR_IMAGE_SIZE));
@@ -189,6 +207,50 @@ bool ReceiveRequestDialog::createQRCode(QLabel *label, SendCoinsRecipient _info,
     return false;
 }
 
+bool ReceiveRequestDialog::refreshAddress()
+{
+    if(!model || !model->getAddressTableModel() || !model->getRecentRequestsTableModel())
+        return false;
+
+    /* Generate new receiving address */
+    OutputType address_type = model->wallet().getDefaultAddressType();
+    info.address = model->getAddressTableModel()->addRow(AddressTableModel::Receive, info.label, "", address_type);
+
+    /* Store request for later reference */
+    model->getRecentRequestsTableModel()->addNewRequest(info);
+
+    return true;
+}
+
+bool ReceiveRequestDialog::getDefaultAddress()
+{
+    if(!model || !model->getRecentRequestsTableModel())
+        return false;
+
+    // Get the last address from the request history list that have empty label, message and amount
+    const RecentRequestsTableModel *submodel = model->getRecentRequestsTableModel();
+    bool foundDefault = false;
+    for(int i = submodel->rowCount(QModelIndex()) -1; i >= 0; i--)
+    {
+        SendCoinsRecipient entry = submodel->entry(i).recipient;
+        if(entry.label.isEmpty() && entry.message.isEmpty() && entry.amount == 0)
+        {
+            info = entry;
+            foundDefault = true;
+            break;
+        }
+    }
+
+    // Generate new address if no default found
+    if(!foundDefault)
+    {
+        info = SendCoinsRecipient();
+        refreshAddress();
+    }
+    
+    return !info.address.isEmpty();
+}
+
 void ReceiveRequestDialog::update()
 {
     if(!model)
@@ -198,32 +260,29 @@ void ReceiveRequestDialog::update()
         target = info.address;
     setWindowTitle(tr("Request payment to %1").arg(target));
 
-    QString uri = GUIUtil::formatBitcoinURI(info);
-    ui->btnSaveAs->setEnabled(false);
-    QString html;
-    html += "<html><font face='verdana, arial, helvetica, sans-serif'>";
-    html += "<font color='#ffffff'>" + tr("PAYMENT INFORMATION")+"</font><br><br>";
-    html += tr("URI")+": ";
-    html += "<a href=\""+uri+"\">" + GUIUtil::HtmlEscape(uri) + "</a><br>";
-    html += tr("Address")+": <font color='#ffffff'>" + GUIUtil::HtmlEscape(info.address) + "</font><br>";
-    if(info.amount)
-        html += tr("Amount")+": <font color='#ffffff'>" + BitcoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), info.amount) + "</font><br>";
-    if(!info.label.isEmpty())
-        html += tr("Label")+": <font color='#ffffff'>" + GUIUtil::HtmlEscape(info.label) + "</font><br>";
-    if(!info.message.isEmpty())
-        html += tr("Message")+": <font color='#ffffff'>" + GUIUtil::HtmlEscape(info.message) + "</font><br>";
-    if(model->isMultiwallet()) {
-        html += tr("Wallet")+": <font color='#ffffff'>" + GUIUtil::HtmlEscape(model->getWalletName()) + "</font><br>";
-    }
-    ui->outUri->setText(html);
-
-#ifdef USE_QRCODE
-    if(createQRCode(ui->lblQRCode, info))
+    if(!info.address.isEmpty())
     {
-        ui->lblQRCode->setScaledContents(true);
-        ui->btnSaveAs->setEnabled(true);
-    }
+#ifdef USE_QRCODE
+        if(createQRCode(ui->lblQRCode, info))
+        {
+            ui->lblQRCode->setScaledContents(true);
+        }
 #endif
+
+        ui->widgetPaymentInformation->setEnabled(true);
+
+        ui->labelAddress->setText(info.address);
+        SendCoinsRecipient _info;
+        _info.address = info.address;
+        QString _uri = GUIUtil::formatBitcoinURI(_info);
+        ui->labelURI->setText(_uri);
+        QString uri = GUIUtil::formatBitcoinURI(info);
+        ui->labelURI->setToolTip(uri);
+    }
+    else
+    {
+        clear();
+    }
 }
 
 void ReceiveRequestDialog::on_btnCopyURI_clicked()
@@ -234,4 +293,55 @@ void ReceiveRequestDialog::on_btnCopyURI_clicked()
 void ReceiveRequestDialog::on_btnCopyAddress_clicked()
 {
     GUIUtil::setClipboard(info.address);
+}
+
+void ReceiveRequestDialog::on_btnRefreshAddress_clicked()
+{
+    // Refresh address
+    if(refreshAddress())
+        update();
+}
+
+void ReceiveRequestDialog::on_btnRequestPayment_clicked()
+{
+    if(requestPaymentDialog->exec() == QDialog::Accepted)
+    {
+        setInfo(requestPaymentDialog->getInfo());
+    }
+}
+
+void ReceiveRequestDialog::on_btnClear_clicked()
+{
+    clear();
+}
+
+void ReceiveRequestDialog::clear()
+{
+    if(getDefaultAddress())
+    {
+        update();
+    }
+    else
+    {
+        setWindowTitle(tr("Request payment to %1").arg(""));
+        info = SendCoinsRecipient();
+#ifdef USE_QRCODE
+        ui->lblQRCode->clear();
+#endif
+        ui->labelURI->clear();
+        ui->labelAddress->clear();
+        ui->widgetPaymentInformation->setEnabled(false);
+    }
+}
+
+void ReceiveRequestDialog::reject()
+{
+    clear();
+    QDialog::reject();
+}
+
+void ReceiveRequestDialog::accept()
+{
+    clear();
+    QDialog::accept();
 }

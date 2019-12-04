@@ -27,17 +27,17 @@ ContractBookPage::ContractBookPage(const PlatformStyle *platformStyle, QWidget *
         ui->deleteContractInfo->setIcon(QIcon());
         ui->exportButton->setIcon(QIcon());
     } else {
-        ui->newContractInfo->setIcon(platformStyle->MultiStatesIcon(":/icons/add", PlatformStyle::PushButton, 0x5a5a5d));
-        ui->copyAddress->setIcon(platformStyle->MultiStatesIcon(":/icons/editcopy", PlatformStyle::PushButton, 0x5a5a5d));
-        ui->deleteContractInfo->setIcon(platformStyle->MultiStatesIcon(":/icons/remove", PlatformStyle::PushButton, 0x5a5a5d));
-        ui->exportButton->setIcon(platformStyle->MultiStatesIcon(":/icons/export"));
+        ui->newContractInfo->setIcon(platformStyle->MultiStatesIcon(":/icons/add", PlatformStyle::PushButtonLight));
+        ui->copyAddress->setIcon(platformStyle->MultiStatesIcon(":/icons/editcopy", PlatformStyle::PushButtonLight));
+        ui->deleteContractInfo->setIcon(platformStyle->MultiStatesIcon(":/icons/remove", PlatformStyle::PushButtonLight));
+        ui->exportButton->setIcon(platformStyle->MultiStatesIcon(":/icons/export", PlatformStyle::PushButton));
     }
 
-    SetObjectStyleSheet(ui->newContractInfo, StyleSheetNames::ButtonWhite);
-    SetObjectStyleSheet(ui->copyAddress, StyleSheetNames::ButtonWhite);
-    SetObjectStyleSheet(ui->deleteContractInfo, StyleSheetNames::ButtonWhite);
-    SetObjectStyleSheet(ui->exportButton, StyleSheetNames::ButtonBlue);
-    SetObjectStyleSheet(ui->chooseContractInfo, StyleSheetNames::ButtonBlue);
+    SetObjectStyleSheet(ui->newContractInfo, StyleSheetNames::ButtonLight);
+    SetObjectStyleSheet(ui->copyAddress, StyleSheetNames::ButtonLight);
+    SetObjectStyleSheet(ui->deleteContractInfo, StyleSheetNames::ButtonLight);
+    SetObjectStyleSheet(ui->exportButton, StyleSheetNames::ButtonGray);
+    SetObjectStyleSheet(ui->chooseContractInfo, StyleSheetNames::ButtonGray);
 
     setWindowTitle(tr("Choose the contract for send/call"));
     ui->labelExplanation->setText(tr("These are your saved contracts. Always check the contract address and the ABI before sending/calling."));

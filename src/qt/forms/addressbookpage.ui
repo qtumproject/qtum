@@ -106,7 +106,7 @@
        <number>15</number>
       </property>
       <item>
-       <widget class="QPushButton" name="newAddress">
+       <widget class="QtumPushButton" name="newAddress">
         <property name="toolTip">
          <string>Create a new address</string>
         </property>
@@ -123,7 +123,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="copyAddress">
+       <widget class="QtumPushButton" name="copyAddress">
         <property name="toolTip">
          <string>Copy the currently selected address to the system clipboard</string>
         </property>
@@ -140,7 +140,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="deleteAddress">
+       <widget class="QtumPushButton" name="deleteAddress">
         <property name="toolTip">
          <string>Delete the currently selected address from the list</string>
         </property>
@@ -170,7 +170,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="exportButton">
+       <widget class="QtumPushButton" name="exportButton">
         <property name="toolTip">
          <string>Export the data in the current tab to a file</string>
         </property>
@@ -207,6 +207,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QtumPushButton</class>
+   <extends>QPushButton</extends>
+   <header>qt/qtumpushbutton.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../bitcoin.qrc"/>
  </resources>
