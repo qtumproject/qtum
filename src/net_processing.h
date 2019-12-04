@@ -32,6 +32,10 @@ static const unsigned int DEFAULT_HEADER_SPAM_FILTER_MAX_AVG = 10;
 /** Default for -headerspamfilterignoreport, ignore the port in the ip address when looking for header spam,
  multiple nodes on the same ip will be treated as the one when computing the filter*/
 static const unsigned int DEFAULT_HEADER_SPAM_FILTER_IGNORE_PORT = true;
+/** Default for -cleanblockindex. */
+static const bool DEFAULT_CLEANBLOCKINDEX = true;
+/** Default for -cleanblockindextimeout. */
+static const unsigned int DEFAULT_CLEANBLOCKINDEXTIMEOUT = 600;
 
 class PeerLogicValidation final : public CValidationInterface, public NetEventsInterface {
 private:
@@ -103,5 +107,7 @@ struct CNodeStateStats {
 bool GetNodeStateStats(NodeId nodeid, CNodeStateStats &stats);
 /** Process network block received from a given node */
 bool ProcessNetBlock(const CChainParams& chainparams, const std::shared_ptr<const CBlock> pblock, bool fForceProcessing, bool* fNewBlock, CNode* pfrom, CConnman& connman);
+/** Clean block index */
+void CleanBlockIndex();
 
 #endif // BITCOIN_NET_PROCESSING_H
