@@ -172,11 +172,11 @@ public:
         };
 
         chainTxData = ChainTxData{
-            // Data as of block 3e76a9f460f5df039f828e3c259da03e1b4e1ec883cbf687a228e346cc457360 (height 253817)
-            1568403088, // * UNIX timestamp of last known number of transactions
-            3374744, // * total number of transactions between genesis and that timestamp
+            // Data as of block 5c0215809068d3e8520997febc84ca578b4ddf3f8917a86b6c7f5e1deecb5c32 (height 499049)
+            1575479072, // * UNIX timestamp of last known number of transactions
+            3614626, // * total number of transactions between genesis and that timestamp
             //   (the tx=... number in the SetBestChain debug.log lines)
-            0.0349037843706379 // * estimated number of transactions per second after that timestamp
+            0.03358921219453481 // * estimated number of transactions per second after that timestamp
         };
 
         /* disable fallback fee on mainnet */
@@ -288,10 +288,10 @@ public:
         };
 
         chainTxData = ChainTxData{
-            // Data as of block 2820e75dd90210a1dcf59efe839a1e5f212e272c6bcb7fd94e749f5e01822813 (height 239905)
-            1568403056,
-            966895,
-            0.0140114245938137
+            // Data as of block babfd02d9dd271a12a2fd1b8ba95a0c73aca9a0b25889d3340a7ca3fb406a2cf (height 496333)
+            1575478816,
+            1080030,
+            0.01624824080589608
         };
 
         /* enable fallback fee on testnet */
