@@ -11,8 +11,6 @@
 
 #include <stdint.h>
 
-static const int nCheckpointSpan = 500;
-
 namespace Checkpoints {
 
     bool CheckHardened(int nHeight, const uint256& hash, const CCheckpointData& data)

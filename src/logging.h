@@ -19,6 +19,7 @@
 static const bool DEFAULT_LOGTIMEMICROS = false;
 static const bool DEFAULT_LOGIPS        = false;
 static const bool DEFAULT_LOGTIMESTAMPS = true;
+static const bool DEFAULT_SHOWEVMLOGS   = false;
 extern const char * const DEFAULT_DEBUGLOGFILE;
 extern const char * const DEFAULT_DEBUGVMLOGFILE;
 
@@ -59,13 +60,24 @@ namespace BCLog {
         ALL         = ~(uint32_t)0,
     };
 
+    struct LogMsg
+    {
+        LogMsg(const std::string& _msg, bool _useVMLog) :
+            msg(_msg),
+            useVMLog(_useVMLog)
+        {}
+
+        std::string msg;
+        bool useVMLog;
+    };
+
     class Logger
     {
     private:
         FILE* m_fileout = nullptr;
         FILE* m_fileoutVM = nullptr;
         std::mutex m_file_mutex;
-        std::list<std::string> m_msgs_before_open;
+        std::list<LogMsg> m_msgs_before_open;
 
         /**
          * m_started_new_line is a state variable that will suppress printing of
@@ -85,6 +97,7 @@ namespace BCLog {
 
         bool m_log_timestamps = DEFAULT_LOGTIMESTAMPS;
         bool m_log_time_micros = DEFAULT_LOGTIMEMICROS;
+        bool m_show_evm_logs = DEFAULT_SHOWEVMLOGS;
 
         fs::path m_file_path;
         fs::path m_file_pathVM;
