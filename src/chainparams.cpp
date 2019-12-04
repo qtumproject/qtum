@@ -112,7 +112,7 @@ public:
         consensus.nMinimumChainWork = uint256S("0x0000000000000000000000000000000000000000000001588da875a3a3951783"); // qtum
 
         // By default assume that the signatures in ancestors of this block are valid.
-        consensus.defaultAssumeValid = uint256S("0x814e7d91aac6c577e4589b76918f44cf80020212159d39709fbad3f219725c9f"); // 445709
+        consensus.defaultAssumeValid = uint256S("0x497f28fd4b1dadc9ff6dd2ac771483acfd16e4c4664eb45d0a6008dc33811418"); // 498000
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
