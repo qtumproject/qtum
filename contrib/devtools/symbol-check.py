@@ -39,7 +39,7 @@ MAX_VERSIONS = {
 'GCC':       (4,4,0),
 'CXXABI':    (1,3,3),
 'GLIBCXX':   (3,4,13),
-'GLIBC':     (2,18),
+'GLIBC':     (2,11),
 'LIBATOMIC': (1,0)
 }
 # See here for a description of _IO_stdin_used:
