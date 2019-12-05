@@ -65,6 +65,14 @@ struct Params {
     /** Don't warn about unknown BIP 9 activations below this height.
      * This prevents us from warning about the CSV and segwit activations. */
     int MinBIP9WarningHeight;
+    /** Block height at which QIP5 becomes active */
+    int QIP5Height;
+    /** Block height at which QIP6 becomes active */
+    int QIP6Height;
+    /** Block height at which QIP7 becomes active */
+    int QIP7Height;
+    /** Block height at which QIP9 becomes active */
+    int QIP9Height;
     /**
      * Minimum blocks including miner confirmation of the total of 2016 blocks in a retargeting period,
      * (nPowTargetTimespan / nPowTargetSpacing) which is also used for BIP9 deployments.
@@ -75,13 +83,26 @@ struct Params {
     BIP9Deployment vDeployments[MAX_VERSION_BITS_DEPLOYMENTS];
     /** Proof of work parameters */
     uint256 powLimit;
+    uint256 posLimit;
+    uint256 QIP9PosLimit;
     bool fPowAllowMinDifficultyBlocks;
     bool fPowNoRetargeting;
+    bool fPoSNoRetargeting;
     int64_t nPowTargetSpacing;
     int64_t nPowTargetTimespan;
-    int64_t DifficultyAdjustmentInterval() const { return nPowTargetTimespan / nPowTargetSpacing; }
+    int64_t nPowTargetTimespanV2;
+    int64_t DifficultyAdjustmentInterval(int height) const
+    {
+        int64_t targetSpacing = height < QIP9Height ? nPowTargetTimespan : nPowTargetTimespanV2;
+        return targetSpacing / nPowTargetSpacing;
+    }
     uint256 nMinimumChainWork;
     uint256 defaultAssumeValid;
+    int nLastPOWBlock;
+    int nFirstMPoSBlock;
+    int nMPoSRewardRecipients;
+    int nFixUTXOCacheHFHeight;
+    int nEnableHeaderSignatureHeight;
 };
 } // namespace Consensus
 
