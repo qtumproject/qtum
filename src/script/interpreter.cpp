@@ -11,8 +11,8 @@
 #include <pubkey.h>
 #include <script/script.h>
 #include <uint256.h>
+#include <script/standard.h>
 
-typedef std::vector<unsigned char> valtype;
 
 namespace {
 
@@ -60,7 +60,7 @@ static inline void popstack(std::vector<valtype>& stack)
     stack.pop_back();
 }
 
-bool static IsCompressedOrUncompressedPubKey(const valtype &vchPubKey) {
+bool IsCompressedOrUncompressedPubKey(const valtype &vchPubKey) {
     if (vchPubKey.size() < CPubKey::COMPRESSED_PUBLIC_KEY_SIZE) {
         //  Non-canonical public key: too short
         return false;
@@ -104,7 +104,7 @@ bool static IsCompressedPubKey(const valtype &vchPubKey) {
  *
  * This function is consensus-critical since BIP66.
  */
-bool static IsValidSignatureEncoding(const std::vector<unsigned char> &sig) {
+bool static IsValidSignatureEncoding(const std::vector<unsigned char> &sig, bool haveHashType = true) {
     // Format: 0x30 [total-length] 0x02 [R-length] [R] 0x02 [S-length] [S] [sighash]
     // * total-length: 1-byte length descriptor of everything that follows,
     //   excluding the sighash byte.
@@ -125,7 +125,7 @@ bool static IsValidSignatureEncoding(const std::vector<unsigned char> &sig) {
     if (sig[0] != 0x30) return false;
 
     // Make sure the length covers the entire signature.
-    if (sig[1] != sig.size() - 3) return false;
+    if (sig[1] != sig.size() - (haveHashType ? 3 : 2)) return false;
 
     // Extract the length of the R element.
     unsigned int lenR = sig[3];
@@ -138,8 +138,8 @@ bool static IsValidSignatureEncoding(const std::vector<unsigned char> &sig) {
 
     // Verify that the length of the signature matches the sum of the length
     // of the elements.
-    if ((size_t)(lenR + lenS + 7) != sig.size()) return false;
-
+    if ((size_t)(lenR + lenS + (haveHashType ? 7 : 6)) != sig.size()) return false;
+ 
     // Check whether the R element is an integer.
     if (sig[2] != 0x02) return false;
 
@@ -169,19 +169,26 @@ bool static IsValidSignatureEncoding(const std::vector<unsigned char> &sig) {
     return true;
 }
 
-bool static IsLowDERSignature(const valtype &vchSig, ScriptError* serror) {
-    if (!IsValidSignatureEncoding(vchSig)) {
+bool IsLowDERSignature(const valtype &vchSig, ScriptError* serror, bool haveHashType) {
+    if (!IsValidSignatureEncoding(vchSig, haveHashType)) {
         return set_error(serror, SCRIPT_ERR_SIG_DER);
     }
     // https://bitcoin.stackexchange.com/a/12556:
     //     Also note that inside transaction signatures, an extra hashtype byte
     //     follows the actual signature data.
-    std::vector<unsigned char> vchSigCopy(vchSig.begin(), vchSig.begin() + vchSig.size() - 1);
+    std::vector<unsigned char> vchSigCopy(vchSig.begin(), vchSig.begin() + vchSig.size() - (haveHashType ? 1 : 0));
     // If the S value is above the order of the curve divided by two, its
     // complement modulo the order could have been used instead, which is
     // one byte shorter when encoded correctly.
     if (!CPubKey::CheckLowS(vchSigCopy)) {
         return set_error(serror, SCRIPT_ERR_SIG_HIGH_S);
+    }
+    return true;
+}
+
+bool IsDERSignature(const valtype &vchSig, ScriptError* serror, bool haveHashType) {
+    if (!IsValidSignatureEncoding(vchSig, haveHashType)) {
+        return set_error(serror, SCRIPT_ERR_SIG_DER);
     }
     return true;
 }
@@ -1063,6 +1070,28 @@ bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& 
                 }
                 break;
 
+                //////////////////////////////////////////////////////// qtum
+                case OP_SENDER:
+                {
+                    if(!(flags & SCRIPT_OUTPUT_SENDER))
+                        return set_error(serror, SCRIPT_ERR_BAD_OPCODE);
+                }
+                break;
+                case OP_SPEND:
+                {
+                    return true; // temp
+                }
+                break;
+                case OP_CREATE:
+                case OP_CALL:
+                {
+                    valtype scriptRest(pc - 1, pend);
+                    stack.push_back(scriptRest);
+                    return true; // temp
+                }
+                break;
+                ////////////////////////////////////////////////////////
+
                 default:
                     return set_error(serror, SCRIPT_ERR_BAD_OPCODE);
             }
@@ -1203,6 +1232,22 @@ uint256 GetSequenceHash(const T& txTo)
 }
 
 template <class T>
+uint256 GetFirstPrevoutHash(const T& txTo)
+{
+    CHashWriter ss(SER_GETHASH, 0);
+    ss << txTo.vin[0].prevout;
+    return ss.GetHash();
+}
+
+template <class T>
+uint256 GetFirstSequenceHash(const T& txTo)
+{
+    CHashWriter ss(SER_GETHASH, 0);
+    ss << txTo.vin[0].nSequence;
+    return ss.GetHash();
+}
+
+template <class T>
 uint256 GetOutputsHash(const T& txTo)
 {
     CHashWriter ss(SER_GETHASH, 0);
@@ -1212,16 +1257,42 @@ uint256 GetOutputsHash(const T& txTo)
     return ss.GetHash();
 }
 
+CTxOut GetOutputWithoutSenderSig(const CTxOut& output)
+{
+    return CTxOut(output.nValue, output.scriptPubKey.WithoutSenderSig());
+}
+
+template <class T>
+uint256 GetOutputsOpSenderHash(const T& txTo)
+{
+    CHashWriter ss(SER_GETHASH, 0);
+    for (const auto& txout : txTo.vout) {
+        if(txout.scriptPubKey.HasOpSender())
+        {
+            ss << GetOutputWithoutSenderSig(txout);
+        }
+        else
+        {
+            ss << txout;
+        }
+    }
+    return ss.GetHash();
+}
+
 } // namespace
 
 template <class T>
 PrecomputedTransactionData::PrecomputedTransactionData(const T& txTo)
 {
-    // Cache is calculated only for transactions with witness
-    if (txTo.HasWitness()) {
+    // Cache is calculated only for transactions with witness or those that have op sender output signature
+    if (txTo.HasWitness() || txTo.HasOpSender()) {
         hashPrevouts = GetPrevoutHash(txTo);
         hashSequence = GetSequenceHash(txTo);
         hashOutputs = GetOutputsHash(txTo);
+        if(txTo.HasOpSender())
+        {
+            hashOutputsOpSender = GetOutputsOpSenderHash(txTo);
+        }
         ready = true;
     }
 }
@@ -1229,6 +1300,60 @@ PrecomputedTransactionData::PrecomputedTransactionData(const T& txTo)
 // explicit instantiation
 template PrecomputedTransactionData::PrecomputedTransactionData(const CTransaction& txTo);
 template PrecomputedTransactionData::PrecomputedTransactionData(const CMutableTransaction& txTo);
+
+template <class T>
+uint256 SignatureHashOutput(const CScript& scriptCode, const T& txTo, unsigned int nOut, int nHashType, const CAmount& amount, SigVersion sigversion, const PrecomputedTransactionData* cache)
+{
+    assert(nOut < txTo.vout.size());
+
+    uint256 hashPrevouts;
+    uint256 hashSequence;
+    uint256 hashOutputs;
+    const bool cacheready = cache && cache->ready;
+
+    if (nHashType & SIGHASH_ANYONECANPAY) {
+        assert(0 < txTo.vin.size());
+        hashPrevouts = GetFirstPrevoutHash(txTo);
+        hashSequence = GetFirstSequenceHash(txTo);
+    }
+
+    if (!(nHashType & SIGHASH_ANYONECANPAY)) {
+        hashPrevouts = cacheready ? cache->hashPrevouts : GetPrevoutHash(txTo);
+    }
+
+    if (!(nHashType & SIGHASH_ANYONECANPAY) && (nHashType & 0x1f) != SIGHASH_SINGLE && (nHashType & 0x1f) != SIGHASH_NONE) {
+        hashSequence = cacheready ? cache->hashSequence : GetSequenceHash(txTo);
+    }
+
+
+    if ((nHashType & 0x1f) != SIGHASH_SINGLE && (nHashType & 0x1f) != SIGHASH_NONE) {
+        hashOutputs = cacheready ? cache->hashOutputsOpSender : GetOutputsOpSenderHash(txTo);
+    } else if ((nHashType & 0x1f) == SIGHASH_SINGLE && nOut < txTo.vout.size()) {
+        CHashWriter ss(SER_GETHASH, 0);
+        ss << GetOutputWithoutSenderSig(txTo.vout[nOut]);
+        hashOutputs = ss.GetHash();
+    }
+
+    CHashWriter ss(SER_GETHASH, 0);
+
+    // Version
+    ss << txTo.nVersion;
+    // Input prevouts/nSequence (none/first/all, depending on flags)
+    ss << hashPrevouts;
+    ss << hashSequence;
+    // The output being signed
+    ss << GetOutputWithoutSenderSig(txTo.vout[nOut]);
+    ss << scriptCode;
+    ss << amount;
+    // Outputs (none/one/all, depending on flags)
+    ss << hashOutputs;
+    // Locktime
+    ss << txTo.nLockTime;
+    // Sighash type
+    ss << nHashType;
+
+    return ss.GetHash();
+}
 
 template <class T>
 uint256 SignatureHash(const CScript& scriptCode, const T& txTo, unsigned int nIn, int nHashType, const CAmount& amount, SigVersion sigversion, const PrecomputedTransactionData* cache)
@@ -1415,6 +1540,38 @@ bool GenericTransactionSignatureChecker<T>::CheckSequence(const CScriptNum& nSeq
 // explicit instantiation
 template class GenericTransactionSignatureChecker<CTransaction>;
 template class GenericTransactionSignatureChecker<CMutableTransaction>;
+
+template <class T>
+bool GenericTransactionSignatureOutputChecker<T>::VerifySignature(const std::vector<unsigned char>& vchSig, const CPubKey& pubkey, const uint256& sighash) const
+{
+    return pubkey.Verify(sighash, vchSig);
+}
+
+template <class T>
+bool GenericTransactionSignatureOutputChecker<T>::CheckSig(const std::vector<unsigned char>& vchSigIn, const std::vector<unsigned char>& vchPubKey, const CScript& scriptCode, SigVersion sigversion) const
+{
+    CPubKey pubkey(vchPubKey);
+    if (!pubkey.IsValid())
+        return false;
+
+    // Hash type is one byte tacked on to the end of the signature
+    std::vector<unsigned char> vchSig(vchSigIn);
+    if (vchSig.empty())
+        return false;
+    int nHashType = vchSig.back();
+    vchSig.pop_back();
+
+    uint256 sighash = SignatureHashOutput(scriptCode, *txTo, nOut, nHashType, amount, sigversion, this->txdata);
+
+    if (!VerifySignature(vchSig, pubkey, sighash))
+        return false;
+
+    return true;
+}
+
+// explicit instantiation
+template class GenericTransactionSignatureOutputChecker<CTransaction>;
+template class GenericTransactionSignatureOutputChecker<CMutableTransaction>;
 
 static bool VerifyWitnessProgram(const CScriptWitness& witness, int witversion, const std::vector<unsigned char>& program, unsigned int flags, const BaseSignatureChecker& checker, ScriptError* serror)
 {
