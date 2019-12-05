@@ -18,6 +18,7 @@
 #include <qt/platformstyle.h>
 #include <qt/rpcconsole.h>
 #include <qt/utilitydialog.h>
+#include <qt/qtumversionchecker.h>
 
 #ifdef ENABLE_WALLET
 #include <qt/walletcontroller.h>
@@ -200,6 +201,7 @@ BitcoinGUI::BitcoinGUI(interfaces::Node& node, const PlatformStyle *_platformSty
     });
 
     modalOverlay = new ModalOverlay(this->centralWidget());
+    qtumVersionChecker = new QtumVersionChecker(this);
 #ifdef ENABLE_WALLET
     if(enableWallet) {
         connect(walletFrame, &WalletFrame::requestedSyncWarningInfo, this, &BitcoinGUI::showModalOverlay);
@@ -548,6 +550,14 @@ void BitcoinGUI::setClientModel(ClientModel *_clientModel)
     this->clientModel = _clientModel;
     if(_clientModel)
     {
+        // Check for updates
+        if(_clientModel->getOptionsModel()->getCheckForUpdates() && qtumVersionChecker->newVersionAvailable())
+        {
+            QString link = QString("<a href=%1>%2</a>").arg(QTUM_RELEASES, QTUM_RELEASES);
+            QString message(tr("New version of Qtum wallet is available on the Qtum source code repository: <br /> %1. <br />It is recommended to download it and update this application").arg(link));
+            QMessageBox::information(this, tr("Check for updates"), message);
+        }
+
         // Create system tray menu (or setup the dock menu) that late to prevent users from calling actions,
         // while the client has not yet fully loaded
         createTrayIconMenu();
