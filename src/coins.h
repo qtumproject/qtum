@@ -20,11 +20,89 @@
 #include <functional>
 #include <unordered_map>
 
+#ifdef ENABLE_BITCORE_RPC
+////////////////////////////////////////////////////////////////// // qtum
+struct CSpentIndexKey {
+    uint256 txid;
+    unsigned int outputIndex;
+
+    ADD_SERIALIZE_METHODS;
+
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action) {
+        READWRITE(txid);
+        READWRITE(outputIndex);
+    }
+
+    CSpentIndexKey(uint256 t, unsigned int i) {
+        txid = t;
+        outputIndex = i;
+    }
+
+    CSpentIndexKey() {
+        SetNull();
+    }
+
+    void SetNull() {
+        txid.SetNull();
+        outputIndex = 0;
+    }
+};
+
+struct CSpentIndexValue {
+    uint256 txid;
+    unsigned int inputIndex;
+    int blockHeight;
+    CAmount satoshis;
+    int addressType;
+    uint256 addressHash;
+
+    ADD_SERIALIZE_METHODS;
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action) {
+        READWRITE(txid);
+        READWRITE(inputIndex);
+        READWRITE(blockHeight);
+        READWRITE(satoshis);
+        READWRITE(addressType);
+        READWRITE(addressHash);
+    }
+
+    CSpentIndexValue(uint256 t, unsigned int i, int h, CAmount s, int type, uint256 a) {
+        txid = t;
+        inputIndex = i;
+        blockHeight = h;
+        satoshis = s;
+        addressType = type;
+        addressHash = a;
+    }
+
+    CSpentIndexValue() {
+        SetNull();
+    }
+
+    void SetNull() {
+        txid.SetNull();
+        inputIndex = 0;
+        blockHeight = 0;
+        satoshis = 0;
+        addressType = 0;
+        addressHash.SetNull();
+    }
+
+    bool IsNull() const {
+        return txid.IsNull();
+    }
+};
+//////////////////////////////////////////////////////////////////
+#endif
+
 /**
  * A UTXO entry.
  *
  * Serialized format:
- * - VARINT((coinbase ? 1 : 0) | (height << 1))
+ * - VARINT((coinbase ? 1 : 0) | (height << 2))
+ * - VARINT((coinstake ? 2 : 0) | (height << 2))
  * - the non-spent CTxOut (via CTxOutCompressor)
  */
 class Coin
@@ -35,31 +113,36 @@ public:
 
     //! whether containing transaction was a coinbase
     unsigned int fCoinBase : 1;
-
+    unsigned int fCoinStake : 1;
+	
     //! at which height this containing transaction was included in the active block chain
-    uint32_t nHeight : 31;
+    uint32_t nHeight : 30;
 
     //! construct a Coin from a CTxOut and height/coinbase information.
-    Coin(CTxOut&& outIn, int nHeightIn, bool fCoinBaseIn) : out(std::move(outIn)), fCoinBase(fCoinBaseIn), nHeight(nHeightIn) {}
-    Coin(const CTxOut& outIn, int nHeightIn, bool fCoinBaseIn) : out(outIn), fCoinBase(fCoinBaseIn),nHeight(nHeightIn) {}
+    Coin(CTxOut&& outIn, int nHeightIn, bool fCoinBaseIn, bool fCoinStakeIn) : out(std::move(outIn)), fCoinBase(fCoinBaseIn), fCoinStake(fCoinStakeIn), nHeight(nHeightIn) {}
+    Coin(const CTxOut& outIn, int nHeightIn, bool fCoinBaseIn, bool fCoinStakeIn) : out(outIn), fCoinBase(fCoinBaseIn), fCoinStake(fCoinStakeIn), nHeight(nHeightIn) {}
 
     void Clear() {
         out.SetNull();
         fCoinBase = false;
+        fCoinStake = false;
         nHeight = 0;
     }
 
     //! empty constructor
-    Coin() : fCoinBase(false), nHeight(0) { }
+    Coin() : fCoinBase(false), fCoinStake(false), nHeight(0) { }
 
     bool IsCoinBase() const {
         return fCoinBase;
+    }
+    bool IsCoinStake() const {
+        return fCoinStake;
     }
 
     template<typename Stream>
     void Serialize(Stream &s) const {
         assert(!IsSpent());
-        uint32_t code = nHeight * 2 + fCoinBase;
+        uint32_t code = (nHeight << 2) + (fCoinBase ? 1 : 0) + (fCoinStake ? 2 : 0);
         ::Serialize(s, VARINT(code));
         ::Serialize(s, CTxOutCompressor(REF(out)));
     }
@@ -68,8 +151,9 @@ public:
     void Unserialize(Stream &s) {
         uint32_t code = 0;
         ::Unserialize(s, VARINT(code));
-        nHeight = code >> 1;
+        nHeight = code >> 2;
         fCoinBase = code & 1;
+        fCoinStake = (code >> 1) & 1;
         ::Unserialize(s, CTxOutCompressor(out));
     }
 
@@ -301,6 +385,10 @@ public:
 
     //! Check whether all prevouts of the transaction are present in the UTXO set represented by this view
     bool HaveInputs(const CTransaction& tx) const;
+
+#ifdef ENABLE_BITCORE_RPC
+    const CTxOut &GetOutputFor(const CTxIn& input) const;
+#endif
 
 private:
     /**
