@@ -57,6 +57,8 @@ public:
     //! is loaded.
     std::map<std::string, bool> listWalletDir() const;
 
+    void getRestoreData(QString& restorePath, QString& restoreParam, QString& restoreName) const;
+
     void closeWallet(WalletModel* wallet_model, QWidget* parent = nullptr);
 
 Q_SIGNALS:

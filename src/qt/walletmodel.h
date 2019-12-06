@@ -184,6 +184,7 @@ public:
     // Passphrase only needed when unlocking
     bool setWalletLocked(bool locked, const SecureString &passPhrase=SecureString());
     bool changePassphrase(const SecureString &oldPass, const SecureString &newPass);
+    bool restoreWallet(const QString &filename, const QString &param);
 
     // RAI object for unlocking wallet, returned by requestUnlock()
     class UnlockContext
@@ -227,6 +228,10 @@ public:
 
     bool isMultiwallet();
 
+    QString getRestorePath();
+    QString getRestoreParam();
+    bool restore();
+
     AddressTableModel* getAddressTableModel() const { return addressTableModel; }
 private:
     std::unique_ptr<interfaces::Wallet> m_wallet;
@@ -254,6 +259,9 @@ private:
     interfaces::WalletBalances m_cached_balances;
     EncryptionStatus cachedEncryptionStatus;
     int cachedNumBlocks;
+
+    QString restorePath;
+    QString restoreParam;
 
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();

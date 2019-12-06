@@ -21,20 +21,24 @@
 #include <qt/splashscreen.h>
 #include <qt/utilitydialog.h>
 #include <qt/winshutdownmonitor.h>
+#include <qt/styleSheet.h>
 
 #ifdef ENABLE_WALLET
 #include <qt/paymentserver.h>
 #include <qt/walletcontroller.h>
 #include <qt/walletmodel.h>
+#include <wallet/walletutil.h>
 #endif // ENABLE_WALLET
 
 #include <interfaces/handler.h>
 #include <interfaces/node.h>
 #include <noui.h>
+#include <init.h>
 #include <ui_interface.h>
 #include <uint256.h>
 #include <util/system.h>
 #include <util/threadnames.h>
+#include <validation.h>
 
 #include <memory>
 
@@ -47,6 +51,9 @@
 #include <QThread>
 #include <QTimer>
 #include <QTranslator>
+#include <QFile>
+#include <QProcess>
+#include <QFileInfo>
 
 #if defined(QT_STATICPLUGIN)
 #include <QtPlugin>
@@ -125,6 +132,32 @@ void DebugMessageHandler(QtMsgType type, const QMessageLogContext& context, cons
         LogPrint(BCLog::QT, "GUI: %s\n", msg.toStdString());
     } else {
         LogPrintf("GUI: %s\n", msg.toStdString());
+    }
+}
+
+void removeParam(QStringList& list, const QString& param, bool startWith)
+{
+    for(int index = 0; index < list.size();)
+    {
+        QString item = list[index];
+        bool remove = false;
+        if(startWith)
+        {
+            remove = item.startsWith(param);
+        }
+        else
+        {
+            remove = item == param;
+        }
+
+        if(remove)
+        {
+            list.removeAt(index);
+        }
+        else
+        {
+            index++;
+        }
     }
 }
 
@@ -306,6 +339,10 @@ void BitcoinApplication::requestShutdown()
     // Must disconnect node signals otherwise current thread can deadlock since
     // no event loop is running.
     window->unsubscribeFromCoreSignals();
+#ifdef ENABLE_WALLET
+    // Get restore wallet data
+    m_wallet_controller->getRestoreData(restorePath, restoreParam, restoreName);
+#endif
     // Request node shutdown, which can interrupt long operations, like
     // rescanning a wallet.
     m_node.startShutdown();
@@ -383,7 +420,7 @@ void BitcoinApplication::shutdownResult()
 
 void BitcoinApplication::handleRunawayException(const QString &message)
 {
-    QMessageBox::critical(nullptr, "Runaway exception", BitcoinGUI::tr("A fatal error occurred. Bitcoin can no longer continue safely and will quit.") + QString("\n\n") + message);
+    QMessageBox::critical(nullptr, "Runaway exception", BitcoinGUI::tr("A fatal error occurred. Qtum can no longer continue safely and will quit.") + QString("\n\n") + message);
     ::exit(EXIT_FAILURE);
 }
 
@@ -393,6 +430,54 @@ WId BitcoinApplication::getMainWinId() const
         return 0;
 
     return window->winId();
+}
+
+void BitcoinApplication::restoreWallet()
+{
+#ifdef ENABLE_WALLET
+    // Restart the wallet if needed
+    if(!restorePath.isEmpty())
+    {
+        // Create command line
+        QString walletParam = "-wallet=" + restoreName;
+        QString commandLine;
+        QStringList arg = arguments();
+        removeParam(arg, "-reindex", false);
+        removeParam(arg, "-zapwallettxes=2", false);
+        removeParam(arg, "-deleteblockchaindata", false);
+        removeParam(arg, "-wallet", true);
+        if(!arg.contains(restoreParam))
+        {
+            arg.append(restoreParam);
+        }
+        arg.append(walletParam);
+        commandLine = arg.join(' ');
+
+        // Copy the new wallet.dat to the data folder
+        fs::path path = GetWalletDir();
+        if(!restoreName.isEmpty())
+        {
+            path /= restoreName.toStdString();
+        }
+        path /= "wallet.dat";
+        QString pathWallet = QString::fromStdString(path.string());
+        bool ret = QFile::exists(restorePath) && QFile::exists(pathWallet);
+        if(ret && QFileInfo(restorePath) != QFileInfo(pathWallet))
+        {
+            ret &= QFile::remove(pathWallet);
+            ret &= QFile::copy(restorePath, pathWallet);
+        }
+        if(ret)
+        {
+            // Unlock the data folder
+            UnlockDataDirectory();
+            QThread::currentThread()->sleep(2);
+
+            // Create new process and start the wallet
+            QProcess::startDetached(commandLine);
+        }
+    }
+#endif
 }
 
 static void SetupUIArgs()
@@ -579,6 +664,8 @@ int GuiMain(int argc, char* argv[])
     int rv = EXIT_SUCCESS;
     try
     {
+        SetObjectStyleSheet(&app, StyleSheetNames::App);
+
         app.createWindow(networkStyle.data());
         // Perform base initialization before spinning up initialization/shutdown thread
         // This is acceptable because this function only contains steps that are quick to execute,
@@ -603,5 +690,6 @@ int GuiMain(int argc, char* argv[])
         PrintExceptionContinue(nullptr, "Runaway exception");
         app.handleRunawayException(QString::fromStdString(node->getWarnings("gui")));
     }
+    app.restoreWallet();
     return rv;
 }

@@ -90,6 +90,9 @@ public:
     /// Setup platform style
     void setupPlatformStyle();
 
+    /// Restore wallet
+    void restoreWallet();
+
 public Q_SLOTS:
     void initializeResult(bool success);
     void shutdownResult();
@@ -118,6 +121,10 @@ private:
     std::unique_ptr<QWidget> shutdownWindow;
 
     void startThread();
+
+    QString restorePath;
+    QString restoreParam;
+    QString restoreName;
 };
 
 int GuiMain(int argc, char* argv[]);
