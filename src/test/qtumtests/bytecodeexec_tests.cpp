@@ -2,10 +2,10 @@
 #include <test/test_bitcoin.h>
 #include <qtumtests/test_utils.h>
 
-dev::u256 GASLIMIT = dev::u256(500000);
-dev::Address SENDERADDRESS = dev::Address("0101010101010101010101010101010101010101");
-dev::h256 HASHTX = dev::h256(ParseHex("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"));
-std::vector<valtype> CODE = 
+const dev::u256 GASLIMIT = dev::u256(500000);
+const dev::Address SENDERADDRESS = dev::Address("0101010101010101010101010101010101010101");
+const dev::h256 HASHTX = dev::h256(ParseHex("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"));
+const std::vector<valtype> CODE =
 { 
     /*
         contract Temp {
