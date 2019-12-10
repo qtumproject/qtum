@@ -18,6 +18,7 @@
 #include <validation.h> // for DEFAULT_SCRIPTCHECK_THREADS and MAX_SCRIPTCHECK_THREADS
 #include <netbase.h>
 #include <txdb.h> // for -dbcache defaults
+#include <qt/styleSheet.h>
 
 #include <QDataWidgetMapper>
 #include <QDir>
@@ -34,6 +35,11 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
     mapper(nullptr)
 {
     ui->setupUi(this);
+
+    SetObjectStyleSheet(ui->resetButton, StyleSheetNames::ButtonWhite);
+    SetObjectStyleSheet(ui->openBitcoinConfButton, StyleSheetNames::ButtonWhite);
+    SetObjectStyleSheet(ui->okButton, StyleSheetNames::ButtonBlue);
+    SetObjectStyleSheet(ui->cancelButton, StyleSheetNames::ButtonBlue);
 
     /* Main elements init */
     ui->databaseCache->setMinimum(nMinDbCache);
@@ -52,19 +58,27 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
 #endif
 
     ui->proxyIp->setEnabled(false);
+    ui->proxyIpLabel->setEnabled(false);
     ui->proxyPort->setEnabled(false);
+    ui->proxyPortLabel->setEnabled(false);
     ui->proxyPort->setValidator(new QIntValidator(1, 65535, this));
 
     ui->proxyIpTor->setEnabled(false);
+    ui->proxyIpTorLabel->setEnabled(false);
     ui->proxyPortTor->setEnabled(false);
+    ui->proxyPortTorLabel->setEnabled(false);
     ui->proxyPortTor->setValidator(new QIntValidator(1, 65535, this));
 
     connect(ui->connectSocks, &QPushButton::toggled, ui->proxyIp, &QWidget::setEnabled);
+    connect(ui->connectSocks, &QPushButton::toggled, ui->proxyIpLabel, &QWidget::setEnabled);
     connect(ui->connectSocks, &QPushButton::toggled, ui->proxyPort, &QWidget::setEnabled);
+    connect(ui->connectSocks, &QPushButton::toggled, ui->proxyPortLabel, &QWidget::setEnabled);
     connect(ui->connectSocks, &QPushButton::toggled, this, &OptionsDialog::updateProxyValidationState);
 
     connect(ui->connectSocksTor, &QPushButton::toggled, ui->proxyIpTor, &QWidget::setEnabled);
+    connect(ui->connectSocksTor, &QPushButton::toggled, ui->proxyIpTorLabel, &QWidget::setEnabled);
     connect(ui->connectSocksTor, &QPushButton::toggled, ui->proxyPortTor, &QWidget::setEnabled);
+    connect(ui->connectSocksTor, &QPushButton::toggled, ui->proxyPortTorLabel, &QWidget::setEnabled);
     connect(ui->connectSocksTor, &QPushButton::toggled, this, &OptionsDialog::updateProxyValidationState);
 
     /* Window elements init */
@@ -74,8 +88,7 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
 #if  defined(MAC_OS_X_VERSION_MIN_REQUIRED) && MAC_OS_X_VERSION_MIN_REQUIRED > 101100
     /* hide launch at startup option if compiled against macOS > 10.11 (removed API) */
     ui->bitcoinAtStartup->setVisible(false);
-    ui->verticalLayout_Main->removeWidget(ui->bitcoinAtStartup);
-    ui->verticalLayout_Main->removeItem(ui->horizontalSpacer_0_Main);
+    ui->tabMain->layout()->removeWidget(ui->bitcoinAtStartup);
 #endif
 #endif
 
@@ -177,9 +190,12 @@ void OptionsDialog::setModel(OptionsModel *_model)
     connect(ui->prune, &QCheckBox::clicked, this, &OptionsDialog::togglePruneWarning);
     connect(ui->pruneSize, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &OptionsDialog::showRestartWarning);
     connect(ui->databaseCache, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &OptionsDialog::showRestartWarning);
+    connect(ui->logEvents, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
     connect(ui->threadsScriptVerif, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &OptionsDialog::showRestartWarning);
+    connect(ui->reserveBalance, SIGNAL(valueChanged()), this, SLOT(showRestartWarning()));
     /* Wallet */
     connect(ui->spendZeroConfChange, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
+    connect(ui->useChangeAddress, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
     /* Network */
     connect(ui->allowIncoming, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
     connect(ui->connectSocks, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
@@ -207,10 +223,14 @@ void OptionsDialog::setMapper()
     mapper->addMapping(ui->databaseCache, OptionsModel::DatabaseCache);
     mapper->addMapping(ui->prune, OptionsModel::Prune);
     mapper->addMapping(ui->pruneSize, OptionsModel::PruneSize);
+    mapper->addMapping(ui->logEvents, OptionsModel::LogEvents);
+    mapper->addMapping(ui->reserveBalance, OptionsModel::ReserveBalance);
 
     /* Wallet */
     mapper->addMapping(ui->spendZeroConfChange, OptionsModel::SpendZeroConfChange);
     mapper->addMapping(ui->coinControlFeatures, OptionsModel::CoinControlFeatures);
+    mapper->addMapping(ui->zeroBalanceAddressToken, OptionsModel::ZeroBalanceAddressToken);
+    mapper->addMapping(ui->useChangeAddress, OptionsModel::UseChangeAddress);
     mapper->addMapping(ui->checkForUpdates, OptionsModel::CheckForUpdates);
 
     /* Network */

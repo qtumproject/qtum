@@ -72,6 +72,8 @@ static const CAmount DEFAULT_TRANSACTION_MINFEE = 1000;
 static const CAmount WALLET_INCREMENTAL_RELAY_FEE = 5000;
 //! Default for -spendzeroconfchange
 static const bool DEFAULT_SPEND_ZEROCONF_CHANGE = true;
+//! Default for zero balance address token
+static const bool DEFAULT_ZERO_BALANCE_ADDRESS_TOKEN = true;
 //! Default for -walletrejectlongchains
 static const bool DEFAULT_WALLET_REJECT_LONG_CHAINS = false;
 //! Default for -avoidpartialspends
@@ -82,6 +84,8 @@ static const unsigned int DEFAULT_TX_CONFIRM_TARGET = 6;
 static const bool DEFAULT_WALLET_RBF = false;
 static const bool DEFAULT_WALLETBROADCAST = true;
 static const bool DEFAULT_DISABLE_WALLET = false;
+static const bool DEFAULT_USE_CHANGE_ADDRESS = true;
+static const CAmount DEFAULT_RESERVE_BALANCE = 0;
 //! -maxtxfee default
 constexpr CAmount DEFAULT_TRANSACTION_MAXFEE{COIN / 10};
 //! Discourage users to set fees higher than this amount (in satoshis) per kB

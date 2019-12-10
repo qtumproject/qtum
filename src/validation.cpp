@@ -113,6 +113,7 @@ uint256 g_best_block;
 int nScriptCheckThreads = 0;
 std::atomic_bool fImporting(false);
 std::atomic_bool fReindex(false);
+bool fLogEvents = false;
 bool fHavePruned = false;
 bool fPruneMode = false;
 bool fRequireStandard = true;

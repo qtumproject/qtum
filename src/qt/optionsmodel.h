@@ -54,9 +54,13 @@ public:
         Prune,                  // bool
         PruneSize,              // int
         DatabaseCache,          // int
+        LogEvents,              // bool
         SpendZeroConfChange,    // bool
+        ZeroBalanceAddressToken,// bool
         Listen,                 // bool
+        UseChangeAddress,       // bool
         CheckForUpdates,        // bool
+        ReserveBalance,         // CAmount
         OptionIDRowCount,
     };
 
@@ -82,6 +86,7 @@ public:
 
     /* Explicit setters */
     void SetPrune(bool prune, bool force = false);
+    bool getZeroBalanceAddressToken() const { return bZeroBalanceAddressToken; }
 
     /* Restart flag helper */
     void setRestartRequired(bool fRequired);
@@ -102,6 +107,7 @@ private:
     /* settings that were overridden by command-line */
     QString strOverriddenByCommandLine;
     bool fCheckForUpdates;
+    bool bZeroBalanceAddressToken;
 
     // Add option to list of GUI options overridden through command line/config file
     void addOverriddenOption(const std::string &option);
@@ -112,6 +118,7 @@ Q_SIGNALS:
     void displayUnitChanged(int unit);
     void coinControlFeaturesChanged(bool);
     void hideTrayIconChanged(bool);
+    void zeroBalanceAddressTokenChanged(bool);
 };
 
 #endif // BITCOIN_QT_OPTIONSMODEL_H
