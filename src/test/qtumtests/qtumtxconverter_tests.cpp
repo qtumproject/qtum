@@ -1,9 +1,10 @@
 #include <boost/test/unit_test.hpp>
-#include <test/test_bitcoin.h>
+#include <test/setup_common.h>
 #include <consensus/merkle.h>
 #include <chainparams.h>
 #include <miner.h>
 #include <validation.h>
+#include <util/convert.h>
 
 //Tests data
 CAmount value(5000000000LL - 1000);
@@ -49,7 +50,7 @@ void runTest(bool isCreation, size_t n, CScript& script1, CScript script2 = CScr
     std::vector<CTxOut> outs1 = {CTxOut(value, CScript() << OP_DUP << OP_HASH160 << address << OP_EQUALVERIFY << OP_CHECKSIG)};
     tx1 = createTX(outs1);
     uint256 hashParentTx = tx1.GetHash(); // save this txid for later use
-    mempool.addUnchecked(hashParentTx, entry.Fee(1000).Time(GetTime()).SpendsCoinbase(true).FromTx(tx1));
+    mempool.addUnchecked(entry.Fee(1000).Time(GetTime()).SpendsCoinbase(true).FromTx(tx1));
     std::vector<CTxOut> outs2;
     for(size_t i = 0; i < n; i++){
         if(script2 == CScript()){
@@ -83,7 +84,7 @@ void runFailingTest(bool isCreation, size_t n, CScript& script1, CScript script2
     std::vector<CTxOut> outs1 = {CTxOut(value, CScript() << OP_DUP << OP_HASH160 << address << OP_EQUALVERIFY << OP_CHECKSIG)};
     tx1 = createTX(outs1);
     uint256 hashParentTx = tx1.GetHash(); // save this txid for later use
-    mempool.addUnchecked(hashParentTx, entry.Fee(1000).Time(GetTime()).SpendsCoinbase(true).FromTx(tx1));
+    mempool.addUnchecked(entry.Fee(1000).Time(GetTime()).SpendsCoinbase(true).FromTx(tx1));
     std::vector<CTxOut> outs2;
     for(size_t i = 0; i < n; i++){
         if(script2 == CScript()){

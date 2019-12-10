@@ -228,6 +228,7 @@ BITCOIN_CORE_H = \
   util/translation.h \
   util/url.h \
   util/validation.h \
+  util/convert.h \
   validation.h \
   validationinterface.h \
   versionbits.h \
@@ -252,8 +253,12 @@ BITCOIN_CORE_H = \
   zmq/zmqconfig.h\
   zmq/zmqnotificationinterface.h \
   zmq/zmqpublishnotifier.h \
-  zmq/zmqrpc.h
-
+  zmq/zmqrpc.h \
+  qtum/qtumstate.h \
+  qtum/qtumtransaction.h \
+  qtum/qtumDGP.h \
+  qtum/storageresults.h \
+  qtum/qtumutils.h
 
 obj/build.h: FORCE
 	@$(MKDIR_P) $(builddir)/obj
@@ -314,6 +319,11 @@ libbitcoin_server_a_SOURCES = \
   validation.cpp \
   validationinterface.cpp \
   versionbits.cpp \
+  qtum/qtumstate.cpp \
+  qtum/qtumtransaction.cpp \
+  qtum/qtumDGP.cpp \
+  consensus/consensus.cpp \
+  qtum/storageresults.cpp \
   $(BITCOIN_CORE_H)
 
 if ENABLE_WALLET
@@ -500,6 +510,7 @@ libbitcoin_common_a_SOURCES = \
   script/standard.cpp \
   versionbitsinfo.cpp \
   warnings.cpp \
+  qtum/qtumutils.cpp \
   cpp-ethereum/aleth/buildinfo.c \
   cpp-ethereum/aleth/buildinfo.h \
   cpp-ethereum/evmc/lib/instructions/instruction_metrics.c \
@@ -858,7 +869,7 @@ qtum_cli_LDADD += $(BOOST_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(EVENT_LIBS)
 #
 
 # bitcoin-tx binary #
-qtum_tx_SOURCES = bitcoin-tx.cpp
+qtum_tx_SOURCES = bitcoin-tx.cpp consensus/consensus.cpp
 qtum_tx_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
 qtum_tx_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 qtum_tx_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)

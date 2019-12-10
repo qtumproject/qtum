@@ -149,7 +149,14 @@ BITCOIN_TESTS =\
   test/uint256_tests.cpp \
   test/util_tests.cpp \
   test/validation_block_tests.cpp \
-  test/versionbits_tests.cpp
+  test/versionbits_tests.cpp \
+  test/qtumtests/test_utils.h \
+  test/qtumtests/qtumtxconverter_tests.cpp \
+  test/qtumtests/bytecodeexec_tests.cpp \
+  test/qtumtests/condensingtransaction_tests.cpp \
+  test/qtumtests/dgp_tests.cpp \
+  test/qtumtests/constantinoplefork_tests.cpp \
+  test/qtumtests/btcecrecoverfork_tests.cpp
 
 if ENABLE_PROPERTY_TESTS
 BITCOIN_TESTS += \
@@ -178,7 +185,7 @@ BITCOIN_TEST_SUITE += \
 endif
 
 test_test_qtum_SOURCES = $(BITCOIN_TEST_SUITE) $(BITCOIN_TESTS) $(JSON_TEST_FILES) $(RAW_TEST_FILES)
-test_test_qtum_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(TESTDEFS) $(EVENT_CFLAGS)
+test_test_qtum_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) -I$(srcdir)/test/ $(TESTDEFS) $(EVENT_CFLAGS)
 test_test_qtum_LDADD =
 if ENABLE_WALLET
 test_test_qtum_LDADD += $(LIBBITCOIN_WALLET)
