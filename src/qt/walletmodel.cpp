@@ -642,3 +642,12 @@ bool WalletModel::restore()
 {
     return !restorePath.isEmpty();
 }
+bool WalletModel::getWalletUnlockStakingOnly()
+{
+    return m_wallet->getWalletUnlockStakingOnly();
+}
+
+void WalletModel::setWalletUnlockStakingOnly(bool unlock)
+{
+    m_wallet->setWalletUnlockStakingOnly(unlock);
+}
