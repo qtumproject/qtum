@@ -14,6 +14,7 @@
 #include <qt/editaddressdialog.h>
 #include <qt/guiutil.h>
 #include <qt/platformstyle.h>
+#include <qt/styleSheet.h>
 
 #include <QIcon>
 #include <QMenu>
@@ -64,18 +65,26 @@ AddressBookPage::AddressBookPage(const PlatformStyle *platformStyle, Mode _mode,
 {
     ui->setupUi(this);
 
+    SetObjectStyleSheet(ui->tableView, StyleSheetNames::TableViewLight);
+    setStyleSheet("");
+
     if (!platformStyle->getImagesOnButtons()) {
         ui->newAddress->setIcon(QIcon());
         ui->copyAddress->setIcon(QIcon());
         ui->deleteAddress->setIcon(QIcon());
         ui->exportButton->setIcon(QIcon());
     } else {
-        ui->newAddress->setIcon(platformStyle->SingleColorIcon(":/icons/add"));
-        ui->copyAddress->setIcon(platformStyle->SingleColorIcon(":/icons/editcopy"));
-        ui->deleteAddress->setIcon(platformStyle->SingleColorIcon(":/icons/remove"));
-        ui->exportButton->setIcon(platformStyle->SingleColorIcon(":/icons/export"));
+        //ui->newAddress->setIcon(platformStyle->MultiStatesIcon(":/icons/add", PlatformStyle::PushButton, 0x5a5a5d));//QTUM_CHECK
+        //ui->copyAddress->setIcon(platformStyle->MultiStatesIcon(":/icons/editcopy", PlatformStyle::PushButton, 0x5a5a5d));//QTUM_CHECK
+        //ui->deleteAddress->setIcon(platformStyle->MultiStatesIcon(":/icons/remove", PlatformStyle::PushButton, 0x5a5a5d));//QTUM_CHECK
+        //ui->exportButton->setIcon(platformStyle->MultiStatesIcon(":/icons/export", PlatformStyle::PushButton));//QTUM_CHECK
     }
 
+    SetObjectStyleSheet(ui->newAddress, StyleSheetNames::ButtonWhite);
+    SetObjectStyleSheet(ui->copyAddress, StyleSheetNames::ButtonWhite);
+    SetObjectStyleSheet(ui->deleteAddress, StyleSheetNames::ButtonWhite);
+    SetObjectStyleSheet(ui->exportButton, StyleSheetNames::ButtonBlue);
+    SetObjectStyleSheet(ui->closeButton, StyleSheetNames::ButtonBlue);
     switch(mode)
     {
     case ForSelection:
@@ -101,12 +110,12 @@ AddressBookPage::AddressBookPage(const PlatformStyle *platformStyle, Mode _mode,
     switch(tab)
     {
     case SendingTab:
-        ui->labelExplanation->setText(tr("These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins."));
+        ui->labelExplanation->setText(tr("These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins."));//QTUM_LINE
         ui->deleteAddress->setVisible(true);
         ui->newAddress->setVisible(true);
         break;
     case ReceivingTab:
-        ui->labelExplanation->setText(tr("These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses."));
+        ui->labelExplanation->setText(tr("These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses."));
         ui->deleteAddress->setVisible(false);
         ui->newAddress->setVisible(false);
         break;
