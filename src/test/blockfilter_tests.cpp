@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE(blockfilter_basic_test)
     block_undo.vtxundo.emplace_back();
     block_undo.vtxundo.back().vprevout.emplace_back(CTxOut(500, included_scripts[3]), 1000, true, false);
     block_undo.vtxundo.back().vprevout.emplace_back(CTxOut(600, included_scripts[4]), 10000, false, false);
-    block_undo.vtxundo.back().vprevout.emplace_back(CTxOut(700, excluded_scripts[3]), 100000, false, false);
+    block_undo.vtxundo.back().vprevout.emplace_back(CTxOut(700, excluded_scripts[2]), 100000, false, false);
 
     BlockFilter block_filter(BlockFilterType::BASIC, block, block_undo);
     const GCSFilter& filter = block_filter.GetFilter();

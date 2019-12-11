@@ -19,7 +19,7 @@
 #include <thread>
 
 struct RegtestingSetup : public TestingSetup {
-    RegtestingSetup() : TestingSetup(CBaseChainParams::REGTEST) {}
+    RegtestingSetup() : TestingSetup(CBaseChainParams::UNITTEST) {}
 };
 
 static const std::vector<unsigned char> V_OP_TRUE{OP_TRUE};
