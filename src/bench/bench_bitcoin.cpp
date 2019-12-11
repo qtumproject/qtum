@@ -6,6 +6,7 @@
 
 #include <util/strencodings.h>
 #include <util/system.h>
+#include <libethashseal/Ethash.h>
 
 #include <memory>
 
@@ -51,6 +52,9 @@ int main(int argc, char** argv)
     std::string scaling_str = gArgs.GetArg("-scaling", DEFAULT_BENCH_SCALING);
     bool is_list_only = gArgs.GetBoolArg("-list", false);
 
+    // Overwrite arguments for bench
+    gArgs.ForceSetArg("-vbparams", "segwit:-1:999999999999");
+
     double scaling_factor;
     if (!ParseDouble(scaling_str, &scaling_factor)) {
         tfm::format(std::cerr, "Error parsing scaling factor as double: %s\n", scaling_str.c_str());
@@ -65,6 +69,8 @@ int main(int argc, char** argv)
             gArgs.GetArg("-plot-width", DEFAULT_PLOT_WIDTH),
             gArgs.GetArg("-plot-height", DEFAULT_PLOT_HEIGHT)));
     }
+
+    dev::eth::Ethash::init();
 
     benchmark::BenchRunner::RunAll(*printer, evaluations, scaling_factor, regex_filter, is_list_only);
 
