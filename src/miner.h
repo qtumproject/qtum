@@ -20,10 +20,37 @@
 class CBlockIndex;
 class CChainParams;
 class CScript;
+#ifdef ENABLE_WALLET
+class CWallet;
+#endif
 
 namespace Consensus { struct Params; };
 
 static const bool DEFAULT_PRINTPRIORITY = false;
+
+static const bool DEFAULT_STAKE = true;
+
+static const bool DEFAULT_STAKE_CACHE = true;
+
+//How many seconds to look ahead and prepare a block for staking
+//Look ahead up to 3 "timeslots" in the future, 48 seconds
+//Reduce this to reduce computational waste for stakers, increase this to increase the amount of time available to construct full blocks
+static const int32_t MAX_STAKE_LOOKAHEAD = 16 * 3;
+
+//Will not add any more contracts when GetAdjustedTime() >= nTimeLimit-BYTECODE_TIME_BUFFER
+//This does not affect non-contract transactions
+static const int32_t BYTECODE_TIME_BUFFER = 6;
+
+//Will not attempt to add more transactions when GetAdjustedTime() >= nTimeLimit
+//And nTimeLimit = StakeExpirationTime - STAKE_TIME_BUFFER
+static const int32_t STAKE_TIME_BUFFER = 2;
+
+//How often to try to stake blocks in milliseconds
+//Note this is overridden for regtest mode
+static const int32_t STAKER_POLLING_PERIOD = 5000;
+
+//How much time to spend trying to process transactions when using the generate RPC call
+static const int32_t POW_MINER_MAX_TIME = 60;
 
 struct CBlockTemplate
 {
@@ -197,6 +224,11 @@ private:
       * of updated descendants. */
     int UpdatePackagesForAdded(const CTxMemPool::setEntries& alreadyAdded, indexed_modified_transaction_set &mapModifiedTx) EXCLUSIVE_LOCKS_REQUIRED(mempool.cs);
 };
+
+#ifdef ENABLE_WALLET
+/** Generate a new block, without valid proof-of-work */
+void StakeQtums(bool fStake, CWallet *pwallet, CConnman* connman, boost::thread_group*& stakeThread);
+#endif
 
 /** Modify the extranonce in a block */
 void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned int& nExtraNonce);

@@ -443,3 +443,34 @@ void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned
     pblock->vtx[0] = MakeTransactionRef(std::move(txCoinbase));
     pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
 }
+
+#ifdef ENABLE_WALLET
+//////////////////////////////////////////////////////////////////////////////
+//
+// Proof of Stake miner
+//
+
+//
+// Looking for suitable coins for creating new block.
+//
+
+void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
+{
+}
+
+void StakeQtums(bool fStake, CWallet *pwallet, CConnman* connman, boost::thread_group*& stakeThread)
+{
+    if (stakeThread != nullptr)
+    {
+        stakeThread->interrupt_all();
+        delete stakeThread;
+        stakeThread = nullptr;
+    }
+
+    if(fStake)
+    {
+        stakeThread = new boost::thread_group();
+        stakeThread->create_thread(boost::bind(&ThreadStakeMiner, pwallet, connman));
+    }
+}
+#endif
