@@ -26,12 +26,13 @@ SendCoinsEntry::SendCoinsEntry(const PlatformStyle *_platformStyle, QWidget *par
 {
     ui->setupUi(this);
 
-    ui->addressBookButton->setIcon(platformStyle->SingleColorIcon(":/icons/address-book"));
-    ui->pasteButton->setIcon(platformStyle->SingleColorIcon(":/icons/editpaste"));
-    ui->deleteButton->setIcon(platformStyle->SingleColorIcon(":/icons/remove"));
-    ui->deleteButton_is->setIcon(platformStyle->SingleColorIcon(":/icons/remove"));
-    ui->deleteButton_s->setIcon(platformStyle->SingleColorIcon(":/icons/remove"));
-
+//QTUM_CHECK
+    //ui->addressBookButton->setIcon(platformStyle->MultiStatesIcon(":/icons/address-book", PlatformStyle::PushButton));
+    //ui->pasteButton->setIcon(platformStyle->MultiStatesIcon(":/icons/editpaste", PlatformStyle::PushButton));
+    //ui->deleteButton->setIcon(platformStyle->MultiStatesIcon(":/icons/remove_entry", PlatformStyle::PushButton));
+    //ui->deleteButton_is->setIcon(platformStyle->MultiStatesIcon(":/icons/remove", PlatformStyle::PushButton));
+    //ui->deleteButton_s->setIcon(platformStyle->MultiStatesIcon(":/icons/remove", PlatformStyle::PushButton));
+//QTUM_CHECK
     setCurrentWidget(ui->SendCoins);
 
     if (platformStyle->getUseExtraSpacing())
@@ -42,6 +43,9 @@ SendCoinsEntry::SendCoinsEntry(const PlatformStyle *_platformStyle, QWidget *par
     GUIUtil::setupAddressWidget(ui->payTo, this);
     // just a label for displaying bitcoin address(es)
     ui->payTo_is->setFont(GUIUtil::fixedPitchFont());
+
+    // format tool buttons
+    //GUIUtil::formatToolButtons(ui->addressBookButton, ui->pasteButton, ui->deleteButton);//QTUM_CHECK
 
     // Connect signals
     connect(ui->payAmount, &BitcoinAmountField::valueChanged, this, &SendCoinsEntry::payAmountChanged);
