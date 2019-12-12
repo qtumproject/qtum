@@ -54,7 +54,7 @@ ReceiveCoinsDialog::ReceiveCoinsDialog(const PlatformStyle *_platformStyle, QWid
     ui->refreshButton->setVisible(false);
     ui->leAddress->setReadOnly(true);
 
-    //GUIUtil::formatToolButtons(ui->copyAddressButton, ui->refreshButton);//QTUM_CHECK
+    GUIUtil::formatToolButtons(ui->copyAddressButton, ui->refreshButton);
 
     // context menu actions
     QAction *copyURIAction = new QAction(tr("Copy URI"), this);

@@ -44,7 +44,7 @@ SendCoinsEntry::SendCoinsEntry(const PlatformStyle *_platformStyle, QWidget *par
     ui->payTo_is->setFont(GUIUtil::fixedPitchFont());
 
     // format tool buttons
-    //GUIUtil::formatToolButtons(ui->addressBookButton, ui->pasteButton, ui->deleteButton);//QTUM_CHECK
+    GUIUtil::formatToolButtons(ui->addressBookButton, ui->pasteButton, ui->deleteButton);
 
     // Connect signals
     connect(ui->payAmount, &BitcoinAmountField::valueChanged, this, &SendCoinsEntry::payAmountChanged);
