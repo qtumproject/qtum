@@ -78,7 +78,7 @@ public:
         cachedWallet.clear();
         {
             for (const auto& wtx : wallet.getWalletTxs()) {
-                if (TransactionRecord::showTransaction()) {
+                if (TransactionRecord::showTransaction(wtx)) {
                     cachedWallet.append(TransactionRecord::decomposeTransaction(wtx));
                 }
             }
@@ -706,11 +706,7 @@ static std::vector< TransactionNotification > vQueueNotifications;
 
 static void NotifyTransactionChanged(TransactionTableModel *ttm, const uint256 &hash, ChangeType status)
 {
-    // Find transaction in wallet
-    // Determine whether to show transaction or not (determine this here so that no relocking is needed in GUI thread)
-    bool showTransaction = TransactionRecord::showTransaction();
-
-    TransactionNotification notification(hash, status, showTransaction);
+    TransactionNotification notification(hash, status, true);
 
     if (fQueueNotifications)
     {
