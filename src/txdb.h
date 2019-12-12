@@ -101,6 +101,11 @@ public:
     bool WriteFlag(const std::string &name, bool fValue);
     bool ReadFlag(const std::string &name, bool &fValue);
     bool LoadBlockIndexGuts(const Consensus::Params& consensusParams, std::function<CBlockIndex*(const uint256&)> insertBlockIndex);
+
+    bool WriteStakeIndex(unsigned int height, uint160 address);
+    bool ReadStakeIndex(unsigned int height, uint160& address);
+    bool ReadStakeIndex(unsigned int high, unsigned int low, std::vector<uint160> addresses);
+    bool EraseStakeIndex(unsigned int height);
 };
 
 #endif // BITCOIN_TXDB_H
