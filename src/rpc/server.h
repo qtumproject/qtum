@@ -21,12 +21,54 @@
 static const unsigned int DEFAULT_RPC_SERIALIZE_VERSION = 1;
 
 class CRPCCommand;
+class HTTPRequest;
 
 namespace RPCServer
 {
     void OnStarted(std::function<void ()> slot);
     void OnStopped(std::function<void ()> slot);
 }
+
+class JSONRPCRequest : public JSONRPCRequestBase
+{
+public:
+    JSONRPCRequest() : JSONRPCRequestBase() {
+        req = NULL;
+        isLongPolling = false;
+    };
+
+    JSONRPCRequest(HTTPRequest *_req);
+
+    /**
+     * Start long-polling
+     */
+    void PollStart();
+
+    /**
+     * Ping long-poll connection with an empty character to make sure it's still alive.
+     */
+    void PollPing();
+
+    /**
+     * Returns whether the underlying long-poll connection is still alive.
+     */
+    bool PollAlive();
+
+    /**
+     * End a long poll request.
+     */
+    void PollCancel();
+
+    /**
+     * Return the JSON result of a long poll request
+     */
+    void PollReply(const UniValue& result);
+
+    bool isLongPolling;
+
+    // FIXME: make this private?
+    HTTPRequest *req;
+};
 
 /** Query whether RPC is running */
 bool IsRPCRunning();

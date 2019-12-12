@@ -12,6 +12,7 @@
 #include <sync.h>
 #include <util/strencodings.h>
 #include <util/system.h>
+#include <httpserver.h>
 
 #include <boost/signals2/signal.hpp>
 #include <boost/algorithm/string/classification.hpp>
@@ -326,6 +327,45 @@ bool RPCIsInWarmup(std::string *outStatus)
     if (outStatus)
         *outStatus = rpcWarmupStatus;
     return fRPCInWarmup;
+}
+
+JSONRPCRequest::JSONRPCRequest(HTTPRequest *_req): JSONRPCRequest() {
+	req = _req;
+}
+
+bool JSONRPCRequest::PollAlive() {
+    return !req->isConnClosed();
+}
+
+void JSONRPCRequest::PollStart() {
+    // send an empty space to the client to ensure that it's still alive.
+    assert(!isLongPolling);
+    req->WriteHeader("Content-Type", "application/json");
+    req->WriteHeader("Connection", "close");
+    req->Chunk(std::string(" "));
+    isLongPolling = true;
+}
+
+void JSONRPCRequest::PollPing() {
+    assert(isLongPolling);
+    // send an empty space to the client to ensure that it's still alive.
+    req->Chunk(std::string(" "));
+}
+
+void JSONRPCRequest::PollCancel() {
+    assert(isLongPolling);
+    req->ChunkEnd();
+}
+
+void JSONRPCRequest::PollReply(const UniValue& result) {
+    assert(isLongPolling);
+    UniValue reply(UniValue::VOBJ);
+    reply.pushKV("result", result);
+    reply.pushKV("error", NullUniValue);
+    reply.pushKV("id", id);
+
+    req->Chunk(reply.write() + "\n");
+    req->ChunkEnd();
 }
 
 bool IsDeprecatedRPCEnabled(const std::string& method)

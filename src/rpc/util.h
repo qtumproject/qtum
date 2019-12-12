@@ -10,7 +10,7 @@
 #include <pubkey.h>
 #include <protocol.h>
 #include <rpc/protocol.h>
-#include <rpc/request.h>
+#include <rpc/server.h>
 #include <script/script.h>
 #include <script/sign.h>
 #include <script/standard.h>
