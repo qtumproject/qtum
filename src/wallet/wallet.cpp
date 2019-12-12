@@ -837,6 +837,23 @@ void CWallet::AddToSpends(const COutPoint& outpoint, const uint256& wtxid)
     SyncMetaData(range);
 }
 
+void CWallet::RemoveFromSpends(const COutPoint& outpoint, const uint256& wtxid)
+{
+    std::pair<TxSpends::iterator, TxSpends::iterator> range;
+    range = mapTxSpends.equal_range(outpoint);
+    TxSpends::iterator it = range.first;
+    for(; it != range.second; ++ it)
+    {
+        if(it->second == wtxid)
+        {
+            mapTxSpends.erase(it);
+            break;
+        }
+    }
+    range = mapTxSpends.equal_range(outpoint);
+    if(range.first != range.second)
+        SyncMetaData(range);
+}
 
 void CWallet::AddToSpends(const uint256& wtxid)
 {
@@ -848,6 +865,17 @@ void CWallet::AddToSpends(const uint256& wtxid)
 
     for (const CTxIn& txin : thisTx.tx->vin)
         AddToSpends(txin.prevout, wtxid);
+}
+
+void CWallet::RemoveFromSpends(const uint256& wtxid)
+{
+    assert(mapWallet.count(wtxid));
+    CWalletTx& thisTx = mapWallet.at(wtxid);
+	if (thisTx.IsCoinBase()) // Coinbases don't spend anything!
+        return;
+
+    for(const CTxIn& txin : thisTx.tx->vin)
+        RemoveFromSpends(txin.prevout, wtxid);
 }
 
 bool CWallet::EncryptWallet(const SecureString& strWalletPassphrase)
@@ -2572,6 +2600,50 @@ void CWallet::AvailableCoins(interfaces::Chain::Lock& locked_chain, std::vector<
     }
 }
 
+void CWallet::AvailableCoinsForStaking(interfaces::Chain::Lock& locked_chain, std::vector<COutput>& vCoins) const
+{
+    AssertLockHeld(cs_main);
+    AssertLockHeld(cs_wallet);
+
+    vCoins.clear();
+
+    for (std::map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
+    {
+        const uint256& wtxid = it->first;
+        const CWalletTx* pcoin = &(*it).second;
+        int nDepth = pcoin->GetDepthInMainChain(locked_chain);
+
+        if (nDepth < 1)
+            continue;
+
+        if (nDepth < COINBASE_MATURITY)
+            continue;
+
+        if (pcoin->GetBlocksToMaturity(locked_chain) > 0)
+            continue;
+
+        for (unsigned int i = 0; i < pcoin->tx->vout.size(); i++) {
+            isminetype mine = IsMine(pcoin->tx->vout[i]);
+            bool solvable = IsSolvable(*this, pcoin->tx->vout[i].scriptPubKey);
+            bool spendable = ((mine & ISMINE_SPENDABLE) != ISMINE_NO) || (((mine & ISMINE_WATCH_ONLY) != ISMINE_NO) && solvable);
+            if (!(IsSpent(locked_chain, wtxid, i)) && mine != ISMINE_NO &&
+                !IsLockedCoin((*it).first, i) && (pcoin->tx->vout[i].nValue > 0) &&
+                !pcoin->tx->vout[i].scriptPubKey.HasOpCall() && !pcoin->tx->vout[i].scriptPubKey.HasOpCreate())
+                    vCoins.push_back(COutput(pcoin, i, nDepth, spendable, solvable, pcoin->IsTrusted(locked_chain)));
+        }
+    }
+}
+
+bool CWallet::HaveAvailableCoinsForStaking() const
+{
+    auto locked_chain = chain().lock();
+    LOCK(cs_wallet);
+
+    std::vector<COutput> vCoins;
+    AvailableCoinsForStaking(*locked_chain, vCoins);
+    return vCoins.size() > 0;
+}
+
 std::map<CTxDestination, std::vector<COutput>> CWallet::ListCoins(interfaces::Chain::Lock& locked_chain) const
 {
     AssertLockHeld(cs_wallet);
@@ -2765,6 +2837,45 @@ bool CWallet::SelectCoins(const std::vector<COutput>& vAvailableCoins, const CAm
     nValueRet += nValueFromPresetInputs;
 
     return res;
+}
+
+bool CWallet::SelectCoinsForStaking(interfaces::Chain::Lock& locked_chain, CAmount& nTargetValue, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoinsRet, CAmount& nValueRet) const
+{
+    std::vector<COutput> vCoins;
+    AvailableCoinsForStaking(locked_chain, vCoins);
+
+    setCoinsRet.clear();
+    nValueRet = 0;
+
+    for(COutput output : vCoins)
+    {
+        const CWalletTx *pcoin = output.tx;
+        int i = output.i;
+
+        // Stop if we've chosen enough inputs
+        if (nValueRet >= nTargetValue)
+            break;
+
+        int64_t n = pcoin->tx->vout[i].nValue;
+
+        std::pair<int64_t,std::pair<const CWalletTx*,unsigned int> > coin = std::make_pair(n,std::make_pair(pcoin, i));
+
+        if (n >= nTargetValue)
+        {
+            // If input value is greater or equal to target then simply insert
+            // it into the current subset and exit
+            setCoinsRet.insert(coin.second);
+            nValueRet += coin.first;
+            break;
+        }
+        else if (n < nTargetValue + CENT)
+        {
+            setCoinsRet.insert(coin.second);
+            nValueRet += coin.first;
+        }
+    }
+
+    return true;
 }
 
 bool CWallet::SignTransaction(CMutableTransaction& tx)
