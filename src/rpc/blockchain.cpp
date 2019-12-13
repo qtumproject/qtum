@@ -15,6 +15,7 @@
 #include <core_io.h>
 #include <hash.h>
 #include <index/blockfilterindex.h>
+#include <key_io.h>
 #include <policy/feerate.h>
 #include <policy/policy.h>
 #include <policy/rbf.h>
@@ -34,6 +35,11 @@
 #include <validationinterface.h>
 #include <versionbitsinfo.h>
 #include <warnings.h>
+#include <libdevcore/CommonData.h>
+#include <pow.h>
+#include <pos.h>
+#include <txdb.h>
+#include <util/convert.h>
 
 #include <assert.h>
 #include <stdint.h>
@@ -70,6 +76,83 @@ double GetDifficulty(const CBlockIndex* blockindex)
     return dDiff;
 }
 
+double GetPoWMHashPS()
+{
+    if (pindexBestHeader->nHeight >= Params().GetConsensus().nLastPOWBlock)
+        return 0;
+
+    int nPoWInterval = 72;
+    int64_t nTargetSpacingWorkMin = 30, nTargetSpacingWork = 30;
+
+    CBlockIndex* pindexGenesisBlock = ::ChainActive().Genesis();
+    CBlockIndex* pindex = pindexGenesisBlock;
+    CBlockIndex* pindexPrevWork = pindexGenesisBlock;
+
+    while (pindex)
+    {
+        if (pindex->IsProofOfWork())
+        {
+            int64_t nActualSpacingWork = pindex->GetBlockTime() - pindexPrevWork->GetBlockTime();
+            nTargetSpacingWork = ((nPoWInterval - 1) * nTargetSpacingWork + nActualSpacingWork + nActualSpacingWork) / (nPoWInterval + 1);
+            nTargetSpacingWork = std::max(nTargetSpacingWork, nTargetSpacingWorkMin);
+            pindexPrevWork = pindex;
+        }
+
+        pindex = pindex->pnext;
+    }
+
+    return GetDifficulty(::ChainActive().Tip()) * 4294.967296 / nTargetSpacingWork;
+}
+
+double GetPoSKernelPS()
+{
+    int nPoSInterval = 72;
+    double dStakeKernelsTriedAvg = 0;
+    int nStakesHandled = 0, nStakesTime = 0;
+
+    CBlockIndex* pindex = pindexBestHeader;
+    CBlockIndex* pindexPrevStake = NULL;
+
+    const Consensus::Params& consensusParams = Params().GetConsensus();
+    bool dynamicStakeSpacing = true;
+    if(pindex)
+    {
+        dynamicStakeSpacing = pindex->nHeight < consensusParams.QIP9Height;
+    }
+
+    while (pindex && nStakesHandled < nPoSInterval)
+    {
+        if (pindex->IsProofOfStake())
+        {
+            if (pindexPrevStake)
+            {
+                dStakeKernelsTriedAvg += GetDifficulty(pindexPrevStake) * 4294967296.0;
+                if(dynamicStakeSpacing)
+                    nStakesTime += pindexPrevStake->nTime - pindex->nTime;
+                nStakesHandled++;
+            }
+            pindexPrevStake = pindex;
+        }
+
+        pindex = pindex->pprev;
+    }
+
+    if(!dynamicStakeSpacing)
+    {
+        // Using a fixed denominator reduces the variation spikes
+        nStakesTime = consensusParams.nPowTargetSpacing * nStakesHandled;
+    }
+
+    double result = 0;
+
+    if (nStakesTime)
+        result = dStakeKernelsTriedAvg / nStakesTime;
+    
+    result *= STAKE_TIMESTAMP_MASK + 1;
+
+    return result;
+}
+
 static int ComputeNextBlockAndDepth(const CBlockIndex* tip, const CBlockIndex* blockindex, const CBlockIndex*& next)
 {
     next = tip->GetAncestor(blockindex->nHeight + 1);
@@ -101,11 +184,18 @@ UniValue blockheaderToJSON(const CBlockIndex* tip, const CBlockIndex* blockindex
     result.pushKV("difficulty", GetDifficulty(blockindex));
     result.pushKV("chainwork", blockindex->nChainWork.GetHex());
     result.pushKV("nTx", (uint64_t)blockindex->nTx);
+    result.pushKV("hashStateRoot", blockindex->hashStateRoot.GetHex()); // qtum
+    result.pushKV("hashUTXORoot", blockindex->hashUTXORoot.GetHex()); // qtum
 
     if (blockindex->pprev)
         result.pushKV("previousblockhash", blockindex->pprev->GetBlockHash().GetHex());
     if (pnext)
         result.pushKV("nextblockhash", pnext->GetBlockHash().GetHex());
+	
+    result.pushKV("flags", strprintf("%s", blockindex->IsProofOfStake()? "proof-of-stake" : "proof-of-work"));
+    result.pushKV("proofhash", blockindex->hashProof.GetHex());
+    result.pushKV("modifier", blockindex->nStakeModifier.GetHex());
+
     return result;
 }
 
@@ -126,6 +216,8 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* tip, const CBlockIn
     result.pushKV("version", block.nVersion);
     result.pushKV("versionHex", strprintf("%08x", block.nVersion));
     result.pushKV("merkleroot", block.hashMerkleRoot.GetHex());
+    result.pushKV("hashStateRoot", block.hashStateRoot.GetHex()); // qtum
+    result.pushKV("hashUTXORoot", block.hashUTXORoot.GetHex()); // qtum
     UniValue txs(UniValue::VARR);
     for(const auto& tx : block.vtx)
     {
@@ -151,8 +243,58 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* tip, const CBlockIn
         result.pushKV("previousblockhash", blockindex->pprev->GetBlockHash().GetHex());
     if (pnext)
         result.pushKV("nextblockhash", pnext->GetBlockHash().GetHex());
+
+    result.pushKV("flags", strprintf("%s", blockindex->IsProofOfStake()? "proof-of-stake" : "proof-of-work"));
+    result.pushKV("proofhash", blockindex->hashProof.GetHex());
+    result.pushKV("modifier", blockindex->nStakeModifier.GetHex());
+
+    if (block.IsProofOfStake())
+        result.pushKV("signature", HexStr(block.vchBlockSig.begin(), block.vchBlockSig.end()));	
+
     return result;
 }
+
+//////////////////////////////////////////////////////////////////////////// // qtum
+UniValue executionResultToJSON(const dev::eth::ExecutionResult& exRes)
+{
+    UniValue result(UniValue::VOBJ);
+    result.pushKV("gasUsed", CAmount(exRes.gasUsed));
+    std::stringstream ss;
+    ss << exRes.excepted;
+    result.pushKV("excepted", ss.str());
+    result.pushKV("newAddress", exRes.newAddress.hex());
+    result.pushKV("output", HexStr(exRes.output));
+    result.pushKV("codeDeposit", static_cast<int32_t>(exRes.codeDeposit));
+    result.pushKV("gasRefunded", CAmount(exRes.gasRefunded));
+    result.pushKV("depositSize", static_cast<int32_t>(exRes.depositSize));
+    result.pushKV("gasForDeposit", CAmount(exRes.gasForDeposit));
+    result.pushKV("exceptedMessage", exceptedMessage(exRes.excepted, exRes.output));
+    return result;
+}
+
+UniValue transactionReceiptToJSON(const dev::eth::TransactionReceipt& txRec)
+{
+    UniValue result(UniValue::VOBJ);
+    result.pushKV("stateRoot", txRec.stateRoot().hex());
+    result.pushKV("gasUsed", CAmount(txRec.cumulativeGasUsed()));
+    result.pushKV("bloom", txRec.bloom().hex());
+    UniValue logEntries(UniValue::VARR);
+    dev::eth::LogEntries logs = txRec.log();
+    for(dev::eth::LogEntry log : logs){
+        UniValue logEntrie(UniValue::VOBJ);
+        logEntrie.pushKV("address", log.address.hex());
+        UniValue topics(UniValue::VARR);
+        for(dev::h256 l : log.topics){
+            topics.push_back(l.hex());
+        }
+        logEntrie.pushKV("topics", topics);
+        logEntrie.pushKV("data", HexStr(log.data));
+        logEntries.push_back(logEntrie);
+    }
+    result.pushKV("log", logEntries);
+    return result;
+}
+////////////////////////////////////////////////////////////////////////////
 
 static UniValue getblockcount(const JSONRPCRequest& request)
 {
@@ -345,7 +487,8 @@ static UniValue syncwithvalidationinterfacequeue(const JSONRPCRequest& request)
 static UniValue getdifficulty(const JSONRPCRequest& request)
 {
             RPCHelpMan{"getdifficulty",
-                "\nReturns the proof-of-work difficulty as a multiple of the minimum difficulty.\n",
+                "\nReturns the proof-of-work difficulty as a multiple of the minimum difficulty.\n"
+                "\nReturns the proof-of-stake difficulty as a multiple of the minimum difficulty.\n",
                 {},
                 RPCResult{
             "n.nnn       (numeric) the proof-of-work difficulty as a multiple of the minimum difficulty.\n"
@@ -357,7 +500,10 @@ static UniValue getdifficulty(const JSONRPCRequest& request)
             }.Check(request);
 
     LOCK(cs_main);
-    return GetDifficulty(::ChainActive().Tip());
+    UniValue obj(UniValue::VOBJ);
+    obj.pushKV("proof-of-work",        GetDifficulty(GetLastBlockIndex(pindexBestHeader, false)));
+    obj.pushKV("proof-of-stake",       GetDifficulty(GetLastBlockIndex(pindexBestHeader, true)));
+    return obj;
 }
 
 static std::string EntryDescriptionString()
@@ -707,6 +853,144 @@ static UniValue getblockhash(const JSONRPCRequest& request)
     return pblockindex->GetBlockHash().GetHex();
 }
 
+static UniValue getaccountinfo(const JSONRPCRequest& request)
+{
+            RPCHelpMan{"getaccountinfo",
+                "\nGet contract details including balance, storage data and code.\n",
+                {
+                    {"address", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
+                },
+                RPCResult{
+            "{\n"
+            "  \"address\": \"contract address\",    (string)  address of the contract\n"
+            "  \"balance\": n,                     (numeric) balance of the contract\n"
+            "  \"storage\": {...},                 (object)  storage data of the contract\n"
+            "  \"code\": \"bytecode\"                (string)  bytecode of the contract\n"
+            "}\n"
+                },
+                RPCExamples{
+                    HelpExampleCli("getaccountinfo", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
+            + HelpExampleRpc("getaccountinfo", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
+                },
+            }.Check(request);
+
+    LOCK(cs_main);
+
+    std::string strAddr = request.params[0].get_str();
+    if(strAddr.size() != 40 || !CheckHex(strAddr))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect address");
+
+    dev::Address addrAccount(strAddr);
+    if(!globalState->addressInUse(addrAccount))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
+    
+    UniValue result(UniValue::VOBJ);
+
+    result.pushKV("address", strAddr);
+    result.pushKV("balance", CAmount(globalState->balance(addrAccount)));
+    std::vector<uint8_t> code(globalState->code(addrAccount));
+    auto storage(globalState->storage(addrAccount));
+
+    UniValue storageUV(UniValue::VOBJ);
+    for (auto j: storage)
+    {
+        UniValue e(UniValue::VOBJ);
+        e.pushKV(dev::toHex(dev::h256(j.second.first)), dev::toHex(dev::h256(j.second.second)));
+        storageUV.pushKV(j.first.hex(), e);
+    }
+        
+    result.pushKV("storage", storageUV);
+
+    result.pushKV("code", HexStr(code.begin(), code.end()));
+
+    std::unordered_map<dev::Address, Vin> vins = globalState->vins();
+    if(vins.count(addrAccount)){
+        UniValue vin(UniValue::VOBJ);
+        valtype vchHash(vins[addrAccount].hash.asBytes());
+        vin.pushKV("hash", HexStr(vchHash.rbegin(), vchHash.rend()));
+        vin.pushKV("nVout", uint64_t(vins[addrAccount].nVout));
+        vin.pushKV("value", uint64_t(vins[addrAccount].value));
+        result.pushKV("vin", vin);
+    }
+    return result;
+}
+
+static UniValue getstorage(const JSONRPCRequest& request)
+{
+            RPCHelpMan{"getstorage",
+                "\nGet contract storage data.\n",
+                {
+                    {"address", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
+                    {"blockNum", RPCArg::Type::NUM,  /* default */ "latest", "Number of block to get state from."},
+                    {"index", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "Zero-based index position of the storage"},
+                },
+                RPCResult{
+            "(object)  storage data of the contract\n"
+                },
+                RPCExamples{
+                    HelpExampleCli("getstorage", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
+            + HelpExampleRpc("getstorage", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
+                },
+            }.Check(request);
+
+    LOCK(cs_main);
+
+    std::string strAddr = request.params[0].get_str();
+    if(strAddr.size() != 40 || !CheckHex(strAddr))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect address"); 
+
+    TemporaryState ts(globalState);
+    if (request.params.size() > 1)
+    {
+        if (request.params[1].isNum())
+        {
+            auto blockNum = request.params[1].get_int();
+            if((blockNum < 0 && blockNum != -1) || blockNum > ::ChainActive().Height())
+                throw JSONRPCError(RPC_INVALID_PARAMS, "Incorrect block number");
+
+            if(blockNum != -1)
+                ts.SetRoot(uintToh256(::ChainActive()[blockNum]->hashStateRoot), uintToh256(::ChainActive()[blockNum]->hashUTXORoot));
+                
+        } else {
+            throw JSONRPCError(RPC_INVALID_PARAMS, "Incorrect block number");
+        }
+    }
+
+    dev::Address addrAccount(strAddr);
+    if(!globalState->addressInUse(addrAccount))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
+    
+    UniValue result(UniValue::VOBJ);
+
+    bool onlyIndex = request.params.size() > 2;
+    unsigned index = 0;
+    if (onlyIndex)
+        index = request.params[2].get_int();
+
+    auto storage(globalState->storage(addrAccount));
+
+    if (onlyIndex)
+    {
+        if (index >= storage.size())
+        {
+            std::ostringstream stringStream;
+            stringStream << "Storage size: " << storage.size() << " got index: " << index;
+            throw JSONRPCError(RPC_INVALID_PARAMS, stringStream.str());
+        }
+        auto elem = std::next(storage.begin(), index);
+        UniValue e(UniValue::VOBJ);
+
+        storage = {{elem->first, {elem->second.first, elem->second.second}}};
+    } 
+    for (const auto& j: storage)
+    {
+        UniValue e(UniValue::VOBJ);
+        e.pushKV(dev::toHex(dev::h256(j.second.first)), dev::toHex(dev::h256(j.second.second)));
+        result.pushKV(j.first.hex(), e);
+    }
+    return result;
+}
+
 static UniValue getblockheader(const JSONRPCRequest& request)
 {
             RPCHelpMan{"getblockheader",
@@ -900,6 +1184,736 @@ static UniValue getblock(const JSONRPCRequest& request)
     return blockToJSON(block, tip, pblockindex, verbosity >= 2);
 }
 
+////////////////////////////////////////////////////////////////////// // qtum
+UniValue callcontract(const JSONRPCRequest& request)
+{
+            RPCHelpMan{"callcontract",
+                "\nCall contract methods offline.\n",
+                {
+                    {"address", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
+                    {"data", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The data hex string"},
+                    {"senderAddress", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "The sender address string"},
+                    {"gasLimit", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "The gas limit for executing the contract."},
+                },
+                RPCResult{
+            "{\n"
+            "  \"address\": \"contract address\",             (string)  address of the contract\n"
+            "  \"executionResult\": {                       (object)  method execution result\n"
+            "    \"gasUsed\": n,                            (numeric) gas used\n"
+            "    \"excepted\": \"exception\",                 (string)  thrown exception\n"
+            "    \"newAddress\": \"contract address\",        (string)  new address of the contract\n"
+            "    \"output\": \"data\",                        (string)  returned data from the method\n"
+            "    \"codeDeposit\": n,                        (numeric) code deposit\n"
+            "    \"gasRefunded\": n,                        (numeric) gas refunded\n"
+            "    \"depositSize\": n,                        (numeric) deposit size\n"
+            "    \"gasForDeposit\": n                       (numeric) gas for deposit\n"
+            "  },\n"
+            "  \"transactionReceipt\": {                    (object)  transaction receipt\n"
+            "    \"stateRoot\": \"hash\",                     (string)  state root hash\n"
+            "    \"gasUsed\": n,                            (numeric) gas used\n"
+            "    \"bloom\": \"bloom\",                        (string)  bloom\n"
+            "    \"log\": [                                 (array)  logs from the receipt\n"
+            "      {\n"
+            "        \"address\": \"address\",                (string)  contract address\n"
+            "        \"topics\":                            (array)  topics\n"
+            "        [\n"
+            "          \"topic\",                           (string)  topic\n"
+            "        ],\n"
+            "        \"data\": \"data\"                       (string)  logged data\n"
+            "      }\n"
+            "    ]\n"
+            "  }\n"
+            "}\n"
+                },
+                RPCExamples{
+                    HelpExampleCli("callcontract", "eb23c0b3e6042821da281a2e2364feb22dd543e3 06fdde03")
+            + HelpExampleRpc("callcontract", "eb23c0b3e6042821da281a2e2364feb22dd543e3 06fdde03")
+                },
+            }.Check(request);
+ 
+    LOCK(cs_main);
+    
+    std::string strAddr = request.params[0].get_str();
+    std::string data = request.params[1].get_str();
+
+    if(data.size() % 2 != 0 || !CheckHex(data))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid data (data not hex)");
+
+    if(strAddr.size() != 40 || !CheckHex(strAddr))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect address");
+ 
+    dev::Address addrAccount(strAddr);
+    if(!globalState->addressInUse(addrAccount))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
+    
+    dev::Address senderAddress;
+    if(request.params.size() >= 3){
+        CTxDestination qtumSenderAddress = DecodeDestination(request.params[2].get_str());
+        if (IsValidDestination(qtumSenderAddress)) {
+            const PKHash *keyid = boost::get<PKHash>(&qtumSenderAddress);
+            senderAddress = dev::Address(HexStr(valtype(keyid->begin(),keyid->end())));
+        }else{
+            senderAddress = dev::Address(request.params[2].get_str());
+        }
+
+    }
+    uint64_t gasLimit=0;
+    if(request.params.size() >= 4){
+        gasLimit = request.params[3].get_int64();
+    }
+
+
+    std::vector<ResultExecute> execResults = CallContract(addrAccount, ParseHex(data), senderAddress, gasLimit);
+
+    if(fRecordLogOpcodes){
+        writeVMlog(execResults);
+    }
+
+    UniValue result(UniValue::VOBJ);
+    result.pushKV("address", strAddr);
+    result.pushKV("executionResult", executionResultToJSON(execResults[0].execRes));
+    result.pushKV("transactionReceipt", transactionReceiptToJSON(execResults[0].txRec));
+ 
+    return result;
+}
+
+void assignJSON(UniValue& entry, const TransactionReceiptInfo& resExec) {
+    entry.pushKV("blockHash", resExec.blockHash.GetHex());
+    entry.pushKV("blockNumber", uint64_t(resExec.blockNumber));
+    entry.pushKV("transactionHash", resExec.transactionHash.GetHex());
+    entry.pushKV("transactionIndex", uint64_t(resExec.transactionIndex));
+    entry.pushKV("from", resExec.from.hex());
+    entry.pushKV("to", resExec.to.hex());
+    entry.pushKV("cumulativeGasUsed", CAmount(resExec.cumulativeGasUsed));
+    entry.pushKV("gasUsed", CAmount(resExec.gasUsed));
+    entry.pushKV("contractAddress", resExec.contractAddress.hex());
+    std::stringstream ss;
+    ss << resExec.excepted;
+    entry.pushKV("excepted",ss.str());
+    entry.pushKV("exceptedMessage", resExec.exceptedMessage);
+}
+
+void assignJSON(UniValue& logEntry, const dev::eth::LogEntry& log,
+        bool includeAddress) {
+    if (includeAddress) {
+        logEntry.pushKV("address", log.address.hex());
+    }
+
+    UniValue topics(UniValue::VARR);
+    for (dev::h256 hash : log.topics) {
+        topics.push_back(hash.hex());
+    }
+    logEntry.pushKV("topics", topics);
+    logEntry.pushKV("data", HexStr(log.data));
+}
+
+void transactionReceiptInfoToJSON(const TransactionReceiptInfo& resExec, UniValue& entry) {
+    assignJSON(entry, resExec);
+
+    const auto& logs = resExec.logs;
+    UniValue logEntries(UniValue::VARR);
+    for(const auto&log : logs){
+        UniValue logEntry(UniValue::VOBJ);
+        assignJSON(logEntry, log, true);
+        logEntries.push_back(logEntry);
+    }
+    entry.pushKV("log", logEntries);
+}
+
+size_t parseUInt(const UniValue& val, size_t defaultVal) {
+    if (val.isNull()) {
+        return defaultVal;
+    } else {
+        int n = val.get_int();
+        if (n < 0) {
+            throw JSONRPCError(RPC_INVALID_PARAMS, "Expects unsigned integer");
+        }
+
+        return n;
+    }
+}
+
+int parseBlockHeight(const UniValue& val) {
+    if (val.isStr()) {
+        auto blockKey = val.get_str();
+
+        if (blockKey == "latest") {
+            return latestblock.height;
+        } else {
+            throw JSONRPCError(RPC_INVALID_PARAMS, "invalid block number");
+        }
+    }
+
+    if (val.isNum()) {
+        int blockHeight = val.get_int();
+
+        if (blockHeight < 0) {
+            return latestblock.height;
+        }
+
+        return blockHeight;
+    }
+
+    throw JSONRPCError(RPC_INVALID_PARAMS, "invalid block number");
+}
+
+int parseBlockHeight(const UniValue& val, int defaultVal) {
+    if (val.isNull()) {
+        return defaultVal;
+    } else {
+        return parseBlockHeight(val);
+    }
+}
+
+dev::h160 parseParamH160(const UniValue& val) {
+    if (!val.isStr()) {
+        throw JSONRPCError(RPC_INVALID_PARAMS, "Invalid hex 160");
+    }
+
+    auto addrStr = val.get_str();
+
+    if (addrStr.length() != 40 || !CheckHex(addrStr)) {
+        throw JSONRPCError(RPC_INVALID_PARAMS, "Invalid hex 160 string");
+    }
+    return dev::h160(addrStr);
+}
+
+void parseParam(const UniValue& val, std::vector<dev::h160> &h160s) {
+    if (val.isNull()) {
+        return;
+    }
+
+    // Treat a string as an array of length 1
+    if (val.isStr()) {
+        h160s.push_back(parseParamH160(val.get_str()));
+        return;
+    }
+
+    if (!val.isArray()) {
+        throw JSONRPCError(RPC_INVALID_PARAMS, "Expect an array of hex 160 strings");
+    }
+
+    auto vals = val.getValues();
+    h160s.resize(vals.size());
+
+    std::transform(vals.begin(), vals.end(), h160s.begin(), [](UniValue val) -> dev::h160 {
+        return parseParamH160(val);
+    });
+}
+
+void parseParam(const UniValue& val, std::set<dev::h160> &h160s) {
+    std::vector<dev::h160> v;
+    parseParam(val, v);
+    h160s.insert(v.begin(), v.end());
+}
+
+void parseParam(const UniValue& val, std::vector<boost::optional<dev::h256>> &h256s) {
+    if (val.isNull()) {
+        return;
+    }
+
+    if (!val.isArray()) {
+        throw JSONRPCError(RPC_INVALID_PARAMS, "Expect an array of hex 256 strings");
+    }
+
+    auto vals = val.getValues();
+    h256s.resize(vals.size());
+
+    std::transform(vals.begin(), vals.end(), h256s.begin(), [](UniValue val) -> boost::optional<dev::h256> {
+        if (val.isNull()) {
+            return boost::optional<dev::h256>();
+        }
+
+        if (!val.isStr()) {
+            throw JSONRPCError(RPC_INVALID_PARAMS, "Invalid hex 256 string");
+        }
+
+        auto addrStr = val.get_str();
+
+        if (addrStr.length() != 64 || !CheckHex(addrStr)) {
+            throw JSONRPCError(RPC_INVALID_PARAMS, "Invalid hex 256 string");
+        }
+
+        return boost::optional<dev::h256>(dev::h256(addrStr));
+    });
+}
+
+class WaitForLogsParams {
+public:
+    int fromBlock;
+    int toBlock;
+
+    int minconf;
+
+    std::set<dev::h160> addresses;
+    std::vector<boost::optional<dev::h256>> topics;
+
+    // bool wait;
+
+    WaitForLogsParams(const UniValue& params) {
+        std::unique_lock<std::mutex> lock(cs_blockchange);
+
+        fromBlock = parseBlockHeight(params[0], latestblock.height + 1);
+        toBlock = parseBlockHeight(params[1], -1);
+
+        parseFilter(params[2]);
+        minconf = parseUInt(params[3], 6);
+    }
+
+private:
+    void parseFilter(const UniValue& val) {
+        if (val.isNull()) {
+            return;
+        }
+
+        parseParam(val["addresses"], addresses);
+        parseParam(val["topics"], topics);
+    }
+};
+
+UniValue waitforlogs(const JSONRPCRequest& request_) {
+    // this is a long poll function. force cast to non const pointer
+    JSONRPCRequest& request = (JSONRPCRequest&) request_;
+
+            RPCHelpMan{"waitforlogs",
+                "requires -logevents to be enabled\n"
+                "\nWaits for a new logs and return matching log entries. When the call returns, it also specifies the next block number to start waiting for new logs.\n"
+                "By calling waitforlogs repeatedly using the returned `nextBlock` number, a client can receive a stream of up-to-date log entires.\n"
+                "\nThis call is different from the similarly named `waitforlogs`. This call returns individual matching log entries, `searchlogs` returns a transaction receipt if one of the log entries of that transaction matches the filter conditions.\n",
+                {
+                    {"fromBlock", RPCArg::Type::NUM, /* default */ "null", "The block number to start looking for logs."},
+                    {"toBlock", RPCArg::Type::NUM, /* default */ "null", "The block number to stop looking for logs. If null, will wait indefinitely into the future."},
+                    {"filter", RPCArg::Type::STR, /* default */ "{}", "\"{ addresses?: Hex160String[], topics?: Hex256String[] }\", Filter conditions for logs."},
+                    {"minconf", RPCArg::Type::NUM, /* default */ "6", "Minimal number of confirmations before a log is returned"},
+                },
+                RPCResult{
+                "An object with the following properties:\n"
+                "1. logs (LogEntry[]) Array of matchiing log entries. This may be empty if `filter` removed all entries."
+                "2. count (int) How many log entries are returned."
+                "3. nextBlock (int) To wait for new log entries haven't seen before, use this number as `fromBlock`"
+                "\nUsage:\n"
+                "`waitforlogs` waits for new logs, starting from the tip of the chain.\n"
+                "`waitforlogs 600` waits for new logs, but starting from block 600. If there are logs available, this call will return immediately.\n"
+                "`waitforlogs 600 700` waits for new logs, but only up to 700th block\n"
+                "`waitforlogs null null` this is equivalent to `waitforlogs`, using default parameter values\n"
+                "`waitforlogs null null` { \"addresses\": [ \"ff0011...\" ], \"topics\": [ \"c0fefe\"] }` waits for logs in the future matching the specified conditions\n"
+                "\nSample Output:\n"
+                "{\n  \"entries\": [\n    {\n      \"blockHash\": \"56d5f1f5ec239ef9c822d9ed600fe9aa63727071770ac7c0eabfc903bf7316d4\",\n      \"blockNumber\": 3286,\n      \"transactionHash\": \"00aa0f041ce333bc3a855b2cba03c41427cda04f0334d7f6cb0acad62f338ddc\",\n      \"transactionIndex\": 2,\n      \"from\": \"3f6866e2b59121ada1ddfc8edc84a92d9655675f\",\n      \"to\": \"8e1ee0b38b719abe8fa984c986eabb5bb5071b6b\",\n      \"cumulativeGasUsed\": 23709,\n      \"gasUsed\": 23709,\n      \"contractAddress\": \"8e1ee0b38b719abe8fa984c986eabb5bb5071b6b\",\n      \"topics\": [\n        \"f0e1159fa6dc12bb31e0098b7a1270c2bd50e760522991c6f0119160028d9916\",\n        \"0000000000000000000000000000000000000000000000000000000000000002\"\n      ],\n      \"data\": \"00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003\"\n    }\n  ],\n\n  \"count\": 7,\n  \"nextblock\": 801\n}\n"
+                },
+                RPCExamples{
+                    HelpExampleCli("waitforlogs", "") + HelpExampleCli("waitforlogs", "600") + HelpExampleCli("waitforlogs", "600 700") + HelpExampleCli("waitforlogs", "null null")
+                    + HelpExampleCli("waitforlogs", "null null '{ \"addresses\": [ \"12ae42729af478ca92c8c66773a3e32115717be4\" ], \"topics\": [ \"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"] }'")
+            + HelpExampleRpc("waitforlogs", "") + HelpExampleRpc("waitforlogs", "600") + HelpExampleRpc("waitforlogs", "600 700") + HelpExampleRpc("waitforlogs", "null null")
+            + HelpExampleRpc("waitforlogs", "null null '{ \"addresses\": [ \"12ae42729af478ca92c8c66773a3e32115717be4\" ], \"topics\": [ \"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"] }'")
+
+                },
+            }.Check(request);
+
+    if (!fLogEvents)
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "Events indexing disabled");
+
+    if(!request.req)
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "HTTP connection not available");
+
+    WaitForLogsParams params(request.params);
+
+    request.PollStart();
+
+    std::vector<std::vector<uint256>> hashesToBlock;
+
+    int curheight = 0;
+
+    auto& addresses = params.addresses;
+    auto& filterTopics = params.topics;
+
+    while (curheight == 0) {
+        {
+            LOCK(cs_main);
+            curheight = pblocktree->ReadHeightIndex(params.fromBlock, params.toBlock, params.minconf,
+                    hashesToBlock, addresses);
+        }
+
+        // if curheight >= fromBlock. Blockchain extended with new log entries. Return next block height to client.
+        //    nextBlock = curheight + 1
+        // if curheight == 0. No log entry found in index. Wait for new block then try again.
+        //    nextBlock = fromBlock
+        // if curheight == -1. Incorrect parameters has entered.
+        //
+        // if curheight advanced, but all filtered out, API should return empty array, but advancing the cursor anyway.
+
+        if (curheight > 0) {
+            break;
+        }
+
+        if (curheight == -1) {
+            throw JSONRPCError(RPC_INVALID_PARAMETER, "Incorrect params");
+        }
+
+        // wait for a new block to arrive
+        {
+            while (true) {
+                std::unique_lock<std::mutex> lock(cs_blockchange);
+                auto blockHeight = latestblock.height;
+
+                request.PollPing();
+
+                cond_blockchange.wait_for(lock, std::chrono::milliseconds(1000));
+                if (latestblock.height > blockHeight) {
+                    break;
+                }
+
+                // TODO: maybe just merge `IsRPCRunning` this into PollAlive
+                if (!request.PollAlive() || !IsRPCRunning()) {
+                    LogPrintf("waitforlogs client disconnected\n");
+                    return NullUniValue;
+                }
+            }
+        }
+    }
+
+    LOCK(cs_main);
+
+    UniValue jsonLogs(UniValue::VARR);
+
+    std::set<uint256> dupes;
+
+    for (const auto& txHashes : hashesToBlock) {
+        for (const auto& txHash : txHashes) {
+
+            if(dupes.find(txHash) != dupes.end()) {
+                continue;
+            }
+            dupes.insert(txHash);
+
+            std::vector<TransactionReceiptInfo> receipts = pstorageresult->getResult(
+                    uintToh256(txHash));
+
+            for (const auto& receipt : receipts) {
+                for (const auto& log : receipt.logs) {
+
+                    bool includeLog = true;
+
+                    if (!filterTopics.empty()) {
+                        for (size_t i = 0; i < filterTopics.size(); i++) {
+                            auto filterTopic = filterTopics[i];
+
+                            if (!filterTopic) {
+                                continue;
+                            }
+
+                            auto filterTopicContent = filterTopic.get();
+                            auto topicContent = log.topics[i];
+
+                            if (topicContent != filterTopicContent) {
+                                includeLog = false;
+                                break;
+                            }
+                        }
+                    }
+
+
+                    if (!includeLog) {
+                        continue;
+                    }
+
+                    UniValue jsonLog(UniValue::VOBJ);
+
+                    assignJSON(jsonLog, receipt);
+                    assignJSON(jsonLog, log, false);
+
+                    jsonLogs.push_back(jsonLog);
+                }
+            }
+        }
+    }
+
+    UniValue result(UniValue::VOBJ);
+    result.pushKV("entries", jsonLogs);
+    result.pushKV("count", (int) jsonLogs.size());
+    result.pushKV("nextblock", curheight + 1);
+
+    return result;
+}
+
+class SearchLogsParams {
+public:
+    size_t fromBlock;
+    size_t toBlock;
+    size_t minconf;
+
+    std::set<dev::h160> addresses;
+    std::vector<boost::optional<dev::h256>> topics;
+
+    SearchLogsParams(const UniValue& params) {
+        std::unique_lock<std::mutex> lock(cs_blockchange);
+
+        setFromBlock(params[0]);
+        setToBlock(params[1]);
+
+        parseParam(params[2]["addresses"], addresses);
+        parseParam(params[3]["topics"], topics);
+
+        minconf = parseUInt(params[4], 0);
+    }
+
+private:
+    void setFromBlock(const UniValue& val) {
+        if (!val.isNull()) {
+            fromBlock = parseBlockHeight(val);
+        } else {
+            fromBlock = latestblock.height;
+        }
+    }
+
+    void setToBlock(const UniValue& val) {
+        if (!val.isNull()) {
+            toBlock = parseBlockHeight(val);
+        } else {
+            toBlock = latestblock.height;
+        }
+    }
+
+};
+
+UniValue searchlogs(const JSONRPCRequest& request)
+{
+            RPCHelpMan{"searchlogs",
+                "\nSearch logs, requires -logevents to be enabled.\n",
+                {
+                    {"fromBlock", RPCArg::Type::NUM, RPCArg::Optional::NO, "The number of the earliest block (latest may be given to mean the most recent block)."},
+                    {"toBlock", RPCArg::Type::NUM, RPCArg::Optional::NO, "The number of the latest block (-1 may be given to mean the most recent block)."},
+                    {"address", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "An address or a list of addresses to only get logs from particular account(s)."},
+                    {"topics", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "An array of values from which at least one must appear in the log entries. The order is important, if you want to leave topics out use null, e.g. [\"null\", \"0x00...\"]."},
+                    {"minconf", RPCArg::Type::NUM, /* default */ "0", "Minimal number of confirmations before a log is returned"},
+                },
+                RPCResult{
+            "[\n"
+            "  {\n"
+            "    \"blockHash\": \"hash\",             (string)  block hash\n"
+            "    \"blockNumber\": n,                (numeric)  block number\n"
+            "    \"transactionHash\": \"hash\",       (string)  transaction hash\n"
+            "    \"transactionIndex\": n,           (numeric)  transaction index\n"
+            "    \"from\": \"address\",               (string)  from address\n"
+            "    \"to\": \"address\",                 (string)  to address\n"
+            "    \"cumulativeGasUsed\": n,          (numeric)  cumulative gas used\n"
+            "    \"gasUsed\": n,                    (numeric)  gas used\n"
+            "    \"contractAddress\": \"address\",    (string)  contract address\n"
+            "    \"excepted\": \"exception\",         (string)  thrown exception\n"
+            "    \"log\": [                         (array)  logs from the receipt\n"
+            "      {\n"
+            "        \"address\": \"address\",        (string)  contract address\n"
+            "        \"topics\":                    (array)  topics\n"
+            "        [\n"
+            "          \"topics\",                  (string)  topic\n"
+            "        ],\n"
+            "        \"data\": \"data\"               (string)  logged data\n"
+            "      }\n"
+            "    ]\n"
+            "  }\n"
+            "]\n"
+                },
+                RPCExamples{
+                    HelpExampleCli("searchlogs", "0 100 '{\"addresses\": [\"12ae42729af478ca92c8c66773a3e32115717be4\"]}' '{\"topics\": [\"null\",\"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"]}'")
+            + HelpExampleRpc("searchlogs", "0 100 '{\"addresses\": [\"12ae42729af478ca92c8c66773a3e32115717be4\"]} {\"topics\": [\"null\",\"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"]}'")
+                },
+            }.Check(request);
+
+    if(!fLogEvents)
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "Events indexing disabled");
+
+    int curheight = 0;
+    
+    LOCK(cs_main);
+
+    SearchLogsParams params(request.params);
+    
+    std::vector<std::vector<uint256>> hashesToBlock;
+
+    curheight = pblocktree->ReadHeightIndex(params.fromBlock, params.toBlock, params.minconf, hashesToBlock, params.addresses);
+
+    if (curheight == -1) {
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Incorrect params");
+    }
+
+    UniValue result(UniValue::VARR);
+
+    auto topics = params.topics;
+
+    std::set<uint256> dupes;
+
+    for(const auto& hashesTx : hashesToBlock)
+    {
+        for(const auto& e : hashesTx)
+        {
+
+            if(dupes.find(e) != dupes.end()) {
+                continue;
+            }
+            dupes.insert(e);
+
+            std::vector<TransactionReceiptInfo> receipts = pstorageresult->getResult(uintToh256(e));
+
+            for(const auto& receipt : receipts) {
+                if(receipt.logs.empty()) {
+                    continue;
+                }
+
+                if (!topics.empty()) {
+                    for (size_t i = 0; i < topics.size(); i++) {
+                        const auto& tc = topics[i];
+
+                        if (!tc) {
+                            continue;
+                        }
+
+                        for (const auto& log: receipt.logs) {
+                            auto filterTopicContent = tc.get();
+
+                            if (i >= log.topics.size()) {
+                                continue;
+                            }
+
+                            if (filterTopicContent == log.topics[i]) {
+                                goto push;
+                            }
+                        }
+                    }
+
+                    // Skip the log if none of the topics are matched
+                    continue;
+                }
+
+            push:
+
+                UniValue tri(UniValue::VOBJ);
+                transactionReceiptInfoToJSON(receipt, tri);
+                result.push_back(tri);
+            }
+        }
+    }
+
+    return result;
+}
+
+UniValue gettransactionreceipt(const JSONRPCRequest& request)
+{
+            RPCHelpMan{"gettransactionreceipt",
+                "\nGet the transaction receipt.\n",
+                {
+                    {"hash", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The transaction hash"},
+                },
+                RPCResult{
+            "[\n"
+            "  {\n"
+            "    \"blockHash\": \"hash\",             (string)  block hash\n"
+            "    \"blockNumber\": n,                (numeric)  block number\n"
+            "    \"transactionHash\": \"hash\",       (string)  transaction hash\n"
+            "    \"transactionIndex\": n,           (numeric)  transaction index\n"
+            "    \"from\": \"address\",               (string)  from address\n"
+            "    \"to\": \"address\",                 (string)  to address\n"
+            "    \"cumulativeGasUsed\": n,          (numeric)  cumulative gas used\n"
+            "    \"gasUsed\": n,                    (numeric)  gas used\n"
+            "    \"contractAddress\": \"address\",    (string)  contract address\n"
+            "    \"excepted\": \"exception\",         (string)  thrown exception\n"
+            "    \"log\": [                         (array)  logs from the receipt\n"
+            "      {\n"
+            "        \"address\": \"address\",        (string)  contract address\n"
+            "        \"topics\":                    (array)  topics\n"
+            "        [\n"
+            "          \"topic\",                   (string)  topic\n"
+            "        ],\n"
+            "        \"data\": \"data\"               (string)  logged data\n"
+            "      }\n"
+            "    ]\n"
+            "  }\n"
+            "]\n"
+                },
+                RPCExamples{
+                    HelpExampleCli("gettransactionreceipt", "3b04bc73afbbcf02cfef2ca1127b60fb0baf5f8946a42df67f1659671a2ec53c")
+            + HelpExampleRpc("gettransactionreceipt", "3b04bc73afbbcf02cfef2ca1127b60fb0baf5f8946a42df67f1659671a2ec53c")
+                },
+            }.Check(request);
+ 
+    if(!fLogEvents)
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "Events indexing disabled");
+
+    LOCK(cs_main);
+
+    std::string hashTemp = request.params[0].get_str();
+    if(hashTemp.size() != 64){
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect hash");
+    }
+    
+    uint256 hash(uint256S(hashTemp));
+
+    std::vector<TransactionReceiptInfo> transactionReceiptInfo = pstorageresult->getResult(uintToh256(hash));
+
+    UniValue result(UniValue::VARR);
+    for(TransactionReceiptInfo& t : transactionReceiptInfo){
+        UniValue tri(UniValue::VOBJ);
+        transactionReceiptInfoToJSON(t, tri);
+        result.push_back(tri);
+    }
+    return result;
+}
+//////////////////////////////////////////////////////////////////////
+
+UniValue listcontracts(const JSONRPCRequest& request)
+{
+            RPCHelpMan{"listcontracts",
+                "\nGet the contracts list.\n",
+                {
+                    {"start", RPCArg::Type::NUM, /* default */ "1", "The starting account index"},
+                    {"maxDisplay", RPCArg::Type::NUM, /* default */ "20", "Max accounts to list"},
+                },
+                RPCResult{
+            "{\n"
+            "  \"account\": n,                            (numeric) balance for the account\n"
+            "  ...\n"
+            "}\n"
+                },
+                RPCExamples{
+                    HelpExampleCli("listcontracts", "")
+            + HelpExampleRpc("listcontracts", "")
+                },
+            }.Check(request);
+
+	LOCK(cs_main);
+
+	int start=1;
+	if (request.params.size() > 0){
+		start = request.params[0].get_int();
+		if (start<= 0)
+			throw JSONRPCError(RPC_TYPE_ERROR, "Invalid start, min=1");
+	}
+
+	int maxDisplay=20;
+	if (request.params.size() > 1){
+		maxDisplay = request.params[1].get_int();
+		if (maxDisplay <= 0)
+			throw JSONRPCError(RPC_TYPE_ERROR, "Invalid maxDisplay");
+	}
+
+	UniValue result(UniValue::VOBJ);
+
+	auto map = globalState->addresses();
+	int contractsCount=(int)map.size();
+
+	if (contractsCount>0 && start > contractsCount)
+		throw JSONRPCError(RPC_TYPE_ERROR, "start greater than max index "+ itostr(contractsCount));
+
+	int itStartPos=std::min(start-1,contractsCount);
+	int i=0;
+	for (auto it = std::next(map.begin(),itStartPos); it!=map.end(); it++)
+	{
+		result.pushKV(it->first.hex(),ValueFromAmount(CAmount(globalState->balance(it->first))));
+		i++;
+		if(i==maxDisplay)break;
+	}
+
+	return result;
+}
+
 static UniValue pruneblockchain(const JSONRPCRequest& request)
 {
             RPCHelpMan{"pruneblockchain", "",
@@ -1020,8 +2034,8 @@ UniValue gettxout(const JSONRPCRequest& request)
             "     \"hex\" : \"hex\",        (string) \n"
             "     \"reqSigs\" : n,          (numeric) Number of required signatures\n"
             "     \"type\" : \"pubkeyhash\", (string) The type, eg pubkeyhash\n"
-            "     \"addresses\" : [          (array of string) array of bitcoin addresses\n"
-            "        \"address\"     (string) bitcoin address\n"
+            "     \"addresses\" : [          (array of string) array of qtum addresses\n"
+            "        \"address\"     (string) qtum address\n"
             "        ,...\n"
             "     ]\n"
             "  },\n"
@@ -1076,6 +2090,7 @@ UniValue gettxout(const JSONRPCRequest& request)
     ScriptPubKeyToUniv(coin.out.scriptPubKey, o, true);
     ret.pushKV("scriptPubKey", o);
     ret.pushKV("coinbase", (bool)coin.fCoinBase);
+    ret.pushKV("coinstake", (bool)coin.fCoinStake);
 
     return ret;
 }
@@ -1236,6 +2251,7 @@ UniValue getblockchaininfo(const JSONRPCRequest& request)
     obj.pushKV("headers",               pindexBestHeader ? pindexBestHeader->nHeight : -1);
     obj.pushKV("bestblockhash",         tip->GetBlockHash().GetHex());
     obj.pushKV("difficulty",            (double)GetDifficulty(tip));
+    obj.pushKV("moneysupply",           pindexBestHeader->nMoneySupply / COIN);
     obj.pushKV("mediantime",            (int64_t)tip->GetMedianTimePast());
     obj.pushKV("verificationprogress",  GuessVerificationProgress(Params().TxData(), tip));
     obj.pushKV("initialblockdownload",  ::ChainstateActive().IsInitialBlockDownload());
@@ -1797,7 +2813,7 @@ static UniValue getblockstats(const JSONRPCRequest& request)
     CAmount totalfee = 0;
     int64_t inputs = 0;
     int64_t maxtxsize = 0;
-    int64_t mintxsize = MAX_BLOCK_SERIALIZED_SIZE;
+    int64_t mintxsize = dgpMaxBlockSerSize;
     int64_t outputs = 0;
     int64_t swtotal_size = 0;
     int64_t swtotal_weight = 0;
@@ -1821,7 +2837,7 @@ static UniValue getblockstats(const JSONRPCRequest& request)
             }
         }
 
-        if (tx->IsCoinBase()) {
+        if (tx->IsCoinBase() || tx->IsCoinStake()) {
             continue;
         }
 
@@ -1905,7 +2921,7 @@ static UniValue getblockstats(const JSONRPCRequest& request)
     ret_all.pushKV("mediantxsize", CalculateTruncatedMedian(txsize_array));
     ret_all.pushKV("minfee", (minfee == MAX_MONEY) ? 0 : minfee);
     ret_all.pushKV("minfeerate", (minfeerate == MAX_MONEY) ? 0 : minfeerate);
-    ret_all.pushKV("mintxsize", mintxsize == MAX_BLOCK_SERIALIZED_SIZE ? 0 : mintxsize);
+    ret_all.pushKV("mintxsize", mintxsize == dgpMaxBlockSerSize ? 0 : mintxsize);
     ret_all.pushKV("outs", outputs);
     ret_all.pushKV("subsidy", GetBlockSubsidy(pindex->nHeight, Params().GetConsensus()));
     ret_all.pushKV("swtotal_size", swtotal_size);
@@ -2261,11 +3277,14 @@ static const CRPCCommand commands[] =
     { "blockchain",         "pruneblockchain",        &pruneblockchain,        {"height"} },
     { "blockchain",         "savemempool",            &savemempool,            {} },
     { "blockchain",         "verifychain",            &verifychain,            {"checklevel","nblocks"} },
+    { "blockchain",         "getaccountinfo",         &getaccountinfo,         {"contract_address"} },
+    { "blockchain",         "getstorage",             &getstorage,             {"address, index, blockNum"} },
 
     { "blockchain",         "preciousblock",          &preciousblock,          {"blockhash"} },
     { "blockchain",         "scantxoutset",           &scantxoutset,           {"action", "scanobjects"} },
     { "blockchain",         "getblockfilter",         &getblockfilter,         {"blockhash", "filtertype"} },
 
+    { "blockchain",         "callcontract",           &callcontract,           {"address","data", "senderAddress", "gasLimit"} },
     /* Not shown in help */
     { "hidden",             "invalidateblock",        &invalidateblock,        {"blockhash"} },
     { "hidden",             "reconsiderblock",        &reconsiderblock,        {"blockhash"} },
@@ -2273,6 +3292,11 @@ static const CRPCCommand commands[] =
     { "hidden",             "waitforblock",           &waitforblock,           {"blockhash","timeout"} },
     { "hidden",             "waitforblockheight",     &waitforblockheight,     {"height","timeout"} },
     { "hidden",             "syncwithvalidationinterfacequeue", &syncwithvalidationinterfacequeue, {} },
+    { "blockchain",         "listcontracts",          &listcontracts,          {"start", "maxDisplay"} },
+    { "blockchain",         "gettransactionreceipt",  &gettransactionreceipt,  {"hash"} },
+    { "blockchain",         "searchlogs",             &searchlogs,             {"fromBlock", "toBlock", "address", "topics"} },
+
+    { "blockchain",         "waitforlogs",            &waitforlogs,            {"fromBlock", "nblocks", "address", "topics"} },
 };
 // clang-format on
 

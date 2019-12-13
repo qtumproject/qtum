@@ -2330,6 +2330,60 @@ static UniValue encryptwallet(const JSONRPCRequest& request)
     return "wallet encrypted; The keypool has been flushed and a new HD seed was generated (if you are using HD). You need to make a new backup.";
 }
 
+static UniValue reservebalance(const JSONRPCRequest& request)
+{
+    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
+    CWallet* const pwallet = wallet.get();
+
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+
+            RPCHelpMan{"reservebalance",
+            "\nSet reserve amount not participating in network protection."
+            "\nIf no parameters provided current setting is printed.\n",
+            {
+                {"reserve", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED,"is true or false to turn balance reserve on or off."},
+                {"amount", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "is a real and rounded to cent."},
+            },
+             RPCResults{},
+             RPCExamples{
+            "\nSet reserve balance to 100\n"
+            + HelpExampleCli("reservebalance", "true 100") +
+            "\nSet reserve balance to 0\n"
+            + HelpExampleCli("reservebalance", "false") +
+            "\nGet reserve balance\n"
+            + HelpExampleCli("reservebalance", "")			},
+            }.Check(request);
+
+
+    if (request.params.size() > 0)
+    {
+        bool fReserve = request.params[0].get_bool();
+        if (fReserve)
+        {
+            if (request.params.size() == 1)
+                throw std::runtime_error("must provide amount to reserve balance.\n");
+            int64_t nAmount = AmountFromValue(request.params[1]);
+            nAmount = (nAmount / CENT) * CENT;  // round to cent
+            if (nAmount < 0)
+                throw std::runtime_error("amount cannot be negative.\n");
+            pwallet->m_reserve_balance = nAmount;
+        }
+        else
+        {
+            if (request.params.size() > 1)
+                throw std::runtime_error("cannot specify amount to turn off reserve.\n");
+            pwallet->m_reserve_balance = 0;
+        }
+    }
+
+    UniValue result(UniValue::VOBJ);
+    result.pushKV("reserve", (pwallet->m_reserve_balance > 0));
+    result.pushKV("amount", ValueFromAmount(pwallet->m_reserve_balance));
+    return result;
+}
+
 static UniValue lockunspent(const JSONRPCRequest& request)
 {
     std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
@@ -4459,6 +4513,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "walletpassphrase",                 &walletpassphrase,              {"passphrase","timeout","stakingonly"} },
     { "wallet",             "walletpassphrasechange",           &walletpassphrasechange,        {"oldpassphrase","newpassphrase"} },
     { "wallet",             "walletprocesspsbt",                &walletprocesspsbt,             {"psbt","sign","sighashtype","bip32derivs"} },
+    { "wallet",             "reservebalance",                   &reservebalance,                {"reserve", "amount"} },
 };
 // clang-format on
 
