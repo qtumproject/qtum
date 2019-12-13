@@ -406,12 +406,29 @@ bool AddressTableModel::removeRows(int row, int count, const QModelIndex &parent
     return true;
 }
 
-QString AddressTableModel::labelForAddress(const QString &address) const
+QString AddressTableModel::labelForAddress(const QString &address, bool cached) const
 {
-    std::string name;
-    if (getAddressData(address, &name, /* purpose= */ nullptr)) {
-        return QString::fromStdString(name);
+    if(cached)
+    {
+        // Find address / label in model
+        QList<AddressTableEntry>::iterator lower = qLowerBound(
+            priv->cachedAddressTable.begin(), priv->cachedAddressTable.end(), address, AddressTableEntryLessThan());
+        QList<AddressTableEntry>::iterator upper = qUpperBound(
+            priv->cachedAddressTable.begin(), priv->cachedAddressTable.end(), address, AddressTableEntryLessThan());
+        bool inModel = (lower != upper);
+        if(inModel)
+        {
+            return lower->label;
+        }
     }
+    else
+    {
+        std::string name;
+        if (getAddressData(address, &name, /* purpose= */ nullptr)) {
+            return QString::fromStdString(name);
+        }
+    }
+
     return QString();
 }
 
