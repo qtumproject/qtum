@@ -13,6 +13,7 @@
 #include <util/system.h>
 #include <util/translation.h>
 #include <validation.h>
+#include <chainparams.h>
 
 #include <stdint.h>
 
@@ -631,8 +632,8 @@ bool CBlockTreeDB::LoadBlockIndexGuts(const Consensus::Params& consensusParams, 
                 pindexNew->prevoutStake   = diskindex.prevoutStake;
                 pindexNew->vchBlockSig    = diskindex.vchBlockSig; // qtum
 
-                if (!CheckProofOfWork(pindexNew->GetBlockHash(), pindexNew->nBits, consensusParams))
-                    return error("%s: CheckProofOfWork failed: %s", __func__, pindexNew->ToString());
+                if (!CheckIndexProof(*pindexNew, Params().GetConsensus()))
+                    return error("%s: CheckIndexProof failed: %s", __func__, pindexNew->ToString());
 
                 pcursor->Next();
             } else {
