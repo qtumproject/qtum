@@ -46,16 +46,6 @@
 #include <memory>
 #include <mutex>
 
-struct CUpdatedBlock
-{
-    uint256 hash;
-    int height;
-};
-
-static Mutex cs_blockchange;
-static std::condition_variable cond_blockchange;
-static CUpdatedBlock latestblock;
-
 /* Calculate the difficulty for a given block index.
  */
 double GetDifficulty(const CBlockIndex* blockindex)

@@ -15,10 +15,23 @@
 #include <stdint.h>
 #include <string>
 #include <functional>
+#include <condition_variable>
+#include <mutex>
 
 #include <univalue.h>
+#include <util/system.h>
 
 static const unsigned int DEFAULT_RPC_SERIALIZE_VERSION = 1;
+
+struct CUpdatedBlock
+{
+    uint256 hash;
+    int height;
+};
+
+static Mutex cs_blockchange;
+static std::condition_variable cond_blockchange;
+static CUpdatedBlock latestblock;
 
 class CRPCCommand;
 class HTTPRequest;
