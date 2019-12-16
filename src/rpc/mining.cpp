@@ -255,7 +255,7 @@ static UniValue getmininginfo(const JSONRPCRequest& request)
     obj.pushKV("difficulty",       diff);
 
     const Consensus::Params& consensusParams = Params().GetConsensus();
-    obj.pushKV("blockvalue",    (uint64_t)GetBlockSubsidy(ChainActive().Height(), consensusParams));
+    obj.pushKV("blockvalue",    (uint64_t)GetBlockSubsidy(::ChainActive().Height(), consensusParams));
 
     obj.pushKV("netmhashps",       GetPoWMHashPS());
     obj.pushKV("netstakeweight",   GetPoSKernelPS());
@@ -630,7 +630,7 @@ static UniValue getblocktemplate(const JSONRPCRequest& request)
 
         // Create new block
         CScript scriptDummy = CScript() << OP_TRUE;
-        pblocktemplate = BlockAssembler(Params()).CreateNewBlock(scriptDummy, true, ChainActive().Tip()->nHeight>=Params().GetConsensus().nLastPOWBlock?true:false);
+        pblocktemplate = BlockAssembler(Params()).CreateNewBlock(scriptDummy, true, ::ChainActive().Tip()->nHeight>=Params().GetConsensus().nLastPOWBlock?true:false);
         if (!pblocktemplate)
             throw JSONRPCError(RPC_OUT_OF_MEMORY, "Out of memory");
 
