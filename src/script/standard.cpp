@@ -574,7 +574,7 @@ bool ExtractDestination(const COutPoint& prevout, const CScript& scriptPubKey, C
         if (!pubKey.IsValid())
             return false;
 
-        addressRet = pubKey.GetID();
+        addressRet = PKHash(pubKey);
         return true;
     }
     else if (whichType == TX_PUBKEYHASH)
