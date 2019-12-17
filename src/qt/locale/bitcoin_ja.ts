@@ -1,4 +1,84 @@
-<TS language="ja" version="2.1">
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE TS>
+<TS version="2.1" language="ja">
+<context>
+    <name>ABIFunctionField</name>
+    <message>
+        <source>Function</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ABIParam</name>
+    <message>
+        <source>%1 %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>AddTokenPage</name>
+    <message>
+        <source>ADD Token</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Token Symbol</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Decimals</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Contract Address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Token Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Token Address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">キャンセル</translation>
+    </message>
+    <message>
+        <source>Confirm</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>(This is your wallet address which will be tied to the token for send/receive operations)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The %1 address &quot;%2&quot; is not yours, please change it to new one.
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid token address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Token exist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The token already exist with the specified contract and sender addresses.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Log events</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable log events from the option menu in order to receive token transactions.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -227,6 +307,14 @@
         <source>Warning: The Caps Lock key is on!</source>
         <translation>警告: Caps Lock キーがオンになっています！</translation>
     </message>
+    <message>
+        <source>Serves to disable the trivial sendmoney when OS account compromised. Provides no real security.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>For staking only.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>BanTableModel</name>
@@ -240,382 +328,573 @@
     </message>
 </context>
 <context>
-    <name>QtumGUI</name>
+    <name>BitcoinGUI</name>
     <message>
-        <source>Sign &amp;message...</source>
-        <translation>メッセージの署名...(&amp;m)</translation>
+        <source>A fatal error occurred. Qtum can no longer continue safely and will quit.</source>
+        <translation type="unfinished">致命的なエラーが発生しました。Qtum を安全に動作し続けることができないため終了します。</translation>
     </message>
     <message>
-        <source>Synchronizing with network...</source>
-        <translation>ネットワークに同期中...</translation>
-    </message>
-    <message>
-        <source>&amp;Overview</source>
-        <translation>概要(&amp;O)</translation>
+        <source>My &amp;wallet</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show general overview of wallet</source>
-        <translation>ウォレットの概要を見る</translation>
-    </message>
-    <message>
-        <source>&amp;Transactions</source>
-        <translation>取引(&amp;T)</translation>
-    </message>
-    <message>
-        <source>Browse transaction history</source>
-        <translation>取引履歴を見る</translation>
-    </message>
-    <message>
-        <source>E&amp;xit</source>
-        <translation>終了(&amp;E)</translation>
-    </message>
-    <message>
-        <source>Quit application</source>
-        <translation>アプリケーションを終了する</translation>
-    </message>
-    <message>
-        <source>&amp;About %1</source>
-        <translation>%1 について(&amp;A)</translation>
-    </message>
-    <message>
-        <source>Show information about %1</source>
-        <translation>%1 の情報を表示する</translation>
-    </message>
-    <message>
-        <source>About &amp;Qt</source>
-        <translation>Qt について(&amp;Q)</translation>
-    </message>
-    <message>
-        <source>Show information about Qt</source>
-        <translation>Qt の情報を表示する</translation>
-    </message>
-    <message>
-        <source>&amp;Options...</source>
-        <translation>オプション...(&amp;O)</translation>
-    </message>
-    <message>
-        <source>Modify configuration options for %1</source>
-        <translation>%1 の設定を変更する</translation>
-    </message>
-    <message>
-        <source>&amp;Encrypt Wallet...</source>
-        <translation>ウォレットの暗号化(&amp;E)...</translation>
-    </message>
-    <message>
-        <source>&amp;Backup Wallet...</source>
-        <translation>ウォレットのバックアップ(&amp;B)...</translation>
-    </message>
-    <message>
-        <source>&amp;Change Passphrase...</source>
-        <translation>パスフレーズの変更(&amp;C)...</translation>
-    </message>
-    <message>
-        <source>Open &amp;URI...</source>
-        <translation>URI を開く(&amp;U)...</translation>
-    </message>
-    <message>
-        <source>Wallet:</source>
-        <translation>ウォレット:</translation>
-    </message>
-    <message>
-        <source>Click to disable network activity.</source>
-        <translation>クリックするとネットワーク活動を無効化します。</translation>
-    </message>
-    <message>
-        <source>Network activity disabled.</source>
-        <translation>ネットワーク活動は無効化されました。</translation>
-    </message>
-    <message>
-        <source>Click to enable network activity again.</source>
-        <translation>クリックするとネットワーク活動を再び有効化します。</translation>
-    </message>
-    <message>
-        <source>Syncing Headers (%1%)...</source>
-        <translation>ヘッダを同期中 (%1%)...</translation>
-    </message>
-    <message>
-        <source>Reindexing blocks on disk...</source>
-        <translation>ディスク上のブロックを再インデックス中...</translation>
-    </message>
-    <message>
-        <source>Proxy is &lt;b&gt;enabled&lt;/b&gt;: %1</source>
-        <translation>プロキシは&lt;b&gt;有効&lt;/b&gt;: %1</translation>
-    </message>
-    <message>
-        <source>Send coins to a Qtum address</source>
-        <translation>Qtum アドレスにコインを送る</translation>
-    </message>
-    <message>
-        <source>Backup wallet to another location</source>
-        <translation>ウォレットを他の場所にバックアップする</translation>
-    </message>
-    <message>
-        <source>Change the passphrase used for wallet encryption</source>
-        <translation>ウォレット暗号化用パスフレーズを変更する</translation>
-    </message>
-    <message>
-        <source>&amp;Debug window</source>
-        <translation>デバッグ ウインドウ(&amp;D)</translation>
-    </message>
-    <message>
-        <source>Open debugging and diagnostic console</source>
-        <translation>デバッグ・診断コンソールを開く</translation>
-    </message>
-    <message>
-        <source>&amp;Verify message...</source>
-        <translation>メッセージの検証(&amp;V)...</translation>
-    </message>
-    <message>
-        <source>Qtum</source>
-        <translation>Qtum</translation>
+        <translation type="unfinished">ウォレットの概要を見る</translation>
     </message>
     <message>
         <source>&amp;Send</source>
-        <translation>送金(&amp;S)</translation>
+        <translation type="unfinished">送金(&amp;S)</translation>
+    </message>
+    <message>
+        <source>Send coins to a Qtum address</source>
+        <translation type="unfinished">Qtum アドレスにコインを送る</translation>
     </message>
     <message>
         <source>&amp;Receive</source>
-        <translation>受取(&amp;R)</translation>
-    </message>
-    <message>
-        <source>&amp;Show / Hide</source>
-        <translation>表示 / 非表示(&amp;S)</translation>
-    </message>
-    <message>
-        <source>Show or hide the main Window</source>
-        <translation>メイン ウインドウを表示または非表示する</translation>
-    </message>
-    <message>
-        <source>Encrypt the private keys that belong to your wallet</source>
-        <translation>ウォレットの秘密鍵を暗号化する</translation>
-    </message>
-    <message>
-        <source>Sign messages with your Qtum addresses to prove you own them</source>
-        <translation>Qtum アドレスでメッセージに署名して、アドレスを所有していることを証明する</translation>
-    </message>
-    <message>
-        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
-        <translation>メッセージを検証して、指定された Qtum アドレスで署名されたことを確認する</translation>
-    </message>
-    <message>
-        <source>&amp;File</source>
-        <translation>ファイル(&amp;F)</translation>
-    </message>
-    <message>
-        <source>&amp;Settings</source>
-        <translation>設定(&amp;S)</translation>
-    </message>
-    <message>
-        <source>&amp;Help</source>
-        <translation>ヘルプ(&amp;H)</translation>
-    </message>
-    <message>
-        <source>Tabs toolbar</source>
-        <translation>タブツールバー</translation>
+        <translation type="unfinished">受取(&amp;R)</translation>
     </message>
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source>
-        <translation>支払いをリクエストする (QRコードと qtum: URIを生成する)&lt;</translation>
+        <translation type="unfinished">支払いをリクエストする (QRコードと qtum: URIを生成する)&lt;</translation>
+    </message>
+    <message>
+        <source>Smart &amp;Contracts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Smart contracts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Send To</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Call</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Stake</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show stake of wallet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Transactions</source>
+        <translation type="unfinished">取引(&amp;T)</translation>
+    </message>
+    <message>
+        <source>Browse transaction history</source>
+        <translation type="unfinished">取引履歴を見る</translation>
+    </message>
+    <message>
+        <source>&amp;QRC Tokens</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>QRC Tokens (send, receive or add Tokens in list)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>E&amp;xit</source>
+        <translation type="unfinished">終了(&amp;E)</translation>
+    </message>
+    <message>
+        <source>Quit application</source>
+        <translation type="unfinished">アプリケーションを終了する</translation>
+    </message>
+    <message>
+        <source>&amp;About %1</source>
+        <translation type="unfinished">%1 について(&amp;A)</translation>
+    </message>
+    <message>
+        <source>Show information about %1</source>
+        <translation type="unfinished">%1 の情報を表示する</translation>
+    </message>
+    <message>
+        <source>About &amp;Qt</source>
+        <translation type="unfinished">Qt について(&amp;Q)</translation>
+    </message>
+    <message>
+        <source>Show information about Qt</source>
+        <translation type="unfinished">Qt の情報を表示する</translation>
+    </message>
+    <message>
+        <source>&amp;Options...</source>
+        <translation type="unfinished">オプション...(&amp;O)</translation>
+    </message>
+    <message>
+        <source>Modify configuration options for %1</source>
+        <translation type="unfinished">%1 の設定を変更する</translation>
+    </message>
+    <message>
+        <source>&amp;Show / Hide</source>
+        <translation type="unfinished">表示 / 非表示(&amp;S)</translation>
+    </message>
+    <message>
+        <source>Show or hide the main Window</source>
+        <translation type="unfinished">メイン ウインドウを表示または非表示する</translation>
+    </message>
+    <message>
+        <source>&amp;Encrypt Wallet...</source>
+        <translation type="unfinished">ウォレットの暗号化(&amp;E)...</translation>
+    </message>
+    <message>
+        <source>Encrypt the private keys that belong to your wallet</source>
+        <translation type="unfinished">ウォレットの秘密鍵を暗号化する</translation>
+    </message>
+    <message>
+        <source>&amp;Backup Wallet...</source>
+        <translation type="unfinished">ウォレットのバックアップ(&amp;B)...</translation>
+    </message>
+    <message>
+        <source>Backup wallet to another location</source>
+        <translation type="unfinished">ウォレットを他の場所にバックアップする</translation>
+    </message>
+    <message>
+        <source>&amp;Restore Wallet...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restore wallet from another location</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Change Passphrase...</source>
+        <translation type="unfinished">パスフレーズの変更(&amp;C)...</translation>
+    </message>
+    <message>
+        <source>Change the passphrase used for wallet encryption</source>
+        <translation type="unfinished">ウォレット暗号化用パスフレーズを変更する</translation>
+    </message>
+    <message>
+        <source>&amp;Unlock Wallet...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unlock wallet</source>
+        <translation type="unfinished">ウォレットをアンロック</translation>
+    </message>
+    <message>
+        <source>&amp;Lock Wallet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lock wallet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sign &amp;message...</source>
+        <translation type="unfinished">メッセージの署名...(&amp;m)</translation>
+    </message>
+    <message>
+        <source>Sign messages with your Qtum addresses to prove you own them</source>
+        <translation type="unfinished">Qtum アドレスでメッセージに署名して、アドレスを所有していることを証明する</translation>
+    </message>
+    <message>
+        <source>&amp;Verify message...</source>
+        <translation type="unfinished">メッセージの検証(&amp;V)...</translation>
+    </message>
+    <message>
+        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
+        <translation type="unfinished">メッセージを検証して、指定された Qtum アドレスで署名されたことを確認する</translation>
+    </message>
+    <message>
+        <source>&amp;Debug window</source>
+        <translation type="unfinished">デバッグ ウインドウ(&amp;D)</translation>
+    </message>
+    <message>
+        <source>Open debugging and diagnostic console</source>
+        <translation type="unfinished">デバッグ・診断コンソールを開く</translation>
+    </message>
+    <message>
+        <source>&amp;Sending addresses...</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
-        <translation>送金したことがあるアドレスとラベルの一覧を表示する</translation>
+        <translation type="unfinished">送金したことがあるアドレスとラベルの一覧を表示する</translation>
+    </message>
+    <message>
+        <source>&amp;Receiving addresses...</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show the list of used receiving addresses and labels</source>
-        <translation>受け取ったことがあるアドレスとラベルの一覧を表示する</translation>
+        <translation type="unfinished">受け取ったことがあるアドレスとラベルの一覧を表示する</translation>
+    </message>
+    <message>
+        <source>Open &amp;URI...</source>
+        <translation type="unfinished">URI を開く(&amp;U)...</translation>
     </message>
     <message>
         <source>Open a qtum: URI or payment request</source>
-        <translation>qtum: URIや支払いリクエストを開く</translation>
-    </message>
-    <message>
-        <source>&amp;Command-line options</source>
-        <translation>コマンドラインオプション(&amp;C)</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n active connection(s) to Qtum network</source>
-        <translation><numerusform>Qtum ネットワークへのアクティブな接続は %n 個</numerusform></translation>
-    </message>
-    <message>
-        <source>Indexing blocks on disk...</source>
-        <translation>ディスク上のブロックをインデックス中...</translation>
-    </message>
-    <message>
-        <source>Processing blocks on disk...</source>
-        <translation>ディスク上のブロックを処理中...</translation>
-    </message>
-    <message numerus="yes">
-        <source>Processed %n block(s) of transaction history.</source>
-        <translation><numerusform>%n ブロックの取引履歴を処理済み。</numerusform></translation>
-    </message>
-    <message>
-        <source>%1 behind</source>
-        <translation>%1 遅延</translation>
-    </message>
-    <message>
-        <source>Last received block was generated %1 ago.</source>
-        <translation>最後に受信したブロックは %1 前に生成。</translation>
-    </message>
-    <message>
-        <source>Transactions after this will not yet be visible.</source>
-        <translation>これより後の取引はまだ表示されていません。</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>エラー</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation>警告</translation>
-    </message>
-    <message>
-        <source>Information</source>
-        <translation>情報</translation>
-    </message>
-    <message>
-        <source>Up to date</source>
-        <translation>ブロックは最新</translation>
-    </message>
-    <message>
-        <source>&amp;Sending addresses</source>
-        <translation>送金先アドレス一覧(&amp;S)...</translation>
-    </message>
-    <message>
-        <source>&amp;Receiving addresses</source>
-        <translation>受取用アドレス一覧(&amp;R)...</translation>
+        <translation type="unfinished">qtum: URIや支払いリクエストを開く</translation>
     </message>
     <message>
         <source>Open Wallet</source>
-        <translation>ウォレットを開く</translation>
+        <translation type="unfinished">ウォレットを開く</translation>
     </message>
     <message>
         <source>Open a wallet</source>
-        <translation>ウォレットを開く</translation>
+        <translation type="unfinished">ウォレットを開く</translation>
     </message>
     <message>
         <source>Close Wallet...</source>
-        <translation>ウォレットを閉じる</translation>
+        <translation type="unfinished">ウォレットを閉じる</translation>
     </message>
     <message>
         <source>Close wallet</source>
-        <translation>ウォレットを閉じる</translation>
+        <translation type="unfinished">ウォレットを閉じる</translation>
+    </message>
+    <message>
+        <source>&amp;Command-line options</source>
+        <translation type="unfinished">コマンドラインオプション(&amp;C)</translation>
     </message>
     <message>
         <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
-        <translation>%1 のヘルプ メッセージを表示して、使用可能な XPChain のコマンドライン オプションの一覧を見る。</translation>
+        <translation type="unfinished">%1 のヘルプ メッセージを表示して、使用可能な XPChain のコマンドライン オプションの一覧を見る。</translation>
     </message>
     <message>
         <source>default wallet</source>
-        <translation>デフォルトウォレット</translation>
+        <translation type="unfinished">デフォルトウォレット</translation>
     </message>
     <message>
         <source>Opening Wallet &lt;b&gt;%1&lt;/b&gt;...</source>
-        <translation>ウォレット &lt;b&gt;%1&lt;/b&gt;を開いています...</translation>
+        <translation type="unfinished">ウォレット &lt;b&gt;%1&lt;/b&gt;を開いています...</translation>
     </message>
     <message>
         <source>Open Wallet Failed</source>
-        <translation>ウォレットを開くことに失敗しました</translation>
+        <translation type="unfinished">ウォレットを開くことに失敗しました</translation>
+    </message>
+    <message>
+        <source>No wallets available</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;File</source>
+        <translation type="unfinished">ファイル(&amp;F)</translation>
+    </message>
+    <message>
+        <source>&amp;Settings</source>
+        <translation type="unfinished">設定(&amp;S)</translation>
     </message>
     <message>
         <source>&amp;Window</source>
-        <translation>ウインドウ (&amp;W)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Minimize</source>
-        <translation>最小化</translation>
+        <translation type="unfinished">最小化</translation>
     </message>
     <message>
         <source>Zoom</source>
-        <translation>拡大／縮小</translation>
+        <translation type="unfinished">拡大／縮小</translation>
     </message>
     <message>
         <source>Restore</source>
-        <translation>元に戻す</translation>
+        <translation type="unfinished">元に戻す</translation>
     </message>
     <message>
         <source>Main Window</source>
-        <translation>メインウィンドウ</translation>
+        <translation type="unfinished">メインウィンドウ</translation>
+    </message>
+    <message>
+        <source>&amp;Help</source>
+        <translation type="unfinished">ヘルプ(&amp;H)</translation>
+    </message>
+    <message>
+        <source>Wallet:</source>
+        <translation type="unfinished">ウォレット:</translation>
+    </message>
+    <message>
+        <source>New version of Qtum wallet is available on the Qtum source code repository: &lt;br /&gt; %1. &lt;br /&gt;It is recommended to download it and update this application</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Check for updates</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1 client</source>
-        <translation>%1 クライアント</translation>
+        <translation type="unfinished">%1 クライアント</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n active connection(s) to Qtum network</source>
+        <translation type="unfinished">
+            <numerusform>Qtum ネットワークへのアクティブな接続は %n 個</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Click to disable network activity.</source>
+        <translation type="unfinished">クリックするとネットワーク活動を無効化します。</translation>
+    </message>
+    <message>
+        <source>Network activity disabled.</source>
+        <translation type="unfinished">ネットワーク活動は無効化されました。</translation>
+    </message>
+    <message>
+        <source>Click to enable network activity again.</source>
+        <translation type="unfinished">クリックするとネットワーク活動を再び有効化します。</translation>
+    </message>
+    <message>
+        <source>Syncing Headers (%1%)...</source>
+        <translation type="unfinished">ヘッダを同期中 (%1%)...</translation>
+    </message>
+    <message>
+        <source>Synchronizing with network...</source>
+        <translation type="unfinished">ネットワークに同期中...</translation>
+    </message>
+    <message>
+        <source>Indexing blocks on disk...</source>
+        <translation type="unfinished">ディスク上のブロックをインデックス中...</translation>
+    </message>
+    <message>
+        <source>Processing blocks on disk...</source>
+        <translation type="unfinished">ディスク上のブロックを処理中...</translation>
+    </message>
+    <message>
+        <source>Reindexing blocks on disk...</source>
+        <translation type="unfinished">ディスク上のブロックを再インデックス中...</translation>
     </message>
     <message>
         <source>Connecting to peers...</source>
-        <translation>ピアに接続中...</translation>
+        <translation type="unfinished">ピアに接続中...</translation>
+    </message>
+    <message numerus="yes">
+        <source>Processed %n block(s) of transaction history.</source>
+        <translation type="unfinished">
+            <numerusform>%n ブロックの取引履歴を処理済み。</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Up to date</source>
+        <translation type="unfinished">ブロックは最新</translation>
+    </message>
+    <message>
+        <source>%1 behind</source>
+        <translation type="unfinished">%1 遅延</translation>
     </message>
     <message>
         <source>Catching up...</source>
-        <translation>遅延取戻し中...</translation>
+        <translation type="unfinished">遅延取戻し中...</translation>
+    </message>
+    <message>
+        <source>Last received block was generated %1 ago.</source>
+        <translation type="unfinished">最後に受信したブロックは %1 前に生成。</translation>
+    </message>
+    <message>
+        <source>Transactions after this will not yet be visible.</source>
+        <translation type="unfinished">これより後の取引はまだ表示されていません。</translation>
+    </message>
+    <message>
+        <source>Qtum</source>
+        <translation type="unfinished">Qtum</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation type="unfinished">エラー</translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation type="unfinished">警告</translation>
+    </message>
+    <message>
+        <source>Information</source>
+        <translation type="unfinished">情報</translation>
     </message>
     <message>
         <source>Date: %1
 </source>
-        <translation>日付: %1
+        <translation type="unfinished">日付: %1
 </translation>
     </message>
     <message>
         <source>Amount: %1
 </source>
-        <translation>金額: %1
+        <translation type="unfinished">金額: %1
 </translation>
     </message>
     <message>
         <source>Wallet: %1
 </source>
-        <translation>ウォレット: %1
+        <translation type="unfinished">ウォレット: %1
 </translation>
     </message>
     <message>
         <source>Type: %1
 </source>
-        <translation>種別: %1
+        <translation type="unfinished">種別: %1
 </translation>
     </message>
     <message>
         <source>Label: %1
 </source>
-        <translation>ラベル: %1
+        <translation type="unfinished">ラベル: %1
 </translation>
     </message>
     <message>
         <source>Address: %1
 </source>
-        <translation>アドレス: %1
+        <translation type="unfinished">アドレス: %1
 </translation>
     </message>
     <message>
         <source>Sent transaction</source>
-        <translation>送金取引</translation>
+        <translation type="unfinished">送金取引</translation>
     </message>
     <message>
         <source>Incoming transaction</source>
-        <translation>入金取引</translation>
-    </message>
-    <message>
-        <source>HD key generation is &lt;b&gt;enabled&lt;/b&gt;</source>
-        <translation>HD鍵生成は&lt;b&gt;有効&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>HD key generation is &lt;b&gt;disabled&lt;/b&gt;</source>
-        <translation>HD鍵生成は&lt;b&gt;無効&lt;/b&gt;</translation>
+        <translation type="unfinished">入金取引</translation>
     </message>
     <message>
         <source>Private key &lt;b&gt;disabled&lt;/b&gt;</source>
-        <translation>秘密鍵は&lt;b&gt;無効&lt;/b&gt;</translation>
+        <translation type="unfinished">秘密鍵は&lt;b&gt;無効&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>HD key generation is &lt;b&gt;enabled&lt;/b&gt;</source>
+        <translation type="unfinished">HD鍵生成は&lt;b&gt;有効&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>HD key generation is &lt;b&gt;disabled&lt;/b&gt;</source>
+        <translation type="unfinished">HD鍵生成は&lt;b&gt;無効&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;unlocked for staking only&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;unlocked&lt;/b&gt;</source>
-        <translation>ウォレットは&lt;b&gt;暗号化済み&lt;/b&gt;・&lt;b&gt;アンロック状態&lt;/b&gt;</translation>
+        <translation type="unfinished">ウォレットは&lt;b&gt;暗号化済み&lt;/b&gt;・&lt;b&gt;アンロック状態&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;locked&lt;/b&gt;</source>
-        <translation>ウォレットは&lt;b&gt;暗号化済み&lt;/b&gt;・&lt;b&gt;ロック状態&lt;/b&gt;</translation>
+        <translation type="unfinished">ウォレットは&lt;b&gt;暗号化済み&lt;/b&gt;・&lt;b&gt;ロック状態&lt;/b&gt;</translation>
     </message>
     <message>
-        <source>A fatal error occurred. Qtum can no longer continue safely and will quit.</source>
-        <translation>致命的なエラーが発生しました。Qtum を安全に動作し続けることができないため終了します。</translation>
+        <source>Proxy is &lt;b&gt;enabled&lt;/b&gt;: %1</source>
+        <translation type="unfinished">プロキシは&lt;b&gt;有効&lt;/b&gt;: %1</translation>
+    </message>
+    <message>
+        <source>Not staking</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>%n second(s)</source>
+        <translation type="unfinished">
+            <numerusform>%n 秒</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%n minute(s)</source>
+        <translation type="unfinished">
+            <numerusform>%n分</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%n hour(s)</source>
+        <translation type="unfinished">
+            <numerusform>%n時間</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%n day(s)</source>
+        <translation type="unfinished">
+            <numerusform>%n日</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Staking.&lt;br&gt;Your weight is %1&lt;br&gt;Network weight is %2&lt;br&gt;Expected time to earn reward is %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not staking because wallet is offline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not staking because wallet is syncing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not staking because you don&apos;t have mature coins</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not staking because wallet is locked</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CallContract</name>
+    <message>
+        <source>Form</source>
+        <translation type="unfinished">フォーム</translation>
+    </message>
+    <message>
+        <source>Call Smart Contract</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose from contract book page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Paste contract address from clipboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save contract info</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Interface (ABI)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Contract Address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Function</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Optional</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sender Address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Call Contract</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The account address.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The sender address hex string.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Result %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Call contract</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -770,6 +1049,250 @@
     </message>
 </context>
 <context>
+    <name>ContractBookPage</name>
+    <message>
+        <source>Form</source>
+        <translation type="unfinished">フォーム</translation>
+    </message>
+    <message>
+        <source>Create a new contract info</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy the currently selected contract address to the system clipboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete the currently selected contract info from the list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export the data to a file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose the contract for send/call</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>These are your saved contracts. Always check the contract address and the ABI before sending/calling.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy &amp;Address</source>
+        <translation type="unfinished">アドレスをコピー(&amp;A)</translation>
+    </message>
+    <message>
+        <source>Copy &amp;Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy &amp;Interface</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Edit</source>
+        <translation type="unfinished">編集(&amp;E)</translation>
+    </message>
+    <message>
+        <source>&amp;Delete</source>
+        <translation type="unfinished">削除(&amp;D)</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to delete the address &quot;%1&quot; from your contract address list?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete contact address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export Contract List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Comma separated file (*.csv)</source>
+        <translation type="unfinished">テキスト CSV (*.csv)</translation>
+    </message>
+    <message>
+        <source>Exporting Failed</source>
+        <translation type="unfinished">エクスポートに失敗しました</translation>
+    </message>
+    <message>
+        <source>There was an error trying to save the address list to %1. Please try again.</source>
+        <translation type="unfinished">トランザクション履歴を %1 へ保存する際にエラーが発生しました。再試行してください。</translation>
+    </message>
+</context>
+<context>
+    <name>ContractResult</name>
+    <message>
+        <source>StackedWidget</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Contract Summary</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ContractAddress</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hash160</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SenderAddress</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Transaction ID</source>
+        <translation type="unfinished">取引ID</translation>
+    </message>
+    <message>
+        <source>Function</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Result</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create contract</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ContractTableModel</name>
+    <message>
+        <source>Label</source>
+        <translation type="unfinished">ラベル</translation>
+    </message>
+    <message>
+        <source>Contract Address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Interface (ABI)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>(no label)</source>
+        <translation type="unfinished">(ラベル無し)</translation>
+    </message>
+</context>
+<context>
+    <name>CreateContract</name>
+    <message>
+        <source>Form</source>
+        <translation type="unfinished">フォーム</translation>
+    </message>
+    <message>
+        <source>Create Smart Contract</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Solidity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Interface (ABI)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bytecode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Constructor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Optional</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sender Address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gas Price</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gas Limit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create Contract</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The bytecode of the contract</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The quantum address that will be used to create the contract.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The Gas Price is too high, are you sure you want to possibly spend a max of %1 for this transaction?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>High Gas price</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Are you sure you want to create contract? &lt;br /&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Confirm contract creation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Result %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create contract</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gas limit. Default = %1, Max = %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gas price: QTUM price per gas unit. Default = %1, Min = %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>EditAddressDialog</name>
     <message>
         <source>Edit Address</source>
@@ -804,16 +1327,16 @@
         <translation>送金先アドレスを編集</translation>
     </message>
     <message>
-        <source>The entered address "%1" is not a valid Qtum address.</source>
-        <translation>入力されたアドレス "%1" は無効な Qtum アドレスです。</translation>
+        <source>The entered address &quot;%1&quot; is not a valid Qtum address.</source>
+        <translation>入力されたアドレス &quot;%1&quot; は無効な Qtum アドレスです。</translation>
     </message>
     <message>
-        <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
-        <translation>アドレス "%1" は既に受取用アドレスにラベル "%2" として存在するので、送金先アドレスとしては追加できません。</translation>
+        <source>Address &quot;%1&quot; already exists as a receiving address with label &quot;%2&quot; and so cannot be added as a sending address.</source>
+        <translation>アドレス &quot;%1&quot; は既に受取用アドレスにラベル &quot;%2&quot; として存在するので、送金先アドレスとしては追加できません。</translation>
     </message>
     <message>
-        <source>The entered address "%1" is already in the address book with label "%2".</source>
-        <translation>入力されたアドレス "%1" は既にラベル "%2" としてアドレス帳に存在します｡</translation>
+        <source>The entered address &quot;%1&quot; is already in the address book with label &quot;%2&quot;.</source>
+        <translation>入力されたアドレス &quot;%1&quot; は既にラベル &quot;%2&quot; としてアドレス帳に存在します｡</translation>
     </message>
     <message>
         <source>Could not unlock wallet.</source>
@@ -822,6 +1345,54 @@
     <message>
         <source>New key generation failed.</source>
         <translation>新しい鍵の生成に失敗しました。</translation>
+    </message>
+</context>
+<context>
+    <name>EditContractInfoDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Label</source>
+        <translation type="unfinished">ラベル</translation>
+    </message>
+    <message>
+        <source>Contract Address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Interface (ABI)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New contract info</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit contract info</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The entered address &quot;%1&quot; is already in the contract book.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ExecRPCCommand</name>
+    <message>
+        <source>Mandatory fields are not present:
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Optional fields are not present:
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Parse error: unbalanced &apos; or &quot;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -921,8 +1492,8 @@
         <translation>ウォレットもこのディレクトリに保存されます。</translation>
     </message>
     <message>
-        <source>Error: Specified data directory "%1" cannot be created.</source>
-        <translation>エラー: 指定のデータディレクトリ "%1" を作成できません。</translation>
+        <source>Error: Specified data directory &quot;%1&quot; cannot be created.</source>
+        <translation>エラー: 指定のデータディレクトリ &quot;%1&quot; を作成できません。</translation>
     </message>
     <message>
         <source>Error</source>
@@ -930,11 +1501,15 @@
     </message>
     <message numerus="yes">
         <source>%n GB of free space available</source>
-        <translation><numerusform>利用可能な空き容量 %n GB</numerusform></translation>
+        <translation>
+            <numerusform>利用可能な空き容量 %n GB</numerusform>
+        </translation>
     </message>
     <message numerus="yes">
         <source>(of %n GB needed)</source>
-        <translation><numerusform>(%n GB必要)</numerusform></translation>
+        <translation>
+            <numerusform>(%n GB必要)</numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -944,7 +1519,7 @@
         <translation>フォーム</translation>
     </message>
     <message>
-        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
+        <source>Recent transactions may not yet be visible, and therefore your wallet&apos;s balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
         <translation>最近の取引がまだ表示されていない可能性があります。そのため、ウォレットの残高が正しく表示されていないかもしれません。この情報は、ウォレットが Qtum ネットワークへの同期が完了すると正確なものとなります。詳細は下記を参照してください。</translation>
     </message>
     <message>
@@ -983,7 +1558,28 @@
         <source>Hide</source>
         <translation>隠す</translation>
     </message>
-    </context>
+    <message>
+        <source>Wallet backup prompt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please backup your wallet as soon
+Please make sure to keep an updated antivirus and operating system. We can not recover Your funds if you visit phishing site or lose your backup. Please make sure to keep backups of your private keys or files. We do not store your private keys on this wallet. And you as a user, are entirely responsible for your funds and your own security.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Maybe later</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wallet backup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown. Syncing Headers (%1, %2%)...</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
 <context>
     <name>OpenURIDialog</name>
     <message>
@@ -1127,7 +1723,7 @@
     </message>
     <message>
         <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>自動的にルーター上の Qtum クライアントのポートを開放します。あなたのルーターが UPnP に対応していて、それが有効になっている場合のみ動作します。</translation>
+        <translation type="vanished">自動的にルーター上の Qtum クライアントのポートを開放します。あなたのルーターが UPnP に対応していて、それが有効になっている場合のみ動作します。</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
@@ -1143,7 +1739,7 @@
     </message>
     <message>
         <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
-        <translation>SOCKS5 プロキシ経由で Qtum ネットワークに接続する。</translation>
+        <translation type="vanished">SOCKS5 プロキシ経由で Qtum ネットワークに接続する。</translation>
     </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
@@ -1179,7 +1775,7 @@
     </message>
     <message>
         <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor hidden services.</source>
-        <translation>Tor秘匿サービスを利用するため、専用の SOCKS5 プロキシ経由で Qtum ネットワークに接続する。</translation>
+        <translation type="vanished">Tor秘匿サービスを利用するため、専用の SOCKS5 プロキシ経由で Qtum ネットワークに接続する。</translation>
     </message>
     <message>
         <source>&amp;Window</source>
@@ -1281,6 +1877,58 @@
         <source>The supplied proxy address is invalid.</source>
         <translation>プロキシアドレスが無効です。</translation>
     </message>
+    <message>
+        <source>Reserve</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reserve amount that will not be used for staking</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable  log &amp;events</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable &amp;zero balance for receiver token address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use change &amp;address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Check for &amp;updates</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Automatically open the Bitcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Connect to the Bitcoin network through a SOCKS5 proxy.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Connect to the Bitcoin network through a separate SOCKS5 proxy for Tor hidden services.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>User Interface &amp;style:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The user interface style can be set here. This setting will take effect after restarting %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Confirm wallet restart</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Are you sure you wish to restart your wallet?</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>OverviewPage</name>
@@ -1322,11 +1970,11 @@
     </message>
     <message>
         <source>Balances</source>
-        <translation>残高</translation>
+        <translation type="vanished">残高</translation>
     </message>
     <message>
         <source>Total:</source>
-        <translation>合計:</translation>
+        <translation type="vanished">合計:</translation>
     </message>
     <message>
         <source>Your current total balance</source>
@@ -1342,7 +1990,7 @@
     </message>
     <message>
         <source>Recent transactions</source>
-        <translation>最近の取引</translation>
+        <translation type="vanished">最近の取引</translation>
     </message>
     <message>
         <source>Unconfirmed transactions to watch-only addresses</source>
@@ -1355,6 +2003,55 @@
     <message>
         <source>Current total balance in watch-only addresses</source>
         <translation>ウォッチ限定アドレスの現在の残高の総計</translation>
+    </message>
+    <message>
+        <source>Stake:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>0.000 000 00</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Send</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Receive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RecentTransactions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>More</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">種別</translation>
+    </message>
+    <message>
+        <source>Label</source>
+        <translation type="unfinished">ラベル</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation type="unfinished">金額</translation>
+    </message>
+    <message>
+        <source>The %1 address &quot;%2&quot; is not yours, please change it to new one.
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid token address</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1372,8 +2069,8 @@
         <translation>URIの処理</translation>
     </message>
     <message>
-        <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
-        <translation>'qtum://' は正しいURIではありません｡ 'qtum:'を使用してください｡</translation>
+        <source>&apos;qtum://&apos; is not a valid URI. Use &apos;qtum:&apos; instead.</source>
+        <translation type="vanished">&apos;qtum://&apos; は正しいURIではありません｡ &apos;qtum:&apos;を使用してください｡</translation>
     </message>
     <message>
         <source>You are using a BIP70 URL which will be unsupported in the future.</source>
@@ -1408,7 +2105,7 @@
         <translation>支払いリクエストの拒否</translation>
     </message>
     <message>
-        <source>Payment request network doesn't match client network.</source>
+        <source>Payment request network doesn&apos;t match client network.</source>
         <translation>支払いリクエストのネットワークが現在のクライアントのネットワークと一致しません。</translation>
     </message>
     <message>
@@ -1458,6 +2155,10 @@
     <message>
         <source>Payment acknowledged</source>
         <translation>支払いは承認されました</translation>
+    </message>
+    <message>
+        <source>&apos;bitcoin://&apos; is not a valid URI. Use &apos;bitcoin:&apos; instead.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1527,23 +2228,33 @@
     </message>
     <message numerus="yes">
         <source>%n second(s)</source>
-        <translation><numerusform>%n 秒</numerusform></translation>
+        <translation>
+            <numerusform>%n 秒</numerusform>
+        </translation>
     </message>
     <message numerus="yes">
         <source>%n minute(s)</source>
-        <translation><numerusform>%n分</numerusform></translation>
+        <translation>
+            <numerusform>%n分</numerusform>
+        </translation>
     </message>
     <message numerus="yes">
         <source>%n hour(s)</source>
-        <translation><numerusform>%n時間</numerusform></translation>
+        <translation>
+            <numerusform>%n時間</numerusform>
+        </translation>
     </message>
     <message numerus="yes">
         <source>%n day(s)</source>
-        <translation><numerusform>%n日</numerusform></translation>
+        <translation>
+            <numerusform>%n日</numerusform>
+        </translation>
     </message>
     <message numerus="yes">
         <source>%n week(s)</source>
-        <translation><numerusform>%n週間</numerusform></translation>
+        <translation>
+            <numerusform>%n週間</numerusform>
+        </translation>
     </message>
     <message>
         <source>%1 and %2</source>
@@ -1551,7 +2262,9 @@
     </message>
     <message numerus="yes">
         <source>%n year(s)</source>
-        <translation><numerusform>%n年</numerusform></translation>
+        <translation>
+            <numerusform>%n年</numerusform>
+        </translation>
     </message>
     <message>
         <source>%1 B</source>
@@ -1570,12 +2283,28 @@
         <translation>%1 GB</translation>
     </message>
     <message>
-        <source>%1 didn't yet exit safely...</source>
+        <source>%1 didn&apos;t yet exit safely...</source>
         <translation>%1 はまだ安全に終了していません...</translation>
     </message>
     <message>
         <source>unknown</source>
         <translation>不明</translation>
+    </message>
+    <message>
+        <source>ABI parsing error:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unsupported type %1 %2.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error encoding parameter %1 %2.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error decoding parameter %1 %2.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1585,8 +2314,8 @@
         <translation>コマンドライン引数の解析時にエラーが発生しました: %1</translation>
     </message>
     <message>
-        <source>Error: Specified data directory "%1" does not exist.</source>
-        <translation>エラー: 指定されたデータ ディレクトリ "%1" は存在しません。</translation>
+        <source>Error: Specified data directory &quot;%1&quot; does not exist.</source>
+        <translation>エラー: 指定されたデータ ディレクトリ &quot;%1&quot; は存在しません。</translation>
     </message>
     <message>
         <source>Error: Cannot parse configuration file: %1.</source>
@@ -1595,6 +2324,41 @@
     <message>
         <source>Error: %1</source>
         <translation>エラー: %1</translation>
+    </message>
+</context>
+<context>
+    <name>QRCToken</name>
+    <message>
+        <source>Form</source>
+        <translation type="unfinished">フォーム</translation>
+    </message>
+    <message>
+        <source>Copy receive address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy token balance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy token name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy contract address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove token</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Confirm token remove</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The selected token will be removed from the list. Are you sure?</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1614,6 +2378,389 @@
     <message>
         <source>PNG Image (*.png)</source>
         <translation>PNG画像 (*.png)</translation>
+    </message>
+</context>
+<context>
+    <name>QtumGUI</name>
+    <message>
+        <source>Sign &amp;message...</source>
+        <translation type="vanished">メッセージの署名...(&amp;m)</translation>
+    </message>
+    <message>
+        <source>Synchronizing with network...</source>
+        <translation type="vanished">ネットワークに同期中...</translation>
+    </message>
+    <message>
+        <source>&amp;Overview</source>
+        <translation type="vanished">概要(&amp;O)</translation>
+    </message>
+    <message>
+        <source>Show general overview of wallet</source>
+        <translation type="vanished">ウォレットの概要を見る</translation>
+    </message>
+    <message>
+        <source>&amp;Transactions</source>
+        <translation type="vanished">取引(&amp;T)</translation>
+    </message>
+    <message>
+        <source>Browse transaction history</source>
+        <translation type="vanished">取引履歴を見る</translation>
+    </message>
+    <message>
+        <source>E&amp;xit</source>
+        <translation type="vanished">終了(&amp;E)</translation>
+    </message>
+    <message>
+        <source>Quit application</source>
+        <translation type="vanished">アプリケーションを終了する</translation>
+    </message>
+    <message>
+        <source>&amp;About %1</source>
+        <translation type="vanished">%1 について(&amp;A)</translation>
+    </message>
+    <message>
+        <source>Show information about %1</source>
+        <translation type="vanished">%1 の情報を表示する</translation>
+    </message>
+    <message>
+        <source>About &amp;Qt</source>
+        <translation type="vanished">Qt について(&amp;Q)</translation>
+    </message>
+    <message>
+        <source>Show information about Qt</source>
+        <translation type="vanished">Qt の情報を表示する</translation>
+    </message>
+    <message>
+        <source>&amp;Options...</source>
+        <translation type="vanished">オプション...(&amp;O)</translation>
+    </message>
+    <message>
+        <source>Modify configuration options for %1</source>
+        <translation type="vanished">%1 の設定を変更する</translation>
+    </message>
+    <message>
+        <source>&amp;Encrypt Wallet...</source>
+        <translation type="vanished">ウォレットの暗号化(&amp;E)...</translation>
+    </message>
+    <message>
+        <source>&amp;Backup Wallet...</source>
+        <translation type="vanished">ウォレットのバックアップ(&amp;B)...</translation>
+    </message>
+    <message>
+        <source>&amp;Change Passphrase...</source>
+        <translation type="vanished">パスフレーズの変更(&amp;C)...</translation>
+    </message>
+    <message>
+        <source>Open &amp;URI...</source>
+        <translation type="vanished">URI を開く(&amp;U)...</translation>
+    </message>
+    <message>
+        <source>Wallet:</source>
+        <translation type="vanished">ウォレット:</translation>
+    </message>
+    <message>
+        <source>Click to disable network activity.</source>
+        <translation type="vanished">クリックするとネットワーク活動を無効化します。</translation>
+    </message>
+    <message>
+        <source>Network activity disabled.</source>
+        <translation type="vanished">ネットワーク活動は無効化されました。</translation>
+    </message>
+    <message>
+        <source>Click to enable network activity again.</source>
+        <translation type="vanished">クリックするとネットワーク活動を再び有効化します。</translation>
+    </message>
+    <message>
+        <source>Syncing Headers (%1%)...</source>
+        <translation type="vanished">ヘッダを同期中 (%1%)...</translation>
+    </message>
+    <message>
+        <source>Reindexing blocks on disk...</source>
+        <translation type="vanished">ディスク上のブロックを再インデックス中...</translation>
+    </message>
+    <message>
+        <source>Proxy is &lt;b&gt;enabled&lt;/b&gt;: %1</source>
+        <translation type="vanished">プロキシは&lt;b&gt;有効&lt;/b&gt;: %1</translation>
+    </message>
+    <message>
+        <source>Send coins to a Qtum address</source>
+        <translation type="vanished">Qtum アドレスにコインを送る</translation>
+    </message>
+    <message>
+        <source>Backup wallet to another location</source>
+        <translation type="vanished">ウォレットを他の場所にバックアップする</translation>
+    </message>
+    <message>
+        <source>Change the passphrase used for wallet encryption</source>
+        <translation type="vanished">ウォレット暗号化用パスフレーズを変更する</translation>
+    </message>
+    <message>
+        <source>&amp;Debug window</source>
+        <translation type="vanished">デバッグ ウインドウ(&amp;D)</translation>
+    </message>
+    <message>
+        <source>Open debugging and diagnostic console</source>
+        <translation type="vanished">デバッグ・診断コンソールを開く</translation>
+    </message>
+    <message>
+        <source>&amp;Verify message...</source>
+        <translation type="vanished">メッセージの検証(&amp;V)...</translation>
+    </message>
+    <message>
+        <source>Qtum</source>
+        <translation type="vanished">Qtum</translation>
+    </message>
+    <message>
+        <source>&amp;Send</source>
+        <translation type="vanished">送金(&amp;S)</translation>
+    </message>
+    <message>
+        <source>&amp;Receive</source>
+        <translation type="vanished">受取(&amp;R)</translation>
+    </message>
+    <message>
+        <source>&amp;Show / Hide</source>
+        <translation type="vanished">表示 / 非表示(&amp;S)</translation>
+    </message>
+    <message>
+        <source>Show or hide the main Window</source>
+        <translation type="vanished">メイン ウインドウを表示または非表示する</translation>
+    </message>
+    <message>
+        <source>Encrypt the private keys that belong to your wallet</source>
+        <translation type="vanished">ウォレットの秘密鍵を暗号化する</translation>
+    </message>
+    <message>
+        <source>Sign messages with your Qtum addresses to prove you own them</source>
+        <translation type="vanished">Qtum アドレスでメッセージに署名して、アドレスを所有していることを証明する</translation>
+    </message>
+    <message>
+        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
+        <translation type="vanished">メッセージを検証して、指定された Qtum アドレスで署名されたことを確認する</translation>
+    </message>
+    <message>
+        <source>&amp;File</source>
+        <translation type="vanished">ファイル(&amp;F)</translation>
+    </message>
+    <message>
+        <source>&amp;Settings</source>
+        <translation type="vanished">設定(&amp;S)</translation>
+    </message>
+    <message>
+        <source>&amp;Help</source>
+        <translation type="vanished">ヘルプ(&amp;H)</translation>
+    </message>
+    <message>
+        <source>Tabs toolbar</source>
+        <translation type="vanished">タブツールバー</translation>
+    </message>
+    <message>
+        <source>Request payments (generates QR codes and qtum: URIs)</source>
+        <translation type="vanished">支払いをリクエストする (QRコードと qtum: URIを生成する)&lt;</translation>
+    </message>
+    <message>
+        <source>Show the list of used sending addresses and labels</source>
+        <translation type="vanished">送金したことがあるアドレスとラベルの一覧を表示する</translation>
+    </message>
+    <message>
+        <source>Show the list of used receiving addresses and labels</source>
+        <translation type="vanished">受け取ったことがあるアドレスとラベルの一覧を表示する</translation>
+    </message>
+    <message>
+        <source>Open a qtum: URI or payment request</source>
+        <translation type="vanished">qtum: URIや支払いリクエストを開く</translation>
+    </message>
+    <message>
+        <source>&amp;Command-line options</source>
+        <translation type="vanished">コマンドラインオプション(&amp;C)</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n active connection(s) to Qtum network</source>
+        <translation type="vanished">
+            <numerusform>Qtum ネットワークへのアクティブな接続は %n 個</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Indexing blocks on disk...</source>
+        <translation type="vanished">ディスク上のブロックをインデックス中...</translation>
+    </message>
+    <message>
+        <source>Processing blocks on disk...</source>
+        <translation type="vanished">ディスク上のブロックを処理中...</translation>
+    </message>
+    <message numerus="yes">
+        <source>Processed %n block(s) of transaction history.</source>
+        <translation type="vanished">
+            <numerusform>%n ブロックの取引履歴を処理済み。</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>%1 behind</source>
+        <translation type="vanished">%1 遅延</translation>
+    </message>
+    <message>
+        <source>Last received block was generated %1 ago.</source>
+        <translation type="vanished">最後に受信したブロックは %1 前に生成。</translation>
+    </message>
+    <message>
+        <source>Transactions after this will not yet be visible.</source>
+        <translation type="vanished">これより後の取引はまだ表示されていません。</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation type="vanished">エラー</translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation type="vanished">警告</translation>
+    </message>
+    <message>
+        <source>Information</source>
+        <translation type="vanished">情報</translation>
+    </message>
+    <message>
+        <source>Up to date</source>
+        <translation type="vanished">ブロックは最新</translation>
+    </message>
+    <message>
+        <source>&amp;Sending addresses</source>
+        <translation type="vanished">送金先アドレス一覧(&amp;S)...</translation>
+    </message>
+    <message>
+        <source>&amp;Receiving addresses</source>
+        <translation type="vanished">受取用アドレス一覧(&amp;R)...</translation>
+    </message>
+    <message>
+        <source>Open Wallet</source>
+        <translation type="vanished">ウォレットを開く</translation>
+    </message>
+    <message>
+        <source>Open a wallet</source>
+        <translation type="vanished">ウォレットを開く</translation>
+    </message>
+    <message>
+        <source>Close Wallet...</source>
+        <translation type="vanished">ウォレットを閉じる</translation>
+    </message>
+    <message>
+        <source>Close wallet</source>
+        <translation type="vanished">ウォレットを閉じる</translation>
+    </message>
+    <message>
+        <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
+        <translation type="vanished">%1 のヘルプ メッセージを表示して、使用可能な XPChain のコマンドライン オプションの一覧を見る。</translation>
+    </message>
+    <message>
+        <source>default wallet</source>
+        <translation type="vanished">デフォルトウォレット</translation>
+    </message>
+    <message>
+        <source>Opening Wallet &lt;b&gt;%1&lt;/b&gt;...</source>
+        <translation type="vanished">ウォレット &lt;b&gt;%1&lt;/b&gt;を開いています...</translation>
+    </message>
+    <message>
+        <source>Open Wallet Failed</source>
+        <translation type="vanished">ウォレットを開くことに失敗しました</translation>
+    </message>
+    <message>
+        <source>&amp;Window</source>
+        <translation type="vanished">ウインドウ (&amp;W)</translation>
+    </message>
+    <message>
+        <source>Minimize</source>
+        <translation type="vanished">最小化</translation>
+    </message>
+    <message>
+        <source>Zoom</source>
+        <translation type="vanished">拡大／縮小</translation>
+    </message>
+    <message>
+        <source>Restore</source>
+        <translation type="vanished">元に戻す</translation>
+    </message>
+    <message>
+        <source>Main Window</source>
+        <translation type="vanished">メインウィンドウ</translation>
+    </message>
+    <message>
+        <source>%1 client</source>
+        <translation type="vanished">%1 クライアント</translation>
+    </message>
+    <message>
+        <source>Connecting to peers...</source>
+        <translation type="vanished">ピアに接続中...</translation>
+    </message>
+    <message>
+        <source>Catching up...</source>
+        <translation type="vanished">遅延取戻し中...</translation>
+    </message>
+    <message>
+        <source>Date: %1
+</source>
+        <translation type="vanished">日付: %1
+</translation>
+    </message>
+    <message>
+        <source>Amount: %1
+</source>
+        <translation type="vanished">金額: %1
+</translation>
+    </message>
+    <message>
+        <source>Wallet: %1
+</source>
+        <translation type="vanished">ウォレット: %1
+</translation>
+    </message>
+    <message>
+        <source>Type: %1
+</source>
+        <translation type="vanished">種別: %1
+</translation>
+    </message>
+    <message>
+        <source>Label: %1
+</source>
+        <translation type="vanished">ラベル: %1
+</translation>
+    </message>
+    <message>
+        <source>Address: %1
+</source>
+        <translation type="vanished">アドレス: %1
+</translation>
+    </message>
+    <message>
+        <source>Sent transaction</source>
+        <translation type="vanished">送金取引</translation>
+    </message>
+    <message>
+        <source>Incoming transaction</source>
+        <translation type="vanished">入金取引</translation>
+    </message>
+    <message>
+        <source>HD key generation is &lt;b&gt;enabled&lt;/b&gt;</source>
+        <translation type="vanished">HD鍵生成は&lt;b&gt;有効&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>HD key generation is &lt;b&gt;disabled&lt;/b&gt;</source>
+        <translation type="vanished">HD鍵生成は&lt;b&gt;無効&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Private key &lt;b&gt;disabled&lt;/b&gt;</source>
+        <translation type="vanished">秘密鍵は&lt;b&gt;無効&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;unlocked&lt;/b&gt;</source>
+        <translation type="vanished">ウォレットは&lt;b&gt;暗号化済み&lt;/b&gt;・&lt;b&gt;アンロック状態&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;locked&lt;/b&gt;</source>
+        <translation type="vanished">ウォレットは&lt;b&gt;暗号化済み&lt;/b&gt;・&lt;b&gt;ロック状態&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>A fatal error occurred. Qtum can no longer continue safely and will quit.</source>
+        <translation type="vanished">致命的なエラーが発生しました。Qtum を安全に動作し続けることができないため終了します。</translation>
     </message>
 </context>
 <context>
@@ -1647,16 +2794,16 @@
         <translation>データ ディレクトリ</translation>
     </message>
     <message>
-        <source>To specify a non-default location of the data directory use the '%1' option.</source>
-        <translation>データディレクトリを初期値以外にするには '%1' オプションを使用します。</translation>
+        <source>To specify a non-default location of the data directory use the &apos;%1&apos; option.</source>
+        <translation>データディレクトリを初期値以外にするには &apos;%1&apos; オプションを使用します。</translation>
     </message>
     <message>
         <source>Blocksdir</source>
         <translation>ブロックディレクトリ</translation>
     </message>
     <message>
-        <source>To specify a non-default location of the blocks directory use the '%1' option.</source>
-        <translation>ブロックディレクトリを初期値以外にするには '%1' オプションを使用します。</translation>
+        <source>To specify a non-default location of the blocks directory use the &apos;%1&apos; option.</source>
+        <translation>ブロックディレクトリを初期値以外にするには &apos;%1&apos; オプションを使用します。</translation>
     </message>
     <message>
         <source>Startup time</source>
@@ -1899,8 +3046,8 @@
         <translation>どのウォレットも使わずにコマンドを実行します</translation>
     </message>
     <message>
-        <source>Executing command using "%1" wallet</source>
-        <translation>"%1" ウォレットを使ってコマンドを実行します</translation>
+        <source>Executing command using &quot;%1&quot; wallet</source>
+        <translation>&quot;%1&quot; ウォレットを使ってコマンドを実行します</translation>
     </message>
     <message>
         <source>(node id: %1)</source>
@@ -1967,14 +3114,14 @@
     </message>
     <message>
         <source>Clear all fields of the form.</source>
-        <translation>全ての入力欄をクリア</translation>
+        <translation type="vanished">全ての入力欄をクリア</translation>
     </message>
     <message>
         <source>Clear</source>
-        <translation>クリア</translation>
+        <translation type="vanished">クリア</translation>
     </message>
     <message>
-        <source>Native segwit addresses (aka Bech32 or BIP-173) reduce your transaction fees later on and offer better protection against typos, but old wallets don't support them. When unchecked, an address compatible with older wallets will be created instead.</source>
+        <source>Native segwit addresses (aka Bech32 or BIP-173) reduce your transaction fees later on and offer better protection against typos, but old wallets don&apos;t support them. When unchecked, an address compatible with older wallets will be created instead.</source>
         <translation>ネイティブ Segwit アドレス(別名: Bech32 アドレス・ BIP-173 アドレス)を利用することで、取引手数料が安くなり、誤入力防止機能も強化されますが、Segwit アドレスをサポートしない古いウォレットとは取引できません。チェックを外すと、古いウォレットとの互換性を保ったアドレスが代わりに生成されます。</translation>
     </message>
     <message>
@@ -1987,7 +3134,7 @@
     </message>
     <message>
         <source>&amp;Request payment</source>
-        <translation>支払いをリクエスト(&amp;R)</translation>
+        <translation type="vanished">支払いをリクエスト(&amp;R)</translation>
     </message>
     <message>
         <source>Show the selected request (does the same as double clicking an entry)</source>
@@ -2021,6 +3168,18 @@
         <source>Copy amount</source>
         <translation>金額をコピー</translation>
     </message>
+    <message>
+        <source>Request payment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation type="unfinished">キャンセル(&amp;C)</translation>
+    </message>
+    <message>
+        <source>S&amp;ubmit</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ReceiveRequestDialog</name>
@@ -2030,15 +3189,15 @@
     </message>
     <message>
         <source>Copy &amp;URI</source>
-        <translation>URIをコピーする(&amp;U)</translation>
+        <translation type="vanished">URIをコピーする(&amp;U)</translation>
     </message>
     <message>
         <source>Copy &amp;Address</source>
-        <translation>アドレスをコピー(&amp;A)</translation>
+        <translation type="vanished">アドレスをコピー(&amp;A)</translation>
     </message>
     <message>
         <source>&amp;Save Image...</source>
-        <translation>画像を保存(&amp;S)...</translation>
+        <translation type="vanished">画像を保存(&amp;S)...</translation>
     </message>
     <message>
         <source>Request payment to %1</source>
@@ -2058,19 +3217,19 @@
     </message>
     <message>
         <source>Amount</source>
-        <translation>金額</translation>
+        <translation type="vanished">金額</translation>
     </message>
     <message>
         <source>Label</source>
-        <translation>ラベル</translation>
+        <translation type="vanished">ラベル</translation>
     </message>
     <message>
         <source>Message</source>
-        <translation>メッセージ</translation>
+        <translation type="vanished">メッセージ</translation>
     </message>
     <message>
         <source>Wallet</source>
-        <translation>ウォレット</translation>
+        <translation type="vanished">ウォレット</translation>
     </message>
     <message>
         <source>Resulting URI too long, try to reduce the text for label / message.</source>
@@ -2079,6 +3238,41 @@
     <message>
         <source>Error encoding URI into QR Code.</source>
         <translation>URIをQRコードへ変換している際にエラーが発生しました。</translation>
+    </message>
+    <message>
+        <source>URI:</source>
+        <translation type="unfinished">URI:</translation>
+    </message>
+    <message>
+        <source>Address:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Address Re&amp;fresh</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Request Payment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear &amp;All</source>
+        <translation type="unfinished">全てクリア(&amp;A)</translation>
+    </message>
+</context>
+<context>
+    <name>ReceiveTokenPage</name>
+    <message>
+        <source>Receive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Address</source>
+        <translation type="unfinished">アドレス</translation>
+    </message>
+    <message>
+        <source>Copy Address</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2110,6 +3304,73 @@
     <message>
         <source>Requested</source>
         <translation>リクエストされた金額</translation>
+    </message>
+</context>
+<context>
+    <name>RestoreDialog</name>
+    <message>
+        <source>Restore Wallet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select wallet file to restore from</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose wallet restore option</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restore file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rebuild blockchain index</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Recover transactions without metadata</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete the local copy of the block chain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The wallet.dat will be restored from the selected location and the Qt Wallet will be restarted with the -reindex, -zapwallettxes=2 or -deleteblockchaindata option.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Reset</source>
+        <translation type="unfinished">リセット(&amp;R)</translation>
+    </message>
+    <message>
+        <source>File not selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please select a file to restore your wallet.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Confirm wallet restoration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Warning: The wallet will be restored from location &lt;b&gt;%1&lt;/b&gt; and restarted with parameter &lt;b&gt;%2&lt;/b&gt;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;br&gt;&lt;br&gt;Are you sure you wish to restore your wallet?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wallet Data (*.dat)</source>
+        <translation type="unfinished">ウォレット データ (*.dat)</translation>
     </message>
 </context>
 <context>
@@ -2172,7 +3433,7 @@
     </message>
     <message>
         <source>Choose...</source>
-        <translation>選択...</translation>
+        <translation type="vanished">選択...</translation>
     </message>
     <message>
         <source>Using the fallbackfee can result in sending a transaction that will take several hours or days (or never) to confirm. Consider choosing your fee manually or wait until you have validated the complete chain.</source>
@@ -2184,13 +3445,13 @@
     </message>
     <message>
         <source>collapse fee-settings</source>
-        <translation>手数料設定を折りたたむ</translation>
+        <translation type="vanished">手数料設定を折りたたむ</translation>
     </message>
     <message>
-        <source>Specify a custom fee per kB (1,000 bytes) of the transaction's virtual size.
+        <source>Specify a custom fee per kB (1,000 bytes) of the transaction&apos;s virtual size.
 
-Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis per kB" for a transaction size of 500 bytes (half of 1 kB) would ultimately yield a fee of only 50 satoshis.</source>
-        <translation>トランザクションの仮想サイズの1 kB(1,000 バイト)あたりのカスタム手数料を指定する。
+Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satoshis per kB&quot; for a transaction size of 500 bytes (half of 1 kB) would ultimately yield a fee of only 50 satoshis.</source>
+        <translation type="vanished">トランザクションの仮想サイズの1 kB(1,000 バイト)あたりのカスタム手数料を指定する。
 
 注: 手数料はバイト単位で計算されるので、500 バイト(1 kBの半分)のトランザクションサイズに対する「1 kBあたり 100 satoshi」の手数料は、最終的にはわずか 50 satoshi となります。</translation>
     </message>
@@ -2200,15 +3461,15 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     </message>
     <message>
         <source>Hide</source>
-        <translation>隠す</translation>
+        <translation type="vanished">隠す</translation>
     </message>
     <message>
         <source>Recommended:</source>
-        <translation>推奨:</translation>
+        <translation type="vanished">推奨:</translation>
     </message>
     <message>
         <source>Custom:</source>
-        <translation>カスタム:</translation>
+        <translation type="vanished">カスタム:</translation>
     </message>
     <message>
         <source>(Smart fee not initialized yet. This usually takes a few blocks...)</source>
@@ -2232,7 +3493,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     </message>
     <message>
         <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
-        <translation>ブロック内の空きよりトランザクション流量が少ない場合、マイナーや中継ノードは最低限の手数料でも処理することがあります。この最低限の手数料だけを支払っても問題ありませんが、一度トランザクションの需要がネットワークの処理能力を超えてしまった場合には、トランザクションが永久に承認されなくなってしまう可能性があることにご注意ください。</translation>
+        <translation type="vanished">ブロック内の空きよりトランザクション流量が少ない場合、マイナーや中継ノードは最低限の手数料でも処理することがあります。この最低限の手数料だけを支払っても問題ありませんが、一度トランザクションの需要がネットワークの処理能力を超えてしまった場合には、トランザクションが永久に承認されなくなってしまう可能性があることにご注意ください。</translation>
     </message>
     <message>
         <source>A too low fee might result in a never confirming transaction (read the tooltip)</source>
@@ -2247,7 +3508,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>Replace-By-Fee を有効化する</translation>
     </message>
     <message>
-        <source>With Replace-By-Fee (BIP-125) you can increase a transaction's fee after it is sent. Without this, a higher fee may be recommended to compensate for increased transaction delay risk.</source>
+        <source>With Replace-By-Fee (BIP-125) you can increase a transaction&apos;s fee after it is sent. Without this, a higher fee may be recommended to compensate for increased transaction delay risk.</source>
         <translation>Replace-By-Fee(手数料の上乗せ: BIP-125)機能を有効にすることで、トランザクション送信後でも手数料を上乗せすることができます。この機能を利用しない場合、予め手数料を多めに見積もっておかないと取引が遅れる可能性があります。</translation>
     </message>
     <message>
@@ -2376,7 +3637,9 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     </message>
     <message numerus="yes">
         <source>Estimated to begin confirmation within %n block(s).</source>
-        <translation><numerusform>予想される承認開始ブロック: %n ブロック以内</numerusform></translation>
+        <translation>
+            <numerusform>予想される承認開始ブロック: %n ブロック以内</numerusform>
+        </translation>
     </message>
     <message>
         <source>Warning: Invalid Qtum address</source>
@@ -2397,6 +3660,22 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     <message>
         <source>(no label)</source>
         <translation>(ラベル無し)</translation>
+    </message>
+    <message>
+        <source>Recommended</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>If the custom fee is set to 1000 satoshis and the transaction is only 250 bytes, then &quot;per kilobyte&quot; only pays 250 satoshis in fee, while &quot;total at least&quot; pays 1000 satoshis. For transactions bigger than a kilobyte both pay by kilobyte.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for bitcoin transactions than the network can process.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2494,6 +3773,196 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     </message>
 </context>
 <context>
+    <name>SendToContract</name>
+    <message>
+        <source>Form</source>
+        <translation type="unfinished">フォーム</translation>
+    </message>
+    <message>
+        <source>Send to Smart Contract</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose from contract book page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Paste contract address from clipboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save contract info</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Interface (ABI)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Contract Address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Function</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Optional</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gas Limit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gas Price</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation type="unfinished">金額</translation>
+    </message>
+    <message>
+        <source>Sender Address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Send To Contract</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The contract address that will receive the funds and data.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The amount in QTUM to send. Default = 0.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The quantum address that will be used as sender.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The Gas Price is too high, are you sure you want to possibly spend a max of %1 for this transaction?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>High Gas price</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Are you sure you want to send to the contract: &lt;br /&gt;&lt;br /&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;%1&lt;/b&gt;?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Confirm sending to contract.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Result %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Send to contract</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gas limit. Default = %1, Max = %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gas price: QTUM price per gas unit. Default = %1, Min = %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SendTokenPage</name>
+    <message>
+        <source>Send</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>GasPrice</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>GasLimit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PayTo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation type="unfinished">金額</translation>
+    </message>
+    <message>
+        <source>Description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Balance:</source>
+        <translation type="unfinished">残高:</translation>
+    </message>
+    <message>
+        <source>100.34</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">キャンセル</translation>
+    </message>
+    <message>
+        <source>The address that will receive the tokens.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The amount in Token to send.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Optional description for transaction.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gas limit. Default = %1, Max = %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gas price: QTUM price per gas unit. Default = %1, Min = %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Are you sure you want to send? &lt;br /&gt;&lt;br /&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;%1 %2 &lt;/b&gt; to </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;br /&gt;%3 &lt;br /&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Confirm send token.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Send token</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ShutdownWindow</name>
     <message>
         <source>%1 is shutting down...</source>
@@ -2571,7 +4040,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>メッセージの検証(&amp;V)</translation>
     </message>
     <message>
-        <source>Enter the receiver's address, message (ensure you copy line breaks, spaces, tabs, etc. exactly) and signature below to verify the message. Be careful not to read more into the signature than what is in the signed message itself, to avoid being tricked by a man-in-the-middle attack. Note that this only proves the signing party receives with the address, it cannot prove sendership of any transaction!</source>
+        <source>Enter the receiver&apos;s address, message (ensure you copy line breaks, spaces, tabs, etc. exactly) and signature below to verify the message. Be careful not to read more into the signature than what is in the signed message itself, to avoid being tricked by a man-in-the-middle attack. Note that this only proves the signing party receives with the address, it cannot prove sendership of any transaction!</source>
         <translation>送金先のアドレスと、メッセージ（改行やスペース、タブなども完全に一致させること）および署名を以下に入力し、メッセージを検証します。中間者攻撃により騙されるのを防ぐため、署名対象のメッセージから書かれていること以上の意味を読み取ろうとしないでください。また、これは署名作成者がこのアドレスで受け取れることを証明するだけであり、取引の送信権限を証明するものではありません！</translation>
     </message>
     <message>
@@ -2591,7 +4060,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>入力欄の内容を全て消去</translation>
     </message>
     <message>
-        <source>Click "Sign Message" to generate signature</source>
+        <source>Click &quot;Sign Message&quot; to generate signature</source>
         <translation>「メッセージを署名」をクリックして署名を生成</translation>
     </message>
     <message>
@@ -2651,6 +4120,354 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     </message>
 </context>
 <context>
+    <name>StakePage</name>
+    <message>
+        <source>Form</source>
+        <translation type="unfinished">フォーム</translation>
+    </message>
+    <message>
+        <source>Your current spendable balance</source>
+        <translation type="unfinished">送金可能な残高</translation>
+    </message>
+    <message>
+        <source>Staking assets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stake:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>0.000 000 00 QTUM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Staking</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Block height:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>0</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Block reward:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>4 QTUM/Block</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Network weight:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Expected annualized ROI:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>7.9 %</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stake records</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TitleBar</name>
+    <message>
+        <source>Form</source>
+        <translation type="unfinished">フォーム</translation>
+    </message>
+</context>
+<context>
+    <name>TokenDescDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Token transaction details</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Details for %1</source>
+        <translation type="unfinished">%1 の詳細</translation>
+    </message>
+</context>
+<context>
+    <name>TokenItemModel</name>
+    <message>
+        <source>Token Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Token Symbol</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Balance</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TokenItemWidget</name>
+    <message>
+        <source>Form</source>
+        <translation type="unfinished">フォーム</translation>
+    </message>
+    <message>
+        <source>name</source>
+        <translation type="unfinished">ディレクトリ名</translation>
+    </message>
+    <message>
+        <source>100000.0000 TKN</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Send</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Receive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add new tokens</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TokenTransactionDesc</name>
+    <message>
+        <source>conflicted with a transaction with %1 confirmations</source>
+        <translation type="unfinished">%1 承認の取引と衝突</translation>
+    </message>
+    <message>
+        <source>0/unconfirmed, in memory pool</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>0/unconfirmed, not in memory pool</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1/unconfirmed</source>
+        <translation type="unfinished">%1/未承認</translation>
+    </message>
+    <message>
+        <source>%1 confirmations</source>
+        <translation type="unfinished">%1 承認</translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation type="unfinished">状態</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Transaction ID</source>
+        <translation type="unfinished">取引ID</translation>
+    </message>
+    <message>
+        <source>Token Address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>From</source>
+        <translation type="unfinished">送金元</translation>
+    </message>
+    <message>
+        <source>To</source>
+        <translation type="unfinished">送金先</translation>
+    </message>
+    <message>
+        <source>Credit</source>
+        <translation type="unfinished">貸方</translation>
+    </message>
+    <message>
+        <source>Debit</source>
+        <translation type="unfinished">借方</translation>
+    </message>
+    <message>
+        <source>Net Amount</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TokenTransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">種別</translation>
+    </message>
+    <message>
+        <source>Label</source>
+        <translation type="unfinished">ラベル</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">名前</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation type="unfinished">金額</translation>
+    </message>
+    <message>
+        <source>Unconfirmed</source>
+        <translation type="unfinished">未承認</translation>
+    </message>
+    <message>
+        <source>Confirming (%1 of %2 recommended confirmations)</source>
+        <translation type="unfinished">承認中（推奨承認数 %2 のうち %1 承認が完了）</translation>
+    </message>
+    <message>
+        <source>Confirmed (%1 confirmations)</source>
+        <translation type="unfinished">承認されました（%1 承認）</translation>
+    </message>
+    <message>
+        <source>Received with</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Received from</source>
+        <translation type="unfinished">受取(その他)</translation>
+    </message>
+    <message>
+        <source>Sent to</source>
+        <translation type="unfinished">送金</translation>
+    </message>
+    <message>
+        <source>Payment to yourself</source>
+        <translation type="unfinished">自分への送金</translation>
+    </message>
+    <message>
+        <source>(n/a)</source>
+        <translation type="unfinished">(n/a)</translation>
+    </message>
+    <message>
+        <source>(no label)</source>
+        <translation type="unfinished">(ラベル無し)</translation>
+    </message>
+    <message>
+        <source>Transaction status. Hover over this field to show number of confirmations.</source>
+        <translation type="unfinished">取引の状況。このフィールドの上にカーソルを置くと承認数が表示されます。</translation>
+    </message>
+    <message>
+        <source>Date and time that the transaction was received.</source>
+        <translation type="unfinished">取引を受信した日時。</translation>
+    </message>
+    <message>
+        <source>Type of transaction.</source>
+        <translation type="unfinished">取引の種類。</translation>
+    </message>
+    <message>
+        <source>User-defined intent/purpose of the transaction.</source>
+        <translation type="unfinished">ユーザー定義の取引の目的や用途。</translation>
+    </message>
+    <message>
+        <source>Token name.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Amount removed from or added to balance.</source>
+        <translation type="unfinished">残高から増えた又は減った総額。</translation>
+    </message>
+</context>
+<context>
+    <name>TokenTransactionView</name>
+    <message>
+        <source>All</source>
+        <translation type="unfinished">すべて</translation>
+    </message>
+    <message>
+        <source>Today</source>
+        <translation type="unfinished">今日</translation>
+    </message>
+    <message>
+        <source>This week</source>
+        <translation type="unfinished">今週</translation>
+    </message>
+    <message>
+        <source>This month</source>
+        <translation type="unfinished">今月</translation>
+    </message>
+    <message>
+        <source>Last month</source>
+        <translation type="unfinished">先月</translation>
+    </message>
+    <message>
+        <source>This year</source>
+        <translation type="unfinished">今年</translation>
+    </message>
+    <message>
+        <source>Range...</source>
+        <translation type="unfinished">期間指定...</translation>
+    </message>
+    <message>
+        <source>Received with</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sent to</source>
+        <translation type="unfinished">送金</translation>
+    </message>
+    <message>
+        <source>To yourself</source>
+        <translation type="unfinished">自己送金</translation>
+    </message>
+    <message>
+        <source>Enter address to search</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Min amount</source>
+        <translation type="unfinished">表示最小金額</translation>
+    </message>
+    <message>
+        <source>Copy address</source>
+        <translation type="unfinished">アドレスをコピー</translation>
+    </message>
+    <message>
+        <source>Copy amount</source>
+        <translation type="unfinished">金額をコピー</translation>
+    </message>
+    <message>
+        <source>Copy transaction ID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy full transaction details</source>
+        <translation type="unfinished">取引の詳細すべてをコピー</translation>
+    </message>
+    <message>
+        <source>Show transaction details</source>
+        <translation type="unfinished">取引の詳細を表示</translation>
+    </message>
+    <message>
+        <source>Range:</source>
+        <translation type="unfinished">期間:</translation>
+    </message>
+    <message>
+        <source>to</source>
+        <translation type="unfinished">〜</translation>
+    </message>
+</context>
+<context>
     <name>TrafficGraphWidget</name>
     <message>
         <source>KB/s</source>
@@ -2661,7 +4478,9 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     <name>TransactionDesc</name>
     <message numerus="yes">
         <source>Open for %n more block(s)</source>
-        <translation><numerusform>あと %n ブロックは未承認の予定</numerusform></translation>
+        <translation>
+            <numerusform>あと %n ブロックは未承認の予定</numerusform>
+        </translation>
     </message>
     <message>
         <source>Open until %1</source>
@@ -2741,7 +4560,9 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     </message>
     <message numerus="yes">
         <source>matures in %n more block(s)</source>
-        <translation><numerusform>あと %n ブロックで成熟</numerusform></translation>
+        <translation>
+            <numerusform>あと %n ブロックで成熟</numerusform>
+        </translation>
     </message>
     <message>
         <source>not accepted</source>
@@ -2796,7 +4617,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>リクエスト元</translation>
     </message>
     <message>
-        <source>Generated coins must mature %1 blocks before they can be spent. When you generated this block, it was broadcast to the network to be added to the block chain. If it fails to get into the chain, its state will change to "not accepted" and it won't be spendable. This may occasionally happen if another node generates a block within a few seconds of yours.</source>
+        <source>Generated coins must mature %1 blocks before they can be spent. When you generated this block, it was broadcast to the network to be added to the block chain. If it fails to get into the chain, its state will change to &quot;not accepted&quot; and it won&apos;t be spendable. This may occasionally happen if another node generates a block within a few seconds of yours.</source>
         <translation>生成されたコインは、%1 ブロックの間成熟させたあとに使用可能になります。このブロックは生成された際、ブロックチェーンに取り込まれるためにネットワークに放流されました。ブロックチェーンに取り込まれられなかった場合、取引状態が「承認されていない」に変更され、コインは使用不能になります。これは、別のノードがあなたの数秒前にブロックを生成した場合に時々起こる場合があります。</translation>
     </message>
     <message>
@@ -2834,6 +4655,10 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <source>Details for %1</source>
         <translation>%1 の詳細</translation>
     </message>
+    <message>
+        <source>Transaction details</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>TransactionTableModel</name>
@@ -2851,7 +4676,9 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     </message>
     <message numerus="yes">
         <source>Open for %n more block(s)</source>
-        <translation><numerusform>あと %n ブロックは未承認の予定</numerusform></translation>
+        <translation>
+            <numerusform>あと %n ブロックは未承認の予定</numerusform>
+        </translation>
     </message>
     <message>
         <source>Open until %1</source>
@@ -2940,6 +4767,14 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     <message>
         <source>Amount removed from or added to balance.</source>
         <translation>残高から増えた又は減った総額。</translation>
+    </message>
+    <message>
+        <source>Contract receive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Contract send</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3100,6 +4935,14 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <source>to</source>
         <translation>〜</translation>
     </message>
+    <message>
+        <source>Contract Receive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Contract Send</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
@@ -3165,7 +5008,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>手数料上乗せの確認</translation>
     </message>
     <message>
-        <source>Can't sign transaction.</source>
+        <source>Can&apos;t sign transaction.</source>
         <translation>トランザクションを署名できませんでした。</translation>
     </message>
     <message>
@@ -3215,502 +5058,1023 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <source>Cancel</source>
         <translation>キャンセル</translation>
     </message>
+    <message>
+        <source>Incoming transaction</source>
+        <translation type="unfinished">入金取引</translation>
+    </message>
+    <message>
+        <source>Sent transaction</source>
+        <translation type="unfinished">送金取引</translation>
+    </message>
+</context>
+<context>
+    <name>bitcoin-core</name>
+    <message>
+        <source>Qtum Core</source>
+        <translation type="unfinished">Qtum コア</translation>
+    </message>
+    <message>
+        <source>The %s developers</source>
+        <translation type="unfinished">%s の開発者</translation>
+    </message>
+    <message>
+        <source>-maxtxfee is set very high! Fees this large could be paid on a single transaction.</source>
+        <translation type="unfinished">-maxtxfee が非常に高く設定されています！ ひとつの取引でこの金額の手数料が支払われてしまうことがあります。</translation>
+    </message>
+    <message>
+        <source>Can&apos;t generate a change-address key. No keys in the internal keypool and can&apos;t generate any keys.</source>
+        <translation type="unfinished">おつりアドレスの鍵を作成することができません。内部のキープールに鍵が存在しないため、鍵を生成することができません。</translation>
+    </message>
+    <message>
+        <source>Cannot obtain a lock on data directory %s. %s is probably already running.</source>
+        <translation type="unfinished">データ ディレクトリ %s のロックを取得することができません。%s がおそらく既に実行中です。</translation>
+    </message>
+    <message>
+        <source>Cannot provide specific connections and have addrman find outgoing connections at the same.</source>
+        <translation type="unfinished">指定された接続が利用できず、また addrman は外向き接続を見つけられませんでした。</translation>
+    </message>
+    <message>
+        <source>Cannot upgrade a non HD split wallet without upgrading to support pre split keypool. Please use -upgradewallet=169900 or -upgradewallet with no version specified.</source>
+        <translation type="unfinished">分割済みキープールをサポートするようにアップグレードしないと、非HD分割ウォレットをアップグレードすることはできません。 -upgradewallet=169900 オプションか、バージョン指定無しで -upgradewallet オプションを指定してください。</translation>
+    </message>
+    <message>
+        <source>Distributed under the MIT software license, see the accompanying file %s or %s</source>
+        <translation type="unfinished">MIT ソフトウェアライセンスのもとで配布されています。付属の %s ファイルか、 %s を参照してください</translation>
+    </message>
+    <message>
+        <source>Error reading %s! All keys read correctly, but transaction data or address book entries might be missing or incorrect.</source>
+        <translation type="unfinished">%s の読み込み中にエラーが発生しました！ 全ての鍵は正しく読み込めましたが、取引データやアドレス帳の項目が失われたか、正しくない可能性があります。</translation>
+    </message>
+    <message>
+        <source>Error: Listening for incoming connections failed (listen returned error %s)</source>
+        <translation type="unfinished">エラー: 内向きの接続をリッスンするのに失敗しました（%s エラーが返却されました）</translation>
+    </message>
+    <message>
+        <source>Fee estimation failed. Fallbackfee is disabled. Wait a few blocks or enable -fallbackfee.</source>
+        <translation type="unfinished">手数料推定に失敗しました。代替手数料が無効です。数ブロック待つか、-fallbackfee オプションを有効にしてください。</translation>
+    </message>
+    <message>
+        <source>Invalid amount for -maxtxfee=&lt;amount&gt;: &apos;%s&apos; (must be at least the minrelay fee of %s to prevent stuck transactions)</source>
+        <translation type="unfinished">-maxtxfee=&lt;amount&gt; オプションに対する不正な amount: &apos;%s&apos;（トランザクション詰まり防止のため、最小中継手数料の %s より大きくする必要があります）</translation>
+    </message>
+    <message>
+        <source>Please check that your computer&apos;s date and time are correct! If your clock is wrong, %s will not work properly.</source>
+        <translation type="unfinished">お使いのコンピューターの日付と時刻が正しいことを確認してください！ PCの時計が正しくない場合 %s は正確に動作しません。</translation>
+    </message>
+    <message>
+        <source>Please contribute if you find %s useful. Visit %s for further information about the software.</source>
+        <translation type="unfinished">%s が有用だと感じられた方はぜひプロジェクトへの貢献をお願いします。ソフトウェアのより詳細な情報については %s をご覧ください。</translation>
+    </message>
+    <message>
+        <source>Prune configured below the minimum of %d MiB.  Please use a higher number.</source>
+        <translation type="unfinished">剪定設定が、設定可能最小値の %d MiBより低く設定されています。より大きい値を使用してください。</translation>
+    </message>
+    <message>
+        <source>Prune: last wallet synchronisation goes beyond pruned data. You need to -reindex (download the whole blockchain again in case of pruned node)</source>
+        <translation type="unfinished">剪定: 最後のウォレット同期ポイントが、剪定されたデータを越えています。-reindex を実行する必要があります (剪定されたノードの場合、ブロックチェーン全体を再ダウンロードします)</translation>
+    </message>
+    <message>
+        <source>Rescans are not possible in pruned mode. You will need to use -reindex which will download the whole blockchain again.</source>
+        <translation type="unfinished">剪定モードでは再スキャンを行うことはできません。-reindex オプションを指定し、ブロックチェーン全体を再ダウンロードする必要があります。</translation>
+    </message>
+    <message>
+        <source>The block database contains a block which appears to be from the future. This may be due to your computer&apos;s date and time being set incorrectly. Only rebuild the block database if you are sure that your computer&apos;s date and time are correct</source>
+        <translation type="unfinished">ブロックデータベースに未来の時刻のブロックが含まれています。お使いのコンピューターの日付と時刻が間違っている可能性があります。コンピュータの日付と時刻が本当に正しい場合にのみ、ブロックデータベースの再構築を実行してください。</translation>
+    </message>
+    <message>
+        <source>The transaction amount is too small to send after the fee has been deducted</source>
+        <translation type="unfinished">取引の手数料差引後金額が小さすぎるため、送金できません。</translation>
+    </message>
+    <message>
+        <source>This is a pre-release test build - use at your own risk - do not use for mining or merchant applications</source>
+        <translation type="unfinished">これはリリース前のテストビルドです - 自己責任で使用してください - 採掘や商取引に使用しないでください</translation>
+    </message>
+    <message>
+        <source>This is the transaction fee you may discard if change is smaller than dust at this level</source>
+        <translation type="unfinished">これは、このレベルでダストよりもお釣りが小さい場合に破棄されるトランザクション手数料です。</translation>
+    </message>
+    <message>
+        <source>This is the transaction fee you may pay when fee estimates are not available.</source>
+        <translation type="unfinished">これは、手数料推定機能が利用できない場合に支払う取引手数料です。</translation>
+    </message>
+    <message>
+        <source>This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit %s and cryptographic software written by Eric Young and UPnP software written by Thomas Bernard.</source>
+        <translation type="unfinished">この製品は、OpenSSLツールキット %s で使用するためにOpenSSLプロジェクトにより開発されたソフトウェアと、Eric Young氏により開発された暗号ソフトウェア、Thomas Bernard氏により開発されたUPnPソフトウェアを使用しています。</translation>
+    </message>
+    <message>
+        <source>Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.</source>
+        <translation type="unfinished">ネットワークバージョン文字列の長さ（%i）が、最大の長さ（%i） を超えています。UAコメントの数や長さを削減してください。</translation>
+    </message>
+    <message>
+        <source>Unable to replay blocks. You will need to rebuild the database using -reindex-chainstate.</source>
+        <translation type="unfinished">ブロックのリプレイができませんでした。-reindex-chainstate オプションを指定してデータベースを再構築する必要があります。</translation>
+    </message>
+    <message>
+        <source>Unable to rewind the database to a pre-fork state. You will need to redownload the blockchain</source>
+        <translation type="unfinished">データベースをフォーク前の状態に巻き戻せませんでした。ブロックチェーンを再ダウンロードする必要があります</translation>
+    </message>
+    <message>
+        <source>Warning: Private keys detected in wallet {%s} with disabled private keys</source>
+        <translation type="unfinished">警告: 秘密鍵が無効なウォレット {%s} で秘密鍵を検出しました。</translation>
+    </message>
+    <message>
+        <source>Warning: The network does not appear to fully agree! Some miners appear to be experiencing issues.</source>
+        <translation type="unfinished">警告: ネットワークは完全に合意が取れていないようです。問題が発生しているマイナーがいる可能性があります。</translation>
+    </message>
+    <message>
+        <source>Warning: Wallet file corrupt, data salvaged! Original %s saved as %s in %s; if your balance or transactions are incorrect you should restore from a backup.</source>
+        <translation type="unfinished">警告: ウォレットファイルが破損していたため、データを復旧しました！ 復旧前の %s は %s として %s に保存されました。残高や取引が正しくない場合にはバックアップから復元してください。</translation>
+    </message>
+    <message>
+        <source>Warning: We do not appear to fully agree with our peers! You may need to upgrade, or other nodes may need to upgrade.</source>
+        <translation type="unfinished">警告: ピアと完全に合意が取れていないようです！ このノードもしくは他のノードのアップグレードが必要な可能性があります。</translation>
+    </message>
+    <message>
+        <source>You need to rebuild the database using -reindex to go back to unpruned mode.  This will redownload the entire blockchain</source>
+        <translation type="unfinished">非剪定モードに戻るためには -reindex オプションを指定してデータベースを再構築する必要があります。 ブロックチェーン全体の再ダウンロードが必要となります。</translation>
+    </message>
+    <message>
+        <source>%d of last 100 blocks have unexpected version</source>
+        <translation type="unfinished">直近の100ブロックの内、%d ブロックが予期しないバージョンを含んでいます</translation>
+    </message>
+    <message>
+        <source>%s corrupt, salvage failed</source>
+        <translation type="unfinished">%s が壊れています。復旧にも失敗しました</translation>
+    </message>
+    <message>
+        <source>%s is set very high!</source>
+        <translation type="unfinished">%s の設定値が高すぎです！</translation>
+    </message>
+    <message>
+        <source>-maxmempool must be at least %d MB</source>
+        <translation type="unfinished">-maxmempoolは最低でも %d MB必要です</translation>
+    </message>
+    <message>
+        <source>Cannot downgrade wallet</source>
+        <translation type="unfinished">ウォレットのダウングレードはできません</translation>
+    </message>
+    <message>
+        <source>Cannot resolve -%s address: &apos;%s&apos;</source>
+        <translation type="unfinished">-%s アドレス &apos;%s&apos; を解決できません</translation>
+    </message>
+    <message>
+        <source>Cannot write to data directory &apos;%s&apos;; check permissions.</source>
+        <translation type="unfinished">データディレクトリ &apos;%s&apos; に書き込むことができません。アクセス権を確認してください。</translation>
+    </message>
+    <message>
+        <source>Change index out of range</source>
+        <translation type="unfinished">お釣りのインデックスが範囲外です</translation>
+    </message>
+    <message>
+        <source>Config setting for %s only applied on %s network when in [%s] section.</source>
+        <translation type="unfinished">%s の設定は、 [%s] セクションに書かれた場合のみ %s ネットワークへ適用されます。</translation>
+    </message>
+    <message>
+        <source>Copyright (C) %i-%i</source>
+        <translation type="unfinished">Copyright (C) %i-%i</translation>
+    </message>
+    <message>
+        <source>Corrupted block database detected</source>
+        <translation type="unfinished">破損したブロック データベースが見つかりました</translation>
+    </message>
+    <message>
+        <source>Do you want to rebuild the block database now?</source>
+        <translation type="unfinished">ブロック データベースを今すぐ再構築しますか？</translation>
+    </message>
+    <message>
+        <source>Done loading</source>
+        <translation type="unfinished">読み込み完了</translation>
+    </message>
+    <message>
+        <source>Error initializing block database</source>
+        <translation type="unfinished">ブロックデータベースの初期化時にエラーが発生しました</translation>
+    </message>
+    <message>
+        <source>Error initializing wallet database environment %s!</source>
+        <translation type="unfinished">ウォレットデータベース環境 %s の初期化時にエラーが発生しました！</translation>
+    </message>
+    <message>
+        <source>Error loading %s</source>
+        <translation type="unfinished">%s の読み込みエラー</translation>
+    </message>
+    <message>
+        <source>Error loading %s: Private keys can only be disabled during creation</source>
+        <translation type="unfinished">%s の読み込みエラー: 秘密鍵の無効化はウォレットの生成時のみ可能です</translation>
+    </message>
+    <message>
+        <source>Error loading %s: Wallet corrupted</source>
+        <translation type="unfinished">%s の読み込みエラー: ウォレットが壊れています</translation>
+    </message>
+    <message>
+        <source>Error loading %s: Wallet requires newer version of %s</source>
+        <translation type="unfinished">%s の読み込みエラー: より新しいバージョンの %s が必要です</translation>
+    </message>
+    <message>
+        <source>Error loading block database</source>
+        <translation type="unfinished">ブロックデータベースの読み込み時にエラーが発生しました</translation>
+    </message>
+    <message>
+        <source>Error loading wallet %s. Duplicate -wallet filename specified.</source>
+        <translation type="unfinished">ウォレット %s の読み込み時にエラーが発生しました。重複する -wallet ファイル名が指定されました。</translation>
+    </message>
+    <message>
+        <source>Error opening block database</source>
+        <translation type="unfinished">ブロックデータベースのオープン時にエラーが発生しました</translation>
+    </message>
+    <message>
+        <source>Error reading from database, shutting down.</source>
+        <translation type="unfinished">データベースの読み込みエラー。シャットダウンします。</translation>
+    </message>
+    <message>
+        <source>Error upgrading chainstate database</source>
+        <translation type="unfinished">chainstate データベースの更新時にエラーが発生しました</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation type="unfinished">エラー</translation>
+    </message>
+    <message>
+        <source>Error: A fatal internal error occurred, see debug.log for details</source>
+        <translation type="unfinished">エラー: 致命的な内部エラーが発生しました。詳細は debug.log を参照してください</translation>
+    </message>
+    <message>
+        <source>Error: Disk space is low for %s</source>
+        <translation type="unfinished">エラー: %s 用のディスク容量が不足しています</translation>
+    </message>
+    <message>
+        <source>Error: Disk space is low!</source>
+        <translation type="unfinished">エラー: ディスク容量が不足しています！</translation>
+    </message>
+    <message>
+        <source>Failed to listen on any port. Use -listen=0 if you want this.</source>
+        <translation type="unfinished">ポートのリッスンに失敗しました。必要であれば -listen=0 を指定してください。</translation>
+    </message>
+    <message>
+        <source>Failed to rescan the wallet during initialization</source>
+        <translation type="unfinished">初期化中にウォレットの再スキャンに失敗しました</translation>
+    </message>
+    <message>
+        <source>Importing...</source>
+        <translation type="unfinished">インポート中...</translation>
+    </message>
+    <message>
+        <source>Incorrect or no genesis block found. Wrong datadir for network?</source>
+        <translation type="unfinished">ジェネシスブロックが不正であるか、見つかりません。ネットワークの datadir が間違っていませんか？</translation>
+    </message>
+    <message>
+        <source>Information</source>
+        <translation type="unfinished">情報</translation>
+    </message>
+    <message>
+        <source>Initialization sanity check failed. %s is shutting down.</source>
+        <translation type="unfinished">初期化時の健全性検査に失敗しました。%s を終了します。</translation>
+    </message>
+    <message>
+        <source>Insufficient funds</source>
+        <translation type="unfinished">残高不足</translation>
+    </message>
+    <message>
+        <source>Invalid -onion address or hostname: &apos;%s&apos;</source>
+        <translation type="unfinished">-onion オプションに対する不正なアドレスまたはホスト名: &apos;%s&apos;</translation>
+    </message>
+    <message>
+        <source>Invalid -proxy address or hostname: &apos;%s&apos;</source>
+        <translation type="unfinished">-proxy オプションに対する不正なアドレスまたはホスト名: &apos;%s&apos;</translation>
+    </message>
+    <message>
+        <source>Invalid amount for -%s=&lt;amount&gt;: &apos;%s&apos;</source>
+        <translation type="unfinished">-%s=&lt;amount&gt; オプションに対する不正な amount: &apos;%s&apos;</translation>
+    </message>
+    <message>
+        <source>Invalid amount for -discardfee=&lt;amount&gt;: &apos;%s&apos;</source>
+        <translation type="unfinished">-discardfee=&lt;amount&gt; オプションに対する不正な amount: &apos;%s&apos;</translation>
+    </message>
+    <message>
+        <source>Invalid amount for -fallbackfee=&lt;amount&gt;: &apos;%s&apos;</source>
+        <translation type="unfinished">-fallbackfee=&lt;amount&gt; オプションに対する不正な amount: &apos;%s&apos;</translation>
+    </message>
+    <message>
+        <source>Invalid amount for -paytxfee=&lt;amount&gt;: &apos;%s&apos; (must be at least %s)</source>
+        <translation type="unfinished">-paytxfee=&lt;amount&gt; オプションにに対する不正な amount: &apos;%s&apos;（最低でも %s である必要があります）</translation>
+    </message>
+    <message>
+        <source>Invalid amount for -reservebalance=&lt;amount&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid netmask specified in -whitelist: &apos;%s&apos;</source>
+        <translation type="unfinished">-whitelist オプションに対する不正なネットマスク: &apos;%s&apos;</translation>
+    </message>
+    <message>
+        <source>Keypool ran out, please call keypoolrefill first</source>
+        <translation type="unfinished">キープールが枯渇しました。まずはじめに keypoolrefill を呼び出してください</translation>
+    </message>
+    <message>
+        <source>Loading P2P addresses...</source>
+        <translation type="unfinished">P2Pアドレスの読み込み中...</translation>
+    </message>
+    <message>
+        <source>Loading banlist...</source>
+        <translation type="unfinished">banリストの読み込み中...</translation>
+    </message>
+    <message>
+        <source>Loading block index...</source>
+        <translation type="unfinished">ブロックインデックスの読み込み中...</translation>
+    </message>
+    <message>
+        <source>Loading wallet...</source>
+        <translation type="unfinished">ウォレットの読み込み中...</translation>
+    </message>
+    <message>
+        <source>Need to specify a port with -whitebind: &apos;%s&apos;</source>
+        <translation type="unfinished">-whitebind オプションでポートを指定する必要があります: &apos;%s&apos;</translation>
+    </message>
+    <message>
+        <source>Not enough file descriptors available.</source>
+        <translation type="unfinished">使用可能なファイルディスクリプタが不足しています。</translation>
+    </message>
+    <message>
+        <source>Prune cannot be configured with a negative value.</source>
+        <translation type="unfinished">剪定モードの設定値は負の値にはできません。</translation>
+    </message>
+    <message>
+        <source>Prune mode is incompatible with -txindex.</source>
+        <translation type="unfinished">剪定モードは -txindex オプションと互換性がありません。</translation>
+    </message>
+    <message>
+        <source>Pruning blockstore...</source>
+        <translation type="unfinished">ブロック保存容量を剪定中...</translation>
+    </message>
+    <message>
+        <source>Reducing -maxconnections from %d to %d, because of system limitations.</source>
+        <translation type="unfinished">システム上の制約から、-maxconnections を %d から %d に削減しました。</translation>
+    </message>
+    <message>
+        <source>Replaying blocks...</source>
+        <translation type="unfinished">ブロックのリプレイ中...</translation>
+    </message>
+    <message>
+        <source>Rescanning...</source>
+        <translation type="unfinished">再スキャン中...</translation>
+    </message>
+    <message>
+        <source>Rewinding blocks...</source>
+        <translation type="unfinished">ブロックの巻き戻し中...</translation>
+    </message>
+    <message>
+        <source>Section [%s] is not recognized.</source>
+        <translation type="unfinished">セクション名 [%s] は認識されません。</translation>
+    </message>
+    <message>
+        <source>Signing transaction failed</source>
+        <translation type="unfinished">取引の署名に失敗しました</translation>
+    </message>
+    <message>
+        <source>Specified -walletdir &quot;%s&quot; does not exist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specified -walletdir &quot;%s&quot; is a relative path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specified -walletdir &quot;%s&quot; is not a directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specified blocks directory &quot;%s&quot; does not exist.</source>
+        <translation type="unfinished">指定されたブロックディレクトリ &quot;%s&quot; は存在しません｡</translation>
+    </message>
+    <message>
+        <source>Starting network threads...</source>
+        <translation type="unfinished">ネットワークスレッドの起動中...</translation>
+    </message>
+    <message>
+        <source>The source code is available from %s.</source>
+        <translation type="unfinished">ソースコードは %s から入手できます。</translation>
+    </message>
+    <message>
+        <source>The specified config file %s does not exist
+</source>
+        <translation type="unfinished">指定された設定ファイル %s が存在しません｡
+</translation>
+    </message>
+    <message>
+        <source>The transaction amount is too small to pay the fee</source>
+        <translation type="unfinished">取引の手数料差引後金額が小さすぎるため、送金できません。</translation>
+    </message>
+    <message>
+        <source>The wallet will avoid paying less than the minimum relay fee.</source>
+        <translation type="unfinished">ウォレットは最小中継手数料を下回る金額は支払いません。</translation>
+    </message>
+    <message>
+        <source>This is experimental software.</source>
+        <translation type="unfinished">これは実験用のソフトウェアです。</translation>
+    </message>
+    <message>
+        <source>This is the minimum transaction fee you pay on every transaction.</source>
+        <translation type="unfinished">これは、全ての取引に対して最低限支払うべき手数料です。</translation>
+    </message>
+    <message>
+        <source>This is the transaction fee you will pay if you send a transaction.</source>
+        <translation type="unfinished">これは、取引を送信する場合に支払う取引手数料です。</translation>
+    </message>
+    <message>
+        <source>Transaction amount too small</source>
+        <translation type="unfinished">取引の金額が小さすぎます</translation>
+    </message>
+    <message>
+        <source>Transaction amounts must not be negative</source>
+        <translation type="unfinished">取引の金額は負の値にはできません</translation>
+    </message>
+    <message>
+        <source>Transaction fee and change calculation failed</source>
+        <translation type="unfinished">トランザクション手数料およびお釣りの計算に失敗しました</translation>
+    </message>
+    <message>
+        <source>Transaction has too long of a mempool chain</source>
+        <translation type="unfinished">トランザクションのmempoolチェーンが長すぎます</translation>
+    </message>
+    <message>
+        <source>Transaction must have at least one recipient</source>
+        <translation type="unfinished">トランザクションは最低ひとつの受取先が必要です</translation>
+    </message>
+    <message>
+        <source>Transaction too large for fee policy</source>
+        <translation type="unfinished">手数料ポリシーに対してトランザクションが大きすぎます</translation>
+    </message>
+    <message>
+        <source>Transaction too large</source>
+        <translation type="unfinished">トランザクションが大きすぎます</translation>
+    </message>
+    <message>
+        <source>Unable to bind to %s on this computer (bind returned error %s)</source>
+        <translation type="unfinished">このコンピュータの %s にバインドすることができません（%s エラーが返却されました）</translation>
+    </message>
+    <message>
+        <source>Unable to bind to %s on this computer. %s is probably already running.</source>
+        <translation type="unfinished">このコンピュータの %s にバインドすることができません。%s がおそらく既に実行中です。</translation>
+    </message>
+    <message>
+        <source>Unable to create the PID file &apos;%s&apos;: %s</source>
+        <translation type="unfinished">PIDファイルの作成に失敗しました (&apos;%s&apos;: %s)</translation>
+    </message>
+    <message>
+        <source>Unable to generate initial keys</source>
+        <translation type="unfinished">イニシャル鍵を生成できません</translation>
+    </message>
+    <message>
+        <source>Unable to generate keys</source>
+        <translation type="unfinished">鍵を生成できません</translation>
+    </message>
+    <message>
+        <source>Unable to start HTTP server. See debug log for details.</source>
+        <translation type="unfinished">HTTPサーバを開始できませんでした。詳細は debug.log を参照してください。</translation>
+    </message>
+    <message>
+        <source>Unknown network specified in -onlynet: &apos;%s&apos;</source>
+        <translation type="unfinished">-onlynet オプションに対する不明なネットワーク: &apos;%s&apos;</translation>
+    </message>
+    <message>
+        <source>Unsupported logging category %s=%s.</source>
+        <translation type="unfinished">サポートされていないログカテゴリ %s=%s 。</translation>
+    </message>
+    <message>
+        <source>Upgrading UTXO database</source>
+        <translation type="unfinished">UTXOデータベースの更新中</translation>
+    </message>
+    <message>
+        <source>Upgrading txindex database</source>
+        <translation type="unfinished">txindex データベースの更新中</translation>
+    </message>
+    <message>
+        <source>User Agent comment (%s) contains unsafe characters.</source>
+        <translation type="unfinished">ユーザエージェントのコメント ( %s ) に安全でない文字が含まれています。</translation>
+    </message>
+    <message>
+        <source>Verifying blocks...</source>
+        <translation type="unfinished">ブロックの検証中...</translation>
+    </message>
+    <message>
+        <source>Verifying wallet(s)...</source>
+        <translation type="unfinished">ウォレットの確認中...</translation>
+    </message>
+    <message>
+        <source>Wallet %s resides outside wallet directory %s</source>
+        <translation type="unfinished">ウォレット「%s」がウォレットフォルダ「%s」の外に存在します</translation>
+    </message>
+    <message>
+        <source>Wallet needed to be rewritten: restart %s to complete</source>
+        <translation type="unfinished">ウォレットの書き直しが必要です: 完了するために %s を再起動します</translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation type="unfinished">警告</translation>
+    </message>
+    <message>
+        <source>Warning: unknown new rules activated (versionbit %i)</source>
+        <translation type="unfinished">警告: 未知の新しいルールが有効化されました (バージョンビット %i)</translation>
+    </message>
+    <message>
+        <source>Zapping all transactions from wallet...</source>
+        <translation type="unfinished">ウォレットから全取引を消去中...</translation>
+    </message>
 </context>
 <context>
     <name>qtum-core</name>
     <message>
         <source>Distributed under the MIT software license, see the accompanying file %s or %s</source>
-        <translation>MIT ソフトウェアライセンスのもとで配布されています。付属の %s ファイルか、 %s を参照してください</translation>
+        <translation type="vanished">MIT ソフトウェアライセンスのもとで配布されています。付属の %s ファイルか、 %s を参照してください</translation>
     </message>
     <message>
         <source>Prune configured below the minimum of %d MiB.  Please use a higher number.</source>
-        <translation>剪定設定が、設定可能最小値の %d MiBより低く設定されています。より大きい値を使用してください。</translation>
+        <translation type="vanished">剪定設定が、設定可能最小値の %d MiBより低く設定されています。より大きい値を使用してください。</translation>
     </message>
     <message>
         <source>Prune: last wallet synchronisation goes beyond pruned data. You need to -reindex (download the whole blockchain again in case of pruned node)</source>
-        <translation>剪定: 最後のウォレット同期ポイントが、剪定されたデータを越えています。-reindex を実行する必要があります (剪定されたノードの場合、ブロックチェーン全体を再ダウンロードします)</translation>
+        <translation type="vanished">剪定: 最後のウォレット同期ポイントが、剪定されたデータを越えています。-reindex を実行する必要があります (剪定されたノードの場合、ブロックチェーン全体を再ダウンロードします)</translation>
     </message>
     <message>
         <source>Rescans are not possible in pruned mode. You will need to use -reindex which will download the whole blockchain again.</source>
-        <translation>剪定モードでは再スキャンを行うことはできません。-reindex オプションを指定し、ブロックチェーン全体を再ダウンロードする必要があります。</translation>
+        <translation type="vanished">剪定モードでは再スキャンを行うことはできません。-reindex オプションを指定し、ブロックチェーン全体を再ダウンロードする必要があります。</translation>
     </message>
     <message>
         <source>Error: A fatal internal error occurred, see debug.log for details</source>
-        <translation>エラー: 致命的な内部エラーが発生しました。詳細は debug.log を参照してください</translation>
+        <translation type="vanished">エラー: 致命的な内部エラーが発生しました。詳細は debug.log を参照してください</translation>
     </message>
     <message>
         <source>Pruning blockstore...</source>
-        <translation>ブロック保存容量を剪定中...</translation>
+        <translation type="vanished">ブロック保存容量を剪定中...</translation>
     </message>
     <message>
         <source>Unable to start HTTP server. See debug log for details.</source>
-        <translation>HTTPサーバを開始できませんでした。詳細は debug.log を参照してください。</translation>
+        <translation type="vanished">HTTPサーバを開始できませんでした。詳細は debug.log を参照してください。</translation>
     </message>
     <message>
         <source>Qtum Core</source>
-        <translation>Qtum コア</translation>
+        <translation type="vanished">Qtum コア</translation>
     </message>
     <message>
         <source>The %s developers</source>
-        <translation>%s の開発者</translation>
+        <translation type="vanished">%s の開発者</translation>
     </message>
     <message>
-        <source>Can't generate a change-address key. No keys in the internal keypool and can't generate any keys.</source>
-        <translation>おつりアドレスの鍵を作成することができません。内部のキープールに鍵が存在しないため、鍵を生成することができません。</translation>
+        <source>Can&apos;t generate a change-address key. No keys in the internal keypool and can&apos;t generate any keys.</source>
+        <translation type="vanished">おつりアドレスの鍵を作成することができません。内部のキープールに鍵が存在しないため、鍵を生成することができません。</translation>
     </message>
     <message>
         <source>Cannot obtain a lock on data directory %s. %s is probably already running.</source>
-        <translation>データ ディレクトリ %s のロックを取得することができません。%s がおそらく既に実行中です。</translation>
+        <translation type="vanished">データ ディレクトリ %s のロックを取得することができません。%s がおそらく既に実行中です。</translation>
     </message>
     <message>
         <source>Cannot provide specific connections and have addrman find outgoing connections at the same.</source>
-        <translation>指定された接続が利用できず、また addrman は外向き接続を見つけられませんでした。</translation>
+        <translation type="vanished">指定された接続が利用できず、また addrman は外向き接続を見つけられませんでした。</translation>
     </message>
     <message>
         <source>Error reading %s! All keys read correctly, but transaction data or address book entries might be missing or incorrect.</source>
-        <translation>%s の読み込み中にエラーが発生しました！ 全ての鍵は正しく読み込めましたが、取引データやアドレス帳の項目が失われたか、正しくない可能性があります。</translation>
+        <translation type="vanished">%s の読み込み中にエラーが発生しました！ 全ての鍵は正しく読み込めましたが、取引データやアドレス帳の項目が失われたか、正しくない可能性があります。</translation>
     </message>
     <message>
-        <source>Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly.</source>
-        <translation>お使いのコンピューターの日付と時刻が正しいことを確認してください！ PCの時計が正しくない場合 %s は正確に動作しません。</translation>
+        <source>Please check that your computer&apos;s date and time are correct! If your clock is wrong, %s will not work properly.</source>
+        <translation type="vanished">お使いのコンピューターの日付と時刻が正しいことを確認してください！ PCの時計が正しくない場合 %s は正確に動作しません。</translation>
     </message>
     <message>
         <source>Please contribute if you find %s useful. Visit %s for further information about the software.</source>
-        <translation>%s が有用だと感じられた方はぜひプロジェクトへの貢献をお願いします。ソフトウェアのより詳細な情報については %s をご覧ください。</translation>
+        <translation type="vanished">%s が有用だと感じられた方はぜひプロジェクトへの貢献をお願いします。ソフトウェアのより詳細な情報については %s をご覧ください。</translation>
     </message>
     <message>
-        <source>The block database contains a block which appears to be from the future. This may be due to your computer's date and time being set incorrectly. Only rebuild the block database if you are sure that your computer's date and time are correct</source>
-        <translation>ブロックデータベースに未来の時刻のブロックが含まれています。お使いのコンピューターの日付と時刻が間違っている可能性があります。コンピュータの日付と時刻が本当に正しい場合にのみ、ブロックデータベースの再構築を実行してください。</translation>
+        <source>The block database contains a block which appears to be from the future. This may be due to your computer&apos;s date and time being set incorrectly. Only rebuild the block database if you are sure that your computer&apos;s date and time are correct</source>
+        <translation type="vanished">ブロックデータベースに未来の時刻のブロックが含まれています。お使いのコンピューターの日付と時刻が間違っている可能性があります。コンピュータの日付と時刻が本当に正しい場合にのみ、ブロックデータベースの再構築を実行してください。</translation>
     </message>
     <message>
         <source>This is a pre-release test build - use at your own risk - do not use for mining or merchant applications</source>
-        <translation>これはリリース前のテストビルドです - 自己責任で使用してください - 採掘や商取引に使用しないでください</translation>
+        <translation type="vanished">これはリリース前のテストビルドです - 自己責任で使用してください - 採掘や商取引に使用しないでください</translation>
     </message>
     <message>
         <source>This is the transaction fee you may discard if change is smaller than dust at this level</source>
-        <translation>これは、このレベルでダストよりもお釣りが小さい場合に破棄されるトランザクション手数料です。</translation>
+        <translation type="vanished">これは、このレベルでダストよりもお釣りが小さい場合に破棄されるトランザクション手数料です。</translation>
     </message>
     <message>
         <source>Unable to replay blocks. You will need to rebuild the database using -reindex-chainstate.</source>
-        <translation>ブロックのリプレイができませんでした。-reindex-chainstate オプションを指定してデータベースを再構築する必要があります。</translation>
+        <translation type="vanished">ブロックのリプレイができませんでした。-reindex-chainstate オプションを指定してデータベースを再構築する必要があります。</translation>
     </message>
     <message>
         <source>Unable to rewind the database to a pre-fork state. You will need to redownload the blockchain</source>
-        <translation>データベースをフォーク前の状態に巻き戻せませんでした。ブロックチェーンを再ダウンロードする必要があります</translation>
+        <translation type="vanished">データベースをフォーク前の状態に巻き戻せませんでした。ブロックチェーンを再ダウンロードする必要があります</translation>
     </message>
     <message>
         <source>Warning: The network does not appear to fully agree! Some miners appear to be experiencing issues.</source>
-        <translation>警告: ネットワークは完全に合意が取れていないようです。問題が発生しているマイナーがいる可能性があります。</translation>
+        <translation type="vanished">警告: ネットワークは完全に合意が取れていないようです。問題が発生しているマイナーがいる可能性があります。</translation>
     </message>
     <message>
         <source>Warning: We do not appear to fully agree with our peers! You may need to upgrade, or other nodes may need to upgrade.</source>
-        <translation>警告: ピアと完全に合意が取れていないようです！ このノードもしくは他のノードのアップグレードが必要な可能性があります。</translation>
+        <translation type="vanished">警告: ピアと完全に合意が取れていないようです！ このノードもしくは他のノードのアップグレードが必要な可能性があります。</translation>
     </message>
     <message>
         <source>%d of last 100 blocks have unexpected version</source>
-        <translation>直近の100ブロックの内、%d ブロックが予期しないバージョンを含んでいます</translation>
+        <translation type="vanished">直近の100ブロックの内、%d ブロックが予期しないバージョンを含んでいます</translation>
     </message>
     <message>
         <source>%s corrupt, salvage failed</source>
-        <translation>%s が壊れています。復旧にも失敗しました</translation>
+        <translation type="vanished">%s が壊れています。復旧にも失敗しました</translation>
     </message>
     <message>
         <source>-maxmempool must be at least %d MB</source>
-        <translation>-maxmempoolは最低でも %d MB必要です</translation>
+        <translation type="vanished">-maxmempoolは最低でも %d MB必要です</translation>
     </message>
     <message>
-        <source>Cannot resolve -%s address: '%s'</source>
-        <translation>-%s アドレス '%s' を解決できません</translation>
+        <source>Cannot resolve -%s address: &apos;%s&apos;</source>
+        <translation type="vanished">-%s アドレス &apos;%s&apos; を解決できません</translation>
     </message>
     <message>
         <source>Change index out of range</source>
-        <translation>お釣りのインデックスが範囲外です</translation>
+        <translation type="vanished">お釣りのインデックスが範囲外です</translation>
     </message>
     <message>
         <source>Config setting for %s only applied on %s network when in [%s] section.</source>
-        <translation>%s の設定は、 [%s] セクションに書かれた場合のみ %s ネットワークへ適用されます。</translation>
+        <translation type="vanished">%s の設定は、 [%s] セクションに書かれた場合のみ %s ネットワークへ適用されます。</translation>
     </message>
     <message>
         <source>Copyright (C) %i-%i</source>
-        <translation>Copyright (C) %i-%i</translation>
+        <translation type="vanished">Copyright (C) %i-%i</translation>
     </message>
     <message>
         <source>Corrupted block database detected</source>
-        <translation>破損したブロック データベースが見つかりました</translation>
+        <translation type="vanished">破損したブロック データベースが見つかりました</translation>
     </message>
     <message>
         <source>Do you want to rebuild the block database now?</source>
-        <translation>ブロック データベースを今すぐ再構築しますか？</translation>
+        <translation type="vanished">ブロック データベースを今すぐ再構築しますか？</translation>
     </message>
     <message>
         <source>Error initializing block database</source>
-        <translation>ブロックデータベースの初期化時にエラーが発生しました</translation>
+        <translation type="vanished">ブロックデータベースの初期化時にエラーが発生しました</translation>
     </message>
     <message>
         <source>Error initializing wallet database environment %s!</source>
-        <translation>ウォレットデータベース環境 %s の初期化時にエラーが発生しました！</translation>
+        <translation type="vanished">ウォレットデータベース環境 %s の初期化時にエラーが発生しました！</translation>
     </message>
     <message>
         <source>Error loading %s</source>
-        <translation>%s の読み込みエラー</translation>
+        <translation type="vanished">%s の読み込みエラー</translation>
     </message>
     <message>
         <source>Error loading %s: Private keys can only be disabled during creation</source>
-        <translation>%s の読み込みエラー: 秘密鍵の無効化はウォレットの生成時のみ可能です</translation>
+        <translation type="vanished">%s の読み込みエラー: 秘密鍵の無効化はウォレットの生成時のみ可能です</translation>
     </message>
     <message>
         <source>Error loading %s: Wallet corrupted</source>
-        <translation>%s の読み込みエラー: ウォレットが壊れています</translation>
+        <translation type="vanished">%s の読み込みエラー: ウォレットが壊れています</translation>
     </message>
     <message>
         <source>Error loading %s: Wallet requires newer version of %s</source>
-        <translation>%s の読み込みエラー: より新しいバージョンの %s が必要です</translation>
+        <translation type="vanished">%s の読み込みエラー: より新しいバージョンの %s が必要です</translation>
     </message>
     <message>
         <source>Error loading block database</source>
-        <translation>ブロックデータベースの読み込み時にエラーが発生しました</translation>
+        <translation type="vanished">ブロックデータベースの読み込み時にエラーが発生しました</translation>
     </message>
     <message>
         <source>Error opening block database</source>
-        <translation>ブロックデータベースのオープン時にエラーが発生しました</translation>
+        <translation type="vanished">ブロックデータベースのオープン時にエラーが発生しました</translation>
     </message>
     <message>
         <source>Error: Disk space is low!</source>
-        <translation>エラー: ディスク容量が不足しています！</translation>
+        <translation type="vanished">エラー: ディスク容量が不足しています！</translation>
     </message>
     <message>
         <source>Failed to listen on any port. Use -listen=0 if you want this.</source>
-        <translation>ポートのリッスンに失敗しました。必要であれば -listen=0 を指定してください。</translation>
+        <translation type="vanished">ポートのリッスンに失敗しました。必要であれば -listen=0 を指定してください。</translation>
     </message>
     <message>
         <source>Failed to rescan the wallet during initialization</source>
-        <translation>初期化中にウォレットの再スキャンに失敗しました</translation>
+        <translation type="vanished">初期化中にウォレットの再スキャンに失敗しました</translation>
     </message>
     <message>
         <source>Importing...</source>
-        <translation>インポート中...</translation>
+        <translation type="vanished">インポート中...</translation>
     </message>
     <message>
         <source>Incorrect or no genesis block found. Wrong datadir for network?</source>
-        <translation>ジェネシスブロックが不正であるか、見つかりません。ネットワークの datadir が間違っていませんか？</translation>
+        <translation type="vanished">ジェネシスブロックが不正であるか、見つかりません。ネットワークの datadir が間違っていませんか？</translation>
     </message>
     <message>
         <source>Initialization sanity check failed. %s is shutting down.</source>
-        <translation>初期化時の健全性検査に失敗しました。%s を終了します。</translation>
+        <translation type="vanished">初期化時の健全性検査に失敗しました。%s を終了します。</translation>
     </message>
     <message>
-        <source>Invalid amount for -%s=&lt;amount&gt;: '%s'</source>
-        <translation>-%s=&lt;amount&gt; オプションに対する不正な amount: '%s'</translation>
+        <source>Invalid amount for -%s=&lt;amount&gt;: &apos;%s&apos;</source>
+        <translation type="vanished">-%s=&lt;amount&gt; オプションに対する不正な amount: &apos;%s&apos;</translation>
     </message>
     <message>
-        <source>Invalid amount for -discardfee=&lt;amount&gt;: '%s'</source>
-        <translation>-discardfee=&lt;amount&gt; オプションに対する不正な amount: '%s'</translation>
+        <source>Invalid amount for -discardfee=&lt;amount&gt;: &apos;%s&apos;</source>
+        <translation type="vanished">-discardfee=&lt;amount&gt; オプションに対する不正な amount: &apos;%s&apos;</translation>
     </message>
     <message>
-        <source>Invalid amount for -fallbackfee=&lt;amount&gt;: '%s'</source>
-        <translation>-fallbackfee=&lt;amount&gt; オプションに対する不正な amount: '%s'</translation>
+        <source>Invalid amount for -fallbackfee=&lt;amount&gt;: &apos;%s&apos;</source>
+        <translation type="vanished">-fallbackfee=&lt;amount&gt; オプションに対する不正な amount: &apos;%s&apos;</translation>
     </message>
     <message>
-        <source>Specified blocks directory "%s" does not exist.</source>
-        <translation>指定されたブロックディレクトリ "%s" は存在しません｡</translation>
+        <source>Specified blocks directory &quot;%s&quot; does not exist.</source>
+        <translation type="vanished">指定されたブロックディレクトリ &quot;%s&quot; は存在しません｡</translation>
     </message>
     <message>
-        <source>Unable to create the PID file '%s': %s</source>
-        <translation>PIDファイルの作成に失敗しました ('%s': %s)</translation>
+        <source>Unable to create the PID file &apos;%s&apos;: %s</source>
+        <translation type="vanished">PIDファイルの作成に失敗しました (&apos;%s&apos;: %s)</translation>
     </message>
     <message>
         <source>Upgrading txindex database</source>
-        <translation>txindex データベースの更新中</translation>
+        <translation type="vanished">txindex データベースの更新中</translation>
     </message>
     <message>
         <source>Loading P2P addresses...</source>
-        <translation>P2Pアドレスの読み込み中...</translation>
+        <translation type="vanished">P2Pアドレスの読み込み中...</translation>
     </message>
     <message>
         <source>Loading banlist...</source>
-        <translation>banリストの読み込み中...</translation>
+        <translation type="vanished">banリストの読み込み中...</translation>
     </message>
     <message>
         <source>Not enough file descriptors available.</source>
-        <translation>使用可能なファイルディスクリプタが不足しています。</translation>
+        <translation type="vanished">使用可能なファイルディスクリプタが不足しています。</translation>
     </message>
     <message>
         <source>Prune cannot be configured with a negative value.</source>
-        <translation>剪定モードの設定値は負の値にはできません。</translation>
+        <translation type="vanished">剪定モードの設定値は負の値にはできません。</translation>
     </message>
     <message>
         <source>Prune mode is incompatible with -txindex.</source>
-        <translation>剪定モードは -txindex オプションと互換性がありません。</translation>
+        <translation type="vanished">剪定モードは -txindex オプションと互換性がありません。</translation>
     </message>
     <message>
         <source>Replaying blocks...</source>
-        <translation>ブロックのリプレイ中...</translation>
+        <translation type="vanished">ブロックのリプレイ中...</translation>
     </message>
     <message>
         <source>Rewinding blocks...</source>
-        <translation>ブロックの巻き戻し中...</translation>
+        <translation type="vanished">ブロックの巻き戻し中...</translation>
     </message>
     <message>
         <source>The source code is available from %s.</source>
-        <translation>ソースコードは %s から入手できます。</translation>
+        <translation type="vanished">ソースコードは %s から入手できます。</translation>
     </message>
     <message>
         <source>Transaction fee and change calculation failed</source>
-        <translation>トランザクション手数料およびお釣りの計算に失敗しました</translation>
+        <translation type="vanished">トランザクション手数料およびお釣りの計算に失敗しました</translation>
     </message>
     <message>
         <source>Unable to bind to %s on this computer. %s is probably already running.</source>
-        <translation>このコンピュータの %s にバインドすることができません。%s がおそらく既に実行中です。</translation>
+        <translation type="vanished">このコンピュータの %s にバインドすることができません。%s がおそらく既に実行中です。</translation>
     </message>
     <message>
         <source>Unable to generate keys</source>
-        <translation>鍵を生成できません</translation>
+        <translation type="vanished">鍵を生成できません</translation>
     </message>
     <message>
         <source>Unsupported logging category %s=%s.</source>
-        <translation>サポートされていないログカテゴリ %s=%s 。</translation>
+        <translation type="vanished">サポートされていないログカテゴリ %s=%s 。</translation>
     </message>
     <message>
         <source>Upgrading UTXO database</source>
-        <translation>UTXOデータベースの更新中</translation>
+        <translation type="vanished">UTXOデータベースの更新中</translation>
     </message>
     <message>
         <source>User Agent comment (%s) contains unsafe characters.</source>
-        <translation>ユーザエージェントのコメント ( %s ) に安全でない文字が含まれています。</translation>
+        <translation type="vanished">ユーザエージェントのコメント ( %s ) に安全でない文字が含まれています。</translation>
     </message>
     <message>
         <source>Verifying blocks...</source>
-        <translation>ブロックの検証中...</translation>
+        <translation type="vanished">ブロックの検証中...</translation>
     </message>
     <message>
         <source>Wallet needed to be rewritten: restart %s to complete</source>
-        <translation>ウォレットの書き直しが必要です: 完了するために %s を再起動します</translation>
+        <translation type="vanished">ウォレットの書き直しが必要です: 完了するために %s を再起動します</translation>
     </message>
     <message>
         <source>Error: Listening for incoming connections failed (listen returned error %s)</source>
-        <translation>エラー: 内向きの接続をリッスンするのに失敗しました（%s エラーが返却されました）</translation>
+        <translation type="vanished">エラー: 内向きの接続をリッスンするのに失敗しました（%s エラーが返却されました）</translation>
     </message>
     <message>
-        <source>Invalid amount for -maxtxfee=&lt;amount&gt;: '%s' (must be at least the minrelay fee of %s to prevent stuck transactions)</source>
-        <translation>-maxtxfee=&lt;amount&gt; オプションに対する不正な amount: '%s'（トランザクション詰まり防止のため、最小中継手数料の %s より大きくする必要があります）</translation>
+        <source>Invalid amount for -maxtxfee=&lt;amount&gt;: &apos;%s&apos; (must be at least the minrelay fee of %s to prevent stuck transactions)</source>
+        <translation type="vanished">-maxtxfee=&lt;amount&gt; オプションに対する不正な amount: &apos;%s&apos;（トランザクション詰まり防止のため、最小中継手数料の %s より大きくする必要があります）</translation>
     </message>
     <message>
         <source>The transaction amount is too small to send after the fee has been deducted</source>
-        <translation>取引の手数料差引後金額が小さすぎるため、送金できません。</translation>
+        <translation type="vanished">取引の手数料差引後金額が小さすぎるため、送金できません。</translation>
     </message>
     <message>
         <source>You need to rebuild the database using -reindex to go back to unpruned mode.  This will redownload the entire blockchain</source>
-        <translation>非剪定モードに戻るためには -reindex オプションを指定してデータベースを再構築する必要があります。 ブロックチェーン全体の再ダウンロードが必要となります。</translation>
+        <translation type="vanished">非剪定モードに戻るためには -reindex オプションを指定してデータベースを再構築する必要があります。 ブロックチェーン全体の再ダウンロードが必要となります。</translation>
     </message>
     <message>
         <source>Error reading from database, shutting down.</source>
-        <translation>データベースの読み込みエラー。シャットダウンします。</translation>
+        <translation type="vanished">データベースの読み込みエラー。シャットダウンします。</translation>
     </message>
     <message>
         <source>Error upgrading chainstate database</source>
-        <translation>chainstate データベースの更新時にエラーが発生しました</translation>
+        <translation type="vanished">chainstate データベースの更新時にエラーが発生しました</translation>
     </message>
     <message>
         <source>Error: Disk space is low for %s</source>
-        <translation>エラー: %s 用のディスク容量が不足しています</translation>
+        <translation type="vanished">エラー: %s 用のディスク容量が不足しています</translation>
     </message>
     <message>
         <source>Information</source>
-        <translation>情報</translation>
+        <translation type="vanished">情報</translation>
     </message>
     <message>
-        <source>Invalid -onion address or hostname: '%s'</source>
-        <translation>-onion オプションに対する不正なアドレスまたはホスト名: '%s'</translation>
+        <source>Invalid -onion address or hostname: &apos;%s&apos;</source>
+        <translation type="vanished">-onion オプションに対する不正なアドレスまたはホスト名: &apos;%s&apos;</translation>
     </message>
     <message>
-        <source>Invalid -proxy address or hostname: '%s'</source>
-        <translation>-proxy オプションに対する不正なアドレスまたはホスト名: '%s'</translation>
+        <source>Invalid -proxy address or hostname: &apos;%s&apos;</source>
+        <translation type="vanished">-proxy オプションに対する不正なアドレスまたはホスト名: &apos;%s&apos;</translation>
     </message>
     <message>
-        <source>Invalid amount for -paytxfee=&lt;amount&gt;: '%s' (must be at least %s)</source>
-        <translation>-paytxfee=&lt;amount&gt; オプションにに対する不正な amount: '%s'（最低でも %s である必要があります）</translation>
+        <source>Invalid amount for -paytxfee=&lt;amount&gt;: &apos;%s&apos; (must be at least %s)</source>
+        <translation type="vanished">-paytxfee=&lt;amount&gt; オプションにに対する不正な amount: &apos;%s&apos;（最低でも %s である必要があります）</translation>
     </message>
     <message>
-        <source>Invalid netmask specified in -whitelist: '%s'</source>
-        <translation>-whitelist オプションに対する不正なネットマスク: '%s'</translation>
+        <source>Invalid netmask specified in -whitelist: &apos;%s&apos;</source>
+        <translation type="vanished">-whitelist オプションに対する不正なネットマスク: &apos;%s&apos;</translation>
     </message>
     <message>
-        <source>Need to specify a port with -whitebind: '%s'</source>
-        <translation>-whitebind オプションでポートを指定する必要があります: '%s'</translation>
+        <source>Need to specify a port with -whitebind: &apos;%s&apos;</source>
+        <translation type="vanished">-whitebind オプションでポートを指定する必要があります: &apos;%s&apos;</translation>
     </message>
     <message>
         <source>Reducing -maxconnections from %d to %d, because of system limitations.</source>
-        <translation>システム上の制約から、-maxconnections を %d から %d に削減しました。</translation>
+        <translation type="vanished">システム上の制約から、-maxconnections を %d から %d に削減しました。</translation>
     </message>
     <message>
         <source>Section [%s] is not recognized.</source>
-        <translation>セクション名 [%s] は認識されません。</translation>
+        <translation type="vanished">セクション名 [%s] は認識されません。</translation>
     </message>
     <message>
         <source>Signing transaction failed</source>
-        <translation>取引の署名に失敗しました</translation>
+        <translation type="vanished">取引の署名に失敗しました</translation>
     </message>
     <message>
         <source>The specified config file %s does not exist
 </source>
-        <translation>指定された設定ファイル %s が存在しません｡
+        <translation type="vanished">指定された設定ファイル %s が存在しません｡
 </translation>
     </message>
     <message>
         <source>The transaction amount is too small to pay the fee</source>
-        <translation>取引の手数料差引後金額が小さすぎるため、送金できません。</translation>
+        <translation type="vanished">取引の手数料差引後金額が小さすぎるため、送金できません。</translation>
     </message>
     <message>
         <source>This is experimental software.</source>
-        <translation>これは実験用のソフトウェアです。</translation>
+        <translation type="vanished">これは実験用のソフトウェアです。</translation>
     </message>
     <message>
         <source>Transaction amount too small</source>
-        <translation>取引の金額が小さすぎます</translation>
+        <translation type="vanished">取引の金額が小さすぎます</translation>
     </message>
     <message>
         <source>Transaction too large for fee policy</source>
-        <translation>手数料ポリシーに対してトランザクションが大きすぎます</translation>
+        <translation type="vanished">手数料ポリシーに対してトランザクションが大きすぎます</translation>
     </message>
     <message>
         <source>Transaction too large</source>
-        <translation>トランザクションが大きすぎます</translation>
+        <translation type="vanished">トランザクションが大きすぎます</translation>
     </message>
     <message>
         <source>Unable to bind to %s on this computer (bind returned error %s)</source>
-        <translation>このコンピュータの %s にバインドすることができません（%s エラーが返却されました）</translation>
+        <translation type="vanished">このコンピュータの %s にバインドすることができません（%s エラーが返却されました）</translation>
     </message>
     <message>
         <source>Unable to generate initial keys</source>
-        <translation>イニシャル鍵を生成できません</translation>
+        <translation type="vanished">イニシャル鍵を生成できません</translation>
     </message>
     <message>
         <source>Verifying wallet(s)...</source>
-        <translation>ウォレットの確認中...</translation>
+        <translation type="vanished">ウォレットの確認中...</translation>
     </message>
     <message>
         <source>Wallet %s resides outside wallet directory %s</source>
-        <translation>ウォレット「%s」がウォレットフォルダ「%s」の外に存在します</translation>
+        <translation type="vanished">ウォレット「%s」がウォレットフォルダ「%s」の外に存在します</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation>警告</translation>
+        <translation type="vanished">警告</translation>
     </message>
     <message>
         <source>Warning: unknown new rules activated (versionbit %i)</source>
-        <translation>警告: 未知の新しいルールが有効化されました (バージョンビット %i)</translation>
+        <translation type="vanished">警告: 未知の新しいルールが有効化されました (バージョンビット %i)</translation>
     </message>
     <message>
         <source>Zapping all transactions from wallet...</source>
-        <translation>ウォレットから全取引を消去中...</translation>
+        <translation type="vanished">ウォレットから全取引を消去中...</translation>
     </message>
     <message>
         <source>-maxtxfee is set very high! Fees this large could be paid on a single transaction.</source>
-        <translation>-maxtxfee が非常に高く設定されています！ ひとつの取引でこの金額の手数料が支払われてしまうことがあります。</translation>
+        <translation type="vanished">-maxtxfee が非常に高く設定されています！ ひとつの取引でこの金額の手数料が支払われてしまうことがあります。</translation>
     </message>
     <message>
         <source>This is the transaction fee you may pay when fee estimates are not available.</source>
-        <translation>これは、手数料推定機能が利用できない場合に支払う取引手数料です。</translation>
+        <translation type="vanished">これは、手数料推定機能が利用できない場合に支払う取引手数料です。</translation>
     </message>
     <message>
         <source>This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit %s and cryptographic software written by Eric Young and UPnP software written by Thomas Bernard.</source>
-        <translation>この製品は、OpenSSLツールキット %s で使用するためにOpenSSLプロジェクトにより開発されたソフトウェアと、Eric Young氏により開発された暗号ソフトウェア、Thomas Bernard氏により開発されたUPnPソフトウェアを使用しています。</translation>
+        <translation type="vanished">この製品は、OpenSSLツールキット %s で使用するためにOpenSSLプロジェクトにより開発されたソフトウェアと、Eric Young氏により開発された暗号ソフトウェア、Thomas Bernard氏により開発されたUPnPソフトウェアを使用しています。</translation>
     </message>
     <message>
         <source>Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.</source>
-        <translation>ネットワークバージョン文字列の長さ（%i）が、最大の長さ（%i） を超えています。UAコメントの数や長さを削減してください。</translation>
+        <translation type="vanished">ネットワークバージョン文字列の長さ（%i）が、最大の長さ（%i） を超えています。UAコメントの数や長さを削減してください。</translation>
     </message>
     <message>
         <source>Warning: Wallet file corrupt, data salvaged! Original %s saved as %s in %s; if your balance or transactions are incorrect you should restore from a backup.</source>
-        <translation>警告: ウォレットファイルが破損していたため、データを復旧しました！ 復旧前の %s は %s として %s に保存されました。残高や取引が正しくない場合にはバックアップから復元してください。</translation>
+        <translation type="vanished">警告: ウォレットファイルが破損していたため、データを復旧しました！ 復旧前の %s は %s として %s に保存されました。残高や取引が正しくない場合にはバックアップから復元してください。</translation>
     </message>
     <message>
         <source>%s is set very high!</source>
-        <translation>%s の設定値が高すぎです！</translation>
+        <translation type="vanished">%s の設定値が高すぎです！</translation>
     </message>
     <message>
         <source>Error loading wallet %s. Duplicate -wallet filename specified.</source>
-        <translation>ウォレット %s の読み込み時にエラーが発生しました。重複する -wallet ファイル名が指定されました。</translation>
+        <translation type="vanished">ウォレット %s の読み込み時にエラーが発生しました。重複する -wallet ファイル名が指定されました。</translation>
     </message>
     <message>
         <source>Keypool ran out, please call keypoolrefill first</source>
-        <translation>キープールが枯渇しました。まずはじめに keypoolrefill を呼び出してください</translation>
+        <translation type="vanished">キープールが枯渇しました。まずはじめに keypoolrefill を呼び出してください</translation>
     </message>
     <message>
         <source>Starting network threads...</source>
-        <translation>ネットワークスレッドの起動中...</translation>
+        <translation type="vanished">ネットワークスレッドの起動中...</translation>
     </message>
     <message>
         <source>The wallet will avoid paying less than the minimum relay fee.</source>
-        <translation>ウォレットは最小中継手数料を下回る金額は支払いません。</translation>
+        <translation type="vanished">ウォレットは最小中継手数料を下回る金額は支払いません。</translation>
     </message>
     <message>
         <source>This is the minimum transaction fee you pay on every transaction.</source>
-        <translation>これは、全ての取引に対して最低限支払うべき手数料です。</translation>
+        <translation type="vanished">これは、全ての取引に対して最低限支払うべき手数料です。</translation>
     </message>
     <message>
         <source>This is the transaction fee you will pay if you send a transaction.</source>
-        <translation>これは、取引を送信する場合に支払う取引手数料です。</translation>
+        <translation type="vanished">これは、取引を送信する場合に支払う取引手数料です。</translation>
     </message>
     <message>
         <source>Transaction amounts must not be negative</source>
-        <translation>取引の金額は負の値にはできません</translation>
+        <translation type="vanished">取引の金額は負の値にはできません</translation>
     </message>
     <message>
         <source>Transaction has too long of a mempool chain</source>
-        <translation>トランザクションのmempoolチェーンが長すぎます</translation>
+        <translation type="vanished">トランザクションのmempoolチェーンが長すぎます</translation>
     </message>
     <message>
         <source>Transaction must have at least one recipient</source>
-        <translation>トランザクションは最低ひとつの受取先が必要です</translation>
+        <translation type="vanished">トランザクションは最低ひとつの受取先が必要です</translation>
     </message>
     <message>
-        <source>Unknown network specified in -onlynet: '%s'</source>
-        <translation>-onlynet オプションに対する不明なネットワーク: '%s'</translation>
+        <source>Unknown network specified in -onlynet: &apos;%s&apos;</source>
+        <translation type="vanished">-onlynet オプションに対する不明なネットワーク: &apos;%s&apos;</translation>
     </message>
     <message>
         <source>Insufficient funds</source>
-        <translation>残高不足</translation>
+        <translation type="vanished">残高不足</translation>
     </message>
     <message>
         <source>Cannot upgrade a non HD split wallet without upgrading to support pre split keypool. Please use -upgradewallet=169900 or -upgradewallet with no version specified.</source>
-        <translation>分割済みキープールをサポートするようにアップグレードしないと、非HD分割ウォレットをアップグレードすることはできません。 -upgradewallet=169900 オプションか、バージョン指定無しで -upgradewallet オプションを指定してください。</translation>
+        <translation type="vanished">分割済みキープールをサポートするようにアップグレードしないと、非HD分割ウォレットをアップグレードすることはできません。 -upgradewallet=169900 オプションか、バージョン指定無しで -upgradewallet オプションを指定してください。</translation>
     </message>
     <message>
         <source>Fee estimation failed. Fallbackfee is disabled. Wait a few blocks or enable -fallbackfee.</source>
-        <translation>手数料推定に失敗しました。代替手数料が無効です。数ブロック待つか、-fallbackfee オプションを有効にしてください。</translation>
+        <translation type="vanished">手数料推定に失敗しました。代替手数料が無効です。数ブロック待つか、-fallbackfee オプションを有効にしてください。</translation>
     </message>
     <message>
         <source>Warning: Private keys detected in wallet {%s} with disabled private keys</source>
-        <translation>警告: 秘密鍵が無効なウォレット {%s} で秘密鍵を検出しました。</translation>
+        <translation type="vanished">警告: 秘密鍵が無効なウォレット {%s} で秘密鍵を検出しました。</translation>
     </message>
     <message>
-        <source>Cannot write to data directory '%s'; check permissions.</source>
-        <translation>データディレクトリ '%s' に書き込むことができません。アクセス権を確認してください。</translation>
+        <source>Cannot write to data directory &apos;%s&apos;; check permissions.</source>
+        <translation type="vanished">データディレクトリ &apos;%s&apos; に書き込むことができません。アクセス権を確認してください。</translation>
     </message>
     <message>
         <source>Loading block index...</source>
-        <translation>ブロックインデックスの読み込み中...</translation>
+        <translation type="vanished">ブロックインデックスの読み込み中...</translation>
     </message>
     <message>
         <source>Loading wallet...</source>
-        <translation>ウォレットの読み込み中...</translation>
+        <translation type="vanished">ウォレットの読み込み中...</translation>
     </message>
     <message>
         <source>Cannot downgrade wallet</source>
-        <translation>ウォレットのダウングレードはできません</translation>
+        <translation type="vanished">ウォレットのダウングレードはできません</translation>
     </message>
     <message>
         <source>Rescanning...</source>
-        <translation>再スキャン中...</translation>
+        <translation type="vanished">再スキャン中...</translation>
     </message>
     <message>
         <source>Done loading</source>
-        <translation>読み込み完了</translation>
+        <translation type="vanished">読み込み完了</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation>エラー</translation>
+        <translation type="vanished">エラー</translation>
     </message>
 </context>
 </TS>
