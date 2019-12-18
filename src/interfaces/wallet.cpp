@@ -60,6 +60,21 @@ WalletTx MakeWalletTx(interfaces::Chain::Lock& locked_chain, CWallet& wallet, co
     result.time = wtx.GetTxTime();
     result.value_map = wtx.mapValue;
     result.is_coinbase = wtx.IsCoinBase();
+    result.is_coinstake = wtx.IsCoinStake();
+    result.is_in_main_chain = wtx.IsInMainChain(locked_chain);
+    result.has_create_or_call = wtx.tx->HasCreateOrCall();
+    if(result.has_create_or_call)
+    {
+        CTxDestination tx_sender_address;
+        if(wtx.tx && wtx.tx->vin.size() > 0 && wallet.mapWallet.find(wtx.tx->vin[0].prevout.hash) != wallet.mapWallet.end() &&
+                ExtractDestination(wallet.mapWallet.at(wtx.tx->vin[0].prevout.hash).tx->vout[wtx.tx->vin[0].prevout.n].scriptPubKey, tx_sender_address)) {
+            result.tx_sender_key = GetKeyForDestination(wallet, tx_sender_address);
+        }
+
+        for(CTxDestination address : result.txout_address) {
+            result.txout_keys.emplace_back(GetKeyForDestination(wallet, address));
+        }
+    }
     return result;
 }
 
@@ -76,6 +91,7 @@ WalletTxStatus MakeWalletTxStatus(interfaces::Chain::Lock& locked_chain, const C
     result.is_trusted = wtx.IsTrusted(locked_chain);
     result.is_abandoned = wtx.isAbandoned();
     result.is_coinbase = wtx.IsCoinBase();
+    result.is_coinstake = wtx.IsCoinStake();
     result.is_in_main_chain = wtx.IsInMainChain(locked_chain);
     return result;
 }
@@ -93,6 +109,99 @@ WalletTxOut MakeWalletTxOut(interfaces::Chain::Lock& locked_chain,
     result.depth_in_main_chain = depth;
     result.is_spent = wallet.IsSpent(locked_chain, wtx.GetHash(), n);
     return result;
+}
+
+//! Construct token info.
+CTokenInfo MakeTokenInfo(const TokenInfo& token)
+{
+    CTokenInfo result;
+    result.strContractAddress = token.contract_address;
+    result.strTokenName = token.token_name;
+    result.strTokenSymbol = token.token_symbol;
+    result.nDecimals = token.decimals;
+    result.strSenderAddress = token.sender_address;
+    result.nCreateTime = token.time;
+    result.blockHash = token.block_hash;
+    result.blockNumber = token.block_number;
+    return result;
+}
+
+//! Construct wallet token info.
+TokenInfo MakeWalletTokenInfo(const CTokenInfo& token)
+{
+    TokenInfo result;
+    result.contract_address = token.strContractAddress;
+    result.token_name = token.strTokenName;
+    result.token_symbol = token.strTokenSymbol;
+    result.decimals = token.nDecimals;
+    result.sender_address = token.strSenderAddress;
+    result.time = token.nCreateTime;
+    result.block_hash = token.blockHash;
+    result.block_number = token.blockNumber;
+    result.hash = token.GetHash();
+    return result;
+}
+
+//! Construct token transaction.
+CTokenTx MakeTokenTx(const TokenTx& tokenTx)
+{
+    CTokenTx result;
+    result.strContractAddress = tokenTx.contract_address;
+    result.strSenderAddress = tokenTx.sender_address;
+    result.strReceiverAddress = tokenTx.receiver_address;
+    result.nValue = tokenTx.value;
+    result.transactionHash = tokenTx.tx_hash;
+    result.nCreateTime = tokenTx.time;
+    result.blockHash = tokenTx.block_hash;
+    result.blockNumber = tokenTx.block_number;
+    result.strLabel = tokenTx.label;
+    return result;
+}
+
+//! Construct wallet token transaction.
+TokenTx MakeWalletTokenTx(const CTokenTx& tokenTx)
+{
+    TokenTx result;
+    result.contract_address = tokenTx.strContractAddress;
+    result.sender_address = tokenTx.strSenderAddress;
+    result.receiver_address = tokenTx.strReceiverAddress;
+    result.value = tokenTx.nValue;
+    result.tx_hash = tokenTx.transactionHash;
+    result.time = tokenTx.nCreateTime;
+    result.block_hash = tokenTx.blockHash;
+    result.block_number = tokenTx.blockNumber;
+    result.label = tokenTx.strLabel;
+    result.hash = tokenTx.GetHash();
+    return result;
+}
+
+ContractBookData MakeContractBook(const std::string& id, const CContractBookData& data)
+{
+    ContractBookData result;
+    result.address = id;
+    result.name = data.name;
+    result.abi = data.abi;
+    return result;
+}
+
+bool TokenTxStatus(interfaces::Chain::Lock& locked_chain, CWallet& wallet, const uint256& txid, int& block_number, bool& in_mempool, int& num_blocks)
+{
+    auto mi = wallet.mapTokenTx.find(txid);
+    if (mi == wallet.mapTokenTx.end()) {
+        return false;
+    }
+    block_number = mi->second.blockNumber;
+    auto it = wallet.mapWallet.find(mi->second.transactionHash); 
+    if(it != wallet.mapWallet.end())
+    {
+        in_mempool = it->second.InMempool();
+    }
+    if (Optional<int> height = locked_chain.getHeight()) {
+        num_blocks = *height;
+    } else {
+        num_blocks = -1;
+    }
+    return true;
 }
 
 class WalletImpl : public Wallet
@@ -353,11 +462,13 @@ public:
         result.balance = bal.m_mine_trusted;
         result.unconfirmed_balance = bal.m_mine_untrusted_pending;
         result.immature_balance = bal.m_mine_immature;
+        result.stake = bal.m_mine_stake;
         result.have_watch_only = m_wallet->HaveWatchOnly();
         if (result.have_watch_only) {
             result.watch_only_balance = bal.m_watchonly_trusted;
             result.unconfirmed_watch_only_balance = bal.m_watchonly_untrusted_pending;
             result.immature_watch_only_balance = bal.m_watchonly_immature;
+            result.watch_only_stake = bal.m_watchonly_stake;
         }
         return result;
     }
@@ -481,6 +592,17 @@ public:
     }
     bool tryGetAvailableAddresses(std::vector<std::string> &spendableAddresses, std::vector<std::string> &allAddresses, bool &includeZeroValue) override
     {
+        auto locked_chain = m_wallet->chain().lock(true);
+        if (!locked_chain) return false;
+        TRY_LOCK(m_wallet->cs_wallet, locked_wallet);
+        if (!locked_wallet) {
+            return false;
+        }
+
+        spendableAddresses = availableAddresses(*locked_chain, false);
+        allAddresses = availableAddresses(*locked_chain, true);
+        includeZeroValue = ::ChainActive().Height() >= Params().GetConsensus().QIP5Height;
+
         return true;
     }
     CoinsList listCoins() override
@@ -541,94 +663,182 @@ public:
     }
     bool addTokenEntry(const TokenInfo &token) override
     {
-        return true;
+        return m_wallet->AddTokenEntry(MakeTokenInfo(token), true);
     }
     bool addTokenTxEntry(const TokenTx& tokenTx, bool fFlushOnClose) override
     {
-        return true;
+        return m_wallet->AddTokenTxEntry(MakeTokenTx(tokenTx), fFlushOnClose);
     }
     bool existTokenEntry(const TokenInfo &token) override
     {
-        return true;
+        auto locked_chain = m_wallet->chain().lock();
+        LOCK(m_wallet->cs_wallet);
+
+        uint256 hash = MakeTokenInfo(token).GetHash();
+        std::map<uint256, CTokenInfo>::iterator it = m_wallet->mapToken.find(hash);
+
+        return it != m_wallet->mapToken.end();
     }
     bool removeTokenEntry(const std::string &sHash) override
     {
-        return true;
+        return m_wallet->RemoveTokenEntry(uint256S(sHash), true);
     }
     std::vector<TokenInfo> getInvalidTokens() override
     {
-        return {};
+        auto locked_chain = m_wallet->chain().lock();
+        LOCK(m_wallet->cs_wallet);
+
+        std::vector<TokenInfo> listInvalid;
+        for(auto& info : m_wallet->mapToken)
+        {
+            std::string strAddress = info.second.strSenderAddress;
+            CTxDestination address = DecodeDestination(strAddress);
+            if(!IsMine(*m_wallet, address))
+            {
+                listInvalid.push_back(MakeWalletTokenInfo(info.second));
+            }
+        }
+
+        return listInvalid;
     }
     TokenTx getTokenTx(const uint256& txid) override
     {
+        auto locked_chain = m_wallet->chain().lock();
+        LOCK(m_wallet->cs_wallet);
+
+        auto mi = m_wallet->mapTokenTx.find(txid);
+        if (mi != m_wallet->mapTokenTx.end()) {
+            return MakeWalletTokenTx(mi->second);
+        }
         return {};
     }
     std::vector<TokenTx> getTokenTxs() override
     {
-        return {};
+        auto locked_chain = m_wallet->chain().lock();
+        LOCK(m_wallet->cs_wallet);
+
+        std::vector<TokenTx> result;
+        result.reserve(m_wallet->mapTokenTx.size());
+        for (const auto& entry : m_wallet->mapTokenTx) {
+            result.emplace_back(MakeWalletTokenTx(entry.second));
+        }
+        return result;
     }
     TokenInfo getToken(const uint256& id) override
     {
+        auto locked_chain = m_wallet->chain().lock();
+        LOCK(m_wallet->cs_wallet);
+
+        auto mi = m_wallet->mapToken.find(id);
+        if (mi != m_wallet->mapToken.end()) {
+            return MakeWalletTokenInfo(mi->second);
+        }
         return {};
     }
     std::vector<TokenInfo> getTokens() override
     {
-        return {};
+        auto locked_chain = m_wallet->chain().lock();
+        LOCK(m_wallet->cs_wallet);
+
+        std::vector<TokenInfo> result;
+        result.reserve(m_wallet->mapToken.size());
+        for (const auto& entry : m_wallet->mapToken) {
+            result.emplace_back(MakeWalletTokenInfo(entry.second));
+        }
+        return result;
     }
     bool tryGetTokenTxStatus(const uint256& txid, int& block_number, bool& in_mempool, int& num_blocks) override
     {
-        return true;
+        auto locked_chain = m_wallet->chain().lock(true);
+        if (!locked_chain) {
+            return false;
+        }
+        TRY_LOCK(m_wallet->cs_wallet, locked_wallet);
+        if (!locked_wallet) {
+            return false;
+        }
+        return TokenTxStatus(*locked_chain, *m_wallet, txid, block_number, in_mempool, num_blocks);
     }
     bool getTokenTxStatus(const uint256& txid, int& block_number, bool& in_mempool, int& num_blocks) override
     {
-        return true;
+        auto locked_chain = m_wallet->chain().lock();
+        LOCK(m_wallet->cs_wallet);
+
+        return TokenTxStatus(*locked_chain, *m_wallet, txid, block_number, in_mempool, num_blocks);
     }
     bool getTokenTxDetails(const TokenTx &wtx, uint256& credit, uint256& debit, std::string& tokenSymbol, uint8_t& decimals) override
     {
-        return true;
+        return m_wallet->GetTokenTxDetails(MakeTokenTx(wtx), credit, debit, tokenSymbol, decimals);
     }
     bool isTokenTxMine(const TokenTx &wtx) override
     {
-        return true;
+        return m_wallet->IsTokenTxMine(MakeTokenTx(wtx));
     }
     ContractBookData getContractBook(const std::string& id) override
     {
+        LOCK(m_wallet->cs_wallet);
+
+        auto mi = m_wallet->mapContractBook.find(id);
+        if (mi != m_wallet->mapContractBook.end()) {
+            return MakeContractBook(id, mi->second);
+        }
         return {};
     }
     std::vector<ContractBookData> getContractBooks() override
     {
-        return {};
+        LOCK(m_wallet->cs_wallet);
+
+        std::vector<ContractBookData> result;
+        result.reserve(m_wallet->mapContractBook.size());
+        for (const auto& entry : m_wallet->mapContractBook) {
+            result.emplace_back(MakeContractBook(entry.first, entry.second));
+        }
+        return result;
     }
     bool existContractBook(const std::string& id) override
     {
-        return true;
+        LOCK(m_wallet->cs_wallet);
+
+        auto mi = m_wallet->mapContractBook.find(id);
+        return mi != m_wallet->mapContractBook.end();
     }
     bool delContractBook(const std::string& id) override
     {
-        return true;
+        return m_wallet->DelContractBook(id);
     }
     bool setContractBook(const std::string& id, const std::string& name, const std::string& abi) override
     {
-        return true;
+        return m_wallet->SetContractBook(id, name, abi);
     }
     bool tryGetStakeWeight(uint64_t& nWeight) override
     {
+        auto locked_chain = m_wallet->chain().lock(true);
+        if (!locked_chain) {
+            return false;
+        }
+        TRY_LOCK(m_wallet->cs_wallet, locked_wallet);
+        if (!locked_wallet) {
+            return false;
+        }
+
+        nWeight = m_wallet->GetStakeWeight(*locked_chain);
         return true;
     }
     int64_t getLastCoinStakeSearchInterval() override 
     { 
-        return 0;
+        return m_wallet->m_last_coin_stake_search_interval;
     }
     bool getWalletUnlockStakingOnly() override
     {
-        return true;
+        return m_wallet->m_wallet_unlock_staking_only;
     }
     void setWalletUnlockStakingOnly(bool unlock) override
     {
+        m_wallet->m_wallet_unlock_staking_only = unlock;
     }
     bool cleanTokenTxEntries() override
     {
-        return true;
+        return m_wallet->CleanTokenTxEntries();
     }
     std::unique_ptr<Handler> handleUnload(UnloadFn fn) override
     {
