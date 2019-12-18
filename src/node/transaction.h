@@ -26,6 +26,6 @@
  * @param[in]  wait_callback, wait until callbacks have been processed to avoid stale result due to a sequentially RPC.
  * return error
  */
-NODISCARD TransactionError BroadcastTransaction(CTransactionRef tx, std::string& err_string, const CAmount& max_tx_fee, bool relay, bool wait_callback);
+NODISCARD TransactionError BroadcastTransaction(CTransactionRef tx, std::string& err_string, const CAmount& max_tx_fee, bool relay, bool wait_callback, bool rawTx = false);
 
 #endif // BITCOIN_NODE_TRANSACTION_H
