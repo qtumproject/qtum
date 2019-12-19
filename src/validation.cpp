@@ -2872,7 +2872,6 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
                                  REJECT_INVALID, "bad-txns-nonfinal");
             }
 
-//QTUM_INSERT
 #ifdef ENABLE_BITCORE_RPC
             ////////////////////////////////////////////////////////////////// // qtum
             if (fAddressIndex)
@@ -2899,7 +2898,6 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
             }
             //////////////////////////////////////////////////////////////////
 #endif
-//QTUM_INSERT_END
         }
 
         // GetTransactionSigOpCost counts 3 types of sigops:
