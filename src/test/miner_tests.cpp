@@ -41,7 +41,7 @@ static CFeeRate blockMinFeeRate = CFeeRate(DEFAULT_BLOCK_MIN_TX_FEE);
 static BlockAssembler AssemblerForTest(const CChainParams& params) {
     BlockAssembler::Options options;
 
-    options.nBlockMaxWeight = MAX_BLOCK_WEIGHT;
+    options.nBlockMaxWeight = dgpMaxBlockWeight;
     options.blockMinFeeRate = blockMinFeeRate;
     return BlockAssembler(params, options);
 }

@@ -246,7 +246,7 @@ static void MutateTxAddInput(CMutableTransaction& tx, const std::string& strInpu
     }
 
     static const unsigned int minTxOutSz = 9;
-    static const unsigned int maxVout = MAX_BLOCK_WEIGHT / (WITNESS_SCALE_FACTOR * minTxOutSz);
+    static const unsigned int maxVout = dgpMaxBlockWeight / (WITNESS_SCALE_FACTOR * minTxOutSz);
 
     // extract and validate vout
     const std::string& strVout = vStrInputParts[1];
