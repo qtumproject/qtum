@@ -36,10 +36,10 @@ import os
 #   (glibc)    GLIBC_2_11
 #
 MAX_VERSIONS = {
-'GCC':       (4,4,0),
-'CXXABI':    (1,3,3),
-'GLIBCXX':   (3,4,13),
-'GLIBC':     (2,11),
+'GCC':       (4,8,0),
+'CXXABI':    (1,3,7),
+'GLIBCXX':   (3,4,18),
+'GLIBC':     (2,19),
 'LIBATOMIC': (1,0)
 }
 # See here for a description of _IO_stdin_used:
@@ -47,7 +47,7 @@ MAX_VERSIONS = {
 
 # Ignore symbols that are exported as part of every executable
 IGNORE_EXPORTS = {
-'_edata', '_end', '__end__', '_init', '__bss_start', '__bss_start__', '_bss_end__', '__bss_end__', '_fini', '_IO_stdin_used', 'stdin', 'stdout', 'stderr'
+'_edata', '_end', '__end__', '_init', '__bss_start', '__bss_start__', '_bss_end__', '__bss_end__', '_fini', '_IO_stdin_used', 'stdin', 'stdout', 'stderr', 'in6addr_any'
 }
 READELF_CMD = os.getenv('READELF', '/usr/bin/readelf')
 CPPFILT_CMD = os.getenv('CPPFILT', '/usr/bin/c++filt')
