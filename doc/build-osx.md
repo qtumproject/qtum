@@ -19,14 +19,14 @@ Then install [Homebrew](https://brew.sh).
 
 ## Dependencies
 ```shell
-brew install automake berkeley-db4 libtool boost miniupnpc openssl pkg-config python qt libevent qrencode
+brew install cmake automake berkeley-db4 libtool boost --c++11 --without-single --without-static miniupnpc openssl pkg-config protobuf python qt libevent qrencode gmp
 ```
 
 See [dependencies.md](dependencies.md) for a complete overview.
 
 If you want to build the disk image with `make deploy` (.dmg / optional), you need RSVG:
 ```shell
-brew install librsvg
+brew imagemagick --with-librsvg
 ```
 
 ## Berkeley DB
@@ -42,17 +42,17 @@ from the root of the repository.
 
 **Note**: You only need Berkeley DB if the wallet is enabled (see [*Disable-wallet mode*](/doc/build-osx.md#disable-wallet-mode)).
 
-## Build Bitcoin Core
+## Build Qtum Core
 
-1. Clone the Bitcoin Core source code:
+1. Clone the Qtum Core source code:
     ```shell
-    git clone https://github.com/bitcoin/bitcoin
-    cd bitcoin
+    git clone --recursive https://github.com/qtumproject/qtum.git
+    cd qtum
     ```
 
-2.  Build Bitcoin Core:
+2.  Build Qtum Core:
 
-    Configure and build the headless Bitcoin Core binaries as well as the GUI (if Qt is found).
+    Configure and build the headless Qtum Core binaries as well as the GUI (if Qt is found).
 
     You can disable the GUI build by passing `--without-gui` to configure.
     ```shell
@@ -83,30 +83,30 @@ In this case there is no dependency on Berkeley DB 4.8.
 Mining is also possible in disable-wallet mode using the `getblocktemplate` RPC call.
 
 ## Running
-Bitcoin Core is now available at `./src/bitcoind`
+Qtum Core is now available at `./src/qtumd`
 
 Before running, you may create an empty configuration file:
 ```shell
-mkdir -p "/Users/${USER}/Library/Application Support/Bitcoin"
+mkdir -p "/Users/${USER}/Library/Application Support/Qtum"
 
-touch "/Users/${USER}/Library/Application Support/Bitcoin/bitcoin.conf"
+touch "/Users/${USER}/Library/Application Support/Qtum/qtum.conf"
 
-chmod 600 "/Users/${USER}/Library/Application Support/Bitcoin/bitcoin.conf"
+chmod 600 "/Users/${USER}/Library/Application Support/Qtum/qtum.conf"
 ```
 
-The first time you run bitcoind, it will start downloading the blockchain. This process could
+The first time you run qtumd, it will start downloading the blockchain. This process could
 take many hours, or even days on slower than average systems.
 
 You can monitor the download process by looking at the debug.log file:
 ```shell
-tail -f $HOME/Library/Application\ Support/Bitcoin/debug.log
+tail -f $HOME/Library/Application\ Support/Qtum/debug.log
 ```
 
 ## Other commands:
 ```shell
-./src/bitcoind -daemon      # Starts the bitcoin daemon.
-./src/bitcoin-cli --help    # Outputs a list of command-line options.
-./src/bitcoin-cli help      # Outputs a list of RPC commands when the daemon is running.
+./src/qtumd -daemon      # Starts the qtum daemon.
+./src/qtum-cli --help    # Outputs a list of command-line options.
+./src/qtum-cli help      # Outputs a list of RPC commands when the daemon is running.
 ```
 
 ## Notes

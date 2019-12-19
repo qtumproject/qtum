@@ -68,6 +68,7 @@ Credits
 
 Thanks to everyone who directly contributed to this release:
 
+(todo)
 
 As well as to everyone that helped with translations on
 [Transifex](https://www.transifex.com/bitcoin/bitcoin/).
