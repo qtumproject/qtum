@@ -295,7 +295,7 @@ void UnloadBlockIndex();
 /** Run an instance of the script checking thread */
 void ThreadScriptCheck(int worker_num);
 /** Retrieve a transaction (from memory pool, or from disk, if possible) */
-bool GetTransaction(const uint256& hash, CTransactionRef& tx, const Consensus::Params& params, uint256& hashBlock, const CBlockIndex* const blockIndex = nullptr);
+bool GetTransaction(const uint256& hash, CTransactionRef& tx, const Consensus::Params& params, uint256& hashBlock, const CBlockIndex* const blockIndex = nullptr, bool fAllowSlow = false);
 /**
  * Find the best known block, and make it the tip of the block chain
  *
@@ -389,11 +389,14 @@ private:
     bool cacheStore;
     ScriptError error;
     PrecomputedTransactionData *txdata;
+    int nOut;
 
 public:
-    CScriptCheck(): ptxTo(nullptr), nIn(0), nFlags(0), cacheStore(false), error(SCRIPT_ERR_UNKNOWN_ERROR) {}
+    CScriptCheck(): ptxTo(nullptr), nIn(0), nFlags(0), cacheStore(false), error(SCRIPT_ERR_UNKNOWN_ERROR), nOut(-1) {}
     CScriptCheck(const CTxOut& outIn, const CTransaction& txToIn, unsigned int nInIn, unsigned int nFlagsIn, bool cacheIn, PrecomputedTransactionData* txdataIn) :
-        m_tx_out(outIn), ptxTo(&txToIn), nIn(nInIn), nFlags(nFlagsIn), cacheStore(cacheIn), error(SCRIPT_ERR_UNKNOWN_ERROR), txdata(txdataIn) { }
+        m_tx_out(outIn), ptxTo(&txToIn), nIn(nInIn), nFlags(nFlagsIn), cacheStore(cacheIn), error(SCRIPT_ERR_UNKNOWN_ERROR), txdata(txdataIn), nOut(-1) { }
+    CScriptCheck(const CTransaction& txToIn, int nOutIn, unsigned int nFlagsIn, bool cacheIn, PrecomputedTransactionData* txdataIn) :
+        ptxTo(&txToIn), nIn(0), nFlags(nFlagsIn), cacheStore(cacheIn), error(SCRIPT_ERR_UNKNOWN_ERROR), txdata(txdataIn), nOut(nOutIn) { }
 
     bool operator()();
 
@@ -405,9 +408,12 @@ public:
         std::swap(cacheStore, check.cacheStore);
         std::swap(error, check.error);
         std::swap(txdata, check.txdata);
+        std::swap(nOut, check.nOut);
     }
 
     ScriptError GetScriptError() const { return error; }
+
+    bool checkOutput() const { return nOut > -1; }
 };
 
 /** Initializes the script-execution cache */
@@ -443,8 +449,10 @@ bool CheckIndexProof(const CBlockIndex& block, const Consensus::Params& consensu
 /** Functions for validating blocks and updating the block tree */
 
 /** Context-independent validity checks */
-bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW = true, bool fCheckMerkleRoot = true);
+bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW = true, bool fCheckMerkleRoot = true, bool fCheckSig=true);
+bool GetBlockPublicKey(const CBlock& block, std::vector<unsigned char>& vchPubKey);
 bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& nTotalFees, uint32_t nTime, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins);
+bool CheckCanonicalBlockSignature(const CBlockHeader* pblock);
 
 /** Check a block is completely valid from start to finish (only works on top of our current best block) */
 bool TestBlockValidity(CValidationState& state, const CChainParams& chainparams, const CBlock& block, CBlockIndex* pindexPrev, bool fCheckPOW = true, bool fCheckMerkleRoot = true) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
@@ -484,6 +492,12 @@ bool GetSpentCoinFromMainChain(const CBlockIndex* pforkPrev, COutPoint prevoutSt
 unsigned int GetContractScriptFlags(int nHeight, const Consensus::Params& consensusparams);
 
 std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, const dev::Address& sender = dev::Address(), uint64_t gasLimit=0);
+
+bool CheckOpSender(const CTransaction& tx, const CChainParams& chainparams, int nHeight);
+
+bool CheckSenderScript(const CCoinsViewCache& view, const CTransaction& tx);
+
+bool CheckMinGasPrice(std::vector<EthTransactionParams>& etps, const uint64_t& minGasPrice);
 
 void writeVMlog(const std::vector<ResultExecute>& res, const CTransaction& tx = CTransaction(), const CBlock& block = CBlock());
 
