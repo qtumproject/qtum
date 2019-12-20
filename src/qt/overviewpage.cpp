@@ -401,19 +401,17 @@ void OverviewPage::setWalletModel(WalletModel *model)
         });
     }
 
-//QTUM_CHECK
-//    if(model && model->getTokenItemModel())
-//    {
-//        // Sort tokens by name
-//        QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(this);
-//        TokenItemModel* tokenModel = model->getTokenItemModel();
-//        proxyModel->setSourceModel(tokenModel);
-//        proxyModel->sort(0, Qt::AscendingOrder);
-//
-//        // Set tokens model
-//        ui->listTokens->setModel(proxyModel);
-//    }
-//QTUM_CHECK
+    if(model && model->getTokenItemModel())
+    {
+        // Sort tokens by name
+        QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(this);
+        TokenItemModel* tokenModel = model->getTokenItemModel();
+        proxyModel->setSourceModel(tokenModel);
+        proxyModel->sort(0, Qt::AscendingOrder);
+
+        // Set tokens model
+        ui->listTokens->setModel(proxyModel);
+    }
 
     // update the display unit, to not use the default ("BTC")
     updateDisplayUnit();
