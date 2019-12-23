@@ -635,6 +635,9 @@ bool CBlockTreeDB::LoadBlockIndexGuts(const Consensus::Params& consensusParams, 
                 if (!CheckIndexProof(*pindexNew, Params().GetConsensus()))
                     return error("%s: CheckIndexProof failed: %s", __func__, pindexNew->ToString());
 
+                // NovaCoin: build setStakeSeen
+                if (pindexNew->IsProofOfStake())
+                    ::ChainstateActive().setStakeSeen.insert(std::make_pair(pindexNew->prevoutStake, pindexNew->nTime));
                 pcursor->Next();
             } else {
                 return error("%s: failed to read value", __func__);
