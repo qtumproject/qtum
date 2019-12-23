@@ -10,6 +10,7 @@
 #include <mutex>
 
 const char * const DEFAULT_DEBUGLOGFILE = "debug.log";
+const char * const DEFAULT_DEBUGVMLOGFILE = "vm.log";
 
 BCLog::Logger& LogInstance()
 {
@@ -45,11 +46,14 @@ bool BCLog::Logger::StartLogging()
 
     assert(m_buffering);
     assert(m_fileout == nullptr);
+    assert(m_fileoutVM == nullptr); // qtum
 
     if (m_print_to_file) {
         assert(!m_file_path.empty());
+        assert(!m_file_pathVM.empty()); // qtum
         m_fileout = fsbridge::fopen(m_file_path, "a");
-        if (!m_fileout) {
+        m_fileoutVM = fsbridge::fopen(m_file_pathVM, "a");
+        if (!m_fileout || !m_fileoutVM) {
             return false;
         }
 
@@ -60,16 +64,34 @@ bool BCLog::Logger::StartLogging()
         FileWriteStr("\n\n\n\n\n", m_fileout);
     }
 
-    // dump buffered messages from before we opened the log
-    m_buffering = false;
-    while (!m_msgs_before_open.empty()) {
-        const std::string& s = m_msgs_before_open.front();
+    if (m_fileout) {
+        // dump buffered messages from before we opened the log
+        m_buffering = false;
+        while (!m_msgs_before_open.empty()) {
+            const std::string& s = m_msgs_before_open.front();
 
-        if (m_print_to_file) FileWriteStr(s, m_fileout);
-        if (m_print_to_console) fwrite(s.data(), 1, s.size(), stdout);
+            if (m_print_to_file) FileWriteStr(s, m_fileout);
+            if (m_print_to_console) fwrite(s.data(), 1, s.size(), stdout);
 
-        m_msgs_before_open.pop_front();
+            m_msgs_before_open.pop_front();
+        }
     }
+    ///////////////////////////////////////////// // qtum
+    if (m_fileoutVM) {
+        setbuf(m_fileoutVM, nullptr); // unbuffered
+        // dump buffered messages from before we opened the log
+        m_buffering = false;
+        while (!m_msgs_before_open.empty()) {
+            const std::string& s = m_msgs_before_open.front();
+
+            if (m_print_to_file) FileWriteStr(s, m_fileoutVM);
+            if (m_print_to_console) fwrite(s.data(), 1, s.size(), stdout);
+
+            m_msgs_before_open.pop_front();
+        }
+    }
+    /////////////////////////////////////////////
+
     if (m_print_to_console) fflush(stdout);
 
     return true;
@@ -81,6 +103,8 @@ void BCLog::Logger::DisconnectTestLogger()
     m_buffering = true;
     if (m_fileout != nullptr) fclose(m_fileout);
     m_fileout = nullptr;
+    if (m_fileoutVM != nullptr) fclose(m_fileoutVM);
+    m_fileoutVM = nullptr;
 }
 
 void BCLog::Logger::EnableCategory(BCLog::LogFlags flag)
@@ -248,7 +272,7 @@ namespace BCLog {
     }
 }
 
-void BCLog::Logger::LogPrintStr(const std::string& str)
+void BCLog::Logger::LogPrintStr(const std::string& str, bool useVMLog)
 {
     std::lock_guard<std::mutex> scoped_lock(m_cs);
     std::string str_prefixed = LogEscapeMessage(str);
@@ -256,6 +280,13 @@ void BCLog::Logger::LogPrintStr(const std::string& str)
     if (m_log_threadnames && m_started_new_line) {
         str_prefixed.insert(0, "[" + util::ThreadGetInternalName() + "] ");
     }
+
+    //////////////////////////////// // qtum
+    FILE* file = m_fileout;
+    if(useVMLog){
+        file = m_fileoutVM;
+    }
+    ////////////////////////////////
 
     str_prefixed = LogTimestampStr(str_prefixed);
 
@@ -278,14 +309,17 @@ void BCLog::Logger::LogPrintStr(const std::string& str)
         // reopen the log file, if requested
         if (m_reopen_file) {
             m_reopen_file = false;
-            FILE* new_fileout = fsbridge::fopen(m_file_path, "a");
+                fs::path file_path = m_file_path;
+                if(useVMLog)
+                    file_path = m_file_pathVM;
+            FILE* new_fileout = fsbridge::fopen(file_path, "a");
             if (new_fileout) {
                 setbuf(new_fileout, nullptr); // unbuffered
-                fclose(m_fileout);
-                m_fileout = new_fileout;
+                fclose(file);
+                file = new_fileout;
             }
         }
-        FileWriteStr(str_prefixed, m_fileout);
+        FileWriteStr(str_prefixed, file);
     }
 }
 

@@ -842,6 +842,7 @@ void InitLogging()
 {
     LogInstance().m_print_to_file = !gArgs.IsArgNegated("-debuglogfile");
     LogInstance().m_file_path = AbsPathForConfigVal(gArgs.GetArg("-debuglogfile", DEFAULT_DEBUGLOGFILE));
+    LogInstance().m_file_pathVM = AbsPathForConfigVal(gArgs.GetArg("-debugvmlogfile", DEFAULT_DEBUGVMLOGFILE));
     LogInstance().m_print_to_console = gArgs.GetBoolArg("-printtoconsole", !gArgs.GetBoolArg("-daemon", false));
     LogInstance().m_log_timestamps = gArgs.GetBoolArg("-logtimestamps", DEFAULT_LOGTIMESTAMPS);
     LogInstance().m_log_time_micros = gArgs.GetBoolArg("-logtimemicros", DEFAULT_LOGTIMEMICROS);

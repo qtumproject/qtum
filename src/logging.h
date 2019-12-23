@@ -21,6 +21,7 @@ static const bool DEFAULT_LOGIPS        = false;
 static const bool DEFAULT_LOGTIMESTAMPS = true;
 static const bool DEFAULT_LOGTHREADNAMES = false;
 extern const char * const DEFAULT_DEBUGLOGFILE;
+extern const char * const DEFAULT_DEBUGVMLOGFILE;
 
 extern bool fLogIPs;
 
@@ -64,6 +65,7 @@ namespace BCLog {
     private:
         mutable std::mutex m_cs;                   // Can not use Mutex from sync.h because in debug mode it would cause a deadlock when a potential deadlock was detected
         FILE* m_fileout = nullptr;                 // GUARDED_BY(m_cs)
+        FILE* m_fileoutVM = nullptr;               // GUARDED_BY(m_cs)
         std::list<std::string> m_msgs_before_open; // GUARDED_BY(m_cs)
         bool m_buffering{true};                    //!< Buffer messages before logging can be started. GUARDED_BY(m_cs)
 
@@ -88,10 +90,11 @@ namespace BCLog {
         bool m_log_threadnames = DEFAULT_LOGTHREADNAMES;
 
         fs::path m_file_path;
+        fs::path m_file_pathVM;
         std::atomic<bool> m_reopen_file{false};
 
         /** Send a string to the log output */
-        void LogPrintStr(const std::string& str);
+        void LogPrintStr(const std::string& str, bool useVMLog = false);
 
         /** Returns whether logs will be written to any output */
         bool Enabled() const
