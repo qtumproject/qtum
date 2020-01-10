@@ -1738,7 +1738,7 @@ bool AppInitMain(InitInterfaces& interfaces)
 #ifdef ENABLE_BITCORE_RPC
                 /////////////////////////////////////////////////////////////// // qtum
                 if (fAddressIndex != gArgs.GetBoolArg("-addrindex", DEFAULT_ADDRINDEX)) {
-                    strLoadError = _("You need to rebuild the database using -reindex-chainstate to change -addrindex");
+                    strLoadError = _("You need to rebuild the database using -reindex-chainstate to change -addrindex").translated;
                     break;
                 }
                 ///////////////////////////////////////////////////////////////

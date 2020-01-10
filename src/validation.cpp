@@ -1148,8 +1148,8 @@ bool MemPoolAccept::Finalize(ATMPArgs& args, Workspace& ws)
     // Add memory address index
     if (fAddressIndex)
     {
-        pool.addAddressIndex(entry, view);
-        pool.addSpentIndex(entry, view);
+        m_pool.addAddressIndex(*entry, m_view);
+        m_pool.addSpentIndex(*entry, m_view);
     }
     ////////////////////////////////////////////////////////////////
 #endif
