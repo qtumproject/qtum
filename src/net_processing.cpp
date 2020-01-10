@@ -1191,8 +1191,23 @@ static bool MaybePunishNode(NodeId nodeid, const CValidationState& state, bool v
             Misbehaving(nodeid, 10, message);
         }
         return true;
+    case ValidationInvalidReason::BLOCK_HEADER_SYNC:
+        {
+            LOCK(cs_main);
+            Misbehaving(nodeid, 1, message);
+        }
+        return true;
+    case ValidationInvalidReason::TX_INVALID_SENDER_SCRIPT:
+    case ValidationInvalidReason::TX_GAS_EXCEEDS_LIMIT:
+        if (!via_compact_block) {
+            LOCK(cs_main);
+            Misbehaving(nodeid, 1, message);
+            return true;
+        }
+        break;
     case ValidationInvalidReason::RECENT_CONSENSUS_CHANGE:
     case ValidationInvalidReason::BLOCK_TIME_FUTURE:
+    case ValidationInvalidReason::BLOCK_HEADER_REJECT:
     case ValidationInvalidReason::TX_NOT_STANDARD:
     case ValidationInvalidReason::TX_MISSING_INPUTS:
     case ValidationInvalidReason::TX_PREMATURE_SPEND:
