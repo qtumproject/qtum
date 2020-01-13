@@ -25,36 +25,6 @@ static void AssembleBlock(benchmark::State& state)
 
     const CScript SCRIPT_PUB{CScript(OP_0) << std::vector<unsigned char>{witness_program.begin(), witness_program.end()}};
 
-    const CChainParams& chainparams = Params();
-    {
-        LOCK(cs_main);
-        ::pstorageresult.reset();
-        ::globalState.reset();
-        ::globalSealEngine.reset();
-
-        ::fRequireStandard=false;
-        fs::path qtumStateDir = GetDataDir() / "stateQtum";
-        bool fStatus = fs::exists(qtumStateDir);
-        const std::string dirQtum(qtumStateDir.string());
-        const dev::h256 hashDB(dev::sha3(dev::rlp("")));
-        dev::eth::BaseState existsQtumstate = fStatus ? dev::eth::BaseState::PreExisting : dev::eth::BaseState::Empty;
-        ::globalState = std::unique_ptr<QtumState>(new QtumState(dev::u256(0), QtumState::openDB(dirQtum, hashDB, dev::WithExisting::Trust), dirQtum, existsQtumstate));
-        dev::eth::ChainParams cp((chainparams.EVMGenesisInfo(dev::eth::Network::qtumMainNetwork)));
-        ::globalSealEngine = std::unique_ptr<dev::eth::SealEngineFace>(cp.createSealEngine());
-
-        ::pstorageresult.reset(new StorageResults(qtumStateDir.string()));
-
-        if(::ChainActive().Tip() != nullptr){
-            ::globalState->setRoot(uintToh256(::ChainActive().Tip()->hashStateRoot));
-            ::globalState->setRootUTXO(uintToh256(::ChainActive().Tip()->hashUTXORoot));
-        } else {
-            ::globalState->setRoot(dev::sha3(dev::rlp("")));
-            ::globalState->setRootUTXO(uintToh256(chainparams.GenesisBlock().hashUTXORoot));
-            ::globalState->populateFrom(cp.genesisState);
-        }
-        ::globalState->db().commit();
-        ::globalState->dbUtxo().commit();
-    }
     // Collect some loose transactions that spend the coinbases of our mined blocks
     constexpr size_t NUM_BLOCKS{600};
     std::array<CTransactionRef, NUM_BLOCKS - COINBASE_MATURITY + 1> txs;
@@ -79,15 +49,6 @@ static void AssembleBlock(benchmark::State& state)
     while (state.KeepRunning()) {
         PrepareBlock(SCRIPT_PUB);
     }
-
-    if (g_chainstate && g_chainstate->CanFlushToDisk()) {
-        g_chainstate->ForceFlushStateToDisk();
-        g_chainstate->ResetCoinsViews();
-    }
-    pblocktree.reset();
-    pstorageresult.reset();
-    globalState.reset();
-    globalSealEngine.reset();
 }
 
 BENCHMARK(AssembleBlock, 700);

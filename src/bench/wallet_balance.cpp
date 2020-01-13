@@ -25,7 +25,7 @@ static void WalletBalance(benchmark::State& state, const bool set_dirty, const b
     const Optional<std::string> address_mine{add_mine ? Optional<std::string>{getnewaddress(wallet)} : nullopt};
     if (add_watchonly) importaddress(wallet, ADDRESS_WATCHONLY);
 
-    for (int i = 0; i < 100; ++i) {
+    for (int i = 0; i < 600; ++i) {
         generatetoaddress(address_mine.get_value_or(ADDRESS_WATCHONLY));
         generatetoaddress(ADDRESS_WATCHONLY);
     }

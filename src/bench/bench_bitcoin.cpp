@@ -53,7 +53,7 @@ int main(int argc, char** argv)
     bool is_list_only = gArgs.GetBoolArg("-list", false);
 
     // Overwrite arguments for bench
-    gArgs.ForceSetArg("-vbparams", "segwit:-1:999999999999");
+    gArgs.SoftSetBoolArg("-acceptnonstdtxn", true);
 
     double scaling_factor;
     if (!ParseDouble(scaling_str, &scaling_factor)) {
@@ -69,8 +69,6 @@ int main(int argc, char** argv)
             gArgs.GetArg("-plot-width", DEFAULT_PLOT_WIDTH),
             gArgs.GetArg("-plot-height", DEFAULT_PLOT_HEIGHT)));
     }
-
-    dev::eth::Ethash::init();
 
     benchmark::BenchRunner::RunAll(*printer, evaluations, scaling_factor, regex_filter, is_list_only);
 
