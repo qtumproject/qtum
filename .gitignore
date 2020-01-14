@@ -137,3 +137,17 @@ db4/
 osx_volname
 dist/
 *.background.tiff
+
+.cproject
+.project
+.settings/language.settings.xml
+src/qtum-cli
+src/qtum-tx
+src/qtumd
+src/qtum-wallet
+src/bench/bench_qtum
+src/qt/qtum-qt
+src/qt/test/test_qtum-qt
+src/test/buildenv.py
+src/test/test_qtum
+src/test/test_qtum_fuzzy
