@@ -561,11 +561,12 @@ static void NotifyContractBookChanged(WalletModel *walletmodel,
     QString strAbi = QString::fromStdString(abi);
 
     qDebug() << "NotifyContractBookChanged: " + strAddress + " " + strLabel + " status=" + QString::number(status);
-    QMetaObject::invokeMethod(walletmodel, "updateContractBook", Qt::QueuedConnection,
+    bool invoked = QMetaObject::invokeMethod(walletmodel, "updateContractBook", Qt::QueuedConnection,
                               Q_ARG(QString, strAddress),
                               Q_ARG(QString, strLabel),
                               Q_ARG(QString, strAbi),
                               Q_ARG(int, status));
+    assert(invoked);
 }
 
 void WalletModel::subscribeToCoreSignals()
