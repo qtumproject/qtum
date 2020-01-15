@@ -143,12 +143,12 @@ TestingSetup::~TestingSetup()
 ///////////////////////////////////////////////
 }
 
-TestChain100Setup::TestChain100Setup() : TestingSetup(CBaseChainParams::REGTEST)
+TestChain100Setup::TestChain100Setup() : TestingSetup(CBaseChainParams::UNITTEST)
 {
     // CreateAndProcessBlock() does not support building SegWit blocks, so don't activate in these tests.
     // TODO: fix the code to support SegWit blocks.
-    gArgs.ForceSetArg("-segwitheight", "432");
-    SelectParams(CBaseChainParams::REGTEST);
+    gArgs.ForceSetArg("-segwitheight", "2232");
+    SelectParams(CBaseChainParams::UNITTEST);
 
     // Generate a 100-block chain:
     coinbaseKey.MakeNewKey(true);
