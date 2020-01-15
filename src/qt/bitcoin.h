@@ -93,6 +93,9 @@ public:
     /// Restore wallet
     void restoreWallet();
 
+    /// Parse parameters
+    void parseParameters(int argc, const char* const argv[]);
+
 public Q_SLOTS:
     void initializeResult(bool success);
     void shutdownResult();
@@ -125,6 +128,7 @@ private:
     QString restorePath;
     QString restoreParam;
     QString restoreName;
+    QStringList parameters;
 };
 
 int GuiMain(int argc, char* argv[]);

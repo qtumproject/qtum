@@ -203,7 +203,7 @@ void BitcoinCore::shutdown()
 }
 
 static int qt_argc = 1;
-static const char* qt_argv = "bitcoin-qt";
+static const char* qt_argv = "qtum-qt";
 
 BitcoinApplication::BitcoinApplication(interfaces::Node& node):
     QApplication(qt_argc, const_cast<char **>(&qt_argv)),
@@ -432,6 +432,14 @@ WId BitcoinApplication::getMainWinId() const
     return window->winId();
 }
 
+void BitcoinApplication::parseParameters(int argc, const char* const argv[])
+{
+    for(int i = 0; i < argc; i++)
+    {
+        parameters.append(argv[i]);
+    }
+}
+
 void BitcoinApplication::restoreWallet()
 {
 #ifdef ENABLE_WALLET
@@ -441,7 +449,7 @@ void BitcoinApplication::restoreWallet()
         // Create command line
         QString walletParam = "-wallet=" + restoreName;
         QString commandLine;
-        QStringList arg = arguments();
+        QStringList arg = parameters;
         removeParam(arg, "-reindex", false);
         removeParam(arg, "-zapwallettxes=2", false);
         removeParam(arg, "-deleteblockchaindata", false);
@@ -523,6 +531,7 @@ int GuiMain(int argc, char* argv[])
 #endif
 
     BitcoinApplication app(*node);
+    app.parseParameters(argc, argv);
 
     // Register meta types used for QMetaObject::invokeMethod and Qt::QueuedConnection
     qRegisterMetaType<bool*>();

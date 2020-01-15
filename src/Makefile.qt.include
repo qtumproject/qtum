@@ -14,6 +14,7 @@ QT_FORMS_UI = \
   qt/forms/askpassphrasedialog.ui \
   qt/forms/callcontract.ui \
   qt/forms/coincontroldialog.ui \
+  qt/forms/createwalletdialog.ui \
   qt/forms/contractbookpage.ui \
   qt/forms/contractresult.ui \
   qt/forms/createcontract.ui \
