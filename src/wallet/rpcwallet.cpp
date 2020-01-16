@@ -1617,9 +1617,6 @@ static UniValue sendmanywithdupes(const JSONRPCRequest& request)
     auto locked_chain = pwallet->chain().lock();
     LOCK(pwallet->cs_wallet);
 
-    if (pwallet->GetBroadcastTransactions())
-        throw JSONRPCError(RPC_CLIENT_P2P_DISABLED, "Error: Peer-to-peer functionality missing or disabled");
-
     std::string strAccount = LabelFromValue(request.params[0]);
     UniValue sendTo = request.params[1].get_obj();
     int nMinDepth = 1;
@@ -2500,6 +2497,9 @@ static UniValue gettransaction(const JSONRPCRequest& request_)
         }
 
     } else {
+        if(!request.req)
+            throw JSONRPCError(RPC_INTERNAL_ERROR, "No HTTP connection. Waitconf is available from qtum-cli, not qtum-qt");
+
         request.PollStart();
         while (true) {
             {

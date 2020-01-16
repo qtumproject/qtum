@@ -115,11 +115,9 @@ void ReceiveCoinsDialog::setModel(WalletModel *_model)
                 ui->useBech32->setCheckState(Qt::Unchecked);
             }
         } else {
-            // Always fall back to bech32 in the gui
-            ui->useBech32->setCheckState(Qt::Checked);
+            // Always fall back to default in the gui
+            ui->useBech32->setVisible(model->wallet().getDefaultAddressType() != OutputType::LEGACY);
         }
-
-        ui->useBech32->setVisible(model->wallet().getDefaultAddressType() != OutputType::LEGACY);
 
         // Set the button to be enabled or disabled based on whether the wallet can give out new addresses.
         ui->receiveButton->setEnabled(model->canGetAddresses());
