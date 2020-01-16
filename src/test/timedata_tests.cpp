@@ -56,11 +56,11 @@ BOOST_AUTO_TEST_CASE(addtimedata)
     BOOST_CHECK_EQUAL(GetTimeOffset(), 0);
 
     //Part 1: Add large offsets to test a warning message that our clock may be wrong.
-    MultiAddTimeData(3, DEFAULT_MAX_TIME_ADJUSTMENT + 1);
+    MultiAddTimeData(3, DEFAULT_MAX_TIME_ADJUSTMENT + 17);
     // Filter size is 1 + 3 = 4: It is always initialized with a single element (offset 0)
 
     noui_suppress();
-    MultiAddTimeData(1, DEFAULT_MAX_TIME_ADJUSTMENT + 1); //filter size 5
+    MultiAddTimeData(1, DEFAULT_MAX_TIME_ADJUSTMENT + 17); //filter size 5
     noui_reconnect();
 
     BOOST_CHECK(GetWarnings("gui").find("clock is wrong") != std::string::npos);
