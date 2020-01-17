@@ -177,8 +177,9 @@ public:
                                     consensus.nMPoSRewardRecipients + 
                                     COINBASE_MATURITY;
 
-        consensus.nFixUTXOCacheHFHeight=100000;
+        consensus.nFixUTXOCacheHFHeight = 100000;
         consensus.nEnableHeaderSignatureHeight = 399100;
+        consensus.nCheckpointSpan = COINBASE_MATURITY;
     }
 };
 
@@ -281,8 +282,9 @@ public:
                                     consensus.nMPoSRewardRecipients + 
                                     COINBASE_MATURITY;
 
-        consensus.nFixUTXOCacheHFHeight=84500;
+        consensus.nFixUTXOCacheHFHeight = 84500;
         consensus.nEnableHeaderSignatureHeight = 391993;
+        consensus.nCheckpointSpan = COINBASE_MATURITY;
     }
 };
 
@@ -367,6 +369,7 @@ public:
 
         consensus.nFixUTXOCacheHFHeight=0;
         consensus.nEnableHeaderSignatureHeight = 0;
+        consensus.nCheckpointSpan = COINBASE_MATURITY;
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,120);//QTUM_LINE
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,110);//QTUM_LINE
@@ -453,6 +456,7 @@ public:
         consensus.nSubsidyHalvingInterval = 750;
         consensus.nRuleChangeActivationThreshold = 558; // 75% for testchains
         consensus.nMinerConfirmationWindow = 744; // Faster than normal for regtest (744 instead of 2016)
+        consensus.nCheckpointSpan = 1000; // Increase the check point span for the reorganization tests from 500 to 1000
     }
 };
 

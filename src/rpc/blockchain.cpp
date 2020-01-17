@@ -1479,7 +1479,7 @@ UniValue waitforlogs(const JSONRPCRequest& request_) {
                 "requires -logevents to be enabled\n"
                 "\nWaits for a new logs and return matching log entries. When the call returns, it also specifies the next block number to start waiting for new logs.\n"
                 "By calling waitforlogs repeatedly using the returned `nextBlock` number, a client can receive a stream of up-to-date log entires.\n"
-                "\nThis call is different from the similarly named `waitforlogs`. This call returns individual matching log entries, `searchlogs` returns a transaction receipt if one of the log entries of that transaction matches the filter conditions.\n",
+                "\nThis call is different from the similarly named `searchlogs`. This call returns individual matching log entries, `searchlogs` returns a transaction receipt if one of the log entries of that transaction matches the filter conditions.\n",
                 {
                     {"fromBlock", RPCArg::Type::NUM, /* default */ "null", "The block number to start looking for logs."},
                     {"toBlock", RPCArg::Type::NUM, /* default */ "null", "The block number to stop looking for logs. If null, will wait indefinitely into the future."},

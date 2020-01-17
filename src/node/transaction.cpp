@@ -40,7 +40,7 @@ TransactionError BroadcastTransaction(const CTransactionRef tx, std::string& err
         CValidationState state;
         bool fMissingInputs;
         if (!AcceptToMemoryPool(mempool, state, std::move(tx), &fMissingInputs,
-                nullptr /* plTxnReplaced */, false /* bypass_limits */, max_tx_fee, rawTx)) {
+                nullptr /* plTxnReplaced */, false /* bypass_limits */, max_tx_fee, false, rawTx)) {
             if (state.IsInvalid()) {
                 err_string = FormatStateMessage(state);
                 return TransactionError::MEMPOOL_REJECTED;
