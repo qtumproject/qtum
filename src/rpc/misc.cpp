@@ -26,6 +26,11 @@
 #include <malloc.h>
 #endif
 
+#ifdef ENABLE_WALLET
+#include <wallet/wallet.h>
+#include <wallet/rpcwallet.h>
+#endif
+
 #include <univalue.h>
 
 static UniValue validateaddress(const JSONRPCRequest& request)
@@ -756,6 +761,11 @@ static UniValue createmultisig(const JSONRPCRequest& request)
                 },
             }.Check(request);
 
+#ifdef ENABLE_WALLET
+    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
+    CWallet* const pwallet = wallet.get();
+#endif
+
     int required = request.params[0].get_int();
 
     // Get the public keys
@@ -764,6 +774,10 @@ static UniValue createmultisig(const JSONRPCRequest& request)
     for (unsigned int i = 0; i < keys.size(); ++i) {
         if (IsHex(keys[i].get_str()) && (keys[i].get_str().length() == 66 || keys[i].get_str().length() == 130)) {
             pubkeys.push_back(HexToPubKey(keys[i].get_str()));
+#ifdef ENABLE_WALLET
+        } else if (IsValidDestination(DecodeDestination(keys[i].get_str()))){
+            pubkeys.push_back(AddrToPubKey(pwallet, keys[i].get_str()));
+#endif
         } else {
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, strprintf("Invalid public key: %s\n.", keys[i].get_str()));
         }
