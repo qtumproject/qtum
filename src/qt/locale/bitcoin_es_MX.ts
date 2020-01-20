@@ -371,8 +371,8 @@ Haga clic para habilitar la actividad de red nuevamente.</translation>
         <translation>Firme mensajes con sus direcciones de Qtum para demostrar que los posee</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Bitcoin addresses</source>
-        <translation>Verifique los mensajes para asegurarse de que se firmaron con direcciones de Bitcoin especificadas.</translation>
+        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
+        <translation>Verifique los mensajes para asegurarse de que se firmaron con direcciones de Qtum especificadas.</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -391,9 +391,9 @@ Haga clic para habilitar la actividad de red nuevamente.</translation>
         <translation>Pestañas</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
+        <source>Request payments (generates QR codes and qtum: URIs)</source>
         <translation> 
-Solicitar pagos (genera códigos QR y bitcoin: URI)
+Solicitar pagos (genera códigos QR y qtum: URI)
  </translation>
     </message>
     <message>
