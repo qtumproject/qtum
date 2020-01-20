@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2014-2018 The Bitcoin Core developers
+# Copyright (c) 2014-2019 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test logic for skipping signature validation on old blocks.
@@ -40,7 +40,7 @@ from test_framework.messages import (
     CTxIn,
     CTxOut,
     msg_block,
-    msg_headers
+    msg_headers,
 )
 from test_framework.mininode import P2PInterface
 from test_framework.script import (CScript, OP_TRUE)
@@ -73,7 +73,7 @@ class AssumeValidTest(BitcoinTestFramework):
                 break
             try:
                 p2p_conn.send_message(msg_block(self.blocks[i]))
-            except IOError as e:
+            except IOError:
                 assert not p2p_conn.is_connected
                 break
 
@@ -192,11 +192,9 @@ class AssumeValidTest(BitcoinTestFramework):
         for i in range(1000):
             p2p1.send_message(msg_block(self.blocks[i]))
         # Syncing 2200 blocks can take a while on slow systems. Give it plenty of time to sync.
-        timeout = time.time() + 200
-        while time.time() < timeout:
-            if self.nodes[1].getblock(self.nodes[1].getbestblockhash())['height'] == 1000:
-                break
-        assert_equal(self.nodes[1].getblock(self.nodes[1].getbestblockhash())['height'], 1000)
+        p2p1.sync_with_ping(960)
+        assert_equal(self.nodes[1].getblock(self.nodes[1].getbestblockhash())['height'], 2202)
+
         # Send blocks to node2. Block 102 will be rejected.
         self.send_blocks_until_disconnected(p2p2)
         self.assert_blockchain_height(self.nodes[2], COINBASE_MATURITY+1)

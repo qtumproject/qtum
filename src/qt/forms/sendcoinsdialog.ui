@@ -600,7 +600,7 @@
            <string>Add &amp;Recipient</string>
           </property>
           <property name="icon">
-           <iconset resource="../bitcoin.qrc">
+           <iconset>
             <normaloff>:/icons/add_recipient</normaloff>:/icons/add_recipient</iconset>
           </property>
           <property name="autoDefault">
@@ -621,7 +621,7 @@
            <x>0</x>
            <y>0</y>
            <width>830</width>
-           <height>136</height>
+           <height>106</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,1">

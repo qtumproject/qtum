@@ -84,6 +84,22 @@ public:
     friend bool operator<(const CNoDestination &a, const CNoDestination &b) { return true; }
 };
 
+struct PKHash : public uint160
+{
+    PKHash() : uint160() {}
+    explicit PKHash(const uint160& hash) : uint160(hash) {}
+    explicit PKHash(const CPubKey& pubkey);
+    using uint160::uint160;
+};
+
+struct ScriptHash : public uint160
+{
+    ScriptHash() : uint160() {}
+    explicit ScriptHash(const uint160& hash) : uint160(hash) {}
+    explicit ScriptHash(const CScript& script);
+    using uint160::uint160;
+};
+
 struct WitnessV0ScriptHash : public uint256
 {
     WitnessV0ScriptHash() : uint256() {}
@@ -124,14 +140,14 @@ struct WitnessUnknown
 /**
  * A txout script template with a specific destination. It is either:
  *  * CNoDestination: no destination set
- *  * CKeyID: TX_PUBKEYHASH destination (P2PKH)
- *  * CScriptID: TX_SCRIPTHASH destination (P2SH)
+ *  * PKHash: TX_PUBKEYHASH destination (P2PKH)
+ *  * ScriptHash: TX_SCRIPTHASH destination (P2SH)
  *  * WitnessV0ScriptHash: TX_WITNESS_V0_SCRIPTHASH destination (P2WSH)
  *  * WitnessV0KeyHash: TX_WITNESS_V0_KEYHASH destination (P2WPKH)
  *  * WitnessUnknown: TX_WITNESS_UNKNOWN destination (P2W???)
  *  A CTxDestination is the internal data type encoded in a bitcoin address
  */
-typedef boost::variant<CNoDestination, CKeyID, CScriptID, WitnessV0ScriptHash, WitnessV0KeyHash, WitnessUnknown> CTxDestination;
+typedef boost::variant<CNoDestination, PKHash, ScriptHash, WitnessV0ScriptHash, WitnessV0KeyHash, WitnessUnknown> CTxDestination;
 
 enum addresstype
 {
@@ -179,8 +195,7 @@ bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet,
  * multisig scripts, this populates the addressRet vector with the pubkey IDs
  * and nRequiredRet with the n required to spend. For other destinations,
  * addressRet is populated with a single value and nRequiredRet is set to 1.
- * Returns true if successful. Currently does not extract address from
- * pay-to-witness scripts.
+ * Returns true if successful.
  *
  * Note: this function confuses destinations (a subset of CScripts that are
  * encodable as an address) with key identifiers (of keys involved in a
@@ -215,8 +230,8 @@ CScript GetScriptForWitness(const CScript& redeemscript);
 struct DataVisitor : public boost::static_visitor<valtype>
 {
     valtype operator()(const CNoDestination& noDest) const;
-    valtype operator()(const CKeyID& keyID) const;
-    valtype operator()(const CScriptID& scriptID) const;
+    valtype operator()(const PKHash& keyID) const;
+    valtype operator()(const ScriptHash& scriptID) const;
     valtype operator()(const WitnessV0ScriptHash& witnessScriptHash) const;
     valtype operator()(const WitnessV0KeyHash& witnessKeyHash) const;
     valtype operator()(const WitnessUnknown& witnessUnknown) const;

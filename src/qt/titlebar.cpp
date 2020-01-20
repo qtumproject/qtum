@@ -22,7 +22,7 @@ TitleBar::TitleBar(const PlatformStyle *platformStyle, QWidget *parent) :
     ui->tabWidget->setDrawBase(false);
     ui->tabWidget->setTabsClosable(true);
     setFixedHeight(titleHeight);
-    m_iconCloseTab = platformStyle->TextColorIcon(":/icons/quit");
+    m_iconCloseTab = platformStyle->TextColorIcon(QIcon(":/icons/quit"));
 }
 
 TitleBar::~TitleBar()

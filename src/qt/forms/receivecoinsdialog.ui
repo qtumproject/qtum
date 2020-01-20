@@ -87,7 +87,7 @@
      <item>
       <widget class="QPushButton" name="receiveButton">
        <property name="text">
-        <string>&amp;Request payment</string>
+        <string>&amp;Create new receiving address</string>
        </property>
        <property name="icon">
         <iconset resource="../bitcoin.qrc">
@@ -492,7 +492,7 @@
   <customwidget>
    <class>QRImageWidget</class>
    <extends>QLabel</extends>
-   <header>qt/receiverequestdialog.h</header>
+   <header>qt/qrimagewidget.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

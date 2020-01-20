@@ -1,9 +1,26 @@
-Bitcoin Core version 0.18.x is now available from:
+*After branching off for a major version release of Bitcoin Core, use this
+template to create the initial release notes draft.*
 
-  <https://bitcoincore.org/bin/bitcoin-core-0.18.x/>
+*The release notes draft is a temporary file that can be added to by anyone. See
+[/doc/developer-notes.md#release-notes](/doc/developer-notes.md#release-notes)
+for the process.*
 
-This is a new major version release, including new features, various bug
-fixes and performance improvements, as well as updated translations.
+*Create the draft, named* "*version* Release Notes Draft"
+*(e.g. "0.20.0 Release Notes Draft"), as a collaborative wiki in:*
+
+https://github.com/bitcoin-core/bitcoin-devwiki/wiki/
+
+*Before the final release, move the notes back to this git repository.*
+
+*version* Release Notes Draft
+===============================
+
+Bitcoin Core version *version* is now available from:
+
+  <https://bitcoincore.org/bin/bitcoin-core-*version*/>
+
+This release includes new features, various bug fixes and performance
+improvements, as well as updated translations.
 
 Please report bugs using the issue tracker at GitHub:
 
@@ -16,69 +33,35 @@ To receive security and update notifications, please subscribe to:
 How to Upgrade
 ==============
 
-If you are running an older version, shut it down. Wait until it has
-completely shut down (which might take a few minutes for older
-versions), then run the installer (on Windows) or just copy over
-`/Applications/Bitcoin-Qt` (on Mac) or `bitcoind`/`bitcoin-qt` (on
-Linux).
+If you are running an older version, shut it down. Wait until it has completely
+shut down (which might take a few minutes for older versions), then run the
+installer (on Windows) or just copy over `/Applications/Bitcoin-Qt` (on Mac)
+or `bitcoind`/`bitcoin-qt` (on Linux).
 
-The first time you run version 0.15.0 or newer, your chainstate database
-will be converted to a new format, which will take anywhere from a few
-minutes to half an hour, depending on the speed of your machine.
-
-Note that the block database format also changed in version 0.8.0 and
-there is no automatic upgrade code from before version 0.8 to version
-0.15.0 or later. Upgrading directly from 0.7.x and earlier without
-redownloading the blockchain is not supported.  However, as usual, old
-wallet versions are still supported.
+Upgrading directly from a version of Bitcoin Core that has reached its EOL is
+possible, but it might take some time if the datadir needs to be migrated. Old
+wallet versions of Bitcoin Core are generally supported.
 
 Compatibility
 ==============
 
-Bitcoin Core is supported and extensively tested on operating systems
-using the Linux kernel, macOS 10.10+, and Windows 7 and newer. It is not
-recommended to use Bitcoin Core on unsupported systems.
+Bitcoin Core is supported and extensively tested on operating systems using
+the Linux kernel, macOS 10.10+, and Windows 7 and newer. It is not recommended
+to use Bitcoin Core on unsupported systems.
 
 Bitcoin Core should also work on most other Unix-like systems but is not
 as frequently tested on them.
 
-From 0.17.0 onwards, macOS <10.10 is no longer supported. 0.17.0 is
-built using Qt 5.9.x, which doesn't support versions of macOS older than
-10.10. Additionally, Bitcoin Core does not yet change appearance when
+From Bitcoin Core 0.17.0 onwards, macOS versions earlier than 10.10 are no
+longer supported, as Bitcoin Core is now built using Qt 5.9.x which requires
+macOS 10.10+. Additionally, Bitcoin Core does not yet change appearance when
 macOS "dark mode" is activated.
 
-In addition to previously-supported CPU platforms, this release's
-pre-compiled distribution also provides binaries for the RISC-V
-platform.
-
-If you are using the `systemd` unit configuration file located at
-`contrib/init/bitcoind.service`, it has been changed to use
-`/var/lib/bitcoind` as the data directory instead of
-`~bitcoin/.bitcoin`. When switching over to the new configuration file,
-please make sure that the filesystem on which `/var/lib/bitcoind` will
-exist has enough space (check using `df -h /var/lib/bitcoind`), and
-optionally copy over your existing data directory. See the [systemd init
-file section](#systemd-init-file) for more details.
-
-Known issues
-============
-
-Wallet GUI
-----------
-
-For advanced users who have both (1) enabled coin control features, and
-(2) are using multiple wallets loaded at the same time: The coin control
-input selection dialog can erroneously retain wrong-wallet state when
-switching wallets using the dropdown menu. For now, it is recommended
-not to use coin control features with multiple wallets loaded.
+In addition to previously supported CPU platforms, this release's pre-compiled
+distribution provides binaries for the RISC-V platform.
 
 Notable changes
 ===============
-
-
-0.18.x change log
-=================
-
 
 Credits
 =======
@@ -87,4 +70,5 @@ Thanks to everyone who directly contributed to this release:
 
 (todo)
 
-As well as everyone that helped translating on [Transifex](https://www.transifex.com/projects/p/bitcoin/).
+As well as to everyone that helped with translations on
+[Transifex](https://www.transifex.com/bitcoin/bitcoin/).

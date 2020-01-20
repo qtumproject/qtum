@@ -33,10 +33,10 @@ TEST_QT_H = \
   qt/test/wallettests.h
 
 TEST_BITCOIN_CPP = \
-  test/test_bitcoin.cpp
+  test/setup_common.cpp
 
 TEST_BITCOIN_H = \
-  test/test_bitcoin.h
+  test/setup_common.h
 
 qt_test_test_qtum_qt_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(BITCOIN_QT_INCLUDES) \
   $(QT_INCLUDES) $(QT_TEST_INCLUDES) $(PROTOBUF_CFLAGS)
@@ -66,7 +66,7 @@ nodist_qt_test_test_qtum_qt_SOURCES = $(TEST_QT_MOC_CPP)
 
 qt_test_test_qtum_qt_LDADD = $(LIBBITCOINQT) $(LIBBITCOIN_SERVER)
 if ENABLE_WALLET
-qt_test_test_qtum_qt_LDADD += $(LIBBITCOIN_UTIL) $(LIBBITCOIN_WALLET)
+qt_test_test_qtum_qt_LDADD += $(LIBBITCOIN_UTIL) $(LIBBITCOIN_WALLET) $(LIBBITCOIN_SERVER)
 endif
 if ENABLE_ZMQ
 qt_test_test_qtum_qt_LDADD += $(LIBBITCOIN_ZMQ) $(ZMQ_LIBS)

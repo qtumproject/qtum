@@ -56,6 +56,7 @@ public:
                       const QModelIndex &index ) const
     {
         painter->save();
+
         QDateTime date = index.data(TransactionTableModel::DateRole).toDateTime();
         QIcon icon = qvariant_cast<QIcon>(index.data(TransactionTableModel::RawDecorationRole));
         QString address = index.data(Qt::DisplayRole).toString();
@@ -324,7 +325,6 @@ void OverviewPage::setBalance(const interfaces::WalletBalances& balances)
     ui->labelStakeText->setVisible(showStake || showWatchOnlyStake);
     ui->labelWatchStake->setVisible(!walletModel->privateKeysDisabled() && showWatchOnlyStake); // show watch-only stake balance
 }
-
 void OverviewPage::checkForInvalidTokens()
 {
     if(walletModel)
@@ -363,9 +363,8 @@ void OverviewPage::updateWatchOnlyLabels(bool showWatchOnly)
 void OverviewPage::setClientModel(ClientModel *model)
 {
     this->clientModel = model;
-    if(model)
-    {
-        // Show warning if this is a prerelease version
+    if (model) {
+        // Show warning, for example if this is a prerelease version
         connect(model, &ClientModel::alertsChanged, this, &OverviewPage::updateAlerts);
         updateAlerts(model->getStatusBarWarnings());
     }

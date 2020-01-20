@@ -8,10 +8,9 @@
 #include <crypto/sha256.h>
 #include <pubkey.h>
 #include <script/script.h>
-#include <util/system.h>
-#include <util/strencodings.h>
 
 #include <qtum/qtumstate.h>
+#include <qtum/qtumDGP.h>
 #include <qtum/qtumtransaction.h>
 #include <validation.h>
 #include <streams.h>
@@ -22,6 +21,10 @@ bool fAcceptDatacarrier = DEFAULT_ACCEPT_DATACARRIER;
 unsigned nMaxDatacarrierBytes = MAX_OP_RETURN_RELAY;
 
 CScriptID::CScriptID(const CScript& in) : uint160(Hash160(in.begin(), in.end())) {}
+
+ScriptHash::ScriptHash(const CScript& in) : uint160(Hash160(in.begin(), in.end())) {}
+
+PKHash::PKHash(const CPubKey& pubkey) : uint160(pubkey.GetID()) {}
 
 WitnessV0ScriptHash::WitnessV0ScriptHash(const CScript& in)
 {
@@ -80,6 +83,7 @@ txnouttype Solver(const CScript& scriptPubKey, std::vector<std::vector<unsigned 
         // Call contract tx
         mTemplates.insert(std::make_pair(TX_CALL, CScript() << OP_VERSION << OP_GAS_LIMIT << OP_GAS_PRICE << OP_DATA << OP_PUBKEYHASH << OP_CALL));
     }
+
     vSolutionsRet.clear();
 
     // Shortcut for pay-to-script-hash, which are more constrained than the other types:
@@ -283,9 +287,9 @@ txnouttype Solver(const CScript& scriptPubKey, std::vector<std::vector<unsigned 
             {
                 // Get the destination
                 CTxDestination dest;
-                if(addressType == addresstype::PUBKEYHASH && vch1.size() == sizeof(CKeyID))
+                if(addressType == addresstype::PUBKEYHASH && vch1.size() == sizeof(PKHash))
                 {
-                    dest = CKeyID(uint160(vch1));
+                    dest = PKHash(uint160(vch1));
                 }
                 else
                     break;
@@ -337,32 +341,29 @@ bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet,
         if (!pubKey.IsValid())
             return false;
 
-        addressRet = pubKey.GetID();
+        addressRet = PKHash(pubKey);
         return true;
     }
     else if (whichType == TX_PUBKEYHASH)
     {
-        addressRet = CKeyID(uint160(vSolutions[0]));
+        addressRet = PKHash(uint160(vSolutions[0]));
         return true;
     }
     else if (whichType == TX_SCRIPTHASH)
     {
-        addressRet = CScriptID(uint160(vSolutions[0]));
+        addressRet = ScriptHash(uint160(vSolutions[0]));
         return true;
-    }
-    else if (whichType == TX_WITNESS_V0_KEYHASH) {
+    } else if (whichType == TX_WITNESS_V0_KEYHASH) {
         WitnessV0KeyHash hash;
         std::copy(vSolutions[0].begin(), vSolutions[0].end(), hash.begin());
         addressRet = hash;
         return true;
-    }
-    else if (whichType == TX_WITNESS_V0_SCRIPTHASH) {
+    } else if (whichType == TX_WITNESS_V0_SCRIPTHASH) {
         WitnessV0ScriptHash hash;
         std::copy(vSolutions[0].begin(), vSolutions[0].end(), hash.begin());
         addressRet = hash;
         return true;
-    }
-    else if (whichType == TX_WITNESS_UNKNOWN) {
+    } else if (whichType == TX_WITNESS_UNKNOWN) {
         WitnessUnknown unk;
         unk.version = vSolutions[0][0];
         std::copy(vSolutions[1].begin(), vSolutions[1].end(), unk.program);
@@ -395,7 +396,7 @@ bool ExtractDestinations(const CScript& scriptPubKey, txnouttype& typeRet, std::
             if (!pubKey.IsValid())
                 continue;
 
-            CTxDestination address = pubKey.GetID();
+            CTxDestination address = PKHash(pubKey);
             addressRet.push_back(address);
         }
 
@@ -428,13 +429,13 @@ public:
         return false;
     }
 
-    bool operator()(const CKeyID &keyID) const {
+    bool operator()(const PKHash &keyID) const {
         script->clear();
         *script << OP_DUP << OP_HASH160 << ToByteVector(keyID) << OP_EQUALVERIFY << OP_CHECKSIG;
         return true;
     }
 
-    bool operator()(const CScriptID &scriptID) const {
+    bool operator()(const ScriptHash &scriptID) const {
         script->clear();
         *script << OP_HASH160 << ToByteVector(scriptID) << OP_EQUAL;
         return true;
@@ -505,7 +506,7 @@ bool IsValidDestination(const CTxDestination& dest) {
 
 bool IsValidContractSenderAddress(const CTxDestination &dest)
 {
-    const CKeyID *keyID = boost::get<CKeyID>(&dest);
+    const PKHash *keyID = boost::get<PKHash>(&dest);
     return keyID != 0;
 }
 
@@ -551,8 +552,8 @@ bool ExtractSenderData(const CScript &outputPubKey, CScript *senderPubKey, CScri
 
 #ifdef ENABLE_BITCORE_RPC
 valtype DataVisitor::operator()(const CNoDestination& noDest) const { return valtype(); }
-valtype DataVisitor::operator()(const CKeyID& keyID) const { return valtype(keyID.begin(), keyID.end()); }
-valtype DataVisitor::operator()(const CScriptID& scriptID) const { return valtype(scriptID.begin(), scriptID.end()); }
+valtype DataVisitor::operator()(const PKHash& keyID) const { return valtype(keyID.begin(), keyID.end()); }
+valtype DataVisitor::operator()(const ScriptHash& scriptID) const { return valtype(scriptID.begin(), scriptID.end()); }
 valtype DataVisitor::operator()(const WitnessV0ScriptHash& witnessScriptHash) const { return valtype(witnessScriptHash.begin(), witnessScriptHash.end()); }
 valtype DataVisitor::operator()(const WitnessV0KeyHash& witnessKeyHash) const { return valtype(witnessKeyHash.begin(), witnessKeyHash.end()); }
 valtype DataVisitor::operator()(const WitnessUnknown&) const { return valtype(); }
@@ -573,21 +574,21 @@ bool ExtractDestination(const COutPoint& prevout, const CScript& scriptPubKey, C
         if (!pubKey.IsValid())
             return false;
 
-        addressRet = pubKey.GetID();
+        addressRet = PKHash(pubKey);
         return true;
     }
     else if (whichType == TX_PUBKEYHASH)
     {
-        addressRet = CKeyID(uint160(vSolutions[0]));
+        addressRet = PKHash(uint160(vSolutions[0]));
         return true;
     }
     else if (whichType == TX_SCRIPTHASH)
     {
-        addressRet = CScriptID(uint160(vSolutions[0]));
+        addressRet = ScriptHash(uint160(vSolutions[0]));
         return true;
     }
     else if(whichType == TX_CALL){
-        addressRet = CKeyID(uint160(vSolutions[0]));
+        addressRet = PKHash(uint160(vSolutions[0]));
         return true;
     }
     else if(whichType == TX_WITNESS_V0_KEYHASH)
@@ -609,7 +610,7 @@ bool ExtractDestination(const COutPoint& prevout, const CScript& scriptPubKey, C
         return true;
     }
     else if (whichType == TX_CREATE) {
-        addressRet = CKeyID(uint160(QtumState::createQtumAddress(uintToh256(prevout.hash), prevout.n).asBytes()));
+        addressRet = PKHash(uint160(QtumState::createQtumAddress(uintToh256(prevout.hash), prevout.n).asBytes()));
         return true;
     }
     return false;

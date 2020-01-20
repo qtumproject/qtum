@@ -1,6 +1,5 @@
 Gitian building
 ================
-
 *Setup instructions for a Gitian build of Qtum Core using a Debian VM or physical system.*
 
 Gitian is the deterministic build process that is used to build the Qtum

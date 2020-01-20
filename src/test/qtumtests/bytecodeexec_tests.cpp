@@ -1,5 +1,5 @@
 #include <boost/test/unit_test.hpp>
-#include <test/test_bitcoin.h>
+#include <test/setup_common.h>
 #include <qtumtests/test_utils.h>
 
 dev::u256 GASLIMIT = dev::u256(500000);
