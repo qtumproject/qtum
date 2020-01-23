@@ -308,11 +308,18 @@ void BitcoinGUI::createActions()
     receiveCoinsMenuAction->setStatusTip(receiveCoinsAction->statusTip());
     receiveCoinsMenuAction->setToolTip(receiveCoinsMenuAction->statusTip());
 
+    historyAction = new QAction(platformStyle->MultiStatesIcon(":/icons/history"), tr("&Transactions"), this);
+    historyAction->setStatusTip(tr("Browse transaction history"));
+    historyAction->setToolTip(historyAction->statusTip());
+    historyAction->setCheckable(true);
+    historyAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_2));
+    tabGroup->addAction(historyAction);
+
     smartContractAction = new QAction(platformStyle->MultiStatesIcon(":/icons/smart_contract"), tr("Smart &Contracts"), this);
     smartContractAction->setStatusTip(tr("Smart contracts"));
     smartContractAction->setToolTip(smartContractAction->statusTip());
     smartContractAction->setCheckable(true);
-    smartContractAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_2));
+    smartContractAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_3));
     tabGroup->addAction(smartContractAction);
 
     createContractAction = new QAction(tr("Create"), this);
@@ -323,15 +330,8 @@ void BitcoinGUI::createActions()
     stakeAction->setStatusTip(tr("Show stake of wallet"));
     stakeAction->setToolTip(stakeAction->statusTip());
     stakeAction->setCheckable(true);
-    stakeAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_3));
+    stakeAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_4));
     tabGroup->addAction(stakeAction);
-
-    historyAction = new QAction(platformStyle->MultiStatesIcon(":/icons/history"), tr("&Transactions"), this);
-    historyAction->setStatusTip(tr("Browse transaction history"));
-    historyAction->setToolTip(historyAction->statusTip());
-    historyAction->setCheckable(true);
-    historyAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_4));
-    tabGroup->addAction(historyAction);
 
     QRCTokenAction = new QAction(platformStyle->MultiStatesIcon(":/icons/qrctoken"), tr("&QRC Tokens"), this);
     QRCTokenAction->setStatusTip(tr("QRC Tokens (send, receive or add Tokens in list)"));
