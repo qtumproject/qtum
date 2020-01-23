@@ -32,6 +32,7 @@ QT_FORMS_UI = \
   qt/forms/receivetokenpage.ui \
   qt/forms/restoredialog.ui \
   qt/forms/debugwindow.ui \
+  qt/forms/stakepage.ui \
   qt/forms/sendcoinsdialog.ui \
   qt/forms/sendcoinsentry.ui \
   qt/forms/sendtocontract.ui \
@@ -39,6 +40,7 @@ QT_FORMS_UI = \
   qt/forms/signverifymessagedialog.ui \
   qt/forms/titlebar.ui \
   qt/forms/tokendescdialog.ui \
+  qt/forms/tokenitemwidget.ui \
   qt/forms/transactiondescdialog.ui
 
 QT_MOC_CPP = \
@@ -84,6 +86,7 @@ QT_MOC_CPP = \
   qt/moc_paymentserver.cpp \
   qt/moc_qrimagewidget.cpp \
   qt/moc_qrctoken.cpp \
+  qt/moc_qswitchcontrol.cpp \
   qt/moc_qvalidatedlineedit.cpp \
   qt/moc_qvalidatedtextedit.cpp \
   qt/moc_qvaluecombobox.cpp \
@@ -93,6 +96,7 @@ QT_MOC_CPP = \
   qt/moc_recentrequeststablemodel.cpp \
   qt/moc_restoredialog.cpp \
   qt/moc_rpcconsole.cpp \
+  qt/moc_stakepage.cpp \
   qt/moc_sendcoinsdialog.cpp \
   qt/moc_sendcoinsentry.cpp \
   qt/moc_sendtocontract.cpp \
@@ -108,6 +112,8 @@ QT_MOC_CPP = \
   qt/moc_tokentransactionview.cpp \
   qt/moc_tokentransactiontablemodel.cpp \
   qt/moc_tokentransactiondesc.cpp \
+  qt/moc_tokenitemwidget.cpp \
+  qt/moc_tokenlistwidget.cpp \
   qt/moc_trafficgraphwidget.cpp \
   qt/moc_transactiondesc.cpp \
   qt/moc_transactiondescdialog.cpp \
@@ -201,6 +207,7 @@ BITCOIN_QT_H = \
   qt/platformstyle.h \
   qt/qrimagewidget.h \
   qt/qrctoken.h \
+  qt/qswitchcontrol.h \
   qt/qvalidatedlineedit.h \
   qt/qvalidatedtextedit.h \
   qt/qvaluecombobox.h \
@@ -216,6 +223,7 @@ BITCOIN_QT_H = \
   qt/sendtokenpage.h \
   qt/signverifymessagedialog.h \
   qt/splashscreen.h \
+  qt/stakepage.h \
   qt/styleSheet.h \
   qt/tabbarinfo.h \
   qt/titlebar.h \
@@ -228,6 +236,8 @@ BITCOIN_QT_H = \
   qt/tokentransactionrecord.h \
   qt/tokentransactiontablemodel.h \
   qt/tokentransactiondesc.h \
+  qt/tokenitemwidget.h \
+  qt/tokenlistwidget.h \
   qt/trafficgraphwidget.h \
   qt/transactiondesc.h \
   qt/transactiondescdialog.h \
@@ -242,7 +252,8 @@ BITCOIN_QT_H = \
   qt/walletmodel.h \
   qt/walletmodeltransaction.h \
   qt/walletview.h \
-  qt/winshutdownmonitor.h
+  qt/winshutdownmonitor.h \
+  qt/qtumpushbutton.h
 
 RES_ICONS = \
   qt/res/icons/add.png \
@@ -308,7 +319,10 @@ RES_ICONS = \
   qt/res/icons/restore.png \
   qt/res/icons/send_to.png \
   qt/res/icons/show.png \
-  qt/res/icons/token.png
+  qt/res/icons/token.png \
+  qt/res/icons/backup_wallet.png \
+  qt/res/icons/add_token.png \
+  qt/res/icons/plus_full.png
 
 BITCOIN_QT_BASE_CPP = \
   qt/bantablemodel.cpp \
@@ -329,6 +343,7 @@ BITCOIN_QT_BASE_CPP = \
   qt/optionsmodel.cpp \
   qt/peertablemodel.cpp \
   qt/platformstyle.cpp \
+  qt/qswitchcontrol.cpp \
   qt/qvalidatedlineedit.cpp \
   qt/qvalidatedtextedit.cpp \
   qt/qvaluecombobox.cpp \
@@ -342,7 +357,8 @@ BITCOIN_QT_BASE_CPP = \
   qt/tokenitemmodel.cpp \
   qt/trafficgraphwidget.cpp \
   qt/utilitydialog.cpp\
-  qt/qtumversionchecker.cpp
+  qt/qtumversionchecker.cpp \
+  qt/qtumpushbutton.cpp
 
 BITCOIN_QT_WINDOWS_CPP = qt/winshutdownmonitor.cpp
 
@@ -379,6 +395,7 @@ BITCOIN_QT_WALLET_CPP = \
   qt/receivetokenpage.cpp \
   qt/recentrequeststablemodel.cpp \
   qt/restoredialog.cpp \
+  qt/stakepage.cpp \
   qt/sendcoinsdialog.cpp \
   qt/sendcoinsentry.cpp \
   qt/sendtocontract.cpp \
@@ -396,6 +413,8 @@ BITCOIN_QT_WALLET_CPP = \
   qt/transactionrecord.cpp \
   qt/transactiontablemodel.cpp \
   qt/transactionview.cpp \
+  qt/tokenitemwidget.cpp \
+  qt/tokenlistwidget.cpp \
   qt/walletcontroller.cpp \
   qt/walletframe.cpp \
   qt/walletmodel.cpp \
@@ -420,57 +439,123 @@ RES_IMAGES =
 
 RES_MOVIES = $(wildcard $(srcdir)/qt/res/movies/spinner-*.png)
 
-RES_STYLES = qt/res/styles/buttontransparentbordered.css \
-qt/res/styles/buttonblack.css \
-qt/res/styles/toolgroupblack.css \
-qt/res/styles/toolblack.css \
-qt/res/styles/toolsubblack.css \
-qt/res/styles/app.css \
-qt/res/styles/scrollbarlight.css \
-qt/res/styles/buttonwhite.css \
-qt/res/styles/buttontransparent.css \
-qt/res/styles/invalid.css \
-qt/res/styles/treeview.css \
-qt/res/styles/scrollbardark.css \
-qt/res/styles/buttonblue.css \
-qt/res/styles/tableviewlight.css \
-qt/res/styles/app-icons/toolbutton_right_arrow.png \
-qt/res/styles/app-icons/spinBoxHover.png \
-qt/res/styles/app-icons/down_arrow.png \
-qt/res/styles/app-icons/spinBoxDisabled.png \
-qt/res/styles/app-icons/checkbox_indeterminate_hover.png \
-qt/res/styles/app-icons/radiobutton_checked_disabled.png \
-qt/res/styles/app-icons/up_arrow_disabled.png \
-qt/res/styles/app-icons/checkbox_unchecked.png \
-qt/res/styles/app-icons/message_critical.png \
-qt/res/styles/app-icons/radiobutton_unchecked_hover.png \
-qt/res/styles/app-icons/checkbox_unchecked_hover.png \
-qt/res/styles/app-icons/checkbox_indeterminate_disabled.png \
-qt/res/styles/app-icons/message_warning.png \
-qt/res/styles/app-icons/radiobutton_checked_hover.png \
-qt/res/styles/app-icons/cb_up_down_arrow.png \
-qt/res/styles/app-icons/checkbox_checked_disabled.png \
-qt/res/styles/app-icons/message_info.png \
-qt/res/styles/app-icons/radiobutton_unchecked.png \
-qt/res/styles/app-icons/checkbox_checked.png \
-qt/res/styles/app-icons/toolbutton_down_arrow.png \
-qt/res/styles/app-icons/spinBox.png \
-qt/res/styles/app-icons/up_arrow_hover.png \
-qt/res/styles/app-icons/radiobutton_checked.png \
-qt/res/styles/app-icons/slider_switcher_disabled.png \
-qt/res/styles/app-icons/radiobutton_unchecked_disabled.png \
-qt/res/styles/app-icons/up_arrow.png \
-qt/res/styles/app-icons/spinBoxFocus.png \
-qt/res/styles/app-icons/slider_switcher.png \
-qt/res/styles/app-icons/down_arrow_hover.png \
-qt/res/styles/app-icons/checkbox_indeterminate.png \
-qt/res/styles/app-icons/message_question.png \
-qt/res/styles/app-icons/checkbox_checked_hover.png \
-qt/res/styles/app-icons/down_arrow_disabled.png \
-qt/res/styles/app-icons/slider_switcher_hover.png \
-qt/res/styles/app-icons/checkbox_unchecked_disabled.png \
-qt/res/styles/app-icons/splash_bg.png \
-qt/res/styles/app-icons/bg.png
+RES_TOKENS = qt/res/tokens/6b8bf98ff497c064e8f0bde13e0c4f5ed5bf8ce7.png \
+qt/res/tokens/9d3d4cc1986d81f9109f2b091b7732e7d9bcf63b.png \
+qt/res/tokens/57931faffdec114056a49adfcaa1caac159a1a25.png \
+qt/res/tokens/09800417b097c61b9fd26b3ddde4238304a110d5.png \
+qt/res/tokens/49665919e437a4bedb92faa45ed33ebb5a33ee63.png \
+qt/res/tokens/b6c48b3a7c888713dd96eed92a4ee0397dd64e71.png \
+qt/res/tokens/b27d7bf95b03e02b55d5eb63d3f1692762101bf9.png \
+qt/res/tokens/d8dec2b605005749abbf4b060edad3070e23cf5c.png \
+qt/res/tokens/f2033ede578e17fa6231047265010445bca8cf1c.png \
+qt/res/tokens/f2703e93f87b846a7aacec1247beaec1c583daa4.png \
+qt/res/tokens/fe59cbc1704e89a698571413a81f0de9d8f00c69.png
+
+RES_STYLES = qt/res/styles/theme1/buttontransparentbordered.css \
+qt/res/styles/theme1/buttondark.css \
+qt/res/styles/theme1/navgroupbutton.css \
+qt/res/styles/theme1/navbutton.css \
+qt/res/styles/theme1/navsubgroupbutton.css \
+qt/res/styles/theme1/app.css \
+qt/res/styles/theme1/scrollbarlight.css \
+qt/res/styles/theme1/buttonlight.css \
+qt/res/styles/theme1/buttontransparent.css \
+qt/res/styles/theme1/invalid.css \
+qt/res/styles/theme1/treeview.css \
+qt/res/styles/theme1/scrollbardark.css \
+qt/res/styles/theme1/buttongray.css \
+qt/res/styles/theme1/tableviewlight.css \
+qt/res/styles/theme1/config.ini \
+qt/res/styles/theme1/app-icons/down_arrow_unit.png \
+qt/res/styles/theme1/app-icons/toolbutton_right_arrow.png \
+qt/res/styles/theme1/app-icons/spinBoxHover.png \
+qt/res/styles/theme1/app-icons/down_arrow.png \
+qt/res/styles/theme1/app-icons/spinBoxDisabled.png \
+qt/res/styles/theme1/app-icons/checkbox_indeterminate_hover.png \
+qt/res/styles/theme1/app-icons/radiobutton_checked_disabled.png \
+qt/res/styles/theme1/app-icons/up_arrow_disabled.png \
+qt/res/styles/theme1/app-icons/checkbox_unchecked.png \
+qt/res/styles/theme1/app-icons/message_critical.png \
+qt/res/styles/theme1/app-icons/radiobutton_unchecked_hover.png \
+qt/res/styles/theme1/app-icons/checkbox_unchecked_hover.png \
+qt/res/styles/theme1/app-icons/checkbox_indeterminate_disabled.png \
+qt/res/styles/theme1/app-icons/message_warning.png \
+qt/res/styles/theme1/app-icons/radiobutton_checked_hover.png \
+qt/res/styles/theme1/app-icons/cb_up_down_arrow.png \
+qt/res/styles/theme1/app-icons/checkbox_checked_disabled.png \
+qt/res/styles/theme1/app-icons/message_info.png \
+qt/res/styles/theme1/app-icons/radiobutton_unchecked.png \
+qt/res/styles/theme1/app-icons/checkbox_checked.png \
+qt/res/styles/theme1/app-icons/toolbutton_down_arrow.png \
+qt/res/styles/theme1/app-icons/spinBox.png \
+qt/res/styles/theme1/app-icons/up_arrow_hover.png \
+qt/res/styles/theme1/app-icons/radiobutton_checked.png \
+qt/res/styles/theme1/app-icons/slider_switcher_disabled.png \
+qt/res/styles/theme1/app-icons/radiobutton_unchecked_disabled.png \
+qt/res/styles/theme1/app-icons/up_arrow.png \
+qt/res/styles/theme1/app-icons/spinBoxFocus.png \
+qt/res/styles/theme1/app-icons/slider_switcher.png \
+qt/res/styles/theme1/app-icons/down_arrow_hover.png \
+qt/res/styles/theme1/app-icons/checkbox_indeterminate.png \
+qt/res/styles/theme1/app-icons/message_question.png \
+qt/res/styles/theme1/app-icons/checkbox_checked_hover.png \
+qt/res/styles/theme1/app-icons/down_arrow_disabled.png \
+qt/res/styles/theme1/app-icons/slider_switcher_hover.png \
+qt/res/styles/theme1/app-icons/checkbox_unchecked_disabled.png \
+qt/res/styles/theme1/app-icons/splash_bg.png \
+qt/res/styles/theme1/app-icons/bg.png \
+qt/res/styles/theme2/app.css \
+qt/res/styles/theme2/config.ini \
+qt/res/styles/theme2/buttontransparent.css \
+qt/res/styles/theme2/scrollbardark.css \
+qt/res/styles/theme2/treeview.css \
+qt/res/styles/theme2/navgroupbutton.css \
+qt/res/styles/theme2/navbutton.css \
+qt/res/styles/theme2/navsubgroupbutton.css \
+qt/res/styles/theme2/tableviewlight.css \
+qt/res/styles/theme2/invalid.css \
+qt/res/styles/theme2/app-icons/up_arrow.png \
+qt/res/styles/theme2/app-icons/up_arrow_hover.png \
+qt/res/styles/theme2/app-icons/up_arrow_disabled.png \
+qt/res/styles/theme2/app-icons/down_arrow.png \
+qt/res/styles/theme2/app-icons/down_arrow_hover.png \
+qt/res/styles/theme2/app-icons/down_arrow_disabled.png \
+qt/res/styles/theme2/app-icons/checkbox_checked.png \
+qt/res/styles/theme2/app-icons/checkbox_checked_disabled.png \
+qt/res/styles/theme2/app-icons/checkbox_checked_hover.png \
+qt/res/styles/theme2/app-icons/checkbox_indeterminate.png \
+qt/res/styles/theme2/app-icons/checkbox_indeterminate_disabled.png \
+qt/res/styles/theme2/app-icons/checkbox_indeterminate_hover.png \
+qt/res/styles/theme2/app-icons/checkbox_unchecked.png \
+qt/res/styles/theme2/app-icons/checkbox_unchecked_disabled.png \
+qt/res/styles/theme2/app-icons/checkbox_unchecked_hover.png \
+qt/res/styles/theme2/app-icons/radiobutton_checked.png \
+qt/res/styles/theme2/app-icons/radiobutton_checked_disabled.png \
+qt/res/styles/theme2/app-icons/radiobutton_checked_hover.png \
+qt/res/styles/theme2/app-icons/radiobutton_unchecked.png \
+qt/res/styles/theme2/app-icons/radiobutton_unchecked_disabled.png \
+qt/res/styles/theme2/app-icons/radiobutton_unchecked_hover.png \
+qt/res/styles/theme2/app-icons/slider_switcher.png \
+qt/res/styles/theme2/app-icons/slider_switcher_disabled.png \
+qt/res/styles/theme2/app-icons/slider_switcher_hover.png \
+qt/res/styles/theme2/app-icons/cb_up_down_arrow.png \
+qt/res/styles/theme2/app-icons/right_arrow.png \
+qt/res/styles/theme2/app-icons/down_arrow_unit.png \
+qt/res/styles/theme2/app-icons/splash_bg.png \
+qt/res/styles/theme2/app-icons/bg.png \
+qt/res/styles/theme3/app.css \
+qt/res/styles/theme3/config.ini \
+qt/res/styles/theme3/buttontransparent.css \
+qt/res/styles/theme3/scrollbardark.css \
+qt/res/styles/theme3/treeview.css \
+qt/res/styles/theme3/navgroupbutton.css \
+qt/res/styles/theme3/navbutton.css \
+qt/res/styles/theme3/navsubgroupbutton.css \
+qt/res/styles/theme3/tableviewlight.css \
+qt/res/styles/theme3/invalid.css \
+qt/res/styles/theme3/app-icons/down_arrow_unit.png \
+qt/res/styles/theme3/app-icons/splash_bg.png \
+qt/res/styles/theme3/app-icons/bg.png
 
 BITCOIN_RC = qt/res/bitcoin-qt-res.rc
 
@@ -482,7 +567,7 @@ qt_libbitcoinqt_a_CXXFLAGS = $(AM_CXXFLAGS) $(QT_PIE_FLAGS)
 qt_libbitcoinqt_a_OBJCXXFLAGS = $(AM_OBJCXXFLAGS) $(QT_PIE_FLAGS)
 
 qt_libbitcoinqt_a_SOURCES = $(BITCOIN_QT_CPP) $(BITCOIN_QT_H) $(QT_FORMS_UI) \
-  $(QT_QRC) $(QT_QRC_LOCALE) $(QT_TS) $(PROTOBUF_PROTO) $(RES_ICONS) $(RES_IMAGES) $(RES_MOVIES) $(RES_STYLES)
+  $(QT_QRC) $(QT_QRC_LOCALE) $(QT_TS) $(PROTOBUF_PROTO) $(RES_ICONS) $(RES_IMAGES) $(RES_MOVIES) $(RES_TOKENS) $(RES_STYLES)
 if TARGET_DARWIN
   qt_libbitcoinqt_a_SOURCES += $(BITCOIN_MM)
 endif
@@ -554,7 +639,7 @@ $(QT_QRC_LOCALE_CPP): $(QT_QRC_LOCALE) $(QT_QM)
 	  $(SED) -e '/^\*\*.*Created:/d' -e '/^\*\*.*by:/d' > $@
 	@rm $(@D)/temp_$(<F)
 
-$(QT_QRC_CPP): $(QT_QRC) $(QT_FORMS_H) $(RES_ICONS) $(RES_IMAGES) $(RES_MOVIES) $(RES_STYLES) $(PROTOBUF_H)
+$(QT_QRC_CPP): $(QT_QRC) $(QT_FORMS_H) $(RES_ICONS) $(RES_IMAGES) $(RES_MOVIES) $(RES_TOKENS) $(RES_STYLES) $(PROTOBUF_H)
 	@test -f $(RCC)
 	$(AM_V_GEN) QT_SELECT=$(QT_SELECT) $(RCC) -name bitcoin $< | \
 	  $(SED) -e '/^\*\*.*Created:/d' -e '/^\*\*.*by:/d' > $@

@@ -6,7 +6,7 @@
 
 #include <util/strencodings.h>
 #include <util/system.h>
-#include <libethashseal/Ethash.h>
+#include <libethcore/SealEngine.h>
 
 #include <memory>
 

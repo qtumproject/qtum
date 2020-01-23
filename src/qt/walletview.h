@@ -13,7 +13,7 @@ class BitcoinGUI;
 class ClientModel;
 class OverviewPage;
 class PlatformStyle;
-class ReceiveCoinsDialog;
+class ReceiveRequestDialog;
 class SendCoinsDialog;
 class SendCoinsRecipient;
 class TransactionView;
@@ -23,6 +23,7 @@ class CreateContract;
 class SendToContract;
 class CallContract;
 class QRCToken;
+class StakePage;
 
 QT_BEGIN_NAMESPACE
 class QModelIndex;
@@ -65,7 +66,7 @@ private:
 
     OverviewPage *overviewPage;
     QWidget *transactionsPage;
-    ReceiveCoinsDialog *receiveCoinsPage;
+    ReceiveRequestDialog *receiveCoinsPage;
     SendCoinsDialog *sendCoinsPage;
     AddressBookPage *usedSendingAddressesPage;
     AddressBookPage *usedReceivingAddressesPage;
@@ -73,11 +74,14 @@ private:
     SendToContract* sendToContractPage;
     CallContract* callContractPage;
     QRCToken* QRCTokenPage;
+    StakePage *stakePage;
 
     TransactionView *transactionView;
 
     QProgressDialog *progressDialog;
     const PlatformStyle *platformStyle;
+
+    BitcoinGUI *gui;
 
 public Q_SLOTS:
     /** Switch to overview (home) page */
@@ -94,12 +98,10 @@ public Q_SLOTS:
     void gotoSendToContractPage();
     /** Switch to call contract page */
     void gotoCallContractPage();
-    /** Switch to Send Token page */
-    void gotoSendTokenPage();
-    /** Switch to Receive Token page */
-    void gotoReceiveTokenPage();
-    /** Switch to Add Token page */
-    void gotoAddTokenPage();
+    /** Switch to token page */
+    void gotoTokenPage();
+    /** Switch to stake page */
+    void gotoStakePage();
 
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");

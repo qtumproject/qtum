@@ -7,11 +7,11 @@
 #include <util/convert.h>
 
 //Tests data
-CAmount value(5000000000LL - 1000);
-dev::u256 gasPrice(3);
-dev::u256 gasLimit(655535);
-std::vector<unsigned char> address(ParseHex("abababababababababababababababababababab"));
-std::vector<unsigned char> data(ParseHex("6060604052346000575b60398060166000396000f30060606040525b600b5b5b565b0000a165627a7a72305820a5e02d6fa08a384e067a4c1f749729c502e7597980b427d287386aa006e49d6d0029"));
+const CAmount value(5000000000LL - 1000);
+const dev::u256 gasPrice(3);
+const dev::u256 gasLimit(655535);
+const std::vector<unsigned char> address(ParseHex("abababababababababababababababababababab"));
+const std::vector<unsigned char> data(ParseHex("6060604052346000575b60398060166000396000f30060606040525b600b5b5b565b0000a165627a7a72305820a5e02d6fa08a384e067a4c1f749729c502e7597980b427d287386aa006e49d6d0029"));
 
 CMutableTransaction createTX(std::vector<CTxOut> vout, uint256 hashprev = uint256()){
     CMutableTransaction tx;

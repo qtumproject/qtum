@@ -90,8 +90,8 @@ public:
     /// Setup platform style
     void setupPlatformStyle();
 
-    /// Restore wallet
-    void restoreWallet();
+    /// Restart wallet if needed
+    void restartWallet();
 
     /// Parse parameters
     void parseParameters(int argc, const char* const argv[]);
@@ -124,10 +124,12 @@ private:
     std::unique_ptr<QWidget> shutdownWindow;
 
     void startThread();
+    void restart(const QString& commandLine);
 
     QString restorePath;
     QString restoreParam;
     QString restoreName;
+    bool restartApp;
     QStringList parameters;
 };
 

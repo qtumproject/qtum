@@ -23,6 +23,7 @@ class QFrame;
 class QLineEdit;
 class QMenu;
 class QModelIndex;
+class QSpacerItem;
 class QTableView;
 QT_END_NAMESPACE
 
@@ -34,7 +35,7 @@ class TransactionView : public QWidget
     Q_OBJECT
 
 public:
-    explicit TransactionView(const PlatformStyle *platformStyle, QWidget *parent = nullptr);
+    explicit TransactionView(const PlatformStyle *platformStyle, QWidget *parent = nullptr, bool hideFilter = false);
 
     void setModel(WalletModel *model);
 
@@ -69,6 +70,7 @@ private:
     QComboBox *watchOnlyWidget;
     QLineEdit *search_widget;
     QLineEdit *amountWidget;
+    QSpacerItem *hSpacer;
 
     QMenu *contextMenu;
 

@@ -67,29 +67,29 @@ QTreeView::indicator {
     height: 16px;
 }
 QTreeView::indicator::unchecked {
-    image: url(:/styles/app-icons/checkbox_unchecked);
+    image: url(:/styles/theme1/app-icons/checkbox_unchecked);
 }
 QTreeView::indicator::checked {
-    image: url(:/styles/app-icons/checkbox_checked);
+    image: url(:/styles/theme1/app-icons/checkbox_checked);
 }
 QTreeView:indicator:indeterminate {
-    image: url(:/styles/app-icons/checkbox_indeterminate);
+    image: url(:/styles/theme1/app-icons/checkbox_indeterminate);
 }
 QTreeView::indicator::unchecked:hover {
-    image: url(:/styles/app-icons/checkbox_unchecked_hover);
+    image: url(:/styles/theme1/app-icons/checkbox_unchecked_hover);
 }
 QTreeView::indicator::checked:hover {
-    image: url(:/styles/app-icons/checkbox_checked_hover);
+    image: url(:/styles/theme1/app-icons/checkbox_checked_hover);
 }
 QTreeView:indicator:indeterminate:hover {
-    image: url(:/styles/app-icons/checkbox_indeterminate_hover);
+    image: url(:/styles/theme1/app-icons/checkbox_indeterminate_hover);
 }
 QTreeView:indicator:unchecked:disabled {
-    image: url(:/styles/app-icons/checkbox_unchecked_disabled);  
+    image: url(:/styles/theme1/app-icons/checkbox_unchecked_disabled);  
 }
 QTreeView:indicator:checked:disabled {
-    image: url(:/styles/app-icons/checkbox_checked_disabled);
+    image: url(:/styles/theme1/app-icons/checkbox_checked_disabled);
 }
 QTreeView:indicator:indeterminate:disabled {
-    image: url(:/styles/app-icons/checkbox_indeterminate_disabled);
+    image: url(:/styles/theme1/app-icons/checkbox_indeterminate_disabled);
 }

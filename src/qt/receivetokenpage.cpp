@@ -7,13 +7,12 @@
 #include <qt/platformstyle.h>
 
 ReceiveTokenPage::ReceiveTokenPage(const PlatformStyle *_platformStyle, QWidget *parent) :
-    QWidget(parent),
+    QDialog(parent),
     ui(new Ui::ReceiveTokenPage),
     platformStyle(_platformStyle)
 {
     ui->setupUi(this);
     connect(ui->copyAddressButton, &QToolButton::clicked, this, &ReceiveTokenPage::on_copyAddressClicked);
-    ui->copyAddressButton->setIcon(platformStyle->MultiStatesIcon(":/icons/editcopy", PlatformStyle::PushButton));
     ui->copyAddressButton->setVisible(false);
     setAddress("");
 }
@@ -31,8 +30,9 @@ void ReceiveTokenPage::setAddress(QString address)
 
 void ReceiveTokenPage::setSymbol(QString symbol)
 {
-    QString addressText = symbol.isEmpty() ? "" : (QString("%1 ").arg(symbol) + tr("Address"));
+    QString addressText = symbol.isEmpty() ? "" : (QString("%1 %2:").arg(symbol, tr("Address")));
     ui->labelTokenAddressText->setText(addressText);
+    setWindowTitle(QString("%1 %2").arg(symbol, tr("Receive")));
 }
 
 void ReceiveTokenPage::on_copyAddressClicked()
@@ -50,12 +50,12 @@ void ReceiveTokenPage::createQRCode()
         QString uri = GUIUtil::formatBitcoinURI(info);
         if(ui->lblQRCode->setQR(uri))
         {
-            ui->lblQRCode->setVisible(true);
+            ui->widgetQRMargin->setVisible(true);
             ui->lblQRCode->setScaledContents(true);
         }
         else
         {
-            ui->lblQRCode->setVisible(false);
+            ui->widgetQRMargin->setVisible(false);
         }
         ui->labelTokenAddress->setText(m_address);
         ui->copyAddressButton->setVisible(true);

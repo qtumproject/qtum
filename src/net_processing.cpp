@@ -31,6 +31,7 @@
 #include <checkpoints.h>
 #include <clientversion.h>
 #include <consensus/merkle.h>
+#include <shutdown.h>
 
 #include <memory>
 #include <typeinfo>
@@ -4462,6 +4463,106 @@ bool ProcessNetBlock(const CChainParams& chainparams, const std::shared_ptr<cons
     LogPrintf("ProcessNetBlock: ACCEPTED\n");
 
     return true;
+}
+
+bool RemoveNetBlockIndex(CBlockIndex *pindex)
+{
+    // Make sure it's not listed somewhere already.
+    MarkBlockAsReceived(pindex->GetBlockHash());
+
+    for (std::map<NodeId, CNodeState>::iterator it=mapNodeState.begin(); it!=mapNodeState.end(); it++)
+    {
+        CNodeState * state = &it->second;
+
+        if(state->pindexBestKnownBlock == pindex)
+            state->pindexBestKnownBlock = nullptr;
+
+        if(state->pindexLastCommonBlock == pindex)
+            state->pindexLastCommonBlock = nullptr;
+
+        if(state->pindexBestHeaderSent == pindex)
+            state->pindexBestHeaderSent = nullptr;
+
+        if(state->m_chain_sync.m_work_header == pindex)
+            state->m_chain_sync.m_work_header = nullptr;
+    }
+
+    return true;
+}
+
+bool NeedToEraseBlockIndex(const CBlockIndex *pindex, const CBlockIndex *pindexCheck)
+{
+    if(!::ChainActive().Contains(pindex))
+    {
+        if(pindex->nHeight <= pindexCheck->nHeight) return true;
+        const CBlockIndex *pindexBlock = pindex;
+        while(pindexBlock)
+        {
+           pindexBlock = pindexBlock->pprev;
+           if(pindexBlock->nHeight == pindexCheck->nHeight) return pindexBlock != pindexCheck;
+        }
+    }
+    return false;
+}
+
+bool RemoveBlockIndex(CBlockIndex *pindex)
+{
+    bool ret = RemoveStateBlockIndex(pindex);
+    ret &= RemoveNetBlockIndex(pindex);
+    return ret;
+}
+
+void CleanBlockIndex()
+{
+    unsigned int cleanTimeout = gArgs.GetArg("-cleanblockindextimeout", DEFAULT_CLEANBLOCKINDEXTIMEOUT) * 1000;
+    if(cleanTimeout == 0) cleanTimeout = DEFAULT_CLEANBLOCKINDEXTIMEOUT * 1000;
+
+    while(!ShutdownRequested())
+    {
+        if(!::ChainstateActive().IsInitialBlockDownload())
+        {
+            // Select block indexes to delete
+            std::vector<uint256> indexNeedErase;
+            {
+                LOCK(cs_main);
+                const CBlockIndex *pindexCheck = ::ChainActive()[::ChainActive().Height() - nCheckpointSpan -1];
+                if(pindexCheck)
+                {
+                    for (BlockMap::iterator it=::BlockIndex().begin(); it!=::BlockIndex().end(); it++)
+                    {
+                        CBlockIndex *pindex = (*it).second;
+                        if(NeedToEraseBlockIndex(pindex, pindexCheck))
+                        {
+                            indexNeedErase.push_back(pindex->GetBlockHash());
+                        }
+                    }
+                }
+            }
+
+            // Delete selected block indexes
+            if(indexNeedErase.size() > 0)
+            {
+                SyncWithValidationInterfaceQueue();
+
+                LOCK(cs_main);
+                for(uint256 blockHash : indexNeedErase)
+                {
+                    BlockMap::iterator it=::BlockIndex().find(blockHash);
+                    if(it!=::BlockIndex().end())
+                    {
+                        CBlockIndex *pindex = (*it).second;
+                        if(RemoveBlockIndex(pindex))
+                        {
+                            delete pindex;
+                            ::BlockIndex().erase(it);
+                        }
+                    }
+                }
+            }
+        }
+
+        MilliSleep(cleanTimeout);
+    }
 }
 
 class CNetProcessingCleanup

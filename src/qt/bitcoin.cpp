@@ -214,7 +214,8 @@ BitcoinApplication::BitcoinApplication(interfaces::Node& node):
     window(nullptr),
     pollShutdownTimer(nullptr),
     returnValue(0),
-    platformStyle(nullptr)
+    platformStyle(nullptr),
+    restartApp(false)
 {
     setQuitOnLastWindowClosed(false);
 }
@@ -343,6 +344,8 @@ void BitcoinApplication::requestShutdown()
     // Get restore wallet data
     m_wallet_controller->getRestoreData(restorePath, restoreParam, restoreName);
 #endif
+    // Get restart wallet
+    if(optionsModel) restartApp = optionsModel->getRestartApp();
     // Request node shutdown, which can interrupt long operations, like
     // rescanning a wallet.
     m_node.startShutdown();
@@ -440,12 +443,22 @@ void BitcoinApplication::parseParameters(int argc, const char* const argv[])
     }
 }
 
-void BitcoinApplication::restoreWallet()
+void BitcoinApplication::restart(const QString& commandLine)
+{
+    // Unlock the data folder
+    UnlockDataDirectory();
+    QThread::currentThread()->sleep(2);
+
+    // Create new process and start the wallet
+    QProcess::startDetached(commandLine);
+}
+
+void BitcoinApplication::restartWallet()
 {
 #ifdef ENABLE_WALLET
     // Restart the wallet if needed
     if(!restorePath.isEmpty())
-    {
+    { 
         // Create command line
         QString walletParam = "-wallet=" + restoreName;
         QString commandLine;
@@ -475,17 +488,22 @@ void BitcoinApplication::restoreWallet()
             ret &= QFile::remove(pathWallet);
             ret &= QFile::copy(restorePath, pathWallet);
         }
+
+        // Restart wallet for restore
         if(ret)
         {
-            // Unlock the data folder
-            UnlockDataDirectory();
-            QThread::currentThread()->sleep(2);
-
-            // Create new process and start the wallet
-            QProcess::startDetached(commandLine);
+            restart(commandLine);
+            restartApp = false;
         }
     }
 #endif
+
+    if(restartApp)
+    {
+        // Restart wallet for option
+        QString commandLine = parameters.join(' ');
+        restart(commandLine);
+    }
 }
 
 static void SetupUIArgs()
@@ -560,9 +578,6 @@ int GuiMain(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    // Now that the QApplication is setup and we have parsed our parameters, we can set the platform style
-    app.setupPlatformStyle();
-
     /// 3. Application identification
     // must be set before OptionsModel is initialized or translations are loaded,
     // as it is used to locate QSettings
@@ -628,6 +643,8 @@ int GuiMain(int argc, char* argv[])
     assert(!networkStyle.isNull());
     // Allow for separate UI settings for testnets
     QApplication::setApplicationName(networkStyle->getAppName());
+    // Now that the QApplication is setup and we have parsed our parameters, we can set the platform style
+    app.setupPlatformStyle();
     // Re-initialize translations after changing application name (language in network-specific settings can be different)
     initTranslations(qtTranslatorBase, qtTranslator, translatorBase, translator);
 
@@ -699,6 +716,6 @@ int GuiMain(int argc, char* argv[])
         PrintExceptionContinue(nullptr, "Runaway exception");
         app.handleRunawayException(QString::fromStdString(node->getWarnings("gui")));
     }
-    app.restoreWallet();
+    app.restartWallet();
     return rv;
 }

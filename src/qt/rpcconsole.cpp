@@ -461,8 +461,8 @@ RPCConsole::RPCConsole(interfaces::Node& node, const PlatformStyle *_platformSty
     SetObjectStyleSheet(ui->clearButton, StyleSheetNames::ButtonTransparent);
     SetObjectStyleSheet(ui->fontBiggerButton, StyleSheetNames::ButtonTransparent);
     SetObjectStyleSheet(ui->fontSmallerButton, StyleSheetNames::ButtonTransparent);
-    SetObjectStyleSheet(ui->openDebugLogfileButton, StyleSheetNames::ButtonBlue);
-    SetObjectStyleSheet(ui->btnClearTrafficGraph, StyleSheetNames::ButtonBlue);
+    SetObjectStyleSheet(ui->openDebugLogfileButton, StyleSheetNames::ButtonGray);
+    SetObjectStyleSheet(ui->btnClearTrafficGraph, StyleSheetNames::ButtonGray);
     SetObjectStyleSheet(ui->peerWidget, StyleSheetNames::TableViewLight);
     SetObjectStyleSheet(ui->banlistWidget, StyleSheetNames::TableViewLight);
 
@@ -475,10 +475,10 @@ RPCConsole::RPCConsole(interfaces::Node& node, const PlatformStyle *_platformSty
     if (platformStyle->getImagesOnButtons()) {
         ui->openDebugLogfileButton->setIcon(platformStyle->MultiStatesIcon(":/icons/export", PlatformStyle::PushButton));
     }
-    ui->clearButton->setIcon(platformStyle->MultiStatesIcon(":/icons/remove", PlatformStyle::PushButton));
-    ui->fontBiggerButton->setIcon(platformStyle->MultiStatesIcon(":/icons/fontbigger", PlatformStyle::PushButton));
-    ui->fontSmallerButton->setIcon(platformStyle->MultiStatesIcon(":/icons/fontsmaller", PlatformStyle::PushButton));
-    ui->promptIcon->setIcon(platformStyle->MultiStatesIcon(":/icons/prompticon", PlatformStyle::PushButton));
+    ui->clearButton->setIcon(platformStyle->MultiStatesIcon(":/icons/remove", PlatformStyle::PushButtonIcon));
+    ui->fontBiggerButton->setIcon(platformStyle->MultiStatesIcon(":/icons/fontbigger", PlatformStyle::PushButtonIcon));
+    ui->fontSmallerButton->setIcon(platformStyle->MultiStatesIcon(":/icons/fontsmaller", PlatformStyle::PushButtonIcon));
+    ui->promptIcon->setIcon(platformStyle->MultiStatesIcon(":/icons/prompticon", PlatformStyle::PushButtonIcon));
 
     // Install event filter for up and down arrow
     ui->lineEdit->installEventFilter(this);
@@ -700,6 +700,7 @@ void RPCConsole::setClientModel(ClientModel *model)
         autoCompleter->popup()->installEventFilter(this);
         autoCompleter->popup()->setItemDelegate(new QStyledItemDelegate(this));
         autoCompleter->popup()->setObjectName("autoCompleterPopup");
+        SetObjectStyleSheet(autoCompleter->popup(), StyleSheetNames::ScrollBarDark);
 
         // Start thread to execute RPC commands.
         startExecutor();

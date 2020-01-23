@@ -218,6 +218,7 @@ extern CRPCTable tableRPC;
 
 extern double GetPoWMHashPS();
 extern double GetPoSKernelPS();
+extern double GetEstimatedAnnualROI();
 
 void StartRPC();
 void InterruptRPC();

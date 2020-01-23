@@ -18,6 +18,8 @@
 #include <util/system.h>
 #include <util/translation.h>
 #include <version.h>
+#include "styleSheet.h"
+#include <qt/platformstyle.h>
 
 #include <QApplication>
 #include <QCloseEvent>
@@ -30,16 +32,20 @@ SplashScreen::SplashScreen(interfaces::Node& node, Qt::WindowFlags f, const Netw
     QWidget(nullptr, f), curAlignment(0), m_node(node)
 {
     // set sizes
-    int versionTextHeight       = 30;
+    int logoSize                = 50;
+    int logoImageSize           = logoSize - 13;
+    int packageTextHeight       = 30;
+    int versionTextHeight       = 20;
     int statusHeight            = 30;
-    int titleAddTextHeight      = 20;
+    int titleAddTextHeight      = 12;
+    int welcomeTextHeight       = 35;
     float fontFactor            = 1.0;
     float devicePixelRatio      = 1.0;
     devicePixelRatio = static_cast<QGuiApplication*>(QCoreApplication::instance())->devicePixelRatio();
 
     // define text to place
     QString titleText       = PACKAGE_NAME;
-    QString versionText     = QString("Version %1").arg(QString::fromStdString(FormatFullVersion()));
+    QString versionText     = QString("%1").arg(QString::fromStdString(FormatFullVersion()));
     QString copyrightText   = QString::fromUtf8(CopyrightHolders(strprintf("\xc2\xA9 %u ", COPYRIGHT_YEAR)).c_str());
     QString titleAddText    = networkStyle->getTitleAddText();
 
@@ -53,19 +59,35 @@ SplashScreen::SplashScreen(interfaces::Node& node, Qt::WindowFlags f, const Netw
     pixmap.setDevicePixelRatio(devicePixelRatio);
 
     QPainter pixPaint(&pixmap);
-    pixPaint.setPen(QColor("#ffffff"));
+
+    QColor foreground_color = GetStringStyleValue("splashscreen/foreground-color", "#ffffff");
+    QColor foreground_color_statusbar = GetStringStyleValue("splashscreen/foreground-color-statusbar", "#ffffff");
+    QColor logo_frame_color = GetStringStyleValue("splashscreen/logo-frame-color", "#ffffff");
 
     QRect mainRect(QPoint(0,0), splashSize);
-    pixPaint.fillRect(mainRect, QColor("#030509"));
+    QColor background_color     = GetStringStyleValue("splashscreen/background-color", "#030509");
+    pixPaint.fillRect(mainRect, background_color);
 
     // draw background
     QRect rectBg(QPoint(-50, -50), QSize(splashSize.width() + 50, splashSize.height() + 50));
-    QPixmap bg(":/styles/app-icons/splash_bg");
+    QPixmap bg(GetStringStyleValue("splashscreen/background-image", ":/styles/theme1/app-icons/splash_bg"));
     pixPaint.drawPixmap(rectBg, bg);
 
-    pixPaint.setFont(QFont(font, 32*fontFactor, QFont::Bold));
-    QRect rectTitle(QPoint(0,0), QSize(splashSize.width(), (splashSize.height() / 2)));
-    pixPaint.drawText(rectTitle, Qt::AlignHCenter | Qt::AlignBottom, titleText);
+    QRect logoRect(splashSize.width() - logoSize - 20, 20, logoSize, logoSize);
+    QPainterPath logoPath;
+    logoPath.addRoundedRect(logoRect, logoSize / 2, logoSize / 2);
+    pixPaint.setRenderHint(QPainter::Antialiasing);
+    pixPaint.setPen(logo_frame_color);
+    pixPaint.drawPath(logoPath);
+
+    QPixmap logo = PlatformStyle::SingleColorIcon(":/icons/bitcoin", foreground_color).pixmap(QSize(logoImageSize, logoImageSize));
+    pixPaint.drawPixmap(logoRect.x() + 6, logoRect.y() + 6, logo);
+
+    pixPaint.setPen(foreground_color);
+
+    pixPaint.setFont(QFont(font, 22 * fontFactor, QFont::Bold));
+    QRect rectTitle(QPoint(0, logoRect.bottom() + 10), QSize(splashSize.width() - 20, packageTextHeight));
+    pixPaint.drawText(rectTitle, Qt::AlignRight | Qt::AlignBottom, titleText);
 
     QPoint versionPoint(rectTitle.bottomLeft());
 
@@ -74,23 +96,28 @@ SplashScreen::SplashScreen(interfaces::Node& node, Qt::WindowFlags f, const Netw
     {
         QRect titleAddRect(rectTitle.bottomLeft(), QSize(rectTitle.width(), titleAddTextHeight));
         versionPoint = titleAddRect.bottomLeft();
-        pixPaint.setFont(QFont(font, 8*fontFactor, QFont::Bold));
-        pixPaint.drawText(titleAddRect, Qt::AlignHCenter | Qt::AlignVCenter, titleAddText);
+        pixPaint.setFont(QFont("HiraginoSansGB", 8 * fontFactor, QFont::Bold));
+        pixPaint.drawText(titleAddRect, Qt::AlignRight | Qt::AlignBottom, titleAddText);
     }
 
-    pixPaint.setFont(QFont(font, 11*fontFactor));
+    pixPaint.setFont(QFont("HiraginoSansGB", 8 * fontFactor));
     QRect versionRect(versionPoint, QSize(rectTitle.width(), versionTextHeight));
-    pixPaint.drawText(versionRect, Qt::AlignHCenter | Qt::AlignTop, versionText);
+    pixPaint.drawText(versionRect, Qt::AlignRight | Qt::AlignVCenter, versionText);
+
+    QRect welcomeRect(0, splashSize.height() - statusHeight - welcomeTextHeight - 40, splashSize.width() -20, welcomeTextHeight);
+    pixPaint.setFont(QFont(font, 10 * fontFactor, QFont::Bold));
+    pixPaint.drawText(welcomeRect, Qt::AlignRight | Qt::AlignTop, "Qtum-Qt Wallet");
 
     // draw copyright stuff
     QFont statusFont = QApplication::font();
     statusFont.setPointSizeF(statusFont.pointSizeF() * 0.9);
     pixPaint.setFont(statusFont);
+    pixPaint.setPen(foreground_color_statusbar);
     QRect statusRect(mainRect.left(), mainRect.height() - statusHeight, mainRect.width(), statusHeight);
     QColor statusColor(255, 255, 255);
     statusColor.setAlphaF(0.1);
     pixPaint.fillRect(statusRect, statusColor);
-    pixPaint.drawText(statusRect.adjusted(10, 0, -10, 0), Qt::AlignLeft | Qt::AlignVCenter, copyrightText);
+    pixPaint.drawText(statusRect.adjusted(10, 0, -10, 0), Qt::AlignRight | Qt::AlignVCenter, copyrightText);
 
     pixPaint.end();
 
@@ -134,11 +161,12 @@ void SplashScreen::finish()
 
 static void InitMessage(SplashScreen *splash, const std::string &message)
 {
+    QColor foreground_color = GetStringStyleValue("splashscreen/foreground-color_statusbar", "#ffffff");
     bool invoked = QMetaObject::invokeMethod(splash, "showMessage",
         Qt::QueuedConnection,
         Q_ARG(QString, QString::fromStdString(message)),
-        Q_ARG(int, Qt::AlignBottom|Qt::AlignRight),
-        Q_ARG(QColor, QColor("#ffffff")));
+        Q_ARG(int, Qt::AlignBottom|Qt::AlignLeft),
+        Q_ARG(QColor, foreground_color));
     assert(invoked);
 }
 

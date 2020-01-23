@@ -5771,11 +5771,13 @@ void CWallet::StakeQtums(bool fStake, CConnman* connman)
 
 void CWallet::StartStake(CConnman *connman)
 {
+    m_enabled_staking = true;
     StakeQtums(true, connman);
 }
 
 void CWallet::StopStake()
 {
+    m_enabled_staking = false;
     if(stakeThread)
     {
         auto locked_chain = chain().lock();

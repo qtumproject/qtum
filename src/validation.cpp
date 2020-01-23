@@ -48,6 +48,7 @@
 #include <validationinterface.h>
 #include <warnings.h>
 #include <libethcore/ABI.h>
+#include <net_processing.h>
 
 #include <serialize.h>
 #include <pubkey.h>
@@ -3329,8 +3330,21 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
                         }
                         heightIndexes[log.address].second.push_back(tx.GetHash());
                     }
-                    tri.push_back(TransactionReceiptInfo{block.GetHash(), uint32_t(pindex->nHeight), tx.GetHash(), uint32_t(i), resultConvertQtumTX.first[k].from(), resultConvertQtumTX.first[k].to(),
-                                countCumulativeGasUsed, uint64_t(resultExec[k].execRes.gasUsed), resultExec[k].execRes.newAddress, resultExec[k].txRec.log(), resultExec[k].execRes.excepted, exceptedMessage(resultExec[k].execRes.excepted, resultExec[k].execRes.output)});
+                    tri.push_back(TransactionReceiptInfo{
+                        block.GetHash(),
+                        uint32_t(pindex->nHeight),
+                        tx.GetHash(),
+                        uint32_t(i),
+                        resultConvertQtumTX.first[k].from(),
+                        resultConvertQtumTX.first[k].to(),
+                        countCumulativeGasUsed,
+                        uint64_t(resultExec[k].execRes.gasUsed),
+                        resultExec[k].execRes.newAddress,
+                        resultExec[k].txRec.log(),
+                        resultExec[k].execRes.excepted,
+                        exceptedMessage(resultExec[k].execRes.excepted, resultExec[k].execRes.output),
+                        resultConvertQtumTX.first[k].getNVout()
+                    });
                 }
 
                 pstorageresult->addResult(uintToh256(tx.GetHash()), tri);
@@ -6692,6 +6706,50 @@ void CChainState::CheckBlockIndex(const Consensus::Params& consensusParams)
     assert(nNodes == forward.size());
 }
 
+bool CChainState::RemoveBlockIndex(CBlockIndex *pindex)
+{
+    // Check if the block index is present in any variable and remove it
+    if(pindexBestInvalid == pindex)
+        pindexBestInvalid = nullptr;
+
+    if(pindexBestHeader == pindex)
+        pindexBestHeader = nullptr;
+
+    if(pindexBestForkTip == pindex)
+        pindexBestForkTip = nullptr;
+
+    if(pindexBestForkBase == pindex)
+        pindexBestForkBase = nullptr;
+
+
+    // Check if the block index is present in any list and remove it
+    for (auto it=m_blockman.m_blocks_unlinked.begin(); it!=m_blockman.m_blocks_unlinked.end();){
+        if(it->first == pindex || it->second == pindex)
+        {
+            it = m_blockman.m_blocks_unlinked.erase(it);
+        }
+        else{
+            it++;
+        }
+    }
+
+    setBlockIndexCandidates.erase(pindex);
+
+    m_blockman.m_failed_blocks.erase(pindex);
+
+    setDirtyBlockIndex.erase(pindex);
+
+    for (int b = 0; b < VERSIONBITS_NUM_BITS; b++) {
+        warningcache[b].erase(pindex);
+    }
+
+    for (int b = 0; b < Consensus::MAX_VERSION_BITS_DEPLOYMENTS; b++) {
+        versionbitscache.caches[b].erase(pindex);
+    }
+
+    return true;
+}
+
 std::string CBlockFileInfo::ToString() const
 {
     return strprintf("CBlockFileInfo(blocks=%u, size=%u, heights=%u...%u, time=%s...%s)", nBlocks, nSize, nHeightFirst, nHeightLast, FormatISO8601Date(nTimeFirst), FormatISO8601Date(nTimeLast));
@@ -6895,6 +6953,11 @@ std::string exceptedMessage(const dev::eth::TransactionException& excepted, cons
     {}
 
     return message;
+}
+
+bool RemoveStateBlockIndex(CBlockIndex *pindex)
+{
+    return ::ChainstateActive().RemoveBlockIndex(pindex);
 }
 
 class CMainCleanup

@@ -212,6 +212,18 @@ public:
     //! Get the information about the needed gas
     virtual void getGasInfo(uint64_t& blockGasLimit, uint64_t& minGasPrice, uint64_t& nGasPrice) = 0;
 
+    //! Get the reward for the block at some specific height
+    virtual int64_t getBlockSubsidy(int nHeight) = 0;
+
+    //! Get the network stake weight
+    virtual uint64_t getNetworkStakeWeight() = 0;
+
+    //! Get the estimated annual roi
+    virtual double getEstimatedAnnualROI() = 0;
+
+    //! Get the money supply
+    virtual int64_t getMoneySupply() = 0;
+
     //! Attempts to load a wallet from file or directory.
     //! The loaded wallet is also notified to handlers previously registered
     //! with handleLoadWallet.

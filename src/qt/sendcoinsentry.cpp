@@ -26,12 +26,11 @@ SendCoinsEntry::SendCoinsEntry(const PlatformStyle *_platformStyle, QWidget *par
 {
     ui->setupUi(this);
 
-    ui->addressBookButton->setIcon(platformStyle->MultiStatesIcon(":/icons/address-book", PlatformStyle::PushButton));
-    ui->pasteButton->setIcon(platformStyle->MultiStatesIcon(":/icons/editpaste", PlatformStyle::PushButton));
-    ui->deleteButton->setIcon(platformStyle->MultiStatesIcon(":/icons/remove_entry", PlatformStyle::PushButton));
-    ui->deleteButton_is->setIcon(platformStyle->MultiStatesIcon(":/icons/remove", PlatformStyle::PushButton));
-    ui->deleteButton_s->setIcon(platformStyle->MultiStatesIcon(":/icons/remove", PlatformStyle::PushButton));
-
+    ui->addressBookButton->setIcon(platformStyle->MultiStatesIcon(":/icons/address-book", PlatformStyle::PushButtonIcon));
+    ui->pasteButton->setIcon(platformStyle->MultiStatesIcon(":/icons/editpaste", PlatformStyle::PushButtonIcon));
+    ui->deleteButton->setIcon(platformStyle->MultiStatesIcon(":/icons/remove_entry", PlatformStyle::PushButtonIcon));
+    ui->deleteButton_is->setIcon(platformStyle->MultiStatesIcon(":/icons/remove", PlatformStyle::PushButtonIcon));
+    ui->deleteButton_s->setIcon(platformStyle->MultiStatesIcon(":/icons/remove", PlatformStyle::PushButtonIcon));
     setCurrentWidget(ui->SendCoins);
 
     if (platformStyle->getUseExtraSpacing())

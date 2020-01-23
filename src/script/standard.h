@@ -167,6 +167,8 @@ bool IsValidContractSenderAddress(const CTxDestination& dest);
 /** Parse a output public key for the sender public key and sender signature. */
 bool ExtractSenderData(const CScript& outputPubKey, CScript* senderPubKey, CScript* senderSig);
 
+bool GetSenderPubKey(const CScript& outputPubKey, CScript& senderPubKey);
+
 /** Get the name of a txnouttype as a C string, or nullptr if unknown. */
 const char* GetTxnOutputType(txnouttype t);
 
@@ -180,7 +182,7 @@ const char* GetTxnOutputType(txnouttype t);
  * @param[out]  vSolutionsRet  Vector of parsed pubkeys and hashes
  * @return                     The script type. TX_NONSTANDARD represents a failed solve.
  */
-txnouttype Solver(const CScript& scriptPubKey, std::vector<std::vector<unsigned char>>& vSolutionsRet, bool contractConsensus=false);
+txnouttype Solver(const CScript& scriptPubKey, std::vector<std::vector<unsigned char>>& vSolutionsRet, bool contractConsensus=false, bool allowEmptySenderSig=false);
 
 /**
  * Parse a standard scriptPubKey for the destination address. Assigns result to

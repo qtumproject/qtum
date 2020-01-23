@@ -153,6 +153,23 @@ double GetPoSKernelPS()
     return result;
 }
 
+double GetEstimatedAnnualROI()
+{
+    double result = 0;
+    double networkWeight = GetPoSKernelPS();
+    CBlockIndex* pindex = pindexBestHeader == 0 ? ::ChainActive().Tip() : pindexBestHeader;
+    int nHeight = pindex ? pindex->nHeight : 0;
+    const Consensus::Params& consensusParams = Params().GetConsensus();
+    double subsidy = GetBlockSubsidy(nHeight, consensusParams);
+    if(networkWeight > 0)
+    {
+        // Formula: 100 * 675 blocks/day * 365 days * subsidy) / Network Weight
+        result = 24637500 * subsidy / networkWeight;
+    }
+
+    return result;
+}
+
 static int ComputeNextBlockAndDepth(const CBlockIndex* tip, const CBlockIndex* blockindex, const CBlockIndex*& next)
 {
     next = tip->GetAncestor(blockindex->nHeight + 1);
@@ -295,6 +312,26 @@ UniValue transactionReceiptToJSON(const dev::eth::TransactionReceipt& txRec)
     return result;
 }
 ////////////////////////////////////////////////////////////////////////////
+
+static UniValue getestimatedannualroi(const JSONRPCRequest& request)
+{
+    if (request.fHelp || request.params.size() != 0)
+        throw std::runtime_error(
+            RPCHelpMan{"getestimatedannualroi",
+                "\nReturns the estimated annual roi.\n",
+                {},
+                RPCResult{
+            "n    (numeric) The current estimated annual roi\n"
+                },
+                RPCExamples{
+                    HelpExampleCli("getestimatedannualroi", "")
+            + HelpExampleRpc("getestimatedannualroi", "")
+                },
+            }.ToString());
+
+    LOCK(cs_main);
+    return GetEstimatedAnnualROI();
+}
 
 static UniValue getblockcount(const JSONRPCRequest& request)
 {
@@ -1282,6 +1319,7 @@ void assignJSON(UniValue& entry, const TransactionReceiptInfo& resExec) {
     entry.pushKV("blockNumber", uint64_t(resExec.blockNumber));
     entry.pushKV("transactionHash", resExec.transactionHash.GetHex());
     entry.pushKV("transactionIndex", uint64_t(resExec.transactionIndex));
+    entry.pushKV("outputIndex", uint64_t(resExec.outputIndex));
     entry.pushKV("from", resExec.from.hex());
     entry.pushKV("to", resExec.to.hex());
     entry.pushKV("cumulativeGasUsed", CAmount(resExec.cumulativeGasUsed));
@@ -3302,6 +3340,7 @@ static const CRPCCommand commands[] =
     { "blockchain",         "searchlogs",             &searchlogs,             {"fromBlock", "toBlock", "address", "topics"} },
 
     { "blockchain",         "waitforlogs",            &waitforlogs,            {"fromBlock", "nblocks", "address", "topics"} },
+    { "blockchain",         "getestimatedannualroi",  &getestimatedannualroi,  {} },
 };
 // clang-format on
 

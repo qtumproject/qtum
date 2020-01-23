@@ -487,6 +487,9 @@ extern std::unique_ptr<StorageResults> pstorageresult;
 
 bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, const Consensus::Params& consensusParams, CAmount nFees, CAmount gasRefunds, CAmount nActualStakeReward, const std::vector<CTxOut>& vouts);
 
+bool RemoveStateBlockIndex(CBlockIndex *pindex);
+
+//////////////////////////////////////////////////////// qtum
 bool GetSpentCoinFromBlock(const CBlockIndex* pindex, COutPoint prevout, Coin* coin);
 
 bool GetSpentCoinFromMainChain(const CBlockIndex* pforkPrev, COutPoint prevoutStake, Coin* coin);
@@ -914,6 +917,8 @@ public:
     void PruneBlockIndexCandidates();
 
     void UnloadBlockIndex();
+
+    bool RemoveBlockIndex(CBlockIndex *pindex);
 
     /** Check whether we are doing an initial block download (synchronizing from disk or network) */
     bool IsInitialBlockDownload() const;

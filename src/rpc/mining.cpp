@@ -310,7 +310,7 @@ static UniValue getstakinginfo(const JSONRPCRequest& request)
     {
         auto locked_chain = pwallet->chain().lock();
         nWeight = pwallet->GetStakeWeight(*locked_chain);
-        lastCoinStakeSearchInterval = pwallet->m_last_coin_stake_search_interval;
+        lastCoinStakeSearchInterval = pwallet->m_enabled_staking ? pwallet->m_last_coin_stake_search_interval : 0;
     }
 #endif
 

@@ -1,14 +1,14 @@
 #ifndef RECEIVETOKENPAGE_H
 #define RECEIVETOKENPAGE_H
 
-#include <QWidget>
+#include <QDialog>
 
 namespace Ui {
 class ReceiveTokenPage;
 }
 class PlatformStyle;
 
-class ReceiveTokenPage : public QWidget
+class ReceiveTokenPage : public QDialog
 {
     Q_OBJECT
 

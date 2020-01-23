@@ -52,7 +52,7 @@ const char* GetTxnOutputType(txnouttype t)
     return nullptr;
 }
 
-txnouttype Solver(const CScript& scriptPubKey, std::vector<std::vector<unsigned char>>& vSolutionsRet, bool contractConsensus)
+txnouttype Solver(const CScript& scriptPubKey, std::vector<std::vector<unsigned char>>& vSolutionsRet, bool contractConsensus, bool allowEmptySenderSig)
 {
     //contractConsesus is true when evaluating if a contract tx is "standard" for consensus purposes
     //It is false in all other cases, so to prevent a particular contract tx from being broadcast on mempool, but allowed in blocks,
@@ -304,7 +304,7 @@ txnouttype Solver(const CScript& scriptPubKey, std::vector<std::vector<unsigned 
             {
                 if(0 <= opcode1 && opcode1 <= OP_PUSHDATA4)
                 {
-                    if(vch1.empty())
+                    if(!allowEmptySenderSig && vch1.empty())
                         break;
 
                     // Check the max size of the signature script
@@ -539,6 +539,36 @@ bool ExtractSenderData(const CScript &outputPubKey, CScript *senderPubKey, CScri
                 CDataStream ss(vSolutions[1], SER_NETWORK, PROTOCOL_VERSION);
                 ss >> *senderSig;
             }
+        }
+        catch(...)
+        {
+            return false;
+        }
+
+        return true;
+    }
+    return false;
+}
+
+bool GetSenderPubKey(const CScript &outputPubKey, CScript &senderPubKey)
+{
+    if(outputPubKey.HasOpSender())
+    {
+        try
+        {
+            // Solve the contract with or without contract consensus
+            std::vector<valtype> vSolutions;
+            if (TX_NONSTANDARD == Solver(outputPubKey, vSolutions, true, true) &&
+                    TX_NONSTANDARD == Solver(outputPubKey, vSolutions, false, true))
+                return false;
+
+            // Check the size of the returned data
+            if(vSolutions.size() < 1)
+                return false;
+
+            // Get the sender public key
+            CDataStream ss(vSolutions[0], SER_NETWORK, PROTOCOL_VERSION);
+            ss >> senderPubKey;
         }
         catch(...)
         {

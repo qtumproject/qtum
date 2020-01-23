@@ -102,10 +102,10 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
 
         // The best chain should have at least this much work.
-        consensus.nMinimumChainWork = uint256S("0x00000000000000000000000000000000000000000000012cae21c73d14f9b29e"); // qtum
+        consensus.nMinimumChainWork = uint256S("0x0000000000000000000000000000000000000000000001588da875a3a3951783"); // qtum
 
         // By default assume that the signatures in ancestors of this block are valid.
-        consensus.defaultAssumeValid = uint256S("0x814e7d91aac6c577e4589b76918f44cf80020212159d39709fbad3f219725c9f"); // 445709
+        consensus.defaultAssumeValid = uint256S("0x497f28fd4b1dadc9ff6dd2ac771483acfd16e4c4664eb45d0a6008dc33811418"); // 498000
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -118,8 +118,8 @@ public:
         pchMessageStart[3] = 0xd3;
         nDefaultPort = 3888;
         nPruneAfterHeight = 100000;
-        m_assumed_blockchain_size = 6;
-        m_assumed_chain_state_size = 2;
+        m_assumed_blockchain_size = 8;
+        m_assumed_chain_state_size = 1;
 
         genesis = CreateGenesisBlock(1504695029, 8026361, 0x1f00ffff, 1, 50 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
@@ -160,15 +160,16 @@ public:
                 { 353000, uint256S("d487896851fed42b07771f950fcc4469fbfa79211cfefed800f6d7806255e23f")},
                 { 367795, uint256S("1209326b73e38e44ec5dc210f51dc5d8c3494e9c698521032dd754747d4c1685")},
                 { 445709, uint256S("814e7d91aac6c577e4589b76918f44cf80020212159d39709fbad3f219725c9f")},
+                { 498000, uint256S("497f28fd4b1dadc9ff6dd2ac771483acfd16e4c4664eb45d0a6008dc33811418")},
             }
         };
 
         chainTxData = ChainTxData{
-            // Data as of block 3e76a9f460f5df039f828e3c259da03e1b4e1ec883cbf687a228e346cc457360 (height 253817)
-            1568403088, // * UNIX timestamp of last known number of transactions
-            3374744, // * total number of transactions between genesis and that timestamp
+            // Data as of block 5c0215809068d3e8520997febc84ca578b4ddf3f8917a86b6c7f5e1deecb5c32 (height 499049)
+            1575479072, // * UNIX timestamp of last known number of transactions
+            3614626, // * total number of transactions between genesis and that timestamp
             //   (the tx=... number in the SetBestChain debug.log lines)
-            0.0349037843706379 // * estimated number of transactions per second after that timestamp
+            0.03358921219453481 // * estimated number of transactions per second after that timestamp
         };
 
         consensus.nLastPOWBlock = 5000;
@@ -219,7 +220,7 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
 
         // The best chain should have at least this much work.
-        consensus.nMinimumChainWork = uint256S("0x000000000000000000000000000000000000000000000047cc31541550003573"); // qtum
+        consensus.nMinimumChainWork = uint256S("0x000000000000000000000000000000000000000000000054b076851886f682c5"); // qtum
 
         // By default assume that the signatures in ancestors of this block are valid.
         consensus.defaultAssumeValid = uint256S("0x4a5ab88811edba9f43fe6fe1ca9f529fb363ed2f0725ae9797bb5bdd9220cb7a"); // 421632
@@ -230,8 +231,8 @@ public:
         pchMessageStart[3] = 0x06;
         nDefaultPort = 13888;
         nPruneAfterHeight = 1000;
-        m_assumed_blockchain_size = 6;
-        m_assumed_chain_state_size = 2;
+        m_assumed_blockchain_size = 2;
+        m_assumed_chain_state_size = 1;
 
         genesis = CreateGenesisBlock(1504695029, 7349697, 0x1f00ffff, 1, 50 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
@@ -266,14 +267,15 @@ public:
                 {230000, uint256S("cd17baf80fa817dd543b83897ccb1e07350019e5b812f4956f69efe855d62601")},
                 {343000, uint256S("ac66f1de1a5fa473b5097b313c203e97d45669485e4c235a32a0f80df64f6948")},
                 {441632, uint256S("2cb93f74cb3e47ec05b745a445f90a023b7136a68f94e9bff7fb49819155ccd8")},
+                {491300, uint256S("75a7db2865423d3af5f0dfd70cfef6053b91f3c018c4b28a4e28c09a8c011e78")},
             }
         };
 
         chainTxData = ChainTxData{
-            // Data as of block 2820e75dd90210a1dcf59efe839a1e5f212e272c6bcb7fd94e749f5e01822813 (height 239905)
-            1568403056,
-            966895,
-            0.0140114245938137
+            // Data as of block babfd02d9dd271a12a2fd1b8ba95a0c73aca9a0b25889d3340a7ca3fb406a2cf (height 496333)
+            1575478816,
+            1080030,
+            0.01624824080589608
         };
 
         consensus.nLastPOWBlock = 5000;
@@ -371,8 +373,8 @@ public:
         consensus.nEnableHeaderSignatureHeight = 0;
         consensus.nCheckpointSpan = COINBASE_MATURITY;
 
-        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,120);//QTUM_LINE
-        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,110);//QTUM_LINE
+        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,120);
+        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,110);
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,239);
         base58Prefixes[EXT_PUBLIC_KEY] = {0x04, 0x35, 0x87, 0xCF};
         base58Prefixes[EXT_SECRET_KEY] = {0x04, 0x35, 0x83, 0x94};

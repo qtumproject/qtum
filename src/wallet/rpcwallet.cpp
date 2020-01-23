@@ -4176,6 +4176,65 @@ UniValue signrawtransactionwithwallet(const JSONRPCRequest& request)
     return SignTransaction(mtx, pwallet, coins, request.params[2]);
 }
 
+UniValue signrawsendertransactionwithwallet(const JSONRPCRequest& request)
+{
+    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
+    CWallet* const pwallet = wallet.get();
+
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+
+    if (request.fHelp || request.params.size() < 1 || request.params.size() > 2)
+        throw std::runtime_error(
+            RPCHelpMan{"signrawsendertransactionwithwallet",
+                "\nSign OP_SENDER outputs for raw transaction (serialized, hex-encoded).\n" +
+                    HelpRequiringPassphrase(pwallet) + "\n",
+                {
+                    {"hexstring", RPCArg::Type::STR, RPCArg::Optional::NO, "The transaction hex string"},
+                    {"sighashtype", RPCArg::Type::STR, /* default */ "ALL", "The signature hash type. Must be one of\n"
+            "       \"ALL\"\n"
+            "       \"NONE\"\n"
+            "       \"SINGLE\"\n"
+            "       \"ALL|ANYONECANPAY\"\n"
+            "       \"NONE|ANYONECANPAY\"\n"
+            "       \"SINGLE|ANYONECANPAY\""},
+                },
+                RPCResult{
+            "{\n"
+            "  \"hex\" : \"value\",                  (string) The hex-encoded raw transaction with signature(s)\n"
+            "  \"complete\" : true|false,          (boolean) If the transaction has a complete set of signatures\n"
+            "  \"errors\" : [                      (json array of objects) Script verification errors (if there are any)\n"
+            "    {\n"
+            "      \"amount\" : n,                   (numeric) The amount of the output\n"
+            "      \"scriptPubKey\" : \"hex\",          (string) The hex-encoded public key script of the output\n"
+            "      \"error\" : \"text\"              (string) Verification or signing error related to the output\n"
+            "    }\n"
+            "    ,...\n"
+            "  ]\n"
+            "}\n"
+                },
+                RPCExamples{
+                    HelpExampleCli("signrawsendertransactionwithwallet", "\"myhex\"")
+            + HelpExampleRpc("signrawsendertransactionwithwallet", "\"myhex\"")
+                },
+            }.ToString());
+
+    RPCTypeCheck(request.params, {UniValue::VSTR, UniValue::VSTR}, true);
+
+    CMutableTransaction mtx;
+    if (!DecodeHexTx(mtx, request.params[0].get_str(), true)) {
+        throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "TX decode failed");
+    }
+
+    // Sign the transaction
+    auto locked_chain = pwallet->chain().lock();
+    LOCK(pwallet->cs_wallet);
+    EnsureWalletIsUnlocked(pwallet);
+
+    return SignTransactionSender(mtx, pwallet, request.params[1]);
+}
+
 static UniValue bumpfee(const JSONRPCRequest& request)
 {
     std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
@@ -5124,6 +5183,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "setwalletflag",                    &setwalletflag,                 {"flag","value"} },
     { "wallet",             "signmessage",                      &signmessage,                   {"address","message"} },
     { "wallet",             "signrawtransactionwithwallet",     &signrawtransactionwithwallet,  {"hexstring","prevtxs","sighashtype"} },
+    { "wallet",             "signrawsendertransactionwithwallet", &signrawsendertransactionwithwallet,  {"hexstring","sighashtype"} },
     { "wallet",             "unloadwallet",                     &unloadwallet,                  {"wallet_name"} },
     { "wallet",             "walletcreatefundedpsbt",           &walletcreatefundedpsbt,        {"inputs","outputs","locktime","options","bip32derivs"} },
     { "wallet",             "walletlock",                       &walletlock,                    {} },

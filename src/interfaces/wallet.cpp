@@ -824,6 +824,12 @@ public:
         nWeight = m_wallet->GetStakeWeight(*locked_chain);
         return true;
     }
+    uint64_t getStakeWeight() override
+    {
+        auto locked_chain = m_wallet->chain().lock();
+        LOCK(m_wallet->cs_wallet);
+        return m_wallet->GetStakeWeight(*locked_chain);
+    }
     int64_t getLastCoinStakeSearchInterval() override 
     { 
         return m_wallet->m_last_coin_stake_search_interval;
@@ -839,6 +845,14 @@ public:
     bool cleanTokenTxEntries() override
     {
         return m_wallet->CleanTokenTxEntries();
+    }
+    void setEnabledStaking(bool enabled) override
+    {
+        m_wallet->m_enabled_staking = enabled;
+    }
+    bool getEnabledStaking() override
+    {
+        return m_wallet->m_enabled_staking;
     }
     std::unique_ptr<Handler> handleUnload(UnloadFn fn) override
     {
