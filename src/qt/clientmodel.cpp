@@ -235,7 +235,7 @@ static void BlockTipChanged(ClientModel *clientmodel, bool initialSync, int heig
     if(height > 0)
     {
         int64_t secs = GetTime() - blockTime;
-        bool batchMode = secs >= 90*60 ? true : false;
+        bool batchMode = secs >= MAX_BLOCK_TIME_GAP ? true : false;
         if(batchMode)
         {
             initialSync |= batchMode;
