@@ -148,9 +148,7 @@ static const int64_t MAX_FEE_ESTIMATION_TIP_AGE = 3 * 60 * 60;
 
 static const bool DEFAULT_CHECKPOINTS_ENABLED = true;
 static const bool DEFAULT_TXINDEX = false;
-#ifdef ENABLE_BITCORE_RPC
 static const bool DEFAULT_ADDRINDEX = false;
-#endif
 static const bool DEFAULT_LOGEVENTS = false;
 static const char* const DEFAULT_BLOCKFILTERINDEX = "0";
 static const unsigned int DEFAULT_BANSCORE_THRESHOLD = 100;
@@ -194,9 +192,7 @@ extern uint256 g_best_block;
 extern std::atomic_bool fImporting;
 extern std::atomic_bool fReindex;
 extern int nScriptCheckThreads;
-#ifdef ENABLE_BITCORE_RPC
 extern bool fAddressIndex;
-#endif
 extern bool fLogEvents;
 extern bool fRequireStandard;
 extern bool fCheckBlockIndex;
@@ -419,7 +415,6 @@ public:
 /** Initializes the script-execution cache */
 void InitScriptExecutionCache();
 
-#ifdef ENABLE_BITCORE_RPC
 ///////////////////////////////////////////////////////////////// // qtum
 bool GetAddressIndex(uint256 addressHash, int type,
                      std::vector<std::pair<CAddressIndexKey, CAmount> > &addressIndex,
@@ -432,7 +427,6 @@ bool GetAddressUnspent(uint256 addressHash, int type,
 
 bool GetTimestampIndex(const unsigned int &high, const unsigned int &low, const bool fActiveOnly, std::vector<std::pair<uint256, unsigned int> > &hashes);
 /////////////////////////////////////////////////////////////////
-#endif
 
 /** Functions for disk access for blocks */
 //Template function that read the whole block or the header only depending on the type (CBlock or CBlockHeader)

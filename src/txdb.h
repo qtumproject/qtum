@@ -24,7 +24,6 @@ class CCoinsViewDBCursor;
 class uint256;
 struct CHeightTxIndexKey;
 struct CHeightTxIndexIteratorKey;
-#ifdef ENABLE_BITCORE_RPC
 //////////////////////////////////// //qtum
 struct CAddressIndexKey;
 struct CAddressUnspentKey;
@@ -34,7 +33,6 @@ struct CTimestampIndexKey;
 struct CTimestampBlockIndexKey;
 struct CTimestampBlockIndexValue;
 ////////////////////////////////////
-#endif
 
 using valtype = std::vector<unsigned char>;
 
@@ -172,7 +170,6 @@ public:
     bool ReadStakeIndex(unsigned int high, unsigned int low, std::vector<uint160> addresses);
     bool EraseStakeIndex(unsigned int height);
 
-#ifdef ENABLE_BITCORE_RPC
     // Block explorer database functions
     bool WriteAddressIndex(const std::vector<std::pair<CAddressIndexKey, CAmount> > &vect);
     bool EraseAddressIndex(const std::vector<std::pair<CAddressIndexKey, CAmount> > &vect);
@@ -189,7 +186,6 @@ public:
     bool ReadSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value);
     bool UpdateSpentIndex(const std::vector<std::pair<CSpentIndexKey, CSpentIndexValue> >&vect);
     bool blockOnchainActive(const uint256 &hash);
-#endif
 
     //////////////////////////////////////////////////////////////////////////////
 };

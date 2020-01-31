@@ -580,7 +580,6 @@ bool GetSenderPubKey(const CScript &outputPubKey, CScript &senderPubKey)
     return false;
 }
 
-#ifdef ENABLE_BITCORE_RPC
 valtype DataVisitor::operator()(const CNoDestination& noDest) const { return valtype(); }
 valtype DataVisitor::operator()(const PKHash& keyID) const { return valtype(keyID.begin(), keyID.end()); }
 valtype DataVisitor::operator()(const ScriptHash& scriptID) const { return valtype(scriptID.begin(), scriptID.end()); }
@@ -645,4 +644,3 @@ bool ExtractDestination(const COutPoint& prevout, const CScript& scriptPubKey, C
     }
     return false;
 }
-#endif

@@ -228,7 +228,6 @@ CScript GetScriptForMultisig(int nRequired, const std::vector<CPubKey>& keys);
  */
 CScript GetScriptForWitness(const CScript& redeemscript);
 
-#ifdef ENABLE_BITCORE_RPC
 struct DataVisitor : public boost::static_visitor<valtype>
 {
     valtype operator()(const CNoDestination& noDest) const;
@@ -240,6 +239,5 @@ struct DataVisitor : public boost::static_visitor<valtype>
 };
 
 bool ExtractDestination(const COutPoint& prevout, const CScript& scriptPubKey, CTxDestination& addressRet, txnouttype* typeRet = NULL);
-#endif
 
 #endif // BITCOIN_SCRIPT_STANDARD_H

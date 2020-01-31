@@ -52,7 +52,6 @@ struct LockPoints
 
 class CTxMemPool;
 
-#ifdef ENABLE_BITCORE_RPC
 //////////////////////////////////////////////////////// // qtum
 struct CSpentIndexKeyCompare
 {
@@ -135,7 +134,6 @@ struct CMempoolAddressDeltaKeyCompare
     }
 };
 ////////////////////////////////////////////////////////
-#endif
 
 /** \class CTxMemPoolEntry
  *
@@ -686,7 +684,6 @@ private:
     typedef std::map<txiter, TxLinks, CompareIteratorByHash> txlinksMap;
     txlinksMap mapLinks;
 
-#ifdef ENABLE_BITCORE_RPC
     //////////////////////////////////////////////////////////////// // qtum
     typedef std::map<CMempoolAddressDeltaKey, CMempoolAddressDelta, CMempoolAddressDeltaKeyCompare> addressDeltaMap;
     addressDeltaMap mapAddress;
@@ -700,7 +697,6 @@ private:
     typedef std::map<uint256, std::vector<CSpentIndexKey> > mapSpentIndexInserted;
     mapSpentIndexInserted mapSpentInserted;
     ////////////////////////////////////////////////////////////////
-#endif
 
     void UpdateParent(txiter entry, txiter parent, bool add);
     void UpdateChild(txiter entry, txiter child, bool add);
@@ -734,7 +730,6 @@ public:
     void addUnchecked(const CTxMemPoolEntry& entry, bool validFeeEstimate = true) EXCLUSIVE_LOCKS_REQUIRED(cs, cs_main);
     void addUnchecked(const CTxMemPoolEntry& entry, setEntries& setAncestors, bool validFeeEstimate = true) EXCLUSIVE_LOCKS_REQUIRED(cs, cs_main);
 
-#ifdef ENABLE_BITCORE_RPC
     ///////////////////////////////////////////////////////// // qtum
     void addAddressIndex(const CTxMemPoolEntry &entry, const CCoinsViewCache &view);
     bool getAddressIndex(std::vector<std::pair<uint256, int> > &addresses,
@@ -745,7 +740,6 @@ public:
     bool getSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value);
     bool removeSpentIndex(const uint256 txhash);
     /////////////////////////////////////////////////////////
-#endif
 
     void removeRecursive(const CTransaction& tx, MemPoolRemovalReason reason) EXCLUSIVE_LOCKS_REQUIRED(cs);
     void removeForReorg(const CCoinsViewCache* pcoins, unsigned int nMemPoolHeight, int flags) EXCLUSIVE_LOCKS_REQUIRED(cs, cs_main);
