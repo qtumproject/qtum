@@ -529,6 +529,7 @@ void SetupServerArgs()
     gArgs.AddArg("-btcecrecoverheight=<n>", "Use given block height to check btc_ecrecover fork (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-constantinopleheight=<n>", "Use given block height to check constantinople fork (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-difficultychangeheight=<n>", "Use given block height to check difficulty change fork (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    gArgs.AddArg("-offlinestakingheight=<n>", "Use given block height to check offline staking fork (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
 
     SetupChainParamsBaseOptions();
 
@@ -1258,6 +1259,20 @@ bool AppInitParameterInteraction()
         {
             UpdateDifficultyChangeBlockHeight(difficultyChangeBlock);
             LogPrintf("Activate difficulty change at block height %d\n.", difficultyChangeBlock);
+        }
+    }
+
+    if (gArgs.IsArgSet("-offlinestakingheight")) {
+        // Allow overriding offline staking block for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError("Offline staking block height may only be overridden on regtest.");
+        }
+
+        int offlineStakingBlock = gArgs.GetArg("-offlinestakingheight", 0);
+        if(offlineStakingBlock >= 0)
+        {
+            UpdateOfflineStakingBlockHeight(offlineStakingBlock);
+            LogPrintf("Activate offline staking at block height %d\n.", offlineStakingBlock);
         }
     }
 
