@@ -49,6 +49,7 @@
 #include <warnings.h>
 #include <libethcore/ABI.h>
 #include <net_processing.h>
+#include <util/signstr.h>
 
 #include <serialize.h>
 #include <pubkey.h>
