@@ -4636,7 +4636,7 @@ bool CheckFirstCoinstakeOutput(const CBlock& block)
 
 #ifdef ENABLE_WALLET
 // novacoin: attempt to generate suitable proof-of-stake
-bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& nTotalFees, uint32_t nTime, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins)
+bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& nTotalFees, uint32_t nTime, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::set<std::pair<const CWalletTx*,unsigned int> >& setDelegateCoins)
 {
     // if we are trying to sign
     //    something except proof-of-stake block template
@@ -4657,7 +4657,7 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
     //IsProtocolV2 mean POS 2 or higher, so the modified line is:
     auto locked_chain = wallet.chain().lock();
     LOCK(wallet.cs_wallet);
-    if (wallet.CreateCoinStake(*locked_chain, wallet, pblock->nBits, nTotalFees, nTimeBlock, txCoinStake, key, setCoins))
+    if (wallet.CreateCoinStake(*locked_chain, wallet, pblock->nBits, nTotalFees, nTimeBlock, txCoinStake, key, setCoins, setDelegateCoins))
     {
         if (nTimeBlock >= ::ChainActive().Tip()->GetMedianTimePast()+1)
         {

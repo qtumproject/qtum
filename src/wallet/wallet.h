@@ -735,6 +735,14 @@ struct CoinSelectionParams
     CoinSelectionParams() {}
 };
 
+struct Delegation
+{
+    CKeyID staker;
+    uint8_t fee;
+    uint blockHeight;
+    std::vector<unsigned char> PoD; //Proof Of Delegation
+};
+
 class WalletRescanReserver; //forward declarations for ScanForWalletTransactions/RescanFromTime
 /**
  * A CWallet is an extension of a keystore, which also maintains a set of transactions and balances,
@@ -906,6 +914,9 @@ private:
     boost::thread_group* stakeThread = nullptr;
     void StakeQtums(bool fStake, CConnman* connman);
 
+    bool CreateCoinStakeFromMine(interfaces::Chain::Lock& locked_chain, const CKeyStore &keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins);
+    bool CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain, const CKeyStore &keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setDelegateCoins);
+
 public:
     /*
      * Main wallet lock.
@@ -1011,6 +1022,9 @@ public:
     //! select coins for staking from the available coins for staking.
     bool SelectCoinsForStaking(interfaces::Chain::Lock& locked_chain, CAmount& nTargetValue, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoinsRet, CAmount& nValueRet) const;
 	
+    //! select delegated coins for staking from other users.
+    bool SelectDelegateCoinsForStaking(interfaces::Chain::Lock& locked_chain, std::set<std::pair<const CWalletTx*,unsigned int> >& setDelegateCoinsRet) const;
+
     /**
      * populate vCoins with vector of available COutputs.
      */
@@ -1197,7 +1211,7 @@ public:
     bool CommitTransaction(CTransactionRef tx, mapValue_t mapValue, std::vector<std::pair<std::string, std::string>> orderForm, CValidationState& state);
 
     uint64_t GetStakeWeight(interfaces::Chain::Lock& locked_chain) const;
-    bool CreateCoinStake(interfaces::Chain::Lock& locked_chain, const FillableSigningProvider &keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins);
+    bool CreateCoinStake(interfaces::Chain::Lock& locked_chain, const FillableSigningProvider &keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::set<std::pair<const CWalletTx*,unsigned int> >& setDelegateCoins);
 
     bool DummySignTx(CMutableTransaction &txNew, const std::set<CTxOut> &txouts, bool use_max_sig = false) const
     {
@@ -1516,6 +1530,8 @@ public:
     void StopStake();
 
     static CConnman* defaultConnman;
+
+    std::map<CKeyID, Delegation> m_delegation;
 };
 
 /**

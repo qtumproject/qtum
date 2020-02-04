@@ -2915,6 +2915,11 @@ bool CWallet::SelectCoinsForStaking(interfaces::Chain::Lock& locked_chain, CAmou
     return true;
 }
 
+bool CWallet::SelectDelegateCoinsForStaking(interfaces::Chain::Lock& locked_chain, std::set<std::pair<const CWalletTx*,unsigned int> >& setDelegateCoinsRet) const
+{
+    return false;
+}
+
 bool CWallet::SignTransaction(CMutableTransaction& tx)
 {
     AssertLockHeld(cs_wallet);
@@ -3534,7 +3539,7 @@ uint64_t CWallet::GetStakeWeight(interfaces::Chain::Lock& locked_chain) const
     return nWeight;
 }
 
-bool CWallet::CreateCoinStake(interfaces::Chain::Lock& locked_chain, const FillableSigningProvider& keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins)
+bool CWallet::CreateCoinStakeFromMine(interfaces::Chain::Lock& locked_chain, const FillableSigningProvider& keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins)
 {
     CBlockIndex* pindexPrev = ::ChainActive().Tip();
     arith_uint256 bnTargetPerCoinDay;
@@ -3740,6 +3745,26 @@ bool CWallet::CreateCoinStake(interfaces::Chain::Lock& locked_chain, const Filla
     // Successfully generated coinstake
     tx = txNew;
     return true;
+}
+
+bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain, const CKeyStore &keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setDelegateCoins)
+{
+    return false;
+}
+
+
+bool CWallet::CreateCoinStake(interfaces::Chain::Lock& locked_chain, const CKeyStore& keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::set<std::pair<const CWalletTx*,unsigned int> >& setDelegateCoins)
+{
+    // Create coinstake from coins that are mine
+    if(setCoins.size() > 0 && CreateCoinStakeFromMine(locked_chain, keystore, nBits, nTotalFees, nTimeBlock, tx, key, setCoins))
+        return true;
+
+    // Create coinstake from coins that are delegated to me
+    if(setDelegateCoins.size() > 0 && CreateCoinStakeFromDelegate(locked_chain, keystore, nBits, nTotalFees, nTimeBlock, tx, key, setDelegateCoins))
+        return true;
+
+    // Fail to create coinstake
+    return false;
 }
 
 /**
