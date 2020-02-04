@@ -1031,6 +1031,8 @@ public:
     void AvailableCoinsForStaking(interfaces::Chain::Lock& locked_chain, std::vector<COutput>& vCoins) const;
     void AvailableCoins(interfaces::Chain::Lock& locked_chain, std::vector<COutput>& vCoins, bool fOnlySafe = true, const CCoinControl* coinControl = nullptr, const CAmount& nMinimumAmount = 1, const CAmount& nMaximumAmount = MAX_MONEY, const CAmount& nMinimumSumAmount = MAX_MONEY, const uint64_t nMaximumCount = 0) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
     bool HaveAvailableCoinsForStaking() const;
+    void AvailableDelegateCoinsForStaking(interfaces::Chain::Lock& locked_chain, std::vector<COutput>& vDelegateCoins) const;
+    bool HaveAvailableDelegateCoinsForStaking() const;
 
     /**
      * Return list of available coins and locked coins grouped by non-change output address.
