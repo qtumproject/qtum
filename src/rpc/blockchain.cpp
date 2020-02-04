@@ -266,7 +266,7 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* tip, const CBlockIn
     result.pushKV("modifier", blockindex->nStakeModifier.GetHex());
 
     if (block.IsProofOfStake())
-        result.pushKV("signature", HexStr(block.vchBlockSig.begin(), block.vchBlockSig.end()));	
+        result.pushKV("signature", HexStr(block.vchBlockSigDlgt.begin(), block.vchBlockSigDlgt.end()));	
 
     return result;
 }

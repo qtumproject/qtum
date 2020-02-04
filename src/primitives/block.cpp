@@ -9,6 +9,7 @@
 #include <tinyformat.h>
 #include <util/strencodings.h>
 #include <crypto/common.h>
+#include <pubkey.h>
 
 uint256 CBlockHeader::GetHash() const
 {
@@ -31,7 +32,7 @@ std::string CBlock::ToString() const
         nTime, nBits, nNonce,
         hashStateRoot.ToString(), // qtum
         hashUTXORoot.ToString(), // qtum
-        HexStr(vchBlockSig),
+        HexStr(vchBlockSigDlgt),
         IsProofOfStake() ? "PoS" : "PoW",
         prevoutStake.ToString(),
         vtx.size());
@@ -39,4 +40,25 @@ std::string CBlock::ToString() const
         s << "  " << tx->ToString() << "\n";
     }
     return s.str();
+}
+
+std::vector<unsigned char> CBlockHeader::GetBlockSignature()
+{
+    if(vchBlockSigDlgt.size() < 2 * CPubKey::COMPRESSED_PUBLIC_KEY_SIZE)
+    {
+        return vchBlockSigDlgt;
+    }
+
+    return std::vector<unsigned char>(vchBlockSigDlgt.begin(), vchBlockSigDlgt.end() - CPubKey::COMPRESSED_PUBLIC_KEY_SIZE );
+}
+
+std::vector<unsigned char> CBlockHeader::GetBlockDelegate()
+{
+    if(vchBlockSigDlgt.size() < 2 * CPubKey::COMPRESSED_PUBLIC_KEY_SIZE)
+    {
+        return std::vector<unsigned char>();
+    }
+
+    return std::vector<unsigned char>(vchBlockSigDlgt.begin() + vchBlockSigDlgt.size() - CPubKey::COMPRESSED_PUBLIC_KEY_SIZE, vchBlockSigDlgt.end());
+
 }

@@ -4645,7 +4645,7 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
 
     // if we are trying to sign
     //    a complete proof-of-stake block
-    if (pblock->IsProofOfStake() && !pblock->vchBlockSig.empty())
+    if (pblock->IsProofOfStake() && !pblock->vchBlockSigDlgt.empty())
         return true;
 
     CKey key;
@@ -4678,14 +4678,14 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
             if (chainActive.Height() + 1 >= Params().GetConsensus().nOfflineStakeHeight)
             {
                 // append a signature to our block and ensure that is compact
-                return key.SignCompact(pblock->GetHashWithoutSign(), pblock->vchBlockSig) &&
+                return key.SignCompact(pblock->GetHashWithoutSign(), pblock->vchBlockSigDlgt) &&
                            CheckHeaderPoS(*pblock, Params().GetConsensus());
             }
             else
             {
                 // append a signature to our block and ensure that is LowS
-                return key.Sign(pblock->GetHashWithoutSign(), pblock->vchBlockSig) &&
-                           EnsureLowS(pblock->vchBlockSig) &&
+                return key.Sign(pblock->GetHashWithoutSign(), pblock->vchBlockSigDlgt) &&
+                           EnsureLowS(pblock->vchBlockSigDlgt) &&
                            CheckHeaderPoS(*pblock, Params().GetConsensus());
             }
         }
@@ -4700,7 +4700,7 @@ bool GetBlockPublicKey(const CBlock& block, std::vector<unsigned char>& vchPubKe
     if (block.IsProofOfWork())
         return false;
 
-    if (block.vchBlockSig.empty())
+    if (block.vchBlockSigDlgt.empty())
         return false;
 
     std::vector<valtype> vSolutions;
@@ -4742,7 +4742,7 @@ bool GetBlockPublicKey(const CBlock& block, std::vector<unsigned char>& vchPubKe
 bool CheckBlockSignature(const CBlock& block)
 {
     if (block.IsProofOfWork())
-        return block.vchBlockSig.empty();
+        return block.vchBlockSigDlgt.empty();
 
     std::vector<unsigned char> vchPubKey;
     if(!GetBlockPublicKey(block, vchPubKey))
@@ -4752,14 +4752,14 @@ bool CheckBlockSignature(const CBlock& block)
 
     uint256 hash = block.GetHashWithoutSign();
 
-    if(block.vchBlockSig.size() == CPubKey::COMPACT_SIGNATURE_SIZE)
+    if(block.vchBlockSigDlgt.size() == CPubKey::COMPACT_SIGNATURE_SIZE)
     {
         CPubKey pubkey;
-        if(pubkey.RecoverCompact(hash, block.vchBlockSig) && pubkey == CPubKey(vchPubKey))
+        if(pubkey.RecoverCompact(hash, block.vchBlockSigDlgt) && pubkey == CPubKey(vchPubKey))
             return true;
     }
 
-    return CPubKey(vchPubKey).Verify(hash, block.vchBlockSig);
+    return CPubKey(vchPubKey).Verify(hash, block.vchBlockSigDlgt);
 }
 
 static bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW = true, bool fCheckPOS = true)
@@ -5479,16 +5479,16 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
 bool IsCanonicalBlockSignature(const CBlockHeader* pblock, bool checkLowS)
 {
     if (pblock->IsProofOfWork()) {
-        return pblock->vchBlockSig.empty();
+        return pblock->vchBlockSigDlgt.empty();
     }
 
-    return checkLowS ? IsLowDERSignature(pblock->vchBlockSig, NULL, false) : IsDERSignature(pblock->vchBlockSig, NULL, false);
+    return checkLowS ? IsLowDERSignature(pblock->vchBlockSigDlgt, NULL, false) : IsDERSignature(pblock->vchBlockSigDlgt, NULL, false);
 }
 
 bool CheckCanonicalBlockSignature(const CBlockHeader* pblock)
 {
     // Check compact signature size
-    if(pblock->IsProofOfStake() && pblock->vchBlockSig.size() == CPubKey::COMPACT_SIGNATURE_SIZE)
+    if(pblock->IsProofOfStake() && pblock->vchBlockSigDlgt.size() == CPubKey::COMPACT_SIGNATURE_SIZE)
         return true;
 
     //block signature encoding

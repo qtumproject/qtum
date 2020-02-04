@@ -187,7 +187,7 @@ public:
     uint256 hashStateRoot; // qtum
     uint256 hashUTXORoot; // qtum
     // block signature - proof-of-stake protect the block by signing the block using a stake holder private key
-    std::vector<unsigned char> vchBlockSig;
+    std::vector<unsigned char> vchBlockSigDlgt;
     uint256 nStakeModifier;
     // proof-of-stake specific fields
     COutPoint prevoutStake;
@@ -224,7 +224,7 @@ public:
         nNonce         = 0;
         hashStateRoot  = uint256(); // qtum
         hashUTXORoot   = uint256(); // qtum
-        vchBlockSig.clear();
+        vchBlockSigDlgt.clear();
         nStakeModifier = uint256();
         hashProof = uint256();
         prevoutStake.SetNull();
@@ -251,7 +251,7 @@ public:
         nStakeModifier = uint256();
         hashProof = uint256(); 
         prevoutStake   = block.prevoutStake; // qtum
-        vchBlockSig    = block.vchBlockSig; // qtum
+        vchBlockSigDlgt    = block.vchBlockSigDlgt; // qtum
     }
 
     FlatFilePos GetBlockPos() const {
@@ -284,7 +284,7 @@ public:
         block.nNonce         = nNonce;
         block.hashStateRoot  = hashStateRoot; // qtum
         block.hashUTXORoot   = hashUTXORoot; // qtum
-        block.vchBlockSig    = vchBlockSig;
+        block.vchBlockSigDlgt    = vchBlockSigDlgt;
         block.prevoutStake   = prevoutStake;
         return block;
     }
@@ -430,7 +430,7 @@ public:
         READWRITE(nStakeModifier);
         READWRITE(prevoutStake);
         READWRITE(hashProof);
-        READWRITE(vchBlockSig); // qtum
+        READWRITE(vchBlockSigDlgt); // qtum
     }
 
     uint256 GetBlockHash() const
@@ -444,7 +444,7 @@ public:
         block.nNonce          = nNonce;
         block.hashStateRoot   = hashStateRoot; // qtum
         block.hashUTXORoot    = hashUTXORoot; // qtum
-        block.vchBlockSig     = vchBlockSig;
+        block.vchBlockSigDlgt     = vchBlockSigDlgt;
         block.prevoutStake    = prevoutStake;
         return block.GetHash();
     }

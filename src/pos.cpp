@@ -193,7 +193,7 @@ bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBloc
     uint256 hash = block.GetHashWithoutSign();
     CPubKey pubkey;
 
-    if(block.vchBlockSig.empty()) {
+    if(block.vchBlockSigDlgt.empty()) {
         return error("CheckRecoveredPubKeyFromBlockSignature(): Signature is empty\n");
     }
 
@@ -203,7 +203,7 @@ bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBloc
         // Recover the public key from compact signature
         CTxDestination address;
         txnouttype txType=TX_NONSTANDARD;
-        if(pubkey.RecoverCompact(hash, block.vchBlockSig) &&
+        if(pubkey.RecoverCompact(hash, block.vchBlockSigDlgt) &&
                 ExtractDestination(coinPrev.out.scriptPubKey, address, &txType)){
             if ((txType == TX_PUBKEY || txType == TX_PUBKEYHASH) && address.type() == typeid(PKHash)) {
                 if(pubkey.GetID() == boost::get<PKHash>(address)) {
@@ -217,7 +217,7 @@ bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBloc
         // Recover the public key from LowS signature
         for(uint8_t recid = 0; recid <= 3; ++recid) {
             for(uint8_t compressed = 0; compressed < 2; ++compressed) {
-                if(!pubkey.RecoverLaxDER(hash, block.vchBlockSig, recid, compressed)) {
+                if(!pubkey.RecoverLaxDER(hash, block.vchBlockSigDlgt, recid, compressed)) {
                     continue;
                 }
 

@@ -55,8 +55,7 @@ class CBlockHeader : public CBlockHeaderBase
 {
 public:
     // header
-    std::vector<unsigned char> vchBlockSig;
-
+    std::vector<unsigned char> vchBlockSigDlgt; // The delegate is 65 bytes or 0 bytes, it can be added in the signature paramether at the end to avoid compatibility problems
     CBlockHeader()
     {
         SetNull();
@@ -75,7 +74,7 @@ public:
         READWRITE(hashStateRoot); // qtum
         READWRITE(hashUTXORoot); // qtum
         READWRITE(prevoutStake);
-        READWRITE(vchBlockSig);
+        READWRITE(vchBlockSigDlgt);
     }
 
     void SetNull()
@@ -88,7 +87,7 @@ public:
         nNonce = 0;
         hashStateRoot.SetNull(); // qtum
         hashUTXORoot.SetNull(); // qtum
-        vchBlockSig.clear();
+        vchBlockSigDlgt.clear();
         prevoutStake.SetNull();
     }
 
@@ -139,11 +138,15 @@ public:
             this->nNonce         = other.nNonce;
             this->hashStateRoot  = other.hashStateRoot;
             this->hashUTXORoot   = other.hashUTXORoot;
-            this->vchBlockSig    = other.vchBlockSig;
+            this->vchBlockSigDlgt    = other.vchBlockSigDlgt;
             this->prevoutStake   = other.prevoutStake;
         }
         return *this;
     }
+
+    std::vector<unsigned char> GetBlockSignature();
+
+    std::vector<unsigned char> GetBlockDelegate();
 };
 
 
@@ -198,7 +201,7 @@ public:
         block.nNonce         = nNonce;
         block.hashStateRoot  = hashStateRoot; // qtum
         block.hashUTXORoot   = hashUTXORoot; // qtum
-        block.vchBlockSig    = vchBlockSig;
+        block.vchBlockSigDlgt    = vchBlockSigDlgt;
         block.prevoutStake   = prevoutStake;
         return block;
     }
