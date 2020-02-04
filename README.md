@@ -105,9 +105,9 @@ Download: https://github.com/qtumproject/qtum-electrum/releases
 
 These wallets run on mobile devices and synchronize quickly. 
 
-Android Download: https://play.google.com/store/apps/details?id=org.qtum.wallet
+Android Download: https://play.google.com/store/apps/details?id=org.qtum.newwallet
 
-iOS Download: https://github.com/qtumproject/qtum-ios (open source, we are still working with Apple to get approval for their app store)
+iOS Download: https://github.com/qtumproject/qtum-ios (open source, deprecated)
 
 ### Ledger Chrome Wallet
 
@@ -120,7 +120,7 @@ How to install: https://ledger.zendesk.com/hc/en-us/articles/115003776913-How-to
 
 Make sure to check out these resources as well for more information and to keep up to date with all the latest news about Qtum. At least 1 developer is always around, so if you're developing on Qtum and need help, we'd love to welcome you to our community.
 
-*	@QtumOfficial on Twitter https://twitter.com/qtumofficial
+*	@Qtum on Twitter https://twitter.com/qtum
 * Qtum blog https://blog.qtum.org/
 *	Qtum Telegram Group https://t.me/qtumofficial, other languages available
 * Qtum Discord https://discordapp.com/invite/wRfmkQ9
