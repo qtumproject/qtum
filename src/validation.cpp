@@ -4674,10 +4674,20 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
                 return false;
             }
 
-            // append a signature to our block and ensure that is LowS
-            return key.Sign(pblock->GetHashWithoutSign(), pblock->vchBlockSig) &&
-                       EnsureLowS(pblock->vchBlockSig) &&
-                       CheckHeaderPoS(*pblock, Params().GetConsensus());
+            // Sign block
+            if (chainActive.Height() + 1 >= Params().GetConsensus().nOfflineStakeHeight)
+            {
+                // append a signature to our block and ensure that is compact
+                return key.SignCompact(pblock->GetHashWithoutSign(), pblock->vchBlockSig) &&
+                           CheckHeaderPoS(*pblock, Params().GetConsensus());
+            }
+            else
+            {
+                // append a signature to our block and ensure that is LowS
+                return key.Sign(pblock->GetHashWithoutSign(), pblock->vchBlockSig) &&
+                           EnsureLowS(pblock->vchBlockSig) &&
+                           CheckHeaderPoS(*pblock, Params().GetConsensus());
+            }
         }
     }
 
@@ -4740,7 +4750,16 @@ bool CheckBlockSignature(const CBlock& block)
         return false;
     }
 
-    return CPubKey(vchPubKey).Verify(block.GetHashWithoutSign(), block.vchBlockSig);
+    uint256 hash = block.GetHashWithoutSign();
+
+    if(block.vchBlockSig.size() == CPubKey::COMPACT_SIGNATURE_SIZE)
+    {
+        CPubKey pubkey;
+        if(pubkey.RecoverCompact(hash, block.vchBlockSig) && pubkey == CPubKey(vchPubKey))
+            return true;
+    }
+
+    return CPubKey(vchPubKey).Verify(hash, block.vchBlockSig);
 }
 
 static bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW = true, bool fCheckPOS = true)
@@ -5468,6 +5487,10 @@ bool IsCanonicalBlockSignature(const CBlockHeader* pblock, bool checkLowS)
 
 bool CheckCanonicalBlockSignature(const CBlockHeader* pblock)
 {
+    // Check compact signature size
+    if(pblock->IsProofOfStake() && pblock->vchBlockSig.size() == CPubKey::COMPACT_SIGNATURE_SIZE)
+        return true;
+
     //block signature encoding
     bool ret = IsCanonicalBlockSignature(pblock, false);
 

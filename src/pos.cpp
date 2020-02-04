@@ -197,18 +197,37 @@ bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBloc
         return error("CheckRecoveredPubKeyFromBlockSignature(): Signature is empty\n");
     }
 
-    for(uint8_t recid = 0; recid <= 3; ++recid) {
-        for(uint8_t compressed = 0; compressed < 2; ++compressed) {
-            if(!pubkey.RecoverLaxDER(hash, block.vchBlockSig, recid, compressed)) {
-                continue;
+    // Recover the public key
+    if (pindexPrev->nHeight + 1 >= Params().GetConsensus().nOfflineStakeHeight)
+    {
+        // Recover the public key from compact signature
+        CTxDestination address;
+        txnouttype txType=TX_NONSTANDARD;
+        if(pubkey.RecoverCompact(hash, block.vchBlockSig) &&
+                ExtractDestination(coinPrev.out.scriptPubKey, address, &txType)){
+            if ((txType == TX_PUBKEY || txType == TX_PUBKEYHASH) && address.type() == typeid(PKHash)) {
+                if(pubkey.GetID() == boost::get<PKHash>(address)) {
+                    return true;
+                }
             }
+        }
+    }
+    else
+    {
+        // Recover the public key from LowS signature
+        for(uint8_t recid = 0; recid <= 3; ++recid) {
+            for(uint8_t compressed = 0; compressed < 2; ++compressed) {
+                if(!pubkey.RecoverLaxDER(hash, block.vchBlockSig, recid, compressed)) {
+                    continue;
+                }
 
-            CTxDestination address;
-            txnouttype txType=TX_NONSTANDARD;
-            if(ExtractDestination(coinPrev.out.scriptPubKey, address, &txType)){
-                if ((txType == TX_PUBKEY || txType == TX_PUBKEYHASH) && address.type() == typeid(PKHash)) {
-                    if(pubkey.GetID() == boost::get<PKHash>(address)) {
-                        return true;
+                CTxDestination address;
+                txnouttype txType=TX_NONSTANDARD;
+                if(ExtractDestination(coinPrev.out.scriptPubKey, address, &txType)){
+                    if ((txType == TX_PUBKEY || txType == TX_PUBKEYHASH) && address.type() == typeid(PKHash)) {
+                        if(pubkey.GetID() == boost::get<PKHash>(address)) {
+                            return true;
+                        }
                     }
                 }
             }
