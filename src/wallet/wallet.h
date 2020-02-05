@@ -799,6 +799,7 @@ private:
     std::atomic<int64_t> m_best_block_time {0};
 
     std::map<COutPoint, CStakeCache> stakeCache;
+    std::map<COutPoint, CStakeCache> stakeDelegateCache;
 
     /**
      * Used to keep track of spent outpoints, and
@@ -916,6 +917,7 @@ private:
 
     bool CreateCoinStakeFromMine(interfaces::Chain::Lock& locked_chain, const CKeyStore &keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins);
     bool CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain, const CKeyStore &keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::vector<COutPoint>& setDelegateCoins);
+    bool GetDelegation(const CKeyID& keyid, Delegation& delegation);
 
 public:
     /*

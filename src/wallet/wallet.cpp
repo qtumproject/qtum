@@ -3797,7 +3797,187 @@ bool CWallet::CreateCoinStakeFromMine(interfaces::Chain::Lock& locked_chain, con
 
 bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain, const CKeyStore &keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::vector<COutPoint>& setDelegateCoins)
 {
-    return false;
+    CBlockIndex* pindexPrev = chainActive.Tip();
+    arith_uint256 bnTargetPerCoinDay;
+    bnTargetPerCoinDay.SetCompact(nBits);
+
+    struct CMutableTransaction txNew(tx);
+    txNew.vin.clear();
+    txNew.vout.clear();
+
+    // Mark coin stake transaction
+    CScript scriptEmpty;
+    scriptEmpty.clear();
+    txNew.vout.push_back(CTxOut(0, scriptEmpty));
+
+    if (setDelegateCoins.empty())
+        return false;
+
+    if(stakeDelegateCache.size() > setDelegateCoins.size() + 100){
+        //Determining if the cache is still valid is harder than just clearing it when it gets too big, so instead just clear it
+        //when it has more than 100 entries more than the actual setCoins.
+        stakeDelegateCache.clear();
+    }
+    if(gArgs.GetBoolArg("-stakecache", DEFAULT_STAKE_CACHE)) {
+
+        for(const COutPoint &prevoutStake : setDelegateCoins)
+        {
+            boost::this_thread::interruption_point();
+            CacheKernel(stakeCache, prevoutStake, pindexPrev, *pcoinsTip); //this will do a 2 disk loads per op
+        }
+    }
+    int64_t nCredit = 0;
+    int64_t nValue = 0;
+    CScript scriptPubKeyHashKernel;
+    CScript scriptPubKeyKernel;
+    CScript scriptPubKeyStaker;
+    Delegation delegation;
+
+    for(const COutPoint &prevoutStake : setDelegateCoins)
+    {
+        bool fKernelFound = false;
+        boost::this_thread::interruption_point();
+        // Search backward in time from the given txNew timestamp
+        // Search nSearchInterval seconds back up to nMaxStakeSearchInterval
+        if (CheckKernel(pindexPrev, nBits, nTimeBlock, prevoutStake, *pcoinsTip, stakeCache))
+        {
+            // Found a kernel
+            LogPrint(BCLog::COINSTAKE, "CreateCoinStake : kernel found\n");
+            std::vector<valtype> vSolutions;
+
+            Coin coinPrev;
+            if(!pcoinsTip->GetCoin(prevoutStake, coinPrev)){
+                if(!GetSpentCoinFromMainChain(pindexPrev, prevoutStake, &coinPrev)) {
+                    return error("CreateCoinStake: Could not find coin and it was not at the tip");
+                }
+            }
+
+            scriptPubKeyKernel = coinPrev.out.scriptPubKey;
+            txnouttype whichType = Solver(scriptPubKeyKernel, vSolutions);
+            if (whichType == TX_NONSTANDARD)
+            {
+                LogPrint(BCLog::COINSTAKE, "CreateCoinStake : failed to parse kernel\n");
+                break;
+            }
+            LogPrint(BCLog::COINSTAKE, "CreateCoinStake : parsed kernel type=%d\n", whichType);
+            if (whichType != TX_PUBKEY && whichType != TX_PUBKEYHASH)
+            {
+                LogPrint(BCLog::COINSTAKE, "CreateCoinStake : no support for kernel type=%d\n", whichType);
+                break;  // only support pay to public key and pay to address
+            }
+            if (whichType == TX_PUBKEYHASH) // pay to address type
+            {
+                // convert to pay to public key type
+                uint160 hash160(vSolutions[0]);
+                CKeyID pubKeyHash(hash160);
+
+                if(!GetDelegation(pubKeyHash, delegation))
+                    return error("CreateCoinStake: Failed to find delegation");
+
+                if (!keystore.GetKey(delegation.staker, key))
+                {
+                    LogPrint(BCLog::COINSTAKE, "CreateCoinStake : failed to get staker key for kernel type=%d\n", whichType);
+                    break;  // unable to find corresponding public key
+                }
+                scriptPubKeyStaker << key.GetPubKey().getvch() << OP_CHECKSIG;
+                scriptPubKeyHashKernel = scriptPubKeyKernel;
+            }
+            if (whichType == TX_PUBKEY)
+            {
+                valtype& vchPubKey = vSolutions[0];
+                uint160 hash160(Hash160(vchPubKey));
+                CKeyID pubKeyHash(hash160);
+
+                if(!GetDelegation(pubKeyHash, delegation))
+                    return error("CreateCoinStake: Failed to find delegation");
+
+                if (!keystore.GetKey(delegation.staker, key))
+                {
+                    LogPrint(BCLog::COINSTAKE, "CreateCoinStake : failed to get staker key for kernel type=%d\n", whichType);
+                    break;  // unable to find corresponding public key
+                }
+
+                scriptPubKeyStaker << key.GetPubKey().getvch() << OP_CHECKSIG;
+                scriptPubKeyHashKernel = CScript() << OP_DUP << OP_HASH160 << ToByteVector(hash160) << OP_EQUALVERIFY << OP_CHECKSIG;
+            }
+
+            txNew.vin.push_back(CTxIn(prevoutStake));
+            nCredit += coinPrev.out.nValue;
+            nValue = coinPrev.out.nValue;
+            txNew.vout.push_back(CTxOut(0, scriptPubKeyStaker));
+            txNew.vout.push_back(CTxOut(0, scriptPubKeyHashKernel));
+
+            LogPrint(BCLog::COINSTAKE, "CreateCoinStake : added kernel type=%d\n", whichType);
+            fKernelFound = true;
+            break;
+        }
+
+        if (fKernelFound)
+            break; // if kernel is found stop searching
+    }
+
+    if (nCredit == 0)
+        return false;
+
+    const Consensus::Params& consensusParams = Params().GetConsensus();
+    int64_t nRewardPiece = 0;
+    int64_t nRewardStaker = 0;
+    // Calculate reward
+    {
+        int64_t nTotalReward = nTotalFees + GetBlockSubsidy(pindexPrev->nHeight + 1, consensusParams);
+        if (nTotalReward < 0)
+            return false;
+
+        if(pindexPrev->nHeight < consensusParams.nFirstMPoSBlock)
+        {
+            // Keep whole reward
+            nRewardStaker = nTotalReward * 100 / delegation.fee;
+            nCredit += nTotalReward - nRewardStaker;
+        }
+        else
+        {
+            // Split the reward when mpos is used
+            nRewardPiece = nTotalReward / consensusParams.nMPoSRewardRecipients;
+            int64_t nRewardDelegate = nRewardPiece + nTotalReward % consensusParams.nMPoSRewardRecipients;
+            nRewardStaker = nRewardDelegate * 100 / delegation.fee;
+            nCredit += nRewardDelegate - nRewardStaker;
+        }
+    }
+
+    // Set output amount
+    txNew.vout[1].nValue = nRewardStaker;
+    txNew.vout[2].nValue = nCredit;
+
+    if(pindexPrev->nHeight >= consensusParams.nFirstMPoSBlock)
+    {
+        if(!CreateMPoSOutputs(txNew, nRewardPiece, pindexPrev->nHeight, consensusParams))
+            return error("CreateCoinStake : failed to create MPoS reward outputs");
+    }
+
+    // Append the Refunds To Sender to the transaction outputs
+    for(unsigned int i = 2; i < tx.vout.size(); i++)
+    {
+        txNew.vout.push_back(tx.vout[i]);
+    }
+
+    // Sign the input coins
+    if (!SignSignature(*this, scriptPubKeyStaker, txNew, 0, nValue, SIGHASH_ALL))
+        return error("CreateCoinStake : failed to sign coinstake");
+
+    // Successfully generated coinstake
+    tx = txNew;
+
+    return true;
+}
+
+bool CWallet::GetDelegation(const CKeyID& keyid, Delegation& delegation)
+{
+    std::map<CKeyID, Delegation>::iterator it = m_delegations.find(keyid);
+    if(it == m_delegations.end())
+        return false;
+
+    delegation = it->second;
+    return true;
 }
 
 
