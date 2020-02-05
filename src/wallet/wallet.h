@@ -915,7 +915,7 @@ private:
     void StakeQtums(bool fStake, CConnman* connman);
 
     bool CreateCoinStakeFromMine(interfaces::Chain::Lock& locked_chain, const CKeyStore &keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins);
-    bool CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain, const CKeyStore &keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setDelegateCoins);
+    bool CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain, const CKeyStore &keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::vector<COutPoint>& setDelegateCoins);
 
 public:
     /*
@@ -1023,7 +1023,7 @@ public:
     bool SelectCoinsForStaking(interfaces::Chain::Lock& locked_chain, CAmount& nTargetValue, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoinsRet, CAmount& nValueRet) const;
 	
     //! select delegated coins for staking from other users.
-    bool SelectDelegateCoinsForStaking(interfaces::Chain::Lock& locked_chain, std::set<std::pair<const CWalletTx*,unsigned int> >& setDelegateCoinsRet) const;
+    bool SelectDelegateCoinsForStaking(interfaces::Chain::Lock& locked_chain, std::vector<COutPoint>& setDelegateCoinsRet) const;
 
     /**
      * populate vCoins with vector of available COutputs.
@@ -1031,7 +1031,7 @@ public:
     void AvailableCoinsForStaking(interfaces::Chain::Lock& locked_chain, std::vector<COutput>& vCoins) const;
     void AvailableCoins(interfaces::Chain::Lock& locked_chain, std::vector<COutput>& vCoins, bool fOnlySafe = true, const CCoinControl* coinControl = nullptr, const CAmount& nMinimumAmount = 1, const CAmount& nMaximumAmount = MAX_MONEY, const CAmount& nMinimumSumAmount = MAX_MONEY, const uint64_t nMaximumCount = 0) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
     bool HaveAvailableCoinsForStaking() const;
-    void AvailableDelegateCoinsForStaking(interfaces::Chain::Lock& locked_chain, std::vector<COutput>& vDelegateCoins) const;
+    bool AvailableDelegateCoinsForStaking(interfaces::Chain::Lock& locked_chain, std::vector<COutPoint>& vDelegateCoins) const;
     bool HaveAvailableDelegateCoinsForStaking() const;
 
     /**
@@ -1213,7 +1213,7 @@ public:
     bool CommitTransaction(CTransactionRef tx, mapValue_t mapValue, std::vector<std::pair<std::string, std::string>> orderForm, CValidationState& state);
 
     uint64_t GetStakeWeight(interfaces::Chain::Lock& locked_chain) const;
-    bool CreateCoinStake(interfaces::Chain::Lock& locked_chain, const FillableSigningProvider &keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::set<std::pair<const CWalletTx*,unsigned int> >& setDelegateCoins);
+    bool CreateCoinStake(interfaces::Chain::Lock& locked_chain, const FillableSigningProvider &keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setDelegateCoins);
 
     bool DummySignTx(CMutableTransaction &txNew, const std::set<CTxOut> &txouts, bool use_max_sig = false) const
     {
@@ -1533,7 +1533,7 @@ public:
 
     static CConnman* defaultConnman;
 
-    std::map<CKeyID, Delegation> m_delegation;
+    std::map<CKeyID, Delegation> m_delegations;
 };
 
 /**

@@ -917,7 +917,7 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
         CAmount nTargetValue = nBalance - pwallet->m_reserve_balance;
         CAmount nValueIn = 0;
         std::set<std::pair<const CWalletTx*,unsigned int> > setCoins;
-        std::set<std::pair<const CWalletTx*,unsigned int> > setDelegateCoins;
+        std::vector<COutPoint> setDelegateCoins;
         int64_t start = GetAdjustedTime();
         {
             auto locked_chain = pwallet->chain().lock();

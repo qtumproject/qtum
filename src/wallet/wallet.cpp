@@ -2681,8 +2681,42 @@ bool CWallet::HaveAvailableCoinsForStaking() const
     return vCoins.size() > 0;
 }
 
-void CWallet::AvailableDelegateCoinsForStaking(interfaces::Chain::Lock& locked_chain, std::vector<COutput>& vDelegateCoins) const
+bool heightUtxoSort(std::pair<CAddressUnspentKey, CAddressUnspentValue> a,
+                std::pair<CAddressUnspentKey, CAddressUnspentValue> b) {
+    return a.second.blockHeight < b.second.blockHeight;
+}
+
+bool CWallet::AvailableDelegateCoinsForStaking(interfaces::Chain::Lock& locked_chain, std::vector<COutPoint>& vDelegateCoins) const
 {
+    AssertLockHeld(cs_main);
+    AssertLockHeld(cs_wallet);
+
+    vDelegateCoins.clear();
+
+    for (std::map<CKeyID, Delegation>::const_iterator it = m_delegations.begin(); it != m_delegations.end(); ++it)
+    {
+        const CKeyID& keyid = it->first;
+        const Delegation* delegation = &(*it).second;
+
+        uint256 hashBytes;
+        int type = 0;
+        if (!DecodeIndexKey(EncodeDestination(keyid), hashBytes, type)) {
+            return error("Invalid address");
+        }
+
+        std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > unspentOutputs;
+        if (!GetAddressUnspent(hashBytes, type, unspentOutputs)) {
+            throw error("No information available for address");
+        }
+
+        std::sort(unspentOutputs.begin(), unspentOutputs.end(), heightUtxoSort);
+
+        for (std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> >::const_iterator i=unspentOutputs.begin(); i!=unspentOutputs.end(); i++) {
+            vDelegateCoins.push_back(COutPoint(i->first.txhash, i->first.index));
+        }
+    }
+
+    return true;
 }
 
 bool CWallet::HaveAvailableDelegateCoinsForStaking() const
@@ -2690,7 +2724,7 @@ bool CWallet::HaveAvailableDelegateCoinsForStaking() const
     auto locked_chain = chain().lock();
     LOCK(cs_wallet);
 
-    std::vector<COutput> vDelegateCoins;
+    std::vector<COutPoint> vDelegateCoins;
     AvailableDelegateCoinsForStaking(*locked_chain, vDelegateCoins);
     return vDelegateCoins.size() > 0;
 }
@@ -2929,26 +2963,9 @@ bool CWallet::SelectCoinsForStaking(interfaces::Chain::Lock& locked_chain, CAmou
     return true;
 }
 
-bool CWallet::SelectDelegateCoinsForStaking(interfaces::Chain::Lock& locked_chain, std::set<std::pair<const CWalletTx*,unsigned int> >& setDelegateCoinsRet) const
+bool CWallet::SelectDelegateCoinsForStaking(interfaces::Chain::Lock& locked_chain, std::vector<COutPoint>& setDelegateCoinsRet) const
 {
-    std::vector<COutput> vDelegateCoins;
-    AvailableDelegateCoinsForStaking(locked_chain, vDelegateCoins);
-
-    setDelegateCoinsRet.clear();
-
-    for(COutput output : vDelegateCoins)
-    {
-        const CWalletTx *pcoin = output.tx;
-        int i = output.i;
-
-        int64_t n = pcoin->tx->vout[i].nValue;
-
-        std::pair<int64_t,std::pair<const CWalletTx*,unsigned int> > coin = std::make_pair(n,std::make_pair(pcoin, i));
-
-        setDelegateCoinsRet.insert(coin.second);
-    }
-
-    return true;
+    return AvailableDelegateCoinsForStaking(locked_chain, setDelegateCoinsRet);
 }
 
 bool CWallet::SignTransaction(CMutableTransaction& tx)
@@ -3778,13 +3795,13 @@ bool CWallet::CreateCoinStakeFromMine(interfaces::Chain::Lock& locked_chain, con
     return true;
 }
 
-bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain, const CKeyStore &keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setDelegateCoins)
+bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain, const CKeyStore &keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::vector<COutPoint>& setDelegateCoins)
 {
     return false;
 }
 
 
-bool CWallet::CreateCoinStake(interfaces::Chain::Lock& locked_chain, const CKeyStore& keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::set<std::pair<const CWalletTx*,unsigned int> >& setDelegateCoins)
+bool CWallet::CreateCoinStake(interfaces::Chain::Lock& locked_chain, const CKeyStore& keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setDelegateCoins)
 {
     // Create coinstake from coins that are mine
     if(setCoins.size() > 0 && CreateCoinStakeFromMine(locked_chain, keystore, nBits, nTotalFees, nTimeBlock, tx, key, setCoins))
