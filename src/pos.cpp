@@ -469,7 +469,7 @@ bool GetMPoSOutputScripts(std::vector<CScript>& mposScriptList, int nHeight, con
     return ret;
 }
 
-bool CreateMPoSOutputs(CMutableTransaction& txNew, int64_t nRewardPiece, int nHeight, const Consensus::Params& consensusParams)
+bool GetMPoSOutputs(std::vector<CTxOut>& mposOutputList, int64_t nRewardPiece, int nHeight, const Consensus::Params& consensusParams)
 {
     std::vector<CScript> mposScriptList;
     if(!GetMPoSOutputScripts(mposScriptList, nHeight, consensusParams))
@@ -478,12 +478,28 @@ bool CreateMPoSOutputs(CMutableTransaction& txNew, int64_t nRewardPiece, int nHe
         return false;
     }
 
-    // Split the block reward with the recipients
+    // Create the outputs for the recipients
     for(unsigned int i = 0; i < mposScriptList.size(); i++)
     {
-        CTxOut txOut(CTxOut(0, mposScriptList[i]));
-        txOut.nValue = nRewardPiece;
-        txNew.vout.push_back(txOut);
+        CTxOut txOut(nRewardPiece, mposScriptList[i]);
+        mposOutputList.push_back(txOut);
+    }
+
+    return true;
+}
+
+bool CreateMPoSOutputs(CMutableTransaction& txNew, int64_t nRewardPiece, int nHeight, const Consensus::Params& consensusParams)
+{
+    std::vector<CTxOut> mposOutputList;
+    if(!GetMPoSOutputs(mposOutputList, nRewardPiece, nHeight, consensusParams))
+    {
+        return false;
+    }
+
+    // Split the block reward with the recipients
+    for(unsigned int i = 0; i < mposOutputList.size(); i++)
+    {
+        txNew.vout.push_back(mposOutputList[i]);
     }
 
     return true;
