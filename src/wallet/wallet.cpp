@@ -3931,16 +3931,20 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
         if(pindexPrev->nHeight < consensusParams.nFirstMPoSBlock)
         {
             // Keep whole reward
-            nRewardStaker = nTotalReward * 100 / delegation.fee;
-            nCredit += nTotalReward - nRewardStaker;
+            int64_t nRewardOffline = 0;
+            if(!SplitOfflineStakeReward(nTotalReward, delegation.fee, nRewardOffline, nRewardStaker))
+                return error("CreateCoinStake: Failed to split reward");
+            nCredit += nRewardOffline;
         }
         else
         {
             // Split the reward when mpos is used
             nRewardPiece = nTotalReward / consensusParams.nMPoSRewardRecipients;
-            int64_t nRewardDelegate = nRewardPiece + nTotalReward % consensusParams.nMPoSRewardRecipients;
-            nRewardStaker = nRewardDelegate * 100 / delegation.fee;
-            nCredit += nRewardDelegate - nRewardStaker;
+            int64_t nRewardOffline = 0;
+            int64_t nReward = nRewardPiece + nTotalReward % consensusParams.nMPoSRewardRecipients;
+            if(!SplitOfflineStakeReward(nReward, delegation.fee, nRewardOffline, nRewardStaker))
+                return error("CreateCoinStake: Failed to split reward");
+            nCredit += nRewardOffline;
         }
     }
 

@@ -60,6 +60,8 @@ unsigned int GetStakeMaxCombineInputs();
 
 int64_t GetStakeCombineThreshold();
 
+bool SplitOfflineStakeReward(const int64_t& nReward, const uint8_t& fee, int64_t& nRewardOffline, int64_t& nRewardStaker);
+
 unsigned int GetStakeSplitOutputs();
 
 int64_t GetStakeSplitThreshold();

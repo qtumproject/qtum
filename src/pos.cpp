@@ -326,6 +326,15 @@ unsigned int GetStakeSplitOutputs() { return 2; }
 
 int64_t GetStakeSplitThreshold() { return GetStakeSplitOutputs() * GetStakeCombineThreshold(); }
 
+bool SplitOfflineStakeReward(const int64_t& nReward, const uint8_t& fee, int64_t& nRewardOffline, int64_t& nRewardStaker)
+{
+    if(fee > 100) return false;
+    double percentage = fee / 100.0;
+    nRewardStaker = percentage * nReward;
+    nRewardOffline = nReward - nRewardStaker;
+    return true;
+}
+
 bool NeedToEraseScriptFromCache(int nBlockHeight, int nCacheScripts, int nScriptHeight, const ScriptsElement& scriptElement)
 {
     // Erase element from cache if not in range [nBlockHeight - nCacheScripts, nBlockHeight + nCacheScripts]
