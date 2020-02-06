@@ -254,7 +254,6 @@ struct CHeightTxIndexKey {
     }
 };
 
-#ifdef ENABLE_BITCORE_RPC
 struct CTimestampIndexIteratorKey {
     unsigned int timestamp;
 
@@ -590,7 +589,6 @@ struct CAddressIndexIteratorKey {
         hashBytes.SetNull();
     }
 };
-#endif
 ////////////////////////////////////////////////////////////
 
 #endif // BITCOIN_TXDB_H

@@ -2693,9 +2693,9 @@ bool CWallet::AvailableDelegateCoinsForStaking(interfaces::Chain::Lock& locked_c
 
     vDelegateCoins.clear();
 
-    for (std::map<CKeyID, Delegation>::const_iterator it = m_delegations.begin(); it != m_delegations.end(); ++it)
+    for (std::map<PKHash, Delegation>::const_iterator it = m_delegations.begin(); it != m_delegations.end(); ++it)
     {
-        const CKeyID& keyid = it->first;
+        const PKHash& keyid = it->first;
         const Delegation* delegation = &(*it).second;
 
         uint256 hashBytes;
@@ -3795,9 +3795,9 @@ bool CWallet::CreateCoinStakeFromMine(interfaces::Chain::Lock& locked_chain, con
     return true;
 }
 
-bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain, const CKeyStore &keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::vector<COutPoint>& setDelegateCoins)
+bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain, const FillableSigningProvider &keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::vector<COutPoint>& setDelegateCoins)
 {
-    CBlockIndex* pindexPrev = chainActive.Tip();
+    CBlockIndex* pindexPrev = ::ChainActive().Tip();
     arith_uint256 bnTargetPerCoinDay;
     bnTargetPerCoinDay.SetCompact(nBits);
 
@@ -3823,7 +3823,7 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
         for(const COutPoint &prevoutStake : setDelegateCoins)
         {
             boost::this_thread::interruption_point();
-            CacheKernel(stakeCache, prevoutStake, pindexPrev, *pcoinsTip); //this will do a 2 disk loads per op
+            CacheKernel(stakeCache, prevoutStake, pindexPrev, ::ChainstateActive().CoinsTip()); //this will do a 2 disk loads per op
         }
     }
     int64_t nCredit = 0;
@@ -3839,14 +3839,14 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
         boost::this_thread::interruption_point();
         // Search backward in time from the given txNew timestamp
         // Search nSearchInterval seconds back up to nMaxStakeSearchInterval
-        if (CheckKernel(pindexPrev, nBits, nTimeBlock, prevoutStake, *pcoinsTip, stakeCache))
+        if (CheckKernel(pindexPrev, nBits, nTimeBlock, prevoutStake, ::ChainstateActive().CoinsTip(), stakeCache))
         {
             // Found a kernel
             LogPrint(BCLog::COINSTAKE, "CreateCoinStake : kernel found\n");
             std::vector<valtype> vSolutions;
 
             Coin coinPrev;
-            if(!pcoinsTip->GetCoin(prevoutStake, coinPrev)){
+            if(::ChainstateActive().CoinsTip().GetCoin(prevoutStake, coinPrev)){
                 if(!GetSpentCoinFromMainChain(pindexPrev, prevoutStake, &coinPrev)) {
                     return error("CreateCoinStake: Could not find coin and it was not at the tip");
                 }
@@ -3871,7 +3871,7 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
                 uint160 hash160(vSolutions[0]);
                 CKeyID pubKeyHash(hash160);
 
-                if(!GetDelegation(pubKeyHash, delegation))
+                if(!GetDelegation(PKHash(pubKeyHash), delegation))
                     return error("CreateCoinStake: Failed to find delegation");
 
                 if (!keystore.GetKey(delegation.staker, key))
@@ -3888,7 +3888,7 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
                 uint160 hash160(Hash160(vchPubKey));
                 CKeyID pubKeyHash(hash160);
 
-                if(!GetDelegation(pubKeyHash, delegation))
+                if(!GetDelegation(PKHash(pubKeyHash), delegation))
                     return error("CreateCoinStake: Failed to find delegation");
 
                 if (!keystore.GetKey(delegation.staker, key))
@@ -3970,9 +3970,9 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
     return true;
 }
 
-bool CWallet::GetDelegation(const CKeyID& keyid, Delegation& delegation)
+bool CWallet::GetDelegation(const PKHash& keyid, Delegation& delegation)
 {
-    std::map<CKeyID, Delegation>::iterator it = m_delegations.find(keyid);
+    std::map<PKHash, Delegation>::iterator it = m_delegations.find(keyid);
     if(it == m_delegations.end())
         return false;
 
@@ -3981,7 +3981,7 @@ bool CWallet::GetDelegation(const CKeyID& keyid, Delegation& delegation)
 }
 
 
-bool CWallet::CreateCoinStake(interfaces::Chain::Lock& locked_chain, const CKeyStore& keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setDelegateCoins)
+bool CWallet::CreateCoinStake(interfaces::Chain::Lock& locked_chain, const FillableSigningProvider& keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setDelegateCoins)
 {
     // Create coinstake from coins that are mine
     if(setCoins.size() > 0 && CreateCoinStakeFromMine(locked_chain, keystore, nBits, nTotalFees, nTimeBlock, tx, key, setCoins))

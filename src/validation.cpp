@@ -49,7 +49,6 @@
 #include <warnings.h>
 #include <libethcore/ABI.h>
 #include <net_processing.h>
-#include <util/signstr.h>
 
 #include <serialize.h>
 #include <pubkey.h>
@@ -4675,7 +4674,7 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
             }
 
             // Sign block
-            if (chainActive.Height() + 1 >= Params().GetConsensus().nOfflineStakeHeight)
+            if (::ChainActive().Height() + 1 >= Params().GetConsensus().nOfflineStakeHeight)
             {
                 // append a signature to our block and ensure that is compact
                 return key.SignCompact(pblock->GetHashWithoutSign(), pblock->vchBlockSigDlgt) &&
