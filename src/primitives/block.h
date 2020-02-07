@@ -126,6 +126,12 @@ public:
         return ret;
     }
 
+    std::vector<unsigned char> GetBlockSignature() const;
+
+    std::vector<unsigned char> GetBlockDelegate() const;
+
+    bool HasDelegation() const;
+
     CBlockHeader& operator=(const CBlockHeader& other) //qtum
     {
         if (this != &other)
@@ -143,10 +149,6 @@ public:
         }
         return *this;
     }
-
-    std::vector<unsigned char> GetBlockSignature();
-
-    std::vector<unsigned char> GetBlockDelegate();
 };
 
 

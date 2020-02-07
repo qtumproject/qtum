@@ -339,6 +339,12 @@ public:
         return !prevoutStake.IsNull();
     }
 
+    std::vector<unsigned char> GetBlockSignature() const;
+
+    std::vector<unsigned char> GetBlockDelegate() const;
+
+    bool HasDelegation() const;
+
     std::string ToString() const
     {
         return strprintf("CBlockIndex(pprev=%p, nHeight=%d, merkle=%s, hashBlock=%s)",

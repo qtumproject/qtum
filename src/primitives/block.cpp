@@ -42,7 +42,7 @@ std::string CBlock::ToString() const
     return s.str();
 }
 
-std::vector<unsigned char> CBlockHeader::GetBlockSignature()
+std::vector<unsigned char> CBlockHeader::GetBlockSignature() const
 {
     if(vchBlockSigDlgt.size() < 2 * CPubKey::COMPRESSED_PUBLIC_KEY_SIZE)
     {
@@ -52,7 +52,7 @@ std::vector<unsigned char> CBlockHeader::GetBlockSignature()
     return std::vector<unsigned char>(vchBlockSigDlgt.begin(), vchBlockSigDlgt.end() - CPubKey::COMPRESSED_PUBLIC_KEY_SIZE );
 }
 
-std::vector<unsigned char> CBlockHeader::GetBlockDelegate()
+std::vector<unsigned char> CBlockHeader::GetBlockDelegate() const
 {
     if(vchBlockSigDlgt.size() < 2 * CPubKey::COMPRESSED_PUBLIC_KEY_SIZE)
     {
@@ -61,4 +61,9 @@ std::vector<unsigned char> CBlockHeader::GetBlockDelegate()
 
     return std::vector<unsigned char>(vchBlockSigDlgt.begin() + vchBlockSigDlgt.size() - CPubKey::COMPRESSED_PUBLIC_KEY_SIZE, vchBlockSigDlgt.end());
 
+}
+
+bool CBlockHeader::HasDelegation() const
+{
+    return vchBlockSigDlgt.size() >= 2 * CPubKey::COMPRESSED_PUBLIC_KEY_SIZE;
 }
