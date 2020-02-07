@@ -27,6 +27,7 @@ static const char DB_BLOCK_INDEX = 'b';
 ////////////////////////////////////////// // qtum
 static const char DB_HEIGHTINDEX = 'h';
 static const char DB_STAKEINDEX = 's';
+static const char DB_DELEGATEINDEX = 'd';
 //////////////////////////////////////////
 
 static const char DB_BEST_BLOCK = 'B';
@@ -62,6 +63,26 @@ struct CoinEntry {
         s >> key;
         s >> outpoint->hash;
         s >> VARINT(outpoint->n);
+    }
+};
+
+struct DelegateEntry {
+    uint160 address;
+    uint8_t fee;
+    DelegateEntry(uint160 _address = uint160(), uint8_t _fee = 0) :
+        address(_address), fee(_fee)
+    {}
+
+    template<typename Stream>
+    void Serialize(Stream &s) const {
+        s << address;
+        s << fee;
+    }
+
+    template<typename Stream>
+    void Unserialize(Stream& s) {
+        s >> address;
+        s >> fee;
     }
 };
 
@@ -422,6 +443,55 @@ bool CBlockTreeDB::EraseStakeIndex(unsigned int height) {
         boost::this_thread::interruption_point();
         std::pair<char, CHeightTxIndexKey> key;
         if (pcursor->GetKey(key) && key.first == DB_HEIGHTINDEX && key.second.height == height) {
+            batch.Erase(key);
+            pcursor->Next();
+        } else {
+            break;
+        }
+    }
+
+    return WriteBatch(batch);
+}
+
+bool CBlockTreeDB::WriteDelegateIndex(unsigned int height, uint160 address, uint8_t fee) {
+    CDBBatch batch(*this);
+    batch.Write(std::make_pair(DB_DELEGATEINDEX, height), DelegateEntry(address, fee));
+    return WriteBatch(batch);
+}
+
+bool CBlockTreeDB::ReadDelegateIndex(unsigned int height, uint160& address, uint8_t& fee){
+    std::unique_ptr<CDBIterator> pcursor(NewIterator());
+
+    pcursor->Seek(std::make_pair(DB_DELEGATEINDEX, height));
+
+    DelegateEntry info;
+    while (pcursor->Valid()) {
+        boost::this_thread::interruption_point();
+        std::pair<char, unsigned int> key;
+        pcursor->GetKey(key);
+        if (key.first == DB_DELEGATEINDEX && key.second == height) {
+            pcursor->GetValue(info);
+            address = info.address;
+            fee = info.fee;
+            return true;
+        }else{
+            return false;
+        }
+    }
+    return false;
+}
+
+bool CBlockTreeDB::EraseDelegateIndex(unsigned int height) {
+
+    std::unique_ptr<CDBIterator> pcursor(NewIterator());
+    CDBBatch batch(*this);
+
+    pcursor->Seek(std::make_pair(DB_DELEGATEINDEX, height));
+
+    while (pcursor->Valid()) {
+        boost::this_thread::interruption_point();
+        std::pair<char, unsigned int> key;
+        if (pcursor->GetKey(key) && key.first == DB_DELEGATEINDEX && key.second == height) {
             batch.Erase(key);
             pcursor->Next();
         } else {
