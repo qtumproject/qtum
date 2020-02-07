@@ -55,6 +55,7 @@
 #include <key.h>
 #include <wallet/wallet.h>
 #include <util/convert.h>
+#include <util/signstr.h>
 
 #include <algorithm>
 #include <future>
@@ -2043,6 +2044,8 @@ DisconnectResult CChainState::DisconnectBlock(const CBlock& block, const CBlockI
         pblocktree->EraseHeightIndex(pindex->nHeight);
     }
     pblocktree->EraseStakeIndex(pindex->nHeight);
+    if(pindex->IsProofOfStake() && pindex->HasDelegation())
+        pblocktree->EraseDelegateIndex(pindex->nHeight);
 
     //////////////////////////////////////////////////// // qtum
     if (pfClean == NULL && fAddressIndex) {
@@ -3503,6 +3506,13 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
         {
             uint160 pkh = uint160(ToByteVector(CPubKey(vchPubKey).GetID()));
             pblocktree->WriteStakeIndex(pindex->nHeight, pkh);
+
+            uint160 address;
+            uint8_t fee;
+            if(GetBlockDelegation(block, pkh, address, fee))
+            {
+                pblocktree->WriteDelegateIndex(pindex->nHeight, address, fee);
+            }
         }else{
             pblocktree->WriteStakeIndex(pindex->nHeight, uint160());
         }
@@ -4736,6 +4746,46 @@ bool GetBlockPublicKey(const CBlock& block, std::vector<unsigned char>& vchPubKe
     }
 
     return false;
+}
+
+bool GetBlockDelegation(const CBlock& block, const uint160& staker, uint160& address, uint8_t& fee)
+{
+    // Check block parameters
+    if (block.IsProofOfWork())
+        return false;
+
+    if (block.vchBlockSigDlgt.empty())
+        return false;
+
+    if (!block.HasDelegation())
+        return false;
+
+    // Get the delegate
+    std::string strMessage = staker.ToString();
+    CKeyID keyid;
+    if(!SignStr::GetKeyIdMessage(strMessage, block.GetBlockDelegate(), keyid))
+        return false;
+    address = uint160(keyid);
+
+    // Get the staker fee
+    CCoinsViewCache& cache = ::ChainstateActive().CoinsTip();
+    COutPoint prevout = block.vtx[1]->vin[0].prevout;
+    if(!cache.HaveCoinInCache(prevout))
+        return false;
+
+    CAmount nValueCoin = cache.AccessCoin(prevout).out.nValue;
+    if(nValueCoin <= 0)
+        return false;
+
+    CAmount nValueStaker = block.vtx[1]->vout[0].nValue;
+    CAmount nValueDelegate = block.vtx[1]->vout[1].nValue;
+    CAmount nReward = nValueStaker + nValueDelegate - nValueCoin;
+    if(nReward < 0)
+        return false;
+
+    fee = std::lround(nValueStaker * 100.0 / nReward);
+
+    return true;
 }
 
 bool CheckBlockSignature(const CBlock& block)
