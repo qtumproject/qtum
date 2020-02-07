@@ -307,8 +307,21 @@ void CacheKernel(std::map<COutPoint, CStakeCache>& cache, const COutPoint& prevo
 /**
  * Proof-of-stake functions needed in the wallet but wallet independent
  */
+struct BlockScript{
+    CScript stakerScript;
+    CScript delegateScript;
+    uint8_t fee;
+    bool hasDelegate;
+
+    BlockScript(const CScript& _stakerScript = CScript()):
+        stakerScript(_stakerScript),
+        fee(0),
+        hasDelegate(false)
+    {}
+};
+
 struct ScriptsElement{
-    CScript script;
+    BlockScript script;
     uint256 hash;
 };
 
@@ -366,7 +379,7 @@ void CleanScriptCache(int nHeight, const Consensus::Params& consensusParams)
     }
 }
 
-bool ReadFromScriptCache(CScript &script, CBlockIndex* pblockindex, int nHeight, const Consensus::Params& consensusParams)
+bool ReadFromScriptCache(BlockScript &script, CBlockIndex* pblockindex, int nHeight, const Consensus::Params& consensusParams)
 {
     CleanScriptCache(nHeight, consensusParams);
 
@@ -384,7 +397,7 @@ bool ReadFromScriptCache(CScript &script, CBlockIndex* pblockindex, int nHeight,
     return false;
 }
 
-void AddToScriptCache(CScript script, CBlockIndex* pblockindex, int nHeight, const Consensus::Params& consensusParams)
+void AddToScriptCache(BlockScript script, CBlockIndex* pblockindex, int nHeight, const Consensus::Params& consensusParams)
 {
     CleanScriptCache(nHeight, consensusParams);
 
@@ -395,7 +408,7 @@ void AddToScriptCache(CScript script, CBlockIndex* pblockindex, int nHeight, con
     scriptsMap.insert(std::pair<int, ScriptsElement>(nHeight, listElement));
 }
 
-bool AddMPoSScript(std::vector<CScript> &mposScriptList, int nHeight, const Consensus::Params& consensusParams)
+bool AddMPoSScript(std::vector<BlockScript> &mposScriptList, int nHeight, const Consensus::Params& consensusParams)
 {
     // Check if the block index exist into the active chain
     CBlockIndex* pblockindex = ChainActive()[nHeight];
@@ -406,10 +419,10 @@ bool AddMPoSScript(std::vector<CScript> &mposScriptList, int nHeight, const Cons
     }
 
     // Try find the script from the cache
-    CScript script;
-    if(ReadFromScriptCache(script, pblockindex, nHeight, consensusParams))
+    BlockScript blockScript;
+    if(ReadFromScriptCache(blockScript, pblockindex, nHeight, consensusParams))
     {
-        mposScriptList.push_back(script);
+        mposScriptList.push_back(blockScript);
         return true;
     }
 
@@ -427,24 +440,45 @@ bool AddMPoSScript(std::vector<CScript> &mposScriptList, int nHeight, const Cons
             LogPrint(BCLog::COINSTAKE, "Fail to solve script for mpos reward recipient\n");
             //This should never fail, but in case it somehow did we don't want it to bring the network to a halt
             //So, use an OP_RETURN script to burn the coins for the unknown staker
-            script = CScript() << OP_RETURN;
+            blockScript = CScript() << OP_RETURN;
         }else{
             // Make public key hash script
-            script = CScript() << OP_DUP << OP_HASH160 << ToByteVector(stakeAddress) << OP_EQUALVERIFY << OP_CHECKSIG;
+            blockScript = CScript() << OP_DUP << OP_HASH160 << ToByteVector(stakeAddress) << OP_EQUALVERIFY << OP_CHECKSIG;
+        }
+
+        if(pblockindex->HasDelegation())
+        {
+            uint160 delegateAddress;
+            uint8_t fee;
+            if(!pblocktree->ReadDelegateIndex(nHeight, delegateAddress, fee)){
+                return false;
+            }
+
+            if(delegateAddress == uint160())
+            {
+                LogPrint(BCLog::COINSTAKE, "Fail to solve script for mpos delegate reward recipient\n");
+                blockScript.delegateScript = CScript() << OP_RETURN;
+            }else{
+                // Make public key hash script
+                blockScript.delegateScript = CScript() << OP_DUP << OP_HASH160 << ToByteVector(delegateAddress) << OP_EQUALVERIFY << OP_CHECKSIG;
+            }
+
+            blockScript.fee = fee;
+            blockScript.hasDelegate = true;
         }
 
         // Add the script into the list
-        mposScriptList.push_back(script);
+        mposScriptList.push_back(blockScript);
 
         // Update script cache
-        AddToScriptCache(script, pblockindex, nHeight, consensusParams);
+        AddToScriptCache(blockScript, pblockindex, nHeight, consensusParams);
     }
     else
     {
         if(Params().MineBlocksOnDemand()){
             //this could happen in regtest. Just ignore and add an empty script
-            script = CScript() << OP_RETURN;
-            mposScriptList.push_back(script);
+            blockScript = CScript() << OP_RETURN;
+            mposScriptList.push_back(blockScript);
             return true;
 
         }
@@ -455,7 +489,7 @@ bool AddMPoSScript(std::vector<CScript> &mposScriptList, int nHeight, const Cons
     return true;
 }
 
-bool GetMPoSOutputScripts(std::vector<CScript>& mposScriptList, int nHeight, const Consensus::Params& consensusParams)
+bool GetMPoSOutputScripts(std::vector<BlockScript>& mposScriptList, int nHeight, const Consensus::Params& consensusParams)
 {
     bool ret = true;
     nHeight -= COINBASE_MATURITY;
@@ -471,7 +505,7 @@ bool GetMPoSOutputScripts(std::vector<CScript>& mposScriptList, int nHeight, con
 
 bool GetMPoSOutputs(std::vector<CTxOut>& mposOutputList, int64_t nRewardPiece, int nHeight, const Consensus::Params& consensusParams)
 {
-    std::vector<CScript> mposScriptList;
+    std::vector<BlockScript> mposScriptList;
     if(!GetMPoSOutputScripts(mposScriptList, nHeight, consensusParams))
     {
         LogPrint(BCLog::COINSTAKE, "Fail to get the list of recipients\n");
@@ -481,8 +515,23 @@ bool GetMPoSOutputs(std::vector<CTxOut>& mposOutputList, int64_t nRewardPiece, i
     // Create the outputs for the recipients
     for(unsigned int i = 0; i < mposScriptList.size(); i++)
     {
-        CTxOut txOut(nRewardPiece, mposScriptList[i]);
-        mposOutputList.push_back(txOut);
+        BlockScript blockScript = mposScriptList[i];
+        if(blockScript.hasDelegate)
+        {
+            int64_t nRewardDelegate, nRewardStaker;
+            if(!SplitOfflineStakeReward(nRewardPiece, blockScript.fee, nRewardDelegate, nRewardStaker))
+            {
+                LogPrint(BCLog::COINSTAKE, "Fail to to split the offline staking reward\n");
+                return false;
+            }
+
+            mposOutputList.push_back(CTxOut(nRewardStaker, blockScript.stakerScript));
+            mposOutputList.push_back(CTxOut(nRewardDelegate, blockScript.delegateScript));
+        }
+        else
+        {
+            mposOutputList.push_back(CTxOut(nRewardPiece, blockScript.stakerScript));
+        }
     }
 
     return true;
