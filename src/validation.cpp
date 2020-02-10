@@ -4661,12 +4661,13 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
     CMutableTransaction txCoinStake(*pblock->vtx[1]);
     uint32_t nTimeBlock = nTime;
     nTimeBlock &= ~STAKE_TIMESTAMP_MASK;
+    std::vector<unsigned char> vchPoD;
     //original line:
     //int64_t nSearchInterval = IsProtocolV2(nBestHeight+1) ? 1 : nSearchTime - nLastCoinStakeSearchTime;
     //IsProtocolV2 mean POS 2 or higher, so the modified line is:
     auto locked_chain = wallet.chain().lock();
     LOCK(wallet.cs_wallet);
-    if (wallet.CreateCoinStake(*locked_chain, wallet, pblock->nBits, nTotalFees, nTimeBlock, txCoinStake, key, setCoins, setDelegateCoins))
+    if (wallet.CreateCoinStake(*locked_chain, wallet, pblock->nBits, nTotalFees, nTimeBlock, txCoinStake, key, setCoins, setDelegateCoins, vchPoD))
     {
         if (nTimeBlock >= ::ChainActive().Tip()->GetMedianTimePast()+1)
         {
@@ -4687,8 +4688,14 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
             if (::ChainActive().Height() + 1 >= Params().GetConsensus().nOfflineStakeHeight)
             {
                 // append a signature to our block and ensure that is compact
-                return key.SignCompact(pblock->GetHashWithoutSign(), pblock->vchBlockSigDlgt) &&
-                           CheckHeaderPoS(*pblock, Params().GetConsensus());
+                bool isSigned = key.SignCompact(pblock->GetHashWithoutSign(), pblock->vchBlockSigDlgt);
+
+                // append PoD to the end of the block header
+                if(vchPoD.size() > 0)
+                    pblock->vchBlockSigDlgt.insert(pblock->vchBlockSigDlgt.end(), vchPoD.begin(), vchPoD.end());
+
+                // check block header
+                return isSigned && CheckHeaderPoS(*pblock, Params().GetConsensus());
             }
             else
             {
