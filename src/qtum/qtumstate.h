@@ -30,9 +30,20 @@ struct Vin{
     uint8_t alive;
 };
 
+class QtumTransactionReceipt: public dev::eth::TransactionReceipt {
+public:
+    QtumTransactionReceipt(dev::h256 const& state_root, dev::h256 const& utxo_root, dev::u256 const& gas_used, dev::eth::LogEntries const& log) : dev::eth::TransactionReceipt(state_root, gas_used, log), m_utxoRoot(utxo_root) {}
+
+    dev::h256 const& utxoRoot() const {
+        return m_utxoRoot;
+    }
+private:
+    dev::h256 m_utxoRoot;
+};
+
 struct ResultExecute{
     dev::eth::ExecutionResult execRes;
-    dev::eth::TransactionReceipt txRec;
+    QtumTransactionReceipt txRec;
     CTransaction tx;
 };
 
