@@ -14,6 +14,7 @@
 #include <chainparams.h>
 #include <script/sign.h>
 #include <consensus/consensus.h>
+#include <util/signstr.h>
 
 using namespace std;
 
@@ -192,8 +193,11 @@ bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBloc
 
     uint256 hash = block.GetHashWithoutSign();
     CPubKey pubkey;
+    std::vector<unsigned char> vchBlockSig = block.GetBlockSignature();
+    std::vector<unsigned char> vchPoD = block.GetBlockDelegate();
+    bool hasDelegation = block.HasDelegation();
 
-    if(block.vchBlockSigDlgt.empty()) {
+    if(vchBlockSig.empty()) {
         return error("CheckRecoveredPubKeyFromBlockSignature(): Signature is empty\n");
     }
 
@@ -201,13 +205,31 @@ bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBloc
     if (pindexPrev->nHeight + 1 >= Params().GetConsensus().nOfflineStakeHeight)
     {
         // Recover the public key from compact signature
-        CTxDestination address;
-        txnouttype txType=TX_NONSTANDARD;
-        if(pubkey.RecoverCompact(hash, block.vchBlockSigDlgt) &&
-                ExtractDestination(coinPrev.out.scriptPubKey, address, &txType)){
-            if ((txType == TX_PUBKEY || txType == TX_PUBKEYHASH) && address.type() == typeid(PKHash)) {
-                if(pubkey.GetID() == boost::get<PKHash>(address)) {
-                    return true;
+        if(hasDelegation)
+        {
+            // Has delegation
+            CTxDestination address;
+            txnouttype txType=TX_NONSTANDARD;
+            if(pubkey.RecoverCompact(hash, vchBlockSig) &&
+                    ExtractDestination(coinPrev.out.scriptPubKey, address, &txType)){
+                if ((txType == TX_PUBKEY || txType == TX_PUBKEYHASH) && address.type() == typeid(PKHash)) {
+                    if(SignStr::VerifyMessage(CKeyID(boost::get<PKHash>(address)), pubkey.GetID().ToString(), vchPoD)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        else
+        {
+            // No delegation
+            CTxDestination address;
+            txnouttype txType=TX_NONSTANDARD;
+            if(pubkey.RecoverCompact(hash, vchBlockSig) &&
+                    ExtractDestination(coinPrev.out.scriptPubKey, address, &txType)){
+                if ((txType == TX_PUBKEY || txType == TX_PUBKEYHASH) && address.type() == typeid(PKHash)) {
+                    if(pubkey.GetID() == boost::get<PKHash>(address)) {
+                        return true;
+                    }
                 }
             }
         }
@@ -217,7 +239,7 @@ bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBloc
         // Recover the public key from LowS signature
         for(uint8_t recid = 0; recid <= 3; ++recid) {
             for(uint8_t compressed = 0; compressed < 2; ++compressed) {
-                if(!pubkey.RecoverLaxDER(hash, block.vchBlockSigDlgt, recid, compressed)) {
+                if(!pubkey.RecoverLaxDER(hash, vchBlockSig, recid, compressed)) {
                     continue;
                 }
 
