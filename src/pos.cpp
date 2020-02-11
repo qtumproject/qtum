@@ -144,12 +144,13 @@ bool CheckBlockInputPubKeyMatchesOutputPubKey(const CBlock& block, CCoinsViewCac
         return error("%s: Could not fetch prevoutStake from UTXO set", __func__);
     }
 
+    uint hasDelegation = block.HasDelegation() ? 1 : 0;
     CTransactionRef coinstakeTx = block.vtx[1];
-    if(coinstakeTx->vout.size() < 2) {
+    if(coinstakeTx->vout.size() < 2 + hasDelegation) {
         return error("%s: coinstake transaction does not have the minimum number of outputs", __func__);
     }
 
-    const CTxOut& txout = coinstakeTx->vout[1];
+    const CTxOut& txout = coinstakeTx->vout[1 + hasDelegation];
 
     if(coinIn.out.scriptPubKey == txout.scriptPubKey) {
         return true;
@@ -213,7 +214,7 @@ bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBloc
             if(pubkey.RecoverCompact(hash, vchBlockSig) &&
                     ExtractDestination(coinPrev.out.scriptPubKey, address, &txType)){
                 if ((txType == TX_PUBKEY || txType == TX_PUBKEYHASH) && address.type() == typeid(PKHash)) {
-                    if(SignStr::VerifyMessage(CKeyID(boost::get<PKHash>(address)), pubkey.GetID().ToString(), vchPoD)) {
+                    if(SignStr::VerifyMessage(CKeyID(boost::get<PKHash>(address)), pubkey.GetID().GetReverseHex(), vchPoD)) {
                         return true;
                     }
                 }

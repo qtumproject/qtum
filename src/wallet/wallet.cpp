@@ -3866,7 +3866,7 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
             std::vector<valtype> vSolutions;
 
             Coin coinPrev;
-            if(::ChainstateActive().CoinsTip().GetCoin(prevoutStake, coinPrev)){
+            if(!::ChainstateActive().CoinsTip().GetCoin(prevoutStake, coinPrev)){
                 if(!GetSpentCoinFromMainChain(pindexPrev, prevoutStake, &coinPrev)) {
                     return error("CreateCoinStake: Could not find coin and it was not at the tip");
                 }

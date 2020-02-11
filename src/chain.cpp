@@ -173,26 +173,26 @@ const CBlockIndex* LastCommonAncestor(const CBlockIndex* pa, const CBlockIndex* 
 
 std::vector<unsigned char> CBlockIndex::GetBlockSignature() const
 {
-    if(vchBlockSigDlgt.size() < 2 * CPubKey::COMPRESSED_PUBLIC_KEY_SIZE)
+    if(vchBlockSigDlgt.size() < 2 * CPubKey::COMPACT_SIGNATURE_SIZE)
     {
         return vchBlockSigDlgt;
     }
 
-    return std::vector<unsigned char>(vchBlockSigDlgt.begin(), vchBlockSigDlgt.end() - CPubKey::COMPRESSED_PUBLIC_KEY_SIZE );
+    return std::vector<unsigned char>(vchBlockSigDlgt.begin(), vchBlockSigDlgt.end() - CPubKey::COMPACT_SIGNATURE_SIZE );
 }
 
 std::vector<unsigned char> CBlockIndex::GetBlockDelegate() const
 {
-    if(vchBlockSigDlgt.size() < 2 * CPubKey::COMPRESSED_PUBLIC_KEY_SIZE)
+    if(vchBlockSigDlgt.size() < 2 * CPubKey::COMPACT_SIGNATURE_SIZE)
     {
         return std::vector<unsigned char>();
     }
 
-    return std::vector<unsigned char>(vchBlockSigDlgt.begin() + vchBlockSigDlgt.size() - CPubKey::COMPRESSED_PUBLIC_KEY_SIZE, vchBlockSigDlgt.end());
+    return std::vector<unsigned char>(vchBlockSigDlgt.begin() + vchBlockSigDlgt.size() - CPubKey::COMPACT_SIGNATURE_SIZE, vchBlockSigDlgt.end());
 
 }
 
 bool CBlockIndex::HasDelegation() const
 {
-    return vchBlockSigDlgt.size() >= 2 * CPubKey::COMPRESSED_PUBLIC_KEY_SIZE;
+    return vchBlockSigDlgt.size() >= 2 * CPubKey::COMPACT_SIGNATURE_SIZE;
 }
