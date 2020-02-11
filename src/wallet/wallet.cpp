@@ -2692,6 +2692,10 @@ bool CWallet::AvailableDelegateCoinsForStaking(interfaces::Chain::Lock& locked_c
     AssertLockHeld(cs_wallet);
 
     vDelegateCoins.clear();
+    uint32_t const height = locked_chain.getHeight().get_value_or(-1);
+    if (height == -1) {
+        return error("Invalid blockchain height");
+    }
 
     for (std::map<PKHash, Delegation>::const_iterator it = m_delegations.begin(); it != m_delegations.end(); ++it)
     {
@@ -2718,10 +2722,16 @@ bool CWallet::AvailableDelegateCoinsForStaking(interfaces::Chain::Lock& locked_c
         // Sort address utxos
         std::sort(unspentOutputs.begin(), unspentOutputs.end(), heightUtxoSort);
 
-        // Add the utxos to the list if they are at least the minimum value
+        // Add the utxos to the list if they are mature and at least the minimum value
         for (std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> >::const_iterator i=unspentOutputs.begin(); i!=unspentOutputs.end(); i++) {
+
+            int nDepth = height - i->second.blockHeight;
+            if (nDepth < COINBASE_MATURITY)
+                continue;
+
             if(i->second.satoshis < m_staking_min_utxo_value)
                 continue;
+
             vDelegateCoins.push_back(COutPoint(i->first.txhash, i->first.index));
         }
     }
