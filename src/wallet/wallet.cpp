@@ -2692,7 +2692,7 @@ bool CWallet::AvailableDelegateCoinsForStaking(interfaces::Chain::Lock& locked_c
     AssertLockHeld(cs_wallet);
 
     vDelegateCoins.clear();
-    uint32_t const height = locked_chain.getHeight().get_value_or(-1);
+    int32_t const height = locked_chain.getHeight().get_value_or(-1);
     if (height == -1) {
         return error("Invalid blockchain height");
     }

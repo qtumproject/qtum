@@ -886,6 +886,7 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
     if(regtestMode){
         nMinerSleep = 30000; //limit regtest to 30s, otherwise it'll create 2 blocks per second
     }
+    bool fSuperStake = gArgs.GetBoolArg("-superstaking", DEFAULT_SUPER_STAKE);
 
     while (true)
     {
@@ -922,7 +923,10 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
         {
             auto locked_chain = pwallet->chain().lock();
             pwallet->SelectCoinsForStaking(*locked_chain, nTargetValue, setCoins, nValueIn);
-            pwallet->SelectDelegateCoinsForStaking(*locked_chain, setDelegateCoins);
+            if(fSuperStake)
+            {
+                pwallet->SelectDelegateCoinsForStaking(*locked_chain, setDelegateCoins);
+            }
         }
         if(setCoins.size() > 0 || setDelegateCoins.size() > 0)
         {
