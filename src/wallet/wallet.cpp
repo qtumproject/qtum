@@ -2698,20 +2698,30 @@ bool CWallet::AvailableDelegateCoinsForStaking(interfaces::Chain::Lock& locked_c
         const PKHash& keyid = it->first;
         const Delegation* delegation = &(*it).second;
 
+        // Check for min staking fee
+        if(delegation->fee < m_staking_min_fee)
+            continue;
+
+        // Decode address
         uint256 hashBytes;
         int type = 0;
         if (!DecodeIndexKey(EncodeDestination(keyid), hashBytes, type)) {
             return error("Invalid address");
         }
 
+        // Get address utxos
         std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > unspentOutputs;
         if (!GetAddressUnspent(hashBytes, type, unspentOutputs)) {
             throw error("No information available for address");
         }
 
+        // Sort address utxos
         std::sort(unspentOutputs.begin(), unspentOutputs.end(), heightUtxoSort);
 
+        // Add the utxos to the list if they are at least the minimum value
         for (std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> >::const_iterator i=unspentOutputs.begin(); i!=unspentOutputs.end(); i++) {
+            if(i->second.satoshis < m_staking_min_utxo_value)
+                continue;
             vDelegateCoins.push_back(COutPoint(i->first.txhash, i->first.index));
         }
     }
@@ -5236,6 +5246,19 @@ std::shared_ptr<CWallet> CWallet::CreateWalletFromFile(interfaces::Chain& chain,
     if(!ParseMoney(gArgs.GetArg("-reservebalance", FormatMoney(DEFAULT_RESERVE_BALANCE)), walletInstance->m_reserve_balance))
         walletInstance->m_reserve_balance = DEFAULT_RESERVE_BALANCE;
     walletInstance->m_use_change_address = gArgs.GetBoolArg("-usechangeaddress", DEFAULT_USE_CHANGE_ADDRESS);
+    if(!ParseMoney(gArgs.GetArg("-stakingminutxovalue", FormatMoney(DEFAULT_STAKING_MIN_UTXO_VALUE)), walletInstance->m_staking_min_utxo_value))
+        walletInstance->m_staking_min_utxo_value = DEFAULT_STAKING_MIN_UTXO_VALUE;
+    if (gArgs.IsArgSet("-stakingminfee"))
+    {
+        int nStakingMinFee = gArgs.GetArg("-stakingminfee", DEFAULT_STAKING_MIN_FEE);
+        if(nStakingMinFee < 0 || nStakingMinFee > 100)
+        {
+            chain.initError(strprintf(_("Invalid percentage value for -stakingminfee=<n>: '%d'").translated,
+                                       gArgs.GetArg("-stakingminfee", ""), nStakingMinFee));
+            return nullptr;
+        }
+        walletInstance->m_staking_min_fee = nStakingMinFee;
+    }
 
     walletInstance->WalletLogPrintf("Wallet completed loading in %15dms\n", GetTimeMillis() - nStart);
 

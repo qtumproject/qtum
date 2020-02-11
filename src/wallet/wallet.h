@@ -98,6 +98,11 @@ constexpr CAmount HIGH_MAX_TX_FEE{100 * HIGH_TX_FEE_PER_KB};
 //! Pre-calculated constants for input size estimation in *virtual size*
 static constexpr size_t DUMMY_NESTED_P2WPKH_INPUT_SIZE = 91;
 
+//! -stakingminutxovalue default
+static const CAmount DEFAULT_STAKING_MIN_UTXO_VALUE = 100 * COIN;
+//! -stakingminfee default
+static const uint8_t DEFAULT_STAKING_MIN_FEE = 10;
+
 class CCoinControl;
 class COutput;
 class CScript;
@@ -1257,6 +1262,8 @@ public:
     int64_t m_last_coin_stake_search_time{0};
     int64_t m_last_coin_stake_search_interval{0};
     std::atomic<bool> m_enabled_staking{false};
+    CAmount m_staking_min_utxo_value{DEFAULT_STAKING_MIN_UTXO_VALUE};
+    uint8_t m_staking_min_fee{DEFAULT_STAKING_MIN_FEE};
 
     bool NewKeyPool();
     size_t KeypoolCountExternalKeys() EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
