@@ -4767,8 +4767,15 @@ bool GetBlockDelegation(const CBlock& block, const uint160& staker, uint160& add
     if (!block.HasDelegation())
         return false;
 
+    if(block.vtx.size() < 1)
+        return false;
+
+    if(block.vtx[1]->vin.size() < 1 ||
+            block.vtx[1]->vout.size() < 3)
+        return false;
+
     // Get the delegate
-    std::string strMessage = staker.ToString();
+    std::string strMessage = staker.GetReverseHex();
     CKeyID keyid;
     if(!SignStr::GetKeyIdMessage(strMessage, block.GetBlockDelegate(), keyid))
         return false;
@@ -4777,15 +4784,12 @@ bool GetBlockDelegation(const CBlock& block, const uint160& staker, uint160& add
     // Get the staker fee
     CCoinsViewCache& cache = ::ChainstateActive().CoinsTip();
     COutPoint prevout = block.vtx[1]->vin[0].prevout;
-    if(!cache.HaveCoinInCache(prevout))
-        return false;
-
     CAmount nValueCoin = cache.AccessCoin(prevout).out.nValue;
     if(nValueCoin <= 0)
         return false;
 
-    CAmount nValueStaker = block.vtx[1]->vout[0].nValue;
-    CAmount nValueDelegate = block.vtx[1]->vout[1].nValue;
+    CAmount nValueStaker = block.vtx[1]->vout[1].nValue;
+    CAmount nValueDelegate = block.vtx[1]->vout[2].nValue;
     CAmount nReward = nValueStaker + nValueDelegate - nValueCoin;
     if(nReward < 0)
         return false;
