@@ -580,6 +580,21 @@ bool GetSenderPubKey(const CScript &outputPubKey, CScript &senderPubKey)
     return false;
 }
 
+PKHash ExtractPublicKeyHash(const CScript& scriptPubKey, bool* OK)
+{
+    if(OK) *OK = false;
+    CTxDestination address;
+    txnouttype txType=TX_NONSTANDARD;
+    if(ExtractDestination(scriptPubKey, address, &txType)){
+        if ((txType == TX_PUBKEY || txType == TX_PUBKEYHASH) && address.type() == typeid(PKHash)) {
+            if(OK) *OK = true;
+            return boost::get<PKHash>(address);
+        }
+    }
+
+    return PKHash();
+}
+
 valtype DataVisitor::operator()(const CNoDestination& noDest) const { return valtype(); }
 valtype DataVisitor::operator()(const PKHash& keyID) const { return valtype(keyID.begin(), keyID.end()); }
 valtype DataVisitor::operator()(const ScriptHash& scriptID) const { return valtype(scriptID.begin(), scriptID.end()); }

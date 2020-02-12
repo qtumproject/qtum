@@ -5159,7 +5159,7 @@ bool CChainState::UpdateHashProof(const CBlock& block, CValidationState& state, 
     if (block.IsProofOfStake())
     {
         uint256 targetProofOfStake;
-        if (!CheckProofOfStake(pindex->pprev, state, *block.vtx[1], block.nBits, block.nTime, hashProof, targetProofOfStake, view))
+        if (!CheckProofOfStake(pindex->pprev, state, *block.vtx[1], block.nBits, block.nTime, block.GetBlockDelegate(), hashProof, targetProofOfStake, view))
         {
             return error("UpdateHashProof() : check proof-of-stake failed for block %s", hash.ToString());
         }

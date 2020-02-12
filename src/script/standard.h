@@ -169,6 +169,8 @@ bool ExtractSenderData(const CScript& outputPubKey, CScript* senderPubKey, CScri
 
 bool GetSenderPubKey(const CScript& outputPubKey, CScript& senderPubKey);
 
+PKHash ExtractPublicKeyHash(const CScript& scriptPubKey, bool* OK = nullptr);
+
 /** Get the name of a txnouttype as a C string, or nullptr if unknown. */
 const char* GetTxnOutputType(txnouttype t);
 

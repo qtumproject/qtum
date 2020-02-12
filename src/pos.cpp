@@ -100,7 +100,7 @@ bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t 
 }
 
 // Check kernel hash target and coinstake signature
-bool CheckProofOfStake(CBlockIndex* pindexPrev, CValidationState& state, const CTransaction& tx, unsigned int nBits, uint32_t nTimeBlock, uint256& hashProofOfStake, uint256& targetProofOfStake, CCoinsViewCache& view)
+bool CheckProofOfStake(CBlockIndex* pindexPrev, CValidationState& state, const CTransaction& tx, unsigned int nBits, uint32_t nTimeBlock, const std::vector<unsigned char>& vchPoD, uint256& hashProofOfStake, uint256& targetProofOfStake, CCoinsViewCache& view)
 {
     if (!tx.IsCoinStake())
         return error("CheckProofOfStake() : called on non-coinstake %s", tx.GetHash().ToString());
@@ -122,9 +122,26 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, CValidationState& state, const C
         return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-prevout-not-loaded", strprintf("CheckProofOfStake() : Block at height %i for prevout can not be loaded", coinPrev.nHeight));
     }
 
-    // Verify signature
-    if (!VerifySignature(coinPrev, txin.prevout.hash, tx, 0, SCRIPT_VERIFY_NONE))
-        return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-verify-signature-failed", strprintf("CheckProofOfStake() : VerifySignature failed on coinstake %s", tx.GetHash().ToString()));
+    bool hasDelegation = vchPoD.size() > 0;
+    if(hasDelegation)
+    {
+        // Verify the transaction signature is from the staker
+        CScript stakerPubKey = tx.vout[1].scriptPubKey;
+        if (!VerifySignature(stakerPubKey, txin.prevout.hash, tx, 0, SCRIPT_VERIFY_NONE))
+            return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-verify-signature-failed", strprintf("CheckProofOfStake() : VerifySignature failed on coinstake %s", tx.GetHash().ToString()));
+
+        // Check that the staker have the permission to use that coin to create the coinstake transaction
+        PKHash staker = ExtractPublicKeyHash(stakerPubKey);
+        PKHash delegate = ExtractPublicKeyHash(coinPrev.out.scriptPubKey);
+        if(!SignStr::VerifyMessage(CKeyID(delegate), staker.GetReverseHex(), vchPoD))
+            return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-verify-delegation-failed", strprintf("CheckProofOfStake() : VerifyDelegation failed on coinstake %s", tx.GetHash().ToString()));
+    }
+    else
+    {
+        // Verify signature
+        if (!VerifySignature(coinPrev, txin.prevout.hash, tx, 0, SCRIPT_VERIFY_NONE))
+            return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-verify-signature-failed", strprintf("CheckProofOfStake() : VerifySignature failed on coinstake %s", tx.GetHash().ToString()));
+    }
 
     if (!CheckStakeKernelHash(pindexPrev, nBits, blockFrom->nTime, coinPrev.out.nValue, txin.prevout, nTimeBlock, hashProofOfStake, targetProofOfStake, LogInstance().WillLogCategory(BCLog::COINSTAKE)))
         return state.Invalid(ValidationInvalidReason::BLOCK_HEADER_SYNC, false, REJECT_INVALID, "stake-check-kernel-failed", strprintf("CheckProofOfStake() : INFO: check kernel failed on coinstake %s, hashProof=%s", tx.GetHash().ToString(), hashProofOfStake.ToString())); // may occur during initial download or if behind on block chain sync
