@@ -491,20 +491,25 @@ void SelectParams(const std::string& network)
     globalChainParams = CreateChainParams(network);
 }
 
-std::string CChainParams::EVMGenesisInfo(dev::eth::Network network) const
+std::string CChainParams::EVMGenesisInfo() const
 {
-    std::string genesisInfo = dev::eth::genesisInfo(network);
+    std::string genesisInfo = dev::eth::genesisInfo(GetEVMNetwork());
     ReplaceInt(consensus.QIP7Height, "QIP7_STARTING_BLOCK", genesisInfo);
     ReplaceInt(consensus.QIP6Height, "QIP6_STARTING_BLOCK", genesisInfo);
     return genesisInfo;
 }
 
-std::string CChainParams::EVMGenesisInfo(dev::eth::Network network, int nHeight) const
+std::string CChainParams::EVMGenesisInfo(int nHeight) const
 {
-    std::string genesisInfo = dev::eth::genesisInfo(network);
+    std::string genesisInfo = dev::eth::genesisInfo(GetEVMNetwork());
     ReplaceInt(nHeight, "QIP7_STARTING_BLOCK", genesisInfo);
     ReplaceInt(nHeight, "QIP6_STARTING_BLOCK", genesisInfo);
     return genesisInfo;
+}
+
+dev::eth::Network CChainParams::GetEVMNetwork() const
+{
+    return dev::eth::Network::qtumMainNetwork;
 }
 
 void CChainParams::UpdateOpSenderBlockHeight(int nHeight)

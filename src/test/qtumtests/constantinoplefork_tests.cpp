@@ -103,7 +103,7 @@ const std::vector<valtype> CODE = {
 
 void genesisLoading(){
     const CChainParams& chainparams = Params();
-    dev::eth::ChainParams cp((chainparams.EVMGenesisInfo(dev::eth::Network::qtumMainNetwork, 999)));
+    dev::eth::ChainParams cp(chainparams.EVMGenesisInfo(999));
     globalState->populateFrom(cp.genesisState);
     globalSealEngine = std::unique_ptr<dev::eth::SealEngineFace>(cp.createSealEngine());
     globalState->db().commit();

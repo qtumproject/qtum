@@ -86,14 +86,15 @@ public:
     const std::vector<SeedSpec6>& FixedSeeds() const { return vFixedSeeds; }
     const CCheckpointData& Checkpoints() const { return checkpointData; }
     const ChainTxData& TxData() const { return chainTxData; }
-    std::string EVMGenesisInfo(dev::eth::Network network) const;
-    std::string EVMGenesisInfo(dev::eth::Network network, int nHeight) const;
+    std::string EVMGenesisInfo() const;
+    std::string EVMGenesisInfo(int nHeight) const;
     void UpdateOpSenderBlockHeight(int nHeight);
     void UpdateBtcEcrecoverBlockHeight(int nHeight);
     void UpdateConstantinopleBlockHeight(int nHeight);
     void UpdateDifficultyChangeBlockHeight(int nHeight);
     void UpdateOfflineStakingBlockHeight(int nHeight);
 protected:
+    dev::eth::Network GetEVMNetwork() const;
     CChainParams() {}
 
     Consensus::Params consensus;
