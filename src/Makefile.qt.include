@@ -177,7 +177,7 @@ BITCOIN_QT_H = \
   qt/coincontroldialog.h \
   qt/coincontroltreewidget.h \
   qt/createwalletdialog.h \
-  qt/contractabi.h \
+  qt/contractutil.h \
   qt/contractbookpage.h \
   qt/contractresult.h \
   qt/contracttablemodel.h \
@@ -376,7 +376,7 @@ BITCOIN_QT_WALLET_CPP = \
   qt/callcontract.cpp \
   qt/coincontroldialog.cpp \
   qt/coincontroltreewidget.cpp \
-  qt/contractabi.cpp \
+  qt/contractutil.cpp \
   qt/contractbookpage.cpp \
   qt/contractresult.cpp \
   qt/contracttablemodel.cpp \

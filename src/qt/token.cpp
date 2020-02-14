@@ -1,6 +1,6 @@
 #include <qt/token.h>
 #include <qt/execrpccommand.h>
-#include <qt/contractabi.h>
+#include <qt/contractutil.h>
 #include <validation.h>
 #include <util/moneystr.h>
 #include <key_io.h>

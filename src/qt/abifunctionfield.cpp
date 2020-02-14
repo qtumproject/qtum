@@ -1,6 +1,6 @@
 #include <qt/abifunctionfield.h>
 #include <qt/abiparamsfield.h>
-#include <qt/contractabi.h>
+#include <qt/contractutil.h>
 #include <qt/platformstyle.h>
 #include <QVBoxLayout>
 #include <QHBoxLayout>

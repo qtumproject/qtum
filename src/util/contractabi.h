@@ -3,16 +3,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <QRegularExpression>
-#include <QStringList>
-
-#define paternUint "^[0-9]{1,77}$"
-#define paternInt "^\\-{0,1}[0-9]{1,76}$"
-#define paternAddress "^[a-fA-F0-9]{40,40}$"
-#define paternBool "^true$|^false$"
-#define paternHex "^[a-fA-F0-9]{1,}$"
-#define paternBytes paternHex
-#define paternBytes32 "^[a-fA-F0-9]{%1,%1}$"
 
 
 /**
@@ -200,13 +190,6 @@ public:
     void clean();
 
     std::vector<FunctionABI> functions;
-};
-
-class ContractUtil
-{
-public:
-    static bool getRegularExpession(const ParameterType &paramType, QRegularExpression &regEx);
-    static QString errorMessage(const FunctionABI& function, const std::vector<ParameterABI::ErrorType>& errors, bool in);
 };
 
 #endif // CONTRACTABI_H

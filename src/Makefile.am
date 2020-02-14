@@ -232,6 +232,7 @@ BITCOIN_CORE_H = \
   util/validation.h \
   util/convert.h \
   util/signstr.h \
+  util/contractabi.h \
   validation.h \
   validationinterface.h \
   versionbits.h \
@@ -516,6 +517,7 @@ libbitcoin_common_a_SOURCES = \
   versionbitsinfo.cpp \
   warnings.cpp \
   qtum/qtumutils.cpp \
+  util/contractabi.cpp \
   cpp-ethereum/aleth/buildinfo.c \
   cpp-ethereum/aleth/buildinfo.h \
   cpp-ethereum/evmc/lib/instructions/instruction_metrics.c \

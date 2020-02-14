@@ -2,7 +2,7 @@
 #include <qt/forms/ui_editcontractinfodialog.h>
 
 #include <qt/contracttablemodel.h>
-#include <qt/contractabi.h>
+#include <qt/contractutil.h>
 #include <qt/styleSheet.h>
 
 #include <QDataWidgetMapper>

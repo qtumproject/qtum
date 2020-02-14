@@ -1,5 +1,5 @@
 #include <qt/abiparam.h>
-#include <qt/contractabi.h>
+#include <qt/contractutil.h>
 #include <qt/abiparamitem.h>
 #include <qt/platformstyle.h>
 

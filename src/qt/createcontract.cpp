@@ -12,7 +12,7 @@
 #include <util/moneystr.h>
 #include <qt/addressfield.h>
 #include <qt/abifunctionfield.h>
-#include <qt/contractabi.h>
+#include <qt/contractutil.h>
 #include <qt/tabbarinfo.h>
 #include <qt/contractresult.h>
 #include <qt/sendcoinsdialog.h>

@@ -1,7 +1,7 @@
 #include <qt/contractresult.h>
 #include <qt/forms/ui_contractresult.h>
 #include <qt/guiconstants.h>
-#include <qt/contractabi.h>
+#include <qt/contractutil.h>
 #include <qt/styleSheet.h>
 
 #include <QMessageBox>
