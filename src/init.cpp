@@ -530,6 +530,7 @@ void SetupServerArgs()
     gArgs.AddArg("-constantinopleheight=<n>", "Use given block height to check constantinople fork (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-difficultychangeheight=<n>", "Use given block height to check difficulty change fork (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-offlinestakingheight=<n>", "Use given block height to check offline staking fork (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    gArgs.AddArg("-delegationsaddress=<adr>", "Use given contract delegations address for offline staking fork (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
 
     SetupChainParamsBaseOptions();
 
@@ -1273,6 +1274,20 @@ bool AppInitParameterInteraction()
         {
             UpdateOfflineStakingBlockHeight(offlineStakingBlock);
             LogPrintf("Activate offline staking at block height %d\n.", offlineStakingBlock);
+        }
+    }
+
+    if (gArgs.IsArgSet("-delegationsaddress")) {
+        // Allow overriding delegations address for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError("delegations address may only be overridden on regtest.");
+        }
+
+        std::string delegationsAddress = gArgs.GetArg("-delegationsaddress", std::string());
+        if(IsHex(delegationsAddress))
+        {
+            UpdateDelegationsAddress(uint160S(delegationsAddress));
+            LogPrintf("Activate delegations address %s\n.", delegationsAddress);
         }
     }
 

@@ -93,6 +93,7 @@ public:
     void UpdateConstantinopleBlockHeight(int nHeight);
     void UpdateDifficultyChangeBlockHeight(int nHeight);
     void UpdateOfflineStakingBlockHeight(int nHeight);
+    void UpdateDelegationsAddress(const uint160& address);
 protected:
     dev::eth::Network GetEVMNetwork() const;
     CChainParams() {}
@@ -159,5 +160,10 @@ void UpdateDifficultyChangeBlockHeight(int nHeight);
  * Allows modifying the offline staking block height regtest parameter.
  */
 void UpdateOfflineStakingBlockHeight(int nHeight);
+
+/**
+ * Allows modifying the delegations address regtest parameter.
+ */
+void UpdateDelegationsAddress(const uint160& address);
 
 #endif // BITCOIN_CHAINPARAMS_H

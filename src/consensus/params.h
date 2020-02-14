@@ -107,6 +107,7 @@ struct Params {
     int nEnableHeaderSignatureHeight;
     /** Block sync-checkpoint span*/
     int nCheckpointSpan;
+    uint160 delegationsAddress;
 };
 } // namespace Consensus
 
