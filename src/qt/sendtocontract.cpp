@@ -406,7 +406,7 @@ QString SendToContract::toDataHex(int func, QString& errorMessage)
     }
     else
     {
-        errorMessage = function.errorMessage(errors, true);
+        errorMessage = ContractUtil::errorMessage(function, errors, true);
     }
     return "";
 }

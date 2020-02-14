@@ -201,13 +201,13 @@ std::string FunctionABI::defaultSelector()
     return "00";
 }
 
-QString FunctionABI::errorMessage(std::vector<ParameterABI::ErrorType> &errors, bool in) const
+QString ContractUtil::errorMessage(const FunctionABI& function, const std::vector<ParameterABI::ErrorType> &errors, bool in)
 {
-    if(in && errors.size() != inputs.size())
+    if(in && errors.size() != function.inputs.size())
         return "";
-    if(!in && errors.size() != outputs.size())
+    if(!in && errors.size() != function.outputs.size())
         return "";
-    const std::vector<ParameterABI>& params = in ? inputs : outputs;
+    const std::vector<ParameterABI>& params = in ? function.inputs : function.outputs;
 
     QStringList messages;
     messages.append(QObject::tr("ABI parsing error:"));
@@ -536,7 +536,7 @@ bool ParameterABI::abiOut(const std::string &data, size_t &pos, std::vector<std:
     return true;
 }
 
-bool ParameterABI::getRegularExpession(const ParameterType &paramType, QRegularExpression &regEx)
+bool ContractUtil::getRegularExpession(const ParameterType &paramType, QRegularExpression &regEx)
 {
     bool ret = false;
     switch (paramType.type()) {

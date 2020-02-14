@@ -247,7 +247,7 @@ void ContractResult::updateCallResult(QVariant result, FunctionABI function, QLi
     else
     {
         QString errorMessage;
-        errorMessage = function.errorMessage(errors, false);
+        errorMessage = ContractUtil::errorMessage(function, errors, false);
         QMessageBox::warning(this, tr("Create contract"), errorMessage);
     }
 }

@@ -137,7 +137,6 @@ public:
     bool abiIn(const std::vector<std::string> &value, std::string &data, std::map<int, std::string>& mapDynamic) const;
     bool abiOut(const std::string &data, size_t& pos, std::vector<std::string> &value) const;
     const ParameterType &decodeType() const;
-    static bool getRegularExpession(const ParameterType &paramType, QRegularExpression &regEx);
 
     std::string name; // The name of the parameter;
     std::string type; // The canonical type of the parameter.
@@ -175,8 +174,6 @@ public:
 
     static std::string defaultSelector();
 
-    QString errorMessage(std::vector<ParameterABI::ErrorType>& errors, bool in) const;
-
     std::string name; // The name of the function;
     std::string type; // Function types: "function", "constructor", "fallback" or "event"
     std::vector<ParameterABI> inputs; // Array of input parameters
@@ -203,6 +200,13 @@ public:
     void clean();
 
     std::vector<FunctionABI> functions;
+};
+
+class ContractUtil
+{
+public:
+    static bool getRegularExpession(const ParameterType &paramType, QRegularExpression &regEx);
+    static QString errorMessage(const FunctionABI& function, const std::vector<ParameterABI::ErrorType>& errors, bool in);
 };
 
 #endif // CONTRACTABI_H
