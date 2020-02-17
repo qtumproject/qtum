@@ -4,6 +4,7 @@
 #include <util/convert.h>
 #include <validation.h>
 #include <util/signstr.h>
+#include <libdevcore/Common.h>
 
 const std::string strDelegationsABI = "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_staker\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_delegate\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint8\",\"name\":\"fee\",\"type\":\"uint8\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"blockHeight\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"PoD\",\"type\":\"bytes\"}],\"name\":\"AddDelegation\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_staker\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_delegate\",\"type\":\"address\"}],\"name\":\"RemoveDelegation\",\"type\":\"event\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"address\",\"name\":\"_staker\",\"type\":\"address\"},{\"internalType\":\"uint8\",\"name\":\"_fee\",\"type\":\"uint8\"},{\"internalType\":\"bytes\",\"name\":\"_PoD\",\"type\":\"bytes\"}],\"name\":\"addDelegation\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"delegations\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"staker\",\"type\":\"address\"},{\"internalType\":\"uint8\",\"name\":\"fee\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"blockHeight\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"PoD\",\"type\":\"bytes\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[],\"name\":\"removeDelegation\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]";
 const ContractABI contractDelegationABI = strDelegationsABI;
@@ -67,7 +68,7 @@ bool QtumDelegation::GetDelegation(const uint160 &address, Delegation &delegatio
     inputValues.push_back(paramAddress);
     std::vector<ParameterABI::ErrorType> inputErrors;
     std::string inputData;
-    if(priv->m_pfDelegations->abiIn(inputValues, inputData, inputErrors))
+    if(!priv->m_pfDelegations->abiIn(inputValues, inputData, inputErrors))
         return error("Failed to serialize get delegation input parameters");
 
     // Get delegation for address
@@ -79,7 +80,7 @@ bool QtumDelegation::GetDelegation(const uint160 &address, Delegation &delegatio
     std::string outputData = HexStr(execResults[0].execRes.output);
     std::vector<std::vector<std::string>> outputValues;
     std::vector<ParameterABI::ErrorType> outputErrors;
-    if(priv->m_pfDelegations->abiOut(outputData, outputValues, outputErrors))
+    if(!priv->m_pfDelegations->abiOut(outputData, outputValues, outputErrors))
         return error("Failed to deserialize get delegation output parameters");
 
     // Output parameters size check

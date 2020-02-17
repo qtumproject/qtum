@@ -1286,7 +1286,7 @@ bool AppInitParameterInteraction()
         std::string delegationsAddress = gArgs.GetArg("-delegationsaddress", std::string());
         if(IsHex(delegationsAddress))
         {
-            UpdateDelegationsAddress(uint160S(delegationsAddress));
+            UpdateDelegationsAddress(uint160(ParseHex(delegationsAddress)));
             LogPrintf("Activate delegations address %s\n.", delegationsAddress);
         }
     }
