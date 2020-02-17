@@ -51,6 +51,11 @@ using namespace ContractABI_NS;
 ContractABI::ContractABI()
 {}
 
+ContractABI::ContractABI(const std::string& json_data)
+{
+    loads(json_data);
+}
+
 bool ContractABI::loads(const std::string &json_data)
 {
     clean();

@@ -186,6 +186,7 @@ class ContractABI
 {
 public:
     ContractABI();
+    ContractABI(const std::string& json_data);
     bool loads(const std::string& json_data);
     void clean();
 

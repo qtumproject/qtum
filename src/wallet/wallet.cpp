@@ -2697,9 +2697,9 @@ bool CWallet::AvailableDelegateCoinsForStaking(interfaces::Chain::Lock& locked_c
         return error("Invalid blockchain height");
     }
 
-    for (std::map<PKHash, Delegation>::const_iterator it = m_delegations.begin(); it != m_delegations.end(); ++it)
+    for (std::map<uint160, Delegation>::const_iterator it = m_delegations.begin(); it != m_delegations.end(); ++it)
     {
-        const PKHash& keyid = it->first;
+        const PKHash& keyid = PKHash(it->first);
         const Delegation* delegation = &(*it).second;
 
         // Check for min staking fee
@@ -3889,12 +3889,11 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
             {
                 // convert to pay to public key type
                 uint160 hash160(vSolutions[0]);
-                CKeyID pubKeyHash(hash160);
 
-                if(!GetDelegation(PKHash(pubKeyHash), delegation))
+                if(!GetDelegation(hash160, delegation))
                     return error("CreateCoinStake: Failed to find delegation");
 
-                if (!keystore.GetKey(delegation.staker, key))
+                if (!keystore.GetKey(CKeyID(delegation.staker), key))
                 {
                     LogPrint(BCLog::COINSTAKE, "CreateCoinStake : failed to get staker key for kernel type=%d\n", whichType);
                     break;  // unable to find corresponding public key
@@ -3905,13 +3904,12 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
             if (whichType == TX_PUBKEY)
             {
                 valtype& vchPubKey = vSolutions[0];
-                uint160 hash160(Hash160(vchPubKey));
-                CKeyID pubKeyHash(hash160);
+                uint160 hash160(Hash160(vchPubKey));;
 
-                if(!GetDelegation(PKHash(pubKeyHash), delegation))
+                if(!GetDelegation(hash160, delegation))
                     return error("CreateCoinStake: Failed to find delegation");
 
-                if (!keystore.GetKey(delegation.staker, key))
+                if (!keystore.GetKey(CKeyID(delegation.staker), key))
                 {
                     LogPrint(BCLog::COINSTAKE, "CreateCoinStake : failed to get staker key for kernel type=%d\n", whichType);
                     break;  // unable to find corresponding public key
@@ -3997,9 +3995,9 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
     return true;
 }
 
-bool CWallet::GetDelegation(const PKHash& keyid, Delegation& delegation)
+bool CWallet::GetDelegation(const uint160& keyid, Delegation& delegation)
 {
-    std::map<PKHash, Delegation>::iterator it = m_delegations.find(keyid);
+    std::map<uint160, Delegation>::iterator it = m_delegations.find(keyid);
     if(it == m_delegations.end())
         return false;
 
