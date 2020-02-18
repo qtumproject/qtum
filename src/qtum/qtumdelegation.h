@@ -5,8 +5,11 @@
 #include <stdint.h>
 #include <uint256.h>
 
-extern const std::string strDelegationsABI;
 class QtumDelegationPriv;
+class ContractABI;
+
+extern const std::string strDelegationsABI;
+const ContractABI &DelegationABI();
 
 struct Delegation
 {
