@@ -18,7 +18,9 @@ from test_framework.blocktools import create_coinbase, create_block, create_tran
 from test_framework.messages import CTransaction
 from test_framework.script import CScript
 from test_framework.test_framework import BitcoinTestFramework
-from test_framework.util import assert_equal, assert_raises_rpc_error
+from test_framework.util import assert_equal, assert_raises_rpc_error, bytes_to_hex_str
+from test_framework.qtumconfig import COINBASE_MATURITY
+
 
 NULLDUMMY_ERROR = "non-mandatory-script-verify-flag (Dummy CHECKMULTISIG argument must be zero) (code 64)"
 
@@ -41,7 +43,7 @@ class NULLDUMMYTest(BitcoinTestFramework):
         self.setup_clean_chain = True
         # This script tests NULLDUMMY activation, which is part of the 'segwit' deployment, so we go through
         # normal segwit activation here (and don't use the default always-on behaviour).
-        self.extra_args = [['-whitelist=127.0.0.1', '-segwitheight=432', '-addresstype=legacy']]
+        self.extra_args = [['-whitelist=127.0.0.1', '-segwitheight=864', '-addresstype=legacy']]
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
@@ -63,7 +65,7 @@ class NULLDUMMYTest(BitcoinTestFramework):
             block.hashMerkleRoot = block.calc_merkle_root()
             block.rehash()
             block.solve()
-            print(self.nodes[0].submitblock(bytes_to_hex_str(block.serialize())))
+            self.nodes[0].submitblock(bytes_to_hex_str(block.serialize()))
 
         # Generate the number blocks signalling  that the continuation of the test case expects
         self.nodes[0].generate(863-COINBASE_MATURITY-2-2)
@@ -88,7 +90,6 @@ class NULLDUMMYTest(BitcoinTestFramework):
 
         self.log.info("Test 3: Non-NULLDUMMY base transactions should be accepted in a block before activation [431]")
         self.block_submit(self.nodes[0], [test2tx], False, True)
-
         self.log.info("Test 4: Non-NULLDUMMY base multisig transaction is invalid after activation")
         test4tx = create_transaction(self.nodes[0], test2tx.hash, self.address, amount=46)
         test6txs = [CTransaction(test4tx)]

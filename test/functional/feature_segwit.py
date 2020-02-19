@@ -6,6 +6,7 @@
 
 from decimal import Decimal
 from io import BytesIO
+import time
 
 from test_framework.address import (
     key_to_p2pkh,
@@ -23,8 +24,11 @@ from test_framework.util import (
     assert_raises_rpc_error,
     connect_nodes,
     hex_str_to_bytes,
+    bytes_to_hex_str,
     try_rpc,
 )
+from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD
+from test_framework.qtum import convert_btc_address_to_qtum 
 
 NODE_0 = 0
 NODE_2 = 2
@@ -60,20 +64,20 @@ class SegWitTest(BitcoinTestFramework):
             [
                 "-acceptnonstdtxn=1",
                 "-rpcserialversion=0",
-                "-segwitheight=432",
+                "-segwitheight=864",
                 "-addresstype=legacy",
             ],
             [
                 "-acceptnonstdtxn=1",
                 "-blockversion=4",
                 "-rpcserialversion=1",
-                "-segwitheight=432",
+                "-segwitheight=864",
                 "-addresstype=legacy",
             ],
             [
                 "-acceptnonstdtxn=1",
                 "-blockversion=536870915",
-                "-segwitheight=432",
+                "-segwitheight=864",
                 "-addresstype=legacy",
             ],
         ]
@@ -115,13 +119,13 @@ class SegWitTest(BitcoinTestFramework):
         self.log.info("Verify sigops are counted in GBT with pre-BIP141 rules before the fork")
         txid = self.nodes[0].sendtoaddress(self.nodes[0].getnewaddress(), 1)
         tmpl = self.nodes[0].getblocktemplate({'rules': ['segwit']})
-        assert tmpl['sizelimit'] == 1000000
+        assert tmpl['sizelimit'] == 2000000
         assert 'weightlimit' not in tmpl
         assert tmpl['sigoplimit'] == 20000
         assert tmpl['transactions'][0]['hash'] == txid
         assert tmpl['transactions'][0]['sigops'] == 2
         tmpl = self.nodes[0].getblocktemplate({'rules': ['segwit']})
-        assert tmpl['sizelimit'] == 1000000
+        assert tmpl['sizelimit'] == 2000000
         assert 'weightlimit' not in tmpl
         assert tmpl['sigoplimit'] == 20000
         assert tmpl['transactions'][0]['hash'] == txid
@@ -220,8 +224,8 @@ class SegWitTest(BitcoinTestFramework):
         self.log.info("Verify sigops are counted in GBT with BIP141 rules after the fork")
         txid = self.nodes[0].sendtoaddress(self.nodes[0].getnewaddress(), 1)
         tmpl = self.nodes[0].getblocktemplate({'rules': ['segwit']})
-        assert tmpl['sizelimit'] >= 3999577  # actual maximum size is lower due to minimum mandatory non-witness data
-        assert tmpl['weightlimit'] == 4000000
+        assert tmpl['sizelimit'] >= 7999577  # actual maximum size is lower due to minimum mandatory non-witness data
+        assert tmpl['weightlimit'] == 8000000
         assert tmpl['sigoplimit'] == 80000
         assert tmpl['transactions'][0]['txid'] == txid
         assert tmpl['transactions'][0]['sigops'] == 8

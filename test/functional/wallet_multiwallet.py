@@ -16,6 +16,7 @@ from test_framework.util import (
     assert_equal,
     assert_raises_rpc_error,
 )
+from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD
 
 FEATURE_LATEST = 169900
 
@@ -344,7 +345,7 @@ class MultiWalletTest(BitcoinTestFramework):
         )
         self.stop_node(
             i=0,
-            expected_stderr='Error: Error loading {}: Wallet requires newer version of Bitcoin Core'.format(
+            expected_stderr='Error: Error loading {}: Wallet requires newer version of Qtum Core'.format(
                 wallet_dir('high_minversion', 'wallet.dat')),
         )
 

@@ -41,7 +41,7 @@ from test_framework.util import (
     assert_raises_rpc_error,
     connect_nodes,
 )
-
+from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD
 
 class WalletBackupTest(BitcoinTestFramework):
     def set_test_params(self):
@@ -113,7 +113,7 @@ class WalletBackupTest(BitcoinTestFramework):
         self.sync_blocks()
         self.nodes[2].generate(1)
         self.sync_blocks()
-        self.nodes[3].generate(100)
+        self.nodes[3].generate(COINBASE_MATURITY)
         self.sync_blocks()
 
         assert_equal(self.nodes[0].getbalance(), INITIAL_BLOCK_REWARD)

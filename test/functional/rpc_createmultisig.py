@@ -10,6 +10,7 @@ from test_framework.util import (
     assert_equal,
 )
 from test_framework.key import ECPubKey
+from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD
 
 import binascii
 import decimal
@@ -36,7 +37,7 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
         self.check_addmultisigaddress_errors()
 
         self.log.info('Generating blocks ...')
-        node0.generate(149)
+        node0.generate(COINBASE_MATURITY+49)
         self.sync_all()
 
         self.moved = 0
@@ -83,7 +84,7 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
 
     def checkbalances(self):
         node0, node1, node2 = self.nodes
-        node0.generate(100)
+        node0.generate(COINBASE_MATURITY)
         self.sync_all()
 
         bal0 = node0.getbalance()
@@ -91,8 +92,8 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
         bal2 = node2.getbalance()
 
         height = node0.getblockchaininfo()["blocks"]
-        assert 150 < height < 350
-        total = 149 * 50 + (height - 149 - 100) * 25
+        assert COINBASE_MATURITY + 50 < height < 2 * COINBASE_MATURITY + 100
+        total = (height - COINBASE_MATURITY) * INITIAL_BLOCK_REWARD
         assert bal1 == 0
         assert bal2 == self.moved
         assert bal0 + bal1 + bal2 == total
