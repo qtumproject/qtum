@@ -111,6 +111,16 @@ bool ContractABI::loads(const std::string &json_data)
     return ret;
 }
 
+FunctionABI ContractABI::operator[](std::string name) const
+{
+    for(const FunctionABI& func : functions)
+    {
+        if(func.name == name)
+            return func;
+    }
+    return FunctionABI();
+}
+
 void ContractABI::clean()
 {
     functions.clear();

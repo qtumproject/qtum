@@ -32,6 +32,8 @@
 #include <wallet/wallet.h>
 #include <wallet/walletdb.h>
 #include <wallet/walletutil.h>
+#include <qtum/qtumdelegation.h>
+#include <util/contractabi.h>
 
 #include <stdint.h>
 
@@ -1207,6 +1209,65 @@ static UniValue sendtocontract(const JSONRPCRequest& request){
                 }.Check(request);
 
     return SendToContract(*locked_chain, pwallet, request.params);
+}
+
+static UniValue removedelegationforaddress(const JSONRPCRequest& request){
+
+    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
+    CWallet* const pwallet = wallet.get();
+
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+
+    auto locked_chain = pwallet->chain().lock();
+    LOCK(pwallet->cs_wallet);
+    QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
+    uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(::ChainActive().Height());
+    uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(::ChainActive().Height()));
+    CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
+
+                RPCHelpMan{"removedelegationforaddress",
+                    "\nRemove delegation for address." +
+                    HelpRequiringPassphrase(pwallet) + "\n",
+                    {
+                        {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The qtum address to remove delegation, the address will be used as sender too."},
+                        {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
+                        {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasPrice Qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
+                    },
+                    RPCResult{
+                    "[\n"
+                    "  {\n"
+                    "    \"txid\" : (string) The transaction id.\n"
+                    "    \"sender\" : (string) " + CURRENCY_UNIT + " address of the sender.\n"
+                    "    \"hash160\" : (string) ripemd-160 hash of the sender.\n"
+                    "  }\n"
+                    "]\n"
+                    },
+                    RPCExamples{
+                    HelpExampleCli("removedelegationforaddress", " \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 6000000 "+FormatMoney(minGasPrice))
+                    },
+                }.Check(request);
+
+    // Get send to contract parameters for removing delegation for address
+    UniValue params(UniValue::VARR);
+    UniValue contractaddress = HexStr(Params().GetConsensus().delegationsAddress);
+    UniValue datahex = DelegationABI()["removeDelegation"].selector();
+    UniValue amount = 0;
+    UniValue gasLimit = request.params.size() > 1 ? request.params[1] : DEFAULT_GAS_LIMIT_OP_SEND;
+    UniValue gasPrice = request.params.size() > 2 ? request.params[2] : FormatMoney(nGasPrice);
+    UniValue senderaddress = request.params[0];
+
+    // Add the send to contract parameters to the list
+    params.push_back(contractaddress);
+    params.push_back(datahex);
+    params.push_back(amount);
+    params.push_back(gasLimit);
+    params.push_back(gasPrice);
+    params.push_back(senderaddress);
+
+    // Send to contract
+    return SendToContract(*locked_chain, pwallet, params);
 }
 
 static UniValue listaddressgroupings(const JSONRPCRequest& request)
@@ -5325,6 +5386,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "reservebalance",                   &reservebalance,                {"reserve", "amount"} },
     { "wallet",             "createcontract",                   &createcontract,                {"bytecode", "gasLimit", "gasPrice", "senderAddress", "broadcast", "changeToSender"} },
     { "wallet",             "sendtocontract",                   &sendtocontract,                {"contractaddress", "bytecode", "amount", "gasLimit", "gasPrice", "senderAddress", "broadcast", "changeToSender"} },
+    { "wallet",             "removedelegationforaddress",       &removedelegationforaddress,    {"address", "gasLimit", "gasPrice"} },
 };
 // clang-format on
 

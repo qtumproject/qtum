@@ -191,6 +191,7 @@ public:
     void clean();
 
     std::vector<FunctionABI> functions;
+    FunctionABI operator[](std::string name) const;
 };
 
 #endif // CONTRACTABI_H
