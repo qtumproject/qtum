@@ -34,6 +34,7 @@
 #include <wallet/walletutil.h>
 #include <qtum/qtumdelegation.h>
 #include <util/contractabi.h>
+#include <util/signstr.h>
 
 #include <stdint.h>
 
@@ -1257,6 +1258,134 @@ static UniValue removedelegationforaddress(const JSONRPCRequest& request){
     UniValue gasLimit = request.params.size() > 1 ? request.params[1] : DEFAULT_GAS_LIMIT_OP_SEND;
     UniValue gasPrice = request.params.size() > 2 ? request.params[2] : FormatMoney(nGasPrice);
     UniValue senderaddress = request.params[0];
+
+    // Add the send to contract parameters to the list
+    params.push_back(contractaddress);
+    params.push_back(datahex);
+    params.push_back(amount);
+    params.push_back(gasLimit);
+    params.push_back(gasPrice);
+    params.push_back(senderaddress);
+
+    // Send to contract
+    return SendToContract(*locked_chain, pwallet, params);
+}
+
+static UniValue setdelegateforaddress(const JSONRPCRequest& request){
+
+    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
+    CWallet* const pwallet = wallet.get();
+
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+
+    auto locked_chain = pwallet->chain().lock();
+    LOCK(pwallet->cs_wallet);
+    QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
+    uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(::ChainActive().Height());
+    uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(::ChainActive().Height()));
+    CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
+
+                RPCHelpMan{"setdelegateforaddress",
+                    "\nSet delegate for address." +
+                    HelpRequiringPassphrase(pwallet) + "\n",
+                    {
+                        {"staker", RPCArg::Type::STR, RPCArg::Optional::NO, "The qtum address for the staker."},
+                        {"fee", RPCArg::Type::NUM, RPCArg::Optional::NO, "Percentage of the reward that will be paid to the staker."},
+                        {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The qtum address that contain the coins that will be delegated to the staker, the address will be used as sender too."},
+                        {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+", max: "+i64tostr(blockGasLimit)},
+                        {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasPrice Qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
+                    },
+                    RPCResult{
+                    "[\n"
+                    "  {\n"
+                    "    \"txid\" : (string) The transaction id.\n"
+                    "    \"sender\" : (string) " + CURRENCY_UNIT + " address of the sender.\n"
+                    "    \"hash160\" : (string) ripemd-160 hash of the sender.\n"
+                    "  }\n"
+                    "]\n"
+                    },
+                    RPCExamples{
+                    HelpExampleCli("setdelegateforaddress", " \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 10 \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX 6000000\" "+FormatMoney(minGasPrice))
+                    },
+                }.Check(request);
+
+    // Get send to contract parameters for add delegation for address
+    UniValue params(UniValue::VARR);
+    UniValue contractaddress = HexStr(Params().GetConsensus().delegationsAddress);
+    UniValue amount = 0;
+    UniValue gasLimit = request.params.size() > 3 ? request.params[3] : DEFAULT_GAS_LIMIT_OP_CREATE;
+    UniValue gasPrice = request.params.size() > 4 ? request.params[4] : FormatMoney(nGasPrice);
+    UniValue senderaddress = request.params[2];
+
+    // Parse the staker address
+    CTxDestination destStaker = DecodeDestination(request.params[0].get_str());
+    const PKHash *pkhStaker = boost::get<PKHash>(&destStaker);
+    if (!pkhStaker) {
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid contract address for staker. Only P2PK and P2PKH allowed");
+    }
+
+    // Parse the staker fee
+    int fee = request.params[1].get_int();
+    if(fee < 0 || fee > 100)
+        throw JSONRPCError(RPC_PARSE_ERROR, "The staker fee need to be between 0 and 100");
+
+    // Parse the sender address
+    CTxDestination destSender = DecodeDestination(senderaddress.get_str());
+    const PKHash *pkhSender = boost::get<PKHash>(&destSender);
+    if (!pkhSender) {
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid contract sender address. Only P2PK and P2PKH allowed");
+    }
+
+    // Get the private key for the sender address
+    CKey key;
+    CKeyID keyID(*pkhSender);
+    if (!pwallet->GetKey(keyID, key)) {
+        throw JSONRPCError(RPC_WALLET_ERROR, "Private key not available for the sender address");
+    }
+
+    // Sign the  staker address
+    std::vector<unsigned char> PoD;
+    std::string hexStaker =  pkhStaker->GetReverseHex();
+    if(!SignStr::SignMessage(key, hexStaker, PoD))
+        throw JSONRPCError(RPC_WALLET_ERROR, "Fail to sign the staker address");
+
+    // Serialize the data
+    std::string datahex;
+    FunctionABI func = DelegationABI()["addDelegation"];
+    std::vector<std::vector<std::string>> values;
+    std::vector<ParameterABI::ErrorType> errors;
+
+    for(size_t i = 0; i < func.inputs.size(); i++)
+    {
+        std::string name = func.inputs[i].name;
+        if(name == "_staker")
+        {
+            std::vector<std::string> value;
+            value.push_back(hexStaker);
+            values.push_back(value);
+        }
+        else if(name == "_fee")
+        {
+            std::vector<std::string> value;
+            value.push_back(i64tostr(fee));
+            values.push_back(value);
+        }
+        else if(name == "_PoD")
+        {
+            std::vector<std::string> value;
+            value.push_back(HexStr(PoD));
+            values.push_back(value);
+        }
+        else
+        {
+            throw JSONRPCError(RPC_TYPE_ERROR, "Invalid add delegation input name");
+        }
+    }
+
+    if(!func.abiIn(values, datahex, errors))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Fail to serialize data for add delegation");
 
     // Add the send to contract parameters to the list
     params.push_back(contractaddress);
@@ -5387,6 +5516,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "createcontract",                   &createcontract,                {"bytecode", "gasLimit", "gasPrice", "senderAddress", "broadcast", "changeToSender"} },
     { "wallet",             "sendtocontract",                   &sendtocontract,                {"contractaddress", "bytecode", "amount", "gasLimit", "gasPrice", "senderAddress", "broadcast", "changeToSender"} },
     { "wallet",             "removedelegationforaddress",       &removedelegationforaddress,    {"address", "gasLimit", "gasPrice"} },
+    { "wallet",             "setdelegateforaddress",            &setdelegateforaddress,         {"staker", "fee", "address", "gasLimit", "gasPrice"} },
 };
 // clang-format on
 
