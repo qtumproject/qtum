@@ -74,7 +74,6 @@ class AssumeValidTest(BitcoinTestFramework):
             if not p2p_conn.is_connected:
                 break
             try:
-                self.log.info("LINE " + str(inspect.currentframe().f_lineno))
                 p2p_conn.send_message(msg_block(self.blocks[i]))
             except IOError:
                 assert not p2p_conn.is_connected
@@ -90,21 +89,16 @@ class AssumeValidTest(BitcoinTestFramework):
 
             time.sleep(0.25)
             current_height = node.getblock(node.getbestblockhash())['height']
-            self.log.info(f"NORMAL {str(inspect.currentframe().f_lineno)} {current_height} {height}")
             if current_height > height:
-                self.log.info(f"LINE {str(inspect.currentframe().f_lineno)} {current_height} {height}")
                 assert False, "blockchain too long: %d" % current_height
             elif current_height != last_height:
-                self.log.info(f"LINE {str(inspect.currentframe().f_lineno)} {current_height} {height}")
                 last_height = current_height
                 timeout = 10 # reset the timeout
             elif current_height == height:
-                self.log.info(f"LINE {str(inspect.currentframe().f_lineno)} {current_height} {height}")
                 break
             timeout = timeout - 0.25
 
     def run_test(self):
-        self.log.info("LINE " + str(inspect.currentframe().f_lineno))
         p2p0 = self.nodes[0].add_p2p_connection(BaseNode())
 
         # Build the blockchain
@@ -130,7 +124,6 @@ class AssumeValidTest(BitcoinTestFramework):
         height += 1
 
         # Bury the block 100 deep so the coinbase output is spendable
-        self.log.info("LINE " + str(inspect.currentframe().f_lineno))
         for i in range(COINBASE_MATURITY):
             block = create_block(self.tip, create_coinbase(height), self.block_time)
             block.solve()
@@ -138,14 +131,12 @@ class AssumeValidTest(BitcoinTestFramework):
             self.tip = block.sha256
             self.block_time += 1
             height += 1
-        self.log.info("LINE " + str(inspect.currentframe().f_lineno))
 
         # Create a transaction spending the coinbase output with an invalid (null) signature
         tx = CTransaction()
         tx.vin.append(CTxIn(COutPoint(self.block1.vtx[0].sha256, 0), scriptSig=b""))
         tx.vout.append(CTxOut(49 * 100000000, CScript([OP_TRUE])))
         tx.calc_sha256()
-        self.log.info("LINE " + str(inspect.currentframe().f_lineno))
 
         block102 = create_block(self.tip, create_coinbase(height), self.block_time)
         self.block_time += 1
@@ -158,7 +149,6 @@ class AssumeValidTest(BitcoinTestFramework):
         self.block_time += 1
         height += 1
 
-        self.log.info("LINE " + str(inspect.currentframe().f_lineno))
         # Bury the assumed valid block 2100 deep
         for i in range(10000):
             block = create_block(self.tip, create_coinbase(height), self.block_time)
@@ -168,16 +158,12 @@ class AssumeValidTest(BitcoinTestFramework):
             self.tip = block.sha256
             self.block_time += 1
             height += 1
-        self.log.info("LINE " + str(inspect.currentframe().f_lineno))
 
         self.nodes[0].disconnect_p2ps()
 
         # Start node1 and node2 with assumevalid so they accept a block with a bad signature.
-        self.log.info("LINE " + str(inspect.currentframe().f_lineno))
         self.start_node(1, extra_args=["-assumevalid=" + hex(block102.sha256)])
-        self.log.info("LINE " + str(inspect.currentframe().f_lineno))
         self.start_node(2, extra_args=["-assumevalid=" + hex(block102.sha256)])
-        self.log.info("LINE " + str(inspect.currentframe().f_lineno))
 
         p2p0 = self.nodes[0].add_p2p_connection(BaseNode())
         p2p1 = self.nodes[1].add_p2p_connection(BaseNode())
@@ -190,7 +176,6 @@ class AssumeValidTest(BitcoinTestFramework):
         p2p0.send_header_for_blocks(self.blocks[6000:8000])
         p2p0.send_header_for_blocks(self.blocks[8000:10000])
         p2p0.send_header_for_blocks(self.blocks[10000:])
-        self.log.info("LINE " + str(inspect.currentframe().f_lineno))
 
         p2p1.send_header_for_blocks(self.blocks[0:2000])
         p2p1.send_header_for_blocks(self.blocks[2000:4000])
@@ -198,40 +183,29 @@ class AssumeValidTest(BitcoinTestFramework):
         p2p1.send_header_for_blocks(self.blocks[6000:8000])
         p2p1.send_header_for_blocks(self.blocks[8000:10000])
         p2p1.send_header_for_blocks(self.blocks[10000:])
-        self.log.info("LINE " + str(inspect.currentframe().f_lineno))
 
         p2p2.send_header_for_blocks(self.blocks[0:600])
-        self.log.info("LINE " + str(inspect.currentframe().f_lineno))
 
         # Send blocks to node0. Block 102 will be rejected.
         self.send_blocks_until_disconnected(p2p0)
-        self.log.info("LINE " + str(inspect.currentframe().f_lineno))
         self.assert_blockchain_height(self.nodes[0], COINBASE_MATURITY+1)
-        self.log.info("LINE " + str(inspect.currentframe().f_lineno))
 
         # Send all blocks to node1. All blocks will be accepted.
         # Send only a subset to speed this up
-        self.log.info("LINE " + str(inspect.currentframe().f_lineno))
         p2p1 = self.nodes[1].add_p2p_connection(BaseNode())
         for i in range(1000):
             p2p1.send_message(msg_block(self.blocks[i]))
-        self.log.info("LINE " + str(inspect.currentframe().f_lineno))
         # Syncing 2200 blocks can take a while on slow systems. Give it plenty of time to sync.
         timeout = time.time() + 200
-        self.log.info("LINE " + str(inspect.currentframe().f_lineno))
         while time.time() < timeout:
             if self.nodes[1].getblock(self.nodes[1].getbestblockhash())['height'] == 1000:
                 break
         assert_equal(self.nodes[1].getblock(self.nodes[1].getbestblockhash())['height'], 1000)
-        self.log.info("LINE " + str(inspect.currentframe().f_lineno))
         
         # Send blocks to node2. Block 102 will be rejected.
-        self.log.info("LINE " + str(inspect.currentframe().f_lineno))
         p2p2 = self.nodes[2].add_p2p_connection(BaseNode())
         self.send_blocks_until_disconnected(p2p2)
-        self.log.info("LINE " + str(inspect.currentframe().f_lineno))
         self.assert_blockchain_height(self.nodes[2], COINBASE_MATURITY+1)
-        self.log.info("LINE " + str(inspect.currentframe().f_lineno))
 
 if __name__ == '__main__':
     AssumeValidTest().main()

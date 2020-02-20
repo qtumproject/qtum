@@ -60,7 +60,7 @@ class TestNode():
     To make things easier for the test writer, any unrecognised messages will
     be dispatched to the RPC connection."""
 
-    def __init__(self, i, datadir, *, chain, rpchost, timewait, bitcoind, bitcoin_cli, coverage_dir, cwd, extra_conf=None, extra_args=None, use_cli=False, start_perf=False):
+    def __init__(self, i, datadir, *, chain, rpchost, timewait, bitcoind, bitcoin_cli, coverage_dir, cwd, extra_conf=None, extra_args=None, use_cli=False, start_perf=False, enable_wallet=False):
         """
         Kwargs:
             start_perf (bool): If True, begin profiling the node with `perf` as soon as
@@ -78,7 +78,7 @@ class TestNode():
         self.binary = bitcoind
         self.coverage_dir = coverage_dir
         self.cwd = cwd
-        #self.enable_wallet = enable_wallet
+        self.enable_wallet = enable_wallet
         if extra_conf is not None:
             append_config(datadir, extra_conf)
         # Most callers will just need to add extra args to the standard list below.
@@ -206,7 +206,7 @@ class TestNode():
         # add environment variable LIBC_FATAL_STDERR_=1 so that libc errors are written to stderr and not the terminal
         subp_env = dict(os.environ, LIBC_FATAL_STDERR_="1")
 
-        if not any(arg.startswith('-staking=') for arg in extra_args):
+        if self.enable_wallet and not any(arg.startswith('-staking=') for arg in extra_args):
             extra_args.append('-staking=0')
 
         # Disable the spam filter as it may interfere with come tests sending lots and lots of blocks
