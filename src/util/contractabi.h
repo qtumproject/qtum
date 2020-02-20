@@ -160,6 +160,8 @@ public:
 
     bool abiOut(const std::string& data, std::vector<std::vector<std::string>>& values, std::vector<ParameterABI::ErrorType>& errors) const;
 
+    bool abiOut(const std::vector<std::string>& topics, const std::string& data, std::vector<std::vector<std::string>>& values, std::vector<ParameterABI::ErrorType>& errors) const;
+
     std::string selector() const;
 
     static std::string defaultSelector();

@@ -172,6 +172,53 @@ bool FunctionABI::abiOut(const std::string &data, std::vector<std::vector<std::s
     return ret;
 }
 
+bool FunctionABI::abiOut(const std::vector<std::string>& topics, const std::string& data, std::vector<std::vector<std::string>>& values, std::vector<ParameterABI::ErrorType>& errors) const
+{
+    size_t pos = 0;
+    bool ret = true;
+    if(type == "event")
+    {
+        // Get the event name
+        size_t ti = 0;
+        if(!anonymous)
+        {
+            if(topics.size() == 0) return false;
+            if(topics[ti++] != selector()) return false;
+        }
+
+        // Get the inputs
+        for(size_t i = 0; i < inputs.size(); i++)
+        {
+            std::vector<std::string> value;
+            if(inputs[i].indexed)
+            {
+                size_t pos = 0;
+                ret &= topics.size() > ti ? inputs[i].abiOut(topics[ti++], pos, value) : false;
+            }
+            else
+            {
+                ret &= inputs[i].abiOut(data, pos, value);
+            }
+
+            values.push_back(value);
+            errors.push_back(inputs[i].lastError());
+        }
+    }
+    else
+    {
+        // Get the outputs
+        for(size_t i = 0; i < outputs.size(); i++)
+        {
+            std::vector<std::string> value;
+            ret &= outputs[i].abiOut(data, pos, value);
+            values.push_back(value);
+            errors.push_back(outputs[i].lastError());
+        }
+    }
+
+    return ret;
+}
+
 std::string FunctionABI::selector() const
 {
     if(type == "default")
