@@ -2,6 +2,7 @@
 #define QTUMDELEGATION_H
 #include <string>
 #include <vector>
+#include <map>
 #include <stdint.h>
 #include <uint256.h>
 
@@ -113,6 +114,13 @@ public:
      * @return true/false
      */
     bool FilterDelegationEvents(std::vector<DelegationEvent>& events, const IDelegationFilter& filter, int fromBlock = 0, int toBlock = -1, int minconf = 0) const;
+
+    /**
+     * @brief DelegationsFromEvents Get the delegations from the events
+     * @param events Delegation event list
+     * @return delegations
+     */
+    static std::map<uint160, Delegation> DelegationsFromEvents(const std::vector<DelegationEvent>& events);
 
 private:
     QtumDelegation(const QtumDelegation&);

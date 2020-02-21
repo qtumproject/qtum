@@ -84,6 +84,7 @@ bool ContractABI::loads(const std::string &json_data)
                 ParameterABI param;
                 ReadJsonString(json_param, name, param);
                 ReadJsonString(json_param, type, param);
+                ReadJsonBool(json_param, indexed, param);
                 function.inputs.push_back(param);
             }
 

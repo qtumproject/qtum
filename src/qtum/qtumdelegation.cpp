@@ -25,7 +25,9 @@ class QtumDelegationPriv
 {
 public:
     QtumDelegationPriv():
-        m_pfDelegations(0)
+        m_pfDelegations(0),
+        m_pfAddDelegation(0),
+        m_pfRemoveDelegation(0)
     {
         // Initialize parameters
         delegationsAddress = uintToh160(Params().GetConsensus().delegationsAddress);
@@ -114,7 +116,7 @@ public:
                 {
                     event.item.staker = uint160(ParseHex(value[0]));
                 }
-                if(name == "_delegate")
+                else if(name == "_delegate")
                 {
                     event.item.delegate = uint160(ParseHex(value[0]));
                 }
@@ -307,4 +309,30 @@ bool QtumDelegation::FilterDelegationEvents(std::vector<DelegationEvent> &events
     }
 
     return true;
+}
+
+std::map<uint160, Delegation> QtumDelegation::DelegationsFromEvents(const std::vector<DelegationEvent> &events)
+{
+    std::map<uint160, Delegation> delegations;
+    for(const DelegationEvent& event : events)
+    {
+        switch (event.type) {
+        case DELEGATION_ADD:
+        {
+            delegations[event.item.delegate] = event.item;
+            break;
+        }
+        case DELEGATION_REMOVE:
+        {
+            auto it = delegations.find(event.item.delegate);
+            if (it != delegations.end())
+              delegations.erase (it);
+            break;
+        }
+        default:
+            break;
+        }
+    }
+
+    return delegations;
 }
