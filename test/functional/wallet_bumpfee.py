@@ -26,6 +26,7 @@ from test_framework.util import (
     connect_nodes,
     hex_str_to_bytes,
 )
+from test_framework.qtumconfig import COINBASE_MATURITY
 
 WALLET_PASSPHRASE = "test"
 WALLET_PASSPHRASE_TIMEOUT = 3600
@@ -36,7 +37,7 @@ class BumpFeeTest(BitcoinTestFramework):
         self.setup_clean_chain = True
         self.extra_args = [[
             "-walletrbf={}".format(i),
-            "-mintxfee=0.00002",
+            "-mintxfee=0.005",
             "-deprecatedrpc=totalFee",
         ] for i in range(self.num_nodes)]
 
@@ -96,7 +97,7 @@ def test_simple_bumpfee_succeeds(self, mode, rbf_node, peer_node, dest_address):
     self.sync_mempools((rbf_node, peer_node))
     assert rbfid in rbf_node.getrawmempool() and rbfid in peer_node.getrawmempool()
     if mode == "fee_rate":
-        bumped_tx = rbf_node.bumpfee(rbfid, {"fee_rate":0.0015})
+        bumped_tx = rbf_node.bumpfee(rbfid, {"fee_rate":0.15})
     else:
         bumped_tx = rbf_node.bumpfee(rbfid)
     assert_equal(bumped_tx["errors"], [])
@@ -129,7 +130,7 @@ def test_feerate_args(self, rbf_node, peer_node, dest_address):
 
     assert_raises_rpc_error(-3, "Amount out of range", rbf_node.bumpfee, rbfid, {"fee_rate":-1})
 
-    assert_raises_rpc_error(-4, "is too high (cannot be higher than", rbf_node.bumpfee, rbfid, {"fee_rate":1})
+    assert_raises_rpc_error(-4, "is too high (cannot be higher than", rbf_node.bumpfee, rbfid, {"fee_rate":100})
 
 
 def test_segwit_bumpfee_succeeds(rbf_node, dest_address):
@@ -151,8 +152,8 @@ def test_segwit_bumpfee_succeeds(rbf_node, dest_address):
         'txid': segwitid,
         'vout': 0,
         "sequence": BIP125_SEQUENCE_NUMBER
-    }], {dest_address: Decimal("0.0005"),
-         rbf_node.getrawchangeaddress(): Decimal("0.0003")})
+    }], {dest_address: Decimal("0.05"),
+         rbf_node.getrawchangeaddress(): Decimal("0.03")})
     rbfsigned = rbf_node.signrawtransactionwithwallet(rbfraw)
     rbfid = rbf_node.sendrawtransaction(rbfsigned["hex"])
     assert rbfid in rbf_node.getrawmempool()
@@ -193,7 +194,7 @@ def test_bumpfee_with_descendant_fails(rbf_node, rbf_node_address, dest_address)
     # cannot bump fee if the transaction has a descendant
     # parent is send-to-self, so we don't have to check which output is change when creating the child tx
     parent_id = spend_one_input(rbf_node, rbf_node_address)
-    tx = rbf_node.createrawtransaction([{"txid": parent_id, "vout": 0}], {dest_address: 0.00020000})
+    tx = rbf_node.createrawtransaction([{"txid": parent_id, "vout": 0}], {dest_address: 0.02000000})
     tx = rbf_node.signrawtransactionwithwallet(tx)
     rbf_node.sendrawtransaction(tx["hex"])
     assert_raises_rpc_error(-8, "Transaction has descendants in the wallet", rbf_node.bumpfee, parent_id)
@@ -209,14 +210,14 @@ def test_small_output_fails(rbf_node, dest_address):
 def test_small_output_with_feerate_succeeds(rbf_node, dest_address):
 
     # Make sure additional inputs exist
-    rbf_node.generatetoaddress(101, rbf_node.getnewaddress())
+    rbf_node.generatetoaddress(COINBASE_MATURITY+1, rbf_node.getnewaddress())
     rbfid = spend_one_input(rbf_node, dest_address)
     original_input_list = rbf_node.getrawtransaction(rbfid, 1)["vin"]
     assert_equal(len(original_input_list), 1)
     original_txin = original_input_list[0]
     # Keep bumping until we out-spend change output
     tx_fee = 0
-    while tx_fee < Decimal("0.0005"):
+    while tx_fee < Decimal("0.05"):
         new_input_list = rbf_node.getrawtransaction(rbfid, 1)["vin"]
         new_item = list(new_input_list)[0]
         assert_equal(len(original_input_list), 1)
@@ -258,7 +259,7 @@ def test_dust_to_fee(rbf_node, dest_address):
 
 def test_settxfee(rbf_node, dest_address):
     assert_raises_rpc_error(-8, "txfee cannot be less than min relay tx fee", rbf_node.settxfee, Decimal('0.000005'))
-    assert_raises_rpc_error(-8, "txfee cannot be less than wallet min fee", rbf_node.settxfee, Decimal('0.0049'))
+    #assert_raises_rpc_error(-8, "txfee cannot be less than wallet min fee", rbf_node.settxfee, Decimal('0.0049'))
     # check that bumpfee reacts correctly to the use of settxfee (paytxfee)
     rbfid = spend_one_input(rbf_node, dest_address)
     requested_feerate = Decimal("0.02500000")
@@ -272,7 +273,8 @@ def test_settxfee(rbf_node, dest_address):
 
 
 def test_maxtxfee_fails(test, rbf_node, dest_address):
-    test.restart_node(1, ['-maxtxfee=0.00003'] + test.extra_args[1])
+    args = ["-walletrbf=1", '-maxtxfee=0.00003', "-minrelaytxfee=0.00003", "-mintxfee=0.000005", "-deprecatedrpc=totalFee"]
+    test.restart_node(1, args) #['-maxtxfee=0.00003'] + test.extra_args[1])
     rbf_node.walletpassphrase(WALLET_PASSPHRASE, WALLET_PASSPHRASE_TIMEOUT)
     rbfid = spend_one_input(rbf_node, dest_address)
     assert_raises_rpc_error(-4, "Unable to create transaction: Fee exceeds maximum configured by -maxtxfee", rbf_node.bumpfee, rbfid)
@@ -337,7 +339,7 @@ def test_unconfirmed_not_spendable(rbf_node, rbf_node_address):
 
 def test_bumpfee_metadata(rbf_node, dest_address):
     assert(rbf_node.getbalance() < 49)
-    rbf_node.generatetoaddress(101, rbf_node.getnewaddress())
+    rbf_node.generatetoaddress(COINBASE_MATURITY+1, rbf_node.getnewaddress())
     rbfid = rbf_node.sendtoaddress(dest_address, 49, "comment value", "to value")
     bumped_tx = rbf_node.bumpfee(rbfid)
     bumped_wtx = rbf_node.gettransaction(bumped_tx["txid"])
@@ -365,15 +367,15 @@ def test_change_script_match(rbf_node, dest_address):
     assert_equal(len(change_addresses), 1)
 
     # Now find that address in each subsequent tx, and no other change
-    bumped_total_tx = rbf_node.bumpfee(rbfid, {"totalFee": 2000})
+    bumped_total_tx = rbf_node.bumpfee(rbfid, {"totalFee": 200000})
     assert_equal(change_addresses, get_change_address(bumped_total_tx['txid']))
     bumped_rate_tx = rbf_node.bumpfee(bumped_total_tx["txid"])
     assert_equal(change_addresses, get_change_address(bumped_rate_tx['txid']))
 
-def spend_one_input(node, dest_address, change_size=Decimal("0.00049000")):
+def spend_one_input(node, dest_address, change_size=Decimal("0.04900000")):
     tx_input = dict(
-        sequence=BIP125_SEQUENCE_NUMBER, **next(u for u in node.listunspent() if u["amount"] == Decimal("0.00100000")))
-    destinations = {dest_address: Decimal("0.00050000")}
+        sequence=BIP125_SEQUENCE_NUMBER, **next(u for u in node.listunspent() if u["amount"] == Decimal("0.10000000")))
+    destinations = {dest_address: Decimal("0.05000000")}
     if change_size > 0:
         destinations[node.getrawchangeaddress()] = change_size
     rawtx = node.createrawtransaction([tx_input], destinations)

@@ -71,6 +71,12 @@ EXTENDED_SCRIPTS = [
     # Longest test should go first, to favor running tests in parallel
     'feature_pruning.py',
     'feature_dbcrash.py',
+    'feature_fee_estimation.py',
+    'feature_cltv.py',
+    'feature_bip68_sequence.py',
+    'feature_maxuploadtarget.py',
+    'p2p_dos_header_tree.py', # not relevant
+    'feature_csv_activation.py',
 ]
 
 BASE_SCRIPTS = [
@@ -100,7 +106,6 @@ BASE_SCRIPTS = [
     'rpc_txoutproof.py',
     'wallet_listreceivedby.py',
     'wallet_abandonconflict.py',
-    'feature_csv_activation.py',
     'rpc_rawtransaction.py',
     'wallet_address_types.py',
     'p2p_feefilter.py',
@@ -108,7 +113,6 @@ BASE_SCRIPTS = [
     'feature_abortnode.py',
     # vv Tests less than 30s vv
     'wallet_keypool_topup.py',
-    'feature_fee_estimation.py',
     'interface_zmq.py',
     'interface_bitcoin_cli.py',
     'mempool_resurrect.py',
@@ -193,7 +197,6 @@ BASE_SCRIPTS = [
     'feature_uacomment.py',
     'wallet_coinbase_category.py',
     'feature_filelock.py',
-    'p2p_dos_header_tree.py',
     'p2p_unrequested_blocks.py',
     'feature_includeconf.py',
     'rpc_deriveaddresses.py',
@@ -207,6 +210,7 @@ BASE_SCRIPTS = [
     'rpc_help.py',
     'feature_help.py',
     'feature_shutdown.py',
+    'feature_dersig.py',
     # Don't append tests at the end to avoid merge conflicts
     # Put them in a random line within the section that fits their approximate run-time
 
@@ -265,6 +269,7 @@ BASE_SCRIPTS = [
     'qtum_evm_staticcall.py',
     'qtum_evm_constantinople_precompiles.py',
     'qtum_evm_constantinople_opcodes.py',
+    'qtum_block_index_cleanup.py'
 ]
 
 # Place EXTENDED_SCRIPTS first since it has the 3 longest running tests
@@ -416,7 +421,7 @@ def run_tests(*, test_list, src_dir, build_dir, tmpdir, jobs=1, enable_coverage=
     # Warn if bitcoind is already running
     # pidof might fail or return an empty string if bitcoind is not running
     try:
-        if subprocess.check_output(["pidof", "bitcoind"]) not in [b'']:
+        if subprocess.check_output(["pidof", "qtumd"]) not in [b'']:
             print("%sWARNING!%s There is already a bitcoind process running on this system. Tests may fail unexpectedly due to resource contention!" % (BOLD[1], BOLD[0]))
     except (OSError, subprocess.SubprocessError):
         pass

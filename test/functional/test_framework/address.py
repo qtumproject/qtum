@@ -5,6 +5,7 @@
 """Encode and decode BASE58, P2PKH and P2SH addresses."""
 
 import enum
+import binascii
 
 from .script import hash256, hash160, sha256, CScript, OP_0
 from .util import hex_str_to_bytes
@@ -73,12 +74,12 @@ def base58_to_byte(v, length):
 
 def keyhash_to_p2pkh(hash, main = False):
     assert len(hash) == 20
-    version = 0 if main else 111
+    version = 58 if main else 120
     return byte_to_base58(hash, version)
 
 def scripthash_to_p2sh(hash, main = False):
     assert len(hash) == 20
-    version = 5 if main else 196
+    version = 50 if main else 110
     return byte_to_base58(hash, version)
 
 def key_to_p2pkh(key, main = False):

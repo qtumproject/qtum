@@ -15,6 +15,7 @@ from test_framework.util import (
     disconnect_nodes,
     find_output,
 )
+from test_framework.qtum import convert_btc_bech32_address_to_qtum
 
 import json
 import os
@@ -28,9 +29,9 @@ class PSBTTest(BitcoinTestFramework):
         self.setup_clean_chain = False
         self.num_nodes = 3
         self.extra_args = [
-            ["-walletrbf=1"],
-            ["-walletrbf=0"],
-            []
+            ["-walletrbf=1", '-addresstype=p2sh-segwit', '-minrelaytxfee=0.00001'],
+            ["-walletrbf=0", '-addresstype=p2sh-segwit', '-minrelaytxfee=0.00001'],
+            ['-addresstype=p2sh-segwit', '-minrelaytxfee=0.00001', '-blockmintxfee=0.0000001']
         ]
 
     def skip_test_if_missing_module(self):

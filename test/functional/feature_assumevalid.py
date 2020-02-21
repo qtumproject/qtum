@@ -47,6 +47,7 @@ from test_framework.script import (CScript, OP_TRUE)
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal
 from test_framework.qtumconfig import COINBASE_MATURITY
+import inspect
 
 class BaseNode(P2PInterface):
     def send_header_for_blocks(self, new_blocks):
@@ -58,6 +59,7 @@ class AssumeValidTest(BitcoinTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 3
+        self.extra_args = [['-headerspamfilter=0']]*3
 
     def setup_network(self):
         self.add_nodes(3)
@@ -82,18 +84,19 @@ class AssumeValidTest(BitcoinTestFramework):
         last_height = node.getblock(node.getbestblockhash())['height']
         timeout = 10
         while True:
+            if timeout < 0:
+                assert False, "blockchain too short after timeout: %d" % current_height
+
             time.sleep(0.25)
             current_height = node.getblock(node.getbestblockhash())['height']
-            if current_height != last_height:
-                last_height = current_height
-                if timeout < 0:
-                    assert False, "blockchain too short after timeout: %d" % current_height
-                timeout - 0.25
-                continue
-            elif current_height > height:
+            if current_height > height:
                 assert False, "blockchain too long: %d" % current_height
+            elif current_height != last_height:
+                last_height = current_height
+                timeout = 10 # reset the timeout
             elif current_height == height:
                 break
+            timeout = timeout - 0.25
 
     def run_test(self):
         p2p0 = self.nodes[0].add_p2p_connection(BaseNode())
@@ -189,13 +192,18 @@ class AssumeValidTest(BitcoinTestFramework):
 
         # Send all blocks to node1. All blocks will be accepted.
         # Send only a subset to speed this up
+        p2p1 = self.nodes[1].add_p2p_connection(BaseNode())
         for i in range(1000):
             p2p1.send_message(msg_block(self.blocks[i]))
         # Syncing 2200 blocks can take a while on slow systems. Give it plenty of time to sync.
-        p2p1.sync_with_ping(960)
-        assert_equal(self.nodes[1].getblock(self.nodes[1].getbestblockhash())['height'], 2202)
-
+        timeout = time.time() + 200
+        while time.time() < timeout:
+            if self.nodes[1].getblock(self.nodes[1].getbestblockhash())['height'] == 1000:
+                break
+        assert_equal(self.nodes[1].getblock(self.nodes[1].getbestblockhash())['height'], 1000)
+        
         # Send blocks to node2. Block 102 will be rejected.
+        p2p2 = self.nodes[2].add_p2p_connection(BaseNode())
         self.send_blocks_until_disconnected(p2p2)
         self.assert_blockchain_height(self.nodes[2], COINBASE_MATURITY+1)
 

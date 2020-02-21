@@ -126,28 +126,21 @@ class BlockchainTest(BitcoinTestFramework):
         assert_greater_than(res['size_on_disk'], 0)
 
         assert_equal(res['softforks'], {
-            'bip34': {'type': 'buried', 'active': False, 'height': 500},
-            'bip66': {'type': 'buried', 'active': False, 'height': 1251},
-            'bip65': {'type': 'buried', 'active': False, 'height': 1351},
-            'csv': {'type': 'buried', 'active': False, 'height': 432},
+            'bip34': {'type': 'buried', 'active': True, 'height': 0},
+            'bip66': {'type': 'buried', 'active': True, 'height': 0},
+            'bip65': {'type': 'buried', 'active': True, 'height': 0},
+            'csv': {'type': 'buried', 'active': True, 'height': 432},
             'segwit': {'type': 'buried', 'active': True, 'height': 0},
             'testdummy': {
                 'type': 'bip9',
+                'height': 432,
                 'bip9': {
-                    'status': 'started',
-                    'bit': 28,
+                    'status': 'active',
                     'start_time': 0,
+                    'since': 432,
                     'timeout': 0x7fffffffffffffff,  # testdummy does not have a timeout so is set to the max int64 value
-                    'since': 144,
-                    'statistics': {
-                        'period': 144,
-                        'threshold': 108,
-                        'elapsed': 57,
-                        'count': 57,
-                        'possible': True,
-                    },
                 },
-                'active': False}
+                'active': True}
         })
 
     def _test_getchaintxstats(self):
@@ -188,9 +181,9 @@ class BlockchainTest(BitcoinTestFramework):
         assert_equal(chaintxstats['time'], b200['time'])
         assert_equal(chaintxstats['txcount'], 601)
         assert_equal(chaintxstats['window_final_block_hash'], b200_hash)
-        assert_equal(chaintxstats['window_final_block_height'], 200)
-        assert_equal(chaintxstats['window_block_count'], 199)
-        assert_equal(chaintxstats['window_tx_count'], 199)
+        assert_equal(chaintxstats['window_final_block_height'], 600)
+        assert_equal(chaintxstats['window_block_count'], 599)
+        assert_equal(chaintxstats['window_tx_count'], 599)
         assert_equal(chaintxstats['window_interval'], time_diff)
         assert_equal(round(chaintxstats['txrate'] * time_diff, 10), Decimal(599))
 

@@ -17,6 +17,9 @@ class QtumEVMConstantinoplePrecompiledContractsTest(BitcoinTestFramework):
         self.num_nodes = 1
         self.extra_args = [['-txindex=1', '-logevents=1', '-constantinopleheight=1000000']]
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
+
     def send_and_call_method(self, abi, point=False):
         print(abi)
         self.last_txid = self.node.sendtocontract(self.contract_address, abi, 0, 10000000)['txid']

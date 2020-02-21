@@ -3,6 +3,7 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test segwit transactions and blocks on P2P network."""
+from decimal import Decimal
 import math
 import random
 import struct
@@ -79,6 +80,7 @@ from test_framework.util import (
     softfork_active,
     hex_str_to_bytes,
     assert_raises_rpc_error,
+    bytes_to_hex_str,
 )
 from test_framework.qtumconfig import *
 from test_framework.messages import COIN
@@ -90,7 +92,7 @@ VB_TOP_BITS = 0x20000000
 
 MAX_SIGOP_COST = 80000
 
-SEGWIT_HEIGHT = 120
+SEGWIT_HEIGHT = 520
 
 class UTXO():
     """Used to keep track of anyone-can-spend outputs that we can use in the tests."""
@@ -875,7 +877,7 @@ class SegWitTest(BitcoinTestFramework):
         add_witness_commitment(block)
         block.solve()
 
-        block.vtx[0].wit.vtxinwit[0].scriptWitness.stack.append(b'a' * 5000000)
+        block.vtx[0].wit.vtxinwit[0].scriptWitness.stack.append(b'a' * 10000000)
         assert get_virtual_size(block) > MAX_BLOCK_BASE_SIZE
 
         # We can't send over the p2p network, because this is too big to relay
@@ -1145,8 +1147,8 @@ class SegWitTest(BitcoinTestFramework):
         MAX_PROGRAM_LENGTH = 129000
 
         # This program is 19 max pushes (9937 bytes), then 64 more opcode-bytes.
-        long_witness_program = CScript([b'a' * 520] * 19 + [OP_DROP] * 63 + [OP_TRUE])
-        assert len(long_witness_program) == MAX_PROGRAM_LENGTH + 1
+        long_witness_program = CScript([b'a' * (MAX_SCRIPT_ELEMENT_SIZE-50)] + [b'a'*996] + [OP_DROP]*46 + [OP_TRUE])
+        assert(len(long_witness_program) == MAX_PROGRAM_LENGTH + 1)
         long_witness_hash = sha256(long_witness_program)
         long_script_pubkey = CScript([OP_0, long_witness_hash])
 
@@ -1169,8 +1171,8 @@ class SegWitTest(BitcoinTestFramework):
         test_witness_block(self.nodes[0], self.test_node, block, accepted=False)
 
         # Try again with one less byte in the witness program
-        witness_program = CScript([b'a' * 520] * 19 + [OP_DROP] * 62 + [OP_TRUE])
-        assert len(witness_program) == MAX_PROGRAM_LENGTH
+        witness_program = CScript([b'a' * (MAX_SCRIPT_ELEMENT_SIZE-50)] + [b'a'*996] + [OP_DROP]*45 + [OP_TRUE])
+        assert(len(witness_program) == MAX_PROGRAM_LENGTH)
         witness_hash = sha256(witness_program)
         script_pubkey = CScript([OP_0, witness_hash])
 
@@ -1465,7 +1467,7 @@ class SegWitTest(BitcoinTestFramework):
         spend_tx.rehash()
 
         # Now test a premature spend.
-        self.nodes[0].generate(98)
+        self.nodes[0].generate(COINBASE_MATURITY-2)
         self.sync_blocks()
         block2 = self.build_next_block()
         self.update_witness_block_with_transactions(block2, [spend_tx])
@@ -2076,7 +2078,7 @@ class SegWitTest(BitcoinTestFramework):
 
         self.nodes[0].sendtoaddress(self.nodes[0].getnewaddress(address_type='bech32'), 5)
         self.nodes[0].generate(1)
-        unspent = next(u for u in self.nodes[0].listunspent() if u['spendable'] and u['address'].startswith('bcrt'))
+        unspent = next(u for u in self.nodes[0].listunspent() if u['spendable'] and u['address'].startswith('qcrt'))
 
         raw = self.nodes[0].createrawtransaction([{"txid": unspent['txid'], "vout": unspent['vout']}], {self.nodes[0].getnewaddress(): 1})
         tx = FromHex(CTransaction(), raw)

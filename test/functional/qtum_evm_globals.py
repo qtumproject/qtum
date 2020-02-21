@@ -68,8 +68,13 @@ class QtumEVMGlobalsTest(BitcoinTestFramework):
         block = self.node.getblock(blockhash)
         blocktxids = block['tx']
         coinbase_tx = self.node.decoderawtransaction(self.node.gettransaction(blocktxids[authorTxIndexAndVoutIndex])['hex'])
-        coinbase_address = coinbase_tx['vout'][authorTxIndexAndVoutIndex]['scriptPubKey']['addresses'][0]
-        coinbase_pkh = p2pkh_to_hex_hash(coinbase_address)
+        # coinbase_pkh refers to either the coinbase for pow or coinstake for pos
+        if use_staking:
+            coinstake_pubkey = hex_str_to_bytes(coinbase_tx['vout'][authorTxIndexAndVoutIndex]['scriptPubKey']['asm'].split(' ')[0])
+            coinbase_pkh = bytes_to_hex_str(hash160(coinstake_pubkey))
+        else:
+            coinbase_address = coinbase_tx['vout'][authorTxIndexAndVoutIndex]['scriptPubKey']['addresses'][0]
+            coinbase_pkh = p2pkh_to_hex_hash(coinbase_address)
 
         #for i in range(self.node.getblockcount(), 0, -1):
         #    print(i, self.get_contract_call_output("9950fc69" + hex(i)[2:].zfill(64)))
@@ -210,8 +215,11 @@ class QtumEVMGlobalsTest(BitcoinTestFramework):
         self.sync_all()
 
         print('verify globals in MPoS blocks')
+        for i in range(self.node.getblockcount(), 4850, 100):
+            self.node.generate(100)
+            self.sync_blocks()
         self.node.generate(4999 - self.node.getblockcount())
-        self.sync_all()
+        self.sync_blocks()
 
         for n in self.nodes:
             n.setmocktime((self.node.getblock(self.node.getbestblockhash())['time']+100) & 0xfffffff0)

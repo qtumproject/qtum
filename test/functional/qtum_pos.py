@@ -45,7 +45,7 @@ class QtumPOSTest(BitcoinTestFramework):
         self.bootstrap_p2p()
 
 
-    def sync_blocks(self, blocks, success=True, reject_code=None, reject_reason=None, force_send=False, reconnect=False, timeout=5):
+    def sync_all_blocks(self, blocks, success=True, reject_code=None, reject_reason=None, force_send=False, reconnect=False, timeout=5):
         """Sends blocks to test node. Syncs and verifies that tip has advanced to most recent block.
 
         Call with success = False if the tip shouldn't advance to the most recent block."""
@@ -73,7 +73,7 @@ class QtumPOSTest(BitcoinTestFramework):
         for i in range(COINBASE_MATURITY):
             self.tip = create_block(int(self.node.getbestblockhash(), 16), create_coinbase(self.node.getblockcount()+1), int(time.time()))
             self.tip.solve()
-            self.sync_blocks([self.tip], success=True)
+            self.sync_all_blocks([self.tip], success=True)
 
         for _ in range(10):
             self.node.sendtoaddress("qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq", 1000)
@@ -120,7 +120,7 @@ class QtumPOSTest(BitcoinTestFramework):
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.staking_prevouts, nTime=t)
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, force_send=True, reconnect=True)
+        self.sync_all_blocks([self.tip], success=False, force_send=True, reconnect=True)
         self._remove_from_staking_prevouts(self.tip)
 
 
@@ -128,7 +128,7 @@ class QtumPOSTest(BitcoinTestFramework):
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.staking_prevouts, outNValue=30006)
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, reconnect=True)
+        self.sync_all_blocks([self.tip], success=False, reconnect=True)
         self._remove_from_staking_prevouts(self.tip)
 
 
@@ -138,7 +138,7 @@ class QtumPOSTest(BitcoinTestFramework):
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.staking_prevouts)
         self.tip.sign_block(bad_key)
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, reconnect=False, force_send=True)
+        self.sync_all_blocks([self.tip], success=False, reconnect=True, force_send=True)
         self._remove_from_staking_prevouts(self.tip)
 
 
@@ -146,7 +146,7 @@ class QtumPOSTest(BitcoinTestFramework):
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.unconfirmed_staking_prevouts)
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, reconnect=True, force_send=True)
+        self.sync_all_blocks([self.tip], success=False, reconnect=True, force_send=True)
         self._remove_from_staking_prevouts(self.tip)
 
 
@@ -156,7 +156,7 @@ class QtumPOSTest(BitcoinTestFramework):
         self.tip.hashMerkleRoot = self.tip.calc_merkle_root()
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, reconnect=True)
+        self.sync_all_blocks([self.tip], success=False, reconnect=True)
         self._remove_from_staking_prevouts(self.tip)
 
 
@@ -166,7 +166,7 @@ class QtumPOSTest(BitcoinTestFramework):
         self.tip.hashMerkleRoot = self.tip.calc_merkle_root()
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, reconnect=True)
+        self.sync_all_blocks([self.tip], success=False, reconnect=True)
         self._remove_from_staking_prevouts(self.tip)
 
 
@@ -175,7 +175,7 @@ class QtumPOSTest(BitcoinTestFramework):
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.staking_prevouts, nTime=t)
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, force_send=True)
+        self.sync_all_blocks([self.tip], success=False, force_send=True)
         self._remove_from_staking_prevouts(self.tip)
 
 
@@ -185,7 +185,7 @@ class QtumPOSTest(BitcoinTestFramework):
         self.tip.hashMerkleRoot = self.tip.calc_merkle_root()
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, reconnect=True)
+        self.sync_all_blocks([self.tip], success=False, reconnect=True)
         self._remove_from_staking_prevouts(self.tip)
 
 
@@ -193,7 +193,7 @@ class QtumPOSTest(BitcoinTestFramework):
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.staking_prevouts, signStakeTx=False)
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False)
+        self.sync_all_blocks([self.tip], success=False, reconnect=True)
         self._remove_from_staking_prevouts(self.tip)
         
 
@@ -203,7 +203,7 @@ class QtumPOSTest(BitcoinTestFramework):
         self.tip.hashMerkleRoot = self.tip.calc_merkle_root()
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, reconnect=True)
+        self.sync_all_blocks([self.tip], success=False, reconnect=True)
         self._remove_from_staking_prevouts(self.tip)
 
 
@@ -213,7 +213,7 @@ class QtumPOSTest(BitcoinTestFramework):
         self.tip.hashMerkleRoot = self.tip.calc_merkle_root()
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, reconnect=True)
+        self.sync_all_blocks([self.tip], success=False, reconnect=True)
         self._remove_from_staking_prevouts(self.tip)
 
 
@@ -223,7 +223,7 @@ class QtumPOSTest(BitcoinTestFramework):
         self.tip.hashMerkleRoot = self.tip.calc_merkle_root()
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, reconnect=True)
+        self.sync_all_blocks([self.tip], success=False, reconnect=True)
         self._remove_from_staking_prevouts(self.tip)
 
 
@@ -238,7 +238,7 @@ class QtumPOSTest(BitcoinTestFramework):
         self.tip.hashMerkleRoot = self.tip.calc_merkle_root()
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, reconnect=True)
+        self.sync_all_blocks([self.tip], success=False, reconnect=True)
         self._remove_from_staking_prevouts(self.tip)
 
 
@@ -247,7 +247,7 @@ class QtumPOSTest(BitcoinTestFramework):
         self.tip.hashStateRoot = 0xe
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, reconnect=True)
+        self.sync_all_blocks([self.tip], success=False, reconnect=True)
         self._remove_from_staking_prevouts(self.tip)
 
 
@@ -256,7 +256,7 @@ class QtumPOSTest(BitcoinTestFramework):
         self.tip.hashUTXORoot = 0xe
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, reconnect=True)
+        self.sync_all_blocks([self.tip], success=False, reconnect=True)
         self._remove_from_staking_prevouts(self.tip)
 
 
@@ -265,7 +265,7 @@ class QtumPOSTest(BitcoinTestFramework):
         self.tip.sign_block(block_sig_key)
         self.tip.nNonce = 0xfffe
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, force_send=True)
+        self.sync_all_blocks([self.tip], success=False, reconnect=True, force_send=True)
         self._remove_from_staking_prevouts(self.tip)
 
         # 17 A block with where the pubkey of the second output of the coinstake has been modified after block signing
@@ -281,7 +281,7 @@ class QtumPOSTest(BitcoinTestFramework):
         self.tip.hashMerkleRoot = self.tip.calc_merkle_root()
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, reconnect=True)
+        self.sync_all_blocks([self.tip], success=False, reconnect=True)
         self._remove_from_staking_prevouts(self.tip)
 
         # 18. A block in the past
@@ -289,7 +289,7 @@ class QtumPOSTest(BitcoinTestFramework):
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.staking_prevouts, nTime=t)
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, force_send=True)
+        self.sync_all_blocks([self.tip], success=False, force_send=True, reconnect=True)
         self._remove_from_staking_prevouts(self.tip)
 
 
@@ -300,7 +300,7 @@ class QtumPOSTest(BitcoinTestFramework):
         self.tip.hashMerkleRoot = self.tip.calc_merkle_root()
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, reconnect=True)
+        self.sync_all_blocks([self.tip], success=False, reconnect=True)
         self._remove_from_staking_prevouts(self.tip)
 
 
@@ -308,7 +308,7 @@ class QtumPOSTest(BitcoinTestFramework):
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.staking_prevouts, coinStakePrevout=self.staking_prevouts[-1][0])
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, reconnect=True)
+        self.sync_all_blocks([self.tip], success=False, reconnect=True)
         self._remove_from_staking_prevouts(self.tip)
 
 
@@ -316,7 +316,7 @@ class QtumPOSTest(BitcoinTestFramework):
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.bad_vout_staking_prevouts)
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, reconnect=False, force_send=True)
+        self.sync_all_blocks([self.tip], success=False, reconnect=True, force_send=True)
         self._remove_from_staking_prevouts(self.tip)
 
 
@@ -324,7 +324,7 @@ class QtumPOSTest(BitcoinTestFramework):
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.bad_txid_staking_prevouts)
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=False, reconnect=True, force_send=True)
+        self.sync_all_blocks([self.tip], success=False, reconnect=True, force_send=True)
         self._remove_from_staking_prevouts(self.tip)
 
 
@@ -335,7 +335,7 @@ class QtumPOSTest(BitcoinTestFramework):
         (self.tip, block_sig_key) = self.create_unsigned_pos_block(self.staking_prevouts)
         self.tip.sign_block(block_sig_key)
         self.tip.rehash()
-        self.sync_blocks([self.tip], success=True)
+        self.sync_all_blocks([self.tip], success=True)
         assert_equal(self.node.getblockcount(), block_count+1)
 
 
