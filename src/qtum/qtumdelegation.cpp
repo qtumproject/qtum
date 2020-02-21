@@ -14,6 +14,13 @@ const ContractABI &DelegationABI()
     return contractDelegationABI;
 }
 
+bool AbiOutEvent(FunctionABI* func, const std::vector<std::string>& topics, const std::string& data, std::vector<std::vector<std::string>>& values)
+{
+    std::vector<ParameterABI::ErrorType> errors;
+    values.clear();
+    return func->abiOut(topics, data, values, errors);
+}
+
 class QtumDelegationPriv
 {
 public:
@@ -27,9 +34,22 @@ public:
         for(const FunctionABI& func : contractDelegationABI.functions)
         {
             if(func.name == "delegations" && m_pfDelegations == 0)
+            {
                 m_pfDelegations = new FunctionABI(func);
+            }
+            else if(func.name == "AddDelegation" && m_pfAddDelegation == 0)
+            {
+                m_pfAddDelegation = new FunctionABI(func);
+            }
+            else if(func.name == "RemoveDelegation" && m_pfRemoveDelegation == 0)
+            {
+                m_pfRemoveDelegation = new FunctionABI(func);
+            }
+
         }
         assert(m_pfDelegations);
+        assert(m_pfAddDelegation);
+        assert(m_pfRemoveDelegation);
     }
 
     virtual ~QtumDelegationPriv()
@@ -37,9 +57,97 @@ public:
         if(m_pfDelegations)
             delete m_pfDelegations;
         m_pfDelegations = 0;
+
+        if(m_pfAddDelegation)
+            delete m_pfAddDelegation;
+        m_pfAddDelegation = 0;
+
+        if(m_pfRemoveDelegation)
+            delete m_pfRemoveDelegation;
+        m_pfRemoveDelegation = 0;
+    }
+
+    bool GetDelegationEvent(const dev::eth::LogEntry& log, DelegationEvent& event) const
+    {
+        if(log.address != delegationsAddress)
+            return false;
+
+        std::vector<std::string> topics;
+        for(dev::h256 topic : log.topics)
+            topics.push_back(dev::toHex(topic));
+
+        std::string data = dev::toHex(log.data);
+
+        return GetDelegationEvent(topics, data, event);
+    }
+
+    bool GetDelegationEvent(const std::vector<std::string>& topics, const std::string& data, DelegationEvent& event) const
+    {
+        //  Get the event data
+        std::vector<std::vector<std::string>> values;
+        FunctionABI* func = m_pfRemoveDelegation;
+        DelegationType type = DelegationType::DELEGATION_REMOVE;
+        bool ret = AbiOutEvent(func, topics, data, values);
+        if(!ret)
+        {
+            func = m_pfAddDelegation;
+            type = DelegationType::DELEGATION_ADD;
+            ret = AbiOutEvent(func, topics, data, values);
+        }
+        if(!ret)
+        {
+            return false;
+        }
+
+
+        // Parse the values of the input parameters for delegation event
+        try
+        {
+            for(size_t i = 0; i < values.size(); i++)
+            {
+                std::vector<std::string> value = values[i];
+                if(value.size() < 1)
+                    return error("Failed to get delegation output value");
+
+                std::string name = func->inputs[i].name;
+                if(name == "_staker")
+                {
+                    event.item.staker = uint160(ParseHex(value[0]));
+                }
+                if(name == "_delegate")
+                {
+                    event.item.delegate = uint160(ParseHex(value[0]));
+                }
+                else if(name == "fee")
+                {
+                    event.item.fee = (uint8_t)atoi64(value[0]);
+                }
+                else if(name == "blockHeight")
+                {
+                    event.item.blockHeight = (uint)atoi64(value[0]);
+                }
+                else if(name == "PoD")
+                {
+                    event.item.PoD = ParseHex(value[0]);
+                }
+                else
+                {
+                    return error("Invalid delegation event input name");
+                }
+            }
+        }
+        catch(...)
+        {
+            return error("Parsing failed for delegation event inputs");
+        }
+        event.type = type;
+
+        return true;
     }
 
     FunctionABI* m_pfDelegations;
+    FunctionABI* m_pfAddDelegation;
+    FunctionABI* m_pfRemoveDelegation;
     dev::Address delegationsAddress;
 };
 
@@ -138,4 +246,65 @@ bool QtumDelegation::VerifyDelegation(const uint160 &address, const Delegation &
         return false;
 
     return SignStr::VerifyMessage(CKeyID(address), delegation.staker.GetReverseHex(), delegation.PoD);
+}
+
+bool QtumDelegation::FilterDelegationEvents(std::vector<DelegationEvent> &events, const IDelegationFilter &filter, int fromBlock, int toBlock, int minconf) const
+{
+    // Check if log events are enabled
+    if(!fLogEvents)
+        return error("Events indexing disabled");
+
+    // Contract exist check
+    if(!globalState->addressInUse(priv->delegationsAddress))
+        return error("Delegation contract address does not exist");
+
+    // Add delegation event ABI check
+    if(!priv->m_pfAddDelegation)
+        return error("Add delegation event ABI does not exist");
+
+    // Remove delegation event ABI check
+    if(!priv->m_pfRemoveDelegation)
+        return error("Remove delegation ABI does not exist");
+
+    int curheight = 0;
+    std::set<dev::h160> addresses;
+    addresses.insert(priv->delegationsAddress);
+    std::vector<std::vector<uint256>> hashesToBlock;
+    curheight = pblocktree->ReadHeightIndex(fromBlock, toBlock, minconf, hashesToBlock, addresses);
+
+    if (curheight == -1) {
+        return error("Incorrect params");
+    }
+
+    // Search for delegation events
+    std::set<uint256> dupes;
+    for(const auto& hashesTx : hashesToBlock)
+    {
+        for(const auto& e : hashesTx)
+        {
+
+            if(dupes.find(e) != dupes.end()) {
+                continue;
+            }
+            dupes.insert(e);
+
+            std::vector<TransactionReceiptInfo> receipts = pstorageresult->getResult(uintToh256(e));
+            for(const auto& receipt : receipts) {
+                if(receipt.logs.empty()) {
+                    continue;
+                }
+
+                for(const dev::eth::LogEntry& log : receipt.logs)
+                {
+                    DelegationEvent event;
+                    if(priv->GetDelegationEvent(log, event) && filter.Match(event))
+                    {
+                        events.push_back(event);
+                    }
+                }
+            }
+        }
+    }
+
+    return true;
 }
