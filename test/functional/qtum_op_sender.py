@@ -128,6 +128,9 @@ class QtumOpSenderTest(BitcoinTestFramework):
         self.num_nodes = 2
         self.extra_args = [['-opsenderheight=1000000', '-acceptnonstdtxn']] * 2
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
+
     def create_op_sender_tx(self, keys, outputs, hashtypes, gasCost, publish=True):
         unspent = self.unspents.pop()
         amount = sum(output.nValue for output in outputs)
