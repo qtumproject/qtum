@@ -400,6 +400,24 @@ UniValue SignTransaction(CMutableTransaction& mtx, const SigningProvider* keysto
     // Use CTransaction for the constant parts of the
     // transaction to avoid rehashing.
     const CTransaction txConst(mtx);
+
+    // Check the sender signatures are inside the outputs, before signing the inputs
+    if(txConst.HasOpSender())
+    {
+        int nOut = 0;
+        for (const auto& output : mtx.vout)
+        {
+            if(output.scriptPubKey.HasOpSender())
+            {
+                CScript senderPubKey, senderSig;
+                if(!ExtractSenderData(output.scriptPubKey, &senderPubKey, &senderSig))
+                    throw JSONRPCError(RPC_INVALID_PARAMETER, "Missing contract sender signature,"
+                                                              "use signrawsendertransactionwithwallet or signrawsendertransactionwithkey to sign the outputs");
+            }
+            nOut++;
+        }
+    }
+
     // Sign what we can:
     for (unsigned int i = 0; i < mtx.vin.size(); i++) {
         CTxIn& txin = mtx.vin[i];

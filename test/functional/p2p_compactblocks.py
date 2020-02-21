@@ -8,13 +8,15 @@ Version 1 compact blocks are pre-segwit (txids)
 Version 2 compact blocks are post-segwit (wtxids)
 """
 import random
+from decimal import Decimal
 
 from test_framework.blocktools import create_block, create_coinbase, add_witness_commitment
 from test_framework.messages import BlockTransactions, BlockTransactionsRequest, calculate_shortid, CBlock, CBlockHeader, CInv, COutPoint, CTransaction, CTxIn, CTxInWitness, CTxOut, FromHex, HeaderAndShortIDs, msg_no_witness_block, msg_no_witness_blocktxn, msg_cmpctblock, msg_getblocktxn, msg_getdata, msg_getheaders, msg_headers, msg_inv, msg_sendcmpct, msg_sendheaders, msg_tx, msg_block, msg_blocktxn, MSG_WITNESS_FLAG, NODE_NETWORK, P2PHeaderAndShortIDs, PrefilledTransaction, ser_uint256, ToHex
 from test_framework.mininode import mininode_lock, P2PInterface
 from test_framework.script import CScript, OP_TRUE, OP_DROP
 from test_framework.test_framework import BitcoinTestFramework
-from test_framework.util import assert_equal, wait_until, softfork_active
+from test_framework.util import assert_equal, wait_until, softfork_active, satoshi_round
+from test_framework.qtumconfig import COINBASE_MATURITY
 
 # TestP2PConn: A peer we use to send messages to bitcoind, and store responses.
 class TestP2PConn(P2PInterface):
@@ -119,7 +121,7 @@ class CompactBlocksTest(BitcoinTestFramework):
         block = self.build_block_on_tip(self.nodes[0])
         self.segwit_node.send_and_ping(msg_no_witness_block(block))
         assert int(self.nodes[0].getbestblockhash(), 16) == block.sha256
-        self.nodes[0].generatetoaddress(100, self.nodes[0].getnewaddress(address_type="bech32"))
+        self.nodes[0].generatetoaddress(COINBASE_MATURITY, self.nodes[0].getnewaddress(address_type="bech32"))
 
         total_value = block.vtx[0].vout[0].nValue
         out_value = total_value // 10
@@ -264,6 +266,13 @@ class CompactBlocksTest(BitcoinTestFramework):
         node.generate(101)
         num_transactions = 25
         address = node.getnewaddress()
+        if use_witness_address:
+            # Want at least one segwit spend, so move all funds to
+            # a witness address.
+            address = node.getnewaddress(address_type='bech32')
+            value_to_send = node.getbalance()
+            node.sendtoaddress(address, satoshi_round(value_to_send - Decimal(0.2)))
+            node.generate(1)
 
         segwit_tx_generated = False
         for i in range(num_transactions):
@@ -809,9 +818,6 @@ class CompactBlocksTest(BitcoinTestFramework):
         self.test_sendcmpct(self.segwit_node, old_node=self.old_node)
         self.test_sendcmpct(self.additional_segwit_node)
 
-        self.nodes[0].generate(1)
-        self.nodes[1].generate(1)
-        self.nodes[0].generate(COINBASE_MATURITY)
         self.log.info("Testing compactblock construction...")
         self.test_compactblock_construction(self.old_node)
         self.test_compactblock_construction(self.segwit_node)

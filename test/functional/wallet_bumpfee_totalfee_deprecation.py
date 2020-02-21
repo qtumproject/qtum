@@ -15,6 +15,7 @@ class BumpFeeWithTotalFeeArgumentDeprecationTest(BitcoinTestFramework):
         self.extra_args = [[
             "-walletrbf={}".format(i),
             "-mintxfee=0.00002",
+            "-acceptnonstdtxn=1",
         ] for i in range(self.num_nodes)]
 
     def skip_test_if_missing_module(self):
@@ -24,7 +25,7 @@ class BumpFeeWithTotalFeeArgumentDeprecationTest(BitcoinTestFramework):
         peer_node, rbf_node = self.nodes
         peer_node.generate(110)
         self.sync_all()
-        peer_node.sendtoaddress(rbf_node.getnewaddress(), 0.001)
+        peer_node.sendtoaddress(rbf_node.getnewaddress(), 0.1)
         self.sync_all()
         peer_node.generate(1)
         self.sync_all()
@@ -40,10 +41,10 @@ class BumpFeeWithTotalFeeArgumentDeprecationTest(BitcoinTestFramework):
         self.log.info("Testing bumpfee without totalFee argument does not raise")
         rbf_node.bumpfee(rbfid)
 
-def spend_one_input(node, dest_address, change_size=Decimal("0.00049000")):
+def spend_one_input(node, dest_address, change_size=Decimal("0.049000")):
     tx_input = dict(sequence=BIP125_SEQUENCE_NUMBER,
-                    **next(u for u in node.listunspent() if u["amount"] == Decimal("0.00100000")))
-    destinations = {dest_address: Decimal("0.00050000")}
+                    **next(u for u in node.listunspent() if u["amount"] == Decimal("0.100000")))
+    destinations = {dest_address: Decimal("0.050000")}
     destinations[node.getrawchangeaddress()] = change_size
     rawtx = node.createrawtransaction([tx_input], destinations)
     signedtx = node.signrawtransactionwithwallet(rawtx)

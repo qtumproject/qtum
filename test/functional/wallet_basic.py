@@ -62,7 +62,7 @@ class WalletTest(BitcoinTestFramework):
         assert_equal(walletinfo['balance'], 0)
 
         self.sync_all(self.nodes[0:3])
-        self.nodes[1].generate(101)
+        self.nodes[1].generate(COINBASE_MATURITY+1)
         self.sync_all(self.nodes[0:3])
 
         assert_equal(self.nodes[0].getbalance(), INITIAL_BLOCK_REWARD)
@@ -145,7 +145,7 @@ class WalletTest(BitcoinTestFramework):
         assert_equal(len(self.nodes[1].listlockunspent()), 0)
 
         # Have node1 generate 100 blocks (so node0 can recover the fee)
-        self.nodes[1].generate(100)
+        self.nodes[1].generate(COINBASE_MATURITY)
         self.sync_all(self.nodes[0:3])
 
         # node0 should end up with 100 btc in block rewards plus fees, but
@@ -191,7 +191,7 @@ class WalletTest(BitcoinTestFramework):
         txid = self.nodes[2].sendtoaddress(address, 10, "", "", False)
         self.nodes[2].generate(1)
         self.sync_all(self.nodes[0:3])
-        node_2_bal = self.check_fee_amount(self.nodes[2].getbalance(), Decimal('84'), fee_per_byte, self.get_vsize(self.nodes[2].gettransaction(txid)['hex']))
+        node_2_bal = self.check_fee_amount(self.nodes[2].getbalance(), 2*INITIAL_BLOCK_REWARD-16, fee_per_byte, self.get_vsize(self.nodes[2].gettransaction(txid)['hex']))
         assert_equal(self.nodes[0].getbalance(), Decimal('10'))
 
         # Send 10 BTC with subtract fee from amount

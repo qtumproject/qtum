@@ -12,6 +12,8 @@ from test_framework.util import (
     disconnect_nodes,
     find_output,
 )
+from test_framework.qtumconfig import INITIAL_BLOCK_REWARD
+
 
 class TxnMallTest(BitcoinTestFramework):
     def set_test_params(self):

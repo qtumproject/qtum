@@ -516,13 +516,14 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
             # block in the cache does not age too much (have an old tip age).
             # This is needed so that we are out of IBD when the test starts,
             # see the tip age check in IsInitialBlockDownload().
-            for i in range(8):
-                self.nodes[CACHE_NODE_ID].generatetoaddress(
-                    nblocks=25 if i != 7 else 24,
-                    address=TestNode.PRIV_KEYS[i % 4].address,
-                )
+            for i in range(4):
+                self.nodes[0].generatetoaddress(25, TestNode.PRIV_KEYS[i % 4].address)
 
-            assert_equal(self.nodes[CACHE_NODE_ID].getblockchaininfo()["blocks"], 199)
+            for i in range(4):
+                self.nodes[0].generatetoaddress(125 if i != 3 else 124, TestNode.PRIV_KEYS[i % 4].address)
+            sync_blocks(self.nodes)
+
+            assert_equal(self.nodes[CACHE_NODE_ID].getblockchaininfo()["blocks"], 599)
 
             # Shut it down, and clean up cache directories:
             self.stop_nodes()
@@ -533,7 +534,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
 
             os.rmdir(cache_path('wallets'))  # Remove empty wallets dir
             for entry in os.listdir(cache_path()):
-                if entry not in ['chainstate', 'blocks']:  # Only keep chainstate and blocks folder
+                if entry not in ['chainstate', 'blocks', 'stateQtum']:  # Only keep chainstate and blocks folder
                     os.remove(cache_path(entry))
 
         for i in range(self.num_nodes):

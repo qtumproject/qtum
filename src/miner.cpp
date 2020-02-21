@@ -922,6 +922,7 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
         int64_t start = GetAdjustedTime();
         {
             auto locked_chain = pwallet->chain().lock();
+            LOCK(pwallet->cs_wallet);
             pwallet->SelectCoinsForStaking(*locked_chain, nTargetValue, setCoins, nValueIn);
             if(fSuperStake)
             {

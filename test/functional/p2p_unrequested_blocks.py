@@ -138,13 +138,17 @@ class AcceptBlockTest(BitcoinTestFramework):
         assert tip_entry_found
 
         # But this block should be accepted by node since it has equal work.
-        self.nodes[0].getblock(block_h2f.hash)
+        # NOT true for qtum as we only store blocks with MORE work.
+        self.nodes[0].getblockheader(block_h2f.hash)
         self.log.info("Second height 2 block accepted, but not reorg'ed to")
 
         # 4b. Now send another block that builds on the forking chain.
         block_h3 = create_block(block_h2f.sha256, create_coinbase(3), block_h2f.nTime+1)
         block_h3.solve()
         test_node.send_message(msg_block(block_h3))
+
+        # Then send the prev block as well
+        self.nodes[0].submitblock(block_h2f.serialize().hex())
 
         test_node.sync_with_ping()
         # Since the earlier block was not processed by node, the new block

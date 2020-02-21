@@ -87,7 +87,8 @@ class RESTTest (BitcoinTestFramework):
 
         self.nodes[0].generate(1)
         self.sync_all()
-        self.nodes[1].generatetoaddress(COINBASE_MATURITY, not_related_address)
+        for i in range(0, COINBASE_MATURITY, 100):
+            self.nodes[1].generatetoaddress(100, not_related_address)
         self.sync_all()
 
         assert_equal(self.nodes[0].getbalance(), INITIAL_BLOCK_REWARD)

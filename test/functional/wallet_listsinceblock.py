@@ -11,7 +11,7 @@ from test_framework.util import (
     assert_raises_rpc_error,
     connect_nodes,
 )
-
+from test_framework.qtumconfig import COINBASE_MATURITY
 
 class ListSinceBlockTest(BitcoinTestFramework):
     def set_test_params(self):
@@ -25,7 +25,7 @@ class ListSinceBlockTest(BitcoinTestFramework):
         # All nodes are in IBD from genesis, so they'll need the miner (node2) to be an outbound connection, or have
         # only one connection. (See fPreferredDownload in net_processing)
         connect_nodes(self.nodes[1], 2)
-        self.nodes[2].generate(101)
+        self.nodes[2].generate(COINBASE_MATURITY+1)
         self.sync_all()
 
         self.test_no_blockhash()
