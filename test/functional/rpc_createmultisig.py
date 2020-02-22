@@ -5,12 +5,12 @@
 """Test multisig RPCs"""
 
 from test_framework.test_framework import BitcoinTestFramework
-from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD
 from test_framework.util import (
     assert_raises_rpc_error,
     assert_equal,
 )
 from test_framework.key import ECPubKey
+from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD
 
 import binascii
 import decimal
@@ -37,7 +37,7 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
         self.check_addmultisigaddress_errors()
 
         self.log.info('Generating blocks ...')
-        node0.generate(49 + COINBASE_MATURITY)
+        node0.generate(COINBASE_MATURITY+49)
         self.sync_all()
 
         self.moved = 0
@@ -135,11 +135,32 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
 
         assert_raises_rpc_error(-8, "Missing redeemScript/witnessScript", node2.signrawtransactionwithkey, rawtx, self.priv[0:self.nsigs-1], [prevtx_err])
 
+        # if witnessScript specified, all ok
+        prevtx_err["witnessScript"] = prevtxs[0]["redeemScript"]
+        node2.signrawtransactionwithkey(rawtx, self.priv[0:self.nsigs-1], [prevtx_err])
+
+        # both specified, also ok
+        prevtx_err["redeemScript"] = prevtxs[0]["redeemScript"]
+        node2.signrawtransactionwithkey(rawtx, self.priv[0:self.nsigs-1], [prevtx_err])
+
+        # redeemScript mismatch to witnessScript
+        prevtx_err["redeemScript"] = "6a" # OP_RETURN
+        assert_raises_rpc_error(-8, "redeemScript does not correspond to witnessScript", node2.signrawtransactionwithkey, rawtx, self.priv[0:self.nsigs-1], [prevtx_err])
+
+        # redeemScript does not match scriptPubKey
+        del prevtx_err["witnessScript"]
+        assert_raises_rpc_error(-8, "redeemScript/witnessScript does not match scriptPubKey", node2.signrawtransactionwithkey, rawtx, self.priv[0:self.nsigs-1], [prevtx_err])
+
+        # witnessScript does not match scriptPubKey
+        prevtx_err["witnessScript"] = prevtx_err["redeemScript"]
+        del prevtx_err["redeemScript"]
+        assert_raises_rpc_error(-8, "redeemScript/witnessScript does not match scriptPubKey", node2.signrawtransactionwithkey, rawtx, self.priv[0:self.nsigs-1], [prevtx_err])
+
         rawtx2 = node2.signrawtransactionwithkey(rawtx, self.priv[0:self.nsigs - 1], prevtxs)
         rawtx3 = node2.signrawtransactionwithkey(rawtx2["hex"], [self.priv[-1]], prevtxs)
 
         self.moved += outval
-        tx = node0.sendrawtransaction(rawtx3["hex"], True)
+        tx = node0.sendrawtransaction(rawtx3["hex"], 0)
         blk = node0.generate(1)[0]
         assert tx in node0.getblock(blk)["tx"]
 

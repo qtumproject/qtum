@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2015-2018 The Bitcoin Core developers
+# Copyright (c) 2015-2019 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test a node with the -disablewallet option.
@@ -10,7 +10,7 @@
 
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_raises_rpc_error
-
+from test_framework.qtum import convert_btc_address_to_qtum
 class DisableWalletTest (BitcoinTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
@@ -21,9 +21,9 @@ class DisableWalletTest (BitcoinTestFramework):
         # Make sure wallet is really disabled
         assert_raises_rpc_error(-32601, 'Method not found', self.nodes[0].getwalletinfo)
         x = self.nodes[0].validateaddress('3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy')
-        assert(x['isvalid'] == False)
-        x = self.nodes[0].validateaddress('qRHRiarHKXvLmpLzggX1AFvBYDtBEUioCh')
-        assert(x['isvalid'] == True)
+        assert x['isvalid'] == False
+        x = self.nodes[0].validateaddress(convert_btc_address_to_qtum('mneYUmWYsuk7kySiURxCi3AGxrAqZxLgPZ'))
+        assert x['isvalid'] == True
 
         # Checking mining to an address without a wallet. Generating to a valid address should succeed
         # but generating to an invalid address will fail.

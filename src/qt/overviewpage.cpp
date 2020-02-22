@@ -280,7 +280,6 @@ void OverviewPage::setBalance(const interfaces::WalletBalances& balances)
     ui->widgetStake->setVisible(showStake || showWatchOnlyStake);
     ui->widgetWatchStake->setVisible(!walletModel->privateKeysDisabled() && showWatchOnlyStake); // show watch-only stake balance
 }
-
 void OverviewPage::checkForInvalidTokens()
 {
     if(walletModel)
@@ -321,9 +320,8 @@ void OverviewPage::updateWatchOnlyLabels(bool showWatchOnly)
 void OverviewPage::setClientModel(ClientModel *model)
 {
     this->clientModel = model;
-    if(model)
-    {
-        // Show warning if this is a prerelease version
+    if (model) {
+        // Show warning, for example if this is a prerelease version
         connect(model, &ClientModel::alertsChanged, this, &OverviewPage::updateAlerts);
         updateAlerts(model->getStatusBarWarnings());
     }

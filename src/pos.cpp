@@ -110,23 +110,23 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, CValidationState& state, const C
     Coin coinPrev;
 
     if(!view.GetCoin(txin.prevout, coinPrev)){
-        return state.DoS(100, error("CheckProofOfStake() : Stake prevout does not exist %s", txin.prevout.hash.ToString()));
+        return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-prevout-not-exist", strprintf("CheckProofOfStake() : Stake prevout does not exist %s", txin.prevout.hash.ToString()));
     }
 
     if(pindexPrev->nHeight + 1 - coinPrev.nHeight < COINBASE_MATURITY){
-        return state.DoS(100, error("CheckProofOfStake() : Stake prevout is not mature, expecting %i and only matured to %i", COINBASE_MATURITY, pindexPrev->nHeight + 1 - coinPrev.nHeight));
+        return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-prevout-not-mature", strprintf("CheckProofOfStake() : Stake prevout is not mature, expecting %i and only matured to %i", COINBASE_MATURITY, pindexPrev->nHeight + 1 - coinPrev.nHeight));
     }
     CBlockIndex* blockFrom = pindexPrev->GetAncestor(coinPrev.nHeight);
     if(!blockFrom) {
-        return state.DoS(100, error("CheckProofOfStake() : Block at height %i for prevout can not be loaded", coinPrev.nHeight));
+        return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-prevout-not-loaded", strprintf("CheckProofOfStake() : Block at height %i for prevout can not be loaded", coinPrev.nHeight));
     }
 
     // Verify signature
     if (!VerifySignature(coinPrev, txin.prevout.hash, tx, 0, SCRIPT_VERIFY_NONE))
-        return state.DoS(100, error("CheckProofOfStake() : VerifySignature failed on coinstake %s", tx.GetHash().ToString()));
+        return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-verify-signature-failed", strprintf("CheckProofOfStake() : VerifySignature failed on coinstake %s", tx.GetHash().ToString()));
 
     if (!CheckStakeKernelHash(pindexPrev, nBits, blockFrom->nTime, coinPrev.out.nValue, txin.prevout, nTimeBlock, hashProofOfStake, targetProofOfStake, LogInstance().WillLogCategory(BCLog::COINSTAKE)))
-        return state.DoS(1, error("CheckProofOfStake() : INFO: check kernel failed on coinstake %s, hashProof=%s", tx.GetHash().ToString(), hashProofOfStake.ToString())); // may occur during initial download or if behind on block chain sync
+        return state.Invalid(ValidationInvalidReason::BLOCK_HEADER_SYNC, false, REJECT_INVALID, "stake-check-kernel-failed", strprintf("CheckProofOfStake() : INFO: check kernel failed on coinstake %s, hashProof=%s", tx.GetHash().ToString(), hashProofOfStake.ToString())); // may occur during initial download or if behind on block chain sync
 
     return true;
 }
@@ -161,7 +161,7 @@ bool CheckBlockInputPubKeyMatchesOutputPubKey(const CBlock& block, CCoinsViewCac
         return error("%s: Could not extract address from input", __func__);
     }
 
-    if(inputTxType != TX_PUBKEYHASH || inputAddress.type() != typeid(CKeyID)) {
+    if(inputTxType != TX_PUBKEYHASH || inputAddress.type() != typeid(PKHash)) {
         return error("%s: non-exact match input must be P2PKH", __func__);
     }
 
@@ -171,11 +171,11 @@ bool CheckBlockInputPubKeyMatchesOutputPubKey(const CBlock& block, CCoinsViewCac
         return error("%s: Could not extract address from output", __func__);
     }
 
-    if(outputTxType != TX_PUBKEY || outputAddress.type() != typeid(CKeyID)) {
+    if(outputTxType != TX_PUBKEY || outputAddress.type() != typeid(PKHash)) {
         return error("%s: non-exact match output must be P2PK", __func__);
     }
 
-    if(boost::get<CKeyID>(inputAddress) != boost::get<CKeyID>(outputAddress)) {
+    if(boost::get<PKHash>(inputAddress) != boost::get<PKHash>(outputAddress)) {
         return error("%s: input P2PKH pubkey does not match output P2PK pubkey", __func__);
     }
 
@@ -206,8 +206,8 @@ bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBloc
             CTxDestination address;
             txnouttype txType=TX_NONSTANDARD;
             if(ExtractDestination(coinPrev.out.scriptPubKey, address, &txType)){
-                if ((txType == TX_PUBKEY || txType == TX_PUBKEYHASH) && address.type() == typeid(CKeyID)) {
-                    if(pubkey.GetID() == boost::get<CKeyID>(address)) {
+                if ((txType == TX_PUBKEY || txType == TX_PUBKEYHASH) && address.type() == typeid(PKHash)) {
+                    if(pubkey.GetID() == boost::get<PKHash>(address)) {
                         return true;
                     }
                 }
@@ -315,7 +315,7 @@ bool NeedToEraseScriptFromCache(int nBlockHeight, int nCacheScripts, int nScript
         return true;
 
     // Erase element from cache if hash different
-    CBlockIndex* pblockindex = chainActive[nScriptHeight];
+    CBlockIndex* pblockindex = ChainActive()[nScriptHeight];
     if(pblockindex && pblockindex->GetBlockHash() != scriptElement.hash)
         return true;
 
@@ -370,7 +370,7 @@ void AddToScriptCache(CScript script, CBlockIndex* pblockindex, int nHeight, con
 bool AddMPoSScript(std::vector<CScript> &mposScriptList, int nHeight, const Consensus::Params& consensusParams)
 {
     // Check if the block index exist into the active chain
-    CBlockIndex* pblockindex = chainActive[nHeight];
+    CBlockIndex* pblockindex = ChainActive()[nHeight];
     if(!pblockindex)
     {
         LogPrint(BCLog::COINSTAKE, "Block index not found\n");

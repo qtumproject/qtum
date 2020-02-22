@@ -8,9 +8,6 @@
 #include <qt/walletmodel.h>
 
 #include <QDialog>
-#include <QImage>
-#include <QLabel>
-#include <QPainter>
 
 class PlatformStyle;
 class ReceiveCoinsDialog;
@@ -18,33 +15,6 @@ class ReceiveCoinsDialog;
 namespace Ui {
     class ReceiveRequestDialog;
 }
-
-QT_BEGIN_NAMESPACE
-class QMenu;
-QT_END_NAMESPACE
-
-/* Label widget for QR code. This image can be dragged, dropped, copied and saved
- * to disk.
- */
-class QRImageWidget : public QLabel
-{
-    Q_OBJECT
-
-public:
-    explicit QRImageWidget(QWidget *parent = nullptr);
-    QImage exportImage();
-
-public Q_SLOTS:
-    void saveImage();
-    void copyImage();
-
-protected:
-    virtual void mousePressEvent(QMouseEvent *event);
-    virtual void contextMenuEvent(QContextMenuEvent *event);
-
-private:
-    QMenu *contextMenu;
-};
 
 class ReceiveRequestDialog : public QDialog
 {
@@ -56,7 +26,6 @@ public:
 
     void setModel(WalletModel *model);
     void setInfo(const SendCoinsRecipient &info);
-    static bool createQRCode(QLabel * label, SendCoinsRecipient info, bool showAddress = false);
 
 public Q_SLOTS:
     void clear();

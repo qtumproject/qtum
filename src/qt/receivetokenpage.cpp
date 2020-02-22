@@ -47,7 +47,8 @@ void ReceiveTokenPage::createQRCode()
     if(!m_address.isEmpty())
     {
         info.address = m_address;
-        if(ReceiveRequestDialog::createQRCode(ui->lblQRCode, info))
+        QString uri = GUIUtil::formatBitcoinURI(info);
+        if(ui->lblQRCode->setQR(uri))
         {
             ui->widgetQRMargin->setVisible(true);
             ui->lblQRCode->setScaledContents(true);

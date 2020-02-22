@@ -23,7 +23,6 @@ class QFrame;
 class QLineEdit;
 class QMenu;
 class QModelIndex;
-class QSignalMapper;
 class QSpacerItem;
 class QTableView;
 QT_END_NAMESPACE
@@ -74,7 +73,6 @@ private:
     QSpacerItem *hSpacer;
 
     QMenu *contextMenu;
-    QSignalMapper *mapperThirdPartyTxUrls;
 
     QFrame *dateRangeWidget;
     QDateTimeEdit *dateFrom;

@@ -217,7 +217,7 @@
         <translation>비밀번호를 다시 기입해주세요. </translation>
     </message>
     <message>
-        <source>Show password</source>
+        <source>Show passphrase</source>
         <translation>비밀번호 표시</translation>
     </message>
     <message>
@@ -515,7 +515,7 @@
         <translation type="unfinished">오류 진단 및 수정 콘솔 열기 </translation>
     </message>
     <message>
-        <source>&amp;Sending addresses...</source>
+        <source>&amp;Sending addresses</source>
         <translation type="unfinished">주소 내보내기</translation>
     </message>
     <message>
@@ -523,7 +523,7 @@
         <translation type="unfinished">사용했던 출금 주소와 라벨 리스트 표시</translation>
     </message>
     <message>
-        <source>&amp;Receiving addresses...</source>
+        <source>&amp;Receiving addresses</source>
         <translation type="unfinished">받을 주소</translation>
     </message>
     <message>
@@ -1265,7 +1265,7 @@
         <translation type="unfinished">컨트랙트의 바이트 코드</translation>
     </message>
     <message>
-        <source>The quantum address that will be used to create the contract.</source>
+        <source>The qtum address that will be used to create the contract.</source>
         <translation type="unfinished">컨트랙트 생성을 위한 Qtum주소</translation>
     </message>
     <message>
@@ -3862,7 +3862,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation type="unfinished">보낼 QTUM 개수. 디폴트는 0</translation>
     </message>
     <message>
-        <source>The quantum address that will be used as sender.</source>
+        <source>The qtum address that will be used as sender.</source>
         <translation type="unfinished">보낸 주소로 사용될 퀀텀 주소</translation>
     </message>
     <message>

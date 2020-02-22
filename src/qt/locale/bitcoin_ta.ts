@@ -2,16 +2,20 @@
 <context>
     <name>AddressBookPage</name>
     <message>
+        <source>Right-click to edit address or label</source>
+        <translation>முகவரியை மாற்ற ரைட் கிளிக் செய்யவும்</translation>
+    </message>
+    <message>
         <source>Create a new address</source>
-        <translation>ஒரு புதிய முகவரியை உருவாக்கு</translation>
+        <translation>புதிய முகவரியை உருவாக்கு</translation>
     </message>
     <message>
         <source>&amp;New</source>
-        <translation>&amp;புதிய</translation>
+        <translation>&amp;புதியது</translation>
     </message>
     <message>
         <source>Copy the currently selected address to the system clipboard</source>
-        <translation>தற்போது தேர்ந்தெடுக்கப்பட்ட முகவரியை கணினி கிளிப்போர்டுக்கு நகலெடுக்கவும்.</translation>
+        <translation>தற்போது தேர்ந்தெடுக்கப்பட்ட முகவரியை கணினி கிளிப்போர்டுக்கு காபி செய்யவும்.</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
@@ -23,7 +27,7 @@
     </message>
     <message>
         <source>Delete the currently selected address from the list</source>
-        <translation>தற்போது தேர்ந்தெடுக்கப்பட்ட முகவரி பட்டியலிலிருந்து நீக்கவும்</translation>
+        <translation>பட்டியலிலிருந்து தற்போது தேர்ந்தெடுக்கப்பட்ட முகவரி நீக்கவும்</translation>
     </message>
     <message>
         <source>Enter address or label to search</source>
@@ -35,7 +39,7 @@
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation>&amp;ஏற்றுமதி</translation>
+        <translation>&amp;எக்ஸ்போர்ட்</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
@@ -43,11 +47,15 @@
     </message>
     <message>
         <source>Choose the address to send coins to</source>
-        <translation>நாணயங்களை அனுப்புவதற்கு முகவரியைத் தேர்வு செய்க</translation>
+        <translation>பிட்காயினை அனுப்புவதற்கு முகவரியைத் தேர்வு செய்க</translation>
     </message>
     <message>
         <source>Choose the address to receive coins with</source>
         <translation>நாணயங்களைப் பெற முகவரியைத் தேர்வுசெய்யவும்</translation>
+    </message>
+    <message>
+        <source>C&amp;hoose</source>
+        <translation>தே&amp;ர்வுசெய் </translation>
     </message>
     <message>
         <source>Sending addresses</source>
@@ -62,8 +70,8 @@
         <translation>இவை பணம் அனுப்புவதற்கு உங்கள் பிட்கின் முகவரிகள். நாணயங்களை அனுப்புவதற்கு முன் எப்பொழுதும் தொகையும் பெறுதலையும் சரிபார்க்கவும்.</translation>
     </message>
     <message>
-        <source>These are your Qtum addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
-        <translation>இவை உங்கள் Qtum முகவரிகள் பணம் பெறுவதற்கு. ஒவ்வொரு பரிவர்த்தனைக்கும் புதிய பெறுதல் முகவரியைப் பயன்படுத்த பரிந்துரைக்கப்படுகிறது.</translation>
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.</source>
+        <translation>பிட்காயின் பெறுவதற்காக உங்கள் முகவரி இவை. புதிய முகவரிகளை உருவாக்க 'புதிய முகவரியை உருவாக்கு' என்ற பட்டனை கிளிக் செய்யவும்.</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -89,7 +97,11 @@
         <source>Exporting Failed</source>
         <translation>ஏற்றுமதி தோல்வியடைந்தது</translation>
     </message>
-    </context>
+    <message>
+        <source>There was an error trying to save the address list to %1. Please try again.</source>
+        <translation>முகவரி பட்டியலை %1 க்கு சேமிக்க முயற்சிக்கும் ஒரு பிழை ஏற்பட்டது. தயவுசெய்து மீண்டும் முயற்சி செய்க.</translation>
+    </message>
+</context>
 <context>
     <name>AddressTableModel</name>
     <message>
@@ -109,7 +121,7 @@
     <name>AskPassphraseDialog</name>
     <message>
         <source>Passphrase Dialog</source>
-        <translation>கடவுச்சொல் உரையாடல்</translation>
+        <translation>கடவுச்சொல் உரையாடல் </translation>
     </message>
     <message>
         <source>Enter passphrase</source>
@@ -124,16 +136,12 @@
         <translation>புதிய கடவுச்சொற்றொடரைக் கோருக</translation>
     </message>
     <message>
-        <source>Show password</source>
-        <translation>கடவுச்சொல்லை காட்டவும்</translation>
-    </message>
-    <message>
-        <source>Enter the new passphrase to the wallet.&lt;br/&gt;Please use a passphrase of &lt;b&gt;ten or more random characters&lt;/b&gt;, or &lt;b&gt;eight or more words&lt;/b&gt;.</source>
-        <translation>புதிய கடவுச்சொற்றொடரை வாலட்டில் சேர்க்கவும். பத்து அல்லது அதற்கு மேற்பட்ட சீரற்ற எழுத்துகள் அல்லது எட்டு அல்லது அதற்கு மேற்பட்ட சொற்களின் கடவுச்சொற்றொடரைப் பயன்படுத்தவும்.</translation>
+        <source>Show passphrase</source>
+        <translation>கடவுச்சொல்லை காட்டு</translation>
     </message>
     <message>
         <source>Encrypt wallet</source>
-        <translation>பணப்பையை குறியாக்கு</translation>
+        <translation>குறியாக்க பணப்பையை</translation>
     </message>
     <message>
         <source>This operation needs your wallet passphrase to unlock the wallet.</source>
@@ -149,15 +157,11 @@
     </message>
     <message>
         <source>Decrypt wallet</source>
-        <translation>குறியாக்க பணப்பை</translation>
+        <translation>பணப்பை குறியாக்க</translation>
     </message>
     <message>
         <source>Change passphrase</source>
-        <translation>கடவுச்சொல்லை மாற்றுக</translation>
-    </message>
-    <message>
-        <source>Enter the old passphrase and new passphrase to the wallet.</source>
-        <translation>பழைய கடவுச்சொற்றொடரை மற்றும் புதிய கடவுச்சொற்றொடரை பணப்பைக்கு சேர்க்கவும்.</translation>
+        <translation>கடுவு சொற்றொடரை மாற்று</translation>
     </message>
     <message>
         <source>Confirm wallet encryption</source>
@@ -176,8 +180,28 @@
         <translation>கைப்பை குறியாக்கம் செய்யப்பட்டது</translation>
     </message>
     <message>
-        <source>Your wallet is now encrypted. Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
-        <translation>உங்கள் பணப்பை இப்போது குறியாக்கப்பட்டுள்ளது. உங்கள் கணினியைப் பாதிக்கும் தீம்பொருளால் திருடப்பட்டதில் இருந்து உங்கள் பணப்பை முழுவதையும் பாதுகாக்க முடியாது என்பதை நினைவில் கொள்க.</translation>
+        <source>Enter the new passphrase for the wallet.&lt;br/&gt;Please use a passphrase of &lt;b&gt;ten or more random characters&lt;/b&gt;, or &lt;b&gt;eight or more words&lt;/b&gt;.</source>
+        <translation>வாலட்டை பாதுகாக்க புதிய கடவுச்சொல்லை உல்லிடவும். பத்து அல்லது அதற்கு மேற்பட்ட எழுத்துகள் அல்லது எட்டு அல்லது அதற்கு மேற்பட்ட எழுத்துக்களை கடவுச்சொல்லாக பயன்படுத்தவும்.</translation>
+    </message>
+    <message>
+        <source>Enter the old passphrase and new passphrase for the wallet.</source>
+        <translation>பழைய கடவுச்சொல் மற்றும் புதிய கடுவுசொல்லை உள்ளிடுக.</translation>
+    </message>
+    <message>
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
+        <translation>வாலட்டை குறியாக்கம் செய்தால் மட்டும் உங்கள் பிட்காயினை வைரஸிடம் இருந்து பாதுகாக்க இயலாது.</translation>
+    </message>
+    <message>
+        <source>Wallet to be encrypted</source>
+        <translation>குறியாக்கம் செய்யப்பட வேண்டிய வால்லட்</translation>
+    </message>
+    <message>
+        <source>Your wallet is about to be encrypted. </source>
+        <translation>உங்கள் வால்லட் குறியாக்கம் செய்யப்பட உள்ளது.</translation>
+    </message>
+    <message>
+        <source>Your wallet is now encrypted. </source>
+        <translation>வால்லட் இப்போது குறியாக்கம் செய்யப்பட்டது.</translation>
     </message>
     <message>
         <source>IMPORTANT: Any previous backups you have made of your wallet file should be replaced with the newly generated, encrypted wallet file. For security reasons, previous backups of the unencrypted wallet file will become useless as soon as you start using the new, encrypted wallet.</source>
@@ -262,6 +286,14 @@
         <translation>விலகு</translation>
     </message>
     <message>
+        <source>&amp;About %1</source>
+        <translation>&amp; %1 பற்றி</translation>
+    </message>
+    <message>
+        <source>Show information about %1</source>
+        <translation>%1 பற்றிய தகவலைக் காட்டு</translation>
+    </message>
+    <message>
         <source>About &amp;Qt</source>
         <translation>&amp;Qt-ஐ பற்றி</translation>
     </message>
@@ -274,8 +306,16 @@
         <translation>&amp;விருப்பங்கள்...</translation>
     </message>
     <message>
+        <source>Modify configuration options for %1</source>
+        <translation>%1 க்கான கட்டமைப்பு விருப்பங்களை மாற்றுக</translation>
+    </message>
+    <message>
         <source>&amp;Encrypt Wallet...</source>
         <translation>&amp;என்க்ரிப்ட் பணப்பை...</translation>
+    </message>
+    <message>
+        <source>&amp;Backup Wallet...</source>
+        <translation>&amp;1 இல் கட்டமைப்பு விருப்பங்களை மாற்றுக</translation>
     </message>
     <message>
         <source>&amp;Change Passphrase...</source>
@@ -284,6 +324,14 @@
     <message>
         <source>Open &amp;URI...</source>
         <translation>&amp;URI-ஐ திற</translation>
+    </message>
+    <message>
+        <source>Create Wallet...</source>
+        <translation>வாலட்டை உருவாக்கு...</translation>
+    </message>
+    <message>
+        <source>Create a new wallet</source>
+        <translation>புதிய வாலட்டை உருவாக்கு</translation>
     </message>
     <message>
         <source>Wallet:</source>
@@ -302,8 +350,16 @@
         <translation>நெட்வொர்க் செயல்பாட்டை மீண்டும் இயக்க கிளிக் செய்க.</translation>
     </message>
     <message>
+        <source>Syncing Headers (%1%)...</source>
+        <translation>தலைப்புகளை ஒத்திசைக்கிறது (%1%)</translation>
+    </message>
+    <message>
         <source>Reindexing blocks on disk...</source>
         <translation>வட்டில் தொகுதிகளை மறுஇயக்குகிறது ...</translation>
+    </message>
+    <message>
+        <source>Proxy is &lt;b&gt;enabled&lt;/b&gt;: %1</source>
+        <translation>ப்ராக்ஸி இயக்கப்பட்டது: %1</translation>
     </message>
     <message>
         <source>Send coins to a Qtum address</source>
@@ -328,10 +384,6 @@
     <message>
         <source>&amp;Verify message...</source>
         <translation>&amp;செய்தியை சரிசெய்...</translation>
-    </message>
-    <message>
-        <source>Qtum</source>
-        <translation>Qtum</translation>
     </message>
     <message>
         <source>&amp;Send</source>
@@ -405,9 +457,17 @@
         <source>Processing blocks on disk...</source>
         <translation>வட்டில் தொகுதிகள் செயலாக்கப்படுகின்றன ...</translation>
     </message>
+    <message numerus="yes">
+        <source>Processed %n block(s) of transaction history.</source>
+        <translation><numerusform>பரிவர்த்தனை வரலாற்றில் %n ப்லாக் செயலாக்கப்பட்டது.</numerusform><numerusform>பரிவர்த்தனை வரலாற்றில் %n ப்லாக்ககள் செயலாக்கப்பட்டன.</numerusform></translation>
+    </message>
     <message>
         <source>%1 behind</source>
         <translation>%1 பின்னால்</translation>
+    </message>
+    <message>
+        <source>Last received block was generated %1 ago.</source>
+        <translation>கடைசியாக கிடைத்த தொகுதி %1 முன்பு உருவாக்கப்பட்டது.</translation>
     </message>
     <message>
         <source>Transactions after this will not yet be visible.</source>
@@ -415,7 +475,7 @@
     </message>
     <message>
         <source>Error</source>
-        <translation>தவறு</translation>
+        <translation>பிழை</translation>
     </message>
     <message>
         <source>Warning</source>
@@ -438,6 +498,34 @@
         <translation>முகவரிகள் பெறுதல்</translation>
     </message>
     <message>
+        <source>Open Wallet</source>
+        <translation>வாலட்டை திற</translation>
+    </message>
+    <message>
+        <source>Open a wallet</source>
+        <translation>வாலட்டை திற</translation>
+    </message>
+    <message>
+        <source>Close Wallet...</source>
+        <translation>வாலட்டை மூடு...</translation>
+    </message>
+    <message>
+        <source>Close wallet</source>
+        <translation>வாலட்டை மூடு</translation>
+    </message>
+    <message>
+        <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
+        <translation>சாத்தியமான Qtum கட்டளை-வரி விருப்பங்களைக் கொண்ட பட்டியலைப் பெற %1 உதவிச் செய்தியைக் காட்டு</translation>
+    </message>
+    <message>
+        <source>default wallet</source>
+        <translation>அடிப்படை வாலட்</translation>
+    </message>
+    <message>
+        <source>No wallets available</source>
+        <translation>வாலட் எதுவும் இல்லை</translation>
+    </message>
+    <message>
         <source>&amp;Window</source>
         <translation>&amp;சாளரம்</translation>
     </message>
@@ -450,12 +538,12 @@
         <translation>பெரிதாக்கு</translation>
     </message>
     <message>
-        <source>Restore</source>
-        <translation>மீட்டமை</translation>
-    </message>
-    <message>
         <source>Main Window</source>
         <translation>முதன்மை சாளரம்</translation>
+    </message>
+    <message>
+        <source>%1 client</source>
+        <translation>%1 கிளையன்</translation>
     </message>
     <message>
         <source>Connecting to peers...</source>
@@ -464,6 +552,14 @@
     <message>
         <source>Catching up...</source>
         <translation>பிடித்துகொள்...</translation>
+    </message>
+    <message>
+        <source>Error: %1</source>
+        <translation>பிழை: %1</translation>
+    </message>
+    <message>
+        <source>Warning: %1</source>
+        <translation>எச்சரிக்கை: %1</translation>
     </message>
     <message>
         <source>Date: %1
@@ -478,9 +574,21 @@
 </translation>
     </message>
     <message>
+        <source>Wallet: %1
+</source>
+        <translation>வாலட்: %1
+</translation>
+    </message>
+    <message>
         <source>Type: %1
 </source>
         <translation>வகை: %1
+</translation>
+    </message>
+    <message>
+        <source>Label: %1
+</source>
+        <translation>லேபிள்: %1
 </translation>
     </message>
     <message>
@@ -641,6 +749,10 @@
         <translation>மாற்றத்தை நகலெடுக்கவும்</translation>
     </message>
     <message>
+        <source>(%1 locked)</source>
+        <translation>(%1 பூட்டப்பட்டது)</translation>
+    </message>
+    <message>
         <source>yes</source>
         <translation>ஆம்</translation>
     </message>
@@ -653,12 +765,74 @@
         <translation>நடப்பு தூசி நிலையை விட குறைவான அளவு பெறுநரை பெறுமானால் இந்த லேபிள் சிவப்பு நிறமாக மாறும்.</translation>
     </message>
     <message>
+        <source>Can vary +/- %1 satoshi(s) per input.</source>
+        <translation>உள்ளீடு ஒன்றுக்கு +/- %1 சாத்தோஷி (கள்) மாறுபடலாம்</translation>
+    </message>
+    <message>
         <source>(no label)</source>
         <translation>(லேபிள் இல்லை)</translation>
     </message>
     <message>
+        <source>change from %1 (%2)</source>
+        <translation>%1 (%2) இலிருந்து மாற்றவும்</translation>
+    </message>
+    <message>
         <source>(change)</source>
         <translation>(மாற்றம்)</translation>
+    </message>
+</context>
+<context>
+    <name>CreateWalletActivity</name>
+    <message>
+        <source>Creating Wallet &lt;b&gt;%1&lt;/b&gt;...</source>
+        <translation>வாலட் உருவாக்கம்&lt;b&gt;%1&lt;/b&gt;...</translation>
+    </message>
+    <message>
+        <source>Create wallet failed</source>
+        <translation>வாலட் உருவாக்கம் தோல்வி அடைந்தது</translation>
+    </message>
+    <message>
+        <source>Create wallet warning</source>
+        <translation>வாலட் உருவாக்கம் எச்சரிக்கை</translation>
+    </message>
+</context>
+<context>
+    <name>CreateWalletDialog</name>
+    <message>
+        <source>Create Wallet</source>
+        <translation>வாலட்டை உருவாக்கு</translation>
+    </message>
+    <message>
+        <source>Wallet Name</source>
+        <translation>வாலட் பெயர்</translation>
+    </message>
+    <message>
+        <source>Encrypt the wallet. The wallet will be encrypted with a passphrase of your choice.</source>
+        <translation>வாலட்டை குறியாக்கம் செய்யவும். உங்கள் விருப்பப்படி கடவுச்சொல்லுடன் வாலட் குறியாக்கம் செய்யப்படும்.</translation>
+    </message>
+    <message>
+        <source>Encrypt Wallet</source>
+        <translation>வாலட்டை குறியாக்குக</translation>
+    </message>
+    <message>
+        <source>Disable private keys for this wallet. Wallets with private keys disabled will have no private keys and cannot have an HD seed or imported private keys. This is ideal for watch-only wallets.</source>
+        <translation>இந்த வாலட்டிற்கு ப்ரைவேட் கீஸை முடக்கு. முடக்கப்பட்ட ப்ரைவேட் கீஸ் கொண்ட வாலட்டிற்கு ப்ரைவேட் கீஸ் இருக்காது மற்றும் எச்டி ஸீட் அல்லது இம்போர்ட் செய்யப்பட்ட ப்ரைவேட் கீஸ் இருக்கக்கூடாது. பார்க்க-மட்டும் உதவும் வாலட்டிற்கு இது ஏற்றது.</translation>
+    </message>
+    <message>
+        <source>Disable Private Keys</source>
+        <translation>ப்ரைவேட் கீஸ் ஐ முடக்கு</translation>
+    </message>
+    <message>
+        <source>Make a blank wallet. Blank wallets do not initially have private keys or scripts. Private keys and addresses can be imported, or an HD seed can be set, at a later time.</source>
+        <translation>காலியான வாலட்டை உருவாக்கு. காலியான வாலட்டிற்கு ஆரம்பத்தில் ப்ரைவேட் கீஸ் மற்றும் ஸ்கிரிப்ட் இருக்காது. ப்ரைவேட் கீஸ் மற்றும் முகவரிகளை இம்போர்ட் செய்து கொள்ளலாம், அல்லது எச்டி ஸீடை பின்னர், அமைத்து கொள்ளலாம்.</translation>
+    </message>
+    <message>
+        <source>Make Blank Wallet</source>
+        <translation>காலியான வாலட்டை உருவாக்கு</translation>
+    </message>
+    <message>
+        <source>Create</source>
+        <translation>உருவாக்கு</translation>
     </message>
 </context>
 <context>
@@ -696,6 +870,18 @@
         <translation>முகவரியை அனுப்புவதைத் திருத்து</translation>
     </message>
     <message>
+        <source>The entered address "%1" is not a valid Qtum address.</source>
+        <translation>உள்ளிட்ட முகவரி "%1" என்பது செல்லுபடியாகும் விக்கிபீடியா முகவரி அல்ல.</translation>
+    </message>
+    <message>
+        <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
+        <translation>முகவரி "%1" ஏற்கனவே லேபிள் "%2" உடன் பெறும் முகவரியாக உள்ளது, எனவே அனுப்பும் முகவரியாக சேர்க்க முடியாது.</translation>
+    </message>
+    <message>
+        <source>The entered address "%1" is already in the address book with label "%2".</source>
+        <translation>"%1" உள்ளிடப்பட்ட முகவரி முன்பே "%2" என்ற லேபிளுடன் முகவரி புத்தகத்தில் உள்ளது.</translation>
+    </message>
+    <message>
         <source>Could not unlock wallet.</source>
         <translation>பணப்பை திறக்க முடியவில்லை.</translation>
     </message>
@@ -715,6 +901,10 @@
         <translation>பெயர்</translation>
     </message>
     <message>
+        <source>Directory already exists. Add %1 if you intend to create a new directory here.</source>
+        <translation>அடைவு ஏற்கனவே உள்ளது. நீங்கள் ஒரு புதிய கோப்பகத்தை உருவாக்க விரும்பினால், %1 ஐ சேர்க்கவும்</translation>
+    </message>
+    <message>
         <source>Path already exists, and is not a directory.</source>
         <translation>பாதை ஏற்கனவே உள்ளது, மற்றும் ஒரு அடைவு இல்லை.</translation>
     </message>
@@ -730,6 +920,14 @@
         <translation>பதிப்பு</translation>
     </message>
     <message>
+        <source>(%1-bit)</source>
+        <translation>(%1-பிட்)</translation>
+    </message>
+    <message>
+        <source>About %1</source>
+        <translation>%1 பற்றி</translation>
+    </message>
+    <message>
         <source>Command-line options</source>
         <translation>கட்டளை வரி விருப்பங்கள்</translation>
     </message>
@@ -739,6 +937,26 @@
     <message>
         <source>Welcome</source>
         <translation>நல்வரவு</translation>
+    </message>
+    <message>
+        <source>Welcome to %1.</source>
+        <translation>%1 க்கு வரவேற்கிறோம்.</translation>
+    </message>
+    <message>
+        <source>As this is the first time the program is launched, you can choose where %1 will store its data.</source>
+        <translation>இது முதல் முறையாக துவங்கியது, நீங்கள் %1 அதன் தரவை எங்கு சேமித்து வைக்கும் என்பதை தேர்வு செய்யலாம்.</translation>
+    </message>
+    <message>
+        <source>When you click OK, %1 will begin to download and process the full %4 block chain (%2GB) starting with the earliest transactions in %3 when %4 initially launched.</source>
+        <translation>நீங்கள் சரி என்பதைக் கிளிக் செய்தால் %1 ஆரம்பத்தில் %4 இல் ஆரம்பிக்கப்பட்ட %3 இன் ஆரம்ப பரிவர்த்தனைகளைத் தொடங்கும் போது முழு %4 தொகுதி சங்கிலி (%2GB) பதிவிறக்க மற்றும் செயலாக்கத் தொடங்கும்.</translation>
+    </message>
+    <message>
+        <source>Reverting this setting requires re-downloading the entire blockchain. It is faster to download the full chain first and prune it later. Disables some advanced features.</source>
+        <translation>இந்த அமைப்பை மாற்றியமைக்க முழு பிளாக்செயினையும் மீண்டும் டவுன்லோட் செய்ய வேண்டும். முதலில் முழு செயினையும் டவுன்லோட் செய்த பின்னர் ப்ரூன் செய்வது வேகமான செயல் ஆகும். சில மேம்பட்ட அம்சங்களை முடக்கும்.</translation>
+    </message>
+    <message>
+        <source>This initial synchronisation is very demanding, and may expose hardware problems with your computer that had previously gone unnoticed. Each time you run %1, it will continue downloading where it left off.</source>
+        <translation>இந்த ஆரம்ப ஒத்திசைவு மிகவும் கோரி வருகிறது, முன்பு கவனிக்கப்படாத உங்கள் கணினியுடன் வன்பொருள் சிக்கல்களை அம்பலப்படுத்தலாம். ஒவ்வொரு முறையும் நீங்கள் %1 ரன் இயங்கும் போது, ​​அது எங்கிருந்து வெளியேறும் என்பதைத் தொடர்ந்து பதிவிறக்கும்.</translation>
     </message>
     <message>
         <source>If you have chosen to limit block chain storage (pruning), the historical data must still be downloaded and processed, but will be deleted afterward to keep your disk usage low.</source>
@@ -757,12 +975,32 @@
         <translation>Qtum</translation>
     </message>
     <message>
+        <source>Discard blocks after verification, except most recent %1 GB (prune)</source>
+        <translation>சமீபத்திய %1 ஜிபி ப்லாக்கை தவிர (ப்ரூன்), சரிபார்ப்புக்குப் பிறகு மற்ற ப்லாக்கை நிராகரிக்கவும்</translation>
+    </message>
+    <message>
+        <source>At least %1 GB of data will be stored in this directory, and it will grow over time.</source>
+        <translation>குறைந்தது %1 ஜிபி தரவு இந்த அடைவில் சேமிக்கப்படும், மேலும் காலப்போக்கில் அது வளரும்.</translation>
+    </message>
+    <message>
+        <source>Approximately %1 GB of data will be stored in this directory.</source>
+        <translation>இந்த அடைவில் %1 ஜிபி தரவு சேமிக்கப்படும்.</translation>
+    </message>
+    <message>
+        <source>%1 will download and store a copy of the Qtum block chain.</source>
+        <translation>Qtum தொகுதி சங்கிலியின் நகலை %1 பதிவிறக்கம் செய்து சேமித்து வைக்கும்.</translation>
+    </message>
+    <message>
         <source>The wallet will also be stored in this directory.</source>
         <translation>பணத்தாள் இந்த அடைவில் சேமிக்கப்படும்.</translation>
     </message>
     <message>
+        <source>Error: Specified data directory "%1" cannot be created.</source>
+        <translation>பிழை: குறிப்பிட்ட தரவு அடைவு "%1" உருவாக்க முடியாது.</translation>
+    </message>
+    <message>
         <source>Error</source>
-        <translation>தவறு</translation>
+        <translation>பிழை</translation>
     </message>
     </context>
 <context>
@@ -811,7 +1049,11 @@
         <source>Hide</source>
         <translation>மறை</translation>
     </message>
-    </context>
+    <message>
+        <source>Unknown. Syncing Headers (%1, %2%)...</source>
+        <translation>தெரியாத. தலைப்புகளை ஒத்திசைக்கிறது (%1, %2%)</translation>
+    </message>
+</context>
 <context>
     <name>OpenURIDialog</name>
     <message>
@@ -836,6 +1078,25 @@
     </message>
 </context>
 <context>
+    <name>OpenWalletActivity</name>
+    <message>
+        <source>Open wallet failed</source>
+        <translation>வாலட் திறத்தல் தோல்வியுற்றது</translation>
+    </message>
+    <message>
+        <source>Open wallet warning</source>
+        <translation>வாலட் திறத்தல் எச்சரிக்கை</translation>
+    </message>
+    <message>
+        <source>default wallet</source>
+        <translation>அடிப்படை வாலட்</translation>
+    </message>
+    <message>
+        <source>Opening Wallet &lt;b&gt;%1&lt;/b&gt;...</source>
+        <translation>வாலட் திறத்தல் &lt;b&gt;%1&lt;/b&gt;...</translation>
+    </message>
+</context>
+<context>
     <name>OptionsDialog</name>
     <message>
         <source>Options</source>
@@ -844,6 +1105,14 @@
     <message>
         <source>&amp;Main</source>
         <translation>&amp;தலைமை</translation>
+    </message>
+    <message>
+        <source>Automatically start %1 after logging in to the system.</source>
+        <translation>கணினியில் உள்நுழைந்தவுடன் தானாக %1 ஐ துவங்கவும்.</translation>
+    </message>
+    <message>
+        <source>&amp;Start %1 on system login</source>
+        <translation>கணினி உள்நுழைவில் %1 ஐத் தொடங்குங்கள்</translation>
     </message>
     <message>
         <source>Size of &amp;database cache</source>
@@ -876,6 +1145,14 @@
     <message>
         <source>Minimize instead of exit the application when the window is closed. When this option is enabled, the application will be closed only after selecting Exit in the menu.</source>
         <translation>சாளரத்தை மூடும்போது பயன்பாட்டை வெளியேற்றுவதற்குப் பதிலாக சிறிதாக்கவும். இந்த விருப்பம் இயக்கப்பட்டால், மெனுவில் வெளியேறு தேர்வு செய்த பின் மட்டுமே பயன்பாடு மூடப்படும்.</translation>
+    </message>
+    <message>
+        <source>Third party URLs (e.g. a block explorer) that appear in the transactions tab as context menu items. %s in the URL is replaced by transaction hash. Multiple URLs are separated by vertical bar |.</source>
+        <translation>பரிமாற்ற மெனு உருப்படிகளாக பரிவர்த்தனை தாவலில் தோன்றும் மூன்றாம் தரப்பு URL கள் (எ.கா. பிளாக் எக்ஸ்ப்ளோரர்). URL இல் %s ஆனது பரிவர்த்தனை ஹாஷ் மூலம் மாற்றப்பட்டுள்ளது. பல URL கள் செங்குத்துப் பட்டையால் பிரிக்கப்படுகின்றன.</translation>
+    </message>
+    <message>
+        <source>Open the %1 configuration file from the working directory.</source>
+        <translation>பணி அடைவில் இருந்து %1 உள்ளமைவு கோப்பை திறக்கவும்.</translation>
     </message>
     <message>
         <source>Open Configuration File</source>
@@ -1018,6 +1295,10 @@
         <translation>பயனர் இடைமுகம் &amp; மொழி:</translation>
     </message>
     <message>
+        <source>The user interface language can be set here. This setting will take effect after restarting %1.</source>
+        <translation>பயனர் இடைமுக மொழி இங்கே அமைக்கப்படலாம். %1 ஐ மறுதொடக்கம் செய்த பிறகு இந்த அமைப்பு செயல்படுத்தப்படும்.</translation>
+    </message>
+    <message>
         <source>&amp;Unit to show amounts in:</source>
         <translation>&amp; அளவு:</translation>
     </message>
@@ -1075,7 +1356,7 @@
     </message>
     <message>
         <source>Error</source>
-        <translation>தவறு</translation>
+        <translation>பிழை</translation>
     </message>
     <message>
         <source>The configuration file could not be opened.</source>
@@ -1188,8 +1469,24 @@
         <translation>நீங்கள் எதிர்காலத்தில் ஆதரிக்கப்படாத BIP70 URL ஐப் பயன்படுத்துகிறீர்கள்.</translation>
     </message>
     <message>
+        <source>Payment request fetch URL is invalid: %1</source>
+        <translation>பணம் செலுத்தும் கோரிக்கை URL ஐ பெறுகிறது: %1</translation>
+    </message>
+    <message>
         <source>Cannot process payment request because BIP70 support was not compiled in.</source>
         <translation>கட்டண கோரிக்கையை செயல்படுத்த முடியவில்லை, ஏனெனில் BIP70 ஆதரவு தொகுக்கப்படவில்லை.</translation>
+    </message>
+    <message>
+        <source>Due to widespread security flaws in BIP70 it's strongly recommended that any merchant instructions to switch wallets be ignored.</source>
+        <translation>பிப்70 இல் உள்ள பரவலான பாதுகாப்பு குறைபாடுகள் காரணமாக, வாலட்டை மாற்றுவதற்கான எந்தவொரு வணிக அறிவுறுத்தல்களும் புறக்கணிக்கப்பட வேண்டும் என்று கடுமையாக பரிந்துரைக்கப்படுகிறது.</translation>
+    </message>
+    <message>
+        <source>If you are receiving this error you should request the merchant provide a BIP21 compatible URI.</source>
+        <translation>இந்த பிழையை நீங்கள் பெறுகிறீர்கள் என்றால், வணிகரிடம் பிப்21 இணக்கமான யுஆர்எல் லை வழங்குமாறு கேட்க வேண்டும்.</translation>
+    </message>
+    <message>
+        <source>Invalid payment address %1</source>
+        <translation>தவறான கட்டண முகவரி %1</translation>
     </message>
     <message>
         <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source>
@@ -1228,8 +1525,28 @@
         <translation>தவறான கட்டண கோரிக்கை.</translation>
     </message>
     <message>
+        <source>Requested payment amount of %1 is too small (considered dust).</source>
+        <translation>%1 இன் கோரப்பட்ட கட்டணம் அளவு மிகவும் குறைவாக உள்ளது (தூசி கருதப்படுகிறது).</translation>
+    </message>
+    <message>
+        <source>Refund from %1</source>
+        <translation>%1 இலிருந்து திரும்பப்பெறவும்</translation>
+    </message>
+    <message>
+        <source>Payment request %1 is too large (%2 bytes, allowed %3 bytes).</source>
+        <translation>கட்டணம் கோரிக்கை %1 மிக அதிகமாக உள்ளது (%2 பைட்டுகள், அனுமதிக்கப்பட்ட %3 பைட்டுகள்).</translation>
+    </message>
+    <message>
+        <source>Error communicating with %1: %2</source>
+        <translation>%1: %2 உடன் தொடர்புகொள்வதில் பிழை</translation>
+    </message>
+    <message>
         <source>Payment request cannot be parsed!</source>
         <translation>கட்டண கோரிக்கையை பாகுபடுத்த முடியாது!</translation>
+    </message>
+    <message>
+        <source>Bad response from server %1</source>
+        <translation>%1 சேவையகத்திலிருந்து தவறான பதில்</translation>
     </message>
     <message>
         <source>Network request error</source>
@@ -1272,6 +1589,10 @@
     <message>
         <source>Amount</source>
         <translation>விலை</translation>
+    </message>
+    <message>
+        <source>Enter a Qtum address (e.g. %1)</source>
+        <translation>ஒரு விக்கிபீடியா முகவரியை உள்ளிடவும் (எ.கா. %1)</translation>
     </message>
     <message>
         <source>%1 d</source>
@@ -1322,13 +1643,26 @@
         <translation>%1 GB</translation>
     </message>
     <message>
+        <source>Error: Specified data directory "%1" does not exist.</source>
+        <translation>பிழை: குறிப்பிட்ட தரவு அடைவு "%1" இல்லை.</translation>
+    </message>
+    <message>
+        <source>Error: Cannot parse configuration file: %1.</source>
+        <translation>பிழை: கட்டமைப்பு கோப்பை அலச முடியவில்லை: %1.</translation>
+    </message>
+    <message>
+        <source>Error: %1</source>
+        <translation>பிழை: %1</translation>
+    </message>
+    <message>
+        <source>%1 didn't yet exit safely...</source>
+        <translation>%1 இன்னும் பாதுகாப்பாக வெளியேறவில்லை ...</translation>
+    </message>
+    <message>
         <source>unknown</source>
         <translation>தெரியாத</translation>
     </message>
 </context>
-<context>
-    <name>QObject::QObject</name>
-    </context>
 <context>
     <name>QRImageWidget</name>
     <message>
@@ -1338,6 +1672,18 @@
     <message>
         <source>&amp;Copy Image</source>
         <translation>&amp;படத்தை நகலெடு</translation>
+    </message>
+    <message>
+        <source>Resulting URI too long, try to reduce the text for label / message.</source>
+        <translation>யு.ஐ.ஐ. முடிவுக்கு நீண்ட காலம், லேபிள் / செய்திக்கு உரைகளை குறைக்க முயற்சிக்கவும்.</translation>
+    </message>
+    <message>
+        <source>Error encoding URI into QR Code.</source>
+        <translation>QR குறியீட்டில் யு.ஆர்.ஐ குறியாக்கப் பிழை.</translation>
+    </message>
+    <message>
+        <source>QR code support not available.</source>
+        <translation>க்யு ஆர் கோட் சப்போர்ட் இல்லை</translation>
     </message>
     <message>
         <source>Save QR Code</source>
@@ -1379,8 +1725,16 @@
         <translation>Datadir</translation>
     </message>
     <message>
+        <source>To specify a non-default location of the data directory use the '%1' option.</source>
+        <translation>தரவு அடைவின் இயல்புநிலை இருப்பிடத்தை குறிப்பிட ' %1' விருப்பத்தை பயன்படுத்தவும்.</translation>
+    </message>
+    <message>
         <source>Blocksdir</source>
         <translation>Blocksdir</translation>
+    </message>
+    <message>
+        <source>To specify a non-default location of the blocks directory use the '%1' option.</source>
+        <translation>தொகுதிகள் அடைவின் இயல்புநிலை இருப்பிடத்தை குறிப்பிட ' %1' விருப்பத்தை பயன்படுத்தவும்.</translation>
     </message>
     <message>
         <source>Startup time</source>
@@ -1477,6 +1831,10 @@
     <message>
         <source>User Agent</source>
         <translation>பயனர் முகவர்</translation>
+    </message>
+    <message>
+        <source>Open the %1 debug log file from the current data directory. This can take a few seconds for large log files.</source>
+        <translation>தற்போதைய தரவு அடைவில் இருந்து %1 பிழைத்திருத்த பதிவு கோப்பைத் திறக்கவும். இது பெரிய பதிவு கோப்புகளை சில விநாடிகள் எடுக்கலாம்.</translation>
     </message>
     <message>
         <source>Decrease font size</source>
@@ -1591,6 +1949,22 @@
         <translation>&amp; நீக்கு</translation>
     </message>
     <message>
+        <source>Welcome to the %1 RPC console.</source>
+        <translation>%1 RPC பணியகத்திற்கு வரவேற்கிறோம்.</translation>
+    </message>
+    <message>
+        <source>Use up and down arrows to navigate history, and %1 to clear screen.</source>
+        <translation>வரலாற்றை நகர்த்த, அம்புக்குறியைப் பயன்படுத்தவும் மற்றும் திரையை அழிக்க %1 ஐப் பயன்படுத்தவும்.</translation>
+    </message>
+    <message>
+        <source>Type %1 for an overview of available commands.</source>
+        <translation>கிடைக்கும் கட்டளைகளின் கண்ணோட்டத்திற்கு %1 ஐ தட்டச்சு செய்க.</translation>
+    </message>
+    <message>
+        <source>For more information on using this console type %1.</source>
+        <translation>இந்த பணியிட வகை %1 ஐப் பயன்படுத்துவதற்கான மேலும் தகவலுக்கு.</translation>
+    </message>
+    <message>
         <source>WARNING: Scammers have been active, telling users to type commands here, stealing their wallet contents. Do not use this console without fully understanding the ramifications of a command.</source>
         <translation>எச்சரிக்கை: Scammers செயலில் இருந்தன, பயனர்களுக்கு இங்கே கட்டளைகளை தட்டச்சு செய்ய, தங்கள் பணப்பை உள்ளடக்கங்களை திருடி. கட்டளையின் கிளைகளை முழுமையாக புரிந்துகொள்ளாமல் இந்த பணியகத்தை பயன்படுத்த வேண்டாம்.</translation>
     </message>
@@ -1601,6 +1975,14 @@
     <message>
         <source>Executing command without any wallet</source>
         <translation>எந்த பணமும் இல்லாமல் கட்டளையை நிறைவேற்றும்</translation>
+    </message>
+    <message>
+        <source>Executing command using "%1" wallet</source>
+        <translation>கட்டளையை "%1" பணியகத்தை பயன்படுத்துகிறது</translation>
+    </message>
+    <message>
+        <source>(node id: %1)</source>
+        <translation>(கணு ஐடி: %1)</translation>
     </message>
     <message>
         <source>via %1</source>
@@ -1662,6 +2044,10 @@
         <translation>கோரிக்கைக்கு விருப்பமான தொகை. ஒரு குறிப்பிட்ட தொகையை கோர வேண்டாம் இந்த வெற்று அல்லது பூஜ்ஜியத்தை விடு.</translation>
     </message>
     <message>
+        <source>&amp;Create new receiving address</source>
+        <translation>&amp;புதிய பிட்காயின் பெறும் முகவரியை உருவாக்கு</translation>
+    </message>
+    <message>
         <source>Clear all fields of the form.</source>
         <translation>படிவத்தின் அனைத்து துறையையும் அழி.</translation>
     </message>
@@ -1679,11 +2065,7 @@
     </message>
     <message>
         <source>Requested payments history</source>
-        <translation>பணம் செலுத்திய வரலாறு</translation>
-    </message>
-    <message>
-        <source>&amp;Request payment</source>
-        <translation>கட்டணம் மற்றும் கோரிக்கை கட்டணம்</translation>
+        <translation>பணம் செலுத்திய வரலாறு கோரப்பட்டது</translation>
     </message>
     <message>
         <source>Show the selected request (does the same as double clicking an entry)</source>
@@ -1737,6 +2119,10 @@
         <translation>&amp;படத்தை சேமி...</translation>
     </message>
     <message>
+        <source>Request payment to %1</source>
+        <translation>%1 க்கு கட்டணம் கோரவும்</translation>
+    </message>
+    <message>
         <source>Payment information</source>
         <translation>கொடுப்பனவு தகவல்</translation>
     </message>
@@ -1763,14 +2149,6 @@
     <message>
         <source>Wallet</source>
         <translation>பணப்பை</translation>
-    </message>
-    <message>
-        <source>Resulting URI too long, try to reduce the text for label / message.</source>
-        <translation>யு.ஐ.ஐ. முடிவுக்கு நீண்ட காலம், லேபிள் / செய்திக்கு உரைகளை குறைக்க முயற்சிக்கவும்.</translation>
-    </message>
-    <message>
-        <source>Error encoding URI into QR Code.</source>
-        <translation>QR குறியீட்டில் யு.ஆர்.ஐ குறியாக்கப் பிழை.</translation>
     </message>
 </context>
 <context>
@@ -1931,8 +2309,28 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>ஒரு மிக குறைந்த கட்டணம் ஒரு உறுதி பரிவர்த்தனை விளைவாக (உதவிக்குறிப்பு வாசிக்க)</translation>
     </message>
     <message>
+        <source>Confirmation time target:</source>
+        <translation>உறுதிப்படுத்தும் நேர இலக்கு:</translation>
+    </message>
+    <message>
+        <source>Enable Replace-By-Fee</source>
+        <translation>மாற்று-கட்டணத்தை இயக்கு</translation>
+    </message>
+    <message>
+        <source>With Replace-By-Fee (BIP-125) you can increase a transaction's fee after it is sent. Without this, a higher fee may be recommended to compensate for increased transaction delay risk.</source>
+        <translation>மாற்று-கட்டணத்தின் (பிப்-125) மூலம், ஒரு பரிவர்த்தனையின் கட்டணத்தை அனுப்பிய பின் அதை அதிகரிக்கலாம். இது இல்லை என்றால், பரிவர்த்தனையின் தாமத அபாயத்தை ஈடுசெய்ய அதிக கட்டணம் பரிந்துரைக்கப்படலாம்.</translation>
+    </message>
+    <message>
+        <source>Clear &amp;All</source>
+        <translation>அழி &amp;அனைத்து</translation>
+    </message>
+    <message>
         <source>Balance:</source>
-        <translation>மீதி:</translation>
+        <translation>இருப்பு:</translation>
+    </message>
+    <message>
+        <source>Confirm the send action</source>
+        <translation>அனுப்பும் செயலை உறுதிப்படுத்து</translation>
     </message>
     <message>
         <source>S&amp;end</source>
@@ -1967,8 +2365,104 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>மாற்றத்தை நகலெடுக்கவும்</translation>
     </message>
     <message>
+        <source>%1 (%2 blocks)</source>
+        <translation>%1 (%2 ப்ளாக்ஸ்)</translation>
+    </message>
+    <message>
+        <source> from wallet '%1'</source>
+        <translation>வாலட்டில்  இருந்து '%1'</translation>
+    </message>
+    <message>
+        <source>%1 to '%2'</source>
+        <translation>%1 இருந்து '%2'</translation>
+    </message>
+    <message>
+        <source>%1 to %2</source>
+        <translation>%1 இருந்து %2</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to send?</source>
+        <translation>நீங்கள் நிச்சயமாக அனுப்ப விரும்புகிறீர்களா?</translation>
+    </message>
+    <message>
+        <source>or</source>
+        <translation>அல்லது</translation>
+    </message>
+    <message>
+        <source>You can increase the fee later (signals Replace-By-Fee, BIP-125).</source>
+        <translation>நீங்கள் கட்டணத்தை பின்னர் அதிகரிக்கலாம் (என்கிறது மாற்று கட்டணம், பிப்-125).</translation>
+    </message>
+    <message>
+        <source>Please, review your transaction.</source>
+        <translation>தயவு செய்து, உங்கள் பரிவர்த்தனையை சரிபார்க்கவும்.</translation>
+    </message>
+    <message>
+        <source>Transaction fee</source>
+        <translation>பரிமாற்ற கட்டணம்</translation>
+    </message>
+    <message>
+        <source>Not signalling Replace-By-Fee, BIP-125.</source>
+        <translation>சிக்னல் செய்யவில்லை மாற்று-கட்டணம், பிப்-125.</translation>
+    </message>
+    <message>
+        <source>Total Amount</source>
+        <translation>முழு தொகை</translation>
+    </message>
+    <message>
+        <source>To review recipient list click "Show Details..."</source>
+        <translation>பெறுநரின் பட்டியலை சரிபார்க்க "விவரங்களைக் காண்பி ..." என்பதைக் கிளிக் செய்யவும்</translation>
+    </message>
+    <message>
+        <source>Confirm send coins</source>
+        <translation>அனுப்பும் பிட்காயின்களை உறுதிப்படுத்தவும்</translation>
+    </message>
+    <message>
+        <source>The recipient address is not valid. Please recheck.</source>
+        <translation>பெறுநரின் முகவரி தவறானது. மீண்டும் சரிபார்க்கவும்.</translation>
+    </message>
+    <message>
+        <source>The amount to pay must be larger than 0.</source>
+        <translation>அனுப்ப வேண்டிய தொகை 0வை விட பெரியதாக இருக்க வேண்டும்.</translation>
+    </message>
+    <message>
+        <source>The amount exceeds your balance.</source>
+        <translation>தொகை உங்கள் இருப்பையைவிட அதிகமாக உள்ளது.</translation>
+    </message>
+    <message>
+        <source>Duplicate address found: addresses should only be used once each.</source>
+        <translation>நகல் முகவரி காணப்பட்டது: முகவரிகள் ஒவ்வொன்றும் ஒரு முறை மட்டுமே பயன்படுத்தப்பட வேண்டும்.</translation>
+    </message>
+    <message>
+        <source>Transaction creation failed!</source>
+        <translation>பரிவர்த்தனை உருவாக்கம் தோல்வியடைந்தது!</translation>
+    </message>
+    <message>
+        <source>The transaction was rejected with the following reason: %1</source>
+        <translation>பரிவர்த்தனை பின்வரும் காரணத்தால் நிராகரிக்கப்பட்டது: %1</translation>
+    </message>
+    <message>
         <source>Payment request expired.</source>
         <translation>கட்டணம் கோரிக்கை காலாவதியானது.</translation>
+    </message>
+    <message numerus="yes">
+        <source>Estimated to begin confirmation within %n block(s).</source>
+        <translation><numerusform>%n பிளாக்குள் உறுதிப்படுத்தலைத் தொடங்க மதிப்பிடப்பட்டுள்ளது.</numerusform><numerusform>%n பிளாக்குள் உறுதிப்படுத்தலைத் தொடங்க மதிப்பிடப்பட்டுள்ளது.</numerusform></translation>
+    </message>
+    <message>
+        <source>Warning: Invalid Qtum address</source>
+        <translation>எச்சரிக்கை: தவறான பிட்காயின் முகவரி</translation>
+    </message>
+    <message>
+        <source>Warning: Unknown change address</source>
+        <translation>எச்சரிக்கை: தெரியாத மாற்று முகவரி</translation>
+    </message>
+    <message>
+        <source>Confirm custom change address</source>
+        <translation>தனிப்பயன் மாற்று முகவரியை உறுதிப்படுத்து</translation>
+    </message>
+    <message>
+        <source>The address you selected for change is not part of this wallet. Any or all funds in your wallet may be sent to this address. Are you sure?</source>
+        <translation>மாற்றத்திற்காக நீங்கள் தேர்ந்தெடுத்த முகவரி இந்த வாலட்டிற்கு சொந்தமானது இல்லை. உங்கள் வாலாட்டில் உள்ள ஏதேனும் அல்லது அனைத்து தொகையையும் இந்த முகவரிக்கு அனுப்பப்படலாம். நீ சொல்வது உறுதியா? </translation>
     </message>
     <message>
         <source>(no label)</source>
@@ -1982,46 +2476,239 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>&amp;தொகை:</translation>
     </message>
     <message>
+        <source>Pay &amp;To:</source>
+        <translation>செலுத்து &amp;கொடு:</translation>
+    </message>
+    <message>
         <source>&amp;Label:</source>
         <translation>&amp;சிட்டை:</translation>
+    </message>
+    <message>
+        <source>Choose previously used address</source>
+        <translation>முன்பு பயன்படுத்திய முகவரியைத் தேர்வுசெய்</translation>
+    </message>
+    <message>
+        <source>This is a normal payment.</source>
+        <translation>இது சாதாரண கட்டணம்.</translation>
+    </message>
+    <message>
+        <source>The Qtum address to send the payment to</source>
+        <translation>கட்டணத்தை அனுப்ப பிட்காயின் முகவரி</translation>
     </message>
     <message>
         <source>Alt+A</source>
         <translation>Alt+A</translation>
     </message>
     <message>
+        <source>Paste address from clipboard</source>
+        <translation>கிளிப்போர்டிலிருந்து முகவரியை பேஸ்ட் செய்யவும்</translation>
+    </message>
+    <message>
         <source>Alt+P</source>
         <translation>Alt+P</translation>
+    </message>
+    <message>
+        <source>Remove this entry</source>
+        <translation>இந்த உள்ளீட்டை அகற்று</translation>
+    </message>
+    <message>
+        <source>The fee will be deducted from the amount being qtumhe recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
+        <translation>அனுப்பப்படும் தொகையிலிருந்து கட்டணம் கழிக்கப்படும். நீங்கள் உள்ளிடும் தொகையை விட பெறுநர் குறைவான பிட்காயின்களைப் பெறுவார். பல பெறுநர்கள் தேர்ந்தெடுக்கப்பட்டால், கட்டணம் சமமாக பிரிக்கப்படும்.</translation>
+    </message>
+    <message>
+        <source>S&amp;ubtract fee from amount</source>
+        <translation>கட்டணத்தை தொகையிலிருந்து வி&amp;லக்கு</translation>
+    </message>
+    <message>
+        <source>Use available balance</source>
+        <translation>மீதம் உள்ள தொகையை பயன்படுத்தவும்</translation>
     </message>
     <message>
         <source>Message:</source>
         <translation>செய்தி:</translation>
     </message>
-    </context>
+    <message>
+        <source>This is an unauthenticated payment request.</source>
+        <translation>இது ஒரு அங்கீகரிக்கப்படாத கட்டண கோரிக்கை.</translation>
+    </message>
+    <message>
+        <source>This is an authenticated payment request.</source>
+        <translation>இது ஒரு அங்கீகரிக்கப்பட்ட கட்டண கோரிக்கை.</translation>
+    </message>
+    <message>
+        <source>Enter a label for this address to add it to the list of used addresses</source>
+        <translation>இந்த முகவரியை பயன்படுத்தப்பட்ட முகவரிகளின் பட்டியலில் சேர்க்க ஒரு லேபிளை உள்ளிடவும்.</translation>
+    </message>
+    <message>
+        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
+        <translation>பிட்காயினுடன் இணைக்கப்பட்ட செய்தி: உங்கள் எதிர்கால குறிப்புக்காக பரிவர்த்தனையுடன் யூஆர்ஐ சேமிக்கப்படும். குறிப்பு: இந்த செய்தி பிட்காயின் வலையமைப்பிற்கு அனுப்பப்படாது.</translation>
+    </message>
+    <message>
+        <source>Pay To:</source>
+        <translation>பணம் செலுத்து:</translation>
+    </message>
+    <message>
+        <source>Memo:</source>
+        <translation>குறிப்பாணை:</translation>
+    </message>
+    <message>
+        <source>Enter a label for this address to add it to your address book</source>
+        <translation>இந்த முகவரியை உங்கள் முகவரி புத்தகத்தில் சேர்க்க ஒரு லேபிளை உள்ளிடவும்</translation>
+    </message>
+</context>
 <context>
     <name>SendConfirmationDialog</name>
-    </context>
+    <message>
+        <source>Yes</source>
+        <translation>ஆம்</translation>
+    </message>
+</context>
 <context>
     <name>ShutdownWindow</name>
-    </context>
+    <message>
+        <source>%1 is shutting down...</source>
+        <translation>%1 ஷட் டவுன் செய்யப்படுகிறது...</translation>
+    </message>
+    <message>
+        <source>Do not shut down the computer until this window disappears.</source>
+        <translation>இந்த விண்டோ மறைந்து போகும் வரை கணினியை ஷட் டவுன் வேண்டாம்.</translation>
+    </message>
+</context>
 <context>
     <name>SignVerifyMessageDialog</name>
     <message>
+        <source>Signatures - Sign / Verify a Message</source>
+        <translation>கையொப்பங்கள் - ஒரு செய்தியை கையொப்பமிடுதல் / சரிபார்த்தல்</translation>
+    </message>
+    <message>
+        <source>&amp;Sign Message</source>
+        <translation>&amp;செய்தியை கையொப்பமிடுங்கள்</translation>
+    </message>
+    <message>
+        <source>You can sign messages/agreements with yoqtumesses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
+        <translation>மற்றவர்களுக்கு அனுப்பப்பட்ட பிட்காயின்களைப் நீங்கள் பெறலாம் என்பதை நிரூபிக்க உங்கள் முகவரிகளுடன் செய்திகள் / ஒப்பந்தங்களில் கையொப்பமிடலாம். தெளிவற்ற அல்லது சீரற்ற எதையும் கையொப்பமிடாமல் கவனமாக இருங்கள், ஏனெனில் ஃபிஷிங் தாக்குதல்கள் உங்கள் அடையாளத்தை அவர்களிடம் கையொப்பமிட்டு ஏமாற்ற முயற்சிக்கும். நீங்கள் ஒப்புக்கொள்ளும் முழுமையான மற்றும் விரிவான அறிக்கைகளில் மட்டுமே கையொப்பமிடுங்கள்.</translation>
+    </message>
+    <message>
+        <source>The Qtum address to sign the message with</source>
+        <translation>செய்தியை கையொப்பமிட பிட்காயின் முகவரி</translation>
+    </message>
+    <message>
+        <source>Choose previously used address</source>
+        <translation>முன்பு பயன்படுத்திய முகவரியைத் தேர்வுசெய்</translation>
+    </message>
+    <message>
         <source>Alt+A</source>
         <translation>Alt+A</translation>
+    </message>
+    <message>
+        <source>Paste address from clipboard</source>
+        <translation>கிளிப்போர்டிலிருந்து முகவரியை பேஸ்ட் செய்யவும்</translation>
     </message>
     <message>
         <source>Alt+P</source>
         <translation>Alt+P</translation>
     </message>
     <message>
+        <source>Enter the message you want to sign here</source>
+        <translation>நீங்கள் கையொப்பமிட வேண்டிய செய்தியை இங்கே உள்ளிடவும்</translation>
+    </message>
+    <message>
         <source>Signature</source>
         <translation>கையொப்பம்</translation>
     </message>
-    </context>
-<context>
-    <name>SplashScreen</name>
-    </context>
+    <message>
+        <source>Copy the current signature to the system clipboard</source>
+        <translation>தற்போதைய கையொப்பத்தை கிளிப்போர்டுக்கு காபி செய்</translation>
+    </message>
+    <message>
+        <source>SQtum message to prove you own this Qtum address</source>
+        <translation>இந்த பிட்காயின் முகவரி உங்களுக்கு சொந்தமானது என்பதை நிரூபிக்க செய்தியை கையொப்பமிடுங்கள்</translation>
+    </message>
+    <message>
+        <source>Sign &amp;Message</source>
+        <translation>கையொப்பம் &amp;செய்தி</translation>
+    </message>
+    <message>
+        <source>Reset all sign message fields</source>
+        <translation>எல்லா கையொப்ப செய்தி உள்ளீடுகளை ரீசெட் செய்யவும்</translation>
+    </message>
+    <message>
+        <source>Clear &amp;All</source>
+        <translation>அழி &amp;அனைத்து</translation>
+    </message>
+    <message>
+        <source>&amp;Verify Message</source>
+        <translation>&amp;செய்தியைச் சரிபார்க்கவும்</translation>
+    </message>
+    <message>
+        <source>The Qtum address the message was signed with</source>
+        <translation>செய்தி கையொப்பமிடப்பட்ட பிட்காயின் முகவரி</translation>
+    </message>
+    <message>
+        <source>Verify the message to enQtum was signed with the specified Qtum address</source>
+        <translation>குறிப்பிட்ட பிட்காயின் முகவரியுடன் கையொப்பமிடப்பட்டதா என்பதை உறுதிப்படுத்த இந்த செய்தியைச் சரிபார்க்கவும்</translation>
+    </message>
+    <message>
+        <source>Verify &amp;Message</source>
+        <translation>சரிபார்க்கவும் &amp;செய்தி</translation>
+    </message>
+    <message>
+        <source>Reset all verify message fields</source>
+        <translation>எல்லா செய்தியை சரிபார்க்கும் உள்ளீடுகளை ரீசெட் செய்யவும்</translation>
+    </message>
+    <message>
+        <source>Click "Sign Message" to generate signature</source>
+        <translation>கையொப்பத்தை உருவாக்க "செய்தியை கையொப்பமிடு" என்பதை கிளிக் செய்யவும்</translation>
+    </message>
+    <message>
+        <source>The entered address is invalid.</source>
+        <translation>உள்ளிட்ட முகவரி தவறானது.</translation>
+    </message>
+    <message>
+        <source>Please check the address and try again.</source>
+        <translation>முகவரியைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்.</translation>
+    </message>
+    <message>
+        <source>The entered address does not refer to a key.</source>
+        <translation>உள்ளிட்ட முகவரி எந்த ஒரு கீயை குறிக்கவில்லை.</translation>
+    </message>
+    <message>
+        <source>Wallet unlock was cancelled.</source>
+        <translation>வாலட் திறத்தல் ரத்து செய்யப்பட்டது.</translation>
+    </message>
+    <message>
+        <source>Private key for the entered address is not available.</source>
+        <translation>உள்ளிட்ட முகவரிக்கான ப்ரைவேட் கீ கிடைக்கவில்லை.</translation>
+    </message>
+    <message>
+        <source>Message signing failed.</source>
+        <translation>செய்தியை கையொப்பமிடுதல் தோல்வியுற்றது.</translation>
+    </message>
+    <message>
+        <source>Message signed.</source>
+        <translation>செய்தி கையொப்பமிடப்பட்டது.</translation>
+    </message>
+    <message>
+        <source>The signature could not be decoded.</source>
+        <translation>கையொப்பத்தை டிகோட் செய்ய இயலவில்லை.</translation>
+    </message>
+    <message>
+        <source>Please check the signature and try again.</source>
+        <translation>கையொப்பத்தை சரிபார்த்து மீண்டும் முயற்சிக்கவும்.</translation>
+    </message>
+    <message>
+        <source>The signature did not match the message digest.</source>
+        <translation>கையொப்பம் செய்தியுடன் பொருந்தவில்லை.</translation>
+    </message>
+    <message>
+        <source>Message verification failed.</source>
+        <translation>செய்தி சரிபார்ப்பு தோல்வியுற்றது.</translation>
+    </message>
+    <message>
+        <source>Message verified.</source>
+        <translation>செய்தி சரிபார்க்கப்பட்டது.</translation>
+    </message>
+</context>
 <context>
     <name>TrafficGraphWidget</name>
     <message>
@@ -2031,25 +2718,173 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
 </context>
 <context>
     <name>TransactionDesc</name>
+    <message numerus="yes">
+        <source>Open for %n more block(s)</source>
+        <translation><numerusform>மேலும் %n பிளாக்க்கிற்கு திறந்துவைக்கப்பட்டுள்ளது</numerusform><numerusform>மேலும் %n பிளாக்குகளில் திறந்துவைக்கப்பட்டுள்ளது</numerusform></translation>
+    </message>
+    <message>
+        <source>conflicted with a transaction with %1 confirmations</source>
+        <translation>%1 உறுதிப்படுத்தல்களுடன் ஒரு பரிவர்த்தனை முரண்பட்டது</translation>
+    </message>
+    <message>
+        <source>0/unconfirmed, %1</source>
+        <translation>0/உறுதிப்படுத்தப்படாதது, %1</translation>
+    </message>
+    <message>
+        <source>in memory pool</source>
+        <translation>மெமரி பூலில் உள்ளது</translation>
+    </message>
+    <message>
+        <source>not in memory pool</source>
+        <translation>மெமரி பூலில் இல்லை</translation>
+    </message>
+    <message>
+        <source>abandoned</source>
+        <translation>கைவிடப்பட்டது</translation>
+    </message>
+    <message>
+        <source>%1/unconfirmed</source>
+        <translation>%1/உறுதிப்படுத்தப்படாதது</translation>
+    </message>
+    <message>
+        <source>%1 confirmations</source>
+        <translation>%1 உறுதிப்படுத்தல்</translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation>தற்போதைய நிலை</translation>
+    </message>
     <message>
         <source>Date</source>
         <translation>தேதி</translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation>மூலம்</translation>
+    </message>
+    <message>
+        <source>Generated</source>
+        <translation>உருவாக்கப்பட்டது</translation>
+    </message>
+    <message>
+        <source>From</source>
+        <translation>இருந்து</translation>
     </message>
     <message>
         <source>unknown</source>
         <translation>தெரியாத</translation>
     </message>
     <message>
+        <source>To</source>
+        <translation>இதற்கு அனுப்பு</translation>
+    </message>
+    <message>
+        <source>own address</source>
+        <translation>சொந்த முகவரி</translation>
+    </message>
+    <message>
+        <source>watch-only</source>
+        <translation>பார்க்க-மட்டும்</translation>
+    </message>
+    <message>
+        <source>label</source>
+        <translation>லேபிள்</translation>
+    </message>
+    <message>
+        <source>Credit</source>
+        <translation>கடன்</translation>
+    </message>
+    <message numerus="yes">
+        <source>matures in %n more block(s)</source>
+        <translation><numerusform>மேலும் %n பிளாக்குகளில் முதிர்ச்சியடைகிறது</numerusform><numerusform>மேலும் %n பிளாக்குகளில் முதிர்ச்சியடைகிறது</numerusform></translation>
+    </message>
+    <message>
+        <source>not accepted</source>
+        <translation>ஏற்கப்படவில்லை</translation>
+    </message>
+    <message>
+        <source>Debit</source>
+        <translation>டெபிட்</translation>
+    </message>
+    <message>
+        <source>Total debit</source>
+        <translation>மொத்த டெபிட்</translation>
+    </message>
+    <message>
+        <source>Total credit</source>
+        <translation>முழு கடன்</translation>
+    </message>
+    <message>
+        <source>Transaction fee</source>
+        <translation>பரிமாற்ற கட்டணம்</translation>
+    </message>
+    <message>
+        <source>Net amount</source>
+        <translation>நிகர தொகை</translation>
+    </message>
+    <message>
         <source>Message</source>
         <translation>செய்தி</translation>
+    </message>
+    <message>
+        <source>Comment</source>
+        <translation>கருத்து</translation>
+    </message>
+    <message>
+        <source>Transaction ID</source>
+        <translation>பரிவர்த்தனை ஐடி</translation>
+    </message>
+    <message>
+        <source>Transaction total size</source>
+        <translation>பரிவர்த்தனையின் முழு அளவு</translation>
+    </message>
+    <message>
+        <source>Transaction virtual size</source>
+        <translation>பரிவர்த்தனையின் மெய்நிகர் அளவு</translation>
+    </message>
+    <message>
+        <source>Output index</source>
+        <translation>வெளியீட்டு அட்டவணை</translation>
+    </message>
+    <message>
+        <source> (Certificate was not verified)</source>
+        <translation>(சான்றிதழ் சரிபார்க்கப்படவில்லை)</translation>
+    </message>
+    <message>
+        <source>Merchant</source>
+        <translation>வணிகர்</translation>
+    </message>
+    <message>
+        <source>Debug information</source>
+        <translation>டிபக் தகவல்</translation>
+    </message>
+    <message>
+        <source>Transaction</source>
+        <translation>பரிவர்த்தனை</translation>
+    </message>
+    <message>
+        <source>Inputs</source>
+        <translation>உள்ளீடுகள்</translation>
     </message>
     <message>
         <source>Amount</source>
         <translation>தொகை</translation>
     </message>
-    </context>
+    <message>
+        <source>true</source>
+        <translation>ஆம்</translation>
+    </message>
+    <message>
+        <source>false</source>
+        <translation>இல்லை</translation>
+    </message>
+</context>
 <context>
     <name>TransactionDescDialog</name>
+    <message>
+        <source>This pane shows a detailed description of the transaction</source>
+        <translation>இந்த பலகம் பரிவர்த்தனை பற்றிய விரிவான விளக்கத்தைக் காட்டுகிறது</translation>
+    </message>
     </context>
 <context>
     <name>TransactionTableModel</name>
@@ -2058,16 +2893,160 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>தேதி</translation>
     </message>
     <message>
+        <source>Type</source>
+        <translation>வகை</translation>
+    </message>
+    <message>
         <source>Label</source>
         <translation>லேபிள்</translation>
+    </message>
+    <message numerus="yes">
+        <source>Open for %n more block(s)</source>
+        <translation><numerusform>மேலும் %n பிளாக்க்கிற்கு திறந்துவைக்கப்பட்டுள்ளது</numerusform><numerusform>மேலும் %n பிளாக்குகளில் திறந்துவைக்கப்பட்டுள்ளது</numerusform></translation>
+    </message>
+    <message>
+        <source>Unconfirmed</source>
+        <translation>உறுதிப்படுத்தப்படாதது</translation>
+    </message>
+    <message>
+        <source>Abandoned</source>
+        <translation>கைவிடப்பட்டது</translation>
+    </message>
+    <message>
+        <source>Confirming (%1 of %2 recommended confirmations)</source>
+        <translation>உறுதிப்படுத்துகிறது (%1 ன் %2 பரிந்துரைக்கப்பட்ட உறுதிப்படுத்தல்கல்)</translation>
+    </message>
+    <message>
+        <source>Conflicted</source>
+        <translation>முரண்பாடு</translation>
+    </message>
+    <message>
+        <source>Generated but not accepted</source>
+        <translation>உருவாக்கப்பட்டது ஆனால் ஏற்றுக்கொள்ளப்படவில்லை</translation>
+    </message>
+    <message>
+        <source>Received with</source>
+        <translation>உடன் பெறப்பட்டது</translation>
+    </message>
+    <message>
+        <source>Received from</source>
+        <translation>பெறப்பட்டது இதனிடமிருந்து</translation>
+    </message>
+    <message>
+        <source>Sent to</source>
+        <translation>அனுப்பப்பட்டது</translation>
+    </message>
+    <message>
+        <source>Payment to yourself</source>
+        <translation>உனக்கே பணம் செலுத்து</translation>
+    </message>
+    <message>
+        <source>Mined</source>
+        <translation>மைன் செய்யப்பட்டது</translation>
+    </message>
+    <message>
+        <source>watch-only</source>
+        <translation>பார்க்க-மட்டும்</translation>
+    </message>
+    <message>
+        <source>(n/a)</source>
+        <translation>(பொருந்தாது)</translation>
     </message>
     <message>
         <source>(no label)</source>
         <translation>(லேபிள் இல்லை)</translation>
     </message>
-    </context>
+    <message>
+        <source>Transaction status. Hover over this field to show number of confirmations.</source>
+        <translation>பரிவர்த்தனையின் நிலை. உறுதிப்படுத்தல்களின் எண்ணிக்கையைக் காட்ட இந்த உள்ளீட்டில் பார்க்க.</translation>
+    </message>
+    <message>
+        <source>Date and time that the transaction was received.</source>
+        <translation>பரிவர்த்தனை பெறப்பட்ட தேதி மற்றும் நேரம்.</translation>
+    </message>
+    <message>
+        <source>Type of transaction.</source>
+        <translation>பரிவர்த்தனையின் வகை.</translation>
+    </message>
+    <message>
+        <source>Whether or not a watch-only address is involved in this transaction.</source>
+        <translation>இந்த பரிவர்த்தனையில் பார்க்க மட்டும் உள்ள முகவரி உள்ளதா இல்லையா.</translation>
+    </message>
+    <message>
+        <source>User-defined intent/purpose of the transaction.</source>
+        <translation>பயனர்-வரையறுக்கப்பட்ட நோக்கம்/பரிவர்த்தனையின் நோக்கம்.</translation>
+    </message>
+    <message>
+        <source>Amount removed from or added to balance.</source>
+        <translation>மீதியிலிருந்து நீக்கப்பட்ட அல்லது மீதிக்கு சேர்க்கப்பட்ட தொகை</translation>
+    </message>
+</context>
 <context>
     <name>TransactionView</name>
+    <message>
+        <source>All</source>
+        <translation>அனைத்தும்</translation>
+    </message>
+    <message>
+        <source>Today</source>
+        <translation>இன்று</translation>
+    </message>
+    <message>
+        <source>This week</source>
+        <translation>இந்த வாரம்</translation>
+    </message>
+    <message>
+        <source>This month</source>
+        <translation>இந்த மாதம்</translation>
+    </message>
+    <message>
+        <source>Last month</source>
+        <translation>சென்ற மாதம்</translation>
+    </message>
+    <message>
+        <source>This year</source>
+        <translation>இந்த வருடம்</translation>
+    </message>
+    <message>
+        <source>Range...</source>
+        <translation>எல்லை...</translation>
+    </message>
+    <message>
+        <source>Received with</source>
+        <translation>உடன் பெறப்பட்டது</translation>
+    </message>
+    <message>
+        <source>Sent to</source>
+        <translation>அனுப்பப்பட்டது</translation>
+    </message>
+    <message>
+        <source>To yourself</source>
+        <translation>உங்களுக்கே</translation>
+    </message>
+    <message>
+        <source>Mined</source>
+        <translation>மைன் செய்யப்பட்டது</translation>
+    </message>
+    <message>
+        <source>Other</source>
+        <translation>மற்ற</translation>
+    </message>
+    <message>
+        <source>Enter address, transaction id, or label to search</source>
+        <translation>தேடுவதற்காக முகவரி, பரிவர்த்தனை ஐடி அல்லது லேபிளை உள்ளிடவும்</translation>
+    </message>
+    <message>
+        <source>Min amount</source>
+        <translation>குறைந்தபட்ச தொகை</translation>
+    </message>
+    <message>
+        <source>Abandon transaction</source>
+        <translation>பரிவர்த்தனையை கைவிடவும்</translation>
+    </message>
+    <message>
+        <source>Increase transaction fee</source>
+        <translation>பரிவர்த்தனையின் கட்டணத்தை உயர்த்துக</translation>
+    </message>
     <message>
         <source>Copy address</source>
         <translation>முகவரி முகவரியை நகலெடுக்கவும்</translation>
@@ -2085,12 +3064,44 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>பரிவர்த்தனை ஐடியை நகலெடு</translation>
     </message>
     <message>
+        <source>Copy raw transaction</source>
+        <translation>மூல பரிவர்த்தனையை காபி செய்</translation>
+    </message>
+    <message>
+        <source>Copy full transaction details</source>
+        <translation>முழு பரிவர்த்தனை விவரங்களையும் காபி செய்</translation>
+    </message>
+    <message>
+        <source>Edit label</source>
+        <translation>லேபிளை திருத்து</translation>
+    </message>
+    <message>
+        <source>Show transaction details</source>
+        <translation>பரிவர்த்தனையின் விவரங்களைக் காட்டு</translation>
+    </message>
+    <message>
+        <source>Export Transaction History</source>
+        <translation>பரிவர்த்தனையின் வரலாற்றை எக்ஸ்போர்ட் செய்</translation>
+    </message>
+    <message>
         <source>Comma separated file (*.csv)</source>
         <translation>கமா பிரிக்கப்பட்ட கோப்பு</translation>
     </message>
     <message>
+        <source>Confirmed</source>
+        <translation>உறுதியாக</translation>
+    </message>
+    <message>
+        <source>Watch-only</source>
+        <translation>பார்க்க-மட்டும்</translation>
+    </message>
+    <message>
         <source>Date</source>
         <translation>தேதி</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>வகை</translation>
     </message>
     <message>
         <source>Label</source>
@@ -2101,50 +3112,354 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>முகவரி</translation>
     </message>
     <message>
+        <source>ID</source>
+        <translation>ஐடி</translation>
+    </message>
+    <message>
         <source>Exporting Failed</source>
         <translation>ஏற்றுமதி தோல்வியடைந்தது</translation>
     </message>
-    </context>
+    <message>
+        <source>There was an error trying to save the transaction history to %1.</source>
+        <translation>பரிவர்த்தனை வரலாற்றை %1 க்கு சேவ் செய்வதில் பிழை ஏற்பட்டது.</translation>
+    </message>
+    <message>
+        <source>Exporting Successful</source>
+        <translation>எக்ஸ்போர்ட் வெற்றிகரமாக முடிவடைந்தது</translation>
+    </message>
+    <message>
+        <source>The transaction history was successfully saved to %1.</source>
+        <translation>பரிவர்த்தனை வரலாறு வெற்றிகரமாக %1 க்கு சேவ் செய்யப்பட்டது.</translation>
+    </message>
+    <message>
+        <source>Range:</source>
+        <translation>எல்லை:</translation>
+    </message>
+    <message>
+        <source>to</source>
+        <translation>இதற்கு அனுப்பு</translation>
+    </message>
+</context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
-    </context>
+    <message>
+        <source>Unit to show amounts in. Click to select another unit.</source>
+        <translation>அளவுகளைக் காண்பிக்கும் அலகு. மற்றொரு அலகு தேர்ந்தெடுக்க கிளிக் செய்யவும்.</translation>
+    </message>
+</context>
 <context>
     <name>WalletController</name>
+    <message>
+        <source>Close wallet</source>
+        <translation>வாலட்டை மூடு</translation>
+    </message>
+    <message>
+        <source>Are you sure you wish to close the wallet &lt;i&gt;%1&lt;/i&gt;?</source>
+        <translation>நீங்கள் வாலட்டை மூட விரும்புகிறீர்களா? &lt;i&gt;%1&lt;/i&gt;?</translation>
+    </message>
     </context>
 <context>
     <name>WalletFrame</name>
-    </context>
+    <message>
+        <source>No wallet has been loaded.</source>
+        <translation>எந்த வாலட்டும் லோட் செய்யப்படவில்லை.</translation>
+    </message>
+</context>
 <context>
     <name>WalletModel</name>
     <message>
         <source>Send Coins</source>
         <translation>நாணயங்களை அனுப்பவும்</translation>
     </message>
-    </context>
+    <message>
+        <source>Fee bump error</source>
+        <translation>கட்டணம் ஏற்றத்தில் பிழை</translation>
+    </message>
+    <message>
+        <source>Increasing transaction fee failed</source>
+        <translation>பரிவர்த்தனை கட்டணம் அதிகரித்தல் தோல்வியடைந்தது</translation>
+    </message>
+    <message>
+        <source>Do you want to increase the fee?</source>
+        <translation>கட்டணத்தை அதிகரிக்க விரும்புகிறீர்களா?</translation>
+    </message>
+    <message>
+        <source>Current fee:</source>
+        <translation>தற்போதைய கட்டணம்:</translation>
+    </message>
+    <message>
+        <source>Increase:</source>
+        <translation>அதிகரித்தல்:</translation>
+    </message>
+    <message>
+        <source>New fee:</source>
+        <translation>புதிய கட்டணம்:</translation>
+    </message>
+    <message>
+        <source>Confirm fee bump</source>
+        <translation>கட்டண ஏற்றத்தை உறுதிப்படுத்தவும்</translation>
+    </message>
+    <message>
+        <source>Can't sign transaction.</source>
+        <translation>பரிவர்த்தனையில் கையொப்பமிட முடியவில்லை.</translation>
+    </message>
+    <message>
+        <source>Could not commit transaction</source>
+        <translation>பரிவர்த்தனையை கமிட் செய்ய முடியவில்லை</translation>
+    </message>
+    <message>
+        <source>default wallet</source>
+        <translation>இயல்புநிலை வாலட்</translation>
+    </message>
+</context>
 <context>
     <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>&amp;ஏற்றுமதி</translation>
+    </message>
     <message>
         <source>Export the data in the current tab to a file</source>
         <translation>தற்போதைய தாவலில் தரவை ஒரு கோப்பிற்கு ஏற்றுமதி செய்க</translation>
     </message>
-    </context>
+    <message>
+        <source>Backup Wallet</source>
+        <translation>பேக்அப் வாலட்</translation>
+    </message>
+    <message>
+        <source>Wallet Data (*.dat)</source>
+        <translation>வாலட் தகவல் (*.dat)</translation>
+    </message>
+    <message>
+        <source>Backup Failed</source>
+        <translation>பேக்அப் தோல்வியுற்றது</translation>
+    </message>
+    <message>
+        <source>There was an error trying to save the wallet data to %1.</source>
+        <translation>வாலட் தகவல்களை %1  சேவ் செய்வதில் பிழை ஏற்பட்டது</translation>
+    </message>
+    <message>
+        <source>Backup Successful</source>
+        <translation>பேக்அப் வெற்றிகரமாக முடிவடைந்தது</translation>
+    </message>
+    <message>
+        <source>The wallet data was successfully saved to %1.</source>
+        <translation>வாலட் தகவல்கள் வெற்றிகரமாக %1 சேவ் செய்யப்பட்டது.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>ரத்து</translation>
+    </message>
+</context>
 <context>
     <name>qtum-core</name>
     <message>
-        <source>Qtum Core</source>
-        <translation>Qtum மையம்</translation>
+        <source>Distributed under the MIT software license, see the accompanying file %s or %s</source>
+        <translation>எம்ஐடி சாப்ட்வேர் விதிமுறைகளின் கீழ் பகிர்ந்தளிக்கப்படுகிறது, அதனுடன் கொடுக்கப்பட்டுள்ள %s அல்லது %s பைல் ஐ பார்க்கவும்</translation>
     </message>
     <message>
-        <source>Information</source>
-        <translation>தகவல்</translation>
+        <source>Error: A fatal internal error occurred, see debug.log for details</source>
+        <translation>பிழை: ஆபத்தான உள் பிழை ஏற்பட்டது, விவரங்களுக்கு debug.log ஐ பார்க்கவும்</translation>
     </message>
     <message>
-        <source>Warning</source>
-        <translation>எச்சரிக்கை</translation>
+        <source>Pruning blockstore...</source>
+        <translation>பிளாக்ஸ்டோர் ப்ரூன் செய்யபடுகிறது...</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation>தவறு</translation>
+        <source>Unable to start HTTP server. See debug log for details.</source>
+        <translation>HTTP சேவையகத்தைத் தொடங்க முடியவில்லை. விவரங்களுக்கு debug.log ஐ பார்க்கவும்.</translation>
+    </message>
+    <message>
+        <source>The %s developers</source>
+        <translation>%s டெவலப்பர்கள்</translation>
+    </message>
+    <message>
+        <source>Please contribute if you find %s useful. Visit %s for further information about the software.</source>
+        <translation>%s பயனுள்ளதாக இருந்தால் தயவுசெய்து பங்களியுங்கள். இந்த சாஃட்வேர் பற்றிய கூடுதல் தகவலுக்கு %s ஐப் பார்வையிடவும்.</translation>
+    </message>
+    <message>
+        <source>%d of last 100 blocks have unexpected version</source>
+        <translation>கடைசி 100 தொகுதிகளில் %d எதிர்பாராத பதிப்பைக் கொண்டுள்ளன</translation>
+    </message>
+    <message>
+        <source>%s corrupt, salvage failed</source>
+        <translation>%s சிதைந்தது, மீட்பு தோல்வியுற்றது</translation>
+    </message>
+    <message>
+        <source>-maxmempool must be at least %d MB</source>
+        <translation>-மேக்ஸ்மெம்பூல் குறைந்தது %d எம்பி ஆக இருக்க வேண்டும்</translation>
+    </message>
+    <message>
+        <source>Cannot resolve -%s address: '%s'</source>
+        <translation>தீர்க்க முடியாது -%s முகவரி: '%s'</translation>
+    </message>
+    <message>
+        <source>Change index out of range</source>
+        <translation>குறியீட்டை வரம்பிற்கு வெளியே மாற்றவும்</translation>
+    </message>
+    <message>
+        <source>Copyright (C) %i-%i</source>
+        <translation>பதிப்புரிமை (ப) %i-%i</translation>
+    </message>
+    <message>
+        <source>Corrupted block database detected</source>
+        <translation>சிதைந்த பிளாக் டேட்டாபேஸ் கண்டறியப்பட்டது</translation>
+    </message>
+    <message>
+        <source>Do you want to rebuild the block database now?</source>
+        <translation>இப்போது பிளாக் டேட்டாபேஸை மீண்டும் உருவாக்க விரும்புகிறீர்களா?</translation>
+    </message>
+    <message>
+        <source>Error initializing block database</source>
+        <translation>பிளாக் டேட்டாபேஸ் துவக்குவதில் பிழை!</translation>
+    </message>
+    <message>
+        <source>Error initializing wallet database environment %s!</source>
+        <translation>வாலட் டேட்டாபேஸ் சூழல் %s துவக்குவதில் பிழை!</translation>
+    </message>
+    <message>
+        <source>Error loading %s</source>
+        <translation>%s லோட் செய்வதில் பிழை</translation>
+    </message>
+    <message>
+        <source>Error loading %s: Private keys can only be disabled during creation</source>
+        <translation>லோட் செய்வதில் பிழை %s: ப்ரைவேட் கீஸ் உருவாக்கத்தின் போது மட்டுமே முடக்கப்படும்</translation>
+    </message>
+    <message>
+        <source>Error loading %s: Wallet corrupted</source>
+        <translation>லோட் செய்வதில் பிழை %s: வாலட் சிதைந்தது</translation>
+    </message>
+    <message>
+        <source>Error loading %s: Wallet requires newer version of %s</source>
+        <translation>லோட் செய்வதில் பிழை %s: வாலட்டிற்கு %s புதிய பதிப்பு தேவை</translation>
+    </message>
+    <message>
+        <source>Error loading block database</source>
+        <translation>பிளாக் டேட்டாபேஸை லோட் செய்வதில் பிழை</translation>
+    </message>
+    <message>
+        <source>Error opening block database</source>
+        <translation>பிளாக் டேட்டாபேஸை திறப்பதில் பிழை</translation>
+    </message>
+    <message>
+        <source>Failed to listen on any port. Use -listen=0 if you want this.</source>
+        <translation>எந்த போர்டிலும் கேட்க முடியவில்லை. இதை நீங்கள் கேட்க விரும்பினால் -லிசென்= 0 வை பயன்படுத்தவும்.</translation>
+    </message>
+    <message>
+        <source>Failed to rescan the wallet during initialization</source>
+        <translation>துவக்கத்தின் போது வாலட்டை ரீஸ்கேன் செய்வதில் தோல்வி</translation>
+    </message>
+    <message>
+        <source>Importing...</source>
+        <translation>இம்போர்ட் செய்யப்படுகிறது...</translation>
+    </message>
+    <message>
+        <source>Invalid P2P permission: '%s'</source>
+        <translation>தவறான பி2பி அனுமதி: '%s'</translation>
+    </message>
+    <message>
+        <source>Invalid amount for -%s=&lt;amount&gt;: '%s'</source>
+        <translation>-%s=&lt;amount&gt;: '%s' கான தவறான தொகை</translation>
+    </message>
+    <message>
+        <source>Invalid amount for -discardfee=&lt;amount&gt;: '%s'</source>
+        <translation>-discardfee கான தவறான தொகை=&lt;amount&gt;: '%s'</translation>
+    </message>
+    <message>
+        <source>Unknown address type '%s'</source>
+        <translation>தெரியாத முகவரி வகை '%s'</translation>
+    </message>
+    <message>
+        <source>Loading P2P addresses...</source>
+        <translation>பி2பி முகவரிகள் லோட் செய்யப்படுகிறது...</translation>
+    </message>
+    <message>
+        <source>Error: Disk space is too low!</source>
+        <translation>பிழை: டிஸ்க் ஸ்பேஸ் மிகக் குறைவு!</translation>
+    </message>
+    <message>
+        <source>Loading banlist...</source>
+        <translation>தடைப்பட்டியல் லோட் செய்யப்படுகிறது...</translation>
+    </message>
+    <message>
+        <source>Not enough file descriptors available.</source>
+        <translation>போதுமான ஃபைல் டிஸ்கிரிப்டார் கிடைக்கவில்லை.</translation>
+    </message>
+    <message>
+        <source>Replaying blocks...</source>
+        <translation>பிளாக்குகள் மீண்டும் இயக்குகிறது...</translation>
+    </message>
+    <message>
+        <source>The source code is available from %s.</source>
+        <translation>சோர்ஸ் கோட் %s இலிருந்து கிடைக்கிறது.</translation>
+    </message>
+    <message>
+        <source>Transaction fee and change calculation failed</source>
+        <translation>பரிவர்த்தனையின் கட்டணம் மற்றும் மீதிபண கணக்கீடு தோல்வியுற்றது</translation>
+    </message>
+    <message>
+        <source>Unable to generate keys</source>
+        <translation>கீஸை உருவாக்க முடியவில்லை</translation>
+    </message>
+    <message>
+        <source>Verifying blocks...</source>
+        <translation>பிளாக்குகள் சரிபார்க்கப்படுகிறது...</translation>
+    </message>
+    <message>
+        <source>Wallet needed to be rewritten: restart %s to complete</source>
+        <translation>வாலட் மீண்டும் எழுத படவேண்டும்: முடிக்க %s ஐ மறுதொடக்கம் செய்யுங்கள்</translation>
+    </message>
+    <message>
+        <source>The transaction amount is too small to send after the fee has been deducted</source>
+        <translation>கட்டணம் கழிக்கப்பட்ட பின்னர் பரிவர்த்தனை தொகை அனுப்ப மிகவும் சிறியது</translation>
+    </message>
+    <message>
+        <source>Error reading from database, shutting down.</source>
+        <translation>டேட்டாபேசிலிருந்து படிப்பதில் பிழை, ஷட் டவுன் செய்யப்படுகிறது.</translation>
+    </message>
+    <message>
+        <source>The transaction amount is too small to pay the fee</source>
+        <translation>கட்டணம் செலுத்த பரிவர்த்தனை தொகை  மிகவும் குறைவு</translation>
+    </message>
+    <message>
+        <source>This is experimental software.</source>
+        <translation>இது ஒரு ஆராய்ச்சி மென்பொருள்.</translation>
+    </message>
+    <message>
+        <source>Transaction amount too small</source>
+        <translation>பரிவர்த்தனை தொகை மிகக் குறைவு</translation>
+    </message>
+    <message>
+        <source>Transaction too large</source>
+        <translation>பரிவர்த்தனை மிகப் பெரிது</translation>
+    </message>
+    <message>
+        <source>%s is set very high!</source>
+        <translation>%s மிக அதிகமாக அமைக்கப்பட்டுள்ளது!</translation>
+    </message>
+    <message>
+        <source>This is the transaction fee you will pay if you send a transaction.</source>
+        <translation>நீங்கள் ஒரு பரிவர்த்தனையை அனுப்பும்பொழுது நீங்கள் செலுத்த வேண்டிய பரிவர்த்தனைக் கட்டணம் இதுவாகும்.</translation>
+    </message>
+    <message>
+        <source>Transaction amounts must not be negative</source>
+        <translation>பரிவர்த்தனை தொகை எதிர்மறையாக இருக்கக்கூடாது</translation>
+    </message>
+    <message>
+        <source>Transaction must have at least one recipient</source>
+        <translation>பரிவர்த்தனைக்கு குறைந்தபட்சம் ஒரு பெறுநர் இருக்க வேண்டும்</translation>
+    </message>
+    <message>
+        <source>Insufficient funds</source>
+        <translation>போதுமான பணம் இல்லை</translation>
+    </message>
+    <message>
+        <source>Loading wallet...</source>
+        <translation>வாலட் லோடிங் செய்யப்படுகிறது...</translation>
+    </message>
+    <message>
+        <source>Done loading</source>
+        <translation>லோடிங் முடிந்தது</translation>
     </message>
 </context>
 </TS>

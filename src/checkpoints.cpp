@@ -22,7 +22,8 @@ namespace Checkpoints {
         return hash == i->second;
     }
 
-    CBlockIndex* GetLastCheckpoint(const CCheckpointData& data)
+    //! Returns last CBlockIndex* that is a checkpoint
+    CBlockIndex* GetLastCheckpoint(const CCheckpointData& data) EXCLUSIVE_LOCKS_REQUIRED(cs_main)
     {
         const MapCheckpoints& checkpoints = data.mapCheckpoints;
 
@@ -40,10 +41,10 @@ namespace Checkpoints {
     // Automatically select a suitable sync-checkpoint 
     const CBlockIndex* AutoSelectSyncCheckpoint()
     {
-        const CBlockIndex *pindexBest = chainActive.Tip();
+        const CBlockIndex *pindexBest = ::ChainActive().Tip();
         const CBlockIndex *pindex = pindexBest;
         // Search backward for a block within max span and maturity window
-        while (pindex->pprev && pindex->nHeight + nCheckpointSpan > pindexBest->nHeight)
+        while (pindex->pprev && pindex->nHeight + Params().GetConsensus().nCheckpointSpan > pindexBest->nHeight)
             pindex = pindex->pprev;
         return pindex;
     }

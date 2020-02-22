@@ -11,7 +11,6 @@
 
 #include <QApplication>
 #include <memory>
-#include <vector>
 
 class BitcoinGUI;
 class ClientModel;
@@ -57,7 +56,7 @@ class BitcoinApplication: public QApplication
 {
     Q_OBJECT
 public:
-    explicit BitcoinApplication(interfaces::Node& node, int &argc, char **argv);
+    explicit BitcoinApplication(interfaces::Node& node);
     ~BitcoinApplication();
 
 #ifdef ENABLE_WALLET
@@ -68,6 +67,8 @@ public:
     void parameterSetup();
     /// Create options model
     void createOptionsModel(bool resetSettings);
+    /// Update prune value
+    void SetPrune(bool prune, bool force = false);
     /// Create main window
     void createWindow(const NetworkStyle *networkStyle);
     /// Create splash screen
@@ -91,6 +92,9 @@ public:
 
     /// Restart wallet if needed
     void restartWallet();
+
+    /// Parse parameters
+    void parseParameters(int argc, const char* const argv[]);
 
 public Q_SLOTS:
     void initializeResult(bool success);
@@ -126,6 +130,7 @@ private:
     QString restoreParam;
     QString restoreName;
     bool restartApp;
+    QStringList parameters;
 };
 
 int GuiMain(int argc, char* argv[]);

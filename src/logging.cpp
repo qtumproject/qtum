@@ -4,7 +4,10 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <logging.h>
+#include <util/threadnames.h>
 #include <util/time.h>
+
+#include <mutex>
 
 const char * const DEFAULT_DEBUGLOGFILE = "debug.log";
 const char * const DEFAULT_DEBUGVMLOGFILE = "vm.log";
@@ -37,44 +40,67 @@ static int FileWriteStr(const std::string &str, FILE *fp)
     return fwrite(str.data(), 1, str.size(), fp);
 }
 
-bool BCLog::Logger::OpenDebugLog()
+bool BCLog::Logger::StartLogging()
 {
-    std::lock_guard<std::mutex> scoped_lock(m_file_mutex);
+    std::lock_guard<std::mutex> scoped_lock(m_cs);
 
+    assert(m_buffering);
     assert(m_fileout == nullptr);
     assert(m_fileoutVM == nullptr); // qtum
-    assert(!m_file_path.empty());
-    assert(!m_file_pathVM.empty()); // qtum
 
-    m_fileout = fsbridge::fopen(m_file_path, "a");
-    m_fileoutVM = fsbridge::fopen(m_file_pathVM, "a");
+    if (m_print_to_file) {
+        assert(!m_file_path.empty());
+        assert(!m_file_pathVM.empty()); // qtum
+        m_fileout = fsbridge::fopen(m_file_path, "a");
+        m_fileoutVM = fsbridge::fopen(m_file_pathVM, "a");
+        if (!m_fileout || !m_fileoutVM) {
+            return false;
+        }
 
-    if (!m_fileout || !m_fileoutVM) {
-        return false;
+        setbuf(m_fileout, nullptr); // unbuffered
+        setbuf(m_fileoutVM, nullptr); // unbuffered
+
+        // Add newlines to the logfile to distinguish this execution from the
+        // last one.
+        FileWriteStr("\n\n\n\n\n", m_fileout);
     }
 
     if (m_fileout) {
-        setbuf(m_fileout, nullptr); // unbuffered
+        m_buffering = false;
     }
 
     ///////////////////////////////////////////// // qtum
     if (m_fileoutVM) {
-        setbuf(m_fileoutVM, nullptr); // unbuffered
+        m_buffering = false;
     }
 
     // dump buffered messages from before we opened the log
     while (!m_msgs_before_open.empty()) {
         LogMsg logmsg= m_msgs_before_open.front();
+
         FILE* file = logmsg.useVMLog ? m_fileoutVM : m_fileout;
-        if(file)
-        {
-            FileWriteStr(logmsg.msg, file);
-        }
+        if (file && m_print_to_file) FileWriteStr(logmsg.msg, file);
+        bool print_to_console = m_print_to_console;
+        if(print_to_console && logmsg.useVMLog && !m_show_evm_logs) print_to_console = false;
+        if (print_to_console) fwrite(logmsg.msg.data(), 1, logmsg.msg.size(), stdout);
+
         m_msgs_before_open.pop_front();
     }
     /////////////////////////////////////////////
 
+    if (m_print_to_console) fflush(stdout);
+
     return true;
+}
+
+void BCLog::Logger::DisconnectTestLogger()
+{
+    std::lock_guard<std::mutex> scoped_lock(m_cs);
+    m_buffering = true;
+    if (m_fileout != nullptr) fclose(m_fileout);
+    m_fileout = nullptr;
+    if (m_fileoutVM != nullptr) fclose(m_fileoutVM);
+    m_fileoutVM = nullptr;
 }
 
 void BCLog::Logger::EnableCategory(BCLog::LogFlags flag)
@@ -195,7 +221,7 @@ std::vector<CLogCategoryActive> ListActiveLogCategories()
     return ret;
 }
 
-std::string BCLog::Logger::LogTimestampStr(const std::string &str)
+std::string BCLog::Logger::LogTimestampStr(const std::string& str)
 {
     std::string strStamped;
 
@@ -217,59 +243,82 @@ std::string BCLog::Logger::LogTimestampStr(const std::string &str)
     } else
         strStamped = str;
 
-    if (!str.empty() && str[str.size()-1] == '\n')
-        m_started_new_line = true;
-    else
-        m_started_new_line = false;
-
     return strStamped;
 }
 
-void BCLog::Logger::LogPrintStr(const std::string &str, bool useVMLog)
+namespace BCLog {
+    /** Belts and suspenders: make sure outgoing log messages don't contain
+     * potentially suspicious characters, such as terminal control codes.
+     *
+     * This escapes control characters except newline ('\n') in C syntax.
+     * It escapes instead of removes them to still allow for troubleshooting
+     * issues where they accidentally end up in strings.
+     */
+    std::string LogEscapeMessage(const std::string& str) {
+        std::string ret;
+        for (char ch_in : str) {
+            uint8_t ch = (uint8_t)ch_in;
+            if ((ch >= 32 || ch == '\n') && ch != '\x7f') {
+                ret += ch_in;
+            } else {
+                ret += strprintf("\\x%02x", ch);
+            }
+        }
+        return ret;
+    }
+}
+
+void BCLog::Logger::LogPrintStr(const std::string& str, bool useVMLog)
 {
-    std::string strTimestamped = LogTimestampStr(str);
+    std::lock_guard<std::mutex> scoped_lock(m_cs);
+    std::string str_prefixed = LogEscapeMessage(str);
+
+    if (m_log_threadnames && m_started_new_line) {
+        str_prefixed.insert(0, "[" + util::ThreadGetInternalName() + "] ");
+    }
+
+    str_prefixed = LogTimestampStr(str_prefixed);
+
+    m_started_new_line = !str.empty() && str[str.size()-1] == '\n';
+
+    if (m_buffering) {
+        // buffer if we haven't started logging yet
+        LogMsg logmsg(str_prefixed, useVMLog);
+        m_msgs_before_open.push_back(logmsg);
+        return;
+    }
+
     bool print_to_console = m_print_to_console;
     if(print_to_console && useVMLog && !m_show_evm_logs) print_to_console = false;
 
     if (print_to_console) {
         // print to console
-        fwrite(strTimestamped.data(), 1, strTimestamped.size(), stdout);
+        fwrite(str_prefixed.data(), 1, str_prefixed.size(), stdout);
         fflush(stdout);
     }
     if (m_print_to_file) {
-        std::lock_guard<std::mutex> scoped_lock(m_file_mutex);
-
         //////////////////////////////// // qtum
         FILE* file = m_fileout;
         if(useVMLog){
             file = m_fileoutVM;
         }
         ////////////////////////////////
+        assert(file != nullptr);
 
-        // buffer if we haven't opened the log yet
-        if (file == nullptr) {
-            LogMsg logmsg(strTimestamped, useVMLog);
-            m_msgs_before_open.push_back(logmsg);
-        }
-        else
-        {
-            // reopen the log file, if requested
-            if (m_reopen_file) {
-                m_reopen_file = false;
+        // reopen the log file, if requested
+        if (m_reopen_file) {
+            m_reopen_file = false;
                 fs::path file_path = m_file_path;
                 if(useVMLog)
                     file_path = m_file_pathVM;
-                FILE* new_fileout = fsbridge::fopen(file_path, "a");
-                if (!new_fileout) {
-                    return;
-                }
+            FILE* new_fileout = fsbridge::fopen(file_path, "a");
+            if (new_fileout) {
                 setbuf(new_fileout, nullptr); // unbuffered
                 fclose(file);
                 file = new_fileout;
             }
-
-            FileWriteStr(strTimestamped, file);
         }
+        FileWriteStr(str_prefixed, file);
     }
 }
 

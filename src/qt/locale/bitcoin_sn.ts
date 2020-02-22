@@ -64,7 +64,7 @@
     </message>
 </context>
 <context>
-    <name>BitcoinGUI</name>
+    <name>QtumGUI</name>
     <message>
         <source>E&amp;xit</source>
         <translation>Buda</translation>
@@ -88,10 +88,6 @@
     <message>
         <source>Open &amp;URI...</source>
         <translation>Vhura &amp;URI</translation>
-    </message>
-    <message>
-        <source>Bitcoin</source>
-        <translation>Bitcoin</translation>
     </message>
     <message>
         <source>&amp;Send</source>
@@ -130,7 +126,7 @@
     <name>CoinControlDialog</name>
     <message>
         <source>Amount</source>
-        <translation>Marii </translation>
+        <translation>Marii</translation>
     </message>
     <message>
         <source>Date</source>
@@ -140,6 +136,12 @@
         <source>(no label)</source>
         <translation>(hapana zita)</translation>
     </message>
+    </context>
+<context>
+    <name>CreateWalletActivity</name>
+    </context>
+<context>
+    <name>CreateWalletDialog</name>
     </context>
 <context>
     <name>EditAddressDialog</name>
@@ -153,8 +155,8 @@
 <context>
     <name>Intro</name>
     <message>
-        <source>Bitcoin</source>
-        <translation>Bitcoin</translation>
+        <source>Qtum</source>
+        <translation>Qtum</translation>
     </message>
     </context>
 <context>
@@ -162,6 +164,9 @@
     </context>
 <context>
     <name>OpenURIDialog</name>
+    </context>
+<context>
+    <name>OpenWalletActivity</name>
     </context>
 <context>
     <name>OptionsDialog</name>
@@ -179,11 +184,11 @@
     <name>QObject</name>
     <message>
         <source>Amount</source>
-        <translation>Marii </translation>
+        <translation>Marii</translation>
     </message>
     <message>
-        <source>Enter a Bitcoin address (e.g. %1)</source>
-        <translation>Nyora kero ye Bitcoin (sekuti %1)</translation>
+        <source>Enter a Qtum address (e.g. %1)</source>
+        <translation>Nyora kero ye Qtum (sekuti %1)</translation>
     </message>
     <message>
         <source>%1 d</source>
@@ -207,11 +212,8 @@
     </message>
     <message>
         <source>N/A</source>
-        <translation>Hapana </translation>
+        <translation>Hapana</translation>
     </message>
-    </context>
-<context>
-    <name>QObject::QObject</name>
     </context>
 <context>
     <name>QRImageWidget</name>
@@ -220,7 +222,7 @@
     <name>RPCConsole</name>
     <message>
         <source>N/A</source>
-        <translation>Hapana </translation>
+        <translation>Hapana</translation>
     </message>
     </context>
 <context>
@@ -234,7 +236,7 @@
     </message>
     <message>
         <source>Amount</source>
-        <translation>Marii </translation>
+        <translation>Marii</translation>
     </message>
     <message>
         <source>Label</source>
@@ -244,7 +246,7 @@
         <source>Wallet</source>
         <translation>Chikwama</translation>
     </message>
-    </context>
+</context>
 <context>
     <name>RecentRequestsTableModel</name>
     <message>
@@ -280,9 +282,6 @@
     <name>SignVerifyMessageDialog</name>
     </context>
 <context>
-    <name>SplashScreen</name>
-    </context>
-<context>
     <name>TrafficGraphWidget</name>
     </context>
 <context>
@@ -293,7 +292,7 @@
     </message>
     <message>
         <source>Amount</source>
-        <translation>Marii </translation>
+        <translation>Marii</translation>
     </message>
     </context>
 <context>
@@ -345,14 +344,6 @@
     <name>WalletView</name>
     </context>
 <context>
-    <name>bitcoin-core</name>
-    <message>
-        <source>Information</source>
-        <translation>Ruzivo</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation>Hokoyo</translation>
-    </message>
+    <name>qtum-core</name>
     </context>
 </TS>

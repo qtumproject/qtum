@@ -84,7 +84,7 @@
     <name>AddressBookPage</name>
     <message>
         <source>Right-click to edit address or label</source>
-        <translation>鼠标右击编辑地址或标签</translation>
+        <translation>右键单击以编辑地址或标签</translation>
     </message>
     <message>
         <source>Create a new address</source>
@@ -104,7 +104,7 @@
     </message>
     <message>
         <source>C&amp;lose</source>
-        <translation>关闭(&amp;l)</translation>
+        <translation>关闭(&amp;L)</translation>
     </message>
     <message>
         <source>Delete the currently selected address from the list</source>
@@ -136,7 +136,7 @@
     </message>
     <message>
         <source>C&amp;hoose</source>
-        <translation>选择(&amp;C)</translation>
+        <translation>选择(&amp;H)</translation>
     </message>
     <message>
         <source>Sending addresses</source>
@@ -151,8 +151,8 @@
         <translation>您可以给这些QTUM地址付款。在付款之前，务必要检查金额和收款地址是否正确。</translation>
     </message>
     <message>
-        <source>These are your Qtum addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
-        <translation>您可以用这些QTUM地址收款。建议在每次交易时，都使用一个新的收款地址。</translation>
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.</source>
+        <translation>您可以用这些QTUM地址收款。使用“接收”标签页中的"创建新收款地址"按钮创建新地址。</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -180,7 +180,7 @@
     </message>
     <message>
         <source>There was an error trying to save the address list to %1. Please try again.</source>
-        <translation>存储地址列表到 %1 时发生错误。请再试一次。</translation>
+        <translation>尝试保存地址列表到 %1 时发生错误。请再试一次。</translation>
     </message>
 </context>
 <context>
@@ -217,12 +217,8 @@
         <translation>重复新密码</translation>
     </message>
     <message>
-        <source>Show password</source>
+        <source>Show passphrase</source>
         <translation>显示密码</translation>
-    </message>
-    <message>
-        <source>Enter the new passphrase to the wallet.&lt;br/&gt;Please use a passphrase of &lt;b&gt;ten or more random characters&lt;/b&gt;, or &lt;b&gt;eight or more words&lt;/b&gt;.</source>
-        <translation>输入钱包的新密码。&lt;br/&gt;密码请用&lt;b&gt;10 个以上的随机字符&lt;/b&gt;，或是&lt;b&gt;8 个以上的字词&lt;/b&gt;。</translation>
     </message>
     <message>
         <source>Encrypt wallet</source>
@@ -249,10 +245,6 @@
         <translation>修改密码</translation>
     </message>
     <message>
-        <source>Enter the old passphrase and new passphrase to the wallet.</source>
-        <translation>请输入钱包的旧密码和新密码。</translation>
-    </message>
-    <message>
         <source>Confirm wallet encryption</source>
         <translation>确认钱包加密</translation>
     </message>
@@ -269,12 +261,32 @@
         <translation>钱包已加密</translation>
     </message>
     <message>
-        <source>Your wallet is now encrypted. Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
-        <translation>你的钱包现在已被加密。请记住，对钱包进行加密仍然不能完全防止感染电脑的恶意软件偷取你的QTUM。</translation>
+        <source>Enter the new passphrase for the wallet.&lt;br/&gt;Please use a passphrase of &lt;b&gt;ten or more random characters&lt;/b&gt;, or &lt;b&gt;eight or more words&lt;/b&gt;.</source>
+        <translation>为此钱包输入新密码。&lt;br/&gt;请使用由&lt;b&gt;十个或更多的随机字符&lt;/b&gt;，或者&lt;b&gt;八个或更多单词&lt;/b&gt;组成的密码。</translation>
+    </message>
+    <message>
+        <source>Enter the old passphrase and new passphrase for the wallet.</source>
+        <translation>输入此钱包的旧密码和新密码。</translation>
+    </message>
+    <message>
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
+        <translation>请注意，当您的计算机感染恶意软件时，加密钱包并不能完全规避您的QTUM被偷窃的可能。</translation>
+    </message>
+    <message>
+        <source>Wallet to be encrypted</source>
+        <translation>要加密的钱包</translation>
+    </message>
+    <message>
+        <source>Your wallet is about to be encrypted. </source>
+        <translation>您的钱包将要被加密。</translation>
+    </message>
+    <message>
+        <source>Your wallet is now encrypted. </source>
+        <translation>您的钱包现在已被加密。</translation>
     </message>
     <message>
         <source>IMPORTANT: Any previous backups you have made of your wallet file should be replaced with the newly generated, encrypted wallet file. For security reasons, previous backups of the unencrypted wallet file will become useless as soon as you start using the new, encrypted wallet.</source>
-        <translation>重要: 请用新生成的、已加密的钱包备份文件取代你之前留的钱包文件备份。出于安全方面的原因，一旦你开始使用新的已加密钱包，旧钱包文件的备份就失效了。</translation>
+        <translation>重要: 请用新生成的、已加密的钱包备份文件取代你之前留的钱包文件备份。出于安全方面的原因，一旦你开始使用新的已加密钱包，旧的未加密钱包文件备份就失效了。</translation>
     </message>
     <message>
         <source>Wallet encryption failed</source>
@@ -294,7 +306,7 @@
     </message>
     <message>
         <source>The passphrase entered for the wallet decryption was incorrect.</source>
-        <translation>输入用来解密钱包的密码不正确。</translation>
+        <translation>输入的钱包解锁密码不正确。</translation>
     </message>
     <message>
         <source>Wallet decryption failed</source>
@@ -325,7 +337,7 @@
     </message>
     <message>
         <source>Banned Until</source>
-        <translation>在此之前禁止：</translation>
+        <translation>在此之前保持封禁:</translation>
     </message>
 </context>
 <context>
@@ -515,7 +527,7 @@
         <translation type="unfinished">打开调试和诊断控制台</translation>
     </message>
     <message>
-        <source>&amp;Sending addresses...</source>
+        <source>&amp;Sending addresses</source>
         <translation type="unfinished">付款地址(&amp;S)</translation>
     </message>
     <message>
@@ -523,7 +535,7 @@
         <translation type="unfinished">显示用过的发送地址和标签的列表</translation>
     </message>
     <message>
-        <source>&amp;Receiving addresses...</source>
+        <source>&amp;Receiving addresses</source>
         <translation type="unfinished">接收地址</translation>
     </message>
     <message>
@@ -950,11 +962,11 @@
     </message>
     <message>
         <source>Received with label</source>
-        <translation>按标签收款</translation>
+        <translation>收款标签</translation>
     </message>
     <message>
         <source>Received with address</source>
-        <translation>按地址收款</translation>
+        <translation>收款地址</translation>
     </message>
     <message>
         <source>Date</source>
@@ -1002,7 +1014,7 @@
     </message>
     <message>
         <source>Copy after fee</source>
-        <translation>复制计费后金额</translation>
+        <translation>复制含交易费的金额</translation>
     </message>
     <message>
         <source>Copy bytes</source>
@@ -1030,11 +1042,11 @@
     </message>
     <message>
         <source>This label turns red if any recipient receives an amount smaller than the current dust threshold.</source>
-        <translation>当任何一个收款金额小于目前的粉尘金额上限时，文字会变红色。</translation>
+        <translation>当任何一个收款金额小于目前的粉尘金额阈值时，文字会变红色。</translation>
     </message>
     <message>
         <source>Can vary +/- %1 satoshi(s) per input.</source>
-        <translation>每组输入可能有 +/- %1 个 satoshi 的误差。</translation>
+        <translation>每个输入可能有 +/- %1 聪 (satoshi) 的误差。</translation>
     </message>
     <message>
         <source>(no label)</source>
@@ -1042,7 +1054,7 @@
     </message>
     <message>
         <source>change from %1 (%2)</source>
-        <translation>找零前是 %1 (%2)</translation>
+        <translation>来自 %1 的找零 (%2)</translation>
     </message>
     <message>
         <source>(change)</source>
@@ -1201,6 +1213,10 @@
         <source>(no label)</source>
         <translation type="unfinished">(无标签)</translation>
     </message>
+    <message numerus="yes">
+        <source>(%n GB needed for full chain)</source>
+        <translation><numerusform>(保存完整的链需要 %n GB)</numerusform></translation>
+    </message>
 </context>
 <context>
     <name>CreateContract</name>
@@ -1265,7 +1281,7 @@
         <translation type="unfinished">合约的字节码</translation>
     </message>
     <message>
-        <source>The quantum address that will be used to create the contract.</source>
+        <source>The qtum address that will be used to create the contract.</source>
         <translation type="unfinished">用于创造合约的Qtum地址</translation>
     </message>
     <message>
@@ -3862,7 +3878,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation type="unfinished">要发送的QTUM数量。默认为0。</translation>
     </message>
     <message>
-        <source>The quantum address that will be used as sender.</source>
+        <source>The qtum address that will be used as sender.</source>
         <translation type="unfinished">将作为发送者的QTUM地址</translation>
     </message>
     <message>
@@ -5806,6 +5822,10 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation type="vanished">正在加载P2P地址...</translation>
     </message>
     <message>
+        <source>Error: Disk space is too low!</source>
+        <translation>错误:磁盘空间低!</translation>
+    </message>
+    <message>
         <source>Loading banlist...</source>
         <translation type="vanished">正在加载黑名单...</translation>
     </message>
@@ -5916,6 +5936,10 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <source>Need to specify a port with -whitebind: &apos;%s&apos;</source>
         <translation type="vanished">-whitebind: &apos;%s&apos; 需要指定一个端口</translation>
+    </message>
+    <message>
+        <source>Prune mode is incompatible with -blockfilterindex.</source>
+        <translation>修剪模式与 -blockfilterindex 不兼容。</translation>
     </message>
     <message>
         <source>Reducing -maxconnections from %d to %d, because of system limitations.</source>

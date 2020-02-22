@@ -15,14 +15,14 @@ class QtumSoftMinerGasRelatedLimitsTest(BitcoinTestFramework):
         self.setup_clean_chain = True
         self.num_nodes = 8
         self.extra_args = [
-            ["-staker-soft-block-gas-limit=1000000000", '-rpcmaxgasprice=10000000'],
-            ["-staker-soft-block-gas-limit=400000", '-rpcmaxgasprice=10000000'],
-            ["-staker-soft-block-gas-limit=0", '-rpcmaxgasprice=10000000'],
-            ["-staker-max-tx-gas-limit=100000000", '-rpcmaxgasprice=10000000'],
-            ["-staker-max-tx-gas-limit=100000", '-rpcmaxgasprice=10000000'],
-            ["-staker-max-tx-gas-limit=0", '-rpcmaxgasprice=10000000'],
-            ["-staker-min-tx-gas-price=0", '-rpcmaxgasprice=10000000'],
-            ["-staker-min-tx-gas-price=0.0001", '-rpcmaxgasprice=10000000']
+            ["-staker-soft-block-gas-limit=1000000000", '-rpcmaxgasprice=10000000', '-acceptnonstdtxn'],
+            ["-staker-soft-block-gas-limit=400000", '-rpcmaxgasprice=10000000', '-acceptnonstdtxn'],
+            ["-staker-soft-block-gas-limit=0", '-rpcmaxgasprice=10000000', '-acceptnonstdtxn'],
+            ["-staker-max-tx-gas-limit=100000000", '-rpcmaxgasprice=10000000', '-acceptnonstdtxn'],
+            ["-staker-max-tx-gas-limit=100000", '-rpcmaxgasprice=10000000', '-acceptnonstdtxn'],
+            ["-staker-max-tx-gas-limit=0", '-rpcmaxgasprice=10000000', '-acceptnonstdtxn'],
+            ["-staker-min-tx-gas-price=0", '-rpcmaxgasprice=10000000', '-acceptnonstdtxn'],
+            ["-staker-min-tx-gas-price=0.0001", '-rpcmaxgasprice=10000000', '-acceptnonstdtxn']
         ]
 
     def skip_test_if_missing_module(self):

@@ -1,5 +1,6 @@
 ---
 name: "qtum-dmg-signer"
+distro: "ubuntu"
 suites:
 - "bionic"
 architectures:

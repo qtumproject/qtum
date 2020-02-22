@@ -430,6 +430,9 @@
    <container>1</container>
   </customwidget>
   <customwidget>
+   <class>QRImageWidget</class>
+   <extends>QLabel</extends>
+   <header>qt/qrimagewidget.h</header>
    <class>QtumPushButton</class>
    <extends>QPushButton</extends>
    <header>qt/qtumpushbutton.h</header>

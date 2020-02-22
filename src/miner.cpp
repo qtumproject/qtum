@@ -13,8 +13,6 @@
 #include <consensus/merkle.h>
 #include <consensus/tx_verify.h>
 #include <consensus/validation.h>
-#include <hash.h>
-#include <net.h>
 #include <policy/feerate.h>
 #include <policy/policy.h>
 #include <pow.h>
@@ -25,7 +23,8 @@
 #include <util/convert.h>
 #include <util/moneystr.h>
 #include <util/system.h>
-#include <validationinterface.h>
+#include <util/validation.h>
+#include <net.h>
 #ifdef ENABLE_WALLET
 #include <wallet/wallet.h>
 #endif
@@ -138,7 +137,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     pblocktemplate->vTxSigOpsCost.push_back(-1); // updated at end
 
     LOCK2(cs_main, mempool.cs);
-    CBlockIndex* pindexPrev = chainActive.Tip();
+    CBlockIndex* pindexPrev = ::ChainActive().Tip();
     assert(pindexPrev != nullptr);
     nHeight = pindexPrev->nHeight + 1;
 
@@ -271,7 +270,6 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
 
     return std::move(pblocktemplate);
 }
-
 std::unique_ptr<CBlockTemplate> BlockAssembler::CreateEmptyBlock(const CScript& scriptPubKeyIn, bool fMineWitnessTx, bool fProofOfStake, int64_t* pTotalFees, int32_t nTime)
 {
     resetBlock();
@@ -291,7 +289,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateEmptyBlock(const CScript& 
     pblocktemplate->vTxSigOpsCost.push_back(-1); // updated at end
 
     LOCK2(cs_main, mempool.cs);
-    CBlockIndex* pindexPrev = chainActive.Tip();
+    CBlockIndex* pindexPrev = ::ChainActive().Tip();
     assert(pindexPrev != nullptr);
     nHeight = pindexPrev->nHeight + 1;
 
@@ -468,7 +466,7 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64
         }
     }
     // We need to pass the DGP's block gas limit (not the soft limit) since it is consensus critical.
-    ByteCodeExec exec(*pblock, qtumTransactions, hardBlockGasLimit, chainActive.Tip());
+    ByteCodeExec exec(*pblock, qtumTransactions, hardBlockGasLimit, ::ChainActive().Tip());
     if(!exec.performByteCode()){
         //error, don't add contract
         globalState->setRoot(oldHashStateRoot);
@@ -559,7 +557,6 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64
 
     return true;
 }
-
 
 void BlockAssembler::AddToBlock(CTxMemPool::txiter iter)
 {
@@ -843,7 +840,7 @@ bool CheckStake(const std::shared_ptr<const CBlock> pblock, CWallet& wallet)
 
     // verify hash target and signature of coinstake tx
     CValidationState state;
-    if (!CheckProofOfStake(mapBlockIndex[pblock->hashPrevBlock], state, *pblock->vtx[1], pblock->nBits, pblock->nTime, proofHash, hashTarget, *pcoinsTip))
+    if (!CheckProofOfStake(::BlockIndex()[pblock->hashPrevBlock], state, *pblock->vtx[1], pblock->nBits, pblock->nTime, proofHash, hashTarget, ::ChainstateActive().CoinsTip()))
         return error("CheckStake() : proof-of-stake checking failed");
 
     //// debug print
@@ -854,7 +851,7 @@ bool CheckStake(const std::shared_ptr<const CBlock> pblock, CWallet& wallet)
     // Found a solution
     {
         auto locked_chain = wallet.chain().lock();
-        if (pblock->hashPrevBlock != chainActive.Tip()->GetBlockHash())
+        if (pblock->hashPrevBlock != ::ChainActive().Tip()->GetBlockHash())
             return error("CheckStake() : generated block is stale");
 
         for(const CTxIn& vin : pblock->vtx[1]->vin) {
@@ -882,9 +879,7 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
     {
         threadName = threadName + "-" + pwallet->GetName();
     }
-    RenameThread(threadName.c_str());
-
-    CReserveKey reservekey(pwallet);
+    util::ThreadRename(threadName.c_str());
 
     bool fTryToSync = true;
     bool regtestMode = Params().MineBlocksOnDemand();
@@ -901,7 +896,7 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
         }
         //don't disable PoS mining for no connections if in regtest mode
         if(!regtestMode && !gArgs.GetBoolArg("-emergencystaking", false)) {
-            while (connman->GetNodeCount(CConnman::CONNECTIONS_ALL) == 0 || IsInitialBlockDownload()) {
+            while (connman->GetNodeCount(CConnman::CONNECTIONS_ALL) == 0 || ::ChainstateActive().IsInitialBlockDownload()) {
                 pwallet->m_last_coin_stake_search_interval = 0;
                 fTryToSync = true;
                 MilliSleep(1000);
@@ -909,7 +904,7 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
             if (fTryToSync) {
                 fTryToSync = false;
                 if (connman->GetNodeCount(CConnman::CONNECTIONS_ALL) < 3 ||
-                	chainActive.Tip()->GetBlockTime() < GetTime() - 10 * 60) {
+                	::ChainActive().Tip()->GetBlockTime() < GetTime() - 10 * 60) {
                     MilliSleep(60000);
                     continue;
                 }
@@ -918,23 +913,24 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
         //
         // Create new block
         //
-        CAmount nBalance = pwallet->GetBalance();
+        CAmount nBalance = pwallet->GetBalance().m_mine_trusted;
         CAmount nTargetValue = nBalance - pwallet->m_reserve_balance;
         CAmount nValueIn = 0;
         std::set<std::pair<const CWalletTx*,unsigned int> > setCoins;
         int64_t start = GetAdjustedTime();
         {
             auto locked_chain = pwallet->chain().lock();
+            LOCK(pwallet->cs_wallet);
             pwallet->SelectCoinsForStaking(*locked_chain, nTargetValue, setCoins, nValueIn);
         }
         if(setCoins.size() > 0)
         {
             int64_t nTotalFees = 0;
             // First just create an empty block. No need to process transactions until we know we can create a block
-            std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(Params()).CreateEmptyBlock(reservekey.reserveScript, true, true, &nTotalFees));
+            std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(Params()).CreateEmptyBlock(CScript(), true, true, &nTotalFees));
             if (!pblocktemplate.get())
                 return;
-            CBlockIndex* pindexPrev =  chainActive.Tip();
+            CBlockIndex* pindexPrev =  ::ChainActive().Tip();
 
             uint32_t beginningTime=GetAdjustedTime();
             beginningTime &= ~STAKE_TIMESTAMP_MASK;
@@ -952,7 +948,7 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
                     // increase priority so we can build the full PoS block ASAP to ensure the timestamp doesn't expire
                     SetThreadPriority(THREAD_PRIORITY_ABOVE_NORMAL);
 
-                    if (chainActive.Tip()->GetBlockHash() != pblock->hashPrevBlock) {
+                    if (::ChainActive().Tip()->GetBlockHash() != pblock->hashPrevBlock) {
                         //another block was received while building ours, scrap progress
                         LogPrintf("ThreadStakeMiner(): Valid future PoS block was orphaned before becoming valid");
                         break;
@@ -963,7 +959,7 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
                                                                     i, FutureDrift(GetAdjustedTime()) - STAKE_TIME_BUFFER));
                     if (!pblocktemplatefilled.get())
                         return;
-                    if (chainActive.Tip()->GetBlockHash() != pblock->hashPrevBlock) {
+                    if (::ChainActive().Tip()->GetBlockHash() != pblock->hashPrevBlock) {
                         //another block was received while building ours, scrap progress
                         LogPrintf("ThreadStakeMiner(): Valid future PoS block was orphaned before becoming valid");
                         break;
@@ -975,7 +971,7 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
                         // CheckStake also does CheckBlock and AcceptBlock to propogate it to the network
                         bool validBlock = false;
                         while(!validBlock) {
-                            if (chainActive.Tip()->GetBlockHash() != pblockfilled->hashPrevBlock) {
+                            if (::ChainActive().Tip()->GetBlockHash() != pblockfilled->hashPrevBlock) {
                                 //another block was received while building ours, scrap progress
                                 LogPrintf("ThreadStakeMiner(): Valid future PoS block was orphaned before becoming valid");
                                 break;

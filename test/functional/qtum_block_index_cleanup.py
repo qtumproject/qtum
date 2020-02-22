@@ -97,7 +97,11 @@ class QtumBlockIndexCleanupTest(BitcoinTestFramework):
         self.node.importprivkey(privkey)
         for n in self.nodes:
             n.setmocktime(int(time.time())-100000)
-        self.node.generatetoaddress(4*COINBASE_MATURITY, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
+        
+        for i in range(0, 4*COINBASE_MATURITY, 100):
+            self.node.generatetoaddress(100, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
+            self.sync_blocks()
+        
         for n in self.nodes:
             n.setmocktime(0)
         self.sync_all()

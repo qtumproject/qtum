@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2014-2018 The Bitcoin Core developers
+# Copyright (c) 2014-2019 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test the -alertnotify, -blocknotify and -walletnotify options."""
@@ -7,7 +7,11 @@ import os
 
 from test_framework.address import ADDRESS_BCRT1_UNSPENDABLE
 from test_framework.test_framework import BitcoinTestFramework
-from test_framework.util import assert_equal, wait_until, connect_nodes_bi
+from test_framework.util import (
+    assert_equal,
+    wait_until,
+    connect_nodes,
+)
 
 
 class NotificationsTest(BitcoinTestFramework):
@@ -27,7 +31,7 @@ class NotificationsTest(BitcoinTestFramework):
         self.extra_args = [[
                             "-alertnotify=echo > {}".format(os.path.join(self.alertnotify_dir, '%s')),
                             "-blocknotify=echo > {}".format(os.path.join(self.blocknotify_dir, '%s'))],
-                           ["-blockversion=211",
+                           ["-blockversion=4",
                             "-rescan",
                             "-walletnotify=echo > {}".format(os.path.join(self.walletnotify_dir, '%s'))]]
         super().setup_network()
@@ -38,6 +42,7 @@ class NotificationsTest(BitcoinTestFramework):
         blocks = self.nodes[1].generatetoaddress(block_count, self.nodes[1].getnewaddress() if self.is_wallet_compiled() else ADDRESS_BCRT1_UNSPENDABLE)
 
         # wait at most 10 seconds for expected number of files before reading the content
+        print(self.blocknotify_dir)
         wait_until(lambda: len(os.listdir(self.blocknotify_dir)) == block_count, timeout=10)
 
         # directory content should equal the generated blocks hashes
@@ -58,7 +63,7 @@ class NotificationsTest(BitcoinTestFramework):
             self.log.info("test -walletnotify after rescan")
             # restart node to rescan to force wallet notifications
             self.start_node(1)
-            connect_nodes_bi(self.nodes, 0, 1)
+            connect_nodes(self.nodes[0], 1)
 
             wait_until(lambda: len(os.listdir(self.walletnotify_dir)) == block_count, timeout=10)
 

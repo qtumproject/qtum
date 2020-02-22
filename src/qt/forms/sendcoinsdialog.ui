@@ -673,7 +673,7 @@
            <string>Add &amp;Recipient</string>
           </property>
           <property name="icon">
-           <iconset resource="../bitcoin.qrc">
+           <iconset>
             <normaloff>:/icons/add_recipient</normaloff>:/icons/add_recipient</iconset>
           </property>
           <property name="autoDefault">

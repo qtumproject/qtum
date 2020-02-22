@@ -1,5 +1,6 @@
 ---
 name: "qtum-win-signer"
+distro: "ubuntu"
 suites:
 - "bionic"
 architectures:
