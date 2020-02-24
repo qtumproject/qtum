@@ -169,7 +169,7 @@ QtumDelegation::~QtumDelegation()
 bool QtumDelegation::GetDelegation(const uint160 &address, Delegation &delegation) const
 {
     // Contract exist check
-    if(!globalState->addressInUse(priv->delegationsAddress))
+    if(!ExistDelegationContract())
         return error("Delegation contract address does not exist");
 
     // Get delegation ABI check
@@ -257,7 +257,7 @@ bool QtumDelegation::FilterDelegationEvents(std::vector<DelegationEvent> &events
         return error("Events indexing disabled");
 
     // Contract exist check
-    if(!globalState->addressInUse(priv->delegationsAddress))
+    if(!ExistDelegationContract())
         return error("Delegation contract address does not exist");
 
     // Add delegation event ABI check
@@ -335,4 +335,10 @@ std::map<uint160, Delegation> QtumDelegation::DelegationsFromEvents(const std::v
     }
 
     return delegations;
+}
+
+bool QtumDelegation::ExistDelegationContract() const
+{
+    // Delegation contract exist check
+    return globalState && globalState->addressInUse(priv->delegationsAddress);
 }

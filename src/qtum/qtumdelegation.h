@@ -122,6 +122,12 @@ public:
      */
     static std::map<uint160, Delegation> DelegationsFromEvents(const std::vector<DelegationEvent>& events);
 
+    /**
+     * @brief ExistDelegationContract Delegation contract exist check
+     * @return true/false
+     */
+    bool ExistDelegationContract() const;
+
 private:
     QtumDelegation(const QtumDelegation&);
     QtumDelegation& operator=(const QtumDelegation&);
