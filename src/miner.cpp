@@ -830,6 +830,30 @@ void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned
 // Looking for suitable coins for creating new block.
 //
 
+class DelegationsStaker : public IDelegationFilter
+{
+public:
+    DelegationsStaker(CWallet *_pwallet):
+        pwallet(_pwallet)
+    {}
+
+    bool Match(const DelegationEvent& event) const
+    {
+        return pwallet->HaveKey(CKeyID(event.item.staker));
+    }
+
+    void Update()
+    {
+        std::vector<DelegationEvent> events;
+        qtumDelegations.FilterDelegationEvents(events, *this);
+        pwallet->m_delegations = qtumDelegations.DelegationsFromEvents(events);
+    }
+
+private:
+    CWallet *pwallet;
+    QtumDelegation qtumDelegations;
+};
+
 bool CheckStake(const std::shared_ptr<const CBlock> pblock, CWallet& wallet)
 {
     uint256 proofHash, hashTarget;
@@ -887,6 +911,7 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
         nMinerSleep = 30000; //limit regtest to 30s, otherwise it'll create 2 blocks per second
     }
     bool fSuperStake = gArgs.GetBoolArg("-superstaking", DEFAULT_SUPER_STAKE);
+    DelegationsStaker delegationsStaker(pwallet);
 
     while (true)
     {
@@ -926,6 +951,7 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
             pwallet->SelectCoinsForStaking(*locked_chain, nTargetValue, setCoins, nValueIn);
             if(fSuperStake)
             {
+                delegationsStaker.Update();
                 pwallet->SelectDelegateCoinsForStaking(*locked_chain, setDelegateCoins);
             }
         }

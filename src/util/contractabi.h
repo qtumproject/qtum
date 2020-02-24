@@ -180,8 +180,12 @@ public:
     // Sending non-zero ether to non-payable function will throw.
     // Type can be omitted, defaulting to "function".
 
+    void cache();
+
 private:
     void processDynamicParams(const std::map<int, std::string>& mapDynamic, std::string& data) const;
+    bool cached;
+    std::string cacheSelector;
 };
 
 class ContractABI

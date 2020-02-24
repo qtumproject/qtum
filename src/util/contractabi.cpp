@@ -100,6 +100,7 @@ bool ContractABI::loads(const std::string &json_data)
                 function.outputs.push_back(param);
             }
 
+            function.cache();
             functions.push_back(function);
         }
     }
@@ -107,6 +108,7 @@ bool ContractABI::loads(const std::string &json_data)
     FunctionABI function;
     function.type = "default";
     function.payable = true;
+    function.cache();
     functions.push_back(function);
 
     return ret;
@@ -138,7 +140,8 @@ FunctionABI::FunctionABI(const std::string &_name,
     outputs(_outputs),
     payable(_payable),
     constant(_constant),
-    anonymous(_anonymous)
+    anonymous(_anonymous),
+    cached(false)
 {}
 
 bool FunctionABI::abiIn(const std::vector<std::vector<std::string>> &values, std::string &data, std::vector<ParameterABI::ErrorType>& errors) const
@@ -222,6 +225,9 @@ bool FunctionABI::abiOut(const std::vector<std::string>& topics, const std::stri
 
 std::string FunctionABI::selector() const
 {
+    if(cached)
+        return cacheSelector;
+
     if(type == "default")
     {
         return defaultSelector();
@@ -262,6 +268,12 @@ std::string FunctionABI::selector() const
 std::string FunctionABI::defaultSelector()
 {
     return "00";
+}
+
+void FunctionABI::cache()
+{
+    cacheSelector = selector();
+    cached = true;
 }
 
 void FunctionABI::processDynamicParams(const std::map<int, std::string> &mapDynamic, std::string &data) const
