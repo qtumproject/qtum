@@ -15,6 +15,7 @@
 #include <script/sign.h>
 #include <consensus/consensus.h>
 #include <util/signstr.h>
+#include <qtum/qtumdelegation.h>
 
 using namespace std;
 
@@ -114,29 +115,71 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, CValidationState& state, const C
         return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-prevout-not-exist", strprintf("CheckProofOfStake() : Stake prevout does not exist %s", txin.prevout.hash.ToString()));
     }
 
-    if(pindexPrev->nHeight + 1 - coinPrev.nHeight < COINBASE_MATURITY){
-        return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-prevout-not-mature", strprintf("CheckProofOfStake() : Stake prevout is not mature, expecting %i and only matured to %i", COINBASE_MATURITY, pindexPrev->nHeight + 1 - coinPrev.nHeight));
+    int nHeight = pindexPrev->nHeight + 1;
+    if(nHeight - coinPrev.nHeight < COINBASE_MATURITY){
+        return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-prevout-not-mature", strprintf("CheckProofOfStake() : Stake prevout is not mature, expecting %i and only matured to %i", COINBASE_MATURITY, nHeight - coinPrev.nHeight));
     }
     CBlockIndex* blockFrom = pindexPrev->GetAncestor(coinPrev.nHeight);
     if(!blockFrom) {
         return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-prevout-not-loaded", strprintf("CheckProofOfStake() : Block at height %i for prevout can not be loaded", coinPrev.nHeight));
     }
 
-    bool hasDelegation = vchPoD.size() > 0;
-    if(hasDelegation)
+    bool checkDelegation = false;
+    int nOfflineStakeHeight = Params().GetConsensus().nOfflineStakeHeight;
+    if (nHeight >= nOfflineStakeHeight)
     {
-        // Verify the transaction signature is from the staker
-        CScript stakerPubKey = tx.vout[1].scriptPubKey;
-        if (!VerifySignature(stakerPubKey, txin.prevout.hash, tx, 0, SCRIPT_VERIFY_NONE))
-            return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-verify-signature-failed", strprintf("CheckProofOfStake() : VerifySignature failed on coinstake %s", tx.GetHash().ToString()));
+        static QtumDelegation qtumDelegation;
 
-        // Check that the staker have the permission to use that coin to create the coinstake transaction
-        PKHash staker = ExtractPublicKeyHash(stakerPubKey);
-        PKHash delegate = ExtractPublicKeyHash(coinPrev.out.scriptPubKey);
-        if(!SignStr::VerifyMessage(CKeyID(delegate), staker.GetReverseHex(), vchPoD))
-            return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-verify-delegation-failed", strprintf("CheckProofOfStake() : VerifyDelegation failed on coinstake %s", tx.GetHash().ToString()));
+        // Check if the delegation contract exist
+        if(!qtumDelegation.ExistDelegationContract())
+            return state.Invalid(ValidationInvalidReason::BLOCK_HEADER_REJECT, false, REJECT_INVALID, "stake-delegation-contract-not-exist", strprintf("CheckProofOfStake() : The delegation contract doesn't exist, block height %i", nOfflineStakeHeight)); // Internal error, delegation contract not exist
+
+        // Get the delegation from the contract
+        uint160 address = uint160(ExtractPublicKeyHash(coinPrev.out.scriptPubKey));
+        Delegation delegation;
+        if(!qtumDelegation.GetDelegation(address, delegation)) {
+            return state.Invalid(ValidationInvalidReason::BLOCK_HEADER_REJECT, false, REJECT_INVALID, "stake-get-delegation-failed", strprintf("CheckProofOfStake() : Failed to get delegation from the delegation contract")); // Internal error, get delegation from the delegation contract
+        }
+
+        // Verify delegation received from the contract
+        bool verifiedDelegation = qtumDelegation.VerifyDelegation(address, delegation);
+        bool hasDelegationProof = vchPoD.size() > 0;
+
+        // Check that if PoD is present then the delegation received from the contract can be verified
+        if(hasDelegationProof && hasDelegationProof != verifiedDelegation) {
+            return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-delegation-not-verified", strprintf("CheckProofOfStake() : Delegation for block at height %i cannot be verified", nHeight));
+        }
+
+        // Check that if PoD is not present then the delegation received from the contract is null
+        if(!hasDelegationProof && !delegation.IsNull()) {
+            return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-delegation-not-used", strprintf("CheckProofOfStake() : Delegation for block at height %i is present but not used to create the block", nHeight));
+        }
+
+        checkDelegation = hasDelegationProof;
+        if(checkDelegation)
+        {
+            // Verify the transaction signature is from the staker
+            CScript stakerPubKey = tx.vout[1].scriptPubKey;
+            if (!VerifySignature(stakerPubKey, txin.prevout.hash, tx, 0, SCRIPT_VERIFY_NONE))
+                return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-verify-signature-failed", strprintf("CheckProofOfStake() : VerifySignature failed on coinstake %s", tx.GetHash().ToString()));
+
+            // Check that the staker have the permission to use that coin to create the coinstake transaction
+            uint160 staker = uint160(ExtractPublicKeyHash(stakerPubKey));
+            if(!SignStr::VerifyMessage(CKeyID(address), staker.GetReverseHex(), vchPoD))
+                return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-verify-delegation-failed", strprintf("CheckProofOfStake() : VerifyDelegation failed on coinstake %s", tx.GetHash().ToString()));
+
+            // Check that the block delegation data is the same as the data received from the contract, this is to avoid using old/removed delegation
+            int fee = GetDelegationFeeTx(tx, coinPrev);
+            if(delegation.staker != staker ||
+                    (int)delegation.fee != fee ||
+                    (int)delegation.blockHeight > nHeight ||
+                    delegation.PoD != vchPoD) {
+                return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-delegation-not-match", strprintf("CheckProofOfStake() : Delegation for block at height %i is not the same with the delegation received from the delegation contract", nHeight));
+            }
+        }
     }
-    else
+
+    if(!checkDelegation)
     {
         // Verify signature
         if (!VerifySignature(coinPrev, txin.prevout.hash, tx, 0, SCRIPT_VERIFY_NONE))
@@ -386,6 +429,21 @@ bool SplitOfflineStakeReward(const int64_t& nReward, const uint8_t& fee, int64_t
     nRewardStaker = percentage * nReward;
     nRewardOffline = nReward - nRewardStaker;
     return true;
+}
+
+int GetDelegationFeeTx(const CTransaction& tx, const Coin& coin)
+{
+    CAmount nValueCoin = coin.out.nValue;
+    if(!tx.IsCoinStake() || tx.vout.size() < 3 || nValueCoin <= 0)
+        return -1;
+
+    CAmount nValueStaker = tx.vout[1].nValue;
+    CAmount nValueDelegate = tx.vout[2].nValue;
+    CAmount nReward = nValueStaker + nValueDelegate - nValueCoin;
+    if(nReward < 0)
+        return -1;
+
+    return std::lround(nValueStaker * 100.0 / nReward);
 }
 
 bool NeedToEraseScriptFromCache(int nBlockHeight, int nCacheScripts, int nScriptHeight, const ScriptsElement& scriptElement)

@@ -467,9 +467,9 @@ bool CBlockTreeDB::ReadDelegateIndex(unsigned int height, uint160& address, uint
     DelegateEntry info;
     while (pcursor->Valid()) {
         boost::this_thread::interruption_point();
-        std::pair<char, unsigned int> key;
+        std::pair<char, CHeightTxIndexKey> key;
         pcursor->GetKey(key);
-        if (key.first == DB_DELEGATEINDEX && key.second == height) {
+        if (key.first == DB_DELEGATEINDEX) {
             pcursor->GetValue(info);
             address = info.address;
             fee = info.fee;
@@ -490,8 +490,8 @@ bool CBlockTreeDB::EraseDelegateIndex(unsigned int height) {
 
     while (pcursor->Valid()) {
         boost::this_thread::interruption_point();
-        std::pair<char, unsigned int> key;
-        if (pcursor->GetKey(key) && key.first == DB_DELEGATEINDEX && key.second == height) {
+        std::pair<char, CHeightTxIndexKey> key;
+        if (pcursor->GetKey(key) && key.first == DB_HEIGHTINDEX && key.second.height == height) {
             batch.Erase(key);
             pcursor->Next();
         } else {

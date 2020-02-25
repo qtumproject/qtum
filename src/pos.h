@@ -62,6 +62,8 @@ int64_t GetStakeCombineThreshold();
 
 bool SplitOfflineStakeReward(const int64_t& nReward, const uint8_t& fee, int64_t& nRewardOffline, int64_t& nRewardStaker);
 
+int GetDelegationFeeTx(const CTransaction& tx, const Coin& coin);
+
 unsigned int GetStakeSplitOutputs();
 
 int64_t GetStakeSplitThreshold();

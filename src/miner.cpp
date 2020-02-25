@@ -863,9 +863,12 @@ bool CheckStake(const std::shared_ptr<const CBlock> pblock, CWallet& wallet)
         return error("CheckStake() : %s is not a proof-of-stake block", hashBlock.GetHex());
 
     // verify hash target and signature of coinstake tx
-    CValidationState state;
-    if (!CheckProofOfStake(::BlockIndex()[pblock->hashPrevBlock], state, *pblock->vtx[1], pblock->nBits, pblock->nTime, pblock->GetBlockDelegate(), proofHash, hashTarget, ::ChainstateActive().CoinsTip()))
-        return error("CheckStake() : proof-of-stake checking failed");
+    {
+        auto locked_chain = wallet.chain().lock();
+        CValidationState state;
+        if (!CheckProofOfStake(::BlockIndex()[pblock->hashPrevBlock], state, *pblock->vtx[1], pblock->nBits, pblock->nTime, pblock->GetBlockDelegate(), proofHash, hashTarget, ::ChainstateActive().CoinsTip()))
+            return error("CheckStake() : proof-of-stake checking failed");
+    }
 
     //// debug print
     LogPrint(BCLog::COINSTAKE, "CheckStake() : new proof-of-stake block found  \n  hash: %s \nproofhash: %s  \ntarget: %s\n", hashBlock.GetHex(), proofHash.GetHex(), hashTarget.GetHex());

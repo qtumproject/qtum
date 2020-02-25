@@ -3513,19 +3513,21 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
     if(block.IsProofOfStake()){
         // Read the public key from the second output
         std::vector<unsigned char> vchPubKey;
+        uint160 pkh;
         if(GetBlockPublicKey(block, vchPubKey))
         {
-            uint160 pkh = uint160(ToByteVector(CPubKey(vchPubKey).GetID()));
+            pkh = uint160(ToByteVector(CPubKey(vchPubKey).GetID()));
             pblocktree->WriteStakeIndex(pindex->nHeight, pkh);
-
-            uint160 address;
-            uint8_t fee;
-            if(GetBlockDelegation(block, pkh, address, fee))
-            {
-                pblocktree->WriteDelegateIndex(pindex->nHeight, address, fee);
-            }
         }else{
             pblocktree->WriteStakeIndex(pindex->nHeight, uint160());
+        }
+
+        if(block.HasDelegation())
+        {
+            uint160 address;
+            uint8_t fee = 0;
+            GetBlockDelegation(block, pkh, address, fee);
+            pblocktree->WriteDelegateIndex(pindex->nHeight, address, fee);
         }
     }else{
         pblocktree->WriteStakeIndex(pindex->nHeight, uint160());
