@@ -5261,8 +5261,7 @@ std::shared_ptr<CWallet> CWallet::CreateWalletFromFile(interfaces::Chain& chain,
         int nStakingMinFee = gArgs.GetArg("-stakingminfee", DEFAULT_STAKING_MIN_FEE);
         if(nStakingMinFee < 0 || nStakingMinFee > 100)
         {
-            chain.initError(strprintf(_("Invalid percentage value for -stakingminfee=<n>: '%d'").translated,
-                                       gArgs.GetArg("-stakingminfee", ""), nStakingMinFee));
+            chain.initError(strprintf(_("Invalid percentage value for -stakingminfee=<n>: '%d' (must be between 0 and 100)").translated, nStakingMinFee));
             return nullptr;
         }
         walletInstance->m_staking_min_fee = nStakingMinFee;
