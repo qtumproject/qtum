@@ -267,7 +267,15 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* tip, const CBlockIn
     result.pushKV("modifier", blockindex->nStakeModifier.GetHex());
 
     if (block.IsProofOfStake())
-        result.pushKV("signature", HexStr(block.vchBlockSigDlgt.begin(), block.vchBlockSigDlgt.end()));	
+    {
+        std::vector<unsigned char> vchBlockSig = block.GetBlockSignature();
+        result.pushKV("signature", HexStr(vchBlockSig.begin(), vchBlockSig.end()));
+        if(block.HasProofOfDelegation())
+        {
+            std::vector<unsigned char> vchPoD = block.GetProofOfDelegation();
+            result.pushKV("proofOfDelegation", HexStr(vchPoD.begin(), vchPoD.end()));
+        }
+    }
 
     return result;
 }

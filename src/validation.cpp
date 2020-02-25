@@ -2053,7 +2053,7 @@ DisconnectResult CChainState::DisconnectBlock(const CBlock& block, const CBlockI
         pblocktree->EraseHeightIndex(pindex->nHeight);
     }
     pblocktree->EraseStakeIndex(pindex->nHeight);
-    if(pindex->IsProofOfStake() && pindex->HasDelegation())
+    if(pindex->IsProofOfStake() && pindex->HasProofOfDelegation())
         pblocktree->EraseDelegateIndex(pindex->nHeight);
 
     //////////////////////////////////////////////////// // qtum
@@ -3100,7 +3100,7 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
     uint64_t nValueOut=0;
     uint64_t nValueIn=0;
 
-    bool hasDelegation = block.HasDelegation();
+    bool hasDelegation = block.HasProofOfDelegation();
 
     for (unsigned int i = 0; i < block.vtx.size(); i++)
     {
@@ -3522,7 +3522,7 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
             pblocktree->WriteStakeIndex(pindex->nHeight, uint160());
         }
 
-        if(block.HasDelegation())
+        if(block.HasProofOfDelegation())
         {
             uint160 address;
             uint8_t fee = 0;
@@ -4777,7 +4777,7 @@ bool GetBlockDelegation(const CBlock& block, const uint160& staker, uint160& add
     if (block.vchBlockSigDlgt.empty())
         return false;
 
-    if (!block.HasDelegation())
+    if (!block.HasProofOfDelegation())
         return false;
 
     if(block.vtx.size() < 1)
@@ -4790,7 +4790,7 @@ bool GetBlockDelegation(const CBlock& block, const uint160& staker, uint160& add
     // Get the delegate
     std::string strMessage = staker.GetReverseHex();
     CKeyID keyid;
-    if(!SignStr::GetKeyIdMessage(strMessage, block.GetBlockDelegate(), keyid))
+    if(!SignStr::GetKeyIdMessage(strMessage, block.GetProofOfDelegation(), keyid))
         return false;
     address = uint160(keyid);
 
@@ -5176,7 +5176,7 @@ bool CChainState::UpdateHashProof(const CBlock& block, CValidationState& state, 
     if (block.IsProofOfStake())
     {
         uint256 targetProofOfStake;
-        if (!CheckProofOfStake(pindex->pprev, state, *block.vtx[1], block.nBits, block.nTime, block.GetBlockDelegate(), hashProof, targetProofOfStake, view))
+        if (!CheckProofOfStake(pindex->pprev, state, *block.vtx[1], block.nBits, block.nTime, block.GetProofOfDelegation(), hashProof, targetProofOfStake, view))
         {
             return error("UpdateHashProof() : check proof-of-stake failed for block %s", hash.ToString());
         }
@@ -5563,7 +5563,7 @@ bool CheckCanonicalBlockSignature(const CBlockHeader* pblock)
 {
     // Check compact signature size
     if(pblock->IsProofOfStake() && pblock->GetBlockSignature().size() == CPubKey::COMPACT_SIGNATURE_SIZE)
-        return pblock->HasDelegation() ? pblock->GetBlockDelegate().size() == CPubKey::COMPACT_SIGNATURE_SIZE : true;
+        return pblock->HasProofOfDelegation() ? pblock->GetProofOfDelegation().size() == CPubKey::COMPACT_SIGNATURE_SIZE : true;
 
     //block signature encoding
     bool ret = IsCanonicalBlockSignature(pblock, false);

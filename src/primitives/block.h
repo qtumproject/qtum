@@ -128,9 +128,9 @@ public:
 
     std::vector<unsigned char> GetBlockSignature() const;
 
-    std::vector<unsigned char> GetBlockDelegate() const;
+    std::vector<unsigned char> GetProofOfDelegation() const;
 
-    bool HasDelegation() const;
+    bool HasProofOfDelegation() const;
 
     CBlockHeader& operator=(const CBlockHeader& other) //qtum
     {

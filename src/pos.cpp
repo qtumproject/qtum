@@ -204,7 +204,7 @@ bool CheckBlockInputPubKeyMatchesOutputPubKey(const CBlock& block, CCoinsViewCac
         return error("%s: Could not fetch prevoutStake from UTXO set", __func__);
     }
 
-    uint hasDelegation = block.HasDelegation() ? 1 : 0;
+    uint hasDelegation = block.HasProofOfDelegation() ? 1 : 0;
     CTransactionRef coinstakeTx = block.vtx[1];
     if(coinstakeTx->vout.size() < 2 + hasDelegation) {
         return error("%s: coinstake transaction does not have the minimum number of outputs", __func__);
@@ -255,8 +255,8 @@ bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBloc
     uint256 hash = block.GetHashWithoutSign();
     CPubKey pubkey;
     std::vector<unsigned char> vchBlockSig = block.GetBlockSignature();
-    std::vector<unsigned char> vchPoD = block.GetBlockDelegate();
-    bool hasDelegation = block.HasDelegation();
+    std::vector<unsigned char> vchPoD = block.GetProofOfDelegation();
+    bool hasDelegation = block.HasProofOfDelegation();
 
     if(vchBlockSig.empty()) {
         return error("CheckRecoveredPubKeyFromBlockSignature(): Signature is empty\n");
@@ -544,7 +544,7 @@ bool AddMPoSScript(std::vector<BlockScript> &mposScriptList, int nHeight, const 
             blockScript = CScript() << OP_DUP << OP_HASH160 << ToByteVector(stakeAddress) << OP_EQUALVERIFY << OP_CHECKSIG;
         }
 
-        if(pblockindex->HasDelegation())
+        if(pblockindex->HasProofOfDelegation())
         {
             uint160 delegateAddress;
             uint8_t fee;

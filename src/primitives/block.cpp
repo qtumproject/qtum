@@ -52,7 +52,7 @@ std::vector<unsigned char> CBlockHeader::GetBlockSignature() const
     return std::vector<unsigned char>(vchBlockSigDlgt.begin(), vchBlockSigDlgt.end() - CPubKey::COMPACT_SIGNATURE_SIZE );
 }
 
-std::vector<unsigned char> CBlockHeader::GetBlockDelegate() const
+std::vector<unsigned char> CBlockHeader::GetProofOfDelegation() const
 {
     if(vchBlockSigDlgt.size() < 2 * CPubKey::COMPACT_SIGNATURE_SIZE)
     {
@@ -63,7 +63,7 @@ std::vector<unsigned char> CBlockHeader::GetBlockDelegate() const
 
 }
 
-bool CBlockHeader::HasDelegation() const
+bool CBlockHeader::HasProofOfDelegation() const
 {
     return vchBlockSigDlgt.size() >= 2 * CPubKey::COMPACT_SIGNATURE_SIZE;
 }
