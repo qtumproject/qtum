@@ -149,6 +149,7 @@ public:
 
         fDefaultConsistencyChecks = false;
         fRequireStandard = true;
+        fMineBlocksOnDemand = false;
         m_is_test_chain = false;
 
         checkpointData = {
@@ -259,6 +260,7 @@ public:
 
         fDefaultConsistencyChecks = false;
         fRequireStandard = false;
+        fMineBlocksOnDemand = false;
         m_is_test_chain = true;
 
 
@@ -357,6 +359,7 @@ public:
 
         fDefaultConsistencyChecks = true;
         fRequireStandard = true;
+        fMineBlocksOnDemand = true;
         m_is_test_chain = true;
 
         checkpointData = {
