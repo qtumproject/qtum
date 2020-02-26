@@ -1103,6 +1103,28 @@ TokenItemWidget #tokenLogo{
     background-color: #a1daff;
     border-radius: 20px;
 }
+DelegationListWidget{
+    background-color: #e4ebf5;
+}
+DelegationItemWidget{
+    background-color: #e4ebf5;
+}
+DelegationItemWidget #labelFee{
+    color: #6b80af;
+    font: 13pt;
+}
+DelegationItemWidget #labelStaker{
+    color: #000000;
+    font: 13pt;
+}
+DelegationItemWidget #labelAddress{
+    color: #d5dde9;
+    font: 10pt;
+}
+DelegationItemWidget #delegationLogo{
+    background-color: #a1daff;
+    border-radius: 20px;
+}
 /*--------------------------------------------
 Send Coins Dialog CSS
 --------------------------------------------*/

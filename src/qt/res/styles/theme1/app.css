@@ -1107,6 +1107,26 @@ TokenItemWidget #tokenLogo{
     background-color: #575757;
     border-radius: 20px;
 }
+DelegationListWidget{
+    background-color: #2e2e2e;
+}
+DelegationItemWidget #labelFee,
+#labelNewDelegation{
+    color: #C5C5C5;
+    font: 13pt;
+}
+DelegationItemWidget #labelStaker{
+    color: white;
+    font: 13pt;
+}
+DelegationItemWidget #labelAddress{
+    color: #9c9c9c;
+    font: 10pt;
+}
+DelegationItemWidget #delegationLogo{
+    background-color: #575757;
+    border-radius: 20px;
+}
 #coinControlContentsWidget{
     background-color: #2e2e2e;
 }
