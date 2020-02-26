@@ -18,6 +18,7 @@ QT_FORMS_UI = \
   qt/forms/contractbookpage.ui \
   qt/forms/contractresult.ui \
   qt/forms/createcontract.ui \
+  qt/forms/delegationitemwidget.ui \
   qt/forms/editaddressdialog.ui \
   qt/forms/editcontractinfodialog.ui \
   qt/forms/helpmessagedialog.ui \
@@ -69,6 +70,7 @@ QT_MOC_CPP = \
   qt/moc_contracttablemodel.cpp \
   qt/moc_createcontract.cpp \
   qt/moc_csvmodelwriter.cpp \
+  qt/moc_delegationitemwidget.cpp \
   qt/moc_editaddressdialog.cpp \
   qt/moc_editcontractinfodialog.cpp \
   qt/moc_guiutil.cpp \
@@ -183,6 +185,7 @@ BITCOIN_QT_H = \
   qt/contracttablemodel.h \
   qt/createcontract.h \
   qt/csvmodelwriter.h \
+  qt/delegationitemwidget.h \
   qt/editaddressdialog.h \
   qt/editcontractinfodialog.h \
   qt/eventlog.h \
@@ -381,6 +384,7 @@ BITCOIN_QT_WALLET_CPP = \
   qt/contractresult.cpp \
   qt/contracttablemodel.cpp \
   qt/createcontract.cpp \
+  qt/delegationitemwidget.cpp \
   qt/eventlog.cpp \
   qt/execrpccommand.cpp \
   qt/createwalletdialog.cpp \
