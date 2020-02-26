@@ -38,10 +38,11 @@ class PlatformStyle;
 class RecentRequestsTableModel;
 class TransactionTableModel;
 class WalletModelTransaction;
-class TokenItemModel;
+class DelegationItemModel;
 class TokenTransactionTableModel;
 class ContractTableModel;
 class WalletWorker;
+class TokenItemModel;
 
 class CCoinControl;
 class CKeyID;
@@ -165,6 +166,7 @@ public:
     RecentRequestsTableModel *getRecentRequestsTableModel();
     TokenItemModel *getTokenItemModel();
     TokenTransactionTableModel *getTokenTransactionTableModel();
+    DelegationItemModel *getDelegationItemModel();
 
     EncryptionStatus getEncryptionStatus() const;
 

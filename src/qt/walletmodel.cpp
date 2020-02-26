@@ -18,6 +18,7 @@
 #include <qt/tokenitemmodel.h>
 #include <qt/tokentransactiontablemodel.h>
 #include <qt/contracttablemodel.h>
+#include <qt/delegationitemmodel.h>
 
 #include <interfaces/handler.h>
 #include <interfaces/node.h>
@@ -421,6 +422,11 @@ TokenItemModel *WalletModel::getTokenItemModel()
 TokenTransactionTableModel *WalletModel::getTokenTransactionTableModel()
 {
     return tokenTransactionTableModel;
+}
+
+DelegationItemModel *WalletModel::getDelegationItemModel()
+{
+    return 0;
 }
 
 WalletModel::EncryptionStatus WalletModel::getEncryptionStatus() const

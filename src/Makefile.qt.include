@@ -71,6 +71,7 @@ QT_MOC_CPP = \
   qt/moc_createcontract.cpp \
   qt/moc_csvmodelwriter.cpp \
   qt/moc_delegationitemwidget.cpp \
+  qt/moc_delegationlistwidget.cpp \
   qt/moc_editaddressdialog.cpp \
   qt/moc_editcontractinfodialog.cpp \
   qt/moc_guiutil.cpp \
@@ -186,6 +187,8 @@ BITCOIN_QT_H = \
   qt/createcontract.h \
   qt/csvmodelwriter.h \
   qt/delegationitemwidget.h \
+  qt/delegationlistwidget.h \
+  qt/delegationitemmodel.h \
   qt/editaddressdialog.h \
   qt/editcontractinfodialog.h \
   qt/eventlog.h \
@@ -385,6 +388,7 @@ BITCOIN_QT_WALLET_CPP = \
   qt/contracttablemodel.cpp \
   qt/createcontract.cpp \
   qt/delegationitemwidget.cpp \
+  qt/delegationlistwidget.cpp \
   qt/eventlog.cpp \
   qt/execrpccommand.cpp \
   qt/createwalletdialog.cpp \
