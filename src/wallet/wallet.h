@@ -110,6 +110,7 @@ class CScript;
 class CWalletTx;
 class CTokenTx;
 class CContractBookData;
+class CDelegationInfo;
 struct FeeCalculation;
 enum class FeeEstimateMode;
 class ReserveDestination;
@@ -1005,6 +1006,8 @@ public:
 
     std::map<uint256, CTokenTx> mapTokenTx;
 
+    std::map<uint256, CDelegationInfo> mapDelegation;
+
     /** Registered interfaces::Chain::Notifications handler. */
     std::unique_ptr<interfaces::Handler> m_chain_notifications_handler;
 
@@ -1406,6 +1409,10 @@ public:
             const std::string &label, const std::string &abi,
             ChangeType status)> NotifyContractBookChanged;
 
+    /** Wallet delegation added, removed or updated. */
+    boost::signals2::signal<void (CWallet *wallet, const uint256 &hashDelegation,
+            ChangeType status)> NotifyDelegationChanged;
+
     /** Inquire whether this wallet broadcasts transactions. */
     bool GetBroadcastTransactions() const { return fBroadcastTransactions; }
     /** Set whether this wallet broadcasts transactions. */
@@ -1526,6 +1533,15 @@ public:
 
     /* Clean token transaction entries in the wallet */
     bool CleanTokenTxEntries(bool fFlushOnClose=true);
+
+    /* Load delegation entry into the wallet */
+    bool LoadDelegation(const CDelegationInfo &delegation);
+
+    /* Add delegation entry into the wallet */
+    bool AddDelegationEntry(const CDelegationInfo& delegation, bool fFlushOnClose=true);
+
+    /* Remove delegation entry from the wallet */
+    bool RemoveDelegationEntry(const uint256& delegationHash, bool fFlushOnClose=true);
 
     /* Start staking qtums */
     void StartStake(CConnman* connman = CWallet::defaultConnman);
@@ -1710,6 +1726,56 @@ public:
 
     CContractBookData()
     {}
+};
+
+class CDelegationInfo
+{
+public:
+    static const int CURRENT_VERSION=1;
+    int nVersion;
+    int64_t nCreateTime;
+    uint8_t nFee;
+    std::string strDelegateAddress;
+    std::string strStakerAddress;
+    int64_t blockNumber;
+    uint256 createTxHash;
+    uint256 removeTxHash;
+
+    CDelegationInfo()
+    {
+        SetNull();
+    }
+
+    ADD_SERIALIZE_METHODS;
+
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action) {
+        if (!(s.GetType() & SER_GETHASH))
+        {
+            READWRITE(nVersion);
+            READWRITE(nCreateTime);
+            READWRITE(nFee);
+            READWRITE(blockNumber);
+            READWRITE(createTxHash);
+            READWRITE(removeTxHash);
+        }
+        READWRITE(strDelegateAddress);
+        READWRITE(strStakerAddress);
+    }
+
+    void SetNull()
+    {
+        nVersion = CDelegationInfo::CURRENT_VERSION;
+        nCreateTime = 0;
+        nFee = 0;
+        strDelegateAddress = "";
+        strStakerAddress = "";
+        blockNumber = -1;
+        createTxHash.SetNull();
+        removeTxHash.SetNull();
+    }
+
+    uint256 GetHash() const;
 };
 
 #endif // BITCOIN_WALLET_WALLET_H
