@@ -42,6 +42,7 @@ struct WalletTxStatus;
 struct TokenInfo;
 struct TokenTx;
 struct ContractBookData;
+struct DelegationInfo;
 
 
 using WalletOrderForm = std::vector<std::pair<std::string, std::string>>;
@@ -330,6 +331,21 @@ public:
     //! Set contract book data.
     virtual bool setContractBook(const std::string& address, const std::string& name, const std::string& abi) = 0;
 
+    //! Add wallet delegation entry.
+    virtual bool addDelegationEntry(const DelegationInfo &delegation) = 0;
+
+    //! Check if exist wallet delegation entry.
+    virtual bool existDelegationEntry(const DelegationInfo &delegation) = 0;
+
+    //! Get delegation information.
+    virtual DelegationInfo getDelegation(const uint256& id) = 0;
+
+    //! Get list of all delegations.
+    virtual std::vector<DelegationInfo> getDelegations() = 0;
+
+    //! Remove wallet delegation entry.
+    virtual bool removeDelegationEntry(const std::string &sHash) = 0;
+
     //! Try get the stake weight
     virtual bool tryGetStakeWeight(uint64_t& nWeight) = 0;
 
@@ -518,6 +534,19 @@ struct ContractBookData
     std::string address;
     std::string name;
     std::string abi;
+};
+
+// Wallet delegation information.
+struct DelegationInfo
+{
+    std::string delegate_address;
+    std::string staker_address;
+    uint8_t fee = 0;
+    int64_t time = 0;
+    int64_t block_number = -1;
+    uint256 hash;
+    uint256 create_tx_hash;
+    uint256 remove_tx_hash;
 };
 
 //! Return implementation of Wallet interface. This function is defined in

@@ -184,6 +184,36 @@ ContractBookData MakeContractBook(const std::string& id, const CContractBookData
     return result;
 }
 
+//! Construct delegation info.
+CDelegationInfo MakeDelegationInfo(const DelegationInfo& delegation)
+{
+    CDelegationInfo result;
+    result.strDelegateAddress = delegation.delegate_address;
+    result.strStakerAddress = delegation.staker_address;
+    result.nFee = delegation.fee;
+    result.nCreateTime = delegation.time;
+    result.blockNumber = delegation.block_number;
+    result.createTxHash = delegation.create_tx_hash;
+    result.removeTxHash = delegation.remove_tx_hash;
+    return result;
+}
+
+//! Construct wallet delegation info.
+DelegationInfo MakeWalletDelegationInfo(const CDelegationInfo& delegation)
+{
+    DelegationInfo result;
+    result.delegate_address = delegation.strDelegateAddress;
+    result.staker_address = delegation.strStakerAddress;
+    result.fee = delegation.nFee;
+    result.time = delegation.nCreateTime;
+    result.block_number = delegation.blockNumber;
+    result.time = delegation.nCreateTime;
+    result.create_tx_hash = delegation.createTxHash;
+    result.remove_tx_hash = delegation.removeTxHash;
+    result.hash = delegation.GetHash();
+    return result;
+}
+
 bool TokenTxStatus(interfaces::Chain::Lock& locked_chain, CWallet& wallet, const uint256& txid, int& block_number, bool& in_mempool, int& num_blocks)
 {
     auto mi = wallet.mapTokenTx.find(txid);
@@ -809,6 +839,47 @@ public:
     bool setContractBook(const std::string& id, const std::string& name, const std::string& abi) override
     {
         return m_wallet->SetContractBook(id, name, abi);
+    }
+    bool addDelegationEntry(const DelegationInfo &delegation) override
+    {
+        return m_wallet->AddDelegationEntry(MakeDelegationInfo(delegation), true);
+    }
+    bool existDelegationEntry(const DelegationInfo &delegation) override
+    {
+        auto locked_chain = m_wallet->chain().lock();
+        LOCK(m_wallet->cs_wallet);
+
+        uint256 hash = MakeDelegationInfo(delegation).GetHash();
+        std::map<uint256, CDelegationInfo>::iterator it = m_wallet->mapDelegation.find(hash);
+
+        return it != m_wallet->mapDelegation.end();
+    }
+    DelegationInfo getDelegation(const uint256& id) override
+    {
+        auto locked_chain = m_wallet->chain().lock();
+        LOCK(m_wallet->cs_wallet);
+
+        auto mi = m_wallet->mapDelegation.find(id);
+        if (mi != m_wallet->mapDelegation.end()) {
+            return MakeWalletDelegationInfo(mi->second);
+        }
+        return {};
+    }
+    std::vector<DelegationInfo> getDelegations() override
+    {
+        auto locked_chain = m_wallet->chain().lock();
+        LOCK(m_wallet->cs_wallet);
+
+        std::vector<DelegationInfo> result;
+        result.reserve(m_wallet->mapDelegation.size());
+        for (const auto& entry : m_wallet->mapDelegation) {
+            result.emplace_back(MakeWalletDelegationInfo(entry.second));
+        }
+        return result;
+    }
+    bool removeDelegationEntry(const std::string &sHash) override
+    {
+        return m_wallet->RemoveDelegationEntry(uint256S(sHash), true);
     }
     bool tryGetStakeWeight(uint64_t& nWeight) override
     {
