@@ -846,7 +846,7 @@ public:
     {
         std::vector<DelegationEvent> events;
         qtumDelegations.FilterDelegationEvents(events, *this);
-        pwallet->m_delegations = qtumDelegations.DelegationsFromEvents(events);
+        pwallet->m_delegations_staker = qtumDelegations.DelegationsFromEvents(events);
     }
 
 private:

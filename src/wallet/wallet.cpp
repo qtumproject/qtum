@@ -2697,7 +2697,7 @@ bool CWallet::AvailableDelegateCoinsForStaking(interfaces::Chain::Lock& locked_c
         return error("Invalid blockchain height");
     }
 
-    for (std::map<uint160, Delegation>::const_iterator it = m_delegations.begin(); it != m_delegations.end(); ++it)
+    for (std::map<uint160, Delegation>::const_iterator it = m_delegations_staker.begin(); it != m_delegations_staker.end(); ++it)
     {
         const PKHash& keyid = PKHash(it->first);
         const Delegation* delegation = &(*it).second;
@@ -3890,7 +3890,7 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
                 // convert to pay to public key type
                 uint160 hash160(vSolutions[0]);
 
-                if(!GetDelegation(hash160, delegation))
+                if(!GetDelegationStaker(hash160, delegation))
                     return error("CreateCoinStake: Failed to find delegation");
 
                 if (!keystore.GetKey(CKeyID(delegation.staker), key))
@@ -3906,7 +3906,7 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
                 valtype& vchPubKey = vSolutions[0];
                 uint160 hash160(Hash160(vchPubKey));;
 
-                if(!GetDelegation(hash160, delegation))
+                if(!GetDelegationStaker(hash160, delegation))
                     return error("CreateCoinStake: Failed to find delegation");
 
                 if (!keystore.GetKey(CKeyID(delegation.staker), key))
@@ -3995,10 +3995,10 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
     return true;
 }
 
-bool CWallet::GetDelegation(const uint160& keyid, Delegation& delegation)
+bool CWallet::GetDelegationStaker(const uint160& keyid, Delegation& delegation)
 {
-    std::map<uint160, Delegation>::iterator it = m_delegations.find(keyid);
-    if(it == m_delegations.end())
+    std::map<uint160, Delegation>::iterator it = m_delegations_staker.find(keyid);
+    if(it == m_delegations_staker.end())
         return false;
 
     delegation = it->second;

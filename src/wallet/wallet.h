@@ -915,7 +915,7 @@ private:
 
     bool CreateCoinStakeFromMine(interfaces::Chain::Lock& locked_chain, const FillableSigningProvider &keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins);
     bool CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain, const FillableSigningProvider &keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::vector<COutPoint>& setDelegateCoins, std::vector<unsigned char>& vchPoD);
-    bool GetDelegation(const uint160& keyid, Delegation& delegation);
+    bool GetDelegationStaker(const uint160& keyid, Delegation& delegation);
 
 public:
     /*
@@ -1535,7 +1535,7 @@ public:
 
     static CConnman* defaultConnman;
 
-    std::map<uint160, Delegation> m_delegations;
+    std::map<uint160, Delegation> m_delegations_staker;
 };
 
 /**
