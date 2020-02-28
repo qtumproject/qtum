@@ -9,6 +9,7 @@ EXTRA_LIBRARIES += qt/libbitcoinqt.a
 include Makefile.qt_locale.include
 
 QT_FORMS_UI = \
+  qt/forms/adddelegationpage.ui \
   qt/forms/addressbookpage.ui \
   qt/forms/addtokenpage.ui \
   qt/forms/askpassphrasedialog.ui \
@@ -31,6 +32,7 @@ QT_FORMS_UI = \
   qt/forms/receivecoinsdialog.ui \
   qt/forms/receiverequestdialog.ui \
   qt/forms/receivetokenpage.ui \
+  qt/forms/removedelegationpage.ui \
   qt/forms/restoredialog.ui \
   qt/forms/debugwindow.ui \
   qt/forms/stakepage.ui \
@@ -49,6 +51,7 @@ QT_MOC_CPP = \
   qt/moc_abiparam.cpp \
   qt/moc_abiparamitem.cpp \
   qt/moc_abiparamsfield.cpp \
+  qt/moc_adddelegationpage.cpp \
   qt/moc_addressbookpage.cpp \
   qt/moc_addressfield.cpp \
   qt/moc_addresstablemodel.cpp \
@@ -97,6 +100,7 @@ QT_MOC_CPP = \
   qt/moc_receiverequestdialog.cpp \
   qt/moc_receivetokenpage.cpp \
   qt/moc_recentrequeststablemodel.cpp \
+  qt/moc_removedelegationpage.cpp \
   qt/moc_restoredialog.cpp \
   qt/moc_rpcconsole.cpp \
   qt/moc_stakepage.cpp \
@@ -164,6 +168,7 @@ BITCOIN_QT_H = \
   qt/abiparam.h \
   qt/abiparamitem.h \
   qt/abiparamsfield.h \
+  qt/adddelegationpage.h \
   qt/addressbookpage.h \
   qt/addressfield.h \
   qt/addresstablemodel.h \
@@ -221,6 +226,7 @@ BITCOIN_QT_H = \
   qt/receiverequestdialog.h \
   qt/receivetokenpage.h \
   qt/recentrequeststablemodel.h \
+  qt/removedelegationpage.h \
   qt/restoredialog.h \
   qt/rpcconsole.h \
   qt/sendcoinsdialog.h \
@@ -374,6 +380,7 @@ BITCOIN_QT_WALLET_CPP = \
   qt/abiparam.cpp \
   qt/abiparamitem.cpp \
   qt/abiparamsfield.cpp \
+  qt/adddelegationpage.cpp \
   qt/addressbookpage.cpp \
   qt/addressfield.cpp \
   qt/addresstablemodel.cpp \
@@ -403,6 +410,7 @@ BITCOIN_QT_WALLET_CPP = \
   qt/receiverequestdialog.cpp \
   qt/receivetokenpage.cpp \
   qt/recentrequeststablemodel.cpp \
+  qt/removedelegationpage.cpp \
   qt/restoredialog.cpp \
   qt/stakepage.cpp \
   qt/sendcoinsdialog.cpp \
