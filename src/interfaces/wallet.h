@@ -340,6 +340,9 @@ public:
     //! Get delegation information.
     virtual DelegationInfo getDelegation(const uint256& id) = 0;
 
+    //! Get delegation information from contract.
+    virtual DelegationInfo getDelegationContract(const std::string &sHash, bool& validated, bool& contractRet) = 0;
+
     //! Get list of all delegations.
     virtual std::vector<DelegationInfo> getDelegations() = 0;
 
@@ -413,6 +416,10 @@ public:
         const std::string& abi,
         ChangeType status)>;
     virtual std::unique_ptr<Handler> handleContractBookChanged(ContractBookChangedFn fn) = 0;
+
+    //! Register handler for delegation changed messages.
+    using DelegationChangedFn = std::function<void(const uint256& id, ChangeType status)>;
+    virtual std::unique_ptr<Handler> handleDelegationChanged(DelegationChangedFn fn) = 0;
 };
 
 //! Information about one wallet address.

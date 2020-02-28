@@ -73,6 +73,7 @@ QT_MOC_CPP = \
   qt/moc_contracttablemodel.cpp \
   qt/moc_createcontract.cpp \
   qt/moc_csvmodelwriter.cpp \
+  qt/moc_delegationitemmodel.cpp \
   qt/moc_delegationitemwidget.cpp \
   qt/moc_delegationlistwidget.cpp \
   qt/moc_editaddressdialog.cpp \
@@ -146,6 +147,7 @@ QT_MOC = \
   qt/rpcconsole.moc \
   qt/tokenamountfield.moc \
   qt/tokenitemmodel.moc \
+  qt/delegationitemmodel.moc \
   qt/walletmodel.moc
 
 QT_QRC_CPP = qt/qrc_bitcoin.cpp
@@ -346,6 +348,7 @@ BITCOIN_QT_BASE_CPP = \
   qt/bitcoinunits.cpp \
   qt/clientmodel.cpp \
   qt/csvmodelwriter.cpp \
+  qt/delegationitemmodel.cpp \
   qt/guiutil.cpp \
   qt/intro.cpp \
   qt/modaloverlay.cpp \

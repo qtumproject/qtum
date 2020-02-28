@@ -28,7 +28,7 @@ struct Delegation
 
     uint160 staker;
     uint8_t fee;
-    uint blockHeight;
+    uint32_t blockHeight;
     std::vector<unsigned char> PoD; //Proof Of Delegation
 };
 

@@ -25,6 +25,7 @@
 #include <wallet/wallet.h>
 #include <wallet/walletutil.h>
 #include <key_io.h>
+#include <qtum/qtumdelegation.h>
 
 #include <memory>
 #include <string>
@@ -865,6 +866,35 @@ public:
         }
         return {};
     }
+    DelegationInfo getDelegationContract(const std::string &sHash, bool& validated, bool& contractRet) override
+    {
+        auto locked_chain = m_wallet->chain().lock();
+        LOCK(m_wallet->cs_wallet);
+
+        uint256 id;
+        id.SetHex(sHash);
+        auto mi = m_wallet->mapDelegation.find(id);
+        if (mi != m_wallet->mapDelegation.end()) {
+            DelegationInfo info = MakeWalletDelegationInfo(mi->second);
+            Delegation delegation;
+            CTxDestination dest = DecodeDestination(info.delegate_address);
+            const PKHash *keyID = boost::get<PKHash>(&dest);
+            if(keyID)
+            {
+                uint160 address(*keyID);
+                contractRet = m_qtumDelegation.GetDelegation(address, delegation);
+                if(contractRet)
+                {
+                    validated = m_qtumDelegation.VerifyDelegation(address, delegation);
+                    info.staker_address = EncodeDestination(PKHash(delegation.staker));
+                    info.fee = delegation.fee;
+                    info.block_number = delegation.blockHeight;
+                }
+                return info;
+            }
+        }
+        return {};
+    }
     std::vector<DelegationInfo> getDelegations() override
     {
         auto locked_chain = m_wallet->chain().lock();
@@ -972,8 +1002,14 @@ public:
             [fn](CWallet*, const std::string& address, const std::string& label,
                 const std::string& abi, ChangeType status) { fn(address, label, abi, status); }));
     }
+    std::unique_ptr<Handler> handleDelegationChanged(DelegationChangedFn fn) override
+    {
+        return MakeHandler(m_wallet->NotifyDelegationChanged.connect(
+            [fn](CWallet*, const uint256& id, ChangeType status) { fn(id, status); }));
+    }
 
     std::shared_ptr<CWallet> m_wallet;
+    QtumDelegation m_qtumDelegation;
 };
 
 class WalletClientImpl : public ChainClient
