@@ -24,6 +24,7 @@ class SendToContract;
 class CallContract;
 class QRCToken;
 class StakePage;
+class DelegationPage;
 
 QT_BEGIN_NAMESPACE
 class QModelIndex;
@@ -75,6 +76,7 @@ private:
     CallContract* callContractPage;
     QRCToken* QRCTokenPage;
     StakePage *stakePage;
+    DelegationPage* delegationPage;
 
     TransactionView *transactionView;
 
@@ -102,6 +104,8 @@ public Q_SLOTS:
     void gotoTokenPage();
     /** Switch to stake page */
     void gotoStakePage();
+    /** Switch to delegation page */
+    void gotoDelegationPage();
 
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");

@@ -1083,7 +1083,7 @@ Token Page Widget CSS
     background-color: rgba(46, 46, 46, 20%);
     border: 1px solid rgba(156, 156, 156, 20%);
 }
-#tokenItemFrame{
+#tokenItemFrame, #delegationItemFrame{
     background-color: #393939;
     border-radius: 6px;
 }

@@ -62,6 +62,7 @@ WalletModel::WalletModel(std::unique_ptr<interfaces::Wallet> wallet, interfaces:
     recentRequestsTableModel(nullptr),
     tokenItemModel(nullptr),
     tokenTransactionTableModel(nullptr),
+    delegationItemModel(nullptr),
     cachedEncryptionStatus(Unencrypted),
     cachedNumBlocks(0),
     nWeight(0),
@@ -76,6 +77,7 @@ WalletModel::WalletModel(std::unique_ptr<interfaces::Wallet> wallet, interfaces:
     recentRequestsTableModel = new RecentRequestsTableModel(this);
     tokenItemModel = new TokenItemModel(this);
     tokenTransactionTableModel = new TokenTransactionTableModel(platformStyle, this);
+    delegationItemModel = new DelegationItemModel(this);
 
     worker = new WalletWorker(this);
     worker->moveToThread(&(t));
@@ -182,6 +184,14 @@ void WalletModel::checkTokenBalanceChanged()
     if(tokenItemModel)
     {
         tokenItemModel->checkTokenBalanceChanged();
+    }
+}
+
+void WalletModel::checkDelegationChanged()
+{
+    if(delegationItemModel)
+    {
+        delegationItemModel->checkDelegationChanged();
     }
 }
 
@@ -426,7 +436,7 @@ TokenTransactionTableModel *WalletModel::getTokenTransactionTableModel()
 
 DelegationItemModel *WalletModel::getDelegationItemModel()
 {
-    return 0;
+    return delegationItemModel;
 }
 
 WalletModel::EncryptionStatus WalletModel::getEncryptionStatus() const

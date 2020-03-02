@@ -1080,7 +1080,7 @@ Token Page Widget CSS
     background-color: rgba(255, 255, 255, 20%);
     border: 1px solid rgba(209, 219, 231, 20%);
 }
-#tokenItemFrame{
+#tokenItemFrame, #delegationItemFrame{
     background-color: #ffffff;
     border-radius: 6px;
 }
@@ -1104,9 +1104,6 @@ TokenItemWidget #tokenLogo{
     border-radius: 20px;
 }
 DelegationListWidget{
-    background-color: #e4ebf5;
-}
-DelegationItemWidget{
     background-color: #e4ebf5;
 }
 DelegationItemWidget #labelFee{

@@ -276,6 +276,7 @@ private:
     RecentRequestsTableModel *recentRequestsTableModel;
     TokenItemModel *tokenItemModel;
     TokenTransactionTableModel *tokenTransactionTableModel;
+    DelegationItemModel *delegationItemModel;
 
     // Cache some values to be able to detect changes
     interfaces::WalletBalances m_cached_balances;
@@ -296,6 +297,7 @@ private:
     void unsubscribeFromCoreSignals();
     bool checkBalanceChanged(const interfaces::WalletBalances& new_balances);
     void checkTokenBalanceChanged();
+    void checkDelegationChanged();
 
 Q_SIGNALS:
     // Signal that balance in wallet changed

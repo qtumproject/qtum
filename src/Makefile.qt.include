@@ -20,6 +20,7 @@ QT_FORMS_UI = \
   qt/forms/contractresult.ui \
   qt/forms/createcontract.ui \
   qt/forms/delegationitemwidget.ui \
+  qt/forms/delegationpage.ui \
   qt/forms/editaddressdialog.ui \
   qt/forms/editcontractinfodialog.ui \
   qt/forms/helpmessagedialog.ui \
@@ -76,6 +77,7 @@ QT_MOC_CPP = \
   qt/moc_delegationitemmodel.cpp \
   qt/moc_delegationitemwidget.cpp \
   qt/moc_delegationlistwidget.cpp \
+  qt/moc_delegationpage.cpp \
   qt/moc_editaddressdialog.cpp \
   qt/moc_editcontractinfodialog.cpp \
   qt/moc_guiutil.cpp \
@@ -196,6 +198,7 @@ BITCOIN_QT_H = \
   qt/delegationitemwidget.h \
   qt/delegationlistwidget.h \
   qt/delegationitemmodel.h \
+  qt/delegationpage.h \
   qt/editaddressdialog.h \
   qt/editcontractinfodialog.h \
   qt/eventlog.h \
@@ -399,6 +402,7 @@ BITCOIN_QT_WALLET_CPP = \
   qt/createcontract.cpp \
   qt/delegationitemwidget.cpp \
   qt/delegationlistwidget.cpp \
+  qt/delegationpage.cpp \
   qt/eventlog.cpp \
   qt/execrpccommand.cpp \
   qt/createwalletdialog.cpp \

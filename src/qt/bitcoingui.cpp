@@ -340,6 +340,13 @@ void BitcoinGUI::createActions()
     QRCTokenAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_5));
     tabGroup->addAction(QRCTokenAction);
 
+    delegationAction = new QAction(platformStyle->MultiStatesIcon(":/icons/tx_mined"), tr("&Delegations"), this);
+    delegationAction->setStatusTip(tr("Delegate coins for staking to supers stakers"));
+    delegationAction->setToolTip(delegationAction->statusTip());
+    delegationAction->setCheckable(true);
+    delegationAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_6));
+    tabGroup->addAction(delegationAction);
+
 #ifdef ENABLE_WALLET
     // These showNormalIfMinimized are needed because Send Coins and Receive Coins
     // can be triggered from the tray menu, and need to show the GUI to be useful.
@@ -365,6 +372,8 @@ void BitcoinGUI::createActions()
     connect(QRCTokenAction, SIGNAL(triggered()), this, SLOT(gotoTokenPage()));
     connect(stakeAction, &QAction::triggered, [this]{ showNormalIfMinimized(); });
     connect(stakeAction, &QAction::triggered, this, &BitcoinGUI::gotoStakePage);
+    connect(delegationAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
+    connect(delegationAction, SIGNAL(triggered()), this, SLOT(gotoDelegationPage()));
 #endif // ENABLE_WALLET
 
     quitAction = new QAction(tr("E&xit"), this);
@@ -617,6 +626,7 @@ void BitcoinGUI::createToolBars()
         appNavigationBar->mapGroup(smartContractAction, contractActions);
         appNavigationBar->addAction(stakeAction);
         appNavigationBar->addAction(QRCTokenAction);
+        appNavigationBar->addAction(delegationAction);
         appNavigationBar->buildUi();
         overviewAction->setChecked(true);
     }
@@ -831,6 +841,7 @@ void BitcoinGUI::setWalletActionsEnabled(bool enabled)
     usedReceivingAddressesAction->setEnabled(enabled);
     openAction->setEnabled(enabled);
     stakeAction->setEnabled(enabled);
+    delegationAction->setEnabled(enabled);
     m_close_wallet_action->setEnabled(enabled);
 }
 
@@ -959,6 +970,12 @@ void BitcoinGUI::gotoTokenPage()
 {
     QRCTokenAction->setChecked(true);
     if (walletFrame) walletFrame->gotoTokenPage();
+}
+
+void BitcoinGUI::gotoDelegationPage()
+{
+    delegationAction->setChecked(true);
+    if (walletFrame) walletFrame->gotoDelegationPage();
 }
 
 void BitcoinGUI::gotoReceiveCoinsPage()
