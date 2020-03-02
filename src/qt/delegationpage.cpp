@@ -31,10 +31,10 @@ DelegationPage::DelegationPage(const PlatformStyle *platformStyle, QWidget *pare
 
     m_removeDelegationPage->setEnabled(false);
 
-    QAction *copyStakerAction = new QAction(tr("Copy super staker address"), this);
-    QAction *copyStekerFeeAction = new QAction(tr("Copy super staker fee"), this);
-    QAction *copyBlockHeightAction = new QAction(tr("Copy delegation block height"), this);
-    QAction *copyDelegateAddressAction = new QAction(tr("Copy delegated address"), this);
+    QAction *copyStakerAction = new QAction(tr("Copy staker address"), this);
+    QAction *copyStekerFeeAction = new QAction(tr("Copy staker fee"), this);
+    QAction *copyBlockHeightAction = new QAction(tr("Copy block height"), this);
+    QAction *copyDelegateAddressAction = new QAction(tr("Copy delegate address"), this);
     QAction *removeDelegationAction = new QAction(tr("Remove delegation"), this);
 
     m_delegationList = new DelegationListWidget(platformStyle, this);
@@ -110,7 +110,6 @@ void DelegationPage::on_currentDelegationChanged(QModelIndex index)
         {
             m_selectedDelegationHash = m_delegationList->delegationModel()->data(index, DelegationItemModel::HashRole).toString();
             QString address = m_delegationList->delegationModel()->data(index, DelegationItemModel::AddressRole).toString();
-            m_removeDelegationPage->setAddress(address);
 
             if(!m_removeDelegationPage->isEnabled())
                 m_removeDelegationPage->setEnabled(true);
@@ -118,7 +117,6 @@ void DelegationPage::on_currentDelegationChanged(QModelIndex index)
         else
         {
             m_removeDelegationPage->setEnabled(false);
-            m_removeDelegationPage->setAddress("");
         }
     }
 }

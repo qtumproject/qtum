@@ -56,6 +56,8 @@ AddDelegationPage::AddDelegationPage(QWidget *parent) :
     ui->spinBoxFee->setMaximum(100);
     ui->spinBoxFee->setValue(DEFAULT_STAKING_MIN_FEE);
 
+    ui->addDelegationButton->setEnabled(false);
+
     // Create new PRC command line interface
     QStringList lstMandatory;
     lstMandatory.append(PARAM_STAKER);
@@ -107,6 +109,16 @@ void AddDelegationPage::setClientModel(ClientModel *_clientModel)
     }
 }
 
+void AddDelegationPage::clearAll()
+{
+    ui->lineEditStaker->setText("");
+    ui->spinBoxFee->setValue(DEFAULT_STAKING_MIN_FEE);
+    ui->lineEditAddress->setCurrentIndex(-1);
+    ui->lineEditGasLimit->setValue(DEFAULT_GAS_LIMIT_OP_SEND);
+    ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
+    ui->addDelegationButton->setEnabled(false);
+}
+
 bool AddDelegationPage::isValidStakerAddress()
 {
     bool retval = true;
@@ -139,9 +151,42 @@ void AddDelegationPage::on_gasInfoChanged(quint64 blockGasLimit, quint64 minGasP
     ui->lineEditGasLimit->setMaximum(blockGasLimit);
 }
 
+void AddDelegationPage::accept()
+{
+    clearAll();
+    QDialog::accept();
+}
+
+void AddDelegationPage::reject()
+{
+    clearAll();
+    QDialog::reject();
+}
+
+void AddDelegationPage::show()
+{
+    ui->lineEditStaker->setFocus();
+    QDialog::show();
+}
+
+void AddDelegationPage::on_clearButton_clicked()
+{
+    reject();
+}
+
 void AddDelegationPage::on_addDelegationClicked()
 {
-    if(isDataValid()) {
+    if(m_model)
+    {
+        if(!isDataValid())
+            return;
+
+        WalletModel::UnlockContext ctx(m_model->requestUnlock());
+        if(!ctx.isValid())
+        {
+            return;
+        }
+
         // Initialize variables
         QMap<QString, QString> lstParams;
         QVariant result;
@@ -152,9 +197,12 @@ void AddDelegationPage::on_addDelegationClicked()
         CAmount gasPrice = ui->lineEditGasPrice->value();
 
         // Append params to the list
-        ExecRPCCommand::appendParam(lstParams, PARAM_STAKER, ui->lineEditStaker->text());
-        ExecRPCCommand::appendParam(lstParams, PARAM_FEE, QString::number(ui->spinBoxFee->value()));
-        ExecRPCCommand::appendParam(lstParams, PARAM_ADDRESS, ui->lineEditAddress->currentText());
+        QString delegateAddress = ui->lineEditAddress->currentText();
+        QString stakerAddress = ui->lineEditStaker->text();
+        int stakerFee = ui->spinBoxFee->value();
+        ExecRPCCommand::appendParam(lstParams, PARAM_STAKER, stakerAddress);
+        ExecRPCCommand::appendParam(lstParams, PARAM_FEE, QString::number(stakerFee));
+        ExecRPCCommand::appendParam(lstParams, PARAM_ADDRESS, delegateAddress);
         ExecRPCCommand::appendParam(lstParams, PARAM_GASLIMIT, QString::number(gasLimit));
         ExecRPCCommand::appendParam(lstParams, PARAM_GASPRICE, BitcoinUnits::format(unit, gasPrice, false, BitcoinUnits::separatorNever));
 
@@ -174,6 +222,19 @@ void AddDelegationPage::on_addDelegationClicked()
             {
                 QMessageBox::warning(this, tr("Set delegation to address"), errorMessage);
             }
+            else
+            {
+                QVariantMap variantMap = result.toMap();
+                std::string txid = variantMap.value("txid").toString().toStdString();
+                interfaces::DelegationInfo delegation;
+                delegation.delegate_address = delegateAddress.toStdString();
+                delegation.staker_address = stakerAddress.toStdString();
+                delegation.fee = stakerFee;
+                delegation.create_tx_hash.SetHex(txid);
+                m_model->wallet().addDelegationEntry(delegation);
+            }
+
+            accept();
         }
     }
 }
@@ -181,9 +242,15 @@ void AddDelegationPage::on_addDelegationClicked()
 void AddDelegationPage::on_updateAddDelegationButton()
 {
     bool enabled = true;
-    if(ui->lineEditStaker->text().isEmpty() || !ui->lineEditAddress->isValidAddress())
+    QString staker = ui->lineEditStaker->text();
+    QString delegate = ui->lineEditAddress->currentText();
+    if(staker.isEmpty() || delegate.isEmpty() || staker == delegate)
     {
         enabled = false;
+    }
+    else
+    {
+        enabled = isDataValid();
     }
 
     ui->addDelegationButton->setEnabled(enabled);

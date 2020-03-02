@@ -51,7 +51,11 @@
       <number>15</number>
      </property>
      <item row="3" column="1">
-      <widget class="QSpinBox" name="lineEditGasLimit"/>
+      <widget class="QSpinBox" name="lineEditGasLimit">
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
      </item>
      <item row="4" column="0">
       <widget class="QLabel" name="labelGasPrice">
@@ -91,6 +95,9 @@
            <width>100</width>
            <height>0</height>
           </size>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
          <property name="suffix">
           <string>%</string>
@@ -217,7 +224,7 @@
       <item>
        <widget class="QPushButton" name="addDelegationButton">
         <property name="text">
-         <string>Add Delegation</string>
+         <string>Confirm</string>
         </property>
        </widget>
       </item>
@@ -244,6 +251,15 @@
    <header>qt/addressfield.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>lineEditStaker</tabstop>
+  <tabstop>spinBoxFee</tabstop>
+  <tabstop>lineEditAddress</tabstop>
+  <tabstop>lineEditGasLimit</tabstop>
+  <tabstop>lineEditGasPrice</tabstop>
+  <tabstop>addDelegationButton</tabstop>
+  <tabstop>clearButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
