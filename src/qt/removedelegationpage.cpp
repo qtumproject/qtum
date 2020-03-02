@@ -128,7 +128,6 @@ void RemoveDelegationPage::reject()
 
 void RemoveDelegationPage::show()
 {
-    ui->lineEditGasLimit->setFocus();
     QDialog::show();
 }
 

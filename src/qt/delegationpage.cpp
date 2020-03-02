@@ -209,14 +209,9 @@ void DelegationPage::copyStakerAddress()
 
 void DelegationPage::removeDelegation()
 {
-    QMessageBox::StandardButton btnRetVal = QMessageBox::question(this, tr("Confirm delegation removal"), tr("The selected delegation will be removed from the list. Are you sure?"),
-        QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
-
-    if(btnRetVal == QMessageBox::Yes)
+    if(indexMenu.isValid())
     {
-        QModelIndex index = indexMenu;
-        std::string sHash = index.data(DelegationItemModel::HashRole).toString().toStdString();
-        m_model->wallet().removeDelegationEntry(sHash);
+        on_removeDelegation(indexMenu);
         indexMenu = QModelIndex();
     }
 }
