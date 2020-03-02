@@ -148,6 +148,7 @@ void WalletModel::pollBalanceChanged()
         if(cachedNumBlocksChanged)
         {
             checkTokenBalanceChanged();
+            checkDelegationChanged();
         }
 
         if(balanceChanged)

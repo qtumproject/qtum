@@ -114,7 +114,7 @@ void AddDelegationPage::clearAll()
     ui->lineEditStaker->setText("");
     ui->spinBoxFee->setValue(DEFAULT_STAKING_MIN_FEE);
     ui->lineEditAddress->setCurrentIndex(-1);
-    ui->lineEditGasLimit->setValue(DEFAULT_GAS_LIMIT_OP_SEND);
+    ui->lineEditGasLimit->setValue(DEFAULT_GAS_LIMIT_OP_CREATE);
     ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
     ui->addDelegationButton->setEnabled(false);
 }

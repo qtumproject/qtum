@@ -349,6 +349,9 @@ public:
     //! Remove wallet delegation entry.
     virtual bool removeDelegationEntry(const std::string &sHash) = 0;
 
+    //! Set delegation entry removed.
+    virtual bool setDelegationRemoved(const std::string &sHash, const std::string &sTxid) = 0;
+
     //! Try get the stake weight
     virtual bool tryGetStakeWeight(uint64_t& nWeight) = 0;
 

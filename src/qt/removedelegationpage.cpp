@@ -40,6 +40,7 @@ RemoveDelegationPage::RemoveDelegationPage(QWidget *parent) :
     ui->lineEditGasLimit->setMinimum(MINIMUM_GAS_LIMIT);
     ui->lineEditGasLimit->setMaximum(DEFAULT_GAS_LIMIT_OP_SEND);
     ui->lineEditGasLimit->setValue(DEFAULT_GAS_LIMIT_OP_SEND);
+    ui->lineEditAddress->setReadOnly(true);
 
     // Create new PRC command line interface
     QStringList lstMandatory;
@@ -57,7 +58,7 @@ RemoveDelegationPage::RemoveDelegationPage(QWidget *parent) :
     m_execRPCCommand = new ExecRPCCommand(PRC_COMMAND, lstMandatory, lstOptional, lstTranslations, this);
 
     connect(ui->removeDelegationButton, &QPushButton::clicked, this, &RemoveDelegationPage::on_removeDelegationClicked);
-    connect(ui->lineEditAddress, &QComboBox::currentTextChanged, this, &RemoveDelegationPage::on_updateRemoveDelegationButton);
+    connect(ui->lineEditAddress, &QValidatedLineEdit::textChanged, this, &RemoveDelegationPage::on_updateRemoveDelegationButton);
 }
 
 RemoveDelegationPage::~RemoveDelegationPage()
@@ -68,7 +69,6 @@ RemoveDelegationPage::~RemoveDelegationPage()
 void RemoveDelegationPage::setModel(WalletModel *_model)
 {
     m_model = _model;
-    ui->lineEditAddress->setWalletModel(m_model);
 
     if (m_model && m_model->getOptionsModel())
         connect(m_model->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &RemoveDelegationPage::updateDisplayUnit);
@@ -87,6 +87,24 @@ void RemoveDelegationPage::setClientModel(ClientModel *_clientModel)
     }
 }
 
+void RemoveDelegationPage::clearAll()
+{
+    ui->lineEditGasLimit->setValue(DEFAULT_GAS_LIMIT_OP_SEND);
+    ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
+}
+
+void RemoveDelegationPage::setDelegationData(const QString &_address, const QString &_hash)
+{
+    address = _address;
+    hash = _hash;
+    ui->lineEditAddress->setText(address);
+}
+
+bool RemoveDelegationPage::isDataValid()
+{
+    return !address.isEmpty() && !hash.isEmpty();
+}
+
 void RemoveDelegationPage::on_gasInfoChanged(quint64 blockGasLimit, quint64 minGasPrice, quint64 nGasPrice)
 {
     Q_UNUSED(nGasPrice)
@@ -96,36 +114,79 @@ void RemoveDelegationPage::on_gasInfoChanged(quint64 blockGasLimit, quint64 minG
     ui->lineEditGasLimit->setMaximum(blockGasLimit);
 }
 
+void RemoveDelegationPage::accept()
+{
+    clearAll();
+    QDialog::accept();
+}
+
+void RemoveDelegationPage::reject()
+{
+    clearAll();
+    QDialog::reject();
+}
+
+void RemoveDelegationPage::show()
+{
+    ui->lineEditGasLimit->setFocus();
+    QDialog::show();
+}
+
+void RemoveDelegationPage::on_clearButton_clicked()
+{
+    reject();
+}
+
 void RemoveDelegationPage::on_removeDelegationClicked()
 {
-    // Initialize variables
-    QMap<QString, QString> lstParams;
-    QVariant result;
-    QString errorMessage;
-    QString resultJson;
-    int unit = BitcoinUnits::BTC;
-    uint64_t gasLimit = ui->lineEditGasLimit->value();
-    CAmount gasPrice = ui->lineEditGasPrice->value();
-
-    // Append params to the list
-    ExecRPCCommand::appendParam(lstParams, PARAM_ADDRESS, ui->lineEditAddress->currentText());
-    ExecRPCCommand::appendParam(lstParams, PARAM_GASLIMIT, QString::number(gasLimit));
-    ExecRPCCommand::appendParam(lstParams, PARAM_GASPRICE, BitcoinUnits::format(unit, gasPrice, false, BitcoinUnits::separatorNever));
-
-    QString questionString = tr("Are you sure you want to remove the delegation for the address: <br /><br />");
-    questionString.append(tr("<b>%1</b>?")
-                          .arg(ui->lineEditAddress->currentText()));
-
-    SendConfirmationDialog confirmationDialog(tr("Confirm remove delegation."), questionString, "", "", SEND_CONFIRM_DELAY, this);
-    confirmationDialog.exec();
-
-    QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();
-    if(retval == QMessageBox::Yes)
+    if(m_model)
     {
-        // Execute RPC command line
-        if(!m_execRPCCommand->exec(m_model->node(), m_model, lstParams, result, resultJson, errorMessage))
+        if(!isDataValid())
+            return;
+
+        WalletModel::UnlockContext ctx(m_model->requestUnlock());
+        if(!ctx.isValid())
         {
-            QMessageBox::warning(this, tr("Remove delegation for address"), errorMessage);
+            return;
+        }
+
+        // Initialize variables
+        QMap<QString, QString> lstParams;
+        QVariant result;
+        QString errorMessage;
+        QString resultJson;
+        int unit = BitcoinUnits::BTC;
+        uint64_t gasLimit = ui->lineEditGasLimit->value();
+        CAmount gasPrice = ui->lineEditGasPrice->value();
+
+        // Append params to the list
+        ExecRPCCommand::appendParam(lstParams, PARAM_ADDRESS, address);
+        ExecRPCCommand::appendParam(lstParams, PARAM_GASLIMIT, QString::number(gasLimit));
+        ExecRPCCommand::appendParam(lstParams, PARAM_GASPRICE, BitcoinUnits::format(unit, gasPrice, false, BitcoinUnits::separatorNever));
+
+        QString questionString = tr("Are you sure you want to remove the delegation for the address: <br /><br />");
+        questionString.append(tr("<b>%1</b>?")
+                              .arg(ui->lineEditAddress->text()));
+
+        SendConfirmationDialog confirmationDialog(tr("Confirm remove delegation."), questionString, "", "", SEND_CONFIRM_DELAY, this);
+        confirmationDialog.exec();
+
+        QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();
+        if(retval == QMessageBox::Yes)
+        {
+            // Execute RPC command line
+            if(!m_execRPCCommand->exec(m_model->node(), m_model, lstParams, result, resultJson, errorMessage))
+            {
+                QMessageBox::warning(this, tr("Remove delegation for address"), errorMessage);
+            }
+            else
+            {
+                QVariantMap variantMap = result.toMap();
+                std::string txid = variantMap.value("txid").toString().toStdString();
+                m_model->wallet().setDelegationRemoved(hash.toStdString(), txid);
+            }
+
+            accept();
         }
     }
 }
@@ -133,7 +194,7 @@ void RemoveDelegationPage::on_removeDelegationClicked()
 void RemoveDelegationPage::on_updateRemoveDelegationButton()
 {
     bool enabled = true;
-    if(!ui->lineEditAddress->isValidAddress())
+    if(ui->lineEditAddress->text().isEmpty())
     {
         enabled = false;
     }

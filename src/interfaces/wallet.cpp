@@ -911,6 +911,30 @@ public:
     {
         return m_wallet->RemoveDelegationEntry(uint256S(sHash), true);
     }
+    bool setDelegationRemoved(const std::string &sHash, const std::string &sTxid)
+    {
+        bool found = false;
+        DelegationInfo info;
+        {
+            auto locked_chain = m_wallet->chain().lock();
+            LOCK(m_wallet->cs_wallet);
+
+            uint256 id;
+            id.SetHex(sHash);
+
+            uint256 txid;
+            txid.SetHex(sTxid);
+
+            auto mi = m_wallet->mapDelegation.find(id);
+            if (mi != m_wallet->mapDelegation.end()) {
+                info = MakeWalletDelegationInfo(mi->second);
+                info.remove_tx_hash = txid;
+                found = true;
+            }
+        }
+
+        return found ? addDelegationEntry(info) : 0;
+    }
     bool tryGetStakeWeight(uint64_t& nWeight) override
     {
         auto locked_chain = m_wallet->chain().lock(true);

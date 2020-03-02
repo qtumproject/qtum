@@ -19,11 +19,18 @@ public:
     ~RemoveDelegationPage();
     void setModel(WalletModel *_model);
     void setClientModel(ClientModel *_clientModel);
+    void clearAll();
+    void setDelegationData(const QString& address, const QString& hash);
+    bool isDataValid();
 
 public Q_SLOTS:
     void on_gasInfoChanged(quint64 blockGasLimit, quint64 minGasPrice, quint64 nGasPrice);
+    void accept();
+    void reject();
+    void show();
 
 private Q_SLOTS:
+    void on_clearButton_clicked();
     void on_removeDelegationClicked();
     void on_updateRemoveDelegationButton();
     void updateDisplayUnit();
@@ -33,6 +40,8 @@ private:
     WalletModel* m_model;
     ClientModel* m_clientModel;
     ExecRPCCommand *m_execRPCCommand;
+    QString address;
+    QString hash;
 };
 
 #endif // REMOVEDELEGATIONPAGE_H

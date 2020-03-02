@@ -37,7 +37,7 @@ void DelegationListWidget::setModel(WalletModel *_model)
         QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(this);
         DelegationItemModel* delegationModel = m_model->getDelegationItemModel();
         proxyModel->setSourceModel(delegationModel);
-        proxyModel->sort(1, Qt::AscendingOrder);
+        proxyModel->sort(2, Qt::AscendingOrder);
         m_delegationModel = proxyModel;
 
         // Connect signals and slots

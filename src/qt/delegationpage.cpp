@@ -110,6 +110,8 @@ void DelegationPage::on_currentDelegationChanged(QModelIndex index)
         {
             m_selectedDelegationHash = m_delegationList->delegationModel()->data(index, DelegationItemModel::HashRole).toString();
             QString address = m_delegationList->delegationModel()->data(index, DelegationItemModel::AddressRole).toString();
+            QString hash = m_delegationList->delegationModel()->data(index, DelegationItemModel::HashRole).toString();
+            m_removeDelegationPage->setDelegationData(address, hash);
 
             if(!m_removeDelegationPage->isEnabled())
                 m_removeDelegationPage->setEnabled(true);
@@ -117,6 +119,8 @@ void DelegationPage::on_currentDelegationChanged(QModelIndex index)
         else
         {
             m_removeDelegationPage->setEnabled(false);
+            m_removeDelegationPage->setDelegationData("", "");
+            m_selectedDelegationHash = "";
         }
     }
 }
