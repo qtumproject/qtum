@@ -13,8 +13,6 @@
 
 #include <QObject>
 
-static const QString STAKER_ICON_FORMAT = ":/stakers/%1";
-
 DelegationListWidget::DelegationListWidget(const PlatformStyle *platformStyle, QWidget *parent) :
     QWidget(parent),
     m_mainLayout(new QVBoxLayout(this))
@@ -103,6 +101,17 @@ void DelegationListWidget::insertRow(const QModelIndex &index, int position)
 {
     DelegationItemWidget* item = new DelegationItemWidget(m_platfromStyle);
     m_rows.insert(position, item);
+    for(DelegationItemWidget* p_row : m_rows)
+    {
+        if(p_row != item)
+        {
+            int pos = p_row->position();
+            if(pos >= position)
+            {
+                p_row->setPosition(pos + 1);
+            }
+        }
+    }
     insertItem(position, item);
     updateRow(index, position);
 }
@@ -112,6 +121,14 @@ DelegationItemWidget *DelegationListWidget::removeRow(int position)
     DelegationItemWidget* row =  m_rows[position];
     m_rows.removeAt(position);
     m_mainLayout->removeWidget(row);
+    for(DelegationItemWidget* p_row : m_rows)
+    {
+        int pos = p_row->position();
+        if(pos > position)
+        {
+            p_row->setPosition(pos - 1);
+        }
+    }
     return row;
 }
 
@@ -130,10 +147,10 @@ void DelegationListWidget::updateRow(const QModelIndex &index, int position)
         QString fee = m_delegationModel->data(index, DelegationItemModel::FeeRole).toString() + " %";
         QString staker = m_delegationModel->data(index, DelegationItemModel::StakerRole).toString();
         QString address = m_delegationModel->data(index, DelegationItemModel::AddressRole).toString();
-        QString iconPath = STAKER_ICON_FORMAT.arg(staker);
+        int32_t blockHight = m_delegationModel->data(index, DelegationItemModel::BlockHeightRole).toInt();
         DelegationItemWidget* item = m_rows[position];
         item->setPosition(position);
-        item->setData(fee, staker, address, iconPath);
+        item->setData(fee, staker, address, blockHight);
     }
 }
 

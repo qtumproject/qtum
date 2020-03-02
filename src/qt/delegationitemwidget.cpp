@@ -21,7 +21,7 @@ DelegationItemWidget::DelegationItemWidget(const PlatformStyle *platformStyle, Q
     ui->stackedWidget->setCurrentIndex(type);
     ui->buttonRemove->setIcon(platformStyle->MultiStatesIcon(":/icons/remove_entry", PlatformStyle::PushButtonIcon));
     ui->buttonAdd->setIcon(platformStyle->MultiStatesIcon(":/icons/plus_full", PlatformStyle::PushButtonIcon));
-    ui->delegationLogo->setPixmap(platformStyle->MultiStatesIcon(m_type == New ? ":/icons/export" : ":/icons/staking_on").pixmap(DELEGATION_ITEM_ICONSIZE, DELEGATION_ITEM_ICONSIZE));
+    ui->delegationLogo->setPixmap(platformStyle->MultiStatesIcon(m_type == New ? ":/icons/export" : ":/icons/staking_off").pixmap(DELEGATION_ITEM_ICONSIZE, DELEGATION_ITEM_ICONSIZE));
 }
 
 DelegationItemWidget::~DelegationItemWidget()
@@ -29,7 +29,7 @@ DelegationItemWidget::~DelegationItemWidget()
     delete ui;
 }
 
-void DelegationItemWidget::setData(const QString &fee, const QString &staker, const QString &address, const QString &filename)
+void DelegationItemWidget::setData(const QString &fee, const QString &staker, const QString &address, const int32_t &blockHight)
 {
     if(fee != ui->labelFee->text())
         ui->labelFee->setText(fee);
@@ -37,6 +37,7 @@ void DelegationItemWidget::setData(const QString &fee, const QString &staker, co
         ui->labelStaker->setText(staker);
     if(address != ui->labelAddress->text())
         ui->labelAddress->setText(address);
+    QString filename = blockHight > 0 ? ":/icons/staking_on" : ":/icons/staking_off";
     if(m_filename != filename)
     {
         m_filename = filename;
@@ -66,15 +67,6 @@ int DelegationItemWidget::position() const
 
 void DelegationItemWidget::updateLogo()
 {
-    QPixmap pixmap;
-    if(QFile::exists(m_filename))
-    {
-        QIcon icon(m_filename);
-        pixmap = icon.pixmap(ui->delegationLogo->width(), ui->delegationLogo->height());
-    }
-    else
-    {
-        pixmap = m_platfromStyle->MultiStatesIcon(":/icons/staking_on").pixmap(DELEGATION_ITEM_ICONSIZE, DELEGATION_ITEM_ICONSIZE);
-    }
+    QPixmap pixmap = m_platfromStyle->MultiStatesIcon(m_filename).pixmap(DELEGATION_ITEM_ICONSIZE, DELEGATION_ITEM_ICONSIZE);
     ui->delegationLogo->setPixmap(pixmap);
 }
