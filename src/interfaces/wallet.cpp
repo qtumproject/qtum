@@ -895,6 +895,70 @@ public:
         }
         return {};
     }
+    DelegationDetails getDelegationDetails(const std::string &sAddress) override
+    {
+        auto locked_chain = m_wallet->chain().lock();
+        LOCK(m_wallet->cs_wallet);
+        DelegationDetails details;
+
+        // Get wallet delegation details
+        for(auto mi : m_wallet->mapDelegation)
+        {
+            if(mi.second.strDelegateAddress == sAddress)
+            {
+                details.w_entry_exist = true;
+                details.w_delegate_address = mi.second.strDelegateAddress;
+                details.w_staker_address = mi.second.strStakerAddress;
+                details.w_fee = mi.second.nFee;
+                details.w_time = mi.second.nCreateTime;
+                details.w_block_number = mi.second.blockNumber;
+                details.w_hash = mi.first;
+                details.w_create_tx_hash = mi.second.createTxHash;
+                details.w_remove_tx_hash = mi.second.removeTxHash;
+                break;
+            }
+        }
+
+        // Get wallet create tx details
+        const CWalletTx* wtx = m_wallet->GetWalletTx(details.w_create_tx_hash);
+        if(wtx)
+        {
+            details.w_create_exist = true;
+            details.w_create_in_main_chain = wtx->IsInMainChain(*locked_chain);
+            details.w_create_in_mempool = wtx->InMempool();
+            details.w_create_abandoned = wtx->isAbandoned();
+        }
+
+        // Get wallet remove tx details
+        wtx = m_wallet->GetWalletTx(details.w_remove_tx_hash);
+        if(wtx)
+        {
+            details.w_remove_exist = true;
+            details.w_remove_in_main_chain = wtx->IsInMainChain(*locked_chain);
+            details.w_remove_in_mempool = wtx->InMempool();
+            details.w_remove_abandoned = wtx->isAbandoned();
+        }
+
+        // Delegation contract details
+        Delegation delegation;
+        CTxDestination dest = DecodeDestination(sAddress);
+        const PKHash *keyID = boost::get<PKHash>(&dest);
+        if(keyID)
+        {
+            uint160 address(*keyID);
+            details.c_contract_return = m_qtumDelegation.GetDelegation(address, delegation);
+            if(details.c_contract_return)
+            {
+                details.c_entry_exist = m_qtumDelegation.VerifyDelegation(address, delegation);
+                details.c_delegate_address = sAddress;
+                details.c_staker_address = EncodeDestination(PKHash(delegation.staker));
+                details.c_fee = delegation.fee;
+                details.c_block_number = delegation.blockHeight;
+            }
+        }
+
+        return details;
+    }
     std::vector<DelegationInfo> getDelegations() override
     {
         auto locked_chain = m_wallet->chain().lock();

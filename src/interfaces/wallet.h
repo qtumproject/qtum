@@ -43,6 +43,7 @@ struct TokenInfo;
 struct TokenTx;
 struct ContractBookData;
 struct DelegationInfo;
+struct DelegationDetails;
 
 
 using WalletOrderForm = std::vector<std::pair<std::string, std::string>>;
@@ -343,6 +344,9 @@ public:
     //! Get delegation information from contract.
     virtual DelegationInfo getDelegationContract(const std::string &sHash, bool& validated, bool& contractRet) = 0;
 
+    //! Get delegation details for address.
+    virtual DelegationDetails getDelegationDetails(const std::string &sAddress) = 0;
+
     //! Get list of all delegations.
     virtual std::vector<DelegationInfo> getDelegations() = 0;
 
@@ -557,6 +561,41 @@ struct DelegationInfo
     uint256 hash;
     uint256 create_tx_hash;
     uint256 remove_tx_hash;
+};
+
+// Delegation details.
+struct DelegationDetails
+{
+    // Wallet delegation details
+    bool w_entry_exist = false;
+    std::string w_delegate_address;
+    std::string w_staker_address;
+    uint8_t w_fee = 0;
+    int64_t w_time = 0;
+    int64_t w_block_number = -1;
+    uint256 w_hash;
+    uint256 w_create_tx_hash;
+    uint256 w_remove_tx_hash;
+
+    // Wallet create tx details
+    bool w_create_exist = false;
+    bool w_create_in_main_chain = false;
+    bool w_create_in_mempool = false;
+    bool w_create_abandoned = false;
+
+    // Wallet remove tx details
+    bool w_remove_exist = false;
+    bool w_remove_in_main_chain = false;
+    bool w_remove_in_mempool = false;
+    bool w_remove_abandoned = false;
+
+    // Delegation contract details
+    std::string c_delegate_address;
+    std::string c_staker_address;
+    uint8_t c_fee = 0;
+    int64_t c_block_number = -1;
+    bool c_entry_exist = false;
+    bool c_contract_return = false;
 };
 
 //! Return implementation of Wallet interface. This function is defined in
