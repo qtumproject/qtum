@@ -181,12 +181,6 @@ void AddDelegationPage::on_addDelegationClicked()
         if(!isDataValid())
             return;
 
-        WalletModel::UnlockContext ctx(m_model->requestUnlock());
-        if(!ctx.isValid())
-        {
-            return;
-        }
-
         // Initialize variables
         QMap<QString, QString> lstParams;
         QVariant result;
@@ -195,11 +189,59 @@ void AddDelegationPage::on_addDelegationClicked()
         int unit = BitcoinUnits::BTC;
         uint64_t gasLimit = ui->lineEditGasLimit->value();
         CAmount gasPrice = ui->lineEditGasPrice->value();
-
-        // Append params to the list
         QString delegateAddress = ui->lineEditAddress->currentText();
         QString stakerAddress = ui->lineEditStaker->text();
         int stakerFee = ui->spinBoxFee->value();
+
+        // Get delegation details
+        std::string sDelegateAddress = delegateAddress.toStdString();
+        std::string sStakerAddress = stakerAddress.toStdString();
+        interfaces::DelegationDetails details = m_model->wallet().getDelegationDetails(sDelegateAddress);
+        if(!details.c_contract_return)
+            return;
+
+        // Check if delegation exist in the wallet
+        if(details.w_entry_exist)
+        {
+            QMessageBox::warning(this, tr("Set delegation for address"), tr("The delegation for the address exist in the wallet list."));
+            return;
+        }
+
+        // Check if delegation exist in the contract
+        if(details.c_entry_exist)
+        {
+            if(details.c_staker_address != sStakerAddress)
+            {
+                QMessageBox::warning(this, tr("Set delegation for address"), tr("The address is delegated to the staker:\n") + QString::fromStdString(details.c_staker_address));
+                return;
+            }
+            else
+            {
+                // Add the delegation to the wallet
+                QMessageBox::information(this, tr("Set delegation for address"), tr("Contract transaction exist, the delegation for the address will be added in the wallet list."));
+                interfaces::DelegationInfo delegation;
+                delegation.delegate_address = details.c_delegate_address;
+                delegation.staker_address = details.c_staker_address;
+                delegation.fee = details.c_fee;
+                delegation.block_number = details.c_block_number;
+                delegation.time = details.w_time;
+                delegation.hash = details.w_hash;
+                delegation.create_tx_hash = details.w_create_tx_hash;
+                delegation.remove_tx_hash = details.w_remove_tx_hash;
+                m_model->wallet().addDelegationEntry(delegation);
+                accept();
+                return;
+            }
+        }
+
+        // Unlock wallet
+        WalletModel::UnlockContext ctx(m_model->requestUnlock());
+        if(!ctx.isValid())
+        {
+            return;
+        }
+
+        // Append params to the list
         ExecRPCCommand::appendParam(lstParams, PARAM_STAKER, stakerAddress);
         ExecRPCCommand::appendParam(lstParams, PARAM_FEE, QString::number(stakerFee));
         ExecRPCCommand::appendParam(lstParams, PARAM_ADDRESS, delegateAddress);
@@ -220,7 +262,7 @@ void AddDelegationPage::on_addDelegationClicked()
             // Execute RPC command line
             if(!m_execRPCCommand->exec(m_model->node(), m_model, lstParams, result, resultJson, errorMessage))
             {
-                QMessageBox::warning(this, tr("Set delegation to address"), errorMessage);
+                QMessageBox::warning(this, tr("Set delegation for address"), errorMessage);
             }
             else
             {
