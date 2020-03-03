@@ -34,6 +34,8 @@ public:
         StakerRole = Qt::UserRole + 3,
         FeeRole = Qt::UserRole + 4,
         BlockHeightRole = Qt::UserRole + 5,
+        CreateTxHashRole = Qt::UserRole + 6,
+        RemoveTxHashRole = Qt::UserRole + 7,
     };
 
     DelegationItemModel(WalletModel *parent = 0);

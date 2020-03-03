@@ -306,6 +306,12 @@ QVariant DelegationItemModel::data(const QModelIndex &index, int role) const
     case DelegationItemModel::BlockHeightRole:
         return rec->blockNumber;
         break;
+    case DelegationItemModel::CreateTxHashRole:
+        return QString::fromStdString(rec->createTxHash.ToString());
+        break;
+    case DelegationItemModel::RemoveTxHashRole:
+        return QString::fromStdString(rec->removeTxHash.ToString());
+        break;
     default:
         break;
     }
