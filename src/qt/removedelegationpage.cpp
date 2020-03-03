@@ -138,16 +138,10 @@ void RemoveDelegationPage::on_clearButton_clicked()
 
 void RemoveDelegationPage::on_removeDelegationClicked()
 {
-    if(m_model)
+    if(m_model && m_clientModel)
     {
         if(!isDataValid())
             return;
-
-        WalletModel::UnlockContext ctx(m_model->requestUnlock());
-        if(!ctx.isValid())
-        {
-            return;
-        }
 
         // Initialize variables
         QMap<QString, QString> lstParams;
@@ -157,6 +151,50 @@ void RemoveDelegationPage::on_removeDelegationClicked()
         int unit = BitcoinUnits::BTC;
         uint64_t gasLimit = ui->lineEditGasLimit->value();
         CAmount gasPrice = ui->lineEditGasPrice->value();
+        std::string sDelegateAddress = address.toStdString();
+        std::string sHash = hash.toStdString();
+
+        // Get delegation details
+        interfaces::DelegationDetails details = m_model->wallet().getDelegationDetails(sDelegateAddress);
+        if(!details.c_contract_return)
+            return;
+
+        // Don't remove if in creating state
+        if(details.w_create_exist && !details.w_create_abandoned &&
+                (details.w_create_in_mempool || !details.w_create_in_main_chain))
+        {
+            QMessageBox::information(this, tr("Remove delegation for address"), tr("Please wait for the create transaction be confirmed."));
+            return;
+        }
+
+        // Don't remove if in deleting state
+        if(details.w_remove_exist && !details.w_remove_abandoned &&
+                (details.w_remove_in_mempool || !details.w_remove_in_main_chain))
+        {
+            QMessageBox::information(this, tr("Remove delegation for address"), tr("Please wait for the remove transaction be confirmed."));
+            return;
+        }
+
+        // Check entry exist
+        if(!details.c_entry_exist)
+        {
+            // Don't remove if chain is not synced to the specific block
+            int numBlocks = m_clientModel->node().getNumBlocks();
+            if(numBlocks <= 0 || numBlocks <= details.w_block_number)
+                return;
+
+            QMessageBox::information(this, tr("Remove delegation for address"), tr("Contract transaction exist. \nThe delegation for the address will be removed from the wallet list."));
+            m_model->wallet().removeDelegationEntry(sHash);
+            accept();
+            return;
+        }
+
+        // Unlock wallet
+        WalletModel::UnlockContext ctx(m_model->requestUnlock());
+        if(!ctx.isValid())
+        {
+            return;
+        }
 
         // Append params to the list
         ExecRPCCommand::appendParam(lstParams, PARAM_ADDRESS, address);
@@ -182,7 +220,7 @@ void RemoveDelegationPage::on_removeDelegationClicked()
             {
                 QVariantMap variantMap = result.toMap();
                 std::string txid = variantMap.value("txid").toString().toStdString();
-                m_model->wallet().setDelegationRemoved(hash.toStdString(), txid);
+                m_model->wallet().setDelegationRemoved(sHash, txid);
             }
 
             accept();

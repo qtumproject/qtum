@@ -218,7 +218,7 @@ void AddDelegationPage::on_addDelegationClicked()
             else
             {
                 // Add the delegation to the wallet
-                QMessageBox::information(this, tr("Set delegation for address"), tr("Contract transaction exist, the delegation for the address will be added in the wallet list."));
+                QMessageBox::information(this, tr("Set delegation for address"), tr("Contract transaction exist. \nThe delegation for the address will be added in the wallet list."));
                 interfaces::DelegationInfo delegation;
                 delegation.delegate_address = details.c_delegate_address;
                 delegation.staker_address = details.c_staker_address;
