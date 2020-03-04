@@ -596,6 +596,21 @@ struct DelegationDetails
     int64_t c_block_number = -1;
     bool c_entry_exist = false;
     bool c_contract_return = false;
+
+    // To delegation info
+    DelegationInfo toInfo(bool fromWallet = true)
+    {
+        interfaces::DelegationInfo info;
+        info.delegate_address = fromWallet ? w_delegate_address : c_delegate_address;
+        info.staker_address = fromWallet ? w_staker_address : c_staker_address;
+        info.fee =  fromWallet ? w_fee : c_fee;
+        info.block_number = fromWallet ? w_block_number : c_block_number;
+        info.hash = w_hash;
+        info.time = w_time;
+        info.create_tx_hash = w_create_tx_hash;
+        info.remove_tx_hash = w_remove_tx_hash;
+        return info;
+    }
 };
 
 //! Return implementation of Wallet interface. This function is defined in

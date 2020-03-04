@@ -218,17 +218,9 @@ void AddDelegationPage::on_addDelegationClicked()
             else
             {
                 // Add the delegation to the wallet
-                QMessageBox::information(this, tr("Set delegation for address"), tr("Contract transaction exist. \nThe delegation for the address will be added in the wallet list."));
-                interfaces::DelegationInfo delegation;
-                delegation.delegate_address = details.c_delegate_address;
-                delegation.staker_address = details.c_staker_address;
-                delegation.fee = details.c_fee;
-                delegation.block_number = details.c_block_number;
-                delegation.time = details.w_time;
-                delegation.hash = details.w_hash;
-                delegation.create_tx_hash = details.w_create_tx_hash;
-                delegation.remove_tx_hash = details.w_remove_tx_hash;
-                m_model->wallet().addDelegationEntry(delegation);
+                QMessageBox::information(this, tr("Set delegation for address"), tr("Delegation already present. \nThe delegation for the address will be added in the wallet list."));
+                interfaces::DelegationInfo info = details.toInfo(false);
+                m_model->wallet().addDelegationEntry(info);
                 accept();
                 return;
             }

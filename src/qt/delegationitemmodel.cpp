@@ -67,30 +67,58 @@ public:
 private Q_SLOTS:
     void updateDelegationData(QString hash, QString delegateAddress, QString stakerAddress, quint8 fee, qint32 blockNumber)
     {
-        // Find delegation in contract
+        // Find delegation details
         std::string sHash = hash.toStdString();
         std::string sDelegateAddress = delegateAddress.toStdString();
         std::string sStakerAddress = stakerAddress.toStdString();
-        bool validated = false;
-        bool contractRet = false;
-        interfaces::DelegationInfo delegation =walletModel->wallet().getDelegationContract(sHash, validated, contractRet);
+        interfaces::DelegationDetails details = walletModel->wallet().getDelegationDetails(sDelegateAddress);
+
+        // Get delegation info
+        interfaces::DelegationInfo info = details.toInfo();
 
         // No delegation contract, no update
-        if(!contractRet)
+        if(!details.c_contract_return)
             return;
 
-        if(validated && delegation.delegate_address == sDelegateAddress && delegation.staker_address == sStakerAddress)
+        if(details.w_hash.ToString() == sHash)
         {
-            // Update delegation entry
-            if(delegation.fee != fee || delegation.block_number != blockNumber)
+            if(details.c_entry_exist)
             {
-                walletModel->wallet().addDelegationEntry(delegation);
+                // Update the entry when the delegation exist
+                if(details.c_delegate_address == sDelegateAddress && details.c_staker_address == sStakerAddress)
+                {
+                    if(details.c_fee != fee || details.c_block_number != blockNumber)
+                    {
+                        info.fee = details.c_fee;
+                        info.block_number = details.c_block_number;
+                        walletModel->wallet().addDelegationEntry(info);
+                    }
+                }
+                else
+                {
+                    info.block_number = -1;
+                    walletModel->wallet().addDelegationEntry(info);
+                }
             }
-        }
-        else if(delegation.remove_tx_hash != uint256())
-        {
-            // The entry is deleted
-            walletModel->wallet().removeDelegationEntry(sHash);
+            else
+            {
+                // Update the entry when the delegation not exist
+                if(details.w_remove_exist)
+                {
+                    // Remove the entry when marked for deletion
+                    if(details.w_remove_in_main_chain)
+                    {
+                        // The entry is deleted
+                        walletModel->wallet().removeDelegationEntry(sHash);
+                    }
+                }
+                else
+                {
+                    // Update the entry when not marked for deletion
+                    info.block_number = -1;
+                    walletModel->wallet().addDelegationEntry(info);
+                }
+            }
         }
     }
 

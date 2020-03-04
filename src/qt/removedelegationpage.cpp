@@ -183,7 +183,7 @@ void RemoveDelegationPage::on_removeDelegationClicked()
             if(numBlocks <= 0 || numBlocks <= details.w_block_number)
                 return;
 
-            QMessageBox::information(this, tr("Remove delegation for address"), tr("Contract transaction exist. \nThe delegation for the address will be removed from the wallet list."));
+            QMessageBox::information(this, tr("Remove delegation for address"), tr("Delegation already removed. \nThe delegation for the address will be removed from the wallet list."));
             m_model->wallet().removeDelegationEntry(sHash);
             accept();
             return;
