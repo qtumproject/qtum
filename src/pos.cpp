@@ -126,7 +126,7 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, CValidationState& state, const C
 
     bool checkDelegation = false;
     int nOfflineStakeHeight = Params().GetConsensus().nOfflineStakeHeight;
-    if (nHeight >= nOfflineStakeHeight)
+    if (nHeight >= nOfflineStakeHeight && !Params().GetConsensus().delegationsAddress.IsNull())
     {
         static QtumDelegation qtumDelegation;
 
