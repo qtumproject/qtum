@@ -918,7 +918,7 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
 
     while (true)
     {
-        while (pwallet->IsLocked() || !pwallet->m_enabled_staking)
+        while (pwallet->IsLocked() || !pwallet->m_enabled_staking || fReindex || fImporting)
         {
             pwallet->m_last_coin_stake_search_interval = 0;
             MilliSleep(10000);
