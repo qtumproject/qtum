@@ -3578,11 +3578,26 @@ bool CWallet::CreateTransaction(interfaces::Chain::Lock& locked_chain, const std
 
 uint64_t CWallet::GetStakeWeight(interfaces::Chain::Lock& locked_chain) const
 {
+    uint64_t nWeight = 0;
+
+    // Get the weight of the delegated coins
+    std::vector<COutPoint> vDelegateCoins;
+    SelectDelegateCoinsForStaking(locked_chain, vDelegateCoins);
+    for(const COutPoint &prevout : vDelegateCoins)
+    {
+        Coin coinPrev;
+        if(!::ChainstateActive().CoinsTip().GetCoin(prevout, coinPrev)){
+            continue;
+        }
+
+        nWeight += coinPrev.out.nValue;
+    }
+
     // Choose coins to use
     CAmount nBalance = GetBalance().m_mine_trusted;
 
     if (nBalance <= m_reserve_balance)
-        return 0;
+        return nWeight;
 
     std::vector<const CWalletTx*> vwtxPrev;
 
@@ -3591,12 +3606,10 @@ uint64_t CWallet::GetStakeWeight(interfaces::Chain::Lock& locked_chain) const
 
     CAmount nTargetValue = nBalance - m_reserve_balance;
     if (!SelectCoinsForStaking(locked_chain, nTargetValue, setCoins, nValueIn))
-        return 0;
+        return nWeight;
 
     if (setCoins.empty())
-        return 0;
-
-    uint64_t nWeight = 0;
+        return nWeight;
 
     for(std::pair<const CWalletTx*,unsigned int> pcoin : setCoins)
     {
