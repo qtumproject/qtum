@@ -126,7 +126,7 @@ public:
                 }
                 else if(name == "blockHeight")
                 {
-                    event.item.blockHeight = (uint)atoi64(value[0]);
+                    event.item.blockHeight = (uint32_t)atoi64(value[0]);
                 }
                 else if(name == "PoD")
                 {
@@ -222,7 +222,7 @@ bool QtumDelegation::GetDelegation(const uint160 &address, Delegation &delegatio
             }
             else if(name == "blockHeight")
             {
-                delegation.blockHeight = (uint)atoi64(value[0]);
+                delegation.blockHeight = (uint32_t)atoi64(value[0]);
             }
             else if(name == "PoD")
             {

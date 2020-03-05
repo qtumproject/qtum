@@ -204,7 +204,7 @@ bool CheckBlockInputPubKeyMatchesOutputPubKey(const CBlock& block, CCoinsViewCac
         return error("%s: Could not fetch prevoutStake from UTXO set", __func__);
     }
 
-    uint hasDelegation = block.HasProofOfDelegation() ? 1 : 0;
+    uint32_t hasDelegation = block.HasProofOfDelegation() ? 1 : 0;
     CTransactionRef coinstakeTx = block.vtx[1];
     if(coinstakeTx->vout.size() < 2 + hasDelegation) {
         return error("%s: coinstake transaction does not have the minimum number of outputs", __func__);
