@@ -1982,6 +1982,7 @@ private:
 UniValue getdelegationsforstaker(const JSONRPCRequest& request)
 {
             RPCHelpMan{"getdelegationsforstaker",
+                "requires -logevents to be enabled\n"
                 "\nGet the current list of delegates for a super staker.\n",
                 {
                     {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The qtum address string for staker"},
@@ -2000,6 +2001,9 @@ UniValue getdelegationsforstaker(const JSONRPCRequest& request)
             + HelpExampleRpc("getdelegationsforstaker", "QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd")
                 },
             }.Check(request);
+
+    if (!fLogEvents)
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "Events indexing disabled");
 
     LOCK(cs_main);
 
