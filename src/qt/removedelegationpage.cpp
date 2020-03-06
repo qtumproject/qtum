@@ -157,7 +157,10 @@ void RemoveDelegationPage::on_removeDelegationClicked()
         // Get delegation details
         interfaces::DelegationDetails details = m_model->wallet().getDelegationDetails(sDelegateAddress);
         if(!details.c_contract_return)
+        {
+            QMessageBox::warning(this, tr("Remove delegation for address"), tr("Fail to get delegation details for the address."));
             return;
+        }
 
         // Don't remove if in creating state
         if(details.w_create_exist && !details.w_create_abandoned &&
