@@ -877,6 +877,19 @@ void InitParameterInteraction()
         if (gArgs.SoftSetBoolArg("-whitelistrelay", true))
             LogPrintf("%s: parameter interaction: -whitelistforcerelay=1 -> setting -whitelistrelay=1\n", __func__);
     }
+
+#ifdef ENABLE_WALLET
+    // Set the required parameters for super staking
+    if(gArgs.GetBoolArg("-superstaking", DEFAULT_SUPER_STAKE))
+    {
+        if (gArgs.SoftSetBoolArg("-staking", true))
+            LogPrintf("%s: parameter interaction: -superstaking=1 -> setting -staking=1\n", __func__);
+        if (gArgs.SoftSetBoolArg("-logevents", true))
+            LogPrintf("%s: parameter interaction: -superstaking=1 -> setting -logevents=1\n", __func__);
+        if (gArgs.SoftSetBoolArg("-addrindex", true))
+            LogPrintf("%s: parameter interaction: -superstaking=1 -> setting -addrindex=1\n", __func__);
+    }
+#endif
 }
 
 /**
@@ -1763,7 +1776,7 @@ bool AppInitMain(InitInterfaces& interfaces)
 
                 /////////////////////////////////////////////////////////////// // qtum
                 if (fAddressIndex != gArgs.GetBoolArg("-addrindex", DEFAULT_ADDRINDEX)) {
-                    strLoadError = _("You need to rebuild the database using -reindex-chainstate to change -addrindex").translated;
+                    strLoadError = _("You need to rebuild the database using -reindex to change -addrindex").translated;
                     break;
                 }
                 ///////////////////////////////////////////////////////////////

@@ -915,6 +915,8 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
     }
     bool fSuperStake = gArgs.GetBoolArg("-superstaking", DEFAULT_SUPER_STAKE);
     DelegationsStaker delegationsStaker(pwallet);
+    int nOfflineStakeHeight = Params().GetConsensus().nOfflineStakeHeight;
+    bool fDelegationsContract = !Params().GetConsensus().delegationsAddress.IsNull();
 
     while (true)
     {
@@ -952,7 +954,7 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
             auto locked_chain = pwallet->chain().lock();
             LOCK(pwallet->cs_wallet);
             pwallet->SelectCoinsForStaking(*locked_chain, nTargetValue, setCoins, nValueIn);
-            if(fSuperStake)
+            if(fSuperStake && fDelegationsContract && (::ChainActive().Height() + 1) >= nOfflineStakeHeight)
             {
                 delegationsStaker.Update();
                 pwallet->SelectDelegateCoinsForStaking(*locked_chain, setDelegateCoins);
