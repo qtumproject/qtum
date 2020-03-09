@@ -33,7 +33,6 @@
 #include <wallet/walletdb.h>
 #include <wallet/walletutil.h>
 #include <qtum/qtumdelegation.h>
-#include <util/contractabi.h>
 #include <util/signstr.h>
 
 #include <stdint.h>
@@ -1253,7 +1252,7 @@ static UniValue removedelegationforaddress(const JSONRPCRequest& request){
     // Get send to contract parameters for removing delegation for address
     UniValue params(UniValue::VARR);
     UniValue contractaddress = HexStr(Params().GetConsensus().delegationsAddress);
-    UniValue datahex = DelegationABI()["removeDelegation"].selector();
+    UniValue datahex = QtumDelegation::BytecodeRemove();
     UniValue amount = 0;
     UniValue gasLimit = request.params.size() > 1 ? request.params[1] : DEFAULT_GAS_LIMIT_OP_SEND;
     UniValue gasPrice = request.params.size() > 2 ? request.params[2] : FormatMoney(nGasPrice);
@@ -1353,39 +1352,9 @@ static UniValue setdelegateforaddress(const JSONRPCRequest& request){
 
     // Serialize the data
     std::string datahex;
-    FunctionABI func = DelegationABI()["addDelegation"];
-    std::vector<std::vector<std::string>> values;
-    std::vector<ParameterABI::ErrorType> errors;
-
-    for(size_t i = 0; i < func.inputs.size(); i++)
-    {
-        std::string name = func.inputs[i].name;
-        if(name == "_staker")
-        {
-            std::vector<std::string> value;
-            value.push_back(hexStaker);
-            values.push_back(value);
-        }
-        else if(name == "_fee")
-        {
-            std::vector<std::string> value;
-            value.push_back(i64tostr(fee));
-            values.push_back(value);
-        }
-        else if(name == "_PoD")
-        {
-            std::vector<std::string> value;
-            value.push_back(HexStr(PoD));
-            values.push_back(value);
-        }
-        else
-        {
-            throw JSONRPCError(RPC_TYPE_ERROR, "Invalid add delegation input name");
-        }
-    }
-
-    if(!func.abiIn(values, datahex, errors))
-        throw JSONRPCError(RPC_TYPE_ERROR, "Fail to serialize data for add delegation");
+    std::string errorMessage;
+    if(!QtumDelegation::BytecodeAdd(hexStaker, fee, PoD, datahex, errorMessage))
+        throw JSONRPCError(RPC_TYPE_ERROR, errorMessage);
 
     // Add the send to contract parameters to the list
     params.push_back(contractaddress);

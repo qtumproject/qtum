@@ -4,6 +4,7 @@
 #include <util/convert.h>
 #include <validation.h>
 #include <util/signstr.h>
+#include <util/strencodings.h>
 #include <libdevcore/Common.h>
 
 const std::string strDelegationsABI = "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_staker\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_delegate\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint8\",\"name\":\"fee\",\"type\":\"uint8\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"blockHeight\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"PoD\",\"type\":\"bytes\"}],\"name\":\"AddDelegation\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_staker\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_delegate\",\"type\":\"address\"}],\"name\":\"RemoveDelegation\",\"type\":\"event\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"address\",\"name\":\"_staker\",\"type\":\"address\"},{\"internalType\":\"uint8\",\"name\":\"_fee\",\"type\":\"uint8\"},{\"internalType\":\"bytes\",\"name\":\"_PoD\",\"type\":\"bytes\"}],\"name\":\"addDelegation\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"delegations\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"staker\",\"type\":\"address\"},{\"internalType\":\"uint8\",\"name\":\"fee\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"blockHeight\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"PoD\",\"type\":\"bytes\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[],\"name\":\"removeDelegation\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]";
@@ -345,4 +346,52 @@ bool QtumDelegation::ExistDelegationContract() const
 {
     // Delegation contract exist check
     return globalState && globalState->addressInUse(priv->delegationsAddress);
+}
+
+std::string QtumDelegation::BytecodeRemove()
+{
+    return DelegationABI()["removeDelegation"].selector();
+}
+
+bool QtumDelegation::BytecodeAdd(const std::string &hexStaker, const int &fee, const std::vector<unsigned char> &PoD, std::string &datahex, std::string &errorMessage)
+{
+    FunctionABI func = DelegationABI()["addDelegation"];
+    std::vector<std::vector<std::string>> values;
+    std::vector<ParameterABI::ErrorType> errors;
+
+    for(size_t i = 0; i < func.inputs.size(); i++)
+    {
+        std::string name = func.inputs[i].name;
+        if(name == "_staker")
+        {
+            std::vector<std::string> value;
+            value.push_back(hexStaker);
+            values.push_back(value);
+        }
+        else if(name == "_fee")
+        {
+            std::vector<std::string> value;
+            value.push_back(i64tostr(fee));
+            values.push_back(value);
+        }
+        else if(name == "_PoD")
+        {
+            std::vector<std::string> value;
+            value.push_back(HexStr(PoD));
+            values.push_back(value);
+        }
+        else
+        {
+            errorMessage = "Invalid add delegation input name";
+            return false;
+        }
+    }
+
+    if(!func.abiIn(values, datahex, errors))
+    {
+        errorMessage = "Fail to serialize data for add delegation";
+        return false;
+    }
+
+    return true;
 }

@@ -135,6 +135,23 @@ public:
      */
     bool ExistDelegationContract() const;
 
+    /**
+     * @brief BytecodeRemove Bytecode for remove delegation
+     * @return Bytecode
+     */
+    static std::string BytecodeRemove();
+
+    /**
+     * @brief BytecodeAdd Bytecode for add delegation
+     * @param hexStaker Staker hex address
+     * @param fee Staker fee
+     * @param PoD Proof of delegation
+     * @param datahex Bytecode
+     * @param errorMessage Error message
+     * @return true/false
+     */
+    static bool BytecodeAdd(const std::string& hexStaker, const int& fee, const std::vector<unsigned char>& PoD, std::string& datahex, std::string& errorMessage);
+
 private:
     QtumDelegation(const QtumDelegation&);
     QtumDelegation& operator=(const QtumDelegation&);
