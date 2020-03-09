@@ -314,6 +314,12 @@ bool QtumDelegation::FilterDelegationEvents(std::vector<DelegationEvent> &events
 std::map<uint160, Delegation> QtumDelegation::DelegationsFromEvents(const std::vector<DelegationEvent> &events)
 {
     std::map<uint160, Delegation> delegations;
+    UpdateDelegationsFromEvents(events, delegations);
+    return delegations;
+}
+
+void QtumDelegation::UpdateDelegationsFromEvents(const std::vector<DelegationEvent> &events, std::map<uint160, Delegation> &delegations)
+{
     for(const DelegationEvent& event : events)
     {
         switch (event.type) {
@@ -333,8 +339,6 @@ std::map<uint160, Delegation> QtumDelegation::DelegationsFromEvents(const std::v
             break;
         }
     }
-
-    return delegations;
 }
 
 bool QtumDelegation::ExistDelegationContract() const

@@ -118,9 +118,16 @@ public:
     /**
      * @brief DelegationsFromEvents Get the delegations from the events
      * @param events Delegation event list
-     * @return delegations
+     * @return List of delegations
      */
     static std::map<uint160, Delegation> DelegationsFromEvents(const std::vector<DelegationEvent>& events);
+
+    /**
+     * @brief UpdateDelegationsFromEvents Update the delegations from the events
+     * @param events Delegation event list
+     * @param delegations List of delegations to be updated
+     */
+    static void UpdateDelegationsFromEvents(const std::vector<DelegationEvent>& events, std::map<uint160, Delegation>& delegations);
 
     /**
      * @brief ExistDelegationContract Delegation contract exist check
