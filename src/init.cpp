@@ -1807,6 +1807,10 @@ bool AppInitMain(InitInterfaces& interfaces)
 
             try {
                 LOCK(cs_main);
+
+                QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
+                globalSealEngine->setQtumSchedule(qtumDGP.getGasSchedule(::ChainActive().Height() + (::ChainActive().Height()+1 >= chainparams.GetConsensus().QIP7Height ? 0 : 1) ));
+
                 if (!is_coinsview_empty) {
                     uiInterface.InitMessage(_("Verifying blocks...").translated);
                     if (fHavePruned && gArgs.GetArg("-checkblocks", DEFAULT_CHECKBLOCKS) > MIN_BLOCKS_TO_KEEP) {
