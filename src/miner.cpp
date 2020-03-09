@@ -834,24 +834,53 @@ class DelegationsStaker : public IDelegationFilter
 {
 public:
     DelegationsStaker(CWallet *_pwallet):
-        pwallet(_pwallet)
-    {}
+        pwallet(_pwallet),
+        cacheHeight(0),
+        nCheckpointSpan(0)
+    {
+        nCheckpointSpan = Params().GetConsensus().nCheckpointSpan;
+    }
 
     bool Match(const DelegationEvent& event) const
     {
         return pwallet->HaveKey(CKeyID(event.item.staker));
     }
 
-    void Update()
+    void Update(int32_t nHeight)
     {
-        std::vector<DelegationEvent> events;
-        qtumDelegations.FilterDelegationEvents(events, *this);
-        pwallet->m_delegations_staker = qtumDelegations.DelegationsFromEvents(events);
+        if(nHeight <= nCheckpointSpan)
+        {
+            // Get delegations from events
+            std::vector<DelegationEvent> events;
+            qtumDelegations.FilterDelegationEvents(events, *this);
+            pwallet->m_delegations_staker = qtumDelegations.DelegationsFromEvents(events);
+        }
+        else
+        {
+            // Update the cached delegations for the staker, older then the sync checkpoint (500 blocks)
+            int cpsHeight = nHeight - nCheckpointSpan;
+            if(cacheHeight < cpsHeight)
+            {
+                std::vector<DelegationEvent> events;
+                qtumDelegations.FilterDelegationEvents(events, *this, cacheHeight, cpsHeight);
+                qtumDelegations.UpdateDelegationsFromEvents(events, cacheDelegationsStaker);
+                cacheHeight = cpsHeight;
+            }
+
+            // Update the wallet delegations
+            std::vector<DelegationEvent> events;
+            qtumDelegations.FilterDelegationEvents(events, *this, cacheHeight + 1);
+            pwallet->m_delegations_staker = cacheDelegationsStaker;
+            qtumDelegations.UpdateDelegationsFromEvents(events, pwallet->m_delegations_staker);
+        }
     }
 
 private:
     CWallet *pwallet;
     QtumDelegation qtumDelegations;
+    int32_t cacheHeight;
+    int32_t nCheckpointSpan;
+    std::map<uint160, Delegation> cacheDelegationsStaker;
 };
 
 bool CheckStake(const std::shared_ptr<const CBlock> pblock, CWallet& wallet)
@@ -956,7 +985,7 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
             pwallet->SelectCoinsForStaking(*locked_chain, nTargetValue, setCoins, nValueIn);
             if(fSuperStake && fDelegationsContract && (::ChainActive().Height() + 1) >= nOfflineStakeHeight)
             {
-                delegationsStaker.Update();
+                delegationsStaker.Update(::ChainActive().Height());
                 pwallet->SelectDelegateCoinsForStaking(*locked_chain, setDelegateCoins);
             }
         }
