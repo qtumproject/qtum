@@ -27,8 +27,8 @@ class QtumDelegationPriv
 public:
     QtumDelegationPriv():
         m_pfDelegations(0),
-        m_pfAddDelegation(0),
-        m_pfRemoveDelegation(0)
+        m_pfAddDelegationEvent(0),
+        m_pfRemoveDelegationEvent(0)
     {
         // Initialize parameters
         delegationsAddress = uintToh160(Params().GetConsensus().delegationsAddress);
@@ -40,19 +40,19 @@ public:
             {
                 m_pfDelegations = new FunctionABI(func);
             }
-            else if(func.name == "AddDelegation" && m_pfAddDelegation == 0)
+            else if(func.name == "AddDelegation" && m_pfAddDelegationEvent == 0)
             {
-                m_pfAddDelegation = new FunctionABI(func);
+                m_pfAddDelegationEvent = new FunctionABI(func);
             }
-            else if(func.name == "RemoveDelegation" && m_pfRemoveDelegation == 0)
+            else if(func.name == "RemoveDelegation" && m_pfRemoveDelegationEvent == 0)
             {
-                m_pfRemoveDelegation = new FunctionABI(func);
+                m_pfRemoveDelegationEvent = new FunctionABI(func);
             }
 
         }
         assert(m_pfDelegations);
-        assert(m_pfAddDelegation);
-        assert(m_pfRemoveDelegation);
+        assert(m_pfAddDelegationEvent);
+        assert(m_pfRemoveDelegationEvent);
     }
 
     virtual ~QtumDelegationPriv()
@@ -61,13 +61,13 @@ public:
             delete m_pfDelegations;
         m_pfDelegations = 0;
 
-        if(m_pfAddDelegation)
-            delete m_pfAddDelegation;
-        m_pfAddDelegation = 0;
+        if(m_pfAddDelegationEvent)
+            delete m_pfAddDelegationEvent;
+        m_pfAddDelegationEvent = 0;
 
-        if(m_pfRemoveDelegation)
-            delete m_pfRemoveDelegation;
-        m_pfRemoveDelegation = 0;
+        if(m_pfRemoveDelegationEvent)
+            delete m_pfRemoveDelegationEvent;
+        m_pfRemoveDelegationEvent = 0;
     }
 
     bool GetDelegationEvent(const dev::eth::LogEntry& log, DelegationEvent& event) const
@@ -88,12 +88,12 @@ public:
     {
         //  Get the event data
         std::vector<std::vector<std::string>> values;
-        FunctionABI* func = m_pfRemoveDelegation;
+        FunctionABI* func = m_pfRemoveDelegationEvent;
         DelegationType type = DelegationType::DELEGATION_REMOVE;
         bool ret = AbiOutEvent(func, topics, data, values);
         if(!ret)
         {
-            func = m_pfAddDelegation;
+            func = m_pfAddDelegationEvent;
             type = DelegationType::DELEGATION_ADD;
             ret = AbiOutEvent(func, topics, data, values);
         }
@@ -149,8 +149,8 @@ public:
     }
 
     FunctionABI* m_pfDelegations;
-    FunctionABI* m_pfAddDelegation;
-    FunctionABI* m_pfRemoveDelegation;
+    FunctionABI* m_pfAddDelegationEvent;
+    FunctionABI* m_pfRemoveDelegationEvent;
     dev::Address delegationsAddress;
 };
 
@@ -262,11 +262,11 @@ bool QtumDelegation::FilterDelegationEvents(std::vector<DelegationEvent> &events
         return error("Delegation contract address does not exist");
 
     // Add delegation event ABI check
-    if(!priv->m_pfAddDelegation)
+    if(!priv->m_pfAddDelegationEvent)
         return error("Add delegation event ABI does not exist");
 
     // Remove delegation event ABI check
-    if(!priv->m_pfRemoveDelegation)
+    if(!priv->m_pfRemoveDelegationEvent)
         return error("Remove delegation ABI does not exist");
 
     int curheight = 0;
