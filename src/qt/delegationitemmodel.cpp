@@ -94,6 +94,13 @@ private Q_SLOTS:
                         walletModel->wallet().addDelegationEntry(info);
                     }
                 }
+                // Update the entry when staker changed
+                else if(details.c_delegate_address == sDelegateAddress && details.c_staker_address != sStakerAddress)
+                {
+                    walletModel->wallet().removeDelegationEntry(sHash);
+                    info = details.toInfo(false);
+                    walletModel->wallet().addDelegationEntry(info);
+                }
                 else
                 {
                     info.block_number = -1;
