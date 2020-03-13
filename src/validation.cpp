@@ -2876,7 +2876,6 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
     CBlock checkBlock(block.GetBlockHeader());
     std::vector<CTxOut> checkVouts;
 
-    uint64_t countCumulativeGasUsed = 0;
     /////////////////////////////////////////////////
     // We recheck the hardened checkpoints here since ContextualCheckBlock(Header) is not called in ConnectBlock.
     if(fCheckpointsEnabled && !Checkpoints::CheckHardened(pindex->nHeight, block.GetHash(), chainparams.Checkpoints())) {
@@ -3317,10 +3316,10 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
                 return state.Invalid(ValidationInvalidReason::CONSENSUS, error("ConnectBlock(): Error processing VM execution results"), REJECT_INVALID, "bad-vm-exec-processing");
             }
 
-            countCumulativeGasUsed += bcer.usedGas;
             std::vector<TransactionReceiptInfo> tri;
             if (fLogEvents && !fJustCheck)
             {
+                uint64_t countCumulativeGasUsed = blockGasUsed;
                 for(size_t k = 0; k < resultConvertQtumTX.first.size(); k ++){
                     for(auto& log : resultExec[k].txRec.log()) {
                         if(!heightIndexes.count(log.address)){
@@ -3328,6 +3327,8 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
                         }
                         heightIndexes[log.address].second.push_back(tx.GetHash());
                     }
+                    uint64_t gasUsed = uint64_t(resultExec[k].execRes.gasUsed);
+                    countCumulativeGasUsed += gasUsed;
                     tri.push_back(TransactionReceiptInfo{
                         block.GetHash(),
                         uint32_t(pindex->nHeight),
@@ -3336,7 +3337,7 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
                         resultConvertQtumTX.first[k].from(),
                         resultConvertQtumTX.first[k].to(),
                         countCumulativeGasUsed,
-                        uint64_t(resultExec[k].execRes.gasUsed),
+                        gasUsed,
                         resultExec[k].execRes.newAddress,
                         resultExec[k].txRec.log(),
                         resultExec[k].execRes.excepted,

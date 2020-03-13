@@ -205,7 +205,7 @@ bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet,
  * encodable as an address) with key identifiers (of keys involved in a
  * CScript), and its use should be phased out.
  */
-bool ExtractDestinations(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<CTxDestination>& addressRet, int& nRequiredRet);
+bool ExtractDestinations(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<CTxDestination>& addressRet, int& nRequiredRet, bool contractConsensus=false);
 
 /**
  * Generate a Bitcoin scriptPubKey for the given CTxDestination. Returns a P2PKH

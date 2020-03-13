@@ -375,11 +375,11 @@ bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet,
     return false;
 }
 
-bool ExtractDestinations(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<CTxDestination>& addressRet, int& nRequiredRet)
+bool ExtractDestinations(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<CTxDestination>& addressRet, int& nRequiredRet, bool contractConsensus)
 {
     addressRet.clear();
     std::vector<valtype> vSolutions;
-    typeRet = Solver(scriptPubKey, vSolutions);
+    typeRet = Solver(scriptPubKey, vSolutions, contractConsensus);
     if (typeRet == TX_NONSTANDARD) {
         return false;
     } else if (typeRet == TX_NULL_DATA) {
