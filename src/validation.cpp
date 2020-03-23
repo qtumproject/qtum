@@ -2460,7 +2460,7 @@ bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, cons
         // The first proof-of-stake blocks get full reward, the rest of them are split between recipients
         int rewardRecipients = 1;
         int nPrevHeight = nHeight -1;
-        if(nPrevHeight >= consensusParams.nFirstMPoSBlock)
+        if(nPrevHeight >= consensusParams.nFirstMPoSBlock && nPrevHeight < consensusParams.nLastMPoSBlock)
             rewardRecipients = consensusParams.nMPoSRewardRecipients;
 
         // Check reward recipients number
