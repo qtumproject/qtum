@@ -531,6 +531,7 @@ void SetupServerArgs()
     gArgs.AddArg("-difficultychangeheight=<n>", "Use given block height to check difficulty change fork (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-offlinestakingheight=<n>", "Use given block height to check offline staking fork (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-delegationsaddress=<adr>", "Use given contract delegations address for offline staking fork (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    gArgs.AddArg("-lastmposheight=<n>", "Use given block height to check remove mpos fork (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
 
     SetupChainParamsBaseOptions();
 
