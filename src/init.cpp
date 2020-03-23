@@ -1305,6 +1305,20 @@ bool AppInitParameterInteraction()
         }
     }
 
+    if (gArgs.IsArgSet("-lastmposheight")) {
+        // Allow overriding last MPoS block for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError("Last MPoS block height may only be overridden on regtest.");
+        }
+
+        int lastMPosBlockHeight = gArgs.GetArg("-lastmposheight", 0);
+        if(lastMPosBlockHeight >= 0)
+        {
+            UpdateLastMPoSBlockHeight(lastMPosBlockHeight);
+            LogPrintf("Set last MPoS block height %d\n.", lastMPosBlockHeight);
+        }
+    }
+
     return true;
 }
 
