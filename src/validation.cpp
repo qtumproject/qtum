@@ -2426,7 +2426,7 @@ bool CheckMinGasPrice(std::vector<EthTransactionParams>& etps, const uint64_t& m
     return true;
 }
 
-bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, const Consensus::Params& consensusParams, CAmount nFees, CAmount gasRefunds, CAmount nActualStakeReward, const std::vector<CTxOut>& vouts)
+bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, const Consensus::Params& consensusParams, CAmount nFees, CAmount gasRefunds, CAmount nActualStakeReward, const std::vector<CTxOut>& vouts, CAmount nValueCoinPrev)
 {
     size_t offset = block.IsProofOfStake() ? 1 : 0;
     std::vector<CTxOut> vTempVouts=block.vtx[offset]->vout;
@@ -2467,15 +2467,29 @@ bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, cons
         if(rewardRecipients < 1)
             return error("CheckReward(): invalid reward recipients");
 
+        // Check reward can cover the gas refunds
+        if(blockReward < gasRefunds){
+            return state.Invalid(ValidationInvalidReason::CONSENSUS, error("CheckReward(): Block Reward is less than total gas refunds"), REJECT_INVALID, "bad-cs-gas-greater-than-reward");
+        }
+
+        CAmount splitReward = (blockReward - gasRefunds) / rewardRecipients;
+
+        // Check that the reward is in the second output for the staker and the third output for the delegate
+        // Delegation contract data like the fee is checked in CheckProofOfStake
+        if(block.HasProofOfDelegation())
+        {
+            CAmount nReward = blockReward - gasRefunds - splitReward * (rewardRecipients -1);
+            CAmount nValueStaker = block.vtx[offset]->vout[1].nValue;
+            CAmount nValueDelegate = block.vtx[offset]->vout[2].nValue;
+            CAmount nMinedReward = nValueStaker + nValueDelegate - nValueCoinPrev;
+            if(nReward != nMinedReward)
+                return state.Invalid(ValidationInvalidReason::CONSENSUS, error("CheckReward(): The block reward is not split correctly between the staker and the delegate"), REJECT_INVALID, "bad-cs-delegate-reward");
+        }
+
         //if only 1 then no MPoS logic required
         if(rewardRecipients == 1){
             return true;
         }
-        if(blockReward < gasRefunds){
-            return state.Invalid(ValidationInvalidReason::CONSENSUS, error("CheckReward(): Block Reward is less than total gas refunds"), REJECT_INVALID, "bad-cs-gas-greater-than-reward");
-
-        }
-        CAmount splitReward = (blockReward - gasRefunds) / rewardRecipients;
 
         // Generate the list of mpos outputs including all of their parameters
         std::vector<CTxOut> mposOutputList;
@@ -3080,6 +3094,7 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
     std::vector<int> prevheights;
     CAmount nFees = 0;
     CAmount nActualStakeReward = 0;
+    CAmount nValueCoinPrev = 0;
     int nInputs = 0;
     int64_t nSigOpsCost = 0;
     blockundo.vtxundo.reserve(block.vtx.size() - 1);
@@ -3100,6 +3115,14 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
     uint64_t nValueIn=0;
 
     bool hasDelegation = block.HasProofOfDelegation();
+    if(block.IsProofOfStake())
+    {
+        Coin coin;
+        if(!view.GetCoin(block.vtx[1]->vin[0].prevout, coin)){
+            return state.Invalid(ValidationInvalidReason::CONSENSUS, false, REJECT_INVALID, "stake-prevout-not-exist", strprintf("ConnectBlock() : Stake prevout does not exist %s", block.vtx[1]->vin[0].prevout.hash.ToString()));
+        }
+        nValueCoinPrev = coin.out.nValue;
+    }
 
     for (unsigned int i = 0; i < block.vtx.size(); i++)
     {
@@ -3407,7 +3430,7 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
     if(nFees < gasRefunds) { //make sure it won't overflow
         return state.Invalid(ValidationInvalidReason::CONSENSUS, error("ConnectBlock(): Less total fees than gas refund fees"), REJECT_INVALID, "bad-blk-fees-greater-gasrefund");
     }
-    if(!CheckReward(block, state, pindex->nHeight, chainparams.GetConsensus(), nFees, gasRefunds, nActualStakeReward, checkVouts))
+    if(!CheckReward(block, state, pindex->nHeight, chainparams.GetConsensus(), nFees, gasRefunds, nActualStakeReward, checkVouts, nValueCoinPrev))
         return state.Invalid(ValidationInvalidReason::CONSENSUS, error("ConnectBlock(): Reward check failed"), REJECT_INVALID, "block-reward-invalid");
     if (!control.Wait())
         return state.Invalid(ValidationInvalidReason::CONSENSUS, error("%s: CheckQueue failed", __func__), REJECT_INVALID, "block-validation-failed");
