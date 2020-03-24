@@ -566,7 +566,7 @@ void CChainParams::UpdateDifficultyChangeBlockHeight(int nHeight)
     consensus.nFirstMPoSBlock = consensus.nLastPOWBlock + 
                                 consensus.nMPoSRewardRecipients + 
                                 COINBASE_MATURITY;
-    consensus.nLastMPoSBlock = 0x7fffffff;
+    consensus.nLastMPoSBlock = 5000;
 }
 
 void UpdateDifficultyChangeBlockHeight(int nHeight)
