@@ -425,8 +425,7 @@ int64_t GetStakeSplitThreshold() { return GetStakeSplitOutputs() * GetStakeCombi
 bool SplitOfflineStakeReward(const int64_t& nReward, const uint8_t& fee, int64_t& nRewardOffline, int64_t& nRewardStaker)
 {
     if(fee > 100) return false;
-    double percentage = fee / 100.0;
-    nRewardStaker = percentage * nReward;
+    nRewardStaker = nReward * fee / 100;
     nRewardOffline = nReward - nRewardStaker;
     return true;
 }
@@ -440,10 +439,10 @@ int GetDelegationFeeTx(const CTransaction& tx, const Coin& coin)
     CAmount nValueStaker = tx.vout[1].nValue;
     CAmount nValueDelegate = tx.vout[2].nValue;
     CAmount nReward = nValueStaker + nValueDelegate - nValueCoin;
-    if(nReward < 0)
+    if(nReward <= 0)
         return -1;
 
-    return std::lround(nValueStaker * 100.0 / nReward);
+    return std::ceil(nValueStaker * 100.0 / nReward);
 }
 
 bool NeedToEraseScriptFromCache(int nBlockHeight, int nCacheScripts, int nScriptHeight, const ScriptsElement& scriptElement)
