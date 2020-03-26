@@ -2052,9 +2052,15 @@ DisconnectResult CChainState::DisconnectBlock(const CBlock& block, const CBlockI
         pstorageresult->deleteResults(block.vtx);
         pblocktree->EraseHeightIndex(pindex->nHeight);
     }
-    pblocktree->EraseStakeIndex(pindex->nHeight);
-    if(pindex->IsProofOfStake() && pindex->HasProofOfDelegation())
-        pblocktree->EraseDelegateIndex(pindex->nHeight);
+
+    // The stake and delegate index is needed for MPoS, update it while MPoS is active
+    const CChainParams& chainparams = Params();
+    if(pindex->nHeight <= chainparams.GetConsensus().nLastMPoSBlock)
+    {
+        pblocktree->EraseStakeIndex(pindex->nHeight);
+        if(pindex->IsProofOfStake() && pindex->HasProofOfDelegation())
+            pblocktree->EraseDelegateIndex(pindex->nHeight);
+    }
 
     //////////////////////////////////////////////////// // qtum
     if (pfClean == NULL && fAddressIndex) {
@@ -2460,7 +2466,7 @@ bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, cons
         // The first proof-of-stake blocks get full reward, the rest of them are split between recipients
         int rewardRecipients = 1;
         int nPrevHeight = nHeight -1;
-        if(nPrevHeight >= consensusParams.nFirstMPoSBlock)
+        if(nPrevHeight >= consensusParams.nFirstMPoSBlock && nPrevHeight < consensusParams.nLastMPoSBlock)
             rewardRecipients = consensusParams.nMPoSRewardRecipients;
 
         // Check reward recipients number
@@ -3533,28 +3539,33 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
             if (!pblocktree->WriteHeightIndex(e.second.first, e.second.second))
                 return AbortNode(state, "Failed to write height index");
         }
-    }    
-    if(block.IsProofOfStake()){
-        // Read the public key from the second output
-        std::vector<unsigned char> vchPubKey;
-        uint160 pkh;
-        if(GetBlockPublicKey(block, vchPubKey))
-        {
-            pkh = uint160(ToByteVector(CPubKey(vchPubKey).GetID()));
-            pblocktree->WriteStakeIndex(pindex->nHeight, pkh);
+    }
+
+    // The stake and delegate index is needed for MPoS, update it while MPoS is active
+    if(pindex->nHeight <= chainparams.GetConsensus().nLastMPoSBlock)
+    {
+        if(block.IsProofOfStake()){
+            // Read the public key from the second output
+            std::vector<unsigned char> vchPubKey;
+            uint160 pkh;
+            if(GetBlockPublicKey(block, vchPubKey))
+            {
+                pkh = uint160(ToByteVector(CPubKey(vchPubKey).GetID()));
+                pblocktree->WriteStakeIndex(pindex->nHeight, pkh);
+            }else{
+                pblocktree->WriteStakeIndex(pindex->nHeight, uint160());
+            }
+
+            if(block.HasProofOfDelegation())
+            {
+                uint160 address;
+                uint8_t fee = 0;
+                GetBlockDelegation(block, pkh, address, fee);
+                pblocktree->WriteDelegateIndex(pindex->nHeight, address, fee);
+            }
         }else{
             pblocktree->WriteStakeIndex(pindex->nHeight, uint160());
         }
-
-        if(block.HasProofOfDelegation())
-        {
-            uint160 address;
-            uint8_t fee = 0;
-            GetBlockDelegation(block, pkh, address, fee);
-            pblocktree->WriteDelegateIndex(pindex->nHeight, address, fee);
-        }
-    }else{
-        pblocktree->WriteStakeIndex(pindex->nHeight, uint160());
     }
 
     assert(pindex->phashBlock);

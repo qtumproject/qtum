@@ -108,6 +108,7 @@ struct Params {
     /** Block sync-checkpoint span*/
     int nCheckpointSpan;
     uint160 delegationsAddress;
+    int nLastMPoSBlock;
 };
 } // namespace Consensus
 
