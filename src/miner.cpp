@@ -855,7 +855,8 @@ public:
             uint160 keyId;
             if(GetKey(strAddress, keyId))
             {
-                whiteList.push_back(keyId);
+                if(std::find(whiteList.begin(), whiteList.end(), keyId) == whiteList.end())
+                    whiteList.push_back(keyId);
             }
             else
             {
@@ -869,7 +870,8 @@ public:
             uint160 keyId;
             if(GetKey(strAddress, keyId))
             {
-                blackList.push_back(keyId);
+                if(std::find(blackList.begin(), blackList.end(), keyId) == blackList.end())
+                    blackList.push_back(keyId);
             }
             else
             {

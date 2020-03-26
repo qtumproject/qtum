@@ -59,6 +59,7 @@
 #include <wallet/wallet.h>
 #endif
 #include <walletinitinterface.h>
+#include <key_io.h>
 
 #include <stdint.h>
 #include <stdio.h>
@@ -1309,6 +1310,22 @@ bool AppInitParameterInteraction()
     if(gArgs.IsArgSet("-stakingwhitelist") && gArgs.IsArgSet("-stakingblacklist"))
     {
         return InitError("Either -stakingwhitelist or -stakingblacklist parameter can be specified to the staker, not both.");
+    }
+
+    // Check white list
+    for (const std::string& strAddress : gArgs.GetArgs("-stakingwhitelist"))
+    {
+        CTxDestination dest = DecodeDestination(strAddress);
+        if(!boost::get<PKHash>(&dest))
+            return InitError(strprintf("-stakingwhitelist, address %s does not refer to public key hash", strAddress));
+    }
+
+    // Check black list
+    for (const std::string& strAddress : gArgs.GetArgs("-stakingblacklist"))
+    {
+        CTxDestination dest = DecodeDestination(strAddress);
+        if(!boost::get<PKHash>(&dest))
+            return InitError(strprintf("-stakingblacklist, address %s does not refer to public key hash", strAddress));
     }
 
     return true;
