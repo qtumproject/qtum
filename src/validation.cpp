@@ -4828,10 +4828,10 @@ bool GetBlockDelegation(const CBlock& block, const uint160& staker, uint160& add
     CAmount nValueStaker = block.vtx[1]->vout[1].nValue;
     CAmount nValueDelegate = block.vtx[1]->vout[2].nValue;
     CAmount nReward = nValueStaker + nValueDelegate - nValueCoin;
-    if(nReward < 0)
+    if(nReward <= 0)
         return false;
 
-    fee = std::lround(nValueStaker * 100.0 / nReward);
+    fee = std::ceil(nValueStaker * 100.0 / nReward);
 
     return true;
 }
