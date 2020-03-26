@@ -2681,8 +2681,8 @@ bool CWallet::HaveAvailableCoinsForStaking() const
     return vCoins.size() > 0;
 }
 
-bool heightUtxoSort(std::pair<CAddressUnspentKey, CAddressUnspentValue> a,
-                std::pair<CAddressUnspentKey, CAddressUnspentValue> b) {
+bool heightUtxoSort(const std::pair<CAddressUnspentKey, CAddressUnspentValue>& a,
+                const std::pair<CAddressUnspentKey, CAddressUnspentValue>& b) {
     return a.second.blockHeight < b.second.blockHeight;
 }
 

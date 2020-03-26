@@ -25,6 +25,7 @@
 #include <util/system.h>
 #include <util/validation.h>
 #include <net.h>
+#include <key_io.h>
 #ifdef ENABLE_WALLET
 #include <wallet/wallet.h>
 #endif
@@ -833,17 +834,80 @@ void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned
 class DelegationsStaker : public IDelegationFilter
 {
 public:
+    enum StakerType
+    {
+        STAKER_NORMAL    = 0,
+        STAKER_WHITELIST = 1,
+        STAKER_BLACKLIST = 2,
+    };
+
     DelegationsStaker(CWallet *_pwallet):
         pwallet(_pwallet),
         cacheHeight(0),
-        nCheckpointSpan(0)
+        nCheckpointSpan(0),
+        type(StakerType::STAKER_NORMAL)
     {
         nCheckpointSpan = Params().GetConsensus().nCheckpointSpan;
+
+        // Get white list
+        for (const std::string& strAddress : gArgs.GetArgs("-stakingwhitelist"))
+        {
+            uint160 keyId;
+            if(GetKey(strAddress, keyId))
+            {
+                if(std::find(whiteList.begin(), whiteList.end(), keyId) == whiteList.end())
+                    whiteList.push_back(keyId);
+            }
+            else
+            {
+                LogPrint(BCLog::COINSTAKE, "Fail to add %s to stake white list\n", strAddress);
+            }
+        }
+
+        // Get black list
+        for (const std::string& strAddress : gArgs.GetArgs("-stakingblacklist"))
+        {
+            uint160 keyId;
+            if(GetKey(strAddress, keyId))
+            {
+                if(std::find(blackList.begin(), blackList.end(), keyId) == blackList.end())
+                    blackList.push_back(keyId);
+            }
+            else
+            {
+                LogPrint(BCLog::COINSTAKE, "Fail to add %s to stake black list\n", strAddress);
+            }
+        }
+
+        // Set staker type
+        if(whiteList.size() > 0)
+        {
+            type = StakerType::STAKER_WHITELIST;
+        }
+        else if(blackList.size() > 0)
+        {
+            type = StakerType::STAKER_BLACKLIST;
+        }
     }
 
     bool Match(const DelegationEvent& event) const
     {
-        return pwallet->HaveKey(CKeyID(event.item.staker));
+        bool mine = pwallet->HaveKey(CKeyID(event.item.staker));
+        if(!mine)
+            return false;
+
+        switch (type) {
+        case STAKER_NORMAL:
+            return true;
+        case STAKER_WHITELIST:
+            return std::count(whiteList.begin(), whiteList.end(), event.item.delegate);
+        case STAKER_BLACKLIST:
+            return std::count(blackList.begin(), blackList.end(), event.item.delegate) == 0;
+        default:
+            break;
+        }
+
+        return false;
     }
 
     void Update(int32_t nHeight)
@@ -876,11 +940,31 @@ public:
     }
 
 private:
+    bool GetKey(const std::string& strAddress, uint160& keyId)
+    {
+        CTxDestination destination = DecodeDestination(strAddress);
+        if (!IsValidDestination(destination)) {
+            return false;
+        }
+
+        const PKHash *pkhash = boost::get<PKHash>(&destination);
+        if (!pkhash) {
+            return false;
+        }
+
+        keyId = uint160(*pkhash);
+
+        return true;
+    }
+
     CWallet *pwallet;
     QtumDelegation qtumDelegations;
     int32_t cacheHeight;
     int32_t nCheckpointSpan;
     std::map<uint160, Delegation> cacheDelegationsStaker;
+    std::vector<uint160> whiteList;
+    std::vector<uint160> blackList;
+    StakerType type;
 };
 
 bool CheckStake(const std::shared_ptr<const CBlock> pblock, CWallet& wallet)
