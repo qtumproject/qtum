@@ -306,8 +306,8 @@ class ListSinceBlockTest(BitcoinTestFramework):
         tx_input = dict(
             sequence=BIP125_SEQUENCE_NUMBER, **next(u for u in spending_node.listunspent()))
         rawtx = spending_node.createrawtransaction(
-            [tx_input], {dest_address: tx_input["amount"] - Decimal("0.00051000"),
-                         spending_node.getrawchangeaddress(): Decimal("0.00050000")})
+            [tx_input], {dest_address: tx_input["amount"] - Decimal("0.05100000"),
+                         spending_node.getrawchangeaddress(): Decimal("0.05000000")})
         signedtx = spending_node.signrawtransactionwithwallet(rawtx)
         orig_tx_id = spending_node.sendrawtransaction(signedtx["hex"])
         original_tx = spending_node.gettransaction(orig_tx_id)

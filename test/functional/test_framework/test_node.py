@@ -209,6 +209,9 @@ class TestNode():
         if self.enable_wallet and not any(arg.startswith('-staking=') for arg in extra_args):
             extra_args.append('-staking=0')
 
+        if self.enable_wallet and not any(arg.startswith('-offlinestakingheight=') for arg in extra_args):
+            extra_args.append('-offlinestakingheight=9999999')
+
         # Disable the spam filter as it may interfere with come tests sending lots and lots of blocks
         if not any(arg.startswith('-headerspamfilter') for arg in extra_args):
             extra_args.append('-headerspamfilter=0')
