@@ -1306,7 +1306,7 @@ static UniValue setdelegateforaddress(const JSONRPCRequest& request){
                     "]\n"
                     },
                     RPCExamples{
-                    HelpExampleCli("setdelegateforaddress", " \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 10 \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX 6000000\" "+FormatMoney(minGasPrice))
+                    HelpExampleCli("setdelegateforaddress", " \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 10 \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" 6000000 "+FormatMoney(minGasPrice))
                     },
                 }.Check(request);
 
