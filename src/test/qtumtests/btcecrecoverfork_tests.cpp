@@ -101,7 +101,7 @@ BOOST_FIXTURE_TEST_SUITE(btcecrecoverfork_tests, TestChain100Setup)
 
 BOOST_AUTO_TEST_CASE(checking_btcecrecover_after_fork){
     // Initialize
-    initState();
+//    initState();
     genesisLoading();
     createNewBlocks(this,999 - COINBASE_MATURITY);
     dev::h256 hashTx(HASHTX);
@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_CASE(checking_btcecrecover_after_fork){
 
 BOOST_AUTO_TEST_CASE(checking_btcecrecover_before_fork){
     // Initialize
-    initState();
+//    initState();
     genesisLoading();
     createNewBlocks(this,998 - COINBASE_MATURITY);
     dev::h256 hashTx(HASHTX);
