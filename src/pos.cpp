@@ -128,6 +128,11 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, CValidationState& state, const C
     int nOfflineStakeHeight = Params().GetConsensus().nOfflineStakeHeight;
     if (nHeight >= nOfflineStakeHeight && !Params().GetConsensus().delegationsAddress.IsNull())
     {
+        ////////////////////////////////////////////////// deploy offline staking contract
+        if(nHeight == nOfflineStakeHeight){
+            globalState->deployDelegationsContract();
+        }
+        /////////////////////////////////////////////////
         static QtumDelegation qtumDelegation;
 
         // Check if the delegation contract exist
