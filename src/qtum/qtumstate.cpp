@@ -288,10 +288,12 @@ void QtumState::validateTransfersWithChangeLog(){
 
 void QtumState::deployDelegationsContract(){
     dev::Address delegationsAddress = uintToh160(Params().GetConsensus().delegationsAddress);
-    QtumState::createContract(delegationsAddress);
-    QtumState::setCode(delegationsAddress, bytes{fromHex(DELEGATIONS_CONTRACT_CODE)});
-    commit(CommitBehaviour::RemoveEmptyAccounts);
-    db().commit();
+    if(!QtumState::addressInUse(delegationsAddress)){
+        QtumState::createContract(delegationsAddress);
+        QtumState::setCode(delegationsAddress, bytes{fromHex(DELEGATIONS_CONTRACT_CODE)});
+        commit(CommitBehaviour::RemoveEmptyAccounts);
+        db().commit();
+    }
 }
 ///////////////////////////////////////////////////////////////////////////////////////////
 CTransaction CondensingTX::createCondensingTX(){
