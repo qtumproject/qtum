@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE(checking_delegations_from_events){
 
 BOOST_AUTO_TEST_CASE(checking_delegations_contract){
     // Initialize
-    initState();
+//    initState();
     genesisLoading();
     createNewBlocks(this, 1000);
     dev::h256 hashTx(HASHTX);

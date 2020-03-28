@@ -126,7 +126,7 @@ BOOST_FIXTURE_TEST_SUITE(constantinoplefork_tests, TestChain100Setup)
 
 BOOST_AUTO_TEST_CASE(checking_returndata_opcode_after_fork){
     // Initialize
-    initState();
+//    initState();
     genesisLoading();
     createNewBlocks(this,999 - COINBASE_MATURITY);
     dev::h256 hashTx(HASHTX);
@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE(checking_returndata_opcode_after_fork){
 
 BOOST_AUTO_TEST_CASE(checking_returndata_opcode_before_fork){
     // Initialize
-    initState();
+//    initState();
     genesisLoading();
     createNewBlocks(this,998 - COINBASE_MATURITY);
     dev::h256 hashTx(HASHTX);
@@ -184,7 +184,7 @@ BOOST_AUTO_TEST_CASE(checking_returndata_opcode_before_fork){
 
 BOOST_AUTO_TEST_CASE(checking_constantinople_after_fork){
     // Initialize
-    initState();
+//    initState();
     genesisLoading();
     createNewBlocks(this,999 - COINBASE_MATURITY);
     dev::h256 hashTx(HASHTX);
@@ -204,7 +204,7 @@ BOOST_AUTO_TEST_CASE(checking_constantinople_after_fork){
 
 BOOST_AUTO_TEST_CASE(checking_constantinople_before_fork){
     // Initialize
-    initState();
+//    initState();
     genesisLoading();
     createNewBlocks(this,998 - COINBASE_MATURITY);
     dev::h256 hashTx(HASHTX);
