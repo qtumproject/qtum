@@ -4460,8 +4460,6 @@ bool ProcessNetBlock(const CChainParams& chainparams, const std::shared_ptr<cons
         mapOrphanBlocksByPrev.erase(hashPrev);
     }
 
-    LogPrintf("ProcessNetBlock: ACCEPTED\n");
-
     return true;
 }
 
