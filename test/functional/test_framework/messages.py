@@ -721,7 +721,7 @@ class CBlock(CBlockHeader):
         data += ser_uint256(self.hashUTXORoot)
         data += self.prevoutStake.serialize()
         sha256NoSig = hash256(data)
-        self.vchBlockSig = key.sign_ecdsa(sha256NoSig, low_s=low_s)
+        self.vchBlockSig = key.sign_ecdsa(sha256NoSig, low_s=low_s, der_sig=False)
 
     def __repr__(self):
         return "CBlock(nVersion=%i hashPrevBlock=%064x hashMerkleRoot=%064x nTime=%s nBits=%08x nNonce=%08x vtx=%s)" \
