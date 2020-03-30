@@ -42,6 +42,7 @@ QT_FORMS_UI = \
   qt/forms/sendtocontract.ui \
   qt/forms/sendtokenpage.ui \
   qt/forms/signverifymessagedialog.ui \
+  qt/forms/superstakeritemwidget.ui \
   qt/forms/titlebar.ui \
   qt/forms/tokendescdialog.ui \
   qt/forms/tokenitemwidget.ui \
@@ -113,6 +114,7 @@ QT_MOC_CPP = \
   qt/moc_sendtokenpage.cpp \
   qt/moc_signverifymessagedialog.cpp \
   qt/moc_splashscreen.cpp \
+  qt/moc_superstakeritemwidget.cpp \
   qt/moc_tabbarinfo.cpp \
   qt/moc_titlebar.cpp \
   qt/moc_tokenamountfield.cpp \
@@ -242,6 +244,7 @@ BITCOIN_QT_H = \
   qt/splashscreen.h \
   qt/stakepage.h \
   qt/styleSheet.h \
+  qt/superstakeritemwidget.h \
   qt/tabbarinfo.h \
   qt/titlebar.h \
   qt/token.h \
@@ -425,6 +428,7 @@ BITCOIN_QT_WALLET_CPP = \
   qt/sendtocontract.cpp \
   qt/sendtokenpage.cpp \
   qt/signverifymessagedialog.cpp \
+  qt/superstakeritemwidget.cpp \
   qt/tokendescdialog.cpp \
   qt/tokenfilterproxy.cpp \
   qt/tokentransactionview.cpp \
