@@ -115,6 +115,7 @@ QT_MOC_CPP = \
   qt/moc_signverifymessagedialog.cpp \
   qt/moc_splashscreen.cpp \
   qt/moc_superstakeritemwidget.cpp \
+  qt/moc_superstakerlistwidget.cpp \
   qt/moc_tabbarinfo.cpp \
   qt/moc_titlebar.cpp \
   qt/moc_tokenamountfield.cpp \
@@ -245,6 +246,8 @@ BITCOIN_QT_H = \
   qt/stakepage.h \
   qt/styleSheet.h \
   qt/superstakeritemwidget.h \
+  qt/superstakeritemmodel.h \
+  qt/superstakerlistwidget.h \
   qt/tabbarinfo.h \
   qt/titlebar.h \
   qt/token.h \
@@ -429,6 +432,7 @@ BITCOIN_QT_WALLET_CPP = \
   qt/sendtokenpage.cpp \
   qt/signverifymessagedialog.cpp \
   qt/superstakeritemwidget.cpp \
+  qt/superstakerlistwidget.cpp \
   qt/tokendescdialog.cpp \
   qt/tokenfilterproxy.cpp \
   qt/tokentransactionview.cpp \

@@ -43,6 +43,7 @@ class TokenTransactionTableModel;
 class ContractTableModel;
 class WalletWorker;
 class TokenItemModel;
+class SuperStakerItemModel;
 
 class CCoinControl;
 class CKeyID;
@@ -167,6 +168,7 @@ public:
     TokenItemModel *getTokenItemModel();
     TokenTransactionTableModel *getTokenTransactionTableModel();
     DelegationItemModel *getDelegationItemModel();
+    SuperStakerItemModel *getSuperStakerItemModel();
 
     EncryptionStatus getEncryptionStatus() const;
 
