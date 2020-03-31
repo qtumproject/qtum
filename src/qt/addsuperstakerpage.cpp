@@ -2,6 +2,7 @@
 #include "qt/forms/ui_addsuperstakerpage.h"
 
 #include <wallet/wallet.h>
+#include <qt/clientmodel.h>
 
 AddSuperStakerPage::AddSuperStakerPage(QWidget *parent) :
     QDialog(parent),
@@ -29,6 +30,16 @@ void AddSuperStakerPage::setModel(WalletModel *_model)
 {
     m_model = _model;
     ui->lineEditStaker->setWalletModel(m_model);
+}
+
+void AddSuperStakerPage::setClientModel(ClientModel *_clientModel)
+{
+    m_clientModel = _clientModel;
+
+    if (m_clientModel)
+    {
+        connect(m_clientModel, SIGNAL(gasInfoChanged(quint64, quint64, quint64)), this, SLOT(on_gasInfoChanged(quint64, quint64, quint64)));
+    }
 }
 
 void AddSuperStakerPage::clearAll()

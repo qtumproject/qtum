@@ -4,6 +4,7 @@
 #include <QDialog>
 
 class WalletModel;
+class ClientModel;
 
 namespace Ui {
 class AddSuperStakerPage;
@@ -17,6 +18,7 @@ public:
     explicit AddSuperStakerPage(QWidget *parent = nullptr);
     ~AddSuperStakerPage();
     void setModel(WalletModel *_model);
+    void setClientModel(ClientModel *_clientModel);
     void clearAll();
 
 public Q_SLOTS:
@@ -31,6 +33,7 @@ private Q_SLOTS:
 private:
     Ui::AddSuperStakerPage *ui;
     WalletModel* m_model;
+    ClientModel* m_clientModel;
 };
 
 #endif // ADDSUPERSTAKERPAGE_H
