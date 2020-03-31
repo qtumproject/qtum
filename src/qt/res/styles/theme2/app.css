@@ -1077,7 +1077,7 @@ Token Page Widget CSS
     background-color: rgba(38, 52, 80, 20%);
     border: 1px solid rgba(56, 72, 105, 20%);
 }
-#tokenItemFrame, #delegationItemFrame{
+#tokenItemFrame, #delegationItemFrame, #superStakerItemFrame{
     background-color: #222f4b;
     border-radius: 6px;
 }
@@ -1118,6 +1118,32 @@ DelegationItemWidget #labelAddress{
 DelegationItemWidget #delegationLogo{
     background-color: #334263;
     border-radius: 20px;
+}
+SuperStakerListWidget{
+    background-color: #1a2845;
+}
+SuperStakerItemWidget #labelFee{
+    color: #6f80ab;
+    font: 13pt;
+}
+SuperStakerItemWidget #labelStaker{
+    color: white;
+    font: 13pt;
+}
+SuperStakerItemWidget #labelAddress{
+    color: #49587a;
+    font: 10pt;
+}
+SuperStakerItemWidget #superStakerLogo{
+    background-color: #334263;
+    border-radius: 20px;
+}
+SuperStakerItemWidget #buttonDelegations{
+    min-width: 7em;
+    padding: 1px;
+    border-radius: 8px;
+    min-height: 16px;
+    font: 8pt;
 }
 /*--------------------------------------------
 Send Coins Dialog CSS

@@ -138,7 +138,7 @@
                 </layout>
                </widget>
               </item>
-              <item>
+              <item alignment="Qt::AlignLeft">
                <widget class="QPushButton" name="buttonDelegations">
                 <property name="text">
                  <string>Delegations...</string>

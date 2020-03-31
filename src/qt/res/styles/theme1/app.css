@@ -1083,7 +1083,7 @@ Token Page Widget CSS
     background-color: rgba(46, 46, 46, 20%);
     border: 1px solid rgba(156, 156, 156, 20%);
 }
-#tokenItemFrame, #delegationItemFrame{
+#tokenItemFrame, #delegationItemFrame, #superStakerItemFrame{
     background-color: #393939;
     border-radius: 6px;
 }
@@ -1129,4 +1129,27 @@ DelegationItemWidget #delegationLogo{
 }
 #coinControlContentsWidget{
     background-color: #2e2e2e;
+}
+SuperStakerListWidget{
+    background-color: #2e2e2e;
+}
+SuperStakerItemWidget #labelFee,
+#labelNewSuperStaker{
+    color: #C5C5C5;
+    font: 13pt;
+}
+SuperStakerItemWidget #labelStaker{
+    color: white;
+    font: 13pt;
+}
+SuperStakerItemWidget #superStakerLogo{
+    background-color: #575757;
+    border-radius: 20px;
+}
+SuperStakerItemWidget #buttonDelegations{
+    min-width: 7em;
+    padding: 1px;
+    border-radius: 8px;
+    min-height: 16px;
+    font: 8pt;
 }
