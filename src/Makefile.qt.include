@@ -11,6 +11,7 @@ include Makefile.qt_locale.include
 QT_FORMS_UI = \
   qt/forms/adddelegationpage.ui \
   qt/forms/addressbookpage.ui \
+  qt/forms/addsuperstakerpage.ui \
   qt/forms/addtokenpage.ui \
   qt/forms/askpassphrasedialog.ui \
   qt/forms/callcontract.ui \
@@ -57,6 +58,7 @@ QT_MOC_CPP = \
   qt/moc_addressbookpage.cpp \
   qt/moc_addressfield.cpp \
   qt/moc_addresstablemodel.cpp \
+  qt/moc_addsuperstakerpage.cpp \
   qt/moc_addtokenpage.cpp \
   qt/moc_askpassphrasedialog.cpp \
   qt/moc_createwalletdialog.cpp \
@@ -179,6 +181,7 @@ BITCOIN_QT_H = \
   qt/addressbookpage.h \
   qt/addressfield.h \
   qt/addresstablemodel.h \
+  qt/addsuperstakerpage.h \
   qt/addtokenpage.h \
   qt/askpassphrasedialog.h \
   qt/bantablemodel.h \
@@ -396,6 +399,7 @@ BITCOIN_QT_WALLET_CPP = \
   qt/addressbookpage.cpp \
   qt/addressfield.cpp \
   qt/addresstablemodel.cpp \
+  qt/addsuperstakerpage.cpp \
   qt/addtokenpage.cpp \
   qt/askpassphrasedialog.cpp \
   qt/callcontract.cpp \
