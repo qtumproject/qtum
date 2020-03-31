@@ -110,6 +110,11 @@ void OptionsModel::Init(bool resetSettings)
     if (!m_node.softSetBoolArg("-logevents", settings.value("fLogEvents").toBool()))
         addOverriddenOption("-logevents");
 
+    if (!settings.contains("fSuperStaking"))
+        settings.setValue("fSuperStaking", false);
+    if (!m_node.softSetBoolArg("-superstaking", settings.value("fSuperStaking").toBool()))
+        addOverriddenOption("-superstaking");
+
 #ifdef ENABLE_WALLET
     if (!settings.contains("nReserveBalance"))
         settings.setValue("nReserveBalance", (long long)DEFAULT_RESERVE_BALANCE);
@@ -363,6 +368,8 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
             return settings.value("nDatabaseCache");
         case LogEvents:
             return settings.value("fLogEvents");
+        case SuperStaking:
+            return settings.value("fSuperStaking");
         case ThreadsScriptVerif:
             return settings.value("nThreadsScriptVerif");
         case Listen:
@@ -519,6 +526,12 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
         case LogEvents:
             if (settings.value("fLogEvents") != value) {
                 settings.setValue("fLogEvents", value);
+                setRestartRequired(true);
+            }
+            break;
+        case SuperStaking:
+            if (settings.value("fSuperStaking") != value) {
+                settings.setValue("fSuperStaking", value);
                 setRestartRequired(true);
             }
             break;

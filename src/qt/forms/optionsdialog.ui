@@ -259,6 +259,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="superStaking">
+         <property name="text">
+          <string>Enable super staking</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <spacer name="verticalSpacer_Main">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
