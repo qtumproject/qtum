@@ -347,6 +347,13 @@ void BitcoinGUI::createActions()
     delegationAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_6));
     tabGroup->addAction(delegationAction);
 
+    superStakerAction = new QAction(platformStyle->MultiStatesIcon(":/icons/tx_mined"), tr("S&uper Stakers"), this);
+    superStakerAction->setStatusTip(tr("Supers stakers (add, remove and configure super stakers)"));
+    superStakerAction->setToolTip(superStakerAction->statusTip());
+    superStakerAction->setCheckable(true);
+    superStakerAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_7));
+    tabGroup->addAction(superStakerAction);
+
 #ifdef ENABLE_WALLET
     // These showNormalIfMinimized are needed because Send Coins and Receive Coins
     // can be triggered from the tray menu, and need to show the GUI to be useful.
@@ -374,6 +381,8 @@ void BitcoinGUI::createActions()
     connect(stakeAction, &QAction::triggered, this, &BitcoinGUI::gotoStakePage);
     connect(delegationAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(delegationAction, SIGNAL(triggered()), this, SLOT(gotoDelegationPage()));
+    connect(superStakerAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
+    connect(superStakerAction, SIGNAL(triggered()), this, SLOT(gotoSuperStakerPage()));
 #endif // ENABLE_WALLET
 
     quitAction = new QAction(tr("E&xit"), this);
@@ -627,6 +636,7 @@ void BitcoinGUI::createToolBars()
         appNavigationBar->addAction(stakeAction);
         appNavigationBar->addAction(QRCTokenAction);
         appNavigationBar->addAction(delegationAction);
+        appNavigationBar->addAction(superStakerAction);
         appNavigationBar->buildUi();
         overviewAction->setChecked(true);
     }
@@ -842,6 +852,7 @@ void BitcoinGUI::setWalletActionsEnabled(bool enabled)
     openAction->setEnabled(enabled);
     stakeAction->setEnabled(enabled);
     delegationAction->setEnabled(enabled);
+    superStakerAction->setEnabled(enabled);
     m_close_wallet_action->setEnabled(enabled);
 }
 
@@ -976,6 +987,12 @@ void BitcoinGUI::gotoDelegationPage()
 {
     delegationAction->setChecked(true);
     if (walletFrame) walletFrame->gotoDelegationPage();
+}
+
+void BitcoinGUI::gotoSuperStakerPage()
+{
+    superStakerAction->setChecked(true);
+    if (walletFrame) walletFrame->gotoSuperStakerPage();
 }
 
 void BitcoinGUI::gotoReceiveCoinsPage()

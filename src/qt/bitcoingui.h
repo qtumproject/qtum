@@ -169,6 +169,7 @@ private:
     QAction* receiveTokenAction = nullptr;
     QAction* addTokenAction = nullptr;
     QAction* delegationAction = nullptr;
+    QAction* superStakerAction = nullptr;
     QAction* m_create_wallet_action{nullptr};
     QAction* m_open_wallet_action{nullptr};
     QMenu* m_open_wallet_menu{nullptr};
@@ -309,6 +310,8 @@ public Q_SLOTS:
     void gotoStakePage();
     /** Switch to delegation page */
     void gotoDelegationPage();
+    /** Switch to super staker page */
+    void gotoSuperStakerPage();
 
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");
