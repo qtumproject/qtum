@@ -114,6 +114,7 @@ class CWalletTx;
 class CTokenTx;
 class CContractBookData;
 class CDelegationInfo;
+class CSuperStakerInfo;
 struct FeeCalculation;
 enum class FeeEstimateMode;
 class ReserveDestination;
@@ -1011,6 +1012,8 @@ public:
 
     std::map<uint256, CDelegationInfo> mapDelegation;
 
+    std::map<uint256, CSuperStakerInfo> mapSuperStaker;
+
     /** Registered interfaces::Chain::Notifications handler. */
     std::unique_ptr<interfaces::Handler> m_chain_notifications_handler;
 
@@ -1421,6 +1424,10 @@ public:
     boost::signals2::signal<void (CWallet *wallet, const uint256 &hashDelegation,
             ChangeType status)> NotifyDelegationChanged;
 
+    /** Wallet super staker added, removed or updated. */
+    boost::signals2::signal<void (CWallet *wallet, const uint256 &hashSuperStaker,
+            ChangeType status)> NotifySuperStakerChanged;
+
     /** Inquire whether this wallet broadcasts transactions. */
     bool GetBroadcastTransactions() const { return fBroadcastTransactions; }
     /** Set whether this wallet broadcasts transactions. */
@@ -1550,6 +1557,15 @@ public:
 
     /* Remove delegation entry from the wallet */
     bool RemoveDelegationEntry(const uint256& delegationHash, bool fFlushOnClose=true);
+
+    /* Load super staker entry into the wallet */
+    bool LoadSuperStaker(const CSuperStakerInfo &superStaker);
+
+    /* Add super staker entry into the wallet */
+    bool AddSuperStakerEntry(const CSuperStakerInfo& superStaker, bool fFlushOnClose=true);
+
+    /* Remove super staker entry from the wallet */
+    bool RemoveSuperStakerEntry(const uint256& superStakerHash, bool fFlushOnClose=true);
 
     /* Start staking qtums */
     void StartStake(CConnman* connman = CWallet::defaultConnman);
@@ -1781,6 +1797,44 @@ public:
         blockNumber = -1;
         createTxHash.SetNull();
         removeTxHash.SetNull();
+    }
+
+    uint256 GetHash() const;
+};
+
+class CSuperStakerInfo
+{
+public:
+    static const int CURRENT_VERSION=1;
+    int nVersion;
+    int64_t nCreateTime;
+    uint8_t nFee;
+    std::string strStakerAddress;
+
+    CSuperStakerInfo()
+    {
+        SetNull();
+    }
+
+    ADD_SERIALIZE_METHODS;
+
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action) {
+        if (!(s.GetType() & SER_GETHASH))
+        {
+            READWRITE(nVersion);
+            READWRITE(nCreateTime);
+            READWRITE(nFee);
+        }
+        READWRITE(strStakerAddress);
+    }
+
+    void SetNull()
+    {
+        nVersion = CSuperStakerInfo::CURRENT_VERSION;
+        nCreateTime = 0;
+        nFee = 0;
+        strStakerAddress = "";
     }
 
     uint256 GetHash() const;

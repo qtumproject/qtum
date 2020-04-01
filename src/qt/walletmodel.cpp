@@ -64,6 +64,7 @@ WalletModel::WalletModel(std::unique_ptr<interfaces::Wallet> wallet, interfaces:
     tokenItemModel(nullptr),
     tokenTransactionTableModel(nullptr),
     delegationItemModel(nullptr),
+    superStakerItemModel(nullptr),
     cachedEncryptionStatus(Unencrypted),
     cachedNumBlocks(0),
     nWeight(0),
@@ -79,6 +80,7 @@ WalletModel::WalletModel(std::unique_ptr<interfaces::Wallet> wallet, interfaces:
     tokenItemModel = new TokenItemModel(this);
     tokenTransactionTableModel = new TokenTransactionTableModel(platformStyle, this);
     delegationItemModel = new DelegationItemModel(this);
+    superStakerItemModel = new SuperStakerItemModel(this);
 
     worker = new WalletWorker(this);
     worker->moveToThread(&(t));

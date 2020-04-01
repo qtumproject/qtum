@@ -215,6 +215,17 @@ DelegationInfo MakeWalletDelegationInfo(const CDelegationInfo& delegation)
     return result;
 }
 
+//! Construct wallet super staker info.
+SuperStakerInfo MakeWalletSuperStakerInfo(const CSuperStakerInfo& superStaker)
+{
+    SuperStakerInfo result;
+    result.staker_address = superStaker.strStakerAddress;
+    result.fee = superStaker.nFee;
+    result.time = superStaker.nCreateTime;
+    result.hash = superStaker.GetHash();
+    return result;
+}
+
 bool TokenTxStatus(interfaces::Chain::Lock& locked_chain, CWallet& wallet, const uint256& txid, int& block_number, bool& in_mempool, int& num_blocks)
 {
     auto mi = wallet.mapTokenTx.find(txid);
@@ -999,6 +1010,31 @@ public:
 
         return found ? addDelegationEntry(info) : 0;
     }
+    SuperStakerInfo getSuperStaker(const uint256& id) override
+    {
+        LOCK(m_wallet->cs_wallet);
+
+        auto mi = m_wallet->mapSuperStaker.find(id);
+        if (mi != m_wallet->mapSuperStaker.end()) {
+            return MakeWalletSuperStakerInfo(mi->second);
+        }
+        return {};
+    }
+    std::vector<SuperStakerInfo> getSuperStakers() override
+    {
+        LOCK(m_wallet->cs_wallet);
+
+        std::vector<SuperStakerInfo> result;
+        result.reserve(m_wallet->mapSuperStaker.size());
+        for (const auto& entry : m_wallet->mapSuperStaker) {
+            result.emplace_back(MakeWalletSuperStakerInfo(entry.second));
+        }
+        return result;
+    }
+    bool removeSuperStakerEntry(const std::string &sHash) override
+    {
+        return m_wallet->RemoveSuperStakerEntry(uint256S(sHash), true);
+    }
     bool tryGetStakeWeight(uint64_t& nWeight) override
     {
         auto locked_chain = m_wallet->chain().lock(true);
@@ -1093,6 +1129,11 @@ public:
     std::unique_ptr<Handler> handleDelegationChanged(DelegationChangedFn fn) override
     {
         return MakeHandler(m_wallet->NotifyDelegationChanged.connect(
+            [fn](CWallet*, const uint256& id, ChangeType status) { fn(id, status); }));
+    }
+    std::unique_ptr<Handler> handleSuperStakerChanged(SuperStakerChangedFn fn) override
+    {
+        return MakeHandler(m_wallet->NotifySuperStakerChanged.connect(
             [fn](CWallet*, const uint256& id, ChangeType status) { fn(id, status); }));
     }
 

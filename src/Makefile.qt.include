@@ -124,6 +124,7 @@ QT_MOC_CPP = \
   qt/moc_superstakerlistwidget.cpp \
   qt/moc_superstakerconfigdialog.cpp \
   qt/moc_superstakerpage.cpp \
+  qt/moc_superstakeritemmodel.cpp \
   qt/moc_tabbarinfo.cpp \
   qt/moc_titlebar.cpp \
   qt/moc_tokenamountfield.cpp \
@@ -161,6 +162,7 @@ QT_MOC = \
   qt/tokenamountfield.moc \
   qt/tokenitemmodel.moc \
   qt/delegationitemmodel.moc \
+  qt/superstakeritemmodel.moc \
   qt/walletmodel.moc
 
 QT_QRC_CPP = qt/qrc_bitcoin.cpp
@@ -260,6 +262,7 @@ BITCOIN_QT_H = \
   qt/superstakerlistwidget.h \
   qt/superstakerconfigdialog.h \
   qt/superstakerpage.h \
+  qt/superstakeritemmodel.h \
   qt/tabbarinfo.h \
   qt/titlebar.h \
   qt/token.h \
@@ -392,6 +395,7 @@ BITCOIN_QT_BASE_CPP = \
   qt/token.cpp \
   qt/tokenamountfield.cpp \
   qt/tokenitemmodel.cpp \
+  qt/superstakeritemmodel.cpp \
   qt/trafficgraphwidget.cpp \
   qt/utilitydialog.cpp\
   qt/qtumversionchecker.cpp \

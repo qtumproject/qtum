@@ -279,6 +279,7 @@ private:
     TokenItemModel *tokenItemModel;
     TokenTransactionTableModel *tokenTransactionTableModel;
     DelegationItemModel *delegationItemModel;
+    SuperStakerItemModel *superStakerItemModel;
 
     // Cache some values to be able to detect changes
     interfaces::WalletBalances m_cached_balances;

@@ -44,6 +44,7 @@ struct TokenTx;
 struct ContractBookData;
 struct DelegationInfo;
 struct DelegationDetails;
+struct SuperStakerInfo;
 
 
 using WalletOrderForm = std::vector<std::pair<std::string, std::string>>;
@@ -356,6 +357,15 @@ public:
     //! Set delegation entry removed.
     virtual bool setDelegationRemoved(const std::string &sHash, const std::string &sTxid) = 0;
 
+    //! Get super staker information.
+    virtual SuperStakerInfo getSuperStaker(const uint256& id) = 0;
+
+    //! Get list of all super stakers.
+    virtual std::vector<SuperStakerInfo> getSuperStakers() = 0;
+
+    //! Remove wallet super staker entry.
+    virtual bool removeSuperStakerEntry(const std::string &sHash) = 0;
+
     //! Try get the stake weight
     virtual bool tryGetStakeWeight(uint64_t& nWeight) = 0;
 
@@ -427,6 +437,10 @@ public:
     //! Register handler for delegation changed messages.
     using DelegationChangedFn = std::function<void(const uint256& id, ChangeType status)>;
     virtual std::unique_ptr<Handler> handleDelegationChanged(DelegationChangedFn fn) = 0;
+
+    //! Register handler for super staker changed messages.
+    using SuperStakerChangedFn = std::function<void(const uint256& id, ChangeType status)>;
+    virtual std::unique_ptr<Handler> handleSuperStakerChanged(SuperStakerChangedFn fn) = 0;
 };
 
 //! Information about one wallet address.
@@ -611,6 +625,16 @@ struct DelegationDetails
         info.remove_tx_hash = w_remove_tx_hash;
         return info;
     }
+};
+
+// Wallet super staker information.
+struct SuperStakerInfo
+{
+    std::string staker_address;
+    uint8_t fee = 0;
+    int64_t time = 0;
+    bool staking = false;
+    uint256 hash;
 };
 
 //! Return implementation of Wallet interface. This function is defined in
