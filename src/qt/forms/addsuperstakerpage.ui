@@ -84,6 +84,9 @@
          <height>0</height>
         </size>
        </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
        <property name="suffix">
         <string>%</string>
        </property>
