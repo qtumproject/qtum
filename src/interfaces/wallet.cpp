@@ -215,6 +215,16 @@ DelegationInfo MakeWalletDelegationInfo(const CDelegationInfo& delegation)
     return result;
 }
 
+//! Construct super staker info.
+CSuperStakerInfo MakeSuperStakerInfo(const SuperStakerInfo& superStaker)
+{
+    CSuperStakerInfo result;
+    result.strStakerAddress = superStaker.staker_address;
+    result.nFee = superStaker.fee;
+    result.nCreateTime = superStaker.time;
+    return result;
+}
+
 //! Construct wallet super staker info.
 SuperStakerInfo MakeWalletSuperStakerInfo(const CSuperStakerInfo& superStaker)
 {
@@ -1030,6 +1040,10 @@ public:
             result.emplace_back(MakeWalletSuperStakerInfo(entry.second));
         }
         return result;
+    }
+    bool addSuperStakerEntry(const SuperStakerInfo &superStaker) override
+    {
+        return m_wallet->AddSuperStakerEntry(MakeSuperStakerInfo(superStaker), true);
     }
     bool removeSuperStakerEntry(const std::string &sHash) override
     {

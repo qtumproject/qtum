@@ -445,7 +445,7 @@ DelegationItemModel *WalletModel::getDelegationItemModel()
 
 SuperStakerItemModel *WalletModel::getSuperStakerItemModel()
 {
-    return nullptr;
+    return superStakerItemModel;
 }
 
 WalletModel::EncryptionStatus WalletModel::getEncryptionStatus() const

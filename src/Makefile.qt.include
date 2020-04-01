@@ -262,7 +262,6 @@ BITCOIN_QT_H = \
   qt/superstakerlistwidget.h \
   qt/superstakerconfigdialog.h \
   qt/superstakerpage.h \
-  qt/superstakeritemmodel.h \
   qt/tabbarinfo.h \
   qt/titlebar.h \
   qt/token.h \

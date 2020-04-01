@@ -2,7 +2,7 @@
 #include "qt/forms/ui_addsuperstakerpage.h"
 
 #include <wallet/wallet.h>
-#include <qt/clientmodel.h>
+#include <qt/walletmodel.h>
 
 AddSuperStakerPage::AddSuperStakerPage(QWidget *parent) :
     QDialog(parent),
@@ -29,16 +29,9 @@ AddSuperStakerPage::~AddSuperStakerPage()
 void AddSuperStakerPage::setModel(WalletModel *_model)
 {
     m_model = _model;
-    ui->lineEditStaker->setWalletModel(m_model);
-}
-
-void AddSuperStakerPage::setClientModel(ClientModel *_clientModel)
-{
-    m_clientModel = _clientModel;
-
-    if (m_clientModel)
+    if(m_model)
     {
-        connect(m_clientModel, SIGNAL(gasInfoChanged(quint64, quint64, quint64)), this, SLOT(on_gasInfoChanged(quint64, quint64, quint64)));
+        ui->lineEditStaker->setWalletModel(m_model);
     }
 }
 
@@ -81,4 +74,18 @@ void AddSuperStakerPage::on_updateAddStakerButton()
     }
 
     ui->addSuperStakerButton->setEnabled(enabled);
+}
+
+void AddSuperStakerPage::on_addSuperStakerButton_clicked()
+{
+    if(m_model)
+    {
+        QString stakerAddress = ui->lineEditStaker->currentText();
+        int stakerFee = ui->spinBoxFee->value();
+        interfaces::SuperStakerInfo superStaker;
+        superStaker.staker_address = stakerAddress.toStdString();
+        superStaker.fee = stakerFee;
+        m_model->wallet().addSuperStakerEntry(superStaker);
+        accept();
+    }
 }

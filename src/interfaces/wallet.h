@@ -363,6 +363,9 @@ public:
     //! Get list of all super stakers.
     virtual std::vector<SuperStakerInfo> getSuperStakers() = 0;
 
+    //! Add wallet super staker entry.
+    virtual bool addSuperStakerEntry(const SuperStakerInfo &superStaker) = 0;
+
     //! Remove wallet super staker entry.
     virtual bool removeSuperStakerEntry(const std::string &sHash) = 0;
 
