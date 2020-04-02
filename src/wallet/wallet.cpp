@@ -3963,9 +3963,18 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
                 scriptPubKeyHashKernel = CScript() << OP_DUP << OP_HASH160 << ToByteVector(hash160) << OP_EQUALVERIFY << OP_CHECKSIG;
             }
 
-            txNew.vin.push_back(CTxIn(prevoutStake));
-            nCredit += coinPrev.out.nValue;
-            nValue = coinPrev.out.nValue;
+            PKHash superStakerAddress(delegation.staker);
+            COutPoint prevoutSuperStaker;
+            CAmount nValueSuperStaker = 0;
+            if(GetPrevoutSuperStaker(setCoins, superStakerAddress, prevoutSuperStaker, nValueSuperStaker))
+            {
+                LogPrint(BCLog::COINSTAKE, "CreateCoinStake : failed to get utxo for super staker %s\n", EncodeDestination(superStakerAddress));
+                break;  // unable to find utxo from the super staker
+            }
+
+            txNew.vin.push_back(CTxIn(prevoutSuperStaker));
+            nCredit += nValueSuperStaker;
+            nValue = nValueSuperStaker;
             txNew.vout.push_back(CTxOut(0, scriptPubKeyStaker));
             txNew.vout.push_back(CTxOut(0, scriptPubKeyHashKernel));
 
@@ -3986,7 +3995,7 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
 
     const Consensus::Params& consensusParams = Params().GetConsensus();
     int64_t nRewardPiece = 0;
-    int64_t nRewardStaker = 0;
+    int64_t nRewardOffline = 0;
     // Calculate reward
     {
         int64_t nTotalReward = nTotalFees + GetBlockSubsidy(pindexPrev->nHeight + 1, consensusParams);
@@ -3996,26 +4005,26 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
         if(pindexPrev->nHeight < consensusParams.nFirstMPoSBlock || pindexPrev->nHeight >= consensusParams.nLastMPoSBlock)
         {
             // Keep whole reward
-            int64_t nRewardOffline = 0;
+            int64_t nRewardStaker = 0;
             if(!SplitOfflineStakeReward(nTotalReward, delegation.fee, nRewardOffline, nRewardStaker))
                 return error("CreateCoinStake: Failed to split reward");
-            nCredit += nRewardOffline;
+            nCredit += nRewardStaker;
         }
         else
         {
             // Split the reward when mpos is used
             nRewardPiece = nTotalReward / consensusParams.nMPoSRewardRecipients;
-            int64_t nRewardOffline = 0;
+            int64_t nRewardStaker = 0;
             int64_t nReward = nRewardPiece + nTotalReward % consensusParams.nMPoSRewardRecipients;
             if(!SplitOfflineStakeReward(nReward, delegation.fee, nRewardOffline, nRewardStaker))
                 return error("CreateCoinStake: Failed to split reward");
-            nCredit += nRewardOffline;
+            nCredit += nRewardStaker;
         }
     }
 
     // Set output amount
-    txNew.vout[1].nValue = nRewardStaker;
-    txNew.vout[2].nValue = nCredit;
+    txNew.vout[1].nValue = nCredit;
+    txNew.vout[2].nValue = nRewardOffline;
 
     if(pindexPrev->nHeight >= consensusParams.nFirstMPoSBlock && pindexPrev->nHeight < consensusParams.nLastMPoSBlock)
     {
@@ -4050,6 +4059,28 @@ bool CWallet::GetDelegationStaker(const uint160& keyid, Delegation& delegation)
 
     delegation = it->second;
     return true;
+}
+
+bool CWallet::GetPrevoutSuperStaker(const std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, const PKHash& superStaker, COutPoint& prevout, CAmount& nValueRet)
+{
+    for(const std::pair<const CWalletTx*,unsigned int> &pcoin : setCoins)
+    {
+        CAmount nValue = pcoin.first->tx->vout[pcoin.second].nValue;
+        if(nValue < DEFAULT_STAKING_MIN_UTXO_VALUE)
+            continue;
+
+        CScript scriptPubKey = pcoin.first->tx->vout[pcoin.second].scriptPubKey;
+        bool OK = false;
+        PKHash pkhash = ExtractPublicKeyHash(scriptPubKey, &OK);
+        if(OK && pkhash == superStaker)
+        {
+            nValueRet = nValue;
+            prevout = COutPoint(pcoin.first->GetHash(), pcoin.second);
+            return true;
+        }
+    }
+
+    return false;
 }
 
 
