@@ -110,9 +110,13 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, CValidationState& state, const C
     const CTxIn& txin = tx.vin[0];
 
     Coin coinPrev;
-
     if(!view.GetCoin(txin.prevout, coinPrev)){
         return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-prevout-not-exist", strprintf("CheckProofOfStake() : Stake prevout does not exist %s", txin.prevout.hash.ToString()));
+    }
+
+    Coin coinBlockPrev;
+    if(!view.GetCoin(blockPrevout, coinBlockPrev)){
+        return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "block-prevout-not-exist", strprintf("CheckProofOfStake() : Block prevout does not exist %s", blockPrevout.hash.ToString()));
     }
 
     int nHeight = pindexPrev->nHeight + 1;
@@ -140,7 +144,7 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, CValidationState& state, const C
             return state.Invalid(ValidationInvalidReason::BLOCK_HEADER_REJECT, false, REJECT_INVALID, "stake-delegation-contract-not-exist", strprintf("CheckProofOfStake() : The delegation contract doesn't exist, block height %i", nOfflineStakeHeight)); // Internal error, delegation contract not exist
 
         // Get the delegation from the contract
-        uint160 address = uint160(ExtractPublicKeyHash(coinPrev.out.scriptPubKey));
+        uint160 address = uint160(ExtractPublicKeyHash(coinBlockPrev.out.scriptPubKey));
         Delegation delegation;
         if(!qtumDelegation.GetDelegation(address, delegation)) {
             return state.Invalid(ValidationInvalidReason::BLOCK_HEADER_REJECT, false, REJECT_INVALID, "stake-get-delegation-failed", strprintf("CheckProofOfStake() : Failed to get delegation from the delegation contract")); // Internal error, get delegation from the delegation contract
@@ -163,15 +167,15 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, CValidationState& state, const C
         checkDelegation = hasDelegationProof;
         if(checkDelegation)
         {
-            // Verify the transaction signature is from the staker
-            CScript stakerPubKey = tx.vout[1].scriptPubKey;
-            if (!VerifySignature(stakerPubKey, txin.prevout.hash, tx, 0, SCRIPT_VERIFY_NONE))
-                return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-verify-signature-failed", strprintf("CheckProofOfStake() : VerifySignature failed on coinstake %s", tx.GetHash().ToString()));
-
             // Check that the staker have the permission to use that coin to create the coinstake transaction
+            CScript stakerPubKey = tx.vout[1].scriptPubKey;
             uint160 staker = uint160(ExtractPublicKeyHash(stakerPubKey));
             if(!SignStr::VerifyMessage(CKeyID(address), staker.GetReverseHex(), vchPoD))
                 return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-verify-delegation-failed", strprintf("CheckProofOfStake() : VerifyDelegation failed on coinstake %s", tx.GetHash().ToString()));
+
+            // Check the super staker min utxo value
+            if(coinPrev.out.nValue < DEFAULT_STAKING_MIN_UTXO_VALUE)
+                return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-delegation-not-min-utxo", strprintf("CheckProofOfStake() : Stake for block at height %i do not have the minimum amount required for super staker", nHeight));
 
             // Check that the block delegation data is the same as the data received from the contract, this is to avoid using old/removed delegation
             int fee = GetDelegationFeeTx(tx, coinPrev);
@@ -184,14 +188,15 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, CValidationState& state, const C
         }
     }
 
-    if(!checkDelegation)
-    {
-        // Verify signature
-        if (!VerifySignature(coinPrev, txin.prevout.hash, tx, 0, SCRIPT_VERIFY_NONE))
-            return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-verify-signature-failed", strprintf("CheckProofOfStake() : VerifySignature failed on coinstake %s", tx.GetHash().ToString()));
-    }
+    // Check stake and block prevout
+    if(!checkDelegation && txin.prevout != blockPrevout)
+        return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-prevout-diff-block-prevout", strprintf("CheckProofOfStake() : Stake prevout %s is different then block prevout %s", txin.prevout.hash.ToString(), blockPrevout.hash.ToString()));
 
-    if (!CheckStakeKernelHash(pindexPrev, nBits, blockFrom->nTime, coinPrev.out.nValue, txin.prevout, nTimeBlock, hashProofOfStake, targetProofOfStake, LogInstance().WillLogCategory(BCLog::COINSTAKE)))
+    // Verify signature
+    if (!VerifySignature(coinPrev, txin.prevout.hash, tx, 0, SCRIPT_VERIFY_NONE))
+        return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-verify-signature-failed", strprintf("CheckProofOfStake() : VerifySignature failed on coinstake %s", tx.GetHash().ToString()));
+
+    if (!CheckStakeKernelHash(pindexPrev, nBits, blockFrom->nTime, coinBlockPrev.out.nValue, blockPrevout, nTimeBlock, hashProofOfStake, targetProofOfStake, LogInstance().WillLogCategory(BCLog::COINSTAKE)))
         return state.Invalid(ValidationInvalidReason::BLOCK_HEADER_SYNC, false, REJECT_INVALID, "stake-check-kernel-failed", strprintf("CheckProofOfStake() : INFO: check kernel failed on coinstake %s, hashProof=%s", tx.GetHash().ToString(), hashProofOfStake.ToString())); // may occur during initial download or if behind on block chain sync
 
     return true;
@@ -441,9 +446,9 @@ int GetDelegationFeeTx(const CTransaction& tx, const Coin& coin)
     if(!tx.IsCoinStake() || tx.vout.size() < 3 || nValueCoin <= 0)
         return -1;
 
-    CAmount nValueStaker = tx.vout[1].nValue;
+    CAmount nValueStaker = tx.vout[1].nValue - nValueCoin;
     CAmount nValueDelegate = tx.vout[2].nValue;
-    CAmount nReward = nValueStaker + nValueDelegate - nValueCoin;
+    CAmount nReward = nValueStaker + nValueDelegate;
     if(nReward <= 0)
         return -1;
 

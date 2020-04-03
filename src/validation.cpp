@@ -4830,9 +4830,9 @@ bool GetBlockDelegation(const CBlock& block, const uint160& staker, uint160& add
     if(nValueCoin <= 0)
         return false;
 
-    CAmount nValueStaker = block.vtx[1]->vout[1].nValue;
+    CAmount nValueStaker = block.vtx[1]->vout[1].nValue - nValueCoin;
     CAmount nValueDelegate = block.vtx[1]->vout[2].nValue;
-    CAmount nReward = nValueStaker + nValueDelegate - nValueCoin;
+    CAmount nReward = nValueStaker + nValueDelegate;
     if(nReward <= 0)
         return false;
 
@@ -4937,9 +4937,12 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
         if (block.vtx.empty() || block.vtx.size() < 2 || !block.vtx[1]->IsCoinStake())
             return state.Invalid(ValidationInvalidReason::CONSENSUS, false, REJECT_INVALID, "bad-cs-missing", "second tx is not coinstake");
 
-        //prevoutStake must exactly match the coinstake in the block body
-        if(block.vtx[1]->vin.empty() || block.prevoutStake != block.vtx[1]->vin[0].prevout){
-            return state.Invalid(ValidationInvalidReason::CONSENSUS, false, REJECT_INVALID, "bad-cs-invalid", "prevoutStake in block header does not match coinstake in block body");
+        if(!block.HasProofOfDelegation())
+        {
+            //prevoutStake must exactly match the coinstake in the block body
+            if(block.vtx[1]->vin.empty() || block.prevoutStake != block.vtx[1]->vin[0].prevout){
+                return state.Invalid(ValidationInvalidReason::CONSENSUS, false, REJECT_INVALID, "bad-cs-invalid", "prevoutStake in block header does not match coinstake in block body");
+            }
         }
         //the rest of the transactions must not be coinstake
         for (unsigned int i = 2; i < block.vtx.size(); i++)
