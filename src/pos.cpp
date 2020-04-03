@@ -102,16 +102,40 @@ bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t 
 
 bool GetStakeCoin(const COutPoint& prevout, Coin& coinPrev, CBlockIndex*& blockFrom, CBlockIndex* pindexPrev, CValidationState& state, CCoinsViewCache& view)
 {
+    // Get the coin
     if(!view.GetCoin(prevout, coinPrev)){
         return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-prevout-not-exist", strprintf("CheckProofOfStake() : Stake prevout does not exist %s", prevout.hash.ToString()));
     }
+
+    // Check that the coin is mature
     int nHeight = pindexPrev->nHeight + 1;
     if(nHeight - coinPrev.nHeight < COINBASE_MATURITY){
         return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-prevout-not-mature", strprintf("CheckProofOfStake() : Stake prevout is not mature, expecting %i and only matured to %i", COINBASE_MATURITY, nHeight - coinPrev.nHeight));
     }
+
+    // Get the block header from the coin
     blockFrom = pindexPrev->GetAncestor(coinPrev.nHeight);
     if(!blockFrom) {
         return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-prevout-not-loaded", strprintf("CheckProofOfStake() : Block at height %i for prevout can not be loaded", coinPrev.nHeight));
+    }
+
+    // Check that the coin is not used in the last COINBASE_MATURITY headers
+    // Delegated utxo is not spent when block is created using that coin, so additional check to the last headers needed
+    int coinHeight = -1;
+    CBlockIndex* prev = pindexPrev;
+    for(int i = 0; i < COINBASE_MATURITY; i++) {
+        if(prev->prevoutStake == prevout) {
+            coinHeight = prev->nHeight;
+            break;
+        }
+        prev = prev->pprev;
+
+        if(!prev) break;
+    }
+    if(coinHeight != -1) {
+        if(nHeight - coinHeight < COINBASE_MATURITY){
+            return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-prevout-not-mature", strprintf("CheckProofOfStake() : Stake prevout is not mature, expecting %i and only matured to %i", COINBASE_MATURITY, nHeight - coinHeight));
+        }
     }
 
     return true;
