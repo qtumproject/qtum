@@ -109,6 +109,7 @@ struct Params {
     int nCheckpointSpan;
     uint160 delegationsAddress;
     int nLastMPoSBlock;
+    int nLastBigReward;
 };
 } // namespace Consensus
 

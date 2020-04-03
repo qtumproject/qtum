@@ -175,6 +175,7 @@ public:
         };
 
         consensus.nLastPOWBlock = 5000;
+        consensus.nLastBigReward = 5000;
         consensus.nMPoSRewardRecipients = 10;
         consensus.nFirstMPoSBlock = consensus.nLastPOWBlock + 
                                     consensus.nMPoSRewardRecipients + 
@@ -286,6 +287,7 @@ public:
         };
 
         consensus.nLastPOWBlock = 5000;
+        consensus.nLastBigReward = 5000;
         consensus.nMPoSRewardRecipients = 10;
         consensus.nFirstMPoSBlock = consensus.nLastPOWBlock + 
                                     consensus.nMPoSRewardRecipients + 
@@ -306,7 +308,7 @@ class CRegTestParams : public CChainParams {
 public:
     explicit CRegTestParams(const ArgsManager& args) {
         strNetworkID = "regtest";
-        consensus.nSubsidyHalvingInterval = 150;
+        consensus.nSubsidyHalvingInterval = 985500;
         consensus.BIP16Exception = uint256S("0x665ed5b402ac0b44efc37d8926332994363e8a7278b7ee9a58fb972efadae943");
         consensus.BIP34Height = 0; // BIP34 activated on regtest (Used in functional tests)
         consensus.BIP34Hash = uint256S("0x665ed5b402ac0b44efc37d8926332994363e8a7278b7ee9a58fb972efadae943");
@@ -377,6 +379,7 @@ public:
             0
         };
         consensus.nLastPOWBlock = 0x7fffffff;
+        consensus.nLastBigReward = 5000;
         consensus.nMPoSRewardRecipients = 10;
         consensus.nFirstMPoSBlock = 5000;
         consensus.nLastMPoSBlock = 0;
