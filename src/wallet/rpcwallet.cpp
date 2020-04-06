@@ -1577,78 +1577,101 @@ static UniValue sendmanywithdupes(const JSONRPCRequest& request)
         return NullUniValue;
     }
 
-            RPCHelpMan{"sendmanywithdupes",
-            "\nSend multiple times. Amounts are double-precision floating point numbers. Supports duplicate addresses" +
-            HelpRequiringPassphrase(pwallet) + "\n",
-            {
-                {"fromaccount", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "DEPRECATED. The account to send the funds from. Should be \"\" for the default account"},
-                {"amounts", RPCArg::Type::OBJ, RPCArg::Optional::NO, "A json object with addresses and amounts",
-                    {
-                        {"address", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED, "The qtum address is the key, the numeric amount (can be string) in " + CURRENCY_UNIT + " is the value"},
+    RPCHelpMan{"sendmanywithdupes",
+                "\nSend multiple times. Amounts are double-precision floating point numbers. Supports duplicate addresses" +
+                    HelpRequiringPassphrase(pwallet) + "\n",
+                {
+                    {"dummy", RPCArg::Type::STR, RPCArg::Optional::NO, "Must be set to \"\" for backwards compatibility.", "\"\""},
+                    {"amounts", RPCArg::Type::OBJ, RPCArg::Optional::NO, "A json object with addresses and amounts",
+                        {
+                            {"address", RPCArg::Type::AMOUNT, RPCArg::Optional::NO, "The qtum address is the key, the numeric amount (can be string) in " + CURRENCY_UNIT + " is the value"},
+                        },
                     },
-                },
-                {"minconf", RPCArg::Type::NUM, RPCArg::Optional::OMITTED, "Only use the balance confirmed at least this many times."},
-                {"comment", RPCArg::Type::STR, RPCArg::Optional::OMITTED, "A comment"},
-                {"ubtractfeefrom", RPCArg::Type::ARR, RPCArg::Optional::OMITTED, "A json array with addresses."
-                "                           The fee will be equally deducted from the amount of each selected address.\n"
-                "                           Those recipients will receive less qtums than you enter in their corresponding amount field.\n"
-                "                           If no addresses are specified here, the sender pays the fee.\n",
-                    {
-                        {"address", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED, "Subtract fee from this address"},
+                    {"minconf", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "Ignored dummy value"},
+                    {"comment", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "A comment"},
+                    {"subtractfeefrom", RPCArg::Type::ARR, RPCArg::Optional::OMITTED_NAMED_ARG, "A json array with addresses.\n"
+            "                           The fee will be equally deducted from the amount of each selected address.\n"
+            "                           Those recipients will receive less qtums than you enter in their corresponding amount field.\n"
+            "                           If no addresses are specified here, the sender pays the fee.",
+                        {
+                            {"address", RPCArg::Type::STR, RPCArg::Optional::OMITTED, "Subtract fee from this address"},
+                        },
                     },
+                    {"replaceable", RPCArg::Type::BOOL, /* default */ "wallet default", "Allow this transaction to be replaced by a transaction with higher fees via BIP 125"},
+                    {"conf_target", RPCArg::Type::NUM, /* default */ "wallet default", "Confirmation target (in blocks)"},
+                    {"estimate_mode", RPCArg::Type::STR, /* default */ "UNSET", "The fee estimate mode, must be one of:\n"
+            "       \"UNSET\"\n"
+            "       \"ECONOMICAL\"\n"
+            "       \"CONSERVATIVE\""},
                 },
-            },
-            RPCResult{
+                 RPCResult{
             "\"txid\"                   (string) The transaction id for the send. Only 1 transaction is created regardless of \n"
             "                                    the number of addresses.\n"
-            },
-            RPCExamples{
+                 },
+                RPCExamples{
             "\nSend two amounts to two different addresses:\n"
             + HelpExampleCli("sendmanywithdupes", "\"\" \"{\\\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\\\":0.01,\\\"Q353tsE8YMTA4EuV7dgUXGjNFf9KpVvKHz\\\":0.02}\"") +
             "\nSend two amounts to two different addresses setting the confirmation and comment:\n"
             + HelpExampleCli("sendmanywithdupes", "\"\" \"{\\\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\\\":0.01,\\\"Q353tsE8YMTA4EuV7dgUXGjNFf9KpVvKHz\\\":0.02}\" 6 \"testing\"") +
             "\nSend two amounts to two different addresses, subtract fee from amount:\n"
             + HelpExampleCli("sendmanywithdupes", "\"\" \"{\\\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\\\":0.01,\\\"Q353tsE8YMTA4EuV7dgUXGjNFf9KpVvKHz\\\":0.02}\" 1 \"\" \"[\\\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\\\",\\\"Q353tsE8YMTA4EuV7dgUXGjNFf9KpVvKHz\\\"]\"") +
-            "\nAs a json rpc call\n"
-            + HelpExampleRpc("sendmanywithdupes", "\"\", \"{\\\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\\\":0.01,\\\"Q353tsE8YMTA4EuV7dgUXGjNFf9KpVvKHz\\\":0.02}\", 6, \"testing\"")
-            },
-        }.Check(request);
+            "\nAs a JSON-RPC call\n"
+            + HelpExampleRpc("sendmanywithdupes", "\"\", {\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\":0.01,\"Q353tsE8YMTA4EuV7dgUXGjNFf9KpVvKHz\":0.02}, 6, \"testing\"")
+                },
+    }.Check(request);
+
+    // Make sure the results are valid at least up to the most recent block
+    // the user could have gotten from another RPC command prior to now
+    pwallet->BlockUntilSyncedToCurrentChain();
 
     auto locked_chain = pwallet->chain().lock();
     LOCK(pwallet->cs_wallet);
 
-    std::string strAccount = LabelFromValue(request.params[0]);
+    if (!request.params[0].isNull() && !request.params[0].get_str().empty()) {
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Dummy value must be set to \"\"");
+    }
     UniValue sendTo = request.params[1].get_obj();
-    int nMinDepth = 1;
-    if (request.params.size() > 2)
-        nMinDepth = request.params[2].get_int();
 
     mapValue_t mapValue;
-    if (request.params.size() > 3 && !request.params[3].isNull() && !request.params[3].get_str().empty())
+    if (!request.params[3].isNull() && !request.params[3].get_str().empty())
         mapValue["comment"] = request.params[3].get_str();
 
     UniValue subtractFeeFromAmount(UniValue::VARR);
-    if (request.params.size() > 4)
+    if (!request.params[4].isNull())
         subtractFeeFromAmount = request.params[4].get_array();
 
-    std::set<CTxDestination> setAddress;
+    CCoinControl coin_control;
+    if (!request.params[5].isNull()) {
+        coin_control.m_signal_bip125_rbf = request.params[5].get_bool();
+    }
+
+    if (!request.params[6].isNull()) {
+        coin_control.m_confirm_target = ParseConfirmTarget(request.params[6], pwallet->chain().estimateMaxBlocks());
+    }
+
+    if (!request.params[7].isNull()) {
+        if (!FeeModeFromString(request.params[7].get_str(), coin_control.m_fee_mode)) {
+            throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid estimate_mode parameter");
+        }
+    }
+
+    std::set<CTxDestination> destinations;
     std::vector<CRecipient> vecSend;
 
-    CAmount totalAmount = 0;
     std::vector<std::string> keys = sendTo.getKeys();
-    for (const std::string& name_ : keys)
-    {
-        CTxDestination address = DecodeDestination(name_);
-        if (!IsValidDestination(address))
-            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, std::string("Invalid Qtum address: ")+name_);
+    int i=0;
+    for (const std::string& name_ : keys) {
+        CTxDestination dest = DecodeDestination(name_);
+        if (!IsValidDestination(dest)) {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, std::string("Invalid Qtum address: ") + name_);
+        }
 
-        setAddress.insert(address);
+        destinations.insert(dest);
 
-        CScript scriptPubKey = GetScriptForDestination(address);
-        CAmount nAmount = AmountFromValue(sendTo[name_]);
+        CScript scriptPubKey = GetScriptForDestination(dest);
+        CAmount nAmount = AmountFromValue(sendTo[i]);
         if (nAmount <= 0)
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
-        totalAmount += nAmount;
 
         bool fSubtractFeeFromAmount = false;
         for (unsigned int idx = 0; idx < subtractFeeFromAmount.size(); idx++) {
@@ -1659,27 +1682,25 @@ static UniValue sendmanywithdupes(const JSONRPCRequest& request)
 
         CRecipient recipient = {scriptPubKey, nAmount, fSubtractFeeFromAmount};
         vecSend.push_back(recipient);
+        i++;
     }
 
     EnsureWalletIsUnlocked(pwallet);
 
-    // Check funds
-    CAmount nBalance = pwallet->GetBalance(nMinDepth).m_mine_trusted;
-    if (totalAmount > nBalance)
-        throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Account has insufficient funds");
+    // Shuffle recipient list
+    std::shuffle(vecSend.begin(), vecSend.end(), FastRandomContext());
 
     // Send
-    CTransactionRef tx;
     CAmount nFeeRequired = 0;
     int nChangePosRet = -1;
     std::string strFailReason;
-    CCoinControl coin_control;
+    CTransactionRef tx;
     bool fCreated = pwallet->CreateTransaction(*locked_chain, vecSend, tx, nFeeRequired, nChangePosRet, strFailReason, coin_control);
     if (!fCreated)
         throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, strFailReason);
     CValidationState state;
-    if (!pwallet->CommitTransaction(tx,  std::move(mapValue), {} /* orderForm */, state)) {
-        strFailReason = strprintf("Transaction commit failed:: %s", state.GetRejectReason());
+    if (!pwallet->CommitTransaction(tx, std::move(mapValue), {} /* orderForm */, state)) {
+        strFailReason = strprintf("Transaction commit failed:: %s", FormatStateMessage(state));
         throw JSONRPCError(RPC_WALLET_ERROR, strFailReason);
     }
 
