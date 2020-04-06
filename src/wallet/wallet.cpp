@@ -2714,12 +2714,20 @@ bool heightUtxoSort(const std::pair<CAddressUnspentKey, CAddressUnspentValue>& a
     return a.second.blockHeight < b.second.blockHeight;
 }
 
+bool valueUtxoSort(const std::pair<COutPoint,CAmount>& a,
+                const std::pair<COutPoint,CAmount>& b) {
+    return a.second > b.second;
+}
+
 bool CWallet::AvailableDelegateCoinsForStaking(interfaces::Chain::Lock& locked_chain, std::vector<COutPoint>& vDelegateCoins) const
 {
     AssertLockHeld(cs_main);
     AssertLockHeld(cs_wallet);
 
     vDelegateCoins.clear();
+
+    std::vector<std::pair<COutPoint,CAmount>> vUnsortedDelegateCoins;
+
     int32_t const height = locked_chain.getHeight().get_value_or(-1);
     if (height == -1) {
         return error("Invalid blockchain height");
@@ -2760,9 +2768,17 @@ bool CWallet::AvailableDelegateCoinsForStaking(interfaces::Chain::Lock& locked_c
             if(i->second.satoshis < m_staking_min_utxo_value)
                 continue;
 
-            vDelegateCoins.push_back(COutPoint(i->first.txhash, i->first.index));
+            vUnsortedDelegateCoins.push_back(std::make_pair(COutPoint(i->first.txhash, i->first.index), i->second.satoshis));
         }
     }
+
+    std::sort(vUnsortedDelegateCoins.begin(), vUnsortedDelegateCoins.end(), valueUtxoSort);
+
+    for(auto utxo : vUnsortedDelegateCoins){
+        vDelegateCoins.push_back(utxo.first);
+    }
+
+    vUnsortedDelegateCoins.clear();
 
     return true;
 }

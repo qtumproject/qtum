@@ -382,7 +382,7 @@ def create_unsigned_pos_block(node, staking_prevouts, nTime=None):
 
     txout = node.gettxout(hex(block.prevoutStake.hash)[2:].zfill(64), block.prevoutStake.n)
     # input value + block reward
-    out_value = int((float(str(txout['value'])) + INITIAL_BLOCK_REWARD) * COIN) // 2
+    out_value = int((float(str(txout['value'])) + INITIAL_BLOCK_REWARD_POS) * COIN) // 2
 
     # create a new private key used for block signing.
     block_sig_key = ECKey()
@@ -412,7 +412,7 @@ def create_unsigned_mpos_block(node, staking_prevouts, nTime=None, block_fees=0)
     tip = node.getblock(node.getbestblockhash())
 
     # The block reward is constant for regtest
-    stake_per_participant = int(INITIAL_BLOCK_REWARD*COIN+block_fees) // MPOS_PARTICIPANTS
+    stake_per_participant = int(INITIAL_BLOCK_REWARD_POS*COIN+block_fees) // MPOS_PARTICIPANTS
 
     for i in range(MPOS_PARTICIPANTS-1):
         partipant_block = node.getblock(node.getblockhash(tip['height']-500-i))

@@ -985,7 +985,7 @@ bool CheckStake(const std::shared_ptr<const CBlock> pblock, CWallet& wallet)
         auto locked_chain = wallet.chain().lock();
         CValidationState state;
         if (!CheckProofOfStake(::BlockIndex()[pblock->hashPrevBlock], state, *pblock->vtx[1], pblock->nBits, pblock->nTime, pblock->GetProofOfDelegation(), pblock->prevoutStake, proofHash, hashTarget, ::ChainstateActive().CoinsTip()))
-            return error("CheckStake() : proof-of-stake checking failed");
+            return error("CheckStake() : proof-of-stake checking failed %s",state.GetRejectReason());
     }
 
     //// debug print
