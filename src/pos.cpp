@@ -100,8 +100,49 @@ bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t 
     return true;
 }
 
+bool GetStakeCoin(const COutPoint& prevout, Coin& coinPrev, CBlockIndex*& blockFrom, CBlockIndex* pindexPrev, CValidationState& state, CCoinsViewCache& view)
+{
+    // Get the coin
+    if(!view.GetCoin(prevout, coinPrev)){
+        return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-prevout-not-exist", strprintf("CheckProofOfStake() : Stake prevout does not exist %s", prevout.hash.ToString()));
+    }
+
+    // Check that the coin is mature
+    int nHeight = pindexPrev->nHeight + 1;
+    if(nHeight - coinPrev.nHeight < COINBASE_MATURITY){
+        return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-prevout-not-mature", strprintf("CheckProofOfStake() : Stake prevout is not mature, expecting %i and only matured to %i", COINBASE_MATURITY, nHeight - coinPrev.nHeight));
+    }
+
+    // Get the block header from the coin
+    blockFrom = pindexPrev->GetAncestor(coinPrev.nHeight);
+    if(!blockFrom) {
+        return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-prevout-not-loaded", strprintf("CheckProofOfStake() : Block at height %i for prevout can not be loaded", coinPrev.nHeight));
+    }
+
+    // Check that the coin is not used in the last COINBASE_MATURITY headers
+    // Delegated utxo is not spent when block is created using that coin, so additional check to the last headers needed
+    int coinHeight = -1;
+    CBlockIndex* prev = pindexPrev;
+    for(int i = 0; i < COINBASE_MATURITY; i++) {
+        if(prev->prevoutStake == prevout) {
+            coinHeight = prev->nHeight;
+            break;
+        }
+        prev = prev->pprev;
+
+        if(!prev) break;
+    }
+    if(coinHeight != -1) {
+        if(nHeight - coinHeight < COINBASE_MATURITY){
+            return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-prevout-not-mature", strprintf("CheckProofOfStake() : Stake prevout is not mature, expecting %i and only matured to %i", COINBASE_MATURITY, nHeight - coinHeight));
+        }
+    }
+
+    return true;
+}
+
 // Check kernel hash target and coinstake signature
-bool CheckProofOfStake(CBlockIndex* pindexPrev, CValidationState& state, const CTransaction& tx, unsigned int nBits, uint32_t nTimeBlock, const std::vector<unsigned char>& vchPoD, uint256& hashProofOfStake, uint256& targetProofOfStake, CCoinsViewCache& view)
+bool CheckProofOfStake(CBlockIndex* pindexPrev, CValidationState& state, const CTransaction& tx, unsigned int nBits, uint32_t nTimeBlock, const std::vector<unsigned char>& vchPoD,  const COutPoint& headerPrevout, uint256& hashProofOfStake, uint256& targetProofOfStake, CCoinsViewCache& view)
 {
     if (!tx.IsCoinStake())
         return error("CheckProofOfStake() : called on non-coinstake %s", tx.GetHash().ToString());
@@ -109,21 +150,28 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, CValidationState& state, const C
     // Kernel (input 0) must match the stake hash target (nBits)
     const CTxIn& txin = tx.vin[0];
 
-    Coin coinPrev;
+    // Get the PoS transaction coin from the first input
+    Coin coinTxPrev;
+    CBlockIndex* blockTxFrom = 0;
+    if(!GetStakeCoin(txin.prevout, coinTxPrev, blockTxFrom, pindexPrev, state, view))
+        return error("CheckProofOfStake() : fail to get prevout %s", txin.prevout.hash.ToString());
 
-    if(!view.GetCoin(txin.prevout, coinPrev)){
-        return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-prevout-not-exist", strprintf("CheckProofOfStake() : Stake prevout does not exist %s", txin.prevout.hash.ToString()));
+    // Get the PoS header coin from prevoutStake
+    Coin coinHeaderPrev;
+    CBlockIndex* blockHeaderFrom = 0;
+    if(txin.prevout == headerPrevout)
+    {
+        coinHeaderPrev = coinTxPrev;
+        blockHeaderFrom = blockTxFrom;
+    }
+    else
+    {
+        // The PoS transaction and PoS header coins are different when proof of delegation exist
+        if(!GetStakeCoin(headerPrevout, coinHeaderPrev, blockHeaderFrom, pindexPrev, state, view))
+            return error("CheckProofOfStake() : fail to get prevout %s", headerPrevout.hash.ToString());
     }
 
     int nHeight = pindexPrev->nHeight + 1;
-    if(nHeight - coinPrev.nHeight < COINBASE_MATURITY){
-        return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-prevout-not-mature", strprintf("CheckProofOfStake() : Stake prevout is not mature, expecting %i and only matured to %i", COINBASE_MATURITY, nHeight - coinPrev.nHeight));
-    }
-    CBlockIndex* blockFrom = pindexPrev->GetAncestor(coinPrev.nHeight);
-    if(!blockFrom) {
-        return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-prevout-not-loaded", strprintf("CheckProofOfStake() : Block at height %i for prevout can not be loaded", coinPrev.nHeight));
-    }
-
     bool checkDelegation = false;
     int nOfflineStakeHeight = Params().GetConsensus().nOfflineStakeHeight;
     if (nHeight >= nOfflineStakeHeight && !Params().GetConsensus().delegationsAddress.IsNull())
@@ -140,7 +188,7 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, CValidationState& state, const C
             return state.Invalid(ValidationInvalidReason::BLOCK_HEADER_REJECT, false, REJECT_INVALID, "stake-delegation-contract-not-exist", strprintf("CheckProofOfStake() : The delegation contract doesn't exist, block height %i", nOfflineStakeHeight)); // Internal error, delegation contract not exist
 
         // Get the delegation from the contract
-        uint160 address = uint160(ExtractPublicKeyHash(coinPrev.out.scriptPubKey));
+        uint160 address = uint160(ExtractPublicKeyHash(coinHeaderPrev.out.scriptPubKey));
         Delegation delegation;
         if(!qtumDelegation.GetDelegation(address, delegation)) {
             return state.Invalid(ValidationInvalidReason::BLOCK_HEADER_REJECT, false, REJECT_INVALID, "stake-get-delegation-failed", strprintf("CheckProofOfStake() : Failed to get delegation from the delegation contract")); // Internal error, get delegation from the delegation contract
@@ -163,18 +211,18 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, CValidationState& state, const C
         checkDelegation = hasDelegationProof;
         if(checkDelegation)
         {
-            // Verify the transaction signature is from the staker
-            CScript stakerPubKey = tx.vout[1].scriptPubKey;
-            if (!VerifySignature(stakerPubKey, txin.prevout.hash, tx, 0, SCRIPT_VERIFY_NONE))
-                return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-verify-signature-failed", strprintf("CheckProofOfStake() : VerifySignature failed on coinstake %s", tx.GetHash().ToString()));
-
             // Check that the staker have the permission to use that coin to create the coinstake transaction
+            CScript stakerPubKey = tx.vout[1].scriptPubKey;
             uint160 staker = uint160(ExtractPublicKeyHash(stakerPubKey));
             if(!SignStr::VerifyMessage(CKeyID(address), staker.GetReverseHex(), vchPoD))
                 return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-verify-delegation-failed", strprintf("CheckProofOfStake() : VerifyDelegation failed on coinstake %s", tx.GetHash().ToString()));
 
+            // Check the super staker min utxo value
+            if(coinTxPrev.out.nValue < DEFAULT_STAKING_MIN_UTXO_VALUE)
+                return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-delegation-not-min-utxo", strprintf("CheckProofOfStake() : Stake for block at height %i do not have the minimum amount required for super staker", nHeight));
+
             // Check that the block delegation data is the same as the data received from the contract, this is to avoid using old/removed delegation
-            int fee = GetDelegationFeeTx(tx, coinPrev);
+            int fee = GetDelegationFeeTx(tx, coinTxPrev);
             if(delegation.staker != staker ||
                     (int)delegation.fee != fee ||
                     (int)delegation.blockHeight > nHeight ||
@@ -184,14 +232,15 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, CValidationState& state, const C
         }
     }
 
-    if(!checkDelegation)
-    {
-        // Verify signature
-        if (!VerifySignature(coinPrev, txin.prevout.hash, tx, 0, SCRIPT_VERIFY_NONE))
-            return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-verify-signature-failed", strprintf("CheckProofOfStake() : VerifySignature failed on coinstake %s", tx.GetHash().ToString()));
-    }
+    // Check stake and block prevout
+    if(!checkDelegation && txin.prevout != headerPrevout)
+        return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-prevout-diff-block-prevout", strprintf("CheckProofOfStake() : Stake prevout %s is different then block prevout %s", txin.prevout.hash.ToString(), headerPrevout.hash.ToString()));
 
-    if (!CheckStakeKernelHash(pindexPrev, nBits, blockFrom->nTime, coinPrev.out.nValue, txin.prevout, nTimeBlock, hashProofOfStake, targetProofOfStake, LogInstance().WillLogCategory(BCLog::COINSTAKE)))
+    // Verify signature
+    if (!VerifySignature(coinTxPrev, txin.prevout.hash, tx, 0, SCRIPT_VERIFY_NONE))
+        return state.Invalid(ValidationInvalidReason::BLOCK_INVALID_HEADER, false, REJECT_INVALID, "stake-verify-signature-failed", strprintf("CheckProofOfStake() : VerifySignature failed on coinstake %s", tx.GetHash().ToString()));
+
+    if (!CheckStakeKernelHash(pindexPrev, nBits, blockHeaderFrom->nTime, coinHeaderPrev.out.nValue, headerPrevout, nTimeBlock, hashProofOfStake, targetProofOfStake, LogInstance().WillLogCategory(BCLog::COINSTAKE)))
         return state.Invalid(ValidationInvalidReason::BLOCK_HEADER_SYNC, false, REJECT_INVALID, "stake-check-kernel-failed", strprintf("CheckProofOfStake() : INFO: check kernel failed on coinstake %s, hashProof=%s", tx.GetHash().ToString(), hashProofOfStake.ToString())); // may occur during initial download or if behind on block chain sync
 
     return true;
@@ -441,9 +490,9 @@ int GetDelegationFeeTx(const CTransaction& tx, const Coin& coin)
     if(!tx.IsCoinStake() || tx.vout.size() < 3 || nValueCoin <= 0)
         return -1;
 
-    CAmount nValueStaker = tx.vout[1].nValue;
+    CAmount nValueStaker = tx.vout[1].nValue - nValueCoin;
     CAmount nValueDelegate = tx.vout[2].nValue;
-    CAmount nReward = nValueStaker + nValueDelegate - nValueCoin;
+    CAmount nReward = nValueStaker + nValueDelegate;
     if(nReward <= 0)
         return -1;
 

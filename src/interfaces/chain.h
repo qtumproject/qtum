@@ -13,6 +13,7 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include <map>
 
 class CBlock;
 class CFeeRate;
@@ -123,6 +124,9 @@ public:
 
         //! Check if transaction will be final given chain height current time.
         virtual bool checkFinalTx(const CTransaction& tx) = 0;
+
+        //! Get map of the immature stakes.
+        virtual std::map<COutPoint, uint32_t> getImmatureStakes() = 0;
     };
 
     //! Return Lock interface. Chain is locked when this is called, and
