@@ -2672,6 +2672,7 @@ void CWallet::AvailableCoinsForStaking(interfaces::Chain::Lock& locked_chain, st
 
     vCoins.clear();
 
+    std::map<COutPoint, uint32_t> immatureStakes = locked_chain.getImmatureStakes();
     for (std::map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
     {
         const uint256& wtxid = it->first;
@@ -2694,7 +2695,13 @@ void CWallet::AvailableCoinsForStaking(interfaces::Chain::Lock& locked_chain, st
             if (!(IsSpent(locked_chain, wtxid, i)) && mine != ISMINE_NO &&
                 !IsLockedCoin((*it).first, i) && (pcoin->tx->vout[i].nValue > 0) &&
                 !pcoin->tx->vout[i].scriptPubKey.HasOpCall() && !pcoin->tx->vout[i].scriptPubKey.HasOpCreate())
+            {
+                COutPoint prevout = COutPoint(pcoin->GetHash(), i);
+                if(immatureStakes.find(prevout) == immatureStakes.end())
+                {
                     vCoins.push_back(COutput(pcoin, i, nDepth, spendable, solvable, pcoin->IsTrusted(locked_chain)));
+                }
+            }
         }
     }
 }
@@ -2733,6 +2740,7 @@ bool CWallet::AvailableDelegateCoinsForStaking(interfaces::Chain::Lock& locked_c
         return error("Invalid blockchain height");
     }
 
+    std::map<COutPoint, uint32_t> immatureStakes = locked_chain.getImmatureStakes();
     for (std::map<uint160, Delegation>::const_iterator it = m_delegations_staker.begin(); it != m_delegations_staker.end(); ++it)
     {
         const PKHash& keyid = PKHash(it->first);
@@ -2761,14 +2769,18 @@ bool CWallet::AvailableDelegateCoinsForStaking(interfaces::Chain::Lock& locked_c
         // Add the utxos to the list if they are mature and at least the minimum value
         for (std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> >::const_iterator i=unspentOutputs.begin(); i!=unspentOutputs.end(); i++) {
 
-            int nDepth = height - i->second.blockHeight;
+            int nDepth = height - i->second.blockHeight + 1;
             if (nDepth < COINBASE_MATURITY)
                 continue;
 
             if(i->second.satoshis < m_staking_min_utxo_value)
                 continue;
 
-            vUnsortedDelegateCoins.push_back(std::make_pair(COutPoint(i->first.txhash, i->first.index), i->second.satoshis));
+            COutPoint prevout = COutPoint(i->first.txhash, i->first.index);
+            if(immatureStakes.find(prevout) == immatureStakes.end())
+            {
+                vUnsortedDelegateCoins.push_back(std::make_pair(prevout, i->second.satoshis));
+            }
         }
     }
 
