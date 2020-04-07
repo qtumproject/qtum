@@ -42,6 +42,7 @@ SuperStakerPage::SuperStakerPage(const PlatformStyle *platformStyle, QWidget *pa
     ui->scrollArea->setWidgetResizable(true);
     connect(m_superStakerList, &SuperStakerListWidget::configSuperStaker, this, &SuperStakerPage::on_configSuperStaker);
     connect(m_superStakerList, &SuperStakerListWidget::addSuperStaker, this, &SuperStakerPage::on_addSuperStaker);
+    connect(m_superStakerList, &SuperStakerListWidget::removeSuperStaker, this, &SuperStakerPage::on_removeSuperStaker);
 
     contextMenu = new QMenu(m_superStakerList);
     contextMenu->addAction(copyStakerAction);
@@ -200,4 +201,19 @@ void SuperStakerPage::on_configSuperStaker(const QModelIndex &index)
 void SuperStakerPage::on_addSuperStaker()
 {
     on_goToAddSuperStakerPage();
+}
+
+void SuperStakerPage::on_removeSuperStaker(const QModelIndex &index)
+{
+    if(index.isValid() && m_model)
+    {
+        QMessageBox::StandardButton btnRetVal = QMessageBox::question(this, tr("Confirm super staker removal"), tr("The selected super staker will be removed from the list. Are you sure?"),
+            QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
+
+        if(btnRetVal == QMessageBox::Yes)
+        {
+            QString hash = m_superStakerList->superStakerModel()->data(index, SuperStakerItemModel::HashRole).toString();
+            m_model->wallet().removeSuperStakerEntry(hash.toStdString());
+        }
+    }
 }

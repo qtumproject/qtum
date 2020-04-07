@@ -44,6 +44,7 @@ public Q_SLOTS:
     void configSuperStaker();
     void on_configSuperStaker(const QModelIndex& index);
     void on_addSuperStaker();
+    void on_removeSuperStaker(const QModelIndex& index);
 
 private:
     Ui::SuperStakerPage *ui;
