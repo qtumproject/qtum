@@ -64,6 +64,11 @@ void SuperStakerItemWidget::on_buttonConfig_clicked()
     Q_EMIT clicked(m_position, Buttons::Config);
 }
 
+void SuperStakerItemWidget::on_buttonDelegations_clicked()
+{
+    Q_EMIT clicked(m_position, Buttons::Delegations);
+}
+
 int SuperStakerItemWidget::position() const
 {
     return m_position;

@@ -22,6 +22,7 @@ public:
     ~DelegationsStakerDialog();
 
     void setModel(WalletModel *model);
+    void setSuperStakerData(const QString& address, const QString& hash);
 
 private Q_SLOTS:
     void contextualMenu(const QPoint &);
@@ -33,6 +34,8 @@ private:
     Ui::DelegationsStakerDialog *ui;
     WalletModel *model;
     QMenu *contextMenu;
+    QString address;
+    QString hash;
 };
 
 #endif // DELEGATIONSSTAKERDIALOG_H

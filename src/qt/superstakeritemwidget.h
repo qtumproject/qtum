@@ -23,7 +23,8 @@ public:
     enum Buttons{
         Add = 0,
         Remove = 1,
-        Config = 2
+        Config = 2,
+        Delegations = 3,
     };
 
     explicit SuperStakerItemWidget(const PlatformStyle *platformStyle, QWidget *parent = 0, ItemType type = Record);
@@ -44,6 +45,8 @@ private Q_SLOTS:
     void on_buttonRemove_clicked();
 
     void on_buttonConfig_clicked();
+
+    void on_buttonDelegations_clicked();
 
 private:
     void updateLogo();

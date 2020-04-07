@@ -3,6 +3,7 @@
 
 #include <qt/superstakerconfigdialog.h>
 #include <qt/addsuperstakerpage.h>
+#include <qt/delegationsstakerdialog.h>
 
 #include <QWidget>
 #include <QModelIndex>
@@ -34,6 +35,7 @@ Q_SIGNALS:
 public Q_SLOTS:
     void on_goToConfigSuperStakerPage();
     void on_goToAddSuperStakerPage();
+    void on_goToDelegationsSuperStakerPage();
     void on_currentSuperStakerChanged(QModelIndex index);
     void on_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>());
     void on_currentChanged(QModelIndex current, QModelIndex previous);
@@ -45,16 +47,15 @@ public Q_SLOTS:
     void on_configSuperStaker(const QModelIndex& index);
     void on_addSuperStaker();
     void on_removeSuperStaker(const QModelIndex& index);
+    void on_delegationsSuperStaker(const QModelIndex &index);
 
 private:
     Ui::SuperStakerPage *ui;
     SuperStakerConfigDialog* m_configSuperStakerPage;
     AddSuperStakerPage* m_addSuperStakerPage;
+    DelegationsStakerDialog* m_delegationsSuperStakerPage;
     WalletModel* m_model;
     ClientModel* m_clientModel;
-    QAction *m_sendAction;
-    QAction *m_configAction;
-    QAction *m_addSuperStakerAction;
     QString m_selectedSuperStakerHash;
     const PlatformStyle *m_platformStyle;
     QMenu *contextMenu;

@@ -186,6 +186,10 @@ void SuperStakerListWidget::on_clicked(int position, int button)
     {
         Q_EMIT configSuperStaker(index);
     }
+    else if(button == SuperStakerItemWidget::Delegations)
+    {
+        Q_EMIT delegationsSuperStaker(index);
+    }
 }
 
 QModelIndex SuperStakerListWidget::indexAt(const QPoint &p) const

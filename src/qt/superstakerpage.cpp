@@ -28,8 +28,10 @@ SuperStakerPage::SuperStakerPage(const PlatformStyle *platformStyle, QWidget *pa
 
     m_configSuperStakerPage = new SuperStakerConfigDialog(this);
     m_addSuperStakerPage = new AddSuperStakerPage(this);
+    m_delegationsSuperStakerPage = new DelegationsStakerDialog(this);
 
     m_configSuperStakerPage->setEnabled(false);
+    m_delegationsSuperStakerPage->setEnabled(false);
 
     QAction *copyStakerAction = new QAction(tr("Copy staker address"), this);
     QAction *copyStekerFeeAction = new QAction(tr("Copy staker fee"), this);
@@ -43,6 +45,7 @@ SuperStakerPage::SuperStakerPage(const PlatformStyle *platformStyle, QWidget *pa
     connect(m_superStakerList, &SuperStakerListWidget::configSuperStaker, this, &SuperStakerPage::on_configSuperStaker);
     connect(m_superStakerList, &SuperStakerListWidget::addSuperStaker, this, &SuperStakerPage::on_addSuperStaker);
     connect(m_superStakerList, &SuperStakerListWidget::removeSuperStaker, this, &SuperStakerPage::on_removeSuperStaker);
+    connect(m_superStakerList, &SuperStakerListWidget::delegationsSuperStaker, this, &SuperStakerPage::on_delegationsSuperStaker);
 
     contextMenu = new QMenu(m_superStakerList);
     contextMenu->addAction(copyStakerAction);
@@ -66,6 +69,7 @@ void SuperStakerPage::setModel(WalletModel *_model)
     m_model = _model;
     m_addSuperStakerPage->setModel(m_model);
     m_configSuperStakerPage->setModel(m_model);
+    m_delegationsSuperStakerPage->setModel(m_model);
     m_superStakerList->setModel(m_model);
     if(m_model && m_model->getSuperStakerItemModel())
     {
@@ -106,14 +110,19 @@ void SuperStakerPage::on_currentSuperStakerChanged(QModelIndex index)
             QString address = m_superStakerList->superStakerModel()->data(index, SuperStakerItemModel::StakerRole).toString();
             QString hash = m_superStakerList->superStakerModel()->data(index, SuperStakerItemModel::HashRole).toString();
             m_configSuperStakerPage->setSuperStakerData(address, hash);
+            m_delegationsSuperStakerPage->setSuperStakerData(address, hash);
 
             if(!m_configSuperStakerPage->isEnabled())
                 m_configSuperStakerPage->setEnabled(true);
+            if(!m_delegationsSuperStakerPage->isEnabled())
+                m_delegationsSuperStakerPage->setEnabled(true);
         }
         else
         {
             m_configSuperStakerPage->setEnabled(false);
             m_configSuperStakerPage->setSuperStakerData("", "");
+            m_delegationsSuperStakerPage->setEnabled(false);
+            m_delegationsSuperStakerPage->setSuperStakerData("", "");
             m_selectedSuperStakerHash = "";
         }
     }
@@ -216,4 +225,15 @@ void SuperStakerPage::on_removeSuperStaker(const QModelIndex &index)
             m_model->wallet().removeSuperStakerEntry(hash.toStdString());
         }
     }
+}
+
+void SuperStakerPage::on_delegationsSuperStaker(const QModelIndex &index)
+{
+    on_currentSuperStakerChanged(index);
+    on_goToDelegationsSuperStakerPage();
+}
+
+void SuperStakerPage::on_goToDelegationsSuperStakerPage()
+{
+    m_delegationsSuperStakerPage->show();
 }

@@ -31,6 +31,7 @@ public:
 
 Q_SIGNALS:
     void configSuperStaker(const QModelIndex& index);
+    void delegationsSuperStaker(const QModelIndex& index);
     void removeSuperStaker(const QModelIndex& index);
     void addSuperStaker();
     void clicked(const QModelIndex& index);

@@ -1,5 +1,9 @@
-#include "delegationsstakerdialog.h"
-#include "qt/forms/ui_delegationsstakerdialog.h"
+#if defined(HAVE_CONFIG_H)
+#include <config/bitcoin-config.h>
+#endif
+
+#include <qt/delegationsstakerdialog.h>
+#include <qt/forms/ui_delegationsstakerdialog.h>
 
 #include <QMenu>
 
@@ -66,4 +70,10 @@ void DelegationsStakerDialog::copyFee()
 void DelegationsStakerDialog::copyPoD()
 {
     // TODO
+}
+
+void DelegationsStakerDialog::setSuperStakerData(const QString &_address, const QString &_hash)
+{
+    address = _address;
+    hash = _hash;
 }
