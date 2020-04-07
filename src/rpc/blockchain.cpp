@@ -205,6 +205,11 @@ UniValue blockheaderToJSON(const CBlockIndex* tip, const CBlockIndex* blockindex
     result.pushKV("hashStateRoot", blockindex->hashStateRoot.GetHex()); // qtum
     result.pushKV("hashUTXORoot", blockindex->hashUTXORoot.GetHex()); // qtum
 
+    if(blockindex->IsProofOfStake()){
+        result.pushKV("prevoutStakeHash", blockindex->prevoutStake.hash.GetHex()); // qtum
+        result.pushKV("prevoutStakeVoutN", (int64_t)blockindex->prevoutStake.n); // qtum
+    }
+
     if (blockindex->pprev)
         result.pushKV("previousblockhash", blockindex->pprev->GetBlockHash().GetHex());
     if (pnext)
@@ -236,6 +241,12 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* tip, const CBlockIn
     result.pushKV("merkleroot", block.hashMerkleRoot.GetHex());
     result.pushKV("hashStateRoot", block.hashStateRoot.GetHex()); // qtum
     result.pushKV("hashUTXORoot", block.hashUTXORoot.GetHex()); // qtum
+
+    if(blockindex->IsProofOfStake()){
+        result.pushKV("prevoutStakeHash", blockindex->prevoutStake.hash.GetHex()); // qtum
+        result.pushKV("prevoutStakeVoutN", (int64_t)blockindex->prevoutStake.n); // qtum
+    }
+
     UniValue txs(UniValue::VARR);
     for(const auto& tx : block.vtx)
     {
