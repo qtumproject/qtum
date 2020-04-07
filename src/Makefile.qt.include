@@ -80,6 +80,7 @@ QT_MOC_CPP = \
   qt/moc_contracttablemodel.cpp \
   qt/moc_createcontract.cpp \
   qt/moc_csvmodelwriter.cpp \
+  qt/moc_delegationfilterproxy.cpp \
   qt/moc_delegationitemmodel.cpp \
   qt/moc_delegationitemwidget.cpp \
   qt/moc_delegationlistwidget.cpp \
@@ -114,6 +115,7 @@ QT_MOC_CPP = \
   qt/moc_restoredialog.cpp \
   qt/moc_rpcconsole.cpp \
   qt/moc_stakepage.cpp \
+  qt/moc_stakerdelegationview.cpp \
   qt/moc_sendcoinsdialog.cpp \
   qt/moc_sendcoinsentry.cpp \
   qt/moc_sendtocontract.cpp \
@@ -209,6 +211,7 @@ BITCOIN_QT_H = \
   qt/contracttablemodel.h \
   qt/createcontract.h \
   qt/csvmodelwriter.h \
+  qt/delegationfilterproxy.h \
   qt/delegationitemwidget.h \
   qt/delegationlistwidget.h \
   qt/delegationitemmodel.h \
@@ -256,6 +259,7 @@ BITCOIN_QT_H = \
   qt/signverifymessagedialog.h \
   qt/splashscreen.h \
   qt/stakepage.h \
+  qt/stakerdelegationview.h \
   qt/styleSheet.h \
   qt/superstakeritemwidget.h \
   qt/superstakeritemmodel.h \
@@ -422,6 +426,7 @@ BITCOIN_QT_WALLET_CPP = \
   qt/contractresult.cpp \
   qt/contracttablemodel.cpp \
   qt/createcontract.cpp \
+  qt/delegationfilterproxy.cpp \
   qt/delegationitemwidget.cpp \
   qt/delegationlistwidget.cpp \
   qt/delegationpage.cpp \
@@ -443,6 +448,7 @@ BITCOIN_QT_WALLET_CPP = \
   qt/removedelegationpage.cpp \
   qt/restoredialog.cpp \
   qt/stakepage.cpp \
+  qt/stakerdelegationview.cpp \
   qt/sendcoinsdialog.cpp \
   qt/sendcoinsentry.cpp \
   qt/sendtocontract.cpp \

@@ -7,11 +7,8 @@ namespace Ui {
 class DelegationsStakerDialog;
 }
 
+class StakerDelegationView;
 class WalletModel;
-
-QT_BEGIN_NAMESPACE
-class QMenu;
-QT_END_NAMESPACE
 
 class DelegationsStakerDialog : public QDialog
 {
@@ -24,16 +21,10 @@ public:
     void setModel(WalletModel *model);
     void setSuperStakerData(const QString& address, const QString& hash);
 
-private Q_SLOTS:
-    void contextualMenu(const QPoint &);
-    void copyAddress();
-    void copyFee();
-    void copyPoD();
-
 private:
     Ui::DelegationsStakerDialog *ui;
     WalletModel *model;
-    QMenu *contextMenu;
+    StakerDelegationView *m_stakerDelegationView;
     QString address;
     QString hash;
 };
