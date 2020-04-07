@@ -105,15 +105,27 @@ void OptionsModel::Init(bool resetSettings)
     if (!m_node.softSetArg("-dbcache", settings.value("nDatabaseCache").toString().toStdString()))
         addOverriddenOption("-dbcache");
 
+#ifdef ENABLE_WALLET
+    if (!settings.contains("fSuperStaking"))
+        settings.setValue("fSuperStaking", false);
+    bool fSuperStaking = settings.value("fSuperStaking").toBool();
+    if (!m_node.softSetBoolArg("-superstaking", fSuperStaking))
+        addOverriddenOption("-superstaking");
+    if(fSuperStaking)
+    {
+        if (!m_node.softSetBoolArg("-staking", true))
+            addOverriddenOption("-staking");
+        if (!m_node.softSetBoolArg("-logevents", true))
+            addOverriddenOption("-logevents");
+        if (!m_node.softSetBoolArg("-addrindex", true))
+            addOverriddenOption("-addrindex");
+    }
+#endif
+
     if (!settings.contains("fLogEvents"))
         settings.setValue("fLogEvents", fLogEvents);
     if (!m_node.softSetBoolArg("-logevents", settings.value("fLogEvents").toBool()))
         addOverriddenOption("-logevents");
-
-    if (!settings.contains("fSuperStaking"))
-        settings.setValue("fSuperStaking", false);
-    if (!m_node.softSetBoolArg("-superstaking", settings.value("fSuperStaking").toBool()))
-        addOverriddenOption("-superstaking");
 
 #ifdef ENABLE_WALLET
     if (!settings.contains("nReserveBalance"))
@@ -368,8 +380,10 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
             return settings.value("nDatabaseCache");
         case LogEvents:
             return settings.value("fLogEvents");
+#ifdef ENABLE_WALLET
         case SuperStaking:
             return settings.value("fSuperStaking");
+#endif
         case ThreadsScriptVerif:
             return settings.value("nThreadsScriptVerif");
         case Listen:
@@ -529,13 +543,13 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
                 setRestartRequired(true);
             }
             break;
+#ifdef ENABLE_WALLET
         case SuperStaking:
             if (settings.value("fSuperStaking") != value) {
                 settings.setValue("fSuperStaking", value);
                 setRestartRequired(true);
             }
             break;
-#ifdef ENABLE_WALLET
         case ReserveBalance:
             if (settings.value("nReserveBalance") != value) {
                 settings.setValue("nReserveBalance", value);

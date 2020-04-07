@@ -261,7 +261,7 @@
        <item>
         <widget class="QCheckBox" name="superStaking">
          <property name="text">
-          <string>Enable super staking</string>
+          <string>Enable s&amp;uper staking</string>
          </property>
         </widget>
        </item>
