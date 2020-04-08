@@ -32,6 +32,19 @@ struct Delegation
     std::vector<unsigned char> PoD; //Proof Of Delegation
 };
 
+inline bool operator==(const Delegation& lhs, const Delegation& rhs)
+{
+    return lhs.staker == rhs.staker &&
+           lhs.fee == rhs.fee &&
+           lhs.blockHeight == rhs.blockHeight &&
+           lhs.PoD == rhs.PoD;
+}
+
+inline bool operator!=(const Delegation& lhs, const Delegation& rhs)
+{
+    return !(lhs == rhs);
+}
+
 struct DelegationItem : public Delegation
 {
     DelegationItem()

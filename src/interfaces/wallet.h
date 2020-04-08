@@ -444,6 +444,10 @@ public:
     //! Register handler for super staker changed messages.
     using SuperStakerChangedFn = std::function<void(const uint256& id, ChangeType status)>;
     virtual std::unique_ptr<Handler> handleSuperStakerChanged(SuperStakerChangedFn fn) = 0;
+
+    //! Register handler for delegations staker changed messages.
+    using DelegationsStakerChangedFn = std::function<void(const uint160& id, ChangeType status)>;
+    virtual std::unique_ptr<Handler> handleDelegationsStakerChanged(DelegationsStakerChangedFn fn) = 0;
 };
 
 //! Information about one wallet address.

@@ -1427,6 +1427,10 @@ public:
     boost::signals2::signal<void (CWallet *wallet, const uint256 &hashSuperStaker,
             ChangeType status)> NotifySuperStakerChanged;
 
+    /** Wallet delegations staker added, removed or updated. */
+    boost::signals2::signal<void (CWallet *wallet, const uint160 &addressDelegate,
+            ChangeType status)> NotifyDelegationsStakerChanged;
+
     /** Inquire whether this wallet broadcasts transactions. */
     bool GetBroadcastTransactions() const { return fBroadcastTransactions; }
     /** Set whether this wallet broadcasts transactions. */
@@ -1573,6 +1577,8 @@ public:
     void StopStake();
 
     static CConnman* defaultConnman;
+
+    void updateDelegationsStaker(const std::map<uint160, Delegation>& delegations_staker);
 
     std::map<uint160, Delegation> m_delegations_staker;
 };

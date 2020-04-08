@@ -917,12 +917,13 @@ public:
 
     void Update(int32_t nHeight)
     {
+        std::map<uint160, Delegation> delegations_staker;
         if(nHeight <= nCheckpointSpan)
         {
             // Get delegations from events
             std::vector<DelegationEvent> events;
             qtumDelegations.FilterDelegationEvents(events, *this);
-            pwallet->m_delegations_staker = qtumDelegations.DelegationsFromEvents(events);
+            delegations_staker = qtumDelegations.DelegationsFromEvents(events);
         }
         else
         {
@@ -939,9 +940,10 @@ public:
             // Update the wallet delegations
             std::vector<DelegationEvent> events;
             qtumDelegations.FilterDelegationEvents(events, *this, cacheHeight + 1);
-            pwallet->m_delegations_staker = cacheDelegationsStaker;
-            qtumDelegations.UpdateDelegationsFromEvents(events, pwallet->m_delegations_staker);
+            delegations_staker = cacheDelegationsStaker;
+            qtumDelegations.UpdateDelegationsFromEvents(events, delegations_staker);
         }
+        pwallet->updateDelegationsStaker(delegations_staker);
     }
 
 private:

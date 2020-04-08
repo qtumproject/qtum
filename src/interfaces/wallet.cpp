@@ -1150,6 +1150,11 @@ public:
         return MakeHandler(m_wallet->NotifySuperStakerChanged.connect(
             [fn](CWallet*, const uint256& id, ChangeType status) { fn(id, status); }));
     }
+    std::unique_ptr<Handler> handleDelegationsStakerChanged(DelegationsStakerChangedFn fn) override
+    {
+        return MakeHandler(m_wallet->NotifyDelegationsStakerChanged.connect(
+            [fn](CWallet*, const uint160& id, ChangeType status) { fn(id, status); }));
+    }
 
     std::shared_ptr<CWallet> m_wallet;
     QtumDelegation m_qtumDelegation;
