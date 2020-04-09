@@ -24,6 +24,7 @@ public:
         Delegate = 1,
         Fee = 2,
         PoD = 3,
+        Weight = 4
     };
 
     enum DataRole{
@@ -34,6 +35,7 @@ public:
         FeeRole = Qt::UserRole + 5,
         DateRole = Qt::UserRole + 6,
         BlockNumberRole = Qt::UserRole + 7,
+        WeightRole = Qt::UserRole + 8,
     };
 
     DelegationStakerItemModel(WalletModel *parent = 0);

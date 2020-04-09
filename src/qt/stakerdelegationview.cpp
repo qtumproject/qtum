@@ -122,7 +122,7 @@ void StakerDelegationView::setModel(WalletModel *_model)
         delegationView->setSelectionBehavior(QAbstractItemView::SelectRows);
         delegationView->setSelectionMode(QAbstractItemView::ExtendedSelection);
         delegationView->setSortingEnabled(true);
-        delegationView->sortByColumn(DelegationStakerItemModel::DateRole, Qt::DescendingOrder);
+        delegationView->sortByColumn(DelegationStakerItemModel::Date, Qt::DescendingOrder);
         delegationView->verticalHeader()->hide();
 
         delegationView->setColumnWidth(DelegationStakerItemModel::Date, DATE_COLUMN_WIDTH);

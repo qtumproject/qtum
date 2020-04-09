@@ -237,7 +237,7 @@ SuperStakerInfo MakeWalletSuperStakerInfo(const CSuperStakerInfo& superStaker)
 }
 
 //! Construct wallet delegation staker info.
-DelegationStakerInfo MakeWalletDelegationStakerInfo(interfaces::Chain::Lock& locked_chain, const uint160& id, const Delegation& delegation)
+DelegationStakerInfo MakeWalletDelegationStakerInfo(interfaces::Chain::Lock& locked_chain, CWallet& wallet, const uint160& id, const Delegation& delegation)
 {
     DelegationStakerInfo result;
     result.delegate_address = EncodeDestination(PKHash(id));
@@ -246,6 +246,11 @@ DelegationStakerInfo MakeWalletDelegationStakerInfo(interfaces::Chain::Lock& loc
     result.fee = delegation.fee;
     result.time = locked_chain.getBlockTime(delegation.blockHeight);
     result.block_number = delegation.blockHeight;
+    std::map<uint160, CAmount>::iterator it = wallet.m_delegations_weight.find(id);
+    if(it != wallet.m_delegations_weight.end())
+    {
+        result.weight = it->second;
+    }
     result.hash = id;
     return result;
 }
@@ -1114,7 +1119,7 @@ public:
 
         auto mi = m_wallet->m_delegations_staker.find(id);
         if (mi != m_wallet->m_delegations_staker.end()) {
-            return MakeWalletDelegationStakerInfo(*locked_chain, mi->first, mi->second);
+            return MakeWalletDelegationStakerInfo(*locked_chain, *m_wallet, mi->first, mi->second);
         }
         return {};
     }
@@ -1126,7 +1131,7 @@ public:
         std::vector<DelegationStakerInfo> result;
         result.reserve(m_wallet->m_delegations_staker.size());
         for (const auto& entry : m_wallet->m_delegations_staker) {
-            result.emplace_back(MakeWalletDelegationStakerInfo(*locked_chain, entry.first, entry.second));
+            result.emplace_back(MakeWalletDelegationStakerInfo(*locked_chain, *m_wallet, entry.first, entry.second));
         }
         return result;
     }

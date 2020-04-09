@@ -660,6 +660,7 @@ struct DelegationStakerInfo
     uint8_t fee = 0;
     int64_t time = 0;
     int64_t block_number = -1;
+    CAmount weight = 0;
     uint160 hash;
 };
 

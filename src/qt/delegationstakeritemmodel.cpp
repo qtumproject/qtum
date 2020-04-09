@@ -33,6 +33,7 @@ public:
         fee = delegationStakerInfo.fee;
         time = delegationStakerInfo.time;
         blockNumber = delegationStakerInfo.block_number;
+        weight = delegationStakerInfo.weight;
         hash = delegationStakerInfo.hash;
     }
 
@@ -44,6 +45,7 @@ public:
         fee = obj.fee;
         time = obj.time;
         blockNumber = obj.blockNumber;
+        weight = obj.weight;
         hash = obj.hash;
     }
 
@@ -56,6 +58,7 @@ public:
     quint8 fee = 0;
     qint64 time = 0;
     qint64 blockNumber = -1;
+    qint64 weight = 0;
     uint160 hash;
 };
 
@@ -165,7 +168,7 @@ DelegationStakerItemModel::DelegationStakerItemModel(WalletModel *parent):
     walletModel(parent),
     priv(0)
 {
-    columns << tr("Date") << tr("Delegate") << tr("Fee") << tr("PoD");
+    columns << tr("Date") << tr("Label") << tr("Fee") << tr("PoD") << tr("Amount");
 
     priv = new DelegationStakerItemPriv(this);
     priv->refreshDelegationStakerItem(walletModel->wallet());
@@ -232,6 +235,26 @@ QVariant DelegationStakerItemModel::data(const QModelIndex &index, int role) con
             return rec->fee;
         case PoD:
             return rec->PoD;
+        case Weight:
+            return rec->weight;
+        default:
+            break;
+        }
+        break;
+    case Qt::EditRole:
+        // Edit role is used for sorting, so return the unformatted values
+        switch(index.column())
+        {
+        case Date:
+            return QDateTime::fromTime_t(static_cast<uint>(rec->time));
+        case Delegate:
+            return rec->delegateAddress;
+        case Fee:
+            return rec->fee;
+        case PoD:
+            return rec->PoD;
+        case Weight:
+            return rec->weight;
         default:
             break;
         }
@@ -258,6 +281,9 @@ QVariant DelegationStakerItemModel::data(const QModelIndex &index, int role) con
         break;
     case DelegationStakerItemModel::BlockNumberRole:
         return rec->blockNumber;
+        break;
+    case DelegationStakerItemModel::WeightRole:
+        return rec->weight;
         break;
     default:
         break;

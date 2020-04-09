@@ -1077,7 +1077,9 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
             if(fSuperStake && fDelegationsContract && (::ChainActive().Height() + 1) >= nOfflineStakeHeight)
             {
                 delegationsStaker.Update(::ChainActive().Height());
-                pwallet->SelectDelegateCoinsForStaking(*locked_chain, setDelegateCoins);
+                std::map<uint160, CAmount> mDelegateWeight;
+                pwallet->SelectDelegateCoinsForStaking(*locked_chain, setDelegateCoins, mDelegateWeight);
+                pwallet->updateDelegationsWeight(mDelegateWeight);
             }
         }
         if(setCoins.size() > 0 || setDelegateCoins.size() > 0)

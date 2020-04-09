@@ -2726,7 +2726,7 @@ bool valueUtxoSort(const std::pair<COutPoint,CAmount>& a,
     return a.second > b.second;
 }
 
-bool CWallet::AvailableDelegateCoinsForStaking(interfaces::Chain::Lock& locked_chain, std::vector<COutPoint>& vDelegateCoins) const
+bool CWallet::AvailableDelegateCoinsForStaking(interfaces::Chain::Lock& locked_chain, std::vector<COutPoint>& vDelegateCoins, std::map<uint160, CAmount>& mDelegateWeight) const
 {
     AssertLockHeld(cs_main);
     AssertLockHeld(cs_wallet);
@@ -2765,6 +2765,7 @@ bool CWallet::AvailableDelegateCoinsForStaking(interfaces::Chain::Lock& locked_c
 
         // Sort address utxos
         std::sort(unspentOutputs.begin(), unspentOutputs.end(), heightUtxoSort);
+        CAmount weight = 0;
 
         // Add the utxos to the list if they are mature and at least the minimum value
         for (std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> >::const_iterator i=unspentOutputs.begin(); i!=unspentOutputs.end(); i++) {
@@ -2780,8 +2781,12 @@ bool CWallet::AvailableDelegateCoinsForStaking(interfaces::Chain::Lock& locked_c
             if(immatureStakes.find(prevout) == immatureStakes.end())
             {
                 vUnsortedDelegateCoins.push_back(std::make_pair(prevout, i->second.satoshis));
+                weight+= i->second.satoshis;
             }
         }
+
+        // Update delegate stake weight
+        mDelegateWeight[it->first] = weight;
     }
 
     std::sort(vUnsortedDelegateCoins.begin(), vUnsortedDelegateCoins.end(), valueUtxoSort);
@@ -2801,7 +2806,8 @@ bool CWallet::HaveAvailableDelegateCoinsForStaking() const
     LOCK(cs_wallet);
 
     std::vector<COutPoint> vDelegateCoins;
-    AvailableDelegateCoinsForStaking(*locked_chain, vDelegateCoins);
+    std::map<uint160, CAmount> mDelegateWeight;
+    AvailableDelegateCoinsForStaking(*locked_chain, vDelegateCoins, mDelegateWeight);
     return vDelegateCoins.size() > 0;
 }
 
@@ -3039,9 +3045,9 @@ bool CWallet::SelectCoinsForStaking(interfaces::Chain::Lock& locked_chain, CAmou
     return true;
 }
 
-bool CWallet::SelectDelegateCoinsForStaking(interfaces::Chain::Lock& locked_chain, std::vector<COutPoint>& setDelegateCoinsRet) const
+bool CWallet::SelectDelegateCoinsForStaking(interfaces::Chain::Lock& locked_chain, std::vector<COutPoint>& setDelegateCoinsRet, std::map<uint160, CAmount>& mDelegateWeight) const
 {
-    return AvailableDelegateCoinsForStaking(locked_chain, setDelegateCoinsRet);
+    return AvailableDelegateCoinsForStaking(locked_chain, setDelegateCoinsRet, mDelegateWeight);
 }
 
 bool CWallet::SignTransaction(CMutableTransaction& tx)
@@ -3638,7 +3644,8 @@ uint64_t CWallet::GetStakeWeight(interfaces::Chain::Lock& locked_chain) const
 
     // Get the weight of the delegated coins
     std::vector<COutPoint> vDelegateCoins;
-    SelectDelegateCoinsForStaking(locked_chain, vDelegateCoins);
+    std::map<uint160, CAmount> mDelegateWeight;
+    SelectDelegateCoinsForStaking(locked_chain, vDelegateCoins, mDelegateWeight);
     for(const COutPoint &prevout : vDelegateCoins)
     {
         Coin coinPrev;
@@ -6381,6 +6388,7 @@ void CWallet::updateDelegationsStaker(const std::map<uint160, Delegation> &deleg
         if(delegation == delegations_staker.end())
         {
             it = m_delegations_staker.erase(it);
+            m_delegations_weight.erase(addressDelegate);
             NotifyDelegationsStakerChanged(this, addressDelegate, CT_DELETED);
         }
         else
@@ -6401,6 +6409,33 @@ void CWallet::updateDelegationsStaker(const std::map<uint160, Delegation> &deleg
         {
             m_delegations_staker[it->first] = it->second;
             NotifyDelegationsStakerChanged(this, it->first, CT_NEW);
+        }
+    }
+}
+
+void CWallet::updateDelegationsWeight(const std::map<uint160, CAmount>& delegations_weight)
+{
+    LOCK(cs_wallet);
+
+    for (std::map<uint160, CAmount>::const_iterator mi = delegations_weight.begin(); mi != delegations_weight.end(); mi++)
+    {
+        bool updated = true;
+        uint160 delegate = mi->first;
+        CAmount weight = mi->second;
+        std::map<uint160, CAmount>::iterator it = m_delegations_weight.find(delegate);
+        if(it != m_delegations_weight.end())
+        {
+            if(it->second != weight)
+            {
+                updated = false;
+            }
+        }
+
+        m_delegations_weight[delegate] = weight;
+
+        if(updated && m_delegations_staker.find(delegate) != m_delegations_staker.end())
+        {
+            NotifyDelegationsStakerChanged(this, delegate, CT_UPDATED);
         }
     }
 }
