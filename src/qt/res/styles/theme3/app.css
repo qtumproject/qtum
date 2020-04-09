@@ -1148,6 +1148,10 @@ SuperStakerItemWidget #buttonDelegations{
     min-height: 16px;
     font: 8pt;
 }
+QFrame #frameStakerConfig{
+    border: 1px solid #d5dde9;
+    border-radius: 5px;
+}
 /*--------------------------------------------
 Send Coins Dialog CSS
 --------------------------------------------*/

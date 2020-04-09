@@ -20,6 +20,8 @@ public:
     bool getIsValidManually() const;
     void setIsValidManually(bool value);
 
+    void setMultiLineAddressField(bool value);
+
 protected:
     void focusInEvent(QFocusEvent *event);
     void focusOutEvent(QFocusEvent *event);
@@ -29,6 +31,7 @@ private:
     const QValidator *checkValidator;
     bool emptyIsValid;
     bool isValidManually;
+    bool multiLineAddressField;
 
 public Q_SLOTS:
     void setValid(bool valid);

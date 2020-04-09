@@ -8,7 +8,8 @@ QValidatedTextEdit::QValidatedTextEdit(QWidget *parent) :
     valid(true),
     checkValidator(0),
     emptyIsValid(true),
-    isValidManually(false)
+    isValidManually(false),
+    multiLineAddressField(false)
 {
     connect(this, &QValidatedTextEdit::textChanged, this, &QValidatedTextEdit::markValid);
     setStyleSheet("");
@@ -30,10 +31,23 @@ bool QValidatedTextEdit::isValid()
     // use checkValidator in case the QValidatedTextEdit is disabled
     if (checkValidator)
     {
-        QString address = toPlainText();
-        int pos = 0;
-        if (checkValidator->validate(address, pos) == QValidator::Acceptable)
-            return true;
+        if(multiLineAddressField)
+        {
+            QStringList lines = toPlainText().split('\n', QString::SkipEmptyParts);
+
+            for (QString address : lines) {
+                int pos = 0;
+                if (checkValidator->validate(address, pos) == QValidator::Invalid)
+                    return false;
+            }
+        }
+        else
+        {
+            QString address = toPlainText();
+            int pos = 0;
+            if (checkValidator->validate(address, pos) == QValidator::Acceptable)
+                return true;
+        }
     }
 
     return valid;
@@ -84,6 +98,20 @@ void QValidatedTextEdit::checkValidity()
         setValid(true);
     }
     else if (checkValidator)
+    {
+        if(multiLineAddressField)
+        {
+            QStringList lines = toPlainText().split('\n', QString::SkipEmptyParts);
+
+            for (QString address : lines) {
+                int pos = 0;
+                if (checkValidator->validate(address, pos) == QValidator::Acceptable)
+                    setValid(true);
+                else
+                    setValid(false);
+            }
+        }
+        else
         {
             QString address = toPlainText();
             int pos = 0;
@@ -92,6 +120,7 @@ void QValidatedTextEdit::checkValidity()
             else
                 setValid(false);
         }
+    }
     else
         setValid(false);
 }
@@ -112,6 +141,11 @@ void QValidatedTextEdit::focusOutEvent(QFocusEvent *event)
 {
     checkValidity();
     QTextEdit::focusOutEvent(event);
+}
+
+void QValidatedTextEdit::setMultiLineAddressField(bool value)
+{
+    multiLineAddressField = value;
 }
 
 bool QValidatedTextEdit::getIsValidManually() const

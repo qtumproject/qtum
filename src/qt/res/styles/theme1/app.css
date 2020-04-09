@@ -1153,3 +1153,6 @@ SuperStakerItemWidget #buttonDelegations{
     min-height: 16px;
     font: 8pt;
 }
+QFrame #frameStakerConfig{
+    background-color: #2e2e2e;
+}
