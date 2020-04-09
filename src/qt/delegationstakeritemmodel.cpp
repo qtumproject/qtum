@@ -322,3 +322,15 @@ void DelegationStakerItemModel::unsubscribeFromCoreSignals()
     // Disconnect signals from wallet
     m_handler_delegationsstaker_changed->disconnect();
 }
+
+QVariant DelegationStakerItemModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if(orientation == Qt::Horizontal)
+    {
+        if(role == Qt::DisplayRole)
+        {
+            return columns[section];
+        }
+    }
+    return QVariant();
+}
