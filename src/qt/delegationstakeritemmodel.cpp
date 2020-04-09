@@ -12,6 +12,13 @@
 #include <QDebug>
 #include <QThread>
 
+static int column_alignments[] = {
+        Qt::AlignLeft|Qt::AlignVCenter, /* Date */
+        Qt::AlignLeft|Qt::AlignVCenter, /* Delegate */
+        Qt::AlignLeft|Qt::AlignVCenter, /* Fee */
+        Qt::AlignRight|Qt::AlignVCenter /* PoD */
+    };
+
 class DelegationStakerItemEntry
 {
 public:
@@ -229,6 +236,8 @@ QVariant DelegationStakerItemModel::data(const QModelIndex &index, int role) con
             break;
         }
         break;
+    case Qt::TextAlignmentRole:
+        return column_alignments[index.column()];
     case DelegationStakerItemModel::HashRole:
         return QString::fromStdString(rec->hash.ToString());
         break;
@@ -330,6 +339,10 @@ QVariant DelegationStakerItemModel::headerData(int section, Qt::Orientation orie
         if(role == Qt::DisplayRole)
         {
             return columns[section];
+        }
+        else if (role == Qt::TextAlignmentRole)
+        {
+            return column_alignments[section];
         }
     }
     return QVariant();

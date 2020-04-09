@@ -10,6 +10,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenu>
+#include <QScrollBar>
 #include <QSpinBox>
 #include <QTableView>
 
@@ -24,11 +25,11 @@ StakerDelegationView::StakerDelegationView(QWidget *parent) :
     setContentsMargins(0,0,0,0);
 
     QHBoxLayout *hlayout = new QHBoxLayout();
-    hlayout->setContentsMargins(6,6,6,6);
+    hlayout->setContentsMargins(0,6,0,6);
     hlayout->setSpacing(10);
 
     dateWidget = new QComboBox(this);
-    dateWidget->setFixedWidth(DATE_COLUMN_WIDTH - 10);
+    dateWidget->setFixedWidth(DATE_COLUMN_WIDTH - 5);
 
     dateWidget->addItem(tr("All"), All);
     dateWidget->addItem(tr("Today"), Today);
@@ -53,7 +54,7 @@ StakerDelegationView::StakerDelegationView(QWidget *parent) :
     hlayout->addWidget(feeWidget);
 
     podWidget = new QLineEdit(this);
-    podWidget->setFixedWidth(POD_COLUMN_WIDTH - 10);
+    podWidget->setFixedWidth(POD_COLUMN_WIDTH - 5);
 #if QT_VERSION >= 0x040700
     podWidget->setPlaceholderText(tr("Enter PoD to search"));
 #endif
@@ -68,6 +69,10 @@ StakerDelegationView::StakerDelegationView(QWidget *parent) :
     vlayout->addWidget(createDateRangeWidget());
     vlayout->addWidget(view);
     vlayout->setSpacing(0);
+
+    int width = view->verticalScrollBar()->sizeHint().width();
+    // Cover scroll bar width with spacing
+    hlayout->addSpacing(width);
 
     // Always show scroll bar
     view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
@@ -167,7 +172,7 @@ QWidget *StakerDelegationView::createDateRangeWidget()
 void StakerDelegationView::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
-    columnResizingFixer->stretchColumnWidth(DelegationStakerItemModel::DelegateRole);
+    columnResizingFixer->stretchColumnWidth(DelegationStakerItemModel::Delegate);
 }
 
 void StakerDelegationView::dateRangeChanged()
