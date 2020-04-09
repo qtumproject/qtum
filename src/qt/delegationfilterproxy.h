@@ -1,7 +1,7 @@
 #ifndef DELEGATIONFILTERPROXY_H
 #define DELEGATIONFILTERPROXY_H
 
-#include <qt/delegationitemmodel.h>
+#include <qt/delegationstakeritemmodel.h>
 
 #include <QDateTime>
 #include <QSortFilterProxyModel>

@@ -44,6 +44,7 @@ class ContractTableModel;
 class WalletWorker;
 class TokenItemModel;
 class SuperStakerItemModel;
+class DelegationStakerItemModel;
 
 class CCoinControl;
 class CKeyID;
@@ -169,6 +170,7 @@ public:
     TokenTransactionTableModel *getTokenTransactionTableModel();
     DelegationItemModel *getDelegationItemModel();
     SuperStakerItemModel *getSuperStakerItemModel();
+    DelegationStakerItemModel *getDelegationStakerItemModel();
 
     EncryptionStatus getEncryptionStatus() const;
 
@@ -280,6 +282,7 @@ private:
     TokenTransactionTableModel *tokenTransactionTableModel;
     DelegationItemModel *delegationItemModel;
     SuperStakerItemModel *superStakerItemModel;
+    DelegationStakerItemModel *delegationStakerItemModel;
 
     // Cache some values to be able to detect changes
     interfaces::WalletBalances m_cached_balances;

@@ -86,6 +86,7 @@ QT_MOC_CPP = \
   qt/moc_delegationlistwidget.cpp \
   qt/moc_delegationpage.cpp \
   qt/moc_delegationsstakerdialog.cpp \
+  qt/moc_delegationstakeritemmodel.cpp \
   qt/moc_editaddressdialog.cpp \
   qt/moc_editcontractinfodialog.cpp \
   qt/moc_guiutil.cpp \
@@ -217,6 +218,7 @@ BITCOIN_QT_H = \
   qt/delegationitemmodel.h \
   qt/delegationpage.h \
   qt/delegatiosstakerdialog.h \
+  qt/delegationstakeritemmodel.h \
   qt/editaddressdialog.h \
   qt/editcontractinfodialog.h \
   qt/eventlog.h \
@@ -376,6 +378,7 @@ BITCOIN_QT_BASE_CPP = \
   qt/clientmodel.cpp \
   qt/csvmodelwriter.cpp \
   qt/delegationitemmodel.cpp \
+  qt/delegationstakeritemmodel.cpp \
   qt/guiutil.cpp \
   qt/intro.cpp \
   qt/modaloverlay.cpp \

@@ -45,10 +45,10 @@ bool DelegationFilterProxy::filterAcceptsRow(int source_row, const QModelIndex &
 {
     QModelIndex index = sourceModel()->index(source_row, 0, source_parent);
 
-    QDateTime datetime;
-    QString address = index.data(DelegationItemModel::AddressRole).toString();
-    int fee = (index.data(DelegationItemModel::FeeRole).toInt());
-    QString PoD;
+    QDateTime datetime = index.data(DelegationStakerItemModel::DateRole).toDateTime();
+    QString address = index.data(DelegationStakerItemModel::DelegateRole).toString();
+    int fee = (index.data(DelegationStakerItemModel::FeeRole).toInt());
+    QString PoD = index.data(DelegationStakerItemModel::PoDRole).toString();
 
     if(datetime < dateFrom || datetime > dateTo)
         return false;

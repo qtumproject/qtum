@@ -1,7 +1,7 @@
 #include "stakerdelegationview.h"
 
 #include <qt/delegationfilterproxy.h>
-#include <qt/delegationitemmodel.h>
+#include <qt/delegationstakeritemmodel.h>
 #include <qt/walletmodel.h>
 
 #include <QComboBox>
@@ -105,7 +105,7 @@ void StakerDelegationView::setModel(WalletModel *_model)
     if(_model)
     {
         delegationProxyModel = new DelegationFilterProxy(this);
-        delegationProxyModel->setSourceModel(_model->getDelegationItemModel());
+        delegationProxyModel->setSourceModel(_model->getDelegationStakerItemModel());
         delegationProxyModel->setDynamicSortFilter(true);
         delegationProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
         delegationProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
@@ -117,8 +117,12 @@ void StakerDelegationView::setModel(WalletModel *_model)
         delegationView->setSelectionBehavior(QAbstractItemView::SelectRows);
         delegationView->setSelectionMode(QAbstractItemView::ExtendedSelection);
         delegationView->setSortingEnabled(true);
-
+        delegationView->sortByColumn(DelegationStakerItemModel::DateRole, Qt::DescendingOrder);
         delegationView->verticalHeader()->hide();
+
+        delegationView->setColumnWidth(DelegationStakerItemModel::Date, DATE_COLUMN_WIDTH);
+        delegationView->setColumnWidth(DelegationStakerItemModel::Fee, FEE_COLUMN_WIDTH);
+        delegationView->setColumnWidth(DelegationStakerItemModel::PoD, POD_COLUMN_WIDTH);
 
         columnResizingFixer = new GUIUtil::TableViewLastColumnResizingFixer(delegationView, POD_MINIMUM_COLUMN_WIDTH, MINIMUM_COLUMN_WIDTH, this, 3);
     }
@@ -163,7 +167,7 @@ QWidget *StakerDelegationView::createDateRangeWidget()
 void StakerDelegationView::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
-    columnResizingFixer->stretchColumnWidth(DelegationItemModel::AddressRole);
+    columnResizingFixer->stretchColumnWidth(DelegationStakerItemModel::DelegateRole);
 }
 
 void StakerDelegationView::dateRangeChanged()
@@ -190,17 +194,17 @@ void StakerDelegationView::contextualMenu(const QPoint &point)
 
 void StakerDelegationView::copyAddress()
 {
-    GUIUtil::copyEntryData(delegationView, 0, DelegationItemModel::AddressRole);
+    GUIUtil::copyEntryData(delegationView, 0, DelegationStakerItemModel::DelegateRole);
 }
 
 void StakerDelegationView::copyFee()
 {
-    GUIUtil::copyEntryData(delegationView, 0, DelegationItemModel::FeeRole);
+    GUIUtil::copyEntryData(delegationView, 0, DelegationStakerItemModel::FeeRole);
 }
 
 void StakerDelegationView::copyPoD()
 {
-
+    GUIUtil::copyEntryData(delegationView, 0, DelegationStakerItemModel::PoDRole);
 }
 
 void StakerDelegationView::chooseDate(int idx)

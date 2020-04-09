@@ -236,6 +236,20 @@ SuperStakerInfo MakeWalletSuperStakerInfo(const CSuperStakerInfo& superStaker)
     return result;
 }
 
+//! Construct wallet delegation staker info.
+DelegationStakerInfo MakeWalletDelegationStakerInfo(interfaces::Chain::Lock& locked_chain, const uint160& id, const Delegation& delegation)
+{
+    DelegationStakerInfo result;
+    result.delegate_address = EncodeDestination(PKHash(id));
+    result.staker_address = EncodeDestination(PKHash(delegation.staker));
+    result.PoD = HexStr(delegation.PoD);
+    result.fee = delegation.fee;
+    result.time = locked_chain.getBlockTime(delegation.blockHeight);
+    result.block_number = delegation.blockHeight;
+    result.hash = id;
+    return result;
+}
+
 bool TokenTxStatus(interfaces::Chain::Lock& locked_chain, CWallet& wallet, const uint256& txid, int& block_number, bool& in_mempool, int& num_blocks)
 {
     auto mi = wallet.mapTokenTx.find(txid);
@@ -1092,6 +1106,29 @@ public:
     bool getEnabledStaking() override
     {
         return m_wallet->m_enabled_staking;
+    }
+    DelegationStakerInfo getDelegationStaker(const uint160& id) override
+    {
+        auto locked_chain = m_wallet->chain().lock();
+        LOCK(m_wallet->cs_wallet);
+
+        auto mi = m_wallet->m_delegations_staker.find(id);
+        if (mi != m_wallet->m_delegations_staker.end()) {
+            return MakeWalletDelegationStakerInfo(*locked_chain, mi->first, mi->second);
+        }
+        return {};
+    }
+    std::vector<DelegationStakerInfo> getDelegationsStakers() override
+    {
+        auto locked_chain = m_wallet->chain().lock();
+        LOCK(m_wallet->cs_wallet);
+
+        std::vector<DelegationStakerInfo> result;
+        result.reserve(m_wallet->m_delegations_staker.size());
+        for (const auto& entry : m_wallet->m_delegations_staker) {
+            result.emplace_back(MakeWalletDelegationStakerInfo(*locked_chain, entry.first, entry.second));
+        }
+        return result;
     }
     std::unique_ptr<Handler> handleUnload(UnloadFn fn) override
     {

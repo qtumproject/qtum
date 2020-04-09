@@ -45,6 +45,7 @@ struct ContractBookData;
 struct DelegationInfo;
 struct DelegationDetails;
 struct SuperStakerInfo;
+struct DelegationStakerInfo;
 
 
 using WalletOrderForm = std::vector<std::pair<std::string, std::string>>;
@@ -390,6 +391,12 @@ public:
     //! Get wallet enabled for staking
     virtual bool getEnabledStaking() = 0;
 
+    //! Get a delegation from super staker.
+    virtual DelegationStakerInfo getDelegationStaker(const uint160& id) = 0;
+
+    //! Get list of all delegations for super stakers.
+    virtual std::vector<DelegationStakerInfo> getDelegationsStakers() = 0;
+
     //! Register handler for unload message.
     using UnloadFn = std::function<void()>;
     virtual std::unique_ptr<Handler> handleUnload(UnloadFn fn) = 0;
@@ -642,6 +649,18 @@ struct SuperStakerInfo
     int64_t time = 0;
     bool staking = false;
     uint256 hash;
+};
+
+// Wallet delegation staker information.
+struct DelegationStakerInfo
+{
+    std::string delegate_address;
+    std::string staker_address;
+    std::string PoD;
+    uint8_t fee = 0;
+    int64_t time = 0;
+    int64_t block_number = -1;
+    uint160 hash;
 };
 
 //! Return implementation of Wallet interface. This function is defined in

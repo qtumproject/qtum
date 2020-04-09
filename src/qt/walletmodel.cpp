@@ -20,6 +20,7 @@
 #include <qt/contracttablemodel.h>
 #include <qt/delegationitemmodel.h>
 #include <qt/superstakeritemmodel.h>
+#include <qt/delegationstakeritemmodel.h>
 
 #include <interfaces/handler.h>
 #include <interfaces/node.h>
@@ -65,6 +66,7 @@ WalletModel::WalletModel(std::unique_ptr<interfaces::Wallet> wallet, interfaces:
     tokenTransactionTableModel(nullptr),
     delegationItemModel(nullptr),
     superStakerItemModel(nullptr),
+    delegationStakerItemModel(nullptr),
     cachedEncryptionStatus(Unencrypted),
     cachedNumBlocks(0),
     nWeight(0),
@@ -81,6 +83,7 @@ WalletModel::WalletModel(std::unique_ptr<interfaces::Wallet> wallet, interfaces:
     tokenTransactionTableModel = new TokenTransactionTableModel(platformStyle, this);
     delegationItemModel = new DelegationItemModel(this);
     superStakerItemModel = new SuperStakerItemModel(this);
+    delegationStakerItemModel = new DelegationStakerItemModel(this);
 
     worker = new WalletWorker(this);
     worker->moveToThread(&(t));
@@ -446,6 +449,11 @@ DelegationItemModel *WalletModel::getDelegationItemModel()
 SuperStakerItemModel *WalletModel::getSuperStakerItemModel()
 {
     return superStakerItemModel;
+}
+
+DelegationStakerItemModel *WalletModel::getDelegationStakerItemModel()
+{
+    return delegationStakerItemModel;
 }
 
 WalletModel::EncryptionStatus WalletModel::getEncryptionStatus() const
