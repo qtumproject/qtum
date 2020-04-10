@@ -51,8 +51,7 @@ SuperStakerConfigDialog::SuperStakerConfigDialog(QWidget *parent) :
     changeConfigEnabled();
     setAddressListVisible(false);
 
-    ui->textAddressList->setMultiLineAddressField(true);
-    ui->textAddressList->setCheckValidator(new BitcoinAddressCheckValidator(parent, true));
+    ui->textAddressList->setCheckValidator(new BitcoinAddressCheckValidator(parent, true), true, true);
 }
 
 SuperStakerConfigDialog::~SuperStakerConfigDialog()
