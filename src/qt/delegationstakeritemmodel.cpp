@@ -1,5 +1,6 @@
 #include <qt/delegationstakeritemmodel.h>
 #include <qt/walletmodel.h>
+#include <qt/optionsmodel.h>
 #include <interfaces/wallet.h>
 #include <validation.h>
 #include <qt/bitcoinunits.h>
@@ -12,11 +13,12 @@
 #include <QDebug>
 #include <QThread>
 
+// Amount column is right-aligned it contains numbers
 static int column_alignments[] = {
         Qt::AlignLeft|Qt::AlignVCenter, /* Date */
         Qt::AlignLeft|Qt::AlignVCenter, /* Delegate */
         Qt::AlignLeft|Qt::AlignVCenter, /* Fee */
-        Qt::AlignRight|Qt::AlignVCenter /* PoD */
+        Qt::AlignRight|Qt::AlignVCenter /* Amount */
     };
 
 class DelegationStakerItemEntry
@@ -58,7 +60,7 @@ public:
     quint8 fee = 0;
     qint64 time = 0;
     qint64 blockNumber = -1;
-    qint64 weight = 0;
+    CAmount weight = 0;
     uint160 hash;
 };
 
@@ -168,11 +170,12 @@ DelegationStakerItemModel::DelegationStakerItemModel(WalletModel *parent):
     walletModel(parent),
     priv(0)
 {
-    columns << tr("Date") << tr("Label") << tr("Fee") << tr("PoD") << tr("Amount");
+    columns << tr("Date") << tr("Label") << tr("Fee") << BitcoinUnits::getAmountColumnTitle(walletModel->getOptionsModel()->getDisplayUnit());
 
     priv = new DelegationStakerItemPriv(this);
     priv->refreshDelegationStakerItem(walletModel->wallet());
 
+    connect(walletModel->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &DelegationStakerItemModel::updateDisplayUnit);
     subscribeToCoreSignals();
 }
 
@@ -233,10 +236,8 @@ QVariant DelegationStakerItemModel::data(const QModelIndex &index, int role) con
             return rec->delegateAddress;
         case Fee:
             return QString("%1%").arg(rec->fee);
-        case PoD:
-            return rec->PoD;
         case Weight:
-            return rec->weight;
+            return BitcoinUnits::format(walletModel->getOptionsModel()->getDisplayUnit(), rec->weight, false, BitcoinUnits::separatorAlways);
         default:
             break;
         }
@@ -251,10 +252,8 @@ QVariant DelegationStakerItemModel::data(const QModelIndex &index, int role) con
             return rec->delegateAddress;
         case Fee:
             return rec->fee;
-        case PoD:
-            return rec->PoD;
         case Weight:
-            return rec->weight;
+            return qint64(rec->weight);
         default:
             break;
         }
@@ -283,7 +282,7 @@ QVariant DelegationStakerItemModel::data(const QModelIndex &index, int role) con
         return rec->blockNumber;
         break;
     case DelegationStakerItemModel::WeightRole:
-        return rec->weight;
+        return qint64(rec->weight);
         break;
     default:
         break;
@@ -310,6 +309,20 @@ void DelegationStakerItemModel::updateDelegationStakerData(const QString &hash, 
         delegationStakerEntry.hash = updated;
     }
     priv->updateEntry(delegationStakerEntry, status);
+}
+
+/** Updates the column title to "Amount (DisplayUnit)" and emits headerDataChanged() signal for table headers to react. */
+void DelegationStakerItemModel::updateAmountColumnTitle()
+{
+    columns[Weight] = BitcoinUnits::getAmountColumnTitle(walletModel->getOptionsModel()->getDisplayUnit());
+    Q_EMIT headerDataChanged(Qt::Horizontal,Weight,Weight);
+}
+
+void DelegationStakerItemModel::updateDisplayUnit()
+{
+    // emit dataChanged to update Amount column with the current unit
+    updateAmountColumnTitle();
+    Q_EMIT dataChanged(index(0, Weight), index(priv->size()-1, Weight));
 }
 
 void DelegationStakerItemModel::emitDataChanged(int idx)

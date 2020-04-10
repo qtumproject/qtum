@@ -40,9 +40,9 @@ public:
 
     enum ColumnWidths {
         DATE_COLUMN_WIDTH = 130,
-        FEE_COLUMN_WIDTH = 80,
-        POD_COLUMN_WIDTH = 150,
-        POD_MINIMUM_COLUMN_WIDTH = 100,
+        FEE_COLUMN_WIDTH = 90,
+        AMOUNT_COLUMN_WIDTH = 230,
+        AMOUNT_MINIMUM_COLUMN_WIDTH = 160,
         MINIMUM_COLUMN_WIDTH = 23
     };
 
@@ -54,7 +54,7 @@ private:
     QComboBox *dateWidget;
     QLineEdit *addressWidget;
     QSpinBox *feeWidget;
-    QLineEdit *podWidget;
+    QLineEdit *amountWidget;
 
     QMenu *contextMenu;
 
@@ -73,13 +73,13 @@ private Q_SLOTS:
     void dateRangeChanged();
     void copyAddress();
     void copyFee();
-    void copyPoD();
+    void copyAmount();
 
 public Q_SLOTS:
     void chooseDate(int idx);
     void changedPrefix(const QString &prefix);
     void changedFee(int fee);
-    void changedPoD(const QString &prefix);
+    void changedAmount();
 };
 
 #endif // STAKERDELEGATIONVIEW_H

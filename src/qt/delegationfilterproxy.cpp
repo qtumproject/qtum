@@ -11,7 +11,7 @@ DelegationFilterProxy::DelegationFilterProxy(QObject *parent) :
     dateTo(MAX_DATE),
     addrPrefix(),
     minFee(0),
-    podPrefix()
+    minAmount(0)
 {
 
 }
@@ -35,9 +35,9 @@ void DelegationFilterProxy::setMinFee(const int &_minimum)
     invalidateFilter();
 }
 
-void DelegationFilterProxy::setPODPrefix(const QString &_podPrefix)
+void DelegationFilterProxy::setMinAmount(const CAmount &minimum)
 {
-    this->podPrefix = _podPrefix;
+    this->minAmount = minimum;
     invalidateFilter();
 }
 
@@ -48,15 +48,15 @@ bool DelegationFilterProxy::filterAcceptsRow(int source_row, const QModelIndex &
     QDateTime datetime = index.data(DelegationStakerItemModel::DateRole).toDateTime();
     QString address = index.data(DelegationStakerItemModel::DelegateRole).toString();
     int fee = (index.data(DelegationStakerItemModel::FeeRole).toInt());
-    QString PoD = index.data(DelegationStakerItemModel::PoDRole).toString();
+    qint64 amount = index.data(DelegationStakerItemModel::WeightRole).toLongLong();
 
     if(datetime < dateFrom || datetime > dateTo)
         return false;
     if (!address.contains(addrPrefix, Qt::CaseInsensitive))
         return false;
-    if (!PoD.contains(podPrefix, Qt::CaseInsensitive))
-        return false;
     if(fee < minFee)
+        return false;
+    if (amount < minAmount)
         return false;
 
     return true;

@@ -3,6 +3,7 @@
 
 #include <qt/delegationstakeritemmodel.h>
 
+#include <amount.h>
 #include <QDateTime>
 #include <QSortFilterProxyModel>
 
@@ -20,7 +21,7 @@ public:
     void setDateRange(const QDateTime &from, const QDateTime &to);
     void setAddrPrefix(const QString &addrPrefix);
     void setMinFee(const int& minimum);
-    void setPODPrefix(const QString &podPrefix);
+    void setMinAmount(const CAmount& minimum);
 
 protected:
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
@@ -30,7 +31,7 @@ private:
     QDateTime dateTo;
     QString addrPrefix;
     int minFee;
-    QString podPrefix;
+    CAmount minAmount;
 };
 
 #endif // DELEGATIONFILTERPROXY_H

@@ -23,8 +23,7 @@ public:
         Date = 0,
         Delegate = 1,
         Fee = 2,
-        PoD = 3,
-        Weight = 4
+        Weight = 3
     };
 
     enum DataRole{
@@ -54,6 +53,11 @@ public:
 
 private Q_SLOTS:
     void updateDelegationStakerData(const QString &hash, int status, bool showDelegationStaker);
+
+public Q_SLOTS:
+    /** Updates the column title to "Amount (DisplayUnit)" and emits headerDataChanged() signal for table headers to react. */
+    void updateAmountColumnTitle();
+    void updateDisplayUnit();
 
 private:
     /** Notify listeners that data changed. */

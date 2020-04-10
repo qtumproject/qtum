@@ -1,7 +1,9 @@
 #include "stakerdelegationview.h"
 
+#include <qt/bitcoinunits.h>
 #include <qt/delegationfilterproxy.h>
 #include <qt/delegationstakeritemmodel.h>
+#include <qt/optionsmodel.h>
 #include <qt/walletmodel.h>
 
 #include <QComboBox>
@@ -52,15 +54,15 @@ StakerDelegationView::StakerDelegationView(QWidget *parent) :
     feeWidget->setValue(0);
     feeWidget->setSuffix("%");
     feeWidget->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    feeWidget->setFixedWidth(FEE_COLUMN_WIDTH);
+    feeWidget->setFixedWidth(FEE_COLUMN_WIDTH - 10);
     hlayout->addWidget(feeWidget);
 
-    podWidget = new QLineEdit(this);
-    podWidget->setFixedWidth(POD_COLUMN_WIDTH - 5);
+    amountWidget = new QLineEdit(this);
+    amountWidget->setFixedWidth(AMOUNT_COLUMN_WIDTH - 5);
 #if QT_VERSION >= 0x040700
-    podWidget->setPlaceholderText(tr("Enter PoD to search"));
+    amountWidget->setPlaceholderText(tr("Min amount"));
 #endif
-    hlayout->addWidget(podWidget);
+    hlayout->addWidget(amountWidget);
 
     QVBoxLayout *vlayout = new QVBoxLayout(this);
     vlayout->setContentsMargins(0,0,0,0);
@@ -86,23 +88,23 @@ StakerDelegationView::StakerDelegationView(QWidget *parent) :
     // Actions
     QAction *copyAddressAction = new QAction(tr("Copy address"), this);
     QAction *copyFeeAction = new QAction(tr("Copy fee"), this);
-    QAction *copyPoDAction = new QAction(tr("Copy PoD"), this);
+    QAction *copyAmount = new QAction(tr("Copy Amount"), this);
 
     contextMenu = new QMenu(delegationView);
     contextMenu->addAction(copyAddressAction);
     contextMenu->addAction(copyFeeAction);
-    contextMenu->addAction(copyPoDAction);
+    contextMenu->addAction(copyAmount);
 
     connect(delegationView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(contextualMenu(QPoint)));
 
     connect(copyAddressAction, SIGNAL(triggered()), this, SLOT(copyAddress()));
     connect(copyFeeAction, SIGNAL(triggered()), this, SLOT(copyFee()));
-    connect(copyPoDAction, SIGNAL(triggered()), this, SLOT(copyPoD()));
+    connect(copyAmount, SIGNAL(triggered()), this, SLOT(copyAmount()));
 
     connect(dateWidget, SIGNAL(activated(int)), this, SLOT(chooseDate(int)));
     connect(addressWidget, SIGNAL(textChanged(QString)), this, SLOT(changedPrefix(QString)));
     connect(feeWidget, SIGNAL(valueChanged(int)), this, SLOT(changedFee(int)));
-    connect(podWidget, SIGNAL(textChanged(QString)), this, SLOT(changedPoD(QString)));
+    connect(amountWidget, SIGNAL(textChanged(QString)), this, SLOT(changedAmount()));
 }
 
 void StakerDelegationView::setModel(WalletModel *_model)
@@ -129,9 +131,9 @@ void StakerDelegationView::setModel(WalletModel *_model)
 
         delegationView->setColumnWidth(DelegationStakerItemModel::Date, DATE_COLUMN_WIDTH);
         delegationView->setColumnWidth(DelegationStakerItemModel::Fee, FEE_COLUMN_WIDTH);
-        delegationView->setColumnWidth(DelegationStakerItemModel::PoD, POD_COLUMN_WIDTH);
+        delegationView->setColumnWidth(DelegationStakerItemModel::Weight, AMOUNT_COLUMN_WIDTH);
 
-        columnResizingFixer = new GUIUtil::TableViewLastColumnResizingFixer(delegationView, POD_MINIMUM_COLUMN_WIDTH, MINIMUM_COLUMN_WIDTH, this, 3);
+        columnResizingFixer = new GUIUtil::TableViewLastColumnResizingFixer(delegationView, AMOUNT_MINIMUM_COLUMN_WIDTH, MINIMUM_COLUMN_WIDTH, this, 3);
     }
 }
 
@@ -209,9 +211,9 @@ void StakerDelegationView::copyFee()
     GUIUtil::copyEntryData(delegationView, 0, DelegationStakerItemModel::FeeRole);
 }
 
-void StakerDelegationView::copyPoD()
+void StakerDelegationView::copyAmount()
 {
-    GUIUtil::copyEntryData(delegationView, 0, DelegationStakerItemModel::PoDRole);
+    GUIUtil::copyEntryData(delegationView, 0, DelegationStakerItemModel::WeightRole);
 }
 
 void StakerDelegationView::chooseDate(int idx)
@@ -277,9 +279,16 @@ void StakerDelegationView::changedFee(int fee)
     delegationProxyModel->setMinFee(fee);
 }
 
-void StakerDelegationView::changedPoD(const QString &prefix)
+void StakerDelegationView::changedAmount()
 {
     if(!delegationProxyModel)
         return;
-    delegationProxyModel->setPODPrefix(prefix);
+    CAmount amount_parsed = 0;
+    if (BitcoinUnits::parse(model->getOptionsModel()->getDisplayUnit(), amountWidget->text(), &amount_parsed)) {
+        delegationProxyModel->setMinAmount(amount_parsed);
+    }
+    else
+    {
+        delegationProxyModel->setMinAmount(0);
+    }
 }
