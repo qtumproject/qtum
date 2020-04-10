@@ -50,7 +50,9 @@ StakerDelegationView::StakerDelegationView(QWidget *parent) :
     feeWidget->setMinimum(0);
     feeWidget->setMaximum(100);
     feeWidget->setValue(0);
-    feeWidget->setFixedWidth(FEE_COLUMN_WIDTH - 10);
+    feeWidget->setSuffix("%");
+    feeWidget->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    feeWidget->setFixedWidth(FEE_COLUMN_WIDTH);
     hlayout->addWidget(feeWidget);
 
     podWidget = new QLineEdit(this);

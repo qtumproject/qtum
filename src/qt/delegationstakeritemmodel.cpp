@@ -232,7 +232,7 @@ QVariant DelegationStakerItemModel::data(const QModelIndex &index, int role) con
         case Delegate:
             return rec->delegateAddress;
         case Fee:
-            return rec->fee;
+            return QString("%1%").arg(rec->fee);
         case PoD:
             return rec->PoD;
         case Weight:
