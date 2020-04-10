@@ -137,6 +137,24 @@ void StakerDelegationView::setModel(WalletModel *_model)
     }
 }
 
+void StakerDelegationView::setSuperStakerData(const QString &staker, const int &fee)
+{
+    if(!delegationProxyModel)
+        return;
+
+    delegationProxyModel->setStaker(staker);
+
+    dateWidget->setCurrentIndex(0);
+    addressWidget->setText("");
+    feeWidget->setValue(fee);
+    amountWidget->setText("");
+
+    chooseDate(0);
+    changedPrefix("");
+    changedFee(fee);
+    changedAmount();
+}
+
 QWidget *StakerDelegationView::createDateRangeWidget()
 {
     dateRangeWidget = new QFrame();

@@ -16,6 +16,12 @@ DelegationFilterProxy::DelegationFilterProxy(QObject *parent) :
 
 }
 
+void DelegationFilterProxy::setStaker(const QString &_addrStaker)
+{
+    this->addrStaker = _addrStaker;
+    invalidateFilter();
+}
+
 void DelegationFilterProxy::setDateRange(const QDateTime &from, const QDateTime &to)
 {
     this->dateFrom = from;
@@ -45,11 +51,14 @@ bool DelegationFilterProxy::filterAcceptsRow(int source_row, const QModelIndex &
 {
     QModelIndex index = sourceModel()->index(source_row, 0, source_parent);
 
+    QString staker = index.data(DelegationStakerItemModel::StakerRole).toString();
     QDateTime datetime = index.data(DelegationStakerItemModel::DateRole).toDateTime();
     QString address = index.data(DelegationStakerItemModel::DelegateRole).toString();
     int fee = (index.data(DelegationStakerItemModel::FeeRole).toInt());
     qint64 amount = index.data(DelegationStakerItemModel::WeightRole).toLongLong();
 
+    if (staker != addrStaker)
+        return false;
     if(datetime < dateFrom || datetime > dateTo)
         return false;
     if (!address.contains(addrPrefix, Qt::CaseInsensitive))

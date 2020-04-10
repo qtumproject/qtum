@@ -4,8 +4,20 @@
 
 #include <qt/delegationsstakerdialog.h>
 #include <qt/forms/ui_delegationsstakerdialog.h>
-
 #include <qt/stakerdelegationview.h>
+
+
+class DelegationsStakerDialogPriv
+{
+public:
+    DelegationsStakerDialogPriv():
+        fee()
+    {}
+
+    QString address;
+    int fee;
+    QString hash;
+};
 
 DelegationsStakerDialog::DelegationsStakerDialog(QWidget *parent) :
     QDialog(parent),
@@ -14,18 +26,20 @@ DelegationsStakerDialog::DelegationsStakerDialog(QWidget *parent) :
     m_stakerDelegationView(0)
 {
     ui->setupUi(this);
+    d = new DelegationsStakerDialogPriv();
 
     setWindowTitle(tr("Delegate for super staker"));
 
     m_stakerDelegationView = new StakerDelegationView(this);
     m_stakerDelegationView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->delegationViewLayout->addWidget(m_stakerDelegationView);
-
+    connect(ui->okButton, &QPushButton::clicked, this, &DelegationsStakerDialog::accept);
 }
 
 DelegationsStakerDialog::~DelegationsStakerDialog()
 {
     delete ui;
+    delete d;
 }
 
 void DelegationsStakerDialog::setModel(WalletModel *_model)
@@ -37,8 +51,17 @@ void DelegationsStakerDialog::setModel(WalletModel *_model)
     }
 }
 
-void DelegationsStakerDialog::setSuperStakerData(const QString &_address, const QString &_hash)
+void DelegationsStakerDialog::setSuperStakerData(const QString &_address, const int &_fee, const QString &_hash)
 {
-    address = _address;
-    hash = _hash;
+    d->address = _address;
+    d->fee = _fee;
+    d->hash = _hash;
+
+    updateData();
+}
+
+void DelegationsStakerDialog::updateData()
+{
+    ui->txtStaker->setText(d->address);
+    m_stakerDelegationView->setSuperStakerData(d->address, d->fee);
 }

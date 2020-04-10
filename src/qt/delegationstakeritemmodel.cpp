@@ -17,7 +17,7 @@
 static int column_alignments[] = {
         Qt::AlignLeft|Qt::AlignVCenter, /* Date */
         Qt::AlignLeft|Qt::AlignVCenter, /* Delegate */
-        Qt::AlignLeft|Qt::AlignVCenter, /* Fee */
+        Qt::AlignCenter|Qt::AlignVCenter, /* Fee */
         Qt::AlignRight|Qt::AlignVCenter /* Amount */
     };
 

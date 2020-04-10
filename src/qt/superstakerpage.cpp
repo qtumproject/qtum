@@ -106,11 +106,12 @@ void SuperStakerPage::on_currentSuperStakerChanged(QModelIndex index)
     {
         if(index.isValid())
         {
-            m_selectedSuperStakerHash = m_superStakerList->superStakerModel()->data(index, SuperStakerItemModel::HashRole).toString();
-            QString address = m_superStakerList->superStakerModel()->data(index, SuperStakerItemModel::StakerRole).toString();
             QString hash = m_superStakerList->superStakerModel()->data(index, SuperStakerItemModel::HashRole).toString();
-            m_configSuperStakerPage->setSuperStakerData(address, hash);
-            m_delegationsSuperStakerPage->setSuperStakerData(address, hash);
+            m_selectedSuperStakerHash = hash;
+            QString address = m_superStakerList->superStakerModel()->data(index, SuperStakerItemModel::StakerRole).toString();
+            int fee = m_superStakerList->superStakerModel()->data(index, SuperStakerItemModel::FeeRole).toInt();
+            m_configSuperStakerPage->setSuperStakerData(address, fee, hash);
+            m_delegationsSuperStakerPage->setSuperStakerData(address, fee, hash);
 
             if(!m_configSuperStakerPage->isEnabled())
                 m_configSuperStakerPage->setEnabled(true);
@@ -120,9 +121,9 @@ void SuperStakerPage::on_currentSuperStakerChanged(QModelIndex index)
         else
         {
             m_configSuperStakerPage->setEnabled(false);
-            m_configSuperStakerPage->setSuperStakerData("", "");
+            m_configSuperStakerPage->setSuperStakerData("", 0, "");
             m_delegationsSuperStakerPage->setEnabled(false);
-            m_delegationsSuperStakerPage->setSuperStakerData("", "");
+            m_delegationsSuperStakerPage->setSuperStakerData("", 0, "");
             m_selectedSuperStakerHash = "";
         }
     }

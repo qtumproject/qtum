@@ -41,10 +41,12 @@ public:
     enum ColumnWidths {
         DATE_COLUMN_WIDTH = 130,
         FEE_COLUMN_WIDTH = 90,
-        AMOUNT_COLUMN_WIDTH = 230,
-        AMOUNT_MINIMUM_COLUMN_WIDTH = 160,
+        AMOUNT_COLUMN_WIDTH = 170,
+        AMOUNT_MINIMUM_COLUMN_WIDTH = 170,
         MINIMUM_COLUMN_WIDTH = 23
     };
+
+    void setSuperStakerData(const QString& staker, const int& fee);
 
 private:
     WalletModel *model;

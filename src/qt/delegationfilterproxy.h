@@ -18,6 +18,7 @@ public:
     /** Last date that can be represented (far in the future) */
     static const QDateTime MAX_DATE;
 
+    void setStaker(const QString &addrStaker);
     void setDateRange(const QDateTime &from, const QDateTime &to);
     void setAddrPrefix(const QString &addrPrefix);
     void setMinFee(const int& minimum);
@@ -27,6 +28,7 @@ protected:
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
 
 private:
+    QString addrStaker;
     QDateTime dateFrom;
     QDateTime dateTo;
     QString addrPrefix;

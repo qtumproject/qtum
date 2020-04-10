@@ -9,6 +9,7 @@ class SuperStakerConfigDialog;
 
 class WalletModel;
 class ClientModel;
+class SuperStakerConfigDialogPriv;
 
 class SuperStakerConfigDialog : public QDialog
 {
@@ -28,7 +29,7 @@ public:
 
     void setModel(WalletModel *_model);
     void setClientModel(ClientModel *clientModel);
-    void setSuperStakerData(const QString& address, const QString& hash);
+    void setSuperStakerData(const QString& address, const int& fee, const QString& hash);
 
 public Q_SLOTS:
     void chooseAddressType(int idx);
@@ -44,11 +45,13 @@ private Q_SLOTS:
     void on_enableOkButton();
 
 private:
+    void updateData();
+
+private:
     Ui::SuperStakerConfigDialog *ui;
     WalletModel* m_model;
     ClientModel* m_clientModel;
-    QString address;
-    QString hash;
+    SuperStakerConfigDialogPriv* d;
 };
 
 #endif // SUPERSTAKERCONFIGDIALOG_H

@@ -7,17 +7,31 @@
 #include <qt/optionsmodel.h>
 #include <qt/bitcoinaddressvalidator.h>
 
+class SuperStakerConfigDialogPriv
+{
+public:
+    SuperStakerConfigDialogPriv():
+        fee()
+    {}
+
+    QString address;
+    int fee;
+    QString hash;
+};
+
 SuperStakerConfigDialog::SuperStakerConfigDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::SuperStakerConfigDialog)
 {
     ui->setupUi(this);
+    d = new SuperStakerConfigDialogPriv();
 
     // Set defaults
     ui->sbFee->setMinimum(0);
     ui->sbFee->setMaximum(100);
 
     ui->leMinUtxo->SetMinValue(DEFAULT_STAKING_MIN_UTXO_VALUE);
+    ui->leMinUtxo->setValue(DEFAULT_STAKING_MIN_UTXO_VALUE);
 
     ui->cbListType->addItem(tr("Accept all"), All);
     ui->cbListType->addItem(tr("White list"), WhiteList);
@@ -38,12 +52,13 @@ SuperStakerConfigDialog::SuperStakerConfigDialog(QWidget *parent) :
     setAddressListVisible(false);
 
     ui->textAddressList->setMultiLineAddressField(true);
-    ui->textAddressList->setCheckValidator(new BitcoinAddressCheckValidator(parent));
+    ui->textAddressList->setCheckValidator(new BitcoinAddressCheckValidator(parent, true));
 }
 
 SuperStakerConfigDialog::~SuperStakerConfigDialog()
 {
     delete ui;
+    delete d;
 }
 
 void SuperStakerConfigDialog::setModel(WalletModel *_model)
@@ -62,10 +77,13 @@ void SuperStakerConfigDialog::setClientModel(ClientModel *_clientModel)
     m_clientModel = _clientModel;
 }
 
-void SuperStakerConfigDialog::setSuperStakerData(const QString &_address, const QString &_hash)
+void SuperStakerConfigDialog::setSuperStakerData(const QString &_address, const int &_fee, const QString &_hash)
 {
-    address = _address;
-    hash = _hash;
+    d->address = _address;
+    d->fee = _fee;
+    d->hash = _hash;
+
+    updateData();
 }
 
 void SuperStakerConfigDialog::chooseAddressType(int idx)
@@ -129,4 +147,10 @@ void SuperStakerConfigDialog::setAddressListVisible(bool _visible)
 void SuperStakerConfigDialog::on_enableOkButton()
 {
     ui->buttonOk->setEnabled(true);
+}
+
+void SuperStakerConfigDialog::updateData()
+{
+    ui->sbFee->setValue(d->fee);
+    ui->txtStaker->setText(d->address);
 }
