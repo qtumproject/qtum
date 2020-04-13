@@ -2716,11 +2716,6 @@ bool CWallet::HaveAvailableCoinsForStaking() const
     return vCoins.size() > 0;
 }
 
-bool heightUtxoSort(const std::pair<CAddressUnspentKey, CAddressUnspentValue>& a,
-                const std::pair<CAddressUnspentKey, CAddressUnspentValue>& b) {
-    return a.second.blockHeight < b.second.blockHeight;
-}
-
 bool valueUtxoSort(const std::pair<COutPoint,CAmount>& a,
                 const std::pair<COutPoint,CAmount>& b) {
     return a.second > b.second;
@@ -2762,9 +2757,6 @@ bool CWallet::AvailableDelegateCoinsForStaking(interfaces::Chain::Lock& locked_c
         if (!GetAddressUnspent(hashBytes, type, unspentOutputs)) {
             throw error("No information available for address");
         }
-
-        // Sort address utxos
-        std::sort(unspentOutputs.begin(), unspentOutputs.end(), heightUtxoSort);
 
         // Add the utxos to the list if they are mature and at least the minimum value
         for (std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> >::const_iterator i=unspentOutputs.begin(); i!=unspentOutputs.end(); i++) {
