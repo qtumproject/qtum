@@ -3915,6 +3915,7 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
     CScript scriptPubKeyKernel;
     CScript scriptPubKeyStaker;
     Delegation delegation;
+    bool delegateOutputExist = false;
 
     for(const COutPoint &prevoutStake : setDelegateCoins)
     {
@@ -3971,6 +3972,7 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
 
                 if(!GetDelegationStaker(hash160, delegation))
                     return error("CreateCoinStake: Failed to find delegation");
+                delegateOutputExist = IsDelegateOutputExist(delegation.fee);
 
                 if (!keystore.GetKey(CKeyID(delegation.staker), key))
                 {
@@ -3996,7 +3998,10 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
             nCredit += nValueSuperStaker;
             vwtxPrev.push_back(pcoinSuperStaker);
             txNew.vout.push_back(CTxOut(0, scriptPubKeyStaker));
-            txNew.vout.push_back(CTxOut(0, scriptPubKeyHashKernel));
+            if(delegateOutputExist)
+            {
+                txNew.vout.push_back(CTxOut(0, scriptPubKeyHashKernel));
+            }
 
             LogPrint(BCLog::COINSTAKE, "CreateCoinStake : added kernel type=%d\n", whichType);
             fKernelFound = true;
@@ -4043,7 +4048,10 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
 
     // Set output amount
     txNew.vout[1].nValue = nCredit;
-    txNew.vout[2].nValue = nRewardOffline;
+    if(delegateOutputExist)
+    {
+        txNew.vout[2].nValue = nRewardOffline;
+    }
 
     if(pindexPrev->nHeight >= consensusParams.nFirstMPoSBlock && pindexPrev->nHeight < consensusParams.nLastMPoSBlock)
     {
