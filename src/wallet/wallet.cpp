@@ -2716,11 +2716,6 @@ bool CWallet::HaveAvailableCoinsForStaking() const
     return vCoins.size() > 0;
 }
 
-bool heightUtxoSort(const std::pair<CAddressUnspentKey, CAddressUnspentValue>& a,
-                const std::pair<CAddressUnspentKey, CAddressUnspentValue>& b) {
-    return a.second.blockHeight < b.second.blockHeight;
-}
-
 bool valueUtxoSort(const std::pair<COutPoint,CAmount>& a,
                 const std::pair<COutPoint,CAmount>& b) {
     return a.second > b.second;
@@ -2762,9 +2757,6 @@ bool CWallet::AvailableDelegateCoinsForStaking(interfaces::Chain::Lock& locked_c
         if (!GetAddressUnspent(hashBytes, type, unspentOutputs)) {
             throw error("No information available for address");
         }
-
-        // Sort address utxos
-        std::sort(unspentOutputs.begin(), unspentOutputs.end(), heightUtxoSort);
 
         // Add the utxos to the list if they are mature and at least the minimum value
         for (std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> >::const_iterator i=unspentOutputs.begin(); i!=unspentOutputs.end(); i++) {
@@ -3923,6 +3915,7 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
     CScript scriptPubKeyKernel;
     CScript scriptPubKeyStaker;
     Delegation delegation;
+    bool delegateOutputExist = false;
 
     for(const COutPoint &prevoutStake : setDelegateCoins)
     {
@@ -3979,6 +3972,7 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
 
                 if(!GetDelegationStaker(hash160, delegation))
                     return error("CreateCoinStake: Failed to find delegation");
+                delegateOutputExist = IsDelegateOutputExist(delegation.fee);
 
                 if (!keystore.GetKey(CKeyID(delegation.staker), key))
                 {
@@ -4004,7 +3998,10 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
             nCredit += nValueSuperStaker;
             vwtxPrev.push_back(pcoinSuperStaker);
             txNew.vout.push_back(CTxOut(0, scriptPubKeyStaker));
-            txNew.vout.push_back(CTxOut(0, scriptPubKeyHashKernel));
+            if(delegateOutputExist)
+            {
+                txNew.vout.push_back(CTxOut(0, scriptPubKeyHashKernel));
+            }
 
             LogPrint(BCLog::COINSTAKE, "CreateCoinStake : added kernel type=%d\n", whichType);
             fKernelFound = true;
@@ -4051,7 +4048,10 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
 
     // Set output amount
     txNew.vout[1].nValue = nCredit;
-    txNew.vout[2].nValue = nRewardOffline;
+    if(delegateOutputExist)
+    {
+        txNew.vout[2].nValue = nRewardOffline;
+    }
 
     if(pindexPrev->nHeight >= consensusParams.nFirstMPoSBlock && pindexPrev->nHeight < consensusParams.nLastMPoSBlock)
     {
