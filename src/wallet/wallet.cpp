@@ -3979,7 +3979,6 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
 
                 if(!GetDelegationStaker(hash160, delegation))
                     return error("CreateCoinStake: Failed to find delegation");
-                delegateOutputExist = IsDelegateOutputExist(delegation.fee);
 
                 if (!keystore.GetKey(CKeyID(delegation.staker), key))
                 {
@@ -3991,6 +3990,7 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
                 scriptPubKeyHashKernel = CScript() << OP_DUP << OP_HASH160 << ToByteVector(hash160) << OP_EQUALVERIFY << OP_CHECKSIG;
             }
 
+            delegateOutputExist = IsDelegateOutputExist(delegation.fee);
             PKHash superStakerAddress(delegation.staker);
             COutPoint prevoutSuperStaker;
             CAmount nValueSuperStaker = 0;
