@@ -347,6 +347,9 @@ QVariant DelegationItemModel::data(const QModelIndex &index, int role) const
     case DelegationItemModel::RemoveTxHashRole:
         return QString::fromStdString(rec->removeTxHash.ToString());
         break;
+    case DelegationItemModel::FormattedFeeRole:
+        return formatFee(rec);
+        break;
     default:
         break;
     }
@@ -443,4 +446,9 @@ void DelegationItemModel::updateDelegationData(const DelegationItemEntry &entry)
                               Q_ARG(QString, entry.stakerAddress),
                               Q_ARG(quint8, entry.fee),
                               Q_ARG(qint32, entry.blockNumber));
+}
+
+QString DelegationItemModel::formatFee(const DelegationItemEntry *rec) const
+{
+    return QString("%1%").arg(rec->fee);
 }

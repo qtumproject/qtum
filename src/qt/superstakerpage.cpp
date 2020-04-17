@@ -35,7 +35,8 @@ SuperStakerPage::SuperStakerPage(const PlatformStyle *platformStyle, QWidget *pa
 
     QAction *copyStakerAction = new QAction(tr("Copy staker address"), this);
     QAction *copyStekerFeeAction = new QAction(tr("Copy staker fee"), this);
-    QAction *configSuperStakerAction = new QAction(tr("Config super staker"), this);
+    QAction *configSuperStakerAction = new QAction(tr("Configure super staker"), this);
+    QAction *removeSuperStakerAction = new QAction(tr("Remove super staker"), this);
 
     m_superStakerList = new SuperStakerListWidget(platformStyle, this);
     m_superStakerList->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -51,10 +52,12 @@ SuperStakerPage::SuperStakerPage(const PlatformStyle *platformStyle, QWidget *pa
     contextMenu->addAction(copyStakerAction);
     contextMenu->addAction(copyStekerFeeAction);
     contextMenu->addAction(configSuperStakerAction);
+    contextMenu->addAction(removeSuperStakerAction);
 
     connect(copyStekerFeeAction, &QAction::triggered, this, &SuperStakerPage::copyStekerFee);
     connect(copyStakerAction, &QAction::triggered, this, &SuperStakerPage::copyStakerAddress);
     connect(configSuperStakerAction, &QAction::triggered, this, &SuperStakerPage::configSuperStaker);
+    connect(removeSuperStakerAction, &QAction::triggered, this, &SuperStakerPage::removeSuperStaker);
 
     connect(m_superStakerList, &SuperStakerListWidget::customContextMenuRequested, this, &SuperStakerPage::contextualMenu);
 }
@@ -179,7 +182,7 @@ void SuperStakerPage::copyStekerFee()
 {
     if(indexMenu.isValid())
     {
-        GUIUtil::setClipboard(indexMenu.data(SuperStakerItemModel::FeeRole).toString());
+        GUIUtil::setClipboard(indexMenu.data(SuperStakerItemModel::FormattedFeeRole).toString());
         indexMenu = QModelIndex();
     }
 }
@@ -211,6 +214,15 @@ void SuperStakerPage::on_configSuperStaker(const QModelIndex &index)
 void SuperStakerPage::on_addSuperStaker()
 {
     on_goToAddSuperStakerPage();
+}
+
+void SuperStakerPage::removeSuperStaker()
+{
+    if(indexMenu.isValid())
+    {
+        on_removeSuperStaker(indexMenu);
+        indexMenu = QModelIndex();
+    }
 }
 
 void SuperStakerPage::on_removeSuperStaker(const QModelIndex &index)

@@ -36,6 +36,7 @@ public:
         BlockHeightRole = Qt::UserRole + 5,
         CreateTxHashRole = Qt::UserRole + 6,
         RemoveTxHashRole = Qt::UserRole + 7,
+        FormattedFeeRole = Qt::UserRole + 8,
     };
 
     DelegationItemModel(WalletModel *parent = 0);
@@ -64,6 +65,7 @@ private:
     void emitDataChanged(int index);
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();
+    QString formatFee(const DelegationItemEntry *rec) const;
 
     QStringList columns;
     WalletModel *walletModel;

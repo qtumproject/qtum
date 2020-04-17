@@ -262,6 +262,9 @@ QVariant SuperStakerItemModel::data(const QModelIndex &index, int role) const
     case SuperStakerItemModel::StakingRole:
         return rec->staking;
         break;
+    case SuperStakerItemModel::FormattedFeeRole:
+        return formatFee(rec);
+        break;
     default:
         break;
     }
@@ -356,4 +359,9 @@ void SuperStakerItemModel::updateSuperStakerData(const SuperStakerItemEntry &ent
                               Q_ARG(QString, hash),
                               Q_ARG(QString, entry.stakerAddress),
                               Q_ARG(quint8, entry.fee));
+}
+
+QString SuperStakerItemModel::formatFee(const SuperStakerItemEntry *rec) const
+{
+    return QString("%1%").arg(rec->fee);
 }

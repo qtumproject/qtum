@@ -184,7 +184,7 @@ void DelegationPage::copyStekerFee()
 {
     if(indexMenu.isValid())
     {
-        GUIUtil::setClipboard(indexMenu.data(DelegationItemModel::FeeRole).toString());
+        GUIUtil::setClipboard(indexMenu.data(DelegationItemModel::FormattedFeeRole).toString());
         indexMenu = QModelIndex();
     }
 }
