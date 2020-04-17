@@ -3,7 +3,6 @@
 #include <qt/optionsmodel.h>
 #include <interfaces/wallet.h>
 #include <validation.h>
-#include <qt/bitcoinunits.h>
 #include <interfaces/node.h>
 #include <interfaces/handler.h>
 #include <algorithm>
@@ -170,7 +169,7 @@ DelegationStakerItemModel::DelegationStakerItemModel(WalletModel *parent):
     walletModel(parent),
     priv(0)
 {
-    columns << tr("Date") << tr("Label") << tr("Fee") << BitcoinUnits::getAmountColumnTitle(walletModel->getOptionsModel()->getDisplayUnit());
+    columns << tr("Date") << tr("Address") << tr("Fee") << BitcoinUnits::getAmountColumnTitle(walletModel->getOptionsModel()->getDisplayUnit());
 
     priv = new DelegationStakerItemPriv(this);
     priv->refreshDelegationStakerItem(walletModel->wallet());
@@ -235,9 +234,9 @@ QVariant DelegationStakerItemModel::data(const QModelIndex &index, int role) con
         case Delegate:
             return rec->delegateAddress;
         case Fee:
-            return QString("%1%").arg(rec->fee);
+            return formatFee(rec);
         case Weight:
-            return BitcoinUnits::format(walletModel->getOptionsModel()->getDisplayUnit(), rec->weight, false, BitcoinUnits::separatorAlways);
+            return formatWeight(rec, BitcoinUnits::separatorAlways);
         default:
             break;
         }
@@ -283,6 +282,13 @@ QVariant DelegationStakerItemModel::data(const QModelIndex &index, int role) con
         break;
     case DelegationStakerItemModel::WeightRole:
         return qint64(rec->weight);
+        break;
+    case DelegationStakerItemModel::FormattedWeightRole:
+        // Used for copy/export, so don't include separators
+        return formatWeight(rec, BitcoinUnits::separatorNever);
+        break;
+    case DelegationStakerItemModel::FormattedFeeRole:
+        return formatFee(rec);
         break;
     default:
         break;
@@ -385,4 +391,14 @@ QVariant DelegationStakerItemModel::headerData(int section, Qt::Orientation orie
         }
     }
     return QVariant();
+}
+
+QString DelegationStakerItemModel::formatWeight(const DelegationStakerItemEntry *rec, BitcoinUnits::SeparatorStyle separators) const
+{
+    return BitcoinUnits::format(walletModel->getOptionsModel()->getDisplayUnit(), rec->weight, false, separators);
+}
+
+QString DelegationStakerItemModel::formatFee(const DelegationStakerItemEntry *rec) const
+{
+    return QString("%1%").arg(rec->fee);
 }

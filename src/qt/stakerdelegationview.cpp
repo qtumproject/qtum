@@ -88,7 +88,7 @@ StakerDelegationView::StakerDelegationView(QWidget *parent) :
     // Actions
     QAction *copyAddressAction = new QAction(tr("Copy address"), this);
     QAction *copyFeeAction = new QAction(tr("Copy fee"), this);
-    QAction *copyAmount = new QAction(tr("Copy Amount"), this);
+    QAction *copyAmount = new QAction(tr("Copy amount"), this);
 
     contextMenu = new QMenu(delegationView);
     contextMenu->addAction(copyAddressAction);
@@ -226,12 +226,12 @@ void StakerDelegationView::copyAddress()
 
 void StakerDelegationView::copyFee()
 {
-    GUIUtil::copyEntryData(delegationView, 0, DelegationStakerItemModel::FeeRole);
+    GUIUtil::copyEntryData(delegationView, 0, DelegationStakerItemModel::FormattedFeeRole);
 }
 
 void StakerDelegationView::copyAmount()
 {
-    GUIUtil::copyEntryData(delegationView, 0, DelegationStakerItemModel::WeightRole);
+    GUIUtil::copyEntryData(delegationView, 0, DelegationStakerItemModel::FormattedWeightRole);
 }
 
 void StakerDelegationView::chooseDate(int idx)

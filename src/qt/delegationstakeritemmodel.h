@@ -1,6 +1,7 @@
 #ifndef DELEGATIONSTAKERITEMMODEL_H
 #define DELEGATIONSTAKERITEMMODEL_H
 
+#include <qt/bitcoinunits.h>
 #include <QAbstractItemModel>
 #include <QStringList>
 #include <QThread>
@@ -35,6 +36,8 @@ public:
         DateRole = Qt::UserRole + 6,
         BlockNumberRole = Qt::UserRole + 7,
         WeightRole = Qt::UserRole + 8,
+        FormattedWeightRole = Qt::UserRole + 9,
+        FormattedFeeRole = Qt::UserRole + 10,
     };
 
     DelegationStakerItemModel(WalletModel *parent = 0);
@@ -64,6 +67,8 @@ private:
     void emitDataChanged(int index);
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();
+    QString formatWeight(const DelegationStakerItemEntry *rec, BitcoinUnits::SeparatorStyle separators=BitcoinUnits::separatorStandard) const;
+    QString formatFee(const DelegationStakerItemEntry *rec) const;
 
     QStringList columns;
     WalletModel *walletModel;
