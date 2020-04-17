@@ -370,6 +370,12 @@ public:
     //! Remove wallet super staker entry.
     virtual bool removeSuperStakerEntry(const std::string &sHash) = 0;
 
+    //! Get the super staker weight
+    virtual uint64_t getSuperStakerWeight(const uint256& id) = 0;
+
+    //! Is super staker staking
+    virtual bool isSuperStakerStaking(const uint256& id) = 0;
+
     //! Try get the stake weight
     virtual bool tryGetStakeWeight(uint64_t& nWeight) = 0;
 

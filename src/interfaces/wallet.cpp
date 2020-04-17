@@ -1135,6 +1135,25 @@ public:
         }
         return result;
     }
+    uint64_t getSuperStakerWeight(const uint256& id) override
+    {
+        LOCK(m_wallet->cs_wallet);
+        SuperStakerInfo info = getSuperStaker(id);
+        CTxDestination dest = DecodeDestination(info.staker_address);
+        const PKHash *keyID = boost::get<PKHash>(&dest);
+        if(keyID)
+        {
+            uint160 address(*keyID);
+            return m_wallet->GetSuperStakerWeight(address);
+        }
+
+        return 0;
+    }
+    bool isSuperStakerStaking(const uint256& id) override
+    {
+        uint64_t lastCoinStakeSearchInterval = getEnabledStaking() ? getLastCoinStakeSearchInterval() : 0;
+        return lastCoinStakeSearchInterval && getSuperStakerWeight(id);
+    }
     std::unique_ptr<Handler> handleUnload(UnloadFn fn) override
     {
         return MakeHandler(m_wallet->NotifyUnload.connect(fn));

@@ -6439,3 +6439,24 @@ void CWallet::updateDelegationsWeight(const std::map<uint160, CAmount>& delegati
         }
     }
 }
+
+uint64_t CWallet::GetSuperStakerWeight(const uint160 &staker) const
+{
+    LOCK(cs_wallet);
+
+    uint64_t nWeight = 0;
+    for (std::map<uint160, Delegation>::const_iterator it=m_delegations_staker.begin(); it!=m_delegations_staker.end(); it++)
+    {
+        if(it->second.staker == staker)
+        {
+            uint160 delegate = it->first;
+            std::map<uint160, CAmount>::const_iterator mi = m_delegations_weight.find(delegate);
+            if(mi != m_delegations_weight.end())
+            {
+                nWeight += mi->second;
+            }
+        }
+    }
+
+    return nWeight;
+}
