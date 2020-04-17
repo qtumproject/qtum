@@ -436,55 +436,142 @@ static CTransactionRef SendMoney(interfaces::Chain::Lock& locked_chain, CWallet 
     return tx;
 }
 
-static CTransactionRef SplitUTXOs(interfaces::Chain::Lock& locked_chain, CWallet * const pwallet, const CTxDestination &address, CAmount nValue, const CCoinControl& coin_control)
+void SplitRemainder(std::vector<CRecipient>& vecSend, CAmount& remainder, CAmount maxValue)
 {
-    CAmount curBalance = pwallet->GetBalance(0, coin_control.m_avoid_address_reuse).m_mine_trusted;
+    if(remainder > 0)
+    {
+        for(int i = vecSend.size() - 1; i >= 0 ; i--)
+        {
+            CAmount diffAmount = maxValue - vecSend[i].nAmount;
+            if(diffAmount > 0)
+            {
+                if((remainder - diffAmount) > 0)
+                {
+                    vecSend[i].nAmount = vecSend[i].nAmount + diffAmount;
+                    remainder -= diffAmount;
+                }
+                else
+                {
+                    vecSend[i].nAmount = vecSend[i].nAmount + remainder;
+                    remainder = 0;
+                }
+            }
 
+            if(remainder <= 0)
+                break;
+        }
+    }
+}
+
+static CTransactionRef SplitUTXOs(interfaces::Chain::Lock& locked_chain, CWallet * const pwallet, const CTxDestination &address, CAmount nValue, CAmount maxValue, const CCoinControl& coin_control, CAmount nTotal, int maxOutputs, CAmount& nSplited)
+{
     // Check amount
     if (nValue <= 0)
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid amount");
 
-    if (nValue > curBalance)
+    if (nValue > nTotal)
         throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Insufficient funds");
 
     // Parse Qtum address
     CScript scriptPubKey = GetScriptForDestination(address);
 
     // Split into utxos with nValue
-    CAmount nFeeRequired;
+    CAmount nFeeRequired = 0;
     std::string strError;
     std::vector<CRecipient> vecSend;
     int nChangePosRet = -1;
+    int numOfRecipients = static_cast<int>(nTotal / nValue);
+
+    // Compute the number of recipients
+    CAmount remainder = nTotal % nValue;
+    if(remainder == 0 && numOfRecipients > 0)
+    {
+        numOfRecipients -= 1;
+        remainder = nValue;
+    }
+    if(numOfRecipients > maxOutputs)
+    {
+        numOfRecipients = maxOutputs;
+        remainder = 0;
+    }
+
+    // Split coins between recipients
+    CAmount nTxAmount = 0;
+    nSplited = 0;
     CRecipient recipient = {scriptPubKey, nValue, false};
-    int numOfRecipients = static_cast<int>(curBalance / nValue);
-
-    CAmount remainder = curBalance % nValue;
-    CRecipient lastRecipient = {scriptPubKey, nValue + remainder, true}; // Add remainder to the last recipient and pay the fee
-
     for(int i = 0; i < numOfRecipients; i++) {
-        if(i == numOfRecipients - 1) {
-            vecSend.push_back(lastRecipient);
-        }
-        else
-            vecSend.push_back(recipient);
+        vecSend.push_back(recipient);
+    }
+    SplitRemainder(vecSend, remainder, maxValue);
+
+    // Get the total amount of the outputs
+    for(CRecipient rec : vecSend)
+    {
+        nTxAmount += rec.nAmount;
     }
 
     // Create the transaction
     CTransactionRef tx;
-    if (!pwallet->CreateTransaction(locked_chain, vecSend, tx, nFeeRequired, nChangePosRet, strError, coin_control, true, 0, false)) {
-        throw JSONRPCError(RPC_WALLET_ERROR, strError);
-    }
-
-    // Combine the last 2 outputs when the last output have value less than nValue due to paying the fee
-    if(lastRecipient.nAmount - nFeeRequired < nValue && vecSend.size() >= 2) {
-        vecSend.pop_back();
-        vecSend.pop_back();
-        lastRecipient.nAmount += nValue;
-        vecSend.push_back(lastRecipient);
-
-        if((!pwallet->CreateTransaction(locked_chain, vecSend, tx, nFeeRequired, nChangePosRet, strError, coin_control, true, 0, false))) {
+    if((nTxAmount + pwallet->m_default_max_tx_fee) <= nTotal)
+    {
+        if (!pwallet->CreateTransaction(locked_chain, vecSend, tx, nFeeRequired, nChangePosRet, strError, coin_control, true, 0, true)) {
             throw JSONRPCError(RPC_WALLET_ERROR, strError);
         }
+        nSplited = nFeeRequired;
+    }
+    else if (vecSend.size() > 0)
+    {
+        // Pay the fee for the tx with the last recipient
+        CRecipient lastRecipient = vecSend[vecSend.size() - 1];
+        lastRecipient.fSubtractFeeFromAmount = true;
+        vecSend[vecSend.size() - 1] = lastRecipient;
+        if (!pwallet->CreateTransaction(locked_chain, vecSend, tx, nFeeRequired, nChangePosRet, strError, coin_control, true, 0, true)) {
+            throw JSONRPCError(RPC_WALLET_ERROR, strError);
+        }
+
+        // Combine the last 2 outputs when the last output have value less than nValue due to paying the fee
+        if(vecSend.size() >= 2)
+        {
+            if((lastRecipient.nAmount - nFeeRequired) < nValue)
+            {
+                bool payFeeRemainder = (nTotal - nTxAmount) > nFeeRequired * 1.1;
+                if(payFeeRemainder)
+                {
+                    // Pay the fee with the remainder
+                    lastRecipient.fSubtractFeeFromAmount = false;
+                    vecSend.pop_back();
+                    vecSend.push_back(lastRecipient);
+                }
+                else
+                {
+                    // Combine the last 2 outputs
+                    CAmount nValueLast2 = lastRecipient.nAmount + vecSend[vecSend.size() - 2].nAmount;
+                    lastRecipient.nAmount = lastRecipient.nAmount + nFeeRequired;
+                    lastRecipient.fSubtractFeeFromAmount = true;
+                    nValueLast2 -= lastRecipient.nAmount;
+                    vecSend.pop_back();
+                    vecSend.pop_back();
+                    vecSend.push_back(lastRecipient);
+
+                    // Split the rest with the others
+                    SplitRemainder(vecSend, nValueLast2, maxValue);
+                }
+
+                if((!pwallet->CreateTransaction(locked_chain, vecSend, tx, nFeeRequired, nChangePosRet, strError, coin_control, true, 0, true))) {
+                    throw JSONRPCError(RPC_WALLET_ERROR, strError);
+                }
+                if(payFeeRemainder)
+                {
+                    nSplited = nFeeRequired;
+                }
+            }
+        }
+    }
+
+    // Compute the splited amount
+    for(CRecipient rec : vecSend)
+    {
+        nSplited += rec.nAmount;
     }
 
     // Send the transaction
@@ -493,6 +580,7 @@ static CTransactionRef SplitUTXOs(interfaces::Chain::Lock& locked_chain, CWallet
         strError = strprintf("Error: The transaction was rejected! Reason given: %s", FormatStateMessage(state));
         throw JSONRPCError(RPC_WALLET_ERROR, strError);
     }
+
     return tx;
 }
 
@@ -655,20 +743,26 @@ static UniValue splitutxosforaddress(const JSONRPCRequest& request)
     }
 
             RPCHelpMan{"splitutxosforaddress",
-                "\nSplit the wallet coins into utxos suitable for offline staking with specific value and send them to an address." +
+                "\nSplit an address coins into utxo between min and max value." +
                     HelpRequiringPassphrase(pwallet) + "\n",
                 {
-                    {"amount", RPCArg::Type::AMOUNT, RPCArg::Optional::NO, "The utxo value, minimum utxo value: " + FormatMoney(DEFAULT_STAKING_MIN_UTXO_VALUE)},
+                    {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The qtum address to split utxos."},
+                    {"minValue", RPCArg::Type::AMOUNT, RPCArg::Optional::NO, "Select utxo which value is smaller than value (minimum 0.1 COIN)"},
+                    {"maxValue", RPCArg::Type::AMOUNT, RPCArg::Optional::NO, "Select utxo which value is greater than value (minimum 0.1 COIN)"},
+                    {"maxOutputs", RPCArg::Type::NUM, /* default */ "100", "Maximum outputs to create"},
                 },
                 RPCResult{
                     "{\n"
                     "  \"txid\" : \"value\",                  (string) The hex-encoded transaction id\n"
-                    "  \"address\" : \"value\",               (string) The qtum address that cointain the utxos\n"
+                    "  \"selected\" : \"value\",              (string) Selected amount of coins\n"
+                    "  \"splited\" : \"value\",               (string) Splited amount of coins\n"
                     "}\n"
                 },
                 RPCExamples{
-                    HelpExampleCli("splitutxosforaddress", "100")
-            + HelpExampleRpc("splitutxosforaddress", "100")
+                    HelpExampleCli("splitutxosforaddress", "\"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 100 200")
+            + HelpExampleCli("splitutxosforaddress", "\"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 100 200 100")
+            + HelpExampleRpc("splitutxosforaddress", "\"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 100 200")
+            + HelpExampleRpc("splitutxosforaddress", "\"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 100 200 100")
                 },
             }.Check(request);
 
@@ -680,30 +774,75 @@ static UniValue splitutxosforaddress(const JSONRPCRequest& request)
     LOCK(pwallet->cs_wallet);
 
     // Address
-    OutputType output_type = pwallet->m_default_address_type;
-    CTxDestination address;
-    std::string error;
+    CTxDestination address = DecodeDestination(request.params[0].get_str());
 
-    if (!pwallet->GetNewDestination(output_type, "" /* label */, address, error)) {
-        throw JSONRPCError(RPC_WALLET_KEYPOOL_RAN_OUT, error);
+    if (!IsValidDestination(address)) {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Qtum address");
+    }
+    CScript scriptPubKey = GetScriptForDestination(address);
+    if (!IsMine(*pwallet, scriptPubKey)) {
+        throw JSONRPCError(RPC_WALLET_ERROR, "Address not found in wallet");
+    }
+
+    // minimum value
+    CAmount minValue = AmountFromValue(request.params[1]);
+
+    // maximum value
+    CAmount maxValue = AmountFromValue(request.params[2]);
+
+    if (minValue < COIN/10 || maxValue <= 0 || minValue > maxValue) {
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid values for minimum and maximum");
+    }
+
+    // Maximum outputs
+    int maxOutputs = request.params.size() > 3 ? request.params[3].get_int() : 100;
+    if (maxOutputs < 1) {
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid value for maximum outputs");
     }
 
     // Amount
-    CAmount nAmount = AmountFromValue(request.params[0]);
-    if (nAmount < DEFAULT_STAKING_MIN_UTXO_VALUE)
-        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for splitting");
+    CAmount nSplitAmount = minValue;
+    CAmount nRequiredAmount = nSplitAmount * maxOutputs;
 
     CCoinControl coin_control;
+    coin_control.destChange = address;
+
+    // Find UTXOs for a address with value smaller than minValue and greater then maxValue
+    std::vector<COutput> vecOutputs;
     coin_control.fAllowOtherInputs=true;
 
     assert(pwallet != NULL);
-    EnsureWalletIsUnlocked(pwallet);
+    pwallet->AvailableCoins(*locked_chain, vecOutputs, false, NULL, true);
 
-    CTransactionRef tx = SplitUTXOs(*locked_chain, pwallet, address, nAmount, coin_control);
+    CAmount total = 0;
+    CAmount nSelectedAmount = 0;
+    for(const COutput& out : vecOutputs) {
+        CTxDestination destAdress;
+        const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
+        bool fValidAddress = ExtractDestination(scriptPubKey, destAdress);
 
+        CAmount val = out.tx->tx.get()->vout[out.i].nValue;
+        if (!fValidAddress || address != destAdress || (val >= minValue && val <= maxValue ) )
+            continue;
+
+        if(nSelectedAmount <= nRequiredAmount)
+        {
+            coin_control.Select(COutPoint(out.tx->GetHash(),out.i));
+            nSelectedAmount += val;
+        }
+        total += val;
+    }
+
+    CAmount splited = 0;
     UniValue obj(UniValue::VOBJ);
-    obj.pushKV("txid",          tx->GetHash().GetHex());
-    obj.pushKV("address",       EncodeDestination(address));
+    if(coin_control.HasSelected() && nSplitAmount < nSelectedAmount){
+        EnsureWalletIsUnlocked(pwallet);
+        CTransactionRef tx = SplitUTXOs(*locked_chain, pwallet, address, nSplitAmount, maxValue, coin_control, nSelectedAmount, maxOutputs, splited);
+        obj.pushKV("txid",          tx->GetHash().GetHex());
+    }
+
+    obj.pushKV("selected",      FormatMoney(total));
+    obj.pushKV("splited",       FormatMoney(splited));
     return obj;
 }
 
@@ -5488,7 +5627,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "sendmany",                         &sendmany,                      {"dummy","amounts","minconf","comment","subtractfeefrom","replaceable","conf_target","estimate_mode"} },
     { "wallet",             "sendmanywithdupes",                &sendmanywithdupes,             {"fromaccount","amounts","minconf","comment","subtractfeefrom"} },
     { "wallet",             "sendtoaddress",                    &sendtoaddress,                 {"address","amount","comment","comment_to","subtractfeefromamount","replaceable","conf_target","estimate_mode","avoid_reuse","senderAddress","changeToSender"} },
-    { "wallet",             "splitutxosforaddress",             &splitutxosforaddress,          {"amount"} },
+    { "wallet",             "splitutxosforaddress",             &splitutxosforaddress,          {"address","minValue","maxValue","maxOutputs"} },
     { "wallet",             "sethdseed",                        &sethdseed,                     {"newkeypool","seed"} },
     { "wallet",             "setlabel",                         &setlabel,                      {"address","label"} },
     { "wallet",             "settxfee",                         &settxfee,                      {"amount"} },

@@ -45,7 +45,7 @@ bool CheckCoinStakeTimestamp(uint32_t nTimeBlock);
 
 // Should be called in ConnectBlock to make sure that the input pubkey == output pubkey
 // Since it is only used in ConnectBlock, we know that we have access to the full contextual utxo set
-bool CheckBlockInputPubKeyMatchesOutputPubKey(const CBlock& block, CCoinsViewCache& view);
+bool CheckBlockInputPubKeyMatchesOutputPubKey(const CBlock& block, CCoinsViewCache& view, bool delegateOutputExist);
 
 // Recover the pubkey and check that it matches the prevoutStake's scriptPubKey.
 bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBlockHeader& block, CCoinsViewCache& view);
@@ -62,7 +62,11 @@ int64_t GetStakeCombineThreshold();
 
 bool SplitOfflineStakeReward(const int64_t& nReward, const uint8_t& fee, int64_t& nRewardOffline, int64_t& nRewardStaker);
 
-int GetDelegationFeeTx(const CTransaction& tx, const Coin& coin);
+bool IsDelegateOutputExist(int inFee);
+
+int GetDelegationFeeTx(const CTransaction& tx, const Coin& coin, bool delegateOutputExist);
+
+bool GetDelegationFeeFromContract(const uint160& address, uint8_t& fee);
 
 unsigned int GetStakeSplitOutputs();
 

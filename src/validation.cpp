@@ -2423,7 +2423,7 @@ bool CheckMinGasPrice(std::vector<EthTransactionParams>& etps, const uint64_t& m
     return true;
 }
 
-bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, const Consensus::Params& consensusParams, CAmount nFees, CAmount gasRefunds, CAmount nActualStakeReward, const std::vector<CTxOut>& vouts, CAmount nValueCoinPrev)
+bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, const Consensus::Params& consensusParams, CAmount nFees, CAmount gasRefunds, CAmount nActualStakeReward, const std::vector<CTxOut>& vouts, CAmount nValueCoinPrev, bool delegateOutputExist)
 {
     size_t offset = block.IsProofOfStake() ? 1 : 0;
     std::vector<CTxOut> vTempVouts=block.vtx[offset]->vout;
@@ -2477,7 +2477,7 @@ bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, cons
         {
             CAmount nReward = blockReward - gasRefunds - splitReward * (rewardRecipients -1);
             CAmount nValueStaker = block.vtx[offset]->vout[1].nValue;
-            CAmount nValueDelegate = block.vtx[offset]->vout[2].nValue;
+            CAmount nValueDelegate = delegateOutputExist ? block.vtx[offset]->vout[2].nValue : 0;
             CAmount nMinedReward = nValueStaker + nValueDelegate - nValueCoinPrev;
             if(nReward != nMinedReward)
                 return state.Invalid(ValidationInvalidReason::CONSENSUS, error("CheckReward(): The block reward is not split correctly between the staker and the delegate"), REJECT_INVALID, "bad-cs-delegate-reward");
@@ -2865,6 +2865,36 @@ size_t QtumTxConverter::correctedStackSize(size_t size){
 }
 ///////////////////////////////////////////////////////////////////////
 
+bool CheckDelegationOutput(const CBlock& block, bool& delegateOutputExist)
+{
+    if(block.IsProofOfStake() && block.HasProofOfDelegation())
+    {
+        uint160 staker;
+        std::vector<unsigned char> vchPubKey;
+        if(GetBlockPublicKey(block, vchPubKey))
+        {
+            staker = uint160(ToByteVector(CPubKey(vchPubKey).GetID()));
+            uint160 address;
+            uint8_t fee = 0;
+            if(GetBlockDelegation(block, staker, address, fee))
+            {
+                delegateOutputExist = IsDelegateOutputExist(fee);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 /** Apply the effects of this block (with given index) on the UTXO set represented by coins.
  *  Validity checks that depend on the UTXO set are also done; ConnectBlock()
  *  can fail if those validity checks fail (among other reasons). */
@@ -2903,7 +2933,12 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
         return state.Invalid(ValidationInvalidReason::CONSENSUS, false, REJECT_INVALID, "bad-blk-weight", strprintf("%s : weight limit failed", __func__));
     }
 
-    if (block.IsProofOfStake() && pindex->nHeight > chainparams.GetConsensus().nEnableHeaderSignatureHeight && !CheckBlockInputPubKeyMatchesOutputPubKey(block, view)) {
+    bool delegateOutputExist = false;
+    if (!CheckDelegationOutput(block, delegateOutputExist)) {
+        return state.Invalid(ValidationInvalidReason::CONSENSUS, false, REJECT_INVALID, "bad-delegate-output", strprintf("%s : delegation output check failed", __func__));
+    }
+
+    if (block.IsProofOfStake() && pindex->nHeight > chainparams.GetConsensus().nEnableHeaderSignatureHeight && !CheckBlockInputPubKeyMatchesOutputPubKey(block, view, delegateOutputExist)) {
         return state.Invalid(ValidationInvalidReason::CONSENSUS, false, REJECT_INVALID, "bad-blk-coinstake-input-output-mismatch");
     }
 
@@ -3426,7 +3461,7 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
     if(nFees < gasRefunds) { //make sure it won't overflow
         return state.Invalid(ValidationInvalidReason::CONSENSUS, error("ConnectBlock(): Less total fees than gas refund fees"), REJECT_INVALID, "bad-blk-fees-greater-gasrefund");
     }
-    if(!CheckReward(block, state, pindex->nHeight, chainparams.GetConsensus(), nFees, gasRefunds, nActualStakeReward, checkVouts, nValueCoinPrev))
+    if(!CheckReward(block, state, pindex->nHeight, chainparams.GetConsensus(), nFees, gasRefunds, nActualStakeReward, checkVouts, nValueCoinPrev, delegateOutputExist))
         return state.Invalid(ValidationInvalidReason::CONSENSUS, error("ConnectBlock(): Reward check failed"), REJECT_INVALID, "block-reward-invalid");
     if (!control.Wait())
         return state.Invalid(ValidationInvalidReason::CONSENSUS, error("%s: CheckQueue failed", __func__), REJECT_INVALID, "block-validation-failed");
@@ -4812,16 +4847,23 @@ bool GetBlockDelegation(const CBlock& block, const uint160& staker, uint160& add
     if(block.vtx.size() < 1)
         return false;
 
-    if(block.vtx[1]->vin.size() < 1 ||
-            block.vtx[1]->vout.size() < 3)
-        return false;
-
     // Get the delegate
     std::string strMessage = staker.GetReverseHex();
     CKeyID keyid;
     if(!SignStr::GetKeyIdMessage(strMessage, block.GetProofOfDelegation(), keyid))
         return false;
     address = uint160(keyid);
+
+    // Get the fee from the delegation contract
+    uint8_t inFee = 0;
+    if(!GetDelegationFeeFromContract(address, inFee))
+        return false;
+
+    bool delegateOutputExist = IsDelegateOutputExist(inFee);
+    size_t minVoutSize = delegateOutputExist ? 3 : 2;
+    if(block.vtx[1]->vin.size() < 1 ||
+            block.vtx[1]->vout.size() < minVoutSize)
+        return false;
 
     // Get the staker fee
     CCoinsViewCache& cache = ::ChainstateActive().CoinsTip();
@@ -4831,12 +4873,14 @@ bool GetBlockDelegation(const CBlock& block, const uint160& staker, uint160& add
         return false;
 
     CAmount nValueStaker = block.vtx[1]->vout[1].nValue - nValueCoin;
-    CAmount nValueDelegate = block.vtx[1]->vout[2].nValue;
+    CAmount nValueDelegate = delegateOutputExist ? block.vtx[1]->vout[2].nValue : 0;
     CAmount nReward = nValueStaker + nValueDelegate;
     if(nReward <= 0)
         return false;
 
     fee = std::ceil(nValueStaker * 100.0 / nReward);
+    if(inFee != fee)
+        return false;
 
     return true;
 }
