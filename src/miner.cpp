@@ -992,7 +992,7 @@ public:
         return pwallet->HaveKey(CKeyID(event.item.delegate));
     }
 
-    void Update(int32_t nHeight)
+    void Update(interfaces::Chain::Lock& locked_chain, int32_t nHeight)
     {
         if(fLogEvents)
         {
@@ -1025,22 +1025,62 @@ public:
         }
         else
         {
-            // Log events are not enabled, search only the map that the user add delegations in the GUI
+            // Log events are not enabled, search the available addresses for list of my delegations
             if(cacheHeight != nHeight)
             {
                 cacheMyDelegations.clear();
+
+                // Address map
+                std::map<uint160, bool> mapAddress;
+
+                // Get all addreses with coins
+                std::vector<COutput> vecOutputs;
+                pwallet->AvailableCoins(locked_chain, vecOutputs);
+                for (const COutput& out : vecOutputs)
+                {
+                    CTxDestination destination;
+                    const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
+                    bool fValidAddress = ExtractDestination(scriptPubKey, destination);
+
+                    if (!fValidAddress || !IsMine(*pwallet, destination)) continue;
+
+                    const PKHash *pkhash = boost::get<PKHash>(&destination);
+                    if (!pkhash) {
+                        continue;
+                    }
+
+                    uint160 address = uint160(*pkhash);
+                    if (mapAddress.find(address) == mapAddress.end())
+                    {
+                        mapAddress[address] = true;
+                    }
+                }
+
+                // Get all addreses for delegations in the GUI
                 for(auto item : pwallet->mapDelegation)
                 {
                     uint160 address;
                     if(GetKey(item.second.strDelegateAddress, address) && pwallet->HaveKey(CKeyID(address)))
                     {
-                        Delegation delegation;
-                        if(qtumDelegations.GetDelegation(address, delegation) && QtumDelegation::VerifyDelegation(address, delegation))
+                        if (mapAddress.find(address) == mapAddress.end())
                         {
-                            cacheMyDelegations[address] = delegation;
+                            mapAddress[address] = false;
                         }
                     }
                 }
+
+                // Search my delegations in the addresses
+                for(auto item: mapAddress)
+                {
+                    Delegation delegation;
+                    uint160 address = item.first;
+                    if(qtumDelegations.GetDelegation(address, delegation) && QtumDelegation::VerifyDelegation(address, delegation))
+                    {
+                        cacheMyDelegations[address] = delegation;
+                    }
+                }
+
+                // Update my delegations list
                 pwallet->m_my_delegations = cacheMyDelegations;
                 cacheHeight = nHeight;
             }
@@ -1156,9 +1196,14 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
         {
             auto locked_chain = pwallet->chain().lock();
             LOCK(pwallet->cs_wallet);
-            myDelegations.Update(::ChainActive().Height());
+            int32_t nHeight = ::ChainActive().Height();
+            bool fOfflineStakeEnabled = (nHeight + 1) >= nOfflineStakeHeight;
+            if(fOfflineStakeEnabled)
+            {
+                myDelegations.Update(*locked_chain, nHeight);
+            }
             pwallet->SelectCoinsForStaking(*locked_chain, nTargetValue, setCoins, nValueIn);
-            if(fSuperStake && fDelegationsContract && (::ChainActive().Height() + 1) >= nOfflineStakeHeight)
+            if(fSuperStake && fDelegationsContract && fOfflineStakeEnabled)
             {
                 delegationsStaker.Update(::ChainActive().Height());
                 pwallet->SelectDelegateCoinsForStaking(*locked_chain, setDelegateCoins);
