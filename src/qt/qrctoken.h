@@ -9,7 +9,6 @@
 #include <QModelIndex>
 #include <QAbstractItemModel>
 
-class TokenViewDelegate;
 class WalletModel;
 class ClientModel;
 class TokenTransactionView;
