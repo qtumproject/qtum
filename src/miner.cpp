@@ -836,7 +836,28 @@ void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned
 // Looking for suitable coins for creating new block.
 //
 
-class DelegationsStaker : public IDelegationFilter
+class DelegationFilterBase : public IDelegationFilter
+{
+public:
+    bool GetKey(const std::string& strAddress, uint160& keyId)
+    {
+        CTxDestination destination = DecodeDestination(strAddress);
+        if (!IsValidDestination(destination)) {
+            return false;
+        }
+
+        const PKHash *pkhash = boost::get<PKHash>(&destination);
+        if (!pkhash) {
+            return false;
+        }
+
+        keyId = uint160(*pkhash);
+
+        return true;
+    }
+};
+
+class DelegationsStaker : public DelegationFilterBase
 {
 public:
     enum StakerType
@@ -945,23 +966,6 @@ public:
     }
 
 private:
-    bool GetKey(const std::string& strAddress, uint160& keyId)
-    {
-        CTxDestination destination = DecodeDestination(strAddress);
-        if (!IsValidDestination(destination)) {
-            return false;
-        }
-
-        const PKHash *pkhash = boost::get<PKHash>(&destination);
-        if (!pkhash) {
-            return false;
-        }
-
-        keyId = uint160(*pkhash);
-
-        return true;
-    }
-
     CWallet *pwallet;
     QtumDelegation qtumDelegations;
     int32_t cacheHeight;
@@ -970,6 +974,86 @@ private:
     std::vector<uint160> whiteList;
     std::vector<uint160> blackList;
     StakerType type;
+};
+
+class MyDelegations : public DelegationFilterBase
+{
+public:
+    MyDelegations(CWallet *_pwallet):
+        pwallet(_pwallet),
+        cacheHeight(0),
+        nCheckpointSpan(0)
+    {
+        nCheckpointSpan = Params().GetConsensus().nCheckpointSpan;
+    }
+
+    bool Match(const DelegationEvent& event) const
+    {
+        return pwallet->HaveKey(CKeyID(event.item.delegate));
+    }
+
+    void Update(int32_t nHeight)
+    {
+        if(fLogEvents)
+        {
+            // When log events are enabled, search the log events to get complete list of my delegations
+            if(nHeight <= nCheckpointSpan)
+            {
+                // Get delegations from events
+                std::vector<DelegationEvent> events;
+                qtumDelegations.FilterDelegationEvents(events, *this);
+                pwallet->m_my_delegations = qtumDelegations.DelegationsFromEvents(events);
+            }
+            else
+            {
+                // Update the cached delegations for the staker, older then the sync checkpoint (500 blocks)
+                int cpsHeight = nHeight - nCheckpointSpan;
+                if(cacheHeight < cpsHeight)
+                {
+                    std::vector<DelegationEvent> events;
+                    qtumDelegations.FilterDelegationEvents(events, *this, cacheHeight, cpsHeight);
+                    qtumDelegations.UpdateDelegationsFromEvents(events, cacheMyDelegations);
+                    cacheHeight = cpsHeight;
+                }
+
+                // Update the wallet delegations
+                std::vector<DelegationEvent> events;
+                qtumDelegations.FilterDelegationEvents(events, *this, cacheHeight + 1);
+                pwallet->m_my_delegations = cacheMyDelegations;
+                qtumDelegations.UpdateDelegationsFromEvents(events, pwallet->m_my_delegations);
+            }
+        }
+        else
+        {
+            // Log events are not enabled, search only the map that the user add delegations in the GUI
+            if(cacheHeight != nHeight)
+            {
+                cacheMyDelegations.clear();
+                for(auto item : pwallet->mapDelegation)
+                {
+                    uint160 address;
+                    if(GetKey(item.second.strDelegateAddress, address) && pwallet->HaveKey(CKeyID(address)))
+                    {
+                        Delegation delegation;
+                        if(qtumDelegations.GetDelegation(address, delegation) && QtumDelegation::VerifyDelegation(address, delegation))
+                        {
+                            cacheMyDelegations[address] = delegation;
+                        }
+                    }
+                }
+                pwallet->m_my_delegations = cacheMyDelegations;
+                cacheHeight = nHeight;
+            }
+        }
+    }
+
+private:
+
+    CWallet *pwallet;
+    QtumDelegation qtumDelegations;
+    int32_t cacheHeight;
+    int32_t nCheckpointSpan;
+    std::map<uint160, Delegation> cacheMyDelegations;
 };
 
 bool CheckStake(const std::shared_ptr<const CBlock> pblock, CWallet& wallet)
@@ -1033,6 +1117,7 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
     }
     bool fSuperStake = gArgs.GetBoolArg("-superstaking", DEFAULT_SUPER_STAKE);
     DelegationsStaker delegationsStaker(pwallet);
+    MyDelegations myDelegations(pwallet);
     int nOfflineStakeHeight = Params().GetConsensus().nOfflineStakeHeight;
     bool fDelegationsContract = !Params().GetConsensus().delegationsAddress.IsNull();
 
@@ -1071,6 +1156,7 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
         {
             auto locked_chain = pwallet->chain().lock();
             LOCK(pwallet->cs_wallet);
+            myDelegations.Update(::ChainActive().Height());
             pwallet->SelectCoinsForStaking(*locked_chain, nTargetValue, setCoins, nValueIn);
             if(fSuperStake && fDelegationsContract && (::ChainActive().Height() + 1) >= nOfflineStakeHeight)
             {

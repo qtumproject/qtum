@@ -1559,6 +1559,8 @@ public:
     static CConnman* defaultConnman;
 
     std::map<uint160, Delegation> m_delegations_staker;
+
+    std::map<uint160, Delegation> m_my_delegations;
 };
 
 /**
