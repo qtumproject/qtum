@@ -3928,7 +3928,6 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
         }
     }
     int64_t nCredit = 0;
-    CScript scriptPubKeyHashKernel;
     CScript scriptPubKeyKernel;
     CScript scriptPubKeyStaker;
     Delegation delegation;
@@ -3980,7 +3979,6 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
                     break;  // unable to find corresponding public key
                 }
                 scriptPubKeyStaker << key.GetPubKey().getvch() << OP_CHECKSIG;
-                scriptPubKeyHashKernel = scriptPubKeyKernel;
             }
             if (whichType == TX_PUBKEY)
             {
@@ -3997,7 +3995,6 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
                 }
 
                 scriptPubKeyStaker << key.GetPubKey().getvch() << OP_CHECKSIG;
-                scriptPubKeyHashKernel = CScript() << OP_DUP << OP_HASH160 << ToByteVector(hash160) << OP_EQUALVERIFY << OP_CHECKSIG;
             }
 
             delegateOutputExist = IsDelegateOutputExist(delegation.fee);
@@ -4017,7 +4014,7 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
             txNew.vout.push_back(CTxOut(0, scriptPubKeyStaker));
             if(delegateOutputExist)
             {
-                txNew.vout.push_back(CTxOut(0, scriptPubKeyHashKernel));
+                txNew.vout.push_back(CTxOut(0, scriptPubKeyKernel));
             }
 
             LogPrint(BCLog::COINSTAKE, "CreateCoinStake : added kernel type=%d\n", whichType);
@@ -4131,10 +4128,8 @@ const CWalletTx* CWallet::GetCoinSuperStaker(const std::set<std::pair<const CWal
     return 0;
 }
 
-
-bool CWallet::CreateCoinStake(interfaces::Chain::Lock& locked_chain, const FillableSigningProvider& keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setDelegateCoins, std::vector<unsigned char>& vchPoD, COutPoint& headerPrevout)
+bool CWallet::CanSuperStake(const std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, const std::vector<COutPoint>& setDelegateCoins) const
 {
-    // Can super stake
     bool canSuperStake = false;
     if(setDelegateCoins.size() > 0)
     {
@@ -4148,6 +4143,14 @@ bool CWallet::CreateCoinStake(interfaces::Chain::Lock& locked_chain, const Filla
             }
         }
     }
+
+    return canSuperStake;
+}
+
+bool CWallet::CreateCoinStake(interfaces::Chain::Lock& locked_chain, const FillableSigningProvider& keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setDelegateCoins, std::vector<unsigned char>& vchPoD, COutPoint& headerPrevout)
+{
+    // Can super stake
+    bool canSuperStake = CanSuperStake(setCoins, setDelegateCoins);
 
     // Create coinstake from coins that are delegated to me
     if(canSuperStake && CreateCoinStakeFromDelegate(locked_chain, keystore, nBits, nTotalFees, nTimeBlock, tx, key, setCoins, setDelegateCoins, vchPoD, headerPrevout))

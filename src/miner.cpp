@@ -1197,19 +1197,19 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
             auto locked_chain = pwallet->chain().lock();
             LOCK(pwallet->cs_wallet);
             int32_t nHeight = ::ChainActive().Height();
-            bool fOfflineStakeEnabled = (nHeight + 1) >= nOfflineStakeHeight;
+            bool fOfflineStakeEnabled = ((nHeight + 1) > nOfflineStakeHeight) && fDelegationsContract;
             if(fOfflineStakeEnabled)
             {
                 myDelegations.Update(*locked_chain, nHeight);
             }
             pwallet->SelectCoinsForStaking(*locked_chain, nTargetValue, setCoins, nValueIn);
-            if(fSuperStake && fDelegationsContract && fOfflineStakeEnabled)
+            if(fSuperStake && fOfflineStakeEnabled)
             {
-                delegationsStaker.Update(::ChainActive().Height());
+                delegationsStaker.Update(nHeight);
                 pwallet->SelectDelegateCoinsForStaking(*locked_chain, setDelegateCoins);
             }
         }
-        if(setCoins.size() > 0 || setDelegateCoins.size() > 0)
+        if(setCoins.size() > 0 || pwallet->CanSuperStake(setCoins, setDelegateCoins))
         {
             int64_t nTotalFees = 0;
             // First just create an empty block. No need to process transactions until we know we can create a block
