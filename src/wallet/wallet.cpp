@@ -2696,6 +2696,13 @@ void CWallet::AvailableCoinsForStaking(interfaces::Chain::Lock& locked_chain, st
                 !IsLockedCoin((*it).first, i) && (pcoin->tx->vout[i].nValue > 0) &&
                 !pcoin->tx->vout[i].scriptPubKey.HasOpCall() && !pcoin->tx->vout[i].scriptPubKey.HasOpCreate())
             {
+                // Check that the address is not delegated to other staker
+                bool OK = false;
+                uint160 keyId = uint160(ExtractPublicKeyHash(pcoin->tx->vout[i].scriptPubKey, &OK));
+                if(OK && m_my_delegations.find(keyId) != m_my_delegations.end())
+                    continue;
+
+                // Check prevout maturity
                 COutPoint prevout = COutPoint(pcoin->GetHash(), i);
                 if(immatureStakes.find(prevout) == immatureStakes.end())
                 {
@@ -3628,26 +3635,11 @@ uint64_t CWallet::GetStakeWeight(interfaces::Chain::Lock& locked_chain) const
 {
     uint64_t nWeight = 0;
 
-    // Get the weight of the delegated coins
-    std::vector<COutPoint> vDelegateCoins;
-    SelectDelegateCoinsForStaking(locked_chain, vDelegateCoins);
-    for(const COutPoint &prevout : vDelegateCoins)
-    {
-        Coin coinPrev;
-        if(!::ChainstateActive().CoinsTip().GetCoin(prevout, coinPrev)){
-            continue;
-        }
-
-        nWeight += coinPrev.out.nValue;
-    }
-
     // Choose coins to use
     CAmount nBalance = GetBalance().m_mine_trusted;
 
     if (nBalance <= m_reserve_balance)
         return nWeight;
-
-    std::vector<const CWalletTx*> vwtxPrev;
 
     std::set<std::pair<const CWalletTx*,unsigned int> > setCoins;
     CAmount nValueIn = 0;
@@ -3659,10 +3651,35 @@ uint64_t CWallet::GetStakeWeight(interfaces::Chain::Lock& locked_chain) const
     if (setCoins.empty())
         return nWeight;
 
+    bool canSuperStake = false;
     for(std::pair<const CWalletTx*,unsigned int> pcoin : setCoins)
     {
         if (pcoin.first->GetDepthInMainChain(locked_chain) >= COINBASE_MATURITY)
-            nWeight += pcoin.first->tx->vout[pcoin.second].nValue;
+        {
+            // Compute staker weight
+            CAmount nValue = pcoin.first->tx->vout[pcoin.second].nValue;
+            nWeight += nValue;
+
+            // Check if the staker can super stake
+            if(!canSuperStake && nValue >= DEFAULT_STAKING_MIN_UTXO_VALUE)
+                canSuperStake = true;
+        }
+    }
+
+    if(canSuperStake)
+    {
+        // Get the weight of the delegated coins
+        std::vector<COutPoint> vDelegateCoins;
+        SelectDelegateCoinsForStaking(locked_chain, vDelegateCoins);
+        for(const COutPoint &prevout : vDelegateCoins)
+        {
+            Coin coinPrev;
+            if(!::ChainstateActive().CoinsTip().GetCoin(prevout, coinPrev)){
+                continue;
+            }
+
+            nWeight += coinPrev.out.nValue;
+        }
     }
 
     return nWeight;
@@ -3911,7 +3928,6 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
         }
     }
     int64_t nCredit = 0;
-    CScript scriptPubKeyHashKernel;
     CScript scriptPubKeyKernel;
     CScript scriptPubKeyStaker;
     Delegation delegation;
@@ -3963,7 +3979,6 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
                     break;  // unable to find corresponding public key
                 }
                 scriptPubKeyStaker << key.GetPubKey().getvch() << OP_CHECKSIG;
-                scriptPubKeyHashKernel = scriptPubKeyKernel;
             }
             if (whichType == TX_PUBKEY)
             {
@@ -3980,7 +3995,6 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
                 }
 
                 scriptPubKeyStaker << key.GetPubKey().getvch() << OP_CHECKSIG;
-                scriptPubKeyHashKernel = CScript() << OP_DUP << OP_HASH160 << ToByteVector(hash160) << OP_EQUALVERIFY << OP_CHECKSIG;
             }
 
             delegateOutputExist = IsDelegateOutputExist(delegation.fee);
@@ -4000,7 +4014,7 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
             txNew.vout.push_back(CTxOut(0, scriptPubKeyStaker));
             if(delegateOutputExist)
             {
-                txNew.vout.push_back(CTxOut(0, scriptPubKeyHashKernel));
+                txNew.vout.push_back(CTxOut(0, scriptPubKeyKernel));
             }
 
             LogPrint(BCLog::COINSTAKE, "CreateCoinStake : added kernel type=%d\n", whichType);
@@ -4114,11 +4128,32 @@ const CWalletTx* CWallet::GetCoinSuperStaker(const std::set<std::pair<const CWal
     return 0;
 }
 
+bool CWallet::CanSuperStake(const std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, const std::vector<COutPoint>& setDelegateCoins) const
+{
+    bool canSuperStake = false;
+    if(setDelegateCoins.size() > 0)
+    {
+        for(const std::pair<const CWalletTx*,unsigned int> &pcoin : setCoins)
+        {
+            CAmount nValue = pcoin.first->tx->vout[pcoin.second].nValue;
+            if(nValue >= DEFAULT_STAKING_MIN_UTXO_VALUE)
+            {
+                canSuperStake = true;
+                break;
+            }
+        }
+    }
+
+    return canSuperStake;
+}
 
 bool CWallet::CreateCoinStake(interfaces::Chain::Lock& locked_chain, const FillableSigningProvider& keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setDelegateCoins, std::vector<unsigned char>& vchPoD, COutPoint& headerPrevout)
 {
+    // Can super stake
+    bool canSuperStake = CanSuperStake(setCoins, setDelegateCoins);
+
     // Create coinstake from coins that are delegated to me
-    if(setCoins.size() > 0 && setDelegateCoins.size() > 0 && CreateCoinStakeFromDelegate(locked_chain, keystore, nBits, nTotalFees, nTimeBlock, tx, key, setCoins, setDelegateCoins, vchPoD, headerPrevout))
+    if(canSuperStake && CreateCoinStakeFromDelegate(locked_chain, keystore, nBits, nTotalFees, nTimeBlock, tx, key, setCoins, setDelegateCoins, vchPoD, headerPrevout))
         return true;
 
     // Create coinstake from coins that are mine
