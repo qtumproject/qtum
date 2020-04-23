@@ -11,6 +11,61 @@
 #include <crypto/common.h>
 #include <pubkey.h>
 
+// Used to serialize the header without signature
+// Workaround due to removing serialization templates in Bitcoin Core 0.18
+class CBlockHeaderSign
+{
+public:
+    CBlockHeaderSign(const CBlockHeader& header)
+    {
+        fHasProofOfDelegation = header.HasProofOfDelegation();
+        nVersion = header.nVersion;
+        hashPrevBlock = header.hashPrevBlock;
+        hashMerkleRoot = header.hashMerkleRoot;
+        nTime = header.nTime;
+        nBits = header.nBits;
+        nNonce = header.nNonce;
+        hashStateRoot = header.hashStateRoot;
+        hashUTXORoot = header.hashUTXORoot;
+        prevoutStake = header.prevoutStake;
+        vchBlockDlgt = header.GetProofOfDelegation();
+    }
+
+    ADD_SERIALIZE_METHODS;
+
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action) {
+        READWRITE(this->nVersion);
+        READWRITE(hashPrevBlock);
+        READWRITE(hashMerkleRoot);
+        READWRITE(nTime);
+        READWRITE(nBits);
+        READWRITE(nNonce);
+        READWRITE(hashStateRoot);
+        READWRITE(hashUTXORoot);
+        READWRITE(prevoutStake);
+        if(fHasProofOfDelegation)
+        {
+            READWRITE(vchBlockDlgt);
+        }
+    }
+
+private:
+    bool fHasProofOfDelegation;
+
+    // header without signature
+    int32_t nVersion;
+    uint256 hashPrevBlock;
+    uint256 hashMerkleRoot;
+    uint32_t nTime;
+    uint32_t nBits;
+    uint32_t nNonce;
+    uint256 hashStateRoot;
+    uint256 hashUTXORoot;
+    COutPoint prevoutStake;
+    std::vector<unsigned char> vchBlockDlgt;
+};
+
 uint256 CBlockHeader::GetHash() const
 {
     return SerializeHash(*this);
@@ -18,7 +73,7 @@ uint256 CBlockHeader::GetHash() const
 
 uint256 CBlockHeader::GetHashWithoutSign() const
 {
-    return SerializeHash(*(CBlockHeaderBase*)this, SER_GETHASH);
+    return SerializeHash(CBlockHeaderSign(*this), SER_GETHASH);
 }
 
 std::string CBlock::ToString() const
@@ -66,4 +121,29 @@ std::vector<unsigned char> CBlockHeader::GetProofOfDelegation() const
 bool CBlockHeader::HasProofOfDelegation() const
 {
     return vchBlockSigDlgt.size() >= 2 * CPubKey::COMPACT_SIGNATURE_SIZE;
+}
+
+void CBlockHeader::SetBlockSignature(const std::vector<unsigned char> &vchSign)
+{
+    if(HasProofOfDelegation())
+    {
+        std::vector<unsigned char> vchPoD = GetProofOfDelegation();
+        vchBlockSigDlgt = vchSign;
+        vchBlockSigDlgt.insert(vchBlockSigDlgt.end(), vchPoD.begin(), vchPoD.end());
+    }
+    else
+    {
+        vchBlockSigDlgt = vchSign;
+    }
+}
+
+void CBlockHeader::SetProofOfDelegation(const std::vector<unsigned char> &vchPoD)
+{
+    std::vector<unsigned char> vchSign = GetBlockSignature();
+    if(vchSign.size() != CPubKey::COMPACT_SIGNATURE_SIZE)
+    {
+        vchSign.resize(CPubKey::COMPACT_SIGNATURE_SIZE, 0);
+    }
+    vchBlockSigDlgt = vchSign;
+    vchBlockSigDlgt.insert(vchBlockSigDlgt.end(), vchPoD.begin(), vchPoD.end());
 }
