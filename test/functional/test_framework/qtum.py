@@ -7,6 +7,8 @@ from .blocktools import *
 from .key import *
 from .segwit_addr import *
 import io
+import base64
+import math
 
 def make_transaction(node, vin, vout):
     tx = CTransaction()
@@ -356,7 +358,6 @@ def collect_prevouts(node, amount=None, address=None, min_confirmations=COINBASE
                 break
         else:
             assert(False)
-
         if unspent['confirmations'] > min_confirmations and (not amount or amount == unspent['amount']) and (not address or address == unspent['address']):
             staking_prevouts.append((COutPoint(int(unspent['txid'], 16), unspent['vout']), int(unspent['amount']*COIN), tx_block_time))
     return staking_prevouts
@@ -463,3 +464,101 @@ def activate_mpos(node, use_cache=True):
             if prevout[0].serialize() == block.prevoutStake.serialize():
                 staking_prevouts.pop(j)
                 break
+
+def wif_to_ECKey(wif):
+    _, privkey, _ = base58_to_byte(wif, 38)
+    bytes_privkey = hex_str_to_bytes(str(privkey)[2:-1])
+    key = ECKey()
+    # Assume always compressed, ignore last byte which specifies compression
+    key.set(bytes_privkey[:-1], True)
+    return key
+
+def create_POD(delegator, delegator_address, staker_address):
+    hex_hash = p2pkh_to_hex_hash(staker_address)
+    b64_signature = delegator.signmessage(delegator_address, hex_hash)
+    bytes_signature = base64.b64decode(b64_signature)
+    return bytes_signature
+
+def assert_delegation_reverted_with_message(delegator, abi, sender, message, gas=2250000):
+    txid = delegator.sendtocontract(DELEGATION_CONTRACT_ADDRESS, abi, 0, gas, 0.00000040, sender)['txid']
+    delegator.generate(1)
+    receipt = delegator.gettransactionreceipt(txid)[0]
+    assert_equal(receipt['excepted'], 'Revert')
+    assert_equal(receipt['exceptedMessage'], message)
+    #print("[+] passed " + message)
+
+def assert_delegation_events_emitted(delegator, abi, sender, events=[], delegations={}, gas=2250000, expected_gas_consumed=0):
+    txid = delegator.sendtocontract(DELEGATION_CONTRACT_ADDRESS, abi, 0, gas, 0.00000040, sender)['txid']
+    delegator.generate(1)
+    receipt = delegator.gettransactionreceipt(txid)[0]
+
+    # Verify the fields of the log are as expected
+    for ret, expected in zip(receipt['log'], events):
+        for ret_indexed, expected_indexed in zip(ret['topics'], expected['topics']):
+            assert_equal(ret_indexed, expected_indexed)
+        assert_equal(ret['data'], expected['data'])
+
+    # Check the state of the delegation attribute
+    for delegate, delegate_data in delegations.items():
+        out = delegator.callcontract(DELEGATION_CONTRACT_ADDRESS, "bffe3486" + delegate.zfill(64))['executionResult']['output']
+        assert_equal(out[:64], delegate_data['staker'].zfill(64))
+        assert_equal(out[64:128], delegate_data['fee'].zfill(64))
+        assert_equal(out[128:192], delegate_data['blockHeight'].zfill(64))
+        assert_equal(out[192:], "80".zfill(64) + hex(65 if delegate_data['pod'] else 0)[2:].zfill(64) + delegate_data['pod'])
+    
+    # Make sure we consume the minimum gas expected
+    assert(receipt['gasUsed'] > expected_gas_consumed)
+
+def delegate_to_staker(delegator, delegator_address, staker_address, fee, pod):
+    padded_hex_pod = bytes_to_hex_str(pod) + "00"*31
+    fee_hex = hex(fee)[2:]
+    expected_block_height = hex(delegator.getblockcount()+1)[2:]
+    staker_address_hex = p2pkh_to_hex_hash(staker_address)
+    delegator_address_hex = p2pkh_to_hex_hash(delegator_address)
+    abi = "4c0e968c"
+    abi += staker_address_hex.zfill(64)
+    abi += fee_hex.zfill(64)
+    abi += "60".zfill(64)
+    abi += hex(65)[2:].zfill(64)
+    abi += padded_hex_pod
+    assert_delegation_events_emitted(delegator, abi, delegator_address, events=[{
+        "topics": [
+            'a23803f3b2b56e71f2921c22b23c32ef596a439dbe03f7250e6b58a30eb910b5', # keccak256 of AddDelegation(...)
+            staker_address_hex.zfill(64), # staker
+            delegator_address_hex.zfill(64) # delegate
+        ],
+        # fee + block.number + offsetofpod + sizeofpod + pod
+        "data": fee_hex.zfill(64) + expected_block_height.zfill(64) + "60".zfill(64) + hex(65)[2:].zfill(64) + padded_hex_pod
+    }], delegations={
+        delegator_address_hex: {
+            "fee": fee_hex,
+            "staker": staker_address_hex,
+            "blockHeight": expected_block_height,
+            "pod": padded_hex_pod
+        }
+    }, expected_gas_consumed=2000000)
+
+
+def create_delegated_pos_block(staker, staker_eckey, staker_prevout, delegator_address_hex, pod, staking_fee_percentage, delegator_prevouts, nFees=0, nTime=None):
+    block, k = create_unsigned_pos_block(staker, delegator_prevouts, nTime=nTime)
+    # change the vin from the staker input to the delegator input
+    staker_nas_txout = staker.gettxout(hex(staker_prevout.hash)[2:].zfill(64), staker_prevout.n)
+    staker_nas_input_value = int(float(str(staker_nas_txout['value']))*COIN)
+
+    block.vtx[1].vin[0] = CTxIn(staker_prevout)
+    block.vtx[1].vout[1].scriptPubKey = CScript([staker_eckey.get_pubkey().get_bytes(), OP_CHECKSIG])
+    block.vtx[1].vout[1].nValue = ((INITIAL_BLOCK_REWARD*COIN+nFees) * staking_fee_percentage) // 100
+    block.vtx[1].vout[2].scriptPubKey = CScript([OP_DUP, OP_HASH160, hex_str_to_bytes(delegator_address_hex), OP_EQUALVERIFY, OP_CHECKSIG])
+    block.vtx[1].vout[2].nValue = (INITIAL_BLOCK_REWARD*COIN+nFees) - block.vtx[1].vout[1].nValue # subtract the staker's reward to get the delegator's reward (the delegator will ceil)
+    block.vtx[1].vout[1].nValue += staker_nas_input_value # add the input value for the staker
+    block.vtx[1] = rpc_sign_transaction(staker, block.vtx[1])
+    block.vtx[1].rehash()
+    block.hashMerkleRoot = block.calc_merkle_root()
+    block.rehash()
+    block.sign_block(staker_eckey)
+    block.vchBlockSig = block.vchBlockSig + pod
+    block.rehash()
+    print(block.vtx[1].vout[1].nValue, block.vtx[1].vout[2].nValue)
+    return block
+
+
