@@ -69,45 +69,6 @@
           </property>
          </widget>
         </item>
-        <item>
-         <spacer name="horizontalSpacer_4">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Fixed</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QLabel" name="labelFee">
-          <property name="text">
-           <string>Fee</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSpinBox" name="sbFee">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-          <property name="suffix">
-           <string>%</string>
-          </property>
-         </widget>
-        </item>
        </layout>
       </item>
       <item>
@@ -223,21 +184,21 @@
             <property name="horizontalSpacing">
              <number>30</number>
             </property>
-            <item row="0" column="0">
+            <item row="1" column="0">
              <widget class="QLabel" name="labelMinUtxo">
               <property name="text">
                <string>Minimum UTXO value</string>
               </property>
              </widget>
             </item>
-            <item row="1" column="0">
+            <item row="2" column="0">
              <widget class="QLabel" name="labelListType">
               <property name="text">
                <string>Delegation list type</string>
               </property>
              </widget>
             </item>
-            <item row="1" column="1">
+            <item row="2" column="1">
              <widget class="QComboBox" name="cbListType">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -247,17 +208,17 @@
               </property>
              </widget>
             </item>
-            <item row="2" column="0" alignment="Qt::AlignTop">
+            <item row="3" column="0" alignment="Qt::AlignTop">
              <widget class="QLabel" name="labelAddressList">
               <property name="text">
                <string>Address list</string>
               </property>
              </widget>
             </item>
-            <item row="2" column="1">
+            <item row="3" column="1">
              <widget class="QValidatedTextEdit" name="textAddressList"/>
             </item>
-            <item row="3" column="0">
+            <item row="4" column="0">
              <spacer name="verticalSpacer">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
@@ -270,8 +231,31 @@
               </property>
              </spacer>
             </item>
-            <item row="0" column="1">
+            <item row="1" column="1">
              <widget class="BitcoinAmountField" name="leMinUtxo"/>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="labelMinFee">
+              <property name="text">
+               <string>Minimum fee</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QSpinBox" name="sbMinFee">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+              <property name="suffix">
+               <string>%</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </widget>

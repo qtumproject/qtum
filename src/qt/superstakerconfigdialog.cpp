@@ -27,8 +27,8 @@ SuperStakerConfigDialog::SuperStakerConfigDialog(QWidget *parent) :
     d = new SuperStakerConfigDialogPriv();
 
     // Set defaults
-    ui->sbFee->setMinimum(0);
-    ui->sbFee->setMaximum(100);
+    ui->sbMinFee->setMinimum(0);
+    ui->sbMinFee->setMaximum(100);
 
     ui->leMinUtxo->SetMinValue(DEFAULT_STAKING_MIN_UTXO_VALUE);
     ui->leMinUtxo->setValue(DEFAULT_STAKING_MIN_UTXO_VALUE);
@@ -43,7 +43,7 @@ SuperStakerConfigDialog::SuperStakerConfigDialog(QWidget *parent) :
     connect(ui->cbCustom, &QCheckBox::stateChanged, this, &SuperStakerConfigDialog::changeConfigEnabled);
     connect(ui->cbListType, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &SuperStakerConfigDialog::chooseAddressType);
 
-    connect(ui->sbFee, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &SuperStakerConfigDialog::on_enableOkButton);
+    connect(ui->sbMinFee, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &SuperStakerConfigDialog::on_enableOkButton);
     connect(ui->leMinUtxo, &BitcoinAmountField::valueChanged, this,  &SuperStakerConfigDialog::on_enableOkButton);
     connect(ui->cbListType, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &SuperStakerConfigDialog::on_enableOkButton);
     connect(ui->textAddressList, &QValidatedTextEdit::textChanged, this, &SuperStakerConfigDialog::on_enableOkButton);
@@ -150,6 +150,6 @@ void SuperStakerConfigDialog::on_enableOkButton()
 
 void SuperStakerConfigDialog::updateData()
 {
-    ui->sbFee->setValue(d->fee);
+    ui->sbMinFee->setValue(d->fee);
     ui->txtStaker->setText(d->address);
 }
