@@ -44,6 +44,7 @@ QT_FORMS_UI = \
   qt/forms/sendtocontract.ui \
   qt/forms/sendtokenpage.ui \
   qt/forms/signverifymessagedialog.ui \
+  qt/forms/splitutxopage.ui \
   qt/forms/superstakeritemwidget.ui \
   qt/forms/superstakerconfigdialog.ui \
   qt/forms/superstakerpage.ui \
@@ -123,6 +124,7 @@ QT_MOC_CPP = \
   qt/moc_sendtokenpage.cpp \
   qt/moc_signverifymessagedialog.cpp \
   qt/moc_splashscreen.cpp \
+  qt/moc_splitutxopage.cpp \
   qt/moc_superstakeritemwidget.cpp \
   qt/moc_superstakerlistwidget.cpp \
   qt/moc_superstakerconfigdialog.cpp \
@@ -260,6 +262,7 @@ BITCOIN_QT_H = \
   qt/sendtokenpage.h \
   qt/signverifymessagedialog.h \
   qt/splashscreen.h \
+  qt/splitutxopage.h \
   qt/stakepage.h \
   qt/stakerdelegationview.h \
   qt/styleSheet.h \
@@ -395,6 +398,7 @@ BITCOIN_QT_BASE_CPP = \
   qt/qvaluecombobox.cpp \
   qt/rpcconsole.cpp \
   qt/splashscreen.cpp \
+  qt/splitutxopage.cpp \
   qt/styleSheet.cpp \
   qt/tabbarinfo.cpp \
   qt/titlebar.cpp \
