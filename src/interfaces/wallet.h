@@ -361,6 +361,9 @@ public:
     //! Get super staker information.
     virtual SuperStakerInfo getSuperStaker(const uint256& id) = 0;
 
+    //! Get super staker recommended config.
+    virtual SuperStakerInfo getSuperStakerRecommendedConfig() = 0;
+
     //! Get list of all super stakers.
     virtual std::vector<SuperStakerInfo> getSuperStakers() = 0;
 
@@ -648,6 +651,14 @@ struct DelegationDetails
         info.staker_name = w_staker_name;
         return info;
     }
+};
+
+// Super staker address list
+enum SuperStakerAddressList
+{
+    AcceptAll = 0,
+    WhiteList = 1,
+    BlackList = 2
 };
 
 // Wallet super staker information.

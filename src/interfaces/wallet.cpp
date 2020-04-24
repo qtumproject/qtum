@@ -1098,6 +1098,53 @@ public:
         }
         return {};
     }
+    SuperStakerInfo getSuperStakerRecommendedConfig() override
+    {
+        LOCK(m_wallet->cs_wallet);
+
+        // Set recommended config
+        SuperStakerInfo config;
+        config.custom_config = false;
+        config.min_fee = m_wallet->m_staking_min_fee;
+        config.min_delegate_utxo = m_wallet->m_staking_min_utxo_value;
+        config.delegate_address_type = SuperStakerAddressList::AcceptAll;
+
+        // Get white list
+        std::vector<std::string> whiteList;
+        for (const std::string& strAddress : gArgs.GetArgs("-stakingwhitelist"))
+        {
+            if(!StringToKeyId(strAddress).IsNull())
+            {
+                if(std::find(whiteList.begin(), whiteList.end(), strAddress) == whiteList.end())
+                    whiteList.push_back(strAddress);
+            }
+        }
+
+        // Get black list
+        std::vector<std::string> blackList;
+        for (const std::string& strAddress : gArgs.GetArgs("-stakingblacklist"))
+        {
+            if(!StringToKeyId(strAddress).IsNull())
+            {
+                if(std::find(blackList.begin(), blackList.end(), strAddress) == blackList.end())
+                    blackList.push_back(strAddress);
+            }
+        }
+
+        // Set the address list
+        if(!whiteList.empty())
+        {
+            config.delegate_address_type =  SuperStakerAddressList::WhiteList;
+            config.delegate_address_list = whiteList;
+        }
+        else if(!blackList.empty())
+        {
+            config.delegate_address_type = SuperStakerAddressList::BlackList;
+            config.delegate_address_list = blackList;
+        }
+
+        return config;
+    }
     std::vector<SuperStakerInfo> getSuperStakers() override
     {
         LOCK(m_wallet->cs_wallet);

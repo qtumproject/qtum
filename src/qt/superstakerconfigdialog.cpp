@@ -17,6 +17,8 @@ public:
     QString address;
     int fee;
     QString hash;
+
+    interfaces::SuperStakerInfo recommended;
 };
 
 SuperStakerConfigDialog::SuperStakerConfigDialog(QWidget *parent) :
@@ -66,6 +68,11 @@ void SuperStakerConfigDialog::setModel(WalletModel *_model)
 
     if (m_model && m_model->getOptionsModel())
         connect(m_model->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &SuperStakerConfigDialog::updateDisplayUnit);
+
+    if(m_model)
+    {
+        d->recommended = m_model->wallet().getSuperStakerRecommendedConfig();
+    }
 
     // update the display unit, to not use the default ("QTUM")
     updateDisplayUnit();
@@ -150,6 +157,17 @@ void SuperStakerConfigDialog::on_enableOkButton()
 
 void SuperStakerConfigDialog::updateData()
 {
-    ui->sbMinFee->setValue(d->fee);
     ui->txtStaker->setText(d->address);
+    if(ui->cbRecommended->isChecked())
+    {
+        ui->sbMinFee->setValue(d->recommended.min_fee);
+        ui->leMinUtxo->setValue(d->recommended.min_delegate_utxo);
+        ui->cbListType->setCurrentIndex(d->recommended.delegate_address_type);
+        QStringList addressList;
+        for(std::string sAddress : d->recommended.delegate_address_list)
+        {
+            addressList.append(QString::fromStdString(sAddress));
+        }
+        ui->textAddressList->setLines(addressList);
+    }
 }
