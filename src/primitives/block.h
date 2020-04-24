@@ -18,12 +18,10 @@
  * of the block.
  */
 
-// Base class for block header, used to serialize the header without signature
-// Workaround due to removing serialization templates in Bitcoin Core 0.18
-class CBlockHeaderBase
+class CBlockHeader
 {
 public:
-    // header without signature
+    // header
     int32_t nVersion;
     uint256 hashPrevBlock;
     uint256 hashMerkleRoot;
@@ -34,27 +32,6 @@ public:
     uint256 hashUTXORoot; // qtum
     // proof-of-stake specific fields
     COutPoint prevoutStake;
-
-    ADD_SERIALIZE_METHODS;
-
-    template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action) {
-        READWRITE(this->nVersion);
-        READWRITE(hashPrevBlock);
-        READWRITE(hashMerkleRoot);
-        READWRITE(nTime);
-        READWRITE(nBits);
-        READWRITE(nNonce);
-        READWRITE(hashStateRoot); // qtum
-        READWRITE(hashUTXORoot); // qtum
-        READWRITE(prevoutStake);
-    }
-};
-
-class CBlockHeader : public CBlockHeaderBase
-{
-public:
-    // header
     std::vector<unsigned char> vchBlockSigDlgt; // The delegate is 65 bytes or 0 bytes, it can be added in the signature paramether at the end to avoid compatibility problems
     CBlockHeader()
     {
@@ -126,8 +103,10 @@ public:
         return ret;
     }
 
+    void SetBlockSignature(const std::vector<unsigned char>& vchSign);
     std::vector<unsigned char> GetBlockSignature() const;
 
+    void SetProofOfDelegation(const std::vector<unsigned char>& vchPoD);
     std::vector<unsigned char> GetProofOfDelegation() const;
 
     bool HasProofOfDelegation() const;

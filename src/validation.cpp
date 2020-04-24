@@ -4764,12 +4764,14 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
             // Sign block
             if (::ChainActive().Height() + 1 >= Params().GetConsensus().nOfflineStakeHeight)
             {
-                // append a signature to our block and ensure that is compact
-                bool isSigned = key.SignCompact(pblock->GetHashWithoutSign(), pblock->vchBlockSigDlgt);
-
                 // append PoD to the end of the block header
                 if(vchPoD.size() > 0)
-                    pblock->vchBlockSigDlgt.insert(pblock->vchBlockSigDlgt.end(), vchPoD.begin(), vchPoD.end());
+                    pblock->SetProofOfDelegation(vchPoD);
+
+                // append a signature to our block and ensure that is compact
+                std::vector<unsigned char> vchSig;
+                bool isSigned = key.SignCompact(pblock->GetHashWithoutSign(), vchSig);
+                pblock->SetBlockSignature(vchSig);
 
                 // check block header
                 return isSigned && CheckHeaderPoS(*pblock, Params().GetConsensus());
