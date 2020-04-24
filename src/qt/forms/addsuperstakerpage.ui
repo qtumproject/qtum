@@ -56,27 +56,17 @@
      <property name="verticalSpacing">
       <number>15</number>
      </property>
-     <item row="1" column="0">
-      <widget class="QLabel" name="labelFee">
-       <property name="minimumSize">
-        <size>
-         <width>100</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Fee</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="labelStaker">
-       <property name="text">
-        <string>Staker</string>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="1">
+      <widget class="AddressField" name="lineEditStakerAddress">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
       <widget class="QSpinBox" name="spinBoxFee">
        <property name="minimumSize">
         <size>
@@ -92,15 +82,47 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="AddressField" name="lineEditStaker">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
+     <item row="1" column="0">
+      <widget class="QLabel" name="labelStakerAddress">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Staker address</string>
        </property>
       </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="labelFee">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Fee</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="labelStakerName">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Staker name</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="lineEditStakerName"/>
      </item>
     </layout>
    </item>

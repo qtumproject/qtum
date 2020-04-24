@@ -20,7 +20,8 @@ AddSuperStakerPage::AddSuperStakerPage(QWidget *parent) :
     ui->spinBoxFee->setMaximum(100);
     ui->spinBoxFee->setValue(DEFAULT_STAKING_MIN_FEE);
 
-    connect(ui->lineEditStaker, &QComboBox::currentTextChanged, this, &AddSuperStakerPage::on_updateAddStakerButton);
+    connect(ui->lineEditStakerName, &QLineEdit::textChanged, this, &AddSuperStakerPage::on_updateAddStakerButton);
+    connect(ui->lineEditStakerAddress, &QComboBox::currentTextChanged, this, &AddSuperStakerPage::on_updateAddStakerButton);
 }
 
 AddSuperStakerPage::~AddSuperStakerPage()
@@ -33,14 +34,15 @@ void AddSuperStakerPage::setModel(WalletModel *_model)
     m_model = _model;
     if(m_model)
     {
-        ui->lineEditStaker->setWalletModel(m_model);
+        ui->lineEditStakerAddress->setWalletModel(m_model);
     }
 }
 
 void AddSuperStakerPage::clearAll()
 {
+    ui->lineEditStakerName->setText("");
+    ui->lineEditStakerAddress->setCurrentIndex(-1);
     ui->spinBoxFee->setValue(DEFAULT_STAKING_MIN_FEE);
-    ui->lineEditStaker->setCurrentIndex(-1);
 }
 
 void AddSuperStakerPage::accept()
@@ -57,7 +59,7 @@ void AddSuperStakerPage::reject()
 
 void AddSuperStakerPage::show()
 {
-    ui->lineEditStaker->setFocus();
+    ui->lineEditStakerName->setFocus();
     QDialog::show();
 }
 
@@ -69,8 +71,13 @@ void AddSuperStakerPage::on_cancelButton_clicked()
 void AddSuperStakerPage::on_updateAddStakerButton()
 {
     bool enabled = true;
-    QString staker = ui->lineEditStaker->currentText();
-    if(staker.isEmpty() || !ui->lineEditStaker->isValidAddress())
+    QString stakerName = ui->lineEditStakerName->text();
+    QString stakerAddress = ui->lineEditStakerAddress->currentText();
+    if(stakerName.isEmpty())
+    {
+        enabled = false;
+    }
+    if(stakerAddress.isEmpty() || !ui->lineEditStakerAddress->isValidAddress())
     {
         enabled = false;
     }
@@ -88,10 +95,12 @@ void AddSuperStakerPage::on_addSuperStakerButton_clicked()
             QMessageBox::information(this, tr("Super staking"), tr("Enable super staking from the option menu in order to start the super staker."));
         }
 
-        QString stakerAddress = ui->lineEditStaker->currentText();
+        QString stakerAddress = ui->lineEditStakerAddress->currentText();
+        QString stakerName = ui->lineEditStakerName->text();
         int stakerFee = ui->spinBoxFee->value();
         interfaces::SuperStakerInfo superStaker;
         superStaker.staker_address = stakerAddress.toStdString();
+        superStaker.staker_name = stakerName.toStdString();
         superStaker.min_fee = stakerFee;
         m_model->wallet().addSuperStakerEntry(superStaker);
         accept();
