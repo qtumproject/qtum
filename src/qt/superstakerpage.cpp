@@ -34,7 +34,7 @@ SuperStakerPage::SuperStakerPage(const PlatformStyle *platformStyle, QWidget *pa
     m_delegationsSuperStakerPage->setEnabled(false);
 
     QAction *copyStakerAction = new QAction(tr("Copy staker address"), this);
-    QAction *copyStekerFeeAction = new QAction(tr("Copy staker fee"), this);
+    QAction *copyStekerMinFeeAction = new QAction(tr("Copy staker minimum fee"), this);
     QAction *configSuperStakerAction = new QAction(tr("Configure super staker"), this);
     QAction *removeSuperStakerAction = new QAction(tr("Remove super staker"), this);
 
@@ -50,11 +50,11 @@ SuperStakerPage::SuperStakerPage(const PlatformStyle *platformStyle, QWidget *pa
 
     contextMenu = new QMenu(m_superStakerList);
     contextMenu->addAction(copyStakerAction);
-    contextMenu->addAction(copyStekerFeeAction);
+    contextMenu->addAction(copyStekerMinFeeAction);
     contextMenu->addAction(configSuperStakerAction);
     contextMenu->addAction(removeSuperStakerAction);
 
-    connect(copyStekerFeeAction, &QAction::triggered, this, &SuperStakerPage::copyStekerFee);
+    connect(copyStekerMinFeeAction, &QAction::triggered, this, &SuperStakerPage::copyStekerMinFee);
     connect(copyStakerAction, &QAction::triggered, this, &SuperStakerPage::copyStakerAddress);
     connect(configSuperStakerAction, &QAction::triggered, this, &SuperStakerPage::configSuperStaker);
     connect(removeSuperStakerAction, &QAction::triggered, this, &SuperStakerPage::removeSuperStaker);
@@ -112,9 +112,9 @@ void SuperStakerPage::on_currentSuperStakerChanged(QModelIndex index)
             QString hash = m_superStakerList->superStakerModel()->data(index, SuperStakerItemModel::HashRole).toString();
             m_selectedSuperStakerHash = hash;
             QString address = m_superStakerList->superStakerModel()->data(index, SuperStakerItemModel::StakerRole).toString();
-            int fee = m_superStakerList->superStakerModel()->data(index, SuperStakerItemModel::FeeRole).toInt();
-            m_configSuperStakerPage->setSuperStakerData(address, fee, hash);
-            m_delegationsSuperStakerPage->setSuperStakerData(address, fee, hash);
+            int minFee = m_superStakerList->superStakerModel()->data(index, SuperStakerItemModel::MinFeeRole).toInt();
+            m_configSuperStakerPage->setSuperStakerData(address, minFee, hash);
+            m_delegationsSuperStakerPage->setSuperStakerData(address, minFee, hash);
 
             if(!m_configSuperStakerPage->isEnabled())
                 m_configSuperStakerPage->setEnabled(true);
@@ -178,11 +178,11 @@ void SuperStakerPage::contextualMenu(const QPoint &point)
     }
 }
 
-void SuperStakerPage::copyStekerFee()
+void SuperStakerPage::copyStekerMinFee()
 {
     if(indexMenu.isValid())
     {
-        GUIUtil::setClipboard(indexMenu.data(SuperStakerItemModel::FormattedFeeRole).toString());
+        GUIUtil::setClipboard(indexMenu.data(SuperStakerItemModel::FormattedMinFeeRole).toString());
         indexMenu = QModelIndex();
     }
 }

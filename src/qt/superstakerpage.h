@@ -41,7 +41,7 @@ public Q_SLOTS:
     void on_currentChanged(QModelIndex current, QModelIndex previous);
     void on_rowsInserted(QModelIndex index, int first, int last);
     void contextualMenu(const QPoint &);
-    void copyStekerFee();
+    void copyStekerMinFee();
     void copyStakerAddress();
     void configSuperStaker();
     void removeSuperStaker();

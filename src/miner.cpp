@@ -1061,8 +1061,8 @@ public:
                 // Get all addreses for delegations in the GUI
                 for(auto item : pwallet->mapDelegation)
                 {
-                    uint160 address;
-                    if(GetKey(item.second.strDelegateAddress, address) && pwallet->HaveKey(CKeyID(address)))
+                    uint160 address = item.second.delegateAddress;
+                    if(pwallet->HaveKey(CKeyID(address)))
                     {
                         if (mapAddress.find(address) == mapAddress.end())
                         {

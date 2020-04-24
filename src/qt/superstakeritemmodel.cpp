@@ -22,7 +22,7 @@ public:
     {
         hash = superStakerInfo.hash;
         stakerAddress = QString::fromStdString(superStakerInfo.staker_address);
-        fee = superStakerInfo.fee;
+        minFee = superStakerInfo.min_fee;
         staking = false;
     }
 
@@ -30,7 +30,7 @@ public:
     {
         hash = obj.hash;
         stakerAddress = obj.stakerAddress;
-        fee = obj.fee;
+        minFee = obj.minFee;
         staking = obj.staking;
     }
 
@@ -39,7 +39,7 @@ public:
 
     uint256 hash;
     QString stakerAddress;
-    quint8 fee;
+    quint8 minFee;
     bool staking;
 };
 
@@ -53,7 +53,7 @@ public:
         walletModel(_walletModel), first(true) {}
 
 private Q_SLOTS:
-    void updateSuperStakerData(QString hash, QString stakerAddress, quint8 fee)
+    void updateSuperStakerData(QString hash, QString stakerAddress, quint8 minFee)
     {
     }
 
@@ -173,7 +173,7 @@ SuperStakerItemModel::SuperStakerItemModel(WalletModel *parent):
     priv(0),
     worker(0)
 {
-    columns << tr("Staker") << tr("Fee") << tr("Staking");
+    columns << tr("Staker") << tr("Minimum Fee") << tr("Staking");
 
     priv = new SuperStakerItemPriv(this);
     priv->refreshSuperStakerItem(walletModel->wallet());
@@ -242,8 +242,8 @@ QVariant SuperStakerItemModel::data(const QModelIndex &index, int role) const
         {
         case Staker:
             return rec->stakerAddress;
-        case Fee:
-            return rec->fee;
+        case MinFee:
+            return rec->minFee;
         case Staking:
             return rec->staking;
         default:
@@ -256,14 +256,14 @@ QVariant SuperStakerItemModel::data(const QModelIndex &index, int role) const
     case SuperStakerItemModel::StakerRole:
         return rec->stakerAddress;
         break;
-    case SuperStakerItemModel::FeeRole:
-        return rec->fee;
+    case SuperStakerItemModel::MinFeeRole:
+        return rec->minFee;
         break;
     case SuperStakerItemModel::StakingRole:
         return rec->staking;
         break;
-    case SuperStakerItemModel::FormattedFeeRole:
-        return formatFee(rec);
+    case SuperStakerItemModel::FormattedMinFeeRole:
+        return formatMinFee(rec);
         break;
     default:
         break;
@@ -358,10 +358,10 @@ void SuperStakerItemModel::updateSuperStakerData(const SuperStakerItemEntry &ent
     QMetaObject::invokeMethod(worker, "updateSuperStakerData", Qt::QueuedConnection,
                               Q_ARG(QString, hash),
                               Q_ARG(QString, entry.stakerAddress),
-                              Q_ARG(quint8, entry.fee));
+                              Q_ARG(quint8, entry.minFee));
 }
 
-QString SuperStakerItemModel::formatFee(const SuperStakerItemEntry *rec) const
+QString SuperStakerItemModel::formatMinFee(const SuperStakerItemEntry *rec) const
 {
-    return QString("%1%").arg(rec->fee);
+    return QString("%1%").arg(rec->minFee);
 }

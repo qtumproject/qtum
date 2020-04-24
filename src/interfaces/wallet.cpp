@@ -185,12 +185,49 @@ ContractBookData MakeContractBook(const std::string& id, const CContractBookData
     return result;
 }
 
+uint160 StringToKeyId(const std::string& strAddress)
+{
+    CTxDestination dest = DecodeDestination(strAddress);
+    const PKHash *keyID = boost::get<PKHash>(&dest);
+    if(keyID)
+    {
+        return uint160(*keyID);
+    }
+    return uint160();
+}
+
+std::string KeyIdToString(const uint160& keyID)
+{
+    return EncodeDestination(PKHash(keyID));
+}
+
+std::vector<uint160> StringToKeyIdList(const std::vector<std::string>& listAddress)
+{
+    std::vector<uint160> ret;
+    for(auto address : listAddress)
+    {
+        ret.push_back(StringToKeyId(address));
+    }
+    return ret;
+}
+
+std::vector<std::string> KeyIdToStringList(const std::vector<uint160>& listKeyID)
+{
+    std::vector<std::string> ret;
+    for(auto keyId : listKeyID)
+    {
+        ret.push_back(KeyIdToString(keyId));
+    }
+    return ret;
+}
+
 //! Construct delegation info.
 CDelegationInfo MakeDelegationInfo(const DelegationInfo& delegation)
 {
     CDelegationInfo result;
-    result.strDelegateAddress = delegation.delegate_address;
-    result.strStakerAddress = delegation.staker_address;
+    result.delegateAddress = StringToKeyId(delegation.delegate_address);
+    result.stakerAddress = StringToKeyId(delegation.staker_address);
+    result.strStakerName = delegation.staker_name;
     result.nFee = delegation.fee;
     result.nCreateTime = delegation.time;
     result.blockNumber = delegation.block_number;
@@ -203,8 +240,9 @@ CDelegationInfo MakeDelegationInfo(const DelegationInfo& delegation)
 DelegationInfo MakeWalletDelegationInfo(const CDelegationInfo& delegation)
 {
     DelegationInfo result;
-    result.delegate_address = delegation.strDelegateAddress;
-    result.staker_address = delegation.strStakerAddress;
+    result.delegate_address = KeyIdToString(delegation.delegateAddress);
+    result.staker_address = KeyIdToString(delegation.stakerAddress);
+    result.staker_name = delegation.strStakerName;
     result.fee = delegation.nFee;
     result.time = delegation.nCreateTime;
     result.block_number = delegation.blockNumber;
@@ -219,9 +257,14 @@ DelegationInfo MakeWalletDelegationInfo(const CDelegationInfo& delegation)
 CSuperStakerInfo MakeSuperStakerInfo(const SuperStakerInfo& superStaker)
 {
     CSuperStakerInfo result;
-    result.strStakerAddress = superStaker.staker_address;
-    result.nFee = superStaker.fee;
+    result.stakerAddress = StringToKeyId(superStaker.staker_address);
+    result.strStakerName = superStaker.staker_name;
+    result.nMinFee = superStaker.min_fee;
     result.nCreateTime = superStaker.time;
+    result.fCustomConfig = superStaker.custom_config;
+    result.nMinDelegateUtxo = superStaker.min_delegate_utxo;
+    result.delegateAddressList = StringToKeyIdList(superStaker.delegate_address_list);
+    result.nDelegateAddressType = superStaker.delegate_address_type;
     return result;
 }
 
@@ -229,9 +272,14 @@ CSuperStakerInfo MakeSuperStakerInfo(const SuperStakerInfo& superStaker)
 SuperStakerInfo MakeWalletSuperStakerInfo(const CSuperStakerInfo& superStaker)
 {
     SuperStakerInfo result;
-    result.staker_address = superStaker.strStakerAddress;
-    result.fee = superStaker.nFee;
+    result.staker_address = KeyIdToString(superStaker.stakerAddress);
+    result.staker_name = superStaker.strStakerName;
+    result.min_fee = superStaker.nMinFee;
     result.time = superStaker.nCreateTime;
+    result.custom_config = superStaker.fCustomConfig;
+    result.min_delegate_utxo = superStaker.nMinDelegateUtxo;
+    result.delegate_address_list = KeyIdToStringList(superStaker.delegateAddressList);
+    result.delegate_address_type = superStaker.nDelegateAddressType;
     result.hash = superStaker.GetHash();
     return result;
 }
@@ -944,11 +992,12 @@ public:
         // Get wallet delegation details
         for(auto mi : m_wallet->mapDelegation)
         {
-            if(mi.second.strDelegateAddress == sAddress)
+            if(KeyIdToString(mi.second.delegateAddress) == sAddress)
             {
                 details.w_entry_exist = true;
-                details.w_delegate_address = mi.second.strDelegateAddress;
-                details.w_staker_address = mi.second.strStakerAddress;
+                details.w_delegate_address = KeyIdToString(mi.second.delegateAddress);
+                details.w_staker_address = KeyIdToString(mi.second.stakerAddress);
+                details.w_staker_name = mi.second.strStakerName;
                 details.w_fee = mi.second.nFee;
                 details.w_time = mi.second.nCreateTime;
                 details.w_block_number = mi.second.blockNumber;

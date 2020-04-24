@@ -92,7 +92,7 @@ void AddSuperStakerPage::on_addSuperStakerButton_clicked()
         int stakerFee = ui->spinBoxFee->value();
         interfaces::SuperStakerInfo superStaker;
         superStaker.staker_address = stakerAddress.toStdString();
-        superStaker.fee = stakerFee;
+        superStaker.min_fee = stakerFee;
         m_model->wallet().addSuperStakerEntry(superStaker);
         accept();
     }

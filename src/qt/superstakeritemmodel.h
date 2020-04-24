@@ -22,16 +22,16 @@ class SuperStakerItemModel : public QAbstractItemModel
 public:
     enum ColumnIndex {
         Staker = 0,
-        Fee = 1,
+        MinFee = 1,
         Staking = 2,
     };
 
     enum DataRole{
         HashRole = Qt::UserRole + 1,
         StakerRole = Qt::UserRole + 2,
-        FeeRole = Qt::UserRole + 3,
+        MinFeeRole = Qt::UserRole + 3,
         StakingRole = Qt::UserRole + 4,
-        FormattedFeeRole = Qt::UserRole + 5,
+        FormattedMinFeeRole = Qt::UserRole + 5,
     };
 
     SuperStakerItemModel(WalletModel *parent = 0);
@@ -60,7 +60,7 @@ private:
     void emitDataChanged(int index);
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();
-    QString formatFee(const SuperStakerItemEntry *rec) const;
+    QString formatMinFee(const SuperStakerItemEntry *rec) const;
 
     QStringList columns;
     WalletModel *walletModel;

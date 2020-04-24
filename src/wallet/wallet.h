@@ -1769,8 +1769,9 @@ public:
     int nVersion;
     int64_t nCreateTime;
     uint8_t nFee;
-    std::string strDelegateAddress;
-    std::string strStakerAddress;
+    uint160 delegateAddress;
+    uint160 stakerAddress;
+    std::string strStakerName;
     int64_t blockNumber;
     uint256 createTxHash;
     uint256 removeTxHash;
@@ -1793,8 +1794,9 @@ public:
             READWRITE(createTxHash);
             READWRITE(removeTxHash);
         }
-        READWRITE(strDelegateAddress);
-        READWRITE(strStakerAddress);
+        READWRITE(delegateAddress);
+        READWRITE(stakerAddress);
+        READWRITE(strStakerName);
     }
 
     void SetNull()
@@ -1802,8 +1804,9 @@ public:
         nVersion = CDelegationInfo::CURRENT_VERSION;
         nCreateTime = 0;
         nFee = 0;
-        strDelegateAddress = "";
-        strStakerAddress = "";
+        delegateAddress.SetNull();
+        stakerAddress.SetNull();
+        strStakerName = "";
         blockNumber = -1;
         createTxHash.SetNull();
         removeTxHash.SetNull();
@@ -1818,8 +1821,13 @@ public:
     static const int CURRENT_VERSION=1;
     int nVersion;
     int64_t nCreateTime;
-    uint8_t nFee;
-    std::string strStakerAddress;
+    uint160 stakerAddress;
+    std::string strStakerName;
+    bool fCustomConfig;
+    uint8_t nMinFee;
+    CAmount nMinDelegateUtxo;
+    std::vector<uint160> delegateAddressList;
+    int nDelegateAddressType;
 
     CSuperStakerInfo()
     {
@@ -1834,17 +1842,27 @@ public:
         {
             READWRITE(nVersion);
             READWRITE(nCreateTime);
-            READWRITE(nFee);
+            READWRITE(nMinFee);
+            READWRITE(fCustomConfig);
+            READWRITE(nMinDelegateUtxo);
+            READWRITE(delegateAddressList);
+            READWRITE(nDelegateAddressType);
         }
-        READWRITE(strStakerAddress);
+        READWRITE(stakerAddress);
+        READWRITE(strStakerName);
     }
 
     void SetNull()
     {
         nVersion = CSuperStakerInfo::CURRENT_VERSION;
         nCreateTime = 0;
-        nFee = 0;
-        strStakerAddress = "";
+        nMinFee = 0;
+        stakerAddress.SetNull();
+        strStakerName = "";
+        fCustomConfig = 0;
+        nMinDelegateUtxo = 0;
+        delegateAddressList.clear();
+        nDelegateAddressType = 0;
     }
 
     uint256 GetHash() const;

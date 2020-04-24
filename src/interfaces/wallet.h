@@ -589,6 +589,7 @@ struct DelegationInfo
 {
     std::string delegate_address;
     std::string staker_address;
+    std::string staker_name;
     uint8_t fee = 0;
     int64_t time = 0;
     int64_t block_number = -1;
@@ -604,6 +605,7 @@ struct DelegationDetails
     bool w_entry_exist = false;
     std::string w_delegate_address;
     std::string w_staker_address;
+    std::string w_staker_name;
     uint8_t w_fee = 0;
     int64_t w_time = 0;
     int64_t w_block_number = -1;
@@ -643,6 +645,7 @@ struct DelegationDetails
         info.time = w_time;
         info.create_tx_hash = w_create_tx_hash;
         info.remove_tx_hash = w_remove_tx_hash;
+        info.staker_name = w_staker_name;
         return info;
     }
 };
@@ -650,11 +653,15 @@ struct DelegationDetails
 // Wallet super staker information.
 struct SuperStakerInfo
 {
-    std::string staker_address;
-    uint8_t fee = 0;
-    int64_t time = 0;
-    bool staking = false;
     uint256 hash;
+    std::string staker_address;
+    std::string staker_name;
+    int64_t time = 0;
+    bool custom_config = false;
+    uint8_t min_fee = 0;
+    CAmount min_delegate_utxo = 0;
+    std::vector<std::string> delegate_address_list;
+    int delegate_address_type = 0;
 };
 
 // Wallet delegation staker information.
