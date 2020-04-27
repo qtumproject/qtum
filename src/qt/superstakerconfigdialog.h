@@ -29,7 +29,7 @@ public:
 
     void setModel(WalletModel *_model);
     void setClientModel(ClientModel *clientModel);
-    void setSuperStakerData(const QString& address, const int& fee, const QString& hash);
+    void setSuperStakerData(const QString& hash);
 
 public Q_SLOTS:
     void chooseAddressType(int idx);

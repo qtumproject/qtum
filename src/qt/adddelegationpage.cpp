@@ -194,7 +194,7 @@ void AddDelegationPage::on_addDelegationClicked()
         CAmount gasPrice = ui->lineEditGasPrice->value();
         QString delegateAddress = ui->lineEditAddress->currentText();
         QString stakerAddress = ui->lineEditStakerAddress->text();
-        QString stakerName = ui->lineEditStakerName->text();
+        QString stakerName = ui->lineEditStakerName->text().trimmed();
         int stakerFee = ui->spinBoxFee->value();
 
         // Get delegation details
@@ -267,7 +267,7 @@ void AddDelegationPage::on_addDelegationClicked()
                 interfaces::DelegationInfo delegation;
                 delegation.delegate_address = delegateAddress.toStdString();
                 delegation.staker_address = stakerAddress.toStdString();
-                delegation.staker_name = stakerName.toStdString();
+                delegation.staker_name = stakerName.trimmed().toStdString();
                 delegation.fee = stakerFee;
                 delegation.create_tx_hash.SetHex(txid);
                 m_model->wallet().addDelegationEntry(delegation);
@@ -281,7 +281,7 @@ void AddDelegationPage::on_addDelegationClicked()
 void AddDelegationPage::on_updateAddDelegationButton()
 {
     bool enabled = true;
-    QString stakerName = ui->lineEditStakerName->text();
+    QString stakerName = ui->lineEditStakerName->text().trimmed();
     QString stakerAddress = ui->lineEditStakerAddress->text();
     QString delegate = ui->lineEditAddress->currentText();
 

@@ -5,6 +5,7 @@
 #include <qt/bitcoinunits.h>
 #include <interfaces/node.h>
 #include <interfaces/handler.h>
+#include <wallet/wallet.h>
 #include <algorithm>
 
 #include <QDateTime>
@@ -21,8 +22,9 @@ public:
     SuperStakerItemEntry(const interfaces::SuperStakerInfo &superStakerInfo)
     {
         hash = superStakerInfo.hash;
+        stakerName = QString::fromStdString(superStakerInfo.staker_name);
         stakerAddress = QString::fromStdString(superStakerInfo.staker_address);
-        minFee = superStakerInfo.min_fee;
+        minFee = superStakerInfo.custom_config ? superStakerInfo.min_fee : DEFAULT_STAKING_MIN_FEE;
         staking = false;
     }
 
@@ -38,6 +40,7 @@ public:
     {}
 
     uint256 hash;
+    QString stakerName;
     QString stakerAddress;
     quint8 minFee;
     bool staking;
@@ -173,7 +176,7 @@ SuperStakerItemModel::SuperStakerItemModel(WalletModel *parent):
     priv(0),
     worker(0)
 {
-    columns << tr("Staker") << tr("Minimum Fee") << tr("Staking");
+    columns << tr("Staker Name") << tr("Staker Address") << tr("Minimum Fee") << tr("Staking");
 
     priv = new SuperStakerItemPriv(this);
     priv->refreshSuperStakerItem(walletModel->wallet());
@@ -240,7 +243,9 @@ QVariant SuperStakerItemModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         switch(index.column())
         {
-        case Staker:
+        case StakerName:
+            return rec->stakerName;
+        case StakerAddress:
             return rec->stakerAddress;
         case MinFee:
             return rec->minFee;
@@ -253,7 +258,10 @@ QVariant SuperStakerItemModel::data(const QModelIndex &index, int role) const
     case SuperStakerItemModel::HashRole:
         return QString::fromStdString(rec->hash.ToString());
         break;
-    case SuperStakerItemModel::StakerRole:
+    case SuperStakerItemModel::StakerNameRole:
+        return rec->stakerName;
+        break;
+    case SuperStakerItemModel::StakerAddressRole:
         return rec->stakerAddress;
         break;
     case SuperStakerItemModel::MinFeeRole:

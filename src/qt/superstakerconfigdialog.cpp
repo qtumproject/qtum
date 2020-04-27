@@ -10,15 +10,11 @@
 class SuperStakerConfigDialogPriv
 {
 public:
-    SuperStakerConfigDialogPriv():
-        fee()
+    SuperStakerConfigDialogPriv()
     {}
 
-    QString address;
-    int fee;
-    QString hash;
-
     interfaces::SuperStakerInfo recommended;
+    interfaces::SuperStakerInfo staker;
 };
 
 SuperStakerConfigDialog::SuperStakerConfigDialog(QWidget *parent) :
@@ -83,11 +79,19 @@ void SuperStakerConfigDialog::setClientModel(ClientModel *_clientModel)
     m_clientModel = _clientModel;
 }
 
-void SuperStakerConfigDialog::setSuperStakerData(const QString &_address, const int &_fee, const QString &_hash)
+void SuperStakerConfigDialog::setSuperStakerData(const QString &hash)
 {
-    d->address = _address;
-    d->fee = _fee;
-    d->hash = _hash;
+    d->staker = interfaces::SuperStakerInfo();
+
+    if(m_model && !hash.isEmpty())
+    {
+        uint256 id;
+        id.SetHex(hash.toStdString());
+        d->staker = m_model->wallet().getSuperStaker(id);
+    }
+
+    ui->cbRecommended->setChecked(!d->staker.custom_config);
+    ui->cbCustom->setChecked(d->staker.custom_config);
 
     updateData();
 }
@@ -122,6 +126,33 @@ void SuperStakerConfigDialog::reject()
 
 void SuperStakerConfigDialog::on_buttonOk_clicked()
 {
+    if(m_model)
+    {
+        interfaces::SuperStakerInfo updatedStaker;
+        updatedStaker.hash = d->staker.hash;
+        updatedStaker.staker_address = d->staker.staker_address;
+        updatedStaker.staker_name = d->staker.staker_name;
+        updatedStaker.time = d->staker.time;
+        updatedStaker.custom_config = ui->cbCustom->isChecked();
+        if(updatedStaker.custom_config)
+        {
+            updatedStaker.min_fee = ui->sbMinFee->value();
+            updatedStaker.min_delegate_utxo = ui->leMinUtxo->value();
+            updatedStaker.delegate_address_type = ui->cbListType->currentIndex();
+            if(updatedStaker.delegate_address_type)
+            {
+                std::vector<std::string> delegateAddressList;
+                for(QString address : ui->textAddressList->getLines())
+                {
+                    delegateAddressList.push_back(address.toStdString());
+                }
+                updatedStaker.delegate_address_list = delegateAddressList;
+            }
+        }
+
+        m_model->wallet().addSuperStakerEntry(updatedStaker);
+    }
+
     accept();
 }
 
@@ -133,6 +164,7 @@ void SuperStakerConfigDialog::on_buttonCancel_clicked()
 void SuperStakerConfigDialog::changeConfigEnabled()
 {
     ui->frameStakerConfig->setEnabled(ui->cbRecommended->isChecked() ? false : true);
+    updateData();
 }
 
 void SuperStakerConfigDialog::updateDisplayUnit()
@@ -157,7 +189,8 @@ void SuperStakerConfigDialog::on_enableOkButton()
 
 void SuperStakerConfigDialog::updateData()
 {
-    ui->txtStaker->setText(d->address);
+    ui->txtStaker->setText(QString::fromStdString(d->staker.staker_name));
+
     if(ui->cbRecommended->isChecked())
     {
         ui->sbMinFee->setValue(d->recommended.min_fee);
@@ -165,6 +198,19 @@ void SuperStakerConfigDialog::updateData()
         ui->cbListType->setCurrentIndex(d->recommended.delegate_address_type);
         QStringList addressList;
         for(std::string sAddress : d->recommended.delegate_address_list)
+        {
+            addressList.append(QString::fromStdString(sAddress));
+        }
+        ui->textAddressList->setLines(addressList);
+    }
+
+    if(ui->cbCustom->isChecked() && d->staker.custom_config)
+    {
+        ui->sbMinFee->setValue(d->staker.min_fee);
+        ui->leMinUtxo->setValue(d->staker.min_delegate_utxo);
+        ui->cbListType->setCurrentIndex(d->staker.delegate_address_type);
+        QStringList addressList;
+        for(std::string sAddress : d->staker.delegate_address_list)
         {
             addressList.append(QString::fromStdString(sAddress));
         }

@@ -111,9 +111,9 @@ void SuperStakerPage::on_currentSuperStakerChanged(QModelIndex index)
         {
             QString hash = m_superStakerList->superStakerModel()->data(index, SuperStakerItemModel::HashRole).toString();
             m_selectedSuperStakerHash = hash;
-            QString address = m_superStakerList->superStakerModel()->data(index, SuperStakerItemModel::StakerRole).toString();
+            QString address = m_superStakerList->superStakerModel()->data(index, SuperStakerItemModel::StakerAddressRole).toString();
             int minFee = m_superStakerList->superStakerModel()->data(index, SuperStakerItemModel::MinFeeRole).toInt();
-            m_configSuperStakerPage->setSuperStakerData(address, minFee, hash);
+            m_configSuperStakerPage->setSuperStakerData(hash);
             m_delegationsSuperStakerPage->setSuperStakerData(address, minFee, hash);
 
             if(!m_configSuperStakerPage->isEnabled())
@@ -124,7 +124,7 @@ void SuperStakerPage::on_currentSuperStakerChanged(QModelIndex index)
         else
         {
             m_configSuperStakerPage->setEnabled(false);
-            m_configSuperStakerPage->setSuperStakerData("", 0, "");
+            m_configSuperStakerPage->setSuperStakerData("");
             m_delegationsSuperStakerPage->setEnabled(false);
             m_delegationsSuperStakerPage->setSuperStakerData("", 0, "");
             m_selectedSuperStakerHash = "";
@@ -191,7 +191,7 @@ void SuperStakerPage::copyStakerAddress()
 {
     if(indexMenu.isValid())
     {
-        GUIUtil::setClipboard(indexMenu.data(SuperStakerItemModel::StakerRole).toString());
+        GUIUtil::setClipboard(indexMenu.data(SuperStakerItemModel::StakerAddressRole).toString());
         indexMenu = QModelIndex();
     }
 }

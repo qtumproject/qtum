@@ -21,17 +21,19 @@ class SuperStakerItemModel : public QAbstractItemModel
     Q_OBJECT
 public:
     enum ColumnIndex {
-        Staker = 0,
-        MinFee = 1,
-        Staking = 2,
+        StakerName = 0,
+        StakerAddress = 1,
+        MinFee = 2,
+        Staking = 3,
     };
 
     enum DataRole{
         HashRole = Qt::UserRole + 1,
-        StakerRole = Qt::UserRole + 2,
-        MinFeeRole = Qt::UserRole + 3,
-        StakingRole = Qt::UserRole + 4,
-        FormattedMinFeeRole = Qt::UserRole + 5,
+        StakerNameRole = Qt::UserRole + 2,
+        StakerAddressRole = Qt::UserRole + 3,
+        MinFeeRole = Qt::UserRole + 4,
+        StakingRole = Qt::UserRole + 5,
+        FormattedMinFeeRole = Qt::UserRole + 6,
     };
 
     SuperStakerItemModel(WalletModel *parent = 0);

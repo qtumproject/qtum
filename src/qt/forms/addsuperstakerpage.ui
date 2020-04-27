@@ -66,22 +66,6 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
-      <widget class="QSpinBox" name="spinBoxFee">
-       <property name="minimumSize">
-        <size>
-         <width>100</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="suffix">
-        <string>%</string>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="0">
       <widget class="QLabel" name="labelStakerAddress">
        <property name="minimumSize">
@@ -92,19 +76,6 @@
        </property>
        <property name="text">
         <string>Staker address</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="labelFee">
-       <property name="minimumSize">
-        <size>
-         <width>100</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Fee</string>
        </property>
       </widget>
      </item>
@@ -122,7 +93,11 @@
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QLineEdit" name="lineEditStakerName"/>
+      <widget class="QLineEdit" name="lineEditStakerName">
+       <property name="maxLength">
+        <number>50</number>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

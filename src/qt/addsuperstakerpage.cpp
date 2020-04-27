@@ -15,11 +15,6 @@ AddSuperStakerPage::AddSuperStakerPage(QWidget *parent) :
 
     setWindowTitle(tr("Add super staker"));
 
-    // Set defaults
-    ui->spinBoxFee->setMinimum(0);
-    ui->spinBoxFee->setMaximum(100);
-    ui->spinBoxFee->setValue(DEFAULT_STAKING_MIN_FEE);
-
     connect(ui->lineEditStakerName, &QLineEdit::textChanged, this, &AddSuperStakerPage::on_updateAddStakerButton);
     connect(ui->lineEditStakerAddress, &QComboBox::currentTextChanged, this, &AddSuperStakerPage::on_updateAddStakerButton);
 }
@@ -42,7 +37,6 @@ void AddSuperStakerPage::clearAll()
 {
     ui->lineEditStakerName->setText("");
     ui->lineEditStakerAddress->setCurrentIndex(-1);
-    ui->spinBoxFee->setValue(DEFAULT_STAKING_MIN_FEE);
 }
 
 void AddSuperStakerPage::accept()
@@ -71,7 +65,7 @@ void AddSuperStakerPage::on_cancelButton_clicked()
 void AddSuperStakerPage::on_updateAddStakerButton()
 {
     bool enabled = true;
-    QString stakerName = ui->lineEditStakerName->text();
+    QString stakerName = ui->lineEditStakerName->text().trimmed();
     QString stakerAddress = ui->lineEditStakerAddress->currentText();
     if(stakerName.isEmpty())
     {
@@ -96,12 +90,10 @@ void AddSuperStakerPage::on_addSuperStakerButton_clicked()
         }
 
         QString stakerAddress = ui->lineEditStakerAddress->currentText();
-        QString stakerName = ui->lineEditStakerName->text();
-        int stakerFee = ui->spinBoxFee->value();
+        QString stakerName = ui->lineEditStakerName->text().trimmed();
         interfaces::SuperStakerInfo superStaker;
         superStaker.staker_address = stakerAddress.toStdString();
         superStaker.staker_name = stakerName.toStdString();
-        superStaker.min_fee = stakerFee;
         m_model->wallet().addSuperStakerEntry(superStaker);
         accept();
     }
