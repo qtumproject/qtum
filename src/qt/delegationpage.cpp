@@ -35,7 +35,6 @@ DelegationPage::DelegationPage(const PlatformStyle *platformStyle, QWidget *pare
 
     QAction *copyStakerAction = new QAction(tr("Copy staker address"), this);
     QAction *copyStekerFeeAction = new QAction(tr("Copy staker fee"), this);
-    QAction *copyBlockHeightAction = new QAction(tr("Copy block height"), this);
     QAction *copyDelegateAddressAction = new QAction(tr("Copy delegate address"), this);
     QAction *removeDelegationAction = new QAction(tr("Remove delegation"), this);
 
@@ -51,13 +50,11 @@ DelegationPage::DelegationPage(const PlatformStyle *platformStyle, QWidget *pare
     contextMenu = new QMenu(m_delegationList);
     contextMenu->addAction(copyStakerAction);
     contextMenu->addAction(copyStekerFeeAction);
-    contextMenu->addAction(copyBlockHeightAction);
     contextMenu->addAction(copyDelegateAddressAction);
     contextMenu->addAction(removeDelegationAction);
 
     connect(copyDelegateAddressAction, &QAction::triggered, this, &DelegationPage::copyDelegateAddress);
     connect(copyStekerFeeAction, &QAction::triggered, this, &DelegationPage::copyStekerFee);
-    connect(copyBlockHeightAction, &QAction::triggered, this, &DelegationPage::copyBlockHeight);
     connect(copyStakerAction, &QAction::triggered, this, &DelegationPage::copyStakerAddress);
     connect(removeDelegationAction, &QAction::triggered, this, &DelegationPage::removeDelegation);
 
@@ -193,15 +190,6 @@ void DelegationPage::copyStekerFee()
     if(indexMenu.isValid())
     {
         GUIUtil::setClipboard(indexMenu.data(DelegationItemModel::FormattedFeeRole).toString());
-        indexMenu = QModelIndex();
-    }
-}
-
-void DelegationPage::copyBlockHeight()
-{
-    if(indexMenu.isValid())
-    {
-        GUIUtil::setClipboard(indexMenu.data(DelegationItemModel::BlockHeightRole).toString());
         indexMenu = QModelIndex();
     }
 }

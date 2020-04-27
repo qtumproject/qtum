@@ -35,7 +35,8 @@ SuperStakerPage::SuperStakerPage(const PlatformStyle *platformStyle, QWidget *pa
     m_delegationsSuperStakerPage->setEnabled(false);
     m_splitUtxoPage->setEnabled(false);
 
-    QAction *copyStakerAction = new QAction(tr("Copy staker address"), this);
+    QAction *copyStakerNameAction = new QAction(tr("Copy staker name"), this);
+    QAction *copyStakerAddressAction = new QAction(tr("Copy staker address"), this);
     QAction *copyStekerMinFeeAction = new QAction(tr("Copy staker minimum fee"), this);
     QAction *configSuperStakerAction = new QAction(tr("Configure super staker"), this);
     QAction *removeSuperStakerAction = new QAction(tr("Remove super staker"), this);
@@ -52,13 +53,15 @@ SuperStakerPage::SuperStakerPage(const PlatformStyle *platformStyle, QWidget *pa
     connect(m_superStakerList, &SuperStakerListWidget::splitCoins, this, &SuperStakerPage::on_splitCoins);
 
     contextMenu = new QMenu(m_superStakerList);
-    contextMenu->addAction(copyStakerAction);
+    contextMenu->addAction(copyStakerNameAction);
+    contextMenu->addAction(copyStakerAddressAction);
     contextMenu->addAction(copyStekerMinFeeAction);
     contextMenu->addAction(configSuperStakerAction);
     contextMenu->addAction(removeSuperStakerAction);
 
+    connect(copyStakerNameAction, &QAction::triggered, this, &SuperStakerPage::copyStakerName);
+    connect(copyStakerAddressAction, &QAction::triggered, this, &SuperStakerPage::copyStakerAddress);
     connect(copyStekerMinFeeAction, &QAction::triggered, this, &SuperStakerPage::copyStekerMinFee);
-    connect(copyStakerAction, &QAction::triggered, this, &SuperStakerPage::copyStakerAddress);
     connect(configSuperStakerAction, &QAction::triggered, this, &SuperStakerPage::configSuperStaker);
     connect(removeSuperStakerAction, &QAction::triggered, this, &SuperStakerPage::removeSuperStaker);
 
@@ -193,6 +196,15 @@ void SuperStakerPage::copyStekerMinFee()
     if(indexMenu.isValid())
     {
         GUIUtil::setClipboard(indexMenu.data(SuperStakerItemModel::FormattedMinFeeRole).toString());
+        indexMenu = QModelIndex();
+    }
+}
+
+void SuperStakerPage::copyStakerName()
+{
+    if(indexMenu.isValid())
+    {
+        GUIUtil::setClipboard(indexMenu.data(SuperStakerItemModel::StakerNameRole).toString());
         indexMenu = QModelIndex();
     }
 }
