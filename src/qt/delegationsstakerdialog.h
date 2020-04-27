@@ -20,7 +20,7 @@ public:
     ~DelegationsStakerDialog();
 
     void setModel(WalletModel *model);
-    void setSuperStakerData(const QString& address, const int& fee, const QString& hash);
+    void setSuperStakerData(const QString& name, const QString& address, const int& fee, const QString& hash);
 
 private:
     void updateData();

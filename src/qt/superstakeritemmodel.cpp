@@ -31,6 +31,7 @@ public:
     SuperStakerItemEntry( const SuperStakerItemEntry &obj)
     {
         hash = obj.hash;
+        stakerName = obj.stakerName;
         stakerAddress = obj.stakerAddress;
         minFee = obj.minFee;
         staking = obj.staking;

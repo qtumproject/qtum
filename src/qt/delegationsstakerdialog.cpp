@@ -15,6 +15,7 @@ public:
     {}
 
     QString address;
+    QString name;
     int fee;
     QString hash;
 };
@@ -51,8 +52,9 @@ void DelegationsStakerDialog::setModel(WalletModel *_model)
     }
 }
 
-void DelegationsStakerDialog::setSuperStakerData(const QString &_address, const int &_fee, const QString &_hash)
+void DelegationsStakerDialog::setSuperStakerData(const QString& _name, const QString &_address, const int &_fee, const QString &_hash)
 {
+    d->name = _name;
     d->address = _address;
     d->fee = _fee;
     d->hash = _hash;
@@ -62,6 +64,6 @@ void DelegationsStakerDialog::setSuperStakerData(const QString &_address, const 
 
 void DelegationsStakerDialog::updateData()
 {
-    ui->txtStaker->setText(d->address);
+    ui->txtStaker->setText(d->name);
     m_stakerDelegationView->setSuperStakerData(d->address, d->fee);
 }

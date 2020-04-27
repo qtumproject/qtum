@@ -145,7 +145,7 @@ void SuperStakerListWidget::updateRow(const QModelIndex &index, int position)
     if(index.isValid())
     {
         QString minFee = m_superStakerModel->data(index, SuperStakerItemModel::MinFeeRole).toString() + " %";
-        QString staker = m_superStakerModel->data(index, SuperStakerItemModel::StakerAddressRole).toString();
+        QString staker = m_superStakerModel->data(index, SuperStakerItemModel::StakerNameRole).toString();
         SuperStakerItemWidget* item = m_rows[position];
         item->setPosition(position);
         item->setData(minFee, staker, false);
