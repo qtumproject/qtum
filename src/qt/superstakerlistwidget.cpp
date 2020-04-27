@@ -190,6 +190,10 @@ void SuperStakerListWidget::on_clicked(int position, int button)
     {
         Q_EMIT delegationsSuperStaker(index);
     }
+    else if(button == SuperStakerItemWidget::Split)
+    {
+        Q_EMIT splitCoins(index);
+    }
 }
 
 QModelIndex SuperStakerListWidget::indexAt(const QPoint &p) const

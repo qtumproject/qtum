@@ -3,6 +3,7 @@
 
 #include <qt/removedelegationpage.h>
 #include <qt/adddelegationpage.h>
+#include <qt/splitutxopage.h>
 
 #include <QWidget>
 #include <QModelIndex>
@@ -32,6 +33,7 @@ public:
 Q_SIGNALS:
 
 public Q_SLOTS:
+    void on_goToSplitCoinsPage();
     void on_goToRemoveDelegationPage();
     void on_goToAddDelegationPage();
     void on_currentDelegationChanged(QModelIndex index);
@@ -46,11 +48,13 @@ public Q_SLOTS:
     void removeDelegation();
     void on_removeDelegation(const QModelIndex& index);
     void on_addDelegation();
+    void on_splitCoins(const QModelIndex& index);
 
 private:
     Ui::DelegationPage *ui;
     RemoveDelegationPage* m_removeDelegationPage;
     AddDelegationPage* m_addDelegationPage;
+    SplitUTXOPage* m_splitUtxoPage;
     WalletModel* m_model;
     ClientModel* m_clientModel;
     QAction *m_sendAction;

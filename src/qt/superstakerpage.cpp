@@ -29,9 +29,11 @@ SuperStakerPage::SuperStakerPage(const PlatformStyle *platformStyle, QWidget *pa
     m_configSuperStakerPage = new SuperStakerConfigDialog(this);
     m_addSuperStakerPage = new AddSuperStakerPage(this);
     m_delegationsSuperStakerPage = new DelegationsStakerDialog(this);
+    m_splitUtxoPage = new SplitUTXOPage(this);
 
     m_configSuperStakerPage->setEnabled(false);
     m_delegationsSuperStakerPage->setEnabled(false);
+    m_splitUtxoPage->setEnabled(false);
 
     QAction *copyStakerAction = new QAction(tr("Copy staker address"), this);
     QAction *copyStekerMinFeeAction = new QAction(tr("Copy staker minimum fee"), this);
@@ -47,6 +49,7 @@ SuperStakerPage::SuperStakerPage(const PlatformStyle *platformStyle, QWidget *pa
     connect(m_superStakerList, &SuperStakerListWidget::addSuperStaker, this, &SuperStakerPage::on_addSuperStaker);
     connect(m_superStakerList, &SuperStakerListWidget::removeSuperStaker, this, &SuperStakerPage::on_removeSuperStaker);
     connect(m_superStakerList, &SuperStakerListWidget::delegationsSuperStaker, this, &SuperStakerPage::on_delegationsSuperStaker);
+    connect(m_superStakerList, &SuperStakerListWidget::splitCoins, this, &SuperStakerPage::on_splitCoins);
 
     contextMenu = new QMenu(m_superStakerList);
     contextMenu->addAction(copyStakerAction);
@@ -74,6 +77,7 @@ void SuperStakerPage::setModel(WalletModel *_model)
     m_configSuperStakerPage->setModel(m_model);
     m_delegationsSuperStakerPage->setModel(m_model);
     m_superStakerList->setModel(m_model);
+    m_splitUtxoPage->setModel(m_model);
     if(m_model && m_model->getSuperStakerItemModel())
     {
         // Set current super staker
@@ -116,11 +120,14 @@ void SuperStakerPage::on_currentSuperStakerChanged(QModelIndex index)
             int minFee = m_superStakerList->superStakerModel()->data(index, SuperStakerItemModel::MinFeeRole).toInt();
             m_configSuperStakerPage->setSuperStakerData(hash);
             m_delegationsSuperStakerPage->setSuperStakerData(name, address, minFee, hash);
+            m_splitUtxoPage->setAddress(address);
 
             if(!m_configSuperStakerPage->isEnabled())
                 m_configSuperStakerPage->setEnabled(true);
             if(!m_delegationsSuperStakerPage->isEnabled())
                 m_delegationsSuperStakerPage->setEnabled(true);
+            if(!m_splitUtxoPage->isEnabled())
+                m_splitUtxoPage->setEnabled(true);
         }
         else
         {
@@ -128,6 +135,8 @@ void SuperStakerPage::on_currentSuperStakerChanged(QModelIndex index)
             m_configSuperStakerPage->setSuperStakerData("");
             m_delegationsSuperStakerPage->setEnabled(false);
             m_delegationsSuperStakerPage->setSuperStakerData("", "", 0, "");
+            m_splitUtxoPage->setEnabled(false);
+            m_splitUtxoPage->setAddress("");
             m_selectedSuperStakerHash = "";
         }
     }
@@ -250,4 +259,15 @@ void SuperStakerPage::on_delegationsSuperStaker(const QModelIndex &index)
 void SuperStakerPage::on_goToDelegationsSuperStakerPage()
 {
     m_delegationsSuperStakerPage->show();
+}
+
+void SuperStakerPage::on_splitCoins(const QModelIndex &index)
+{
+    on_currentSuperStakerChanged(index);
+    on_goToSplitCoinsPage();
+}
+
+void SuperStakerPage::on_goToSplitCoinsPage()
+{
+    m_splitUtxoPage->show();
 }

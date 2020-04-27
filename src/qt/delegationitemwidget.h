@@ -22,7 +22,8 @@ public:
 
     enum Buttons{
         Add = 0,
-        Remove = 1
+        Remove = 1,
+        Split = 2
     };
 
     explicit DelegationItemWidget(const PlatformStyle *platformStyle, QWidget *parent = 0, ItemType type = Record);
@@ -41,6 +42,8 @@ private Q_SLOTS:
     void on_buttonAdd_clicked();
 
     void on_buttonRemove_clicked();
+
+    void on_buttonSplit_clicked();
 
 private:
     void updateLogo();

@@ -184,6 +184,10 @@ void DelegationListWidget::on_clicked(int position, int button)
     {
         Q_EMIT removeDelegation(index);
     }
+    else if(button == DelegationItemWidget::Split)
+    {
+        Q_EMIT splitCoins(index);
+    }
 }
 
 QModelIndex DelegationListWidget::indexAt(const QPoint &p) const

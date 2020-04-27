@@ -25,6 +25,7 @@ public:
         Remove = 1,
         Config = 2,
         Delegations = 3,
+        Split = 4,
     };
 
     explicit SuperStakerItemWidget(const PlatformStyle *platformStyle, QWidget *parent = 0, ItemType type = Record);
@@ -47,6 +48,8 @@ private Q_SLOTS:
     void on_buttonConfig_clicked();
 
     void on_buttonDelegations_clicked();
+
+    void on_buttonSplit_clicked();
 
 private:
     void updateLogo();

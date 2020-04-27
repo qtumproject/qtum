@@ -19,6 +19,7 @@ SuperStakerItemWidget::SuperStakerItemWidget(const PlatformStyle *platformStyle,
 {
     ui->setupUi(this);
     ui->stackedWidget->setCurrentIndex(type);
+    ui->buttonSplit->setIcon(platformStyle->MultiStatesIcon(":/icons/tx_inout", PlatformStyle::PushButtonIcon));
     ui->buttonConfig->setIcon(platformStyle->MultiStatesIcon(":/icons/configure", PlatformStyle::PushButtonIcon));
     ui->buttonRemove->setIcon(platformStyle->MultiStatesIcon(":/icons/remove_entry", PlatformStyle::PushButtonIcon));
     ui->buttonAdd->setIcon(platformStyle->MultiStatesIcon(":/icons/plus_full", PlatformStyle::PushButtonIcon));
@@ -67,6 +68,11 @@ void SuperStakerItemWidget::on_buttonConfig_clicked()
 void SuperStakerItemWidget::on_buttonDelegations_clicked()
 {
     Q_EMIT clicked(m_position, Buttons::Delegations);
+}
+
+void SuperStakerItemWidget::on_buttonSplit_clicked()
+{
+    Q_EMIT clicked(m_position, Buttons::Split);
 }
 
 int SuperStakerItemWidget::position() const

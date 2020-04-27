@@ -187,6 +187,19 @@
              </widget>
             </item>
             <item>
+             <widget class="QToolButton" name="buttonSplit">
+              <property name="text">
+               <string/>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>32</width>
+                <height>32</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QToolButton" name="buttonRemove">
               <property name="text">
                <string/>

@@ -1,5 +1,5 @@
-#include "splitutxopage.h"
-#include "qt/forms/ui_splitutxopage.h"
+#include <qt/splitutxopage.h>
+#include <qt/forms/ui_splitutxopage.h>
 
 #include <qt/bitcoinunits.h>
 #include <qt/execrpccommand.h>
@@ -184,8 +184,8 @@ void SplitUTXOPage::on_splitCoinsClicked()
         ExecRPCCommand::appendParam(lstParams, PARAM_MAX_VALUE, BitcoinUnits::format(unit, maxValue, false, BitcoinUnits::separatorNever));
         ExecRPCCommand::appendParam(lstParams, PARAM_MAX_OUTPUTS, QString::number(maxOutputs));
 
-        QString questionString = tr("Are you sure you want to split coins for address<br /><br />");
-        questionString.append(tr("<b>%1</b>?")
+        QString questionString = tr("Are you sure you want to split coins for address");
+        questionString.append(QString("<br/><br/><b>%1</b>?")
                               .arg(address));
 
         SendConfirmationDialog confirmationDialog(tr("Confirm splitting coins for address."), questionString, "", "", SEND_CONFIRM_DELAY, this);
@@ -208,14 +208,15 @@ void SplitUTXOPage::on_splitCoinsClicked()
 
                  QString splitedString = variantMap.value("splited").toString();
                  CAmount splited;
-                 BitcoinUnits::parse(unit, selectedString, &splited);
+                 BitcoinUnits::parse(unit, splitedString, &splited);
 
                  int displayUnit = m_model->getOptionsModel()->getDisplayUnit();
 
-                 QString infoString = tr("Selected: %1 less than %2 and above of %3.<br> </br><br> </br>").
+                 QString infoString = tr("Selected: %1 less than %2 and above of %3.").
                          arg(BitcoinUnits::formatHtmlWithUnit(displayUnit, selected)).
                          arg(BitcoinUnits::formatHtmlWithUnit(displayUnit, minValue)).
                          arg(BitcoinUnits::formatHtmlWithUnit(displayUnit, maxValue));
+                 infoString.append("<br/><br/>");
                  infoString.append(tr("Splitted: %1.").arg(BitcoinUnits::formatHtmlWithUnit(displayUnit, splited)));
 
                  QMessageBox::information(this, tr("Split coins for address"), infoString);

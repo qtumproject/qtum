@@ -30,6 +30,7 @@ public:
     QModelIndex indexAt(const QPoint &p) const;
 
 Q_SIGNALS:
+    void splitCoins(const QModelIndex& index);
     void removeDelegation(const QModelIndex& index);
     void addDelegation();
     void clicked(const QModelIndex& index);

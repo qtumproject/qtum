@@ -28,8 +28,10 @@ DelegationPage::DelegationPage(const PlatformStyle *platformStyle, QWidget *pare
 
     m_removeDelegationPage = new RemoveDelegationPage(this);
     m_addDelegationPage = new AddDelegationPage(this);
+    m_splitUtxoPage = new SplitUTXOPage(this);
 
     m_removeDelegationPage->setEnabled(false);
+    m_splitUtxoPage->setEnabled(false);
 
     QAction *copyStakerAction = new QAction(tr("Copy staker address"), this);
     QAction *copyStekerFeeAction = new QAction(tr("Copy staker fee"), this);
@@ -44,6 +46,7 @@ DelegationPage::DelegationPage(const PlatformStyle *platformStyle, QWidget *pare
     ui->scrollArea->setWidgetResizable(true);
     connect(m_delegationList, &DelegationListWidget::removeDelegation, this, &DelegationPage::on_removeDelegation);
     connect(m_delegationList, &DelegationListWidget::addDelegation, this, &DelegationPage::on_addDelegation);
+    connect(m_delegationList, &DelegationListWidget::splitCoins, this, &DelegationPage::on_splitCoins);
 
     contextMenu = new QMenu(m_delegationList);
     contextMenu->addAction(copyStakerAction);
@@ -72,6 +75,7 @@ void DelegationPage::setModel(WalletModel *_model)
     m_addDelegationPage->setModel(m_model);
     m_removeDelegationPage->setModel(m_model);
     m_delegationList->setModel(m_model);
+    m_splitUtxoPage->setModel(m_model);
     if(m_model && m_model->getDelegationItemModel())
     {
         // Set current delegation
@@ -112,14 +116,18 @@ void DelegationPage::on_currentDelegationChanged(QModelIndex index)
             QString address = m_delegationList->delegationModel()->data(index, DelegationItemModel::AddressRole).toString();
             QString hash = m_delegationList->delegationModel()->data(index, DelegationItemModel::HashRole).toString();
             m_removeDelegationPage->setDelegationData(address, hash);
+            m_splitUtxoPage->setAddress(address);
 
             if(!m_removeDelegationPage->isEnabled())
                 m_removeDelegationPage->setEnabled(true);
+            if(!m_splitUtxoPage->isEnabled())
+                m_splitUtxoPage->setEnabled(true);
         }
         else
         {
             m_removeDelegationPage->setEnabled(false);
             m_removeDelegationPage->setDelegationData("", "");
+            m_splitUtxoPage->setAddress("");
             m_selectedDelegationHash = "";
         }
     }
@@ -225,4 +233,15 @@ void DelegationPage::on_removeDelegation(const QModelIndex &index)
 void DelegationPage::on_addDelegation()
 {
     on_goToAddDelegationPage();
+}
+
+void DelegationPage::on_splitCoins(const QModelIndex &index)
+{
+    on_currentDelegationChanged(index);
+    on_goToSplitCoinsPage();
+}
+
+void DelegationPage::on_goToSplitCoinsPage()
+{
+    m_splitUtxoPage->show();
 }

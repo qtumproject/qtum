@@ -30,6 +30,7 @@ public:
     QModelIndex indexAt(const QPoint &p) const;
 
 Q_SIGNALS:
+    void splitCoins(const QModelIndex& index);
     void configSuperStaker(const QModelIndex& index);
     void delegationsSuperStaker(const QModelIndex& index);
     void removeSuperStaker(const QModelIndex& index);
