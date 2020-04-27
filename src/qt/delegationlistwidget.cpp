@@ -145,7 +145,7 @@ void DelegationListWidget::updateRow(const QModelIndex &index, int position)
     if(index.isValid())
     {
         QString fee = m_delegationModel->data(index, DelegationItemModel::FeeRole).toString() + " %";
-        QString staker = m_delegationModel->data(index, DelegationItemModel::StakerRole).toString();
+        QString staker = m_delegationModel->data(index, DelegationItemModel::StakerNameRole).toString();
         QString address = m_delegationModel->data(index, DelegationItemModel::AddressRole).toString();
         int32_t blockHight = m_delegationModel->data(index, DelegationItemModel::BlockHeightRole).toInt();
         DelegationItemWidget* item = m_rows[position];

@@ -43,6 +43,7 @@ public Q_SLOTS:
     void contextualMenu(const QPoint &);
     void copyDelegateAddress();
     void copyStekerFee();
+    void copyStakerName();
     void copyStakerAddress();
     void removeDelegation();
     void on_removeDelegation(const QModelIndex& index);

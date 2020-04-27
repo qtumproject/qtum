@@ -33,7 +33,8 @@ DelegationPage::DelegationPage(const PlatformStyle *platformStyle, QWidget *pare
     m_removeDelegationPage->setEnabled(false);
     m_splitUtxoPage->setEnabled(false);
 
-    QAction *copyStakerAction = new QAction(tr("Copy staker address"), this);
+    QAction *copyStakerNameAction = new QAction(tr("Copy staker name"), this);
+    QAction *copyStakerAddressAction = new QAction(tr("Copy staker address"), this);
     QAction *copyStekerFeeAction = new QAction(tr("Copy staker fee"), this);
     QAction *copyDelegateAddressAction = new QAction(tr("Copy delegate address"), this);
     QAction *removeDelegationAction = new QAction(tr("Remove delegation"), this);
@@ -48,14 +49,16 @@ DelegationPage::DelegationPage(const PlatformStyle *platformStyle, QWidget *pare
     connect(m_delegationList, &DelegationListWidget::splitCoins, this, &DelegationPage::on_splitCoins);
 
     contextMenu = new QMenu(m_delegationList);
-    contextMenu->addAction(copyStakerAction);
+    contextMenu->addAction(copyStakerNameAction);
+    contextMenu->addAction(copyStakerAddressAction);
     contextMenu->addAction(copyStekerFeeAction);
     contextMenu->addAction(copyDelegateAddressAction);
     contextMenu->addAction(removeDelegationAction);
 
     connect(copyDelegateAddressAction, &QAction::triggered, this, &DelegationPage::copyDelegateAddress);
     connect(copyStekerFeeAction, &QAction::triggered, this, &DelegationPage::copyStekerFee);
-    connect(copyStakerAction, &QAction::triggered, this, &DelegationPage::copyStakerAddress);
+    connect(copyStakerNameAction, &QAction::triggered, this, &DelegationPage::copyStakerName);
+    connect(copyStakerAddressAction, &QAction::triggered, this, &DelegationPage::copyStakerAddress);
     connect(removeDelegationAction, &QAction::triggered, this, &DelegationPage::removeDelegation);
 
     connect(m_delegationList, &DelegationListWidget::customContextMenuRequested, this, &DelegationPage::contextualMenu);
@@ -194,11 +197,20 @@ void DelegationPage::copyStekerFee()
     }
 }
 
+void DelegationPage::copyStakerName()
+{
+    if(indexMenu.isValid())
+    {
+        GUIUtil::setClipboard(indexMenu.data(DelegationItemModel::StakerNameRole).toString());
+        indexMenu = QModelIndex();
+    }
+}
+
 void DelegationPage::copyStakerAddress()
 {
     if(indexMenu.isValid())
     {
-        GUIUtil::setClipboard(indexMenu.data(DelegationItemModel::StakerRole).toString());
+        GUIUtil::setClipboard(indexMenu.data(DelegationItemModel::StakerAddressRole).toString());
         indexMenu = QModelIndex();
     }
 }

@@ -23,6 +23,7 @@ public:
         hash = delegationInfo.hash;
         createTime.setTime_t(delegationInfo.time);
         delegateAddress = QString::fromStdString(delegationInfo.delegate_address);
+        stakerName = QString::fromStdString(delegationInfo.staker_name);
         stakerAddress = QString::fromStdString(delegationInfo.staker_address);
         fee = delegationInfo.fee;
         blockNumber = delegationInfo.block_number;
@@ -35,6 +36,7 @@ public:
         hash = obj.hash;
         createTime = obj.createTime;
         delegateAddress = obj.delegateAddress;
+        stakerName = obj.stakerName;
         stakerAddress = obj.stakerAddress;
         fee = obj.fee;
         blockNumber = obj.blockNumber;
@@ -48,6 +50,7 @@ public:
     uint256 hash;
     QDateTime createTime;
     QString delegateAddress;
+    QString stakerName;
     QString stakerAddress;
     quint8 fee;
     qint32 blockNumber;
@@ -245,7 +248,7 @@ DelegationItemModel::DelegationItemModel(WalletModel *parent):
     priv(0),
     worker(0)
 {
-    columns << tr("Delegate") << tr("Staker") << tr("Fee") << tr("Height") << tr("Time");
+    columns << tr("Delegate") << tr("Staker Name") << tr("Staker Address") << tr("Fee") << tr("Height") << tr("Time");
 
     priv = new DelegationItemPriv(this);
     priv->refreshDelegationItem(walletModel->wallet());
@@ -314,7 +317,9 @@ QVariant DelegationItemModel::data(const QModelIndex &index, int role) const
         {
         case Address:
             return rec->delegateAddress;
-        case Staker:
+        case StakerName:
+            return rec->stakerName;
+        case StakerAddress:
             return rec->stakerAddress;
         case Fee:
             return rec->fee;
@@ -332,7 +337,10 @@ QVariant DelegationItemModel::data(const QModelIndex &index, int role) const
     case DelegationItemModel::AddressRole:
         return rec->delegateAddress;
         break;
-    case DelegationItemModel::StakerRole:
+    case DelegationItemModel::StakerNameRole:
+        return rec->stakerName;
+        break;
+    case DelegationItemModel::StakerAddressRole:
         return rec->stakerAddress;
         break;
     case DelegationItemModel::FeeRole:
