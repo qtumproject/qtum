@@ -5,8 +5,21 @@
 #include <qt/superstakeritemwidget.h>
 #include <qt/platformstyle.h>
 #include <qt/forms/ui_superstakeritemwidget.h>
+#include <qt/bitcoinunits.h>
+#include <qt/optionsmodel.h>
+#include <qt/walletmodel.h>
 
 #include <QFile>
+
+class SuperStakerItemWidgetPriv
+{
+public:
+    QString fee;
+    QString staker;
+    bool staking_on = false;
+    int64_t balance = 0;
+    int64_t stake = 0;
+};
 
 #define SUPERSTAKER_ITEM_ICONSIZE 24
 SuperStakerItemWidget::SuperStakerItemWidget(const PlatformStyle *platformStyle, QWidget *parent, ItemType type) :
@@ -14,7 +27,8 @@ SuperStakerItemWidget::SuperStakerItemWidget(const PlatformStyle *platformStyle,
     ui(new Ui::SuperStakerItemWidget),
     m_platfromStyle(platformStyle),
     m_type(type),
-    m_position(-1)
+    m_position(-1),
+    m_model(0)
 
 {
     ui->setupUi(this);
@@ -24,6 +38,7 @@ SuperStakerItemWidget::SuperStakerItemWidget(const PlatformStyle *platformStyle,
     ui->buttonRemove->setIcon(platformStyle->MultiStatesIcon(":/icons/remove_entry", PlatformStyle::PushButtonIcon));
     ui->buttonAdd->setIcon(platformStyle->MultiStatesIcon(":/icons/plus_full", PlatformStyle::PushButtonIcon));
     ui->superStakerLogo->setPixmap(platformStyle->MultiStatesIcon(m_type == New ? ":/icons/export" : ":/icons/staking_off").pixmap(SUPERSTAKER_ITEM_ICONSIZE, SUPERSTAKER_ITEM_ICONSIZE));
+    d = new SuperStakerItemWidgetPriv();
 }
 
 SuperStakerItemWidget::~SuperStakerItemWidget()
@@ -31,18 +46,27 @@ SuperStakerItemWidget::~SuperStakerItemWidget()
     delete ui;
 }
 
-void SuperStakerItemWidget::setData(const QString &fee, const QString &staker, const bool &staking_on)
+void SuperStakerItemWidget::setData(const QString &fee, const QString &staker, const bool &staking_on, const int64_t &balance, const int64_t &stake)
 {
-    if(fee != ui->labelFee->text())
-        ui->labelFee->setText(fee);
-    if(staker != ui->labelStaker->text())
-        ui->labelStaker->setText(staker);
-    QString filename = staking_on ? ":/icons/staking_on" : ":/icons/staking_off";
+    // Set data
+    d->fee = fee;
+    d->staker = staker;
+    d->staking_on = staking_on;
+    d->balance = balance;
+    d->stake = stake;
+
+    // Update GUI
+    if(d->fee != ui->labelFee->text())
+        ui->labelFee->setText(d->fee);
+    if(d->staker != ui->labelStaker->text())
+        ui->labelStaker->setText(d->staker);
+    QString filename = d->staking_on ? ":/icons/staking_on" : ":/icons/staking_off";
     if(m_filename != filename)
     {
         m_filename = filename;
         updateLogo();
     }
+    updateBalance();
 }
 
 void SuperStakerItemWidget::setPosition(int position)
@@ -84,4 +108,28 @@ void SuperStakerItemWidget::updateLogo()
 {
     QPixmap pixmap = m_platfromStyle->MultiStatesIcon(m_filename).pixmap(SUPERSTAKER_ITEM_ICONSIZE, SUPERSTAKER_ITEM_ICONSIZE);
     ui->superStakerLogo->setPixmap(pixmap);
+}
+
+void SuperStakerItemWidget::setModel(WalletModel *_model)
+{
+    m_model = _model;
+    if(m_model && m_model->getOptionsModel())
+    {
+        connect(m_model->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &SuperStakerItemWidget::updateDisplayUnit);
+    }
+    updateDisplayUnit();
+}
+
+void SuperStakerItemWidget::updateDisplayUnit()
+{
+    updateBalance();
+}
+
+void SuperStakerItemWidget::updateBalance()
+{
+    int unit = BitcoinUnits::BTC;
+    if(m_model && m_model->getOptionsModel())
+        unit = m_model->getOptionsModel()->getDisplayUnit();
+    ui->labelAssets->setText(BitcoinUnits::formatWithUnit(unit, d->balance, false, BitcoinUnits::separatorAlways));
+    ui->labelStake->setText(BitcoinUnits::formatWithUnit(unit, d->stake, false, BitcoinUnits::separatorAlways));
 }

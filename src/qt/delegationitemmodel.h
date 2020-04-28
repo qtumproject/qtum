@@ -39,6 +39,8 @@ public:
         CreateTxHashRole = Qt::UserRole + 7,
         RemoveTxHashRole = Qt::UserRole + 8,
         FormattedFeeRole = Qt::UserRole + 9,
+        BalanceRole = Qt::UserRole + 10,
+        StakeRole = Qt::UserRole + 11,
     };
 
     DelegationItemModel(WalletModel *parent = 0);

@@ -29,7 +29,7 @@ DelegationsStakerDialog::DelegationsStakerDialog(QWidget *parent) :
     ui->setupUi(this);
     d = new DelegationsStakerDialogPriv();
 
-    setWindowTitle(tr("Delegate for super staker"));
+    setWindowTitle(tr("Delegations for super staker"));
 
     m_stakerDelegationView = new StakerDelegationView(this);
     m_stakerDelegationView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);

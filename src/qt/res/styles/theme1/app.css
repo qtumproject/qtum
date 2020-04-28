@@ -1156,3 +1156,16 @@ SuperStakerItemWidget #buttonDelegations{
 QFrame #frameStakerConfig{
     background-color: #2e2e2e;
 }
+/*--------------------------------------------
+Delegate and Staker Page Widget CSS
+--------------------------------------------*/
+#widgetStakingAssets QLabel{
+    color: #9c9c9c;
+}
+#widgetStakingAssets #labelAssets{
+    color: #049ee8;
+    font: 13pt;
+}
+#vLineAssets{
+    border-left: 1px solid #404041;
+}

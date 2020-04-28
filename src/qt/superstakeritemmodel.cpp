@@ -16,7 +16,10 @@
 class SuperStakerItemEntry
 {
 public:
-    SuperStakerItemEntry()
+    SuperStakerItemEntry():
+        staking(false),
+        balance(0),
+        stake(0)
     {}
 
     SuperStakerItemEntry(const interfaces::SuperStakerInfo &superStakerInfo)
@@ -26,6 +29,8 @@ public:
         stakerAddress = QString::fromStdString(superStakerInfo.staker_address);
         minFee = superStakerInfo.custom_config ? superStakerInfo.min_fee : DEFAULT_STAKING_MIN_FEE;
         staking = false;
+        balance = 0;
+        stake = 0;
     }
 
     SuperStakerItemEntry( const SuperStakerItemEntry &obj)
@@ -35,6 +40,8 @@ public:
         stakerAddress = obj.stakerAddress;
         minFee = obj.minFee;
         staking = obj.staking;
+        balance = obj.balance;
+        stake = obj.stake;
     }
 
     ~SuperStakerItemEntry()
@@ -45,6 +52,8 @@ public:
     QString stakerAddress;
     quint8 minFee;
     bool staking;
+    qint64 balance;
+    qint64 stake;
 };
 
 class SuperStakerWorker : public QObject
@@ -273,6 +282,12 @@ QVariant SuperStakerItemModel::data(const QModelIndex &index, int role) const
         break;
     case SuperStakerItemModel::FormattedMinFeeRole:
         return formatMinFee(rec);
+        break;
+    case SuperStakerItemModel::BalanceRole:
+        return rec->balance;
+        break;
+    case SuperStakerItemModel::StakeRole:
+        return rec->stake;
         break;
     default:
         break;

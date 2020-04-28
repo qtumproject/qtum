@@ -100,6 +100,7 @@ void DelegationListWidget::on_modelReset()
 void DelegationListWidget::insertRow(const QModelIndex &index, int position)
 {
     DelegationItemWidget* item = new DelegationItemWidget(m_platfromStyle);
+    if(m_model) item->setModel(m_model);
     m_rows.insert(position, item);
     for(DelegationItemWidget* p_row : m_rows)
     {
@@ -148,9 +149,11 @@ void DelegationListWidget::updateRow(const QModelIndex &index, int position)
         QString staker = m_delegationModel->data(index, DelegationItemModel::StakerNameRole).toString();
         QString address = m_delegationModel->data(index, DelegationItemModel::AddressRole).toString();
         int32_t blockHight = m_delegationModel->data(index, DelegationItemModel::BlockHeightRole).toInt();
+        int64_t balance = m_delegationModel->data(index, DelegationItemModel::BalanceRole).toLongLong();
+        int64_t stake = m_delegationModel->data(index, DelegationItemModel::StakeRole).toLongLong();
         DelegationItemWidget* item = m_rows[position];
         item->setPosition(position);
-        item->setData(fee, staker, address, blockHight);
+        item->setData(fee, staker, address, blockHight, balance, stake);
     }
 }
 

@@ -4,10 +4,13 @@
 #include <QWidget>
 
 class PlatformStyle;
+class WalletModel;
 
 namespace Ui {
 class SuperStakerItemWidget;
 }
+
+class SuperStakerItemWidgetPriv;
 
 class SuperStakerItemWidget : public QWidget
 {
@@ -31,16 +34,20 @@ public:
     explicit SuperStakerItemWidget(const PlatformStyle *platformStyle, QWidget *parent = 0, ItemType type = Record);
     ~SuperStakerItemWidget();
 
-    void setData(const QString& fee, const QString& staker, const bool& staking_on);
+    void setData(const QString& fee, const QString& staker, const bool& staking_on, const int64_t& balance, const int64_t& stake);
 
     void setPosition(int position);
 
     int position() const;
 
+    void setModel(WalletModel *_model);
+
 Q_SIGNALS:
     void clicked(int position, int button);
 
 private Q_SLOTS:
+    void updateDisplayUnit();
+
     void on_buttonAdd_clicked();
 
     void on_buttonRemove_clicked();
@@ -53,6 +60,7 @@ private Q_SLOTS:
 
 private:
     void updateLogo();
+    void updateBalance();
 
 private:
     Ui::SuperStakerItemWidget *ui;
@@ -60,6 +68,8 @@ private:
     ItemType m_type;
     int m_position;
     QString m_filename;
+    WalletModel* m_model;
+    SuperStakerItemWidgetPriv* d;
 };
 
 #endif // SUPERSTAKERITEMWIDGET_H

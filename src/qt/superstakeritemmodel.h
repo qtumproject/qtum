@@ -34,6 +34,8 @@ public:
         MinFeeRole = Qt::UserRole + 4,
         StakingRole = Qt::UserRole + 5,
         FormattedMinFeeRole = Qt::UserRole + 6,
+        BalanceRole = Qt::UserRole + 7,
+        StakeRole = Qt::UserRole + 8,
     };
 
     SuperStakerItemModel(WalletModel *parent = 0);

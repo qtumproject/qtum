@@ -15,7 +15,9 @@
 class DelegationItemEntry
 {
 public:
-    DelegationItemEntry()
+    DelegationItemEntry():
+        balance(0),
+        stake(0)
     {}
 
     DelegationItemEntry(const interfaces::DelegationInfo &delegationInfo)
@@ -29,6 +31,8 @@ public:
         blockNumber = delegationInfo.block_number;
         createTxHash = delegationInfo.create_tx_hash;
         removeTxHash = delegationInfo.remove_tx_hash;
+        balance = 0;
+        stake = 0;
     }
 
     DelegationItemEntry( const DelegationItemEntry &obj)
@@ -42,6 +46,8 @@ public:
         blockNumber = obj.blockNumber;
         createTxHash = obj.createTxHash;
         removeTxHash = obj.removeTxHash;
+        balance = obj.balance;
+        stake = obj.stake;
     }
 
     ~DelegationItemEntry()
@@ -56,6 +62,8 @@ public:
     qint32 blockNumber;
     uint256 createTxHash;
     uint256 removeTxHash;
+    qint64 balance;
+    qint64 stake;
 };
 
 class DelegationWorker : public QObject
@@ -357,6 +365,12 @@ QVariant DelegationItemModel::data(const QModelIndex &index, int role) const
         break;
     case DelegationItemModel::FormattedFeeRole:
         return formatFee(rec);
+        break;
+    case DelegationItemModel::BalanceRole:
+        return rec->balance;
+        break;
+    case DelegationItemModel::StakeRole:
+        return rec->stake;
         break;
     default:
         break;

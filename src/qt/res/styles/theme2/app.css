@@ -1181,3 +1181,16 @@ SendCoinsDialog QAbstractScrollArea::corner {
 #SendCoinsEntry #hLine{
     border-top: 1px solid rgba(111, 128, 171, 60%);
 }
+/*--------------------------------------------
+Delegate and Staker Page Widget CSS
+--------------------------------------------*/
+#widgetStakingAssets QLabel{
+    color: #47587d;
+}
+#widgetStakingAssets #labelAssets{
+    color: white;
+    font: 13pt;
+}
+#vLineAssets{
+    border-left: 1px solid #1a2845;
+}
