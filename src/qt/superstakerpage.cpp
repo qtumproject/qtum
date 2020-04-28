@@ -29,7 +29,7 @@ SuperStakerPage::SuperStakerPage(const PlatformStyle *platformStyle, QWidget *pa
     m_configSuperStakerPage = new SuperStakerConfigDialog(this);
     m_addSuperStakerPage = new AddSuperStakerPage(this);
     m_delegationsSuperStakerPage = new DelegationsStakerDialog(this);
-    m_splitUtxoPage = new SplitUTXOPage(this);
+    m_splitUtxoPage = new SplitUTXOPage(this, SplitUTXOPage::SuperStaker);
 
     m_configSuperStakerPage->setEnabled(false);
     m_delegationsSuperStakerPage->setEnabled(false);

@@ -19,14 +19,34 @@ static const QString PARAM_MAX_OUTPUTS = "maxOutputs";
 }
 using namespace SplitUTXO_NS;
 
-SplitUTXOPage::SplitUTXOPage(QWidget *parent) :
+SplitUTXOPage::SplitUTXOPage(QWidget *parent, Mode mode) :
     QDialog(parent),
     ui(new Ui::SplitUTXOPage),
-    m_model(nullptr)
+    m_model(nullptr),
+    m_mode(mode)
 {
     ui->setupUi(this);
 
-    setWindowTitle(tr("Split coins for address"));
+    switch (m_mode) {
+    case Normal:
+        setWindowTitle(tr("Split coins for address"));
+        ui->labelAddress->setText(tr("Address"));
+        break;
+
+    case Delegation:
+        setWindowTitle(tr("Split coins for offline staking"));
+        ui->labelAddress->setText(tr("Delegate address"));
+        ui->labelDescription->setText(tr("Split coins for offline staking. The UTXO value need to be minimum <b> %1 </b>.").
+                                      arg(BitcoinUnits::formatHtmlWithUnit(BitcoinUnits::BTC, DEFAULT_STAKING_MIN_UTXO_VALUE)));
+        break;
+
+    case SuperStaker:
+        setWindowTitle(tr("Split coins for super staker"));
+        ui->labelAddress->setText(tr("Staker address"));
+        ui->labelDescription->setText(tr("Split coins for super staker. The UTXO value need to be minimum <b> %1 </b>.").
+                                      arg(BitcoinUnits::formatHtmlWithUnit(BitcoinUnits::BTC, DEFAULT_STAKING_MIN_UTXO_VALUE)));
+        break;
+    }
 
     ui->labelAddress->setToolTip(tr("The qtum address to split utxos."));
     ui->labelMinValue->setToolTip(tr("Select utxo which value is smaller than value (minimum 0.1 COIN)."));
@@ -36,6 +56,10 @@ SplitUTXOPage::SplitUTXOPage(QWidget *parent) :
     ui->lineEditAddress->setSenderAddress(true);
     ui->txtAddress->setReadOnly(true);
     ui->txtAddress->setVisible(false);
+
+    QFont font = QApplication::font();
+    font.setPointSizeF(font.pointSizeF() * 0.8);
+    ui->labelDescription->setFont(font);
 
     // Set defaults
     ui->lineEditMinValue->setValue(DEFAULT_STAKING_MIN_UTXO_VALUE);
@@ -90,7 +114,9 @@ void SplitUTXOPage::setAddress(const QString &address)
     ui->lineEditAddress->setVisible(false);
     ui->txtAddress->setVisible(true);
     ui->txtAddress->setText(address);
-    setWindowTitle(tr("Split coins for address %1").arg(address));
+
+    if(m_mode == Normal)
+        setWindowTitle(tr("Split coins for address %1").arg(address));
 
     ui->splitCoinsButton->setEnabled(true);
 }

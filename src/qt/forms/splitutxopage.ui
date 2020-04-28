@@ -50,68 +50,26 @@
      <property name="verticalSpacing">
       <number>15</number>
      </property>
-     <item row="0" column="0">
-      <widget class="QLabel" name="labelAddress">
-       <property name="minimumSize">
-        <size>
-         <width>100</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Address</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="labelMinValue">
-       <property name="minimumSize">
-        <size>
-         <width>100</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Min value</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="labelMaxOutputs">
-       <property name="minimumSize">
-        <size>
-         <width>100</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Max outputs</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="labelMaxValue">
-       <property name="minimumSize">
-        <size>
-         <width>100</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Max value</string>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="1">
       <widget class="BitcoinAmountField" name="lineEditMinValue"/>
-     </item>
-     <item row="2" column="1">
-      <widget class="BitcoinAmountField" name="lineEditMaxValue"/>
      </item>
      <item row="3" column="1">
       <widget class="QSpinBox" name="spinBoxMaxOutputs">
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="labelAddress">
+       <property name="minimumSize">
+        <size>
+         <width>125</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Address</string>
        </property>
       </widget>
      </item>
@@ -124,6 +82,55 @@
         <widget class="QLineEdit" name="txtAddress"/>
        </item>
       </layout>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="labelMaxOutputs">
+       <property name="minimumSize">
+        <size>
+         <width>125</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Maximum outputs</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="BitcoinAmountField" name="lineEditMaxValue"/>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="labelMinValue">
+       <property name="minimumSize">
+        <size>
+         <width>125</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Minimum value</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="labelMaxValue">
+       <property name="minimumSize">
+        <size>
+         <width>125</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Maximum value</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QLabel" name="labelDescription">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

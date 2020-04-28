@@ -15,7 +15,14 @@ class SplitUTXOPage : public QDialog
     Q_OBJECT
 
 public:
-    explicit SplitUTXOPage(QWidget *parent = nullptr);
+    enum Mode
+    {
+        Normal,
+        Delegation,
+        SuperStaker
+    };
+
+    explicit SplitUTXOPage(QWidget *parent = nullptr, Mode mode = Normal);
     ~SplitUTXOPage();
     void setModel(WalletModel *_model);
     void setAddress(const QString& address);
@@ -36,6 +43,7 @@ private:
     Ui::SplitUTXOPage *ui;
     WalletModel* m_model;
     ExecRPCCommand *m_execRPCCommand;
+    Mode m_mode;
 };
 
 #endif // SPLITUTXOPAGE_H

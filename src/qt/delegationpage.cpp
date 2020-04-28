@@ -28,7 +28,7 @@ DelegationPage::DelegationPage(const PlatformStyle *platformStyle, QWidget *pare
 
     m_removeDelegationPage = new RemoveDelegationPage(this);
     m_addDelegationPage = new AddDelegationPage(this);
-    m_splitUtxoPage = new SplitUTXOPage(this);
+    m_splitUtxoPage = new SplitUTXOPage(this, SplitUTXOPage::Delegation);
 
     m_removeDelegationPage->setEnabled(false);
     m_splitUtxoPage->setEnabled(false);
