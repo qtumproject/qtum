@@ -922,13 +922,24 @@ public:
         if(!mine)
             return false;
 
-        switch (type) {
+        CSuperStakerInfo info;
+        if(pwallet->GetSuperStaker(info, event.item.staker) && info.fCustomConfig)
+        {
+            return CheckAddressList(info.nDelegateAddressType, info.delegateAddressList, info.delegateAddressList, event);
+        }
+
+        return CheckAddressList(type, whiteList, blackList, event);
+    }
+
+    bool CheckAddressList(const int& _type, const std::vector<uint160>& _whiteList, const std::vector<uint160>& _blackList, const DelegationEvent& event) const
+    {
+        switch (_type) {
         case STAKER_NORMAL:
             return true;
         case STAKER_WHITELIST:
-            return std::count(whiteList.begin(), whiteList.end(), event.item.delegate);
+            return std::count(_whiteList.begin(), _whiteList.end(), event.item.delegate);
         case STAKER_BLACKLIST:
-            return std::count(blackList.begin(), blackList.end(), event.item.delegate) == 0;
+            return std::count(_blackList.begin(), _blackList.end(), event.item.delegate) == 0;
         default:
             break;
         }
@@ -938,6 +949,14 @@ public:
 
     void Update(int32_t nHeight)
     {
+        if(pwallet->fUpdatedSuperStaker)
+        {
+            // Clear cache if updated
+            cacheHeight = 0;
+            cacheDelegationsStaker.clear();
+            pwallet->fUpdatedSuperStaker = false;
+        }
+
         std::map<uint160, Delegation> delegations_staker;
         if(nHeight <= nCheckpointSpan)
         {
@@ -975,7 +994,7 @@ private:
     std::map<uint160, Delegation> cacheDelegationsStaker;
     std::vector<uint160> whiteList;
     std::vector<uint160> blackList;
-    StakerType type;
+    int type;
 };
 
 class MyDelegations : public DelegationFilterBase

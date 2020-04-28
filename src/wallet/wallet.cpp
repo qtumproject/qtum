@@ -2748,8 +2748,18 @@ bool CWallet::AvailableDelegateCoinsForStaking(interfaces::Chain::Lock& locked_c
         const PKHash& keyid = PKHash(it->first);
         const Delegation* delegation = &(*it).second;
 
+        // Get super staker custom configuration
+        CAmount staking_min_utxo_value = m_staking_min_utxo_value;
+        uint8_t staking_min_fee = m_staking_min_fee;
+        CSuperStakerInfo info;
+        if(GetSuperStaker(info, delegation->staker) && info.fCustomConfig)
+        {
+            staking_min_utxo_value = info.nMinDelegateUtxo;
+            staking_min_fee = info.nMinFee;
+        }
+
         // Check for min staking fee
-        if(delegation->fee < m_staking_min_fee)
+        if(delegation->fee < staking_min_fee)
             continue;
 
         // Decode address
@@ -2773,7 +2783,7 @@ bool CWallet::AvailableDelegateCoinsForStaking(interfaces::Chain::Lock& locked_c
             if (nDepth < COINBASE_MATURITY)
                 continue;
 
-            if(i->second.satoshis < m_staking_min_utxo_value)
+            if(i->second.satoshis < staking_min_utxo_value)
                 continue;
 
             COutPoint prevout = COutPoint(i->first.txhash, i->first.index);
@@ -6276,7 +6286,10 @@ bool CWallet::AddDelegationEntry(const CDelegationInfo& delegation, bool fFlushO
 
     NotifyDelegationChanged(this, hash, fInsertedNew ? CT_NEW : CT_UPDATED);
 
-    LogPrintf("AddDelegationEntry %s\n", wdelegation.GetHash().ToString());
+    if(fInsertedNew)
+    {
+        LogPrintf("AddDelegationEntry %s\n", wdelegation.GetHash().ToString());
+    }
 
     return true;
 }
@@ -6353,7 +6366,14 @@ bool CWallet::AddSuperStakerEntry(const CSuperStakerInfo& superStaker, bool fFlu
 
     NotifySuperStakerChanged(this, hash, fInsertedNew ? CT_NEW : CT_UPDATED);
 
-    LogPrintf("AddSuperStakerEntry %s\n", wsuperStaker.GetHash().ToString());
+    if(fInsertedNew)
+    {
+        LogPrintf("AddSuperStakerEntry %s\n", wsuperStaker.GetHash().ToString());
+    }
+    else
+    {
+        fUpdatedSuperStaker = true;
+    }
 
     return true;
 }
@@ -6494,4 +6514,20 @@ uint64_t CWallet::GetSuperStakerWeight(const uint160 &staker) const
     }
 
     return nWeight;
+}
+
+bool CWallet::GetSuperStaker(CSuperStakerInfo &info, const uint160 &stakerAddress) const
+{
+    LOCK(cs_wallet);
+
+    for (std::map<uint256, CSuperStakerInfo>::const_iterator it=mapSuperStaker.begin(); it!=mapSuperStaker.end(); it++)
+    {
+        if(it->second.stakerAddress == stakerAddress)
+        {
+            info = it->second;
+            return true;
+        }
+    }
+
+    return false;
 }

@@ -1013,6 +1013,8 @@ public:
 
     std::map<uint256, CSuperStakerInfo> mapSuperStaker;
 
+    bool fUpdatedSuperStaker = false;
+
     /** Registered interfaces::Chain::Notifications handler. */
     std::unique_ptr<interfaces::Handler> m_chain_notifications_handler;
 
@@ -1041,6 +1043,7 @@ public:
     bool HaveAvailableCoinsForStaking() const;
     bool AvailableDelegateCoinsForStaking(interfaces::Chain::Lock& locked_chain, std::vector<COutPoint>& vDelegateCoins, std::map<uint160, CAmount>& mDelegateWeight) const;
     bool HaveAvailableDelegateCoinsForStaking() const;
+    bool GetSuperStaker(CSuperStakerInfo &info, const uint160& stakerAddress) const;
 
     /**
      * Return list of available coins and locked coins grouped by non-change output address.
