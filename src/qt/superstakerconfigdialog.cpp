@@ -7,6 +7,8 @@
 #include <qt/optionsmodel.h>
 #include <qt/bitcoinaddressvalidator.h>
 
+#include <QMessageBox>
+
 class SuperStakerConfigDialogPriv
 {
 public:
@@ -94,6 +96,7 @@ void SuperStakerConfigDialog::setSuperStakerData(const QString &hash)
     ui->cbCustom->setChecked(d->staker.custom_config);
 
     updateData();
+    ui->buttonOk->setEnabled(false);
 }
 
 void SuperStakerConfigDialog::chooseAddressType(int idx)
@@ -128,32 +131,44 @@ void SuperStakerConfigDialog::on_buttonOk_clicked()
 {
     if(m_model)
     {
-        interfaces::SuperStakerInfo updatedStaker;
-        updatedStaker.hash = d->staker.hash;
-        updatedStaker.staker_address = d->staker.staker_address;
-        updatedStaker.staker_name = d->staker.staker_name;
-        updatedStaker.time = d->staker.time;
-        updatedStaker.custom_config = ui->cbCustom->isChecked();
-        if(updatedStaker.custom_config)
+        if(ui->textAddressList->isVisible() && !ui->textAddressList->isValid())
+            return;
+
+        QString questionString = tr("Are you sure you want to update configuration for staker<br /><br />");
+        questionString.append(tr("<b>%1</b>?")
+                              .arg(ui->txtStaker->text()));
+
+        QMessageBox::StandardButton retval = QMessageBox::question(this, tr("Confirm configuration change."), questionString,
+            QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
+
+        if(retval == QMessageBox::Yes)
         {
-            updatedStaker.min_fee = ui->sbMinFee->value();
-            updatedStaker.min_delegate_utxo = ui->leMinUtxo->value();
-            updatedStaker.delegate_address_type = ui->cbListType->currentIndex();
-            if(updatedStaker.delegate_address_type)
+            interfaces::SuperStakerInfo updatedStaker;
+            updatedStaker.hash = d->staker.hash;
+            updatedStaker.staker_address = d->staker.staker_address;
+            updatedStaker.staker_name = d->staker.staker_name;
+            updatedStaker.time = d->staker.time;
+            updatedStaker.custom_config = ui->cbCustom->isChecked();
+            if(updatedStaker.custom_config)
             {
-                std::vector<std::string> delegateAddressList;
-                for(QString address : ui->textAddressList->getLines())
+                updatedStaker.min_fee = ui->sbMinFee->value();
+                updatedStaker.min_delegate_utxo = ui->leMinUtxo->value();
+                updatedStaker.delegate_address_type = ui->cbListType->currentIndex();
+                if(updatedStaker.delegate_address_type)
                 {
-                    delegateAddressList.push_back(address.toStdString());
+                    std::vector<std::string> delegateAddressList;
+                    for(QString address : ui->textAddressList->getLines())
+                    {
+                        delegateAddressList.push_back(address.toStdString());
+                    }
+                    updatedStaker.delegate_address_list = delegateAddressList;
                 }
-                updatedStaker.delegate_address_list = delegateAddressList;
             }
+            m_model->wallet().addSuperStakerEntry(updatedStaker);
+
+            accept();
         }
-
-        m_model->wallet().addSuperStakerEntry(updatedStaker);
     }
-
-    accept();
 }
 
 void SuperStakerConfigDialog::on_buttonCancel_clicked()
@@ -165,6 +180,7 @@ void SuperStakerConfigDialog::changeConfigEnabled()
 {
     ui->frameStakerConfig->setEnabled(ui->cbRecommended->isChecked() ? false : true);
     updateData();
+    ui->buttonOk->setEnabled(true);
 }
 
 void SuperStakerConfigDialog::updateDisplayUnit()
