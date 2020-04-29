@@ -304,6 +304,7 @@ private:
     bool checkBalanceChanged(const interfaces::WalletBalances& new_balances);
     void checkTokenBalanceChanged();
     void checkDelegationChanged();
+    void checkSuperStakerChanged();
 
 Q_SIGNALS:
     // Signal that balance in wallet changed

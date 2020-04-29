@@ -55,6 +55,7 @@ public:
 
 public Q_SLOTS:
     void checkSuperStakerChanged();
+    void itemChanged(QString hash, qint64 balance, qint64 stake, bool staking);
 
 private Q_SLOTS:
     void updateSuperStakerData(const QString &hash, int status, bool showSuperStaker);

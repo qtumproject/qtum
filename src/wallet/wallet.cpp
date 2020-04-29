@@ -6500,15 +6500,19 @@ uint64_t CWallet::GetSuperStakerWeight(const uint160 &staker) const
     LOCK(cs_wallet);
 
     uint64_t nWeight = 0;
-    for (std::map<uint160, Delegation>::const_iterator it=m_delegations_staker.begin(); it!=m_delegations_staker.end(); it++)
+    auto iterator = m_have_coin_superstaker.find(staker);
+    if (iterator != m_have_coin_superstaker.end() && iterator->second)
     {
-        if(it->second.staker == staker)
+        for (std::map<uint160, Delegation>::const_iterator it=m_delegations_staker.begin(); it!=m_delegations_staker.end(); it++)
         {
-            uint160 delegate = it->first;
-            std::map<uint160, CAmount>::const_iterator mi = m_delegations_weight.find(delegate);
-            if(mi != m_delegations_weight.end())
+            if(it->second.staker == staker)
             {
-                nWeight += mi->second;
+                uint160 delegate = it->first;
+                std::map<uint160, CAmount>::const_iterator mi = m_delegations_weight.find(delegate);
+                if(mi != m_delegations_weight.end())
+                {
+                    nWeight += mi->second;
+                }
             }
         }
     }
@@ -6530,4 +6534,55 @@ bool CWallet::GetSuperStaker(CSuperStakerInfo &info, const uint160 &stakerAddres
     }
 
     return false;
+}
+
+void CWallet::GetStakerAddressBalance(interfaces::Chain::Lock &locked_chain, const PKHash &staker, CAmount &balance, CAmount &stake) const
+{
+    AssertLockHeld(cs_main);
+    AssertLockHeld(cs_wallet);
+
+    balance = 0;
+    stake = 0;
+    for (std::map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
+    {
+        const CWalletTx* pcoin = &(*it).second;
+        int nDepth = pcoin->GetDepthInMainChain(locked_chain);
+
+        if (nDepth < 1)
+            continue;
+
+        bool isImature = pcoin->GetBlocksToMaturity(locked_chain) == 0;
+        for (unsigned int i = 0; i < pcoin->tx->vout.size(); i++)
+        {
+            bool OK = false;
+            PKHash keyId = ExtractPublicKeyHash(pcoin->tx->vout[i].scriptPubKey, &OK);
+            if(OK && keyId == staker)
+            {
+                CAmount nValue = pcoin->tx->vout[i].nValue;
+                if(isImature)
+                {
+                    balance += nValue;
+                }
+                else if(pcoin->IsCoinStake())
+                {
+                    stake += nValue;
+                }
+            }
+        }
+    }
+}
+
+void CWallet::updateHaveCoinSuperStaker(const std::set<std::pair<const CWalletTx *, unsigned int> > &setCoins)
+{
+    LOCK(cs_wallet);
+    m_have_coin_superstaker.clear();
+
+    COutPoint prevout;
+    CAmount nValueRet = 0;
+    for (const auto& entry : mapSuperStaker) {
+        if(GetCoinSuperStaker(setCoins, PKHash(entry.second.stakerAddress), prevout, nValueRet))
+        {
+            m_have_coin_superstaker[entry.second.stakerAddress] = true;
+        }
+    }
 }

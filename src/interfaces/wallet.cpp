@@ -1088,6 +1088,20 @@ public:
 
         return found ? addDelegationEntry(info) : 0;
     }
+    bool existSuperStaker(const std::string &sAddress) override
+    {
+        LOCK(m_wallet->cs_wallet);
+        uint160 address = StringToKeyId(sAddress);
+        if(address.IsNull())
+            return false;
+
+        for (const auto& entry : m_wallet->mapSuperStaker) {
+            if(entry.second.stakerAddress == address)
+                return true;
+        }
+
+        return false;
+    }
     SuperStakerInfo getSuperStaker(const uint256& id) override
     {
         LOCK(m_wallet->cs_wallet);
@@ -1249,6 +1263,20 @@ public:
     {
         uint64_t lastCoinStakeSearchInterval = getEnabledStaking() ? getLastCoinStakeSearchInterval() : 0;
         return lastCoinStakeSearchInterval && getSuperStakerWeight(id);
+    }
+    bool getStakerAddressBalance(const std::string& staker, CAmount& balance, CAmount& stake) override
+    {
+        auto locked_chain = m_wallet->chain().lock();
+        LOCK(m_wallet->cs_wallet);
+
+        CTxDestination dest = DecodeDestination(staker);
+        const PKHash *keyID = boost::get<PKHash>(&dest);
+        if(keyID)
+        {
+            m_wallet->GetStakerAddressBalance(*locked_chain, *keyID, balance, stake);
+        }
+
+        return keyID != 0;
     }
     std::unique_ptr<Handler> handleUnload(UnloadFn fn) override
     {

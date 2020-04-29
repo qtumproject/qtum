@@ -358,6 +358,9 @@ public:
     //! Set delegation entry removed.
     virtual bool setDelegationRemoved(const std::string &sHash, const std::string &sTxid) = 0;
 
+    //! Exist super staker.
+    virtual bool existSuperStaker(const std::string &sAddress) = 0;
+
     //! Get super staker information.
     virtual SuperStakerInfo getSuperStaker(const uint256& id) = 0;
 
@@ -405,6 +408,9 @@ public:
 
     //! Get list of all delegations for super stakers.
     virtual std::vector<DelegationStakerInfo> getDelegationsStakers() = 0;
+
+    //! Get staker address balance.
+    virtual bool getStakerAddressBalance(const std::string& staker, CAmount& balance, CAmount& stake) = 0;
 
     //! Register handler for unload message.
     using UnloadFn = std::function<void()>;

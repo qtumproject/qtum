@@ -138,9 +138,18 @@ private Q_SLOTS:
                 }
             }
         }
+
+        // Get address balance
+        CAmount balance = 0;
+        CAmount stake = 0;
+        std::string sAddress = delegateAddress.toStdString();
+        walletModel->wallet().getStakerAddressBalance(sAddress, balance, stake);
+        Q_EMIT itemChanged(hash, balance, stake);
     }
 
 Q_SIGNALS:
+    // Signal that item in changed
+    void itemChanged(QString hash, qint64 balance, qint64 stake);
 };
 
 #include <qt/delegationitemmodel.moc>
@@ -263,6 +272,7 @@ DelegationItemModel::DelegationItemModel(WalletModel *parent):
 
     worker = new DelegationWorker(walletModel);
     worker->moveToThread(&(t));
+    connect(worker, &DelegationWorker::itemChanged, this, &DelegationItemModel::itemChanged);
 
     t.start();
 
@@ -473,4 +483,25 @@ void DelegationItemModel::updateDelegationData(const DelegationItemEntry &entry)
 QString DelegationItemModel::formatFee(const DelegationItemEntry *rec) const
 {
     return QString("%1%").arg(rec->fee);
+}
+
+void DelegationItemModel::itemChanged(QString hash, qint64 balance, qint64 stake)
+{
+    if(!priv)
+        return;
+
+    uint256 updated;
+    updated.SetHex(hash.toStdString());
+
+    // Update delegation
+    for(int i = 0; i < priv->cachedDelegationItem.size(); i++)
+    {
+        DelegationItemEntry delegationEntry = priv->cachedDelegationItem[i];
+        if(delegationEntry.hash == updated)
+        {
+            delegationEntry.balance = balance;
+            delegationEntry.stake = stake;
+            priv->updateEntry(delegationEntry, CT_UPDATED);
+        }
+    }
 }

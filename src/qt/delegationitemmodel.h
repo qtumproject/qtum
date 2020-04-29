@@ -4,6 +4,7 @@
 #include <QAbstractItemModel>
 #include <QStringList>
 #include <QThread>
+#include <QtGlobal>
 
 #include <memory>
 
@@ -60,6 +61,7 @@ public:
 
 public Q_SLOTS:
     void checkDelegationChanged();
+    void itemChanged(QString hash, qint64 balance, qint64 stake);
 
 private Q_SLOTS:
     void updateDelegationData(const QString &hash, int status, bool showDelegation);

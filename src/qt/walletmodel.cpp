@@ -155,6 +155,7 @@ void WalletModel::pollBalanceChanged()
         {
             checkTokenBalanceChanged();
             checkDelegationChanged();
+            checkSuperStakerChanged();
         }
 
         if(balanceChanged)
@@ -199,6 +200,14 @@ void WalletModel::checkDelegationChanged()
     if(delegationItemModel)
     {
         delegationItemModel->checkDelegationChanged();
+    }
+}
+
+void WalletModel::checkSuperStakerChanged()
+{
+    if(superStakerItemModel)
+    {
+        superStakerItemModel->checkSuperStakerChanged();
     }
 }
 

@@ -1044,6 +1044,7 @@ public:
     bool AvailableDelegateCoinsForStaking(interfaces::Chain::Lock& locked_chain, std::vector<COutPoint>& vDelegateCoins, std::map<uint160, CAmount>& mDelegateWeight) const;
     bool HaveAvailableDelegateCoinsForStaking() const;
     bool GetSuperStaker(CSuperStakerInfo &info, const uint160& stakerAddress) const;
+    void GetStakerAddressBalance(interfaces::Chain::Lock& locked_chain, const PKHash& staker, CAmount& balance, CAmount& stake) const;
 
     /**
      * Return list of available coins and locked coins grouped by non-change output address.
@@ -1585,10 +1586,12 @@ public:
 
     void updateDelegationsStaker(const std::map<uint160, Delegation>& delegations_staker);
     void updateDelegationsWeight(const std::map<uint160, CAmount>& delegations_weight);
+    void updateHaveCoinSuperStaker(const std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins);
 
     std::map<uint160, Delegation> m_delegations_staker;
     std::map<uint160, CAmount> m_delegations_weight;
     std::map<uint160, Delegation> m_my_delegations;
+    std::map<uint160, bool> m_have_coin_superstaker;
 };
 
 /**

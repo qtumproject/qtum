@@ -1230,6 +1230,7 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
                 std::map<uint160, CAmount> mDelegateWeight;
                 pwallet->SelectDelegateCoinsForStaking(*locked_chain, setDelegateCoins, mDelegateWeight);
                 pwallet->updateDelegationsWeight(mDelegateWeight);
+                pwallet->updateHaveCoinSuperStaker(setCoins);
             }
         }
         if(setCoins.size() > 0 || pwallet->CanSuperStake(setCoins, setDelegateCoins))

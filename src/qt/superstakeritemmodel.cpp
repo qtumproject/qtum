@@ -66,11 +66,23 @@ public:
         walletModel(_walletModel), first(true) {}
 
 private Q_SLOTS:
-    void updateSuperStakerData(QString hash, QString stakerAddress, quint8 minFee)
+    void updateSuperStakerData(QString hash, QString stakerAddress)
     {
+        // Get address balance
+        bool staking = false;
+        CAmount balance = 0;
+        CAmount stake = 0;
+        std::string sAddress = stakerAddress.toStdString();
+        uint256 id;
+        id.SetHex(hash.toStdString());
+        staking = walletModel->wallet().isSuperStakerStaking(id);
+        walletModel->wallet().getStakerAddressBalance(sAddress, balance, stake);
+        Q_EMIT itemChanged(hash, balance, stake, staking);
     }
 
 Q_SIGNALS:
+    // Signal that item in changed
+    void itemChanged(QString hash, qint64 balance, qint64 stake, bool staking);
 };
 
 #include <qt/superstakeritemmodel.moc>
@@ -193,6 +205,7 @@ SuperStakerItemModel::SuperStakerItemModel(WalletModel *parent):
 
     worker = new SuperStakerWorker(walletModel);
     worker->moveToThread(&(t));
+    connect(worker, &SuperStakerWorker::itemChanged, this, &SuperStakerItemModel::itemChanged);
 
     t.start();
 
@@ -381,11 +394,32 @@ void SuperStakerItemModel::updateSuperStakerData(const SuperStakerItemEntry &ent
     QString hash = QString::fromStdString(entry.hash.ToString());
     QMetaObject::invokeMethod(worker, "updateSuperStakerData", Qt::QueuedConnection,
                               Q_ARG(QString, hash),
-                              Q_ARG(QString, entry.stakerAddress),
-                              Q_ARG(quint8, entry.minFee));
+                              Q_ARG(QString, entry.stakerAddress));
 }
 
 QString SuperStakerItemModel::formatMinFee(const SuperStakerItemEntry *rec) const
 {
     return QString("%1%").arg(rec->minFee);
+}
+
+void SuperStakerItemModel::itemChanged(QString hash, qint64 balance, qint64 stake, bool staking)
+{
+    if(!priv)
+        return;
+
+    uint256 updated;
+    updated.SetHex(hash.toStdString());
+
+    // Update delegation
+    for(int i = 0; i < priv->cachedSuperStakerItem.size(); i++)
+    {
+        SuperStakerItemEntry superStakerEntry = priv->cachedSuperStakerItem[i];
+        if(superStakerEntry.hash == updated)
+        {
+            superStakerEntry.balance = balance;
+            superStakerEntry.stake = stake;
+            superStakerEntry.staking = staking;
+            priv->updateEntry(superStakerEntry, CT_UPDATED);
+        }
+    }
 }
