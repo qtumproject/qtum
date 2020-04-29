@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>733</width>
+    <width>773</width>
     <height>92</height>
    </rect>
   </property>
@@ -96,9 +96,15 @@
                 </property>
                </spacer>
               </item>
-              <item>
+              <item alignment="Qt::AlignLeft">
                <widget class="QWidget" name="widgetSuperStaker" native="true">
-                <layout class="QHBoxLayout" name="horizontalLayout_2">
+                <property name="minimumSize">
+                 <size>
+                  <width>280</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,1">
                  <property name="leftMargin">
                   <number>0</number>
                  </property>
@@ -212,7 +218,7 @@
                <item>
                 <widget class="QLabel" name="labelAssetsText">
                  <property name="text">
-                  <string>Staking assets</string>
+                  <string>Super staking assets</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
