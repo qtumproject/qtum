@@ -90,6 +90,14 @@ void AddSuperStakerPage::on_addSuperStakerButton_clicked()
         }
 
         QString stakerAddress = ui->lineEditStakerAddress->currentText();
+
+        // Check if super staker exist in the wallet
+        if(m_model->wallet().existSuperStaker(stakerAddress.toStdString()))
+        {
+            QMessageBox::warning(this, tr("Super staking"), tr("The super staker address exist in the wallet list."));
+            return;
+        }
+
         QString stakerName = ui->lineEditStakerName->text().trimmed();
         interfaces::SuperStakerInfo superStaker;
         superStaker.staker_address = stakerAddress.toStdString();
