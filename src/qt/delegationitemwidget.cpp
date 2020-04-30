@@ -64,7 +64,8 @@ void DelegationItemWidget::setData(const QString &fee, const QString &staker, co
         ui->labelStaker->setText(d->staker);
     if(d->address != ui->labelAddress->text())
         ui->labelAddress->setText(d->address);
-    QString filename = d->blockHight > 0 ? ":/icons/staking_on" : ":/icons/staking_off";
+    bool staking = (d->blockHight > 0 && d->balance > 0);
+    QString filename = staking ? ":/icons/staking_on" : ":/icons/staking_off";
     if(m_filename != filename)
     {
         m_filename = filename;
