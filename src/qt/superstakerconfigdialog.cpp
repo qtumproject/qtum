@@ -83,12 +83,11 @@ void SuperStakerConfigDialog::setClientModel(ClientModel *_clientModel)
 
 void SuperStakerConfigDialog::setSuperStakerData(const QString &hash)
 {
-    d->staker = interfaces::SuperStakerInfo();
-
     if(m_model && !hash.isEmpty())
     {
         uint256 id;
         id.SetHex(hash.toStdString());
+        if(id == d->staker.hash) return;
         d->staker = m_model->wallet().getSuperStaker(id);
     }
 
@@ -119,11 +118,13 @@ void SuperStakerConfigDialog::chooseAddressType(int idx)
 
 void SuperStakerConfigDialog::accept()
 {
+    clearAll();
     QDialog::accept();
 }
 
 void SuperStakerConfigDialog::reject()
 {
+    clearAll();
     QDialog::reject();
 }
 
@@ -232,4 +233,9 @@ void SuperStakerConfigDialog::updateData()
         }
         ui->textAddressList->setLines(addressList);
     }
+}
+
+void SuperStakerConfigDialog::clearAll()
+{
+    d->staker = interfaces::SuperStakerInfo();
 }

@@ -46,6 +46,7 @@ private Q_SLOTS:
 
 private:
     void updateData();
+    void clearAll();
 
 private:
     Ui::SuperStakerConfigDialog *ui;
