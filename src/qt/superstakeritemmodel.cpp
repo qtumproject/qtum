@@ -139,6 +139,7 @@ public:
         int lowerIndex = (lower - cachedSuperStakerItem.begin());
         int upperIndex = (upper - cachedSuperStakerItem.begin());
         bool inModel = (lower != upper);
+        SuperStakerItemEntry _item = item;
 
         switch(status)
         {
@@ -158,7 +159,10 @@ public:
                 qWarning() << "SuperStakerItemPriv::updateEntry: Warning: Got CT_UPDATED, but entry is not in model";
                 break;
             }
-            cachedSuperStakerItem[lowerIndex] = item;
+            _item.balance = cachedSuperStakerItem[lowerIndex].balance;
+            _item.stake = cachedSuperStakerItem[lowerIndex].stake;
+            _item.staking = cachedSuperStakerItem[lowerIndex].staking;
+            cachedSuperStakerItem[lowerIndex] = _item;
             parent->emitDataChanged(lowerIndex);
             break;
         case CT_DELETED:
@@ -419,6 +423,7 @@ void SuperStakerItemModel::itemChanged(QString hash, qint64 balance, qint64 stak
             superStakerEntry.balance = balance;
             superStakerEntry.stake = stake;
             superStakerEntry.staking = staking;
+            priv->cachedSuperStakerItem[i] = superStakerEntry;
             priv->updateEntry(superStakerEntry, CT_UPDATED);
         }
     }

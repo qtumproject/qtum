@@ -6545,6 +6545,7 @@ void CWallet::GetStakerAddressBalance(interfaces::Chain::Lock &locked_chain, con
     stake = 0;
     for (std::map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
     {
+        const uint256& wtxid = it->first;
         const CWalletTx* pcoin = &(*it).second;
         int nDepth = pcoin->GetDepthInMainChain(locked_chain);
 
@@ -6558,14 +6559,19 @@ void CWallet::GetStakerAddressBalance(interfaces::Chain::Lock &locked_chain, con
             PKHash keyId = ExtractPublicKeyHash(pcoin->tx->vout[i].scriptPubKey, &OK);
             if(OK && keyId == staker)
             {
-                CAmount nValue = pcoin->tx->vout[i].nValue;
-                if(isImature)
+                isminetype mine = IsMine(pcoin->tx->vout[i]);
+                  if (!(IsSpent(locked_chain, wtxid, i)) && mine != ISMINE_NO &&
+                    !IsLockedCoin((*it).first, i) && (pcoin->tx->vout[i].nValue > 0))
                 {
-                    balance += nValue;
-                }
-                else if(pcoin->IsCoinStake())
-                {
-                    stake += nValue;
+                      CAmount nValue = pcoin->tx->vout[i].nValue;
+                      if(isImature)
+                      {
+                          balance += nValue;
+                      }
+                      else if(pcoin->IsCoinStake())
+                      {
+                          stake += nValue;
+                      }
                 }
             }
         }

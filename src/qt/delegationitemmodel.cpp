@@ -206,6 +206,7 @@ public:
         int lowerIndex = (lower - cachedDelegationItem.begin());
         int upperIndex = (upper - cachedDelegationItem.begin());
         bool inModel = (lower != upper);
+        DelegationItemEntry _item = item;
 
         switch(status)
         {
@@ -225,7 +226,9 @@ public:
                 qWarning() << "DelegationItemPriv::updateEntry: Warning: Got CT_UPDATED, but entry is not in model";
                 break;
             }
-            cachedDelegationItem[lowerIndex] = item;
+            _item.balance = cachedDelegationItem[lowerIndex].balance;
+            _item.stake = cachedDelegationItem[lowerIndex].stake;
+            cachedDelegationItem[lowerIndex] = _item;
             parent->emitDataChanged(lowerIndex);
             break;
         case CT_DELETED:
@@ -501,6 +504,7 @@ void DelegationItemModel::itemChanged(QString hash, qint64 balance, qint64 stake
         {
             delegationEntry.balance = balance;
             delegationEntry.stake = stake;
+            priv->cachedDelegationItem[i] = delegationEntry;
             priv->updateEntry(delegationEntry, CT_UPDATED);
         }
     }
