@@ -6552,6 +6552,13 @@ void CWallet::GetStakerAddressBalance(interfaces::Chain::Lock &locked_chain, con
         if (nDepth < 1)
             continue;
 
+        uint256 hashBlock = pcoin->m_confirm.hashBlock;
+        bool fHasProofOfDelegation = false;
+        CBlockIndex* blockIndex = LookupBlockIndex(hashBlock);
+        if(!blockIndex)
+            continue;
+        fHasProofOfDelegation = blockIndex->HasProofOfDelegation();
+
         bool isImature = pcoin->GetBlocksToMaturity(locked_chain) == 0;
         for (unsigned int i = 0; i < pcoin->tx->vout.size(); i++)
         {
@@ -6568,7 +6575,7 @@ void CWallet::GetStakerAddressBalance(interfaces::Chain::Lock &locked_chain, con
                       {
                           balance += nValue;
                       }
-                      else if(pcoin->IsCoinStake())
+                      else if(pcoin->IsCoinStake() && fHasProofOfDelegation)
                       {
                           stake += nValue;
                       }
