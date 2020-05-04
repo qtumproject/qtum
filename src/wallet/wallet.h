@@ -1044,7 +1044,7 @@ public:
     bool AvailableDelegateCoinsForStaking(interfaces::Chain::Lock& locked_chain, std::vector<COutPoint>& vDelegateCoins, std::map<uint160, CAmount>& mDelegateWeight) const;
     bool HaveAvailableDelegateCoinsForStaking() const;
     bool GetSuperStaker(CSuperStakerInfo &info, const uint160& stakerAddress) const;
-    void GetStakerAddressBalance(interfaces::Chain::Lock& locked_chain, const PKHash& staker, CAmount& balance, CAmount& stake) const;
+    void GetStakerAddressBalance(interfaces::Chain::Lock& locked_chain, const PKHash& staker, CAmount& balance, CAmount& stake, CAmount& weight) const;
 
     /**
      * Return list of available coins and locked coins grouped by non-change output address.

@@ -20,6 +20,7 @@ public:
     int32_t blockHight = -1;
     int64_t balance = 0;
     int64_t stake = 0;
+    int64_t weight = 0;
 };
 
 #define DELEGATION_ITEM_ICONSIZE 24
@@ -47,7 +48,7 @@ DelegationItemWidget::~DelegationItemWidget()
     delete d;
 }
 
-void DelegationItemWidget::setData(const QString &fee, const QString &staker, const QString &address, const int32_t &blockHight, const int64_t &balance, const int64_t &stake)
+void DelegationItemWidget::setData(const QString &fee, const QString &staker, const QString &address, const int32_t &blockHight, const int64_t &balance, const int64_t &stake, const int64_t &weight)
 {
     // Set data
     d->fee = fee;
@@ -56,6 +57,7 @@ void DelegationItemWidget::setData(const QString &fee, const QString &staker, co
     d->blockHight = blockHight;
     d->balance = balance;
     d->stake = stake;
+    d->weight = weight;
 
     // Update GUI
     if(d->fee != ui->labelFee->text())
@@ -64,7 +66,7 @@ void DelegationItemWidget::setData(const QString &fee, const QString &staker, co
         ui->labelStaker->setText(d->staker);
     if(d->address != ui->labelAddress->text())
         ui->labelAddress->setText(d->address);
-    bool staking = (d->blockHight > 0 && d->balance > 0);
+    bool staking = (d->blockHight > 0 && d->weight > 0);
     QString filename = staking ? ":/icons/staking_on" : ":/icons/staking_off";
     if(m_filename != filename)
     {

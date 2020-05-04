@@ -17,7 +17,8 @@ class DelegationItemEntry
 public:
     DelegationItemEntry():
         balance(0),
-        stake(0)
+        stake(0),
+        weight(0)
     {}
 
     DelegationItemEntry(const interfaces::DelegationInfo &delegationInfo)
@@ -33,6 +34,7 @@ public:
         removeTxHash = delegationInfo.remove_tx_hash;
         balance = 0;
         stake = 0;
+        weight = 0;
     }
 
     DelegationItemEntry( const DelegationItemEntry &obj)
@@ -48,6 +50,7 @@ public:
         removeTxHash = obj.removeTxHash;
         balance = obj.balance;
         stake = obj.stake;
+        weight = obj.weight;
     }
 
     ~DelegationItemEntry()
@@ -64,6 +67,7 @@ public:
     uint256 removeTxHash;
     qint64 balance;
     qint64 stake;
+    qint64 weight;
 };
 
 class DelegationWorker : public QObject
@@ -142,14 +146,15 @@ private Q_SLOTS:
         // Get address balance
         CAmount balance = 0;
         CAmount stake = 0;
+        CAmount weight = 0;
         std::string sAddress = delegateAddress.toStdString();
-        walletModel->wallet().getStakerAddressBalance(sAddress, balance, stake);
-        Q_EMIT itemChanged(hash, balance, stake);
+        walletModel->wallet().getStakerAddressBalance(sAddress, balance, stake, weight);
+        Q_EMIT itemChanged(hash, balance, stake, weight);
     }
 
 Q_SIGNALS:
     // Signal that item in changed
-    void itemChanged(QString hash, qint64 balance, qint64 stake);
+    void itemChanged(QString hash, qint64 balance, qint64 stake, qint64 weight);
 };
 
 #include <qt/delegationitemmodel.moc>
@@ -228,6 +233,7 @@ public:
             }
             _item.balance = cachedDelegationItem[lowerIndex].balance;
             _item.stake = cachedDelegationItem[lowerIndex].stake;
+            _item.weight = cachedDelegationItem[lowerIndex].weight;
             cachedDelegationItem[lowerIndex] = _item;
             parent->emitDataChanged(lowerIndex);
             break;
@@ -385,6 +391,12 @@ QVariant DelegationItemModel::data(const QModelIndex &index, int role) const
     case DelegationItemModel::StakeRole:
         return rec->stake;
         break;
+    case DelegationItemModel::WeightRole:
+        return rec->weight;
+        break;
+    case DelegationItemModel::FormattedWeightRole:
+        return rec->weight / COIN;
+        break;
     default:
         break;
     }
@@ -488,7 +500,7 @@ QString DelegationItemModel::formatFee(const DelegationItemEntry *rec) const
     return QString("%1%").arg(rec->fee);
 }
 
-void DelegationItemModel::itemChanged(QString hash, qint64 balance, qint64 stake)
+void DelegationItemModel::itemChanged(QString hash, qint64 balance, qint64 stake, qint64 weight)
 {
     if(!priv)
         return;
@@ -504,6 +516,7 @@ void DelegationItemModel::itemChanged(QString hash, qint64 balance, qint64 stake
         {
             delegationEntry.balance = balance;
             delegationEntry.stake = stake;
+            delegationEntry.weight = weight;
             priv->cachedDelegationItem[i] = delegationEntry;
             priv->updateEntry(delegationEntry, CT_UPDATED);
         }

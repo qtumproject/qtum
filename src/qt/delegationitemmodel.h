@@ -42,6 +42,8 @@ public:
         FormattedFeeRole = Qt::UserRole + 9,
         BalanceRole = Qt::UserRole + 10,
         StakeRole = Qt::UserRole + 11,
+        WeightRole = Qt::UserRole + 12,
+        FormattedWeightRole = Qt::UserRole + 13,
     };
 
     DelegationItemModel(WalletModel *parent = 0);
@@ -61,7 +63,7 @@ public:
 
 public Q_SLOTS:
     void checkDelegationChanged();
-    void itemChanged(QString hash, qint64 balance, qint64 stake);
+    void itemChanged(QString hash, qint64 balance, qint64 stake, qint64 weight);
 
 private Q_SLOTS:
     void updateDelegationData(const QString &hash, int status, bool showDelegation);

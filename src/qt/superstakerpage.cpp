@@ -38,6 +38,7 @@ SuperStakerPage::SuperStakerPage(const PlatformStyle *platformStyle, QWidget *pa
     QAction *copyStakerNameAction = new QAction(tr("Copy staker name"), this);
     QAction *copyStakerAddressAction = new QAction(tr("Copy staker address"), this);
     QAction *copyStekerMinFeeAction = new QAction(tr("Copy staker minimum fee"), this);
+    QAction *copyStekerWeightAction = new QAction(tr("Copy staker weight"), this);
     QAction *configSuperStakerAction = new QAction(tr("Configure super staker"), this);
     QAction *removeSuperStakerAction = new QAction(tr("Remove super staker"), this);
 
@@ -55,6 +56,7 @@ SuperStakerPage::SuperStakerPage(const PlatformStyle *platformStyle, QWidget *pa
     contextMenu = new QMenu(m_superStakerList);
     contextMenu->addAction(copyStakerNameAction);
     contextMenu->addAction(copyStakerAddressAction);
+    contextMenu->addAction(copyStekerWeightAction);
     contextMenu->addAction(copyStekerMinFeeAction);
     contextMenu->addAction(configSuperStakerAction);
     contextMenu->addAction(removeSuperStakerAction);
@@ -62,6 +64,7 @@ SuperStakerPage::SuperStakerPage(const PlatformStyle *platformStyle, QWidget *pa
     connect(copyStakerNameAction, &QAction::triggered, this, &SuperStakerPage::copyStakerName);
     connect(copyStakerAddressAction, &QAction::triggered, this, &SuperStakerPage::copyStakerAddress);
     connect(copyStekerMinFeeAction, &QAction::triggered, this, &SuperStakerPage::copyStekerMinFee);
+    connect(copyStekerWeightAction, &QAction::triggered, this, &SuperStakerPage::copyStakerWeight);
     connect(configSuperStakerAction, &QAction::triggered, this, &SuperStakerPage::configSuperStaker);
     connect(removeSuperStakerAction, &QAction::triggered, this, &SuperStakerPage::removeSuperStaker);
 
@@ -214,6 +217,15 @@ void SuperStakerPage::copyStakerAddress()
     if(indexMenu.isValid())
     {
         GUIUtil::setClipboard(indexMenu.data(SuperStakerItemModel::StakerAddressRole).toString());
+        indexMenu = QModelIndex();
+    }
+}
+
+void SuperStakerPage::copyStakerWeight()
+{
+    if(indexMenu.isValid())
+    {
+        GUIUtil::setClipboard(indexMenu.data(SuperStakerItemModel::FormattedWeightRole).toString());
         indexMenu = QModelIndex();
     }
 }

@@ -410,7 +410,7 @@ public:
     virtual std::vector<DelegationStakerInfo> getDelegationsStakers() = 0;
 
     //! Get staker address balance.
-    virtual bool getStakerAddressBalance(const std::string& staker, CAmount& balance, CAmount& stake) = 0;
+    virtual bool getStakerAddressBalance(const std::string& staker, CAmount& balance, CAmount& stake, CAmount& weight) = 0;
 
     //! Register handler for unload message.
     using UnloadFn = std::function<void()>;

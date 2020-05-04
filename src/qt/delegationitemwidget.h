@@ -31,7 +31,7 @@ public:
     explicit DelegationItemWidget(const PlatformStyle *platformStyle, QWidget *parent = 0, ItemType type = Record);
     ~DelegationItemWidget();
 
-    void setData(const QString& fee, const QString& staker, const QString& address, const int32_t& blockHight, const int64_t& balance, const int64_t& stake);
+    void setData(const QString& fee, const QString& staker, const QString& address, const int32_t& blockHight, const int64_t& balance, const int64_t& stake, const int64_t& weight);
 
     void setPosition(int position);
 

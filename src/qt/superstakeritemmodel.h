@@ -36,6 +36,8 @@ public:
         FormattedMinFeeRole = Qt::UserRole + 6,
         BalanceRole = Qt::UserRole + 7,
         StakeRole = Qt::UserRole + 8,
+        WeightRole = Qt::UserRole + 9,
+        FormattedWeightRole = Qt::UserRole + 10,
     };
 
     SuperStakerItemModel(WalletModel *parent = 0);
@@ -55,7 +57,7 @@ public:
 
 public Q_SLOTS:
     void checkSuperStakerChanged();
-    void itemChanged(QString hash, qint64 balance, qint64 stake, bool staking);
+    void itemChanged(QString hash, qint64 balance, qint64 stake, qint64 weight, bool staking);
 
 private Q_SLOTS:
     void updateSuperStakerData(const QString &hash, int status, bool showSuperStaker);

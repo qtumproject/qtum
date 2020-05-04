@@ -6536,13 +6536,14 @@ bool CWallet::GetSuperStaker(CSuperStakerInfo &info, const uint160 &stakerAddres
     return false;
 }
 
-void CWallet::GetStakerAddressBalance(interfaces::Chain::Lock &locked_chain, const PKHash &staker, CAmount &balance, CAmount &stake) const
+void CWallet::GetStakerAddressBalance(interfaces::Chain::Lock &locked_chain, const PKHash &staker, CAmount &balance, CAmount &stake, CAmount& weight) const
 {
     AssertLockHeld(cs_main);
     AssertLockHeld(cs_wallet);
 
     balance = 0;
     stake = 0;
+    weight = 0;
     for (std::map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
     {
         const uint256& wtxid = it->first;
@@ -6574,6 +6575,8 @@ void CWallet::GetStakerAddressBalance(interfaces::Chain::Lock &locked_chain, con
                       if(isImature)
                       {
                           balance += nValue;
+                          if(nValue >= DEFAULT_STAKING_MIN_UTXO_VALUE)
+                              weight += nValue;
                       }
                       else if(pcoin->IsCoinStake() && fHasProofOfDelegation)
                       {

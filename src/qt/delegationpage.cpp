@@ -37,6 +37,7 @@ DelegationPage::DelegationPage(const PlatformStyle *platformStyle, QWidget *pare
     QAction *copyStakerAddressAction = new QAction(tr("Copy staker address"), this);
     QAction *copyStekerFeeAction = new QAction(tr("Copy staker fee"), this);
     QAction *copyDelegateAddressAction = new QAction(tr("Copy delegate address"), this);
+    QAction *copyDelegateWeightAction = new QAction(tr("Copy delegate weight"), this);
     QAction *removeDelegationAction = new QAction(tr("Remove delegation"), this);
 
     m_delegationList = new DelegationListWidget(platformStyle, this);
@@ -53,12 +54,14 @@ DelegationPage::DelegationPage(const PlatformStyle *platformStyle, QWidget *pare
     contextMenu->addAction(copyStakerAddressAction);
     contextMenu->addAction(copyStekerFeeAction);
     contextMenu->addAction(copyDelegateAddressAction);
+    contextMenu->addAction(copyDelegateWeightAction);
     contextMenu->addAction(removeDelegationAction);
 
     connect(copyDelegateAddressAction, &QAction::triggered, this, &DelegationPage::copyDelegateAddress);
     connect(copyStekerFeeAction, &QAction::triggered, this, &DelegationPage::copyStekerFee);
     connect(copyStakerNameAction, &QAction::triggered, this, &DelegationPage::copyStakerName);
     connect(copyStakerAddressAction, &QAction::triggered, this, &DelegationPage::copyStakerAddress);
+    connect(copyDelegateWeightAction, &QAction::triggered, this, &DelegationPage::copyDelegateWeight);
     connect(removeDelegationAction, &QAction::triggered, this, &DelegationPage::removeDelegation);
 
     connect(m_delegationList, &DelegationListWidget::customContextMenuRequested, this, &DelegationPage::contextualMenu);
@@ -184,6 +187,15 @@ void DelegationPage::copyDelegateAddress()
     if(indexMenu.isValid())
     {
         GUIUtil::setClipboard(indexMenu.data(DelegationItemModel::AddressRole).toString());
+        indexMenu = QModelIndex();
+    }
+}
+
+void DelegationPage::copyDelegateWeight()
+{
+    if(indexMenu.isValid())
+    {
+        GUIUtil::setClipboard(indexMenu.data(DelegationItemModel::FormattedWeightRole).toString());
         indexMenu = QModelIndex();
     }
 }

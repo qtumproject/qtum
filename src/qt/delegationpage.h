@@ -42,6 +42,7 @@ public Q_SLOTS:
     void on_rowsInserted(QModelIndex index, int first, int last);
     void contextualMenu(const QPoint &);
     void copyDelegateAddress();
+    void copyDelegateWeight();
     void copyStekerFee();
     void copyStakerName();
     void copyStakerAddress();

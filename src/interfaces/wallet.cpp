@@ -1264,7 +1264,7 @@ public:
         uint64_t lastCoinStakeSearchInterval = getEnabledStaking() ? getLastCoinStakeSearchInterval() : 0;
         return lastCoinStakeSearchInterval && getSuperStakerWeight(id);
     }
-    bool getStakerAddressBalance(const std::string& staker, CAmount& balance, CAmount& stake) override
+    bool getStakerAddressBalance(const std::string& staker, CAmount& balance, CAmount& stake, CAmount& weight) override
     {
         auto locked_chain = m_wallet->chain().lock();
         LOCK(m_wallet->cs_wallet);
@@ -1273,7 +1273,7 @@ public:
         const PKHash *keyID = boost::get<PKHash>(&dest);
         if(keyID)
         {
-            m_wallet->GetStakerAddressBalance(*locked_chain, *keyID, balance, stake);
+            m_wallet->GetStakerAddressBalance(*locked_chain, *keyID, balance, stake, weight);
         }
 
         return keyID != 0;
