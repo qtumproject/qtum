@@ -112,6 +112,7 @@ class CWalletTx;
 class CTokenTx;
 class CContractBookData;
 class CDelegationInfo;
+class CSuperStakerInfo;
 struct FeeCalculation;
 enum class FeeEstimateMode;
 class ReserveDestination;
@@ -1010,6 +1011,10 @@ public:
 
     std::map<uint256, CDelegationInfo> mapDelegation;
 
+    std::map<uint256, CSuperStakerInfo> mapSuperStaker;
+
+    bool fUpdatedSuperStaker = false;
+
     /** Registered interfaces::Chain::Notifications handler. */
     std::unique_ptr<interfaces::Handler> m_chain_notifications_handler;
 
@@ -1028,7 +1033,7 @@ public:
     bool SelectCoinsForStaking(interfaces::Chain::Lock& locked_chain, CAmount& nTargetValue, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoinsRet, CAmount& nValueRet) const;
 	
     //! select delegated coins for staking from other users.
-    bool SelectDelegateCoinsForStaking(interfaces::Chain::Lock& locked_chain, std::vector<COutPoint>& setDelegateCoinsRet) const;
+    bool SelectDelegateCoinsForStaking(interfaces::Chain::Lock& locked_chain, std::vector<COutPoint>& setDelegateCoinsRet, std::map<uint160, CAmount>& mDelegateWeight) const;
 
     /**
      * populate vCoins with vector of available COutputs.
@@ -1036,8 +1041,10 @@ public:
     void AvailableCoinsForStaking(interfaces::Chain::Lock& locked_chain, std::vector<COutput>& vCoins) const;
     void AvailableCoins(interfaces::Chain::Lock& locked_chain, std::vector<COutput>& vCoins, bool fOnlySafe = true, const CCoinControl* coinControl = nullptr, const CAmount& nMinimumAmount = 1, const CAmount& nMaximumAmount = MAX_MONEY, const CAmount& nMinimumSumAmount = MAX_MONEY, const uint64_t nMaximumCount = 0) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
     bool HaveAvailableCoinsForStaking() const;
-    bool AvailableDelegateCoinsForStaking(interfaces::Chain::Lock& locked_chain, std::vector<COutPoint>& vDelegateCoins) const;
+    bool AvailableDelegateCoinsForStaking(interfaces::Chain::Lock& locked_chain, std::vector<COutPoint>& vDelegateCoins, std::map<uint160, CAmount>& mDelegateWeight) const;
     bool HaveAvailableDelegateCoinsForStaking() const;
+    bool GetSuperStaker(CSuperStakerInfo &info, const uint160& stakerAddress) const;
+    void GetStakerAddressBalance(interfaces::Chain::Lock& locked_chain, const PKHash& staker, CAmount& balance, CAmount& stake, CAmount& weight) const;
 
     /**
      * Return list of available coins and locked coins grouped by non-change output address.
@@ -1217,6 +1224,7 @@ public:
     bool CommitTransaction(CTransactionRef tx, mapValue_t mapValue, std::vector<std::pair<std::string, std::string>> orderForm, CValidationState& state);
 
     uint64_t GetStakeWeight(interfaces::Chain::Lock& locked_chain) const;
+    uint64_t GetSuperStakerWeight(const uint160& staker) const;
     bool CreateCoinStake(interfaces::Chain::Lock& locked_chain, const FillableSigningProvider &keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setDelegateCoins, std::vector<unsigned char>& vchPoD, COutPoint& headerPrevout);
     bool CanSuperStake(const std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, const std::vector<COutPoint>& setDelegateCoins) const;
 
@@ -1421,6 +1429,14 @@ public:
     boost::signals2::signal<void (CWallet *wallet, const uint256 &hashDelegation,
             ChangeType status)> NotifyDelegationChanged;
 
+    /** Wallet super staker added, removed or updated. */
+    boost::signals2::signal<void (CWallet *wallet, const uint256 &hashSuperStaker,
+            ChangeType status)> NotifySuperStakerChanged;
+
+    /** Wallet delegations staker added, removed or updated. */
+    boost::signals2::signal<void (CWallet *wallet, const uint160 &addressDelegate,
+            ChangeType status)> NotifyDelegationsStakerChanged;
+
     /** Inquire whether this wallet broadcasts transactions. */
     bool GetBroadcastTransactions() const { return fBroadcastTransactions; }
     /** Set whether this wallet broadcasts transactions. */
@@ -1551,6 +1567,15 @@ public:
     /* Remove delegation entry from the wallet */
     bool RemoveDelegationEntry(const uint256& delegationHash, bool fFlushOnClose=true);
 
+    /* Load super staker entry into the wallet */
+    bool LoadSuperStaker(const CSuperStakerInfo &superStaker);
+
+    /* Add super staker entry into the wallet */
+    bool AddSuperStakerEntry(const CSuperStakerInfo& superStaker, bool fFlushOnClose=true);
+
+    /* Remove super staker entry from the wallet */
+    bool RemoveSuperStakerEntry(const uint256& superStakerHash, bool fFlushOnClose=true);
+
     /* Start staking qtums */
     void StartStake(CConnman* connman = CWallet::defaultConnman);
 
@@ -1559,9 +1584,14 @@ public:
 
     static CConnman* defaultConnman;
 
-    std::map<uint160, Delegation> m_delegations_staker;
+    void updateDelegationsStaker(const std::map<uint160, Delegation>& delegations_staker);
+    void updateDelegationsWeight(const std::map<uint160, CAmount>& delegations_weight);
+    void updateHaveCoinSuperStaker(const std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins);
 
+    std::map<uint160, Delegation> m_delegations_staker;
+    std::map<uint160, CAmount> m_delegations_weight;
     std::map<uint160, Delegation> m_my_delegations;
+    std::map<uint160, bool> m_have_coin_superstaker;
 };
 
 /**
@@ -1745,8 +1775,9 @@ public:
     int nVersion;
     int64_t nCreateTime;
     uint8_t nFee;
-    std::string strDelegateAddress;
-    std::string strStakerAddress;
+    uint160 delegateAddress;
+    uint160 stakerAddress;
+    std::string strStakerName;
     int64_t blockNumber;
     uint256 createTxHash;
     uint256 removeTxHash;
@@ -1769,8 +1800,9 @@ public:
             READWRITE(createTxHash);
             READWRITE(removeTxHash);
         }
-        READWRITE(strDelegateAddress);
-        READWRITE(strStakerAddress);
+        READWRITE(delegateAddress);
+        READWRITE(stakerAddress);
+        READWRITE(strStakerName);
     }
 
     void SetNull()
@@ -1778,11 +1810,65 @@ public:
         nVersion = CDelegationInfo::CURRENT_VERSION;
         nCreateTime = 0;
         nFee = 0;
-        strDelegateAddress = "";
-        strStakerAddress = "";
+        delegateAddress.SetNull();
+        stakerAddress.SetNull();
+        strStakerName = "";
         blockNumber = -1;
         createTxHash.SetNull();
         removeTxHash.SetNull();
+    }
+
+    uint256 GetHash() const;
+};
+
+class CSuperStakerInfo
+{
+public:
+    static const int CURRENT_VERSION=1;
+    int nVersion;
+    int64_t nCreateTime;
+    uint160 stakerAddress;
+    std::string strStakerName;
+    bool fCustomConfig;
+    uint8_t nMinFee;
+    CAmount nMinDelegateUtxo;
+    std::vector<uint160> delegateAddressList;
+    int nDelegateAddressType;
+
+    CSuperStakerInfo()
+    {
+        SetNull();
+    }
+
+    ADD_SERIALIZE_METHODS;
+
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action) {
+        if (!(s.GetType() & SER_GETHASH))
+        {
+            READWRITE(nVersion);
+            READWRITE(nCreateTime);
+            READWRITE(nMinFee);
+            READWRITE(fCustomConfig);
+            READWRITE(nMinDelegateUtxo);
+            READWRITE(delegateAddressList);
+            READWRITE(nDelegateAddressType);
+        }
+        READWRITE(stakerAddress);
+        READWRITE(strStakerName);
+    }
+
+    void SetNull()
+    {
+        nVersion = CSuperStakerInfo::CURRENT_VERSION;
+        nCreateTime = 0;
+        nMinFee = 0;
+        stakerAddress.SetNull();
+        strStakerName = "";
+        fCustomConfig = 0;
+        nMinDelegateUtxo = 0;
+        delegateAddressList.clear();
+        nDelegateAddressType = 0;
     }
 
     uint256 GetHash() const;

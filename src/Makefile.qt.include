@@ -11,6 +11,7 @@ include Makefile.qt_locale.include
 QT_FORMS_UI = \
   qt/forms/adddelegationpage.ui \
   qt/forms/addressbookpage.ui \
+  qt/forms/addsuperstakerpage.ui \
   qt/forms/addtokenpage.ui \
   qt/forms/askpassphrasedialog.ui \
   qt/forms/callcontract.ui \
@@ -21,6 +22,7 @@ QT_FORMS_UI = \
   qt/forms/createcontract.ui \
   qt/forms/delegationitemwidget.ui \
   qt/forms/delegationpage.ui \
+  qt/forms/delegationsstakerdialog.ui \
   qt/forms/editaddressdialog.ui \
   qt/forms/editcontractinfodialog.ui \
   qt/forms/helpmessagedialog.ui \
@@ -42,6 +44,10 @@ QT_FORMS_UI = \
   qt/forms/sendtocontract.ui \
   qt/forms/sendtokenpage.ui \
   qt/forms/signverifymessagedialog.ui \
+  qt/forms/splitutxopage.ui \
+  qt/forms/superstakeritemwidget.ui \
+  qt/forms/superstakerconfigdialog.ui \
+  qt/forms/superstakerpage.ui \
   qt/forms/titlebar.ui \
   qt/forms/tokendescdialog.ui \
   qt/forms/tokenitemwidget.ui \
@@ -56,6 +62,7 @@ QT_MOC_CPP = \
   qt/moc_addressbookpage.cpp \
   qt/moc_addressfield.cpp \
   qt/moc_addresstablemodel.cpp \
+  qt/moc_addsuperstakerpage.cpp \
   qt/moc_addtokenpage.cpp \
   qt/moc_askpassphrasedialog.cpp \
   qt/moc_createwalletdialog.cpp \
@@ -74,10 +81,13 @@ QT_MOC_CPP = \
   qt/moc_contracttablemodel.cpp \
   qt/moc_createcontract.cpp \
   qt/moc_csvmodelwriter.cpp \
+  qt/moc_delegationfilterproxy.cpp \
   qt/moc_delegationitemmodel.cpp \
   qt/moc_delegationitemwidget.cpp \
   qt/moc_delegationlistwidget.cpp \
   qt/moc_delegationpage.cpp \
+  qt/moc_delegationsstakerdialog.cpp \
+  qt/moc_delegationstakeritemmodel.cpp \
   qt/moc_editaddressdialog.cpp \
   qt/moc_editcontractinfodialog.cpp \
   qt/moc_guiutil.cpp \
@@ -107,12 +117,19 @@ QT_MOC_CPP = \
   qt/moc_restoredialog.cpp \
   qt/moc_rpcconsole.cpp \
   qt/moc_stakepage.cpp \
+  qt/moc_stakerdelegationview.cpp \
   qt/moc_sendcoinsdialog.cpp \
   qt/moc_sendcoinsentry.cpp \
   qt/moc_sendtocontract.cpp \
   qt/moc_sendtokenpage.cpp \
   qt/moc_signverifymessagedialog.cpp \
   qt/moc_splashscreen.cpp \
+  qt/moc_splitutxopage.cpp \
+  qt/moc_superstakeritemwidget.cpp \
+  qt/moc_superstakerlistwidget.cpp \
+  qt/moc_superstakerconfigdialog.cpp \
+  qt/moc_superstakerpage.cpp \
+  qt/moc_superstakeritemmodel.cpp \
   qt/moc_tabbarinfo.cpp \
   qt/moc_titlebar.cpp \
   qt/moc_tokenamountfield.cpp \
@@ -150,6 +167,7 @@ QT_MOC = \
   qt/tokenamountfield.moc \
   qt/tokenitemmodel.moc \
   qt/delegationitemmodel.moc \
+  qt/superstakeritemmodel.moc \
   qt/walletmodel.moc
 
 QT_QRC_CPP = qt/qrc_bitcoin.cpp
@@ -176,6 +194,7 @@ BITCOIN_QT_H = \
   qt/addressbookpage.h \
   qt/addressfield.h \
   qt/addresstablemodel.h \
+  qt/addsuperstakerpage.h \
   qt/addtokenpage.h \
   qt/askpassphrasedialog.h \
   qt/bantablemodel.h \
@@ -195,10 +214,13 @@ BITCOIN_QT_H = \
   qt/contracttablemodel.h \
   qt/createcontract.h \
   qt/csvmodelwriter.h \
+  qt/delegationfilterproxy.h \
   qt/delegationitemwidget.h \
   qt/delegationlistwidget.h \
   qt/delegationitemmodel.h \
   qt/delegationpage.h \
+  qt/delegatiosstakerdialog.h \
+  qt/delegationstakeritemmodel.h \
   qt/editaddressdialog.h \
   qt/editcontractinfodialog.h \
   qt/eventlog.h \
@@ -240,8 +262,15 @@ BITCOIN_QT_H = \
   qt/sendtokenpage.h \
   qt/signverifymessagedialog.h \
   qt/splashscreen.h \
+  qt/splitutxopage.h \
   qt/stakepage.h \
+  qt/stakerdelegationview.h \
   qt/styleSheet.h \
+  qt/superstakeritemwidget.h \
+  qt/superstakeritemmodel.h \
+  qt/superstakerlistwidget.h \
+  qt/superstakerconfigdialog.h \
+  qt/superstakerpage.h \
   qt/tabbarinfo.h \
   qt/titlebar.h \
   qt/token.h \
@@ -293,6 +322,7 @@ RES_ICONS = \
   qt/res/icons/editcopy.png \
   qt/res/icons/editpaste.png \
   qt/res/icons/export.png \
+  qt/res/icons/import.png \
   qt/res/icons/eye.png \
   qt/res/icons/eye_minus.png \
   qt/res/icons/eye_plus.png \
@@ -352,6 +382,7 @@ BITCOIN_QT_BASE_CPP = \
   qt/clientmodel.cpp \
   qt/csvmodelwriter.cpp \
   qt/delegationitemmodel.cpp \
+  qt/delegationstakeritemmodel.cpp \
   qt/guiutil.cpp \
   qt/intro.cpp \
   qt/modaloverlay.cpp \
@@ -368,12 +399,14 @@ BITCOIN_QT_BASE_CPP = \
   qt/qvaluecombobox.cpp \
   qt/rpcconsole.cpp \
   qt/splashscreen.cpp \
+  qt/splitutxopage.cpp \
   qt/styleSheet.cpp \
   qt/tabbarinfo.cpp \
   qt/titlebar.cpp \
   qt/token.cpp \
   qt/tokenamountfield.cpp \
   qt/tokenitemmodel.cpp \
+  qt/superstakeritemmodel.cpp \
   qt/trafficgraphwidget.cpp \
   qt/utilitydialog.cpp\
   qt/qtumversionchecker.cpp \
@@ -390,6 +423,7 @@ BITCOIN_QT_WALLET_CPP = \
   qt/addressbookpage.cpp \
   qt/addressfield.cpp \
   qt/addresstablemodel.cpp \
+  qt/addsuperstakerpage.cpp \
   qt/addtokenpage.cpp \
   qt/askpassphrasedialog.cpp \
   qt/callcontract.cpp \
@@ -400,9 +434,11 @@ BITCOIN_QT_WALLET_CPP = \
   qt/contractresult.cpp \
   qt/contracttablemodel.cpp \
   qt/createcontract.cpp \
+  qt/delegationfilterproxy.cpp \
   qt/delegationitemwidget.cpp \
   qt/delegationlistwidget.cpp \
   qt/delegationpage.cpp \
+  qt/delegationsstakerdialog.cpp \
   qt/eventlog.cpp \
   qt/execrpccommand.cpp \
   qt/createwalletdialog.cpp \
@@ -420,11 +456,16 @@ BITCOIN_QT_WALLET_CPP = \
   qt/removedelegationpage.cpp \
   qt/restoredialog.cpp \
   qt/stakepage.cpp \
+  qt/stakerdelegationview.cpp \
   qt/sendcoinsdialog.cpp \
   qt/sendcoinsentry.cpp \
   qt/sendtocontract.cpp \
   qt/sendtokenpage.cpp \
   qt/signverifymessagedialog.cpp \
+  qt/superstakeritemwidget.cpp \
+  qt/superstakerlistwidget.cpp \
+  qt/superstakerconfigdialog.cpp \
+  qt/superstakerpage.cpp \
   qt/tokendescdialog.cpp \
   qt/tokenfilterproxy.cpp \
   qt/tokentransactionview.cpp \

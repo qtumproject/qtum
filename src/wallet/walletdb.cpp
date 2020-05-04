@@ -49,6 +49,7 @@ const std::string TOKEN{"token"};
 const std::string TOKENTX{"tokentx"};
 const std::string CONTRACTDATA{"contractdata"};
 const std::string DELEGATION{"delegation"};
+const std::string SUPERSTAKER{"superstaker"};
 } // namespace DBKeys
 
 //
@@ -439,6 +440,20 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
             }
 
             pwallet->LoadDelegation(wdelegation);
+        }
+        else if (strType == DBKeys::SUPERSTAKER)
+        {
+            uint256 hash;
+            ssKey >> hash;
+            CSuperStakerInfo wsuperStaker;
+            ssValue >> wsuperStaker;
+            if (wsuperStaker.GetHash() != hash)
+            {
+                strErr = "Error reading wallet database: CSuperStakerInfo corrupt";
+                return false;
+            }
+
+            pwallet->LoadSuperStaker(wsuperStaker);
         }
         else if (strType == DBKeys::CONTRACTDATA)
         {
@@ -866,4 +881,14 @@ bool WalletBatch::WriteDelegation(const CDelegationInfo &wdelegation)
 bool WalletBatch::EraseDelegation(uint256 hash)
 {
     return EraseIC(std::make_pair(DBKeys::DELEGATION, hash));
+}
+
+bool WalletBatch::WriteSuperStaker(const CSuperStakerInfo &wsuperStaker)
+{
+    return WriteIC(std::make_pair(DBKeys::SUPERSTAKER, wsuperStaker.GetHash()), wsuperStaker);
+}
+
+bool WalletBatch::EraseSuperStaker(uint256 hash)
+{
+    return EraseIC(std::make_pair(DBKeys::SUPERSTAKER, hash));
 }

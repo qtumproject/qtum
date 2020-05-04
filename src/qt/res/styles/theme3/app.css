@@ -1080,7 +1080,7 @@ Token Page Widget CSS
     background-color: rgba(255, 255, 255, 20%);
     border: 1px solid rgba(209, 219, 231, 20%);
 }
-#tokenItemFrame, #delegationItemFrame{
+#tokenItemFrame, #delegationItemFrame, #superStakerItemFrame{
     background-color: #ffffff;
     border-radius: 6px;
 }
@@ -1122,6 +1122,36 @@ DelegationItemWidget #delegationLogo{
     background-color: #a1daff;
     border-radius: 20px;
 }
+SuperStakerListWidget{
+    background-color: #e4ebf5;
+}
+SuperStakerItemWidget #labelFee{
+    color: #6b80af;
+    font: 13pt;
+}
+SuperStakerItemWidget #labelStaker{
+    color: #000000;
+    font: 13pt;
+}
+SuperStakerItemWidget #labelAddress{
+    color: #d5dde9;
+    font: 10pt;
+}
+SuperStakerItemWidget #superStakerLogo{
+    background-color: #a1daff;
+    border-radius: 20px;
+}
+SuperStakerItemWidget #buttonDelegations{
+    min-width: 7em;
+    padding: 1px;
+    border-radius: 8px;
+    min-height: 16px;
+    font: 8pt;
+}
+QFrame #frameStakerConfig{
+    border: 1px solid #d5dde9;
+    border-radius: 5px;
+}
 /*--------------------------------------------
 Send Coins Dialog CSS
 --------------------------------------------*/
@@ -1153,4 +1183,17 @@ SendCoinsDialog QAbstractScrollArea::corner {
 }
 #SendCoinsEntry #hLine{
     border-top: 1px solid rgba(107, 128, 175, 60%);
+}
+/*--------------------------------------------
+Delegate and Staker Page Widget CSS
+--------------------------------------------*/
+#widgetStakingAssets QLabel{
+    color: #b5bfd7;
+}
+#widgetStakingAssets #labelAssets{
+    color: #000000;
+    font: 13pt;
+}
+#vLineAssets{
+    border-left: 1px solid #e4ebf5;
 }

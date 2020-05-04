@@ -85,6 +85,8 @@ public Q_SLOTS:
     void gotoStakePage();
     /** Switch to delegation page */
     void gotoDelegationPage();
+    /** Switch to super staker page */
+    void gotoSuperStakerPage();
 
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");

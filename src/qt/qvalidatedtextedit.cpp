@@ -8,7 +8,9 @@ QValidatedTextEdit::QValidatedTextEdit(QWidget *parent) :
     valid(true),
     checkValidator(0),
     emptyIsValid(true),
-    isValidManually(false)
+    isValidManually(false),
+    lineByLine(false),
+    removeDuplicates(false)
 {
     connect(this, &QValidatedTextEdit::textChanged, this, &QValidatedTextEdit::markValid);
     setStyleSheet("");
@@ -20,9 +22,11 @@ void QValidatedTextEdit::clear()
     QTextEdit::clear();
 }
 
-void QValidatedTextEdit::setCheckValidator(const QValidator *v)
+void QValidatedTextEdit::setCheckValidator(const QValidator *v, bool _lineByLine, bool _removeDuplicates)
 {
     checkValidator = v;
+    lineByLine = _lineByLine;
+    removeDuplicates = _removeDuplicates;
 }
 
 bool QValidatedTextEdit::isValid()
@@ -30,10 +34,23 @@ bool QValidatedTextEdit::isValid()
     // use checkValidator in case the QValidatedTextEdit is disabled
     if (checkValidator)
     {
-        QString address = toPlainText();
-        int pos = 0;
-        if (checkValidator->validate(address, pos) == QValidator::Acceptable)
-            return true;
+        if(lineByLine)
+        {
+            QStringList lines = getLines();
+
+            for (QString line : lines) {
+                int pos = 0;
+                if (checkValidator->validate(line, pos) == QValidator::Invalid)
+                    return false;
+            }
+        }
+        else
+        {
+            QString line = toPlainText();
+            int pos = 0;
+            if (checkValidator->validate(line, pos) == QValidator::Acceptable)
+                return true;
+        }
     }
 
     return valid;
@@ -84,14 +101,29 @@ void QValidatedTextEdit::checkValidity()
         setValid(true);
     }
     else if (checkValidator)
+    {
+        if(lineByLine)
         {
-            QString address = toPlainText();
+            QStringList lines = getLines();
+
+            for (QString line : lines) {
+                int pos = 0;
+                if (checkValidator->validate(line, pos) == QValidator::Acceptable)
+                    setValid(true);
+                else
+                    setValid(false);
+            }
+        }
+        else
+        {
+            QString line = toPlainText();
             int pos = 0;
-            if (checkValidator->validate(address, pos) == QValidator::Acceptable)
+            if (checkValidator->validate(line, pos) == QValidator::Acceptable)
                 setValid(true);
             else
                 setValid(false);
         }
+    }
     else
         setValid(false);
 }
@@ -110,6 +142,12 @@ void QValidatedTextEdit::focusInEvent(QFocusEvent *event)
 
 void QValidatedTextEdit::focusOutEvent(QFocusEvent *event)
 {
+    if(lineByLine && removeDuplicates)
+    {
+        QStringList lines = getLines();
+        lines.removeDuplicates();
+        setLines(lines);
+    }
     checkValidity();
     QTextEdit::focusOutEvent(event);
 }
@@ -132,4 +170,14 @@ bool QValidatedTextEdit::getEmptyIsValid() const
 void QValidatedTextEdit::setEmptyIsValid(bool value)
 {
     emptyIsValid = value;
+}
+
+QStringList QValidatedTextEdit::getLines() const
+{
+    return toPlainText().split('\n', QString::SkipEmptyParts);
+}
+
+void QValidatedTextEdit::setLines(const QStringList &lines)
+{
+    setPlainText(lines.join('\n'));
 }

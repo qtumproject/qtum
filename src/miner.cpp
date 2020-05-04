@@ -922,13 +922,24 @@ public:
         if(!mine)
             return false;
 
-        switch (type) {
+        CSuperStakerInfo info;
+        if(pwallet->GetSuperStaker(info, event.item.staker) && info.fCustomConfig)
+        {
+            return CheckAddressList(info.nDelegateAddressType, info.delegateAddressList, info.delegateAddressList, event);
+        }
+
+        return CheckAddressList(type, whiteList, blackList, event);
+    }
+
+    bool CheckAddressList(const int& _type, const std::vector<uint160>& _whiteList, const std::vector<uint160>& _blackList, const DelegationEvent& event) const
+    {
+        switch (_type) {
         case STAKER_NORMAL:
             return true;
         case STAKER_WHITELIST:
-            return std::count(whiteList.begin(), whiteList.end(), event.item.delegate);
+            return std::count(_whiteList.begin(), _whiteList.end(), event.item.delegate);
         case STAKER_BLACKLIST:
-            return std::count(blackList.begin(), blackList.end(), event.item.delegate) == 0;
+            return std::count(_blackList.begin(), _blackList.end(), event.item.delegate) == 0;
         default:
             break;
         }
@@ -938,12 +949,21 @@ public:
 
     void Update(int32_t nHeight)
     {
+        if(pwallet->fUpdatedSuperStaker)
+        {
+            // Clear cache if updated
+            cacheHeight = 0;
+            cacheDelegationsStaker.clear();
+            pwallet->fUpdatedSuperStaker = false;
+        }
+
+        std::map<uint160, Delegation> delegations_staker;
         if(nHeight <= nCheckpointSpan)
         {
             // Get delegations from events
             std::vector<DelegationEvent> events;
             qtumDelegations.FilterDelegationEvents(events, *this);
-            pwallet->m_delegations_staker = qtumDelegations.DelegationsFromEvents(events);
+            delegations_staker = qtumDelegations.DelegationsFromEvents(events);
         }
         else
         {
@@ -960,9 +980,10 @@ public:
             // Update the wallet delegations
             std::vector<DelegationEvent> events;
             qtumDelegations.FilterDelegationEvents(events, *this, cacheHeight + 1);
-            pwallet->m_delegations_staker = cacheDelegationsStaker;
-            qtumDelegations.UpdateDelegationsFromEvents(events, pwallet->m_delegations_staker);
+            delegations_staker = cacheDelegationsStaker;
+            qtumDelegations.UpdateDelegationsFromEvents(events, delegations_staker);
         }
+        pwallet->updateDelegationsStaker(delegations_staker);
     }
 
 private:
@@ -973,7 +994,7 @@ private:
     std::map<uint160, Delegation> cacheDelegationsStaker;
     std::vector<uint160> whiteList;
     std::vector<uint160> blackList;
-    StakerType type;
+    int type;
 };
 
 class MyDelegations : public DelegationFilterBase
@@ -1059,8 +1080,8 @@ public:
                 // Get all addreses for delegations in the GUI
                 for(auto item : pwallet->mapDelegation)
                 {
-                    uint160 address;
-                    if(GetKey(item.second.strDelegateAddress, address) && pwallet->HaveKey(CKeyID(address)))
+                    uint160 address = item.second.delegateAddress;
+                    if(pwallet->HaveKey(CKeyID(address)))
                     {
                         if (mapAddress.find(address) == mapAddress.end())
                         {
@@ -1206,7 +1227,10 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
             if(fSuperStake && fOfflineStakeEnabled)
             {
                 delegationsStaker.Update(nHeight);
-                pwallet->SelectDelegateCoinsForStaking(*locked_chain, setDelegateCoins);
+                std::map<uint160, CAmount> mDelegateWeight;
+                pwallet->SelectDelegateCoinsForStaking(*locked_chain, setDelegateCoins, mDelegateWeight);
+                pwallet->updateDelegationsWeight(mDelegateWeight);
+                pwallet->updateHaveCoinSuperStaker(setCoins);
             }
         }
         if(setCoins.size() > 0 || pwallet->CanSuperStake(setCoins, setDelegateCoins))

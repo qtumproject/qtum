@@ -15,7 +15,10 @@
 class DelegationItemEntry
 {
 public:
-    DelegationItemEntry()
+    DelegationItemEntry():
+        balance(0),
+        stake(0),
+        weight(0)
     {}
 
     DelegationItemEntry(const interfaces::DelegationInfo &delegationInfo)
@@ -23,11 +26,15 @@ public:
         hash = delegationInfo.hash;
         createTime.setTime_t(delegationInfo.time);
         delegateAddress = QString::fromStdString(delegationInfo.delegate_address);
+        stakerName = QString::fromStdString(delegationInfo.staker_name);
         stakerAddress = QString::fromStdString(delegationInfo.staker_address);
         fee = delegationInfo.fee;
         blockNumber = delegationInfo.block_number;
         createTxHash = delegationInfo.create_tx_hash;
         removeTxHash = delegationInfo.remove_tx_hash;
+        balance = 0;
+        stake = 0;
+        weight = 0;
     }
 
     DelegationItemEntry( const DelegationItemEntry &obj)
@@ -35,11 +42,15 @@ public:
         hash = obj.hash;
         createTime = obj.createTime;
         delegateAddress = obj.delegateAddress;
+        stakerName = obj.stakerName;
         stakerAddress = obj.stakerAddress;
         fee = obj.fee;
         blockNumber = obj.blockNumber;
         createTxHash = obj.createTxHash;
         removeTxHash = obj.removeTxHash;
+        balance = obj.balance;
+        stake = obj.stake;
+        weight = obj.weight;
     }
 
     ~DelegationItemEntry()
@@ -48,11 +59,15 @@ public:
     uint256 hash;
     QDateTime createTime;
     QString delegateAddress;
+    QString stakerName;
     QString stakerAddress;
     quint8 fee;
     qint32 blockNumber;
     uint256 createTxHash;
     uint256 removeTxHash;
+    qint64 balance;
+    qint64 stake;
+    qint64 weight;
 };
 
 class DelegationWorker : public QObject
@@ -127,9 +142,19 @@ private Q_SLOTS:
                 }
             }
         }
+
+        // Get address balance
+        CAmount balance = 0;
+        CAmount stake = 0;
+        CAmount weight = 0;
+        std::string sAddress = delegateAddress.toStdString();
+        walletModel->wallet().getStakerAddressBalance(sAddress, balance, stake, weight);
+        Q_EMIT itemChanged(hash, balance, stake, weight);
     }
 
 Q_SIGNALS:
+    // Signal that item in changed
+    void itemChanged(QString hash, qint64 balance, qint64 stake, qint64 weight);
 };
 
 #include <qt/delegationitemmodel.moc>
@@ -186,6 +211,7 @@ public:
         int lowerIndex = (lower - cachedDelegationItem.begin());
         int upperIndex = (upper - cachedDelegationItem.begin());
         bool inModel = (lower != upper);
+        DelegationItemEntry _item = item;
 
         switch(status)
         {
@@ -205,7 +231,10 @@ public:
                 qWarning() << "DelegationItemPriv::updateEntry: Warning: Got CT_UPDATED, but entry is not in model";
                 break;
             }
-            cachedDelegationItem[lowerIndex] = item;
+            _item.balance = cachedDelegationItem[lowerIndex].balance;
+            _item.stake = cachedDelegationItem[lowerIndex].stake;
+            _item.weight = cachedDelegationItem[lowerIndex].weight;
+            cachedDelegationItem[lowerIndex] = _item;
             parent->emitDataChanged(lowerIndex);
             break;
         case CT_DELETED:
@@ -245,13 +274,14 @@ DelegationItemModel::DelegationItemModel(WalletModel *parent):
     priv(0),
     worker(0)
 {
-    columns << tr("Delegate") << tr("Staker") << tr("Fee") << tr("Height") << tr("Time");
+    columns << tr("Delegate") << tr("Staker Name") << tr("Staker Address") << tr("Fee") << tr("Height") << tr("Time");
 
     priv = new DelegationItemPriv(this);
     priv->refreshDelegationItem(walletModel->wallet());
 
     worker = new DelegationWorker(walletModel);
     worker->moveToThread(&(t));
+    connect(worker, &DelegationWorker::itemChanged, this, &DelegationItemModel::itemChanged);
 
     t.start();
 
@@ -314,7 +344,9 @@ QVariant DelegationItemModel::data(const QModelIndex &index, int role) const
         {
         case Address:
             return rec->delegateAddress;
-        case Staker:
+        case StakerName:
+            return rec->stakerName;
+        case StakerAddress:
             return rec->stakerAddress;
         case Fee:
             return rec->fee;
@@ -332,7 +364,10 @@ QVariant DelegationItemModel::data(const QModelIndex &index, int role) const
     case DelegationItemModel::AddressRole:
         return rec->delegateAddress;
         break;
-    case DelegationItemModel::StakerRole:
+    case DelegationItemModel::StakerNameRole:
+        return rec->stakerName;
+        break;
+    case DelegationItemModel::StakerAddressRole:
         return rec->stakerAddress;
         break;
     case DelegationItemModel::FeeRole:
@@ -346,6 +381,21 @@ QVariant DelegationItemModel::data(const QModelIndex &index, int role) const
         break;
     case DelegationItemModel::RemoveTxHashRole:
         return QString::fromStdString(rec->removeTxHash.ToString());
+        break;
+    case DelegationItemModel::FormattedFeeRole:
+        return formatFee(rec);
+        break;
+    case DelegationItemModel::BalanceRole:
+        return rec->balance;
+        break;
+    case DelegationItemModel::StakeRole:
+        return rec->stake;
+        break;
+    case DelegationItemModel::WeightRole:
+        return rec->weight;
+        break;
+    case DelegationItemModel::FormattedWeightRole:
+        return rec->weight / COIN;
         break;
     default:
         break;
@@ -443,4 +493,32 @@ void DelegationItemModel::updateDelegationData(const DelegationItemEntry &entry)
                               Q_ARG(QString, entry.stakerAddress),
                               Q_ARG(quint8, entry.fee),
                               Q_ARG(qint32, entry.blockNumber));
+}
+
+QString DelegationItemModel::formatFee(const DelegationItemEntry *rec) const
+{
+    return QString("%1%").arg(rec->fee);
+}
+
+void DelegationItemModel::itemChanged(QString hash, qint64 balance, qint64 stake, qint64 weight)
+{
+    if(!priv)
+        return;
+
+    uint256 updated;
+    updated.SetHex(hash.toStdString());
+
+    // Update delegation
+    for(int i = 0; i < priv->cachedDelegationItem.size(); i++)
+    {
+        DelegationItemEntry delegationEntry = priv->cachedDelegationItem[i];
+        if(delegationEntry.hash == updated)
+        {
+            delegationEntry.balance = balance;
+            delegationEntry.stake = stake;
+            delegationEntry.weight = weight;
+            priv->cachedDelegationItem[i] = delegationEntry;
+            priv->updateEntry(delegationEntry, CT_UPDATED);
+        }
+    }
 }

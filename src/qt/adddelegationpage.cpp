@@ -36,11 +36,12 @@ AddDelegationPage::AddDelegationPage(QWidget *parent) :
 
     setWindowTitle(tr("Add delegation"));
 
-    ui->labelStaker->setToolTip(tr("Super staker address."));
+    ui->labelStakerName->setToolTip(tr("Super staker name."));
+    ui->labelStakerAddress->setToolTip(tr("Super staker address."));
     ui->labelFee->setToolTip(tr("Super staker fee in percentage."));
     ui->labelAddress->setToolTip(tr("Delegate address to the staker."));
 
-    GUIUtil::setupAddressWidget(ui->lineEditStaker, this);
+    GUIUtil::setupAddressWidget(ui->lineEditStakerAddress, this);
 
     ui->lineEditAddress->setSenderAddress(true);
 
@@ -69,7 +70,7 @@ AddDelegationPage::AddDelegationPage(QWidget *parent) :
     lstOptional.append(PARAM_GASPRICE);
 
     QMap<QString, QString> lstTranslations;
-    lstTranslations[PARAM_STAKER] = ui->labelStaker->text();
+    lstTranslations[PARAM_STAKER] = ui->labelStakerAddress->text();
     lstTranslations[PARAM_FEE] = ui->spinBoxFee->text();
     lstTranslations[PARAM_ADDRESS] = ui->labelAddress->text();
     lstTranslations[PARAM_GASLIMIT] = ui->labelGasLimit->text();
@@ -78,8 +79,9 @@ AddDelegationPage::AddDelegationPage(QWidget *parent) :
     m_execRPCCommand = new ExecRPCCommand(PRC_COMMAND, lstMandatory, lstOptional, lstTranslations, this);
 
     connect(ui->addDelegationButton, &QPushButton::clicked, this, &AddDelegationPage::on_addDelegationClicked);
+    connect(ui->lineEditStakerName, &QLineEdit::textChanged, this, &AddDelegationPage::on_updateAddDelegationButton);
     connect(ui->lineEditAddress, &QComboBox::currentTextChanged, this, &AddDelegationPage::on_updateAddDelegationButton);
-    connect(ui->lineEditStaker, &QValidatedLineEdit::textChanged, this, &AddDelegationPage::on_updateAddDelegationButton);
+    connect(ui->lineEditStakerAddress, &QValidatedLineEdit::textChanged, this, &AddDelegationPage::on_updateAddDelegationButton);
 }
 
 AddDelegationPage::~AddDelegationPage()
@@ -111,7 +113,8 @@ void AddDelegationPage::setClientModel(ClientModel *_clientModel)
 
 void AddDelegationPage::clearAll()
 {
-    ui->lineEditStaker->setText("");
+    ui->lineEditStakerName->setText("");
+    ui->lineEditStakerAddress->setText("");
     ui->spinBoxFee->setValue(DEFAULT_STAKING_MIN_FEE);
     ui->lineEditAddress->setCurrentIndex(-1);
     ui->lineEditGasLimit->setValue(DEFAULT_GAS_LIMIT_OP_CREATE);
@@ -122,9 +125,9 @@ void AddDelegationPage::clearAll()
 bool AddDelegationPage::isValidStakerAddress()
 {
     bool retval = true;
-    if (!m_model->validateAddress(ui->lineEditStaker->text()))
+    if (!m_model->validateAddress(ui->lineEditStakerAddress->text()))
     {
-        ui->lineEditStaker->setValid(false);
+        ui->lineEditStakerAddress->setValid(false);
         retval = false;
     }
     return retval;
@@ -165,7 +168,7 @@ void AddDelegationPage::reject()
 
 void AddDelegationPage::show()
 {
-    ui->lineEditStaker->setFocus();
+    ui->lineEditStakerName->setFocus();
     QDialog::show();
 }
 
@@ -190,7 +193,8 @@ void AddDelegationPage::on_addDelegationClicked()
         uint64_t gasLimit = ui->lineEditGasLimit->value();
         CAmount gasPrice = ui->lineEditGasPrice->value();
         QString delegateAddress = ui->lineEditAddress->currentText();
-        QString stakerAddress = ui->lineEditStaker->text();
+        QString stakerAddress = ui->lineEditStakerAddress->text();
+        QString stakerName = ui->lineEditStakerName->text().trimmed();
         int stakerFee = ui->spinBoxFee->value();
 
         // Get delegation details
@@ -243,7 +247,7 @@ void AddDelegationPage::on_addDelegationClicked()
 
         QString questionString = tr("Are you sure you want to delegate the address to the staker<br /><br />");
         questionString.append(tr("<b>%1</b>?")
-                              .arg(ui->lineEditStaker->text()));
+                              .arg(ui->lineEditStakerAddress->text()));
 
         SendConfirmationDialog confirmationDialog(tr("Confirm address delegation to staker."), questionString, "", "", SEND_CONFIRM_DELAY, this);
         confirmationDialog.exec();
@@ -263,6 +267,7 @@ void AddDelegationPage::on_addDelegationClicked()
                 interfaces::DelegationInfo delegation;
                 delegation.delegate_address = delegateAddress.toStdString();
                 delegation.staker_address = stakerAddress.toStdString();
+                delegation.staker_name = stakerName.trimmed().toStdString();
                 delegation.fee = stakerFee;
                 delegation.create_tx_hash.SetHex(txid);
                 m_model->wallet().addDelegationEntry(delegation);
@@ -276,9 +281,11 @@ void AddDelegationPage::on_addDelegationClicked()
 void AddDelegationPage::on_updateAddDelegationButton()
 {
     bool enabled = true;
-    QString staker = ui->lineEditStaker->text();
+    QString stakerName = ui->lineEditStakerName->text().trimmed();
+    QString stakerAddress = ui->lineEditStakerAddress->text();
     QString delegate = ui->lineEditAddress->currentText();
-    if(staker.isEmpty() || delegate.isEmpty() || staker == delegate)
+
+    if(stakerAddress.isEmpty() || delegate.isEmpty() || stakerAddress == delegate || stakerName.isEmpty())
     {
         enabled = false;
     }

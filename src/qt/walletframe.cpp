@@ -148,6 +148,13 @@ void WalletFrame::gotoDelegationPage()
         i.value()->gotoDelegationPage();
 }
 
+void WalletFrame::gotoSuperStakerPage()
+{
+    QMap<WalletModel*, WalletView*>::const_iterator i;
+    for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
+        i.value()->gotoSuperStakerPage();
+}
+
 void WalletFrame::gotoReceiveCoinsPage()
 {
     QMap<WalletModel*, WalletView*>::const_iterator i;

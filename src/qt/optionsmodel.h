@@ -55,6 +55,7 @@ public:
         PruneSize,              // int
         DatabaseCache,          // int
         LogEvents,              // bool
+        SuperStaking,           // bool
         SpendZeroConfChange,    // bool
         ZeroBalanceAddressToken,// bool
         Listen,                 // bool

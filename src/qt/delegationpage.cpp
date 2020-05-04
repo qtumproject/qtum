@@ -28,13 +28,16 @@ DelegationPage::DelegationPage(const PlatformStyle *platformStyle, QWidget *pare
 
     m_removeDelegationPage = new RemoveDelegationPage(this);
     m_addDelegationPage = new AddDelegationPage(this);
+    m_splitUtxoPage = new SplitUTXOPage(this, SplitUTXOPage::Delegation);
 
     m_removeDelegationPage->setEnabled(false);
+    m_splitUtxoPage->setEnabled(false);
 
-    QAction *copyStakerAction = new QAction(tr("Copy staker address"), this);
+    QAction *copyStakerNameAction = new QAction(tr("Copy staker name"), this);
+    QAction *copyStakerAddressAction = new QAction(tr("Copy staker address"), this);
     QAction *copyStekerFeeAction = new QAction(tr("Copy staker fee"), this);
-    QAction *copyBlockHeightAction = new QAction(tr("Copy block height"), this);
     QAction *copyDelegateAddressAction = new QAction(tr("Copy delegate address"), this);
+    QAction *copyDelegateWeightAction = new QAction(tr("Copy delegate weight"), this);
     QAction *removeDelegationAction = new QAction(tr("Remove delegation"), this);
 
     m_delegationList = new DelegationListWidget(platformStyle, this);
@@ -44,18 +47,21 @@ DelegationPage::DelegationPage(const PlatformStyle *platformStyle, QWidget *pare
     ui->scrollArea->setWidgetResizable(true);
     connect(m_delegationList, &DelegationListWidget::removeDelegation, this, &DelegationPage::on_removeDelegation);
     connect(m_delegationList, &DelegationListWidget::addDelegation, this, &DelegationPage::on_addDelegation);
+    connect(m_delegationList, &DelegationListWidget::splitCoins, this, &DelegationPage::on_splitCoins);
 
     contextMenu = new QMenu(m_delegationList);
-    contextMenu->addAction(copyStakerAction);
+    contextMenu->addAction(copyStakerNameAction);
+    contextMenu->addAction(copyStakerAddressAction);
     contextMenu->addAction(copyStekerFeeAction);
-    contextMenu->addAction(copyBlockHeightAction);
     contextMenu->addAction(copyDelegateAddressAction);
+    contextMenu->addAction(copyDelegateWeightAction);
     contextMenu->addAction(removeDelegationAction);
 
     connect(copyDelegateAddressAction, &QAction::triggered, this, &DelegationPage::copyDelegateAddress);
     connect(copyStekerFeeAction, &QAction::triggered, this, &DelegationPage::copyStekerFee);
-    connect(copyBlockHeightAction, &QAction::triggered, this, &DelegationPage::copyBlockHeight);
-    connect(copyStakerAction, &QAction::triggered, this, &DelegationPage::copyStakerAddress);
+    connect(copyStakerNameAction, &QAction::triggered, this, &DelegationPage::copyStakerName);
+    connect(copyStakerAddressAction, &QAction::triggered, this, &DelegationPage::copyStakerAddress);
+    connect(copyDelegateWeightAction, &QAction::triggered, this, &DelegationPage::copyDelegateWeight);
     connect(removeDelegationAction, &QAction::triggered, this, &DelegationPage::removeDelegation);
 
     connect(m_delegationList, &DelegationListWidget::customContextMenuRequested, this, &DelegationPage::contextualMenu);
@@ -72,6 +78,7 @@ void DelegationPage::setModel(WalletModel *_model)
     m_addDelegationPage->setModel(m_model);
     m_removeDelegationPage->setModel(m_model);
     m_delegationList->setModel(m_model);
+    m_splitUtxoPage->setModel(m_model);
     if(m_model && m_model->getDelegationItemModel())
     {
         // Set current delegation
@@ -112,14 +119,18 @@ void DelegationPage::on_currentDelegationChanged(QModelIndex index)
             QString address = m_delegationList->delegationModel()->data(index, DelegationItemModel::AddressRole).toString();
             QString hash = m_delegationList->delegationModel()->data(index, DelegationItemModel::HashRole).toString();
             m_removeDelegationPage->setDelegationData(address, hash);
+            m_splitUtxoPage->setAddress(address);
 
             if(!m_removeDelegationPage->isEnabled())
                 m_removeDelegationPage->setEnabled(true);
+            if(!m_splitUtxoPage->isEnabled())
+                m_splitUtxoPage->setEnabled(true);
         }
         else
         {
             m_removeDelegationPage->setEnabled(false);
             m_removeDelegationPage->setDelegationData("", "");
+            m_splitUtxoPage->setAddress("");
             m_selectedDelegationHash = "";
         }
     }
@@ -180,20 +191,29 @@ void DelegationPage::copyDelegateAddress()
     }
 }
 
-void DelegationPage::copyStekerFee()
+void DelegationPage::copyDelegateWeight()
 {
     if(indexMenu.isValid())
     {
-        GUIUtil::setClipboard(indexMenu.data(DelegationItemModel::FeeRole).toString());
+        GUIUtil::setClipboard(indexMenu.data(DelegationItemModel::FormattedWeightRole).toString());
         indexMenu = QModelIndex();
     }
 }
 
-void DelegationPage::copyBlockHeight()
+void DelegationPage::copyStekerFee()
 {
     if(indexMenu.isValid())
     {
-        GUIUtil::setClipboard(indexMenu.data(DelegationItemModel::BlockHeightRole).toString());
+        GUIUtil::setClipboard(indexMenu.data(DelegationItemModel::FormattedFeeRole).toString());
+        indexMenu = QModelIndex();
+    }
+}
+
+void DelegationPage::copyStakerName()
+{
+    if(indexMenu.isValid())
+    {
+        GUIUtil::setClipboard(indexMenu.data(DelegationItemModel::StakerNameRole).toString());
         indexMenu = QModelIndex();
     }
 }
@@ -202,7 +222,7 @@ void DelegationPage::copyStakerAddress()
 {
     if(indexMenu.isValid())
     {
-        GUIUtil::setClipboard(indexMenu.data(DelegationItemModel::StakerRole).toString());
+        GUIUtil::setClipboard(indexMenu.data(DelegationItemModel::StakerAddressRole).toString());
         indexMenu = QModelIndex();
     }
 }
@@ -225,4 +245,15 @@ void DelegationPage::on_removeDelegation(const QModelIndex &index)
 void DelegationPage::on_addDelegation()
 {
     on_goToAddDelegationPage();
+}
+
+void DelegationPage::on_splitCoins(const QModelIndex &index)
+{
+    on_currentDelegationChanged(index);
+    on_goToSplitCoinsPage();
+}
+
+void DelegationPage::on_goToSplitCoinsPage()
+{
+    m_splitUtxoPage->show();
 }

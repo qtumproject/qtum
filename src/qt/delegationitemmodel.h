@@ -4,6 +4,7 @@
 #include <QAbstractItemModel>
 #include <QStringList>
 #include <QThread>
+#include <QtGlobal>
 
 #include <memory>
 
@@ -22,20 +23,27 @@ class DelegationItemModel : public QAbstractItemModel
 public:
     enum ColumnIndex {
         Address = 0,
-        Staker = 1,
-        Fee = 2,
-        Height = 3,
-        Time = 4
+        StakerName = 1,
+        StakerAddress = 2,
+        Fee = 3,
+        Height = 4,
+        Time = 5
     };
 
     enum DataRole{
         HashRole = Qt::UserRole + 1,
         AddressRole = Qt::UserRole + 2,
-        StakerRole = Qt::UserRole + 3,
-        FeeRole = Qt::UserRole + 4,
-        BlockHeightRole = Qt::UserRole + 5,
-        CreateTxHashRole = Qt::UserRole + 6,
-        RemoveTxHashRole = Qt::UserRole + 7,
+        StakerNameRole = Qt::UserRole + 3,
+        StakerAddressRole = Qt::UserRole + 4,
+        FeeRole = Qt::UserRole + 5,
+        BlockHeightRole = Qt::UserRole + 6,
+        CreateTxHashRole = Qt::UserRole + 7,
+        RemoveTxHashRole = Qt::UserRole + 8,
+        FormattedFeeRole = Qt::UserRole + 9,
+        BalanceRole = Qt::UserRole + 10,
+        StakeRole = Qt::UserRole + 11,
+        WeightRole = Qt::UserRole + 12,
+        FormattedWeightRole = Qt::UserRole + 13,
     };
 
     DelegationItemModel(WalletModel *parent = 0);
@@ -55,6 +63,7 @@ public:
 
 public Q_SLOTS:
     void checkDelegationChanged();
+    void itemChanged(QString hash, qint64 balance, qint64 stake, qint64 weight);
 
 private Q_SLOTS:
     void updateDelegationData(const QString &hash, int status, bool showDelegation);
@@ -64,6 +73,7 @@ private:
     void emitDataChanged(int index);
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();
+    QString formatFee(const DelegationItemEntry *rec) const;
 
     QStringList columns;
     WalletModel *walletModel;

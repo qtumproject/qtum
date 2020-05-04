@@ -19,6 +19,8 @@
 #include <qt/tokentransactiontablemodel.h>
 #include <qt/contracttablemodel.h>
 #include <qt/delegationitemmodel.h>
+#include <qt/superstakeritemmodel.h>
+#include <qt/delegationstakeritemmodel.h>
 
 #include <interfaces/handler.h>
 #include <interfaces/node.h>
@@ -63,6 +65,8 @@ WalletModel::WalletModel(std::unique_ptr<interfaces::Wallet> wallet, interfaces:
     tokenItemModel(nullptr),
     tokenTransactionTableModel(nullptr),
     delegationItemModel(nullptr),
+    superStakerItemModel(nullptr),
+    delegationStakerItemModel(nullptr),
     cachedEncryptionStatus(Unencrypted),
     cachedNumBlocks(0),
     nWeight(0),
@@ -78,6 +82,8 @@ WalletModel::WalletModel(std::unique_ptr<interfaces::Wallet> wallet, interfaces:
     tokenItemModel = new TokenItemModel(this);
     tokenTransactionTableModel = new TokenTransactionTableModel(platformStyle, this);
     delegationItemModel = new DelegationItemModel(this);
+    superStakerItemModel = new SuperStakerItemModel(this);
+    delegationStakerItemModel = new DelegationStakerItemModel(this);
 
     worker = new WalletWorker(this);
     worker->moveToThread(&(t));
@@ -149,6 +155,7 @@ void WalletModel::pollBalanceChanged()
         {
             checkTokenBalanceChanged();
             checkDelegationChanged();
+            checkSuperStakerChanged();
         }
 
         if(balanceChanged)
@@ -193,6 +200,14 @@ void WalletModel::checkDelegationChanged()
     if(delegationItemModel)
     {
         delegationItemModel->checkDelegationChanged();
+    }
+}
+
+void WalletModel::checkSuperStakerChanged()
+{
+    if(superStakerItemModel)
+    {
+        superStakerItemModel->checkSuperStakerChanged();
     }
 }
 
@@ -438,6 +453,16 @@ TokenTransactionTableModel *WalletModel::getTokenTransactionTableModel()
 DelegationItemModel *WalletModel::getDelegationItemModel()
 {
     return delegationItemModel;
+}
+
+SuperStakerItemModel *WalletModel::getSuperStakerItemModel()
+{
+    return superStakerItemModel;
+}
+
+DelegationStakerItemModel *WalletModel::getDelegationStakerItemModel()
+{
+    return delegationStakerItemModel;
 }
 
 WalletModel::EncryptionStatus WalletModel::getEncryptionStatus() const
