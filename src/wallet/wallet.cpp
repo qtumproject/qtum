@@ -6480,7 +6480,7 @@ void CWallet::updateDelegationsWeight(const std::map<uint160, CAmount>& delegati
         std::map<uint160, CAmount>::iterator it = m_delegations_weight.find(delegate);
         if(it != m_delegations_weight.end())
         {
-            if(it->second != weight)
+            if(it->second == weight)
             {
                 updated = false;
             }
@@ -6544,6 +6544,7 @@ void CWallet::GetStakerAddressBalance(interfaces::Chain::Lock &locked_chain, con
     balance = 0;
     stake = 0;
     weight = 0;
+    std::map<COutPoint, uint32_t> immatureStakes = locked_chain.getImmatureStakes();
     for (std::map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
     {
         const uint256& wtxid = it->first;
@@ -6575,8 +6576,14 @@ void CWallet::GetStakerAddressBalance(interfaces::Chain::Lock &locked_chain, con
                       if(isImature)
                       {
                           balance += nValue;
-                          if(nValue >= DEFAULT_STAKING_MIN_UTXO_VALUE)
-                              weight += nValue;
+                          if(nDepth >= COINBASE_MATURITY && nValue >= DEFAULT_STAKING_MIN_UTXO_VALUE)
+                          {
+                              COutPoint prevout = COutPoint(pcoin->tx->GetHash(), i);
+                              if(immatureStakes.find(prevout) == immatureStakes.end())
+                              {
+                                  weight += nValue;
+                              }
+                          }
                       }
                       else if(pcoin->IsCoinStake() && fHasProofOfDelegation)
                       {
