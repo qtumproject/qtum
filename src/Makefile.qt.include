@@ -219,7 +219,7 @@ BITCOIN_QT_H = \
   qt/delegationlistwidget.h \
   qt/delegationitemmodel.h \
   qt/delegationpage.h \
-  qt/delegatiosstakerdialog.h \
+  qt/delegationsstakerdialog.h \
   qt/delegationstakeritemmodel.h \
   qt/editaddressdialog.h \
   qt/editcontractinfodialog.h \
