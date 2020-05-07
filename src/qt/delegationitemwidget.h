@@ -54,6 +54,7 @@ private Q_SLOTS:
 private:
     void updateLogo();
     void updateBalance();
+    void updateToolTip();
 
 private:
     Ui::DelegationItemWidget *ui;
