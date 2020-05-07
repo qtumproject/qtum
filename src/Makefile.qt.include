@@ -219,7 +219,7 @@ BITCOIN_QT_H = \
   qt/delegationlistwidget.h \
   qt/delegationitemmodel.h \
   qt/delegationpage.h \
-  qt/delegatiosstakerdialog.h \
+  qt/delegationsstakerdialog.h \
   qt/delegationstakeritemmodel.h \
   qt/editaddressdialog.h \
   qt/editcontractinfodialog.h \
@@ -318,6 +318,7 @@ RES_ICONS = \
   qt/res/icons/connect2.png \
   qt/res/icons/connect3.png \
   qt/res/icons/connect4.png \
+  qt/res/icons/configure.png \
   qt/res/icons/edit.png \
   qt/res/icons/editcopy.png \
   qt/res/icons/editpaste.png \
