@@ -25,6 +25,7 @@ public:
         StakerAddress = 1,
         MinFee = 2,
         Staking = 3,
+        Time = 4
     };
 
     enum DataRole{

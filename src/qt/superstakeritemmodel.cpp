@@ -33,6 +33,7 @@ public:
         balance = 0;
         stake = 0;
         weight = 0;
+        createTime.setTime_t(superStakerInfo.time);
     }
 
     SuperStakerItemEntry( const SuperStakerItemEntry &obj)
@@ -45,6 +46,7 @@ public:
         balance = obj.balance;
         stake = obj.stake;
         weight = obj.weight;
+        createTime = obj.createTime;
     }
 
     ~SuperStakerItemEntry()
@@ -58,6 +60,7 @@ public:
     qint64 balance;
     qint64 stake;
     qint64 weight;
+    QDateTime createTime;
 };
 
 class SuperStakerWorker : public QObject
@@ -284,6 +287,8 @@ QVariant SuperStakerItemModel::data(const QModelIndex &index, int role) const
             return rec->minFee;
         case Staking:
             return rec->staking;
+        case Time:
+            return rec->createTime;
         default:
             break;
         }

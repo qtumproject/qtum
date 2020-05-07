@@ -31,11 +31,11 @@ void SuperStakerListWidget::setModel(WalletModel *_model)
     m_model = _model;
     if(m_model && m_model->getSuperStakerItemModel())
     {
-        // Sort super stakers by minimum fee
+        // Sort super stakers
         QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(this);
         SuperStakerItemModel* superStakerModel = m_model->getSuperStakerItemModel();
         proxyModel->setSourceModel(superStakerModel);
-        proxyModel->sort(1, Qt::AscendingOrder);
+        proxyModel->sort(4, Qt::AscendingOrder);
         m_superStakerModel = proxyModel;
 
         // Connect signals and slots
