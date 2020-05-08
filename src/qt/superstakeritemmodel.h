@@ -40,6 +40,7 @@ public:
         WeightRole = Qt::UserRole + 9,
         FormattedWeightRole = Qt::UserRole + 10,
         DelegationsWeightRole = Qt::UserRole + 11,
+        FormattedDelegationsWeightRole = Qt::UserRole + 12,
     };
 
     SuperStakerItemModel(WalletModel *parent = 0);

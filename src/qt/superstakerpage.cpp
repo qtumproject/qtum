@@ -39,6 +39,7 @@ SuperStakerPage::SuperStakerPage(const PlatformStyle *platformStyle, QWidget *pa
     QAction *copyStakerAddressAction = new QAction(tr("Copy staker address"), this);
     QAction *copyStekerMinFeeAction = new QAction(tr("Copy staker minimum fee"), this);
     QAction *copyStekerWeightAction = new QAction(tr("Copy staker weight"), this);
+    QAction *copyDelegationsWeightAction = new QAction(tr("Copy delegations weight"), this);
     QAction *configSuperStakerAction = new QAction(tr("Configure super staker"), this);
     QAction *removeSuperStakerAction = new QAction(tr("Remove super staker"), this);
 
@@ -57,6 +58,7 @@ SuperStakerPage::SuperStakerPage(const PlatformStyle *platformStyle, QWidget *pa
     contextMenu->addAction(copyStakerNameAction);
     contextMenu->addAction(copyStakerAddressAction);
     contextMenu->addAction(copyStekerWeightAction);
+    contextMenu->addAction(copyDelegationsWeightAction);
     contextMenu->addAction(copyStekerMinFeeAction);
     contextMenu->addAction(configSuperStakerAction);
     contextMenu->addAction(removeSuperStakerAction);
@@ -65,6 +67,7 @@ SuperStakerPage::SuperStakerPage(const PlatformStyle *platformStyle, QWidget *pa
     connect(copyStakerAddressAction, &QAction::triggered, this, &SuperStakerPage::copyStakerAddress);
     connect(copyStekerMinFeeAction, &QAction::triggered, this, &SuperStakerPage::copyStekerMinFee);
     connect(copyStekerWeightAction, &QAction::triggered, this, &SuperStakerPage::copyStakerWeight);
+    connect(copyDelegationsWeightAction, &QAction::triggered, this, &SuperStakerPage::copyDelegationsWeight);
     connect(configSuperStakerAction, &QAction::triggered, this, &SuperStakerPage::configSuperStaker);
     connect(removeSuperStakerAction, &QAction::triggered, this, &SuperStakerPage::removeSuperStaker);
 
@@ -226,6 +229,15 @@ void SuperStakerPage::copyStakerWeight()
     if(indexMenu.isValid())
     {
         GUIUtil::setClipboard(indexMenu.data(SuperStakerItemModel::FormattedWeightRole).toString());
+        indexMenu = QModelIndex();
+    }
+}
+
+void SuperStakerPage::copyDelegationsWeight()
+{
+    if(indexMenu.isValid())
+    {
+        GUIUtil::setClipboard(indexMenu.data(SuperStakerItemModel::FormattedDelegationsWeightRole).toString());
         indexMenu = QModelIndex();
     }
 }

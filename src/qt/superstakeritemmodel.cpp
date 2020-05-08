@@ -332,6 +332,9 @@ QVariant SuperStakerItemModel::data(const QModelIndex &index, int role) const
     case SuperStakerItemModel::DelegationsWeightRole:
         return rec->delegationsWeight;
         break;
+    case SuperStakerItemModel::FormattedDelegationsWeightRole:
+        return rec->delegationsWeight / COIN;
+        break;
     default:
         break;
     }
