@@ -46,6 +46,7 @@ DelegationItemWidget::DelegationItemWidget(const PlatformStyle *platformStyle, Q
 
     ui->buttonSplit->setToolTip(tr("Split coins for offline staking."));
     ui->buttonRemove->setToolTip(tr("Remove delegation."));
+    ui->buttonAdd->setToolTip(tr("Add delegation."));
 
     d = new DelegationItemWidgetPriv();
 }
