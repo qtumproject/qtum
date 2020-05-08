@@ -43,6 +43,10 @@ DelegationItemWidget::DelegationItemWidget(const PlatformStyle *platformStyle, Q
     ui->buttonRemove->setIcon(platformStyle->MultiStatesIcon(":/icons/remove_entry", PlatformStyle::PushButtonIcon));
     ui->buttonAdd->setIcon(platformStyle->MultiStatesIcon(":/icons/plus_full", PlatformStyle::PushButtonIcon));
     ui->delegationLogo->setPixmap(platformStyle->MultiStatesIcon(m_type == New ? ":/icons/export" : ":/icons/staking_off").pixmap(DELEGATION_ITEM_ICONSIZE, DELEGATION_ITEM_ICONSIZE));
+
+    ui->buttonSplit->setToolTip(tr("Split coins for offline staking."));
+    ui->buttonRemove->setToolTip(tr("Remove delegation."));
+
     d = new DelegationItemWidgetPriv();
 }
 
