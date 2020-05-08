@@ -20,7 +20,8 @@ public:
         staking(false),
         balance(0),
         stake(0),
-        weight(0)
+        weight(0),
+        delegationsWeight(0)
     {}
 
     SuperStakerItemEntry(const interfaces::SuperStakerInfo &superStakerInfo)
@@ -33,6 +34,7 @@ public:
         balance = 0;
         stake = 0;
         weight = 0;
+        delegationsWeight = 0;
         createTime.setTime_t(superStakerInfo.time);
     }
 
@@ -46,6 +48,7 @@ public:
         balance = obj.balance;
         stake = obj.stake;
         weight = obj.weight;
+        delegationsWeight = obj.delegationsWeight;
         createTime = obj.createTime;
     }
 
@@ -60,6 +63,7 @@ public:
     qint64 balance;
     qint64 stake;
     qint64 weight;
+    qint64 delegationsWeight;
     QDateTime createTime;
 };
 
@@ -80,17 +84,18 @@ private Q_SLOTS:
         CAmount balance = 0;
         CAmount stake = 0;
         CAmount weight = 0;
+        CAmount delegationsWeight = 0;
         std::string sAddress = stakerAddress.toStdString();
         uint256 id;
         id.SetHex(hash.toStdString());
-        staking = walletModel->wallet().isSuperStakerStaking(id);
+        staking = walletModel->wallet().isSuperStakerStaking(id, delegationsWeight);
         walletModel->wallet().getStakerAddressBalance(sAddress, balance, stake, weight);
-        Q_EMIT itemChanged(hash, balance, stake, weight, staking);
+        Q_EMIT itemChanged(hash, balance, stake, weight, delegationsWeight, staking);
     }
 
 Q_SIGNALS:
     // Signal that item in changed
-    void itemChanged(QString hash, qint64 balance, qint64 stake, qint64 weight, bool staking);
+    void itemChanged(QString hash, qint64 balance, qint64 stake, qint64 weight, qint64 delegationsWeight, bool staking);
 };
 
 #include <qt/superstakeritemmodel.moc>
@@ -170,6 +175,7 @@ public:
             _item.balance = cachedSuperStakerItem[lowerIndex].balance;
             _item.stake = cachedSuperStakerItem[lowerIndex].stake;
             _item.weight = cachedSuperStakerItem[lowerIndex].weight;
+            _item.delegationsWeight = cachedSuperStakerItem[lowerIndex].delegationsWeight;
             _item.staking = cachedSuperStakerItem[lowerIndex].staking;
             cachedSuperStakerItem[lowerIndex] = _item;
             parent->emitDataChanged(lowerIndex);
@@ -323,6 +329,9 @@ QVariant SuperStakerItemModel::data(const QModelIndex &index, int role) const
     case SuperStakerItemModel::FormattedWeightRole:
         return rec->weight / COIN;
         break;
+    case SuperStakerItemModel::DelegationsWeightRole:
+        return rec->delegationsWeight;
+        break;
     default:
         break;
     }
@@ -423,7 +432,7 @@ QString SuperStakerItemModel::formatMinFee(const SuperStakerItemEntry *rec) cons
     return QString("%1%").arg(rec->minFee);
 }
 
-void SuperStakerItemModel::itemChanged(QString hash, qint64 balance, qint64 stake, qint64 weight, bool staking)
+void SuperStakerItemModel::itemChanged(QString hash, qint64 balance, qint64 stake, qint64 weight, qint64 delegationsWeight, bool staking)
 {
     if(!priv)
         return;
@@ -440,6 +449,7 @@ void SuperStakerItemModel::itemChanged(QString hash, qint64 balance, qint64 stak
             superStakerEntry.balance = balance;
             superStakerEntry.stake = stake;
             superStakerEntry.weight = weight;
+            superStakerEntry.delegationsWeight = delegationsWeight;
             superStakerEntry.staking = staking;
             priv->cachedSuperStakerItem[i] = superStakerEntry;
             priv->updateEntry(superStakerEntry, CT_UPDATED);

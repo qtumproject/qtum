@@ -1259,10 +1259,11 @@ public:
 
         return 0;
     }
-    bool isSuperStakerStaking(const uint256& id) override
+    bool isSuperStakerStaking(const uint256& id, CAmount& delegationsWeight) override
     {
         uint64_t lastCoinStakeSearchInterval = getEnabledStaking() ? getLastCoinStakeSearchInterval() : 0;
-        return lastCoinStakeSearchInterval && getSuperStakerWeight(id);
+        delegationsWeight = getSuperStakerWeight(id);
+        return lastCoinStakeSearchInterval && delegationsWeight;
     }
     bool getStakerAddressBalance(const std::string& staker, CAmount& balance, CAmount& stake, CAmount& weight) override
     {
