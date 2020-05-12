@@ -6496,6 +6496,12 @@ void CWallet::updateDelegationsWeight(const std::map<uint160, CAmount>& delegati
             NotifyDelegationsStakerChanged(this, delegate, CT_UPDATED);
         }
     }
+
+    for (std::map<uint256, CSuperStakerInfo>::iterator mi = mapSuperStaker.begin(); mi != mapSuperStaker.end(); mi++)
+    {
+        uint256 hash = mi->first;
+        NotifySuperStakerChanged(this, hash, CT_UPDATED);
+    }
 }
 
 uint64_t CWallet::GetSuperStakerWeight(const uint160 &staker) const
