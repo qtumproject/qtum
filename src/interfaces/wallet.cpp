@@ -26,6 +26,7 @@
 #include <wallet/walletutil.h>
 #include <key_io.h>
 #include <qtum/qtumdelegation.h>
+#include <miner.h>
 
 #include <memory>
 #include <string>
@@ -1221,6 +1222,11 @@ public:
     bool getEnabledStaking() override
     {
         return m_wallet->m_enabled_staking;
+    }
+    bool getEnabledSuperStaking() override
+    {
+        bool fSuperStake = gArgs.GetBoolArg("-superstaking", DEFAULT_SUPER_STAKE);
+        return fSuperStake;
     }
     DelegationStakerInfo getDelegationStaker(const uint160& id) override
     {

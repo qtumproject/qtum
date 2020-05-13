@@ -1,8 +1,6 @@
 #include "addsuperstakerpage.h"
 #include "qt/forms/ui_addsuperstakerpage.h"
 
-#include <miner.h>
-#include <wallet/wallet.h>
 #include <qt/walletmodel.h>
 #include <QMessageBox>
 
@@ -83,7 +81,7 @@ void AddSuperStakerPage::on_addSuperStakerButton_clicked()
 {
     if(m_model)
     {
-        bool fSuperStake = gArgs.GetBoolArg("-superstaking", DEFAULT_SUPER_STAKE);
+        bool fSuperStake = m_model->wallet().getEnabledSuperStaking();
         if(!fSuperStake)
         {
             QMessageBox::information(this, tr("Super staking"), tr("Enable super staking from the option menu in order to start the super staker."));

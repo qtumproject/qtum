@@ -168,6 +168,8 @@ void SuperStakerItemWidget::updateLogo()
             ui->superStakerLogo->setToolTip(tr("Not staking because wallet is offline"));
         else if (m_model->node().isInitialBlockDownload())
             ui->superStakerLogo->setToolTip(tr("Not staking because wallet is syncing"));
+        else if (!m_model->wallet().getEnabledSuperStaking())
+            ui->superStakerLogo->setToolTip(tr("Not staking because super staking is not enabled"));
         else if (!nWeight)
             ui->superStakerLogo->setToolTip(tr("Not staking because you don't have mature coins"));
         else if (!nDelegationsWeight)

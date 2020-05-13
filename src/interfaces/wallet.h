@@ -403,6 +403,9 @@ public:
     //! Get wallet enabled for staking
     virtual bool getEnabledStaking() = 0;
 
+    //! Get wallet enabled for super staking
+    virtual bool getEnabledSuperStaking() = 0;
+
     //! Get a delegation from super staker.
     virtual DelegationStakerInfo getDelegationStaker(const uint160& id) = 0;
 
