@@ -2748,6 +2748,10 @@ bool CWallet::AvailableDelegateCoinsForStaking(interfaces::Chain::Lock& locked_c
         const PKHash& keyid = PKHash(it->first);
         const Delegation* delegation = &(*it).second;
 
+        // Set default delegate stake weight
+        CAmount weight = 0;
+        mDelegateWeight[it->first] = weight;
+
         // Get super staker custom configuration
         CAmount staking_min_utxo_value = m_staking_min_utxo_value;
         uint8_t staking_min_fee = m_staking_min_fee;
@@ -2775,7 +2779,6 @@ bool CWallet::AvailableDelegateCoinsForStaking(interfaces::Chain::Lock& locked_c
             throw error("No information available for address");
         }
 
-        CAmount weight = 0;
         // Add the utxos to the list if they are mature and at least the minimum value
         for (std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> >::const_iterator i=unspentOutputs.begin(); i!=unspentOutputs.end(); i++) {
 
@@ -6492,6 +6495,12 @@ void CWallet::updateDelegationsWeight(const std::map<uint160, CAmount>& delegati
         {
             NotifyDelegationsStakerChanged(this, delegate, CT_UPDATED);
         }
+    }
+
+    for (std::map<uint256, CSuperStakerInfo>::iterator mi = mapSuperStaker.begin(); mi != mapSuperStaker.end(); mi++)
+    {
+        uint256 hash = mi->first;
+        NotifySuperStakerChanged(this, hash, CT_UPDATED);
     }
 }
 
