@@ -31,11 +31,11 @@ void SuperStakerListWidget::setModel(WalletModel *_model)
     m_model = _model;
     if(m_model && m_model->getSuperStakerItemModel())
     {
-        // Sort super stakers by minimum fee
+        // Sort super stakers
         QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(this);
         SuperStakerItemModel* superStakerModel = m_model->getSuperStakerItemModel();
         proxyModel->setSourceModel(superStakerModel);
-        proxyModel->sort(1, Qt::AscendingOrder);
+        proxyModel->sort(4, Qt::AscendingOrder);
         m_superStakerModel = proxyModel;
 
         // Connect signals and slots
@@ -150,9 +150,11 @@ void SuperStakerListWidget::updateRow(const QModelIndex &index, int position)
         bool staking_on = m_superStakerModel->data(index, SuperStakerItemModel::StakingRole).toBool();
         int64_t balance = m_superStakerModel->data(index, SuperStakerItemModel::BalanceRole).toLongLong();
         int64_t stake = m_superStakerModel->data(index, SuperStakerItemModel::StakeRole).toLongLong();
+        int64_t weight = m_superStakerModel->data(index, SuperStakerItemModel::WeightRole).toLongLong();
+        int64_t delegationsWeight = m_superStakerModel->data(index, SuperStakerItemModel::DelegationsWeightRole).toLongLong();
         SuperStakerItemWidget* item = m_rows[position];
         item->setPosition(position);
-        item->setData(minFee, staker, staking_on, balance, stake);
+        item->setData(minFee, staker, staking_on, balance, stake, weight, delegationsWeight);
     }
 }
 

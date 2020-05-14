@@ -47,6 +47,7 @@ public Q_SLOTS:
     void copyStakerName();
     void copyStakerAddress();
     void copyStakerWeight();
+    void copyDelegationsWeight();
     void configSuperStaker();
     void removeSuperStaker();
     void on_configSuperStaker(const QModelIndex& index);

@@ -26,6 +26,7 @@
 #include <wallet/walletutil.h>
 #include <key_io.h>
 #include <qtum/qtumdelegation.h>
+#include <miner.h>
 
 #include <memory>
 #include <string>
@@ -1222,6 +1223,11 @@ public:
     {
         return m_wallet->m_enabled_staking;
     }
+    bool getEnabledSuperStaking() override
+    {
+        bool fSuperStake = gArgs.GetBoolArg("-superstaking", DEFAULT_SUPER_STAKE);
+        return fSuperStake;
+    }
     DelegationStakerInfo getDelegationStaker(const uint160& id) override
     {
         auto locked_chain = m_wallet->chain().lock();
@@ -1259,10 +1265,11 @@ public:
 
         return 0;
     }
-    bool isSuperStakerStaking(const uint256& id) override
+    bool isSuperStakerStaking(const uint256& id, CAmount& delegationsWeight) override
     {
         uint64_t lastCoinStakeSearchInterval = getEnabledStaking() ? getLastCoinStakeSearchInterval() : 0;
-        return lastCoinStakeSearchInterval && getSuperStakerWeight(id);
+        delegationsWeight = getSuperStakerWeight(id);
+        return lastCoinStakeSearchInterval && delegationsWeight;
     }
     bool getStakerAddressBalance(const std::string& staker, CAmount& balance, CAmount& stake, CAmount& weight) override
     {

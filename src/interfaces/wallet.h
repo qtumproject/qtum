@@ -380,7 +380,7 @@ public:
     virtual uint64_t getSuperStakerWeight(const uint256& id) = 0;
 
     //! Is super staker staking
-    virtual bool isSuperStakerStaking(const uint256& id) = 0;
+    virtual bool isSuperStakerStaking(const uint256& id, CAmount& delegationsWeight) = 0;
 
     //! Try get the stake weight
     virtual bool tryGetStakeWeight(uint64_t& nWeight) = 0;
@@ -402,6 +402,9 @@ public:
 
     //! Get wallet enabled for staking
     virtual bool getEnabledStaking() = 0;
+
+    //! Get wallet enabled for super staking
+    virtual bool getEnabledSuperStaking() = 0;
 
     //! Get a delegation from super staker.
     virtual DelegationStakerInfo getDelegationStaker(const uint160& id) = 0;

@@ -34,7 +34,7 @@ public:
     explicit SuperStakerItemWidget(const PlatformStyle *platformStyle, QWidget *parent = 0, ItemType type = Record);
     ~SuperStakerItemWidget();
 
-    void setData(const QString& fee, const QString& staker, const bool& staking_on, const int64_t& balance, const int64_t& stake);
+    void setData(const QString& fee, const QString& staker, const bool& staking_on, const int64_t& balance, const int64_t& stake, const int64_t& weight, const int64_t& delegationsWeight);
 
     void setPosition(int position);
 
