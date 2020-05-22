@@ -971,7 +971,7 @@ public:
             if(keyID)
             {
                 uint160 address(*keyID);
-                contractRet = m_qtumDelegation.GetDelegation(address, delegation);
+                contractRet = m_qtumDelegation.ExistDelegationContract() ? m_qtumDelegation.GetDelegation(address, delegation) : false;
                 if(contractRet)
                 {
                     validated = m_qtumDelegation.VerifyDelegation(address, delegation);
@@ -1036,7 +1036,7 @@ public:
         if(keyID)
         {
             uint160 address(*keyID);
-            details.c_contract_return = m_qtumDelegation.GetDelegation(address, delegation);
+            details.c_contract_return = m_qtumDelegation.ExistDelegationContract() ? m_qtumDelegation.GetDelegation(address, delegation) : false;
             if(details.c_contract_return)
             {
                 details.c_entry_exist = m_qtumDelegation.VerifyDelegation(address, delegation);
