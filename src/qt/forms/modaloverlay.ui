@@ -424,7 +424,7 @@
                <item row="1" column="1">
                 <widget class="QLabel" name="labelMessage">
                  <property name="text">
-                  <string>Please backup your wallet as soon
+                  <string>Please backup your wallet as soon as possible.
 Please make sure to keep an updated antivirus and operating system. We can not recover Your funds if you visit phishing site or lose your backup. Please make sure to keep backups of your private keys or files. We do not store your private keys on this wallet. And you as a user, are entirely responsible for your funds and your own security.</string>
                  </property>
                  <property name="alignment">
