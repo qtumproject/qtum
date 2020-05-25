@@ -709,7 +709,7 @@ class CBlock(CBlockHeader):
             self.nNonce += 1
             self.rehash()
 
-    def sign_block(self, key, low_s=True):
+    def sign_block(self, key, low_s=True, pod=None):
         data = b""
         data += struct.pack("<i", self.nVersion)
         data += ser_uint256(self.hashPrevBlock)
@@ -720,6 +720,8 @@ class CBlock(CBlockHeader):
         data += ser_uint256(self.hashStateRoot)
         data += ser_uint256(self.hashUTXORoot)
         data += self.prevoutStake.serialize()
+        if pod != None:
+            data += struct.pack("<b", len(pod)) + pod
         sha256NoSig = hash256(data)
         self.vchBlockSig = key.sign_ecdsa(sha256NoSig, low_s=low_s, der_sig=False)
 

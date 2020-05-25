@@ -209,7 +209,7 @@ class TestNode():
         if self.enable_wallet and not any(arg.startswith('-staking=') for arg in extra_args):
             extra_args.append('-staking=0')
 
-        if self.enable_wallet and not any(arg.startswith('-offlinestakingheight=2') for arg in extra_args):
+        if self.enable_wallet and not any(arg.startswith('-offlinestakingheight=') for arg in extra_args):
             extra_args.append('-offlinestakingheight=1')
 
         # Disable the spam filter as it may interfere with come tests sending lots and lots of blocks
@@ -226,7 +226,7 @@ class TestNode():
 
     def wait_for_rpc_connection(self):
         """Sets up an RPC connection to the bitcoind process. Returns False if unable to connect."""
-        # Wait until the debug log prints that the init process is done and a cookie auth file exists 
+        # Wait until the debug log prints that the init process is done and a cookie auth file exists
         # OR that the process has stopped before proceeding to prevent race conditions
         # Times out after 10 seconds.
         cookiefile = os.path.join(self.datadir, self.chain, ".cookie")
