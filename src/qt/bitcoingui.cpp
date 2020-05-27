@@ -326,12 +326,16 @@ void BitcoinGUI::createActions()
     sendToContractAction = new QAction(tr("Send To"), this);
     callContractAction = new QAction(tr("Call"), this);
 
-    stakeAction = new QAction(platformStyle->MultiStatesIcon(":/icons/tx_mined"), tr("&Stake"), this);
-    stakeAction->setStatusTip(tr("Show stake of wallet"));
-    stakeAction->setToolTip(stakeAction->statusTip());
-    stakeAction->setCheckable(true);
-    stakeAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_4));
-    tabGroup->addAction(stakeAction);
+    walletStakeAction = new QAction(platformStyle->MultiStatesIcon(":/icons/tx_mined"), tr("&Stake"), this);
+    walletStakeAction->setStatusTip(tr("Show stake of wallet"));
+    walletStakeAction->setToolTip(walletStakeAction->statusTip());
+    walletStakeAction->setCheckable(true);
+    walletStakeAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_4));
+    tabGroup->addAction(walletStakeAction);
+
+    stakeAction = new QAction(tr("Staking"), this);
+    delegationAction = new QAction(tr("Delegations"), this);
+    superStakerAction = new QAction(tr("Super Staking"), this);
 
     QRCTokenAction = new QAction(platformStyle->MultiStatesIcon(":/icons/qrctoken"), tr("&QRC Tokens"), this);
     QRCTokenAction->setStatusTip(tr("QRC Tokens (send, receive or add Tokens in list)"));
@@ -339,20 +343,6 @@ void BitcoinGUI::createActions()
     QRCTokenAction->setCheckable(true);
     QRCTokenAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_5));
     tabGroup->addAction(QRCTokenAction);
-
-    delegationAction = new QAction(platformStyle->MultiStatesIcon(":/icons/tx_mined"), tr("&Delegations"), this);
-    delegationAction->setStatusTip(tr("Delegate coins for staking to supers stakers"));
-    delegationAction->setToolTip(delegationAction->statusTip());
-    delegationAction->setCheckable(true);
-    delegationAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_6));
-    tabGroup->addAction(delegationAction);
-
-    superStakerAction = new QAction(platformStyle->MultiStatesIcon(":/icons/tx_mined"), tr("S&uper Stakers"), this);
-    superStakerAction->setStatusTip(tr("Supers stakers (add, remove and configure super stakers)"));
-    superStakerAction->setToolTip(superStakerAction->statusTip());
-    superStakerAction->setCheckable(true);
-    superStakerAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_7));
-    tabGroup->addAction(superStakerAction);
 
 #ifdef ENABLE_WALLET
     // These showNormalIfMinimized are needed because Send Coins and Receive Coins
@@ -633,10 +623,12 @@ void BitcoinGUI::createToolBars()
         contractActions.append(sendToContractAction);
         contractActions.append(callContractAction);
         appNavigationBar->mapGroup(smartContractAction, contractActions);
-        appNavigationBar->addAction(stakeAction);
+        QList<QAction*> walletStakeActions;
+        walletStakeActions.append(stakeAction);
+        walletStakeActions.append(delegationAction);
+        walletStakeActions.append(superStakerAction);
+        appNavigationBar->mapGroup(walletStakeAction, walletStakeActions);
         appNavigationBar->addAction(QRCTokenAction);
-        appNavigationBar->addAction(delegationAction);
-        appNavigationBar->addAction(superStakerAction);
         appNavigationBar->buildUi();
         overviewAction->setChecked(true);
     }
@@ -853,6 +845,7 @@ void BitcoinGUI::setWalletActionsEnabled(bool enabled)
     stakeAction->setEnabled(enabled);
     delegationAction->setEnabled(enabled);
     superStakerAction->setEnabled(enabled);
+    walletStakeAction->setEnabled(enabled);
     m_close_wallet_action->setEnabled(enabled);
 }
 
