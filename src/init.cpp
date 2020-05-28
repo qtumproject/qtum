@@ -916,6 +916,7 @@ void InitLogging()
     LogInstance().m_log_time_micros = gArgs.GetBoolArg("-logtimemicros", DEFAULT_LOGTIMEMICROS);
     LogInstance().m_log_threadnames = gArgs.GetBoolArg("-logthreadnames", DEFAULT_LOGTHREADNAMES);
     LogInstance().m_show_evm_logs = gArgs.GetBoolArg("-showevmlogs", DEFAULT_SHOWEVMLOGS);
+    dev::g_logPost = [&](std::string const& s, char const* c){ LogInstance().LogPrintStr(s + '\n', true); };
 
     fLogIPs = gArgs.GetBoolArg("-logips", DEFAULT_LOGIPS);
 
@@ -1417,7 +1418,6 @@ bool AppInitMain(InitInterfaces& interfaces)
     }
 
 ////////////////////////////////////////////////////////////////////// // qtum
-    dev::g_logPost = [&](std::string const& s, char const* c){ LogInstance().LogPrintStr(s + '\n', true); };
     dev::g_logPost(std::string("\n\n\n\n\n\n\n\n\n\n"), NULL);
 //////////////////////////////////////////////////////////////////////
 
