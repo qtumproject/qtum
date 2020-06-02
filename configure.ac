@@ -752,6 +752,8 @@ case $host in
      ;;
 esac
 
+LIBFF_TARGET_FLAGS=""
+
 if test x$use_extended_functional_tests != xno; then
   AC_SUBST(EXTENDED_FUNCTIONAL_TESTS, --extended)
 fi
@@ -1242,6 +1244,12 @@ AC_SUBST(LEVELDB_CPPFLAGS)
 AC_SUBST(LIBLEVELDB)
 AC_SUBST(LIBMEMENV)
 
+LIBFF_CPPFLAGS=
+LIBFF=
+AM_CONDITIONAL([EMBEDDED_LIBFF],[true])
+AC_SUBST(LIBFF_CPPFLAGS)
+AC_SUBST(LIBFF)
+
 dnl SUPPRESSED_CPPFLAGS=SUPPRESS_WARNINGS([$SOME_CPPFLAGS])
 dnl Replace -I with -isystem in $SOME_CPPFLAGS to suppress warnings from
 dnl headers from its include directories and return the result.
@@ -1253,7 +1261,6 @@ dnl is not necessary (/usr/include is already a system directory) and because
 dnl it would break GCC's #include_next.
 AC_DEFUN([SUPPRESS_WARNINGS],
          [$(echo $1 |${SED} -E -e 's/(^| )-I/\1-isystem /g' -e 's;-isystem /usr/include([/ ]|$);-I/usr/include\1;g')])
-
 dnl enable-fuzz should disable all other targets
 if test "x$enable_fuzz" = "xyes"; then
   AC_MSG_WARN(enable-fuzz will disable all other targets and force --enable-fuzz-binary=yes)
