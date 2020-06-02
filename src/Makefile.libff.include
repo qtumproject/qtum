@@ -1,0 +1,122 @@
+# Copyright (c) 2016 The Bitcoin Core developers
+# Distributed under the MIT software license, see the accompanying
+# file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+LIBFF_INT = libff/libff.a
+
+EXTRA_LIBRARIES += $(LIBFF_INT)
+
+LIBFF += $(LIBFF_INT)
+
+LIBFF_CPPFLAGS += -I$(srcdir)/cryptopp/include
+
+LIBFF_CPPFLAGS_INT =
+LIBFF_CPPFLAGS_INT += -I$(srcdir)/libff
+LIBFF_CPPFLAGS_INT += $(LIBFF_TARGET_FLAGS)
+
+libff_libff_a_CPPFLAGS = $(AM_CPPFLAGS) $(LIBFF_CPPFLAGS_INT) $(LIBFF_CPPFLAGS) -DCURVE_ALT_BN128 -DNO_PROCPS
+libff_libff_a_CXXFLAGS = $(AM_CXXFLAGS) -DNDEBUG -fPIC -O2 -g2
+
+libff_libff_a_SOURCES=
+libff_libff_a_SOURCES += libff/libff/algebra/curves/alt_bn128/alt_bn128_g1.cpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/alt_bn128/alt_bn128_g1.hpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/alt_bn128/alt_bn128_g2.cpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/alt_bn128/alt_bn128_g2.hpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/alt_bn128/alt_bn128_init.cpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/alt_bn128/alt_bn128_init.hpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/alt_bn128/alt_bn128_pairing.cpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/alt_bn128/alt_bn128_pairing.hpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/alt_bn128/alt_bn128_pp.cpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/alt_bn128/alt_bn128_pp.hpp
+
+libff_libff_a_SOURCES += libff/libff/algebra/curves/edwards/edwards_g1.cpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/edwards/edwards_g1.hpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/edwards/edwards_g2.cpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/edwards/edwards_g2.hpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/edwards/edwards_init.cpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/edwards/edwards_init.hpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/edwards/edwards_pairing.cpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/edwards/edwards_pairing.hpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/edwards/edwards_pp.cpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/edwards/edwards_pp.hpp
+
+libff_libff_a_SOURCES += libff/libff/algebra/curves/mnt/mnt4/mnt4_g1.cpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/mnt/mnt4/mnt4_g1.hpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/mnt/mnt4/mnt4_g2.cpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/mnt/mnt4/mnt4_g2.hpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/mnt/mnt4/mnt4_init.cpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/mnt/mnt4/mnt4_init.hpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/mnt/mnt4/mnt4_pairing.cpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/mnt/mnt4/mnt4_pairing.hpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/mnt/mnt4/mnt4_pp.cpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/mnt/mnt4/mnt4_pp.hpp
+
+libff_libff_a_SOURCES += libff/libff/algebra/curves/mnt/mnt6/mnt6_g1.cpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/mnt/mnt6/mnt6_g1.hpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/mnt/mnt6/mnt6_g2.cpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/mnt/mnt6/mnt6_g2.hpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/mnt/mnt6/mnt6_init.cpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/mnt/mnt6/mnt6_init.hpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/mnt/mnt6/mnt6_pairing.cpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/mnt/mnt6/mnt6_pairing.hpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/mnt/mnt6/mnt6_pp.cpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/mnt/mnt6/mnt6_pp.hpp
+
+libff_libff_a_SOURCES += libff/libff/algebra/curves/mnt/mnt46_common.cpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/mnt/mnt46_common.hpp
+
+libff_libff_a_SOURCES += libff/libff/algebra/curves/tests/test_bilinearity.cpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/tests/test_groups.cpp
+
+libff_libff_a_SOURCES += libff/libff/algebra/curves/curve_utils.hpp
+libff_libff_a_SOURCES += libff/libff/algebra/curves/curve_utils.tcc
+
+libff_libff_a_SOURCES += libff/libff/algebra/exponentiation/exponentiation.hpp
+libff_libff_a_SOURCES += libff/libff/algebra/exponentiation/exponentiation.tcc
+
+libff_libff_a_SOURCES += libff/libff/algebra/fields/bigint.tcc
+libff_libff_a_SOURCES += libff/libff/algebra/fields/bigint.hpp
+libff_libff_a_SOURCES += libff/libff/algebra/fields/field_utils.tcc
+libff_libff_a_SOURCES += libff/libff/algebra/fields/field_utils.hpp
+libff_libff_a_SOURCES += libff/libff/algebra/fields/fp.tcc
+libff_libff_a_SOURCES += libff/libff/algebra/fields/fp.hpp
+libff_libff_a_SOURCES += libff/libff/algebra/fields/fp2.tcc
+libff_libff_a_SOURCES += libff/libff/algebra/fields/fp2.hpp
+libff_libff_a_SOURCES += libff/libff/algebra/fields/fp3.tcc
+libff_libff_a_SOURCES += libff/libff/algebra/fields/fp3.hpp
+libff_libff_a_SOURCES += libff/libff/algebra/fields/fp4.tcc
+libff_libff_a_SOURCES += libff/libff/algebra/fields/fp4.hpp
+libff_libff_a_SOURCES += libff/libff/algebra/fields/fp6_2over3.tcc
+libff_libff_a_SOURCES += libff/libff/algebra/fields/fp6_2over3.hpp
+libff_libff_a_SOURCES += libff/libff/algebra/fields/fp6_3over2.tcc
+libff_libff_a_SOURCES += libff/libff/algebra/fields/fp6_3over2.hpp
+libff_libff_a_SOURCES += libff/libff/algebra/fields/fp12_2over3over2.tcc
+libff_libff_a_SOURCES += libff/libff/algebra/fields/fp12_2over3over2.hpp
+libff_libff_a_SOURCES += libff/libff/algebra/fields/fp_aux.tcc
+libff_libff_a_SOURCES += libff/libff/algebra/fields/tests/test_fields.cpp
+
+libff_libff_a_SOURCES += libff/libff/algebra/scalar_multiplication/multiexp.tcc
+libff_libff_a_SOURCES += libff/libff/algebra/scalar_multiplication/multiexp.hpp
+libff_libff_a_SOURCES += libff/libff/algebra/scalar_multiplication/wnaf.tcc
+libff_libff_a_SOURCES += libff/libff/algebra/scalar_multiplication/wnaf.hpp
+
+
+libff_libff_a_SOURCES += libff/libff/common/default_types/ec_pp.hpp
+libff_libff_a_SOURCES += libff/libff/common/double.cpp
+libff_libff_a_SOURCES += libff/libff/common/double.hpp
+libff_libff_a_SOURCES += libff/libff/common/profiling.cpp
+libff_libff_a_SOURCES += libff/libff/common/profiling.hpp
+libff_libff_a_SOURCES += libff/libff/common/rng.tcc
+libff_libff_a_SOURCES += libff/libff/common/rng.hpp
+libff_libff_a_SOURCES += libff/libff/common/serialization.tcc
+libff_libff_a_SOURCES += libff/libff/common/serialization.hpp
+libff_libff_a_SOURCES += libff/libff/common/template_utils.hpp
+libff_libff_a_SOURCES += libff/libff/common/utils.cpp
+libff_libff_a_SOURCES += libff/libff/common/utils.hpp
+libff_libff_a_SOURCES += libff/libff/common/utils.tcc
+
+
+
+
+
+
