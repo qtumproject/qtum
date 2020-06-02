@@ -611,6 +611,8 @@ case $host in
      ;;
 esac
 
+LIBFF_TARGET_FLAGS=""
+
 if test x$use_pkgconfig = xyes; then
   m4_ifndef([PKG_PROG_PKG_CONFIG], [AC_MSG_ERROR(PKG_PROG_PKG_CONFIG macro not found. Please install pkg-config and re-run autogen.sh.)])
   m4_ifdef([PKG_PROG_PKG_CONFIG], [
@@ -1073,6 +1075,12 @@ AM_CONDITIONAL([EMBEDDED_LEVELDB],[true])
 AC_SUBST(LEVELDB_CPPFLAGS)
 AC_SUBST(LIBLEVELDB)
 AC_SUBST(LIBMEMENV)
+
+LIBFF_CPPFLAGS=
+LIBFF=
+AM_CONDITIONAL([EMBEDDED_LIBFF],[true])
+AC_SUBST(LIBFF_CPPFLAGS)
+AC_SUBST(LIBFF)
 
 dnl enable-fuzz should disable all other targets
 if test "x$enable_fuzz" = "xyes"; then
