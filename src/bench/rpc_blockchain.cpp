@@ -12,7 +12,7 @@
 #include <univalue.h>
 
 static void BlockToJsonVerbose(benchmark::State& state) {
-    CDataStream stream(benchmark::data::block413567, SER_NETWORK, PROTOCOL_VERSION);
+    CDataStream stream(benchmark::data::blockbench, SER_NETWORK, PROTOCOL_VERSION);
     char a = '\0';
     stream.write(&a, 1); // Prevent compaction
 
