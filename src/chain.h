@@ -192,6 +192,7 @@ public:
     uint32_t nTime{0};
     uint32_t nBits{0};
     uint32_t nNonce{0};
+    COutPoint prevoutStake{};
 
     //! (memory only) Sequential id assigned to distinguish order in which blocks are received.
     int32_t nSequenceId{0};
@@ -281,6 +282,11 @@ public:
 
         std::sort(pbegin, pend);
         return pbegin[(pend - pbegin)/2];
+    }
+
+    bool IsProofOfStake() const
+    {
+        return !prevoutStake.IsNull();
     }
 
     std::string ToString() const

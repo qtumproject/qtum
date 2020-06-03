@@ -40,6 +40,29 @@
 #include <utility>
 #include <vector>
 
+/////////////////////////////////////////// qtum
+class CWalletTx;
+
+#include <qtum/qtumstate.h>
+#include <qtum/qtumDGP.h>
+#include <libethereum/ChainParams.h>
+#include <libethereum/LastBlockHashesFace.h>
+#include <libethashseal/GenesisInfo.h>
+#include <script/standard.h>
+#include <qtum/storageresults.h>
+
+
+extern std::unique_ptr<QtumState> globalState;
+extern std::shared_ptr<dev::eth::SealEngineFace> globalSealEngine;
+extern bool fRecordLogOpcodes;
+extern bool fIsVMlogFile;
+extern bool fGettingValuesDGP;
+
+struct EthTransactionParams;
+using valtype = std::vector<unsigned char>;
+using ExtractQtumTX = std::pair<std::vector<QtumTransaction>, std::vector<EthTransactionParams>>;
+///////////////////////////////////////////
+
 class CChainState;
 class BlockValidationState;
 class CBlockIndex;
@@ -97,6 +120,19 @@ static const unsigned int DEFAULT_CHECKLEVEL = 3;
 // one 128MB block file + added 15% undo data = 147MB greater for a total of 545MB
 // Setting the target to >= 550 MiB will make it likely we can respect the target.
 static const uint64_t MIN_DISK_SPACE_FOR_BLOCK_FILES = 550 * 1024 * 1024;
+
+static const uint64_t DEFAULT_GAS_LIMIT_OP_CREATE=2500000;
+static const uint64_t DEFAULT_GAS_LIMIT_OP_SEND=250000;
+static const CAmount DEFAULT_GAS_PRICE=0.00000040*COIN;
+static const CAmount MAX_RPC_GAS_PRICE=0.00000100*COIN;
+
+static const size_t MAX_CONTRACT_VOUTS = 1000; // qtum
+
+//! -stakingminutxovalue default
+static const CAmount DEFAULT_STAKING_MIN_UTXO_VALUE = 100 * COIN;
+
+//! -forceinitialblocksdownloadmode default
+static const bool DEFAULT_FORCE_INITIAL_BLOCKS_DOWNLOAD_MODE = false;
 
 /** Current sync state passed to tip changed callbacks. */
 enum class SynchronizationState {
@@ -362,6 +398,8 @@ public:
         int nCheckLevel,
         int nCheckDepth) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
 };
+
+std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, const dev::Address& sender = dev::Address(), uint64_t gasLimit=0, CAmount nAmount=0);
 
 enum DisconnectResult
 {

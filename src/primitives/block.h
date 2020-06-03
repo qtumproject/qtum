@@ -27,7 +27,11 @@ public:
     uint32_t nTime;
     uint32_t nBits;
     uint32_t nNonce;
-
+    uint256 hashStateRoot; // qtum
+    uint256 hashUTXORoot; // qtum
+    // proof-of-stake specific fields
+    COutPoint prevoutStake;
+    std::vector<unsigned char> vchBlockSigDlgt; // The delegate is 65 bytes or 0 bytes, it can be added in the signature paramether at the end to avoid compatibility problems
     CBlockHeader()
     {
         SetNull();
@@ -55,6 +59,12 @@ public:
     int64_t GetBlockTime() const
     {
         return (int64_t)nTime;
+    }
+
+    // ppcoin: two types of block: proof-of-work or proof-of-stake
+    virtual bool IsProofOfStake() const //qtum
+    {
+        return !prevoutStake.IsNull();
     }
 };
 

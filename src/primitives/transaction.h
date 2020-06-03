@@ -281,6 +281,9 @@ private:
     uint256 ComputeWitnessHash() const;
 
 public:
+    /** Construct a CTransaction that qualifies as IsNull() */
+    CTransaction();
+
     /** Convert a CMutableTransaction into a CTransaction. */
     explicit CTransaction(const CMutableTransaction& tx);
     CTransaction(CMutableTransaction&& tx);
