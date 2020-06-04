@@ -33,6 +33,21 @@ bool MutableTransactionSignatureCreator::CreateSig(const SigningProvider& provid
     return true;
 }
 
+MutableTransactionSignatureOutputCreator::MutableTransactionSignatureOutputCreator(const CMutableTransaction* txToIn, unsigned int nOutIn, const CAmount& amountIn, int nHashTypeIn) : txTo(txToIn), nOut(nOutIn), nHashType(nHashTypeIn), amount(amountIn), checker(txTo, nOut, amountIn) {}
+
+bool MutableTransactionSignatureOutputCreator::CreateSig(const SigningProvider& provider, std::vector<unsigned char>& vchSig, const CKeyID& address, const CScript& scriptCode, SigVersion sigversion) const
+{
+    CKey key;
+    if (!provider.GetKey(address, key))
+        return false;
+
+    uint256 hash = SignatureHashOutput(scriptCode, *txTo, nOut, nHashType, amount, sigversion);
+    if (!key.Sign(hash, vchSig))
+        return false;
+    vchSig.push_back((unsigned char)nHashType);
+    return true;
+}
+
 static bool GetCScript(const SigningProvider& provider, const SignatureData& sigdata, const CScriptID& scriptid, CScript& script)
 {
     if (provider.GetCScript(scriptid, script)) {
@@ -392,6 +407,35 @@ bool SignSignature(const SigningProvider &provider, const CTransaction& txFrom, 
     return SignSignature(provider, txout.scriptPubKey, txTo, nIn, txout.nValue, nHashType);
 }
 
+bool VerifySignature(const Coin& coin, const uint256 txFromHash, const CTransaction& txTo, unsigned int nIn, unsigned int flags)
+{
+    TransactionSignatureChecker checker(&txTo, nIn, 0);
+	
+    const CTxIn& txin = txTo.vin[nIn];
+//    if (txin.prevout.n >= txFrom.vout.size())
+//        return false;
+//    const CTxOut& txout = txFrom.vout[txin.prevout.n];
+
+    const CTxOut& txout = coin.out;
+
+    if (txin.prevout.hash != txFromHash)
+        return false;
+		
+    return VerifyScript(txin.scriptSig, txout.scriptPubKey, NULL, flags, checker);
+}
+
+bool VerifySignature(const CScript& fromPubKey, const uint256 txFromHash, const CTransaction& txTo, unsigned int nIn, unsigned int flags)
+{
+    TransactionSignatureChecker checker(&txTo, nIn, 0);
+	
+    const CTxIn& txin = txTo.vin[nIn];
+
+    if (txin.prevout.hash != txFromHash)
+        return false;
+		
+    return VerifyScript(txin.scriptSig, fromPubKey, NULL, flags, checker);
+}
+
 namespace {
 /** Dummy signature checker which accepts all signatures. */
 class DummySignatureChecker final : public BaseSignatureChecker
@@ -515,4 +559,18 @@ bool SignTransaction(CMutableTransaction& mtx, const SigningProvider* keystore, 
         }
     }
     return input_errors.empty();
+}
+
+bool UpdateOutput(CTxOut &output, const SignatureData &data)
+{
+    bool ret = false;
+    CDataStream streamSig(SER_NETWORK, PROTOCOL_VERSION);
+    streamSig << data.scriptSig;
+    CScript scriptPubKey;
+    if(output.scriptPubKey.UpdateSenderSig(ToByteVector(streamSig), scriptPubKey))
+    {
+        output.scriptPubKey = scriptPubKey;
+        ret = true;
+    }
+    return ret;
 }

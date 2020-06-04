@@ -20,7 +20,9 @@ static const bool DEFAULT_LOGTIMEMICROS = false;
 static const bool DEFAULT_LOGIPS        = false;
 static const bool DEFAULT_LOGTIMESTAMPS = true;
 static const bool DEFAULT_LOGTHREADNAMES = false;
+static const bool DEFAULT_SHOWEVMLOGS   = false;
 extern const char * const DEFAULT_DEBUGLOGFILE;
+extern const char * const DEFAULT_DEBUGVMLOGFILE;
 
 extern bool fLogIPs;
 
@@ -55,7 +57,20 @@ namespace BCLog {
         QT          = (1 << 19),
         LEVELDB     = (1 << 20),
         VALIDATION  = (1 << 21),
+        COINSTAKE   = (1 << 22),
+        HTTPPOLL    = (1 << 23),
         ALL         = ~(uint32_t)0,
+    };
+
+    struct LogMsg
+    {
+        LogMsg(const std::string& _msg, bool _useVMLog) :
+            msg(_msg),
+            useVMLog(_useVMLog)
+        {}
+
+        std::string msg;
+        bool useVMLog;
     };
 
     class Logger
@@ -63,7 +78,8 @@ namespace BCLog {
     private:
         mutable std::mutex m_cs;                   // Can not use Mutex from sync.h because in debug mode it would cause a deadlock when a potential deadlock was detected
         FILE* m_fileout = nullptr;                 // GUARDED_BY(m_cs)
-        std::list<std::string> m_msgs_before_open; // GUARDED_BY(m_cs)
+        FILE* m_fileoutVM = nullptr;               // GUARDED_BY(m_cs)
+        std::list<LogMsg> m_msgs_before_open; // GUARDED_BY(m_cs)
         bool m_buffering{true};                    //!< Buffer messages before logging can be started. GUARDED_BY(m_cs)
 
         /**
@@ -88,12 +104,14 @@ namespace BCLog {
         bool m_log_timestamps = DEFAULT_LOGTIMESTAMPS;
         bool m_log_time_micros = DEFAULT_LOGTIMEMICROS;
         bool m_log_threadnames = DEFAULT_LOGTHREADNAMES;
+        bool m_show_evm_logs = DEFAULT_SHOWEVMLOGS;
 
         fs::path m_file_path;
+        fs::path m_file_pathVM;
         std::atomic<bool> m_reopen_file{false};
 
         /** Send a string to the log output */
-        void LogPrintStr(const std::string& str);
+        void LogPrintStr(const std::string& str, bool useVMLog = false);
 
         /** Returns whether logs will be written to any output */
         bool Enabled() const

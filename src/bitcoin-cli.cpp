@@ -56,7 +56,7 @@ static void SetupCliArgs()
     gArgs.AddArg("-rpcport=<port>", strprintf("Connect to JSON-RPC on <port> (default: %u, testnet: %u, regtest: %u)", defaultBaseParams->RPCPort(), testnetBaseParams->RPCPort(), regtestBaseParams->RPCPort()), ArgsManager::ALLOW_ANY | ArgsManager::NETWORK_ONLY, OptionsCategory::OPTIONS);
     gArgs.AddArg("-rpcuser=<user>", "Username for JSON-RPC connections", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
     gArgs.AddArg("-rpcwait", "Wait for RPC server to start", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
-    gArgs.AddArg("-rpcwallet=<walletname>", "Send RPC for non-default wallet on RPC server (needs to exactly match corresponding -wallet option passed to bitcoind). This changes the RPC endpoint used, e.g. http://127.0.0.1:8332/wallet/<walletname>", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    gArgs.AddArg("-rpcwallet=<walletname>", "Send RPC for non-default wallet on RPC server (needs to exactly match corresponding -wallet option passed to qtumd). This changes the RPC endpoint used, e.g. http://127.0.0.1:8332/wallet/<walletname>", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
     gArgs.AddArg("-stdin", "Read extra arguments from standard input, one per line until EOF/Ctrl-D (recommended for sensitive information such as passphrases). When combined with -stdinrpcpass, the first line from standard input is used for the RPC password.", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
     gArgs.AddArg("-stdinrpcpass", "Read RPC password from standard input as a single line. When combined with -stdin, the first line from standard input is used for the RPC password. When combined with -stdinwalletpassphrase, -stdinrpcpass consumes the first line, and -stdinwalletpassphrase consumes the second.", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
     gArgs.AddArg("-stdinwalletpassphrase", "Read wallet passphrase from standard input as a single line. When combined with -stdin, the first line from standard input is used for the wallet passphrase.", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
@@ -112,10 +112,10 @@ static int AppInitRPC(int argc, char* argv[])
         std::string strUsage = PACKAGE_NAME " RPC client version " + FormatFullVersion() + "\n";
         if (!gArgs.IsArgSet("-version")) {
             strUsage += "\n"
-                "Usage:  bitcoin-cli [options] <command> [params]  Send command to " PACKAGE_NAME "\n"
-                "or:     bitcoin-cli [options] -named <command> [name=value]...  Send command to " PACKAGE_NAME " (with named arguments)\n"
-                "or:     bitcoin-cli [options] help                List commands\n"
-                "or:     bitcoin-cli [options] help <command>      Get help for a command\n";
+                "Usage:  qtum-cli [options] <command> [params]  Send command to " PACKAGE_NAME "\n"
+                "or:     qtum-cli [options] -named <command> [name=value]...  Send command to " PACKAGE_NAME " (with named arguments)\n"
+                "or:     qtum-cli [options] help                List commands\n"
+                "or:     qtum-cli [options] help <command>      Get help for a command\n";
             strUsage += "\n" + gArgs.GetHelpMessage();
         }
 
@@ -228,6 +228,7 @@ public:
     const int ID_NETWORKINFO = 0;
     const int ID_BLOCKCHAININFO = 1;
     const int ID_WALLETINFO = 2;
+    const int ID_GETDIFFICULTY = 3;
 
     /** Create a simulated `getinfo` request. */
     UniValue PrepareRequest(const std::string& method, const std::vector<std::string>& args) override
@@ -239,6 +240,7 @@ public:
         result.push_back(JSONRPCRequestObj("getnetworkinfo", NullUniValue, ID_NETWORKINFO));
         result.push_back(JSONRPCRequestObj("getblockchaininfo", NullUniValue, ID_BLOCKCHAININFO));
         result.push_back(JSONRPCRequestObj("getwalletinfo", NullUniValue, ID_WALLETINFO));
+        result.push_back(JSONRPCRequestObj("getdifficulty", NullUniValue, ID_GETDIFFICULTY));
         return result;
     }
 
@@ -246,7 +248,7 @@ public:
     UniValue ProcessReply(const UniValue &batch_in) override
     {
         UniValue result(UniValue::VOBJ);
-        std::vector<UniValue> batch = JSONRPCProcessBatchReply(batch_in, 3);
+        std::vector<UniValue> batch = JSONRPCProcessBatchReply(batch_in, 4);
         // Errors in getnetworkinfo() and getblockchaininfo() are fatal, pass them on
         // getwalletinfo() is allowed to fail in case there is no wallet.
         if (!batch[ID_NETWORKINFO]["error"].isNull()) {
@@ -262,10 +264,14 @@ public:
         result.pushKV("timeoffset", batch[ID_NETWORKINFO]["result"]["timeoffset"]);
         result.pushKV("connections", batch[ID_NETWORKINFO]["result"]["connections"]);
         result.pushKV("proxy", batch[ID_NETWORKINFO]["result"]["networks"][0]["proxy"]);
-        result.pushKV("difficulty", batch[ID_BLOCKCHAININFO]["result"]["difficulty"]);
+        if (!batch[ID_GETDIFFICULTY].isNull()) {
+            result.pushKV("difficulty", batch[ID_GETDIFFICULTY]["result"]);
+        }
         result.pushKV("chain", UniValue(batch[ID_BLOCKCHAININFO]["result"]["chain"]));
+        result.pushKV("moneysupply", batch[ID_BLOCKCHAININFO]["result"]["moneysupply"]);
         if (!batch[ID_WALLETINFO]["result"].isNull()) {
             result.pushKV("balance", batch[ID_WALLETINFO]["result"]["balance"]);
+            result.pushKV("stake", batch[ID_WALLETINFO]["result"]["stake"]);
             result.pushKV("keypoolsize", batch[ID_WALLETINFO]["result"]["keypoolsize"]);
             if (!batch[ID_WALLETINFO]["result"]["unlocked_until"].isNull()) {
                 result.pushKV("unlocked_until", batch[ID_WALLETINFO]["result"]["unlocked_until"]);
@@ -387,7 +393,7 @@ static UniValue CallRPC(BaseRequestHandler *rh, const std::string& strMethod, co
         if (response.error != -1) {
             responseErrorMessage = strprintf(" (error code %d - \"%s\")", response.error, http_errorstring(response.error));
         }
-        throw CConnectionFailed(strprintf("Could not connect to the server %s:%d%s\n\nMake sure the bitcoind server is running and that you are connecting to the correct RPC port.", host, port, responseErrorMessage));
+        throw CConnectionFailed(strprintf("Could not connect to the server %s:%d%s\n\nMake sure the qtumd server is running and that you are connecting to the correct RPC port.", host, port, responseErrorMessage));
     } else if (response.status == HTTP_UNAUTHORIZED) {
         if (failedToGetAuthCookie) {
             throw std::runtime_error(strprintf(
@@ -507,7 +513,7 @@ static int CommandLineRPC(int argc, char *argv[])
                             strPrint += "error message:\n"+errMsg.get_str();
 
                         if (errCode.isNum() && errCode.get_int() == RPC_WALLET_NOT_SPECIFIED) {
-                            strPrint += "\nTry adding \"-rpcwallet=<filename>\" option to bitcoin-cli command line.";
+                            strPrint += "\nTry adding \"-rpcwallet=<filename>\" option to qtum-cli command line.";
                         }
                     }
                 } else {

@@ -12,6 +12,7 @@
 #include <script/interpreter.h>
 #include <script/keyorigin.h>
 #include <streams.h>
+#include <coins.h>
 
 class CKey;
 class CKeyID;
@@ -42,6 +43,20 @@ class MutableTransactionSignatureCreator : public BaseSignatureCreator {
 
 public:
     MutableTransactionSignatureCreator(const CMutableTransaction* txToIn, unsigned int nInIn, const CAmount& amountIn, int nHashTypeIn = SIGHASH_ALL);
+    const BaseSignatureChecker& Checker() const override { return checker; }
+    bool CreateSig(const SigningProvider& provider, std::vector<unsigned char>& vchSig, const CKeyID& keyid, const CScript& scriptCode, SigVersion sigversion) const override;
+};
+
+/** A signature creator for transactions outputs. */
+class MutableTransactionSignatureOutputCreator : public BaseSignatureCreator {
+    const CMutableTransaction* txTo;
+    unsigned int nOut;
+    int nHashType;
+    CAmount amount;
+    const MutableTransactionSignatureOutputChecker checker;
+
+public:
+    MutableTransactionSignatureOutputCreator(const CMutableTransaction* txToIn, unsigned int nOutIn, const CAmount& amountIn, int nHashTypeIn = SIGHASH_ALL);
     const BaseSignatureChecker& Checker() const override { return checker; }
     bool CreateSig(const SigningProvider& provider, std::vector<unsigned char>& vchSig, const CKeyID& keyid, const CScript& scriptCode, SigVersion sigversion) const override;
 };
@@ -155,10 +170,14 @@ bool ProduceSignature(const SigningProvider& provider, const BaseSignatureCreato
 /** Produce a script signature for a transaction. */
 bool SignSignature(const SigningProvider &provider, const CScript& fromPubKey, CMutableTransaction& txTo, unsigned int nIn, const CAmount& amount, int nHashType);
 bool SignSignature(const SigningProvider &provider, const CTransaction& txFrom, CMutableTransaction& txTo, unsigned int nIn, int nHashType);
+bool VerifySignature(const Coin& coin, uint256 txFromHash, const CTransaction& txTo, unsigned int nIn, unsigned int flags);
+bool VerifySignature(const CScript& fromPubKey, uint256 txFromHash, const CTransaction& txTo, unsigned int nIn, unsigned int flags);
 
 /** Extract signature data from a transaction input, and insert it. */
 SignatureData DataFromTransaction(const CMutableTransaction& tx, unsigned int nIn, const CTxOut& txout);
 void UpdateInput(CTxIn& input, const SignatureData& data);
+
+bool UpdateOutput(CTxOut& output, const SignatureData& data);
 
 /* Check whether we know how to sign for an output like this, assuming we
  * have all private keys. While this function does not need private keys, the passed

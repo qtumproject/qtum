@@ -11,6 +11,7 @@
 #include <serialize.h>       // For SER_GETHASH
 #include <util/message.h>
 #include <util/strencodings.h> // For DecodeBase64()
+#include <util/signstr.h>
 
 #include <string>
 #include <vector>
@@ -19,7 +20,7 @@
  * Text used to signify that a signed message follows and to prevent
  * inadvertently signing a transaction.
  */
-const std::string MESSAGE_MAGIC = "Bitcoin Signed Message:\n";
+const std::string MESSAGE_MAGIC = SignStr::strMessageMagic;
 
 MessageVerificationResult MessageVerify(
     const std::string& address,

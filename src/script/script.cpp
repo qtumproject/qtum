@@ -138,6 +138,12 @@ const char* GetOpName(opcodetype opcode)
     case OP_NOP9                   : return "OP_NOP9";
     case OP_NOP10                  : return "OP_NOP10";
 
+    // byte code execution
+    case OP_CREATE                 : return "OP_CREATE";
+    case OP_CALL                   : return "OP_CALL";
+    case OP_SPEND                  : return "OP_SPEND";
+    case OP_SENDER                 : return "OP_SENDER";
+
     case OP_INVALIDOPCODE          : return "OP_INVALIDOPCODE";
 
     default:
@@ -201,6 +207,32 @@ bool CScript::IsPayToScriptHash() const
             (*this)[1] == 0x14 &&
             (*this)[22] == OP_EQUAL);
 }
+
+///////////////////////////////////////////////////////// // qtum
+bool CScript::IsPayToPubkey() const
+{
+    if (this->size() == 35 && (*this)[0] == 33 && (*this)[34] == OP_CHECKSIG
+                            && ((*this)[1] == 0x02 || (*this)[1] == 0x03)) {
+        return true;
+     }
+     if (this->size() == 67 && (*this)[0] == 65 && (*this)[66] == OP_CHECKSIG
+                            && (*this)[1] == 0x04) {
+        return true;
+     }
+     return false;
+}
+
+bool CScript::IsPayToPubkeyHash() const
+{
+    // Extra-fast test for pay-to-pubkeyhash CScripts:
+    return (this->size() == 25 &&
+            (*this)[0] == OP_DUP &&
+            (*this)[1] == OP_HASH160 &&
+            (*this)[2] == 0x14 &&
+            (*this)[23] == OP_EQUALVERIFY &&
+            (*this)[24] == OP_CHECKSIG);
+}
+/////////////////////////////////////////////////////////
 
 bool CScript::IsPayToWitnessScriptHash() const
 {
@@ -325,4 +357,44 @@ bool GetScriptOp(CScriptBase::const_iterator& pc, CScriptBase::const_iterator en
 
     opcodeRet = static_cast<opcodetype>(opcode);
     return true;
+}
+
+bool CScript::ReplaceParam(opcodetype findOp, int posBefore, const std::vector<unsigned char> &vchParam, CScript &scriptRet) const
+{
+    if(posBefore < 0)
+        return false;
+
+    // Find parameter with opcode and replace the parameter before with other value
+    bool ret = false;
+    std::vector<const_iterator> opcodes;
+    int minSize = posBefore + 1;
+    opcodetype opcode;
+    opcodes.push_back(begin());
+    for (const_iterator pc = begin(); pc != end() && GetOp(pc, opcode);)
+    {
+        if (opcode == findOp)
+        {
+            int size = opcodes.size();
+            if(size > minSize)
+            {
+                int firstPart = size -1 -posBefore;
+                int secondPart = size -posBefore;
+                scriptRet = CScript(begin(), opcodes[firstPart]) << vchParam;
+                scriptRet += CScript(opcodes[secondPart], end());
+                ret = true;
+            }
+            break;
+        }
+        opcodes.push_back(pc);
+    }
+
+    return ret;
+}
+
+bool CScript::IsPayToWitnessPubkeyHash() const
+{
+    // Extra-fast test for pay-to-witness-pubkey-hash CScripts:
+    return (this->size() == 22 &&
+            (*this)[0] == OP_0 &&
+            (*this)[1] == 0x14);
 }

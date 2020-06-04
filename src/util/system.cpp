@@ -9,6 +9,8 @@
 #include <util/strencodings.h>
 #include <util/string.h>
 #include <util/translation.h>
+#include <regex>
+#include <iomanip>
 
 
 #if (defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__DragonFly__))
@@ -71,7 +73,7 @@
 // Application startup time (used for uptime calculation)
 const int64_t nStartupTime = GetTime();
 
-const char * const BITCOIN_CONF_FILENAME = "bitcoin.conf";
+const char * const BITCOIN_CONF_FILENAME = "qtum.conf";
 
 ArgsManager gArgs;
 
@@ -84,7 +86,7 @@ static std::map<std::string, std::unique_ptr<fsbridge::FileLock>> dir_locks;
 /** Mutex to protect dir_locks. */
 static std::mutex cs_dir_locks;
 
-bool LockDirectory(const fs::path& directory, const std::string lockfile_name, bool probe_only)
+bool LockDirectory(const fs::path& directory, const std::string lockfile_name, bool probe_only, bool try_lock)
 {
     std::lock_guard<std::mutex> ulock(cs_dir_locks);
     fs::path pathLockFile = directory / lockfile_name;
@@ -98,7 +100,7 @@ bool LockDirectory(const fs::path& directory, const std::string lockfile_name, b
     FILE* file = fsbridge::fopen(pathLockFile, "a");
     if (file) fclose(file);
     auto lock = MakeUnique<fsbridge::FileLock>(pathLockFile);
-    if (!lock->TryLock()) {
+    if (try_lock && !lock->TryLock()) {
         return error("Error while attempting to lock directory %s: %s", directory.string(), lock->GetReason());
     }
     if (!probe_only) {
@@ -555,13 +557,13 @@ void PrintExceptionContinue(const std::exception* pex, const char* pszThread)
 
 fs::path GetDefaultDataDir()
 {
-    // Windows < Vista: C:\Documents and Settings\Username\Application Data\Bitcoin
-    // Windows >= Vista: C:\Users\Username\AppData\Roaming\Bitcoin
-    // Mac: ~/Library/Application Support/Bitcoin
-    // Unix: ~/.bitcoin
+    // Windows < Vista: C:\Documents and Settings\Username\Application Data\Qtum
+    // Windows >= Vista: C:\Users\Username\AppData\Roaming\Qtum
+    // Mac: ~/Library/Application Support/Qtum
+    // Unix: ~/.qtum
 #ifdef WIN32
     // Windows
-    return GetSpecialFolderPath(CSIDL_APPDATA) / "Bitcoin";
+    return GetSpecialFolderPath(CSIDL_APPDATA) / "Qtum";
 #else
     fs::path pathRet;
     char* pszHome = getenv("HOME");
@@ -571,10 +573,10 @@ fs::path GetDefaultDataDir()
         pathRet = fs::path(pszHome);
 #ifdef MAC_OSX
     // Mac
-    return pathRet / "Library/Application Support/Bitcoin";
+    return pathRet / "Library/Application Support/Qtum";
 #else
     // Unix
-    return pathRet / ".bitcoin";
+    return pathRet / ".qtum";
 #endif
 #endif
 }
@@ -1131,10 +1133,18 @@ std::string CopyrightHolders(const std::string& strPrefix)
     std::string strCopyrightHolders = strPrefix + copyright_devs;
 
     // Make sure Bitcoin Core copyright is not removed by accident
-    if (copyright_devs.find("Bitcoin Core") == std::string::npos) {
-        strCopyrightHolders += "\n" + strPrefix + "The Bitcoin Core developers";
+    if (copyright_devs.find("Qtum Core") == std::string::npos) {
+        strCopyrightHolders += "\n" + strPrefix + "The Qtum Core Developers";
     }
     return strCopyrightHolders;
+}
+
+bool CheckHex(const std::string& str) {
+    size_t data=0;
+    if(str.size() > 2 && (str.compare(0, 2, "0x") == 0 || str.compare(0, 2, "0X") == 0)){
+        data=2;
+    }
+    return str.size() > data && str.find_first_not_of("0123456789abcdefABCDEF", data) == std::string::npos;
 }
 
 // Obtain the application startup time (used for uptime calculation)
@@ -1159,6 +1169,28 @@ void ScheduleBatchPriority()
         LogPrintf("Failed to pthread_setschedparam: %s\n", strerror(errno));
     }
 #endif
+}
+
+std::string toHexString(int64_t intValue) {
+    //Store big endian representation in a vector
+    uint64_t num = (uint64_t)intValue;
+    std::vector<unsigned char> bigEndian;
+    for(int i=sizeof(num) -1; i>=0; i--){
+       bigEndian.push_back( (num>>(8*i)) & 0xff );
+    }
+
+    //Convert the vector into hex string
+    return "0x" + HexStr(bigEndian.begin(), bigEndian.end());
+}
+
+void ReplaceInt(const int64_t& number, const std::string& key, std::string& str)
+{
+    // Convert the number into hex string
+    std::string num_hex = toHexString(number);
+
+    // Search for key in str and replace it with the hex string
+    std::string str_replaced = std::regex_replace(str, std::regex(key), num_hex);
+    str = str_replaced;
 }
 
 namespace util {
