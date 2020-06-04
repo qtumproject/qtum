@@ -187,7 +187,9 @@ static UniValue getsubsidy(const JSONRPCRequest& request)
 {
             RPCHelpMan{"getsubsidy",
                 "\nReturns subsidy value for the specified value of target.",
-                {},
+                {
+                    {"height", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "Specify block height."},
+                },
                 RPCResult{
             "subsidy             (numeric)  Subsidy value for the specified target\n"
                 },
