@@ -28,7 +28,7 @@
  * The maximum size of a serialized object in bytes or number of elements
  * (for eg vectors) when the size is encoded as CompactSize.
  */
-static constexpr uint64_t MAX_SIZE = 0x02000000;
+static const unsigned int MAX_SIZE = 0x10000000; // Qtum: Increase max serialized size to 256mb
 
 /** Maximum amount of memory (in bytes) to allocate at once when deserializing vectors. */
 static const unsigned int MAX_VECTOR_ALLOCATE = 5000000;

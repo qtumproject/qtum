@@ -20,6 +20,8 @@ class CKeyID;
 class CScript;
 struct ScriptHash;
 
+typedef std::vector<unsigned char> valtype;
+
 template<typename HashType>
 class BaseHash
 {
@@ -264,5 +266,17 @@ CScript GetScriptForRawPubKey(const CPubKey& pubkey);
 
 /** Generate a multisig script. */
 CScript GetScriptForMultisig(int nRequired, const std::vector<CPubKey>& keys);
+
+struct DataVisitor : public boost::static_visitor<valtype>
+{
+    valtype operator()(const CNoDestination& noDest) const;
+    valtype operator()(const PKHash& keyID) const;
+    valtype operator()(const ScriptHash& scriptID) const;
+    valtype operator()(const WitnessV0ScriptHash& witnessScriptHash) const;
+    valtype operator()(const WitnessV0KeyHash& witnessKeyHash) const;
+    valtype operator()(const WitnessUnknown& witnessUnknown) const;
+};
+
+bool ExtractDestination(const COutPoint& prevout, const CScript& scriptPubKey, CTxDestination& addressRet, TxoutType* typeRet = NULL);
 
 #endif // BITCOIN_SCRIPT_STANDARD_H

@@ -101,12 +101,13 @@ void CCoinsViewCache::AddCoin(const COutPoint &outpoint, Coin&& coin, bool possi
 
 void AddCoins(CCoinsViewCache& cache, const CTransaction &tx, int nHeight, bool check_for_overwrite) {
     bool fCoinbase = tx.IsCoinBase();
+    bool fCoinstake = tx.IsCoinStake();
     const uint256& txid = tx.GetHash();
     for (size_t i = 0; i < tx.vout.size(); ++i) {
         bool overwrite = check_for_overwrite ? cache.HaveCoin(COutPoint(txid, i)) : fCoinbase;
         // Coinbase transactions can always be overwritten, in order to correctly
         // deal with the pre-BIP30 occurrences of duplicate coinbase transactions.
-        cache.AddCoin(COutPoint(txid, i), Coin(tx.vout[i], nHeight, fCoinbase), overwrite);
+        cache.AddCoin(COutPoint(txid, i), Coin(tx.vout[i], nHeight, fCoinbase, fCoinstake), overwrite);
     }
 }
 
@@ -281,4 +282,10 @@ bool CCoinsViewErrorCatcher::GetCoin(const COutPoint &outpoint, Coin &coin) cons
         // continue anyway, and all writes should be atomic.
         std::abort();
     }
+}
+
+const CTxOut &CCoinsViewCache::GetOutputFor(const CTxIn& input) const
+{
+    const Coin& coins = AccessCoin(input.prevout);
+    return coins.out;
 }

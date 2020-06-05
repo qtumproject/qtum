@@ -322,3 +322,15 @@ CScript GetScriptForMultisig(int nRequired, const std::vector<CPubKey>& keys)
 bool IsValidDestination(const CTxDestination& dest) {
     return dest.which() != 0;
 }
+
+valtype DataVisitor::operator()(const CNoDestination& noDest) const { return valtype(); }
+valtype DataVisitor::operator()(const PKHash& keyID) const { return valtype(keyID.begin(), keyID.end()); }
+valtype DataVisitor::operator()(const ScriptHash& scriptID) const { return valtype(scriptID.begin(), scriptID.end()); }
+valtype DataVisitor::operator()(const WitnessV0ScriptHash& witnessScriptHash) const { return valtype(witnessScriptHash.begin(), witnessScriptHash.end()); }
+valtype DataVisitor::operator()(const WitnessV0KeyHash& witnessKeyHash) const { return valtype(witnessKeyHash.begin(), witnessKeyHash.end()); }
+valtype DataVisitor::operator()(const WitnessUnknown&) const { return valtype(); }
+
+bool ExtractDestination(const COutPoint& prevout, const CScript& scriptPubKey, CTxDestination& addressRet, TxoutType* typeRet)
+{
+    return false;
+}
