@@ -659,6 +659,11 @@ public:
      */
     std::set<CBlockIndex*, CBlockIndexWorkComparator> setBlockIndexCandidates;
 
+    /**
+     * The set of all seen COutPoint entries for proof of stake.
+     */
+    std::set<std::pair<COutPoint, unsigned int>> setStakeSeen;
+
     //! @returns A reference to the in-memory cache of the UTXO set.
     CCoinsViewCache& CoinsTip() EXCLUSIVE_LOCKS_REQUIRED(cs_main)
     {
