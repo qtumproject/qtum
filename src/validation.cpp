@@ -4880,7 +4880,7 @@ bool GetBlockDelegation(const CBlock& block, const uint160& staker, uint160& add
     if(nReward <= 0)
         return false;
 
-    fee = std::ceil(nValueStaker * 100.0 / nReward);
+    fee = (nValueStaker * 100 + nReward - 1) / nReward;
     if(inFee != fee)
         return false;
 
