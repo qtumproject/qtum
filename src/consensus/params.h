@@ -90,7 +90,12 @@ struct Params {
     bool fPoSNoRetargeting;
     int64_t nPowTargetSpacing;
     int64_t nPowTargetTimespan;
-    int64_t DifficultyAdjustmentInterval() const { return nPowTargetTimespan / nPowTargetSpacing; }
+    int64_t nPowTargetTimespanV2;
+    int64_t DifficultyAdjustmentInterval(int height) const
+    {
+        int64_t targetSpacing = height < QIP9Height ? nPowTargetTimespan : nPowTargetTimespanV2;
+        return targetSpacing / nPowTargetSpacing;
+    }
     uint256 nMinimumChainWork;
     uint256 defaultAssumeValid;
     int nLastPOWBlock;
