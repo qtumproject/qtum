@@ -514,7 +514,7 @@ int GetDelegationFeeTx(const CTransaction& tx, const Coin& coin, bool delegateOu
     if(nReward <= 0)
         return -1;
 
-    return std::ceil(nValueStaker * 100.0 / nReward);
+    return (nValueStaker * 100 + nReward - 1) / nReward;
 }
 
 bool GetDelegationFeeFromContract(const uint160& address, uint8_t& fee)
