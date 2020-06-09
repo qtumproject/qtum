@@ -21,11 +21,15 @@
 #include <wallet/load.h>
 #include <wallet/rpcwallet.h>
 #include <wallet/wallet.h>
+#include <key_io.h>
+#include <qtum/qtumdelegation.h>
+#include <miner.h>
 
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
+#include <algorithm>
 
 namespace interfaces {
 namespace {
@@ -55,6 +59,22 @@ WalletTx MakeWalletTx(CWallet& wallet, const CWalletTx& wtx)
     result.time = wtx.GetTxTime();
     result.value_map = wtx.mapValue;
     result.is_coinbase = wtx.IsCoinBase();
+    result.is_coinstake = wtx.IsCoinStake();
+    result.is_in_main_chain = wtx.IsInMainChain();
+    result.has_create_or_call = wtx.tx->HasCreateOrCall();
+    if(result.has_create_or_call)
+    {
+        LegacyScriptPubKeyMan* spk_man = wallet.GetLegacyScriptPubKeyMan();
+        CTxDestination tx_sender_address;
+        if(wtx.tx && wtx.tx->vin.size() > 0 && wallet.mapWallet.find(wtx.tx->vin[0].prevout.hash) != wallet.mapWallet.end() &&
+                ExtractDestination(wallet.mapWallet.at(wtx.tx->vin[0].prevout.hash).tx->vout[wtx.tx->vin[0].prevout.n].scriptPubKey, tx_sender_address)) {
+            result.tx_sender_key = GetKeyForDestination(*spk_man, tx_sender_address);
+        }
+
+        for(CTxDestination address : result.txout_address) {
+            result.txout_keys.emplace_back(GetKeyForDestination(*spk_man, address));
+        }
+    }
     return result;
 }
 
@@ -72,6 +92,7 @@ WalletTxStatus MakeWalletTxStatus(interfaces::Chain::Lock& locked_chain, const C
     result.is_abandoned = wtx.isAbandoned();
     result.is_coinbase = wtx.IsCoinBase();
     result.is_in_main_chain = wtx.IsInMainChain();
+    result.is_coinstake = wtx.IsCoinStake();
     return result;
 }
 
@@ -361,11 +382,13 @@ public:
         result.balance = bal.m_mine_trusted;
         result.unconfirmed_balance = bal.m_mine_untrusted_pending;
         result.immature_balance = bal.m_mine_immature;
+        result.stake = bal.m_mine_stake;
         result.have_watch_only = haveWatchOnly();
         if (result.have_watch_only) {
             result.watch_only_balance = bal.m_watchonly_trusted;
             result.unconfirmed_watch_only_balance = bal.m_watchonly_untrusted_pending;
             result.immature_watch_only_balance = bal.m_watchonly_immature;
+            result.watch_only_stake = bal.m_watchonly_stake;
         }
         return result;
     }
@@ -410,6 +433,99 @@ public:
         auto locked_chain = m_wallet->chain().lock();
         LOCK(m_wallet->cs_wallet);
         return m_wallet->GetCredit(txout, filter);
+    }
+    bool isUnspentAddress(const std::string &qtumAddress) override
+    {
+        auto locked_chain = m_wallet->chain().lock();
+        LOCK(m_wallet->cs_wallet);
+
+        std::vector<COutput> vecOutputs;
+        m_wallet->AvailableCoins(*locked_chain, vecOutputs);
+        for (const COutput& out : vecOutputs)
+        {
+            CTxDestination address;
+            const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
+            bool fValidAddress = ExtractDestination(scriptPubKey, address);
+
+            if(fValidAddress && EncodeDestination(address) == qtumAddress && out.tx->tx->vout[out.i].nValue)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    bool isMineAddress(const std::string &strAddress) override
+    {
+        CTxDestination address = DecodeDestination(strAddress);
+        if(!IsValidDestination(address) || !m_wallet->IsMine(address))
+        {
+            return false;
+        }
+        return true;
+    }
+    std::vector<std::string> availableAddresses(interfaces::Chain::Lock& locked_chain, bool fIncludeZeroValue)
+    {
+        std::vector<std::string> result;
+        std::vector<COutput> vecOutputs;
+        std::map<std::string, bool> mapAddress;
+
+        if(fIncludeZeroValue)
+        {
+            // Get the user created addresses in from the address book and add them if they are mine
+            for (const auto& item : m_wallet->m_address_book) {
+                if(!m_wallet->IsMine(item.first)) continue;
+
+                std::string strAddress = EncodeDestination(item.first);
+                if (mapAddress.find(strAddress) == mapAddress.end())
+                {
+                    mapAddress[strAddress] = true;
+                    result.push_back(strAddress);
+                }
+            }
+
+            // Get all coins including the 0 values
+            m_wallet->AvailableCoins(locked_chain, vecOutputs, false, nullptr, 0);
+        }
+        else
+        {
+            // Get all spendable coins
+            m_wallet->AvailableCoins(locked_chain, vecOutputs);
+        }
+
+        // Extract all coins addresses and add them in the list
+        for (const COutput& out : vecOutputs)
+        {
+            CTxDestination address;
+            const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
+            bool fValidAddress = ExtractDestination(scriptPubKey, address);
+
+            if (!fValidAddress || !m_wallet->IsMine(address)) continue;
+
+            std::string strAddress = EncodeDestination(address);
+            if (mapAddress.find(strAddress) == mapAddress.end())
+            {
+                mapAddress[strAddress] = true;
+                result.push_back(strAddress);
+            }
+        }
+
+        return result;
+    }
+    bool tryGetAvailableAddresses(std::vector<std::string> &spendableAddresses, std::vector<std::string> &allAddresses, bool &includeZeroValue) override
+    {
+        auto locked_chain = m_wallet->chain().lock(true);
+        if (!locked_chain) return false;
+        TRY_LOCK(m_wallet->cs_wallet, locked_wallet);
+        if (!locked_wallet) {
+            return false;
+        }
+
+        spendableAddresses = availableAddresses(*locked_chain, false);
+        allAddresses = availableAddresses(*locked_chain, true);
+        int num_blocks = locked_chain->getHeight().get_value_or(-1);
+        includeZeroValue = num_blocks >= Params().GetConsensus().QIP5Height;
+
+        return true;
     }
     CoinsList listCoins() override
     {

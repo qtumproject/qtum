@@ -193,6 +193,18 @@ public:
         }
         return Params().GenesisBlock().GetBlockTime(); // Genesis block's time of current network
     }
+    uint256 getBlockHash(int blockNumber) override
+    {
+        LOCK(::cs_main);
+        CBlockIndex* index = ::ChainActive()[blockNumber];
+        return index ? index->GetBlockHash() : uint256();
+    }
+    int64_t getBlockTime(int blockNumber) override
+    {
+        LOCK(::cs_main);
+        CBlockIndex* index = ::ChainActive()[blockNumber];
+        return index ? index->GetBlockTime() : 0;
+    }
     double getVerificationProgress() override
     {
         const CBlockIndex* tip;
@@ -267,6 +279,44 @@ public:
         std::shared_ptr<CWallet> wallet;
         status = CreateWallet(*m_context.chain, passphrase, wallet_creation_flags, name, error, warnings, wallet);
         return MakeWallet(wallet);
+    }
+    void getGasInfo(uint64_t& blockGasLimit, uint64_t& minGasPrice, uint64_t& nGasPrice) override
+    {
+        LOCK(::cs_main);
+
+        QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
+        blockGasLimit = qtumDGP.getBlockGasLimit(::ChainActive().Height());
+        minGasPrice = CAmount(qtumDGP.getMinGasPrice(::ChainActive().Height()));
+        nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
+    }
+    void getSyncInfo(int& numBlocks, bool& isSyncing) override
+    {
+        LOCK(::cs_main);
+        // Get node synchronization information with minimal locks
+        numBlocks = ::ChainActive().Height();
+        int64_t blockTime = ::ChainActive().Tip() ? ::ChainActive().Tip()->GetBlockTime() :
+                                                  Params().GenesisBlock().GetBlockTime();
+        int64_t secs = GetTime() - blockTime;
+        isSyncing = secs >= 90*60 ? true : false;
+    }
+    int64_t getBlockSubsidy(int nHeight) override
+    {
+        const CChainParams& chainparams = Params();
+        return GetBlockSubsidy(nHeight, chainparams.GetConsensus());
+    }
+    uint64_t getNetworkStakeWeight() override
+    {
+        LOCK(::cs_main);
+        return GetPoSKernelPS();
+    }
+    double getEstimatedAnnualROI() override
+    {
+        LOCK(::cs_main);
+        return GetEstimatedAnnualROI();
+    }
+    int64_t getMoneySupply() override
+    {
+        return pindexBestHeader ? pindexBestHeader->nMoneySupply : 0;
     }
     std::unique_ptr<Handler> handleInitMessage(InitMessageFn fn) override
     {
