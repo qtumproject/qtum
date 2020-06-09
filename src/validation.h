@@ -223,6 +223,8 @@ static const unsigned int DEFAULT_CHECKLEVEL = 3;
 // Setting the target to >= 550 MiB will make it likely we can respect the target.
 static const uint64_t MIN_DISK_SPACE_FOR_BLOCK_FILES = 550 * 1024 * 1024;
 
+inline int64_t FutureDrift(uint32_t nTime) { return nTime + 15; }
+
 /**
  * Process an incoming block. This only returns after the best known valid
  * block is made active. Note that it does not, however, guarantee that the
@@ -256,7 +258,7 @@ bool ProcessNewBlock(const CChainParams& chainparams, const std::shared_ptr<cons
  * @param[in]  chainparams The params for the chain we want to connect to
  * @param[out] ppindex If set, the pointer will be set to point to the last new block index object for the given headers
  */
-bool ProcessNewBlockHeaders(const std::vector<CBlockHeader>& block, BlockValidationState& state, const CChainParams& chainparams, const CBlockIndex** ppindex = nullptr) LOCKS_EXCLUDED(cs_main);
+bool ProcessNewBlockHeaders(const std::vector<CBlockHeader>& block, BlockValidationState& state, const CChainParams& chainparams, const CBlockIndex** ppindex = nullptr,  const CBlockIndex** pindexFirst=nullptr) LOCKS_EXCLUDED(cs_main);
 
 /** Open a block file (blk?????.dat) */
 FILE* OpenBlockFile(const FlatFilePos &pos, bool fReadOnly = false);
@@ -402,6 +404,7 @@ bool UndoReadFromDisk(CBlockUndo& blockundo, const CBlockIndex* pindex);
 
 /** Context-independent validity checks */
 bool CheckBlock(const CBlock& block, BlockValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW = true, bool fCheckMerkleRoot = true);
+bool CheckCanonicalBlockSignature(const CBlockHeader* pblock);
 
 /** Check a block is completely valid from start to finish (only works on top of our current best block) */
 bool TestBlockValidity(BlockValidationState& state, const CChainParams& chainparams, const CBlock& block, CBlockIndex* pindexPrev, bool fCheckPOW = true, bool fCheckMerkleRoot = true) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
@@ -433,6 +436,8 @@ public:
 CBlockIndex* LookupBlockIndex(const uint256& hash) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
 
 extern std::unique_ptr<StorageResults> pstorageresult;
+
+bool RemoveStateBlockIndex(CBlockIndex *pindex);
 
 bool GetSpentCoinFromMainChain(const CBlockIndex* pforkPrev, COutPoint prevoutStake, Coin* coin);
 
@@ -758,6 +763,8 @@ public:
     void PruneBlockIndexCandidates();
 
     void UnloadBlockIndex();
+
+    bool RemoveBlockIndex(CBlockIndex *pindex);
 
     /** Check whether we are doing an initial block download (synchronizing from disk or network) */
     bool IsInitialBlockDownload() const;

@@ -112,4 +112,9 @@ bool GetNodeStateStats(NodeId nodeid, CNodeStateStats &stats);
 /** Relay transaction to every node */
 void RelayTransaction(const uint256&, const CConnman& connman);
 
+/** Process network block received from a given node */
+bool ProcessNetBlock(const CChainParams& chainparams, const std::shared_ptr<const CBlock> pblock, bool fForceProcessing, bool* fNewBlock, CNode* pfrom, CConnman& connman);
+/** Clean block index */
+void CleanBlockIndex();
+
 #endif // BITCOIN_NET_PROCESSING_H

@@ -46,6 +46,8 @@
 #include <validationinterface.h>
 #include <warnings.h>
 
+#include <pubkey.h>
+
 #include <string>
 
 #include <boost/algorithm/string/replace.hpp>
@@ -3725,20 +3727,57 @@ bool BlockManager::AcceptBlockHeader(const CBlockHeader& block, BlockValidationS
 }
 
 // Exposed wrapper for AcceptBlockHeader
-bool ProcessNewBlockHeaders(const std::vector<CBlockHeader>& headers, BlockValidationState& state, const CChainParams& chainparams, const CBlockIndex** ppindex)
+bool ProcessNewBlockHeaders(const std::vector<CBlockHeader>& headers, BlockValidationState& state, const CChainParams& chainparams, const CBlockIndex** ppindex,  const CBlockIndex** pindexFirst)
 {
+    if(!::ChainstateActive().IsInitialBlockDownload() && headers.size() > 1) {
+        const CBlockHeader last_header = headers[headers.size()-1];
+        if (last_header.IsProofOfStake() && last_header.GetBlockTime() > FutureDrift(GetAdjustedTime())) {
+            return state.Invalid(BlockValidationResult::BLOCK_TIME_FUTURE, "time-too-new", "block timestamp too far in the future");
+        }
+    }
+
     {
         LOCK(cs_main);
-        for (const CBlockHeader& header : headers) {
+        bool bFirst = true;
+        bool fInstantBan = false;
+        for (size_t i = 0; i < headers.size(); ++i) {
+            const CBlockHeader& header = headers[i];
+
+            // If the stake has been seen and the header has not yet been seen
+            if (!fReindex && !fImporting && !::ChainstateActive().IsInitialBlockDownload() && header.IsProofOfStake() && ::ChainstateActive().setStakeSeen.count(std::make_pair(header.prevoutStake, header.nTime)) && !::BlockIndex().count(header.GetHash())) {
+                // if it is the last header of the list
+                if(i+1 == headers.size()) {
+                    if(fInstantBan) {
+                        // if we've seen a dupe stake header already in this list, then instaban
+                        return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "dupe-stake", strprintf("%s: duplicate proof-of-stake instant ban (%s, %d) for header %s", __func__, header.prevoutStake.ToString(), header.nTime, header.GetHash().ToString()));
+                    } else {
+                        // otherwise just reject the block until it is part of a longer list
+                        return state.Invalid(BlockValidationResult::BLOCK_HEADER_REJECT, "dupe-stake", strprintf("%s: duplicate proof-of-stake (%s, %d) for header %s", __func__, header.prevoutStake.ToString(), header.nTime, header.GetHash().ToString()));
+                    }
+                } else {
+                    // if it is not part of the longest chain, then any error on a subsequent header should result in an instant ban
+                    fInstantBan = true;
+                }
+            }
+
             CBlockIndex *pindex = nullptr; // Use a temp pindex instead of ppindex to avoid a const_cast
             bool accepted = g_blockman.AcceptBlockHeader(header, state, chainparams, &pindex);
             ::ChainstateActive().CheckBlockIndex(chainparams.GetConsensus());
 
             if (!accepted) {
+                // if we have seen a duplicate stake in this header list previously, then ban immediately.
+                if(fInstantBan) {
+                    state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, state.GetRejectReason(), "instant ban, due to duplicate header in the chain");
+                }
                 return false;
             }
             if (ppindex) {
                 *ppindex = pindex;
+                if(bFirst && pindexFirst)
+                {
+                    *pindexFirst = pindex;
+                    bFirst = false;
+                }
             }
         }
     }
@@ -3850,6 +3889,30 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, Block
     CheckBlockIndex(chainparams.GetConsensus());
 
     return true;
+}
+
+bool IsCanonicalBlockSignature(const CBlockHeader* pblock, bool checkLowS)
+{
+    if (pblock->IsProofOfWork()) {
+        return pblock->vchBlockSigDlgt.empty();
+    }
+
+    return checkLowS ? IsLowDERSignature(pblock->vchBlockSigDlgt, NULL, false) : IsDERSignature(pblock->vchBlockSigDlgt, NULL, false);
+}
+
+bool CheckCanonicalBlockSignature(const CBlockHeader* pblock)
+{
+    // Check compact signature size
+    if(pblock->IsProofOfStake() && pblock->GetBlockSignature().size() == CPubKey::COMPACT_SIGNATURE_SIZE)
+        return pblock->HasProofOfDelegation() ? pblock->GetProofOfDelegation().size() == CPubKey::COMPACT_SIGNATURE_SIZE : true;
+
+    //block signature encoding
+    bool ret = IsCanonicalBlockSignature(pblock, false);
+
+    //block signature encoding (low-s)
+    if(ret) ret = IsCanonicalBlockSignature(pblock, true);
+
+    return ret;
 }
 
 bool ProcessNewBlock(const CChainParams& chainparams, const std::shared_ptr<const CBlock> pblock, bool fForceProcessing, bool *fNewBlock)
@@ -5003,6 +5066,50 @@ void CChainState::CheckBlockIndex(const Consensus::Params& consensusParams)
     assert(nNodes == forward.size());
 }
 
+bool CChainState::RemoveBlockIndex(CBlockIndex *pindex)
+{
+    // Check if the block index is present in any variable and remove it
+    if(pindexBestInvalid == pindex)
+        pindexBestInvalid = nullptr;
+
+    if(pindexBestHeader == pindex)
+        pindexBestHeader = nullptr;
+
+    if(pindexBestForkTip == pindex)
+        pindexBestForkTip = nullptr;
+
+    if(pindexBestForkBase == pindex)
+        pindexBestForkBase = nullptr;
+
+
+    // Check if the block index is present in any list and remove it
+    for (auto it=m_blockman.m_blocks_unlinked.begin(); it!=m_blockman.m_blocks_unlinked.end();){
+        if(it->first == pindex || it->second == pindex)
+        {
+            it = m_blockman.m_blocks_unlinked.erase(it);
+        }
+        else{
+            it++;
+        }
+    }
+
+    setBlockIndexCandidates.erase(pindex);
+
+    m_blockman.m_failed_blocks.erase(pindex);
+
+    setDirtyBlockIndex.erase(pindex);
+
+    for (int b = 0; b < VERSIONBITS_NUM_BITS; b++) {
+        warningcache[b].erase(pindex);
+    }
+
+    for (int b = 0; b < Consensus::MAX_VERSION_BITS_DEPLOYMENTS; b++) {
+        versionbitscache.caches[b].erase(pindex);
+    }
+
+    return true;
+}
+
 std::string CBlockFileInfo::ToString() const
 {
     return strprintf("CBlockFileInfo(blocks=%u, size=%u, heights=%u...%u, time=%s...%s)", nBlocks, nSize, nHeightFirst, nHeightLast, FormatISO8601Date(nTimeFirst), FormatISO8601Date(nTimeLast));
@@ -5182,6 +5289,11 @@ double GuessVerificationProgress(const ChainTxData& data, const CBlockIndex *pin
     }
 
     return std::min<double>(pindex->nChainTx / fTxTotal, 1.0);
+}
+
+bool RemoveStateBlockIndex(CBlockIndex *pindex)
+{
+    return ::ChainstateActive().RemoveBlockIndex(pindex);
 }
 
 class CMainCleanup
