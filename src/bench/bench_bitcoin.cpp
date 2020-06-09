@@ -6,6 +6,7 @@
 
 #include <util/strencodings.h>
 #include <util/system.h>
+#include <libethcore/SealEngine.h>
 
 #include <memory>
 
@@ -50,6 +51,9 @@ int main(int argc, char** argv)
     std::string regex_filter = gArgs.GetArg("-filter", DEFAULT_BENCH_FILTER);
     std::string scaling_str = gArgs.GetArg("-scaling", DEFAULT_BENCH_SCALING);
     bool is_list_only = gArgs.GetBoolArg("-list", false);
+
+    // Overwrite arguments for bench
+    gArgs.SoftSetBoolArg("-acceptnonstdtxn", true);
 
     if (evaluations == 0) {
         return EXIT_SUCCESS;

@@ -9,6 +9,7 @@
 #include <pow.h>
 #include <txmempool.h>
 #include <validation.h>
+#include <util/convert.h>
 
 
 
