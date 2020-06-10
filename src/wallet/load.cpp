@@ -99,6 +99,7 @@ void StartWallets(CScheduler& scheduler)
 void FlushWallets()
 {
     for (const std::shared_ptr<CWallet>& pwallet : GetWallets()) {
+        pwallet->StopStake();
         pwallet->Flush(false);
     }
 }
