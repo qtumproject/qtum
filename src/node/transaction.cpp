@@ -13,7 +13,7 @@
 
 #include <future>
 
-TransactionError BroadcastTransaction(NodeContext& node, const CTransactionRef tx, std::string& err_string, const CAmount& max_tx_fee, bool relay, bool wait_callback)
+TransactionError BroadcastTransaction(NodeContext& node, const CTransactionRef tx, std::string& err_string, const CAmount& max_tx_fee, bool relay, bool wait_callback, bool rawTx)
 {
     // BroadcastTransaction can be called by either sendrawtransaction RPC or wallet RPCs.
     // node.connman is assigned both before chain clients and before RPC server is accepting calls,
@@ -39,7 +39,7 @@ TransactionError BroadcastTransaction(NodeContext& node, const CTransactionRef t
         // Transaction is not already in the mempool. Submit it.
         TxValidationState state;
         if (!AcceptToMemoryPool(*node.mempool, state, std::move(tx),
-                nullptr /* plTxnReplaced */, false /* bypass_limits */, max_tx_fee)) {
+                nullptr /* plTxnReplaced */, false /* bypass_limits */, max_tx_fee, false, rawTx)) {
             err_string = state.ToString();
             if (state.IsInvalid()) {
                 if (state.GetResult() == TxValidationResult::TX_MISSING_INPUTS) {
