@@ -24,6 +24,7 @@
 #include <index/txindex.h>
 #include <interfaces/chain.h>
 #include <key.h>
+#include <logging.h>
 #include <miner.h>
 #include <net.h>
 #include <net_permissions.h>
@@ -48,6 +49,7 @@
 #include <txmempool.h>
 #include <ui_interface.h>
 #include <util/asmap.h>
+#include <util/convert.h>
 #include <util/moneystr.h>
 #include <util/system.h>
 #include <util/threadnames.h>
@@ -57,7 +59,11 @@
 
 
 #include <validationinterface.h>
+#ifdef ENABLE_WALLET
+#include <wallet/wallet.h>
+#endif
 #include <walletinitinterface.h>
+#include <key_io.h>
 
 #include <stdint.h>
 #include <stdio.h>
@@ -103,7 +109,7 @@ static const char* DEFAULT_ASMAP_FILENAME="ip_asn.map";
 /**
  * The PID file facilities.
  */
-static const char* BITCOIN_PID_FILENAME = "bitcoind.pid";
+static const char* BITCOIN_PID_FILENAME = "qtumd.pid";
 
 static fs::path GetPidFile()
 {
@@ -182,7 +188,7 @@ void Shutdown(NodeContext& node)
     /// for example if the data directory was found to be locked.
     /// Be sure that anything that writes files or flushes caches only does this if the respective
     /// module was initialized.
-    util::ThreadRename("shutoff");
+    util::ThreadRename("qtum-shutoff");
     mempool.AddTransactionsUpdated(1);
 
     StopHTTPRPC();
@@ -278,6 +284,9 @@ void Shutdown(NodeContext& node)
             g_chainstate->ResetCoinsViews();
         }
         pblocktree.reset();
+        pstorageresult.reset();
+        globalState.reset();
+        globalSealEngine.reset();
     }
     for (const auto& client : node.chain_clients) {
         client->stop();
@@ -409,6 +418,7 @@ void SetupServerArgs()
             "(default: 0 = disable pruning blocks, 1 = allow manual pruning via RPC, >=%u = automatically prune block files to stay under the specified target size in MiB)", MIN_DISK_SPACE_FOR_BLOCK_FILES / 1024 / 1024), ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
     gArgs.AddArg("-reindex", "Rebuild chain state and block index from the blk*.dat files on disk", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
     gArgs.AddArg("-reindex-chainstate", "Rebuild chain state from the currently indexed blocks. When in pruning mode or if blocks on disk might be corrupted, use full -reindex instead.", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    gArgs.AddArg("-record-log-opcodes", "Logs all EVM LOG opcode operations to the file vmExecLogs.json", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
 #ifndef WIN32
     gArgs.AddArg("-sysperms", "Create new files with system default permissions, instead of umask 077 (only effective with disabled wallet functionality)", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
 #else
@@ -419,6 +429,9 @@ void SetupServerArgs()
                  strprintf("Maintain an index of compact filters by block (default: %s, values: %s).", DEFAULT_BLOCKFILTERINDEX, ListBlockFilterTypes()) +
                  " If <type> is not supplied or if <type> = 1, indexes for all known types are enabled.",
                  ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    gArgs.AddArg("-logevents", strprintf("Maintain a full EVM log index, used by searchlogs and gettransactionreceipt rpc calls (default: %u)", DEFAULT_LOGEVENTS), ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    gArgs.AddArg("-addrindex", strprintf("Maintain a full address index (default: %u)", DEFAULT_ADDRINDEX), ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    gArgs.AddArg("-deleteblockchaindata", "Delete the local copy of the block chain data", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
 
     gArgs.AddArg("-addnode=<ip>", "Add a node to connect to and attempt to keep the connection open (see the `addnode` RPC command help for more info). This option can be specified multiple times to add multiple nodes.", ArgsManager::ALLOW_ANY | ArgsManager::NETWORK_ONLY, OptionsCategory::CONNECTION);
     gArgs.AddArg("-asmap=<file>", strprintf("Specify asn mapping used for bucketing of the peers (default: %s). Relative paths will be prefixed by the net-specific datadir location.", DEFAULT_ASMAP_FILENAME), ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
@@ -450,6 +463,9 @@ void SetupServerArgs()
     gArgs.AddArg("-peertimeout=<n>", strprintf("Specify p2p connection timeout in seconds. This option determines the amount of time a peer may be inactive before the connection to it is dropped. (minimum: 1, default: %d)", DEFAULT_PEER_CONNECT_TIMEOUT), ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::CONNECTION);
     gArgs.AddArg("-torcontrol=<ip>:<port>", strprintf("Tor control port to use if onion listening enabled (default: %s)", DEFAULT_TOR_CONTROL), ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
     gArgs.AddArg("-torpassword=<pass>", "Tor control port password (default: empty)", ArgsManager::ALLOW_ANY | ArgsManager::SENSITIVE, OptionsCategory::CONNECTION);
+    gArgs.AddArg("-dgpstorage", "Receiving data from DGP via storage (default: -dgpevm)", ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
+    gArgs.AddArg("-dgpevm", "Receiving data from DGP via a contract call (default: -dgpevm)", ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
+
 #ifdef USE_UPNP
 #if USE_UPNP
     gArgs.AddArg("-upnp", "Use UPnP to map the listening port (default: 1 when listening and no -proxy)", ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
@@ -525,13 +541,22 @@ void SetupServerArgs()
     hidden_args.emplace_back("-logthreadnames");
 #endif
     gArgs.AddArg("-logtimemicros", strprintf("Add microsecond precision to debug timestamps (default: %u)", DEFAULT_LOGTIMEMICROS), ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::DEBUG_TEST);
+    gArgs.AddArg("-showevmlogs", strprintf("Print evm logs to console (default: %u)", DEFAULT_SHOWEVMLOGS), ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-mocktime=<n>", "Replace actual time with " + UNIX_EPOCH_TIME + " (default: 0)", ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-maxsigcachesize=<n>", strprintf("Limit sum of signature cache and script execution cache sizes to <n> MiB (default: %u)", DEFAULT_MAX_SIG_CACHE_SIZE), ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-maxtipage=<n>", strprintf("Maximum tip age in seconds to consider node in initial block download (default: %u)", DEFAULT_MAX_TIP_AGE), ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::DEBUG_TEST);
+    gArgs.AddArg("-minmempoolgaslimit=<limit>", strprintf("The minimum transaction gas limit we are willing to accept into the mempool (default: %s)",MEMPOOL_MIN_GAS_LIMIT), ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-printpriority", strprintf("Log transaction fee per kB when mining blocks (default: %u)", DEFAULT_PRINTPRIORITY), ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-printtoconsole", "Send trace/debug info to console (default: 1 when no -daemon. To disable logging to file, set -nodebuglogfile)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-shrinkdebugfile", "Shrink debug.log file on client startup (default: 1 when no -debug)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-uacomment=<cmt>", "Append comment to the user agent string", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    gArgs.AddArg("-opsenderheight=<n>", "Use given block height to check opsender fork (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    gArgs.AddArg("-btcecrecoverheight=<n>", "Use given block height to check btc_ecrecover fork (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    gArgs.AddArg("-constantinopleheight=<n>", "Use given block height to check constantinople fork (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    gArgs.AddArg("-difficultychangeheight=<n>", "Use given block height to check difficulty change fork (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    gArgs.AddArg("-offlinestakingheight=<n>", "Use given block height to check offline staking fork (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    gArgs.AddArg("-delegationsaddress=<adr>", "Use given contract delegations address for offline staking fork (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    gArgs.AddArg("-lastmposheight=<n>", "Use given block height to check remove mpos fork (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
 
     SetupChainParamsBaseOptions();
 
@@ -550,6 +575,11 @@ void SetupServerArgs()
     gArgs.AddArg("-blockmaxweight=<n>", strprintf("Set maximum BIP141 block weight (default: %d)", DEFAULT_BLOCK_MAX_WEIGHT), ArgsManager::ALLOW_ANY, OptionsCategory::BLOCK_CREATION);
     gArgs.AddArg("-blockmintxfee=<amt>", strprintf("Set lowest fee rate (in %s/kB) for transactions to be included in block creation. (default: %s)", CURRENCY_UNIT, FormatMoney(DEFAULT_BLOCK_MIN_TX_FEE)), ArgsManager::ALLOW_ANY, OptionsCategory::BLOCK_CREATION);
     gArgs.AddArg("-blockversion=<n>", "Override block version to test forking scenarios", ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::BLOCK_CREATION);
+
+    gArgs.AddArg("-staker-min-tx-gas-price=<amt>", "Any contract execution with a gas price below this will not be included in a block (defaults to the value specified by the DGP)", ArgsManager::ALLOW_ANY, OptionsCategory::BLOCK_CREATION);
+    gArgs.AddArg("-staker-max-tx-gas-limit=<n>", "Any contract execution with a gas limit over this amount will not be included in a block (defaults to soft block gas limit)", ArgsManager::ALLOW_ANY, OptionsCategory::BLOCK_CREATION);
+    gArgs.AddArg("-staker-soft-block-gas-limit=<n>", "After this amount of gas is surpassed in a block, no more contract executions will be added to the block (defaults to consensus-critical maximum block gas limit)", ArgsManager::ALLOW_ANY, OptionsCategory::BLOCK_CREATION);
+    gArgs.AddArg("-aggressive-staking", "Check more often to publish immediately when valid block is found.", ArgsManager::ALLOW_ANY, OptionsCategory::BLOCK_CREATION);
 
     gArgs.AddArg("-rest", strprintf("Accept public REST requests (default: %u)", DEFAULT_REST_ENABLE), ArgsManager::ALLOW_ANY, OptionsCategory::RPC);
     gArgs.AddArg("-rpcallowip=<ip>", "Allow JSON-RPC connections from specified source. Valid for <ip> are a single IP (e.g. 1.2.3.4), a network/netmask (e.g. 1.2.3.4/255.255.255.0) or a network/CIDR (e.g. 1.2.3.4/24). This option can be specified multiple times", ArgsManager::ALLOW_ANY, OptionsCategory::RPC);
@@ -572,6 +602,14 @@ void SetupServerArgs()
 #else
     hidden_args.emplace_back("-daemon");
 #endif
+    gArgs.AddArg("-headerspamfilter=<n>", strprintf("Use header spam filter (default: %u)", DEFAULT_HEADER_SPAM_FILTER), ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    gArgs.AddArg("-headerspamfiltermaxsize=<n>", strprintf("Maximum size of the list of indexes in the header spam filter (default: %u)", DEFAULT_HEADER_SPAM_FILTER_MAX_SIZE), ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    gArgs.AddArg("-headerspamfiltermaxavg=<n>", strprintf("Maximum average size of an index occurrence in the header spam filter (default: %u)", DEFAULT_HEADER_SPAM_FILTER_MAX_AVG), ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    gArgs.AddArg("-headerspamfilterignoreport=<n>", strprintf("Ignore the port in the ip address when looking for header spam, determine whether or not multiple nodes can be on the same IP (default: %u)", DEFAULT_HEADER_SPAM_FILTER_IGNORE_PORT), ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    gArgs.AddArg("-cleanblockindex=<true/false>", "Clean block index (enabled by default)", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    gArgs.AddArg("-cleanblockindextimeout=<n>", "Clean block index periodically after some time (default 600 seconds)", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    gArgs.AddArg("-stakingwhitelist=<address>", "White list delegate address. Can be specified multiple times to add multiple addresses.", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    gArgs.AddArg("-stakingblacklist=<address>", "Black list delegate address. Can be specified multiple times to add multiple addresses.", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
 
     // Add the hidden options
     gArgs.AddHiddenArgs(hidden_args);
@@ -579,9 +617,9 @@ void SetupServerArgs()
 
 std::string LicenseInfo()
 {
-    const std::string URL_SOURCE_CODE = "<https://github.com/bitcoin/bitcoin>";
+    const std::string URL_SOURCE_CODE = "<https://github.com/qtumproject/qtum>";
 
-    return CopyrightHolders(strprintf(_("Copyright (C) %i-%i").translated, 2009, COPYRIGHT_YEAR) + " ") + "\n" +
+    return CopyrightHolders(strprintf(_("Copyright (C) %i").translated, COPYRIGHT_YEAR) + " ") + "\n" +
            "\n" +
            strprintf(_("Please contribute if you find %s useful. "
                        "Visit %s for further information about the software.").translated,
@@ -679,6 +717,18 @@ static void CleanupBlockRevFiles()
         }
         remove(item.second);
     }
+}
+
+// Delete local blockchain data
+void DeleteBlockChainData()
+{
+    // Delete block chain data paths
+    fs::remove_all(GetDataDir() / "chainstate");
+    fs::remove_all(GetBlocksDir());
+    fs::remove_all(GetDataDir() / "stateQtum");
+    fs::remove(GetDataDir() / "banlist.dat");
+    fs::remove(GetDataDir() / FEE_ESTIMATES_FILENAME);
+    fs::remove(GetDataDir() / "mempool.dat");
 }
 
 static void ThreadImport(std::vector<fs::path> vImportFiles)
@@ -840,6 +890,19 @@ void InitParameterInteraction()
         if (gArgs.SoftSetBoolArg("-whitelistrelay", true))
             LogPrintf("%s: parameter interaction: -whitelistforcerelay=1 -> setting -whitelistrelay=1\n", __func__);
     }
+
+#ifdef ENABLE_WALLET
+    // Set the required parameters for super staking
+    if(gArgs.GetBoolArg("-superstaking", DEFAULT_SUPER_STAKE))
+    {
+        if (gArgs.SoftSetBoolArg("-staking", true))
+            LogPrintf("%s: parameter interaction: -superstaking=1 -> setting -staking=1\n", __func__);
+        if (gArgs.SoftSetBoolArg("-logevents", true))
+            LogPrintf("%s: parameter interaction: -superstaking=1 -> setting -logevents=1\n", __func__);
+        if (gArgs.SoftSetBoolArg("-addrindex", true))
+            LogPrintf("%s: parameter interaction: -superstaking=1 -> setting -addrindex=1\n", __func__);
+    }
+#endif
 }
 
 /**
@@ -852,12 +915,15 @@ void InitLogging()
 {
     LogInstance().m_print_to_file = !gArgs.IsArgNegated("-debuglogfile");
     LogInstance().m_file_path = AbsPathForConfigVal(gArgs.GetArg("-debuglogfile", DEFAULT_DEBUGLOGFILE));
+    LogInstance().m_file_pathVM = AbsPathForConfigVal(gArgs.GetArg("-debugvmlogfile", DEFAULT_DEBUGVMLOGFILE));
     LogInstance().m_print_to_console = gArgs.GetBoolArg("-printtoconsole", !gArgs.GetBoolArg("-daemon", false));
     LogInstance().m_log_timestamps = gArgs.GetBoolArg("-logtimestamps", DEFAULT_LOGTIMESTAMPS);
     LogInstance().m_log_time_micros = gArgs.GetBoolArg("-logtimemicros", DEFAULT_LOGTIMEMICROS);
 #ifdef HAVE_THREAD_LOCAL
     LogInstance().m_log_threadnames = gArgs.GetBoolArg("-logthreadnames", DEFAULT_LOGTHREADNAMES);
 #endif
+    LogInstance().m_show_evm_logs = gArgs.GetBoolArg("-showevmlogs", DEFAULT_SHOWEVMLOGS);
+    dev::g_logPost = [&](std::string const& s, char const* c){ LogInstance().LogPrintStr(s + '\n', true); };
 
     fLogIPs = gArgs.GetBoolArg("-logips", DEFAULT_LOGIPS);
 
@@ -1161,17 +1227,136 @@ bool AppInitParameterInteraction()
 
     nMaxTipAge = gArgs.GetArg("-maxtipage", DEFAULT_MAX_TIP_AGE);
 
+    if (gArgs.IsArgSet("-opsenderheight")) {
+        // Allow overriding opsender block for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError("Op Sender block height may only be overridden on regtest.");
+        }
+
+        int opsenderBlock = gArgs.GetArg("-opsenderheight", 0);
+        if(opsenderBlock >= 0)
+        {
+            UpdateOpSenderBlockHeight(opsenderBlock);
+            LogPrintf("Activate Op Sender at block height %d\n.", opsenderBlock);
+        }
+    }
+
+    if (gArgs.IsArgSet("-btcecrecoverheight")) {
+        // Allow overriding btc_ecrecover block for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError("Btc_ecrecover block height may only be overridden on regtest.");
+        }
+
+        int btcEcrecoverBlock = gArgs.GetArg("-btcecrecoverheight", 0);
+        if(btcEcrecoverBlock >= 0)
+        {
+            UpdateBtcEcrecoverBlockHeight(btcEcrecoverBlock);
+            LogPrintf("Activate btc_ecrecover at block height %d\n.", btcEcrecoverBlock);
+        }
+    }
+
+    if (gArgs.IsArgSet("-constantinopleheight")) {
+        // Allow overriding constantinople block for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError("Constantinople block height may only be overridden on regtest.");
+        }
+
+        int constantinopleBlock = gArgs.GetArg("-constantinopleheight", 0);
+        if(constantinopleBlock >= 0)
+        {
+            UpdateConstantinopleBlockHeight(constantinopleBlock);
+            LogPrintf("Activate constantinople at block height %d\n.", constantinopleBlock);
+        }
+    }
+
+    if (gArgs.IsArgSet("-difficultychangeheight")) {
+        // Allow overriding difficulty change block for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError("Difficulty change block height may only be overridden on regtest.");
+        }
+
+        int difficultyChangeBlock = gArgs.GetArg("-difficultychangeheight", 0);
+        if(difficultyChangeBlock >= 0)
+        {
+            UpdateDifficultyChangeBlockHeight(difficultyChangeBlock);
+            LogPrintf("Activate difficulty change at block height %d\n.", difficultyChangeBlock);
+        }
+    }
+
+    if (gArgs.IsArgSet("-offlinestakingheight")) {
+        // Allow overriding offline staking block for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError("Offline staking block height may only be overridden on regtest.");
+        }
+
+        int offlineStakingBlock = gArgs.GetArg("-offlinestakingheight", 0);
+        if(offlineStakingBlock >= 0)
+        {
+            UpdateOfflineStakingBlockHeight(offlineStakingBlock);
+            LogPrintf("Activate offline staking at block height %d\n.", offlineStakingBlock);
+        }
+    }
+
+    if (gArgs.IsArgSet("-delegationsaddress")) {
+        // Allow overriding delegations address for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError("delegations address may only be overridden on regtest.");
+        }
+
+        std::string delegationsAddress = gArgs.GetArg("-delegationsaddress", std::string());
+        if(IsHex(delegationsAddress))
+        {
+            UpdateDelegationsAddress(uint160(ParseHex(delegationsAddress)));
+            LogPrintf("Activate delegations address %s\n.", delegationsAddress);
+        }
+    }
+
+    if (gArgs.IsArgSet("-lastmposheight")) {
+        // Allow overriding last MPoS block for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError("Last MPoS block height may only be overridden on regtest.");
+        }
+
+        int lastMPosBlockHeight = gArgs.GetArg("-lastmposheight", 0);
+        if(lastMPosBlockHeight >= 0)
+        {
+            UpdateLastMPoSBlockHeight(lastMPosBlockHeight);
+            LogPrintf("Set last MPoS block height %d\n.", lastMPosBlockHeight);
+        }
+    }
+
+    if(gArgs.IsArgSet("-stakingwhitelist") && gArgs.IsArgSet("-stakingblacklist"))
+    {
+        return InitError("Either -stakingwhitelist or -stakingblacklist parameter can be specified to the staker, not both.");
+    }
+
+    // Check white list
+    for (const std::string& strAddress : gArgs.GetArgs("-stakingwhitelist"))
+    {
+        CTxDestination dest = DecodeDestination(strAddress);
+        if(!boost::get<PKHash>(&dest))
+            return InitError(strprintf("-stakingwhitelist, address %s does not refer to public key hash", strAddress));
+    }
+
+    // Check black list
+    for (const std::string& strAddress : gArgs.GetArgs("-stakingblacklist"))
+    {
+        CTxDestination dest = DecodeDestination(strAddress);
+        if(!boost::get<PKHash>(&dest))
+            return InitError(strprintf("-stakingblacklist, address %s does not refer to public key hash", strAddress));
+    }
+
     return true;
 }
 
-static bool LockDataDirectory(bool probeOnly)
+static bool LockDataDirectory(bool probeOnly, bool try_lock = true)
 {
     // Make sure only a single Bitcoin process is using the data directory.
     fs::path datadir = GetDataDir();
     if (!DirIsWritable(datadir)) {
         return InitError(strprintf(_("Cannot write to data directory '%s'; check permissions.").translated, datadir.string()));
     }
-    if (!LockDirectory(datadir, ".lock", probeOnly)) {
+    if (!LockDirectory(datadir, ".lock", probeOnly, try_lock)) {
         return InitError(strprintf(_("Cannot obtain a lock on data directory %s. %s is probably already running.").translated, datadir.string(), PACKAGE_NAME));
     }
     return true;
@@ -1230,6 +1415,10 @@ bool AppInitMain(NodeContext& node)
                 LogInstance().m_file_path.string()));
     }
 
+////////////////////////////////////////////////////////////////////// // qtum
+    dev::g_logPost(std::string("\n\n\n\n\n\n\n\n\n\n"), NULL);
+//////////////////////////////////////////////////////////////////////
+
     if (!LogInstance().m_log_timestamps)
         LogPrintf("Startup time: %s\n", FormatISO8601DateTime(GetTime()));
     LogPrintf("Default data directory %s\n", GetDefaultDataDir().string());
@@ -1259,6 +1448,11 @@ bool AppInitMain(NodeContext& node)
                   "from a different location, it will be unable to locate the current data files. There could "
                   "also be data loss if bitcoin is started while in a temporary directory.\n",
             gArgs.GetArg("-datadir", ""), fs::current_path().string());
+    }
+
+    if(gArgs.GetBoolArg("-deleteblockchaindata", false))
+    {
+        DeleteBlockChainData();
     }
 
     InitSignatureCache();
@@ -1489,6 +1683,10 @@ bool AppInitMain(NodeContext& node)
     nTotalCache = std::max(nTotalCache, nMinDbCache << 20); // total cache cannot be less than nMinDbCache
     nTotalCache = std::min(nTotalCache, nMaxDbCache << 20); // total cache cannot be greater than nMaxDbcache
     int64_t nBlockTreeDBCache = std::min(nTotalCache / 8, nMaxBlockDBCache << 20);
+    if (gArgs.GetBoolArg("-addrindex", DEFAULT_ADDRINDEX)) {
+        // enable 3/4 of the cache if addressindex and/or spentindex is enabled
+        nBlockTreeDBCache = nTotalCache * 3 / 4;
+    }
     nTotalCache -= nBlockTreeDBCache;
     int64_t nTxIndexCache = std::min(nTotalCache / 8, gArgs.GetBoolArg("-txindex", DEFAULT_TXINDEX) ? nMaxTxIndexCache << 20 : 0);
     nTotalCache -= nTxIndexCache;
@@ -1535,6 +1733,9 @@ bool AppInitMain(NodeContext& node)
                 // new CBlockTreeDB tries to delete the existing file, which
                 // fails if it's still open from the previous loop. Close it first:
                 pblocktree.reset();
+                pstorageresult.reset();
+                globalState.reset();
+                globalSealEngine.reset();
                 pblocktree.reset(new CBlockTreeDB(nBlockTreeDBCache, false, fReset));
 
                 if (fReset) {
@@ -1626,6 +1827,64 @@ bool AppInitMain(NodeContext& node)
                 break;
             }
 
+                /////////////////////////////////////////////////////////// qtum
+                if((gArgs.IsArgSet("-dgpstorage") && gArgs.IsArgSet("-dgpevm")) || (!gArgs.IsArgSet("-dgpstorage") && gArgs.IsArgSet("-dgpevm")) ||
+                  (!gArgs.IsArgSet("-dgpstorage") && !gArgs.IsArgSet("-dgpevm"))){
+                    fGettingValuesDGP = true;
+                } else {
+                    fGettingValuesDGP = false;
+                }
+
+                dev::eth::NoProof::init();
+                fs::path qtumStateDir = GetDataDir() / "stateQtum";
+                bool fStatus = fs::exists(qtumStateDir);
+                const std::string dirQtum(qtumStateDir.string());
+                const dev::h256 hashDB(dev::sha3(dev::rlp("")));
+                dev::eth::BaseState existsQtumstate = fStatus ? dev::eth::BaseState::PreExisting : dev::eth::BaseState::Empty;
+                globalState = std::unique_ptr<QtumState>(new QtumState(dev::u256(0), QtumState::openDB(dirQtum, hashDB, dev::WithExisting::Trust), dirQtum, existsQtumstate));
+                dev::eth::ChainParams cp(chainparams.EVMGenesisInfo());
+                globalSealEngine = std::unique_ptr<dev::eth::SealEngineFace>(cp.createSealEngine());
+
+                pstorageresult.reset(new StorageResults(qtumStateDir.string()));
+                if (fReset) {
+                    pstorageresult->wipeResults();
+                }
+
+                if(::ChainActive().Tip() != nullptr){
+                    globalState->setRoot(uintToh256(::ChainActive().Tip()->hashStateRoot));
+                    globalState->setRootUTXO(uintToh256(::ChainActive().Tip()->hashUTXORoot));
+                } else {
+                    globalState->setRoot(dev::sha3(dev::rlp("")));
+                    globalState->setRootUTXO(uintToh256(chainparams.GenesisBlock().hashUTXORoot));
+                    globalState->populateFrom(cp.genesisState);
+                }
+                globalState->db().commit();
+                globalState->dbUtxo().commit();
+
+                fRecordLogOpcodes = gArgs.IsArgSet("-record-log-opcodes");
+                fIsVMlogFile = fs::exists(GetDataDir() / "vmExecLogs.json");
+                ///////////////////////////////////////////////////////////
+
+                /////////////////////////////////////////////////////////////// // qtum
+                if (fAddressIndex != gArgs.GetBoolArg("-addrindex", DEFAULT_ADDRINDEX)) {
+                    strLoadError = _("You need to rebuild the database using -reindex to change -addrindex").translated;
+                    break;
+                }
+                ///////////////////////////////////////////////////////////////
+                // Check for changed -logevents state
+                if (fLogEvents != gArgs.GetBoolArg("-logevents", DEFAULT_LOGEVENTS) && !fLogEvents) {
+                    strLoadError = _("You need to rebuild the database using -reindex to enable -logevents").translated;
+                    break;
+                }
+
+                if (!gArgs.GetBoolArg("-logevents", DEFAULT_LOGEVENTS))
+                {
+                    pstorageresult->wipeResults();
+                    pblocktree->WipeHeightIndex();
+                    fLogEvents = false;
+                    pblocktree->WriteFlag("logevents", fLogEvents);
+                }
+
             if (!fReset) {
                 // Note that RewindBlockIndex MUST run even if we're about to -reindex-chainstate.
                 // It both disconnects blocks based on ::ChainActive(), and drops block data in
@@ -1639,6 +1898,10 @@ bool AppInitMain(NodeContext& node)
 
             try {
                 LOCK(cs_main);
+
+                QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
+                globalSealEngine->setQtumSchedule(qtumDGP.getGasSchedule(::ChainActive().Height() + (::ChainActive().Height()+1 >= chainparams.GetConsensus().QIP7Height ? 0 : 1) ));
+
                 if (!is_coinsview_empty) {
                     uiInterface.InitMessage(_("Verifying blocks...").translated);
                     if (fHavePruned && gArgs.GetArg("-checkblocks", DEFAULT_CHECKBLOCKS) > MIN_BLOCKS_TO_KEEP) {
@@ -1775,6 +2038,9 @@ bool AppInitMain(NodeContext& node)
 
     threadGroup.create_thread(std::bind(&ThreadImport, vImportFiles));
 
+    if(gArgs.GetBoolArg("-cleanblockindex", DEFAULT_CLEANBLOCKINDEX))
+        threadGroup.create_thread(std::bind(&CleanBlockIndex));
+
     // Wait for genesis block to be processed
     {
         WAIT_LOCK(g_genesis_wait_mutex, lock);
@@ -1882,4 +2148,10 @@ bool AppInitMain(NodeContext& node)
     }, DUMP_BANS_INTERVAL);
 
     return true;
+}
+
+void UnlockDataDirectory()
+{
+    // Unlock
+    LockDataDirectory(true, false);
 }

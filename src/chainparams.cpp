@@ -7,9 +7,11 @@
 
 #include <chainparamsseeds.h>
 #include <consensus/merkle.h>
+#include <consensus/consensus.h>
 #include <tinyformat.h>
 #include <util/system.h>
 #include <util/strencodings.h>
+#include <util/convert.h>
 #include <versionbitsinfo.h>
 
 #include <assert.h>
@@ -17,13 +19,19 @@
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
 
+///////////////////////////////////////////// // qtum
+#include <libdevcore/SHA3.h>
+#include <libdevcore/RLP.h>
+#include "arith_uint256.h"
+/////////////////////////////////////////////
+
 static CBlock CreateGenesisBlock(const char* pszTimestamp, const CScript& genesisOutputScript, uint32_t nTime, uint32_t nNonce, uint32_t nBits, int32_t nVersion, const CAmount& genesisReward)
 {
     CMutableTransaction txNew;
     txNew.nVersion = 1;
     txNew.vin.resize(1);
     txNew.vout.resize(1);
-    txNew.vin[0].scriptSig = CScript() << 486604799 << CScriptNum(4) << std::vector<unsigned char>((const unsigned char*)pszTimestamp, (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
+    txNew.vin[0].scriptSig = CScript() << 00 << 488804799 << CScriptNum(4) << std::vector<unsigned char>((const unsigned char*)pszTimestamp, (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
     txNew.vout[0].nValue = genesisReward;
     txNew.vout[0].scriptPubKey = genesisOutputScript;
 
@@ -35,6 +43,8 @@ static CBlock CreateGenesisBlock(const char* pszTimestamp, const CScript& genesi
     genesis.vtx.push_back(MakeTransactionRef(std::move(txNew)));
     genesis.hashPrevBlock.SetNull();
     genesis.hashMerkleRoot = BlockMerkleRoot(genesis);
+    genesis.hashStateRoot = uint256(h256Touint(dev::h256("e965ffd002cd6ad0e2dc402b8044de833e06b23127ea8c3d80aec91410771495"))); // qtum
+    genesis.hashUTXORoot = uint256(h256Touint(dev::sha3(dev::rlp("")))); // qtum
     return genesis;
 }
 
@@ -51,8 +61,8 @@ static CBlock CreateGenesisBlock(const char* pszTimestamp, const CScript& genesi
  */
 static CBlock CreateGenesisBlock(uint32_t nTime, uint32_t nNonce, uint32_t nBits, int32_t nVersion, const CAmount& genesisReward)
 {
-    const char* pszTimestamp = "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks";
-    const CScript genesisOutputScript = CScript() << ParseHex("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f") << OP_CHECKSIG;
+    const char* pszTimestamp = "Sep 02, 2017 Bitcoin breaks $5,000 in latest price frenzy";
+    const CScript genesisOutputScript = CScript() << ParseHex("040d61d8653448c98731ee5fffd303c15e71ec2057b77f11ab3601979728cdaff2d68afbba14e4fa0bc44f2072b0b23ef63717f8cdfbe58dcd33f32b6afe98741a") << OP_CHECKSIG;
     return CreateGenesisBlock(pszTimestamp, genesisOutputScript, nTime, nNonce, nBits, nVersion, genesisReward);
 }
 
@@ -403,4 +413,107 @@ void SelectParams(const std::string& network)
 {
     SelectBaseParams(network);
     globalChainParams = CreateChainParams(network);
+}
+
+std::string CChainParams::EVMGenesisInfo() const
+{
+    std::string genesisInfo = dev::eth::genesisInfo(GetEVMNetwork());
+    ReplaceInt(consensus.QIP7Height, "QIP7_STARTING_BLOCK", genesisInfo);
+    ReplaceInt(consensus.QIP6Height, "QIP6_STARTING_BLOCK", genesisInfo);
+    return genesisInfo;
+}
+
+std::string CChainParams::EVMGenesisInfo(int nHeight) const
+{
+    std::string genesisInfo = dev::eth::genesisInfo(GetEVMNetwork());
+    ReplaceInt(nHeight, "QIP7_STARTING_BLOCK", genesisInfo);
+    ReplaceInt(nHeight, "QIP6_STARTING_BLOCK", genesisInfo);
+    return genesisInfo;
+}
+
+dev::eth::Network CChainParams::GetEVMNetwork() const
+{
+    return dev::eth::Network::qtumMainNetwork;
+}
+
+void CChainParams::UpdateOpSenderBlockHeight(int nHeight)
+{
+    consensus.QIP5Height = nHeight;
+}
+
+void UpdateOpSenderBlockHeight(int nHeight)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdateOpSenderBlockHeight(nHeight);
+}
+
+void CChainParams::UpdateBtcEcrecoverBlockHeight(int nHeight)
+{
+    consensus.QIP6Height = nHeight;
+}
+
+void UpdateBtcEcrecoverBlockHeight(int nHeight)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdateBtcEcrecoverBlockHeight(nHeight);
+}
+
+void CChainParams::UpdateConstantinopleBlockHeight(int nHeight)
+{
+    consensus.QIP7Height = nHeight;
+}
+
+void UpdateConstantinopleBlockHeight(int nHeight)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdateConstantinopleBlockHeight(nHeight);
+}
+
+void CChainParams::UpdateDifficultyChangeBlockHeight(int nHeight)
+{
+    consensus.nSubsidyHalvingInterval = 985500; // qtum halving every 4 years
+    consensus.posLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+    consensus.QIP9PosLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff");
+    consensus.QIP9Height = nHeight;
+    consensus.fPowAllowMinDifficultyBlocks = false;
+    consensus.fPowNoRetargeting = true;
+    consensus.fPoSNoRetargeting = false;
+    consensus.nLastPOWBlock = 5000;
+    consensus.nMPoSRewardRecipients = 10;
+    consensus.nFirstMPoSBlock = consensus.nLastPOWBlock + 
+                                consensus.nMPoSRewardRecipients + 
+                                COINBASE_MATURITY;
+    consensus.nLastMPoSBlock = 0;
+}
+
+void UpdateDifficultyChangeBlockHeight(int nHeight)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdateDifficultyChangeBlockHeight(nHeight);
+}
+
+void CChainParams::UpdateOfflineStakingBlockHeight(int nHeight)
+{
+    consensus.nOfflineStakeHeight = nHeight;
+}
+
+void UpdateOfflineStakingBlockHeight(int nHeight)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdateOfflineStakingBlockHeight(nHeight);
+}
+
+void CChainParams::UpdateDelegationsAddress(const uint160& address)
+{
+    consensus.delegationsAddress = address;
+}
+
+void UpdateDelegationsAddress(const uint160& address)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdateDelegationsAddress(address);
+}
+
+void CChainParams::UpdateLastMPoSBlockHeight(int nHeight)
+{
+    consensus.nLastMPoSBlock = nHeight;
+}
+
+void UpdateLastMPoSBlockHeight(int nHeight)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdateLastMPoSBlockHeight(nHeight);
 }
