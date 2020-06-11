@@ -10,9 +10,8 @@
 #include <qt/addresstablemodel.h>
 #include <qt/optionsmodel.h>
 #include <qt/platformstyle.h>
-#include <qt/receiverequestdialog.h>
 #include <qt/recentrequeststablemodel.h>
-#include <qt/walletmodel.h>
+#include <qt/styleSheet.h>
 
 #include <QAction>
 #include <QCursor>
@@ -29,16 +28,16 @@ ReceiveCoinsDialog::ReceiveCoinsDialog(const PlatformStyle *_platformStyle, QWid
 {
     ui->setupUi(this);
 
+    // Set stylesheet
+    SetObjectStyleSheet(ui->showRequestButton, StyleSheetNames::ButtonTransparentBordered);
+    SetObjectStyleSheet(ui->removeRequestButton, StyleSheetNames::ButtonTransparentBordered);
+
     if (!_platformStyle->getImagesOnButtons()) {
-        ui->clearButton->setIcon(QIcon());
-        ui->receiveButton->setIcon(QIcon());
         ui->showRequestButton->setIcon(QIcon());
         ui->removeRequestButton->setIcon(QIcon());
     } else {
-        ui->clearButton->setIcon(_platformStyle->SingleColorIcon(":/icons/remove"));
-        ui->receiveButton->setIcon(_platformStyle->SingleColorIcon(":/icons/receiving_addresses"));
-        ui->showRequestButton->setIcon(_platformStyle->SingleColorIcon(":/icons/edit"));
-        ui->removeRequestButton->setIcon(_platformStyle->SingleColorIcon(":/icons/remove"));
+        ui->showRequestButton->setIcon(_platformStyle->MultiStatesIcon(":/icons/show", PlatformStyle::PushButton));
+        ui->removeRequestButton->setIcon(_platformStyle->MultiStatesIcon(":/icons/remove", PlatformStyle::PushButton));
     }
 
     // context menu actions
@@ -61,7 +60,6 @@ ReceiveCoinsDialog::ReceiveCoinsDialog(const PlatformStyle *_platformStyle, QWid
     connect(copyMessageAction, &QAction::triggered, this, &ReceiveCoinsDialog::copyMessage);
     connect(copyAmountAction, &QAction::triggered, this, &ReceiveCoinsDialog::copyAmount);
 
-    connect(ui->clearButton, &QPushButton::clicked, this, &ReceiveCoinsDialog::clear);
 }
 
 void ReceiveCoinsDialog::setModel(WalletModel *_model)
@@ -124,11 +122,13 @@ void ReceiveCoinsDialog::clear()
 void ReceiveCoinsDialog::reject()
 {
     clear();
+    QDialog::reject();
 }
 
 void ReceiveCoinsDialog::accept()
 {
     clear();
+    QDialog::accept();
 }
 
 void ReceiveCoinsDialog::updateDisplayUnit()
@@ -157,27 +157,33 @@ void ReceiveCoinsDialog::on_receiveButton_clicked()
         }
     }
     address = model->getAddressTableModel()->addRow(AddressTableModel::Receive, label, "", address_type);
-    SendCoinsRecipient info(address, label,
+    SendCoinsRecipient _info(address, label,
         ui->reqAmount->value(), ui->reqMessage->text());
-    ReceiveRequestDialog *dialog = new ReceiveRequestDialog(this);
-    dialog->setAttribute(Qt::WA_DeleteOnClose);
-    dialog->setModel(model);
-    dialog->setInfo(info);
-    dialog->show();
-    clear();
 
     /* Store request for later reference */
-    model->getRecentRequestsTableModel()->addNewRequest(info);
+    model->getRecentRequestsTableModel()->addNewRequest(_info);
+
+    info = _info;
+
+    accept();
 }
 
 void ReceiveCoinsDialog::on_recentRequestsView_doubleClicked(const QModelIndex &index)
 {
     const RecentRequestsTableModel *submodel = model->getRecentRequestsTableModel();
-    ReceiveRequestDialog *dialog = new ReceiveRequestDialog(this);
-    dialog->setModel(model);
-    dialog->setInfo(submodel->entry(index.row()).recipient);
-    dialog->setAttribute(Qt::WA_DeleteOnClose);
-    dialog->show();
+    info = submodel->entry(index.row()).recipient;
+
+    accept();
+}
+
+void ReceiveCoinsDialog::on_recentRequestsView_clicked(const QModelIndex &index)
+{
+    const RecentRequestsTableModel *submodel = model->getRecentRequestsTableModel();
+    SendCoinsRecipient info = submodel->entry(index.row()).recipient;
+
+    ui->reqLabel->setText(info.label);
+    ui->reqMessage->setText(info.message);
+    ui->reqAmount->setValue(info.amount);
 }
 
 void ReceiveCoinsDialog::recentRequestsView_selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
@@ -295,4 +301,14 @@ void ReceiveCoinsDialog::copyMessage()
 void ReceiveCoinsDialog::copyAmount()
 {
     copyColumnToClipboard(RecentRequestsTableModel::Amount);
+}
+
+SendCoinsRecipient ReceiveCoinsDialog::getInfo() const
+{
+    return info;
+}
+
+void ReceiveCoinsDialog::on_cancelButton_clicked()
+{
+    reject();
 }
