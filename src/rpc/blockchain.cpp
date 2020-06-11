@@ -44,16 +44,6 @@
 #include <memory>
 #include <mutex>
 
-struct CUpdatedBlock
-{
-    uint256 hash;
-    int height;
-};
-
-static Mutex cs_blockchange;
-static std::condition_variable cond_blockchange;
-static CUpdatedBlock latestblock;
-
 CTxMemPool& EnsureMemPool()
 {
     CHECK_NONFATAL(g_rpc_node);

@@ -24,7 +24,7 @@ void DeleteAuthCookie();
 /** Parse JSON-RPC batch reply into a vector */
 std::vector<UniValue> JSONRPCProcessBatchReply(const UniValue &in, size_t num);
 
-class JSONRPCRequest
+class JSONRPCRequestBase
 {
 public:
     UniValue id;
@@ -35,7 +35,7 @@ public:
     std::string authUser;
     std::string peerAddr;
 
-    JSONRPCRequest() : id(NullUniValue), params(NullUniValue), fHelp(false) {}
+    JSONRPCRequestBase() : id(NullUniValue), params(NullUniValue), fHelp(false) {}
     void parse(const UniValue& valRequest);
 };
 
