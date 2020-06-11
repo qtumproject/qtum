@@ -2,7 +2,7 @@ OpenBSD build guide
 ======================
 (updated for OpenBSD 6.4)
 
-This guide describes how to build bitcoind and command-line utilities on OpenBSD.
+This guide describes how to build qtumd and command-line utilities on OpenBSD.
 
 OpenBSD is most commonly used as a server OS, so this guide does not contain instructions for building the GUI.
 
@@ -12,12 +12,12 @@ Preparation
 Run the following as root to install the base dependencies for building:
 
 ```bash
-pkg_add git gmake libevent libtool boost
+pkg_add git gmake libevent libtool boost gmp
 pkg_add autoconf # (select highest version, e.g. 2.69)
 pkg_add automake # (select highest version, e.g. 1.16)
 pkg_add python # (select highest version, e.g. 3.6)
 
-git clone https://github.com/bitcoin/bitcoin.git
+git clone https://github.com/qtumproject/qtum --recursive
 ```
 
 See [dependencies.md](dependencies.md) for a complete overview.
@@ -48,7 +48,7 @@ from the root of the repository. Then set `BDB_PREFIX` for the next section:
 export BDB_PREFIX="$PWD/db4"
 ```
 
-### Building Bitcoin Core
+### Building Qtum Core
 
 **Important**: Use `gmake` (the non-GNU `make` will exit with an error).
 
