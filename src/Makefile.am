@@ -340,7 +340,6 @@ libbitcoin_server_a_SOURCES = \
   versionbits.cpp \
   qtum/qtumstate.cpp \
   qtum/qtumtransaction.cpp \
-  qtum/qtumDGP.cpp \
   consensus/consensus.cpp \
   qtum/storageresults.cpp \
   qtum/qtumdelegation.cpp \
@@ -530,6 +529,7 @@ libbitcoin_common_a_SOURCES = \
   versionbitsinfo.cpp \
   warnings.cpp \
   qtum/qtumutils.cpp \
+  qtum/qtumDGP.cpp \
   util/contractabi.cpp \
   cpp-ethereum/aleth/buildinfo.c \
   cpp-ethereum/aleth/buildinfo.h \
