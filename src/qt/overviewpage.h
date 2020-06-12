@@ -13,6 +13,7 @@
 class ClientModel;
 class TransactionFilterProxy;
 class TxViewDelegate;
+class TknViewDelegate;
 class PlatformStyle;
 class WalletModel;
 
@@ -39,10 +40,14 @@ public:
 
 public Q_SLOTS:
     void setBalance(const interfaces::WalletBalances& balances);
+    void checkForInvalidTokens();
 
 Q_SIGNALS:
+    void showMoreClicked();
     void transactionClicked(const QModelIndex &index);
     void outOfSyncWarningClicked();
+    void sendCoinsClicked(QString addr = "");
+    void receiveCoinsClicked();
 
 private:
     Ui::OverviewPage *ui;
@@ -55,10 +60,14 @@ private:
 
 private Q_SLOTS:
     void updateDisplayUnit();
-    void handleTransactionClicked(const QModelIndex &index);
     void updateAlerts(const QString &warnings);
     void updateWatchOnlyLabels(bool showWatchOnly);
     void handleOutOfSyncWarningClicks();
+
+    void on_showMoreButton_clicked();
+    void on_buttonSend_clicked();
+    void on_buttonReceive_clicked();
+    void showDetails();
 };
 
 #endif // BITCOIN_QT_OVERVIEWPAGE_H
