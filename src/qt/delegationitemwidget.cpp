@@ -25,9 +25,12 @@ public:
     int64_t stake = 0;
     int64_t weight = 0;
     bool staking = false;
+    QLabel* light = 0;
 };
 
 #define DELEGATION_ITEM_ICONSIZE 24
+#define LIGHT_ICONSIZE 14
+const QString LIGHT_STYLE = "QLabel{background-color: %1; border-radius: 7px; border: 2px solid transparent;}";
 DelegationItemWidget::DelegationItemWidget(const PlatformStyle *platformStyle, QWidget *parent, ItemType type) :
     QWidget(parent),
     ui(new Ui::DelegationItemWidget),
@@ -49,6 +52,18 @@ DelegationItemWidget::DelegationItemWidget(const PlatformStyle *platformStyle, Q
     ui->buttonAdd->setToolTip(tr("Add delegation."));
 
     d = new DelegationItemWidgetPriv();
+
+    if(m_type == Record)
+    {
+        d->light = new QLabel();
+        d->light->setFixedSize(LIGHT_ICONSIZE, LIGHT_ICONSIZE);
+        d->light->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        QVBoxLayout *layout = new QVBoxLayout;
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->addWidget(d->light, 0, Qt::AlignRight|Qt::AlignBottom);
+        ui->delegationLogo->setLayout(layout);
+        setLight(Transparent);
+    }
 }
 
 DelegationItemWidget::~DelegationItemWidget()
@@ -185,4 +200,35 @@ void DelegationItemWidget::updateBalance()
         unit = m_model->getOptionsModel()->getDisplayUnit();
     ui->labelAssets->setText(BitcoinUnits::formatWithUnit(unit, d->balance, false, BitcoinUnits::separatorAlways));
     ui->labelStake->setText(BitcoinUnits::formatWithUnit(unit, d->stake, false, BitcoinUnits::separatorAlways));
+}
+
+void DelegationItemWidget::setLight(DelegationItemWidget::LightType type)
+{
+    QString lightColor;
+    switch (type) {
+    case Red:
+        lightColor = "#DC143C";
+        break;
+    case Orange:
+        lightColor = "#FFA500";
+        break;
+    case Green:
+        lightColor = "#32CD32";
+        break;
+    default:
+        break;
+    }
+
+    if(d && d->light)
+    {
+        if(lightColor != "")
+        {
+            d->light->setStyleSheet(LIGHT_STYLE.arg(lightColor));
+            d->light->setVisible(true);
+        }
+        else
+        {
+            d->light->setVisible(false);
+        }
+    }
 }

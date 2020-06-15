@@ -28,6 +28,13 @@ public:
         Split = 2
     };
 
+    enum LightType{
+        Transparent = 0,
+        Red = 1,
+        Orange = 2,
+        Green = 3
+    };
+
     explicit DelegationItemWidget(const PlatformStyle *platformStyle, QWidget *parent = 0, ItemType type = Record);
     ~DelegationItemWidget();
 
@@ -38,6 +45,8 @@ public:
     int position() const;
 
     void setModel(WalletModel *_model);
+
+    void setLight(LightType type);
 
 Q_SIGNALS:
     void clicked(int position, int button);
