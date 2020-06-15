@@ -82,6 +82,8 @@ static const uint64_t MINIMUM_GAS_LIMIT = 10000;
 
 static const uint64_t MEMPOOL_MIN_GAS_LIMIT = 22000;
 
+static const uint64_t ADD_DELEGATION_MIN_GAS_LIMIT = 2200000;
+
 /** Default for -minrelaytxfee, minimum relay fee for transactions */
 static const unsigned int DEFAULT_MIN_RELAY_TX_FEE = 400000;
 /** Default for -limitancestorcount, max number of in-mempool ancestors */
