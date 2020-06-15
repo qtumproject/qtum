@@ -147,6 +147,7 @@ void SuperStakerListWidget::updateRow(const QModelIndex &index, int position)
     {
         QString minFee = m_superStakerModel->data(index, SuperStakerItemModel::MinFeeRole).toString() + " %";
         QString staker = m_superStakerModel->data(index, SuperStakerItemModel::StakerNameRole).toString();
+        QString address = m_superStakerModel->data(index, SuperStakerItemModel::StakerAddressRole).toString();
         bool staking_on = m_superStakerModel->data(index, SuperStakerItemModel::StakingRole).toBool();
         int64_t balance = m_superStakerModel->data(index, SuperStakerItemModel::BalanceRole).toLongLong();
         int64_t stake = m_superStakerModel->data(index, SuperStakerItemModel::StakeRole).toLongLong();
@@ -154,7 +155,7 @@ void SuperStakerListWidget::updateRow(const QModelIndex &index, int position)
         int64_t delegationsWeight = m_superStakerModel->data(index, SuperStakerItemModel::DelegationsWeightRole).toLongLong();
         SuperStakerItemWidget* item = m_rows[position];
         item->setPosition(position);
-        item->setData(minFee, staker, staking_on, balance, stake, weight, delegationsWeight);
+        item->setData(minFee, staker, address, staking_on, balance, stake, weight, delegationsWeight);
     }
 }
 

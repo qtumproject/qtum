@@ -19,6 +19,7 @@ class SuperStakerItemWidgetPriv
 public:
     QString fee;
     QString staker;
+    QString address;
     bool staking_on = false;
     int64_t balance = 0;
     int64_t stake = 0;
@@ -58,11 +59,12 @@ SuperStakerItemWidget::~SuperStakerItemWidget()
     delete ui;
 }
 
-void SuperStakerItemWidget::setData(const QString &fee, const QString &staker, const bool &staking_on, const int64_t &balance, const int64_t &stake, const int64_t &weight, const int64_t &delegationsWeight)
+void SuperStakerItemWidget::setData(const QString &fee, const QString &staker, const QString &address, const bool &staking_on, const int64_t &balance, const int64_t &stake, const int64_t &weight, const int64_t &delegationsWeight)
 {
     // Set data
     d->fee = fee;
     d->staker = staker;
+    d->address = address;
     d->staking_on = staking_on;
     d->balance = balance;
     d->stake = stake;
@@ -74,6 +76,8 @@ void SuperStakerItemWidget::setData(const QString &fee, const QString &staker, c
         ui->labelFee->setText(d->fee);
     if(d->staker != ui->labelStaker->text())
         ui->labelStaker->setText(d->staker);
+    if(d->address != ui->labelAddress->text())
+        ui->labelAddress->setText(d->address);
     updateLogo();
     updateBalance();
 }

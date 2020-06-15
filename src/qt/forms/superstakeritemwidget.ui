@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>773</width>
+    <width>873</width>
     <height>92</height>
    </rect>
   </property>
@@ -100,7 +100,7 @@
                <widget class="QWidget" name="widgetSuperStaker" native="true">
                 <property name="minimumSize">
                  <size>
-                  <width>280</width>
+                  <width>380</width>
                   <height>0</height>
                  </size>
                 </property>
@@ -156,11 +156,45 @@
                 </layout>
                </widget>
               </item>
-              <item alignment="Qt::AlignLeft">
-               <widget class="QPushButton" name="buttonDelegations">
-                <property name="text">
-                 <string>Delegations...</string>
+              <item>
+               <widget class="QWidget" name="widgetAddress" native="true">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>20</height>
+                 </size>
                 </property>
+                <layout class="QHBoxLayout" name="horizontalLayout_7">
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item alignment="Qt::AlignLeft">
+                  <widget class="QLabel" name="labelAddress">
+                   <property name="text">
+                    <string>address</string>
+                   </property>
+                   <property name="textInteractionFlags">
+                    <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item alignment="Qt::AlignRight">
+                  <widget class="QPushButton" name="buttonDelegations">
+                   <property name="text">
+                    <string>Delegations...</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
                </widget>
               </item>
               <item>
