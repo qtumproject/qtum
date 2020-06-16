@@ -39,11 +39,11 @@ SuperStakerItemWidget::SuperStakerItemWidget(const PlatformStyle *platformStyle,
 {
     ui->setupUi(this);
     ui->stackedWidget->setCurrentIndex(type);
-    ui->buttonSplit->setIcon(platformStyle->MultiStatesIcon(":/icons/tx_inout", PlatformStyle::PushButtonIcon));
+    ui->buttonSplit->setIcon(platformStyle->MultiStatesIcon(":/icons/split", PlatformStyle::PushButtonIcon));
     ui->buttonConfig->setIcon(platformStyle->MultiStatesIcon(":/icons/configure", PlatformStyle::PushButtonIcon));
     ui->buttonRemove->setIcon(platformStyle->MultiStatesIcon(":/icons/remove_entry", PlatformStyle::PushButtonIcon));
     ui->buttonAdd->setIcon(platformStyle->MultiStatesIcon(":/icons/plus_full", PlatformStyle::PushButtonIcon));
-    ui->superStakerLogo->setPixmap(platformStyle->MultiStatesIcon(m_type == New ? ":/icons/import" : ":/icons/staking_off").pixmap(SUPERSTAKER_ITEM_ICONSIZE, SUPERSTAKER_ITEM_ICONSIZE));
+    ui->superStakerLogo->setPixmap(platformStyle->MultiStatesIcon(m_type == New ? ":/icons/superstake" : ":/icons/staking_off").pixmap(SUPERSTAKER_ITEM_ICONSIZE, SUPERSTAKER_ITEM_ICONSIZE));
 
     ui->buttonDelegations->setToolTip(tr("Delegations for super staker."));
     ui->buttonSplit->setToolTip(tr("Split coins for super staker."));

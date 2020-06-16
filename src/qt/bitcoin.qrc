@@ -68,6 +68,9 @@
         <file alias="backup_wallet">res/icons/backup_wallet.png</file>
         <file alias="add_token">res/icons/add_token.png</file>
         <file alias="plus_full">res/icons/plus_full.png</file>
+        <file alias="delegate">res/icons/delegate.png</file>
+        <file alias="split">res/icons/split.png</file>
+        <file alias="superstake">res/icons/superstake.png</file>
     </qresource>
     <qresource prefix="/movies">
         <file alias="spinner-000">res/movies/spinner-000.png</file>
