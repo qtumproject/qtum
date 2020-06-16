@@ -18,7 +18,8 @@ public:
     DelegationItemEntry():
         balance(0),
         stake(0),
-        weight(0)
+        weight(0),
+        status(0)
     {}
 
     DelegationItemEntry(const interfaces::DelegationInfo &delegationInfo)
@@ -35,6 +36,7 @@ public:
         balance = 0;
         stake = 0;
         weight = 0;
+        status = 0;
     }
 
     DelegationItemEntry( const DelegationItemEntry &obj)
@@ -51,6 +53,7 @@ public:
         balance = obj.balance;
         stake = obj.stake;
         weight = obj.weight;
+        status = obj.status;
     }
 
     ~DelegationItemEntry()
@@ -68,6 +71,7 @@ public:
     qint64 balance;
     qint64 stake;
     qint64 weight;
+    qint32 status;
 };
 
 class DelegationWorker : public QObject
@@ -137,8 +141,11 @@ private Q_SLOTS:
                 else
                 {
                     // Update the entry when not marked for deletion
-                    info.block_number = -1;
-                    walletModel->wallet().addDelegationEntry(info);
+                    if(info.block_number != -1)
+                    {
+                        info.block_number = -1;
+                        walletModel->wallet().addDelegationEntry(info);
+                    }
                 }
             }
         }
@@ -147,14 +154,44 @@ private Q_SLOTS:
         CAmount balance = 0;
         CAmount stake = 0;
         CAmount weight = 0;
+
+        // Get status for the create and remove transactions
+        qint32 status = DelegationItemModel::NoTx;
+        if(details.c_block_number > 0 && !details.w_remove_exist)
+        {
+            status = DelegationItemModel::CreateTxConfirmed;
+        }
+        else if(details.c_block_number <= 0 && details.w_create_exist)
+        {
+            if(details.w_create_in_mempool)
+            {
+                status = DelegationItemModel::CreateTxNotConfirmed;
+            }
+            else
+            {
+                status = DelegationItemModel::CreateTxError;
+            }
+        }
+        else if(details.w_remove_exist)
+        {
+            if(details.w_remove_in_mempool)
+            {
+                status = DelegationItemModel::RemoveTxNotConfirmed;
+            }
+            else
+            {
+                status = DelegationItemModel::RemoveTxError;
+            }
+        }
+
         std::string sAddress = delegateAddress.toStdString();
         walletModel->wallet().getStakerAddressBalance(sAddress, balance, stake, weight);
-        Q_EMIT itemChanged(hash, balance, stake, weight);
+        Q_EMIT itemChanged(hash, balance, stake, weight, status);
     }
 
 Q_SIGNALS:
     // Signal that item in changed
-    void itemChanged(QString hash, qint64 balance, qint64 stake, qint64 weight);
+    void itemChanged(QString hash, qint64 balance, qint64 stake, qint64 weight, qint32 status);
 };
 
 #include <qt/delegationitemmodel.moc>
@@ -234,6 +271,7 @@ public:
             _item.balance = cachedDelegationItem[lowerIndex].balance;
             _item.stake = cachedDelegationItem[lowerIndex].stake;
             _item.weight = cachedDelegationItem[lowerIndex].weight;
+            _item.status = cachedDelegationItem[lowerIndex].status;
             cachedDelegationItem[lowerIndex] = _item;
             parent->emitDataChanged(lowerIndex);
             break;
@@ -397,6 +435,9 @@ QVariant DelegationItemModel::data(const QModelIndex &index, int role) const
     case DelegationItemModel::FormattedWeightRole:
         return rec->weight / COIN;
         break;
+    case DelegationItemModel::TxStatusRole:
+        return rec->status;
+        break;
     default:
         break;
     }
@@ -500,7 +541,7 @@ QString DelegationItemModel::formatFee(const DelegationItemEntry *rec) const
     return QString("%1%").arg(rec->fee);
 }
 
-void DelegationItemModel::itemChanged(QString hash, qint64 balance, qint64 stake, qint64 weight)
+void DelegationItemModel::itemChanged(QString hash, qint64 balance, qint64 stake, qint64 weight, qint32 status)
 {
     if(!priv)
         return;
@@ -517,6 +558,7 @@ void DelegationItemModel::itemChanged(QString hash, qint64 balance, qint64 stake
             delegationEntry.balance = balance;
             delegationEntry.stake = stake;
             delegationEntry.weight = weight;
+            delegationEntry.status = status;
             priv->cachedDelegationItem[i] = delegationEntry;
             priv->updateEntry(delegationEntry, CT_UPDATED);
         }

@@ -8,6 +8,7 @@
 #include <qt/bitcoinunits.h>
 #include <qt/optionsmodel.h>
 #include <qt/walletmodel.h>
+#include <qt/delegationitemmodel.h>
 #include <interfaces/node.h>
 #include <chainparams.h>
 #include <rpc/server.h>
@@ -25,6 +26,7 @@ public:
     int64_t stake = 0;
     int64_t weight = 0;
     bool staking = false;
+    int32_t status = 0;
     QLabel* light = 0;
 };
 
@@ -72,7 +74,7 @@ DelegationItemWidget::~DelegationItemWidget()
     delete d;
 }
 
-void DelegationItemWidget::setData(const QString &fee, const QString &staker, const QString &address, const int32_t &blockHight, const int64_t &balance, const int64_t &stake, const int64_t &weight)
+void DelegationItemWidget::setData(const QString &fee, const QString &staker, const QString &address, const int32_t &blockHight, const int64_t &balance, const int64_t &stake, const int64_t &weight, const int32_t &status)
 {
     // Set data
     d->fee = fee;
@@ -82,6 +84,7 @@ void DelegationItemWidget::setData(const QString &fee, const QString &staker, co
     d->balance = balance;
     d->stake = stake;
     d->weight = weight;
+    d->status = status;
 
     // Update GUI
     if(d->fee != ui->labelFee->text())
@@ -175,6 +178,33 @@ void DelegationItemWidget::updateLogo()
             ui->delegationLogo->setToolTip(tr("Not staking because you don't have mature coins"));
         else
             ui->delegationLogo->setToolTip(tr("Not staking"));
+    }
+
+    switch (d->status)
+    {
+    case DelegationItemModel::CreateTxConfirmed:
+        setLight(Green);
+        d->light->setToolTip(tr("Create transaction confirmed"));
+        break;
+    case DelegationItemModel::CreateTxNotConfirmed:
+        setLight(Orange);
+        d->light->setToolTip(tr("Create transaction not confirmed"));
+        break;
+    case DelegationItemModel::CreateTxError:
+        setLight(Red);
+        d->light->setToolTip(tr("Create transaction error"));
+        break;
+    case DelegationItemModel::RemoveTxNotConfirmed:
+        setLight(Orange);
+        d->light->setToolTip(tr("Remove transaction not confirmed"));
+        break;
+    case DelegationItemModel::RemoveTxError:
+        setLight(Red);
+        d->light->setToolTip(tr("Remove transaction error"));
+        break;
+    default:
+        setLight(Transparent);
+        break;
     }
 }
 

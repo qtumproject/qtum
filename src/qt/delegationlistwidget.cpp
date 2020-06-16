@@ -152,9 +152,10 @@ void DelegationListWidget::updateRow(const QModelIndex &index, int position)
         int64_t balance = m_delegationModel->data(index, DelegationItemModel::BalanceRole).toLongLong();
         int64_t stake = m_delegationModel->data(index, DelegationItemModel::StakeRole).toLongLong();
         int64_t weight = m_delegationModel->data(index, DelegationItemModel::WeightRole).toLongLong();
+        int32_t status = m_delegationModel->data(index, DelegationItemModel::TxStatusRole).toInt();
         DelegationItemWidget* item = m_rows[position];
         item->setPosition(position);
-        item->setData(fee, staker, address, blockHight, balance, stake, weight);
+        item->setData(fee, staker, address, blockHight, balance, stake, weight, status);
     }
 }
 

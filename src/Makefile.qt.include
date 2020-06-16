@@ -371,7 +371,10 @@ RES_ICONS = \
   qt/res/icons/token.png \
   qt/res/icons/backup_wallet.png \
   qt/res/icons/add_token.png \
-  qt/res/icons/plus_full.png
+  qt/res/icons/plus_full.png \
+  qt/res/icons/split.png \
+  qt/res/icons/delegate.png \
+  qt/res/icons/superstake.png
 
 BITCOIN_QT_BASE_CPP = \
   qt/bantablemodel.cpp \
