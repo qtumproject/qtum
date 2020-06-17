@@ -201,6 +201,10 @@ void SuperStakerListWidget::on_clicked(int position, int button)
     {
         Q_EMIT splitCoins(index);
     }
+    else if(button == SuperStakerItemWidget::Restore)
+    {
+        Q_EMIT restoreSuperStakers();
+    }
 }
 
 QModelIndex SuperStakerListWidget::indexAt(const QPoint &p) const

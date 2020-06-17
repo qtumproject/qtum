@@ -930,6 +930,10 @@ public:
     {
         return m_wallet->SetContractBook(id, name, abi);
     }
+    uint32_t restoreDelegations() override
+    {
+        return 0;
+    }
     bool addDelegationEntry(const DelegationInfo &delegation) override
     {
         return m_wallet->AddDelegationEntry(MakeDelegationInfo(delegation), true);
@@ -1088,6 +1092,10 @@ public:
         }
 
         return found ? addDelegationEntry(info) : 0;
+    }
+    uint32_t restoreSuperStakers() override
+    {
+         return 0;
     }
     bool existSuperStaker(const std::string &sAddress) override
     {

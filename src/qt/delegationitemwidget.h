@@ -25,7 +25,8 @@ public:
     enum Buttons{
         Add = 0,
         Remove = 1,
-        Split = 2
+        Split = 2,
+        Restore = 3
     };
 
     enum LightType{
@@ -59,6 +60,8 @@ private Q_SLOTS:
     void on_buttonRemove_clicked();
 
     void on_buttonSplit_clicked();
+
+    void on_buttonRestore_clicked();
 
 private:
     void updateLogo();

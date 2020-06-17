@@ -53,6 +53,7 @@ SuperStakerPage::SuperStakerPage(const PlatformStyle *platformStyle, QWidget *pa
     connect(m_superStakerList, &SuperStakerListWidget::removeSuperStaker, this, &SuperStakerPage::on_removeSuperStaker);
     connect(m_superStakerList, &SuperStakerListWidget::delegationsSuperStaker, this, &SuperStakerPage::on_delegationsSuperStaker);
     connect(m_superStakerList, &SuperStakerListWidget::splitCoins, this, &SuperStakerPage::on_splitCoins);
+    connect(m_superStakerList, &SuperStakerListWidget::restoreSuperStakers, this, &SuperStakerPage::on_restoreSuperStakers);
 
     contextMenu = new QMenu(m_superStakerList);
     contextMenu->addAction(copyStakerNameAction);
@@ -290,6 +291,23 @@ void SuperStakerPage::on_delegationsSuperStaker(const QModelIndex &index)
 {
     on_currentSuperStakerChanged(index);
     on_goToDelegationsSuperStakerPage();
+}
+
+void SuperStakerPage::on_restoreSuperStakers()
+{
+    if(m_model)
+    {
+        QMessageBox::StandardButton btnRetVal = QMessageBox::question(this, tr("Confirm super stakers restoration"), tr("Are you sure you wish to restore your super stakers?"),
+            QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
+
+        if(btnRetVal == QMessageBox::Yes)
+        {
+            if(m_model->wallet().restoreSuperStakers() == 0)
+            {
+                QMessageBox::information(this, tr("Super stakers not found"), tr("No super stakers found to restore."), QMessageBox::Ok);
+            }
+        }
+    }
 }
 
 void SuperStakerPage::on_goToDelegationsSuperStakerPage()

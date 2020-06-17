@@ -193,6 +193,10 @@ void DelegationListWidget::on_clicked(int position, int button)
     {
         Q_EMIT splitCoins(index);
     }
+    else if(button == DelegationItemWidget::Restore)
+    {
+        Q_EMIT restoreDelegations();
+    }
 }
 
 QModelIndex DelegationListWidget::indexAt(const QPoint &p) const

@@ -55,6 +55,7 @@ public Q_SLOTS:
     void on_removeSuperStaker(const QModelIndex& index);
     void on_delegationsSuperStaker(const QModelIndex &index);
     void on_splitCoins(const QModelIndex &index);
+    void on_restoreSuperStakers();
 
 private:
     Ui::SuperStakerPage *ui;

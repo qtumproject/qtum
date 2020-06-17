@@ -47,11 +47,13 @@ DelegationItemWidget::DelegationItemWidget(const PlatformStyle *platformStyle, Q
     ui->buttonSplit->setIcon(platformStyle->MultiStatesIcon(":/icons/split", PlatformStyle::PushButtonIcon));
     ui->buttonRemove->setIcon(platformStyle->MultiStatesIcon(":/icons/remove_entry", PlatformStyle::PushButtonIcon));
     ui->buttonAdd->setIcon(platformStyle->MultiStatesIcon(":/icons/plus_full", PlatformStyle::PushButtonIcon));
+    ui->buttonRestore->setIcon(platformStyle->MultiStatesIcon(":/icons/restore", PlatformStyle::PushButtonIcon));
     ui->delegationLogo->setPixmap(platformStyle->MultiStatesIcon(m_type == New ? ":/icons/delegate" : ":/icons/staking_off").pixmap(DELEGATION_ITEM_ICONSIZE, DELEGATION_ITEM_ICONSIZE));
 
     ui->buttonSplit->setToolTip(tr("Split coins for offline staking."));
     ui->buttonRemove->setToolTip(tr("Remove delegation."));
     ui->buttonAdd->setToolTip(tr("Add delegation."));
+    ui->buttonRestore->setToolTip(tr("Restore delegations."));
 
     d = new DelegationItemWidgetPriv();
 
@@ -116,6 +118,11 @@ void DelegationItemWidget::on_buttonRemove_clicked()
 void DelegationItemWidget::on_buttonSplit_clicked()
 {
     Q_EMIT clicked(m_position, Buttons::Split);
+}
+
+void DelegationItemWidget::on_buttonRestore_clicked()
+{
+    Q_EMIT clicked(m_position, Buttons::Restore);
 }
 
 int DelegationItemWidget::position() const

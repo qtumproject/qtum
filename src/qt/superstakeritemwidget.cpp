@@ -43,6 +43,7 @@ SuperStakerItemWidget::SuperStakerItemWidget(const PlatformStyle *platformStyle,
     ui->buttonConfig->setIcon(platformStyle->MultiStatesIcon(":/icons/configure", PlatformStyle::PushButtonIcon));
     ui->buttonRemove->setIcon(platformStyle->MultiStatesIcon(":/icons/remove_entry", PlatformStyle::PushButtonIcon));
     ui->buttonAdd->setIcon(platformStyle->MultiStatesIcon(":/icons/plus_full", PlatformStyle::PushButtonIcon));
+    ui->buttonRestore->setIcon(platformStyle->MultiStatesIcon(":/icons/restore", PlatformStyle::PushButtonIcon));
     ui->superStakerLogo->setPixmap(platformStyle->MultiStatesIcon(m_type == New ? ":/icons/superstake" : ":/icons/staking_off").pixmap(SUPERSTAKER_ITEM_ICONSIZE, SUPERSTAKER_ITEM_ICONSIZE));
 
     ui->buttonDelegations->setToolTip(tr("Delegations for super staker."));
@@ -50,6 +51,7 @@ SuperStakerItemWidget::SuperStakerItemWidget(const PlatformStyle *platformStyle,
     ui->buttonConfig->setToolTip(tr("Configure super staker."));
     ui->buttonRemove->setToolTip(tr("Remove super staker."));
     ui->buttonAdd->setToolTip(tr("Add super staker."));
+    ui->buttonRestore->setToolTip(tr("Restore super stakers."));
 
     d = new SuperStakerItemWidgetPriv();
 }
@@ -110,6 +112,11 @@ void SuperStakerItemWidget::on_buttonDelegations_clicked()
 void SuperStakerItemWidget::on_buttonSplit_clicked()
 {
     Q_EMIT clicked(m_position, Buttons::Split);
+}
+
+void SuperStakerItemWidget::on_buttonRestore_clicked()
+{
+    Q_EMIT clicked(m_position, Buttons::Restore);
 }
 
 int SuperStakerItemWidget::position() const

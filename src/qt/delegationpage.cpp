@@ -48,6 +48,7 @@ DelegationPage::DelegationPage(const PlatformStyle *platformStyle, QWidget *pare
     connect(m_delegationList, &DelegationListWidget::removeDelegation, this, &DelegationPage::on_removeDelegation);
     connect(m_delegationList, &DelegationListWidget::addDelegation, this, &DelegationPage::on_addDelegation);
     connect(m_delegationList, &DelegationListWidget::splitCoins, this, &DelegationPage::on_splitCoins);
+    connect(m_delegationList, &DelegationListWidget::restoreDelegations, this, &DelegationPage::on_restoreDelegations);
 
     contextMenu = new QMenu(m_delegationList);
     contextMenu->addAction(copyStakerNameAction);
@@ -256,4 +257,21 @@ void DelegationPage::on_splitCoins(const QModelIndex &index)
 void DelegationPage::on_goToSplitCoinsPage()
 {
     m_splitUtxoPage->show();
+}
+
+void DelegationPage::on_restoreDelegations()
+{
+    if(m_model)
+    {
+        QMessageBox::StandardButton btnRetVal = QMessageBox::question(this, tr("Confirm delegations restoration"), tr("Are you sure you wish to restore your delegations?"),
+            QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
+
+        if(btnRetVal == QMessageBox::Yes)
+        {
+            if(m_model->wallet().restoreDelegations() == 0)
+            {
+                QMessageBox::information(this, tr("Delegations not found"), tr("No delegations found to restore."), QMessageBox::Ok);
+            }
+        }
+    }
 }

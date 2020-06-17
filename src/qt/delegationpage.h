@@ -50,6 +50,7 @@ public Q_SLOTS:
     void on_removeDelegation(const QModelIndex& index);
     void on_addDelegation();
     void on_splitCoins(const QModelIndex& index);
+    void on_restoreDelegations();
 
 private:
     Ui::DelegationPage *ui;
