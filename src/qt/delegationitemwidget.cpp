@@ -12,6 +12,7 @@
 #include <interfaces/node.h>
 #include <chainparams.h>
 #include <rpc/server.h>
+#include <qt/guiutil.h>
 
 #include <QFile>
 
@@ -91,8 +92,11 @@ void DelegationItemWidget::setData(const QString &fee, const QString &staker, co
     // Update GUI
     if(d->fee != ui->labelFee->text())
         ui->labelFee->setText(d->fee);
-    if(d->staker != ui->labelStaker->text())
-        ui->labelStaker->setText(d->staker);
+    if(d->staker != ui->labelStaker->toolTip())
+    {
+        ui->labelStaker->setText(GUIUtil::cutString(d->staker, 22));
+        ui->labelStaker->setToolTip(d->staker);
+    }
     if(d->address != ui->labelAddress->text())
         ui->labelAddress->setText(d->address);
     d->staking = (d->blockHight > 0 && d->weight > 0);
