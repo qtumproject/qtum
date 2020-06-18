@@ -6,6 +6,7 @@
 #include <qt/styleSheet.h>
 #include <qt/delegationlistwidget.h>
 #include <qt/guiutil.h>
+#include <qt/editsuperstakerdialog.h>
 
 #include <QPainter>
 #include <QAbstractItemDelegate>
@@ -38,6 +39,7 @@ DelegationPage::DelegationPage(const PlatformStyle *platformStyle, QWidget *pare
     QAction *copyStekerFeeAction = new QAction(tr("Copy staker fee"), this);
     QAction *copyDelegateAddressAction = new QAction(tr("Copy delegate address"), this);
     QAction *copyDelegateWeightAction = new QAction(tr("Copy delegate weight"), this);
+    QAction *editStakerNameAction = new QAction(tr("Edit staker name"), this);
     QAction *removeDelegationAction = new QAction(tr("Remove delegation"), this);
 
     m_delegationList = new DelegationListWidget(platformStyle, this);
@@ -56,6 +58,7 @@ DelegationPage::DelegationPage(const PlatformStyle *platformStyle, QWidget *pare
     contextMenu->addAction(copyStekerFeeAction);
     contextMenu->addAction(copyDelegateAddressAction);
     contextMenu->addAction(copyDelegateWeightAction);
+    contextMenu->addAction(editStakerNameAction);
     contextMenu->addAction(removeDelegationAction);
 
     connect(copyDelegateAddressAction, &QAction::triggered, this, &DelegationPage::copyDelegateAddress);
@@ -63,6 +66,7 @@ DelegationPage::DelegationPage(const PlatformStyle *platformStyle, QWidget *pare
     connect(copyStakerNameAction, &QAction::triggered, this, &DelegationPage::copyStakerName);
     connect(copyStakerAddressAction, &QAction::triggered, this, &DelegationPage::copyStakerAddress);
     connect(copyDelegateWeightAction, &QAction::triggered, this, &DelegationPage::copyDelegateWeight);
+    connect(editStakerNameAction, &QAction::triggered, this, &DelegationPage::editStakerName);
     connect(removeDelegationAction, &QAction::triggered, this, &DelegationPage::removeDelegation);
 
     connect(m_delegationList, &DelegationListWidget::customContextMenuRequested, this, &DelegationPage::contextualMenu);
@@ -225,6 +229,20 @@ void DelegationPage::copyStakerAddress()
     {
         GUIUtil::setClipboard(indexMenu.data(DelegationItemModel::StakerAddressRole).toString());
         indexMenu = QModelIndex();
+    }
+}
+
+void DelegationPage::editStakerName()
+{
+    if(indexMenu.isValid())
+    {
+        QString stakerName = indexMenu.data(DelegationItemModel::StakerNameRole).toString();
+        QString stakerAddress = indexMenu.data(DelegationItemModel::StakerAddressRole).toString();
+
+        EditSuperStakerDialog dlg;
+        dlg.setData(stakerName, stakerAddress);
+
+        dlg.exec();
     }
 }
 

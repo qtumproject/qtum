@@ -46,6 +46,7 @@ public Q_SLOTS:
     void copyStekerFee();
     void copyStakerName();
     void copyStakerAddress();
+    void editStakerName();
     void removeDelegation();
     void on_removeDelegation(const QModelIndex& index);
     void on_addDelegation();
