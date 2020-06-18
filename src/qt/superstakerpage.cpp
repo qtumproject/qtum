@@ -262,11 +262,23 @@ void SuperStakerPage::editStakerName()
     {
         QString stakerName = indexMenu.data(SuperStakerItemModel::StakerNameRole).toString();
         QString stakerAddress = indexMenu.data(SuperStakerItemModel::StakerAddressRole).toString();
+        QString sHash = indexMenu.data(SuperStakerItemModel::HashRole).toString();
+        uint256 hash;
+        hash.SetHex(sHash.toStdString());
 
         EditSuperStakerDialog dlg;
         dlg.setData(stakerName, stakerAddress);
 
-        dlg.exec();
+        if(dlg.exec())
+        {
+            interfaces::SuperStakerInfo staker = m_model->wallet().getSuperStaker(hash);
+            if(staker.hash == hash)
+            {
+                staker.staker_name = dlg.getSuperStakerName().toStdString();
+                m_model->wallet().removeSuperStakerEntry(sHash.toStdString());
+                m_model->wallet().addSuperStakerEntry(staker);
+            }
+        }
     }
 }
 

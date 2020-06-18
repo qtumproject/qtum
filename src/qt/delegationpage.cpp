@@ -238,11 +238,23 @@ void DelegationPage::editStakerName()
     {
         QString stakerName = indexMenu.data(DelegationItemModel::StakerNameRole).toString();
         QString stakerAddress = indexMenu.data(DelegationItemModel::StakerAddressRole).toString();
+        QString sHash = indexMenu.data(DelegationItemModel::HashRole).toString();
+        uint256 hash;
+        hash.SetHex(sHash.toStdString());
 
         EditSuperStakerDialog dlg;
         dlg.setData(stakerName, stakerAddress);
 
-        dlg.exec();
+        if(dlg.exec())
+        {
+            interfaces::DelegationInfo delegation = m_model->wallet().getDelegation(hash);
+            if(delegation.hash == hash)
+            {
+                delegation.staker_name = dlg.getSuperStakerName().toStdString();
+                m_model->wallet().removeDelegationEntry(sHash.toStdString());
+                m_model->wallet().addDelegationEntry(delegation);
+            }
+        }
     }
 }
 
