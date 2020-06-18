@@ -81,7 +81,7 @@
             <item>
              <layout class="QVBoxLayout" name="verticalLayout">
               <property name="rightMargin">
-               <number>20</number>
+               <number>15</number>
               </property>
               <item>
                <spacer name="verticalSpacer_2">
@@ -201,13 +201,13 @@
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_3">
                <property name="leftMargin">
-                <number>20</number>
+                <number>15</number>
                </property>
                <property name="topMargin">
                 <number>0</number>
                </property>
                <property name="rightMargin">
-                <number>20</number>
+                <number>15</number>
                </property>
                <property name="bottomMargin">
                 <number>0</number>

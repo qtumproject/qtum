@@ -1142,7 +1142,7 @@ SuperStakerItemWidget #labelStaker{
     color: white;
     font: 13pt;
 }
-SuperStakerItemWidget #widgetAddress #labelAddress{
+SuperStakerItemWidget #labelAddress{
     color: #9c9c9c;
     font: 10pt;
 }
@@ -1150,7 +1150,7 @@ SuperStakerItemWidget #superStakerLogo{
     background-color: #575757;
     border-radius: 20px;
 }
-SuperStakerItemWidget #widgetAddress #buttonDelegations{
+SuperStakerItemWidget #buttonDelegations{
     min-width: 7em;
     padding: 1px;
     border-radius: 8px;
