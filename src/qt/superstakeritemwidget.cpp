@@ -29,6 +29,7 @@ public:
 };
 
 #define SUPERSTAKER_ITEM_ICONSIZE 24
+#define SUPERSTAKER_STAKER_SIZE 210
 SuperStakerItemWidget::SuperStakerItemWidget(const PlatformStyle *platformStyle, QWidget *parent, ItemType type) :
     QWidget(parent),
     ui(new Ui::SuperStakerItemWidget),
@@ -78,10 +79,7 @@ void SuperStakerItemWidget::setData(const QString &fee, const QString &staker, c
     if(d->fee != ui->labelFee->text())
         ui->labelFee->setText(d->fee);
     if(d->staker != ui->labelStaker->toolTip())
-    {
-        ui->labelStaker->setText(GUIUtil::cutString(d->staker, 22));
-        ui->labelStaker->setToolTip(d->staker);
-    }
+        updateLabelStaker();
     if(d->address != ui->labelAddress->text())
         ui->labelAddress->setText(d->address);
     updateLogo();
@@ -218,4 +216,18 @@ void SuperStakerItemWidget::updateBalance()
         unit = m_model->getOptionsModel()->getDisplayUnit();
     ui->labelAssets->setText(BitcoinUnits::formatWithUnit(unit, d->balance, false, BitcoinUnits::separatorAlways));
     ui->labelStake->setText(BitcoinUnits::formatWithUnit(unit, d->stake, false, BitcoinUnits::separatorAlways));
+}
+
+void SuperStakerItemWidget::updateLabelStaker()
+{
+    QString text = d->staker;
+    QFontMetrics fm = ui->labelStaker->fontMetrics();
+    for(int i = d->staker.length(); i>3; i--)
+    {
+        text = GUIUtil::cutString(d->staker, i);
+        if(GUIUtil::TextWidth(fm, text) < SUPERSTAKER_STAKER_SIZE)
+            break;
+    }
+    ui->labelStaker->setText(text);
+    ui->labelStaker->setToolTip(d->staker);
 }

@@ -34,6 +34,7 @@ public:
 #define DELEGATION_ITEM_ICONSIZE 24
 #define LIGHT_ICONSIZE 14
 const QString LIGHT_STYLE = "QLabel{background-color: %1; border-radius: 7px; border: 2px solid transparent;}";
+#define DELEGATION_STAKER_SIZE 210
 DelegationItemWidget::DelegationItemWidget(const PlatformStyle *platformStyle, QWidget *parent, ItemType type) :
     QWidget(parent),
     ui(new Ui::DelegationItemWidget),
@@ -93,10 +94,7 @@ void DelegationItemWidget::setData(const QString &fee, const QString &staker, co
     if(d->fee != ui->labelFee->text())
         ui->labelFee->setText(d->fee);
     if(d->staker != ui->labelStaker->toolTip())
-    {
-        ui->labelStaker->setText(GUIUtil::cutString(d->staker, 22));
-        ui->labelStaker->setToolTip(d->staker);
-    }
+        updateLabelStaker();
     if(d->address != ui->labelAddress->text())
         ui->labelAddress->setText(d->address);
     d->staking = (d->blockHight > 0 && d->weight > 0);
@@ -272,4 +270,18 @@ void DelegationItemWidget::setLight(DelegationItemWidget::LightType type)
             d->light->setVisible(false);
         }
     }
+}
+
+void DelegationItemWidget::updateLabelStaker()
+{
+    QString text = d->staker;
+    QFontMetrics fm = ui->labelStaker->fontMetrics();
+    for(int i = d->staker.length(); i>3; i--)
+    {
+        text = GUIUtil::cutString(d->staker, i);
+        if(GUIUtil::TextWidth(fm, text) < DELEGATION_STAKER_SIZE)
+            break;
+    }
+    ui->labelStaker->setText(text);
+    ui->labelStaker->setToolTip(d->staker);
 }
