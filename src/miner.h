@@ -310,6 +310,7 @@ private:
 #ifdef ENABLE_WALLET
 /** Generate a new block, without valid proof-of-work */
 void StakeQtums(bool fStake, CWallet *pwallet, CConnman* connman, boost::thread_group*& stakeThread);
+void RefreshDelegates(CWallet *pwallet, bool myDelegates, bool stakerDelegates);
 #endif
 
 /** Modify the extranonce in a block */

@@ -327,14 +327,22 @@ void SuperStakerPage::on_restoreSuperStakers()
 {
     if(m_model)
     {
-        QMessageBox::StandardButton btnRetVal = QMessageBox::question(this, tr("Confirm super stakers restoration"), tr("Are you sure you wish to restore your super stakers?"),
-            QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
-
-        if(btnRetVal == QMessageBox::Yes)
+        bool fSuperStake = m_model->wallet().getEnabledSuperStaking();
+        if(!fSuperStake)
         {
-            if(m_model->wallet().restoreSuperStakers() == 0)
+            QMessageBox::information(this, tr("Super staking"), tr("Enable super staking from the option menu in order to start the restoration."));
+        }
+        else
+        {
+            QMessageBox::StandardButton btnRetVal = QMessageBox::question(this, tr("Confirm super stakers restoration"), tr("Are you sure you wish to restore your super stakers?"),
+                QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
+
+            if(btnRetVal == QMessageBox::Yes)
             {
-                QMessageBox::information(this, tr("Super stakers not found"), tr("No super stakers found to restore."), QMessageBox::Ok);
+                if(m_model->wallet().restoreSuperStakers() == 0)
+                {
+                    QMessageBox::information(this, tr("Super stakers not found"), tr("No super stakers found to restore."), QMessageBox::Ok);
+                }
             }
         }
     }

@@ -932,6 +932,8 @@ public:
     }
     uint32_t restoreDelegations() override
     {
+        RefreshDelegates(m_wallet.get(), true, false);
+
         auto locked_chain = m_wallet->chain().lock();
         LOCK(m_wallet->cs_wallet);
 
@@ -1110,6 +1112,8 @@ public:
     }
     uint32_t restoreSuperStakers() override
     {
+        RefreshDelegates(m_wallet.get(), false, true);
+
         auto locked_chain = m_wallet->chain().lock();
         LOCK(m_wallet->cs_wallet);
 
