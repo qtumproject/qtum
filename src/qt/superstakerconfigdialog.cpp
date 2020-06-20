@@ -34,8 +34,8 @@ SuperStakerConfigDialog::SuperStakerConfigDialog(QWidget *parent) :
     ui->leMinUtxo->setValue(DEFAULT_STAKING_MIN_UTXO_VALUE);
 
     ui->cbListType->addItem(tr("Accept all"), All);
-    ui->cbListType->addItem(tr("White list"), WhiteList);
-    ui->cbListType->addItem(tr("Black list"), BlackList);
+    ui->cbListType->addItem(tr("Allow list"), WhiteList);
+    ui->cbListType->addItem(tr("Exclude list"), BlackList);
 
     ui->buttonOk->setEnabled(false);
 

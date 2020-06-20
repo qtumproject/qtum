@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>773</width>
-    <height>92</height>
+    <height>110</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -81,7 +81,7 @@
             <item>
              <layout class="QVBoxLayout" name="verticalLayout">
               <property name="rightMargin">
-               <number>20</number>
+               <number>15</number>
               </property>
               <item>
                <spacer name="verticalSpacer_2">
@@ -156,7 +156,17 @@
                 </layout>
                </widget>
               </item>
-              <item alignment="Qt::AlignLeft">
+              <item>
+               <widget class="QLabel" name="labelAddress">
+                <property name="text">
+                 <string>address</string>
+                </property>
+                <property name="textInteractionFlags">
+                 <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                </property>
+               </widget>
+              </item>
+              <item alignment="Qt::AlignRight">
                <widget class="QPushButton" name="buttonDelegations">
                 <property name="text">
                  <string>Delegations...</string>
@@ -204,13 +214,13 @@
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_3">
                <property name="leftMargin">
-                <number>20</number>
+                <number>15</number>
                </property>
                <property name="topMargin">
                 <number>0</number>
                </property>
                <property name="rightMargin">
-                <number>20</number>
+                <number>15</number>
                </property>
                <property name="bottomMargin">
                 <number>0</number>
@@ -311,7 +321,7 @@
               </property>
               <property name="sizeHint" stdset="0">
                <size>
-                <width>193</width>
+                <width>0</width>
                 <height>20</height>
                </size>
               </property>
@@ -381,6 +391,19 @@
              </size>
             </property>
            </spacer>
+          </item>
+          <item>
+           <widget class="QToolButton" name="buttonRestore">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>32</width>
+              <height>32</height>
+             </size>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="QToolButton" name="buttonAdd">

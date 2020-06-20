@@ -25,6 +25,7 @@ QT_FORMS_UI = \
   qt/forms/delegationsstakerdialog.ui \
   qt/forms/editaddressdialog.ui \
   qt/forms/editcontractinfodialog.ui \
+  qt/forms/editsuperstakerdialog.ui \
   qt/forms/helpmessagedialog.ui \
   qt/forms/intro.ui \
   qt/forms/modaloverlay.ui \
@@ -90,6 +91,7 @@ QT_MOC_CPP = \
   qt/moc_delegationstakeritemmodel.cpp \
   qt/moc_editaddressdialog.cpp \
   qt/moc_editcontractinfodialog.cpp \
+  qt/moc_editsuperstakerdialog.cpp \
   qt/moc_guiutil.cpp \
   qt/moc_intro.cpp \
   qt/moc_macdockiconhandler.cpp \
@@ -223,6 +225,7 @@ BITCOIN_QT_H = \
   qt/delegationstakeritemmodel.h \
   qt/editaddressdialog.h \
   qt/editcontractinfodialog.h \
+  qt/editsuperstakerdialog.h \
   qt/eventlog.h \
   qt/execrpccommand.h \
   qt/guiconstants.h \
@@ -371,7 +374,10 @@ RES_ICONS = \
   qt/res/icons/token.png \
   qt/res/icons/backup_wallet.png \
   qt/res/icons/add_token.png \
-  qt/res/icons/plus_full.png
+  qt/res/icons/plus_full.png \
+  qt/res/icons/split.png \
+  qt/res/icons/delegate.png \
+  qt/res/icons/superstake.png
 
 BITCOIN_QT_BASE_CPP = \
   qt/bantablemodel.cpp \
@@ -445,6 +451,7 @@ BITCOIN_QT_WALLET_CPP = \
   qt/createwalletdialog.cpp \
   qt/editaddressdialog.cpp \
   qt/editcontractinfodialog.cpp \
+  qt/editsuperstakerdialog.cpp \
   qt/openuridialog.cpp \
   qt/overviewpage.cpp \
   qt/paymentserver.cpp \

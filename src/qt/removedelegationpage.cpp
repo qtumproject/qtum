@@ -166,7 +166,8 @@ void RemoveDelegationPage::on_removeDelegationClicked()
         if(details.w_create_exist && !details.w_create_abandoned &&
                 (details.w_create_in_mempool || !details.w_create_in_main_chain))
         {
-            QMessageBox::information(this, tr("Remove delegation for address"), tr("Please wait for the create contract delegation transaction be confirmed."));
+            QString txid = QString::fromStdString(details.w_create_tx_hash.ToString());
+            QMessageBox::information(this, tr("Remove delegation for address"), tr("Please wait for the create contract delegation transaction be confirmed or abandon the transaction.\n\nTransaction ID: %1").arg(txid));
             return;
         }
 
@@ -174,7 +175,8 @@ void RemoveDelegationPage::on_removeDelegationClicked()
         if(details.w_remove_exist && !details.w_remove_abandoned &&
                 (details.w_remove_in_mempool || !details.w_remove_in_main_chain))
         {
-            QMessageBox::information(this, tr("Remove delegation for address"), tr("Please wait for the remove contract delegation transaction be confirmed."));
+            QString txid = QString::fromStdString(details.w_remove_tx_hash.ToString());
+            QMessageBox::information(this, tr("Remove delegation for address"), tr("Please wait for the remove contract delegation transaction be confirmed or abandon the transaction.\n\nTransaction ID: %1").arg(txid));
             return;
         }
 

@@ -54,6 +54,9 @@ void DelegationsStakerDialog::setModel(WalletModel *_model)
 
 void DelegationsStakerDialog::setSuperStakerData(const QString& _name, const QString &_address, const int &_fee, const QString &_hash)
 {
+    if(d->hash == _hash)
+        return;
+
     d->name = _name;
     d->address = _address;
     d->fee = _fee;

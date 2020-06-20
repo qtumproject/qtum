@@ -44,6 +44,17 @@ public:
         StakeRole = Qt::UserRole + 11,
         WeightRole = Qt::UserRole + 12,
         FormattedWeightRole = Qt::UserRole + 13,
+        TxStatusRole = Qt::UserRole + 14,
+    };
+
+    enum TxStatus
+    {
+        NoTx = 0,
+        CreateTxConfirmed = 1,
+        CreateTxNotConfirmed = 2,
+        CreateTxError = 3,
+        RemoveTxNotConfirmed = 4,
+        RemoveTxError = 5,
     };
 
     DelegationItemModel(WalletModel *parent = 0);
@@ -63,7 +74,7 @@ public:
 
 public Q_SLOTS:
     void checkDelegationChanged();
-    void itemChanged(QString hash, qint64 balance, qint64 stake, qint64 weight);
+    void itemChanged(QString hash, qint64 balance, qint64 stake, qint64 weight, qint32 status);
 
 private Q_SLOTS:
     void updateDelegationData(const QString &hash, int status, bool showDelegation);

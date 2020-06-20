@@ -1142,6 +1142,10 @@ SuperStakerItemWidget #labelStaker{
     color: white;
     font: 13pt;
 }
+SuperStakerItemWidget #labelAddress{
+    color: #9c9c9c;
+    font: 10pt;
+}
 SuperStakerItemWidget #superStakerLogo{
     background-color: #575757;
     border-radius: 20px;

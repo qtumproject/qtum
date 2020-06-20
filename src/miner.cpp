@@ -1337,4 +1337,35 @@ void StakeQtums(bool fStake, CWallet *pwallet, CConnman* connman, boost::thread_
         stakeThread->create_thread(boost::bind(&ThreadStakeMiner, pwallet, connman));
     }
 }
+
+void RefreshDelegates(CWallet *pwallet, bool refreshMyDelegates, bool refreshStakerDelegates)
+{
+    if(pwallet && (refreshMyDelegates || refreshStakerDelegates))
+    {
+        auto locked_chain = pwallet->chain().lock();
+        LOCK(pwallet->cs_wallet);
+
+        DelegationsStaker delegationsStaker(pwallet);
+        MyDelegations myDelegations(pwallet);
+
+        int nOfflineStakeHeight = Params().GetConsensus().nOfflineStakeHeight;
+        bool fDelegationsContract = !Params().GetConsensus().delegationsAddress.IsNull();
+        int32_t nHeight = ::ChainActive().Height();
+        bool fOfflineStakeEnabled = ((nHeight + 1) > nOfflineStakeHeight) && fDelegationsContract;
+        if(fOfflineStakeEnabled)
+        {
+            if(refreshMyDelegates)
+            {
+                myDelegations.Update(*locked_chain, nHeight);
+            }
+
+            if(refreshStakerDelegates)
+            {
+                bool fUpdatedSuperStaker = pwallet->fUpdatedSuperStaker;
+                delegationsStaker.Update(nHeight);
+                pwallet->fUpdatedSuperStaker = fUpdatedSuperStaker;
+            }
+        }
+    }
+}
 #endif

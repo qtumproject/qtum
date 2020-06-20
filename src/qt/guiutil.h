@@ -276,6 +276,8 @@ namespace GUIUtil
 
     void formatToolButtons(QToolButton* btn1, QToolButton* btn2 = 0, QToolButton* btn3 = 0);
 
+    QString cutString(const QString& text, int length);
+
 } // namespace GUIUtil
 
 #endif // BITCOIN_QT_GUIUTIL_H
