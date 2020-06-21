@@ -114,13 +114,13 @@ class QtumDuplicateStakeTest(BitcoinTestFramework):
 
         # Send <alt_block> to alt_node
         self.p2p_alt_node.send_message(msg_block(alt_block))
-        time.sleep(2)
+        time.sleep(5)
         self.alt_node.generate(500)
-        time.sleep(2)
+        time.sleep(5)
         
         # Send <block> to node
         self.p2p_node.send_message(msg_block(block))
-        time.sleep(2)
+        time.sleep(5)
         assert_raises_rpc_error(-5, "Block not found", self.node.getblockheader, block.hash)
 
         time.sleep(2)
