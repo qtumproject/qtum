@@ -12,7 +12,7 @@
 #include <util/moneystr.h>
 #include <qt/addressfield.h>
 #include <qt/abifunctionfield.h>
-#include <qt/contractabi.h>
+#include <qt/contractutil.h>
 #include <qt/tabbarinfo.h>
 #include <qt/contractresult.h>
 #include <qt/sendcoinsdialog.h>
@@ -299,7 +299,7 @@ QString CreateContract::toDataHex(int func, QString& errorMessage)
     }
     else
     {
-        errorMessage = function.errorMessage(errors, true);
+        errorMessage = ContractUtil::errorMessage(function, errors, true);
     }
     return "";
 }

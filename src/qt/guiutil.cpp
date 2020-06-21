@@ -102,7 +102,6 @@ void setupAddressWidget(QValidatedLineEdit *widget, QWidget *parent)
 {
     parent->setFocusProxy(widget);
 
-    widget->setFont(fixedPitchFont());
     // We don't want translators to use own addresses in translations
     // and this is the only place, where this address is supplied.
     widget->setPlaceholderText(QObject::tr("Enter a Qtum address (e.g. %1)").arg(
@@ -988,6 +987,15 @@ void formatToolButtons(QToolButton *btn1, QToolButton *btn2, QToolButton *btn3)
         QToolButton* btn = btnList[i];
         btn->setIconSize(QSize(16, 16));
     }
+}
+
+QString cutString(const QString &text, int length)
+{
+    if(text.length() > length + 3)
+    {
+        return text.left(length) + "...";
+    }
+    return text;
 }
 
 } // namespace GUIUtil

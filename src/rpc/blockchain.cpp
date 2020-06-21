@@ -40,6 +40,7 @@
 #include <pos.h>
 #include <txdb.h>
 #include <util/convert.h>
+#include <qtum/qtumdelegation.h>
 
 #include <assert.h>
 #include <stdint.h>
@@ -204,6 +205,11 @@ UniValue blockheaderToJSON(const CBlockIndex* tip, const CBlockIndex* blockindex
     result.pushKV("hashStateRoot", blockindex->hashStateRoot.GetHex()); // qtum
     result.pushKV("hashUTXORoot", blockindex->hashUTXORoot.GetHex()); // qtum
 
+    if(blockindex->IsProofOfStake()){
+        result.pushKV("prevoutStakeHash", blockindex->prevoutStake.hash.GetHex()); // qtum
+        result.pushKV("prevoutStakeVoutN", (int64_t)blockindex->prevoutStake.n); // qtum
+    }
+
     if (blockindex->pprev)
         result.pushKV("previousblockhash", blockindex->pprev->GetBlockHash().GetHex());
     if (pnext)
@@ -235,6 +241,12 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* tip, const CBlockIn
     result.pushKV("merkleroot", block.hashMerkleRoot.GetHex());
     result.pushKV("hashStateRoot", block.hashStateRoot.GetHex()); // qtum
     result.pushKV("hashUTXORoot", block.hashUTXORoot.GetHex()); // qtum
+
+    if(blockindex->IsProofOfStake()){
+        result.pushKV("prevoutStakeHash", blockindex->prevoutStake.hash.GetHex()); // qtum
+        result.pushKV("prevoutStakeVoutN", (int64_t)blockindex->prevoutStake.n); // qtum
+    }
+
     UniValue txs(UniValue::VARR);
     for(const auto& tx : block.vtx)
     {
@@ -266,7 +278,15 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* tip, const CBlockIn
     result.pushKV("modifier", blockindex->nStakeModifier.GetHex());
 
     if (block.IsProofOfStake())
-        result.pushKV("signature", HexStr(block.vchBlockSig.begin(), block.vchBlockSig.end()));	
+    {
+        std::vector<unsigned char> vchBlockSig = block.GetBlockSignature();
+        result.pushKV("signature", HexStr(vchBlockSig.begin(), vchBlockSig.end()));
+        if(block.HasProofOfDelegation())
+        {
+            std::vector<unsigned char> vchPoD = block.GetProofOfDelegation();
+            result.pushKV("proofOfDelegation", HexStr(vchPoD.begin(), vchPoD.end()));
+        }
+    }
 
     return result;
 }
@@ -1895,6 +1915,146 @@ UniValue gettransactionreceipt(const JSONRPCRequest& request)
     }
     return result;
 }
+
+UniValue getdelegationinfoforaddress(const JSONRPCRequest& request)
+{
+            RPCHelpMan{"getdelegationinfoforaddress",
+                "\nGet delegation information for an address.\n",
+                {
+                    {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The qtum address string"},
+                },
+                RPCResult{
+            "{\n"
+            "  \"staker\": \"address\",                 (string)   Staker address\n"
+            "  \"fee\": n,                            (numeric)  Percentage of the reward\n"
+            "  \"blockHeight\": n,                    (numeric)  Block height\n"
+            "  \"PoD\": \"hex\",                        (string)   Proof of delegation\n"
+            "  \"verified\" : true|false              (boolean)  Verify delegation\n"
+            "}\n"
+                },
+                RPCExamples{
+                    HelpExampleCli("getdelegationinfoforaddress", "QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd")
+            + HelpExampleRpc("getdelegationinfoforaddress", "QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd")
+                },
+            }.Check(request);
+
+    LOCK(cs_main);
+
+    // Parse the public key hash address
+    std::string strAddress = request.params[0].get_str();
+
+    CTxDestination dest = DecodeDestination(strAddress);
+    if (!IsValidDestination(dest)) {
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid address");
+    }
+
+    const PKHash *pkhash = boost::get<PKHash>(&dest);
+    if (!pkhash) {
+        throw JSONRPCError(RPC_TYPE_ERROR, "Address does not refer to public key hash");
+    }
+
+    // Get delegation for an address
+    QtumDelegation qtumDelegation;
+    Delegation delegation;
+    uint160 address = uint160(*pkhash);
+    if(!qtumDelegation.GetDelegation(address, delegation)) {
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "Failed to get delegation");
+    }
+    bool verified = qtumDelegation.VerifyDelegation(address, delegation);
+
+    // Fill the json object with information
+    UniValue result(UniValue::VOBJ);
+    std::string strStaker = delegation.staker != uint160() ? EncodeDestination(PKHash(delegation.staker)) : "";
+    result.pushKV("staker", strStaker);
+    result.pushKV("fee", (int64_t)delegation.fee);
+    result.pushKV("blockHeight", (int64_t)delegation.blockHeight);
+    result.pushKV("PoD", HexStr(delegation.PoD));
+    result.pushKV("verified", verified);
+
+    return result;
+}
+
+class DelegationsStakerFilter : public IDelegationFilter
+{
+public:
+    DelegationsStakerFilter(const uint160& _address):
+        address(_address)
+    {}
+
+    bool Match(const DelegationEvent& event) const
+    {
+        return event.item.staker == address;
+    }
+
+private:
+    uint160 address;
+};
+
+UniValue getdelegationsforstaker(const JSONRPCRequest& request)
+{
+            RPCHelpMan{"getdelegationsforstaker",
+                "requires -logevents to be enabled\n"
+                "\nGet the current list of delegates for a super staker.\n",
+                {
+                    {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The qtum address string for staker"},
+                },
+                RPCResult{
+            "[{\n"
+            "  \"delegate\": \"address\",                 (string)   Delegate address\n"
+            "  \"staker\": \"address\",                 (string)   Staker address\n"
+            "  \"fee\": n,                            (numeric)  Percentage of the reward\n"
+            "  \"blockHeight\": n,                    (numeric)  Block height\n"
+            "  \"PoD\": \"hex\",                        (string)   Proof of delegation\n"
+            "}]\n"
+                },
+                RPCExamples{
+                    HelpExampleCli("getdelegationsforstaker", "QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd")
+            + HelpExampleRpc("getdelegationsforstaker", "QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd")
+                },
+            }.Check(request);
+
+    if (!fLogEvents)
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "Events indexing disabled");
+
+    LOCK(cs_main);
+
+    // Parse the public key hash address
+    std::string strAddress = request.params[0].get_str();
+
+    CTxDestination dest = DecodeDestination(strAddress);
+    if (!IsValidDestination(dest)) {
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid address");
+    }
+
+    const PKHash *pkhash = boost::get<PKHash>(&dest);
+    if (!pkhash) {
+        throw JSONRPCError(RPC_TYPE_ERROR, "Address does not refer to public key hash");
+    }
+
+    // Get delegations for staker
+    QtumDelegation qtumDelegation;
+    std::vector<DelegationEvent> events;
+    uint160 address = uint160(*pkhash);
+    DelegationsStakerFilter filter(address);
+    if(!qtumDelegation.FilterDelegationEvents(events, filter)) {
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "Failed to get delegations for staker");
+    }
+    std::map<uint160, Delegation> delegations = qtumDelegation.DelegationsFromEvents(events);
+
+    // Fill the json object with information
+    UniValue result(UniValue::VARR);
+    for (std::map<uint160, Delegation>::iterator it=delegations.begin(); it!=delegations.end(); it++){
+        UniValue delegation(UniValue::VOBJ);
+        delegation.pushKV("delegate", EncodeDestination(PKHash(it->first)));
+        delegation.pushKV("staker", EncodeDestination(PKHash(it->second.staker)));
+        delegation.pushKV("fee", (int64_t)it->second.fee);
+        delegation.pushKV("blockHeight", (int64_t)it->second.blockHeight);
+        delegation.pushKV("PoD", HexStr(it->second.PoD));
+        result.push_back(delegation);
+    }
+
+    return result;
+}
 //////////////////////////////////////////////////////////////////////
 
 UniValue listcontracts(const JSONRPCRequest& request)
@@ -3342,6 +3502,8 @@ static const CRPCCommand commands[] =
 
     { "blockchain",         "waitforlogs",            &waitforlogs,            {"fromBlock", "nblocks", "address", "topics"} },
     { "blockchain",         "getestimatedannualroi",  &getestimatedannualroi,  {} },
+    { "blockchain",         "getdelegationinfoforaddress",  &getdelegationinfoforaddress,  {"address"} },
+    { "blockchain",         "getdelegationsforstaker",      &getdelegationsforstaker,      {"address"} },
 };
 // clang-format on
 

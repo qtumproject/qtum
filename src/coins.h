@@ -20,7 +20,6 @@
 #include <functional>
 #include <unordered_map>
 
-#ifdef ENABLE_BITCORE_RPC
 ////////////////////////////////////////////////////////////////// // qtum
 struct CSpentIndexKey {
     uint256 txid;
@@ -95,7 +94,6 @@ struct CSpentIndexValue {
     }
 };
 //////////////////////////////////////////////////////////////////
-#endif
 
 /**
  * A UTXO entry.
@@ -386,9 +384,7 @@ public:
     //! Check whether all prevouts of the transaction are present in the UTXO set represented by this view
     bool HaveInputs(const CTransaction& tx) const;
 
-#ifdef ENABLE_BITCORE_RPC
     const CTxOut &GetOutputFor(const CTxIn& input) const;
-#endif
 
 private:
     /**

@@ -5,7 +5,7 @@
 #include <QList>
 #include <QVBoxLayout>
 
-#include <qt/contractabi.h>
+#include <qt/contractutil.h>
 
 class PlatformStyle;
 class ABIParam;

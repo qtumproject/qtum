@@ -326,12 +326,16 @@ void BitcoinGUI::createActions()
     sendToContractAction = new QAction(tr("Send To"), this);
     callContractAction = new QAction(tr("Call"), this);
 
-    stakeAction = new QAction(platformStyle->MultiStatesIcon(":/icons/tx_mined"), tr("&Stake"), this);
-    stakeAction->setStatusTip(tr("Show stake of wallet"));
-    stakeAction->setToolTip(stakeAction->statusTip());
-    stakeAction->setCheckable(true);
-    stakeAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_4));
-    tabGroup->addAction(stakeAction);
+    walletStakeAction = new QAction(platformStyle->MultiStatesIcon(":/icons/tx_mined"), tr("&Stake"), this);
+    walletStakeAction->setStatusTip(tr("Show stake of wallet"));
+    walletStakeAction->setToolTip(walletStakeAction->statusTip());
+    walletStakeAction->setCheckable(true);
+    walletStakeAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_4));
+    tabGroup->addAction(walletStakeAction);
+
+    stakeAction = new QAction(tr("Staking"), this);
+    delegationAction = new QAction(tr("Delegations"), this);
+    superStakerAction = new QAction(tr("Super Staking"), this);
 
     QRCTokenAction = new QAction(platformStyle->MultiStatesIcon(":/icons/qrctoken"), tr("&QRC Tokens"), this);
     QRCTokenAction->setStatusTip(tr("QRC Tokens (send, receive or add Tokens in list)"));
@@ -365,6 +369,10 @@ void BitcoinGUI::createActions()
     connect(QRCTokenAction, SIGNAL(triggered()), this, SLOT(gotoTokenPage()));
     connect(stakeAction, &QAction::triggered, [this]{ showNormalIfMinimized(); });
     connect(stakeAction, &QAction::triggered, this, &BitcoinGUI::gotoStakePage);
+    connect(delegationAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
+    connect(delegationAction, SIGNAL(triggered()), this, SLOT(gotoDelegationPage()));
+    connect(superStakerAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
+    connect(superStakerAction, SIGNAL(triggered()), this, SLOT(gotoSuperStakerPage()));
 #endif // ENABLE_WALLET
 
     quitAction = new QAction(tr("E&xit"), this);
@@ -615,7 +623,11 @@ void BitcoinGUI::createToolBars()
         contractActions.append(sendToContractAction);
         contractActions.append(callContractAction);
         appNavigationBar->mapGroup(smartContractAction, contractActions);
-        appNavigationBar->addAction(stakeAction);
+        QList<QAction*> walletStakeActions;
+        walletStakeActions.append(stakeAction);
+        walletStakeActions.append(delegationAction);
+        walletStakeActions.append(superStakerAction);
+        appNavigationBar->mapGroup(walletStakeAction, walletStakeActions);
         appNavigationBar->addAction(QRCTokenAction);
         appNavigationBar->buildUi();
         overviewAction->setChecked(true);
@@ -750,10 +762,10 @@ void BitcoinGUI::setWalletController(WalletController* wallet_controller)
 void BitcoinGUI::addWallet(WalletModel* walletModel)
 {
     if (!walletFrame) return;
+    if (!walletFrame->addWallet(walletModel)) return;
     const QString display_name = walletModel->getDisplayName();
     setWalletActionsEnabled(true);
     rpcConsole->addWallet(walletModel);
-    walletFrame->addWallet(walletModel);
     m_wallet_selector->addItem(display_name, QVariant::fromValue(walletModel));
     if (m_wallet_selector->count() == 2) {
         m_wallet_selector_label->setVisible(true);
@@ -831,6 +843,9 @@ void BitcoinGUI::setWalletActionsEnabled(bool enabled)
     usedReceivingAddressesAction->setEnabled(enabled);
     openAction->setEnabled(enabled);
     stakeAction->setEnabled(enabled);
+    delegationAction->setEnabled(enabled);
+    superStakerAction->setEnabled(enabled);
+    walletStakeAction->setEnabled(enabled);
     m_close_wallet_action->setEnabled(enabled);
 }
 
@@ -959,6 +974,18 @@ void BitcoinGUI::gotoTokenPage()
 {
     QRCTokenAction->setChecked(true);
     if (walletFrame) walletFrame->gotoTokenPage();
+}
+
+void BitcoinGUI::gotoDelegationPage()
+{
+    delegationAction->setChecked(true);
+    if (walletFrame) walletFrame->gotoDelegationPage();
+}
+
+void BitcoinGUI::gotoSuperStakerPage()
+{
+    superStakerAction->setChecked(true);
+    if (walletFrame) walletFrame->gotoSuperStakerPage();
 }
 
 void BitcoinGUI::gotoReceiveCoinsPage()

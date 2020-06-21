@@ -26,6 +26,8 @@
 #include <qt/qrctoken.h>
 #include <qt/restoredialog.h>
 #include <qt/stakepage.h>
+#include <qt/delegationpage.h>
+#include <qt/superstakerpage.h>
 #include <qt/walletframe.h>
 
 #include <interfaces/node.h>
@@ -78,6 +80,8 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
     QRCTokenPage = new QRCToken(platformStyle);
 
     stakePage = new StakePage(platformStyle);
+    delegationPage = new DelegationPage(platformStyle);
+    superStakerPage = new SuperStakerPage(platformStyle);
 
     addWidget(overviewPage);
     addWidget(transactionsPage);
@@ -86,6 +90,8 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
     addWidget(callContractPage);
     addWidget(QRCTokenPage);
     addWidget(stakePage);
+    addWidget(delegationPage);
+    addWidget(superStakerPage);
 
     connect(overviewPage, &OverviewPage::outOfSyncWarningClicked, this, &WalletView::requestedSyncWarningInfo);
 
@@ -153,6 +159,8 @@ void WalletView::setClientModel(ClientModel *_clientModel)
     callContractPage->setClientModel(_clientModel);
     QRCTokenPage->setClientModel(_clientModel);
     stakePage->setClientModel(_clientModel);
+    delegationPage->setClientModel(_clientModel);
+    superStakerPage->setClientModel(_clientModel);
 }
 
 void WalletView::setWalletModel(WalletModel *_walletModel)
@@ -169,6 +177,8 @@ void WalletView::setWalletModel(WalletModel *_walletModel)
     callContractPage->setModel(_walletModel);
     QRCTokenPage->setModel(_walletModel);
     stakePage->setWalletModel(_walletModel);
+    delegationPage->setModel(_walletModel);
+    superStakerPage->setModel(_walletModel);
     usedReceivingAddressesPage->setModel(_walletModel ? _walletModel->getAddressTableModel() : nullptr);
     usedSendingAddressesPage->setModel(_walletModel ? _walletModel->getAddressTableModel() : nullptr);
 
@@ -306,6 +316,16 @@ void WalletView::gotoTokenPage()
 void WalletView::gotoStakePage()
 {
     setCurrentWidget(stakePage);
+}
+
+void WalletView::gotoDelegationPage()
+{
+    setCurrentWidget(delegationPage);
+}
+
+void WalletView::gotoSuperStakerPage()
+{
+    setCurrentWidget(superStakerPage);
 }
 
 void WalletView::gotoSignMessageTab(QString addr)

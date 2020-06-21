@@ -5,7 +5,7 @@
 #include <QLabel>
 #include <QVBoxLayout>
 #include <qt/qvalidatedlineedit.h>
-#include <qt/contractabi.h>
+#include <qt/contractutil.h>
 #include <qt/abiparamitem.h>
 
 class PlatformStyle;

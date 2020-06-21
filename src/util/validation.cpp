@@ -7,6 +7,7 @@
 
 #include <consensus/validation.h>
 #include <tinyformat.h>
+#include <util/signstr.h>
 
 /** Convert CValidationState to a human-readable message for logging */
 std::string FormatStateMessage(const CValidationState &state)
@@ -17,4 +18,4 @@ std::string FormatStateMessage(const CValidationState &state)
         state.GetRejectCode());
 }
 
-const std::string strMessageMagic = "Qtum Signed Message:\n";
+const std::string strMessageMagic = SignStr::strMessageMagic;

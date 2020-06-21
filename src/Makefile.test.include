@@ -156,7 +156,8 @@ BITCOIN_TESTS =\
   test/qtumtests/condensingtransaction_tests.cpp \
   test/qtumtests/dgp_tests.cpp \
   test/qtumtests/constantinoplefork_tests.cpp \
-  test/qtumtests/btcecrecoverfork_tests.cpp
+  test/qtumtests/btcecrecoverfork_tests.cpp \
+  test/qtumtests/delegations_tests.cpp
 
 if ENABLE_PROPERTY_TESTS
 BITCOIN_TESTS += \

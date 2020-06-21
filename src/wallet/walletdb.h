@@ -40,6 +40,8 @@ class CWallet;
 class CWalletTx;
 class CTokenInfo;
 class CTokenTx;
+class CDelegationInfo;
+class CSuperStakerInfo;
 class uint160;
 class uint256;
 
@@ -232,6 +234,12 @@ public:
 
     bool WriteTokenTx(const CTokenTx& wTokenTx);
     bool EraseTokenTx(uint256 hash);
+
+    bool WriteDelegation(const CDelegationInfo& wdelegation);
+    bool EraseDelegation(uint256 hash);
+
+    bool WriteSuperStaker(const CSuperStakerInfo& wsuperStaker);
+    bool EraseSuperStaker(uint256 hash);
 
     bool WriteKeyMetadata(const CKeyMetadata& meta, const CPubKey& pubkey, const bool overwrite);
     bool WriteKey(const CPubKey& vchPubKey, const CPrivKey& vchPrivKey, const CKeyMetadata &keyMeta);

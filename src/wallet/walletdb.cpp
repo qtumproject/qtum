@@ -48,6 +48,8 @@ const std::string WATCHS{"watchs"};
 const std::string TOKEN{"token"};
 const std::string TOKENTX{"tokentx"};
 const std::string CONTRACTDATA{"contractdata"};
+const std::string DELEGATION{"delegation"};
+const std::string SUPERSTAKER{"superstaker"};
 } // namespace DBKeys
 
 //
@@ -425,6 +427,34 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
 
             pwallet->LoadTokenTx(wTokenTx);
         }
+        else if (strType == DBKeys::DELEGATION)
+        {
+            uint256 hash;
+            ssKey >> hash;
+            CDelegationInfo wdelegation;
+            ssValue >> wdelegation;
+            if (wdelegation.GetHash() != hash)
+            {
+                strErr = "Error reading wallet database: CDelegationInfo corrupt";
+                return false;
+            }
+
+            pwallet->LoadDelegation(wdelegation);
+        }
+        else if (strType == DBKeys::SUPERSTAKER)
+        {
+            uint256 hash;
+            ssKey >> hash;
+            CSuperStakerInfo wsuperStaker;
+            ssValue >> wsuperStaker;
+            if (wsuperStaker.GetHash() != hash)
+            {
+                strErr = "Error reading wallet database: CSuperStakerInfo corrupt";
+                return false;
+            }
+
+            pwallet->LoadSuperStaker(wsuperStaker);
+        }
         else if (strType == DBKeys::CONTRACTDATA)
         {
             std::string strAddress, strKey, strValue;
@@ -755,7 +785,7 @@ bool WalletBatch::RecoverKeysOnlyFilter(void *callbackData, CDataStream ssKey, C
         fReadOK = ReadKeyValue(dummyWallet, ssKey, ssValue,
                                dummyWss, strType, strErr);
     }
-    if (!IsKeyType(strType) && strType != DBKeys::HDCHAIN && strType != DBKeys::TOKEN && strType != DBKeys::TOKENTX) {
+    if (!IsKeyType(strType) && strType != DBKeys::HDCHAIN && strType != DBKeys::TOKEN && strType != DBKeys::TOKENTX && strType != DBKeys::DELEGATION) {
         return false;
     }
     if (!fReadOK)
@@ -832,6 +862,7 @@ bool WalletBatch::EraseTokenTx(uint256 hash)
 {
     return EraseIC(std::make_pair(DBKeys::TOKENTX, hash));
 }
+
 bool WalletBatch::WriteContractData(const std::string &address, const std::string &key, const std::string &value)
 {
     return WriteIC(std::make_pair(DBKeys::CONTRACTDATA, std::make_pair(address, key)), value);
@@ -840,4 +871,24 @@ bool WalletBatch::WriteContractData(const std::string &address, const std::strin
 bool WalletBatch::EraseContractData(const std::string &address, const std::string &key)
 {
     return EraseIC(std::make_pair(DBKeys::CONTRACTDATA, std::make_pair(address, key)));
+}
+
+bool WalletBatch::WriteDelegation(const CDelegationInfo &wdelegation)
+{
+    return WriteIC(std::make_pair(DBKeys::DELEGATION, wdelegation.GetHash()), wdelegation);
+}
+
+bool WalletBatch::EraseDelegation(uint256 hash)
+{
+    return EraseIC(std::make_pair(DBKeys::DELEGATION, hash));
+}
+
+bool WalletBatch::WriteSuperStaker(const CSuperStakerInfo &wsuperStaker)
+{
+    return WriteIC(std::make_pair(DBKeys::SUPERSTAKER, wsuperStaker.GetHash()), wsuperStaker);
+}
+
+bool WalletBatch::EraseSuperStaker(uint256 hash)
+{
+    return EraseIC(std::make_pair(DBKeys::SUPERSTAKER, hash));
 }

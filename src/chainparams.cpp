@@ -86,6 +86,7 @@ public:
         consensus.QIP6Height = 466600;
         consensus.QIP7Height = 466600;
         consensus.QIP9Height = 466600;
+        consensus.nOfflineStakeHeight = 680000;
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.QIP9PosLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"); // The new POS-limit activated after QIP9
@@ -148,6 +149,7 @@ public:
 
         fDefaultConsistencyChecks = false;
         fRequireStandard = true;
+        fMineBlocksOnDemand = false;
         m_is_test_chain = false;
 
         checkpointData = {
@@ -173,14 +175,18 @@ public:
         };
 
         consensus.nLastPOWBlock = 5000;
+        consensus.nLastBigReward = 5000;
         consensus.nMPoSRewardRecipients = 10;
         consensus.nFirstMPoSBlock = consensus.nLastPOWBlock + 
                                     consensus.nMPoSRewardRecipients + 
                                     COINBASE_MATURITY;
+        consensus.nLastMPoSBlock = 679999;
+
 
         consensus.nFixUTXOCacheHFHeight = 100000;
         consensus.nEnableHeaderSignatureHeight = 399100;
         consensus.nCheckpointSpan = COINBASE_MATURITY;
+        consensus.delegationsAddress = uint160(ParseHex("0000000000000000000000000000000000000086")); // Delegations contract for offline staking
     }
 };
 
@@ -204,6 +210,7 @@ public:
         consensus.QIP6Height = 446320;
         consensus.QIP7Height = 446320;
         consensus.QIP9Height = 446320;
+        consensus.nOfflineStakeHeight = 625000;
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.QIP9PosLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"); // The new POS-limit activated after QIP9
@@ -256,6 +263,7 @@ public:
 
         fDefaultConsistencyChecks = false;
         fRequireStandard = false;
+        fMineBlocksOnDemand = false;
         m_is_test_chain = true;
 
 
@@ -279,14 +287,17 @@ public:
         };
 
         consensus.nLastPOWBlock = 5000;
+        consensus.nLastBigReward = 5000;
         consensus.nMPoSRewardRecipients = 10;
         consensus.nFirstMPoSBlock = consensus.nLastPOWBlock + 
                                     consensus.nMPoSRewardRecipients + 
                                     COINBASE_MATURITY;
+        consensus.nLastMPoSBlock = 624999;
 
         consensus.nFixUTXOCacheHFHeight = 84500;
         consensus.nEnableHeaderSignatureHeight = 391993;
         consensus.nCheckpointSpan = COINBASE_MATURITY;
+        consensus.delegationsAddress = uint160(ParseHex("0000000000000000000000000000000000000086")); // Delegations contract for offline staking
     }
 };
 
@@ -297,7 +308,7 @@ class CRegTestParams : public CChainParams {
 public:
     explicit CRegTestParams(const ArgsManager& args) {
         strNetworkID = "regtest";
-        consensus.nSubsidyHalvingInterval = 150;
+        consensus.nSubsidyHalvingInterval = 985500;
         consensus.BIP16Exception = uint256S("0x665ed5b402ac0b44efc37d8926332994363e8a7278b7ee9a58fb972efadae943");
         consensus.BIP34Height = 0; // BIP34 activated on regtest (Used in functional tests)
         consensus.BIP34Hash = uint256S("0x665ed5b402ac0b44efc37d8926332994363e8a7278b7ee9a58fb972efadae943");
@@ -310,6 +321,7 @@ public:
         consensus.QIP6Height = 0;
         consensus.QIP7Height = 0;
         consensus.QIP9Height = 0;
+        consensus.nOfflineStakeHeight = 1;
         consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.QIP9PosLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // The new POS-limit activated after QIP9
@@ -352,6 +364,7 @@ public:
 
         fDefaultConsistencyChecks = true;
         fRequireStandard = true;
+        fMineBlocksOnDemand = true;
         m_is_test_chain = true;
 
         checkpointData = {
@@ -366,12 +379,15 @@ public:
             0
         };
         consensus.nLastPOWBlock = 0x7fffffff;
+        consensus.nLastBigReward = 5000;
         consensus.nMPoSRewardRecipients = 10;
         consensus.nFirstMPoSBlock = 5000;
+        consensus.nLastMPoSBlock = 0;
 
         consensus.nFixUTXOCacheHFHeight=0;
         consensus.nEnableHeaderSignatureHeight = 0;
         consensus.nCheckpointSpan = COINBASE_MATURITY;
+        consensus.delegationsAddress = uint160(ParseHex("0000000000000000000000000000000000000086")); // Delegations contract for offline staking
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,120);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,110);
@@ -488,20 +504,25 @@ void SelectParams(const std::string& network)
     globalChainParams = CreateChainParams(network);
 }
 
-std::string CChainParams::EVMGenesisInfo(dev::eth::Network network) const
+std::string CChainParams::EVMGenesisInfo() const
 {
-    std::string genesisInfo = dev::eth::genesisInfo(network);
+    std::string genesisInfo = dev::eth::genesisInfo(GetEVMNetwork());
     ReplaceInt(consensus.QIP7Height, "QIP7_STARTING_BLOCK", genesisInfo);
     ReplaceInt(consensus.QIP6Height, "QIP6_STARTING_BLOCK", genesisInfo);
     return genesisInfo;
 }
 
-std::string CChainParams::EVMGenesisInfo(dev::eth::Network network, int nHeight) const
+std::string CChainParams::EVMGenesisInfo(int nHeight) const
 {
-    std::string genesisInfo = dev::eth::genesisInfo(network);
+    std::string genesisInfo = dev::eth::genesisInfo(GetEVMNetwork());
     ReplaceInt(nHeight, "QIP7_STARTING_BLOCK", genesisInfo);
     ReplaceInt(nHeight, "QIP6_STARTING_BLOCK", genesisInfo);
     return genesisInfo;
+}
+
+dev::eth::Network CChainParams::GetEVMNetwork() const
+{
+    return dev::eth::Network::qtumMainNetwork;
 }
 
 void CChainParams::UpdateOpSenderBlockHeight(int nHeight)
@@ -538,6 +559,7 @@ void CChainParams::UpdateDifficultyChangeBlockHeight(int nHeight)
 {
     consensus.nSubsidyHalvingInterval = 985500; // qtum halving every 4 years
     consensus.posLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+    consensus.QIP9PosLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff");
     consensus.QIP9Height = nHeight;
     consensus.fPowAllowMinDifficultyBlocks = false;
     consensus.fPowNoRetargeting = true;
@@ -547,9 +569,40 @@ void CChainParams::UpdateDifficultyChangeBlockHeight(int nHeight)
     consensus.nFirstMPoSBlock = consensus.nLastPOWBlock + 
                                 consensus.nMPoSRewardRecipients + 
                                 COINBASE_MATURITY;
+    consensus.nLastMPoSBlock = 0;
 }
 
 void UpdateDifficultyChangeBlockHeight(int nHeight)
 {
     const_cast<CChainParams*>(globalChainParams.get())->UpdateDifficultyChangeBlockHeight(nHeight);
+}
+
+void CChainParams::UpdateOfflineStakingBlockHeight(int nHeight)
+{
+    consensus.nOfflineStakeHeight = nHeight;
+}
+
+void UpdateOfflineStakingBlockHeight(int nHeight)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdateOfflineStakingBlockHeight(nHeight);
+}
+
+void CChainParams::UpdateDelegationsAddress(const uint160& address)
+{
+    consensus.delegationsAddress = address;
+}
+
+void UpdateDelegationsAddress(const uint160& address)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdateDelegationsAddress(address);
+}
+
+void CChainParams::UpdateLastMPoSBlockHeight(int nHeight)
+{
+    consensus.nLastMPoSBlock = nHeight;
+}
+
+void UpdateLastMPoSBlockHeight(int nHeight)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdateLastMPoSBlockHeight(nHeight);
 }

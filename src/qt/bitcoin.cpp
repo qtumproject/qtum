@@ -342,7 +342,7 @@ void BitcoinApplication::requestShutdown()
     window->unsubscribeFromCoreSignals();
 #ifdef ENABLE_WALLET
     // Get restore wallet data
-    m_wallet_controller->getRestoreData(restorePath, restoreParam, restoreName);
+    if(m_wallet_controller) m_wallet_controller->getRestoreData(restorePath, restoreParam, restoreName);
 #endif
     // Get restart wallet
     if(optionsModel) restartApp = optionsModel->getRestartApp();

@@ -18,12 +18,10 @@
  * of the block.
  */
 
-// Base class for block header, used to serialize the header without signature
-// Workaround due to removing serialization templates in Bitcoin Core 0.18
-class CBlockHeaderBase
+class CBlockHeader
 {
 public:
-    // header without signature
+    // header
     int32_t nVersion;
     uint256 hashPrevBlock;
     uint256 hashMerkleRoot;
@@ -34,29 +32,7 @@ public:
     uint256 hashUTXORoot; // qtum
     // proof-of-stake specific fields
     COutPoint prevoutStake;
-
-    ADD_SERIALIZE_METHODS;
-
-    template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action) {
-        READWRITE(this->nVersion);
-        READWRITE(hashPrevBlock);
-        READWRITE(hashMerkleRoot);
-        READWRITE(nTime);
-        READWRITE(nBits);
-        READWRITE(nNonce);
-        READWRITE(hashStateRoot); // qtum
-        READWRITE(hashUTXORoot); // qtum
-        READWRITE(prevoutStake);
-    }
-};
-
-class CBlockHeader : public CBlockHeaderBase
-{
-public:
-    // header
-    std::vector<unsigned char> vchBlockSig;
-
+    std::vector<unsigned char> vchBlockSigDlgt; // The delegate is 65 bytes or 0 bytes, it can be added in the signature paramether at the end to avoid compatibility problems
     CBlockHeader()
     {
         SetNull();
@@ -75,7 +51,7 @@ public:
         READWRITE(hashStateRoot); // qtum
         READWRITE(hashUTXORoot); // qtum
         READWRITE(prevoutStake);
-        READWRITE(vchBlockSig);
+        READWRITE(vchBlockSigDlgt);
     }
 
     void SetNull()
@@ -88,7 +64,7 @@ public:
         nNonce = 0;
         hashStateRoot.SetNull(); // qtum
         hashUTXORoot.SetNull(); // qtum
-        vchBlockSig.clear();
+        vchBlockSigDlgt.clear();
         prevoutStake.SetNull();
     }
 
@@ -127,6 +103,14 @@ public:
         return ret;
     }
 
+    void SetBlockSignature(const std::vector<unsigned char>& vchSign);
+    std::vector<unsigned char> GetBlockSignature() const;
+
+    void SetProofOfDelegation(const std::vector<unsigned char>& vchPoD);
+    std::vector<unsigned char> GetProofOfDelegation() const;
+
+    bool HasProofOfDelegation() const;
+
     CBlockHeader& operator=(const CBlockHeader& other) //qtum
     {
         if (this != &other)
@@ -139,7 +123,7 @@ public:
             this->nNonce         = other.nNonce;
             this->hashStateRoot  = other.hashStateRoot;
             this->hashUTXORoot   = other.hashUTXORoot;
-            this->vchBlockSig    = other.vchBlockSig;
+            this->vchBlockSigDlgt    = other.vchBlockSigDlgt;
             this->prevoutStake   = other.prevoutStake;
         }
         return *this;
@@ -198,7 +182,7 @@ public:
         block.nNonce         = nNonce;
         block.hashStateRoot  = hashStateRoot; // qtum
         block.hashUTXORoot   = hashUTXORoot; // qtum
-        block.vchBlockSig    = vchBlockSig;
+        block.vchBlockSigDlgt    = vchBlockSigDlgt;
         block.prevoutStake   = prevoutStake;
         return block;
     }

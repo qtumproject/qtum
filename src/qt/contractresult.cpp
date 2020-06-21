@@ -1,7 +1,7 @@
 #include <qt/contractresult.h>
 #include <qt/forms/ui_contractresult.h>
 #include <qt/guiconstants.h>
-#include <qt/contractabi.h>
+#include <qt/contractutil.h>
 #include <qt/styleSheet.h>
 
 #include <QMessageBox>
@@ -247,7 +247,7 @@ void ContractResult::updateCallResult(QVariant result, FunctionABI function, QLi
     else
     {
         QString errorMessage;
-        errorMessage = function.errorMessage(errors, false);
+        errorMessage = ContractUtil::errorMessage(function, errors, false);
         QMessageBox::warning(this, tr("Create contract"), errorMessage);
     }
 }

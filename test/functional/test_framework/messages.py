@@ -32,7 +32,7 @@ from test_framework.util import hex_str_to_bytes, assert_equal
 from test_framework.qtumconfig import INITIAL_HASH_STATE_ROOT, INITIAL_HASH_UTXO_ROOT
 
 MIN_VERSION_SUPPORTED = 60001
-MY_VERSION = 70017  # past bip-31 for ping/pong
+MY_VERSION = 70018  # past bip-31 for ping/pong
 MY_SUBVERSION = b"/python-mininode-tester:0.0.3/"
 MY_RELAY = 1 # from version 70001 onwards, fRelay should be appended to version messages (BIP37)
 
@@ -709,7 +709,7 @@ class CBlock(CBlockHeader):
             self.nNonce += 1
             self.rehash()
 
-    def sign_block(self, key, low_s=True):
+    def sign_block(self, key, low_s=True, pod=None, der_sig=False):
         data = b""
         data += struct.pack("<i", self.nVersion)
         data += ser_uint256(self.hashPrevBlock)
@@ -720,8 +720,10 @@ class CBlock(CBlockHeader):
         data += ser_uint256(self.hashStateRoot)
         data += ser_uint256(self.hashUTXORoot)
         data += self.prevoutStake.serialize()
+        if pod != None:
+            data += struct.pack("<b", len(pod)) + pod
         sha256NoSig = hash256(data)
-        self.vchBlockSig = key.sign_ecdsa(sha256NoSig, low_s=low_s)
+        self.vchBlockSig = key.sign_ecdsa(sha256NoSig, low_s=low_s, der_sig=der_sig)
 
     def __repr__(self):
         return "CBlock(nVersion=%i hashPrevBlock=%064x hashMerkleRoot=%064x nTime=%s nBits=%08x nNonce=%08x vtx=%s)" \

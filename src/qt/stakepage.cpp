@@ -152,9 +152,19 @@ void StakePage::updateEncryptionStatus()
     int status = walletModel->getEncryptionStatus();
     switch(status)
     {
+    case WalletModel::Unlocked:
+        if(walletModel->wallet().getEnabledStaking())
+        {
+            bool checked = ui->checkStake->isChecked();
+            if(!checked) ui->checkStake->onStatusChanged();
+        }
+        break;
     case WalletModel::Locked:
-        bool checked = ui->checkStake->isChecked();
-        if(checked) ui->checkStake->onStatusChanged();
+        if(!walletModel->getWalletUnlockStakingOnly())
+        {
+            bool checked = ui->checkStake->isChecked();
+            if(checked) ui->checkStake->onStatusChanged();
+        }
         break;
     }
 }

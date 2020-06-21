@@ -151,6 +151,24 @@ class LockImpl : public Chain::Lock, public UniqueLock<CCriticalSection>
         LockAssertion lock(::cs_main);
         return CheckFinalTx(tx);
     }
+    std::map<COutPoint, uint32_t> getImmatureStakes() override
+    {
+        LockAssertion lock(::cs_main);
+        std::map<COutPoint, uint32_t> immatureStakes;
+        int height = ::ChainActive().Height();
+        for(int i = 0; i < COINBASE_MATURITY -1; i++) {
+            CBlockIndex* block = ::ChainActive()[height - i];
+            if(block)
+            {
+                immatureStakes[block->prevoutStake] = block->nTime;
+            }
+            else
+            {
+                break;
+            }
+        }
+        return immatureStakes;
+    }
 
     using UniqueLock::UniqueLock;
 };
@@ -339,7 +357,6 @@ public:
     void initMessage(const std::string& message) override { ::uiInterface.InitMessage(message); }
     void initWarning(const std::string& message) override { InitWarning(message); }
     void initError(const std::string& message) override { InitError(message); }
-    void loadWallet(std::unique_ptr<Wallet> wallet) override { ::uiInterface.LoadWallet(wallet); }
     void showProgress(const std::string& title, int progress, bool resume_possible) override
     {
         ::uiInterface.ShowProgress(title, progress, resume_possible);

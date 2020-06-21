@@ -6,7 +6,7 @@
 #include <QComboBox>
 #include <QLabel>
 #include <QVector>
-#include <qt/contractabi.h>
+#include <qt/contractutil.h>
 
 class PlatformStyle;
 class ABIParamsField;

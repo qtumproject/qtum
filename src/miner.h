@@ -34,6 +34,8 @@ static const bool DEFAULT_STAKE = true;
 
 static const bool DEFAULT_STAKE_CACHE = true;
 
+static const bool DEFAULT_SUPER_STAKE = false;
+
 //How many seconds to look ahead and prepare a block for staking
 //Look ahead up to 3 "timeslots" in the future, 48 seconds
 //Reduce this to reduce computational waste for stakers, increase this to increase the amount of time available to construct full blocks
@@ -308,6 +310,7 @@ private:
 #ifdef ENABLE_WALLET
 /** Generate a new block, without valid proof-of-work */
 void StakeQtums(bool fStake, CWallet *pwallet, CConnman* connman, boost::thread_group*& stakeThread);
+void RefreshDelegates(CWallet *pwallet, bool myDelegates, bool stakerDelegates);
 #endif
 
 /** Modify the extranonce in a block */

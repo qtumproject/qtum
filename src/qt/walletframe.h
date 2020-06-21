@@ -36,7 +36,7 @@ public:
 
     void setClientModel(ClientModel *clientModel);
 
-    void addWallet(WalletModel *walletModel);
+    bool addWallet(WalletModel *walletModel);
     void setCurrentWallet(WalletModel* wallet_model);
     void removeWallet(WalletModel* wallet_model);
     void removeAllWallets();
@@ -83,6 +83,10 @@ public Q_SLOTS:
     void gotoTokenPage();
     /** Switch to stake page */
     void gotoStakePage();
+    /** Switch to delegation page */
+    void gotoDelegationPage();
+    /** Switch to super staker page */
+    void gotoSuperStakerPage();
 
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");

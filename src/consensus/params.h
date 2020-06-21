@@ -73,6 +73,8 @@ struct Params {
     int QIP7Height;
     /** Block height at which QIP9 becomes active */
     int QIP9Height;
+    /** Block height at which Offline Staking becomes active */
+    int nOfflineStakeHeight;
     /**
      * Minimum blocks including miner confirmation of the total of 2016 blocks in a retargeting period,
      * (nPowTargetTimespan / nPowTargetSpacing) which is also used for BIP9 deployments.
@@ -105,6 +107,9 @@ struct Params {
     int nEnableHeaderSignatureHeight;
     /** Block sync-checkpoint span*/
     int nCheckpointSpan;
+    uint160 delegationsAddress;
+    int nLastMPoSBlock;
+    int nLastBigReward;
 };
 } // namespace Consensus
 

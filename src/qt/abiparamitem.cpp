@@ -1,5 +1,5 @@
 #include <qt/abiparamitem.h>
-#include <qt/contractabi.h>
+#include <qt/contractutil.h>
 #include <qt/platformstyle.h>
 
 #include <QHBoxLayout>
@@ -26,7 +26,7 @@ ABIParamItem::ABIParamItem(const PlatformStyle *platformStyle, const ParameterAB
     m_buttonRemove->setFocusPolicy(Qt::NoFocus);
 
     QRegularExpression regEx;
-    if(ParameterABI::getRegularExpession(param.decodeType(), regEx))
+    if(ContractUtil::getRegularExpession(param.decodeType(), regEx))
     {
         QRegularExpressionValidator *validator = new QRegularExpressionValidator(m_itemValue);
         validator->setRegularExpression(regEx);

@@ -13,6 +13,7 @@
 #include <wallet/wallet.h>
 #include <wallet/walletutil.h>
 #include <walletinitinterface.h>
+#include <miner.h>
 
 class WalletInit : public WalletInitInterface {
 public:
@@ -73,6 +74,9 @@ void WalletInit::AddWalletOptions() const
     gArgs.AddArg("-flushwallet", strprintf("Run a thread to flush wallet periodically (default: %u)", DEFAULT_FLUSHWALLET), ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::WALLET_DEBUG_TEST);
     gArgs.AddArg("-privdb", strprintf("Sets the DB_PRIVATE flag in the wallet db environment (default: %u)", DEFAULT_WALLET_PRIVDB), ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::WALLET_DEBUG_TEST);
     gArgs.AddArg("-walletrejectlongchains", strprintf("Wallet will not create transactions that violate mempool chain limits (default: %u)", DEFAULT_WALLET_REJECT_LONG_CHAINS), ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::WALLET_DEBUG_TEST);
+    gArgs.AddArg("-stakingminutxovalue=<amt>", strprintf("The min value of utxo (in %s) selected for super staking (default: %s)", CURRENCY_UNIT, FormatMoney(DEFAULT_STAKING_MIN_UTXO_VALUE)), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
+    gArgs.AddArg("-stakingminfee=<n>", strprintf("The min fee (in percentage) to accept when super staking (default: %u)", DEFAULT_STAKING_MIN_FEE), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
+    gArgs.AddArg("-superstaking=<true/false>", strprintf("Enables or disables super staking (default: %u)", DEFAULT_SUPER_STAKE), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
 }
 
 bool WalletInit::ParameterInteraction() const

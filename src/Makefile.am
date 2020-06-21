@@ -231,6 +231,8 @@ BITCOIN_CORE_H = \
   util/url.h \
   util/validation.h \
   util/convert.h \
+  util/signstr.h \
+  util/contractabi.h \
   validation.h \
   validationinterface.h \
   versionbits.h \
@@ -260,7 +262,8 @@ BITCOIN_CORE_H = \
   qtum/qtumtransaction.h \
   qtum/qtumDGP.h \
   qtum/storageresults.h \
-  qtum/qtumutils.h
+  qtum/qtumutils.h \
+  qtum/qtumdelegation.h
 
 obj/build.h: FORCE
 	@$(MKDIR_P) $(builddir)/obj
@@ -328,6 +331,7 @@ libbitcoin_server_a_SOURCES = \
   qtum/qtumDGP.cpp \
   consensus/consensus.cpp \
   qtum/storageresults.cpp \
+  qtum/qtumdelegation.cpp \
   $(BITCOIN_CORE_H)
 
 if ENABLE_WALLET
@@ -515,6 +519,7 @@ libbitcoin_common_a_SOURCES = \
   versionbitsinfo.cpp \
   warnings.cpp \
   qtum/qtumutils.cpp \
+  util/contractabi.cpp \
   cpp-ethereum/aleth/buildinfo.c \
   cpp-ethereum/aleth/buildinfo.h \
   cpp-ethereum/evmc/lib/instructions/instruction_metrics.c \

@@ -6,7 +6,7 @@
 #include <qt/walletmodel.h>
 #include <qt/token.h>
 #include <qt/qvalidatedlineedit.h>
-#include <qt/contractabi.h>
+#include <qt/contractutil.h>
 #include <validation.h>
 #include <qt/addresstablemodel.h>
 #include <qt/optionsmodel.h>
