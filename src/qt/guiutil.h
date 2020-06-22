@@ -17,6 +17,7 @@
 #include <QString>
 #include <QTableView>
 #include <QLabel>
+#include <QToolButton>
 
 class QValidatedLineEdit;
 class SendCoinsRecipient;
@@ -69,6 +70,13 @@ namespace GUIUtil
        @see  TransactionView::copyLabel, TransactionView::copyAmount, TransactionView::copyAddress
      */
     void copyEntryData(QAbstractItemView *view, int column, int role=Qt::EditRole);
+
+    /** Copy a field of the currently selected entry of a view to the clipboard. Does nothing if nothing
+        is selected.
+       @param[in] role    Data role to extract from the model
+       @see  QRCToken::copyTokenAddress
+     */
+    void copyEntryDataFromList(QAbstractItemView *view, int role=Qt::EditRole);
 
     /** Return a field of the currently selected entry as a QString. Does nothing if nothing
         is selected.
@@ -163,7 +171,7 @@ namespace GUIUtil
         Q_OBJECT
 
         public:
-            TableViewLastColumnResizingFixer(QTableView* table, int lastColMinimumWidth, int allColsMinimumWidth, QObject *parent);
+            TableViewLastColumnResizingFixer(QTableView* table, int lastColMinimumWidth, int allColsMinimumWidth, QObject *parent, int columnStretch = 2);
             void stretchColumnWidth(int column);
 
         private:
@@ -270,6 +278,9 @@ namespace GUIUtil
      * Writes to debug.log short info about the used Qt and the host system.
      */
     void LogQtInfo();
+
+    void formatToolButtons(QToolButton* btn1, QToolButton* btn2 = 0, QToolButton* btn3 = 0);
+
 } // namespace GUIUtil
 
 #endif // BITCOIN_QT_GUIUTIL_H
