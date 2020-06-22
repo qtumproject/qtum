@@ -36,8 +36,7 @@ SplitUTXOPage::SplitUTXOPage(QWidget *parent, Mode mode) :
     case Delegation:
         setWindowTitle(tr("Split coins for offline staking"));
         ui->labelAddress->setText(tr("Delegate address"));
-        ui->labelDescription->setText(tr("Split coins for offline staking. The UTXO value need to be minimum <b> %1 </b>.").
-                                      arg(BitcoinUnits::formatHtmlWithUnit(BitcoinUnits::BTC, DEFAULT_STAKING_MIN_UTXO_VALUE)));
+        ui->labelDescription->setText(tr("Split coins for offline staking."));
         break;
 
     case SuperStaker:
