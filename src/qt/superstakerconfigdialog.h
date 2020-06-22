@@ -23,8 +23,8 @@ public:
     enum AddressEnum
     {
         All,
-        WhiteList,
-        BlackList
+        AllowList,
+        ExcludeList
     };
 
     void setModel(WalletModel *_model);

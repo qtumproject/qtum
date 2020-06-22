@@ -1174,38 +1174,38 @@ public:
         config.min_delegate_utxo = m_wallet->m_staking_min_utxo_value;
         config.delegate_address_type = SuperStakerAddressList::AcceptAll;
 
-        // Get white list
-        std::vector<std::string> whiteList;
-        for (const std::string& strAddress : gArgs.GetArgs("-stakingwhitelist"))
+        // Get allow list
+        std::vector<std::string> allowList;
+        for (const std::string& strAddress : gArgs.GetArgs("-stakingallowlist"))
         {
             if(!StringToKeyId(strAddress).IsNull())
             {
-                if(std::find(whiteList.begin(), whiteList.end(), strAddress) == whiteList.end())
-                    whiteList.push_back(strAddress);
+                if(std::find(allowList.begin(), allowList.end(), strAddress) == allowList.end())
+                    allowList.push_back(strAddress);
             }
         }
 
-        // Get black list
-        std::vector<std::string> blackList;
-        for (const std::string& strAddress : gArgs.GetArgs("-stakingblacklist"))
+        // Get exclude list
+        std::vector<std::string> excludeList;
+        for (const std::string& strAddress : gArgs.GetArgs("-stakingexcludelist"))
         {
             if(!StringToKeyId(strAddress).IsNull())
             {
-                if(std::find(blackList.begin(), blackList.end(), strAddress) == blackList.end())
-                    blackList.push_back(strAddress);
+                if(std::find(excludeList.begin(), excludeList.end(), strAddress) == excludeList.end())
+                    excludeList.push_back(strAddress);
             }
         }
 
         // Set the address list
-        if(!whiteList.empty())
+        if(!allowList.empty())
         {
-            config.delegate_address_type =  SuperStakerAddressList::WhiteList;
-            config.delegate_address_list = whiteList;
+            config.delegate_address_type =  SuperStakerAddressList::AllowList;
+            config.delegate_address_list = allowList;
         }
-        else if(!blackList.empty())
+        else if(!excludeList.empty())
         {
-            config.delegate_address_type = SuperStakerAddressList::BlackList;
-            config.delegate_address_list = blackList;
+            config.delegate_address_type = SuperStakerAddressList::ExcludeList;
+            config.delegate_address_list = excludeList;
         }
 
         return config;

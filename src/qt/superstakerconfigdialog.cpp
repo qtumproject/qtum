@@ -33,8 +33,8 @@ SuperStakerConfigDialog::SuperStakerConfigDialog(QWidget *parent) :
     ui->leMinUtxo->setValue(DEFAULT_STAKING_MIN_UTXO_VALUE);
 
     ui->cbListType->addItem(tr("Accept all"), All);
-    ui->cbListType->addItem(tr("Allow list"), WhiteList);
-    ui->cbListType->addItem(tr("Exclude list"), BlackList);
+    ui->cbListType->addItem(tr("Allow list"), AllowList);
+    ui->cbListType->addItem(tr("Exclude list"), ExcludeList);
 
     ui->buttonOk->setEnabled(false);
 
@@ -104,11 +104,11 @@ void SuperStakerConfigDialog::chooseAddressType(int idx)
     case All:
         setAddressListVisible(false);
         break;
-    case WhiteList: {
+    case AllowList: {
         setAddressListVisible(true);
         ui->labelAddressList->setText(ui->cbListType->currentText());
     } break;
-    case BlackList: {
+    case ExcludeList: {
         setAddressListVisible(true);
         ui->labelAddressList->setText(ui->cbListType->currentText());
     } break;

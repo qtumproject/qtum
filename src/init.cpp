@@ -586,8 +586,8 @@ void SetupServerArgs()
     gArgs.AddArg("-headerspamfilterignoreport=<n>", strprintf("Ignore the port in the ip address when looking for header spam, determine whether or not multiple nodes can be on the same IP (default: %u)", DEFAULT_HEADER_SPAM_FILTER_IGNORE_PORT), ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
     gArgs.AddArg("-cleanblockindex=<true/false>", "Clean block index (enabled by default)", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
     gArgs.AddArg("-cleanblockindextimeout=<n>", "Clean block index periodically after some time (default 600 seconds)", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
-    gArgs.AddArg("-stakingwhitelist=<address>", "Allow list delegate address. Can be specified multiple times to add multiple addresses.", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
-    gArgs.AddArg("-stakingblacklist=<address>", "Exclude list delegate address. Can be specified multiple times to add multiple addresses.", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    gArgs.AddArg("-stakingallowlist=<address>", "Allow list delegate address. Can be specified multiple times to add multiple addresses.", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    gArgs.AddArg("-stakingexcludelist=<address>", "Exclude list delegate address. Can be specified multiple times to add multiple addresses.", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
 
     // Add the hidden options
     gArgs.AddHiddenArgs(hidden_args);
@@ -1327,25 +1327,25 @@ bool AppInitParameterInteraction()
         }
     }
 
-    if(gArgs.IsArgSet("-stakingwhitelist") && gArgs.IsArgSet("-stakingblacklist"))
+    if(gArgs.IsArgSet("-stakingallowlist") && gArgs.IsArgSet("-stakingexcludelist"))
     {
-        return InitError("Either -stakingwhitelist or -stakingblacklist parameter can be specified to the staker, not both.");
+        return InitError("Either -stakingallowlist or -stakingexcludelist parameter can be specified to the staker, not both.");
     }
 
-    // Check white list
-    for (const std::string& strAddress : gArgs.GetArgs("-stakingwhitelist"))
+    // Check allow list
+    for (const std::string& strAddress : gArgs.GetArgs("-stakingallowlist"))
     {
         CTxDestination dest = DecodeDestination(strAddress);
         if(!boost::get<PKHash>(&dest))
-            return InitError(strprintf("-stakingwhitelist, address %s does not refer to public key hash", strAddress));
+            return InitError(strprintf("-stakingallowlist, address %s does not refer to public key hash", strAddress));
     }
 
-    // Check black list
-    for (const std::string& strAddress : gArgs.GetArgs("-stakingblacklist"))
+    // Check exclude list
+    for (const std::string& strAddress : gArgs.GetArgs("-stakingexcludelist"))
     {
         CTxDestination dest = DecodeDestination(strAddress);
         if(!boost::get<PKHash>(&dest))
-            return InitError(strprintf("-stakingblacklist, address %s does not refer to public key hash", strAddress));
+            return InitError(strprintf("-stakingexcludelist, address %s does not refer to public key hash", strAddress));
     }
 
     return true;

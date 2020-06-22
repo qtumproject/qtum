@@ -863,8 +863,8 @@ public:
     enum StakerType
     {
         STAKER_NORMAL    = 0,
-        STAKER_WHITELIST = 1,
-        STAKER_BLACKLIST = 2,
+        STAKER_ALLOWLIST = 1,
+        STAKER_EXCLUDELIST = 2,
     };
 
     DelegationsStaker(CWallet *_pwallet):
@@ -875,44 +875,44 @@ public:
     {
         nCheckpointSpan = Params().GetConsensus().nCheckpointSpan;
 
-        // Get white list
-        for (const std::string& strAddress : gArgs.GetArgs("-stakingwhitelist"))
+        // Get allow list
+        for (const std::string& strAddress : gArgs.GetArgs("-stakingallowlist"))
         {
             uint160 keyId;
             if(GetKey(strAddress, keyId))
             {
-                if(std::find(whiteList.begin(), whiteList.end(), keyId) == whiteList.end())
-                    whiteList.push_back(keyId);
+                if(std::find(allowList.begin(), allowList.end(), keyId) == allowList.end())
+                    allowList.push_back(keyId);
             }
             else
             {
-                LogPrint(BCLog::COINSTAKE, "Fail to add %s to stake white list\n", strAddress);
+                LogPrint(BCLog::COINSTAKE, "Fail to add %s to stake allow list\n", strAddress);
             }
         }
 
-        // Get black list
-        for (const std::string& strAddress : gArgs.GetArgs("-stakingblacklist"))
+        // Get exclude list
+        for (const std::string& strAddress : gArgs.GetArgs("-stakingexcludelist"))
         {
             uint160 keyId;
             if(GetKey(strAddress, keyId))
             {
-                if(std::find(blackList.begin(), blackList.end(), keyId) == blackList.end())
-                    blackList.push_back(keyId);
+                if(std::find(excludeList.begin(), excludeList.end(), keyId) == excludeList.end())
+                    excludeList.push_back(keyId);
             }
             else
             {
-                LogPrint(BCLog::COINSTAKE, "Fail to add %s to stake black list\n", strAddress);
+                LogPrint(BCLog::COINSTAKE, "Fail to add %s to stake exclude list\n", strAddress);
             }
         }
 
         // Set staker type
-        if(whiteList.size() > 0)
+        if(allowList.size() > 0)
         {
-            type = StakerType::STAKER_WHITELIST;
+            type = StakerType::STAKER_ALLOWLIST;
         }
-        else if(blackList.size() > 0)
+        else if(excludeList.size() > 0)
         {
-            type = StakerType::STAKER_BLACKLIST;
+            type = StakerType::STAKER_EXCLUDELIST;
         }
     }
 
@@ -928,18 +928,18 @@ public:
             return CheckAddressList(info.nDelegateAddressType, info.delegateAddressList, info.delegateAddressList, event);
         }
 
-        return CheckAddressList(type, whiteList, blackList, event);
+        return CheckAddressList(type, allowList, excludeList, event);
     }
 
-    bool CheckAddressList(const int& _type, const std::vector<uint160>& _whiteList, const std::vector<uint160>& _blackList, const DelegationEvent& event) const
+    bool CheckAddressList(const int& _type, const std::vector<uint160>& _allowList, const std::vector<uint160>& _excludeList, const DelegationEvent& event) const
     {
         switch (_type) {
         case STAKER_NORMAL:
             return true;
-        case STAKER_WHITELIST:
-            return std::count(_whiteList.begin(), _whiteList.end(), event.item.delegate);
-        case STAKER_BLACKLIST:
-            return std::count(_blackList.begin(), _blackList.end(), event.item.delegate) == 0;
+        case STAKER_ALLOWLIST:
+            return std::count(_allowList.begin(), _allowList.end(), event.item.delegate);
+        case STAKER_EXCLUDELIST:
+            return std::count(_excludeList.begin(), _excludeList.end(), event.item.delegate) == 0;
         default:
             break;
         }
@@ -992,8 +992,8 @@ private:
     int32_t cacheHeight;
     int32_t nCheckpointSpan;
     std::map<uint160, Delegation> cacheDelegationsStaker;
-    std::vector<uint160> whiteList;
-    std::vector<uint160> blackList;
+    std::vector<uint160> allowList;
+    std::vector<uint160> excludeList;
     int type;
 };
 
