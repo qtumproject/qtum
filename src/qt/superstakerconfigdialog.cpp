@@ -30,7 +30,6 @@ SuperStakerConfigDialog::SuperStakerConfigDialog(QWidget *parent) :
     ui->sbMinFee->setMinimum(0);
     ui->sbMinFee->setMaximum(100);
 
-    ui->leMinUtxo->SetMinValue(DEFAULT_STAKING_MIN_UTXO_VALUE);
     ui->leMinUtxo->setValue(DEFAULT_STAKING_MIN_UTXO_VALUE);
 
     ui->cbListType->addItem(tr("Accept all"), All);
