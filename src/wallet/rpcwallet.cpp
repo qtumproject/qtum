@@ -1508,6 +1508,79 @@ static UniValue setdelegateforaddress(const JSONRPCRequest& request){
     return SendToContract(*locked_chain, pwallet, params);
 }
 
+UniValue GetJsonSuperStakerConfig(const CSuperStakerInfo& superStaker)
+{
+    // Fill the json object with information
+    UniValue result(UniValue::VOBJ);
+    result.pushKV("staker", EncodeDestination(PKHash(superStaker.stakerAddress)));
+    result.pushKV("customConfig", superStaker.fCustomConfig);
+    if(superStaker.fCustomConfig)
+    {
+        result.pushKV("minFee", (int64_t)superStaker.nMinFee);
+        result.pushKV("minUtxoValue", FormatMoney(superStaker.nMinDelegateUtxo));
+        UniValue addressList(UniValue::VARR);
+        for(uint160 address : superStaker.delegateAddressList)
+        {
+            addressList.push_back(EncodeDestination(PKHash(address)));
+        }
+        if(interfaces::AllowList == superStaker.nDelegateAddressType)
+        {
+            result.pushKV("allow", addressList);
+        }
+        if(interfaces::ExcludeList == superStaker.nDelegateAddressType)
+        {
+            result.pushKV("exclude", addressList);
+        }
+    }
+
+    return result;
+}
+
+static UniValue listsuperstakercustomvalues(const JSONRPCRequest& request){
+
+    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
+    CWallet* const pwallet = wallet.get();
+
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+
+    auto locked_chain = pwallet->chain().lock();
+    LOCK(pwallet->cs_wallet);
+                RPCHelpMan{"listsuperstakercustomvalues",
+                    "\nList custom super staker configurations values." +
+                    HelpRequiringPassphrase(pwallet) + "\n",
+                    {},
+                    RPCResult{
+                        "[\n"
+                        "  \"staker\" : (string) Address of the staker.\n"
+                        "  \"customConfig\" : (bool) Custom configuration exist.\n"
+                        "  \"minFee\" : (numeric) Minimum fee for delegate.\n"
+                        "  \"minUtxoValue\" : (numeric) Minimum UTXO value for delegate.\n"
+                        "  \"allow\" : (array) List of allowed delegate addresses.\n"
+                        "  \"exclude\" : (array) List of excluded delegate addresses.\n"
+                        "]\n"
+                    },
+                    RPCExamples{
+                    HelpExampleCli("listsuperstakercustomvalues", "")
+                    + HelpExampleRpc("listsuperstakercustomvalues", "")
+                    },
+                }.Check(request);
+
+    // Search for super stakers
+    UniValue result(UniValue::VARR);
+    for(auto item : pwallet->mapSuperStaker)
+    {
+        CSuperStakerInfo superStaker = item.second;
+        if(superStaker.fCustomConfig)
+        {
+            result.push_back(GetJsonSuperStakerConfig(superStaker));
+        }
+    }
+
+    return result;
+}
+
 static UniValue listsuperstakervaluesforaddress(const JSONRPCRequest& request){
 
     std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
@@ -1525,7 +1598,7 @@ static UniValue listsuperstakervaluesforaddress(const JSONRPCRequest& request){
                     {
                         {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The super staker Qtum address."},
                     },
-                    RPCResults{
+                    RPCResult{
                         "{\n"
                         "  \"staker\" : (string) Address of the staker.\n"
                         "  \"customConfig\" : (bool) Custom configuration exist.\n"
@@ -1566,30 +1639,7 @@ static UniValue listsuperstakervaluesforaddress(const JSONRPCRequest& request){
         throw JSONRPCError(RPC_TYPE_ERROR, "Failed to find the super staker");
     }
 
-    // Fill the json object with information
-    UniValue result(UniValue::VOBJ);
-    result.pushKV("staker", EncodeDestination(PKHash(superStaker.stakerAddress)));
-    result.pushKV("customConfig", superStaker.fCustomConfig);
-    if(superStaker.fCustomConfig)
-    {
-        result.pushKV("minFee", (int64_t)superStaker.nMinFee);
-        result.pushKV("minUtxoValue", FormatMoney(superStaker.nMinDelegateUtxo));
-        UniValue addressList(UniValue::VARR);
-        for(uint160 address : superStaker.delegateAddressList)
-        {
-            addressList.push_back(EncodeDestination(PKHash(address)));
-        }
-        if(interfaces::AllowList == superStaker.nDelegateAddressType)
-        {
-            result.pushKV("allow", addressList);
-        }
-        if(interfaces::ExcludeList == superStaker.nDelegateAddressType)
-        {
-            result.pushKV("exclude", addressList);
-        }
-    }
-
-    return result;
+    return GetJsonSuperStakerConfig(superStaker);
 }
 
 static UniValue removesuperstakervaluesforaddress(const JSONRPCRequest& request){
@@ -5797,6 +5847,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "sendtocontract",                   &sendtocontract,                {"contractaddress", "bytecode", "amount", "gasLimit", "gasPrice", "senderAddress", "broadcast", "changeToSender"} },
     { "wallet",             "removedelegationforaddress",       &removedelegationforaddress,    {"address", "gasLimit", "gasPrice"} },
     { "wallet",             "setdelegateforaddress",            &setdelegateforaddress,         {"staker", "fee", "address", "gasLimit", "gasPrice"} },
+    { "wallet",             "listsuperstakercustomvalues",             &listsuperstakercustomvalues,          {} },
     { "wallet",             "listsuperstakervaluesforaddress",         &listsuperstakervaluesforaddress,      {"address"} },
     { "wallet",             "removesuperstakervaluesforaddress",       &removesuperstakervaluesforaddress,    {"address"} },
 };
