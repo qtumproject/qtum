@@ -48,12 +48,12 @@ SuperStakerItemWidget::SuperStakerItemWidget(const PlatformStyle *platformStyle,
     ui->buttonRestore->setIcon(platformStyle->MultiStatesIcon(":/icons/restore", PlatformStyle::PushButtonIcon));
     ui->superStakerLogo->setPixmap(platformStyle->MultiStatesIcon(m_type == New ? ":/icons/superstake" : ":/icons/staking_off").pixmap(SUPERSTAKER_ITEM_ICONSIZE, SUPERSTAKER_ITEM_ICONSIZE));
 
-    ui->buttonDelegations->setToolTip(tr("Delegations for super staker."));
-    ui->buttonSplit->setToolTip(tr("Split coins for super staker."));
-    ui->buttonConfig->setToolTip(tr("Configure super staker."));
-    ui->buttonRemove->setToolTip(tr("Remove super staker."));
-    ui->buttonAdd->setToolTip(tr("Add super staker."));
-    ui->buttonRestore->setToolTip(tr("Restore super stakers."));
+    ui->buttonDelegations->setToolTip(tr("Delegations for super staker"));
+    ui->buttonSplit->setToolTip(tr("Split coins for super staker"));
+    ui->buttonConfig->setToolTip(tr("Configure super staker"));
+    ui->buttonRemove->setToolTip(tr("Remove super staker"));
+    ui->buttonAdd->setToolTip(tr("Add super staker"));
+    ui->buttonRestore->setToolTip(tr("Restore super stakers"));
 
     d = new SuperStakerItemWidgetPriv();
 }
