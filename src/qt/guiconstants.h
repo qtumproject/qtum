@@ -34,6 +34,9 @@ static const bool DEFAULT_SPLASHSCREEN = true;
 /* Transaction list -- TX status decoration - default color */
 #define COLOR_BLACK QColor(0, 0, 0)
 
+// Number of different confirmation icons
+#define CONFIRM_ICONS 5
+
 /* Tooltips longer than this (in characters) are converted into rich text,
    so that they can be word-wrapped.
  */
@@ -53,5 +56,11 @@ static constexpr uint64_t GB_BYTES{1000000000};
 
 // Default prune target displayed in GUI.
 static constexpr int DEFAULT_PRUNE_TARGET_GB{2};
+
+/* Mainnet qtum explorer uri */
+#define QTUM_INFO_MAINNET "<a href='https://qtum.info/%1/%2'>%2</a>"
+
+/* Testnet qtum explorer uri */
+#define QTUM_INFO_TESTNET "<a href='https://testnet.qtum.info/%1/%2'>%2</a>"
 
 #endif // BITCOIN_QT_GUICONSTANTS_H

@@ -12,6 +12,7 @@
 #include <qt/guiutil.h>
 #include <qt/paymentserver.h>
 #include <qt/transactionrecord.h>
+#include <qt/styleSheet.h>
 
 #include <consensus/consensus.h>
 #include <interfaces/node.h>
@@ -22,9 +23,74 @@
 #include <util/system.h>
 #include <validation.h>
 #include <wallet/ismine.h>
+#include <consensus/params.h>
+#include <qt/guiconstants.h>
 
 #include <stdint.h>
 #include <string>
+
+class TransactionFormater
+{
+public:
+    TransactionFormater()
+    {
+        itemNameColor = GetStringStyleValue("transactiondesc/item-name-color", "#ffffff");
+        itemColor = GetStringStyleValue("transactiondesc/item-color", "#ffffff");
+        itemFontBold = GetIntStyleValue("transactiondesc/item-font-bold", true);
+        network = Params().NetworkIDString();
+    }
+
+    static const TransactionFormater& instance()
+    {
+        static TransactionFormater data;
+        return data;
+    }
+
+    static QString ItemColor()
+    {
+        return " color='" + instance().itemColor + "'";
+    }
+
+    static QString ItemNameColor(const QString& name, bool space = true)
+    {
+        QString ret;
+        if(instance().itemFontBold)
+        {
+            ret += "<b>";
+        }
+
+        ret += "<font color='" + instance().itemNameColor + "'>" + name +":</font>";
+
+        if(instance().itemFontBold)
+        {
+            ret += "</b>";
+        }
+
+        if(space) ret += " ";
+
+        return ret;
+    }
+
+    static QString TxIdLink(const QString& txHash)
+    {
+        if(instance().network == "main")
+        {
+            return QString(QTUM_INFO_MAINNET).arg("tx", txHash);
+        }
+        else if(instance().network == "test")
+        {
+            return QString(QTUM_INFO_TESTNET).arg("tx", txHash);
+        }
+
+        return txHash;
+    }
+
+private:
+    QString itemNameColor;
+    QString itemColor;
+    bool itemFontBold;
+    std::string network;
+};
 
 QString TransactionDesc::FormatTxStatus(const interfaces::WalletTx& wtx, const interfaces::WalletTxStatus& status, bool inMempool, int numBlocks)
 {
@@ -88,29 +154,29 @@ QString TransactionDesc::toHTML(interfaces::Node& node, interfaces::Wallet& wall
     QString strHTML;
 
     strHTML.reserve(4000);
-    strHTML += "<html><font face='verdana, arial, helvetica, sans-serif'>";
+    strHTML += "<html><font face='verdana, arial, helvetica, sans-serif'"+TransactionFormater::ItemColor()+">";
 
     int64_t nTime = wtx.time;
     CAmount nCredit = wtx.credit;
     CAmount nDebit = wtx.debit;
     CAmount nNet = nCredit - nDebit;
 
-    strHTML += "<b>" + tr("Status") + ":</b> " + FormatTxStatus(wtx, status, inMempool, numBlocks);
+    strHTML += TransactionFormater::ItemNameColor(tr("Status")) + FormatTxStatus(wtx, status, inMempool, numBlocks);
     strHTML += "<br>";
 
-    strHTML += "<b>" + tr("Date") + ":</b> " + (nTime ? GUIUtil::dateTimeStr(nTime) : "") + "<br>";
+    strHTML += TransactionFormater::ItemNameColor(tr("Date")) + (nTime ? GUIUtil::dateTimeStr(nTime) : "") + "<br>";
 
     //
     // From
     //
-    if (wtx.is_coinbase)
+    if (wtx.is_coinbase || wtx.is_coinstake)
     {
-        strHTML += "<b>" + tr("Source") + ":</b> " + tr("Generated") + "<br>";
+        strHTML += TransactionFormater::ItemNameColor(tr("Source")) + tr("Generated") + "<br>";
     }
     else if (wtx.value_map.count("from") && !wtx.value_map["from"].empty())
     {
         // Online transaction
-        strHTML += "<b>" + tr("From") + ":</b> " + GUIUtil::HtmlEscape(wtx.value_map["from"]) + "<br>";
+        strHTML += TransactionFormater::ItemNameColor(tr("From")) + GUIUtil::HtmlEscape(wtx.value_map["from"]) + "<br>";
     }
     else
     {
@@ -124,8 +190,8 @@ QString TransactionDesc::toHTML(interfaces::Node& node, interfaces::Wallet& wall
                 isminetype ismine;
                 if (wallet.getAddress(address, &name, &ismine, /* purpose= */ nullptr))
                 {
-                    strHTML += "<b>" + tr("From") + ":</b> " + tr("unknown") + "<br>";
-                    strHTML += "<b>" + tr("To") + ":</b> ";
+                    strHTML += TransactionFormater::ItemNameColor(tr("From")) + tr("unknown") + "<br>";
+                    strHTML += TransactionFormater::ItemNameColor(tr("To"));
                     strHTML += GUIUtil::HtmlEscape(rec->address);
                     QString addressOwned = ismine == ISMINE_SPENDABLE ? tr("own address") : tr("watch-only");
                     if (!name.empty())
@@ -145,7 +211,7 @@ QString TransactionDesc::toHTML(interfaces::Node& node, interfaces::Wallet& wall
     {
         // Online transaction
         std::string strAddress = wtx.value_map["to"];
-        strHTML += "<b>" + tr("To") + ":</b> ";
+        strHTML += TransactionFormater::ItemNameColor(tr("To"));
         CTxDestination dest = DecodeDestination(strAddress);
         std::string name;
         if (wallet.getAddress(
@@ -165,7 +231,7 @@ QString TransactionDesc::toHTML(interfaces::Node& node, interfaces::Wallet& wall
         CAmount nUnmatured = 0;
         for (const CTxOut& txout : wtx.tx->vout)
             nUnmatured += wallet.getCredit(txout, ISMINE_ALL);
-        strHTML += "<b>" + tr("Credit") + ":</b> ";
+        strHTML += TransactionFormater::ItemNameColor(tr("Credit"));
         if (status.is_in_main_chain)
             strHTML += BitcoinUnits::formatHtmlWithUnit(unit, nUnmatured)+ " (" + tr("matures in %n more block(s)", "", status.blocks_to_maturity) + ")";
         else
@@ -177,7 +243,7 @@ QString TransactionDesc::toHTML(interfaces::Node& node, interfaces::Wallet& wall
         //
         // Credit
         //
-        strHTML += "<b>" + tr("Credit") + ":</b> " + BitcoinUnits::formatHtmlWithUnit(unit, nNet) + "<br>";
+        strHTML += TransactionFormater::ItemNameColor(tr("Credit")) + BitcoinUnits::formatHtmlWithUnit(unit, nNet) + "<br>";
     }
     else
     {
@@ -196,7 +262,7 @@ QString TransactionDesc::toHTML(interfaces::Node& node, interfaces::Wallet& wall
         if (fAllFromMe)
         {
             if(fAllFromMe & ISMINE_WATCH_ONLY)
-                strHTML += "<b>" + tr("From") + ":</b> " + tr("watch-only") + "<br>";
+                strHTML += TransactionFormater::ItemNameColor(tr("From")) + tr("watch-only") + "<br>";
 
             //
             // Debit
@@ -215,7 +281,7 @@ QString TransactionDesc::toHTML(interfaces::Node& node, interfaces::Wallet& wall
                     CTxDestination address;
                     if (ExtractDestination(txout.scriptPubKey, address))
                     {
-                        strHTML += "<b>" + tr("To") + ":</b> ";
+                        strHTML += TransactionFormater::ItemNameColor(tr("To"));
                         std::string name;
                         if (wallet.getAddress(
                                 address, &name, /* is_mine= */ nullptr, /* purpose= */ nullptr) && !name.empty())
@@ -229,9 +295,9 @@ QString TransactionDesc::toHTML(interfaces::Node& node, interfaces::Wallet& wall
                     }
                 }
 
-                strHTML += "<b>" + tr("Debit") + ":</b> " + BitcoinUnits::formatHtmlWithUnit(unit, -txout.nValue) + "<br>";
+                strHTML += TransactionFormater::ItemNameColor(tr("Debit")) + BitcoinUnits::formatHtmlWithUnit(unit, -txout.nValue) + "<br>";
                 if(toSelf)
-                    strHTML += "<b>" + tr("Credit") + ":</b> " + BitcoinUnits::formatHtmlWithUnit(unit, txout.nValue) + "<br>";
+                    strHTML += TransactionFormater::ItemNameColor(tr("Credit")) + BitcoinUnits::formatHtmlWithUnit(unit, txout.nValue) + "<br>";
             }
 
             if (fAllToMe)
@@ -239,13 +305,13 @@ QString TransactionDesc::toHTML(interfaces::Node& node, interfaces::Wallet& wall
                 // Payment to self
                 CAmount nChange = wtx.change;
                 CAmount nValue = nCredit - nChange;
-                strHTML += "<b>" + tr("Total debit") + ":</b> " + BitcoinUnits::formatHtmlWithUnit(unit, -nValue) + "<br>";
-                strHTML += "<b>" + tr("Total credit") + ":</b> " + BitcoinUnits::formatHtmlWithUnit(unit, nValue) + "<br>";
+                strHTML += TransactionFormater::ItemNameColor(tr("Total debit")) + BitcoinUnits::formatHtmlWithUnit(unit, -nValue) + "<br>";
+                strHTML += TransactionFormater::ItemNameColor(tr("Total credit")) + BitcoinUnits::formatHtmlWithUnit(unit, nValue) + "<br>";
             }
 
             CAmount nTxFee = nDebit - wtx.tx->GetValueOut();
             if (nTxFee > 0)
-                strHTML += "<b>" + tr("Transaction fee") + ":</b> " + BitcoinUnits::formatHtmlWithUnit(unit, -nTxFee) + "<br>";
+                strHTML += TransactionFormater::ItemNameColor(tr("Transaction fee")) + BitcoinUnits::formatHtmlWithUnit(unit, -nTxFee) + "<br>";
         }
         else
         {
@@ -255,37 +321,37 @@ QString TransactionDesc::toHTML(interfaces::Node& node, interfaces::Wallet& wall
             auto mine = wtx.txin_is_mine.begin();
             for (const CTxIn& txin : wtx.tx->vin) {
                 if (*(mine++)) {
-                    strHTML += "<b>" + tr("Debit") + ":</b> " + BitcoinUnits::formatHtmlWithUnit(unit, -wallet.getDebit(txin, ISMINE_ALL)) + "<br>";
+                    strHTML += TransactionFormater::ItemNameColor(tr("Debit")) + BitcoinUnits::formatHtmlWithUnit(unit, -wallet.getDebit(txin, ISMINE_ALL)) + "<br>";
                 }
             }
             mine = wtx.txout_is_mine.begin();
             for (const CTxOut& txout : wtx.tx->vout) {
                 if (*(mine++)) {
-                    strHTML += "<b>" + tr("Credit") + ":</b> " + BitcoinUnits::formatHtmlWithUnit(unit, wallet.getCredit(txout, ISMINE_ALL)) + "<br>";
+                    strHTML += TransactionFormater::ItemNameColor(tr("Credit")) + BitcoinUnits::formatHtmlWithUnit(unit, wallet.getCredit(txout, ISMINE_ALL)) + "<br>";
                 }
             }
         }
     }
 
-    strHTML += "<b>" + tr("Net amount") + ":</b> " + BitcoinUnits::formatHtmlWithUnit(unit, nNet, true) + "<br>";
+    strHTML += TransactionFormater::ItemNameColor(tr("Net amount")) + BitcoinUnits::formatHtmlWithUnit(unit, nNet, true) + "<br>";
 
     //
     // Message
     //
     if (wtx.value_map.count("message") && !wtx.value_map["message"].empty())
-        strHTML += "<br><b>" + tr("Message") + ":</b><br>" + GUIUtil::HtmlEscape(wtx.value_map["message"], true) + "<br>";
+        strHTML += "<br>" + TransactionFormater::ItemNameColor(tr("Message"), false) + "<br>" + GUIUtil::HtmlEscape(wtx.value_map["message"], true) + "<br>";
     if (wtx.value_map.count("comment") && !wtx.value_map["comment"].empty())
-        strHTML += "<br><b>" + tr("Comment") + ":</b><br>" + GUIUtil::HtmlEscape(wtx.value_map["comment"], true) + "<br>";
+        strHTML += "<br>" + TransactionFormater::ItemNameColor(tr("Comment"), false) + "<br>" + GUIUtil::HtmlEscape(wtx.value_map["comment"], true) + "<br>";
 
-    strHTML += "<b>" + tr("Transaction ID") + ":</b> " + rec->getTxHash() + "<br>";
-    strHTML += "<b>" + tr("Transaction total size") + ":</b> " + QString::number(wtx.tx->GetTotalSize()) + " bytes<br>";
-    strHTML += "<b>" + tr("Transaction virtual size") + ":</b> " + QString::number(GetVirtualTransactionSize(*wtx.tx)) + " bytes<br>";
-    strHTML += "<b>" + tr("Output index") + ":</b> " + QString::number(rec->getOutputIndex()) + "<br>";
+    strHTML += TransactionFormater::ItemNameColor(tr("Transaction ID")) + TransactionFormater::TxIdLink(rec->getTxHash()) + "<br>";
+    strHTML += TransactionFormater::ItemNameColor(tr("Transaction total size")) + QString::number(wtx.tx->GetTotalSize()) + " bytes<br>";
+    strHTML += TransactionFormater::ItemNameColor(tr("Transaction virtual size")) + QString::number(GetVirtualTransactionSize(*wtx.tx)) + " bytes<br>";
+    strHTML += TransactionFormater::ItemNameColor(tr("Output index")) + QString::number(rec->getOutputIndex()) + "<br>";
 
     // Message from normal bitcoin:URI (bitcoin:123...?message=example)
     for (const std::pair<std::string, std::string>& r : orderForm) {
         if (r.first == "Message")
-            strHTML += "<br><b>" + tr("Message") + ":</b><br>" + GUIUtil::HtmlEscape(r.second, true) + "<br>";
+            strHTML += "<br>" + TransactionFormater::ItemNameColor(tr("Message")) + "<br>" + GUIUtil::HtmlEscape(r.second, true) + "<br>";
 
         //
         // PaymentRequest info:
@@ -299,7 +365,7 @@ QString TransactionDesc::toHTML(interfaces::Node& node, interfaces::Wallet& wall
                 merchant += tr(" (Certificate was not verified)");
             }
             if (!merchant.isNull()) {
-                strHTML += "<b>" + tr("Merchant") + ":</b> " + GUIUtil::HtmlEscape(merchant) + "<br>";
+                strHTML += TransactionFormater::ItemNameColor(tr("Merchant")) + GUIUtil::HtmlEscape(merchant) + "<br>";
             }
         }
     }
@@ -318,15 +384,15 @@ QString TransactionDesc::toHTML(interfaces::Node& node, interfaces::Wallet& wall
         strHTML += "<hr><br>" + tr("Debug information") + "<br><br>";
         for (const CTxIn& txin : wtx.tx->vin)
             if(wallet.txinIsMine(txin))
-                strHTML += "<b>" + tr("Debit") + ":</b> " + BitcoinUnits::formatHtmlWithUnit(unit, -wallet.getDebit(txin, ISMINE_ALL)) + "<br>";
+                strHTML += TransactionFormater::ItemNameColor(tr("Debit")) + BitcoinUnits::formatHtmlWithUnit(unit, -wallet.getDebit(txin, ISMINE_ALL)) + "<br>";
         for (const CTxOut& txout : wtx.tx->vout)
             if(wallet.txoutIsMine(txout))
-                strHTML += "<b>" + tr("Credit") + ":</b> " + BitcoinUnits::formatHtmlWithUnit(unit, wallet.getCredit(txout, ISMINE_ALL)) + "<br>";
+                strHTML += TransactionFormater::ItemNameColor(tr("Credit")) + BitcoinUnits::formatHtmlWithUnit(unit, wallet.getCredit(txout, ISMINE_ALL)) + "<br>";
 
-        strHTML += "<br><b>" + tr("Transaction") + ":</b><br>";
+        strHTML += "<br>" + TransactionFormater::ItemNameColor(tr("Transaction"), false) + "<br>";
         strHTML += GUIUtil::HtmlEscape(wtx.tx->ToString(), true);
 
-        strHTML += "<br><b>" + tr("Inputs") + ":</b>";
+        strHTML += "<br>" + TransactionFormater::ItemNameColor(tr("Inputs"), false);
         strHTML += "<ul>";
 
         for (const CTxIn& txin : wtx.tx->vin)
