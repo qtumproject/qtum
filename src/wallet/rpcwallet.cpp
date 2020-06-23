@@ -34,6 +34,7 @@
 #include <wallet/walletutil.h>
 #include <qtum/qtumdelegation.h>
 #include <util/signstr.h>
+#include <interfaces/wallet.h>
 
 #include <stdint.h>
 
@@ -1505,6 +1506,90 @@ static UniValue setdelegateforaddress(const JSONRPCRequest& request){
 
     // Send to contract
     return SendToContract(*locked_chain, pwallet, params);
+}
+
+static UniValue listsuperstakervaluesforaddress(const JSONRPCRequest& request){
+
+    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
+    CWallet* const pwallet = wallet.get();
+
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+
+    auto locked_chain = pwallet->chain().lock();
+    LOCK(pwallet->cs_wallet);
+                RPCHelpMan{"listsuperstakervaluesforaddress",
+                    "\nList super staker configuration values for address." +
+                    HelpRequiringPassphrase(pwallet) + "\n",
+                    {
+                        {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The super staker Qtum address."},
+                    },
+                    RPCResults{
+                        "{\n"
+                        "  \"staker\" : (string) Address of the staker.\n"
+                        "  \"customConfig\" : (bool) Custom configuration exist.\n"
+                        "  \"minFee\" : (numeric) Minimum fee for delegate.\n"
+                        "  \"minUtxoValue\" : (numeric) Minimum UTXO value for delegate.\n"
+                        "  \"allow\" : (array) List of allowed delegate addresses.\n"
+                        "  \"exclude\" : (array) List of excluded delegate addresses.\n"
+                        "}\n"
+                    },
+                    RPCExamples{
+                    HelpExampleCli("listsuperstakervaluesforaddress", "QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd")
+                    + HelpExampleRpc("listsuperstakervaluesforaddress", "QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd")
+                    },
+                }.Check(request);
+
+    // Parse the super staker address
+    CTxDestination destStaker = DecodeDestination(request.params[0].get_str());
+    const PKHash *pkhStaker = boost::get<PKHash>(&destStaker);
+    if (!pkhStaker) {
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid address for staker. Only P2PK and P2PKH allowed");
+    }
+
+    // Search for super staker
+    CSuperStakerInfo superStaker;
+    bool found = false;
+    for(auto item : pwallet->mapSuperStaker)
+    {
+        if(PKHash(item.second.stakerAddress) == *pkhStaker)
+        {
+            superStaker = item.second;
+            found = true;
+            break;
+        }
+    }
+
+    if(!found)
+    {
+        throw JSONRPCError(RPC_TYPE_ERROR, "Failed to find the super staker");
+    }
+
+    // Fill the json object with information
+    UniValue result(UniValue::VOBJ);
+    result.pushKV("staker", EncodeDestination(PKHash(superStaker.stakerAddress)));
+    result.pushKV("customConfig", superStaker.fCustomConfig);
+    if(superStaker.fCustomConfig)
+    {
+        result.pushKV("minFee", (int64_t)superStaker.nMinFee);
+        result.pushKV("minUtxoValue", FormatMoney(superStaker.nMinDelegateUtxo));
+        UniValue addressList(UniValue::VARR);
+        for(uint160 address : superStaker.delegateAddressList)
+        {
+            addressList.push_back(EncodeDestination(PKHash(address)));
+        }
+        if(interfaces::AllowList == superStaker.nDelegateAddressType)
+        {
+            result.pushKV("allow", addressList);
+        }
+        if(interfaces::ExcludeList == superStaker.nDelegateAddressType)
+        {
+            result.pushKV("exclude", addressList);
+        }
+    }
+
+    return result;
 }
 
 static UniValue removesuperstakervaluesforaddress(const JSONRPCRequest& request){
@@ -5712,6 +5797,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "sendtocontract",                   &sendtocontract,                {"contractaddress", "bytecode", "amount", "gasLimit", "gasPrice", "senderAddress", "broadcast", "changeToSender"} },
     { "wallet",             "removedelegationforaddress",       &removedelegationforaddress,    {"address", "gasLimit", "gasPrice"} },
     { "wallet",             "setdelegateforaddress",            &setdelegateforaddress,         {"staker", "fee", "address", "gasLimit", "gasPrice"} },
+    { "wallet",             "listsuperstakervaluesforaddress",         &listsuperstakervaluesforaddress,      {"address"} },
     { "wallet",             "removesuperstakervaluesforaddress",       &removesuperstakervaluesforaddress,    {"address"} },
 };
 // clang-format on
