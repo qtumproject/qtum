@@ -44,6 +44,8 @@ SplitUTXOPage::SplitUTXOPage(QWidget *parent, Mode mode) :
         ui->labelAddress->setText(tr("Staker address"));
         ui->labelDescription->setText(tr("Split coins for super staker. The UTXO value need to be minimum <b> %1 </b>.").
                                       arg(BitcoinUnits::formatHtmlWithUnit(BitcoinUnits::BTC, DEFAULT_STAKING_MIN_UTXO_VALUE)));
+        ui->lineEditMinValue->SetMinValue(DEFAULT_STAKING_MIN_UTXO_VALUE);
+        ui->lineEditMaxValue->SetMinValue(DEFAULT_STAKING_MIN_UTXO_VALUE);
         break;
     }
 

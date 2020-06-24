@@ -30,6 +30,7 @@ public:
     void setModel(WalletModel *_model);
     void setClientModel(ClientModel *clientModel);
     void setSuperStakerData(const QString& hash);
+    void clearAll();
 
 public Q_SLOTS:
     void chooseAddressType(int idx);
@@ -46,7 +47,6 @@ private Q_SLOTS:
 
 private:
     void updateData();
-    void clearAll();
 
 private:
     Ui::SuperStakerConfigDialog *ui;

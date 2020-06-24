@@ -284,6 +284,7 @@ void SuperStakerPage::editStakerName()
 
 void SuperStakerPage::on_configSuperStaker(const QModelIndex &index)
 {
+    m_configSuperStakerPage->clearAll();
     on_currentSuperStakerChanged(index);
     on_goToConfigSuperStakerPage();
 }
