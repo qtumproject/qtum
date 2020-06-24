@@ -151,6 +151,10 @@ public:
 
     bool isMultiwallet();
 
+    QString getRestorePath();
+    QString getRestoreParam();
+    bool restore();
+
     AddressTableModel* getAddressTableModel() const { return addressTableModel; }
 private:
     std::unique_ptr<interfaces::Wallet> m_wallet;
@@ -178,6 +182,9 @@ private:
     interfaces::WalletBalances m_cached_balances;
     EncryptionStatus cachedEncryptionStatus;
     int cachedNumBlocks;
+
+    QString restorePath;
+    QString restoreParam;
 
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();

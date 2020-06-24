@@ -571,6 +571,21 @@ bool WalletModel::isMultiwallet()
     return m_node.getWallets().size() > 1;
 }
 
+QString WalletModel::getRestorePath()
+{
+    return restorePath;
+}
+
+QString WalletModel::getRestoreParam()
+{
+    return restoreParam;
+}
+
+bool WalletModel::restore()
+{
+    return !restorePath.isEmpty();
+}
+
 bool WalletModel::getWalletUnlockStakingOnly()
 {
     return m_wallet->getWalletUnlockStakingOnly();
