@@ -145,10 +145,10 @@
     </message>
 </context>
 <context>
-    <name>BitcoinGUI</name>
+    <name>QtumGUI</name>
     <message>
-        <source>Send coins to a Bitcoin address</source>
-        <translation>ផ្ញើកាក់ទៅកាន់ អាសយដ្ឋាន Bitcoin មួយ</translation>
+        <source>Send coins to a Qtum address</source>
+        <translation>ផ្ញើកាក់ទៅកាន់ អាសយដ្ឋាន Qtum មួយ</translation>
     </message>
     </context>
 <context>
@@ -310,6 +310,6 @@
     </message>
     </context>
 <context>
-    <name>bitcoin-core</name>
+    <name>qtum-core</name>
     </context>
 </TS>

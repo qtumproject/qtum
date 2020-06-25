@@ -48,7 +48,7 @@
     <name>BanTableModel</name>
     </context>
 <context>
-    <name>BitcoinGUI</name>
+    <name>QtumGUI</name>
     <message>
         <source>&amp;Send</source>
         <translation>&amp;ناردن</translation>
@@ -449,6 +449,6 @@
     </message>
     </context>
 <context>
-    <name>bitcoin-core</name>
+    <name>qtum-core</name>
     </context>
 </TS>

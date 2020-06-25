@@ -66,11 +66,11 @@
         <translation>एड्रेस प्राप्त किए जा रहें हैं</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation>भुगतान करने के लिए ये आपके बिटकॉइन एड्रेस हैं। कॉइन भेजने से पहले राशि और गंतव्य एड्रेस की हमेशा जाँच करें </translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.</source>
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.</source>
         <translation>भुगतान प्राप्त करने के लिए ये आपके बिटकॉइन एड्रेस हैं। नया एड्रेस बनाने के लिए रिसीव टैब में 'नया एड्रेस बनाएं' बटन का प्रयोग करें</translation>
     </message>
     <message>
@@ -168,7 +168,7 @@
         <translation>वॉलेट एन्क्रिप्शन की पुष्टि करें</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
         <translation>चेतावनी: यदि आपने वॉलेट को एन्क्रिप्ट करने के बाद पदबंध खो दी तो &lt;b&gt;आप सारे बिटकॉइन खो देंगे &lt;/b&gt;!</translation>
     </message>
     <message>
@@ -196,7 +196,7 @@
     <name>BanTableModel</name>
     </context>
 <context>
-    <name>BitcoinGUI</name>
+    <name>QtumGUI</name>
     <message>
         <source>Synchronizing with network...</source>
         <translation>नेटवर्क से समकालिक (मिल) रहा है ...</translation>
@@ -352,7 +352,7 @@
 <context>
     <name>Intro</name>
     <message>
-        <source>Bitcoin</source>
+        <source>Qtum</source>
         <translation>बीटकोइन</translation>
     </message>
     <message>
@@ -664,7 +664,7 @@
     </message>
     </context>
 <context>
-    <name>bitcoin-core</name>
+    <name>qtum-core</name>
     <message>
         <source>Verifying blocks...</source>
         <translation>ब्लॉक्स जाँचे जा रहा है...</translation>

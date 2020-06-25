@@ -66,11 +66,11 @@
         <translation>Адреси отримання</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation>Це ваші адреси Bitcoin для надсилання платежів. Завжди перевіряйте суму та адресу одержувача перед відправленням монет.</translation>
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation>Це ваші адреси Qtum для надсилання платежів. Завжди перевіряйте суму та адресу одержувача перед відправленням монет.</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.</source>
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.</source>
         <translation>Це ваші біткойн-адреси для отримання платежів. Використовуйте кнопку "Створити нову адресу прийому" на вкладці отримання, для створення нових адрес.</translation>
     </message>
     <message>
@@ -168,7 +168,7 @@
         <translation>Підтвердіть шифрування гаманця</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
         <translation>Увага: Якщо ви зашифруєте гаманець і забудете пароль, ви &lt;b&gt;ВТРАТИТЕ ВСІ СВОЇ БІТКОІНИ&lt;/b&gt;!</translation>
     </message>
     <message>
@@ -188,7 +188,7 @@
         <translation>Введіть стару та нову парольну фразу для гаманця.</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
         <translation>Пам’ятайте, що шифрування гаманця не може повністю захистити ваші біткоіни від кражі, у випадку якщо ваш комп’ютер буде інфіковано шкідливими програмами.</translation>
     </message>
     <message>
@@ -252,7 +252,7 @@
     </message>
 </context>
 <context>
-    <name>BitcoinGUI</name>
+    <name>QtumGUI</name>
     <message>
         <source>Sign &amp;message...</source>
         <translation>Підписати &amp;повідомлення</translation>
@@ -362,7 +362,7 @@
         <translation>Проксі &lt;b&gt;увімкнено&lt;/b&gt;: %1</translation>
     </message>
     <message>
-        <source>Send coins to a Bitcoin address</source>
+        <source>Send coins to a Qtum address</source>
         <translation>Відправити монети на вказану адресу</translation>
     </message>
     <message>
@@ -398,12 +398,12 @@
         <translation>Зашифрувати закриті ключі, що знаходяться у вашому гаманці</translation>
     </message>
     <message>
-        <source>Sign messages with your Bitcoin addresses to prove you own them</source>
-        <translation>Підтвердіть, що Ви є власником повідомлення підписавши його Вашою Bitcoin-адресою</translation>
+        <source>Sign messages with your Qtum addresses to prove you own them</source>
+        <translation>Підтвердіть, що Ви є власником повідомлення підписавши його Вашою Qtum-адресою</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Bitcoin addresses</source>
-        <translation>Перевірте повідомлення для впевненості, що воно підписано вказаною Bitcoin-адресою</translation>
+        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
+        <translation>Перевірте повідомлення для впевненості, що воно підписано вказаною Qtum-адресою</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -422,8 +422,8 @@
         <translation>Панель дій</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
-        <translation>Створити запит платежу (генерує QR-код та bitcoin: URI)</translation>
+        <source>Request payments (generates QR codes and qtum: URIs)</source>
+        <translation>Створити запит платежу (генерує QR-код та qtum: URI)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -438,8 +438,8 @@
         <translation>П&amp;араметри командного рядка</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Bitcoin network</source>
-        <translation><numerusform>%n активне з'єднання з мережею Bitcoin</numerusform><numerusform>%n активні з'єднання з мережею Bitcoin</numerusform><numerusform>%n активних з'єднань з мережею Bitcoin</numerusform><numerusform>%n активних з'єднань з мережею Bitcoin</numerusform></translation>
+        <source>%n active connection(s) to Qtum network</source>
+        <translation><numerusform>%n активне з'єднання з мережею Qtum</numerusform><numerusform>%n активні з'єднання з мережею Qtum</numerusform><numerusform>%n активних з'єднань з мережею Qtum</numerusform><numerusform>%n активних з'єднань з мережею Qtum</numerusform></translation>
     </message>
     <message>
         <source>Indexing blocks on disk...</source>
@@ -498,7 +498,7 @@
         <translation>&amp;Адреси для отримання</translation>
     </message>
     <message>
-        <source>Open a bitcoin: URI</source>
+        <source>Open a qtum: URI</source>
         <translation>Відкрити біткоін URI</translation>
     </message>
     <message>
@@ -518,7 +518,7 @@
         <translation>Закрити гаманець</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Bitcoin command-line options</source>
+        <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
         <translation>Показати довідку %1 для отримання переліку можливих параметрів командного рядка.</translation>
     </message>
     <message>
@@ -630,7 +630,7 @@
         <translation>&lt;b&gt;Зашифрований&lt;/b&gt; гаманець &lt;b&gt;заблоковано&lt;/b&gt;</translation>
     </message>
     <message>
-        <source>A fatal error occurred. Bitcoin can no longer continue safely and will quit.</source>
+        <source>A fatal error occurred. Qtum can no longer continue safely and will quit.</source>
         <translation>Сталася фатальна помилка. Гаманець буде закрито.</translation>
     </message>
 </context>
@@ -874,8 +874,8 @@
         <translation>Редагувати адресу для відправлення</translation>
     </message>
     <message>
-        <source>The entered address "%1" is not a valid Bitcoin address.</source>
-        <translation>Введена адреса "%1" не є адресою в мережі Bitcoin.</translation>
+        <source>The entered address "%1" is not a valid Qtum address.</source>
+        <translation>Введена адреса "%1" не є адресою в мережі Qtum.</translation>
     </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
@@ -971,8 +971,8 @@
         <translation>Використовувати свій каталог даних:</translation>
     </message>
     <message>
-        <source>Bitcoin</source>
-        <translation>Bitcoin</translation>
+        <source>Qtum</source>
+        <translation>Qtum</translation>
     </message>
     <message>
         <source>At least %1 GB of data will be stored in this directory, and it will grow over time.</source>
@@ -983,7 +983,7 @@
         <translation>Близько %1 Гб даних буде збережено в цьому каталозі.</translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the Bitcoin block chain.</source>
+        <source>%1 will download and store a copy of the Qtum block chain.</source>
         <translation>%1 буде завантажувати та зберігати копію ланцюжка блоків біткінів.</translation>
     </message>
     <message>
@@ -1014,11 +1014,11 @@
         <translation>Форма</translation>
     </message>
     <message>
-        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the bitcoin network, as detailed below.</source>
+        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
         <translation>Нещодавні транзакції ще не відображаються, тому баланс вашого гаманця може бути неточним. Ця інформація буде вірною після того, як ваш гаманець завершить синхронізацію з мережею біткойн, врахровуйте показники нижче.</translation>
     </message>
     <message>
-        <source>Attempting to spend bitcoins that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
+        <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation>Спроба відправити біткоїни, які ще не відображаються, не буде прийнята мережею.</translation>
     </message>
     <message>
@@ -1069,7 +1069,7 @@
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open bitcoin URI</source>
+        <source>Open qtum URI</source>
         <translation>Відкрити біткоін URI</translation>
     </message>
     <message>
@@ -1215,7 +1215,7 @@
         <translation>&amp;Витрачати непідтверджену решту</translation>
     </message>
     <message>
-        <source>Automatically open the Bitcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
         <translation>Автоматично відкривати порт для клієнту біткоін на роутері. Працює лише якщо ваш роутер підтримує UPnP і ця функція увімкнена.</translation>
     </message>
     <message>
@@ -1231,8 +1231,8 @@
         <translation>Дозволити вхідні з'єднання</translation>
     </message>
     <message>
-        <source>Connect to the Bitcoin network through a SOCKS5 proxy.</source>
-        <translation>Підключення до мережі Bitcoin через SOCKS5 проксі.</translation>
+        <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
+        <translation>Підключення до мережі Qtum через SOCKS5 проксі.</translation>
     </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
@@ -1267,8 +1267,8 @@
         <translation>Tor</translation>
     </message>
     <message>
-        <source>Connect to the Bitcoin network through a separate SOCKS5 proxy for Tor hidden services.</source>
-        <translation>Підключатися до мережі Bitcoin через окремий SOCKS5 проксі для прихованих сервісів Tor.</translation>
+        <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor hidden services.</source>
+        <translation>Підключатися до мережі Qtum через окремий SOCKS5 проксі для прихованих сервісів Tor.</translation>
     </message>
     <message>
         <source>&amp;Window</source>
@@ -1378,8 +1378,8 @@
         <translation>Форма</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Bitcoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>Показана інформація вже може бути застарілою. Ваш гаманець буде автоматично синхронізовано з мережею Bitcoin після встановлення підключення, але цей процес ще не завершено.</translation>
+        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
+        <translation>Показана інформація вже може бути застарілою. Ваш гаманець буде автоматично синхронізовано з мережею Qtum після встановлення підключення, але цей процес ще не завершено.</translation>
     </message>
     <message>
         <source>Watch-only:</source>
@@ -1453,7 +1453,7 @@
         <translation>Помилка запиту платежу</translation>
     </message>
     <message>
-        <source>Cannot start bitcoin: click-to-pay handler</source>
+        <source>Cannot start qtum: click-to-pay handler</source>
         <translation>Не вдається запустити біткойн: обробник клацни-плати</translation>
     </message>
     <message>
@@ -1461,8 +1461,8 @@
         <translation>Обробка URI</translation>
     </message>
     <message>
-        <source>'bitcoin://' is not a valid URI. Use 'bitcoin:' instead.</source>
-        <translation>'bitcoin://' не вірний URI. Використовуйте 'bitcoin:'.</translation>
+        <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
+        <translation>'qtum://' не вірний URI. Використовуйте 'qtum:'.</translation>
     </message>
     <message>
         <source>Cannot process payment request because BIP70 is not supported.</source>
@@ -1481,7 +1481,7 @@
         <translation>Помилка в адресі платежу %1</translation>
     </message>
     <message>
-        <source>URI cannot be parsed! This can be caused by an invalid Bitcoin address or malformed URI parameters.</source>
+        <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source>
         <translation>Неможливо обробити URI! Причиною цього може бути некоректна Біткойн-адреса або неправильні параметри URI.</translation>
     </message>
     <message>
@@ -1523,8 +1523,8 @@
         <translation>Кількість</translation>
     </message>
     <message>
-        <source>Enter a Bitcoin address (e.g. %1)</source>
-        <translation>Введіть адресу Bitcoin (наприклад %1)</translation>
+        <source>Enter a Qtum address (e.g. %1)</source>
+        <translation>Введіть адресу Qtum (наприклад %1)</translation>
     </message>
     <message>
         <source>%1 d</source>
@@ -1984,8 +1984,8 @@
         <translation>&amp;Повідомлення:</translation>
     </message>
     <message>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Bitcoin network.</source>
-        <translation>Необов'язкове повідомлення на додаток до запиту платежу, котре буде показане під час відкриття запиту. Примітка: Це повідомлення не буде відправлено з платежем через мережу Bitcoin.</translation>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
+        <translation>Необов'язкове повідомлення на додаток до запиту платежу, котре буде показане під час відкриття запиту. Примітка: Це повідомлення не буде відправлено з платежем через мережу Qtum.</translation>
     </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
@@ -2265,7 +2265,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>Приховати комісію за транзакцію</translation>
     </message>
     <message>
-        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for bitcoin transactions than the network can process.</source>
+        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
         <translation>Якщо обсяг транзакцій менше, ніж простір у блоках, майнери, а також вузли ретрансляції можуть стягувати мінімальну плату. Сплата лише цієї мінімальної суми може призвести до ніколи не підтверджуваної транзакції, коли буде більше попиту на біткойн-транзакції, ніж мережа може обробити.</translation>
     </message>
     <message>
@@ -2337,8 +2337,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>С&amp;творити непідписану</translation>
     </message>
     <message>
-        <source>Creates a Partially Signed Bitcoin Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
-        <translation>Створює частково підписану транзакцію Bitcoin (PSBT) для використання, наприклад, офлайн-гаманець %1 або гаманця, сумісного з PSBT.</translation>
+        <source>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <translation>Створює частково підписану транзакцію Qtum (PSBT) для використання, наприклад, офлайн-гаманець %1 або гаманця, сумісного з PSBT.</translation>
     </message>
     <message>
         <source> from wallet '%1'</source>
@@ -2361,8 +2361,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>Ви впевнені, що хочете відправити?</translation>
     </message>
     <message>
-        <source>Please, review your transaction proposal. This will produce a Partially Signed Bitcoin Transaction (PSBT) which you can copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
-        <translation>Перегляньте пропозицію щодо транзакцій. Це призведе до частково підписаної трансакції Bitcoin (PSBT), яку ви можете скопіювати та підписати, наприклад, офлайн-гаманецем %1 або гаманцем, сумісний з PSBT.</translation>
+        <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <translation>Перегляньте пропозицію щодо транзакцій. Це призведе до частково підписаної трансакції Qtum (PSBT), яку ви можете скопіювати та підписати, наприклад, офлайн-гаманецем %1 або гаманцем, сумісний з PSBT.</translation>
     </message>
     <message>
         <source>or</source>
@@ -2453,7 +2453,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation><numerusform>Очікуваний початок підтвердження через %n блок.</numerusform><numerusform>Очікуваний початок підтвердження протягом %n блоків.</numerusform><numerusform>Очікуваний початок підтвердження протягом %n блоків.</numerusform><numerusform>Очікуваний початок підтвердження протягом %n блоків.</numerusform></translation>
     </message>
     <message>
-        <source>Warning: Invalid Bitcoin address</source>
+        <source>Warning: Invalid Qtum address</source>
         <translation>Увага: Неприпустима Біткойн-адреса.</translation>
     </message>
     <message>
@@ -2492,8 +2492,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>Обрати ранiш використовувану адресу</translation>
     </message>
     <message>
-        <source>The Bitcoin address to send the payment to</source>
-        <translation>Адреса Bitcoin для відправлення платежу</translation>
+        <source>The Qtum address to send the payment to</source>
+        <translation>Адреса Qtum для відправлення платежу</translation>
     </message>
     <message>
         <source>Alt+A</source>
@@ -2516,7 +2516,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>Сума у вибраній одиниці, яку потрібно надіслати</translation>
     </message>
     <message>
-        <source>The fee will be deducted from the amount being sent. The recipient will receive less bitcoins than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
+        <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
         <translation>Комісію буде знято зі вказаної суми. До отримувача надійде менше біткоінів, ніж було вказано в полі кількості. Якщо ж отримувачів декілька - комісію буде розподілено між ними.</translation>
     </message>
     <message>
@@ -2544,8 +2544,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>Введіть мітку для цієї адреси для додавання її в список використаних адрес</translation>
     </message>
     <message>
-        <source>A message that was attached to the bitcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Bitcoin network.</source>
-        <translation>Повідомлення, що було додане до bitcoin:URI та буде збережено разом з транзакцією для довідки. Примітка: Це повідомлення не буде відправлено в мережу Bitcoin.</translation>
+        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
+        <translation>Повідомлення, що було додане до qtum:URI та буде збережено разом з транзакцією для довідки. Примітка: Це повідомлення не буде відправлено в мережу Qtum.</translation>
     </message>
     <message>
         <source>Pay To:</source>
@@ -2578,12 +2578,12 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>&amp;Підписати повідомлення</translation>
     </message>
     <message>
-        <source>You can sign messages/agreements with your addresses to prove you can receive bitcoins sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
+        <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
         <translation>Ви можете підписувати повідомлення/угоди своїми адресами, щоб довести можливість отримання біткоінів, що будуть надіслані на них. Остерігайтеся підписувати будь-що нечітке чи неочікуване, так як за допомогою фішинг-атаки вас можуть спробувати ввести в оману для отримання вашого підпису під чужими словами. Підписуйте лише чіткі твердження, з якими ви повністю згодні.</translation>
     </message>
     <message>
-        <source>The Bitcoin address to sign the message with</source>
-        <translation>Адреса Bitcoin для підпису цього повідомлення</translation>
+        <source>The Qtum address to sign the message with</source>
+        <translation>Адреса Qtum для підпису цього повідомлення</translation>
     </message>
     <message>
         <source>Choose previously used address</source>
@@ -2614,7 +2614,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>Копіювати поточну сигнатуру до системного буферу обміну</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this Bitcoin address</source>
+        <source>Sign the message to prove you own this Qtum address</source>
         <translation>Підпишіть повідомлення щоб довести, що ви є власником цієї адреси</translation>
     </message>
     <message>
@@ -2638,8 +2638,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>Введіть нижче адресу отримувача, повідомлення (впевніться, що ви точно скопіювали символи завершення рядка, табуляцію, пробіли тощо) та підпис для перевірки повідомлення. Впевніться, що в підпис не було додано зайвих символів: це допоможе уникнути атак типу «людина посередині». Зауважте, що це лише засвідчує можливість отримання транзакцій підписувачем, але не в стані підтвердити джерело жодної транзакції!</translation>
     </message>
     <message>
-        <source>The Bitcoin address the message was signed with</source>
-        <translation>Адреса Bitcoin, якою було підписано це повідомлення</translation>
+        <source>The Qtum address the message was signed with</source>
+        <translation>Адреса Qtum, якою було підписано це повідомлення</translation>
     </message>
     <message>
         <source>The signed message to verify</source>
@@ -2650,8 +2650,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>Підпис наданий при підписанні цього повідомлення</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified Bitcoin address</source>
-        <translation>Перевірте повідомлення для впевненості, що воно підписано вказаною Bitcoin-адресою</translation>
+        <source>Verify the message to ensure it was signed with the specified Qtum address</source>
+        <translation>Перевірте повідомлення для впевненості, що воно підписано вказаною Qtum-адресою</translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
@@ -3301,7 +3301,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     </message>
 </context>
 <context>
-    <name>bitcoin-core</name>
+    <name>qtum-core</name>
     <message>
         <source>Distributed under the MIT software license, see the accompanying file %s or %s</source>
         <translation>Розповсюджується за ліцензією на програмне забезпечення MIT, дивіться супровідний файл %s або %s</translation>

@@ -62,8 +62,8 @@
         <translation>Ontvang adresse</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation>Dit is jou Bitcoin-adresse vir die stuur van betalings. Kontroleer altyd die bedrag en die ontvangsadres voordat u munte stuur.</translation>
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation>Dit is jou Qtum-adresse vir die stuur van betalings. Kontroleer altyd die bedrag en die ontvangsadres voordat u munte stuur.</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -156,8 +156,8 @@
         <translation>Bevestig beursie enkripsie.</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
-        <translation>Waarskuwing: As jy jou beursie enkripteer en jou wagwoord verloor, sal jy &lt;b&gt;AL JOU BITCOINS VERLOOR&lt;/b&gt;!</translation>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
+        <translation>Waarskuwing: As jy jou beursie enkripteer en jou wagwoord verloor, sal jy &lt;b&gt;AL JOU QTUMS VERLOOR&lt;/b&gt;!</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -216,7 +216,7 @@
     </message>
 </context>
 <context>
-    <name>BitcoinGUI</name>
+    <name>QtumGUI</name>
     <message>
         <source>Sign &amp;message...</source>
         <translation>Teken &amp;Boodskap</translation>
@@ -310,8 +310,8 @@
         <translation>Herindekseer blokke op skyf...</translation>
     </message>
     <message>
-        <source>Send coins to a Bitcoin address</source>
-        <translation>Stuur muntstukke na 'n Bitcoin adres</translation>
+        <source>Send coins to a Qtum address</source>
+        <translation>Stuur muntstukke na 'n Qtum adres</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -346,12 +346,12 @@
         <translation>Versleutel die private sleutels wat aan u beursie behoort</translation>
     </message>
     <message>
-        <source>Sign messages with your Bitcoin addresses to prove you own them</source>
-        <translation>Teken boodskappe met u Bitcoin adresse om te bewys dat u hul besit</translation>
+        <source>Sign messages with your Qtum addresses to prove you own them</source>
+        <translation>Teken boodskappe met u Qtum adresse om te bewys dat u hul besit</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Bitcoin addresses</source>
-        <translation>Bevestig boodskappe om te verseker dat hulle geteken was met gespesifiseerde Bitcoin adresse</translation>
+        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
+        <translation>Bevestig boodskappe om te verseker dat hulle geteken was met gespesifiseerde Qtum adresse</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -370,8 +370,8 @@
         <translation>Blad nutsbalk</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
-        <translation>Versoek betalings (genereer QR kodes en bitcoin: URIs)</translation>
+        <source>Request payments (generates QR codes and qtum: URIs)</source>
+        <translation>Versoek betalings (genereer QR kodes en qtum: URIs)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -422,8 +422,8 @@
         <translation>Op datum</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Bitcoin command-line options</source>
-        <translation>Wys die %1 hulpboodskap om 'n lys met moontlike Bitcoin bevel-lyn opsies te verkry</translation>
+        <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
+        <translation>Wys die %1 hulpboodskap om 'n lys met moontlike Qtum bevel-lyn opsies te verkry</translation>
     </message>
     <message>
         <source>&amp;Window</source>
@@ -500,8 +500,8 @@
         <translation>Beursie is &lt;b&gt;versleutel&lt;/b&gt; en is tans &lt;b&gt;gesluit&lt;/b&gt;</translation>
     </message>
     <message>
-        <source>A fatal error occurred. Bitcoin can no longer continue safely and will quit.</source>
-        <translation>'n Noodlottige fout het voorgekom. Bitcoin kan nie langer voortgaan nie en sal afsluit.</translation>
+        <source>A fatal error occurred. Qtum can no longer continue safely and will quit.</source>
+        <translation>'n Noodlottige fout het voorgekom. Qtum kan nie langer voortgaan nie en sal afsluit.</translation>
     </message>
 </context>
 <context>
@@ -696,8 +696,8 @@
         <translation>Wysig stuurende adres</translation>
     </message>
     <message>
-        <source>The entered address "%1" is not a valid Bitcoin address.</source>
-        <translation>Die ingeskrewe adres "%1" is nie 'n geldige Bitcoin adres nie.</translation>
+        <source>The entered address "%1" is not a valid Qtum address.</source>
+        <translation>Die ingeskrewe adres "%1" is nie 'n geldige Qtum adres nie.</translation>
     </message>
     <message>
         <source>Could not unlock wallet.</source>
@@ -765,8 +765,8 @@
         <translation>Gebruik 'n persoonlike data gids:</translation>
     </message>
     <message>
-        <source>Bitcoin</source>
-        <translation>Bitcoin</translation>
+        <source>Qtum</source>
+        <translation>Qtum</translation>
     </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
@@ -1069,8 +1069,8 @@
         <translation>Bedrag</translation>
     </message>
     <message>
-        <source>Enter a Bitcoin address (e.g. %1)</source>
-        <translation>Voer in 'n Bitcoin adres (bv. %1)</translation>
+        <source>Enter a Qtum address (e.g. %1)</source>
+        <translation>Voer in 'n Qtum adres (bv. %1)</translation>
     </message>
     <message>
         <source>%1 d</source>
@@ -1635,8 +1635,8 @@ transaksievertragingsrisiko.</translation>
         <translation>Betalings versoek verstryk.</translation>
     </message>
     <message>
-        <source>Warning: Invalid Bitcoin address</source>
-        <translation>Waarskuwing: Ongeldige Bitcoinadres</translation>
+        <source>Warning: Invalid Qtum address</source>
+        <translation>Waarskuwing: Ongeldige Qtumadres</translation>
     </message>
     <message>
         <source>The address you selected for change is not part of this wallet. Any or all funds in your wallet may be sent to this address. Are you sure?</source>
@@ -1668,8 +1668,8 @@ Is u seker?</translation>
         <translation>Kies voorheen gebruikte adres</translation>
     </message>
     <message>
-        <source>The Bitcoin address to send the payment to</source>
-        <translation>Die Bitcoinadres waarheen die betaling gestuur word</translation>
+        <source>The Qtum address to send the payment to</source>
+        <translation>Die Qtumadres waarheen die betaling gestuur word</translation>
     </message>
     <message>
         <source>Alt+A</source>
@@ -1684,7 +1684,7 @@ Is u seker?</translation>
         <translation>Verwyder hierdie inskrywing</translation>
     </message>
     <message>
-        <source>The fee will be deducted from the amount being sent. The recipient will receive less bitcoins than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
+        <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
         <translation>De fooi word afgetrek van die gestuurde bedrag.
 Die ontvanger sal minder ontvang as wat u in die 
 bedrag opgee. As daar meer as een ontvanger is,
@@ -2065,7 +2065,7 @@ word die fooi eweredig verdeel.</translation>
     </message>
     </context>
 <context>
-    <name>bitcoin-core</name>
+    <name>qtum-core</name>
     <message>
         <source>Error loading %s</source>
         <translation>Fout met laai %s</translation>

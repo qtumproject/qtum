@@ -66,12 +66,12 @@
         <translation>Alınan Adresler</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation>Bunlar ödeme göndermek için gereken Bitcoin adreslerinizdir. Para göndermeden önce her zaman miktarı ve alıcı adresi kontrol edin.</translation>
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation>Bunlar ödeme göndermek için gereken Qtum adreslerinizdir. Para göndermeden önce her zaman miktarı ve alıcı adresi kontrol edin.</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.</source>
-        <translation>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.</translation>
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.</source>
+        <translation>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -168,8 +168,8 @@
         <translation>Cüzdan Şifrelemesini Onaylayın</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
-        <translation>Uyarı: Eğer cüzdanınızı şifreleyip parolanızı kaybederseniz (unutursanız) , &lt;b&gt;BÜTÜN BITCOIN'LERINIZI KAYBEDECEKSINIZ&lt;/b&gt;!</translation>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
+        <translation>Uyarı: Eğer cüzdanınızı şifreleyip parolanızı kaybederseniz (unutursanız) , &lt;b&gt;BÜTÜN QTUM'LERINIZI KAYBEDECEKSINIZ&lt;/b&gt;!</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -188,8 +188,8 @@
         <translation>Enter the old passphrase and new passphrase for the wallet.</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
-        <translation>Cüzdanınızı şifrelemenin, bitcoinlerinizin bilgisayara bulaşan kötücül bir yazılım tarafından çalınmaya karşı tamamen koruyamayacağını unutmayınız.</translation>
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
+        <translation>Cüzdanınızı şifrelemenin, qtumlerinizin bilgisayara bulaşan kötücül bir yazılım tarafından çalınmaya karşı tamamen koruyamayacağını unutmayınız.</translation>
     </message>
     <message>
         <source>Wallet to be encrypted</source>
@@ -252,7 +252,7 @@
     </message>
 </context>
 <context>
-    <name>BitcoinGUI</name>
+    <name>QtumGUI</name>
     <message>
         <source>Sign &amp;message...</source>
         <translation>İmza &amp;mesaj</translation>
@@ -362,8 +362,8 @@
         <translation>Tünelleme &lt;b&gt;etkin&lt;/b&gt;: %1</translation>
     </message>
     <message>
-        <source>Send coins to a Bitcoin address</source>
-        <translation>Bitcoin adresine madeni para gönderin</translation>
+        <source>Send coins to a Qtum address</source>
+        <translation>Qtum adresine madeni para gönderin</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -398,12 +398,12 @@
         <translation>Cüzdanınıza ait özel anahtarları şifreleyin</translation>
     </message>
     <message>
-        <source>Sign messages with your Bitcoin addresses to prove you own them</source>
-        <translation>İletileri adreslerin size ait olduğunu ispatlamak için Bitcoin adresleri ile imzala</translation>
+        <source>Sign messages with your Qtum addresses to prove you own them</source>
+        <translation>İletileri adreslerin size ait olduğunu ispatlamak için Qtum adresleri ile imzala</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Bitcoin addresses</source>
-        <translation>Belirtilen Bitcoin adresleri ile imzalandıklarından emin olmak için iletileri kontrol et</translation>
+        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
+        <translation>Belirtilen Qtum adresleri ile imzalandıklarından emin olmak için iletileri kontrol et</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -422,8 +422,8 @@
         <translation>Sekme araç çubuğu</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
-        <translation>Ödeme talep et (QR kodu ve bitcoin URI'si oluşturur)</translation>
+        <source>Request payments (generates QR codes and qtum: URIs)</source>
+        <translation>Ödeme talep et (QR kodu ve qtum URI'si oluşturur)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -438,8 +438,8 @@
         <translation>Komut satırı ayarları</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Bitcoin network</source>
-        <translation><numerusform>Bitcoin şebekesine %n faal bağlantı</numerusform><numerusform>Bitcoin ağına %n etkin bağlantı var</numerusform></translation>
+        <source>%n active connection(s) to Qtum network</source>
+        <translation><numerusform>Qtum şebekesine %n faal bağlantı</numerusform><numerusform>Qtum ağına %n etkin bağlantı var</numerusform></translation>
     </message>
     <message>
         <source>Indexing blocks on disk...</source>
@@ -498,8 +498,8 @@
         <translation>&amp;Receiving addresses</translation>
     </message>
     <message>
-        <source>Open a bitcoin: URI</source>
-        <translation>Open a bitcoin: URI</translation>
+        <source>Open a qtum: URI</source>
+        <translation>Open a qtum: URI</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -518,8 +518,8 @@
         <translation>Cüzdanı Kapat</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Bitcoin command-line options</source>
-        <translation>Olası Bitcoin komut satırı seçeneklerinin listesini görmek için %1 yardım mesajını göster</translation>
+        <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
+        <translation>Olası Qtum komut satırı seçeneklerinin listesini görmek için %1 yardım mesajını göster</translation>
     </message>
     <message>
         <source>default wallet</source>
@@ -629,15 +629,15 @@
         <translation>Cüzdan &lt;b&gt;şifrelenmiştir&lt;/b&gt; ve şu anda &lt;b&gt;kilitlidir&lt;/b&gt;</translation>
     </message>
     <message>
-        <source>A fatal error occurred. Bitcoin can no longer continue safely and will quit.</source>
-        <translation>Ölümcül bir hata oluştu. Bitcoin yazılımı artık güvenli bir şekilde çalışmaya devam edemediği için kapatılacaktır.</translation>
+        <source>A fatal error occurred. Qtum can no longer continue safely and will quit.</source>
+        <translation>Ölümcül bir hata oluştu. Qtum yazılımı artık güvenli bir şekilde çalışmaya devam edemediği için kapatılacaktır.</translation>
     </message>
 </context>
 <context>
     <name>CoinControlDialog</name>
     <message>
         <source>Coin Selection</source>
-        <translation>Bitcoin Seçimi</translation>
+        <translation>Qtum Seçimi</translation>
     </message>
     <message>
         <source>Quantity:</source>
@@ -873,8 +873,8 @@
         <translation>Gönderim adresini düzenleyin</translation>
     </message>
     <message>
-        <source>The entered address "%1" is not a valid Bitcoin address.</source>
-        <translation>Girilen adres "%1" Bitcoin adresiyle eşleşmiyor.</translation>
+        <source>The entered address "%1" is not a valid Qtum address.</source>
+        <translation>Girilen adres "%1" Qtum adresiyle eşleşmiyor.</translation>
     </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
@@ -966,8 +966,8 @@
         <translation>Özel bir veri klasörü kullan:</translation>
     </message>
     <message>
-        <source>Bitcoin</source>
-        <translation>Bitcoin
+        <source>Qtum</source>
+        <translation>Qtum
 </translation>
     </message>
     <message>
@@ -983,8 +983,8 @@
         <translation>Yaklaşık %1 GB veri bu dizinde depolanacak.</translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the Bitcoin block chain.</source>
-        <translation>%1 lik Bitcoin blok zinciri nin bir kopyasını indirecek ve depolayacak.</translation>
+        <source>%1 will download and store a copy of the Qtum block chain.</source>
+        <translation>%1 lik Qtum blok zinciri nin bir kopyasını indirecek ve depolayacak.</translation>
     </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
@@ -1018,12 +1018,12 @@
         <translation>Form</translation>
     </message>
     <message>
-        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the bitcoin network, as detailed below.</source>
-        <translation>Son işlemler henüz görünmeyebilir ve bu nedenle cüzdanınızın bakiyesi yanlış olabilir. Bu bilgiler, aşağıda detaylandırıldığı gibi, cüzdanınız bitcoin ağı ile senkronizasyonunu tamamladığında doğru olacaktır.</translation>
+        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
+        <translation>Son işlemler henüz görünmeyebilir ve bu nedenle cüzdanınızın bakiyesi yanlış olabilir. Bu bilgiler, aşağıda detaylandırıldığı gibi, cüzdanınız qtum ağı ile senkronizasyonunu tamamladığında doğru olacaktır.</translation>
     </message>
     <message>
-        <source>Attempting to spend bitcoins that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
-        <translation>Henüz görüntülenmeyen işlemlerden etkilenen bitcoinleri harcama girişiminde bulunmak ağ tarafından kabul edilmeyecektir.</translation>
+        <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
+        <translation>Henüz görüntülenmeyen işlemlerden etkilenen qtumleri harcama girişiminde bulunmak ağ tarafından kabul edilmeyecektir.</translation>
     </message>
     <message>
         <source>Number of blocks left</source>
@@ -1073,8 +1073,8 @@
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open bitcoin URI</source>
-        <translation>Open bitcoin URI</translation>
+        <source>Open qtum URI</source>
+        <translation>Open qtum URI</translation>
     </message>
     <message>
         <source>URI:</source>
@@ -1219,8 +1219,8 @@
         <translation>Doğrulanmamış para üstünü &amp;harca</translation>
     </message>
     <message>
-        <source>Automatically open the Bitcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Yönlendiricide Bitcoin istemci portlarını otomatik olarak açar. Bu, sadece yönlendiricinizin UPnP desteği bulunuyorsa ve etkinse çalışabilir.</translation>
+        <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>Yönlendiricide Qtum istemci portlarını otomatik olarak açar. Bu, sadece yönlendiricinizin UPnP desteği bulunuyorsa ve etkinse çalışabilir.</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
@@ -1235,8 +1235,8 @@
         <translation>Gelen bağlantılara izin ver</translation>
     </message>
     <message>
-        <source>Connect to the Bitcoin network through a SOCKS5 proxy.</source>
-        <translation>Bitcoin ağına bir SOCKS5 vekil sunucusu aracılığıyla bağlan.</translation>
+        <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
+        <translation>Qtum ağına bir SOCKS5 vekil sunucusu aracılığıyla bağlan.</translation>
     </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
@@ -1271,8 +1271,8 @@
         <translation>Tor</translation>
     </message>
     <message>
-        <source>Connect to the Bitcoin network through a separate SOCKS5 proxy for Tor hidden services.</source>
-        <translation>Bitcoin ağına gizli Tor servisleri için ayrı bir SOCKS5 vekil sunucusu aracılığıyla bağlan.</translation>
+        <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor hidden services.</source>
+        <translation>Qtum ağına gizli Tor servisleri için ayrı bir SOCKS5 vekil sunucusu aracılığıyla bağlan.</translation>
     </message>
     <message>
         <source>&amp;Window</source>
@@ -1308,7 +1308,7 @@
     </message>
     <message>
         <source>Choose the default subdivision unit to show in the interface and when sending coins.</source>
-        <translation>Bitcoin gönderildiğinde arayüzde gösterilecek varsayılan alt birimi seçiniz.</translation>
+        <translation>Qtum gönderildiğinde arayüzde gösterilecek varsayılan alt birimi seçiniz.</translation>
     </message>
     <message>
         <source>Whether to show coin control features or not.</source>
@@ -1382,7 +1382,7 @@
         <translation>Form</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Bitcoin network after a connection is established, but this process has not completed yet.</source>
+        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
         <translation>Gösterilen bilgi geçerli olmayabilir. Bağlantı tekrar sağlandıktan sonra cüzdanınız otomatik olarak senkronize olacaktır. Henüz senkronize olma işlemi tamamlanmadı.</translation>
     </message>
     <message>
@@ -1457,16 +1457,16 @@
         <translation>Ödeme isteği hatası</translation>
     </message>
     <message>
-        <source>Cannot start bitcoin: click-to-pay handler</source>
-        <translation>Bitcoin başlatılamadı: tıkla-ve-öde yöneticisi</translation>
+        <source>Cannot start qtum: click-to-pay handler</source>
+        <translation>Qtum başlatılamadı: tıkla-ve-öde yöneticisi</translation>
     </message>
     <message>
         <source>URI handling</source>
         <translation>URI yönetimi</translation>
     </message>
     <message>
-        <source>'bitcoin://' is not a valid URI. Use 'bitcoin:' instead.</source>
-        <translation>'bitcoin://' geçerli bir protokol değil. Onun yerine 'bitcoin:' kullanınız.</translation>
+        <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
+        <translation>'qtum://' geçerli bir protokol değil. Onun yerine 'qtum:' kullanınız.</translation>
     </message>
     <message>
         <source>Cannot process payment request because BIP70 is not supported.</source>
@@ -1485,8 +1485,8 @@
         <translation>Hatalı ödeme adresi %1</translation>
     </message>
     <message>
-        <source>URI cannot be parsed! This can be caused by an invalid Bitcoin address or malformed URI parameters.</source>
-        <translation>URI ayrıştırılamıyor! Bunun nedeni geçersiz bir Bitcoin adresi veya hatalı biçimlendirilmiş URI değişkenleri olabilir.</translation>
+        <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source>
+        <translation>URI ayrıştırılamıyor! Bunun nedeni geçersiz bir Qtum adresi veya hatalı biçimlendirilmiş URI değişkenleri olabilir.</translation>
     </message>
     <message>
         <source>Payment request file handling</source>
@@ -1527,8 +1527,8 @@
         <translation>Tutar</translation>
     </message>
     <message>
-        <source>Enter a Bitcoin address (e.g. %1)</source>
-        <translation>Bitcoin adresinizi girin (örneğin %1)</translation>
+        <source>Enter a Qtum address (e.g. %1)</source>
+        <translation>Qtum adresinizi girin (örneğin %1)</translation>
     </message>
     <message>
         <source>%1 d</source>
@@ -1926,7 +1926,7 @@
     </message>
     <message>
         <source>WARNING: Scammers have been active, telling users to type commands here, stealing their wallet contents. Do not use this console without fully understanding the ramifications of a command.</source>
-        <translation>UYARI: Bitcoin dolandırıcılarının çok fazla etkin olduğu zamanlarda, dolandırıcılar bazı kullanıcılara buraya komutlar yazmalarını söylerek onların cüzdanlarındaki bitcoinleri çalmışlardır. Bir komutun sonuçlarını tam olarak anlamadan bu konsolu kullanmayın.</translation>
+        <translation>UYARI: Qtum dolandırıcılarının çok fazla etkin olduğu zamanlarda, dolandırıcılar bazı kullanıcılara buraya komutlar yazmalarını söylerek onların cüzdanlarındaki qtumleri çalmışlardır. Bir komutun sonuçlarını tam olarak anlamadan bu konsolu kullanmayın.</translation>
     </message>
     <message>
         <source>Network activity disabled</source>
@@ -1988,8 +1988,8 @@
         <translation>&amp;Mesaj</translation>
     </message>
     <message>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Bitcoin network.</source>
-        <translation>Talep açıldığında gösterilecek, isteğinize dayalı, ödeme talebi ile ilişkilendirilecek bir ileti. Not: Bu ileti ödeme ile birlikte Bitcoin ağı üzerinden gönderilmeyecektir.</translation>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
+        <translation>Talep açıldığında gösterilecek, isteğinize dayalı, ödeme talebi ile ilişkilendirilecek bir ileti. Not: Bu ileti ödeme ile birlikte Qtum ağı üzerinden gönderilmeyecektir.</translation>
     </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
@@ -2269,8 +2269,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>Hide transaction fee settings</translation>
     </message>
     <message>
-        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for bitcoin transactions than the network can process.</source>
-        <translation>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for bitcoin transactions than the network can process.</translation>
+        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
+        <translation>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</translation>
     </message>
     <message>
         <source>A too low fee might result in a never confirming transaction (read the tooltip)</source>
@@ -2341,8 +2341,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>Cr&amp;eate Unsigned</translation>
     </message>
     <message>
-        <source>Creates a Partially Signed Bitcoin Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
-        <translation>Creates a Partially Signed Bitcoin Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</translation>
+        <source>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <translation>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</translation>
     </message>
     <message>
         <source> from wallet '%1'</source>
@@ -2365,8 +2365,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>Göndermek istediğinize emin misiniz?</translation>
     </message>
     <message>
-        <source>Please, review your transaction proposal. This will produce a Partially Signed Bitcoin Transaction (PSBT) which you can copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
-        <translation>Please, review your transaction proposal. This will produce a Partially Signed Bitcoin Transaction (PSBT) which you can copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</translation>
+        <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <translation>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</translation>
     </message>
     <message>
         <source>or</source>
@@ -2457,8 +2457,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation><numerusform>Tahmini %n blok içinde doğrulamaya başlanacaktır.</numerusform><numerusform>Tahmini %n blok içinde doğrulamaya başlanacaktır.</numerusform></translation>
     </message>
     <message>
-        <source>Warning: Invalid Bitcoin address</source>
-        <translation>Uyarı: Hatalı Bitcoin adresi</translation>
+        <source>Warning: Invalid Qtum address</source>
+        <translation>Uyarı: Hatalı Qtum adresi</translation>
     </message>
     <message>
         <source>Warning: Unknown change address</source>
@@ -2496,8 +2496,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>Önceden kullanılmış adres seç</translation>
     </message>
     <message>
-        <source>The Bitcoin address to send the payment to</source>
-        <translation>Ödemenin yollanacağı Bitcoin adresi</translation>
+        <source>The Qtum address to send the payment to</source>
+        <translation>Ödemenin yollanacağı Qtum adresi</translation>
     </message>
     <message>
         <source>Alt+A</source>
@@ -2520,8 +2520,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>The amount to send in the selected unit</translation>
     </message>
     <message>
-        <source>The fee will be deducted from the amount being sent. The recipient will receive less bitcoins than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
-        <translation>Ücret yollanan tutardan alınacaktır. Alıcı tutar alanına girdiğinizden daha az bitcoin alacaktır. Eğer birden çok alıcı seçiliyse ücret eşit olarak bölünecektir.</translation>
+        <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
+        <translation>Ücret yollanan tutardan alınacaktır. Alıcı tutar alanına girdiğinizden daha az qtum alacaktır. Eğer birden çok alıcı seçiliyse ücret eşit olarak bölünecektir.</translation>
     </message>
     <message>
         <source>S&amp;ubtract fee from amount</source>
@@ -2548,8 +2548,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>Kullanılmış adres listesine eklemek için bu adrese bir etiket girin</translation>
     </message>
     <message>
-        <source>A message that was attached to the bitcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Bitcoin network.</source>
-        <translation>Referans için bitcoin: URI'siyle iliştirilmiş işlemle birlikte depolanacak bir ileti. Not: Bu mesaj Bitcoin ağı üzerinden gönderilmeyecektir.</translation>
+        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
+        <translation>Referans için qtum: URI'siyle iliştirilmiş işlemle birlikte depolanacak bir ileti. Not: Bu mesaj Qtum ağı üzerinden gönderilmeyecektir.</translation>
     </message>
     <message>
         <source>Pay To:</source>
@@ -2582,12 +2582,12 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>İleti &amp;imzala</translation>
     </message>
     <message>
-        <source>You can sign messages/agreements with your addresses to prove you can receive bitcoins sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
-        <translation>Adreslerinize yollanan bitcoinleri alabileceğiniz ispatlamak için adreslerinizle iletiler/anlaşmalar imzalayabilirsiniz. Oltalama saldırılarının kimliğinizi imzanızla elde etmeyi deneyebilecekleri için belirsiz ya da rastgele hiçbir şey imzalamamaya dikkat ediniz. Sadece ayrıntılı açıklaması olan ve tümüne katıldığınız ifadeleri imzalayınız.</translation>
+        <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
+        <translation>Adreslerinize yollanan qtumleri alabileceğiniz ispatlamak için adreslerinizle iletiler/anlaşmalar imzalayabilirsiniz. Oltalama saldırılarının kimliğinizi imzanızla elde etmeyi deneyebilecekleri için belirsiz ya da rastgele hiçbir şey imzalamamaya dikkat ediniz. Sadece ayrıntılı açıklaması olan ve tümüne katıldığınız ifadeleri imzalayınız.</translation>
     </message>
     <message>
-        <source>The Bitcoin address to sign the message with</source>
-        <translation>İletinin imzalanmasında kullanılacak Bitcoin adresi</translation>
+        <source>The Qtum address to sign the message with</source>
+        <translation>İletinin imzalanmasında kullanılacak Qtum adresi</translation>
     </message>
     <message>
         <source>Choose previously used address</source>
@@ -2618,8 +2618,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>Güncel imzayı sistem panosuna kopyala</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this Bitcoin address</source>
-        <translation>Bu Bitcoin adresinin sizin olduğunu ispatlamak için iletiyi imzalayın</translation>
+        <source>Sign the message to prove you own this Qtum address</source>
+        <translation>Bu Qtum adresinin sizin olduğunu ispatlamak için iletiyi imzalayın</translation>
     </message>
     <message>
         <source>Sign &amp;Message</source>
@@ -2642,8 +2642,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>Alıcının adresini, iletiyi (satır sonları, boşluklar, sekmeler vs. karakterleri tam olarak kopyaladığınızdan emin olunuz) ve imzayı aşağıya giriniz. Bir ortadaki adam saldırısı tarafından kandırılmaya engel olmak için imzadan, imzalı iletinin içeriğini aşan bir anlam çıkarmamaya dikkat ediniz. Bunun sadece imzalayan tarafın adres ile alım yapabildiğini ispatladığını ve herhangi bir işlemin gönderi tarafını kanıtlayamayacağını unutmayınız!</translation>
     </message>
     <message>
-        <source>The Bitcoin address the message was signed with</source>
-        <translation>İletinin imzalanmasında kullanılan Bitcoin adresi</translation>
+        <source>The Qtum address the message was signed with</source>
+        <translation>İletinin imzalanmasında kullanılan Qtum adresi</translation>
     </message>
     <message>
         <source>The signed message to verify</source>
@@ -2654,8 +2654,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>The signature given when the message was signed</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified Bitcoin address</source>
-        <translation>Belirtilen Bitcoin adresi ile imzalandığını doğrulamak için iletiyi kontrol et</translation>
+        <source>Verify the message to ensure it was signed with the specified Qtum address</source>
+        <translation>Belirtilen Qtum adresi ile imzalandığını doğrulamak için iletiyi kontrol et</translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
@@ -2873,7 +2873,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     </message>
     <message>
         <source>Generated coins must mature %1 blocks before they can be spent. When you generated this block, it was broadcast to the network to be added to the block chain. If it fails to get into the chain, its state will change to "not accepted" and it won't be spendable. This may occasionally happen if another node generates a block within a few seconds of yours.</source>
-        <translation>Oluşturulan bitcoin'lerin harcanabilmelerinden önce %1 blok beklemeleri gerekmektedir. Bu blok, oluşturduğunuzda, blok zincirine eklenmesi için ağda yayınlandı. Zincire eklenmesi başarısız olursa, durumu "kabul edilmedi" olarak değiştirilecek ve harcanamayacaktır. Bu, bazen başka bir düğüm sizden birkaç saniye önce ya da sonra blok oluşturursa meydana gelebilir.</translation>
+        <translation>Oluşturulan qtum'lerin harcanabilmelerinden önce %1 blok beklemeleri gerekmektedir. Bu blok, oluşturduğunuzda, blok zincirine eklenmesi için ağda yayınlandı. Zincire eklenmesi başarısız olursa, durumu "kabul edilmedi" olarak değiştirilecek ve harcanamayacaktır. Bu, bazen başka bir düğüm sizden birkaç saniye önce ya da sonra blok oluşturursa meydana gelebilir.</translation>
     </message>
     <message>
         <source>Debug information</source>
@@ -3305,7 +3305,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     </message>
 </context>
 <context>
-    <name>bitcoin-core</name>
+    <name>qtum-core</name>
     <message>
         <source>Distributed under the MIT software license, see the accompanying file %s or %s</source>
         <translation>MIT yazılım lisansı altında dağıtılmıştır, beraberindeki %s ya da %s dosyasına bakınız.</translation>
@@ -3364,7 +3364,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     </message>
     <message>
         <source>This is a pre-release test build - use at your own risk - do not use for mining or merchant applications</source>
-        <translation>Bu kararlı sürümden önceki bir deneme sürümüdür. - risklerini bilerek kullanma sorumluluğu sizdedir - bitcoin oluşturmak ya da ticari uygulamalar için kullanmayınız</translation>
+        <translation>Bu kararlı sürümden önceki bir deneme sürümüdür. - risklerini bilerek kullanma sorumluluğu sizdedir - qtum oluşturmak ya da ticari uygulamalar için kullanmayınız</translation>
     </message>
     <message>
         <source>This is the transaction fee you may discard if change is smaller than dust at this level</source>
@@ -3667,7 +3667,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     </message>
     <message>
         <source>The transaction amount is too small to pay the fee</source>
-        <translation>İşlemdeki bitcoin tutarı ücreti ödemek için çok düşük</translation>
+        <translation>İşlemdeki qtum tutarı ücreti ödemek için çok düşük</translation>
     </message>
     <message>
         <source>This is experimental software.</source>

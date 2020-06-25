@@ -66,8 +66,8 @@
         <translation>Adrese primalaca</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation>Ovo su vaše Bitcoin adrese za slanje novca. Uvijek provjerite iznos i adresu primaoca prije slanja novca.</translation>
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation>Ovo su vaše Qtum adrese za slanje novca. Uvijek provjerite iznos i adresu primaoca prije slanja novca.</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -108,7 +108,7 @@
     <name>BanTableModel</name>
     </context>
 <context>
-    <name>BitcoinGUI</name>
+    <name>QtumGUI</name>
     </context>
 <context>
     <name>CoinControlDialog</name>
@@ -131,8 +131,8 @@
 <context>
     <name>Intro</name>
     <message>
-        <source>Bitcoin</source>
-        <translation>Bitcoin</translation>
+        <source>Qtum</source>
+        <translation>Qtum</translation>
     </message>
     </context>
 <context>
@@ -269,6 +269,6 @@
     </message>
     </context>
 <context>
-    <name>bitcoin-core</name>
+    <name>qtum-core</name>
     </context>
 </TS>

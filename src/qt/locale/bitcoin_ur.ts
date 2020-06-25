@@ -120,7 +120,7 @@
     <name>BanTableModel</name>
     </context>
 <context>
-    <name>BitcoinGUI</name>
+    <name>QtumGUI</name>
     <message>
         <source>Error</source>
         <translation>نقص</translation>
@@ -341,7 +341,7 @@
     </message>
     </context>
 <context>
-    <name>bitcoin-core</name>
+    <name>qtum-core</name>
     <message>
         <source>Insufficient funds</source>
         <translation>ناکافی فنڈز</translation>
