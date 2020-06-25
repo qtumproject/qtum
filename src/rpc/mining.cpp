@@ -16,6 +16,7 @@
 #include <node/context.h>
 #include <policy/fees.h>
 #include <pow.h>
+#include <pos.h>
 #include <rpc/blockchain.h>
 #include <rpc/server.h>
 #include <rpc/util.h>
@@ -34,6 +35,12 @@
 #include <versionbitsinfo.h>
 #include <warnings.h>
 
+#include <util/time.h>
+#ifdef ENABLE_WALLET
+#include <wallet/wallet.h>
+#include <wallet/walletdb.h>
+#include <wallet/rpcwallet.h>
+#endif
 #include <memory>
 #include <stdint.h>
 
@@ -82,7 +89,7 @@ static UniValue GetNetworkHashPS(int lookup, int height) {
 static UniValue getnetworkhashps(const JSONRPCRequest& request)
 {
             RPCHelpMan{"getnetworkhashps",
-                "\nReturns the estimated network hashes per second based on the last n blocks.\n"
+                "\nReturns the estimated network hashes per second based on the last n blocks (for PoW only).\n"
                 "Pass in [blocks] to override # of blocks, -1 specifies since last difficulty change.\n"
                 "Pass in [height] to estimate the network speed at the time when a certain block was found.\n",
                 {
@@ -115,7 +122,7 @@ static UniValue generateBlocks(const CTxMemPool& mempool, const CScript& coinbas
     UniValue blockHashes(UniValue::VARR);
     while (nHeight < nHeightEnd && !ShutdownRequested())
     {
-        std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(mempool, Params()).CreateNewBlock(coinbase_script));
+        std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(mempool, Params()).CreateNewBlock(coinbase_script, true, false, nullptr, 0, GetAdjustedTime()+POW_MINER_MAX_TIME));
         if (!pblocktemplate.get())
             throw JSONRPCError(RPC_INTERNAL_ERROR, "Couldn't create new block");
         CBlock *pblock = &pblocktemplate->block;
@@ -195,7 +202,7 @@ static UniValue generatetoaddress(const JSONRPCRequest& request)
                 "\nMine blocks immediately to a specified address (before the RPC call returns)\n",
                 {
                     {"nblocks", RPCArg::Type::NUM, RPCArg::Optional::NO, "How many blocks are generated immediately."},
-                    {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The address to send the newly generated bitcoin to."},
+                    {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The address to send the newly generated qtum to."},
                     {"maxtries", RPCArg::Type::NUM, /* default */ "1000000", "How many iterations to try."},
                 },
                 RPCResult{
@@ -229,6 +236,26 @@ static UniValue generatetoaddress(const JSONRPCRequest& request)
     return generateBlocks(mempool, coinbase_script, nGenerate, nMaxTries);
 }
 
+static UniValue getsubsidy(const JSONRPCRequest& request)
+{
+            RPCHelpMan{"getsubsidy",
+                "\nReturns subsidy value for the specified value of target.",
+                {},
+                RPCResult{
+                    RPCResult::Type::NUM, "subsidy", "Subsidy value for the specified target"
+                },
+                RPCExamples{
+                    HelpExampleCli("getsubsidy", "")
+            + HelpExampleRpc("getsubsidy", "")
+                },
+            }.Check(request);
+    int nTarget = request.params.size() == 1 ? request.params[0].get_int() : ::ChainActive().Height();
+    if (nTarget < 0)
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Block height out of range");
+    const Consensus::Params& consensusParams = Params().GetConsensus();
+    return (uint64_t)GetBlockSubsidy(nTarget, consensusParams);
+}
+
 static UniValue getmininginfo(const JSONRPCRequest& request)
 {
             RPCHelpMan{"getmininginfo",
@@ -256,17 +283,118 @@ static UniValue getmininginfo(const JSONRPCRequest& request)
     const CTxMemPool& mempool = EnsureMemPool();
 
     UniValue obj(UniValue::VOBJ);
+    UniValue diff(UniValue::VOBJ);
+    UniValue weight(UniValue::VOBJ);
+
     obj.pushKV("blocks",           (int)::ChainActive().Height());
     if (BlockAssembler::m_last_block_weight) obj.pushKV("currentblockweight", *BlockAssembler::m_last_block_weight);
     if (BlockAssembler::m_last_block_num_txs) obj.pushKV("currentblocktx", *BlockAssembler::m_last_block_num_txs);
-    obj.pushKV("difficulty",       (double)GetDifficulty(::ChainActive().Tip()));
+
+    uint64_t nWeight = 0;
+    uint64_t lastCoinStakeSearchInterval = 0;
+#ifdef ENABLE_WALLET
+    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
+    CWallet* const pwallet = wallet.get();
+    if (pwallet)
+    {
+        LOCK(pwallet->cs_wallet);
+        auto locked_chain = pwallet->chain().lock();
+        nWeight = pwallet->GetStakeWeight(*locked_chain);
+        lastCoinStakeSearchInterval = pwallet->m_last_coin_stake_search_interval;
+    }
+#endif
+
+    diff.pushKV("proof-of-work",   GetDifficulty(GetLastBlockIndex(pindexBestHeader, false)));
+    diff.pushKV("proof-of-stake",  GetDifficulty(GetLastBlockIndex(pindexBestHeader, true)));
+    diff.pushKV("search-interval", (int)lastCoinStakeSearchInterval);
+    obj.pushKV("difficulty",       diff);
+
+    const Consensus::Params& consensusParams = Params().GetConsensus();
+    obj.pushKV("blockvalue",    (uint64_t)GetBlockSubsidy(::ChainActive().Height(), consensusParams));
+
+    obj.pushKV("netmhashps",       GetPoWMHashPS());
+    obj.pushKV("netstakeweight",   GetPoSKernelPS());
+    obj.pushKV("errors",           GetWarnings("statusbar"));
     obj.pushKV("networkhashps",    getnetworkhashps(request));
     obj.pushKV("pooledtx",         (uint64_t)mempool.size());
+
+    weight.pushKV("minimum",       (uint64_t)nWeight);
+    weight.pushKV("maximum",       (uint64_t)0);
+    weight.pushKV("combined",      (uint64_t)nWeight);
+    obj.pushKV("stakeweight",      weight);
+
     obj.pushKV("chain",            Params().NetworkIDString());
     obj.pushKV("warnings",         GetWarnings(false));
     return obj;
 }
 
+static UniValue getstakinginfo(const JSONRPCRequest& request)
+{
+            RPCHelpMan{"getstakinginfo",
+                "\nReturns an object containing staking-related information.",
+                {},
+                RPCResult{
+                    RPCResult::Type::OBJ, "", "",
+                    {
+                        {RPCResult::Type::BOOL, "enabled", "'true' if staking is enabled"},
+                        {RPCResult::Type::BOOL, "staking", "'true' if wallet is currently staking"},
+                        {RPCResult::Type::STR, "errors", "error messages"},
+                        {RPCResult::Type::NUM, "pooledtx", "The size of the mempool"},
+                        {RPCResult::Type::NUM, "difficulty", "The current difficulty"},
+                        {RPCResult::Type::NUM, "search-interval", "The staker search interval"},
+                        {RPCResult::Type::NUM, "weight", "The staker weight"},
+                        {RPCResult::Type::NUM, "netstakeweight", "Network stake weight"},
+                        {RPCResult::Type::NUM, "expectedtime", "Expected time to earn reward"},
+                    }
+                },
+                RPCExamples{
+                    HelpExampleCli("getstakinginfo", "")
+            + HelpExampleRpc("getstakinginfo", "")
+                },
+            }.Check(request);
+
+    LOCK(cs_main);
+
+    uint64_t nWeight = 0;
+    uint64_t lastCoinStakeSearchInterval = 0;
+#ifdef ENABLE_WALLET
+    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
+    CWallet* const pwallet = wallet.get();
+
+    if (pwallet)
+    {
+        LOCK(pwallet->cs_wallet);
+        auto locked_chain = pwallet->chain().lock();
+        nWeight = pwallet->GetStakeWeight(*locked_chain);
+        lastCoinStakeSearchInterval = pwallet->m_enabled_staking ? pwallet->m_last_coin_stake_search_interval : 0;
+    }
+#endif
+
+    uint64_t nNetworkWeight = GetPoSKernelPS();
+    bool staking = lastCoinStakeSearchInterval && nWeight;
+    const Consensus::Params& consensusParams = Params().GetConsensus();
+    int64_t nTargetSpacing = consensusParams.nPowTargetSpacing;
+    uint64_t nExpectedTime = staking ? (nTargetSpacing * nNetworkWeight / nWeight) : 0;
+
+    UniValue obj(UniValue::VOBJ);
+
+    obj.pushKV("enabled", gArgs.GetBoolArg("-staking", true));
+    obj.pushKV("staking", staking);
+    obj.pushKV("errors", GetWarnings("statusbar"));
+
+    if (BlockAssembler::m_last_block_num_txs) obj.pushKV("currentblocktx", *BlockAssembler::m_last_block_num_txs);
+    obj.pushKV("pooledtx", (uint64_t)mempool.size());
+
+    obj.pushKV("difficulty", GetDifficulty(GetLastBlockIndex(pindexBestHeader, true)));
+    obj.pushKV("search-interval", (int)lastCoinStakeSearchInterval);
+
+    obj.pushKV("weight", (uint64_t)nWeight);
+    obj.pushKV("netstakeweight", (uint64_t)nNetworkWeight);
+
+    obj.pushKV("expectedtime", nExpectedTime);
+
+    return obj;
+}
 
 // NOTE: Unlike wallet RPC (which use BTC values), mining RPCs follow GBT (BIP 22) in using satoshi amounts
 static UniValue prioritisetransaction(const JSONRPCRequest& request)
@@ -566,7 +694,7 @@ static UniValue getblocktemplate(const JSONRPCRequest& request)
 
         // Create new block
         CScript scriptDummy = CScript() << OP_TRUE;
-        pblocktemplate = BlockAssembler(mempool, Params()).CreateNewBlock(scriptDummy);
+        pblocktemplate = BlockAssembler(mempool, Params()).CreateNewBlock(scriptDummy, true, ::ChainActive().Tip()->nHeight>=Params().GetConsensus().nLastPOWBlock?true:false);
         if (!pblocktemplate)
             throw JSONRPCError(RPC_OUT_OF_MEMORY, "Out of memory");
 
@@ -1035,6 +1163,8 @@ static const CRPCCommand commands[] =
     { "mining",             "submitblock",            &submitblock,            {"hexdata","dummy"} },
     { "mining",             "submitheader",           &submitheader,           {"hexdata"} },
 
+    { "mining",             "getsubsidy",             &getsubsidy,             {"height"} },
+    { "mining",             "getstakinginfo",         &getstakinginfo,         {} },
 
     { "generating",         "generatetoaddress",      &generatetoaddress,      {"nblocks","address","maxtries"} },
     { "generating",         "generatetodescriptor",   &generatetodescriptor,   {"num_blocks","descriptor","maxtries"} },
