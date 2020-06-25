@@ -53,7 +53,7 @@ BlockAssembler MinerTestingSetup::AssemblerForTest(const CChainParams& params)
 {
     BlockAssembler::Options options;
 
-    options.nBlockMaxWeight = MAX_BLOCK_WEIGHT;
+    options.nBlockMaxWeight = dgpMaxBlockWeight;
     options.blockMinFeeRate = blockMinFeeRate;
     return BlockAssembler(*m_node.mempool, params, options);
 }

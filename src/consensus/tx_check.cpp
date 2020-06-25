@@ -6,6 +6,7 @@
 
 #include <primitives/transaction.h>
 #include <consensus/validation.h>
+#include <script/standard.h>
 
 bool CheckTransaction(const CTransaction& tx, TxValidationState& state)
 {
@@ -15,13 +16,16 @@ bool CheckTransaction(const CTransaction& tx, TxValidationState& state)
     if (tx.vout.empty())
         return state.Invalid(TxValidationResult::TX_CONSENSUS, "bad-txns-vout-empty");
     // Size limits (this doesn't take the witness into account, as that hasn't been checked for malleability)
-    if (::GetSerializeSize(tx, PROTOCOL_VERSION | SERIALIZE_TRANSACTION_NO_WITNESS) * WITNESS_SCALE_FACTOR > MAX_BLOCK_WEIGHT)
+    if (::GetSerializeSize(tx, PROTOCOL_VERSION | SERIALIZE_TRANSACTION_NO_WITNESS) > MAX_TRANSACTION_BASE_SIZE || 
+        ::GetSerializeSize(tx, PROTOCOL_VERSION | SERIALIZE_TRANSACTION_NO_WITNESS) * WITNESS_SCALE_FACTOR > dgpMaxBlockWeight)
         return state.Invalid(TxValidationResult::TX_CONSENSUS, "bad-txns-oversize");
 
     // Check for negative or overflow output values (see CVE-2010-5139)
     CAmount nValueOut = 0;
     for (const auto& txout : tx.vout)
     {
+        if (txout.IsEmpty() && !tx.IsCoinBase() && !tx.IsCoinStake())
+            return state.Invalid(TxValidationResult::TX_CONSENSUS, "bad-txns-vout-empty");
         if (txout.nValue < 0)
             return state.Invalid(TxValidationResult::TX_CONSENSUS, "bad-txns-vout-negative");
         if (txout.nValue > MAX_MONEY)
@@ -29,6 +33,16 @@ bool CheckTransaction(const CTransaction& tx, TxValidationState& state)
         nValueOut += txout.nValue;
         if (!MoneyRange(nValueOut))
             return state.Invalid(TxValidationResult::TX_CONSENSUS, "bad-txns-txouttotal-toolarge");
+
+        /////////////////////////////////////////////////////////// // qtum
+        if (txout.scriptPubKey.HasOpCall() || txout.scriptPubKey.HasOpCreate() || txout.scriptPubKey.HasOpSender()) {
+            std::vector<valtype> vSolutions;
+            txnouttype whichType = Solver(txout.scriptPubKey, vSolutions, true);
+            if (whichType == TX_NONSTANDARD) {
+                return state.Invalid(TxValidationResult::TX_CONSENSUS, "bad-txns-contract-nonstandard");
+            }
+        }
+        ///////////////////////////////////////////////////////////
     }
 
     // Check for duplicate inputs (see CVE-2018-17144)

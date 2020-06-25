@@ -2984,7 +2984,7 @@ static UniValue getblockstats(const JSONRPCRequest& request)
     CAmount totalfee = 0;
     int64_t inputs = 0;
     int64_t maxtxsize = 0;
-    int64_t mintxsize = MAX_BLOCK_SERIALIZED_SIZE;
+    int64_t mintxsize = dgpMaxBlockSerSize;
     int64_t outputs = 0;
     int64_t swtotal_size = 0;
     int64_t swtotal_weight = 0;
@@ -3092,7 +3092,7 @@ static UniValue getblockstats(const JSONRPCRequest& request)
     ret_all.pushKV("mediantxsize", CalculateTruncatedMedian(txsize_array));
     ret_all.pushKV("minfee", (minfee == MAX_MONEY) ? 0 : minfee);
     ret_all.pushKV("minfeerate", (minfeerate == MAX_MONEY) ? 0 : minfeerate);
-    ret_all.pushKV("mintxsize", mintxsize == MAX_BLOCK_SERIALIZED_SIZE ? 0 : mintxsize);
+    ret_all.pushKV("mintxsize", mintxsize == dgpMaxBlockSerSize ? 0 : mintxsize);
     ret_all.pushKV("outs", outputs);
     ret_all.pushKV("subsidy", GetBlockSubsidy(pindex->nHeight, Params().GetConsensus()));
     ret_all.pushKV("swtotal_size", swtotal_size);
