@@ -421,13 +421,21 @@ BOOST_AUTO_TEST_CASE(knapsack_solver_test)
         add_coin( 2*COIN);
         add_coin( 3*COIN);
         add_coin( 4*COIN); // now we have 5+6+7+8+18+20+30+100+200+300+400 = 1094 cents
-        BOOST_CHECK( testWallet.SelectCoinsMinConf(95 * CENT, filter_confirmed, GroupCoins(vCoins), setCoinsRet, nValueRet, coin_selection_params, bnb_used));
+        BOOST_CHECK( testWallet.SelectCoinsMinConf(95 * CENT, filter_standard, GroupCoins(vCoins), setCoinsRet, nValueRet, coin_selection_params, bnb_used));
         BOOST_CHECK_EQUAL(nValueRet, 1 * COIN);  // we should get 1 BTC in 1 coin
         BOOST_CHECK_EQUAL(setCoinsRet.size(), 1U);
 
-        BOOST_CHECK( testWallet.SelectCoinsMinConf(195 * CENT, filter_confirmed, GroupCoins(vCoins), setCoinsRet, nValueRet, coin_selection_params, bnb_used));
+        BOOST_CHECK( testWallet.SelectCoinsMinConf(195 * CENT, filter_standard, GroupCoins(vCoins), setCoinsRet, nValueRet, coin_selection_params, bnb_used));
         BOOST_CHECK_EQUAL(nValueRet, 2 * COIN);  // we should get 2 BTC in 1 coin
         BOOST_CHECK_EQUAL(setCoinsRet.size(), 1U);
+
+        // empty the wallet and start again only with coins with equal or bigger time than txTime
+        empty_wallet();
+        add_coin(10, 6*24, false, 0);
+
+        // coins with equal or bigger time than txTime could not be selected
+        BOOST_CHECK(!testWallet.SelectCoinsMinConf(5*CENT, filter_confirmed, GroupCoins(vCoins), setCoinsRet, nValueRet, coin_selection_params, bnb_used));
+        BOOST_CHECK(!testWallet.SelectCoinsMinConf(5*CENT + GetRandInt(100) + 1, filter_confirmed, GroupCoins(vCoins), setCoinsRet, nValueRet, coin_selection_params, bnb_used));
 
         // empty the wallet and start again, now with fractions of a cent, to test small change avoidance
 
