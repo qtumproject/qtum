@@ -16,6 +16,7 @@ class Node;
 
 extern const char *DEFAULT_GUI_PROXY_HOST;
 static constexpr unsigned short DEFAULT_GUI_PROXY_PORT = 9050;
+static const bool DEFAULT_CHECK_FOR_UPDATES = true;
 
 /**
  * Convert configured prune target MiB to displayed GB. Round up to avoid underestimating max disk usage.
@@ -89,10 +90,12 @@ public:
     QString getThirdPartyTxUrls() const { return strThirdPartyTxUrls; }
     bool getCoinControlFeatures() const { return fCoinControlFeatures; }
     const QString& getOverriddenByCommandLine() { return strOverriddenByCommandLine; }
+    bool getCheckForUpdates() const { return fCheckForUpdates; }
 
     /* Explicit setters */
     void SetPruneEnabled(bool prune, bool force = false);
     void SetPruneTargetGB(int prune_target_gb, bool force = false);
+    bool getZeroBalanceAddressToken() const { return bZeroBalanceAddressToken; }
 
     /* Restart flag helper */
     void setRestartRequired(bool fRequired);
@@ -115,6 +118,9 @@ private:
     bool fCoinControlFeatures;
     /* settings that were overridden by command-line */
     QString strOverriddenByCommandLine;
+    bool fCheckForUpdates;
+    bool bZeroBalanceAddressToken;
+    QString theme;
     bool restartApp;
 
     // Add option to list of GUI options overridden through command line/config file
@@ -126,6 +132,7 @@ Q_SIGNALS:
     void displayUnitChanged(int unit);
     void coinControlFeaturesChanged(bool);
     void hideTrayIconChanged(bool);
+    void zeroBalanceAddressTokenChanged(bool);
 };
 
 #endif // BITCOIN_QT_OPTIONSMODEL_H

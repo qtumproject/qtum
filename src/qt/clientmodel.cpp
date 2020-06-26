@@ -15,6 +15,7 @@
 #include <net.h>
 #include <netbase.h>
 #include <util/system.h>
+#include <wallet/wallet.h>
 
 #include <stdint.h>
 
@@ -48,9 +49,11 @@ ClientModel::ClientModel(interfaces::Node& node, OptionsModel *_optionsModel, QO
     });
     connect(m_thread, &QThread::finished, timer, &QObject::deleteLater);
     connect(m_thread, &QThread::started, [timer] { timer->start(); });
+    connect(this, &ClientModel::tipChanged, this, &ClientModel::updateTip);
     // move timer to thread so that polling doesn't disturb main event loop
     timer->moveToThread(m_thread);
     m_thread->start();
+    fBatchProcessingMode = false;
 
     subscribeToCoreSignals();
 }
@@ -228,6 +231,20 @@ static void BannedListChanged(ClientModel *clientmodel)
 
 static void BlockTipChanged(ClientModel *clientmodel, bool initialSync, int height, int64_t blockTime, double verificationProgress, bool fHeader)
 {
+    // Wallet batch mode checks
+    if(height > 0)
+    {
+        int64_t secs = GetTime() - blockTime;
+        bool batchMode = secs >= MAX_BLOCK_TIME_GAP ? true : false;
+        if(batchMode)
+        {
+            initialSync |= batchMode;
+            if(!clientmodel->fBatchProcessingMode)
+            {
+                clientmodel->fBatchProcessingMode = true;
+            }
+        }
+    }
     // lock free async UI updates in case we have a new block tip
     // during initial sync, only update the UI if the last update
     // was > 250ms (MODEL_UPDATE_DELAY) ago
@@ -252,6 +269,11 @@ static void BlockTipChanged(ClientModel *clientmodel, bool initialSync, int heig
                                   Q_ARG(double, verificationProgress),
                                   Q_ARG(bool, fHeader));
         assert(invoked);
+        if(!fHeader && !clientmodel->fBatchProcessingMode)
+        {
+            bool invoked = QMetaObject::invokeMethod(clientmodel, "tipChanged", Qt::QueuedConnection);
+            assert(invoked);
+        }
         nLastUpdateNotification = now;
     }
 }
@@ -288,4 +310,14 @@ bool ClientModel::getProxyInfo(std::string& ip_port) const
       return true;
     }
     return false;
+}
+
+void ClientModel::updateTip()
+{
+    // Get the new gas info
+    uint64_t blockGasLimit = 0;
+    uint64_t minGasPrice = 0;
+    uint64_t nGasPrice = 0;
+    m_node.getGasInfo(blockGasLimit, minGasPrice, nGasPrice);
+    Q_EMIT gasInfoChanged(blockGasLimit, minGasPrice, nGasPrice);
 }
