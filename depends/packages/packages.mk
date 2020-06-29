@@ -1,4 +1,4 @@
-packages:=boost libevent
+packages:=boost libevent gmp
 
 qt_packages = zlib
 
