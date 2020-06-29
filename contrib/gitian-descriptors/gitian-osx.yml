@@ -1,5 +1,5 @@
 ---
-name: "bitcoin-core-osx-0.20"
+name: "qtum-core-osx-0.20"
 enable_cache: true
 distro: "ubuntu"
 suites:
@@ -29,12 +29,19 @@ packages:
 - "python3-setuptools"
 - "fonts-tuffy"
 remotes:
-- "url": "https://github.com/bitcoin/bitcoin.git"
-  "dir": "bitcoin"
+- "url": "https://github.com/qtumproject/qtum.git"
+  "dir": "qtum"
+- "url": "https://github.com/qtumproject/cpp-eth-qtum.git"
+  "dir": "cpp-eth-qtum"
 files:
 - "MacOSX10.14.sdk.tar.gz"
 script: |
   set -e -o pipefail
+
+  #this is a hack since gitian has no natural support for submodules
+  cp -r cpp-eth-qtum/* qtum/src/cpp-ethereum
+  #make sure this file exists... 
+  cat qtum/src/cpp-ethereum/utils/libscrypt/b64.c 
 
   WRAP_DIR=$HOME/wrapped
   HOSTS="x86_64-apple-darwin16"
@@ -86,7 +93,7 @@ script: |
   create_per-host_faketime_wrappers "2000-01-01 12:00:00"
   export PATH=${WRAP_DIR}:${PATH}
 
-  cd bitcoin
+  cd qtum
   BASEPREFIX="${PWD}/depends"
 
   mkdir -p ${BASEPREFIX}/SDKs
@@ -107,7 +114,7 @@ script: |
   ./autogen.sh
   CONFIG_SITE=${BASEPREFIX}/$(echo "${HOSTS}" | awk '{print $1;}')/share/config.site ./configure --prefix=/
   make dist
-  SOURCEDIST=$(echo bitcoin-*.tar.gz)
+  SOURCEDIST=$(echo qtum-*.tar.gz)
   DISTNAME=${SOURCEDIST/%.tar.gz}
 
   # Workaround for tarball not building with the bare tag version (prep)

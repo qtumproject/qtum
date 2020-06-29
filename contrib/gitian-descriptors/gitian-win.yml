@@ -1,5 +1,5 @@
 ---
-name: "bitcoin-core-win-0.20"
+name: "qtum-core-win-0.20"
 enable_cache: true
 distro: "ubuntu"
 suites:
@@ -23,11 +23,18 @@ packages:
 - "ca-certificates"
 - "python3"
 remotes:
-- "url": "https://github.com/bitcoin/bitcoin.git"
-  "dir": "bitcoin"
+- "url": "https://github.com/qtumproject/qtum.git"
+  "dir": "qtum"
+- "url": "https://github.com/qtumproject/cpp-eth-qtum.git"
+  "dir": "cpp-eth-qtum"
 files: []
 script: |
   set -e -o pipefail
+
+  #this is a hack since gitian has no natural support for submodules
+  cp -r cpp-eth-qtum/* qtum/src/cpp-ethereum
+  #make sure this file exists... 
+  cat qtum/src/cpp-ethereum/utils/libscrypt/b64.c
 
   WRAP_DIR=$HOME/wrapped
   HOSTS="x86_64-w64-mingw32"
@@ -96,7 +103,7 @@ script: |
   create_per-host_compiler_wrapper "2000-01-01 12:00:00"
   export PATH=${WRAP_DIR}:${PATH}
 
-  cd bitcoin
+  cd qtum
   BASEPREFIX="${PWD}/depends"
   # Build dependencies for each host
   for i in $HOSTS; do
@@ -114,7 +121,7 @@ script: |
   ./autogen.sh
   CONFIG_SITE=${BASEPREFIX}/$(echo "${HOSTS}" | awk '{print $1;}')/share/config.site ./configure --prefix=/
   make dist
-  SOURCEDIST=$(echo bitcoin-*.tar.gz)
+  SOURCEDIST=$(echo qtum-*.tar.gz)
   DISTNAME=${SOURCEDIST/%.tar.gz}
 
   # Workaround for tarball not building with the bare tag version (prep)
@@ -141,7 +148,7 @@ script: |
     make ${MAKEOPTS} -C src check-symbols
     make deploy
     make install DESTDIR=${INSTALLPATH}
-    cp -f --target-directory="${OUTDIR}" ./bitcoin-*-setup-unsigned.exe
+    cp -f --target-directory="${OUTDIR}" ./qtum-*-setup-unsigned.exe
     cd installed
     mv ${DISTNAME}/bin/*.dll ${DISTNAME}/lib/
     find . -name "lib*.la" -delete
@@ -162,5 +169,5 @@ script: |
   cp -rf contrib/windeploy $BUILD_DIR
   cd $BUILD_DIR/windeploy
   mkdir unsigned
-  cp $OUTDIR/bitcoin-*setup-unsigned.exe unsigned/
+  cp $OUTDIR/qtum-*setup-unsigned.exe unsigned/
   find . | sort | tar --mtime="$REFERENCE_DATETIME" --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > ${OUTDIR}/${DISTNAME}-win-unsigned.tar.gz
