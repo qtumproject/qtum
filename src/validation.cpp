@@ -24,6 +24,7 @@
 #include <policy/policy.h>
 #include <policy/settings.h>
 #include <pow.h>
+#include <pos.h>
 #include <primitives/block.h>
 #include <primitives/transaction.h>
 #include <random.h>
@@ -1088,8 +1089,10 @@ bool AcceptToMemoryPool(CTxMemPool& pool, TxValidationState &state, const CTrans
  * Return transaction in txOut, and if it was found inside a block, its hash is placed in hashBlock.
  * If blockIndex is provided, the transaction is fetched from the corresponding block.
  */
-bool GetTransaction(const uint256& hash, CTransactionRef& txOut, const Consensus::Params& consensusParams, uint256& hashBlock, const CBlockIndex* const block_index)
+bool GetTransaction(const uint256& hash, CTransactionRef& txOut, const Consensus::Params& consensusParams, uint256& hashBlock, const CBlockIndex* const block_index, bool fAllowSlow)
 {
+    CBlockIndex* pindexSlow = (CBlockIndex*)block_index;
+
     LOCK(cs_main);
 
     if (!block_index) {
@@ -1102,13 +1105,20 @@ bool GetTransaction(const uint256& hash, CTransactionRef& txOut, const Consensus
         if (g_txindex) {
             return g_txindex->FindTx(hash, hashBlock, txOut);
         }
-    } else {
+
+        if (fAllowSlow) { // use coin database to locate block that contains transaction, and scan it
+            const Coin& coin = AccessByTxid(::ChainstateActive().CoinsTip(), hash);
+            if (!coin.IsSpent()) pindexSlow = ::ChainActive()[coin.nHeight];
+        }
+    }
+
+    if (pindexSlow) {
         CBlock block;
-        if (ReadBlockFromDisk(block, block_index, consensusParams)) {
+        if (ReadBlockFromDisk(block, pindexSlow, consensusParams)) {
             for (const auto& tx : block.vtx) {
                 if (tx->GetHash() == hash) {
                     txOut = tx;
-                    hashBlock = block_index->GetBlockHash();
+                    hashBlock = pindexSlow->GetBlockHash();
                     return true;
                 }
             }
@@ -1118,10 +1128,53 @@ bool GetTransaction(const uint256& hash, CTransactionRef& txOut, const Consensus
     return false;
 }
 
+bool CheckHeaderPoW(const CBlockHeader& block, const Consensus::Params& consensusParams)
+{
+    // Check for proof of work block header
+    return CheckProofOfWork(block.GetHash(), block.nBits, consensusParams);
+}
 
+bool CheckHeaderPoS(const CBlockHeader& block, const Consensus::Params& consensusParams)
+{
+    // Check for proof of stake block header
+    // Get prev block index
+    BlockMap::iterator mi = ::BlockIndex().find(block.hashPrevBlock);
+    if (mi == ::BlockIndex().end())
+        return false;
 
+    // Check the kernel hash
+    CBlockIndex* pindexPrev = (*mi).second;
 
+    if(pindexPrev->nHeight >= consensusParams.nEnableHeaderSignatureHeight && !CheckRecoveredPubKeyFromBlockSignature(pindexPrev, block, ::ChainstateActive().CoinsTip())) {
+        return error("Failed signature check");
+    }
 
+    return CheckKernel(pindexPrev, block.nBits, block.StakeTime(), block.prevoutStake, ::ChainstateActive().CoinsTip());
+}
+
+bool CheckHeaderProof(const CBlockHeader& block, const Consensus::Params& consensusParams){
+    if(block.IsProofOfWork()){
+        return CheckHeaderPoW(block, consensusParams);
+    }
+    if(block.IsProofOfStake()){
+        return CheckHeaderPoS(block, consensusParams);
+    }
+    return false;
+}
+
+bool CheckIndexProof(const CBlockIndex& block, const Consensus::Params& consensusParams)
+{
+    // Get the hash of the proof
+    // After validating the PoS block the computed hash proof is saved in the block index, which is used to check the index
+    uint256 hashProof = block.IsProofOfWork() ? block.GetBlockHash() : block.hashProof;
+    // Check for proof after the hash proof is computed
+    if(block.IsProofOfStake()){
+        //blocks are loaded out of order, so checking PoS kernels here is not practical
+        return true; //CheckKernel(block.pprev, block.nBits, block.nTime, block.prevoutStake);
+    }else{
+        return CheckProofOfWork(hashProof, block.nBits, consensusParams, false);
+    }
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //
