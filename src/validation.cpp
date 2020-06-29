@@ -2405,7 +2405,15 @@ std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::v
     tx.vout.push_back(CTxOut(0, CScript() << OP_DUP << OP_HASH160 << senderAddress.asBytes() << OP_EQUALVERIFY << OP_CHECKSIG));
     block.vtx.push_back(MakeTransactionRef(CTransaction(tx)));
  
-    QtumTransaction callTransaction(0, 1, dev::u256(gasLimit), addrContract, opcode, dev::u256(0));
+    QtumTransaction callTransaction;
+    if(addrContract == dev::Address())
+    {
+        callTransaction = QtumTransaction(0, 1, dev::u256(gasLimit), opcode, dev::u256(0));
+    }
+    else
+    {
+        callTransaction = QtumTransaction(0, 1, dev::u256(gasLimit), addrContract, opcode, dev::u256(0));
+    }
     callTransaction.forceSender(senderAddress);
     callTransaction.setVersion(VersionVM::GetEVMDefault());
 
