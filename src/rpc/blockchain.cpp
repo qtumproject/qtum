@@ -2018,11 +2018,11 @@ UniValue getdelegationsforstaker(const JSONRPCRequest& request)
                 },
                 RPCResult{
             "[{\n"
-            "  \"delegate\": \"address\",                 (string)   Delegate address\n"
+            "  \"delegate\": \"address\",               (string)   Delegate address\n"
             "  \"staker\": \"address\",                 (string)   Staker address\n"
             "  \"fee\": n,                            (numeric)  Percentage of the reward\n"
             "  \"blockHeight\": n,                    (numeric)  Block height\n"
-            "  \"weight\": n,                         (numeric)  Delegate weight\n"
+            "  \"weight\": n,                         (numeric)  Delegate weight, displayed when address index is enabled\n"
             "  \"PoD\": \"hex\",                        (string)   Proof of delegation\n"
             "}]\n"
                 },
@@ -2072,7 +2072,10 @@ UniValue getdelegationsforstaker(const JSONRPCRequest& request)
         delegation.pushKV("staker", EncodeDestination(PKHash(it->second.staker)));
         delegation.pushKV("fee", (int64_t)it->second.fee);
         delegation.pushKV("blockHeight", (int64_t)it->second.blockHeight);
-        delegation.pushKV("weight", getDelegateWeight(it->first, immatureStakes, height));
+        if(fAddressIndex)
+        {
+            delegation.pushKV("weight", getDelegateWeight(it->first, immatureStakes, height));
+        }
         delegation.pushKV("PoD", HexStr(it->second.PoD));
         result.push_back(delegation);
     }
