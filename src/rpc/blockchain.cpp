@@ -1990,6 +1990,24 @@ private:
     uint160 address;
 };
 
+uint64_t getDelegateWeight(const uint160& keyid, const std::map<COutPoint, uint32_t>& immatureStakes, int height)
+{
+    // Decode address
+    uint256 hashBytes;
+    int type = 0;
+    if (!DecodeIndexKey(EncodeDestination(PKHash(keyid)), hashBytes, type)) {
+        return 0;
+    }
+
+    // Get address weight
+    uint64_t weight = 0;
+    if (!GetAddressWeight(hashBytes, type, immatureStakes, height, weight)) {
+        return 0;
+    }
+
+    return weight;
+}
+
 UniValue getdelegationsforstaker(const JSONRPCRequest& request)
 {
             RPCHelpMan{"getdelegationsforstaker",
@@ -2004,6 +2022,7 @@ UniValue getdelegationsforstaker(const JSONRPCRequest& request)
             "  \"staker\": \"address\",                 (string)   Staker address\n"
             "  \"fee\": n,                            (numeric)  Percentage of the reward\n"
             "  \"blockHeight\": n,                    (numeric)  Block height\n"
+            "  \"weight\": n,                         (numeric)  Delegate weight\n"
             "  \"PoD\": \"hex\",                        (string)   Proof of delegation\n"
             "}]\n"
                 },
@@ -2041,6 +2060,10 @@ UniValue getdelegationsforstaker(const JSONRPCRequest& request)
     }
     std::map<uint160, Delegation> delegations = qtumDelegation.DelegationsFromEvents(events);
 
+    // Get chain parameters
+    std::map<COutPoint, uint32_t> immatureStakes = GetImmatureStakes();
+    int height = ::ChainActive().Height();
+
     // Fill the json object with information
     UniValue result(UniValue::VARR);
     for (std::map<uint160, Delegation>::iterator it=delegations.begin(); it!=delegations.end(); it++){
@@ -2049,6 +2072,7 @@ UniValue getdelegationsforstaker(const JSONRPCRequest& request)
         delegation.pushKV("staker", EncodeDestination(PKHash(it->second.staker)));
         delegation.pushKV("fee", (int64_t)it->second.fee);
         delegation.pushKV("blockHeight", (int64_t)it->second.blockHeight);
+        delegation.pushKV("weight", getDelegateWeight(it->first, immatureStakes, height));
         delegation.pushKV("PoD", HexStr(it->second.PoD));
         result.push_back(delegation);
     }

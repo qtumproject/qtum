@@ -7173,4 +7173,55 @@ bool GetTimestampIndex(const unsigned int &high, const unsigned int &low, const 
 
     return true;
 }
+
+bool GetAddressWeight(uint256 addressHash, int type, const std::map<COutPoint, uint32_t>& immatureStakes, int32_t nHeight, uint64_t& nWeight)
+{
+    nWeight = 0;
+
+    if (!fAddressIndex)
+        return error("address index not enabled");
+
+    // Get address utxos
+    std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > unspentOutputs;
+    if (!GetAddressUnspent(addressHash, type, unspentOutputs)) {
+        throw error("No information available for address");
+    }
+
+    // Add the utxos to the list if they are mature
+    for (std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> >::const_iterator i=unspentOutputs.begin(); i!=unspentOutputs.end(); i++) {
+
+        int nDepth = nHeight - i->second.blockHeight + 1;
+        if (nDepth < COINBASE_MATURITY)
+            continue;
+
+        if(i->second.satoshis < 0)
+            continue;
+
+        COutPoint prevout = COutPoint(i->first.txhash, i->first.index);
+        if(immatureStakes.find(prevout) == immatureStakes.end())
+        {
+            nWeight+= i->second.satoshis;
+        }
+    }
+
+    return true;
+}
+
+std::map<COutPoint, uint32_t> GetImmatureStakes()
+{
+    std::map<COutPoint, uint32_t> immatureStakes;
+    int height = ::ChainActive().Height();
+    for(int i = 0; i < COINBASE_MATURITY -1; i++) {
+        CBlockIndex* block = ::ChainActive()[height - i];
+        if(block)
+        {
+            immatureStakes[block->prevoutStake] = block->nTime;
+        }
+        else
+        {
+            break;
+        }
+    }
+    return immatureStakes;
+}
 //////////////////////////////////////////////////////////////////////////////////

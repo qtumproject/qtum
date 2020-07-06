@@ -430,6 +430,10 @@ bool GetAddressUnspent(uint256 addressHash, int type,
                        std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > &unspentOutputs);
 
 bool GetTimestampIndex(const unsigned int &high, const unsigned int &low, const bool fActiveOnly, std::vector<std::pair<uint256, unsigned int> > &hashes);
+
+bool GetAddressWeight(uint256 addressHash, int type, const std::map<COutPoint, uint32_t>& immatureStakes, int32_t nHeight, uint64_t& nWeight);
+
+std::map<COutPoint, uint32_t> GetImmatureStakes();
 /////////////////////////////////////////////////////////////////
 
 /** Functions for disk access for blocks */

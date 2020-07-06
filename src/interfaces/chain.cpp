@@ -154,20 +154,7 @@ class LockImpl : public Chain::Lock, public UniqueLock<CCriticalSection>
     std::map<COutPoint, uint32_t> getImmatureStakes() override
     {
         LockAssertion lock(::cs_main);
-        std::map<COutPoint, uint32_t> immatureStakes;
-        int height = ::ChainActive().Height();
-        for(int i = 0; i < COINBASE_MATURITY -1; i++) {
-            CBlockIndex* block = ::ChainActive()[height - i];
-            if(block)
-            {
-                immatureStakes[block->prevoutStake] = block->nTime;
-            }
-            else
-            {
-                break;
-            }
-        }
-        return immatureStakes;
+        return GetImmatureStakes();
     }
 
     using UniqueLock::UniqueLock;
