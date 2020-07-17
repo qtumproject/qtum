@@ -72,6 +72,7 @@ enum class BlockValidationResult {
     BLOCK_HEADER_SPAM,       //!< reject block header from the spam filter
     BLOCK_HEADER_REJECT,     //!< reject only the block header, but not ban the node
     BLOCK_HEADER_SYNC,       //!< reject the block header due to synchronization problems, used to punish the node less
+    BLOCK_GAS_EXCEEDS_LIMIT, //!< transaction gas exceeds block gas limit
 };
 
 

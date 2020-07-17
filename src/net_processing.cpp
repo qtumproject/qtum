@@ -1181,6 +1181,7 @@ static bool MaybePunishNodeForBlock(NodeId nodeid, const BlockValidationState& s
         }
         return true;
     case BlockValidationResult::BLOCK_HEADER_SYNC:
+    case BlockValidationResult::BLOCK_GAS_EXCEEDS_LIMIT:
         {
             LOCK(cs_main);
             Misbehaving(nodeid, 1, message);
