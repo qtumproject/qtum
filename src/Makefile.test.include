@@ -246,7 +246,14 @@ BITCOIN_TESTS =\
   test/validation_flush_tests.cpp \
   test/validationinterface_tests.cpp \
   test/versionbits_tests.cpp \
-  test/qtumtests/test_utils.h
+  test/qtumtests/test_utils.h \
+  test/qtumtests/qtumtxconverter_tests.cpp \
+  test/qtumtests/bytecodeexec_tests.cpp \
+  test/qtumtests/condensingtransaction_tests.cpp \
+  test/qtumtests/dgp_tests.cpp \
+  test/qtumtests/constantinoplefork_tests.cpp \
+  test/qtumtests/btcecrecoverfork_tests.cpp \
+  test/qtumtests/delegations_tests.cpp
 
 
 if ENABLE_WALLET

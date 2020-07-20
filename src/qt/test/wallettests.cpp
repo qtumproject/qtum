@@ -64,7 +64,6 @@ uint256 SendCoins(CWallet& wallet, SendCoinsDialog& sendCoinsDialog, const CTxDe
     entry->findChild<QValidatedLineEdit*>("payTo")->setText(QString::fromStdString(EncodeDestination(address)));
     entry->findChild<BitcoinAmountField*>("payAmount")->setValue(amount);
     sendCoinsDialog.findChild<QFrame*>("frameFee")
-        ->findChild<QFrame*>("frameFeeSelection")
         ->findChild<QCheckBox*>("optInRBF")
         ->setCheckState(rbf ? Qt::Checked : Qt::Unchecked);
     uint256 txid;
@@ -186,10 +185,10 @@ void TestGUI(interfaces::Node& node)
 
     // Send two transactions, and verify they are added to transaction list.
     TransactionTableModel* transactionTableModel = walletModel.getTransactionTableModel();
-    QCOMPARE(transactionTableModel->rowCount({}), 105);
+    QCOMPARE(transactionTableModel->rowCount({}), 505);
     uint256 txid1 = SendCoins(*wallet.get(), sendCoinsDialog, PKHash(), 5 * COIN, false /* rbf */);
     uint256 txid2 = SendCoins(*wallet.get(), sendCoinsDialog, PKHash(), 10 * COIN, true /* rbf */);
-    QCOMPARE(transactionTableModel->rowCount({}), 107);
+    QCOMPARE(transactionTableModel->rowCount({}), 507);
     QVERIFY(FindTx(*transactionTableModel, txid1).isValid());
     QVERIFY(FindTx(*transactionTableModel, txid2).isValid());
 
@@ -206,7 +205,7 @@ void TestGUI(interfaces::Node& node)
     QString balanceText = balanceLabel->text();
     int unit = walletModel.getOptionsModel()->getDisplayUnit();
     CAmount balance = walletModel.wallet().getBalance();
-    QString balanceComparison = BitcoinUnits::formatWithUnit(unit, balance, false, BitcoinUnits::separatorAlways);
+    QString balanceComparison = BitcoinUnits::format(unit, balance, false, BitcoinUnits::separatorAlways);
     QCOMPARE(balanceText, balanceComparison);
 
     // Check Request Payment button
@@ -234,21 +233,14 @@ void TestGUI(interfaces::Node& node)
             QTextEdit* rlist = receiveRequestDialog->QObject::findChild<QTextEdit*>("outUri");
             QString paymentText = rlist->toPlainText();
             QStringList paymentTextList = paymentText.split('\n');
-            QCOMPARE(paymentTextList.at(0), QString("Payment information"));
-            QVERIFY(paymentTextList.at(1).indexOf(QString("URI: bitcoin:")) != -1);
-            QVERIFY(paymentTextList.at(2).indexOf(QString("Address:")) != -1);
-            QCOMPARE(paymentTextList.at(3), QString("Amount: 0.00000001 ") + QString::fromStdString(CURRENCY_UNIT));
-            QCOMPARE(paymentTextList.at(4), QString("Label: TEST_LABEL_1"));
-            QCOMPARE(paymentTextList.at(5), QString("Message: TEST_MESSAGE_1"));
+            QCOMPARE(paymentTextList.at(0), QString("Payment information").toUpper());
+            QVERIFY(paymentTextList.at(2).indexOf(QString("URI: qtum:")) != -1);
+            QVERIFY(paymentTextList.at(3).indexOf(QString("Address:")) != -1);
+            QCOMPARE(paymentTextList.at(4), QString("Amount: 0.00000001 ") + QString::fromStdString(CURRENCY_UNIT));
+            QCOMPARE(paymentTextList.at(5), QString("Label: TEST_LABEL_1"));
+            QCOMPARE(paymentTextList.at(6), QString("Message: TEST_MESSAGE_1"));
         }
     }
-
-    // Clear button
-    QPushButton* clearButton = receiveCoinsDialog.findChild<QPushButton*>("clearButton");
-    clearButton->click();
-    QCOMPARE(labelInput->text(), QString(""));
-    QCOMPARE(amountInput->value(), CAmount(0));
-    QCOMPARE(messageInput->text(), QString(""));
 
     // Check addition to history
     int currentRowCount = requestTableModel->rowCount({});

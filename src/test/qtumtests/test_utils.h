@@ -2,7 +2,7 @@
 #include <validation.h>
 #include <util/strencodings.h>
 #include <util/convert.h>
-#include <test/setup_common.h>
+#include <test/util/setup_common.h>
 #include <boost/filesystem/operations.hpp>
 #include <fs.h>
 
