@@ -53,7 +53,7 @@ class InvalidMessagesTest(BitcoinTestFramework):
         node.add_p2p_connection(P2PDataStore())
         conn2 = node.add_p2p_connection(P2PDataStore())
 
-        msg_limit = 4 * 1000 * 1000  # 4MB, per MAX_PROTOCOL_MESSAGE_LENGTH
+        msg_limit = 8 * 1000 * 1000  # 4MB, per MAX_PROTOCOL_MESSAGE_LENGTH
         valid_data_limit = msg_limit - 5  # Account for the 4-byte length prefix
 
         #

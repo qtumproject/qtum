@@ -70,6 +70,12 @@ EXTENDED_SCRIPTS = [
     # Longest test should go first, to favor running tests in parallel
     'feature_pruning.py',
     'feature_dbcrash.py',
+    'feature_fee_estimation.py',
+    'feature_cltv.py',
+    'feature_bip68_sequence.py',
+    'feature_maxuploadtarget.py',
+    'p2p_dos_header_tree.py', # not relevant
+    'feature_csv_activation.py',
 ]
 
 BASE_SCRIPTS = [
@@ -79,7 +85,6 @@ BASE_SCRIPTS = [
     'wallet_backup.py',
     # vv Tests less than 5m vv
     'mining_getblocktemplate_longpoll.py',
-    'feature_maxuploadtarget.py',
     'feature_block.py',
     'rpc_fundrawtransaction.py',
     'p2p_compactblocks.py',
@@ -100,16 +105,13 @@ BASE_SCRIPTS = [
     'rpc_txoutproof.py',
     'wallet_listreceivedby.py',
     'wallet_abandonconflict.py',
-    'feature_csv_activation.py',
     'rpc_rawtransaction.py',
     'wallet_address_types.py',
-    'feature_bip68_sequence.py',
     'p2p_feefilter.py',
     'feature_reindex.py',
     'feature_abortnode.py',
     # vv Tests less than 30s vv
     'wallet_keypool_topup.py',
-    'feature_fee_estimation.py',
     'interface_zmq.py',
     'interface_bitcoin_cli.py',
     'mempool_resurrect.py',
@@ -190,8 +192,6 @@ BASE_SCRIPTS = [
     'wallet_listsinceblock.py',
     'p2p_leak.py',
     'wallet_encryption.py',
-    'feature_dersig.py',
-    'feature_cltv.py',
     'rpc_uptime.py',
     'wallet_resendwallettransactions.py',
     'wallet_fallbackfee.py',
@@ -205,7 +205,6 @@ BASE_SCRIPTS = [
     'wallet_coinbase_category.py',
     'feature_filelock.py',
     'feature_loadblock.py',
-    'p2p_dos_header_tree.py',
     'p2p_unrequested_blocks.py',
     'feature_includeconf.py',
     'feature_asmap.py',
@@ -224,8 +223,66 @@ BASE_SCRIPTS = [
     'feature_help.py',
     'feature_shutdown.py',
     'framework_test_script.py',
+    'feature_dersig.py',
     # Don't append tests at the end to avoid merge conflicts
     # Put them in a random line within the section that fits their approximate run-time
+
+    # qtum
+    'qtum_dgp.py',
+    'qtum_pos.py',
+    'qtum_opcall.py',
+    'qtum_opcreate.py',
+    'qtum_8mb_block.py',
+    'qtum_gas_limit.py',
+    'qtum_searchlog.py',
+    'qtum_pos_segwit.py',
+    'qtum_state_root.py',
+    'qtum_evm_globals.py',
+    'qtum_null_sender.py',
+    'qtum_waitforlogs.py',
+    'qtum_block_header.py',
+    'qtum_callcontract.py',
+    'qtum_spend_op_call.py',
+    'qtum_condensing_txs.py',
+    'qtum_createcontract.py',
+    'qtum_sendtocontract.py',
+    'qtum_identical_refunds.py',
+    'qtum_create_eth_op_code.py',
+    'qtum_gas_limit_overflow.py',
+    'qtum_call_empty_contract.py',
+    'qtum_dgp_block_size_sync.py',
+    'qtum_pos_conflicting_txs.py',
+    'qtum_globals_state_changer.py',
+    'qtum_no_exec_call_disabled.py',
+    'qtum_soft_block_gas_limits.py',
+    'qtum_dgp_block_size_restart.py',
+    'qtum_searchlog_restart_node.py',
+    'qtum_immature_coinstake_spend.py',
+    'qtum_transaction_prioritization.py',
+    'qtum_assign_mpos_fees_to_gas_refund.py',
+    'qtum_ignore_mpos_participant_reward.py',
+    'qtum_evm_constantinople_activation.py',
+    'qtum_many_value_refunds_from_same_tx.py',
+    'qtum_combined_outputs_exceed_gas_limit.py',
+    'qtum_dgp_gas_price_lingering_mempool_tx.py',
+    'qtum_dgp_gas_schedule.py',
+    'qtum_header_spam.py',
+    'qtum_divergence_dos.py',
+    'qtum_prioritize_create_over_call.py',
+    'qtum_callcontract_timestamp.py',
+    'qtum_transaction_receipt_origin_contract_address.py',
+    'qtum_block_number_corruption.py',
+    'qtum_duplicate_stake.py',
+    'qtum_rpc_bitcore.py',
+    'qtum_faulty_header_chain.py',
+    'qtum_signrawsender.py',
+    'qtum_op_sender.py',
+    'qtum_evm_revert.py',
+    'qtum_evm_create2.py',
+    'qtum_evm_staticcall.py',
+    'qtum_evm_constantinople_precompiles.py',
+    'qtum_evm_constantinople_opcodes.py',
+    'qtum_block_index_cleanup.py'
 ]
 
 # Place EXTENDED_SCRIPTS first since it has the 3 longest running tests
@@ -376,7 +433,7 @@ def run_tests(*, test_list, src_dir, build_dir, tmpdir, jobs=1, enable_coverage=
     # Warn if bitcoind is already running
     # pidof might fail or return an empty string if bitcoind is not running
     try:
-        if subprocess.check_output(["pidof", "bitcoind"]) not in [b'']:
+        if subprocess.check_output(["pidof", "qtumd"]) not in [b'']:
             print("%sWARNING!%s There is already a bitcoind process running on this system. Tests may fail unexpectedly due to resource contention!" % (BOLD[1], BOLD[0]))
     except (OSError, subprocess.SubprocessError):
         pass
@@ -609,7 +666,7 @@ class TestResult():
 def check_script_prefixes():
     """Check that test scripts start with one of the allowed name prefixes."""
 
-    good_prefixes_re = re.compile("^(example|feature|interface|mempool|mining|p2p|rpc|wallet|tool|framework_test)_")
+    good_prefixes_re = re.compile("^(example|feature|interface|mempool|mining|p2p|rpc|wallet|tool|framework_test|qtum)_")
     bad_script_names = [script for script in ALL_SCRIPTS if good_prefixes_re.match(script) is None]
 
     if bad_script_names:

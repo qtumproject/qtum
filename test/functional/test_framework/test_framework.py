@@ -33,7 +33,7 @@ from .util import (
     sync_blocks,
     sync_mempools,
 )
-
+from .qtumconfig import COINBASE_MATURITY
 
 class TestStatus(Enum):
     PASSED = 1
@@ -96,7 +96,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         self.setup_clean_chain = False
         self.nodes = []
         self.network_thread = None
-        self.rpc_timeout = 60  # Wait for up to 60 seconds for the RPC server to respond
+        self.rpc_timewait = 180  # Wait for up to 60 seconds for the RPC server to respond
         self.supports_cli = True
         self.bind_to_localhost_only = True
         self.set_test_params()
@@ -180,8 +180,8 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         config = configparser.ConfigParser()
         config.read_file(open(self.options.configfile))
         self.config = config
-        self.options.bitcoind = os.getenv("BITCOIND", default=config["environment"]["BUILDDIR"] + '/src/bitcoind' + config["environment"]["EXEEXT"])
-        self.options.bitcoincli = os.getenv("BITCOINCLI", default=config["environment"]["BUILDDIR"] + '/src/bitcoin-cli' + config["environment"]["EXEEXT"])
+        self.options.bitcoind = os.getenv("BITCOIND", default=config["environment"]["BUILDDIR"] + '/src/qtumd' + config["environment"]["EXEEXT"])
+        self.options.bitcoincli = os.getenv("BITCOINCLI", default=config["environment"]["BUILDDIR"] + '/src/qtum-cli' + config["environment"]["EXEEXT"])
 
         os.environ['PATH'] = os.pathsep.join([
             os.path.join(config['environment']['BUILDDIR'], 'src'),
@@ -341,7 +341,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         self.import_deterministic_coinbase_privkeys()
         if not self.setup_clean_chain:
             for n in self.nodes:
-                assert_equal(n.getblockchaininfo()["blocks"], 199)
+                assert_equal(n.getblockchaininfo()["blocks"], 599)
             # To ensure that all nodes are out of IBD, the most recent block
             # must have a timestamp not too old (see IsInitialBlockDownload()).
             self.log.debug('Generate a block with current time')
@@ -350,7 +350,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
             for n in self.nodes:
                 n.submitblock(block)
                 chain_info = n.getblockchaininfo()
-                assert_equal(chain_info["blocks"], 200)
+                assert_equal(chain_info["blocks"], 600)
                 assert_equal(chain_info["initialblockdownload"], False)
 
     def import_deterministic_coinbase_privkeys(self):
@@ -397,7 +397,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
                 get_datadir_path(self.options.tmpdir, i),
                 chain=self.chain,
                 rpchost=rpchost,
-                timewait=self.rpc_timeout,
+                timewait=self.rpc_timewait,
                 bitcoind=binary[i],
                 bitcoin_cli=binary_cli[i],
                 version=versions[i],
@@ -408,6 +408,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
                 use_cli=self.options.usecli,
                 start_perf=self.options.perf,
                 use_valgrind=self.options.valgrind,
+                enable_wallet=self.is_wallet_compiled(),
             ))
 
     def start_node(self, i, *args, **kwargs):
@@ -542,11 +543,12 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
                     extra_conf=["bind=127.0.0.1"],
                     extra_args=['-disablewallet'],
                     rpchost=None,
-                    timewait=self.rpc_timeout,
+                    timewait=self.rpc_timewait,
                     bitcoind=self.options.bitcoind,
                     bitcoin_cli=self.options.bitcoincli,
                     coverage_dir=None,
                     cwd=self.options.tmpdir,
+                    enable_wallet=self.is_wallet_compiled(),
                 ))
             self.start_node(CACHE_NODE_ID)
 
@@ -559,13 +561,14 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
             # block in the cache does not age too much (have an old tip age).
             # This is needed so that we are out of IBD when the test starts,
             # see the tip age check in IsInitialBlockDownload().
-            for i in range(8):
-                self.nodes[CACHE_NODE_ID].generatetoaddress(
-                    nblocks=25 if i != 7 else 24,
-                    address=TestNode.PRIV_KEYS[i % 4].address,
-                )
+            for i in range(4):
+                self.nodes[0].generatetoaddress(25, TestNode.PRIV_KEYS[i % 4].address)
 
-            assert_equal(self.nodes[CACHE_NODE_ID].getblockchaininfo()["blocks"], 199)
+            for i in range(4):
+                self.nodes[0].generatetoaddress(125 if i != 3 else 124, TestNode.PRIV_KEYS[i % 4].address)
+            sync_blocks(self.nodes)
+
+            assert_equal(self.nodes[CACHE_NODE_ID].getblockchaininfo()["blocks"], 599)
 
             # Shut it down, and clean up cache directories:
             self.stop_nodes()
@@ -576,7 +579,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
 
             os.rmdir(cache_path('wallets'))  # Remove empty wallets dir
             for entry in os.listdir(cache_path()):
-                if entry not in ['chainstate', 'blocks']:  # Only keep chainstate and blocks folder
+                if entry not in ['chainstate', 'blocks', 'stateQtum']:  # Only keep chainstate and blocks folder
                     os.remove(cache_path(entry))
 
         for i in range(self.num_nodes):
@@ -619,6 +622,18 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         """Skip the running test if bitcoin-cli has not been compiled."""
         if not self.is_cli_compiled():
             raise SkipTest("bitcoin-cli has not been compiled.")
+
+    def skip_if_no_bitcore(self):
+        """Skip the running test if bitcoin-cli has not been compiled."""
+        if not self.is_bitcore_compiled():
+            raise SkipTest("bitcore has not been compiled.")
+
+    def is_bitcore_compiled(self):
+        """Checks whether bitcoin-cli was compiled."""
+        config = configparser.ConfigParser()
+        config.read_file(open(self.options.configfile))
+
+        return config["components"].getboolean("ENABLE_BITCORE")
 
     def is_cli_compiled(self):
         """Checks whether bitcoin-cli was compiled."""

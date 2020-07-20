@@ -7,7 +7,7 @@ import struct
 
 from test_framework.address import ADDRESS_BCRT1_UNSPENDABLE
 from test_framework.test_framework import BitcoinTestFramework
-from test_framework.messages import CTransaction, hash256
+from test_framework.messages import CTransaction, hash256, CBlockHeader
 from test_framework.util import assert_equal, connect_nodes
 from io import BytesIO
 from time import sleep
@@ -104,7 +104,11 @@ class ZMQTest (BitcoinTestFramework):
 
             # Should receive the generated raw block.
             block = rawblock.receive()
-            assert_equal(genhashes[x], hash256_reversed(block[:80]).hex())
+            f = BytesIO(block)
+            header = CBlockHeader()
+            header.deserialize(f)
+            header.rehash()
+            assert_equal(genhashes[x], header.hash)
 
         if self.is_wallet_compiled():
             self.log.info("Wait for tx from second node")

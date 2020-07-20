@@ -28,8 +28,8 @@ class MempoolLimitTest(BitcoinTestFramework):
         relayfee = self.nodes[0].getnetworkinfo()['relayfee']
 
         self.log.info('Check that mempoolminfee is minrelytxfee')
-        assert_equal(self.nodes[0].getmempoolinfo()['minrelaytxfee'], Decimal('0.00001000'))
-        assert_equal(self.nodes[0].getmempoolinfo()['mempoolminfee'], Decimal('0.00001000'))
+        assert_equal(self.nodes[0].getmempoolinfo()['minrelaytxfee'], Decimal('0.00400000'))
+        assert_equal(self.nodes[0].getmempoolinfo()['mempoolminfee'], Decimal('0.00400000'))
 
         txids = []
         utxos = create_confirmed_utxos(relayfee, self.nodes[0], 91)
@@ -37,7 +37,7 @@ class MempoolLimitTest(BitcoinTestFramework):
         self.log.info('Create a mempool tx that will be evicted')
         us0 = utxos.pop()
         inputs = [{ "txid" : us0["txid"], "vout" : us0["vout"]}]
-        outputs = {self.nodes[0].getnewaddress() : 0.0001}
+        outputs = {self.nodes[0].getnewaddress() : 0.01}
         tx = self.nodes[0].createrawtransaction(inputs, outputs)
         self.nodes[0].settxfee(relayfee) # specifically fund this tx with low fee
         txF = self.nodes[0].fundrawtransaction(tx)
@@ -57,13 +57,13 @@ class MempoolLimitTest(BitcoinTestFramework):
         assert txdata['confirmations'] ==  0  #confirmation should still be 0
 
         self.log.info('Check that mempoolminfee is larger than minrelytxfee')
-        assert_equal(self.nodes[0].getmempoolinfo()['minrelaytxfee'], Decimal('0.00001000'))
-        assert_greater_than(self.nodes[0].getmempoolinfo()['mempoolminfee'], Decimal('0.00001000'))
+        assert_equal(self.nodes[0].getmempoolinfo()['minrelaytxfee'], Decimal('0.00400000'))
+        assert_greater_than(self.nodes[0].getmempoolinfo()['mempoolminfee'], Decimal('0.00400000'))
 
         self.log.info('Create a mempool tx that will not pass mempoolminfee')
         us0 = utxos.pop()
         inputs = [{ "txid" : us0["txid"], "vout" : us0["vout"]}]
-        outputs = {self.nodes[0].getnewaddress() : 0.0001}
+        outputs = {self.nodes[0].getnewaddress() : 0.01}
         tx = self.nodes[0].createrawtransaction(inputs, outputs)
         # specifically fund this tx with a fee < mempoolminfee, >= than minrelaytxfee
         txF = self.nodes[0].fundrawtransaction(tx, {'feeRate': relayfee})

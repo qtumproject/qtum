@@ -5,7 +5,7 @@
 """Helpful routines for regression testing."""
 
 from base64 import b64encode
-from binascii import unhexlify
+from binascii import unhexlify, hexlify
 from decimal import Decimal, ROUND_DOWN
 from subprocess import CalledProcessError
 import inspect
@@ -19,6 +19,8 @@ import time
 from . import coverage
 from .authproxy import AuthServiceProxy, JSONRPCException
 from io import BytesIO
+
+from .qtumconfig import COINBASE_MATURITY
 
 logger = logging.getLogger("TestFramework.utils")
 
@@ -202,6 +204,9 @@ def count_bytes(hex_string):
 def hex_str_to_bytes(hex_str):
     return unhexlify(hex_str.encode('ascii'))
 
+def bytes_to_hex_str(byte_str):
+    return hexlify(byte_str).decode('ascii')
+
 def str_to_b64str(string):
     return b64encode(string.encode('utf-8')).decode('ascii')
 
@@ -308,7 +313,7 @@ def initialize_datadir(dirname, n, chain):
     else:
         chain_name_conf_arg = chain
         chain_name_conf_section = chain
-    with open(os.path.join(datadir, "bitcoin.conf"), 'w', encoding='utf8') as f:
+    with open(os.path.join(datadir, "qtum.conf"), 'w', encoding='utf8') as f:
         f.write("{}=1\n".format(chain_name_conf_arg))
         f.write("[{}]\n".format(chain_name_conf_section))
         f.write("port=" + str(p2p_port(n)) + "\n")
@@ -330,15 +335,15 @@ def get_datadir_path(dirname, n):
     return os.path.join(dirname, "node" + str(n))
 
 def append_config(datadir, options):
-    with open(os.path.join(datadir, "bitcoin.conf"), 'a', encoding='utf8') as f:
+    with open(os.path.join(datadir, "qtum.conf"), 'a', encoding='utf8') as f:
         for option in options:
             f.write(option + "\n")
 
 def get_auth_cookie(datadir, chain):
     user = None
     password = None
-    if os.path.isfile(os.path.join(datadir, "bitcoin.conf")):
-        with open(os.path.join(datadir, "bitcoin.conf"), 'r', encoding='utf8') as f:
+    if os.path.isfile(os.path.join(datadir, "qtum.conf")):
+        with open(os.path.join(datadir, "qtum.conf"), 'r', encoding='utf8') as f:
             for line in f:
                 if line.startswith("rpcuser="):
                     assert user is None  # Ensure that there is only one rpcuser line
@@ -352,7 +357,8 @@ def get_auth_cookie(datadir, chain):
             split_userpass = userpass.split(':')
             user = split_userpass[0]
             password = split_userpass[1]
-    except OSError:
+    except OSError as e:
+        print(e)
         pass
     if user is None or password is None:
         raise ValueError("No RPC credentials")
@@ -392,6 +398,10 @@ def connect_nodes(from_connection, node_num):
     # poll until version handshake complete to avoid race conditions
     # with transaction relaying
     wait_until(lambda:  all(peer['version'] != 0 for peer in from_connection.getpeerinfo()))
+
+def connect_nodes_bi(nodes, a, b):
+    connect_nodes(nodes[a], b)
+    connect_nodes(nodes[b], a)
 
 
 def sync_blocks(rpc_connections, *, wait=1, timeout=60):
@@ -501,7 +511,7 @@ def random_transaction(nodes, amount, min_fee, fee_increment, fee_variants):
 # Helper to create at least "count" utxos
 # Pass in a fee that is sufficient for relay and mining new transactions.
 def create_confirmed_utxos(fee, node, count):
-    to_generate = int(0.5 * count) + 101
+    to_generate = int(0.5 * count) + COINBASE_MATURITY+1
     while to_generate > 0:
         node.generate(min(25, to_generate))
         to_generate -= 25
@@ -575,7 +585,7 @@ def create_lots_of_big_transactions(node, txouts, utxos, num, fee):
 def mine_large_block(node, utxos=None):
     # generate a 66k transaction,
     # and 14 of them is close to the 1MB block limit
-    num = 14
+    num = 28
     txouts = gen_return_txouts()
     utxos = utxos if utxos is not None else []
     if len(utxos) < num:

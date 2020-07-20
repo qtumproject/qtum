@@ -14,6 +14,8 @@ from collections import defaultdict
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal, assert_raises_rpc_error
 from test_framework.wallet_util import test_address
+from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD
+from test_framework.qtum import convert_btc_address_to_qtum
 
 
 class WalletLabelsTest(BitcoinTestFramework):
@@ -32,8 +34,8 @@ class WalletLabelsTest(BitcoinTestFramework):
         # Note each time we call generate, all generated coins go into
         # the same address, so we call twice to get two addresses w/50 each
         node.generatetoaddress(nblocks=1, address=node.getnewaddress(label='coinbase'))
-        node.generatetoaddress(nblocks=101, address=node.getnewaddress(label='coinbase'))
-        assert_equal(node.getbalance(), 100)
+        node.generatetoaddress(nblocks=1+COINBASE_MATURITY, address=node.getnewaddress(label='coinbase'))
+        assert_equal(node.getbalance(), 2*INITIAL_BLOCK_REWARD)
 
         # there should be 2 address groups
         # each with 1 address with a balance of 50 Bitcoins
@@ -45,14 +47,14 @@ class WalletLabelsTest(BitcoinTestFramework):
         for address_group in address_groups:
             assert_equal(len(address_group), 1)
             assert_equal(len(address_group[0]), 3)
-            assert_equal(address_group[0][1], 50)
+            assert_equal(address_group[0][1], INITIAL_BLOCK_REWARD)
             assert_equal(address_group[0][2], 'coinbase')
             linked_addresses.add(address_group[0][0])
 
         # send 50 from each address to a third address not in this wallet
-        common_address = "msf4WtN1YQKXvNtvdFYt9JBnUD2FB41kjr"
+        common_address = convert_btc_address_to_qtum("msf4WtN1YQKXvNtvdFYt9JBnUD2FB41kjr")
         node.sendmany(
-            amounts={common_address: 100},
+            amounts={common_address: 2*INITIAL_BLOCK_REWARD},
             subtractfeefrom=[common_address],
             minconf=1,
         )
@@ -104,7 +106,8 @@ class WalletLabelsTest(BitcoinTestFramework):
             label.verify(node)
             assert_equal(node.getreceivedbylabel(label.name), 2)
             label.verify(node)
-        node.generate(101)
+        node.generate(1+COINBASE_MATURITY)
+        expected_account_balances = {"": 504*INITIAL_BLOCK_REWARD}
 
         # Check that setlabel can assign a label to a new unused address.
         for label in labels:

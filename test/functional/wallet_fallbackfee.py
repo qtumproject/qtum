@@ -5,6 +5,7 @@
 """Test wallet replace-by-fee capabilities in conjunction with the fallbackfee."""
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_raises_rpc_error
+from test_framework.qtumconfig import COINBASE_MATURITY
 
 class WalletRBFTest(BitcoinTestFramework):
     def set_test_params(self):
@@ -15,7 +16,7 @@ class WalletRBFTest(BitcoinTestFramework):
         self.skip_if_no_wallet()
 
     def run_test(self):
-        self.nodes[0].generate(101)
+        self.nodes[0].generate(1+COINBASE_MATURITY)
 
         # sending a transaction without fee estimations must be possible by default on regtest
         self.nodes[0].sendtoaddress(self.nodes[0].getnewaddress(), 1)

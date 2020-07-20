@@ -10,6 +10,7 @@ from test_framework.util import (
     assert_equal,
     assert_raises_rpc_error
 )
+from test_framework.qtumconfig import COINBASE_MATURITY
 
 
 class CreateWalletWatchonlyTest(BitcoinTestFramework):
@@ -37,7 +38,7 @@ class CreateWalletWatchonlyTest(BitcoinTestFramework):
         wo_wallet.importpubkey(pubkey=def_wallet.getaddressinfo(wo_change)['pubkey'])
 
         # generate some btc for testing
-        node.generatetoaddress(101, a1)
+        node.generatetoaddress(COINBASE_MATURITY+1, a1)
 
         # send 1 btc to our watch-only address
         txid = def_wallet.sendtoaddress(wo_addr, 1)

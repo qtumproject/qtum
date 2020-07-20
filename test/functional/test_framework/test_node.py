@@ -32,6 +32,7 @@ from .util import (
     p2p_port,
     EncodeDecimal,
 )
+from .qtum import convert_btc_address_to_qtum
 
 BITCOIND_PROC_WAIT_TIMEOUT = 60
 
@@ -60,7 +61,7 @@ class TestNode():
     To make things easier for the test writer, any unrecognised messages will
     be dispatched to the RPC connection."""
 
-    def __init__(self, i, datadir, *, chain, rpchost, timewait, bitcoind, bitcoin_cli, coverage_dir, cwd, extra_conf=None, extra_args=None, use_cli=False, start_perf=False, use_valgrind=False, version=None):
+    def __init__(self, i, datadir, *, chain, rpchost, timewait, bitcoind, bitcoin_cli, coverage_dir, cwd, extra_conf=None, extra_args=None, use_cli=False, start_perf=False, use_valgrind=False, version=None, enable_wallet=False):
         """
         Kwargs:
             start_perf (bool): If True, begin profiling the node with `perf` as soon as
@@ -69,7 +70,7 @@ class TestNode():
 
         self.index = i
         self.datadir = datadir
-        self.bitcoinconf = os.path.join(self.datadir, "bitcoin.conf")
+        self.bitcoinconf = os.path.join(self.datadir, "qtum.conf")
         self.stdout_dir = os.path.join(self.datadir, "stdout")
         self.stderr_dir = os.path.join(self.datadir, "stderr")
         self.chain = chain
@@ -78,6 +79,7 @@ class TestNode():
         self.binary = bitcoind
         self.coverage_dir = coverage_dir
         self.cwd = cwd
+        self.enable_wallet = enable_wallet
         if extra_conf is not None:
             append_config(datadir, extra_conf)
         # Most callers will just need to add extra args to the standard list below.
@@ -129,18 +131,18 @@ class TestNode():
     AddressKeyPair = collections.namedtuple('AddressKeyPair', ['address', 'key'])
     PRIV_KEYS = [
             # address , privkey
-            AddressKeyPair('mjTkW3DjgyZck4KbiRusZsqTgaYTxdSz6z', 'cVpF924EspNh8KjYsfhgY96mmxvT6DgdWiTYMtMjuM74hJaU5psW'),
-            AddressKeyPair('msX6jQXvxiNhx3Q62PKeLPrhrqZQdSimTg', 'cUxsWyKyZ9MAQTaAhUQWJmBbSvHMwSmuv59KgxQV7oZQU3PXN3KE'),
-            AddressKeyPair('mnonCMyH9TmAsSj3M59DsbH8H63U3RKoFP', 'cTrh7dkEAeJd6b3MRX9bZK8eRmNqVCMH3LSUkE3dSFDyzjU38QxK'),
-            AddressKeyPair('mqJupas8Dt2uestQDvV2NH3RU8uZh2dqQR', 'cVuKKa7gbehEQvVq717hYcbE9Dqmq7KEBKqWgWrYBa2CKKrhtRim'),
-            AddressKeyPair('msYac7Rvd5ywm6pEmkjyxhbCDKqWsVeYws', 'cQDCBuKcjanpXDpCqacNSjYfxeQj8G6CAtH1Dsk3cXyqLNC4RPuh'),
-            AddressKeyPair('n2rnuUnwLgXqf9kk2kjvVm8R5BZK1yxQBi', 'cQakmfPSLSqKHyMFGwAqKHgWUiofJCagVGhiB4KCainaeCSxeyYq'),
-            AddressKeyPair('myzuPxRwsf3vvGzEuzPfK9Nf2RfwauwYe6', 'cQMpDLJwA8DBe9NcQbdoSb1BhmFxVjWD5gRyrLZCtpuF9Zi3a9RK'),
-            AddressKeyPair('mumwTaMtbxEPUswmLBBN3vM9oGRtGBrys8', 'cSXmRKXVcoouhNNVpcNKFfxsTsToY5pvB9DVsFksF1ENunTzRKsy'),
-            AddressKeyPair('mpV7aGShMkJCZgbW7F6iZgrvuPHjZjH9qg', 'cSoXt6tm3pqy43UMabY6eUTmR3eSUYFtB2iNQDGgb3VUnRsQys2k'),
-            AddressKeyPair('mq4fBNdckGtvY2mijd9am7DRsbRB4KjUkf', 'cN55daf1HotwBAgAKWVgDcoppmUNDtQSfb7XLutTLeAgVc3u8hik'),
-            AddressKeyPair('mpFAHDjX7KregM3rVotdXzQmkbwtbQEnZ6', 'cT7qK7g1wkYEMvKowd2ZrX1E5f6JQ7TM246UfqbCiyF7kZhorpX3'),
-            AddressKeyPair('mzRe8QZMfGi58KyWCse2exxEFry2sfF2Y7', 'cPiRWE8KMjTRxH1MWkPerhfoHFn5iHPWVK5aPqjW8NxmdwenFinJ'),
+            AddressKeyPair(convert_btc_address_to_qtum('mjTkW3DjgyZck4KbiRusZsqTgaYTxdSz6z'), 'cVpF924EspNh8KjYsfhgY96mmxvT6DgdWiTYMtMjuM74hJaU5psW'),
+            AddressKeyPair(convert_btc_address_to_qtum('msX6jQXvxiNhx3Q62PKeLPrhrqZQdSimTg'), 'cUxsWyKyZ9MAQTaAhUQWJmBbSvHMwSmuv59KgxQV7oZQU3PXN3KE'),
+            AddressKeyPair(convert_btc_address_to_qtum('mnonCMyH9TmAsSj3M59DsbH8H63U3RKoFP'), 'cTrh7dkEAeJd6b3MRX9bZK8eRmNqVCMH3LSUkE3dSFDyzjU38QxK'),
+            AddressKeyPair(convert_btc_address_to_qtum('mqJupas8Dt2uestQDvV2NH3RU8uZh2dqQR'), 'cVuKKa7gbehEQvVq717hYcbE9Dqmq7KEBKqWgWrYBa2CKKrhtRim'),
+            AddressKeyPair(convert_btc_address_to_qtum('msYac7Rvd5ywm6pEmkjyxhbCDKqWsVeYws'), 'cQDCBuKcjanpXDpCqacNSjYfxeQj8G6CAtH1Dsk3cXyqLNC4RPuh'),
+            AddressKeyPair(convert_btc_address_to_qtum('n2rnuUnwLgXqf9kk2kjvVm8R5BZK1yxQBi'), 'cQakmfPSLSqKHyMFGwAqKHgWUiofJCagVGhiB4KCainaeCSxeyYq'),
+            AddressKeyPair(convert_btc_address_to_qtum('myzuPxRwsf3vvGzEuzPfK9Nf2RfwauwYe6'), 'cQMpDLJwA8DBe9NcQbdoSb1BhmFxVjWD5gRyrLZCtpuF9Zi3a9RK'),
+            AddressKeyPair(convert_btc_address_to_qtum('mumwTaMtbxEPUswmLBBN3vM9oGRtGBrys8'), 'cSXmRKXVcoouhNNVpcNKFfxsTsToY5pvB9DVsFksF1ENunTzRKsy'),
+            AddressKeyPair(convert_btc_address_to_qtum('mpV7aGShMkJCZgbW7F6iZgrvuPHjZjH9qg'), 'cSoXt6tm3pqy43UMabY6eUTmR3eSUYFtB2iNQDGgb3VUnRsQys2k'),
+            AddressKeyPair(convert_btc_address_to_qtum('mq4fBNdckGtvY2mijd9am7DRsbRB4KjUkf'), 'cN55daf1HotwBAgAKWVgDcoppmUNDtQSfb7XLutTLeAgVc3u8hik'),
+            AddressKeyPair(convert_btc_address_to_qtum('mpFAHDjX7KregM3rVotdXzQmkbwtbQEnZ6'), 'cT7qK7g1wkYEMvKowd2ZrX1E5f6JQ7TM246UfqbCiyF7kZhorpX3'),
+            AddressKeyPair(convert_btc_address_to_qtum('mzRe8QZMfGi58KyWCse2exxEFry2sfF2Y7'), 'cPiRWE8KMjTRxH1MWkPerhfoHFn5iHPWVK5aPqjW8NxmdwenFinJ'),
     ]
 
     def get_deterministic_priv_key(self):
@@ -198,6 +200,16 @@ class TestNode():
         # add environment variable LIBC_FATAL_STDERR_=1 so that libc errors are written to stderr and not the terminal
         subp_env = dict(os.environ, LIBC_FATAL_STDERR_="1")
 
+        if self.enable_wallet and not any(arg.startswith('-staking=') for arg in extra_args):
+            extra_args.append('-staking=0')
+
+        if self.enable_wallet and not any(arg.startswith('-offlinestakingheight=') for arg in extra_args):
+            extra_args.append('-offlinestakingheight=1')
+
+        # Disable the spam filter as it may interfere with come tests sending lots and lots of blocks
+        if not any(arg.startswith('-headerspamfilter') for arg in extra_args):
+            extra_args.append('-headerspamfilter=0')
+
         self.process = subprocess.Popen(self.args + extra_args, env=subp_env, stdout=stdout, stderr=stderr, cwd=cwd, **kwargs)
 
         self.running = True
@@ -208,14 +220,32 @@ class TestNode():
 
     def wait_for_rpc_connection(self):
         """Sets up an RPC connection to the bitcoind process. Returns False if unable to connect."""
+        # Wait until the debug log prints that the init process is done and a cookie auth file exists
+        # OR that the process has stopped before proceeding to prevent race conditions
+        # Times out after 10 seconds.
+        cookiefile = os.path.join(self.datadir, self.chain, ".cookie")
+        debuglog_init_done_msg = "init message: Done loading"
+
+        for i in range(1000):
+            try:
+                with open(os.path.join(self.datadir, self.chain, "debug.log"), 'r') as f:
+                    last_init_section = f.read().split('\n\n\n\n')[-1]
+                    if os.path.exists(cookiefile) and debuglog_init_done_msg in last_init_section or self.process.poll() is not None:
+                        break
+            except Exception as e:
+                pass
+            time.sleep(0.01)
+
+
+
         # Poll at a rate of four times per second
         poll_per_s = 4
         for _ in range(poll_per_s * self.rpc_timeout):
             if self.process.poll() is not None:
                 raise FailedToStartError(self._node_msg(
                     'bitcoind exited with status {} during initialization'.format(self.process.returncode)))
+            rpc = get_rpc_proxy(rpc_url(self.datadir, self.index, self.chain, self.rpchost), self.index, timeout=self.rpc_timeout, coveragedir=self.coverage_dir)
             try:
-                rpc = get_rpc_proxy(rpc_url(self.datadir, self.index, self.chain, self.rpchost), self.index, timeout=self.rpc_timeout, coveragedir=self.coverage_dir)
                 rpc.getblockcount()
                 # If the call to getblockcount() succeeds then the RPC connection is up
                 self.log.debug("RPC successfully started")

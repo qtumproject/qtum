@@ -18,7 +18,8 @@ from test_framework.blocktools import create_coinbase, create_block, create_tran
 from test_framework.messages import CTransaction
 from test_framework.script import CScript
 from test_framework.test_framework import BitcoinTestFramework
-from test_framework.util import assert_equal, assert_raises_rpc_error
+from test_framework.util import assert_equal, assert_raises_rpc_error, bytes_to_hex_str
+from test_framework.qtumconfig import COINBASE_MATURITY
 
 NULLDUMMY_ERROR = "non-mandatory-script-verify-flag (Dummy CHECKMULTISIG argument must be zero)"
 
@@ -42,7 +43,7 @@ class NULLDUMMYTest(BitcoinTestFramework):
         # This script tests NULLDUMMY activation, which is part of the 'segwit' deployment, so we go through
         # normal segwit activation here (and don't use the default always-on behaviour).
         self.extra_args = [[
-            '-segwitheight=432',
+            '-segwitheight=864',
             '-addresstype=legacy',
         ]]
 
@@ -59,11 +60,21 @@ class NULLDUMMYTest(BitcoinTestFramework):
         coinbase_txid = []
         for i in self.coinbase_blocks:
             coinbase_txid.append(self.nodes[0].getblock(i)['tx'][0])
-        self.nodes[0].generate(427)  # Block 429
+
+        for i in range(COINBASE_MATURITY):
+            block = create_block(int(self.nodes[0].getbestblockhash(), 16), create_coinbase(self.nodes[0].getblockcount()+1), int(time.time())+2+i)
+            block.nVersion = 4
+            block.hashMerkleRoot = block.calc_merkle_root()
+            block.rehash()
+            block.solve()
+            self.nodes[0].submitblock(bytes_to_hex_str(block.serialize()))
+
+        # Generate the number blocks signalling  that the continuation of the test case expects
+        self.nodes[0].generate(863-COINBASE_MATURITY-2-2)
         self.lastblockhash = self.nodes[0].getbestblockhash()
         self.tip = int("0x" + self.lastblockhash, 0)
-        self.lastblockheight = 429
-        self.lastblocktime = int(time.time()) + 429
+        self.lastblockheight = self.nodes[0].getblockcount()
+        self.lastblocktime = int(time.time()) + self.lastblockheight + 1
 
         self.log.info("Test 1: NULLDUMMY compliant base transactions should be accepted to mempool and mined before activation [430]")
         test1txs = [create_transaction(self.nodes[0], coinbase_txid[0], self.ms_address, amount=49)]

@@ -24,7 +24,7 @@ class CreateTxWalletTest(BitcoinTestFramework):
     def run_test(self):
         self.log.info('Create some old blocks')
         self.nodes[0].setmocktime(TIME_GENESIS_BLOCK)
-        self.nodes[0].generate(200)
+        self.nodes[0].generate(600)
         self.nodes[0].setmocktime(0)
 
         self.test_anti_fee_sniping()
@@ -32,7 +32,7 @@ class CreateTxWalletTest(BitcoinTestFramework):
 
     def test_anti_fee_sniping(self):
         self.log.info('Check that we have some (old) blocks and that anti-fee-sniping is disabled')
-        assert_equal(self.nodes[0].getblockchaininfo()['blocks'], 200)
+        assert_equal(self.nodes[0].getblockchaininfo()['blocks'], 600)
         txid = self.nodes[0].sendtoaddress(self.nodes[0].getnewaddress(), 1)
         tx = self.nodes[0].decoderawtransaction(self.nodes[0].gettransaction(txid)['hex'])
         assert_equal(tx['locktime'], 0)
@@ -41,16 +41,16 @@ class CreateTxWalletTest(BitcoinTestFramework):
         self.nodes[0].generate(1)
         txid = self.nodes[0].sendtoaddress(self.nodes[0].getnewaddress(), 1)
         tx = self.nodes[0].decoderawtransaction(self.nodes[0].gettransaction(txid)['hex'])
-        assert 0 < tx['locktime'] <= 201
+        assert 0 < tx['locktime'] <= 601
 
     def test_tx_size_too_large(self):
         # More than 10kB of outputs, so that we hit -maxtxfee with a high feerate
-        outputs = {self.nodes[0].getnewaddress(address_type='bech32'): 0.000025 for i in range(400)}
+        outputs = {self.nodes[0].getnewaddress(address_type='bech32'): 0.0025 for i in range(400)}
         raw_tx = self.nodes[0].createrawtransaction(inputs=[], outputs=outputs)
 
         for fee_setting in ['-minrelaytxfee=0.01', '-mintxfee=0.01', '-paytxfee=0.01']:
             self.log.info('Check maxtxfee in combination with {}'.format(fee_setting))
-            self.restart_node(0, extra_args=[fee_setting])
+            self.restart_node(0, extra_args=[fee_setting] + ['-maxtxfee=0.01'])
             assert_raises_rpc_error(
                 -6,
                 "Fee exceeds maximum configured by -maxtxfee",
@@ -63,7 +63,7 @@ class CreateTxWalletTest(BitcoinTestFramework):
             )
 
         self.log.info('Check maxtxfee in combination with settxfee')
-        self.restart_node(0)
+        self.restart_node(0, extra_args=['-maxtxfee=0.01'])
         self.nodes[0].settxfee(0.01)
         assert_raises_rpc_error(
             -6,
