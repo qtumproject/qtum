@@ -1548,6 +1548,10 @@ bool AppInitMain(NodeContext& node)
     node.peer_logic.reset(new PeerLogicValidation(node.connman.get(), node.banman.get(), *node.scheduler, *node.mempool));
     RegisterValidationInterface(node.peer_logic.get());
 
+#ifdef ENABLE_WALLET
+    CWallet::defaultConnman = node.connman.get();
+#endif
+
     // sanitize comments per BIP-0014, format user agent and check total size
     std::vector<std::string> uacomments;
     for (const std::string& cmt : gArgs.GetArgs("-uacomment")) {

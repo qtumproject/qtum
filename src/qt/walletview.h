@@ -12,12 +12,19 @@
 class ClientModel;
 class OverviewPage;
 class PlatformStyle;
-class ReceiveCoinsDialog;
+class ReceiveRequestDialog;
 class SendCoinsDialog;
 class SendCoinsRecipient;
 class TransactionView;
 class WalletModel;
 class AddressBookPage;
+class CreateContract;
+class SendToContract;
+class CallContract;
+class QRCToken;
+class StakePage;
+class DelegationPage;
+class SuperStakerPage;
 
 QT_BEGIN_NAMESPACE
 class QModelIndex;
@@ -59,10 +66,17 @@ private:
 
     OverviewPage *overviewPage;
     QWidget *transactionsPage;
-    ReceiveCoinsDialog *receiveCoinsPage;
+    ReceiveRequestDialog *receiveCoinsPage;
     SendCoinsDialog *sendCoinsPage;
     AddressBookPage *usedSendingAddressesPage;
     AddressBookPage *usedReceivingAddressesPage;
+    CreateContract* createContractPage;
+    SendToContract* sendToContractPage;
+    CallContract* callContractPage;
+    QRCToken* QRCTokenPage;
+    StakePage *stakePage;
+    DelegationPage* delegationPage;
+    SuperStakerPage* superStakerPage;
 
     TransactionView *transactionView;
 
@@ -78,6 +92,20 @@ public Q_SLOTS:
     void gotoReceiveCoinsPage();
     /** Switch to send coins page */
     void gotoSendCoinsPage(QString addr = "");
+    /** Switch to create contract page */
+    void gotoCreateContractPage();
+    /** Switch to send contract page */
+    void gotoSendToContractPage();
+    /** Switch to call contract page */
+    void gotoCallContractPage();
+    /** Switch to token page */
+    void gotoTokenPage();
+    /** Switch to stake page */
+    void gotoStakePage();
+    /** Switch to delegation page */
+    void gotoDelegationPage();
+    /** Switch to super staker page */
+    void gotoSuperStakerPage();
 
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");
@@ -89,14 +117,25 @@ public Q_SLOTS:
         The new items are those between start and end inclusive, under the given parent item.
     */
     void processNewTransaction(const QModelIndex& parent, int start, int /*end*/);
+
+    /** Show incoming token transaction notification for new token transactions.
+
+        The new items are those between start and end inclusive, under the given parent item.
+    */
+    void processNewTokenTransaction(const QModelIndex& parent, int start, int /*end*/);
+
     /** Encrypt the wallet */
     void encryptWallet(bool status);
     /** Backup the wallet */
     void backupWallet();
+    /** Restore the wallet */
+    void restoreWallet();
     /** Change encrypted wallet passphrase */
     void changePassphrase();
     /** Ask for passphrase to unlock wallet temporarily */
-    void unlockWallet();
+    void unlockWallet(bool fromMenu = false);
+    /** Lock the wallet */
+    void lockWallet();
 
     /** Show used sending addresses */
     void usedSendingAddresses();
@@ -123,8 +162,13 @@ Q_SIGNALS:
     void hdEnabledStatusChanged();
     /** Notify that a new transaction appeared */
     void incomingTransaction(const QString& date, int unit, const CAmount& amount, const QString& type, const QString& address, const QString& label, const QString& walletName);
+    /** Notify that a new token transaction appeared */
+    void incomingTokenTransaction(const QString& date, const QString& amount, const QString& type, const QString& address, const QString& label, const QString& walletName, const QString& title);
     /** Notify that the out of sync warning icon has been pressed */
     void outOfSyncWarningClicked();
+    void showMore();
+    void sendCoins(QString addr = "");
+    void receiveCoins();
 };
 
 #endif // BITCOIN_QT_WALLETVIEW_H

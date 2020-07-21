@@ -674,7 +674,7 @@ void SendCoinsDialog::updateCoinControlState(CCoinControl& ctrl)
 
 void SendCoinsDialog::updateSmartFeeLabel()
 {
-    if(!model || !model->getOptionsModel())
+    if(!model || !model->getOptionsModel() || !clientModel || clientModel->fBatchProcessingMode)
         return;
     updateCoinControlState(*m_coin_control);
     m_coin_control->m_feerate.reset(); // Explicitly use only fee estimation rate for smart fee labels

@@ -134,14 +134,41 @@ void WalletModel::pollBalanceChanged()
         return;
     }
 
+    // Get node synchronization information
+    bool isSyncing = false;
+    m_node.getSyncInfo(numBlocks, isSyncing);
+
+    bool cachedNumBlocksChanged = numBlocks != cachedNumBlocks;
     fForceCheckBalanceChanged = false;
 
     // Balance and number of transactions might have changed
     cachedNumBlocks = numBlocks;
 
-    checkBalanceChanged(new_balances);
+    bool balanceChanged = checkBalanceChanged(new_balances);
     if(transactionTableModel)
         transactionTableModel->updateConfirmations();
+
+    if(tokenTransactionTableModel)
+        tokenTransactionTableModel->updateConfirmations();
+
+    if(cachedNumBlocksChanged)
+    {
+        checkTokenBalanceChanged();
+        checkDelegationChanged();
+        checkSuperStakerChanged();
+    }
+
+    if(balanceChanged)
+    {
+        updateCoinAddresses = true;
+    }
+
+    // The stake weight is used for the staking icon status
+    // Get the stake weight only when not syncing because it is time consuming
+    if(!isSyncing && (balanceChanged || cachedNumBlocksChanged))
+    {
+        updateStakeWeight = true;
+    }
 }
 void WalletModel::updateContractBook(const QString &address, const QString &label, const QString &abi, int status)
 {

@@ -7,6 +7,7 @@
 #include <qt/receivecoinsdialog.h>
 #include <qt/forms/ui_receivecoinsdialog.h>
 
+#include <interfaces/node.h>
 #include <qt/addresstablemodel.h>
 #include <qt/optionsmodel.h>
 #include <qt/platformstyle.h>
@@ -90,10 +91,16 @@ void ReceiveCoinsDialog::setModel(WalletModel *_model)
         // Last 2 columns are set by the columnResizingFixer, when the table geometry is ready.
         columnResizingFixer = new GUIUtil::TableViewLastColumnResizingFixer(tableView, AMOUNT_MINIMUM_COLUMN_WIDTH, DATE_COLUMN_WIDTH, this);
 
-        if (model->wallet().getDefaultAddressType() == OutputType::BECH32) {
-            ui->useBech32->setCheckState(Qt::Checked);
+        if (model->node().isAddressTypeSet()) {
+            // user explicitly set the type, use it
+            if (model->wallet().getDefaultAddressType() == OutputType::BECH32) {
+                ui->useBech32->setCheckState(Qt::Checked);
+            } else {
+                ui->useBech32->setCheckState(Qt::Unchecked);
+            }
         } else {
-            ui->useBech32->setCheckState(Qt::Unchecked);
+            // Always fall back to default in the gui
+            ui->useBech32->setVisible(model->wallet().getDefaultAddressType() != OutputType::LEGACY);
         }
 
         // Set the button to be enabled or disabled based on whether the wallet can give out new addresses.

@@ -45,6 +45,10 @@ type(_type)
         ui->infoText->setVisible(false);
         ui->infoTextStrong->setText(tr("%1 is currently syncing.  It will download headers and blocks from peers and validate them until reaching the tip of the block chain.").arg(PACKAGE_NAME));
     }
+
+    ui->stackedWidget->setCurrentIndex(type);
+    ui->walletBackupButton->setVisible(type == OverlayType::Backup);
+    ui->closeButton->setText(type == OverlayType::Backup ? tr("Maybe later") : tr("Hide"));
 }
 
 ModalOverlay::~ModalOverlay()
