@@ -61,24 +61,24 @@ class FeeFilterTest(BitcoinTestFramework):
         self.nodes[0].add_p2p_connection(TestP2PConn())
 
         # Test that invs are received by test connection for all txs at
-        # feerate of .2 sat/byte
-        node1.settxfee(Decimal("0.00000200"))
+        # feerate of 20 sat/byte
+        node1.settxfee(Decimal("0.02000000"))
         txids = [node1.sendtoaddress(node1.getnewaddress(), 1) for x in range(3)]
         assert allInvsMatch(txids, self.nodes[0].p2p)
         self.nodes[0].p2p.clear_invs()
 
-        # Set a filter of .15 sat/byte on test connection
-        self.nodes[0].p2p.send_and_ping(msg_feefilter(150))
+        # Set a filter of 15 sat/byte on test connection
+        self.nodes[0].p2p.send_and_ping(msg_feefilter(1500000))
 
-        # Test that txs are still being received by test connection (paying .15 sat/byte)
-        node1.settxfee(Decimal("0.00000150"))
+        # Test that txs are still being received by test connection (paying 15 sat/byte)
+        node1.settxfee(Decimal("0.01500000"))
         txids = [node1.sendtoaddress(node1.getnewaddress(), 1) for x in range(3)]
         assert allInvsMatch(txids, self.nodes[0].p2p)
         self.nodes[0].p2p.clear_invs()
 
-        # Change tx fee rate to .1 sat/byte and test they are no longer received
+        # Change tx fee rate to 10 sat/byte and test they are no longer received
         # by the test connection
-        node1.settxfee(Decimal("0.00000100"))
+        node1.settxfee(Decimal("0.01000000"))
         [node1.sendtoaddress(node1.getnewaddress(), 1) for x in range(3)]
         self.sync_mempools() # must be sure node 0 has received all txs
 
@@ -89,7 +89,7 @@ class FeeFilterTest(BitcoinTestFramework):
         # to 35 entries in an inv, which means that when this next transaction
         # is eligible for relay, the prior transactions from node1 are eligible
         # as well.
-        node0.settxfee(Decimal("0.00020000"))
+        node0.settxfee(Decimal("0.02000000"))
         txids = [node0.sendtoaddress(node0.getnewaddress(), 1)]
         assert allInvsMatch(txids, self.nodes[0].p2p)
         self.nodes[0].p2p.clear_invs()

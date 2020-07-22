@@ -44,7 +44,7 @@ class BIP66Test(BitcoinTestFramework):
             '-par=1',  # Use only one script thread to get the exact log msg for testing
         ]]
         self.setup_clean_chain = True
-        self.rpc_timewait = 240
+        self.rpc_timewait = 120
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
