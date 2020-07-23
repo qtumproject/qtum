@@ -45,7 +45,8 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
     QStackedWidget(parent),
     clientModel(nullptr),
     walletModel(nullptr),
-    platformStyle(_platformStyle)
+    platformStyle(_platformStyle),
+    walletFrame(qobject_cast<WalletFrame*>(parent))
 {
     // Create tabs
     overviewPage = new OverviewPage(platformStyle);
@@ -246,7 +247,6 @@ void WalletView::gotoHistoryPage()
 void WalletView::gotoReceiveCoinsPage()
 {
     setCurrentWidget(overviewPage);
-    WalletFrame *walletFrame = qobject_cast<WalletFrame*>(parentWidget());
     if(walletFrame && walletFrame->currentWalletView() == this)
     {
         receiveCoinsPage->show();
@@ -256,7 +256,6 @@ void WalletView::gotoReceiveCoinsPage()
 void WalletView::gotoSendCoinsPage(QString addr)
 {
     setCurrentWidget(overviewPage);
-    WalletFrame *walletFrame = qobject_cast<WalletFrame*>(parentWidget());
     if(walletFrame && walletFrame->currentWalletView() == this)
     {
         if (!addr.isEmpty())

@@ -25,6 +25,7 @@ class QRCToken;
 class StakePage;
 class DelegationPage;
 class SuperStakerPage;
+class WalletFrame;
 
 QT_BEGIN_NAMESPACE
 class QModelIndex;
@@ -82,6 +83,7 @@ private:
 
     QProgressDialog* progressDialog{nullptr};
     const PlatformStyle *platformStyle;
+    WalletFrame *walletFrame;
 
 public Q_SLOTS:
     /** Switch to overview (home) page */

@@ -3706,8 +3706,7 @@ bool CWallet::CreateCoinStakeFromMine(interfaces::Chain::Lock& locked_chain, con
     int nIn = 0;
     for(const std::pair<const CWalletTx*,unsigned int> &pcoin : vwtxPrev)
     {
-        std::unique_ptr<SigningProvider> provider = GetSolvingProvider(pcoin.first->tx->vout[pcoin.second].scriptPubKey);
-        if (!SignSignature(*provider, *pcoin.first->tx, txNew, nIn++, SIGHASH_ALL))
+        if (!SignSignature(keystore, *pcoin.first->tx, txNew, nIn++, SIGHASH_ALL))
             return error("CreateCoinStake : failed to sign coinstake");
     }
 
@@ -3904,8 +3903,7 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
     int nIn = 0;
     for(const std::pair<const CWalletTx*,unsigned int> &pcoin : vwtxPrev)
     {
-        std::unique_ptr<SigningProvider> provider = GetSolvingProvider(pcoin.first->tx->vout[pcoin.second].scriptPubKey);
-        if (!SignSignature(*provider, *pcoin.first->tx, txNew, nIn++, SIGHASH_ALL))
+        if (!SignSignature(keystore, *pcoin.first->tx, txNew, nIn++, SIGHASH_ALL))
             return error("CreateCoinStake : failed to sign coinstake");
     }
 
