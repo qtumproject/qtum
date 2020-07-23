@@ -3809,4 +3809,30 @@ Nota: Dado que la comisión se calcula por byte, una comisión de "100 satoshis 
         <translation>Se terminó de cargar</translation>
     </message>
 </context>
+<context>
+    <name>RestoreDialog</name>
+    <message>
+        <source>Select wallet file to restore from</source>
+        <translation>Seleccione el archivo de billetera para restaurar</translation>
+    </message>
+    <message>
+        <source>Rebuild blockchain index</source>
+        <translation>rescan - reindexa la blockchain en busqueda de transacciones que no se esten mostrando
+ -  Corrige transacciones faltantes y balance incorrecto</translation>
+    </message>
+    <message>
+        <source>Recover transactions without metadata</source>
+        <translation>zapwallettxes=2 - recupera transacciones sin metadatos.
+ - Corrige problemas con transacciones faltantes, bajo balance, bloques huerfanos y cadenas separadas. Realiza una copia de seguridad luego de ejecutar este comando.</translation>
+    </message>
+    <message>
+        <source>Delete the local copy of the block chain</source>
+        <translation>Borrar datos de blockchain - borra la copia local de blockchain y activa una re-sincronizacion de la blockchain en su totalidad
+ - Corrige problemas sincronizando al igual que datos corruptos al igual que separaciones de cadena</translation>
+    </message>
+    <message>
+        <source>The wallet.dat will be restored from the selected location and the Qt Wallet will be restarted with the -reindex, -zapwallettxes=2 or -deleteblockchaindata option.</source>
+        <translation>Realiza una copia de tu billetera primero, esto necesita reiniciar la aplicacion luego de seleccionar la opcion.</translation>
+    </message>
+</context>
 </TS>
