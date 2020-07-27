@@ -147,7 +147,7 @@ void TestGUI(interfaces::Node& node)
         LOCK2(wallet->cs_wallet, spk_man->cs_KeyStore);
         wallet->SetAddressBook(GetDestinationForKey(test.coinbaseKey.GetPubKey(), wallet->m_default_address_type), "", "receive");
         spk_man->AddKeyPubKey(test.coinbaseKey, test.coinbaseKey.GetPubKey());
-        wallet->SetLastBlockProcessed(105, ::ChainActive().Tip()->GetBlockHash());
+        wallet->SetLastBlockProcessed(505, ::ChainActive().Tip()->GetBlockHash());
     }
     {
         auto locked_chain = wallet->chain().lock();

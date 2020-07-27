@@ -4526,8 +4526,8 @@ bool RemoveBlockIndex(CBlockIndex *pindex)
 
 void CleanBlockIndex()
 {
-    unsigned int cleanTimeout = gArgs.GetArg("-cleanblockindextimeout", DEFAULT_CLEANBLOCKINDEXTIMEOUT) * 1000;
-    if(cleanTimeout == 0) cleanTimeout = DEFAULT_CLEANBLOCKINDEXTIMEOUT * 1000;
+    unsigned int cleanTimeout = gArgs.GetArg("-cleanblockindextimeout", DEFAULT_CLEANBLOCKINDEXTIMEOUT);
+    if(cleanTimeout == 0) cleanTimeout = DEFAULT_CLEANBLOCKINDEXTIMEOUT;
 
     while(!ShutdownRequested())
     {
@@ -4573,7 +4573,8 @@ void CleanBlockIndex()
             }
         }
 
-        UninterruptibleSleep(std::chrono::milliseconds{cleanTimeout});
+        for(unsigned int i = 0; (i < cleanTimeout) && !ShutdownRequested(); i++)
+            UninterruptibleSleep(std::chrono::seconds{1});
     }
 }
 
