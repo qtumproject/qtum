@@ -20,7 +20,8 @@ BOOST_AUTO_TEST_CASE(getcoinscachesizestate)
 {
     BlockManager blockman{};
     CChainState chainstate{blockman};
-    chainstate.InitCoinsDB(/*cache_size_bytes*/ 1 << 10, /*in_memory*/ true, /*should_wipe*/ false);
+    constexpr int CACHE_SIZE_BYTES = 1664;
+    chainstate.InitCoinsDB(/*cache_size_bytes*/ CACHE_SIZE_BYTES, /*in_memory*/ true, /*should_wipe*/ false);
     WITH_LOCK(::cs_main, chainstate.InitCoinsCache());
     CTxMemPool tx_pool{};
 
@@ -52,7 +53,7 @@ BOOST_AUTO_TEST_CASE(getcoinscachesizestate)
         BOOST_TEST_MESSAGE("CCoinsViewCache memory usage: " << view.DynamicMemoryUsage());
     };
 
-    constexpr size_t MAX_COINS_CACHE_BYTES = 1024;
+    constexpr size_t MAX_COINS_CACHE_BYTES = 1664;
 
     // Without any coins in the cache, we shouldn't need to flush.
     BOOST_CHECK_EQUAL(
@@ -112,14 +113,14 @@ BOOST_AUTO_TEST_CASE(getcoinscachesizestate)
 
     // Passing non-zero max mempool usage should allow us more headroom.
     BOOST_CHECK_EQUAL(
-        chainstate.GetCoinsCacheSizeState(tx_pool, MAX_COINS_CACHE_BYTES, /*max_mempool_size_bytes*/ 1 << 10),
+        chainstate.GetCoinsCacheSizeState(tx_pool, MAX_COINS_CACHE_BYTES, /*max_mempool_size_bytes*/ CACHE_SIZE_BYTES),
         CoinsCacheSizeState::OK);
 
-    for (int i{0}; i < 3; ++i) {
+    for (int i{0}; i < 2; ++i) {
         add_coin(view);
         print_view_mem_usage(view);
         BOOST_CHECK_EQUAL(
-            chainstate.GetCoinsCacheSizeState(tx_pool, MAX_COINS_CACHE_BYTES, /*max_mempool_size_bytes*/ 1 << 10),
+            chainstate.GetCoinsCacheSizeState(tx_pool, MAX_COINS_CACHE_BYTES, /*max_mempool_size_bytes*/ CACHE_SIZE_BYTES),
             CoinsCacheSizeState::OK);
     }
 
@@ -130,12 +131,12 @@ BOOST_AUTO_TEST_CASE(getcoinscachesizestate)
 
     // Only perform these checks on 64 bit hosts; I haven't done the math for 32.
     if (is_64_bit) {
-        float usage_percentage = (float)view.DynamicMemoryUsage() / (MAX_COINS_CACHE_BYTES + (1 << 10));
+        float usage_percentage = (float)view.DynamicMemoryUsage() / (MAX_COINS_CACHE_BYTES + CACHE_SIZE_BYTES);
         BOOST_TEST_MESSAGE("CoinsTip usage percentage: " << usage_percentage);
-        BOOST_CHECK(usage_percentage >= 0.9);
+        BOOST_CHECK(usage_percentage >= 0.45);
         BOOST_CHECK(usage_percentage < 1);
         BOOST_CHECK_EQUAL(
-            chainstate.GetCoinsCacheSizeState(tx_pool, MAX_COINS_CACHE_BYTES, 1 << 10),
+            chainstate.GetCoinsCacheSizeState(tx_pool, MAX_COINS_CACHE_BYTES, CACHE_SIZE_BYTES),
             CoinsCacheSizeState::LARGE);
     }
 

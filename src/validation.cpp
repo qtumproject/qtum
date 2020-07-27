@@ -5727,8 +5727,6 @@ bool TestBlockValidity(BlockValidationState& state, const CChainParams& chainpar
         return error("%s: Consensus::CheckBlock: %s", __func__, state.ToString());
     if (!ContextualCheckBlock(block, state, chainparams.GetConsensus(), pindexPrev))
         return error("%s: Consensus::ContextualCheckBlock: %s", __func__, state.ToString());
-    if (!::ChainstateActive().ConnectBlock(block, state, &indexDummy, viewNew, chainparams, true))
-        return false;
 
     dev::h256 oldHashStateRoot(globalState->rootHash()); // qtum
     dev::h256 oldHashUTXORoot(globalState->rootHashUTXO()); // qtum
