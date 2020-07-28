@@ -3348,7 +3348,8 @@ bool CWallet::CreateTransaction(interfaces::Chain::Lock& locked_chain, const std
                     const CScript& scriptPubKey = GetScriptForDestination(signSenderAddress);
                     SignatureData sigdata;
 
-                    if (!ProduceSignature(*GetSolvingProvider(scriptPubKey), MutableTransactionSignatureOutputCreator(&txNew, nOut, output.nValue, SIGHASH_ALL), scriptPubKey, sigdata))
+                    auto spk_man = GetLegacyScriptPubKeyMan();
+                    if (!ProduceSignature(*spk_man, MutableTransactionSignatureOutputCreator(&txNew, nOut, output.nValue, SIGHASH_ALL), scriptPubKey, sigdata))
                     {
                         strFailReason = _("Signing transaction output failed").translated;
                         return false;
