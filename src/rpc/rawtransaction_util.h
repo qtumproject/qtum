@@ -41,4 +41,6 @@ CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniVal
 
 UniValue SignTransactionSender(CMutableTransaction& mtx, FillableSigningProvider *keystore, const UniValue& hashType);
 
+void CheckSenderSignatures(CMutableTransaction& mtx);
+
 #endif // BITCOIN_RPC_RAWTRANSACTION_UTIL_H

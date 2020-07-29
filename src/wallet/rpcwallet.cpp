@@ -4667,6 +4667,7 @@ UniValue signrawtransactionwithwallet(const JSONRPCRequest& request)
     // Script verification errors
     std::map<int, std::string> input_errors;
 
+    CheckSenderSignatures(mtx);
     bool complete = pwallet->SignTransaction(mtx, coins, nHashType, input_errors);
     UniValue result(UniValue::VOBJ);
     SignTransactionResultToJSON(mtx, complete, coins, input_errors, result);

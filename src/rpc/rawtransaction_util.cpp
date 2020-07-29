@@ -388,7 +388,7 @@ void ParsePrevouts(const UniValue& prevTxsUnival, FillableSigningProvider* keyst
     }
 }
 
-void SignTransaction(CMutableTransaction& mtx, const SigningProvider* keystore, const std::map<COutPoint, Coin>& coins, const UniValue& hashType, UniValue& result)
+void CheckSenderSignatures(CMutableTransaction& mtx)
 {
     // Check the sender signatures are inside the outputs, before signing the inputs
     if(mtx.HasOpSender())
@@ -406,7 +406,10 @@ void SignTransaction(CMutableTransaction& mtx, const SigningProvider* keystore, 
             nOut++;
         }
     }
+}
 
+void SignTransaction(CMutableTransaction& mtx, const SigningProvider* keystore, const std::map<COutPoint, Coin>& coins, const UniValue& hashType, UniValue& result)
+{
     int nHashType = ParseSighashString(hashType);
 
     // Script verification errors

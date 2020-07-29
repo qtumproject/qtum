@@ -14,6 +14,7 @@ from test_framework.util import (
     disconnect_nodes,
     hex_str_to_bytes,
 )
+from test_framework.qtumconfig import *
 
 # Linux allow all characters other than \x00
 # Windows disallow control characters (0-31) and /\?%:|"<>
@@ -93,7 +94,7 @@ class NotificationsTest(BitcoinTestFramework):
             self.log.info("test -walletnotify with conflicting transactions")
             self.nodes[0].sethdseed(seed=self.nodes[1].dumpprivkey(keyhash_to_p2pkh(hex_str_to_bytes(self.nodes[1].getwalletinfo()['hdseedid'])[::-1])))
             self.nodes[0].rescanblockchain()
-            self.nodes[0].generatetoaddress(100, ADDRESS_BCRT1_UNSPENDABLE)
+            self.nodes[0].generatetoaddress(COINBASE_MATURITY, ADDRESS_BCRT1_UNSPENDABLE)
 
             # Generate transaction on node 0, sync mempools, and check for
             # notification on node 1.

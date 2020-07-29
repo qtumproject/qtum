@@ -989,6 +989,7 @@ static UniValue signrawtransactionwithkey(const JSONRPCRequest& request)
     ParsePrevouts(request.params[2], &keystore, coins);
 
     UniValue result(UniValue::VOBJ);
+    CheckSenderSignatures(mtx);
     SignTransaction(mtx, &keystore, coins, request.params[3], result);
     return result;
 }
