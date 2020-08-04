@@ -1650,6 +1650,10 @@ Please make sure to keep an updated antivirus and operating system. We can not r
 <context>
     <name>OpenURIDialog</name>
     <message>
+        <source>Open qtum URI</source>
+        <translation>QTUM URI 열기</translation>
+    </message>
+    <message>
         <source>URI:</source>
         <translation>URI:</translation>
     </message>
@@ -1953,15 +1957,15 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation type="unfinished">업데이트 확인</translation>
     </message>
     <message>
-        <source>Automatically open the Bitcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
         <translation type="unfinished">라우터에서 자동으로 QTUM 클라이언트 실행하기. 해당 기능은 라우터에 UPnP 옵션이 활성화되어 있을 경우에만 유효합니다. </translation>
     </message>
     <message>
-        <source>Connect to the Bitcoin network through a SOCKS5 proxy.</source>
+        <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
         <translation type="unfinished">SOCKS5 프록시를 통해 QTUM 네트워크 연결</translation>
     </message>
     <message>
-        <source>Connect to the Bitcoin network through a separate SOCKS5 proxy for Tor hidden services.</source>
+        <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor hidden services.</source>
         <translation type="unfinished">Tor 히든 서비스에서 별도의 SOCKS5 프록시를 통해 QTUM 네트워크 연결</translation>
     </message>
     <message>
@@ -2142,7 +2146,7 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation>지불 요청 네트워크와 클라이언트 네트워크가 매칭되지 않습니다. </translation>
     </message>
     <message>
-        <source>&apos;bitcoin://&apos; is not a valid URI. Use &apos;bitcoin:&apos; instead.</source>
+        <source>&apos;qtum://&apos; is not a valid URI. Use &apos;qtum:&apos; instead.</source>
         <translation type="unfinished">qtum://&apos;은 유효한 URI이 아닙니다. &apos;qtum:&apos;로 대체해주세요.</translation>
     </message>
 </context>
@@ -3655,7 +3659,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation type="unfinished">수수료를 1,000 사토시로 지정했지만 거래가 250 바이트일 경우, &apos;kB 당 수수료&apos; 기준으로 볼 때 250 사토시이지만, &apos;최소 수수료&apos; 기준으로 계산한다면 1,000 사토시를 지불해야 합니다. 1kB 보다 큰 거래는 kB를 기준으로 계산합니다.  </translation>
     </message>
     <message>
-        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for bitcoin transactions than the network can process.</source>
+        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
         <translation type="unfinished">거래량이 블록 공간보다 작을 경우, 마이너, 노드는 최소 수수료 제한을 실행합니다. 최소 수수료로 지불할 수도 있지만 거래량이 퀀텀 네트워크의 처리 한도를 넘어선다면 해당 거래는 장시간 동안 승인을 받지 못할 수 있습니다. </translation>
     </message>
 </context>

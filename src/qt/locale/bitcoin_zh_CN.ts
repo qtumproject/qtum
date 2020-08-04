@@ -1678,8 +1678,8 @@ Please make sure to keep an updated antivirus and operating system. We can not r
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open URI</source>
-        <translation>打开 URI</translation>
+        <source>Open qtum URI</source>
+        <translation>打开QTUM URI</translation>
     </message>
     <message>
         <source>URI:</source>
@@ -1985,15 +1985,15 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation type="unfinished">检查更新</translation>
     </message>
     <message>
-        <source>Automatically open the Bitcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
         <translation type="unfinished">自动打开路由器上的比QTUM户端接口。这只在你的路由器支持并开启UPnP时有效。</translation>
     </message>
     <message>
-        <source>Connect to the Bitcoin network through a SOCKS5 proxy.</source>
+        <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
         <translation type="unfinished">通过SOCKS5代理连接比特币网络</translation>
     </message>
     <message>
-        <source>Connect to the Bitcoin network through a separate SOCKS5 proxy for Tor hidden services.</source>
+        <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor hidden services.</source>
         <translation type="unfinished">在 Tor 匿名网络下通过不同的 SOCKS5 代理连接QTUM网络</translation>
     </message>
     <message>
@@ -2182,7 +2182,7 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation>付款请求的网络类型跟客户端不符。</translation>
     </message>
     <message>
-        <source>&apos;bitcoin://&apos; is not a valid URI. Use &apos;bitcoin:&apos; instead.</source>
+        <source>&apos;qtum://&apos; is not a valid URI. Use &apos;qtum:&apos; instead.</source>
         <translation type="unfinished">qtum://不是一个有效URL，请使用qtum:</translation>
     </message>
 </context>
@@ -3747,7 +3747,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation type="unfinished">如果费用设置为1000聪且转账只有250字节，则每KB只支付250聪作为费用，而总花费至少为1000聪。对于大于1KB的转账，按KB计费。</translation>
     </message>
     <message>
-        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for bitcoin transactions than the network can process.</source>
+        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
         <translation type="unfinished">当交易量小于可用区块空间时，矿工和中继节点可能会执行最低手续费率限制。按照这个最低费率来支付手续费也是可以的，但请注意，一旦交易需求超出QTUM网络能处理的限度，你的交易可能永远也无法确认。</translation>
     </message>
 </context>
