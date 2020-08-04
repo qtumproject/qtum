@@ -54,6 +54,7 @@ class RawTransactionsTest(BitcoinTestFramework):
             ["-txindex", "-addresstype=legacy", "-minrelaytxfee=0.00000010"],
             ["-txindex", "-addresstype=legacy", "-minrelaytxfee=0.00000010"],
         ]
+        self.supports_cli = False
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
@@ -210,7 +211,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         rawtx   = self.nodes[2].signrawtransactionwithwallet(rawtx)
 
         # This will raise an exception since there are missing inputs
-        assert_raises_rpc_error(-25, "Missing inputs", self.nodes[2].sendrawtransaction, rawtx['hex'])
+        assert_raises_rpc_error(-25, "bad-txns-inputs-missingorspent", self.nodes[2].sendrawtransaction, rawtx['hex'])
 
         #####################################
         # getrawtransaction with block hash #
@@ -456,7 +457,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         # Thus, testmempoolaccept should reject
         testres = self.nodes[2].testmempoolaccept([rawTxSigned['hex']], 0.00001000)[0]
         assert_equal(testres['allowed'], False)
-        assert_equal(testres['reject-reason'], '256: absurdly-high-fee')
+        assert_equal(testres['reject-reason'], 'absurdly-high-fee')
         # and sendrawtransaction should throw
         assert_raises_rpc_error(-26, "absurdly-high-fee", self.nodes[2].sendrawtransaction, rawTxSigned['hex'], 0.00001000)
         # and the following calls should both succeed
@@ -480,7 +481,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         # Thus, testmempoolaccept should reject
         testres = self.nodes[2].testmempoolaccept([rawTxSigned['hex']])[0]
         assert_equal(testres['allowed'], False)
-        assert_equal(testres['reject-reason'], '256: absurdly-high-fee')
+        assert_equal(testres['reject-reason'], 'absurdly-high-fee')
         # and sendrawtransaction should throw
         assert_raises_rpc_error(-26, "absurdly-high-fee", self.nodes[2].sendrawtransaction, rawTxSigned['hex'])
         # and the following calls should both succeed

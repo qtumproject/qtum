@@ -5,7 +5,7 @@
 #ifndef BITCOIN_QT_WALLETCONTROLLER_H
 #define BITCOIN_QT_WALLETCONTROLLER_H
 
-#include <qt/walletmodel.h>
+#include <qt/sendcoinsrecipient.h>
 #include <support/allocators/secure.h>
 #include <sync.h>
 
@@ -23,10 +23,12 @@
 
 class OptionsModel;
 class PlatformStyle;
+class WalletModel;
 
 namespace interfaces {
 class Handler;
 class Node;
+class Wallet;
 } // namespace interfaces
 
 class AskPassphraseDialog;
@@ -96,13 +98,14 @@ protected:
     QObject* worker() const { return m_wallet_controller->m_activity_worker; }
 
     void showProgressDialog(const QString& label_text);
+    void destroyProgressDialog();
 
     WalletController* const m_wallet_controller;
     QWidget* const m_parent_widget;
     QProgressDialog* m_progress_dialog{nullptr};
     WalletModel* m_wallet_model{nullptr};
     std::string m_error_message;
-    std::string m_warning_message;
+    std::vector<std::string> m_warning_message;
 };
 
 

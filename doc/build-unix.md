@@ -33,7 +33,6 @@ These dependencies are required:
 
  Library     | Purpose          | Description
  ------------|------------------|----------------------
- libssl      | Crypto           | Random Number Generation, Elliptic Curve Cryptography
  libboost    | Utility          | Library for threading, data structures, etc
  libevent    | Networking       | OS independent asynchronous networking
  libgmp      | Math             | The GNU Multiple Precision Arithmetic Library
@@ -45,7 +44,6 @@ Optional dependencies:
  miniupnpc   | UPnP Support     | Firewall-jumping support
  libdb4.8    | Berkeley DB      | Wallet storage (only needed when wallet enabled)
  qt          | GUI              | GUI toolkit (only needed when GUI enabled)
- protobuf    | Payments in GUI  | Data interchange format used for payment protocol (only needed when BIP70 enabled)
  libqrencode | QR codes in GUI  | Optional for generating QR codes (only needed when GUI enabled)
  univalue    | Utility          | JSON parsing and encoding (bundled version will be used unless --with-system-univalue passed to configure)
  libzmq3     | ZMQ notification | Optional, allows generating ZMQ notifications (requires ZMQ version >= 4.0.0)
@@ -83,7 +81,7 @@ Build requirements:
 
 Now, you can either build from self-compiled [depends](/depends/README.md) or install the required dependencies:
 
-    sudo apt-get install libssl-dev libevent-dev libboost-system-dev libboost-filesystem-dev libboost-chrono-dev libboost-test-dev libboost-thread-dev
+    sudo apt-get install libevent-dev libboost-system-dev libboost-filesystem-dev libboost-test-dev libboost-thread-dev
 
 BerkeleyDB is required for the wallet.
 
@@ -119,10 +117,6 @@ libqrencode (optional) can be installed with:
 
     sudo apt-get install libqrencode-dev
 
-protobuf (optional) can be installed with:
-
-    sudo apt-get install libprotobuf-dev protobuf-compiler
-
 Once these are installed, they will be found by configure and a qtum-qt executable will be
 built by default.
 
@@ -133,7 +127,7 @@ built by default.
 
 Build requirements:
 
-    sudo dnf install gcc-c++ libtool make autoconf automake openssl-devel libevent-devel boost-devel libdb4-devel libdb4-cxx-devel python3 gmp-devel
+    sudo dnf install gcc-c++ libtool make autoconf automake libevent-devel boost-devel libdb4-devel libdb4-cxx-devel python3 gmp-devel
 
 Optional (see `--with-miniupnpc` and `--enable-upnp-default`):
 
@@ -150,10 +144,6 @@ To build with Qt 5 you need the following:
 libqrencode (optional) can be installed with:
 
     sudo dnf install qrencode-devel
-
-protobuf (optional) can be installed with:
-
-    sudo dnf install protobuf-devel
 
 Dependency Build Instructions: CentOS
 -------------------------------------
@@ -178,8 +168,8 @@ symbols, which reduces the executable size by about 90%.
 miniupnpc
 ---------
 
-[miniupnpc](http://miniupnp.free.fr/) may be used for UPnP port mapping.  It can be downloaded from [here](
-http://miniupnp.tuxfamily.org/files/).  UPnP support is compiled in and
+[miniupnpc](https://miniupnp.tuxfamily.org) may be used for UPnP port mapping.  It can be downloaded from [here](
+https://miniupnp.tuxfamily.org/files/).  UPnP support is compiled in and
 turned off by default.  See the configure options for upnp behavior desired:
 
 	--without-miniupnpc      No UPnP support miniupnp not required
@@ -277,6 +267,7 @@ A list of additional configure flags can be displayed with:
 Setup and Build Example: Arch Linux
 -----------------------------------
 This example lists the steps necessary to setup and build a command line only, non-wallet distribution of the latest changes on Arch Linux:
+    
     pacman -S git base-devel boost libevent python gmp
     git clone https://github.com/qtumproject/qtum --recursive
     cd qtum/

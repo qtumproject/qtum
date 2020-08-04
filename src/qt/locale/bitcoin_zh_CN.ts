@@ -519,14 +519,6 @@
         <translation type="unfinished">校验消息，确保该消息是由指定的QTUM地址所有者签名的</translation>
     </message>
     <message>
-        <source>&amp;Debug window</source>
-        <translation type="unfinished">调试窗口(&amp;D)</translation>
-    </message>
-    <message>
-        <source>Open debugging and diagnostic console</source>
-        <translation type="unfinished">打开调试和诊断控制台</translation>
-    </message>
-    <message>
         <source>&amp;Sending addresses</source>
         <translation type="unfinished">付款地址(&amp;S)</translation>
     </message>
@@ -539,6 +531,10 @@
         <translation type="unfinished">接收地址</translation>
     </message>
     <message>
+        <source>Open a qtum: URI</source>
+        <translation>打开qtum:开头的URI</translation>
+    </message>
+    <message>
         <source>Show the list of used receiving addresses and labels</source>
         <translation type="unfinished">显示用过的接收地址和标签的列表</translation>
     </message>
@@ -547,8 +543,12 @@
         <translation type="unfinished">打开 &amp;URI...</translation>
     </message>
     <message>
-        <source>Open a qtum: URI or payment request</source>
-        <translation type="unfinished">打开一个 qtum: URI 或支付请求</translation>
+        <source>Create Wallet...</source>
+        <translation>创建钱包...</translation>
+    </message>
+    <message>
+        <source>Create a new wallet</source>
+        <translation>创建一个新的钱包</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -689,6 +689,14 @@
     <message>
         <source>Up to date</source>
         <translation type="unfinished">已是最新</translation>
+    </message>
+    <message>
+        <source>Node window</source>
+        <translation>节点窗口</translation>
+    </message>
+    <message>
+        <source>Open node debugging and diagnostic console</source>
+        <translation>打开节点调试与诊断控制台</translation>
     </message>
     <message>
         <source>%1 behind</source>
@@ -1318,6 +1326,60 @@
     </message>
 </context>
 <context>
+    <name>CreateWalletActivity</name>
+    <message>
+        <source>Creating Wallet &lt;b&gt;%1&lt;/b&gt;...</source>
+        <translation>正在创建钱包&lt;b&gt;%1&lt;/b&gt;...</translation>
+    </message>
+    <message>
+        <source>Create wallet failed</source>
+        <translation>创建钱包失败</translation>
+    </message>
+    <message>
+        <source>Create wallet warning</source>
+        <translation>创建钱包警告</translation>
+    </message>
+</context>
+<context>
+    <name>CreateWalletDialog</name>
+    <message>
+        <source>Create Wallet</source>
+        <translation>创建钱包</translation>
+    </message>
+    <message>
+        <source>Wallet Name</source>
+        <translation>钱包名称</translation>
+    </message>
+    <message>
+        <source>Encrypt the wallet. The wallet will be encrypted with a passphrase of your choice.</source>
+        <translation>加密钱包。将会使用您指定的密码将钱包钱包。</translation>
+    </message>
+    <message>
+        <source>Encrypt Wallet</source>
+        <translation>加密钱包</translation>
+    </message>
+    <message>
+        <source>Disable private keys for this wallet. Wallets with private keys disabled will have no private keys and cannot have an HD seed or imported private keys. This is ideal for watch-only wallets.</source>
+        <translation>禁用此钱包的私钥。被禁用私钥的钱包将不会含有任何私钥，而且也不能含有HD种子或导入的私钥。作为仅观察钱包，这是比较理想的。</translation>
+    </message>
+    <message>
+        <source>Disable Private Keys</source>
+        <translation>禁用私钥</translation>
+    </message>
+    <message>
+        <source>Make a blank wallet. Blank wallets do not initially have private keys or scripts. Private keys and addresses can be imported, or an HD seed can be set, at a later time.</source>
+        <translation>创建一个空白的钱包。空白钱包最初不含有任何私钥或脚本。可以以后再导入私钥和地址，或设置HD种子。</translation>
+    </message>
+    <message>
+        <source>Make Blank Wallet</source>
+        <translation>创建空白钱包</translation>
+    </message>
+    <message>
+        <source>Create</source>
+        <translation>创建</translation>
+    </message>
+</context>
+<context>
     <name>EditAddressDialog</name>
     <message>
         <source>Edit Address</source>
@@ -1584,6 +1646,14 @@
         <translation>隐藏</translation>
     </message>
     <message>
+        <source>Esc</source>
+        <translation>Esc</translation>
+    </message>
+    <message>
+        <source>%1 is currently syncing.  It will download headers and blocks from peers and validate them until reaching the tip of the block chain.</source>
+        <translation>%1目前正在同步中。它会从其他节点下载区块头和区块数据并进行验证，直到抵达区块链尖端。</translation>
+    </message>
+    <message>
         <source>Unknown. Syncing Headers (%1, %2%)...</source>
         <translation>未知。正在同步区块头 (%1, %2%)...</translation>
     </message>
@@ -1608,24 +1678,12 @@ Please make sure to keep an updated antivirus and operating system. We can not r
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open URI</source>
-        <translation>打开 URI</translation>
-    </message>
-    <message>
-        <source>Open payment request from URI or file</source>
-        <translation>打开来自URI或文件的付款请求</translation>
+        <source>Open qtum URI</source>
+        <translation>打开QTUM URI</translation>
     </message>
     <message>
         <source>URI:</source>
         <translation>URI:</translation>
-    </message>
-    <message>
-        <source>Select payment request file</source>
-        <translation>选择付款请求文件</translation>
-    </message>
-    <message>
-        <source>Select payment request file to open</source>
-        <translation>选择要打开的付款请求文件</translation>
     </message>
 </context>
 <context>
@@ -1644,7 +1702,7 @@ Please make sure to keep an updated antivirus and operating system. We can not r
     </message>
     <message>
         <source>&amp;Start %1 on system login</source>
-        <translation>系统登入时启动 %1</translation>
+        <translation>系统登入时启动 %1 (&amp;S)</translation>
     </message>
     <message>
         <source>Size of &amp;database cache</source>
@@ -1927,16 +1985,16 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation type="unfinished">检查更新</translation>
     </message>
     <message>
-        <source>Automatically open the Bitcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation type="unfinished">自动打开路由器上的比特币客户端接口。这只在你的路由器支持并开启UPnP时有效。</translation>
+        <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation type="unfinished">自动打开路由器上的比QTUM户端接口。这只在你的路由器支持并开启UPnP时有效。</translation>
     </message>
     <message>
-        <source>Connect to the Bitcoin network through a SOCKS5 proxy.</source>
+        <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
         <translation type="unfinished">通过SOCKS5代理连接比特币网络</translation>
     </message>
     <message>
-        <source>Connect to the Bitcoin network through a separate SOCKS5 proxy for Tor hidden services.</source>
-        <translation type="unfinished">在 Tor 匿名网络下通过不同的 SOCKS5 代理连接Bitcoin网络</translation>
+        <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor hidden services.</source>
+        <translation type="unfinished">在 Tor 匿名网络下通过不同的 SOCKS5 代理连接QTUM网络</translation>
     </message>
     <message>
         <source>User Interface &amp;style:</source>
@@ -2100,16 +2158,12 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation type="vanished">‘qtum://’不是合法的URI。请使用&apos;qtum:&apos;作为替代。</translation>
     </message>
     <message>
+        <source>Cannot process payment request because BIP70 is not supported.</source>
+        <translation>因为BIP70不再受到支持，无法处理付款请求</translation>
+    </message>
+    <message>
         <source>You are using a BIP70 URL which will be unsupported in the future.</source>
         <translation>你正在使用BIP70 URL，它在未来会被终止支持。</translation>
-    </message>
-    <message>
-        <source>Payment request fetch URL is invalid: %1</source>
-        <translation>取得付款请求的 URL 无效: %1</translation>
-    </message>
-    <message>
-        <source>Cannot process payment request because BIP70 support was not compiled in.</source>
-        <translation>无法处理支付请求，因为编译时没有启用BIP70支持。</translation>
     </message>
     <message>
         <source>Invalid payment address %1</source>
@@ -2124,68 +2178,12 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation>处理付款请求文件</translation>
     </message>
     <message>
-        <source>Payment request file cannot be read! This can be caused by an invalid payment request file.</source>
-        <translation>无法读取付款请求文件！可能是文件无效造成的。</translation>
-    </message>
-    <message>
-        <source>Payment request rejected</source>
-        <translation>付款请求已被拒绝</translation>
-    </message>
-    <message>
         <source>Payment request network doesn&apos;t match client network.</source>
         <translation>付款请求的网络类型跟客户端不符。</translation>
     </message>
     <message>
-        <source>Payment request expired.</source>
-        <translation>付款请求已过期。</translation>
-    </message>
-    <message>
-        <source>Unverified payment requests to custom payment scripts are unsupported.</source>
-        <translation>不支持到自定义付款脚本的未验证付款请求。</translation>
-    </message>
-    <message>
-        <source>Invalid payment request.</source>
-        <translation>无效的支付请求。</translation>
-    </message>
-    <message>
-        <source>Requested payment amount of %1 is too small (considered dust).</source>
-        <translation>请求支付的金额 %1 太小 (可被忽略)。</translation>
-    </message>
-    <message>
-        <source>Refund from %1</source>
-        <translation>来自 %1 的退款</translation>
-    </message>
-    <message>
-        <source>Payment request %1 is too large (%2 bytes, allowed %3 bytes).</source>
-        <translation>支付请求 %1 太大 (%2 字节。只允许 %3 字节)。</translation>
-    </message>
-    <message>
-        <source>Error communicating with %1: %2</source>
-        <translation>与 %1 通信出错: %2</translation>
-    </message>
-    <message>
-        <source>Payment request cannot be parsed!</source>
-        <translation>无法解析付款请求！</translation>
-    </message>
-    <message>
-        <source>Bad response from server %1</source>
-        <translation>来自服务器 %1 的响应无效</translation>
-    </message>
-    <message>
-        <source>Network request error</source>
-        <translation>网络请求出错</translation>
-    </message>
-    <message>
-        <source>Payment acknowledged</source>
-        <translation>付款已确认</translation>
-    </message>
-    <message>
-        <source>&apos;bitcoin://&apos; is not a valid URI. Use &apos;bitcoin:&apos; instead.</source>
-        <translation type="unfinished">bitcoin://不是一个有效URL，请使用bitcoin:</translation>
-    </message>
-    <message>
-        <source>Payment request is not initialized.</source>
-        <translation type="unfinished">付款请求未初始化</translation>
+        <source>&apos;qtum://&apos; is not a valid URI. Use &apos;qtum:&apos; instead.</source>
+        <translation type="unfinished">qtum://不是一个有效URL，请使用qtum:</translation>
     </message>
 </context>
 <context>
@@ -2522,14 +2520,6 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation type="vanished">更改钱包加密口令</translation>
     </message>
     <message>
-        <source>&amp;Debug window</source>
-        <translation type="vanished">调试窗口(&amp;D)</translation>
-    </message>
-    <message>
-        <source>Open debugging and diagnostic console</source>
-        <translation type="vanished">打开调试和诊断控制台</translation>
-    </message>
-    <message>
         <source>&amp;Verify message...</source>
         <translation type="vanished">验证消息(&amp;V)...</translation>
     </message>
@@ -2594,10 +2584,6 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation type="vanished">显示用过的接收地址和标签的列表</translation>
     </message>
     <message>
-        <source>Open a qtum: URI or payment request</source>
-        <translation type="vanished">打开一个 qtum: URI 或支付请求</translation>
-    </message>
-    <message>
         <source>&amp;Command-line options</source>
         <translation type="vanished">命令行选项(&amp;C)</translation>
     </message>
@@ -2650,12 +2636,24 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation type="vanished">已是最新</translation>
     </message>
     <message>
+        <source>Node window</source>
+        <translation>节点窗口</translation>
+    </message>
+    <message>
+        <source>Open node debugging and diagnostic console</source>
+        <translation>打开节点调试与诊断控制台</translation>
+    </message>
+    <message>
         <source>&amp;Sending addresses</source>
         <translation type="vanished">付款地址(&amp;S)</translation>
     </message>
     <message>
         <source>&amp;Receiving addresses</source>
         <translation type="vanished">收款地址(&amp;R)</translation>
+    </message>
+    <message>
+        <source>Open a qtum: URI</source>
+        <translation>打开qtum:开头的URI</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -2805,10 +2803,6 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation>信息</translation>
     </message>
     <message>
-        <source>Debug window</source>
-        <translation>调试窗口</translation>
-    </message>
-    <message>
         <source>General</source>
         <translation>常规</translation>
     </message>
@@ -2925,8 +2919,20 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation>已同步区块</translation>
     </message>
     <message>
+        <source>The mapped Autonomous System used for diversifying peer selection.</source>
+        <translation>映射到的自治系统，被用来多样化选择节点</translation>
+    </message>
+    <message>
+        <source>Mapped AS</source>
+        <translation>映射到的AS</translation>
+    </message>
+    <message>
         <source>User Agent</source>
         <translation>用户代理</translation>
+    </message>
+    <message>
+        <source>Node window</source>
+        <translation>节点窗口</translation>
     </message>
     <message>
         <source>Decrease font size</source>
@@ -3138,6 +3144,14 @@ Please make sure to keep an updated antivirus and operating system. We can not r
     <message>
         <source>An optional amount to request. Leave this empty or zero to not request a specific amount.</source>
         <translation>可选的请求金额。留空或填零为不要求具体金额。</translation>
+    </message>
+    <message>
+        <source>An optional label to associate with the new receiving address (used by you to identify an invoice).  It is also attached to the payment request.</source>
+        <translation>一个关联到新收款地址（被您用来识别发票）的可选标签。它也会被附加到付款请求中。</translation>
+    </message>
+    <message>
+        <source>An optional message that is attached to the payment request and may be displayed to the sender.</source>
+        <translation>一条附加到付款请求中的可选消息，可以显示给付款方。</translation>
     </message>
     <message>
         <source>Clear all fields of the form.</source>
@@ -3471,10 +3485,6 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation>警告: 目前无法进行交易费估计。</translation>
     </message>
     <message>
-        <source>collapse fee-settings</source>
-        <translation type="vanished">收起  费用设置</translation>
-    </message>
-    <message>
         <source>Specify a custom fee per kB (1,000 bytes) of the transaction&apos;s virtual size.
 
 Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satoshis per kB&quot; for a transaction size of 500 bytes (half of 1 kB) would ultimately yield a fee of only 50 satoshis.</source>
@@ -3517,6 +3527,10 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <source>Dust:</source>
         <translation>粉尘：</translation>
+    </message>
+    <message>
+        <source>Hide transaction fee settings</source>
+        <translation>隐藏交易手续费设置</translation>
     </message>
     <message>
         <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
@@ -3587,12 +3601,28 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation>%1 (%2个块)</translation>
     </message>
     <message>
+        <source>Cr&amp;eate Unsigned</source>
+        <translation>创建未签名交易(&amp;E)</translation>
+    </message>
+    <message>
+        <source>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <translation>创建一个“部分签名比特币交易”（PSBT），以用于诸如离线%1钱包，或是兼容PSBT的硬件钱包这类用途。</translation>
+    </message>
+    <message>
         <source>%1 to %2</source>
         <translation>%1 到 %2</translation>
     </message>
     <message>
+        <source>Do you want to draft this transaction?</source>
+        <translation>您想要起草这笔交易么？</translation>
+    </message>
+    <message>
         <source>Are you sure you want to send?</source>
         <translation>您确定要发出吗？</translation>
+    </message>
+    <message>
+        <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <translation>请务必要审核您的交易提案。这将会产生一笔“部分签名比特币交易”（PSBT），您可以复制它，然后可以通过各种方式对它进行签名，比如，可以通过离线%1钱包或是兼容PSBT的硬件钱包来完成签名。</translation>
     </message>
     <message>
         <source>or</source>
@@ -3627,6 +3657,26 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation>确认发送</translation>
     </message>
     <message>
+        <source>Confirm transaction proposal</source>
+        <translation>确认交易提案</translation>
+    </message>
+    <message>
+        <source>Copy PSBT to clipboard</source>
+        <translation>复制PSBT到剪贴板</translation>
+    </message>
+    <message>
+        <source>Send</source>
+        <translation>发送</translation>
+    </message>
+    <message>
+        <source>PSBT copied</source>
+        <translation>已复制PSBT</translation>
+    </message>
+    <message>
+        <source>Watch-only balance:</source>
+        <translation>仅观察余额:</translation>
+    </message>
+    <message>
         <source>The recipient address is not valid. Please recheck.</source>
         <translation>接收人地址无效。请重新检查。</translation>
     </message>
@@ -3649,10 +3699,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <source>Transaction creation failed!</source>
         <translation>交易创建失败！</translation>
-    </message>
-    <message>
-        <source>The transaction was rejected with the following reason: %1</source>
-        <translation>交易因以下原因拒绝：%1</translation>
     </message>
     <message>
         <source>A fee higher than %1 is considered an absurdly high fee.</source>
@@ -3701,8 +3747,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation type="unfinished">如果费用设置为1000聪且转账只有250字节，则每KB只支付250聪作为费用，而总花费至少为1000聪。对于大于1KB的转账，按KB计费。</translation>
     </message>
     <message>
-        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for bitcoin transactions than the network can process.</source>
-        <translation type="unfinished">当交易量小于可用区块空间时，矿工和中继节点可能会执行最低手续费率限制。按照这个最低费率来支付手续费也是可以的，但请注意，一旦交易需求超出Bitcoin网络能处理的限度，你的交易可能永远也无法确认。</translation>
+        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
+        <translation type="unfinished">当交易量小于可用区块空间时，矿工和中继节点可能会执行最低手续费率限制。按照这个最低费率来支付手续费也是可以的，但请注意，一旦交易需求超出QTUM网络能处理的限度，你的交易可能永远也无法确认。</translation>
     </message>
 </context>
 <context>
@@ -3724,10 +3770,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation>选择以前用过的地址</translation>
     </message>
     <message>
-        <source>This is a normal payment.</source>
-        <translation>这是笔正常的支付。</translation>
-    </message>
-    <message>
         <source>The Qtum address to send the payment to</source>
         <translation>付款目的地址</translation>
     </message>
@@ -3746,6 +3788,10 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <source>Remove this entry</source>
         <translation>移除此项</translation>
+    </message>
+    <message>
+        <source>The amount to send in the selected unit</source>
+        <translation>用被选单位表示的待发送金额</translation>
     </message>
     <message>
         <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
@@ -3786,17 +3832,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <source>Memo:</source>
         <translation>便条：</translation>
-    </message>
-    <message>
-        <source>Enter a label for this address to add it to your address book</source>
-        <translation>为这个地址输入一个标签，以便将它添加到您的地址簿</translation>
-    </message>
-</context>
-<context>
-    <name>SendConfirmationDialog</name>
-    <message>
-        <source>Yes</source>
-        <translation>是</translation>
     </message>
 </context>
 <context>
@@ -4083,6 +4118,14 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation>消息使用的签名地址</translation>
     </message>
     <message>
+        <source>The signed message to verify</source>
+        <translation>待验证的已签名消息</translation>
+    </message>
+    <message>
+        <source>The signature given when the message was signed</source>
+        <translation>对消息进行签署得到的签名数据</translation>
+    </message>
+    <message>
         <source>Verify the message to ensure it was signed with the specified Qtum address</source>
         <translation>验证消息，确保消息是由指定的QTUM地址签名过的。</translation>
     </message>
@@ -4113,6 +4156,10 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <source>Wallet unlock was cancelled.</source>
         <translation>钱包解锁动作取消。</translation>
+    </message>
+    <message>
+        <source>No error</source>
+        <translation>没有错误</translation>
     </message>
     <message>
         <source>Private key for the entered address is not available.</source>
@@ -4993,7 +5040,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation>关闭钱包</translation>
     </message>
     <message>
-        <source>Are you sure you wish to close wallet &lt;i&gt;%1&lt;/i&gt;?</source>
+        <source>Are you sure you wish to close the wallet &lt;i&gt;%1&lt;/i&gt;?</source>
         <translation>你确定要关闭钱包&lt;i&gt;%1&lt;/i&gt;吗？</translation>
     </message>
     <message>
@@ -5027,6 +5074,10 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation>你是否愿意增加交易费?</translation>
     </message>
     <message>
+        <source>Do you want to draft a transaction with fee increase?</source>
+        <translation>您要起草一笔手续费提高的交易么？</translation>
+    </message>
+    <message>
         <source>Current fee:</source>
         <translation>当前交易费:</translation>
     </message>
@@ -5041,6 +5092,14 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <source>Confirm fee bump</source>
         <translation>确认手续费提升</translation>
+    </message>
+    <message>
+        <source>Can't draft transaction.</source>
+        <translation>无法起草交易。</translation>
+    </message>
+    <message>
+        <source>PSBT copied</source>
+        <translation>已复制PSBT</translation>
     </message>
     <message>
         <source>Can&apos;t sign transaction.</source>
@@ -5169,10 +5228,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation type="unfinished">修剪：最后的钱包同步超过了修剪的数据。你需要通过 -reindex (重新下载整个区块链以防修剪节点)</translation>
     </message>
     <message>
-        <source>Rescans are not possible in pruned mode. You will need to use -reindex which will download the whole blockchain again.</source>
-        <translation type="unfinished">无法在开启修剪的状态下进行重扫描，请使用 -reindex重新下载完整的区块链。</translation>
-    </message>
-    <message>
         <source>The block database contains a block which appears to be from the future. This may be due to your computer&apos;s date and time being set incorrectly. Only rebuild the block database if you are sure that your computer&apos;s date and time are correct</source>
         <translation type="unfinished">区块数据库包含未来的交易，这可能是由本机错误的日期时间引起。若确认本机日期时间正确，请重新建立区块数据库。</translation>
     </message>
@@ -5191,10 +5246,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <source>This is the transaction fee you may pay when fee estimates are not available.</source>
         <translation type="unfinished">这是在费用估计不可用时你可能会支付的交易费。</translation>
-    </message>
-    <message>
-        <source>This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit %s and cryptographic software written by Eric Young and UPnP software written by Thomas Bernard.</source>
-        <translation type="unfinished">此产品包含了由OpenSSL Project所开发的OpenSSL Toolkit软件%s，由Eric Young撰写的加解密软件，以及由Thomas Bernard所撰写的UPnP软件。</translation>
     </message>
     <message>
         <source>Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.</source>
@@ -5630,10 +5681,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation type="vanished">修剪：最后的钱包同步超过了修剪的数据。你需要通过 -reindex (重新下载整个区块链以防修剪节点)</translation>
     </message>
     <message>
-        <source>Rescans are not possible in pruned mode. You will need to use -reindex which will download the whole blockchain again.</source>
-        <translation type="vanished">无法在开启修剪的状态下进行重扫描，请使用 -reindex重新下载完整的区块链。</translation>
-    </message>
-    <message>
         <source>Error: A fatal internal error occurred, see debug.log for details</source>
         <translation type="vanished">错误：发生了致命的内部错误，详情见 debug.log 文件</translation>
     </message>
@@ -5736,6 +5783,14 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <source>Corrupted block database detected</source>
         <translation type="vanished">检测到区块数据库损坏</translation>
+    </message>
+    <message>
+        <source>Could not find asmap file %s</source>
+        <translation>找不到asmap文件%s</translation>
+    </message>
+    <message>
+        <source>Could not parse asmap file %s</source>
+        <translation>无法解析asmap文件%s</translation>
     </message>
     <message>
         <source>Do you want to rebuild the block database now?</source>
@@ -6026,10 +6081,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <source>This is the transaction fee you may pay when fee estimates are not available.</source>
         <translation type="vanished">这是在费用估计不可用时你可能会支付的交易费。</translation>
-    </message>
-    <message>
-        <source>This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit %s and cryptographic software written by Eric Young and UPnP software written by Thomas Bernard.</source>
-        <translation type="vanished">此产品包含了由OpenSSL Project所开发的OpenSSL Toolkit软件%s，由Eric Young撰写的加解密软件，以及由Thomas Bernard所撰写的UPnP软件。</translation>
     </message>
     <message>
         <source>Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.</source>

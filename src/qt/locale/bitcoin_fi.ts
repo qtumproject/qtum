@@ -374,14 +374,6 @@
         <translation>Vaihda lompakon salaukseen käytettävä tunnuslause</translation>
     </message>
     <message>
-        <source>&amp;Debug window</source>
-        <translation>&amp;Testausikkuna</translation>
-    </message>
-    <message>
-        <source>Open debugging and diagnostic console</source>
-        <translation>Avaa debuggaus- ja diagnostiikkakonsoli</translation>
-    </message>
-    <message>
         <source>&amp;Verify message...</source>
         <translation>Varmista &amp;viesti...</translation>
     </message>
@@ -442,10 +434,6 @@
         <translation>Näytä vastaanottamiseen käytettyjen osoitteiden ja nimien lista</translation>
     </message>
     <message>
-        <source>Open a qtum: URI or payment request</source>
-        <translation>Avaa qtum: URI tai maksupyyntö</translation>
-    </message>
-    <message>
         <source>&amp;Command-line options</source>
         <translation>&amp;Komentorivin valinnat</translation>
     </message>
@@ -494,12 +482,24 @@
         <translation>Rahansiirtohistoria on ajan tasalla</translation>
     </message>
     <message>
+        <source>Node window</source>
+        <translation>Solmu ikkuna</translation>
+    </message>
+    <message>
+        <source>Open node debugging and diagnostic console</source>
+        <translation>Avaa solmun diagnostiikka- ja vianmäärityskonsoli </translation>
+    </message>
+    <message>
         <source>&amp;Sending addresses</source>
         <translation>&amp;Lähetysosoitteet</translation>
     </message>
     <message>
         <source>&amp;Receiving addresses</source>
         <translation>&amp;Vastaanotto-osoitteet</translation>
+    </message>
+    <message>
+        <source>Open a qtum: URI</source>
+        <translation>Avaa qtum: URI</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -795,7 +795,11 @@
         <source>Create wallet failed</source>
         <translation>Lompakon luonti epäonnistui</translation>
     </message>
-    </context>
+    <message>
+        <source>Create wallet warning</source>
+        <translation>Luo lompakkovaroitus</translation>
+    </message>
+</context>
 <context>
     <name>CreateWalletDialog</name>
     <message>
@@ -813,6 +817,10 @@
     <message>
         <source>Encrypt Wallet</source>
         <translation>Salaa lompakko</translation>
+    </message>
+    <message>
+        <source>Disable private keys for this wallet. Wallets with private keys disabled will have no private keys and cannot have an HD seed or imported private keys. This is ideal for watch-only wallets.</source>
+        <translation>Poista tämän lompakon yksityiset avaimet käytöstä. Lompakot, joissa yksityiset avaimet on poistettu käytöstä, eivät sisällä yksityisiä avaimia, eikä niissä voi olla HD-juurisanoja tai tuotuja yksityisiä avaimia. Tämä on ihanteellinen katselulompakkoihin.</translation>
     </message>
     <message>
         <source>Disable Private Keys</source>
@@ -916,10 +924,6 @@
         <translation>versio</translation>
     </message>
     <message>
-        <source>(%1-bit)</source>
-        <translation>(%1-bit)</translation>
-    </message>
-    <message>
         <source>About %1</source>
         <translation>Tietoja %1</translation>
     </message>
@@ -971,6 +975,10 @@
         <translation>Qtum</translation>
     </message>
     <message>
+        <source>Discard blocks after verification, except most recent %1 GB (prune)</source>
+        <translation>Hävitä lohkot varmistuksen jälkeen, poislukien viimeiset %1 GB (karsinta)</translation>
+    </message>
+    <message>
         <source>At least %1 GB of data will be stored in this directory, and it will grow over time.</source>
         <translation>Ainakin %1 GB tietoa varastoidaan tähän hakemistoon ja tarve kasvaa ajan myötä.</translation>
     </message>
@@ -1002,7 +1010,11 @@
         <source>(of %n GB needed)</source>
         <translation><numerusform>(tarvitaan %n GB)</numerusform><numerusform>(tarvitaan %n GB)</numerusform></translation>
     </message>
-    </context>
+    <message numerus="yes">
+        <source>(%n GB needed for full chain)</source>
+        <translation><numerusform>(tarvitaan %n GB koko ketjua varten)</numerusform><numerusform>(tarvitaan %n GB koko ketjua varten)</numerusform></translation>
+    </message>
+</context>
 <context>
     <name>ModalOverlay</name>
     <message>
@@ -1050,6 +1062,10 @@
         <translation>Piilota</translation>
     </message>
     <message>
+        <source>Esc</source>
+        <translation>Poistu</translation>
+    </message>
+    <message>
         <source>Unknown. Syncing Headers (%1, %2%)...</source>
         <translation>Tuntematon. Synkronoidaan tunnisteita (%1, %2%)...</translation>
     </message>
@@ -1057,24 +1073,12 @@
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open URI</source>
-        <translation>Avaa URI</translation>
-    </message>
-    <message>
-        <source>Open payment request from URI or file</source>
-        <translation>Avaa maksupyyntö URI:sta tai tiedostosta</translation>
+        <source>Open qtum URI</source>
+        <translation>Avaa qtum URI</translation>
     </message>
     <message>
         <source>URI:</source>
         <translation>URI:</translation>
-    </message>
-    <message>
-        <source>Select payment request file</source>
-        <translation>Valitse maksupyynnön tiedosto</translation>
-    </message>
-    <message>
-        <source>Select payment request file to open</source>
-        <translation>Valitse maksypyynnön tiedosto avattavaksi</translation>
     </message>
 </context>
 <context>
@@ -1082,6 +1086,10 @@
     <message>
         <source>Open wallet failed</source>
         <translation>Lompakon avaaminen epäonnistui</translation>
+    </message>
+    <message>
+        <source>Open wallet warning</source>
+        <translation>Avoimen lompakon varoitus</translation>
     </message>
     <message>
         <source>default wallet</source>
@@ -1419,7 +1427,7 @@
     </message>
     <message>
         <source>Your current balance in watch-only addresses</source>
-        <translation>Nykyinen tase seurantaosoitetteissa</translation>
+        <translation>Nykyinen tase seurattavassa osoitetteissa</translation>
     </message>
     <message>
         <source>Spendable:</source>
@@ -1431,15 +1439,15 @@
     </message>
     <message>
         <source>Unconfirmed transactions to watch-only addresses</source>
-        <translation>Vahvistamattomat rahansiirrot vain katseltaviin osoitteisiin</translation>
+        <translation>Vahvistamattomat rahansiirrot vain seurattaviin osoitteisiin</translation>
     </message>
     <message>
         <source>Mined balance in watch-only addresses that has not yet matured</source>
-        <translation>Louhittu, ei vielä kypsynyt saldo vain katseltavissa osoitteissa</translation>
+        <translation>Louhittu, ei vielä kypsynyt saldo vain seurattavissa osoitteissa</translation>
     </message>
     <message>
         <source>Current total balance in watch-only addresses</source>
-        <translation>Nykyinen tase seurantaosoitetteissa</translation>
+        <translation>Nykyinen tase seurattavassa osoitetteissa</translation>
     </message>
 </context>
 <context>
@@ -1461,16 +1469,12 @@
         <translation>'qtum://' ei ole kelvollinen URI. Käytä 'qtum:' sen sijaan.</translation>
     </message>
     <message>
-        <source>You are using a BIP70 URL which will be unsupported in the future.</source>
-        <translation>Käytät BIP70 -URL:ia, jonka tuki päättyy lähitulevaisuudessa.</translation>
+        <source>Cannot process payment request because BIP70 is not supported.</source>
+        <translation>Maksupyyntöä ei voida käsitellä, koska BIP70:tä ei tueta.</translation>
     </message>
     <message>
-        <source>Payment request fetch URL is invalid: %1</source>
-        <translation>Maksupyynnön haku URL on virheellinen: %1</translation>
-    </message>
-    <message>
-        <source>Cannot process payment request because BIP70 support was not compiled in.</source>
-        <translation>Maksupyyntöä ei voida käsitellä, sillä BIP70-tukea ei ole käännetty ohjelmaan.</translation>
+        <source>If you are receiving this error you should request the merchant provide a BIP21 compatible URI.</source>
+        <translation>Tämän virheen saadessasi tulee sinun pyytää kauppiaalta BIP21 -yhteensopivaa URI-osoitetta.</translation>
     </message>
     <message>
         <source>Invalid payment address %1</source>
@@ -1483,66 +1487,6 @@
     <message>
         <source>Payment request file handling</source>
         <translation>Maksupyynnön tiedoston käsittely</translation>
-    </message>
-    <message>
-        <source>Payment request file cannot be read! This can be caused by an invalid payment request file.</source>
-        <translation>Maksupyyntötiedostoa ei voi lukea! Tämä saattaa johtua epäkelvosta maksupyyntötiedostosta.</translation>
-    </message>
-    <message>
-        <source>Payment request rejected</source>
-        <translation>Maksupyyntö hylätty</translation>
-    </message>
-    <message>
-        <source>Payment request network doesn't match client network.</source>
-        <translation>Maksupyyntoverkko ei täsmää asiakasohjelman verkon kanssa.</translation>
-    </message>
-    <message>
-        <source>Payment request expired.</source>
-        <translation>Maksupyyntö vanhentui.</translation>
-    </message>
-    <message>
-        <source>Payment request is not initialized.</source>
-        <translation>Maksupyyntöä ei ole alustettu.</translation>
-    </message>
-    <message>
-        <source>Unverified payment requests to custom payment scripts are unsupported.</source>
-        <translation>Varmistamattomia maksupyyntöjä kustomoituun maksupalveluun ei tueta.</translation>
-    </message>
-    <message>
-        <source>Invalid payment request.</source>
-        <translation>Virheellinen maksupyyntö.</translation>
-    </message>
-    <message>
-        <source>Requested payment amount of %1 is too small (considered dust).</source>
-        <translation>Maksupyyntö %1 on liian pieni (kohdellaan tomuna).</translation>
-    </message>
-    <message>
-        <source>Refund from %1</source>
-        <translation>Maksupalautus %1:sta</translation>
-    </message>
-    <message>
-        <source>Payment request %1 is too large (%2 bytes, allowed %3 bytes).</source>
-        <translation>Maksupyyntö %1 on liian suuri (%2 tavua, sallittu %3 tavua).</translation>
-    </message>
-    <message>
-        <source>Error communicating with %1: %2</source>
-        <translation>Virhe kommunikoidessa %1n kanssa: %2</translation>
-    </message>
-    <message>
-        <source>Payment request cannot be parsed!</source>
-        <translation>Maksupyyntöä ei voida jäsentää!</translation>
-    </message>
-    <message>
-        <source>Bad response from server %1</source>
-        <translation>Virheellinen vastaus palvelimelta %1</translation>
-    </message>
-    <message>
-        <source>Network request error</source>
-        <translation>Tietoverkon pyyntövirhe</translation>
-    </message>
-    <message>
-        <source>Payment acknowledged</source>
-        <translation>Rahansiirto tunnistettu</translation>
     </message>
 </context>
 <context>
@@ -1721,10 +1665,6 @@
         <translation>T&amp;ietoa</translation>
     </message>
     <message>
-        <source>Debug window</source>
-        <translation>&amp;Debug-ikkuna</translation>
-    </message>
-    <message>
         <source>General</source>
         <translation>Yleinen</translation>
     </message>
@@ -1841,8 +1781,20 @@
         <translation>Synkronoidut lohkot</translation>
     </message>
     <message>
+        <source>The mapped Autonomous System used for diversifying peer selection.</source>
+        <translation>Kartoitettu autonominen järjestelmä, jota käytetään monipuolistamaan solmuvalikoimaa</translation>
+    </message>
+    <message>
+        <source>Mapped AS</source>
+        <translation>Kartoitettu AS</translation>
+    </message>
+    <message>
         <source>User Agent</source>
         <translation>Käyttöliittymä</translation>
+    </message>
+    <message>
+        <source>Node window</source>
+        <translation>Solmun näkymä</translation>
     </message>
     <message>
         <source>Open the %1 debug log file from the current data directory. This can take a few seconds for large log files.</source>
@@ -2056,6 +2008,14 @@
         <translation>Valinnainen pyyntömäärä. Jätä tyhjäksi tai nollaksi jos et pyydä tiettyä määrää.</translation>
     </message>
     <message>
+        <source>An optional message that is attached to the payment request and may be displayed to the sender.</source>
+        <translation>Valinnainen viesti, joka on liitetty maksupyyntöön ja joka voidaan näyttää lähettäjälle.</translation>
+    </message>
+    <message>
+        <source>&amp;Create new receiving address</source>
+        <translation> &amp;Luo uusi vastaanotto-osoite</translation>
+    </message>
+    <message>
         <source>Clear all fields of the form.</source>
         <translation>Tyhjennä lomakkeen kaikki kentät.</translation>
     </message>
@@ -2261,10 +2221,6 @@
         <translation>Varoitus: Kulujen arviointi ei ole juuri nyt mahdollista.</translation>
     </message>
     <message>
-        <source>collapse fee-settings</source>
-        <translation>pudota kulujen asetukset</translation>
-    </message>
-    <message>
         <source>Specify a custom fee per kB (1,000 bytes) of the transaction's virtual size.
 
 Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis per kB" for a transaction size of 500 bytes (half of 1 kB) would ultimately yield a fee of only 50 satoshis.</source>
@@ -2307,6 +2263,10 @@ Huom: Koska siirtomaksu lasketaan tavujen mukaan, niin määrittelemällä 500 t
     <message>
         <source>Dust:</source>
         <translation>Tomu:</translation>
+    </message>
+    <message>
+        <source>Hide transaction fee settings</source>
+        <translation> Piilota siirtomaksuasetukset</translation>
     </message>
     <message>
         <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
@@ -2409,8 +2369,32 @@ Huom: Koska siirtomaksu lasketaan tavujen mukaan, niin määrittelemällä 500 t
         <translation>Yhteensä</translation>
     </message>
     <message>
+        <source>To review recipient list click "Show Details..."</source>
+        <translation>Valitse "Näytä yksityiskohdat" nähdäksesi listan vastaanottajsta.</translation>
+    </message>
+    <message>
         <source>Confirm send coins</source>
         <translation>Vahvista kolikoiden lähetys</translation>
+    </message>
+    <message>
+        <source>Confirm transaction proposal</source>
+        <translation>Vahvista siirtoehdotus</translation>
+    </message>
+    <message>
+        <source>Copy PSBT to clipboard</source>
+        <translation>Kopioi PSBT leikepöydälle</translation>
+    </message>
+    <message>
+        <source>Send</source>
+        <translation>Lähetä</translation>
+    </message>
+    <message>
+        <source>PSBT copied</source>
+        <translation>PSBT kopioitu</translation>
+    </message>
+    <message>
+        <source>Watch-only balance:</source>
+        <translation>Katselulompakon saldo:</translation>
     </message>
     <message>
         <source>The recipient address is not valid. Please recheck.</source>
@@ -2435,10 +2419,6 @@ Huom: Koska siirtomaksu lasketaan tavujen mukaan, niin määrittelemällä 500 t
     <message>
         <source>Transaction creation failed!</source>
         <translation>Rahansiirron luonti epäonnistui!</translation>
-    </message>
-    <message>
-        <source>The transaction was rejected with the following reason: %1</source>
-        <translation>Siirto hylättiin seuraavasta syystä: %1</translation>
     </message>
     <message>
         <source>A fee higher than %1 is considered an absurdly high fee.</source>
@@ -2490,10 +2470,6 @@ Huom: Koska siirtomaksu lasketaan tavujen mukaan, niin määrittelemällä 500 t
     <message>
         <source>Choose previously used address</source>
         <translation>Valitse aikaisemmin käytetty osoite</translation>
-    </message>
-    <message>
-        <source>This is a normal payment.</source>
-        <translation>Tämä on normaali maksu.</translation>
     </message>
     <message>
         <source>The Qtum address to send the payment to</source>
@@ -2554,17 +2530,6 @@ Huom: Koska siirtomaksu lasketaan tavujen mukaan, niin määrittelemällä 500 t
     <message>
         <source>Memo:</source>
         <translation>Muistio:</translation>
-    </message>
-    <message>
-        <source>Enter a label for this address to add it to your address book</source>
-        <translation>Syötä tälle osoitteelle nimi lisätäksesi sen osoitekirjaan</translation>
-    </message>
-</context>
-<context>
-    <name>SendConfirmationDialog</name>
-    <message>
-        <source>Yes</source>
-        <translation>Kyllä</translation>
     </message>
 </context>
 <context>
@@ -2685,6 +2650,10 @@ Huom: Koska siirtomaksu lasketaan tavujen mukaan, niin määrittelemällä 500 t
         <translation>Lompakon avaaminen peruttiin.</translation>
     </message>
     <message>
+        <source>No error</source>
+        <translation>Ei virhettä</translation>
+    </message>
+    <message>
         <source>Private key for the entered address is not available.</source>
         <translation>Yksityistä avainta syötetylle osoitteelle ei ole saatavilla.</translation>
     </message>
@@ -2796,7 +2765,7 @@ Huom: Koska siirtomaksu lasketaan tavujen mukaan, niin määrittelemällä 500 t
     </message>
     <message>
         <source>watch-only</source>
-        <translation>vain katseltava</translation>
+        <translation>vain seurattava</translation>
     </message>
     <message>
         <source>label</source>
@@ -2853,6 +2822,10 @@ Huom: Koska siirtomaksu lasketaan tavujen mukaan, niin määrittelemällä 500 t
     <message>
         <source>Transaction virtual size</source>
         <translation>Tapahtuman näennäiskoko</translation>
+    </message>
+    <message>
+        <source> (Certificate was not verified)</source>
+        <translation> (Sertifikaattia ei vahvistettu)</translation>
     </message>
     <message>
         <source>Merchant</source>
@@ -2970,7 +2943,7 @@ Huom: Koska siirtomaksu lasketaan tavujen mukaan, niin määrittelemällä 500 t
     </message>
     <message>
         <source>watch-only</source>
-        <translation>vain katseltava</translation>
+        <translation>vain seurattava</translation>
     </message>
     <message>
         <source>(n/a)</source>
@@ -2994,7 +2967,7 @@ Huom: Koska siirtomaksu lasketaan tavujen mukaan, niin määrittelemällä 500 t
     </message>
     <message>
         <source>Whether or not a watch-only address is involved in this transaction.</source>
-        <translation>Onko rahansiirrossa mukana ainoastaan katseltava osoite vai ei.</translation>
+        <translation>Onko rahansiirrossa mukana ainoastaan seurattava osoite vai ei.</translation>
     </message>
     <message>
         <source>User-defined intent/purpose of the transaction.</source>
@@ -3117,7 +3090,7 @@ Huom: Koska siirtomaksu lasketaan tavujen mukaan, niin määrittelemällä 500 t
     </message>
     <message>
         <source>Watch-only</source>
-        <translation>Vain katseltava</translation>
+        <translation>Vain seurattava</translation>
     </message>
     <message>
         <source>Date</source>
@@ -3224,6 +3197,14 @@ Huom: Koska siirtomaksu lasketaan tavujen mukaan, niin määrittelemällä 500 t
         <translation>Vahvista palkkion korotus</translation>
     </message>
     <message>
+        <source>Can't draft transaction.</source>
+        <translation> Siirtoa ei voida laatia.</translation>
+    </message>
+    <message>
+        <source>PSBT copied</source>
+        <translation>PSBT kopioitu</translation>
+    </message>
+    <message>
         <source>Can't sign transaction.</source>
         <translation>Siirtoa ei voida allekirjoittaa.</translation>
     </message>
@@ -3288,10 +3269,6 @@ Huom: Koska siirtomaksu lasketaan tavujen mukaan, niin määrittelemällä 500 t
     <message>
         <source>Prune: last wallet synchronisation goes beyond pruned data. You need to -reindex (download the whole blockchain again in case of pruned node)</source>
         <translation>Karsinta: viime lompakon synkronisointi menee karsitun datan taakse. Sinun tarvitsee ajaa -reindex (lataa koko lohkoketju uudelleen tapauksessa jossa karsiva noodi)</translation>
-    </message>
-    <message>
-        <source>Rescans are not possible in pruned mode. You will need to use -reindex which will download the whole blockchain again.</source>
-        <translation>Uudelleenskannaukset eivät ole mahdollisia karsivassa tilassa. Sinun täytyy käyttää -reindex joka lataa koko lohkoketjun uudelleen.</translation>
     </message>
     <message>
         <source>Error: A fatal internal error occurred, see debug.log for details</source>
@@ -3448,6 +3425,14 @@ Huom: Koska siirtomaksu lasketaan tavujen mukaan, niin määrittelemällä 500 t
     <message>
         <source>Specified blocks directory "%s" does not exist.</source>
         <translation>Määrättyä lohkohakemistoa "%s" ei ole olemassa.</translation>
+    </message>
+    <message>
+        <source>Unknown address type '%s'</source>
+        <translation>Tuntematon osoitetyyppi '%s'</translation>
+    </message>
+    <message>
+        <source>Unknown change type '%s'</source>
+        <translation>Tuntematon vaihtorahatyyppi '%s'</translation>
     </message>
     <message>
         <source>Upgrading txindex database</source>
@@ -3669,7 +3654,7 @@ Huom: Koska siirtomaksu lasketaan tavujen mukaan, niin määrittelemällä 500 t
     </message>
     <message>
         <source>This is the transaction fee you will pay if you send a transaction.</source>
-        <translation>Tämä on lähetyksestä maksettava maksu jonka maksat</translation>
+        <translation>Tämä on se siirtomaksu, jonka maksat, mikäli lähetät siirron.</translation>
     </message>
     <message>
         <source>Transaction amounts must not be negative</source>
@@ -3694,6 +3679,10 @@ Huom: Koska siirtomaksu lasketaan tavujen mukaan, niin määrittelemällä 500 t
     <message>
         <source>Fee estimation failed. Fallbackfee is disabled. Wait a few blocks or enable -fallbackfee.</source>
         <translation>Siirtomaksun arviointi epäonnistui. Odota muutama lohko tai käytä -fallbackfee -valintaa..</translation>
+    </message>
+    <message>
+        <source>Warning: Private keys detected in wallet {%s} with disabled private keys</source>
+        <translation>Varoitus: lompakosta {%s} tunnistetut yksityiset avaimet, on poistettu käytöstä</translation>
     </message>
     <message>
         <source>Cannot write to data directory '%s'; check permissions.</source>

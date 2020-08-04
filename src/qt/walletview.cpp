@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2018 The Bitcoin Core developers
+// Copyright (c) 2011-2019 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -6,7 +6,6 @@
 
 #include <qt/addressbookpage.h>
 #include <qt/askpassphrasedialog.h>
-#include <qt/bitcoingui.h>
 #include <qt/clientmodel.h>
 #include <qt/guiutil.h>
 #include <qt/optionsmodel.h>
@@ -47,7 +46,7 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
     clientModel(nullptr),
     walletModel(nullptr),
     platformStyle(_platformStyle),
-    gui(nullptr)
+    walletFrame(qobject_cast<WalletFrame*>(parent))
 {
     // Create tabs
     overviewPage = new OverviewPage(platformStyle);
@@ -95,6 +94,16 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
 
     connect(overviewPage, &OverviewPage::outOfSyncWarningClicked, this, &WalletView::requestedSyncWarningInfo);
 
+    // Clicking on a transaction on the overview page simply sends you to transaction history page
+    connect(overviewPage, &OverviewPage::showMoreClicked, this, &WalletView::showMore);
+
+    // Clicking send coins button show send coins dialog
+    connect(overviewPage, &OverviewPage::sendCoinsClicked, this, &WalletView::sendCoins);
+
+    // Clicking receive coins button show receive coins dialog
+    connect(overviewPage, &OverviewPage::receiveCoinsClicked, this, &WalletView::receiveCoins);
+
+    connect(sendCoinsPage, &SendCoinsDialog::coinsSent, this, &WalletView::coinsSent);
     // Highlight transaction after send
     connect(sendCoinsPage, &SendCoinsDialog::coinsSent, transactionView, static_cast<void (TransactionView::*)(const uint256&)>(&TransactionView::focusTransaction));
 
@@ -109,43 +118,6 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
 
 WalletView::~WalletView()
 {
-}
-
-void WalletView::setBitcoinGUI(BitcoinGUI *gui)
-{
-    if (gui)
-    {
-        // Clicking on a transaction on the overview page simply sends you to transaction history page
-        connect(overviewPage, &OverviewPage::showMoreClicked, gui, &BitcoinGUI::gotoHistoryPage);
-
-        // Clicking send coins button show send coins dialog
-        connect(overviewPage, &OverviewPage::sendCoinsClicked, gui, &BitcoinGUI::gotoSendCoinsPage);
-
-        // Clicking receive coins button show receive coins dialog
-        connect(overviewPage, &OverviewPage::receiveCoinsClicked, gui, &BitcoinGUI::gotoReceiveCoinsPage);
-
-        // Navigate to transaction history page after send
-        connect(sendCoinsPage, &SendCoinsDialog::coinsSent, gui, &BitcoinGUI::gotoHistoryPage);
-
-        // Receive and report messages
-        connect(this, &WalletView::message, [gui](const QString &title, const QString &message, unsigned int style) {
-            gui->message(title, message, style);
-        });
-
-        // Pass through encryption status changed signals
-        connect(this, &WalletView::encryptionStatusChanged, gui, &BitcoinGUI::updateWalletStatus);
-        connect(this, &WalletView::encryptionStatusChanged, stakePage, &StakePage::updateEncryptionStatus);
-
-        // Pass through transaction notifications
-        connect(this, &WalletView::incomingTransaction, gui, &BitcoinGUI::incomingTransaction);
-
-        // Pass through token transaction notifications
-        connect(this, &WalletView::incomingTokenTransaction, gui, &BitcoinGUI::incomingTokenTransaction);
-
-        // Connect HD enabled state signal
-        connect(this, &WalletView::hdEnabledStatusChanged, gui, &BitcoinGUI::updateWalletStatus);
-    }
-    this->gui = gui;
 }
 
 void WalletView::setClientModel(ClientModel *_clientModel)
@@ -204,6 +176,7 @@ void WalletView::setWalletModel(WalletModel *_walletModel)
         // Ask for passphrase if needed
         connect(_walletModel, SIGNAL(requireUnlock()), this, SLOT(unlockWallet()));
         connect(stakePage, SIGNAL(requireUnlock(bool)), this, SLOT(unlockWallet(bool)));
+        connect(_walletModel, &WalletModel::encryptionStatusChanged, stakePage, &StakePage::updateEncryptionStatus);
 
         // Show progress dialog
         connect(_walletModel, &WalletModel::showProgress, this, &WalletView::showProgress);
@@ -274,8 +247,7 @@ void WalletView::gotoHistoryPage()
 void WalletView::gotoReceiveCoinsPage()
 {
     setCurrentWidget(overviewPage);
-    if(gui && gui->getWalletFrame() &&
-            gui->getWalletFrame()->currentWalletView() == this)
+    if(walletFrame && walletFrame->currentWalletView() == this)
     {
         receiveCoinsPage->show();
     }
@@ -284,8 +256,7 @@ void WalletView::gotoReceiveCoinsPage()
 void WalletView::gotoSendCoinsPage(QString addr)
 {
     setCurrentWidget(overviewPage);
-    if(gui && gui->getWalletFrame() &&
-            gui->getWalletFrame()->currentWalletView() == this)
+    if(walletFrame && walletFrame->currentWalletView() == this)
     {
         if (!addr.isEmpty())
             sendCoinsPage->setAddress(addr);

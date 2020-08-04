@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2018 The Bitcoin Core developers
+# Copyright (c) 2018-2019 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test wallet group functionality."""
@@ -11,6 +11,7 @@ from test_framework.util import (
     assert_equal,
 )
 from test_framework.qtumconfig import COINBASE_MATURITY
+
 
 class WalletGroupTest(BitcoinTestFramework):
     def set_test_params(self):
@@ -88,5 +89,6 @@ class WalletGroupTest(BitcoinTestFramework):
         # is way too big.
         assert self.nodes[2].sendtoaddress(address=addr2[0], amount=5)
 
+
 if __name__ == '__main__':
-    WalletGroupTest().main ()
+    WalletGroupTest().main()

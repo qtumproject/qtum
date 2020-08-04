@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2018 The Bitcoin Core developers
+// Copyright (c) 2011-2019 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -249,7 +249,7 @@ void OverviewPage::setBalance(const interfaces::WalletBalances& balances)
 {
     int unit = walletModel->getOptionsModel()->getDisplayUnit();
     m_balances = balances;
-    if (walletModel->privateKeysDisabled()) {
+    if (walletModel->wallet().privateKeysDisabled()) {
         ui->labelBalance->setText(BitcoinUnits::format(unit, balances.watch_only_balance, false, BitcoinUnits::separatorAlways));
         ui->labelUnconfirmed->setText(BitcoinUnits::format(unit, balances.unconfirmed_watch_only_balance, false, BitcoinUnits::separatorAlways));
         ui->labelImmature->setText(BitcoinUnits::format(unit, balances.immature_watch_only_balance, false, BitcoinUnits::separatorAlways));
@@ -276,10 +276,11 @@ void OverviewPage::setBalance(const interfaces::WalletBalances& balances)
 
     // for symmetry reasons also show immature label when the watch-only one is shown
     ui->widgetImmature->setVisible(showImmature || showWatchOnlyImmature);
-    ui->widgetWatchImmature->setVisible(!walletModel->privateKeysDisabled() && showWatchOnlyImmature); // show watch-only immature balance
+    ui->widgetWatchImmature->setVisible(!walletModel->wallet().privateKeysDisabled() && showWatchOnlyImmature); // show watch-only immature balance
     ui->widgetStake->setVisible(showStake || showWatchOnlyStake);
-    ui->widgetWatchStake->setVisible(!walletModel->privateKeysDisabled() && showWatchOnlyStake); // show watch-only stake balance
+    ui->widgetWatchStake->setVisible(!walletModel->wallet().privateKeysDisabled() && showWatchOnlyStake); // show watch-only stake balance
 }
+
 void OverviewPage::checkForInvalidTokens()
 {
     if(walletModel)
@@ -352,9 +353,9 @@ void OverviewPage::setWalletModel(WalletModel *model)
 
         connect(model->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &OverviewPage::updateDisplayUnit);
 
-        updateWatchOnlyLabels(wallet.haveWatchOnly() && !model->privateKeysDisabled());
+        updateWatchOnlyLabels(wallet.haveWatchOnly() && !model->wallet().privateKeysDisabled());
         connect(model, &WalletModel::notifyWatchonlyChanged, [this](bool showWatchOnly) {
-            updateWatchOnlyLabels(showWatchOnly && !walletModel->privateKeysDisabled());
+            updateWatchOnlyLabels(showWatchOnly && !walletModel->wallet().privateKeysDisabled());
         });
     }
 

@@ -30,6 +30,7 @@ bench_bench_qtum_SOURCES = \
   bench/gcs_filter.cpp \
   bench/merkle_root.cpp \
   bench/mempool_eviction.cpp \
+  bench/mempool_stress.cpp \
   bench/rpc_blockchain.cpp \
   bench/rpc_mempool.cpp \
   bench/util_time.cpp \
@@ -38,24 +39,20 @@ bench_bench_qtum_SOURCES = \
   bench/bech32.cpp \
   bench/lockedpool.cpp \
   bench/poly1305.cpp \
-  bench/prevector.cpp \
-  test/setup_common.h \
-  test/setup_common.cpp \
-  test/util.h \
-  test/util.cpp
+  bench/prevector.cpp
 
 nodist_bench_bench_qtum_SOURCES = $(GENERATED_BENCH_FILES)
 
-bench_bench_qtum_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(EVENT_CLFAGS) $(EVENT_PTHREADS_CFLAGS) -I$(builddir)/bench/
+bench_bench_qtum_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(EVENT_CFLAGS) $(EVENT_PTHREADS_CFLAGS) -I$(builddir)/bench/
 bench_bench_qtum_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 bench_bench_qtum_LDADD = \
   $(LIBBITCOIN_SERVER) \
   $(LIBBITCOIN_WALLET) \
-  $(LIBBITCOIN_SERVER) \
   $(LIBBITCOIN_COMMON) \
   $(LIBBITCOIN_UTIL) \
   $(LIBBITCOIN_CONSENSUS) \
   $(LIBBITCOIN_CRYPTO) \
+  $(LIBTEST_UTIL) \
   $(LIBLEVELDB) \
   $(LIBLEVELDB_SSE42) \
   $(LIBMEMENV) \
@@ -63,17 +60,7 @@ bench_bench_qtum_LDADD = \
   $(LIBUNIVALUE) \
   $(EVENT_PTHREADS_LIBS) \
   $(EVENT_LIBS) \
-  $(LIBETHEREUM) \
-  $(LIBETHASHSEAL) \
-  $(LIBETHASH) \
-  $(LIBETHCORE) \
-  $(LIBDEVCORE) \
-  $(LIBJSONCPP) \
-  $(LIBEVM) \
-  $(LIBEVMCORE) \
-  $(LIBDEVCRYPTO) \
-  $(LIBCRYPTOPP) \
-  $(LIBSCRYIPT)
+  $(LIBCRYPTOPP)
 
 if ENABLE_ZMQ
 bench_bench_qtum_LDADD += $(LIBBITCOIN_ZMQ) $(ZMQ_LIBS)

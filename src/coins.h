@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2018 The Bitcoin Core developers
+// Copyright (c) 2009-2019 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -142,7 +142,7 @@ public:
         assert(!IsSpent());
         uint32_t code = (nHeight << 2) + (fCoinBase ? 1 : 0) + (fCoinStake ? 2 : 0);
         ::Serialize(s, VARINT(code));
-        ::Serialize(s, CTxOutCompressor(REF(out)));
+        ::Serialize(s, Using<TxOutCompression>(out));
     }
 
     template<typename Stream>
@@ -152,7 +152,7 @@ public:
         nHeight = code >> 2;
         fCoinBase = code & 1;
         fCoinStake = (code >> 1) & 1;
-        ::Unserialize(s, CTxOutCompressor(out));
+        ::Unserialize(s, Using<TxOutCompression>(out));
     }
 
     bool IsSpent() const {

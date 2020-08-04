@@ -1,5 +1,5 @@
 // Copyright (c) 2010 Satoshi Nakamoto
-// Copyright (c) 2009-2018 The Bitcoin Core developers
+// Copyright (c) 2009-2019 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -72,7 +72,7 @@ static CBlock CreateGenesisBlock(uint32_t nTime, uint32_t nNonce, uint32_t nBits
 class CMainParams : public CChainParams {
 public:
     CMainParams() {
-        strNetworkID = "main";
+        strNetworkID = CBaseChainParams::MAIN;
         consensus.nSubsidyHalvingInterval = 985500; // qtum halving every 4 years
         consensus.BIP16Exception = uint256S("0x000075aef83cf2853580f8ae8ce6f8c3096cfa21d98334d6e3f95e5582ed986c");
         consensus.BIP34Height = 0;
@@ -151,6 +151,7 @@ public:
         fRequireStandard = true;
         fMineBlocksOnDemand = false;
         m_is_test_chain = false;
+        m_is_mockable_chain = false;
 
         checkpointData = {
             {
@@ -196,7 +197,7 @@ public:
 class CTestNetParams : public CChainParams {
 public:
     CTestNetParams() {
-        strNetworkID = "test";
+        strNetworkID = CBaseChainParams::TESTNET;
         consensus.nSubsidyHalvingInterval = 985500; // qtum halving every 4 years
         consensus.BIP16Exception = uint256S("0x0000e803ee215c0684ca0d2f9220594d3f828617972aad66feb2ba51f5e14222");
         consensus.BIP34Height = 0;
@@ -265,7 +266,7 @@ public:
         fRequireStandard = false;
         fMineBlocksOnDemand = false;
         m_is_test_chain = true;
-
+        m_is_mockable_chain = false;
 
         checkpointData = {
             {
@@ -307,7 +308,7 @@ public:
 class CRegTestParams : public CChainParams {
 public:
     explicit CRegTestParams(const ArgsManager& args) {
-        strNetworkID = "regtest";
+        strNetworkID =  CBaseChainParams::REGTEST;
         consensus.nSubsidyHalvingInterval = 985500;
         consensus.BIP16Exception = uint256S("0x665ed5b402ac0b44efc37d8926332994363e8a7278b7ee9a58fb972efadae943");
         consensus.BIP34Height = 0; // BIP34 activated on regtest (Used in functional tests)
@@ -366,6 +367,7 @@ public:
         fRequireStandard = true;
         fMineBlocksOnDemand = true;
         m_is_test_chain = true;
+        m_is_mockable_chain = true;
 
         checkpointData = {
             {

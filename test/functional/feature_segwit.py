@@ -81,6 +81,7 @@ class SegWitTest(BitcoinTestFramework):
                 "-addresstype=legacy",
             ],
         ]
+        self.rpc_timeout = 120
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
@@ -124,12 +125,7 @@ class SegWitTest(BitcoinTestFramework):
         assert tmpl['sigoplimit'] == 20000
         assert tmpl['transactions'][0]['hash'] == txid
         assert tmpl['transactions'][0]['sigops'] == 2
-        tmpl = self.nodes[0].getblocktemplate({'rules': ['segwit']})
-        assert tmpl['sizelimit'] == 2000000
-        assert 'weightlimit' not in tmpl
-        assert tmpl['sigoplimit'] == 20000
-        assert tmpl['transactions'][0]['hash'] == txid
-        assert tmpl['transactions'][0]['sigops'] == 2
+        assert '!segwit' not in tmpl['rules']
         self.nodes[0].generate(1)  # block 162
 
         balance_presetup = self.nodes[0].getbalance()
@@ -210,10 +206,10 @@ class SegWitTest(BitcoinTestFramework):
             assert self.nodes[0].getrawtransaction(tx_id, False, blockhash) == tx.serialize_without_witness().hex()
 
         self.log.info("Verify witness txs without witness data are invalid after the fork")
-        self.fail_accept(self.nodes[2], 'non-mandatory-script-verify-flag (Witness program hash mismatch) (code 64)', wit_ids[NODE_2][WIT_V0][2], sign=False)
-        self.fail_accept(self.nodes[2], 'non-mandatory-script-verify-flag (Witness program was passed an empty witness) (code 64)', wit_ids[NODE_2][WIT_V1][2], sign=False)
-        self.fail_accept(self.nodes[2], 'non-mandatory-script-verify-flag (Witness program hash mismatch) (code 64)', p2sh_ids[NODE_2][WIT_V0][2], sign=False, redeem_script=witness_script(False, self.pubkey[2]))
-        self.fail_accept(self.nodes[2], 'non-mandatory-script-verify-flag (Witness program was passed an empty witness) (code 64)', p2sh_ids[NODE_2][WIT_V1][2], sign=False, redeem_script=witness_script(True, self.pubkey[2]))
+        self.fail_accept(self.nodes[2], 'non-mandatory-script-verify-flag (Witness program hash mismatch)', wit_ids[NODE_2][WIT_V0][2], sign=False)
+        self.fail_accept(self.nodes[2], 'non-mandatory-script-verify-flag (Witness program was passed an empty witness)', wit_ids[NODE_2][WIT_V1][2], sign=False)
+        self.fail_accept(self.nodes[2], 'non-mandatory-script-verify-flag (Witness program hash mismatch)', p2sh_ids[NODE_2][WIT_V0][2], sign=False, redeem_script=witness_script(False, self.pubkey[2]))
+        self.fail_accept(self.nodes[2], 'non-mandatory-script-verify-flag (Witness program was passed an empty witness)', p2sh_ids[NODE_2][WIT_V1][2], sign=False, redeem_script=witness_script(True, self.pubkey[2]))
 
         self.log.info("Verify default node can now use witness txs")
         self.success_mine(self.nodes[0], wit_ids[NODE_0][WIT_V0][0], True)  # block 432
@@ -229,6 +225,7 @@ class SegWitTest(BitcoinTestFramework):
         assert tmpl['sigoplimit'] == 80000
         assert tmpl['transactions'][0]['txid'] == txid
         assert tmpl['transactions'][0]['sigops'] == 8
+        assert '!segwit' in tmpl['rules']
 
         self.nodes[0].generate(1)  # Mine a block to clear the gbt cache
 

@@ -2,6 +2,7 @@
 #include <util/system.h>
 #include <validation.h>
 #include <chainparams.h>
+#include <script/script.h>
 #include <qtum/qtumstate.h>
 
 using namespace std;

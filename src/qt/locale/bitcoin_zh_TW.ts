@@ -342,14 +342,6 @@
         <translation>改變錢包加密用的密碼</translation>
     </message>
     <message>
-        <source>&amp;Debug window</source>
-        <translation>除錯視窗(&amp;D)</translation>
-    </message>
-    <message>
-        <source>Open debugging and diagnostic console</source>
-        <translation>開啓除錯和診斷主控台</translation>
-    </message>
-    <message>
         <source>&amp;Verify message...</source>
         <translation>驗證訊息(&amp;V)...</translation>
     </message>
@@ -408,10 +400,6 @@
     <message>
         <source>Show the list of used receiving addresses and labels</source>
         <translation>顯示已使用過的收款位址和標記的清單</translation>
-    </message>
-    <message>
-        <source>Open a qtum: URI or payment request</source>
-        <translation>開啓 qtum 協議的資源識別碼(URI)或付款要求</translation>
     </message>
     <message>
         <source>&amp;Command-line options</source>
@@ -844,10 +832,6 @@
         <translation>版本</translation>
     </message>
     <message>
-        <source>(%1-bit)</source>
-        <translation>(%1 位元)</translation>
-    </message>
-    <message>
         <source>About %1</source>
         <translation>關於 %1</translation>
     </message>
@@ -981,24 +965,8 @@
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open URI</source>
-        <translation>開啓 URI</translation>
-    </message>
-    <message>
-        <source>Open payment request from URI or file</source>
-        <translation>從 URI 或檔案開啟付款要求</translation>
-    </message>
-    <message>
         <source>URI:</source>
         <translation>URI:</translation>
-    </message>
-    <message>
-        <source>Select payment request file</source>
-        <translation>選擇付款要求資料檔</translation>
-    </message>
-    <message>
-        <source>Select payment request file to open</source>
-        <translation>選擇要開啟的付款要求資料檔</translation>
     </message>
 </context>
 <context>
@@ -1381,18 +1349,6 @@
         <translation>字首為 qtum:// 不是有效的 URI，請改用 qtum: 開頭。</translation>
     </message>
     <message>
-        <source>You are using a BIP70 URL which will be unsupported in the future.</source>
-        <translation>你正在使用BIP70 URL，它在未来会被终止支持。</translation>
-    </message>
-    <message>
-        <source>Payment request fetch URL is invalid: %1</source>
-        <translation>取得付款要求的 URL 無效: %1</translation>
-    </message>
-    <message>
-        <source>Cannot process payment request because BIP70 support was not compiled in.</source>
-        <translation>无法处理支付请求，因为编译时没有启用BIP70支持。</translation>
-    </message>
-    <message>
         <source>Invalid payment address %1</source>
         <translation>無效的付款位址 %1</translation>
     </message>
@@ -1403,66 +1359,6 @@
     <message>
         <source>Payment request file handling</source>
         <translation>處理付款要求檔案</translation>
-    </message>
-    <message>
-        <source>Payment request file cannot be read! This can be caused by an invalid payment request file.</source>
-        <translation>沒辦法讀取付款要求檔案！可能是無效的檔案造成的。</translation>
-    </message>
-    <message>
-        <source>Payment request rejected</source>
-        <translation>付款的要求被拒絕了</translation>
-    </message>
-    <message>
-        <source>Payment request network doesn't match client network.</source>
-        <translation>付款要求的網路類型跟客戶端不符。</translation>
-    </message>
-    <message>
-        <source>Payment request expired.</source>
-        <translation>付款的要求過期了。</translation>
-    </message>
-    <message>
-        <source>Payment request is not initialized.</source>
-        <translation>付款的要求沒有完成初始化。</translation>
-    </message>
-    <message>
-        <source>Unverified payment requests to custom payment scripts are unsupported.</source>
-        <translation>不支援含有自訂付款指令碼，且沒驗證過的付款要求。</translation>
-    </message>
-    <message>
-        <source>Invalid payment request.</source>
-        <translation>付款的要求無效。</translation>
-    </message>
-    <message>
-        <source>Requested payment amount of %1 is too small (considered dust).</source>
-        <translation>要求付款的金額 %1 太少(會被網路認為是沒必要的零散錢)。</translation>
-    </message>
-    <message>
-        <source>Refund from %1</source>
-        <translation>來自 %1 的退款</translation>
-    </message>
-    <message>
-        <source>Payment request %1 is too large (%2 bytes, allowed %3 bytes).</source>
-        <translation>付款要求 %1 過大 (%2 位元組, 上限 %3 位元組).</translation>
-    </message>
-    <message>
-        <source>Error communicating with %1: %2</source>
-        <translation>跟 %1 通訊時發生錯誤: %2</translation>
-    </message>
-    <message>
-        <source>Payment request cannot be parsed!</source>
-        <translation>沒辦法解析付款要求內容！</translation>
-    </message>
-    <message>
-        <source>Bad response from server %1</source>
-        <translation>伺服器 %1 的回應有誤</translation>
-    </message>
-    <message>
-        <source>Network request error</source>
-        <translation>發出要求時發生網路錯誤</translation>
-    </message>
-    <message>
-        <source>Payment acknowledged</source>
-        <translation>付款已確認</translation>
     </message>
 </context>
 <context>
@@ -1639,10 +1535,6 @@
     <message>
         <source>&amp;Information</source>
         <translation>資訊(&amp;I)</translation>
-    </message>
-    <message>
-        <source>Debug window</source>
-        <translation>除錯視窗</translation>
     </message>
     <message>
         <source>General</source>
@@ -2185,10 +2077,6 @@
         <translation>警告：目前無法計算預估手續費。</translation>
     </message>
     <message>
-        <source>collapse fee-settings</source>
-        <translation>展開手續費設定</translation>
-    </message>
-    <message>
         <source>Specify a custom fee per kB (1,000 bytes) of the transaction's virtual size.
 
 Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis per kB" for a transaction size of 500 bytes (half of 1 kB) would ultimately yield a fee of only 50 satoshis.</source>
@@ -2373,10 +2261,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>製造交易失敗了！</translation>
     </message>
     <message>
-        <source>The transaction was rejected with the following reason: %1</source>
-        <translation>交易因為以下原因被拒絕了: %1</translation>
-    </message>
-    <message>
         <source>A fee higher than %1 is considered an absurdly high fee.</source>
         <translation>高於 %1 的手續費會被認為是不合理。</translation>
     </message>
@@ -2426,10 +2310,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     <message>
         <source>Choose previously used address</source>
         <translation>選擇先前使用過的位址</translation>
-    </message>
-    <message>
-        <source>This is a normal payment.</source>
-        <translation>這是一筆正常的付款。</translation>
     </message>
     <message>
         <source>The Qtum address to send the payment to</source>
@@ -2490,17 +2370,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     <message>
         <source>Memo:</source>
         <translation>備註:</translation>
-    </message>
-    <message>
-        <source>Enter a label for this address to add it to your address book</source>
-        <translation>請輸入這個位址的標記來把它加進位址簿中</translation>
-    </message>
-</context>
-<context>
-    <name>SendConfirmationDialog</name>
-    <message>
-        <source>Yes</source>
-        <translation>是</translation>
     </message>
 </context>
 <context>
@@ -3230,10 +3099,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>修剪模式：錢包的最後同步狀態是在被修剪掉的區塊資料中。你需要用 -reindex 參數執行(會重新下載整個區塊鏈)</translation>
     </message>
     <message>
-        <source>Rescans are not possible in pruned mode. You will need to use -reindex which will download the whole blockchain again.</source>
-        <translation>在修剪模式下沒辦法重新掃描區塊鏈。你需要配合使用 -reindex 參數來重新下載整個區塊鏈。</translation>
-    </message>
-    <message>
         <source>Error: A fatal internal error occurred, see debug.log for details</source>
         <translation>錯誤: 發生了致命的內部錯誤，詳情請看 debug.log</translation>
     </message>
@@ -3622,10 +3487,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     <message>
         <source>This is the transaction fee you may pay when fee estimates are not available.</source>
         <translation>這是當預估手續費還沒計算出來時，付款交易預設會付的手續費。</translation>
-    </message>
-    <message>
-        <source>This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit %s and cryptographic software written by Eric Young and UPnP software written by Thomas Bernard.</source>
-        <translation>此產品包含了由 OpenSSL Project 所開發的 OpenSSL Toolkit 軟體 %s, 由 Eric Young 撰寫的加解密軟體，以及由 Thomas Bernard 所撰寫的 UPnP 軟體。</translation>
     </message>
     <message>
         <source>Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.</source>

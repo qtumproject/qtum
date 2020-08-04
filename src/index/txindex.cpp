@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2018 The Bitcoin Core developers
+// Copyright (c) 2017-2019 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -16,7 +16,6 @@ constexpr char DB_TXINDEX = 't';
 constexpr char DB_TXINDEX_BLOCK = 'T';
 
 std::unique_ptr<TxIndex> g_txindex;
-
 
 /**
  * Access to the txindex database (indexes/txindex/)

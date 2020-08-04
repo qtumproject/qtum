@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2018 The Bitcoin Core developers
+// Copyright (c) 2016-2019 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -26,8 +26,7 @@ public:
         Sync = 0,
         Backup = 1
     };
-
-    explicit ModalOverlay(QWidget *parent, OverlayType _type = OverlayType::Sync);
+    explicit ModalOverlay(bool enable_wallet, QWidget *parent, OverlayType _type = OverlayType::Sync);
     ~ModalOverlay();
 
 public Q_SLOTS:

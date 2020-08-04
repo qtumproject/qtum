@@ -358,6 +358,10 @@
         <translation>Blokeak diskoan berriro zerrendatzen...</translation>
     </message>
     <message>
+        <source>Send coins to a Qtum address</source>
+        <translation>Bidali txanponak Qtum helbide batera</translation>
+    </message>
+    <message>
         <source>Change the passphrase used for wallet encryption</source>
         <translation>Diruzorroa enkriptatzeko erabilitako pasahitza aldatu</translation>
     </message>
@@ -380,6 +384,10 @@
     <message>
         <source>Show or hide the main Window</source>
         <translation>Lehio nagusia erakutsi edo izkutatu</translation>
+    </message>
+    <message>
+        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
+        <translation>Egiaztatu mesua Qtum helbide espezifikoarekin erregistratu direla ziurtatzeko</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -406,8 +414,20 @@
         <translation>Akatsa</translation>
     </message>
     <message>
+        <source>Information</source>
+        <translation>Informazioa</translation>
+    </message>
+    <message>
         <source>Up to date</source>
         <translation>Eguneratua</translation>
+    </message>
+    <message>
+        <source>&amp;Sending addresses</source>
+        <translation>&amp;Helbideak bidaltzen</translation>
+    </message>
+    <message>
+        <source>&amp;Receiving addresses</source>
+        <translation>&amp;Helbideak jasotzen</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -426,8 +446,16 @@
         <translation>Diruzorroa itxi</translation>
     </message>
     <message>
+        <source>default wallet</source>
+        <translation>Diruzorro lehenetsia</translation>
+    </message>
+    <message>
         <source>&amp;Window</source>
         <translation>&amp;Lehioa</translation>
+    </message>
+    <message>
+        <source>Minimize</source>
+        <translation>Txikitu</translation>
     </message>
     <message>
         <source>Zoom</source>
@@ -687,14 +715,10 @@
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open URI</source>
-        <translation>URI zabaldu</translation>
-    </message>
-    <message>
         <source>URI:</source>
         <translation>URI: </translation>
     </message>
-    </context>
+</context>
 <context>
     <name>OpenWalletActivity</name>
     <message>
@@ -704,6 +728,10 @@
     <message>
         <source>Open wallet warning</source>
         <translation>Diruzorroa irekitzen abisua</translation>
+    </message>
+    <message>
+        <source>default wallet</source>
+        <translation>Diruzorro lehenetsia</translation>
     </message>
     </context>
 <context>
@@ -957,13 +985,6 @@
         <source>Pay To:</source>
         <translation>Honi ordaindu:</translation>
     </message>
-    <message>
-        <source>Enter a label for this address to add it to your address book</source>
-        <translation>Emaiozu helbide honi izenburu bat, zure helbide-liburuan horrela ager dadin</translation>
-    </message>
-</context>
-<context>
-    <name>SendConfirmationDialog</name>
     </context>
 <context>
     <name>ShutdownWindow</name>
@@ -1205,7 +1226,11 @@
         <source>Send Coins</source>
         <translation>Txanponak bidali</translation>
     </message>
-    </context>
+    <message>
+        <source>default wallet</source>
+        <translation>Diruzorro lehenetsia</translation>
+    </message>
+</context>
 <context>
     <name>WalletView</name>
     <message>

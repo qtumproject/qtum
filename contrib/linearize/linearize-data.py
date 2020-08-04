@@ -2,7 +2,7 @@
 #
 # linearize-data.py: Construct a linear, no-fork version of the chain.
 #
-# Copyright (c) 2013-2018 The Bitcoin Core developers
+# Copyright (c) 2013-2019 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #
@@ -98,8 +98,7 @@ def mkblockmap(blkindex):
 def getFirstBlockFileId(block_dir_path):
     # First, this sets up a pattern to search for block files, for
     # example 'blkNNNNN.dat'.
-    blkFilePattern = os.path.join(
-        block_dir_path, "blk[0-9][0-9][0-9][0-9][0-9].dat")
+    blkFilePattern = os.path.join(block_dir_path, "blk[0-9][0-9][0-9][0-9][0-9].dat")
 
     # This search is done with glob
     blkFnList = glob.glob(blkFilePattern)
@@ -241,6 +240,9 @@ class BlockDataCopier:
 
             inMagic = inhdr[:4]
             if (inMagic != self.settings['netmagic']):
+                # Seek backwards 7 bytes (skipping the first byte in the previous search)
+                # and continue searching from the new position if the magic bytes are not
+                # found.
                 self.inF.seek(-7, os.SEEK_CUR)
                 continue
             inLenLE = inhdr[4:]

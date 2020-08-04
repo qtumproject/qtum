@@ -99,7 +99,6 @@ def script_BIP34_coinbase_height(height):
     return CScript([CScriptNum(height)])
 
 
-
 def script_BIP34_coinbase_height(height):
     if height <= 16:
         res = CScriptOp.encode_op_n(height)

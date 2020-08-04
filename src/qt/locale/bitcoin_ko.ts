@@ -151,8 +151,8 @@
         <translation>송금이 가능한 QTUM 주소입니다. 송금 전에 반드시 주소와 금액이 정확한지 확인해주세요. </translation>
     </message>
     <message>
-        <source>These are your Qtum addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
-        <translation>QTUM을 받을 수 있는 주소입니다. 거래 마다 새로운 주소를 사용할 것을 권장 드립니다. </translation>
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.</source>
+        <translation>지불 수신용 QTUM주소. 신규 주소를 만들려면 'Create new receiving address' 버튼을 사용하세요.</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -269,8 +269,24 @@
         <translation>지갑 암호화 완료</translation>
     </message>
     <message>
-        <source>Your wallet is now encrypted. Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
-        <translation>지갑이 암호화 되었습니다. 암호화된 지갑도 멀웨어 감염을 통한 해킹에서 완벽하게 안전하지 않다는 점을 유의해주세요.</translation>
+        <source>Enter the new passphrase for the wallet.&lt;br/&gt;Please use a passphrase of &lt;b&gt;ten or more random characters&lt;/b&gt;, or &lt;b&gt;eight or more words&lt;/b&gt;.</source>
+        <translation>새로운 지갑 비밀번호를 입력하세요. 암호는 10개 이상의 문자 또는 8개 이상의 단어로 입력하세요.</translation>
+    </message>
+    <message>
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
+        <translation>지갑을 암호화 해도 컴퓨터에 바이러스가 있을시 안전하기 않다는 것을 참고하세요.</translation>
+    </message>
+    <message>
+        <source>Wallet to be encrypted</source>
+        <translation>암호화할 지갑</translation>
+    </message>
+    <message>
+        <source>Your wallet is about to be encrypted. </source>
+        <translation>지갑이 바로 암호화 됩니다.</translation>
+    </message>
+    <message>
+        <source>Your wallet is now encrypted. </source>
+        <translation>지갑이 암호화 되었습니다.</translation>
     </message>
     <message>
         <source>IMPORTANT: Any previous backups you have made of your wallet file should be replaced with the newly generated, encrypted wallet file. For security reasons, previous backups of the unencrypted wallet file will become useless as soon as you start using the new, encrypted wallet.</source>
@@ -467,6 +483,14 @@
         <translation type="unfinished">다른 곳에서 지갑 복구</translation>
     </message>
     <message>
+        <source>Create Wallet...</source>
+        <translation>지갑 생성하기...</translation>
+    </message>
+    <message>
+        <source>Create a new wallet</source>
+        <translation>새로운 지갑 생성하기</translation>
+    </message>
+    <message>
         <source>&amp;Change Passphrase...</source>
         <translation type="unfinished">비밀번호 변경</translation>
     </message>
@@ -507,12 +531,12 @@
         <translation type="unfinished">메시지 검증. 메시지에 특정 퀀텀 주소의 서명이 있는지 확인 </translation>
     </message>
     <message>
-        <source>&amp;Debug window</source>
-        <translation type="unfinished">디버그 윈도우</translation>
+        <source>Node window</source>
+        <translation>노드 창</translation>
     </message>
     <message>
-        <source>Open debugging and diagnostic console</source>
-        <translation type="unfinished">오류 진단 및 수정 콘솔 열기 </translation>
+        <source>Open node debugging and diagnostic console</source>
+        <translation>노드 디버깅 및 진단 콘솔 열기 </translation>
     </message>
     <message>
         <source>&amp;Sending addresses</source>
@@ -533,10 +557,6 @@
     <message>
         <source>Open &amp;URI...</source>
         <translation type="unfinished">&amp;URI 열기</translation>
-    </message>
-    <message>
-        <source>Open a qtum: URI or payment request</source>
-        <translation type="unfinished">qtum: URI 또는 지불 요청 열기</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -709,6 +729,14 @@
     <message>
         <source>Information</source>
         <translation type="unfinished">정보</translation>
+    </message>
+    <message>
+        <source>Error: %1</source>
+        <translation>오류: %1</translation>
+    </message>
+    <message>
+        <source>Warning: %1</source>
+        <translation>경고: %1</translation>
     </message>
     <message>
         <source>Date: %1
@@ -1050,6 +1078,21 @@
     </message>
 </context>
 <context>
+    <name>CreateWalletActivity</name>
+    <message>
+        <source>Creating Wallet &lt;b&gt;%1&lt;/b&gt;...</source>
+        <translation>지갑 &lt;b&gt;%1&lt;/b&gt; 생성중...</translation>
+    </message>
+    <message>
+        <source>Create wallet failed</source>
+        <translation>지갑 생성하기 실패</translation>
+    </message>
+    <message>
+        <source>Create wallet warning</source>
+        <translation>지갑 생성 경고</translation>
+    </message>
+</context>
+<context>
     <name>ContractBookPage</name>
     <message>
         <source>Form</source>
@@ -1142,6 +1185,25 @@
     <message>
         <source>There was an error trying to save the address list to %1. Please try again.</source>
         <translation type="unfinished">%1에 주소 리스트 저장 실패. 다시 시도해주세요.</translation>
+    </message>
+</context>
+<context>
+    <name>CreateWalletDialog</name>
+    <message>
+        <source>Create Wallet</source>
+        <translation>지갑 생성하기</translation>
+    </message>
+    <message>
+        <source>Wallet Name</source>
+        <translation>지갑 이름</translation>
+    </message>
+    <message>
+        <source>Encrypt Wallet</source>
+        <translation>지갑 암호화</translation>
+    </message>
+    <message>
+        <source>Make Blank Wallet</source>
+        <translation>빈 지갑 만들기</translation>
     </message>
 </context>
 <context>
@@ -1434,10 +1496,6 @@
         <translation>버전</translation>
     </message>
     <message>
-        <source>(%1-bit)</source>
-        <translation>(%1 비트)</translation>
-    </message>
-    <message>
         <source>About %1</source>
         <translation>%1 란</translation>
     </message>
@@ -1592,24 +1650,12 @@ Please make sure to keep an updated antivirus and operating system. We can not r
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open URI</source>
-        <translation>URI 열기</translation>
-    </message>
-    <message>
-        <source>Open payment request from URI or file</source>
-        <translation>URI 또는 파일을 통한 송금 요청 열기</translation>
+        <source>Open qtum URI</source>
+        <translation>QTUM URI 열기</translation>
     </message>
     <message>
         <source>URI:</source>
         <translation>URI:</translation>
-    </message>
-    <message>
-        <source>Select payment request file</source>
-        <translation>송금 요청 파일 선택</translation>
-    </message>
-    <message>
-        <source>Select payment request file to open</source>
-        <translation>송금 요청 파일 선택하여 열기</translation>
     </message>
 </context>
 <context>
@@ -1911,16 +1957,16 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation type="unfinished">업데이트 확인</translation>
     </message>
     <message>
-        <source>Automatically open the Bitcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation type="unfinished">라우터에서 자동으로 비트코인 클라이언트 실행하기. 해당 기능은 라우터에 UPnP 옵션이 활성화되어 있을 경우에만 유효합니다. </translation>
+        <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation type="unfinished">라우터에서 자동으로 QTUM 클라이언트 실행하기. 해당 기능은 라우터에 UPnP 옵션이 활성화되어 있을 경우에만 유효합니다. </translation>
     </message>
     <message>
-        <source>Connect to the Bitcoin network through a SOCKS5 proxy.</source>
-        <translation type="unfinished">SOCKS5 프록시를 통해 비트코인 네트워크 연결</translation>
+        <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
+        <translation type="unfinished">SOCKS5 프록시를 통해 QTUM 네트워크 연결</translation>
     </message>
     <message>
-        <source>Connect to the Bitcoin network through a separate SOCKS5 proxy for Tor hidden services.</source>
-        <translation type="unfinished">Tor 히든 서비스에서 별도의 SOCKS5 프록시를 통해 비트코인 네트워크 연결</translation>
+        <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor hidden services.</source>
+        <translation type="unfinished">Tor 히든 서비스에서 별도의 SOCKS5 프록시를 통해 QTUM 네트워크 연결</translation>
     </message>
     <message>
         <source>User Interface &amp;style:</source>
@@ -2084,18 +2130,6 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation type="vanished">‘qtum://’은 유효한 URI이 아닙니다. &apos;qtum:&apos;로 대체해주세요. </translation>
     </message>
     <message>
-        <source>You are using a BIP70 URL which will be unsupported in the future.</source>
-        <translation>사용중인 BIP70 URL에 대한 지원은 장차 중단될 예정입니다. </translation>
-    </message>
-    <message>
-        <source>Payment request fetch URL is invalid: %1</source>
-        <translation>지불 요청 URL 무효: %1</translation>
-    </message>
-    <message>
-        <source>Cannot process payment request because BIP70 support was not compiled in.</source>
-        <translation>컴파일 단계에서 BIP70 지원 미활성화로 지불 요청을 처리할 수 없습니다. </translation>
-    </message>
-    <message>
         <source>Invalid payment address %1</source>
         <translation>무효한 송금 주소 %1</translation>
     </message>
@@ -2108,68 +2142,12 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation>지불 요청 파일 처리</translation>
     </message>
     <message>
-        <source>Payment request file cannot be read! This can be caused by an invalid payment request file.</source>
-        <translation>지불 요청 파일을 읽을 수 없습니다. 무효한 파일일 가능성이 높습니다. </translation>
-    </message>
-    <message>
-        <source>Payment request rejected</source>
-        <translation>지불 요청이 거절되었습니다. </translation>
-    </message>
-    <message>
         <source>Payment request network doesn&apos;t match client network.</source>
         <translation>지불 요청 네트워크와 클라이언트 네트워크가 매칭되지 않습니다. </translation>
     </message>
     <message>
-        <source>Payment request expired.</source>
-        <translation>지불 요청의 유효기간이 지났습니다. </translation>
-    </message>
-    <message>
-        <source>Unverified payment requests to custom payment scripts are unsupported.</source>
-        <translation>커스텀 지불 스크립트에 대한 미검증 지불 요청은 지원하지 않습니다.</translation>
-    </message>
-    <message>
-        <source>Invalid payment request.</source>
-        <translation>무효한 지불 요청</translation>
-    </message>
-    <message>
-        <source>Requested payment amount of %1 is too small (considered dust).</source>
-        <translation>지불 요청 금액 %1 이 매우 작습니다. (생략될 수 있음)</translation>
-    </message>
-    <message>
-        <source>Refund from %1</source>
-        <translation>%1에 대한 환불</translation>
-    </message>
-    <message>
-        <source>Payment request %1 is too large (%2 bytes, allowed %3 bytes).</source>
-        <translation>지불 요청 %1이 지나치게 큽니다. (%2 바이트, 허용 범위 %3)</translation>
-    </message>
-    <message>
-        <source>Error communicating with %1: %2</source>
-        <translation>%1과의 통신 에러: %2</translation>
-    </message>
-    <message>
-        <source>Payment request cannot be parsed!</source>
-        <translation>지불 요청을 분석할 수 없습니다. </translation>
-    </message>
-    <message>
-        <source>Bad response from server %1</source>
-        <translation>서버 %1 의 응답이 없습니다. </translation>
-    </message>
-    <message>
-        <source>Network request error</source>
-        <translation>네트워크 요청 에러</translation>
-    </message>
-    <message>
-        <source>Payment acknowledged</source>
-        <translation>지불이 확인되었습니다. </translation>
-    </message>
-    <message>
-        <source>&apos;bitcoin://&apos; is not a valid URI. Use &apos;bitcoin:&apos; instead.</source>
-        <translation type="unfinished">bitcoin://&apos;은 유효한 URI이 아닙니다. &apos;bitcoin:&apos;로 대체해주세요.</translation>
-    </message>
-    <message>
-        <source>Payment request is not initialized.</source>
-        <translation type="unfinished">지불 요청 초기화 에러</translation>
+        <source>&apos;qtum://&apos; is not a valid URI. Use &apos;qtum:&apos; instead.</source>
+        <translation type="unfinished">qtum://&apos;은 유효한 URI이 아닙니다. &apos;qtum:&apos;로 대체해주세요.</translation>
     </message>
 </context>
 <context>
@@ -2458,6 +2436,14 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation type="vanished">백업지갑</translation>
     </message>
     <message>
+        <source>Create Wallet...</source>
+        <translation>지갑 생성하기...</translation>
+    </message>
+    <message>
+        <source>Create a new wallet</source>
+        <translation>새로운 지갑 생성하기</translation>
+    </message>
+    <message>
         <source>&amp;Change Passphrase...</source>
         <translation type="vanished">비밀번호 변경</translation>
     </message>
@@ -2504,14 +2490,6 @@ Please make sure to keep an updated antivirus and operating system. We can not r
     <message>
         <source>Change the passphrase used for wallet encryption</source>
         <translation type="vanished">지갑 암호화용 비밀번호 변경</translation>
-    </message>
-    <message>
-        <source>&amp;Debug window</source>
-        <translation type="vanished">디버그 윈도우</translation>
-    </message>
-    <message>
-        <source>Open debugging and diagnostic console</source>
-        <translation type="vanished">오류 진단 및 수정 콘솔 열기 </translation>
     </message>
     <message>
         <source>&amp;Verify message...</source>
@@ -2578,10 +2556,6 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation type="vanished">사용했던 입금 주소와 라벨 리스트 표시</translation>
     </message>
     <message>
-        <source>Open a qtum: URI or payment request</source>
-        <translation type="vanished">qtum: URI 또는 지불 요청 열기</translation>
-    </message>
-    <message>
         <source>&amp;Command-line options</source>
         <translation type="vanished">커멘드 라인 옵션</translation>
     </message>
@@ -2632,6 +2606,14 @@ Please make sure to keep an updated antivirus and operating system. We can not r
     <message>
         <source>Up to date</source>
         <translation type="vanished">최신 업데이트 완료</translation>
+    </message>
+    <message>
+        <source>Node window</source>
+        <translation>노드 창</translation>
+    </message>
+    <message>
+        <source>Open node debugging and diagnostic console</source>
+        <translation>노드 디버깅 및 진단 콘솔 열기 </translation>
     </message>
     <message>
         <source>&amp;Sending addresses</source>
@@ -2789,10 +2771,6 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation>정보</translation>
     </message>
     <message>
-        <source>Debug window</source>
-        <translation>디버그 윈도우</translation>
-    </message>
-    <message>
         <source>General</source>
         <translation>일반</translation>
     </message>
@@ -2911,6 +2889,10 @@ Please make sure to keep an updated antivirus and operating system. We can not r
     <message>
         <source>User Agent</source>
         <translation>사용자 에이전트</translation>
+    </message>
+    <message>
+        <source>Node window</source>
+        <translation>노드 창</translation>
     </message>
     <message>
         <source>Decrease font size</source>
@@ -3455,10 +3437,6 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation>경고: 거래 수수료 예측이 불가합니다. </translation>
     </message>
     <message>
-        <source>collapse fee-settings</source>
-        <translation type="vanished">수수료 설정 접기</translation>
-    </message>
-    <message>
         <source>Specify a custom fee per kB (1,000 bytes) of the transaction&apos;s virtual size.
 
 Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satoshis per kB&quot; for a transaction size of 500 bytes (half of 1 kB) would ultimately yield a fee of only 50 satoshis.</source>
@@ -3635,10 +3613,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation>거래 생성 실패</translation>
     </message>
     <message>
-        <source>The transaction was rejected with the following reason: %1</source>
-        <translation>아래와 같은 이유로 거래 거절: %1</translation>
-    </message>
-    <message>
         <source>A fee higher than %1 is considered an absurdly high fee.</source>
         <translation>거래 수수료는 보통 %1를 넘지 않습니다</translation>
     </message>
@@ -3685,7 +3659,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation type="unfinished">수수료를 1,000 사토시로 지정했지만 거래가 250 바이트일 경우, &apos;kB 당 수수료&apos; 기준으로 볼 때 250 사토시이지만, &apos;최소 수수료&apos; 기준으로 계산한다면 1,000 사토시를 지불해야 합니다. 1kB 보다 큰 거래는 kB를 기준으로 계산합니다.  </translation>
     </message>
     <message>
-        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for bitcoin transactions than the network can process.</source>
+        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
         <translation type="unfinished">거래량이 블록 공간보다 작을 경우, 마이너, 노드는 최소 수수료 제한을 실행합니다. 최소 수수료로 지불할 수도 있지만 거래량이 퀀텀 네트워크의 처리 한도를 넘어선다면 해당 거래는 장시간 동안 승인을 받지 못할 수 있습니다. </translation>
     </message>
 </context>
@@ -3706,10 +3680,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <source>Choose previously used address</source>
         <translation>이전에 사용했던 주소 선택</translation>
-    </message>
-    <message>
-        <source>This is a normal payment.</source>
-        <translation>정상적인 지불입니다. </translation>
     </message>
     <message>
         <source>The Qtum address to send the payment to</source>
@@ -3770,17 +3740,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <source>Memo:</source>
         <translation>메모</translation>
-    </message>
-    <message>
-        <source>Enter a label for this address to add it to your address book</source>
-        <translation>해당 주소에 라벨을 추가하여 주소록에 추가해주세요. </translation>
-    </message>
-</context>
-<context>
-    <name>SendConfirmationDialog</name>
-    <message>
-        <source>Yes</source>
-        <translation>예</translation>
     </message>
 </context>
 <context>
@@ -4977,7 +4936,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation>지갑 닫기</translation>
     </message>
     <message>
-        <source>Are you sure you wish to close wallet &lt;i&gt;%1&lt;/i&gt;?</source>
+        <source>Are you sure you wish to close the wallet &lt;i&gt;%1&lt;/i&gt;?</source>
         <translation>지갑&lt;i&gt;%1&lt;/i&gt;을 닫으시겠습니까?</translation>
     </message>
     <message>
@@ -5153,10 +5112,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation type="unfinished">수정：지갑의 마지막 동기화가 수정된 데이터를 초과했습니다. -reindex를 실행하십시오 (모든 블록체인을 다운로드하여 수정된 노드를 확인합니다.)</translation>
     </message>
     <message>
-        <source>Rescans are not possible in pruned mode. You will need to use -reindex which will download the whole blockchain again.</source>
-        <translation type="unfinished">수정 모드에서 블록을 다시 스캔할 수 없습니다. -reindex를 사용하면 모든 블록체인을 다시 다운로드 할 수 있습니다. </translation>
-    </message>
-    <message>
         <source>The block database contains a block which appears to be from the future. This may be due to your computer&apos;s date and time being set incorrectly. Only rebuild the block database if you are sure that your computer&apos;s date and time are correct</source>
         <translation type="unfinished">블록 데이터베이스에 미래의 거래 내역이 있습니다. 이는 현재 컴퓨터의 시간 설정이 잘못되어 발생된 것으로 보입니다. 컴퓨터 시간 설정 오류가 없을 경우 블록 데이터베이스를 다시 구축해주세요. </translation>
     </message>
@@ -5175,10 +5130,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <source>This is the transaction fee you may pay when fee estimates are not available.</source>
         <translation type="unfinished">수수료 예측 기능이 비활성화되어 있을 때 지불해야 하는 거래 수수료입니다. </translation>
-    </message>
-    <message>
-        <source>This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit %s and cryptographic software written by Eric Young and UPnP software written by Thomas Bernard.</source>
-        <translation type="unfinished">해당 제품에는 OpenSSL 프로젝트가 개발한 OpenSSL 툴킷 소프트웨어 %s가 포함되어 있습니다. Eric Young이 암호화 소프트웨어를 작성했고 Thomas Bernard이 UPnP 소프트웨어를 작성했습니다. </translation>
     </message>
     <message>
         <source>Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.</source>
@@ -5614,10 +5565,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation type="vanished">수정：지갑의 마지막 동기화가 수정된 데이터를 초과했습니다. -reindex를 실행하십시오 (모든 블록체인을 다운로드하여 수정된 노드를 확인합니다.)</translation>
     </message>
     <message>
-        <source>Rescans are not possible in pruned mode. You will need to use -reindex which will download the whole blockchain again.</source>
-        <translation type="vanished">수정 모드에서 블록을 다시 스캔할 수 없습니다. -reindex를 사용하면 모든 블록체인을 다시 다운로드 할 수 있습니다. </translation>
-    </message>
-    <message>
         <source>Error: A fatal internal error occurred, see debug.log for details</source>
         <translation type="vanished">에러：내부에 치명적인 에러가 발생했습니다. 자세한 내용은 debug.log 파일을 확인하세요. </translation>
     </message>
@@ -6002,10 +5949,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <source>This is the transaction fee you may pay when fee estimates are not available.</source>
         <translation type="vanished">수수료 예측 기능이 비활성화되어 있을 때 지불해야 하는 거래 수수료입니다. </translation>
-    </message>
-    <message>
-        <source>This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit %s and cryptographic software written by Eric Young and UPnP software written by Thomas Bernard.</source>
-        <translation type="vanished">해당 제품에는 OpenSSL 프로젝트가 개발한 OpenSSL 툴킷 소프트웨어 %s가 포함되어 있습니다. Eric Young이 암호화 소프트웨어를 작성했고 Thomas Bernard이 UPnP 소프트웨어를 작성했습니다. </translation>
     </message>
     <message>
         <source>Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.</source>

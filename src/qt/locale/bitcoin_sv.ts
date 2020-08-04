@@ -70,7 +70,7 @@
         <translation>Detta är dina Qtum-adresser för att skicka betalningar. Kontrollera alltid belopp och mottagaradress innan du skickar qtum.</translation>
     </message>
     <message>
-        <source>These are your  addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.</source>
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.</source>
         <translation>Detta är dina Qtumadresser för att ta emot betalningar. Använd knappen 'Skapa ny mottagaradress' på fliken ta emot för att skapa nya adresser .</translation>
     </message>
     <message>
@@ -375,14 +375,6 @@ Försök igen.</translation>
         <translation>Byt lösenfras för kryptering av plånbok</translation>
     </message>
     <message>
-        <source>&amp;Debug window</source>
-        <translation>&amp;Felsökningsfönster</translation>
-    </message>
-    <message>
-        <source>Open debugging and diagnostic console</source>
-        <translation>Öppna felsöknings- och diagnostikkonsolen</translation>
-    </message>
-    <message>
         <source>&amp;Verify message...</source>
         <translation>&amp;Verifiera meddelande...</translation>
     </message>
@@ -441,10 +433,6 @@ Försök igen.</translation>
     <message>
         <source>Show the list of used receiving addresses and labels</source>
         <translation>Visa listan med använda mottagaradresser och etiketter</translation>
-    </message>
-    <message>
-        <source>Open a qtum: URI or payment request</source>
-        <translation>Öppna en qtum: URI eller betalningsbegäran</translation>
     </message>
     <message>
         <source>&amp;Command-line options</source>
@@ -905,10 +893,6 @@ Försök igen.</translation>
         <translation>version</translation>
     </message>
     <message>
-        <source>(%1-bit)</source>
-        <translation>(%1-bit)</translation>
-    </message>
-    <message>
         <source>About %1</source>
         <translation>Om %1</translation>
     </message>
@@ -1046,24 +1030,8 @@ Försök igen.</translation>
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open URI</source>
-        <translation>Öppna URI</translation>
-    </message>
-    <message>
-        <source>Open payment request from URI or file</source>
-        <translation>Öppna betalningsbegäran från URI eller fil</translation>
-    </message>
-    <message>
         <source>URI:</source>
         <translation>URI:</translation>
-    </message>
-    <message>
-        <source>Select payment request file</source>
-        <translation>Välj betalningsbegäransfil</translation>
-    </message>
-    <message>
-        <source>Select payment request file to open</source>
-        <translation>Välj betalningsbegäransfil som ska öppnas</translation>
     </message>
 </context>
 <context>
@@ -1450,18 +1418,6 @@ Försök igen.</translation>
         <translation>'qtum://' är inte en accepterad URI. Använd 'qtum:' istället.</translation>
     </message>
     <message>
-        <source>You are using a BIP70 URL which will be unsupported in the future.</source>
-        <translation>Du använder en URL enligt BIP70, vilket inte kommer att stödjas i framtiden.</translation>
-    </message>
-    <message>
-        <source>Payment request fetch URL is invalid: %1</source>
-        <translation>Hämtningsadressen för betalningsbegäran är ogiltig: %1</translation>
-    </message>
-    <message>
-        <source>Cannot process payment request because BIP70 support was not compiled in.</source>
-        <translation>Det går inte att behandla betalningsbegäran eftersom stöd för BIP70 inte var aktiverat vid kompilering.</translation>
-    </message>
-    <message>
         <source>Invalid payment address %1</source>
         <translation>Ogiltig betalningsadress %1</translation>
     </message>
@@ -1472,66 +1428,6 @@ Försök igen.</translation>
     <message>
         <source>Payment request file handling</source>
         <translation>Hantering av betalningsbegäransfil</translation>
-    </message>
-    <message>
-        <source>Payment request file cannot be read! This can be caused by an invalid payment request file.</source>
-        <translation>Betalningsbegäransfilen kan inte läsas! Detta kan orsakas av en ogiltig betalningsbegäransfil.</translation>
-    </message>
-    <message>
-        <source>Payment request rejected</source>
-        <translation>Betalningsbegäran avslogs</translation>
-    </message>
-    <message>
-        <source>Payment request network doesn't match client network.</source>
-        <translation>Betalningsbegärans nätverk matchar inte klientens nätverk.</translation>
-    </message>
-    <message>
-        <source>Payment request expired.</source>
-        <translation>Betalningsbegäran löpte ut.</translation>
-    </message>
-    <message>
-        <source>Payment request is not initialized.</source>
-        <translation>Betalningsbegäran är inte initierad.</translation>
-    </message>
-    <message>
-        <source>Unverified payment requests to custom payment scripts are unsupported.</source>
-        <translation>Overifierade betalningsbegäranden till anpassade betalningsskript stöds inte.</translation>
-    </message>
-    <message>
-        <source>Invalid payment request.</source>
-        <translation>Ogiltig betalningsbegäran.</translation>
-    </message>
-    <message>
-        <source>Requested payment amount of %1 is too small (considered dust).</source>
-        <translation>Begärt belopp på %1 är för litet (betraktas som damm).</translation>
-    </message>
-    <message>
-        <source>Refund from %1</source>
-        <translation>Återbetalning från %1</translation>
-    </message>
-    <message>
-        <source>Payment request %1 is too large (%2 bytes, allowed %3 bytes).</source>
-        <translation>Betalningsbegäran %1 är för stor (%2 byte, tillåts %3 byte).</translation>
-    </message>
-    <message>
-        <source>Error communicating with %1: %2</source>
-        <translation>Kommunikationsfel med %1: %2</translation>
-    </message>
-    <message>
-        <source>Payment request cannot be parsed!</source>
-        <translation>Betalningsbegäran kan inte parsas!</translation>
-    </message>
-    <message>
-        <source>Bad response from server %1</source>
-        <translation>Felaktigt svar från server %1</translation>
-    </message>
-    <message>
-        <source>Network request error</source>
-        <translation>Fel vid nätverksbegäran</translation>
-    </message>
-    <message>
-        <source>Payment acknowledged</source>
-        <translation>Betalningen bekräftad</translation>
     </message>
 </context>
 <context>
@@ -1704,10 +1600,6 @@ Försök igen.</translation>
     <message>
         <source>&amp;Information</source>
         <translation>&amp;Information</translation>
-    </message>
-    <message>
-        <source>Debug window</source>
-        <translation>Felsökningsfönster</translation>
     </message>
     <message>
         <source>General</source>
@@ -2250,10 +2142,6 @@ Försök igen.</translation>
         <translation>Varning: Avgiftsuppskattning är för närvarande inte möjlig.</translation>
     </message>
     <message>
-        <source>collapse fee-settings</source>
-        <translation>Fäll ihop avgiftsinställningarna</translation>
-    </message>
-    <message>
         <source>Specify a custom fee per kB (1,000 bytes) of the transaction's virtual size.
 
 Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis per kB" for a transaction size of 500 bytes (half of 1 kB) would ultimately yield a fee of only 50 satoshis.</source>
@@ -2430,10 +2318,6 @@ Notera: Då avgiften beräknas per byte kommer en avgift på 50 satoshi tas ut f
         <translation>Transaktionen gick inte att skapa!</translation>
     </message>
     <message>
-        <source>The transaction was rejected with the following reason: %1</source>
-        <translation>Transaktionen avvisades med följande orsak: %1</translation>
-    </message>
-    <message>
         <source>A fee higher than %1 is considered an absurdly high fee.</source>
         <translation>En avgift högre än %1 anses vara en absurd hög avgift.</translation>
     </message>
@@ -2483,10 +2367,6 @@ Notera: Då avgiften beräknas per byte kommer en avgift på 50 satoshi tas ut f
     <message>
         <source>Choose previously used address</source>
         <translation>Välj tidigare använda adresser</translation>
-    </message>
-    <message>
-        <source>This is a normal payment.</source>
-        <translation>Detta är en normal betalning.</translation>
     </message>
     <message>
         <source>The Qtum address to send the payment to</source>
@@ -2547,17 +2427,6 @@ Notera: Då avgiften beräknas per byte kommer en avgift på 50 satoshi tas ut f
     <message>
         <source>Memo:</source>
         <translation>PM:</translation>
-    </message>
-    <message>
-        <source>Enter a label for this address to add it to your address book</source>
-        <translation>Ange en etikett för denna adress för att lägga till den i din adressbok</translation>
-    </message>
-</context>
-<context>
-    <name>SendConfirmationDialog</name>
-    <message>
-        <source>Yes</source>
-        <translation>Ja</translation>
     </message>
 </context>
 <context>
@@ -3287,10 +3156,6 @@ Notera: Då avgiften beräknas per byte kommer en avgift på 50 satoshi tas ut f
         <translation>Gallring: senaste plånbokssynkroniseringen ligger utanför gallrade data. Du måste använda -reindex (ladda ner hela blockkedjan igen om noden gallrats)</translation>
     </message>
     <message>
-        <source>Rescans are not possible in pruned mode. You will need to use -reindex which will download the whole blockchain again.</source>
-        <translation>Omskanningar kan inte göras i gallrat läge. Du måste använda -reindex vilket kommer ladda ner hela blockkedjan igen.</translation>
-    </message>
-    <message>
         <source>Error: A fatal internal error occurred, see debug.log for details</source>
         <translation>Fel: Ett kritiskt internt fel uppstod, se debug.log för detaljer</translation>
     </message>
@@ -3663,10 +3528,6 @@ Notera: Då avgiften beräknas per byte kommer en avgift på 50 satoshi tas ut f
     <message>
         <source>This is the transaction fee you may pay when fee estimates are not available.</source>
         <translation>Detta är transaktionsavgiften du kan komma att betala om avgiftsuppskattning inte är tillgänglig.</translation>
-    </message>
-    <message>
-        <source>This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit %s and cryptographic software written by Eric Young and UPnP software written by Thomas Bernard.</source>
-        <translation>Denna produkt innehåller mjukvara utvecklad av OpenSSL Project för användning i OpenSSL Toolkit %s och kryptografisk mjukvara utvecklad av Eric Young samt UPnP-mjukvara skriven av Thomas Bernard.</translation>
     </message>
     <message>
         <source>Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.</source>

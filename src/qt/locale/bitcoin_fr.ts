@@ -374,14 +374,6 @@
         <translation>Modifier la phrase de passe utilisée pour le chiffrement du porte-monnaie</translation>
     </message>
     <message>
-        <source>&amp;Debug window</source>
-        <translation>Fenêtre de &amp;débogage</translation>
-    </message>
-    <message>
-        <source>Open debugging and diagnostic console</source>
-        <translation>Ouvrir une console de débogage et de diagnostic</translation>
-    </message>
-    <message>
         <source>&amp;Verify message...</source>
         <translation>&amp;Vérifier un message…</translation>
     </message>
@@ -442,10 +434,6 @@
         <translation>Afficher la liste d’adresses de réception et d’étiquettes utilisées</translation>
     </message>
     <message>
-        <source>Open a qtum: URI or payment request</source>
-        <translation>Ouvrir une URI qtum: ou une demande de paiement</translation>
-    </message>
-    <message>
         <source>&amp;Command-line options</source>
         <translation>Options de ligne de &amp;commande</translation>
     </message>
@@ -494,12 +482,24 @@
         <translation>À jour</translation>
     </message>
     <message>
+        <source>Node window</source>
+        <translation>Fenêtre des nœuds</translation>
+    </message>
+    <message>
+        <source>Open node debugging and diagnostic console</source>
+        <translation>Ouvrir une console de débogage de noeuds et de diagnostic</translation>
+    </message>
+    <message>
         <source>&amp;Sending addresses</source>
         <translation>&amp;Adresses d’envoi</translation>
     </message>
     <message>
         <source>&amp;Receiving addresses</source>
         <translation>&amp;Adresses de réception</translation>
+    </message>
+    <message>
+        <source>Open a qtum: URI</source>
+        <translation>Ouvrir une URI qtum:</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -924,10 +924,6 @@
         <translation>version</translation>
     </message>
     <message>
-        <source>(%1-bit)</source>
-        <translation>(%1-bit)</translation>
-    </message>
-    <message>
         <source>About %1</source>
         <translation>À propos de %1</translation>
     </message>
@@ -1066,6 +1062,14 @@
         <translation>Cacher</translation>
     </message>
     <message>
+        <source>Esc</source>
+        <translation>Échap</translation>
+    </message>
+    <message>
+        <source>%1 is currently syncing.  It will download headers and blocks from peers and validate them until reaching the tip of the block chain.</source>
+        <translation>%1 est en cours de synchronisation. Il téléchargera les en-têtes et les blocs des pairs et les validera jusqu’à ce qu’il atteigne la fin de la chaîne de blocs.</translation>
+    </message>
+    <message>
         <source>Unknown. Syncing Headers (%1, %2%)...</source>
         <translation>Inconnu. Synchronisation des en-têtes (%1, %2)…</translation>
     </message>
@@ -1073,24 +1077,12 @@
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open URI</source>
-        <translation>Ouvrir une URI</translation>
-    </message>
-    <message>
-        <source>Open payment request from URI or file</source>
-        <translation>Ouvrir une demande de paiement à partir d’une URI ou d’un fichier</translation>
+        <source>Open qtum URI</source>
+        <translation>Ouvrir une URI qtum</translation>
     </message>
     <message>
         <source>URI:</source>
         <translation>URI :</translation>
-    </message>
-    <message>
-        <source>Select payment request file</source>
-        <translation>Choisir le fichier de demande de paiement</translation>
-    </message>
-    <message>
-        <source>Select payment request file to open</source>
-        <translation>Choisir le fichier de demande de paiement à ouvrir</translation>
     </message>
 </context>
 <context>
@@ -1481,16 +1473,8 @@
         <translation>'qtum://' n’est pas une URI valide. Utilisez plutôt 'qtum:'.</translation>
     </message>
     <message>
-        <source>You are using a BIP70 URL which will be unsupported in the future.</source>
-        <translation>Vous utilisez une URL BIP70 qui ne sera plus prise en charge à l’avenir </translation>
-    </message>
-    <message>
-        <source>Payment request fetch URL is invalid: %1</source>
-        <translation>L’URL de récupération de la demande de paiement est invalide : %1</translation>
-    </message>
-    <message>
-        <source>Cannot process payment request because BIP70 support was not compiled in.</source>
-        <translation>Il est impossible de traiter la demande de paiement, car la prise en charge de BIP70 n’a pas été compilée dans le logiciel.</translation>
+        <source>Cannot process payment request because BIP70 is not supported.</source>
+        <translation>Il est impossible de traiter la demande de paiement, car BIP70 n’est pas pris en charge.</translation>
     </message>
     <message>
         <source>Due to widespread security flaws in BIP70 it's strongly recommended that any merchant instructions to switch wallets be ignored.</source>
@@ -1511,66 +1495,6 @@
     <message>
         <source>Payment request file handling</source>
         <translation>Gestion des fichiers de demande de paiement</translation>
-    </message>
-    <message>
-        <source>Payment request file cannot be read! This can be caused by an invalid payment request file.</source>
-        <translation>Le fichier de demande de paiement ne peut pas être lu ! Cela peut être causé par un fichier de demande de paiement invalide.</translation>
-    </message>
-    <message>
-        <source>Payment request rejected</source>
-        <translation>Demande de paiement rejetée</translation>
-    </message>
-    <message>
-        <source>Payment request network doesn't match client network.</source>
-        <translation>Le réseau de la demande de paiement ne correspond pas au réseau du client.</translation>
-    </message>
-    <message>
-        <source>Payment request expired.</source>
-        <translation>La demande de paiement a expiré</translation>
-    </message>
-    <message>
-        <source>Payment request is not initialized.</source>
-        <translation>La demande de paiement n’est pas initialisée.</translation>
-    </message>
-    <message>
-        <source>Unverified payment requests to custom payment scripts are unsupported.</source>
-        <translation>Les demandes de paiements non vérifiées vers des scripts de paiement personnalisés ne sont pas prises en charge.</translation>
-    </message>
-    <message>
-        <source>Invalid payment request.</source>
-        <translation>Demande de paiement invalide.</translation>
-    </message>
-    <message>
-        <source>Requested payment amount of %1 is too small (considered dust).</source>
-        <translation>Le paiement demandé d’un montant de %1 est trop faible (considéré comme de la poussière).</translation>
-    </message>
-    <message>
-        <source>Refund from %1</source>
-        <translation>Remboursement de %1</translation>
-    </message>
-    <message>
-        <source>Payment request %1 is too large (%2 bytes, allowed %3 bytes).</source>
-        <translation>La demande de paiement %1 est trop grande (%2 octets, %3 octets permis).</translation>
-    </message>
-    <message>
-        <source>Error communicating with %1: %2</source>
-        <translation>Erreur de communication avec %1 : %2</translation>
-    </message>
-    <message>
-        <source>Payment request cannot be parsed!</source>
-        <translation>La demande de paiement ne peut pas être analysée !</translation>
-    </message>
-    <message>
-        <source>Bad response from server %1</source>
-        <translation>Mauvaise réponse du serveur %1</translation>
-    </message>
-    <message>
-        <source>Network request error</source>
-        <translation>Erreur de demande réseau</translation>
-    </message>
-    <message>
-        <source>Payment acknowledged</source>
-        <translation>Le paiement a été confirmé</translation>
     </message>
 </context>
 <context>
@@ -1749,10 +1673,6 @@
         <translation>&amp;Informations</translation>
     </message>
     <message>
-        <source>Debug window</source>
-        <translation>Fenêtre de débogage</translation>
-    </message>
-    <message>
         <source>General</source>
         <translation>Générales</translation>
     </message>
@@ -1869,8 +1789,20 @@
         <translation>Blocs synchronisés</translation>
     </message>
     <message>
+        <source>The mapped Autonomous System used for diversifying peer selection.</source>
+        <translation>Le système autonome mappé utilisé pour diversifier la sélection des pairs.</translation>
+    </message>
+    <message>
+        <source>Mapped AS</source>
+        <translation>SA mappé</translation>
+    </message>
+    <message>
         <source>User Agent</source>
         <translation>Agent utilisateur</translation>
+    </message>
+    <message>
+        <source>Node window</source>
+        <translation>Fenêtre des nœuds</translation>
     </message>
     <message>
         <source>Open the %1 debug log file from the current data directory. This can take a few seconds for large log files.</source>
@@ -2084,6 +2016,14 @@
         <translation>Un montant facultatif à demander. Ne rien saisir ou un zéro pour ne pas demander de montant précis.</translation>
     </message>
     <message>
+        <source>An optional label to associate with the new receiving address (used by you to identify an invoice).  It is also attached to the payment request.</source>
+        <translation>Une étiquette facultative à associer à la nouvelle adresse de réception (utilisée par vous pour identifier une facture). Elle est aussi jointe à la demande de paiement.</translation>
+    </message>
+    <message>
+        <source>An optional message that is attached to the payment request and may be displayed to the sender.</source>
+        <translation>Un message facultatif joint à la demande de paiement et qui peut être présenté à l’expéditeur.</translation>
+    </message>
+    <message>
         <source>&amp;Create new receiving address</source>
         <translation>&amp;Créer une nouvelle adresse de réception</translation>
     </message>
@@ -2293,10 +2233,6 @@
         <translation>Avertissement : L’estimation des frais n’est actuellement pas possible.</translation>
     </message>
     <message>
-        <source>collapse fee-settings</source>
-        <translation>réduire les paramètres des frais</translation>
-    </message>
-    <message>
         <source>Specify a custom fee per kB (1,000 bytes) of the transaction's virtual size.
 
 Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis per kB" for a transaction size of 500 bytes (half of 1 kB) would ultimately yield a fee of only 50 satoshis.</source>
@@ -2339,6 +2275,10 @@ Note : Les frais étant calculés par octet, des frais de « 100 satoshis par
     <message>
         <source>Dust:</source>
         <translation>Poussière :</translation>
+    </message>
+    <message>
+        <source>Hide transaction fee settings</source>
+        <translation>Cacher les paramètres de frais de transaction</translation>
     </message>
     <message>
         <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
@@ -2409,6 +2349,14 @@ Note : Les frais étant calculés par octet, des frais de « 100 satoshis par
         <translation>%1 (%2 blocs)</translation>
     </message>
     <message>
+        <source>Cr&amp;eate Unsigned</source>
+        <translation>Cr&amp;éer une transaction non signée</translation>
+    </message>
+    <message>
+        <source>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <translation>Crée une transaction Qtum partiellement signée (TBPS) à utiliser, par exemple, avec un porte-monnaie %1 hors ligne ou avec un porte-monnaie matériel compatible TBPS.</translation>
+    </message>
+    <message>
         <source> from wallet '%1'</source>
         <translation>du porte-monnaie '%1'</translation>
     </message>
@@ -2421,8 +2369,16 @@ Note : Les frais étant calculés par octet, des frais de « 100 satoshis par
         <translation>%1 à %2</translation>
     </message>
     <message>
+        <source>Do you want to draft this transaction?</source>
+        <translation>Souhaitez-vous créer une ébauche de cette transaction ?</translation>
+    </message>
+    <message>
         <source>Are you sure you want to send?</source>
         <translation>Voulez-vous vraiment envoyer ?</translation>
+    </message>
+    <message>
+        <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <translation>Veuillez réviser votre proposition de transaction. Une transaction Qtum partiellement signée (TBPS) sera produite, que vous pourrez copier puis signer avec, par exemple, un porte-monnaie %1 hors ligne ou avec un porte-monnaie matériel compatible TBPS.</translation>
     </message>
     <message>
         <source>or</source>
@@ -2457,6 +2413,26 @@ Note : Les frais étant calculés par octet, des frais de « 100 satoshis par
         <translation>Confirmer l’envoi de pièces</translation>
     </message>
     <message>
+        <source>Confirm transaction proposal</source>
+        <translation>Confirmer la proposition de transaction</translation>
+    </message>
+    <message>
+        <source>Copy PSBT to clipboard</source>
+        <translation>Copier la TBPS dans le presse-papiers</translation>
+    </message>
+    <message>
+        <source>Send</source>
+        <translation>Envoyer</translation>
+    </message>
+    <message>
+        <source>PSBT copied</source>
+        <translation>La TBPS a été copiée</translation>
+    </message>
+    <message>
+        <source>Watch-only balance:</source>
+        <translation>Solde juste-regarder :</translation>
+    </message>
+    <message>
         <source>The recipient address is not valid. Please recheck.</source>
         <translation>L’adresse du destinataire est invalide. Veuillez la revérifier.</translation>
     </message>
@@ -2479,10 +2455,6 @@ Note : Les frais étant calculés par octet, des frais de « 100 satoshis par
     <message>
         <source>Transaction creation failed!</source>
         <translation>Échec de création de la transaction !</translation>
-    </message>
-    <message>
-        <source>The transaction was rejected with the following reason: %1</source>
-        <translation>La transaction a été rejetée pour la raison suivante : %1</translation>
     </message>
     <message>
         <source>A fee higher than %1 is considered an absurdly high fee.</source>
@@ -2536,10 +2508,6 @@ Note : Les frais étant calculés par octet, des frais de « 100 satoshis par
         <translation>Choisir une adresse déjà utilisée</translation>
     </message>
     <message>
-        <source>This is a normal payment.</source>
-        <translation>Ceci est un paiement normal.</translation>
-    </message>
-    <message>
         <source>The Qtum address to send the payment to</source>
         <translation>L’adresse Qtum à laquelle envoyer le paiement</translation>
     </message>
@@ -2558,6 +2526,10 @@ Note : Les frais étant calculés par octet, des frais de « 100 satoshis par
     <message>
         <source>Remove this entry</source>
         <translation>Retirer cette entrée</translation>
+    </message>
+    <message>
+        <source>The amount to send in the selected unit</source>
+        <translation>Le montant à envoyer dans l’unité sélectionnée</translation>
     </message>
     <message>
         <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
@@ -2598,17 +2570,6 @@ Note : Les frais étant calculés par octet, des frais de « 100 satoshis par
     <message>
         <source>Memo:</source>
         <translation>Mémo :</translation>
-    </message>
-    <message>
-        <source>Enter a label for this address to add it to your address book</source>
-        <translation>Saisir une étiquette pour cette adresse afin de l’ajouter à votre carnet d’adresses</translation>
-    </message>
-</context>
-<context>
-    <name>SendConfirmationDialog</name>
-    <message>
-        <source>Yes</source>
-        <translation>Oui</translation>
     </message>
 </context>
 <context>
@@ -2697,6 +2658,14 @@ Note : Les frais étant calculés par octet, des frais de « 100 satoshis par
         <translation>L’adresse Qtum avec laquelle le message a été signé</translation>
     </message>
     <message>
+        <source>The signed message to verify</source>
+        <translation>Le message signé à vérifier</translation>
+    </message>
+    <message>
+        <source>The signature given when the message was signed</source>
+        <translation>La signature donnée quand le message a été signé</translation>
+    </message>
+    <message>
         <source>Verify the message to ensure it was signed with the specified Qtum address</source>
         <translation>Vérifier le message pour s’assurer qu’il a été signé avec l’adresse Qtum indiquée</translation>
     </message>
@@ -2727,6 +2696,10 @@ Note : Les frais étant calculés par octet, des frais de « 100 satoshis par
     <message>
         <source>Wallet unlock was cancelled.</source>
         <translation>Le déverrouillage du porte-monnaie a été annulé.</translation>
+    </message>
+    <message>
+        <source>No error</source>
+        <translation>Aucune erreur</translation>
     </message>
     <message>
         <source>Private key for the entered address is not available.</source>
@@ -3264,6 +3237,10 @@ Note : Les frais étant calculés par octet, des frais de « 100 satoshis par
         <translation>Souhaitez-vous augmenter les frais ?</translation>
     </message>
     <message>
+        <source>Do you want to draft a transaction with fee increase?</source>
+        <translation>Souhaitez-vous créer une ébauche de transaction avec une augmentation des frais ?</translation>
+    </message>
+    <message>
         <source>Current fee:</source>
         <translation>Frais actuels :</translation>
     </message>
@@ -3278,6 +3255,14 @@ Note : Les frais étant calculés par octet, des frais de « 100 satoshis par
     <message>
         <source>Confirm fee bump</source>
         <translation>Confirmer l’augmentation des frais</translation>
+    </message>
+    <message>
+        <source>Can't draft transaction.</source>
+        <translation>Impossible de créer une ébauche de la transaction.</translation>
+    </message>
+    <message>
+        <source>PSBT copied</source>
+        <translation>La TBPS a été copiée</translation>
     </message>
     <message>
         <source>Can't sign transaction.</source>
@@ -3344,10 +3329,6 @@ Note : Les frais étant calculés par octet, des frais de « 100 satoshis par
     <message>
         <source>Prune: last wallet synchronisation goes beyond pruned data. You need to -reindex (download the whole blockchain again in case of pruned node)</source>
         <translation>Élagage : la dernière synchronisation de porte-monnaie va par-delà les données élaguées.  Vous devez -reindex (réindexer, télécharger de nouveau toute la chaîne de blocs en cas de nœud élagué)</translation>
-    </message>
-    <message>
-        <source>Rescans are not possible in pruned mode. You will need to use -reindex which will download the whole blockchain again.</source>
-        <translation>Les réanalyses sont impossibles en mode élagué. Vous devrez utiliser -reindex, ce qui téléchargera de nouveau la chaîne de blocs en entier.</translation>
     </message>
     <message>
         <source>Error: A fatal internal error occurred, see debug.log for details</source>
@@ -3448,6 +3429,14 @@ Note : Les frais étant calculés par octet, des frais de « 100 satoshis par
     <message>
         <source>Corrupted block database detected</source>
         <translation>Une base de données de blocs corrompue a été détectée</translation>
+    </message>
+    <message>
+        <source>Could not find asmap file %s</source>
+        <translation>Le fichier asmap %s est introuvable</translation>
+    </message>
+    <message>
+        <source>Could not parse asmap file %s</source>
+        <translation>Impossible d’analyser le fichier asmap %s</translation>
     </message>
     <message>
         <source>Do you want to rebuild the block database now?</source>
@@ -3738,10 +3727,6 @@ Note : Les frais étant calculés par octet, des frais de « 100 satoshis par
     <message>
         <source>This is the transaction fee you may pay when fee estimates are not available.</source>
         <translation>Il s’agit des frais de transaction que vous pourriez payer si aucune estimation de frais n’est proposée.</translation>
-    </message>
-    <message>
-        <source>This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit %s and cryptographic software written by Eric Young and UPnP software written by Thomas Bernard.</source>
-        <translation>Ce produit comprend des programmes développés par le Projet OpenSSL pour être utilisés dans la boîte à outils OpenSSL %s, et un programme cryptographique écrit par Eric Young, ainsi qu’un programme UPnP écrit par Thomas Bernard.</translation>
     </message>
     <message>
         <source>Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.</source>

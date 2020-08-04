@@ -249,7 +249,7 @@ void AddDelegationPage::on_addDelegationClicked()
         questionString.append(tr("<b>%1</b>?")
                               .arg(ui->lineEditStakerAddress->text()));
 
-        SendConfirmationDialog confirmationDialog(tr("Confirm address delegation to staker."), questionString, "", "", SEND_CONFIRM_DELAY, this);
+        SendConfirmationDialog confirmationDialog(tr("Confirm address delegation to staker."), questionString, "", "", SEND_CONFIRM_DELAY, tr("Send"), this);
         confirmationDialog.exec();
 
         QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();

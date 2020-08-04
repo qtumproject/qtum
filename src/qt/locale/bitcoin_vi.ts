@@ -338,14 +338,6 @@
         <translation>Thay đổi cụm mật khẩu cho ví đã mã hóa</translation>
     </message>
     <message>
-        <source>&amp;Debug window</source>
-        <translation>&amp;Debug window</translation>
-    </message>
-    <message>
-        <source>Open debugging and diagnostic console</source>
-        <translation>Mở trình gỡ lỗi và giao diện điều chỉnh chẩn đoán</translation>
-    </message>
-    <message>
         <source>&amp;Verify message...</source>
         <translation>&amp;Lời nhắn xác nhận...</translation>
     </message>
@@ -404,10 +396,6 @@
     <message>
         <source>Show the list of used receiving addresses and labels</source>
         <translation>Hiển thị danh sách các địa chỉ và nhãn đã dùng để nhận</translation>
-    </message>
-    <message>
-        <source>Open a qtum: URI or payment request</source>
-        <translation>Mở một qtum: URI hoặc yêu cầu thanh toán</translation>
     </message>
     <message>
         <source>&amp;Command-line options</source>
@@ -840,10 +828,6 @@
         <translation>phiên bản</translation>
     </message>
     <message>
-        <source>(%1-bit)</source>
-        <translation>(%1-bit)</translation>
-    </message>
-    <message>
         <source>About %1</source>
         <translation>About %1</translation>
     </message>
@@ -977,24 +961,8 @@
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open URI</source>
-        <translation>Mở URI</translation>
-    </message>
-    <message>
-        <source>Open payment request from URI or file</source>
-        <translation>Mở payment request từ URI hoặc file</translation>
-    </message>
-    <message>
         <source>URI:</source>
         <translation>URI:</translation>
-    </message>
-    <message>
-        <source>Select payment request file</source>
-        <translation>Chọn payment request file</translation>
-    </message>
-    <message>
-        <source>Select payment request file to open</source>
-        <translation>Chọn file payment request để mở</translation>
     </message>
 </context>
 <context>
@@ -1377,18 +1345,6 @@
         <translation>'qtum://' không khả dụng URI. Dùng thay vì 'qtum:' .</translation>
     </message>
     <message>
-        <source>You are using a BIP70 URL which will be unsupported in the future.</source>
-        <translation>Bạn đang dùng một URL BIP70 cái này không hổ trợ trong tương lai.</translation>
-    </message>
-    <message>
-        <source>Payment request fetch URL is invalid: %1</source>
-        <translation>Payment request dẫn đến URL thì invalid: %1</translation>
-    </message>
-    <message>
-        <source>Cannot process payment request because BIP70 support was not compiled in.</source>
-        <translation>Không thể tiến hành yêu cầu thanh toán bởi vì sự trợ giúp BIP70 không có biên dịch trong này.</translation>
-    </message>
-    <message>
         <source>Invalid payment address %1</source>
         <translation>Invalid payment address %1</translation>
     </message>
@@ -1399,66 +1355,6 @@
     <message>
         <source>Payment request file handling</source>
         <translation>Payment request file đang xử lý</translation>
-    </message>
-    <message>
-        <source>Payment request file cannot be read! This can be caused by an invalid payment request file.</source>
-        <translation>Payment request file không thể đọc! Đây có thể gây ra bởi một invalid payment request file.</translation>
-    </message>
-    <message>
-        <source>Payment request rejected</source>
-        <translation>Payment request bị từ chối</translation>
-    </message>
-    <message>
-        <source>Payment request network doesn't match client network.</source>
-        <translation>Payment request network chưa đúng với client network.</translation>
-    </message>
-    <message>
-        <source>Payment request expired.</source>
-        <translation>Payment request hết hạn.</translation>
-    </message>
-    <message>
-        <source>Payment request is not initialized.</source>
-        <translation>Payment request đã không được khởi tạo.</translation>
-    </message>
-    <message>
-        <source>Unverified payment requests to custom payment scripts are unsupported.</source>
-        <translation>Chưa xác nhận payment request đến custom payment scripts không được hỗ trợ.</translation>
-    </message>
-    <message>
-        <source>Invalid payment request.</source>
-        <translation>Invalid payment request.</translation>
-    </message>
-    <message>
-        <source>Requested payment amount of %1 is too small (considered dust).</source>
-        <translation>Yêu cầu payment với lượng của %1 thì quá nhỏ (xem như dust).</translation>
-    </message>
-    <message>
-        <source>Refund from %1</source>
-        <translation>Refund từ %1</translation>
-    </message>
-    <message>
-        <source>Payment request %1 is too large (%2 bytes, allowed %3 bytes).</source>
-        <translation>Payment request %1 thì quá lớn (%2 bytes, cho phép %3 bytes).</translation>
-    </message>
-    <message>
-        <source>Error communicating with %1: %2</source>
-        <translation>Error giao thức với %1: %2</translation>
-    </message>
-    <message>
-        <source>Payment request cannot be parsed!</source>
-        <translation>Payment request không thể giải!</translation>
-    </message>
-    <message>
-        <source>Bad response from server %1</source>
-        <translation>Phản hồi xấu từ server %1</translation>
-    </message>
-    <message>
-        <source>Network request error</source>
-        <translation>Mạng request error</translation>
-    </message>
-    <message>
-        <source>Payment acknowledged</source>
-        <translation>Payment được thừa nhận</translation>
     </message>
 </context>
 <context>
@@ -1635,10 +1531,6 @@
     <message>
         <source>&amp;Information</source>
         <translation>&amp;Thông tin</translation>
-    </message>
-    <message>
-        <source>Debug window</source>
-        <translation>Debug window</translation>
     </message>
     <message>
         <source>General</source>
@@ -2173,10 +2065,6 @@
         <translation>Warning: Fee ước tính hiện tại không khả thi.</translation>
     </message>
     <message>
-        <source>collapse fee-settings</source>
-        <translation>gộp fee-settings</translation>
-    </message>
-    <message>
         <source>Specify a custom fee per kB (1,000 bytes) of the transaction's virtual size.
 
 Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis per kB" for a transaction size of 500 bytes (half of 1 kB) would ultimately yield a fee of only 50 satoshis.</source>
@@ -2361,10 +2249,6 @@ Lưu ý: Vì phí được tính trên cơ sở mỗi byte, nên phí "100 satos
         <translation>Transaction khởi tạo thất bại!</translation>
     </message>
     <message>
-        <source>The transaction was rejected with the following reason: %1</source>
-        <translation>The transaction đã bị từ chối với lý do sau: %1</translation>
-    </message>
-    <message>
         <source>A fee higher than %1 is considered an absurdly high fee.</source>
         <translation>Một fee lớn hơn %1 được coi là ngớ ngẩn cao fee.</translation>
     </message>
@@ -2414,10 +2298,6 @@ Lưu ý: Vì phí được tính trên cơ sở mỗi byte, nên phí "100 satos
     <message>
         <source>Choose previously used address</source>
         <translation>Chọn mới thì address</translation>
-    </message>
-    <message>
-        <source>This is a normal payment.</source>
-        <translation>Đây là một thông thường payment.</translation>
     </message>
     <message>
         <source>The Qtum address to send the payment to</source>
@@ -2478,17 +2358,6 @@ Lưu ý: Vì phí được tính trên cơ sở mỗi byte, nên phí "100 satos
     <message>
         <source>Memo:</source>
         <translation>Bản ghi nhớ:</translation>
-    </message>
-    <message>
-        <source>Enter a label for this address to add it to your address book</source>
-        <translation>Nhập một label cho address này để thêm vào address book</translation>
-    </message>
-</context>
-<context>
-    <name>SendConfirmationDialog</name>
-    <message>
-        <source>Yes</source>
-        <translation>Yes</translation>
     </message>
 </context>
 <context>
@@ -3218,10 +3087,6 @@ Lưu ý: Vì phí được tính trên cơ sở mỗi byte, nên phí "100 satos
         <translation>Prune: last wallet synchronisation goes beyond pruned data. You need to -reindex (download the whole blockchain again in case of pruned node)</translation>
     </message>
     <message>
-        <source>Rescans are not possible in pruned mode. You will need to use -reindex which will download the whole blockchain again.</source>
-        <translation>Rescans are not possible in pruned mode. You will need to use -reindex which will download the whole blockchain again.</translation>
-    </message>
-    <message>
         <source>Error: A fatal internal error occurred, see debug.log for details</source>
         <translation>Error: A fatal internal error occurred, see debug.log for details</translation>
     </message>
@@ -3602,10 +3467,6 @@ Lưu ý: Vì phí được tính trên cơ sở mỗi byte, nên phí "100 satos
     <message>
         <source>This is the transaction fee you may pay when fee estimates are not available.</source>
         <translation>This is the transaction fee you may pay when fee estimates are not available.</translation>
-    </message>
-    <message>
-        <source>This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit %s and cryptographic software written by Eric Young and UPnP software written by Thomas Bernard.</source>
-        <translation>This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit %s and cryptographic software written by Eric Young and UPnP software written by Thomas Bernard.</translation>
     </message>
     <message>
         <source>Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.</source>

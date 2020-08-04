@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>ModalOverlay</class>
- <widget class="ModalOverlay" name="ModalOverlay">
+ <widget class="QWidget" name="ModalOverlay">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -543,6 +543,9 @@ Please make sure to keep an updated antivirus and operating system. We can not r
               <property name="text">
                <string>Maybe later</string>
               </property>
+              <property name="shortcut">
+               <string>Esc</string>
+              </property>
               <property name="default">
                <bool>true</bool>
               </property>
@@ -566,14 +569,6 @@ Please make sure to keep an updated antivirus and operating system. We can not r
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>ModalOverlay</class>
-   <extends>QWidget</extends>
-   <header>qt/modaloverlay.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

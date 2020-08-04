@@ -336,7 +336,7 @@ void ParsePrevouts(const UniValue& prevTxsUnival, FillableSigningProvider* keyst
                 keystore->AddCScript(script);
                 // Automatically also add the P2WSH wrapped version of the script (to deal with P2SH-P2WSH).
                 // This is done for redeemScript only for compatibility, it is encouraged to use the explicit witnessScript field instead.
-                CScript witness_output_script{GetScriptForWitness(script)};
+                CScript witness_output_script{GetScriptForDestination(WitnessV0ScriptHash(script))};
                 keystore->AddCScript(witness_output_script);
 
                 if (!ws.isNull() && !rs.isNull()) {
@@ -388,21 +388,10 @@ void ParsePrevouts(const UniValue& prevTxsUnival, FillableSigningProvider* keyst
     }
 }
 
-UniValue SignTransaction(CMutableTransaction& mtx, const SigningProvider* keystore, const std::map<COutPoint, Coin>& coins, const UniValue& hashType)
+void CheckSenderSignatures(CMutableTransaction& mtx)
 {
-    int nHashType = ParseSighashString(hashType);
-
-    bool fHashSingle = ((nHashType & ~SIGHASH_ANYONECANPAY) == SIGHASH_SINGLE);
-
-    // Script verification errors
-    UniValue vErrors(UniValue::VARR);
-
-    // Use CTransaction for the constant parts of the
-    // transaction to avoid rehashing.
-    const CTransaction txConst(mtx);
-
     // Check the sender signatures are inside the outputs, before signing the inputs
-    if(txConst.HasOpSender())
+    if(mtx.HasOpSender())
     {
         int nOut = 0;
         for (const auto& output : mtx.vout)
@@ -417,54 +406,39 @@ UniValue SignTransaction(CMutableTransaction& mtx, const SigningProvider* keysto
             nOut++;
         }
     }
+}
 
-    // Sign what we can:
-    for (unsigned int i = 0; i < mtx.vin.size(); i++) {
-        CTxIn& txin = mtx.vin[i];
-        auto coin = coins.find(txin.prevout);
-        if (coin == coins.end() || coin->second.IsSpent()) {
-            TxInErrorToJSON(txin, vErrors, "Input not found or already spent");
-            continue;
+void SignTransaction(CMutableTransaction& mtx, const SigningProvider* keystore, const std::map<COutPoint, Coin>& coins, const UniValue& hashType, UniValue& result)
+{
+    int nHashType = ParseSighashString(hashType);
+
+    // Script verification errors
+    std::map<int, std::string> input_errors;
+
+    bool complete = SignTransaction(mtx, keystore, coins, nHashType, input_errors);
+    SignTransactionResultToJSON(mtx, complete, coins, input_errors, result);
+}
+
+void SignTransactionResultToJSON(CMutableTransaction& mtx, bool complete, const std::map<COutPoint, Coin>& coins, std::map<int, std::string>& input_errors, UniValue& result)
+{
+    // Make errors UniValue
+    UniValue vErrors(UniValue::VARR);
+    for (const auto& err_pair : input_errors) {
+        if (err_pair.second == "Missing amount") {
+            // This particular error needs to be an exception for some reason
+            throw JSONRPCError(RPC_TYPE_ERROR, strprintf("Missing amount for %s", coins.at(mtx.vin.at(err_pair.first).prevout).out.ToString()));
         }
-        const CScript& prevPubKey = coin->second.out.scriptPubKey;
-        const CAmount& amount = coin->second.out.nValue;
-
-        SignatureData sigdata = DataFromTransaction(mtx, i, coin->second.out);
-        // Only sign SIGHASH_SINGLE if there's a corresponding output:
-        if (!fHashSingle || (i < mtx.vout.size())) {
-            ProduceSignature(*keystore, MutableTransactionSignatureCreator(&mtx, i, amount, nHashType), prevPubKey, sigdata);
-        }
-
-        UpdateInput(txin, sigdata);
-
-        // amount must be specified for valid segwit signature
-        if (amount == MAX_MONEY && !txin.scriptWitness.IsNull()) {
-            throw JSONRPCError(RPC_TYPE_ERROR, strprintf("Missing amount for %s", coin->second.out.ToString()));
-        }
-
-        ScriptError serror = SCRIPT_ERR_OK;
-        if (!VerifyScript(txin.scriptSig, prevPubKey, &txin.scriptWitness, STANDARD_SCRIPT_VERIFY_FLAGS, TransactionSignatureChecker(&txConst, i, amount), &serror)) {
-            if (serror == SCRIPT_ERR_INVALID_STACK_OPERATION) {
-                // Unable to sign input and verification failed (possible attempt to partially sign).
-                TxInErrorToJSON(txin, vErrors, "Unable to sign input, invalid stack size (possibly missing key)");
-            } else if (serror == SCRIPT_ERR_SIG_NULLFAIL) {
-                // Verification failed (possibly due to insufficient signatures).
-                TxInErrorToJSON(txin, vErrors, "CHECK(MULTI)SIG failing with non-zero signature (possibly need more signatures)");
-            } else {
-                TxInErrorToJSON(txin, vErrors, ScriptErrorString(serror));
-            }
-        }
+        TxInErrorToJSON(mtx.vin.at(err_pair.first), vErrors, err_pair.second);
     }
-    bool fComplete = vErrors.empty();
 
-    UniValue result(UniValue::VOBJ);
     result.pushKV("hex", EncodeHexTx(CTransaction(mtx)));
-    result.pushKV("complete", fComplete);
+    result.pushKV("complete", complete);
     if (!vErrors.empty()) {
+        if (result.exists("errors")) {
+            vErrors.push_backV(result["errors"].getValues());
+        }
         result.pushKV("errors", vErrors);
     }
-
-    return result;
 }
 
 static void TxOutErrorToJSON(const CTxOut& output, UniValue& vErrorsRet, const std::string& strMessage)
@@ -514,6 +488,7 @@ UniValue SignTransactionSender(CMutableTransaction& mtx, FillableSigningProvider
         }
         nOut++;
     }
+
     bool fComplete = vErrors.empty();
 
     UniValue result(UniValue::VOBJ);

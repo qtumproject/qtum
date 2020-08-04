@@ -374,14 +374,6 @@
         <translation>Change the passphrase used for wallet encryption</translation>
     </message>
     <message>
-        <source>&amp;Debug window</source>
-        <translation>&amp;Debug window</translation>
-    </message>
-    <message>
-        <source>Open debugging and diagnostic console</source>
-        <translation>Open debugging and diagnostic console</translation>
-    </message>
-    <message>
         <source>&amp;Verify message...</source>
         <translation>&amp;Verify message ...</translation>
     </message>
@@ -442,10 +434,6 @@
         <translation>Show the list of used receiving addresses and labels</translation>
     </message>
     <message>
-        <source>Open a qtum: URI or payment request</source>
-        <translation>Open a qtum: URI or payment request</translation>
-    </message>
-    <message>
         <source>&amp;Command-line options</source>
         <translation>&amp;Command-line options</translation>
     </message>
@@ -494,12 +482,24 @@
         <translation>Up to date</translation>
     </message>
     <message>
+        <source>Node window</source>
+        <translation>Node window</translation>
+    </message>
+    <message>
+        <source>Open node debugging and diagnostic console</source>
+        <translation>Open node debugging and diagnostic console</translation>
+    </message>
+    <message>
         <source>&amp;Sending addresses</source>
         <translation>&amp;Sending addresses</translation>
     </message>
     <message>
         <source>&amp;Receiving addresses</source>
         <translation>&amp;Receiving addresses</translation>
+    </message>
+    <message>
+        <source>Open a qtum: URI</source>
+        <translation>Open a Qtum: URI</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -924,10 +924,6 @@
         <translation>version</translation>
     </message>
     <message>
-        <source>(%1-bit)</source>
-        <translation>(%1-bit)</translation>
-    </message>
-    <message>
         <source>About %1</source>
         <translation>About %1</translation>
     </message>
@@ -1066,6 +1062,14 @@
         <translation>Hide</translation>
     </message>
     <message>
+        <source>Esc</source>
+        <translation>Esc</translation>
+    </message>
+    <message>
+        <source>%1 is currently syncing.  It will download headers and blocks from peers and validate them until reaching the tip of the block chain.</source>
+        <translation>%1 is currently syncing.  It will download headers and blocks from peers and validate them until reaching the tip of the block chain.</translation>
+    </message>
+    <message>
         <source>Unknown. Syncing Headers (%1, %2%)...</source>
         <translation>Unknown. Syncing Headers (%1, %2%) ...</translation>
     </message>
@@ -1073,24 +1077,12 @@
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open URI</source>
-        <translation>Open URI</translation>
-    </message>
-    <message>
-        <source>Open payment request from URI or file</source>
-        <translation>Open payment request from URI or file</translation>
+        <source>Open qtum URI</source>
+        <translation>Open Qtum URI</translation>
     </message>
     <message>
         <source>URI:</source>
         <translation>URI:</translation>
-    </message>
-    <message>
-        <source>Select payment request file</source>
-        <translation>Select payment request file</translation>
-    </message>
-    <message>
-        <source>Select payment request file to open</source>
-        <translation>Select payment request file to open</translation>
     </message>
 </context>
 <context>
@@ -1481,16 +1473,8 @@
         <translation>'qtum://' is not a valid URI. Use 'qtum:' instead.</translation>
     </message>
     <message>
-        <source>You are using a BIP70 URL which will be unsupported in the future.</source>
-        <translation>You are using a BIP70 URL which will be unsupported in the future.</translation>
-    </message>
-    <message>
-        <source>Payment request fetch URL is invalid: %1</source>
-        <translation>Payment request fetch URL is invalid: %1</translation>
-    </message>
-    <message>
-        <source>Cannot process payment request because BIP70 support was not compiled in.</source>
-        <translation>Cannot process payment request because BIP70 support was not compiled in.</translation>
+        <source>Cannot process payment request because BIP70 is not supported.</source>
+        <translation>Cannot process payment request because BIP70 is not supported.</translation>
     </message>
     <message>
         <source>Due to widespread security flaws in BIP70 it's strongly recommended that any merchant instructions to switch wallets be ignored.</source>
@@ -1511,66 +1495,6 @@
     <message>
         <source>Payment request file handling</source>
         <translation>Payment request file handling</translation>
-    </message>
-    <message>
-        <source>Payment request file cannot be read! This can be caused by an invalid payment request file.</source>
-        <translation>Payment request file cannot be read! This can be caused by an invalid payment request file.</translation>
-    </message>
-    <message>
-        <source>Payment request rejected</source>
-        <translation>Payment request rejected.</translation>
-    </message>
-    <message>
-        <source>Payment request network doesn't match client network.</source>
-        <translation>Payment request network doesn't match client network.</translation>
-    </message>
-    <message>
-        <source>Payment request expired.</source>
-        <translation>Payment request expired.</translation>
-    </message>
-    <message>
-        <source>Payment request is not initialized.</source>
-        <translation>Payment request is not initialised.</translation>
-    </message>
-    <message>
-        <source>Unverified payment requests to custom payment scripts are unsupported.</source>
-        <translation>Unverified payment requests to custom payment scripts are unsupported.</translation>
-    </message>
-    <message>
-        <source>Invalid payment request.</source>
-        <translation>Invalid payment request.</translation>
-    </message>
-    <message>
-        <source>Requested payment amount of %1 is too small (considered dust).</source>
-        <translation>Requested payment amount of %1 is too small (considered dust).</translation>
-    </message>
-    <message>
-        <source>Refund from %1</source>
-        <translation>Refund from %1</translation>
-    </message>
-    <message>
-        <source>Payment request %1 is too large (%2 bytes, allowed %3 bytes).</source>
-        <translation>Payment request %1 is too large (%2 bytes, allowed %3 bytes).</translation>
-    </message>
-    <message>
-        <source>Error communicating with %1: %2</source>
-        <translation>Error communicating with %1: %2</translation>
-    </message>
-    <message>
-        <source>Payment request cannot be parsed!</source>
-        <translation>Payment request cannot be parsed!</translation>
-    </message>
-    <message>
-        <source>Bad response from server %1</source>
-        <translation>Bad response from server %1</translation>
-    </message>
-    <message>
-        <source>Network request error</source>
-        <translation>Network request error</translation>
-    </message>
-    <message>
-        <source>Payment acknowledged</source>
-        <translation>Payment acknowledged</translation>
     </message>
 </context>
 <context>
@@ -1749,10 +1673,6 @@
         <translation>&amp;Information</translation>
     </message>
     <message>
-        <source>Debug window</source>
-        <translation>Debug window</translation>
-    </message>
-    <message>
         <source>General</source>
         <translation>General</translation>
     </message>
@@ -1871,6 +1791,10 @@
     <message>
         <source>User Agent</source>
         <translation>User Agent</translation>
+    </message>
+    <message>
+        <source>Node window</source>
+        <translation>Node window</translation>
     </message>
     <message>
         <source>Open the %1 debug log file from the current data directory. This can take a few seconds for large log files.</source>
@@ -2084,6 +2008,14 @@
         <translation>An optional amount to request. Leave this empty or zero to not request a specific amount.</translation>
     </message>
     <message>
+        <source>An optional label to associate with the new receiving address (used by you to identify an invoice).  It is also attached to the payment request.</source>
+        <translation>An optional label to associate with the new receiving address (used by you to identify an invoice).  It is also attached to the payment request.</translation>
+    </message>
+    <message>
+        <source>An optional message that is attached to the payment request and may be displayed to the sender.</source>
+        <translation>An optional message that is attached to the payment request and may be displayed to the sender.</translation>
+    </message>
+    <message>
         <source>&amp;Create new receiving address</source>
         <translation>&amp;Create new receiving address</translation>
     </message>
@@ -2293,10 +2225,6 @@
         <translation>Warning: Fee estimation is currently not possible.</translation>
     </message>
     <message>
-        <source>collapse fee-settings</source>
-        <translation>collapse fee-settings</translation>
-    </message>
-    <message>
         <source>Specify a custom fee per kB (1,000 bytes) of the transaction's virtual size.
 
 Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis per kB" for a transaction size of 500 bytes (half of 1 kB) would ultimately yield a fee of only 50 satoshis.</source>
@@ -2339,6 +2267,10 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     <message>
         <source>Dust:</source>
         <translation>Dust:</translation>
+    </message>
+    <message>
+        <source>Hide transaction fee settings</source>
+        <translation>Hide transaction fee settings</translation>
     </message>
     <message>
         <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
@@ -2409,6 +2341,14 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>%1 (%2 blocks)</translation>
     </message>
     <message>
+        <source>Cr&amp;eate Unsigned</source>
+        <translation>Cr&amp;eate Unsigned</translation>
+    </message>
+    <message>
+        <source>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <translation>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</translation>
+    </message>
+    <message>
         <source> from wallet '%1'</source>
         <translation> from wallet '%1'</translation>
     </message>
@@ -2421,8 +2361,16 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>%1 to %2</translation>
     </message>
     <message>
+        <source>Do you want to draft this transaction?</source>
+        <translation>Do you want to draft this transaction?</translation>
+    </message>
+    <message>
         <source>Are you sure you want to send?</source>
         <translation>Are you sure you want to send?</translation>
+    </message>
+    <message>
+        <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <translation>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</translation>
     </message>
     <message>
         <source>or</source>
@@ -2457,6 +2405,26 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>Confirm send coins</translation>
     </message>
     <message>
+        <source>Confirm transaction proposal</source>
+        <translation>Confirm transaction proposal</translation>
+    </message>
+    <message>
+        <source>Copy PSBT to clipboard</source>
+        <translation>Copy PSBT to clipboard</translation>
+    </message>
+    <message>
+        <source>Send</source>
+        <translation>Send</translation>
+    </message>
+    <message>
+        <source>PSBT copied</source>
+        <translation>PSBT copied</translation>
+    </message>
+    <message>
+        <source>Watch-only balance:</source>
+        <translation>Watch-only balance:</translation>
+    </message>
+    <message>
         <source>The recipient address is not valid. Please recheck.</source>
         <translation>The recipient address is not valid. Please recheck.</translation>
     </message>
@@ -2479,10 +2447,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     <message>
         <source>Transaction creation failed!</source>
         <translation>Transaction creation failed!</translation>
-    </message>
-    <message>
-        <source>The transaction was rejected with the following reason: %1</source>
-        <translation>The transaction was rejected with the following reason: %1</translation>
     </message>
     <message>
         <source>A fee higher than %1 is considered an absurdly high fee.</source>
@@ -2536,10 +2500,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>Choose previously used address</translation>
     </message>
     <message>
-        <source>This is a normal payment.</source>
-        <translation>This is a normal payment.</translation>
-    </message>
-    <message>
         <source>The Qtum address to send the payment to</source>
         <translation>The Qtum address to send the payment to</translation>
     </message>
@@ -2558,6 +2518,10 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     <message>
         <source>Remove this entry</source>
         <translation>Remove this entry</translation>
+    </message>
+    <message>
+        <source>The amount to send in the selected unit</source>
+        <translation>The amount to send in the selected unit</translation>
     </message>
     <message>
         <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
@@ -2598,17 +2562,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     <message>
         <source>Memo:</source>
         <translation>Memo:</translation>
-    </message>
-    <message>
-        <source>Enter a label for this address to add it to your address book</source>
-        <translation>Enter a label for this address to add it to your address book</translation>
-    </message>
-</context>
-<context>
-    <name>SendConfirmationDialog</name>
-    <message>
-        <source>Yes</source>
-        <translation>Yes</translation>
     </message>
 </context>
 <context>
@@ -2697,6 +2650,14 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>The Qtum address the message was signed with</translation>
     </message>
     <message>
+        <source>The signed message to verify</source>
+        <translation>The signed message to verify</translation>
+    </message>
+    <message>
+        <source>The signature given when the message was signed</source>
+        <translation>The signature given when the message was signed</translation>
+    </message>
+    <message>
         <source>Verify the message to ensure it was signed with the specified Qtum address</source>
         <translation>Verify the message to ensure it was signed with the specified Qtum address</translation>
     </message>
@@ -2727,6 +2688,10 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     <message>
         <source>Wallet unlock was cancelled.</source>
         <translation>Wallet unlock was cancelled.</translation>
+    </message>
+    <message>
+        <source>No error</source>
+        <translation>No error</translation>
     </message>
     <message>
         <source>Private key for the entered address is not available.</source>
@@ -3264,6 +3229,10 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>Do you want to increase the fee?</translation>
     </message>
     <message>
+        <source>Do you want to draft a transaction with fee increase?</source>
+        <translation>Do you want to draft a transaction with fee increase?</translation>
+    </message>
+    <message>
         <source>Current fee:</source>
         <translation>Current fee:</translation>
     </message>
@@ -3278,6 +3247,14 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     <message>
         <source>Confirm fee bump</source>
         <translation>Confirm fee bump</translation>
+    </message>
+    <message>
+        <source>Can't draft transaction.</source>
+        <translation>Can't draft transaction.</translation>
+    </message>
+    <message>
+        <source>PSBT copied</source>
+        <translation>PSBT copied</translation>
     </message>
     <message>
         <source>Can't sign transaction.</source>
@@ -3344,10 +3321,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     <message>
         <source>Prune: last wallet synchronisation goes beyond pruned data. You need to -reindex (download the whole blockchain again in case of pruned node)</source>
         <translation>Prune: last wallet synchronisation goes beyond pruned data. You need to -reindex (download the whole blockchain again in case of pruned node)</translation>
-    </message>
-    <message>
-        <source>Rescans are not possible in pruned mode. You will need to use -reindex which will download the whole blockchain again.</source>
-        <translation>Rescans are not possible in pruned mode. You will need to use -reindex which will download the whole blockchain again.</translation>
     </message>
     <message>
         <source>Error: A fatal internal error occurred, see debug.log for details</source>
@@ -3448,6 +3421,14 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     <message>
         <source>Corrupted block database detected</source>
         <translation>Corrupted block database detected</translation>
+    </message>
+    <message>
+        <source>Could not find asmap file %s</source>
+        <translation>Could not find asmap file %s</translation>
+    </message>
+    <message>
+        <source>Could not parse asmap file %s</source>
+        <translation>Could not parse asmap file %s</translation>
     </message>
     <message>
         <source>Do you want to rebuild the block database now?</source>
@@ -3738,10 +3719,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     <message>
         <source>This is the transaction fee you may pay when fee estimates are not available.</source>
         <translation>This is the transaction fee you may pay when fee estimates are not available.</translation>
-    </message>
-    <message>
-        <source>This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit %s and cryptographic software written by Eric Young and UPnP software written by Thomas Bernard.</source>
-        <translation>This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit %s and cryptographic software written by Eric Young and UPnP software written by Thomas Bernard.</translation>
     </message>
     <message>
         <source>Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.</source>

@@ -4,7 +4,6 @@
 
 #include <bench/bench.h>
 #include <chainparams.h>
-#include <coins.h>
 #include <consensus/merkle.h>
 #include <consensus/validation.h>
 #include <pow.h>
@@ -12,8 +11,6 @@
 #include <validation.h>
 #include <util/convert.h>
 
-#include <list>
-#include <vector>
 
 
 static void DuplicateInputs(benchmark::State& state)
@@ -21,6 +18,7 @@ static void DuplicateInputs(benchmark::State& state)
     const CScript SCRIPT_PUB{CScript(OP_TRUE)};
 
     const CChainParams& chainparams = Params();
+
     CBlock block{};
     CMutableTransaction coinbaseTx{};
     CMutableTransaction naughtyTx{};
@@ -57,7 +55,7 @@ static void DuplicateInputs(benchmark::State& state)
     block.hashMerkleRoot = BlockMerkleRoot(block);
 
     while (state.KeepRunning()) {
-        CValidationState cvstate{};
+        BlockValidationState cvstate{};
         assert(!CheckBlock(block, cvstate, chainparams.GetConsensus(), false, false));
         assert(cvstate.GetRejectReason() == "bad-txns-inputs-duplicate");
     }

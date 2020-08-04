@@ -210,7 +210,7 @@ void CreateContract::on_createContractClicked()
 
         QString questionString = tr("Are you sure you want to create contract? <br />");
 
-        SendConfirmationDialog confirmationDialog(tr("Confirm contract creation."), questionString, "", "", SEND_CONFIRM_DELAY, this);
+        SendConfirmationDialog confirmationDialog(tr("Confirm contract creation."), questionString, "", "", SEND_CONFIRM_DELAY, tr("Send"), this);
         confirmationDialog.exec();
         QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();
         if(retval == QMessageBox::Yes)

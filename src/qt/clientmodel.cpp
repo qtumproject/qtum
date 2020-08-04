@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2018 The Bitcoin Core developers
+// Copyright (c) 2011-2019 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -137,7 +137,7 @@ enum BlockSource ClientModel::getBlockSource() const
 
 QString ClientModel::getStatusBarWarnings() const
 {
-    return QString::fromStdString(m_node.getWarnings("gui"));
+    return QString::fromStdString(m_node.getWarnings());
 }
 
 OptionsModel *ClientModel::getOptionsModel()
@@ -259,8 +259,9 @@ static void BlockTipChanged(ClientModel *clientmodel, bool initialSync, int heig
         clientmodel->cachedBestHeaderHeight = height;
         clientmodel->cachedBestHeaderTime = blockTime;
     }
-    // if we are in-sync or if we notify a header update, update the UI regardless of last update time
-    if (fHeader || !initialSync || now - nLastUpdateNotification > MODEL_UPDATE_DELAY) {
+
+    // During initial sync, block notifications, and header notifications from reindexing are both throttled.
+    if (!initialSync || (fHeader && !clientmodel->node().getReindex()) || now - nLastUpdateNotification > MODEL_UPDATE_DELAY) {
         //pass an async signal to the UI thread
         bool invoked = QMetaObject::invokeMethod(clientmodel, "numBlocksChanged", Qt::QueuedConnection,
                                   Q_ARG(int, height),

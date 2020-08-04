@@ -20,9 +20,6 @@
    <number>0</number>
   </property>
   <widget class="QFrame" name="SendCoins">
-   <property name="toolTip">
-    <string>This is a normal payment.</string>
-   </property>
    <property name="frameShape">
     <enum>QFrame::NoFrame</enum>
    </property>
@@ -62,7 +59,11 @@
     <item row="2" column="1" colspan="4">
      <layout class="QHBoxLayout" name="horizontalLayoutAmount" stretch="0,0,1,0">
       <item>
-       <widget class="BitcoinAmountField" name="payAmount"/>
+       <widget class="BitcoinAmountField" name="payAmount">
+         <property name="toolTip">
+          <string>The amount to send in the selected unit</string>
+         </property>
+       </widget>
       </item>
       <item>
        <spacer name="horizontalSpacer">
@@ -249,6 +250,9 @@
     <item row="1" column="1" colspan="4">
      <widget class="QLineEdit" name="addAsLabel">
       <property name="toolTip">
+       <string>Enter a label for this address to add it to the list of used addresses</string>
+      </property>
+      <property name="placeholderText">
        <string>Enter a label for this address to add it to the list of used addresses</string>
       </property>
      </widget>

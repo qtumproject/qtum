@@ -70,8 +70,8 @@
         <translation>Berikut ialah alamat-alamat Qtum Anda yang digunakan untuk mengirimkan pembayaran. Selalu periksa jumlah dan alamat penerima sebelum mengirimkan koin.</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.</source>
-        <translation>Ini adalah alamat Bitcoin untuk menerima pembayaran. Gunakan tombol 'Buat alamat penerima baru' di tab terima untuk membuat alamat baru.</translation>
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.</source>
+        <translation>Ini adalah alamat Qtum untuk menerima pembayaran. Gunakan tombol 'Buat alamat penerima baru' di tab terima untuk membuat alamat baru.</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -188,8 +188,8 @@
         <translation>Masukan passphrase lama dan passphrase baru ke dompet</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
-        <translation>Mengenkripsi dompet Anda tidak dapat sepenuhnya melindungi bitcoin Anda dari pencurian oleh malware yang menginfeksi komputer Anda.</translation>
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
+        <translation>Mengenkripsi dompet Anda tidak dapat sepenuhnya melindungi qtum Anda dari pencurian oleh malware yang menginfeksi komputer Anda.</translation>
     </message>
     <message>
         <source>Wallet to be encrypted</source>
@@ -374,14 +374,6 @@
         <translation>Ubah kata kunci yang digunakan untuk enkripsi dompet</translation>
     </message>
     <message>
-        <source>&amp;Debug window</source>
-        <translation>&amp;Jendela Debug</translation>
-    </message>
-    <message>
-        <source>Open debugging and diagnostic console</source>
-        <translation>Buka konsol debug dan diagnosa</translation>
-    </message>
-    <message>
         <source>&amp;Verify message...</source>
         <translation>&amp;Verifikasi pesan...</translation>
     </message>
@@ -442,10 +434,6 @@
         <translation>Tampilkan daftar alamat dan label yang diterima</translation>
     </message>
     <message>
-        <source>Open a qtum: URI or payment request</source>
-        <translation>Buka URI qtum: atau permintaan pembayaran</translation>
-    </message>
-    <message>
         <source>&amp;Command-line options</source>
         <translation>&amp;pilihan Command-line</translation>
     </message>
@@ -494,12 +482,24 @@
         <translation>Terbaru</translation>
     </message>
     <message>
+        <source>Node window</source>
+        <translation>Jendela Node</translation>
+    </message>
+    <message>
+        <source>Open node debugging and diagnostic console</source>
+        <translation>Buka konsol debug dan diagnosa node</translation>
+    </message>
+    <message>
         <source>&amp;Sending addresses</source>
         <translation>Address &amp;Pengirim</translation>
     </message>
     <message>
         <source>&amp;Receiving addresses</source>
         <translation>Address &amp;Penerima</translation>
+    </message>
+    <message>
+        <source>Open a qtum: URI</source>
+        <translation>Buka URI qtum:</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -924,10 +924,6 @@
         <translation>versi</translation>
     </message>
     <message>
-        <source>(%1-bit)</source>
-        <translation>(%1-bit)</translation>
-    </message>
-    <message>
         <source>About %1</source>
         <translation>Tentang %1</translation>
     </message>
@@ -1066,6 +1062,10 @@
         <translation>Sembunyikan</translation>
     </message>
     <message>
+        <source>%1 is currently syncing.  It will download headers and blocks from peers and validate them until reaching the tip of the block chain.</source>
+        <translation>%1 menyinkronkan. Program ini akan mengunduh header dan blok dari rekan dan memvalidasi sampai blok terbaru.</translation>
+    </message>
+    <message>
         <source>Unknown. Syncing Headers (%1, %2%)...</source>
         <translation>Tidak diketahui. Sinkronisasi Header (%1, %2%)...</translation>
     </message>
@@ -1073,24 +1073,12 @@
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open URI</source>
-        <translation>Buka URI</translation>
-    </message>
-    <message>
-        <source>Open payment request from URI or file</source>
-        <translation>Buka permintaan pembayaran dari URI atau data</translation>
+        <source>Open qtum URI</source>
+        <translation>Buka URI qtum:</translation>
     </message>
     <message>
         <source>URI:</source>
         <translation>URI:</translation>
-    </message>
-    <message>
-        <source>Select payment request file</source>
-        <translation>Pilih data permintaan pembayaran</translation>
-    </message>
-    <message>
-        <source>Select payment request file to open</source>
-        <translation>Pilih data permintaan pembayaran yang akan dibuka</translation>
     </message>
 </context>
 <context>
@@ -1481,16 +1469,8 @@
         <translation>'qtum://' bukanlah alamat URI yang valid. Silakan gunakan 'qtum:'.</translation>
     </message>
     <message>
-        <source>You are using a BIP70 URL which will be unsupported in the future.</source>
-        <translation>Anda menggunakan URL BIP70 yang akan tidak lagi didukung di masa mendatang.</translation>
-    </message>
-    <message>
-        <source>Payment request fetch URL is invalid: %1</source>
-        <translation>URL permintaan pembayaran tidak valid: %1</translation>
-    </message>
-    <message>
-        <source>Cannot process payment request because BIP70 support was not compiled in.</source>
-        <translation>Tidak dapat memproses pembayaran karena dukungan BIP70 tidak disertakan didalamnya.</translation>
+        <source>Cannot process payment request because BIP70 is not supported.</source>
+        <translation>Tidak dapat memproses pembayaran karena dukungan BIP70 tidak disertakan.</translation>
     </message>
     <message>
         <source>Due to widespread security flaws in BIP70 it's strongly recommended that any merchant instructions to switch wallets be ignored.</source>
@@ -1511,66 +1491,6 @@
     <message>
         <source>Payment request file handling</source>
         <translation>Pengelolaan file permintaan pembayaran</translation>
-    </message>
-    <message>
-        <source>Payment request file cannot be read! This can be caused by an invalid payment request file.</source>
-        <translation>File permintaan pembayaran tidak bisa dibaca! Hal ini bisa disebabkan karena file permintaan pembayaran tidak valid.</translation>
-    </message>
-    <message>
-        <source>Payment request rejected</source>
-        <translation>Permintaan pembayaran ditolak</translation>
-    </message>
-    <message>
-        <source>Payment request network doesn't match client network.</source>
-        <translation>Jaringan permintaan pembayaran tidak sesuai dengan jaringan klien.</translation>
-    </message>
-    <message>
-        <source>Payment request expired.</source>
-        <translation>Permintaan pembayaran telah kadaluarsa.</translation>
-    </message>
-    <message>
-        <source>Payment request is not initialized.</source>
-        <translation>Permintaan pembayaran tidak terinisialisasi</translation>
-    </message>
-    <message>
-        <source>Unverified payment requests to custom payment scripts are unsupported.</source>
-        <translation>Tidak mendukung pemprosesan pembayaran yang tidak terverifikasi pada script pembayaran khusus.</translation>
-    </message>
-    <message>
-        <source>Invalid payment request.</source>
-        <translation>Permintaan pembayaran tidak valid.</translation>
-    </message>
-    <message>
-        <source>Requested payment amount of %1 is too small (considered dust).</source>
-        <translation>Permintaan jumlah pembayaran %1 terlalu kecil (dianggap "dust transaction").</translation>
-    </message>
-    <message>
-        <source>Refund from %1</source>
-        <translation>Pengembalian dana dari %1</translation>
-    </message>
-    <message>
-        <source>Payment request %1 is too large (%2 bytes, allowed %3 bytes).</source>
-        <translation>Permintaan pembayaran %1 terlalu besar (%2 bita, diperbolehkan %3 bita)</translation>
-    </message>
-    <message>
-        <source>Error communicating with %1: %2</source>
-        <translation>Terjadi kesalahan komunikasi dengan %1: %2</translation>
-    </message>
-    <message>
-        <source>Payment request cannot be parsed!</source>
-        <translation>Permintaan pembayaran tidak dapat di parse!</translation>
-    </message>
-    <message>
-        <source>Bad response from server %1</source>
-        <translation>Respon buruk dari server %1</translation>
-    </message>
-    <message>
-        <source>Network request error</source>
-        <translation>Kesalahan permintaan jaringan</translation>
-    </message>
-    <message>
-        <source>Payment acknowledged</source>
-        <translation>Pembayaran yang diakui</translation>
     </message>
 </context>
 <context>
@@ -1749,10 +1669,6 @@
         <translation>&amp;Informasi</translation>
     </message>
     <message>
-        <source>Debug window</source>
-        <translation>Jendela debug</translation>
-    </message>
-    <message>
         <source>General</source>
         <translation>Umum</translation>
     </message>
@@ -1873,6 +1789,10 @@
         <translation>Agen Pengguna
 
 </translation>
+    </message>
+    <message>
+        <source>Node window</source>
+        <translation>Jendela Node</translation>
     </message>
     <message>
         <source>Open the %1 debug log file from the current data directory. This can take a few seconds for large log files.</source>
@@ -2291,10 +2211,6 @@
         <translation>Peringatan: Perkiraan biaya saat ini tidak memungkinkan.</translation>
     </message>
     <message>
-        <source>collapse fee-settings</source>
-        <translation>tutup pengaturan biaya</translation>
-    </message>
-    <message>
         <source>Specify a custom fee per kB (1,000 bytes) of the transaction's virtual size.
 
 Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis per kB" for a transaction size of 500 bytes (half of 1 kB) would ultimately yield a fee of only 50 satoshis.</source>
@@ -2339,8 +2255,8 @@ Catatan: Karena biaya dihitung berdasarkan per byte, biaya "100 satoshi per kB" 
         <translation>Dust:</translation>
     </message>
     <message>
-        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for bitcoin transactions than the network can process.</source>
-        <translation>Ketika volume transaksi lebih sedikit daripada ruang di blok, penambang serta simpul yang menyiarkanikan dapat memberlakukan biaya minimum. Anda boleh hanya membayar biaya minimum, tetapi perlu diketahui bahwa ini dapat menghasilkan transaksi yang tidak pernah dikonfirmasi setelah ada lebih banyak permintaan untuk transaksi bitcoin daripada yang dapat diproses jaringan.</translation>
+        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
+        <translation>Ketika volume transaksi lebih sedikit daripada ruang di blok, penambang serta simpul yang menyiarkanikan dapat memberlakukan biaya minimum. Anda boleh hanya membayar biaya minimum, tetapi perlu diketahui bahwa ini dapat menghasilkan transaksi yang tidak pernah dikonfirmasi setelah ada lebih banyak permintaan untuk transaksi qtum daripada yang dapat diproses jaringan.</translation>
     </message>
     <message>
         <source>A too low fee might result in a never confirming transaction (read the tooltip)</source>
@@ -2455,6 +2371,14 @@ Catatan: Karena biaya dihitung berdasarkan per byte, biaya "100 satoshi per kB" 
         <translation>Konfirmasi pengiriman koin</translation>
     </message>
     <message>
+        <source>PSBT copied</source>
+        <translation>PSBT disalin</translation>
+    </message>
+    <message>
+        <source>Watch-only balance:</source>
+        <translation>Saldo (hanya lihat):</translation>
+    </message>
+    <message>
         <source>The recipient address is not valid. Please recheck.</source>
         <translation>Alamat penerima tidak sesuai. Mohon periksa kembali.</translation>
     </message>
@@ -2487,8 +2411,8 @@ Catatan: Karena biaya dihitung berdasarkan per byte, biaya "100 satoshi per kB" 
         <translation><numerusform>Diperkirakan akan memulai konfirmasi dalam %n blok.</numerusform></translation>
     </message>
     <message>
-        <source>Warning: Invalid Bitcoin address</source>
-        <translation>Peringatan: Alamat Bitcoin tidak valid</translation>
+        <source>Warning: Invalid Qtum address</source>
+        <translation>Peringatan: Alamat Qtum tidak valid</translation>
     </message>
     <message>
         <source>Warning: Unknown change address</source>
@@ -2526,12 +2450,8 @@ Catatan: Karena biaya dihitung berdasarkan per byte, biaya "100 satoshi per kB" 
         <translation>Pilih alamat yang telah digunakan sebelumnya</translation>
     </message>
     <message>
-        <source>This is a normal payment.</source>
-        <translation>Ini adalah pembayaran normal</translation>
-    </message>
-    <message>
-        <source>The Bitcoin address to send the payment to</source>
-        <translation>Alamat Bitcoin untuk mengirim pembayaran</translation>
+        <source>The Qtum address to send the payment to</source>
+        <translation>Alamat Qtum untuk mengirim pembayaran</translation>
     </message>
     <message>
         <source>Alt+A</source>
@@ -2550,8 +2470,8 @@ Catatan: Karena biaya dihitung berdasarkan per byte, biaya "100 satoshi per kB" 
         <translation>Hapus masukan ini</translation>
     </message>
     <message>
-        <source>The fee will be deducted from the amount being sent. The recipient will receive less bitcoins than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
-        <translation>Biaya akan diambil dari jumlah yang dikirim. Penerima akan menerima bitcoin lebih sedikit daripada yang di masukkan di bidang jumlah. Jika ada beberapa penerima, biaya dibagi rata.</translation>
+        <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
+        <translation>Biaya akan diambil dari jumlah yang dikirim. Penerima akan menerima qtum lebih sedikit daripada yang di masukkan di bidang jumlah. Jika ada beberapa penerima, biaya dibagi rata.</translation>
     </message>
     <message>
         <source>S&amp;ubtract fee from amount</source>
@@ -2578,8 +2498,8 @@ Catatan: Karena biaya dihitung berdasarkan per byte, biaya "100 satoshi per kB" 
         <translation>Masukkan label untuk alamat ini untuk dimasukan dalam daftar alamat yang pernah digunakan</translation>
     </message>
     <message>
-        <source>A message that was attached to the bitcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Bitcoin network.</source>
-        <translation>Pesan yang dilampirkan ke bitcoin: URI yang akan disimpan dengan transaksi untuk referensi Anda. Catatan: Pesan ini tidak akan dikirim melalui jaringan Bitcoin.</translation>
+        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
+        <translation>Pesan yang dilampirkan ke qtum: URI yang akan disimpan dengan transaksi untuk referensi Anda. Catatan: Pesan ini tidak akan dikirim melalui jaringan Qtum.</translation>
     </message>
     <message>
         <source>Pay To:</source>
@@ -2588,17 +2508,6 @@ Catatan: Karena biaya dihitung berdasarkan per byte, biaya "100 satoshi per kB" 
     <message>
         <source>Memo:</source>
         <translation>Catatan Peringatan:</translation>
-    </message>
-    <message>
-        <source>Enter a label for this address to add it to your address book</source>
-        <translation>Masukkan label alamat ini untuk menambahkannya ke buku alamat Anda</translation>
-    </message>
-</context>
-<context>
-    <name>SendConfirmationDialog</name>
-    <message>
-        <source>Yes</source>
-        <translation>Ya</translation>
     </message>
 </context>
 <context>
@@ -2619,12 +2528,12 @@ Catatan: Karena biaya dihitung berdasarkan per byte, biaya "100 satoshi per kB" 
         <translation>&amp;Tandakan Pesan</translation>
     </message>
     <message>
-        <source>You can sign messages/agreements with your addresses to prove you can receive bitcoins sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
-        <translation>Anda dapat menandatangani pesan / perjanjian dengan alamat Anda untuk membuktikan bahwa Anda dapat menerima bitcoin yang dikirimkan kepada mereka. Berhati-hatilah untuk tidak menandatangani apa pun yang samar-samar atau acak, karena serangan phishing mungkin mencoba menipu Anda untuk menandatangani identitas Anda kepada mereka. Hanya tandatangani pernyataan terperinci yang Anda setujui.</translation>
+        <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
+        <translation>Anda dapat menandatangani pesan / perjanjian dengan alamat Anda untuk membuktikan bahwa Anda dapat menerima qtum yang dikirimkan kepada mereka. Berhati-hatilah untuk tidak menandatangani apa pun yang samar-samar atau acak, karena serangan phishing mungkin mencoba menipu Anda untuk menandatangani identitas Anda kepada mereka. Hanya tandatangani pernyataan terperinci yang Anda setujui.</translation>
     </message>
     <message>
-        <source>The Bitcoin address to sign the message with</source>
-        <translation>Alamat Bitcoin untuk menandatangani pesan</translation>
+        <source>The Qtum address to sign the message with</source>
+        <translation>Alamat Qtum untuk menandatangani pesan</translation>
     </message>
     <message>
         <source>Choose previously used address</source>
@@ -2679,12 +2588,12 @@ Catatan: Karena biaya dihitung berdasarkan per byte, biaya "100 satoshi per kB" 
         <translation>Masukkan alamat penerima, pesan (pastikan Anda menyalin persis jeda baris, spasi, tab, dll) dan tanda tangan di bawah untuk memverifikasi pesan. Berhati-hatilah untuk tidak memberi informasi lebih ke tanda tangan daripada apa yang ada dalam pesan yang ditandatangani itu sendiri, untuk menghindari dikelabui oleh serangan man-in-the-middle. Perhatikan bahwa ini hanya membuktikan pihak penandatangan menerima dengan alamat, tapi tidak dapat membuktikan pengiriman dari transaksi apa pun!</translation>
     </message>
     <message>
-        <source>The Bitcoin address the message was signed with</source>
-        <translation>Alamat Bitcoin yang menandatangani pesan</translation>
+        <source>The Qtum address the message was signed with</source>
+        <translation>Alamat Qtum yang menandatangani pesan</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified Bitcoin address</source>
-        <translation>Verifikasi pesan untuk memastikannya ditandatangani dengan alamat Bitcoin tersebut</translation>
+        <source>Verify the message to ensure it was signed with the specified Qtum address</source>
+        <translation>Verifikasi pesan untuk memastikannya ditandatangani dengan alamat Qtum tersebut</translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
@@ -2713,6 +2622,10 @@ Catatan: Karena biaya dihitung berdasarkan per byte, biaya "100 satoshi per kB" 
     <message>
         <source>Wallet unlock was cancelled.</source>
         <translation>Pembukaan kunci dompet dibatalkan.</translation>
+    </message>
+    <message>
+        <source>No error</source>
+        <translation>Tidak ada kesalahan</translation>
     </message>
     <message>
         <source>Private key for the entered address is not available.</source>
@@ -2765,8 +2678,20 @@ Catatan: Karena biaya dihitung berdasarkan per byte, biaya "100 satoshi per kB" 
         <translation>Buka sampai %1</translation>
     </message>
     <message>
+        <source>conflicted with a transaction with %1 confirmations</source>
+        <translation>Konflik dengan sebuah transaksi dengan %1 konfirmasi</translation>
+    </message>
+    <message>
         <source>0/unconfirmed, %1</source>
         <translation>0/belum dikonfirmasi, %1</translation>
+    </message>
+    <message>
+        <source>in memory pool</source>
+        <translation>Dalam pool memory</translation>
+    </message>
+    <message>
+        <source>not in memory pool</source>
+        <translation>Tidak dalam pool memory</translation>
     </message>
     <message>
         <source>%1/unconfirmed</source>
@@ -3074,6 +2999,10 @@ Catatan: Karena biaya dihitung berdasarkan per byte, biaya "100 satoshi per kB" 
         <translation>Biaya baru:</translation>
     </message>
     <message>
+        <source>PSBT copied</source>
+        <translation>PSBT disalin</translation>
+    </message>
+    <message>
         <source>default wallet</source>
         <translation>wallet default</translation>
     </message>
@@ -3166,6 +3095,14 @@ Catatan: Karena biaya dihitung berdasarkan per byte, biaya "100 satoshi per kB" 
     <message>
         <source>Zapping all transactions from wallet...</source>
         <translation>Setiap transaksi dalam dompet sedang di-'Zap'...</translation>
+    </message>
+    <message>
+        <source>Transaction has too long of a mempool chain</source>
+        <translation>Transaksi mempunyai rantai mempool yang terlalu panjang</translation>
+    </message>
+    <message>
+        <source>Transaction must have at least one recipient</source>
+        <translation>Transaksi harus mempunyai paling tidak satu penerima</translation>
     </message>
     <message>
         <source>Unknown network specified in -onlynet: '%s'</source>

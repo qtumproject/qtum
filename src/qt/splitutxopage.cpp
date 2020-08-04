@@ -214,7 +214,7 @@ void SplitUTXOPage::on_splitCoinsClicked()
         questionString.append(QString("<br/><br/><b>%1</b>?")
                               .arg(address));
 
-        SendConfirmationDialog confirmationDialog(tr("Confirm splitting coins for address."), questionString, "", "", SEND_CONFIRM_DELAY, this);
+        SendConfirmationDialog confirmationDialog(tr("Confirm splitting coins for address."), questionString, "", "", SEND_CONFIRM_DELAY, tr("Send"), this);
         confirmationDialog.exec();
 
         QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();
