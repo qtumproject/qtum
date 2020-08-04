@@ -6,6 +6,7 @@
 #include <qt/styleSheet.h>
 #include <qt/superstakerlistwidget.h>
 #include <qt/guiutil.h>
+#include <qt/editsuperstakerdialog.h>
 
 #include <QPainter>
 #include <QAbstractItemDelegate>
@@ -41,6 +42,7 @@ SuperStakerPage::SuperStakerPage(const PlatformStyle *platformStyle, QWidget *pa
     QAction *copyStekerWeightAction = new QAction(tr("Copy staker weight"), this);
     QAction *copyDelegationsWeightAction = new QAction(tr("Copy delegations weight"), this);
     QAction *configSuperStakerAction = new QAction(tr("Configure super staker"), this);
+    QAction *editStakerNameAction = new QAction(tr("Edit staker name"), this);
     QAction *removeSuperStakerAction = new QAction(tr("Remove super staker"), this);
 
     m_superStakerList = new SuperStakerListWidget(platformStyle, this);
@@ -53,6 +55,7 @@ SuperStakerPage::SuperStakerPage(const PlatformStyle *platformStyle, QWidget *pa
     connect(m_superStakerList, &SuperStakerListWidget::removeSuperStaker, this, &SuperStakerPage::on_removeSuperStaker);
     connect(m_superStakerList, &SuperStakerListWidget::delegationsSuperStaker, this, &SuperStakerPage::on_delegationsSuperStaker);
     connect(m_superStakerList, &SuperStakerListWidget::splitCoins, this, &SuperStakerPage::on_splitCoins);
+    connect(m_superStakerList, &SuperStakerListWidget::restoreSuperStakers, this, &SuperStakerPage::on_restoreSuperStakers);
 
     contextMenu = new QMenu(m_superStakerList);
     contextMenu->addAction(copyStakerNameAction);
@@ -61,6 +64,7 @@ SuperStakerPage::SuperStakerPage(const PlatformStyle *platformStyle, QWidget *pa
     contextMenu->addAction(copyDelegationsWeightAction);
     contextMenu->addAction(copyStekerMinFeeAction);
     contextMenu->addAction(configSuperStakerAction);
+    contextMenu->addAction(editStakerNameAction);
     contextMenu->addAction(removeSuperStakerAction);
 
     connect(copyStakerNameAction, &QAction::triggered, this, &SuperStakerPage::copyStakerName);
@@ -69,6 +73,7 @@ SuperStakerPage::SuperStakerPage(const PlatformStyle *platformStyle, QWidget *pa
     connect(copyStekerWeightAction, &QAction::triggered, this, &SuperStakerPage::copyStakerWeight);
     connect(copyDelegationsWeightAction, &QAction::triggered, this, &SuperStakerPage::copyDelegationsWeight);
     connect(configSuperStakerAction, &QAction::triggered, this, &SuperStakerPage::configSuperStaker);
+    connect(editStakerNameAction, &QAction::triggered, this, &SuperStakerPage::editStakerName);
     connect(removeSuperStakerAction, &QAction::triggered, this, &SuperStakerPage::removeSuperStaker);
 
     connect(m_superStakerList, &SuperStakerListWidget::customContextMenuRequested, this, &SuperStakerPage::contextualMenu);
@@ -251,6 +256,32 @@ void SuperStakerPage::configSuperStaker()
     }
 }
 
+void SuperStakerPage::editStakerName()
+{
+    if(indexMenu.isValid())
+    {
+        QString stakerName = indexMenu.data(SuperStakerItemModel::StakerNameRole).toString();
+        QString stakerAddress = indexMenu.data(SuperStakerItemModel::StakerAddressRole).toString();
+        QString sHash = indexMenu.data(SuperStakerItemModel::HashRole).toString();
+        uint256 hash;
+        hash.SetHex(sHash.toStdString());
+
+        EditSuperStakerDialog dlg;
+        dlg.setData(stakerName, stakerAddress);
+
+        if(dlg.exec())
+        {
+            interfaces::SuperStakerInfo staker = m_model->wallet().getSuperStaker(hash);
+            if(staker.hash == hash)
+            {
+                staker.staker_name = dlg.getSuperStakerName().toStdString();
+                m_model->wallet().removeSuperStakerEntry(sHash.toStdString());
+                m_model->wallet().addSuperStakerEntry(staker);
+            }
+        }
+    }
+}
+
 void SuperStakerPage::on_configSuperStaker(const QModelIndex &index)
 {
     on_currentSuperStakerChanged(index);
@@ -290,6 +321,31 @@ void SuperStakerPage::on_delegationsSuperStaker(const QModelIndex &index)
 {
     on_currentSuperStakerChanged(index);
     on_goToDelegationsSuperStakerPage();
+}
+
+void SuperStakerPage::on_restoreSuperStakers()
+{
+    if(m_model)
+    {
+        bool fSuperStake = m_model->wallet().getEnabledSuperStaking();
+        if(!fSuperStake)
+        {
+            QMessageBox::information(this, tr("Super staking"), tr("Enable super staking from the option menu in order to start the restoration."));
+        }
+        else
+        {
+            QMessageBox::StandardButton btnRetVal = QMessageBox::question(this, tr("Confirm super stakers restoration"), tr("Are you sure you wish to restore your super stakers?"),
+                QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
+
+            if(btnRetVal == QMessageBox::Yes)
+            {
+                if(m_model->wallet().restoreSuperStakers() == 0)
+                {
+                    QMessageBox::information(this, tr("Super stakers not found"), tr("No super stakers found to restore."), QMessageBox::Ok);
+                }
+            }
+        }
+    }
 }
 
 void SuperStakerPage::on_goToDelegationsSuperStakerPage()

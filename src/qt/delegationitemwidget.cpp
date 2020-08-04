@@ -8,9 +8,11 @@
 #include <qt/bitcoinunits.h>
 #include <qt/optionsmodel.h>
 #include <qt/walletmodel.h>
+#include <qt/delegationitemmodel.h>
 #include <interfaces/node.h>
 #include <chainparams.h>
 #include <rpc/server.h>
+#include <qt/guiutil.h>
 
 #include <QFile>
 
@@ -25,9 +27,14 @@ public:
     int64_t stake = 0;
     int64_t weight = 0;
     bool staking = false;
+    int32_t status = 0;
+    QLabel* light = 0;
 };
 
 #define DELEGATION_ITEM_ICONSIZE 24
+#define LIGHT_ICONSIZE 14
+const QString LIGHT_STYLE = "QLabel{background-color: %1; border-radius: 7px; border: 2px solid transparent;}";
+#define DELEGATION_STAKER_SIZE 210
 DelegationItemWidget::DelegationItemWidget(const PlatformStyle *platformStyle, QWidget *parent, ItemType type) :
     QWidget(parent),
     ui(new Ui::DelegationItemWidget),
@@ -39,16 +46,30 @@ DelegationItemWidget::DelegationItemWidget(const PlatformStyle *platformStyle, Q
 {
     ui->setupUi(this);
     ui->stackedWidget->setCurrentIndex(type);
-    ui->buttonSplit->setIcon(platformStyle->MultiStatesIcon(":/icons/tx_inout", PlatformStyle::PushButtonIcon));
+    ui->buttonSplit->setIcon(platformStyle->MultiStatesIcon(":/icons/split", PlatformStyle::PushButtonIcon));
     ui->buttonRemove->setIcon(platformStyle->MultiStatesIcon(":/icons/remove_entry", PlatformStyle::PushButtonIcon));
     ui->buttonAdd->setIcon(platformStyle->MultiStatesIcon(":/icons/plus_full", PlatformStyle::PushButtonIcon));
-    ui->delegationLogo->setPixmap(platformStyle->MultiStatesIcon(m_type == New ? ":/icons/export" : ":/icons/staking_off").pixmap(DELEGATION_ITEM_ICONSIZE, DELEGATION_ITEM_ICONSIZE));
+    ui->buttonRestore->setIcon(platformStyle->MultiStatesIcon(":/icons/restore", PlatformStyle::PushButtonIcon));
+    ui->delegationLogo->setPixmap(platformStyle->MultiStatesIcon(m_type == New ? ":/icons/delegate" : ":/icons/staking_off").pixmap(DELEGATION_ITEM_ICONSIZE, DELEGATION_ITEM_ICONSIZE));
 
     ui->buttonSplit->setToolTip(tr("Split coins for offline staking."));
     ui->buttonRemove->setToolTip(tr("Remove delegation."));
     ui->buttonAdd->setToolTip(tr("Add delegation."));
+    ui->buttonRestore->setToolTip(tr("Restore delegations."));
 
     d = new DelegationItemWidgetPriv();
+
+    if(m_type == Record)
+    {
+        d->light = new QLabel();
+        d->light->setFixedSize(LIGHT_ICONSIZE, LIGHT_ICONSIZE);
+        d->light->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        QVBoxLayout *layout = new QVBoxLayout;
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->addWidget(d->light, 0, Qt::AlignRight|Qt::AlignBottom);
+        ui->delegationLogo->setLayout(layout);
+        setLight(Transparent);
+    }
 }
 
 DelegationItemWidget::~DelegationItemWidget()
@@ -57,7 +78,7 @@ DelegationItemWidget::~DelegationItemWidget()
     delete d;
 }
 
-void DelegationItemWidget::setData(const QString &fee, const QString &staker, const QString &address, const int32_t &blockHight, const int64_t &balance, const int64_t &stake, const int64_t &weight)
+void DelegationItemWidget::setData(const QString &fee, const QString &staker, const QString &address, const int32_t &blockHight, const int64_t &balance, const int64_t &stake, const int64_t &weight, const int32_t &status)
 {
     // Set data
     d->fee = fee;
@@ -67,12 +88,13 @@ void DelegationItemWidget::setData(const QString &fee, const QString &staker, co
     d->balance = balance;
     d->stake = stake;
     d->weight = weight;
+    d->status = status;
 
     // Update GUI
     if(d->fee != ui->labelFee->text())
         ui->labelFee->setText(d->fee);
-    if(d->staker != ui->labelStaker->text())
-        ui->labelStaker->setText(d->staker);
+    if(d->staker != ui->labelStaker->toolTip())
+        updateLabelStaker();
     if(d->address != ui->labelAddress->text())
         ui->labelAddress->setText(d->address);
     d->staking = (d->blockHight > 0 && d->weight > 0);
@@ -98,6 +120,11 @@ void DelegationItemWidget::on_buttonRemove_clicked()
 void DelegationItemWidget::on_buttonSplit_clicked()
 {
     Q_EMIT clicked(m_position, Buttons::Split);
+}
+
+void DelegationItemWidget::on_buttonRestore_clicked()
+{
+    Q_EMIT clicked(m_position, Buttons::Restore);
 }
 
 int DelegationItemWidget::position() const
@@ -161,6 +188,33 @@ void DelegationItemWidget::updateLogo()
         else
             ui->delegationLogo->setToolTip(tr("Not staking"));
     }
+
+    switch (d->status)
+    {
+    case DelegationItemModel::CreateTxConfirmed:
+        setLight(Green);
+        d->light->setToolTip(tr("Create transaction confirmed"));
+        break;
+    case DelegationItemModel::CreateTxNotConfirmed:
+        setLight(Orange);
+        d->light->setToolTip(tr("Create transaction not confirmed"));
+        break;
+    case DelegationItemModel::CreateTxError:
+        setLight(Red);
+        d->light->setToolTip(tr("Create transaction error"));
+        break;
+    case DelegationItemModel::RemoveTxNotConfirmed:
+        setLight(Orange);
+        d->light->setToolTip(tr("Remove transaction not confirmed"));
+        break;
+    case DelegationItemModel::RemoveTxError:
+        setLight(Red);
+        d->light->setToolTip(tr("Remove transaction error"));
+        break;
+    default:
+        setLight(Transparent);
+        break;
+    }
 }
 
 void DelegationItemWidget::setModel(WalletModel *_model)
@@ -185,4 +239,49 @@ void DelegationItemWidget::updateBalance()
         unit = m_model->getOptionsModel()->getDisplayUnit();
     ui->labelAssets->setText(BitcoinUnits::formatWithUnit(unit, d->balance, false, BitcoinUnits::separatorAlways));
     ui->labelStake->setText(BitcoinUnits::formatWithUnit(unit, d->stake, false, BitcoinUnits::separatorAlways));
+}
+
+void DelegationItemWidget::setLight(DelegationItemWidget::LightType type)
+{
+    QString lightColor;
+    switch (type) {
+    case Red:
+        lightColor = "#DC143C";
+        break;
+    case Orange:
+        lightColor = "#FFA500";
+        break;
+    case Green:
+        lightColor = "#32CD32";
+        break;
+    default:
+        break;
+    }
+
+    if(d && d->light)
+    {
+        if(lightColor != "")
+        {
+            d->light->setStyleSheet(LIGHT_STYLE.arg(lightColor));
+            d->light->setVisible(true);
+        }
+        else
+        {
+            d->light->setVisible(false);
+        }
+    }
+}
+
+void DelegationItemWidget::updateLabelStaker()
+{
+    QString text = d->staker;
+    QFontMetrics fm = ui->labelStaker->fontMetrics();
+    for(int i = d->staker.length(); i>3; i--)
+    {
+        text = GUIUtil::cutString(d->staker, i);
+        if(GUIUtil::TextWidth(fm, text) < DELEGATION_STAKER_SIZE)
+            break;
+    }
+    ui->labelStaker->setText(text);
+    ui->labelStaker->setToolTip(d->staker);
 }

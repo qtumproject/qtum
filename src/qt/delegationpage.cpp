@@ -6,6 +6,7 @@
 #include <qt/styleSheet.h>
 #include <qt/delegationlistwidget.h>
 #include <qt/guiutil.h>
+#include <qt/editsuperstakerdialog.h>
 
 #include <QPainter>
 #include <QAbstractItemDelegate>
@@ -38,6 +39,7 @@ DelegationPage::DelegationPage(const PlatformStyle *platformStyle, QWidget *pare
     QAction *copyStekerFeeAction = new QAction(tr("Copy staker fee"), this);
     QAction *copyDelegateAddressAction = new QAction(tr("Copy delegate address"), this);
     QAction *copyDelegateWeightAction = new QAction(tr("Copy delegate weight"), this);
+    QAction *editStakerNameAction = new QAction(tr("Edit staker name"), this);
     QAction *removeDelegationAction = new QAction(tr("Remove delegation"), this);
 
     m_delegationList = new DelegationListWidget(platformStyle, this);
@@ -48,6 +50,7 @@ DelegationPage::DelegationPage(const PlatformStyle *platformStyle, QWidget *pare
     connect(m_delegationList, &DelegationListWidget::removeDelegation, this, &DelegationPage::on_removeDelegation);
     connect(m_delegationList, &DelegationListWidget::addDelegation, this, &DelegationPage::on_addDelegation);
     connect(m_delegationList, &DelegationListWidget::splitCoins, this, &DelegationPage::on_splitCoins);
+    connect(m_delegationList, &DelegationListWidget::restoreDelegations, this, &DelegationPage::on_restoreDelegations);
 
     contextMenu = new QMenu(m_delegationList);
     contextMenu->addAction(copyStakerNameAction);
@@ -55,6 +58,7 @@ DelegationPage::DelegationPage(const PlatformStyle *platformStyle, QWidget *pare
     contextMenu->addAction(copyStekerFeeAction);
     contextMenu->addAction(copyDelegateAddressAction);
     contextMenu->addAction(copyDelegateWeightAction);
+    contextMenu->addAction(editStakerNameAction);
     contextMenu->addAction(removeDelegationAction);
 
     connect(copyDelegateAddressAction, &QAction::triggered, this, &DelegationPage::copyDelegateAddress);
@@ -62,6 +66,7 @@ DelegationPage::DelegationPage(const PlatformStyle *platformStyle, QWidget *pare
     connect(copyStakerNameAction, &QAction::triggered, this, &DelegationPage::copyStakerName);
     connect(copyStakerAddressAction, &QAction::triggered, this, &DelegationPage::copyStakerAddress);
     connect(copyDelegateWeightAction, &QAction::triggered, this, &DelegationPage::copyDelegateWeight);
+    connect(editStakerNameAction, &QAction::triggered, this, &DelegationPage::editStakerName);
     connect(removeDelegationAction, &QAction::triggered, this, &DelegationPage::removeDelegation);
 
     connect(m_delegationList, &DelegationListWidget::customContextMenuRequested, this, &DelegationPage::contextualMenu);
@@ -227,6 +232,32 @@ void DelegationPage::copyStakerAddress()
     }
 }
 
+void DelegationPage::editStakerName()
+{
+    if(indexMenu.isValid())
+    {
+        QString stakerName = indexMenu.data(DelegationItemModel::StakerNameRole).toString();
+        QString stakerAddress = indexMenu.data(DelegationItemModel::StakerAddressRole).toString();
+        QString sHash = indexMenu.data(DelegationItemModel::HashRole).toString();
+        uint256 hash;
+        hash.SetHex(sHash.toStdString());
+
+        EditSuperStakerDialog dlg;
+        dlg.setData(stakerName, stakerAddress);
+
+        if(dlg.exec())
+        {
+            interfaces::DelegationInfo delegation = m_model->wallet().getDelegation(hash);
+            if(delegation.hash == hash)
+            {
+                delegation.staker_name = dlg.getSuperStakerName().toStdString();
+                m_model->wallet().removeDelegationEntry(sHash.toStdString());
+                m_model->wallet().addDelegationEntry(delegation);
+            }
+        }
+    }
+}
+
 void DelegationPage::removeDelegation()
 {
     if(indexMenu.isValid())
@@ -256,4 +287,21 @@ void DelegationPage::on_splitCoins(const QModelIndex &index)
 void DelegationPage::on_goToSplitCoinsPage()
 {
     m_splitUtxoPage->show();
+}
+
+void DelegationPage::on_restoreDelegations()
+{
+    if(m_model)
+    {
+        QMessageBox::StandardButton btnRetVal = QMessageBox::question(this, tr("Confirm delegations restoration"), tr("Are you sure you wish to restore your delegations?"),
+            QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
+
+        if(btnRetVal == QMessageBox::Yes)
+        {
+            if(m_model->wallet().restoreDelegations() == 0)
+            {
+                QMessageBox::information(this, tr("Delegations not found"), tr("No delegations found to restore."), QMessageBox::Ok);
+            }
+        }
+    }
 }

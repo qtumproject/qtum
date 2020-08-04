@@ -340,6 +340,9 @@ public:
     //! Set contract book data.
     virtual bool setContractBook(const std::string& address, const std::string& name, const std::string& abi) = 0;
 
+    //! Restore wallet delegations.
+    virtual uint32_t restoreDelegations() = 0;
+
     //! Add wallet delegation entry.
     virtual bool addDelegationEntry(const DelegationInfo &delegation) = 0;
 
@@ -363,6 +366,9 @@ public:
 
     //! Set delegation entry removed.
     virtual bool setDelegationRemoved(const std::string &sHash, const std::string &sTxid) = 0;
+
+    //! Restore wallet super stakers.
+    virtual uint32_t restoreSuperStakers() = 0;
 
     //! Exist super staker.
     virtual bool existSuperStaker(const std::string &sAddress) = 0;

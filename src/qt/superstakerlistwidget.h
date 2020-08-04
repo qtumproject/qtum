@@ -35,6 +35,7 @@ Q_SIGNALS:
     void delegationsSuperStaker(const QModelIndex& index);
     void removeSuperStaker(const QModelIndex& index);
     void addSuperStaker();
+    void restoreSuperStakers();
     void clicked(const QModelIndex& index);
 
 public Q_SLOTS:

@@ -49,7 +49,7 @@ AddDelegationPage::AddDelegationPage(QWidget *parent) :
     ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
     ui->lineEditGasPrice->setSingleStep(SINGLE_STEP);
 
-    ui->lineEditGasLimit->setMinimum(MINIMUM_GAS_LIMIT);
+    ui->lineEditGasLimit->setMinimum(ADD_DELEGATION_MIN_GAS_LIMIT);
     ui->lineEditGasLimit->setMaximum(DEFAULT_GAS_LIMIT_OP_CREATE);
     ui->lineEditGasLimit->setValue(DEFAULT_GAS_LIMIT_OP_CREATE);
 
@@ -148,7 +148,7 @@ bool AddDelegationPage::isDataValid()
 void AddDelegationPage::on_gasInfoChanged(quint64 blockGasLimit, quint64 minGasPrice, quint64 nGasPrice)
 {
     Q_UNUSED(nGasPrice)
-    ui->labelGasLimit->setToolTip(tr("Gas limit. Default = %1, Max = %2").arg(DEFAULT_GAS_LIMIT_OP_CREATE).arg(blockGasLimit));
+    ui->labelGasLimit->setToolTip(tr("Gas limit. Default = %1, Min = %2, Max = %3").arg(DEFAULT_GAS_LIMIT_OP_CREATE).arg(ADD_DELEGATION_MIN_GAS_LIMIT).arg(blockGasLimit));
     ui->labelGasPrice->setToolTip(tr("Gas price: QTUM price per gas unit. Default = %1, Min = %2").arg(QString::fromStdString(FormatMoney(DEFAULT_GAS_PRICE))).arg(QString::fromStdString(FormatMoney(minGasPrice))));
     ui->lineEditGasPrice->SetMinValue(minGasPrice);
     ui->lineEditGasLimit->setMaximum(blockGasLimit);

@@ -931,4 +931,13 @@ void formatToolButtons(QToolButton *btn1, QToolButton *btn2, QToolButton *btn3)
     }
 }
 
+QString cutString(const QString &text, int length)
+{
+    if(text.length() > length + 3)
+    {
+        return text.left(length) + "...";
+    }
+    return text;
+}
+
 } // namespace GUIUtil

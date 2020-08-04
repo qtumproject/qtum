@@ -49,12 +49,14 @@ public Q_SLOTS:
     void copyStakerWeight();
     void copyDelegationsWeight();
     void configSuperStaker();
+    void editStakerName();
     void removeSuperStaker();
     void on_configSuperStaker(const QModelIndex& index);
     void on_addSuperStaker();
     void on_removeSuperStaker(const QModelIndex& index);
     void on_delegationsSuperStaker(const QModelIndex &index);
     void on_splitCoins(const QModelIndex &index);
+    void on_restoreSuperStakers();
 
 private:
     Ui::SuperStakerPage *ui;

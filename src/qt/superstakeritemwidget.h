@@ -29,12 +29,13 @@ public:
         Config = 2,
         Delegations = 3,
         Split = 4,
+        Restore = 5
     };
 
     explicit SuperStakerItemWidget(const PlatformStyle *platformStyle, QWidget *parent = 0, ItemType type = Record);
     ~SuperStakerItemWidget();
 
-    void setData(const QString& fee, const QString& staker, const bool& staking_on, const int64_t& balance, const int64_t& stake, const int64_t& weight, const int64_t& delegationsWeight);
+    void setData(const QString& fee, const QString& staker, const QString& address, const bool& staking_on, const int64_t& balance, const int64_t& stake, const int64_t& weight, const int64_t& delegationsWeight);
 
     void setPosition(int position);
 
@@ -58,9 +59,12 @@ private Q_SLOTS:
 
     void on_buttonSplit_clicked();
 
+    void on_buttonRestore_clicked();
+
 private:
     void updateLogo();
     void updateBalance();
+    void updateLabelStaker();
 
 private:
     Ui::SuperStakerItemWidget *ui;
