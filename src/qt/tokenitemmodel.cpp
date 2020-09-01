@@ -502,7 +502,7 @@ static void NotifyTokenChanged(TokenItemModel *tim, const uint256 &hash, ChangeT
 void TokenItemModel::subscribeToCoreSignals()
 {
     // Connect signals to wallet
-    m_handler_token_changed = walletModel->wallet().handleTokenChanged(boost::bind(NotifyTokenChanged, this, _1, _2));
+    m_handler_token_changed = walletModel->wallet().handleTokenChanged(boost::bind(NotifyTokenChanged, this, boost::placeholders::_1, boost::placeholders::_2));
 }
 
 void TokenItemModel::unsubscribeFromCoreSignals()
