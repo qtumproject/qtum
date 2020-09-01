@@ -516,7 +516,7 @@ static void NotifyDelegationChanged(DelegationItemModel *tim, const uint256 &has
 void DelegationItemModel::subscribeToCoreSignals()
 {
     // Connect signals to wallet
-    m_handler_delegation_changed = walletModel->wallet().handleDelegationChanged(boost::bind(NotifyDelegationChanged, this, _1, _2));
+    m_handler_delegation_changed = walletModel->wallet().handleDelegationChanged(boost::bind(NotifyDelegationChanged, this, boost::placeholders::_1, boost::placeholders::_2));
 }
 
 void DelegationItemModel::unsubscribeFromCoreSignals()

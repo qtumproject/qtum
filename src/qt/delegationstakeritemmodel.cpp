@@ -368,7 +368,7 @@ static void NotifyDelegationsStakerChanged(DelegationStakerItemModel *tim, const
 void DelegationStakerItemModel::subscribeToCoreSignals()
 {
     // Connect signals to wallet
-    m_handler_delegationsstaker_changed = walletModel->wallet().handleDelegationsStakerChanged(boost::bind(NotifyDelegationsStakerChanged, this, _1, _2));
+    m_handler_delegationsstaker_changed = walletModel->wallet().handleDelegationsStakerChanged(boost::bind(NotifyDelegationsStakerChanged, this, boost::placeholders::_1, boost::placeholders::_2));
 }
 
 void DelegationStakerItemModel::unsubscribeFromCoreSignals()
