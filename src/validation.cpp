@@ -7181,4 +7181,28 @@ bool GetTimestampIndex(const unsigned int &high, const unsigned int &low, const 
 
     return true;
 }
+
+CAmount GetTxGasFee(const CMutableTransaction& _tx)
+{
+    CTransaction tx(_tx);
+    CAmount nGasFee = 0;
+    if(tx.HasCreateOrCall())
+    {
+        QtumTxConverter convert(tx);
+
+        ExtractQtumTX resultConvertQtumTX;
+        if(!convert.extractionQtumTransactions(resultConvertQtumTX)){
+            return nGasFee;
+        }
+
+        dev::u256 sumGas = dev::u256(0);
+        for(QtumTransaction& qtx : resultConvertQtumTX.first){
+            sumGas += qtx.gas() * qtx.gasPrice();
+        }
+
+        nGasFee = (CAmount) sumGas;
+    }
+    return nGasFee;
+}
+
 //////////////////////////////////////////////////////////////////////////////////

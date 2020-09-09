@@ -1013,4 +1013,7 @@ inline bool IsBlockPruned(const CBlockIndex* pblockindex)
     return (fHavePruned && !(pblockindex->nStatus & BLOCK_HAVE_DATA) && pblockindex->nTx > 0);
 }
 
+//! Get transaction gas fee
+CAmount GetTxGasFee(const CMutableTransaction& tx);
+
 #endif // BITCOIN_VALIDATION_H
