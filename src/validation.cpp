@@ -7188,7 +7188,10 @@ CAmount GetTxGasFee(const CMutableTransaction& _tx)
     CAmount nGasFee = 0;
     if(tx.HasCreateOrCall())
     {
-        QtumTxConverter convert(tx);
+        CCoinsViewCache& view = ::ChainstateActive().CoinsTip();
+        const CChainParams& chainparams = Params();
+        unsigned int contractflags = GetContractScriptFlags(GetSpendHeight(view), chainparams.GetConsensus());
+        QtumTxConverter convert(tx, NULL, NULL, contractflags);
 
         ExtractQtumTX resultConvertQtumTX;
         if(!convert.extractionQtumTransactions(resultConvertQtumTX)){
