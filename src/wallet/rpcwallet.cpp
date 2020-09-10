@@ -2888,10 +2888,10 @@ static UniValue gettransaction(const JSONRPCRequest& request_)
             "      \"address\" : \"address\",          (string) The qtum address involved in the transaction\n"
             "      \"category\" :                      (string) The transaction category.\n"
             "                   \"send\"                  Transactions sent.\n"
-            "                   \"receive\"               Non-coinbase transactions received.\n"
-            "                   \"generate\"              Coinbase transactions received with more than 100 confirmations.\n"
-            "                   \"immature\"              Coinbase transactions received with 100 or fewer confirmations.\n"
-            "                   \"orphan\"                Orphaned coinbase transactions received.\n"
+            "                   \"receive\"               Non-coinbase and not-coinstake transactions received.\n"
+            "                   \"generate\"              Coinbase or coinstake transactions received with more than 500 confirmations.\n"
+            "                   \"immature\"              Coinbase or coinstake transactions received with 500 or fewer confirmations.\n"
+            "                   \"orphan\"                Orphaned coinbase or coinstake transactions received.\n"
             "      \"amount\" : x.xxx,                 (numeric) The amount in " + CURRENCY_UNIT + "\n"
             "      \"label\" : \"label\",              (string) A comment for the address/transaction, if any\n"
             "      \"vout\" : n,                       (numeric) the vout value\n"
@@ -2996,9 +2996,17 @@ static UniValue gettransaction(const JSONRPCRequest& request_)
     CAmount nNet = nCredit - nDebit;
     CAmount nFee = (wtx.IsFromMe(filter) ? wtx.tx->GetValueOut() - nDebit : 0);
 
-    entry.pushKV("amount", ValueFromAmount(nNet - nFee));
-    if (wtx.IsFromMe(filter))
-        entry.pushKV("fee", ValueFromAmount(nFee));
+    if(wtx.IsCoinStake())
+    {
+        CAmount amount = wtx.tx->GetValueOut() - wtx.GetDebit(filter);
+        entry.pushKV("amount", ValueFromAmount(amount));
+    }
+    else
+    {
+        entry.pushKV("amount", ValueFromAmount(nNet - nFee));
+        if (wtx.IsFromMe(filter))
+            entry.pushKV("fee", ValueFromAmount(nFee));
+    }
 
     WalletTxToJSON(pwallet->chain(), *locked_chain, wtx, entry);
 
