@@ -2495,7 +2495,7 @@ static void ListTransactions(interfaces::Chain::Lock& locked_chain, CWallet* con
     if(wtx.IsCoinStake() && listSent.size() > 0 && listReceived.size() > 0)
     {
         // Condense all of the coinstake inputs and outputs into one output and compute its value
-        CAmount amount = wtx.tx->GetValueOut() - wtx.GetDebit(filter_ismine);
+        CAmount amount = wtx.GetCredit(locked_chain, filter_ismine) - wtx.GetDebit(filter_ismine);
         COutputEntry output = *listReceived.begin();
         output.amount = amount;
         listReceived.clear();
@@ -2998,7 +2998,7 @@ static UniValue gettransaction(const JSONRPCRequest& request_)
 
     if(wtx.IsCoinStake())
     {
-        CAmount amount = wtx.tx->GetValueOut() - wtx.GetDebit(filter);
+        CAmount amount = nNet;
         entry.pushKV("amount", ValueFromAmount(amount));
     }
     else
