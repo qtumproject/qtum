@@ -1,11 +1,11 @@
-0.20.0 Release Notes
+0.20.1 Release Notes
 ====================
 
-Bitcoin Core version 0.20.0 is now available from:
+Bitcoin Core version 0.20.1 is now available from:
 
-  <https://bitcoincore.org/bin/bitcoin-core-0.20.0/>
+  <https://bitcoincore.org/bin/bitcoin-core-0.20.1/>
 
-This release includes new features, various bug fixes and performance
+This minor release includes various bug fixes and performance
 improvements, as well as updated translations.
 
 Please report bugs using the issue tracker at GitHub:
@@ -58,64 +58,48 @@ this release:
 Notable changes
 ===============
 
-P2P and network changes
------------------------
+Changes regarding misbehaving peers
+-----------------------------------
 
-#### Removal of BIP61 reject network messages from Bitcoin Core
+Peers that misbehave (e.g. send us invalid blocks) are now referred to as
+discouraged nodes in log output, as they're not (and weren't) strictly banned:
+incoming connections are still allowed from them, but they're preferred for
+eviction.
 
-The `-enablebip61` command line option to enable BIP61 has been removed.
-(#17004)
+Furthermore, a few additional changes are introduced to how discouraged
+addresses are treated:
 
-This feature has been disabled by default since Bitcoin Core version 0.18.0.
-Nodes on the network can not generally be trusted to send valid messages
-(including reject messages), so this should only ever be used when
-connected to a trusted node.  Please use the alternatives recommended
-below if you rely on this removed feature:
+- Discouraging an address does not time out automatically after 24 hours
+  (or the `-bantime` setting). Depending on traffic from other peers,
+  discouragement may time out at an indeterminate time.
 
-- Testing or debugging of implementations of the Bitcoin P2P network protocol
-  should be done by inspecting the log messages that are produced by a recent
-  version of Bitcoin Core. Bitcoin Core logs debug messages
-  (`-debug=<category>`) to a stream (`-printtoconsole`) or to a file
-  (`-debuglogfile=<debug.log>`).
+- Discouragement is not persisted over restarts.
 
-- Testing the validity of a block can be achieved by specific RPCs:
+- There is no method to list discouraged addresses. They are not returned by
+  the `listbanned` RPC. That RPC also no longer reports the `ban_reason`
+  field, as `"manually added"` is the only remaining option.
 
-  - `submitblock`
+- Discouragement cannot be removed with the `setban remove` RPC command.
+  If you need to remove a discouragement, you can remove all discouragements by
+  stop-starting your node.
 
-  - `getblocktemplate` with `'mode'` set to `'proposal'` for blocks with
-    potentially invalid POW
+Notification changes
+--------------------
 
-- Testing the validity of a transaction can be achieved by specific RPCs:
+`-walletnotify` notifications are now sent for wallet transactions that are
+removed from the mempool because they conflict with a new block. These
+notifications were sent previously before the v0.19 release, but had been
+broken since that release (bug
+[#18325](https://github.com/bitcoin/bitcoin/issues/18325)).
 
-  - `sendrawtransaction`
-
-  - `testmempoolaccept`
-
-- Wallets should not assume a transaction has propagated to the network
-  just because there are no reject messages.  Instead, listen for the
-  transaction to be announced by other peers on the network.  Wallets
-  should not assume a lack of reject messages means a transaction pays
-  an appropriate fee.  Instead, set fees using fee estimation and use
-  replace-by-fee to increase a transaction's fee if it hasn't confirmed
-  within the desired amount of time.
-
-The removal of BIP61 reject message support also has the following minor RPC
-and logging implications:
-
-- `testmempoolaccept` and `sendrawtransaction` no longer return the P2P reject
-  code when a transaction is not accepted to the mempool. They still return the
-  verbal reject reason.
-
-- Log messages that previously reported the reject code when a transaction was
-  not accepted to the mempool now no longer report the reject code. The reason
-  for rejection is still reported.
-
-Updated RPCs
+PSBT changes
 ------------
 
-- The RPCs which accept descriptors now accept the new `sortedmulti(...)` descriptor
-  type which supports multisig scripts where the public keys are sorted
-  lexicographically in the resulting script.  (#17056)
+PSBTs will contain both the non-witness utxo and the witness utxo for segwit
+inputs in order to restore compatibility with wallet software that are now
+requiring the full previous transaction for segwit inputs. The witness utxo
+is still provided to maintain compatibility with software which relied on its
+existence to determine whether an input was segwit.
 
 - The `walletprocesspsbt` and `walletcreatefundedpsbt` RPCs now include
   BIP32 derivation paths by default for public keys if we know them.

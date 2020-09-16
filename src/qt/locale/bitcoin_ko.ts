@@ -551,6 +551,10 @@
         <translation type="unfinished">받을 주소</translation>
     </message>
     <message>
+        <source>Open a qtum: URI</source>
+        <translation>qtum: URI 열기</translation>
+    </message>
+    <message>
         <source>Show the list of used receiving addresses and labels</source>
         <translation type="unfinished">사용했던 입금 주소와 라벨 리스트 표시</translation>
     </message>
@@ -1198,12 +1202,24 @@
         <translation>지갑 이름</translation>
     </message>
     <message>
+        <source>Encrypt the wallet. The wallet will be encrypted with a passphrase of your choice.</source>
+        <translation>지갑 암호화하기. 해당 지갑은 당신이 설정한 문자열 비밀번호로 암호화될 겁니다.</translation>
+    </message>
+    <message>
         <source>Encrypt Wallet</source>
         <translation>지갑 암호화</translation>
     </message>
     <message>
+        <source>Disable Private Keys</source>
+        <translation>개인키 비활성화 하기</translation>
+    </message>
+    <message>
         <source>Make Blank Wallet</source>
         <translation>빈 지갑 만들기</translation>
+    </message>
+    <message>
+        <source>Create</source>
+        <translation>생성하기</translation>
     </message>
 </context>
 <context>
@@ -1574,6 +1590,10 @@
             <numerusform>(%n GB의 공간이 필요합니다. )</numerusform>
         </translation>
     </message>
+    <message numerus="yes">
+        <source>(%n GB needed for full chain)</source>
+        <translation><numerusform>(Full 체인이 되려면 %n GB 가 필요합니다)</numerusform></translation>
+    </message>
     <message>
         <source>This initial synchronisation is very demanding, and may expose hardware problems with your computer that had previously gone unnoticed. Each time you run %1, it will continue downloading where it left off.</source>
         <translation type="unfinished">초기 동기화는 매우 중요하고 이 과정에서 발견하지 못했던 컴퓨터 하드웨어 이슈가 드러날 수 있습니다. %1에 대한 동기화는 지난 종료 직전 상태부터 실행될 예정입니다. </translation>
@@ -1626,6 +1646,10 @@
         <translation>숨기기</translation>
     </message>
     <message>
+        <source>Esc</source>
+        <translation>Esc</translation>
+    </message>
+    <message>
         <source>Unknown. Syncing Headers (%1, %2%)...</source>
         <translation>알 수 없음. 블록헤드 동기화 중(%1, %2%)...</translation>
     </message>
@@ -1656,6 +1680,25 @@ Please make sure to keep an updated antivirus and operating system. We can not r
     <message>
         <source>URI:</source>
         <translation>URI:</translation>
+    </message>
+</context>
+<context>
+    <name>OpenWalletActivity</name>
+    <message>
+        <source>Open wallet failed</source>
+        <translation>지갑 열기 실패</translation>
+    </message>
+    <message>
+        <source>Open wallet warning</source>
+        <translation>지갑 열기 경고</translation>
+    </message>
+    <message>
+        <source>default wallet</source>
+        <translation>기본 지갑</translation>
+    </message>
+    <message>
+        <source>Opening Wallet &lt;b&gt;%1&lt;/b&gt;...</source>
+        <translation>지갑 &lt;b&gt;%1&lt;/b&gt; 여는중...</translation>
     </message>
 </context>
 <context>
@@ -2130,6 +2173,18 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation type="vanished">‘qtum://’은 유효한 URI이 아닙니다. &apos;qtum:&apos;로 대체해주세요. </translation>
     </message>
     <message>
+        <source>Cannot process payment request because BIP70 is not supported.</source>
+        <translation>BIP70을 지원하지 않아서 지불 요청을 처리할 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>Due to widespread security flaws in BIP70 it's strongly recommended that any merchant instructions to switch wallets be ignored.</source>
+        <translation>BIP70의 보안적 결함 때문에 상점에 불문하고 "지갑을 바꾸라"라는 권고 또는 지시는 대부분의 경우 무시하는 방법을 강력하게 권장합니다.</translation>
+    </message>
+    <message>
+        <source>If you are receiving this error you should request the merchant provide a BIP21 compatible URI.</source>
+        <translation>만약 이 오류 메시지가 보인다면, 상점에 BIP21이 호환되는 URI를 제공해달라고 요청해주세요.</translation>
+    </message>
+    <message>
         <source>Invalid payment address %1</source>
         <translation>무효한 송금 주소 %1</translation>
     </message>
@@ -2354,19 +2409,31 @@ Please make sure to keep an updated antivirus and operating system. We can not r
     <name>QRImageWidget</name>
     <message>
         <source>&amp;Save Image...</source>
-        <translation>이미지 저장</translation>
+        <translation>이미지 저장(&amp;S)...</translation>
     </message>
     <message>
         <source>&amp;Copy Image</source>
-        <translation>이미지 복사</translation>
+        <translation>이미지 복사(&amp;C)</translation>
+    </message>
+    <message>
+        <source>Resulting URI too long, try to reduce the text for label / message.</source>
+        <translation>URI 결과가 너무 깁니다. 라벨 / 메세지를 줄이세요.</translation>
+    </message>
+    <message>
+        <source>Error encoding URI into QR Code.</source>
+        <translation>URI를 QR 코드로 인코딩하는 중 오류가 발생했습니다.</translation>
+    </message>
+    <message>
+        <source>QR code support not available.</source>
+        <translation>QR 코드를 지원하지 않습니다.</translation>
     </message>
     <message>
         <source>Save QR Code</source>
-        <translation>QR 코드 저장</translation>
+        <translation>QR코드 저장</translation>
     </message>
     <message>
         <source>PNG Image (*.png)</source>
-        <translation>PNG 이미지 (*.png)</translation>
+        <translation>PNG 이미지(*.png)</translation>
     </message>
 </context>
 <context>
@@ -2622,6 +2689,10 @@ Please make sure to keep an updated antivirus and operating system. We can not r
     <message>
         <source>&amp;Receiving addresses</source>
         <translation type="vanished">받는 주소</translation>
+    </message>
+    <message>
+        <source>Open a qtum: URI</source>
+        <translation>qtum: URI 열기</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -3106,6 +3177,10 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation>지불 요청 금액을 추가할 수 있습니다. 특정 금액이 없다면 0 또는 빈칸으로 남겨두세요. </translation>
     </message>
     <message>
+        <source>&amp;Create new receiving address</source>
+        <translation>&amp;새 받을 주소 생성하기</translation>
+    </message>
+    <message>
         <source>Clear all fields of the form.</source>
         <translation type="vanished">모든 내용 제거</translation>
     </message>
@@ -3481,6 +3556,10 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation>더스트: </translation>
     </message>
     <message>
+        <source>Hide transaction fee settings</source>
+        <translation>거래 수수료 설정 숨기기</translation>
+    </message>
+    <message>
         <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
         <translation type="vanished">거래량이 블록 공간보다 작을 경우, 마이너, 노드는 최소 수수료 제한을 실행합니다. 최소 수수료로 지불할 수도 있지만 거래량이 퀀텀 네트워크의 처리 한도를 넘어선다면 해당 거래는 장시간 동안 승인을 받지 못할 수 있습니다. </translation>
     </message>
@@ -3549,6 +3628,14 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation>%1 (%2 블록)</translation>
     </message>
     <message>
+        <source> from wallet '%1'</source>
+        <translation>%1 지갑에서</translation>
+    </message>
+    <message>
+        <source>%1 to '%2'</source>
+        <translation>%1을(를) %2(으)로</translation>
+    </message>
+    <message>
         <source>%1 to %2</source>
         <translation>%1 에서 %2 로</translation>
     </message>
@@ -3587,6 +3674,22 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <source>Confirm send coins</source>
         <translation>송금 확인</translation>
+    </message>
+    <message>
+        <source>Copy PSBT to clipboard</source>
+        <translation>PSBT를 클립보드에 복사</translation>
+    </message>
+    <message>
+        <source>Send</source>
+        <translation>보내기</translation>
+    </message>
+    <message>
+        <source>PSBT copied</source>
+        <translation>PSBT 복사됨</translation>
+    </message>
+    <message>
+        <source>Watch-only balance:</source>
+        <translation>조회전용 잔액:</translation>
     </message>
     <message>
         <source>The recipient address is not valid. Please recheck.</source>
@@ -4056,6 +4159,10 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <source>Wallet unlock was cancelled.</source>
         <translation>지갑 언락이 취소되었습니다. </translation>
+    </message>
+    <message>
+        <source>No error</source>
+        <translation>오류 없음</translation>
     </message>
     <message>
         <source>Private key for the entered address is not available.</source>
@@ -4591,6 +4698,10 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation>색인 내보내기</translation>
     </message>
     <message>
+        <source> (Certificate was not verified)</source>
+        <translation>(인증서가 확인되지 않았습니다)</translation>
+    </message>
+    <message>
         <source>Merchant</source>
         <translation>제공자</translation>
     </message>
@@ -4937,7 +5048,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     </message>
     <message>
         <source>Are you sure you wish to close the wallet &lt;i&gt;%1&lt;/i&gt;?</source>
-        <translation>지갑&lt;i&gt;%1&lt;/i&gt;을 닫으시겠습니까?</translation>
+        <translation>정말로 지갑 &lt;i&gt;%1&lt;/i&gt; 을 닫겠습니까?</translation>
     </message>
     <message>
         <source>Closing the wallet for too long can result in having to resync the entire chain if pruning is enabled.</source>
@@ -4984,6 +5095,10 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <source>Confirm fee bump</source>
         <translation>수수료 늘리기 승인</translation>
+    </message>
+    <message>
+        <source>PSBT copied</source>
+        <translation>PSBT 복사됨</translation>
     </message>
     <message>
         <source>Can&apos;t sign transaction.</source>
@@ -5208,6 +5323,14 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation type="unfinished">블록 데이터베이스 회손이 감지되었습니다. </translation>
     </message>
     <message>
+        <source>Could not find asmap file %s</source>
+        <translation>asmap file %s 을/를 찾을 수 없습니다</translation>
+    </message>
+    <message>
+        <source>Could not parse asmap file %s</source>
+        <translation>asmap file %s 을/를 파싱할 수 없습니다</translation>
+    </message>
+    <message>
         <source>Do you want to rebuild the block database now?</source>
         <translation type="unfinished">블록 데이터베이스를 다시 구축하시겠습니까?</translation>
     </message>
@@ -5312,6 +5435,10 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation type="unfinished">무효한 -proxy 주소 또는 호스트 이름: &apos;%s&apos;</translation>
     </message>
     <message>
+        <source>Invalid P2P permission: '%s'</source>
+        <translation>잘못된 P2P 권한: '%s'</translation>
+    </message>
+    <message>
         <source>Invalid amount for -%s=&lt;amount&gt;: &apos;%s&apos;</source>
         <translation type="unfinished">-%s 에 대한 무효한 금액 =&lt;amount&gt;: &apos;%s&apos;</translation>
     </message>
@@ -5344,6 +5471,10 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation type="unfinished">P2P주소를 불러오고 있습니다. </translation>
     </message>
     <message>
+        <source>Error: Disk space is too low!</source>
+        <translation>오류: 디스크 공간이 부족합니다!</translation>
+    </message>
+    <message>
         <source>Loading banlist...</source>
         <translation type="unfinished">블랙 리스트를 불러오고 있습니다. </translation>
     </message>
@@ -5358,6 +5489,10 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <source>Need to specify a port with -whitebind: &apos;%s&apos;</source>
         <translation type="unfinished">-whitebind: &apos;%s&apos; 특정 포트를 지정해야 함.</translation>
+    </message>
+    <message>
+        <source>Prune mode is incompatible with -blockfilterindex.</source>
+        <translation>블록 축소 모드는 -blockfileterindex와 호환되지 않습니다.</translation>
     </message>
     <message>
         <source>Not enough file descriptors available.</source>
@@ -5414,6 +5549,10 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <source>Specified blocks directory &quot;%s&quot; does not exist.</source>
         <translation type="unfinished">지정한 블록 목록&quot;%s&quot;이 존재하지 않습니다. </translation>
+    </message>
+    <message>
+        <source>Unknown change type '%s'</source>
+        <translation>알 수 없는 변경 형식 '%s'</translation>
     </message>
     <message>
         <source>Starting network threads...</source>
@@ -5492,6 +5631,10 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <source>Unable to generate initial keys</source>
         <translation type="unfinished">초기 비밀번호 생성 불가</translation>
+    </message>
+    <message>
+        <source>Unknown -blockfilterindex value %s.</source>
+        <translation>알 수 없는 -blockfileterindex 값 %s.</translation>
     </message>
     <message>
         <source>Unable to generate keys</source>
@@ -5669,6 +5812,14 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation type="vanished">블록 데이터베이스 회손이 감지되었습니다. </translation>
     </message>
     <message>
+        <source>Could not find asmap file %s</source>
+        <translation>asmap file %s 을/를 찾을 수 없습니다</translation>
+    </message>
+    <message>
+        <source>Could not parse asmap file %s</source>
+        <translation>asmap file %s 을/를 파싱할 수 없습니다</translation>
+    </message>
+    <message>
         <source>Do you want to rebuild the block database now?</source>
         <translation type="vanished">블록 데이터베이스를 다시 구축하시겠습니까?</translation>
     </message>
@@ -5725,6 +5876,10 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation type="vanished">제네시스 블록이 잘못되었거나 확인되지 않습니다. 네트워크를 확인해주세요. </translation>
     </message>
     <message>
+        <source>Invalid P2P permission: '%s'</source>
+        <translation>잘못된 P2P 권한: '%s'</translation>
+    </message>
+    <message>
         <source>Invalid amount for -%s=&lt;amount&gt;: &apos;%s&apos;</source>
         <translation type="vanished">-%s 에 대한 무효한 금액 =&lt;amount&gt;: &apos;%s&apos;</translation>
     </message>
@@ -5741,6 +5896,10 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation type="vanished">지정한 블록 목록&quot;%s&quot;이 존재하지 않습니다. </translation>
     </message>
     <message>
+        <source>Unknown change type '%s'</source>
+        <translation>알 수 없는 변경 형식 '%s'</translation>
+    </message>
+    <message>
         <source>Unable to create the PID file &apos;%s&apos;: %s</source>
         <translation type="vanished">PID 파일&apos;%s&apos;: %s 을 생성하지 못했습니다. </translation>
     </message>
@@ -5751,6 +5910,10 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <source>Loading P2P addresses...</source>
         <translation type="vanished">P2P주소를 불러오고 있습니다. </translation>
+    </message>
+    <message>
+        <source>Error: Disk space is too low!</source>
+        <translation>오류: 디스크 공간이 부족합니다!</translation>
     </message>
     <message>
         <source>Loading banlist...</source>
@@ -5865,6 +6028,10 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation type="vanished">-whitebind 에 특정 포트 지정 : &apos;%s&apos; </translation>
     </message>
     <message>
+        <source>Prune mode is incompatible with -blockfilterindex.</source>
+        <translation>블록 축소 모드는 -blockfileterindex와 호환되지 않습니다.</translation>
+    </message>
+    <message>
         <source>Reducing -maxconnections from %d to %d, because of system limitations.</source>
         <translation type="vanished">시스템 제한으로 -maxconnections를 %d에서 %d로 낮췄습니다. </translation>
     </message>
@@ -5921,6 +6088,10 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <source>Unable to generate initial keys</source>
         <translation type="vanished">초기 비밀번호 생성 불가</translation>
+    </message>
+    <message>
+        <source>Unknown -blockfilterindex value %s.</source>
+        <translation>알 수 없는 -blockfileterindex 값 %s.</translation>
     </message>
     <message>
         <source>Verifying wallet(s)...</source>
