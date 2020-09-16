@@ -730,8 +730,8 @@ static void ShowProgress(TokenTransactionTableModel *ttm, const std::string &tit
 void TokenTransactionTableModel::subscribeToCoreSignals()
 {
     // Connect signals to wallet
-    m_handler_token_transaction_changed = walletModel->wallet().handleTokenTransactionChanged(boost::bind(NotifyTokenTransactionChanged, this, _1, _2));
-    m_handler_show_progress = walletModel->wallet().handleShowProgress(boost::bind(ShowProgress, this, _1, _2));
+    m_handler_token_transaction_changed = walletModel->wallet().handleTokenTransactionChanged(boost::bind(NotifyTokenTransactionChanged, this, boost::placeholders::_1, boost::placeholders::_2));
+    m_handler_show_progress = walletModel->wallet().handleShowProgress(boost::bind(ShowProgress, this, boost::placeholders::_1, boost::placeholders::_2));
 }
 
 void TokenTransactionTableModel::unsubscribeFromCoreSignals()

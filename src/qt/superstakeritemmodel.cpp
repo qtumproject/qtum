@@ -413,7 +413,7 @@ static void NotifySuperStakerChanged(SuperStakerItemModel *tim, const uint256 &h
 void SuperStakerItemModel::subscribeToCoreSignals()
 {
     // Connect signals to wallet
-    m_handler_superstaker_changed = walletModel->wallet().handleSuperStakerChanged(boost::bind(NotifySuperStakerChanged, this, _1, _2));
+    m_handler_superstaker_changed = walletModel->wallet().handleSuperStakerChanged(boost::bind(NotifySuperStakerChanged, this, boost::placeholders::_1, boost::placeholders::_2));
 }
 
 void SuperStakerItemModel::unsubscribeFromCoreSignals()
