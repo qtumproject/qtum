@@ -98,6 +98,7 @@ MACHO_ALLOWED_LIBRARIES = {
 'Foundation', # base layer functionality for apps/frameworks
 'ImageIO', # read and write image file formats.
 'IOKit', # user-space access to hardware devices and drivers.
+'Security', # secure the data your app manages, and control access to your app.
 'libobjc.A.dylib', # Objective-C runtime library
 }
 
