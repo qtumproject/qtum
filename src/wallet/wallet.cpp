@@ -5853,14 +5853,20 @@ void CWallet::StartStake(CConnman *connman)
 
 void CWallet::StopStake()
 {
-    m_enabled_staking = false;
-    if(stakeThread)
+    if(!stakeThread)
+    {
+        if(m_enabled_staking)
+            m_enabled_staking = false;
+    }
+    else
     {
         auto locked_chain = chain().lock();
         LOCK(cs_wallet);
+
+        m_enabled_staking = false;
         StakeQtums(false, 0);
+        stakeThread = 0;
     }
-    stakeThread = 0;
 }
 
 void CWallet::updateDelegationsStaker(const std::map<uint160, Delegation> &delegations_staker)
