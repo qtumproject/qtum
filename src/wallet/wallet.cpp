@@ -5863,9 +5863,11 @@ void CWallet::StopStake()
         auto locked_chain = chain().lock();
         LOCK(cs_wallet);
 
+        m_stop_staking_thread = true;
         m_enabled_staking = false;
         StakeQtums(false, 0);
         stakeThread = 0;
+        m_stop_staking_thread = false;
     }
 }
 
