@@ -794,7 +794,6 @@ public:
     {
         RemoveWallet(m_wallet);
     }
-//begin_qtum
     bool addTokenEntry(const TokenInfo &token) override
     {
         return m_wallet->AddTokenEntry(MakeTokenInfo(token), true);
@@ -1349,7 +1348,6 @@ public:
 
         return keyID != 0;
     }
-//end_qtum
     std::unique_ptr<Handler> handleUnload(UnloadFn fn) override
     {
         return MakeHandler(m_wallet->NotifyUnload.connect(fn));
