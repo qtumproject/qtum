@@ -1393,6 +1393,9 @@ public:
     /* Stop staking qtums */
     void StopStake();
 
+    /* Is staking closing */
+    bool IsStakeClosing();
+
     static CConnman* defaultConnman;
 
     void updateDelegationsStaker(const std::map<uint160, Delegation>& delegations_staker);

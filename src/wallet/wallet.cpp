@@ -5871,6 +5871,11 @@ void CWallet::StopStake()
     }
 }
 
+bool CWallet::IsStakeClosing()
+{
+    return chain().shutdownRequested() || m_stop_staking_thread;
+}
+
 void CWallet::updateDelegationsStaker(const std::map<uint160, Delegation> &delegations_staker)
 {
     LOCK(cs_wallet);

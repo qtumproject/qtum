@@ -1166,16 +1166,28 @@ bool CheckStake(const std::shared_ptr<const CBlock> pblock, CWallet& wallet)
     return true;
 }
 
-void SleepStaker(CWallet *pwallet, u_int64_t milliseconds)
+bool SleepStaker(CWallet *pwallet, u_int64_t milliseconds)
 {
     u_int64_t seconds = milliseconds / 1000;
     milliseconds %= 1000;
 
-    for(unsigned int i = 0; (i < seconds) && !pwallet->m_stop_staking_thread; i++)
-        UninterruptibleSleep(std::chrono::seconds{1});
+    for(unsigned int i = 0; i < seconds; i++)
+    {
+        if(!pwallet->IsStakeClosing())
+            UninterruptibleSleep(std::chrono::seconds{1});
+        else
+            return false;
+    }
 
-    if(milliseconds && !pwallet->m_stop_staking_thread)
-        UninterruptibleSleep(std::chrono::milliseconds{milliseconds});
+    if(milliseconds)
+    {
+        if(!pwallet->IsStakeClosing())
+            UninterruptibleSleep(std::chrono::milliseconds{milliseconds});
+        else
+            return false;
+    }
+
+    return !pwallet->IsStakeClosing();
 }
 
 void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
@@ -1201,28 +1213,25 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
     int nOfflineStakeHeight = Params().GetConsensus().nOfflineStakeHeight;
     bool fDelegationsContract = !Params().GetConsensus().delegationsAddress.IsNull();
 
-    while (pwallet && !pwallet->m_stop_staking_thread)
+    while (pwallet && !pwallet->IsStakeClosing())
     {
         while (pwallet->IsLocked() || !pwallet->m_enabled_staking || fReindex || fImporting)
         {
             pwallet->m_last_coin_stake_search_interval = 0;
-            SleepStaker(pwallet, 10000);
-            if(pwallet->m_stop_staking_thread) return;
+            if(!SleepStaker(pwallet, 10000)) return;
         }
         //don't disable PoS mining for no connections if in regtest mode
         if(!regtestMode && !gArgs.GetBoolArg("-emergencystaking", false)) {
             while (connman->GetNodeCount(CConnman::CONNECTIONS_ALL) == 0 || ::ChainstateActive().IsInitialBlockDownload()) {
                 pwallet->m_last_coin_stake_search_interval = 0;
                 fTryToSync = true;
-                SleepStaker(pwallet, 1000);
-                if(pwallet->m_stop_staking_thread) return;
+                if(!SleepStaker(pwallet, 1000)) return;
             }
             if (fTryToSync) {
                 fTryToSync = false;
                 if (connman->GetNodeCount(CConnman::CONNECTIONS_ALL) < 3 ||
                 	::ChainActive().Tip()->GetBlockTime() < GetTime() - 10 * 60) {
-                    SleepStaker(pwallet, 60000);
-                    if(pwallet->m_stop_staking_thread) return;
+                    if(!SleepStaker(pwallet, 60000)) return;
                     continue;
                 }
             }
@@ -1236,6 +1245,7 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
         std::set<std::pair<const CWalletTx*,unsigned int> > setCoins;
         std::vector<COutPoint> setDelegateCoins;
         {
+            if(pwallet->IsStakeClosing()) return;
             auto locked_chain = pwallet->chain().lock();
             LOCK(pwallet->cs_wallet);
             int32_t nHeight = ::ChainActive().Height();
@@ -1318,12 +1328,10 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
                                     //if being agressive, then check more often to publish immediately when valid. This might allow you to find more blocks, 
                                     //but also increases the chance of broadcasting invalid blocks and getting DoS banned by nodes,
                                     //or receiving more stale/orphan blocks than normal. Use at your own risk.
-                                    SleepStaker(pwallet, 100);
-                                    if(pwallet->m_stop_staking_thread) return;
+                                    if(!SleepStaker(pwallet, 100)) return;
                                 }else{
                                     //too early, so wait 3 seconds and try again
-                                    SleepStaker(pwallet, 3000);
-                                    if(pwallet->m_stop_staking_thread) return;
+                                    if(!SleepStaker(pwallet, 3000)) return;
                                 }
                                 continue;
                             }
@@ -1341,7 +1349,7 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
                 }
             }
         }
-        SleepStaker(pwallet, nMinerSleep);
+        if(!SleepStaker(pwallet, nMinerSleep)) return;
     }
 }
 
