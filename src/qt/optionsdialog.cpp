@@ -95,6 +95,9 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
         ui->tabWidget->removeTab(ui->tabWidget->indexOf(ui->tabWallet));
         ui->thirdPartyTxUrlsLabel->setVisible(false);
         ui->thirdPartyTxUrls->setVisible(false);
+        ui->reserveBalanceLabel->setVisible(false);
+        ui->reserveBalance->setVisible(false);
+        ui->superStaking->setVisible(false);
     }
 
     /* Display elements init */
