@@ -2376,7 +2376,7 @@ bool CheckSenderScript(const CCoinsViewCache& view, const CTransaction& tx){
     return true;
 }
 
-std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, const dev::Address& sender, uint64_t gasLimit){
+std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, const dev::Address& sender, uint64_t gasLimit, CAmount nAmount){
     CBlock block;
     CMutableTransaction tx;
 
@@ -2396,17 +2396,17 @@ std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::v
         gasLimit = blockGasLimit - 1;
     }
     dev::Address senderAddress = sender == dev::Address() ? dev::Address("ffffffffffffffffffffffffffffffffffffffff") : sender;
-    tx.vout.push_back(CTxOut(0, CScript() << OP_DUP << OP_HASH160 << senderAddress.asBytes() << OP_EQUALVERIFY << OP_CHECKSIG));
+    tx.vout.push_back(CTxOut(nAmount, CScript() << OP_DUP << OP_HASH160 << senderAddress.asBytes() << OP_EQUALVERIFY << OP_CHECKSIG));
     block.vtx.push_back(MakeTransactionRef(CTransaction(tx)));
  
     QtumTransaction callTransaction;
     if(addrContract == dev::Address())
     {
-        callTransaction = QtumTransaction(0, 1, dev::u256(gasLimit), opcode, dev::u256(0));
+        callTransaction = QtumTransaction(nAmount, 1, dev::u256(gasLimit), opcode, dev::u256(0));
     }
     else
     {
-        callTransaction = QtumTransaction(0, 1, dev::u256(gasLimit), addrContract, opcode, dev::u256(0));
+        callTransaction = QtumTransaction(nAmount, 1, dev::u256(gasLimit), addrContract, opcode, dev::u256(0));
     }
     callTransaction.forceSender(senderAddress);
     callTransaction.setVersion(VersionVM::GetEVMDefault());
