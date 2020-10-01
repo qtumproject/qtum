@@ -654,7 +654,11 @@ bool CBlockTreeDB::UpdateSpentIndex(const std::vector<std::pair<CSpentIndexKey, 
 }
 
 bool CBlockTreeDB::blockOnchainActive(const uint256 &hash) {
-    CBlockIndex* pblockindex = ::BlockIndex()[hash];
+    BlockMap::iterator mi = ::BlockIndex().find(hash);
+    if (mi == ::BlockIndex().end())
+        return false;
+
+    CBlockIndex* pblockindex = (*mi).second;
     return pblockindex && ::ChainActive().Contains(pblockindex);
 }
 ///////////////////////////////////////////////////////

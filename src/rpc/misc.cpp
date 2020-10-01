@@ -574,11 +574,17 @@ UniValue getblockhashes(const JSONRPCRequest& request)
     }
 
     std::vector<std::pair<uint256, unsigned int> > blockHashes;
+    bool found = false;
 
-    if (fActiveOnly)
+    if (fActiveOnly) {
         LOCK(cs_main);
+        found = GetTimestampIndex(high, low, fActiveOnly, blockHashes);
+    }
+    else {
+        found = GetTimestampIndex(high, low, fActiveOnly, blockHashes);
+    }
 
-    if (!GetTimestampIndex(high, low, fActiveOnly, blockHashes)) {
+    if (!found) {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "No information available for block hashes");
     }
 
