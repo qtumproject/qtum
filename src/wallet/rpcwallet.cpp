@@ -168,7 +168,7 @@ static void WalletTxToJSON(interfaces::Chain& chain, interfaces::Chain::Lock& lo
 {
     int confirms = wtx.GetDepthInMainChain();
     entry.pushKV("confirmations", confirms);
-    if (wtx.IsCoinBase())
+    if (wtx.IsCoinBase() || wtx.IsCoinStake())
         entry.pushKV("generated", true);
     if (confirms > 0)
     {
@@ -1691,7 +1691,7 @@ static UniValue getreceivedbyaddress(const JSONRPCRequest& request)
     CAmount nAmount = 0;
     for (const std::pair<const uint256, CWalletTx>& pairWtx : pwallet->mapWallet) {
         const CWalletTx& wtx = pairWtx.second;
-        if (wtx.IsCoinBase() || !locked_chain->checkFinalTx(*wtx.tx)) {
+        if (wtx.IsCoinBase() || wtx.IsCoinStake() || !locked_chain->checkFinalTx(*wtx.tx)) {
             continue;
         }
 
@@ -1755,7 +1755,7 @@ static UniValue getreceivedbylabel(const JSONRPCRequest& request)
     CAmount nAmount = 0;
     for (const std::pair<const uint256, CWalletTx>& pairWtx : pwallet->mapWallet) {
         const CWalletTx& wtx = pairWtx.second;
-        if (wtx.IsCoinBase() || !locked_chain->checkFinalTx(*wtx.tx)) {
+        if (wtx.IsCoinBase() || wtx.IsCoinStake() || !locked_chain->checkFinalTx(*wtx.tx)) {
             continue;
         }
 
@@ -2257,7 +2257,7 @@ static UniValue ListReceived(interfaces::Chain::Lock& locked_chain, const CWalle
     for (const std::pair<const uint256, CWalletTx>& pairWtx : pwallet->mapWallet) {
         const CWalletTx& wtx = pairWtx.second;
 
-        if (wtx.IsCoinBase() || !locked_chain.checkFinalTx(*wtx.tx)) {
+        if (wtx.IsCoinBase() || wtx.IsCoinStake() || !locked_chain.checkFinalTx(*wtx.tx)) {
             continue;
         }
 
