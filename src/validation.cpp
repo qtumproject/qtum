@@ -2865,7 +2865,7 @@ size_t QtumTxConverter::correctedStackSize(size_t size){
 }
 ///////////////////////////////////////////////////////////////////////
 
-bool CheckDelegationOutput(const CBlock& block, bool& delegateOutputExist)
+bool CheckDelegationOutput(const CBlock& block, bool& delegateOutputExist, CCoinsViewCache& view)
 {
     if(block.IsProofOfStake() && block.HasProofOfDelegation())
     {
@@ -2876,7 +2876,7 @@ bool CheckDelegationOutput(const CBlock& block, bool& delegateOutputExist)
             staker = uint160(ToByteVector(CPubKey(vchPubKey).GetID()));
             uint160 address;
             uint8_t fee = 0;
-            if(GetBlockDelegation(block, staker, address, fee))
+            if(GetBlockDelegation(block, staker, address, fee, view))
             {
                 delegateOutputExist = IsDelegateOutputExist(fee);
                 return true;
@@ -2934,7 +2934,7 @@ bool CChainState::ConnectBlock(const CBlock& block, BlockValidationState& state,
     }
 
     bool delegateOutputExist = false;
-    if (!CheckDelegationOutput(block, delegateOutputExist)) {
+    if (!CheckDelegationOutput(block, delegateOutputExist, view)) {
         return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-delegate-output", strprintf("%s : delegation output check failed", __func__));
     }
 
@@ -3580,7 +3580,7 @@ bool CChainState::ConnectBlock(const CBlock& block, BlockValidationState& state,
             {
                 uint160 address;
                 uint8_t fee = 0;
-                GetBlockDelegation(block, pkh, address, fee);
+                GetBlockDelegation(block, pkh, address, fee, view);
                 pblocktree->WriteDelegateIndex(pindex->nHeight, address, fee);
             }
         }else{
@@ -4859,7 +4859,7 @@ bool GetBlockPublicKey(const CBlock& block, std::vector<unsigned char>& vchPubKe
     return false;
 }
 
-bool GetBlockDelegation(const CBlock& block, const uint160& staker, uint160& address, uint8_t& fee)
+bool GetBlockDelegation(const CBlock& block, const uint160& staker, uint160& address, uint8_t& fee, CCoinsViewCache& view)
 {
     // Check block parameters
     if (block.IsProofOfWork())
@@ -4893,9 +4893,8 @@ bool GetBlockDelegation(const CBlock& block, const uint160& staker, uint160& add
         return false;
 
     // Get the staker fee
-    CCoinsViewCache& cache = ::ChainstateActive().CoinsTip();
     COutPoint prevout = block.vtx[1]->vin[0].prevout;
-    CAmount nValueCoin = cache.AccessCoin(prevout).out.nValue;
+    CAmount nValueCoin = view.AccessCoin(prevout).out.nValue;
     if(nValueCoin <= 0)
         return false;
 
