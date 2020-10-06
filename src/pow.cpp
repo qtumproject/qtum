@@ -9,6 +9,7 @@
 #include <chain.h>
 #include <primitives/block.h>
 #include <uint256.h>
+#include <pos.h>
 
 namespace {
     // returns a * exp(p/q) where |p/q| is small
@@ -126,7 +127,7 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
             nActualSpacing = nTargetSpacing;
         if (nActualSpacing > nTargetSpacing * 20)
             nActualSpacing = nTargetSpacing * 20;
-        bnNew = mul_exp(bnNew, 2 * (nActualSpacing - nTargetSpacing) / 16, (nInterval + 1) * nTargetSpacing / 16);
+        bnNew = mul_exp(bnNew, 2 * (nActualSpacing - nTargetSpacing) / (STAKE_TIMESTAMP_MASK + 1), (nInterval + 1) * nTargetSpacing / (STAKE_TIMESTAMP_MASK + 1));
     }
 
     if (bnNew <= 0 || bnNew > bnTargetLimit)

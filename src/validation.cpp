@@ -213,6 +213,8 @@ static FILE* OpenUndoFile(const FlatFilePos &pos, bool fReadOnly = false);
 static FlatFileSeq BlockFileSeq();
 static FlatFileSeq UndoFileSeq();
 
+int64_t FutureDrift(uint32_t nTime) { return nTime + STAKE_TIMESTAMP_MASK; }
+
 bool CheckFinalTx(const CTransaction &tx, int flags)
 {
     AssertLockHeld(cs_main);
