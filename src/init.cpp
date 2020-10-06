@@ -1325,6 +1325,20 @@ bool AppInitParameterInteraction()
         }
     }
 
+    if (gArgs.IsArgSet("-blocktimeheight")) {
+        // Allow overriding short block time block height for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError("Short block time height may only be overridden on regtest.");
+        }
+
+        int blocktimeheight = gArgs.GetArg("-blocktimeheight", 0);
+        if(blocktimeheight >= 0)
+        {
+            UpdateBlockTimeHeight(blocktimeheight);
+            LogPrintf("Activate short block time at block height %d\n.", blocktimeheight);
+        }
+    }
+
     if(gArgs.IsArgSet("-stakingwhitelist") && gArgs.IsArgSet("-stakingblacklist"))
     {
         return InitError("Either -stakingwhitelist or -stakingblacklist parameter can be specified to the staker, not both.");

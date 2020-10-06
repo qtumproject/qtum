@@ -73,6 +73,8 @@ struct Params {
     int QIP9Height;
     /** Block height at which Offline Staking becomes active */
     int nOfflineStakeHeight;
+    /** Block height at which Block Time becomes active */
+    int nBlockTimeHeight;
     /**
      * Minimum blocks including miner confirmation of the total of 2016 blocks in a retargeting period,
      * (nPowTargetTimespan / nPowTargetSpacing) which is also used for BIP9 deployments.

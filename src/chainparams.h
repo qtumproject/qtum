@@ -99,6 +99,7 @@ public:
     void UpdateOfflineStakingBlockHeight(int nHeight);
     void UpdateDelegationsAddress(const uint160& address);
     void UpdateLastMPoSBlockHeight(int nHeight);
+    void UpdateBlockTimeHeight(int nHeight);
 protected:
     dev::eth::Network GetEVMNetwork() const;
     CChainParams() {}
@@ -178,5 +179,10 @@ void UpdateDelegationsAddress(const uint160& address);
  * @param nHeight Block height
  */
 void UpdateLastMPoSBlockHeight(int nHeight);
+
+/**
+ * Allows modifying the block time height regtest parameter.
+ */
+void UpdateBlockTimeHeight(int nHeight);
 
 #endif // BITCOIN_CHAINPARAMS_H

@@ -87,6 +87,7 @@ public:
         consensus.QIP7Height = 466600;
         consensus.QIP9Height = 466600;
         consensus.nOfflineStakeHeight = 680000;
+        consensus.nBlockTimeHeight = 0x7fffffff;
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.QIP9PosLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"); // The new POS-limit activated after QIP9
@@ -212,6 +213,7 @@ public:
         consensus.QIP7Height = 446320;
         consensus.QIP9Height = 446320;
         consensus.nOfflineStakeHeight = 625000;
+        consensus.nBlockTimeHeight = 0x7fffffff;
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.QIP9PosLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"); // The new POS-limit activated after QIP9
@@ -323,6 +325,7 @@ public:
         consensus.QIP7Height = 0;
         consensus.QIP9Height = 0;
         consensus.nOfflineStakeHeight = 1;
+        consensus.nBlockTimeHeight = 0;
         consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.QIP9PosLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // The new POS-limit activated after QIP9
@@ -607,4 +610,14 @@ void CChainParams::UpdateLastMPoSBlockHeight(int nHeight)
 void UpdateLastMPoSBlockHeight(int nHeight)
 {
     const_cast<CChainParams*>(globalChainParams.get())->UpdateLastMPoSBlockHeight(nHeight);
+}
+
+void CChainParams::UpdateBlockTimeHeight(int nHeight)
+{
+    consensus.nBlockTimeHeight = nHeight;
+}
+
+void UpdateBlockTimeHeight(int nHeight)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdateBlockTimeHeight(nHeight);
 }
