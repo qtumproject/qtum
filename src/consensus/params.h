@@ -110,6 +110,12 @@ struct Params {
     uint160 delegationsAddress;
     int nLastMPoSBlock;
     int nLastBigReward;
+    uint32_t nStakeTimestampMask;
+    uint32_t nStakeTimestampMaskV2;
+    int64_t StakeTimestampMask(int height) const
+    {
+        return height < nBlockTimeHeight ? nStakeTimestampMask : nStakeTimestampMaskV2;
+    }
 };
 } // namespace Consensus
 

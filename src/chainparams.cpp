@@ -189,6 +189,8 @@ public:
         consensus.nEnableHeaderSignatureHeight = 399100;
         consensus.nCheckpointSpan = COINBASE_MATURITY;
         consensus.delegationsAddress = uint160(ParseHex("0000000000000000000000000000000000000086")); // Delegations contract for offline staking
+        consensus.nStakeTimestampMask = 15;
+        consensus.nStakeTimestampMaskV2 = 7;
     }
 };
 
@@ -301,6 +303,8 @@ public:
         consensus.nEnableHeaderSignatureHeight = 391993;
         consensus.nCheckpointSpan = COINBASE_MATURITY;
         consensus.delegationsAddress = uint160(ParseHex("0000000000000000000000000000000000000086")); // Delegations contract for offline staking
+        consensus.nStakeTimestampMask = 15;
+        consensus.nStakeTimestampMaskV2 = 7;
     }
 };
 
@@ -393,6 +397,8 @@ public:
         consensus.nEnableHeaderSignatureHeight = 0;
         consensus.nCheckpointSpan = COINBASE_MATURITY;
         consensus.delegationsAddress = uint160(ParseHex("0000000000000000000000000000000000000086")); // Delegations contract for offline staking
+        consensus.nStakeTimestampMask = 15;
+        consensus.nStakeTimestampMaskV2 = 7;
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,120);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,110);

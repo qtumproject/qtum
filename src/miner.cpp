@@ -152,7 +152,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
         txProofTime = GetAdjustedTime();
     }
     if(fProofOfStake)
-        txProofTime &= ~STAKE_TIMESTAMP_MASK;
+        txProofTime &= ~chainparams.GetConsensus().StakeTimestampMask(nHeight);
     pblock->nTime = txProofTime;
     if (!fProofOfStake)
         UpdateTime(pblock, chainparams.GetConsensus(), pindexPrev);
@@ -309,7 +309,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateEmptyBlock(const CScript& 
 
     uint32_t txProofTime = nTime == 0 ? GetAdjustedTime() : nTime;
     if(fProofOfStake)
-        txProofTime &= ~STAKE_TIMESTAMP_MASK;
+        txProofTime &= ~chainparams.GetConsensus().StakeTimestampMask(nHeight);
     pblock->nTime = txProofTime;
     const int64_t nMedianTimePast = pindexPrev->GetMedianTimePast();
 
@@ -1271,11 +1271,14 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
             std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(mempool, Params()).CreateEmptyBlock(CScript(), true, true, &nTotalFees));
             if (!pblocktemplate.get())
                 return;
-            CBlockIndex* pindexPrev =  ::ChainActive().Tip();
 
+            CBlockIndex* pindexPrev =  ::ChainActive().Tip();
+            uint32_t nHeight = pindexPrev->nHeight+1; 
+            const Consensus::Params& consensusParams = Params().GetConsensus();
+            uint32_t stakeTimestampMask=consensusParams.StakeTimestampMask(nHeight);
             uint32_t beginningTime=GetAdjustedTime();
-            beginningTime &= ~STAKE_TIMESTAMP_MASK;
-            for(uint32_t i=beginningTime;i<beginningTime + MAX_STAKE_LOOKAHEAD;i+=STAKE_TIMESTAMP_MASK+1) {
+            beginningTime &= ~stakeTimestampMask;
+            for(uint32_t i=beginningTime;i<beginningTime + MAX_STAKE_LOOKAHEAD;i+=stakeTimestampMask+1) {
 
                 // The information is needed for status bar to determine if the staker is trying to create block and when it will be created approximately,
                 if(pwallet->m_last_coin_stake_search_time == 0) pwallet->m_last_coin_stake_search_time = GetAdjustedTime(); // startup timestamp
@@ -1297,7 +1300,7 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
                     // Create a block that's properly populated with transactions
                     std::unique_ptr<CBlockTemplate> pblocktemplatefilled(
                             BlockAssembler(mempool, Params()).CreateNewBlock(pblock->vtx[1]->vout[1].scriptPubKey, true, true, &nTotalFees,
-                                                                    i, FutureDrift(GetAdjustedTime()) - STAKE_TIME_BUFFER));
+                                                                    i, FutureDrift(GetAdjustedTime(), nHeight, consensusParams) - STAKE_TIME_BUFFER));
                     if (!pblocktemplatefilled.get())
                         return;
                     if (::ChainActive().Tip()->GetBlockHash() != pblock->hashPrevBlock) {
@@ -1319,11 +1322,11 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
                             }
                             //check timestamps
                             if (pblockfilled->GetBlockTime() <= pindexPrev->GetBlockTime() ||
-                                FutureDrift(pblockfilled->GetBlockTime()) < pindexPrev->GetBlockTime()) {
+                                FutureDrift(pblockfilled->GetBlockTime(), nHeight, consensusParams) < pindexPrev->GetBlockTime()) {
                                 LogPrintf("ThreadStakeMiner(): Valid PoS block took too long to create and has expired");
                                 break; //timestamp too late, so ignore
                             }
-                            if (pblockfilled->GetBlockTime() > FutureDrift(GetAdjustedTime())) {
+                            if (pblockfilled->GetBlockTime() > FutureDrift(GetAdjustedTime(), nHeight, consensusParams)) {
                                 if (gArgs.IsArgSet("-aggressive-staking")) {
                                     //if being agressive, then check more often to publish immediately when valid. This might allow you to find more blocks, 
                                     //but also increases the chance of broadcasting invalid blocks and getting DoS banned by nodes,

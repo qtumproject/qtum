@@ -9,7 +9,6 @@
 #include <chain.h>
 #include <primitives/block.h>
 #include <uint256.h>
-#include <pos.h>
 
 namespace {
     // returns a * exp(p/q) where |p/q| is small
@@ -114,8 +113,9 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
     arith_uint256 bnNew;
     bnNew.SetCompact(pindexLast->nBits);
     int64_t nInterval = params.DifficultyAdjustmentInterval(pindexLast->nHeight + 1);
+    int nHeight = pindexLast->nHeight + 1; 
 
-    if (pindexLast->nHeight + 1 < params.QIP9Height) {
+    if (nHeight < params.QIP9Height) {
         if (nActualSpacing < 0)
             nActualSpacing = nTargetSpacing;
         if (nActualSpacing > nTargetSpacing * 10)
@@ -127,7 +127,8 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
             nActualSpacing = nTargetSpacing;
         if (nActualSpacing > nTargetSpacing * 20)
             nActualSpacing = nTargetSpacing * 20;
-        bnNew = mul_exp(bnNew, 2 * (nActualSpacing - nTargetSpacing) / (STAKE_TIMESTAMP_MASK + 1), (nInterval + 1) * nTargetSpacing / (STAKE_TIMESTAMP_MASK + 1));
+        uint32_t stakeTimestampMask=params.StakeTimestampMask(nHeight);
+        bnNew = mul_exp(bnNew, 2 * (nActualSpacing - nTargetSpacing) / (stakeTimestampMask + 1), (nInterval + 1) * nTargetSpacing / (stakeTimestampMask + 1));
     }
 
     if (bnNew <= 0 || bnNew > bnTargetLimit)
