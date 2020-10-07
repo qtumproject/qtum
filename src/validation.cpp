@@ -1445,7 +1445,9 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
     int subsidyHalvingInterval = consensusParams.SubsidyHalvingInterval(nHeight);
     int64_t blocktimeDownscaleFactor = consensusParams.BlocktimeDownscaleFactor(nHeight);
     int blockCount = nHeight - consensusParams.nLastBigReward;
-    int halvings = (blockCount - 1) / subsidyHalvingInterval;
+    int beforeDownscale = consensusParams.nBlockTimeHeight - consensusParams.nLastBigReward - 1;
+    int subsidyblockWeight = blocktimeDownscaleFactor == 1 ? blockCount : (blockCount - beforeDownscale) + beforeDownscale * blocktimeDownscaleFactor;
+    int halvings = (subsidyblockWeight - 1) / subsidyHalvingInterval;
     // Force block reward to zero when right shift is undefined.
     if (halvings >= 7)
         return 0;
