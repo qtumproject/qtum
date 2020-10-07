@@ -88,6 +88,7 @@ struct Params {
     uint256 powLimit;
     uint256 posLimit;
     uint256 QIP9PosLimit;
+    uint256 QIP9PosLimitV2;
     bool fPowAllowMinDifficultyBlocks;
     bool fPowNoRetargeting;
     bool fPoSNoRetargeting;
