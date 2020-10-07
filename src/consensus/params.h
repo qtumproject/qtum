@@ -92,6 +92,7 @@ struct Params {
     bool fPowNoRetargeting;
     bool fPoSNoRetargeting;
     int64_t nPowTargetSpacing;
+    int64_t nPowTargetSpacingV2;
     int64_t nPowTargetTimespan;
     int64_t nPowTargetTimespanV2;
     uint256 nMinimumChainWork;
@@ -125,6 +126,10 @@ struct Params {
     int64_t BlocktimeDownscaleFactor(int height) const
     {
         return height < nBlockTimeHeight ? 1 : nBlocktimeDownscaleFactor;
+    }
+    int64_t TargetSpacing(int height) const
+    {
+        return height < nBlockTimeHeight ? nPowTargetSpacing : nPowTargetSpacingV2;
     }
 };
 } // namespace Consensus
