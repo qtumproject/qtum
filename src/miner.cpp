@@ -1204,9 +1204,6 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
 
     bool fTryToSync = true;
     bool regtestMode = Params().MineBlocksOnDemand();
-    if(regtestMode){
-        nMinerSleep = 30000; //limit regtest to 30s, otherwise it'll create 2 blocks per second
-    }
     bool fSuperStake = gArgs.GetBoolArg("-superstaking", DEFAULT_SUPER_STAKE);
     DelegationsStaker delegationsStaker(pwallet);
     MyDelegations myDelegations(pwallet);
