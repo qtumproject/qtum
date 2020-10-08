@@ -132,6 +132,17 @@ struct Params {
     {
         return height < nBlockTimeHeight ? nPowTargetSpacing : nPowTargetSpacingV2;
     }
+    int SubsidyHalvingWeight(int height) const
+    {
+        if(height <= nLastBigReward)
+            return 0;
+
+        int blocktimeDownscaleFactor = BlocktimeDownscaleFactor(height);
+        int blockCount = height - nLastBigReward;
+        int beforeDownscale = blocktimeDownscaleFactor == 1 ? 0 : nBlockTimeHeight - nLastBigReward - 1;
+        int subsidyHalvingWeight = blockCount - beforeDownscale + beforeDownscale * blocktimeDownscaleFactor;
+        return subsidyHalvingWeight;
+    }
 };
 } // namespace Consensus
 
