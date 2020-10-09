@@ -80,7 +80,8 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
         // Special difficulty rule for testnet:
         // If the new block's timestamp is more than 2* 10 minutes
         // then allow mining of a min-difficulty block.
-        if (pblock->GetBlockTime() > pindexLast->GetBlockTime() + params.nPowTargetSpacing*2)
+        int nHeight = pindexLast->nHeight + 1;
+        if (pblock->GetBlockTime() > pindexLast->GetBlockTime() + params.TargetSpacing(nHeight)*2)
             return nTargetLimit;
         else
         {
@@ -106,16 +107,16 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
             return pindexLast->nBits;
     }
     // Limit adjustment step
-    int64_t nTargetSpacing = params.nPowTargetSpacing;
+    int nHeight = pindexLast->nHeight + 1;
+    int64_t nTargetSpacing = params.TargetSpacing(nHeight);
     int64_t nActualSpacing = pindexLast->GetBlockTime() - nFirstBlockTime;
     // Retarget
-    const arith_uint256 bnTargetLimit = GetLimit(pindexLast ? pindexLast->nHeight+1 : 0, params, fProofOfStake);
+    const arith_uint256 bnTargetLimit = GetLimit(nHeight, params, fProofOfStake);
     // ppcoin: target change every block
     // ppcoin: retarget with exponential moving toward target spacing
     arith_uint256 bnNew;
     bnNew.SetCompact(pindexLast->nBits);
-    int64_t nInterval = params.DifficultyAdjustmentInterval(pindexLast->nHeight + 1);
-    int nHeight = pindexLast->nHeight + 1; 
+    int64_t nInterval = params.DifficultyAdjustmentInterval(nHeight); 
 
     if (nHeight < params.QIP9Height) {
         if (nActualSpacing < 0)
