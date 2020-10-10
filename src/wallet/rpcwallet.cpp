@@ -2494,6 +2494,18 @@ static void ListTransactions(interfaces::Chain::Lock& locked_chain, const CWalle
 
     wtx.GetAmounts(listReceived, listSent, nFee, filter_ismine);
 
+    // Check if the coinstake transactions is mined by the wallet
+    if(wtx.IsCoinStake() && listSent.size() > 0 && listReceived.size() > 0)
+    {
+        // Condense all of the coinstake inputs and outputs into one output and compute its value
+        CAmount amount = wtx.GetCredit(filter_ismine) - wtx.GetDebit(filter_ismine);
+        COutputEntry output = *listReceived.begin();
+        output.amount = amount;
+        listReceived.clear();
+        listSent.clear();
+        listReceived.push_back(output);
+    }
+
     bool involvesWatchonly = wtx.IsFromMe(ISMINE_WATCH_ONLY);
 
     // Sent
@@ -2613,10 +2625,10 @@ UniValue listtransactions(const JSONRPCRequest& request)
                             {RPCResult::Type::STR, "address", "The qtum address of the transaction."},
                             {RPCResult::Type::STR, "category", "The transaction category.\n"
                                 "\"send\"                  Transactions sent.\n"
-                                "\"receive\"               Non-coinbase transactions received.\n"
-                                "\"generate\"              Coinbase transactions received with more than 100 confirmations.\n"
-                                "\"immature\"              Coinbase transactions received with 100 or fewer confirmations.\n"
-                                "\"orphan\"                Orphaned coinbase transactions received."},
+                                "\"receive\"               Non-coinbase and non-coinstake transactions received.\n"
+                                "\"generate\"              Coinbase or coinstake transactions received with more than 500 confirmations.\n"
+                                "\"immature\"              Coinbase or coinstake transactions received with 500 or fewer confirmations.\n"
+                                "\"orphan\"                Orphaned coinbase or coinstake transactions received."},
                             {RPCResult::Type::STR_AMOUNT, "amount", "The amount in " + CURRENCY_UNIT + ". This is negative for the 'send' category, and is positive\n"
                                 "for all other categories"},
                             {RPCResult::Type::STR, "label", "A comment for the address/transaction, if any"},
@@ -2880,10 +2892,10 @@ static UniValue gettransaction(const JSONRPCRequest& request_)
                                 {RPCResult::Type::STR, "address", "The qtum address involved in the transaction."},
                                 {RPCResult::Type::STR, "category", "The transaction category.\n"
                                     "\"send\"                  Transactions sent.\n"
-                                    "\"receive\"               Non-coinbase transactions received.\n"
-                                    "\"generate\"              Coinbase transactions received with more than 100 confirmations.\n"
-                                    "\"immature\"              Coinbase transactions received with 100 or fewer confirmations.\n"
-                                    "\"orphan\"                Orphaned coinbase transactions received."},
+                                    "\"receive\"               Non-coinbase and non-coinstake transactions received.\n"
+                                    "\"generate\"              Coinbase or coinstake transactions received with more than 500 confirmations.\n"
+                                    "\"immature\"              Coinbase or coinstake transactions received with 500 or fewer confirmations.\n"
+                                    "\"orphan\"                Orphaned coinbase or coinstake transactions received."},
                                 {RPCResult::Type::STR_AMOUNT, "amount", "The amount in " + CURRENCY_UNIT},
                                 {RPCResult::Type::STR, "label", "A comment for the address/transaction, if any"},
                                 {RPCResult::Type::NUM, "vout", "the vout value"},
@@ -2989,9 +3001,17 @@ static UniValue gettransaction(const JSONRPCRequest& request_)
     CAmount nNet = nCredit - nDebit;
     CAmount nFee = (wtx.IsFromMe(filter) ? wtx.tx->GetValueOut() - nDebit : 0);
 
-    entry.pushKV("amount", ValueFromAmount(nNet - nFee));
-    if (wtx.IsFromMe(filter))
-        entry.pushKV("fee", ValueFromAmount(nFee));
+    if(wtx.IsCoinStake())
+    {
+        CAmount amount = nNet;
+        entry.pushKV("amount", ValueFromAmount(amount));
+    }
+    else
+    {
+        entry.pushKV("amount", ValueFromAmount(nNet - nFee));
+        if (wtx.IsFromMe(filter))
+            entry.pushKV("fee", ValueFromAmount(nFee));
+    }
 
     WalletTxToJSON(pwallet->chain(), *locked_chain, wtx, entry);
 
