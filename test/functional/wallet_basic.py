@@ -325,7 +325,7 @@ class WalletTest(BitcoinTestFramework):
         assert_raises_rpc_error(-5, "Cannot use the p2sh flag with an address - use a script instead", self.nodes[0].importaddress, temp_address, "label", False, True)
 
         # This will raise an exception for attempting to dump the private key of an address you do not own
-        assert_raises_rpc_error(-4, "is not known", self.nodes[0].dumpprivkey, temp_address)
+        assert_raises_rpc_error(-3, "Address does not refer to a key", self.nodes[0].dumpprivkey, temp_address)
 
         # This will raise an exception for attempting to get the private key of an invalid Bitcoin address
         assert_raises_rpc_error(-5, "Invalid Qtum address", self.nodes[0].dumpprivkey, "invalid")

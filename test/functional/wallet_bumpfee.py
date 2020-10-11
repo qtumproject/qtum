@@ -221,20 +221,22 @@ def test_small_output_with_feerate_succeeds(self, rbf_node, dest_address):
     original_txin = input_list[0]
     self.log.info('Keep bumping until transaction fee out-spends non-destination value')
     tx_fee = 0
+    i = 0
     while True:
         input_list = rbf_node.getrawtransaction(rbfid, 1)["vin"]
         new_item = list(input_list)[0]
         assert_equal(len(input_list), 1)
         assert_equal(original_txin["txid"], new_item["txid"])
         assert_equal(original_txin["vout"], new_item["vout"])
-        rbfid_new_details = rbf_node.bumpfee(rbfid)
+        rbfid_new_details = rbf_node.bumpfee(rbfid, {"fee_rate": round(0.03+i/100,8)})
         rbfid_new = rbfid_new_details["txid"]
         raw_pool = rbf_node.getrawmempool()
         assert rbfid not in raw_pool
         assert rbfid_new in raw_pool
         rbfid = rbfid_new
         tx_fee = rbfid_new_details["fee"]
-
+        i = i+1
+        
         # Total value from input not going to destination
         if tx_fee > Decimal('0.05000000'):
             break
@@ -264,7 +266,7 @@ def test_dust_to_fee(self, rbf_node, dest_address):
     # Expected fee is 141 vbytes * fee_rate 0.00350250 BTC / 1000 vbytes = 0.00049385 BTC.
     # or occasionally 140 vbytes * fee_rate 0.00350250 BTC / 1000 vbytes = 0.00049035 BTC.
     # Dust should be dropped to the fee, so actual bump fee is 0.00050000 BTC.
-    bumped_tx = rbf_node.bumpfee(rbfid, {"fee_rate": 0.35025000})
+    bumped_tx = rbf_node.bumpfee(rbfid, {"fee_rate": 0.35300000})
     full_bumped_tx = rbf_node.getrawtransaction(bumped_tx["txid"], 1)
     assert_equal(bumped_tx["fee"], Decimal("0.05000000"))
     assert_equal(len(fulltx["vout"]), 2)
@@ -293,7 +295,7 @@ def test_maxtxfee_fails(self, rbf_node, dest_address):
     # size of bumped transaction (p2wpkh, 1 input, 2 outputs): 141 vbytes
     # expected bump fee of 141 vbytes * 0.00200000 BTC / 1000 vbytes = 0.00002820 BTC
     # which exceeds maxtxfee and is expected to raise
-    self.restart_node(1, ['-maxtxfee=0.00003'] + self.extra_args[1])
+    self.restart_node(1, ['-maxtxfee=0.00003', "-minrelaytxfee=0.00003", "-mintxfee=0.000005"] + self.extra_args[1])
     rbf_node.walletpassphrase(WALLET_PASSPHRASE, WALLET_PASSPHRASE_TIMEOUT)
     rbfid = spend_one_input(rbf_node, dest_address)
     assert_raises_rpc_error(-4, "Unable to create transaction: Fee exceeds maximum configured by -maxtxfee", rbf_node.bumpfee, rbfid)
@@ -351,12 +353,12 @@ def test_watchonly_psbt(self, peer_node, rbf_node, dest_address):
 
     funding_address1 = watcher.getnewaddress(address_type='bech32')
     funding_address2 = watcher.getnewaddress(address_type='bech32')
-    peer_node.sendmany("", {funding_address1: 0.001, funding_address2: 0.001})
+    peer_node.sendmany("", {funding_address1: 0.1, funding_address2: 0.1})
     peer_node.generate(1)
     self.sync_all()
 
     # Create single-input PSBT for transaction to be bumped
-    psbt = watcher.walletcreatefundedpsbt([], {dest_address:0.0005}, 0, {"feeRate": 0.00001}, True)['psbt']
+    psbt = watcher.walletcreatefundedpsbt([], {dest_address:0.05}, 0, {"feeRate": 0.01}, True)['psbt']
     psbt_signed = signer.walletprocesspsbt(psbt=psbt, sign=True, sighashtype="ALL", bip32derivs=True)
     psbt_final = watcher.finalizepsbt(psbt_signed["psbt"])
     original_txid = watcher.sendrawtransaction(psbt_final["hex"])
