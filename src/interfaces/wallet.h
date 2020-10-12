@@ -678,8 +678,8 @@ struct DelegationDetails
 enum SuperStakerAddressList
 {
     AcceptAll = 0,
-    WhiteList = 1,
-    BlackList = 2
+    AllowList = 1,
+    ExcludeList = 2
 };
 
 // Wallet super staker information.
