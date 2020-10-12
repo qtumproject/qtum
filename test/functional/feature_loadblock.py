@@ -20,7 +20,7 @@ from test_framework.test_framework import (
     BitcoinTestFramework,
 )
 from test_framework.util import assert_equal, wait_until
-
+from test_framework.qtumconfig import COINBASE_MATURITY
 
 class LoadblockTest(BitcoinTestFramework):
     def set_test_params(self):
@@ -30,7 +30,7 @@ class LoadblockTest(BitcoinTestFramework):
 
     def run_test(self):
         self.nodes[1].setnetworkactive(state=False)
-        self.nodes[0].generate(100)
+        self.nodes[0].generate(COINBASE_MATURITY)
 
         # Parsing the url of our node to get settings for config file
         data_dir = self.nodes[0].datadir
@@ -52,8 +52,8 @@ class LoadblockTest(BitcoinTestFramework):
             cfg.write("port={}\n".format(node_url.port))
             cfg.write("host={}\n".format(node_url.hostname))
             cfg.write("output_file={}\n".format(bootstrap_file))
-            cfg.write("max_height=100\n")
-            cfg.write("netmagic=fabfb5da\n")
+            cfg.write("max_height="+str(COINBASE_MATURITY)+"\n")
+            cfg.write("netmagic=fdddc6e1\n")
             cfg.write("input={}\n".format(blocks_dir))
             cfg.write("genesis={}\n".format(genesis_block))
             cfg.write("hashlist={}\n".format(hash_list.name))
@@ -75,9 +75,9 @@ class LoadblockTest(BitcoinTestFramework):
         self.log.info("Restart second, unsynced node with bootstrap file")
         self.stop_node(1)
         self.start_node(1, ["-loadblock=" + bootstrap_file])
-        wait_until(lambda: self.nodes[1].getblockcount() == 100)
+        wait_until(lambda: self.nodes[1].getblockcount() == COINBASE_MATURITY)
 
-        assert_equal(self.nodes[1].getblockchaininfo()['blocks'], 100)
+        assert_equal(self.nodes[1].getblockchaininfo()['blocks'], COINBASE_MATURITY)
         assert_equal(self.nodes[0].getbestblockhash(), self.nodes[1].getbestblockhash())
 
 
