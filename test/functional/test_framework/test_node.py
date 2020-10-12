@@ -220,32 +220,14 @@ class TestNode():
 
     def wait_for_rpc_connection(self):
         """Sets up an RPC connection to the bitcoind process. Returns False if unable to connect."""
-        # Wait until the debug log prints that the init process is done and a cookie auth file exists
-        # OR that the process has stopped before proceeding to prevent race conditions
-        # Times out after 10 seconds.
-        cookiefile = os.path.join(self.datadir, self.chain, ".cookie")
-        debuglog_init_done_msg = "init message: Done loading"
-
-        for i in range(1000):
-            try:
-                with open(os.path.join(self.datadir, self.chain, "debug.log"), 'r') as f:
-                    last_init_section = f.read().split('\n\n\n\n')[-1]
-                    if os.path.exists(cookiefile) and debuglog_init_done_msg in last_init_section or self.process.poll() is not None:
-                        break
-            except Exception as e:
-                pass
-            time.sleep(0.01)
-
-
-
         # Poll at a rate of four times per second
         poll_per_s = 4
         for _ in range(poll_per_s * self.rpc_timeout):
             if self.process.poll() is not None:
                 raise FailedToStartError(self._node_msg(
                     'bitcoind exited with status {} during initialization'.format(self.process.returncode)))
-            rpc = get_rpc_proxy(rpc_url(self.datadir, self.index, self.chain, self.rpchost), self.index, timeout=self.rpc_timeout, coveragedir=self.coverage_dir)
             try:
+                rpc = get_rpc_proxy(rpc_url(self.datadir, self.index, self.chain, self.rpchost), self.index, timeout=self.rpc_timeout, coveragedir=self.coverage_dir)
                 rpc.getblockcount()
                 # If the call to getblockcount() succeeds then the RPC connection is up
                 self.log.debug("RPC successfully started")

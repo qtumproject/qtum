@@ -357,8 +357,7 @@ def get_auth_cookie(datadir, chain):
             split_userpass = userpass.split(':')
             user = split_userpass[0]
             password = split_userpass[1]
-    except OSError as e:
-        print(e)
+    except OSError:
         pass
     if user is None or password is None:
         raise ValueError("No RPC credentials")
