@@ -178,6 +178,7 @@ void Interrupt(NodeContext& node)
 
 void Shutdown(NodeContext& node)
 {
+    StartShutdown();
     LogPrintf("%s: In progress...\n", __func__);
     static RecursiveMutex cs_Shutdown;
     TRY_LOCK(cs_Shutdown, lockShutdown);
