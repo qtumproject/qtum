@@ -4971,17 +4971,7 @@ bool CheckBlock(const CBlock& block, BlockValidationState& state, const Consensu
     if (!CheckBlockHeader(block, state, consensusParams, fCheckPOW, false))
         return false;
 
-    int nHeight = 0;
-    if(!block.hashPrevBlock.IsNull())
-    {
-        BlockMap::iterator mi = ::BlockIndex().find(block.hashPrevBlock);
-        if (mi == ::BlockIndex().end())
-            return false;
-
-        nHeight = (*mi).second->nHeight + 1;
-    }
-
-    if (block.IsProofOfStake() &&  block.GetBlockTime() > FutureDrift(GetAdjustedTime(), nHeight, consensusParams))
+    if (block.IsProofOfStake() &&  block.GetBlockTime() > FutureDrift(GetAdjustedTime(), ::ChainActive().Height() + 1, consensusParams))
         return error("CheckBlock() : block timestamp too far in the future");
 
     // Check the merkle root.
