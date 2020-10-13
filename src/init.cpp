@@ -557,6 +557,7 @@ void SetupServerArgs()
     gArgs.AddArg("-offlinestakingheight=<n>", "Use given block height to check offline staking fork (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-delegationsaddress=<adr>", "Use given contract delegations address for offline staking fork (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-lastmposheight=<n>", "Use given block height to check remove mpos fork (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    gArgs.AddArg("-reduceblocktimeheight=<n>", "Use given block height to check blocks with reduced target spacing (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
 
     SetupChainParamsBaseOptions();
 
@@ -1325,17 +1326,17 @@ bool AppInitParameterInteraction()
         }
     }
 
-    if (gArgs.IsArgSet("-blocktimeheight")) {
+    if (gArgs.IsArgSet("-reduceblocktimeheight")) {
         // Allow overriding short block time block height for testing
         if (!chainparams.MineBlocksOnDemand()) {
             return InitError("Short block time height may only be overridden on regtest.");
         }
 
-        int blocktimeheight = gArgs.GetArg("-blocktimeheight", 0);
-        if(blocktimeheight >= 0)
+        int reduceblocktimeheight = gArgs.GetArg("-reduceblocktimeheight", 0);
+        if(reduceblocktimeheight >= 0)
         {
-            UpdateBlockTimeHeight(blocktimeheight);
-            LogPrintf("Activate short block time at block height %d\n.", blocktimeheight);
+            UpdateReduceBlocktimeHeight(reduceblocktimeheight);
+            LogPrintf("Activate short block time at block height %d\n.", reduceblocktimeheight);
         }
     }
 

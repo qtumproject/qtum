@@ -74,8 +74,8 @@ struct Params {
     int QIP9Height;
     /** Block height at which Offline Staking becomes active */
     int nOfflineStakeHeight;
-    /** Block height at which Block Time becomes active */
-    int nBlockTimeHeight;
+    /** Block height at which Reduce Block Time becomes active */
+    int nReduceBlocktimeHeight;
     /**
      * Minimum blocks including miner confirmation of the total of 2016 blocks in a retargeting period,
      * (nPowTargetTimespan / nPowTargetSpacing) which is also used for BIP9 deployments.
@@ -88,14 +88,15 @@ struct Params {
     uint256 powLimit;
     uint256 posLimit;
     uint256 QIP9PosLimit;
-    uint256 QIP9PosLimitV2;
+    uint256 RBTPosLimit;
     bool fPowAllowMinDifficultyBlocks;
     bool fPowNoRetargeting;
     bool fPoSNoRetargeting;
     int64_t nPowTargetSpacing;
-    int64_t nPowTargetSpacingV2;
+    int64_t nRBTPowTargetSpacing;
     int64_t nPowTargetTimespan;
     int64_t nPowTargetTimespanV2;
+    int64_t nRBTPowTargetTimespan;
     uint256 nMinimumChainWork;
     uint256 defaultAssumeValid;
     int nLastPOWBlock;
@@ -109,28 +110,29 @@ struct Params {
     int nLastMPoSBlock;
     int nLastBigReward;
     uint32_t nStakeTimestampMask;
-    uint32_t nStakeTimestampMaskV2;
+    uint32_t nRBTStakeTimestampMask;
     int64_t nBlocktimeDownscaleFactor;
     int64_t DifficultyAdjustmentInterval(int height) const
     {
-        int64_t targetSpacing = height < QIP9Height ? nPowTargetTimespan : nPowTargetTimespanV2;
+        int64_t targetSpacing = height < QIP9Height ? nPowTargetTimespan : 
+            (height < nReduceBlocktimeHeight ? nPowTargetTimespanV2 : nRBTPowTargetTimespan);
         return targetSpacing / nPowTargetSpacing;
     }
     int64_t StakeTimestampMask(int height) const
     {
-        return height < nBlockTimeHeight ? nStakeTimestampMask : nStakeTimestampMaskV2;
+        return height < nReduceBlocktimeHeight ? nStakeTimestampMask : nRBTStakeTimestampMask;
     }
     int SubsidyHalvingInterval(int height) const
     {
-        return height < nBlockTimeHeight ? nSubsidyHalvingInterval : nSubsidyHalvingIntervalV2;
+        return height < nReduceBlocktimeHeight ? nSubsidyHalvingInterval : nSubsidyHalvingIntervalV2;
     }
     int64_t BlocktimeDownscaleFactor(int height) const
     {
-        return height < nBlockTimeHeight ? 1 : nBlocktimeDownscaleFactor;
+        return height < nReduceBlocktimeHeight ? 1 : nBlocktimeDownscaleFactor;
     }
     int64_t TargetSpacing(int height) const
     {
-        return height < nBlockTimeHeight ? nPowTargetSpacing : nPowTargetSpacingV2;
+        return height < nReduceBlocktimeHeight ? nPowTargetSpacing : nRBTPowTargetSpacing;
     }
     int SubsidyHalvingWeight(int height) const
     {
@@ -139,7 +141,7 @@ struct Params {
 
         int blocktimeDownscaleFactor = BlocktimeDownscaleFactor(height);
         int blockCount = height - nLastBigReward;
-        int beforeDownscale = blocktimeDownscaleFactor == 1 ? 0 : nBlockTimeHeight - nLastBigReward - 1;
+        int beforeDownscale = blocktimeDownscaleFactor == 1 ? 0 : nReduceBlocktimeHeight - nLastBigReward - 1;
         int subsidyHalvingWeight = blockCount - beforeDownscale + beforeDownscale * blocktimeDownscaleFactor;
         return subsidyHalvingWeight;
     }
