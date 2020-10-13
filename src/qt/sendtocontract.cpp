@@ -237,7 +237,7 @@ void SendToContract::on_sendToContractClicked()
         questionString.append(tr("<b>%1</b>?")
                               .arg(ui->lineEditContractAddress->text()));
 
-        SendConfirmationDialog confirmationDialog(tr("Confirm sending to contract."), questionString, "", "", SEND_CONFIRM_DELAY, this);
+        SendConfirmationDialog confirmationDialog(tr("Confirm sending to contract."), questionString, "", "", SEND_CONFIRM_DELAY, tr("Send"), this);
         confirmationDialog.exec();
         QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();
         if(retval == QMessageBox::Yes)

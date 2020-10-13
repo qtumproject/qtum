@@ -4,6 +4,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test multisig RPCs"""
 
+from test_framework.descriptors import descsum_create, drop_origins
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import (
     assert_raises_rpc_error,
@@ -15,11 +16,14 @@ from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD
 import binascii
 import decimal
 import itertools
+import json
+import os
 
 class RpcCreateMultiSigTest(BitcoinTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 3
+        self.supports_cli = False
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
@@ -73,6 +77,18 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
             assert_equal(legacy_addr, node0.addmultisigaddress(2, keys, '', 'bech32')['address'])
             assert_equal(legacy_addr, node0.addmultisigaddress(2, keys, '', 'p2sh-segwit')['address'])
 
+        self.log.info('Testing sortedmulti descriptors with BIP 67 test vectors')
+        with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data/rpc_bip67.json'), encoding='utf-8') as f:
+            vectors = json.load(f)
+
+        for t in vectors:
+            key_str = ','.join(t['keys'])
+            desc = descsum_create('sh(sortedmulti(2,{}))'.format(key_str))
+            assert_equal(self.nodes[0].deriveaddresses(desc)[0], t['address'])
+            sorted_key_str = ','.join(t['sorted_keys'])
+            sorted_key_desc = descsum_create('sh(multi(2,{}))'.format(sorted_key_str))
+            assert_equal(self.nodes[0].deriveaddresses(sorted_key_desc)[0], t['address'])
+
     def check_addmultisigaddress_errors(self):
         self.log.info('Check that addmultisigaddress fails when the private keys are missing')
         addresses = [self.nodes[1].getnewaddress(address_type='legacy') for _ in range(2)]
@@ -101,9 +117,20 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
     def do_multisig(self):
         node0, node1, node2 = self.nodes
 
+        # Construct the expected descriptor
+        desc = 'multi({},{})'.format(self.nsigs, ','.join(self.pub))
+        if self.output_type == 'legacy':
+            desc = 'sh({})'.format(desc)
+        elif self.output_type == 'p2sh-segwit':
+            desc = 'sh(wsh({}))'.format(desc)
+        elif self.output_type == 'bech32':
+            desc = 'wsh({})'.format(desc)
+        desc = descsum_create(desc)
+
         msig = node2.createmultisig(self.nsigs, self.pub, self.output_type)
         madd = msig["address"]
         mredeem = msig["redeemScript"]
+        assert_equal(desc, msig['descriptor'])
         if self.output_type == 'bech32':
             assert madd[0:4] == "qcrt"  # actually a bech32 address
 
@@ -111,6 +138,7 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
         msigw = node1.addmultisigaddress(self.nsigs, self.pub, None, self.output_type)
         maddw = msigw["address"]
         mredeemw = msigw["redeemScript"]
+        assert_equal(desc, drop_origins(msigw['descriptor']))
         # addmultisigiaddress and createmultisig work the same
         assert maddw == madd
         assert mredeemw == mredeem

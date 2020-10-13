@@ -36,8 +36,7 @@ SplitUTXOPage::SplitUTXOPage(QWidget *parent, Mode mode) :
     case Delegation:
         setWindowTitle(tr("Split coins for offline staking"));
         ui->labelAddress->setText(tr("Delegate address"));
-        ui->labelDescription->setText(tr("Split coins for offline staking. The UTXO value need to be minimum <b> %1 </b>.").
-                                      arg(BitcoinUnits::formatHtmlWithUnit(BitcoinUnits::BTC, DEFAULT_STAKING_MIN_UTXO_VALUE)));
+        ui->labelDescription->setText(tr("Split coins for offline staking."));
         break;
 
     case SuperStaker:
@@ -45,6 +44,8 @@ SplitUTXOPage::SplitUTXOPage(QWidget *parent, Mode mode) :
         ui->labelAddress->setText(tr("Staker address"));
         ui->labelDescription->setText(tr("Split coins for super staker. The UTXO value need to be minimum <b> %1 </b>.").
                                       arg(BitcoinUnits::formatHtmlWithUnit(BitcoinUnits::BTC, DEFAULT_STAKING_MIN_UTXO_VALUE)));
+        ui->lineEditMinValue->SetMinValue(DEFAULT_STAKING_MIN_UTXO_VALUE);
+        ui->lineEditMaxValue->SetMinValue(DEFAULT_STAKING_MIN_UTXO_VALUE);
         break;
     }
 
@@ -214,7 +215,7 @@ void SplitUTXOPage::on_splitCoinsClicked()
         questionString.append(QString("<br/><br/><b>%1</b>?")
                               .arg(address));
 
-        SendConfirmationDialog confirmationDialog(tr("Confirm splitting coins for address."), questionString, "", "", SEND_CONFIRM_DELAY, this);
+        SendConfirmationDialog confirmationDialog(tr("Confirm splitting coins for address."), questionString, "", "", SEND_CONFIRM_DELAY, tr("Send"), this);
         confirmationDialog.exec();
 
         QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();

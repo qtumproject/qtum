@@ -334,14 +334,6 @@
         <translation>Palitan ang passphrase na ginamit para sa pag-encrypt ng walet</translation>
     </message>
     <message>
-        <source>&amp;Debug window</source>
-        <translation>I-debug ang window</translation>
-    </message>
-    <message>
-        <source>Open debugging and diagnostic console</source>
-        <translation>Buksan ang debugging at diagnostic console</translation>
-    </message>
-    <message>
         <source>&amp;Verify message...</source>
         <translation>I-verify ang mensahe...</translation>
     </message>
@@ -400,10 +392,6 @@
     <message>
         <source>Show the list of used receiving addresses and labels</source>
         <translation>Ipakita ang talaan ng mga gamit na address at label para sa pagtanggap</translation>
-    </message>
-    <message>
-        <source>Open a qtum: URI or payment request</source>
-        <translation>Buksan ang qtum: URI o kahilingan ng bayad</translation>
     </message>
     <message>
         <source>&amp;Command-line options</source>
@@ -824,10 +812,6 @@
         <translation>salin</translation>
     </message>
     <message>
-        <source>(%1-bit)</source>
-        <translation>(%1-bit)</translation>
-    </message>
-    <message>
         <source>About %1</source>
         <translation>Tungkol sa %1</translation>
     </message>
@@ -957,24 +941,8 @@
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open URI</source>
-        <translation>Buksan ang URI</translation>
-    </message>
-    <message>
-        <source>Open payment request from URI or file</source>
-        <translation>Buksan ang hiling ng bayad sa URI o file</translation>
-    </message>
-    <message>
         <source>URI:</source>
         <translation>URI:</translation>
-    </message>
-    <message>
-        <source>Select payment request file</source>
-        <translation>Piliin ang file na hiling ng bayad</translation>
-    </message>
-    <message>
-        <source>Select payment request file to open</source>
-        <translation>Piliin ang file na hiling ng bayad upang mabuksan</translation>
     </message>
 </context>
 <context>
@@ -1353,18 +1321,6 @@
         <translation>Ang 'qtum://' ay hindi wastong URI. Sa halip, gamitin ang 'qtum:'.</translation>
     </message>
     <message>
-        <source>You are using a BIP70 URL which will be unsupported in the future.</source>
-        <translation>Gumagamit ka ng BIP70 URL na hindi suportado sa hinaharap.</translation>
-    </message>
-    <message>
-        <source>Payment request fetch URL is invalid: %1</source>
-        <translation>Ang fetch URL ng hiling ng bayad ay hindi wasto: %1</translation>
-    </message>
-    <message>
-        <source>Cannot process payment request because BIP70 support was not compiled in.</source>
-        <translation>Hindi maproseso ang hiling ng bayad dahil ang suporta ng BIP70 ay hindi naipon.</translation>
-    </message>
-    <message>
         <source>Invalid payment address %1</source>
         <translation>Hindi wasto and address ng bayad %1</translation>
     </message>
@@ -1375,66 +1331,6 @@
     <message>
         <source>Payment request file handling</source>
         <translation>File handling ng hiling ng bayad</translation>
-    </message>
-    <message>
-        <source>Payment request file cannot be read! This can be caused by an invalid payment request file.</source>
-        <translation>Hindi mabasa ang file ng hiling ng bayad! Marahil ito ay dahil sa hindi wastong file ng hiling ng bayad.</translation>
-    </message>
-    <message>
-        <source>Payment request rejected</source>
-        <translation>Ang hiling ng bayad ay tinanggihan</translation>
-    </message>
-    <message>
-        <source>Payment request network doesn't match client network.</source>
-        <translation>Ang network ng hiling ng bayad ay hindi tumutugma sa network ng kliyente.</translation>
-    </message>
-    <message>
-        <source>Payment request expired.</source>
-        <translation>Ang hiling ng bayad ay nag-expire na.</translation>
-    </message>
-    <message>
-        <source>Payment request is not initialized.</source>
-        <translation>Ang hiling ng bayad ay hindi napasimulan.</translation>
-    </message>
-    <message>
-        <source>Unverified payment requests to custom payment scripts are unsupported.</source>
-        <translation>Ang hindi na-verify na hiling ng bayad sa custom payment scripts ay hindi suportado.</translation>
-    </message>
-    <message>
-        <source>Invalid payment request.</source>
-        <translation>Hindi wasto ang hiling ng bayad.</translation>
-    </message>
-    <message>
-        <source>Requested payment amount of %1 is too small (considered dust).</source>
-        <translation>Ang hinihiling na halaga ng bayad na %1 ay masyadong maliit (ituring na dust).</translation>
-    </message>
-    <message>
-        <source>Refund from %1</source>
-        <translation>I-refund mula %1</translation>
-    </message>
-    <message>
-        <source>Payment request %1 is too large (%2 bytes, allowed %3 bytes).</source>
-        <translation>Ang hiling ng bayad %1 ay masyadong malaki (%2 bytes, ipinapahintulot ay %3 bytes).</translation>
-    </message>
-    <message>
-        <source>Error communicating with %1: %2</source>
-        <translation>May kamalian makipag-usap sa %1: %2</translation>
-    </message>
-    <message>
-        <source>Payment request cannot be parsed!</source>
-        <translation>Ang hiling ng bayad ay hindi ma-parse!</translation>
-    </message>
-    <message>
-        <source>Bad response from server %1</source>
-        <translation>Masamang tugon mula sa server %1</translation>
-    </message>
-    <message>
-        <source>Network request error</source>
-        <translation>Kamalian sa paghiling ng network</translation>
-    </message>
-    <message>
-        <source>Payment acknowledged</source>
-        <translation>Nakilala ang kabayaran</translation>
     </message>
 </context>
 <context>
@@ -1607,10 +1503,6 @@
     <message>
         <source>&amp;Information</source>
         <translation>Impormasyon</translation>
-    </message>
-    <message>
-        <source>Debug window</source>
-        <translation>I-debug ang window</translation>
     </message>
     <message>
         <source>General</source>
@@ -2149,10 +2041,6 @@
         <translation>Babala: Kasalukuyang hindi posible ang pagtatantiya sa bayarin.</translation>
     </message>
     <message>
-        <source>collapse fee-settings</source>
-        <translation>i-collapse ang fee-settings</translation>
-    </message>
-    <message>
         <source>Specify a custom fee per kB (1,000 bytes) of the transaction's virtual size.
 
 Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis per kB" for a transaction size of 500 bytes (half of 1 kB) would ultimately yield a fee of only 50 satoshis.</source>
@@ -2325,10 +2213,6 @@ Tandaan: Dahil ang bayad  ay kinakalkula sa bawat-byte na batayan, ang bayad ng 
         <translation>Nabigo ang paggawa ng transaksyon!</translation>
     </message>
     <message>
-        <source>The transaction was rejected with the following reason: %1</source>
-        <translation>Ang transaksyon ay tinanggihan sa mga sumusunod na dahilan: %1</translation>
-    </message>
-    <message>
         <source>A fee higher than %1 is considered an absurdly high fee.</source>
         <translation>Ang bayad na mas mataas sa %1 ay itinuturing na napakataas na bayad.</translation>
     </message>
@@ -2378,10 +2262,6 @@ Tandaan: Dahil ang bayad  ay kinakalkula sa bawat-byte na batayan, ang bayad ng 
     <message>
         <source>Choose previously used address</source>
         <translation>Piliin ang dating ginamit na address</translation>
-    </message>
-    <message>
-        <source>This is a normal payment.</source>
-        <translation>Ito ay normal na pagbabayad.</translation>
     </message>
     <message>
         <source>The Qtum address to send the payment to</source>
@@ -2442,17 +2322,6 @@ Tandaan: Dahil ang bayad  ay kinakalkula sa bawat-byte na batayan, ang bayad ng 
     <message>
         <source>Memo:</source>
         <translation>Memo:</translation>
-    </message>
-    <message>
-        <source>Enter a label for this address to add it to your address book</source>
-        <translation>Mag-enter ng label para sa address na ito upang idagdag ito sa iyong address book.</translation>
-    </message>
-</context>
-<context>
-    <name>SendConfirmationDialog</name>
-    <message>
-        <source>Yes</source>
-        <translation>Oo</translation>
     </message>
 </context>
 <context>
@@ -3182,10 +3051,6 @@ Tandaan: Dahil ang bayad  ay kinakalkula sa bawat-byte na batayan, ang bayad ng 
         <translation>Prune: ang huling pag-synchronize ng walet ay lampas sa pruned data. Kailangan mong mag-reindex (i-download muli ang buong blockchain sa kaso ng pruned node)</translation>
     </message>
     <message>
-        <source>Rescans are not possible in pruned mode. You will need to use -reindex which will download the whole blockchain again.</source>
-        <translation>Ang mga rescan ay hindi posible sa mode na pruned. Kailangan mong gamitin ang -reindex na i-do-download muli ang buong blockchain.</translation>
-    </message>
-    <message>
         <source>Error: A fatal internal error occurred, see debug.log for details</source>
         <translation>Kamalian: May naganap na isang nakamamatay na panloob na error, tingnan ang debug.log para sa detalye</translation>
     </message>
@@ -3542,10 +3407,6 @@ Tandaan: Dahil ang bayad  ay kinakalkula sa bawat-byte na batayan, ang bayad ng 
     <message>
         <source>This is the transaction fee you may pay when fee estimates are not available.</source>
         <translation>Ito ang bayad sa transaksyon na maaari mong bayaran kapag hindi magagamit ang pagtantya sa bayad.</translation>
-    </message>
-    <message>
-        <source>This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit %s and cryptographic software written by Eric Young and UPnP software written by Thomas Bernard.</source>
-        <translation>Kasama sa produktong ito ang software na binuo ng OpenSSL Project para magamit sa OpenSSL Toolkit %s at cryptographic software na isinulat ni Eric Young at UPnP software na isinulat ni Thomas Bernard.</translation>
     </message>
     <message>
         <source>Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.</source>

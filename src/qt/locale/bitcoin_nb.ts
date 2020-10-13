@@ -3,7 +3,7 @@
     <name>AddressBookPage</name>
     <message>
         <source>Right-click to edit address or label</source>
-        <translation>Høyreklikk for å redigere adresse, eller beskrivelse</translation>
+        <translation>Høyreklikk for å redigere adressen eller beskrivelsen</translation>
     </message>
     <message>
         <source>Create a new address</source>
@@ -70,6 +70,10 @@
         <translation>Dette er dine Qtum adresser for å sende  å sende betalinger. Husk å sjekke beløp og mottager adresser før du sender mynter.</translation>
     </message>
     <message>
+        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.</source>
+        <translation>Dette er dine Bitcoin adresse for å betalinger. Det er anbefalt å bruke en my mottager adresse for hver transakjon.</translation>
+    </message>
+    <message>
         <source>&amp;Copy Address</source>
         <translation>&amp;Kopier adresse</translation>
     </message>
@@ -132,6 +136,10 @@
         <translation>Repeter passorsetningen</translation>
     </message>
     <message>
+        <source>Show passphrase</source>
+        <translation>Vis adgangsfrase</translation>
+    </message>
+    <message>
         <source>Encrypt wallet</source>
         <translation>Krypter lommeboken</translation>
     </message>
@@ -172,8 +180,28 @@
         <translation>Lommeboken er kryptert</translation>
     </message>
     <message>
+        <source>Enter the new passphrase for the wallet.&lt;br/&gt;Please use a passphrase of &lt;b&gt;ten or more random characters&lt;/b&gt;, or &lt;b&gt;eight or more words&lt;/b&gt;.</source>
+        <translation>Angi den nye passordfrasen for lommeboken.&lt;br/&gt; Vennglist du bruker en passordfrase &lt;b&gt; ti eller tilfeldige tegn &lt;/b&gt;, eller &lt;b&gt; åtte eller flere ord.</translation>
+    </message>
+    <message>
+        <source>Enter the old passphrase and new passphrase for the wallet.</source>
+        <translation>Svriv inn den gamle passfrasen og den nye passordfrasen for lommeboken.</translation>
+    </message>
+    <message>
         <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
         <translation>Husk at å kryptere lommeboken ikke vil beskytte dine qtums fullstendig fra å bli stjålet av skadevare som infiserer datamaskinen din.</translation>
+    </message>
+    <message>
+        <source>Wallet to be encrypted</source>
+        <translation>Lommebok som skal bli kryptert</translation>
+    </message>
+    <message>
+        <source>Your wallet is about to be encrypted. </source>
+        <translation>Din lommebok er i ferd med å bli kryptert.</translation>
+    </message>
+    <message>
+        <source>Your wallet is now encrypted. </source>
+        <translation>Din lommebok er nå kryptert.</translation>
     </message>
     <message>
         <source>IMPORTANT: Any previous backups you have made of your wallet file should be replaced with the newly generated, encrypted wallet file. For security reasons, previous backups of the unencrypted wallet file will become useless as soon as you start using the new, encrypted wallet.</source>
@@ -298,6 +326,14 @@
         <translation>Åpne &amp;URI</translation>
     </message>
     <message>
+        <source>Create Wallet...</source>
+        <translation>Lag lommebok...</translation>
+    </message>
+    <message>
+        <source>Create a new wallet</source>
+        <translation>Lag en ny lommebok</translation>
+    </message>
+    <message>
         <source>Wallet:</source>
         <translation>Lommebok:</translation>
     </message>
@@ -336,14 +372,6 @@
     <message>
         <source>Change the passphrase used for wallet encryption</source>
         <translation>Endre passordsetningen for kryptering av lommeboken</translation>
-    </message>
-    <message>
-        <source>&amp;Debug window</source>
-        <translation>&amp;Feilsøkingsvindu</translation>
-    </message>
-    <message>
-        <source>Open debugging and diagnostic console</source>
-        <translation>Åpne konsoll for feilsøking og diagnostisering</translation>
     </message>
     <message>
         <source>&amp;Verify message...</source>
@@ -406,10 +434,6 @@
         <translation>Vis lista over brukte mottakeradresser og merkelapper</translation>
     </message>
     <message>
-        <source>Open a qtum: URI or payment request</source>
-        <translation>Åpne en qtum: URI eller betalingsforespørsel</translation>
-    </message>
-    <message>
         <source>&amp;Command-line options</source>
         <translation>&amp;Kommandolinjealternativer</translation>
     </message>
@@ -458,12 +482,24 @@
         <translation>Oppdatert</translation>
     </message>
     <message>
+        <source>Node window</source>
+        <translation>Nodevindu</translation>
+    </message>
+    <message>
+        <source>Open node debugging and diagnostic console</source>
+        <translation>Åpne nodens konsoll for feilsøk og diagnostikk</translation>
+    </message>
+    <message>
         <source>&amp;Sending addresses</source>
         <translation>&amp;Avsender adresser</translation>
     </message>
     <message>
         <source>&amp;Receiving addresses</source>
         <translation>&amp;Mottaker adresser</translation>
+    </message>
+    <message>
+        <source>Open a bitcoin: URI</source>
+        <translation>Åpne en bitcoin: URI</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -524,6 +560,10 @@
     <message>
         <source>Error: %1</source>
         <translation>Feil: %1</translation>
+    </message>
+    <message>
+        <source>Warning: %1</source>
+        <translation>Advarsel: %1</translation>
     </message>
     <message>
         <source>Date: %1
@@ -747,10 +787,58 @@
 </context>
 <context>
     <name>CreateWalletActivity</name>
-    </context>
+    <message>
+        <source>Creating Wallet &lt;b&gt;%1&lt;/b&gt;...</source>
+        <translation>Lager lommebok &lt;b&gt;%1&lt;b&gt;...</translation>
+    </message>
+    <message>
+        <source>Create wallet failed</source>
+        <translation>Lage lommebok feilet</translation>
+    </message>
+    <message>
+        <source>Create wallet warning</source>
+        <translation>Lag lommebokvarsel</translation>
+    </message>
+</context>
 <context>
     <name>CreateWalletDialog</name>
-    </context>
+    <message>
+        <source>Create Wallet</source>
+        <translation>Lag lommebok</translation>
+    </message>
+    <message>
+        <source>Wallet Name</source>
+        <translation>Lommeboknavn</translation>
+    </message>
+    <message>
+        <source>Encrypt the wallet. The wallet will be encrypted with a passphrase of your choice.</source>
+        <translation>Krypter lommeboken. Lommeboken blir kryptert med en passordfrase du velger.</translation>
+    </message>
+    <message>
+        <source>Encrypt Wallet</source>
+        <translation>Krypter Lommebok</translation>
+    </message>
+    <message>
+        <source>Disable private keys for this wallet. Wallets with private keys disabled will have no private keys and cannot have an HD seed or imported private keys. This is ideal for watch-only wallets.</source>
+        <translation>Deaktiver private nøkler for denne lommeboken. Lommebøker med private nøkler er deaktivert vil ikke ha noen private nøkler og kan ikke ha en HD seed eller importerte private nøkler. Dette er ideelt for loomebøker som kun er klokker.</translation>
+    </message>
+    <message>
+        <source>Disable Private Keys</source>
+        <translation>Deaktiver Private Nøkler</translation>
+    </message>
+    <message>
+        <source>Make a blank wallet. Blank wallets do not initially have private keys or scripts. Private keys and addresses can be imported, or an HD seed can be set, at a later time.</source>
+        <translation>Lag en tom lommebok. Tomme lommebøker har i utgangspunktet ikke private nøkler eller skript. Private nøkler og adresser kan importeres, eller et HD- frø kan angis på et senere tidspunkt.</translation>
+    </message>
+    <message>
+        <source>Make Blank Wallet</source>
+        <translation>Lag Tom Lommebok</translation>
+    </message>
+    <message>
+        <source>Create</source>
+        <translation>Opprett</translation>
+    </message>
+</context>
 <context>
     <name>EditAddressDialog</name>
     <message>
@@ -794,6 +882,10 @@
         <translation>Adresse "%1" eksisterer allerede som en mottaksadresse merket "%2" og kan derfor ikke bli lagt til som en sendingsadresse.</translation>
     </message>
     <message>
+        <source>The entered address "%1" is already in the address book with label "%2".</source>
+        <translation>Den oppgitte adressen ''%1'' er allerede i adresseboken med etiketten ''%2''.</translation>
+    </message>
+    <message>
         <source>Could not unlock wallet.</source>
         <translation>Kunne ikke låse opp lommebok.</translation>
     </message>
@@ -832,10 +924,6 @@
         <translation>versjon</translation>
     </message>
     <message>
-        <source>(%1-bit)</source>
-        <translation>(%1-bit)</translation>
-    </message>
-    <message>
         <source>About %1</source>
         <translation>Om %1</translation>
     </message>
@@ -863,6 +951,10 @@
         <translation>Når du klikker OK, vil %1 starte nedlasting og behandle hele den %4 blokkjeden (%2GB) fra de eldste transaksjonene i %3 når %4 først startet.</translation>
     </message>
     <message>
+        <source>Reverting this setting requires re-downloading the entire blockchain. It is faster to download the full chain first and prune it later. Disables some advanced features.</source>
+        <translation>Gjenoppretting av denne innstillingen krever at du laster ned hele blockchain på nytt. Det er raskere å laste ned hele kjeden først og beskjære den senere Deaktiver noen avanserte funksjoner.</translation>
+    </message>
+    <message>
         <source>This initial synchronisation is very demanding, and may expose hardware problems with your computer that had previously gone unnoticed. Each time you run %1, it will continue downloading where it left off.</source>
         <translation>Den initielle synkroniseringen er svært krevende, og kan forårsake problemer med maskinvaren i datamaskinen din som du tidligere ikke merket. Hver gang du kjører %1 vil den fortsette nedlastingen der den sluttet.</translation>
     </message>
@@ -881,6 +973,10 @@
     <message>
         <source>Qtum</source>
         <translation>Qtum</translation>
+    </message>
+    <message>
+        <source>Discard blocks after verification, except most recent %1 GB (prune)</source>
+        <translation>Kast blokker etter bekreftelse, bortsett fra de siste %1 GB (sviske)</translation>
     </message>
     <message>
         <source>At least %1 GB of data will be stored in this directory, and it will grow over time.</source>
@@ -961,32 +1057,40 @@
         <source>Hide</source>
         <translation>Skjul</translation>
     </message>
-    </context>
+    <message>
+        <source>Esc</source>
+        <translation>Esc</translation>
+    </message>
+    <message>
+        <source>%1 is currently syncing.  It will download headers and blocks from peers and validate them until reaching the tip of the block chain.</source>
+        <translation>%1 synkroniseres for øyeblikket. Den vil laste ned overskrifter og blokker fra jevnaldrende og validere dem til de når spissen av blokkjeden.</translation>
+    </message>
+    <message>
+        <source>Unknown. Syncing Headers (%1, %2%)...</source>
+        <translation>Ukjent.Synkroniser overskrifter (%1,%2%)...</translation>
+    </message>
+</context>
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open URI</source>
-        <translation>Åpne URI</translation>
-    </message>
-    <message>
-        <source>Open payment request from URI or file</source>
-        <translation>Åpne betalingsetterspørring fra URI eller fil</translation>
+        <source>Open bitcoin URI</source>
+        <translation>Åpne bitcoin URI</translation>
     </message>
     <message>
         <source>URI:</source>
         <translation>URI:</translation>
     </message>
-    <message>
-        <source>Select payment request file</source>
-        <translation>Velg fil for betalingsetterspørring</translation>
-    </message>
-    <message>
-        <source>Select payment request file to open</source>
-        <translation>Velg betalingsforespørselsfil å åpne</translation>
-    </message>
 </context>
 <context>
     <name>OpenWalletActivity</name>
+    <message>
+        <source>Open wallet failed</source>
+        <translation>Åpne lommebok feilet</translation>
+    </message>
+    <message>
+        <source>Open wallet warning</source>
+        <translation>Advasel om åpen lommebok.</translation>
+    </message>
     <message>
         <source>default wallet</source>
         <translation>standard lommebok</translation>
@@ -1071,8 +1175,20 @@
         <translation>&amp;Nettverk</translation>
     </message>
     <message>
+        <source>Disables some advanced features but all blocks will still be fully validated. Reverting this setting requires re-downloading the entire blockchain. Actual disk usage may be somewhat higher.</source>
+        <translation>Deaktiver noen avanserte funksjoner, men alle blokker vil fortsatt være fullglyldig. Gjenoppretting av denne innstillingen krever at du laster ned hele blockchain på nytt. Faktisk diskbruk kan være noe høvere.</translation>
+    </message>
+    <message>
+        <source>Prune &amp;block storage to</source>
+        <translation>Beskjær og blokker lagring til</translation>
+    </message>
+    <message>
         <source>GB</source>
         <translation>GB</translation>
+    </message>
+    <message>
+        <source>Reverting this setting requires re-downloading the entire blockchain.</source>
+        <translation>Gjenoppretting av denne innstillingen krever at du laster ned hele blockchain på nytt</translation>
     </message>
     <message>
         <source>MiB</source>
@@ -1201,6 +1317,10 @@
     <message>
         <source>&amp;Third party transaction URLs</source>
         <translation>Tredjepart transaksjon URLer</translation>
+    </message>
+    <message>
+        <source>Options set in this dialog are overridden by the command line or in the configuration file:</source>
+        <translation>Alternativer som er satt i denne dialogboksen overstyres av kommandolinjen eller i konfigurasjonsfilen:</translation>
     </message>
     <message>
         <source>&amp;OK</source>
@@ -1345,8 +1465,20 @@
         <translation>URI-håndtering</translation>
     </message>
     <message>
-        <source>Payment request fetch URL is invalid: %1</source>
-        <translation>Nettadressen for betalingsforespørselshenting er ugyldig: %1</translation>
+        <source>'bitcoin://' is not a valid URI. Use 'bitcoin:' instead.</source>
+        <translation>'bitcoin: //' er ikke en gyldig URI. Bruk 'bitcoin:' i stedet.</translation>
+    </message>
+    <message>
+        <source>Cannot process payment request because BIP70 is not supported.</source>
+        <translation>Kan ikke behandle betalingsforespørsel fordi BIP70 ikke støttes.</translation>
+    </message>
+    <message>
+        <source>Due to widespread security flaws in BIP70 it's strongly recommended that any merchant instructions to switch wallets be ignored.</source>
+        <translation>På grunn av utbredte sikkerhetsfeil i BIP70 anbefales det på det sterkeste at alle selgerinstruksjoner for å bytte lommebok ignoreres.</translation>
+    </message>
+    <message>
+        <source>If you are receiving this error you should request the merchant provide a BIP21 compatible URI.</source>
+        <translation>Hvis du mottar denne feilen, bør du be selgeren gi en BIP21-kompatibel URI.</translation>
     </message>
     <message>
         <source>Invalid payment address %1</source>
@@ -1359,66 +1491,6 @@
     <message>
         <source>Payment request file handling</source>
         <translation>Håndtering av betalingsforespørselsfil</translation>
-    </message>
-    <message>
-        <source>Payment request file cannot be read! This can be caused by an invalid payment request file.</source>
-        <translation>Betalingsforespørselsfila kan ikke leses! Dette kan ha sitt opphav i at den er ugyldig.</translation>
-    </message>
-    <message>
-        <source>Payment request rejected</source>
-        <translation>Betalingsforespørsel avslått</translation>
-    </message>
-    <message>
-        <source>Payment request network doesn't match client network.</source>
-        <translation>Betalingsforespørselsnettverket samsvarer ikke med klientnettverket.</translation>
-    </message>
-    <message>
-        <source>Payment request expired.</source>
-        <translation>Tidsavbrudd for betalingsforespørsel</translation>
-    </message>
-    <message>
-        <source>Payment request is not initialized.</source>
-        <translation>Betalingsforespørselen er ikke igangsatt.</translation>
-    </message>
-    <message>
-        <source>Unverified payment requests to custom payment scripts are unsupported.</source>
-        <translation>Uverifiserte betalingsforespørsler til egentilpassede betalingsskript støttes ikke.</translation>
-    </message>
-    <message>
-        <source>Invalid payment request.</source>
-        <translation>Ugyldig betalingsforespørsel.</translation>
-    </message>
-    <message>
-        <source>Requested payment amount of %1 is too small (considered dust).</source>
-        <translation>Forespurt betalingsbeløp på %1 er for lite (betraktet som støv).</translation>
-    </message>
-    <message>
-        <source>Refund from %1</source>
-        <translation>Tilbakebetaling fra %1</translation>
-    </message>
-    <message>
-        <source>Payment request %1 is too large (%2 bytes, allowed %3 bytes).</source>
-        <translation>Betalingsforespørsel %1 er for stor (%2 byte, %3 byte tillatt).</translation>
-    </message>
-    <message>
-        <source>Error communicating with %1: %2</source>
-        <translation>Feil under kommunikasjon med %1: %2</translation>
-    </message>
-    <message>
-        <source>Payment request cannot be parsed!</source>
-        <translation>Betalingsforespørselen kan ikke tolkes!</translation>
-    </message>
-    <message>
-        <source>Bad response from server %1</source>
-        <translation>Feilaktig svar fra tjeneren %1</translation>
-    </message>
-    <message>
-        <source>Network request error</source>
-        <translation>Nettverksforespørselsfeil</translation>
-    </message>
-    <message>
-        <source>Payment acknowledged</source>
-        <translation>Betaling anerkjent</translation>
     </message>
 </context>
 <context>
@@ -1566,6 +1638,10 @@
         <translation>Feil ved koding av URI til QR-kode.</translation>
     </message>
     <message>
+        <source>QR code support not available.</source>
+        <translation>Støtte for QR kode ikke tilgjengelig.</translation>
+    </message>
+    <message>
         <source>Save QR Code</source>
         <translation>Lagre QR-kode</translation>
     </message>
@@ -1589,10 +1665,6 @@
         <translation>&amp;Informasjon</translation>
     </message>
     <message>
-        <source>Debug window</source>
-        <translation>Feilsøkingsvindu</translation>
-    </message>
-    <message>
         <source>General</source>
         <translation>Generelt</translation>
     </message>
@@ -1603,6 +1675,10 @@
     <message>
         <source>Datadir</source>
         <translation>Datamappe</translation>
+    </message>
+    <message>
+        <source>Blocksdir</source>
+        <translation>Blocksdir</translation>
     </message>
     <message>
         <source>Startup time</source>
@@ -1697,8 +1773,20 @@
         <translation>Synkroniserte Blokker</translation>
     </message>
     <message>
+        <source>The mapped Autonomous System used for diversifying peer selection.</source>
+        <translation>Det kartlagte autonome systemet som brukes til å diversifisere valg av fagfeller.</translation>
+    </message>
+    <message>
+        <source>Mapped AS</source>
+        <translation>Kartlagt AS</translation>
+    </message>
+    <message>
         <source>User Agent</source>
         <translation>Brukeragent</translation>
+    </message>
+    <message>
+        <source>Node window</source>
+        <translation>Nodevindu</translation>
     </message>
     <message>
         <source>Open the %1 debug log file from the current data directory. This can take a few seconds for large log files.</source>
@@ -1841,6 +1929,14 @@
         <translation>Nettverksaktivitet avskrudd</translation>
     </message>
     <message>
+        <source>Executing command without any wallet</source>
+        <translation>Utfør kommando uten noen lommebok</translation>
+    </message>
+    <message>
+        <source>Executing command using "%1" wallet</source>
+        <translation>Utfør kommando med lommebok "%1"</translation>
+    </message>
+    <message>
         <source>(node id: %1)</source>
         <translation>(node id: %1)</translation>
     </message>
@@ -1904,12 +2000,32 @@
         <translation>Et valgfritt beløp å etterspørre. La stå tomt eller null for ikke å etterspørre et spesifikt beløp.</translation>
     </message>
     <message>
+        <source>An optional label to associate with the new receiving address (used by you to identify an invoice).  It is also attached to the payment request.</source>
+        <translation>En valgfri etikett for å knytte til den nye mottaksadressen (brukt av deg for å identifisere en faktura). Det er også knyttet til betalingsforespørselen.</translation>
+    </message>
+    <message>
+        <source>An optional message that is attached to the payment request and may be displayed to the sender.</source>
+        <translation>En valgfri melding som er knyttet til betalingsforespørselen og kan vises til avsenderen.</translation>
+    </message>
+    <message>
+        <source>&amp;Create new receiving address</source>
+        <translation>&amp;Lag ny mottakeradresse</translation>
+    </message>
+    <message>
         <source>Clear all fields of the form.</source>
         <translation>Fjern alle felter fra skjemaet.</translation>
     </message>
     <message>
         <source>Clear</source>
         <translation>Fjern</translation>
+    </message>
+    <message>
+        <source>Native segwit addresses (aka Bech32 or BIP-173) reduce your transaction fees later on and offer better protection against typos, but old wallets don't support them. When unchecked, an address compatible with older wallets will be created instead.</source>
+        <translation>Innfødte segwit-adresser (også kalt Bech32 eller BIP-173) reduserer transaksjonsgebyrene senere og gir bedre beskyttelse mot skrivefeil, men gamle lommebøker støtter dem ikke. Når du ikke har merket av, opprettes en adresse som er kompatibel med eldre lommebøker.</translation>
+    </message>
+    <message>
+        <source>Generate native segwit (Bech32) address</source>
+        <translation>Generer nativ segwit (Bech32) adresse</translation>
     </message>
     <message>
         <source>Requested payments history</source>
@@ -2101,8 +2217,12 @@
         <translation>Advarsel: Gebyroverslag er ikke tilgjengelig for tiden.</translation>
     </message>
     <message>
-        <source>collapse fee-settings</source>
-        <translation>Legg ned gebyrinnstillinger</translation>
+        <source>Specify a custom fee per kB (1,000 bytes) of the transaction's virtual size.
+
+Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis per kB" for a transaction size of 500 bytes (half of 1 kB) would ultimately yield a fee of only 50 satoshis.</source>
+        <translation>Spesifiser en tilpasset avgift per kB (1000 byte) av transaksjonens virtuelle størrelse.
+
+Merk: Siden avgiften er beregnet per byte-basis, vil et gebyr på "100 satoshis per kB" for en transaksjonsstørrelse på 500 byte (halvparten av 1 kB) til slutt gi et gebyr på bare 50 satoshis.</translation>
     </message>
     <message>
         <source>per kilobyte</source>
@@ -2139,6 +2259,18 @@
     <message>
         <source>Dust:</source>
         <translation>Støv:</translation>
+    </message>
+    <message>
+        <source>Hide transaction fee settings</source>
+        <translation>Skjul innstillinger for transaksjonsgebyr</translation>
+    </message>
+    <message>
+        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for bitcoin transactions than the network can process.</source>
+        <translation>Når det er mindre transaksjonsvolum enn plass i blokkene, kan gruvearbeidere så vel som videresende noder håndheve et minimumsgebyr. Å betale bare denne minsteavgiften er helt greit, men vær klar over at dette kan resultere i en aldri bekreftende transaksjon når det er større etterspørsel etter bitcoin-transaksjoner enn nettverket kan behandle.</translation>
+    </message>
+    <message>
+        <source>A too low fee might result in a never confirming transaction (read the tooltip)</source>
+        <translation>For lavt gebyr kan føre til en transaksjon som aldri bekreftes (les verktøytips)</translation>
     </message>
     <message>
         <source>Confirmation time target:</source>
@@ -2201,8 +2333,16 @@
         <translation>%1 (%2 blokker)</translation>
     </message>
     <message>
+        <source>Cr&amp;eate Unsigned</source>
+        <translation>Cr &amp; eate Usignert</translation>
+    </message>
+    <message>
         <source>%1 to %2</source>
         <translation>%1 til %2</translation>
+    </message>
+    <message>
+        <source>Do you want to draft this transaction?</source>
+        <translation>Vil du utarbeide denne transaksjonen?</translation>
     </message>
     <message>
         <source>Are you sure you want to send?</source>
@@ -2233,8 +2373,32 @@
         <translation>Totalbeløp</translation>
     </message>
     <message>
+        <source>To review recipient list click "Show Details..."</source>
+        <translation>For å se gjennom mottakerlisten, klikk "Vis detaljer ..."</translation>
+    </message>
+    <message>
         <source>Confirm send coins</source>
         <translation>Bekreft forsendelse av mynter</translation>
+    </message>
+    <message>
+        <source>Confirm transaction proposal</source>
+        <translation>Bekreft transaksjonsforslaget</translation>
+    </message>
+    <message>
+        <source>Copy PSBT to clipboard</source>
+        <translation>Kopier PSBT til utklippstavlen</translation>
+    </message>
+    <message>
+        <source>Send</source>
+        <translation>Send</translation>
+    </message>
+    <message>
+        <source>PSBT copied</source>
+        <translation>PSBT kopiert</translation>
+    </message>
+    <message>
+        <source>Watch-only balance:</source>
+        <translation>Kun-observer balanse:</translation>
     </message>
     <message>
         <source>The recipient address is not valid. Please recheck.</source>
@@ -2259,10 +2423,6 @@
     <message>
         <source>Transaction creation failed!</source>
         <translation>Opprettelse av transaksjon mislyktes!</translation>
-    </message>
-    <message>
-        <source>The transaction was rejected with the following reason: %1</source>
-        <translation>Transaksjonen ble avslått av følgende grunn: %1</translation>
     </message>
     <message>
         <source>A fee higher than %1 is considered an absurdly high fee.</source>
@@ -2316,10 +2476,6 @@
         <translation>Velg tidligere brukt adresse</translation>
     </message>
     <message>
-        <source>This is a normal payment.</source>
-        <translation>Dette er en normal betaling.</translation>
-    </message>
-    <message>
         <source>The Qtum address to send the payment to</source>
         <translation>Qtum-adressen betalingen skal sendes til</translation>
     </message>
@@ -2338,6 +2494,10 @@
     <message>
         <source>Remove this entry</source>
         <translation>Fjern denne oppføringen</translation>
+    </message>
+    <message>
+        <source>The amount to send in the selected unit</source>
+        <translation>beløpet som skal sendes inn den valgte enheten.</translation>
     </message>
     <message>
         <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
@@ -2378,17 +2538,6 @@
     <message>
         <source>Memo:</source>
         <translation>Memo:</translation>
-    </message>
-    <message>
-        <source>Enter a label for this address to add it to your address book</source>
-        <translation>Skriv inn en merkelapp for denne adressen for å legge den til i din adressebok</translation>
-    </message>
-</context>
-<context>
-    <name>SendConfirmationDialog</name>
-    <message>
-        <source>Yes</source>
-        <translation>Ja</translation>
     </message>
 </context>
 <context>
@@ -2477,6 +2626,14 @@
         <translation>Qtum-adressen meldingen ble signert med</translation>
     </message>
     <message>
+        <source>The signed message to verify</source>
+        <translation>Den signerte meldingen for å bekfrefte</translation>
+    </message>
+    <message>
+        <source>The signature given when the message was signed</source>
+        <translation>signaturen som ble gitt da meldingen ble signert</translation>
+    </message>
+    <message>
         <source>Verify the message to ensure it was signed with the specified Qtum address</source>
         <translation>Verifiser meldingen for å være sikker på at den ble signert av den angitte Qtum-adressen</translation>
     </message>
@@ -2507,6 +2664,10 @@
     <message>
         <source>Wallet unlock was cancelled.</source>
         <translation>Opplåsning av lommebok ble avbrutt.</translation>
+    </message>
+    <message>
+        <source>No error</source>
+        <translation>Ingen feil</translation>
     </message>
     <message>
         <source>Private key for the entered address is not available.</source>
@@ -2681,6 +2842,10 @@
     <message>
         <source>Output index</source>
         <translation>Utdatainndeks</translation>
+    </message>
+    <message>
+        <source> (Certificate was not verified)</source>
+        <translation>(sertifikatet ble ikke bekreftet)</translation>
     </message>
     <message>
         <source>Merchant</source>
@@ -3005,7 +3170,11 @@
         <source>Close wallet</source>
         <translation>Lukk lommebok</translation>
     </message>
-    </context>
+    <message>
+        <source>Closing the wallet for too long can result in having to resync the entire chain if pruning is enabled.</source>
+        <translation>Å lukke lommeboken for lenge kan føre til at du må synkronisere hele kjeden hvis beskjæring er aktivert.</translation>
+    </message>
+</context>
 <context>
     <name>WalletFrame</name>
     <message>
@@ -3032,6 +3201,10 @@
         <translation>Ønsker du å øke gebyret?</translation>
     </message>
     <message>
+        <source>Do you want to draft a transaction with fee increase?</source>
+        <translation>Vil du utarbeide en transaksjon med gebyrøkning?</translation>
+    </message>
+    <message>
         <source>Current fee:</source>
         <translation>Nåværede gebyr:</translation>
     </message>
@@ -3046,6 +3219,14 @@
     <message>
         <source>Confirm fee bump</source>
         <translation>Bekreft gebyrøkning</translation>
+    </message>
+    <message>
+        <source>Can't draft transaction.</source>
+        <translation>Kan ikke utarbeide transaksjon.</translation>
+    </message>
+    <message>
+        <source>PSBT copied</source>
+        <translation>PSBT kopiert</translation>
     </message>
     <message>
         <source>Can't sign transaction.</source>
@@ -3114,10 +3295,6 @@
         <translation>Beskjæring: siste lommeboksynkronisering går utenfor beskjærte data. Du må bruke -reindex (laster ned hele blokkjeden igjen for beskjærte noder)</translation>
     </message>
     <message>
-        <source>Rescans are not possible in pruned mode. You will need to use -reindex which will download the whole blockchain again.</source>
-        <translation>Omsøk er ikke mulig i beskjært modus. Du vil måtte bruke -reindex som vil laste nede hele blokkjeden på nytt.</translation>
-    </message>
-    <message>
         <source>Error: A fatal internal error occurred, see debug.log for details</source>
         <translation>Feil: En fatal intern feil oppstod, se debug.log for detaljer</translation>
     </message>
@@ -3132,6 +3309,10 @@
     <message>
         <source>The %s developers</source>
         <translation>%s-utviklerne</translation>
+    </message>
+    <message>
+        <source>Can't generate a change-address key. No keys in the internal keypool and can't generate any keys.</source>
+        <translation>Kan ikke generere en ledelse-nøkkel. Ingen taster i den interne tasten og kan ikke generere noen nøkler.</translation>
     </message>
     <message>
         <source>Cannot obtain a lock on data directory %s. %s is probably already running.</source>
@@ -3210,6 +3391,14 @@
         <translation>Oppdaget korrupt blokkdatabase</translation>
     </message>
     <message>
+        <source>Could not find asmap file %s</source>
+        <translation>Kunne ikke finne asmap filen %s</translation>
+    </message>
+    <message>
+        <source>Could not parse asmap file %s</source>
+        <translation>Kunne ikke analysere asmap filen %s</translation>
+    </message>
+    <message>
         <source>Do you want to rebuild the block database now?</source>
         <translation>Ønsker du å gjenopprette blokkdatabasen nå?</translation>
     </message>
@@ -3280,6 +3469,10 @@
     <message>
         <source>Loading P2P addresses...</source>
         <translation>Laster maskin-til-maskin -adresser…</translation>
+    </message>
+    <message>
+        <source>Error: Disk space is too low!</source>
+        <translation>Feil: For lite diskplass!</translation>
     </message>
     <message>
         <source>Loading banlist...</source>
@@ -3390,6 +3583,10 @@
         <translation>Må oppgi en port med -whitebind: '%s'</translation>
     </message>
     <message>
+        <source>Prune mode is incompatible with -blockfilterindex.</source>
+        <translation>Beskjæringsmodus er inkompatibel med -blokkfilterindex.</translation>
+    </message>
+    <message>
         <source>Reducing -maxconnections from %d to %d, because of system limitations.</source>
         <translation>Reduserer -maxconnections fra %d til %d, pga. systembegrensninger.</translation>
     </message>
@@ -3460,10 +3657,6 @@
         <translation>Dette er transaksjonsgebyret du kan betale når gebyranslag ikke er tilgjengelige.</translation>
     </message>
     <message>
-        <source>This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit %s and cryptographic software written by Eric Young and UPnP software written by Thomas Bernard.</source>
-        <translation>Dette produktet inneholder programmet utviklet av OpenSSL-prosjektet for bruk i OpenSSL-verktøyssettet %s og kryptografisk programvare skrevet av Eric Young og UPnP-programvare skrevet av Thomas Bernard.</translation>
-    </message>
-    <message>
         <source>Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.</source>
         <translation>Total lengde av nettverks-versionstreng (%i) er over maks lengde (%i). Reduser tallet eller størrelsen av uacomments.</translation>
     </message>
@@ -3514,6 +3707,14 @@
     <message>
         <source>Insufficient funds</source>
         <translation>Utilstrekkelige midler</translation>
+    </message>
+    <message>
+        <source>Cannot upgrade a non HD split wallet without upgrading to support pre split keypool. Please use -upgradewallet=169900 or -upgradewallet with no version specified.</source>
+        <translation>Kan ikke oppgradere en delt lommebok uten HD uten å oppgradere til støtte for forhåndsdelt tastatur. Bruk -upgradewallet = 169900 eller -upgradewallet uten versjon spesifisert.</translation>
+    </message>
+    <message>
+        <source>Fee estimation failed. Fallbackfee is disabled. Wait a few blocks or enable -fallbackfee.</source>
+        <translation>Avgiftsberegning mislyktes. Fallbackfee er deaktivert. Vent et par blokker eller aktiver -fallbackfee.</translation>
     </message>
     <message>
         <source>Loading block index...</source>

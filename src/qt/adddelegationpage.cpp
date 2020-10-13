@@ -207,7 +207,7 @@ void AddDelegationPage::on_addDelegationClicked()
         // Check if delegation exist in the wallet
         if(details.w_entry_exist)
         {
-            QMessageBox::warning(this, tr("Set delegation for address"), tr("The delegation for the address exist in the wallet list."));
+            QMessageBox::warning(this, tr("Set delegation for address"), tr("This address is already delegated."));
             return;
         }
 
@@ -249,7 +249,7 @@ void AddDelegationPage::on_addDelegationClicked()
         questionString.append(tr("<b>%1</b>?")
                               .arg(ui->lineEditStakerAddress->text()));
 
-        SendConfirmationDialog confirmationDialog(tr("Confirm address delegation to staker."), questionString, "", "", SEND_CONFIRM_DELAY, this);
+        SendConfirmationDialog confirmationDialog(tr("Confirm address delegation to staker."), questionString, "", "", SEND_CONFIRM_DELAY, tr("Send"), this);
         confirmationDialog.exec();
 
         QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();

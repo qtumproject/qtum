@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2018 The Bitcoin Core developers
+// Copyright (c) 2009-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -83,11 +83,13 @@ bool BCLog::Logger::StartLogging()
         bool print_to_console = m_print_to_console;
         if(print_to_console && logmsg.useVMLog && !m_show_evm_logs) print_to_console = false;
         if (print_to_console) fwrite(logmsg.msg.data(), 1, logmsg.msg.size(), stdout);
+        for (const auto& cb : m_print_callbacks) {
+            cb(logmsg.msg);
+        }
 
         m_msgs_before_open.pop_front();
     }
     /////////////////////////////////////////////
-
     if (m_print_to_console) fflush(stdout);
 
     return true;
@@ -101,6 +103,7 @@ void BCLog::Logger::DisconnectTestLogger()
     m_fileout = nullptr;
     if (m_fileoutVM != nullptr) fclose(m_fileoutVM);
     m_fileoutVM = nullptr;
+    m_print_callbacks.clear();
 }
 
 void BCLog::Logger::EnableCategory(BCLog::LogFlags flag)
@@ -111,7 +114,15 @@ void BCLog::Logger::EnableCategory(BCLog::LogFlags flag)
 bool BCLog::Logger::EnableCategory(const std::string& str)
 {
     BCLog::LogFlags flag;
-    if (!GetLogCategory(flag, str)) return false;
+    if (!GetLogCategory(flag, str)) {
+        if (str == "db") {
+            // DEPRECATION: Added in 0.20, should start returning an error in 0.21
+            LogPrintf("Warning: logging category 'db' is deprecated, use 'walletdb' instead\n");
+            EnableCategory(BCLog::WALLETDB);
+            return true;
+        }
+        return false;
+    }
     EnableCategory(flag);
     return true;
 }
@@ -155,7 +166,7 @@ const CLogCategoryDesc LogCategories[] =
     {BCLog::HTTP, "http"},
     {BCLog::BENCH, "bench"},
     {BCLog::ZMQ, "zmq"},
-    {BCLog::DB, "db"},
+    {BCLog::WALLETDB, "walletdb"},
     {BCLog::RPC, "rpc"},
     {BCLog::ESTIMATEFEE, "estimatefee"},
     {BCLog::ADDRMAN, "addrman"},
@@ -170,6 +181,7 @@ const CLogCategoryDesc LogCategories[] =
     {BCLog::COINDB, "coindb"},
     {BCLog::QT, "qt"},
     {BCLog::LEVELDB, "leveldb"},
+    {BCLog::VALIDATION, "validation"},
     {BCLog::COINSTAKE, "coinstake"},
     {BCLog::HTTPPOLL, "http-poll"},
     {BCLog::ALL, "1"},
@@ -295,6 +307,9 @@ void BCLog::Logger::LogPrintStr(const std::string& str, bool useVMLog)
         // print to console
         fwrite(str_prefixed.data(), 1, str_prefixed.size(), stdout);
         fflush(stdout);
+    }
+    for (const auto& cb : m_print_callbacks) {
+        cb(str_prefixed);
     }
     if (m_print_to_file) {
         //////////////////////////////// // qtum

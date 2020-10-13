@@ -374,14 +374,6 @@
         <translation>Cambia la passphrase utilizzata per la cifratura del portafoglio</translation>
     </message>
     <message>
-        <source>&amp;Debug window</source>
-        <translation>Finestra di &amp;debug</translation>
-    </message>
-    <message>
-        <source>Open debugging and diagnostic console</source>
-        <translation>Apri la console di debugging e diagnostica</translation>
-    </message>
-    <message>
         <source>&amp;Verify message...</source>
         <translation>&amp;Verifica messaggio...</translation>
     </message>
@@ -442,10 +434,6 @@
         <translation>Mostra la lista degli indirizzi di ricezione utilizzati</translation>
     </message>
     <message>
-        <source>Open a qtum: URI or payment request</source>
-        <translation>Apri un qtum: URI o una richiesta di pagamento</translation>
-    </message>
-    <message>
         <source>&amp;Command-line options</source>
         <translation>Opzioni della riga di &amp;comando</translation>
     </message>
@@ -494,12 +482,24 @@
         <translation>Aggiornato</translation>
     </message>
     <message>
+        <source>Node window</source>
+        <translation>Finestra del nodo</translation>
+    </message>
+    <message>
+        <source>Open node debugging and diagnostic console</source>
+        <translation>Apri il debug del nodo e la console diagnostica</translation>
+    </message>
+    <message>
         <source>&amp;Sending addresses</source>
         <translation>Indirizzi di &amp;spedizione</translation>
     </message>
     <message>
         <source>&amp;Receiving addresses</source>
         <translation>Indirizzi di &amp;ricezione</translation>
+    </message>
+    <message>
+        <source>Open a qtum: URI</source>
+        <translation>Apri un qtum: URI</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -924,10 +924,6 @@
         <translation>versione</translation>
     </message>
     <message>
-        <source>(%1-bit)</source>
-        <translation>(%1-bit)</translation>
-    </message>
-    <message>
         <source>About %1</source>
         <translation>Informazioni %1</translation>
     </message>
@@ -1066,6 +1062,14 @@
         <translation>Nascondi</translation>
     </message>
     <message>
+        <source>Esc</source>
+        <translation>Esc</translation>
+    </message>
+    <message>
+        <source>%1 is currently syncing.  It will download headers and blocks from peers and validate them until reaching the tip of the block chain.</source>
+        <translation>%1 è attualmente in fase di sincronizzazione. Scaricherà le intestazioni e i blocchi dai peer e li convaliderà fino a raggiungere la punta della catena di blocchi.</translation>
+    </message>
+    <message>
         <source>Unknown. Syncing Headers (%1, %2%)...</source>
         <translation>Sconosciuto. Sincronizzando Headers (%1, %2%)...</translation>
     </message>
@@ -1073,24 +1077,12 @@
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open URI</source>
-        <translation>Apri URI</translation>
-    </message>
-    <message>
-        <source>Open payment request from URI or file</source>
-        <translation>Apri richiesta di pagamento da URI o file</translation>
+        <source>Open qtum URI</source>
+        <translation>Apri un qtum URI</translation>
     </message>
     <message>
         <source>URI:</source>
         <translation>URI:</translation>
-    </message>
-    <message>
-        <source>Select payment request file</source>
-        <translation>Seleziona il file di richiesta di pagamento</translation>
-    </message>
-    <message>
-        <source>Select payment request file to open</source>
-        <translation>Seleziona il file di richiesta di pagamento da aprire</translation>
     </message>
 </context>
 <context>
@@ -1482,16 +1474,8 @@ Per specificare più URL separarli con una barra verticale "|".</translation>
         <translation>'qtum://' non è un URI valido. Usa invece 'qtum:'.</translation>
     </message>
     <message>
-        <source>You are using a BIP70 URL which will be unsupported in the future.</source>
-        <translation>Stai usando un URL BIP70 che, in futuro, non sarà piú supportato.</translation>
-    </message>
-    <message>
-        <source>Payment request fetch URL is invalid: %1</source>
-        <translation>URL di recupero della Richiesta di pagamento non valido: %1</translation>
-    </message>
-    <message>
-        <source>Cannot process payment request because BIP70 support was not compiled in.</source>
-        <translation>Non posso completare la richiesta di pagamento perché il supporto per BIP70 non è stato incluso in fase di compilazione.</translation>
+        <source>Cannot process payment request because BIP70 is not supported.</source>
+        <translation>Impossibile elaborare la richiesta di pagamento perché BIP70 non è supportato.</translation>
     </message>
     <message>
         <source>Due to widespread security flaws in BIP70 it's strongly recommended that any merchant instructions to switch wallets be ignored.</source>
@@ -1512,66 +1496,6 @@ Per specificare più URL separarli con una barra verticale "|".</translation>
     <message>
         <source>Payment request file handling</source>
         <translation>Gestione del file di richiesta del pagamento</translation>
-    </message>
-    <message>
-        <source>Payment request file cannot be read! This can be caused by an invalid payment request file.</source>
-        <translation>Impossibile leggere il file della richiesta di pagamento! Il file della richiesta di pagamento potrebbe non essere valido</translation>
-    </message>
-    <message>
-        <source>Payment request rejected</source>
-        <translation>Richiesta di pagamento respinta</translation>
-    </message>
-    <message>
-        <source>Payment request network doesn't match client network.</source>
-        <translation>La rete della richiesta di pagamento non corrisponde alla rete del client.</translation>
-    </message>
-    <message>
-        <source>Payment request expired.</source>
-        <translation>Richiesta di pagamento scaduta.</translation>
-    </message>
-    <message>
-        <source>Payment request is not initialized.</source>
-        <translation>La richiesta di pagamento non è stata inizializzata.</translation>
-    </message>
-    <message>
-        <source>Unverified payment requests to custom payment scripts are unsupported.</source>
-        <translation>Le richieste di pagamento non verificate verso script di pagamento personalizzati non sono supportate.</translation>
-    </message>
-    <message>
-        <source>Invalid payment request.</source>
-        <translation>Richiesta di pagamento invalida</translation>
-    </message>
-    <message>
-        <source>Requested payment amount of %1 is too small (considered dust).</source>
-        <translation>L'importo di pagamento di %1 richiesto è troppo basso (considerato come trascurabile).</translation>
-    </message>
-    <message>
-        <source>Refund from %1</source>
-        <translation>Rimborso da %1</translation>
-    </message>
-    <message>
-        <source>Payment request %1 is too large (%2 bytes, allowed %3 bytes).</source>
-        <translation>La richiesta di pagamento %1 è troppo grande (%2 bytes, consentiti %3 bytes)</translation>
-    </message>
-    <message>
-        <source>Error communicating with %1: %2</source>
-        <translation>Errore di comunicazione con %1: %2</translation>
-    </message>
-    <message>
-        <source>Payment request cannot be parsed!</source>
-        <translation>La richiesta di pagamento non può essere processata!</translation>
-    </message>
-    <message>
-        <source>Bad response from server %1</source>
-        <translation>Risposta errata da parte del server %1</translation>
-    </message>
-    <message>
-        <source>Network request error</source>
-        <translation>Errore di richiesta di rete</translation>
-    </message>
-    <message>
-        <source>Payment acknowledged</source>
-        <translation>Pagamento riconosciuto</translation>
     </message>
 </context>
 <context>
@@ -1750,10 +1674,6 @@ Per specificare più URL separarli con una barra verticale "|".</translation>
         <translation>&amp;Informazioni</translation>
     </message>
     <message>
-        <source>Debug window</source>
-        <translation>Finestra di debug</translation>
-    </message>
-    <message>
         <source>General</source>
         <translation>Generale</translation>
     </message>
@@ -1870,8 +1790,20 @@ Per specificare più URL separarli con una barra verticale "|".</translation>
         <translation>Blocchi sincronizzati</translation>
     </message>
     <message>
+        <source>The mapped Autonomous System used for diversifying peer selection.</source>
+        <translation>Il Sistema Autonomo mappato utilizzato per diversificare la selezione dei peer.</translation>
+    </message>
+    <message>
+        <source>Mapped AS</source>
+        <translation>AS mappato</translation>
+    </message>
+    <message>
         <source>User Agent</source>
         <translation>User Agent</translation>
+    </message>
+    <message>
+        <source>Node window</source>
+        <translation>Finestra del nodo</translation>
     </message>
     <message>
         <source>Open the %1 debug log file from the current data directory. This can take a few seconds for large log files.</source>
@@ -2085,6 +2017,14 @@ Per specificare più URL separarli con una barra verticale "|".</translation>
         <translation>Un importo opzionale da associare alla richiesta. Lasciare vuoto o a zero per non richiedere un importo specifico.</translation>
     </message>
     <message>
+        <source>An optional label to associate with the new receiving address (used by you to identify an invoice).  It is also attached to the payment request.</source>
+        <translation>Un'etichetta facoltativa da associare al nuovo indirizzo di ricezione (utilizzata da te per identificare una fattura). Viene inoltre allegata alla richiesta di pagamento.</translation>
+    </message>
+    <message>
+        <source>An optional message that is attached to the payment request and may be displayed to the sender.</source>
+        <translation>Un messaggio facoltativo che è allegato alla richiesta di pagamento e può essere visualizzato dal mittente.</translation>
+    </message>
+    <message>
         <source>&amp;Create new receiving address</source>
         <translation>Crea nuovo indirizzo ricevente.</translation>
     </message>
@@ -2294,10 +2234,6 @@ Per specificare più URL separarli con una barra verticale "|".</translation>
         <translation>Attenzione: Il calcolo delle commissioni non è attualmente disponibile.</translation>
     </message>
     <message>
-        <source>collapse fee-settings</source>
-        <translation>minimizza le impostazioni di commissione</translation>
-    </message>
-    <message>
         <source>Specify a custom fee per kB (1,000 bytes) of the transaction's virtual size.
 
 Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis per kB" for a transaction size of 500 bytes (half of 1 kB) would ultimately yield a fee of only 50 satoshis.</source>
@@ -2340,6 +2276,10 @@ Nota: poiché la commissione è calcolata su base per byte, una commissione di "
     <message>
         <source>Dust:</source>
         <translation>Trascurabile:</translation>
+    </message>
+    <message>
+        <source>Hide transaction fee settings</source>
+        <translation>Nascondi le impostazioni delle commissioni di transazione.</translation>
     </message>
     <message>
         <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
@@ -2410,6 +2350,14 @@ Nota: poiché la commissione è calcolata su base per byte, una commissione di "
         <translation>%1 (%2 blocchi)</translation>
     </message>
     <message>
+        <source>Cr&amp;eate Unsigned</source>
+        <translation>Cr&amp;eate Unsigned</translation>
+    </message>
+    <message>
+        <source>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <translation>Crea una Transazione Qtum Parzialmente Firmata (PSBT) da utilizzare con ad es. un portafoglio %1 offline o un portafoglio hardware compatibile con PSBT.</translation>
+    </message>
+    <message>
         <source> from wallet '%1'</source>
         <translation>dal wallet '%1'</translation>
     </message>
@@ -2422,8 +2370,16 @@ Nota: poiché la commissione è calcolata su base per byte, una commissione di "
         <translation>%1 a %2</translation>
     </message>
     <message>
+        <source>Do you want to draft this transaction?</source>
+        <translation>Vuoi compilare questa transazione?</translation>
+    </message>
+    <message>
         <source>Are you sure you want to send?</source>
         <translation>Sei sicuro di voler inviare?</translation>
+    </message>
+    <message>
+        <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <translation>Per favore, rivedi la tua proposta di transazione. Questo produrrà una Transazione Qtum Parzialmente Firmata (PSBT) che puoi copiare e quindi firmare con es. un portafoglio %1 offline o un portafoglio hardware compatibile con PSBT.</translation>
     </message>
     <message>
         <source>or</source>
@@ -2458,6 +2414,26 @@ Nota: poiché la commissione è calcolata su base per byte, una commissione di "
         <translation>Conferma invio coins</translation>
     </message>
     <message>
+        <source>Confirm transaction proposal</source>
+        <translation>Conferma la proposta di transazione</translation>
+    </message>
+    <message>
+        <source>Copy PSBT to clipboard</source>
+        <translation>Copia PSBT negli appunti</translation>
+    </message>
+    <message>
+        <source>Send</source>
+        <translation>Invia</translation>
+    </message>
+    <message>
+        <source>PSBT copied</source>
+        <translation>PSBT copiata</translation>
+    </message>
+    <message>
+        <source>Watch-only balance:</source>
+        <translation>Saldo watch-only</translation>
+    </message>
+    <message>
         <source>The recipient address is not valid. Please recheck.</source>
         <translation>L'indirizzo del destinatario non è valido. Si prega di ricontrollare.</translation>
     </message>
@@ -2480,10 +2456,6 @@ Nota: poiché la commissione è calcolata su base per byte, una commissione di "
     <message>
         <source>Transaction creation failed!</source>
         <translation>Creazione della transazione fallita!</translation>
-    </message>
-    <message>
-        <source>The transaction was rejected with the following reason: %1</source>
-        <translation>La transazione è stata respinta per il seguente motivo: %1</translation>
     </message>
     <message>
         <source>A fee higher than %1 is considered an absurdly high fee.</source>
@@ -2537,10 +2509,6 @@ Nota: poiché la commissione è calcolata su base per byte, una commissione di "
         <translation>Scegli un indirizzo usato precedentemente</translation>
     </message>
     <message>
-        <source>This is a normal payment.</source>
-        <translation>Questo è un normale pagamento.</translation>
-    </message>
-    <message>
         <source>The Qtum address to send the payment to</source>
         <translation>L'indirizzo Qtum a cui vuoi inviare il pagamento</translation>
     </message>
@@ -2559,6 +2527,10 @@ Nota: poiché la commissione è calcolata su base per byte, una commissione di "
     <message>
         <source>Remove this entry</source>
         <translation>Rimuovi questa voce</translation>
+    </message>
+    <message>
+        <source>The amount to send in the selected unit</source>
+        <translation>L'ammontare da inviare nell'unità selezionata</translation>
     </message>
     <message>
         <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
@@ -2599,17 +2571,6 @@ Nota: poiché la commissione è calcolata su base per byte, una commissione di "
     <message>
         <source>Memo:</source>
         <translation>Memo:</translation>
-    </message>
-    <message>
-        <source>Enter a label for this address to add it to your address book</source>
-        <translation>Inserisci un'etichetta per questo indirizzo per aggiungerlo alla tua rubrica</translation>
-    </message>
-</context>
-<context>
-    <name>SendConfirmationDialog</name>
-    <message>
-        <source>Yes</source>
-        <translation>Si</translation>
     </message>
 </context>
 <context>
@@ -2698,6 +2659,14 @@ Nota: poiché la commissione è calcolata su base per byte, una commissione di "
         <translation>L'indirizzo Qtum con cui è stato contrassegnato il messaggio</translation>
     </message>
     <message>
+        <source>The signed message to verify</source>
+        <translation>Il messaggio firmato da verificare</translation>
+    </message>
+    <message>
+        <source>The signature given when the message was signed</source>
+        <translation>La firma data al momento della firma del messaggio</translation>
+    </message>
+    <message>
         <source>Verify the message to ensure it was signed with the specified Qtum address</source>
         <translation>Verifica il messaggio per accertare che sia stato firmato con l'indirizzo specificato</translation>
     </message>
@@ -2728,6 +2697,10 @@ Nota: poiché la commissione è calcolata su base per byte, una commissione di "
     <message>
         <source>Wallet unlock was cancelled.</source>
         <translation>Sblocco del portafoglio annullato.</translation>
+    </message>
+    <message>
+        <source>No error</source>
+        <translation>Nessun errore</translation>
     </message>
     <message>
         <source>Private key for the entered address is not available.</source>
@@ -3265,6 +3238,10 @@ Nota: poiché la commissione è calcolata su base per byte, una commissione di "
         <translation>Vuoi aumentare la commissione?</translation>
     </message>
     <message>
+        <source>Do you want to draft a transaction with fee increase?</source>
+        <translation>Vuoi compilare una transazione con un aumento delle commissioni?</translation>
+    </message>
+    <message>
         <source>Current fee:</source>
         <translation>Commissione attuale:</translation>
     </message>
@@ -3279,6 +3256,14 @@ Nota: poiché la commissione è calcolata su base per byte, una commissione di "
     <message>
         <source>Confirm fee bump</source>
         <translation>Conferma il salto di commissione</translation>
+    </message>
+    <message>
+        <source>Can't draft transaction.</source>
+        <translation>Non è possibile compilare la transazione. </translation>
+    </message>
+    <message>
+        <source>PSBT copied</source>
+        <translation>PSBT copiata</translation>
     </message>
     <message>
         <source>Can't sign transaction.</source>
@@ -3345,10 +3330,6 @@ Nota: poiché la commissione è calcolata su base per byte, una commissione di "
     <message>
         <source>Prune: last wallet synchronisation goes beyond pruned data. You need to -reindex (download the whole blockchain again in case of pruned node)</source>
         <translation>Prune: l'ultima sincronizzazione del portafoglio risulta essere precedente alla eliminazione dei dati per via della modalità "pruning". È necessario eseguire un -reindex (scaricare nuovamente la blockchain in caso di nodo pruned).</translation>
-    </message>
-    <message>
-        <source>Rescans are not possible in pruned mode. You will need to use -reindex which will download the whole blockchain again.</source>
-        <translation>Non è possibile un rescan in modalità pruned. Sarà necessario utilizzare -reindex che farà scaricare nuovamente tutta la blockchain.</translation>
     </message>
     <message>
         <source>Error: A fatal internal error occurred, see debug.log for details</source>
@@ -3449,6 +3430,14 @@ Nota: poiché la commissione è calcolata su base per byte, una commissione di "
     <message>
         <source>Corrupted block database detected</source>
         <translation>Rilevato database blocchi corrotto</translation>
+    </message>
+    <message>
+        <source>Could not find asmap file %s</source>
+        <translation>Non è possibile trovare il file asmap %s</translation>
+    </message>
+    <message>
+        <source>Could not parse asmap file %s</source>
+        <translation>Non è possibile analizzare il file asmap %s</translation>
     </message>
     <message>
         <source>Do you want to rebuild the block database now?</source>
@@ -3739,10 +3728,6 @@ Nota: poiché la commissione è calcolata su base per byte, una commissione di "
     <message>
         <source>This is the transaction fee you may pay when fee estimates are not available.</source>
         <translation>Questo è il costo di transazione che potresti pagare quando le stime della tariffa non sono disponibili.</translation>
-    </message>
-    <message>
-        <source>This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit %s and cryptographic software written by Eric Young and UPnP software written by Thomas Bernard.</source>
-        <translation>Questo prodotto include software sviluppato dal progetto OpenSSL per l'uso del Toolkit OpenSSL %s, software crittografico scritto da Eric Young e software UPnP scritto da Thomas Bernard.</translation>
     </message>
     <message>
         <source>Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.</source>

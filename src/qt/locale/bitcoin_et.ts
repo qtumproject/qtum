@@ -132,6 +132,10 @@
         <translation>Korda uut parooli</translation>
     </message>
     <message>
+        <source>Show passphrase</source>
+        <translation>Näita salafraasi</translation>
+    </message>
+    <message>
         <source>Encrypt wallet</source>
         <translation>Krüpteeri rahakott</translation>
     </message>
@@ -172,6 +176,34 @@
         <translation>Rahakott krüpteeritud</translation>
     </message>
     <message>
+        <source>Enter the new passphrase for the wallet.&lt;br/&gt;Please use a passphrase of &lt;b&gt;ten or more random characters&lt;/b&gt;, or &lt;b&gt;eight or more words&lt;/b&gt;.</source>
+        <translation>Sisesta rahakotile uus salafraas.&lt;br/&gt;Kasuta salafraasi millles on&lt;b&gt;kümme või rohkem juhuslikku sümbolit&lt;b&gt;,või&lt;b&gt;kaheksa või rohkem sõna&lt;b/&gt;.</translation>
+    </message>
+    <message>
+        <source>Enter the old passphrase and new passphrase for the wallet.</source>
+        <translation>Sisesta rahakoti vana salafraas ja uus salafraas.</translation>
+    </message>
+    <message>
+        <source>Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
+        <translation>Pea meeles, et rahakoti krüpteerimine ei välista bitcoinide vargust, kui sinu arvuti on nakatunud pahavaraga.</translation>
+    </message>
+    <message>
+        <source>Wallet to be encrypted</source>
+        <translation>Krüpteeritav rahakott</translation>
+    </message>
+    <message>
+        <source>Your wallet is about to be encrypted. </source>
+        <translation>Rahakott krüpteeritakse.</translation>
+    </message>
+    <message>
+        <source>Your wallet is now encrypted. </source>
+        <translation>Rahakott krüpteeritud.</translation>
+    </message>
+    <message>
+        <source>IMPORTANT: Any previous backups you have made of your wallet file should be replaced with the newly generated, encrypted wallet file. For security reasons, previous backups of the unencrypted wallet file will become useless as soon as you start using the new, encrypted wallet.</source>
+        <translation>TÄHTIS: Kõik varasemad rahakoti varundfailid tuleks üle kirjutada äsja loodud krüpteeritud rahakoti failiga. Turvakaalutlustel tühistatakse krüpteerimata rahakoti failid alates uue, krüpteeritud rahakoti, kasutusele võtust.</translation>
+    </message>
+    <message>
         <source>Wallet encryption failed</source>
         <translation>Rahakoti krüpteerimine ebaõnnestus</translation>
     </message>
@@ -210,7 +242,11 @@
         <source>IP/Netmask</source>
         <translation>IP/Võrgumask</translation>
     </message>
-    </context>
+    <message>
+        <source>Banned Until</source>
+        <translation>Blokeeritud kuni</translation>
+    </message>
+</context>
 <context>
     <name>QtumGUI</name>
     <message>
@@ -250,6 +286,10 @@
         <translation>&amp;Teave %1</translation>
     </message>
     <message>
+        <source>Show information about %1</source>
+        <translation>Näita informatsiooni %1 kohta</translation>
+    </message>
+    <message>
         <source>About &amp;Qt</source>
         <translation>Teave &amp;Qt kohta</translation>
     </message>
@@ -260,6 +300,10 @@
     <message>
         <source>&amp;Options...</source>
         <translation>&amp;Valikud...</translation>
+    </message>
+    <message>
+        <source>Modify configuration options for %1</source>
+        <translation>Muuda %1 seadeid</translation>
     </message>
     <message>
         <source>&amp;Encrypt Wallet...</source>
@@ -278,6 +322,18 @@
         <translation>Ava &amp;URI...</translation>
     </message>
     <message>
+        <source>Create Wallet...</source>
+        <translation>Loo rahakott</translation>
+    </message>
+    <message>
+        <source>Create a new wallet</source>
+        <translation>Loo uus rahakott</translation>
+    </message>
+    <message>
+        <source>Wallet:</source>
+        <translation>Rahakott:</translation>
+    </message>
+    <message>
         <source>Reindexing blocks on disk...</source>
         <translation>Kõvakettal olevate plokkide reindekseerimine...</translation>
     </message>
@@ -292,14 +348,6 @@
     <message>
         <source>Change the passphrase used for wallet encryption</source>
         <translation>Rahakoti krüpteerimise salafraasi muutmine</translation>
-    </message>
-    <message>
-        <source>&amp;Debug window</source>
-        <translation>&amp;Silumise aken</translation>
-    </message>
-    <message>
-        <source>Open debugging and diagnostic console</source>
-        <translation>Ava debugimise ja diagnostika konsool</translation>
     </message>
     <message>
         <source>&amp;Verify message...</source>
@@ -352,10 +400,6 @@
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source>
         <translation>Loo maksepäring (genereerib QR koodid ja qtumi: URId)</translation>
-    </message>
-    <message>
-        <source>Open a qtum: URI or payment request</source>
-        <translation>Ava qtumi: URI või maksepäring</translation>
     </message>
     <message>
         <source>&amp;Command-line options</source>
@@ -463,7 +507,11 @@
         <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;locked&lt;/b&gt;</source>
         <translation>Rahakott on &lt;b&gt;krüpteeritud&lt;/b&gt; ning hetkel &lt;b&gt;suletud&lt;/b&gt;</translation>
     </message>
-    </context>
+    <message>
+        <source>A fatal error occurred. Qtum can no longer continue safely and will quit.</source>
+        <translation>Ilmnes kriitiline tõrge. Qtum suletakse turvakaalutluste tõttu.</translation>
+    </message>
+</context>
 <context>
     <name>CoinControlDialog</name>
     <message>
@@ -679,20 +727,8 @@
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open URI</source>
-        <translation>Ava URI</translation>
-    </message>
-    <message>
         <source>URI:</source>
         <translation>URI:</translation>
-    </message>
-    <message>
-        <source>Select payment request file</source>
-        <translation>Vali maksepäringu fail</translation>
-    </message>
-    <message>
-        <source>Select payment request file to open</source>
-        <translation>Vali maksepäringu fail mida avada</translation>
     </message>
 </context>
 <context>
@@ -859,16 +895,12 @@
         <translation>Maksepäringu tõrge</translation>
     </message>
     <message>
-        <source>Payment request rejected</source>
-        <translation>Maksepäring tagasi lükatud</translation>
+        <source>Cannot start qtum: click-to-pay handler</source>
+        <translation>Qtum ei käivitu: vajuta-maksa toiming</translation>
     </message>
     <message>
-        <source>Payment request expired.</source>
-        <translation>Maksepäring aegunud.</translation>
-    </message>
-    <message>
-        <source>Unverified payment requests to custom payment scripts are unsupported.</source>
-        <translation>Kinnitamata maksepäringud kohandatud makse scriptidele ei ole toetatud.</translation>
+        <source>URI handling</source>
+        <translation>URI käsitsemine</translation>
     </message>
     </context>
 <context>
@@ -973,10 +1005,6 @@
     <message>
         <source>&amp;Information</source>
         <translation>&amp;Informatsioon</translation>
-    </message>
-    <message>
-        <source>Debug window</source>
-        <translation>Debugimise aken</translation>
     </message>
     <message>
         <source>General</source>
@@ -1405,18 +1433,7 @@
         <source>Pay To:</source>
         <translation>Maksa :</translation>
     </message>
-    <message>
-        <source>Enter a label for this address to add it to your address book</source>
-        <translation>Aadressiraamatusse sisestamiseks märgista aadress</translation>
-    </message>
-</context>
-<context>
-    <name>SendConfirmationDialog</name>
-    <message>
-        <source>Yes</source>
-        <translation>Jah</translation>
-    </message>
-</context>
+    </context>
 <context>
     <name>ShutdownWindow</name>
     <message>

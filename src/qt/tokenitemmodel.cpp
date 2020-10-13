@@ -7,6 +7,7 @@
 #include <interfaces/node.h>
 #include <interfaces/handler.h>
 #include <algorithm>
+#include <consensus/consensus.h>
 
 #include <QDateTime>
 #include <QFont>

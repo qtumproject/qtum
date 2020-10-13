@@ -17,7 +17,6 @@
  * in the block is a special one that creates a new coin owned by the creator
  * of the block.
  */
-
 class CBlockHeader
 {
 public:

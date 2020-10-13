@@ -246,7 +246,6 @@ License
 
 Qtum is GPLv3 licensed.
 
-
 Development Process
 -------------------
 
@@ -254,8 +253,8 @@ The `master` branch is regularly built and tested, but is not guaranteed to be
 completely stable. [Tags](https://github.com/qtumproject/qtum/tags) are created
 regularly to indicate new official, stable release versions of Qtum.
 
-The contribution workflow is described in [CONTRIBUTING.md](https://github.com/qtumproject/qtum/blob/master/CONTRIBUTING.md).
-
+The contribution workflow is described in [CONTRIBUTING.md](https://github.com/qtumproject/qtum/blob/master/CONTRIBUTING.md)
+and useful hints for developers can be found in [doc/developer-notes.md](doc/developer-notes.md).
 
 Testing
 -------
@@ -275,6 +274,8 @@ and extending unit tests can be found in [/src/test/README.md](/src/test/README.
 There are also [regression and integration tests](/test), written
 in Python, that are run automatically on the build server.
 These tests can be run (if the [test dependencies](/test) are installed) with: `test/functional/test_runner.py`
+
+The Travis CI system makes sure that every pull request is built for Windows, Linux, and macOS, and that unit/sanity tests are run automatically.
 
 ### Manual Quality Assurance (QA) Testing
 

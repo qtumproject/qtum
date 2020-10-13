@@ -187,7 +187,7 @@ void SendTokenPage::on_confirmClicked()
         questionString.append(tr("<br />%3 <br />")
                               .arg(QString::fromStdString(toAddress)));
 
-        SendConfirmationDialog confirmationDialog(tr("Confirm send token."), questionString, "", "", SEND_CONFIRM_DELAY, this);
+        SendConfirmationDialog confirmationDialog(tr("Confirm send token."), questionString, "", "", SEND_CONFIRM_DELAY, tr("Send"), this);
         confirmationDialog.exec();
         QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();
         if(retval == QMessageBox::Yes)

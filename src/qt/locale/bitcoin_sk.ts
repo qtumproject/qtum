@@ -374,14 +374,6 @@
         <translation>Zmeniť heslo použité na šifrovanie peňaženky</translation>
     </message>
     <message>
-        <source>&amp;Debug window</source>
-        <translation>&amp;Okno pre ladenie</translation>
-    </message>
-    <message>
-        <source>Open debugging and diagnostic console</source>
-        <translation>Otvor konzolu pre ladenie a diagnostiku</translation>
-    </message>
-    <message>
         <source>&amp;Verify message...</source>
         <translation>O&amp;veriť správu...</translation>
     </message>
@@ -442,10 +434,6 @@
         <translation>Zobraziť zoznam použitých prijímacích adries a ich popisov</translation>
     </message>
     <message>
-        <source>Open a qtum: URI or payment request</source>
-        <translation>Otvoriť qtum URI alebo výzvu k platbe</translation>
-    </message>
-    <message>
         <source>&amp;Command-line options</source>
         <translation>&amp;Možnosti príkazového riadku</translation>
     </message>
@@ -494,12 +482,24 @@
         <translation>Aktualizovaný</translation>
     </message>
     <message>
+        <source>Node window</source>
+        <translation>Uzlové okno</translation>
+    </message>
+    <message>
+        <source>Open node debugging and diagnostic console</source>
+        <translation>Otvor konzolu pre ladenie a diagnostiku uzlu</translation>
+    </message>
+    <message>
         <source>&amp;Sending addresses</source>
         <translation>&amp;Odosielajúce adresy</translation>
     </message>
     <message>
         <source>&amp;Receiving addresses</source>
         <translation>&amp;Prijímajúce adresy</translation>
+    </message>
+    <message>
+        <source>Open a qtum: URI</source>
+        <translation>Otvoriť qtum: URI</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -924,10 +924,6 @@
         <translation>verzia</translation>
     </message>
     <message>
-        <source>(%1-bit)</source>
-        <translation>(%1-bit)</translation>
-    </message>
-    <message>
         <source>About %1</source>
         <translation>O %1</translation>
     </message>
@@ -960,7 +956,7 @@
     </message>
     <message>
         <source>This initial synchronisation is very demanding, and may expose hardware problems with your computer that had previously gone unnoticed. Each time you run %1, it will continue downloading where it left off.</source>
-        <translation>Prvá synchronizácia je veľmi náročná a môžu sa tak vďaka nej začat na Vašom počítači projavovať doteraz skryté hárdwarové problémy. Vždy, keď spustíte %1, bude sťahovanie pokračovať tam, kde skončilo.</translation>
+        <translation>Prvá synchronizácia je veľmi náročná a môžu sa tak vďaka nej začat na Vašom počítači prejavovať doteraz skryté hardwarové problémy. Vždy, keď spustíte %1, bude sťahovanie pokračovať tam, kde naposledy skončilo.</translation>
     </message>
     <message>
         <source>If you have chosen to limit block chain storage (pruning), the historical data must still be downloaded and processed, but will be deleted afterward to keep your disk usage low.</source>
@@ -1066,6 +1062,14 @@
         <translation>Skryť</translation>
     </message>
     <message>
+        <source>Esc</source>
+        <translation>Esc - úniková klávesa</translation>
+    </message>
+    <message>
+        <source>%1 is currently syncing.  It will download headers and blocks from peers and validate them until reaching the tip of the block chain.</source>
+        <translation>%1 sa práve synchronizuje. Sťahujú sa hlavičky a bloky od partnerov. Tie sa budú sa overovať až sa kompletne overí celý reťazec blokov - blockchain.</translation>
+    </message>
+    <message>
         <source>Unknown. Syncing Headers (%1, %2%)...</source>
         <translation>Neznámy. Synchronizujú sa hlavičky (%1, %2%)...</translation>
     </message>
@@ -1073,24 +1077,12 @@
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open URI</source>
-        <translation>Otvoriť URI</translation>
-    </message>
-    <message>
-        <source>Open payment request from URI or file</source>
-        <translation>Otvoriť požiadavku na zaplatenie z URI alebo súboru</translation>
+        <source>Open qtum URI</source>
+        <translation>Otvoriť qtum URI</translation>
     </message>
     <message>
         <source>URI:</source>
         <translation>URI:</translation>
-    </message>
-    <message>
-        <source>Select payment request file</source>
-        <translation>Vyberte súbor s výzvou k platbe</translation>
-    </message>
-    <message>
-        <source>Select payment request file to open</source>
-        <translation>Vyberte ktorý súbor s výzvou na platbu otvoriť</translation>
     </message>
 </context>
 <context>
@@ -1481,16 +1473,8 @@
         <translation>'qtum://' je neplatná URI. Použite 'qtum:'</translation>
     </message>
     <message>
-        <source>You are using a BIP70 URL which will be unsupported in the future.</source>
-        <translation>Používate adresu URL typu BIP70, ktorá nebude v budúcnosti podporovaná.</translation>
-    </message>
-    <message>
-        <source>Payment request fetch URL is invalid: %1</source>
-        <translation>URL pre stiahnutie výzvy na zaplatenie je neplatné: %1</translation>
-    </message>
-    <message>
-        <source>Cannot process payment request because BIP70 support was not compiled in.</source>
-        <translation>Nemožno spracovať žiadosť o platbu, pretože podpora pre BIP70 nebola zahrnutá.</translation>
+        <source>Cannot process payment request because BIP70 is not supported.</source>
+        <translation>Nemožno spracovať žiadosť o platbu, pretože podpora pre BIP70 nieje podporovaná.</translation>
     </message>
     <message>
         <source>Due to widespread security flaws in BIP70 it's strongly recommended that any merchant instructions to switch wallets be ignored.</source>
@@ -1511,66 +1495,6 @@
     <message>
         <source>Payment request file handling</source>
         <translation>Obsluha súboru s požiadavkou na platbu</translation>
-    </message>
-    <message>
-        <source>Payment request file cannot be read! This can be caused by an invalid payment request file.</source>
-        <translation>Súbor s výzvou na zaplatenie sa nedá čítať! To môže byť spôsobené aj neplatným súborom s výzvou.</translation>
-    </message>
-    <message>
-        <source>Payment request rejected</source>
-        <translation>Požiadavka na platbu zamietnutá</translation>
-    </message>
-    <message>
-        <source>Payment request network doesn't match client network.</source>
-        <translation>Sieť požiadavky na platbu nie je zhodná so sieťou klienta.</translation>
-    </message>
-    <message>
-        <source>Payment request expired.</source>
-        <translation>Vypršala platnosť požiadavky na platbu.</translation>
-    </message>
-    <message>
-        <source>Payment request is not initialized.</source>
-        <translation>Požiadavka na platbu nie je inicializovaná</translation>
-    </message>
-    <message>
-        <source>Unverified payment requests to custom payment scripts are unsupported.</source>
-        <translation>Program nepodporuje neoverené platobné požiadavky na vlastné skripty.</translation>
-    </message>
-    <message>
-        <source>Invalid payment request.</source>
-        <translation>Chybná požiadavka na platbu.</translation>
-    </message>
-    <message>
-        <source>Requested payment amount of %1 is too small (considered dust).</source>
-        <translation>Požadovaná suma platby %1 je príliš nízka (považovaná za prach).</translation>
-    </message>
-    <message>
-        <source>Refund from %1</source>
-        <translation>Vrátenie z  %1</translation>
-    </message>
-    <message>
-        <source>Payment request %1 is too large (%2 bytes, allowed %3 bytes).</source>
-        <translation>Požiadavka na platbu %1 je príliš veľká (%2 bajtov, povolené je %3 bajtov).</translation>
-    </message>
-    <message>
-        <source>Error communicating with %1: %2</source>
-        <translation>Chyba komunikácie s %1: %2</translation>
-    </message>
-    <message>
-        <source>Payment request cannot be parsed!</source>
-        <translation>Požiadavka na platbu nemôže byť analyzovaná!</translation>
-    </message>
-    <message>
-        <source>Bad response from server %1</source>
-        <translation>Zlá odpoveď zo servera %1</translation>
-    </message>
-    <message>
-        <source>Network request error</source>
-        <translation>Chyba požiadavky siete</translation>
-    </message>
-    <message>
-        <source>Payment acknowledged</source>
-        <translation>Platba potvrdená</translation>
     </message>
 </context>
 <context>
@@ -1749,10 +1673,6 @@
         <translation>&amp;Informácie</translation>
     </message>
     <message>
-        <source>Debug window</source>
-        <translation>Okno pre ladenie</translation>
-    </message>
-    <message>
         <source>General</source>
         <translation>Všeobecné</translation>
     </message>
@@ -1870,8 +1790,20 @@
         <translation>Synchronizované bloky</translation>
     </message>
     <message>
+        <source>The mapped Autonomous System used for diversifying peer selection.</source>
+        <translation>Mapovaný nezávislý - Autonómny Systém používaný na rozšírenie vzájomného výberu partnerov.</translation>
+    </message>
+    <message>
+        <source>Mapped AS</source>
+        <translation>Mapovaný AS</translation>
+    </message>
+    <message>
         <source>User Agent</source>
         <translation>Aplikácia</translation>
+    </message>
+    <message>
+        <source>Node window</source>
+        <translation>Uzlové okno</translation>
     </message>
     <message>
         <source>Open the %1 debug log file from the current data directory. This can take a few seconds for large log files.</source>
@@ -2085,8 +2017,16 @@
         <translation>Voliteľná požadovaná suma. Nechajte prázdne alebo nulu ak nepožadujete určitú sumu.</translation>
     </message>
     <message>
+        <source>An optional label to associate with the new receiving address (used by you to identify an invoice).  It is also attached to the payment request.</source>
+        <translation>Voliteľný popis ktorý sa pridá k tejto novej prijímajúcej adrese (pre jednoduchšiu identifikáciu). Tento popis je taktiež pridaný do výzvy k platbe.</translation>
+    </message>
+    <message>
+        <source>An optional message that is attached to the payment request and may be displayed to the sender.</source>
+        <translation>Voliteľná správa ktorá bude pridaná k tejto platobnej výzve a môže byť zobrazená odosielateľovi.</translation>
+    </message>
+    <message>
         <source>&amp;Create new receiving address</source>
-        <translation>Vytvoriť novú adresu pre prijímanie</translation>
+        <translation>&amp;Vytvoriť novú príjmaciu adresu</translation>
     </message>
     <message>
         <source>Clear all fields of the form.</source>
@@ -2294,10 +2234,6 @@
         <translation>Upozornenie: teraz nie je možné poplatok odhadnúť.</translation>
     </message>
     <message>
-        <source>collapse fee-settings</source>
-        <translation>zbaliť nastavenia poplatkov</translation>
-    </message>
-    <message>
         <source>Specify a custom fee per kB (1,000 bytes) of the transaction's virtual size.
 
 Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis per kB" for a transaction size of 500 bytes (half of 1 kB) would ultimately yield a fee of only 50 satoshis.</source>
@@ -2340,6 +2276,10 @@ Poznámka: Keďže poplatok je počítaný za bajt, poplatok o hodnote "100 sato
     <message>
         <source>Dust:</source>
         <translation>Prach:</translation>
+    </message>
+    <message>
+        <source>Hide transaction fee settings</source>
+        <translation>Skryť nastavenie poplatkov transakcie</translation>
     </message>
     <message>
         <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
@@ -2410,6 +2350,14 @@ Poznámka: Keďže poplatok je počítaný za bajt, poplatok o hodnote "100 sato
         <translation>%1 (%2 blokov)</translation>
     </message>
     <message>
+        <source>Cr&amp;eate Unsigned</source>
+        <translation>Vytvoriť bez podpisu</translation>
+    </message>
+    <message>
+        <source>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <translation>Vytvorí čiastočne podpísanú Qtum transakciu (Partially Signed Qtum Transaction - PSBT) na použitie napríklad s offline %1 peňaženkou alebo v hardvérovej peňaženke kompatibilnej s PSBT.</translation>
+    </message>
+    <message>
         <source> from wallet '%1'</source>
         <translation> z peňaženky '%1'</translation>
     </message>
@@ -2420,6 +2368,10 @@ Poznámka: Keďže poplatok je počítaný za bajt, poplatok o hodnote "100 sato
     <message>
         <source>%1 to %2</source>
         <translation>%1 do %2</translation>
+    </message>
+    <message>
+        <source>Do you want to draft this transaction?</source>
+        <translation>Chcete naplánovať túto transakciu?</translation>
     </message>
     <message>
         <source>Are you sure you want to send?</source>
@@ -2458,6 +2410,26 @@ Poznámka: Keďže poplatok je počítaný za bajt, poplatok o hodnote "100 sato
         <translation>Potvrďte odoslanie mincí</translation>
     </message>
     <message>
+        <source>Confirm transaction proposal</source>
+        <translation>Potvrdiť návrh transakcie</translation>
+    </message>
+    <message>
+        <source>Copy PSBT to clipboard</source>
+        <translation>Skopírovať PSBT do schránky</translation>
+    </message>
+    <message>
+        <source>Send</source>
+        <translation>Odoslať</translation>
+    </message>
+    <message>
+        <source>PSBT copied</source>
+        <translation>PSBT skopírovaný</translation>
+    </message>
+    <message>
+        <source>Watch-only balance:</source>
+        <translation>Iba sledovaný zostatok:</translation>
+    </message>
+    <message>
         <source>The recipient address is not valid. Please recheck.</source>
         <translation>Adresa príjemcu je neplatná. Prosím, overte ju.</translation>
     </message>
@@ -2480,10 +2452,6 @@ Poznámka: Keďže poplatok je počítaný za bajt, poplatok o hodnote "100 sato
     <message>
         <source>Transaction creation failed!</source>
         <translation>Vytvorenie transakcie zlyhalo!</translation>
-    </message>
-    <message>
-        <source>The transaction was rejected with the following reason: %1</source>
-        <translation>Transakcia bola odmietnutá z nasledujúceho dôvodu: %1</translation>
     </message>
     <message>
         <source>A fee higher than %1 is considered an absurdly high fee.</source>
@@ -2537,10 +2505,6 @@ Poznámka: Keďže poplatok je počítaný za bajt, poplatok o hodnote "100 sato
         <translation>Vybrať predtým použitú adresu</translation>
     </message>
     <message>
-        <source>This is a normal payment.</source>
-        <translation>Toto je normálna platba.</translation>
-    </message>
-    <message>
         <source>The Qtum address to send the payment to</source>
         <translation>Zvoľte adresu kam poslať platbu</translation>
     </message>
@@ -2559,6 +2523,10 @@ Poznámka: Keďže poplatok je počítaný za bajt, poplatok o hodnote "100 sato
     <message>
         <source>Remove this entry</source>
         <translation>Odstrániť túto položku</translation>
+    </message>
+    <message>
+        <source>The amount to send in the selected unit</source>
+        <translation>Suma na odoslanie vo vybranej mene</translation>
     </message>
     <message>
         <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
@@ -2599,17 +2567,6 @@ Poznámka: Keďže poplatok je počítaný za bajt, poplatok o hodnote "100 sato
     <message>
         <source>Memo:</source>
         <translation>Poznámka:</translation>
-    </message>
-    <message>
-        <source>Enter a label for this address to add it to your address book</source>
-        <translation>Zadajte popis pre túto adresu pre pridanie do adresára</translation>
-    </message>
-</context>
-<context>
-    <name>SendConfirmationDialog</name>
-    <message>
-        <source>Yes</source>
-        <translation>áno</translation>
     </message>
 </context>
 <context>
@@ -2698,6 +2655,14 @@ Poznámka: Keďže poplatok je počítaný za bajt, poplatok o hodnote "100 sato
         <translation>Adresa Qtum, ktorou bola podpísaná správa</translation>
     </message>
     <message>
+        <source>The signed message to verify</source>
+        <translation>Podpísaná správa na overenie</translation>
+    </message>
+    <message>
+        <source>The signature given when the message was signed</source>
+        <translation>Poskytnutý podpis pri podpísaní správy</translation>
+    </message>
+    <message>
         <source>Verify the message to ensure it was signed with the specified Qtum address</source>
         <translation>Overím správy sa uistiť že bola podpísaná označenou Qtum adresou</translation>
     </message>
@@ -2728,6 +2693,10 @@ Poznámka: Keďže poplatok je počítaný za bajt, poplatok o hodnote "100 sato
     <message>
         <source>Wallet unlock was cancelled.</source>
         <translation>Odomknutie peňaženky bolo zrušené.</translation>
+    </message>
+    <message>
+        <source>No error</source>
+        <translation>Bez chyby</translation>
     </message>
     <message>
         <source>Private key for the entered address is not available.</source>
@@ -3262,7 +3231,11 @@ Poznámka: Keďže poplatok je počítaný za bajt, poplatok o hodnote "100 sato
     </message>
     <message>
         <source>Do you want to increase the fee?</source>
-        <translation>Chceš poplatok navýšiť?</translation>
+        <translation>Chcete navýšiť poplatok?</translation>
+    </message>
+    <message>
+        <source>Do you want to draft a transaction with fee increase?</source>
+        <translation>Chcete naplánovať túto transakciu s navýšením poplatkov.</translation>
     </message>
     <message>
         <source>Current fee:</source>
@@ -3279,6 +3252,14 @@ Poznámka: Keďže poplatok je počítaný za bajt, poplatok o hodnote "100 sato
     <message>
         <source>Confirm fee bump</source>
         <translation>Potvrď navýšenie poplatku</translation>
+    </message>
+    <message>
+        <source>Can't draft transaction.</source>
+        <translation>Nemožno naplánovať túto transakciu.</translation>
+    </message>
+    <message>
+        <source>PSBT copied</source>
+        <translation>PSBT skopírovaný</translation>
     </message>
     <message>
         <source>Can't sign transaction.</source>
@@ -3345,10 +3326,6 @@ Poznámka: Keďže poplatok je počítaný za bajt, poplatok o hodnote "100 sato
     <message>
         <source>Prune: last wallet synchronisation goes beyond pruned data. You need to -reindex (download the whole blockchain again in case of pruned node)</source>
         <translation>Redukovanie: posledná synchronizácia peňaženky prebehla pred časmi blokov v redukovaných dátach. Je potrebné vykonať -reindex (v prípade redukovaného režimu stiahne znovu celý reťazec blokov)</translation>
-    </message>
-    <message>
-        <source>Rescans are not possible in pruned mode. You will need to use -reindex which will download the whole blockchain again.</source>
-        <translation>V redukovanom režime nie je možné reťazec blokov preskenovať. Musíte vykonať -reindex, čo znova stiahne celý reťaec blokov.</translation>
     </message>
     <message>
         <source>Error: A fatal internal error occurred, see debug.log for details</source>
@@ -3449,6 +3426,14 @@ Poznámka: Keďže poplatok je počítaný za bajt, poplatok o hodnote "100 sato
     <message>
         <source>Corrupted block database detected</source>
         <translation>Zistená poškodená databáza blokov</translation>
+    </message>
+    <message>
+        <source>Could not find asmap file %s</source>
+        <translation>Nepodarilo sa nájsť asmap súbor %s</translation>
+    </message>
+    <message>
+        <source>Could not parse asmap file %s</source>
+        <translation>Nepodarilo sa analyzovať asmap súbor %s</translation>
     </message>
     <message>
         <source>Do you want to rebuild the block database now?</source>
@@ -3739,10 +3724,6 @@ Poznámka: Keďže poplatok je počítaný za bajt, poplatok o hodnote "100 sato
     <message>
         <source>This is the transaction fee you may pay when fee estimates are not available.</source>
         <translation>Toto je poplatok za transakciu keď odhad poplatkov ešte nie je k dispozícii.</translation>
-    </message>
-    <message>
-        <source>This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit %s and cryptographic software written by Eric Young and UPnP software written by Thomas Bernard.</source>
-        <translation>Tento produkt zahŕňa programy vyvinuté projektom OpenSSL pre použitie v OpenSSL Toolkite %s a kryptografický program od Erika Younga a program UPnP od Thomasa Bernarda.</translation>
     </message>
     <message>
         <source>Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.</source>

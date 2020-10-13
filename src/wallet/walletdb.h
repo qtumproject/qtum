@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2018 The Bitcoin Core developers
+// Copyright (c) 2009-2019 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -7,15 +7,12 @@
 #define BITCOIN_WALLET_WALLETDB_H
 
 #include <amount.h>
-#include <primitives/transaction.h>
 #include <script/sign.h>
 #include <wallet/db.h>
 #include <key.h>
 
-#include <list>
 #include <stdint.h>
 #include <string>
-#include <utility>
 #include <vector>
 
 /**
@@ -134,7 +131,7 @@ public:
     std::string hdKeypath; //optional HD/bip32 keypath. Still used to determine whether a key is a seed. Also kept for backwards compatibility
     CKeyID hd_seed_id; //id of the HD seed used to derive this key
     KeyOriginInfo key_origin; // Key origin info with path and fingerprint
-    bool has_key_origin = false; //< Whether the key_origin is useful
+    bool has_key_origin = false; //!< Whether the key_origin is useful
 
     CKeyMetadata()
     {
@@ -287,7 +284,7 @@ public:
     /* verifies the database environment */
     static bool VerifyEnvironment(const fs::path& wallet_path, std::string& errorStr);
     /* verifies the database file */
-    static bool VerifyDatabaseFile(const fs::path& wallet_path, std::string& warningStr, std::string& errorStr);
+    static bool VerifyDatabaseFile(const fs::path& wallet_path, std::vector<std::string>& warnings, std::string& errorStr);
 
     //! write the hdchain model (external chain child index counter)
     bool WriteHDChain(const CHDChain& chain);

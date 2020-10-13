@@ -58,18 +58,17 @@ struct PSBTInput
     void FillSignatureData(SignatureData& sigdata) const;
     void FromSignatureData(const SignatureData& sigdata);
     void Merge(const PSBTInput& input);
-    bool IsSane() const;
     PSBTInput() {}
 
     template <typename Stream>
     inline void Serialize(Stream& s) const {
         // Write the utxo
-        // If there is a non-witness utxo, then don't add the witness one.
         if (non_witness_utxo) {
             SerializeToVector(s, PSBT_IN_NON_WITNESS_UTXO);
             OverrideStream<Stream> os(&s, s.GetType(), s.GetVersion() | SERIALIZE_TRANSACTION_NO_WITNESS);
             SerializeToVector(os, non_witness_utxo);
-        } else if (!witness_utxo.IsNull()) {
+        }
+        if (!witness_utxo.IsNull()) {
             SerializeToVector(s, PSBT_IN_WITNESS_UTXO);
             SerializeToVector(s, witness_utxo);
         }
@@ -126,6 +125,9 @@ struct PSBTInput
 
     template <typename Stream>
     inline void Unserialize(Stream& s) {
+        // Used for duplicate key detection
+        std::set<std::vector<unsigned char>> key_lookup;
+
         // Read loop
         bool found_sep = false;
         while(!s.empty()) {
@@ -147,7 +149,7 @@ struct PSBTInput
             switch(type) {
                 case PSBT_IN_NON_WITNESS_UTXO:
                 {
-                    if (non_witness_utxo) {
+                    if (!key_lookup.emplace(key).second) {
                         throw std::ios_base::failure("Duplicate Key, input non-witness utxo already provided");
                     } else if (key.size() != 1) {
                         throw std::ios_base::failure("Non-witness utxo key is more than one byte type");
@@ -158,7 +160,7 @@ struct PSBTInput
                     break;
                 }
                 case PSBT_IN_WITNESS_UTXO:
-                    if (!witness_utxo.IsNull()) {
+                    if (!key_lookup.emplace(key).second) {
                         throw std::ios_base::failure("Duplicate Key, input witness utxo already provided");
                     } else if (key.size() != 1) {
                         throw std::ios_base::failure("Witness utxo key is more than one byte type");
@@ -168,7 +170,7 @@ struct PSBTInput
                 case PSBT_IN_PARTIAL_SIG:
                 {
                     // Make sure that the key is the size of pubkey + 1
-                    if (key.size() != CPubKey::PUBLIC_KEY_SIZE + 1 && key.size() != CPubKey::COMPRESSED_PUBLIC_KEY_SIZE + 1) {
+                    if (key.size() != CPubKey::SIZE + 1 && key.size() != CPubKey::COMPRESSED_SIZE + 1) {
                         throw std::ios_base::failure("Size of key was not the expected size for the type partial signature pubkey");
                     }
                     // Read in the pubkey from key
@@ -189,7 +191,7 @@ struct PSBTInput
                     break;
                 }
                 case PSBT_IN_SIGHASH:
-                    if (sighash_type > 0) {
+                    if (!key_lookup.emplace(key).second) {
                         throw std::ios_base::failure("Duplicate Key, input sighash type already provided");
                     } else if (key.size() != 1) {
                         throw std::ios_base::failure("Sighash type key is more than one byte type");
@@ -198,7 +200,7 @@ struct PSBTInput
                     break;
                 case PSBT_IN_REDEEMSCRIPT:
                 {
-                    if (!redeem_script.empty()) {
+                    if (!key_lookup.emplace(key).second) {
                         throw std::ios_base::failure("Duplicate Key, input redeemScript already provided");
                     } else if (key.size() != 1) {
                         throw std::ios_base::failure("Input redeemScript key is more than one byte type");
@@ -208,7 +210,7 @@ struct PSBTInput
                 }
                 case PSBT_IN_WITNESSSCRIPT:
                 {
-                    if (!witness_script.empty()) {
+                    if (!key_lookup.emplace(key).second) {
                         throw std::ios_base::failure("Duplicate Key, input witnessScript already provided");
                     } else if (key.size() != 1) {
                         throw std::ios_base::failure("Input witnessScript key is more than one byte type");
@@ -223,7 +225,7 @@ struct PSBTInput
                 }
                 case PSBT_IN_SCRIPTSIG:
                 {
-                    if (!final_script_sig.empty()) {
+                    if (!key_lookup.emplace(key).second) {
                         throw std::ios_base::failure("Duplicate Key, input final scriptSig already provided");
                     } else if (key.size() != 1) {
                         throw std::ios_base::failure("Final scriptSig key is more than one byte type");
@@ -233,7 +235,7 @@ struct PSBTInput
                 }
                 case PSBT_IN_SCRIPTWITNESS:
                 {
-                    if (!final_script_witness.IsNull()) {
+                    if (!key_lookup.emplace(key).second) {
                         throw std::ios_base::failure("Duplicate Key, input final scriptWitness already provided");
                     } else if (key.size() != 1) {
                         throw std::ios_base::failure("Final scriptWitness key is more than one byte type");
@@ -277,7 +279,6 @@ struct PSBTOutput
     void FillSignatureData(SignatureData& sigdata) const;
     void FromSignatureData(const SignatureData& sigdata);
     void Merge(const PSBTOutput& output);
-    bool IsSane() const;
     PSBTOutput() {}
 
     template <typename Stream>
@@ -309,6 +310,9 @@ struct PSBTOutput
 
     template <typename Stream>
     inline void Unserialize(Stream& s) {
+        // Used for duplicate key detection
+        std::set<std::vector<unsigned char>> key_lookup;
+
         // Read loop
         bool found_sep = false;
         while(!s.empty()) {
@@ -330,7 +334,7 @@ struct PSBTOutput
             switch(type) {
                 case PSBT_OUT_REDEEMSCRIPT:
                 {
-                    if (!redeem_script.empty()) {
+                    if (!key_lookup.emplace(key).second) {
                         throw std::ios_base::failure("Duplicate Key, output redeemScript already provided");
                     } else if (key.size() != 1) {
                         throw std::ios_base::failure("Output redeemScript key is more than one byte type");
@@ -340,7 +344,7 @@ struct PSBTOutput
                 }
                 case PSBT_OUT_WITNESSSCRIPT:
                 {
-                    if (!witness_script.empty()) {
+                    if (!key_lookup.emplace(key).second) {
                         throw std::ios_base::failure("Duplicate Key, output witnessScript already provided");
                     } else if (key.size() != 1) {
                         throw std::ios_base::failure("Output witnessScript key is more than one byte type");
@@ -381,7 +385,7 @@ struct PSBTOutput
 /** A version of CTransaction with the PSBT format*/
 struct PartiallySignedTransaction
 {
-    boost::optional<CMutableTransaction> tx;
+    Optional<CMutableTransaction> tx;
     std::vector<PSBTInput> inputs;
     std::vector<PSBTOutput> outputs;
     std::map<std::vector<unsigned char>, std::vector<unsigned char>> unknown;
@@ -391,11 +395,9 @@ struct PartiallySignedTransaction
     /** Merge psbt into this. The two psbts must have the same underlying CTransaction (i.e. the
       * same actual Bitcoin transaction.) Returns true if the merge succeeded, false otherwise. */
     NODISCARD bool Merge(const PartiallySignedTransaction& psbt);
-    bool IsSane() const;
     bool AddInput(const CTxIn& txin, PSBTInput& psbtin);
     bool AddOutput(const CTxOut& txout, const PSBTOutput& psbtout);
     PartiallySignedTransaction() {}
-    PartiallySignedTransaction(const PartiallySignedTransaction& psbt_in) : tx(psbt_in.tx), inputs(psbt_in.inputs), outputs(psbt_in.outputs), unknown(psbt_in.unknown) {}
     explicit PartiallySignedTransaction(const CMutableTransaction& tx);
     /**
      * Finds the UTXO for a given input index
@@ -448,6 +450,9 @@ struct PartiallySignedTransaction
             throw std::ios_base::failure("Invalid PSBT magic bytes");
         }
 
+        // Used for duplicate key detection
+        std::set<std::vector<unsigned char>> key_lookup;
+
         // Read global data
         bool found_sep = false;
         while(!s.empty()) {
@@ -469,7 +474,7 @@ struct PartiallySignedTransaction
             switch(type) {
                 case PSBT_GLOBAL_UNSIGNED_TX:
                 {
-                    if (tx) {
+                    if (!key_lookup.emplace(key).second) {
                         throw std::ios_base::failure("Duplicate Key, unsigned tx already provided");
                     } else if (key.size() != 1) {
                         throw std::ios_base::failure("Global unsigned tx key is more than one byte type");
@@ -539,10 +544,6 @@ struct PartiallySignedTransaction
         if (outputs.size() != tx->vout.size()) {
             throw std::ios_base::failure("Outputs provided does not match the number of outputs in transaction.");
         }
-        // Sanity check
-        if (!IsSane()) {
-            throw std::ios_base::failure("PSBT is not sane.");
-        }
     }
 
     template <typename Stream>
@@ -576,7 +577,7 @@ void UpdatePSBTOutput(const SigningProvider& provider, PartiallySignedTransactio
 /**
  * Finalizes a PSBT if possible, combining partial signatures.
  *
- * @param[in,out] &psbtx reference to PartiallySignedTransaction to finalize
+ * @param[in,out] psbtx PartiallySignedTransaction to finalize
  * return True if the PSBT is now complete, false otherwise
  */
 bool FinalizePSBT(PartiallySignedTransaction& psbtx);
@@ -584,7 +585,7 @@ bool FinalizePSBT(PartiallySignedTransaction& psbtx);
 /**
  * Finalizes a PSBT if possible, and extracts it to a CMutableTransaction if it could be finalized.
  *
- * @param[in]  &psbtx reference to PartiallySignedTransaction
+ * @param[in]  psbtx PartiallySignedTransaction
  * @param[out] result CMutableTransaction representing the complete transaction, if successful
  * @return True if we successfully extracted the transaction, false otherwise
  */
@@ -593,7 +594,7 @@ bool FinalizeAndExtractPSBT(PartiallySignedTransaction& psbtx, CMutableTransacti
 /**
  * Combines PSBTs with the same underlying transaction, resulting in a single PSBT with all partial signatures from each input.
  *
- * @param[out] &out   the combined PSBT, if successful
+ * @param[out] out   the combined PSBT, if successful
  * @param[in]  psbtxs the PSBTs to combine
  * @return error (OK if we successfully combined the transactions, other error if they were not compatible)
  */

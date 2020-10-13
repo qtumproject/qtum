@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2019 The Bitcoin Core developers
+// Copyright (c) 2009-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -19,9 +19,11 @@
 #include <compat/assumptions.h>
 #include <fs.h>
 #include <logging.h>
+#include <optional.h>
 #include <sync.h>
 #include <tinyformat.h>
 #include <util/memory.h>
+#include <util/settings.h>
 #include <util/threadnames.h>
 #include <util/time.h>
 
@@ -85,6 +87,9 @@ fs::path GetConfigFile(const std::string& confPath);
 #ifdef WIN32
 fs::path GetSpecialFolderPath(int nFolder, bool fCreate = true);
 #endif
+#ifndef WIN32
+std::string ShellEscape(const std::string& arg);
+#endif
 #if HAVE_SYSTEM
 void runCommand(const std::string& strCommand);
 #endif
@@ -137,7 +142,6 @@ class ArgsManager
 {
 public:
     enum Flags {
-        NONE = 0x00,
         // Boolean options can accept negation syntax -noOPTION or -noOPTION=1
         ALLOW_BOOL = 0x01,
         ALLOW_INT = 0x02,
@@ -150,11 +154,11 @@ public:
          * between mainnet and regtest/testnet won't cause problems due to these
          * parameters by accident. */
         NETWORK_ONLY = 0x200,
+        // This argument's value is sensitive (such as a password).
+        SENSITIVE = 0x400,
     };
 
 protected:
-    friend class ArgsManagerHelper;
-
     struct Arg
     {
         std::string m_help_param;
@@ -162,15 +166,35 @@ protected:
         unsigned int m_flags;
     };
 
-    mutable CCriticalSection cs_args;
-    std::map<std::string, std::vector<std::string>> m_override_args GUARDED_BY(cs_args);
-    std::map<std::string, std::vector<std::string>> m_config_args GUARDED_BY(cs_args);
+    mutable RecursiveMutex cs_args;
+    util::Settings m_settings GUARDED_BY(cs_args);
     std::string m_network GUARDED_BY(cs_args);
     std::set<std::string> m_network_only_args GUARDED_BY(cs_args);
     std::map<OptionsCategory, std::map<std::string, Arg>> m_available_args GUARDED_BY(cs_args);
     std::list<SectionInfo> m_config_sections GUARDED_BY(cs_args);
 
     NODISCARD bool ReadConfigStream(std::istream& stream, const std::string& filepath, std::string& error, bool ignore_invalid_keys = false);
+
+    /**
+     * Returns true if settings values from the default section should be used,
+     * depending on the current network and whether the setting is
+     * network-specific.
+     */
+    bool UseDefaultSection(const std::string& arg) const EXCLUSIVE_LOCKS_REQUIRED(cs_args);
+
+    /**
+     * Get setting value.
+     *
+     * Result will be null if setting was unset, true if "-setting" argument was passed
+     * false if "-nosetting" argument was passed, and a string if a "-setting=value"
+     * argument was passed.
+     */
+    util::SettingsValue GetSetting(const std::string& arg) const;
+
+    /**
+     * Get list of setting values.
+     */
+    std::vector<util::SettingsValue> GetSettingsList(const std::string& arg) const;
 
 public:
     ArgsManager();
@@ -271,7 +295,7 @@ public:
     void ForceSetArg(const std::string& strArg, const std::string& strValue);
 
     /**
-     * Looks for -regtest, -testnet and returns the appropriate BIP70 chain name.
+     * Returns the appropriate chain name from the program arguments.
      * @return CBaseChainParams::MAIN by default; raises runtime error if an invalid combination is given.
      */
     std::string GetChainName() const;
@@ -302,9 +326,22 @@ public:
 
     /**
      * Return Flags for known arg.
-     * Return ArgsManager::NONE for unknown arg.
+     * Return nullopt for unknown arg.
      */
-    unsigned int FlagsOfKnownArg(const std::string& key) const;
+    Optional<unsigned int> GetArgFlags(const std::string& name) const;
+
+    /**
+     * Log the config file options and the command line arguments,
+     * useful for troubleshooting.
+     */
+    void LogArgs() const;
+
+private:
+    // Helper function for LogArgs().
+    void logArgsPrefix(
+        const std::string& prefix,
+        const std::string& section,
+        const std::map<std::string, std::vector<util::SettingsValue>>& args) const;
 };
 
 extern ArgsManager gArgs;
@@ -363,6 +400,7 @@ inline void SetThreadPriority(int nPriority)
 #endif
 }
 #endif
+
 /**
  * .. and a wrapper that just calls func once
  */
@@ -400,10 +438,8 @@ void ReplaceInt(const int64_t& number, const std::string& key, std::string& str)
  * On platforms that support it, tell the kernel the calling thread is
  * CPU-intensive and non-interactive. See SCHED_BATCH in sched(7) for details.
  *
- * @return The return value of sched_setschedule(), or 1 on systems without
- * sched_setschedule().
  */
-int ScheduleBatchPriority();
+void ScheduleBatchPriority();
 
 namespace util {
 

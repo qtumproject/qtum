@@ -1,13 +1,11 @@
 packages:=boost openssl libevent gmp
 
-protobuf_native_packages = native_protobuf
-protobuf_packages = protobuf
+qt_packages = zlib
 
-qt_packages = qrencode zlib
+qrencode_packages = qrencode
 
 qt_linux_packages:=qt expat libxcb xcb_proto libXau xproto freetype fontconfig
-
-rapidcheck_packages = rapidcheck
+qt_android_packages=qt
 
 qt_darwin_packages=qt
 qt_mingw32_packages=qt

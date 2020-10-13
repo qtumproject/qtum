@@ -274,14 +274,6 @@
         <translation>เปลี่ยนรหัสผ่านที่ใช้สำหรับการเข้ารหัสกระเป๋าเงิน</translation>
     </message>
     <message>
-        <source>&amp;Debug window</source>
-        <translation>&amp;หน้าต่าง Debug</translation>
-    </message>
-    <message>
-        <source>Open debugging and diagnostic console</source>
-        <translation>เปิด แผลงควบคุม debugging และ diagnostic</translation>
-    </message>
-    <message>
         <source>&amp;Verify message...</source>
         <translation>&amp;ยืนยันข้อความ...</translation>
     </message>
@@ -340,10 +332,6 @@
     <message>
         <source>Show the list of used receiving addresses and labels</source>
         <translation>แสดงรายการ ที่เก็บเงินที่จะรับ qtum เข้า และป้ายชื่อ ที่ใช้ไปแล้ว</translation>
-    </message>
-    <message>
-        <source>Open a qtum: URI or payment request</source>
-        <translation>เปิด qtum: URI หรือ การเรียกเก็บเงิน (การเรียกให้ชำระเงิน)</translation>
     </message>
     <message>
         <source>&amp;Command-line options</source>
@@ -622,10 +610,6 @@
         <translation>เวอร์ชั่น</translation>
     </message>
     <message>
-        <source>(%1-bit)</source>
-        <translation>(%1-บิท)</translation>
-    </message>
-    <message>
         <source>About %1</source>
         <translation>เกี่ยวกับ %1</translation>
     </message>
@@ -695,22 +679,10 @@
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open URI</source>
-        <translation>เปิด URI</translation>
-    </message>
-    <message>
-        <source>Open payment request from URI or file</source>
-        <translation>เปิด การเรียกการชำระเงิน จาก URI หรือ ไฟล์</translation>
-    </message>
-    <message>
         <source>URI:</source>
         <translation>URI:</translation>
     </message>
-    <message>
-        <source>Select payment request file</source>
-        <translation>เลือก ไฟล์การเรียกการชำระเงิน</translation>
-    </message>
-    </context>
+</context>
 <context>
     <name>OpenWalletActivity</name>
     </context>
@@ -977,9 +949,6 @@
         <source>&amp;Label:</source>
         <translation>&amp;ชื่อ:</translation>
     </message>
-    </context>
-<context>
-    <name>SendConfirmationDialog</name>
     </context>
 <context>
     <name>ShutdownWindow</name>

@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2019 The Bitcoin Core developers
+// Copyright (c) 2011-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -11,7 +11,6 @@
 #include <wallet/wallet.h>
 
 #include <cassert>
-#include <cstdio>
 
 #include <QHBoxLayout>
 #include <QLabel>
@@ -40,6 +39,10 @@ WalletFrame::~WalletFrame()
 void WalletFrame::setClientModel(ClientModel *_clientModel)
 {
     this->clientModel = _clientModel;
+
+    for (auto i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i) {
+        i.value()->setClientModel(_clientModel);
+    }
 }
 
 bool WalletFrame::addWallet(WalletModel *walletModel)
@@ -49,7 +52,6 @@ bool WalletFrame::addWallet(WalletModel *walletModel)
     if (mapWalletViews.count(walletModel) > 0) return false;
 
     WalletView *walletView = new WalletView(platformStyle, this);
-    walletView->setBitcoinGUI(gui);
     walletView->setClientModel(clientModel);
     walletView->setWalletModel(walletModel);
     walletView->showOutOfSyncWarning(bOutOfSync);
@@ -64,14 +66,20 @@ bool WalletFrame::addWallet(WalletModel *walletModel)
     walletStack->addWidget(walletView);
     mapWalletViews[walletModel] = walletView;
 
-    // Ensure a walletView is able to show the main window
-    connect(walletView, &WalletView::showNormalIfMinimized, [this]{
-      gui->showNormalIfMinimized();
-    });
-
     connect(walletView, &WalletView::outOfSyncWarningClicked, this, &WalletFrame::outOfSyncWarningClicked);
-
-    connect(walletView, SIGNAL(currentChanged(int)), this, SLOT(pageChanged(int)));
+    connect(walletView, &WalletView::showMore, gui, &BitcoinGUI::gotoHistoryPage);
+    connect(walletView, &WalletView::sendCoins, gui, &BitcoinGUI::gotoSendCoinsPage);
+    connect(walletView, &WalletView::receiveCoins, gui, &BitcoinGUI::gotoReceiveCoinsPage);
+    connect(walletView, &WalletView::transactionClicked, gui, &BitcoinGUI::gotoHistoryPage);
+    connect(walletView, &WalletView::coinsSent, gui, &BitcoinGUI::gotoHistoryPage);
+    connect(walletView, &WalletView::message, [this](const QString& title, const QString& message, unsigned int style) {
+        gui->message(title, message, style);
+    });
+    connect(walletView, &WalletView::encryptionStatusChanged, gui, &BitcoinGUI::updateWalletStatus);
+    connect(walletView, &WalletView::incomingTransaction, gui, &BitcoinGUI::incomingTransaction);
+    connect(walletView, &WalletView::incomingTokenTransaction, gui, &BitcoinGUI::incomingTokenTransaction);
+    connect(walletView, &WalletView::hdEnabledStatusChanged, gui, &BitcoinGUI::updateWalletStatus);
+    connect(walletView, &WalletView::currentChanged, this, &WalletFrame::pageChanged);
 
     return true;
 }

@@ -210,7 +210,7 @@ void RemoveDelegationPage::on_removeDelegationClicked()
         questionString.append(tr("<b>%1</b>?")
                               .arg(ui->lineEditAddress->text()));
 
-        SendConfirmationDialog confirmationDialog(tr("Confirm remove delegation."), questionString, "", "", SEND_CONFIRM_DELAY, this);
+        SendConfirmationDialog confirmationDialog(tr("Confirm remove delegation."), questionString, "", "", SEND_CONFIRM_DELAY, tr("Send"), this);
         confirmationDialog.exec();
 
         QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();

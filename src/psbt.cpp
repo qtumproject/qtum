@@ -1,11 +1,10 @@
-// Copyright (c) 2009-2018 The Bitcoin Core developers
+// Copyright (c) 2009-2019 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <psbt.h>
 #include <util/strencodings.h>
 
-#include <numeric>
 
 PartiallySignedTransaction::PartiallySignedTransaction(const CMutableTransaction& tx) : tx(tx)
 {
@@ -33,14 +32,6 @@ bool PartiallySignedTransaction::Merge(const PartiallySignedTransaction& psbt)
     }
     unknown.insert(psbt.unknown.begin(), psbt.unknown.end());
 
-    return true;
-}
-
-bool PartiallySignedTransaction::IsSane() const
-{
-    for (PSBTInput input : inputs) {
-        if (!input.IsSane()) return false;
-    }
     return true;
 }
 
@@ -145,8 +136,8 @@ void PSBTInput::Merge(const PSBTInput& input)
 {
     if (!non_witness_utxo && input.non_witness_utxo) non_witness_utxo = input.non_witness_utxo;
     if (witness_utxo.IsNull() && !input.witness_utxo.IsNull()) {
+        // TODO: For segwit v1, we will want to clear out the non-witness utxo when setting a witness one. For v0 and non-segwit, this is not safe
         witness_utxo = input.witness_utxo;
-        non_witness_utxo = nullptr; // Clear out any non-witness utxo when we set a witness one.
     }
 
     partial_sigs.insert(input.partial_sigs.begin(), input.partial_sigs.end());
@@ -157,18 +148,6 @@ void PSBTInput::Merge(const PSBTInput& input)
     if (witness_script.empty() && !input.witness_script.empty()) witness_script = input.witness_script;
     if (final_script_sig.empty() && !input.final_script_sig.empty()) final_script_sig = input.final_script_sig;
     if (final_script_witness.IsNull() && !input.final_script_witness.IsNull()) final_script_witness = input.final_script_witness;
-}
-
-bool PSBTInput::IsSane() const
-{
-    // Cannot have both witness and non-witness utxos
-    if (!witness_utxo.IsNull() && non_witness_utxo) return false;
-
-    // If we have a witness_script or a scriptWitness, we must also have a witness utxo
-    if (!witness_script.empty() && witness_utxo.IsNull()) return false;
-    if (!final_script_witness.IsNull() && witness_utxo.IsNull()) return false;
-
-    return true;
 }
 
 void PSBTOutput::FillSignatureData(SignatureData& sigdata) const
@@ -251,11 +230,6 @@ bool SignPSBTInput(const SigningProvider& provider, PartiallySignedTransaction& 
     bool require_witness_sig = false;
     CTxOut utxo;
 
-    // Verify input sanity, which checks that at most one of witness or non-witness utxos is provided.
-    if (!input.IsSane()) {
-        return false;
-    }
-
     if (input.non_witness_utxo) {
         // If we're taking our information from a non-witness UTXO, verify that it matches the prevout.
         COutPoint prevout = tx.vin[index].prevout;
@@ -289,10 +263,11 @@ bool SignPSBTInput(const SigningProvider& provider, PartiallySignedTransaction& 
     if (require_witness_sig && !sigdata.witness) return false;
     input.FromSignatureData(sigdata);
 
-    // If we have a witness signature, use the smaller witness UTXO.
+    // If we have a witness signature, put a witness UTXO.
+    // TODO: For segwit v1, we should remove the non_witness_utxo
     if (sigdata.witness) {
         input.witness_utxo = utxo;
-        input.non_witness_utxo = nullptr;
+        // input.non_witness_utxo = nullptr;
     }
 
     // Fill in the missing info
@@ -346,10 +321,6 @@ TransactionError CombinePSBTs(PartiallySignedTransaction& out, const std::vector
             return TransactionError::PSBT_MISMATCH;
         }
     }
-    if (!out.IsSane()) {
-        return TransactionError::INVALID_PSBT;
-    }
-
     return TransactionError::OK;
 }
 

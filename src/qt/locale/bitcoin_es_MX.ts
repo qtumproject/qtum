@@ -132,6 +132,10 @@
         <translation>Repita la nueva contraseña</translation>
     </message>
     <message>
+        <source>Show passphrase</source>
+        <translation>Mostrar contraseña</translation>
+    </message>
+    <message>
         <source>Encrypt wallet</source>
         <translation>Encriptar cartera</translation>
     </message>
@@ -294,6 +298,14 @@
         <translation>Abrir &amp;URL...</translation>
     </message>
     <message>
+        <source>Create Wallet...</source>
+        <translation>Crear cartera</translation>
+    </message>
+    <message>
+        <source>Create a new wallet</source>
+        <translation>Crear una nueva cartera</translation>
+    </message>
+    <message>
         <source>Wallet:</source>
         <translation>Cartera:</translation>
     </message>
@@ -333,14 +345,6 @@ Haga clic para habilitar la actividad de red nuevamente.</translation>
     <message>
         <source>Change the passphrase used for wallet encryption</source>
         <translation>Cambiar la contraseña usada para la encriptación de la cartera</translation>
-    </message>
-    <message>
-        <source>&amp;Debug window</source>
-        <translation>&amp;Depurar ventana</translation>
-    </message>
-    <message>
-        <source>Open debugging and diagnostic console</source>
-        <translation>Abrir consola de depuración y diagnostico</translation>
     </message>
     <message>
         <source>&amp;Verify message...</source>
@@ -401,6 +405,10 @@ Solicitar pagos (genera códigos QR y qtum: URI)
         <translation>opciones de la &amp;Linea de comandos</translation>
     </message>
     <message>
+        <source>Indexing blocks on disk...</source>
+        <translation>Indexando bloques en el disco...</translation>
+    </message>
+    <message>
         <source>Error</source>
         <translation>Error</translation>
     </message>
@@ -417,8 +425,54 @@ Solicitar pagos (genera códigos QR y qtum: URI)
         <translation>Actualizado al dia </translation>
     </message>
     <message>
+        <source>Open Wallet</source>
+        <translation>Abrir Cartera</translation>
+    </message>
+    <message>
+        <source>Open a wallet</source>
+        <translation>Abrir una cartera</translation>
+    </message>
+    <message>
+        <source>Close Wallet...</source>
+        <translation>Cerrar Cartera...</translation>
+    </message>
+    <message>
+        <source>Close wallet</source>
+        <translation>Cerrar cartera</translation>
+    </message>
+    <message>
+        <source>default wallet</source>
+        <translation>cartera predeterminada</translation>
+    </message>
+    <message>
+        <source>&amp;Window</source>
+        <translation>&amp;Ventana</translation>
+    </message>
+    <message>
+        <source>Minimize</source>
+        <translation>Minimizar</translation>
+    </message>
+    <message>
+        <source>Main Window</source>
+        <translation>Ventana Principal</translation>
+    </message>
+    <message>
         <source>Catching up...</source>
         <translation>Recibiendo...</translation>
+    </message>
+    <message>
+        <source>Error: %1</source>
+        <translation>Error: %1</translation>
+    </message>
+    <message>
+        <source>Warning: %1</source>
+        <translation>Alerta: %1</translation>
+    </message>
+    <message>
+        <source>Date: %1
+</source>
+        <translation>Fecha: %1
+</translation>
     </message>
     <message>
         <source>Sent transaction</source>
@@ -472,20 +526,76 @@ Solicitar pagos (genera códigos QR y qtum: URI)
         <translation>Fecha</translation>
     </message>
     <message>
+        <source>Confirmations</source>
+        <translation>Confirmaciones</translation>
+    </message>
+    <message>
         <source>Confirmed</source>
         <translation>Confirmado </translation>
+    </message>
+    <message>
+        <source>Copy address</source>
+        <translation>Copiar dirección </translation>
+    </message>
+    <message>
+        <source>Copy label</source>
+        <translation>Copiar capa </translation>
+    </message>
+    <message>
+        <source>Copy amount</source>
+        <translation>copiar monto</translation>
+    </message>
+    <message>
+        <source>Copy transaction ID</source>
+        <translation>Copiar identificación de la transacción. </translation>
+    </message>
+    <message>
+        <source>Copy quantity</source>
+        <translation>Copiar cantidad</translation>
+    </message>
+    <message>
+        <source>Copy fee</source>
+        <translation>Copiar cuota</translation>
+    </message>
+    <message>
+        <source>Copy after fee</source>
+        <translation>Copiar después de cuota</translation>
+    </message>
+    <message>
+        <source>Copy bytes</source>
+        <translation>Copiar bytes</translation>
+    </message>
+    <message>
+        <source>Copy change</source>
+        <translation>Copiar cambio</translation>
+    </message>
+    <message>
+        <source>yes</source>
+        <translation>si</translation>
+    </message>
+    <message>
+        <source>no</source>
+        <translation>no</translation>
     </message>
     <message>
         <source>(no label)</source>
         <translation>(sin etiqueta)</translation>
     </message>
-    </context>
+    <message>
+        <source>(change)</source>
+        <translation>cambio</translation>
+    </message>
+</context>
 <context>
     <name>CreateWalletActivity</name>
     </context>
 <context>
     <name>CreateWalletDialog</name>
-    </context>
+    <message>
+        <source>Create</source>
+        <translation>Crear</translation>
+    </message>
+</context>
 <context>
     <name>EditAddressDialog</name>
     <message>
@@ -500,7 +610,27 @@ Solicitar pagos (genera códigos QR y qtum: URI)
         <source>&amp;Address</source>
         <translation>&amp;Dirección</translation>
     </message>
-    </context>
+    <message>
+        <source>New sending address</source>
+        <translation>Nueva dirección de envío</translation>
+    </message>
+    <message>
+        <source>Edit receiving address</source>
+        <translation>Editar dirección de recepción</translation>
+    </message>
+    <message>
+        <source>Edit sending address</source>
+        <translation>Editar dirección de envío</translation>
+    </message>
+    <message>
+        <source>Could not unlock wallet.</source>
+        <translation>No se puede desbloquear la cartera</translation>
+    </message>
+    <message>
+        <source>New key generation failed.</source>
+        <translation>La generación de la nueva clave fallo</translation>
+    </message>
+</context>
 <context>
     <name>FreespaceChecker</name>
     <message>
@@ -515,16 +645,16 @@ Solicitar pagos (genera códigos QR y qtum: URI)
         <translation>versión</translation>
     </message>
     <message>
-        <source>(%1-bit)</source>
-        <translation>(%1-bit)</translation>
-    </message>
-    <message>
         <source>Command-line options</source>
         <translation>opciones de la Linea de comandos</translation>
     </message>
 </context>
 <context>
     <name>Intro</name>
+    <message>
+        <source>Welcome</source>
+        <translation>Bienvenido</translation>
+    </message>
     <message>
         <source>Qtum</source>
         <translation>Qtum</translation>
@@ -546,6 +676,10 @@ Solicitar pagos (genera códigos QR y qtum: URI)
     </context>
 <context>
     <name>OpenWalletActivity</name>
+    <message>
+        <source>default wallet</source>
+        <translation>cartera predeterminada</translation>
+    </message>
     </context>
 <context>
     <name>OptionsDialog</name>
@@ -556,6 +690,10 @@ Solicitar pagos (genera códigos QR y qtum: URI)
     <message>
         <source>W&amp;allet</source>
         <translation>Cartera</translation>
+    </message>
+    <message>
+        <source>&amp;Window</source>
+        <translation>&amp;Ventana</translation>
     </message>
     <message>
         <source>none</source>
@@ -586,6 +724,10 @@ Solicitar pagos (genera códigos QR y qtum: URI)
         <translation>Monto</translation>
     </message>
     <message>
+        <source>Error: %1</source>
+        <translation>Error: %1</translation>
+    </message>
+    <message>
         <source>unknown</source>
         <translation>desconocido</translation>
     </message>
@@ -595,10 +737,6 @@ Solicitar pagos (genera códigos QR y qtum: URI)
     </context>
 <context>
     <name>RPCConsole</name>
-    <message>
-        <source>Debug window</source>
-        <translation>Depurar ventana</translation>
-    </message>
     </context>
 <context>
     <name>ReceiveCoinsDialog</name>
@@ -626,7 +764,15 @@ Solicitar pagos (genera códigos QR y qtum: URI)
         <source>An optional amount to request. Leave this empty or zero to not request a specific amount.</source>
         <translation>Monto opcional a solicitar. Dejarlo vacion o en cero no solicita un monto especifico.</translation>
     </message>
-    </context>
+    <message>
+        <source>Copy label</source>
+        <translation>Copiar capa </translation>
+    </message>
+    <message>
+        <source>Copy amount</source>
+        <translation>copiar monto</translation>
+    </message>
+</context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
@@ -646,6 +792,10 @@ Solicitar pagos (genera códigos QR y qtum: URI)
         <translation>Etiqueta</translation>
     </message>
     <message>
+        <source>Message</source>
+        <translation>Mensaje</translation>
+    </message>
+    <message>
         <source>Wallet</source>
         <translation>Cartera</translation>
     </message>
@@ -659,6 +809,10 @@ Solicitar pagos (genera códigos QR y qtum: URI)
     <message>
         <source>Label</source>
         <translation>Etiqueta</translation>
+    </message>
+    <message>
+        <source>Message</source>
+        <translation>Mensaje</translation>
     </message>
     <message>
         <source>(no label)</source>
@@ -708,6 +862,54 @@ Solicitar pagos (genera códigos QR y qtum: URI)
         <translation>Confirme la acción de enviar</translation>
     </message>
     <message>
+        <source>Copy quantity</source>
+        <translation>Copiar cantidad</translation>
+    </message>
+    <message>
+        <source>Copy amount</source>
+        <translation>copiar monto</translation>
+    </message>
+    <message>
+        <source>Copy fee</source>
+        <translation>Copiar cuota</translation>
+    </message>
+    <message>
+        <source>Copy after fee</source>
+        <translation>Copiar después de cuota</translation>
+    </message>
+    <message>
+        <source>Copy bytes</source>
+        <translation>Copiar bytes</translation>
+    </message>
+    <message>
+        <source>Copy change</source>
+        <translation>Copiar cambio</translation>
+    </message>
+    <message>
+        <source>or</source>
+        <translation>o</translation>
+    </message>
+    <message>
+        <source>Confirm send coins</source>
+        <translation>Confirme para enviar monedas</translation>
+    </message>
+    <message>
+        <source>The amount to pay must be larger than 0.</source>
+        <translation>El monto a pagar debe ser mayor a 0</translation>
+    </message>
+    <message>
+        <source>Transaction creation failed!</source>
+        <translation>¡La creación de la transación falló!</translation>
+    </message>
+    <message>
+        <source>Warning: Invalid Qtum address</source>
+        <translation>Advertencia: Dirección de Qtum invalida</translation>
+    </message>
+    <message>
+        <source>Warning: Unknown change address</source>
+        <translation>Advertencia: Cambio de dirección desconocido</translation>
+    </message>
+    <message>
         <source>(no label)</source>
         <translation>(sin etiqueta)</translation>
     </message>
@@ -725,10 +927,6 @@ Solicitar pagos (genera códigos QR y qtum: URI)
     <message>
         <source>&amp;Label:</source>
         <translation>&amp;Etiqueta</translation>
-    </message>
-    <message>
-        <source>This is a normal payment.</source>
-        <translation>Este es un pago normal</translation>
     </message>
     <message>
         <source>Alt+A</source>
@@ -754,9 +952,6 @@ Solicitar pagos (genera códigos QR y qtum: URI)
         <source>Pay To:</source>
         <translation>Pago para:</translation>
     </message>
-    </context>
-<context>
-    <name>SendConfirmationDialog</name>
     </context>
 <context>
     <name>ShutdownWindow</name>
@@ -790,12 +985,56 @@ Solicitar pagos (genera códigos QR y qtum: URI)
 <context>
     <name>TransactionDesc</name>
     <message>
+        <source>Open until %1</source>
+        <translation>Abrir hasta %1</translation>
+    </message>
+    <message>
+        <source>%1/unconfirmed</source>
+        <translation>%1/No confirmado</translation>
+    </message>
+    <message>
+        <source>%1 confirmations</source>
+        <translation>%1 confirmaciones</translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation>Estado</translation>
+    </message>
+    <message>
         <source>Date</source>
         <translation>Fecha</translation>
     </message>
     <message>
+        <source>From</source>
+        <translation>De</translation>
+    </message>
+    <message>
         <source>unknown</source>
         <translation>desconocido</translation>
+    </message>
+    <message>
+        <source>To</source>
+        <translation>Para</translation>
+    </message>
+    <message>
+        <source>label</source>
+        <translation>etiqueta</translation>
+    </message>
+    <message>
+        <source>Message</source>
+        <translation>Mensaje</translation>
+    </message>
+    <message>
+        <source>Comment</source>
+        <translation>Comentario</translation>
+    </message>
+    <message>
+        <source>Transaction ID</source>
+        <translation>ID</translation>
+    </message>
+    <message>
+        <source>Transaction</source>
+        <translation>Transacción</translation>
     </message>
     <message>
         <source>Amount</source>
@@ -816,16 +1055,136 @@ Solicitar pagos (genera códigos QR y qtum: URI)
         <translation>Fecha</translation>
     </message>
     <message>
+        <source>Type</source>
+        <translation>Tipo</translation>
+    </message>
+    <message>
         <source>Label</source>
         <translation>Etiqueta</translation>
+    </message>
+    <message>
+        <source>Open until %1</source>
+        <translation>Abrir hasta %1</translation>
+    </message>
+    <message>
+        <source>Confirmed (%1 confirmations)</source>
+        <translation>Confimado (%1 confirmaciones)</translation>
+    </message>
+    <message>
+        <source>Generated but not accepted</source>
+        <translation>Generado pero no aprovado</translation>
+    </message>
+    <message>
+        <source>Received with</source>
+        <translation>Recibido con</translation>
+    </message>
+    <message>
+        <source>Sent to</source>
+        <translation>Enviar a</translation>
+    </message>
+    <message>
+        <source>Payment to yourself</source>
+        <translation>Pagar a si mismo</translation>
+    </message>
+    <message>
+        <source>Mined</source>
+        <translation>Minado </translation>
+    </message>
+    <message>
+        <source>(n/a)</source>
+        <translation>(n/a)</translation>
     </message>
     <message>
         <source>(no label)</source>
         <translation>(sin etiqueta)</translation>
     </message>
-    </context>
+    <message>
+        <source>Date and time that the transaction was received.</source>
+        <translation>Fecha y hora en que la transacción fue recibida </translation>
+    </message>
+    <message>
+        <source>Type of transaction.</source>
+        <translation>Escriba una transacción</translation>
+    </message>
+    <message>
+        <source>Amount removed from or added to balance.</source>
+        <translation>Cantidad removida del saldo o agregada </translation>
+    </message>
+</context>
 <context>
     <name>TransactionView</name>
+    <message>
+        <source>All</source>
+        <translation>Todo</translation>
+    </message>
+    <message>
+        <source>Today</source>
+        <translation>Hoy</translation>
+    </message>
+    <message>
+        <source>This week</source>
+        <translation>Esta semana </translation>
+    </message>
+    <message>
+        <source>This month</source>
+        <translation>Este mes </translation>
+    </message>
+    <message>
+        <source>Last month</source>
+        <translation>El mes pasado </translation>
+    </message>
+    <message>
+        <source>This year</source>
+        <translation>Este año</translation>
+    </message>
+    <message>
+        <source>Received with</source>
+        <translation>Recibido con</translation>
+    </message>
+    <message>
+        <source>Sent to</source>
+        <translation>Enviar a</translation>
+    </message>
+    <message>
+        <source>To yourself</source>
+        <translation>Para ti mismo</translation>
+    </message>
+    <message>
+        <source>Mined</source>
+        <translation>Minado </translation>
+    </message>
+    <message>
+        <source>Other</source>
+        <translation>Otro</translation>
+    </message>
+    <message>
+        <source>Min amount</source>
+        <translation>Monto minimo </translation>
+    </message>
+    <message>
+        <source>Copy address</source>
+        <translation>Copiar dirección </translation>
+    </message>
+    <message>
+        <source>Copy label</source>
+        <translation>Copiar capa </translation>
+    </message>
+    <message>
+        <source>Copy amount</source>
+        <translation>copiar monto</translation>
+    </message>
+    <message>
+        <source>Copy transaction ID</source>
+        <translation>Copiar identificación de la transacción. </translation>
+    </message>
+    <message>
+        <source>Edit label</source>
+        <translation>Editar capa </translation>
+    </message>
+    <message>
+        <source>Export Transaction History</source>
+        <translation>Exportar el historial de transacción</translation>
+    </message>
     <message>
         <source>Comma separated file (*.csv)</source>
         <translation>Arhchivo separado por comas (*.csv)</translation>
@@ -839,6 +1198,10 @@ Solicitar pagos (genera códigos QR y qtum: URI)
         <translation>Fecha</translation>
     </message>
     <message>
+        <source>Type</source>
+        <translation>Tipo</translation>
+    </message>
+    <message>
         <source>Label</source>
         <translation>Etiqueta</translation>
     </message>
@@ -847,26 +1210,58 @@ Solicitar pagos (genera códigos QR y qtum: URI)
         <translation>Dirección</translation>
     </message>
     <message>
+        <source>ID</source>
+        <translation>ID</translation>
+    </message>
+    <message>
         <source>Exporting Failed</source>
         <translation>Exportación Fallida</translation>
     </message>
-    </context>
+    <message>
+        <source>There was an error trying to save the transaction history to %1.</source>
+        <translation>Ocurrio un error intentando guardar el historial de transaciones a %1</translation>
+    </message>
+    <message>
+        <source>Exporting Successful</source>
+        <translation>Exportacion satisfactoria</translation>
+    </message>
+    <message>
+        <source>The transaction history was successfully saved to %1.</source>
+        <translation>el historial de transaciones ha sido guardado exitosamente en %1</translation>
+    </message>
+    <message>
+        <source>to</source>
+        <translation>Para</translation>
+    </message>
+</context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
     </context>
 <context>
     <name>WalletController</name>
+    <message>
+        <source>Close wallet</source>
+        <translation>Cerrar cartera</translation>
+    </message>
     </context>
 <context>
     <name>WalletFrame</name>
-    </context>
+    <message>
+        <source>No wallet has been loaded.</source>
+        <translation>No se há cargado la cartera.</translation>
+    </message>
+</context>
 <context>
     <name>WalletModel</name>
     <message>
         <source>Send Coins</source>
         <translation>Enviar monedas</translation>
     </message>
-    </context>
+    <message>
+        <source>default wallet</source>
+        <translation>cartera predeterminada</translation>
+    </message>
+</context>
 <context>
     <name>WalletView</name>
     <message>
@@ -876,6 +1271,14 @@ Solicitar pagos (genera códigos QR y qtum: URI)
     <message>
         <source>Export the data in the current tab to a file</source>
         <translation>Exportar la información en la pestaña actual a un archivo</translation>
+    </message>
+    <message>
+        <source>There was an error trying to save the wallet data to %1.</source>
+        <translation>Ocurrio un error tratando de guardar la información de la cartera %1</translation>
+    </message>
+    <message>
+        <source>The wallet data was successfully saved to %1.</source>
+        <translation>La información de la cartera fué guardada exitosamente a %1</translation>
     </message>
     </context>
 <context>

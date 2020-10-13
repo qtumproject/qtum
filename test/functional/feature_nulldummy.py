@@ -21,8 +21,7 @@ from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal, assert_raises_rpc_error, bytes_to_hex_str
 from test_framework.qtumconfig import COINBASE_MATURITY
 
-
-NULLDUMMY_ERROR = "non-mandatory-script-verify-flag (Dummy CHECKMULTISIG argument must be zero) (code 64)"
+NULLDUMMY_ERROR = "non-mandatory-script-verify-flag (Dummy CHECKMULTISIG argument must be zero)"
 
 def trueDummy(tx):
     scriptSig = CScript(tx.vin[0].scriptSig)
@@ -43,7 +42,10 @@ class NULLDUMMYTest(BitcoinTestFramework):
         self.setup_clean_chain = True
         # This script tests NULLDUMMY activation, which is part of the 'segwit' deployment, so we go through
         # normal segwit activation here (and don't use the default always-on behaviour).
-        self.extra_args = [['-whitelist=127.0.0.1', '-segwitheight=864', '-addresstype=legacy']]
+        self.extra_args = [[
+            '-segwitheight=864',
+            '-addresstype=legacy',
+        ]]
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
@@ -90,6 +92,7 @@ class NULLDUMMYTest(BitcoinTestFramework):
 
         self.log.info("Test 3: Non-NULLDUMMY base transactions should be accepted in a block before activation [431]")
         self.block_submit(self.nodes[0], [test2tx], False, True)
+
         self.log.info("Test 4: Non-NULLDUMMY base multisig transaction is invalid after activation")
         test4tx = create_transaction(self.nodes[0], test2tx.hash, self.address, amount=46)
         test6txs = [CTransaction(test4tx)]
