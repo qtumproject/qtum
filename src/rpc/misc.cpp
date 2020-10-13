@@ -577,7 +577,6 @@ UniValue getblockhashes(const JSONRPCRequest& request)
     bool found = false;
 
     if (fActiveOnly) {
-        LOCK(cs_main);
         found = GetTimestampIndex(high, low, fActiveOnly, blockHashes);
     }
     else {
