@@ -207,7 +207,7 @@ void AddDelegationPage::on_addDelegationClicked()
         // Check if delegation exist in the wallet
         if(details.w_entry_exist)
         {
-            QMessageBox::warning(this, tr("Set delegation for address"), tr("The delegation for the address exist in the wallet list."));
+            QMessageBox::warning(this, tr("Set delegation for address"), tr("This address is already delegated."));
             return;
         }
 

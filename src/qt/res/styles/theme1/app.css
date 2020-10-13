@@ -536,8 +536,8 @@ QTextEdit::focus:!read-only{
     border: 1px solid #7e7e7e;
 }
 QTextEdit::disabled {
-    border: 1px solid rgba(90, 90, 93, 40%);
-    color: rgba(42, 42, 42, 10%);
+    border: 1px solid rgba(59, 59, 59, 40%);
+    color: rgba(150, 150, 150, 10%);
 }
 /*--------------------------------------------
 QPlainTextEdit CSS
