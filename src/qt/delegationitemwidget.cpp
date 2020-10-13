@@ -177,7 +177,7 @@ void DelegationItemWidget::updateLogo()
         nWeight /= COIN;
         nNetworkWeight /= COIN;
 
-        ui->delegationLogo->setToolTip(tr("Offline staking.<br>Your weight is %1<br>Network weight is %2<br>Expected time to earn reward is %3").arg(nWeight).arg(nNetworkWeight).arg(text));
+        ui->delegationLogo->setToolTip(tr("Confirmed delegation<br>Your weight is %1<br>Network weight is %2<br>Expected time to earn reward is %3").arg(nWeight).arg(nNetworkWeight).arg(text));
     }
     else
     {
