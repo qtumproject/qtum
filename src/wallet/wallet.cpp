@@ -3489,9 +3489,13 @@ void CWallet::CommitTransaction(CTransactionRef tx, mapValue_t mapValue, std::ve
     }
 }
 
-uint64_t CWallet::GetStakeWeight(interfaces::Chain::Lock& locked_chain) const
+uint64_t CWallet::GetStakeWeight(interfaces::Chain::Lock& locked_chain, uint64_t* pStakerWeight, uint64_t* pDelegateWeight) const
 {
     uint64_t nWeight = 0;
+    uint64_t nStakerWeight = 0;
+    uint64_t nDelegateWeight = 0;
+    if(pStakerWeight) *pStakerWeight = nStakerWeight;
+    if(pDelegateWeight) *pDelegateWeight = nDelegateWeight;
 
     // Choose coins to use
     CAmount nBalance = GetBalance().m_mine_trusted;
@@ -3516,7 +3520,7 @@ uint64_t CWallet::GetStakeWeight(interfaces::Chain::Lock& locked_chain) const
         {
             // Compute staker weight
             CAmount nValue = pcoin.first->tx->vout[pcoin.second].nValue;
-            nWeight += nValue;
+            nStakerWeight += nValue;
 
             // Check if the staker can super stake
             if(!canSuperStake && nValue >= DEFAULT_STAKING_MIN_UTXO_VALUE)
@@ -3537,9 +3541,13 @@ uint64_t CWallet::GetStakeWeight(interfaces::Chain::Lock& locked_chain) const
                 continue;
             }
 
-            nWeight += coinPrev.out.nValue;
+            nDelegateWeight += coinPrev.out.nValue;
         }
     }
+
+    nWeight = nStakerWeight + nDelegateWeight;
+    if(pStakerWeight) *pStakerWeight = nStakerWeight;
+    if(pDelegateWeight) *pDelegateWeight = nDelegateWeight;
 
     return nWeight;
 }
