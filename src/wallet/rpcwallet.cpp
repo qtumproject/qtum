@@ -1583,8 +1583,16 @@ static UniValue setsuperstakervaluesforaddress(const JSONRPCRequest& request){
                                             {RPCResult::Type::BOOL, "customconfig", "Custom configuration exist."},
                                             {RPCResult::Type::NUM, "stakingminfee", "Minimum fee for delegate."},
                                             {RPCResult::Type::NUM, "stakingminutxovalue", "Minimum UTXO value for delegate."},
-                                            {RPCResult::Type::ARR, "allow", "List of allowed delegate addresses."},
-                                            {RPCResult::Type::ARR, "exclude", "List of excluded delegate addresses."},
+                                            {RPCResult::Type::ARR, "allow", "List of allowed delegate addresses.",
+                                                    {
+                                                            {RPCResult::Type::STR, "address", "The delegate address"},
+                                                    },
+                                            },
+                                            {RPCResult::Type::ARR, "exclude", "List of excluded delegate addresses.",
+                                                    {
+                                                            {RPCResult::Type::STR, "address", "The delegate address"},
+                                                    },
+                                            },
                                     }},
                     }
                 },
@@ -1711,8 +1719,16 @@ static UniValue listsuperstakercustomvalues(const JSONRPCRequest& request){
                                             {RPCResult::Type::BOOL, "customconfig", "Custom configuration exist."},
                                             {RPCResult::Type::NUM, "stakingminfee", "Minimum fee for delegate."},
                                             {RPCResult::Type::NUM, "stakingminutxovalue", "Minimum UTXO value for delegate."},
-                                            {RPCResult::Type::ARR, "allow", "List of allowed delegate addresses."},
-                                            {RPCResult::Type::ARR, "exclude", "List of excluded delegate addresses."},
+                                            {RPCResult::Type::ARR, "allow", "List of allowed delegate addresses.",
+                                                    {
+                                                            {RPCResult::Type::STR, "address", "The delegate address"},
+                                                    },
+                                            },
+                                            {RPCResult::Type::ARR, "exclude", "List of excluded delegate addresses.",
+                                                    {
+                                                            {RPCResult::Type::STR, "address", "The delegate address"},
+                                                    },
+                                            },
                                     }},
                     }
                 },
@@ -1762,8 +1778,16 @@ static UniValue listsuperstakervaluesforaddress(const JSONRPCRequest& request){
                                             {RPCResult::Type::BOOL, "customconfig", "Custom configuration exist."},
                                             {RPCResult::Type::NUM, "stakingminfee", "Minimum fee for delegate."},
                                             {RPCResult::Type::NUM, "stakingminutxovalue", "Minimum UTXO value for delegate."},
-                                            {RPCResult::Type::ARR, "allow", "List of allowed delegate addresses."},
-                                            {RPCResult::Type::ARR, "exclude", "List of excluded delegate addresses."},
+                                            {RPCResult::Type::ARR, "allow", "List of allowed delegate addresses.",
+                                                    {
+                                                            {RPCResult::Type::STR, "address", "The delegate address"},
+                                                    },
+                                            },
+                                            {RPCResult::Type::ARR, "exclude", "List of excluded delegate addresses.",
+                                                    {
+                                                            {RPCResult::Type::STR, "address", "The delegate address"},
+                                                    },
+                                            },
                                     }},
                     }
                 },
