@@ -31,7 +31,11 @@
 #include <algorithm>
 #include <utility>
 
+unsigned int nMaxStakeLookahead = MAX_STAKE_LOOKAHEAD;
+unsigned int nBytecodeTimeBuffer = BYTECODE_TIME_BUFFER;
+unsigned int nStakeTimeBuffer = STAKE_TIME_BUFFER;
 unsigned int nMinerSleep = STAKER_POLLING_PERIOD;
+unsigned int nMinerWaitWalidBlock = STAKER_WAIT_FOR_WALID_BLOCK;
 
 int64_t UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParams, const CBlockIndex* pindexPrev)
 {
@@ -79,6 +83,14 @@ static BlockAssembler::Options DefaultOptions()
 
 BlockAssembler::BlockAssembler(const CTxMemPool& mempool, const CChainParams& params)
     : BlockAssembler(mempool, params, DefaultOptions()) {}
+
+#ifdef ENABLE_WALLET
+BlockAssembler::BlockAssembler(const CTxMemPool& mempool, const CChainParams& params, CWallet *_pwallet)
+    : BlockAssembler(mempool, params)
+{
+    pwallet = _pwallet;
+}
+#endif
 
 void BlockAssembler::resetBlock()
 {
@@ -137,6 +149,10 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     pblocktemplate->vTxFees.push_back(-1); // updated at end
     pblocktemplate->vTxSigOpsCost.push_back(-1); // updated at end
 
+#ifdef ENABLE_WALLET
+    if(pwallet && pwallet->IsStakeClosing())
+        return nullptr;
+#endif
     LOCK2(cs_main, m_mempool.cs);
     CBlockIndex* pindexPrev = ::ChainActive().Tip();
     assert(pindexPrev != nullptr);
@@ -296,6 +312,10 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateEmptyBlock(const CScript& 
     pblocktemplate->vTxFees.push_back(-1); // updated at end
     pblocktemplate->vTxSigOpsCost.push_back(-1); // updated at end
 
+#ifdef ENABLE_WALLET
+    if(pwallet && pwallet->IsStakeClosing())
+        return nullptr;
+#endif
     LOCK2(cs_main, m_mempool.cs);
     CBlockIndex* pindexPrev = ::ChainActive().Tip();
     assert(pindexPrev != nullptr);
@@ -432,7 +452,7 @@ bool BlockAssembler::TestPackageTransactions(const CTxMemPool::setEntries& packa
 }
 
 bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64_t minGasPrice) {
-    if (nTimeLimit != 0 && GetAdjustedTime() >= nTimeLimit - BYTECODE_TIME_BUFFER) {
+    if (nTimeLimit != 0 && GetAdjustedTime() >= nTimeLimit - nBytecodeTimeBuffer) {
         return false;
     }
     if (gArgs.GetBoolArg("-disablecontractstaking", false))
@@ -1265,7 +1285,7 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
         {
             int64_t nTotalFees = 0;
             // First just create an empty block. No need to process transactions until we know we can create a block
-            std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(mempool, Params()).CreateEmptyBlock(CScript(), true, true, &nTotalFees));
+            std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(mempool, Params(), pwallet).CreateEmptyBlock(CScript(), true, true, &nTotalFees));
             if (!pblocktemplate.get())
                 return;
 
@@ -1275,7 +1295,7 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
             uint32_t stakeTimestampMask=consensusParams.StakeTimestampMask(nHeight);
             uint32_t beginningTime=GetAdjustedTime();
             beginningTime &= ~stakeTimestampMask;
-            for(uint32_t i=beginningTime;i<beginningTime + MAX_STAKE_LOOKAHEAD;i+=stakeTimestampMask+1) {
+            for(uint32_t i=beginningTime;i<beginningTime + nMaxStakeLookahead;i+=stakeTimestampMask+1) {
 
                 // The information is needed for status bar to determine if the staker is trying to create block and when it will be created approximately,
                 if(pwallet->m_last_coin_stake_search_time == 0) pwallet->m_last_coin_stake_search_time = GetAdjustedTime(); // startup timestamp
@@ -1296,8 +1316,8 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
                     }
                     // Create a block that's properly populated with transactions
                     std::unique_ptr<CBlockTemplate> pblocktemplatefilled(
-                            BlockAssembler(mempool, Params()).CreateNewBlock(pblock->vtx[1]->vout[1].scriptPubKey, true, true, &nTotalFees,
-                                                                    i, FutureDrift(GetAdjustedTime(), nHeight, consensusParams) - STAKE_TIME_BUFFER));
+                            BlockAssembler(mempool, Params(), pwallet).CreateNewBlock(pblock->vtx[1]->vout[1].scriptPubKey, true, true, &nTotalFees,
+                                                                    i, FutureDrift(GetAdjustedTime(), nHeight, consensusParams) - nStakeTimeBuffer));
                     if (!pblocktemplatefilled.get())
                         return;
                     if (::ChainActive().Tip()->GetBlockHash() != pblock->hashPrevBlock) {
@@ -1331,7 +1351,7 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
                                     if(!SleepStaker(pwallet, 100)) return;
                                 }else{
                                     //too early, so wait 3 seconds and try again
-                                    if(!SleepStaker(pwallet, 3000)) return;
+                                    if(!SleepStaker(pwallet, nMinerWaitWalidBlock)) return;
                                 }
                                 continue;
                             }
