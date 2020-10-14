@@ -5,6 +5,7 @@
 
 class PlatformStyle;
 class WalletModel;
+class ClientModel;
 
 namespace Ui {
 class SuperStakerItemWidget;
@@ -43,6 +44,8 @@ public:
 
     void setModel(WalletModel *_model);
 
+    void setClientModel(ClientModel *clientModel);
+
 Q_SIGNALS:
     void clicked(int position, int button);
 
@@ -73,6 +76,7 @@ private:
     int m_position;
     QString m_filename;
     WalletModel* m_model;
+    ClientModel* m_clientModel;
     SuperStakerItemWidgetPriv* d;
 };
 
