@@ -145,6 +145,10 @@ struct Params {
         int subsidyHalvingWeight = blockCount - beforeDownscale + beforeDownscale * blocktimeDownscaleFactor;
         return subsidyHalvingWeight;
     }
+    int64_t TimestampDownscaleFactor(int height) const
+    {
+        return height < nReduceBlocktimeHeight ? 1 : (nStakeTimestampMask + 1) / (nRBTStakeTimestampMask + 1);
+    }
 };
 } // namespace Consensus
 

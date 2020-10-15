@@ -37,6 +37,22 @@ unsigned int nStakeTimeBuffer = STAKE_TIME_BUFFER;
 unsigned int nMinerSleep = STAKER_POLLING_PERIOD;
 unsigned int nMinerWaitWalidBlock = STAKER_WAIT_FOR_WALID_BLOCK;
 
+void updateMinerParams(int nHeight, const Consensus::Params& consensusParams)
+{
+    static unsigned int timeDownscale = 1;
+    static unsigned int timeDefault = 1;
+    unsigned int timeDownscaleTmp = consensusParams.TimestampDownscaleFactor(nHeight);
+    if(timeDownscale != timeDownscaleTmp)
+    {
+        timeDownscale = timeDownscaleTmp;
+        nMaxStakeLookahead = std::max(MAX_STAKE_LOOKAHEAD / timeDownscale, timeDefault);
+        nBytecodeTimeBuffer = std::max(BYTECODE_TIME_BUFFER / timeDownscale, timeDefault);
+        nStakeTimeBuffer = std::max(STAKE_TIME_BUFFER / timeDownscale, timeDefault);
+        nMinerSleep = std::max(STAKER_POLLING_PERIOD / timeDownscale, timeDefault);
+        nMinerWaitWalidBlock = std::max(STAKER_WAIT_FOR_WALID_BLOCK / timeDownscale, timeDefault);
+    }
+}
+
 int64_t UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParams, const CBlockIndex* pindexPrev)
 {
     int64_t nOldTime = pblock->nTime;
@@ -1227,8 +1243,9 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
     bool fSuperStake = gArgs.GetBoolArg("-superstaking", DEFAULT_SUPER_STAKE);
     DelegationsStaker delegationsStaker(pwallet);
     MyDelegations myDelegations(pwallet);
-    int nOfflineStakeHeight = Params().GetConsensus().nOfflineStakeHeight;
-    bool fDelegationsContract = !Params().GetConsensus().delegationsAddress.IsNull();
+    const Consensus::Params& consensusParams = Params().GetConsensus();
+    int nOfflineStakeHeight = consensusParams.nOfflineStakeHeight;
+    bool fDelegationsContract = !consensusParams.delegationsAddress.IsNull();
 
     while (pwallet && !pwallet->IsStakeClosing())
     {
@@ -1266,6 +1283,7 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
             auto locked_chain = pwallet->chain().lock();
             LOCK(pwallet->cs_wallet);
             int32_t nHeight = ::ChainActive().Height();
+            updateMinerParams(nHeight + 1, consensusParams);
             bool fOfflineStakeEnabled = ((nHeight + 1) > nOfflineStakeHeight) && fDelegationsContract;
             if(fOfflineStakeEnabled)
             {
@@ -1291,7 +1309,6 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
 
             CBlockIndex* pindexPrev =  ::ChainActive().Tip();
             uint32_t nHeight = pindexPrev->nHeight+1; 
-            const Consensus::Params& consensusParams = Params().GetConsensus();
             uint32_t stakeTimestampMask=consensusParams.StakeTimestampMask(nHeight);
             uint32_t beginningTime=GetAdjustedTime();
             beginningTime &= ~stakeTimestampMask;
