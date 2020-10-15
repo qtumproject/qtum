@@ -448,16 +448,20 @@ BOOST_AUTO_TEST_CASE(block_size_default_state_test1){
     initState();
     contractLoading();
     QtumDGP qtumDGP(globalState.get());
-    uint32_t blockSize = qtumDGP.getBlockSize(100);
-    BOOST_CHECK(blockSize == DEFAULT_BLOCK_SIZE_DGP);
+    uint32_t nHeight = 100;
+    uint32_t blocktimeDownscaleFactor = Params().GetConsensus().BlocktimeDownscaleFactor(nHeight);
+    uint32_t blockSize = qtumDGP.getBlockSize(nHeight);
+    BOOST_CHECK(blockSize == DEFAULT_BLOCK_SIZE_DGP / blocktimeDownscaleFactor);
 }
 
 BOOST_AUTO_TEST_CASE(block_size_default_state_test2){
     initState();
     contractLoading();
     QtumDGP qtumDGP(globalState.get());
+    uint32_t nHeight = 0;
+    uint32_t blocktimeDownscaleFactor = Params().GetConsensus().BlocktimeDownscaleFactor(nHeight);
     uint32_t blockSize = qtumDGP.getBlockSize(0);
-    BOOST_CHECK(blockSize == DEFAULT_BLOCK_SIZE_DGP);
+    BOOST_CHECK(blockSize == DEFAULT_BLOCK_SIZE_DGP / blocktimeDownscaleFactor);
 }
 
 BOOST_AUTO_TEST_CASE(block_size_one_paramsInstance_introductory_block_1_test1){
@@ -472,8 +476,10 @@ BOOST_AUTO_TEST_CASE(block_size_one_paramsInstance_introductory_block_1_test1){
     auto result = executeBC(txs);
 
     QtumDGP qtumDGP(globalState.get());
-    uint32_t blockSize = qtumDGP.getBlockSize(0);
-    BOOST_CHECK(blockSize == DEFAULT_BLOCK_SIZE_DGP);
+    uint32_t nHeight = 0;
+    uint32_t blocktimeDownscaleFactor = Params().GetConsensus().BlocktimeDownscaleFactor(nHeight);
+    uint32_t blockSize = qtumDGP.getBlockSize(nHeight);
+    BOOST_CHECK(blockSize == DEFAULT_BLOCK_SIZE_DGP / blocktimeDownscaleFactor);
 }
 
 BOOST_AUTO_TEST_CASE(block_size_one_paramsInstance_introductory_block_1_test2){
@@ -499,9 +505,10 @@ BOOST_AUTO_TEST_CASE(block_size_passage_from_0_to_130_three_paramsInstance_test)
     createTestContractsAndBlocks(this, code[7], code[8], code[9], BlockSizeDGP);
     QtumDGP qtumDGP(globalState.get());
     for(size_t i = 0; i < 1300; i++){
+        uint32_t blocktimeDownscaleFactor = Params().GetConsensus().BlocktimeDownscaleFactor(i);
         uint32_t blockSize = qtumDGP.getBlockSize(i);
         std::function<bool(const uint64_t&, const uint64_t&)> func = compareUint64;
-        checkValue<uint64_t>(blockSize, DEFAULT_BLOCK_SIZE_DGP, 1000000, 2000000, 500123, i, func);
+        checkValue<uint64_t>(blockSize, DEFAULT_BLOCK_SIZE_DGP / blocktimeDownscaleFactor, 1000000, 2000000, 500123, i, func);
     }
 }
 
@@ -512,9 +519,10 @@ BOOST_AUTO_TEST_CASE(block_size_passage_from_130_to_0_three_paramsInstance_test)
     createTestContractsAndBlocks(this, code[7], code[8], code[9], BlockSizeDGP);
     QtumDGP qtumDGP(globalState.get());
     for(size_t i = 1300; i > 0; i--){
+        uint32_t blocktimeDownscaleFactor = Params().GetConsensus().BlocktimeDownscaleFactor(i);
         uint32_t blockSize = qtumDGP.getBlockSize(i);
         std::function<bool(const uint64_t&, const uint64_t&)> func = compareUint64;
-        checkValue<uint32_t>(blockSize, DEFAULT_BLOCK_SIZE_DGP, 1000000, 2000000, 500123, i, func);
+        checkValue<uint32_t>(blockSize, DEFAULT_BLOCK_SIZE_DGP / blocktimeDownscaleFactor, 1000000, 2000000, 500123, i, func);
     }
 }
 
