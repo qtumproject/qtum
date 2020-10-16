@@ -95,7 +95,7 @@ public:
         consensus.RBTPosLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 16 * 60; // 16 minutes
         consensus.nPowTargetTimespanV2 = 4000;
-        consensus.nRBTPowTargetTimespan = 4000;
+        consensus.nRBTPowTargetTimespan = 500;
         consensus.nPowTargetSpacing = 2 * 64;
         consensus.nRBTPowTargetSpacing = 16;
         consensus.fPowAllowMinDifficultyBlocks = false;
@@ -229,7 +229,7 @@ public:
         consensus.RBTPosLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 16 * 60; // 16 minutes
         consensus.nPowTargetTimespanV2 = 4000;
-        consensus.nRBTPowTargetTimespan = 4000;
+        consensus.nRBTPowTargetTimespan = 500;
         consensus.nPowTargetSpacing = 2 * 64;
         consensus.nRBTPowTargetSpacing = 16;
         consensus.fPowAllowMinDifficultyBlocks = false;
@@ -349,7 +349,7 @@ public:
         consensus.RBTPosLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 16 * 60; // 16 minutes (960 = 832 + 128; multiplier is 832)
         consensus.nPowTargetTimespanV2 = 4000;
-        consensus.nRBTPowTargetTimespan = 4000;
+        consensus.nRBTPowTargetTimespan = 500;
         consensus.nPowTargetSpacing = 2 * 64;
         consensus.nRBTPowTargetSpacing = 16;
         consensus.fPowAllowMinDifficultyBlocks = true;

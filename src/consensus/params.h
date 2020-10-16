@@ -114,9 +114,9 @@ struct Params {
     int64_t nBlocktimeDownscaleFactor;
     int64_t DifficultyAdjustmentInterval(int height) const
     {
-        int64_t targetSpacing = height < QIP9Height ? nPowTargetTimespan : 
-            (height < nReduceBlocktimeHeight ? nPowTargetTimespanV2 : nRBTPowTargetTimespan);
-        return targetSpacing / nPowTargetSpacing;
+        int64_t targetTimespan = TargetTimespan(height);
+        int64_t targetSpacing = TargetSpacing(height);
+        return targetTimespan / targetSpacing;
     }
     int64_t StakeTimestampMask(int height) const
     {
@@ -148,6 +148,11 @@ struct Params {
     int64_t TimestampDownscaleFactor(int height) const
     {
         return height < nReduceBlocktimeHeight ? 1 : (nStakeTimestampMask + 1) / (nRBTStakeTimestampMask + 1);
+    }
+    int64_t TargetTimespan(int height) const
+    {
+        return height < QIP9Height ? nPowTargetTimespan : 
+            (height < nReduceBlocktimeHeight ? nPowTargetTimespanV2 : nRBTPowTargetTimespan);
     }
 };
 } // namespace Consensus
