@@ -45,7 +45,9 @@ void updateMinerParams(int nHeight, const Consensus::Params& consensusParams)
     if(timeDownscale != timeDownscaleTmp)
     {
         timeDownscale = timeDownscaleTmp;
+        unsigned int targetSpacing =  consensusParams.TargetSpacing(nHeight);
         nMaxStakeLookahead = std::max(MAX_STAKE_LOOKAHEAD / timeDownscale, timeDefault);
+        nMaxStakeLookahead = std::min(nMaxStakeLookahead, targetSpacing);
         nBytecodeTimeBuffer = std::max(BYTECODE_TIME_BUFFER / timeDownscale, timeDefault);
         nStakeTimeBuffer = std::max(STAKE_TIME_BUFFER / timeDownscale, timeDefault);
         nMinerSleep = std::max(STAKER_POLLING_PERIOD / timeDownscale, timeDefault);
