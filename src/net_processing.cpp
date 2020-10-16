@@ -224,7 +224,7 @@ public:
         maxSize(0),
         maxAvg(0)
     {
-        maxSize = gArgs.GetArg("-headerspamfiltermaxsize", DEFAULT_HEADER_SPAM_FILTER_MAX_SIZE);
+        maxSize = gArgs.GetArg("-headerspamfiltermaxsize", GefaultHeaderSpamFilterMaxSize());
         maxAvg = gArgs.GetArg("-headerspamfiltermaxavg", DEFAULT_HEADER_SPAM_FILTER_MAX_AVG);
     }
 
@@ -4589,6 +4589,11 @@ void CleanBlockIndex()
         for(unsigned int i = 0; (i < cleanTimeout) && !ShutdownRequested(); i++)
             UninterruptibleSleep(std::chrono::seconds{1});
     }
+}
+
+unsigned int GefaultHeaderSpamFilterMaxSize()
+{
+    return COINBASE_MATURITY;
 }
 
 class CNetProcessingCleanup
