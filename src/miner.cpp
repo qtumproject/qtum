@@ -1270,6 +1270,22 @@ void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
                 }
             }
         }
+        if(regtestMode) {
+            bool waitForBlockTime = false;
+            {
+                if(pwallet->IsStakeClosing()) return;
+                auto locked_chain = pwallet->chain().lock();
+                CBlockIndex* pindexPrev =  ::ChainActive().Tip();
+                if(pindexPrev && pindexPrev->IsProofOfWork() && pindexPrev->GetBlockTime() > GetTime()) {
+                    waitForBlockTime = true;
+                }
+            }
+            // Wait for generated PoW block time
+            if(waitForBlockTime) {
+                if(!SleepStaker(pwallet, 10000)) return;
+                continue;
+            }
+        }
         //
         // Create new block
         //
