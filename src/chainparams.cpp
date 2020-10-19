@@ -186,13 +186,16 @@ public:
         consensus.nMPoSRewardRecipients = 10;
         consensus.nFirstMPoSBlock = consensus.nLastPOWBlock + 
                                     consensus.nMPoSRewardRecipients + 
-                                    COINBASE_MATURITY;
+                                    consensus.nCoinbaseMaturity;
         consensus.nLastMPoSBlock = 679999;
 
 
         consensus.nFixUTXOCacheHFHeight = 100000;
         consensus.nEnableHeaderSignatureHeight = 399100;
-        consensus.nCheckpointSpan = COINBASE_MATURITY;
+        consensus.nCoinbaseMaturity = 500;
+        consensus.nRBTCoinbaseMaturity = 500;
+        consensus.nCheckpointSpan = consensus.nCoinbaseMaturity;
+        consensus.nRBTCheckpointSpan = consensus.nRBTCoinbaseMaturity;
         consensus.delegationsAddress = uint160(ParseHex("0000000000000000000000000000000000000086")); // Delegations contract for offline staking
         consensus.nStakeTimestampMask = 15;
         consensus.nRBTStakeTimestampMask = 7;
@@ -307,12 +310,15 @@ public:
         consensus.nMPoSRewardRecipients = 10;
         consensus.nFirstMPoSBlock = consensus.nLastPOWBlock + 
                                     consensus.nMPoSRewardRecipients + 
-                                    COINBASE_MATURITY;
+                                    consensus.nCoinbaseMaturity;
         consensus.nLastMPoSBlock = 624999;
 
         consensus.nFixUTXOCacheHFHeight = 84500;
         consensus.nEnableHeaderSignatureHeight = 391993;
-        consensus.nCheckpointSpan = COINBASE_MATURITY;
+        consensus.nCoinbaseMaturity = 500;
+        consensus.nRBTCoinbaseMaturity = 500;
+        consensus.nCheckpointSpan = consensus.nCoinbaseMaturity;
+        consensus.nRBTCheckpointSpan = consensus.nRBTCoinbaseMaturity;
         consensus.delegationsAddress = uint160(ParseHex("0000000000000000000000000000000000000086")); // Delegations contract for offline staking
         consensus.nStakeTimestampMask = 15;
         consensus.nRBTStakeTimestampMask = 7;
@@ -411,7 +417,10 @@ public:
 
         consensus.nFixUTXOCacheHFHeight=0;
         consensus.nEnableHeaderSignatureHeight = 0;
-        consensus.nCheckpointSpan = COINBASE_MATURITY;
+        consensus.nCoinbaseMaturity = 500;
+        consensus.nRBTCoinbaseMaturity = 500;
+        consensus.nCheckpointSpan = consensus.nCoinbaseMaturity;
+        consensus.nRBTCheckpointSpan = consensus.nRBTCoinbaseMaturity;
         consensus.delegationsAddress = uint160(ParseHex("0000000000000000000000000000000000000086")); // Delegations contract for offline staking
         consensus.nStakeTimestampMask = 15;
         consensus.nRBTStakeTimestampMask = 7;
@@ -503,7 +512,10 @@ public:
         consensus.nSubsidyHalvingIntervalV2 = 6000;
         consensus.nRuleChangeActivationThreshold = 558; // 75% for testchains
         consensus.nMinerConfirmationWindow = 744; // Faster than normal for regtest (744 instead of 2016)
+        consensus.nCoinbaseMaturity = 500;
+        consensus.nRBTCoinbaseMaturity = 500;
         consensus.nCheckpointSpan = 1000; // Increase the check point span for the reorganization tests from 500 to 1000
+        consensus.nRBTCheckpointSpan = 1000; // Increase the check point span for the reorganization tests from 500 to 1000
     }
 };
 
@@ -599,7 +611,7 @@ void CChainParams::UpdateDifficultyChangeBlockHeight(int nHeight)
     consensus.nMPoSRewardRecipients = 10;
     consensus.nFirstMPoSBlock = consensus.nLastPOWBlock + 
                                 consensus.nMPoSRewardRecipients + 
-                                COINBASE_MATURITY;
+                                consensus.nCoinbaseMaturity;
     consensus.nLastMPoSBlock = 0;
 }
 
