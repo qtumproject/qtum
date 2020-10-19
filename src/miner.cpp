@@ -909,11 +909,9 @@ public:
     DelegationsStaker(CWallet *_pwallet):
         pwallet(_pwallet),
         cacheHeight(0),
-        nCheckpointSpan(0),
         type(StakerType::STAKER_NORMAL),
         spk_man(0)
     {
-        nCheckpointSpan = Params().GetConsensus().nCheckpointSpan;
         spk_man = _pwallet->GetLegacyScriptPubKeyMan();
 
         // Get allow list
@@ -999,7 +997,8 @@ public:
         }
 
         std::map<uint160, Delegation> delegations_staker;
-        if(nHeight <= nCheckpointSpan)
+        int checkpointSpan = Params().GetConsensus().CheckpointSpan(nHeight);
+        if(nHeight <= checkpointSpan)
         {
             // Get delegations from events
             std::vector<DelegationEvent> events;
@@ -1009,7 +1008,7 @@ public:
         else
         {
             // Update the cached delegations for the staker, older then the sync checkpoint (500 blocks)
-            int cpsHeight = nHeight - nCheckpointSpan;
+            int cpsHeight = nHeight - checkpointSpan;
             if(cacheHeight < cpsHeight)
             {
                 std::vector<DelegationEvent> events;
@@ -1031,7 +1030,6 @@ private:
     CWallet *pwallet;
     QtumDelegation qtumDelegations;
     int32_t cacheHeight;
-    int32_t nCheckpointSpan;
     std::map<uint160, Delegation> cacheDelegationsStaker;
     std::vector<uint160> allowList;
     std::vector<uint160> excludeList;
@@ -1045,10 +1043,8 @@ public:
     MyDelegations(CWallet *_pwallet):
         pwallet(_pwallet),
         cacheHeight(0),
-        nCheckpointSpan(0),
         spk_man(0)
     {
-        nCheckpointSpan = Params().GetConsensus().nCheckpointSpan;
         spk_man = _pwallet->GetLegacyScriptPubKeyMan();
     }
 
@@ -1062,7 +1058,8 @@ public:
         if(fLogEvents)
         {
             // When log events are enabled, search the log events to get complete list of my delegations
-            if(nHeight <= nCheckpointSpan)
+            int checkpointSpan = Params().GetConsensus().CheckpointSpan(nHeight);
+            if(nHeight <= checkpointSpan)
             {
                 // Get delegations from events
                 std::vector<DelegationEvent> events;
@@ -1072,7 +1069,7 @@ public:
             else
             {
                 // Update the cached delegations for the staker, older then the sync checkpoint (500 blocks)
-                int cpsHeight = nHeight - nCheckpointSpan;
+                int cpsHeight = nHeight - checkpointSpan;
                 if(cacheHeight < cpsHeight)
                 {
                     std::vector<DelegationEvent> events;
@@ -1157,7 +1154,6 @@ private:
     CWallet *pwallet;
     QtumDelegation qtumDelegations;
     int32_t cacheHeight;
-    int32_t nCheckpointSpan;
     std::map<uint160, Delegation> cacheMyDelegations;
     LegacyScriptPubKeyMan* spk_man;
 };

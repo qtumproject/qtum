@@ -4550,7 +4550,9 @@ void CleanBlockIndex()
             std::vector<uint256> indexNeedErase;
             {
                 LOCK(cs_main);
-                const CBlockIndex *pindexCheck = ::ChainActive()[::ChainActive().Height() - nCheckpointSpan -1];
+                int nHeight = ::ChainActive().Height();
+                int checkpointSpan = Params().GetConsensus().CheckpointSpan(nHeight);
+                const CBlockIndex *pindexCheck = ::ChainActive()[nHeight - checkpointSpan -1];
                 if(pindexCheck)
                 {
                     for (BlockMap::iterator it=::BlockIndex().begin(); it!=::BlockIndex().end(); it++)
