@@ -116,8 +116,9 @@ bool GetStakeCoin(const COutPoint& prevout, Coin& coinPrev, CBlockIndex*& blockF
 
     // Check that the coin is mature
     int nHeight = pindexPrev->nHeight + 1;
-    if(nHeight - coinPrev.nHeight < COINBASE_MATURITY){
-        return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "stake-prevout-not-mature", strprintf("CheckProofOfStake() : Stake prevout is not mature, expecting %i and only matured to %i", COINBASE_MATURITY, nHeight - coinPrev.nHeight));
+    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(nHeight);
+    if(nHeight - coinPrev.nHeight < coinbaseMaturity){
+        return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "stake-prevout-not-mature", strprintf("CheckProofOfStake() : Stake prevout is not mature, expecting %i and only matured to %i", coinbaseMaturity, nHeight - coinPrev.nHeight));
     }
 
     // Get the block header from the coin
@@ -126,11 +127,11 @@ bool GetStakeCoin(const COutPoint& prevout, Coin& coinPrev, CBlockIndex*& blockF
         return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "stake-prevout-not-loaded", strprintf("CheckProofOfStake() : Block at height %i for prevout can not be loaded", coinPrev.nHeight));
     }
 
-    // Check that the coin is not used in the last COINBASE_MATURITY headers
+    // Check that the coin is not used in the last coinbaseMaturity headers
     // Delegated utxo is not spent when block is created using that coin, so additional check to the last headers needed
     int coinHeight = -1;
     CBlockIndex* prev = pindexPrev;
-    for(int i = 0; i < COINBASE_MATURITY; i++) {
+    for(int i = 0; i < coinbaseMaturity; i++) {
         if(prev->prevoutStake == prevout) {
             coinHeight = prev->nHeight;
             break;
@@ -140,8 +141,8 @@ bool GetStakeCoin(const COutPoint& prevout, Coin& coinPrev, CBlockIndex*& blockF
         if(!prev) break;
     }
     if(coinHeight != -1) {
-        if(nHeight - coinHeight < COINBASE_MATURITY){
-            return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "stake-prevout-not-mature", strprintf("CheckProofOfStake() : Stake prevout is not mature, expecting %i and only matured to %i", COINBASE_MATURITY, nHeight - coinHeight));
+        if(nHeight - coinHeight < coinbaseMaturity){
+            return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "stake-prevout-not-mature", strprintf("CheckProofOfStake() : Stake prevout is not mature, expecting %i and only matured to %i", coinbaseMaturity, nHeight - coinHeight));
         }
     }
 
@@ -405,7 +406,9 @@ bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBloc
             }
         }
 
-        if(pindexPrev->nHeight + 1 - coinPrev.nHeight < COINBASE_MATURITY){
+        int nHeight = pindexPrev->nHeight + 1;
+        int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(nHeight);
+        if(nHeight - coinPrev.nHeight < coinbaseMaturity){
             return error("CheckKernel(): Coin not matured");
         }
         CBlockIndex* blockFrom = pindexPrev->GetAncestor(coinPrev.nHeight);
@@ -441,7 +444,9 @@ void CacheKernel(std::map<COutPoint, CStakeCache>& cache, const COutPoint& prevo
         return;
     }
 
-    if(pindexPrev->nHeight + 1 - coinPrev.nHeight < COINBASE_MATURITY){
+    int nHeight = pindexPrev->nHeight + 1;
+    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(nHeight);
+    if(nHeight - coinPrev.nHeight < coinbaseMaturity){
         return;
     }
     CBlockIndex* blockFrom = pindexPrev->GetAncestor(coinPrev.nHeight);
@@ -674,7 +679,7 @@ bool AddMPoSScript(std::vector<BlockScript> &mposScriptList, int nHeight, const 
 bool GetMPoSOutputScripts(std::vector<BlockScript>& mposScriptList, int nHeight, const Consensus::Params& consensusParams)
 {
     bool ret = true;
-    nHeight -= COINBASE_MATURITY;
+    nHeight -= consensusParams.CoinbaseMaturity(nHeight + 1);
 
     // Populate the list of scripts for the reward recipients
     for(int i = 0; (i < consensusParams.nMPoSRewardRecipients - 1) && ret; i++)

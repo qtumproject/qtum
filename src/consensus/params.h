@@ -113,6 +113,7 @@ struct Params {
     uint32_t nStakeTimestampMask;
     uint32_t nRBTStakeTimestampMask;
     int64_t nBlocktimeDownscaleFactor;
+    /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
     int nCoinbaseMaturity;
     int nRBTCoinbaseMaturity;
     int64_t DifficultyAdjustmentInterval(int height) const
@@ -164,6 +165,10 @@ struct Params {
     int CoinbaseMaturity(int height) const
     {
         return height < nReduceBlocktimeHeight ? nCoinbaseMaturity : nRBTCoinbaseMaturity;
+    }
+    int MaxCheckpointSpan() const
+    {
+        return nCheckpointSpan <= nRBTCheckpointSpan ? nRBTCheckpointSpan : nCheckpointSpan;
     }
 };
 } // namespace Consensus

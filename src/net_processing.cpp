@@ -4595,7 +4595,7 @@ void CleanBlockIndex()
 
 unsigned int GefaultHeaderSpamFilterMaxSize()
 {
-    return COINBASE_MATURITY;
+    return Params().GetConsensus().MaxCheckpointSpan();
 }
 
 class CNetProcessingCleanup

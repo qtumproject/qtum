@@ -822,7 +822,7 @@ bool MemPoolAccept::PreChecks(ATMPArgs& args, Workspace& ws)
     m_pool.ApplyDelta(hash, nModifiedFees);
 
     // Keep track of transactions that spend a coinbase, which we re-scan
-    // during reorgs to ensure COINBASE_MATURITY is still met.
+    // during reorgs to ensure coinbaseMaturity is still met.
     bool fSpendsCoinbase = false;
     for (const CTxIn &txin : tx.vin) {
         const Coin &coin = m_view.AccessCoin(txin.prevout);
@@ -2279,8 +2279,10 @@ bool GetSpentCoinFromBlock(const CBlockIndex* pindex, COutPoint prevout, Coin* c
 bool GetSpentCoinFromMainChain(const CBlockIndex* pforkPrev, COutPoint prevoutStake, Coin* coin) {
     const CBlockIndex* pforkBase = ChainActive().FindFork(pforkPrev);
 
-    // If the forkbase is more than COINBASE_MATURITY blocks in the past, do not attempt to scan the main chain.
-    if(ChainActive().Tip()->nHeight - pforkBase->nHeight > COINBASE_MATURITY) {
+    // If the forkbase is more than coinbaseMaturity blocks in the past, do not attempt to scan the main chain.
+    int nHeight = ChainActive().Tip()->nHeight;
+    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(nHeight);
+    if(nHeight - pforkBase->nHeight > coinbaseMaturity) {
         return error("The fork's base is behind by more than 500 blocks");
     }
 
@@ -5313,20 +5315,22 @@ bool CChainState::UpdateHashProof(const CBlock& block, BlockValidationState& sta
 bool CheckPOS(const CBlockHeader& block, CBlockIndex* pindexPrev)
 {
     // Determining if PoS is possible to be checked in the header
-    int diff = pindexPrev->nHeight + 1 - ::ChainActive().Height();
+    int nHeight = pindexPrev->nHeight + 1;
+    int coinbaseMaturity = ::Params().GetConsensus().CoinbaseMaturity(nHeight);
+    int diff = nHeight - ::ChainActive().Height();
     if(pindexPrev && block.IsProofOfStake() && !::ChainstateActive().IsInitialBlockDownload()
     // Additional check if not triggered initial block download, like when PoW blocks were initially created
     // CheckPOS is called after ContextualCheckBlockHeader where future block headers are not accepted
-            && (diff < COINBASE_MATURITY))
+            && (diff < coinbaseMaturity))
     {
         // Old header not child of the Tip
-        if(diff < -COINBASE_MATURITY)
+        if(diff < -coinbaseMaturity)
             return true;
 
         // New header
         // Determining if the header is child of the Tip
         CBlockIndex* prev = pindexPrev;
-        for(int i = 0; i < COINBASE_MATURITY; i++)
+        for(int i = 0; i < coinbaseMaturity; i++)
         {
             if(prev == ::ChainActive().Tip())
                 return true;
@@ -5437,8 +5441,9 @@ bool BlockManager::AcceptBlockHeader(const CBlockHeader& block, BlockValidationS
 
         if(block.IsProofOfStake())
         {
-            // Reject proof of stake before height COINBASE_MATURITY
-            if (nHeight < COINBASE_MATURITY)
+            // Reject proof of stake before height coinbaseMaturity
+            int coinbaseMaturity = chainparams.GetConsensus().CoinbaseMaturity(nHeight);
+            if (nHeight < coinbaseMaturity)
                 return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "reject-pos", strprintf("reject proof-of-stake at height %d", nHeight));
 
             // Check coin stake timestamp
@@ -7257,10 +7262,11 @@ bool GetAddressWeight(uint256 addressHash, int type, const std::map<COutPoint, u
     }
 
     // Add the utxos to the list if they are mature
+	const Consensus::Params& consensusParams = Params().GetConsensus();
     for (std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> >::const_iterator i=unspentOutputs.begin(); i!=unspentOutputs.end(); i++) {
 
         int nDepth = nHeight - i->second.blockHeight + 1;
-        if (nDepth < COINBASE_MATURITY)
+        if (nDepth < consensusParams.CoinbaseMaturity(nHeight + 1))
             continue;
 
         if(i->second.satoshis < 0)
@@ -7280,7 +7286,8 @@ std::map<COutPoint, uint32_t> GetImmatureStakes()
 {
     std::map<COutPoint, uint32_t> immatureStakes;
     int height = ::ChainActive().Height();
-    for(int i = 0; i < COINBASE_MATURITY -1; i++) {
+    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(height + 1);
+    for(int i = 0; i < coinbaseMaturity -1; i++) {
         CBlockIndex* block = ::ChainActive()[height - i];
         if(block)
         {

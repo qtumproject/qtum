@@ -8,6 +8,7 @@
 #include <interfaces/handler.h>
 #include <algorithm>
 #include <consensus/consensus.h>
+#include <chainparams.h>
 
 #include <QDateTime>
 #include <QFont>
@@ -77,7 +78,7 @@ private Q_SLOTS:
         uint256 blockHash;
         bool found = false;
 
-        int64_t backInPast = first ? COINBASE_MATURITY : 10;
+        int64_t backInPast = first ? Params().GetConsensus().MaxCheckpointSpan() : 10;
         first = false;
 
         // Get current height and block hash

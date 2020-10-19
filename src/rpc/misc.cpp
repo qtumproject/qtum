@@ -348,7 +348,8 @@ UniValue getaddressbalance(const JSONRPCRequest& request)
             received += it->second;
         }
         balance += it->second;
-        if (it->first.txindex == 1 && ((::ChainActive().Height() - it->first.blockHeight) < COINBASE_MATURITY))
+        int nHeight = ::ChainActive().Height();
+        if (it->first.txindex == 1 && ((nHeight - it->first.blockHeight) < Params().GetConsensus().CoinbaseMaturity(nHeight)))
             immature += it->second; //immature stake outputs
     }
 

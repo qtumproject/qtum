@@ -2316,6 +2316,8 @@ void CWallet::AvailableCoinsForStaking(interfaces::Chain::Lock& locked_chain, st
 
     vCoins.clear();
 
+    int nHeight = GetLastBlockHeight() + 1;
+    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(nHeight);
     std::map<COutPoint, uint32_t> immatureStakes = locked_chain.getImmatureStakes();
     for (std::map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
     {
@@ -2326,7 +2328,7 @@ void CWallet::AvailableCoinsForStaking(interfaces::Chain::Lock& locked_chain, st
         if (nDepth < 1)
             continue;
 
-        if (nDepth < COINBASE_MATURITY)
+        if (nDepth < coinbaseMaturity)
             continue;
 
         if (pcoin->GetBlocksToMaturity() > 0)
@@ -2425,10 +2427,11 @@ bool CWallet::AvailableDelegateCoinsForStaking(interfaces::Chain::Lock& locked_c
         }
 
         // Add the utxos to the list if they are mature and at least the minimum value
+        int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(height + 1);
         for (std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> >::const_iterator i=unspentOutputs.begin(); i!=unspentOutputs.end(); i++) {
 
             int nDepth = height - i->second.blockHeight + 1;
-            if (nDepth < COINBASE_MATURITY)
+            if (nDepth < coinbaseMaturity)
                 continue;
 
             if(i->second.satoshis < staking_min_utxo_value)
@@ -3513,10 +3516,12 @@ uint64_t CWallet::GetStakeWeight(interfaces::Chain::Lock& locked_chain, uint64_t
     if (setCoins.empty())
         return nWeight;
 
+    int nHeight = GetLastBlockHeight() + 1;
+    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(nHeight);
     bool canSuperStake = false;
     for(std::pair<const CWalletTx*,unsigned int> pcoin : setCoins)
     {
-        if (pcoin.first->GetDepthInMainChain() >= COINBASE_MATURITY)
+        if (pcoin.first->GetDepthInMainChain() >= coinbaseMaturity)
         {
             // Compute staker weight
             CAmount nValue = pcoin.first->tx->vout[pcoin.second].nValue;
@@ -5244,7 +5249,9 @@ int CWalletTx::GetBlocksToMaturity() const
     if (!(IsCoinBase() || IsCoinStake()))
         return 0;
     int chain_depth = GetDepthInMainChain();
-    return std::max(0, (COINBASE_MATURITY+1) - chain_depth);
+    int nHeight = pwallet->GetLastBlockHeight() + 1;
+    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(nHeight);
+    return std::max(0, (coinbaseMaturity+1) - chain_depth);
 }
 
 bool CWalletTx::IsImmature() const
@@ -6004,6 +6011,8 @@ void CWallet::GetStakerAddressBalance(interfaces::Chain::Lock &locked_chain, con
     balance = 0;
     stake = 0;
     weight = 0;
+    int nHeight = GetLastBlockHeight() + 1;
+    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(nHeight);
     std::map<COutPoint, uint32_t> immatureStakes = locked_chain.getImmatureStakes();
     for (std::map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
     {
@@ -6036,7 +6045,7 @@ void CWallet::GetStakerAddressBalance(interfaces::Chain::Lock &locked_chain, con
                       if(isImature)
                       {
                           balance += nValue;
-                          if(nDepth >= COINBASE_MATURITY && nValue >= DEFAULT_STAKING_MIN_UTXO_VALUE)
+                          if(nDepth >= coinbaseMaturity && nValue >= DEFAULT_STAKING_MIN_UTXO_VALUE)
                           {
                               COutPoint prevout = COutPoint(pcoin->tx->GetHash(), i);
                               if(immatureStakes.find(prevout) == immatureStakes.end())
