@@ -559,6 +559,9 @@ void SetupServerArgs()
     gArgs.AddArg("-delegationsaddress=<adr>", "Use given contract delegations address for offline staking fork (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-lastmposheight=<n>", "Use given block height to check remove mpos fork (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-reduceblocktimeheight=<n>", "Use given block height to check blocks with reduced target spacing (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    gArgs.AddArg("-powallowmindifficultyblocks", "Use given value for pow allow min difficulty blocks parameter (regtest-only, default: 1)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    gArgs.AddArg("-pownoretargeting", "Use given value for pow no retargeting parameter (regtest-only, default: 1)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    gArgs.AddArg("-posnoretargeting", "Use given value for pos no retargeting parameter (regtest-only, default: 1)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
 
     SetupChainParamsBaseOptions();
 
@@ -1339,6 +1342,39 @@ bool AppInitParameterInteraction()
             UpdateReduceBlocktimeHeight(reduceblocktimeheight);
             LogPrintf("Activate short block time at block height %d\n.", reduceblocktimeheight);
         }
+    }
+
+    if (gArgs.IsArgSet("-powallowmindifficultyblocks")) {
+        // Allow overriding pow allow min difficulty blocks parameter for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError("Pow allow min difficulty blocks parameter may only be overridden on regtest.");
+        }
+
+        bool powallowmindifficultyblocks = gArgs.GetBoolArg("-powallowmindifficultyblocks", 1);
+        UpdatePowAllowMinDifficultyBlocks(powallowmindifficultyblocks);
+        LogPrintf("Use given value for pow allow min difficulty blocks parameter %d\n.", powallowmindifficultyblocks);
+    }
+
+    if (gArgs.IsArgSet("-pownoretargeting")) {
+        // Allow overriding pow no retargeting parameter for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError("Pow no retargeting parameter may only be overridden on regtest.");
+        }
+
+        bool pownoretargeting = gArgs.GetBoolArg("-pownoretargeting", 1);
+        UpdatePowNoRetargeting(pownoretargeting);
+        LogPrintf("Use given value for pow no retargeting parameter %d\n.", pownoretargeting);
+    }
+
+    if (gArgs.IsArgSet("-posnoretargeting")) {
+        // Allow overriding pos no retargeting parameter for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError("PoS no retargeting parameter may only be overridden on regtest.");
+        }
+
+        bool posnoretargeting = gArgs.GetBoolArg("-posnoretargeting", 1);
+        UpdatePoSNoRetargeting(posnoretargeting);
+        LogPrintf("Use given value for pos no retargeting parameter %d\n.", posnoretargeting);
     }
 
     if(gArgs.IsArgSet("-stakingallowlist") && gArgs.IsArgSet("-stakingexcludelist"))

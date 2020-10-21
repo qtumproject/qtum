@@ -100,6 +100,9 @@ public:
     void UpdateDelegationsAddress(const uint160& address);
     void UpdateLastMPoSBlockHeight(int nHeight);
     void UpdateReduceBlocktimeHeight(int nHeight);
+    void UpdatePowAllowMinDifficultyBlocks(bool fValue);
+    void UpdatePowNoRetargeting(bool fValue);
+    void UpdatePoSNoRetargeting(bool fValue);
 protected:
     dev::eth::Network GetEVMNetwork() const;
     CChainParams() {}
@@ -184,5 +187,20 @@ void UpdateLastMPoSBlockHeight(int nHeight);
  * Allows modifying the reduce block time height regtest parameter.
  */
 void UpdateReduceBlocktimeHeight(int nHeight);
+
+/**
+ * Allows modifying the pow allow for min difficulty blocks regtest parameter.
+ */
+void UpdatePowAllowMinDifficultyBlocks(bool fValue);
+
+/**
+ * Allows modifying the pow no retargeting regtest parameter.
+ */
+void UpdatePowNoRetargeting(bool fValue);
+
+/**
+ * Allows modifying the pos no retargeting regtest parameter.
+ */
+void UpdatePoSNoRetargeting(bool fValue);
 
 #endif // BITCOIN_CHAINPARAMS_H
