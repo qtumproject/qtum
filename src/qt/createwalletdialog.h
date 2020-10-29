@@ -27,6 +27,7 @@ public:
     bool isEncryptWalletChecked() const;
     bool isDisablePrivateKeysChecked() const;
     bool isMakeBlankWalletChecked() const;
+    bool isHardwareWalletCheckbox() const;
 
 private:
     Ui::CreateWalletDialog *ui;

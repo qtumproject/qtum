@@ -33,6 +33,12 @@ CreateWalletDialog::CreateWalletDialog(QWidget* parent) :
         if (!ui->disable_privkeys_checkbox->isEnabled()) {
             ui->disable_privkeys_checkbox->setChecked(false);
         }
+
+        if(checked) ui->hardware_wallet_checkbox->setChecked(false);
+    });
+
+    connect(ui->hardware_wallet_checkbox, &QCheckBox::toggled, [this](bool checked) {
+        if(checked) ui->encrypt_wallet_checkbox->setChecked(false);
     });
 }
 
@@ -59,4 +65,9 @@ bool CreateWalletDialog::isDisablePrivateKeysChecked() const
 bool CreateWalletDialog::isMakeBlankWalletChecked() const
 {
     return ui->blank_wallet_checkbox->isChecked();
+}
+
+bool CreateWalletDialog::isHardwareWalletCheckbox() const
+{
+    return ui->hardware_wallet_checkbox->isChecked();
 }
