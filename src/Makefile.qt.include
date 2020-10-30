@@ -26,6 +26,7 @@ QT_FORMS_UI = \
   qt/forms/editaddressdialog.ui \
   qt/forms/editcontractinfodialog.ui \
   qt/forms/editsuperstakerdialog.ui \
+  qt/forms/hardwarekeystoredialog.ui \
   qt/forms/helpmessagedialog.ui \
   qt/forms/intro.ui \
   qt/forms/modaloverlay.ui \
@@ -92,6 +93,7 @@ QT_MOC_CPP = \
   qt/moc_editaddressdialog.cpp \
   qt/moc_editcontractinfodialog.cpp \
   qt/moc_editsuperstakerdialog.cpp \
+  qt/moc_hardwarekeystoredialog.cpp \
   qt/moc_guiutil.cpp \
   qt/moc_intro.cpp \
   qt/moc_macdockiconhandler.cpp \
@@ -218,6 +220,7 @@ BITCOIN_QT_H = \
   qt/editsuperstakerdialog.h \
   qt/eventlog.h \
   qt/execrpccommand.h \
+  qt/hardwarekeystoredialog.h \
   qt/guiconstants.h \
   qt/guiutil.h \
   qt/intro.h \
@@ -442,6 +445,7 @@ BITCOIN_QT_WALLET_CPP = \
   qt/editaddressdialog.cpp \
   qt/editcontractinfodialog.cpp \
   qt/editsuperstakerdialog.cpp \
+  qt/hardwarekeystoredialog.cpp \
   qt/openuridialog.cpp \
   qt/overviewpage.cpp \
   qt/paymentserver.cpp \
