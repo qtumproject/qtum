@@ -4952,6 +4952,8 @@ std::shared_ptr<CWallet> CWallet::CreateWalletFromFile(interfaces::Chain& chain,
     walletInstance->m_use_change_address = gArgs.GetBoolArg("-usechangeaddress", DEFAULT_USE_CHANGE_ADDRESS);
     if(!ParseMoney(gArgs.GetArg("-stakingminutxovalue", FormatMoney(DEFAULT_STAKING_MIN_UTXO_VALUE)), walletInstance->m_staking_min_utxo_value))
         walletInstance->m_staking_min_utxo_value = DEFAULT_STAKING_MIN_UTXO_VALUE;
+    if(!ParseMoney(gArgs.GetArg("-minstakerutxosize", FormatMoney(DEFAULT_STAKER_MIN_UTXO_SIZE)), walletInstance->m_staker_min_utxo_size))
+        walletInstance->m_staker_min_utxo_size = DEFAULT_STAKER_MIN_UTXO_SIZE;
     if (gArgs.IsArgSet("-stakingminfee"))
     {
         int nStakingMinFee = gArgs.GetArg("-stakingminfee", DEFAULT_STAKING_MIN_FEE);
