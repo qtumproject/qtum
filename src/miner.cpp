@@ -1732,9 +1732,28 @@ public:
     }
 };
 
+IStakeMiner *createMiner()
+{
+    int32_t fStakerVersion = gArgs.GetArg("-stakerversion", DEFAULT_STAKER_VERSION);
+    IStakeMiner *miner = nullptr;
+
+    if (fStakerVersion < 1 || fStakerVersion > 2) {
+        throw std::runtime_error(strprintf("Staker version %d is out of valid range. Available staker version are 1 or 2.", fStakerVersion));
+    }
+
+    else if(fStakerVersion == 1){
+        miner = new StakeMinerV1();
+    }
+    else if(fStakerVersion == 2){
+        miner = new StakeMinerV2();
+    }
+
+    return miner;
+}
+
 void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
 {
-    IStakeMiner* miner = new StakeMinerV1();
+    IStakeMiner* miner = createMiner();
     miner->Init(pwallet, connman);
     miner->Run();
     delete miner;
