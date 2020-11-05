@@ -1391,7 +1391,13 @@ protected:
             return false;
 
         auto locked_chain = d->pwallet->chain().lock();
-        return d->pindexPrev == ::ChainActive().Tip();
+        CBlockIndex* tip = ::ChainActive().Tip();
+        if(d->pblock)
+        {
+            return tip->GetBlockHash() != d->pblock->hashPrevBlock;
+        }
+
+        return d->pindexPrev != tip;
     }
 
     bool IsReady()
@@ -1525,7 +1531,31 @@ protected:
 
     bool CreateNewBlock(const uint32_t& blockTime)
     {
-        return false;
+        // increase priority so we can build the full PoS block ASAP to ensure the timestamp doesn't expire
+        SetThreadPriority(THREAD_PRIORITY_ABOVE_NORMAL);
+
+        if (IsTipChanged()) {
+            //another block was received while building ours, scrap progress
+            LogPrintf("ThreadStakeMiner(): Valid future PoS block was orphaned before becoming valid");
+            return false;
+        }
+
+        // Create a block that's properly populated with transactions
+        d->pblocktemplatefilled = std::unique_ptr<CBlockTemplate>(
+                BlockAssembler(mempool, Params(), d->pwallet).CreateNewBlock(d->pblock->vtx[1]->vout[1].scriptPubKey, true, true, &(d->nTotalFees),
+                                                        blockTime, FutureDrift(GetAdjustedTime(), d->nHeight, d->consensusParams) - nStakeTimeBuffer));
+        if (!d->pblocktemplatefilled.get()) {
+            d->fError = true;
+            return false;
+        }
+
+        if (IsTipChanged()) {
+            //another block was received while building ours, scrap progress
+            LogPrintf("ThreadStakeMiner(): Valid future PoS block was orphaned before becoming valid");
+            return false;
+        }
+
+        return true;
     }
 
     bool SignNewBlock(const uint32_t& blockTime)
