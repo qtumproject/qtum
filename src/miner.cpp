@@ -1261,6 +1261,7 @@ public:
     bool fDelegationsContract = false;
     bool fEmergencyStaking = false;
     bool fAggressiveStaking = false;
+    bool fStakeCache = false;
     bool fError = false;
 
 public:
@@ -1309,6 +1310,7 @@ public:
         fDelegationsContract = !consensusParams.delegationsAddress.IsNull();
         fEmergencyStaking = gArgs.GetBoolArg("-emergencystaking", false);
         fAggressiveStaking = gArgs.IsArgSet("-aggressive-staking");
+        fStakeCache = gArgs.GetBoolArg("-stakecache", DEFAULT_STAKE_CACHE);
     }
 
     void clearCache()
@@ -1521,6 +1523,18 @@ protected:
                 for(const std::pair<const CWalletTx*,unsigned int> &pcoin : d->setCoins)
                 {
                     d->prevouts.push_back(COutPoint(pcoin.first->GetHash(), pcoin.second));
+                }
+
+                if(d->stakeCache.size() > d->prevouts.size() + 100){
+                    d->stakeCache.clear();
+                }
+                if(d->fStakeCache) {
+
+                    for(const COutPoint &prevoutStake : d->prevouts)
+                    {
+                        boost::this_thread::interruption_point();
+                        CacheKernel(d->stakeCache, prevoutStake, d->pindexPrev, ::ChainstateActive().CoinsTip()); //this will do a 2 disk loads per op
+                    }
                 }
             }
         }

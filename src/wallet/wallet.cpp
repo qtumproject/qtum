@@ -3796,7 +3796,7 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
         for(const COutPoint &prevoutStake : setDelegateCoins)
         {
             boost::this_thread::interruption_point();
-            CacheKernel(stakeCache, prevoutStake, pindexPrev, ::ChainstateActive().CoinsTip()); //this will do a 2 disk loads per op
+            CacheKernel(stakeDelegateCache, prevoutStake, pindexPrev, ::ChainstateActive().CoinsTip()); //this will do a 2 disk loads per op
         }
     }
     int64_t nCredit = 0;
@@ -3811,7 +3811,7 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
         boost::this_thread::interruption_point();
         // Search backward in time from the given txNew timestamp
         // Search nSearchInterval seconds back up to nMaxStakeSearchInterval
-        if (CheckKernel(pindexPrev, nBits, nTimeBlock, prevoutStake, ::ChainstateActive().CoinsTip(), stakeCache))
+        if (CheckKernel(pindexPrev, nBits, nTimeBlock, prevoutStake, ::ChainstateActive().CoinsTip(), stakeDelegateCache))
         {
             // Found a kernel
             LogPrint(BCLog::COINSTAKE, "CreateCoinStake : kernel found\n");
