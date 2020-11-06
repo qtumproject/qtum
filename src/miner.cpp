@@ -1264,6 +1264,7 @@ public:
     bool fError = false;
 
 public:
+    std::map<COutPoint, CStakeCache> stakeCache;
     DelegationsStaker delegationsStaker;
     MyDelegations myDelegations;
 
@@ -1277,6 +1278,8 @@ public:
     CAmount nTargetValue = 0;
     std::set<std::pair<const CWalletTx*,unsigned int> > setCoins;
     std::vector<COutPoint> setDelegateCoins;
+    std::vector<COutPoint> prevouts;
+    std::map<uint32_t, bool> mapSolveBlockTime;
 
     std::shared_ptr<CBlock> pblock;
     std::unique_ptr<CBlockTemplate> pblocktemplate;
@@ -1319,6 +1322,8 @@ public:
         nTargetValue = 0;
         setCoins.clear();
         setDelegateCoins.clear();
+        prevouts.clear();
+        mapSolveBlockTime.clear();
 
         pblock.reset();
         pblocktemplate.reset();
@@ -1511,6 +1516,12 @@ protected:
                     return false;
                 }
                 d->pblock = std::make_shared<CBlock>(d->pblocktemplate->block);
+
+                d->prevouts.insert(d->prevouts.end(), d->setDelegateCoins.begin(), d->setDelegateCoins.end());
+                for(const std::pair<const CWalletTx*,unsigned int> &pcoin : d->setCoins)
+                {
+                    d->prevouts.push_back(COutPoint(pcoin.first->GetHash(), pcoin.second));
+                }
             }
         }
 
@@ -1533,7 +1544,24 @@ protected:
     bool CanCreateBlock(const uint32_t& blockTime)
     {
         d->pblock->nTime = blockTime;
-        return SignBlock(d->pblock, *(d->pwallet), d->nTotalFees, blockTime, d->setCoins, d->setDelegateCoins);
+        if(d->mapSolveBlockTime.find(blockTime) == d->mapSolveBlockTime.end())
+        {
+            if(d->pwallet->IsStakeClosing()) return false;
+            auto locked_chain = d->pwallet->chain().lock();
+
+            d->mapSolveBlockTime[blockTime] = false;
+            CCoinsViewCache& view = ::ChainstateActive().CoinsTip();
+            for(const COutPoint &prevoutStake : d->prevouts)
+            {
+                if (CheckKernel(d->pindexPrev, d->pblock->nBits, blockTime, prevoutStake, view, d->stakeCache))
+                {
+                    d->mapSolveBlockTime[blockTime] = true;
+                    break;
+                }
+            }
+        }
+
+        return d->mapSolveBlockTime[blockTime];
     }
 
     bool CreateNewBlock(const uint32_t& blockTime)
