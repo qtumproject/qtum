@@ -668,6 +668,8 @@ private:
 
     std::map<COutPoint, CStakeCache> stakeCache;
     std::map<COutPoint, CStakeCache> stakeDelegateCache;
+    std::map<COutPoint, CStakeCache> minerStakeCache;
+    bool fHasMinerStakeCache = false;
 
     /**
      * Used to keep track of spent outpoints, and
@@ -1054,6 +1056,7 @@ public:
     uint64_t GetSuperStakerWeight(const uint160& staker) const;
     bool CreateCoinStake(interfaces::Chain::Lock& locked_chain, const FillableSigningProvider &keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setDelegateCoins, std::vector<unsigned char>& vchPoD, COutPoint& headerPrevout);
     bool CanSuperStake(const std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, const std::vector<COutPoint>& setDelegateCoins) const;
+    void UpdateMinerStakeCache(bool fStakeCache, const std::vector<COutPoint>& prevouts, CBlockIndex* pindexPrev);
 
     bool DummySignTx(CMutableTransaction &txNew, const std::set<CTxOut> &txouts, bool use_max_sig = false) const
     {
