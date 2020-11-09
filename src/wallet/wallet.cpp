@@ -2349,6 +2349,10 @@ void CWallet::AvailableCoinsForStaking(interfaces::Chain::Lock& locked_chain, st
                 if(OK && m_my_delegations.find(keyId) != m_my_delegations.end())
                     continue;
 
+                // Check if the staking coin is dust
+                if(pcoin->tx->vout[i].nValue < m_staker_min_utxo_size)
+                    continue;
+
                 // Check prevout maturity
                 COutPoint prevout = COutPoint(pcoin->GetHash(), i);
                 if(immatureStakes.find(prevout) == immatureStakes.end())
