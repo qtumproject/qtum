@@ -668,7 +668,6 @@ private:
 
     std::map<COutPoint, CStakeCache> stakeCache;
     std::map<COutPoint, CStakeCache> stakeDelegateCache;
-    std::map<COutPoint, CStakeCache> minerStakeCache;
     bool fHasMinerStakeCache = false;
 
     /**
@@ -845,6 +844,8 @@ public:
     std::map<uint256, CSuperStakerInfo> mapSuperStaker;
 
     bool fUpdatedSuperStaker = false;
+
+    std::map<COutPoint, CStakeCache> minerStakeCache;
 
     /** Registered interfaces::Chain::Notifications handler. */
     std::unique_ptr<interfaces::Handler> m_chain_notifications_handler;

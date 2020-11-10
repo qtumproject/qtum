@@ -1265,7 +1265,6 @@ public:
     bool fError = false;
 
 public:
-    std::map<COutPoint, CStakeCache> stakeCache;
     DelegationsStaker delegationsStaker;
     MyDelegations myDelegations;
 
@@ -1557,7 +1556,7 @@ protected:
             CCoinsViewCache& view = ::ChainstateActive().CoinsTip();
             for(const COutPoint &prevoutStake : d->prevouts)
             {
-                if (CheckKernel(d->pindexPrev, d->pblock->nBits, blockTime, prevoutStake, view, d->stakeCache))
+                if (CheckKernel(d->pindexPrev, d->pblock->nBits, blockTime, prevoutStake, view, d->pwallet->minerStakeCache))
                 {
                     d->mapSolveBlockTime[blockTime] = true;
                     break;
