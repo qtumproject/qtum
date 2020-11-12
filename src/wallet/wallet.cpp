@@ -2336,27 +2336,30 @@ void CWallet::AvailableCoinsForStaking(interfaces::Chain::Lock& locked_chain, st
 
         for (unsigned int i = 0; i < pcoin->tx->vout.size(); i++) {
             isminetype mine = IsMine(pcoin->tx->vout[i]);
-            std::unique_ptr<SigningProvider> provider = GetSolvingProvider(pcoin->tx->vout[i].scriptPubKey);
-            bool solvable = provider ? IsSolvable(*provider, pcoin->tx->vout[i].scriptPubKey) : false;
-            bool spendable = ((mine & ISMINE_SPENDABLE) != ISMINE_NO) || (((mine & ISMINE_WATCH_ONLY) != ISMINE_NO) && solvable);
             if (!(IsSpent(wtxid, i)) && mine != ISMINE_NO &&
                 !IsLockedCoin((*it).first, i) && (pcoin->tx->vout[i].nValue > 0) &&
-                !pcoin->tx->vout[i].scriptPubKey.HasOpCall() && !pcoin->tx->vout[i].scriptPubKey.HasOpCreate())
+                // Check if the staking coin is dust
+                pcoin->tx->vout[i].nValue >= m_staker_min_utxo_size)
             {
+
+                // Check that the script is not a contract script
+                if(pcoin->tx->vout[i].scriptPubKey.HasOpCall() || pcoin->tx->vout[i].scriptPubKey.HasOpCreate())
+                    continue;
+
                 // Check that the address is not delegated to other staker
                 bool OK = false;
                 uint160 keyId = uint160(ExtractPublicKeyHash(pcoin->tx->vout[i].scriptPubKey, &OK));
                 if(OK && m_my_delegations.find(keyId) != m_my_delegations.end())
                     continue;
 
-                // Check if the staking coin is dust
-                if(pcoin->tx->vout[i].nValue < m_staker_min_utxo_size)
-                    continue;
-
                 // Check prevout maturity
                 COutPoint prevout = COutPoint(pcoin->GetHash(), i);
                 if(immatureStakes.find(prevout) == immatureStakes.end())
                 {
+                    // Check if script is solvable
+                    std::unique_ptr<SigningProvider> provider = GetSolvingProvider(pcoin->tx->vout[i].scriptPubKey);
+                    bool solvable = provider ? IsSolvable(*provider, pcoin->tx->vout[i].scriptPubKey) : false;
+                    bool spendable = ((mine & ISMINE_SPENDABLE) != ISMINE_NO) || (((mine & ISMINE_WATCH_ONLY) != ISMINE_NO) && solvable);
                     vCoins.push_back(COutput(pcoin, i, nDepth, spendable, solvable, pcoin->IsTrusted(locked_chain)));
                 }
             }
