@@ -1601,6 +1601,9 @@ protected:
 
     bool SignNewBlock(const uint32_t& blockTime)
     {
+        // Try to sign the block once at specific time with the same cached data
+        d->mapSolveBlockTime[blockTime] = false;
+
         if (SignBlock(d->pblockfilled, *(d->pwallet), d->nTotalFees, blockTime, d->setCoins, d->setDelegateCoins)) {
             // Should always reach here unless we spent too much time processing transactions and the timestamp is now invalid
             // CheckStake also does CheckBlock and AcceptBlock to propogate it to the network
