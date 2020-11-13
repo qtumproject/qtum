@@ -2309,6 +2309,35 @@ void CWallet::AvailableCoins(interfaces::Chain::Lock& locked_chain, std::vector<
     }
 }
 
+const CScriptCache& CWallet::GetScriptCache(const COutPoint& prevout, const CScript& scriptPubKey) const
+{
+    auto it = prevoutScriptCache.find(prevout);
+    if(it == prevoutScriptCache.end())
+    {
+        if((int32_t)prevoutScriptCache.size() > m_staker_max_utxo_script_cache)
+        {
+            prevoutScriptCache.clear();
+        }
+
+        // The script check for utxo is expensive operations, so cache the data for further use
+        CScriptCache scriptCache;
+        scriptCache.contract = scriptPubKey.HasOpCall() || scriptPubKey.HasOpCreate();
+        if(!scriptCache.contract)
+        {
+            scriptCache.keyId = ExtractPublicKeyHash(scriptPubKey, &(scriptCache.keyIdOk));
+            if(scriptCache.keyIdOk)
+            {
+                std::unique_ptr<SigningProvider> provider = GetSolvingProvider(scriptPubKey);
+                scriptCache.solvable = provider ? IsSolvable(*provider, scriptPubKey) : false;
+            }
+        }
+        prevoutScriptCache[prevout] = scriptCache;
+        return prevoutScriptCache[prevout];
+    }
+
+    return it->second;
+}
+
 void CWallet::AvailableCoinsForStaking(interfaces::Chain::Lock& locked_chain, std::vector<COutput>& vCoins) const
 {
     AssertLockHeld(cs_main);
@@ -2341,26 +2370,24 @@ void CWallet::AvailableCoinsForStaking(interfaces::Chain::Lock& locked_chain, st
                 // Check if the staking coin is dust
                 pcoin->tx->vout[i].nValue >= m_staker_min_utxo_size)
             {
+                // Get the script data for the coin
+                COutPoint prevout = COutPoint(pcoin->GetHash(), i);
+                const CScriptCache& scriptCache = GetScriptCache(prevout, pcoin->tx->vout[i].scriptPubKey);
 
                 // Check that the script is not a contract script
-                if(pcoin->tx->vout[i].scriptPubKey.HasOpCall() || pcoin->tx->vout[i].scriptPubKey.HasOpCreate())
+                if(scriptCache.contract || !scriptCache.keyIdOk)
                     continue;
 
                 // Check that the address is not delegated to other staker
-                bool OK = false;
-                uint160 keyId = uint160(ExtractPublicKeyHash(pcoin->tx->vout[i].scriptPubKey, &OK));
-                if(OK && m_my_delegations.find(keyId) != m_my_delegations.end())
+                if(m_my_delegations.find(scriptCache.keyId) != m_my_delegations.end())
                     continue;
 
                 // Check prevout maturity
-                COutPoint prevout = COutPoint(pcoin->GetHash(), i);
                 if(immatureStakes.find(prevout) == immatureStakes.end())
                 {
-                    // Check if script is solvable
-                    std::unique_ptr<SigningProvider> provider = GetSolvingProvider(pcoin->tx->vout[i].scriptPubKey);
-                    bool solvable = provider ? IsSolvable(*provider, pcoin->tx->vout[i].scriptPubKey) : false;
-                    bool spendable = ((mine & ISMINE_SPENDABLE) != ISMINE_NO) || (((mine & ISMINE_WATCH_ONLY) != ISMINE_NO) && solvable);
-                    vCoins.push_back(COutput(pcoin, i, nDepth, spendable, solvable, pcoin->IsTrusted(locked_chain)));
+                    // Check if script is spendable
+                    bool spendable = ((mine & ISMINE_SPENDABLE) != ISMINE_NO) || (((mine & ISMINE_WATCH_ONLY) != ISMINE_NO) && scriptCache.solvable);
+                    vCoins.push_back(COutput(pcoin, i, nDepth, spendable, scriptCache.solvable, pcoin->IsTrusted(locked_chain)));
                 }
             }
         }
@@ -4973,6 +5000,7 @@ std::shared_ptr<CWallet> CWallet::CreateWalletFromFile(interfaces::Chain& chain,
         }
         walletInstance->m_staking_min_fee = nStakingMinFee;
     }
+    walletInstance->m_staker_max_utxo_script_cache = gArgs.GetArg("-maxstakerutxoscriptcache", DEFAULT_STAKER_MAX_UTXO_SCRIPT_CACHE);
 
     walletInstance->WalletLogPrintf("Wallet completed loading in %15dms\n", GetTimeMillis() - nStart);
 
