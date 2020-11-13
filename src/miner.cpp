@@ -1469,9 +1469,7 @@ protected:
         if(d->pwallet->IsStakeClosing()) return false;
         auto locked_chain = d->pwallet->chain().lock();
         LOCK(d->pwallet->cs_wallet);
-        CAmount nBalance = d->pwallet->GetBalance().m_mine_trusted;
-        CAmount nTargetValue = nBalance - d->pwallet->m_reserve_balance;
-        return ::ChainActive().Tip() != d->pindexPrev || d->nTargetValue != nTargetValue;
+        return ::ChainActive().Tip() != d->pindexPrev;
     }
 
     bool CacheData()
