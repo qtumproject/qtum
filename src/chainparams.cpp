@@ -89,6 +89,7 @@ public:
         consensus.QIP9Height = 466600;
         consensus.nOfflineStakeHeight = 680000;
         consensus.nReduceBlocktimeHeight = 0x7fffffff;
+        consensus.nMuirGlacierHeight = 0x7fffffff;
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.QIP9PosLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"); // The new POS-limit activated after QIP9
@@ -226,6 +227,7 @@ public:
         consensus.QIP9Height = 446320;
         consensus.nOfflineStakeHeight = 625000;
         consensus.nReduceBlocktimeHeight = 0x7fffffff;
+        consensus.nMuirGlacierHeight = 0x7fffffff;
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.QIP9PosLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"); // The new POS-limit activated after QIP9
@@ -349,6 +351,7 @@ public:
         consensus.QIP9Height = 0;
         consensus.nOfflineStakeHeight = 1;
         consensus.nReduceBlocktimeHeight = 0;
+        consensus.nMuirGlacierHeight = 0;
         consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.QIP9PosLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // The new POS-limit activated after QIP9
@@ -548,8 +551,9 @@ void SelectParams(const std::string& network)
 std::string CChainParams::EVMGenesisInfo() const
 {
     std::string genesisInfo = dev::eth::genesisInfo(GetEVMNetwork());
-    ReplaceInt(consensus.QIP7Height, "QIP7_STARTING_BLOCK", genesisInfo);
-    ReplaceInt(consensus.QIP6Height, "QIP6_STARTING_BLOCK", genesisInfo);
+    ReplaceInt(consensus.QIP7Height,         "QIP7_STARTING_BLOCK", genesisInfo);
+    ReplaceInt(consensus.QIP6Height,         "QIP6_STARTING_BLOCK", genesisInfo);
+    ReplaceInt(consensus.nMuirGlacierHeight, "MUIR_STARTING_BLOCK", genesisInfo);
     return genesisInfo;
 }
 
@@ -558,6 +562,7 @@ std::string CChainParams::EVMGenesisInfo(int nHeight) const
     std::string genesisInfo = dev::eth::genesisInfo(GetEVMNetwork());
     ReplaceInt(nHeight, "QIP7_STARTING_BLOCK", genesisInfo);
     ReplaceInt(nHeight, "QIP6_STARTING_BLOCK", genesisInfo);
+    ReplaceInt(nHeight, "MUIR_STARTING_BLOCK", genesisInfo);
     return genesisInfo;
 }
 
@@ -688,4 +693,14 @@ void CChainParams::UpdatePoSNoRetargeting(bool fValue)
 void UpdatePoSNoRetargeting(bool fValuet)
 {
     const_cast<CChainParams*>(globalChainParams.get())->UpdatePoSNoRetargeting(fValuet);
+}
+
+void CChainParams::UpdateMuirGlacierHeight(int nHeight)
+{
+    consensus.nMuirGlacierHeight = nHeight;
+}
+
+void UpdateMuirGlacierHeight(int nHeight)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdateMuirGlacierHeight(nHeight);
 }

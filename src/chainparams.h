@@ -103,6 +103,7 @@ public:
     void UpdatePowAllowMinDifficultyBlocks(bool fValue);
     void UpdatePowNoRetargeting(bool fValue);
     void UpdatePoSNoRetargeting(bool fValue);
+    void UpdateMuirGlacierHeight(int nHeight);
 protected:
     dev::eth::Network GetEVMNetwork() const;
     CChainParams() {}
@@ -202,5 +203,10 @@ void UpdatePowNoRetargeting(bool fValue);
  * Allows modifying the pos no retargeting regtest parameter.
  */
 void UpdatePoSNoRetargeting(bool fValue);
+
+/**
+ * Allows modifying the muir glacier block height regtest parameter.
+ */
+void UpdateMuirGlacierHeight(int nHeight);
 
 #endif // BITCOIN_CHAINPARAMS_H
