@@ -40,7 +40,6 @@ class CWalletTx;
 #include <qtum/qtumDGP.h>
 #include <libethereum/ChainParams.h>
 #include <libethereum/LastBlockHashesFace.h>
-#include <libethashseal/Ethash.h>
 #include <libethashseal/GenesisInfo.h>
 #include <script/standard.h>
 #include <qtum/storageresults.h>
