@@ -382,7 +382,7 @@ BOOST_AUTO_TEST_CASE(gas_schedule_default_state_test3){
     contractLoading();
     QtumDGP qtumDGP(globalState.get());
     dev::eth::EVMSchedule schedule = qtumDGP.getGasSchedule(1400);
-    BOOST_CHECK(compareEVMSchedule(schedule, dev::eth::ConstantinopleSchedule));
+    BOOST_CHECK(compareEVMSchedule(schedule, dev::eth::IstanbulSchedule));
 }
 
 BOOST_AUTO_TEST_CASE(gas_schedule_one_paramsInstance_introductory_block_1_test1){
