@@ -549,7 +549,6 @@ libbitcoin_common_a_SOURCES = \
   cpp-ethereum/evmc/include/evmc/evmc.h \
   cpp-ethereum/evmc/include/evmc/evmc.hpp \
   cpp-ethereum/evmc/include/evmc/helpers.h \
-  cpp-ethereum/evmc/include/evmc/helpers.hpp \
   cpp-ethereum/evmc/include/evmc/instructions.h \
   cpp-ethereum/evmc/include/evmc/loader.h \
   cpp-ethereum/evmc/include/evmc/utils.h \
@@ -638,6 +637,8 @@ libbitcoin_common_a_SOURCES = \
   cpp-ethereum/libdevcore/concurrent_queue.h \
   cpp-ethereum/libdevcore/Terminal.h \
   cpp-ethereum/libdevcore/Assertions.h \
+  cpp-ethereum/libdevcore/LruCache.h \
+  cpp-ethereum/libdevcore/UndefMacros.h \
   cpp-ethereum/libdevcrypto/Hash.cpp \
   cpp-ethereum/libdevcrypto/Hash.h \
   cpp-ethereum/libdevcrypto/Common.cpp \
@@ -751,13 +752,40 @@ libbitcoin_common_a_SOURCES = \
   cpp-ethereum/libethereum/ClientTest.h \
   cpp-ethereum/libethereum/LogFilter.h \
   cpp-ethereum/libethereum/CommonNet.h \
+  cpp-ethereum/libethereum/StandardTrace.h \
   cpp-ethereum/libethashseal/GenesisInfo.cpp \
   cpp-ethereum/libethashseal/GenesisInfo.h \
   cpp-ethereum/libethashseal/Ethash.h \
   cpp-ethereum/libethashseal/EthashCPUMiner.h \
   cpp-ethereum/libethashseal/EthashProofOfWork.h \
+  cpp-ethereum/libethashseal/genesis/mainNetwork.cpp \
   cpp-ethereum/libethashseal/genesis/qtumMainNetwork.cpp \
+  cpp-ethereum/libethashseal/genesis/ropsten.cpp \
+  cpp-ethereum/libethashseal/genesis/test/berlinTest.cpp \
+  cpp-ethereum/libethashseal/genesis/test/byzantiumNoProofTest.cpp \
+  cpp-ethereum/libethashseal/genesis/test/byzantiumTest.cpp \
+  cpp-ethereum/libethashseal/genesis/test/byzantiumTransitionTest.cpp \
+  cpp-ethereum/libethashseal/genesis/test/constantinopleFixTest.cpp \
+  cpp-ethereum/libethashseal/genesis/test/constantinopleNoProofTest.cpp \
+  cpp-ethereum/libethashseal/genesis/test/constantinopleTest.cpp \
+  cpp-ethereum/libethashseal/genesis/test/eip150Test.cpp \
+  cpp-ethereum/libethashseal/genesis/test/eip158Test.cpp \
+  cpp-ethereum/libethashseal/genesis/test/experimentalTransitionTest.cpp \
+  cpp-ethereum/libethashseal/genesis/test/frontierNoProofTest.cpp \
+  cpp-ethereum/libethashseal/genesis/test/frontierTest.cpp \
+  cpp-ethereum/libethashseal/genesis/test/homesteadTest.cpp \
+  cpp-ethereum/libethashseal/genesis/test/istanbulTest.cpp \
+  cpp-ethereum/libethashseal/genesis/test/istanbulTransitionTest.cpp \
+  cpp-ethereum/libethashseal/genesis/test/mainNetworkNoProofTest.cpp \
+  cpp-ethereum/libethashseal/genesis/test/mainNetworkTest.cpp \
+  cpp-ethereum/libethashseal/genesis/test/muirGlacierTest.cpp \
   cpp-ethereum/libethashseal/genesis/test/qtumTestNetwork.cpp \
+  cpp-ethereum/libethashseal/genesis/test/ByzantiumToConstantinopleFixAt5Test.cpp \
+  cpp-ethereum/libethashseal/genesis/test/EIP158ToByzantiumAt5Test.cpp \
+  cpp-ethereum/libethashseal/genesis/test/frontierToHomesteadAt5Test.cpp \
+  cpp-ethereum/libethashseal/genesis/test/homesteadToDaoAt5Test.cpp \
+  cpp-ethereum/libethashseal/genesis/test/homesteadToEIP150At5Test.cpp \
+  cpp-ethereum/libethashseal/genesis/test/transitionnetTest.cpp \
   $(BITCOIN_CORE_H)
 
 #only added json_spirit so that `make dist` works properly
