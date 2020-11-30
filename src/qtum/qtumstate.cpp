@@ -292,7 +292,7 @@ void QtumState::deployDelegationsContract(){
     dev::Address delegationsAddress = uintToh160(Params().GetConsensus().delegationsAddress);
     if(!QtumState::addressInUse(delegationsAddress)){
         QtumState::createContract(delegationsAddress);
-        QtumState::setCode(delegationsAddress, bytes{fromHex(DELEGATIONS_CONTRACT_CODE)}, globalSealEngine->chainParams().chainID);
+        QtumState::setCode(delegationsAddress, bytes{fromHex(DELEGATIONS_CONTRACT_CODE)}, QtumState::version(delegationsAddress));
         commit(CommitBehaviour::RemoveEmptyAccounts);
         db().commit();
     }
