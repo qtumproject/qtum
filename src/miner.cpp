@@ -1539,7 +1539,8 @@ protected:
         // The information is needed for status bar to determine if the staker is trying to create block and when it will be created approximately,
         if(d->pwallet->m_last_coin_stake_search_time == 0) d->pwallet->m_last_coin_stake_search_time = GetAdjustedTime(); // startup timestamp
         // nLastCoinStakeSearchInterval > 0 mean that the staker is running
-        d->pwallet->m_last_coin_stake_search_interval = blockTime - d->pwallet->m_last_coin_stake_search_time;
+        int64_t searchInterval = blockTime - d->pwallet->m_last_coin_stake_search_time;
+        if(searchInterval > 0) d->pwallet->m_last_coin_stake_search_interval = searchInterval;
     }
 
     bool CanCreateBlock(const uint32_t& blockTime)
@@ -1770,7 +1771,8 @@ public:
                     // The information is needed for status bar to determine if the staker is trying to create block and when it will be created approximately,
                     if(pwallet->m_last_coin_stake_search_time == 0) pwallet->m_last_coin_stake_search_time = GetAdjustedTime(); // startup timestamp
                     // nLastCoinStakeSearchInterval > 0 mean that the staker is running
-                    pwallet->m_last_coin_stake_search_interval = i - pwallet->m_last_coin_stake_search_time;
+                    int64_t searchInterval = i - pwallet->m_last_coin_stake_search_time;
+                    if(searchInterval > 0) pwallet->m_last_coin_stake_search_interval = searchInterval;
 
                     // Try to sign a block (this also checks for a PoS stake)
                     pblocktemplate->block.nTime = i;
