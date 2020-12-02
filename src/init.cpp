@@ -562,6 +562,7 @@ void SetupServerArgs()
     gArgs.AddArg("-powallowmindifficultyblocks", "Use given value for pow allow min difficulty blocks parameter (regtest-only, default: 1)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-pownoretargeting", "Use given value for pow no retargeting parameter (regtest-only, default: 1)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-posnoretargeting", "Use given value for pos no retargeting parameter (regtest-only, default: 1)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    gArgs.AddArg("-muirglacierheight=<n>", "Use given block height to check contracts with EVM Muir Glacier (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
 
     SetupChainParamsBaseOptions();
 
@@ -1375,6 +1376,20 @@ bool AppInitParameterInteraction()
         bool posnoretargeting = gArgs.GetBoolArg("-posnoretargeting", 1);
         UpdatePoSNoRetargeting(posnoretargeting);
         LogPrintf("Use given value for pos no retargeting parameter %d\n.", posnoretargeting);
+    }
+
+    if (gArgs.IsArgSet("-muirglacierheight")) {
+        // Allow overriding EVM Muir Glacier block height for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError("Short EVM Muir Glacier height may only be overridden on regtest.");
+        }
+
+        int muirglacierheight = gArgs.GetArg("-muirglacierheight", 0);
+        if(muirglacierheight >= 0)
+        {
+            UpdateMuirGlacierHeight(muirglacierheight);
+            LogPrintf("Activate EVM Muir Glacier at block height %d\n.", muirglacierheight);
+        }
     }
 
     if(gArgs.IsArgSet("-stakingallowlist") && gArgs.IsArgSet("-stakingexcludelist"))
