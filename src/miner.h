@@ -36,6 +36,8 @@ static const bool DEFAULT_STAKE_CACHE = true;
 
 static const bool DEFAULT_SUPER_STAKE = false;
 
+static const int32_t DEFAULT_STAKER_VERSION = 2;
+
 //How many seconds to look ahead and prepare a block for staking
 //Look ahead up to 3 "timeslots" in the future, 48 seconds
 //Reduce this to reduce computational waste for stakers, increase this to increase the amount of time available to construct full blocks
