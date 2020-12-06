@@ -93,7 +93,7 @@ public:
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.QIP9PosLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"); // The new POS-limit activated after QIP9
-        consensus.RBTPosLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff");
+        consensus.RBTPosLimit = uint256S("000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 16 * 60; // 16 minutes
         consensus.nPowTargetTimespanV2 = 4000;
         consensus.nRBTPowTargetTimespan = 500;
@@ -231,7 +231,7 @@ public:
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.QIP9PosLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"); // The new POS-limit activated after QIP9
-        consensus.RBTPosLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff");
+        consensus.RBTPosLimit = uint256S("000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 16 * 60; // 16 minutes
         consensus.nPowTargetTimespanV2 = 4000;
         consensus.nRBTPowTargetTimespan = 500;
@@ -607,7 +607,7 @@ void CChainParams::UpdateDifficultyChangeBlockHeight(int nHeight)
     consensus.nSubsidyHalvingIntervalV2 = 7884000; // qtum halving every 4 years (nSubsidyHalvingInterval * nBlocktimeDownscaleFactor)
     consensus.posLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
     consensus.QIP9PosLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff");
-    consensus.RBTPosLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff");
+    consensus.RBTPosLimit = uint256S("000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffff");
     consensus.QIP9Height = nHeight;
     consensus.fPowAllowMinDifficultyBlocks = false;
     consensus.fPowNoRetargeting = true;
