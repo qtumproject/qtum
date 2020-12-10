@@ -1,5 +1,9 @@
+#if defined(HAVE_CONFIG_H)
+#include <config/bitcoin-config.h>
+#endif
+
 #include <qt/qtumhwitool.h>
-#include <util/system.h>
+#include <qt/guiutil.h>
 
 #include <QProcess>
 #include <QJsonDocument>
@@ -14,7 +18,7 @@ class QtumHwiToolPriv
 public:
     QtumHwiToolPriv()
     {
-        toolPath = QString::fromStdString(gArgs.GetArg("-hwitoolpath", ""));
+        toolPath = GUIUtil::getHwiToolPath();
     }
 
     std::atomic<bool> fStarted{false};

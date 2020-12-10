@@ -4,10 +4,11 @@
 
 #include <qt/hardwarekeystoredialog.h>
 #include <qt/forms/ui_hardwarekeystoredialog.h>
+#include <qt/qtumhwitool.h>
+
 #include <QRadioButton>
 #include <QVBoxLayout>
 #include <QButtonGroup>
-#include <qt/qtumhwitool.h>
 
 class HardwareKeystoreDialogPriv
 {
