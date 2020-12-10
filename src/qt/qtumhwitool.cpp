@@ -1,4 +1,5 @@
 #include <qt/qtumhwitool.h>
+#include <util/system.h>
 
 #include <QProcess>
 #include <QJsonDocument>
@@ -11,6 +12,11 @@
 class QtumHwiToolPriv
 {
 public:
+    QtumHwiToolPriv()
+    {
+        toolPath = QString::fromStdString(gArgs.GetArg("-hwitoolpath", ""));
+    }
+
     std::atomic<bool> fStarted{false};
     QProcess process;
     QString strStdout;
@@ -18,6 +24,19 @@ public:
     QString toolPath;
     QStringList arguments;
 };
+
+HWDevice::HWDevice()
+{}
+
+QString HWDevice::toString() const
+{
+    return QString("[ %1 \\ %2 \\ %3 \\ %4 ]").arg(type, model, path, fingerprint);
+}
+
+bool HWDevice::isValid() const
+{
+    return fingerprint != "";
+}
 
 QtumHwiTool::QtumHwiTool(QObject *parent) : QObject(parent)
 {
@@ -166,6 +185,7 @@ bool QtumHwiTool::endEnumerate(QList<HWDevice> &devices)
         device.type = data["type"].toString();
         device.path = data["path"].toString();
         device.error = data["error"].toString();
+        device.model = data["model"].toString();
         devices.push_back(device);
     }
 

@@ -12,12 +12,30 @@ class QtumHwiToolPriv;
 class HWDevice
 {
 public:
-    HWDevice() {}
+    /**
+     * @brief HWDevice Constructor
+     */
+    HWDevice();
+
+    /**
+     * @brief toString Convert the result into string
+     * @return String representation of the device data
+     */
+    QString toString() const;
+
+    /**
+     * @brief isValid Is device valid
+     * @return true: valid; false: not valid
+     */
+    bool isValid() const;
+
+    /// Device data
     QString fingerprint;
     QString serial_number;
     QString type;
     QString path;
     QString error;
+    QString model;
 };
 
 /**
