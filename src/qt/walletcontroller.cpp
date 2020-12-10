@@ -9,6 +9,7 @@
 #include <qt/guiconstants.h>
 #include <qt/guiutil.h>
 #include <qt/walletmodel.h>
+#include <qt/hardwarekeystoredialog.h>
 
 #include <interfaces/handler.h>
 #include <interfaces/node.h>
@@ -212,6 +213,20 @@ void CreateWalletActivity::askPassphrase()
     });
 }
 
+void CreateWalletActivity::askDevice()
+{
+    QTimer::singleShot(500, worker(), [this] {
+        if(HardwareKeystoreDialog::SelectDevice(m_fingerprint, m_parent_widget))
+        {
+            createWallet();
+        }
+        else
+        {
+            Q_EMIT finished();
+        }
+    });
+}
+
 void CreateWalletActivity::createWallet()
 {
     showProgressDialog(tr("Creating Wallet <b>%1</b>...").arg(m_create_wallet_dialog->walletName().toHtmlEscaped()));
@@ -265,6 +280,8 @@ void CreateWalletActivity::create()
     connect(m_create_wallet_dialog, &QDialog::accepted, [this] {
         if (m_create_wallet_dialog->isEncryptWalletChecked()) {
             askPassphrase();
+        } else if (m_create_wallet_dialog->isHardwareWalletChecked()) {
+            askDevice();
         } else {
             createWallet();
         }

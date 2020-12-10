@@ -67,7 +67,7 @@ bool CreateWalletDialog::isMakeBlankWalletChecked() const
     return ui->blank_wallet_checkbox->isChecked();
 }
 
-bool CreateWalletDialog::isHardwareWalletCheckbox() const
+bool CreateWalletDialog::isHardwareWalletChecked() const
 {
     return ui->hardware_wallet_checkbox->isChecked();
 }
