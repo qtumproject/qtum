@@ -6153,8 +6153,9 @@ void CWallet::CleanCoinStake()
         {
             // Wallets need to refund inputs when disconnecting coinstake
             const CTransaction& tx = *(wtx->tx);
-            if (tx.IsCoinStake() && IsFromMe(tx))
+            if (tx.IsCoinStake() && IsFromMe(tx) && !wtx->isAbandoned())
             {
+                WalletLogPrintf("%s: Revert coinstake tx %s\n", __func__, wtx->GetHash().ToString());
                 DisableTransaction(tx);
             }
         }
