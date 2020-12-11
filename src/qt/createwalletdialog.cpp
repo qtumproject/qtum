@@ -38,7 +38,20 @@ CreateWalletDialog::CreateWalletDialog(QWidget* parent) :
     });
 
     connect(ui->hardware_wallet_checkbox, &QCheckBox::toggled, [this](bool checked) {
-        if(checked) ui->encrypt_wallet_checkbox->setChecked(false);
+        // Disable and uncheck encrypt_wallet_checkbox when isHardwareWalletChecked is true,
+        // enable and check it if isHardwareWalletChecked is false
+        ui->encrypt_wallet_checkbox->setChecked(!checked);
+        ui->encrypt_wallet_checkbox->setEnabled(!checked);
+
+        // Disable disable_privkeys_checkbox
+        // and check it if isHardwareWalletChecked is true or uncheck if isHardwareWalletChecked is false
+        ui->disable_privkeys_checkbox->setEnabled(false);
+        ui->disable_privkeys_checkbox->setChecked(checked);
+
+        // Disable and check blank_wallet_checkbox if isHardwareWalletChecked is true and
+        // enable and uncheck it if isHardwareWalletChecked is false
+        ui->blank_wallet_checkbox->setEnabled(!checked);
+        ui->blank_wallet_checkbox->setChecked(checked);
     });
 }
 
