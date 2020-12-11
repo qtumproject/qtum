@@ -61,4 +61,7 @@ static constexpr int DEFAULT_PRUNE_TARGET_GB{2};
 /* Testnet qtum explorer uri */
 #define QTUM_INFO_TESTNET "<a href='https://testnet.qtum.info/%1/%2'>%2</a>"
 
+/* Hardware wallet interface uri */
+#define QTUM_HWI_TOOL "<a href='https://github.com/bitcoin-core/HWI/tags'>HWI Tool</a>"
+
 #endif // BITCOIN_QT_GUICONSTANTS_H

@@ -24,6 +24,7 @@
 #include <QThread>
 #include <QTimer>
 #include <QWindow>
+#include <QFile>
 
 WalletController::WalletController(interfaces::Node& node, const PlatformStyle* platform_style, OptionsModel* options_model, QObject* parent)
     : QObject(parent)
@@ -215,16 +216,31 @@ void CreateWalletActivity::askPassphrase()
 
 void CreateWalletActivity::askDevice()
 {
-    QTimer::singleShot(500, worker(), [this] {
-        if(HardwareKeystoreDialog::SelectDevice(m_fingerprint, m_parent_widget))
-        {
-            createWallet();
-        }
-        else
-        {
-            Q_EMIT finished();
-        }
-    });
+    QString hwiToolPath = GUIUtil::getHwiToolPath();
+    if(QFile::exists(hwiToolPath))
+    {
+        QTimer::singleShot(500, worker(), [this] {
+            if(HardwareKeystoreDialog::SelectDevice(m_fingerprint, m_parent_widget))
+            {
+                createWallet();
+            }
+            else
+            {
+                Q_EMIT finished();
+            }
+        });
+    }
+    else
+    {
+        QMessageBox msgBox(m_parent_widget);
+        msgBox.setWindowTitle(tr("HWI tool not found"));
+        msgBox.setTextFormat(Qt::RichText);
+        msgBox.setText(tr("HWI tool not found at path \"%1\".<br>Please download it from %2.").arg(hwiToolPath, QTUM_HWI_TOOL));
+        msgBox.setStandardButtons(QMessageBox::Ok);
+        msgBox.exec();
+
+        Q_EMIT finished();
+    }
 }
 
 void CreateWalletActivity::createWallet()
