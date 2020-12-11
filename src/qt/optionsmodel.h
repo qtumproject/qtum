@@ -70,6 +70,7 @@ public:
         CheckForUpdates,        // bool
         ReserveBalance,         // CAmount
         Theme,                  // QString
+        HWIToolPath,            // QString
         OptionIDRowCount,
     };
 

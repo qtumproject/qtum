@@ -219,6 +219,14 @@ void OptionsModel::Init(bool resetSettings)
         settings.setValue("Theme", "");
 
     theme = settings.value("Theme").toString();
+
+#ifdef ENABLE_WALLET
+    if (!settings.contains("HWIToolPath"))
+        settings.setValue("HWIToolPath", "");
+
+    if (!m_node.softSetArg("-hwitoolpath", settings.value("HWIToolPath").toString().toStdString()))
+        addOverriddenOption("-hwitoolpath");
+#endif
 }
 
 /** Helper function to copy contents from one QSettings to another.
@@ -406,6 +414,10 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
             return settings.value("fCheckForUpdates");
         case Theme:
             return settings.value("Theme");
+#ifdef ENABLE_WALLET
+        case HWIToolPath:
+            return settings.value("HWIToolPath");
+#endif
         default:
             return QVariant();
         }
@@ -601,6 +613,13 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
                 setRestartRequired(true);
             }
             break;
+#ifdef ENABLE_WALLET
+        case HWIToolPath:
+            if (settings.value("HWIToolPath") != value) {
+                settings.setValue("HWIToolPath", value);
+            }
+            break;
+#endif
         default:
             break;
         }

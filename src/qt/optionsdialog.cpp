@@ -98,6 +98,9 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
         ui->reserveBalanceLabel->setVisible(false);
         ui->reserveBalance->setVisible(false);
         ui->superStaking->setVisible(false);
+        ui->txtHWIToolPath->setVisible(false);
+        ui->toolHWIPath->setVisible(false);
+        ui->HWIToolLabel->setVisible(false);
     }
 
     /* Display elements init */
@@ -210,6 +213,7 @@ void OptionsDialog::setModel(OptionsModel *_model)
     connect(ui->superStaking, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
     connect(ui->threadsScriptVerif, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &OptionsDialog::showRestartWarning);
     connect(ui->reserveBalance, SIGNAL(valueChanged()), this, SLOT(showRestartWarning()));
+    connect(ui->txtHWIToolPath, SIGNAL(textChanged(const QString &)), this, SLOT(showRestartWarning()));
     /* Wallet */
     connect(ui->spendZeroConfChange, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
     connect(ui->useChangeAddress, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
@@ -244,6 +248,7 @@ void OptionsDialog::setMapper()
     mapper->addMapping(ui->logEvents, OptionsModel::LogEvents);
     mapper->addMapping(ui->superStaking, OptionsModel::SuperStaking);
     mapper->addMapping(ui->reserveBalance, OptionsModel::ReserveBalance);
+    mapper->addMapping(ui->txtHWIToolPath, OptionsModel::HWIToolPath);
 
     /* Wallet */
     mapper->addMapping(ui->spendZeroConfChange, OptionsModel::SpendZeroConfChange);
@@ -340,6 +345,18 @@ void OptionsDialog::on_okButton_clicked()
 void OptionsDialog::on_cancelButton_clicked()
 {
     reject();
+}
+
+void OptionsDialog::on_toolHWIPath_clicked()
+{
+    QString filename = GUIUtil::getOpenFileName(this,
+        tr("Select HWI tool path"), QString(),
+        tr("HWI tool (*.exe *.py)"), NULL);
+
+    if (filename.isEmpty())
+        return;
+
+    ui->txtHWIToolPath->setText(filename);
 }
 
 void OptionsDialog::on_hideTrayIcon_stateChanged(int fState)
