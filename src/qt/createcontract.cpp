@@ -53,7 +53,6 @@ CreateContract::CreateContract(const PlatformStyle *platformStyle, QWidget *pare
     // Set stylesheet
     SetObjectStyleSheet(ui->pushButtonClearAll, StyleSheetNames::ButtonDark);
 
-    setLinkLabels();
     m_ABIFunctionField = new ABIFunctionField(platformStyle, ABIFunctionField::Create, ui->scrollAreaConstructor);
     ui->scrollAreaConstructor->setWidget(m_ABIFunctionField);
     ui->labelBytecode->setToolTip(tr("The bytecode of the contract"));
@@ -105,12 +104,6 @@ CreateContract::~CreateContract()
 {
     delete m_contractABI;
     delete ui;
-}
-
-void CreateContract::setLinkLabels()
-{
-    ui->labelSolidity->setOpenExternalLinks(true);
-    ui->labelSolidity->setText("<a href=\"https://qmix.qtum.org/\">Solidity compiler</a>");
 }
 
 void CreateContract::setModel(WalletModel *_model)

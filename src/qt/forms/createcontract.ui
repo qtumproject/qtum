@@ -81,19 +81,6 @@
              </property>
             </spacer>
            </item>
-           <item>
-            <widget class="QLabel" name="labelSolidity">
-             <property name="minimumSize">
-              <size>
-               <width>80</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Solidity</string>
-             </property>
-            </widget>
-           </item>
           </layout>
          </item>
          <item>
