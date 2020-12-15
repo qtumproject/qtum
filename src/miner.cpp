@@ -1197,6 +1197,7 @@ bool CheckStake(const std::shared_ptr<const CBlock> pblock, CWallet& wallet)
         if (pblock->hashPrevBlock != ::ChainActive().Tip()->GetBlockHash())
             return error("CheckStake() : generated block is stale");
 
+        LOCK(wallet.cs_wallet);
         for(const CTxIn& vin : pblock->vtx[1]->vin) {
             if (wallet.IsSpent(vin.prevout.hash, vin.prevout.n)) {
                 return error("CheckStake() : generated block became invalid due to stake UTXO being spent");
