@@ -45,6 +45,8 @@ uint256 ComputeStakeModifier(const CBlockIndex* pindexPrev, const uint256& kerne
 // coinstake must meet hash target according to the protocol:
 // kernel (input 0) must meet the formula
 //     hash(nStakeModifier + blockFrom.nTime + txPrev.vout.hash + txPrev.vout.n + nTime) < bnTarget * nWeight
+// kernel (input 0) must meet the formula after overflow fix in reduce block time fork
+//     hash(nStakeModifier + blockFrom.nTime + txPrev.vout.hash + txPrev.vout.n + nTime) / nWeight < bnTarget
 // this ensures that the chance of getting a coinstake is proportional to the
 // amount of coins one owns.
 // The reason this hash is chosen is the following:
@@ -65,6 +67,10 @@ bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t 
     if (nTimeBlock < blockFromTime)  // Transaction timestamp violation
         return error("CheckStakeKernelHash() : nTime violation");
 
+    // Get height
+    int nHeight = pindexPrev->nHeight + 1;
+    bool fNoBNOverflow = nHeight >= Params().GetConsensus().nReduceBlocktimeHeight;
+
     // Base target
     arith_uint256 bnTarget;
     bnTarget.SetCompact(nBits);
@@ -72,7 +78,8 @@ bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t 
     // Weighted target
     int64_t nValueIn = prevoutValue;
     arith_uint256 bnWeight = arith_uint256(nValueIn);
-    bnTarget *= bnWeight;
+    if(!fNoBNOverflow)
+        bnTarget *= bnWeight;
 
     targetProofOfStake = ArithToUint256(bnTarget);
 
@@ -93,7 +100,11 @@ bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t 
     }
 
     // Now check if proof-of-stake hash meets target protocol
-    if (UintToArith256(hashProofOfStake) > bnTarget)
+    arith_uint256 bnProofOfStake = UintToArith256(hashProofOfStake);
+    if(fNoBNOverflow)
+        bnProofOfStake /= bnWeight;
+
+    if (bnProofOfStake > bnTarget)
         return false;
 
     if (LogInstance().WillLogCategory(BCLog::COINSTAKE) && !fPrintProofOfStake)

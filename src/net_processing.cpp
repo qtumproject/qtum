@@ -4579,6 +4579,7 @@ void CleanBlockIndex()
                 SyncWithValidationInterfaceQueue();
 
                 LOCK(cs_main);
+                std::vector<uint256> indexEraseDB;
                 for(uint256 blockHash : indexNeedErase)
                 {
                     BlockMap::iterator it=::BlockIndex().find(blockHash);
@@ -4589,7 +4590,16 @@ void CleanBlockIndex()
                         {
                             delete pindex;
                             ::BlockIndex().erase(it);
+                            indexEraseDB.push_back(blockHash);
                         }
+                    }
+                }
+
+                if(pblocktree)
+                {
+                    if(!pblocktree->EraseBlockIndex(indexEraseDB))
+                    {
+                        LogPrintf("Fail to erase block indexes.\n");
                     }
                 }
             }

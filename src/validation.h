@@ -174,6 +174,9 @@ static const size_t MAX_CONTRACT_VOUTS = 1000; // qtum
 //! -stakingminutxovalue default
 static const CAmount DEFAULT_STAKING_MIN_UTXO_VALUE = 100 * COIN;
 
+//! -forceinitialblocksdownloadmode default
+static const bool DEFAULT_FORCE_INITIAL_BLOCKS_DOWNLOAD_MODE = false;
+
 struct BlockHasher
 {
     // this used to call `GetCheapHash()` in uint256, which was later moved; the

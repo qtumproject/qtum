@@ -38,6 +38,10 @@ QString RestoreDialog::getParam()
     {
         param = "-deleteblockchaindata";
     }
+    else if(ui->rbInitialBlocksDownload->isChecked())
+    {
+        param = "-forceinitialblocksdownloadmode";
+    }
 
     return param;
 }
