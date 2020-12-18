@@ -735,6 +735,46 @@ UniValue getaddresstxids(const JSONRPCRequest& request)
 
     return result;
 }
+
+UniValue listconf(const JSONRPCRequest& request)
+{
+            RPCHelpMan{"listconf",
+                "\nReturns the current options that qtumd was started with.\n",
+                {},
+                RPCResult{
+                    RPCResult::Type::OBJ, "", "",
+                    {
+                        {RPCResult::Type::STR, "param1", "Value for param1"},
+                        {RPCResult::Type::STR, "param2", "Value for param2"},
+                        {RPCResult::Type::STR, "param3", "Value for param3"},
+                    }
+                },
+                RPCExamples{
+                    HelpExampleCli("listconf", "")
+            + HelpExampleRpc("listconf", "")
+                },
+            }.Check(request);
+
+    UniValue ret(UniValue::VOBJ);
+
+    for (const auto& arg : gArgs.getCmdArgsList()) {
+        UniValue listValues(UniValue::VARR);
+        for (const auto& value : arg.second) {
+            Optional<unsigned int> flags = gArgs.GetArgFlags('-' + arg.first);
+            if (flags) {
+                UniValue value_param = (*flags & gArgs.SENSITIVE) ? "****" : value;
+                listValues.push_back(value_param);
+            }
+        }
+
+        int size = listValues.size();
+        if(size > 0)
+        {
+            ret.pushKV(arg.first, size == 1 ? listValues[0] : listValues);
+        }
+    }
+    return ret;
+}
 ///////////////////////////////////////////////////////////////////////
 
 static UniValue createmultisig(const JSONRPCRequest& request)
@@ -1300,6 +1340,7 @@ static const CRPCCommand commands[] =
     { "util",               "getaddressmempool",      &getaddressmempool,      {"addresses"} },
     { "util",               "getblockhashes",         &getblockhashes,         {"high","low","options"} },
     { "util",               "getspentinfo",           &getspentinfo,           {"argument"} },
+    { "util",               "listconf",               &listconf,               {} },
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 };
 // clang-format on

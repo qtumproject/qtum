@@ -890,6 +890,11 @@ void ArgsManager::LogArgs() const
     logArgsPrefix("Command-line arg:", "", m_settings.command_line_options);
 }
 
+std::map<std::string, std::vector<util::SettingsValue>> ArgsManager::getCmdArgsList() const
+{
+    return m_settings.command_line_options;
+}
+
 bool RenameOver(fs::path src, fs::path dest)
 {
 #ifdef WIN32
