@@ -4456,12 +4456,14 @@ void CWallet::DisableTransaction(const CTransaction &tx)
     {
         LOCK(cs_wallet);
         RemoveFromSpends(hash);
-        std::set<CWalletTx*> setCoins;
         for(const CTxIn& txin : tx.vin)
         {
-            CWalletTx &coin = mapWallet.at(txin.prevout.hash);
-            coin.BindWallet(this);
-            NotifyTransactionChanged(this, coin.GetHash(), CT_UPDATED);
+            auto it = mapWallet.find(txin.prevout.hash);
+            if (it != mapWallet.end()) {
+                CWalletTx &coin = it->second;
+                coin.BindWallet(this);
+                NotifyTransactionChanged(this, coin.GetHash(), CT_UPDATED);
+            }
         }
         CWalletTx& wtx = mapWallet.at(hash);
         wtx.BindWallet(this);
@@ -5120,6 +5122,10 @@ std::shared_ptr<CWallet> CWallet::CreateWalletFromFile(interfaces::Chain& chain,
         walletInstance->WalletLogPrintf("mapWallet.size() = %u\n",       walletInstance->mapWallet.size());
         walletInstance->WalletLogPrintf("m_address_book.size() = %u\n",  walletInstance->m_address_book.size());
     }
+
+    if(!fReindex)
+        // Clean not reverted coinstake transactions
+        walletInstance->CleanCoinStake();
 
     return walletInstance;
 }
@@ -6129,5 +6135,26 @@ void CWallet::UpdateMinerStakeCache(bool fStakeCache, const std::vector<COutPoin
             CacheKernel(minerStakeCache, prevoutStake, pindexPrev, ::ChainstateActive().CoinsTip());
         }
         if(!fHasMinerStakeCache) fHasMinerStakeCache = true;
+    }
+}
+
+void CWallet::CleanCoinStake()
+{
+    auto locked_chain = chain().lock();
+    LOCK(cs_wallet);
+    // Search the coinstake transactions and abandon transactions that are not confirmed in the blocks
+    for (std::map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
+    {
+        const CWalletTx* wtx = &(*it).second;
+        if (wtx && wtx->m_confirm.hashBlock.IsNull() && wtx->m_confirm.nIndex <= 0)
+        {
+            // Wallets need to refund inputs when disconnecting coinstake
+            const CTransaction& tx = *(wtx->tx);
+            if (tx.IsCoinStake() && IsFromMe(tx) && !wtx->isAbandoned())
+            {
+                WalletLogPrintf("%s: Revert coinstake tx %s\n", __func__, wtx->GetHash().ToString());
+                DisableTransaction(tx);
+            }
+        }
     }
 }

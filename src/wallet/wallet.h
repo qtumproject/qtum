@@ -1417,6 +1417,9 @@ public:
     /* Is staking closing */
     bool IsStakeClosing();
 
+    /* Clean coinstake transactions */
+    void CleanCoinStake();
+
     static CConnman* defaultConnman;
 
     void updateDelegationsStaker(const std::map<uint160, Delegation>& delegations_staker);

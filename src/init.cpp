@@ -774,6 +774,13 @@ static void ThreadImport(std::vector<fs::path> vImportFiles)
         LogPrintf("Reindexing finished\n");
         // To avoid ending up in a situation without genesis block, re-try initializing (no-op if reindexing worked):
         LoadGenesisBlock(chainparams);
+
+#ifdef ENABLE_WALLET
+        // Clean not reverted coinstake transactions
+        for (const std::shared_ptr<CWallet>& pwallet : GetWallets()) {
+            pwallet->CleanCoinStake();
+        }
+#endif
     }
 
     // -loadblock=
