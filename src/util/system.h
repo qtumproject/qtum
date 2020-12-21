@@ -337,9 +337,9 @@ public:
     void LogArgs() const;
 
     /**
-     * Return command line arguments
+     * Return config arguments
      */
-    std::map<std::string, std::vector<util::SettingsValue>> getCmdArgsList() const;
+    std::map<std::string, std::vector<std::string>> getArgsList() const;
 
 private:
     // Helper function for LogArgs().

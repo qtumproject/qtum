@@ -757,7 +757,7 @@ UniValue listconf(const JSONRPCRequest& request)
 
     UniValue ret(UniValue::VOBJ);
 
-    for (const auto& arg : gArgs.getCmdArgsList()) {
+    for (const auto& arg : gArgs.getArgsList()) {
         UniValue listValues(UniValue::VARR);
         for (const auto& value : arg.second) {
             Optional<unsigned int> flags = gArgs.GetArgFlags('-' + arg.first);
