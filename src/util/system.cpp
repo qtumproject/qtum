@@ -901,7 +901,8 @@ std::map<std::string, std::vector<std::string>> ArgsManager::getArgsList() const
         args[arg.first] = true;
     }
     for (const auto& arg : m_settings.ro_config) {
-        args[arg.first] = true;
+        for(const auto& confArg : arg.second)
+            args[confArg.first] = true;
     }
 
     // Fill argument list with values
