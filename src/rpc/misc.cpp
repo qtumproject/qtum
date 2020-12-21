@@ -736,6 +736,33 @@ UniValue getaddresstxids(const JSONRPCRequest& request)
     return result;
 }
 
+std::vector<std::string> getListArgsType()
+{
+    std::vector<std::string> ret = { "-rpcwallet",
+                                     "-rpcauth",
+                                     "-rpcwhitelist",
+                                     "-rpcallowip",
+                                     "-rpcbind",
+                                     "-blockfilterindex",
+                                     "-whitebind",
+                                     "-bind",
+                                     "-debug",
+                                     "-debugexclude",
+                                     "-stakingallowlist",
+                                     "-stakingexcludelist",
+                                     "-uacomment",
+                                     "-onlynet",
+                                     "-externalip",
+                                     "-loadblock",
+                                     "-addnode",
+                                     "-whitelist",
+                                     "-seednode",
+                                     "-connect",
+                                     "-deprecatedrpc",
+                                     "-wallet" };
+    return ret;
+}
+
 UniValue listconf(const JSONRPCRequest& request)
 {
             RPCHelpMan{"listconf",
