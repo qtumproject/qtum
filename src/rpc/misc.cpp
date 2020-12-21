@@ -784,7 +784,8 @@ UniValue listconf(const JSONRPCRequest& request)
 
     UniValue ret(UniValue::VOBJ);
 
-    for (const auto& arg : gArgs.getArgsList()) {
+    std::vector<std::string> paramListType = getListArgsType();
+    for (const auto& arg : gArgs.getArgsList(paramListType)) {
         UniValue listValues(UniValue::VARR);
         for (const auto& value : arg.second) {
             Optional<unsigned int> flags = gArgs.GetArgFlags('-' + arg.first);

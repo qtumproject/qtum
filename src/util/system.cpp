@@ -890,7 +890,7 @@ void ArgsManager::LogArgs() const
     logArgsPrefix("Command-line arg:", "", m_settings.command_line_options);
 }
 
-std::map<std::string, std::vector<std::string>> ArgsManager::getArgsList() const
+std::map<std::string, std::vector<std::string>> ArgsManager::getArgsList(const std::vector<std::string>& paramListType) const
 {
     // Get argument list
     std::map<std::string, bool> args;
@@ -908,7 +908,16 @@ std::map<std::string, std::vector<std::string>> ArgsManager::getArgsList() const
     // Fill argument list with values
     std::map<std::string, std::vector<std::string>> ret;
     for (const auto& arg : args) {
-        ret[arg.first] = GetArgs('-' + arg.first);
+        std::string paramName = '-' + arg.first;
+        std::vector<std::string> paramValue;
+        bool isList = std::find(std::begin(paramListType), std::end(paramListType), paramName) != std::end(paramListType);
+        if(isList) {
+            paramValue = GetArgs(paramName);
+        }
+        else {
+            paramValue.push_back(GetArg(paramName, ""));
+        }
+        ret[arg.first] = paramValue;
     }
 
     return ret;
