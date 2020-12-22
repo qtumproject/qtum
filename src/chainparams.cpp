@@ -74,7 +74,6 @@ public:
     CMainParams() {
         strNetworkID = CBaseChainParams::MAIN;
         consensus.nSubsidyHalvingInterval = 985500; // qtum halving every 4 years
-        consensus.nSubsidyHalvingIntervalV2 = 7884000; // qtum halving every 4 years (nSubsidyHalvingInterval * nBlocktimeDownscaleFactor)
         consensus.BIP16Exception = uint256S("0x000075aef83cf2853580f8ae8ce6f8c3096cfa21d98334d6e3f95e5582ed986c");
         consensus.BIP34Height = 0;
         consensus.BIP34Hash = uint256S("0x000075aef83cf2853580f8ae8ce6f8c3096cfa21d98334d6e3f95e5582ed986c");
@@ -185,6 +184,7 @@ public:
         consensus.nBlocktimeDownscaleFactor = 4;
         consensus.nCoinbaseMaturity = 500;
         consensus.nRBTCoinbaseMaturity = consensus.nBlocktimeDownscaleFactor*500;
+        consensus.nSubsidyHalvingIntervalV2 = consensus.nBlocktimeDownscaleFactor*985500; // qtum halving every 4 years (nSubsidyHalvingInterval * nBlocktimeDownscaleFactor)
 
         consensus.nLastPOWBlock = 5000;
         consensus.nLastBigReward = 5000;
@@ -213,7 +213,6 @@ public:
     CTestNetParams() {
         strNetworkID = CBaseChainParams::TESTNET;
         consensus.nSubsidyHalvingInterval = 985500; // qtum halving every 4 years
-        consensus.nSubsidyHalvingIntervalV2 = 7884000; // qtum halving every 4 years (nSubsidyHalvingInterval * nBlocktimeDownscaleFactor)
         consensus.BIP16Exception = uint256S("0x0000e803ee215c0684ca0d2f9220594d3f828617972aad66feb2ba51f5e14222");
         consensus.BIP34Height = 0;
         consensus.BIP34Hash = uint256S("0x0000e803ee215c0684ca0d2f9220594d3f828617972aad66feb2ba51f5e14222");
@@ -311,6 +310,7 @@ public:
         consensus.nBlocktimeDownscaleFactor = 4;
         consensus.nCoinbaseMaturity = 500;
         consensus.nRBTCoinbaseMaturity = consensus.nBlocktimeDownscaleFactor*500;
+        consensus.nSubsidyHalvingIntervalV2 = consensus.nBlocktimeDownscaleFactor*985500; // qtum halving every 4 years (nSubsidyHalvingInterval * nBlocktimeDownscaleFactor)
 
         consensus.nLastPOWBlock = 5000;
         consensus.nLastBigReward = 5000;
@@ -338,7 +338,6 @@ public:
     explicit CRegTestParams(const ArgsManager& args) {
         strNetworkID =  CBaseChainParams::REGTEST;
         consensus.nSubsidyHalvingInterval = 985500;
-        consensus.nSubsidyHalvingIntervalV2 = 7884000;
         consensus.BIP16Exception = uint256S("0x665ed5b402ac0b44efc37d8926332994363e8a7278b7ee9a58fb972efadae943");
         consensus.BIP34Height = 0; // BIP34 activated on regtest (Used in functional tests)
         consensus.BIP34Hash = uint256S("0x665ed5b402ac0b44efc37d8926332994363e8a7278b7ee9a58fb972efadae943");
@@ -418,6 +417,7 @@ public:
         consensus.nBlocktimeDownscaleFactor = 4;
         consensus.nCoinbaseMaturity = 500;
         consensus.nRBTCoinbaseMaturity = consensus.nBlocktimeDownscaleFactor*500;
+        consensus.nSubsidyHalvingIntervalV2 = consensus.nBlocktimeDownscaleFactor*985500; // qtum halving every 4 years (nSubsidyHalvingInterval * nBlocktimeDownscaleFactor)
 
         consensus.nLastPOWBlock = 0x7fffffff;
         consensus.nLastBigReward = 5000;
@@ -517,7 +517,7 @@ public:
 
         // QTUM have 500 blocks of maturity, increased values for regtest in unit tests in order to correspond with it
         consensus.nSubsidyHalvingInterval = 750;
-        consensus.nSubsidyHalvingIntervalV2 = 6000;
+        consensus.nSubsidyHalvingIntervalV2 = consensus.nBlocktimeDownscaleFactor*750;
         consensus.nRuleChangeActivationThreshold = 558; // 75% for testchains
         consensus.nMinerConfirmationWindow = 744; // Faster than normal for regtest (744 instead of 2016)
 
@@ -612,7 +612,7 @@ void UpdateConstantinopleBlockHeight(int nHeight)
 void CChainParams::UpdateDifficultyChangeBlockHeight(int nHeight)
 {
     consensus.nSubsidyHalvingInterval = 985500; // qtum halving every 4 years
-    consensus.nSubsidyHalvingIntervalV2 = 7884000; // qtum halving every 4 years (nSubsidyHalvingInterval * nBlocktimeDownscaleFactor)
+    consensus.nSubsidyHalvingIntervalV2 = consensus.nBlocktimeDownscaleFactor*985500; // qtum halving every 4 years (nSubsidyHalvingInterval * nBlocktimeDownscaleFactor)
     consensus.posLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
     consensus.QIP9PosLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff");
     consensus.RBTPosLimit = uint256S("0000000000003fffffffffffffffffffffffffffffffffffffffffffffffffff");
