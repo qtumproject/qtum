@@ -102,6 +102,7 @@ void DelegationPage::setClientModel(ClientModel *_clientModel)
     m_clientModel = _clientModel;
     m_addDelegationPage->setClientModel(_clientModel);
     m_removeDelegationPage->setClientModel(_clientModel);
+    m_delegationList->setClientModel(_clientModel);
 }
 
 void DelegationPage::on_goToRemoveDelegationPage()

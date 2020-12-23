@@ -122,9 +122,11 @@ double GetPoSKernelPS()
 
     const Consensus::Params& consensusParams = Params().GetConsensus();
     bool dynamicStakeSpacing = true;
+    uint32_t stakeTimestampMask=consensusParams.StakeTimestampMask(0);
     if(pindex)
     {
         dynamicStakeSpacing = pindex->nHeight < consensusParams.QIP9Height;
+        stakeTimestampMask=consensusParams.StakeTimestampMask(pindex->nHeight);
     }
 
     while (pindex && nStakesHandled < nPoSInterval)
@@ -147,7 +149,7 @@ double GetPoSKernelPS()
     if(!dynamicStakeSpacing)
     {
         // Using a fixed denominator reduces the variation spikes
-        nStakesTime = consensusParams.nPowTargetSpacing * nStakesHandled;
+        nStakesTime = consensusParams.TargetSpacing(pindexBestHeader->nHeight) * nStakesHandled;
     }
 
     double result = 0;
@@ -155,7 +157,7 @@ double GetPoSKernelPS()
     if (nStakesTime)
         result = dStakeKernelsTriedAvg / nStakesTime;
     
-    result *= STAKE_TIMESTAMP_MASK + 1;
+    result *= stakeTimestampMask + 1;
 
     return result;
 }
@@ -2800,7 +2802,6 @@ static UniValue getchaintxstats(const JSONRPCRequest& request)
             }.Check(request);
 
     const CBlockIndex* pindex;
-    int blockcount = 30 * 24 * 60 * 60 / Params().GetConsensus().nPowTargetSpacing; // By default: 1 month
 
     if (request.params[1].isNull()) {
         LOCK(cs_main);
@@ -2816,6 +2817,7 @@ static UniValue getchaintxstats(const JSONRPCRequest& request)
             throw JSONRPCError(RPC_INVALID_PARAMETER, "Block is not in main chain");
         }
     }
+    int blockcount = 30 * 24 * 60 * 60 / Params().GetConsensus().TargetSpacing(pindex->nHeight); // By default: 1 month
 
     CHECK_NONFATAL(pindex != nullptr);
 

@@ -7,6 +7,7 @@
 #include <qt/delegationitemwidget.h>
 #include <qt/delegationitemmodel.h>
 #include <qt/walletmodel.h>
+#include <qt/clientmodel.h>
 
 #include <QAbstractItemModel>
 #include <QSortFilterProxyModel>
@@ -15,7 +16,9 @@
 
 DelegationListWidget::DelegationListWidget(const PlatformStyle *platformStyle, QWidget *parent) :
     QWidget(parent),
-    m_mainLayout(new QVBoxLayout(this))
+    m_mainLayout(new QVBoxLayout(this)),
+    m_model(0),
+    m_clientModel(0)
 {
     m_platfromStyle = platformStyle;
     m_mainLayout->setSpacing(5);
@@ -49,6 +52,11 @@ void DelegationListWidget::setModel(WalletModel *_model)
         // Add items
         on_rowsInserted(QModelIndex(), 0, m_delegationModel->rowCount() - 1);
     }
+}
+
+void DelegationListWidget::setClientModel(ClientModel *_clientModel)
+{
+    m_clientModel = _clientModel;
 }
 
 void DelegationListWidget::on_rowsInserted(const QModelIndex &, int start, int end)
@@ -101,6 +109,7 @@ void DelegationListWidget::insertRow(const QModelIndex &index, int position)
 {
     DelegationItemWidget* item = new DelegationItemWidget(m_platfromStyle);
     if(m_model) item->setModel(m_model);
+    if(m_clientModel) item->setClientModel(m_clientModel);
     m_rows.insert(position, item);
     for(DelegationItemWidget* p_row : m_rows)
     {

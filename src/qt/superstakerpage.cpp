@@ -109,6 +109,7 @@ void SuperStakerPage::setClientModel(ClientModel *_clientModel)
 {
     m_clientModel = _clientModel;
     m_configSuperStakerPage->setClientModel(_clientModel);
+    m_superStakerList->setClientModel(_clientModel);
 }
 
 void SuperStakerPage::on_goToConfigSuperStakerPage()

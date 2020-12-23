@@ -40,7 +40,6 @@ class CWalletTx;
 #include <qtum/qtumDGP.h>
 #include <libethereum/ChainParams.h>
 #include <libethereum/LastBlockHashesFace.h>
-#include <libethashseal/Ethash.h>
 #include <libethashseal/GenesisInfo.h>
 #include <script/standard.h>
 #include <qtum/storageresults.h>
@@ -175,6 +174,9 @@ static const size_t MAX_CONTRACT_VOUTS = 1000; // qtum
 //! -stakingminutxovalue default
 static const CAmount DEFAULT_STAKING_MIN_UTXO_VALUE = 100 * COIN;
 
+//! -forceinitialblocksdownloadmode default
+static const bool DEFAULT_FORCE_INITIAL_BLOCKS_DOWNLOAD_MODE = false;
+
 struct BlockHasher
 {
     // this used to call `GetCheapHash()` in uint256, which was later moved; the
@@ -241,7 +243,7 @@ static const unsigned int DEFAULT_CHECKLEVEL = 3;
 // Setting the target to >= 550 MiB will make it likely we can respect the target.
 static const uint64_t MIN_DISK_SPACE_FOR_BLOCK_FILES = 550 * 1024 * 1024;
 
-inline int64_t FutureDrift(uint32_t nTime) { return nTime + 15; }
+int64_t FutureDrift(uint32_t nTime, int nHeight, const Consensus::Params& consensusParams);
 
 /**
  * Process an incoming block. This only returns after the best known valid

@@ -36,6 +36,8 @@ static const bool DEFAULT_STAKE_CACHE = true;
 
 static const bool DEFAULT_SUPER_STAKE = false;
 
+static const int32_t DEFAULT_STAKER_VERSION = 2;
+
 //How many seconds to look ahead and prepare a block for staking
 //Look ahead up to 3 "timeslots" in the future, 48 seconds
 //Reduce this to reduce computational waste for stakers, increase this to increase the amount of time available to construct full blocks
@@ -52,6 +54,9 @@ static const int32_t STAKE_TIME_BUFFER = 2;
 //How often to try to stake blocks in milliseconds
 //Note this is overridden for regtest mode
 static const int32_t STAKER_POLLING_PERIOD = 5000;
+
+//How often to try to check for future walid block
+static const int32_t STAKER_WAIT_FOR_WALID_BLOCK = 3000;
 
 //How much time to spend trying to process transactions when using the generate RPC call
 static const int32_t POW_MINER_MAX_TIME = 60;
@@ -238,6 +243,9 @@ private:
     int64_t nLockTimeCutoff;
     const CChainParams& chainparams;
     const CTxMemPool& m_mempool;
+#ifdef ENABLE_WALLET
+    CWallet *pwallet = 0;
+#endif
 
 public:
     struct Options {
@@ -248,6 +256,9 @@ public:
 
     explicit BlockAssembler(const CTxMemPool& mempool, const CChainParams& params);
     explicit BlockAssembler(const CTxMemPool& mempool, const CChainParams& params, const Options& options);
+#ifdef ENABLE_WALLET
+    explicit BlockAssembler(const CTxMemPool& mempool, const CChainParams& params, CWallet *pwallet);
+#endif
 
 ///////////////////////////////////////////// // qtum
     ByteCodeExecResult bceResult;

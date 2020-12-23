@@ -213,6 +213,11 @@ static FILE* OpenUndoFile(const FlatFilePos &pos, bool fReadOnly = false);
 static FlatFileSeq BlockFileSeq();
 static FlatFileSeq UndoFileSeq();
 
+int64_t FutureDrift(uint32_t nTime, int nHeight, const Consensus::Params& consensusParams)
+{
+    return nTime + consensusParams.StakeTimestampMask(nHeight);
+}
+
 bool CheckFinalTx(const CTransaction &tx, int flags)
 {
     AssertLockHeld(cs_main);
@@ -817,7 +822,7 @@ bool MemPoolAccept::PreChecks(ATMPArgs& args, Workspace& ws)
     m_pool.ApplyDelta(hash, nModifiedFees);
 
     // Keep track of transactions that spend a coinbase, which we re-scan
-    // during reorgs to ensure COINBASE_MATURITY is still met.
+    // during reorgs to ensure coinbaseMaturity is still met.
     bool fSpendsCoinbase = false;
     for (const CTxIn &txin : tx.vin) {
         const Coin &coin = m_view.AccessCoin(txin.prevout);
@@ -1437,12 +1442,15 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
     if(nHeight <= consensusParams.nLastBigReward)
         return 20000 * COIN;
 
-    int halvings = (nHeight - consensusParams.nLastBigReward - 1) / consensusParams.nSubsidyHalvingInterval;
+    int subsidyHalvingInterval = consensusParams.SubsidyHalvingInterval(nHeight);
+    int subsidyHalvingWeight = consensusParams.SubsidyHalvingWeight(nHeight);
+    int halvings = (subsidyHalvingWeight - 1) / subsidyHalvingInterval;
     // Force block reward to zero when right shift is undefined.
     if (halvings >= 7)
         return 0;
 
-    CAmount nSubsidy = 4 * COIN;
+    int blocktimeDownscaleFactor = consensusParams.BlocktimeDownscaleFactor(nHeight);
+    CAmount nSubsidy = 4 * COIN / blocktimeDownscaleFactor;
     // Subsidy is cut in half every 985500 blocks which will occur approximately every 4 years.
     nSubsidy >>= halvings;
     return nSubsidy;
@@ -1489,6 +1497,10 @@ void CChainState::InitCoinsCache()
 //
 bool CChainState::IsInitialBlockDownload() const
 {
+    static bool fForceInitialBlocksDownloadMode = gArgs.GetBoolArg("-forceinitialblocksdownloadmode", DEFAULT_FORCE_INITIAL_BLOCKS_DOWNLOAD_MODE);
+    if(fForceInitialBlocksDownloadMode)
+        return true;
+
     // Optimization: pre-test latch before taking the lock.
     if (m_cached_finished_ibd.load(std::memory_order_relaxed))
         return false;
@@ -2271,8 +2283,10 @@ bool GetSpentCoinFromBlock(const CBlockIndex* pindex, COutPoint prevout, Coin* c
 bool GetSpentCoinFromMainChain(const CBlockIndex* pforkPrev, COutPoint prevoutStake, Coin* coin) {
     const CBlockIndex* pforkBase = ChainActive().FindFork(pforkPrev);
 
-    // If the forkbase is more than COINBASE_MATURITY blocks in the past, do not attempt to scan the main chain.
-    if(ChainActive().Tip()->nHeight - pforkBase->nHeight > COINBASE_MATURITY) {
+    // If the forkbase is more than coinbaseMaturity blocks in the past, do not attempt to scan the main chain.
+    int nHeight = ChainActive().Tip()->nHeight;
+    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(nHeight);
+    if(nHeight - pforkBase->nHeight > coinbaseMaturity) {
         return error("The fork's base is behind by more than 500 blocks");
     }
 
@@ -2728,7 +2742,7 @@ dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(){
         header.setAuthor(EthAddrFromScript(block.vtx[0]->vout[0].scriptPubKey));
     }
     dev::u256 gasUsed;
-    dev::eth::EnvInfo env(header, lastHashes, gasUsed);
+    dev::eth::EnvInfo env(header, lastHashes, gasUsed, globalSealEngine->chainParams().chainID);
     return env;
 }
 
@@ -4757,7 +4771,6 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
     CKey key;
     CMutableTransaction txCoinStake(*pblock->vtx[1]);
     uint32_t nTimeBlock = nTime;
-    nTimeBlock &= ~STAKE_TIMESTAMP_MASK;
     std::vector<unsigned char> vchPoD;
     COutPoint headerPrevout;
     //original line:
@@ -4767,6 +4780,9 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
     auto locked_chain = wallet.chain().lock();
     LOCK(wallet.cs_wallet);
     LegacyScriptPubKeyMan* spk_man = wallet.GetLegacyScriptPubKeyMan();
+    uint32_t nHeight = ::ChainActive().Height() + 1;
+    const Consensus::Params& consensusParams = Params().GetConsensus();
+    nTimeBlock &= ~consensusParams.StakeTimestampMask(nHeight);
     if(!spk_man)
         return false;
     if (wallet.CreateCoinStake(*locked_chain, *spk_man, pblock->nBits, nTotalFees, nTimeBlock, txCoinStake, key, setCoins, setDelegateCoins, vchPoD, headerPrevout))
@@ -4781,13 +4797,13 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
             pblock->prevoutStake = headerPrevout;
 
             // Check timestamp against prev
-            if(pblock->GetBlockTime() <= ::ChainActive().Tip()->GetBlockTime() || FutureDrift(pblock->GetBlockTime()) < ::ChainActive().Tip()->GetBlockTime())
+            if(pblock->GetBlockTime() <= ::ChainActive().Tip()->GetBlockTime() || FutureDrift(pblock->GetBlockTime(), nHeight, consensusParams) < ::ChainActive().Tip()->GetBlockTime())
             {
                 return false;
             }
 
             // Sign block
-            if (::ChainActive().Height() + 1 >= Params().GetConsensus().nOfflineStakeHeight)
+            if (::ChainActive().Height() + 1 >= consensusParams.nOfflineStakeHeight)
             {
                 // append PoD to the end of the block header
                 if(vchPoD.size() > 0)
@@ -4799,14 +4815,14 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
                 pblock->SetBlockSignature(vchSig);
 
                 // check block header
-                return isSigned && CheckHeaderPoS(*pblock, Params().GetConsensus());
+                return isSigned && CheckHeaderPoS(*pblock, consensusParams);
             }
             else
             {
                 // append a signature to our block and ensure that is LowS
                 return key.Sign(pblock->GetHashWithoutSign(), pblock->vchBlockSigDlgt) &&
                            EnsureLowS(pblock->vchBlockSigDlgt) &&
-                           CheckHeaderPoS(*pblock, Params().GetConsensus());
+                           CheckHeaderPoS(*pblock, consensusParams);
             }
         }
     }
@@ -4961,7 +4977,7 @@ bool CheckBlock(const CBlock& block, BlockValidationState& state, const Consensu
     if (!CheckBlockHeader(block, state, consensusParams, fCheckPOW, false))
         return false;
 
-    if (block.IsProofOfStake() &&  block.GetBlockTime() > FutureDrift(GetAdjustedTime()))
+    if (block.IsProofOfStake() &&  block.GetBlockTime() > FutureDrift(GetAdjustedTime(), ::ChainActive().Height() + 1, consensusParams))
         return error("CheckBlock() : block timestamp too far in the future");
 
     // Check the merkle root.
@@ -5169,7 +5185,7 @@ static bool ContextualCheckBlockHeader(const CBlockHeader& block, BlockValidatio
         return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "time-too-old", "block's timestamp is too early");
 
     // Check timestamp
-    if (block.IsProofOfStake() && block.GetBlockTime() > FutureDrift(nAdjustedTime))
+    if (block.IsProofOfStake() && block.GetBlockTime() > FutureDrift(nAdjustedTime, nHeight, consensusParams))
         return state.Invalid(BlockValidationResult::BLOCK_TIME_FUTURE, "time-too-new", "block timestamp too far in the future");
 
     // Reject outdated version blocks when 95% (75% on testnet) of the network has upgraded:
@@ -5271,7 +5287,7 @@ bool CChainState::UpdateHashProof(const CBlock& block, BlockValidationState& sta
         return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "reject-pow", strprintf("UpdateHashProof() : reject proof-of-work at height %d", nHeight));
     
     // Check coinstake timestamp
-    if (block.IsProofOfStake() && !CheckCoinStakeTimestamp(block.GetBlockTime()))
+    if (block.IsProofOfStake() && !CheckCoinStakeTimestamp(block.GetBlockTime(), nHeight, consensusParams))
         return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "timestamp-invalid", strprintf("UpdateHashProof() : coinstake timestamp violation nTimeBlock=%d", block.GetBlockTime()));
 
     // Check proof-of-work or proof-of-stake
@@ -5303,20 +5319,22 @@ bool CChainState::UpdateHashProof(const CBlock& block, BlockValidationState& sta
 bool CheckPOS(const CBlockHeader& block, CBlockIndex* pindexPrev)
 {
     // Determining if PoS is possible to be checked in the header
-    int diff = pindexPrev->nHeight + 1 - ::ChainActive().Height();
+    int nHeight = pindexPrev->nHeight + 1;
+    int coinbaseMaturity = ::Params().GetConsensus().CoinbaseMaturity(nHeight);
+    int diff = nHeight - ::ChainActive().Height();
     if(pindexPrev && block.IsProofOfStake() && !::ChainstateActive().IsInitialBlockDownload()
     // Additional check if not triggered initial block download, like when PoW blocks were initially created
     // CheckPOS is called after ContextualCheckBlockHeader where future block headers are not accepted
-            && (diff < COINBASE_MATURITY))
+            && (diff < coinbaseMaturity))
     {
         // Old header not child of the Tip
-        if(diff < -COINBASE_MATURITY)
+        if(diff < -coinbaseMaturity)
             return true;
 
         // New header
         // Determining if the header is child of the Tip
         CBlockIndex* prev = pindexPrev;
-        for(int i = 0; i < COINBASE_MATURITY; i++)
+        for(int i = 0; i < coinbaseMaturity; i++)
         {
             if(prev == ::ChainActive().Tip())
                 return true;
@@ -5427,12 +5445,13 @@ bool BlockManager::AcceptBlockHeader(const CBlockHeader& block, BlockValidationS
 
         if(block.IsProofOfStake())
         {
-            // Reject proof of stake before height COINBASE_MATURITY
-            if (nHeight < COINBASE_MATURITY)
+            // Reject proof of stake before height coinbaseMaturity
+            int coinbaseMaturity = chainparams.GetConsensus().CoinbaseMaturity(nHeight);
+            if (nHeight < coinbaseMaturity)
                 return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "reject-pos", strprintf("reject proof-of-stake at height %d", nHeight));
 
             // Check coin stake timestamp
-            if(!CheckCoinStakeTimestamp(block.nTime))
+            if(!CheckCoinStakeTimestamp(block.nTime, nHeight, chainparams.GetConsensus()))
                 return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "timestamp-invalid", "proof of stake failed due to invalid timestamp");
         }
 
@@ -5454,8 +5473,10 @@ bool BlockManager::AcceptBlockHeader(const CBlockHeader& block, BlockValidationS
 bool ProcessNewBlockHeaders(const std::vector<CBlockHeader>& headers, BlockValidationState& state, const CChainParams& chainparams, const CBlockIndex** ppindex,  const CBlockIndex** pindexFirst)
 {
     if(!::ChainstateActive().IsInitialBlockDownload() && headers.size() > 1) {
+        LOCK(cs_main);
         const CBlockHeader last_header = headers[headers.size()-1];
-        if (last_header.IsProofOfStake() && last_header.GetBlockTime() > FutureDrift(GetAdjustedTime())) {
+        unsigned int nHeight = ::ChainActive().Height() + 1;
+        if (last_header.IsProofOfStake() && last_header.GetBlockTime() > FutureDrift(GetAdjustedTime(), nHeight, chainparams.GetConsensus())) {
             return state.Invalid(BlockValidationResult::BLOCK_TIME_FUTURE, "time-too-new", "block timestamp too far in the future");
         }
     }
@@ -5507,7 +5528,7 @@ bool ProcessNewBlockHeaders(const std::vector<CBlockHeader>& headers, BlockValid
     }
     if (NotifyHeaderTip()) {
         if (::ChainstateActive().IsInitialBlockDownload() && ppindex && *ppindex) {
-            LogPrintf("Synchronizing blockheaders, height: %d (~%.2f%%)\n", (*ppindex)->nHeight, 100.0/((*ppindex)->nHeight+(GetAdjustedTime() - (*ppindex)->GetBlockTime()) / Params().GetConsensus().nPowTargetSpacing) * (*ppindex)->nHeight);
+            LogPrintf("Synchronizing blockheaders, height: %d (~%.2f%%)\n", (*ppindex)->nHeight, 100.0/((*ppindex)->nHeight+(GetAdjustedTime() - (*ppindex)->GetBlockTime()) / Params().GetConsensus().TargetSpacing((*ppindex)->nHeight)) * (*ppindex)->nHeight);
         }
     }
     return true;
@@ -5577,11 +5598,11 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, Block
         return error("AcceptBlock() : rejected by synchronized checkpoint");
 
     // Check timestamp against prev
-    if (pindexPrev && block.IsProofOfStake() && (block.GetBlockTime() <= pindexPrev->GetBlockTime() || FutureDrift(block.GetBlockTime()) < pindexPrev->GetBlockTime()))
+    if (pindexPrev && block.IsProofOfStake() && (block.GetBlockTime() <= pindexPrev->GetBlockTime() || FutureDrift(block.GetBlockTime(), nHeight, chainparams.GetConsensus()) < pindexPrev->GetBlockTime()))
         return error("AcceptBlock() : block's timestamp is too early");
 
     // Check timestamp
-    if (block.IsProofOfStake() &&  block.GetBlockTime() > FutureDrift(GetAdjustedTime()))
+    if (block.IsProofOfStake() &&  block.GetBlockTime() > FutureDrift(GetAdjustedTime(), nHeight, chainparams.GetConsensus()))
         return error("AcceptBlock() : block timestamp too far in the future");
 
     // Enforce rule that the coinbase starts with serialized block height
@@ -7245,10 +7266,11 @@ bool GetAddressWeight(uint256 addressHash, int type, const std::map<COutPoint, u
     }
 
     // Add the utxos to the list if they are mature
+	const Consensus::Params& consensusParams = Params().GetConsensus();
     for (std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> >::const_iterator i=unspentOutputs.begin(); i!=unspentOutputs.end(); i++) {
 
         int nDepth = nHeight - i->second.blockHeight + 1;
-        if (nDepth < COINBASE_MATURITY)
+        if (nDepth < consensusParams.CoinbaseMaturity(nHeight + 1))
             continue;
 
         if(i->second.satoshis < 0)
@@ -7268,7 +7290,8 @@ std::map<COutPoint, uint32_t> GetImmatureStakes()
 {
     std::map<COutPoint, uint32_t> immatureStakes;
     int height = ::ChainActive().Height();
-    for(int i = 0; i < COINBASE_MATURITY -1; i++) {
+    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(height + 1);
+    for(int i = 0; i < coinbaseMaturity -1; i++) {
         CBlockIndex* block = ::ChainActive()[height - i];
         if(block)
         {

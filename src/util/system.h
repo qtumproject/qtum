@@ -336,6 +336,11 @@ public:
      */
     void LogArgs() const;
 
+    /**
+     * Return config arguments
+     */
+    std::map<std::string, std::vector<std::string>> getArgsList(const std::vector<std::string>& paramListType) const;
+
 private:
     // Helper function for LogArgs().
     void logArgsPrefix(

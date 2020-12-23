@@ -8,6 +8,7 @@
 #include <qt/bitcoinunits.h>
 #include <qt/optionsmodel.h>
 #include <qt/walletmodel.h>
+#include <qt/clientmodel.h>
 #include <interfaces/node.h>
 #include <chainparams.h>
 #include <rpc/server.h>
@@ -36,7 +37,8 @@ SuperStakerItemWidget::SuperStakerItemWidget(const PlatformStyle *platformStyle,
     m_platfromStyle(platformStyle),
     m_type(type),
     m_position(-1),
-    m_model(0)
+    m_model(0),
+    m_clientModel(0)
 
 {
     ui->setupUi(this);
@@ -128,7 +130,7 @@ int SuperStakerItemWidget::position() const
 
 void SuperStakerItemWidget::updateLogo()
 {
-    if(!m_model)
+    if(!m_model || !m_clientModel)
         return;
 
     if(m_model->node().shutdownRequested())
@@ -147,7 +149,8 @@ void SuperStakerItemWidget::updateLogo()
     if (d->staking_on && nWeight && nDelegationsWeight)
     {
         uint64_t nNetworkWeight = GetPoSKernelPS();
-        static int64_t nTargetSpacing = Params().GetConsensus().nPowTargetSpacing;
+        int headersTipHeight = m_clientModel->getHeaderTipHeight();
+        int64_t nTargetSpacing = Params().GetConsensus().TargetSpacing(headersTipHeight);
 
         unsigned nEstimateTime = nTargetSpacing * nNetworkWeight / nDelegationsWeight;
 
@@ -202,6 +205,11 @@ void SuperStakerItemWidget::setModel(WalletModel *_model)
         connect(m_model->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &SuperStakerItemWidget::updateDisplayUnit);
     }
     updateDisplayUnit();
+}
+
+void SuperStakerItemWidget::setClientModel(ClientModel *_clientModel)
+{
+    m_clientModel = _clientModel;
 }
 
 void SuperStakerItemWidget::updateDisplayUnit()

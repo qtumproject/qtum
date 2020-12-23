@@ -201,7 +201,8 @@ TestChain100Setup::TestChain100Setup()
     // Generate a 100-block chain:
     coinbaseKey.MakeNewKey(true);
     CScript scriptPubKey = CScript() <<  ToByteVector(coinbaseKey.GetPubKey()) << OP_CHECKSIG;
-    for (int i = 0; i < COINBASE_MATURITY; i++)
+    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(0);
+    for (int i = 0; i < coinbaseMaturity; i++)
     {
         std::vector<CMutableTransaction> noTxns;
         CBlock b = CreateAndProcessBlock(noTxns, scriptPubKey);

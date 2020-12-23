@@ -36,7 +36,7 @@ const std::vector<valtype> code = {
             2300, //22: callStipend
             9000, //23: callValueTransferGas
             25000, //24: callNewAccountGas
-            24000, //25: suicideRefundGas
+            24000, //25: selfdestructRefundGas
             3, //26: memoryGas
             512, //27: quadCoeffDiv
             200, //28: createDataGas
@@ -48,7 +48,7 @@ const std::vector<valtype> code = {
             700, //34: extcodesizeGas
             700, //35: extcodecopyGas
             400, //36: balanceGas
-            5000, //37: suicideGas
+            5000, //37: selfdestructGas
             24576 //38: maxCodeSize
         ];
         function getSchedule() constant returns(uint32[39] _schedule){
@@ -87,7 +87,7 @@ const std::vector<valtype> code = {
             2300, //22: callStipend
             9000, //23: callValueTransferGas
             25000, //24: callNewAccountGas
-            24000, //25: suicideRefundGas
+            24000, //25: selfdestructRefundGas
             3, //26: memoryGas
             512, //27: quadCoeffDiv
             200, //28: createDataGas
@@ -99,7 +99,7 @@ const std::vector<valtype> code = {
             700, //34: extcodesizeGas
             700, //35: extcodecopyGas
             400, //36: balanceGas
-            5000, //37: suicideGas
+            5000, //37: selfdestructGas
             300 //38: maxCodeSize
         ];
         function getSchedule() constant returns(uint32[39] _schedule){
@@ -138,7 +138,7 @@ const std::vector<valtype> code = {
             2300, //22: callStipend
             9000, //23: callValueTransferGas
             25000, //24: callNewAccountGas
-            24000, //25: suicideRefundGas
+            24000, //25: selfdestructRefundGas
             3, //26: memoryGas
             512, //27: quadCoeffDiv
             200, //28: createDataGas
@@ -150,7 +150,7 @@ const std::vector<valtype> code = {
             700, //34: extcodesizeGas
             700, //35: extcodecopyGas
             400, //36: balanceGas
-            600, //37: suicideGas
+            600, //37: selfdestructGas
             300 //38: maxCodeSize
         ];
         function getSchedule() constant returns(uint32[39] _schedule){
@@ -257,7 +257,7 @@ struct EVMScheduleCustom : public dev::eth::EVMSchedule{
         callStipend = v20;
         callValueTransferGas = v21;
         callNewAccountGas = v22;
-        suicideRefundGas = v23;
+        selfdestructRefundGas = v23;
         memoryGas = v24;
         quadCoeffDiv = v25;
         createDataGas = v26;
@@ -269,7 +269,7 @@ struct EVMScheduleCustom : public dev::eth::EVMSchedule{
         extcodesizeGas = v32;
         extcodecopyGas = v33;
         balanceGas = v34;
-        suicideGas = v35;
+        selfdestructGas = v35;
         maxCodeSize = v36;
     }
 };
@@ -298,11 +298,11 @@ bool compareEVMSchedule(const dev::eth::EVMSchedule& a, const dev::eth::EVMSched
     a.jumpdestGas == b.jumpdestGas && a.logGas == b.logGas && a.logDataGas == b.logDataGas &&
     a.logTopicGas == b.logTopicGas && a.createGas == b.createGas && a.callGas == b.callGas &&
     a.callStipend == b.callStipend && a.callValueTransferGas == b.callValueTransferGas &&
-    a.callNewAccountGas == b.callNewAccountGas && a.suicideRefundGas == b.suicideRefundGas &&
+    a.callNewAccountGas == b.callNewAccountGas && a.selfdestructRefundGas == b.selfdestructRefundGas &&
     a.memoryGas == b.memoryGas && a.quadCoeffDiv == b.quadCoeffDiv && a.createDataGas == b.createDataGas &&
     a.txGas == b.txGas && a.txCreateGas == b.txCreateGas && a.txDataZeroGas == b.txDataZeroGas &&
     a.txDataNonZeroGas == b.txDataNonZeroGas && a.copyGas == b.copyGas && a.extcodesizeGas == b.extcodesizeGas &&
-    a.extcodecopyGas == b.extcodecopyGas && a.balanceGas == b.balanceGas && a.suicideGas == b.suicideGas &&
+    a.extcodecopyGas == b.extcodecopyGas && a.balanceGas == b.balanceGas && a.selfdestructGas == b.selfdestructGas &&
     a.maxCodeSize == b.maxCodeSize && a.exceptionalFailedCodeDeposit == b.exceptionalFailedCodeDeposit &&
     a.haveDelegateCall == b.haveDelegateCall && a.eip150Mode == b.eip150Mode && a.eip158Mode == b.eip158Mode&&
     a.haveRevert == b.haveRevert && a.haveStaticCall == b.haveStaticCall && a.haveReturnData == b.haveReturnData &&
@@ -382,7 +382,7 @@ BOOST_AUTO_TEST_CASE(gas_schedule_default_state_test3){
     contractLoading();
     QtumDGP qtumDGP(globalState.get());
     dev::eth::EVMSchedule schedule = qtumDGP.getGasSchedule(1400);
-    BOOST_CHECK(compareEVMSchedule(schedule, dev::eth::ConstantinopleSchedule));
+    BOOST_CHECK(compareEVMSchedule(schedule, dev::eth::IstanbulSchedule));
 }
 
 BOOST_AUTO_TEST_CASE(gas_schedule_one_paramsInstance_introductory_block_1_test1){
@@ -448,16 +448,20 @@ BOOST_AUTO_TEST_CASE(block_size_default_state_test1){
     initState();
     contractLoading();
     QtumDGP qtumDGP(globalState.get());
-    uint32_t blockSize = qtumDGP.getBlockSize(100);
-    BOOST_CHECK(blockSize == DEFAULT_BLOCK_SIZE_DGP);
+    uint32_t nHeight = 100;
+    uint32_t blocktimeDownscaleFactor = Params().GetConsensus().BlocktimeDownscaleFactor(nHeight);
+    uint32_t blockSize = qtumDGP.getBlockSize(nHeight);
+    BOOST_CHECK(blockSize == DEFAULT_BLOCK_SIZE_DGP / blocktimeDownscaleFactor);
 }
 
 BOOST_AUTO_TEST_CASE(block_size_default_state_test2){
     initState();
     contractLoading();
     QtumDGP qtumDGP(globalState.get());
+    uint32_t nHeight = 0;
+    uint32_t blocktimeDownscaleFactor = Params().GetConsensus().BlocktimeDownscaleFactor(nHeight);
     uint32_t blockSize = qtumDGP.getBlockSize(0);
-    BOOST_CHECK(blockSize == DEFAULT_BLOCK_SIZE_DGP);
+    BOOST_CHECK(blockSize == DEFAULT_BLOCK_SIZE_DGP / blocktimeDownscaleFactor);
 }
 
 BOOST_AUTO_TEST_CASE(block_size_one_paramsInstance_introductory_block_1_test1){
@@ -472,8 +476,10 @@ BOOST_AUTO_TEST_CASE(block_size_one_paramsInstance_introductory_block_1_test1){
     auto result = executeBC(txs);
 
     QtumDGP qtumDGP(globalState.get());
-    uint32_t blockSize = qtumDGP.getBlockSize(0);
-    BOOST_CHECK(blockSize == DEFAULT_BLOCK_SIZE_DGP);
+    uint32_t nHeight = 0;
+    uint32_t blocktimeDownscaleFactor = Params().GetConsensus().BlocktimeDownscaleFactor(nHeight);
+    uint32_t blockSize = qtumDGP.getBlockSize(nHeight);
+    BOOST_CHECK(blockSize == DEFAULT_BLOCK_SIZE_DGP / blocktimeDownscaleFactor);
 }
 
 BOOST_AUTO_TEST_CASE(block_size_one_paramsInstance_introductory_block_1_test2){
@@ -499,9 +505,10 @@ BOOST_AUTO_TEST_CASE(block_size_passage_from_0_to_130_three_paramsInstance_test)
     createTestContractsAndBlocks(this, code[7], code[8], code[9], BlockSizeDGP);
     QtumDGP qtumDGP(globalState.get());
     for(size_t i = 0; i < 1300; i++){
+        uint32_t blocktimeDownscaleFactor = Params().GetConsensus().BlocktimeDownscaleFactor(i);
         uint32_t blockSize = qtumDGP.getBlockSize(i);
         std::function<bool(const uint64_t&, const uint64_t&)> func = compareUint64;
-        checkValue<uint64_t>(blockSize, DEFAULT_BLOCK_SIZE_DGP, 1000000, 2000000, 500123, i, func);
+        checkValue<uint64_t>(blockSize, DEFAULT_BLOCK_SIZE_DGP / blocktimeDownscaleFactor, 1000000, 2000000, 500123, i, func);
     }
 }
 
@@ -512,9 +519,10 @@ BOOST_AUTO_TEST_CASE(block_size_passage_from_130_to_0_three_paramsInstance_test)
     createTestContractsAndBlocks(this, code[7], code[8], code[9], BlockSizeDGP);
     QtumDGP qtumDGP(globalState.get());
     for(size_t i = 1300; i > 0; i--){
+        uint32_t blocktimeDownscaleFactor = Params().GetConsensus().BlocktimeDownscaleFactor(i);
         uint32_t blockSize = qtumDGP.getBlockSize(i);
         std::function<bool(const uint64_t&, const uint64_t&)> func = compareUint64;
-        checkValue<uint32_t>(blockSize, DEFAULT_BLOCK_SIZE_DGP, 1000000, 2000000, 500123, i, func);
+        checkValue<uint32_t>(blockSize, DEFAULT_BLOCK_SIZE_DGP / blocktimeDownscaleFactor, 1000000, 2000000, 500123, i, func);
     }
 }
 

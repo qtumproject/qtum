@@ -5,6 +5,7 @@
 
 class PlatformStyle;
 class WalletModel;
+class ClientModel;
 
 namespace Ui {
 class DelegationItemWidget;
@@ -47,6 +48,8 @@ public:
 
     void setModel(WalletModel *_model);
 
+    void setClientModel(ClientModel *clientModel);
+
     void setLight(LightType type);
 
 Q_SIGNALS:
@@ -75,6 +78,7 @@ private:
     int m_position;
     QString m_filename;
     WalletModel* m_model;
+    ClientModel* m_clientModel;
     DelegationItemWidgetPriv* d;
 };
 

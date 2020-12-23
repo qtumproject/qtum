@@ -9,8 +9,6 @@
 
 #include <map>
 
-static const int nCheckpointSpan = 500;
-
 class CBlockIndex;
 struct CCheckpointData;
 

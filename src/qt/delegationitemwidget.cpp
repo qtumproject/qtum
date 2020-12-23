@@ -8,6 +8,7 @@
 #include <qt/bitcoinunits.h>
 #include <qt/optionsmodel.h>
 #include <qt/walletmodel.h>
+#include <qt/clientmodel.h>
 #include <qt/delegationitemmodel.h>
 #include <interfaces/node.h>
 #include <chainparams.h>
@@ -41,7 +42,8 @@ DelegationItemWidget::DelegationItemWidget(const PlatformStyle *platformStyle, Q
     m_platfromStyle(platformStyle),
     m_type(type),
     m_position(-1),
-    m_model(0)
+    m_model(0),
+    m_clientModel(0)
 
 {
     ui->setupUi(this);
@@ -134,7 +136,7 @@ int DelegationItemWidget::position() const
 
 void DelegationItemWidget::updateLogo()
 {
-    if(!m_model)
+    if(!m_model || !m_clientModel)
         return;
 
     if(m_model->node().shutdownRequested())
@@ -152,7 +154,8 @@ void DelegationItemWidget::updateLogo()
     if (d->staking)
     {
         uint64_t nNetworkWeight = GetPoSKernelPS();
-        static int64_t nTargetSpacing = Params().GetConsensus().nPowTargetSpacing;
+        int headersTipHeight = m_clientModel->getHeaderTipHeight();
+        int64_t nTargetSpacing = Params().GetConsensus().TargetSpacing(headersTipHeight);
 
         unsigned nEstimateTime = nTargetSpacing * nNetworkWeight / nWeight;
 
@@ -225,6 +228,11 @@ void DelegationItemWidget::setModel(WalletModel *_model)
         connect(m_model->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &DelegationItemWidget::updateDisplayUnit);
     }
     updateDisplayUnit();
+}
+
+void DelegationItemWidget::setClientModel(ClientModel *_clientModel)
+{
+    m_clientModel = _clientModel;
 }
 
 void DelegationItemWidget::updateDisplayUnit()

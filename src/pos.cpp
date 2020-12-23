@@ -45,6 +45,8 @@ uint256 ComputeStakeModifier(const CBlockIndex* pindexPrev, const uint256& kerne
 // coinstake must meet hash target according to the protocol:
 // kernel (input 0) must meet the formula
 //     hash(nStakeModifier + blockFrom.nTime + txPrev.vout.hash + txPrev.vout.n + nTime) < bnTarget * nWeight
+// kernel (input 0) must meet the formula after overflow fix in reduce block time fork
+//     hash(nStakeModifier + blockFrom.nTime + txPrev.vout.hash + txPrev.vout.n + nTime) / nWeight < bnTarget
 // this ensures that the chance of getting a coinstake is proportional to the
 // amount of coins one owns.
 // The reason this hash is chosen is the following:
@@ -65,6 +67,10 @@ bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t 
     if (nTimeBlock < blockFromTime)  // Transaction timestamp violation
         return error("CheckStakeKernelHash() : nTime violation");
 
+    // Get height
+    int nHeight = pindexPrev->nHeight + 1;
+    bool fNoBNOverflow = nHeight >= Params().GetConsensus().nReduceBlocktimeHeight;
+
     // Base target
     arith_uint256 bnTarget;
     bnTarget.SetCompact(nBits);
@@ -72,7 +78,8 @@ bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t 
     // Weighted target
     int64_t nValueIn = prevoutValue;
     arith_uint256 bnWeight = arith_uint256(nValueIn);
-    bnTarget *= bnWeight;
+    if(!fNoBNOverflow)
+        bnTarget *= bnWeight;
 
     targetProofOfStake = ArithToUint256(bnTarget);
 
@@ -93,7 +100,11 @@ bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t 
     }
 
     // Now check if proof-of-stake hash meets target protocol
-    if (UintToArith256(hashProofOfStake) > bnTarget)
+    arith_uint256 bnProofOfStake = UintToArith256(hashProofOfStake);
+    if(fNoBNOverflow)
+        bnProofOfStake /= bnWeight;
+
+    if (bnProofOfStake > bnTarget)
         return false;
 
     if (LogInstance().WillLogCategory(BCLog::COINSTAKE) && !fPrintProofOfStake)
@@ -116,8 +127,9 @@ bool GetStakeCoin(const COutPoint& prevout, Coin& coinPrev, CBlockIndex*& blockF
 
     // Check that the coin is mature
     int nHeight = pindexPrev->nHeight + 1;
-    if(nHeight - coinPrev.nHeight < COINBASE_MATURITY){
-        return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "stake-prevout-not-mature", strprintf("CheckProofOfStake() : Stake prevout is not mature, expecting %i and only matured to %i", COINBASE_MATURITY, nHeight - coinPrev.nHeight));
+    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(nHeight);
+    if(nHeight - coinPrev.nHeight < coinbaseMaturity){
+        return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "stake-prevout-not-mature", strprintf("CheckProofOfStake() : Stake prevout is not mature, expecting %i and only matured to %i", coinbaseMaturity, nHeight - coinPrev.nHeight));
     }
 
     // Get the block header from the coin
@@ -126,11 +138,11 @@ bool GetStakeCoin(const COutPoint& prevout, Coin& coinPrev, CBlockIndex*& blockF
         return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "stake-prevout-not-loaded", strprintf("CheckProofOfStake() : Block at height %i for prevout can not be loaded", coinPrev.nHeight));
     }
 
-    // Check that the coin is not used in the last COINBASE_MATURITY headers
+    // Check that the coin is not used in the last coinbaseMaturity headers
     // Delegated utxo is not spent when block is created using that coin, so additional check to the last headers needed
     int coinHeight = -1;
     CBlockIndex* prev = pindexPrev;
-    for(int i = 0; i < COINBASE_MATURITY; i++) {
+    for(int i = 0; i < coinbaseMaturity; i++) {
         if(prev->prevoutStake == prevout) {
             coinHeight = prev->nHeight;
             break;
@@ -140,8 +152,8 @@ bool GetStakeCoin(const COutPoint& prevout, Coin& coinPrev, CBlockIndex*& blockF
         if(!prev) break;
     }
     if(coinHeight != -1) {
-        if(nHeight - coinHeight < COINBASE_MATURITY){
-            return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "stake-prevout-not-mature", strprintf("CheckProofOfStake() : Stake prevout is not mature, expecting %i and only matured to %i", COINBASE_MATURITY, nHeight - coinHeight));
+        if(nHeight - coinHeight < coinbaseMaturity){
+            return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "stake-prevout-not-mature", strprintf("CheckProofOfStake() : Stake prevout is not mature, expecting %i and only matured to %i", coinbaseMaturity, nHeight - coinHeight));
         }
     }
 
@@ -255,9 +267,9 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, BlockValidationState& state, con
 }
 
 // Check whether the coinstake timestamp meets protocol
-bool CheckCoinStakeTimestamp(uint32_t nTimeBlock)
+bool CheckCoinStakeTimestamp(uint32_t nTimeBlock, int nHeight, const Consensus::Params& consensusParams)
 {
-    return (nTimeBlock & STAKE_TIMESTAMP_MASK) == 0;
+    return (nTimeBlock & consensusParams.StakeTimestampMask(nHeight)) == 0;
 }
 
 bool CheckBlockInputPubKeyMatchesOutputPubKey(const CBlock& block, CCoinsViewCache& view, bool delegateOutputExist) {
@@ -405,7 +417,9 @@ bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBloc
             }
         }
 
-        if(pindexPrev->nHeight + 1 - coinPrev.nHeight < COINBASE_MATURITY){
+        int nHeight = pindexPrev->nHeight + 1;
+        int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(nHeight);
+        if(nHeight - coinPrev.nHeight < coinbaseMaturity){
             return error("CheckKernel(): Coin not matured");
         }
         CBlockIndex* blockFrom = pindexPrev->GetAncestor(coinPrev.nHeight);
@@ -441,7 +455,9 @@ void CacheKernel(std::map<COutPoint, CStakeCache>& cache, const COutPoint& prevo
         return;
     }
 
-    if(pindexPrev->nHeight + 1 - coinPrev.nHeight < COINBASE_MATURITY){
+    int nHeight = pindexPrev->nHeight + 1;
+    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(nHeight);
+    if(nHeight - coinPrev.nHeight < coinbaseMaturity){
         return;
     }
     CBlockIndex* blockFrom = pindexPrev->GetAncestor(coinPrev.nHeight);
@@ -674,7 +690,7 @@ bool AddMPoSScript(std::vector<BlockScript> &mposScriptList, int nHeight, const 
 bool GetMPoSOutputScripts(std::vector<BlockScript>& mposScriptList, int nHeight, const Consensus::Params& consensusParams)
 {
     bool ret = true;
-    nHeight -= COINBASE_MATURITY;
+    nHeight -= consensusParams.CoinbaseMaturity(nHeight + 1);
 
     // Populate the list of scripts for the reward recipients
     for(int i = 0; (i < consensusParams.nMPoSRewardRecipients - 1) && ret; i++)

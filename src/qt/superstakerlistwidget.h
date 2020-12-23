@@ -7,6 +7,7 @@
 
 class PlatformStyle;
 class WalletModel;
+class ClientModel;
 class QAbstractItemModel;
 class SuperStakerItemWidget;
 
@@ -24,6 +25,8 @@ public:
     explicit SuperStakerListWidget(const PlatformStyle *platformStyle, QWidget *parent = 0);
 
     void setModel(WalletModel *_model);
+
+    void setClientModel(ClientModel *clientModel);
 
     QAbstractItemModel *superStakerModel() const;
 
@@ -58,6 +61,7 @@ private:
     QVBoxLayout *m_mainLayout;
     const PlatformStyle *m_platfromStyle;
     WalletModel* m_model;
+    ClientModel* m_clientModel;
     QAbstractItemModel *m_superStakerModel;
     QList<SuperStakerItemWidget*> m_rows;
 };
