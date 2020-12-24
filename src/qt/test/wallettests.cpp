@@ -139,6 +139,7 @@ void TestGUI(interfaces::Node& node)
     node.context()->connman = std::move(test.m_node.connman);
     node.context()->mempool = std::move(test.m_node.mempool);
     std::shared_ptr<CWallet> wallet = std::make_shared<CWallet>(node.context()->chain.get(), WalletLocation(), WalletDatabase::CreateMock());
+    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(0);
     bool firstRun;
     wallet->LoadWallet(firstRun);
     {
@@ -147,7 +148,7 @@ void TestGUI(interfaces::Node& node)
         LOCK2(wallet->cs_wallet, spk_man->cs_KeyStore);
         wallet->SetAddressBook(GetDestinationForKey(test.coinbaseKey.GetPubKey(), wallet->m_default_address_type), "", "receive");
         spk_man->AddKeyPubKey(test.coinbaseKey, test.coinbaseKey.GetPubKey());
-        wallet->SetLastBlockProcessed(505, ::ChainActive().Tip()->GetBlockHash());
+        wallet->SetLastBlockProcessed(coinbaseMaturity + 5, ::ChainActive().Tip()->GetBlockHash());
     }
     {
         auto locked_chain = wallet->chain().lock();
@@ -185,10 +186,10 @@ void TestGUI(interfaces::Node& node)
 
     // Send two transactions, and verify they are added to transaction list.
     TransactionTableModel* transactionTableModel = walletModel.getTransactionTableModel();
-    QCOMPARE(transactionTableModel->rowCount({}), 505);
+    QCOMPARE(transactionTableModel->rowCount({}), coinbaseMaturity + 5);
     uint256 txid1 = SendCoins(*wallet.get(), sendCoinsDialog, PKHash(), 5 * COIN, false /* rbf */);
     uint256 txid2 = SendCoins(*wallet.get(), sendCoinsDialog, PKHash(), 10 * COIN, true /* rbf */);
-    QCOMPARE(transactionTableModel->rowCount({}), 507);
+    QCOMPARE(transactionTableModel->rowCount({}), coinbaseMaturity + 7);
     QVERIFY(FindTx(*transactionTableModel, txid1).isValid());
     QVERIFY(FindTx(*transactionTableModel, txid2).isValid());
 

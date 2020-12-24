@@ -194,7 +194,7 @@ TestChain100Setup::TestChain100Setup()
 {
     // CreateAndProcessBlock() does not support building SegWit blocks, so don't activate in these tests.
     // TODO: fix the code to support SegWit blocks.
-    gArgs.ForceSetArg("-segwitheight", "2232");
+    gArgs.ForceSetArg("-segwitheight", "3732");
     // Need to recreate chainparams
     SelectParams(CBaseChainParams::UNITTEST);
 

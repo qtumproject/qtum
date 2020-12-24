@@ -103,8 +103,7 @@ BOOST_AUTO_TEST_CASE(checking_btcecrecover_after_fork){
     // Initialize
 //    initState();
     genesisLoading();
-    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(0);
-    createNewBlocks(this,999 - coinbaseMaturity);
+    createNewBlocks(this, 499);
     dev::h256 hashTx(HASHTX);
 
     // Create contract
@@ -138,8 +137,7 @@ BOOST_AUTO_TEST_CASE(checking_btcecrecover_before_fork){
     // Initialize
 //    initState();
     genesisLoading();
-    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(0);
-    createNewBlocks(this,998 - coinbaseMaturity);
+    createNewBlocks(this, 498);
     dev::h256 hashTx(HASHTX);
 
     // Create contract

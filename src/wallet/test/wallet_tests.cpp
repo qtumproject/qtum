@@ -202,6 +202,7 @@ BOOST_FIXTURE_TEST_CASE(importwallet_rescan, TestChain100Setup)
     SetMockTime(BLOCK_TIME);
     m_coinbase_txns.emplace_back(CreateAndProcessBlock({}, GetScriptForRawPubKey(coinbaseKey.GetPubKey())).vtx[0]);
     m_coinbase_txns.emplace_back(CreateAndProcessBlock({}, GetScriptForRawPubKey(coinbaseKey.GetPubKey())).vtx[0]);
+    size_t coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(0);
 
     // Set key birthday to block time increased by the timestamp window, so
     // rescan will start at the block time.
@@ -247,10 +248,10 @@ BOOST_FIXTURE_TEST_CASE(importwallet_rescan, TestChain100Setup)
 
         LOCK(wallet->cs_wallet);
         BOOST_CHECK_EQUAL(wallet->mapWallet.size(), 3U);
-        BOOST_CHECK_EQUAL(m_coinbase_txns.size(), 503U);
+        BOOST_CHECK_EQUAL(m_coinbase_txns.size(), (coinbaseMaturity + 3U));
         for (size_t i = 0; i < m_coinbase_txns.size(); ++i) {
             bool found = wallet->GetWalletTx(m_coinbase_txns[i]->GetHash());
-            bool expected = i >= 500;
+            bool expected = i >= coinbaseMaturity;
             BOOST_CHECK_EQUAL(found, expected);
         }
     }

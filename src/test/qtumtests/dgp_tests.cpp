@@ -285,7 +285,8 @@ const dev::h256 hash = dev::h256(ParseHex("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 
 void contractLoading(){
     const CChainParams& chainparams = Params();
-    dev::eth::ChainParams cp(chainparams.EVMGenesisInfo(1400));
+    int coinbaseMaturity = chainparams.GetConsensus().CoinbaseMaturity(0);
+    dev::eth::ChainParams cp(chainparams.EVMGenesisInfo(coinbaseMaturity + 900));
     globalState->populateFrom(cp.genesisState);
     globalSealEngine = std::unique_ptr<dev::eth::SealEngineFace>(cp.createSealEngine());
     globalState->db().commit();
@@ -349,13 +350,14 @@ void createTestContractsAndBlocks(TestChain100Setup* testChain100Setup, const va
 
 template <typename T>
 void checkValue(T value, T value1, T value2, T value3, T value4, size_t i, std::function<bool(T&,T&)> func){
-    if(i > 599)
+    size_t coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(0);
+    if(i > (coinbaseMaturity + 99))
         BOOST_CHECK(func(value, value4));
-    if(599 > i && i > 550)
+    if((coinbaseMaturity + 99) > i && i > (coinbaseMaturity + 50))
         BOOST_CHECK(func(value, value3));
-    if(550 > i && i > 501)
+    if((coinbaseMaturity + 50) > i && i > (coinbaseMaturity + 1))
         BOOST_CHECK(func(value, value2));
-    if(501 > i && i > 0) // After initializing the tests, the height of the chain 502
+    if((coinbaseMaturity + 1) > i && i > 0) // After initializing the tests, the height of the chain 502
         BOOST_CHECK(func(value, value1));
 }
 
@@ -381,7 +383,8 @@ BOOST_AUTO_TEST_CASE(gas_schedule_default_state_test3){
     initState();
     contractLoading();
     QtumDGP qtumDGP(globalState.get());
-    dev::eth::EVMSchedule schedule = qtumDGP.getGasSchedule(1400);
+    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(0);
+    dev::eth::EVMSchedule schedule = qtumDGP.getGasSchedule(coinbaseMaturity + 900);
     BOOST_CHECK(compareEVMSchedule(schedule, dev::eth::IstanbulSchedule));
 }
 
@@ -413,7 +416,8 @@ BOOST_AUTO_TEST_CASE(gas_schedule_one_paramsInstance_introductory_block_1_test2)
     auto result = executeBC(txs);
 
     QtumDGP qtumDGP(globalState.get());
-    dev::eth::EVMSchedule schedule = qtumDGP.getGasSchedule(502); // After initializing the tests, the height of the chain 502
+    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(0);
+    dev::eth::EVMSchedule schedule = qtumDGP.getGasSchedule(coinbaseMaturity + 2); // After initializing the tests, the height of the chain 502
     BOOST_CHECK(compareEVMSchedule(schedule, EVMScheduleContractGasSchedule));
 }
 
@@ -422,7 +426,8 @@ BOOST_AUTO_TEST_CASE(gas_schedule_passage_from_0_to_130_three_paramsInstance_tes
     contractLoading();    
     createTestContractsAndBlocks(this, code[1], code[3], code[5], GasScheduleDGP);
     QtumDGP qtumDGP(globalState.get());
-    for(size_t i = 0; i < 1300; i++){
+    size_t sizeList = Params().GetConsensus().CoinbaseMaturity(0) + 800;
+    for(size_t i = 0; i < sizeList; i++){
         dev::eth::EVMSchedule schedule = qtumDGP.getGasSchedule(i);
         std::function<bool(const dev::eth::EVMSchedule&, const dev::eth::EVMSchedule&)> func = compareEVMSchedule;
         checkValue<dev::eth::EVMSchedule>(schedule, dev::eth::EIP158Schedule, EVMScheduleContractGasSchedule,
@@ -436,7 +441,8 @@ BOOST_AUTO_TEST_CASE(gas_schedule_passage_from_130_to_0_three_paramsInstance_tes
     
     createTestContractsAndBlocks(this, code[1], code[3], code[5], GasScheduleDGP);
     QtumDGP qtumDGP(globalState.get());
-    for(size_t i = 1300; i > 0; i--){
+    size_t sizeList = Params().GetConsensus().CoinbaseMaturity(0) + 800;
+    for(size_t i = sizeList; i > 0; i--){
         dev::eth::EVMSchedule schedule = qtumDGP.getGasSchedule(i);
         std::function<bool(const dev::eth::EVMSchedule&, const dev::eth::EVMSchedule&)> func = compareEVMSchedule;
         checkValue<dev::eth::EVMSchedule>(schedule, dev::eth::EIP158Schedule, EVMScheduleContractGasSchedule,
@@ -494,7 +500,8 @@ BOOST_AUTO_TEST_CASE(block_size_one_paramsInstance_introductory_block_1_test2){
     auto result = executeBC(txs);
 
     QtumDGP qtumDGP(globalState.get());
-    uint32_t blockSize = qtumDGP.getBlockSize(502);
+    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(0);
+    uint32_t blockSize = qtumDGP.getBlockSize(coinbaseMaturity + 2);
     BOOST_CHECK(blockSize == 1000000);
 }
 
@@ -504,7 +511,8 @@ BOOST_AUTO_TEST_CASE(block_size_passage_from_0_to_130_three_paramsInstance_test)
     
     createTestContractsAndBlocks(this, code[7], code[8], code[9], BlockSizeDGP);
     QtumDGP qtumDGP(globalState.get());
-    for(size_t i = 0; i < 1300; i++){
+    size_t sizeList = Params().GetConsensus().CoinbaseMaturity(0) + 800;
+    for(size_t i = 0; i < sizeList; i++){
         uint32_t blocktimeDownscaleFactor = Params().GetConsensus().BlocktimeDownscaleFactor(i);
         uint32_t blockSize = qtumDGP.getBlockSize(i);
         std::function<bool(const uint64_t&, const uint64_t&)> func = compareUint64;
@@ -518,7 +526,8 @@ BOOST_AUTO_TEST_CASE(block_size_passage_from_130_to_0_three_paramsInstance_test)
     
     createTestContractsAndBlocks(this, code[7], code[8], code[9], BlockSizeDGP);
     QtumDGP qtumDGP(globalState.get());
-    for(size_t i = 1300; i > 0; i--){
+    size_t sizeList = Params().GetConsensus().CoinbaseMaturity(0) + 800;
+    for(size_t i = sizeList; i > 0; i--){
         uint32_t blocktimeDownscaleFactor = Params().GetConsensus().BlocktimeDownscaleFactor(i);
         uint32_t blockSize = qtumDGP.getBlockSize(i);
         std::function<bool(const uint64_t&, const uint64_t&)> func = compareUint64;
@@ -570,7 +579,8 @@ BOOST_AUTO_TEST_CASE(min_gas_price_one_paramsInstance_introductory_block_1_test2
     auto result = executeBC(txs);
 
     QtumDGP qtumDGP(globalState.get());
-    uint64_t minGasPrice = qtumDGP.getMinGasPrice(502);
+    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(0);
+    uint64_t minGasPrice = qtumDGP.getMinGasPrice(coinbaseMaturity + 2);
     BOOST_CHECK(minGasPrice == 13);
 }
 
@@ -580,7 +590,8 @@ BOOST_AUTO_TEST_CASE(min_gas_price_passage_from_0_to_130_three_paramsInstance_te
     
     createTestContractsAndBlocks(this, code[10], code[11], code[12], GasPriceDGP);
     QtumDGP qtumDGP(globalState.get());
-    for(size_t i = 0; i < 1300; i++){
+    size_t sizeList = Params().GetConsensus().CoinbaseMaturity(0) + 800;
+    for(size_t i = 0; i < sizeList; i++){
         uint64_t minGasPrice = qtumDGP.getMinGasPrice(i);
         std::function<bool(const uint64_t&, const uint64_t&)> func = compareUint64;
         checkValue<uint64_t>(minGasPrice, DEFAULT_MIN_GAS_PRICE_DGP, 13, 9850, 123, i, func);
@@ -593,7 +604,8 @@ BOOST_AUTO_TEST_CASE(min_gas_price_passage_from_130_to_0_three_paramsInstance_te
     
     createTestContractsAndBlocks(this, code[10], code[11], code[12], GasPriceDGP);
     QtumDGP qtumDGP(globalState.get());
-    for(size_t i = 1300; i > 0; i--){
+    size_t sizeList = Params().GetConsensus().CoinbaseMaturity(0) + 800;
+    for(size_t i = sizeList; i > 0; i--){
         uint64_t minGasPrice = qtumDGP.getMinGasPrice(i);
         std::function<bool(const uint64_t&, const uint64_t&)> func = compareUint64;
         checkValue<uint64_t>(minGasPrice, DEFAULT_MIN_GAS_PRICE_DGP, 13, 9850, 123, i, func);
