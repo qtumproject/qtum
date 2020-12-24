@@ -1375,13 +1375,14 @@ public:
                 uint32_t beginningTime=GetAdjustedTime();
                 beginningTime &= ~d->stakeTimestampMask;
 
-                for(uint32_t blockTime = beginningTime; blockTime < beginningTime + nMaxStakeLookahead; blockTime += d->stakeTimestampMask+1)
+                bool fStale = false;
+                for(uint32_t blockTime = beginningTime; (blockTime < beginningTime + nMaxStakeLookahead) && !fStale; blockTime += d->stakeTimestampMask+1)
                 {
                     // Update status bar
                     UpdateStatusBar(blockTime);
 
                     // Check if block can be created
-                    if(CanCreateBlock(blockTime))
+                    if(CanCreateBlock(blockTime, fStale))
                     {
                         // Create new block
                         if(!CreateNewBlock(blockTime)) break;
@@ -1556,7 +1557,7 @@ protected:
         if(searchInterval > 0) d->pwallet->m_last_coin_stake_search_interval = searchInterval;
     }
 
-    bool CanCreateBlock(const uint32_t& blockTime)
+    bool CanCreateBlock(const uint32_t& blockTime, bool& fStale)
     {
         d->pblock->nTime = blockTime;
         if(d->mapSolveBlockTime.find(blockTime) == d->mapSolveBlockTime.end())
@@ -1565,14 +1566,21 @@ protected:
             auto locked_chain = d->pwallet->chain().lock();
 
             d->mapSolveBlockTime[blockTime] = false;
-            CCoinsViewCache& view = ::ChainstateActive().CoinsTip();
-            for(const COutPoint &prevoutStake : d->prevouts)
+            if(::ChainActive().Tip() == d->pindexPrev)
             {
-                if (CheckKernel(d->pindexPrev, d->pblock->nBits, blockTime, prevoutStake, view, d->pwallet->minerStakeCache))
+                CCoinsViewCache& view = ::ChainstateActive().CoinsTip();
+                for(const COutPoint &prevoutStake : d->prevouts)
                 {
-                    d->mapSolveBlockTime[blockTime] = true;
-                    break;
+                    if (CheckKernel(d->pindexPrev, d->pblock->nBits, blockTime, prevoutStake, view, d->pwallet->minerStakeCache))
+                    {
+                        d->mapSolveBlockTime[blockTime] = true;
+                        break;
+                    }
                 }
+            }
+            else
+            {
+                fStale = true;
             }
         }
 
