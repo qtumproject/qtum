@@ -21,5 +21,5 @@ private Q_SLOTS:
 private:
     Ui::HardwareSignTxDialog *ui;
 };
-HARDWARESIGNTXDIALOG_H
-#endif // HARDWARESIGNTX_H
+
+#endif // HARDWARESIGNTXDIALOG_H
