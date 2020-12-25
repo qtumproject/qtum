@@ -617,6 +617,7 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
         case HWIToolPath:
             if (settings.value("HWIToolPath") != value) {
                 settings.setValue("HWIToolPath", value);
+                setRestartRequired(true);
             }
             break;
 #endif
