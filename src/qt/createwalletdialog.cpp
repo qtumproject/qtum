@@ -8,6 +8,7 @@
 
 #include <qt/createwalletdialog.h>
 #include <qt/forms/ui_createwalletdialog.h>
+#include <chainparams.h>
 
 #include <QPushButton>
 
@@ -19,6 +20,7 @@ CreateWalletDialog::CreateWalletDialog(QWidget* parent) :
     ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Create"));
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     ui->wallet_name_line_edit->setFocus(Qt::ActiveWindowFocusReason);
+    ui->hardware_wallet_checkbox->setVisible(::Params().HasHardwareWalletSupport());
 
     connect(ui->wallet_name_line_edit, &QLineEdit::textEdited, [this](const QString& text) {
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(!text.isEmpty());

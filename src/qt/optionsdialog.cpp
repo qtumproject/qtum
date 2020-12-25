@@ -19,6 +19,7 @@
 #include <netbase.h>
 #include <txdb.h> // for -dbcache defaults
 #include <qt/styleSheet.h>
+#include <chainparams.h>
 
 #include <QDataWidgetMapper>
 #include <QDir>
@@ -101,6 +102,12 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
         ui->txtHWIToolPath->setVisible(false);
         ui->toolHWIPath->setVisible(false);
         ui->HWIToolLabel->setVisible(false);
+    }
+    else {
+        bool fHasHardwareWalletSupport = ::Params().HasHardwareWalletSupport();
+        ui->txtHWIToolPath->setVisible(fHasHardwareWalletSupport);
+        ui->toolHWIPath->setVisible(fHasHardwareWalletSupport);
+        ui->HWIToolLabel->setVisible(fHasHardwareWalletSupport);
     }
 
     /* Display elements init */

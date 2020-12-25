@@ -157,6 +157,7 @@ public:
         fMineBlocksOnDemand = false;
         m_is_test_chain = false;
         m_is_mockable_chain = false;
+        fHasHardwareWalletSupport = false;
 
         checkpointData = {
             {
@@ -286,6 +287,7 @@ public:
         fMineBlocksOnDemand = false;
         m_is_test_chain = true;
         m_is_mockable_chain = false;
+        fHasHardwareWalletSupport = false;
 
         checkpointData = {
             {
@@ -401,6 +403,7 @@ public:
         fMineBlocksOnDemand = true;
         m_is_test_chain = true;
         m_is_mockable_chain = true;
+        fHasHardwareWalletSupport = true;
 
         checkpointData = {
             {
