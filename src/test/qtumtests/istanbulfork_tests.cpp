@@ -29,7 +29,8 @@ const std::vector<valtype> CODE = {
 
 void genesisLoading(){
     const CChainParams& chainparams = Params();
-    dev::eth::ChainParams cp(chainparams.EVMGenesisInfo(999));
+    int forkHeight = Params().GetConsensus().CoinbaseMaturity(0) + 499;
+    dev::eth::ChainParams cp(chainparams.EVMGenesisInfo(forkHeight));
     globalState->populateFrom(cp.genesisState);
     globalSealEngine = std::unique_ptr<dev::eth::SealEngineFace>(cp.createSealEngine());
     globalState->db().commit();
@@ -52,8 +53,7 @@ BOOST_FIXTURE_TEST_SUITE(istanbulfork_tests, TestChain100Setup)
 
 BOOST_AUTO_TEST_CASE(checking_istanbul_after_fork){
     genesisLoading();
-    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(0);
-    createNewBlocks(this,999 - coinbaseMaturity);
+    createNewBlocks(this, 499);
     dev::h256 hashTx(HASHTX);
 
     // Create contract
@@ -71,8 +71,7 @@ BOOST_AUTO_TEST_CASE(checking_istanbul_after_fork){
 
 BOOST_AUTO_TEST_CASE(checking_istanbul_before_fork){
     genesisLoading();
-    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(0);
-    createNewBlocks(this,998 - coinbaseMaturity);
+    createNewBlocks(this, 498);
     dev::h256 hashTx(HASHTX);
 
     // Create contract
