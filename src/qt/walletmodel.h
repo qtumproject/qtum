@@ -176,6 +176,11 @@ public:
     uint64_t getStakeWeight();
 
     AddressTableModel* getAddressTableModel() const { return addressTableModel; }
+
+    // Get or set selected hardware device fingerprint (only for hardware wallet applicable)
+    QString getFingerprint() const;
+    void setFingerprint(const QString &value);
+
 private:
     std::unique_ptr<interfaces::Wallet> m_wallet;
     std::unique_ptr<interfaces::Handler> m_handler_unload;
@@ -217,6 +222,8 @@ private:
     uint64_t nWeight;
     std::atomic<bool> updateStakeWeight;
     std::atomic<bool> updateCoinAddresses;
+
+    QString fingerprint;
 
     QThread t;
     WalletWorker *worker;

@@ -829,3 +829,13 @@ void WalletModel::checkCoinAddresses()
 {
     updateCoinAddresses = true;
 }
+
+QString WalletModel::getFingerprint() const
+{
+    return fingerprint;
+}
+
+void WalletModel::setFingerprint(const QString &value)
+{
+    fingerprint = value;
+}
