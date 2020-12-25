@@ -5,6 +5,8 @@
 #include <QString>
 #include <QList>
 class QtumHwiToolPriv;
+class WalletModel;
+class ExecRPCCommand;
 
 /**
  * @brief The HWDevice class Hardware wallet device
@@ -87,10 +89,47 @@ public:
     bool signTx(const QString& fingerprint, QString& psbt);
 
     /**
+     * @brief rescanBlockchain Rescan blockchain
+     * @param startHeight Start height
+     * @param stopHeight Stop height
+     * @return success of the operation
+     */
+    bool rescanBlockchain(int startHeight =0, int stopHeight =-1);
+
+    /**
+     * @brief importMulti Import address descriptions
+     * @param desc Address descriptions
+     * @return success of the operation
+     */
+    bool importMulti(const QString& desc);
+
+    /**
+     * @brief finalizePsbt Finalize psbt
+     * @param psbt Psbt transaction
+     * @param hexTx Hex transaction
+     * @param complete Is the set of signatures complete
+     * @return success of the operation
+     */
+    bool finalizePsbt(const QString& psbt, QString& hexTx, bool & complete);
+
+    /**
+     * @brief sendRawTransaction Send raw transaction
+     * @param hexTx Hex transaction
+     * @return success of the operation
+     */
+    bool sendRawTransaction(const QString& hexTx);
+
+    /**
      * @brief errorMessage Get the last error message
      * @return Last error message
      */
     QString errorMessage();
+
+    /**
+     * @brief setModel Set wallet model
+     * @param model Wallet model
+     */
+    void setModel(WalletModel *model);
 
 Q_SIGNALS:
 
@@ -106,6 +145,7 @@ private:
     bool endEnumerate(QList<HWDevice>& devices);
     bool endGetKeyPool(const QString& fingerprint, QString& desc);
     bool endSignTx(const QString& fingerprint, QString& psbt);
+    bool execRPC(ExecRPCCommand* cmd, const QMap<QString, QString>& lstParams, QVariant& result, QString& resultJson);
 
     QtumHwiToolPriv* d;
 };

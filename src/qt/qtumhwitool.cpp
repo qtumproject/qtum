@@ -4,21 +4,39 @@
 
 #include <qt/qtumhwitool.h>
 #include <qt/guiutil.h>
+#include <qt/execrpccommand.h>
+#include <qt/walletmodel.h>
+#include <util/strencodings.h>
 
 #include <QProcess>
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QVariantMap>
+#include <QVariantList>
 
 #include <atomic>
+
+static const QString PARAM_START_HEIGHT = "start_height";
+static const QString PARAM_STOP_HEIGHT = "stop_height";
+static const QString PARAM_REQUESTS = "requests";
+static const QString PARAM_PSBT = "psbt";
+static const QString PARAM_HEXTX = "hextx";
 
 class QtumHwiToolPriv
 {
 public:
-    QtumHwiToolPriv()
+    QtumHwiToolPriv(QObject *parent)
     {
         toolPath = GUIUtil::getHwiToolPath();
+        QStringList optionalRescan = QStringList() << PARAM_START_HEIGHT << PARAM_STOP_HEIGHT;
+        cmdRescan = new ExecRPCCommand("rescanblockchain", QStringList(), optionalRescan,  QMap<QString, QString>(), parent);
+        QStringList mandatoryImport = QStringList() << PARAM_REQUESTS;
+        cmdImport = new ExecRPCCommand("importmulti", mandatoryImport, QStringList(),  QMap<QString, QString>(), parent);
+        QStringList mandatoryFinalize = QStringList() << PARAM_PSBT;
+        cmdFinalize = new ExecRPCCommand("finalizepsbt", mandatoryFinalize, QStringList(),  QMap<QString, QString>(), parent);
+        QStringList mandatorySend = QStringList() << PARAM_HEXTX;
+        cmdSend = new ExecRPCCommand("finalizepsbt", mandatorySend, QStringList(),  QMap<QString, QString>(), parent);
     }
 
     std::atomic<bool> fStarted{false};
@@ -27,6 +45,12 @@ public:
     QString strStderr;
     QString toolPath;
     QStringList arguments;
+
+    ExecRPCCommand* cmdRescan = 0;
+    ExecRPCCommand* cmdImport = 0;
+    ExecRPCCommand* cmdFinalize = 0;
+    ExecRPCCommand* cmdSend = 0;
+    WalletModel* model = 0;
 };
 
 HWDevice::HWDevice()
@@ -44,7 +68,7 @@ bool HWDevice::isValid() const
 
 QtumHwiTool::QtumHwiTool(QObject *parent) : QObject(parent)
 {
-    d = new QtumHwiToolPriv();
+    d = new QtumHwiToolPriv(this);
 }
 
 QtumHwiTool::~QtumHwiTool()
@@ -221,4 +245,113 @@ bool QtumHwiTool::endSignTx(const QString &fingerprint, QString &psbt)
     }
 
     return false;
+}
+
+bool QtumHwiTool::rescanBlockchain(int startHeight, int stopHeight)
+{
+    if(!d->model) return false;
+
+    // Add params for RPC
+    QMap<QString, QString> lstParams;
+    QVariant result;
+    QString resultJson;
+    ExecRPCCommand::appendParam(lstParams, PARAM_START_HEIGHT, QString::number(startHeight));
+    if(stopHeight > -1)
+    {
+        ExecRPCCommand::appendParam(lstParams, PARAM_STOP_HEIGHT, QString::number(stopHeight));
+    }
+
+    // Exec RPC
+    if(!execRPC(d->cmdRescan, lstParams, result, resultJson))
+        return false;
+
+    // Parse results
+    QVariantMap variantMap = result.toMap();
+    int resStartHeight = variantMap.value(PARAM_START_HEIGHT).toInt();
+    int resStopHeight = variantMap.value(PARAM_STOP_HEIGHT).toInt();
+
+    return resStartHeight < resStopHeight;
+}
+
+bool QtumHwiTool::importMulti(const QString &desc)
+{
+    if(!d->model) return false;
+
+    // Add params for RPC
+    QMap<QString, QString> lstParams;
+    QVariant result;
+    QString resultJson;
+    ExecRPCCommand::appendParam(lstParams, PARAM_REQUESTS, desc);
+
+    // Exec RPC
+    if(!execRPC(d->cmdImport, lstParams, result, resultJson))
+        return false;
+
+    // Parse results
+    int countSuccess = 0;
+    QVariantList variantList = result.toList();
+    for(const QVariant& item : variantList)
+    {
+        QVariantMap variantMap = item.toMap();
+        if(variantMap.value("success").toBool())
+            countSuccess++;
+    }
+
+    return countSuccess > 0;
+}
+
+bool QtumHwiTool::finalizePsbt(const QString &psbt, QString &hexTx, bool &complete)
+{
+    if(!d->model) return false;
+
+    // Add params for RPC
+    QMap<QString, QString> lstParams;
+    QVariant result;
+    QString resultJson;
+    ExecRPCCommand::appendParam(lstParams, PARAM_PSBT, psbt);
+
+    // Exec RPC
+    if(!execRPC(d->cmdFinalize, lstParams, result, resultJson))
+        return false;
+
+    // Parse results
+    QVariantMap variantMap = result.toMap();
+    hexTx = variantMap.value("hex").toString();
+    complete = variantMap.value("complete").toBool();
+
+    return true;
+}
+
+bool QtumHwiTool::sendRawTransaction(const QString &hexTx)
+{
+    if(!d->model) return false;
+
+    // Add params for RPC
+    QMap<QString, QString> lstParams;
+    QVariant result;
+    QString resultStr;
+    ExecRPCCommand::appendParam(lstParams, PARAM_HEXTX, hexTx);
+
+    // Exec RPC
+    if(!execRPC(d->cmdSend, lstParams, result, resultStr))
+        return false;
+
+    // Parse results
+    std::string strHash = resultStr.toStdString();
+
+    return strHash.length() == 64 && IsHex(strHash);
+}
+
+void QtumHwiTool::setModel(WalletModel *model)
+{
+    d->model = model;
+}
+
+bool QtumHwiTool::execRPC(ExecRPCCommand *cmd, const QMap<QString, QString> &lstParams, QVariant &result, QString &resultJson)
+{
+    d->strStderr.clear();
+    if(!cmd->exec(d->model->node(), d->model, lstParams, result, resultJson, d->strStderr))
+        return false;
+
+    return true;
 }
