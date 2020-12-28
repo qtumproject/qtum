@@ -63,11 +63,12 @@ void HardwareKeystoreDialog::setCurrentIndex(int index)
     }
 }
 
-bool HardwareKeystoreDialog::SelectDevice(QString &fingerprint, QWidget *parent)
+bool HardwareKeystoreDialog::SelectDevice(QString &fingerprint,  QString& errorMessage, bool& canceled, QWidget *parent)
 {
     // Enumerate devices
     QtumHwiTool hwiTool(parent);
     QList<HWDevice> devices;
+    canceled = false;
     if(hwiTool.enumerate(devices))
     {
         // Get valid devices
@@ -86,14 +87,21 @@ bool HardwareKeystoreDialog::SelectDevice(QString &fingerprint, QWidget *parent)
         if(listDeviceKey.length() > 0)
         {
             HardwareKeystoreDialog keystoreDialog(listDeviceValue, parent);
-            if(keystoreDialog.exec() == QDialog::Accepted &&
+            int result = keystoreDialog.exec();
+            if(result == QDialog::Accepted &&
                     keystoreDialog.currentIndex() != -1)
             {
                 fingerprint = listDeviceKey[keystoreDialog.currentIndex()];
                 return true;
             }
+            if(result == QDialog::Rejected)
+            {
+                canceled = true;
+            }
         }
     }
+
+    errorMessage = hwiTool.errorMessage();
 
     return false;
 }

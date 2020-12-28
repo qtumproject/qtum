@@ -42,7 +42,7 @@ public:
     std::atomic<bool> fStarted{false};
     QProcess process;
     QString strStdout;
-    QString strStderr;
+    QString strError;
     QString toolPath;
     QStringList arguments;
 
@@ -64,6 +64,11 @@ QString HWDevice::toString() const
 bool HWDevice::isValid() const
 {
     return fingerprint != "";
+}
+
+QString HWDevice::errorMessage() const
+{
+    return QString("Error: %1\nCode: %2").arg(error, code);
 }
 
 QtumHwiTool::QtumHwiTool(QObject *parent) : QObject(parent)
@@ -139,7 +144,7 @@ QString QtumHwiTool::errorMessage()
     if(d->fStarted)
         return tr("Started");
 
-    return d->strStderr;
+    return d->strError;
 }
 
 bool QtumHwiTool::isStarted()
@@ -153,7 +158,7 @@ void QtumHwiTool::wait()
     {
         d->process.waitForFinished(-1);
         d->strStdout = d->process.readAllStandardOutput();
-        d->strStderr = d->process.readAllStandardError();
+        d->strError = d->process.readAllStandardError();
         d->fStarted = false;
     }
 }
@@ -214,7 +219,12 @@ bool QtumHwiTool::endEnumerate(QList<HWDevice> &devices)
         device.path = data["path"].toString();
         device.error = data["error"].toString();
         device.model = data["model"].toString();
+        device.code = data["code"].toString();
         devices.push_back(device);
+
+        // Set error message
+        if(!device.isValid())
+            addError(device.errorMessage());
     }
 
     return devices.size() > 0;
@@ -349,9 +359,16 @@ void QtumHwiTool::setModel(WalletModel *model)
 
 bool QtumHwiTool::execRPC(ExecRPCCommand *cmd, const QMap<QString, QString> &lstParams, QVariant &result, QString &resultJson)
 {
-    d->strStderr.clear();
-    if(!cmd->exec(d->model->node(), d->model, lstParams, result, resultJson, d->strStderr))
+    d->strError.clear();
+    if(!cmd->exec(d->model->node(), d->model, lstParams, result, resultJson, d->strError))
         return false;
 
     return true;
+}
+
+void QtumHwiTool::addError(const QString &error)
+{
+    if(d->strError != "")
+        d->strError += "\n";
+    d->strError += error;
 }

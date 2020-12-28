@@ -31,6 +31,12 @@ public:
      */
     bool isValid() const;
 
+    /**
+     * @brief error Get error message for device
+     * @return Error message
+     */
+    QString errorMessage() const;
+
     /// Device data
     QString fingerprint;
     QString serial_number;
@@ -38,6 +44,7 @@ public:
     QString path;
     QString error;
     QString model;
+    QString code;
 };
 
 /**
@@ -146,6 +153,7 @@ private:
     bool endGetKeyPool(const QString& fingerprint, QString& desc);
     bool endSignTx(const QString& fingerprint, QString& psbt);
     bool execRPC(ExecRPCCommand* cmd, const QMap<QString, QString>& lstParams, QVariant& result, QString& resultJson);
+    void addError(const QString& error);
 
     QtumHwiToolPriv* d;
 };

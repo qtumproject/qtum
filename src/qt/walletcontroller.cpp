@@ -10,6 +10,7 @@
 #include <qt/guiutil.h>
 #include <qt/walletmodel.h>
 #include <qt/hardwarekeystoredialog.h>
+#include <qt/hardwaredevicedialog.h>
 
 #include <interfaces/handler.h>
 #include <interfaces/node.h>
@@ -219,16 +220,30 @@ void CreateWalletActivity::askDevice()
     QString hwiToolPath = GUIUtil::getHwiToolPath();
     if(QFile::exists(hwiToolPath))
     {
-        QTimer::singleShot(500, worker(), [this] {
-            if(HardwareKeystoreDialog::SelectDevice(m_fingerprint, m_parent_widget))
+        QString errorMessage;
+        bool canceled = false;
+        if(HardwareKeystoreDialog::SelectDevice(m_fingerprint, errorMessage, canceled, m_parent_widget))
+        {
+            createWallet();
+        }
+        else if(canceled)
+        {
+            Q_EMIT finished();
+        }
+        else
+        {
+            HardwareDeviceDialog dlg(errorMessage, m_parent_widget);
+            if(dlg.exec() == QDialog::Accepted)
             {
-                createWallet();
+                QTimer::singleShot(500, this, [this] {
+                    this->askDevice();
+                });
             }
             else
             {
                 Q_EMIT finished();
             }
-        });
+        }
     }
     else
     {

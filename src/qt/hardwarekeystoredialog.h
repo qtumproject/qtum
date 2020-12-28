@@ -46,10 +46,12 @@ public:
     /**
      * @brief SelectDevice Select hardware keystore device
      * @param fingerprint Fingerprint of the selected device
+     * @param errorMessage Error message during device selection
+     * @param canceled Device selection canceled by the user
      * @param parent Parent widget
      * @return true: device selected; false: device not selected
      */
-    static bool SelectDevice(QString& fingerprint, QWidget *parent = 0);
+    static bool SelectDevice(QString& fingerprint, QString& errorMessage, bool& canceled, QWidget *parent = 0);
 
 private:
     Ui::HardwareKeystoreDialog *ui;

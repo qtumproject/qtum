@@ -12,11 +12,12 @@ class HardwareDeviceDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit HardwareDeviceDialog(QWidget *parent = nullptr);
+    explicit HardwareDeviceDialog(const QString& debugMessage, QWidget *parent = nullptr);
     ~HardwareDeviceDialog();
 
 private Q_SLOTS:
     void on_cancelButton_clicked();
+    void on_nextButton_clicked();
 
 private:
     Ui::HardwareDeviceDialog *ui;
