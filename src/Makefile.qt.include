@@ -23,6 +23,7 @@ QT_FORMS_UI = \
   qt/forms/delegationitemwidget.ui \
   qt/forms/delegationpage.ui \
   qt/forms/delegationsstakerdialog.ui \
+  qt/forms/derivationpathdialog.ui \
   qt/forms/editaddressdialog.ui \
   qt/forms/editcontractinfodialog.ui \
   qt/forms/editsuperstakerdialog.ui \
@@ -92,6 +93,7 @@ QT_MOC_CPP = \
   qt/moc_delegationpage.cpp \
   qt/moc_delegationsstakerdialog.cpp \
   qt/moc_delegationstakeritemmodel.cpp \
+  qt/moc_derivationpathdialog.cpp \
   qt/moc_editaddressdialog.cpp \
   qt/moc_editcontractinfodialog.cpp \
   qt/moc_editsuperstakerdialog.cpp \
@@ -220,6 +222,7 @@ BITCOIN_QT_H = \
   qt/delegationpage.h \
   qt/delegationsstakerdialog.h \
   qt/delegationstakeritemmodel.h \
+  qt/derivationpathdialog.h \
   qt/editaddressdialog.h \
   qt/editcontractinfodialog.h \
   qt/editsuperstakerdialog.h \
@@ -448,6 +451,7 @@ BITCOIN_QT_WALLET_CPP = \
   qt/delegationlistwidget.cpp \
   qt/delegationpage.cpp \
   qt/delegationsstakerdialog.cpp \
+  qt/derivationpathdialog.cpp \
   qt/eventlog.cpp \
   qt/execrpccommand.cpp \
   qt/createwalletdialog.cpp \
