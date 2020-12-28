@@ -540,7 +540,10 @@ void BitcoinGUI::createMenuBar()
         file->addAction(restoreWalletAction);
         file->addAction(signMessageAction);
         file->addAction(verifyMessageAction);
-        file->addAction(signTxHardwareAction);
+        if(::Params().HasHardwareWalletSupport())
+        {
+            file->addAction(signTxHardwareAction);
+        }
         file->addSeparator();
     }
     file->addAction(quitAction);
