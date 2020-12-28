@@ -105,3 +105,13 @@ bool HardwareKeystoreDialog::SelectDevice(QString &fingerprint,  QString& errorM
 
     return false;
 }
+
+void HardwareKeystoreDialog::on_cancelButton_clicked()
+{
+    QDialog::reject();
+}
+
+void HardwareKeystoreDialog::on_nextButton_clicked()
+{
+    QDialog::accept();
+}

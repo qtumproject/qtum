@@ -53,6 +53,10 @@ public:
      */
     static bool SelectDevice(QString& fingerprint, QString& errorMessage, bool& canceled, QWidget *parent = 0);
 
+private Q_SLOTS:
+    void on_cancelButton_clicked();
+    void on_nextButton_clicked();
+
 private:
     Ui::HardwareKeystoreDialog *ui;
     HardwareKeystoreDialogPriv *d;
