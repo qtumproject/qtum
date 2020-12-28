@@ -328,3 +328,10 @@ void WalletFrame::updateTabBar(WalletView *walletView, int index)
         gui->setTabBarInfo(0);
     }
 }
+
+void WalletFrame::signTxHardware(const QString& tx)
+{
+    WalletView *walletView = currentWalletView();
+    if (walletView)
+        walletView->signTxHardware(tx);
+}

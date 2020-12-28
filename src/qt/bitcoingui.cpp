@@ -411,6 +411,9 @@ void BitcoinGUI::createActions()
     signMessageAction->setStatusTip(tr("Sign messages with your Qtum addresses to prove you own them"));
     verifyMessageAction = new QAction(tr("&Verify message..."), this);
     verifyMessageAction->setStatusTip(tr("Verify messages to ensure they were signed with specified Qtum addresses"));
+    signTxHardwareAction = new QAction(tr("Sign with &hardware..."), this);
+    signTxHardwareAction->setStatusTip(tr("Sign transaction with hardware wallet"));
+    signTxHardwareAction->setCheckable(true);
 
     openRPCConsoleAction = new QAction(tr("Node window"), this);
     openRPCConsoleAction->setStatusTip(tr("Open node debugging and diagnostic console"));
@@ -467,6 +470,7 @@ void BitcoinGUI::createActions()
         connect(verifyMessageAction, &QAction::triggered, [this]{ gotoVerifyMessageTab(); });
         connect(usedSendingAddressesAction, &QAction::triggered, walletFrame, &WalletFrame::usedSendingAddresses);
         connect(usedReceivingAddressesAction, &QAction::triggered, walletFrame, &WalletFrame::usedReceivingAddresses);
+        connect(signTxHardwareAction, &QAction::triggered, [this]{ signTxHardware(); });
         connect(openAction, &QAction::triggered, this, &BitcoinGUI::openClicked);
         connect(m_open_wallet_menu, &QMenu::aboutToShow, [this] {
             m_open_wallet_menu->clear();
@@ -536,6 +540,7 @@ void BitcoinGUI::createMenuBar()
         file->addAction(restoreWalletAction);
         file->addAction(signMessageAction);
         file->addAction(verifyMessageAction);
+        file->addAction(signTxHardwareAction);
         file->addSeparator();
     }
     file->addAction(quitAction);
@@ -851,6 +856,7 @@ void BitcoinGUI::setWalletActionsEnabled(bool enabled)
     delegationAction->setEnabled(enabled);
     superStakerAction->setEnabled(enabled);
     walletStakeAction->setEnabled(enabled);
+    signTxHardwareAction->setEnabled(enabled);
     m_close_wallet_action->setEnabled(enabled);
 }
 
@@ -1034,6 +1040,10 @@ void BitcoinGUI::gotoSignMessageTab(QString addr)
 void BitcoinGUI::gotoVerifyMessageTab(QString addr)
 {
     if (walletFrame) walletFrame->gotoVerifyMessageTab(addr);
+}
+void BitcoinGUI::signTxHardware(const QString& tx)
+{
+    if (walletFrame) walletFrame->signTxHardware(tx);
 }
 #endif // ENABLE_WALLET
 

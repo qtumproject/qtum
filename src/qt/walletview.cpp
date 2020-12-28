@@ -27,6 +27,7 @@
 #include <qt/stakepage.h>
 #include <qt/delegationpage.h>
 #include <qt/superstakerpage.h>
+#include <qt/hardwaresigntxdialog.h>
 #include <qt/walletframe.h>
 
 #include <interfaces/node.h>
@@ -459,4 +460,13 @@ void WalletView::showProgress(const QString &title, int nProgress)
 void WalletView::requestedSyncWarningInfo()
 {
     Q_EMIT outOfSyncWarningClicked();
+}
+
+void WalletView::signTxHardware(const QString &tx)
+{
+    if(!walletModel)
+        return;
+    HardwareSignTxDialog dlg(tx, this);
+    dlg.setModel(walletModel);
+    dlg.exec();
 }

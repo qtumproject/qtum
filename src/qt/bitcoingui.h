@@ -171,6 +171,7 @@ private:
     QAction* delegationAction = nullptr;
     QAction* superStakerAction = nullptr;
     QAction* walletStakeAction = nullptr;
+    QAction* signTxHardwareAction = nullptr;
     QAction* m_create_wallet_action{nullptr};
     QAction* m_open_wallet_action{nullptr};
     QMenu* m_open_wallet_menu{nullptr};
@@ -318,6 +319,8 @@ public Q_SLOTS:
     void gotoSignMessageTab(QString addr = "");
     /** Show Sign/Verify Message dialog and switch to verify message tab */
     void gotoVerifyMessageTab(QString addr = "");
+    /** Sign transaction with hardware wallet*/
+    void signTxHardware(const QString& tx = "");
 
     /** Show open dialog */
     void openClicked();
