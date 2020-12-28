@@ -6,6 +6,7 @@
 namespace Ui {
 class HardwareSignTxDialog;
 }
+class HardwareSignTxDialogPriv;
 class WalletModel;
 
 class HardwareSignTxDialog : public QDialog
@@ -20,10 +21,11 @@ public:
 
 private Q_SLOTS:
     void on_cancelButton_clicked();
+    void txChanged();
 
 private:
     Ui::HardwareSignTxDialog *ui;
-    WalletModel* m_model;
+    HardwareSignTxDialogPriv* d;
 };
 
 #endif // HARDWARESIGNTXDIALOG_H

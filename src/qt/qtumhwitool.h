@@ -127,6 +127,14 @@ public:
     bool sendRawTransaction(const QString& hexTx);
 
     /**
+     * @brief decodePsbt Decode psbt transaction
+     * @param psbt Psbt transaction
+     * @param decoded Decoded transaction
+     * @return success of the operation
+     */
+    bool decodePsbt(const QString& psbt, QString& decoded);
+
+    /**
      * @brief errorMessage Get the last error message
      * @return Last error message
      */

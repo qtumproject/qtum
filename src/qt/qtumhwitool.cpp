@@ -7,6 +7,8 @@
 #include <qt/execrpccommand.h>
 #include <qt/walletmodel.h>
 #include <util/strencodings.h>
+#include <util/system.h>
+#include <chainparams.h>
 
 #include <QProcess>
 #include <QJsonDocument>
@@ -37,6 +39,12 @@ public:
         cmdFinalize = new ExecRPCCommand("finalizepsbt", mandatoryFinalize, QStringList(),  QMap<QString, QString>(), parent);
         QStringList mandatorySend = QStringList() << PARAM_HEXTX;
         cmdSend = new ExecRPCCommand("finalizepsbt", mandatorySend, QStringList(),  QMap<QString, QString>(), parent);
+        QStringList mandatoryDecode = QStringList() << PARAM_PSBT;
+        cmdDecode = new ExecRPCCommand("decodepsbt", mandatoryDecode, QStringList(),  QMap<QString, QString>(), parent);
+        if(gArgs.GetChainName() != CBaseChainParams::MAIN)
+        {
+            arguments << "--testnet";
+        }
     }
 
     std::atomic<bool> fStarted{false};
@@ -50,6 +58,7 @@ public:
     ExecRPCCommand* cmdImport = 0;
     ExecRPCCommand* cmdFinalize = 0;
     ExecRPCCommand* cmdSend = 0;
+    ExecRPCCommand* cmdDecode = 0;
     WalletModel* model = 0;
 };
 
@@ -350,6 +359,26 @@ bool QtumHwiTool::sendRawTransaction(const QString &hexTx)
     std::string strHash = resultStr.toStdString();
 
     return strHash.length() == 64 && IsHex(strHash);
+}
+
+bool QtumHwiTool::decodePsbt(const QString &psbt, QString &decoded)
+{
+    if(!d->model) return false;
+
+    // Add params for RPC
+    QMap<QString, QString> lstParams;
+    QVariant result;
+    QString resultStr;
+    ExecRPCCommand::appendParam(lstParams, PARAM_PSBT, psbt);
+
+    // Exec RPC
+    if(!execRPC(d->cmdDecode, lstParams, result, resultStr))
+        return false;
+
+    // Parse results
+    decoded = resultStr;
+
+    return true;
 }
 
 void QtumHwiTool::setModel(WalletModel *model)
