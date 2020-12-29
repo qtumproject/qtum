@@ -277,9 +277,17 @@ bool QtumHwiTool::endGetKeyPool(const QString &fingerprint, int type, QString &d
     Q_UNUSED(type);
 
     // Decode command line results
-    desc = d->strStdout;
+    bool ret = d->strStdout.contains("desc");
+    if(ret)
+    {
+        desc = "\"" + d->strStdout.replace("\"", "\\\"") + "\"";
+    }
+    else
+    {
+        desc = d->strStdout;
+    }
 
-    return d->strStdout.contains("desc");
+    return ret;
 }
 
 bool QtumHwiTool::endSignTx(const QString &fingerprint, QString &psbt)
