@@ -30,6 +30,7 @@
 #include <util/system.h> // for GetBoolArg
 #include <wallet/coincontrol.h>
 #include <wallet/wallet.h> // for CRecipient
+#include <qt/qtumhwitool.h>
 
 #include <stdint.h>
 
@@ -51,6 +52,7 @@ private Q_SLOTS:
     void updateModel()
     {
         // Update the model with results of task that take more time to be completed
+        walletModel->checkHardwareWallet();
         walletModel->checkCoinAddressesChanged();
         walletModel->checkStakeWeightChanged();
     }
@@ -838,4 +840,51 @@ QString WalletModel::getFingerprint() const
 void WalletModel::setFingerprint(const QString &value)
 {
     fingerprint = value;
+}
+
+bool WalletModel::getHardwareWalletInitRequired() const
+{
+    return hardwareWalletInitRequired;
+}
+
+void WalletModel::setHardwareWalletInitRequired(bool value)
+{
+    hardwareWalletInitRequired = value;
+}
+
+void WalletModel::checkHardwareWallet()
+{
+    if(hardwareWalletInitRequired)
+    {
+        // Init variables
+        QtumHwiTool hwiTool(this);
+        hwiTool.setModel(this);
+
+        if(hwiTool.isConnected(fingerprint))
+        {
+            // Setup key pool
+            QString pkhdesc;
+            if(hwiTool.getKeyPoolPKH(fingerprint, pkhdesc))
+            {
+                hwiTool.importMulti(pkhdesc);
+            }
+
+            QString p2shdesc;
+            if(hwiTool.getKeyPoolP2SH(fingerprint, p2shdesc))
+            {
+                hwiTool.importMulti(p2shdesc);
+            }
+
+            QString bech32desc;
+            if(hwiTool.getKeyPoolP2SH(fingerprint, bech32desc))
+            {
+                hwiTool.importMulti(bech32desc);
+            }
+
+            // Rescan the chain
+            hwiTool.rescanBlockchain();
+        }
+
+        hardwareWalletInitRequired = false;
+    }
 }

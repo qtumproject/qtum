@@ -181,6 +181,10 @@ public:
     QString getFingerprint() const;
     void setFingerprint(const QString &value);
 
+    // Get or set hardware wallet init required (only for hardware wallet applicable)
+    bool getHardwareWalletInitRequired() const;
+    void setHardwareWalletInitRequired(bool value);
+
 private:
     std::unique_ptr<interfaces::Wallet> m_wallet;
     std::unique_ptr<interfaces::Handler> m_handler_unload;
@@ -224,6 +228,7 @@ private:
     std::atomic<bool> updateCoinAddresses;
 
     QString fingerprint;
+    std::atomic<bool> hardwareWalletInitRequired{false};
 
     QThread t;
     WalletWorker *worker;
@@ -290,6 +295,8 @@ public Q_SLOTS:
     void checkCoinAddressesChanged();
     /* Update stake weight when changed*/
     void checkStakeWeightChanged();
+    /* Check for hardware wallet params changes*/
+    void checkHardwareWallet();
 };
 
 #endif // BITCOIN_QT_WALLETMODEL_H

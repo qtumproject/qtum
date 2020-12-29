@@ -291,6 +291,16 @@ void CreateWalletActivity::finish()
         QMessageBox::warning(m_parent_widget, tr("Create wallet warning"), QString::fromStdString(Join(m_warning_message, "\n")));
     }
 
+    // Set hardware wallet parameters to the model
+    if(m_create_wallet_dialog->isHardwareWalletChecked())
+    {
+        if(m_wallet_model)
+        {
+            m_wallet_model->setFingerprint(m_fingerprint);
+            m_wallet_model->setHardwareWalletInitRequired(true);
+        }
+    }
+
     if (m_wallet_model) Q_EMIT created(m_wallet_model);
 
     Q_EMIT finished();

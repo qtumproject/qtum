@@ -220,7 +220,10 @@ bool QtumHwiTool::beginGetKeyPool(const QString &fingerprint, int type, QString 
 
     // Execute command line
     QStringList arguments = d->arguments;
-    arguments << "-f" << fingerprint << "getkeypool" << descType << "0" << "1000";
+    arguments << "-f" << fingerprint << "getkeypool";
+    if(descType != "")
+        arguments << descType;
+    arguments << "0" << "1000";
     d->process.start(d->toolPath, arguments);
     d->fStarted = true;
 
