@@ -82,10 +82,35 @@ public:
     /**
      * @brief getKeyPool Get the key pool for a device
      * @param fingerprint Hardware wallet device fingerprint
+     * @param type Type of output
      * @param desc Address descriptors
      * @return success of the operation
      */
-    bool getKeyPool(const QString& fingerprint, QString& desc);
+    bool getKeyPool(const QString& fingerprint, int type, QString& desc);
+
+    /**
+     * @brief getKeyPoolPkh Get the PKH key pool for a device
+     * @param fingerprint Hardware wallet device fingerprint
+     * @param desc Address descriptors
+     * @return success of the operation
+     */
+    bool getKeyPoolPKH(const QString& fingerprint, QString& desc);
+
+    /**
+     * @brief getKeyPoolP2SH Get the P2SH key pool for a device
+     * @param fingerprint Hardware wallet device fingerprint
+     * @param desc Address descriptors
+     * @return success of the operation
+     */
+    bool getKeyPoolP2SH(const QString& fingerprint, QString& desc);
+
+    /**
+     * @brief getKeyPoolBech32 Get the Bech32 key pool for a device
+     * @param fingerprint Hardware wallet device fingerprint
+     * @param desc Address descriptors
+     * @return success of the operation
+     */
+    bool getKeyPoolBech32(const QString& fingerprint, QString& desc);
 
     /**
      * @brief signTx Sign PSBT transaction
@@ -155,10 +180,10 @@ private:
     void wait();
 
     bool beginEnumerate(QList<HWDevice>& devices);
-    bool beginGetKeyPool(const QString& fingerprint, QString& desc);
+    bool beginGetKeyPool(const QString& fingerprint, int type, QString& desc);
     bool beginSignTx(const QString& fingerprint, QString& psbt);
     bool endEnumerate(QList<HWDevice>& devices);
-    bool endGetKeyPool(const QString& fingerprint, QString& desc);
+    bool endGetKeyPool(const QString& fingerprint, int type, QString& desc);
     bool endSignTx(const QString& fingerprint, QString& psbt);
     bool execRPC(ExecRPCCommand* cmd, const QMap<QString, QString>& lstParams, QVariant& result, QString& resultJson);
     void addError(const QString& error);

@@ -9,6 +9,7 @@
 #include <util/strencodings.h>
 #include <util/system.h>
 #include <chainparams.h>
+#include <outputtype.h>
 
 #include <QProcess>
 #include <QJsonDocument>
@@ -119,18 +120,33 @@ bool QtumHwiTool::isConnected(const QString &fingerprint)
     return false;
 }
 
-bool QtumHwiTool::getKeyPool(const QString &fingerprint, QString &desc)
+bool QtumHwiTool::getKeyPool(const QString &fingerprint, int type, QString &desc)
 {
     // Get the key pool for a device
     if(isStarted())
         return false;
 
-    if(!beginGetKeyPool(fingerprint, desc))
+    if(!beginGetKeyPool(fingerprint, type, desc))
         return false;
 
     wait();
 
-    return endGetKeyPool(fingerprint, desc);
+    return endGetKeyPool(fingerprint, type, desc);
+}
+
+bool QtumHwiTool::getKeyPoolPKH(const QString &fingerprint, QString &desc)
+{
+    return getKeyPool(fingerprint, (int)OutputType::LEGACY, desc);
+}
+
+bool QtumHwiTool::getKeyPoolP2SH(const QString &fingerprint, QString &desc)
+{
+    return getKeyPool(fingerprint, (int)OutputType::P2SH_SEGWIT, desc);
+}
+
+bool QtumHwiTool::getKeyPoolBech32(const QString &fingerprint, QString &desc)
+{
+    return getKeyPool(fingerprint, (int)OutputType::BECH32, desc);
 }
 
 bool QtumHwiTool::signTx(const QString &fingerprint, QString &psbt)
@@ -185,13 +201,26 @@ bool QtumHwiTool::beginEnumerate(QList<HWDevice> &devices)
     return d->fStarted;
 }
 
-bool QtumHwiTool::beginGetKeyPool(const QString &fingerprint, QString &desc)
+bool QtumHwiTool::beginGetKeyPool(const QString &fingerprint, int type, QString &desc)
 {
     Q_UNUSED(desc);
 
+    // Get the output type
+    QString descType;
+    switch (type) {
+    case (int)OutputType::P2SH_SEGWIT:
+        descType = "--sh_wpkh";
+        break;
+    case (int)OutputType::BECH32:
+        descType = "--wpkh";
+        break;
+    default:
+        break;
+    }
+
     // Execute command line
     QStringList arguments = d->arguments;
-    arguments << "-f" << fingerprint << "getkeypool" << "--wpkh" << "0" << "1000";
+    arguments << "-f" << fingerprint << "getkeypool" << descType << "0" << "1000";
     d->process.start(d->toolPath, arguments);
     d->fStarted = true;
 
@@ -239,9 +268,10 @@ bool QtumHwiTool::endEnumerate(QList<HWDevice> &devices)
     return devices.size() > 0;
 }
 
-bool QtumHwiTool::endGetKeyPool(const QString &fingerprint, QString &desc)
+bool QtumHwiTool::endGetKeyPool(const QString &fingerprint, int type, QString &desc)
 {
     Q_UNUSED(fingerprint);
+    Q_UNUSED(type);
 
     // Decode command line results
     desc = d->strStdout;
