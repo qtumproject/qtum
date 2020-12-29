@@ -161,6 +161,7 @@ QT_MOC_CPP = \
   qt/moc_walletcontroller.cpp \
   qt/moc_qtumversionchecker.cpp \
   qt/moc_qtumhwitool.cpp \
+  qt/moc_waitmessagebox.cpp \
   qt/moc_walletframe.cpp \
   qt/moc_walletmodel.cpp \
   qt/moc_walletview.cpp
@@ -300,6 +301,7 @@ BITCOIN_QT_H = \
   qt/utilitydialog.h \
   qt/walletcontroller.h \
   qt/qtumversionchecker.h \
+  qt/waitmessagebox.h \
   qt/walletframe.h \
   qt/walletmodel.h \
   qt/walletmodeltransaction.h \
@@ -498,6 +500,7 @@ BITCOIN_QT_WALLET_CPP = \
   qt/tokenitemwidget.cpp \
   qt/tokenlistwidget.cpp \
   qt/walletcontroller.cpp \
+  qt/waitmessagebox.cpp \
   qt/walletframe.cpp \
   qt/walletmodel.cpp \
   qt/walletmodeltransaction.cpp \
