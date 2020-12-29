@@ -413,7 +413,6 @@ void BitcoinGUI::createActions()
     verifyMessageAction->setStatusTip(tr("Verify messages to ensure they were signed with specified Qtum addresses"));
     signTxHardwareAction = new QAction(tr("Sign with &hardware..."), this);
     signTxHardwareAction->setStatusTip(tr("Sign transaction with hardware wallet"));
-    signTxHardwareAction->setCheckable(true);
 
     openRPCConsoleAction = new QAction(tr("Node window"), this);
     openRPCConsoleAction->setStatusTip(tr("Open node debugging and diagnostic console"));
