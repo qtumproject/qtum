@@ -56,7 +56,9 @@ void HardwareSignTxDialog::txChanged()
     if(psbt != d->psbt)
     {
         d->psbt = psbt;
-        d->tool->decodePsbt(psbt, decoded);
+        bool isOk = d->tool->decodePsbt(psbt, decoded);
         ui->textEditTxDetails->setText(decoded);
+        ui->signButton->setEnabled(isOk);
+        ui->sendButton->setEnabled(false);
     }
 }

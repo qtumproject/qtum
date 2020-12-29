@@ -128,13 +128,19 @@
       </item>
       <item>
        <widget class="QPushButton" name="signButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>Sign</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="SendButton">
+       <widget class="QPushButton" name="sendButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>Send</string>
         </property>
