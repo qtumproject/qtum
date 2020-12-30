@@ -26,6 +26,9 @@ private Q_SLOTS:
     void txChanged();
 
 private:
+    bool askDevice();
+
+private:
     Ui::HardwareSignTxDialog *ui;
     HardwareSignTxDialogPriv* d;
 };

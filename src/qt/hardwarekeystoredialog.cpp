@@ -87,6 +87,11 @@ bool HardwareKeystoreDialog::SelectDevice(QString &fingerprint,  QString& errorM
         // Select a device
         if(listDeviceKey.length() > 0)
         {
+            if(fingerprint != "" && listDeviceKey.contains(fingerprint))
+            {
+                return true;
+            }
+
             HardwareKeystoreDialog keystoreDialog(listDeviceValue, parent);
             int result = keystoreDialog.exec();
             if(result == QDialog::Accepted &&
@@ -107,14 +112,14 @@ bool HardwareKeystoreDialog::SelectDevice(QString &fingerprint,  QString& errorM
     return false;
 }
 
-bool HardwareKeystoreDialog::AskDevice(QString &fingerprint, QString &message, QWidget *parent)
+bool HardwareKeystoreDialog::AskDevice(QString &fingerprint, const QString &title, const QString &message, QWidget *parent)
 {
     QString errorMessage;
     bool canceled = false;
     if(SelectDevice(fingerprint, errorMessage, canceled, parent))
         return true;
 
-    QMessageBox box(QMessageBox::Question, "Select ledger", message, QMessageBox::No | QMessageBox::Yes, parent);
+    QMessageBox box(QMessageBox::Question, title, message, QMessageBox::No | QMessageBox::Yes, parent);
 
     while(!canceled && box.exec() == QMessageBox::Yes)
     {

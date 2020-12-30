@@ -3,6 +3,7 @@
 #include <qt/walletmodel.h>
 #include <qt/qtumhwitool.h>
 #include <qt/waitmessagebox.h>
+#include <qt/hardwarekeystoredialog.h>
 
 class HardwareSignTxDialogPriv
 {
@@ -70,24 +71,42 @@ void HardwareSignTxDialog::txChanged()
 
 void HardwareSignTxDialog::on_signButton_clicked()
 {
-    WaitMessageBox dlg(tr("Ledger Status"), tr("Confirm Transaction on your Ledger device..."), [this]() {
-        QString fingerprint = d->model->getFingerprint();
-        QString psbt = d->psbt;
-        d->hexTx = "";
-        d->complete = false;
-        bool ret = d->tool->signTx(fingerprint, psbt);
-        if(ret) ret &= d->tool->finalizePsbt(psbt, d->hexTx, d->complete);
-        if(d->complete)
-        {
-            ui->sendButton->setEnabled(true);
-        }
-    }, this);
+    if(askDevice())
+    {
+        WaitMessageBox dlg(tr("Ledger Status"), tr("Confirm Transaction on your Ledger device..."), [this]() {
+            QString fingerprint = d->model->getFingerprint();
+            QString psbt = d->psbt;
+            d->hexTx = "";
+            d->complete = false;
+            bool ret = d->tool->signTx(fingerprint, psbt);
+            if(ret) ret &= d->tool->finalizePsbt(psbt, d->hexTx, d->complete);
+            if(d->complete)
+            {
+                ui->sendButton->setEnabled(true);
+            }
+        }, this);
 
-    dlg.exec();
+        dlg.exec();
+    }
 }
 
 void HardwareSignTxDialog::on_sendButton_clicked()
 {
     if(d->tool->sendRawTransaction(d->hexTx))
         QDialog::accept();
+}
+
+bool HardwareSignTxDialog::askDevice()
+{
+    QString fingerprint = d->model->getFingerprint();
+    QString title = tr("Connect Ledger");
+    QString message = tr("Please insert your Ledger (%1). Verify the cable is connected and that no other application is using it.\n\nTry to connect again?");
+    if(HardwareKeystoreDialog::AskDevice(fingerprint, title, message.arg(fingerprint), this))
+    {
+        d->model->setFingerprint(fingerprint);
+        return true;
+    }
+
+    d->model->setFingerprint("");
+    return false;
 }
