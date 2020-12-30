@@ -9,6 +9,7 @@
 #include <QRadioButton>
 #include <QVBoxLayout>
 #include <QButtonGroup>
+#include <QMessageBox>
 
 class HardwareKeystoreDialogPriv
 {
@@ -103,6 +104,23 @@ bool HardwareKeystoreDialog::SelectDevice(QString &fingerprint,  QString& errorM
 
     errorMessage = hwiTool.errorMessage();
 
+    return false;
+}
+
+bool HardwareKeystoreDialog::AskDevice(QString &fingerprint, QString &message, QWidget *parent)
+{
+    QString errorMessage;
+    bool canceled = false;
+    if(SelectDevice(fingerprint, errorMessage, canceled, parent))
+        return true;
+
+    QMessageBox box(QMessageBox::Question, "Select ledger", message, QMessageBox::No | QMessageBox::Yes, parent);
+
+    while(!canceled && box.exec() == QMessageBox::Yes)
+    {
+        if(SelectDevice(fingerprint, errorMessage, canceled, parent))
+            return true;
+    }
     return false;
 }
 

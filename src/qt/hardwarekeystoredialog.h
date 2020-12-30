@@ -52,6 +52,7 @@ public:
      * @return true: device selected; false: device not selected
      */
     static bool SelectDevice(QString& fingerprint, QString& errorMessage, bool& canceled, QWidget *parent = 0);
+    static bool AskDevice(QString& fingerprint, QString& message, QWidget *parent = 0);
 
 private Q_SLOTS:
     void on_cancelButton_clicked();
