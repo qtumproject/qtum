@@ -4,6 +4,10 @@
 #include <qt/qtumhwitool.h>
 #include <qt/waitmessagebox.h>
 #include <qt/hardwarekeystoredialog.h>
+#include <qt/guiconstants.h>
+#include <qt/guiutil.h>
+
+#include <QMessageBox>
 
 class HardwareSignTxDialogPriv
 {
@@ -98,6 +102,20 @@ void HardwareSignTxDialog::on_sendButton_clicked()
 
 bool HardwareSignTxDialog::askDevice()
 {
+    // Check if the HWI tool exist
+    QString hwiToolPath = GUIUtil::getHwiToolPath();
+    if(!QFile::exists(hwiToolPath))
+    {
+        QMessageBox msgBox(this);
+        msgBox.setWindowTitle(tr("HWI tool not found"));
+        msgBox.setTextFormat(Qt::RichText);
+        msgBox.setText(tr("HWI tool not found at path \"%1\".<br>Please download it from %2 and add the path to the settings.").arg(hwiToolPath, QTUM_HWI_TOOL));
+        msgBox.setStandardButtons(QMessageBox::Ok);
+        msgBox.exec();
+        return false;
+    }
+
+    // Ask for ledger
     QString fingerprint = d->model->getFingerprint();
     QString title = tr("Connect Ledger");
     QString message = tr("Please insert your Ledger (%1). Verify the cable is connected and that no other application is using it.\n\nTry to connect again?");
