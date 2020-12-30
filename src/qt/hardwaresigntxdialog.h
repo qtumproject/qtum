@@ -21,6 +21,8 @@ public:
 
 private Q_SLOTS:
     void on_cancelButton_clicked();
+    void on_signButton_clicked();
+    void on_sendButton_clicked();
     void txChanged();
 
 private:

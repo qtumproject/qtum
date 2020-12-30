@@ -2,6 +2,7 @@
 #include <qt/forms/ui_hardwaresigntxdialog.h>
 #include <qt/walletmodel.h>
 #include <qt/qtumhwitool.h>
+#include <qt/waitmessagebox.h>
 
 class HardwareSignTxDialogPriv
 {
@@ -14,6 +15,8 @@ public:
     WalletModel* model = 0;
     QtumHwiTool* tool = 0;
     QString psbt;
+    QString hexTx;
+    bool complete = false;
 };
 
 HardwareSignTxDialog::HardwareSignTxDialog(const QString &tx, QWidget *parent) :
@@ -56,9 +59,35 @@ void HardwareSignTxDialog::txChanged()
     if(psbt != d->psbt)
     {
         d->psbt = psbt;
+        d->hexTx = "";
+        d->complete = false;
         bool isOk = d->tool->decodePsbt(psbt, decoded);
         ui->textEditTxDetails->setText(decoded);
         ui->signButton->setEnabled(isOk);
         ui->sendButton->setEnabled(false);
     }
+}
+
+void HardwareSignTxDialog::on_signButton_clicked()
+{
+    WaitMessageBox dlg(tr("Ledger Status"), tr("Confirm Transaction on your Ledger device..."), [this]() {
+        QString fingerprint = d->model->getFingerprint();
+        QString psbt = d->psbt;
+        d->hexTx = "";
+        d->complete = false;
+        bool ret = d->tool->signTx(fingerprint, psbt);
+        if(ret) ret &= d->tool->finalizePsbt(psbt, d->hexTx, d->complete);
+        if(d->complete)
+        {
+            ui->sendButton->setEnabled(true);
+        }
+    }, this);
+
+    dlg.exec();
+}
+
+void HardwareSignTxDialog::on_sendButton_clicked()
+{
+    if(d->tool->sendRawTransaction(d->hexTx))
+        QDialog::accept();
 }
