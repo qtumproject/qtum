@@ -91,6 +91,11 @@ void HardwareSignTxDialog::on_signButton_clicked()
         }, this);
 
         dlg.exec();
+
+        if(!d->complete)
+        {
+            QMessageBox::warning(this, tr("Sign failed"), tr("The transaction has no a complete set of signatures."));
+        }
     }
 }
 
