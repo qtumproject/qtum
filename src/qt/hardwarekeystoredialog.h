@@ -64,7 +64,7 @@ public:
 
 private Q_SLOTS:
     void on_cancelButton_clicked();
-    void on_nextButton_clicked();
+    void on_okButton_clicked();
 
 private:
     Ui::HardwareKeystoreDialog *ui;

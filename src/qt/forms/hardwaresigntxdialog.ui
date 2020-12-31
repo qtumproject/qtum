@@ -114,6 +114,13 @@
        <number>30</number>
       </property>
       <item>
+       <widget class="QPushButton" name="importButton">
+        <property name="text">
+         <string>Import Addresses</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>

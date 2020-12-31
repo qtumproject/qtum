@@ -35,6 +35,8 @@ HardwareSignTxDialog::HardwareSignTxDialog(const QString &tx, QWidget *parent) :
     ui->textEditTxData->setReadOnly(tx != "");
     ui->textEditTxDetails->setReadOnly(true);
 
+    setStyleSheet("");
+
     // Connect slots
     connect(ui->textEditTxData, &QTextEdit::textChanged, this, &HardwareSignTxDialog::txChanged);
 }
@@ -55,6 +57,14 @@ void HardwareSignTxDialog::setModel(WalletModel *model)
     d->model = model;
     d->tool->setModel(model);
     txChanged();
+    if(!d->model->wallet().privateKeysDisabled())
+    {
+        ui->textEditTxData->setEnabled(false);
+        ui->textEditTxDetails->setEnabled(false);
+        ui->importButton->setEnabled(false);
+        ui->signButton->setEnabled(false);
+        ui->sendButton->setEnabled(false);
+    }
 }
 
 void HardwareSignTxDialog::txChanged()
@@ -132,4 +142,56 @@ bool HardwareSignTxDialog::askDevice()
 
     d->model->setFingerprint("");
     return false;
+}
+
+void HardwareSignTxDialog::on_importButton_clicked()
+{
+    bool rescan, importPKH, importP2SH, importBech32;
+    if(askDevice() && importAddressesData(rescan, importPKH, importP2SH, importBech32))
+    {
+        bool imported = false;
+        QString fingerprint = d->model->getFingerprint();
+
+        // Import addresses from hardware wallet
+        if(importPKH)
+        {
+            QString desc;
+            if(d->tool->getKeyPoolPKH(fingerprint, desc))
+            {
+                imported |= d->tool->importMulti(desc);
+            }
+        }
+        if(importP2SH)
+        {
+            QString desc;
+            if(d->tool->getKeyPoolP2SH(fingerprint, desc))
+            {
+                imported |= d->tool->importMulti(desc);
+            }
+        }
+        if(importP2SH)
+        {
+            QString desc;
+            if(d->tool->getKeyPoolP2SH(fingerprint, desc))
+            {
+                imported |= d->tool->importMulti(desc);
+            }
+        }
+
+        // Rescan the chain
+        if(imported && rescan)
+        {
+            d->tool->rescanBlockchain();
+        }
+    }
+}
+
+bool HardwareSignTxDialog::importAddressesData(bool &rescan, bool &importPKH, bool &importP2SH, bool &importBech32)
+{
+    // Get import addresses data
+    rescan = true;
+    importPKH = true;
+    importP2SH = true;
+    importBech32 = true;
+    return true;
 }
