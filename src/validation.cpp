@@ -4783,7 +4783,7 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
     uint32_t nHeight = ::ChainActive().Height() + 1;
     const Consensus::Params& consensusParams = Params().GetConsensus();
     nTimeBlock &= ~consensusParams.StakeTimestampMask(nHeight);
-    if(!spk_man)
+    if(!spk_man || ::ChainActive().Tip()->GetBlockHash() != pblock->hashPrevBlock)
         return false;
     if (wallet.CreateCoinStake(*locked_chain, *spk_man, pblock->nBits, nTotalFees, nTimeBlock, txCoinStake, key, setCoins, setDelegateCoins, vchPoD, headerPrevout))
     {
