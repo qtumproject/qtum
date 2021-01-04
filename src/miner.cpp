@@ -1375,14 +1375,13 @@ public:
                 uint32_t beginningTime=GetAdjustedTime();
                 beginningTime &= ~d->stakeTimestampMask;
 
-                bool fStale = false;
-                for(uint32_t blockTime = beginningTime; (blockTime < beginningTime + nMaxStakeLookahead) && !fStale; blockTime += d->stakeTimestampMask+1)
+                for(uint32_t blockTime = beginningTime; blockTime < beginningTime + nMaxStakeLookahead; blockTime += d->stakeTimestampMask+1)
                 {
                     // Update status bar
                     UpdateStatusBar(blockTime);
 
                     // Check if block can be created
-                    if(CanCreateBlock(blockTime, fStale))
+                    if(CanCreateBlock(blockTime))
                     {
                         // Create new block
                         if(!CreateNewBlock(blockTime)) break;
@@ -1557,7 +1556,7 @@ protected:
         if(searchInterval > 0) d->pwallet->m_last_coin_stake_search_interval = searchInterval;
     }
 
-    bool CanCreateBlock(const uint32_t& blockTime, bool& fStale)
+    bool CanCreateBlock(const uint32_t& blockTime)
     {
         d->pblock->nTime = blockTime;
         if(d->mapSolveBlockTime.find(blockTime) == d->mapSolveBlockTime.end())
@@ -1566,21 +1565,14 @@ protected:
             auto locked_chain = d->pwallet->chain().lock();
 
             d->mapSolveBlockTime[blockTime] = false;
-            if(::ChainActive().Tip() == d->pindexPrev)
+            CCoinsViewCache& view = ::ChainstateActive().CoinsTip();
+            for(const COutPoint &prevoutStake : d->prevouts)
             {
-                CCoinsViewCache& view = ::ChainstateActive().CoinsTip();
-                for(const COutPoint &prevoutStake : d->prevouts)
+                if (CheckKernel(d->pindexPrev, d->pblock->nBits, blockTime, prevoutStake, view, d->pwallet->minerStakeCache))
                 {
-                    if (CheckKernel(d->pindexPrev, d->pblock->nBits, blockTime, prevoutStake, view, d->pwallet->minerStakeCache))
-                    {
-                        d->mapSolveBlockTime[blockTime] = true;
-                        break;
-                    }
+                    d->mapSolveBlockTime[blockTime] = true;
+                    break;
                 }
-            }
-            else
-            {
-                fStale = true;
             }
         }
 
