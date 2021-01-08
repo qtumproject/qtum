@@ -144,7 +144,7 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
         uint32_t stakeTimestampMask=params.StakeTimestampMask(nHeight);
         bnNew = mul_exp(bnNew, 2 * (nActualSpacing - nTargetSpacing) / (stakeTimestampMask + 1), (nInterval + 1) * nTargetSpacing / (stakeTimestampMask + 1));
     } else if (nHeight < params.nReduceBlocktimeHeight + params.nRBTPowTargetBlockspan) {
-        bnNew = bnNew * params.nBlocktimeDownscaleFactor;
+        bnNew = bnNew * params.nBlocktimeDownscaleFactor / 2;
     } else {
         if(nHeight % params.nRBTPowTargetBlockspan == 0){
             if (nActualSpacing < 0)
@@ -153,12 +153,8 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
                 nActualSpacing = params.nRBTPowTargetBlockspan * nTargetSpacing * 20;
 
             uint32_t stakeTimestampMask=params.StakeTimestampMask(nHeight);
-            int64_t multiplier=4;
-            if(nActualSpacing - params.nRBTPowTargetBlockspan * nTargetSpacing < 0){
-                multiplier=8;
-            }
 
-            bnNew = mul_exp(bnNew, multiplier * params.nRBTPowTargetBlockspan * (nActualSpacing - params.nRBTPowTargetBlockspan * nTargetSpacing) / (stakeTimestampMask + 1), (nInterval + 1) * params.nRBTPowTargetBlockspan * nTargetSpacing / (stakeTimestampMask + 1));
+            bnNew = mul_exp(bnNew, 2 * params.nRBTPowTargetBlockspan * (nActualSpacing - params.nRBTPowTargetBlockspan * nTargetSpacing) / (stakeTimestampMask + 1), (nInterval + 1) * params.nRBTPowTargetBlockspan * nTargetSpacing / (stakeTimestampMask + 1));
         }
     }
 
