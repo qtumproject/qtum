@@ -136,24 +136,24 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
             nActualSpacing = nTargetSpacing * 10;
         bnNew *= ((nInterval - 1) * nTargetSpacing + nActualSpacing + nActualSpacing);
         bnNew /= ((nInterval + 1) * nTargetSpacing);
-    } else if (nHeight < params.nReduceBlocktimeHeight) {
-        if (nActualSpacing < 0)
-            nActualSpacing = nTargetSpacing;
-        if (nActualSpacing > nTargetSpacing * 20)
-            nActualSpacing = nTargetSpacing * 20;
-        uint32_t stakeTimestampMask=params.StakeTimestampMask(nHeight);
-        bnNew = mul_exp(bnNew, 2 * (nActualSpacing - nTargetSpacing) / (stakeTimestampMask + 1), (nInterval + 1) * nTargetSpacing / (stakeTimestampMask + 1));
-    } else if (nHeight == params.nReduceBlocktimeHeight) {
-        bnNew = bnNew * params.nBlocktimeDownscaleFactor;
-    } else if (nHeight >= params.nReduceBlocktimeHeight + params.nRBTPowTargetBlockspan) {
+    } else if (nHeight < params.nReduceBlocktimeHeight  + params.nRBTPowTargetBlockspan) {
+        if (nHeight == params.nReduceBlocktimeHeight) {
+            bnNew = bnNew * params.nBlocktimeDownscaleFactor / 2;
+        } else {
+            if (nActualSpacing < 0)
+                nActualSpacing = nTargetSpacing;
+            if (nActualSpacing > nTargetSpacing * 20)
+                nActualSpacing = nTargetSpacing * 20;
+            uint32_t stakeTimestampMask = params.StakeTimestampMask(nHeight);
+            bnNew = mul_exp(bnNew, 2 * (nActualSpacing - nTargetSpacing) / (stakeTimestampMask + 1), (nInterval + 1) * nTargetSpacing / (stakeTimestampMask + 1));
+        }
+    } else {
         if(nHeight % params.nRBTPowTargetBlockspan == 0){
             if (nActualSpacing < 0)
                 nActualSpacing = params.nRBTPowTargetBlockspan * nTargetSpacing;
             if (nActualSpacing > params.nRBTPowTargetBlockspan * nTargetSpacing * 20)
                 nActualSpacing = params.nRBTPowTargetBlockspan * nTargetSpacing * 20;
-
             uint32_t stakeTimestampMask=params.StakeTimestampMask(nHeight);
-
             bnNew = mul_exp(bnNew, 2 * params.nRBTPowTargetBlockspan * (nActualSpacing - params.nRBTPowTargetBlockspan * nTargetSpacing) / (stakeTimestampMask + 1), (nInterval + 1) * params.nRBTPowTargetBlockspan * nTargetSpacing / (stakeTimestampMask + 1));
         }
     }
