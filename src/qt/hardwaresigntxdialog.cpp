@@ -1,3 +1,7 @@
+#if defined(HAVE_CONFIG_H)
+#include <config/bitcoin-config.h>
+#endif
+
 #include <qt/hardwaresigntxdialog.h>
 #include <qt/forms/ui_hardwaresigntxdialog.h>
 #include <qt/walletmodel.h>
@@ -7,6 +11,7 @@
 #include <qt/guiconstants.h>
 #include <qt/guiutil.h>
 #include <qt/derivationpathdialog.h>
+#include <qt/sendcoinsdialog.h>
 
 #include <QMessageBox>
 
@@ -112,8 +117,23 @@ void HardwareSignTxDialog::on_signButton_clicked()
 
 void HardwareSignTxDialog::on_sendButton_clicked()
 {
-    if(d->tool->sendRawTransaction(d->hexTx))
-        QDialog::accept();
+    QString questionString = tr("Are you sure you want to broadcast the transaction? <br />");
+    SendConfirmationDialog confirmationDialog(tr("Confirm broadcast transaction."), questionString, "", "", SEND_CONFIRM_DELAY, tr("Send"), this);
+    confirmationDialog.exec();
+    QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();
+    if(retval == QMessageBox::Yes)
+    {
+        if(d->tool->sendRawTransaction(d->hexTx))
+        {
+            QDialog::accept();
+        }
+        else
+        {
+            QString errorMessage = d->tool->errorMessage();
+            if(errorMessage.isEmpty()) errorMessage = tr("Unknown transaction error");
+            QMessageBox::warning(this, tr("Broadcast transaction"), errorMessage);
+        }
+    }
 }
 
 bool HardwareSignTxDialog::askDevice()
