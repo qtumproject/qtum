@@ -297,7 +297,7 @@ void CreateWalletActivity::finish()
         if(m_wallet_model)
         {
             m_wallet_model->setFingerprint(m_fingerprint);
-            m_wallet_model->setHardwareWalletInitRequired(true);
+            m_wallet_model->importAddressesData();
         }
     }
 

@@ -6,6 +6,7 @@
 #include <qt/hardwarekeystoredialog.h>
 #include <qt/guiconstants.h>
 #include <qt/guiutil.h>
+#include <qt/derivationpathdialog.h>
 
 #include <QMessageBox>
 
@@ -147,51 +148,30 @@ bool HardwareSignTxDialog::askDevice()
 void HardwareSignTxDialog::on_importButton_clicked()
 {
     bool rescan, importPKH, importP2SH, importBech32;
-    if(askDevice() && importAddressesData(rescan, importPKH, importP2SH, importBech32))
+    if(importAddressesData(rescan, importPKH, importP2SH, importBech32))
     {
-        bool imported = false;
-        QString fingerprint = d->model->getFingerprint();
-
-        // Import addresses from hardware wallet
-        if(importPKH)
-        {
-            QString desc;
-            if(d->tool->getKeyPoolPKH(fingerprint, desc))
-            {
-                imported |= d->tool->importMulti(desc);
-            }
-        }
-        if(importP2SH)
-        {
-            QString desc;
-            if(d->tool->getKeyPoolP2SH(fingerprint, desc))
-            {
-                imported |= d->tool->importMulti(desc);
-            }
-        }
-        if(importP2SH)
-        {
-            QString desc;
-            if(d->tool->getKeyPoolP2SH(fingerprint, desc))
-            {
-                imported |= d->tool->importMulti(desc);
-            }
-        }
-
-        // Rescan the chain
-        if(imported && rescan)
-        {
-            d->tool->rescanBlockchain();
-        }
+        d->model->importAddressesData(rescan, importPKH, importP2SH, importBech32);
+        QDialog::accept();
     }
 }
 
 bool HardwareSignTxDialog::importAddressesData(bool &rescan, bool &importPKH, bool &importP2SH, bool &importBech32)
 {
-    // Get import addresses data
-    rescan = true;
-    importPKH = true;
-    importP2SH = true;
-    importBech32 = true;
-    return true;
+    // Init import addresses data
+    bool ret = true;
+    rescan = false;
+    importPKH = false;
+    importP2SH = false;
+    importBech32 = false;
+
+    // Get list to import
+    DerivationPathDialog dlg(this);
+    ret &= dlg.exec() == QDialog::Accepted;
+    if(ret) ret &= dlg.importAddressesData(rescan, importPKH, importP2SH, importBech32);
+
+    // Ask for device
+    bool fDevice = importPKH || importP2SH || importBech32;
+    if(fDevice) ret &= askDevice();
+
+    return ret;
 }

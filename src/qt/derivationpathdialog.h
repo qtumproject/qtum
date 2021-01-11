@@ -13,10 +13,15 @@ class DerivationPathDialog : public QDialog
 
 public:
     explicit DerivationPathDialog(QWidget *parent = nullptr);
+
     ~DerivationPathDialog();
 
+    bool importAddressesData(bool& rescan, bool& importPKH, bool& importP2SH, bool& importBech32);
+
 private Q_SLOTS:
-    void on_backButton_clicked();
+    void on_cancelButton_clicked();
+    void on_okButton_clicked();
+    void updateButtons();
 
 private:
     Ui::DerivationPathDialog *ui;

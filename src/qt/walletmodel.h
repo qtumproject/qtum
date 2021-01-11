@@ -182,8 +182,7 @@ public:
     void setFingerprint(const QString &value);
 
     // Get or set hardware wallet init required (only for hardware wallet applicable)
-    bool getHardwareWalletInitRequired() const;
-    void setHardwareWalletInitRequired(bool value);
+    void importAddressesData(bool rescan = true, bool importPKH = true, bool importP2SH = true, bool importBech32 = true);
 
 private:
     std::unique_ptr<interfaces::Wallet> m_wallet;
@@ -229,6 +228,10 @@ private:
 
     QString fingerprint;
     std::atomic<bool> hardwareWalletInitRequired{false};
+    bool rescan{true};
+    bool importPKH{true};
+    bool importP2SH{true};
+    bool importBech32{true};
 
     QThread t;
     WalletWorker *worker;
