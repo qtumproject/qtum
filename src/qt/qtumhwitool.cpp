@@ -181,7 +181,10 @@ void QtumHwiTool::wait()
 {
     if(d->fStarted)
     {
-        d->process.waitForFinished(-1);
+        if(d->process.waitForStarted())
+        {
+            d->process.waitForFinished(-1);
+        }
         d->strStdout = d->process.readAllStandardOutput();
         d->strError = d->process.readAllStandardError();
         d->fStarted = false;
