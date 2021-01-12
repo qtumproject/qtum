@@ -12,8 +12,13 @@
 #include <qt/guiutil.h>
 #include <qt/derivationpathdialog.h>
 #include <qt/sendcoinsdialog.h>
+#include <qt/bitcoinunits.h>
 
 #include <QMessageBox>
+#include <QJsonValue>
+#include <QJsonObject>
+#include <QJsonDocument>
+#include <QJsonArray>
 
 class HardwareSignTxDialogPriv
 {
@@ -84,6 +89,43 @@ void HardwareSignTxDialog::txChanged()
         d->complete = false;
         bool isOk = d->tool->decodePsbt(psbt, decoded);
         ui->textEditTxDetails->setText(decoded);
+
+        if(!decoded.isEmpty())
+        {
+            CAmount amount = 0;
+            CAmount fee;
+
+            QJsonDocument doc = QJsonDocument::fromJson(decoded.toUtf8());
+            QJsonObject jsonData = doc.object();
+
+            QJsonObject tx = jsonData.value("tx").toObject();
+            QJsonArray vouts = tx.value("vout").toArray();
+
+            for (int i = 0; i < vouts.count(); i++) {
+                QJsonObject vout = vouts.at(i).toObject();
+                QJsonObject scriptPubKey = vout.value("scriptPubKey").toObject();
+                QJsonArray addresses = scriptPubKey.value("addresses").toArray();
+                std::string address = addresses.at(0).toString().toStdString();
+
+                if(!d->model->wallet().isMineAddress(address))
+                {
+                    CAmount amountValue;
+                    BitcoinUnits::parse(BitcoinUnits::BTC, vout.value("value").toVariant().toString(), &amountValue);
+                    amount += amountValue;
+                }
+            }
+
+            BitcoinUnits::parse(BitcoinUnits::BTC, jsonData.value("fee").toVariant().toString(), &fee);
+
+            ui->lineEditAmount->setValue(amount);
+            ui->lineEditFee->setValue(fee);
+        }
+        else
+        {
+            ui->lineEditAmount->clear();
+            ui->lineEditFee->clear();
+        }
+
         ui->signButton->setEnabled(isOk);
         ui->sendButton->setEnabled(false);
     }

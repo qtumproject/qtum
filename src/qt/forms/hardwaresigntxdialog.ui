@@ -83,6 +83,20 @@
      <item>
       <widget class="QTextEdit" name="textEditTxDetails"/>
      </item>
+     <item>
+      <widget class="BitcoinAmountField" name="lineEditAmount">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="BitcoinAmountField" name="lineEditFee">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
@@ -165,6 +179,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>BitcoinAmountField</class>
+   <extends>QLineEdit</extends>
+   <header>qt/bitcoinamountfield.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
