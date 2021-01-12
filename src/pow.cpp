@@ -59,6 +59,7 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
 {
 
     unsigned int  nTargetLimit = GetLimit(pindexLast ? pindexLast->nHeight+1 : 0, params, fProofOfStake).GetCompact();
+    int nHeight = pindexLast->nHeight + 1;
 
     // genesis block
     if (pindexLast == NULL)
@@ -69,10 +70,20 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
     if (pindexPrev->pprev == NULL)
         return nTargetLimit;
 
-    // second block
-    const CBlockIndex* pindexPrevPrev = GetLastBlockIndex(pindexPrev->pprev, fProofOfStake);
-    if (pindexPrevPrev->pprev == NULL)
-        return nTargetLimit;
+    const CBlockIndex* pindexPrevPrev;
+    if (nHeight < params.nReduceBlocktimeHeight + params.nRBTPowTargetBlockspan) {
+        // second block
+        pindexPrevPrev = GetLastBlockIndex(pindexPrev->pprev, fProofOfStake);
+        if (pindexPrevPrev->pprev == NULL)
+            return nTargetLimit;
+    } else {
+        int nHeightFirst = nHeight - params.nRBTPowTargetBlockspan;
+        if(nHeightFirst<0)
+            return nTargetLimit;
+        pindexPrevPrev = pindexLast->GetAncestor(nHeightFirst);
+        if (pindexPrevPrev->pprev == NULL)
+            return nTargetLimit;
+    }
 
     // min difficulty
     if (params.fPowAllowMinDifficultyBlocks)
@@ -125,13 +136,22 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
             nActualSpacing = nTargetSpacing * 10;
         bnNew *= ((nInterval - 1) * nTargetSpacing + nActualSpacing + nActualSpacing);
         bnNew /= ((nInterval + 1) * nTargetSpacing);
-    } else {
+    } else if (nHeight < params.nReduceBlocktimeHeight + params.nRBTPowTargetBlockspan) {
         if (nActualSpacing < 0)
             nActualSpacing = nTargetSpacing;
         if (nActualSpacing > nTargetSpacing * 20)
             nActualSpacing = nTargetSpacing * 20;
         uint32_t stakeTimestampMask=params.StakeTimestampMask(nHeight);
         bnNew = mul_exp(bnNew, 2 * (nActualSpacing - nTargetSpacing) / (stakeTimestampMask + 1), (nInterval + 1) * nTargetSpacing / (stakeTimestampMask + 1));
+    } else {
+        if((nHeight-(params.nReduceBlocktimeHeight + params.nRBTPowTargetBlockspan)) % params.nRBTPowTargetBlockspan == 0){
+            if (nActualSpacing < 0)
+                nActualSpacing = params.nRBTPowTargetBlockspan * nTargetSpacing;
+            if (nActualSpacing > params.nRBTPowTargetBlockspan * nTargetSpacing * 20)
+                nActualSpacing = params.nRBTPowTargetBlockspan * nTargetSpacing * 20;
+
+            bnNew = (bnNew / (nInterval+1)) * ((nActualSpacing * (nInterval-1)) / (params.nRBTPowTargetBlockspan * nTargetSpacing));
+        }
     }
 
     if (bnNew <= 0 || bnNew > bnTargetLimit)

@@ -99,6 +99,7 @@ struct Params {
     int64_t nPowTargetTimespan;
     int64_t nPowTargetTimespanV2;
     int64_t nRBTPowTargetTimespan;
+    int64_t nRBTPowTargetBlockspan;
     uint256 nMinimumChainWork;
     uint256 defaultAssumeValid;
     int nLastPOWBlock;
