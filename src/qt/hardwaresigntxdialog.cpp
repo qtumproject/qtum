@@ -89,8 +89,10 @@ void HardwareSignTxDialog::txChanged()
         d->complete = false;
         bool isOk = d->tool->decodePsbt(psbt, decoded);
         ui->textEditTxDetails->setText(decoded);
+        ui->signButton->setEnabled(isOk);
+        ui->sendButton->setEnabled(false);
 
-        if(!decoded.isEmpty())
+        if(isOk && !decoded.isEmpty())
         {
             CAmount amount = 0;
             CAmount fee;
@@ -105,9 +107,18 @@ void HardwareSignTxDialog::txChanged()
                 QJsonObject vout = vouts.at(i).toObject();
                 QJsonObject scriptPubKey = vout.value("scriptPubKey").toObject();
                 QJsonArray addresses = scriptPubKey.value("addresses").toArray();
-                std::string address = addresses.at(0).toString().toStdString();
+                bool sendToFound = false;
+                for(int j = 0; j < addresses.count(); j++)
+                {
+                    std::string address = addresses.at(i).toString().toStdString();
+                    if(!d->model->wallet().isMineAddress(address))
+                    {
+                        sendToFound = true;
+                        break;
+                    }
+                }
 
-                if(!d->model->wallet().isMineAddress(address))
+                if(sendToFound)
                 {
                     CAmount amountValue;
                     BitcoinUnits::parse(BitcoinUnits::BTC, vout.value("value").toVariant().toString(), &amountValue);
@@ -125,9 +136,6 @@ void HardwareSignTxDialog::txChanged()
             ui->lineEditAmount->clear();
             ui->lineEditFee->clear();
         }
-
-        ui->signButton->setEnabled(isOk);
-        ui->sendButton->setEnabled(false);
     }
 }
 
