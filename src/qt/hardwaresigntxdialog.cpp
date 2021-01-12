@@ -84,6 +84,7 @@ void HardwareSignTxDialog::txChanged()
     QString decoded;
     if(psbt != d->psbt)
     {
+        // Decode psbt
         d->psbt = psbt;
         d->hexTx = "";
         d->complete = false;
@@ -92,6 +93,7 @@ void HardwareSignTxDialog::txChanged()
         ui->signButton->setEnabled(isOk);
         ui->sendButton->setEnabled(false);
 
+        // Determine amount and fee
         if(isOk && !decoded.isEmpty())
         {
             CAmount amount = 0;
@@ -103,6 +105,7 @@ void HardwareSignTxDialog::txChanged()
             QJsonObject tx = jsonData.value("tx").toObject();
             QJsonArray vouts = tx.value("vout").toArray();
 
+            // Determine the amount
             for (int i = 0; i < vouts.count(); i++) {
                 QJsonObject vout = vouts.at(i).toObject();
                 QJsonObject scriptPubKey = vout.value("scriptPubKey").toObject();
@@ -110,7 +113,7 @@ void HardwareSignTxDialog::txChanged()
                 bool sendToFound = false;
                 for(int j = 0; j < addresses.count(); j++)
                 {
-                    std::string address = addresses.at(i).toString().toStdString();
+                    std::string address = addresses.at(j).toString().toStdString();
                     if(!d->model->wallet().isMineAddress(address))
                     {
                         sendToFound = true;
@@ -126,6 +129,7 @@ void HardwareSignTxDialog::txChanged()
                 }
             }
 
+            // Determine the fee
             BitcoinUnits::parse(BitcoinUnits::BTC, jsonData.value("fee").toVariant().toString(), &fee);
 
             ui->lineEditAmount->setValue(amount);
@@ -133,6 +137,7 @@ void HardwareSignTxDialog::txChanged()
         }
         else
         {
+            // Cleat the fields
             ui->lineEditAmount->clear();
             ui->lineEditFee->clear();
         }
@@ -143,6 +148,7 @@ void HardwareSignTxDialog::on_signButton_clicked()
 {
     if(askDevice())
     {
+        // Sign transaction with hardware
         WaitMessageBox dlg(tr("Ledger Status"), tr("Confirm Transaction on your Ledger device..."), [this]() {
             QString fingerprint = d->model->getFingerprint();
             QString psbt = d->psbt;
@@ -167,6 +173,7 @@ void HardwareSignTxDialog::on_signButton_clicked()
 
 void HardwareSignTxDialog::on_sendButton_clicked()
 {
+    // Send transaction
     QString questionString = tr("Are you sure you want to broadcast the transaction? <br />");
     SendConfirmationDialog confirmationDialog(tr("Confirm broadcast transaction."), questionString, "", "", SEND_CONFIRM_DELAY, tr("Send"), this);
     confirmationDialog.exec();
@@ -179,6 +186,7 @@ void HardwareSignTxDialog::on_sendButton_clicked()
         }
         else
         {
+            // Display error message
             QString errorMessage = d->tool->errorMessage();
             if(errorMessage.isEmpty()) errorMessage = tr("Unknown transaction error");
             QMessageBox::warning(this, tr("Broadcast transaction"), errorMessage);
@@ -217,6 +225,7 @@ bool HardwareSignTxDialog::askDevice()
 
 void HardwareSignTxDialog::on_importButton_clicked()
 {
+    // Import addresses and rescan
     bool rescan, importPKH, importP2SH, importBech32;
     if(importAddressesData(rescan, importPKH, importP2SH, importBech32))
     {
