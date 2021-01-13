@@ -77,7 +77,7 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
         if (pindexPrevPrev->pprev == NULL)
             return nTargetLimit;
     } else {
-        int nHeightFirst = pindexLast->nHeight - params.nRBTPowTargetBlockspan;
+        int nHeightFirst = pindexLast->nHeight - 1 - params.nRBTPowTargetBlockspan;
         if(nHeightFirst<0)
             return nTargetLimit;
         pindexPrevPrev = pindexLast->GetAncestor(nHeightFirst);
@@ -150,7 +150,7 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
             if (nActualSpacing > params.nRBTPowTargetBlockspan * nTargetSpacing * 20)
                 nActualSpacing = params.nRBTPowTargetBlockspan * nTargetSpacing * 20;
 
-            bnNew = (bnNew / (params.nRBTPowTargetTimespan+1)) * ((nActualSpacing * (params.nRBTPowTargetTimespan-1)) / (params.nRBTPowTargetBlockspan * nTargetSpacing));
+            bnNew = (bnNew / (params.nRBTPowTargetTimespan)) * ((nActualSpacing * (params.nRBTPowTargetTimespan)) / (params.nRBTPowTargetBlockspan * nTargetSpacing));
         }
     }
 
