@@ -14,6 +14,7 @@
 #include <qt/sendcoinsdialog.h>
 #include <qt/bitcoinunits.h>
 
+#include <QFile>
 #include <QMessageBox>
 #include <QJsonValue>
 #include <QJsonObject>
