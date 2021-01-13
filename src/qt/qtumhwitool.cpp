@@ -39,7 +39,7 @@ public:
         QStringList mandatoryFinalize = QStringList() << PARAM_PSBT;
         cmdFinalize = new ExecRPCCommand("finalizepsbt", mandatoryFinalize, QStringList(),  QMap<QString, QString>(), parent);
         QStringList mandatorySend = QStringList() << PARAM_HEXTX;
-        cmdSend = new ExecRPCCommand("finalizepsbt", mandatorySend, QStringList(),  QMap<QString, QString>(), parent);
+        cmdSend = new ExecRPCCommand("sendrawtransaction", mandatorySend, QStringList(),  QMap<QString, QString>(), parent);
         QStringList mandatoryDecode = QStringList() << PARAM_PSBT;
         cmdDecode = new ExecRPCCommand("decodepsbt", mandatoryDecode, QStringList(),  QMap<QString, QString>(), parent);
         if(gArgs.GetChainName() != CBaseChainParams::MAIN)
