@@ -77,7 +77,7 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
         if (pindexPrevPrev->pprev == NULL)
             return nTargetLimit;
     } else {
-        int nHeightFirst = nHeight - params.nRBTPowTargetBlockspan;
+        int nHeightFirst = pindexLast->nHeight - params.nRBTPowTargetBlockspan;
         if(nHeightFirst<0)
             return nTargetLimit;
         pindexPrevPrev = pindexLast->GetAncestor(nHeightFirst);
