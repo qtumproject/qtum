@@ -235,7 +235,7 @@
          <bool>false</bool>
         </property>
         <property name="text">
-         <string>Send</string>
+         <string>Broadcast</string>
         </property>
        </widget>
       </item>

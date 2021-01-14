@@ -68,7 +68,7 @@ HWDevice::HWDevice()
 
 QString HWDevice::toString() const
 {
-    return QString("[ %1 \\ %2 \\ %3 \\ %4 ]").arg(type, model, path, fingerprint);
+    return QString("[ %1 \\ %2 \\ %3 ]").arg(type, model, fingerprint);
 }
 
 bool HWDevice::isValid() const

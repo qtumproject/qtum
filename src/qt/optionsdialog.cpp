@@ -357,8 +357,8 @@ void OptionsDialog::on_cancelButton_clicked()
 void OptionsDialog::on_toolHWIPath_clicked()
 {
     QString filename = GUIUtil::getOpenFileName(this,
-        tr("Select HWI tool path"), QString(),
-        tr("HWI tool (*.exe *.py)"), NULL);
+        tr("Select HWI tool path"), QDir::homePath(),
+        tr("HWI tool (hwi hwi.py hwi.exe)"), NULL);
 
     if (filename.isEmpty())
         return;
