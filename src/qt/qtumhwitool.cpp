@@ -511,3 +511,43 @@ bool InstallDevice::deleteCommand(QString &program, QStringList &arguments)
 
     return ret;
 }
+
+bool QtumHwiTool::installApp(InstallDevice::DeviceType type)
+{
+    // Install Qtum App to ledger
+    InstallDevice device(type);
+    QString program;
+    QStringList arguments;
+    bool ret = device.loadCommand(program, arguments);
+    if(ret)
+    {
+        d->process.start(program, arguments);
+        d->fStarted = true;
+
+        wait();
+
+        ret &= QProcess::NormalExit == d->process.exitStatus();
+    }
+
+    return ret;
+}
+
+bool QtumHwiTool::removeApp(InstallDevice::DeviceType type)
+{
+    // Remove Qtum App from ledger
+    InstallDevice device(type);
+    QString program;
+    QStringList arguments;
+    bool ret = device.deleteCommand(program, arguments);
+    if(ret)
+    {
+        d->process.start(program, arguments);
+        d->fStarted = true;
+
+        wait();
+
+        ret &= QProcess::NormalExit == d->process.exitStatus();
+    }
+
+    return ret;
+}

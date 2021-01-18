@@ -206,6 +206,20 @@ public:
     bool decodePsbt(const QString& psbt, QString& decoded);
 
     /**
+     * @brief installApp Install Qtum App to ledger
+     * @param type Ledger device type
+     * @return success of the operation
+     */
+    bool installApp(InstallDevice::DeviceType type);
+
+    /**
+     * @brief removeApp Remove Qtum App to ledger
+     * @param type Ledger device type
+     * @return success of the operation
+     */
+    bool removeApp(InstallDevice::DeviceType type);
+
+    /**
      * @brief errorMessage Get the last error message
      * @return Last error message
      */
