@@ -147,10 +147,13 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
         if((nHeight-(params.nReduceBlocktimeHeight + params.nRBTPowTargetBlockspan)) % params.nRBTPowTargetBlockspan == 0){
             if (nActualSpacing < 0)
                 nActualSpacing = params.nRBTPowTargetBlockspan * nTargetSpacing;
-            if (nActualSpacing > params.nRBTPowTargetBlockspan * nTargetSpacing * 20)
-                nActualSpacing = params.nRBTPowTargetBlockspan * nTargetSpacing * 20;
+            if (nActualSpacing < params.nRBTPowTargetBlockspan * nTargetSpacing / 10)
+                nActualSpacing = params.nRBTPowTargetBlockspan * nTargetSpacing / 10;
+            if (nActualSpacing > params.nRBTPowTargetBlockspan * nTargetSpacing * 10)
+                nActualSpacing = params.nRBTPowTargetBlockspan * nTargetSpacing * 10;
 
-            bnNew = (bnNew / (params.nRBTPowTargetTimespan)) * ((nActualSpacing * (params.nRBTPowTargetTimespan)) / (params.nRBTPowTargetBlockspan * nTargetSpacing));
+            bnNew *= nActualSpacing;
+            bnNew /= params.nRBTPowTargetBlockspan * nTargetSpacing;
         }
     }
 
