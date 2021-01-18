@@ -37,6 +37,7 @@ QT_FORMS_UI = \
   qt/forms/optionsdialog.ui \
   qt/forms/overviewpage.ui \
   qt/forms/qrctoken.ui \
+  qt/forms/qtumledgerinstallerdialog.ui \
   qt/forms/receivecoinsdialog.ui \
   qt/forms/receiverequestdialog.ui \
   qt/forms/receivetokenpage.ui \
@@ -115,6 +116,7 @@ QT_MOC_CPP = \
   qt/moc_paymentserver.cpp \
   qt/moc_qrimagewidget.cpp \
   qt/moc_qrctoken.cpp \
+  qt/moc_qtumledgerinstallerdialog.cpp \
   qt/moc_qswitchcontrol.cpp \
   qt/moc_qvalidatedlineedit.cpp \
   qt/moc_qvalidatedtextedit.cpp \
@@ -251,6 +253,7 @@ BITCOIN_QT_H = \
   qt/platformstyle.h \
   qt/qrimagewidget.h \
   qt/qrctoken.h \
+  qt/qtumledgerinstallerdialog.h \
   qt/qswitchcontrol.h \
   qt/qvalidatedlineedit.h \
   qt/qvalidatedtextedit.h \
@@ -467,6 +470,7 @@ BITCOIN_QT_WALLET_CPP = \
   qt/overviewpage.cpp \
   qt/paymentserver.cpp \
   qt/qrctoken.cpp \
+  qt/qtumledgerinstallerdialog.cpp \
   qt/qrimagewidget.cpp \
   qt/receivecoinsdialog.cpp \
   qt/receiverequestdialog.cpp \
