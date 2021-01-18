@@ -17,6 +17,8 @@
 #include <QJsonObject>
 #include <QVariantMap>
 #include <QVariantList>
+#include <QFile>
+#include <QStringList>
 
 #include <atomic>
 
@@ -25,6 +27,8 @@ static const QString PARAM_STOP_HEIGHT = "stop_height";
 static const QString PARAM_REQUESTS = "requests";
 static const QString PARAM_PSBT = "psbt";
 static const QString PARAM_HEXTX = "hextx";
+static const QString LOAD_FORMAT = ":/ledger/%1_load";
+static const QString DELETE_FORMAT = ":/ledger/%1_delete";
 
 class QtumHwiToolPriv
 {
@@ -444,4 +448,66 @@ void QtumHwiTool::addError(const QString &error)
     if(d->strError != "")
         d->strError += "\n";
     d->strError += error;
+}
+
+InstallDevice::InstallDevice(InstallDevice::DeviceType _type):
+    type(_type)
+{}
+
+QString InstallDevice::deviceToString(InstallDevice::DeviceType type)
+{
+    switch (type) {
+    case InstallDevice::NanoS:
+        return "nanos";
+    default:
+        break;
+    }
+
+    return "";
+}
+
+bool InstallDevice::loadCommand(QString &program, QStringList &arguments)
+{
+    // Get the command
+    QString command;
+    QFile file(LOAD_FORMAT.arg(deviceToString(type)));
+    if(file.open(QIODevice::ReadOnly))
+    {
+        command = file.readAll();
+    }
+
+    // Split to params
+    arguments.clear();
+    arguments = command.split(" ");
+    bool ret = arguments.count() > 1;
+    if(ret)
+    {
+        program = arguments[0];
+        arguments.removeAt(0);
+    }
+
+    return ret;
+}
+
+bool InstallDevice::deleteCommand(QString &program, QStringList &arguments)
+{
+    // Get the command
+    QString command;
+    QFile file(DELETE_FORMAT.arg(deviceToString(type)));
+    if(file.open(QIODevice::ReadOnly))
+    {
+        command = file.readAll();
+    }
+
+    // Split to params
+    arguments.clear();
+    arguments = command.split(" ");
+    bool ret = arguments.count() > 1;
+    if(ret)
+    {
+        program = arguments[0];
+        arguments.removeAt(0);
+    }
+
+    return ret;
 }

@@ -48,6 +48,52 @@ public:
 };
 
 /**
+ * @brief The InstallDevice class Install Qtum app to device
+ */
+class InstallDevice
+{
+public:
+    /**
+     * @brief The DeviceType enum Supported device type to install
+     */
+    enum DeviceType
+    {
+        NanoS
+    };
+
+    /**
+     * @brief InstallDevice Constructor
+     */
+    InstallDevice(InstallDevice::DeviceType type);
+
+    /**
+     * @brief deviceToString Device type to string
+     * @param type Device type
+     * @return String result
+     */
+    static QString deviceToString(InstallDevice::DeviceType type);
+
+    /**
+     * @brief loadCommand Get the load command
+     * @param program Program to start
+     * @param arguments Program arguments
+     * @return Success of the operation
+     */
+    bool loadCommand(QString &program, QStringList &arguments);
+
+    /**
+     * @brief deleteCommand Get the delete command
+     * @param program Program to start
+     * @param arguments Program arguments
+     * @return Success of the operation
+     */
+    bool deleteCommand(QString &program, QStringList &arguments);
+
+private:
+    DeviceType type = NanoS;
+};
+
+/**
  * @brief The QtumHwiTool class Communicate with the Qtum Hardware Wallet Interface Tool
  */
 class QtumHwiTool : public QObject
