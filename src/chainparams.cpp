@@ -96,7 +96,6 @@ public:
         consensus.nPowTargetTimespan = 16 * 60; // 16 minutes
         consensus.nPowTargetTimespanV2 = 4000;
         consensus.nRBTPowTargetTimespan = 12*32;
-        consensus.nRBTPowTargetBlockspan = 12;
         consensus.nPowTargetSpacing = 2 * 64;
         consensus.nRBTPowTargetSpacing = 32;
         consensus.fPowAllowMinDifficultyBlocks = false;
@@ -202,7 +201,7 @@ public:
         consensus.nRBTCheckpointSpan = consensus.nRBTCoinbaseMaturity;
         consensus.delegationsAddress = uint160(ParseHex("0000000000000000000000000000000000000086")); // Delegations contract for offline staking
         consensus.nStakeTimestampMask = 15;
-        consensus.nRBTStakeTimestampMask = 3;
+        consensus.nRBTStakeTimestampMask = 1;
     }
 };
 
@@ -236,7 +235,6 @@ public:
         consensus.nPowTargetTimespan = 16 * 60; // 16 minutes
         consensus.nPowTargetTimespanV2 = 4000;
         consensus.nRBTPowTargetTimespan = 12*32;
-        consensus.nRBTPowTargetBlockspan = 12;
         consensus.nPowTargetSpacing = 2 * 64;
         consensus.nRBTPowTargetSpacing = 32;
         consensus.fPowAllowMinDifficultyBlocks = false;
@@ -328,7 +326,7 @@ public:
         consensus.nRBTCheckpointSpan = consensus.nRBTCoinbaseMaturity;
         consensus.delegationsAddress = uint160(ParseHex("0000000000000000000000000000000000000086")); // Delegations contract for offline staking
         consensus.nStakeTimestampMask = 15;
-        consensus.nRBTStakeTimestampMask = 3;
+        consensus.nRBTStakeTimestampMask = 1;
     }
 };
 
@@ -362,7 +360,6 @@ public:
         consensus.nPowTargetTimespan = 16 * 60; // 16 minutes (960 = 832 + 128; multiplier is 832)
         consensus.nPowTargetTimespanV2 = 4000;
         consensus.nRBTPowTargetTimespan = 12*32;
-        consensus.nRBTPowTargetBlockspan = 12;
         consensus.nPowTargetSpacing = 2 * 64;
         consensus.nRBTPowTargetSpacing = 32;
         consensus.fPowAllowMinDifficultyBlocks = true;
@@ -435,7 +432,7 @@ public:
         consensus.nRBTCheckpointSpan = consensus.nRBTCoinbaseMaturity;
         consensus.delegationsAddress = uint160(ParseHex("0000000000000000000000000000000000000086")); // Delegations contract for offline staking
         consensus.nStakeTimestampMask = 15;
-        consensus.nRBTStakeTimestampMask = 3;
+        consensus.nRBTStakeTimestampMask = 1;
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,120);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,110);

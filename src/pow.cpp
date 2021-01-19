@@ -71,13 +71,13 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
         return nTargetLimit;
 
     const CBlockIndex* pindexPrevPrev;
-    if (nHeight < params.nReduceBlocktimeHeight + params.nRBTPowTargetBlockspan) {
+    if (nHeight < params.nReduceBlocktimeHeight + params.DifficultyAdjustmentInterval(nHeight)) {
         // second block
         pindexPrevPrev = GetLastBlockIndex(pindexPrev->pprev, fProofOfStake);
         if (pindexPrevPrev->pprev == NULL)
             return nTargetLimit;
     } else {
-        int nHeightFirst = pindexLast->nHeight - params.nRBTPowTargetBlockspan;
+        int nHeightFirst = pindexLast->nHeight - params.DifficultyAdjustmentInterval(nHeight);
         if(nHeightFirst<0)
             return nTargetLimit;
         pindexPrevPrev = pindexLast->GetAncestor(nHeightFirst);
@@ -136,7 +136,7 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
             nActualSpacing = nTargetSpacing * 10;
         bnNew *= ((nInterval - 1) * nTargetSpacing + nActualSpacing + nActualSpacing);
         bnNew /= ((nInterval + 1) * nTargetSpacing);
-    } else if (nHeight < params.nReduceBlocktimeHeight + params.nRBTPowTargetBlockspan) {
+    } else if (nHeight < params.nReduceBlocktimeHeight + nInterval) {
         if (nActualSpacing < 0)
             nActualSpacing = nTargetSpacing;
         if (nActualSpacing > nTargetSpacing * 20)
@@ -144,16 +144,16 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
         uint32_t stakeTimestampMask=params.StakeTimestampMask(nHeight);
         bnNew = mul_exp(bnNew, 2 * (nActualSpacing - nTargetSpacing) / (stakeTimestampMask + 1), (nInterval + 1) * nTargetSpacing / (stakeTimestampMask + 1));
     } else {
-        if((nHeight-(params.nReduceBlocktimeHeight + params.nRBTPowTargetBlockspan)) % params.nRBTPowTargetBlockspan == 0){
+        if((nHeight-(params.nReduceBlocktimeHeight + nInterval)) % nInterval == 0){
             if (nActualSpacing < 0)
-                nActualSpacing = params.nRBTPowTargetBlockspan * nTargetSpacing;
-            if (nActualSpacing < params.nRBTPowTargetBlockspan * nTargetSpacing / 10)
-                nActualSpacing = params.nRBTPowTargetBlockspan * nTargetSpacing / 10;
-            if (nActualSpacing > params.nRBTPowTargetBlockspan * nTargetSpacing * 10)
-                nActualSpacing = params.nRBTPowTargetBlockspan * nTargetSpacing * 10;
+                nActualSpacing = params.nRBTPowTargetTimespan;
+            if (nActualSpacing < params.nRBTPowTargetTimespan / 20)
+                nActualSpacing = params.nRBTPowTargetTimespan / 20;
+            if (nActualSpacing > params.nRBTPowTargetTimespan * 20)
+                nActualSpacing = params.nRBTPowTargetTimespan * 20;
 
             bnNew *= nActualSpacing;
-            bnNew /= params.nRBTPowTargetBlockspan * nTargetSpacing;
+            bnNew /= params.nRBTPowTargetTimespan;
         }
     }
 
