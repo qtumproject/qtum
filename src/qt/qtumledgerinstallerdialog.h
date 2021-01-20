@@ -2,6 +2,9 @@
 #define QTUMLEDGERINSTALLERDIALOG_H
 
 #include <QDialog>
+#include <qt/qtumhwitool.h>
+
+class QtumLedgerInstallerDialogPriv;
 
 namespace Ui {
 class QtumLedgerInstallerDialog;
@@ -15,18 +18,17 @@ public:
     explicit QtumLedgerInstallerDialog(QWidget *parent = nullptr);
     ~QtumLedgerInstallerDialog();
 
-    enum LedgerType
-    {
-        NanoS
-    };
-
 private Q_SLOTS:
     void on_addButton_clicked();
     void on_removeButton_clicked();
     void on_cancelButton_clicked();
 
+protected:
+    InstallDevice::DeviceType getDeviceType();
+
 private:
     Ui::QtumLedgerInstallerDialog *ui;
+    QtumLedgerInstallerDialogPriv *d;
 };
 
 #endif // QTUMLEDGERINSTALLERDIALOG_H
