@@ -478,7 +478,11 @@ bool InstallDevice::loadCommand(QString &program, QStringList &arguments)
 
     // Split to params
     arguments.clear();
-    arguments = command.split(" ");
+    QStringList args = command.split(" ");
+    for(QString arg: args)
+    {
+        arguments.push_back(arg.remove("\""));
+    }
     bool ret = arguments.count() > 1;
     if(ret)
     {
@@ -501,7 +505,11 @@ bool InstallDevice::deleteCommand(QString &program, QStringList &arguments)
 
     // Split to params
     arguments.clear();
-    arguments = command.split(" ");
+    QStringList args = command.split(" ");
+    for(QString arg: args)
+    {
+        arguments.push_back(arg.remove("\""));
+    }
     bool ret = arguments.count() > 1;
     if(ret)
     {
