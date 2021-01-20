@@ -2,6 +2,7 @@
 #include <qt/forms/ui_qtumledgerinstallerdialog.h>
 
 #include <QVariant>
+#include <QMessageBox>
 
 class QtumLedgerInstallerDialogPriv
 {
@@ -32,13 +33,19 @@ QtumLedgerInstallerDialog::~QtumLedgerInstallerDialog()
 
 void QtumLedgerInstallerDialog::on_addButton_clicked()
 {
-    d->tool->installApp(getDeviceType());
+    if(!d->tool->installApp(getDeviceType()))
+    {
+        QMessageBox::warning(this, tr("Install problem"), d->tool->errorMessage());
+    }
     QDialog::accept();
 }
 
 void QtumLedgerInstallerDialog::on_removeButton_clicked()
 {
-    d->tool->removeApp(getDeviceType());
+    if(!d->tool->removeApp(getDeviceType()))
+    {
+        QMessageBox::warning(this, tr("Remove problem"), d->tool->errorMessage());
+    }
     QDialog::accept();
 }
 

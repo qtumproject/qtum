@@ -527,6 +527,7 @@ bool QtumHwiTool::installApp(InstallDevice::DeviceType type)
         wait();
 
         ret &= QProcess::NormalExit == d->process.exitStatus();
+        ret &= d->strError.isEmpty();
     }
 
     return ret;
@@ -547,6 +548,7 @@ bool QtumHwiTool::removeApp(InstallDevice::DeviceType type)
         wait();
 
         ret &= QProcess::NormalExit == d->process.exitStatus();
+        ret &= d->strError.isEmpty();
     }
 
     return ret;
