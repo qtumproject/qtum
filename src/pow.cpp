@@ -144,7 +144,7 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
         uint32_t stakeTimestampMask=params.StakeTimestampMask(nHeight);
         bnNew = mul_exp(bnNew, 2 * (nActualSpacing - nTargetSpacing) / (stakeTimestampMask + 1), (nInterval + 1) * nTargetSpacing / (stakeTimestampMask + 1));
     } else {
-        if((nHeight-(params.nReduceBlocktimeHeight + nInterval)) % nInterval == 0){
+        if((nHeight-(params.nReduceBlocktimeHeight + nInterval/3)) % nInterval == 0){
             if (nActualSpacing < 0)
                 nActualSpacing = params.nRBTPowTargetTimespan;
             if (nActualSpacing < params.nRBTPowTargetTimespan / 20)
