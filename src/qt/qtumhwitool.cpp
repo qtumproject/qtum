@@ -473,7 +473,7 @@ bool InstallDevice::loadCommand(QString &program, QStringList &arguments)
     QFile file(LOAD_FORMAT.arg(deviceToString(type)));
     if(file.open(QIODevice::ReadOnly))
     {
-        command = file.readAll();
+        command = file.readAll().trimmed();
     }
 
     // Split to params
@@ -496,7 +496,7 @@ bool InstallDevice::deleteCommand(QString &program, QStringList &arguments)
     QFile file(DELETE_FORMAT.arg(deviceToString(type)));
     if(file.open(QIODevice::ReadOnly))
     {
-        command = file.readAll();
+        command = file.readAll().trimmed();
     }
 
     // Split to params
