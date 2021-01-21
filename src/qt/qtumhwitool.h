@@ -5,6 +5,7 @@
 #include <QString>
 #include <QList>
 class QtumHwiToolPriv;
+class InstallDevicePriv;
 class WalletModel;
 class ExecRPCCommand;
 
@@ -64,7 +65,12 @@ public:
     /**
      * @brief InstallDevice Constructor
      */
-    InstallDevice(InstallDevice::DeviceType type);
+    InstallDevice(InstallDevice::DeviceType type = InstallDevice::NanoS);
+
+    /**
+     * @brief ~InstallDevice Destructor
+     */
+    ~InstallDevice();
 
     /**
      * @brief deviceToString Device type to string
@@ -90,7 +96,11 @@ public:
     bool deleteCommand(QString &program, QStringList &arguments);
 
 private:
-    DeviceType type = NanoS;
+    bool getRCCommand(const QString &rcPath, QString &program, QStringList &arguments);
+    QString parse(QString arg);
+
+private:
+    InstallDevicePriv *d;
 };
 
 /**

@@ -450,9 +450,22 @@ void QtumHwiTool::addError(const QString &error)
     d->strError += error;
 }
 
-InstallDevice::InstallDevice(InstallDevice::DeviceType _type):
-    type(_type)
-{}
+class InstallDevicePriv
+{
+public:
+    InstallDevice::DeviceType type = InstallDevice::NanoS;
+};
+
+InstallDevice::InstallDevice(InstallDevice::DeviceType type)
+{
+    d = new InstallDevicePriv();
+    d->type = type;
+}
+
+InstallDevice::~InstallDevice()
+{
+    delete d;
+}
 
 QString InstallDevice::deviceToString(InstallDevice::DeviceType type)
 {
@@ -468,12 +481,28 @@ QString InstallDevice::deviceToString(InstallDevice::DeviceType type)
 
 bool InstallDevice::loadCommand(QString &program, QStringList &arguments)
 {
+    QString rcPath = LOAD_FORMAT.arg(deviceToString(d->type));
+    return getRCCommand(rcPath, program, arguments);
+}
+
+bool InstallDevice::deleteCommand(QString &program, QStringList &arguments)
+{
+    QString rcPath = DELETE_FORMAT.arg(deviceToString(d->type));
+    return getRCCommand(rcPath, program, arguments);
+}
+
+bool InstallDevice::getRCCommand(const QString &rcPath, QString &program, QStringList &arguments)
+{
     // Get the command
     QString command;
-    QFile file(LOAD_FORMAT.arg(deviceToString(type)));
+    QFile file(rcPath);
     if(file.open(QIODevice::ReadOnly))
     {
         command = file.readAll().trimmed();
+    }
+    else
+    {
+        return false;
     }
 
     // Split to params
@@ -481,7 +510,7 @@ bool InstallDevice::loadCommand(QString &program, QStringList &arguments)
     QStringList args = command.split(" ");
     for(QString arg: args)
     {
-        arguments.push_back(arg.remove("\""));
+        arguments.push_back(parse(arg));
     }
     bool ret = arguments.count() > 1;
     if(ret)
@@ -493,31 +522,9 @@ bool InstallDevice::loadCommand(QString &program, QStringList &arguments)
     return ret;
 }
 
-bool InstallDevice::deleteCommand(QString &program, QStringList &arguments)
+QString InstallDevice::parse(QString arg)
 {
-    // Get the command
-    QString command;
-    QFile file(DELETE_FORMAT.arg(deviceToString(type)));
-    if(file.open(QIODevice::ReadOnly))
-    {
-        command = file.readAll().trimmed();
-    }
-
-    // Split to params
-    arguments.clear();
-    QStringList args = command.split(" ");
-    for(QString arg: args)
-    {
-        arguments.push_back(arg.remove("\""));
-    }
-    bool ret = arguments.count() > 1;
-    if(ret)
-    {
-        program = arguments[0];
-        arguments.removeAt(0);
-    }
-
-    return ret;
+    return arg.remove("\"");
 }
 
 bool QtumHwiTool::installApp(InstallDevice::DeviceType type)
