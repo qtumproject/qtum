@@ -29,6 +29,7 @@ static const QString PARAM_PSBT = "psbt";
 static const QString PARAM_HEXTX = "hextx";
 static const QString LOAD_FORMAT = ":/ledger/%1_load";
 static const QString DELETE_FORMAT = ":/ledger/%1_delete";
+static const QString RC_PATH_FORMAT = ":/ledger";
 
 class QtumHwiToolPriv
 {
@@ -453,7 +454,16 @@ void QtumHwiTool::addError(const QString &error)
 class InstallDevicePriv
 {
 public:
+    ~InstallDevicePriv()
+    {
+        for(QString path : filePaths)
+        {
+            QFile::remove(path);
+        }
+    }
+
     InstallDevice::DeviceType type = InstallDevice::NanoS;
+    QStringList filePaths;
 };
 
 InstallDevice::InstallDevice(InstallDevice::DeviceType type)
@@ -524,7 +534,25 @@ bool InstallDevice::getRCCommand(const QString &rcPath, QString &program, QStrin
 
 QString InstallDevice::parse(QString arg)
 {
-    return arg.remove("\"");
+    arg = arg.remove("\"");
+    if(arg.startsWith(RC_PATH_FORMAT))
+    {
+        QString dataDir = QString::fromStdString(GetDataDir().string());
+        QFile fileIn(arg);
+        if(fileIn.open(QIODevice::ReadOnly))
+        {
+            QByteArray data = fileIn.readAll();
+            arg = arg.replace(RC_PATH_FORMAT, dataDir);
+            arg += ".hex";
+            QFile fileOut(arg);
+            if(fileOut.open(QIODevice::WriteOnly))
+            {
+                fileOut.write(data);
+            }
+            d->filePaths << arg;
+        }
+    }
+    return arg;
 }
 
 bool QtumHwiTool::installApp(InstallDevice::DeviceType type)
