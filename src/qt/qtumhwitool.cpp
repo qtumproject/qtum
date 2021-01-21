@@ -186,13 +186,19 @@ void QtumHwiTool::wait()
 {
     if(d->fStarted)
     {
+        bool wasStarted = false;
         if(d->process.waitForStarted())
         {
+            wasStarted = true;
             d->process.waitForFinished(-1);
         }
         d->strStdout = d->process.readAllStandardOutput();
         d->strError = d->process.readAllStandardError();
         d->fStarted = false;
+        if(!wasStarted && d->strError.isEmpty())
+        {
+            d->strError = tr("Application %1 fail to start.").arg(d->process.program());
+        }
     }
 }
 
