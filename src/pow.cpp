@@ -152,7 +152,7 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
             if (nActualSpacing > params.nRBTPowTargetTimespan * 20)
                 nActualSpacing = params.nRBTPowTargetTimespan * 20;
 
-            if(nActualSpacing > params.nRBTPowTargetTimespan){
+            if(nActualSpacing < params.nRBTPowTargetTimespan){
                 int64_t multiplier = 1000000000;
                 bnNew = (bnNew / multiplier) * ((nActualSpacing * multiplier) / (params.nRBTPowTargetTimespan));
             }else{
