@@ -1851,41 +1851,40 @@ UniValue searchlogs(const JSONRPCRequest& request)
 
 UniValue gettransactionreceipt(const JSONRPCRequest& request)
 {
-            RPCHelpMan{"gettransactionreceipt",
-                "\nGet the transaction receipt.\n",
-                {
-                    {"hash", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The transaction hash"},
-                },
-               RPCResult{
+    RPCHelpMan{
+        "gettransactionreceipt",
+        "\nGet the transaction receipt.\n",
+        {
+            {"hash", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The transaction hash"},
+        },
+        RPCResult{
             RPCResult::Type::ARR, "", "",
+            {{RPCResult::Type::OBJ, "", "",
                 {
-                    {RPCResult::Type::OBJ, "", "",
+                    {RPCResult::Type::STR_HEX, "blockHash", "The block hash"},
+                    {RPCResult::Type::NUM, "blockNumber", "The block number"},
+                    {RPCResult::Type::STR_HEX, "transactionHash", "The transaction hash"},
+                    {RPCResult::Type::NUM, "transactionIndex", "The transaction index"},
+                    {RPCResult::Type::STR, "from", "The from address"},
+                    {RPCResult::Type::STR, "to", "The to address"},
+                    {RPCResult::Type::NUM, "cumulativeGasUsed", "The cumulative gas used"},
+                    {RPCResult::Type::NUM, "gasUsed", "The gas used"},
+                    {RPCResult::Type::STR_HEX, "contractAddress", "The contract address"},
+                    {RPCResult::Type::STR, "excepted", "The thrown exception"},
+                    {RPCResult::Type::STR, "bloom", "Bloom filter for light clients to quickly retrieve related logs"},
+                    {RPCResult::Type::ARR, "log", "The logs from the receipt",
                         {
-                            {RPCResult::Type::STR_HEX, "blockHash", "The block hash"},
-                            {RPCResult::Type::NUM, "blockNumber", "The block number"},
-                            {RPCResult::Type::STR_HEX, "transactionHash", "The transaction hash"},
-                            {RPCResult::Type::NUM, "transactionIndex", "The transaction index"},
-                            {RPCResult::Type::STR, "from", "The from address"},
-                            {RPCResult::Type::STR, "to", "The to address"},
-                            {RPCResult::Type::NUM, "cumulativeGasUsed", "The cumulative gas used"},
-                            {RPCResult::Type::NUM, "gasUsed", "The gas used"},
-                            {RPCResult::Type::STR_HEX, "contractAddress", "The contract address"},
-                            {RPCResult::Type::STR, "excepted", "The thrown exception"},
-                            {RPCResult::Type::ARR, "log", "The logs from the receipt",
-                                {
-                                    {RPCResult::Type::STR, "address", "The contract address"},
-                                    {RPCResult::Type::ARR, "topics", "The topic",
-                                        {{RPCResult::Type::STR_HEX, "topic", "The topic"}}},
-                                    {RPCResult::Type::STR_HEX, "data", "The logged data"},
-                                }},
-                        }}
-                }},
-                RPCExamples{
-                    HelpExampleCli("gettransactionreceipt", "3b04bc73afbbcf02cfef2ca1127b60fb0baf5f8946a42df67f1659671a2ec53c")
-            + HelpExampleRpc("gettransactionreceipt", "3b04bc73afbbcf02cfef2ca1127b60fb0baf5f8946a42df67f1659671a2ec53c")
-                },
-            }.Check(request);
- 
+                            {RPCResult::Type::STR, "address", "The contract address"},
+                            {RPCResult::Type::ARR, "topics", "The topic",
+                                {{RPCResult::Type::STR_HEX, "topic", "The topic"}}},
+                            {RPCResult::Type::STR_HEX, "data", "The logged data"},
+                        }},
+                }}}},
+        RPCExamples{
+            HelpExampleCli("gettransactionreceipt", "3b04bc73afbbcf02cfef2ca1127b60fb0baf5f8946a42df67f1659671a2ec53c") + HelpExampleRpc("gettransactionreceipt", "3b04bc73afbbcf02cfef2ca1127b60fb0baf5f8946a42df67f1659671a2ec53c")},
+    }
+        .Check(request);
+
     if(!fLogEvents)
         throw JSONRPCError(RPC_INTERNAL_ERROR, "Events indexing disabled");
 

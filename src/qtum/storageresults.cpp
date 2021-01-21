@@ -88,6 +88,7 @@ void StorageResults::commitResults(){
                     tris.gasUsed.push_back(dev::u256(i.second[j].gasUsed));
                     tris.contractAddresses.push_back(i.second[j].contractAddress);
                     tris.logs.push_back(logEntriesSerialization(i.second[j].logs));
+                    tris.blooms.push_back(dev::eth::bloom(i.second[j].logs));
                     tris.excepted.push_back(uint32_t(static_cast<int>(i.second[j].excepted)));
                     tris.exceptedMessage.push_back(i.second[j].exceptedMessage);
                     tris.outputIndexes.push_back(i.second[j].outputIndex);
@@ -95,7 +96,7 @@ void StorageResults::commitResults(){
 
                 dev::RLPStream streamRLP(13);
                 streamRLP << tris.blockHashes << tris.blockNumbers << tris.transactionHashes << tris.transactionIndexes << tris.senders;
-                streamRLP << tris.receivers << tris.cumulativeGasUsed << tris.gasUsed << tris.contractAddresses << tris.logs << tris.excepted << tris.exceptedMessage << tris.outputIndexes;
+                streamRLP << tris.receivers << tris.cumulativeGasUsed << tris.gasUsed << tris.contractAddresses << tris.logs  << tris.blooms << tris.excepted << tris.exceptedMessage << tris.outputIndexes;
 
                 dev::bytes data = streamRLP.out();
                 std::string stringData(data.begin(), data.end());
@@ -130,12 +131,13 @@ bool StorageResults::readResult(dev::h256 const& _key, std::vector<TransactionRe
         tris.gasUsed = state[7].toVector<dev::u256>();
         tris.contractAddresses = state[8].toVector<dev::h160>();
         tris.logs = state[9].toVector<logEntriesSerialize>();
-        if(state.itemCount() >= 11)
-            tris.excepted = state[10].toVector<uint32_t>();
+        tris.blooms = state[10].toVector<dev::h2048()>;
         if(state.itemCount() >= 12)
-            tris.exceptedMessage = state[11].toVector<std::string>();
+            tris.excepted = state[11].toVector<uint32_t>();
         if(state.itemCount() >= 13)
-            tris.outputIndexes = state[12].toVector<uint32_t>();
+            tris.exceptedMessage = state[12].toVector<std::string>();
+        if(state.itemCount() >= 14)
+            tris.outputIndexes = state[13].toVector<uint32_t>();
 
         for(size_t j = 0; j < tris.blockHashes.size(); j++){
             TransactionReceiptInfo tri{
@@ -148,10 +150,11 @@ bool StorageResults::readResult(dev::h256 const& _key, std::vector<TransactionRe
                 uint64_t(tris.cumulativeGasUsed[j]),
                 uint64_t(tris.gasUsed[j]),
                 tris.contractAddresses[j],
-                logEntriesDeserialize(tris.logs[j]), 
-                state.itemCount() >= 11 ? static_cast<dev::eth::TransactionException>(tris.excepted[j]) : dev::eth::TransactionException::NoInformation,
-                state.itemCount() >= 12 ? tris.exceptedMessage[j] : "",
-                state.itemCount() >= 13 ? tris.outputIndexes[j] : 0xffffffff
+                logEntriesDeserialize(tris.logs[j]),
+                tris.blooms[j],
+                state.itemCount() >= 12 ? static_cast<dev::eth::TransactionException>(tris.excepted[j]) : dev::eth::TransactionException::NoInformation,
+                state.itemCount() >= 13 ? tris.exceptedMessage[j] : "",
+                state.itemCount() >= 14 ? tris.outputIndexes[j] : 0xffffffff
             };
             _result.push_back(tri);
         }

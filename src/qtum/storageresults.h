@@ -18,6 +18,7 @@ struct TransactionReceiptInfo{
     uint64_t gasUsed;
     dev::Address contractAddress;
     dev::eth::LogEntries logs;
+    dev::eth::LogBloom bloom;
     dev::eth::TransactionException excepted;
     std::string exceptedMessage;
     uint32_t outputIndex;
@@ -34,6 +35,7 @@ struct TransactionReceiptInfoSerialized{
     std::vector<dev::u256> gasUsed;
     std::vector<dev::h160> contractAddresses;
     std::vector<logEntriesSerialize> logs;
+    std::vector<dev::h2048> blooms;
     std::vector<uint32_t> excepted;
     std::vector<std::string> exceptedMessage;
     std::vector<uint32_t> outputIndexes;

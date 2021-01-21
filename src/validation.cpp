@@ -3383,6 +3383,7 @@ bool CChainState::ConnectBlock(const CBlock& block, BlockValidationState& state,
                         gasUsed,
                         resultExec[k].execRes.newAddress,
                         resultExec[k].txRec.log(),
+                        dev::eth::bloom(resultExec[k].txRec.log()),
                         resultExec[k].execRes.excepted,
                         exceptedMessage(resultExec[k].execRes.excepted, resultExec[k].execRes.output),
                         resultConvertQtumTX.first[k].getNVout()
