@@ -25,6 +25,7 @@ private Q_SLOTS:
 
 protected:
     InstallDevice::DeviceType getDeviceType();
+    bool parseErrorMessage(QString& message);
 
 private:
     Ui::QtumLedgerInstallerDialog *ui;

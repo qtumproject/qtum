@@ -42,12 +42,15 @@ void QtumLedgerInstallerDialog::on_addButton_clicked()
 
     dlg.exec();
 
-    if(!d->ret)
+    QString message;
+    if(!d->ret && parseErrorMessage(message))
     {
-        QMessageBox::warning(this, tr("Install problem"), d->tool->errorMessage());
+        QMessageBox::warning(this, tr("Install problem"), message);
     }
-
-    QDialog::accept();
+    else
+    {
+        QDialog::accept();
+    }
 }
 
 void QtumLedgerInstallerDialog::on_removeButton_clicked()
@@ -59,12 +62,15 @@ void QtumLedgerInstallerDialog::on_removeButton_clicked()
 
     dlg.exec();
 
-    if(!d->ret)
+    QString message;
+    if(!d->ret && parseErrorMessage(message))
     {
-        QMessageBox::warning(this, tr("Remove problem"), d->tool->errorMessage());
+        QMessageBox::warning(this, tr("Remove problem"), message);
     }
-
-    QDialog::accept();
+    else
+    {
+        QDialog::accept();
+    }
 }
 
 void QtumLedgerInstallerDialog::on_cancelButton_clicked()
@@ -83,4 +89,26 @@ InstallDevice::DeviceType QtumLedgerInstallerDialog::getDeviceType()
     }
 
     return InstallDevice::NanoS;
+}
+
+bool QtumLedgerInstallerDialog::parseErrorMessage(QString &message)
+{
+    QString errorMessage = d->tool->errorMessage();
+    if(errorMessage.contains("denied by the user", Qt::CaseInsensitive))
+        return false;
+
+    if(errorMessage.contains("ModuleNotFoundError", Qt::CaseInsensitive) && errorMessage.contains("ledgerblue", Qt::CaseInsensitive))
+    {
+        message = tr("Ledger loader not found, you can install it with the command:") + "\npip3 install ledgerblue";
+        return true;
+    }
+
+    if(errorMessage.contains("No dongle found", Qt::CaseInsensitive))
+    {
+        message = tr("Please insert your Ledger. Verify the cable is connected and that no other application is using it.");
+        return true;
+    }
+
+    message = d->tool->errorMessage();
+    return true;
 }
