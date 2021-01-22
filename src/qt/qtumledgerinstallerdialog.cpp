@@ -1,5 +1,6 @@
 #include <qt/qtumledgerinstallerdialog.h>
 #include <qt/forms/ui_qtumledgerinstallerdialog.h>
+#include <qt/waitmessagebox.h>
 
 #include <QVariant>
 #include <QMessageBox>
@@ -13,6 +14,7 @@ public:
     }
 
     QtumHwiTool* tool = 0;
+    bool ret = false;
 };
 
 QtumLedgerInstallerDialog::QtumLedgerInstallerDialog(QWidget *parent) :
@@ -33,19 +35,35 @@ QtumLedgerInstallerDialog::~QtumLedgerInstallerDialog()
 
 void QtumLedgerInstallerDialog::on_addButton_clicked()
 {
-    if(!d->tool->installApp(getDeviceType()))
+    // Install Qtum app from ledger
+    WaitMessageBox dlg(tr("Ledger Status"), tr("Confirm Qtum install on your Ledger device..."), [this]() {
+        d->ret = d->tool->installApp(getDeviceType());
+    }, this);
+
+    dlg.exec();
+
+    if(!d->ret)
     {
         QMessageBox::warning(this, tr("Install problem"), d->tool->errorMessage());
     }
+
     QDialog::accept();
 }
 
 void QtumLedgerInstallerDialog::on_removeButton_clicked()
 {
-    if(!d->tool->removeApp(getDeviceType()))
+    // Remove Qtum app from ledger
+    WaitMessageBox dlg(tr("Ledger Status"), tr("Confirm Qtum removal on your Ledger device..."), [this]() {
+        d->ret = d->tool->removeApp(getDeviceType());
+    }, this);
+
+    dlg.exec();
+
+    if(!d->ret)
     {
         QMessageBox::warning(this, tr("Remove problem"), d->tool->errorMessage());
     }
+
     QDialog::accept();
 }
 
