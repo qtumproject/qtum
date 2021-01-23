@@ -108,6 +108,26 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
     return CalculateNextWorkRequired(pindexPrev, pindexPrevPrev->GetBlockTime(), params, fProofOfStake);
 }
 
+double GetDifficultyFromNBits(uint32_t nBits)
+{
+    int nShift = (nBits >> 24) & 0xff;
+    double dDiff =
+        (double)0x0000ffff / (double)(nBits & 0x00ffffff);
+
+    while (nShift < 29)
+    {
+        dDiff *= 256.0;
+        nShift++;
+    }
+    while (nShift > 29)
+    {
+        dDiff /= 256.0;
+        nShift--;
+    }
+
+    return dDiff;
+}
+
 unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nFirstBlockTime, const Consensus::Params& params, bool fProofOfStake)
 {
     if(fProofOfStake){
@@ -144,7 +164,7 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
         uint32_t stakeTimestampMask=params.StakeTimestampMask(nHeight);
         bnNew = mul_exp(bnNew, 2 * (nActualSpacing - nTargetSpacing) / (stakeTimestampMask + 1), (nInterval + 1) * nTargetSpacing / (stakeTimestampMask + 1));
     } else {
-        if((nHeight-(params.nReduceBlocktimeHeight + nInterval)) % (nInterval) == 0){
+        if((nHeight-(params.nReduceBlocktimeHeight + nInterval/4)) % (nInterval/4) == 0){
             if (nActualSpacing < 0)
                 nActualSpacing = params.nRBTPowTargetTimespan;
             if (nActualSpacing < params.nRBTPowTargetTimespan / 20)
@@ -152,12 +172,13 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
             if (nActualSpacing > params.nRBTPowTargetTimespan * 20)
                 nActualSpacing = params.nRBTPowTargetTimespan * 20;
 
-            if(nActualSpacing < params.nRBTPowTargetTimespan){
-                int64_t multiplier = 1000000000;
+            int64_t multiplier = 1000000000;
+            if(nActualSpacing > params.nRBTPowTargetTimespan){
                 bnNew = (bnNew / multiplier) * ((nActualSpacing * multiplier) / (params.nRBTPowTargetTimespan));
             }else{
-                uint32_t stakeTimestampMask=params.StakeTimestampMask(nHeight);
-                bnNew = mul_exp(bnNew, 2 * (nActualSpacing - params.nRBTPowTargetTimespan) / (stakeTimestampMask + 1), (nInterval + 1) * params.nRBTPowTargetTimespan / (stakeTimestampMask + 1));
+                if((nHeight-(params.nReduceBlocktimeHeight + nInterval)) % (nInterval) == 0){
+                    bnNew = (bnNew / multiplier) * ((nActualSpacing * multiplier) / (params.nRBTPowTargetTimespan));
+                }
             }
         }
     }
