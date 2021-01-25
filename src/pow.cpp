@@ -164,7 +164,7 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
         uint32_t stakeTimestampMask=params.StakeTimestampMask(nHeight);
         bnNew = mul_exp(bnNew, 2 * (nActualSpacing - nTargetSpacing) / (stakeTimestampMask + 1), (nInterval + 1) * nTargetSpacing / (stakeTimestampMask + 1));
     } else {
-        if((nHeight-(params.nReduceBlocktimeHeight + nInterval/4)) % (nInterval/4) == 0){
+        if((nHeight - params.nReduceBlocktimeHeight - 4) % 4 == 0){ //adjust every 4 blocks
             if (nActualSpacing < 0)
                 nActualSpacing = params.nRBTPowTargetTimespan;
             if (nActualSpacing < params.nRBTPowTargetTimespan / 20)
@@ -172,8 +172,21 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
             if (nActualSpacing > params.nRBTPowTargetTimespan * 20)
                 nActualSpacing = params.nRBTPowTargetTimespan * 20;
 
+            arith_uint256 bnNewTmp, bnNewAvg, bnNewTotal;
+            const CBlockIndex* pindex;
+
+            pindex=pindexLast;
+
+            for(int i=0;i<nInterval;i++){
+                bnNewTmp.SetCompact(pindex->nBits);
+                bnNewTotal+=bnNewTmp;
+                pindex=pindex->pprev;
+            }
+
+            bnNewAvg=bnNewTotal/nInterval;
             uint32_t stakeTimestampMask=params.StakeTimestampMask(nHeight);
-            bnNew = mul_exp(bnNew, params.DifficultyAdjustmentInterval(nHeight) * (nActualSpacing - params.nRBTPowTargetTimespan) / (stakeTimestampMask + 1), (nInterval + 1) * params.nRBTPowTargetTimespan / (stakeTimestampMask + 1));
+
+            bnNew = mul_exp(bnNewAvg, 2 * params.DifficultyAdjustmentInterval(nHeight) * (nActualSpacing - params.nRBTPowTargetTimespan) / (stakeTimestampMask + 1), (nInterval + 1) * params.nRBTPowTargetTimespan / (stakeTimestampMask + 1));
         }
     }
 
