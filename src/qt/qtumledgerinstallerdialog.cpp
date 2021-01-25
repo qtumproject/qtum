@@ -109,6 +109,12 @@ bool QtumLedgerInstallerDialog::parseErrorMessage(QString &message)
         return true;
     }
 
+    if(errorMessage.contains("verify that the right application is opened", Qt::CaseInsensitive))
+    {
+        message = tr("Please close the Qtum application on your ledger.");
+        return true;
+    }
+
     message = d->tool->errorMessage();
     return true;
 }
