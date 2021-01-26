@@ -186,7 +186,7 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
             bnNewAvg=bnNewTotal/nInterval;
             uint32_t stakeTimestampMask=params.StakeTimestampMask(nHeight);
 
-            bnNew = mul_exp(bnNewAvg, 2 * params.DifficultyAdjustmentInterval(nHeight) * (nActualSpacing - params.nRBTPowTargetTimespan) / (stakeTimestampMask + 1), (nInterval + 1) * params.nRBTPowTargetTimespan / (stakeTimestampMask + 1));
+            bnNew = mul_exp(bnNewAvg, 4 * (nActualSpacing - params.nRBTPowTargetTimespan) / (stakeTimestampMask + 1), (nInterval + 1) * params.nRBTPowTargetTimespan / (stakeTimestampMask + 1));
         }
     }
 
