@@ -1289,6 +1289,7 @@ public:
     CBlockIndex* pindexPrev = 0;
     CAmount nTargetValue = 0;
     std::set<std::pair<const CWalletTx*,unsigned int> > setCoins;
+    std::set<std::pair<const CWalletTx*,unsigned int> > setSelectedCoins;
     std::vector<COutPoint> setDelegateCoins;
     std::vector<COutPoint> prevouts;
     std::map<uint32_t, bool> mapSolveBlockTime;
@@ -1333,6 +1334,7 @@ public:
         pindexPrev = 0;
         nTargetValue = 0;
         setCoins.clear();
+        setSelectedCoins.clear();
         setDelegateCoins.clear();
         prevouts.clear();
         mapSolveBlockTime.clear();
@@ -1613,7 +1615,7 @@ protected:
         // Try to sign the block once at specific time with the same cached data
         d->mapSolveBlockTime[blockTime] = false;
 
-        if (SignBlock(d->pblockfilled, *(d->pwallet), d->nTotalFees, blockTime, d->setCoins, d->setDelegateCoins)) {
+        if (SignBlock(d->pblockfilled, *(d->pwallet), d->nTotalFees, blockTime, d->setCoins, d->setSelectedCoins, d->setDelegateCoins)) {
             // Should always reach here unless we spent too much time processing transactions and the timestamp is now invalid
             // CheckStake also does CheckBlock and AcceptBlock to propogate it to the network
             bool validBlock = false;
@@ -1686,6 +1688,7 @@ public:
     CBlockIndex* pindexPrev = 0;
     CAmount nTargetValue = 0;
     std::set<std::pair<const CWalletTx*,unsigned int> > setCoins;
+    std::set<std::pair<const CWalletTx*,unsigned int> > setSelectedCoins;
     std::vector<COutPoint> setDelegateCoins;
     std::vector<COutPoint> prevouts;
     std::map<uint32_t, bool> mapSolveBlockTime;
@@ -1731,6 +1734,7 @@ public:
         pindexPrev = 0;
         nTargetValue = 0;
         setCoins.clear();
+        setSelectedCoins.clear();
         setDelegateCoins.clear();
         prevouts.clear();
         mapSolveBlockTime.clear();
@@ -2012,7 +2016,7 @@ protected:
         // Try to sign the block once at specific time with the same cached data
         d->mapSolveBlockTime[blockTime] = false;
 
-        if (SignBlock(d->pblockfilled, *(d->pwallet), d->nTotalFees, blockTime, d->setCoins, d->setDelegateCoins)) {
+        if (SignBlock(d->pblockfilled, *(d->pwallet), d->nTotalFees, blockTime, d->setCoins, d->setSelectedCoins, d->setDelegateCoins)) {
             // Should always reach here unless we spent too much time processing transactions and the timestamp is now invalid
             // CheckStake also does CheckBlock and AcceptBlock to propogate it to the network
             bool validBlock = false;
@@ -2140,6 +2144,7 @@ public:
             CAmount nTargetValue = nBalance - pwallet->m_reserve_balance;
             CAmount nValueIn = 0;
             std::set<std::pair<const CWalletTx*,unsigned int> > setCoins;
+            std::set<std::pair<const CWalletTx*,unsigned int> > setSelectedCoins;
             std::vector<COutPoint> setDelegateCoins;
             {
                 if(pwallet->IsStakeClosing()) return;
@@ -2186,7 +2191,7 @@ public:
                     // Try to sign a block (this also checks for a PoS stake)
                     pblocktemplate->block.nTime = i;
                     std::shared_ptr<CBlock> pblock = std::make_shared<CBlock>(pblocktemplate->block);
-                    if (SignBlock(pblock, *pwallet, nTotalFees, i, setCoins, setDelegateCoins)) {
+                    if (SignBlock(pblock, *pwallet, nTotalFees, i, setCoins, setSelectedCoins, setDelegateCoins)) {
                         // increase priority so we can build the full PoS block ASAP to ensure the timestamp doesn't expire
                         SetThreadPriority(THREAD_PRIORITY_ABOVE_NORMAL);
 
@@ -2208,7 +2213,7 @@ public:
                         }
                         // Sign the full block and use the timestamp from earlier for a valid stake
                         std::shared_ptr<CBlock> pblockfilled = std::make_shared<CBlock>(pblocktemplatefilled->block);
-                        if (SignBlock(pblockfilled, *pwallet, nTotalFees, i, setCoins, setDelegateCoins)) {
+                        if (SignBlock(pblockfilled, *pwallet, nTotalFees, i, setCoins, setSelectedCoins, setDelegateCoins)) {
                             // Should always reach here unless we spent too much time processing transactions and the timestamp is now invalid
                             // CheckStake also does CheckBlock and AcceptBlock to propogate it to the network
                             bool validBlock = false;

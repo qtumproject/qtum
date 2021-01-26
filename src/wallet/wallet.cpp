@@ -3591,7 +3591,7 @@ uint64_t CWallet::GetStakeWeight(interfaces::Chain::Lock& locked_chain, uint64_t
     return nWeight;
 }
 
-bool CWallet::CreateCoinStakeFromMine(interfaces::Chain::Lock& locked_chain, const FillableSigningProvider& keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, COutPoint& headerPrevout)
+bool CWallet::CreateCoinStakeFromMine(interfaces::Chain::Lock& locked_chain, const FillableSigningProvider& keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::set<std::pair<const CWalletTx*,unsigned int> >& setSelectedCoins, COutPoint& headerPrevout)
 {
     CBlockIndex* pindexPrev = ::ChainActive().Tip();
     arith_uint256 bnTargetPerCoinDay;
@@ -3636,7 +3636,8 @@ bool CWallet::CreateCoinStakeFromMine(interfaces::Chain::Lock& locked_chain, con
     CScript scriptPubKeyKernel;
     CScript aggregateScriptPubKeyHashKernel;
 
-    for(const std::pair<const CWalletTx*,unsigned int> &pcoin : setCoins)
+    std::set<std::pair<const CWalletTx*,unsigned int> >& setPrevouts = setSelectedCoins.size() > 0 ? setSelectedCoins : setCoins;
+    for(const std::pair<const CWalletTx*,unsigned int> &pcoin : setPrevouts)
     {
         bool fKernelFound = false;
         boost::this_thread::interruption_point();
@@ -4055,7 +4056,7 @@ bool CWallet::CanSuperStake(const std::set<std::pair<const CWalletTx*,unsigned i
     return canSuperStake;
 }
 
-bool CWallet::CreateCoinStake(interfaces::Chain::Lock& locked_chain, const FillableSigningProvider& keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setDelegateCoins, std::vector<unsigned char>& vchPoD, COutPoint& headerPrevout)
+bool CWallet::CreateCoinStake(interfaces::Chain::Lock& locked_chain, const FillableSigningProvider& keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::set<std::pair<const CWalletTx*,unsigned int> >& setSelectedCoins, std::vector<COutPoint>& setDelegateCoins, std::vector<unsigned char>& vchPoD, COutPoint& headerPrevout)
 {
     // Can super stake
     bool canSuperStake = CanSuperStake(setCoins, setDelegateCoins);
@@ -4065,7 +4066,7 @@ bool CWallet::CreateCoinStake(interfaces::Chain::Lock& locked_chain, const Filla
         return true;
 
     // Create coinstake from coins that are mine
-    if(setCoins.size() > 0 && CreateCoinStakeFromMine(locked_chain, keystore, nBits, nTotalFees, nTimeBlock, tx, key, setCoins, headerPrevout))
+    if(setCoins.size() > 0 && CreateCoinStakeFromMine(locked_chain, keystore, nBits, nTotalFees, nTimeBlock, tx, key, setCoins, setSelectedCoins, headerPrevout))
         return true;
 
     // Fail to create coinstake
