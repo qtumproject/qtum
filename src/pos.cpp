@@ -444,6 +444,18 @@ bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBloc
     return false;
 }
 
+bool CheckKernelCache(CBlockIndex *pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint &prevout, const std::map<COutPoint, CStakeCache> &cache, uint256 &hashProofOfStake)
+{
+    uint256 targetProofOfStake;
+    auto it=cache.find(prevout);
+    if(it != cache.end()) {
+        const CStakeCache& stake = it->second;
+        return CheckStakeKernelHash(pindexPrev, nBits, stake.blockFromTime, stake.amount, prevout,
+                                    nTimeBlock, hashProofOfStake, targetProofOfStake);
+    }
+    return false;
+}
+
 void CacheKernel(std::map<COutPoint, CStakeCache>& cache, const COutPoint& prevout, CBlockIndex* pindexPrev, CCoinsViewCache& view){
     if(cache.find(prevout) != cache.end()){
         //already in cache
@@ -754,4 +766,3 @@ bool CreateMPoSOutputs(CMutableTransaction& txNew, int64_t nRewardPiece, int nHe
 
     return true;
 }
-

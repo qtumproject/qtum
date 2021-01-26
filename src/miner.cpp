@@ -1274,7 +1274,6 @@ public:
     bool fDelegationsContract = false;
     bool fEmergencyStaking = false;
     bool fAggressiveStaking = false;
-    bool fStakeCache = false;
     bool fError = false;
 
 public:
@@ -1322,7 +1321,6 @@ public:
         fDelegationsContract = !consensusParams.delegationsAddress.IsNull();
         fEmergencyStaking = gArgs.GetBoolArg("-emergencystaking", false);
         fAggressiveStaking = gArgs.IsArgSet("-aggressive-staking");
-        fStakeCache = gArgs.GetBoolArg("-stakecache", DEFAULT_STAKE_CACHE);
     }
 
     void clearCache()
@@ -1535,7 +1533,7 @@ protected:
                     d->prevouts.push_back(COutPoint(pcoin.first->GetHash(), pcoin.second));
                 }
 
-                d->pwallet->UpdateMinerStakeCache(d->fStakeCache, d->prevouts, d->pindexPrev);
+                d->pwallet->UpdateMinerStakeCache(true, d->prevouts, d->pindexPrev);
             }
         }
 
@@ -1562,13 +1560,12 @@ protected:
         if(d->mapSolveBlockTime.find(blockTime) == d->mapSolveBlockTime.end())
         {
             if(d->pwallet->IsStakeClosing()) return false;
-            auto locked_chain = d->pwallet->chain().lock();
 
             d->mapSolveBlockTime[blockTime] = false;
-            CCoinsViewCache& view = ::ChainstateActive().CoinsTip();
             for(const COutPoint &prevoutStake : d->prevouts)
             {
-                if (CheckKernel(d->pindexPrev, d->pblock->nBits, blockTime, prevoutStake, view, d->pwallet->minerStakeCache))
+                uint256 hashProofOfStake;
+                if (CheckKernelCache(d->pindexPrev, d->pblock->nBits, blockTime, prevoutStake, d->pwallet->minerStakeCache, hashProofOfStake))
                 {
                     d->mapSolveBlockTime[blockTime] = true;
                     break;
