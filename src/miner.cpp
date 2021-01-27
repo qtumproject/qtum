@@ -1290,10 +1290,12 @@ public:
     CBlockIndex* pindexPrev = 0;
     CAmount nTargetValue = 0;
     std::set<std::pair<const CWalletTx*,unsigned int> > setCoins;
-    std::set<std::pair<const CWalletTx*,unsigned int> > setSelectedCoins;
+    std::vector<COutPoint> setSelectedCoins;
     std::vector<COutPoint> setDelegateCoins;
     std::vector<COutPoint> prevouts;
     std::map<uint32_t, bool> mapSolveBlockTime;
+    std::map<uint32_t, std::vector<COutPoint>> mapSolveSelectedCoins;
+    std::map<uint32_t, std::vector<COutPoint>> mapSolveDelegateCoins;
     uint32_t beginningTime = 0;
     uint32_t endingTime = 0;
 
@@ -1342,6 +1344,8 @@ public:
         setDelegateCoins.clear();
         prevouts.clear();
         mapSolveBlockTime.clear();
+        mapSolveSelectedCoins.clear();
+        mapSolveDelegateCoins.clear();
         beginningTime = 0;
         endingTime = 0;
 
@@ -1350,6 +1354,20 @@ public:
         pblockfilled.reset();
         pblocktemplatefilled.reset();
     }
+};
+
+class SolveItem
+{
+public:
+    SolveItem(const COutPoint& _prevoutStake, const uint32_t& _blockTime, const bool& _delegate):
+        prevoutStake(_prevoutStake),
+        blockTime(_blockTime),
+        delegate(_delegate)
+    {}
+
+    COutPoint prevoutStake;
+    uint32_t blockTime = 0;
+    bool delegate = false;
 };
 
 class StakeMinerV3 : public IStakeMiner
@@ -1377,6 +1395,9 @@ public:
             // Check if miner have coins for staking
             if(HaveCoinsForStake())
             {
+                // Solve block
+                SloveBlock();
+
                 // Look for possibility to create a block
                 uint32_t beginningTime=GetAdjustedTime();
                 beginningTime &= ~d->stakeTimestampMask;
@@ -1441,10 +1462,10 @@ protected:
         }
 
         // Check if cached data is old
-        if(!IsCachedDataOld())
+        if(!IsCachedDataOld() && d->endingTime > GetAdjustedTime())
         {
-            if(!Sleep(100))
-                return false;
+            Sleep(100);
+            return false;
         }
 
         // Wait for node connections
@@ -1544,11 +1565,11 @@ protected:
             }
 
             d->pwallet->UpdateMinerStakeCache(true, d->prevouts, d->pindexPrev);
-
-            d->beginningTime = GetAdjustedTime();
-            d->beginningTime &= ~d->stakeTimestampMask;
-            d->endingTime = d->beginningTime + nMaxStakeLookahead;
         }
+
+        d->beginningTime = GetAdjustedTime();
+        d->beginningTime &= ~d->stakeTimestampMask;
+        d->endingTime = d->beginningTime + nMaxStakeLookahead;
 
         return true;
     }
@@ -1578,23 +1599,53 @@ protected:
         if(searchInterval > 0) d->pwallet->m_last_coin_stake_search_interval = searchInterval;
     }
 
+    void SloveBlock()
+    {
+        // Init variables
+        d->beginningTime = GetAdjustedTime();
+        d->beginningTime &= ~d->stakeTimestampMask;
+        d->endingTime = d->beginningTime + nMaxStakeLookahead;
+        size_t listSize = d->prevouts.size();
+        size_t delegateSize = d->setDelegateCoins.size();
+
+        // Solve block
+        std::multimap<arith_uint256, SolveItem> mapSolved;
+        for(size_t i = 0; i < listSize; i++)
+        {
+            const COutPoint &prevoutStake = d->prevouts[i];
+            for(uint32_t blockTime = d->beginningTime; blockTime < d->endingTime; blockTime += d->stakeTimestampMask+1)
+            {
+                arith_uint256 weightProofOfStake;
+                if (CheckKernelCache(d->pindexPrev, d->pblock->nBits, blockTime, prevoutStake, d->pwallet->minerStakeCache, weightProofOfStake))
+                {                    
+                    bool delegate = i < delegateSize;
+                    d->mapSolveBlockTime[blockTime] = true;
+                    mapSolved.insert(std::make_pair(weightProofOfStake, SolveItem(prevoutStake, blockTime, delegate)));
+                }
+            }
+        }
+
+        // Populate the list with the potential solwed blocks
+        for (auto it = mapSolved.begin(); it != mapSolved.end(); ++it)
+        {
+            const SolveItem& item = (*it).second;
+            if(item.delegate)
+            {
+                d->mapSolveDelegateCoins[item.blockTime].push_back(item.prevoutStake);
+            }
+            else
+            {
+                d->mapSolveSelectedCoins[item.blockTime].push_back(item.prevoutStake);
+            }
+        }
+    }
+
     bool CanCreateBlock(const uint32_t& blockTime)
     {
         d->pblock->nTime = blockTime;
         if(d->mapSolveBlockTime.find(blockTime) == d->mapSolveBlockTime.end())
         {
-            if(d->pwallet->IsStakeClosing()) return false;
-
             d->mapSolveBlockTime[blockTime] = false;
-            for(const COutPoint &prevoutStake : d->prevouts)
-            {
-                uint256 hashProofOfStake;
-                if (CheckKernelCache(d->pindexPrev, d->pblock->nBits, blockTime, prevoutStake, d->pwallet->minerStakeCache, hashProofOfStake))
-                {
-                    d->mapSolveBlockTime[blockTime] = true;
-                    break;
-                }
-            }
         }
 
         return d->mapSolveBlockTime[blockTime];
@@ -1637,7 +1688,7 @@ protected:
         // Try to sign the block once at specific time with the same cached data
         d->mapSolveBlockTime[blockTime] = false;
 
-        if (SignBlock(d->pblockfilled, *(d->pwallet), d->nTotalFees, blockTime, d->setCoins, d->setSelectedCoins, d->setDelegateCoins)) {
+        if (SignBlock(d->pblockfilled, *(d->pwallet), d->nTotalFees, blockTime, d->setCoins, d->mapSolveSelectedCoins[blockTime], d->mapSolveDelegateCoins[blockTime], true)) {
             // Should always reach here unless we spent too much time processing transactions and the timestamp is now invalid
             // CheckStake also does CheckBlock and AcceptBlock to propogate it to the network
             bool validBlock = false;
@@ -1711,7 +1762,7 @@ public:
     CBlockIndex* pindexPrev = 0;
     CAmount nTargetValue = 0;
     std::set<std::pair<const CWalletTx*,unsigned int> > setCoins;
-    std::set<std::pair<const CWalletTx*,unsigned int> > setSelectedCoins;
+    std::vector<COutPoint> setSelectedCoins;
     std::vector<COutPoint> setDelegateCoins;
     std::vector<COutPoint> prevouts;
     std::map<uint32_t, bool> mapSolveBlockTime;
@@ -2167,7 +2218,7 @@ public:
             CAmount nTargetValue = nBalance - pwallet->m_reserve_balance;
             CAmount nValueIn = 0;
             std::set<std::pair<const CWalletTx*,unsigned int> > setCoins;
-            std::set<std::pair<const CWalletTx*,unsigned int> > setSelectedCoins;
+            std::vector<COutPoint> setSelectedCoins;
             std::vector<COutPoint> setDelegateCoins;
             {
                 if(pwallet->IsStakeClosing()) return;

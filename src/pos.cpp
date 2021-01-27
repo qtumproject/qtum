@@ -444,14 +444,20 @@ bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBloc
     return false;
 }
 
-bool CheckKernelCache(CBlockIndex *pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint &prevout, const std::map<COutPoint, CStakeCache> &cache, uint256 &hashProofOfStake)
+bool CheckKernelCache(CBlockIndex *pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint &prevout, const std::map<COutPoint, CStakeCache> &cache, arith_uint256& weightProofOfStake)
 {
-    uint256 targetProofOfStake;
+    uint256 hashProofOfStake, targetProofOfStake;
     auto it=cache.find(prevout);
     if(it != cache.end()) {
         const CStakeCache& stake = it->second;
-        return CheckStakeKernelHash(pindexPrev, nBits, stake.blockFromTime, stake.amount, prevout,
-                                    nTimeBlock, hashProofOfStake, targetProofOfStake);
+        if(CheckStakeKernelHash(pindexPrev, nBits, stake.blockFromTime, stake.amount, prevout,
+                                    nTimeBlock, hashProofOfStake, targetProofOfStake))
+        {
+            weightProofOfStake = UintToArith256(hashProofOfStake);
+            arith_uint256 bnWeight = arith_uint256(stake.amount);
+            weightProofOfStake /= bnWeight;
+            return true;
+        }
     }
     return false;
 }
