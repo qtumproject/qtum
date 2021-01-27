@@ -157,6 +157,9 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
         bnNew *= ((nInterval - 1) * nTargetSpacing + nActualSpacing + nActualSpacing);
         bnNew /= ((nInterval + 1) * nTargetSpacing);
     } else if (nHeight < params.nReduceBlocktimeHeight + nInterval) {
+        if(nHeight == params.nReduceBlocktimeHeight){
+            bnNew /= params.nBlocktimeDownscaleFactor;
+        }
         if (nActualSpacing < 0)
             nActualSpacing = nTargetSpacing;
         if (nActualSpacing > nTargetSpacing * 20)
