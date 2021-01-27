@@ -1285,6 +1285,7 @@ public:
     uint32_t stakeTimestampMask = 1;
     int64_t nTotalFees = 0;
     bool haveCoinsForStake = false;
+    bool forceUpdate = false;
 
     CBlockIndex* pindexPrev = 0;
     CAmount nTargetValue = 0;
@@ -1293,6 +1294,8 @@ public:
     std::vector<COutPoint> setDelegateCoins;
     std::vector<COutPoint> prevouts;
     std::map<uint32_t, bool> mapSolveBlockTime;
+    uint32_t beginningTime = 0;
+    uint32_t endingTime = 0;
 
     std::shared_ptr<CBlock> pblock;
     std::unique_ptr<CBlockTemplate> pblocktemplate;
@@ -1330,6 +1333,7 @@ public:
         stakeTimestampMask = 1;
         nTotalFees = 0;
         haveCoinsForStake = false;
+        forceUpdate = false;
 
         pindexPrev = 0;
         nTargetValue = 0;
@@ -1338,6 +1342,8 @@ public:
         setDelegateCoins.clear();
         prevouts.clear();
         mapSolveBlockTime.clear();
+        beginningTime = 0;
+        endingTime = 0;
 
         pblock.reset();
         pblocktemplate.reset();
@@ -1375,7 +1381,7 @@ public:
                 uint32_t beginningTime=GetAdjustedTime();
                 beginningTime &= ~d->stakeTimestampMask;
 
-                for(uint32_t blockTime = beginningTime; blockTime < beginningTime + nMaxStakeLookahead; blockTime += d->stakeTimestampMask+1)
+                for(uint32_t blockTime = beginningTime; blockTime < d->endingTime; blockTime += d->stakeTimestampMask+1)
                 {
                     // Update status bar
                     UpdateStatusBar(blockTime);
@@ -1391,9 +1397,6 @@ public:
                     }
                 }
             }
-
-            // Miner sleep before the next try
-            Sleep(nMinerSleep);
         }
     }
 
@@ -1434,6 +1437,13 @@ protected:
         {
             d->pwallet->m_last_coin_stake_search_interval = 0;
             if(!Sleep(10000))
+                return false;
+        }
+
+        // Check if cached data is old
+        if(!IsCachedDataOld())
+        {
+            if(!Sleep(100))
                 return false;
         }
 
@@ -1480,63 +1490,75 @@ protected:
     bool IsCachedDataOld()
     {
         if(d->pwallet->IsStakeClosing()) return false;
+        if(d->pindexPrev == 0 || d->forceUpdate) return true;
+        auto locked_chain = d->pwallet->chain().lock();
+        return ::ChainActive().Tip() != d->pindexPrev;
+    }
+
+    bool UpdateData()
+    {
+        if(d->pwallet->IsStakeClosing()) return false;
         auto locked_chain = d->pwallet->chain().lock();
         LOCK(d->pwallet->cs_wallet);
-        return ::ChainActive().Tip() != d->pindexPrev;
+
+        d->clearCache();
+        CAmount nBalance = d->pwallet->GetBalance().m_mine_trusted;
+        d->nTargetValue = nBalance - d->pwallet->m_reserve_balance;
+        CAmount nValueIn = 0;
+        d->pindexPrev = ::ChainActive().Tip();
+        int32_t nHeightTip = ::ChainActive().Height();
+        d->nHeight = nHeightTip + 1;
+        updateMinerParams(d->nHeight, d->consensusParams);
+        bool fOfflineStakeEnabled = (d->nHeight > d->nOfflineStakeHeight) && d->fDelegationsContract;
+        if(fOfflineStakeEnabled)
+        {
+            d->myDelegations.Update(*locked_chain, nHeightTip);
+        }
+        d->pwallet->SelectCoinsForStaking(*locked_chain, d->nTargetValue, d->setCoins, nValueIn);
+        if(d->fSuperStake && fOfflineStakeEnabled)
+        {
+            d->delegationsStaker.Update(nHeightTip);
+            std::map<uint160, CAmount> mDelegateWeight;
+            d->pwallet->SelectDelegateCoinsForStaking(*locked_chain, d->setDelegateCoins, mDelegateWeight);
+            d->pwallet->updateDelegationsWeight(mDelegateWeight);
+            d->pwallet->updateHaveCoinSuperStaker(d->setCoins);
+        }
+        d->stakeTimestampMask = d->consensusParams.StakeTimestampMask(d->nHeight);
+
+        d->haveCoinsForStake = d->setCoins.size() > 0 || d->pwallet->CanSuperStake(d->setCoins, d->setDelegateCoins);
+        if(d->haveCoinsForStake)
+        {
+            // Create an empty block. No need to process transactions until we know we can create a block
+            d->nTotalFees = 0;
+            d->pblocktemplate = std::unique_ptr<CBlockTemplate>(BlockAssembler(mempool, Params(), d->pwallet).CreateEmptyBlock(CScript(), true, true, &d->nTotalFees));
+            if (!d->pblocktemplate.get()) {
+                d->fError = true;
+                return false;
+            }
+            d->pblock = std::make_shared<CBlock>(d->pblocktemplate->block);
+
+            d->prevouts.insert(d->prevouts.end(), d->setDelegateCoins.begin(), d->setDelegateCoins.end());
+            for(const std::pair<const CWalletTx*,unsigned int> &pcoin : d->setCoins)
+            {
+                d->prevouts.push_back(COutPoint(pcoin.first->GetHash(), pcoin.second));
+            }
+
+            d->pwallet->UpdateMinerStakeCache(true, d->prevouts, d->pindexPrev);
+
+            d->beginningTime = GetAdjustedTime();
+            d->beginningTime &= ~d->stakeTimestampMask;
+            d->endingTime = d->beginningTime + nMaxStakeLookahead;
+        }
+
+        return true;
     }
 
     bool CacheData()
     {
         if(IsCachedDataOld())
         {
-            if(d->pwallet->IsStakeClosing()) return false;
-            auto locked_chain = d->pwallet->chain().lock();
-            LOCK(d->pwallet->cs_wallet);
-
-            d->clearCache();
-            CAmount nBalance = d->pwallet->GetBalance().m_mine_trusted;
-            d->nTargetValue = nBalance - d->pwallet->m_reserve_balance;
-            CAmount nValueIn = 0;
-            d->pindexPrev = ::ChainActive().Tip();
-            int32_t nHeightTip = ::ChainActive().Height();
-            d->nHeight = nHeightTip + 1;
-            updateMinerParams(d->nHeight, d->consensusParams);
-            bool fOfflineStakeEnabled = (d->nHeight > d->nOfflineStakeHeight) && d->fDelegationsContract;
-            if(fOfflineStakeEnabled)
-            {
-                d->myDelegations.Update(*locked_chain, nHeightTip);
-            }
-            d->pwallet->SelectCoinsForStaking(*locked_chain, d->nTargetValue, d->setCoins, nValueIn);
-            if(d->fSuperStake && fOfflineStakeEnabled)
-            {
-                d->delegationsStaker.Update(nHeightTip);
-                std::map<uint160, CAmount> mDelegateWeight;
-                d->pwallet->SelectDelegateCoinsForStaking(*locked_chain, d->setDelegateCoins, mDelegateWeight);
-                d->pwallet->updateDelegationsWeight(mDelegateWeight);
-                d->pwallet->updateHaveCoinSuperStaker(d->setCoins);
-            }
-            d->stakeTimestampMask = d->consensusParams.StakeTimestampMask(d->nHeight);
-
-            d->haveCoinsForStake = d->setCoins.size() > 0 || d->pwallet->CanSuperStake(d->setCoins, d->setDelegateCoins);
-            if(d->haveCoinsForStake)
-            {
-                // Create an empty block. No need to process transactions until we know we can create a block
-                d->nTotalFees = 0;
-                d->pblocktemplate = std::unique_ptr<CBlockTemplate>(BlockAssembler(mempool, Params(), d->pwallet).CreateEmptyBlock(CScript(), true, true, &d->nTotalFees));
-                if (!d->pblocktemplate.get()) {
-                    d->fError = true;
-                    return false;
-                }
-                d->pblock = std::make_shared<CBlock>(d->pblocktemplate->block);
-
-                d->prevouts.insert(d->prevouts.end(), d->setDelegateCoins.begin(), d->setDelegateCoins.end());
-                for(const std::pair<const CWalletTx*,unsigned int> &pcoin : d->setCoins)
-                {
-                    d->prevouts.push_back(COutPoint(pcoin.first->GetHash(), pcoin.second));
-                }
-
-                d->pwallet->UpdateMinerStakeCache(true, d->prevouts, d->pindexPrev);
-            }
+            if(!UpdateData())
+                return false;
         }
 
         return !d->pwallet->IsStakeClosing();
@@ -1646,7 +1668,8 @@ protected:
                 validBlock=true;
             }
             if(validBlock) {
-                CheckStake(d->pblockfilled, *(d->pwallet));
+                if(!CheckStake(d->pblockfilled, *(d->pwallet)))
+                    d->forceUpdate = true;
                 // Update the search time when new valid block is created, needed for status bar icon
                 d->pwallet->m_last_coin_stake_search_time = d->pblockfilled->GetBlockTime();
             }
