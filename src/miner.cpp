@@ -1614,6 +1614,7 @@ protected:
 
     void SloveBlock(uint32_t blockTime, size_t delegateSize, size_t from, size_t to)
     {
+        std::multimap<uint256, SolveItem> tmpSolvedBlock;
         for(size_t i = from; i < to; i++)
         {
             const COutPoint &prevoutStake = d->prevouts[i];
@@ -1621,10 +1622,15 @@ protected:
             if (CheckKernelCache(d->pindexPrev, d->pblock->nBits, blockTime, prevoutStake, d->pwallet->minerStakeCache, hashProofOfStake))
             {
                 bool delegate = i < delegateSize;
-                LOCK(d->cs_miner);
-                d->mapSolveBlockTime[blockTime] = true;
-                d->mapSolvedBlock.insert(std::make_pair(hashProofOfStake, SolveItem(prevoutStake, blockTime, delegate)));
+                tmpSolvedBlock.insert(std::make_pair(hashProofOfStake, SolveItem(prevoutStake, blockTime, delegate)));
             }
+        }
+
+        if(tmpSolvedBlock.size() > 0)
+        {
+            LOCK(d->cs_miner);
+            d->mapSolveBlockTime[blockTime] = true;
+            d->mapSolvedBlock.insert(tmpSolvedBlock.begin(), tmpSolvedBlock.end());
         }
     }
 
