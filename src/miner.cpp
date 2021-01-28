@@ -1261,6 +1261,20 @@ public:
     virtual ~IStakeMiner() {};
 };
 
+class SolveItem
+{
+public:
+    SolveItem(const COutPoint& _prevoutStake, const uint32_t& _blockTime, const bool& _delegate):
+        prevoutStake(_prevoutStake),
+        blockTime(_blockTime),
+        delegate(_delegate)
+    {}
+
+    COutPoint prevoutStake;
+    uint32_t blockTime = 0;
+    bool delegate = false;
+};
+
 class StakeMinerV3Priv
 {
 public:
@@ -1275,6 +1289,9 @@ public:
     bool fEmergencyStaking = false;
     bool fAggressiveStaking = false;
     bool fError = false;
+    int numCores = 1;
+    boost::thread_group threads;
+    mutable RecursiveMutex cs_miner;
 
 public:
     DelegationsStaker delegationsStaker;
@@ -1294,6 +1311,7 @@ public:
     std::vector<COutPoint> setDelegateCoins;
     std::vector<COutPoint> prevouts;
     std::map<uint32_t, bool> mapSolveBlockTime;
+    std::multimap<uint256, SolveItem> mapSolvedBlock;
     std::map<uint32_t, std::vector<COutPoint>> mapSolveSelectedCoins;
     std::map<uint32_t, std::vector<COutPoint>> mapSolveDelegateCoins;
     uint32_t beginningTime = 0;
@@ -1327,6 +1345,7 @@ public:
         fDelegationsContract = !consensusParams.delegationsAddress.IsNull();
         fEmergencyStaking = gArgs.GetBoolArg("-emergencystaking", false);
         fAggressiveStaking = gArgs.IsArgSet("-aggressive-staking");
+        numCores = std::max(1, GetNumCores());
     }
 
     void clearCache()
@@ -1344,6 +1363,7 @@ public:
         setDelegateCoins.clear();
         prevouts.clear();
         mapSolveBlockTime.clear();
+        mapSolvedBlock.clear();
         mapSolveSelectedCoins.clear();
         mapSolveDelegateCoins.clear();
         beginningTime = 0;
@@ -1354,20 +1374,6 @@ public:
         pblockfilled.reset();
         pblocktemplatefilled.reset();
     }
-};
-
-class SolveItem
-{
-public:
-    SolveItem(const COutPoint& _prevoutStake, const uint32_t& _blockTime, const bool& _delegate):
-        prevoutStake(_prevoutStake),
-        blockTime(_blockTime),
-        delegate(_delegate)
-    {}
-
-    COutPoint prevoutStake;
-    uint32_t blockTime = 0;
-    bool delegate = false;
 };
 
 class StakeMinerV3 : public IStakeMiner
@@ -1395,17 +1401,19 @@ public:
             // Check if miner have coins for staking
             if(HaveCoinsForStake())
             {
-                // Solve block
-                SloveBlock();
-
                 // Look for possibility to create a block
-                uint32_t beginningTime=GetAdjustedTime();
-                beginningTime &= ~d->stakeTimestampMask;
+                d->beginningTime = GetAdjustedTime();
+                d->beginningTime &= ~d->stakeTimestampMask;
+                d->endingTime = d->beginningTime + nMaxStakeLookahead;
 
-                for(uint32_t blockTime = beginningTime; blockTime < d->endingTime; blockTime += d->stakeTimestampMask+1)
+                for(uint32_t blockTime = d->beginningTime; blockTime < d->endingTime; blockTime += d->stakeTimestampMask+1)
                 {
                     // Update status bar
                     UpdateStatusBar(blockTime);
+
+                    // Check cached data
+                    if(IsCachedDataOld())
+                        break;
 
                     // Check if block can be created
                     if(CanCreateBlock(blockTime))
@@ -1418,6 +1426,9 @@ public:
                     }
                 }
             }
+
+            // Miner sleep before the next try
+            Sleep(nMinerSleep);
         }
     }
 
@@ -1462,7 +1473,9 @@ protected:
         }
 
         // Check if cached data is old
-        if(!IsCachedDataOld() && d->endingTime > GetAdjustedTime())
+        uint32_t blokTime = GetAdjustedTime();
+        blokTime &= ~d->stakeTimestampMask;
+        if(!IsCachedDataOld() && d->endingTime >= blokTime)
         {
             Sleep(100);
             return false;
@@ -1599,34 +1612,47 @@ protected:
         if(searchInterval > 0) d->pwallet->m_last_coin_stake_search_interval = searchInterval;
     }
 
-    void SloveBlock()
+    void SloveBlock(uint32_t blockTime, size_t delegateSize, size_t from, size_t to)
+    {
+        for(size_t i = from; i < to; i++)
+        {
+            const COutPoint &prevoutStake = d->prevouts[i];
+            uint256 hashProofOfStake;
+            if (CheckKernelCache(d->pindexPrev, d->pblock->nBits, blockTime, prevoutStake, d->pwallet->minerStakeCache, hashProofOfStake))
+            {
+                bool delegate = i < delegateSize;
+                LOCK(d->cs_miner);
+                d->mapSolveBlockTime[blockTime] = true;
+                d->mapSolvedBlock.insert(std::make_pair(hashProofOfStake, SolveItem(prevoutStake, blockTime, delegate)));
+            }
+        }
+    }
+
+    void SloveBlock(const uint32_t& blockTime)
     {
         // Init variables
-        d->beginningTime = GetAdjustedTime();
-        d->beginningTime &= ~d->stakeTimestampMask;
-        d->endingTime = d->beginningTime + nMaxStakeLookahead;
         size_t listSize = d->prevouts.size();
         size_t delegateSize = d->setDelegateCoins.size();
 
         // Solve block
-        std::multimap<arith_uint256, SolveItem> mapSolved;
-        for(size_t i = 0; i < listSize; i++)
+        if(listSize < 1000 || d->numCores < 2)
         {
-            const COutPoint &prevoutStake = d->prevouts[i];
-            for(uint32_t blockTime = d->beginningTime; blockTime < d->endingTime; blockTime += d->stakeTimestampMask+1)
+            SloveBlock(blockTime, delegateSize, 0, listSize);
+        }
+        else
+        {
+            size_t chunk = listSize / d->numCores;
+            for(int i = 0; i < d->numCores; i++)
             {
-                arith_uint256 weightProofOfStake;
-                if (CheckKernelCache(d->pindexPrev, d->pblock->nBits, blockTime, prevoutStake, d->pwallet->minerStakeCache, weightProofOfStake))
-                {                    
-                    bool delegate = i < delegateSize;
-                    d->mapSolveBlockTime[blockTime] = true;
-                    mapSolved.insert(std::make_pair(weightProofOfStake, SolveItem(prevoutStake, blockTime, delegate)));
-                }
+                size_t from = i * chunk;
+                size_t to = i == (d->numCores -1) ? listSize : from + chunk;
+                d->threads.create_thread([this, blockTime, delegateSize, from, to]{SloveBlock(blockTime, delegateSize, from, to);});
             }
+            d->threads.join_all();
         }
 
         // Populate the list with the potential solwed blocks
-        for (auto it = mapSolved.begin(); it != mapSolved.end(); ++it)
+        for (auto it = d->mapSolvedBlock.begin(); it != d->mapSolvedBlock.end(); ++it)
         {
             const SolveItem& item = (*it).second;
             if(item.delegate)
@@ -1646,6 +1672,7 @@ protected:
         if(d->mapSolveBlockTime.find(blockTime) == d->mapSolveBlockTime.end())
         {
             d->mapSolveBlockTime[blockTime] = false;
+            SloveBlock(blockTime);
         }
 
         return d->mapSolveBlockTime[blockTime];
