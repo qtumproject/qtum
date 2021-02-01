@@ -780,6 +780,7 @@ public:
      * This lock protects all the fields added by CWallet.
      */
     mutable RecursiveMutex cs_wallet;
+    mutable RecursiveMutex cs_worker;
 
     /** Get database handle used by this wallet. Ideally this function would
      * not be necessary.
@@ -814,6 +815,7 @@ public:
           m_location(location),
           database(std::move(database))
     {
+        m_num_cores = std::max(1, GetNumCores());
     }
 
     ~CWallet()
@@ -872,9 +874,10 @@ public:
 
     //! select coins for staking from the available coins for staking.
     bool SelectCoinsForStaking(interfaces::Chain::Lock& locked_chain, CAmount& nTargetValue, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoinsRet, CAmount& nValueRet) const;
-	
+
     //! select delegated coins for staking from other users.
     bool SelectDelegateCoinsForStaking(interfaces::Chain::Lock& locked_chain, std::vector<COutPoint>& setDelegateCoinsRet, std::map<uint160, CAmount>& mDelegateWeight) const;
+    bool SelectDelegateCoinsForStakingMulti(interfaces::Chain::Lock& locked_chain, std::vector<COutPoint>& setDelegateCoinsRet, std::map<uint160, CAmount>& mDelegateWeight) const;
 
     /**
      * populate vCoins with vector of available COutputs.
@@ -883,6 +886,7 @@ public:
     void AvailableCoins(interfaces::Chain::Lock& locked_chain, std::vector<COutput>& vCoins, bool fOnlySafe = true, const CCoinControl* coinControl = nullptr, const CAmount& nMinimumAmount = 1, const CAmount& nMaximumAmount = MAX_MONEY, const CAmount& nMinimumSumAmount = MAX_MONEY, const uint64_t nMaximumCount = 0) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
     bool HaveAvailableCoinsForStaking() const;
     bool AvailableDelegateCoinsForStaking(interfaces::Chain::Lock& locked_chain, std::vector<COutPoint>& vDelegateCoins, std::map<uint160, CAmount>& mDelegateWeight) const;
+    bool AvailableDelegateCoinsForStakingMulti(const std::vector<uint160>& delegations, size_t from, size_t to, int32_t height, const std::map<COutPoint, uint32_t>& immatureStakes,  const std::map<uint256, CSuperStakerInfo>& mapStakers, std::vector<std::pair<COutPoint,CAmount>>& vUnsortedDelegateCoins, std::map<uint160, CAmount> &mDelegateWeight) const;
     bool HaveAvailableDelegateCoinsForStaking() const;
     bool GetSuperStaker(CSuperStakerInfo &info, const uint160& stakerAddress) const;
     void GetStakerAddressBalance(interfaces::Chain::Lock& locked_chain, const PKHash& staker, CAmount& balance, CAmount& stake, CAmount& weight) const;
@@ -1430,6 +1434,8 @@ public:
     std::map<uint160, CAmount> m_delegations_weight;
     std::map<uint160, Delegation> m_my_delegations;
     std::map<uint160, bool> m_have_coin_superstaker;
+    int m_num_cores = 1;
+    mutable boost::thread_group threads;
 };
 
 /**

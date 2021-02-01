@@ -1553,7 +1553,7 @@ protected:
         {
             d->delegationsStaker.Update(nHeightTip);
             std::map<uint160, CAmount> mDelegateWeight;
-            d->pwallet->SelectDelegateCoinsForStaking(*locked_chain, d->setDelegateCoins, mDelegateWeight);
+            d->pwallet->SelectDelegateCoinsForStakingMulti(*locked_chain, d->setDelegateCoins, mDelegateWeight);
             d->pwallet->updateDelegationsWeight(mDelegateWeight);
             d->pwallet->updateHaveCoinSuperStaker(d->setCoins);
         }

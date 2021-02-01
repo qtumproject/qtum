@@ -6172,3 +6172,137 @@ void CWallet::CleanCoinStake()
         }
     }
 }
+
+bool CWallet::AvailableDelegateCoinsForStakingMulti(const std::vector<uint160>& delegations, size_t from, size_t to, int32_t height, const std::map<COutPoint, uint32_t>& immatureStakes,  const std::map<uint256, CSuperStakerInfo>& mapStakers, std::vector<std::pair<COutPoint,CAmount>>& vUnsortedDelegateCoins, std::map<uint160, CAmount> &mDelegateWeight) const
+{
+    for(size_t i = from; i < to; i++)
+    {
+        std::map<uint160, Delegation>::const_iterator it = m_delegations_staker.find(delegations[i]);
+        if(it == m_delegations_staker.end()) continue;
+
+        const PKHash& keyid = PKHash(it->first);
+        const Delegation* delegation = &(*it).second;
+
+        // Set default delegate stake weight
+        CAmount weight = 0;
+        mDelegateWeight[it->first] = weight;
+
+        // Get super staker custom configuration
+        CAmount staking_min_utxo_value = m_staking_min_utxo_value;
+        uint8_t staking_min_fee = m_staking_min_fee;
+        for (std::map<uint256, CSuperStakerInfo>::const_iterator it=mapStakers.begin(); it!=mapStakers.end(); it++)
+        {
+            if(it->second.stakerAddress == delegation->staker)
+            {
+                CSuperStakerInfo info = it->second;
+                if(info.fCustomConfig)
+                {
+                    staking_min_utxo_value = info.nMinDelegateUtxo;
+                    staking_min_fee = info.nMinFee;
+                }
+            }
+        }
+
+        // Check for min staking fee
+        if(delegation->fee < staking_min_fee)
+            continue;
+
+        // Decode address
+        uint256 hashBytes;
+        int type = 0;
+        if (!DecodeIndexKey(EncodeDestination(keyid), hashBytes, type)) {
+            return error("Invalid address");
+        }
+
+        // Get address utxos
+        std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > unspentOutputs;
+        if (!GetAddressUnspent(hashBytes, type, unspentOutputs)) {
+            throw error("No information available for address");
+        }
+
+        // Add the utxos to the list if they are mature and at least the minimum value
+        int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(height + 1);
+        for (std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> >::const_iterator i=unspentOutputs.begin(); i!=unspentOutputs.end(); i++) {
+
+            int nDepth = height - i->second.blockHeight + 1;
+            if (nDepth < coinbaseMaturity)
+                continue;
+
+            if(i->second.satoshis < staking_min_utxo_value)
+                continue;
+
+            COutPoint prevout = COutPoint(i->first.txhash, i->first.index);
+            if(immatureStakes.find(prevout) == immatureStakes.end())
+            {
+                vUnsortedDelegateCoins.push_back(std::make_pair(prevout, i->second.satoshis));
+                weight+= i->second.satoshis;
+            }
+        }
+
+        // Update delegate stake weight
+        mDelegateWeight[it->first] = weight;
+    }
+
+    return true;
+}
+
+bool CWallet::SelectDelegateCoinsForStakingMulti(interfaces::Chain::Lock &locked_chain, std::vector<COutPoint> &setDelegateCoinsRet, std::map<uint160, CAmount> &mDelegateWeight) const
+{
+    AssertLockHeld(cs_main);
+    AssertLockHeld(cs_wallet);
+
+    setDelegateCoinsRet.clear();
+
+    std::vector<std::pair<COutPoint,CAmount>> vUnsortedDelegateCoins;
+
+    int32_t const height = locked_chain.getHeight().get_value_or(-1);
+    if (height == -1) {
+        return error("Invalid blockchain height");
+    }
+
+    std::map<COutPoint, uint32_t> immatureStakes = locked_chain.getImmatureStakes();
+    std::map<uint256, CSuperStakerInfo> mapStakers = mapSuperStaker;
+
+    std::vector<uint160> delegations;
+    for (std::map<uint160, Delegation>::const_iterator it = m_delegations_staker.begin(); it != m_delegations_staker.end(); ++it)
+    {
+        delegations.push_back(it->first);
+    }
+    size_t listSize = delegations.size();
+    int numCores = std::min(m_num_cores, (int)listSize);
+    bool ret = true;
+    if(numCores < 2)
+    {
+        ret = AvailableDelegateCoinsForStakingMulti(delegations, 0, listSize, height, immatureStakes, mapStakers, vUnsortedDelegateCoins, mDelegateWeight);
+    }
+    else
+    {
+        size_t chunk = listSize / numCores;
+        for(int i = 0; i < numCores; i++)
+        {
+            size_t from = i * chunk;
+            size_t to = i == (numCores -1) ? listSize : from + chunk;
+            threads.create_thread([this, from, to, height, &delegations, &immatureStakes, &mapStakers, &ret, &vUnsortedDelegateCoins, &mDelegateWeight]{
+                std::vector<std::pair<COutPoint,CAmount>> tmpUnsortedDelegateCoins;
+                std::map<uint160, CAmount> tmpDelegateWeight;
+                bool tmpRet = AvailableDelegateCoinsForStakingMulti(delegations, from, to, height, immatureStakes, mapStakers, tmpUnsortedDelegateCoins, tmpDelegateWeight);
+
+                LOCK(cs_worker);
+                ret &= tmpRet;
+                vUnsortedDelegateCoins.insert(vUnsortedDelegateCoins.end(), tmpUnsortedDelegateCoins.begin(), tmpUnsortedDelegateCoins.end());
+                mDelegateWeight.insert(tmpDelegateWeight.begin(), tmpDelegateWeight.end());
+            });
+        }
+        threads.join_all();
+    }
+
+    std::sort(vUnsortedDelegateCoins.begin(), vUnsortedDelegateCoins.end(), valueUtxoSort);
+
+    for(auto utxo : vUnsortedDelegateCoins){
+        setDelegateCoinsRet.push_back(utxo.first);
+    }
+
+    vUnsortedDelegateCoins.clear();
+
+    return ret;
+}
