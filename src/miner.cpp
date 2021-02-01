@@ -1291,7 +1291,7 @@ public:
     bool fError = false;
     int numCores = 1;
     boost::thread_group threads;
-    mutable RecursiveMutex cs_miner;
+    mutable RecursiveMutex cs_worker;
 
 public:
     DelegationsStaker delegationsStaker;
@@ -1548,7 +1548,7 @@ protected:
         {
             d->myDelegations.Update(*locked_chain, nHeightTip);
         }
-        d->pwallet->SelectCoinsForStaking(*locked_chain, d->nTargetValue, d->setCoins, nValueIn);
+        d->pwallet->SelectCoinsForStakingMulti(*locked_chain, d->nTargetValue, d->setCoins, nValueIn);
         if(d->fSuperStake && fOfflineStakeEnabled)
         {
             d->delegationsStaker.Update(nHeightTip);
@@ -1628,7 +1628,7 @@ protected:
 
         if(tmpSolvedBlock.size() > 0)
         {
-            LOCK(d->cs_miner);
+            LOCK(d->cs_worker);
             d->mapSolveBlockTime[blockTime] = true;
             d->mapSolvedBlock.insert(tmpSolvedBlock.begin(), tmpSolvedBlock.end());
         }

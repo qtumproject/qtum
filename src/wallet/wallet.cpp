@@ -2309,14 +2309,15 @@ void CWallet::AvailableCoins(interfaces::Chain::Lock& locked_chain, std::vector<
     }
 }
 
-const CScriptCache& CWallet::GetScriptCache(const COutPoint& prevout, const CScript& scriptPubKey) const
+const CScriptCache& CWallet::GetScriptCache(const COutPoint& prevout, const CScript& scriptPubKey, std::map<COutPoint, CScriptCache>* _insertScriptCache) const
 {
     auto it = prevoutScriptCache.find(prevout);
     if(it == prevoutScriptCache.end())
     {
-        if((int32_t)prevoutScriptCache.size() > m_staker_max_utxo_script_cache)
+        std::map<COutPoint, CScriptCache>& insertScriptCache = _insertScriptCache == nullptr ? prevoutScriptCache : *_insertScriptCache;
+        if((int32_t)insertScriptCache.size() > m_staker_max_utxo_script_cache)
         {
-            prevoutScriptCache.clear();
+            insertScriptCache.clear();
         }
 
         // The script check for utxo is expensive operations, so cache the data for further use
@@ -2331,8 +2332,8 @@ const CScriptCache& CWallet::GetScriptCache(const COutPoint& prevout, const CScr
                 scriptCache.solvable = provider ? IsSolvable(*provider, scriptPubKey) : false;
             }
         }
-        prevoutScriptCache[prevout] = scriptCache;
-        return prevoutScriptCache[prevout];
+        insertScriptCache[prevout] = scriptCache;
+        return insertScriptCache[prevout];
     }
 
     return it->second;
@@ -6171,6 +6172,137 @@ void CWallet::CleanCoinStake()
             }
         }
     }
+}
+
+void CWallet::AvailableCoinsForStakingMulti(const std::vector<uint256>& maturedTx, size_t from, size_t to, const std::map<COutPoint, uint32_t>& immatureStakes, std::vector<std::pair<const CWalletTx *, unsigned int> >& vCoins, std::map<COutPoint, CScriptCache>* insertScriptCache) const
+{
+    for(size_t i = from; i < to; i++)
+    {
+        std::map<uint256, CWalletTx>::const_iterator it = mapWallet.find(maturedTx[i]);
+        if(it == mapWallet.end()) continue;
+        const uint256& wtxid = it->first;
+        const CWalletTx* pcoin = &(*it).second;
+        for (unsigned int i = 0; i < pcoin->tx->vout.size(); i++) {
+            isminetype mine = IsMine(pcoin->tx->vout[i]);
+            if (!(IsSpent(wtxid, i)) && mine != ISMINE_NO &&
+                !IsLockedCoin((*it).first, i) && (pcoin->tx->vout[i].nValue > 0) &&
+                // Check if the staking coin is dust
+                pcoin->tx->vout[i].nValue >= m_staker_min_utxo_size)
+            {
+                // Get the script data for the coin
+                COutPoint prevout = COutPoint(pcoin->GetHash(), i);
+                const CScriptCache& scriptCache = GetScriptCache(prevout, pcoin->tx->vout[i].scriptPubKey, insertScriptCache);
+
+                // Check that the script is not a contract script
+                if(scriptCache.contract || !scriptCache.keyIdOk)
+                    continue;
+
+                // Check that the address is not delegated to other staker
+                if(m_my_delegations.find(scriptCache.keyId) != m_my_delegations.end())
+                    continue;
+
+                // Check prevout maturity
+                if(immatureStakes.find(prevout) == immatureStakes.end())
+                {
+                    // Check if script is spendable
+                    bool spendable = ((mine & ISMINE_SPENDABLE) != ISMINE_NO) || (((mine & ISMINE_WATCH_ONLY) != ISMINE_NO) && scriptCache.solvable);
+                    if(spendable)
+                        vCoins.push_back(std::make_pair(pcoin, i));
+                }
+            }
+        }
+    }
+}
+
+bool CWallet::SelectCoinsForStakingMulti(interfaces::Chain::Lock &locked_chain, CAmount &nTargetValue, std::set<std::pair<const CWalletTx *, unsigned int> > &setCoinsRet, CAmount &nValueRet) const
+{
+    std::vector<std::pair<const CWalletTx *, unsigned int> > vCoins;
+    vCoins.clear();
+
+    int nHeight = GetLastBlockHeight() + 1;
+    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(nHeight);
+    std::map<COutPoint, uint32_t> immatureStakes = locked_chain.getImmatureStakes();
+    std::vector<uint256> maturedTx;
+    for (std::map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
+    {
+        const uint256& wtxid = it->first;
+        const CWalletTx* pcoin = &(*it).second;
+        int nDepth = pcoin->GetDepthInMainChain();
+
+        if (nDepth < 1)
+            continue;
+
+        if (nDepth < coinbaseMaturity)
+            continue;
+
+        if (pcoin->GetBlocksToMaturity() > 0)
+            continue;
+
+        maturedTx.push_back(wtxid);
+    }
+
+    size_t listSize = maturedTx.size();
+    int numCores = std::min(m_num_cores, (int)listSize);
+    if(numCores < 2)
+    {
+        AvailableCoinsForStakingMulti(maturedTx, 0, listSize, immatureStakes, vCoins, nullptr);
+    }
+    else
+    {
+        size_t chunk = listSize / numCores;
+        for(int i = 0; i < numCores; i++)
+        {
+            size_t from = i * chunk;
+            size_t to = i == (numCores -1) ? listSize : from + chunk;
+            threads.create_thread([this, from, to, &maturedTx, &immatureStakes, &vCoins]{
+                std::vector<std::pair<const CWalletTx *, unsigned int> > tmpCoins;
+                std::map<COutPoint, CScriptCache> tmpInsertScriptCache;
+                AvailableCoinsForStakingMulti(maturedTx, from, to, immatureStakes, tmpCoins, &tmpInsertScriptCache);
+
+                LOCK(cs_worker);
+                vCoins.insert(vCoins.end(), tmpCoins.begin(), tmpCoins.end());
+                if((int32_t)prevoutScriptCache.size() > m_staker_max_utxo_script_cache)
+                {
+                    prevoutScriptCache.clear();
+                }
+                prevoutScriptCache.insert(tmpInsertScriptCache.begin(), tmpInsertScriptCache.end());
+            });
+        }
+        threads.join_all();
+    }
+
+    setCoinsRet.clear();
+    nValueRet = 0;
+
+    for(const std::pair<const CWalletTx*,unsigned int> &output : vCoins)
+    {
+        const CWalletTx *pcoin = output.first;
+        int i = output.second;
+
+        // Stop if we've chosen enough inputs
+        if (nValueRet >= nTargetValue)
+            break;
+
+        int64_t n = pcoin->tx->vout[i].nValue;
+
+        std::pair<int64_t,std::pair<const CWalletTx*,unsigned int> > coin = std::make_pair(n,std::make_pair(pcoin, i));
+
+        if (n >= nTargetValue)
+        {
+            // If input value is greater or equal to target then simply insert
+            // it into the current subset and exit
+            setCoinsRet.insert(coin.second);
+            nValueRet += coin.first;
+            break;
+        }
+        else if (n < nTargetValue + CENT)
+        {
+            setCoinsRet.insert(coin.second);
+            nValueRet += coin.first;
+        }
+    }
+
+    return true;
 }
 
 bool CWallet::AvailableDelegateCoinsForStakingMulti(const std::vector<uint160>& delegations, size_t from, size_t to, int32_t height, const std::map<COutPoint, uint32_t>& immatureStakes,  const std::map<uint256, CSuperStakerInfo>& mapStakers, std::vector<std::pair<COutPoint,CAmount>>& vUnsortedDelegateCoins, std::map<uint160, CAmount> &mDelegateWeight) const
