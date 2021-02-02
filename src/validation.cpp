@@ -1294,9 +1294,7 @@ bool CheckHeaderPoS(const CBlockHeader& block, const Consensus::Params& consensu
         return error("Failed signature check");
     }
 
-    LogPrintf("%s %d\n", __func__, __LINE__);
     bool ret = CheckKernel(pindexPrev, block.nBits, block.StakeTime(), block.prevoutStake, ::ChainstateActive().CoinsTip());
-    LogPrintf("%s %d\n", __func__, __LINE__);
     return ret;
 }
 
@@ -4788,20 +4786,16 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
     nTimeBlock &= ~consensusParams.StakeTimestampMask(nHeight);
     if(!spk_man)
         return false;
-    LogPrintf("%s %d\n", __func__, __LINE__);
     if (wallet.CreateCoinStake(*locked_chain, *spk_man, pblock->nBits, nTotalFees, nTimeBlock, txCoinStake, key, setCoins, setDelegateCoins, vchPoD, headerPrevout))
     {
-        LogPrintf("%s %d\n", __func__, __LINE__);
         if (nTimeBlock >= ::ChainActive().Tip()->GetMedianTimePast()+1)
         {
-            LogPrintf("%s %d\n", __func__, __LINE__);
             // make sure coinstake would meet timestamp protocol
             //    as it would be the same as the block timestamp
             pblock->nTime = nTimeBlock;
             pblock->vtx[1] = MakeTransactionRef(std::move(txCoinStake));
             pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
             pblock->prevoutStake = headerPrevout;
-            LogPrintf("HEADERPREVOUT: %s %d\n", headerPrevout.hash.GetHex(), headerPrevout.n);
 
             // Check timestamp against prev
             if(pblock->GetBlockTime() <= ::ChainActive().Tip()->GetBlockTime() || FutureDrift(pblock->GetBlockTime(), nHeight, consensusParams) < ::ChainActive().Tip()->GetBlockTime())

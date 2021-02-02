@@ -1360,10 +1360,10 @@ public:
     void Run()
     {
         SetThreadPriority(THREAD_PRIORITY_LOWEST);
-        LogPrintf("%s %d\n", __func__, __LINE__);
+        // LogPrintf("%s %d\n", __func__, __LINE__);
         int64_t t = GetTimeMillis();
         while (Next()) {
-            LogPrintf("%s %d\n", __func__, __LINE__);
+            // LogPrintf("%s %d\n", __func__, __LINE__);
             // Is ready for mining
             if(!IsReady()) continue;
             LogPrintf("MSTIME ISREADY %s %d %d\n", __func__, __LINE__, (GetTimeMillis()-t));
@@ -1387,25 +1387,20 @@ public:
                 {
                     // Update status bar
                     UpdateStatusBar(blockTime);
-                    LogPrintf("MSTIME UpdateStatusBar %s %d %d\n", __func__, __LINE__, (GetTimeMillis()-t));
-                    t = GetTimeMillis();
-
                     // Check if block can be created
+                    t = GetTimeMillis();
                     if(CanCreateBlock(blockTime))
                     {
                         LogPrintf("MSTIME CanCreateBlock %s %d %d\n", __func__, __LINE__, (GetTimeMillis()-t));
                         t = GetTimeMillis();
                         // Create new block
                         if(!CreateNewBlock(blockTime)) break;
-                        LogPrintf("CREATED BLOCK\n");
                         LogPrintf("MSTIME CreateNewBlock %s %d %d\n", __func__, __LINE__, (GetTimeMillis()-t));
                         t = GetTimeMillis();
 
                         // Sign new block
                         if(SignNewBlock(blockTime)) break;
-                        LogPrintf("SIGNED BLOCK\n");
                         LogPrintf("MSTIME SignNewBlock %s %d %d\n", __func__, __LINE__, (GetTimeMillis()-t));
-                        t = GetTimeMillis();
                     }
                 }
             }
@@ -1634,9 +1629,9 @@ protected:
     {
         // Try to sign the block once at specific time with the same cached data
         d->mapSolveBlockTime[blockTime] = false;
-        LogPrintf("%s %d\n", __func__, __LINE__);
+        // LogPrintf("%s %d\n", __func__, __LINE__);
         if (SignBlock(d->pblockfilled, *(d->pwallet), d->nTotalFees, blockTime, d->setCoins, d->setDelegateCoins)) {
-            LogPrintf("%s %d\n", __func__, __LINE__);
+            // LogPrintf("%s %d\n", __func__, __LINE__);
             // Should always reach here unless we spent too much time processing transactions and the timestamp is now invalid
             // CheckStake also does CheckBlock and AcceptBlock to propogate it to the network
             bool validBlock = false;
@@ -1762,7 +1757,7 @@ public:
             // Create new block
             //
             CAmount nBalance = pwallet->GetBalance().m_mine_trusted;
-            LogPrintf("nBalance %d\n", nBalance);
+            //LogPrintf("nBalance %d\n", nBalance);
             CAmount nTargetValue = nBalance - pwallet->m_reserve_balance;
             CAmount nValueIn = 0;
             std::set<std::pair<const CWalletTx*,unsigned int> > setCoins;
@@ -1788,7 +1783,7 @@ public:
                     pwallet->updateHaveCoinSuperStaker(setCoins);
                 }
             }
-            LogPrintf("v1 SetCoins: %d %d\n", setCoins.size(), nValueIn);
+            //LogPrintf("v1 SetCoins: %d %d\n", setCoins.size(), nValueIn);
             if(setCoins.size() > 0 || pwallet->CanSuperStake(setCoins, setDelegateCoins))
             {
                 int64_t nTotalFees = 0;

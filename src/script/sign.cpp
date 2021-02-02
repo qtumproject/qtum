@@ -147,12 +147,10 @@ static bool SignStep(const SigningProvider& provider, const BaseSignatureCreator
     case TX_WITNESS_UNKNOWN:
         return false;
     case TX_PUBKEY:
-        LogPrintf("%s %d\n", __func__, __LINE__);
         if (!CreateSig(creator, sigdata, provider, sig, CPubKey(vSolutions[0]), scriptPubKey, sigversion)) return false;
         ret.push_back(std::move(sig));
         return true;
     case TX_PUBKEYHASH: {
-        LogPrintf("%s %d\n", __func__, __LINE__);
         
         CKeyID keyID = CKeyID(uint160(vSolutions[0]));
         CPubKey pubkey;
@@ -164,7 +162,6 @@ static bool SignStep(const SigningProvider& provider, const BaseSignatureCreator
         if (!CreateSig(creator, sigdata, provider, sig, pubkey, scriptPubKey, sigversion)) return false;
         ret.push_back(std::move(sig));
         ret.push_back(ToByteVector(pubkey));
-        LogPrintf("%s %d\n", __func__, __LINE__);
         return true;
     }
     case TX_SCRIPTHASH:
@@ -234,7 +231,6 @@ static CScript PushAll(const std::vector<valtype>& values)
 bool ProduceSignature(const SigningProvider& provider, const BaseSignatureCreator& creator, const CScript& fromPubKey, SignatureData& sigdata)
 {
     if (sigdata.complete) return true;
-    LogPrintf("%s %d\n", __func__, __LINE__);
 
     std::vector<valtype> result;
     txnouttype whichType;
@@ -286,7 +282,7 @@ bool ProduceSignature(const SigningProvider& provider, const BaseSignatureCreato
     // Test solution
 
     sigdata.complete = solved && VerifyScript(sigdata.scriptSig, fromPubKey, &sigdata.scriptWitness, STANDARD_SCRIPT_VERIFY_FLAGS, creator.Checker());
-    LogPrintf("%s %d solved=%d; verified=%d\n", __func__, __LINE__, solved, VerifyScript(sigdata.scriptSig, fromPubKey, &sigdata.scriptWitness, STANDARD_SCRIPT_VERIFY_FLAGS, creator.Checker()));
+    //LogPrintf("%s %d solved=%d; verified=%d\n", __func__, __LINE__, solved, VerifyScript(sigdata.scriptSig, fromPubKey, &sigdata.scriptWitness, STANDARD_SCRIPT_VERIFY_FLAGS, creator.Checker()));
     return sigdata.complete;
 }
 

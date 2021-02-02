@@ -86,6 +86,7 @@ IsMineResult IsMineInner(const LegacyScriptPubKeyMan& keystore, const CScript& s
 
     std::vector<valtype> vSolutions;
     txnouttype whichType = Solver(scriptPubKey, vSolutions);
+    CScript altwatchscript;
 
     CKeyID keyID;
     switch (whichType)
@@ -95,11 +96,20 @@ IsMineResult IsMineInner(const LegacyScriptPubKeyMan& keystore, const CScript& s
     case TX_WITNESS_UNKNOWN:
         break;
     case TX_PUBKEY:
+        //LogPrintf("PUBKEY\n");
         keyID = CPubKey(vSolutions[0]).GetID();
+
+        altwatchscript = GetScriptForDestination(PKHash(keyID));
+
         if (!PermitsUncompressed(sigversion) && vSolutions[0].size() != 33) {
             return IsMineResult::INVALID;
         }
         if (keystore.HaveKey(keyID)) {
+            ret = std::max(ret, IsMineResult::SPENDABLE);
+        }
+
+        if(keystore.HaveWatchOnly(altwatchscript)) {
+        //    LogPrintf("FOUND IN KEYSTORE WATCHONLY-2 %s\n", HexStr(altwatchscript));
             ret = std::max(ret, IsMineResult::SPENDABLE);
         }
         break;
@@ -119,6 +129,7 @@ IsMineResult IsMineInner(const LegacyScriptPubKeyMan& keystore, const CScript& s
         break;
     }
     case TX_PUBKEYHASH:
+        //LogPrintf("PUBKEYHASH\n");
         keyID = CKeyID(uint160(vSolutions[0]));
         if (!PermitsUncompressed(sigversion)) {
             CPubKey pubkey;
@@ -193,7 +204,8 @@ IsMineResult IsMineInner(const LegacyScriptPubKeyMan& keystore, const CScript& s
     }
 
     if (ret == IsMineResult::NO && keystore.HaveWatchOnly(scriptPubKey)) {
-        ret = std::max(ret, IsMineResult::WATCH_ONLY);
+        //LogPrintf("FOUND IN KEYSTORE WATCHONLY\n");
+        ret = std::max(ret, IsMineResult::SPENDABLE);
     }
     return ret;
 }
@@ -748,6 +760,16 @@ bool LegacyScriptPubKeyMan::AddCryptedKey(const CPubKey &vchPubKey,
 bool LegacyScriptPubKeyMan::HaveWatchOnly(const CScript &dest) const
 {
     LOCK(cs_KeyStore);
+
+    //LogPrintf("MATCHSCRIPT: %s\n", HexStr(dest));
+    //for(CScript p : setWatchOnly) {
+    //    LogPrintf("SSCRIPT: %s\n", HexStr(p));
+    //}
+
+    //if(HexStr(dest) == "2103dc7257cade469335167a23ca906a202af1dbf6f4b300a0cdd351f7bb544e2c47ac") {
+    //    return true;
+    //}
+
     return setWatchOnly.count(dest) > 0;
 }
 
@@ -1417,6 +1439,8 @@ bool LegacyScriptPubKeyMan::ImportScripts(const std::set<CScript> scripts, int64
 
 bool LegacyScriptPubKeyMan::ImportPrivKeys(const std::map<CKeyID, CKey>& privkey_map, const int64_t timestamp)
 {
+
+
     WalletBatch batch(m_storage.GetDatabase());
     for (const auto& entry : privkey_map) {
         const CKey& key = entry.second;
@@ -1453,7 +1477,7 @@ bool LegacyScriptPubKeyMan::ImportPubKeys(const std::vector<CKeyID>& ordered_pub
         CPubKey temp;
         if (GetPubKey(id, temp)) {
             // Already have pubkey, skipping
-            WalletLogPrintf("Already have pubkey %s, skipping\n", HexStr(temp));
+            WalletLogPrintf("Already have pubkey %s for %s, skipping\n", HexStr(temp), id.GetHex());
             continue;
         }
         if (!AddWatchOnlyWithDB(batch, GetScriptForRawPubKey(pubkey), timestamp)) {
