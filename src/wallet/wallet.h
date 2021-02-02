@@ -107,7 +107,7 @@ static const uint8_t DEFAULT_STAKING_MIN_FEE = 10;
 static const CAmount DEFAULT_STAKER_MIN_UTXO_SIZE = 0;
 
 //! -maxstakerutxoscriptcache default
-static const int32_t DEFAULT_STAKER_MAX_UTXO_SCRIPT_CACHE = 100000;
+static const int32_t DEFAULT_STAKER_MAX_UTXO_SCRIPT_CACHE = 200000;
 
 class CCoinControl;
 class COutput;
@@ -880,6 +880,9 @@ public:
     bool SelectDelegateCoinsForStaking(interfaces::Chain::Lock& locked_chain, std::vector<COutPoint>& setDelegateCoinsRet, std::map<uint160, CAmount>& mDelegateWeight) const;
     bool SelectDelegateCoinsForStakingMulti(interfaces::Chain::Lock& locked_chain, std::vector<COutPoint>& setDelegateCoinsRet, std::map<uint160, CAmount>& mDelegateWeight) const;
 
+    //! select list of address with coins.
+    void SelectAddressMulti(interfaces::Chain::Lock& locked_chain, std::map<uint160, bool>& mapAddress) const;
+
     /**
      * populate vCoins with vector of available COutputs.
      */
@@ -892,6 +895,7 @@ public:
     bool HaveAvailableDelegateCoinsForStaking() const;
     bool GetSuperStaker(CSuperStakerInfo &info, const uint160& stakerAddress) const;
     void GetStakerAddressBalance(interfaces::Chain::Lock& locked_chain, const PKHash& staker, CAmount& balance, CAmount& stake, CAmount& weight) const;
+    void AvailableAddressMulti(const std::vector<uint256>& maturedTx, size_t from, size_t to, std::map<uint160, bool> &mapAddress, std::map<COutPoint, CScriptCache>* insertScriptCache) const;
 
     /**
      * Return list of available coins and locked coins grouped by non-change output address.

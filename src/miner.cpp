@@ -1052,10 +1052,11 @@ private:
 class MyDelegations : public DelegationFilterBase
 {
 public:
-    MyDelegations(CWallet *_pwallet):
+    MyDelegations(CWallet *_pwallet, bool _multi = false):
         pwallet(_pwallet),
         cacheHeight(0),
-        spk_man(0)
+        spk_man(0),
+        multi(_multi)
     {
         spk_man = _pwallet->GetLegacyScriptPubKeyMan();
     }
@@ -1108,25 +1109,32 @@ public:
                 std::map<uint160, bool> mapAddress;
 
                 // Get all addreses with coins
-                std::vector<COutput> vecOutputs;
-                pwallet->AvailableCoins(locked_chain, vecOutputs);
-                for (const COutput& out : vecOutputs)
+                if(multi)
                 {
-                    CTxDestination destination;
-                    const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
-                    bool fValidAddress = ExtractDestination(scriptPubKey, destination);
-
-                    if (!fValidAddress || !pwallet->IsMine(destination)) continue;
-
-                    const PKHash *pkhash = boost::get<PKHash>(&destination);
-                    if (!pkhash) {
-                        continue;
-                    }
-
-                    uint160 address = uint160(*pkhash);
-                    if (mapAddress.find(address) == mapAddress.end())
+                    pwallet->SelectAddressMulti(locked_chain, mapAddress);
+                }
+                else
+                {
+                    std::vector<COutput> vecOutputs;
+                    pwallet->AvailableCoins(locked_chain, vecOutputs);
+                    for (const COutput& out : vecOutputs)
                     {
-                        mapAddress[address] = true;
+                        CTxDestination destination;
+                        const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
+                        bool fValidAddress = ExtractDestination(scriptPubKey, destination);
+
+                        if (!fValidAddress || !pwallet->IsMine(destination)) continue;
+
+                        const PKHash *pkhash = boost::get<PKHash>(&destination);
+                        if (!pkhash) {
+                            continue;
+                        }
+
+                        uint160 address = uint160(*pkhash);
+                        if (mapAddress.find(address) == mapAddress.end())
+                        {
+                            mapAddress[address] = true;
+                        }
                     }
                 }
 
@@ -1168,6 +1176,7 @@ private:
     int32_t cacheHeight;
     std::map<uint160, Delegation> cacheMyDelegations;
     LegacyScriptPubKeyMan* spk_man;
+    bool multi = false;
 };
 
 bool CheckStake(const std::shared_ptr<const CBlock> pblock, CWallet& wallet)
@@ -1328,7 +1337,7 @@ public:
         connman(_connman),
         consensusParams(Params().GetConsensus()),
         delegationsStaker(_pwallet),
-        myDelegations(_pwallet)
+        myDelegations(_pwallet, true)
 
     {
         // Make this thread recognisable as the mining thread

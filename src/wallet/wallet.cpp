@@ -6438,3 +6438,88 @@ bool CWallet::SelectDelegateCoinsForStakingMulti(interfaces::Chain::Lock &locked
 
     return ret;
 }
+
+void CWallet::AvailableAddressMulti(const std::vector<uint256> &maturedTx, size_t from, size_t to, std::map<uint160, bool> &mapAddress, std::map<COutPoint, CScriptCache> *insertScriptCache) const
+{
+    for(size_t i = from; i < to; i++)
+    {
+        std::map<uint256, CWalletTx>::const_iterator it = mapWallet.find(maturedTx[i]);
+        if(it == mapWallet.end()) continue;
+        const uint256& wtxid = it->first;
+        const CWalletTx* pcoin = &(*it).second;
+        for (unsigned int i = 0; i < pcoin->tx->vout.size(); i++) {
+            isminetype mine = IsMine(pcoin->tx->vout[i]);
+            if (!(IsSpent(wtxid, i)) && mine != ISMINE_NO &&
+                !IsLockedCoin((*it).first, i) && (pcoin->tx->vout[i].nValue > 0) &&
+                // Check if the staking coin is dust
+                pcoin->tx->vout[i].nValue >= m_staker_min_utxo_size)
+            {
+                // Get the script data for the coin
+                COutPoint prevout = COutPoint(pcoin->GetHash(), i);
+                const CScriptCache& scriptCache = GetScriptCache(prevout, pcoin->tx->vout[i].scriptPubKey, insertScriptCache);
+
+                // Check that the script is not a contract script
+                if(scriptCache.contract || !scriptCache.keyIdOk)
+                    continue;
+
+                bool spendable = ((mine & ISMINE_SPENDABLE) != ISMINE_NO) || (((mine & ISMINE_WATCH_ONLY) != ISMINE_NO) && scriptCache.solvable);
+                if(spendable)
+                {
+                    if(mapAddress.find(scriptCache.keyId) == mapAddress.end())
+                    {
+                        mapAddress[scriptCache.keyId] = true;
+                    }
+                }
+            }
+        }
+    }
+}
+
+void CWallet::SelectAddressMulti(interfaces::Chain::Lock &locked_chain, std::map<uint160, bool> &mapAddress) const
+{
+    std::vector<uint256> maturedTx;
+    for (std::map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
+    {
+        const uint256& wtxid = it->first;
+        const CWalletTx* pcoin = &(*it).second;
+        int nDepth = pcoin->GetDepthInMainChain();
+
+        if (nDepth < 1)
+            continue;
+
+        if (pcoin->GetBlocksToMaturity() > 0)
+            continue;
+
+        maturedTx.push_back(wtxid);
+    }
+
+    size_t listSize = maturedTx.size();
+    int numCores = std::min(m_num_cores, (int)listSize);
+    if(numCores < 2)
+    {
+        AvailableAddressMulti(maturedTx, 0, listSize, mapAddress, nullptr);
+    }
+    else
+    {
+        size_t chunk = listSize / numCores;
+        for(int i = 0; i < numCores; i++)
+        {
+            size_t from = i * chunk;
+            size_t to = i == (numCores -1) ? listSize : from + chunk;
+            threads.create_thread([this, from, to, &maturedTx, &mapAddress]{
+                std::map<uint160, bool> tmpAddresses;
+                std::map<COutPoint, CScriptCache> tmpInsertScriptCache;
+                AvailableAddressMulti(maturedTx, from, to, tmpAddresses, &tmpInsertScriptCache);
+
+                LOCK(cs_worker);
+                mapAddress.insert(tmpAddresses.begin(), tmpAddresses.end());
+                if((int32_t)prevoutScriptCache.size() > m_staker_max_utxo_script_cache)
+                {
+                    prevoutScriptCache.clear();
+                }
+                prevoutScriptCache.insert(tmpInsertScriptCache.begin(), tmpInsertScriptCache.end());
+            });
+        }
+        threads.join_all();
+    }
+}
