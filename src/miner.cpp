@@ -1360,17 +1360,25 @@ public:
     void Run()
     {
         SetThreadPriority(THREAD_PRIORITY_LOWEST);
-
+        LogPrintf("%s %d\n", __func__, __LINE__);
+        int64_t t = GetTimeMillis();
         while (Next()) {
+            LogPrintf("%s %d\n", __func__, __LINE__);
             // Is ready for mining
             if(!IsReady()) continue;
+            LogPrintf("MSTIME ISREADY %s %d %d\n", __func__, __LINE__, (GetTimeMillis()-t));
+            t = GetTimeMillis();
 
             // Cache mining data
             if(!CacheData()) continue;
+            LogPrintf("MSTIME CACHEDATA %s %d %d\n", __func__, __LINE__, (GetTimeMillis()-t));
+            t = GetTimeMillis();
 
             // Check if miner have coins for staking
             if(HaveCoinsForStake())
             {
+                LogPrintf("MSTIME HaveCoinsForStake %s %d %d\n", __func__, __LINE__, (GetTimeMillis()-t));
+                t = GetTimeMillis();
                 // Look for possibility to create a block
                 uint32_t beginningTime=GetAdjustedTime();
                 beginningTime &= ~d->stakeTimestampMask;
@@ -1379,15 +1387,25 @@ public:
                 {
                     // Update status bar
                     UpdateStatusBar(blockTime);
+                    LogPrintf("MSTIME UpdateStatusBar %s %d %d\n", __func__, __LINE__, (GetTimeMillis()-t));
+                    t = GetTimeMillis();
 
                     // Check if block can be created
                     if(CanCreateBlock(blockTime))
                     {
+                        LogPrintf("MSTIME CanCreateBlock %s %d %d\n", __func__, __LINE__, (GetTimeMillis()-t));
+                        t = GetTimeMillis();
                         // Create new block
                         if(!CreateNewBlock(blockTime)) break;
+                        LogPrintf("CREATED BLOCK\n");
+                        LogPrintf("MSTIME CreateNewBlock %s %d %d\n", __func__, __LINE__, (GetTimeMillis()-t));
+                        t = GetTimeMillis();
 
                         // Sign new block
                         if(SignNewBlock(blockTime)) break;
+                        LogPrintf("SIGNED BLOCK\n");
+                        LogPrintf("MSTIME SignNewBlock %s %d %d\n", __func__, __LINE__, (GetTimeMillis()-t));
+                        t = GetTimeMillis();
                     }
                 }
             }
@@ -1439,7 +1457,7 @@ protected:
 
         // Wait for node connections
         // Don't disable PoS mining for no connections if in regtest mode
-        if(!d->regtestMode && !d->fEmergencyStaking) {
+        /*if(!d->regtestMode && !d->fEmergencyStaking) {
             while (d->connman->GetNodeCount(CConnman::CONNECTIONS_ALL) == 0 || ::ChainstateActive().IsInitialBlockDownload()) {
                 d->pwallet->m_last_coin_stake_search_interval = 0;
                 d->fTryToSync = true;
@@ -1454,7 +1472,7 @@ protected:
                     return false;
                 }
             }
-        }
+        }*/
 
         // Wait for PoW block time in regtest mode
         if(d->regtestMode) {
@@ -1507,6 +1525,7 @@ protected:
                 d->myDelegations.Update(*locked_chain, nHeightTip);
             }
             d->pwallet->SelectCoinsForStaking(*locked_chain, d->nTargetValue, d->setCoins, nValueIn);
+            LogPrintf("setCoins: %d %d\n", d->setCoins.size(), nValueIn);
             if(d->fSuperStake && fOfflineStakeEnabled)
             {
                 d->delegationsStaker.Update(nHeightTip);
@@ -1615,8 +1634,9 @@ protected:
     {
         // Try to sign the block once at specific time with the same cached data
         d->mapSolveBlockTime[blockTime] = false;
-
+        LogPrintf("%s %d\n", __func__, __LINE__);
         if (SignBlock(d->pblockfilled, *(d->pwallet), d->nTotalFees, blockTime, d->setCoins, d->setDelegateCoins)) {
+            LogPrintf("%s %d\n", __func__, __LINE__);
             // Should always reach here unless we spent too much time processing transactions and the timestamp is now invalid
             // CheckStake also does CheckBlock and AcceptBlock to propogate it to the network
             bool validBlock = false;
@@ -1648,6 +1668,7 @@ protected:
             }
             if(validBlock) {
                 CheckStake(d->pblockfilled, *(d->pwallet));
+                LogPrintf("CALLED CHECKSTAKE\n");
                 // Update the search time when new valid block is created, needed for status bar icon
                 d->pwallet->m_last_coin_stake_search_time = d->pblockfilled->GetBlockTime();
             }
@@ -1706,7 +1727,7 @@ public:
                 if(!SleepStaker(pwallet, 10000)) return;
             }
             //don't disable PoS mining for no connections if in regtest mode
-            if(!regtestMode && !gArgs.GetBoolArg("-emergencystaking", false)) {
+            /*if(!regtestMode && !gArgs.GetBoolArg("-emergencystaking", false)) {
                 while (connman->GetNodeCount(CConnman::CONNECTIONS_ALL) == 0 || ::ChainstateActive().IsInitialBlockDownload()) {
                     pwallet->m_last_coin_stake_search_interval = 0;
                     fTryToSync = true;
@@ -1720,7 +1741,7 @@ public:
                         continue;
                     }
                 }
-            }
+            }*/
             if(regtestMode) {
                 bool waitForBlockTime = false;
                 {
@@ -1741,6 +1762,7 @@ public:
             // Create new block
             //
             CAmount nBalance = pwallet->GetBalance().m_mine_trusted;
+            LogPrintf("nBalance %d\n", nBalance);
             CAmount nTargetValue = nBalance - pwallet->m_reserve_balance;
             CAmount nValueIn = 0;
             std::set<std::pair<const CWalletTx*,unsigned int> > setCoins;
@@ -1766,6 +1788,7 @@ public:
                     pwallet->updateHaveCoinSuperStaker(setCoins);
                 }
             }
+            LogPrintf("v1 SetCoins: %d %d\n", setCoins.size(), nValueIn);
             if(setCoins.size() > 0 || pwallet->CanSuperStake(setCoins, setDelegateCoins))
             {
                 int64_t nTotalFees = 0;
@@ -1843,6 +1866,7 @@ public:
                                 validBlock=true;
                             }
                             if(validBlock) {
+                                LogPrintf("VALID BLOCK!\n");
                                 CheckStake(pblockfilled, *pwallet);
                                 // Update the search time when new valid block is created, needed for status bar icon
                                 pwallet->m_last_coin_stake_search_time = pblockfilled->GetBlockTime();

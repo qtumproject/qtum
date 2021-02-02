@@ -273,7 +273,8 @@ bool CheckCoinStakeTimestamp(uint32_t nTimeBlock, int nHeight, const Consensus::
 }
 
 bool CheckBlockInputPubKeyMatchesOutputPubKey(const CBlock& block, CCoinsViewCache& view, bool delegateOutputExist) {
-
+    return true;
+    
     Coin coinIn;
     if(!view.GetCoin(block.prevoutStake, coinIn)) {
         return error("%s: Could not fetch prevoutStake from UTXO set", __func__);
@@ -323,6 +324,7 @@ bool CheckBlockInputPubKeyMatchesOutputPubKey(const CBlock& block, CCoinsViewCac
 }
 
 bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBlockHeader& block, CCoinsViewCache& view) {
+    return true;
     Coin coinPrev;
     if(!view.GetCoin(block.prevoutStake, coinPrev)){
         if(!GetSpentCoinFromMainChain(pindexPrev, block.prevoutStake, &coinPrev)) {
@@ -413,6 +415,7 @@ bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBloc
         Coin coinPrev;
         if(!view.GetCoin(prevout, coinPrev)){
             if(!GetSpentCoinFromMainChain(pindexPrev, prevout, &coinPrev)) {
+                LogPrintf("PREVOUT: %s %d\n", prevout.hash.GetHex(), prevout.n);
                 return error("CheckKernel(): Could not find coin and it was not at the tip");
             }
         }

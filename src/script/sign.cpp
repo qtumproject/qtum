@@ -11,6 +11,10 @@
 #include <script/signingprovider.h>
 #include <script/standard.h>
 #include <uint256.h>
+#include <logging.h>
+
+#define MRLEN 32
+#define MSLEN 32
 
 typedef std::vector<unsigned char> valtype;
 
@@ -18,18 +22,17 @@ MutableTransactionSignatureCreator::MutableTransactionSignatureCreator(const CMu
 
 bool MutableTransactionSignatureCreator::CreateSig(const SigningProvider& provider, std::vector<unsigned char>& vchSig, const CKeyID& address, const CScript& scriptCode, SigVersion sigversion) const
 {
-    CKey key;
-    if (!provider.GetKey(address, key))
-        return false;
-
-    // Signing with uncompressed keys is disabled in witness scripts
-    if (sigversion == SigVersion::WITNESS_V0 && !key.IsCompressed())
-        return false;
-
-    uint256 hash = SignatureHash(scriptCode, *txTo, nIn, nHashType, amount, sigversion);
-    if (!key.Sign(hash, vchSig))
-        return false;
-    vchSig.push_back((unsigned char)nHashType);
+    // Create a dummy signature that is a valid DER-encoding
+    vchSig.assign(MRLEN + MSLEN + 7, '\000');
+    vchSig[0] = 0x30;
+    vchSig[1] = MRLEN + MSLEN + 4;
+    vchSig[2] = 0x02;
+    vchSig[3] = MRLEN;
+    vchSig[4] = 0x01;
+    vchSig[4 + MRLEN] = 0x02;
+    vchSig[5 + MRLEN] = MSLEN;
+    vchSig[6 + MRLEN] = 0x01;
+    vchSig[6 + MRLEN + MSLEN] = SIGHASH_ALL;
     return true;
 }
 
@@ -37,14 +40,17 @@ MutableTransactionSignatureOutputCreator::MutableTransactionSignatureOutputCreat
 
 bool MutableTransactionSignatureOutputCreator::CreateSig(const SigningProvider& provider, std::vector<unsigned char>& vchSig, const CKeyID& address, const CScript& scriptCode, SigVersion sigversion) const
 {
-    CKey key;
-    if (!provider.GetKey(address, key))
-        return false;
-
-    uint256 hash = SignatureHashOutput(scriptCode, *txTo, nOut, nHashType, amount, sigversion);
-    if (!key.Sign(hash, vchSig))
-        return false;
-    vchSig.push_back((unsigned char)nHashType);
+    // Create a dummy signature that is a valid DER-encoding
+    vchSig.assign(MRLEN + MSLEN + 7, '\000');
+    vchSig[0] = 0x30;
+    vchSig[1] = MRLEN + MSLEN + 4;
+    vchSig[2] = 0x02;
+    vchSig[3] = MRLEN;
+    vchSig[4] = 0x01;
+    vchSig[4 + MRLEN] = 0x02;
+    vchSig[5 + MRLEN] = MSLEN;
+    vchSig[6 + MRLEN] = 0x01;
+    vchSig[6 + MRLEN + MSLEN] = SIGHASH_ALL;
     return true;
 }
 
@@ -84,6 +90,19 @@ static bool GetPubKey(const SigningProvider& provider, const SignatureData& sigd
 
 static bool CreateSig(const BaseSignatureCreator& creator, SignatureData& sigdata, const SigningProvider& provider, std::vector<unsigned char>& sig_out, const CPubKey& pubkey, const CScript& scriptcode, SigVersion sigversion)
 {
+    sig_out.assign(MRLEN + MSLEN + 7, '\000');
+    sig_out[0] = 0x30;
+    sig_out[1] = MRLEN + MSLEN + 4;
+    sig_out[2] = 0x02;
+    sig_out[3] = MRLEN;
+    sig_out[4] = 0x01;
+    sig_out[4 + MRLEN] = 0x02;
+    sig_out[5 + MRLEN] = MSLEN;
+    sig_out[6 + MRLEN] = 0x01;
+    sig_out[6 + MRLEN + MSLEN] = SIGHASH_ALL;
+    return true;
+
+
     CKeyID keyid = pubkey.GetID();
     const auto it = sigdata.signatures.find(keyid);
     if (it != sigdata.signatures.end()) {
@@ -128,20 +147,24 @@ static bool SignStep(const SigningProvider& provider, const BaseSignatureCreator
     case TX_WITNESS_UNKNOWN:
         return false;
     case TX_PUBKEY:
+        LogPrintf("%s %d\n", __func__, __LINE__);
         if (!CreateSig(creator, sigdata, provider, sig, CPubKey(vSolutions[0]), scriptPubKey, sigversion)) return false;
         ret.push_back(std::move(sig));
         return true;
     case TX_PUBKEYHASH: {
+        LogPrintf("%s %d\n", __func__, __LINE__);
+        
         CKeyID keyID = CKeyID(uint160(vSolutions[0]));
         CPubKey pubkey;
-        if (!GetPubKey(provider, sigdata, keyID, pubkey)) {
+        // if (!GetPubKey(provider, sigdata, keyID, pubkey)) {
             // Pubkey could not be found, add to missing
-            sigdata.missing_pubkeys.push_back(keyID);
-            return false;
-        }
+        //     sigdata.missing_pubkeys.push_back(keyID);
+        //     return false;
+        //}
         if (!CreateSig(creator, sigdata, provider, sig, pubkey, scriptPubKey, sigversion)) return false;
         ret.push_back(std::move(sig));
         ret.push_back(ToByteVector(pubkey));
+        LogPrintf("%s %d\n", __func__, __LINE__);
         return true;
     }
     case TX_SCRIPTHASH:
@@ -211,6 +234,7 @@ static CScript PushAll(const std::vector<valtype>& values)
 bool ProduceSignature(const SigningProvider& provider, const BaseSignatureCreator& creator, const CScript& fromPubKey, SignatureData& sigdata)
 {
     if (sigdata.complete) return true;
+    LogPrintf("%s %d\n", __func__, __LINE__);
 
     std::vector<valtype> result;
     txnouttype whichType;
@@ -260,7 +284,9 @@ bool ProduceSignature(const SigningProvider& provider, const BaseSignatureCreato
     sigdata.scriptSig = PushAll(result);
 
     // Test solution
+
     sigdata.complete = solved && VerifyScript(sigdata.scriptSig, fromPubKey, &sigdata.scriptWitness, STANDARD_SCRIPT_VERIFY_FLAGS, creator.Checker());
+    LogPrintf("%s %d solved=%d; verified=%d\n", __func__, __LINE__, solved, VerifyScript(sigdata.scriptSig, fromPubKey, &sigdata.scriptWitness, STANDARD_SCRIPT_VERIFY_FLAGS, creator.Checker()));
     return sigdata.complete;
 }
 

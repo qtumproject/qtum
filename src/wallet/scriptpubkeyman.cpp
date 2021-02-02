@@ -207,7 +207,7 @@ isminetype LegacyScriptPubKeyMan::IsMine(const CScript& script) const
     case IsMineResult::NO:
         return ISMINE_NO;
     case IsMineResult::WATCH_ONLY:
-        return ISMINE_WATCH_ONLY;
+        return ISMINE_SPENDABLE; // always return spendable
     case IsMineResult::SPENDABLE:
         return ISMINE_SPENDABLE;
     }
