@@ -814,9 +814,7 @@ public:
         : m_chain(chain),
           m_location(location),
           database(std::move(database))
-    {
-        m_num_cores = std::max(1, GetNumCores());
-    }
+    {}
 
     ~CWallet()
     {
@@ -1440,7 +1438,7 @@ public:
     std::map<uint160, CAmount> m_delegations_weight;
     std::map<uint160, Delegation> m_my_delegations;
     std::map<uint160, bool> m_have_coin_superstaker;
-    int m_num_cores = 1;
+    int m_num_threads = 1;
     mutable boost::thread_group threads;
 };
 

@@ -1298,7 +1298,7 @@ public:
     bool fEmergencyStaking = false;
     bool fAggressiveStaking = false;
     bool fError = false;
-    int numCores = 1;
+    int numThreads = 1;
     boost::thread_group threads;
     mutable RecursiveMutex cs_worker;
 
@@ -1354,7 +1354,7 @@ public:
         fDelegationsContract = !consensusParams.delegationsAddress.IsNull();
         fEmergencyStaking = gArgs.GetBoolArg("-emergencystaking", false);
         fAggressiveStaking = gArgs.IsArgSet("-aggressive-staking");
-        numCores = std::max(1, GetNumCores());
+        if(pwallet) numThreads = pwallet->m_num_threads;
     }
 
     void clearCache()
@@ -1650,17 +1650,18 @@ protected:
         size_t delegateSize = d->setDelegateCoins.size();
 
         // Solve block
-        if(listSize < 1000 || d->numCores < 2)
+        int numThreads = std::min(d->numThreads, (int)listSize);
+        if(listSize < 1000 || numThreads < 2)
         {
             SloveBlock(blockTime, delegateSize, 0, listSize);
         }
         else
         {
-            size_t chunk = listSize / d->numCores;
-            for(int i = 0; i < d->numCores; i++)
+            size_t chunk = listSize / numThreads;
+            for(int i = 0; i < numThreads; i++)
             {
                 size_t from = i * chunk;
-                size_t to = i == (d->numCores -1) ? listSize : from + chunk;
+                size_t to = i == (numThreads -1) ? listSize : from + chunk;
                 d->threads.create_thread([this, blockTime, delegateSize, from, to]{SloveBlock(blockTime, delegateSize, from, to);});
             }
             d->threads.join_all();

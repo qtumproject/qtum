@@ -5018,6 +5018,8 @@ std::shared_ptr<CWallet> CWallet::CreateWalletFromFile(interfaces::Chain& chain,
         walletInstance->m_staking_min_fee = nStakingMinFee;
     }
     walletInstance->m_staker_max_utxo_script_cache = gArgs.GetArg("-maxstakerutxoscriptcache", DEFAULT_STAKER_MAX_UTXO_SCRIPT_CACHE);
+    walletInstance->m_num_threads = gArgs.GetArg("-stakerthreads", GetNumCores());
+    walletInstance->m_num_threads = std::max(1, walletInstance->m_num_threads);
 
     walletInstance->WalletLogPrintf("Wallet completed loading in %15dms\n", GetTimeMillis() - nStart);
 
@@ -6242,18 +6244,18 @@ bool CWallet::SelectCoinsForStakingMulti(interfaces::Chain::Lock &locked_chain, 
     }
 
     size_t listSize = maturedTx.size();
-    int numCores = std::min(m_num_cores, (int)listSize);
-    if(numCores < 2)
+    int numThreads = std::min(m_num_threads, (int)listSize);
+    if(numThreads < 2)
     {
         AvailableCoinsForStakingMulti(maturedTx, 0, listSize, immatureStakes, vCoins, nullptr);
     }
     else
     {
-        size_t chunk = listSize / numCores;
-        for(int i = 0; i < numCores; i++)
+        size_t chunk = listSize / numThreads;
+        for(int i = 0; i < numThreads; i++)
         {
             size_t from = i * chunk;
-            size_t to = i == (numCores -1) ? listSize : from + chunk;
+            size_t to = i == (numThreads -1) ? listSize : from + chunk;
             threads.create_thread([this, from, to, &maturedTx, &immatureStakes, &vCoins]{
                 std::vector<std::pair<const CWalletTx *, unsigned int> > tmpCoins;
                 std::map<COutPoint, CScriptCache> tmpInsertScriptCache;
@@ -6401,19 +6403,19 @@ bool CWallet::SelectDelegateCoinsForStakingMulti(interfaces::Chain::Lock &locked
         delegations.push_back(it->first);
     }
     size_t listSize = delegations.size();
-    int numCores = std::min(m_num_cores, (int)listSize);
+    int numThreads = std::min(m_num_threads, (int)listSize);
     bool ret = true;
-    if(numCores < 2)
+    if(numThreads < 2)
     {
         ret = AvailableDelegateCoinsForStakingMulti(delegations, 0, listSize, height, immatureStakes, mapStakers, vUnsortedDelegateCoins, mDelegateWeight);
     }
     else
     {
-        size_t chunk = listSize / numCores;
-        for(int i = 0; i < numCores; i++)
+        size_t chunk = listSize / numThreads;
+        for(int i = 0; i < numThreads; i++)
         {
             size_t from = i * chunk;
-            size_t to = i == (numCores -1) ? listSize : from + chunk;
+            size_t to = i == (numThreads -1) ? listSize : from + chunk;
             threads.create_thread([this, from, to, height, &delegations, &immatureStakes, &mapStakers, &ret, &vUnsortedDelegateCoins, &mDelegateWeight]{
                 std::vector<std::pair<COutPoint,CAmount>> tmpUnsortedDelegateCoins;
                 std::map<uint160, CAmount> tmpDelegateWeight;
@@ -6494,18 +6496,18 @@ void CWallet::SelectAddressMulti(interfaces::Chain::Lock &locked_chain, std::map
     }
 
     size_t listSize = maturedTx.size();
-    int numCores = std::min(m_num_cores, (int)listSize);
-    if(numCores < 2)
+    int numThreads = std::min(m_num_threads, (int)listSize);
+    if(numThreads < 2)
     {
         AvailableAddressMulti(maturedTx, 0, listSize, mapAddress, nullptr);
     }
     else
     {
-        size_t chunk = listSize / numCores;
-        for(int i = 0; i < numCores; i++)
+        size_t chunk = listSize / numThreads;
+        for(int i = 0; i < numThreads; i++)
         {
             size_t from = i * chunk;
-            size_t to = i == (numCores -1) ? listSize : from + chunk;
+            size_t to = i == (numThreads -1) ? listSize : from + chunk;
             threads.create_thread([this, from, to, &maturedTx, &mapAddress]{
                 std::map<uint160, bool> tmpAddresses;
                 std::map<COutPoint, CScriptCache> tmpInsertScriptCache;
