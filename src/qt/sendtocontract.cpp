@@ -140,6 +140,11 @@ void SendToContract::setModel(WalletModel *_model)
 
     // update the display unit, to not use the default ("QTUM")
     updateDisplayUnit();
+
+    if (m_model->wallet().privateKeysDisabled()) {
+        ui->pushButtonSendToContract->setText(tr("Cr&eate Unsigned"));
+        ui->pushButtonSendToContract->setToolTip(tr("Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.").arg(PACKAGE_NAME));
+    }
 }
 
 bool SendToContract::isValidContractAddress()
