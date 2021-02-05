@@ -189,6 +189,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "createcontract", 2, "gasPrice" },
     { "createcontract", 4, "broadcast" },
     { "createcontract", 5, "changeToSender" },
+    { "createcontract", 6, "psbt" },
     { "sendtocontract", 2, "amount" },
     { "sendtocontract", 3, "gasLimit" },
     { "sendtocontract", 4, "gasPrice" },

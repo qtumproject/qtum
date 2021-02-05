@@ -102,7 +102,7 @@ std::shared_ptr<CWallet> GetWalletForJSONRPCRequest(const JSONRPCRequest& reques
     return wallets.size() == 1 || (request.fHelp && wallets.size() > 0) ? wallets[0] : nullptr;
 }
 
-bool GetSenderDest(CWallet * const pwallet, const CTransactionRef& tx, CTxDestination& txSenderDest)
+bool GetSenderDest(CWallet * const pwallet, const CTransactionRef& tx, CTxDestination& txSenderDest, bool sign=true)
 {
     // Initialize variables
     CScript senderPubKey;
@@ -115,7 +115,14 @@ bool GetSenderDest(CWallet * const pwallet, const CTransactionRef& tx, CTxDestin
         {
             if(out.scriptPubKey.HasOpSender())
             {
-                ExtractSenderData(out.scriptPubKey, &senderPubKey, 0);
+                if(sign)
+                {
+                    ExtractSenderData(out.scriptPubKey, &senderPubKey, 0);
+                }
+                else
+                {
+                    GetSenderPubKey(out.scriptPubKey, senderPubKey);
+                }
                 break;
             }
         }
@@ -846,6 +853,28 @@ static UniValue splitutxosforaddress(const JSONRPCRequest& request)
     return obj;
 }
 
+PSBTOutput GetPsbtOutput(const CTxOut& v, LegacyScriptPubKeyMan& spk_man)
+{
+    PSBTOutput out;
+    if(v.scriptPubKey.HasOpSender())
+    {
+        CScript senderPubKey;
+        bool ok = GetSenderPubKey(v.scriptPubKey, senderPubKey);
+        CKeyID key_id = CKeyID(ExtractPublicKeyHash(senderPubKey));
+        ok &= !key_id.IsNull();
+        CPubKey vchPubKeyOut;
+        ok &=  spk_man.GetPubKey(key_id, vchPubKeyOut);
+        KeyOriginInfo info;
+        ok &=  spk_man.GetKeyOrigin(key_id, info);
+        if(ok)
+        {
+            out.hd_keypaths[vchPubKeyOut] = info;
+        }
+    }
+
+    return out;
+}
+
 static UniValue createcontract(const JSONRPCRequest& request){
 
     std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
@@ -873,6 +902,7 @@ static UniValue createcontract(const JSONRPCRequest& request){
                     {"senderaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED, "The qtum address that will be used to create the contract."},
                     {"broadcast", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Whether to broadcast the transaction or not."},
                     {"changeToSender", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Return the change to the sender."},
+                    {"psbt", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Create partially signed transaction."},
                 },
                 RPCResult{
                     RPCResult::Type::ARR, "", "",
@@ -942,6 +972,12 @@ static UniValue createcontract(const JSONRPCRequest& request){
         fChangeToSender=request.params[5].get_bool();
     }
 
+    bool fPsbt=pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+    if (request.params.size() > 6){
+        fPsbt=request.params[6].get_bool();
+    }
+    if(fPsbt) fBroadcast=false;
+
     CCoinControl coinControl;
 
     CTxDestination signSenderAddress = CNoDestination();
@@ -1000,7 +1036,9 @@ static UniValue createcontract(const JSONRPCRequest& request){
 
     CAmount nGasFee=nGasPrice*nGasLimit;
 
-    CAmount curBalance = pwallet->GetBalance().m_mine_trusted;
+    const auto bal = pwallet->GetBalance();
+    CAmount curBalance = bal.m_mine_trusted;
+    if(fPsbt) curBalance += bal.m_watchonly_trusted;
 
     // Check amount
     if (nGasFee <= 0)
@@ -1020,9 +1058,18 @@ static UniValue createcontract(const JSONRPCRequest& request){
         if(IsValidDestination(signSenderAddress))
         {
             CKeyID key_id = GetKeyForDestination(spk_man, signSenderAddress);
-            CKey key;
-            if (!spk_man.GetKey(key_id, key)) {
-                throw JSONRPCError(RPC_WALLET_ERROR, "Private key not available");
+            if(fPsbt)
+            {
+                if(!pwallet->IsMine(signSenderAddress)) {
+                    throw JSONRPCError(RPC_WALLET_ERROR, "Sender address not mine");
+                }
+            }
+            else
+            {
+                CKey key;
+                if (!spk_man.GetKey(key_id, key)) {
+                    throw JSONRPCError(RPC_WALLET_ERROR, "Private key not available");
+                }
             }
             std::vector<unsigned char> scriptSig;
             scriptPubKey = (CScript() << CScriptNum(addresstype::PUBKEYHASH) << ToByteVector(key_id) << ToByteVector(scriptSig) << OP_SENDER) + scriptPubKey;
@@ -1043,21 +1090,47 @@ static UniValue createcontract(const JSONRPCRequest& request){
     vecSend.push_back(recipient);
 
     CTransactionRef tx;
-    if (!pwallet->CreateTransaction(*locked_chain, vecSend, tx, nFeeRequired, nChangePosRet, strError, coinControl, true, nGasFee, true, signSenderAddress)) {
-        if (nFeeRequired > pwallet->GetBalance().m_mine_trusted)
+    bool sign = !fPsbt;
+    if (!pwallet->CreateTransaction(*locked_chain, vecSend, tx, nFeeRequired, nChangePosRet, strError, coinControl, sign, nGasFee, true, signSenderAddress)) {
+        if (nFeeRequired > curBalance)
             strError = strprintf("Error: This transaction requires a transaction fee of at least %s because of its amount, complexity, or use of recently received funds!", FormatMoney(nFeeRequired));
         throw JSONRPCError(RPC_WALLET_ERROR, strError);
     }
 
     CTxDestination txSenderDest;
-    GetSenderDest(pwallet, tx, txSenderDest);
+    GetSenderDest(pwallet, tx, txSenderDest, sign);
 
     if (fHasSender && !(senderAddress == txSenderDest)){
            throw JSONRPCError(RPC_TYPE_ERROR, "Sender could not be set, transaction was not committed!");
     }
 
     UniValue result(UniValue::VOBJ);
-    if(fBroadcast){
+    if(fPsbt){
+        // Make a blank psbt
+        PartiallySignedTransaction psbtx;
+        CMutableTransaction rawTx = CMutableTransaction(*tx);
+        psbtx.tx = rawTx;
+        for (unsigned int i = 0; i < rawTx.vin.size(); ++i) {
+            psbtx.inputs.push_back(PSBTInput());
+        }
+        for (unsigned int i = 0; i < rawTx.vout.size(); ++i) {
+            psbtx.outputs.push_back(GetPsbtOutput(rawTx.vout[i], spk_man));
+        }
+
+        // Fill transaction with out data but don't sign
+        bool bip32derivs = true;
+        bool complete = true;
+        const TransactionError err = pwallet->FillPSBT(psbtx, complete, 1, false, bip32derivs);
+        if (err != TransactionError::OK) {
+            throw JSONRPCTransactionError(err);
+        }
+
+        // Serialize the PSBT
+        CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
+        ssTx << psbtx;
+        result.pushKV("psbt", EncodeBase64((unsigned char*)ssTx.data(), ssTx.size()));
+    }
+    else if(fBroadcast){
     pwallet->CommitTransaction(tx, {}, {});
 
     std::string txId=tx->GetHash().GetHex();
@@ -6124,7 +6197,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "walletpassphrasechange",           &walletpassphrasechange,        {"oldpassphrase","newpassphrase"} },
     { "wallet",             "walletprocesspsbt",                &walletprocesspsbt,             {"psbt","sign","sighashtype","bip32derivs"} },
     { "wallet",             "reservebalance",                   &reservebalance,                {"reserve", "amount"} },
-    { "wallet",             "createcontract",                   &createcontract,                {"bytecode", "gasLimit", "gasPrice", "senderAddress", "broadcast", "changeToSender"} },
+    { "wallet",             "createcontract",                   &createcontract,                {"bytecode", "gasLimit", "gasPrice", "senderAddress", "broadcast", "changeToSender", "psbt"} },
     { "wallet",             "sendtocontract",                   &sendtocontract,                {"contractaddress", "bytecode", "amount", "gasLimit", "gasPrice", "senderAddress", "broadcast", "changeToSender"} },
     { "wallet",             "removedelegationforaddress",       &removedelegationforaddress,    {"address", "gasLimit", "gasPrice"} },
     { "wallet",             "setdelegateforaddress",            &setdelegateforaddress,         {"staker", "fee", "address", "gasLimit", "gasPrice"} },
