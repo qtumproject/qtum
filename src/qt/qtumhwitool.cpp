@@ -17,6 +17,8 @@
 #include <QJsonObject>
 #include <QVariantMap>
 #include <QVariantList>
+#include <QFile>
+#include <QStringList>
 
 #include <atomic>
 
@@ -25,6 +27,9 @@ static const QString PARAM_STOP_HEIGHT = "stop_height";
 static const QString PARAM_REQUESTS = "requests";
 static const QString PARAM_PSBT = "psbt";
 static const QString PARAM_HEXTX = "hextx";
+static const QString LOAD_FORMAT = ":/ledger/%1_load";
+static const QString DELETE_FORMAT = ":/ledger/%1_delete";
+static const QString RC_PATH_FORMAT = ":/ledger";
 
 class QtumHwiToolPriv
 {
@@ -181,13 +186,19 @@ void QtumHwiTool::wait()
 {
     if(d->fStarted)
     {
+        bool wasStarted = false;
         if(d->process.waitForStarted())
         {
+            wasStarted = true;
             d->process.waitForFinished(-1);
         }
         d->strStdout = d->process.readAllStandardOutput();
         d->strError = d->process.readAllStandardError();
         d->fStarted = false;
+        if(!wasStarted && d->strError.isEmpty())
+        {
+            d->strError = tr("Application %1 fail to start.").arg(d->process.program());
+        }
     }
 }
 
@@ -444,4 +455,150 @@ void QtumHwiTool::addError(const QString &error)
     if(d->strError != "")
         d->strError += "\n";
     d->strError += error;
+}
+
+class InstallDevicePriv
+{
+public:
+    ~InstallDevicePriv()
+    {
+        for(QString path : filePaths)
+        {
+            QFile::remove(path);
+        }
+    }
+
+    InstallDevice::DeviceType type = InstallDevice::NanoS;
+    QStringList filePaths;
+};
+
+InstallDevice::InstallDevice(InstallDevice::DeviceType type)
+{
+    d = new InstallDevicePriv();
+    d->type = type;
+}
+
+InstallDevice::~InstallDevice()
+{
+    delete d;
+}
+
+QString InstallDevice::deviceToString(InstallDevice::DeviceType type)
+{
+    switch (type) {
+    case InstallDevice::NanoS:
+        return "nanos";
+    default:
+        break;
+    }
+
+    return "";
+}
+
+bool InstallDevice::loadCommand(QString &program, QStringList &arguments)
+{
+    QString rcPath = LOAD_FORMAT.arg(deviceToString(d->type));
+    return getRCCommand(rcPath, program, arguments);
+}
+
+bool InstallDevice::deleteCommand(QString &program, QStringList &arguments)
+{
+    QString rcPath = DELETE_FORMAT.arg(deviceToString(d->type));
+    return getRCCommand(rcPath, program, arguments);
+}
+
+bool InstallDevice::getRCCommand(const QString &rcPath, QString &program, QStringList &arguments)
+{
+    // Get the command
+    QString command;
+    QFile file(rcPath);
+    if(file.open(QIODevice::ReadOnly))
+    {
+        command = file.readAll().trimmed();
+    }
+    else
+    {
+        return false;
+    }
+
+    // Split to params
+    arguments.clear();
+    QStringList args = command.split(" ");
+    for(QString arg: args)
+    {
+        arguments.push_back(parse(arg));
+    }
+    bool ret = arguments.count() > 1;
+    if(ret)
+    {
+        program = arguments[0];
+        arguments.removeAt(0);
+    }
+
+    return ret;
+}
+
+QString InstallDevice::parse(QString arg)
+{
+    arg = arg.remove("\"");
+    if(arg.startsWith(RC_PATH_FORMAT))
+    {
+        QString dataDir = QString::fromStdString(GetDataDir().string());
+        QFile fileIn(arg);
+        if(fileIn.open(QIODevice::ReadOnly))
+        {
+            QByteArray data = fileIn.readAll();
+            arg = arg.replace(RC_PATH_FORMAT, dataDir);
+            arg += ".hex";
+            QFile fileOut(arg);
+            if(fileOut.open(QIODevice::WriteOnly))
+            {
+                fileOut.write(data);
+            }
+            d->filePaths << arg;
+        }
+    }
+    return arg;
+}
+
+bool QtumHwiTool::installApp(InstallDevice::DeviceType type)
+{
+    // Install Qtum App to ledger
+    InstallDevice device(type);
+    QString program;
+    QStringList arguments;
+    bool ret = device.loadCommand(program, arguments);
+    if(ret)
+    {
+        d->process.start(program, arguments);
+        d->fStarted = true;
+
+        wait();
+
+        ret &= QProcess::NormalExit == d->process.exitStatus();
+        ret &= d->strError.isEmpty();
+    }
+
+    return ret;
+}
+
+bool QtumHwiTool::removeApp(InstallDevice::DeviceType type)
+{
+    // Remove Qtum App from ledger
+    InstallDevice device(type);
+    QString program;
+    QStringList arguments;
+    bool ret = device.deleteCommand(program, arguments);
+    if(ret)
+    {
+        d->process.start(program, arguments);
+        d->fStarted = true;
+
+        wait();
+
+        ret &= QProcess::NormalExit == d->process.exitStatus();
+        ret &= d->strError.isEmpty();
+    }
+
+    return ret;
 }
