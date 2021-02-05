@@ -1349,6 +1349,7 @@ void assignJSON(UniValue& entry, const TransactionReceiptInfo& resExec) {
     ss << resExec.excepted;
     entry.pushKV("excepted",ss.str());
     entry.pushKV("exceptedMessage", resExec.exceptedMessage);
+    entry.pushKV("bloom", resExec.bloom.hex());
 }
 
 void assignJSON(UniValue& logEntry, const dev::eth::LogEntry& log,
@@ -1873,6 +1874,7 @@ UniValue gettransactionreceipt(const JSONRPCRequest& request)
                             {RPCResult::Type::NUM, "gasUsed", "The gas used"},
                             {RPCResult::Type::STR_HEX, "contractAddress", "The contract address"},
                             {RPCResult::Type::STR, "excepted", "The thrown exception"},
+                            {RPCResult::Type::STR_HEX, "bloom", "Bloom filter for light clients to quickly retrieve related logs"},
                             {RPCResult::Type::ARR, "log", "The logs from the receipt",
                                 {
                                     {RPCResult::Type::STR, "address", "The contract address"},

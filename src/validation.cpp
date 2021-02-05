@@ -3399,7 +3399,8 @@ bool CChainState::ConnectBlock(const CBlock& block, BlockValidationState& state,
                         resultExec[k].txRec.log(),
                         resultExec[k].execRes.excepted,
                         exceptedMessage(resultExec[k].execRes.excepted, resultExec[k].execRes.output),
-                        resultConvertQtumTX.first[k].getNVout()
+                        resultConvertQtumTX.first[k].getNVout(),
+                        resultExec[k].txRec.bloom()
                     });
                 }
 
