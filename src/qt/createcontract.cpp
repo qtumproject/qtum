@@ -206,9 +206,19 @@ void CreateContract::on_createContractClicked()
         ExecRPCCommand::appendParam(lstParams, PARAM_GASPRICE, BitcoinUnits::format(unit, gasPrice, false, BitcoinUnits::separatorNever));
         ExecRPCCommand::appendParam(lstParams, PARAM_SENDER, ui->lineEditSenderAddress->currentText());
 
-        QString questionString = tr("Are you sure you want to create contract? <br />");
+        QString questionString;
+        if (m_model->wallet().privateKeysDisabled()) {
+            questionString.append(tr("Do you want to draft this create contract transaction?"));
+            questionString.append("<br /><span style='font-size:10pt;'>");
+            questionString.append(tr("This will produce a Partially Signed Qtum Transaction (PSBT) which you can copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.").arg(PACKAGE_NAME));
+            questionString.append("</span>");
+        } else {
+            questionString.append(tr("Are you sure you want to create contract? <br />"));
+        }
 
-        SendConfirmationDialog confirmationDialog(tr("Confirm contract creation."), questionString, "", "", SEND_CONFIRM_DELAY, tr("Send"), this);
+        const QString confirmation = m_model->wallet().privateKeysDisabled() ? tr("Confirm contract creation proposal.") : tr("Confirm contract creation.");
+        const QString confirmButtonText = m_model->wallet().privateKeysDisabled() ? tr("Copy PSBT to clipboard") : tr("Send");
+        SendConfirmationDialog confirmationDialog(confirmation, questionString, "", "", SEND_CONFIRM_DELAY, confirmButtonText, this);
         confirmationDialog.exec();
         QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();
         if(retval == QMessageBox::Yes)
@@ -216,14 +226,23 @@ void CreateContract::on_createContractClicked()
             // Execute RPC command line
             if(errorMessage.isEmpty() && m_execRPCCommand->exec(m_model->node(), m_model, lstParams, result, resultJson, errorMessage))
             {
-                ContractResult *widgetResult = new ContractResult(ui->stackedWidget);
-                widgetResult->setResultData(result, FunctionABI(), QList<QStringList>(), ContractResult::CreateResult);
-                ui->stackedWidget->addWidget(widgetResult);
-                int position = ui->stackedWidget->count() - 1;
-                m_results = position == 1 ? 1 : m_results + 1;
+                if(m_model->wallet().privateKeysDisabled())
+                {
+                    QVariantMap variantMap = result.toMap();
+                    GUIUtil::setClipboard(variantMap.value("psbt").toString());
+                    Q_EMIT message(tr("PSBT copied"), "Copied to clipboard", CClientUIInterface::MSG_INFORMATION);
+                }
+                else
+                {
+                    ContractResult *widgetResult = new ContractResult(ui->stackedWidget);
+                    widgetResult->setResultData(result, FunctionABI(), QList<QStringList>(), ContractResult::CreateResult);
+                    ui->stackedWidget->addWidget(widgetResult);
+                    int position = ui->stackedWidget->count() - 1;
+                    m_results = position == 1 ? 1 : m_results + 1;
 
-                m_tabInfo->addTab(position, tr("Result %1").arg(m_results));
-                m_tabInfo->setCurrent(position);
+                    m_tabInfo->addTab(position, tr("Result %1").arg(m_results));
+                    m_tabInfo->setCurrent(position);
+                }
             }
             else
             {

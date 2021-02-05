@@ -115,6 +115,8 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
     connect(sendCoinsPage, &SendCoinsDialog::message, this, &WalletView::message);
     // Pass through messages from transactionView
     connect(transactionView, &TransactionView::message, this, &WalletView::message);
+    // Pass through messages from createContractPage
+    connect(createContractPage, &CreateContract::message, this, &WalletView::message);
 }
 
 WalletView::~WalletView()
