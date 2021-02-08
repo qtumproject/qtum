@@ -1111,7 +1111,7 @@ public:
                 // Get all addreses with coins
                 if(multi)
                 {
-                    pwallet->SelectAddressMulti(locked_chain, mapAddress);
+                    pwallet->SelectAddress(locked_chain, mapAddress);
                 }
                 else
                 {
@@ -1557,12 +1557,12 @@ protected:
         {
             d->myDelegations.Update(*locked_chain, nHeightTip);
         }
-        d->pwallet->SelectCoinsForStakingMulti(*locked_chain, d->nTargetValue, d->setCoins, nValueIn);
+        d->pwallet->SelectCoinsForStaking(*locked_chain, d->nTargetValue, d->setCoins, nValueIn);
         if(d->fSuperStake && fOfflineStakeEnabled)
         {
             d->delegationsStaker.Update(nHeightTip);
             std::map<uint160, CAmount> mDelegateWeight;
-            d->pwallet->SelectDelegateCoinsForStakingMulti(*locked_chain, d->setDelegateCoins, mDelegateWeight);
+            d->pwallet->SelectDelegateCoinsForStaking(*locked_chain, d->setDelegateCoins, mDelegateWeight);
             d->pwallet->updateDelegationsWeight(mDelegateWeight);
             d->pwallet->updateHaveCoinSuperStaker(d->setCoins);
         }

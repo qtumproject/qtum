@@ -3339,7 +3339,7 @@ uint64_t CWallet::GetStakeWeight(interfaces::Chain::Lock& locked_chain, uint64_t
     CAmount nValueIn = 0;
 
     CAmount nTargetValue = nBalance - m_reserve_balance;
-    if (!SelectCoinsForStakingMulti(locked_chain, nTargetValue, setCoins, nValueIn))
+    if (!SelectCoinsForStaking(locked_chain, nTargetValue, setCoins, nValueIn))
         return nWeight;
 
     if (setCoins.empty())
@@ -3367,7 +3367,7 @@ uint64_t CWallet::GetStakeWeight(interfaces::Chain::Lock& locked_chain, uint64_t
         // Get the weight of the delegated coins
         std::vector<COutPoint> vDelegateCoins;
         std::map<uint160, CAmount> mDelegateWeight;
-        SelectDelegateCoinsForStakingMulti(locked_chain, vDelegateCoins, mDelegateWeight);
+        SelectDelegateCoinsForStaking(locked_chain, vDelegateCoins, mDelegateWeight);
         for(const COutPoint &prevout : vDelegateCoins)
         {
             Coin coinPrev;
@@ -5970,7 +5970,7 @@ void CWallet::CleanCoinStake()
     }
 }
 
-void CWallet::AvailableCoinsForStakingMulti(const std::vector<uint256>& maturedTx, size_t from, size_t to, const std::map<COutPoint, uint32_t>& immatureStakes, std::vector<std::pair<const CWalletTx *, unsigned int> >& vCoins, std::map<COutPoint, CScriptCache>* insertScriptCache) const
+void CWallet::AvailableCoinsForStaking(const std::vector<uint256>& maturedTx, size_t from, size_t to, const std::map<COutPoint, uint32_t>& immatureStakes, std::vector<std::pair<const CWalletTx *, unsigned int> >& vCoins, std::map<COutPoint, CScriptCache>* insertScriptCache) const
 {
     for(size_t i = from; i < to; i++)
     {
@@ -6010,7 +6010,7 @@ void CWallet::AvailableCoinsForStakingMulti(const std::vector<uint256>& maturedT
     }
 }
 
-bool CWallet::SelectCoinsForStakingMulti(interfaces::Chain::Lock &locked_chain, CAmount &nTargetValue, std::set<std::pair<const CWalletTx *, unsigned int> > &setCoinsRet, CAmount &nValueRet) const
+bool CWallet::SelectCoinsForStaking(interfaces::Chain::Lock &locked_chain, CAmount &nTargetValue, std::set<std::pair<const CWalletTx *, unsigned int> > &setCoinsRet, CAmount &nValueRet) const
 {
     std::vector<std::pair<const CWalletTx *, unsigned int> > vCoins;
     vCoins.clear();
@@ -6041,7 +6041,7 @@ bool CWallet::SelectCoinsForStakingMulti(interfaces::Chain::Lock &locked_chain, 
     int numThreads = std::min(m_num_threads, (int)listSize);
     if(numThreads < 2)
     {
-        AvailableCoinsForStakingMulti(maturedTx, 0, listSize, immatureStakes, vCoins, nullptr);
+        AvailableCoinsForStaking(maturedTx, 0, listSize, immatureStakes, vCoins, nullptr);
     }
     else
     {
@@ -6053,7 +6053,7 @@ bool CWallet::SelectCoinsForStakingMulti(interfaces::Chain::Lock &locked_chain, 
             threads.create_thread([this, from, to, &maturedTx, &immatureStakes, &vCoins]{
                 std::vector<std::pair<const CWalletTx *, unsigned int> > tmpCoins;
                 std::map<COutPoint, CScriptCache> tmpInsertScriptCache;
-                AvailableCoinsForStakingMulti(maturedTx, from, to, immatureStakes, tmpCoins, &tmpInsertScriptCache);
+                AvailableCoinsForStaking(maturedTx, from, to, immatureStakes, tmpCoins, &tmpInsertScriptCache);
 
                 LOCK(cs_worker);
                 vCoins.insert(vCoins.end(), tmpCoins.begin(), tmpCoins.end());
@@ -6101,7 +6101,7 @@ bool CWallet::SelectCoinsForStakingMulti(interfaces::Chain::Lock &locked_chain, 
     return true;
 }
 
-bool CWallet::AvailableDelegateCoinsForStakingMulti(const std::vector<uint160>& delegations, size_t from, size_t to, int32_t height, const std::map<COutPoint, uint32_t>& immatureStakes,  const std::map<uint256, CSuperStakerInfo>& mapStakers, std::vector<std::pair<COutPoint,CAmount>>& vUnsortedDelegateCoins, std::map<uint160, CAmount> &mDelegateWeight) const
+bool CWallet::AvailableDelegateCoinsForStaking(const std::vector<uint160>& delegations, size_t from, size_t to, int32_t height, const std::map<COutPoint, uint32_t>& immatureStakes,  const std::map<uint256, CSuperStakerInfo>& mapStakers, std::vector<std::pair<COutPoint,CAmount>>& vUnsortedDelegateCoins, std::map<uint160, CAmount> &mDelegateWeight) const
 {
     for(size_t i = from; i < to; i++)
     {
@@ -6174,7 +6174,7 @@ bool CWallet::AvailableDelegateCoinsForStakingMulti(const std::vector<uint160>& 
     return true;
 }
 
-bool CWallet::SelectDelegateCoinsForStakingMulti(interfaces::Chain::Lock &locked_chain, std::vector<COutPoint> &setDelegateCoinsRet, std::map<uint160, CAmount> &mDelegateWeight) const
+bool CWallet::SelectDelegateCoinsForStaking(interfaces::Chain::Lock &locked_chain, std::vector<COutPoint> &setDelegateCoinsRet, std::map<uint160, CAmount> &mDelegateWeight) const
 {
     AssertLockHeld(cs_main);
     AssertLockHeld(cs_wallet);
@@ -6201,7 +6201,7 @@ bool CWallet::SelectDelegateCoinsForStakingMulti(interfaces::Chain::Lock &locked
     bool ret = true;
     if(numThreads < 2)
     {
-        ret = AvailableDelegateCoinsForStakingMulti(delegations, 0, listSize, height, immatureStakes, mapStakers, vUnsortedDelegateCoins, mDelegateWeight);
+        ret = AvailableDelegateCoinsForStaking(delegations, 0, listSize, height, immatureStakes, mapStakers, vUnsortedDelegateCoins, mDelegateWeight);
     }
     else
     {
@@ -6213,7 +6213,7 @@ bool CWallet::SelectDelegateCoinsForStakingMulti(interfaces::Chain::Lock &locked
             threads.create_thread([this, from, to, height, &delegations, &immatureStakes, &mapStakers, &ret, &vUnsortedDelegateCoins, &mDelegateWeight]{
                 std::vector<std::pair<COutPoint,CAmount>> tmpUnsortedDelegateCoins;
                 std::map<uint160, CAmount> tmpDelegateWeight;
-                bool tmpRet = AvailableDelegateCoinsForStakingMulti(delegations, from, to, height, immatureStakes, mapStakers, tmpUnsortedDelegateCoins, tmpDelegateWeight);
+                bool tmpRet = AvailableDelegateCoinsForStaking(delegations, from, to, height, immatureStakes, mapStakers, tmpUnsortedDelegateCoins, tmpDelegateWeight);
 
                 LOCK(cs_worker);
                 ret &= tmpRet;
@@ -6235,7 +6235,7 @@ bool CWallet::SelectDelegateCoinsForStakingMulti(interfaces::Chain::Lock &locked
     return ret;
 }
 
-void CWallet::AvailableAddressMulti(const std::vector<uint256> &maturedTx, size_t from, size_t to, std::map<uint160, bool> &mapAddress, std::map<COutPoint, CScriptCache> *insertScriptCache) const
+void CWallet::AvailableAddress(const std::vector<uint256> &maturedTx, size_t from, size_t to, std::map<uint160, bool> &mapAddress, std::map<COutPoint, CScriptCache> *insertScriptCache) const
 {
     for(size_t i = from; i < to; i++)
     {
@@ -6271,7 +6271,7 @@ void CWallet::AvailableAddressMulti(const std::vector<uint256> &maturedTx, size_
     }
 }
 
-void CWallet::SelectAddressMulti(interfaces::Chain::Lock &locked_chain, std::map<uint160, bool> &mapAddress) const
+void CWallet::SelectAddress(interfaces::Chain::Lock &locked_chain, std::map<uint160, bool> &mapAddress) const
 {
     std::vector<uint256> maturedTx;
     for (std::map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
@@ -6293,7 +6293,7 @@ void CWallet::SelectAddressMulti(interfaces::Chain::Lock &locked_chain, std::map
     int numThreads = std::min(m_num_threads, (int)listSize);
     if(numThreads < 2)
     {
-        AvailableAddressMulti(maturedTx, 0, listSize, mapAddress, nullptr);
+        AvailableAddress(maturedTx, 0, listSize, mapAddress, nullptr);
     }
     else
     {
@@ -6305,7 +6305,7 @@ void CWallet::SelectAddressMulti(interfaces::Chain::Lock &locked_chain, std::map
             threads.create_thread([this, from, to, &maturedTx, &mapAddress]{
                 std::map<uint160, bool> tmpAddresses;
                 std::map<COutPoint, CScriptCache> tmpInsertScriptCache;
-                AvailableAddressMulti(maturedTx, from, to, tmpAddresses, &tmpInsertScriptCache);
+                AvailableAddress(maturedTx, from, to, tmpAddresses, &tmpInsertScriptCache);
 
                 LOCK(cs_worker);
                 mapAddress.insert(tmpAddresses.begin(), tmpAddresses.end());
