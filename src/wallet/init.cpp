@@ -81,7 +81,6 @@ void WalletInit::AddWalletOptions() const
     gArgs.AddArg("-stakingminutxovalue=<amt>", strprintf("The min value of utxo (in %s) selected for super staking (default: %s)", CURRENCY_UNIT, FormatMoney(DEFAULT_STAKING_MIN_UTXO_VALUE)), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
     gArgs.AddArg("-stakingminfee=<n>", strprintf("The min fee (in percentage) to accept when super staking (default: %u)", DEFAULT_STAKING_MIN_FEE), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
     gArgs.AddArg("-superstaking=<true/false>", strprintf("Enables or disables super staking (default: %u)", DEFAULT_SUPER_STAKE), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
-    gArgs.AddArg("-stakerversion=<n>", strprintf("Set staker verison, available options are version 1, version 2 and version 3, default: %d", DEFAULT_STAKER_VERSION), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
     gArgs.AddArg("-minstakerutxosize=<amt>", strprintf("The min value of utxo (in %s) selected for staking (default: %s)", CURRENCY_UNIT, FormatMoney(DEFAULT_STAKER_MIN_UTXO_SIZE)), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
     gArgs.AddArg("-maxstakerutxoscriptcache=<n>", strprintf("Set max staker utxo script cache for staking (default: %d)", DEFAULT_STAKER_MAX_UTXO_SCRIPT_CACHE), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
     gArgs.AddArg("-stakerthreads=<n>", strprintf("Set the number of threads the staker use for processing (default is the number of cores to your machine: %d)", GetNumCores()), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);

@@ -1284,7 +1284,7 @@ public:
     bool delegate = false;
 };
 
-class StakeMinerV3Priv
+class StakeMinerPriv
 {
 public:
     CWallet *pwallet = 0;
@@ -1332,7 +1332,7 @@ public:
     std::unique_ptr<CBlockTemplate> pblocktemplatefilled;
 
 public:
-    StakeMinerV3Priv(CWallet *_pwallet, CConnman* _connman):
+    StakeMinerPriv(CWallet *_pwallet, CConnman* _connman):
         pwallet(_pwallet),
         connman(_connman),
         consensusParams(Params().GetConsensus()),
@@ -1385,15 +1385,15 @@ public:
     }
 };
 
-class StakeMinerV3 : public IStakeMiner
+class StakeMiner : public IStakeMiner
 {
 private:
-    StakeMinerV3Priv *d = 0;
+    StakeMinerPriv *d = 0;
 
 public:
     void Init(CWallet *pwallet, CConnman* connman)
     {
-        d = new StakeMinerV3Priv(pwallet, connman);
+        d = new StakeMinerPriv(pwallet, connman);
     }
 
     void Run()
@@ -1441,7 +1441,7 @@ public:
         }
     }
 
-    ~StakeMinerV3()
+    ~StakeMiner()
     {
         if(d)
         {
@@ -1778,18 +1778,7 @@ protected:
 
 IStakeMiner *createMiner()
 {
-    int32_t fStakerVersion = gArgs.GetArg("-stakerversion", DEFAULT_STAKER_VERSION);
-    IStakeMiner *miner = nullptr;
-
-    if (fStakerVersion < 1 || fStakerVersion > 3) {
-        throw std::runtime_error(strprintf("Staker version %d is out of valid range. Available staker version are 1, 2 or 3.", fStakerVersion));
-    }
-
-    if(fStakerVersion == 3){
-        miner = new StakeMinerV3();
-    }
-
-    return miner;
+    return new StakeMiner();
 }
 
 void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
