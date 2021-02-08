@@ -1052,11 +1052,10 @@ private:
 class MyDelegations : public DelegationFilterBase
 {
 public:
-    MyDelegations(CWallet *_pwallet, bool _multi = false):
+    MyDelegations(CWallet *_pwallet):
         pwallet(_pwallet),
         cacheHeight(0),
-        spk_man(0),
-        multi(_multi)
+        spk_man(0)
     {
         spk_man = _pwallet->GetLegacyScriptPubKeyMan();
     }
@@ -1109,34 +1108,7 @@ public:
                 std::map<uint160, bool> mapAddress;
 
                 // Get all addreses with coins
-                if(multi)
-                {
-                    pwallet->SelectAddress(locked_chain, mapAddress);
-                }
-                else
-                {
-                    std::vector<COutput> vecOutputs;
-                    pwallet->AvailableCoins(locked_chain, vecOutputs);
-                    for (const COutput& out : vecOutputs)
-                    {
-                        CTxDestination destination;
-                        const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
-                        bool fValidAddress = ExtractDestination(scriptPubKey, destination);
-
-                        if (!fValidAddress || !pwallet->IsMine(destination)) continue;
-
-                        const PKHash *pkhash = boost::get<PKHash>(&destination);
-                        if (!pkhash) {
-                            continue;
-                        }
-
-                        uint160 address = uint160(*pkhash);
-                        if (mapAddress.find(address) == mapAddress.end())
-                        {
-                            mapAddress[address] = true;
-                        }
-                    }
-                }
+                pwallet->SelectAddress(locked_chain, mapAddress);
 
                 // Get all addreses for delegations in the GUI
                 for(auto item : pwallet->mapDelegation)
@@ -1176,7 +1148,6 @@ private:
     int32_t cacheHeight;
     std::map<uint160, Delegation> cacheMyDelegations;
     LegacyScriptPubKeyMan* spk_man;
-    bool multi = false;
 };
 
 bool CheckStake(const std::shared_ptr<const CBlock> pblock, CWallet& wallet)
@@ -1337,7 +1308,7 @@ public:
         connman(_connman),
         consensusParams(Params().GetConsensus()),
         delegationsStaker(_pwallet),
-        myDelegations(_pwallet, true)
+        myDelegations(_pwallet)
 
     {
         // Make this thread recognisable as the mining thread
