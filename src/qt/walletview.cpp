@@ -118,6 +118,13 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
     connect(transactionView, &TransactionView::message, this, &WalletView::message);
     // Pass through messages from createContractPage
     connect(createContractPage, &CreateContract::message, this, &WalletView::message);
+    // Pass through messages from sendToContractPage
+    connect(sendToContractPage, &SendToContract::message, this, &WalletView::message);
+    // Pass through messages from QRCTokenPage
+    connect(QRCTokenPage, &QRCToken::message, this, &WalletView::message);
+    // Pass through messages from delegationPage
+    connect(delegationPage, &DelegationPage::message, this, &WalletView::message);
+
 }
 
 WalletView::~WalletView()

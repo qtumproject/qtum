@@ -186,13 +186,23 @@ void SendTokenPage::on_confirmClicked()
         std::string amountToSend = ui->lineEditAmount->text().toStdString();
         QString amountFormated = BitcoinUnits::formatToken(m_selectedToken->decimals, ui->lineEditAmount->value(), false, BitcoinUnits::separatorAlways);
 
-        QString questionString = tr("Are you sure you want to send? <br /><br />");
+        QString questionString;
+        if (m_model->wallet().privateKeysDisabled()) {
+            questionString.append(tr("Do you want to draft this send token transaction?"));
+            questionString.append("<br /><span style='font-size:10pt;'>");
+            questionString.append(tr("Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.").arg(PACKAGE_NAME));
+            questionString.append("</span><br /><br />");
+        } else {
+            questionString.append(tr("Are you sure you want to send? <br /><br />"));
+        }
         questionString.append(tr("<b>%1 %2 </b> to ")
                               .arg(amountFormated).arg(QString::fromStdString(m_selectedToken->symbol)));
         questionString.append(tr("<br />%3 <br />")
                               .arg(QString::fromStdString(toAddress)));
 
-        SendConfirmationDialog confirmationDialog(tr("Confirm send token."), questionString, "", "", SEND_CONFIRM_DELAY, tr("Send"), this);
+        const QString confirmation = m_model->wallet().privateKeysDisabled() ? tr("Confirm send token proposal.") : tr("Confirm send token.");
+        const QString confirmButtonText = m_model->wallet().privateKeysDisabled() ? tr("Copy PSBT to clipboard") : tr("Send");
+        SendConfirmationDialog confirmationDialog(confirmation, questionString, "", "", SEND_CONFIRM_DELAY, confirmButtonText, this);
         confirmationDialog.exec();
         QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();
         if(retval == QMessageBox::Yes)

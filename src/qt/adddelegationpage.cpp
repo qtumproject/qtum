@@ -249,12 +249,25 @@ void AddDelegationPage::on_addDelegationClicked()
         ExecRPCCommand::appendParam(lstParams, PARAM_GASLIMIT, QString::number(gasLimit));
         ExecRPCCommand::appendParam(lstParams, PARAM_GASPRICE, BitcoinUnits::format(unit, gasPrice, false, BitcoinUnits::separatorNever));
 
+        QString questionString;
+        if (m_model->wallet().privateKeysDisabled()) {
+            questionString.append(tr("Do you want to draft this transaction?"));
+            questionString.append("<br /><span style='font-size:10pt;'>");
+            questionString.append(tr("Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.").arg(PACKAGE_NAME));
+            questionString.append("</span>");
+            questionString.append(tr("<br /><br />Delegate the address to the staker<br />"));
+            questionString.append(tr("<b>%1</b>?")
+                                  .arg(ui->lineEditStakerAddress->text()));
+        } else {
+            questionString.append(tr("Are you sure you want to delegate the address to the staker<br /><br />"));
+            questionString.append(tr("<b>%1</b>?")
+                                  .arg(ui->lineEditStakerAddress->text()));
+        }
 
-        QString questionString = tr("Are you sure you want to delegate the address to the staker<br /><br />");
-        questionString.append(tr("<b>%1</b>?")
-                              .arg(ui->lineEditStakerAddress->text()));
+        const QString confirmation = m_model->wallet().privateKeysDisabled() ? tr("Confirm address delegation proposal.") : tr("Confirm address delegation to staker.");
+        const QString confirmButtonText = m_model->wallet().privateKeysDisabled() ? tr("Copy PSBT to clipboard") : tr("Send");
+        SendConfirmationDialog confirmationDialog(confirmation, questionString, "", "", SEND_CONFIRM_DELAY, confirmButtonText, this);
 
-        SendConfirmationDialog confirmationDialog(tr("Confirm address delegation to staker."), questionString, "", "", SEND_CONFIRM_DELAY, tr("Send"), this);
         confirmationDialog.exec();
 
         QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();

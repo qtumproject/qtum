@@ -23,6 +23,10 @@ public:
     bool isValidStakerAddress();
     bool isDataValid();
 
+Q_SIGNALS:
+    // Fired when a message should be reported to the user
+    void message(const QString &title, const QString &message, unsigned int style);
+
 public Q_SLOTS:
     void on_gasInfoChanged(quint64 blockGasLimit, quint64 minGasPrice, quint64 nGasPrice);
     void accept();
