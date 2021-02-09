@@ -209,15 +209,24 @@ void SendTokenPage::on_confirmClicked()
         {
             if(m_tokenABI->transfer(toAddress, amountToSend, true))
             {
-                interfaces::TokenTx tokenTx;
-                tokenTx.contract_address = m_selectedToken->address;
-                tokenTx.sender_address = m_selectedToken->sender;
-                tokenTx.receiver_address = toAddress;
-                dev::u256 nValue(amountToSend);
-                tokenTx.value = u256Touint(nValue);
-                tokenTx.tx_hash = uint256S(m_tokenABI->getTxId());
-                tokenTx.label = label;
-                m_model->wallet().addTokenTxEntry(tokenTx);
+                if(m_model->wallet().privateKeysDisabled())
+                {
+                    QString psbt = QString::fromStdString(m_tokenABI->getPsbt());
+                    GUIUtil::setClipboard(psbt);
+                    Q_EMIT message(tr("PSBT copied"), "Copied to clipboard", CClientUIInterface::MSG_INFORMATION);
+                }
+                else
+                {
+                    interfaces::TokenTx tokenTx;
+                    tokenTx.contract_address = m_selectedToken->address;
+                    tokenTx.sender_address = m_selectedToken->sender;
+                    tokenTx.receiver_address = toAddress;
+                    dev::u256 nValue(amountToSend);
+                    tokenTx.value = u256Touint(nValue);
+                    tokenTx.tx_hash = uint256S(m_tokenABI->getTxId());
+                    tokenTx.label = label;
+                    m_model->wallet().addTokenTxEntry(tokenTx);
+                }
             }
             else
             {

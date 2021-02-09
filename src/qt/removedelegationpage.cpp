@@ -241,8 +241,17 @@ void RemoveDelegationPage::on_removeDelegationClicked()
             else
             {
                 QVariantMap variantMap = result.toMap();
-                std::string txid = variantMap.value("txid").toString().toStdString();
-                m_model->wallet().setDelegationRemoved(sHash, txid);
+                if(m_model->wallet().privateKeysDisabled())
+                {
+                    QVariantMap variantMap = result.toMap();
+                    GUIUtil::setClipboard(variantMap.value("psbt").toString());
+                    Q_EMIT message(tr("PSBT copied"), "Copied to clipboard", CClientUIInterface::MSG_INFORMATION);
+                }
+                else
+                {
+                    std::string txid = variantMap.value("txid").toString().toStdString();
+                    m_model->wallet().setDelegationRemoved(sHash, txid);
+                }
             }
 
             accept();

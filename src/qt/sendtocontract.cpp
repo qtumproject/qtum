@@ -261,14 +261,23 @@ void SendToContract::on_sendToContractClicked()
             // Execute RPC command line
             if(errorMessage.isEmpty() && m_execRPCCommand->exec(m_model->node(), m_model, lstParams, result, resultJson, errorMessage))
             {
-                ContractResult *widgetResult = new ContractResult(ui->stackedWidget);
-                widgetResult->setResultData(result, FunctionABI(), m_ABIFunctionField->getParamsValues(), ContractResult::SendToResult);
-                ui->stackedWidget->addWidget(widgetResult);
-                int position = ui->stackedWidget->count() - 1;
-                m_results = position == 1 ? 1 : m_results + 1;
+                if(m_model->wallet().privateKeysDisabled())
+                {
+                    QVariantMap variantMap = result.toMap();
+                    GUIUtil::setClipboard(variantMap.value("psbt").toString());
+                    Q_EMIT message(tr("PSBT copied"), "Copied to clipboard", CClientUIInterface::MSG_INFORMATION);
+                }
+                else
+                {
+                    ContractResult *widgetResult = new ContractResult(ui->stackedWidget);
+                    widgetResult->setResultData(result, FunctionABI(), m_ABIFunctionField->getParamsValues(), ContractResult::SendToResult);
+                    ui->stackedWidget->addWidget(widgetResult);
+                    int position = ui->stackedWidget->count() - 1;
+                    m_results = position == 1 ? 1 : m_results + 1;
 
-                m_tabInfo->addTab(position, tr("Result %1").arg(m_results));
-                m_tabInfo->setCurrent(position);
+                    m_tabInfo->addTab(position, tr("Result %1").arg(m_results));
+                    m_tabInfo->setCurrent(position);
+                }
             }
             else
             {

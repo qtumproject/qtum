@@ -281,14 +281,22 @@ void AddDelegationPage::on_addDelegationClicked()
             else
             {
                 QVariantMap variantMap = result.toMap();
-                std::string txid = variantMap.value("txid").toString().toStdString();
-                interfaces::DelegationInfo delegation;
-                delegation.delegate_address = delegateAddress.toStdString();
-                delegation.staker_address = stakerAddress.toStdString();
-                delegation.staker_name = stakerName.trimmed().toStdString();
-                delegation.fee = stakerFee;
-                delegation.create_tx_hash.SetHex(txid);
-                m_model->wallet().addDelegationEntry(delegation);
+                if(m_model->wallet().privateKeysDisabled())
+                {
+                    GUIUtil::setClipboard(variantMap.value("psbt").toString());
+                    Q_EMIT message(tr("PSBT copied"), "Copied to clipboard", CClientUIInterface::MSG_INFORMATION);
+                }
+                else
+                {
+                    std::string txid = variantMap.value("txid").toString().toStdString();
+                    interfaces::DelegationInfo delegation;
+                    delegation.delegate_address = delegateAddress.toStdString();
+                    delegation.staker_address = stakerAddress.toStdString();
+                    delegation.staker_name = stakerName.trimmed().toStdString();
+                    delegation.fee = stakerFee;
+                    delegation.create_tx_hash.SetHex(txid);
+                    m_model->wallet().addDelegationEntry(delegation);
+                }
             }
 
             accept();
