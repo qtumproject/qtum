@@ -28,6 +28,7 @@
 #include <qt/delegationpage.h>
 #include <qt/superstakerpage.h>
 #include <qt/hardwaresigntxdialog.h>
+#include <qt/qtumledgerinstallerdialog.h>
 #include <qt/walletframe.h>
 
 #include <interfaces/node.h>
@@ -470,5 +471,11 @@ void WalletView::signTxHardware(const QString &tx)
         return;
     HardwareSignTxDialog dlg(tx, this);
     dlg.setModel(walletModel);
+    dlg.exec();
+}
+
+void WalletView::setupLedger()
+{
+    QtumLedgerInstallerDialog dlg(this);
     dlg.exec();
 }

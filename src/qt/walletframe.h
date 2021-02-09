@@ -107,6 +107,8 @@ public Q_SLOTS:
     void lockWallet();
     /** Sign transaction with hardware wallet*/
     void signTxHardware(const QString& tx = "");
+    /** Setup ledger hardware wallet application*/
+    void setupLedger();
 
     /** Show used sending addresses */
     void usedSendingAddresses();

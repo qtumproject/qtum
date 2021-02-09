@@ -5,6 +5,7 @@
 #include <QString>
 #include <QList>
 class QtumHwiToolPriv;
+class InstallDevicePriv;
 class WalletModel;
 class ExecRPCCommand;
 
@@ -45,6 +46,61 @@ public:
     QString error;
     QString model;
     QString code;
+};
+
+/**
+ * @brief The InstallDevice class Install Qtum app to device
+ */
+class InstallDevice
+{
+public:
+    /**
+     * @brief The DeviceType enum Supported device type to install
+     */
+    enum DeviceType
+    {
+        NanoS
+    };
+
+    /**
+     * @brief InstallDevice Constructor
+     */
+    InstallDevice(InstallDevice::DeviceType type = InstallDevice::NanoS);
+
+    /**
+     * @brief ~InstallDevice Destructor
+     */
+    ~InstallDevice();
+
+    /**
+     * @brief deviceToString Device type to string
+     * @param type Device type
+     * @return String result
+     */
+    static QString deviceToString(InstallDevice::DeviceType type);
+
+    /**
+     * @brief loadCommand Get the load command
+     * @param program Program to start
+     * @param arguments Program arguments
+     * @return Success of the operation
+     */
+    bool loadCommand(QString &program, QStringList &arguments);
+
+    /**
+     * @brief deleteCommand Get the delete command
+     * @param program Program to start
+     * @param arguments Program arguments
+     * @return Success of the operation
+     */
+    bool deleteCommand(QString &program, QStringList &arguments);
+
+private:
+    bool getRCCommand(const QString &rcPath, QString &program, QStringList &arguments);
+    QString parse(QString arg);
+
+private:
+    InstallDevicePriv *d;
 };
 
 /**
@@ -158,6 +214,20 @@ public:
      * @return success of the operation
      */
     bool decodePsbt(const QString& psbt, QString& decoded);
+
+    /**
+     * @brief installApp Install Qtum App to ledger
+     * @param type Ledger device type
+     * @return success of the operation
+     */
+    bool installApp(InstallDevice::DeviceType type);
+
+    /**
+     * @brief removeApp Remove Qtum App to ledger
+     * @param type Ledger device type
+     * @return success of the operation
+     */
+    bool removeApp(InstallDevice::DeviceType type);
 
     /**
      * @brief errorMessage Get the last error message

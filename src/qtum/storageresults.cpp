@@ -91,11 +91,12 @@ void StorageResults::commitResults(){
                     tris.excepted.push_back(uint32_t(static_cast<int>(i.second[j].excepted)));
                     tris.exceptedMessage.push_back(i.second[j].exceptedMessage);
                     tris.outputIndexes.push_back(i.second[j].outputIndex);
+                    tris.blooms.push_back(i.second[j].bloom);
                 }
 
-                dev::RLPStream streamRLP(13);
+                dev::RLPStream streamRLP(14);
                 streamRLP << tris.blockHashes << tris.blockNumbers << tris.transactionHashes << tris.transactionIndexes << tris.senders;
-                streamRLP << tris.receivers << tris.cumulativeGasUsed << tris.gasUsed << tris.contractAddresses << tris.logs << tris.excepted << tris.exceptedMessage << tris.outputIndexes;
+                streamRLP << tris.receivers << tris.cumulativeGasUsed << tris.gasUsed << tris.contractAddresses << tris.logs << tris.excepted << tris.exceptedMessage << tris.outputIndexes << tris.blooms;
 
                 dev::bytes data = streamRLP.out();
                 std::string stringData(data.begin(), data.end());
@@ -136,6 +137,8 @@ bool StorageResults::readResult(dev::h256 const& _key, std::vector<TransactionRe
             tris.exceptedMessage = state[11].toVector<std::string>();
         if(state.itemCount() >= 13)
             tris.outputIndexes = state[12].toVector<uint32_t>();
+        if(state.itemCount() >= 14)
+            tris.blooms = state[13].toVector<dev::h2048>();
 
         for(size_t j = 0; j < tris.blockHashes.size(); j++){
             TransactionReceiptInfo tri{
@@ -151,7 +154,8 @@ bool StorageResults::readResult(dev::h256 const& _key, std::vector<TransactionRe
                 logEntriesDeserialize(tris.logs[j]), 
                 state.itemCount() >= 11 ? static_cast<dev::eth::TransactionException>(tris.excepted[j]) : dev::eth::TransactionException::NoInformation,
                 state.itemCount() >= 12 ? tris.exceptedMessage[j] : "",
-                state.itemCount() >= 13 ? tris.outputIndexes[j] : 0xffffffff
+                state.itemCount() >= 13 ? tris.outputIndexes[j] : 0xffffffff,
+                state.itemCount() >= 14 ? tris.blooms[j] : dev::h2048()
             };
             _result.push_back(tri);
         }
