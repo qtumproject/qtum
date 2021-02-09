@@ -37,7 +37,7 @@ class Qtum8MBBlock(BitcoinTestFramework):
         self.sync_all()
 
 
-        NUM_DROPS = 200
+        NUM_DROPS = 200 // FACTOR_REDUCED_BLOCK_TIME
 
         # To tweak the size of the submitted block, change this value
         NUM_OUTPUTS = 101

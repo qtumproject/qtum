@@ -52,12 +52,18 @@ class QtumEVMGlobalsTest(BitcoinTestFramework):
         self.node.sendtocontract(self.contract_address, "cc5ea9ad", 1, 20000000, QTUM_MIN_GAS_PRICE/COIN, sender)
 
         if use_staking:
-            for n in self.nodes:
-                n.setmocktime((self.node.getblock(self.node.getbestblockhash())['time']+100) & 0xfffffff0)
+            t = (self.node.getblock(self.node.getbestblockhash())['time']+100) & 0xfffffff0
+            for n in self.nodes: n.setmocktime(t)
 
             blockcount = self.node.getblockcount()
-            while blockcount == self.node.getblockcount():
-                time.sleep(0.1)
+            for t in range(t, t+100):
+                for n in self.nodes: n.setmocktime(t)
+                if blockcount < self.node.getblockcount():
+                    break
+                print('staking', t, self.node.getstakinginfo())
+                time.sleep(1)
+            else:
+                assert(False)
             blockhash = self.node.getblockhash(blockcount+1)
             authorTxIndexAndVoutIndex = 1
         else:
@@ -142,7 +148,7 @@ class QtumEVMGlobalsTest(BitcoinTestFramework):
         self.node = self.nodes[0]
         connect_nodes_bi(self.nodes, 0, 1)
 
-        self.node.generate(10 + COINBASE_MATURITY)
+        generatesynchronized(self.node, 10 + COINBASE_MATURITY, None, self.nodes)
 
         """
         pragma solidity ^0.4.12;

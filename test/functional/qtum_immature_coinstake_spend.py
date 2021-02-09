@@ -63,7 +63,7 @@ class QtumPrematureCoinstakeSpendTest(BitcoinTestFramework):
 
         self.node = self.nodes[0]
         self.node.setmocktime(int(time.time()) - 1000000)
-        self.node.generatetoaddress(10 + COINBASE_MATURITY, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
+        generatesynchronized(self.node, 10 + COINBASE_MATURITY, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq", self.nodes)
         # These are the privkeys that corresponds to the pubkeys in the pos outputs
         # These are used by default by create_pos_block
         for i in range(0xff+1):
@@ -71,6 +71,9 @@ class QtumPrematureCoinstakeSpendTest(BitcoinTestFramework):
             self.node.importprivkey(privkey)
 
         activate_mpos(self.node)
+        if ENABLE_REDUCED_BLOCK_TIME:
+            self.node.generate(COINBASE_MATURITY-500)
+
         self.staking_prevouts = collect_prevouts(self.node)
         self.assert_spend_of_coinstake_at_height(height=4502, should_accept=False)
         self.assert_spend_of_coinstake_at_height(height=4501, should_accept=True)

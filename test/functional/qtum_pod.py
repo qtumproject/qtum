@@ -33,7 +33,7 @@ class QtumPODTest(BitcoinTestFramework):
         block_count_staker = 100
         self.staker.generatetoaddress(block_count_staker, staker_address)
         self.sync_all()
-        self.delegator.generatetoaddress(COINBASE_MATURITY + 100, delegator_address)
+        generatesynchronized(self.delegator, COINBASE_MATURITY + 100, delegator_address, self.nodes)
         self.sync_all()
 
         pod = create_POD(self.delegator, delegator_address, staker_address)

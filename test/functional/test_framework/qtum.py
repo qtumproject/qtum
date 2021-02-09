@@ -11,6 +11,32 @@ import base64
 import math
 import pprint
 
+def generatesynchronized(node, numblocks, address=None, sync_with_nodes=[]):
+    if not address:
+        address = node.getnewaddress()
+
+    blockhashes = []
+    for i in range(0, max(numblocks//16, 0)):
+        blockhashes += node.generatetoaddress(16, address)
+        sync_blocks(sync_with_nodes, wait=0.001)
+
+    if numblocks % 16:
+        blockhashes += node.generatetoaddress(numblocks % 16, address)
+        sync_blocks(sync_with_nodes, wait=0.001)
+    return blockhashes
+
+def generateinitial(node, numblocks, address=None, sync_with_nodes=[]):
+    mocktime = node.getblock(node.getbestblockhash())['mocktime']
+    for n in [node] + sync_with_nodes:
+        n.setmocktime(mocktime)
+
+    blockhashes = node.generatetoaddress(numblocks, address)
+
+    for n in [node] + sync_with_nodes:
+        n.setmocktime(0)
+
+    return blockhashes
+
 def make_transaction(node, vin, vout):
     tx = CTransaction()
     tx.vin = vin

@@ -21,6 +21,7 @@ from test_framework.util import (
     wait_until,
 )
 from test_framework.qtumconfig import *
+from test_framework.qtum import generatesynchronized
 
 class ZapWalletTXesTest (BitcoinTestFramework):
     def set_test_params(self):
@@ -34,7 +35,7 @@ class ZapWalletTXesTest (BitcoinTestFramework):
         self.log.info("Mining blocks...")
         self.nodes[0].generate(1)
         self.sync_all()
-        self.nodes[1].generate(COINBASE_MATURITY)
+        generatesynchronized(self.nodes[1], COINBASE_MATURITY, None, self.nodes)
         self.sync_all()
 
         # This transaction will be confirmed

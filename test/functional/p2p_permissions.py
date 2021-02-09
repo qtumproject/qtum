@@ -26,7 +26,7 @@ from test_framework.util import (
     p2p_port,
     wait_until,
 )
-from test_framework.qtum import convert_btc_bech32_address_to_qtum
+from test_framework.qtum import convert_btc_bech32_address_to_qtum, generatesynchronized
 from test_framework.qtumconfig import COINBASE_MATURITY
 
 class P2PPermissionsTests(BitcoinTestFramework):
@@ -99,7 +99,7 @@ class P2PPermissionsTests(BitcoinTestFramework):
         self.nodes[1].assert_start_raises_init_error(["-whitebind=noban@127.0.0.1/10"], "Cannot resolve -whitebind address", match=ErrorMatch.PARTIAL_REGEX)
 
     def check_tx_relay(self):
-        block_op_true = self.nodes[0].getblock(self.nodes[0].generatetoaddress(COINBASE_MATURITY+1, convert_btc_bech32_address_to_qtum(ADDRESS_BCRT1_P2WSH_OP_TRUE))[0])
+        block_op_true = self.nodes[0].getblock(generatesynchronized(self.nodes[0], COINBASE_MATURITY+1, convert_btc_bech32_address_to_qtum(ADDRESS_BCRT1_P2WSH_OP_TRUE), self.nodes)[0])
         self.sync_all()
 
         self.log.debug("Create a connection from a whitelisted wallet that rebroadcasts raw txs")

@@ -35,7 +35,7 @@ class QtumPOSConflictingStakingMempoolTxTest(BitcoinTestFramework):
         self.sync_disconnected_nodes(self.nodes[1], self.nodes[0])
         last_block_hashes = self.nodes[0].generate(20)
         self.sync_disconnected_nodes(self.nodes[0], self.nodes[1])
-        self.nodes[1].generate(500)
+        self.nodes[1].generate(COINBASE_MATURITY)
         self.sync_disconnected_nodes(self.nodes[1], self.nodes[0])
 
         # Wait until all the (disconnected) nodes have started staking.
@@ -73,8 +73,7 @@ class QtumPOSConflictingStakingMempoolTxTest(BitcoinTestFramework):
         print('Checking node %d; blockcount=%d' % (0, self.nodes[0].getblockcount()))
         
         # Allow node#1 to stake two blocks, which will orphan any (potentially) staked block in node#0
-        while self.nodes[1].getblockcount() < 525:
-            time.sleep(0.1)
+        wait_until(lambda: self.nodes[1].getblockcount() >= 525)
         self.nodes[0].setmocktime(self.nodes[1].getblock(self.nodes[1].getbestblockhash())['time'])
 
         # Connect the nodes
