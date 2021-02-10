@@ -1579,6 +1579,7 @@ static UniValue setdelegateforaddress(const JSONRPCRequest& request){
     UniValue gasLimit = request.params.size() > 3 ? request.params[3] : DEFAULT_GAS_LIMIT_OP_CREATE;
     UniValue gasPrice = request.params.size() > 4 ? request.params[4] : FormatMoney(nGasPrice);
     UniValue senderaddress = request.params[2];
+    bool fPsbt=pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
 
     // Parse the staker address
     CTxDestination destStaker = DecodeDestination(request.params[0].get_str());
@@ -1601,16 +1602,33 @@ static UniValue setdelegateforaddress(const JSONRPCRequest& request){
 
     // Get the private key for the sender address
     CKey key;
-    CKeyID keyID(*pkhSender);
-    if (!spk_man.GetKey(keyID, key)) {
-        throw JSONRPCError(RPC_WALLET_ERROR, "Private key not available for the sender address");
+    if(fPsbt)
+    {
+        if(!pwallet->IsMine(destSender)) {
+            throw JSONRPCError(RPC_WALLET_ERROR, "Sender address not mine");
+        }
+    }
+    else
+    {
+        CKeyID keyID(*pkhSender);
+        if (!spk_man.GetKey(keyID, key)) {
+            throw JSONRPCError(RPC_WALLET_ERROR, "Private key not available for the sender address");
+        }
     }
 
     // Sign the  staker address
     std::vector<unsigned char> PoD;
     std::string hexStaker =  pkhStaker->GetReverseHex();
-    if(!SignStr::SignMessage(key, hexStaker, PoD))
-        throw JSONRPCError(RPC_WALLET_ERROR, "Fail to sign the staker address");
+    if(fPsbt)
+    {
+        PoD.insert(PoD.end(), hexStaker.begin(), hexStaker.end());
+        PoD.resize(CPubKey::COMPACT_SIGNATURE_SIZE, 0);
+    }
+    else
+    {
+        if(!SignStr::SignMessage(key, hexStaker, PoD))
+            throw JSONRPCError(RPC_WALLET_ERROR, "Fail to sign the staker address");
+    }
 
     // Serialize the data
     std::string datahex;
