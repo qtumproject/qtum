@@ -177,6 +177,16 @@ public:
     bool signTx(const QString& fingerprint, QString& psbt);
 
     /**
+     * @brief signMessage Sign message
+     * @param fingerprint Hardware wallet device fingerprint
+     * @param message Message to sign
+     * @param path HD key path
+     * @param signature Signature of the message
+     * @return success of the operation
+     */
+    bool signMessage(const QString& fingerprint, const QString& message, const QString& path, QString& signature);
+
+    /**
      * @brief rescanBlockchain Rescan blockchain
      * @param startHeight Start height
      * @param stopHeight Stop height
@@ -255,6 +265,8 @@ private:
     bool endEnumerate(QList<HWDevice>& devices);
     bool endGetKeyPool(const QString& fingerprint, int type, QString& desc);
     bool endSignTx(const QString& fingerprint, QString& psbt);
+    bool beginSignMessage(const QString& fingerprint, const QString& message, const QString& path, QString& signature);
+    bool endSignMessage(const QString& fingerprint, const QString& message, const QString& path, QString& signature);
     bool execRPC(ExecRPCCommand* cmd, const QMap<QString, QString>& lstParams, QVariant& result, QString& resultJson);
     void addError(const QString& error);
 

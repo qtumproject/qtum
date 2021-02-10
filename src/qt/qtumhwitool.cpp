@@ -168,6 +168,20 @@ bool QtumHwiTool::signTx(const QString &fingerprint, QString &psbt)
     return endSignTx(fingerprint, psbt);
 }
 
+bool QtumHwiTool::signMessage(const QString &fingerprint, const QString &message, const QString &path, QString &signature)
+{
+    // Sign message
+    if(isStarted())
+        return false;
+
+    if(!beginSignMessage(fingerprint, message, path, signature))
+        return false;
+
+    wait();
+
+    return endSignMessage(fingerprint, message, path, signature);
+}
+
 QString QtumHwiTool::errorMessage()
 {
     // Get the last error message
@@ -255,6 +269,19 @@ bool QtumHwiTool::beginSignTx(const QString &fingerprint, QString &psbt)
     return d->fStarted;
 }
 
+bool QtumHwiTool::beginSignMessage(const QString &fingerprint, const QString &message, const QString &path, QString &signature)
+{
+    Q_UNUSED(signature);
+
+    // Execute command line
+    QStringList arguments = d->arguments;
+    arguments << "-f" << fingerprint << "signmessage" << message << path;
+    d->process.start(d->toolPath, arguments);
+    d->fStarted = true;
+
+    return d->fStarted;
+}
+
 bool QtumHwiTool::endEnumerate(QList<HWDevice> &devices)
 {
     // Decode command line results
@@ -315,6 +342,25 @@ bool QtumHwiTool::endSignTx(const QString &fingerprint, QString &psbt)
     if(!psbtSigned.isEmpty())
     {
         psbt = psbtSigned;
+        return true;
+    }
+
+    return false;
+}
+
+bool QtumHwiTool::endSignMessage(const QString &fingerprint, const QString &message, const QString &path, QString &signature)
+{
+    Q_UNUSED(fingerprint);
+    Q_UNUSED(message);
+    Q_UNUSED(path);
+
+    // Decode command line results
+    QJsonDocument jsonDocument = QJsonDocument::fromJson(d->strStdout.toUtf8());
+    QVariantMap data = jsonDocument.object().toVariantMap();
+    QString msgSigned = data["signature"].toString();
+    if(!msgSigned.isEmpty())
+    {
+        signature = msgSigned;
         return true;
     }
 
