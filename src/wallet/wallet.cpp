@@ -6352,7 +6352,10 @@ bool CWallet::GetSenderDest(const CTransaction &tx, CTxDestination &txSenderDest
     else
     {
         // Get destination from the inputs
-        senderPubKey = mapWallet.at(tx.vin[0].prevout.hash).tx->vout[tx.vin[0].prevout.n].scriptPubKey;
+        if(tx.vin.size() > 0 && mapWallet.find(tx.vin[0].prevout.hash) != mapWallet.end())
+        {
+            senderPubKey = mapWallet.at(tx.vin[0].prevout.hash).tx->vout[tx.vin[0].prevout.n].scriptPubKey;
+        }
     }
 
     // Extract destination from script

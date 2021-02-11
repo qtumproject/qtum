@@ -184,6 +184,45 @@ bool QtumHwiTool::signMessage(const QString &fingerprint, const QString &message
 
 bool QtumHwiTool::signDelegate(const QString &fingerprint, QString &psbt)
 {
+    if(!d->model) return false;
+
+    // Get the delegation data to sign
+    std::string strPsbt = psbt.toStdString();
+    std::map<int, interfaces::SignDelegation> signData;
+    std::string strError;
+    if(d->model->wallet().getAddDelegationData(strPsbt, signData, strError) == false)
+    {
+        d->strError = QString::fromStdString(strError);
+        return false;
+    }
+
+    // Sign the delegation data
+    for (std::map<int, interfaces::SignDelegation>::iterator it = signData.begin(); it != signData.end(); it++)
+    {
+        QString message = QString::fromStdString(it->second.staker);
+        QString path = QString::fromStdString(it->second.delegate);
+        QString signature;
+        if(signMessage(fingerprint, message, path, signature))
+        {
+            it->second.PoD = signature.toStdString();
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    // Update the transaction
+    if(signData.size() > 0)
+    {
+        if(d->model->wallet().setAddDelegationData(strPsbt, signData, strError) == false)
+        {
+            d->strError = QString::fromStdString(strError);
+            return false;
+        }
+        psbt = QString::fromStdString(strPsbt);
+    }
+
     return true;
 }
 
