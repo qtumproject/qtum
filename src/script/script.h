@@ -644,6 +644,10 @@ public:
         return ReplaceParam(OP_SENDER, 1, scriptSig, scriptRet);
     }
 
+    bool GetData(std::vector<unsigned char>& data) const;
+
+    bool SetData(const std::vector<unsigned char>& data, CScript& scriptRet) const;
+
     CScript WithoutSenderSig() const
     {
         std::vector<unsigned char> scriptSig;
@@ -654,6 +658,7 @@ public:
     }
 
     bool ReplaceParam(opcodetype findOp, int posBefore, const std::vector<unsigned char>& vchParam, CScript& scriptRet) const;
+    bool FindParam(opcodetype findOp, int posBefore, std::vector<unsigned char>& vchParam) const;
     /////////////////////////////////////////
 
     void clear()
