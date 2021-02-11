@@ -165,6 +165,13 @@ public:
      */
     static bool BytecodeAdd(const std::string& hexStaker, const int& fee, const std::vector<unsigned char>& PoD, std::string& datahex, std::string& errorMessage);
 
+    /**
+     * @brief IsAddBytecode Quick check for if the bytecode is for addDelegation method
+     * @param data Bytecode of contract
+     * @return true/false
+     */
+    static bool IsAddBytecode(const std::vector<unsigned char>& data);
+
 private:
     QtumDelegation(const QtumDelegation&);
     QtumDelegation& operator=(const QtumDelegation&);

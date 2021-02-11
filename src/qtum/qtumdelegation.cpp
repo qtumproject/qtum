@@ -395,3 +395,14 @@ bool QtumDelegation::BytecodeAdd(const std::string &hexStaker, const int &fee, c
 
     return true;
 }
+
+bool QtumDelegation::IsAddBytecode(const std::vector<unsigned char> &data)
+{
+    // Quick check for is set delegate address
+    size_t size = data.size();
+    if(size < 228)
+        return false;
+    if(data[0] != 76 || data[1] != 14 || data[2] != 150 || data[3] != 140 || data[131] != 65)
+        return false;
+    return true;
+}
