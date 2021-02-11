@@ -6323,3 +6323,38 @@ void CWallet::SelectAddress(interfaces::Chain::Lock &locked_chain, std::map<uint
         threads.join_all();
     }
 }
+
+bool CWallet::GetSenderDest(const CTransaction &tx, CTxDestination &txSenderDest, bool sign) const
+{
+    // Initialize variables
+    CScript senderPubKey;
+
+    // Get sender destination
+    if(tx.HasOpSender())
+    {
+        // Get destination from the outputs
+        for(CTxOut out : tx.vout)
+        {
+            if(out.scriptPubKey.HasOpSender())
+            {
+                if(sign)
+                {
+                    ExtractSenderData(out.scriptPubKey, &senderPubKey, 0);
+                }
+                else
+                {
+                    GetSenderPubKey(out.scriptPubKey, senderPubKey);
+                }
+                break;
+            }
+        }
+    }
+    else
+    {
+        // Get destination from the inputs
+        senderPubKey = mapWallet.at(tx.vin[0].prevout.hash).tx->vout[tx.vin[0].prevout.n].scriptPubKey;
+    }
+
+    // Extract destination from script
+    return ExtractDestination(senderPubKey, txSenderDest);
+}

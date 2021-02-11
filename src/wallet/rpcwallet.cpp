@@ -102,41 +102,6 @@ std::shared_ptr<CWallet> GetWalletForJSONRPCRequest(const JSONRPCRequest& reques
     return wallets.size() == 1 || (request.fHelp && wallets.size() > 0) ? wallets[0] : nullptr;
 }
 
-bool GetSenderDest(CWallet * const pwallet, const CTransactionRef& tx, CTxDestination& txSenderDest, bool sign=true)
-{
-    // Initialize variables
-    CScript senderPubKey;
-
-    // Get sender destination
-    if(tx->HasOpSender())
-    {
-        // Get destination from the outputs
-        for(CTxOut out : tx->vout)
-        {
-            if(out.scriptPubKey.HasOpSender())
-            {
-                if(sign)
-                {
-                    ExtractSenderData(out.scriptPubKey, &senderPubKey, 0);
-                }
-                else
-                {
-                    GetSenderPubKey(out.scriptPubKey, senderPubKey);
-                }
-                break;
-            }
-        }
-    }
-    else
-    {
-        // Get destination from the inputs
-        senderPubKey = pwallet->mapWallet.at(tx->vin[0].prevout.hash).tx->vout[tx->vin[0].prevout.n].scriptPubKey;
-    }
-
-    // Extract destination from script
-    return ExtractDestination(senderPubKey, txSenderDest);
-}
-
 bool EnsureWalletIsAvailable(const CWallet* pwallet, bool avoidException)
 {
     if (pwallet) return true;
@@ -1098,7 +1063,7 @@ static UniValue createcontract(const JSONRPCRequest& request){
     }
 
     CTxDestination txSenderDest;
-    GetSenderDest(pwallet, tx, txSenderDest, sign);
+    pwallet->GetSenderDest(*tx, txSenderDest, sign);
 
     if (fHasSender && !(senderAddress == txSenderDest)){
            throw JSONRPCError(RPC_TYPE_ERROR, "Sender could not be set, transaction was not committed!");
@@ -1364,7 +1329,7 @@ UniValue SendToContract(interfaces::Chain::Lock& locked_chain, CWallet* const pw
     }
 
     CTxDestination txSenderDest;
-    GetSenderDest(pwallet, tx, txSenderDest, sign);
+    pwallet->GetSenderDest(*tx, txSenderDest, sign);
 
     if (fHasSender && !(senderAddress == txSenderDest)){
         throw JSONRPCError(RPC_TYPE_ERROR, "Sender could not be set, transaction was not committed!");
