@@ -117,7 +117,9 @@ void CreateContract::setModel(WalletModel *_model)
     // update the display unit, to not use the default ("QTUM")
     updateDisplayUnit();
 
-    if (m_model->wallet().privateKeysDisabled()) {
+    bCreateUnsigned = m_model->wallet().privateKeysDisabled();
+
+    if (bCreateUnsigned) {
         ui->pushButtonCreateContract->setText(tr("Cr&eate Unsigned"));
         ui->pushButtonCreateContract->setToolTip(tr("Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.").arg(PACKAGE_NAME));
     }
@@ -207,7 +209,7 @@ void CreateContract::on_createContractClicked()
         ExecRPCCommand::appendParam(lstParams, PARAM_SENDER, ui->lineEditSenderAddress->currentText());
 
         QString questionString;
-        if (m_model->wallet().privateKeysDisabled()) {
+        if (bCreateUnsigned) {
             questionString.append(tr("Do you want to draft this create contract transaction?"));
             questionString.append("<br /><span style='font-size:10pt;'>");
             questionString.append(tr("This will produce a Partially Signed Qtum Transaction (PSBT) which you can copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.").arg(PACKAGE_NAME));
@@ -216,8 +218,8 @@ void CreateContract::on_createContractClicked()
             questionString.append(tr("Are you sure you want to create contract? <br />"));
         }
 
-        const QString confirmation = m_model->wallet().privateKeysDisabled() ? tr("Confirm contract creation proposal.") : tr("Confirm contract creation.");
-        const QString confirmButtonText = m_model->wallet().privateKeysDisabled() ? tr("Copy PSBT to clipboard") : tr("Send");
+        const QString confirmation = bCreateUnsigned ? tr("Confirm contract creation proposal.") : tr("Confirm contract creation.");
+        const QString confirmButtonText = bCreateUnsigned ? tr("Copy PSBT to clipboard") : tr("Send");
         SendConfirmationDialog confirmationDialog(confirmation, questionString, "", "", SEND_CONFIRM_DELAY, confirmButtonText, this);
         confirmationDialog.exec();
         QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();
@@ -226,7 +228,7 @@ void CreateContract::on_createContractClicked()
             // Execute RPC command line
             if(errorMessage.isEmpty() && m_execRPCCommand->exec(m_model->node(), m_model, lstParams, result, resultJson, errorMessage))
             {
-                if(m_model->wallet().privateKeysDisabled())
+                if(bCreateUnsigned)
                 {
                     QVariantMap variantMap = result.toMap();
                     GUIUtil::setClipboard(variantMap.value("psbt").toString());

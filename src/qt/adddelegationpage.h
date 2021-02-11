@@ -44,6 +44,7 @@ private:
     WalletModel* m_model;
     ClientModel* m_clientModel;
     ExecRPCCommand *m_execRPCCommand;
+    bool bCreateUnsigned = false;
 };
 
 #endif // ADDDELEGATIONPAGE_H

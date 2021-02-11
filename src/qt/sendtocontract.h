@@ -65,6 +65,7 @@ private:
     TabBarInfo* m_tabInfo;
     const PlatformStyle* m_platformStyle;
     int m_results;
+    bool bCreateUnsigned = false;
 };
 
 #endif // SENDTOCONTRACT_H

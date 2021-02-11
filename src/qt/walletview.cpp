@@ -124,6 +124,8 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
     connect(QRCTokenPage, &QRCToken::message, this, &WalletView::message);
     // Pass through messages from delegationPage
     connect(delegationPage, &DelegationPage::message, this, &WalletView::message);
+    // Pass through messages from superStakerPage
+    connect(superStakerPage, &SuperStakerPage::message, this, &WalletView::message);
 
 }
 

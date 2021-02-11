@@ -45,6 +45,7 @@ private:
     ClientModel* m_clientModel;
     Token *m_tokenABI;
     SelectedToken *m_selectedToken;
+    bool bCreateUnsigned = false;
 };
 
 #endif // SENDTOKENPAGE_H

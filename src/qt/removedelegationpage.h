@@ -46,6 +46,7 @@ private:
     ExecRPCCommand *m_execRPCCommand;
     QString address;
     QString hash;
+    bool bCreateUnsigned = false;
 };
 
 #endif // REMOVEDELEGATIONPAGE_H

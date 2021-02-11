@@ -56,6 +56,7 @@ private:
     ContractABI* m_contractABI;
     TabBarInfo* m_tabInfo;
     int m_results;
+    bool bCreateUnsigned = false;
 };
 
 #endif // CREATECONTRACT_H

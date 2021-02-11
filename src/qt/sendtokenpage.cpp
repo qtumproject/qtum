@@ -86,7 +86,9 @@ void SendTokenPage::setModel(WalletModel *_model)
     // update the display unit, to not use the default ("QTUM")
     updateDisplayUnit();
 
-    if (m_model->wallet().privateKeysDisabled()) {
+    bCreateUnsigned = m_model->wallet().privateKeysDisabled();
+
+    if (bCreateUnsigned) {
         ui->confirmButton->setText(tr("Cr&eate Unsigned"));
         ui->confirmButton->setToolTip(tr("Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.").arg(PACKAGE_NAME));
     }
@@ -187,7 +189,7 @@ void SendTokenPage::on_confirmClicked()
         QString amountFormated = BitcoinUnits::formatToken(m_selectedToken->decimals, ui->lineEditAmount->value(), false, BitcoinUnits::separatorAlways);
 
         QString questionString;
-        if (m_model->wallet().privateKeysDisabled()) {
+        if (bCreateUnsigned) {
             questionString.append(tr("Do you want to draft this send token transaction?"));
             questionString.append("<br /><span style='font-size:10pt;'>");
             questionString.append(tr("Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.").arg(PACKAGE_NAME));
@@ -200,8 +202,8 @@ void SendTokenPage::on_confirmClicked()
         questionString.append(tr("<br />%3 <br />")
                               .arg(QString::fromStdString(toAddress)));
 
-        const QString confirmation = m_model->wallet().privateKeysDisabled() ? tr("Confirm send token proposal.") : tr("Confirm send token.");
-        const QString confirmButtonText = m_model->wallet().privateKeysDisabled() ? tr("Copy PSBT to clipboard") : tr("Send");
+        const QString confirmation = bCreateUnsigned ? tr("Confirm send token proposal.") : tr("Confirm send token.");
+        const QString confirmButtonText = bCreateUnsigned ? tr("Copy PSBT to clipboard") : tr("Send");
         SendConfirmationDialog confirmationDialog(confirmation, questionString, "", "", SEND_CONFIRM_DELAY, confirmButtonText, this);
         confirmationDialog.exec();
         QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();
@@ -209,7 +211,7 @@ void SendTokenPage::on_confirmClicked()
         {
             if(m_tokenABI->transfer(toAddress, amountToSend, true))
             {
-                if(m_model->wallet().privateKeysDisabled())
+                if(bCreateUnsigned)
                 {
                     QString psbt = QString::fromStdString(m_tokenABI->getPsbt());
                     GUIUtil::setClipboard(psbt);

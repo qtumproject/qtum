@@ -54,6 +54,7 @@ DelegationPage::DelegationPage(const PlatformStyle *platformStyle, QWidget *pare
 
     connect(m_addDelegationPage, &AddDelegationPage::message, this, &DelegationPage::message);
     connect(m_removeDelegationPage, &RemoveDelegationPage::message, this, &DelegationPage::message);
+    connect(m_splitUtxoPage, &SplitUTXOPage::message, this, &DelegationPage::message);
 
     contextMenu = new QMenu(m_delegationList);
     contextMenu->addAction(copyStakerNameAction);
