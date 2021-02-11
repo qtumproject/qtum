@@ -182,6 +182,11 @@ bool QtumHwiTool::signMessage(const QString &fingerprint, const QString &message
     return endSignMessage(fingerprint, message, path, signature);
 }
 
+bool QtumHwiTool::signDelegate(const QString &fingerprint, QString &psbt)
+{
+    return true;
+}
+
 QString QtumHwiTool::errorMessage()
 {
     // Get the last error message

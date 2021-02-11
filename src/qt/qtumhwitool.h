@@ -187,6 +187,14 @@ public:
     bool signMessage(const QString& fingerprint, const QString& message, const QString& path, QString& signature);
 
     /**
+     * @brief signDelegate Sign delegate for psbt transaction
+     * @param fingerprint Hardware wallet device fingerprint
+     * @param psbt In/Out PSBT transaction
+     * @return success of the operation
+     */
+    bool signDelegate(const QString& fingerprint, QString& psbt);
+
+    /**
      * @brief rescanBlockchain Rescan blockchain
      * @param startHeight Start height
      * @param stopHeight Stop height

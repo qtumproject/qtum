@@ -155,7 +155,8 @@ void HardwareSignTxDialog::on_signButton_clicked()
             QString psbt = d->psbt;
             d->hexTx = "";
             d->complete = false;
-            bool ret = d->tool->signTx(fingerprint, psbt);
+            bool ret = d->tool->signDelegate(fingerprint, psbt);
+            if(ret) ret &= d->tool->signTx(fingerprint, psbt);
             if(ret) ret &= d->tool->finalizePsbt(psbt, d->hexTx, d->complete);
             if(d->complete)
             {
