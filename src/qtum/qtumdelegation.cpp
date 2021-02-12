@@ -447,3 +447,22 @@ bool QtumDelegation::GetUnsignedStaker(const std::vector<unsigned char> &data, s
 
     return false;
 }
+
+bool QtumDelegation::SetSignedStaker(std::vector<unsigned char> &data, const std::string &base64PoD)
+{
+    if(!IsAddBytecode(data))
+        return false;
+
+    bool invalid = false;
+    std::string strPoD = DecodeBase64(base64PoD, &invalid);
+    if(invalid || strPoD.size() < CPubKey::COMPACT_SIGNATURE_SIZE)
+        return false;
+
+    size_t offset = nPoDStartPosition + 1;
+    for(size_t i = 0; i < CPubKey::COMPACT_SIGNATURE_SIZE; i++)
+    {
+        data[offset + i] = strPoD[i];
+    }
+
+    return true;
+}

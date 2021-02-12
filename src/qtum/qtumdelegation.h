@@ -180,6 +180,14 @@ public:
      */
     static bool GetUnsignedStaker(const std::vector<unsigned char>& data, std::string& hexStaker);
 
+    /**
+     * @brief SetSignedStaker Set signed staker address into PoD
+     * @param data Bytecode of contract
+     * @param base64PoD Staker address signed in base64
+     * @return true/false
+     */
+    static bool SetSignedStaker(std::vector<unsigned char>& data, const std::string& base64PoD);
+
 private:
     QtumDelegation(const QtumDelegation&);
     QtumDelegation& operator=(const QtumDelegation&);
