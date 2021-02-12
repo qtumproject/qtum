@@ -172,6 +172,14 @@ public:
      */
     static bool IsAddBytecode(const std::vector<unsigned char>& data);
 
+    /**
+     * @brief GetUnsignedStaker Get unsigned staker address from PoD
+     * @param data Bytecode of contract
+     * @param hexStaker Staker hex address
+     * @return true/false
+     */
+    static bool GetUnsignedStaker(const std::vector<unsigned char>& data, std::string& hexStaker);
+
 private:
     QtumDelegation(const QtumDelegation&);
     QtumDelegation& operator=(const QtumDelegation&);
