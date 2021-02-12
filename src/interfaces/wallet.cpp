@@ -1350,6 +1350,69 @@ public:
     }
     bool getAddDelegationData(const std::string& psbt, std::map<int, SignDelegation>& signData, std::string& error) override
     {
+        auto locked_chain = m_wallet->chain().lock();
+        LOCK(m_wallet->cs_wallet);
+
+        try
+        {
+            // Decode transaction
+            PartiallySignedTransaction decoded_psbt;
+            if(!DecodeBase64PSBT(decoded_psbt, psbt, error))
+            {
+                error = "Fail to decode PSBT transaction";
+                return false;
+            }
+
+            if(decoded_psbt.tx->HasOpCall())
+            {
+                // Get sender destination
+                CTransaction tx(*(decoded_psbt.tx));
+                CTxDestination txSenderDest;
+                if(m_wallet->GetSenderDest(tx, txSenderDest, false) == false)
+                {
+                    error = "Fail to get sender destination";
+                    return false;
+                }
+
+                // Get sender HD path
+                std::string strSender;
+                if(m_wallet->GetHDKeyPath(txSenderDest, strSender) == false)
+                {
+                    error = "Fail to get HD key path for sender";
+                    return false;
+                }
+
+                // Get unsigned staker
+                for(size_t i = 0; i < decoded_psbt.tx->vout.size(); i++){
+                    CTxOut v = decoded_psbt.tx->vout[i];
+                    if(v.scriptPubKey.HasOpCall()){
+                        std::vector<unsigned char> data;
+                        v.scriptPubKey.GetData(data);
+                        if(QtumDelegation::IsAddBytecode(data))
+                        {
+                            std::string hexStaker;
+                            if(!QtumDelegation::GetUnsignedStaker(data, hexStaker))
+                            {
+                                error = "Fail to get unsigned staker";
+                                return false;
+                            }
+
+                            // Set data to sign
+                            SignDelegation signDeleg;
+                            signDeleg.delegate = strSender;
+                            signDeleg.staker = hexStaker;
+                            signData[i] = signDeleg;
+                        }
+                    }
+                }
+            }
+        }
+        catch(...)
+        {
+            error = "Unknown error happen";
+            return false;
+        }
+
         return true;
     }
     bool setAddDelegationData(std::string& psbt, const std::map<int, SignDelegation>& signData, std::string& error) override
