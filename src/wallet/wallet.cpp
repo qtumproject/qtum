@@ -6361,3 +6361,19 @@ bool CWallet::GetSenderDest(const CTransaction &tx, CTxDestination &txSenderDest
     // Extract destination from script
     return ExtractDestination(senderPubKey, txSenderDest);
 }
+
+bool CWallet::GetHDKeyPath(const CTxDestination &dest, std::string &hdkeypath) const
+{
+    CScript scriptPubKey = GetScriptForDestination(dest);
+    ScriptPubKeyMan* spk_man = GetScriptPubKeyMan(scriptPubKey);
+    if (spk_man) {
+        if (const CKeyMetadata* meta = spk_man->GetMetadata(dest)) {
+            if (meta->has_key_origin) {
+                hdkeypath = WriteHDKeypath(meta->key_origin.path);
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
