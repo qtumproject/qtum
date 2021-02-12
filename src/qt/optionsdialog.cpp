@@ -108,6 +108,7 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
         ui->txtHWIToolPath->setVisible(fHasHardwareWalletSupport);
         ui->toolHWIPath->setVisible(fHasHardwareWalletSupport);
         ui->HWIToolLabel->setVisible(fHasHardwareWalletSupport);
+        ui->signPSBTHWITool->setVisible(fHasHardwareWalletSupport);
     }
 
     /* Display elements init */
@@ -224,6 +225,7 @@ void OptionsDialog::setModel(OptionsModel *_model)
     /* Wallet */
     connect(ui->spendZeroConfChange, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
     connect(ui->useChangeAddress, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
+    connect(ui->signPSBTHWITool, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
     /* Network */
     connect(ui->allowIncoming, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
     connect(ui->connectSocks, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
@@ -263,6 +265,7 @@ void OptionsDialog::setMapper()
     mapper->addMapping(ui->zeroBalanceAddressToken, OptionsModel::ZeroBalanceAddressToken);
     mapper->addMapping(ui->useChangeAddress, OptionsModel::UseChangeAddress);
     mapper->addMapping(ui->checkForUpdates, OptionsModel::CheckForUpdates);
+    mapper->addMapping(ui->signPSBTHWITool, OptionsModel::SignPSBTWithHWITool);
 
     /* Network */
     mapper->addMapping(ui->mapPortUpnp, OptionsModel::MapPortUPnP);

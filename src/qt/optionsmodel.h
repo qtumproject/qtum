@@ -71,6 +71,7 @@ public:
         ReserveBalance,         // CAmount
         Theme,                  // QString
         HWIToolPath,            // QString
+        SignPSBTWithHWITool,    // bool
         OptionIDRowCount,
     };
 
