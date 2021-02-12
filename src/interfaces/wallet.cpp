@@ -1417,6 +1417,54 @@ public:
     }
     bool setAddDelegationData(std::string& psbt, const std::map<int, SignDelegation>& signData, std::string& error) override
     {
+        // Decode transaction
+        PartiallySignedTransaction decoded_psbt;
+        if(!DecodeBase64PSBT(decoded_psbt, psbt, error))
+        {
+            error = "Fail to decode PSBT transaction";
+            return false;
+        }
+
+        // Set signed staker address
+        size_t size = decoded_psbt.tx->vout.size();
+        for (auto it = signData.begin(); it != signData.end(); it++)
+        {
+            size_t n = it->first;
+            std::string PoD = it->second.PoD;
+
+            if(n >= size)
+            {
+                error = "Output not found";
+                return false;
+            }
+
+            CTxOut& v = decoded_psbt.tx->vout[n];
+            if(v.scriptPubKey.HasOpCall()){
+                std::vector<unsigned char> data;
+                v.scriptPubKey.GetData(data);
+                CScript scriptRet;
+                if(QtumDelegation::SetSignedStaker(data, PoD) && v.scriptPubKey.SetData(data, scriptRet))
+                {
+                    v.scriptPubKey = scriptRet;
+                }
+                else
+                {
+                    error = "Fail to set PoD";
+                    return false;
+                }
+            }
+            else
+            {
+                error = "Output not op_call";
+                return false;
+            }
+        }
+
+        // Serialize the PSBT
+        CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
+        ssTx << decoded_psbt;
+        psbt = EncodeBase64((unsigned char*)ssTx.data(), ssTx.size());
+
         return true;
     }
     std::unique_ptr<Handler> handleUnload(UnloadFn fn) override
