@@ -438,7 +438,7 @@ void SplitRemainder(std::vector<CRecipient>& vecSend, CAmount& remainder, CAmoun
     }
 }
 
-static CTransactionRef SplitUTXOs(interfaces::Chain::Lock& locked_chain, CWallet * const pwallet, const CTxDestination &address, CAmount nValue, CAmount maxValue, const CCoinControl& coin_control, CAmount nTotal, int maxOutputs, CAmount& nSplited)
+static CTransactionRef SplitUTXOs(interfaces::Chain::Lock& locked_chain, CWallet * const pwallet, const CTxDestination &address, CAmount nValue, CAmount maxValue, const CCoinControl& coin_control, CAmount nTotal, int maxOutputs, CAmount& nSplited, bool sign)
 {
     // Check amount
     if (nValue <= 0)
@@ -489,7 +489,7 @@ static CTransactionRef SplitUTXOs(interfaces::Chain::Lock& locked_chain, CWallet
     CTransactionRef tx;
     if((nTxAmount + pwallet->m_default_max_tx_fee) <= nTotal)
     {
-        if (!pwallet->CreateTransaction(locked_chain, vecSend, tx, nFeeRequired, nChangePosRet, strError, coin_control, true, 0, true)) {
+        if (!pwallet->CreateTransaction(locked_chain, vecSend, tx, nFeeRequired, nChangePosRet, strError, coin_control, sign, 0, true)) {
             throw JSONRPCError(RPC_WALLET_ERROR, strError);
         }
         nSplited = nFeeRequired;
@@ -500,7 +500,7 @@ static CTransactionRef SplitUTXOs(interfaces::Chain::Lock& locked_chain, CWallet
         CRecipient lastRecipient = vecSend[vecSend.size() - 1];
         lastRecipient.fSubtractFeeFromAmount = true;
         vecSend[vecSend.size() - 1] = lastRecipient;
-        if (!pwallet->CreateTransaction(locked_chain, vecSend, tx, nFeeRequired, nChangePosRet, strError, coin_control, true, 0, true)) {
+        if (!pwallet->CreateTransaction(locked_chain, vecSend, tx, nFeeRequired, nChangePosRet, strError, coin_control, sign, 0, true)) {
             throw JSONRPCError(RPC_WALLET_ERROR, strError);
         }
 
@@ -532,7 +532,7 @@ static CTransactionRef SplitUTXOs(interfaces::Chain::Lock& locked_chain, CWallet
                     SplitRemainder(vecSend, nValueLast2, maxValue);
                 }
 
-                if((!pwallet->CreateTransaction(locked_chain, vecSend, tx, nFeeRequired, nChangePosRet, strError, coin_control, true, 0, true))) {
+                if((!pwallet->CreateTransaction(locked_chain, vecSend, tx, nFeeRequired, nChangePosRet, strError, coin_control, sign, 0, true))) {
                     throw JSONRPCError(RPC_WALLET_ERROR, strError);
                 }
                 if(payFeeRemainder)
@@ -550,7 +550,7 @@ static CTransactionRef SplitUTXOs(interfaces::Chain::Lock& locked_chain, CWallet
     }
 
     // Send the transaction
-    pwallet->CommitTransaction(tx, {} /* mapValue */, {} /* orderForm */);
+    if(sign) pwallet->CommitTransaction(tx, {} /* mapValue */, {} /* orderForm */);
 
     return tx;
 }
@@ -721,6 +721,7 @@ static UniValue splitutxosforaddress(const JSONRPCRequest& request)
                     {"minValue", RPCArg::Type::AMOUNT, RPCArg::Optional::NO, "Select utxo which value is smaller than value (minimum 0.1 COIN)"},
                     {"maxValue", RPCArg::Type::AMOUNT, RPCArg::Optional::NO, "Select utxo which value is greater than value (minimum 0.1 COIN)"},
                     {"maxOutputs", RPCArg::Type::NUM, /* default */ "100", "Maximum outputs to create"},
+                    {"psbt", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Create partially signed transaction."},
                 },
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",
@@ -772,6 +773,12 @@ static UniValue splitutxosforaddress(const JSONRPCRequest& request)
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid value for maximum outputs");
     }
 
+    // Is psbt
+    bool fPsbt=pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+    if (request.params.size() > 4){
+        fPsbt=request.params[4].get_bool();
+    }
+
     // Amount
     CAmount nSplitAmount = minValue;
     CAmount nRequiredAmount = nSplitAmount * maxOutputs;
@@ -809,8 +816,36 @@ static UniValue splitutxosforaddress(const JSONRPCRequest& request)
     UniValue obj(UniValue::VOBJ);
     if(coin_control.HasSelected() && nSplitAmount < nSelectedAmount){
         EnsureWalletIsUnlocked(pwallet);
-        CTransactionRef tx = SplitUTXOs(*locked_chain, pwallet, address, nSplitAmount, maxValue, coin_control, nSelectedAmount, maxOutputs, splited);
-        obj.pushKV("txid",          tx->GetHash().GetHex());
+        CTransactionRef tx = SplitUTXOs(*locked_chain, pwallet, address, nSplitAmount, maxValue, coin_control, nSelectedAmount, maxOutputs, splited, !fPsbt);
+        if(fPsbt){
+            // Make a blank psbt
+            PartiallySignedTransaction psbtx;
+            CMutableTransaction rawTx = CMutableTransaction(*tx);
+            psbtx.tx = rawTx;
+            for (unsigned int i = 0; i < rawTx.vin.size(); ++i) {
+                psbtx.inputs.push_back(PSBTInput());
+            }
+            for (unsigned int i = 0; i < rawTx.vout.size(); ++i) {
+                psbtx.outputs.push_back(PSBTOutput());
+            }
+
+            // Fill transaction with out data but don't sign
+            bool bip32derivs = true;
+            bool complete = true;
+            const TransactionError err = pwallet->FillPSBT(psbtx, complete, 1, false, bip32derivs);
+            if (err != TransactionError::OK) {
+                throw JSONRPCTransactionError(err);
+            }
+
+            // Serialize the PSBT
+            CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
+            ssTx << psbtx;
+            obj.pushKV("psbt", EncodeBase64((unsigned char*)ssTx.data(), ssTx.size()));
+        }
+        else
+        {
+            obj.pushKV("txid",          tx->GetHash().GetHex());
+        }
     }
 
     obj.pushKV("selected",      FormatMoney(total));
@@ -6209,7 +6244,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "sendmany",                         &sendmany,                      {"dummy","amounts","minconf","comment","subtractfeefrom","replaceable","conf_target","estimate_mode"} },
     { "wallet",             "sendmanywithdupes",                &sendmanywithdupes,             {"fromaccount","amounts","minconf","comment","subtractfeefrom"} },
     { "wallet",             "sendtoaddress",                    &sendtoaddress,                 {"address","amount","comment","comment_to","subtractfeefromamount","replaceable","conf_target","estimate_mode","avoid_reuse","senderAddress","changeToSender"} },
-    { "wallet",             "splitutxosforaddress",             &splitutxosforaddress,          {"address","minValue","maxValue","maxOutputs"} },
+    { "wallet",             "splitutxosforaddress",             &splitutxosforaddress,          {"address","minValue","maxValue","maxOutputs","psbt"} },
     { "wallet",             "sethdseed",                        &sethdseed,                     {"newkeypool","seed"} },
     { "wallet",             "setlabel",                         &setlabel,                      {"address","label"} },
     { "wallet",             "settxfee",                         &settxfee,                      {"amount"} },

@@ -248,6 +248,12 @@ void SplitUTXOPage::on_splitCoinsClicked()
             {
                  QVariantMap variantMap = result.toMap();
 
+                 if(bCreateUnsigned)
+                 {
+                     GUIUtil::setClipboard(variantMap.value("psbt").toString());
+                     Q_EMIT message(tr("PSBT copied"), "Copied to clipboard", CClientUIInterface::MSG_INFORMATION);
+                 }
+
                  QString selectedString = variantMap.value("selected").toString();
                  CAmount selected;
                  BitcoinUnits::parse(unit, selectedString, &selected);
@@ -267,7 +273,7 @@ void SplitUTXOPage::on_splitCoinsClicked()
 
                  QMessageBox::information(this, tr("Split coins for address"), infoString);
 
-                 if(splited == selected || splited == 0)
+                 if(splited == selected || splited == 0 || bCreateUnsigned)
                      accept();
             }
         }
