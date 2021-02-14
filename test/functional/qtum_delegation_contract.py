@@ -521,9 +521,9 @@ class QtumSimpleDelegationContractTest(BitcoinTestFramework):
 
         self.staker.generatetoaddress(1, self.staker_address)
         self.sync_all()
-        self.delegator.generatetoaddress(COINBASE_MATURITY+100, self.delegator_address)
+        generatesynchronized(self.delegator, COINBASE_MATURITY+100, self.delegator_address, self.nodes)
         self.sync_all()
-        self.staker.generatetoaddress(COINBASE_MATURITY, self.staker_address)
+        generatesynchronized(self.staker, COINBASE_MATURITY, self.staker_address, self.nodes)
         self.sync_all()
 
 

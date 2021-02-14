@@ -11,6 +11,7 @@ from test_framework import messages
 from test_framework.mininode import P2PDataStore, NetworkThread
 from test_framework.test_framework import BitcoinTestFramework
 
+from test_framework.qtumconfig import FACTOR_REDUCED_BLOCK_TIME
 
 class msg_unrecognized:
     """Nonsensical message. Modeled after similar types in test_framework.messages."""
@@ -53,7 +54,7 @@ class InvalidMessagesTest(BitcoinTestFramework):
         node.add_p2p_connection(P2PDataStore())
         conn2 = node.add_p2p_connection(P2PDataStore())
 
-        msg_limit = 8 * 1000 * 1000  # 4MB, per MAX_PROTOCOL_MESSAGE_LENGTH
+        msg_limit = 8 * 1000 * 1000 // FACTOR_REDUCED_BLOCK_TIME  # 4MB, per MAX_PROTOCOL_MESSAGE_LENGTH
         valid_data_limit = msg_limit - 5  # Account for the 4-byte length prefix
 
         #

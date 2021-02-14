@@ -7,6 +7,8 @@
 Test that the DERSIG soft-fork activates at (regtest) height 1251.
 """
 
+# QTUM note: this test always runs without the reduceblocktime fork activated to allow testing pre bip66
+
 from test_framework.blocktools import create_coinbase, create_block, create_transaction
 from test_framework.messages import msg_block
 from test_framework.mininode import P2PInterface
@@ -42,6 +44,7 @@ class BIP66Test(BitcoinTestFramework):
         self.extra_args = [[
             '-whitelist=noban@127.0.0.1',
             '-par=1',  # Use only one script thread to get the exact log msg for testing
+            '-reduceblocktimeheight=100000'
         ]]
         self.setup_clean_chain = True
         self.rpc_timewait = 120

@@ -22,7 +22,6 @@ from test_framework.messages import (
     CTxInWitness,
     CTxOut,
     CTxWitness,
-    MAX_BLOCK_BASE_SIZE,
     MSG_WITNESS_FLAG,
     NODE_NETWORK,
     NODE_WITNESS,
@@ -83,6 +82,7 @@ from test_framework.util import (
     bytes_to_hex_str,
 )
 from test_framework.qtumconfig import *
+from test_framework.qtum import generatesynchronized
 from test_framework.messages import COIN
 
 # The versionbit bit used to signal activation of SegWit
@@ -90,9 +90,9 @@ VB_WITNESS_BIT = 1
 VB_PERIOD = 144
 VB_TOP_BITS = 0x20000000
 
-MAX_SIGOP_COST = 80000
+MAX_SIGOP_COST = 80000 // FACTOR_REDUCED_BLOCK_TIME
 
-SEGWIT_HEIGHT = 520
+SEGWIT_HEIGHT = 2020 if ENABLE_REDUCED_BLOCK_TIME else 520
 
 class UTXO():
     """Used to keep track of anyone-can-spend outputs that we can use in the tests."""
@@ -924,7 +924,7 @@ class SegWitTest(BitcoinTestFramework):
         # This should give us plenty of room to tweak the spending tx's
         # virtual size.
         NUM_DROPS = 200  # 201 max ops per script!
-        NUM_OUTPUTS = 100
+        NUM_OUTPUTS = 100 // FACTOR_REDUCED_BLOCK_TIME
 
         witness_program = CScript([OP_2DROP] * NUM_DROPS + [OP_TRUE])
         witness_hash = uint256_from_str(sha256(witness_program))
@@ -974,7 +974,7 @@ class SegWitTest(BitcoinTestFramework):
         assert_equal(vsize, MAX_BLOCK_BASE_SIZE + 1)
         # Make sure that our test case would exceed the old max-network-message
         # limit
-        assert len(block.serialize()) > 2 * 1024 * 1024
+        assert len(block.serialize()) > (2 * 1024 * 1024) // FACTOR_REDUCED_BLOCK_TIME
 
         test_witness_block(self.nodes[0], self.test_node, block, accepted=False)
 
@@ -982,9 +982,10 @@ class SegWitTest(BitcoinTestFramework):
         #cur_length = len(block.vtx[-1].wit.vtxinwit[0].scriptWitness.stack[0])
         #block.vtx[-1].wit.vtxinwit[0].scriptWitness.stack[0] = b'a' * (cur_length - 1)
         #block.vtx[0].vout.pop()
-        block.vtx[-1].wit.vtxinwit[update_vtixinwit_index].scriptWitness.stack[update_stack_index] = b'a'*8
+        block.vtx[-1].wit.vtxinwit[update_vtixinwit_index].scriptWitness.stack[update_stack_index] = b'a'*4 if ENABLE_REDUCED_BLOCK_TIME else b'a'*8
         add_witness_commitment(block)
         block.solve()
+        print(get_virtual_size(block), MAX_BLOCK_BASE_SIZE)
         assert get_virtual_size(block) == MAX_BLOCK_BASE_SIZE
 
         test_witness_block(self.nodes[0], self.test_node, block, accepted=True)
@@ -1476,7 +1477,7 @@ class SegWitTest(BitcoinTestFramework):
         spend_tx.rehash()
 
         # Now test a premature spend.
-        self.nodes[0].generate(COINBASE_MATURITY-2)
+        generatesynchronized(self.nodes[0], COINBASE_MATURITY-2, None, self.nodes)
         self.sync_blocks()
         block2 = self.build_next_block()
         self.update_witness_block_with_transactions(block2, [spend_tx])

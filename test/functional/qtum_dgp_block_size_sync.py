@@ -133,6 +133,7 @@ class QtumDGPBlockSizeSyncTest(BitcoinTestFramework):
         ascending_block_sizes = sorted(possible_block_sizes)
 
         for max_block_size in possible_block_sizes:
+            max_block_size /= FACTOR_REDUCED_BLOCK_TIME
             self.create_proposal_contract(max_block_size)
             self.BLOCK_SIZE_DGP.send_add_address_proposal(self.proposal_address, 2, admin_address)
             self.node.generate(2) # We need to generate 2 blocks now for it to activate

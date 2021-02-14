@@ -110,7 +110,7 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
         assert(False)
 
     def cannot_submit_header_before_rolling_checkpoint_test(self):
-        block_header = self._create_pos_header(self.node, self.staking_prevouts, self.node.getblockhash(self.node.getblockcount()-501), int(time.time())&0xfffffff0)
+        block_header = self._create_pos_header(self.node, self.staking_prevouts, self.node.getblockhash(self.node.getblockcount()-(COINBASE_MATURITY+1)), int(time.time())&0xfffffff0)
         block_header.rehash()
         msg = msg_headers()
         msg.headers.extend([block_header])
@@ -120,7 +120,7 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
         self._remove_from_staking_prevouts(block_header.prevoutStake)
 
     def can_submit_header_after_rolling_checkpoint_test(self):
-        block_header = self._create_pos_header(self.node, self.staking_prevouts, self.node.getblockhash(self.node.getblockcount()-500))
+        block_header = self._create_pos_header(self.node, self.staking_prevouts, self.node.getblockhash(self.node.getblockcount()-COINBASE_MATURITY))
         block_header.rehash()
         msg = msg_headers()
         msg.headers.extend([block_header])
@@ -130,7 +130,7 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
         self._remove_from_staking_prevouts(block_header.prevoutStake)
 
     def cannot_submit_header_oversized_signature_test(self):
-        block_header = self._create_pos_header(self.node, self.staking_prevouts, self.node.getblockhash(self.node.getblockcount()-500))
+        block_header = self._create_pos_header(self.node, self.staking_prevouts, self.node.getblockhash(self.node.getblockcount()-COINBASE_MATURITY))
         block_header.vchBlockSig = b'x'*7999812
         block_header.rehash()
         msg = msg_headers()
@@ -141,7 +141,7 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
         self._remove_from_staking_prevouts(block_header.prevoutStake)
 
     def cannot_submit_invalid_prevout_test(self):
-        block_header = self._create_pos_header(self.node, self.staking_prevouts, self.node.getblockhash(self.node.getblockcount()-500))
+        block_header = self._create_pos_header(self.node, self.staking_prevouts, self.node.getblockhash(self.node.getblockcount()-COINBASE_MATURITY))
         block_header.prevoutStake.n = 0xffff
         block_header.rehash()
         msg = msg_headers()
@@ -151,13 +151,13 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
         self.assert_chain_tip_rejected(block_header.hash)
         self._remove_from_staking_prevouts(block_header.prevoutStake)
 
-    # Constant height header spam cause ban (in our case disconnect) after a max of 500 headers
+    # Constant height header spam cause ban (in our case disconnect) after a max of COINBASE_MATURITY headers
     def dos_protection_triggered_via_spam_on_same_height_test(self):
         self.start_p2p_connection()
 
-        prevblock = self.node.getblock(self.node.getblockhash(self.node.getblockcount()-500))
+        prevblock = self.node.getblock(self.node.getblockhash(self.node.getblockcount()-COINBASE_MATURITY))
         t = prevblock['time'] & 0xfffffff0
-        for i in range(501):
+        for i in range((COINBASE_MATURITY+1)):
             block_header = self._create_pos_header(self.node, self.staking_prevouts, prevblock['hash'], nTime=t+0x10*i, nNonce=i)
             block_header.rehash()
             msg = msg_headers()
@@ -172,7 +172,7 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
         t = (int(time.time()) + 1000) & 0xfffffff0
 
         for i in range(2055):
-            prevblock = self.node.getblock(self.node.getblockhash(self.node.getblockcount()-500+(i%500)))
+            prevblock = self.node.getblock(self.node.getblockhash(self.node.getblockcount()-COINBASE_MATURITY+(i%COINBASE_MATURITY)))
             block_header = self._create_pos_header(self.node, self.staking_prevouts, prevblock['hash'], nTime=t+0x10*i, nNonce=i)
             block_header.rehash()
             msg = msg_headers()
@@ -276,7 +276,7 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
         self.node.setmocktime(int(time.time() - 100*24*60*60))
         self.node.generatetoaddress(1500, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
         self.staking_prevouts = collect_prevouts(self.node)
-        self.node.generate(500)
+        self.node.generate(COINBASE_MATURITY)
         self.node.setmocktime(0)
         self.start_p2p_connection()
         
