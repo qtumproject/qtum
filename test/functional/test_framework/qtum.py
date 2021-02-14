@@ -393,8 +393,8 @@ def collect_prevouts(node, amount=None, address=None, min_confirmations=COINBASE
 def create_unsigned_pos_block(node, staking_prevouts, nTime=None):
     tip = node.getblock(node.getbestblockhash())
     if not nTime:
-        current_time = int(time.time()) + 16
-        nTime = current_time & 0xfffffff0
+        current_time = int(time.time()) + TIMESTAMP_MASK+1
+        nTime = current_time & (0xffffffff - TIMESTAMP_MASK)
 
     parent_block_stake_modifier = int(tip['modifier'], 16)
     coinbase = create_coinbase(tip['height']+1)
