@@ -70,6 +70,9 @@ public:
 private Q_SLOTS:
     void updateTokenTx(const QString &hash)
     {
+        if(walletModel && walletModel->node().shutdownRequested())
+            return;
+
         // Initialize variables
         uint256 tokenHash = uint256S(hash.toStdString());
         int64_t fromBlock = 0;
@@ -143,11 +146,17 @@ private Q_SLOTS:
 
     void cleanTokenTxEntries()
     {
+        if(walletModel && walletModel->node().shutdownRequested())
+            return;
+
         if(walletModel) walletModel->wallet().cleanTokenTxEntries();
     }
 
     void updateBalance(QString hash, QString contractAddress, QString senderAddress)
     {
+        if(walletModel && walletModel->node().shutdownRequested())
+            return;
+
         tokenAbi.setAddress(contractAddress.toStdString());
         tokenAbi.setSender(senderAddress.toStdString());
         std::string strBalance;
