@@ -183,7 +183,8 @@ void HardwareSignTxDialog::on_sendButton_clicked()
     QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();
     if(retval == QMessageBox::Yes)
     {
-        if(d->tool->sendRawTransaction(d->hexTx))
+        QVariantMap variantMap;
+        if(d->tool->sendRawTransaction(d->hexTx, variantMap))
         {
             QDialog::accept();
         }

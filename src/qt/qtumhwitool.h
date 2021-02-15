@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QString>
 #include <QList>
+#include <QVariantMap>
 class QtumHwiToolPriv;
 class InstallDevicePriv;
 class WalletModel;
@@ -221,9 +222,10 @@ public:
     /**
      * @brief sendRawTransaction Send raw transaction
      * @param hexTx Hex transaction
+     * @param variantMap Result of the send operation
      * @return success of the operation
      */
-    bool sendRawTransaction(const QString& hexTx);
+    bool sendRawTransaction(const QString& hexTx, QVariantMap& variantMap);
 
     /**
      * @brief decodePsbt Decode psbt transaction

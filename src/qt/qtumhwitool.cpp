@@ -27,6 +27,8 @@ static const QString PARAM_STOP_HEIGHT = "stop_height";
 static const QString PARAM_REQUESTS = "requests";
 static const QString PARAM_PSBT = "psbt";
 static const QString PARAM_HEXTX = "hextx";
+static const QString PARAM_MAXFEERATE = "maxfeerate";
+static const QString PARAM_SHOWCONTRACTDATA = "showcontractdata";
 static const QString LOAD_FORMAT = ":/ledger/%1_load";
 static const QString DELETE_FORMAT = ":/ledger/%1_delete";
 static const QString RC_PATH_FORMAT = ":/ledger";
@@ -43,7 +45,7 @@ public:
         cmdImport = new ExecRPCCommand("importmulti", mandatoryImport, QStringList(),  QMap<QString, QString>(), parent);
         QStringList mandatoryFinalize = QStringList() << PARAM_PSBT;
         cmdFinalize = new ExecRPCCommand("finalizepsbt", mandatoryFinalize, QStringList(),  QMap<QString, QString>(), parent);
-        QStringList mandatorySend = QStringList() << PARAM_HEXTX;
+        QStringList mandatorySend = QStringList() << PARAM_HEXTX << PARAM_MAXFEERATE << PARAM_SHOWCONTRACTDATA;
         cmdSend = new ExecRPCCommand("sendrawtransaction", mandatorySend, QStringList(),  QMap<QString, QString>(), parent);
         QStringList mandatoryDecode = QStringList() << PARAM_PSBT;
         cmdDecode = new ExecRPCCommand("decodepsbt", mandatoryDecode, QStringList(),  QMap<QString, QString>(), parent);
@@ -486,7 +488,7 @@ bool QtumHwiTool::finalizePsbt(const QString &psbt, QString &hexTx, bool &comple
     return true;
 }
 
-bool QtumHwiTool::sendRawTransaction(const QString &hexTx)
+bool QtumHwiTool::sendRawTransaction(const QString &hexTx, QVariantMap& variantMap)
 {
     if(!d->model) return false;
 
@@ -495,6 +497,8 @@ bool QtumHwiTool::sendRawTransaction(const QString &hexTx)
     QVariant result;
     QString resultStr;
     ExecRPCCommand::appendParam(lstParams, PARAM_HEXTX, hexTx);
+    ExecRPCCommand::appendParam(lstParams, PARAM_MAXFEERATE, "null");
+    ExecRPCCommand::appendParam(lstParams, PARAM_SHOWCONTRACTDATA, "true");
 
     // Exec RPC
     if(!execRPC(d->cmdSend, lstParams, result, resultStr))
@@ -502,8 +506,16 @@ bool QtumHwiTool::sendRawTransaction(const QString &hexTx)
 
     // Parse results
     std::string strHash = resultStr.toStdString();
+    if(strHash.length() == 64 && IsHex(strHash))
+    {
+        variantMap["txid"] = resultStr;
+    }
+    else
+    {
+        variantMap = result.toMap();
+    }
 
-    return strHash.length() == 64 && IsHex(strHash);
+    return variantMap.contains("txid");
 }
 
 bool QtumHwiTool::decodePsbt(const QString &psbt, QString &decoded)
