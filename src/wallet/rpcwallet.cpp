@@ -489,7 +489,7 @@ static CTransactionRef SplitUTXOs(interfaces::Chain::Lock& locked_chain, CWallet
     CTransactionRef tx;
     if((nTxAmount + pwallet->m_default_max_tx_fee) <= nTotal)
     {
-        if (!pwallet->CreateTransaction(locked_chain, vecSend, tx, nFeeRequired, nChangePosRet, strError, coin_control, sign, 0, true)) {
+        if (!pwallet->CreateTransaction(locked_chain, vecSend, tx, nFeeRequired, nChangePosRet, strError, coin_control, sign, 0, false)) {
             throw JSONRPCError(RPC_WALLET_ERROR, strError);
         }
         nSplited = nFeeRequired;
@@ -500,7 +500,7 @@ static CTransactionRef SplitUTXOs(interfaces::Chain::Lock& locked_chain, CWallet
         CRecipient lastRecipient = vecSend[vecSend.size() - 1];
         lastRecipient.fSubtractFeeFromAmount = true;
         vecSend[vecSend.size() - 1] = lastRecipient;
-        if (!pwallet->CreateTransaction(locked_chain, vecSend, tx, nFeeRequired, nChangePosRet, strError, coin_control, sign, 0, true)) {
+        if (!pwallet->CreateTransaction(locked_chain, vecSend, tx, nFeeRequired, nChangePosRet, strError, coin_control, sign, 0, false)) {
             throw JSONRPCError(RPC_WALLET_ERROR, strError);
         }
 
@@ -532,7 +532,7 @@ static CTransactionRef SplitUTXOs(interfaces::Chain::Lock& locked_chain, CWallet
                     SplitRemainder(vecSend, nValueLast2, maxValue);
                 }
 
-                if((!pwallet->CreateTransaction(locked_chain, vecSend, tx, nFeeRequired, nChangePosRet, strError, coin_control, sign, 0, true))) {
+                if((!pwallet->CreateTransaction(locked_chain, vecSend, tx, nFeeRequired, nChangePosRet, strError, coin_control, sign, 0, false))) {
                     throw JSONRPCError(RPC_WALLET_ERROR, strError);
                 }
                 if(payFeeRemainder)
@@ -785,6 +785,7 @@ static UniValue splitutxosforaddress(const JSONRPCRequest& request)
 
     CCoinControl coin_control;
     coin_control.destChange = address;
+    if(fPsbt) coin_control.fAllowWatchOnly = true;
 
     // Find UTXOs for a address with value smaller than minValue and greater then maxValue
     std::vector<COutput> vecOutputs;
@@ -979,6 +980,7 @@ static UniValue createcontract(const JSONRPCRequest& request){
     if(fPsbt) fBroadcast=false;
 
     CCoinControl coinControl;
+    if(fPsbt) coinControl.fAllowWatchOnly = true;
 
     CTxDestination signSenderAddress = CNoDestination();
     if(fHasSender){
@@ -1243,6 +1245,7 @@ UniValue SendToContract(interfaces::Chain::Lock& locked_chain, CWallet* const pw
     if(fPsbt) fBroadcast=false;
 
     CCoinControl coinControl;
+    if(fPsbt) coinControl.fAllowWatchOnly = true;
 
     CTxDestination signSenderAddress = CNoDestination();
     if(fHasSender){
