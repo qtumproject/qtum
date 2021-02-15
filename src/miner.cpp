@@ -1055,13 +1055,20 @@ public:
     MyDelegations(CWallet *_pwallet):
         pwallet(_pwallet),
         cacheHeight(0),
-        spk_man(0)
+        spk_man(0),
+        privateKeysDisabled(false)
     {
         spk_man = _pwallet->GetLegacyScriptPubKeyMan();
+        privateKeysDisabled = _pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
     }
 
     bool Match(const DelegationEvent& event) const
     {
+        if(privateKeysDisabled)
+        {
+            return pwallet->IsMine(PKHash(event.item.delegate));
+        }
+
         return spk_man->HaveKey(CKeyID(event.item.delegate));
     }
 
@@ -1148,6 +1155,7 @@ private:
     int32_t cacheHeight;
     std::map<uint160, Delegation> cacheMyDelegations;
     LegacyScriptPubKeyMan* spk_man;
+    bool privateKeysDisabled;
 };
 
 bool CheckStake(const std::shared_ptr<const CBlock> pblock, CWallet& wallet)
