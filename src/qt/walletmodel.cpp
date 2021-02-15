@@ -51,6 +51,9 @@ public:
 private Q_SLOTS:
     void updateModel()
     {
+        if(walletModel && walletModel->node().shutdownRequested())
+            return;
+
         // Update the model with results of task that take more time to be completed
         walletModel->checkHardwareWallet();
         walletModel->checkCoinAddressesChanged();
