@@ -10,6 +10,7 @@
 #include <qt/guiconstants.h>
 #include <qt/guiutil.h>
 
+#include <QFile>
 
 HardwareSignTx::HardwareSignTx(QWidget *_widget) : QObject(_widget)
 {
