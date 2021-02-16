@@ -54,7 +54,6 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
         block.nNonce = nNonce
         block.hashStateRoot = int(tip['hashStateRoot'], 16)
         block.hashUTXORoot = int(tip['hashUTXORoot'], 16)
-
         if not block.solve_stake(parent_block_stake_modifier, staking_prevouts):
             return None
 
@@ -274,7 +273,7 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
         self.node.importprivkey(privkey)
         disconnect_nodes(self.node, 1)
         self.node.setmocktime(int(time.time() - 100*24*60*60))
-        self.node.generatetoaddress(1500, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
+        self.node.generatetoaddress(1000 + COINBASE_MATURITY, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
         self.staking_prevouts = collect_prevouts(self.node)
         self.node.generate(COINBASE_MATURITY)
         self.node.setmocktime(0)

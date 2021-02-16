@@ -19,7 +19,7 @@ class QtumPODTest(BitcoinTestFramework):
 
     def run_test(self):
         mocktime = int(time.time()) - 3600
-        mocktime &= 0xfffffff0
+        mocktime &= 0xffffffff - TIMESTAMP_MASK
         for n in self.nodes: n.setmocktime(mocktime)
         self.delegator = self.nodes[0]
         delegator_address = self.delegator.getnewaddress()
@@ -45,10 +45,10 @@ class QtumPODTest(BitcoinTestFramework):
         self.sync_all()
 
         # delegation not available for now
-        self.restart_node(0, ['-txindex=1', '-logevents=1', '-offlinestakingheight=800'])
-        self.restart_node(1, ['-txindex=1', '-logevents=1', '-offlinestakingheight=800', '-superstaking=1'])
+        self.restart_node(0, ['-txindex=1', '-logevents=1', '-offlinestakingheight=1000000'])
+        self.restart_node(1, ['-txindex=1', '-logevents=1', '-offlinestakingheight=1000000', '-superstaking=1'])
 
-        mocktime += 128
+        mocktime += 512
         for n in self.nodes: n.setmocktime(mocktime)
 
         delegator_prevouts = collect_prevouts(self.delegator)

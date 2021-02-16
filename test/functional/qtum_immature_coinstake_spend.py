@@ -71,16 +71,13 @@ class QtumPrematureCoinstakeSpendTest(BitcoinTestFramework):
             self.node.importprivkey(privkey)
 
         activate_mpos(self.node)
-        if ENABLE_REDUCED_BLOCK_TIME:
-            self.node.generate(COINBASE_MATURITY-500)
 
         self.staking_prevouts = collect_prevouts(self.node)
-        print(self.staking_prevouts)
-        self.assert_spend_of_coinstake_at_height(height=4502, should_accept=False)
-        self.assert_spend_of_coinstake_at_height(height=4501, should_accept=True)
+        self.assert_spend_of_coinstake_at_height(height=5002-COINBASE_MATURITY, should_accept=False)
+        self.assert_spend_of_coinstake_at_height(height=5001-COINBASE_MATURITY, should_accept=True)
         # Invalidate the last block and make sure that the previous rejection of the premature coinstake spends fails
         self.node.invalidateblock(self.node.getbestblockhash())
-        self.assert_spend_of_coinstake_at_height(height=4502, should_accept=False)
+        self.assert_spend_of_coinstake_at_height(height=5002-COINBASE_MATURITY, should_accept=False)
 
 if __name__ == '__main__':
     QtumPrematureCoinstakeSpendTest().main()

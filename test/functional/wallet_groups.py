@@ -72,11 +72,11 @@ class WalletGroupTest(BitcoinTestFramework):
 
         # Fill node2's wallet with 10000 outputs corresponding to the same
         # scriptPubKey
-        for i in range(5):
-            raw_tx = self.nodes[0].createrawtransaction([{"txid":"0"*64, "vout":0}], [{addr2[0]: 10/(MAX_BLOCK_SIGOPS//5)}])
+        for i in range(10):
+            raw_tx = self.nodes[0].createrawtransaction([{"txid":"0"*64, "vout":0}], [{addr2[0]: 10/(MAX_BLOCK_SIGOPS//10)}])
             tx = FromHex(CTransaction(), raw_tx)
             tx.vin = []
-            tx.vout = [tx.vout[0]] * (MAX_BLOCK_SIGOPS//5)
+            tx.vout = [tx.vout[0]] * (MAX_BLOCK_SIGOPS//10)
             funded_tx = self.nodes[0].fundrawtransaction(ToHex(tx))
             signed_tx = self.nodes[0].signrawtransactionwithwallet(funded_tx['hex'])
             self.nodes[0].sendrawtransaction(signed_tx['hex'])

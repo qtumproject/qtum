@@ -123,7 +123,9 @@ def assert_vout(tx, expected_vout):
 
 def rpc_sign_transaction(node, tx):
     ret = node.signrawtransactionwithwallet(bytes_to_hex_str(tx.serialize()))
-    assert(ret['complete'])
+    if not ret['complete']:
+        print(ret)
+        assert(ret['complete'])
     tx_signed_raw_hex = ret['hex']
     f = io.BytesIO(hex_str_to_bytes(tx_signed_raw_hex))
     tx_signed = CTransaction()
@@ -470,11 +472,10 @@ def create_unsigned_mpos_block(node, staking_prevouts, nTime=None, block_fees=0)
 def activate_mpos(node, use_cache=True):
     if not node.getblockcount():
         node.setmocktime(int(time.time()) - 1000000)
-    node.generatetoaddress(4490-node.getblockcount(), "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
+    node.generatetoaddress(4990-COINBASE_MATURITY-node.getblockcount(), "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
     staking_prevouts = collect_prevouts(node, address="qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
 
-
-    for i in range(510):
+    for i in range(COINBASE_MATURITY+10):
         time.sleep(0.05)
         nTime = (node.getblock(node.getbestblockhash())['time']+45) & 0xfffffff0
         node.setmocktime(nTime)
@@ -491,6 +492,10 @@ def activate_mpos(node, use_cache=True):
             if prevout[0].serialize() == block.prevoutStake.serialize():
                 staking_prevouts.pop(j)
                 break
+
+        if len(staking_prevouts) < 20:
+            staking_prevouts = collect_prevouts(node, address="qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
+
 
 def wif_to_ECKey(wif):
     _, privkey, _ = base58_to_byte(wif, 38)

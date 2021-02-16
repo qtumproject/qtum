@@ -38,11 +38,6 @@ class QtumPOSConflictingStakingMempoolTxTest(BitcoinTestFramework):
         self.nodes[1].generate(COINBASE_MATURITY)
         self.sync_disconnected_nodes(self.nodes[1], self.nodes[0])
 
-        # Wait until all the (disconnected) nodes have started staking.
-        while not self.nodes[0].getstakinginfo()['staking']:
-            time.sleep(0.01)
-        print('staking...')
-
         # Spend the only available staking tx for node#0, give the staker some time to start before sending the tx that spends the only available staking tx
         txs = []
         for last_block_hash in last_block_hashes:
@@ -52,6 +47,10 @@ class QtumPOSConflictingStakingMempoolTxTest(BitcoinTestFramework):
             tx.vin = [CTxIn(staking_prevout)]
             tx.vout = [CTxOut(int((20000-0.01)*COIN), CScript([OP_DUP, OP_HASH160, hex_str_to_bytes(p2pkh_to_hex_hash(self.nodes[0].getnewaddress())), OP_EQUALVERIFY, OP_CHECKSIG]))]
             txs.append(rpc_sign_transaction(self.nodes[0], tx))
+
+
+        wait_until(lambda: self.nodes[0].getstakinginfo()['staking'], timeout=10*60)
+
 
         # We set the time so that the staker will find a valid staking block 3 timeslots away
         time_until_next_valid_block = int(self.nodes[0].getblock(self.nodes[0].getbestblockhash())['time'] - 16)

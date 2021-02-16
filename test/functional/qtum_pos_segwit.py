@@ -104,8 +104,8 @@ class QtumPOSSegwitTest(BitcoinTestFramework):
         self.node.setmocktime(int(time.time()))
 
 
-        NUM_DROPS = 200 // FACTOR_REDUCED_BLOCK_TIME
-        NUM_OUTPUTS = 101
+        NUM_DROPS = 200
+        NUM_OUTPUTS = 101 // FACTOR_REDUCED_BLOCK_TIME
 
         witness_program = CScript([OP_2DROP]*NUM_DROPS + [OP_TRUE])
         witness_hash = uint256_from_str(sha256(witness_program))
