@@ -11,6 +11,7 @@
 #include <qt/rpcconsole.h>
 #include <qt/execrpccommand.h>
 #include <qt/sendcoinsdialog.h>
+#include <qt/hardwaresigntx.h>
 
 namespace AddDelegation_NS
 {
@@ -100,7 +101,7 @@ void AddDelegationPage::setModel(WalletModel *_model)
     // update the display unit, to not use the default ("QTUM")
     updateDisplayUnit();
 
-    bCreateUnsigned = m_model->wallet().privateKeysDisabled();
+    bCreateUnsigned = m_model->createUnsigned();
 
     if (bCreateUnsigned) {
         ui->addDelegationButton->setText(tr("Cr&eate Unsigned"));
@@ -290,14 +291,25 @@ void AddDelegationPage::on_addDelegationClicked()
                 }
                 else
                 {
-                    std::string txid = variantMap.value("txid").toString().toStdString();
-                    interfaces::DelegationInfo delegation;
-                    delegation.delegate_address = delegateAddress.toStdString();
-                    delegation.staker_address = stakerAddress.toStdString();
-                    delegation.staker_name = stakerName.trimmed().toStdString();
-                    delegation.fee = stakerFee;
-                    delegation.create_tx_hash.SetHex(txid);
-                    m_model->wallet().addDelegationEntry(delegation);
+                    bool isSent = true;
+                    if(m_model->getSignPsbtWithHwiTool())
+                    {
+                        QString psbt = variantMap.value("psbt").toString();
+                        if(!HardwareSignTx::process(this, m_model, psbt, variantMap))
+                            isSent = false;
+                    }
+
+                    if(isSent)
+                    {
+                        std::string txid = variantMap.value("txid").toString().toStdString();
+                        interfaces::DelegationInfo delegation;
+                        delegation.delegate_address = delegateAddress.toStdString();
+                        delegation.staker_address = stakerAddress.toStdString();
+                        delegation.staker_name = stakerName.trimmed().toStdString();
+                        delegation.fee = stakerFee;
+                        delegation.create_tx_hash.SetHex(txid);
+                        m_model->wallet().addDelegationEntry(delegation);
+                    }
                 }
             }
 

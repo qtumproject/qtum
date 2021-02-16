@@ -7,6 +7,7 @@
 #include <qt/optionsmodel.h>
 #include <qt/sendcoinsdialog.h>
 #include <qt/walletmodel.h>
+#include <qt/hardwaresigntx.h>
 #include <validation.h>
 
 namespace SplitUTXO_NS
@@ -109,7 +110,7 @@ void SplitUTXOPage::setModel(WalletModel *_model)
     // update the display unit, to not use the default ("QTUM")
     updateDisplayUnit();
 
-    bCreateUnsigned = m_model->wallet().privateKeysDisabled();
+    bCreateUnsigned = m_model->createUnsigned();
 
     if (bCreateUnsigned) {
         ui->splitCoinsButton->setText(tr("Cr&eate Unsigned"));
@@ -254,27 +255,38 @@ void SplitUTXOPage::on_splitCoinsClicked()
                      Q_EMIT message(tr("PSBT copied"), "Copied to clipboard", CClientUIInterface::MSG_INFORMATION);
                  }
 
-                 QString selectedString = variantMap.value("selected").toString();
-                 CAmount selected;
-                 BitcoinUnits::parse(unit, selectedString, &selected);
+                 bool isOk = true;
+                 if(m_model->getSignPsbtWithHwiTool())
+                 {
+                     QString psbt = variantMap.value("psbt").toString();
+                     if(!HardwareSignTx::process(this, m_model, psbt, variantMap))
+                         isOk = false;
+                 }
 
-                 QString splitedString = variantMap.value("splited").toString();
-                 CAmount splited;
-                 BitcoinUnits::parse(unit, splitedString, &splited);
+                 if(isOk)
+                 {
+                     QString selectedString = variantMap.value("selected").toString();
+                     CAmount selected;
+                     BitcoinUnits::parse(unit, selectedString, &selected);
 
-                 int displayUnit = m_model->getOptionsModel()->getDisplayUnit();
+                     QString splitedString = variantMap.value("splited").toString();
+                     CAmount splited;
+                     BitcoinUnits::parse(unit, splitedString, &splited);
 
-                 QString infoString = tr("Selected: %1 less than %2 and above of %3.").
-                         arg(BitcoinUnits::formatHtmlWithUnit(displayUnit, selected)).
-                         arg(BitcoinUnits::formatHtmlWithUnit(displayUnit, minValue)).
-                         arg(BitcoinUnits::formatHtmlWithUnit(displayUnit, maxValue));
-                 infoString.append("<br/><br/>");
-                 infoString.append(tr("Splitted: %1.").arg(BitcoinUnits::formatHtmlWithUnit(displayUnit, splited)));
+                     int displayUnit = m_model->getOptionsModel()->getDisplayUnit();
 
-                 QMessageBox::information(this, tr("Split coins for address"), infoString);
+                     QString infoString = tr("Selected: %1 less than %2 and above of %3.").
+                             arg(BitcoinUnits::formatHtmlWithUnit(displayUnit, selected)).
+                             arg(BitcoinUnits::formatHtmlWithUnit(displayUnit, minValue)).
+                             arg(BitcoinUnits::formatHtmlWithUnit(displayUnit, maxValue));
+                     infoString.append("<br/><br/>");
+                     infoString.append(tr("Splitted: %1.").arg(BitcoinUnits::formatHtmlWithUnit(displayUnit, splited)));
 
-                 if(splited == selected || splited == 0 || bCreateUnsigned)
-                     accept();
+                     QMessageBox::information(this, tr("Split coins for address"), infoString);
+
+                     if(splited == selected || splited == 0 || bCreateUnsigned)
+                         accept();
+                 }
             }
         }
     }

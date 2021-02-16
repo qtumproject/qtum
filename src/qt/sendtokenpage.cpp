@@ -16,6 +16,7 @@
 #include <qt/bitcoinaddressvalidator.h>
 #include <uint256.h>
 #include <qt/styleSheet.h>
+#include <qt/hardwaresigntx.h>
 #include <interfaces/node.h>
 
 static const CAmount SINGLE_STEP = 0.00000001*COIN;
@@ -86,7 +87,7 @@ void SendTokenPage::setModel(WalletModel *_model)
     // update the display unit, to not use the default ("QTUM")
     updateDisplayUnit();
 
-    bCreateUnsigned = m_model->wallet().privateKeysDisabled();
+    bCreateUnsigned = m_model->createUnsigned();
 
     if (bCreateUnsigned) {
         ui->confirmButton->setText(tr("Cr&eate Unsigned"));
@@ -219,15 +220,32 @@ void SendTokenPage::on_confirmClicked()
                 }
                 else
                 {
-                    interfaces::TokenTx tokenTx;
-                    tokenTx.contract_address = m_selectedToken->address;
-                    tokenTx.sender_address = m_selectedToken->sender;
-                    tokenTx.receiver_address = toAddress;
-                    dev::u256 nValue(amountToSend);
-                    tokenTx.value = u256Touint(nValue);
-                    tokenTx.tx_hash = uint256S(m_tokenABI->getTxId());
-                    tokenTx.label = label;
-                    m_model->wallet().addTokenTxEntry(tokenTx);
+                    bool isSent = true;
+                    if(m_model->getSignPsbtWithHwiTool())
+                    {
+                        QVariantMap variantMap;
+                        QString psbt = QString::fromStdString(m_tokenABI->getPsbt());
+                        if(!HardwareSignTx::process(this, m_model, psbt, variantMap))
+                            isSent = false;
+                        else
+                        {
+                            std::string txid = variantMap["txid"].toString().toStdString();
+                            m_tokenABI->setTxId(txid);
+                        }
+                    }
+
+                    if(isSent)
+                    {
+                        interfaces::TokenTx tokenTx;
+                        tokenTx.contract_address = m_selectedToken->address;
+                        tokenTx.sender_address = m_selectedToken->sender;
+                        tokenTx.receiver_address = toAddress;
+                        dev::u256 nValue(amountToSend);
+                        tokenTx.value = u256Touint(nValue);
+                        tokenTx.tx_hash = uint256S(m_tokenABI->getTxId());
+                        tokenTx.label = label;
+                        m_model->wallet().addTokenTxEntry(tokenTx);
+                    }
                 }
             }
             else

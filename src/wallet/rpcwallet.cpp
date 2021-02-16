@@ -1131,6 +1131,12 @@ static UniValue createcontract(const JSONRPCRequest& request){
         CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
         ssTx << psbtx;
         result.pushKV("psbt", EncodeBase64((unsigned char*)ssTx.data(), ssTx.size()));
+
+        // Add sender information
+        CTxDestination txSenderAdress(txSenderDest);
+        CKeyID keyid = GetKeyForDestination(spk_man, txSenderAdress);
+        result.pushKV("sender", EncodeDestination(txSenderAdress));
+        result.pushKV("hash160", HexStr(valtype(keyid.begin(),keyid.end())));
     }
     else if(fBroadcast){
     pwallet->CommitTransaction(tx, {}, {});
@@ -1399,6 +1405,12 @@ UniValue SendToContract(interfaces::Chain::Lock& locked_chain, CWallet* const pw
         CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
         ssTx << psbtx;
         result.pushKV("psbt", EncodeBase64((unsigned char*)ssTx.data(), ssTx.size()));
+
+        // Add sender information
+        CTxDestination txSenderAdress(txSenderDest);
+        CKeyID keyid = GetKeyForDestination(spk_man, txSenderAdress);
+        result.pushKV("sender", EncodeDestination(txSenderAdress));
+        result.pushKV("hash160", HexStr(valtype(keyid.begin(),keyid.end())));
     }
     else if(fBroadcast){
         pwallet->CommitTransaction(tx, {}, {});

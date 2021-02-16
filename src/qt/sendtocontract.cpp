@@ -20,6 +20,7 @@
 #include <qt/styleSheet.h>
 #include <qt/guiutil.h>
 #include <qt/sendcoinsdialog.h>
+#include <qt/hardwaresigntx.h>
 #include <QClipboard>
 #include <interfaces/node.h>
 
@@ -141,7 +142,7 @@ void SendToContract::setModel(WalletModel *_model)
     // update the display unit, to not use the default ("QTUM")
     updateDisplayUnit();
 
-    bCreateUnsigned = m_model->wallet().privateKeysDisabled();
+    bCreateUnsigned = m_model->createUnsigned();
 
     if (bCreateUnsigned) {
         ui->pushButtonSendToContract->setText(tr("Cr&eate Unsigned"));
@@ -271,14 +272,28 @@ void SendToContract::on_sendToContractClicked()
                 }
                 else
                 {
-                    ContractResult *widgetResult = new ContractResult(ui->stackedWidget);
-                    widgetResult->setResultData(result, FunctionABI(), m_ABIFunctionField->getParamsValues(), ContractResult::SendToResult);
-                    ui->stackedWidget->addWidget(widgetResult);
-                    int position = ui->stackedWidget->count() - 1;
-                    m_results = position == 1 ? 1 : m_results + 1;
+                    bool isSent = true;
+                    if(m_model->getSignPsbtWithHwiTool())
+                    {
+                        QVariantMap variantMap = result.toMap();
+                        QString psbt = variantMap.value("psbt").toString();
+                        if(!HardwareSignTx::process(this, m_model, psbt, variantMap))
+                            isSent = false;
+                        else
+                            result = variantMap;
+                    }
 
-                    m_tabInfo->addTab(position, tr("Result %1").arg(m_results));
-                    m_tabInfo->setCurrent(position);
+                    if(isSent)
+                    {
+                        ContractResult *widgetResult = new ContractResult(ui->stackedWidget);
+                        widgetResult->setResultData(result, FunctionABI(), m_ABIFunctionField->getParamsValues(), ContractResult::SendToResult);
+                        ui->stackedWidget->addWidget(widgetResult);
+                        int position = ui->stackedWidget->count() - 1;
+                        m_results = position == 1 ? 1 : m_results + 1;
+
+                        m_tabInfo->addTab(position, tr("Result %1").arg(m_results));
+                        m_tabInfo->setCurrent(position);
+                    }
                 }
             }
             else

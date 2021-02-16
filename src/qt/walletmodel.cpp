@@ -893,6 +893,9 @@ void WalletModel::importAddressesData(bool _rescan, bool _importPKH, bool _impor
 
 bool WalletModel::getSignPsbtWithHwiTool()
 {
+    if(!::Params().HasHardwareWalletSupport())
+        return false;
+
     return wallet().privateKeysDisabled() && gArgs.GetBoolArg("-signpsbtwithhwitool", DEFAULT_SIGN_PSBT_WITH_HWI_TOOL);
 }
 
@@ -900,6 +903,9 @@ bool WalletModel::createUnsigned()
 {
     if(wallet().privateKeysDisabled())
     {
+        if(!::Params().HasHardwareWalletSupport())
+            return true;
+
         QString hwiToolPath = GUIUtil::getHwiToolPath();
         if(QFile::exists(hwiToolPath))
         {

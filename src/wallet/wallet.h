@@ -110,7 +110,7 @@ static const CAmount DEFAULT_STAKER_MIN_UTXO_SIZE = 0;
 static const int32_t DEFAULT_STAKER_MAX_UTXO_SCRIPT_CACHE = 200000;
 
 //! -signpsbtwithhwitool default
-static const bool DEFAULT_SIGN_PSBT_WITH_HWI_TOOL = false;
+static const bool DEFAULT_SIGN_PSBT_WITH_HWI_TOOL = true;
 
 class CCoinControl;
 class COutput;

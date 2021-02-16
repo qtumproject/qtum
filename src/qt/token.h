@@ -52,6 +52,9 @@ public:
     std::string getPsbt();
     std::string getErrorMessage();
 
+    // Set transaction data
+    void setTxId(const std::string& txid);
+
     // ABI Functions
     bool name(std::string& result, bool sendTo = false);
     bool approve(const std::string& _spender, const std::string& _value, bool& success, bool sendTo = false);

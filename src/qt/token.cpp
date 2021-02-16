@@ -272,6 +272,11 @@ std::string Token::getPsbt()
     return d->psbt;
 }
 
+void Token::setTxId(const std::string& txid)
+{
+    d->txid = txid;
+}
+
 bool Token::name(std::string &result, bool sendTo)
 {
     std::vector<std::string> input;

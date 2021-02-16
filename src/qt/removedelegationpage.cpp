@@ -9,6 +9,7 @@
 #include <qt/bitcoinunits.h>
 #include <qt/execrpccommand.h>
 #include <qt/sendcoinsdialog.h>
+#include <qt/hardwaresigntx.h>
 
 namespace RemoveDelegation_NS
 {
@@ -76,7 +77,7 @@ void RemoveDelegationPage::setModel(WalletModel *_model)
     // update the display unit, to not use the default ("QTUM")
     updateDisplayUnit();
 
-    bCreateUnsigned = m_model->wallet().privateKeysDisabled();
+    bCreateUnsigned = m_model->createUnsigned();
 
     if (bCreateUnsigned) {
         ui->removeDelegationButton->setText(tr("Cr&eate Unsigned"));
@@ -245,14 +246,24 @@ void RemoveDelegationPage::on_removeDelegationClicked()
                 QVariantMap variantMap = result.toMap();
                 if(bCreateUnsigned)
                 {
-                    QVariantMap variantMap = result.toMap();
                     GUIUtil::setClipboard(variantMap.value("psbt").toString());
                     Q_EMIT message(tr("PSBT copied"), "Copied to clipboard", CClientUIInterface::MSG_INFORMATION);
                 }
                 else
                 {
-                    std::string txid = variantMap.value("txid").toString().toStdString();
-                    m_model->wallet().setDelegationRemoved(sHash, txid);
+                    bool isSent = true;
+                    if(m_model->getSignPsbtWithHwiTool())
+                    {
+                        QString psbt = variantMap.value("psbt").toString();
+                        if(!HardwareSignTx::process(this, m_model, psbt, variantMap))
+                            isSent = false;
+                    }
+
+                    if(isSent)
+                    {
+                        std::string txid = variantMap.value("txid").toString().toStdString();
+                        m_model->wallet().setDelegationRemoved(sHash, txid);
+                    }
                 }
             }
 

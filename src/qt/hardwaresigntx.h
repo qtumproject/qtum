@@ -58,6 +58,16 @@ public:
      */
     bool send(QVariantMap& result);
 
+    /**
+     * @brief process Process transaction
+     * @param widget Parent widget
+     * @param model Wallet model
+     * @param psbt Transaction
+     * @param result Result to update
+     * @return success of the operation
+     */
+    static bool process(QWidget *widget, WalletModel *model, const QString& psbt, QVariantMap& result);
+
 Q_SIGNALS:
 
 public Q_SLOTS:
