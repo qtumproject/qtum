@@ -196,6 +196,7 @@ void SendCoinsDialog::setModel(WalletModel *_model)
         // set default rbf checkbox state
         ui->optInRBF->setCheckState(Qt::Checked);
 
+        bCreateUnsigned = _model->createUnsigned();
         if (bCreateUnsigned) {
             ui->sendButton->setText(tr("Cr&eate Unsigned"));
             ui->sendButton->setToolTip(tr("Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.").arg(PACKAGE_NAME));
@@ -214,8 +215,6 @@ void SendCoinsDialog::setModel(WalletModel *_model)
             ui->confTargetSelector->setCurrentIndex(getIndexForConfTarget(model->wallet().getConfirmTarget()));
         else
             ui->confTargetSelector->setCurrentIndex(getIndexForConfTarget(settings.value("nConfTarget").toInt()));
-
-        bCreateUnsigned = _model->createUnsigned();
     }
 }
 
