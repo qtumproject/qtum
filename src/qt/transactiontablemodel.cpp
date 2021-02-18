@@ -72,6 +72,7 @@ public:
      * this is sorted by sha256.
      */
     QList<TransactionRecord> cachedWallet;
+    bool isDataLoading = true;
 
     /* Query entire wallet anew from core.
      */
@@ -187,18 +188,21 @@ public:
         {
             TransactionRecord *rec = &cachedWallet[idx];
 
-            // Get required locks upfront. This avoids the GUI from getting
-            // stuck if the core is holding the locks for a longer time - for
-            // example, during a wallet rescan.
-            //
-            // If a status update is needed (blocks came in since last check),
-            //  update the status of this transaction from the wallet. Otherwise,
-            // simply re-use the cached status.
-            interfaces::WalletTxStatus wtx;
-            int numBlocks;
-            int64_t block_time;
-            if (wallet.tryGetTxStatus(rec->hash, wtx, numBlocks, block_time) && rec->statusUpdateNeeded(numBlocks)) {
-                rec->updateStatus(wtx, numBlocks, block_time);
+            if(!isDataLoading)
+            {
+                // Get required locks upfront. This avoids the GUI from getting
+                // stuck if the core is holding the locks for a longer time - for
+                // example, during a wallet rescan.
+                //
+                // If a status update is needed (blocks came in since last check),
+                //  update the status of this transaction from the wallet. Otherwise,
+                // simply re-use the cached status.
+                interfaces::WalletTxStatus wtx;
+                int numBlocks;
+                int64_t block_time;
+                if (wallet.tryGetTxStatus(rec->hash, wtx, numBlocks, block_time) && rec->statusUpdateNeeded(numBlocks)) {
+                    rec->updateStatus(wtx, numBlocks, block_time);
+                }
             }
             return rec;
         }
@@ -270,6 +274,9 @@ void TransactionTableModel::updateConfirmations()
     // Invalidate status (number of confirmations) and (possibly) description
     //  for all rows. Qt is smart enough to only actually request the data for the
     //  visible rows.
+    if(priv->isDataLoading)
+        priv->isDataLoading = false;
+
     modelDataChanged(Status);
     modelDataChanged(ToAddress);
 }
