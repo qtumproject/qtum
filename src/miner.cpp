@@ -1684,6 +1684,10 @@ protected:
             return false;
         }
 
+        // Try to create an empty PoS block to get the address of the block creator for contracts
+        if (!SignBlock(d->pblock, *(d->pwallet), d->nTotalFees, blockTime, d->setCoins, d->mapSolveSelectedCoins[blockTime], d->mapSolveDelegateCoins[blockTime], true, true))
+            return false;
+
         // Create a block that's properly populated with transactions
         d->pblocktemplatefilled = std::unique_ptr<CBlockTemplate>(
                 BlockAssembler(mempool, Params(), d->pwallet).CreateNewBlock(d->pblock->vtx[1]->vout[1].scriptPubKey, true, true, &(d->nTotalFees),
