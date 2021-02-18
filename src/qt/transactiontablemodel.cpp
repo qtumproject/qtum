@@ -16,6 +16,7 @@
 
 #include <core_io.h>
 #include <interfaces/handler.h>
+#include <interfaces/node.h>
 #include <uint256.h>
 
 #include <algorithm>
@@ -25,6 +26,7 @@
 #include <QDebug>
 #include <QIcon>
 #include <QList>
+#include <QApplication>
 
 
 // Amount column is right-aligned it contains numbers
@@ -268,8 +270,8 @@ void TransactionTableModel::updateConfirmations()
     // Invalidate status (number of confirmations) and (possibly) description
     //  for all rows. Qt is smart enough to only actually request the data for the
     //  visible rows.
-    Q_EMIT dataChanged(index(0, Status), index(priv->size()-1, Status));
-    Q_EMIT dataChanged(index(0, ToAddress), index(priv->size()-1, ToAddress));
+    modelDataChanged(Status);
+    modelDataChanged(ToAddress);
 }
 
 int TransactionTableModel::rowCount(const QModelIndex &parent) const
@@ -693,7 +695,7 @@ void TransactionTableModel::updateDisplayUnit()
 {
     // emit dataChanged to update Amount column with the current unit
     updateAmountColumnTitle();
-    Q_EMIT dataChanged(index(0, Amount), index(priv->size()-1, Amount));
+    modelDataChanged(Amount);
 }
 
 // queue notifications to show a non freezing progress dialog e.g. for rescan
@@ -772,4 +774,18 @@ void TransactionTableModel::unsubscribeFromCoreSignals()
     // Disconnect signals from wallet
     m_handler_transaction_changed->disconnect();
     m_handler_show_progress->disconnect();
+}
+
+void TransactionTableModel::modelDataChanged(const TransactionTableModel::ColumnIndex &column)
+{
+    int from = 0;
+    int to = 0;
+    while(to != priv->size() && !(walletModel->node().shutdownRequested()))
+    {
+        to += 500;
+        if(to > priv->size()) to = priv->size();
+        Q_EMIT dataChanged(index(from, column), index(to-1, column));
+        from = to;
+        if(qApp) qApp->processEvents();
+    }
 }
