@@ -300,6 +300,21 @@ public:
         int64_t secs = GetTime() - blockTime;
         isSyncing = secs >= 90*60 ? true : false;
     }
+    bool tryGetSyncInfo(int& numBlocks, bool& isSyncing) override
+    {
+        TRY_LOCK(::cs_main, lockMain);
+        if (lockMain) {
+            // Get node synchronization information with minimal locks
+            numBlocks = ::ChainActive().Height();
+            int64_t blockTime = ::ChainActive().Tip() ? ::ChainActive().Tip()->GetBlockTime() :
+                                                      Params().GenesisBlock().GetBlockTime();
+            int64_t secs = GetTime() - blockTime;
+            isSyncing = secs >= 90*60 ? true : false;
+            return true;
+        }
+
+        return false;
+    }
     int64_t getBlockSubsidy(int nHeight) override
     {
         const CChainParams& chainparams = Params();
