@@ -37,7 +37,7 @@ unsigned int nStakeTimeBuffer = STAKE_TIME_BUFFER;
 unsigned int nMinerSleep = STAKER_POLLING_PERIOD;
 unsigned int nMinerWaitWalidBlock = STAKER_WAIT_FOR_WALID_BLOCK;
 
-void updateMinerParams(int nHeight, const Consensus::Params& consensusParams)
+void updateMinerParams(int nHeight, const Consensus::Params& consensusParams, bool minDifficulty)
 {
     static unsigned int timeDownscale = 1;
     static unsigned int timeDefault = 1;
@@ -52,6 +52,12 @@ void updateMinerParams(int nHeight, const Consensus::Params& consensusParams)
         nStakeTimeBuffer = std::max(STAKE_TIME_BUFFER / timeDownscale, timeDefault);
         nMinerSleep = std::max(STAKER_POLLING_PERIOD / timeDownscale, timeDefault);
         nMinerWaitWalidBlock = std::max(STAKER_WAIT_FOR_WALID_BLOCK / timeDownscale, timeDefault);
+    }
+
+    // Sleep for 20 seconds when mining with minimum difficulty to avoid creating blocks every 4 seconds
+    if(minDifficulty && nMinerSleep != STAKER_POLLING_PERIOD_MIN_DIFFICULTY)
+    {
+        nMinerSleep = STAKER_POLLING_PERIOD_MIN_DIFFICULTY;
     }
 }
 
@@ -1262,6 +1268,7 @@ public:
     CConnman* connman = 0;
     bool fTryToSync = true;
     bool regtestMode = false;
+    bool minDifficulty = false;
     bool fSuperStake = false;
     const Consensus::Params& consensusParams;
     int nOfflineStakeHeight = 0;
@@ -1320,6 +1327,7 @@ public:
         util::ThreadRename(threadName.c_str());
 
         regtestMode = Params().MineBlocksOnDemand();
+        minDifficulty = consensusParams.fPowAllowMinDifficultyBlocks;
         fSuperStake = gArgs.GetBoolArg("-superstaking", DEFAULT_SUPER_STAKE);
         nOfflineStakeHeight = consensusParams.nOfflineStakeHeight;
         fDelegationsContract = !consensusParams.delegationsAddress.IsNull();
@@ -1522,7 +1530,7 @@ protected:
         d->pindexPrev = ::ChainActive().Tip();
         int32_t nHeightTip = ::ChainActive().Height();
         d->nHeight = nHeightTip + 1;
-        updateMinerParams(d->nHeight, d->consensusParams);
+        updateMinerParams(d->nHeight, d->consensusParams, d->minDifficulty);
         bool fOfflineStakeEnabled = (d->nHeight > d->nOfflineStakeHeight) && d->fDelegationsContract;
         if(fOfflineStakeEnabled)
         {
