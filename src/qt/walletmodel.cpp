@@ -39,6 +39,8 @@
 #include <QTimer>
 #include <QFile>
 
+static int pollSyncSkip = 30;
+
 class WalletWorker : public QObject
 {
     Q_OBJECT
@@ -131,7 +133,7 @@ void WalletModel::pollBalanceChanged()
     int numBlocks = -1;
     bool isSyncing = false;
     pollNum++;
-    if(!m_node.tryGetSyncInfo(numBlocks, isSyncing) || (isSyncing && pollNum < 30))
+    if(!m_node.tryGetSyncInfo(numBlocks, isSyncing) || (isSyncing && pollNum < pollSyncSkip))
         return;
 
     // Try to get balances and return early if locks can't be acquired. This

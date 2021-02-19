@@ -27,6 +27,7 @@
 #include <QIcon>
 #include <QList>
 #include <QApplication>
+#include <QPointer>
 
 
 // Amount column is right-aligned it contains numbers
@@ -38,6 +39,7 @@ static int column_alignments[] = {
         Qt::AlignLeft|Qt::AlignVCenter, /* address */
         Qt::AlignRight|Qt::AlignVCenter /* amount */
     };
+static int dataChangedChunk = 500;
 
 // Comparison operator for sort/binary search of model tx list
 struct TxLessThan
@@ -785,11 +787,12 @@ void TransactionTableModel::unsubscribeFromCoreSignals()
 
 void TransactionTableModel::modelDataChanged(const TransactionTableModel::ColumnIndex &column)
 {
+    QPointer<TransactionTableModel> model = this;
     int from = 0;
     int to = 0;
-    while(to != priv->size() && !(walletModel->node().shutdownRequested()))
+    while(model && to != priv->size() && !(walletModel->node().shutdownRequested()))
     {
-        to += 500;
+        to += dataChangedChunk;
         if(to > priv->size()) to = priv->size();
         Q_EMIT dataChanged(index(from, column), index(to-1, column));
         from = to;
