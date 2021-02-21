@@ -18,7 +18,7 @@ class QtumEVMGlobalsTest(BitcoinTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 2
-        self.extra_args = [['-staking=1'], []]
+        self.extra_args = [['-staking=1', '-muirglacierheight=100000'], ['-muirglacierheight=100000']]
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
@@ -147,8 +147,8 @@ class QtumEVMGlobalsTest(BitcoinTestFramework):
     def run_test(self):
         self.node = self.nodes[0]
         connect_nodes_bi(self.nodes, 0, 1)
-
-        generatesynchronized(self.node, 10 + COINBASE_MATURITY, None, self.nodes)
+        address = self.node.getnewaddress()
+        generatesynchronized(self.node, 10 + COINBASE_MATURITY, address, self.nodes)
 
         """
         pragma solidity ^0.4.12;
@@ -204,27 +204,27 @@ class QtumEVMGlobalsTest(BitcoinTestFramework):
         self.contract_address = self.node.createcontract(bytecode)['address']
         print('verify globals in PoW blocks')
 
-        self.verify_evm_globals_test(use_staking=False)
+        self.verify_evm_globals_test(use_staking=True)
         self.sync_all()
+        return
+        #assert(False)
         
-        self.node.generate(257)
+        generatesynchronized(self.node, 257, None, self.nodes)
         self.sync_all()
 
         for n in self.nodes:
             n.setmocktime((self.node.getblock(self.node.getbestblockhash())['time']+100) & 0xfffffff0)
 
+        print(self.node.getblockcount())
         print('verify globals in PoS blocks')
         self.verify_evm_globals_test(use_staking=True)
         self.sync_all()
 
-        self.node.generate(257)
+        generatesynchronized(self.node, 257, None, self.nodes)
         self.sync_all()
 
         print('verify globals in MPoS blocks')
-        for i in range(self.node.getblockcount(), 4850, 100):
-            self.node.generate(100)
-            self.sync_blocks()
-        self.node.generate(4999 - self.node.getblockcount())
+        generatesynchronized(self.node, 4999 - self.node.getblockcount(), None, self.nodes)
         self.sync_blocks()
 
         for n in self.nodes:

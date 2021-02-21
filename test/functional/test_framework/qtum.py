@@ -11,6 +11,8 @@ import base64
 import math
 import pprint
 
+pp = pprint.PrettyPrinter()
+
 def generatesynchronized(node, numblocks, address=None, sync_with_nodes=[]):
     if not address:
         address = node.getnewaddress()
@@ -202,15 +204,19 @@ class DGPState:
 
     def send_add_address_proposal(self, proposal_address, type1, sender):
         self.node.sendtoaddress(sender, 1)
-        self.node.sendtocontract(self.contract_address, self.abiAddAddressProposal + proposal_address.zfill(64) + hex(type1)[2:].zfill(64), 0, 2000000, QTUM_MIN_GAS_PRICE_STR, sender)
+        txid = self.node.sendtocontract(self.contract_address, self.abiAddAddressProposal + proposal_address.zfill(64) + hex(type1)[2:].zfill(64), 0, 20000000, QTUM_MIN_GAS_PRICE_STR, sender)['txid']
+        return txid
 
     def send_remove_address_proposal(self, proposal_address, type1, sender):
         self.node.sendtoaddress(sender, 1)
-        self.node.sendtocontract(self.contract_address, self.abiRemoveAddressProposal + proposal_address.zfill(64) + hex(type1)[2:].zfill(64), 0, 2000000, QTUM_MIN_GAS_PRICE_STR, sender)
+        txid = self.node.sendtocontract(self.contract_address, self.abiRemoveAddressProposal + proposal_address.zfill(64) + hex(type1)[2:].zfill(64), 0, 20000000, QTUM_MIN_GAS_PRICE_STR, sender)['txid']
+        return txid
 
     def send_change_value_proposal(self, uint_proposal, type1, sender):
         self.node.sendtoaddress(sender, 1)
-        self.node.sendtocontract(self.contract_address, self.abiChangeValueProposal + hex(uint_proposal)[2:].zfill(64) + hex(type1)[2:].zfill(64), 0, 2000000, QTUM_MIN_GAS_PRICE_STR, sender)
+        txid = self.node.sendtocontract(self.contract_address, self.abiChangeValueProposal + hex(uint_proposal)[2:].zfill(64) + hex(type1)[2:].zfill(64), 0, 20000000, QTUM_MIN_GAS_PRICE_STR, sender)['txid']
+        return txid
+
 
     def assert_state(self):
         # This assertion is only to catch potential errors in the test code (if we forget to add a generate after an evm call)
@@ -373,7 +379,7 @@ class DGPState:
             assert_equal(int(real, 16), int(expected, 16))
 
 
-def collect_prevouts(node, amount=None, address=None, min_confirmations=COINBASE_MATURITY):
+def collect_prevouts(node, amount=None, address=None, min_confirmations=COINBASE_MATURITY, min_amount=0):
     blocks = []
     for block_no in range(1, node.getblockcount()+1):
         blocks.append(node.getblock(node.getblockhash(block_no)))
@@ -387,7 +393,7 @@ def collect_prevouts(node, amount=None, address=None, min_confirmations=COINBASE
                 break
         else:
             assert(False)
-        if unspent['confirmations'] > min_confirmations and (not amount or amount == unspent['amount']) and (not address or address == unspent['address']):
+        if unspent['confirmations'] > min_confirmations and (not amount or amount == unspent['amount']) and (not address or address == unspent['address']) and unspent['amount'] >= min_amount:
             staking_prevouts.append((COutPoint(int(unspent['txid'], 16), unspent['vout']), int(unspent['amount']*COIN), tx_block_time))
     return staking_prevouts
 
@@ -578,10 +584,12 @@ def delegate_to_staker(delegator, delegator_address, staker_address, fee, pod):
     }, expected_gas_consumed=2000000)
 
 
-def create_delegated_pos_block(staker, staker_eckey, staker_prevout, delegator_address_hex, pod, staking_fee_percentage, delegator_prevouts, nFees=0, nTime=None):
+def create_delegated_pos_block(staker, staker_eckey, staker_prevout, delegator_address_hex, pod, staking_fee_percentage, delegator_prevouts, nFees=0, nTime=None, use_pos_reward=False):
     tmp = create_unsigned_pos_block(staker, delegator_prevouts, nTime=nTime)
     if not tmp:
         return None
+
+    block_subsidy = INITIAL_BLOCK_REWARD_POS if use_pos_reward else INITIAL_BLOCK_REWARD
 
     block, k = tmp
     # change the vin from the staker input to the delegator input
@@ -590,9 +598,9 @@ def create_delegated_pos_block(staker, staker_eckey, staker_prevout, delegator_a
 
     block.vtx[1].vin[0] = CTxIn(staker_prevout)
     block.vtx[1].vout[1].scriptPubKey = CScript([staker_eckey.get_pubkey().get_bytes(), OP_CHECKSIG])
-    block.vtx[1].vout[1].nValue = ((INITIAL_BLOCK_REWARD*COIN+nFees) * staking_fee_percentage) // 100
+    block.vtx[1].vout[1].nValue = int(((block_subsidy*COIN+nFees) * staking_fee_percentage) // 100)
     block.vtx[1].vout[2].scriptPubKey = CScript([OP_DUP, OP_HASH160, hex_str_to_bytes(delegator_address_hex), OP_EQUALVERIFY, OP_CHECKSIG])
-    block.vtx[1].vout[2].nValue = (INITIAL_BLOCK_REWARD*COIN+nFees) - block.vtx[1].vout[1].nValue # subtract the staker's reward to get the delegator's reward (the delegator will ceil)
+    block.vtx[1].vout[2].nValue = int(block_subsidy*COIN+nFees) - block.vtx[1].vout[1].nValue # subtract the staker's reward to get the delegator's reward (the delegator will ceil)
     block.vtx[1].vout[1].nValue += staker_nas_input_value # add the input value for the staker
     block.vtx[1] = rpc_sign_transaction(staker, block.vtx[1])
     block.vtx[1].rehash()
