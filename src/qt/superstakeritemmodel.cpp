@@ -79,6 +79,9 @@ public:
 private Q_SLOTS:
     void updateSuperStakerData(QString hash, QString stakerAddress)
     {
+        if(walletModel && walletModel->node().shutdownRequested())
+            return;
+
         // Get address balance
         bool staking = false;
         CAmount balance = 0;
