@@ -40,6 +40,8 @@
 #include <QTimer>
 #include <QFile>
 
+static int pollSyncSkip = 30;
+
 class WalletWorker : public QObject
 {
     Q_OBJECT
@@ -129,19 +131,22 @@ void WalletModel::updateStatus()
 
 void WalletModel::pollBalanceChanged()
 {
+    // Get node synchronization information
+    int numBlocks = -1;
+    bool isSyncing = false;
+    pollNum++;
+    if(!m_node.tryGetSyncInfo(numBlocks, isSyncing) || (isSyncing && pollNum < pollSyncSkip))
+        return;
+
     // Try to get balances and return early if locks can't be acquired. This
     // avoids the GUI from getting stuck on periodical polls if the core is
     // holding the locks for a longer time - for example, during a wallet
     // rescan.
     interfaces::WalletBalances new_balances;
-    int numBlocks = -1;
     if (!m_wallet->tryGetBalances(new_balances, numBlocks, fForceCheckBalanceChanged, cachedNumBlocks)) {
         return;
     }
-
-    // Get node synchronization information
-    bool isSyncing = false;
-    m_node.getSyncInfo(numBlocks, isSyncing);
+    pollNum = 0;
 
     bool cachedNumBlocksChanged = numBlocks != cachedNumBlocks;
     fForceCheckBalanceChanged = false;
