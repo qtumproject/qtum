@@ -784,7 +784,8 @@ void BitcoinGUI::addWallet(WalletModel* walletModel)
         m_wallet_selector->setVisible(true);
     }
     appTitleBar->addWallet(walletModel);
-    QTimer::singleShot(MODEL_UPDATE_DELAY, clientModel, SLOT(updateTip()));
+    if(!(clientModel->fBatchProcessingMode))
+        QTimer::singleShot(MODEL_UPDATE_DELAY, clientModel, SLOT(updateTip()));
 }
 
 void BitcoinGUI::removeWallet(WalletModel* walletModel)
@@ -1558,7 +1559,7 @@ void BitcoinGUI::toggleHidden()
 #ifdef ENABLE_WALLET
 void BitcoinGUI::updateStakingIcon()
 {
-    if(m_node.shutdownRequested())
+    if(m_node.shutdownRequested() || !clientModel || clientModel->fBatchProcessingMode)
         return;
 
     WalletView * const walletView = walletFrame ? walletFrame->currentWalletView() : 0;

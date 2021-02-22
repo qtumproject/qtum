@@ -12,6 +12,7 @@ namespace ContractABI_NS
     result.param = json[#param].get_bool();
 #define ReadJsonArray(json, param, result) if(json.exists(#param) && json[#param].isArray())\
     result = json[#param].get_array();
+#define JsonExist(json, param) json.exists(#param)
 
 // String parsing functions
 inline bool startsWithString(const std::string& str, const std::string& s, size_t& pos)
@@ -72,9 +73,29 @@ bool ContractABI::loads(const std::string &json_data)
             FunctionABI function;
             ReadJsonString(json_function, name, function);
             ReadJsonString(json_function, type, function);
-            ReadJsonBool(json_function, payable, function);
-            ReadJsonBool(json_function, constant, function);
             ReadJsonBool(json_function, anonymous, function);
+            ReadJsonString(json_function, stateMutability, function);
+
+            // Payable might not exist in newer ABI, so determine it from state mutability if it not exists
+            if(JsonExist(json_function, payable))
+            {
+                ReadJsonBool(json_function, payable, function);
+            }
+            else
+            {
+                function.payable = function.stateMutability == "payable";
+            }
+
+            // Constant might not exist in newer ABI, so determine it from state mutability if it not exists
+            if(JsonExist(json_function, constant))
+            {
+                ReadJsonBool(json_function, constant, function);
+            }
+            else
+            {
+                function.constant = function.stateMutability == "pure"
+                        || function.stateMutability == "view";
+            }
 
             UniValue json_inputs;
             ReadJsonArray(json_function, inputs, json_inputs);

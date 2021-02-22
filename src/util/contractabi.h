@@ -173,6 +173,7 @@ public:
     bool payable; // True if function accepts ether, defaults to false.
     bool constant; // True if function is specified to not modify blockchain state.
     bool anonymous; // True if the event was declared as anonymous.
+    std::string stateMutability; // Function state mutability: "pure", "view", "nonpayable" or "payable"
 
     // Constructor and fallback function never have name or outputs.
     // Fallback function doesn't have inputs either.

@@ -4340,7 +4340,9 @@ void CWallet::UnlockAllCoins()
 
 bool CWallet::IsLockedCoin(uint256 hash, unsigned int n) const
 {
+#ifndef DEBUG_LOCKORDER
     AssertLockHeld(cs_wallet);
+#endif
     COutPoint outpt(hash, n);
 
     return (setLockedCoins.count(outpt) > 0);
@@ -5094,7 +5096,9 @@ CKeyPool::CKeyPool(const CPubKey& vchPubKeyIn, bool internalIn)
 int CWalletTx::GetDepthInMainChain() const
 {
     assert(pwallet != nullptr);
+#ifndef DEBUG_LOCKORDER
     AssertLockHeld(pwallet->cs_wallet);
+#endif
     if (isUnconfirmed() || isAbandoned()) return 0;
 
     return (pwallet->GetLastBlockHeight() - m_confirm.block_height + 1) * (isConflicted() ? -1 : 1);

@@ -218,6 +218,7 @@ private:
     interfaces::WalletBalances m_cached_balances;
     EncryptionStatus cachedEncryptionStatus;
     int cachedNumBlocks;
+    int pollNum = 0;
 
     QString restorePath;
     QString restoreParam;
