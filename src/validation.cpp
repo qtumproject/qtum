@@ -4756,6 +4756,11 @@ bool CheckFirstCoinstakeOutput(const CBlock& block)
 }
 
 #ifdef ENABLE_WALLET
+bool SignBlockHWI(std::shared_ptr<CBlock> pblock, CWallet& wallet, std::vector<unsigned char>& vchSig)
+{
+    return false;
+}
+
 // novacoin: attempt to generate suitable proof-of-stake
 bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& nTotalFees, uint32_t nTime, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setSelectedCoins, std::vector<COutPoint>& setDelegateCoins, bool selectedOnly, bool tryOnly)
 {
@@ -4786,7 +4791,8 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
     nTimeBlock &= ~consensusParams.StakeTimestampMask(nHeight);
     if(!spk_man)
         return false;
-    if (wallet.CreateCoinStake(*locked_chain, *spk_man, pblock->nBits, nTotalFees, nTimeBlock, txCoinStake, key, setCoins, setSelectedCoins, setDelegateCoins, selectedOnly, true, vchPoD, headerPrevout))
+    bool privateKeysDisabled = wallet.IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+    if (wallet.CreateCoinStake(*locked_chain, *spk_man, pblock->nBits, nTotalFees, nTimeBlock, txCoinStake, key, setCoins, setSelectedCoins, setDelegateCoins, selectedOnly, !privateKeysDisabled, vchPoD, headerPrevout))
     {
         if (nTimeBlock >= ::ChainActive().Tip()->GetMedianTimePast()+1)
         {
@@ -4815,7 +4821,7 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
 
                 // append a signature to our block and ensure that is compact
                 std::vector<unsigned char> vchSig;
-                bool isSigned = key.SignCompact(pblock->GetHashWithoutSign(), vchSig);
+                bool isSigned = privateKeysDisabled ? SignBlockHWI(pblock, wallet, vchSig) : key.SignCompact(pblock->GetHashWithoutSign(), vchSig);
                 pblock->SetBlockSignature(vchSig);
 
                 // check block header
