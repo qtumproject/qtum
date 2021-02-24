@@ -4966,7 +4966,7 @@ void CWallet::postInitProcess()
     chain().requestMempoolTransactions(*this);
 
     // Start mine proof-of-stake blocks in the background
-    if (gArgs.GetBoolArg("-staking", DEFAULT_STAKE)) {
+    if (!IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS) && gArgs.GetBoolArg("-staking", DEFAULT_STAKE)) {
         StartStake();
     }
 }
