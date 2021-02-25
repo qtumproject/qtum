@@ -3405,7 +3405,10 @@ bool CWallet::CreateCoinStakeFromMine(interfaces::Chain::Lock& locked_chain, con
     txNew.vout.push_back(CTxOut(0, scriptEmpty));
 
     // Choose coins to use
-    CAmount nBalance = GetBalance().m_mine_trusted;
+    const auto bal = GetBalance();
+    CAmount nBalance = bal.m_mine_trusted;
+    if(IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS))
+        nBalance += bal.m_watchonly_trusted;
 
     if (nBalance <= m_reserve_balance)
         return false;
