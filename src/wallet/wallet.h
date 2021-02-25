@@ -1442,6 +1442,7 @@ public:
     std::map<uint160, bool> m_have_coin_superstaker;
     int m_num_threads = 1;
     mutable boost::thread_group threads;
+    std::string m_ledger_id;
 };
 
 /**

@@ -57,6 +57,7 @@
 #include <wallet/wallet.h>
 #include <util/convert.h>
 #include <util/signstr.h>
+#include <qtum/qtumledger.h>
 
 #include <algorithm>
 #include <string>
@@ -4758,7 +4759,62 @@ bool CheckFirstCoinstakeOutput(const CBlock& block)
 #ifdef ENABLE_WALLET
 bool SignBlockHWI(std::shared_ptr<CBlock> pblock, CWallet& wallet, std::vector<unsigned char>& vchSig)
 {
-    return false;
+    // Check ledger ID
+    if(wallet.m_ledger_id == "") {
+        return false;
+    }
+    static QtumLedger device;
+
+    // Make a blank psbt
+    PartiallySignedTransaction psbtx_in;
+    CMutableTransaction rawTx = CMutableTransaction(*pblock->vtx[1]);
+    psbtx_in.tx = rawTx;
+    for (unsigned int i = 0; i < rawTx.vin.size(); ++i) {
+        psbtx_in.inputs.push_back(PSBTInput());
+    }
+    for (unsigned int i = 0; i < rawTx.vout.size(); ++i) {
+        psbtx_in.outputs.push_back(PSBTOutput());
+    }
+
+    // Fill transaction with out data but don't sign
+    bool bip32derivs = true;
+    bool complete = true;
+    const TransactionError err = wallet.FillPSBT(psbtx_in, complete, 1, false, bip32derivs);
+    if (err != TransactionError::OK) {
+        return false;
+    }
+
+    // Serialize the PSBT
+    CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
+    ssTx << psbtx_in;
+    std::string psbt = EncodeBase64((unsigned char*)ssTx.data(), ssTx.size());
+    if(!device.signCoinStake(wallet.m_ledger_id, psbt)) {
+        return false;
+    }
+
+    // Unserialize the transactions
+    PartiallySignedTransaction psbtx_out;
+    std::string error;
+    if (!DecodeBase64PSBT(psbtx_out, psbt, error)) {
+        return false;
+    }
+
+    // Update block proof
+    CMutableTransaction txCoinStake;
+    complete = FinalizeAndExtractPSBT(psbtx_out, txCoinStake);
+    if(!complete) {
+        return false;
+    }
+    pblock->vtx[1] = MakeTransactionRef(std::move(txCoinStake));
+    pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
+
+    // Sign block header
+    std::string header = pblock->GetWithoutSign();
+    if(!device.signBlockHeader(wallet.m_ledger_id, header, vchSig)) {
+        return false;
+    }
+
+    return true;
 }
 
 // novacoin: attempt to generate suitable proof-of-stake
