@@ -928,9 +928,11 @@ public:
         pwallet(_pwallet),
         cacheHeight(0),
         type(StakerType::STAKER_NORMAL),
-        spk_man(0)
+        spk_man(0),
+        privateKeysDisabled(false)
     {
         spk_man = _pwallet->GetLegacyScriptPubKeyMan();
+        privateKeysDisabled = _pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
 
         // Get allow list
         for (const std::string& strAddress : gArgs.GetArgs("-stakingallowlist"))
@@ -975,7 +977,15 @@ public:
 
     bool Match(const DelegationEvent& event) const
     {
-        bool mine = spk_man->HaveKey(CKeyID(event.item.staker));
+        bool mine = false;
+        if(privateKeysDisabled)
+        {
+            mine = pwallet->IsMine(PKHash(event.item.staker));
+        }
+        else
+        {
+            mine = spk_man->HaveKey(CKeyID(event.item.staker));
+        }
         if(!mine)
             return false;
 
@@ -1053,6 +1063,7 @@ private:
     std::vector<uint160> excludeList;
     int type;
     LegacyScriptPubKeyMan* spk_man;
+    bool privateKeysDisabled;
 };
 
 class MyDelegations : public DelegationFilterBase
@@ -1287,6 +1298,7 @@ public:
     int numThreads = 1;
     boost::thread_group threads;
     mutable RecursiveMutex cs_worker;
+    bool privateKeysDisabled = false;;
 
 public:
     DelegationsStaker delegationsStaker;
@@ -1342,6 +1354,7 @@ public:
         fEmergencyStaking = gArgs.GetBoolArg("-emergencystaking", false);
         fAggressiveStaking = gArgs.IsArgSet("-aggressive-staking");
         if(pwallet) numThreads = pwallet->m_num_threads;
+        if(pwallet) privateKeysDisabled = pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
     }
 
     void clearCache()
@@ -1532,7 +1545,9 @@ protected:
         LOCK(d->pwallet->cs_wallet);
 
         d->clearCache();
-        CAmount nBalance = d->pwallet->GetBalance().m_mine_trusted;
+        const auto bal = d->pwallet->GetBalance();
+        CAmount nBalance = bal.m_mine_trusted;
+        if(d->privateKeysDisabled) nBalance += bal.m_watchonly_trusted;
         d->nTargetValue = nBalance - d->pwallet->m_reserve_balance;
         CAmount nValueIn = 0;
         d->pindexPrev = ::ChainActive().Tip();
