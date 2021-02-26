@@ -4,6 +4,7 @@
 #include <univalue.h>
 #include <boost/process.hpp>
 #include <boost/asio.hpp>
+#include <boost/filesystem.hpp>
 
 namespace QtumLedger_NS {
 // Read json document
@@ -120,6 +121,7 @@ public:
     QtumLedgerPriv()
     {
         toolPath = gArgs.GetArg("-hwitoolpath", "");
+        toolExists = boost::filesystem::exists(toolPath);
         if(gArgs.GetChainName() != CBaseChainParams::MAIN)
         {
             arguments << "--testnet";
@@ -132,6 +134,7 @@ public:
     std::string strError;
     std::string toolPath;
     std::vector<std::string> arguments;
+    bool toolExists = false;
 };
 
 QtumLedger::QtumLedger():
@@ -149,6 +152,10 @@ QtumLedger::~QtumLedger()
 
 bool QtumLedger::signCoinStake(const std::string &fingerprint, std::string &psbt)
 {
+    // Check if tool exists
+    if(!toolExists())
+        return false;
+
     // Sign PSBT transaction
     if(isStarted())
         return false;
@@ -164,6 +171,11 @@ bool QtumLedger::signCoinStake(const std::string &fingerprint, std::string &psbt
 bool QtumLedger::signBlockHeader(const std::string &fingerprint, const std::string &header, std::vector<unsigned char> &vchSig)
 {
     return false;
+}
+
+bool QtumLedger::toolExists()
+{
+    return d->toolExists;
 }
 
 bool QtumLedger::isStarted()

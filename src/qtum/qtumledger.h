@@ -40,6 +40,7 @@ public:
     bool signBlockHeader(const std::string& fingerprint, const std::string& header, std::vector<unsigned char>& vchSig);
 
 private:
+    bool toolExists();
     bool isStarted();
     void wait();
 
