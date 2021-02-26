@@ -4834,6 +4834,7 @@ std::shared_ptr<CWallet> CWallet::CreateWalletFromFile(interfaces::Chain& chain,
     walletInstance->m_staker_max_utxo_script_cache = gArgs.GetArg("-maxstakerutxoscriptcache", DEFAULT_STAKER_MAX_UTXO_SCRIPT_CACHE);
     walletInstance->m_num_threads = gArgs.GetArg("-stakerthreads", GetNumCores());
     walletInstance->m_num_threads = std::max(1, walletInstance->m_num_threads);
+    walletInstance->m_ledger_id = gArgs.GetArg("-stakerledgerid", "");
 
     walletInstance->WalletLogPrintf("Wallet completed loading in %15dms\n", GetTimeMillis() - nStart);
 
@@ -4986,7 +4987,6 @@ void CWallet::postInitProcess()
     // Start mine proof-of-stake blocks in the background
     if (gArgs.GetBoolArg("-staking", DEFAULT_STAKE)) {
         StartStake();
-        m_enabled_staking = !IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
     }
 }
 
@@ -5742,7 +5742,7 @@ void CWallet::StakeQtums(bool fStake, CConnman* connman)
 
 void CWallet::StartStake(CConnman *connman)
 {
-    m_enabled_staking = true;
+    m_enabled_staking = !IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
     StakeQtums(true, connman);
 }
 
