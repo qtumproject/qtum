@@ -40,8 +40,15 @@ public:
     bool signBlockHeader(const std::string& fingerprint, const std::string& header, std::vector<unsigned char>& vchSig);
 
 private:
+    bool isStarted();
+    void wait();
+
+    bool beginSignTx(const std::string& fingerprint, std::string& psbt);
+    bool endSignTx(const std::string& fingerprint, std::string& psbt);
+
+private:
     QtumLedger(const QtumLedger&);
     QtumLedger& operator=(const QtumLedger&);
-    QtumLedgerPriv* priv;
+    QtumLedgerPriv* d;
 };
 #endif
