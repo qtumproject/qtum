@@ -115,7 +115,7 @@ class QtumDuplicateStakeTest(BitcoinTestFramework):
         # Send <alt_block> to alt_node
         self.p2p_alt_node.send_message(msg_block(alt_block))
         time.sleep(5)
-        self.alt_node.generate(500)
+        generatesynchronized(self.alt_node, COINBASE_MATURITY, None, self.nodes)
         time.sleep(5)
         
         # Send <block> to node

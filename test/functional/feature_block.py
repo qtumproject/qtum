@@ -120,7 +120,10 @@ class FullBlockTest(BitcoinTestFramework):
         for i in range(NUM_BUFFER_BLOCKS_TO_GENERATE):
             blocks.append(self.next_block("maturitybuffer.{}".format(i)))
             self.save_spendable_output()
-        self.send_blocks(blocks)
+        
+        for i in range(0, len(blocks), 100):
+            self.send_blocks(blocks[i:i+100])
+        self.send_blocks(blocks[i:])
 
         # collect spendable outputs now to avoid cluttering the code later on
         out = []
@@ -321,7 +324,7 @@ class FullBlockTest(BitcoinTestFramework):
         tx.vin.append(CTxIn(COutPoint(b23.vtx[1].sha256, 0)))
         b23 = self.update_block(23, [tx])
         # Make sure the math above worked out to produce a max-sized block
-        assert_equal(len(b23.serialize()), 1000000)
+        assert_equal(len(b23.serialize()), MAX_BLOCK_BASE_SIZE)
         self.send_blocks([b23], True)
         self.save_spendable_output()
 
