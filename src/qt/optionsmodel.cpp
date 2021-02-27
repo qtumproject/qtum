@@ -153,6 +153,11 @@ void OptionsModel::Init(bool resetSettings)
     if (!settings.contains("bZeroBalanceAddressToken"))
         settings.setValue("bZeroBalanceAddressToken", DEFAULT_ZERO_BALANCE_ADDRESS_TOKEN);
     bZeroBalanceAddressToken = settings.value("bZeroBalanceAddressToken").toBool();
+
+    if (!settings.contains("signPSBTWithHWITool"))
+        settings.setValue("signPSBTWithHWITool", DEFAULT_SIGN_PSBT_WITH_HWI_TOOL);
+    if (!m_node.softSetBoolArg("-signpsbtwithhwitool", settings.value("signPSBTWithHWITool").toBool()))
+        addOverriddenOption("-signpsbtwithhwitool");
 #endif
 
     if (!settings.contains("fCheckForUpdates"))
@@ -381,6 +386,8 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
             return settings.value("bZeroBalanceAddressToken");
         case ReserveBalance:
             return settings.value("nReserveBalance");
+        case SignPSBTWithHWITool:
+            return settings.value("signPSBTWithHWITool");
 #endif
         case DisplayUnit:
             return nDisplayUnit;
@@ -519,6 +526,13 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             settings.setValue("bZeroBalanceAddressToken", bZeroBalanceAddressToken);
             Q_EMIT zeroBalanceAddressTokenChanged(bZeroBalanceAddressToken);
             break;
+        case SignPSBTWithHWITool:
+            if (settings.value("signPSBTWithHWITool") != value) {
+                settings.setValue("signPSBTWithHWITool", value);
+                setRestartRequired(true);
+            }
+            break;
+
 #endif
         case DisplayUnit:
             setDisplayUnit(value);

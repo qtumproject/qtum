@@ -13,6 +13,7 @@
 #include <qt/derivationpathdialog.h>
 #include <qt/sendcoinsdialog.h>
 #include <qt/bitcoinunits.h>
+#include <qt/hardwaresigntx.h>
 
 #include <QFile>
 #include <QMessageBox>
@@ -21,28 +22,13 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 
-class HardwareSignTxDialogPriv
-{
-public:
-    HardwareSignTxDialogPriv(QObject *parent)
-    {
-        tool = new QtumHwiTool(parent);
-    }
-
-    WalletModel* model = 0;
-    QtumHwiTool* tool = 0;
-    QString psbt;
-    QString hexTx;
-    bool complete = false;
-};
-
 HardwareSignTxDialog::HardwareSignTxDialog(const QString &tx, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::HardwareSignTxDialog)
 {
     // Init variables
     ui->setupUi(this);
-    d = new HardwareSignTxDialogPriv(this);
+    d = new HardwareSignTx(this);
     ui->textEditTxData->setText(tx);
     ui->textEditTxData->setReadOnly(tx != "");
     ui->textEditTxDetails->setReadOnly(true);
@@ -56,7 +42,6 @@ HardwareSignTxDialog::HardwareSignTxDialog(const QString &tx, QWidget *parent) :
 HardwareSignTxDialog::~HardwareSignTxDialog()
 {
     delete ui;
-    delete d;
 }
 
 void HardwareSignTxDialog::on_cancelButton_clicked()
@@ -66,8 +51,7 @@ void HardwareSignTxDialog::on_cancelButton_clicked()
 
 void HardwareSignTxDialog::setModel(WalletModel *model)
 {
-    d->model = model;
-    d->tool->setModel(model);
+    d->setModel(model);
     txChanged();
     if(!d->model->wallet().privateKeysDisabled())
     {
@@ -147,29 +131,10 @@ void HardwareSignTxDialog::txChanged()
 
 void HardwareSignTxDialog::on_signButton_clicked()
 {
-    if(askDevice())
+    if(d->sign())
     {
-        // Sign transaction with hardware
-        WaitMessageBox dlg(tr("Ledger Status"), tr("Confirm Transaction on your Ledger device..."), [this]() {
-            QString fingerprint = d->model->getFingerprint();
-            QString psbt = d->psbt;
-            d->hexTx = "";
-            d->complete = false;
-            bool ret = d->tool->signTx(fingerprint, psbt);
-            if(ret) ret &= d->tool->finalizePsbt(psbt, d->hexTx, d->complete);
-            if(d->complete)
-            {
-                ui->sendButton->setEnabled(true);
-                on_sendButton_clicked();
-            }
-        }, this);
-
-        dlg.exec();
-
-        if(!d->complete)
-        {
-            QMessageBox::warning(this, tr("Sign failed"), tr("The transaction has no a complete set of signatures."));
-        }
+        ui->sendButton->setEnabled(true);
+        on_sendButton_clicked();
     }
 }
 
@@ -182,47 +147,12 @@ void HardwareSignTxDialog::on_sendButton_clicked()
     QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();
     if(retval == QMessageBox::Yes)
     {
-        if(d->tool->sendRawTransaction(d->hexTx))
+        QVariantMap result;
+        if(d->send(result))
         {
             QDialog::accept();
         }
-        else
-        {
-            // Display error message
-            QString errorMessage = d->tool->errorMessage();
-            if(errorMessage.isEmpty()) errorMessage = tr("Unknown transaction error");
-            QMessageBox::warning(this, tr("Broadcast transaction"), errorMessage);
-        }
     }
-}
-
-bool HardwareSignTxDialog::askDevice()
-{
-    // Check if the HWI tool exist
-    QString hwiToolPath = GUIUtil::getHwiToolPath();
-    if(!QFile::exists(hwiToolPath))
-    {
-        QMessageBox msgBox(this);
-        msgBox.setWindowTitle(tr("HWI tool not found"));
-        msgBox.setTextFormat(Qt::RichText);
-        msgBox.setText(tr("HWI tool not found at path \"%1\".<br>Please download it from %2 and add the path to the settings.").arg(hwiToolPath, QTUM_HWI_TOOL));
-        msgBox.setStandardButtons(QMessageBox::Ok);
-        msgBox.exec();
-        return false;
-    }
-
-    // Ask for ledger
-    QString fingerprint = d->model->getFingerprint();
-    QString title = tr("Connect Ledger");
-    QString message = tr("Please insert your Ledger (%1). Verify the cable is connected and that no other application is using it.\n\nTry to connect again?");
-    if(HardwareKeystoreDialog::AskDevice(fingerprint, title, message.arg(fingerprint), this))
-    {
-        d->model->setFingerprint(fingerprint);
-        return true;
-    }
-
-    d->model->setFingerprint("");
-    return false;
 }
 
 void HardwareSignTxDialog::on_importButton_clicked()
@@ -252,7 +182,7 @@ bool HardwareSignTxDialog::importAddressesData(bool &rescan, bool &importPKH, bo
 
     // Ask for device
     bool fDevice = importPKH || importP2SH || importBech32;
-    if(fDevice) ret &= askDevice();
+    if(fDevice) ret &= d->askDevice();
 
     return ret;
 }

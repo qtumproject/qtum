@@ -53,6 +53,7 @@ struct TokenData
     int evtBurn;
 
     std::string txid;
+    std::string psbt;
     QString errorMessage;
 
     TokenData():
@@ -264,6 +265,16 @@ void Token::clear()
 std::string Token::getTxId()
 {
     return d->txid;
+}
+
+std::string Token::getPsbt()
+{
+    return d->psbt;
+}
+
+void Token::setTxId(const std::string& txid)
+{
+    d->txid = txid;
 }
 
 bool Token::name(std::string &result, bool sendTo)
@@ -526,6 +537,7 @@ bool Token::exec(const std::vector<std::string> &input, int func, std::vector<st
 {
     // Convert the input data into hex encoded binary data
     d->txid = "";
+    d->psbt = "";
     if(func == -1 || d->model == 0)
         return false;
     std::string strData;
@@ -569,7 +581,14 @@ bool Token::exec(const std::vector<std::string> &input, int func, std::vector<st
     else
     {
         QVariantMap variantMap = result.toMap();
-        d->txid = variantMap.value("txid").toString().toStdString();
+        if(d->model->wallet().privateKeysDisabled())
+        {
+            d->psbt = variantMap.value("psbt").toString().toStdString();
+        }
+        else
+        {
+            d->txid = variantMap.value("txid").toString().toStdString();
+        }
     }
 
     return true;

@@ -183,6 +183,8 @@ public:
 
     // Get or set hardware wallet init required (only for hardware wallet applicable)
     void importAddressesData(bool rescan = true, bool importPKH = true, bool importP2SH = true, bool importBech32 = true);
+    bool getSignPsbtWithHwiTool();
+    bool createUnsigned();
 
 private:
     std::unique_ptr<interfaces::Wallet> m_wallet;

@@ -895,3 +895,32 @@ void WalletModel::importAddressesData(bool _rescan, bool _importPKH, bool _impor
     importBech32 = _importBech32;
     hardwareWalletInitRequired = true;
 }
+
+bool WalletModel::getSignPsbtWithHwiTool()
+{
+    if(!::Params().HasHardwareWalletSupport())
+        return false;
+
+    return wallet().privateKeysDisabled() && gArgs.GetBoolArg("-signpsbtwithhwitool", DEFAULT_SIGN_PSBT_WITH_HWI_TOOL);
+}
+
+bool WalletModel::createUnsigned()
+{
+    if(wallet().privateKeysDisabled())
+    {
+        if(!::Params().HasHardwareWalletSupport())
+            return true;
+
+        QString hwiToolPath = GUIUtil::getHwiToolPath();
+        if(QFile::exists(hwiToolPath))
+        {
+            return !getSignPsbtWithHwiTool();
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+    return false;
+}

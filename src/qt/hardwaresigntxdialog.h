@@ -6,7 +6,7 @@
 namespace Ui {
 class HardwareSignTxDialog;
 }
-class HardwareSignTxDialogPriv;
+class HardwareSignTx;
 class WalletModel;
 
 class HardwareSignTxDialog : public QDialog
@@ -32,7 +32,7 @@ private:
 
 private:
     Ui::HardwareSignTxDialog *ui;
-    HardwareSignTxDialogPriv* d;
+    HardwareSignTx* d;
 };
 
 #endif // HARDWARESIGNTXDIALOG_H

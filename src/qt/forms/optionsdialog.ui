@@ -371,6 +371,13 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QCheckBox" name="signPSBTHWITool">
+            <property name="text">
+             <string>Sign PSBT with HWI tool</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>

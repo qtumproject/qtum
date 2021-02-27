@@ -19,6 +19,7 @@
 #include <qt/sendcoinsentry.h>
 #include <qt/guiconstants.h>
 #include <qt/styleSheet.h>
+#include <qt/hardwaresigntx.h>
 
 #include <chainparams.h>
 #include <interfaces/node.h>
@@ -195,7 +196,8 @@ void SendCoinsDialog::setModel(WalletModel *_model)
         // set default rbf checkbox state
         ui->optInRBF->setCheckState(Qt::Checked);
 
-        if (model->wallet().privateKeysDisabled()) {
+        bCreateUnsigned = _model->createUnsigned();
+        if (bCreateUnsigned) {
             ui->sendButton->setText(tr("Cr&eate Unsigned"));
             ui->sendButton->setToolTip(tr("Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.").arg(PACKAGE_NAME));
         }
@@ -314,14 +316,14 @@ void SendCoinsDialog::on_sendButton_clicked()
     }
 
     QString questionString;
-    if (model->wallet().privateKeysDisabled()) {
+    if (bCreateUnsigned) {
         questionString.append(tr("Do you want to draft this transaction?"));
     } else {
         questionString.append(tr("Are you sure you want to send?"));
     }
 
     questionString.append("<br /><span style='font-size:10pt;'>");
-    if (model->wallet().privateKeysDisabled()) {
+    if (bCreateUnsigned) {
         questionString.append(tr("Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.").arg(PACKAGE_NAME));
     } else {
         questionString.append(tr("Please, review your transaction."));
@@ -376,8 +378,8 @@ void SendCoinsDialog::on_sendButton_clicked()
     } else {
         questionString = questionString.arg("<br /><br />" + formatted.at(0));
     }
-    const QString confirmation = model->wallet().privateKeysDisabled() ? tr("Confirm transaction proposal") : tr("Confirm send coins");
-    const QString confirmButtonText = model->wallet().privateKeysDisabled() ? tr("Copy PSBT to clipboard") : tr("Send");
+    const QString confirmation = bCreateUnsigned ? tr("Confirm transaction proposal") : tr("Confirm send coins");
+    const QString confirmButtonText = bCreateUnsigned ? tr("Copy PSBT to clipboard") : tr("Send");
     SendConfirmationDialog confirmationDialog(confirmation, questionString, informative_text, detailed_text, SEND_CONFIRM_DELAY, confirmButtonText, this);
     confirmationDialog.exec();
     QMessageBox::StandardButton retval = static_cast<QMessageBox::StandardButton>(confirmationDialog.result());
@@ -399,8 +401,23 @@ void SendCoinsDialog::on_sendButton_clicked()
         // Serialize the PSBT
         CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
         ssTx << psbtx;
-        GUIUtil::setClipboard(EncodeBase64(ssTx.str()).c_str());
-        Q_EMIT message(tr("PSBT copied"), "Copied to clipboard", CClientUIInterface::MSG_INFORMATION);
+        QString psbt = EncodeBase64(ssTx.str()).c_str();
+        if(model->getSignPsbtWithHwiTool())
+        {
+            QVariantMap variantMap;
+            if(!HardwareSignTx::process(this, model, psbt, variantMap))
+                send_failure = true;
+            else
+            {
+                std::string txid = variantMap["txid"].toString().toStdString();
+                Q_EMIT coinsSent(uint256S(txid));
+            }
+        }
+        else
+        {
+            GUIUtil::setClipboard(psbt);
+            Q_EMIT message(tr("PSBT copied"), "Copied to clipboard", CClientUIInterface::MSG_INFORMATION);
+        }
     } else {
         // now send the prepared transaction
         WalletModel::SendCoinsReturn sendStatus = model->sendCoins(currentTransaction);
@@ -568,7 +585,8 @@ void SendCoinsDialog::setBalance(const interfaces::WalletBalances& balances)
         CAmount balance = balances.balance;
         if (model->wallet().privateKeysDisabled()) {
             balance = balances.watch_only_balance;
-            ui->labelBalanceName->setText(tr("Watch-only balance:"));
+            if(bCreateUnsigned)
+                ui->labelBalanceName->setText(tr("Watch-only balance:"));
         }
         ui->labelBalance->setText(BitcoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), balance));
     }

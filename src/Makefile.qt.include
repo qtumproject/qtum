@@ -164,6 +164,7 @@ QT_MOC_CPP = \
   qt/moc_qtumversionchecker.cpp \
   qt/moc_qtumhwitool.cpp \
   qt/moc_waitmessagebox.cpp \
+  qt/moc_hardwaresigntx.cpp \
   qt/moc_walletframe.cpp \
   qt/moc_walletmodel.cpp \
   qt/moc_walletview.cpp
@@ -311,7 +312,8 @@ BITCOIN_QT_H = \
   qt/walletview.h \
   qt/winshutdownmonitor.h \
   qt/qtumpushbutton.h \
-  qt/qtumhwitool.h
+  qt/qtumhwitool.h \
+  qt/hardwaresigntx.h
 
 RES_ICONS = \
   qt/res/icons/add.png \
@@ -427,7 +429,8 @@ BITCOIN_QT_BASE_CPP = \
   qt/utilitydialog.cpp\
   qt/qtumversionchecker.cpp \
   qt/qtumpushbutton.cpp \
-  qt/qtumhwitool.cpp
+  qt/qtumhwitool.cpp \
+  qt/hardwaresigntx.cpp
 
 BITCOIN_QT_WINDOWS_CPP = qt/winshutdownmonitor.cpp
 

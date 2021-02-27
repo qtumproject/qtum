@@ -27,6 +27,8 @@ static const QString PARAM_STOP_HEIGHT = "stop_height";
 static const QString PARAM_REQUESTS = "requests";
 static const QString PARAM_PSBT = "psbt";
 static const QString PARAM_HEXTX = "hextx";
+static const QString PARAM_MAXFEERATE = "maxfeerate";
+static const QString PARAM_SHOWCONTRACTDATA = "showcontractdata";
 static const QString LOAD_FORMAT = ":/ledger/%1_load";
 static const QString DELETE_FORMAT = ":/ledger/%1_delete";
 static const QString RC_PATH_FORMAT = ":/ledger";
@@ -43,7 +45,7 @@ public:
         cmdImport = new ExecRPCCommand("importmulti", mandatoryImport, QStringList(),  QMap<QString, QString>(), parent);
         QStringList mandatoryFinalize = QStringList() << PARAM_PSBT;
         cmdFinalize = new ExecRPCCommand("finalizepsbt", mandatoryFinalize, QStringList(),  QMap<QString, QString>(), parent);
-        QStringList mandatorySend = QStringList() << PARAM_HEXTX;
+        QStringList mandatorySend = QStringList() << PARAM_HEXTX << PARAM_MAXFEERATE << PARAM_SHOWCONTRACTDATA;
         cmdSend = new ExecRPCCommand("sendrawtransaction", mandatorySend, QStringList(),  QMap<QString, QString>(), parent);
         QStringList mandatoryDecode = QStringList() << PARAM_PSBT;
         cmdDecode = new ExecRPCCommand("decodepsbt", mandatoryDecode, QStringList(),  QMap<QString, QString>(), parent);
@@ -168,6 +170,64 @@ bool QtumHwiTool::signTx(const QString &fingerprint, QString &psbt)
     return endSignTx(fingerprint, psbt);
 }
 
+bool QtumHwiTool::signMessage(const QString &fingerprint, const QString &message, const QString &path, QString &signature)
+{
+    // Sign message
+    if(isStarted())
+        return false;
+
+    if(!beginSignMessage(fingerprint, message, path, signature))
+        return false;
+
+    wait();
+
+    return endSignMessage(fingerprint, message, path, signature);
+}
+
+bool QtumHwiTool::signDelegate(const QString &fingerprint, QString &psbt)
+{
+    if(!d->model) return false;
+
+    // Get the delegation data to sign
+    std::string strPsbt = psbt.toStdString();
+    std::map<int, interfaces::SignDelegation> signData;
+    std::string strError;
+    if(d->model->wallet().getAddDelegationData(strPsbt, signData, strError) == false)
+    {
+        d->strError = QString::fromStdString(strError);
+        return false;
+    }
+
+    // Sign the delegation data
+    for (std::map<int, interfaces::SignDelegation>::iterator it = signData.begin(); it != signData.end(); it++)
+    {
+        QString message = QString::fromStdString(it->second.staker);
+        QString path = QString::fromStdString(it->second.delegate);
+        QString signature;
+        if(signMessage(fingerprint, message, path, signature))
+        {
+            it->second.PoD = signature.toStdString();
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    // Update the transaction
+    if(signData.size() > 0)
+    {
+        if(d->model->wallet().setAddDelegationData(strPsbt, signData, strError) == false)
+        {
+            d->strError = QString::fromStdString(strError);
+            return false;
+        }
+        psbt = QString::fromStdString(strPsbt);
+    }
+
+    return true;
+}
+
 QString QtumHwiTool::errorMessage()
 {
     // Get the last error message
@@ -255,6 +315,19 @@ bool QtumHwiTool::beginSignTx(const QString &fingerprint, QString &psbt)
     return d->fStarted;
 }
 
+bool QtumHwiTool::beginSignMessage(const QString &fingerprint, const QString &message, const QString &path, QString &signature)
+{
+    Q_UNUSED(signature);
+
+    // Execute command line
+    QStringList arguments = d->arguments;
+    arguments << "-f" << fingerprint << "signmessage" << message << path;
+    d->process.start(d->toolPath, arguments);
+    d->fStarted = true;
+
+    return d->fStarted;
+}
+
 bool QtumHwiTool::endEnumerate(QList<HWDevice> &devices)
 {
     // Decode command line results
@@ -315,6 +388,25 @@ bool QtumHwiTool::endSignTx(const QString &fingerprint, QString &psbt)
     if(!psbtSigned.isEmpty())
     {
         psbt = psbtSigned;
+        return true;
+    }
+
+    return false;
+}
+
+bool QtumHwiTool::endSignMessage(const QString &fingerprint, const QString &message, const QString &path, QString &signature)
+{
+    Q_UNUSED(fingerprint);
+    Q_UNUSED(message);
+    Q_UNUSED(path);
+
+    // Decode command line results
+    QJsonDocument jsonDocument = QJsonDocument::fromJson(d->strStdout.toUtf8());
+    QVariantMap data = jsonDocument.object().toVariantMap();
+    QString msgSigned = data["signature"].toString();
+    if(!msgSigned.isEmpty())
+    {
+        signature = msgSigned;
         return true;
     }
 
@@ -396,7 +488,7 @@ bool QtumHwiTool::finalizePsbt(const QString &psbt, QString &hexTx, bool &comple
     return true;
 }
 
-bool QtumHwiTool::sendRawTransaction(const QString &hexTx)
+bool QtumHwiTool::sendRawTransaction(const QString &hexTx, QVariantMap& variantMap)
 {
     if(!d->model) return false;
 
@@ -405,6 +497,8 @@ bool QtumHwiTool::sendRawTransaction(const QString &hexTx)
     QVariant result;
     QString resultStr;
     ExecRPCCommand::appendParam(lstParams, PARAM_HEXTX, hexTx);
+    ExecRPCCommand::appendParam(lstParams, PARAM_MAXFEERATE, "null");
+    ExecRPCCommand::appendParam(lstParams, PARAM_SHOWCONTRACTDATA, "true");
 
     // Exec RPC
     if(!execRPC(d->cmdSend, lstParams, result, resultStr))
@@ -412,8 +506,16 @@ bool QtumHwiTool::sendRawTransaction(const QString &hexTx)
 
     // Parse results
     std::string strHash = resultStr.toStdString();
+    if(strHash.length() == 64 && IsHex(strHash))
+    {
+        variantMap["txid"] = resultStr;
+    }
+    else
+    {
+        variantMap = result.toMap();
+    }
 
-    return strHash.length() == 64 && IsHex(strHash);
+    return variantMap.contains("txid");
 }
 
 bool QtumHwiTool::decodePsbt(const QString &psbt, QString &decoded)

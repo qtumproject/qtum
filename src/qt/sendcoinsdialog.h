@@ -65,6 +65,7 @@ private:
     bool fNewRecipientAllowed;
     const PlatformStyle *platformStyle;
     int64_t targetSpacing;
+    bool bCreateUnsigned = false;
 
     // Process WalletModel::SendCoinsReturn and generate a pair consisting
     // of a message and message flags for use in Q_EMIT message().

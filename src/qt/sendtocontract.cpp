@@ -20,6 +20,7 @@
 #include <qt/styleSheet.h>
 #include <qt/guiutil.h>
 #include <qt/sendcoinsdialog.h>
+#include <qt/hardwaresigntx.h>
 #include <QClipboard>
 #include <interfaces/node.h>
 
@@ -140,6 +141,13 @@ void SendToContract::setModel(WalletModel *_model)
 
     // update the display unit, to not use the default ("QTUM")
     updateDisplayUnit();
+
+    bCreateUnsigned = m_model->createUnsigned();
+
+    if (bCreateUnsigned) {
+        ui->pushButtonSendToContract->setText(tr("Cr&eate Unsigned"));
+        ui->pushButtonSendToContract->setToolTip(tr("Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.").arg(PACKAGE_NAME));
+    }
 }
 
 bool SendToContract::isValidContractAddress()
@@ -233,11 +241,22 @@ void SendToContract::on_sendToContractClicked()
         ExecRPCCommand::appendParam(lstParams, PARAM_GASPRICE, BitcoinUnits::format(unit, gasPrice, false, BitcoinUnits::separatorNever));
         ExecRPCCommand::appendParam(lstParams, PARAM_SENDER, ui->lineEditSenderAddress->currentText());
 
-        QString questionString = tr("Are you sure you want to send to the contract: <br /><br />");
+        QString questionString;
+        if (bCreateUnsigned) {
+            questionString.append(tr("Do you want to draft this transaction?"));
+            questionString.append("<br /><span style='font-size:10pt;'>");
+            questionString.append(tr("Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.").arg(PACKAGE_NAME));
+            questionString.append("</span>");
+            questionString.append(tr("<br /><br />Send to the contract:<br />"));
+        } else {
+            questionString.append(tr("Are you sure you want to send to the contract: <br /><br />"));
+        }
         questionString.append(tr("<b>%1</b>?")
                               .arg(ui->lineEditContractAddress->text()));
 
-        SendConfirmationDialog confirmationDialog(tr("Confirm sending to contract."), questionString, "", "", SEND_CONFIRM_DELAY, tr("Send"), this);
+        const QString confirmation = bCreateUnsigned ? tr("Confirm sending to contract proposal.") : tr("Confirm sending to contract.");
+        const QString confirmButtonText = bCreateUnsigned ? tr("Copy PSBT to clipboard") : tr("Send");
+        SendConfirmationDialog confirmationDialog(confirmation, questionString, "", "", SEND_CONFIRM_DELAY, confirmButtonText, this);
         confirmationDialog.exec();
         QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();
         if(retval == QMessageBox::Yes)
@@ -245,14 +264,37 @@ void SendToContract::on_sendToContractClicked()
             // Execute RPC command line
             if(errorMessage.isEmpty() && m_execRPCCommand->exec(m_model->node(), m_model, lstParams, result, resultJson, errorMessage))
             {
-                ContractResult *widgetResult = new ContractResult(ui->stackedWidget);
-                widgetResult->setResultData(result, FunctionABI(), m_ABIFunctionField->getParamsValues(), ContractResult::SendToResult);
-                ui->stackedWidget->addWidget(widgetResult);
-                int position = ui->stackedWidget->count() - 1;
-                m_results = position == 1 ? 1 : m_results + 1;
+                if(bCreateUnsigned)
+                {
+                    QVariantMap variantMap = result.toMap();
+                    GUIUtil::setClipboard(variantMap.value("psbt").toString());
+                    Q_EMIT message(tr("PSBT copied"), "Copied to clipboard", CClientUIInterface::MSG_INFORMATION);
+                }
+                else
+                {
+                    bool isSent = true;
+                    if(m_model->getSignPsbtWithHwiTool())
+                    {
+                        QVariantMap variantMap = result.toMap();
+                        QString psbt = variantMap.value("psbt").toString();
+                        if(!HardwareSignTx::process(this, m_model, psbt, variantMap))
+                            isSent = false;
+                        else
+                            result = variantMap;
+                    }
 
-                m_tabInfo->addTab(position, tr("Result %1").arg(m_results));
-                m_tabInfo->setCurrent(position);
+                    if(isSent)
+                    {
+                        ContractResult *widgetResult = new ContractResult(ui->stackedWidget);
+                        widgetResult->setResultData(result, FunctionABI(), m_ABIFunctionField->getParamsValues(), ContractResult::SendToResult);
+                        ui->stackedWidget->addWidget(widgetResult);
+                        int position = ui->stackedWidget->count() - 1;
+                        m_results = position == 1 ? 1 : m_results + 1;
+
+                        m_tabInfo->addTab(position, tr("Result %1").arg(m_results));
+                        m_tabInfo->setCurrent(position);
+                    }
+                }
             }
             else
             {
