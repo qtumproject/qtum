@@ -36,8 +36,6 @@ static const bool DEFAULT_STAKE_CACHE = true;
 
 static const bool DEFAULT_SUPER_STAKE = false;
 
-static const int32_t DEFAULT_STAKER_VERSION = 2;
-
 //How many seconds to look ahead and prepare a block for staking
 //Look ahead up to 3 "timeslots" in the future, 48 seconds
 //Reduce this to reduce computational waste for stakers, increase this to increase the amount of time available to construct full blocks
@@ -52,8 +50,10 @@ static const int32_t BYTECODE_TIME_BUFFER = 6;
 static const int32_t STAKE_TIME_BUFFER = 2;
 
 //How often to try to stake blocks in milliseconds
-//Note this is overridden for regtest mode
 static const int32_t STAKER_POLLING_PERIOD = 5000;
+
+//How often to try to stake blocks in milliseconds for minimum difficulty
+static const int32_t STAKER_POLLING_PERIOD_MIN_DIFFICULTY = 20000;
 
 //How often to try to check for future walid block
 static const int32_t STAKER_WAIT_FOR_WALID_BLOCK = 3000;
