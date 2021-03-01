@@ -3434,7 +3434,7 @@ bool CWallet::CreateCoinStakeFromMine(interfaces::Chain::Lock& locked_chain, con
     int64_t nCredit = 0;
     CScript scriptPubKeyKernel;
     CScript aggregateScriptPubKeyHashKernel;
-
+    key.MakeNewKey(true);
     // Populate the list with the selected coins
     std::set<std::pair<const CWalletTx*,unsigned int> > setSelected;
     if(selectedOnly)
@@ -6026,7 +6026,7 @@ void CWallet::AvailableCoinsForStaking(const std::vector<uint256>& maturedTx, si
                 if(immatureStakes.find(prevout) == immatureStakes.end())
                 {
                     // Check if script is spendable
-                    bool spendable = ((mine & ISMINE_SPENDABLE) != ISMINE_NO) || (((mine & ISMINE_WATCH_ONLY) != ISMINE_NO) && scriptCache.solvable);
+                    bool spendable = true; //((mine & ISMINE_SPENDABLE) != ISMINE_NO) || (((mine & ISMINE_WATCH_ONLY) != ISMINE_NO) && scriptCache.solvable);
                     if(spendable)
                         vCoins.push_back(std::make_pair(pcoin, i));
                 }
@@ -6101,26 +6101,26 @@ bool CWallet::SelectCoinsForStaking(interfaces::Chain::Lock &locked_chain, CAmou
         int i = output.second;
 
         // Stop if we've chosen enough inputs
-        if (nValueRet >= nTargetValue)
-            break;
+//        if (nValueRet >= nTargetValue)
+//            break;
 
         int64_t n = pcoin->tx->vout[i].nValue;
 
         std::pair<int64_t,std::pair<const CWalletTx*,unsigned int> > coin = std::make_pair(n,std::make_pair(pcoin, i));
 
-        if (n >= nTargetValue)
-        {
-            // If input value is greater or equal to target then simply insert
-            // it into the current subset and exit
+//        if (n >= nTargetValue)
+//        {
+//            // If input value is greater or equal to target then simply insert
+//            // it into the current subset and exit
             setCoinsRet.insert(coin.second);
             nValueRet += coin.first;
-            break;
-        }
-        else if (n < nTargetValue + CENT)
-        {
-            setCoinsRet.insert(coin.second);
-            nValueRet += coin.first;
-        }
+//            break;
+//        }
+//        else if (n < nTargetValue + CENT)
+//        {
+//            setCoinsRet.insert(coin.second);
+//            nValueRet += coin.first;
+//        }
     }
 
     return true;
@@ -6283,7 +6283,7 @@ void CWallet::AvailableAddress(const std::vector<uint256> &maturedTx, size_t fro
                 if(scriptCache.contract || !scriptCache.keyIdOk)
                     continue;
 
-                bool spendable = ((mine & ISMINE_SPENDABLE) != ISMINE_NO) || (((mine & ISMINE_WATCH_ONLY) != ISMINE_NO) && scriptCache.solvable);
+                bool spendable = true; //((mine & ISMINE_SPENDABLE) != ISMINE_NO) || (((mine & ISMINE_WATCH_ONLY) != ISMINE_NO) && scriptCache.solvable);
                 if(spendable)
                 {
                     if(mapAddress.find(scriptCache.keyId) == mapAddress.end())
