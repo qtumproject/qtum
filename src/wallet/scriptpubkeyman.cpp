@@ -868,9 +868,16 @@ void LegacyScriptPubKeyMan::SetHDChain(const CHDChain& chain, bool memonly)
 bool LegacyScriptPubKeyMan::HaveKey(const CKeyID &address) const
 {
     LOCK(cs_KeyStore);
+    CScript altwatchscript = GetScriptForDestination(PKHash(address));
+    
+    if(HaveWatchOnly(altwatchscript)) {
+        return true;
+    }
+
     if (!m_storage.HasEncryptionKeys()) {
         return FillableSigningProvider::HaveKey(address);
     }
+
     return mapCryptedKeys.count(address) > 0;
 }
 

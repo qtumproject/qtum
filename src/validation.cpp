@@ -4898,8 +4898,19 @@ bool GetBlockDelegation(const CBlock& block, const uint160& staker, uint160& add
     // Get the delegate
     std::string strMessage = staker.GetReverseHex();
     CKeyID keyid;
-    if(!SignStr::GetKeyIdMessage(strMessage, block.GetProofOfDelegation(), keyid))
+    Coin coinPrev;
+    if(!view.GetCoin(block.prevoutStake, coinPrev)) {
+        std::cout << "Failed to get coin" << std::endl;
         return false;
+    }
+
+    CTxDestination dest;
+    txnouttype txType=TX_NONSTANDARD;
+    ExtractDestination(coinPrev.out.scriptPubKey, dest, &txType);
+    keyid = CKeyID(boost::get<PKHash>(dest));
+
+    //if(!SignStr::GetKeyIdMessage(strMessage, block.GetProofOfDelegation(), keyid))
+    //    return false;
     address = uint160(keyid);
 
     // Get the fee from the delegation contract

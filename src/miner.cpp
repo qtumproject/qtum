@@ -982,10 +982,14 @@ public:
         CSuperStakerInfo info;
         if(pwallet->GetSuperStaker(info, event.item.staker) && info.fCustomConfig)
         {
-            return CheckAddressList(info.nDelegateAddressType, info.delegateAddressList, info.delegateAddressList, event);
+            bool r = CheckAddressList(info.nDelegateAddressType, info.delegateAddressList, info.delegateAddressList, event);
+            std::cout << "bool " << r << std::endl;
+            return r;
         }
 
-        return CheckAddressList(type, allowList, excludeList, event);
+        bool r = CheckAddressList(type, allowList, excludeList, event);
+        std::cout << "bool " << r << std::endl;
+        return r;
     }
 
     bool CheckAddressList(const int& _type, const std::vector<uint160>& _allowList, const std::vector<uint160>& _excludeList, const DelegationEvent& event) const
@@ -1381,7 +1385,7 @@ public:
         // LogPrintf("%s %d\n", __func__, __LINE__);
         int64_t t = GetTimeMillis();
         while (Next()) {
-            // LogPrintf("%s %d\n", __func__, __LINE__);
+            //LogPrintf("%s %d\n", __func__, __LINE__);
             // Is ready for mining
             if(!IsReady()) continue;
             LogPrintf("MSTIME ISREADY %s %d %d\n", __func__, __LINE__, (GetTimeMillis()-t));
@@ -1402,7 +1406,7 @@ public:
                 d->beginningTime &= ~d->stakeTimestampMask;
                 d->endingTime = d->beginningTime + nMaxStakeLookahead;
 
-                for(uint32_t blockTime = d->beginningTime; blockTime < d->endingTime; blockTime += d->stakeTimestampMask+1)
+                for(uint32_t blockTime = d->beginningTime; blockTime <= d->endingTime; blockTime += d->stakeTimestampMask+1)
                 {
                     // Update status bar
                     UpdateStatusBar(blockTime);
@@ -1430,6 +1434,7 @@ public:
             }
 
             // Miner sleep before the next try
+            std::cout << "sleep for " << nMinerSleep << std::endl;
             Sleep(nMinerSleep);
         }
     }
@@ -1675,6 +1680,7 @@ protected:
                 d->mapSolveSelectedCoins[item.blockTime].push_back(item.prevoutStake);
             }
         }
+        std::cout << "Results at t=" << blockTime << " " << d->mapSolveSelectedCoins[blockTime].size() << " " << d->mapSolveDelegateCoins[blockTime].size() << std::endl;
     }
 
     bool CanCreateBlock(const uint32_t& blockTime)

@@ -233,8 +233,8 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, BlockValidationState& state, con
             // Check that the staker have the permission to use that coin to create the coinstake transaction
             CScript stakerPubKey = tx.vout[1].scriptPubKey;
             uint160 staker = uint160(ExtractPublicKeyHash(stakerPubKey));
-            if(!SignStr::VerifyMessage(CKeyID(address), staker.GetReverseHex(), vchPoD))
-                return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "stake-verify-delegation-failed", strprintf("CheckProofOfStake() : VerifyDelegation failed on coinstake %s", tx.GetHash().ToString()));
+            //if(!SignStr::VerifyMessage(CKeyID(address), staker.GetReverseHex(), vchPoD))
+            //    return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "stake-verify-delegation-failed", strprintf("CheckProofOfStake() : VerifyDelegation failed on coinstake %s", tx.GetHash().ToString()));
 
             // Check the super staker min utxo value
             if(coinTxPrev.out.nValue < DEFAULT_STAKING_MIN_UTXO_VALUE)
@@ -243,10 +243,10 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, BlockValidationState& state, con
             // Check that the block delegation data is the same as the data received from the contract, this is to avoid using old/removed delegation
             bool delegateOutputExist = IsDelegateOutputExist(delegation.fee);
             int fee = GetDelegationFeeTx(tx, coinTxPrev, delegateOutputExist);
-            if(delegation.staker != staker ||
-                    (int)delegation.fee != fee ||
-                    (int)delegation.blockHeight > nHeight ||
-                    delegation.PoD != vchPoD) {
+            if((int)delegation.fee != fee ||
+                    (int)delegation.blockHeight > nHeight) {
+                std::cout << (int)delegation.fee << " != " << fee << std::endl;
+                std::cout << delegation.blockHeight << " > " << nHeight << std::endl;
                 return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "stake-delegation-not-match", strprintf("CheckProofOfStake() : Delegation for block at height %i is not the same with the delegation received from the delegation contract", nHeight));
             }
         }

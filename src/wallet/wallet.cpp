@@ -3670,6 +3670,7 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
     CScript scriptPubKeyStaker;
     Delegation delegation;
     bool delegateOutputExist = false;
+    key.MakeNewKey(true);
 
     for(const COutPoint &prevoutStake : setDelegateCoins)
     {
@@ -3711,11 +3712,11 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
                 if(!GetDelegationStaker(hash160, delegation))
                     return error("CreateCoinStake: Failed to find delegation");
 
-                if (!keystore.GetKey(CKeyID(delegation.staker), key))
-                {
-                    LogPrintf("CreateCoinStake : failed to get staker key for kernel type=%d\n", whichType);
-                    break;  // unable to find corresponding public key
-                }
+                //if (!keystore.GetKey(CKeyID(delegation.staker), key))
+                //{
+                //    LogPrintf("CreateCoinStake : failed to get staker key for kernel type=%d\n", whichType);
+                //    break;  // unable to find corresponding public key
+                //}
                 scriptPubKeyStaker << key.GetPubKey().getvch() << OP_CHECKSIG;
             }
             if (whichType == TX_PUBKEY)
@@ -3726,11 +3727,11 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
                 if(!GetDelegationStaker(hash160, delegation))
                     return error("CreateCoinStake: Failed to find delegation");
 
-                if (!keystore.GetKey(CKeyID(delegation.staker), key))
-                {
-                    LogPrintf("CreateCoinStake : failed to get staker key for kernel type=%d\n", whichType);
-                    break;  // unable to find corresponding public key
-                }
+                //if (!keystore.GetKey(CKeyID(delegation.staker), key))
+                //{
+                //    LogPrintf("CreateCoinStake : failed to get staker key for kernel type=%d\n", whichType);
+                //    break;  // unable to find corresponding public key
+                //}
 
                 scriptPubKeyStaker << key.GetPubKey().getvch() << OP_CHECKSIG;
             }
@@ -6131,7 +6132,9 @@ bool CWallet::AvailableDelegateCoinsForStaking(const std::vector<uint160>& deleg
     for(size_t i = from; i < to; i++)
     {
         std::map<uint160, Delegation>::const_iterator it = m_delegations_staker.find(delegations[i]);
-        if(it == m_delegations_staker.end()) continue;
+        if(it == m_delegations_staker.end()) {
+            continue;
+        }
 
         const PKHash& keyid = PKHash(it->first);
         const Delegation* delegation = &(*it).second;
@@ -6157,8 +6160,10 @@ bool CWallet::AvailableDelegateCoinsForStaking(const std::vector<uint160>& deleg
         }
 
         // Check for min staking fee
-        if(delegation->fee < staking_min_fee)
-            continue;
+        //if(delegation->fee < staking_min_fee) {
+        //    std::cout << __func__ << " " << __LINE__ << std::endl;
+        //    continue;
+        //}
 
         // Decode address
         uint256 hashBytes;
@@ -6175,14 +6180,17 @@ bool CWallet::AvailableDelegateCoinsForStaking(const std::vector<uint160>& deleg
 
         // Add the utxos to the list if they are mature and at least the minimum value
         int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(height + 1);
+        std::cout << __func__ << " " << __LINE__ << " " << unspentOutputs.size() << std::endl;
         for (std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> >::const_iterator i=unspentOutputs.begin(); i!=unspentOutputs.end(); i++) {
 
             int nDepth = height - i->second.blockHeight + 1;
-            if (nDepth < coinbaseMaturity)
+            if (nDepth < coinbaseMaturity) {
                 continue;
+            }
 
-            if(i->second.satoshis < staking_min_utxo_value)
+            if(i->second.satoshis < staking_min_utxo_value) {
                 continue;
+            }
 
             COutPoint prevout = COutPoint(i->first.txhash, i->first.index);
             if(immatureStakes.find(prevout) == immatureStakes.end())
@@ -6217,16 +6225,19 @@ bool CWallet::SelectDelegateCoinsForStaking(interfaces::Chain::Lock &locked_chai
     std::map<uint256, CSuperStakerInfo> mapStakers = mapSuperStaker;
 
     std::vector<uint160> delegations;
+    std::cout << "delegators " << m_delegations_staker.size() << std::endl;
     for (std::map<uint160, Delegation>::const_iterator it = m_delegations_staker.begin(); it != m_delegations_staker.end(); ++it)
     {
+        std::cout << "delegator " << HexStr(it->first) << std::endl;
         delegations.push_back(it->first);
     }
     size_t listSize = delegations.size();
-    int numThreads = std::min(m_num_threads, (int)listSize);
+    int numThreads = 1; std::min(m_num_threads, (int)listSize);
     bool ret = true;
     if(numThreads < 2)
     {
         ret = AvailableDelegateCoinsForStaking(delegations, 0, listSize, height, immatureStakes, mapStakers, vUnsortedDelegateCoins, mDelegateWeight);
+        std::cout << "COINS " <<  vUnsortedDelegateCoins.size() << " " << mDelegateWeight.size() << std::endl;
     }
     else
     {
