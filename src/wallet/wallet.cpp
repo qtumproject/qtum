@@ -3717,7 +3717,8 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
                 //    LogPrintf("CreateCoinStake : failed to get staker key for kernel type=%d\n", whichType);
                 //    break;  // unable to find corresponding public key
                 //}
-                scriptPubKeyStaker << key.GetPubKey().getvch() << OP_CHECKSIG;
+
+//                scriptPubKeyStaker << key.GetPubKey().getvch() << OP_CHECKSIG;
             }
             if (whichType == TX_PUBKEY)
             {
@@ -3733,7 +3734,7 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
                 //    break;  // unable to find corresponding public key
                 //}
 
-                scriptPubKeyStaker << key.GetPubKey().getvch() << OP_CHECKSIG;
+//                scriptPubKeyStaker << key.GetPubKey().getvch() << OP_CHECKSIG;
             }
 
             delegateOutputExist = IsDelegateOutputExist(delegation.fee);
@@ -3750,7 +3751,8 @@ bool CWallet::CreateCoinStakeFromDelegate(interfaces::Chain::Lock& locked_chain,
             txNew.vin.push_back(CTxIn(prevoutSuperStaker));
             nCredit += nValueSuperStaker;
             vwtxPrev.push_back(std::make_pair(pcoinSuperStaker, prevoutSuperStaker.n));
-            txNew.vout.push_back(CTxOut(0, scriptPubKeyStaker));
+//            txNew.vout.push_back(CTxOut(0, scriptPubKeyStaker));
+            txNew.vout.push_back(CTxOut(0, pcoinSuperStaker->tx->vout[prevoutSuperStaker.n].scriptPubKey));
             if(delegateOutputExist)
             {
                 txNew.vout.push_back(CTxOut(0, scriptPubKeyKernel));
