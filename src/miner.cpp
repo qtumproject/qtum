@@ -1334,6 +1334,7 @@ public:
         nOfflineStakeHeight = consensusParams.nOfflineStakeHeight;
         fDelegationsContract = !consensusParams.delegationsAddress.IsNull();
         fEmergencyStaking = gArgs.GetBoolArg("-emergencystaking", false);
+        fAggressiveStaking = gArgs.IsArgSet("-aggressive-staking");
         int maxWaitForBestHeader = gArgs.GetArg("-maxstakerwaitforbestheader", DEFAULT_MAX_STAKER_WAIT_FOR_BEST_BLOCK_HEADER);
         if(maxWaitForBestHeader > 0)
         {
@@ -1526,7 +1527,7 @@ protected:
     bool WaitBestHeader()
     {
         if(d->pwallet->IsStakeClosing()) return false;
-        if(d->fEmergencyStaking) return false;
+        if(d->fEmergencyStaking || d->fAggressiveStaking) return false;
         auto locked_chain = d->pwallet->chain().lock();
         CBlockIndex* tip = ::ChainActive().Tip();
         if(pindexBestHeader!= 0 &&
