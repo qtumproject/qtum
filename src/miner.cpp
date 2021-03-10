@@ -983,10 +983,14 @@ public:
         CSuperStakerInfo info;
         if(pwallet->GetSuperStaker(info, event.item.staker) && info.fCustomConfig)
         {
-            return CheckAddressList(info.nDelegateAddressType, info.delegateAddressList, info.delegateAddressList, event);
+            bool r = CheckAddressList(info.nDelegateAddressType, info.delegateAddressList, info.delegateAddressList, event);
+            std::cout << "bool " << r << std::endl;
+            return r;
         }
 
-        return CheckAddressList(type, allowList, excludeList, event);
+        bool r = CheckAddressList(type, allowList, excludeList, event);
+        std::cout << "bool " << r << std::endl;
+        return r;
     }
 
     bool CheckAddressList(const int& _type, const std::vector<uint160>& _allowList, const std::vector<uint160>& _excludeList, const DelegationEvent& event) const
@@ -1385,23 +1389,31 @@ public:
     void Run()
     {
         SetThreadPriority(THREAD_PRIORITY_LOWEST);
-
+        // LogPrintf("%s %d\n", __func__, __LINE__);
+        int64_t t = GetTimeMillis();
         while (Next()) {
+            //LogPrintf("%s %d\n", __func__, __LINE__);
             // Is ready for mining
             if(!IsReady()) continue;
+            LogPrintf("MSTIME ISREADY %s %d %d\n", __func__, __LINE__, (GetTimeMillis()-t));
+            t = GetTimeMillis();
 
             // Cache mining data
             if(!CacheData()) continue;
+            LogPrintf("MSTIME CACHEDATA %s %d %d\n", __func__, __LINE__, (GetTimeMillis()-t));
+            t = GetTimeMillis();
 
             // Check if miner have coins for staking
             if(HaveCoinsForStake())
             {
+                LogPrintf("MSTIME HaveCoinsForStake %s %d %d\n", __func__, __LINE__, (GetTimeMillis()-t));
+                t = GetTimeMillis();
                 // Look for possibility to create a block
                 d->beginningTime = GetAdjustedTime();
                 d->beginningTime &= ~d->stakeTimestampMask;
                 d->endingTime = d->beginningTime + nMaxStakeLookahead;
 
-                for(uint32_t blockTime = d->beginningTime; blockTime < d->endingTime; blockTime += d->stakeTimestampMask+1)
+                for(uint32_t blockTime = d->beginningTime; blockTime <= d->endingTime; blockTime += d->stakeTimestampMask+1)
                 {
                     // Update status bar
                     UpdateStatusBar(blockTime);
@@ -1411,18 +1423,25 @@ public:
                         break;
 
                     // Check if block can be created
+                    t = GetTimeMillis();
                     if(CanCreateBlock(blockTime))
                     {
+                        LogPrintf("MSTIME CanCreateBlock %s %d %d\n", __func__, __LINE__, (GetTimeMillis()-t));
+                        t = GetTimeMillis();
                         // Create new block
                         if(!CreateNewBlock(blockTime)) break;
+                        LogPrintf("MSTIME CreateNewBlock %s %d %d\n", __func__, __LINE__, (GetTimeMillis()-t));
+                        t = GetTimeMillis();
 
                         // Sign new block
                         if(SignNewBlock(blockTime)) break;
+                        LogPrintf("MSTIME SignNewBlock %s %d %d\n", __func__, __LINE__, (GetTimeMillis()-t));
                     }
                 }
             }
 
             // Miner sleep before the next try
+            std::cout << "sleep for " << nMinerSleep << std::endl;
             Sleep(nMinerSleep);
         }
     }
@@ -1469,6 +1488,7 @@ protected:
 
         // Wait for node connections
         // Don't disable PoS mining for no connections if in regtest mode
+
         if(!d->minDifficulty && !d->fEmergencyStaking) {
             while (d->connman->GetNodeCount(CConnman::CONNECTIONS_ALL) == 0 || ::ChainstateActive().IsInitialBlockDownload()) {
                 d->pwallet->m_last_coin_stake_search_interval = 0;
@@ -1599,6 +1619,7 @@ protected:
                 d->fError = true;
                 return false;
             }
+
             d->pblock = std::make_shared<CBlock>(d->pblocktemplate->block);
 
             d->prevouts.insert(d->prevouts.end(), d->setDelegateCoins.begin(), d->setDelegateCoins.end());
@@ -1701,6 +1722,7 @@ protected:
                 d->mapSolveSelectedCoins[item.blockTime].push_back(item.prevoutStake);
             }
         }
+        std::cout << "Results at t=" << blockTime << " " << d->mapSolveSelectedCoins[blockTime].size() << " " << d->mapSolveDelegateCoins[blockTime].size() << std::endl;
     }
 
     bool CanCreateBlock(const uint32_t& blockTime)
@@ -1757,6 +1779,7 @@ protected:
         d->mapSolveBlockTime[blockTime] = false;
 
         if (SignBlock(d->pblockfilled, *(d->pwallet), d->nTotalFees, blockTime, d->setCoins, d->mapSolveSelectedCoins[blockTime], d->mapSolveDelegateCoins[blockTime], true)) {
+
             // Should always reach here unless we spent too much time processing transactions and the timestamp is now invalid
             // CheckStake also does CheckBlock and AcceptBlock to propogate it to the network
             bool validBlock = false;
