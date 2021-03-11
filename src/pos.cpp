@@ -222,10 +222,10 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, BlockValidationState& state, con
             return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "stake-delegation-not-verified", strprintf("CheckProofOfStake() : Delegation for block at height %i cannot be verified", nHeight));
         }
 
-        // Check that if PoD is not present then the delegation received from the contract is null
-        if(!hasDelegationProof && !delegation.IsNull()) {
-            return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "stake-delegation-not-used", strprintf("CheckProofOfStake() : Delegation for block at height %i is present but not used to create the block", nHeight));
-        }
+//        // Check that if PoD is not present then the delegation received from the contract is null
+//        if(!hasDelegationProof && !delegation.IsNull()) {
+//            return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "stake-delegation-not-used", strprintf("CheckProofOfStake() : Delegation for block at height %i is present but not used to create the block", nHeight));
+//        }
 
         checkDelegation = hasDelegationProof;
         if(checkDelegation)

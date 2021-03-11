@@ -6022,8 +6022,8 @@ void CWallet::AvailableCoinsForStaking(const std::vector<uint256>& maturedTx, si
                     continue;
 
                 // Check that the address is not delegated to other staker
-                if(m_my_delegations.find(scriptCache.keyId) != m_my_delegations.end())
-                    continue;
+//                if(m_my_delegations.find(scriptCache.keyId) != m_my_delegations.end())
+//                    continue;
 
                 // Check prevout maturity
                 if(immatureStakes.find(prevout) == immatureStakes.end())
