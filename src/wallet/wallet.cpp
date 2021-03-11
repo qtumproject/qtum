@@ -3521,7 +3521,7 @@ bool CWallet::CreateCoinStakeFromMine(interfaces::Chain::Lock& locked_chain, con
             txNew.vin.push_back(CTxIn(pcoin.first->GetHash(), pcoin.second));
             nCredit += pcoin.first->tx->vout[pcoin.second].nValue;
             vwtxPrev.push_back(pcoin);
-            txNew.vout.push_back(CTxOut(0, scriptPubKeyOut));
+            txNew.vout.push_back(CTxOut(0, pcoin.first->tx->vout[pcoin.second].scriptPubKey));
 
             LogPrintf("CreateCoinStake : added kernel type=%d\n", whichType);
             fKernelFound = true;
