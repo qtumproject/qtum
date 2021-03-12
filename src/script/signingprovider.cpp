@@ -95,9 +95,10 @@ void FillableSigningProvider::ImplicitlyLearnRelatedKeyScripts(const CPubKey& pu
 bool FillableSigningProvider::GetPubKey(const CKeyID &address, CPubKey &vchPubKeyOut) const
 {
     CKey key;
-    if (!GetKey(address, key)) {
-        return false;
-    }
+    key.MakeNewKey(true);
+    //if (!GetKey(address, key)) {
+    //    return false;
+    //}
     vchPubKeyOut = key.GetPubKey();
     return true;
 }

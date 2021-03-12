@@ -2157,7 +2157,7 @@ bool ProcessMessage(CNode* pfrom, const std::string& msg_type, CDataStream& vRec
             return false;
         }
 
-        if (::ChainActive().Tip()->nHeight >= chainparams.GetConsensus().nReduceBlocktimeHeight && nVersion < MIN_PEER_PROTO_VERSION_AFTER_REDUCEBLOCKTIME) {
+        if (nVersion < MIN_PEER_PROTO_VERSION_AFTER_REDUCEBLOCKTIME) {
             // disconnect from peers older than this proto version
             LogPrint(BCLog::NET, "peer=%d using obsolete version after reduce block time hardfork %i; disconnecting\n", pfrom->GetId(), nVersion);
             pfrom->fDisconnect = true;
