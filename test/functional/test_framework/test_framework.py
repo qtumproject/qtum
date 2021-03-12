@@ -34,6 +34,8 @@ from .util import (
     sync_mempools,
 )
 from .qtumconfig import COINBASE_MATURITY
+from .qtum import generatesynchronized
+
 
 class TestStatus(Enum):
     PASSED = 1
@@ -341,7 +343,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         self.import_deterministic_coinbase_privkeys()
         if not self.setup_clean_chain:
             for n in self.nodes:
-                assert_equal(n.getblockchaininfo()["blocks"], 599)
+                assert_equal(n.getblockchaininfo()["blocks"], COINBASE_MATURITY+99)
             # To ensure that all nodes are out of IBD, the most recent block
             # must have a timestamp not too old (see IsInitialBlockDownload()).
             self.log.debug('Generate a block with current time')
@@ -350,7 +352,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
             for n in self.nodes:
                 n.submitblock(block)
                 chain_info = n.getblockchaininfo()
-                assert_equal(chain_info["blocks"], 600)
+                assert_equal(chain_info["blocks"], COINBASE_MATURITY+100)
                 assert_equal(chain_info["initialblockdownload"], False)
 
     def import_deterministic_coinbase_privkeys(self):
@@ -563,12 +565,12 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
             # see the tip age check in IsInitialBlockDownload().
             for i in range(4):
                 self.nodes[0].generatetoaddress(25, TestNode.PRIV_KEYS[i % 4].address)
+                sync_blocks(self.nodes)
 
             for i in range(4):
-                self.nodes[0].generatetoaddress(125 if i != 3 else 124, TestNode.PRIV_KEYS[i % 4].address)
-            sync_blocks(self.nodes)
+                generatesynchronized(self.nodes[0], COINBASE_MATURITY // 4 if i != 3 else (COINBASE_MATURITY // 4) - 1, TestNode.PRIV_KEYS[i % 4].address, self.nodes)
 
-            assert_equal(self.nodes[CACHE_NODE_ID].getblockchaininfo()["blocks"], 599)
+            assert_equal(self.nodes[CACHE_NODE_ID].getblockchaininfo()["blocks"], 99+COINBASE_MATURITY)
 
             # Shut it down, and clean up cache directories:
             self.stop_nodes()

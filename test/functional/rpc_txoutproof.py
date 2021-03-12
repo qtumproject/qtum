@@ -8,6 +8,7 @@ from test_framework.messages import CMerkleBlock, FromHex, ToHex
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal, assert_raises_rpc_error, connect_nodes, sync_blocks
 from test_framework.qtumconfig import *
+from test_framework.qtum import generatesynchronized
 
 class MerkleBlockTest(BitcoinTestFramework):
     def set_test_params(self):
@@ -21,7 +22,7 @@ class MerkleBlockTest(BitcoinTestFramework):
 
     def run_test(self):
         self.log.info("Mining blocks...")
-        self.nodes[0].generate(COINBASE_MATURITY+5)
+        generatesynchronized(self.nodes[0], COINBASE_MATURITY+5, None, self.nodes)
         sync_blocks(self.nodes)
 
         chain_height = self.nodes[1].getblockcount()

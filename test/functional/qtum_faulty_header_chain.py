@@ -78,7 +78,7 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
         self.node.importprivkey(privkey)
         self.start_p2p_connection()
         self.node.setmocktime(int(time.time())-10000)
-        self.node.generatetoaddress(600, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
+        generatesynchronized(self.node, 100+COINBASE_MATURITY, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq", self.nodes)
         self.sync_all()
         disconnect_nodes(self.node, 1)
     

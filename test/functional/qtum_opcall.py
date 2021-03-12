@@ -184,7 +184,7 @@ class OpCallTest(BitcoinTestFramework):
         self.node = self.nodes[0]
         connect_nodes(self.nodes[0], 1)
 
-        self.nodes[0].generate(200+COINBASE_MATURITY)
+        generatesynchronized(self.nodes[0], 200+COINBASE_MATURITY, None, self.nodes)
         self.node.sendmany("", {self.node.getnewaddress(): 1000000*QTUM_MIN_GAS_PRICE / Decimal('100000000') for i in range(200)})
         print("Creating contract")
         self.create_contract_test()

@@ -10,8 +10,8 @@ from test_framework.util import (
     assert_approx,
     assert_equal,
 )
-from test_framework.qtumconfig import COINBASE_MATURITY
-
+from test_framework.qtumconfig import COINBASE_MATURITY, MAX_BLOCK_SIGOPS
+from test_framework.qtum import generatesynchronized
 
 class WalletGroupTest(BitcoinTestFramework):
     def set_test_params(self):
@@ -25,7 +25,7 @@ class WalletGroupTest(BitcoinTestFramework):
 
     def run_test(self):
         # Mine some coins
-        self.nodes[0].generate(10+COINBASE_MATURITY)
+        generatesynchronized(self.nodes[0], 10+COINBASE_MATURITY, None, self.nodes)
 
         # Get some addresses from the two nodes
         addr1 = [self.nodes[1].getnewaddress() for i in range(3)]
@@ -72,11 +72,11 @@ class WalletGroupTest(BitcoinTestFramework):
 
         # Fill node2's wallet with 10000 outputs corresponding to the same
         # scriptPubKey
-        for i in range(5):
-            raw_tx = self.nodes[0].createrawtransaction([{"txid":"0"*64, "vout":0}], [{addr2[0]: 0.05}])
+        for i in range(10):
+            raw_tx = self.nodes[0].createrawtransaction([{"txid":"0"*64, "vout":0}], [{addr2[0]: 10/(MAX_BLOCK_SIGOPS//10)}])
             tx = FromHex(CTransaction(), raw_tx)
             tx.vin = []
-            tx.vout = [tx.vout[0]] * 2000
+            tx.vout = [tx.vout[0]] * (MAX_BLOCK_SIGOPS//10)
             funded_tx = self.nodes[0].fundrawtransaction(ToHex(tx))
             signed_tx = self.nodes[0].signrawtransactionwithwallet(funded_tx['hex'])
             self.nodes[0].sendrawtransaction(signed_tx['hex'])

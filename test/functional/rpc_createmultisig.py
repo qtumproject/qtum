@@ -12,6 +12,7 @@ from test_framework.util import (
 )
 from test_framework.key import ECPubKey
 from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD
+from test_framework.qtum import generatesynchronized
 
 import binascii
 import decimal
@@ -41,7 +42,7 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
         self.check_addmultisigaddress_errors()
 
         self.log.info('Generating blocks ...')
-        node0.generate(COINBASE_MATURITY+49)
+        generatesynchronized(node0, COINBASE_MATURITY+49, None, self.nodes)
         self.sync_all()
 
         self.moved = 0
@@ -100,7 +101,7 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
 
     def checkbalances(self):
         node0, node1, node2 = self.nodes
-        node0.generate(COINBASE_MATURITY)
+        generatesynchronized(node0, COINBASE_MATURITY, None, self.nodes)
         self.sync_all()
 
         bal0 = node0.getbalance()

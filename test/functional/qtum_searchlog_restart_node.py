@@ -7,6 +7,9 @@ from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
 from test_framework.script import *
 from test_framework.mininode import *
+from test_framework.qtum import generatesynchronized
+from test_framework.qtumconfig import ENABLE_REDUCED_BLOCK_TIME
+
 import sys
 
 
@@ -25,7 +28,7 @@ class QtumRPCSearchlogsTestModified(BitcoinTestFramework):
         send_result = []
         block_hashes = []
 
-        self.nodes[0].generate(600)
+        generatesynchronized(self.nodes[0], COINBASE_MATURITY+100, None, self.nodes)
         contract_address = self.nodes[0].createcontract("6060604052600d600055341561001457600080fd5b61017e806100236000396000f30060606040526004361061004c576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff168063027c1aaf1461004e5780635b9af12b14610058575b005b61005661008f565b005b341561006357600080fd5b61007960048080359060200190919050506100a1565b6040518082815260200191505060405180910390f35b60026000808282540292505081905550565b60007fc5c442325655248f6bccf5c6181738f8755524172cea2a8bd1e38e43f833e7f282600054016000548460405180848152602001838152602001828152602001935050505060405180910390a17fc5c442325655248f6bccf5c6181738f8755524172cea2a8bd1e38e43f833e7f282600054016000548460405180848152602001838152602001828152602001935050505060405180910390a1816000540160008190555060005490509190505600a165627a7a7230582015732bfa66bdede47ecc05446bf4c1e8ed047efac25478cb13b795887df70f290029")['address']
         self.nodes[0].generate(1)
         contract_addresses.append(contract_address)
@@ -58,12 +61,12 @@ class QtumRPCSearchlogsTestModified(BitcoinTestFramework):
         error_topics["topics"] = error_topic
 
         if first_call:
-            first_output.append(self.nodes[0].searchlogs(602,602,addresses))
+            first_output.append(self.nodes[0].searchlogs(COINBASE_MATURITY+102,COINBASE_MATURITY+102,addresses))
         else:
-            assert_equal(self.nodes[0].searchlogs(602,602,addresses),first_output[0])
+            assert_equal(self.nodes[0].searchlogs(COINBASE_MATURITY+102,COINBASE_MATURITY+102,addresses),first_output[0])
 
-        assert_equal(self.nodes[0].searchlogs(602,602,addresses),self.nodes[0].searchlogs(602,602,addresses,topics))
-        assert_equal(self.nodes[0].searchlogs(602,602,addresses,error_topics),[])
+        assert_equal(self.nodes[0].searchlogs(COINBASE_MATURITY+102,COINBASE_MATURITY+102,addresses),self.nodes[0].searchlogs(COINBASE_MATURITY+102,COINBASE_MATURITY+102,addresses,topics))
+        assert_equal(self.nodes[0].searchlogs(COINBASE_MATURITY+102,COINBASE_MATURITY+102,addresses,error_topics),[])
 
         address.clear()
         address.append(contract_addresses[1])
@@ -72,29 +75,29 @@ class QtumRPCSearchlogsTestModified(BitcoinTestFramework):
         topic.append("746f706963203200000000000000000000000000000000000000000000000000")
 
         if first_call:
-            first_output.append(self.nodes[0].searchlogs(604,604,addresses))
+            first_output.append(self.nodes[0].searchlogs(COINBASE_MATURITY+104,COINBASE_MATURITY+104,addresses))
         else:
-            assert_equal(self.nodes[0].searchlogs(604,604,addresses),first_output[1])
+            assert_equal(self.nodes[0].searchlogs(COINBASE_MATURITY+104,COINBASE_MATURITY+104,addresses),first_output[1])
 
-        assert_equal(self.nodes[0].searchlogs(604,604,addresses),self.nodes[0].searchlogs(604,604,addresses,topics))
+        assert_equal(self.nodes[0].searchlogs(COINBASE_MATURITY+104,COINBASE_MATURITY+104,addresses),self.nodes[0].searchlogs(COINBASE_MATURITY+104,COINBASE_MATURITY+104,addresses,topics))
 
         topic.reverse()
-        assert_equal(self.nodes[0].searchlogs(604,604,addresses,topics),[])
+        assert_equal(self.nodes[0].searchlogs(COINBASE_MATURITY+104,COINBASE_MATURITY+104,addresses,topics),[])
 
         topic.remove("746f706963203200000000000000000000000000000000000000000000000000")
         topic.append("746f706963203300000000000000000000000000000000000000000000000000")
-        assert_equal(self.nodes[0].searchlogs(604,604,addresses),self.nodes[0].searchlogs(604,604,addresses,topics))
+        assert_equal(self.nodes[0].searchlogs(COINBASE_MATURITY+104,COINBASE_MATURITY+104,addresses),self.nodes[0].searchlogs(COINBASE_MATURITY+104,COINBASE_MATURITY+104,addresses,topics))
 
         topic.remove("746f706963203100000000000000000000000000000000000000000000000000")
         topic.insert(0,"746f706963103100000000000000000000000000000000000000000000000000")
-        assert_equal(self.nodes[0].searchlogs(604,604,addresses,topics),[])
+        assert_equal(self.nodes[0].searchlogs(COINBASE_MATURITY+104,COINBASE_MATURITY+104,addresses,topics),[])
 
         topic.remove("746f706963203300000000000000000000000000000000000000000000000000")
         topic.insert(1,"746f706963203200000000000000000000000000000000000000000000000000")
-        assert_equal(self.nodes[0].searchlogs(604,604,addresses),self.nodes[0].searchlogs(604,604,addresses,topics))
+        assert_equal(self.nodes[0].searchlogs(COINBASE_MATURITY+104,COINBASE_MATURITY+104,addresses),self.nodes[0].searchlogs(COINBASE_MATURITY+104,COINBASE_MATURITY+104,addresses,topics))
 
         topic.reverse()
-        assert_equal(self.nodes[0].searchlogs(604,604,addresses,topics),[])
+        assert_equal(self.nodes[0].searchlogs(COINBASE_MATURITY+104,COINBASE_MATURITY+104,addresses,topics),[])
 
  
     def check_searchlogs(self, contract_addresses, send_result, block_hashes):
@@ -109,28 +112,28 @@ class QtumRPCSearchlogsTestModified(BitcoinTestFramework):
             assert_equal(exp.error["code"], RPC_INVALID_PARAMETER)
 
         try:
-            self.nodes[0].searchlogs(604,0)
+            self.nodes[0].searchlogs(COINBASE_MATURITY+104,0)
         except JSONRPCException as exp:
             assert_equal(exp.error["code"], RPC_INVALID_PARAMETER)
 
-        ret = self.nodes[0].searchlogs(0,604)
+        ret = self.nodes[0].searchlogs(0,COINBASE_MATURITY+104)
 
         assert_equal(ret[0]['blockHash'], block_hashes[0][0])
-        assert_equal(ret[0]['blockNumber'], 602)
+        assert_equal(ret[0]['blockNumber'], COINBASE_MATURITY+102)
         assert_equal(ret[0]['transactionHash'], send_result[0]['txid'])
         assert_equal(ret[0]['transactionIndex'], 1)
         assert_equal(ret[0]['from'], send_result[0]['hash160'])
         assert_equal(ret[0]['to'], contract_addresses[0])
-        assert_equal(ret[0]['gasUsed'], 30991)
+        assert_equal(ret[0]['gasUsed'], 30183 if ENABLE_REDUCED_BLOCK_TIME else 30991)
         assert_equal(ret[0]['contractAddress'], contract_addresses[0])
 
         assert_equal(ret[1]['blockHash'], block_hashes[1][0])
-        assert_equal(ret[1]['blockNumber'], 604)
+        assert_equal(ret[1]['blockNumber'], COINBASE_MATURITY+104)
         assert_equal(ret[1]['transactionHash'], send_result[1]['txid'])
         assert_equal(ret[1]['transactionIndex'], 1)
         assert_equal(ret[1]['from'], send_result[1]['hash160'])
         assert_equal(ret[1]['to'], contract_addresses[1])
-        assert_equal(ret[1]['gasUsed'], 43679)
+        assert_equal(ret[1]['gasUsed'], 44071 if ENABLE_REDUCED_BLOCK_TIME else 43679)
         assert_equal(ret[1]['contractAddress'], contract_addresses[1])
 
     def run_test(self):

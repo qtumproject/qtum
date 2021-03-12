@@ -24,7 +24,7 @@ from test_framework.util import (
     hex_str_to_bytes,
 )
 from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD
-
+from test_framework.qtum import generatesynchronized
 
 class multidict(dict):
     """Dictionary that allows duplicate keys.
@@ -67,7 +67,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         self.log.info('prepare some coins for multiple *rawtransaction commands')
         self.nodes[2].generate(1)
         self.sync_all()
-        self.nodes[0].generate(COINBASE_MATURITY+1)
+        generatesynchronized(self.nodes[0], COINBASE_MATURITY+1, None, self.nodes)
         self.sync_all()
         self.nodes[0].sendtoaddress(self.nodes[2].getnewaddress(),1.5)
         self.nodes[0].sendtoaddress(self.nodes[2].getnewaddress(),1.0)
