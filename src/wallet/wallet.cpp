@@ -6049,8 +6049,13 @@ bool CWallet::SelectCoinsForStaking(interfaces::Chain::Lock &locked_chain, CAmou
     std::vector<uint256> maturedTx;
     for (std::map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
     {
-        const uint256& wtxid = it->first;
+        // Check the cached data for available coins for the tx
         const CWalletTx* pcoin = &(*it).second;
+        const CAmount tx_credit_mine{pcoin->GetAvailableCredit(/* fUseCache */ true, ISMINE_SPENDABLE | ISMINE_NO)};
+        if(tx_credit_mine == 0)
+            continue;
+
+        const uint256& wtxid = it->first;
         int nDepth = pcoin->GetDepthInMainChain();
 
         if (nDepth < 1)
@@ -6314,8 +6319,13 @@ void CWallet::SelectAddress(interfaces::Chain::Lock &locked_chain, std::map<uint
     std::vector<uint256> maturedTx;
     for (std::map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
     {
-        const uint256& wtxid = it->first;
+        // Check the cached data for available coins for the tx
         const CWalletTx* pcoin = &(*it).second;
+        const CAmount tx_credit_mine{pcoin->GetAvailableCredit(/* fUseCache */ true, ISMINE_SPENDABLE | ISMINE_NO)};
+        if(tx_credit_mine == 0)
+            continue;
+
+        const uint256& wtxid = it->first;
         int nDepth = pcoin->GetDepthInMainChain();
 
         if (nDepth < 1)
