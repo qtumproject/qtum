@@ -104,7 +104,7 @@ static constexpr size_t DUMMY_NESTED_P2WPKH_INPUT_SIZE = 91;
 static const uint8_t DEFAULT_STAKING_MIN_FEE = 10;
 
 //! -minstakerutxosize default
-static const CAmount DEFAULT_STAKER_MIN_UTXO_SIZE = 0;
+static const CAmount DEFAULT_STAKER_MIN_UTXO_SIZE{COIN/10};
 
 //! -maxstakerutxoscriptcache default
 static const int32_t DEFAULT_STAKER_MAX_UTXO_SCRIPT_CACHE = 200000;
