@@ -36,6 +36,7 @@ unsigned int nBytecodeTimeBuffer = BYTECODE_TIME_BUFFER;
 unsigned int nStakeTimeBuffer = STAKE_TIME_BUFFER;
 unsigned int nMinerSleep = STAKER_POLLING_PERIOD;
 unsigned int nMinerWaitWalidBlock = STAKER_WAIT_FOR_WALID_BLOCK;
+unsigned int nMinerWaitBestBlockHeader = STAKER_WAIT_FOR_BEST_BLOCK_HEADER;
 
 void updateMinerParams(int nHeight, const Consensus::Params& consensusParams, bool minDifficulty)
 {
@@ -1303,6 +1304,7 @@ public:
     std::map<uint32_t, std::vector<COutPoint>> mapSolveDelegateCoins;
     uint32_t beginningTime = 0;
     uint32_t endingTime = 0;
+    uint32_t waitBestHeaderAttempts = 0;
 
     std::shared_ptr<CBlock> pblock;
     std::unique_ptr<CBlockTemplate> pblocktemplate;
@@ -1333,6 +1335,11 @@ public:
         fDelegationsContract = !consensusParams.delegationsAddress.IsNull();
         fEmergencyStaking = gArgs.GetBoolArg("-emergencystaking", false);
         fAggressiveStaking = gArgs.IsArgSet("-aggressive-staking");
+        int maxWaitForBestHeader = gArgs.GetArg("-maxstakerwaitforbestheader", DEFAULT_MAX_STAKER_WAIT_FOR_BEST_BLOCK_HEADER);
+        if(maxWaitForBestHeader > 0)
+        {
+            waitBestHeaderAttempts = maxWaitForBestHeader / nMinerWaitBestBlockHeader;
+        }
         if(pwallet) numThreads = pwallet->m_num_threads;
     }
 
@@ -1517,6 +1524,41 @@ protected:
         return ::ChainActive().Tip() != d->pindexPrev;
     }
 
+    bool WaitBestHeader()
+    {
+        if(d->pwallet->IsStakeClosing()) return false;
+        if(d->fEmergencyStaking || d->fAggressiveStaking) return false;
+        auto locked_chain = d->pwallet->chain().lock();
+        CBlockIndex* tip = ::ChainActive().Tip();
+        if(pindexBestHeader!= 0 &&
+                tip != 0 &&
+                tip != pindexBestHeader &&
+                tip->nHeight < pindexBestHeader->nHeight)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    bool SyncWithMiners()
+    {
+        // Try sync with mines
+        for(size_t i = 0; i < d->waitBestHeaderAttempts; i++)
+        {
+            if(WaitBestHeader())
+            {
+                if(!Sleep(nMinerWaitBestBlockHeader))
+                    return false;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        return true;
+    }
     bool UpdateData()
     {
         if(d->pwallet->IsStakeClosing()) return false;
@@ -1742,6 +1784,8 @@ protected:
                     }
                     continue;
                 }
+                //if there is mined block by other staker wait for it to download
+                if(!SyncWithMiners()) break;
                 validBlock=true;
             }
             if(validBlock) {
