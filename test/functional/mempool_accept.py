@@ -35,6 +35,7 @@ from test_framework.util import (
     hex_str_to_bytes,
 )
 
+from test_framework.qtumconfig import COINBASE_MATURITY
 
 class MempoolAcceptanceTest(BitcoinTestFramework):
     def set_test_params(self):
@@ -58,7 +59,7 @@ class MempoolAcceptanceTest(BitcoinTestFramework):
 
         self.log.info('Start with empty mempool, and 200 blocks')
         self.mempool_size = 0
-        assert_equal(node.getblockcount(), 600)
+        assert_equal(node.getblockcount(), COINBASE_MATURITY+100)
         assert_equal(node.getmempoolinfo()['size'], self.mempool_size)
         coins = node.listunspent()
 

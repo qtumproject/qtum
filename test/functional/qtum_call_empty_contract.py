@@ -7,6 +7,8 @@ from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
 from test_framework.script import *
 from test_framework.mininode import *
+
+from test_framework.qtum import generatesynchronized
 import sys
 
 class QtumCallContractStateNotRevertedTest(BitcoinTestFramework):
@@ -19,9 +21,9 @@ class QtumCallContractStateNotRevertedTest(BitcoinTestFramework):
 
     def run_test(self):
         connect_nodes_bi(self.nodes, 0, 1)
-        self.nodes[0].generate(600)
+        generatesynchronized(self.nodes[0], COINBASE_MATURITY+100, None, self.nodes)
         self.sync_all()
-        self.nodes[1].generate(600)
+        generatesynchronized(self.nodes[1], COINBASE_MATURITY+100, None, self.nodes)
         self.sync_all()
         contract_address = self.nodes[0].createcontract("00")['address']
         self.nodes[0].generate(1)

@@ -17,7 +17,7 @@ from test_framework.util import (
     find_vout_for_address,
 )
 from test_framework.qtumconfig import *
-
+from test_framework.qtum import generatesynchronized
 
 def get_unspent(listunspent, amount):
     for utx in listunspent:
@@ -62,7 +62,7 @@ class RawTransactionsTest(BitcoinTestFramework):
 
         self.nodes[2].generate(1)
         self.sync_all()
-        self.nodes[0].generate(COINBASE_MATURITY + 21)
+        generatesynchronized(self.nodes[0], COINBASE_MATURITY + 21, None, self.nodes)
         self.sync_all()
 
         self.test_change_position()

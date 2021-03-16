@@ -12,7 +12,6 @@ from test_framework.blocktools import (
     create_coinbase,
     create_tx_with_script,
     get_legacy_sigopcount_block,
-    MAX_BLOCK_SIGOPS,
 )
 from test_framework.key import ECKey
 from test_framework.messages import (
@@ -22,7 +21,6 @@ from test_framework.messages import (
     CTransaction,
     CTxIn,
     CTxOut,
-    MAX_BLOCK_BASE_SIZE,
     uint256_from_compact,
     uint256_from_str,
 )
@@ -122,7 +120,10 @@ class FullBlockTest(BitcoinTestFramework):
         for i in range(NUM_BUFFER_BLOCKS_TO_GENERATE):
             blocks.append(self.next_block("maturitybuffer.{}".format(i)))
             self.save_spendable_output()
-        self.send_blocks(blocks)
+        
+        for i in range(0, len(blocks), 100):
+            self.send_blocks(blocks[i:i+100])
+        self.send_blocks(blocks[i:])
 
         # collect spendable outputs now to avoid cluttering the code later on
         out = []
@@ -317,18 +318,18 @@ class FullBlockTest(BitcoinTestFramework):
         self.move_tip(15)
         b23 = self.next_block(23, spend=out[6])
         tx = CTransaction()
-        script_length = 1000000 - len(b23.serialize()) - 69
+        script_length = MAX_BLOCK_BASE_SIZE - len(b23.serialize()) - 69
         script_output = CScript([b'\x00' * script_length])
         tx.vout.append(CTxOut(0, script_output))
         tx.vin.append(CTxIn(COutPoint(b23.vtx[1].sha256, 0)))
         b23 = self.update_block(23, [tx])
         # Make sure the math above worked out to produce a max-sized block
-        assert_equal(len(b23.serialize()), 1000000)
+        assert_equal(len(b23.serialize()), MAX_BLOCK_BASE_SIZE)
         self.send_blocks([b23], True)
         self.save_spendable_output()
 
         self.log.info("Reject a block of size MAX_BLOCK_BASE_SIZE + 1")
-        self.move_tip(15)
+        self.move_tip(23)
         b24 = self.next_block(24, spend=out[6])
         script_length = MAX_BLOCK_BASE_SIZE - len(b24.serialize()) - 69
         script_output = CScript([b'\x00' * (script_length + 1)])
@@ -337,6 +338,7 @@ class FullBlockTest(BitcoinTestFramework):
         assert_equal(len(b24.serialize()), MAX_BLOCK_BASE_SIZE + 1)
         self.send_blocks([b24], success=False, reconnect=True)
 
+        self.move_tip(15)
         b25 = self.next_block(25, spend=out[7])
         self.send_blocks([b25], False)
 
@@ -881,12 +883,12 @@ class FullBlockTest(BitcoinTestFramework):
         tx = CTransaction()
 
         # use canonical serialization to calculate size
-        script_length = 1000000 - len(b64a.normal_serialize()) - 69
+        script_length = MAX_BLOCK_BASE_SIZE - len(b64a.normal_serialize()) - 69
         script_output = CScript([b'\x00' * script_length])
         tx.vout.append(CTxOut(0, script_output))
         tx.vin.append(CTxIn(COutPoint(b64a.vtx[1].sha256, 0)))
         b64a = self.update_block("64a", [tx])
-        assert_equal(len(b64a.serialize()), 1000000 + 8)
+        assert_equal(len(b64a.serialize()), MAX_BLOCK_BASE_SIZE+8)
         self.send_blocks([b64a], success=False, reject_reason='non-canonical ReadCompactSize()')
 
         # bitcoind doesn't disconnect us for sending a bloated block, but if we subsequently
@@ -900,7 +902,7 @@ class FullBlockTest(BitcoinTestFramework):
         b64 = CBlock(b64a)
         b64.vtx = copy.deepcopy(b64a.vtx)
         assert_equal(b64.hash, b64a.hash)
-        assert_equal(len(b64.serialize()), 1000000)
+        assert_equal(len(b64.serialize()), MAX_BLOCK_BASE_SIZE)
         self.blocks[64] = b64
         b64 = self.update_block(64, [])
         self.send_blocks([b64], True)
@@ -1234,12 +1236,12 @@ class FullBlockTest(BitcoinTestFramework):
         for i in range(89, LARGE_REORG_SIZE + 89):
             b = self.next_block(i, spend, version=4)
             tx = CTransaction()
-            script_length = 1000000 - len(b.serialize()) - 69
+            script_length = MAX_BLOCK_BASE_SIZE - len(b.serialize()) - 69
             script_output = CScript([b'\x00' * script_length])
             tx.vout.append(CTxOut(0, script_output))
             tx.vin.append(CTxIn(COutPoint(b.vtx[1].sha256, 0)))
             b = self.update_block(i, [tx])
-            assert_equal(len(b.serialize()), 1000000)
+            assert_equal(len(b.serialize()), MAX_BLOCK_BASE_SIZE)
             blocks.append(b)
             self.save_spendable_output()
             spend = self.get_spendable_output()

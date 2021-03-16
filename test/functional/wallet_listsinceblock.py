@@ -15,6 +15,7 @@ from test_framework.util import (
 
 from decimal import Decimal
 from test_framework.qtumconfig import COINBASE_MATURITY
+from test_framework.qtum import generatesynchronized
 
 class ListSinceBlockTest(BitcoinTestFramework):
     def set_test_params(self):
@@ -28,7 +29,7 @@ class ListSinceBlockTest(BitcoinTestFramework):
         # All nodes are in IBD from genesis, so they'll need the miner (node2) to be an outbound connection, or have
         # only one connection. (See fPreferredDownload in net_processing)
         connect_nodes(self.nodes[1], 2)
-        self.nodes[2].generate(COINBASE_MATURITY+1)
+        generatesynchronized(self.nodes[2], COINBASE_MATURITY+1, None, self.nodes)
         self.sync_all()
 
         self.test_no_blockhash()
