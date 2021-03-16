@@ -859,6 +859,10 @@ public:
 
     std::map<COutPoint, CStakeCache> minerStakeCache;
 
+    std::map<uint160, bool> mapAddressUnspentCache;
+
+    bool fUpdateAddressUnspentCache = false;
+
     /** Registered interfaces::Chain::Notifications handler. */
     std::unique_ptr<interfaces::Handler> m_chain_notifications_handler;
 
