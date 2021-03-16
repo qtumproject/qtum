@@ -1062,6 +1062,7 @@ public:
     MyDelegations(CWallet *_pwallet):
         pwallet(_pwallet),
         cacheHeight(0),
+        cacheAddressHeight(0),
         spk_man(0)
     {
         spk_man = _pwallet->GetLegacyScriptPubKeyMan();
@@ -1115,7 +1116,7 @@ public:
                 std::map<uint160, bool> mapAddress;
 
                 // Get all addreses with coins
-                pwallet->SelectAddress(locked_chain, mapAddress);
+                SelectAddress(locked_chain, mapAddress, nHeight);
 
                 // Get all addreses for delegations in the GUI
                 for(auto item : pwallet->mapDelegation)
@@ -1148,11 +1149,28 @@ public:
         }
     }
 
+    void SelectAddress(interfaces::Chain::Lock& locked_chain, std::map<uint160, bool>& mapAddress, int32_t nHeight)
+    {
+        if(cacheAddressHeight < nHeight)
+        {
+            pwallet->SelectAddress(locked_chain, mapAddress);
+            pwallet->mapAddressUnspentCache = mapAddress;
+            if(pwallet->fUpdateAddressUnspentCache == false)
+                pwallet->fUpdateAddressUnspentCache = true;
+            cacheAddressHeight = nHeight + 100;
+        }
+        else
+        {
+            mapAddress = pwallet->mapAddressUnspentCache;
+        }
+    }
+
 private:
 
     CWallet *pwallet;
     QtumDelegation qtumDelegations;
     int32_t cacheHeight;
+    int32_t cacheAddressHeight;
     std::map<uint160, Delegation> cacheMyDelegations;
     LegacyScriptPubKeyMan* spk_man;
 };
