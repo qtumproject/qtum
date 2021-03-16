@@ -86,12 +86,7 @@ class QtumDGPBlockSizeSyncTest(BitcoinTestFramework):
         current_block_count = self.node.getblockcount()
         assert_equal(self.node.submitblock(bytes_to_hex_str(block.serialize(with_witness))), None)
         assert_equal(self.node.getblockcount(), current_block_count+1)
-        t = time.time()
-        while time.time() < t+5:
-            if self.nodes[0].getbestblockhash() == self.nodes[1].getbestblockhash():
-                break
-        else:
-            assert(False)
+        self.sync_blocks(self.nodes[0:2])
         assert_equal(self.nodes[0].getbestblockhash(), self.nodes[1].getbestblockhash())
 
     def assert_block_limits(self, max_accepted_block_size, possible_block_sizes):
@@ -117,7 +112,7 @@ class QtumDGPBlockSizeSyncTest(BitcoinTestFramework):
             self.stop_node(i)
         # Generate some blocks to make sure we have enough spendable outputs
         self.node = self.nodes[0]
-        self.node.generate(1000 + COINBASE_MATURITY)
+        generatesynchronized(self.node, 1000 + COINBASE_MATURITY, None, self.nodes[0:2])
         self.BLOCK_SIZE_DGP = DGPState(self.node, "0000000000000000000000000000000000000081")
         self.is_network_split = False
         connect_nodes_bi(self.nodes, 0, 1)
@@ -129,13 +124,14 @@ class QtumDGPBlockSizeSyncTest(BitcoinTestFramework):
         self.BLOCK_SIZE_DGP.send_set_initial_admin(admin_address)
         self.node.generate(1)
 
-        possible_block_sizes = [1000000, 2000000, 4000000, 8000000]
+        possible_block_sizes = [1000000, 2000000] if ENABLE_REDUCED_BLOCK_TIME else [1000000, 2000000, 4000000, 8000000]
         ascending_block_sizes = sorted(possible_block_sizes)
 
         for max_block_size in possible_block_sizes:
             self.create_proposal_contract(max_block_size)
             self.BLOCK_SIZE_DGP.send_add_address_proposal(self.proposal_address, 2, admin_address)
             self.node.generate(2) # We need to generate 2 blocks now for it to activate
+            self.sync_blocks(self.nodes[0:2])
             self.assert_block_limits(max_block_size, ascending_block_sizes)
 
         # Bring the last nodes online and make sure that they sync with node 0 and 1 (A and B)

@@ -115,7 +115,7 @@ class QtumDuplicateStakeTest(BitcoinTestFramework):
         # Send <alt_block> to alt_node
         self.p2p_alt_node.send_message(msg_block(alt_block))
         time.sleep(5)
-        self.alt_node.generate(500)
+        generatesynchronized(self.alt_node, COINBASE_MATURITY, None, self.nodes)
         time.sleep(5)
         
         # Send <block> to node
@@ -137,14 +137,14 @@ class QtumDuplicateStakeTest(BitcoinTestFramework):
         self.alt_node = self.nodes[1]
         self.node.setmocktime(int(time.time() - 100*24*60*60))
         self.alt_node.setmocktime(int(time.time() - 100*24*60*60))
-        self.alt_node.generatetoaddress(50, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
+        generatesynchronized(self.alt_node, 50, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq", self.nodes)
         self.sync_all()
 
-        self.node.generatetoaddress(500, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
+        generatesynchronized(self.node, COINBASE_MATURITY, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq", self.nodes)
         self.sync_all()
         self.alt_staking_prevouts = collect_prevouts(self.alt_node)
 
-        self.node.generatetoaddress(50, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
+        generatesynchronized(self.node, 50, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq", self.nodes)
         self.sync_all()
         self.staking_prevouts = collect_prevouts(self.node)
 

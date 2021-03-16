@@ -10,7 +10,7 @@ from test_framework.util import assert_equal, assert_raises_rpc_error, find_vout
 from test_framework.messages import sha256
 from test_framework.script import CScript, OP_0, OP_CHECKSIG
 from test_framework.qtumconfig import *
-from test_framework.qtum import convert_btc_address_to_qtum
+from test_framework.qtum import convert_btc_address_to_qtum, generatesynchronized
 
 from decimal import Decimal
 
@@ -155,7 +155,7 @@ class SignRawTransactionsTest(BitcoinTestFramework):
         embedded_privkey = self.nodes[1].dumpprivkey(embedded_address["address"])
         p2sh_p2wsh_address = self.nodes[1].addmultisigaddress(1, [embedded_address["pubkey"]], "", "p2sh-segwit")
         # send transaction to P2SH-P2WSH 1-of-1 multisig address
-        self.nodes[0].generate(COINBASE_MATURITY + 1)
+        generatesynchronized(self.nodes[0], COINBASE_MATURITY + 1, None, self.nodes)
         self.nodes[0].sendtoaddress(p2sh_p2wsh_address["address"], 49.999)
         self.nodes[0].generate(1)
         self.sync_all()

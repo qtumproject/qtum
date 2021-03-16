@@ -27,6 +27,7 @@ from test_framework.util import (
     hex_str_to_bytes,
 )
 from test_framework.qtumconfig import COINBASE_MATURITY
+from test_framework.qtum import generatesynchronized
 
 WALLET_PASSPHRASE = "test"
 WALLET_PASSPHRASE_TIMEOUT = 3600
@@ -64,7 +65,7 @@ class BumpFeeTest(BitcoinTestFramework):
 
         # fund rbf node with 10 coins of 0.001 btc (100,000 satoshis)
         self.log.info("Mining blocks...")
-        peer_node.generate(COINBASE_MATURITY+10)
+        generatesynchronized(peer_node, COINBASE_MATURITY+10, None, self.nodes)
         self.sync_all()
         for i in range(25):
             peer_node.sendtoaddress(rbf_node_address, 0.1)
@@ -505,6 +506,10 @@ def submit_block_with_tx(node, tx):
     return block
 
 def test_no_more_inputs_fails(self, rbf_node, dest_address):
+    # Throw away some coins to a dummy address so that the test does not hit the max tx size error
+    rbf_node.sendtoaddress("qc4bREjo85FRxUMatqVTVAeaD4XKGHswgm", rbf_node.getbalance()/2)
+
+
     self.log.info('Test that bumpfee fails when there are no available confirmed outputs')
     # feerate rbf requires confirmed outputs when change output doesn't exist or is insufficient
     rbf_node.generatetoaddress(1, dest_address)

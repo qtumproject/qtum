@@ -21,6 +21,7 @@ from test_framework.util import (
     wait_until,
 )
 from test_framework.qtumconfig import *
+from test_framework.qtum import generatesynchronized
 
 class AbandonConflictTest(BitcoinTestFramework):
     def set_test_params(self):
@@ -31,7 +32,7 @@ class AbandonConflictTest(BitcoinTestFramework):
         self.skip_if_no_wallet()
 
     def run_test(self):
-        self.nodes[1].generate(COINBASE_MATURITY)
+        generatesynchronized(self.nodes[1], COINBASE_MATURITY, None, self.nodes)
         self.sync_blocks()
         balance = self.nodes[0].getbalance()
         txA = self.nodes[0].sendtoaddress(self.nodes[0].getnewaddress(), Decimal("10"))
