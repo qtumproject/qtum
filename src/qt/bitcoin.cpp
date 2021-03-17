@@ -394,7 +394,6 @@ void BitcoinApplication::initializeResult(bool success)
             window->showMinimized();
         }
         Q_EMIT splashFinished();
-        Q_EMIT windowShown(window);
 
 #ifdef ENABLE_WALLET
         // Now that initialization/startup is done, process any command-line
@@ -411,6 +410,10 @@ void BitcoinApplication::initializeResult(bool success)
         pollShutdownTimer->start(200);
 
         processEvents();
+    }
+
+    if(success) {
+        Q_EMIT windowShown(window);
     } else {
         Q_EMIT splashFinished(); // Make sure splash screen doesn't stick around during shutdown
         quit(); // Exit first main loop invocation
