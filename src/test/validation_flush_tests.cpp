@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(getcoinscachesizestate)
         BOOST_TEST_MESSAGE("CCoinsViewCache memory usage: " << view.DynamicMemoryUsage());
     };
 
-    constexpr size_t MAX_COINS_CACHE_BYTES = 1664;
+    constexpr size_t MAX_COINS_CACHE_BYTES = 1672;
 
     // Without any coins in the cache, we shouldn't need to flush.
     BOOST_CHECK_EQUAL(
@@ -90,6 +90,7 @@ BOOST_AUTO_TEST_CASE(getcoinscachesizestate)
 
     for (int i{0}; i < COINS_UNTIL_CRITICAL; ++i) {
         COutPoint res = add_coin(view);
+        BOOST_TEST_MESSAGE("ITER: " << i);
         print_view_mem_usage(view);
         BOOST_CHECK_EQUAL(view.AccessCoin(res).DynamicMemoryUsage(), COIN_SIZE);
         BOOST_CHECK_EQUAL(
