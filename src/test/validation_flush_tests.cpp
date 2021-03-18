@@ -90,7 +90,6 @@ BOOST_AUTO_TEST_CASE(getcoinscachesizestate)
 
     for (int i{0}; i < COINS_UNTIL_CRITICAL; ++i) {
         COutPoint res = add_coin(view);
-        BOOST_TEST_MESSAGE("ITER: " << i);
         print_view_mem_usage(view);
         BOOST_CHECK_EQUAL(view.AccessCoin(res).DynamicMemoryUsage(), COIN_SIZE);
         BOOST_CHECK_EQUAL(
