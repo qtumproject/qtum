@@ -8,7 +8,7 @@ from test_framework.address import *
 import threading
 
 def waitforlogs(node, contract_address):
-    logs = node.cli.waitforlogs(node.cli.getblockcount()-1, 1000, '{"addresses": ["'+contract_address+'"]}')
+    logs = node.cli.waitforlogs(node.cli.getblockcount()-1, COINBASE_MATURITY+500, '{"addresses": ["'+contract_address+'"]}')
     node.result = logs
 
 

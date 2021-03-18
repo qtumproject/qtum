@@ -890,6 +890,39 @@ void ArgsManager::LogArgs() const
     logArgsPrefix("Command-line arg:", "", m_settings.command_line_options);
 }
 
+std::map<std::string, std::vector<std::string>> ArgsManager::getArgsList(const std::vector<std::string>& paramListType) const
+{
+    // Get argument list
+    std::map<std::string, bool> args;
+    for (const auto& arg : m_settings.forced_settings) {
+        args[arg.first] = true;
+    }
+    for (const auto& arg : m_settings.command_line_options) {
+        args[arg.first] = true;
+    }
+    for (const auto& arg : m_settings.ro_config) {
+        for(const auto& confArg : arg.second)
+            args[confArg.first] = true;
+    }
+
+    // Fill argument list with values
+    std::map<std::string, std::vector<std::string>> ret;
+    for (const auto& arg : args) {
+        std::string paramName = '-' + arg.first;
+        std::vector<std::string> paramValue;
+        bool isList = std::find(std::begin(paramListType), std::end(paramListType), paramName) != std::end(paramListType);
+        if(isList) {
+            paramValue = GetArgs(paramName);
+        }
+        else {
+            paramValue.push_back(GetArg(paramName, ""));
+        }
+        ret[arg.first] = paramValue;
+    }
+
+    return ret;
+}
+
 bool RenameOver(fs::path src, fs::path dest)
 {
 #ifdef WIN32

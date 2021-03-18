@@ -190,6 +190,14 @@ void Shutdown(NodeContext& node)
     /// Be sure that anything that writes files or flushes caches only does this if the respective
     /// module was initialized.
     util::ThreadRename("qtum-shutoff");
+
+#ifdef ENABLE_WALLET
+    // Force stop the stakers before any other components
+    for (const std::shared_ptr<CWallet>& pwallet : GetWallets()) {
+        pwallet->StopStake();
+    }
+#endif
+
     mempool.AddTransactionsUpdated(1);
 
     StopHTTPRPC();
@@ -433,6 +441,7 @@ void SetupServerArgs()
     gArgs.AddArg("-logevents", strprintf("Maintain a full EVM log index, used by searchlogs and gettransactionreceipt rpc calls (default: %u)", DEFAULT_LOGEVENTS), ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
     gArgs.AddArg("-addrindex", strprintf("Maintain a full address index (default: %u)", DEFAULT_ADDRINDEX), ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
     gArgs.AddArg("-deleteblockchaindata", "Delete the local copy of the block chain data", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    gArgs.AddArg("-forceinitialblocksdownloadmode", strprintf("Force initial blocks download mode for the node (default: %u)", DEFAULT_FORCE_INITIAL_BLOCKS_DOWNLOAD_MODE), ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
 
     gArgs.AddArg("-addnode=<ip>", "Add a node to connect to and attempt to keep the connection open (see the `addnode` RPC command help for more info). This option can be specified multiple times to add multiple nodes.", ArgsManager::ALLOW_ANY | ArgsManager::NETWORK_ONLY, OptionsCategory::CONNECTION);
     gArgs.AddArg("-asmap=<file>", strprintf("Specify asn mapping used for bucketing of the peers (default: %s). Relative paths will be prefixed by the net-specific datadir location.", DEFAULT_ASMAP_FILENAME), ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
@@ -558,6 +567,11 @@ void SetupServerArgs()
     gArgs.AddArg("-offlinestakingheight=<n>", "Use given block height to check offline staking fork (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-delegationsaddress=<adr>", "Use given contract delegations address for offline staking fork (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     gArgs.AddArg("-lastmposheight=<n>", "Use given block height to check remove mpos fork (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    gArgs.AddArg("-reduceblocktimeheight=<n>", "Use given block height to check blocks with reduced target spacing (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    gArgs.AddArg("-powallowmindifficultyblocks", "Use given value for pow allow min difficulty blocks parameter (regtest-only, default: 1)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    gArgs.AddArg("-pownoretargeting", "Use given value for pow no retargeting parameter (regtest-only, default: 1)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    gArgs.AddArg("-posnoretargeting", "Use given value for pos no retargeting parameter (regtest-only, default: 1)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    gArgs.AddArg("-muirglacierheight=<n>", "Use given block height to check contracts with EVM Muir Glacier (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
 
     SetupChainParamsBaseOptions();
 
@@ -581,6 +595,7 @@ void SetupServerArgs()
     gArgs.AddArg("-staker-max-tx-gas-limit=<n>", "Any contract execution with a gas limit over this amount will not be included in a block (defaults to soft block gas limit)", ArgsManager::ALLOW_ANY, OptionsCategory::BLOCK_CREATION);
     gArgs.AddArg("-staker-soft-block-gas-limit=<n>", "After this amount of gas is surpassed in a block, no more contract executions will be added to the block (defaults to consensus-critical maximum block gas limit)", ArgsManager::ALLOW_ANY, OptionsCategory::BLOCK_CREATION);
     gArgs.AddArg("-aggressive-staking", "Check more often to publish immediately when valid block is found.", ArgsManager::ALLOW_ANY, OptionsCategory::BLOCK_CREATION);
+    gArgs.AddArg("-emergencystaking", "Emergency staking without blockchain synchronization.", ArgsManager::ALLOW_ANY, OptionsCategory::BLOCK_CREATION);
 
     gArgs.AddArg("-rest", strprintf("Accept public REST requests (default: %u)", DEFAULT_REST_ENABLE), ArgsManager::ALLOW_ANY, OptionsCategory::RPC);
     gArgs.AddArg("-rpcallowip=<ip>", "Allow JSON-RPC connections from specified source. Valid for <ip> are a single IP (e.g. 1.2.3.4), a network/netmask (e.g. 1.2.3.4/255.255.255.0) or a network/CIDR (e.g. 1.2.3.4/24). This option can be specified multiple times", ArgsManager::ALLOW_ANY, OptionsCategory::RPC);
@@ -760,6 +775,13 @@ static void ThreadImport(std::vector<fs::path> vImportFiles)
         LogPrintf("Reindexing finished\n");
         // To avoid ending up in a situation without genesis block, re-try initializing (no-op if reindexing worked):
         LoadGenesisBlock(chainparams);
+
+#ifdef ENABLE_WALLET
+        // Clean not reverted coinstake transactions
+        for (const std::shared_ptr<CWallet>& pwallet : GetWallets()) {
+            pwallet->CleanCoinStake();
+        }
+#endif
     }
 
     // -loadblock=
@@ -1323,6 +1345,67 @@ bool AppInitParameterInteraction()
         {
             UpdateLastMPoSBlockHeight(lastMPosBlockHeight);
             LogPrintf("Set last MPoS block height %d\n.", lastMPosBlockHeight);
+        }
+    }
+
+    if (gArgs.IsArgSet("-reduceblocktimeheight")) {
+        // Allow overriding short block time block height for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError("Short block time height may only be overridden on regtest.");
+        }
+
+        int reduceblocktimeheight = gArgs.GetArg("-reduceblocktimeheight", 0);
+        if(reduceblocktimeheight >= 0)
+        {
+            UpdateReduceBlocktimeHeight(reduceblocktimeheight);
+            LogPrintf("Activate short block time at block height %d\n.", reduceblocktimeheight);
+        }
+    }
+
+    if (gArgs.IsArgSet("-powallowmindifficultyblocks")) {
+        // Allow overriding pow allow min difficulty blocks parameter for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError("Pow allow min difficulty blocks parameter may only be overridden on regtest.");
+        }
+
+        bool powallowmindifficultyblocks = gArgs.GetBoolArg("-powallowmindifficultyblocks", 1);
+        UpdatePowAllowMinDifficultyBlocks(powallowmindifficultyblocks);
+        LogPrintf("Use given value for pow allow min difficulty blocks parameter %d\n.", powallowmindifficultyblocks);
+    }
+
+    if (gArgs.IsArgSet("-pownoretargeting")) {
+        // Allow overriding pow no retargeting parameter for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError("Pow no retargeting parameter may only be overridden on regtest.");
+        }
+
+        bool pownoretargeting = gArgs.GetBoolArg("-pownoretargeting", 1);
+        UpdatePowNoRetargeting(pownoretargeting);
+        LogPrintf("Use given value for pow no retargeting parameter %d\n.", pownoretargeting);
+    }
+
+    if (gArgs.IsArgSet("-posnoretargeting")) {
+        // Allow overriding pos no retargeting parameter for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError("PoS no retargeting parameter may only be overridden on regtest.");
+        }
+
+        bool posnoretargeting = gArgs.GetBoolArg("-posnoretargeting", 1);
+        UpdatePoSNoRetargeting(posnoretargeting);
+        LogPrintf("Use given value for pos no retargeting parameter %d\n.", posnoretargeting);
+    }
+
+    if (gArgs.IsArgSet("-muirglacierheight")) {
+        // Allow overriding EVM Muir Glacier block height for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError("Short EVM Muir Glacier height may only be overridden on regtest.");
+        }
+
+        int muirglacierheight = gArgs.GetArg("-muirglacierheight", 0);
+        if(muirglacierheight >= 0)
+        {
+            UpdateMuirGlacierHeight(muirglacierheight);
+            LogPrintf("Activate EVM Muir Glacier at block height %d\n.", muirglacierheight);
         }
     }
 

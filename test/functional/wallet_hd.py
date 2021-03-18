@@ -14,7 +14,7 @@ from test_framework.util import (
     assert_raises_rpc_error
 )
 from test_framework.qtumconfig import COINBASE_MATURITY
-
+from test_framework.qtum import generatesynchronized
 
 class WalletHDTest(BitcoinTestFramework):
     def set_test_params(self):
@@ -46,7 +46,7 @@ class WalletHDTest(BitcoinTestFramework):
 
         # Derive some HD addresses and remember the last
         # Also send funds to each add
-        self.nodes[0].generate(COINBASE_MATURITY+1)
+        generatesynchronized(self.nodes[0], COINBASE_MATURITY+1, None, self.nodes)
         hd_add = None
         NUM_HD_ADDS = 10
         for i in range(NUM_HD_ADDS):

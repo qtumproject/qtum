@@ -39,7 +39,7 @@ from .script import (
     hash160,
 )
 from .util import assert_equal
-from .qtumconfig import INITIAL_BLOCK_REWARD
+from .qtumconfig import INITIAL_BLOCK_REWARD, INITIAL_BLOCK_REWARD_POS
 from io import BytesIO
 
 MAX_BLOCK_SIGOPS = 20000
@@ -106,7 +106,7 @@ def script_BIP34_coinbase_height(height):
         return CScript([res, OP_1])
     return CScript([CScriptNum(height)])
 
-def create_coinbase(height, pubkey=None):
+def create_coinbase(height, pubkey=None, value=None):
     """Create a coinbase transaction, assuming no miner fees.
 
     If pubkey is passed in, the coinbase output will be a P2PK output;
@@ -114,7 +114,14 @@ def create_coinbase(height, pubkey=None):
     coinbase = CTransaction()
     coinbase.vin.append(CTxIn(COutPoint(0, 0xffffffff), script_BIP34_coinbase_height(height), 0xffffffff))
     coinbaseoutput = CTxOut()
-    coinbaseoutput.nValue = INITIAL_BLOCK_REWARD * COIN
+
+    if value:
+        coinbaseoutput.nValue = value
+    elif height > 5000:
+        coinbaseoutput.nValue = int(INITIAL_BLOCK_REWARD_POS*COIN)
+    else:
+        coinbaseoutput.nValue = INITIAL_BLOCK_REWARD * COIN
+
     #halvings = int(height / 150)  # regtest
     #coinbaseoutput.nValue >>= halvings
     if (pubkey is not None):

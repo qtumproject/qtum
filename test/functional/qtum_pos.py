@@ -10,6 +10,7 @@ from test_framework.mininode import *
 from test_framework.blocktools import *
 from test_framework.address import *
 from test_framework.key import ECKey
+from test_framework.qtumconfig import TIMESTAMP_MASK
 import io
 import struct
 
@@ -343,8 +344,8 @@ class QtumPOSTest(BitcoinTestFramework):
 
     def create_unsigned_pos_block(self, staking_prevouts, nTime=None, outNValue=10002, signStakeTx=True, bestBlockHash=None, coinStakePrevout=None):
         if not nTime:
-            current_time = int(time.time()) + 15
-            nTime = current_time & 0xfffffff0
+            current_time = int(time.time()) + TIMESTAMP_MASK
+            nTime = current_time & (0xffffffff - TIMESTAMP_MASK)
 
         if not bestBlockHash:
             bestBlockHash = self.node.getbestblockhash()

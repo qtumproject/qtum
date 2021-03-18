@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE(checking_btcecrecover_after_fork){
     // Initialize
 //    initState();
     genesisLoading();
-    createNewBlocks(this,999 - COINBASE_MATURITY);
+    createNewBlocks(this, 499);
     dev::h256 hashTx(HASHTX);
 
     // Create contract
@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE(checking_btcecrecover_before_fork){
     // Initialize
 //    initState();
     genesisLoading();
-    createNewBlocks(this,998 - COINBASE_MATURITY);
+    createNewBlocks(this, 498);
     dev::h256 hashTx(HASHTX);
 
     // Create contract

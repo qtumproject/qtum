@@ -14,8 +14,8 @@ import sys
 class QtumBlockIndexCleanupTest(BitcoinTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
-        self.num_nodes = 4
-        self.extra_args = [['-txindex=1', '-cleanblockindextimeout=1']]*4
+        self.num_nodes = 2
+        self.extra_args = [['-txindex=1', '-cleanblockindextimeout=1']]*2
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
@@ -70,7 +70,7 @@ class QtumBlockIndexCleanupTest(BitcoinTestFramework):
         blocks = []
 
         if not is_pow:
-            prevouts = collect_prevouts(self.node, min_confirmations=1100)
+            prevouts = collect_prevouts(self.node, min_confirmations=2*COINBASE_MATURITY+100)
             modifier = int(tip['modifier'], 16)
             block = CBlock()
             f = io.BytesIO(hex_str_to_bytes(self.node.getblock(tip['hash'], False)))
@@ -98,9 +98,7 @@ class QtumBlockIndexCleanupTest(BitcoinTestFramework):
         for n in self.nodes:
             n.setmocktime(int(time.time())-100000)
         
-        for i in range(0, 4*COINBASE_MATURITY, 100):
-            self.node.generatetoaddress(100, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
-            self.sync_blocks()
+        generatesynchronized(self.node, 4*COINBASE_MATURITY, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq", self.nodes)
         
         for n in self.nodes:
             n.setmocktime(0)
@@ -110,22 +108,22 @@ class QtumBlockIndexCleanupTest(BitcoinTestFramework):
         for n in self.nodes:
             n.invalidateblock(bhash)
         print("Make sure that it cleans up a the old main chain if a fork overtakes it. Make sure that all nodes do this")
-        blocks = self.create_fork_chain(self.node.getblockhash(self.node.getblockcount()-500), 502)
+        blocks = self.create_fork_chain(self.node.getblockhash(self.node.getblockcount()-COINBASE_MATURITY), COINBASE_MATURITY+2)
         for n in self.nodes:
-            n.submitblock(bytes_to_hex_str(blocks[0].serialize()))
+            print(n.submitblock(bytes_to_hex_str(blocks[0].serialize())))
         print('before reconsider', self.node.getbestblockhash())
         for n in self.nodes:
             n.reconsiderblock(bhash)
         print('after reconsider', self.node.getbestblockhash())
-        for block in blocks[1:]:
-            self.node.submitblock(bytes_to_hex_str(block.serialize()))
+        for i, block in enumerate(blocks[1:]):
+            print(self.node.submitblock(bytes_to_hex_str(block.serialize())))
         print(self.node.getchaintips())
         print('syncing')
         print(bhash)
         time.sleep(2)
         for i, n in enumerate(self.nodes):
             print("checking node#" + str(i))
-            n.getchaintips()
+            print(n.getchaintips())
         self.sync_all()
         print(bhash)
         print(self.node.getchaintips())

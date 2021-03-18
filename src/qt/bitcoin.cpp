@@ -370,6 +370,7 @@ void BitcoinApplication::initializeResult(bool success)
     returnValue = success ? EXIT_SUCCESS : EXIT_FAILURE;
     if(success)
     {
+        LOCK(cs_main);
         // Log this only after AppInitMain finishes, as then logging setup is guaranteed complete
         qInfo() << "Platform customization:" << platformStyle->getName();
         clientModel = new ClientModel(m_node, optionsModel);
@@ -393,7 +394,6 @@ void BitcoinApplication::initializeResult(bool success)
             window->showMinimized();
         }
         Q_EMIT splashFinished();
-        Q_EMIT windowShown(window);
 
 #ifdef ENABLE_WALLET
         // Now that initialization/startup is done, process any command-line
@@ -408,6 +408,12 @@ void BitcoinApplication::initializeResult(bool success)
         }
 #endif
         pollShutdownTimer->start(200);
+
+        processEvents();
+    }
+
+    if(success) {
+        Q_EMIT windowShown(window);
     } else {
         Q_EMIT splashFinished(); // Make sure splash screen doesn't stick around during shutdown
         quit(); // Exit first main loop invocation

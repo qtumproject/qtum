@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>580</width>
-    <height>400</height>
+    <height>429</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -120,6 +120,13 @@
           </property>
           <property name="text">
            <string>Recover transactions without metadata</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="rbInitialBlocksDownload">
+          <property name="text">
+           <string>Force initial blocks download mode - fix the blockchain data.</string>
           </property>
          </widget>
         </item>

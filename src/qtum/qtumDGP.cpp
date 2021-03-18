@@ -11,11 +11,11 @@ std::vector<uint32_t> createDataSchedule(const dev::eth::EVMSchedule& schedule)
                                       schedule.sstoreRefundGas, schedule.jumpdestGas, schedule.logGas,
                                       schedule.logDataGas, schedule.logTopicGas, schedule.createGas,
                                       schedule.callGas, schedule.callStipend, schedule.callValueTransferGas,
-                                      schedule.callNewAccountGas, schedule.suicideRefundGas, schedule.memoryGas,
+                                      schedule.callNewAccountGas, schedule.selfdestructRefundGas, schedule.memoryGas,
                                       schedule.quadCoeffDiv, schedule.createDataGas, schedule.txGas,
                                       schedule.txCreateGas, schedule.txDataZeroGas, schedule.txDataNonZeroGas,
                                       schedule.copyGas, schedule.extcodesizeGas, schedule.extcodecopyGas,
-                                      schedule.balanceGas, schedule.suicideGas, schedule.maxCodeSize};
+                                      schedule.balanceGas, schedule.selfdestructGas, schedule.maxCodeSize};
     return tempData;
 }
 
@@ -69,7 +69,7 @@ uint64_t QtumDGP::getUint64FromDGP(unsigned int blockHeight, const dev::Address&
 
 uint32_t QtumDGP::getBlockSize(unsigned int blockHeight){
     clear();
-    uint32_t result = DEFAULT_BLOCK_SIZE_DGP;
+    uint32_t result = DEFAULT_BLOCK_SIZE_DGP / Params().GetConsensus().BlocktimeDownscaleFactor(blockHeight);
     uint32_t blockSize = getUint64FromDGP(blockHeight, BlockSizeDGP, ParseHex("92ac3c62"));
     if(blockSize <= MAX_BLOCK_SIZE_DGP && blockSize >= MIN_BLOCK_SIZE_DGP){
         result = blockSize;
@@ -232,7 +232,7 @@ dev::eth::EVMSchedule QtumDGP::createEVMSchedule(const dev::eth::EVMSchedule &_s
         schedule.callStipend = uint32Values[22];
         schedule.callValueTransferGas = uint32Values[23];
         schedule.callNewAccountGas = uint32Values[24];
-        schedule.suicideRefundGas = uint32Values[25];
+        schedule.selfdestructRefundGas = uint32Values[25];
         schedule.memoryGas = uint32Values[26];
         schedule.quadCoeffDiv = uint32Values[27];
         schedule.createDataGas = uint32Values[28];
@@ -244,7 +244,7 @@ dev::eth::EVMSchedule QtumDGP::createEVMSchedule(const dev::eth::EVMSchedule &_s
         schedule.extcodesizeGas = uint32Values[34];
         schedule.extcodecopyGas = uint32Values[35];
         schedule.balanceGas = uint32Values[36];
-        schedule.suicideGas = uint32Values[37];
+        schedule.selfdestructGas = uint32Values[37];
         schedule.maxCodeSize = uint32Values[38];
     }
     return schedule;

@@ -50,8 +50,19 @@ static const int32_t BYTECODE_TIME_BUFFER = 6;
 static const int32_t STAKE_TIME_BUFFER = 2;
 
 //How often to try to stake blocks in milliseconds
-//Note this is overridden for regtest mode
 static const int32_t STAKER_POLLING_PERIOD = 5000;
+
+//How often to try to stake blocks in milliseconds for minimum difficulty
+static const int32_t STAKER_POLLING_PERIOD_MIN_DIFFICULTY = 20000;
+
+//How often to try to check for future walid block
+static const int32_t STAKER_WAIT_FOR_WALID_BLOCK = 3000;
+
+//How much time to wait for best block header to be downloaded to the blockchain
+static const int32_t STAKER_WAIT_FOR_BEST_BLOCK_HEADER = 250;
+
+//How much max time to wait for best block header to be downloaded to the blockchain
+static const int32_t DEFAULT_MAX_STAKER_WAIT_FOR_BEST_BLOCK_HEADER = 4000;
 
 //How much time to spend trying to process transactions when using the generate RPC call
 static const int32_t POW_MINER_MAX_TIME = 60;
@@ -238,6 +249,9 @@ private:
     int64_t nLockTimeCutoff;
     const CChainParams& chainparams;
     const CTxMemPool& m_mempool;
+#ifdef ENABLE_WALLET
+    CWallet *pwallet = 0;
+#endif
 
 public:
     struct Options {
@@ -248,6 +262,9 @@ public:
 
     explicit BlockAssembler(const CTxMemPool& mempool, const CChainParams& params);
     explicit BlockAssembler(const CTxMemPool& mempool, const CChainParams& params, const Options& options);
+#ifdef ENABLE_WALLET
+    explicit BlockAssembler(const CTxMemPool& mempool, const CChainParams& params, CWallet *pwallet);
+#endif
 
 ///////////////////////////////////////////// // qtum
     ByteCodeExecResult bceResult;

@@ -48,7 +48,7 @@ class QtumDGPGasPriceLingeringMempoolTxTest(BitcoinTestFramework):
         connect_nodes_bi(self.nodes, 0, 1)
         self.nodes[1].generate(1)
         self.sync_all()
-        self.node.generate(1000 + COINBASE_MATURITY)
+        generatesynchronized(self.node, 1000 + COINBASE_MATURITY, None, self.nodes)
         self.sync_all()
 
         # Start off by setting ourself as admin

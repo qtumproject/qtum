@@ -11,6 +11,34 @@ import base64
 import math
 import pprint
 
+pp = pprint.PrettyPrinter()
+
+def generatesynchronized(node, numblocks, address=None, sync_with_nodes=[]):
+    if not address:
+        address = node.getnewaddress()
+
+    blockhashes = []
+    for i in range(0, max(numblocks//16, 0)):
+        blockhashes += node.generatetoaddress(16, address)
+        sync_blocks(sync_with_nodes, wait=0.001)
+
+    if numblocks % 16:
+        blockhashes += node.generatetoaddress(numblocks % 16, address)
+        sync_blocks(sync_with_nodes, wait=0.001)
+    return blockhashes
+
+def generateinitial(node, numblocks, address=None, sync_with_nodes=[]):
+    mocktime = node.getblock(node.getbestblockhash())['mocktime']
+    for n in [node] + sync_with_nodes:
+        n.setmocktime(mocktime)
+
+    blockhashes = node.generatetoaddress(numblocks, address)
+
+    for n in [node] + sync_with_nodes:
+        n.setmocktime(0)
+
+    return blockhashes
+
 def make_transaction(node, vin, vout):
     tx = CTransaction()
     tx.vin = vin
@@ -97,7 +125,9 @@ def assert_vout(tx, expected_vout):
 
 def rpc_sign_transaction(node, tx):
     ret = node.signrawtransactionwithwallet(bytes_to_hex_str(tx.serialize()))
-    assert(ret['complete'])
+    if not ret['complete']:
+        print(ret)
+        assert(ret['complete'])
     tx_signed_raw_hex = ret['hex']
     f = io.BytesIO(hex_str_to_bytes(tx_signed_raw_hex))
     tx_signed = CTransaction()
@@ -174,15 +204,19 @@ class DGPState:
 
     def send_add_address_proposal(self, proposal_address, type1, sender):
         self.node.sendtoaddress(sender, 1)
-        self.node.sendtocontract(self.contract_address, self.abiAddAddressProposal + proposal_address.zfill(64) + hex(type1)[2:].zfill(64), 0, 2000000, QTUM_MIN_GAS_PRICE_STR, sender)
+        txid = self.node.sendtocontract(self.contract_address, self.abiAddAddressProposal + proposal_address.zfill(64) + hex(type1)[2:].zfill(64), 0, 20000000, QTUM_MIN_GAS_PRICE_STR, sender)['txid']
+        return txid
 
     def send_remove_address_proposal(self, proposal_address, type1, sender):
         self.node.sendtoaddress(sender, 1)
-        self.node.sendtocontract(self.contract_address, self.abiRemoveAddressProposal + proposal_address.zfill(64) + hex(type1)[2:].zfill(64), 0, 2000000, QTUM_MIN_GAS_PRICE_STR, sender)
+        txid = self.node.sendtocontract(self.contract_address, self.abiRemoveAddressProposal + proposal_address.zfill(64) + hex(type1)[2:].zfill(64), 0, 20000000, QTUM_MIN_GAS_PRICE_STR, sender)['txid']
+        return txid
 
     def send_change_value_proposal(self, uint_proposal, type1, sender):
         self.node.sendtoaddress(sender, 1)
-        self.node.sendtocontract(self.contract_address, self.abiChangeValueProposal + hex(uint_proposal)[2:].zfill(64) + hex(type1)[2:].zfill(64), 0, 2000000, QTUM_MIN_GAS_PRICE_STR, sender)
+        txid = self.node.sendtocontract(self.contract_address, self.abiChangeValueProposal + hex(uint_proposal)[2:].zfill(64) + hex(type1)[2:].zfill(64), 0, 20000000, QTUM_MIN_GAS_PRICE_STR, sender)['txid']
+        return txid
+
 
     def assert_state(self):
         # This assertion is only to catch potential errors in the test code (if we forget to add a generate after an evm call)
@@ -345,7 +379,7 @@ class DGPState:
             assert_equal(int(real, 16), int(expected, 16))
 
 
-def collect_prevouts(node, amount=None, address=None, min_confirmations=COINBASE_MATURITY):
+def collect_prevouts(node, amount=None, address=None, min_confirmations=COINBASE_MATURITY, min_amount=0):
     blocks = []
     for block_no in range(1, node.getblockcount()+1):
         blocks.append(node.getblock(node.getblockhash(block_no)))
@@ -359,7 +393,7 @@ def collect_prevouts(node, amount=None, address=None, min_confirmations=COINBASE
                 break
         else:
             assert(False)
-        if unspent['confirmations'] > min_confirmations and (not amount or amount == unspent['amount']) and (not address or address == unspent['address']):
+        if unspent['confirmations'] > min_confirmations and (not amount or amount == unspent['amount']) and (not address or address == unspent['address']) and unspent['amount'] >= min_amount:
             staking_prevouts.append((COutPoint(int(unspent['txid'], 16), unspent['vout']), int(unspent['amount']*COIN), tx_block_time))
     return staking_prevouts
 
@@ -367,8 +401,8 @@ def collect_prevouts(node, amount=None, address=None, min_confirmations=COINBASE
 def create_unsigned_pos_block(node, staking_prevouts, nTime=None):
     tip = node.getblock(node.getbestblockhash())
     if not nTime:
-        current_time = int(time.time()) + 16
-        nTime = current_time & 0xfffffff0
+        current_time = int(time.time()) + TIMESTAMP_MASK+1
+        nTime = current_time & (0xffffffff - TIMESTAMP_MASK)
 
     parent_block_stake_modifier = int(tip['modifier'], 16)
     coinbase = create_coinbase(tip['height']+1)
@@ -444,11 +478,10 @@ def create_unsigned_mpos_block(node, staking_prevouts, nTime=None, block_fees=0)
 def activate_mpos(node, use_cache=True):
     if not node.getblockcount():
         node.setmocktime(int(time.time()) - 1000000)
-    node.generatetoaddress(4490-node.getblockcount(), "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
+    node.generatetoaddress(4990-COINBASE_MATURITY-node.getblockcount(), "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
     staking_prevouts = collect_prevouts(node, address="qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
 
-
-    for i in range(510):
+    for i in range(COINBASE_MATURITY+10):
         time.sleep(0.05)
         nTime = (node.getblock(node.getbestblockhash())['time']+45) & 0xfffffff0
         node.setmocktime(nTime)
@@ -465,6 +498,10 @@ def activate_mpos(node, use_cache=True):
             if prevout[0].serialize() == block.prevoutStake.serialize():
                 staking_prevouts.pop(j)
                 break
+
+        if len(staking_prevouts) < 20:
+            staking_prevouts = collect_prevouts(node, address="qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
+
 
 def wif_to_ECKey(wif):
     _, privkey, _ = base58_to_byte(wif, 38)
@@ -547,10 +584,12 @@ def delegate_to_staker(delegator, delegator_address, staker_address, fee, pod):
     }, expected_gas_consumed=2000000)
 
 
-def create_delegated_pos_block(staker, staker_eckey, staker_prevout, delegator_address_hex, pod, staking_fee_percentage, delegator_prevouts, nFees=0, nTime=None):
+def create_delegated_pos_block(staker, staker_eckey, staker_prevout, delegator_address_hex, pod, staking_fee_percentage, delegator_prevouts, nFees=0, nTime=None, use_pos_reward=False):
     tmp = create_unsigned_pos_block(staker, delegator_prevouts, nTime=nTime)
     if not tmp:
         return None
+
+    block_subsidy = INITIAL_BLOCK_REWARD_POS if use_pos_reward else INITIAL_BLOCK_REWARD
 
     block, k = tmp
     # change the vin from the staker input to the delegator input
@@ -559,9 +598,9 @@ def create_delegated_pos_block(staker, staker_eckey, staker_prevout, delegator_a
 
     block.vtx[1].vin[0] = CTxIn(staker_prevout)
     block.vtx[1].vout[1].scriptPubKey = CScript([staker_eckey.get_pubkey().get_bytes(), OP_CHECKSIG])
-    block.vtx[1].vout[1].nValue = ((INITIAL_BLOCK_REWARD*COIN+nFees) * staking_fee_percentage) // 100
+    block.vtx[1].vout[1].nValue = int(((block_subsidy*COIN+nFees) * staking_fee_percentage) // 100)
     block.vtx[1].vout[2].scriptPubKey = CScript([OP_DUP, OP_HASH160, hex_str_to_bytes(delegator_address_hex), OP_EQUALVERIFY, OP_CHECKSIG])
-    block.vtx[1].vout[2].nValue = (INITIAL_BLOCK_REWARD*COIN+nFees) - block.vtx[1].vout[1].nValue # subtract the staker's reward to get the delegator's reward (the delegator will ceil)
+    block.vtx[1].vout[2].nValue = int(block_subsidy*COIN+nFees) - block.vtx[1].vout[1].nValue # subtract the staker's reward to get the delegator's reward (the delegator will ceil)
     block.vtx[1].vout[1].nValue += staker_nas_input_value # add the input value for the staker
     block.vtx[1] = rpc_sign_transaction(staker, block.vtx[1])
     block.vtx[1].rehash()

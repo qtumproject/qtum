@@ -26,7 +26,7 @@ class QtumRPCWaitforlogs(BitcoinTestFramework):
         send_result = []
         block_hashes = []
 
-        self.nodes[0].generate(600)
+        self.nodes[0].generate(100+COINBASE_MATURITY)
         contract_address = self.nodes[0].createcontract("6060604052600d600055341561001457600080fd5b61017e806100236000396000f30060606040526004361061004c576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff168063027c1aaf1461004e5780635b9af12b14610058575b005b61005661008f565b005b341561006357600080fd5b61007960048080359060200190919050506100a1565b6040518082815260200191505060405180910390f35b60026000808282540292505081905550565b60007fc5c442325655248f6bccf5c6181738f8755524172cea2a8bd1e38e43f833e7f282600054016000548460405180848152602001838152602001828152602001935050505060405180910390a17fc5c442325655248f6bccf5c6181738f8755524172cea2a8bd1e38e43f833e7f282600054016000548460405180848152602001838152602001828152602001935050505060405180910390a1816000540160008190555060005490509190505600a165627a7a7230582015732bfa66bdede47ecc05446bf4c1e8ed047efac25478cb13b795887df70f290029")['address']
         self.nodes[0].generate(1)
         contract_addresses.append(contract_address)
@@ -54,47 +54,47 @@ class QtumRPCWaitforlogs(BitcoinTestFramework):
         filters["topics"] = topic
 
 
-        ret = self.nodes[0].waitforlogs(602,605,filters)
+        ret = self.nodes[0].waitforlogs(COINBASE_MATURITY+102,COINBASE_MATURITY+105,filters)
 
         assert_equal(ret['entries'][0]['blockHash'], block_hashes[0][0])
-        assert_equal(ret['entries'][0]['blockNumber'], 602)
+        assert_equal(ret['entries'][0]['blockNumber'], COINBASE_MATURITY+102)
         assert_equal(ret['entries'][0]['transactionHash'], send_result[0]['txid'])
         assert_equal(ret['entries'][0]['transactionIndex'], 1)
         assert_equal(ret['entries'][0]['from'], send_result[0]['hash160'])
         assert_equal(ret['entries'][0]['to'], contract_addresses[0])
-        assert_equal(ret['entries'][0]['gasUsed'], 30991)
+        assert_equal(ret['entries'][0]['gasUsed'], 30183)
         assert_equal(ret['entries'][0]['contractAddress'], contract_addresses[0])
         assert_equal(ret['entries'][0]['topics'], ["c5c442325655248f6bccf5c6181738f8755524172cea2a8bd1e38e43f833e7f2"])
         assert_equal(ret['entries'][0]['data'], "000000000000000000000000000000000000000000000000000000000000000d000000000000000000000000000000000000000000000000000000000000000d0000000000000000000000000000000000000000000000000000000000000000")
         assert_equal(ret['count'], 2)
-        assert_equal(ret['nextblock'], 606)
+        assert_equal(ret['nextblock'], COINBASE_MATURITY+106)
 
         topic.clear()
         topic.append("c5c442325655248f6bccf5c6181738f8755524172cea2a8bd1e38e43f833e7f3")      #error topics
 
-        ret = self.nodes[0].waitforlogs(602,605,filters)
-        assert_equal(ret,{"entries":[],"count":0,"nextblock":606})
+        ret = self.nodes[0].waitforlogs(COINBASE_MATURITY+102,COINBASE_MATURITY+105,filters)
+        assert_equal(ret,{"entries":[],"count":0,"nextblock":COINBASE_MATURITY+106})
  
     def check_waitforlogs(self, contract_addresses, send_result, block_hashes):
         self.nodes[0].sendtocontract(contract_addresses[1],"d3b57be9")
 
         self.nodes[0].generate(10)
 
-        ret = self.nodes[0].waitforlogs(604,604)
+        ret = self.nodes[0].waitforlogs(COINBASE_MATURITY+104,COINBASE_MATURITY+104)
 
         assert_equal(ret['entries'][0]['blockHash'], block_hashes[1][0])
-        assert_equal(ret['entries'][0]['blockNumber'], 604)
+        assert_equal(ret['entries'][0]['blockNumber'], COINBASE_MATURITY+104)
         assert_equal(ret['entries'][0]['transactionHash'], send_result[1]['txid'])
         assert_equal(ret['entries'][0]['transactionIndex'], 1)
         assert_equal(ret['entries'][0]['from'], send_result[1]['hash160'])
         assert_equal(ret['entries'][0]['to'], contract_addresses[1])
-        assert_equal(ret['entries'][0]['gasUsed'], 43679)
+        assert_equal(ret['entries'][0]['gasUsed'], 44071)
         assert_equal(ret['entries'][0]['contractAddress'], contract_addresses[1])
         assert_equal(ret['entries'][0]['topics'], ["746f706963203100000000000000000000000000000000000000000000000000","746f706963203200000000000000000000000000000000000000000000000000"
                                                 ,"746f706963203300000000000000000000000000000000000000000000000000","746f706963203400000000000000000000000000000000000000000000000000"])
         assert_equal(ret['entries'][0]['data'], "37")
         assert_equal(ret['count'], 1)
-        assert_equal(ret['nextblock'], 605)
+        assert_equal(ret['nextblock'], COINBASE_MATURITY+105)
 
         try:
             self.nodes[0].waitforlogs(0,0)

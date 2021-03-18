@@ -163,7 +163,7 @@ class OpCreateTest(BitcoinTestFramework):
 
     def run_test(self):
         connect_nodes(self.nodes[0], 1)
-        self.nodes[0].generate(COINBASE_MATURITY+40)
+        generatesynchronized(self.nodes[0], COINBASE_MATURITY+40, None, self.nodes)
         self.vins = [make_vin(self.nodes[0], 10*COIN) for _ in range(10)]
         self.basic_contract_is_created_raw_tx_test()
         self.large_contract_creation_test()

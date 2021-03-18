@@ -34,13 +34,16 @@ static void TestBlockSubsidyHalvings(int nSubsidyHalvingInterval)
 {
     Consensus::Params consensusParams;
     consensusParams.nSubsidyHalvingInterval = nSubsidyHalvingInterval;
+    consensusParams.nReduceBlocktimeHeight = 0x7fffffff;
     TestBlockSubsidyHalvings(consensusParams);
 }
 
 BOOST_AUTO_TEST_CASE(block_subsidy_test)
 {
     const auto chainParams = CreateChainParams(CBaseChainParams::MAIN);
-    TestBlockSubsidyHalvings(chainParams->GetConsensus()); // As in main
+    Consensus::Params consensusParams = chainParams->GetConsensus();
+    consensusParams.nReduceBlocktimeHeight = 0x7fffffff; // Check for the halving before fork for target spacing
+    TestBlockSubsidyHalvings(consensusParams); // As in main
     TestBlockSubsidyHalvings(150); // As in regtest
     TestBlockSubsidyHalvings(1000); // Just another interval
 }
@@ -48,34 +51,39 @@ BOOST_AUTO_TEST_CASE(block_subsidy_test)
 BOOST_AUTO_TEST_CASE(subsidy_limit_test)
 {
     const auto chainParams = CreateChainParams(CBaseChainParams::MAIN);
-    const Consensus::Params& consensusParams = chainParams->GetConsensus();
+    Consensus::Params consensusParams = chainParams->GetConsensus();
+    consensusParams.nReduceBlocktimeHeight = 800000; // Check for the halving after fork for target spacing
+    int nMaxHeight = 14000000 * consensusParams.nBlocktimeDownscaleFactor;
     CAmount nSum = 0;
-    for (int nHeight = 1; nHeight < 14000000; nHeight++) {
+    for (int nHeight = 1; nHeight < nMaxHeight; nHeight++) {
         CAmount nSubsidy = GetBlockSubsidy(nHeight, consensusParams);
+        int nSubsidyHalvingWeight = consensusParams.SubsidyHalvingWeight(nHeight);
+        int nSubsidyHalvingInterval = consensusParams.SubsidyHalvingInterval(nHeight);
+        int nBlocktimeDownscaleFactor = consensusParams.BlocktimeDownscaleFactor(nHeight);
 
-        if(nHeight <= consensusParams.nLastPOWBlock){
+        if(nSubsidyHalvingWeight <= 0){
             BOOST_CHECK_EQUAL(nSubsidy, (20000 * COIN));
         }
-        else if(nHeight-consensusParams.nLastPOWBlock <= consensusParams.nSubsidyHalvingInterval){
-            BOOST_CHECK_EQUAL(nSubsidy, 4 * COIN);
+        else if(nSubsidyHalvingWeight <= nSubsidyHalvingInterval){
+            BOOST_CHECK_EQUAL(nSubsidy, 4 * COIN / nBlocktimeDownscaleFactor);
         }
-        else if(nHeight-consensusParams.nLastPOWBlock <= consensusParams.nSubsidyHalvingInterval*2){
-            BOOST_CHECK_EQUAL(nSubsidy, 2 * COIN);
+        else if(nSubsidyHalvingWeight <= nSubsidyHalvingInterval*2){
+            BOOST_CHECK_EQUAL(nSubsidy, 2 * COIN / nBlocktimeDownscaleFactor);
         }
-        else if(nHeight-consensusParams.nLastPOWBlock <= consensusParams.nSubsidyHalvingInterval*3){
-            BOOST_CHECK_EQUAL(nSubsidy, 1 * COIN);
+        else if(nSubsidyHalvingWeight <= nSubsidyHalvingInterval*3){
+            BOOST_CHECK_EQUAL(nSubsidy, 1 * COIN / nBlocktimeDownscaleFactor);
         }
-        else if(nHeight-consensusParams.nLastPOWBlock <= consensusParams.nSubsidyHalvingInterval*4){
-            BOOST_CHECK_EQUAL(nSubsidy, 0.5 * COIN);
+        else if(nSubsidyHalvingWeight <= nSubsidyHalvingInterval*4){
+            BOOST_CHECK_EQUAL(nSubsidy, 0.5 * COIN / nBlocktimeDownscaleFactor);
         }
-        else if(nHeight-consensusParams.nLastPOWBlock <= consensusParams.nSubsidyHalvingInterval*5){
-            BOOST_CHECK_EQUAL(nSubsidy, 0.25 * COIN);
+        else if(nSubsidyHalvingWeight <= nSubsidyHalvingInterval*5){
+            BOOST_CHECK_EQUAL(nSubsidy, 0.25 * COIN / nBlocktimeDownscaleFactor);
         }
-        else if(nHeight-consensusParams.nLastPOWBlock <= consensusParams.nSubsidyHalvingInterval*6){
-            BOOST_CHECK_EQUAL(nSubsidy, 0.125 * COIN);
+        else if(nSubsidyHalvingWeight <= nSubsidyHalvingInterval*6){
+            BOOST_CHECK_EQUAL(nSubsidy, 0.125 * COIN / nBlocktimeDownscaleFactor);
         }
-        else if(nHeight-consensusParams.nLastPOWBlock <= consensusParams.nSubsidyHalvingInterval*7){
-            BOOST_CHECK_EQUAL(nSubsidy, 0.0625 * COIN);
+        else if(nSubsidyHalvingWeight <= nSubsidyHalvingInterval*7){
+            BOOST_CHECK_EQUAL(nSubsidy, 0.0625 * COIN / nBlocktimeDownscaleFactor);
         }
         else{
             BOOST_CHECK_EQUAL(nSubsidy, 0);

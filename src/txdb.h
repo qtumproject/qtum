@@ -173,6 +173,8 @@ public:
     bool ReadDelegateIndex(unsigned int height, uint160& address, uint8_t& fee);
     bool EraseDelegateIndex(unsigned int height);
 
+    bool EraseBlockIndex(const std::vector<uint256>&vect);
+
     // Block explorer database functions
     bool WriteAddressIndex(const std::vector<std::pair<CAddressIndexKey, CAmount> > &vect);
     bool EraseAddressIndex(const std::vector<std::pair<CAddressIndexKey, CAmount> > &vect);

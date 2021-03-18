@@ -14,7 +14,7 @@ from test_framework.util import (
     connect_nodes,
     sync_blocks,
 )
-from test_framework.qtum import convert_btc_address_to_qtum
+from test_framework.qtum import convert_btc_address_to_qtum, generatesynchronized
 from test_framework.qtumconfig import INITIAL_BLOCK_REWARD, COINBASE_MATURITY
 
 
@@ -76,19 +76,19 @@ class WalletTest(BitcoinTestFramework):
         self.nodes[0].submitblock(self.nodes[2].getblock(blockhash, False))
         self.nodes[1].submitblock(self.nodes[2].getblock(blockhash, False))
         self.sync_blocks()
-        self.nodes[2].generatetoaddress(COINBASE_MATURITY, self.nodes[2].getnewaddress())
+        generatesynchronized(self.nodes[2], COINBASE_MATURITY, self.nodes[2].getnewaddress(), self.nodes)
         self.sync_blocks()
         self.nodes[2].sendmany("", {self.nodes[0].getnewaddress(): 50, self.nodes[1].getnewaddress(): 50})
         self.nodes[2].generatetoaddress(1, self.nodes[2].getnewaddress())
         self.sync_all()
-        self.nodes[1].generatetoaddress(COINBASE_MATURITY+1, ADDRESS_WATCHONLY)
+        generatesynchronized(self.nodes[1], COINBASE_MATURITY+1, ADDRESS_WATCHONLY, self.nodes)
         self.sync_blocks()
 
         assert_equal(self.nodes[0].getbalances()['mine']['trusted'], 50)
         assert_equal(self.nodes[0].getwalletinfo()['balance'], 50)
         assert_equal(self.nodes[1].getbalances()['mine']['trusted'], 50)
 
-        assert_equal(self.nodes[0].getbalances()['watchonly']['immature'], 500*INITIAL_BLOCK_REWARD)
+        assert_equal(self.nodes[0].getbalances()['watchonly']['immature'], COINBASE_MATURITY*INITIAL_BLOCK_REWARD)
         assert 'watchonly' not in self.nodes[1].getbalances()
 
         assert_equal(self.nodes[0].getbalance(), 50)

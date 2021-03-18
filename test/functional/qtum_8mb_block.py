@@ -21,9 +21,7 @@ class Qtum8MBBlock(BitcoinTestFramework):
         self.node = self.nodes[0]
         connect_nodes_bi(self.nodes, 0, 1)
         # Make sure that segwit is activated
-        for i in range(0, COINBASE_MATURITY*4, 100):
-            self.node.generate(100)
-            self.sync_blocks()
+        generatesynchronized(self.node, COINBASE_MATURITY, None, self.nodes)
         self.node.generate(10)
         self.sync_blocks()
 
@@ -38,9 +36,8 @@ class Qtum8MBBlock(BitcoinTestFramework):
 
 
         NUM_DROPS = 200
-
         # To tweak the size of the submitted block, change this value
-        NUM_OUTPUTS = 101
+        NUM_OUTPUTS = 101 // FACTOR_REDUCED_BLOCK_TIME
 
         witness_program = CScript([OP_2DROP]*NUM_DROPS + [OP_TRUE])
         witness_hash = uint256_from_str(sha256(witness_program))

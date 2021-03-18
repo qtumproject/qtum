@@ -14,14 +14,14 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 1
-        self.extra_args = [['-staking=1', '-rpcmaxgasprice=10000000']]
+        self.extra_args = [['-rpcmaxgasprice=10000000']]
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
 
     def restart_node(self):
-        self.stop_nodes()
-        self.start_nodes()
+        self.stop_node(0)
+        self.start_node(0, self.extra_args[0])
         self.node = self.nodes[0]
 
     def stake_or_mine(self, old_block_count=None, use_staking=False):
@@ -32,8 +32,13 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
         if use_staking:
             if not old_block_count:
                 old_block_count = self.node.getblockcount()
-            while old_block_count == self.node.getblockcount():
+            for i in range(600):
+                if self.node.getblockcount() > old_block_count:
+                    break
                 time.sleep(0.1)
+            else:
+                print(self.node.getstakinginfo())
+                assert(False)
             return self.node.getbestblockhash()
         else:
             return self.node.generate(1)[0]
@@ -253,7 +258,9 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
 
     def run_test(self):
         self.node = self.nodes[0]
+        self.node.setmocktime(int(time.time())- 100000)
         self.node.generate(500+COINBASE_MATURITY)
+        self.node.setmocktime(0)
         print("running pow tests")
         self.verify_contract_txs_are_added_last_test()
         self.verify_ancestor_chain_with_contract_txs_test()
@@ -271,6 +278,10 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
         self.verify_contract_ancestor_txs_test(with_restart=True)
 
         # Verify that the mempool is empty before running more tests
+        print(self.node.getblock(self.node.getbestblockhash())['time'] - time.time())
+        assert_equal(self.node.getrawmempool(), [])
+        self.extra_args = [['-staking=1', '-rpcmaxgasprice=10000000']]
+        self.restart_node()
         assert_equal(self.node.getrawmempool(), [])
 
         print("running pos tests")

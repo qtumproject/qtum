@@ -330,6 +330,7 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
     // Note that by default, these tests run with size accounting enabled.
     const auto chainParams = CreateChainParams(CBaseChainParams::MAIN);
     const CChainParams& chainparams = *chainParams;
+    const Consensus::Params& consensusParams = chainparams.GetConsensus();
     CScript scriptPubKey = CScript() << ParseHex("040d61d8653448c98731ee5fffd303c15e71ec2057b77f11ab3601979728cdaff2d68afbba14e4fa0bc44f2072b0b23ef63717f8cdfbe58dcd33f32b6afe98741a") << OP_CHECKSIG;
     std::unique_ptr<CBlockTemplate> pblocktemplate;
     CMutableTransaction tx;
@@ -492,7 +493,7 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
     // subsidy changing
     int nHeight = ::ChainActive().Height();
     // Create an actual 209999-long block chain (without valid blocks).
-    while (::ChainActive().Tip()->nHeight < 990499) {
+    while (::ChainActive().Tip()->nHeight < 1427002) {
         CBlockIndex* prev = ::ChainActive().Tip();
         CBlockIndex* next = new CBlockIndex();
         next->phashBlock = new uint256(InsecureRand256());
@@ -502,10 +503,11 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
         next->BuildSkip();
         ::ChainActive().SetTip(next);
     }
+    int blocktimeDownscaleFactor = consensusParams.BlocktimeDownscaleFactor(::ChainActive().Tip()->nHeight + 1);
     BOOST_CHECK(pblocktemplate = AssemblerForTest(chainparams).CreateNewBlock(scriptPubKey, true, true));
-    BOOST_CHECK(calculateReward(pblocktemplate->block) == 400000000);
+    BOOST_CHECK(calculateReward(pblocktemplate->block) == 400000000/blocktimeDownscaleFactor);
     // Extend to a 210000-long block chain.
-    while (::ChainActive().Tip()->nHeight < 990501) {
+    while (::ChainActive().Tip()->nHeight < 1427004) {
         CBlockIndex* prev = ::ChainActive().Tip();
         CBlockIndex* next = new CBlockIndex();
         next->phashBlock = new uint256(InsecureRand256());
@@ -515,8 +517,10 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
         next->BuildSkip();
         ::ChainActive().SetTip(next);
     }
+
+    blocktimeDownscaleFactor = consensusParams.BlocktimeDownscaleFactor(::ChainActive().Tip()->nHeight + 1);
     BOOST_CHECK(pblocktemplate = AssemblerForTest(chainparams).CreateNewBlock(scriptPubKey, true, true));
-    BOOST_CHECK(calculateReward(pblocktemplate->block) == 200000000);
+    BOOST_CHECK(calculateReward(pblocktemplate->block) == 200000000/blocktimeDownscaleFactor);
 
     // invalid p2sh txn in *m_node.mempool, template creation fails
     tx.vin[0].prevout.hash = txFirst[0]->GetHash();

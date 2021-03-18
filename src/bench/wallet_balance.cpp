@@ -29,7 +29,8 @@ static void WalletBalance(benchmark::State& state, const bool set_dirty, const b
     const Optional<std::string> address_mine{add_mine ? Optional<std::string>{getnewaddress(wallet)} : nullopt};
     if (add_watchonly) importaddress(wallet, ADDRESS_WATCHONLY);
 
-    for (int i = 0; i < 600; ++i) {
+    int blockCount = Params().GetConsensus().CoinbaseMaturity(0) + 100;
+    for (int i = 0; i < blockCount; ++i) {
         generatetoaddress(g_testing_setup->m_node, address_mine.get_value_or(ADDRESS_WATCHONLY));
         generatetoaddress(g_testing_setup->m_node, ADDRESS_WATCHONLY);
     }

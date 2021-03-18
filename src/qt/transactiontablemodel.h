@@ -113,6 +113,7 @@ private:
     QVariant txStatusDecoration(const TransactionRecord *wtx) const;
     QVariant txWatchonlyDecoration(const TransactionRecord *wtx) const;
     QVariant txAddressDecoration(const TransactionRecord *wtx) const;
+    void modelDataChanged(const ColumnIndex& column);
 
 public Q_SLOTS:
     /* New transaction, or transaction changed status */

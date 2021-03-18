@@ -33,6 +33,7 @@ from .util import (
     EncodeDecimal,
 )
 from .qtum import convert_btc_address_to_qtum
+from .qtumconfig import ENABLE_REDUCED_BLOCK_TIME
 
 BITCOIND_PROC_WAIT_TIMEOUT = 60
 
@@ -202,6 +203,9 @@ class TestNode():
 
         if self.enable_wallet and not any(arg.startswith('-staking=') for arg in extra_args):
             extra_args.append('-staking=0')
+
+        if not ENABLE_REDUCED_BLOCK_TIME and not any(arg.startswith('-reduceblocktimeheight=') for arg in extra_args):
+            extra_args.append('-reduceblocktimeheight=10000000')
 
         if self.enable_wallet and not any(arg.startswith('-offlinestakingheight=') for arg in extra_args):
             extra_args.append('-offlinestakingheight=1')

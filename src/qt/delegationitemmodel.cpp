@@ -86,6 +86,9 @@ public:
 private Q_SLOTS:
     void updateDelegationData(QString hash, QString delegateAddress, QString stakerAddress, quint8 fee, qint32 blockNumber)
     {
+        if(walletModel && walletModel->node().shutdownRequested())
+            return;
+
         // Find delegation details
         std::string sHash = hash.toStdString();
         std::string sDelegateAddress = delegateAddress.toStdString();

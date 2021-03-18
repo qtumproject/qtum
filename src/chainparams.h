@@ -99,6 +99,11 @@ public:
     void UpdateOfflineStakingBlockHeight(int nHeight);
     void UpdateDelegationsAddress(const uint160& address);
     void UpdateLastMPoSBlockHeight(int nHeight);
+    void UpdateReduceBlocktimeHeight(int nHeight);
+    void UpdatePowAllowMinDifficultyBlocks(bool fValue);
+    void UpdatePowNoRetargeting(bool fValue);
+    void UpdatePoSNoRetargeting(bool fValue);
+    void UpdateMuirGlacierHeight(int nHeight);
 protected:
     dev::eth::Network GetEVMNetwork() const;
     CChainParams() {}
@@ -178,5 +183,30 @@ void UpdateDelegationsAddress(const uint160& address);
  * @param nHeight Block height
  */
 void UpdateLastMPoSBlockHeight(int nHeight);
+
+/**
+ * Allows modifying the reduce block time height regtest parameter.
+ */
+void UpdateReduceBlocktimeHeight(int nHeight);
+
+/**
+ * Allows modifying the pow allow for min difficulty blocks regtest parameter.
+ */
+void UpdatePowAllowMinDifficultyBlocks(bool fValue);
+
+/**
+ * Allows modifying the pow no retargeting regtest parameter.
+ */
+void UpdatePowNoRetargeting(bool fValue);
+
+/**
+ * Allows modifying the pos no retargeting regtest parameter.
+ */
+void UpdatePoSNoRetargeting(bool fValue);
+
+/**
+ * Allows modifying the muir glacier block height regtest parameter.
+ */
+void UpdateMuirGlacierHeight(int nHeight);
 
 #endif // BITCOIN_CHAINPARAMS_H
