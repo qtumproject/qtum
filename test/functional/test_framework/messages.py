@@ -29,10 +29,14 @@ import time
 
 from test_framework.siphash import siphash256
 from test_framework.util import hex_str_to_bytes, assert_equal
-from test_framework.qtumconfig import INITIAL_HASH_STATE_ROOT, INITIAL_HASH_UTXO_ROOT
+from test_framework.qtumconfig import INITIAL_HASH_STATE_ROOT, INITIAL_HASH_UTXO_ROOT, ENABLE_REDUCED_BLOCK_TIME
+
+if ENABLE_REDUCED_BLOCK_TIME:
+    MY_VERSION = 70019  # past bip-31 for ping/pong
+else:
+    MY_VERSION = 70018  # past bip-31 for ping/pong
 
 MIN_VERSION_SUPPORTED = 60001
-MY_VERSION = 70018  # past bip-31 for ping/pong
 MY_SUBVERSION = b"/python-mininode-tester:0.0.3/"
 MY_RELAY = 1 # from version 70001 onwards, fRelay should be appended to version messages (BIP37)
 

@@ -15,7 +15,7 @@ class QtumEVMConstantinopleOpcodesTest(BitcoinTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 1
-        self.extra_args = [['-txindex=1', '-logevents=1', '-constantinopleheight=1000000']]
+        self.extra_args = [['-txindex=1', '-logevents=1', '-constantinopleheight=1000000', '-muirglacierheight=1000000']]
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
@@ -446,7 +446,7 @@ class QtumEVMConstantinopleOpcodesTest(BitcoinTestFramework):
 
         switch_height = self.node.getblockcount()
         print('BEFORE RESTART', switch_height)
-        self.restart_node(0, ['-constantinopleheight={}'.format(switch_height), '-logevents'])
+        self.restart_node(0, ['-constantinopleheight={}'.format(switch_height), '-reduceblocktimeheight={}'.format(switch_height), '-logevents'])
 
         self.reset()
         self.revert_test(should_fail=False)

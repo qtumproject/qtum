@@ -21,7 +21,7 @@ class QtumSignRawSenderTest(BitcoinTestFramework):
 
     def run_test(self):
         coinbase_txes = []
-        block_hashes = self.nodes[0].generate(100+COINBASE_MATURITY)
+        block_hashes = generatesynchronized(self.nodes[0], 100+COINBASE_MATURITY, None, self.nodes)
         for block_hash in block_hashes[:100]:
             coinbase_txid = self.nodes[0].getblock(block_hash)['tx'][0]
             coinbase_txes.append(coinbase_txid)

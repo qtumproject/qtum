@@ -27,7 +27,7 @@ class MempoolSpendCoinbaseTest(BitcoinTestFramework):
 
     def run_test(self):
         chain_height = self.nodes[0].getblockcount()
-        assert_equal(chain_height, 600)
+        assert_equal(chain_height, COINBASE_MATURITY+100)
         node0_address = self.nodes[0].getnewaddress()
 
         # Coinbase at height chain_height-100+1 ok in mempool, should

@@ -1350,6 +1350,8 @@ void assignJSON(UniValue& entry, const TransactionReceiptInfo& resExec) {
     entry.pushKV("excepted",ss.str());
     entry.pushKV("exceptedMessage", resExec.exceptedMessage);
     entry.pushKV("bloom", resExec.bloom.hex());
+    entry.pushKV("stateRoot", resExec.stateRoot.hex());
+    entry.pushKV("utxoRoot", resExec.utxoRoot.hex());
 }
 
 void assignJSON(UniValue& logEntry, const dev::eth::LogEntry& log,
