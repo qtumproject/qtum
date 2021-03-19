@@ -41,7 +41,7 @@ class QtumBlockHeaderTest(BitcoinTestFramework):
 
         node.generate(10)
         self.block_time = int(time.time())+20
-        for i in range(500):
+        for i in range(COINBASE_MATURITY):
             self.tip = create_block(int(node.getbestblockhash(), 16), create_coinbase(node.getblockcount()+1), self.block_time+i)
             self.tip.solve()
             self.sync_all_blocks([self.tip])

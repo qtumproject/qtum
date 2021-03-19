@@ -58,6 +58,12 @@ static const int32_t STAKER_POLLING_PERIOD_MIN_DIFFICULTY = 20000;
 //How often to try to check for future walid block
 static const int32_t STAKER_WAIT_FOR_WALID_BLOCK = 3000;
 
+//How much time to wait for best block header to be downloaded to the blockchain
+static const int32_t STAKER_WAIT_FOR_BEST_BLOCK_HEADER = 250;
+
+//How much max time to wait for best block header to be downloaded to the blockchain
+static const int32_t DEFAULT_MAX_STAKER_WAIT_FOR_BEST_BLOCK_HEADER = 4000;
+
 //How much time to spend trying to process transactions when using the generate RPC call
 static const int32_t POW_MINER_MAX_TIME = 60;
 

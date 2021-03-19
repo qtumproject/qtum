@@ -12,7 +12,7 @@ from test_framework.blocktools import create_raw_transaction
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
 from test_framework.qtumconfig import *
-
+from test_framework.qtum import generatesynchronized
 
 class MempoolCoinbaseTest(BitcoinTestFramework):
     def set_test_params(self):
@@ -28,7 +28,7 @@ class MempoolCoinbaseTest(BitcoinTestFramework):
         for node in self.nodes:
             node.generate(25)
             self.sync_all()
-        self.nodes[0].generate(COINBASE_MATURITY)
+        generatesynchronized(self.nodes[0], COINBASE_MATURITY, None, self.nodes)
         self.sync_all()
 
         start_count = self.nodes[0].getblockcount()

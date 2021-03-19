@@ -69,7 +69,7 @@ class QtumSoftMinerGasRelatedLimitsTest(BitcoinTestFramework):
         for node in self.nodes:
             node.generate(10)
             self.sync_all()
-        self.nodes[0].generate(COINBASE_MATURITY)
+        generatesynchronized(self.nodes[0], COINBASE_MATURITY, None, self.nodes)
         self.sync_all()
         """
         pragma solidity ^0.4.12;

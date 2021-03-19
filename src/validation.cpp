@@ -3400,7 +3400,9 @@ bool CChainState::ConnectBlock(const CBlock& block, BlockValidationState& state,
                         resultExec[k].execRes.excepted,
                         exceptedMessage(resultExec[k].execRes.excepted, resultExec[k].execRes.output),
                         resultConvertQtumTX.first[k].getNVout(),
-                        resultExec[k].txRec.bloom()
+                        resultExec[k].txRec.bloom(),
+                        resultExec[k].txRec.stateRoot(),
+                        resultExec[k].txRec.utxoRoot(),
                     });
                 }
 
