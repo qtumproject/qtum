@@ -6069,11 +6069,13 @@ bool CWallet::SelectCoinsForStaking(interfaces::Chain::Lock &locked_chain, CAmou
     int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(nHeight);
     std::map<COutPoint, uint32_t> immatureStakes = locked_chain.getImmatureStakes();
     std::vector<uint256> maturedTx;
+    const bool include_watch_only = GetLegacyScriptPubKeyMan() && IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+    const isminetype is_mine_filter = include_watch_only ? ISMINE_WATCH_ONLY : ISMINE_SPENDABLE;
     for (std::map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
     {
         // Check the cached data for available coins for the tx
         const CWalletTx* pcoin = &(*it).second;
-        const CAmount tx_credit_mine{pcoin->GetAvailableCredit(/* fUseCache */ true, ISMINE_SPENDABLE | ISMINE_NO)};
+        const CAmount tx_credit_mine{pcoin->GetAvailableCredit(/* fUseCache */ true, is_mine_filter | ISMINE_NO)};
         if(tx_credit_mine == 0)
             continue;
 
@@ -6329,11 +6331,13 @@ void CWallet::AvailableAddress(const std::vector<uint256> &maturedTx, size_t fro
 void CWallet::SelectAddress(interfaces::Chain::Lock &locked_chain, std::map<uint160, bool> &mapAddress) const
 {
     std::vector<uint256> maturedTx;
+    const bool include_watch_only = GetLegacyScriptPubKeyMan() && IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+    const isminetype is_mine_filter = include_watch_only ? ISMINE_WATCH_ONLY : ISMINE_SPENDABLE;
     for (std::map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
     {
         // Check the cached data for available coins for the tx
         const CWalletTx* pcoin = &(*it).second;
-        const CAmount tx_credit_mine{pcoin->GetAvailableCredit(/* fUseCache */ true, ISMINE_SPENDABLE | ISMINE_NO)};
+        const CAmount tx_credit_mine{pcoin->GetAvailableCredit(/* fUseCache */ true, is_mine_filter | ISMINE_NO)};
         if(tx_credit_mine == 0)
             continue;
 
