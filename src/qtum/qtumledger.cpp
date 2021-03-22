@@ -2,6 +2,8 @@
 #include <util/system.h>
 #include <chainparams.h>
 #include <univalue.h>
+#include <util/strencodings.h>
+#include <pubkey.h>
 #include <boost/process.hpp>
 #include <boost/asio.hpp>
 #include <boost/filesystem.hpp>
@@ -170,7 +172,20 @@ bool QtumLedger::signCoinStake(const std::string &fingerprint, std::string &psbt
 
 bool QtumLedger::signBlockHeader(const std::string &fingerprint, const std::string &header, std::vector<unsigned char> &vchSig)
 {
-    return false;
+    // Check if tool exists
+    if(!toolExists())
+        return false;
+
+    // Sign block header
+    if(isStarted())
+        return false;
+
+    if(!beginSignBlockHeader(fingerprint, header, vchSig))
+        return false;
+
+    wait();
+
+    return endSignBlockHeader(fingerprint, header, vchSig);
 }
 
 bool QtumLedger::toolExists()
@@ -215,6 +230,32 @@ bool QtumLedger::endSignTx(const std::string &, std::string &psbt)
     {
         psbt = psbtSigned;
         return true;
+    }
+
+    return false;
+}
+
+bool QtumLedger::beginSignBlockHeader(const std::string &fingerprint, const std::string &header, std::vector<unsigned char> &)
+{
+    // Execute command line
+    std::vector<std::string> arguments = d->arguments;
+    arguments << "-f" << fingerprint << "signheader" << header;
+    d->process.start(d->toolPath, arguments);
+    d->fStarted = true;
+
+    return d->fStarted;
+}
+
+bool QtumLedger::endSignBlockHeader(const std::string &, const std::string &, std::vector<unsigned char> &vchSig)
+{
+    // Decode command line results
+    UniValue jsonDocument = json_read_doc(d->strStdout);
+    UniValue data = json_get_object(jsonDocument);
+    std::string headerSigned = json_get_key_string(data, "signature");
+    if(!headerSigned.empty())
+    {
+        vchSig = DecodeBase64(headerSigned.c_str());
+        return vchSig.size() == CPubKey::COMPACT_SIGNATURE_SIZE;
     }
 
     return false;

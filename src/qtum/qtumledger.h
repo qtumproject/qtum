@@ -47,6 +47,9 @@ private:
     bool beginSignTx(const std::string& fingerprint, std::string& psbt);
     bool endSignTx(const std::string& fingerprint, std::string& psbt);
 
+    bool beginSignBlockHeader(const std::string& fingerprint, const std::string& header, std::vector<unsigned char>& vchSig);
+    bool endSignBlockHeader(const std::string& fingerprint, const std::string& header, std::vector<unsigned char>& vchSig);
+
 private:
     QtumLedger(const QtumLedger&);
     QtumLedger& operator=(const QtumLedger&);
