@@ -4778,6 +4778,14 @@ bool SignBlockHWI(std::shared_ptr<CBlock> pblock, CWallet& wallet, std::vector<u
         psbtx_in.outputs.push_back(PSBTOutput());
     }
 
+    // Get staker path
+    CScript stakerPubKey = rawTx.vout[1].scriptPubKey;
+    CTxDestination txStakerDest = ExtractPublicKeyHash(stakerPubKey);
+    std::string strStaker;
+    if(!wallet.GetHDKeyPath(txStakerDest, strStaker)) {
+        return false;
+    }
+
     // Fill transaction with out data but don't sign
     bool bip32derivs = true;
     bool complete = true;
@@ -4812,7 +4820,7 @@ bool SignBlockHWI(std::shared_ptr<CBlock> pblock, CWallet& wallet, std::vector<u
 
     // Sign block header
     std::string header = pblock->GetWithoutSign();
-    if(!device.signBlockHeader(wallet.m_ledger_id, header, vchSig)) {
+    if(!device.signBlockHeader(wallet.m_ledger_id, header, strStaker, vchSig)) {
         return false;
     }
 

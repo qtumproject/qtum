@@ -170,7 +170,7 @@ bool QtumLedger::signCoinStake(const std::string &fingerprint, std::string &psbt
     return endSignTx(fingerprint, psbt);
 }
 
-bool QtumLedger::signBlockHeader(const std::string &fingerprint, const std::string &header, std::vector<unsigned char> &vchSig)
+bool QtumLedger::signBlockHeader(const std::string &fingerprint, const std::string &header, const std::string &path, std::vector<unsigned char> &vchSig)
 {
     // Check if tool exists
     if(!toolExists())
@@ -180,12 +180,12 @@ bool QtumLedger::signBlockHeader(const std::string &fingerprint, const std::stri
     if(isStarted())
         return false;
 
-    if(!beginSignBlockHeader(fingerprint, header, vchSig))
+    if(!beginSignBlockHeader(fingerprint, header, path, vchSig))
         return false;
 
     wait();
 
-    return endSignBlockHeader(fingerprint, header, vchSig);
+    return endSignBlockHeader(fingerprint, header, path, vchSig);
 }
 
 bool QtumLedger::toolExists()
@@ -235,18 +235,18 @@ bool QtumLedger::endSignTx(const std::string &, std::string &psbt)
     return false;
 }
 
-bool QtumLedger::beginSignBlockHeader(const std::string &fingerprint, const std::string &header, std::vector<unsigned char> &)
+bool QtumLedger::beginSignBlockHeader(const std::string &fingerprint, const std::string &header, const std::string &path, std::vector<unsigned char> &)
 {
     // Execute command line
     std::vector<std::string> arguments = d->arguments;
-    arguments << "-f" << fingerprint << "signheader" << header;
+    arguments << "-f" << fingerprint << "signheader" << header << path;
     d->process.start(d->toolPath, arguments);
     d->fStarted = true;
 
     return d->fStarted;
 }
 
-bool QtumLedger::endSignBlockHeader(const std::string &, const std::string &, std::vector<unsigned char> &vchSig)
+bool QtumLedger::endSignBlockHeader(const std::string &, const std::string &, const std::string &, std::vector<unsigned char> &vchSig)
 {
     // Decode command line results
     UniValue jsonDocument = json_read_doc(d->strStdout);

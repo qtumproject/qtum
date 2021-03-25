@@ -34,10 +34,11 @@ public:
      * @brief signBlockHeader Sign block header
      * @param fingerprint Fingerprint of the ledger
      * @param header Block header for the new block
+     * @param path HD key path
      * @param vchSig Signature
      * @return true/false
      */
-    bool signBlockHeader(const std::string& fingerprint, const std::string& header, std::vector<unsigned char>& vchSig);
+    bool signBlockHeader(const std::string& fingerprint, const std::string& header, const std::string& path, std::vector<unsigned char>& vchSig);
 
 private:
     bool toolExists();
@@ -47,8 +48,8 @@ private:
     bool beginSignTx(const std::string& fingerprint, std::string& psbt);
     bool endSignTx(const std::string& fingerprint, std::string& psbt);
 
-    bool beginSignBlockHeader(const std::string& fingerprint, const std::string& header, std::vector<unsigned char>& vchSig);
-    bool endSignBlockHeader(const std::string& fingerprint, const std::string& header, std::vector<unsigned char>& vchSig);
+    bool beginSignBlockHeader(const std::string& fingerprint, const std::string& header, const std::string& path, std::vector<unsigned char>& vchSig);
+    bool endSignBlockHeader(const std::string& fingerprint, const std::string& header, const std::string& path, std::vector<unsigned char>& vchSig);
 
 private:
     QtumLedger(const QtumLedger&);
