@@ -12,25 +12,25 @@
 
 namespace Token_NS
 {
-static const std::string TOKEN_ABI = "[{\"constant\":true,\"inputs\":[],\"name\":\"name\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_spender\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"approve\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"totalSupply\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_from\",\"type\":\"address\"},{\"name\":\"_to\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"transferFrom\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"decimals\",\"outputs\":[{\"name\":\"\",\"type\":\"uint8\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"burn\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_from\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"burnFrom\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"symbol\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_to\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"transfer\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_spender\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"},{\"name\":\"_extraData\",\"type\":\"bytes\"}],\"name\":\"approveAndCall\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"\",\"type\":\"address\"},{\"name\":\"\",\"type\":\"address\"}],\"name\":\"allowance\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"name\":\"initialSupply\",\"type\":\"uint256\"},{\"name\":\"tokenName\",\"type\":\"string\"},{\"name\":\"decimalUnits\",\"type\":\"uint8\"},{\"name\":\"tokenSymbol\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"from\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Burn\",\"type\":\"event\"}]";
+static const char *TOKEN_ABI = "[{\"constant\":true,\"inputs\":[],\"name\":\"name\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_spender\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"approve\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"totalSupply\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_from\",\"type\":\"address\"},{\"name\":\"_to\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"transferFrom\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"decimals\",\"outputs\":[{\"name\":\"\",\"type\":\"uint8\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"burn\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_from\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"burnFrom\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"symbol\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_to\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"transfer\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_spender\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"},{\"name\":\"_extraData\",\"type\":\"bytes\"}],\"name\":\"approveAndCall\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"\",\"type\":\"address\"},{\"name\":\"\",\"type\":\"address\"}],\"name\":\"allowance\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"name\":\"initialSupply\",\"type\":\"uint256\"},{\"name\":\"tokenName\",\"type\":\"string\"},{\"name\":\"decimalUnits\",\"type\":\"uint8\"},{\"name\":\"tokenSymbol\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"from\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Burn\",\"type\":\"event\"}]";
 
-static const QString PRC_CALL = "callcontract";
-static const QString PRC_SENDTO = "sendtocontract";
-static const QString PARAM_ADDRESS = "address";
-static const QString PARAM_DATAHEX = "datahex";
-static const QString PARAM_AMOUNT = "amount";
-static const QString PARAM_GASLIMIT = "gaslimit";
-static const QString PARAM_GASPRICE = "gasprice";
-static const QString PARAM_SENDER = "sender";
-static const QString PARAM_BROADCAST = "broadcast";
-static const QString PARAM_CHANGE_TO_SENDER = "changeToSender";
+static const char *PRC_CALL = "callcontract";
+static const char *PRC_SENDTO = "sendtocontract";
+static const char *PARAM_ADDRESS = "address";
+static const char *PARAM_DATAHEX = "datahex";
+static const char *PARAM_AMOUNT = "amount";
+static const char *PARAM_GASLIMIT = "gaslimit";
+static const char *PARAM_GASPRICE = "gasprice";
+static const char *PARAM_SENDER = "sender";
+static const char *PARAM_BROADCAST = "broadcast";
+static const char *PARAM_CHANGE_TO_SENDER = "changeToSender";
 
 }
 using namespace Token_NS;
 
 struct TokenData
 {
-    QMap<QString, QString> lstParams;
+    std::map<std::string, std::string> lstParams;
     std::string address;
     ExecRPCCommand* call;
     ExecRPCCommand* send;
@@ -221,32 +221,32 @@ Token::~Token()
 
 void Token::setAddress(const std::string &address)
 {
-    d->lstParams[PARAM_ADDRESS] = QString::fromStdString(address);
+    d->lstParams[PARAM_ADDRESS] = address;
 }
 
 void Token::setDataHex(const std::string &datahex)
 {
-    d->lstParams[PARAM_DATAHEX] = QString::fromStdString(datahex);
+    d->lstParams[PARAM_DATAHEX] = datahex;
 }
 
 void Token::setAmount(const std::string &amount)
 {
-    d->lstParams[PARAM_AMOUNT] = QString::fromStdString(amount);
+    d->lstParams[PARAM_AMOUNT] = amount;
 }
 
 void Token::setGasLimit(const std::string &gaslimit)
 {
-    d->lstParams[PARAM_GASLIMIT] = QString::fromStdString(gaslimit);
+    d->lstParams[PARAM_GASLIMIT] = gaslimit;
 }
 
 void Token::setGasPrice(const std::string &gasPrice)
 {
-    d->lstParams[PARAM_GASPRICE] = QString::fromStdString(gasPrice);
+    d->lstParams[PARAM_GASPRICE] = gasPrice;
 }
 
 void Token::setSender(const std::string &sender)
 {
-    d->lstParams[PARAM_SENDER] = QString::fromStdString(sender);
+    d->lstParams[PARAM_SENDER] = sender;
 }
 
 void Token::clear()
@@ -385,7 +385,7 @@ bool Token::burn(const std::string &_value, bool &success, bool sendTo)
 
 bool Token::balanceOf(std::string &result, bool sendTo)
 {
-    std::string spender = d->lstParams[PARAM_SENDER].toStdString();
+    std::string spender = d->lstParams[PARAM_SENDER];
     if(!ToHash160(spender, spender))
     {
         return false;
@@ -547,7 +547,7 @@ bool Token::exec(const std::vector<std::string> &input, int func, std::vector<st
     QVariant result;
     QString resultJson;
     d->errorMessage.clear();
-    if(!cmd->exec(d->model->node(), d->model, d->lstParams, result, resultJson, d->errorMessage))
+    if(!cmd->exec(d->model->node(), d->model, ContractUtil::fromStdMap(d->lstParams), result, resultJson, d->errorMessage))
         return false;
 
     // Get the result from calling function
@@ -615,8 +615,8 @@ bool Token::execEvents(int64_t fromBlock, int64_t toBlock, int func, std::vector
     // Search for events
     QVariant result;
     std::string eventName = function.selector();
-    std::string contractAddress = d->lstParams[PARAM_ADDRESS].toStdString();
-    std::string senderAddress = d->lstParams[PARAM_SENDER].toStdString();
+    std::string contractAddress = d->lstParams[PARAM_ADDRESS];
+    std::string senderAddress = d->lstParams[PARAM_SENDER];
     ToHash160(senderAddress, senderAddress);
     senderAddress  = "000000000000000000000000" + senderAddress;
     if(!(d->eventLog->searchTokenTx(d->model->node(), d->model, fromBlock, toBlock, contractAddress, senderAddress, result)))
