@@ -1,4 +1,4 @@
-#include <qt/token.h>
+﻿#include <qt/token.h>
 #include <qt/execrpccommand.h>
 #include <qt/contractutil.h>
 #include <validation.h>
@@ -28,15 +28,169 @@ static const char *PARAM_CHANGE_TO_SENDER = "changeToSender";
 }
 using namespace Token_NS;
 
+struct TokenExecData
+{
+    ExecRPCCommand* call;
+    ExecRPCCommand* send;
+    EventLog* eventLog;
+    WalletModel* model;
+    QString errorMessage;
+
+    TokenExecData():
+        call(0),
+        send(0),
+        eventLog(0),
+        model(0)
+    {}
+};
+
+TokenExec::TokenExec()
+{
+    d = new TokenExecData();
+
+    // Create new call command line interface
+    QStringList lstMandatory;
+    lstMandatory.append(PARAM_ADDRESS);
+    lstMandatory.append(PARAM_DATAHEX);
+    QStringList lstOptional;
+    lstOptional.append(PARAM_SENDER);
+    d->call = new ExecRPCCommand(PRC_CALL, lstMandatory, lstOptional, QMap<QString, QString>());
+
+    // Create new send command line interface
+    lstMandatory.clear();
+    lstMandatory.append(PARAM_ADDRESS);
+    lstMandatory.append(PARAM_DATAHEX);
+    lstOptional.clear();
+    lstOptional.append(PARAM_AMOUNT);
+    lstOptional.append(PARAM_GASLIMIT);
+    lstOptional.append(PARAM_GASPRICE);
+    lstOptional.append(PARAM_SENDER);
+    lstOptional.append(PARAM_BROADCAST);
+    lstOptional.append(PARAM_CHANGE_TO_SENDER);
+    d->send = new ExecRPCCommand(PRC_SENDTO, lstMandatory, lstOptional, QMap<QString, QString>());
+
+    // Create new event log interface
+    d->eventLog = new EventLog();
+}
+
+TokenExec::~TokenExec()
+{
+    if(d->call)
+        delete d->call;
+    d->call = 0;
+
+    if(d->send)
+        delete d->send;
+    d->send = 0;
+
+    if(d->eventLog)
+        delete d->eventLog;
+    d->eventLog = 0;
+
+    if(d)
+        delete d;
+    d = 0;
+}
+
+void TokenExec::setModel(WalletModel *model)
+{
+    d->model = model;
+}
+
+bool TokenExec::execValid(const int &func, const bool &sendTo)
+{
+    ExecRPCCommand* cmd = sendTo ? d->send : d->call;
+    if(func == -1 || d->model == 0 || cmd == 0)
+        return false;
+    return true;
+}
+
+bool TokenExec::execEventsValid(const int &func, const int64_t &fromBlock)
+{
+    if(func == -1 || fromBlock < 0 || d->model == 0)
+        return false;
+    return true;
+}
+
+bool TokenExec::exec(const bool &sendTo, const std::map<std::string, std::string> &lstParams, std::string &result, std::string &message)
+{
+    ExecRPCCommand* cmd = sendTo ? d->send : d->call;
+    QVariant resultVar;
+    QString resultJson;
+    QString errorMessage;
+    if(!cmd->exec(d->model->node(), d->model, ContractUtil::fromStdMap(lstParams), resultVar, resultJson, errorMessage))
+    {
+        message = errorMessage.toStdString();
+        return false;
+    }
+
+    if(!sendTo)
+    {
+        QVariantMap variantMap = resultVar.toMap();
+        QVariantMap executionResultMap = variantMap.value("executionResult").toMap();
+        result = executionResultMap.value("output").toString().toStdString();
+    }
+    else
+    {
+        QVariantMap variantMap = resultVar.toMap();
+        result = variantMap.value("txid").toString().toStdString();
+    }
+
+    return true;
+}
+
+bool TokenExec::execEvents(const int64_t &fromBlock, const int64_t &toBlock, const std::string &eventName, const std::string &contractAddress, const std::string &senderAddress, std::vector<TokenEvent> &result)
+{
+    QVariant resultVar;
+    if(!(d->eventLog->searchTokenTx(d->model->node(), d->model, fromBlock, toBlock, contractAddress, senderAddress, resultVar)))
+        return false;
+
+    QList<QVariant> list = resultVar.toList();
+    for(int i = 0; i < list.size(); i++)
+    {
+        // Search the log for events
+        QVariantMap variantMap = list[i].toMap();
+        QList<QVariant> listLog = variantMap.value("log").toList();
+        for(int i = 0; i < listLog.size(); i++)
+        {
+            // Skip the not needed events
+            QVariantMap variantLog = listLog[i].toMap();
+            QList<QVariant> topicsList = variantLog.value("topics").toList();
+            if(topicsList.count() < 3) continue;
+            if(topicsList[0].toString().toStdString() != eventName) continue;
+
+            // Create new event
+            TokenEvent tokenEvent;
+            tokenEvent.address = variantMap.value("contractAddress").toString().toStdString();
+            tokenEvent.sender = topicsList[1].toString().toStdString().substr(24);
+            Token::ToQtumAddress(tokenEvent.sender, tokenEvent.sender);
+            tokenEvent.receiver = topicsList[2].toString().toStdString().substr(24);
+            Token::ToQtumAddress(tokenEvent.receiver, tokenEvent.receiver);
+            tokenEvent.blockHash = uint256S(variantMap.value("blockHash").toString().toStdString());
+            tokenEvent.blockNumber = variantMap.value("blockNumber").toLongLong();
+            tokenEvent.transactionHash = uint256S(variantMap.value("transactionHash").toString().toStdString());
+
+            // Parse data
+            std::string data = variantLog.value("data").toString().toStdString();
+            dev::bytes rawData = dev::fromHex(data);
+            dev::bytesConstRef o(&rawData);
+            dev::u256 outData = dev::eth::ABIDeserialiser<dev::u256>::deserialise(o);
+            tokenEvent.value = u256Touint(outData);
+
+            result.push_back(tokenEvent);
+        }
+    }
+
+    return true;
+}
+
+
 struct TokenData
 {
     std::map<std::string, std::string> lstParams;
     std::string address;
-    ExecRPCCommand* call;
-    ExecRPCCommand* send;
-    EventLog* eventLog;
+    TokenExec* tokenExec;
     ContractABI* ABI;
-    WalletModel* model;
     int funcName;
     int funcApprove;
     int funcTotalSupply;
@@ -53,13 +207,11 @@ struct TokenData
     int evtBurn;
 
     std::string txid;
-    QString errorMessage;
+    std::string errorMessage;
 
     TokenData():
-        call(0),
-        send(0),
+        tokenExec(0),
         ABI(0),
-        model(0),
         funcName(-1),
         funcApprove(-1),
         funcTotalSupply(-1),
@@ -91,7 +243,7 @@ bool ToHash160(const std::string& strQtumAddress, std::string& strHash160)
     return true;
 }
 
-bool ToQtumAddress(const std::string& strHash160, std::string& strQtumAddress)
+bool Token::ToQtumAddress(const std::string& strHash160, std::string& strQtumAddress)
 {
     uint160 key(ParseHex(strHash160.c_str()));
     PKHash keyid(key);
@@ -109,29 +261,8 @@ Token::Token():
     d = new TokenData();
     clear();
 
-    // Create new call command line interface
-    QStringList lstMandatory;
-    lstMandatory.append(PARAM_ADDRESS);
-    lstMandatory.append(PARAM_DATAHEX);
-    QStringList lstOptional;
-    lstOptional.append(PARAM_SENDER);
-    d->call = new ExecRPCCommand(PRC_CALL, lstMandatory, lstOptional, QMap<QString, QString>());
-
-    // Create new send command line interface
-    lstMandatory.clear();
-    lstMandatory.append(PARAM_ADDRESS);
-    lstMandatory.append(PARAM_DATAHEX);
-    lstOptional.clear();
-    lstOptional.append(PARAM_AMOUNT);
-    lstOptional.append(PARAM_GASLIMIT);
-    lstOptional.append(PARAM_GASPRICE);
-    lstOptional.append(PARAM_SENDER);
-    lstOptional.append(PARAM_BROADCAST);
-    lstOptional.append(PARAM_CHANGE_TO_SENDER);
-    d->send = new ExecRPCCommand(PRC_SENDTO, lstMandatory, lstOptional, QMap<QString, QString>());
-
-    // Create new event log interface
-    d->eventLog = new EventLog();
+    // Create new command line interface
+    d->tokenExec = new TokenExec();
 
     // Compute functions indexes
     d->ABI = new ContractABI();
@@ -202,17 +333,9 @@ Token::Token():
 
 Token::~Token()
 {
-    if(d->call)
-        delete d->call;
-    d->call = 0;
-
-    if(d->send)
-        delete d->send;
-    d->send = 0;
-
-    if(d->ABI)
-        delete d->ABI;
-    d->ABI = 0;
+    if(d->tokenExec)
+        delete d->tokenExec;
+    d->tokenExec = 0;
 
     if(d)
         delete d;
@@ -526,7 +649,7 @@ bool Token::exec(const std::vector<std::string> &input, int func, std::vector<st
 {
     // Convert the input data into hex encoded binary data
     d->txid = "";
-    if(func == -1 || d->model == 0)
+    if(d->tokenExec == 0 || !(d->tokenExec->execValid(func, sendTo)))
         return false;
     std::string strData;
     FunctionABI function = d->ABI->functions[func];
@@ -543,19 +666,15 @@ bool Token::exec(const std::vector<std::string> &input, int func, std::vector<st
     setDataHex(strData);
 
     // Execute the command and get the result
-    ExecRPCCommand* cmd = sendTo ? d->send : d->call;
-    QVariant result;
-    QString resultJson;
-    d->errorMessage.clear();
-    if(!cmd->exec(d->model->node(), d->model, ContractUtil::fromStdMap(d->lstParams), result, resultJson, d->errorMessage))
+    std::string result;
+    d->errorMessage.clear();    
+    if(!(d->tokenExec->exec(sendTo, d->lstParams, result, d->errorMessage)))
         return false;
 
     // Get the result from calling function
     if(!sendTo)
     {
-        QVariantMap variantMap = result.toMap();
-        QVariantMap executionResultMap = variantMap.value("executionResult").toMap();
-        std::string rawData = executionResultMap.value("output").toString().toStdString();
+        std::string rawData = result;
         std::vector<std::vector<std::string>> values;
         std::vector<ParameterABI::ErrorType> errors;
         if(!function.abiOut(rawData, values, errors))
@@ -568,8 +687,7 @@ bool Token::exec(const std::vector<std::string> &input, int func, std::vector<st
     }
     else
     {
-        QVariantMap variantMap = result.toMap();
-        d->txid = variantMap.value("txid").toString().toStdString();
+        d->txid = result;
     }
 
     return true;
@@ -606,57 +724,26 @@ void addTokenEvent(std::vector<TokenEvent> &tokenEvents, TokenEvent tokenEvent)
 bool Token::execEvents(int64_t fromBlock, int64_t toBlock, int func, std::vector<TokenEvent> &tokenEvents)
 {
     // Check parameters
-    if(func == -1 || fromBlock < 0 || d->model == 0)
+    if(d->tokenExec == 0 || !(d->tokenExec->execEventsValid(func, fromBlock)))
         return false;
 
     //  Get function
     FunctionABI function = d->ABI->functions[func];
 
     // Search for events
-    QVariant result;
+    std::vector<TokenEvent> result;
     std::string eventName = function.selector();
     std::string contractAddress = d->lstParams[PARAM_ADDRESS];
     std::string senderAddress = d->lstParams[PARAM_SENDER];
     ToHash160(senderAddress, senderAddress);
     senderAddress  = "000000000000000000000000" + senderAddress;
-    if(!(d->eventLog->searchTokenTx(d->model->node(), d->model, fromBlock, toBlock, contractAddress, senderAddress, result)))
+    if(!(d->tokenExec->execEvents( fromBlock, toBlock, eventName, contractAddress, senderAddress, result)))
         return false;
 
     // Parse the result events
-    QList<QVariant> list = result.toList();
-    for(int i = 0; i < list.size(); i++)
+    for(const TokenEvent& tokenEvent : result)
     {
-        // Search the log for events
-        QVariantMap variantMap = list[i].toMap();
-        QList<QVariant> listLog = variantMap.value("log").toList();
-        for(int i = 0; i < listLog.size(); i++)
-        {
-            // Skip the not needed events
-            QVariantMap variantLog = listLog[i].toMap();
-            QList<QVariant> topicsList = variantLog.value("topics").toList();
-            if(topicsList.count() < 3) continue;
-            if(topicsList[0].toString().toStdString() != eventName) continue;
-
-            // Create new event
-            TokenEvent tokenEvent;
-            tokenEvent.address = variantMap.value("contractAddress").toString().toStdString();
-            tokenEvent.sender = topicsList[1].toString().toStdString().substr(24);
-            ToQtumAddress(tokenEvent.sender, tokenEvent.sender);
-            tokenEvent.receiver = topicsList[2].toString().toStdString().substr(24);
-            ToQtumAddress(tokenEvent.receiver, tokenEvent.receiver);
-            tokenEvent.blockHash = uint256S(variantMap.value("blockHash").toString().toStdString());
-            tokenEvent.blockNumber = variantMap.value("blockNumber").toLongLong();
-            tokenEvent.transactionHash = uint256S(variantMap.value("transactionHash").toString().toStdString());
-
-            // Parse data
-            std::string data = variantLog.value("data").toString().toStdString();
-            dev::bytes rawData = dev::fromHex(data);
-            dev::bytesConstRef o(&rawData);
-            dev::u256 outData = dev::eth::ABIDeserialiser<dev::u256>::deserialise(o);
-            tokenEvent.value = u256Touint(outData);
-
-            addTokenEvent(tokenEvents, tokenEvent);
-        }
+        addTokenEvent(tokenEvents, tokenEvent);
     }
 
     return true;
@@ -664,10 +751,15 @@ bool Token::execEvents(int64_t fromBlock, int64_t toBlock, int func, std::vector
 
 void Token::setModel(WalletModel *model)
 {
-    d->model = model;
+    d->tokenExec->setModel(model);
 }
 
 std::string Token::getErrorMessage()
 {
-    return d->errorMessage.toStdString();
+    return d->errorMessage;
+}
+
+void Token::setTokenExec(TokenExec *tokenExec)
+{
+    d->tokenExec = tokenExec;
 }

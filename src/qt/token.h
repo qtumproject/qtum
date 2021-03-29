@@ -2,6 +2,7 @@
 #define TOKEN_H
 #include <string>
 #include <vector>
+#include <map>
 #include <uint256.h>
 
 struct TokenEvent{
@@ -28,7 +29,25 @@ struct TokenEvent{
 };
 
 struct TokenData;
+struct TokenExecData;
 class WalletModel;
+
+class TokenExec
+{
+public:
+    TokenExec();
+    ~TokenExec();
+
+    void setModel(WalletModel *model);
+
+    bool execValid(const int& func, const bool& sendTo);
+    bool execEventsValid(const int& func, const int64_t& fromBlock);
+    bool exec(const bool& sendTo, const std::map<std::string, std::string>& lstParams, std::string& result, std::string& message);
+    bool execEvents(const int64_t& fromBlock, const int64_t& toBlock, const std::string& eventName, const std::string& contractAddress, const std::string& senderAddress, std::vector<TokenEvent> &result);
+
+private:
+    TokenExecData* d;
+};
 
 class Token
 {
@@ -36,6 +55,7 @@ public:
     Token();
     ~Token();
 
+    void setTokenExec(TokenExec* tokenExec);
     void setModel(WalletModel *model);
 
     // Set command data
@@ -69,6 +89,9 @@ public:
     // ABI Events
     bool transferEvents(std::vector<TokenEvent>& tokenEvents, int64_t fromBlock = 0, int64_t toBlock = -1);
     bool burnEvents(std::vector<TokenEvent>& tokenEvents, int64_t fromBlock = 0, int64_t toBlock = -1);
+
+    // Static functions
+    static bool ToQtumAddress(const std::string& strHash160, std::string& strQtumAddress);
 
 private:
     bool exec(const std::vector<std::string>& input, int func, std::vector<std::string>& output, bool sendTo);
