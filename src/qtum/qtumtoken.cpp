@@ -113,6 +113,14 @@ bool QtumToken::ToQtumAddress(const std::string& strHash160, std::string& strQtu
     return false;
 }
 
+uint256 QtumToken::ToUint256(const std::string &data)
+{
+    dev::bytes rawData = dev::fromHex(data);
+    dev::bytesConstRef o(&rawData);
+    dev::u256 outData = dev::eth::ABIDeserialiser<dev::u256>::deserialise(o);
+    return u256Touint(outData);
+}
+
 QtumToken::QtumToken():
     d(0)
 {

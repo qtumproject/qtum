@@ -162,10 +162,7 @@ bool Token::execEvents(const int64_t &fromBlock, const int64_t &toBlock, const s
 
             // Parse data
             std::string data = variantLog.value("data").toString().toStdString();
-            dev::bytes rawData = dev::fromHex(data);
-            dev::bytesConstRef o(&rawData);
-            dev::u256 outData = dev::eth::ABIDeserialiser<dev::u256>::deserialise(o);
-            tokenEvent.value = u256Touint(outData);
+            tokenEvent.value = Token::ToUint256(data);
 
             result.push_back(tokenEvent);
         }

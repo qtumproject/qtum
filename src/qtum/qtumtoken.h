@@ -83,6 +83,7 @@ public:
     // Static functions
     static bool ToHash160(const std::string& strQtumAddress, std::string& strHash160);
     static bool ToQtumAddress(const std::string& strHash160, std::string& strQtumAddress);
+    static uint256 ToUint256(const std::string& data);
     static void addTokenEvent(std::vector<TokenEvent> &tokenEvents, TokenEvent tokenEvent);
 
     // Get param functions
