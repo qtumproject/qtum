@@ -41,6 +41,7 @@
 #include <txdb.h>
 #include <util/convert.h>
 #include <qtum/qtumdelegation.h>
+#include <qtum/qtumtoken.h>
 
 #include <stdint.h>
 
@@ -1338,6 +1339,63 @@ UniValue callcontract(const JSONRPCRequest& request)
  
     return CallToContract(request.params);
 }
+
+class CallToken : public QtumTokenExec, public QtumToken
+{
+public:
+    CallToken()
+    {
+        setQtumTokenExec(this);
+    }
+
+    bool execValid(const int& func, const bool& sendTo)
+    {
+        if(func == -1 || sendTo)
+            return false;
+        return true;
+    }
+
+    bool exec(const bool& sendTo, const std::map<std::string, std::string>& lstParams, std::string& result, std::string&)
+    {
+        if(sendTo)
+            return false;
+
+        UniValue params(UniValue::VARR);
+
+        // Set address
+        auto it = lstParams.find(paramAddress());
+        if(it != lstParams.end())
+            params.push_back(it->second);
+        else
+            return false;
+
+        // Set data
+        it = lstParams.find(paramDatahex());
+        if(it != lstParams.end())
+            params.push_back(it->second);
+        else
+            return false;
+
+        // Set sender
+        it = lstParams.find(paramSender());
+        if(it != lstParams.end())
+            params.push_back(it->second);
+
+        // Get execution result
+        UniValue response = CallToContract(params);
+        if(!response.isObject() || !response.exists("executionResult"))
+            return false;
+        UniValue executionResult = response["executionResult"];
+
+        // Get output
+        if(!executionResult.isObject() || !executionResult.exists("output"))
+            return false;
+        UniValue output = executionResult["output"];
+        result = output.get_str();
+
+        return true;
+    }
+};
 
 void assignJSON(UniValue& entry, const TransactionReceiptInfo& resExec) {
     entry.pushKV("blockHash", resExec.blockHash.GetHex());
