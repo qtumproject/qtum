@@ -1228,6 +1228,65 @@ static UniValue getblock(const JSONRPCRequest& request)
 }
 
 ////////////////////////////////////////////////////////////////////// // qtum
+UniValue CallToContract(const UniValue& params)
+{
+    LOCK(cs_main);
+
+    std::string strAddr = params[0].get_str();
+    std::string data = params[1].get_str();
+
+    if(data.size() % 2 != 0 || !CheckHex(data))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid data (data not hex)");
+
+    dev::Address addrAccount;
+    if(strAddr.size() > 0)
+    {
+        if(strAddr.size() != 40 || !CheckHex(strAddr))
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect address");
+
+        addrAccount = dev::Address(strAddr);
+        if(!globalState->addressInUse(addrAccount))
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
+    }
+
+    dev::Address senderAddress;
+    if(params.size() >= 3){
+        CTxDestination qtumSenderAddress = DecodeDestination(params[2].get_str());
+        if (IsValidDestination(qtumSenderAddress)) {
+            const PKHash *keyid = boost::get<PKHash>(&qtumSenderAddress);
+            senderAddress = dev::Address(HexStr(valtype(keyid->begin(),keyid->end())));
+        }else{
+            senderAddress = dev::Address(params[2].get_str());
+        }
+
+    }
+    uint64_t gasLimit=0;
+    if(params.size() >= 4){
+        gasLimit = params[3].get_int64();
+    }
+
+    CAmount nAmount = 0;
+    if (params.size() >= 5){
+        nAmount = AmountFromValue(params[4]);
+        if (nAmount < 0)
+            throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
+    }
+
+
+    std::vector<ResultExecute> execResults = CallContract(addrAccount, ParseHex(data), senderAddress, gasLimit, nAmount);
+
+    if(fRecordLogOpcodes){
+        writeVMlog(execResults);
+    }
+
+    UniValue result(UniValue::VOBJ);
+    result.pushKV("address", strAddr);
+    result.pushKV("executionResult", executionResultToJSON(execResults[0].execRes));
+    result.pushKV("transactionReceipt", transactionReceiptToJSON(execResults[0].txRec));
+
+    return result;
+}
+
 UniValue callcontract(const JSONRPCRequest& request)
 {
             RPCHelpMan{"callcontract",
@@ -1277,61 +1336,7 @@ UniValue callcontract(const JSONRPCRequest& request)
                 },
             }.Check(request);
  
-    LOCK(cs_main);
-    
-    std::string strAddr = request.params[0].get_str();
-    std::string data = request.params[1].get_str();
-
-    if(data.size() % 2 != 0 || !CheckHex(data))
-        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid data (data not hex)");
-
-    dev::Address addrAccount;
-    if(strAddr.size() > 0)
-    {
-        if(strAddr.size() != 40 || !CheckHex(strAddr))
-            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect address");
-
-        addrAccount = dev::Address(strAddr);
-        if(!globalState->addressInUse(addrAccount))
-            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
-    }
-    
-    dev::Address senderAddress;
-    if(request.params.size() >= 3){
-        CTxDestination qtumSenderAddress = DecodeDestination(request.params[2].get_str());
-        if (IsValidDestination(qtumSenderAddress)) {
-            const PKHash *keyid = boost::get<PKHash>(&qtumSenderAddress);
-            senderAddress = dev::Address(HexStr(valtype(keyid->begin(),keyid->end())));
-        }else{
-            senderAddress = dev::Address(request.params[2].get_str());
-        }
-
-    }
-    uint64_t gasLimit=0;
-    if(request.params.size() >= 4){
-        gasLimit = request.params[3].get_int64();
-    }
-
-    CAmount nAmount = 0;
-    if (request.params.size() >= 5){
-        nAmount = AmountFromValue(request.params[4]);
-        if (nAmount < 0)
-            throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
-    }
-
-
-    std::vector<ResultExecute> execResults = CallContract(addrAccount, ParseHex(data), senderAddress, gasLimit, nAmount);
-
-    if(fRecordLogOpcodes){
-        writeVMlog(execResults);
-    }
-
-    UniValue result(UniValue::VOBJ);
-    result.pushKV("address", strAddr);
-    result.pushKV("executionResult", executionResultToJSON(execResults[0].execRes));
-    result.pushKV("transactionReceipt", transactionReceiptToJSON(execResults[0].txRec));
- 
-    return result;
+    return CallToContract(request.params);
 }
 
 void assignJSON(UniValue& entry, const TransactionReceiptInfo& resExec) {
