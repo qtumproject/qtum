@@ -3587,6 +3587,123 @@ UniValue dumptxoutset(const JSONRPCRequest& request)
     return result;
 }
 
+static UniValue qrc20Name(const JSONRPCRequest& request)
+{
+            RPCHelpMan{"qrc20Name",
+                "\nReturns the name of the qrc20 token\n",
+                {
+                    {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
+                    {"senderAddress", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "The sender address string"},
+                },
+                RPCResult{
+                    RPCResult::Type::STR, "name", "The name of the token"},
+                RPCExamples{
+                    HelpExampleCli("qrc20Name", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
+            + HelpExampleRpc("qrc20Name", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
+                },
+            }.Check(request);
+
+    return "";
+}
+
+static UniValue qrc20Symbol(const JSONRPCRequest& request)
+{
+            RPCHelpMan{"qrc20Symbol",
+                "\nReturns the symbol of the qrc20 token\n",
+                {
+                    {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
+                    {"senderAddress", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "The sender address string"},
+                },
+                RPCResult{
+                    RPCResult::Type::STR, "symbol", "The symbol of the token"},
+                RPCExamples{
+                    HelpExampleCli("qrc20Symbol", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
+            + HelpExampleRpc("qrc20Symbol", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
+                },
+            }.Check(request);
+
+    return "";
+}
+
+static UniValue qrc20TotalSupply(const JSONRPCRequest& request)
+{
+            RPCHelpMan{"qrc20TotalSupply",
+                "\nReturns the total supply of the qrc20 token\n",
+                {
+                    {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
+                    {"senderAddress", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "The sender address string"},
+                },
+                RPCResult{
+                    RPCResult::Type::STR, "totalSupply", "The total supply of the token"},
+                RPCExamples{
+                    HelpExampleCli("qrc20TotalSupply", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
+            + HelpExampleRpc("qrc20TotalSupply", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
+                },
+            }.Check(request);
+
+    return "";
+}
+
+static UniValue qrc20Decimals(const JSONRPCRequest& request)
+{
+            RPCHelpMan{"qrc20Decimals",
+                "\nReturns the number of decimals of the qrc20 token\n",
+                {
+                    {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
+                    {"senderAddress", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "The sender address string"},
+                },
+                RPCResult{
+                    RPCResult::Type::STR, "decimals", "The number of decimals of the token"},
+                RPCExamples{
+                    HelpExampleCli("qrc20Decimals", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
+            + HelpExampleRpc("qrc20Decimals", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
+                },
+            }.Check(request);
+
+    return "";
+}
+
+static UniValue qrc20BalanceOf(const JSONRPCRequest& request)
+{
+            RPCHelpMan{"qrc20BalanceOf",
+                "\nReturns the qrc20 token balance for address\n",
+                {
+                    {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
+                    {"hexaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO,  "The raw hex address"},
+                    {"senderAddress", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "The sender address string"},
+                },
+                RPCResult{
+                    RPCResult::Type::STR, "balance", "The token balance of chosen address"},
+                RPCExamples{
+                    HelpExampleCli("qrc20BalanceOf", "eb23c0b3e6042821da281a2e2364feb22dd543e3 hexaddress")
+            + HelpExampleRpc("qrc20BalanceOf", "eb23c0b3e6042821da281a2e2364feb22dd543e3 hexaddress")
+                },
+            }.Check(request);
+
+    return "";
+}
+
+static UniValue qrc20Allowance(const JSONRPCRequest& request)
+{
+            RPCHelpMan{"qrc20Allowance",
+                "\nReturns allowance for an address\n",
+                {
+                    {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
+                    {"addressFrom", RPCArg::Type::STR_HEX, RPCArg::Optional::NO,  "From raw hex address"},
+                    {"addressTo", RPCArg::Type::STR_HEX, RPCArg::Optional::NO,  "To raw hex address"},
+                    {"senderAddress", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "The sender address string"},
+                },
+                RPCResult{
+                    RPCResult::Type::STR, "allowance", "The allowance for an address"},
+                RPCExamples{
+                    HelpExampleCli("qrc20BalanceOf", "eb23c0b3e6042821da281a2e2364feb22dd543e3 hexaddressfrom hexaddressto")
+            + HelpExampleRpc("qrc20BalanceOf", "eb23c0b3e6042821da281a2e2364feb22dd543e3 hexaddressfrom hexaddressto")
+                },
+            }.Check(request);
+
+    return "";
+}
+
 void RegisterBlockchainRPCCommands(CRPCTable &t)
 {
 // clang-format off
@@ -3621,6 +3738,14 @@ static const CRPCCommand commands[] =
     { "blockchain",         "getblockfilter",         &getblockfilter,         {"blockhash", "filtertype"} },
 
     { "blockchain",         "callcontract",           &callcontract,           {"address","data", "senderAddress", "gasLimit", "amount"} },
+
+    { "blockchain",         "qrc20Name",              &qrc20Name,              {"address", "senderAddress"} },
+    { "blockchain",         "qrc20Symbol",            &qrc20Symbol,            {"address", "senderAddress"} },
+    { "blockchain",         "qrc20TotalSupply",       &qrc20TotalSupply,       {"address", "senderAddress"} },
+    { "blockchain",         "qrc20Decimals",          &qrc20Decimals,          {"address", "senderAddress"} },
+    { "blockchain",         "qrc20BalanceOf",         &qrc20BalanceOf,         {"address", "hexaddress", "senderAddress"} },
+    { "blockchain",         "qrc20Allowance",         &qrc20Allowance,         {"address", "addressFrom", "addressTo", "senderAddress"} },
+
     /* Not shown in help */
     { "hidden",             "invalidateblock",        &invalidateblock,        {"blockhash"} },
     { "hidden",             "reconsiderblock",        &reconsiderblock,        {"blockhash"} },
