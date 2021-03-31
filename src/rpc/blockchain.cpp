@@ -3785,6 +3785,34 @@ static UniValue qrc20allowance(const JSONRPCRequest& request)
     return "";
 }
 
+static UniValue qrc20listtransactions(const JSONRPCRequest& request)
+{
+            RPCHelpMan{"qrc20listtransactions",
+                "\nReturns qrc20 transactions history for a specific address.\n",
+                {
+                    {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address."},
+                    {"addresss", RPCArg::Type::STR, RPCArg::Optional::NO,  "The qtum address to get history for."},
+                    {"startblock", RPCArg::Type::NUM, RPCArg::Optional::NO, "The number of the earliest block."},
+                    {"minconf", RPCArg::Type::NUM, /* default */ "6", "Minimal number of confirmations."},
+                },
+               RPCResult{
+            RPCResult::Type::ARR, "", "",
+                {
+                    {RPCResult::Type::OBJ, "", "",
+                        {
+                            {RPCResult::Type::STR_HEX, "transactionHash", "The transaction hash"},
+                        }
+                    }}
+                },
+                RPCExamples{
+                    HelpExampleCli("qrc20listtransactions", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" 0 10")
+            + HelpExampleRpc("qrc20listtransactions", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" 0 10")
+                },
+            }.Check(request);
+
+    return "";
+}
+
 void RegisterBlockchainRPCCommands(CRPCTable &t)
 {
 // clang-format off
@@ -3826,6 +3854,7 @@ static const CRPCCommand commands[] =
     { "blockchain",         "qrc20decimals",          &qrc20decimals,          {"address"} },
     { "blockchain",         "qrc20balanceof",         &qrc20balanceof,         {"address", "hexaddress", "senderAddress"} },
     { "blockchain",         "qrc20allowance",         &qrc20allowance,         {"address", "addressFrom", "addressTo", "senderAddress"} },
+    { "blockchain",         "qrc20listtransactions",  &qrc20listtransactions,  {"contractaddress", "address", "startblock", "minconf"} },
 
     /* Not shown in help */
     { "hidden",             "invalidateblock",        &invalidateblock,        {"blockhash"} },
