@@ -270,8 +270,14 @@ bool QtumToken::name(std::string &result, bool sendTo)
 
 bool QtumToken::approve(const std::string &_spender, const std::string &_value, bool &success, bool sendTo)
 {
+    std::string spender = _spender;
+    if(!ToHash160(spender, spender))
+    {
+        return false;
+    }
+
     std::vector<std::string> input;
-    input.push_back(_spender);
+    input.push_back(spender);
     input.push_back(_value);
     std::vector<std::string> output;
 
@@ -309,9 +315,20 @@ bool QtumToken::totalSupply(std::string &result, bool sendTo)
 
 bool QtumToken::transferFrom(const std::string &_from, const std::string &_to, const std::string &_value, bool &success, bool sendTo)
 {
+    std::string from = _from;
+    if(!ToHash160(from, from))
+    {
+        return false;
+    }
+    std::string to = _to;
+    if(!ToHash160(to, to))
+    {
+        return false;
+    }
+
     std::vector<std::string> input;
-    input.push_back(_from);
-    input.push_back(_to);
+    input.push_back(from);
+    input.push_back(to);
     input.push_back(_value);
     std::vector<std::string> output;
 
@@ -370,16 +387,17 @@ bool QtumToken::burn(const std::string &_value, bool &success, bool sendTo)
 bool QtumToken::balanceOf(std::string &result, bool sendTo)
 {
     std::string spender = d->lstParams[QtumToken_NS::PARAM_SENDER];
+    return balanceOf(spender, result, sendTo);
+}
+
+bool QtumToken::balanceOf(const std::string &_spender, std::string &result, bool sendTo)
+{
+    std::string spender = _spender;
     if(!ToHash160(spender, spender))
     {
         return false;
     }
 
-    return balanceOf(spender, result, sendTo);
-}
-
-bool QtumToken::balanceOf(const std::string &spender, std::string &result, bool sendTo)
-{
     std::vector<std::string> input;
     input.push_back(spender);
     std::vector<std::string> output;
@@ -400,8 +418,14 @@ bool QtumToken::balanceOf(const std::string &spender, std::string &result, bool 
 
 bool QtumToken::burnFrom(const std::string &_from, const std::string &_value, bool &success, bool sendTo)
 {
+    std::string from = _from;
+    if(!ToHash160(from, from))
+    {
+        return false;
+    }
+
     std::vector<std::string> input;
-    input.push_back(_from);
+    input.push_back(from);
     input.push_back(_value);
     std::vector<std::string> output;
 
@@ -455,8 +479,14 @@ bool QtumToken::transfer(const std::string &_to, const std::string &_value, bool
 
 bool QtumToken::approveAndCall(const std::string &_spender, const std::string &_value, const std::string &_extraData, bool &success, bool sendTo)
 {
+    std::string spender = _spender;
+    if(!ToHash160(spender, spender))
+    {
+        return false;
+    }
+
     std::vector<std::string> input;
-    input.push_back(_spender);
+    input.push_back(spender);
     input.push_back(_value);
     input.push_back(_extraData);
     std::vector<std::string> output;
@@ -477,9 +507,20 @@ bool QtumToken::approveAndCall(const std::string &_spender, const std::string &_
 
 bool QtumToken::allowance(const std::string &_from, const std::string &_to, std::string &result, bool sendTo)
 {
+    std::string from = _from;
+    if(!ToHash160(from, from))
+    {
+        return false;
+    }
+    std::string to = _to;
+    if(!ToHash160(to, to))
+    {
+        return false;
+    }
+
     std::vector<std::string> input;
-    input.push_back(_from);
-    input.push_back(_to);
+    input.push_back(from);
+    input.push_back(to);
     std::vector<std::string> output;
 
     if(!exec(input, d->funcAllowance, output, sendTo))

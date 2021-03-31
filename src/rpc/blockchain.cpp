@@ -3656,7 +3656,6 @@ static UniValue qrc20name(const JSONRPCRequest& request)
                 "\nReturns the name of the qrc20 token\n",
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
-                    {"senderAddress", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "The sender address string"},
                 },
                 RPCResult{
                     RPCResult::Type::STR, "name", "The name of the token"},
@@ -3666,7 +3665,13 @@ static UniValue qrc20name(const JSONRPCRequest& request)
                 },
             }.Check(request);
 
-    return "";
+    CallToken token;
+    token.setAddress(request.params[0].get_str());
+    std::string result;
+    if(!token.name(result))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to get token name");
+
+    return result;
 }
 
 static UniValue qrc20symbol(const JSONRPCRequest& request)
@@ -3675,7 +3680,6 @@ static UniValue qrc20symbol(const JSONRPCRequest& request)
                 "\nReturns the symbol of the qrc20 token\n",
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
-                    {"senderAddress", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "The sender address string"},
                 },
                 RPCResult{
                     RPCResult::Type::STR, "symbol", "The symbol of the token"},
@@ -3685,7 +3689,12 @@ static UniValue qrc20symbol(const JSONRPCRequest& request)
                 },
             }.Check(request);
 
-    return "";
+    CallToken token;
+    token.setAddress(request.params[0].get_str());
+    std::string result;
+    if(!token.symbol(result))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to get symbol");
+    return result;
 }
 
 static UniValue qrc20totalsupply(const JSONRPCRequest& request)
@@ -3713,7 +3722,6 @@ static UniValue qrc20decimals(const JSONRPCRequest& request)
                 "\nReturns the number of decimals of the qrc20 token\n",
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
-                    {"senderAddress", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "The sender address string"},
                 },
                 RPCResult{
                     RPCResult::Type::STR, "decimals", "The number of decimals of the token"},
@@ -3723,7 +3731,12 @@ static UniValue qrc20decimals(const JSONRPCRequest& request)
                 },
             }.Check(request);
 
-    return "";
+    CallToken token;
+    token.setAddress(request.params[0].get_str());
+    std::string result;
+    if(!token.decimals(result))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to get decimals");
+    return result;
 }
 
 static UniValue qrc20balanceof(const JSONRPCRequest& request)
@@ -3802,10 +3815,10 @@ static const CRPCCommand commands[] =
 
     { "blockchain",         "callcontract",           &callcontract,           {"address","data", "senderAddress", "gasLimit", "amount"} },
 
-    { "blockchain",         "qrc20name",              &qrc20name,              {"address", "senderAddress"} },
-    { "blockchain",         "qrc20symbol",            &qrc20symbol,            {"address", "senderAddress"} },
+    { "blockchain",         "qrc20name",              &qrc20name,              {"address"} },
+    { "blockchain",         "qrc20symbol",            &qrc20symbol,            {"address"} },
     { "blockchain",         "qrc20totalsupply",       &qrc20totalsupply,       {"address", "senderAddress"} },
-    { "blockchain",         "qrc20decimals",          &qrc20decimals,          {"address", "senderAddress"} },
+    { "blockchain",         "qrc20decimals",          &qrc20decimals,          {"address"} },
     { "blockchain",         "qrc20balanceof",         &qrc20balanceof,         {"address", "hexaddress", "senderAddress"} },
     { "blockchain",         "qrc20allowance",         &qrc20allowance,         {"address", "addressFrom", "addressTo", "senderAddress"} },
 
