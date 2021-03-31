@@ -364,6 +364,15 @@ bool QtumToken::decimals(std::string &result, bool sendTo)
     return true;
 }
 
+bool QtumToken::decimals(uint32_t &result)
+{
+    std::string str;
+    bool ret = decimals(str);
+    if(ret) ret &= ParseUInt32(str, &result);
+    if(ret) ret &= result <= 77;
+    return ret;
+}
+
 bool QtumToken::burn(const std::string &_value, bool &success, bool sendTo)
 {
     std::vector<std::string> input;

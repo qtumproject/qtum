@@ -67,6 +67,7 @@ public:
     bool totalSupply(std::string& result, bool sendTo = false);
     bool transferFrom(const std::string& _from, const std::string& _to, const std::string& _value, bool& success, bool sendTo = false);
     bool decimals(std::string& result, bool sendTo = false);
+    bool decimals(uint32_t& result);
     bool burn(const std::string& _value, bool& success, bool sendTo = false);
     bool balanceOf(std::string& result, bool sendTo = false);
     bool balanceOf(const std::string& spender, std::string& result, bool sendTo = false);

@@ -3808,7 +3808,7 @@ static UniValue qrc20decimals(const JSONRPCRequest& request)
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
                 },
                 RPCResult{
-                    RPCResult::Type::STR, "decimals", "The number of decimals of the token"},
+                    RPCResult::Type::NUM, "decimals", "The number of decimals of the token"},
                 RPCExamples{
                     HelpExampleCli("qrc20decimals", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
             + HelpExampleRpc("qrc20decimals", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
@@ -3817,10 +3817,10 @@ static UniValue qrc20decimals(const JSONRPCRequest& request)
 
     CallToken token;
     token.setAddress(request.params[0].get_str());
-    std::string result;
+    uint32_t result;
     if(!token.decimals(result))
         throw JSONRPCError(RPC_MISC_ERROR, "Fail to get decimals");
-    return result;
+    return (int)result;
 }
 
 static UniValue qrc20balanceof(const JSONRPCRequest& request)
