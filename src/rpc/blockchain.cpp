@@ -1799,56 +1799,17 @@ private:
 
 };
 
-UniValue searchlogs(const JSONRPCRequest& request)
+UniValue SearchLogs(const UniValue& _params)
 {
-            RPCHelpMan{"searchlogs",
-                "\nSearch logs, requires -logevents to be enabled.\n",
-                {
-                    {"fromBlock", RPCArg::Type::NUM, RPCArg::Optional::NO, "The number of the earliest block (latest may be given to mean the most recent block)."},
-                    {"toBlock", RPCArg::Type::NUM, RPCArg::Optional::NO, "The number of the latest block (-1 may be given to mean the most recent block)."},
-                    {"address", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "An address or a list of addresses to only get logs from particular account(s)."},
-                    {"topics", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "An array of values from which at least one must appear in the log entries. The order is important, if you want to leave topics out use null, e.g. [\"null\", \"0x00...\"]."},
-                    {"minconf", RPCArg::Type::NUM, /* default */ "0", "Minimal number of confirmations before a log is returned"},
-                },
-               RPCResult{
-            RPCResult::Type::ARR, "", "",
-                {
-                    {RPCResult::Type::OBJ, "", "",
-                        {
-                            {RPCResult::Type::STR_HEX, "blockHash", "The block hash"},
-                            {RPCResult::Type::NUM, "blockNumber", "The block number"},
-                            {RPCResult::Type::STR_HEX, "transactionHash", "The transaction hash"},
-                            {RPCResult::Type::NUM, "transactionIndex", "The transaction index"},
-                            {RPCResult::Type::STR, "from", "The from address"},
-                            {RPCResult::Type::STR, "to", "The to address"},
-                            {RPCResult::Type::NUM, "cumulativeGasUsed", "The cumulative gas used"},
-                            {RPCResult::Type::NUM, "gasUsed", "The gas used"},
-                            {RPCResult::Type::STR_HEX, "contractAddress", "The contract address"},
-                            {RPCResult::Type::STR, "excepted", "The thrown exception"},
-                            {RPCResult::Type::ARR, "log", "The logs from the receipt",
-                                {
-                                    {RPCResult::Type::STR, "address", "The contract address"},
-                                    {RPCResult::Type::ARR, "topics", "The topic",
-                                        {{RPCResult::Type::STR_HEX, "topic", "The topic"}}},
-                                    {RPCResult::Type::STR_HEX, "data", "The logged data"},
-                                }},
-                        }}
-                }},
-                RPCExamples{
-                    HelpExampleCli("searchlogs", "0 100 '{\"addresses\": [\"12ae42729af478ca92c8c66773a3e32115717be4\"]}' '{\"topics\": [null,\"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"]}'")
-            + HelpExampleRpc("searchlogs", "0 100 '{\"addresses\": [\"12ae42729af478ca92c8c66773a3e32115717be4\"]} {\"topics\": [null,\"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"]}'")
-                },
-            }.Check(request);
-
     if(!fLogEvents)
         throw JSONRPCError(RPC_INTERNAL_ERROR, "Events indexing disabled");
 
     int curheight = 0;
-    
+
     LOCK(cs_main);
 
-    SearchLogsParams params(request.params);
-    
+    SearchLogsParams params(_params);
+
     std::vector<std::vector<uint256>> hashesToBlock;
 
     curheight = pblocktree->ReadHeightIndex(params.fromBlock, params.toBlock, params.minconf, hashesToBlock, params.addresses);
@@ -1915,6 +1876,50 @@ UniValue searchlogs(const JSONRPCRequest& request)
     }
 
     return result;
+}
+
+UniValue searchlogs(const JSONRPCRequest& request)
+{
+            RPCHelpMan{"searchlogs",
+                "\nSearch logs, requires -logevents to be enabled.\n",
+                {
+                    {"fromBlock", RPCArg::Type::NUM, RPCArg::Optional::NO, "The number of the earliest block (latest may be given to mean the most recent block)."},
+                    {"toBlock", RPCArg::Type::NUM, RPCArg::Optional::NO, "The number of the latest block (-1 may be given to mean the most recent block)."},
+                    {"address", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "An address or a list of addresses to only get logs from particular account(s)."},
+                    {"topics", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "An array of values from which at least one must appear in the log entries. The order is important, if you want to leave topics out use null, e.g. [\"null\", \"0x00...\"]."},
+                    {"minconf", RPCArg::Type::NUM, /* default */ "0", "Minimal number of confirmations before a log is returned"},
+                },
+               RPCResult{
+            RPCResult::Type::ARR, "", "",
+                {
+                    {RPCResult::Type::OBJ, "", "",
+                        {
+                            {RPCResult::Type::STR_HEX, "blockHash", "The block hash"},
+                            {RPCResult::Type::NUM, "blockNumber", "The block number"},
+                            {RPCResult::Type::STR_HEX, "transactionHash", "The transaction hash"},
+                            {RPCResult::Type::NUM, "transactionIndex", "The transaction index"},
+                            {RPCResult::Type::STR, "from", "The from address"},
+                            {RPCResult::Type::STR, "to", "The to address"},
+                            {RPCResult::Type::NUM, "cumulativeGasUsed", "The cumulative gas used"},
+                            {RPCResult::Type::NUM, "gasUsed", "The gas used"},
+                            {RPCResult::Type::STR_HEX, "contractAddress", "The contract address"},
+                            {RPCResult::Type::STR, "excepted", "The thrown exception"},
+                            {RPCResult::Type::ARR, "log", "The logs from the receipt",
+                                {
+                                    {RPCResult::Type::STR, "address", "The contract address"},
+                                    {RPCResult::Type::ARR, "topics", "The topic",
+                                        {{RPCResult::Type::STR_HEX, "topic", "The topic"}}},
+                                    {RPCResult::Type::STR_HEX, "data", "The logged data"},
+                                }},
+                        }}
+                }},
+                RPCExamples{
+                    HelpExampleCli("searchlogs", "0 100 '{\"addresses\": [\"12ae42729af478ca92c8c66773a3e32115717be4\"]}' '{\"topics\": [null,\"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"]}'")
+            + HelpExampleRpc("searchlogs", "0 100 '{\"addresses\": [\"12ae42729af478ca92c8c66773a3e32115717be4\"]} {\"topics\": [null,\"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"]}'")
+                },
+            }.Check(request);
+
+    return SearchLogs(request.params);
 }
 
 UniValue gettransactionreceipt(const JSONRPCRequest& request)
