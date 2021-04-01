@@ -42,6 +42,7 @@
 #include <util/convert.h>
 #include <qtum/qtumdelegation.h>
 #include <qtum/qtumtoken.h>
+#include <util/tokenstr.h>
 
 #include <stdint.h>
 
@@ -3879,7 +3880,7 @@ static UniValue qrc20listtransactions(const JSONRPCRequest& request)
                 {
                     {RPCResult::Type::OBJ, "", "",
                         {
-                            {RPCResult::Type::STR_HEX, "address", "The event address"},
+                            {RPCResult::Type::STR_HEX, "constractaddress", "The contract address"},
                             {RPCResult::Type::STR, "sender", "The qtum address sender"},
                             {RPCResult::Type::STR, "receiver", "The qtum address receiver"},
                             {RPCResult::Type::NUM, "value", "The transferred qrc20 token value"},
@@ -3897,26 +3898,37 @@ static UniValue qrc20listtransactions(const JSONRPCRequest& request)
 
     CallToken token;
     token.setAddress(request.params[0].get_str());
-    token.setSender(request.params[1].get_str());
+    std::string sender = request.params[1].get_str();
+    token.setSender(sender);
     int64_t fromBlock = request.params[2].get_int64();
     std::vector<TokenEvent> result;
 
     if(!token.transferEvents(result, fromBlock))
         throw JSONRPCError(RPC_MISC_ERROR, "Fail to get transaction events");
 
-    UniValue res(UniValue::VARR);
+    uint32_t decimals;
+    if(!token.decimals(decimals))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to get decimals");
 
+    UniValue res(UniValue::VARR);
     for(const auto& event : result){
         UniValue obj(UniValue::VOBJ);
 
-        obj.pushKV("address", event.address);
+        obj.pushKV("constractaddress", event.address);
         obj.pushKV("sender", event.sender);
         obj.pushKV("receiver", event.receiver);
-        obj.pushKV("value", "");
+        dev::s256 v = uintTou256(event.value);
+        dev::s256 value;
+        if(event.sender == event.receiver)
+            value = 0;
+        else if(event.receiver == sender)
+            value = v;
+        else
+            value = -v;
+        obj.pushKV("value", FormatToken(decimals, value));
         obj.pushKV("blockHash", event.blockHash.GetHex());
         obj.pushKV("blockNumber", event.blockNumber);
         obj.pushKV("transactionHash", event.transactionHash.GetHex());
-
         res.push_back(obj);
     }
 

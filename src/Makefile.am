@@ -244,6 +244,7 @@ BITCOIN_CORE_H = \
   util/convert.h \
   util/signstr.h \
   util/contractabi.h \
+  util/tokenstr.h \
   validation.h \
   validationinterface.h \
   versionbits.h \
@@ -830,6 +831,7 @@ libbitcoin_util_a_SOURCES = \
   util/string.cpp \
   util/time.cpp \
   util/url.cpp \
+  util/tokenstr.cpp \
   $(BITCOIN_CORE_H)
 
 if GLIBC_BACK_COMPAT
