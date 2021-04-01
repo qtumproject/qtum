@@ -1,4 +1,4 @@
-// Copyright (c) 2010 Satoshi Nakamoto
+﻿// Copyright (c) 2010 Satoshi Nakamoto
 // Copyright (c) 2009-2019 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -3879,6 +3879,12 @@ static UniValue qrc20listtransactions(const JSONRPCRequest& request)
                 {
                     {RPCResult::Type::OBJ, "", "",
                         {
+                            {RPCResult::Type::STR_HEX, "address", "The event address"},
+                            {RPCResult::Type::STR, "sender", "The qtum address sender"},
+                            {RPCResult::Type::STR, "receiver", "The qtum address receiver"},
+                            {RPCResult::Type::NUM, "value", "The transferred qrc20 token value"},
+                            {RPCResult::Type::STR_HEX, "blockHash", "The block hash"},
+                            {RPCResult::Type::NUM, "blockNumber", "The block number"},
                             {RPCResult::Type::STR_HEX, "transactionHash", "The transaction hash"},
                         }
                     }}
@@ -3894,9 +3900,27 @@ static UniValue qrc20listtransactions(const JSONRPCRequest& request)
     token.setSender(request.params[1].get_str());
     int64_t fromBlock = request.params[2].get_int64();
     std::vector<TokenEvent> result;
+
     if(!token.transferEvents(result, fromBlock))
         throw JSONRPCError(RPC_MISC_ERROR, "Fail to get transaction events");
-    return "";
+
+    UniValue res(UniValue::VARR);
+
+    for(const auto& event : result){
+        UniValue obj(UniValue::VOBJ);
+
+        obj.pushKV("address", event.address);
+        obj.pushKV("sender", event.sender);
+        obj.pushKV("receiver", event.receiver);
+        obj.pushKV("value", "");
+        obj.pushKV("blockHash", event.blockHash.GetHex());
+        obj.pushKV("blockNumber", event.blockNumber);
+        obj.pushKV("transactionHash", event.transactionHash.GetHex());
+
+        res.push_back(obj);
+    }
+
+    return res;
 }
 
 void RegisterBlockchainRPCCommands(CRPCTable &t)
