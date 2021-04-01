@@ -3788,8 +3788,7 @@ static UniValue qrc20totalsupply(const JSONRPCRequest& request)
                 "\nReturns the total supply of the qrc20 token\n",
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
-                    {"senderAddress", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "The sender address string"},
-                },
+                 },
                 RPCResult{
                     RPCResult::Type::STR, "totalSupply", "The total supply of the token"},
                 RPCExamples{
@@ -3798,7 +3797,26 @@ static UniValue qrc20totalsupply(const JSONRPCRequest& request)
                 },
             }.Check(request);
 
-    return "";
+    // Set contract address
+    CallToken token;
+    token.setAddress(request.params[0].get_str());
+
+    // Get total supply
+    std::string result;
+    if(!token.totalSupply(result))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to get total supply");
+
+    // Get decimals
+    uint32_t decimals;
+    if(!token.decimals(decimals))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to get decimals");
+
+    // Check value
+    dev::s256 value(result);
+    if(value < 0)
+        throw JSONRPCError(RPC_MISC_ERROR, "Invalid total supply, vout must be positive");
+
+    return FormatToken(decimals, value);
 }
 
 static UniValue qrc20decimals(const JSONRPCRequest& request)
@@ -3972,7 +3990,7 @@ static const CRPCCommand commands[] =
 
     { "blockchain",         "qrc20name",              &qrc20name,              {"address"} },
     { "blockchain",         "qrc20symbol",            &qrc20symbol,            {"address"} },
-    { "blockchain",         "qrc20totalsupply",       &qrc20totalsupply,       {"address", "senderAddress"} },
+    { "blockchain",         "qrc20totalsupply",       &qrc20totalsupply,       {"address"} },
     { "blockchain",         "qrc20decimals",          &qrc20decimals,          {"address"} },
     { "blockchain",         "qrc20balanceof",         &qrc20balanceof,         {"address", "hexaddress", "senderAddress"} },
     { "blockchain",         "qrc20allowance",         &qrc20allowance,         {"address", "addressFrom", "addressTo", "senderAddress"} },
