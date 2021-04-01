@@ -102,6 +102,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "waitforlogs", 1, "txlimit"},
     { "waitforlogs", 2, "address"},
     { "waitforlogs", 3, "topics"},
+    { "qrc20listtransactions", 2, "fromBlock"},
     //////////////////////////////////////////////////
     { "createmultisig", 0, "nrequired" },
     { "createmultisig", 1, "keys" },

@@ -3871,7 +3871,7 @@ static UniValue qrc20listtransactions(const JSONRPCRequest& request)
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address."},
                     {"addresss", RPCArg::Type::STR, RPCArg::Optional::NO,  "The qtum address to get history for."},
-                    {"startblock", RPCArg::Type::NUM, RPCArg::Optional::NO, "The number of the earliest block."},
+                    {"fromBlock", RPCArg::Type::NUM, RPCArg::Optional::NO, "The number of the earliest block."},
                     {"minconf", RPCArg::Type::NUM, /* default */ "6", "Minimal number of confirmations."},
                 },
                RPCResult{
@@ -3889,6 +3889,13 @@ static UniValue qrc20listtransactions(const JSONRPCRequest& request)
                 },
             }.Check(request);
 
+    CallToken token;
+    token.setAddress(request.params[0].get_str());
+    token.setSender(request.params[1].get_str());
+    int64_t fromBlock = request.params[2].get_int64();
+    std::vector<TokenEvent> result;
+    if(!token.transferEvents(result, fromBlock))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to get transaction events");
     return "";
 }
 
