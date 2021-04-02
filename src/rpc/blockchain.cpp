@@ -3326,18 +3326,37 @@ static UniValue qrc20balanceof(const JSONRPCRequest& request)
                 "\nReturns the qrc20 token balance for address\n",
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
-                    {"hexaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO,  "The raw hex address"},
-                    {"senderAddress", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "The sender address string"},
+                    {"address", RPCArg::Type::STR, RPCArg::Optional::NO,  "The qtum address to check qrc20 token balance"},
                 },
                 RPCResult{
                     RPCResult::Type::STR, "balance", "The token balance of chosen address"},
                 RPCExamples{
-                    HelpExampleCli("qrc20balanceof", "eb23c0b3e6042821da281a2e2364feb22dd543e3 hexaddress")
-            + HelpExampleRpc("qrc20balanceof", "eb23c0b3e6042821da281a2e2364feb22dd543e3 hexaddress")
+                    HelpExampleCli("qrc20balanceof", "eb23c0b3e6042821da281a2e2364feb22dd543e3 QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX")
+            + HelpExampleRpc("qrc20balanceof", "eb23c0b3e6042821da281a2e2364feb22dd543e3 QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX")
                 },
             }.Check(request);
 
-    return "";
+    CallToken token;
+    token.setAddress(request.params[0].get_str());
+    std::string sender = request.params[1].get_str();
+    token.setSender(sender);
+
+    // Get balance of address
+    std::string result;
+    if(!token.balanceOf(result))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to get balance");
+
+    // Get decimals
+    uint32_t decimals;
+    if(!token.decimals(decimals))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to get decimals");
+
+    // Check value
+    dev::s256 value(result);
+    if(value < 0)
+        throw JSONRPCError(RPC_MISC_ERROR, "Invalid balance, vout must be positive");
+
+    return FormatToken(decimals, value);
 }
 
 static UniValue qrc20allowance(const JSONRPCRequest& request)
@@ -3470,7 +3489,7 @@ static const CRPCCommand commands[] =
     { "blockchain",         "qrc20symbol",            &qrc20symbol,            {"address"} },
     { "blockchain",         "qrc20totalsupply",       &qrc20totalsupply,       {"address"} },
     { "blockchain",         "qrc20decimals",          &qrc20decimals,          {"address"} },
-    { "blockchain",         "qrc20balanceof",         &qrc20balanceof,         {"address", "hexaddress", "senderAddress"} },
+    { "blockchain",         "qrc20balanceof",         &qrc20balanceof,         {"contractaddress", "address"} },
     { "blockchain",         "qrc20allowance",         &qrc20allowance,         {"address", "addressFrom", "addressTo", "senderAddress"} },
     { "blockchain",         "qrc20listtransactions",  &qrc20listtransactions,  {"contractaddress", "address", "startblock", "minconf"} },
 
