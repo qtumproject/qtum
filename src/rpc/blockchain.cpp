@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2010 Satoshi Nakamoto
+// Copyright (c) 2010 Satoshi Nakamoto
 // Copyright (c) 2009-2019 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -3292,7 +3292,7 @@ static UniValue qrc20totalsupply(const JSONRPCRequest& request)
     // Check value
     dev::s256 value(result);
     if(value < 0)
-        throw JSONRPCError(RPC_MISC_ERROR, "Invalid total supply, vout must be positive");
+        throw JSONRPCError(RPC_MISC_ERROR, "Invalid total supply, value must be positive");
 
     return FormatToken(decimals, value);
 }
@@ -3362,22 +3362,41 @@ static UniValue qrc20balanceof(const JSONRPCRequest& request)
 static UniValue qrc20allowance(const JSONRPCRequest& request)
 {
             RPCHelpMan{"qrc20allowance",
-                "\nReturns allowance for an address\n",
+                "\nReturns remaining tokens allowed to spent for an address\n",
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
-                    {"addressFrom", RPCArg::Type::STR_HEX, RPCArg::Optional::NO,  "From raw hex address"},
-                    {"addressTo", RPCArg::Type::STR_HEX, RPCArg::Optional::NO,  "To raw hex address"},
-                    {"senderAddress", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "The sender address string"},
+                    {"addressFrom", RPCArg::Type::STR, RPCArg::Optional::NO,  "The qtum address of the account owning tokens"},
+                    {"addressTo", RPCArg::Type::STR, RPCArg::Optional::NO,  "The qtum address of the account able to transfer the tokens"},
                 },
                 RPCResult{
-                    RPCResult::Type::STR, "allowance", "The allowance for an address"},
+                    RPCResult::Type::STR, "allowance", "Amount of remaining tokens allowed to spent"},
                 RPCExamples{
-                    HelpExampleCli("qrc20allowance", "eb23c0b3e6042821da281a2e2364feb22dd543e3 hexaddressfrom hexaddressto")
-            + HelpExampleRpc("qrc20allowance", "eb23c0b3e6042821da281a2e2364feb22dd543e3 hexaddressfrom hexaddressto")
+                    HelpExampleCli("qrc20allowance", "eb23c0b3e6042821da281a2e2364feb22dd543e3 addressfrom addressto")
+            + HelpExampleRpc("qrc20allowance", "eb23c0b3e6042821da281a2e2364feb22dd543e3 addressfrom addressto")
                 },
             }.Check(request);
 
-    return "";
+
+    // Set contract address
+    CallToken token;
+    token.setAddress(request.params[0].get_str());
+
+    // Get total supply
+    std::string result;
+    if(!token.allowance(request.params[1].get_str(), request.params[2].get_str(), result))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to get allowance");
+
+    // Get decimals
+    uint32_t decimals;
+    if(!token.decimals(decimals))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to get decimals");
+
+    // Check value
+    dev::s256 value(result);
+    if(value < 0)
+        throw JSONRPCError(RPC_MISC_ERROR, "Invalid allowance, value must be positive");
+
+    return FormatToken(decimals, value);
 }
 
 static UniValue qrc20listtransactions(const JSONRPCRequest& request)
@@ -3490,7 +3509,7 @@ static const CRPCCommand commands[] =
     { "blockchain",         "qrc20totalsupply",       &qrc20totalsupply,       {"address"} },
     { "blockchain",         "qrc20decimals",          &qrc20decimals,          {"address"} },
     { "blockchain",         "qrc20balanceof",         &qrc20balanceof,         {"contractaddress", "address"} },
-    { "blockchain",         "qrc20allowance",         &qrc20allowance,         {"address", "addressFrom", "addressTo", "senderAddress"} },
+    { "blockchain",         "qrc20allowance",         &qrc20allowance,         {"contractaddress", "addressFrom", "addressTo"} },
     { "blockchain",         "qrc20listtransactions",  &qrc20listtransactions,  {"contractaddress", "address", "startblock", "minconf"} },
 
     /* Not shown in help */
