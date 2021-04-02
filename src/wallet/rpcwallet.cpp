@@ -34,6 +34,7 @@
 #include <qtum/qtumdelegation.h>
 #include <util/signstr.h>
 #include <interfaces/wallet.h>
+#include <rpc/contract_util.h>
 
 #include <stdint.h>
 
@@ -1299,6 +1300,120 @@ UniValue SendToContract(interfaces::Chain::Lock& locked_chain, CWallet* const pw
 
     return result;
 }
+
+/**
+ * @brief The SendToken class Write token data
+ */
+class SendToken : public CallToken
+{
+public:
+    SendToken(interfaces::Chain::Lock& _locked_chain,
+              CWallet* const _pwallet,
+              LegacyScriptPubKeyMan& _spk_man):
+        locked_chain(_locked_chain),
+        pwallet(_pwallet),
+        spk_man(_spk_man)
+    {}
+
+    bool execValid(const int& func, const bool& sendTo)
+    {
+        return sendTo ? func != -1 : CallToken::execValid(func, sendTo);
+    }
+
+    bool exec(const bool& sendTo, const std::map<std::string, std::string>& lstParams, std::string& result, std::string& message)
+    {
+        if(!sendTo)
+            return CallToken::exec(sendTo, lstParams, result, message);
+
+        UniValue params(UniValue::VARR);
+
+        // Set address
+        auto it = lstParams.find(paramAddress());
+        if(it != lstParams.end())
+            params.push_back(it->second);
+        else
+            return false;
+
+        // Set data
+        it = lstParams.find(paramDatahex());
+        if(it != lstParams.end())
+            params.push_back(it->second);
+        else
+            return false;
+
+        // Set amount
+        it = lstParams.find(paramAmount());
+        if(it != lstParams.end())
+        {
+            if(lstParams.size() == 2)
+                params.push_back(it->second);
+            else
+                return false;
+        }
+
+        // Set gas limit
+        it = lstParams.find(paramGasLimit());
+        if(it != lstParams.end())
+        {
+            if(lstParams.size() == 3)
+                params.push_back(it->second);
+            else
+                return false;
+        }
+
+        // Set gas price
+        it = lstParams.find(paramGasPrice());
+        if(it != lstParams.end())
+        {
+            if(lstParams.size() == 4)
+                params.push_back(it->second);
+            else
+                return false;
+        }
+
+        // Set sender
+        it = lstParams.find(paramSender());
+        if(it != lstParams.end())
+        {
+            if(lstParams.size() == 5)
+                params.push_back(it->second);
+            else
+                return false;
+        }
+
+        // Set broadcast
+        it = lstParams.find(paramBroadcast());
+        if(it != lstParams.end())
+        {
+            if(lstParams.size() == 6)
+                params.push_back(it->second);
+            else
+                return false;
+        }
+
+        // Set change to sender
+        it = lstParams.find(paramChangeToSender());
+        if(it != lstParams.end())
+        {
+            if(lstParams.size() == 7)
+                params.push_back(it->second);
+            else
+                return false;
+        }
+
+        // Get execution result
+        UniValue response = SendToContract(locked_chain, pwallet, spk_man, params);
+        if(!response.isObject() || !response.exists("txid"))
+            return false;
+        result = response["txid"].get_str();
+
+        return true;
+    }
+private:
+    interfaces::Chain::Lock& locked_chain;
+    CWallet* const pwallet;
+    LegacyScriptPubKeyMan& spk_man;
+};
 
 static UniValue sendtocontract(const JSONRPCRequest& request){
 
