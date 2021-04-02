@@ -129,10 +129,10 @@ bool Token::exec(const bool &sendTo, const std::map<std::string, std::string> &l
     return true;
 }
 
-bool Token::execEvents(const int64_t &fromBlock, const int64_t &toBlock, const std::string &eventName, const std::string &contractAddress, const std::string &senderAddress, std::vector<TokenEvent> &result)
+bool Token::execEvents(const int64_t &fromBlock, const int64_t &toBlock, const int64_t &minconf, const std::string &eventName, const std::string &contractAddress, const std::string &senderAddress, std::vector<TokenEvent> &result)
 {
     QVariant resultVar;
-    if(!(d->eventLog->searchTokenTx(d->model->node(), d->model, fromBlock, toBlock, contractAddress, senderAddress, resultVar)))
+    if(!(d->eventLog->searchTokenTx(d->model->node(), d->model, fromBlock, toBlock, minconf, contractAddress, senderAddress, resultVar)))
         return false;
 
     QList<QVariant> list = resultVar.toList();

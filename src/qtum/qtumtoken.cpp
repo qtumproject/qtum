@@ -35,7 +35,7 @@ bool QtumTokenExec::exec(const bool &, const std::map<std::string, std::string> 
     return false;
 }
 
-bool QtumTokenExec::execEvents(const int64_t &, const int64_t &, const std::string &, const std::string &, const std::string &, std::vector<TokenEvent> &)
+bool QtumTokenExec::execEvents(const int64_t &, const int64_t &, const int64_t&, const std::string &, const std::string &, const std::string &, std::vector<TokenEvent> &)
 {
     return false;
 }
@@ -546,14 +546,14 @@ bool QtumToken::allowance(const std::string &_from, const std::string &_to, std:
     return true;
 }
 
-bool QtumToken::transferEvents(std::vector<TokenEvent> &tokenEvents, int64_t fromBlock, int64_t toBlock)
+bool QtumToken::transferEvents(std::vector<TokenEvent> &tokenEvents, int64_t fromBlock, int64_t toBlock, int64_t minconf)
 {
-    return execEvents(fromBlock, toBlock, d->evtTransfer, tokenEvents);
+    return execEvents(fromBlock, toBlock, minconf, d->evtTransfer, tokenEvents);
 }
 
-bool QtumToken::burnEvents(std::vector<TokenEvent> &tokenEvents, int64_t fromBlock, int64_t toBlock)
+bool QtumToken::burnEvents(std::vector<TokenEvent> &tokenEvents, int64_t fromBlock, int64_t toBlock, int64_t minconf)
 {
-    return execEvents(fromBlock, toBlock, d->evtBurn, tokenEvents);
+    return execEvents(fromBlock, toBlock, minconf, d->evtBurn, tokenEvents);
 }
 
 bool QtumToken::exec(const std::vector<std::string> &input, int func, std::vector<std::string> &output, bool sendTo)
@@ -632,7 +632,7 @@ void QtumToken::addTokenEvent(std::vector<TokenEvent> &tokenEvents, TokenEvent t
         tokenEvents.push_back(tokenEvent);
 }
 
-bool QtumToken::execEvents(int64_t fromBlock, int64_t toBlock, int func, std::vector<TokenEvent> &tokenEvents)
+bool QtumToken::execEvents(int64_t fromBlock, int64_t toBlock, int64_t minconf, int func, std::vector<TokenEvent> &tokenEvents)
 {
     // Check parameters
     if(d->tokenExec == 0 || !(d->tokenExec->execEventsValid(func, fromBlock)))
@@ -648,7 +648,7 @@ bool QtumToken::execEvents(int64_t fromBlock, int64_t toBlock, int func, std::ve
     std::string senderAddress = d->lstParams[QtumToken_NS::PARAM_SENDER];
     ToHash160(senderAddress, senderAddress);
     senderAddress  = "000000000000000000000000" + senderAddress;
-    if(!(d->tokenExec->execEvents( fromBlock, toBlock, eventName, contractAddress, senderAddress, result)))
+    if(!(d->tokenExec->execEvents(fromBlock, toBlock, minconf, eventName, contractAddress, senderAddress, result)))
         return false;
 
     // Parse the result events

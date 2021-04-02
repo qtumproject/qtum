@@ -36,7 +36,7 @@ public:
     virtual bool execValid(const int& func, const bool& sendTo);
     virtual bool execEventsValid(const int& func, const int64_t& fromBlock);
     virtual bool exec(const bool& sendTo, const std::map<std::string, std::string>& lstParams, std::string& result, std::string& message);
-    virtual bool execEvents(const int64_t& fromBlock, const int64_t& toBlock, const std::string& eventName, const std::string& contractAddress, const std::string& senderAddress, std::vector<TokenEvent> &result);
+    virtual bool execEvents(const int64_t& fromBlock, const int64_t& toBlock, const int64_t& minconf, const std::string& eventName, const std::string& contractAddress, const std::string& senderAddress, std::vector<TokenEvent> &result);
     virtual ~QtumTokenExec();
 };
 
@@ -78,8 +78,8 @@ public:
     bool allowance(const std::string& _from, const std::string& _to, std::string& result, bool sendTo = false);
 
     // ABI Events
-    bool transferEvents(std::vector<TokenEvent>& tokenEvents, int64_t fromBlock = 0, int64_t toBlock = -1);
-    bool burnEvents(std::vector<TokenEvent>& tokenEvents, int64_t fromBlock = 0, int64_t toBlock = -1);
+    bool transferEvents(std::vector<TokenEvent>& tokenEvents, int64_t fromBlock = 0, int64_t toBlock = -1, int64_t minconf = 0);
+    bool burnEvents(std::vector<TokenEvent>& tokenEvents, int64_t fromBlock = 0, int64_t toBlock = -1, int64_t minconf = 0);
 
     // Static functions
     static bool ToHash160(const std::string& strQtumAddress, std::string& strHash160);
@@ -99,7 +99,7 @@ public:
 
 private:
     bool exec(const std::vector<std::string>& input, int func, std::vector<std::string>& output, bool sendTo);
-    bool execEvents(int64_t fromBlock, int64_t toBlock, int func, std::vector<TokenEvent> &tokenEvents);
+    bool execEvents(int64_t fromBlock, int64_t toBlock, int64_t minconf, int func, std::vector<TokenEvent> &tokenEvents);
 
     QtumToken(QtumToken const&);
     QtumToken& operator=(QtumToken const&);

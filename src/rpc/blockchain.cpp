@@ -3228,8 +3228,11 @@ static UniValue qrc20name(const JSONRPCRequest& request)
                 },
             }.Check(request);
 
+    // Set contract address
     CallToken token;
     token.setAddress(request.params[0].get_str());
+
+    // Get name
     std::string result;
     if(!token.name(result))
         throw JSONRPCError(RPC_MISC_ERROR, "Fail to get token name");
@@ -3252,11 +3255,15 @@ static UniValue qrc20symbol(const JSONRPCRequest& request)
                 },
             }.Check(request);
 
+    // Set contract address
     CallToken token;
     token.setAddress(request.params[0].get_str());
+
+    // Get symbol
     std::string result;
     if(!token.symbol(result))
         throw JSONRPCError(RPC_MISC_ERROR, "Fail to get symbol");
+
     return result;
 }
 
@@ -3312,11 +3319,15 @@ static UniValue qrc20decimals(const JSONRPCRequest& request)
                 },
             }.Check(request);
 
+    // Set contract address
     CallToken token;
     token.setAddress(request.params[0].get_str());
     uint32_t result;
+
+    // Get decimals
     if(!token.decimals(result))
         throw JSONRPCError(RPC_MISC_ERROR, "Fail to get decimals");
+
     return (int)result;
 }
 
@@ -3336,6 +3347,7 @@ static UniValue qrc20balanceof(const JSONRPCRequest& request)
                 },
             }.Check(request);
 
+    // Get parameters
     CallToken token;
     token.setAddress(request.params[0].get_str());
     std::string sender = request.params[1].get_str();
@@ -3406,7 +3418,7 @@ static UniValue qrc20listtransactions(const JSONRPCRequest& request)
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address."},
                     {"addresss", RPCArg::Type::STR, RPCArg::Optional::NO,  "The qtum address to get history for."},
-                    {"fromBlock", RPCArg::Type::NUM, RPCArg::Optional::NO, "The number of the earliest block."},
+                    {"fromBlock", RPCArg::Type::NUM, /* default */ "0", "The number of the earliest block."},
                     {"minconf", RPCArg::Type::NUM, /* default */ "6", "Minimal number of confirmations."},
                 },
                RPCResult{
@@ -3414,43 +3426,54 @@ static UniValue qrc20listtransactions(const JSONRPCRequest& request)
                 {
                     {RPCResult::Type::OBJ, "", "",
                         {
-                            {RPCResult::Type::STR_HEX, "constractaddress", "The contract address"},
-                            {RPCResult::Type::STR, "sender", "The qtum address sender"},
                             {RPCResult::Type::STR, "receiver", "The qtum address receiver"},
-                            {RPCResult::Type::NUM, "value", "The transferred qrc20 token value"},
+                            {RPCResult::Type::STR, "sender", "The qtum address sender"},
+                            {RPCResult::Type::STR_AMOUNT, "amount", "The transferred token amount"},
+                            {RPCResult::Type::NUM, "confirmations", "The number of confirmations of the most recent transaction included"},
                             {RPCResult::Type::STR_HEX, "blockHash", "The block hash"},
                             {RPCResult::Type::NUM, "blockNumber", "The block number"},
+                            {RPCResult::Type::NUM_TIME, "blocktime", "The block time expressed in " + UNIX_EPOCH_TIME + "."},
                             {RPCResult::Type::STR_HEX, "transactionHash", "The transaction hash"},
                         }
                     }}
                 },
                 RPCExamples{
-                    HelpExampleCli("qrc20listtransactions", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" 0 10")
-            + HelpExampleRpc("qrc20listtransactions", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" 0 10")
+                    HelpExampleCli("qrc20listtransactions", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" 0 6")
+            + HelpExampleRpc("qrc20listtransactions", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" 0 6")
                 },
             }.Check(request);
 
+    // Get parameters
     CallToken token;
     token.setAddress(request.params[0].get_str());
     std::string sender = request.params[1].get_str();
     token.setSender(sender);
-    int64_t fromBlock = request.params[2].get_int64();
-    std::vector<TokenEvent> result;
+    int64_t fromBlock = 0;
+    int64_t minconf = 6;
+    if(request.params.size() > 2)
+        fromBlock = request.params[2].get_int64();
+    if(request.params.size() > 3)
+        minconf = request.params[3].get_int64();
 
-    if(!token.transferEvents(result, fromBlock))
+    // Get transaction events
+    LOCK(cs_main);
+    std::vector<TokenEvent> result;
+    int64_t toBlock = ::ChainActive().Height();
+    if(!token.transferEvents(result, fromBlock, toBlock, minconf))
         throw JSONRPCError(RPC_MISC_ERROR, "Fail to get transaction events");
 
+    // Get decimals
     uint32_t decimals;
     if(!token.decimals(decimals))
         throw JSONRPCError(RPC_MISC_ERROR, "Fail to get decimals");
 
+    // Create transaction list
     UniValue res(UniValue::VARR);
     for(const auto& event : result){
         UniValue obj(UniValue::VOBJ);
 
-        obj.pushKV("constractaddress", event.address);
-        obj.pushKV("sender", event.sender);
         obj.pushKV("receiver", event.receiver);
+        obj.pushKV("sender", event.sender);
         dev::s256 v = uintTou256(event.value);
         dev::s256 value;
         if(event.sender == event.receiver)
@@ -3459,9 +3482,12 @@ static UniValue qrc20listtransactions(const JSONRPCRequest& request)
             value = v;
         else
             value = -v;
-        obj.pushKV("value", FormatToken(decimals, value));
+        obj.pushKV("amount", FormatToken(decimals, value));
+        int confirms = toBlock - event.blockNumber + 1;
+        obj.pushKV("confirmations", confirms);
         obj.pushKV("blockHash", event.blockHash.GetHex());
         obj.pushKV("blockNumber", event.blockNumber);
+        obj.pushKV("blocktime", ::ChainActive()[event.blockNumber]->GetBlockTime());
         obj.pushKV("transactionHash", event.transactionHash.GetHex());
         res.push_back(obj);
     }

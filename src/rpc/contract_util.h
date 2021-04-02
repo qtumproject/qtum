@@ -38,9 +38,9 @@ public:
 
     bool exec(const bool& sendTo, const std::map<std::string, std::string>& lstParams, std::string& result, std::string&);
 
-    bool execEvents(const int64_t &fromBlock, const int64_t &toBlock, const std::string &eventName, const std::string &contractAddress, const std::string &senderAddress, std::vector<TokenEvent> &result);
+    bool execEvents(const int64_t &fromBlock, const int64_t &toBlock, const int64_t &minconf, const std::string &eventName, const std::string &contractAddress, const std::string &senderAddress, std::vector<TokenEvent> &result);
 
-    bool searchTokenTx(const int64_t &fromBlock, const int64_t &toBlock, const std::string &contractAddress, const std::string &senderAddress, UniValue& resultVar);
+    bool searchTokenTx(const int64_t &fromBlock, const int64_t &toBlock, const int64_t &minconf, const std::string &contractAddress, const std::string &senderAddress, UniValue& resultVar);
 };
 
 #endif // CONTRACT_UTIL_H

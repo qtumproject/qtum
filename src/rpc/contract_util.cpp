@@ -448,10 +448,10 @@ bool CallToken::exec(const bool &sendTo, const std::map<std::string, std::string
     return true;
 }
 
-bool CallToken::execEvents(const int64_t &fromBlock, const int64_t &toBlock, const std::string &eventName, const std::string &contractAddress, const std::string &senderAddress, std::vector<TokenEvent> &result)
+bool CallToken::execEvents(const int64_t &fromBlock, const int64_t &toBlock, const int64_t& minconf, const std::string &eventName, const std::string &contractAddress, const std::string &senderAddress, std::vector<TokenEvent> &result)
 {
     UniValue resultVar;
-    if(!searchTokenTx(fromBlock, toBlock, contractAddress, senderAddress, resultVar))
+    if(!searchTokenTx(fromBlock, toBlock, minconf, contractAddress, senderAddress, resultVar))
         return false;
 
     const UniValue& list = resultVar.get_array();
@@ -490,7 +490,7 @@ bool CallToken::execEvents(const int64_t &fromBlock, const int64_t &toBlock, con
     return true;
 }
 
-bool CallToken::searchTokenTx(const int64_t &fromBlock, const int64_t &toBlock, const std::string &contractAddress, const std::string &senderAddress, UniValue &resultVar)
+bool CallToken::searchTokenTx(const int64_t &fromBlock, const int64_t &toBlock, const int64_t &minconf, const std::string &contractAddress, const std::string &senderAddress, UniValue &resultVar)
 {
     UniValue params(UniValue::VARR);
     params.push_back(fromBlock);
@@ -513,6 +513,8 @@ bool CallToken::searchTokenTx(const int64_t &fromBlock, const int64_t &toBlock, 
     UniValue topicsObj(UniValue::VOBJ);
     topicsObj.pushKV("topics", topics);
     params.push_back(topicsObj);
+
+    params.push_back(minconf);
 
     resultVar = SearchLogs(params);
 
