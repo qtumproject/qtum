@@ -208,6 +208,8 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "qrc20approve", 5, "gasPrice" },
     { "qrc20burn", 3, "gasLimit" },
     { "qrc20burn", 4, "gasPrice" },
+    { "qrc20burnfrom", 4, "gasLimit" },
+    { "qrc20burnfrom", 5, "gasPrice" },
     { "callcontract", 3, "gasLimit" },
     { "callcontract", 4, "amount" },
     { "reservebalance", 0, "reserve"},
