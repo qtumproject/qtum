@@ -204,6 +204,8 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "setdelegateforaddress", 3, "gasLimit" },
     { "setdelegateforaddress", 4, "gasPrice" },
     { "setsuperstakervaluesforaddress", 0, "params" },
+    { "qrc20approve", 4, "gasLimit" },
+    { "qrc20approve", 5, "gasPrice" },
     { "callcontract", 3, "gasLimit" },
     { "callcontract", 4, "amount" },
     { "reservebalance", 0, "reserve"},
