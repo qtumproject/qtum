@@ -6194,14 +6194,14 @@ static UniValue qrc20approve(const JSONRPCRequest& request)
     bool fCheckOutputs = true;
 
             RPCHelpMan{"qrc20approve",
-                "\nOwner approves address to spend some value of tokens.\n",
+                "\nOwner approves an address to spend some amount of tokens.\n",
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address."},
-                    {"owneraddress", RPCArg::Type::STR, RPCArg::Optional::NO, "The qtum tokens owner address."},
-                    {"spenderaddress", RPCArg::Type::STR, RPCArg::Optional::NO,  "The qtum spender address."},
+                    {"owneraddress", RPCArg::Type::STR, RPCArg::Optional::NO, "The token owner qtum address."},
+                    {"spenderaddress", RPCArg::Type::STR, RPCArg::Optional::NO,  "The token spender qtum address."},
                     {"amount", RPCArg::Type::STR, RPCArg::Optional::NO,  "The amount of tokens. eg 0.1"},
-                    {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
-                    {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasPrice Qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
+                    {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The gas limit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
+                    {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
                     {"checkOutputs", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Check outputs before send, default: true"},
                 },
                 RPCResult{
@@ -6211,8 +6211,8 @@ static UniValue qrc20approve(const JSONRPCRequest& request)
                     }
                 },
                 RPCExamples{
-                    HelpExampleCli("qrc20approve", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 6000000 "+FormatMoney(minGasPrice))
-            + HelpExampleRpc("qrc20approve", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 6000000 "+FormatMoney(minGasPrice))
+                    HelpExampleCli("qrc20approve", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice))
+            + HelpExampleRpc("qrc20approve", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice))
                 },
             }.Check(request);
 
@@ -6289,15 +6289,15 @@ static UniValue qrc20approveandcall(const JSONRPCRequest& request)
     bool fCheckOutputs = true;
 
             RPCHelpMan{"qrc20approveandcall",
-                "\nApproves and then calls the receiving contract.\n",
+                "\nAllows the spender to spend some amount of tokens on your behalf, and notify the contract.\n",
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address."},
-                    {"owneraddress", RPCArg::Type::STR, RPCArg::Optional::NO, "The qtum tokens owner address."},
-                    {"spenderaddress", RPCArg::Type::STR, RPCArg::Optional::NO,  "The qtum spender address."},
+                    {"owneraddress", RPCArg::Type::STR, RPCArg::Optional::NO, "The token owner qtum address."},
+                    {"spenderaddress", RPCArg::Type::STR, RPCArg::Optional::NO,  "The token spender qtum address."},
                     {"amount", RPCArg::Type::STR, RPCArg::Optional::NO,  "The amount of tokens. eg 0.1"},
                     {"extradata", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED, "Extra information to send to the approved contract"},
-                    {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
-                    {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasPrice Qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
+                    {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The gas limit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
+                    {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
                     {"checkOutputs", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Check outputs before send, default: true"},
                 },
                 RPCResult{
@@ -6307,8 +6307,10 @@ static UniValue qrc20approveandcall(const JSONRPCRequest& request)
                     }
                 },
                 RPCExamples{
-                    HelpExampleCli("qrc20approveandcall", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"extradata\" 6000000 "+FormatMoney(minGasPrice))
-            + HelpExampleRpc("qrc20approveandcall", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"extradata\" 6000000 "+FormatMoney(minGasPrice))
+                    HelpExampleCli("qrc20approveandcall", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 ")
+            + HelpExampleCli("qrc20approveandcall", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"00\" "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice))
+            + HelpExampleRpc("qrc20approveandcall", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
+            + HelpExampleRpc("qrc20approveandcall", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"00\" "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice))
                 },
             }.Check(request);
 
@@ -6394,11 +6396,11 @@ static UniValue qrc20transfer(const JSONRPCRequest& request)
                 "\nSend token amount to a given address.\n",
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address."},
-                    {"owneraddress", RPCArg::Type::STR, RPCArg::Optional::NO, "The qtum tokens owner address."},
+                    {"owneraddress", RPCArg::Type::STR, RPCArg::Optional::NO, "The token owner qtum address."},
                     {"addressto", RPCArg::Type::STR, RPCArg::Optional::NO,  "The qtum address to send funds to."},
                     {"amount", RPCArg::Type::STR, RPCArg::Optional::NO,  "The amount of tokens to send. eg 0.1"},
-                    {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
-                    {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasPrice Qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
+                    {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The gas limit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
+                    {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
                     {"checkOutputs", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Check outputs before send, default: true"},
                 },
                 RPCResult{
@@ -6408,8 +6410,8 @@ static UniValue qrc20transfer(const JSONRPCRequest& request)
                     }
                 },
                 RPCExamples{
-                    HelpExampleCli("qrc20transfer", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 6000000 "+FormatMoney(minGasPrice))
-            + HelpExampleRpc("qrc20transfer", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 6000000 "+FormatMoney(minGasPrice))
+                    HelpExampleCli("qrc20transfer", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice))
+            + HelpExampleRpc("qrc20transfer", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice))
                 },
             }.Check(request);
 
@@ -6486,15 +6488,15 @@ static UniValue qrc20transferfrom(const JSONRPCRequest& request)
     bool fCheckOutputs = true;
 
             RPCHelpMan{"qrc20transferfrom",
-                "\nSend qrc20 token amount from selected address to a given address.\n",
+                "\nSend token amount from selected address to a given address.\n",
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address."},
-                    {"owneraddress", RPCArg::Type::STR, RPCArg::Optional::NO, "The qtum token owner address."},
-                    {"spenderaddress", RPCArg::Type::STR, RPCArg::Optional::NO,  "The qtum token spender address."},
-                    {"receiveraddress", RPCArg::Type::STR, RPCArg::Optional::NO,  "The qtum token receiver address."},
+                    {"owneraddress", RPCArg::Type::STR, RPCArg::Optional::NO, "The token owner qtum address."},
+                    {"spenderaddress", RPCArg::Type::STR, RPCArg::Optional::NO,  "The token spender qtum address."},
+                    {"receiveraddress", RPCArg::Type::STR, RPCArg::Optional::NO,  "The token receiver qtum address."},
                     {"amount", RPCArg::Type::STR, RPCArg::Optional::NO,  "The amount of token to send. eg 0.1"},
-                    {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
-                    {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasPrice Qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
+                    {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The gas limit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
+                    {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
                     {"checkOutputs", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Check outputs before send, default: true"},
                  },
                 RPCResult{
@@ -6504,8 +6506,8 @@ static UniValue qrc20transferfrom(const JSONRPCRequest& request)
                     }
                 },
                 RPCExamples{
-                    HelpExampleCli("qrc20transferfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 6000000 "+FormatMoney(minGasPrice))
-            + HelpExampleRpc("qrc20transferfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 6000000 "+FormatMoney(minGasPrice))
+                    HelpExampleCli("qrc20transferfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QhZThdumK8EFRX8MziWzvjCdiQWRt7Mxdz\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice))
+            + HelpExampleRpc("qrc20transferfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QhZThdumK8EFRX8MziWzvjCdiQWRt7Mxdz\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice))
                 },
             }.Check(request);
 
@@ -6596,10 +6598,10 @@ static UniValue qrc20burn(const JSONRPCRequest& request)
                 "\nBurns token amount from owner address.\n",
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address."},
-                    {"owneraddress", RPCArg::Type::STR, RPCArg::Optional::NO, "The qtum tokens owner address."},
+                    {"owneraddress", RPCArg::Type::STR, RPCArg::Optional::NO, "The token owner qtum address."},
                     {"amount", RPCArg::Type::STR, RPCArg::Optional::NO,  "The amount of tokens to burn. eg 0.1"},
-                    {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
-                    {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasPrice Qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
+                    {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The gas limit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
+                    {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
                     {"checkOutputs", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Check outputs before send, default: true"},
                 },
                 RPCResult{
@@ -6609,8 +6611,8 @@ static UniValue qrc20burn(const JSONRPCRequest& request)
                     }
                 },
                 RPCExamples{
-                    HelpExampleCli("qrc20burn", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 6000000 "+FormatMoney(minGasPrice))
-            + HelpExampleRpc("qrc20burn", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 6000000 "+FormatMoney(minGasPrice))
+                    HelpExampleCli("qrc20burn", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice))
+            + HelpExampleRpc("qrc20burn", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice))
                 },
             }.Check(request);
 
@@ -6696,14 +6698,14 @@ static UniValue qrc20burnfrom(const JSONRPCRequest& request)
     bool fCheckOutputs = true;
 
             RPCHelpMan{"qrc20burnfrom",
-                "\nBurns qrc20 token amount from a given address.\n",
+                "\nBurns token amount from a given address.\n",
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address."},
-                    {"owneraddress", RPCArg::Type::STR, RPCArg::Optional::NO, "The qtum tokens owner address."},
-                    {"spenderaddress", RPCArg::Type::STR, RPCArg::Optional::NO,  "The qtum spender address."},
+                    {"owneraddress", RPCArg::Type::STR, RPCArg::Optional::NO, "The token owner qtum address."},
+                    {"spenderaddress", RPCArg::Type::STR, RPCArg::Optional::NO,  "The token spender qtum address."},
                     {"amount", RPCArg::Type::STR, RPCArg::Optional::NO,  "The amount of token to burn. eg 0.1"},
-                    {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
-                    {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasPrice Qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
+                    {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The gas limit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
+                    {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
                     {"checkOutputs", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Check outputs before send, default: true"},
                  },
                 RPCResult{
@@ -6713,8 +6715,8 @@ static UniValue qrc20burnfrom(const JSONRPCRequest& request)
                     }
                 },
                 RPCExamples{
-                    HelpExampleCli("qrc20burnfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 6000000 "+FormatMoney(minGasPrice))
-            + HelpExampleRpc("qrc20burnfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 6000000 "+FormatMoney(minGasPrice))
+                    HelpExampleCli("qrc20burnfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice))
+            + HelpExampleRpc("qrc20burnfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice))
                 },
             }.Check(request);
 

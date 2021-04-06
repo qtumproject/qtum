@@ -3216,7 +3216,7 @@ UniValue dumptxoutset(const JSONRPCRequest& request)
 static UniValue qrc20name(const JSONRPCRequest& request)
 {
             RPCHelpMan{"qrc20name",
-                "\nReturns the name of the qrc20 token\n",
+                "\nReturns the name of the token\n",
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
                 },
@@ -3243,7 +3243,7 @@ static UniValue qrc20name(const JSONRPCRequest& request)
 static UniValue qrc20symbol(const JSONRPCRequest& request)
 {
             RPCHelpMan{"qrc20symbol",
-                "\nReturns the symbol of the qrc20 token\n",
+                "\nReturns the symbol of the token\n",
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
                 },
@@ -3270,7 +3270,7 @@ static UniValue qrc20symbol(const JSONRPCRequest& request)
 static UniValue qrc20totalsupply(const JSONRPCRequest& request)
 {
             RPCHelpMan{"qrc20totalsupply",
-                "\nReturns the total supply of the qrc20 token\n",
+                "\nReturns the total supply of the token\n",
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
                  },
@@ -3307,7 +3307,7 @@ static UniValue qrc20totalsupply(const JSONRPCRequest& request)
 static UniValue qrc20decimals(const JSONRPCRequest& request)
 {
             RPCHelpMan{"qrc20decimals",
-                "\nReturns the number of decimals of the qrc20 token\n",
+                "\nReturns the number of decimals of the token\n",
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
                 },
@@ -3334,13 +3334,13 @@ static UniValue qrc20decimals(const JSONRPCRequest& request)
 static UniValue qrc20balanceof(const JSONRPCRequest& request)
 {
             RPCHelpMan{"qrc20balanceof",
-                "\nReturns the qrc20 token balance for address\n",
+                "\nReturns the token balance for address\n",
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
-                    {"address", RPCArg::Type::STR, RPCArg::Optional::NO,  "The qtum address to check qrc20 token balance"},
+                    {"address", RPCArg::Type::STR, RPCArg::Optional::NO,  "The qtum address to check token balance"},
                 },
                 RPCResult{
-                    RPCResult::Type::STR, "balance", "The token balance of chosen address"},
+                    RPCResult::Type::STR, "balance", "The token balance of the chosen address"},
                 RPCExamples{
                     HelpExampleCli("qrc20balanceof", "eb23c0b3e6042821da281a2e2364feb22dd543e3 QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX")
             + HelpExampleRpc("qrc20balanceof", "eb23c0b3e6042821da281a2e2364feb22dd543e3 QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX")
@@ -3374,7 +3374,7 @@ static UniValue qrc20balanceof(const JSONRPCRequest& request)
 static UniValue qrc20allowance(const JSONRPCRequest& request)
 {
             RPCHelpMan{"qrc20allowance",
-                "\nReturns remaining tokens allowed to spent for an address\n",
+                "\nReturns remaining tokens allowed to spend for an address\n",
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
                     {"addressFrom", RPCArg::Type::STR, RPCArg::Optional::NO,  "The qtum address of the account owning tokens"},
@@ -3383,8 +3383,8 @@ static UniValue qrc20allowance(const JSONRPCRequest& request)
                 RPCResult{
                     RPCResult::Type::STR, "allowance", "Amount of remaining tokens allowed to spent"},
                 RPCExamples{
-                    HelpExampleCli("qrc20allowance", "eb23c0b3e6042821da281a2e2364feb22dd543e3 addressfrom addressto")
-            + HelpExampleRpc("qrc20allowance", "eb23c0b3e6042821da281a2e2364feb22dd543e3 addressfrom addressto")
+                    HelpExampleCli("qrc20allowance", "eb23c0b3e6042821da281a2e2364feb22dd543e3 \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\"")
+            + HelpExampleRpc("qrc20allowance", "eb23c0b3e6042821da281a2e2364feb22dd543e3 \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\"")
                 },
             }.Check(request);
 
@@ -3414,7 +3414,7 @@ static UniValue qrc20allowance(const JSONRPCRequest& request)
 static UniValue qrc20listtransactions(const JSONRPCRequest& request)
 {
             RPCHelpMan{"qrc20listtransactions",
-                "\nReturns qrc20 transactions history for a specific address.\n",
+                "\nReturns transactions history for a specific address.\n",
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address."},
                     {"addresss", RPCArg::Type::STR, RPCArg::Optional::NO,  "The qtum address to get history for."},
@@ -3426,8 +3426,8 @@ static UniValue qrc20listtransactions(const JSONRPCRequest& request)
                 {
                     {RPCResult::Type::OBJ, "", "",
                         {
-                            {RPCResult::Type::STR, "receiver", "The qtum address receiver"},
-                            {RPCResult::Type::STR, "sender", "The qtum address sender"},
+                            {RPCResult::Type::STR, "receiver", "The receiver qtum address"},
+                            {RPCResult::Type::STR, "sender", "The sender qtum address"},
                             {RPCResult::Type::STR_AMOUNT, "amount", "The transferred token amount"},
                             {RPCResult::Type::NUM, "confirmations", "The number of confirmations of the most recent transaction included"},
                             {RPCResult::Type::STR_HEX, "blockHash", "The block hash"},
