@@ -206,6 +206,8 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "setsuperstakervaluesforaddress", 0, "params" },
     { "qrc20approve", 4, "gasLimit" },
     { "qrc20approve", 5, "gasPrice" },
+    { "qrc20approveandcall", 5, "gasLimit" },
+    { "qrc20approveandcall", 6, "gasPrice" },
     { "qrc20transferfrom", 5, "gasLimit" },
     { "qrc20transferfrom", 6, "gasPrice" },
     { "qrc20burn", 3, "gasLimit" },
