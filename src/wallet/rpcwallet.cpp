@@ -6191,6 +6191,7 @@ static UniValue qrc20approve(const JSONRPCRequest& request)
     uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(::ChainActive().Height()));
     CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
     uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
+    bool fCheckOutputs = true;
 
             RPCHelpMan{"qrc20approve",
                 "\nOwner approves address to spend some value of tokens.\n",
@@ -6201,6 +6202,7 @@ static UniValue qrc20approve(const JSONRPCRequest& request)
                     {"amount", RPCArg::Type::STR, RPCArg::Optional::NO,  "The amount of tokens. eg 0.1"},
                     {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
                     {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasPrice Qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
+                    {"checkOutputs", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Check outputs before send, default: true"},
                 },
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",
@@ -6230,6 +6232,11 @@ static UniValue qrc20approve(const JSONRPCRequest& request)
         nGasPrice = AmountFromValue(request.params[5]);
     }
 
+    // Get check outputs flag
+    if (request.params.size() > 6){
+        fCheckOutputs = request.params[6].get_bool();
+    }
+
     // Set token parameters
     SendToken token(*locked_chain, pwallet, spk_man);
     token.setAddress(contract);
@@ -6247,9 +6254,13 @@ static UniValue qrc20approve(const JSONRPCRequest& request)
     if(!ParseToken(decimals, tokenAmount, nTokenAmount))
         throw JSONRPCError(RPC_MISC_ERROR, "Fail to get token amount");
 
-    // Approve value to spend
+    // Check approve offline
     std::string value = nTokenAmount.str();
-    bool success;
+    bool success = false;
+    if(fCheckOutputs && (!token.approve(spender, value, success) || !success))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail offline check for approve token amount for spending");
+
+    // Approve value to spend
     if(!token.approve(spender, value, success, true))
         throw JSONRPCError(RPC_MISC_ERROR, "Fail to approve token amount for spending");
 
@@ -6275,6 +6286,7 @@ static UniValue qrc20approveandcall(const JSONRPCRequest& request)
     uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(::ChainActive().Height()));
     CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
     uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
+    bool fCheckOutputs = true;
 
             RPCHelpMan{"qrc20approveandcall",
                 "\nApproves and then calls the receiving contract.\n",
@@ -6286,6 +6298,7 @@ static UniValue qrc20approveandcall(const JSONRPCRequest& request)
                     {"extradata", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED, "Extra information to send to the approved contract"},
                     {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
                     {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasPrice Qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
+                    {"checkOutputs", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Check outputs before send, default: true"},
                 },
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",
@@ -6321,6 +6334,11 @@ static UniValue qrc20approveandcall(const JSONRPCRequest& request)
         nGasPrice = AmountFromValue(request.params[6]);
     }
 
+    // Get check outputs flag
+    if (request.params.size() > 7){
+        fCheckOutputs = request.params[7].get_bool();
+    }
+
     // Set token parameters
     SendToken token(*locked_chain, pwallet, spk_man);
     token.setAddress(contract);
@@ -6338,9 +6356,13 @@ static UniValue qrc20approveandcall(const JSONRPCRequest& request)
     if(!ParseToken(decimals, tokenAmount, nTokenAmount))
         throw JSONRPCError(RPC_MISC_ERROR, "Fail to get token amount");
 
-    // Approve value to spend
+    // Check approve and call offline
     std::string value = nTokenAmount.str();
-    bool success;
+    bool success = false;
+    if(fCheckOutputs && (!token.approveAndCall(spender, value, extradata, success) || !success))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail offline check for spend tokens and notify the contract about it");
+
+    // Approve and call value to spend
     if(!token.approveAndCall(spender, value, extradata, success, true))
         throw JSONRPCError(RPC_MISC_ERROR, "Fail to spend tokens and notify the contract about it");
 
@@ -6366,6 +6388,7 @@ static UniValue qrc20transfer(const JSONRPCRequest& request)
     uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(::ChainActive().Height()));
     CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
     uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
+    bool fCheckOutputs = true;
 
             RPCHelpMan{"qrc20transfer",
                 "\nSend token amount to a given address.\n",
@@ -6376,6 +6399,7 @@ static UniValue qrc20transfer(const JSONRPCRequest& request)
                     {"amount", RPCArg::Type::STR, RPCArg::Optional::NO,  "The amount of tokens to send. eg 0.1"},
                     {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
                     {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasPrice Qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
+                    {"checkOutputs", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Check outputs before send, default: true"},
                 },
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",
@@ -6405,6 +6429,11 @@ static UniValue qrc20transfer(const JSONRPCRequest& request)
         nGasPrice = AmountFromValue(request.params[5]);
     }
 
+    // Get check outputs flag
+    if (request.params.size() > 6){
+        fCheckOutputs = request.params[6].get_bool();
+    }
+
     // Set token parameters
     SendToken token(*locked_chain, pwallet, spk_man);
     token.setAddress(contract);
@@ -6422,9 +6451,13 @@ static UniValue qrc20transfer(const JSONRPCRequest& request)
     if(!ParseToken(decimals, tokenAmount, nTokenAmount))
         throw JSONRPCError(RPC_MISC_ERROR, "Fail to get token amount");
 
-    // Send token
+    // Check transfer offline
     std::string value = nTokenAmount.str();
-    bool success;
+    bool success = false;
+    if(fCheckOutputs && (!token.transfer(address, value, success) || !success))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail offline check for transfer token");
+
+    // Send token
     if(!token.transfer(address, value, success, true))
         throw JSONRPCError(RPC_MISC_ERROR, "Fail to transfer token");
 
@@ -6450,6 +6483,7 @@ static UniValue qrc20transferfrom(const JSONRPCRequest& request)
     uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(::ChainActive().Height()));
     CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
     uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
+    bool fCheckOutputs = true;
 
             RPCHelpMan{"qrc20transferfrom",
                 "\nSend qrc20 token amount from selected address to a given address.\n",
@@ -6461,6 +6495,7 @@ static UniValue qrc20transferfrom(const JSONRPCRequest& request)
                     {"amount", RPCArg::Type::STR, RPCArg::Optional::NO,  "The amount of token to send. eg 0.1"},
                     {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
                     {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasPrice Qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
+                    {"checkOutputs", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Check outputs before send, default: true"},
                  },
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",
@@ -6491,6 +6526,11 @@ static UniValue qrc20transferfrom(const JSONRPCRequest& request)
         nGasPrice = AmountFromValue(request.params[6]);
     }
 
+    // Get check outputs flag
+    if (request.params.size() > 7){
+        fCheckOutputs = request.params[7].get_bool();
+    }
+
     // Set token parameters
     SendToken token(*locked_chain, pwallet, spk_man);
     token.setAddress(contract);
@@ -6518,11 +6558,15 @@ static UniValue qrc20transferfrom(const JSONRPCRequest& request)
     if(allowance < nTokenAmount)
         throw JSONRPCError(RPC_MISC_ERROR, "Not enough token allowance");
 
-    // Transfer allowed token amount
+    // Check transfer from offline
     std::string value = nTokenAmount.str();
-    bool success;
+    bool success = false;
+    if(fCheckOutputs && (!token.transferFrom(owner, receiver, value, success) || !success))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail offline check for spend token amount from address");
+
+    // Transfer allowed token amount
     if(!token.transferFrom(owner, receiver, value, success, true))
-        throw JSONRPCError(RPC_MISC_ERROR, "Fail to spend token amount");
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to spend token amount from address");
 
     UniValue result(UniValue::VOBJ);
     result.pushKV("txid", token.getTxId());
@@ -6546,6 +6590,7 @@ static UniValue qrc20burn(const JSONRPCRequest& request)
     uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(::ChainActive().Height()));
     CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
     uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
+    bool fCheckOutputs = true;
 
             RPCHelpMan{"qrc20burn",
                 "\nBurns token amount from owner address.\n",
@@ -6555,6 +6600,7 @@ static UniValue qrc20burn(const JSONRPCRequest& request)
                     {"amount", RPCArg::Type::STR, RPCArg::Optional::NO,  "The amount of tokens to burn. eg 0.1"},
                     {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
                     {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasPrice Qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
+                    {"checkOutputs", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Check outputs before send, default: true"},
                 },
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",
@@ -6581,6 +6627,11 @@ static UniValue qrc20burn(const JSONRPCRequest& request)
     // Get gas price
     if (request.params.size() > 4){
         nGasPrice = AmountFromValue(request.params[4]);
+    }
+
+    // Get check outputs flag
+    if (request.params.size() > 5){
+        fCheckOutputs = request.params[5].get_bool();
     }
 
     // Set token parameters
@@ -6610,9 +6661,13 @@ static UniValue qrc20burn(const JSONRPCRequest& request)
     if(balance < nTokenAmount)
         throw JSONRPCError(RPC_MISC_ERROR, "Not enough token balance");
 
-    // Burn token amount
+    // Check burn offline
     std::string value = nTokenAmount.str();
-    bool success;
+    bool success = false;
+    if(fCheckOutputs && (!token.burn(value, success) || !success))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail offline check for burn token amount");
+
+    // Burn token amount
     if(!token.burn(value, success, true))
         throw JSONRPCError(RPC_MISC_ERROR, "Fail to burn token amount");
 
@@ -6638,6 +6693,7 @@ static UniValue qrc20burnfrom(const JSONRPCRequest& request)
     uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(::ChainActive().Height()));
     CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
     uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
+    bool fCheckOutputs = true;
 
             RPCHelpMan{"qrc20burnfrom",
                 "\nBurns qrc20 token amount from a given address.\n",
@@ -6648,6 +6704,7 @@ static UniValue qrc20burnfrom(const JSONRPCRequest& request)
                     {"amount", RPCArg::Type::STR, RPCArg::Optional::NO,  "The amount of token to burn. eg 0.1"},
                     {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
                     {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasPrice Qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
+                    {"checkOutputs", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Check outputs before send, default: true"},
                  },
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",
@@ -6677,6 +6734,11 @@ static UniValue qrc20burnfrom(const JSONRPCRequest& request)
         nGasPrice = AmountFromValue(request.params[5]);
     }
 
+    // Get check outputs flag
+    if (request.params.size() > 6){
+        fCheckOutputs = request.params[6].get_bool();
+    }
+
     // Set token parameters
     SendToken token(*locked_chain, pwallet, spk_man);
     token.setAddress(contract);
@@ -6704,11 +6766,15 @@ static UniValue qrc20burnfrom(const JSONRPCRequest& request)
     if(allowance < nTokenAmount)
         throw JSONRPCError(RPC_MISC_ERROR, "Not enough token allowance");
 
-    // Burn token amount
+    // Check burn from offline
     std::string value = nTokenAmount.str();
-    bool success;
+    bool success = false;
+    if(fCheckOutputs && (!token.burnFrom(owner, value, success, false) || !success))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail offline check for burn token amount from address");
+
+    // Burn token amount
     if(!token.burnFrom(owner, value, success, true))
-        throw JSONRPCError(RPC_MISC_ERROR, "Fail to burn token amount");
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to burn token amount from address");
 
     UniValue result(UniValue::VOBJ);
     result.pushKV("txid", token.getTxId());
@@ -6800,12 +6866,12 @@ static const CRPCCommand commands[] =
     { "wallet",             "listsuperstakercustomvalues",             &listsuperstakercustomvalues,          {} },
     { "wallet",             "listsuperstakervaluesforaddress",         &listsuperstakervaluesforaddress,      {"address"} },
     { "wallet",             "removesuperstakervaluesforaddress",       &removesuperstakervaluesforaddress,    {"address"} },
-    { "wallet",             "qrc20approve",                    &qrc20approve,                   {"contractaddress", "owneraddress", "spenderaddress", "amount", "gasLimit", "gasPrice"} },
-    { "wallet",             "qrc20approveandcall",             &qrc20approveandcall,            {"contractaddress", "owneraddress", "spenderaddress", "amount", "extradata", "gasLimit", "gasPrice"} },
-    { "wallet",             "qrc20transfer",                   &qrc20transfer,                  {"contractaddress", "owneraddress", "addressto", "amount", "gasLimit", "gasPrice"} },
-    { "wallet",             "qrc20transferfrom",               &qrc20transferfrom,              {"contractaddress", "owneraddress", "spenderaddress", "receiveraddress", "amount", "gasLimit", "gasPrice"} },
-    { "wallet",             "qrc20burn",                       &qrc20burn,                      {"contractaddress", "owneraddress", "amount", "gasLimit", "gasPrice"} },
-    { "wallet",             "qrc20burnfrom",                   &qrc20burnfrom,                  {"contractaddress", "owneraddress", "spenderaddress", "amount", "gasLimit", "gasPrice"} },
+    { "wallet",             "qrc20approve",                    &qrc20approve,                   {"contractaddress", "owneraddress", "spenderaddress", "amount", "gasLimit", "gasPrice", "checkOutputs"} },
+    { "wallet",             "qrc20approveandcall",             &qrc20approveandcall,            {"contractaddress", "owneraddress", "spenderaddress", "amount", "extradata", "gasLimit", "gasPrice", "checkOutputs"} },
+    { "wallet",             "qrc20transfer",                   &qrc20transfer,                  {"contractaddress", "owneraddress", "addressto", "amount", "gasLimit", "gasPrice", "checkOutputs"} },
+    { "wallet",             "qrc20transferfrom",               &qrc20transferfrom,              {"contractaddress", "owneraddress", "spenderaddress", "receiveraddress", "amount", "gasLimit", "gasPrice", "checkOutputs"} },
+    { "wallet",             "qrc20burn",                       &qrc20burn,                      {"contractaddress", "owneraddress", "amount", "gasLimit", "gasPrice", "checkOutputs"} },
+    { "wallet",             "qrc20burnfrom",                   &qrc20burnfrom,                  {"contractaddress", "owneraddress", "spenderaddress", "amount", "gasLimit", "gasPrice", "checkOutputs"} },
 };
 // clang-format on
 
