@@ -470,7 +470,7 @@ bool QtumToken::symbol(std::string &result, bool sendTo)
     return true;
 }
 
-bool QtumToken::transfer(const std::string &_to, const std::string &_value, bool sendTo)
+bool QtumToken::transfer(const std::string &_to, const std::string &_value, bool& success, bool sendTo)
 {
     std::string to = _to;
     if(!ToHash160(to, to))
@@ -483,7 +483,18 @@ bool QtumToken::transfer(const std::string &_to, const std::string &_value, bool
     input.push_back(_value);
     std::vector<std::string> output;
 
-    return exec(input, d->funcTransfer, output, sendTo);
+    if(!exec(input, d->funcTransfer, output, sendTo))
+        return false;
+
+    if(!sendTo)
+    {
+        if(output.size() == 0)
+            return false;
+        else
+            success = output[0] == "true";
+    }
+
+    return true;
 }
 
 bool QtumToken::approveAndCall(const std::string &_spender, const std::string &_value, const std::string &_extraData, bool &success, bool sendTo)

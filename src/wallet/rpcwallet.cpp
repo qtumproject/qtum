@@ -6203,7 +6203,11 @@ static UniValue qrc20approve(const JSONRPCRequest& request)
                     {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasPrice Qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
                 },
                 RPCResult{
-                    RPCResult::Type::STR_HEX, "txid", "The transaction id"},
+                    RPCResult::Type::OBJ, "", "",
+                    {
+                        {RPCResult::Type::STR_HEX, "txid", "The transaction id"},
+                    }
+                },
                 RPCExamples{
                     HelpExampleCli("qrc20approve", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 6000000 "+FormatMoney(minGasPrice))
             + HelpExampleRpc("qrc20approve", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 6000000 "+FormatMoney(minGasPrice))
@@ -6249,7 +6253,9 @@ static UniValue qrc20approve(const JSONRPCRequest& request)
     if(!token.approve(spender, value, success, true))
         throw JSONRPCError(RPC_MISC_ERROR, "Fail to approve token amount for spending");
 
-    return token.getTxId();
+    UniValue result(UniValue::VOBJ);
+    result.pushKV("txid", token.getTxId());
+    return result;
 }
 
 static UniValue qrc20approveandcall(const JSONRPCRequest& request)
@@ -6282,7 +6288,11 @@ static UniValue qrc20approveandcall(const JSONRPCRequest& request)
                     {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasPrice Qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
                 },
                 RPCResult{
-                    RPCResult::Type::STR_HEX, "txid", "The transaction id"},
+                    RPCResult::Type::OBJ, "", "",
+                    {
+                        {RPCResult::Type::STR_HEX, "txid", "The transaction id"},
+                    }
+                },
                 RPCExamples{
                     HelpExampleCli("qrc20approveandcall", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"extradata\" 6000000 "+FormatMoney(minGasPrice))
             + HelpExampleRpc("qrc20approveandcall", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"extradata\" 6000000 "+FormatMoney(minGasPrice))
@@ -6334,7 +6344,9 @@ static UniValue qrc20approveandcall(const JSONRPCRequest& request)
     if(!token.approveAndCall(spender, value, extradata, success, true))
         throw JSONRPCError(RPC_MISC_ERROR, "Fail to spend tokens and notify the contract about it");
 
-    return token.getTxId();
+    UniValue result(UniValue::VOBJ);
+    result.pushKV("txid", token.getTxId());
+    return result;
 }
 
 static UniValue qrc20transfer(const JSONRPCRequest& request)
@@ -6366,7 +6378,11 @@ static UniValue qrc20transfer(const JSONRPCRequest& request)
                     {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasPrice Qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
                 },
                 RPCResult{
-                    RPCResult::Type::STR_HEX, "txid", "The transaction id"},
+                    RPCResult::Type::OBJ, "", "",
+                    {
+                        {RPCResult::Type::STR_HEX, "txid", "The transaction id"},
+                    }
+                },
                 RPCExamples{
                     HelpExampleCli("qrc20transfer", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 6000000 "+FormatMoney(minGasPrice))
             + HelpExampleRpc("qrc20transfer", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 6000000 "+FormatMoney(minGasPrice))
@@ -6408,10 +6424,13 @@ static UniValue qrc20transfer(const JSONRPCRequest& request)
 
     // Send token
     std::string value = nTokenAmount.str();
-    if(!token.transfer(address, value, true))
+    bool success;
+    if(!token.transfer(address, value, success, true))
         throw JSONRPCError(RPC_MISC_ERROR, "Fail to transfer token");
 
-    return token.getTxId();
+    UniValue result(UniValue::VOBJ);
+    result.pushKV("txid", token.getTxId());
+    return result;
 }
 
 static UniValue qrc20transferfrom(const JSONRPCRequest& request)
@@ -6444,7 +6463,11 @@ static UniValue qrc20transferfrom(const JSONRPCRequest& request)
                     {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasPrice Qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
                  },
                 RPCResult{
-                    RPCResult::Type::STR_HEX, "txid", "The transaction id"},
+                    RPCResult::Type::OBJ, "", "",
+                    {
+                        {RPCResult::Type::STR_HEX, "txid", "The transaction id"},
+                    }
+                },
                 RPCExamples{
                     HelpExampleCli("qrc20transferfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 6000000 "+FormatMoney(minGasPrice))
             + HelpExampleRpc("qrc20transferfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 6000000 "+FormatMoney(minGasPrice))
@@ -6501,7 +6524,9 @@ static UniValue qrc20transferfrom(const JSONRPCRequest& request)
     if(!token.transferFrom(owner, receiver, value, success, true))
         throw JSONRPCError(RPC_MISC_ERROR, "Fail to spend token amount");
 
-    return token.getTxId();
+    UniValue result(UniValue::VOBJ);
+    result.pushKV("txid", token.getTxId());
+    return result;
 }
 
 static UniValue qrc20burn(const JSONRPCRequest& request)
@@ -6532,7 +6557,11 @@ static UniValue qrc20burn(const JSONRPCRequest& request)
                     {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasPrice Qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
                 },
                 RPCResult{
-                    RPCResult::Type::STR_HEX, "txid", "The transaction id"},
+                    RPCResult::Type::OBJ, "", "",
+                    {
+                        {RPCResult::Type::STR_HEX, "txid", "The transaction id"},
+                    }
+                },
                 RPCExamples{
                     HelpExampleCli("qrc20burn", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 6000000 "+FormatMoney(minGasPrice))
             + HelpExampleRpc("qrc20burn", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 6000000 "+FormatMoney(minGasPrice))
@@ -6587,7 +6616,9 @@ static UniValue qrc20burn(const JSONRPCRequest& request)
     if(!token.burn(value, success, true))
         throw JSONRPCError(RPC_MISC_ERROR, "Fail to burn token amount");
 
-    return token.getTxId();
+    UniValue result(UniValue::VOBJ);
+    result.pushKV("txid", token.getTxId());
+    return result;
 }
 
 static UniValue qrc20burnfrom(const JSONRPCRequest& request)
@@ -6619,7 +6650,11 @@ static UniValue qrc20burnfrom(const JSONRPCRequest& request)
                     {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasPrice Qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
                  },
                 RPCResult{
-                    RPCResult::Type::STR_HEX, "txid", "The transaction id"},
+                    RPCResult::Type::OBJ, "", "",
+                    {
+                        {RPCResult::Type::STR_HEX, "txid", "The transaction id"},
+                    }
+                },
                 RPCExamples{
                     HelpExampleCli("qrc20burnfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 6000000 "+FormatMoney(minGasPrice))
             + HelpExampleRpc("qrc20burnfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 6000000 "+FormatMoney(minGasPrice))
@@ -6675,7 +6710,9 @@ static UniValue qrc20burnfrom(const JSONRPCRequest& request)
     if(!token.burnFrom(owner, value, success, true))
         throw JSONRPCError(RPC_MISC_ERROR, "Fail to burn token amount");
 
-    return token.getTxId();
+    UniValue result(UniValue::VOBJ);
+    result.pushKV("txid", token.getTxId());
+    return result;
 }
 
 UniValue abortrescan(const JSONRPCRequest& request); // in rpcdump.cpp

@@ -73,7 +73,7 @@ public:
     bool balanceOf(const std::string& spender, std::string& result, bool sendTo = false);
     bool burnFrom(const std::string& _from, const std::string& _value, bool& success, bool sendTo = false);
     bool symbol(std::string& result, bool sendTo = false);
-    bool transfer(const std::string& _to, const std::string& _value, bool sendTo = false);
+    bool transfer(const std::string& _to, const std::string& _value, bool& success, bool sendTo = false);
     bool approveAndCall(const std::string& _spender, const std::string& _value, const std::string& _extraData, bool& success, bool sendTo = false);
     bool allowance(const std::string& _from, const std::string& _to, std::string& result, bool sendTo = false);
 
