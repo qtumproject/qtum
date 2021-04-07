@@ -3462,7 +3462,9 @@ static UniValue qrc20listtransactions(const JSONRPCRequest& request)
     std::vector<TokenEvent> result;
     int64_t toBlock = ::ChainActive().Height();
     if(!token.transferEvents(result, fromBlock, toBlock, minconf))
-        throw JSONRPCError(RPC_MISC_ERROR, "Fail to get transaction events");
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to get transfer events");
+    if(!token.burnEvents(result, fromBlock, toBlock, minconf))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to get burn events");
 
     // Get decimals
     uint32_t decimals;
