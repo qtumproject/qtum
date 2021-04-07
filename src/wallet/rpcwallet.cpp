@@ -6211,8 +6211,10 @@ static UniValue qrc20approve(const JSONRPCRequest& request)
                     }
                 },
                 RPCExamples{
-                    HelpExampleCli("qrc20approve", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice))
-            + HelpExampleRpc("qrc20approve", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice))
+                    HelpExampleCli("qrc20approve", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
+            + HelpExampleCli("qrc20approve", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice)+" true")
+            + HelpExampleRpc("qrc20approve", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
+            + HelpExampleRpc("qrc20approve", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice)+" true")
                 },
             }.Check(request);
 
@@ -6307,10 +6309,10 @@ static UniValue qrc20approveandcall(const JSONRPCRequest& request)
                     }
                 },
                 RPCExamples{
-                    HelpExampleCli("qrc20approveandcall", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 ")
-            + HelpExampleCli("qrc20approveandcall", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"00\" "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice))
+                    HelpExampleCli("qrc20approveandcall", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
+            + HelpExampleCli("qrc20approveandcall", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"00\" "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice)+" true")
             + HelpExampleRpc("qrc20approveandcall", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
-            + HelpExampleRpc("qrc20approveandcall", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"00\" "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice))
+            + HelpExampleRpc("qrc20approveandcall", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"00\" "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice)+" true")
                 },
             }.Check(request);
 
@@ -6410,8 +6412,10 @@ static UniValue qrc20transfer(const JSONRPCRequest& request)
                     }
                 },
                 RPCExamples{
-                    HelpExampleCli("qrc20transfer", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice))
-            + HelpExampleRpc("qrc20transfer", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice))
+                    HelpExampleCli("qrc20transfer", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
+            + HelpExampleCli("qrc20transfer", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice)+" true")
+            + HelpExampleRpc("qrc20transfer", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
+            + HelpExampleRpc("qrc20transfer", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice)+" true")
                 },
             }.Check(request);
 
@@ -6506,8 +6510,10 @@ static UniValue qrc20transferfrom(const JSONRPCRequest& request)
                     }
                 },
                 RPCExamples{
-                    HelpExampleCli("qrc20transferfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QhZThdumK8EFRX8MziWzvjCdiQWRt7Mxdz\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice))
-            + HelpExampleRpc("qrc20transferfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QhZThdumK8EFRX8MziWzvjCdiQWRt7Mxdz\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice))
+                    HelpExampleCli("qrc20transferfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QhZThdumK8EFRX8MziWzvjCdiQWRt7Mxdz\" 0.1")
+            + HelpExampleCli("qrc20transferfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QhZThdumK8EFRX8MziWzvjCdiQWRt7Mxdz\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice)+" true")
+            + HelpExampleRpc("qrc20transferfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QhZThdumK8EFRX8MziWzvjCdiQWRt7Mxdz\" 0.1")
+            + HelpExampleRpc("qrc20transferfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QhZThdumK8EFRX8MziWzvjCdiQWRt7Mxdz\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice)+" true")
                 },
             }.Check(request);
 
@@ -6611,8 +6617,10 @@ static UniValue qrc20burn(const JSONRPCRequest& request)
                     }
                 },
                 RPCExamples{
-                    HelpExampleCli("qrc20burn", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice))
-            + HelpExampleRpc("qrc20burn", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice))
+                    HelpExampleCli("qrc20burn", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
+            + HelpExampleCli("qrc20burn", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice)+" true")
+            + HelpExampleRpc("qrc20burn", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
+            + HelpExampleRpc("qrc20burn", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice)+" true")
                 },
             }.Check(request);
 
@@ -6715,8 +6723,10 @@ static UniValue qrc20burnfrom(const JSONRPCRequest& request)
                     }
                 },
                 RPCExamples{
-                    HelpExampleCli("qrc20burnfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice))
-            + HelpExampleRpc("qrc20burnfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice))
+                    HelpExampleCli("qrc20burnfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
+            + HelpExampleCli("qrc20burnfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice)+" true")
+            + HelpExampleRpc("qrc20burnfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
+            + HelpExampleRpc("qrc20burnfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice)+" true")
                 },
             }.Check(request);
 

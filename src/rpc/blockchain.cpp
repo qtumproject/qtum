@@ -3223,8 +3223,8 @@ static UniValue qrc20name(const JSONRPCRequest& request)
                 RPCResult{
                     RPCResult::Type::STR, "name", "The name of the token"},
                 RPCExamples{
-                    HelpExampleCli("qrc20name", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
-            + HelpExampleRpc("qrc20name", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
+                    HelpExampleCli("qrc20name", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\"")
+            + HelpExampleRpc("qrc20name", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\"")
                 },
             }.Check(request);
 
@@ -3250,8 +3250,8 @@ static UniValue qrc20symbol(const JSONRPCRequest& request)
                 RPCResult{
                     RPCResult::Type::STR, "symbol", "The symbol of the token"},
                 RPCExamples{
-                    HelpExampleCli("qrc20symbol", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
-            + HelpExampleRpc("qrc20symbol", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
+                    HelpExampleCli("qrc20symbol", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\"")
+            + HelpExampleRpc("qrc20symbol", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\"")
                 },
             }.Check(request);
 
@@ -3273,12 +3273,12 @@ static UniValue qrc20totalsupply(const JSONRPCRequest& request)
                 "\nReturns the total supply of the token\n",
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
-                 },
+                },
                 RPCResult{
                     RPCResult::Type::STR, "totalSupply", "The total supply of the token"},
                 RPCExamples{
-                    HelpExampleCli("qrc20totalsupply", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
-            + HelpExampleRpc("qrc20totalsupply", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
+                    HelpExampleCli("qrc20totalsupply", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\"")
+            + HelpExampleRpc("qrc20totalsupply", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\"")
                 },
             }.Check(request);
 
@@ -3314,8 +3314,8 @@ static UniValue qrc20decimals(const JSONRPCRequest& request)
                 RPCResult{
                     RPCResult::Type::NUM, "decimals", "The number of decimals of the token"},
                 RPCExamples{
-                    HelpExampleCli("qrc20decimals", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
-            + HelpExampleRpc("qrc20decimals", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
+                    HelpExampleCli("qrc20decimals", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\"")
+            + HelpExampleRpc("qrc20decimals", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\"")
                 },
             }.Check(request);
 
@@ -3342,8 +3342,8 @@ static UniValue qrc20balanceof(const JSONRPCRequest& request)
                 RPCResult{
                     RPCResult::Type::STR, "balance", "The token balance of the chosen address"},
                 RPCExamples{
-                    HelpExampleCli("qrc20balanceof", "eb23c0b3e6042821da281a2e2364feb22dd543e3 QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX")
-            + HelpExampleRpc("qrc20balanceof", "eb23c0b3e6042821da281a2e2364feb22dd543e3 QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX")
+                    HelpExampleCli("qrc20balanceof", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\"")
+            + HelpExampleRpc("qrc20balanceof", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\"")
                 },
             }.Check(request);
 
@@ -3383,8 +3383,8 @@ static UniValue qrc20allowance(const JSONRPCRequest& request)
                 RPCResult{
                     RPCResult::Type::STR, "allowance", "Amount of remaining tokens allowed to spent"},
                 RPCExamples{
-                    HelpExampleCli("qrc20allowance", "eb23c0b3e6042821da281a2e2364feb22dd543e3 \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\"")
-            + HelpExampleRpc("qrc20allowance", "eb23c0b3e6042821da281a2e2364feb22dd543e3 \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\"")
+                    HelpExampleCli("qrc20allowance", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\"")
+            + HelpExampleRpc("qrc20allowance", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\"")
                 },
             }.Check(request);
 
@@ -3438,7 +3438,9 @@ static UniValue qrc20listtransactions(const JSONRPCRequest& request)
                     }}
                 },
                 RPCExamples{
-                    HelpExampleCli("qrc20listtransactions", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" 0 6")
+                    HelpExampleCli("qrc20listtransactions", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\"")
+            + HelpExampleCli("qrc20listtransactions", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" 0 6")
+            + HelpExampleRpc("qrc20listtransactions", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\"")
             + HelpExampleRpc("qrc20listtransactions", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" 0 6")
                 },
             }.Check(request);
