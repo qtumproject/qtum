@@ -57,19 +57,24 @@ EventLog::~EventLog()
     }
 }
 
-bool EventLog::searchTokenTx(interfaces::Node& node, const WalletModel* wallet_model, int64_t fromBlock, int64_t toBlock, int64_t minconf, std::string strContractAddress, std::string strSenderAddress, QVariant &result)
+bool EventLog::searchTokenTx(interfaces::Node& node, const WalletModel* wallet_model, int64_t fromBlock, int64_t toBlock, int64_t minconf, std::string eventName, std::string strContractAddress, std::string strSenderAddress, int numTopics, QVariant &result)
 {
     std::vector<std::string> addresses;
     addresses.push_back(strContractAddress);
 
     std::vector<std::string> topics;
-    // Skip the event type check
-    static std::string nullRecord = uint256().ToString();
-    topics.push_back(nullRecord);
-    // Match the log with sender address
-    topics.push_back(strSenderAddress);
-    // Match the log with receiver address
-    topics.push_back(strSenderAddress);
+    // Match the log with event type
+    topics.push_back(eventName);
+    if(numTopics > 1)
+    {
+        // Match the log with sender address
+        topics.push_back(strSenderAddress);
+    }
+    if(numTopics > 2)
+    {
+        // Match the log with receiver address
+        topics.push_back(strSenderAddress);
+    }
 
     return search(node, wallet_model, fromBlock, toBlock, minconf, addresses, topics, result);
 }

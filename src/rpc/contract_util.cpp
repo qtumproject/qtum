@@ -448,10 +448,10 @@ bool CallToken::exec(const bool &sendTo, const std::map<std::string, std::string
     return true;
 }
 
-bool CallToken::execEvents(const int64_t &fromBlock, const int64_t &toBlock, const int64_t& minconf, const std::string &eventName, const std::string &contractAddress, const std::string &senderAddress, std::vector<TokenEvent> &result)
+bool CallToken::execEvents(const int64_t &fromBlock, const int64_t &toBlock, const int64_t& minconf, const std::string &eventName, const std::string &contractAddress, const std::string &senderAddress, const int &numTopics, std::vector<TokenEvent> &result)
 {
     UniValue resultVar;
-    if(!searchTokenTx(fromBlock, toBlock, minconf, contractAddress, senderAddress, resultVar))
+    if(!searchTokenTx(fromBlock, toBlock, minconf, eventName, contractAddress, senderAddress, numTopics, resultVar))
         return false;
 
     const UniValue& list = resultVar.get_array();
@@ -465,16 +465,22 @@ bool CallToken::execEvents(const int64_t &fromBlock, const int64_t &toBlock, con
             // Skip the not needed events
             const UniValue& eventLog = listLog[i].get_obj();
             const UniValue& topicsList = eventLog["topics"].get_array();
-            if(topicsList.size() < 3) continue;
+            if(topicsList.size() < (size_t)numTopics) continue;
             if(topicsList[0].get_str() != eventName) continue;
 
             // Create new event
             TokenEvent tokenEvent;
             tokenEvent.address = eventMap["contractAddress"].get_str();
-            tokenEvent.sender = topicsList[1].get_str().substr(24);
-            ToQtumAddress(tokenEvent.sender, tokenEvent.sender);
-            tokenEvent.receiver = topicsList[2].get_str().substr(24);
-            ToQtumAddress(tokenEvent.receiver, tokenEvent.receiver);
+            if(numTopics > 1)
+            {
+                tokenEvent.sender = topicsList[1].get_str().substr(24);
+                ToQtumAddress(tokenEvent.sender, tokenEvent.sender);
+            }
+            if(numTopics > 2)
+            {
+                tokenEvent.receiver = topicsList[2].get_str().substr(24);
+                ToQtumAddress(tokenEvent.receiver, tokenEvent.receiver);
+            }
             tokenEvent.blockHash = uint256S(eventMap["blockHash"].get_str());
             tokenEvent.blockNumber = eventMap["blockNumber"].get_int64();
             tokenEvent.transactionHash = uint256S(eventMap["transactionHash"].get_str());
@@ -490,7 +496,7 @@ bool CallToken::execEvents(const int64_t &fromBlock, const int64_t &toBlock, con
     return true;
 }
 
-bool CallToken::searchTokenTx(const int64_t &fromBlock, const int64_t &toBlock, const int64_t &minconf, const std::string &contractAddress, const std::string &senderAddress, UniValue &resultVar)
+bool CallToken::searchTokenTx(const int64_t &fromBlock, const int64_t &toBlock, const int64_t &minconf, const std::string &eventName, const std::string &contractAddress, const std::string &senderAddress, const int &numTopics, UniValue &resultVar)
 {
     UniValue params(UniValue::VARR);
     params.push_back(fromBlock);
@@ -503,13 +509,18 @@ bool CallToken::searchTokenTx(const int64_t &fromBlock, const int64_t &toBlock, 
     params.push_back(addressesObj);
 
     UniValue topics(UniValue::VARR);
-    // Skip the event type check
-    static std::string nullRecord = uint256().ToString();
-    topics.push_back(nullRecord);
-    // Match the log with sender address
-    topics.push_back(senderAddress);
-    // Match the log with receiver address
-    topics.push_back(senderAddress);
+    // Match the log with event type
+    topics.push_back(eventName);
+    if(numTopics > 1)
+    {
+        // Match the log with sender address
+        topics.push_back(senderAddress);
+    }
+    if(numTopics > 2)
+    {
+        // Match the log with receiver address
+        topics.push_back(senderAddress);
+    }
     UniValue topicsObj(UniValue::VOBJ);
     topicsObj.pushKV("topics", topics);
     params.push_back(topicsObj);

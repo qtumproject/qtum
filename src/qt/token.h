@@ -20,7 +20,7 @@ public:
     bool execValid(const int& func, const bool& sendTo);
     bool execEventsValid(const int& func, const int64_t& fromBlock);
     bool exec(const bool& sendTo, const std::map<std::string, std::string>& lstParams, std::string& result, std::string& message);
-    bool execEvents(const int64_t& fromBlock, const int64_t& toBlock, const int64_t& minconf, const std::string& eventName, const std::string& contractAddress, const std::string& senderAddress, std::vector<TokenEvent> &result);
+    bool execEvents(const int64_t& fromBlock, const int64_t& toBlock, const int64_t& minconf, const std::string& eventName, const std::string& contractAddress, const std::string& senderAddress, const int& numTopics, std::vector<TokenEvent>& result);
 
 private:
     TokenData* d;

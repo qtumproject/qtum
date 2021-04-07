@@ -129,10 +129,10 @@ bool Token::exec(const bool &sendTo, const std::map<std::string, std::string> &l
     return true;
 }
 
-bool Token::execEvents(const int64_t &fromBlock, const int64_t &toBlock, const int64_t &minconf, const std::string &eventName, const std::string &contractAddress, const std::string &senderAddress, std::vector<TokenEvent> &result)
+bool Token::execEvents(const int64_t &fromBlock, const int64_t &toBlock, const int64_t &minconf, const std::string &eventName, const std::string &contractAddress, const std::string &senderAddress, const int &numTopics, std::vector<TokenEvent> &result)
 {
     QVariant resultVar;
-    if(!(d->eventLog->searchTokenTx(d->model->node(), d->model, fromBlock, toBlock, minconf, contractAddress, senderAddress, resultVar)))
+    if(!(d->eventLog->searchTokenTx(d->model->node(), d->model, fromBlock, toBlock, minconf, eventName, contractAddress, senderAddress, numTopics, resultVar)))
         return false;
 
     QList<QVariant> list = resultVar.toList();
@@ -146,16 +146,22 @@ bool Token::execEvents(const int64_t &fromBlock, const int64_t &toBlock, const i
             // Skip the not needed events
             QVariantMap variantLog = listLog[i].toMap();
             QList<QVariant> topicsList = variantLog.value("topics").toList();
-            if(topicsList.count() < 3) continue;
+            if(topicsList.count() < numTopics) continue;
             if(topicsList[0].toString().toStdString() != eventName) continue;
 
             // Create new event
             TokenEvent tokenEvent;
             tokenEvent.address = variantMap.value("contractAddress").toString().toStdString();
-            tokenEvent.sender = topicsList[1].toString().toStdString().substr(24);
-            Token::ToQtumAddress(tokenEvent.sender, tokenEvent.sender);
-            tokenEvent.receiver = topicsList[2].toString().toStdString().substr(24);
-            Token::ToQtumAddress(tokenEvent.receiver, tokenEvent.receiver);
+            if(numTopics > 1)
+            {
+                tokenEvent.sender = topicsList[1].toString().toStdString().substr(24);
+                Token::ToQtumAddress(tokenEvent.sender, tokenEvent.sender);
+            }
+            if(numTopics > 2)
+            {
+                tokenEvent.receiver = topicsList[2].toString().toStdString().substr(24);
+                Token::ToQtumAddress(tokenEvent.receiver, tokenEvent.receiver);
+            }
             tokenEvent.blockHash = uint256S(variantMap.value("blockHash").toString().toStdString());
             tokenEvent.blockNumber = variantMap.value("blockNumber").toLongLong();
             tokenEvent.transactionHash = uint256S(variantMap.value("transactionHash").toString().toStdString());

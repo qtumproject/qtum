@@ -830,3 +830,12 @@ ParameterType::Type ParameterType::type() const
 {
     return m_type;
 }
+
+int FunctionABI::numIndexed() const
+{
+    int ret = 0;
+    for(const ParameterABI& param : inputs)
+        if(param.indexed)
+            ret++;
+    return ret;
+}

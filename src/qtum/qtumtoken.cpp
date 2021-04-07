@@ -35,7 +35,7 @@ bool QtumTokenExec::exec(const bool &, const std::map<std::string, std::string> 
     return false;
 }
 
-bool QtumTokenExec::execEvents(const int64_t &, const int64_t &, const int64_t&, const std::string &, const std::string &, const std::string &, std::vector<TokenEvent> &)
+bool QtumTokenExec::execEvents(const int64_t &, const int64_t &, const int64_t&, const std::string &, const std::string &, const std::string &, const int &, std::vector<TokenEvent> &)
 {
     return false;
 }
@@ -659,7 +659,8 @@ bool QtumToken::execEvents(int64_t fromBlock, int64_t toBlock, int64_t minconf, 
     std::string senderAddress = d->lstParams[QtumToken_NS::PARAM_SENDER];
     ToHash160(senderAddress, senderAddress);
     senderAddress  = "000000000000000000000000" + senderAddress;
-    if(!(d->tokenExec->execEvents(fromBlock, toBlock, minconf, eventName, contractAddress, senderAddress, result)))
+    int numTopics = function.numIndexed() + 1;
+    if(!(d->tokenExec->execEvents(fromBlock, toBlock, minconf, eventName, contractAddress, senderAddress, numTopics, result)))
         return false;
 
     // Parse the result events
