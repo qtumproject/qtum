@@ -6457,6 +6457,16 @@ static UniValue qrc20transfer(const JSONRPCRequest& request)
     if(!ParseToken(decimals, tokenAmount, nTokenAmount))
         throw JSONRPCError(RPC_MISC_ERROR, "Fail to get token amount");
 
+    // Get token owner balance
+    std::string strBalance;
+    if(!token.balanceOf(strBalance))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to get balance");
+
+    // Check if balance is enough to cover it
+    dev::s256 balance(strBalance);
+    if(balance < nTokenAmount)
+        throw JSONRPCError(RPC_MISC_ERROR, "Not enough token balance");
+
     // Check transfer offline
     std::string value = nTokenAmount.str();
     bool success = false;
