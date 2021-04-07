@@ -116,6 +116,7 @@ struct WitnessV0KeyHash : public uint160
 {
     WitnessV0KeyHash() : uint160() {}
     explicit WitnessV0KeyHash(const uint160& hash) : uint160(hash) {}
+    explicit WitnessV0KeyHash(const CPubKey& pubkey);
     using uint160::uint160;
 };
 

@@ -3493,7 +3493,7 @@ bool CWallet::CreateCoinStakeFromMine(interfaces::Chain::Lock& locked_chain, con
                 break;
             }
             LogPrint(BCLog::COINSTAKE, "CreateCoinStake : parsed kernel type=%d\n", whichType);
-            if (whichType != TX_PUBKEY && whichType != TX_PUBKEYHASH)
+            if (whichType != TX_PUBKEY && whichType != TX_PUBKEYHASH && whichType != TX_WITNESS_V0_KEYHASH)
             {
                 LogPrint(BCLog::COINSTAKE, "CreateCoinStake : no support for kernel type=%d\n", whichType);
                 break;  // only support pay to public key and pay to address
@@ -3532,7 +3532,25 @@ bool CWallet::CreateCoinStakeFromMine(interfaces::Chain::Lock& locked_chain, con
                 scriptPubKeyOut = scriptPubKeyKernel;
                 aggregateScriptPubKeyHashKernel = CScript() << OP_DUP << OP_HASH160 << ToByteVector(hash160) << OP_EQUALVERIFY << OP_CHECKSIG;
             }
+            if (whichType == TX_WITNESS_V0_KEYHASH)
+            {
+				CTxDestination dest;
+				if(!ExtractDestination(scriptPubKeyKernel, dest))
+					return false;
 
+				auto keyid = GetKeyForDestination(keystore, dest);
+				if (keyid.IsNull()) {
+					LogPrint(BCLog::COINSTAKE, "Address does not refer to a key");
+					break;
+				}
+
+				if (!keystore.GetKey(keyid, key))
+				{
+					LogPrint(BCLog::COINSTAKE, "CreateCoinStake : failed to get key for kernel type=%d\n", GetTxnOutputType(whichType));
+					break;  // unable to find corresponding public key
+				}
+				scriptPubKeyOut << ToByteVector(key.GetPubKey()) << OP_CHECKSIG;            
+            }
             txNew.vin.push_back(CTxIn(pcoin.first->GetHash(), pcoin.second));
             nCredit += pcoin.first->tx->vout[pcoin.second].nValue;
             vwtxPrev.push_back(pcoin);

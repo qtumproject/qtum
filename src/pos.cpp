@@ -294,15 +294,15 @@ bool CheckBlockInputPubKeyMatchesOutputPubKey(const CBlock& block, CCoinsViewCac
         return true;
     }
 
-    // If the input does not exactly match the output, it MUST be on P2PKH spent and P2PK out.
+    // If the input does not exactly match the output, it MUST be on P2PKH spent and P2PK out or a P2WPKH spent and P2PK out
     CTxDestination inputAddress;
     txnouttype inputTxType=TX_NONSTANDARD;
     if(!ExtractDestination(coinIn.out.scriptPubKey, inputAddress, &inputTxType)) {
         return error("%s: Could not extract address from input", __func__);
     }
 
-    if(inputTxType != TX_PUBKEYHASH || inputAddress.type() != typeid(PKHash)) {
-        return error("%s: non-exact match input must be P2PKH", __func__);
+    if(inputTxType != TX_PUBKEYHASH || inputAddress.type() != typeid(PKHash) || inputTxType != TX_WITNESS_V0_KEYHASH || inputAddress.type() != typeid(WitnessV0KeyHash)) {
+        return error("%s: non-exact match input must be P2PKH or P2WPKH", __func__);
     }
 
     CTxDestination outputAddress;
@@ -315,8 +315,12 @@ bool CheckBlockInputPubKeyMatchesOutputPubKey(const CBlock& block, CCoinsViewCac
         return error("%s: non-exact match output must be P2PK", __func__);
     }
 
-    if(boost::get<PKHash>(inputAddress) != boost::get<PKHash>(outputAddress)) {
+    if(inputTxType == TX_PUBKEYHASH  && boost::get<PKHash>(inputAddress) != boost::get<PKHash>(outputAddress)) {
         return error("%s: input P2PKH pubkey does not match output P2PK pubkey", __func__);
+    }
+
+    if(inputTxType == TX_WITNESS_V0_KEYHASH  && boost::get<WitnessV0KeyHash>(inputAddress) != boost::get<WitnessV0KeyHash>(outputAddress)) {
+        return error("%s: input P2WPKH pubkey does not match output P2PK pubkey", __func__);
     }
 
     return true;
@@ -370,6 +374,11 @@ bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBloc
                         return true;
                     }
                 }
+                if ((txType == TX_WITNESS_V0_KEYHASH) && address.type() == typeid(WitnessV0KeyHash)) {
+                    if(WitnessV0KeyHash(pubkey) == boost::get<WitnessV0KeyHash>(address)) {
+                        return true;
+                    }
+                }
             }
         }
     }
@@ -390,6 +399,11 @@ bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBloc
                             return true;
                         }
                     }
+					if ((txType == TX_WITNESS_V0_KEYHASH) && address.type() == typeid(WitnessV0KeyHash)) {
+						if(WitnessV0KeyHash(pubkey) == boost::get<WitnessV0KeyHash>(address)) {
+							return true;
+						}
+					}
                 }
             }
         }
