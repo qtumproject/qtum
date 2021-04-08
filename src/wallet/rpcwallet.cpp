@@ -6259,8 +6259,12 @@ static UniValue qrc20approve(const JSONRPCRequest& request)
     // Check approve offline
     std::string value = nTokenAmount.str();
     bool success = false;
-    if(fCheckOutputs && (!token.approve(spender, value, success) || !success))
-        throw JSONRPCError(RPC_MISC_ERROR, "Fail offline check for approve token amount for spending");
+    if(fCheckOutputs)
+    {
+        token.setCheckGasForCall(true);
+        if(!token.approve(spender, value, success) || !success)
+            throw JSONRPCError(RPC_MISC_ERROR, "Fail offline check for approve token amount for spending");
+    }
 
     // Approve value to spend
     if(!token.approve(spender, value, success, true))
@@ -6366,8 +6370,12 @@ static UniValue qrc20transfer(const JSONRPCRequest& request)
     // Check transfer offline
     std::string value = nTokenAmount.str();
     bool success = false;
-    if(fCheckOutputs && (!token.transfer(address, value, success) || !success))
-        throw JSONRPCError(RPC_MISC_ERROR, "Fail offline check for transfer token");
+    if(fCheckOutputs)
+    {
+        token.setCheckGasForCall(true);
+        if(!token.transfer(address, value, success) || !success)
+            throw JSONRPCError(RPC_MISC_ERROR, "Fail offline check for transfer token");
+    }
 
     // Send token
     if(!token.transfer(address, value, success, true))
@@ -6475,8 +6483,12 @@ static UniValue qrc20transferfrom(const JSONRPCRequest& request)
     // Check transfer from offline
     std::string value = nTokenAmount.str();
     bool success = false;
-    if(fCheckOutputs && (!token.transferFrom(owner, receiver, value, success) || !success))
-        throw JSONRPCError(RPC_MISC_ERROR, "Fail offline check for spend token amount from address");
+    if(fCheckOutputs)
+    {
+        token.setCheckGasForCall(true);
+        if(!token.transferFrom(owner, receiver, value, success) || !success)
+            throw JSONRPCError(RPC_MISC_ERROR, "Fail offline check for spend token amount from address");
+    }
 
     // Transfer allowed token amount
     if(!token.transferFrom(owner, receiver, value, success, true))
@@ -6580,8 +6592,12 @@ static UniValue qrc20burn(const JSONRPCRequest& request)
     // Check burn offline
     std::string value = nTokenAmount.str();
     bool success = false;
-    if(fCheckOutputs && (!token.burn(value, success) || !success))
-        throw JSONRPCError(RPC_MISC_ERROR, "Fail offline check for burn token amount");
+    if(fCheckOutputs)
+    {
+        token.setCheckGasForCall(true);
+        if(!token.burn(value, success) || !success)
+            throw JSONRPCError(RPC_MISC_ERROR, "Fail offline check for burn token amount");
+    }
 
     // Burn token amount
     if(!token.burn(value, success, true))
@@ -6687,8 +6703,12 @@ static UniValue qrc20burnfrom(const JSONRPCRequest& request)
     // Check burn from offline
     std::string value = nTokenAmount.str();
     bool success = false;
-    if(fCheckOutputs && (!token.burnFrom(owner, value, success, false) || !success))
-        throw JSONRPCError(RPC_MISC_ERROR, "Fail offline check for burn token amount from address");
+    if(fCheckOutputs)
+    {
+        token.setCheckGasForCall(true);
+        if(!token.burnFrom(owner, value, success, false) || !success)
+            throw JSONRPCError(RPC_MISC_ERROR, "Fail offline check for burn token amount from address");
+    }
 
     // Burn token amount
     if(!token.burnFrom(owner, value, success, true))

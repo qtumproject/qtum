@@ -41,6 +41,11 @@ public:
     bool execEvents(const int64_t &fromBlock, const int64_t &toBlock, const int64_t &minconf, const std::string &eventName, const std::string &contractAddress, const std::string &senderAddress, const int &numTopics, std::vector<TokenEvent> &result);
 
     bool searchTokenTx(const int64_t &fromBlock, const int64_t &toBlock, const int64_t &minconf, const std::string &eventName, const std::string &contractAddress, const std::string &senderAddress, const int &numTopics, UniValue& resultVar);
+
+    void setCheckGasForCall(bool value);
+
+private:
+    bool checkGasForCall = false;
 };
 
 #endif // CONTRACT_UTIL_H

@@ -431,7 +431,29 @@ bool CallToken::exec(const bool &sendTo, const std::map<std::string, std::string
     // Set sender
     it = lstParams.find(paramSender());
     if(it != lstParams.end())
-        params.push_back(it->second);
+    {
+        if(params.size() == 2)
+            params.push_back(it->second);
+        else
+            return false;
+    }
+
+    // Set gas limit
+    if(checkGasForCall)
+    {
+        it = lstParams.find(paramGasLimit());
+        if(it != lstParams.end())
+        {
+            if(params.size() == 3)
+            {
+                UniValue param(UniValue::VNUM);
+                param.setInt(atoi64(it->second));
+                params.push_back(param);
+            }
+            else
+                return false;
+        }
+    }
 
     // Get execution result
     UniValue response = CallToContract(params);
@@ -530,4 +552,9 @@ bool CallToken::searchTokenTx(const int64_t &fromBlock, const int64_t &toBlock, 
     resultVar = SearchLogs(params);
 
     return true;
+}
+
+void CallToken::setCheckGasForCall(bool value)
+{
+    checkGasForCall = value;
 }
