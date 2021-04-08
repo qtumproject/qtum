@@ -6271,110 +6271,6 @@ static UniValue qrc20approve(const JSONRPCRequest& request)
     return result;
 }
 
-static UniValue qrc20approveandcall(const JSONRPCRequest& request)
-{
-    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
-    CWallet* const pwallet = wallet.get();
-
-    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
-        return NullUniValue;
-    }
-
-    LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
-    auto locked_chain = pwallet->chain().lock();
-    LOCK2(pwallet->cs_wallet, spk_man.cs_KeyStore);
-    QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
-    uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(::ChainActive().Height());
-    uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(::ChainActive().Height()));
-    CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
-    uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
-    bool fCheckOutputs = true;
-
-            RPCHelpMan{"qrc20approveandcall",
-                "\nAllows the spender to spend some amount of tokens on your behalf, and notify the contract.\n",
-                {
-                    {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address."},
-                    {"owneraddress", RPCArg::Type::STR, RPCArg::Optional::NO, "The token owner qtum address."},
-                    {"spenderaddress", RPCArg::Type::STR, RPCArg::Optional::NO,  "The token spender qtum address."},
-                    {"amount", RPCArg::Type::STR, RPCArg::Optional::NO,  "The amount of tokens. eg 0.1"},
-                    {"extradata", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED, "Extra information to send to the approved contract"},
-                    {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The gas limit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
-                    {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
-                    {"checkOutputs", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Check outputs before send, default: true"},
-                },
-                RPCResult{
-                    RPCResult::Type::OBJ, "", "",
-                    {
-                        {RPCResult::Type::STR_HEX, "txid", "The transaction id"},
-                    }
-                },
-                RPCExamples{
-                    HelpExampleCli("qrc20approveandcall", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
-            + HelpExampleCli("qrc20approveandcall", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"00\" "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice)+" true")
-            + HelpExampleRpc("qrc20approveandcall", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
-            + HelpExampleRpc("qrc20approveandcall", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"00\" "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice)+" true")
-                },
-            }.Check(request);
-
-    // Get mandatory parameters
-    std::string contract = request.params[0].get_str();
-    std::string owner = request.params[1].get_str();
-    std::string spender = request.params[2].get_str();
-    std::string tokenAmount = request.params[3].get_str();
-
-    // Get extra data
-    std::string extradata;
-    if (request.params.size() > 4){
-        extradata = request.params[4].get_str();
-    }
-
-    // Get gas limit
-    if (request.params.size() > 5){
-        nGasLimit = request.params[5].get_int64();
-    }
-
-    // Get gas price
-    if (request.params.size() > 6){
-        nGasPrice = AmountFromValue(request.params[6]);
-    }
-
-    // Get check outputs flag
-    if (request.params.size() > 7){
-        fCheckOutputs = request.params[7].get_bool();
-    }
-
-    // Set token parameters
-    SendToken token(*locked_chain, pwallet, spk_man);
-    token.setAddress(contract);
-    token.setSender(owner);
-    token.setGasLimit(i64tostr(nGasLimit));
-    token.setGasPrice(FormatMoney(nGasPrice));
-
-    // Get decimals
-    uint32_t decimals;
-    if(!token.decimals(decimals))
-        throw JSONRPCError(RPC_MISC_ERROR, "Fail to get decimals");
-
-    // Get token amount to approve
-    dev::s256 nTokenAmount;
-    if(!ParseToken(decimals, tokenAmount, nTokenAmount))
-        throw JSONRPCError(RPC_MISC_ERROR, "Fail to get token amount");
-
-    // Check approve and call offline
-    std::string value = nTokenAmount.str();
-    bool success = false;
-    if(fCheckOutputs && (!token.approveAndCall(spender, value, extradata, success) || !success))
-        throw JSONRPCError(RPC_MISC_ERROR, "Fail offline check for spend tokens and notify the contract about it");
-
-    // Approve and call value to spend
-    if(!token.approveAndCall(spender, value, extradata, success, true))
-        throw JSONRPCError(RPC_MISC_ERROR, "Fail to spend tokens and notify the contract about it");
-
-    UniValue result(UniValue::VOBJ);
-    result.pushKV("txid", token.getTxId());
-    return result;
-}
-
 static UniValue qrc20transfer(const JSONRPCRequest& request)
 {
     std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
@@ -6889,7 +6785,6 @@ static const CRPCCommand commands[] =
     { "wallet",             "listsuperstakervaluesforaddress",         &listsuperstakervaluesforaddress,      {"address"} },
     { "wallet",             "removesuperstakervaluesforaddress",       &removesuperstakervaluesforaddress,    {"address"} },
     { "wallet",             "qrc20approve",                    &qrc20approve,                   {"contractaddress", "owneraddress", "spenderaddress", "amount", "gasLimit", "gasPrice", "checkOutputs"} },
-    { "wallet",             "qrc20approveandcall",             &qrc20approveandcall,            {"contractaddress", "owneraddress", "spenderaddress", "amount", "extradata", "gasLimit", "gasPrice", "checkOutputs"} },
     { "wallet",             "qrc20transfer",                   &qrc20transfer,                  {"contractaddress", "owneraddress", "addressto", "amount", "gasLimit", "gasPrice", "checkOutputs"} },
     { "wallet",             "qrc20transferfrom",               &qrc20transferfrom,              {"contractaddress", "owneraddress", "spenderaddress", "receiveraddress", "amount", "gasLimit", "gasPrice", "checkOutputs"} },
     { "wallet",             "qrc20burn",                       &qrc20burn,                      {"contractaddress", "owneraddress", "amount", "gasLimit", "gasPrice", "checkOutputs"} },
