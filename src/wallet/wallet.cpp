@@ -555,7 +555,7 @@ void CWallet::RemoveFromSpends(const uint256& wtxid)
 {
     assert(mapWallet.count(wtxid));
     CWalletTx& thisTx = mapWallet.at(wtxid);
-	if (thisTx.IsCoinBase()) // Coinbases don't spend anything!
+    if (thisTx.IsCoinBase()) // Coinbases don't spend anything!
         return;
 
     for(const CTxIn& txin : thisTx.tx->vin)
@@ -2899,9 +2899,9 @@ bool CWallet::CreateTransaction(interfaces::Chain::Lock& locked_chain, const std
     unsigned int nSubtractFeeFromAmount = 0;
     COutPoint senderInput;
     if(hasSender && coin_control.HasSelected()){
-    	std::vector<COutPoint> vSenderInputs;
-    	coin_control.ListSelected(vSenderInputs);
-    	senderInput=vSenderInputs[0];
+        std::vector<COutPoint> vSenderInputs;
+        coin_control.ListSelected(vSenderInputs);
+        senderInput=vSenderInputs[0];
     }
     for (const auto& recipient : vecSend)
     {
@@ -3534,22 +3534,22 @@ bool CWallet::CreateCoinStakeFromMine(interfaces::Chain::Lock& locked_chain, con
             }
             if (whichType == TX_WITNESS_V0_KEYHASH)
             {
-				CTxDestination dest;
-				if(!ExtractDestination(scriptPubKeyKernel, dest))
-					return false;
+                CTxDestination dest;
+                if(!ExtractDestination(scriptPubKeyKernel, dest))
+                    return false;
 
-				auto keyid = GetKeyForDestination(keystore, dest);
-				if (keyid.IsNull()) {
-					LogPrint(BCLog::COINSTAKE, "Address does not refer to a key");
-					break;
-				}
+                auto keyid = GetKeyForDestination(keystore, dest);
+                if (keyid.IsNull()) {
+                    LogPrint(BCLog::COINSTAKE, "Address does not refer to a key");
+                    break;
+                }
 
-				if (!keystore.GetKey(keyid, key))
-				{
-					LogPrint(BCLog::COINSTAKE, "CreateCoinStake : failed to get key for kernel type=%d\n", GetTxnOutputType(whichType));
-					break;  // unable to find corresponding public key
-				}
-				scriptPubKeyOut << ToByteVector(key.GetPubKey()) << OP_CHECKSIG;            
+                if (!keystore.GetKey(keyid, key))
+                {
+                    LogPrint(BCLog::COINSTAKE, "CreateCoinStake : failed to get key for kernel type=%d\n", GetTxnOutputType(whichType));
+                    break;  // unable to find corresponding public key
+                }
+                scriptPubKeyOut << ToByteVector(key.GetPubKey()) << OP_CHECKSIG;
             }
             txNew.vin.push_back(CTxIn(pcoin.first->GetHash(), pcoin.second));
             nCredit += pcoin.first->tx->vout[pcoin.second].nValue;
@@ -5436,7 +5436,7 @@ bool CWallet::IsTokenTxMine(const CTokenTx &wtx) const
         CTokenInfo info = it->second;
         if(wtx.strContractAddress == info.strContractAddress)
         {
-            if(wtx.strSenderAddress == info.strSenderAddress || 
+            if(wtx.strSenderAddress == info.strSenderAddress ||
                 wtx.strReceiverAddress == info.strSenderAddress)
             {
                 ret = true;
