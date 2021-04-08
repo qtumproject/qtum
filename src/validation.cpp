@@ -2399,9 +2399,9 @@ std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::v
     block.nTime = GetAdjustedTime();
 
     if(block.IsProofOfStake())
-    	block.vtx.erase(block.vtx.begin()+2,block.vtx.end());
+        block.vtx.erase(block.vtx.begin()+2,block.vtx.end());
     else
-    	block.vtx.erase(block.vtx.begin()+1,block.vtx.end());
+        block.vtx.erase(block.vtx.begin()+1,block.vtx.end());
 
     QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
     uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(::ChainActive().Tip()->nHeight + 1);
@@ -2556,15 +2556,15 @@ valtype GetSenderAddress(const CTransaction& tx, const CCoinsViewCache* coinsVie
         }
     }
 
-	CTxDestination addressBit;
+    CTxDestination addressBit;
     txnouttype txType=TX_NONSTANDARD;
-	if(ExtractDestination(script, addressBit, &txType)){
-		if ((txType == TX_PUBKEY || txType == TX_PUBKEYHASH) &&
+    if(ExtractDestination(script, addressBit, &txType)){
+        if ((txType == TX_PUBKEY || txType == TX_PUBKEYHASH) &&
                 addressBit.type() == typeid(PKHash)){
-			PKHash senderAddress(boost::get<PKHash>(addressBit));
-			return valtype(senderAddress.begin(), senderAddress.end());
-		}
-	}
+            PKHash senderAddress(boost::get<PKHash>(addressBit));
+            return valtype(senderAddress.begin(), senderAddress.end());
+        }
+    }
     //prevout is not a standard transaction format, so just return 0
     return valtype();
 }
@@ -2679,44 +2679,44 @@ bool ByteCodeExec::performByteCode(dev::eth::Permanence type){
 }
 
 bool ByteCodeExec::processingResults(ByteCodeExecResult& resultBCE){
-	const Consensus::Params& consensusParams = Params().GetConsensus();
+    const Consensus::Params& consensusParams = Params().GetConsensus();
     for(size_t i = 0; i < result.size(); i++){
         uint64_t gasUsed = (uint64_t) result[i].execRes.gasUsed;
 
         if(result[i].execRes.excepted != dev::eth::TransactionException::None){
-        	// refund coins sent to the contract to the sender
-        	if(txs[i].value() > 0){
-        		CMutableTransaction tx;
-        		tx.vin.push_back(CTxIn(h256Touint(txs[i].getHashWith()), txs[i].getNVout(), CScript() << OP_SPEND));
-        		CScript script(CScript() << OP_DUP << OP_HASH160 << txs[i].sender().asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
-        		tx.vout.push_back(CTxOut(CAmount(txs[i].value()), script));
-        		resultBCE.valueTransfers.push_back(CTransaction(tx));
-        	}
-        	if(!(::ChainActive().Height() >= consensusParams.QIP7Height && result[i].execRes.excepted == dev::eth::TransactionException::RevertInstruction)){
-        	resultBCE.usedGas += gasUsed;
-        	}
+            // refund coins sent to the contract to the sender
+            if(txs[i].value() > 0){
+                CMutableTransaction tx;
+                tx.vin.push_back(CTxIn(h256Touint(txs[i].getHashWith()), txs[i].getNVout(), CScript() << OP_SPEND));
+                CScript script(CScript() << OP_DUP << OP_HASH160 << txs[i].sender().asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
+                tx.vout.push_back(CTxOut(CAmount(txs[i].value()), script));
+                resultBCE.valueTransfers.push_back(CTransaction(tx));
+            }
+            if(!(::ChainActive().Height() >= consensusParams.QIP7Height && result[i].execRes.excepted == dev::eth::TransactionException::RevertInstruction)){
+            resultBCE.usedGas += gasUsed;
+            }
         }
 
         if(result[i].execRes.excepted == dev::eth::TransactionException::None || (::ChainActive().Height() >= consensusParams.QIP7Height && result[i].execRes.excepted == dev::eth::TransactionException::RevertInstruction)){
-        	if(txs[i].gas() > UINT64_MAX ||
-        			result[i].execRes.gasUsed > UINT64_MAX ||
-					txs[i].gasPrice() > UINT64_MAX){
-        		return false;
-        	}
-        	uint64_t gas = (uint64_t) txs[i].gas();
-        	uint64_t gasPrice = (uint64_t) txs[i].gasPrice();
+            if(txs[i].gas() > UINT64_MAX ||
+                    result[i].execRes.gasUsed > UINT64_MAX ||
+                    txs[i].gasPrice() > UINT64_MAX){
+                return false;
+            }
+            uint64_t gas = (uint64_t) txs[i].gas();
+            uint64_t gasPrice = (uint64_t) txs[i].gasPrice();
 
-        	resultBCE.usedGas += gasUsed;
-        	int64_t amount = (gas - gasUsed) * gasPrice;
-        	if(amount < 0){
-        		return false;
-        	}
-        	if(amount > 0){
-        		// Refund the rest of the amount to the sender that provide the coins for the contract
-				CScript script(CScript() << OP_DUP << OP_HASH160 << txs[i].getRefundSender().asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
-				resultBCE.refundOutputs.push_back(CTxOut(amount, script));
-				resultBCE.refundSender += amount;
-        	}
+            resultBCE.usedGas += gasUsed;
+            int64_t amount = (gas - gasUsed) * gasPrice;
+            if(amount < 0){
+                return false;
+            }
+            if(amount > 0){
+                // Refund the rest of the amount to the sender that provide the coins for the contract
+                CScript script(CScript() << OP_DUP << OP_HASH160 << txs[i].getRefundSender().asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
+                resultBCE.refundOutputs.push_back(CTxOut(amount, script));
+                resultBCE.refundSender += amount;
+            }
         }
 
         if(result[i].tx != CTransaction()){
@@ -7272,7 +7272,7 @@ bool GetAddressWeight(uint256 addressHash, int type, const std::map<COutPoint, u
     }
 
     // Add the utxos to the list if they are mature
-	const Consensus::Params& consensusParams = Params().GetConsensus();
+    const Consensus::Params& consensusParams = Params().GetConsensus();
     for (std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> >::const_iterator i=unspentOutputs.begin(); i!=unspentOutputs.end(); i++) {
 
         int nDepth = nHeight - i->second.blockHeight + 1;

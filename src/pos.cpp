@@ -399,11 +399,11 @@ bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBloc
                             return true;
                         }
                     }
-					if ((txType == TX_WITNESS_V0_KEYHASH) && address.type() == typeid(WitnessV0KeyHash)) {
-						if(WitnessV0KeyHash(pubkey) == boost::get<WitnessV0KeyHash>(address)) {
-							return true;
-						}
-					}
+                    if ((txType == TX_WITNESS_V0_KEYHASH) && address.type() == typeid(WitnessV0KeyHash)) {
+                        if(WitnessV0KeyHash(pubkey) == boost::get<WitnessV0KeyHash>(address)) {
+                            return true;
+                        }
+                    }
                 }
             }
         }
