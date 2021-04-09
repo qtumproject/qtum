@@ -59,6 +59,7 @@ namespace BCLog {
         VALIDATION  = (1 << 21),
         COINSTAKE   = (1 << 22),
         HTTPPOLL    = (1 << 23),
+        INDEX       = (1 << 24),
         ALL         = ~(uint32_t)0,
     };
 
