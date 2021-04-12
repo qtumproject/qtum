@@ -60,13 +60,14 @@ public:
      */
     enum DeviceType
     {
-        NanoS
+        WalletNanoS,
+        StakeNanoS
     };
 
     /**
      * @brief InstallDevice Constructor
      */
-    InstallDevice(InstallDevice::DeviceType type = InstallDevice::NanoS);
+    InstallDevice(InstallDevice::DeviceType type = InstallDevice::WalletNanoS);
 
     /**
      * @brief ~InstallDevice Destructor

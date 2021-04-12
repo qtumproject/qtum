@@ -570,7 +570,7 @@ public:
         }
     }
 
-    InstallDevice::DeviceType type = InstallDevice::NanoS;
+    InstallDevice::DeviceType type = InstallDevice::WalletNanoS;
     QStringList filePaths;
 };
 
@@ -588,8 +588,10 @@ InstallDevice::~InstallDevice()
 QString InstallDevice::deviceToString(InstallDevice::DeviceType type)
 {
     switch (type) {
-    case InstallDevice::NanoS:
+    case InstallDevice::WalletNanoS:
         return "nanos";
+    case InstallDevice::StakeNanoS:
+        return "nanos_stake";
     default:
         break;
     }
@@ -642,6 +644,7 @@ bool InstallDevice::getRCCommand(const QString &rcPath, QString &program, QStrin
 
 QString InstallDevice::parse(QString arg)
 {
+    arg = arg.replace("&nbsp;", " ");
     arg = arg.remove("\"");
     if(arg.startsWith(RC_PATH_FORMAT))
     {
