@@ -437,6 +437,9 @@ public:
     //! Set staker ledger id.
     virtual void setStakerLedgerId(const std::string& ledgerId) = 0;
 
+    //! Get staker ledger id.
+    virtual std::string getStakerLedgerId() = 0;
+
     //! Register handler for unload message.
     using UnloadFn = std::function<void()>;
     virtual std::unique_ptr<Handler> handleUnload(UnloadFn fn) = 0;

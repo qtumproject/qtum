@@ -1469,7 +1469,13 @@ public:
     }
     void setStakerLedgerId(const std::string& ledgerId) override
     {
+        LOCK(m_wallet->cs_wallet);
         m_wallet->m_ledger_id = ledgerId;
+    }
+    std::string getStakerLedgerId() override
+    {
+        LOCK(m_wallet->cs_wallet);
+        return m_wallet->m_ledger_id;
     }
     std::unique_ptr<Handler> handleUnload(UnloadFn fn) override
     {

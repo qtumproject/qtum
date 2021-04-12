@@ -15,11 +15,13 @@
 #include <qt/transactiondescdialog.h>
 #include <qt/styleSheet.h>
 #include <qt/transactionview.h>
+#include <qt/hardwaresigntx.h>
 #include <amount.h>
 
 #include <miner.h>
 
 #include <QSortFilterProxyModel>
+#include <QTimer>
 
 Q_DECLARE_METATYPE(interfaces::WalletBalances)
 
@@ -103,10 +105,24 @@ void StakePage::on_checkStake_clicked(bool checked)
     if(!walletModel)
         return;
 
-    this->walletModel->wallet().setEnabledStaking(checked);
+    bool privateKeysDisabled = walletModel->wallet().privateKeysDisabled();
+    if(!privateKeysDisabled)
+        walletModel->wallet().setEnabledStaking(checked);
 
     if(checked && WalletModel::Locked == walletModel->getEncryptionStatus())
         Q_EMIT requireUnlock(true);
+
+    if(privateKeysDisabled)
+    {
+        if(checked)
+        {
+            QTimer::singleShot(500, this, &StakePage::askDeviceForStake);
+        }
+        else
+        {
+            walletModel->wallet().setEnabledStaking(false);
+        }
+    }
 }
 
 void StakePage::updateDisplayUnit()
@@ -173,5 +189,21 @@ void StakePage::updateEncryptionStatus()
             if(checked) ui->checkStake->onStatusChanged();
         }
         break;
+    }
+}
+
+void StakePage::askDeviceForStake()
+{
+    // Get staking device
+    HardwareSignTx hardware(this);
+    hardware.setModel(walletModel);
+    bool staking = hardware.askDevice(true);
+    walletModel->wallet().setEnabledStaking(staking);
+
+    // Update stake button
+    if(walletModel->wallet().getEnabledStaking())
+    {
+        bool checked = ui->checkStake->isChecked();
+        if(!checked) ui->checkStake->onStatusChanged();
     }
 }

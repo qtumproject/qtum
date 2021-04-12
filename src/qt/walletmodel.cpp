@@ -840,14 +840,27 @@ void WalletModel::checkCoinAddresses()
     updateCoinAddresses = true;
 }
 
-QString WalletModel::getFingerprint() const
+QString WalletModel::getFingerprint(bool stake) const
 {
+    if(stake)
+    {
+        std::string ledgerId = wallet().getStakerLedgerId();
+        return QString::fromStdString(ledgerId);
+    }
+
     return fingerprint;
 }
 
-void WalletModel::setFingerprint(const QString &value)
+void WalletModel::setFingerprint(const QString &value, bool stake)
 {
-    fingerprint = value;
+    if(stake)
+    {
+        wallet().setStakerLedgerId(value.toStdString());
+    }
+    else
+    {
+        fingerprint = value;
+    }
 }
 
 void WalletModel::checkHardwareWallet()

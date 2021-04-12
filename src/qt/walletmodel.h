@@ -178,8 +178,8 @@ public:
     AddressTableModel* getAddressTableModel() const { return addressTableModel; }
 
     // Get or set selected hardware device fingerprint (only for hardware wallet applicable)
-    QString getFingerprint() const;
-    void setFingerprint(const QString &value);
+    QString getFingerprint(bool stake = false) const;
+    void setFingerprint(const QString &value, bool stake = false);
 
     // Get or set hardware wallet init required (only for hardware wallet applicable)
     void importAddressesData(bool rescan = true, bool importPKH = true, bool importP2SH = true, bool importBech32 = true);

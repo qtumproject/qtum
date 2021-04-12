@@ -41,9 +41,10 @@ public:
 
     /**
      * @brief askDevice Ask for hardware device
+     * @param stake Use the device for staking
      * @return success of the operation
      */
-    bool askDevice();
+    bool askDevice(bool stake = false);
 
     /**
      * @brief sign Sign transaction
