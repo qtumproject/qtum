@@ -1467,6 +1467,10 @@ public:
 
         return true;
     }
+    void setStakerLedgerId(const std::string& ledgerId) override
+    {
+        m_wallet->m_ledger_id = ledgerId;
+    }
     std::unique_ptr<Handler> handleUnload(UnloadFn fn) override
     {
         return MakeHandler(m_wallet->NotifyUnload.connect(fn));
