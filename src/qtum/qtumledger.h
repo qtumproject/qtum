@@ -6,6 +6,18 @@
 
 class QtumLedgerPriv;
 
+struct LedgerDevice
+{
+    /// Device data
+    std::string fingerprint;
+    std::string serial_number;
+    std::string type;
+    std::string path;
+    std::string error;
+    std::string model;
+    std::string code;
+};
+
 /**
  * @brief The QtumLedger class Communicate with the qtum ledger
  */
@@ -40,6 +52,20 @@ public:
      */
     bool signBlockHeader(const std::string& fingerprint, const std::string& header, const std::string& path, std::vector<unsigned char>& vchSig);
 
+    /**
+     * @brief isConnected Check if a device is connected
+     * @param fingerprint Hardware wallet device fingerprint
+     * @return success of the operation
+     */
+    bool isConnected(const std::string& fingerprint);
+
+    /**
+     * @brief enumerate Enumerate hardware wallet devices
+     * @param devices List of devices
+     * @return success of the operation
+     */
+    bool enumerate(std::vector<LedgerDevice>& devices);
+
 private:
     bool toolExists();
     bool isStarted();
@@ -50,6 +76,9 @@ private:
 
     bool beginSignBlockHeader(const std::string& fingerprint, const std::string& header, const std::string& path, std::vector<unsigned char>& vchSig);
     bool endSignBlockHeader(const std::string& fingerprint, const std::string& header, const std::string& path, std::vector<unsigned char>& vchSig);
+
+    bool beginEnumerate(std::vector<LedgerDevice>& devices);
+    bool endEnumerate(std::vector<LedgerDevice>& devices);
 
 private:
     QtumLedger(const QtumLedger&);

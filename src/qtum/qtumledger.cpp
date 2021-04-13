@@ -26,6 +26,15 @@ UniValue json_get_object(const UniValue& jsondata)
     return v;
 }
 
+// Read json array
+UniValue json_get_array(const UniValue& jsondata)
+{
+    UniValue v(UniValue::VARR);
+    if(jsondata.isArray())
+        v = jsondata.get_array();
+    return v;
+}
+
 // Get json string for key
 std::string json_get_key_string(const UniValue& jsondata, std::string key)
 {
@@ -259,4 +268,71 @@ bool QtumLedger::endSignBlockHeader(const std::string &, const std::string &, co
     }
 
     return false;
+}
+
+bool QtumLedger::isConnected(const std::string &fingerprint)
+{
+    // Check if a device is connected
+    std::vector<LedgerDevice> devices;
+    if(enumerate(devices))
+    {
+        for(LedgerDevice device: devices)
+        {
+            if(device.fingerprint == fingerprint)
+                return true;
+        }
+    }
+    return false;
+}
+
+bool QtumLedger::enumerate(std::vector<LedgerDevice> &devices)
+{
+    // Enumerate hardware wallet devices
+    if(isStarted())
+        return false;
+
+    if(!beginEnumerate(devices))
+        return false;
+
+    wait();
+
+    return endEnumerate(devices);
+}
+
+bool QtumLedger::beginEnumerate(std::vector<LedgerDevice> &)
+{
+    // Execute command line
+    std::vector<std::string> arguments = d->arguments;
+    arguments << "enumerate";
+    d->process.start(d->toolPath, arguments);
+    d->fStarted = true;
+
+    return d->fStarted;
+}
+
+bool QtumLedger::endEnumerate(std::vector<LedgerDevice> &devices)
+{
+    // Decode command line results
+    UniValue jsonDocument = json_read_doc(d->strStdout);
+    UniValue jsonDevices = json_get_array(jsonDocument);
+    for(size_t i = 0; i < jsonDevices.size(); i++)
+    {
+        const UniValue& jsonDevice = jsonDevices[i];
+        if(!jsonDevice.isObject())
+            return false;
+
+        // Get device info
+        UniValue data = json_get_object(jsonDevice);
+        LedgerDevice device;
+        device.fingerprint = json_get_key_string(data, "fingerprint");
+        device.serial_number = json_get_key_string(data, "serial_number");
+        device.type = json_get_key_string(data, "type");
+        device.path = json_get_key_string(data, "path");
+        device.error = json_get_key_string(data, "error");
+        device.model = json_get_key_string(data, "model");
+        device.code = json_get_key_string(data, "code");
+        devices.push_back(device);
+    }
+
+    return devices.size() > 0;
 }
