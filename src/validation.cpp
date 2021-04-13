@@ -4765,7 +4765,7 @@ bool SignBlockHWI(std::shared_ptr<CBlock> pblock, CWallet& wallet, std::vector<u
     if(wallet.m_ledger_id == "") {
         return false;
     }
-    static QtumLedger device;
+    QtumLedger &device = QtumLedger::instance();
 
     // Make a blank psbt
     PartiallySignedTransaction psbtx_in;

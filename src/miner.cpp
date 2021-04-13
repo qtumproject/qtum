@@ -24,6 +24,7 @@
 #include <util/system.h>
 #include <net.h>
 #include <key_io.h>
+#include <qtum/qtumledger.h>
 #ifdef ENABLE_WALLET
 #include <wallet/wallet.h>
 #endif
@@ -1432,6 +1433,12 @@ public:
             // Cache mining data
             if(!CacheData()) continue;
 
+            // Check if ledger is connected
+            if(d->privateKeysDisabled)
+            {
+                if(!isLedgerConnected()) continue;
+            }
+
             // Check if miner have coins for staking
             if(HaveCoinsForStake())
             {
@@ -1841,6 +1848,31 @@ protected:
         //return back to low priority
         SetThreadPriority(THREAD_PRIORITY_LOWEST);
         return false;
+    }
+
+    bool isLedgerConnected()
+    {
+        if(d->pwallet->IsStakeClosing())
+            return false;
+
+        std::string ledgerId;
+        {
+            LOCK(d->pwallet->cs_wallet);
+            ledgerId = d->pwallet->m_ledger_id;
+        }
+
+        if(ledgerId.empty())
+            return false;
+
+        QtumLedger &device = QtumLedger::instance();
+        bool fConnected = device.isConnected(ledgerId);
+        if(!fConnected)
+        {
+            d->pwallet->m_last_coin_stake_search_interval = 0;
+            LogPrintf("ThreadStakeMiner(): Ledger not connected with fingerprint %s\n", d->pwallet->m_ledger_id);
+        }
+
+        return fConnected;
     }
 };
 

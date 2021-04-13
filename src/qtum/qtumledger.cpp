@@ -273,15 +273,21 @@ bool QtumLedger::endSignBlockHeader(const std::string &, const std::string &, co
 bool QtumLedger::isConnected(const std::string &fingerprint)
 {
     // Check if a device is connected
-    std::vector<LedgerDevice> devices;
-    if(enumerate(devices))
+    try
     {
-        for(LedgerDevice device: devices)
+        std::vector<LedgerDevice> devices;
+        if(enumerate(devices))
         {
-            if(device.fingerprint == fingerprint)
-                return true;
+            for(LedgerDevice device: devices)
+            {
+                if(device.fingerprint == fingerprint)
+                    return true;
+            }
         }
     }
+    catch(...)
+    {}
+
     return false;
 }
 
@@ -335,4 +341,10 @@ bool QtumLedger::endEnumerate(std::vector<LedgerDevice> &devices)
     }
 
     return devices.size() > 0;
+}
+
+QtumLedger &QtumLedger::instance()
+{
+    static QtumLedger device;
+    return device;
 }

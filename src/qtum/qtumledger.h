@@ -66,6 +66,8 @@ public:
      */
     bool enumerate(std::vector<LedgerDevice>& devices);
 
+    static QtumLedger &instance();
+
 private:
     bool toolExists();
     bool isStarted();
