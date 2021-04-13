@@ -185,6 +185,7 @@ public:
     void importAddressesData(bool rescan = true, bool importPKH = true, bool importP2SH = true, bool importBech32 = true);
     bool getSignPsbtWithHwiTool();
     bool createUnsigned();
+    bool hasLedgerProblem();
 
 private:
     std::unique_ptr<interfaces::Wallet> m_wallet;

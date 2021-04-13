@@ -937,3 +937,10 @@ bool WalletModel::createUnsigned()
 
     return false;
 }
+
+bool WalletModel::hasLedgerProblem()
+{
+    return wallet().privateKeysDisabled() &&
+            wallet().getEnabledStaking() &&
+            !getFingerprint(true).isEmpty();
+}
