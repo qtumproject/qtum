@@ -5769,7 +5769,7 @@ void CWallet::StakeQtums(bool fStake, CConnman* connman)
 
 void CWallet::StartStake(CConnman *connman)
 {
-    m_enabled_staking = !IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+    m_enabled_staking = IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS) ? !m_ledger_id.empty() : true;
     StakeQtums(true, connman);
 }
 
