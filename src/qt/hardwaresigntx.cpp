@@ -27,7 +27,7 @@ void HardwareSignTx::setModel(WalletModel *_model)
     tool->setModel(_model);
 }
 
-bool HardwareSignTx::askDevice(bool stake)
+bool HardwareSignTx::askDevice(bool stake, QString* pFingerprint)
 {
     // Check if the HWI tool exist
     QString hwiToolPath = GUIUtil::getHwiToolPath();
@@ -43,16 +43,17 @@ bool HardwareSignTx::askDevice(bool stake)
     }
 
     // Ask for ledger
-    QString fingerprint = model->getFingerprint(stake);
+    QString fingerprint = model ? model->getFingerprint(stake) : "";
     QString title = tr("Connect Ledger");
     QString message = tr("Please insert your Ledger (%1). Verify the cable is connected and that no other application is using it.\n\nTry to connect again?");
     if(HardwareKeystoreDialog::AskDevice(fingerprint, title, message.arg(fingerprint)))
     {
-        model->setFingerprint(fingerprint, stake);
+        if(pFingerprint) *pFingerprint = fingerprint;
+        if(model) model->setFingerprint(fingerprint, stake);
         return true;
     }
 
-    model->setFingerprint("", stake);
+    if(model) model->setFingerprint("", stake);
     return false;
 }
 

@@ -13,6 +13,7 @@
 #include <qt/guiconstants.h>
 #include <qt/guiutil.h>
 #include <qt/optionsmodel.h>
+#include <qt/hardwaresigntx.h>
 
 #include <interfaces/node.h>
 #include <validation.h> // for DEFAULT_SCRIPTCHECK_THREADS and MAX_SCRIPTCHECK_THREADS
@@ -102,6 +103,9 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
         ui->txtHWIToolPath->setVisible(false);
         ui->toolHWIPath->setVisible(false);
         ui->HWIToolLabel->setVisible(false);
+        ui->txtStakeLedgerId->setVisible(false);
+        ui->toolStakeLedgerId->setVisible(false);
+        ui->stakeLedgerIdlabel->setVisible(false);
     }
     else {
         bool fHasHardwareWalletSupport = ::Params().HasHardwareWalletSupport();
@@ -109,6 +113,9 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
         ui->toolHWIPath->setVisible(fHasHardwareWalletSupport);
         ui->HWIToolLabel->setVisible(fHasHardwareWalletSupport);
         ui->signPSBTHWITool->setVisible(fHasHardwareWalletSupport);
+        ui->txtStakeLedgerId->setVisible(fHasHardwareWalletSupport);
+        ui->toolStakeLedgerId->setVisible(fHasHardwareWalletSupport);
+        ui->stakeLedgerIdlabel->setVisible(fHasHardwareWalletSupport);
     }
 
     /* Display elements init */
@@ -222,6 +229,7 @@ void OptionsDialog::setModel(OptionsModel *_model)
     connect(ui->threadsScriptVerif, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &OptionsDialog::showRestartWarning);
     connect(ui->reserveBalance, SIGNAL(valueChanged()), this, SLOT(showRestartWarning()));
     connect(ui->txtHWIToolPath, SIGNAL(textChanged(const QString &)), this, SLOT(showRestartWarning()));
+    connect(ui->txtStakeLedgerId, SIGNAL(textChanged(const QString &)), this, SLOT(showRestartWarning()));
     /* Wallet */
     connect(ui->spendZeroConfChange, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
     connect(ui->useChangeAddress, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
@@ -258,6 +266,7 @@ void OptionsDialog::setMapper()
     mapper->addMapping(ui->superStaking, OptionsModel::SuperStaking);
     mapper->addMapping(ui->reserveBalance, OptionsModel::ReserveBalance);
     mapper->addMapping(ui->txtHWIToolPath, OptionsModel::HWIToolPath);
+    mapper->addMapping(ui->txtStakeLedgerId, OptionsModel::StakeLedgerId);
 
     /* Wallet */
     mapper->addMapping(ui->spendZeroConfChange, OptionsModel::SpendZeroConfChange);
@@ -367,6 +376,19 @@ void OptionsDialog::on_toolHWIPath_clicked()
         return;
 
     ui->txtHWIToolPath->setText(filename);
+}
+
+void OptionsDialog::on_toolStakeLedgerId_clicked()
+{
+    // Get staking device
+    HardwareSignTx hardware(this);
+    QString fingerprint;
+    hardware.askDevice(true, &fingerprint);
+
+    if (fingerprint.isEmpty())
+        return;
+
+    ui->txtStakeLedgerId->setText(fingerprint);
 }
 
 void OptionsDialog::on_hideTrayIcon_stateChanged(int fState)

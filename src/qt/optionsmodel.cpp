@@ -231,6 +231,12 @@ void OptionsModel::Init(bool resetSettings)
 
     if (!m_node.softSetArg("-hwitoolpath", settings.value("HWIToolPath").toString().toStdString()))
         addOverriddenOption("-hwitoolpath");
+
+    if (!settings.contains("StakeLedgerId"))
+        settings.setValue("StakeLedgerId", "");
+
+    if (!m_node.softSetArg("-stakerledgerid", settings.value("StakeLedgerId").toString().toStdString()))
+        addOverriddenOption("-stakerledgerid");
 #endif
 }
 
@@ -424,6 +430,8 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
 #ifdef ENABLE_WALLET
         case HWIToolPath:
             return settings.value("HWIToolPath");
+        case StakeLedgerId:
+            return settings.value("StakeLedgerId");
 #endif
         default:
             return QVariant();
@@ -631,6 +639,12 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
         case HWIToolPath:
             if (settings.value("HWIToolPath") != value) {
                 settings.setValue("HWIToolPath", value);
+                setRestartRequired(true);
+            }
+            break;
+        case StakeLedgerId:
+            if (settings.value("StakeLedgerId") != value) {
+                settings.setValue("StakeLedgerId", value);
                 setRestartRequired(true);
             }
             break;
