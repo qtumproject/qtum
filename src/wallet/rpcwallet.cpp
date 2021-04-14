@@ -4364,12 +4364,24 @@ static UniValue getwalletinfo(const JSONRPCRequest& request)
 
     size_t kpExternalSize = pwallet->KeypoolCountExternalKeys();
     const auto bal = pwallet->GetBalance();
+    CAmount balance = bal.m_mine_trusted;
+    CAmount stake = bal.m_mine_stake;
+    CAmount unconfirmedBalance = bal.m_mine_untrusted_pending;
+    CAmount immatureBalance = bal.m_mine_immature;
+    bool privateKeysEnabled = !pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+    if(!privateKeysEnabled)
+    {
+        balance += bal.m_watchonly_trusted;
+        stake += bal.m_watchonly_stake;
+        unconfirmedBalance += bal.m_watchonly_untrusted_pending;
+        immatureBalance += bal.m_watchonly_immature;
+    }
     obj.pushKV("walletname", pwallet->GetName());
     obj.pushKV("walletversion", pwallet->GetVersion());
-    obj.pushKV("balance", ValueFromAmount(bal.m_mine_trusted));
-    obj.pushKV("stake", ValueFromAmount(bal.m_mine_stake));
-    obj.pushKV("unconfirmed_balance", ValueFromAmount(bal.m_mine_untrusted_pending));
-    obj.pushKV("immature_balance", ValueFromAmount(bal.m_mine_immature));
+    obj.pushKV("balance", ValueFromAmount(balance));
+    obj.pushKV("stake", ValueFromAmount(stake));
+    obj.pushKV("unconfirmed_balance", ValueFromAmount(unconfirmedBalance));
+    obj.pushKV("immature_balance", ValueFromAmount(immatureBalance));
     obj.pushKV("txcount",       (int)pwallet->mapWallet.size());
     obj.pushKV("keypoololdest", pwallet->GetOldestKeyPoolTime());
     obj.pushKV("keypoolsize", (int64_t)kpExternalSize);
@@ -4389,7 +4401,7 @@ static UniValue getwalletinfo(const JSONRPCRequest& request)
         obj.pushKV("unlocked_until", pwallet->nRelockTime);
     }
     obj.pushKV("paytxfee", ValueFromAmount(pwallet->m_pay_tx_fee.GetFeePerK()));
-    obj.pushKV("private_keys_enabled", !pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS));
+    obj.pushKV("private_keys_enabled", privateKeysEnabled);
     obj.pushKV("avoid_reuse", pwallet->IsWalletFlagSet(WALLET_FLAG_AVOID_REUSE));
     if (pwallet->IsScanning()) {
         UniValue scanning(UniValue::VOBJ);
