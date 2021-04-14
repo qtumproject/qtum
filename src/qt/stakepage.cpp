@@ -201,9 +201,6 @@ void StakePage::askDeviceForStake()
     walletModel->wallet().setEnabledStaking(staking);
 
     // Update stake button
-    if(walletModel->wallet().getEnabledStaking())
-    {
-        bool checked = ui->checkStake->isChecked();
-        if(!checked) ui->checkStake->onStatusChanged();
-    }
+    bool checked = ui->checkStake->isChecked();
+    if(checked != staking) ui->checkStake->onStatusChanged();
 }
