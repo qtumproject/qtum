@@ -7,6 +7,9 @@
 #include <boost/process.hpp>
 #include <boost/asio.hpp>
 #include <boost/filesystem.hpp>
+#ifdef WIN32
+#include <boost/process/windows.hpp>
+#endif
 
 namespace QtumLedger_NS {
 // Read json document
@@ -78,8 +81,13 @@ public:
     {
         boost::asio::io_service svc;
         boost::asio::streambuf out, err;
+#ifdef WIN32
+        boost::process::child child(m_program, ::boost::process::windows::create_no_window, boost::process::args(m_arguments),
+                                    boost::process::std_out > out, boost::process::std_err > err, svc);
+#else
         boost::process::child child(m_program, boost::process::args(m_arguments),
                                     boost::process::std_out > out, boost::process::std_err > err, svc);
+#endif
 
         svc.run();
         child.wait();
