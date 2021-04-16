@@ -1870,6 +1870,7 @@ protected:
         {
             d->pwallet->m_last_coin_stake_search_interval = 0;
             LogPrintf("ThreadStakeMiner(): Ledger not connected with fingerprint %s\n", d->pwallet->m_ledger_id);
+            Sleep(10000);
         }
 
         return fConnected;
