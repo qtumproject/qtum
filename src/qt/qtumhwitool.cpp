@@ -39,6 +39,8 @@ public:
     QtumHwiToolPriv(QObject *parent)
     {
         toolPath = GUIUtil::getHwiToolPath();
+        initToolPath();
+
         QStringList optionalRescan = QStringList() << PARAM_START_HEIGHT << PARAM_STOP_HEIGHT;
         cmdRescan = new ExecRPCCommand("rescanblockchain", QStringList(), optionalRescan,  QMap<QString, QString>(), parent);
         QStringList mandatoryImport = QStringList() << PARAM_REQUESTS;
@@ -53,6 +55,17 @@ public:
         {
             arguments << "--testnet";
         }
+    }
+
+    void initToolPath()
+    {
+#ifdef WIN32
+        if(toolPath.endsWith(".py", Qt::CaseInsensitive))
+        {
+            arguments << toolPath;
+            toolPath = "python3";
+        }
+#endif
     }
 
     std::atomic<bool> fStarted{false};
