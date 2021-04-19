@@ -1744,7 +1744,7 @@ UniValue searchlogs(const JSONRPCRequest& request)
                     {"fromBlock", RPCArg::Type::NUM, RPCArg::Optional::NO, "The number of the earliest block (latest may be given to mean the most recent block)."},
                     {"toBlock", RPCArg::Type::NUM, RPCArg::Optional::NO, "The number of the latest block (-1 may be given to mean the most recent block)."},
                     {"address", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "An address or a list of addresses to only get logs from particular account(s)."},
-                    {"topics", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "An array of values from which at least one must appear in the log entries. The order is important, if you want to leave topics out use null, e.g. [\"null\", \"0x00...\"]."},
+                    {"topics", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "An array of values from which at least one must appear in the log entries. The order is important, if you want to leave topics out use null, e.g. [null, \"0x00...\"]."},
                     {"minconf", RPCArg::Type::NUM, /* default */ "0", "Minimal number of confirmations before a log is returned"},
                 },
                RPCResult{
