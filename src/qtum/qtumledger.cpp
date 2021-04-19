@@ -4,9 +4,11 @@
 #include <univalue.h>
 #include <util/strencodings.h>
 #include <pubkey.h>
+#include <logging.h>
 #include <boost/process.hpp>
 #include <boost/asio.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
 #ifdef WIN32
 #include <boost/process/windows.hpp>
 #endif
@@ -58,6 +60,21 @@ std::vector<std::string>& operator<<(std::vector<std::string>& os, const std::st
     os.push_back(dt);
     return os;
 }
+
+#ifdef WIN32
+// Check suffix
+bool endsWith(const std::string& str, const std::string& suffix)
+{
+    return str.size() >= suffix.size() && 0 == str.compare(str.size()-suffix.size(), suffix.size(), suffix);
+}
+
+// Check if the path is to python executable
+bool isPyPath(const std::string& str)
+{
+    std::size_t found = str.find("python");
+    return found!=std::string::npos;
+}
+#endif
 
 // Start process from qtumd
 class CProcess
@@ -141,10 +158,45 @@ public:
     {
         toolPath = gArgs.GetArg("-hwitoolpath", "");
         toolExists = boost::filesystem::exists(toolPath);
+        initToolPath();
+
         if(gArgs.GetChainName() != CBaseChainParams::MAIN)
         {
             arguments << "--testnet";
         }
+
+        if(!toolExists)
+        {
+            LogPrintf("QtumLedger(): HWI tool not found %s\n", toolPath);
+        }
+    }
+
+    void initToolPath()
+    {
+#ifdef WIN32
+        if(endsWith(toolPath, ".py") ||
+                endsWith(toolPath, ".PY") ||
+                endsWith(toolPath, ".Py") ||
+                endsWith(toolPath, ".pY"))
+        {
+            arguments << toolPath;
+            toolPath = boost::process::search_path("python3").string();
+            toolExists &= isPyPath(toolPath);
+            if(!toolExists)
+            {
+                std::string prog = boost::process::search_path("cmd").string();
+                std::vector<std::string> arg;
+                arg << "/c" << "python3" << "-c" << "import sys; print(sys.executable)";
+                process.start(prog, arg);
+                process.waitForFinished();
+                toolPath = process.readAllStandardOutput();
+                boost::erase_all(toolPath, "\r");
+                boost::erase_all(toolPath, "\n");
+                toolExists = isPyPath(toolPath);
+                process.clean();
+            }
+        }
+#endif
     }
 
     std::atomic<bool> fStarted{false};
@@ -301,6 +353,10 @@ bool QtumLedger::isConnected(const std::string &fingerprint)
 
 bool QtumLedger::enumerate(std::vector<LedgerDevice> &devices)
 {
+    // Check if tool exists
+    if(!toolExists())
+        return false;
+
     // Enumerate hardware wallet devices
     if(isStarted())
         return false;
