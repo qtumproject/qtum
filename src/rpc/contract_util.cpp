@@ -531,8 +531,9 @@ bool CallToken::searchTokenTx(const int64_t &fromBlock, const int64_t &toBlock, 
     params.push_back(addressesObj);
 
     UniValue topics(UniValue::VARR);
-    // Match the log with event type
-    topics.push_back(eventName);
+    // Skip the event type check
+    static std::string nullRecord = uint256().ToString();
+    topics.push_back(nullRecord);
     if(numTopics > 1)
     {
         // Match the log with sender address

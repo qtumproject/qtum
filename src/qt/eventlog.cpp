@@ -63,8 +63,9 @@ bool EventLog::searchTokenTx(interfaces::Node& node, const WalletModel* wallet_m
     addresses.push_back(strContractAddress);
 
     std::vector<std::string> topics;
-    // Match the log with event type
-    topics.push_back(eventName);
+    // Skip the event type check
+    static std::string nullRecord = uint256().ToString();
+    topics.push_back(nullRecord);
     if(numTopics > 1)
     {
         // Match the log with sender address
