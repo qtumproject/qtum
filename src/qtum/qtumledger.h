@@ -3,6 +3,9 @@
 
 #include <string>
 #include <vector>
+#include <sync.h>
+
+extern RecursiveMutex cs_ledger;
 
 class QtumLedgerPriv;
 

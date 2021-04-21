@@ -13,6 +13,8 @@
 #include <boost/process/windows.hpp>
 #endif
 
+RecursiveMutex cs_ledger;
+
 namespace QtumLedger_NS {
 // Read json document
 UniValue json_read_doc(const std::string& jsondata)
@@ -223,6 +225,7 @@ QtumLedger::~QtumLedger()
 
 bool QtumLedger::signCoinStake(const std::string &fingerprint, std::string &psbt)
 {
+    LOCK(cs_ledger);
     // Check if tool exists
     if(!toolExists())
         return false;
@@ -241,6 +244,7 @@ bool QtumLedger::signCoinStake(const std::string &fingerprint, std::string &psbt
 
 bool QtumLedger::signBlockHeader(const std::string &fingerprint, const std::string &header, const std::string &path, std::vector<unsigned char> &vchSig)
 {
+    LOCK(cs_ledger);
     // Check if tool exists
     if(!toolExists())
         return false;
@@ -353,6 +357,7 @@ bool QtumLedger::isConnected(const std::string &fingerprint)
 
 bool QtumLedger::enumerate(std::vector<LedgerDevice> &devices)
 {
+    LOCK(cs_ledger);
     // Check if tool exists
     if(!toolExists())
         return false;

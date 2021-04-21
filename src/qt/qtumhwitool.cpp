@@ -8,6 +8,7 @@
 #include <qt/walletmodel.h>
 #include <util/strencodings.h>
 #include <util/system.h>
+#include <qtum/qtumledger.h>
 #include <chainparams.h>
 #include <outputtype.h>
 
@@ -113,6 +114,7 @@ QtumHwiTool::~QtumHwiTool()
 
 bool QtumHwiTool::enumerate(QList<HWDevice> &devices)
 {
+    LOCK(cs_ledger);
     // Enumerate hardware wallet devices
     if(isStarted())
         return false;
@@ -142,6 +144,7 @@ bool QtumHwiTool::isConnected(const QString &fingerprint)
 
 bool QtumHwiTool::getKeyPool(const QString &fingerprint, int type, QString &desc)
 {
+    LOCK(cs_ledger);
     // Get the key pool for a device
     if(isStarted())
         return false;
@@ -171,6 +174,7 @@ bool QtumHwiTool::getKeyPoolBech32(const QString &fingerprint, QString &desc)
 
 bool QtumHwiTool::signTx(const QString &fingerprint, QString &psbt)
 {
+    LOCK(cs_ledger);
     // Sign PSBT transaction
     if(isStarted())
         return false;
@@ -185,6 +189,7 @@ bool QtumHwiTool::signTx(const QString &fingerprint, QString &psbt)
 
 bool QtumHwiTool::signMessage(const QString &fingerprint, const QString &message, const QString &path, QString &signature)
 {
+    LOCK(cs_ledger);
     // Sign message
     if(isStarted())
         return false;
@@ -199,6 +204,7 @@ bool QtumHwiTool::signMessage(const QString &fingerprint, const QString &message
 
 bool QtumHwiTool::signDelegate(const QString &fingerprint, QString &psbt)
 {
+    LOCK(cs_ledger);
     if(!d->model) return false;
 
     // Get the delegation data to sign
@@ -681,6 +687,7 @@ QString InstallDevice::parse(QString arg)
 
 bool QtumHwiTool::installApp(InstallDevice::DeviceType type)
 {
+    LOCK(cs_ledger);
     // Install Qtum App to ledger
     InstallDevice device(type);
     QString program;
@@ -702,6 +709,7 @@ bool QtumHwiTool::installApp(InstallDevice::DeviceType type)
 
 bool QtumHwiTool::removeApp(InstallDevice::DeviceType type)
 {
+    LOCK(cs_ledger);
     // Remove Qtum App from ledger
     InstallDevice device(type);
     QString program;
