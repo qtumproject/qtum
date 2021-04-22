@@ -270,14 +270,8 @@ private:
     bool isStarted();
     void wait();
 
-    bool beginEnumerate(QList<HWDevice>& devices);
     bool beginGetKeyPool(const QString& fingerprint, int type, QString& desc);
-    bool beginSignTx(const QString& fingerprint, QString& psbt);
-    bool endEnumerate(QList<HWDevice>& devices);
     bool endGetKeyPool(const QString& fingerprint, int type, QString& desc);
-    bool endSignTx(const QString& fingerprint, QString& psbt);
-    bool beginSignMessage(const QString& fingerprint, const QString& message, const QString& path, QString& signature);
-    bool endSignMessage(const QString& fingerprint, const QString& message, const QString& path, QString& signature);
     bool execRPC(ExecRPCCommand* cmd, const QMap<QString, QString>& lstParams, QVariant& result, QString& resultJson);
     void addError(const QString& error);
 

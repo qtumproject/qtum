@@ -69,6 +69,39 @@ public:
      */
     bool enumerate(std::vector<LedgerDevice>& devices);
 
+    /**
+     * @brief signTx Sign PSBT transaction
+     * @param fingerprint Hardware wallet device fingerprint
+     * @param psbt In/Out PSBT transaction
+     * @return success of the operation
+     */
+    bool signTx(const std::string& fingerprint, std::string& psbt);
+
+    /**
+     * @brief signMessage Sign message
+     * @param fingerprint Hardware wallet device fingerprint
+     * @param message Message to sign
+     * @param path HD key path
+     * @param signature Signature of the message
+     * @return success of the operation
+     */
+    bool signMessage(const std::string& fingerprint, const std::string& message, const std::string& path, std::string& signature);
+
+    /**
+     * @brief getKeyPool Get the key pool for a device
+     * @param fingerprint Hardware wallet device fingerprint
+     * @param type Type of output
+     * @param desc Address descriptors
+     * @return success of the operation
+     */
+    bool getKeyPool(const std::string& fingerprint, int type, std::string& desc);
+
+    /**
+     * @brief errorMessage Get the last error message
+     * @return Last error message
+     */
+    std::string errorMessage();
+
     static QtumLedger &instance();
 
 private:
@@ -84,6 +117,12 @@ private:
 
     bool beginEnumerate(std::vector<LedgerDevice>& devices);
     bool endEnumerate(std::vector<LedgerDevice>& devices);
+
+    bool beginSignMessage(const std::string& fingerprint, const std::string& message, const std::string& path, std::string &signature);
+    bool endSignMessage(const std::string& fingerprint, const std::string& message, const std::string& path, std::string &signature);
+
+    bool beginGetKeyPool(const std::string& fingerprint, int type, std::string& desc);
+    bool endGetKeyPool(const std::string& fingerprint, int type, std::string& desc);
 
 private:
     QtumLedger(const QtumLedger&);

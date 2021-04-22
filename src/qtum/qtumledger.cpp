@@ -5,6 +5,7 @@
 #include <util/strencodings.h>
 #include <pubkey.h>
 #include <logging.h>
+#include <outputtype.h>
 #include <boost/process.hpp>
 #include <boost/asio.hpp>
 #include <boost/filesystem.hpp>
@@ -98,20 +99,27 @@ public:
     // Start and wait for it to finish
     void waitForFinished()
     {
-        boost::asio::io_service svc;
-        boost::asio::streambuf out, err;
-#ifdef WIN32
-        boost::process::child child(m_program, ::boost::process::windows::create_no_window, boost::process::args(m_arguments),
-                                    boost::process::std_out > out, boost::process::std_err > err, svc);
-#else
-        boost::process::child child(m_program, boost::process::args(m_arguments),
-                                    boost::process::std_out > out, boost::process::std_err > err, svc);
-#endif
+        try
+        {
+            boost::asio::io_service svc;
+            boost::asio::streambuf out, err;
+    #ifdef WIN32
+            boost::process::child child(m_program, ::boost::process::windows::create_no_window, boost::process::args(m_arguments),
+                                        boost::process::std_out > out, boost::process::std_err > err, svc);
+    #else
+            boost::process::child child(m_program, boost::process::args(m_arguments),
+                                        boost::process::std_out > out, boost::process::std_err > err, svc);
+    #endif
 
-        svc.run();
-        child.wait();
-        m_std_out = toString(&out);
-        m_std_err = toString(&err);
+            svc.run();
+            child.wait();
+            m_std_out = toString(&out);
+            m_std_err = toString(&err);
+        }
+        catch(...)
+        {
+            m_std_err = "Fail to create process for: " + m_program;
+        }
     }
 
     // Read all standard output
@@ -223,6 +231,12 @@ QtumLedger::~QtumLedger()
     d = 0;
 }
 
+QtumLedger &QtumLedger::instance()
+{
+    static QtumLedger device;
+    return device;
+}
+
 bool QtumLedger::signCoinStake(const std::string &fingerprint, std::string &psbt)
 {
     LOCK(cs_ledger);
@@ -259,6 +273,104 @@ bool QtumLedger::signBlockHeader(const std::string &fingerprint, const std::stri
     wait();
 
     return endSignBlockHeader(fingerprint, header, path, vchSig);
+}
+
+bool QtumLedger::isConnected(const std::string &fingerprint)
+{
+    // Check if a device is connected
+    std::vector<LedgerDevice> devices;
+    if(enumerate(devices))
+    {
+        for(LedgerDevice device: devices)
+        {
+            if(device.fingerprint == fingerprint)
+                return true;
+        }
+    }
+
+    return false;
+}
+
+bool QtumLedger::enumerate(std::vector<LedgerDevice> &devices)
+{
+    LOCK(cs_ledger);
+    // Check if tool exists
+    if(!toolExists())
+        return false;
+
+    // Enumerate hardware wallet devices
+    if(isStarted())
+        return false;
+
+    if(!beginEnumerate(devices))
+        return false;
+
+    wait();
+
+    return endEnumerate(devices);
+}
+
+bool QtumLedger::signTx(const std::string &fingerprint, std::string &psbt)
+{
+    LOCK(cs_ledger);
+    // Check if tool exists
+    if(!toolExists())
+        return false;
+
+    // Sign PSBT transaction
+    if(isStarted())
+        return false;
+
+    if(!beginSignTx(fingerprint, psbt))
+        return false;
+
+    wait();
+
+    return endSignTx(fingerprint, psbt);
+}
+
+bool QtumLedger::signMessage(const std::string &fingerprint, const std::string &message, const std::string &path, std::string &signature)
+{
+    LOCK(cs_ledger);
+    // Check if tool exists
+    if(!toolExists())
+        return false;
+
+    // Sign message
+    if(isStarted())
+        return false;
+
+    if(!beginSignMessage(fingerprint, message, path, signature))
+        return false;
+
+    wait();
+
+    return endSignMessage(fingerprint, message, path, signature);
+}
+
+bool QtumLedger::getKeyPool(const std::string &fingerprint, int type, std::string &desc)
+{
+    LOCK(cs_ledger);
+    // Check if tool exists
+    if(!toolExists())
+        return false;
+
+    // Get the key pool for a device
+    if(isStarted())
+        return false;
+
+    if(!beginGetKeyPool(fingerprint, type, desc))
+        return false;
+
+    wait();
+
+    return endGetKeyPool(fingerprint, type, desc);
+}
+
+std::string QtumLedger::errorMessage()
+{
+    LOCK(cs_ledger);
+    return d->strError;
 }
 
 bool QtumLedger::toolExists()
@@ -334,46 +446,6 @@ bool QtumLedger::endSignBlockHeader(const std::string &, const std::string &, co
     return false;
 }
 
-bool QtumLedger::isConnected(const std::string &fingerprint)
-{
-    // Check if a device is connected
-    try
-    {
-        std::vector<LedgerDevice> devices;
-        if(enumerate(devices))
-        {
-            for(LedgerDevice device: devices)
-            {
-                if(device.fingerprint == fingerprint)
-                    return true;
-            }
-        }
-    }
-    catch(...)
-    {}
-
-    return false;
-}
-
-bool QtumLedger::enumerate(std::vector<LedgerDevice> &devices)
-{
-    LOCK(cs_ledger);
-    // Check if tool exists
-    if(!toolExists())
-        return false;
-
-    // Enumerate hardware wallet devices
-    if(isStarted())
-        return false;
-
-    if(!beginEnumerate(devices))
-        return false;
-
-    wait();
-
-    return endEnumerate(devices);
-}
-
 bool QtumLedger::beginEnumerate(std::vector<LedgerDevice> &)
 {
     // Execute command line
@@ -412,8 +484,64 @@ bool QtumLedger::endEnumerate(std::vector<LedgerDevice> &devices)
     return devices.size() > 0;
 }
 
-QtumLedger &QtumLedger::instance()
+bool QtumLedger::beginSignMessage(const std::string &fingerprint, const std::string &message, const std::string &path, std::string &)
 {
-    static QtumLedger device;
-    return device;
+    // Execute command line
+    std::vector<std::string> arguments = d->arguments;
+    arguments << "-f" << fingerprint << "signmessage" << message << path;
+    d->process.start(d->toolPath, arguments);
+    d->fStarted = true;
+
+    return d->fStarted;
 }
+
+bool QtumLedger::endSignMessage(const std::string &, const std::string &, const std::string &, std::string &signature)
+{
+    // Decode command line results
+    UniValue jsonDocument = json_read_doc(d->strStdout);
+    UniValue data = json_get_object(jsonDocument);
+    std::string msgSigned = json_get_key_string(data, "signature");
+    if(!msgSigned.empty())
+    {
+        signature = msgSigned;
+        return true;
+    }
+
+    return false;
+}
+
+bool QtumLedger::beginGetKeyPool(const std::string &fingerprint, int type, std::string &)
+{
+    // Get the output type
+    std::string descType;
+    switch (type) {
+    case (int)OutputType::P2SH_SEGWIT:
+        descType = "--sh_wpkh";
+        break;
+    case (int)OutputType::BECH32:
+        descType = "--wpkh";
+        break;
+    default:
+        break;
+    }
+
+    // Execute command line
+    std::vector<std::string> arguments = d->arguments;
+    arguments << "-f" << fingerprint << "getkeypool";
+    if(descType != "")
+        arguments << descType;
+    arguments << "0" << "1000";
+    d->process.start(d->toolPath, arguments);
+    d->fStarted = true;
+
+    return d->fStarted;
+}
+
+bool QtumLedger::endGetKeyPool(const std::string &, int , std::string &desc)
+{
+    // Decode command line results
+    bool ret = d->strStdout.find("desc")!=std::string::npos;
+    desc = d->strStdout;
+    return ret;
+}
+
