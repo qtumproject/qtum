@@ -102,10 +102,15 @@ public:
      */
     std::string errorMessage();
 
+    /**
+     * @brief toolExists Check if the hwi tool is accessible
+     * @return true: accessible, false: not accessible
+     */
+    bool toolExists();
+
     static QtumLedger &instance();
 
 private:
-    bool toolExists();
     bool isStarted();
     void wait();
 

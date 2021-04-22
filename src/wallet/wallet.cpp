@@ -31,6 +31,7 @@
 #include <wallet/coincontrol.h>
 #include <wallet/fees.h>
 #include <miner.h>
+#include <qtum/qtumledger.h>
 
 #include <algorithm>
 #include <assert.h>
@@ -5769,7 +5770,15 @@ void CWallet::StakeQtums(bool fStake, CConnman* connman)
 
 void CWallet::StartStake(CConnman *connman)
 {
-    m_enabled_staking = IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS) ? !m_ledger_id.empty() : true;
+    if(IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS))
+    {
+        m_enabled_staking = !m_ledger_id.empty() && QtumLedger::instance().toolExists();
+    }
+    else
+    {
+        m_enabled_staking = true;
+    }
+
     StakeQtums(true, connman);
 }
 
