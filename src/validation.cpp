@@ -4827,6 +4827,18 @@ bool SignBlockHWI(std::shared_ptr<CBlock> pblock, CWallet& wallet, std::vector<u
     return true;
 }
 
+bool SignBlockLedger(std::shared_ptr<CBlock> pblock, CWallet& wallet, std::vector<unsigned char>& vchSig)
+{
+    LOCK(cs_ledger);
+    bool ret = SignBlockHWI(pblock, wallet, vchSig);
+    if(!ret)
+    {
+        std::string errorMessage = QtumLedger::instance().errorMessage();
+        LogPrintf("WARN: %s: fail to sign block (%s)\n", __func__, errorMessage);
+    }
+    return ret;
+}
+
 // novacoin: attempt to generate suitable proof-of-stake
 bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& nTotalFees, uint32_t nTime, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setSelectedCoins, std::vector<COutPoint>& setDelegateCoins, bool selectedOnly, bool tryOnly)
 {
@@ -4887,7 +4899,7 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
 
                 // append a signature to our block and ensure that is compact
                 std::vector<unsigned char> vchSig;
-                bool isSigned = privateKeysDisabled ? SignBlockHWI(pblock, wallet, vchSig) : key.SignCompact(pblock->GetHashWithoutSign(), vchSig);
+                bool isSigned = privateKeysDisabled ? SignBlockLedger(pblock, wallet, vchSig) : key.SignCompact(pblock->GetHashWithoutSign(), vchSig);
                 pblock->SetBlockSignature(vchSig);
 
                 // check block header

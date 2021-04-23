@@ -123,7 +123,11 @@ bool QtumHwiTool::enumerate(QList<HWDevice> &devices)
                 addError(hwDevice.errorMessage());
         }
     }
-    d->strError = QString::fromStdString(QtumLedger::instance().errorMessage());
+    else
+    {
+        d->strError = QString::fromStdString(QtumLedger::instance().errorMessage());
+    }
+
     return devices.size() > 0;
 }
 
@@ -132,7 +136,7 @@ bool QtumHwiTool::isConnected(const QString &fingerprint)
     LOCK(cs_ledger);
     std::string strFingerprint = fingerprint.toStdString();
     bool ret = QtumLedger::instance().isConnected(strFingerprint);
-    d->strError = QString::fromStdString(QtumLedger::instance().errorMessage());
+    if(!ret) d->strError = QString::fromStdString(QtumLedger::instance().errorMessage());
     return ret;
 }
 
@@ -147,7 +151,10 @@ bool QtumHwiTool::getKeyPool(const QString &fingerprint, int type, QString &desc
     {
         desc = "\"" + desc.replace("\"", "\\\"") + "\"";
     }
-    d->strError = QString::fromStdString(QtumLedger::instance().errorMessage());
+    else
+    {
+        d->strError = QString::fromStdString(QtumLedger::instance().errorMessage());
+    }
     return ret;
 }
 
@@ -173,7 +180,7 @@ bool QtumHwiTool::signTx(const QString &fingerprint, QString &psbt)
     std::string strPsbt = psbt.toStdString();
     bool ret = QtumLedger::instance().signTx(strFingerprint, strPsbt);
     psbt = QString::fromStdString(strPsbt);
-    d->strError = QString::fromStdString(QtumLedger::instance().errorMessage());
+    if(!ret) d->strError = QString::fromStdString(QtumLedger::instance().errorMessage());
     return ret;
 }
 
@@ -186,7 +193,7 @@ bool QtumHwiTool::signMessage(const QString &fingerprint, const QString &message
     std::string strSignature = signature.toStdString();
     bool ret = QtumLedger::instance().signMessage(strFingerprint, strMessage, strPath, strSignature);
     signature = QString::fromStdString(strSignature);
-    d->strError = QString::fromStdString(QtumLedger::instance().errorMessage());
+    if(!ret) d->strError = QString::fromStdString(QtumLedger::instance().errorMessage());
     return ret;
 }
 

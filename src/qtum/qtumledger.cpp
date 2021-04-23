@@ -57,6 +57,20 @@ std::string json_get_key_string(const UniValue& jsondata, std::string key)
     return v.get_str();
 }
 
+// Get json int for key
+int json_get_key_int(const UniValue& jsondata, std::string key)
+{
+    UniValue v(0);
+    if(jsondata.exists(key))
+    {
+        UniValue data = jsondata[key];
+        if(data.isNum())
+            v = data;
+    }
+
+    return v.get_int();
+}
+
 // Append data to vector
 std::vector<std::string>& operator<<(std::vector<std::string>& os, const std::string& dt)
 {
@@ -370,7 +384,23 @@ bool QtumLedger::getKeyPool(const std::string &fingerprint, int type, std::strin
 std::string QtumLedger::errorMessage()
 {
     LOCK(cs_ledger);
-    return d->strError;
+    if(d->strError.empty() == false)
+        return d->strError;
+    if(d->strStdout.empty() == false)
+    {
+        try
+        {
+            UniValue jsonDocument = json_read_doc(d->strStdout);
+            UniValue data = json_get_object(jsonDocument);
+            std::string error = json_get_key_string(data, "error");
+            int code = json_get_key_int(data, "code");
+            if(data.exists("error") || data.exists("code"))
+                return strprintf("Error: %s, Code: %d", error, code);
+        }
+        catch(...)
+        {}
+    }
+    return "unknown error";
 }
 
 bool QtumLedger::toolExists()
