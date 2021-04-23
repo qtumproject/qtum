@@ -4795,6 +4795,7 @@ bool SignBlockHWI(std::shared_ptr<CBlock> pblock, CWallet& wallet, std::vector<u
     }
 
     // Serialize the PSBT
+    if(wallet.IsStakeClosing()) return false;
     CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
     ssTx << psbtx_in;
     std::string psbt = EncodeBase64((unsigned char*)ssTx.data(), ssTx.size());
@@ -4819,6 +4820,7 @@ bool SignBlockHWI(std::shared_ptr<CBlock> pblock, CWallet& wallet, std::vector<u
     pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
 
     // Sign block header
+    if(wallet.IsStakeClosing()) return false;
     std::string header = pblock->GetWithoutSign();
     if(!device.signBlockHeader(wallet.m_ledger_id, header, strStaker, vchSig)) {
         return false;
@@ -4831,7 +4833,7 @@ bool SignBlockLedger(std::shared_ptr<CBlock> pblock, CWallet& wallet, std::vecto
 {
     LOCK(cs_ledger);
     bool ret = SignBlockHWI(pblock, wallet, vchSig);
-    if(!ret)
+    if(!ret && !wallet.IsStakeClosing())
     {
         std::string errorMessage = QtumLedger::instance().errorMessage();
         LogPrintf("WARN: %s: fail to sign block (%s)\n", __func__, errorMessage);
