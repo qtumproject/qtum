@@ -648,7 +648,13 @@ qt/res/ledger/nanos_load.txt \
 qt/res/ledger/nanos_delete.txt \
 qt/res/ledger/nanos_stake_app.hex \
 qt/res/ledger/nanos_stake_load.txt \
-qt/res/ledger/nanos_stake_delete.txt
+qt/res/ledger/nanos_stake_delete.txt \
+qt/res/ledger/nanos_test_app.hex \
+qt/res/ledger/nanos_test_load.txt \
+qt/res/ledger/nanos_test_delete.txt \
+qt/res/ledger/nanos_stake_test_app.hex \
+qt/res/ledger/nanos_stake_test_load.txt \
+qt/res/ledger/nanos_stake_test_delete.txt
 
 BITCOIN_RC = qt/res/bitcoin-qt-res.rc
 

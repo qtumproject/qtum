@@ -488,11 +488,12 @@ InstallDevice::~InstallDevice()
 
 QString InstallDevice::deviceToString(InstallDevice::DeviceType type)
 {
+    bool mainnet = gArgs.GetChainName() == CBaseChainParams::MAIN;
     switch (type) {
     case InstallDevice::WalletNanoS:
-        return "nanos";
+        return mainnet ? "nanos" : "nanos_test";
     case InstallDevice::StakeNanoS:
-        return "nanos_stake";
+        return mainnet ? "nanos_stake" : "nanos_stake_test";
     default:
         break;
     }
