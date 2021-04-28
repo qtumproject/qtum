@@ -145,7 +145,7 @@ bool QtumHwiTool::getKeyPool(const QString &fingerprint, int type, QString &desc
     LOCK(cs_ledger);
     std::string strFingerprint = fingerprint.toStdString();
     std::string strDesc = desc.toStdString();
-    bool ret = QtumLedger::instance().getKeyPool(strFingerprint, type, strDesc);
+    bool ret = QtumLedger::instance().getKeyPool(strFingerprint, type, "", false, strDesc);
     desc = QString::fromStdString(strDesc);
     if(ret)
     {
