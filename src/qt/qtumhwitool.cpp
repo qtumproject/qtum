@@ -140,12 +140,13 @@ bool QtumHwiTool::isConnected(const QString &fingerprint)
     return ret;
 }
 
-bool QtumHwiTool::getKeyPool(const QString &fingerprint, int type, QString &desc)
+bool QtumHwiTool::getKeyPool(const QString &fingerprint, int type, const QString& path, bool internal, QString &desc)
 {
     LOCK(cs_ledger);
     std::string strFingerprint = fingerprint.toStdString();
     std::string strDesc = desc.toStdString();
-    bool ret = QtumLedger::instance().getKeyPool(strFingerprint, type, "", false, strDesc);
+    std::string strPath = path.toStdString();
+    bool ret = QtumLedger::instance().getKeyPool(strFingerprint, type, strPath, internal, strDesc);
     desc = QString::fromStdString(strDesc);
     if(ret)
     {
@@ -158,19 +159,37 @@ bool QtumHwiTool::getKeyPool(const QString &fingerprint, int type, QString &desc
     return ret;
 }
 
-bool QtumHwiTool::getKeyPoolPKH(const QString &fingerprint, QString &desc)
+bool QtumHwiTool::getKeyPool(const QString &fingerprint, int type, const QString &path, QStringList &descs)
 {
-    return getKeyPool(fingerprint, (int)OutputType::LEGACY, desc);
+    LOCK(cs_ledger);
+    bool ret = true;
+    QString desc;
+    ret &= getKeyPool(fingerprint, type, path, false, desc);
+    if(ret) descs.push_back(desc);
+
+    if(!path.isEmpty())
+    {
+        desc.clear();
+        ret &= getKeyPool(fingerprint, type, path, true, desc);
+        if(ret) descs.push_back(desc);
+    }
+
+    return ret;
 }
 
-bool QtumHwiTool::getKeyPoolP2SH(const QString &fingerprint, QString &desc)
+bool QtumHwiTool::getKeyPoolPKH(const QString &fingerprint, const QString& path, QStringList &descs)
 {
-    return getKeyPool(fingerprint, (int)OutputType::P2SH_SEGWIT, desc);
+    return getKeyPool(fingerprint, (int)OutputType::LEGACY, path, descs);
 }
 
-bool QtumHwiTool::getKeyPoolBech32(const QString &fingerprint, QString &desc)
+bool QtumHwiTool::getKeyPoolP2SH(const QString &fingerprint, const QString& path, QStringList &descs)
 {
-    return getKeyPool(fingerprint, (int)OutputType::BECH32, desc);
+    return getKeyPool(fingerprint, (int)OutputType::P2SH_SEGWIT, path, descs);
+}
+
+bool QtumHwiTool::getKeyPoolBech32(const QString &fingerprint, const QString& path, QStringList &descs)
+{
+    return getKeyPool(fingerprint, (int)OutputType::BECH32, path, descs);
 }
 
 bool QtumHwiTool::signTx(const QString &fingerprint, QString &psbt)
@@ -301,7 +320,7 @@ bool QtumHwiTool::rescanBlockchain(int startHeight, int stopHeight)
     return resStartHeight < resStopHeight;
 }
 
-bool QtumHwiTool::importMulti(const QString &desc)
+bool QtumHwiTool::importAddresses(const QString &desc)
 {
     if(!d->model) return false;
 
@@ -326,6 +345,18 @@ bool QtumHwiTool::importMulti(const QString &desc)
     }
 
     return countSuccess > 0;
+}
+
+bool QtumHwiTool::importMulti(const QStringList &descs)
+{
+    bool ret = true;
+    for(QString desc : descs)
+    {
+        ret &= importAddresses(desc);
+        if(!ret) break;
+    }
+
+    return ret;
 }
 
 bool QtumHwiTool::finalizePsbt(const QString &psbt, QString &hexTx, bool &complete)

@@ -879,8 +879,8 @@ void WalletModel::checkHardwareWallet()
             QString errorMessage;
             if(importPKH)
             {
-                QString pkhdesc;
-                bool OK = hwiTool.getKeyPoolPKH(fingerprint, pkhdesc);
+                QStringList pkhdesc;
+                bool OK = hwiTool.getKeyPoolPKH(fingerprint, pathPKH, pkhdesc);
                 if(OK) OK &= hwiTool.importMulti(pkhdesc);
 
                 if(!OK)
@@ -891,8 +891,8 @@ void WalletModel::checkHardwareWallet()
 
             if(importP2SH)
             {
-                QString p2shdesc;
-                bool OK = hwiTool.getKeyPoolP2SH(fingerprint, p2shdesc);
+                QStringList p2shdesc;
+                bool OK = hwiTool.getKeyPoolP2SH(fingerprint, pathP2SH, p2shdesc);
                 if(OK) OK &= hwiTool.importMulti(p2shdesc);
 
                 if(!OK)
@@ -904,8 +904,8 @@ void WalletModel::checkHardwareWallet()
 
             if(importBech32)
             {
-                QString bech32desc;
-                bool OK = hwiTool.getKeyPoolBech32(fingerprint, bech32desc);
+                QStringList bech32desc;
+                bool OK = hwiTool.getKeyPoolBech32(fingerprint, pathBech32, bech32desc);
                 if(OK) OK &= hwiTool.importMulti(bech32desc);
 
                 if(!OK)
@@ -919,7 +919,7 @@ void WalletModel::checkHardwareWallet()
             if(rescan) hwiTool.rescanBlockchain();
 
             // Display error message if happen
-            if(errorMessage.isEmpty())
+            if(!errorMessage.isEmpty())
             {
                 Q_EMIT message(tr("Import addresses"), errorMessage,
                                CClientUIInterface::MSG_ERROR | CClientUIInterface::MSG_NOPREFIX);
@@ -930,12 +930,15 @@ void WalletModel::checkHardwareWallet()
     }
 }
 
-void WalletModel::importAddressesData(bool _rescan, bool _importPKH, bool _importP2SH, bool _importBech32)
+void WalletModel::importAddressesData(bool _rescan, bool _importPKH, bool _importP2SH, bool _importBech32, QString _pathPKH, QString _pathP2SH, QString _pathBech32)
 {
     rescan = _rescan;
     importPKH = _importPKH;
     importP2SH = _importP2SH;
     importBech32 = _importBech32;
+    pathPKH = _pathPKH;
+    pathP2SH = _pathP2SH;
+    pathBech32 = _pathBech32;
     hardwareWalletInitRequired = true;
 }
 
