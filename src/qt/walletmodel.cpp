@@ -876,26 +876,54 @@ void WalletModel::checkHardwareWallet()
         if(hwiTool.isConnected(fingerprint))
         {
             // Setup key pool
-            QString pkhdesc;
-            if(importPKH && hwiTool.getKeyPoolPKH(fingerprint, pkhdesc))
+            QString errorMessage;
+            if(importPKH)
             {
-                hwiTool.importMulti(pkhdesc);
+                QString pkhdesc;
+                bool OK = hwiTool.getKeyPoolPKH(fingerprint, pkhdesc);
+                if(OK) OK &= hwiTool.importMulti(pkhdesc);
+
+                if(!OK)
+                {
+                    errorMessage = tr("Import PKH failed: ") + hwiTool.errorMessage();
+                }
             }
 
-            QString p2shdesc;
-            if(importP2SH && hwiTool.getKeyPoolP2SH(fingerprint, p2shdesc))
+            if(importP2SH)
             {
-                hwiTool.importMulti(p2shdesc);
+                QString p2shdesc;
+                bool OK = hwiTool.getKeyPoolP2SH(fingerprint, p2shdesc);
+                if(OK) OK &= hwiTool.importMulti(p2shdesc);
+
+                if(!OK)
+                {
+                    errorMessage += "\n";
+                    errorMessage = tr("Import PKH failed: ") + hwiTool.errorMessage();
+                }
             }
 
-            QString bech32desc;
-            if(importBech32 && hwiTool.getKeyPoolP2SH(fingerprint, bech32desc))
+            if(importBech32)
             {
-                hwiTool.importMulti(bech32desc);
+                QString bech32desc;
+                bool OK = hwiTool.getKeyPoolBech32(fingerprint, bech32desc);
+                if(OK) OK &= hwiTool.importMulti(bech32desc);
+
+                if(!OK)
+                {
+                    errorMessage += "\n";
+                    errorMessage = tr("Import Bech32 failed: ") + hwiTool.errorMessage();
+                }
             }
 
             // Rescan the chain
             if(rescan) hwiTool.rescanBlockchain();
+
+            // Display error message if happen
+            if(errorMessage.isEmpty())
+            {
+                Q_EMIT message(tr("Import addresses"), errorMessage,
+                               CClientUIInterface::MSG_ERROR | CClientUIInterface::MSG_NOPREFIX);
+            }
         }
 
         hardwareWalletInitRequired = false;
