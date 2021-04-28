@@ -111,7 +111,18 @@ public:
      */
     bool toolExists();
 
+    /**
+     * @brief instance Get the ledger instance
+     * @return
+     */
     static QtumLedger &instance();
+
+    /**
+     * @brief derivationPath Get the default derivation path
+     * @param type Type of output
+     * @return Default derivation path
+     */
+    static std::string derivationPath(int type);
 
 private:
     bool isStarted();
