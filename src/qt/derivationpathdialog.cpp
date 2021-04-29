@@ -8,11 +8,15 @@ DerivationPathDialog::DerivationPathDialog(QWidget *parent) :
     ui->setupUi(this);
 
     // Connect signal and slots
-    QObject::connect(ui->cbRescan, SIGNAL(clicked()), this, SLOT(updateButtons()));
-    QObject::connect(ui->cbLegacy, SIGNAL(clicked()), this, SLOT(updateButtons()));
-    QObject::connect(ui->cbP2SH, SIGNAL(clicked()), this, SLOT(updateButtons()));
-    QObject::connect(ui->cbSegWit, SIGNAL(clicked()), this, SLOT(updateButtons()));
-    updateButtons();
+    QObject::connect(ui->cbRescan, &QCheckBox::clicked, this, &DerivationPathDialog::updateWidgets);
+    QObject::connect(ui->cbLegacy, &QCheckBox::clicked, this, &DerivationPathDialog::updateWidgets);
+    QObject::connect(ui->cbP2SH, &QCheckBox::clicked, this, &DerivationPathDialog::updateWidgets);
+    QObject::connect(ui->cbSegWit, &QCheckBox::clicked, this, &DerivationPathDialog::updateWidgets);
+    QObject::connect(ui->txtLegacy, &QValidatedLineEdit::textChanged, this, &DerivationPathDialog::updateWidgets);
+    QObject::connect(ui->txtP2SH, &QValidatedLineEdit::textChanged, this, &DerivationPathDialog::updateWidgets);
+    QObject::connect(ui->txtSegWit, &QValidatedLineEdit::textChanged, this, &DerivationPathDialog::updateWidgets);
+
+    updateWidgets();
 }
 
 DerivationPathDialog::~DerivationPathDialog()
@@ -39,8 +43,34 @@ bool DerivationPathDialog::importAddressesData(bool &rescan, bool &importPKH, bo
     return rescan || importPKH || importP2SH || importBech32;
 }
 
-void DerivationPathDialog::updateButtons()
+void DerivationPathDialog::updateWidgets()
 {
-    bool enabled = ui->cbRescan->isChecked() || ui->cbLegacy->isChecked() || ui->cbP2SH->isChecked() || ui->cbSegWit->isChecked();
-    ui->okButton->setEnabled(enabled);
+    bool legacy = ui->cbLegacy->isChecked();
+    bool p2sh = ui->cbP2SH->isChecked();
+    bool segWit = ui->cbSegWit->isChecked();
+    bool rescan = ui->cbRescan->isChecked();
+    bool enabled = isDataValid() && isDataSelected(rescan, legacy, p2sh, segWit);
+
+    widgetEnabled(ui->okButton, enabled);
+    widgetEnabled(ui->txtLegacy, legacy);
+    widgetEnabled(ui->txtP2SH, p2sh);
+    widgetEnabled(ui->txtSegWit, segWit);
+}
+
+void DerivationPathDialog::widgetEnabled(QWidget *widget, bool enabled)
+{
+    if(widget && widget->isEnabled() != enabled)
+    {
+        widget->setEnabled(enabled);
+    }
+}
+
+bool DerivationPathDialog::isDataValid()
+{
+    return true;
+}
+
+bool DerivationPathDialog::isDataSelected(bool rescan, bool importPKH, bool importP2SH, bool importBech32)
+{
+    return rescan || importPKH || importP2SH || importBech32;
 }
