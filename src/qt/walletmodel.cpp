@@ -872,11 +872,12 @@ void WalletModel::checkHardwareWallet()
         // Init variables
         QtumHwiTool hwiTool(this);
         hwiTool.setModel(this);
+        QString errorMessage;
+        bool error = false;
 
         if(hwiTool.isConnected(fingerprint))
         {
             // Setup key pool
-            QString errorMessage;
             if(importPKH)
             {
                 QStringList pkhdesc;
@@ -885,7 +886,8 @@ void WalletModel::checkHardwareWallet()
 
                 if(!OK)
                 {
-                    errorMessage = tr("Import PKH failed: ") + hwiTool.errorMessage();
+                    error = true;
+                    errorMessage = tr("Import PKH failed.\n") + hwiTool.errorMessage();
                 }
             }
 
@@ -897,8 +899,9 @@ void WalletModel::checkHardwareWallet()
 
                 if(!OK)
                 {
-                    errorMessage += "\n";
-                    errorMessage = tr("Import PKH failed: ") + hwiTool.errorMessage();
+                    error = true;
+                    if(!errorMessage.isEmpty()) errorMessage += "\n\n";
+                    errorMessage += tr("Import P2SH failed.\n") + hwiTool.errorMessage();
                 }
             }
 
@@ -910,20 +913,29 @@ void WalletModel::checkHardwareWallet()
 
                 if(!OK)
                 {
-                    errorMessage += "\n";
-                    errorMessage = tr("Import Bech32 failed: ") + hwiTool.errorMessage();
+                    error = true;
+                    if(!errorMessage.isEmpty()) errorMessage += "\n\n";
+                    errorMessage += tr("Import Bech32 failed.\n") + hwiTool.errorMessage();
                 }
             }
 
             // Rescan the chain
-            if(rescan) hwiTool.rescanBlockchain();
+            if(rescan && !error)
+                hwiTool.rescanBlockchain();
+        }
+        else
+        {
+            error = true;
+            errorMessage = tr("Ledger not connected.");
+        }
 
-            // Display error message if happen
-            if(!errorMessage.isEmpty())
-            {
-                Q_EMIT message(tr("Import addresses"), errorMessage,
-                               CClientUIInterface::MSG_ERROR | CClientUIInterface::MSG_NOPREFIX);
-            }
+        // Display error message if happen
+        if(error)
+        {
+            if(errorMessage.isEmpty())
+                errorMessage = tr("unknown error");
+            Q_EMIT message(tr("Import addresses"), errorMessage,
+                           CClientUIInterface::MSG_ERROR | CClientUIInterface::MSG_NOPREFIX);
         }
 
         hardwareWalletInitRequired = false;

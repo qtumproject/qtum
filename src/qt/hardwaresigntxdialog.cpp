@@ -159,14 +159,15 @@ void HardwareSignTxDialog::on_importButton_clicked()
 {
     // Import addresses and rescan
     bool rescan, importPKH, importP2SH, importBech32;
-    if(importAddressesData(rescan, importPKH, importP2SH, importBech32))
+    QString pathPKH, pathP2SH, pathBech32;
+    if(importAddressesData(rescan, importPKH, importP2SH, importBech32, pathPKH, pathP2SH, pathBech32))
     {
-        d->model->importAddressesData(rescan, importPKH, importP2SH, importBech32);
+        d->model->importAddressesData(rescan, importPKH, importP2SH, importBech32, pathPKH, pathP2SH, pathBech32);
         QDialog::accept();
     }
 }
 
-bool HardwareSignTxDialog::importAddressesData(bool &rescan, bool &importPKH, bool &importP2SH, bool &importBech32)
+bool HardwareSignTxDialog::importAddressesData(bool &rescan, bool &importPKH, bool &importP2SH, bool &importBech32, QString &pathPKH, QString &pathP2SH, QString &pathBech32)
 {
     // Init import addresses data
     bool ret = true;
@@ -178,7 +179,7 @@ bool HardwareSignTxDialog::importAddressesData(bool &rescan, bool &importPKH, bo
     // Get list to import
     DerivationPathDialog dlg(this);
     ret &= dlg.exec() == QDialog::Accepted;
-    if(ret) ret &= dlg.importAddressesData(rescan, importPKH, importP2SH, importBech32);
+    if(ret) ret &= dlg.importAddressesData(rescan, importPKH, importP2SH, importBech32, pathPKH, pathP2SH, pathBech32);
 
     // Ask for device
     bool fDevice = importPKH || importP2SH || importBech32;

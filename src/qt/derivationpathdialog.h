@@ -16,7 +16,7 @@ public:
 
     ~DerivationPathDialog();
 
-    bool importAddressesData(bool& rescan, bool& importPKH, bool& importP2SH, bool& importBech32);
+    bool importAddressesData(bool& rescan, bool& importPKH, bool& importP2SH, bool& importBech32, QString& pathPKH, QString& pathP2SH, QString& pathBech32);
 
 private Q_SLOTS:
     void on_cancelButton_clicked();

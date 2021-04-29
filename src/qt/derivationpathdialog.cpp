@@ -34,13 +34,16 @@ void DerivationPathDialog::on_okButton_clicked()
     QDialog::accept();
 }
 
-bool DerivationPathDialog::importAddressesData(bool &rescan, bool &importPKH, bool &importP2SH, bool &importBech32)
+bool DerivationPathDialog::importAddressesData(bool &rescan, bool &importPKH, bool &importP2SH, bool &importBech32, QString& pathPKH, QString& pathP2SH, QString& pathBech32)
 {
     rescan = ui->cbRescan->isChecked();
     importPKH = ui->cbLegacy->isChecked();
     importP2SH = ui->cbP2SH->isChecked();
     importBech32 = ui->cbSegWit->isChecked();
-    return rescan || importPKH || importP2SH || importBech32;
+    pathPKH = ui->txtLegacy->text();
+    pathP2SH = ui->txtP2SH->text();
+    pathBech32 = ui->txtSegWit->text();
+    return isDataValid() && isDataSelected(rescan, importPKH, importP2SH, importBech32);
 }
 
 void DerivationPathDialog::updateWidgets()
