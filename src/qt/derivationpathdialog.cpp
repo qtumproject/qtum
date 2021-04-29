@@ -1,5 +1,17 @@
 #include <qt/derivationpathdialog.h>
 #include <qt/forms/ui_derivationpathdialog.h>
+#include <QRegularExpression>
+
+#define paternDerivationPath "^m/[0-9]{1,9}'/[0-9]{1,9}'/[0-9]{1,9}'$"
+QString toHWIPath(const QString& path)
+{
+    if(path.isEmpty())
+        return "";
+    QString hwiPath = path;
+    hwiPath.replace("'", "h");
+    hwiPath += "/1/*";
+    return hwiPath;
+}
 
 DerivationPathDialog::DerivationPathDialog(QWidget *parent) :
     QDialog(parent),
@@ -15,6 +27,22 @@ DerivationPathDialog::DerivationPathDialog(QWidget *parent) :
     QObject::connect(ui->txtLegacy, &QValidatedLineEdit::textChanged, this, &DerivationPathDialog::updateWidgets);
     QObject::connect(ui->txtP2SH, &QValidatedLineEdit::textChanged, this, &DerivationPathDialog::updateWidgets);
     QObject::connect(ui->txtSegWit, &QValidatedLineEdit::textChanged, this, &DerivationPathDialog::updateWidgets);
+
+    // Set contract address validator
+    QRegularExpression regEx;
+    regEx.setPattern(paternDerivationPath);
+
+    QRegularExpressionValidator *legacyValidator = new QRegularExpressionValidator(ui->txtLegacy);
+    legacyValidator->setRegularExpression(regEx);
+    ui->txtLegacy->setCheckValidator(legacyValidator);
+
+    QRegularExpressionValidator *P2SHValidator = new QRegularExpressionValidator(ui->txtP2SH);
+    P2SHValidator->setRegularExpression(regEx);
+    ui->txtP2SH->setCheckValidator(P2SHValidator);
+
+    QRegularExpressionValidator *segWitValidator = new QRegularExpressionValidator(ui->txtSegWit);
+    segWitValidator->setRegularExpression(regEx);
+    ui->txtSegWit->setCheckValidator(segWitValidator);
 
     updateWidgets();
 }
@@ -40,9 +68,9 @@ bool DerivationPathDialog::importAddressesData(bool &rescan, bool &importPKH, bo
     importPKH = ui->cbLegacy->isChecked();
     importP2SH = ui->cbP2SH->isChecked();
     importBech32 = ui->cbSegWit->isChecked();
-    pathPKH = ui->txtLegacy->text();
-    pathP2SH = ui->txtP2SH->text();
-    pathBech32 = ui->txtSegWit->text();
+    pathPKH = toHWIPath(ui->txtLegacy->text());
+    pathP2SH = toHWIPath(ui->txtP2SH->text());
+    pathBech32 = toHWIPath(ui->txtSegWit->text());
     return isDataValid() && isDataSelected(rescan, importPKH, importP2SH, importBech32);
 }
 
@@ -70,7 +98,10 @@ void DerivationPathDialog::widgetEnabled(QWidget *widget, bool enabled)
 
 bool DerivationPathDialog::isDataValid()
 {
-    return true;
+    ui->txtLegacy->checkValidity();
+    ui->txtP2SH->checkValidity();
+    ui->txtSegWit->checkValidity();
+    return ui->txtLegacy->isValid() && ui->txtP2SH->isValid() && ui->txtSegWit->isValid();
 }
 
 bool DerivationPathDialog::isDataSelected(bool rescan, bool importPKH, bool importP2SH, bool importBech32)
