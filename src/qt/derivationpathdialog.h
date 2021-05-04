@@ -2,6 +2,7 @@
 #define DERIVATIONPATHDIALOG_H
 
 #include <QDialog>
+#include <qt/walletmodel.h>
 
 namespace Ui {
 class DerivationPathDialog;
@@ -12,7 +13,7 @@ class DerivationPathDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit DerivationPathDialog(QWidget *parent = nullptr, bool create = false);
+    explicit DerivationPathDialog(QWidget *parent, WalletModel* model, bool create = false);
 
     ~DerivationPathDialog();
 

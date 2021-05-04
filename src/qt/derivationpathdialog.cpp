@@ -1,6 +1,7 @@
 #include <qt/derivationpathdialog.h>
 #include <qt/forms/ui_derivationpathdialog.h>
 #include <qt/qtumhwitool.h>
+#include <outputtype.h>
 #include <QRegularExpression>
 
 #define paternDerivationPath "^m/[0-9]{1,9}'/[0-9]{1,9}'/[0-9]{1,9}'$"
@@ -13,7 +14,7 @@ QString toHWIPath(const QString& path)
     return hwiPath;
 }
 
-DerivationPathDialog::DerivationPathDialog(QWidget *parent, bool _create) :
+DerivationPathDialog::DerivationPathDialog(QWidget *parent, WalletModel* model, bool _create) :
     QDialog(parent),
     create(_create),
     ui(new Ui::DerivationPathDialog)
@@ -54,6 +55,24 @@ DerivationPathDialog::DerivationPathDialog(QWidget *parent, bool _create) :
     if(create)
     {
         ui->cbRescan->setEnabled(false);
+    }
+
+    if(model)
+    {
+        OutputType type = model->wallet().getDefaultAddressType();
+        switch (type) {
+        case OutputType::LEGACY:
+            ui->cbLegacy->setChecked(true);
+            break;
+        case OutputType::P2SH_SEGWIT:
+            ui->cbP2SH->setChecked(true);
+            break;
+        case OutputType::BECH32:
+            ui->cbSegWit->setChecked(true);
+            break;
+        default:
+            break;
+        }
     }
 
     updateWidgets();

@@ -177,7 +177,7 @@ bool HardwareSignTxDialog::importAddressesData(bool &rescan, bool &importPKH, bo
     importBech32 = false;
 
     // Get list to import
-    DerivationPathDialog dlg(this);
+    DerivationPathDialog dlg(this, d->model);
     ret &= dlg.exec() == QDialog::Accepted;
     if(ret) ret &= dlg.importAddressesData(rescan, importPKH, importP2SH, importBech32, pathPKH, pathP2SH, pathBech32);
 

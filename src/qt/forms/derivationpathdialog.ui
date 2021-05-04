@@ -91,7 +91,7 @@
             <string>legacy (p2pkh)</string>
            </property>
            <property name="checked">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -101,7 +101,7 @@
             <string>p2sh-segwit (p2wpkh-p2sh)</string>
            </property>
            <property name="checked">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -111,7 +111,7 @@
             <string>native segwit (p2wpkh)</string>
            </property>
            <property name="checked">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
