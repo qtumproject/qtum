@@ -146,6 +146,10 @@ bool QtumHwiTool::getKeyPool(const QString &fingerprint, int type, const QString
     std::string strFingerprint = fingerprint.toStdString();
     std::string strDesc = desc.toStdString();
     std::string strPath = path.toStdString();
+    if(!strPath.empty())
+    {
+        strPath += internal ? "/1/*" : "/0/*";
+    }
     bool ret = QtumLedger::instance().getKeyPool(strFingerprint, type, strPath, internal, strDesc);
     desc = QString::fromStdString(strDesc);
     if(ret)
@@ -601,4 +605,22 @@ bool QtumHwiTool::removeApp(InstallDevice::DeviceType type)
     }
 
     return ret;
+}
+
+QString QtumHwiTool::derivationPathPKH()
+{
+    std::string path = QtumLedger::derivationPath((int)OutputType::LEGACY);
+    return QString::fromStdString(path);
+}
+
+QString QtumHwiTool::derivationPathP2SH()
+{
+    std::string path = QtumLedger::derivationPath((int)OutputType::P2SH_SEGWIT);
+    return QString::fromStdString(path);
+}
+
+QString QtumHwiTool::derivationPathBech32()
+{
+    std::string path = QtumLedger::derivationPath((int)OutputType::BECH32);
+    return QString::fromStdString(path);
 }

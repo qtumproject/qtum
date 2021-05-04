@@ -1,5 +1,6 @@
 #include <qt/derivationpathdialog.h>
 #include <qt/forms/ui_derivationpathdialog.h>
+#include <qt/qtumhwitool.h>
 #include <QRegularExpression>
 
 #define paternDerivationPath "^m/[0-9]{1,9}'/[0-9]{1,9}'/[0-9]{1,9}'$"
@@ -9,12 +10,12 @@ QString toHWIPath(const QString& path)
         return "";
     QString hwiPath = path;
     hwiPath.replace("'", "h");
-    hwiPath += "/1/*";
     return hwiPath;
 }
 
-DerivationPathDialog::DerivationPathDialog(QWidget *parent) :
+DerivationPathDialog::DerivationPathDialog(QWidget *parent, bool _create) :
     QDialog(parent),
+    create(_create),
     ui(new Ui::DerivationPathDialog)
 {
     ui->setupUi(this);
@@ -35,14 +36,25 @@ DerivationPathDialog::DerivationPathDialog(QWidget *parent) :
     QRegularExpressionValidator *legacyValidator = new QRegularExpressionValidator(ui->txtLegacy);
     legacyValidator->setRegularExpression(regEx);
     ui->txtLegacy->setCheckValidator(legacyValidator);
+    ui->txtLegacy->setText(QtumHwiTool::derivationPathPKH());
+    ui->txtLegacy->setPlaceholderText(QtumHwiTool::derivationPathPKH());
 
     QRegularExpressionValidator *P2SHValidator = new QRegularExpressionValidator(ui->txtP2SH);
     P2SHValidator->setRegularExpression(regEx);
     ui->txtP2SH->setCheckValidator(P2SHValidator);
+    ui->txtP2SH->setText(QtumHwiTool::derivationPathP2SH());
+    ui->txtP2SH->setPlaceholderText(QtumHwiTool::derivationPathP2SH());
 
     QRegularExpressionValidator *segWitValidator = new QRegularExpressionValidator(ui->txtSegWit);
     segWitValidator->setRegularExpression(regEx);
     ui->txtSegWit->setCheckValidator(segWitValidator);
+    ui->txtSegWit->setText(QtumHwiTool::derivationPathBech32());
+    ui->txtSegWit->setPlaceholderText(QtumHwiTool::derivationPathBech32());
+
+    if(create)
+    {
+        ui->cbRescan->setEnabled(false);
+    }
 
     updateWidgets();
 }
@@ -106,5 +118,7 @@ bool DerivationPathDialog::isDataValid()
 
 bool DerivationPathDialog::isDataSelected(bool rescan, bool importPKH, bool importP2SH, bool importBech32)
 {
-    return rescan || importPKH || importP2SH || importBech32;
+    bool hasDerivation = importPKH || importP2SH || importBech32;
+    if(create) return hasDerivation;
+    return rescan || hasDerivation;
 }

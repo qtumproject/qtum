@@ -589,13 +589,13 @@ std::string QtumLedger::derivationPath(int type)
     std::string derivPath;
     switch (type) {
     case (int)OutputType::P2SH_SEGWIT:
-        derivPath = "m/49h/88h/0h/1/*";
+        derivPath = "m/49'/88'/0'";
         break;
     case (int)OutputType::BECH32:
-        derivPath = "m/84h/88h/0h/1/*";
+        derivPath = "m/84'/88'/0'";
         break;
     case (int)OutputType::LEGACY:
-        derivPath = "m/44h/88h/0h/1/*";
+        derivPath = "m/44'/88'/0'";
         break;
     default:
         break;

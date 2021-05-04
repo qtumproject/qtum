@@ -12,7 +12,7 @@ class DerivationPathDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit DerivationPathDialog(QWidget *parent = nullptr);
+    explicit DerivationPathDialog(QWidget *parent = nullptr, bool create = false);
 
     ~DerivationPathDialog();
 
@@ -29,6 +29,7 @@ private:
     bool isDataSelected(bool rescan, bool importPKH, bool importP2SH, bool importBech32);
 
 private:
+    bool create;
     Ui::DerivationPathDialog *ui;
 };
 

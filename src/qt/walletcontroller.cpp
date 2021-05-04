@@ -310,7 +310,7 @@ void CreateWalletActivity::finish()
                 QString pathPKH, pathP2SH, pathBech32;
 
                 // Get list to import
-                DerivationPathDialog dlg(m_parent_widget);
+                DerivationPathDialog dlg(m_parent_widget, true);
                 ret &= dlg.exec() == QDialog::Accepted;
                 if(ret) ret &= dlg.importAddressesData(rescan, importPKH, importP2SH, importBech32, pathPKH, pathP2SH, pathBech32);
                 if(ret) m_wallet_model->importAddressesData(rescan, importPKH, importP2SH, importBech32, pathPKH, pathP2SH, pathBech32);

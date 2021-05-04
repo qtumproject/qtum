@@ -286,6 +286,24 @@ public:
      */
     void setModel(WalletModel *model);
 
+    /**
+     * @brief derivationPathPKH Get default derivation path for PKH output
+     * @return Derivation path
+     */
+    static QString derivationPathPKH();
+
+    /**
+     * @brief derivationPathP2SH Get default derivation path for P2SH output
+     * @return Derivation path
+     */
+    static QString derivationPathP2SH();
+
+    /**
+     * @brief derivationPathBech32 Get default derivation path for Bech32 output
+     * @return Derivation path
+     */
+    static QString derivationPathBech32();
+
 Q_SIGNALS:
 
 public Q_SLOTS:
