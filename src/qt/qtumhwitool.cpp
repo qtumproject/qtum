@@ -33,6 +33,8 @@ static const QString PARAM_SHOWCONTRACTDATA = "showcontractdata";
 static const QString LOAD_FORMAT = ":/ledger/%1_load";
 static const QString DELETE_FORMAT = ":/ledger/%1_delete";
 static const QString RC_PATH_FORMAT = ":/ledger";
+static const int ADDRESS_FROM = 0;
+static const int ADDRESS_TO = 1000;
 
 class QtumHwiToolPriv
 {
@@ -55,6 +57,8 @@ public:
     QProcess process;
     QString strStdout;
     QString strError;
+    int from = ADDRESS_FROM;
+    int to = ADDRESS_TO;
 
     ExecRPCCommand* cmdRescan = 0;
     ExecRPCCommand* cmdImport = 0;
@@ -150,7 +154,7 @@ bool QtumHwiTool::getKeyPool(const QString &fingerprint, int type, const QString
     {
         strPath += internal ? "/1/*" : "/0/*";
     }
-    bool ret = QtumLedger::instance().getKeyPool(strFingerprint, type, strPath, internal, strDesc);
+    bool ret = QtumLedger::instance().getKeyPool(strFingerprint, type, strPath, internal, d->from, d->to, strDesc);
     desc = QString::fromStdString(strDesc);
     if(ret)
     {

@@ -362,7 +362,7 @@ bool QtumLedger::signMessage(const std::string &fingerprint, const std::string &
     return endSignMessage(fingerprint, message, path, signature);
 }
 
-bool QtumLedger::getKeyPool(const std::string &fingerprint, int type, const std::string& path, bool internal, std::string &desc)
+bool QtumLedger::getKeyPool(const std::string &fingerprint, int type, const std::string& path, bool internal, int from, int to, std::string &desc)
 {
     LOCK(cs_ledger);
     // Check if tool exists
@@ -373,12 +373,12 @@ bool QtumLedger::getKeyPool(const std::string &fingerprint, int type, const std:
     if(isStarted())
         return false;
 
-    if(!beginGetKeyPool(fingerprint, type, path, internal, desc))
+    if(!beginGetKeyPool(fingerprint, type, path, internal, from, to, desc))
         return false;
 
     wait();
 
-    return endGetKeyPool(fingerprint, type, path, internal, desc);
+    return endGetKeyPool(fingerprint, type, path, internal, from, to, desc);
 }
 
 std::string QtumLedger::errorMessage()
@@ -540,7 +540,7 @@ bool QtumLedger::endSignMessage(const std::string &, const std::string &, const 
     return false;
 }
 
-bool QtumLedger::beginGetKeyPool(const std::string &fingerprint, int type, const std::string& path, bool internal, std::string &)
+bool QtumLedger::beginGetKeyPool(const std::string &fingerprint, int type, const std::string& path, bool internal, int from, int to, std::string &)
 {
     // Get the output type
     std::string descType;
@@ -568,14 +568,14 @@ bool QtumLedger::beginGetKeyPool(const std::string &fingerprint, int type, const
             arguments << "--internal";
         }
     }
-    arguments << "0" << "1000";
+    arguments << std::to_string(from) << std::to_string(to);
     d->process.start(d->toolPath, arguments);
     d->fStarted = true;
 
     return d->fStarted;
 }
 
-bool QtumLedger::endGetKeyPool(const std::string &, int, const std::string& , bool, std::string &desc)
+bool QtumLedger::endGetKeyPool(const std::string &, int, const std::string& , bool, int, int, std::string &desc)
 {
     // Decode command line results
     bool ret = d->strStdout.find("desc")!=std::string::npos;

@@ -94,10 +94,12 @@ public:
      * @param path The derivation path, if empty it is used the default
      * @param internal Needed when the derivation path is specified, to determine if the address pool is for change addresses.
      * If path is empty both internal and external addresses are loaded into the pool, so the parameter is not used.
+     * @param from Address list start
+     * @param to Address list end
      * @param desc Address descriptors
      * @return success of the operation
      */
-    bool getKeyPool(const std::string& fingerprint, int type, const std::string& path, bool internal, std::string& desc);
+    bool getKeyPool(const std::string& fingerprint, int type, const std::string& path, bool internal, int from, int to, std::string& desc);
 
     /**
      * @brief errorMessage Get the last error message
@@ -140,8 +142,8 @@ private:
     bool beginSignMessage(const std::string& fingerprint, const std::string& message, const std::string& path, std::string &signature);
     bool endSignMessage(const std::string& fingerprint, const std::string& message, const std::string& path, std::string &signature);
 
-    bool beginGetKeyPool(const std::string& fingerprint, int type, const std::string& path, bool internal, std::string& desc);
-    bool endGetKeyPool(const std::string& fingerprint, int type, const std::string& path, bool internal, std::string& desc);
+    bool beginGetKeyPool(const std::string& fingerprint, int type, const std::string& path, bool internal, int from, int to, std::string& desc);
+    bool endGetKeyPool(const std::string& fingerprint, int type, const std::string& path, bool internal,  int from, int to, std::string& desc);
 
 private:
     QtumLedger(const QtumLedger&);
