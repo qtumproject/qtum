@@ -236,7 +236,7 @@ If you are not sure what this is, leave this field unchanged.</string>
             <string>rescan blockchain</string>
            </property>
            <property name="checked">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>

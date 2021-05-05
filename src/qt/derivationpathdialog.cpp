@@ -52,23 +52,24 @@ DerivationPathDialog::DerivationPathDialog(QWidget *parent, WalletModel* model, 
     ui->txtSegWit->setText(QtumHwiTool::derivationPathBech32());
     ui->txtSegWit->setPlaceholderText(QtumHwiTool::derivationPathBech32());
 
-    if(create)
+    if(model && create)
     {
+        ui->cbRescan->setChecked(true);
         ui->cbRescan->setEnabled(false);
-    }
 
-    if(model)
-    {
         OutputType type = model->wallet().getDefaultAddressType();
         switch (type) {
         case OutputType::LEGACY:
             ui->cbLegacy->setChecked(true);
+            ui->cbLegacy->setEnabled(false);
             break;
         case OutputType::P2SH_SEGWIT:
             ui->cbP2SH->setChecked(true);
+            ui->cbP2SH->setEnabled(false);
             break;
         case OutputType::BECH32:
             ui->cbSegWit->setChecked(true);
+            ui->cbSegWit->setEnabled(false);
             break;
         default:
             break;
