@@ -872,42 +872,85 @@ void WalletModel::checkHardwareWallet()
         // Init variables
         QtumHwiTool hwiTool(this);
         hwiTool.setModel(this);
+        QString errorMessage;
+        bool error = false;
 
         if(hwiTool.isConnected(fingerprint))
         {
             // Setup key pool
-            QString pkhdesc;
-            if(importPKH && hwiTool.getKeyPoolPKH(fingerprint, pkhdesc))
+            if(importPKH)
             {
-                hwiTool.importMulti(pkhdesc);
+                QStringList pkhdesc;
+                bool OK = hwiTool.getKeyPoolPKH(fingerprint, pathPKH, pkhdesc);
+                if(OK) OK &= hwiTool.importMulti(pkhdesc);
+
+                if(!OK)
+                {
+                    error = true;
+                    errorMessage = tr("Import PKH failed.\n") + hwiTool.errorMessage();
+                }
             }
 
-            QString p2shdesc;
-            if(importP2SH && hwiTool.getKeyPoolP2SH(fingerprint, p2shdesc))
+            if(importP2SH)
             {
-                hwiTool.importMulti(p2shdesc);
+                QStringList p2shdesc;
+                bool OK = hwiTool.getKeyPoolP2SH(fingerprint, pathP2SH, p2shdesc);
+                if(OK) OK &= hwiTool.importMulti(p2shdesc);
+
+                if(!OK)
+                {
+                    error = true;
+                    if(!errorMessage.isEmpty()) errorMessage += "\n\n";
+                    errorMessage += tr("Import P2SH failed.\n") + hwiTool.errorMessage();
+                }
             }
 
-            QString bech32desc;
-            if(importBech32 && hwiTool.getKeyPoolP2SH(fingerprint, bech32desc))
+            if(importBech32)
             {
-                hwiTool.importMulti(bech32desc);
+                QStringList bech32desc;
+                bool OK = hwiTool.getKeyPoolBech32(fingerprint, pathBech32, bech32desc);
+                if(OK) OK &= hwiTool.importMulti(bech32desc);
+
+                if(!OK)
+                {
+                    error = true;
+                    if(!errorMessage.isEmpty()) errorMessage += "\n\n";
+                    errorMessage += tr("Import Bech32 failed.\n") + hwiTool.errorMessage();
+                }
             }
 
             // Rescan the chain
-            if(rescan) hwiTool.rescanBlockchain();
+            if(rescan && !error)
+                hwiTool.rescanBlockchain();
+        }
+        else
+        {
+            error = true;
+            errorMessage = tr("Ledger not connected.");
+        }
+
+        // Display error message if happen
+        if(error)
+        {
+            if(errorMessage.isEmpty())
+                errorMessage = tr("unknown error");
+            Q_EMIT message(tr("Import addresses"), errorMessage,
+                           CClientUIInterface::MSG_ERROR | CClientUIInterface::MSG_NOPREFIX);
         }
 
         hardwareWalletInitRequired = false;
     }
 }
 
-void WalletModel::importAddressesData(bool _rescan, bool _importPKH, bool _importP2SH, bool _importBech32)
+void WalletModel::importAddressesData(bool _rescan, bool _importPKH, bool _importP2SH, bool _importBech32, QString _pathPKH, QString _pathP2SH, QString _pathBech32)
 {
     rescan = _rescan;
     importPKH = _importPKH;
     importP2SH = _importP2SH;
     importBech32 = _importBech32;
+    pathPKH = _pathPKH;
+    pathP2SH = _pathP2SH;
+    pathBech32 = _pathBech32;
     hardwareWalletInitRequired = true;
 }
 

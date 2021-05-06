@@ -11,6 +11,7 @@
 #include <qt/walletmodel.h>
 #include <qt/hardwarekeystoredialog.h>
 #include <qt/hardwaredevicedialog.h>
+#include <qt/derivationpathdialog.h>
 
 #include <interfaces/handler.h>
 #include <interfaces/node.h>
@@ -296,14 +297,34 @@ void CreateWalletActivity::finish()
     {
         if(m_wallet_model)
         {
-            m_wallet_model->setFingerprint(m_fingerprint);
-            m_wallet_model->importAddressesData();
+            QTimer::singleShot(500, this, [this] {
+                // Set fingerprint
+                m_wallet_model->setFingerprint(m_fingerprint);
+
+                // Init import addresses data
+                bool ret = true;
+                bool rescan = false;
+                bool importPKH = false;
+                bool importP2SH = false;
+                bool importBech32 = false;
+                QString pathPKH, pathP2SH, pathBech32;
+
+                // Get list to import
+                DerivationPathDialog dlg(m_parent_widget, m_wallet_model, true);
+                ret &= dlg.exec() == QDialog::Accepted;
+                if(ret) ret &= dlg.importAddressesData(rescan, importPKH, importP2SH, importBech32, pathPKH, pathP2SH, pathBech32);
+                if(ret) m_wallet_model->importAddressesData(rescan, importPKH, importP2SH, importBech32, pathPKH, pathP2SH, pathBech32);
+
+                Q_EMIT created(m_wallet_model);
+                Q_EMIT finished();
+            });
         }
     }
-
-    if (m_wallet_model) Q_EMIT created(m_wallet_model);
-
-    Q_EMIT finished();
+    else
+    {
+        if (m_wallet_model) Q_EMIT created(m_wallet_model);
+        Q_EMIT finished();
+    }
 }
 
 void CreateWalletActivity::create()
