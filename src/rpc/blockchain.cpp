@@ -170,10 +170,11 @@ double GetEstimatedAnnualROI()
     int nHeight = pindex ? pindex->nHeight : 0;
     const Consensus::Params& consensusParams = Params().GetConsensus();
     double subsidy = GetBlockSubsidy(nHeight, consensusParams);
+    int nBlocktimeDownscaleFactor = consensusParams.BlocktimeDownscaleFactor(nHeight);
     if(networkWeight > 0)
     {
         // Formula: 100 * 675 blocks/day * 365 days * subsidy) / Network Weight
-        result = 24637500 * subsidy / networkWeight;
+        result = nBlocktimeDownscaleFactor * 24637500 * subsidy / networkWeight;
     }
 
     return result;
