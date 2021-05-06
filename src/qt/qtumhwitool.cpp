@@ -614,18 +614,18 @@ bool QtumHwiTool::removeApp(InstallDevice::DeviceType type)
 
 QString QtumHwiTool::derivationPathPKH()
 {
-    std::string path = QtumLedger::derivationPath((int)OutputType::LEGACY);
+    std::string path = QtumLedger::instance().derivationPath((int)OutputType::LEGACY);
     return QString::fromStdString(path);
 }
 
 QString QtumHwiTool::derivationPathP2SH()
 {
-    std::string path = QtumLedger::derivationPath((int)OutputType::P2SH_SEGWIT);
+    std::string path = QtumLedger::instance().derivationPath((int)OutputType::P2SH_SEGWIT);
     return QString::fromStdString(path);
 }
 
 QString QtumHwiTool::derivationPathBech32()
 {
-    std::string path = QtumLedger::derivationPath((int)OutputType::BECH32);
+    std::string path = QtumLedger::instance().derivationPath((int)OutputType::BECH32);
     return QString::fromStdString(path);
 }
