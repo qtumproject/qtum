@@ -187,6 +187,7 @@ public:
         if(gArgs.GetChainName() != CBaseChainParams::MAIN)
         {
             arguments << "--testnet";
+            ledgerMainPath = false;
         }
 
         if(!toolExists)
@@ -230,6 +231,7 @@ public:
     std::string toolPath;
     std::vector<std::string> arguments;
     bool toolExists = false;
+    bool ledgerMainPath = true;
 };
 
 QtumLedger::QtumLedger():
@@ -587,18 +589,38 @@ bool QtumLedger::endGetKeyPool(const std::string &, int, const std::string& , bo
 std::string QtumLedger::derivationPath(int type)
 {
     std::string derivPath;
-    switch (type) {
-    case (int)OutputType::P2SH_SEGWIT:
-        derivPath = "m/49'/88'/0'";
-        break;
-    case (int)OutputType::BECH32:
-        derivPath = "m/84'/88'/0'";
-        break;
-    case (int)OutputType::LEGACY:
-        derivPath = "m/44'/88'/0'";
-        break;
-    default:
-        break;
+    if(d->ledgerMainPath)
+    {
+        switch (type) {
+        case (int)OutputType::P2SH_SEGWIT:
+            derivPath = "m/49'/88'/0'";
+            break;
+        case (int)OutputType::BECH32:
+            derivPath = "m/84'/88'/0'";
+            break;
+        case (int)OutputType::LEGACY:
+            derivPath = "m/44'/88'/0'";
+            break;
+        default:
+            break;
+        }
     }
+    else
+    {
+        switch (type) {
+        case (int)OutputType::P2SH_SEGWIT:
+            derivPath = "m/49'/1'/0'";
+            break;
+        case (int)OutputType::BECH32:
+            derivPath = "m/84'/1'/0'";
+            break;
+        case (int)OutputType::LEGACY:
+            derivPath = "m/44'/1'/0'";
+            break;
+        default:
+            break;
+        }
+    }
+
     return derivPath;
 }
