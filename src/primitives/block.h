@@ -76,6 +76,8 @@ public:
 
     uint256 GetHashWithoutSign() const;
 
+    std::string GetWithoutSign() const;
+
     int64_t GetBlockTime() const
     {
         return (int64_t)nTime;

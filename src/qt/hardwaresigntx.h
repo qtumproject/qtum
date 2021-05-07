@@ -41,9 +41,11 @@ public:
 
     /**
      * @brief askDevice Ask for hardware device
+     * @param stake Use the device for staking
+     * @param pFingerprint Pointer to selected ledger fingerprint
      * @return success of the operation
      */
-    bool askDevice();
+    bool askDevice(bool stake = false, QString* pFingerprint = nullptr);
 
     /**
      * @brief sign Sign transaction

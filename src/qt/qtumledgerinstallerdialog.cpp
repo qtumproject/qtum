@@ -24,7 +24,10 @@ QtumLedgerInstallerDialog::QtumLedgerInstallerDialog(QWidget *parent) :
     ui->setupUi(this);
     d = new QtumLedgerInstallerDialogPriv(this);
 
-    ui->cbLedgerType->addItem(tr("Ledger Nano S"), InstallDevice::NanoS);
+    ui->cbLedgerApp->addItem(tr("Qtum Wallet Nano S"), InstallDevice::WalletNanoS);
+    ui->cbLedgerApp->addItem(tr("Qtum Stake Nano S"), InstallDevice::StakeNanoS);
+
+    ui->labelApp->setStyleSheet("QLabel { color: red; }");
 }
 
 QtumLedgerInstallerDialog::~QtumLedgerInstallerDialog()
@@ -80,15 +83,17 @@ void QtumLedgerInstallerDialog::on_cancelButton_clicked()
 
 InstallDevice::DeviceType QtumLedgerInstallerDialog::getDeviceType()
 {
-    int deviceType = ui->cbLedgerType->currentData().toInt();
+    int deviceType = ui->cbLedgerApp->currentData().toInt();
     switch (deviceType) {
-    case InstallDevice::NanoS:
-        return InstallDevice::NanoS;
+    case InstallDevice::WalletNanoS:
+        return InstallDevice::WalletNanoS;
+    case InstallDevice::StakeNanoS:
+        return InstallDevice::StakeNanoS;
     default:
         break;
     }
 
-    return InstallDevice::NanoS;
+    return InstallDevice::WalletNanoS;
 }
 
 bool QtumLedgerInstallerDialog::parseErrorMessage(QString &message)
@@ -117,4 +122,21 @@ bool QtumLedgerInstallerDialog::parseErrorMessage(QString &message)
 
     message = d->tool->errorMessage();
     return true;
+}
+
+void QtumLedgerInstallerDialog::on_cbLedgerApp_currentIndexChanged(int index)
+{
+    int deviceType = index;
+    switch (deviceType) {
+    case InstallDevice::WalletNanoS:
+        return ui->labelApp->setText("");
+    case InstallDevice::StakeNanoS:
+        return ui->labelApp->setText(tr("When Qtum Stake is installed, please turn off the auto lock:\n"
+                                        "Nano S > Settings > Security > Auto-lock > OFF\n"
+                                        "\n"
+                                        "When Qtum Stake is removed, please turn on the auto lock:\n"
+                                        "Nano S > Settings > Security > Auto-lock > 10 minutes\n"));
+    default:
+        break;
+    }
 }

@@ -72,6 +72,7 @@ public:
         Theme,                  // QString
         HWIToolPath,            // QString
         SignPSBTWithHWITool,    // bool
+        StakeLedgerId,          // QString
         OptionIDRowCount,
     };
 

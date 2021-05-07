@@ -685,6 +685,8 @@ public:
             // Get the user created addresses in from the address book and add them if they are mine
             for (const auto& item : m_wallet->m_address_book) {
                 if(!m_wallet->IsMine(item.first)) continue;
+                if(item.second.purpose != "receive") continue;
+                if(item.second.destdata.size() == 0) continue;
 
                 std::string strAddress = EncodeDestination(item.first);
                 if (mapAddress.find(strAddress) == mapAddress.end())
@@ -1466,6 +1468,16 @@ public:
         psbt = EncodeBase64((unsigned char*)ssTx.data(), ssTx.size());
 
         return true;
+    }
+    void setStakerLedgerId(const std::string& ledgerId) override
+    {
+        LOCK(m_wallet->cs_wallet);
+        m_wallet->m_ledger_id = ledgerId;
+    }
+    std::string getStakerLedgerId() override
+    {
+        LOCK(m_wallet->cs_wallet);
+        return m_wallet->m_ledger_id;
     }
     std::unique_ptr<Handler> handleUnload(UnloadFn fn) override
     {

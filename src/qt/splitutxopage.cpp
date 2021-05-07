@@ -116,6 +116,11 @@ void SplitUTXOPage::setModel(WalletModel *_model)
         ui->splitCoinsButton->setText(tr("Cr&eate Unsigned"));
         ui->splitCoinsButton->setToolTip(tr("Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.").arg(PACKAGE_NAME));
     }
+
+    if(m_model && m_model->wallet().privateKeysDisabled())
+    {
+        ui->spinBoxMaxOutputs->setValue(20);
+    }
 }
 
 void SplitUTXOPage::setAddress(const QString &address)

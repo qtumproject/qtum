@@ -22,6 +22,7 @@ private Q_SLOTS:
     void on_addButton_clicked();
     void on_removeButton_clicked();
     void on_cancelButton_clicked();
+    void on_cbLedgerApp_currentIndexChanged(int index);
 
 protected:
     InstallDevice::DeviceType getDeviceType();

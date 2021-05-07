@@ -8,6 +8,7 @@
 #include <qt/walletmodel.h>
 #include <util/strencodings.h>
 #include <util/system.h>
+#include <qtum/qtumledger.h>
 #include <chainparams.h>
 #include <outputtype.h>
 
@@ -32,13 +33,14 @@ static const QString PARAM_SHOWCONTRACTDATA = "showcontractdata";
 static const QString LOAD_FORMAT = ":/ledger/%1_load";
 static const QString DELETE_FORMAT = ":/ledger/%1_delete";
 static const QString RC_PATH_FORMAT = ":/ledger";
+static const int ADDRESS_FROM = 0;
+static const int ADDRESS_TO = 1000;
 
 class QtumHwiToolPriv
 {
 public:
     QtumHwiToolPriv(QObject *parent)
     {
-        toolPath = GUIUtil::getHwiToolPath();
         QStringList optionalRescan = QStringList() << PARAM_START_HEIGHT << PARAM_STOP_HEIGHT;
         cmdRescan = new ExecRPCCommand("rescanblockchain", QStringList(), optionalRescan,  QMap<QString, QString>(), parent);
         QStringList mandatoryImport = QStringList() << PARAM_REQUESTS;
@@ -49,18 +51,14 @@ public:
         cmdSend = new ExecRPCCommand("sendrawtransaction", mandatorySend, QStringList(),  QMap<QString, QString>(), parent);
         QStringList mandatoryDecode = QStringList() << PARAM_PSBT;
         cmdDecode = new ExecRPCCommand("decodepsbt", mandatoryDecode, QStringList(),  QMap<QString, QString>(), parent);
-        if(gArgs.GetChainName() != CBaseChainParams::MAIN)
-        {
-            arguments << "--testnet";
-        }
     }
 
     std::atomic<bool> fStarted{false};
     QProcess process;
     QString strStdout;
     QString strError;
-    QString toolPath;
-    QStringList arguments;
+    int from = ADDRESS_FROM;
+    int to = ADDRESS_TO;
 
     ExecRPCCommand* cmdRescan = 0;
     ExecRPCCommand* cmdImport = 0;
@@ -88,6 +86,19 @@ QString HWDevice::errorMessage() const
     return QString("Error: %1\nCode: %2").arg(error, code);
 }
 
+HWDevice toHWDevice(const LedgerDevice& device)
+{
+    HWDevice hwDevice;
+    hwDevice.fingerprint = QString::fromStdString(device.fingerprint);
+    hwDevice.serial_number = QString::fromStdString(device.serial_number);
+    hwDevice.type = QString::fromStdString(device.type);
+    hwDevice.path = QString::fromStdString(device.path);
+    hwDevice.error = QString::fromStdString(device.error);
+    hwDevice.model = QString::fromStdString(device.model);
+    hwDevice.code = QString::fromStdString(device.code);
+    return hwDevice;
+}
+
 QtumHwiTool::QtumHwiTool(QObject *parent) : QObject(parent)
 {
     d = new QtumHwiToolPriv(this);
@@ -100,88 +111,117 @@ QtumHwiTool::~QtumHwiTool()
 
 bool QtumHwiTool::enumerate(QList<HWDevice> &devices)
 {
-    // Enumerate hardware wallet devices
-    if(isStarted())
-        return false;
+    LOCK(cs_ledger);
+    devices.clear();
+    std::vector<LedgerDevice> vecDevices;
+    if(QtumLedger::instance().enumerate(vecDevices))
+    {
+        for(LedgerDevice device : vecDevices)
+        {
+            // Get device info
+            HWDevice hwDevice = toHWDevice(device);
+            devices.push_back(hwDevice);
 
-    if(!beginEnumerate(devices))
-        return false;
+            // Set error message
+            if(!hwDevice.isValid())
+                addError(hwDevice.errorMessage());
+        }
+    }
+    else
+    {
+        d->strError = QString::fromStdString(QtumLedger::instance().errorMessage());
+    }
 
-    wait();
-
-    return endEnumerate(devices);
+    return devices.size() > 0;
 }
 
 bool QtumHwiTool::isConnected(const QString &fingerprint)
 {
-    // Check if a device is connected
-    QList<HWDevice> devices;
-    if(enumerate(devices))
+    LOCK(cs_ledger);
+    std::string strFingerprint = fingerprint.toStdString();
+    bool ret = QtumLedger::instance().isConnected(strFingerprint);
+    if(!ret) d->strError = QString::fromStdString(QtumLedger::instance().errorMessage());
+    return ret;
+}
+
+bool QtumHwiTool::getKeyPool(const QString &fingerprint, int type, const QString& path, bool internal, QString &desc)
+{
+    LOCK(cs_ledger);
+    std::string strFingerprint = fingerprint.toStdString();
+    std::string strDesc = desc.toStdString();
+    std::string strPath = path.toStdString();
+    if(!strPath.empty())
     {
-        for(HWDevice device: devices)
-        {
-            if(device.fingerprint == fingerprint)
-                return true;
-        }
+        strPath += internal ? "/1/*" : "/0/*";
     }
-    return false;
+    bool ret = QtumLedger::instance().getKeyPool(strFingerprint, type, strPath, internal, d->from, d->to, strDesc);
+    desc = QString::fromStdString(strDesc);
+    if(ret)
+    {
+        desc = "\"" + desc.replace("\"", "\\\"") + "\"";
+    }
+    else
+    {
+        d->strError = QString::fromStdString(QtumLedger::instance().errorMessage());
+    }
+    return ret;
 }
 
-bool QtumHwiTool::getKeyPool(const QString &fingerprint, int type, QString &desc)
+bool QtumHwiTool::getKeyPool(const QString &fingerprint, int type, const QString &path, QStringList &descs)
 {
-    // Get the key pool for a device
-    if(isStarted())
-        return false;
+    LOCK(cs_ledger);
+    bool ret = true;
+    QString desc;
+    ret &= getKeyPool(fingerprint, type, path, false, desc);
+    if(ret) descs.push_back(desc);
 
-    if(!beginGetKeyPool(fingerprint, type, desc))
-        return false;
+    if(!path.isEmpty())
+    {
+        desc.clear();
+        ret &= getKeyPool(fingerprint, type, path, true, desc);
+        if(ret) descs.push_back(desc);
+    }
 
-    wait();
-
-    return endGetKeyPool(fingerprint, type, desc);
+    return ret;
 }
 
-bool QtumHwiTool::getKeyPoolPKH(const QString &fingerprint, QString &desc)
+bool QtumHwiTool::getKeyPoolPKH(const QString &fingerprint, const QString& path, QStringList &descs)
 {
-    return getKeyPool(fingerprint, (int)OutputType::LEGACY, desc);
+    return getKeyPool(fingerprint, (int)OutputType::LEGACY, path, descs);
 }
 
-bool QtumHwiTool::getKeyPoolP2SH(const QString &fingerprint, QString &desc)
+bool QtumHwiTool::getKeyPoolP2SH(const QString &fingerprint, const QString& path, QStringList &descs)
 {
-    return getKeyPool(fingerprint, (int)OutputType::P2SH_SEGWIT, desc);
+    return getKeyPool(fingerprint, (int)OutputType::P2SH_SEGWIT, path, descs);
 }
 
-bool QtumHwiTool::getKeyPoolBech32(const QString &fingerprint, QString &desc)
+bool QtumHwiTool::getKeyPoolBech32(const QString &fingerprint, const QString& path, QStringList &descs)
 {
-    return getKeyPool(fingerprint, (int)OutputType::BECH32, desc);
+    return getKeyPool(fingerprint, (int)OutputType::BECH32, path, descs);
 }
 
 bool QtumHwiTool::signTx(const QString &fingerprint, QString &psbt)
 {
-    // Sign PSBT transaction
-    if(isStarted())
-        return false;
-
-    if(!beginSignTx(fingerprint, psbt))
-        return false;
-
-    wait();
-
-    return endSignTx(fingerprint, psbt);
+    LOCK(cs_ledger);
+    std::string strFingerprint = fingerprint.toStdString();
+    std::string strPsbt = psbt.toStdString();
+    bool ret = QtumLedger::instance().signTx(strFingerprint, strPsbt);
+    psbt = QString::fromStdString(strPsbt);
+    if(!ret) d->strError = QString::fromStdString(QtumLedger::instance().errorMessage());
+    return ret;
 }
 
 bool QtumHwiTool::signMessage(const QString &fingerprint, const QString &message, const QString &path, QString &signature)
 {
-    // Sign message
-    if(isStarted())
-        return false;
-
-    if(!beginSignMessage(fingerprint, message, path, signature))
-        return false;
-
-    wait();
-
-    return endSignMessage(fingerprint, message, path, signature);
+    LOCK(cs_ledger);
+    std::string strFingerprint = fingerprint.toStdString();
+    std::string strMessage = message.toStdString();
+    std::string strPath = path.toStdString();
+    std::string strSignature = signature.toStdString();
+    bool ret = QtumLedger::instance().signMessage(strFingerprint, strMessage, strPath, strSignature);
+    signature = QString::fromStdString(strSignature);
+    if(!ret) d->strError = QString::fromStdString(QtumLedger::instance().errorMessage());
+    return ret;
 }
 
 bool QtumHwiTool::signDelegate(const QString &fingerprint, QString &psbt)
@@ -262,157 +302,6 @@ void QtumHwiTool::wait()
     }
 }
 
-bool QtumHwiTool::beginEnumerate(QList<HWDevice> &devices)
-{
-    Q_UNUSED(devices);
-
-    // Execute command line
-    QStringList arguments = d->arguments;
-    arguments << "enumerate";
-    d->process.start(d->toolPath, arguments);
-    d->fStarted = true;
-
-    return d->fStarted;
-}
-
-bool QtumHwiTool::beginGetKeyPool(const QString &fingerprint, int type, QString &desc)
-{
-    Q_UNUSED(desc);
-
-    // Get the output type
-    QString descType;
-    switch (type) {
-    case (int)OutputType::P2SH_SEGWIT:
-        descType = "--sh_wpkh";
-        break;
-    case (int)OutputType::BECH32:
-        descType = "--wpkh";
-        break;
-    default:
-        break;
-    }
-
-    // Execute command line
-    QStringList arguments = d->arguments;
-    arguments << "-f" << fingerprint << "getkeypool";
-    if(descType != "")
-        arguments << descType;
-    arguments << "0" << "1000";
-    d->process.start(d->toolPath, arguments);
-    d->fStarted = true;
-
-    return d->fStarted;
-}
-
-bool QtumHwiTool::beginSignTx(const QString &fingerprint, QString &psbt)
-{
-    // Execute command line
-    QStringList arguments = d->arguments;
-    arguments << "-f" << fingerprint << "signtx" << psbt;
-    d->process.start(d->toolPath, arguments);
-    d->fStarted = true;
-
-    return d->fStarted;
-}
-
-bool QtumHwiTool::beginSignMessage(const QString &fingerprint, const QString &message, const QString &path, QString &signature)
-{
-    Q_UNUSED(signature);
-
-    // Execute command line
-    QStringList arguments = d->arguments;
-    arguments << "-f" << fingerprint << "signmessage" << message << path;
-    d->process.start(d->toolPath, arguments);
-    d->fStarted = true;
-
-    return d->fStarted;
-}
-
-bool QtumHwiTool::endEnumerate(QList<HWDevice> &devices)
-{
-    // Decode command line results
-    QJsonDocument jsonDocument = QJsonDocument::fromJson(d->strStdout.toUtf8());
-    QJsonArray jsonDevices = jsonDocument.array();
-    for(QJsonValue jsonDevice : jsonDevices)
-    {
-        if(!jsonDevice.isObject())
-            return false;
-
-        // Get device info
-        QVariantMap data = jsonDevice.toObject().toVariantMap();
-        HWDevice device;
-        device.fingerprint = data["fingerprint"].toString();
-        device.serial_number = data["serial_number"].toString();
-        device.type = data["type"].toString();
-        device.path = data["path"].toString();
-        device.error = data["error"].toString();
-        device.model = data["model"].toString();
-        device.code = data["code"].toString();
-        devices.push_back(device);
-
-        // Set error message
-        if(!device.isValid())
-            addError(device.errorMessage());
-    }
-
-    return devices.size() > 0;
-}
-
-bool QtumHwiTool::endGetKeyPool(const QString &fingerprint, int type, QString &desc)
-{
-    Q_UNUSED(fingerprint);
-    Q_UNUSED(type);
-
-    // Decode command line results
-    bool ret = d->strStdout.contains("desc");
-    if(ret)
-    {
-        desc = "\"" + d->strStdout.replace("\"", "\\\"") + "\"";
-    }
-    else
-    {
-        desc = d->strStdout;
-    }
-
-    return ret;
-}
-
-bool QtumHwiTool::endSignTx(const QString &fingerprint, QString &psbt)
-{
-    Q_UNUSED(fingerprint);
-
-    // Decode command line results
-    QJsonDocument jsonDocument = QJsonDocument::fromJson(d->strStdout.toUtf8());
-    QVariantMap data = jsonDocument.object().toVariantMap();
-    QString psbtSigned = data["psbt"].toString();
-    if(!psbtSigned.isEmpty())
-    {
-        psbt = psbtSigned;
-        return true;
-    }
-
-    return false;
-}
-
-bool QtumHwiTool::endSignMessage(const QString &fingerprint, const QString &message, const QString &path, QString &signature)
-{
-    Q_UNUSED(fingerprint);
-    Q_UNUSED(message);
-    Q_UNUSED(path);
-
-    // Decode command line results
-    QJsonDocument jsonDocument = QJsonDocument::fromJson(d->strStdout.toUtf8());
-    QVariantMap data = jsonDocument.object().toVariantMap();
-    QString msgSigned = data["signature"].toString();
-    if(!msgSigned.isEmpty())
-    {
-        signature = msgSigned;
-        return true;
-    }
-
-    return false;
-}
-
 bool QtumHwiTool::rescanBlockchain(int startHeight, int stopHeight)
 {
     if(!d->model) return false;
@@ -439,7 +328,7 @@ bool QtumHwiTool::rescanBlockchain(int startHeight, int stopHeight)
     return resStartHeight < resStopHeight;
 }
 
-bool QtumHwiTool::importMulti(const QString &desc)
+bool QtumHwiTool::importAddresses(const QString &desc)
 {
     if(!d->model) return false;
 
@@ -464,6 +353,18 @@ bool QtumHwiTool::importMulti(const QString &desc)
     }
 
     return countSuccess > 0;
+}
+
+bool QtumHwiTool::importMulti(const QStringList &descs)
+{
+    bool ret = true;
+    for(QString desc : descs)
+    {
+        ret &= importAddresses(desc);
+        if(!ret) break;
+    }
+
+    return ret;
 }
 
 bool QtumHwiTool::finalizePsbt(const QString &psbt, QString &hexTx, bool &complete)
@@ -570,7 +471,7 @@ public:
         }
     }
 
-    InstallDevice::DeviceType type = InstallDevice::NanoS;
+    InstallDevice::DeviceType type = InstallDevice::WalletNanoS;
     QStringList filePaths;
 };
 
@@ -587,9 +488,12 @@ InstallDevice::~InstallDevice()
 
 QString InstallDevice::deviceToString(InstallDevice::DeviceType type)
 {
+    bool mainnet = gArgs.GetChainName() == CBaseChainParams::MAIN;
     switch (type) {
-    case InstallDevice::NanoS:
-        return "nanos";
+    case InstallDevice::WalletNanoS:
+        return mainnet ? "nanos" : "nanos_test";
+    case InstallDevice::StakeNanoS:
+        return mainnet ? "nanos_stake" : "nanos_stake_test";
     default:
         break;
     }
@@ -642,6 +546,7 @@ bool InstallDevice::getRCCommand(const QString &rcPath, QString &program, QStrin
 
 QString InstallDevice::parse(QString arg)
 {
+    arg = arg.replace("&nbsp;", " ");
     arg = arg.remove("\"");
     if(arg.startsWith(RC_PATH_FORMAT))
     {
@@ -672,6 +577,7 @@ bool QtumHwiTool::installApp(InstallDevice::DeviceType type)
     bool ret = device.loadCommand(program, arguments);
     if(ret)
     {
+        LOCK(cs_ledger);
         d->process.start(program, arguments);
         d->fStarted = true;
 
@@ -693,6 +599,7 @@ bool QtumHwiTool::removeApp(InstallDevice::DeviceType type)
     bool ret = device.deleteCommand(program, arguments);
     if(ret)
     {
+        LOCK(cs_ledger);
         d->process.start(program, arguments);
         d->fStarted = true;
 
@@ -703,4 +610,22 @@ bool QtumHwiTool::removeApp(InstallDevice::DeviceType type)
     }
 
     return ret;
+}
+
+QString QtumHwiTool::derivationPathPKH()
+{
+    std::string path = QtumLedger::instance().derivationPath((int)OutputType::LEGACY);
+    return QString::fromStdString(path);
+}
+
+QString QtumHwiTool::derivationPathP2SH()
+{
+    std::string path = QtumLedger::instance().derivationPath((int)OutputType::P2SH_SEGWIT);
+    return QString::fromStdString(path);
+}
+
+QString QtumHwiTool::derivationPathBech32()
+{
+    std::string path = QtumLedger::instance().derivationPath((int)OutputType::BECH32);
+    return QString::fromStdString(path);
 }

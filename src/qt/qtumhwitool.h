@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QStringList>
 #include <QList>
 #include <QVariantMap>
 class QtumHwiToolPriv;
@@ -60,13 +61,14 @@ public:
      */
     enum DeviceType
     {
-        NanoS
+        WalletNanoS,
+        StakeNanoS
     };
 
     /**
      * @brief InstallDevice Constructor
      */
-    InstallDevice(InstallDevice::DeviceType type = InstallDevice::NanoS);
+    InstallDevice(InstallDevice::DeviceType type = InstallDevice::WalletNanoS);
 
     /**
      * @brief ~InstallDevice Destructor
@@ -140,34 +142,50 @@ public:
      * @brief getKeyPool Get the key pool for a device
      * @param fingerprint Hardware wallet device fingerprint
      * @param type Type of output
+     * @param path The derivation path, if empty it is used the default
+     * @param internal Needed when the derivation path is specified, to determine if the address pool is for change addresses.
+     * If path is empty both internal and external addresses are loaded into the pool, so the parameter is not used.
      * @param desc Address descriptors
      * @return success of the operation
      */
-    bool getKeyPool(const QString& fingerprint, int type, QString& desc);
+    bool getKeyPool(const QString& fingerprint, int type, const QString& path, bool internal, QString& desc);
+
+    /**
+     * @brief getKeyPool Get the key pool for a device
+     * @param fingerprint Hardware wallet device fingerprint
+     * @param type Type of output
+     * @param path The derivation path, if empty it is used the default
+     * @param descs Address descriptors list
+     * @return success of the operation
+     */
+    bool getKeyPool(const QString& fingerprint, int type, const QString& path, QStringList& descs);
 
     /**
      * @brief getKeyPoolPkh Get the PKH key pool for a device
      * @param fingerprint Hardware wallet device fingerprint
-     * @param desc Address descriptors
+     * @param path The derivation path, if empty it is used the default
+     * @param descs Address descriptors list
      * @return success of the operation
      */
-    bool getKeyPoolPKH(const QString& fingerprint, QString& desc);
+    bool getKeyPoolPKH(const QString& fingerprint, const QString& path, QStringList& descs);
 
     /**
      * @brief getKeyPoolP2SH Get the P2SH key pool for a device
      * @param fingerprint Hardware wallet device fingerprint
-     * @param desc Address descriptors
+     * @param path The derivation path, if empty it is used the default
+     * @param descs Address descriptors list
      * @return success of the operation
      */
-    bool getKeyPoolP2SH(const QString& fingerprint, QString& desc);
+    bool getKeyPoolP2SH(const QString& fingerprint, const QString& path, QStringList& descs);
 
     /**
      * @brief getKeyPoolBech32 Get the Bech32 key pool for a device
      * @param fingerprint Hardware wallet device fingerprint
-     * @param desc Address descriptors
+     * @param path The derivation path, if empty it is used the default
+     * @param descs Address descriptors list
      * @return success of the operation
      */
-    bool getKeyPoolBech32(const QString& fingerprint, QString& desc);
+    bool getKeyPoolBech32(const QString& fingerprint, const QString& path, QStringList& descs);
 
     /**
      * @brief signTx Sign PSBT transaction
@@ -204,11 +222,18 @@ public:
     bool rescanBlockchain(int startHeight =0, int stopHeight =-1);
 
     /**
-     * @brief importMulti Import address descriptions
+     * @brief importAddresses Import address descriptions
      * @param desc Address descriptions
      * @return success of the operation
      */
-    bool importMulti(const QString& desc);
+    bool importAddresses(const QString& desc);
+
+    /**
+     * @brief importMulti Import list of address descriptions
+     * @param desc Address descriptions
+     * @return success of the operation
+     */
+    bool importMulti(const QStringList& descs);
 
     /**
      * @brief finalizePsbt Finalize psbt
@@ -261,6 +286,24 @@ public:
      */
     void setModel(WalletModel *model);
 
+    /**
+     * @brief derivationPathPKH Get default derivation path for PKH output
+     * @return Derivation path
+     */
+    static QString derivationPathPKH();
+
+    /**
+     * @brief derivationPathP2SH Get default derivation path for P2SH output
+     * @return Derivation path
+     */
+    static QString derivationPathP2SH();
+
+    /**
+     * @brief derivationPathBech32 Get default derivation path for Bech32 output
+     * @return Derivation path
+     */
+    static QString derivationPathBech32();
+
 Q_SIGNALS:
 
 public Q_SLOTS:
@@ -269,14 +312,8 @@ private:
     bool isStarted();
     void wait();
 
-    bool beginEnumerate(QList<HWDevice>& devices);
     bool beginGetKeyPool(const QString& fingerprint, int type, QString& desc);
-    bool beginSignTx(const QString& fingerprint, QString& psbt);
-    bool endEnumerate(QList<HWDevice>& devices);
     bool endGetKeyPool(const QString& fingerprint, int type, QString& desc);
-    bool endSignTx(const QString& fingerprint, QString& psbt);
-    bool beginSignMessage(const QString& fingerprint, const QString& message, const QString& path, QString& signature);
-    bool endSignMessage(const QString& fingerprint, const QString& message, const QString& path, QString& signature);
     bool execRPC(ExecRPCCommand* cmd, const QMap<QString, QString>& lstParams, QVariant& result, QString& resultJson);
     void addError(const QString& error);
 

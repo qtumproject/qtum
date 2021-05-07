@@ -1618,6 +1618,8 @@ void BitcoinGUI::updateStakingIcon()
             labelStakingIcon->setToolTip(tr("Not staking because you don't have mature coins"));
         else if (walletModel->wallet().isLocked())
             labelStakingIcon->setToolTip(tr("Not staking because wallet is locked"));
+        else if(walletModel->hasLedgerProblem())
+            labelStakingIcon->setToolTip(tr("Not staking because the ledger fail to connect"));
         else
             labelStakingIcon->setToolTip(tr("Not staking"));
     }
