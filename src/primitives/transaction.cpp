@@ -116,3 +116,66 @@ std::string CTransaction::ToString() const
         str += "    " + tx_out.ToString() + "\n";
     return str;
 }
+
+///////////////////////////////////////////////////////////// qtum
+bool CTransaction::HasCreateOrCall() const{
+    for(const CTxOut& v : vout){
+        if(v.scriptPubKey.HasOpCreate() || v.scriptPubKey.HasOpCall()){
+            return true;
+        }
+    }
+    return false;
+}
+
+
+
+bool CTransaction::HasOpSpend() const{
+    for(const CTxIn& i : vin){
+        if(i.scriptSig.HasOpSpend()){
+            return true;
+        }
+    }
+    return false;
+}
+/////////////////////////////////////////////////////////////
+
+bool CTransaction::HasOpCreate() const
+{
+    for(const CTxOut& v : vout){
+        if(v.scriptPubKey.HasOpCreate()){
+            return true;
+        }
+    }
+    return false;
+}
+
+bool CTransaction::HasOpCall() const
+{
+    for(const CTxOut& v : vout){
+        if(v.scriptPubKey.HasOpCall()){
+            return true;
+        }
+    }
+    return false;
+}
+
+template <class T>
+bool hasOpSender(const T& txTo)
+{
+    for(const CTxOut& v : txTo.vout){
+        if(v.scriptPubKey.HasOpSender()){
+            return true;
+        }
+    }
+    return false;
+}
+
+bool CTransaction::HasOpSender() const
+{
+    return hasOpSender(*this);
+}
+
+bool CMutableTransaction::HasOpSender() const
+{
+    return hasOpSender(*this);
+}
