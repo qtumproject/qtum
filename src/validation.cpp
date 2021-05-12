@@ -5413,3 +5413,23 @@ void ChainstateManager::MaybeRebalanceCaches()
         }
     }
 }
+
+std::map<COutPoint, uint32_t> GetImmatureStakes()
+{
+    std::map<COutPoint, uint32_t> immatureStakes;
+    int height = ::ChainActive().Height();
+    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(height + 1);
+    for(int i = 0; i < coinbaseMaturity -1; i++) {
+        CBlockIndex* block = ::ChainActive()[height - i];
+        if(block)
+        {
+            immatureStakes[block->prevoutStake] = block->nTime;
+        }
+        else
+        {
+            break;
+        }
+    }
+    return immatureStakes;
+}
+//////////////////////////////////////////////////////////////////////////////////

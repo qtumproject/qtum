@@ -15,6 +15,7 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include <map>
 
 class ArgsManager;
 class CBlock;
@@ -152,6 +153,9 @@ public:
         const FoundBlock& ancestor_out={},
         const FoundBlock& block1_out={},
         const FoundBlock& block2_out={}) = 0;
+
+    //! Get map of the immature stakes.
+    virtual std::map<COutPoint, uint32_t> getImmatureStakes() = 0;
 
     //! Look up unspent output information. Returns coins in the mempool and in
     //! the current chain UTXO set. Iterates through all the keys in the map and

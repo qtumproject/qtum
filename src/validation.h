@@ -117,6 +117,11 @@ static const unsigned int DEFAULT_CHECKLEVEL = 3;
 // Setting the target to >= 550 MiB will make it likely we can respect the target.
 static const uint64_t MIN_DISK_SPACE_FOR_BLOCK_FILES = 550 * 1024 * 1024;
 
+static const uint64_t DEFAULT_GAS_LIMIT_OP_CREATE=2500000;
+static const uint64_t DEFAULT_GAS_LIMIT_OP_SEND=250000;
+static const CAmount DEFAULT_GAS_PRICE=0.00000040*COIN;
+static const CAmount MAX_RPC_GAS_PRICE=0.00000100*COIN;
+
 static const size_t MAX_CONTRACT_VOUTS = 1000; // qtum
 
 //! -stakingminutxovalue default
@@ -313,6 +318,7 @@ public:
 /** Initializes the script-execution cache */
 void InitScriptExecutionCache();
 
+std::map<COutPoint, uint32_t> GetImmatureStakes();
 
 /** Functions for disk access for blocks */
 bool ReadBlockFromDisk(CBlock& block, const FlatFilePos& pos, const Consensus::Params& consensusParams);

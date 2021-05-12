@@ -196,6 +196,11 @@ public:
         LOCK(cs_main);
         return CheckFinalTx(tx);
     }
+    std::map<COutPoint, uint32_t> getImmatureStakes() override
+    {
+        LOCK(cs_main);
+        return GetImmatureStakes();
+    }
     Optional<int> findLocatorFork(const CBlockLocator& locator) override
     {
         LOCK(cs_main);

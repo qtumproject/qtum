@@ -133,11 +133,20 @@ public:
     //! Get last block time.
     virtual int64_t getLastBlockTime() = 0;
 
+    //! Get block hash.
+    virtual uint256 getBlockHash(int blockNumber) = 0;
+
+    //! Get block time.
+    virtual int64_t getBlockTime(int blockNumber) = 0;
+
     //! Get verification progress.
     virtual double getVerificationProgress() = 0;
 
     //! Is initial block download.
     virtual bool isInitialBlockDownload() = 0;
+
+    //! Is -addresstype set.
+    virtual bool isAddressTypeSet() = 0;
 
     //! Get reindex.
     virtual bool getReindex() = 0;
@@ -150,6 +159,12 @@ public:
 
     //! Get network active.
     virtual bool getNetworkActive() = 0;
+
+    //! Get node synchronization information.
+    virtual void getSyncInfo(int& numBlocks, bool& isSyncing) = 0;
+
+    //! Try get node synchronization information.
+    virtual bool tryGetSyncInfo(int& numBlocks, bool& isSyncing) = 0;
 
     //! Estimate smart fee.
     virtual CFeeRate estimateSmartFee(int num_blocks, bool conservative, int* returned_target = nullptr) = 0;
@@ -174,6 +189,21 @@ public:
 
     //! Get wallet client.
     virtual WalletClient& walletClient() = 0;
+
+    //! Get the information about the needed gas
+    virtual void getGasInfo(uint64_t& blockGasLimit, uint64_t& minGasPrice, uint64_t& nGasPrice) = 0;
+
+    //! Get the reward for the block at some specific height
+    virtual int64_t getBlockSubsidy(int nHeight) = 0;
+
+    //! Get the network stake weight
+    virtual uint64_t getNetworkStakeWeight() = 0;
+
+    //! Get the estimated annual roi
+    virtual double getEstimatedAnnualROI() = 0;
+
+    //! Get the money supply
+    virtual int64_t getMoneySupply() = 0;
 
     //! Register handler for init messages.
     using InitMessageFn = std::function<void(const std::string& message)>;
