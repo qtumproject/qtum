@@ -11,6 +11,7 @@
 #include <test/util/wallet.h>
 #include <validationinterface.h>
 #include <wallet/wallet.h>
+#include <chainparams.h>
 
 static void WalletBalance(benchmark::Bench& bench, const bool set_dirty, const bool add_watchonly, const bool add_mine)
 {
@@ -37,7 +38,8 @@ static void WalletBalance(benchmark::Bench& bench, const bool set_dirty, const b
     const Optional<std::string> address_mine{add_mine ? Optional<std::string>{getnewaddress(wallet)} : nullopt};
     if (add_watchonly) importaddress(wallet, ADDRESS_WATCHONLY);
 
-    for (int i = 0; i < 100; ++i) {
+    int blockCount = Params().GetConsensus().CoinbaseMaturity(0) + 100;
+    for (int i = 0; i < blockCount; ++i) {
         generatetoaddress(test_setup.m_node, address_mine.get_value_or(ADDRESS_WATCHONLY));
         generatetoaddress(test_setup.m_node, ADDRESS_WATCHONLY);
     }

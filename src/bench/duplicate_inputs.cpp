@@ -10,6 +10,7 @@
 #include <test/util/setup_common.h>
 #include <txmempool.h>
 #include <validation.h>
+#include <util/convert.h>
 
 
 static void DuplicateInputs(benchmark::Bench& bench)

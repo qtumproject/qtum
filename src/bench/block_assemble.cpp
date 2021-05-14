@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <bench/bench.h>
+#include <chainparams.h>
 #include <consensus/validation.h>
 #include <crypto/sha256.h>
 #include <test/util/mining.h>
@@ -10,6 +11,7 @@
 #include <test/util/wallet.h>
 #include <txmempool.h>
 #include <validation.h>
+#include <util/convert.h>
 
 
 #include <vector>
@@ -34,14 +36,15 @@ static void AssembleBlock(benchmark::Bench& bench)
     const CScript SCRIPT_PUB{CScript(OP_0) << std::vector<unsigned char>{witness_program.begin(), witness_program.end()}};
 
     // Collect some loose transactions that spend the coinbases of our mined blocks
-    constexpr size_t NUM_BLOCKS{200};
-    std::array<CTransactionRef, NUM_BLOCKS - COINBASE_MATURITY + 1> txs;
+    constexpr size_t NUM_BLOCKS{2100};
+    constexpr size_t coinbaseMaturity = 2000;
+    std::array<CTransactionRef, NUM_BLOCKS - coinbaseMaturity + 1> txs;
     for (size_t b{0}; b < NUM_BLOCKS; ++b) {
         CMutableTransaction tx;
         tx.vin.push_back(MineBlock(test_setup.m_node, SCRIPT_PUB));
         tx.vin.back().scriptWitness = witness;
         tx.vout.emplace_back(1337, SCRIPT_PUB);
-        if (NUM_BLOCKS - b >= COINBASE_MATURITY)
+        if (NUM_BLOCKS - b >= coinbaseMaturity)
             txs.at(b) = MakeTransactionRef(tx);
     }
     {
