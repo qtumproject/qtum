@@ -2,7 +2,7 @@ NetBSD build guide
 ======================
 (updated for NetBSD 8.0)
 
-This guide describes how to build bitcoind and command-line utilities on NetBSD.
+This guide describes how to build qtumd and command-line utilities on NetBSD.
 
 This guide does not contain instructions for building the GUI.
 
@@ -21,8 +21,9 @@ libevent
 libtool
 pkg-config
 python37
+gmp
 
-git clone https://github.com/bitcoin/bitcoin.git
+git clone https://github.com/qtumproject/qtum --recursive
 ```
 
 See [dependencies.md](dependencies.md) for a complete overview.
@@ -47,7 +48,7 @@ from the root of the repository. Then set `BDB_PREFIX` for the next section:
 export BDB_PREFIX="$PWD/db4"
 ```
 
-### Building Bitcoin Core
+### Building Qtum Core
 
 **Important**: Use `gmake` (the non-GNU `make` will exit with an error).
 

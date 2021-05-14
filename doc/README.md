@@ -1,30 +1,30 @@
-Bitcoin Core
+Qtum Core
 =============
 
 Setup
 ---------------------
-Bitcoin Core is the original Bitcoin client and it builds the backbone of the network. It downloads and, by default, stores the entire history of Bitcoin transactions, which requires a few hundred gigabytes of disk space. Depending on the speed of your computer and network connection, the synchronization process can take anywhere from a few hours to a day or more.
+Qtum Core is the original Qtum client and it builds the backbone of the network. It downloads and, by default, stores the entire history of Qtum transactions (which is currently several GBs); depending on the speed of your computer and network connection, the synchronization process can take anywhere from a few hours to a day or more.
 
-To download Bitcoin Core, visit [bitcoincore.org](https://bitcoincore.org/en/download/).
+To download Qtum Core, visit [qtumcore.org](https://www.qtumcore.org/).
 
 Running
 ---------------------
-The following are some helpful notes on how to run Bitcoin Core on your native platform.
+The following are some helpful notes on how to run Qtum Core on your native platform.
 
 ### Unix
 
 Unpack the files into a directory and run:
 
-- `bin/bitcoin-qt` (GUI) or
-- `bin/bitcoind` (headless)
+- `bin/qtum-qt` (GUI) or
+- `bin/qtumd` (headless)
 
 ### Windows
 
-Unpack the files into a directory, and then run bitcoin-qt.exe.
+Unpack the files into a directory, and then run qtum-qt.exe.
 
 ### macOS
 
-Drag Bitcoin Core to your applications folder, and then run Bitcoin Core.
+Drag Qtum Core to your applications folder, and then run Qtum Core.
 
 ### Need Help?
 
