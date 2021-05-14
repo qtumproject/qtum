@@ -5,8 +5,10 @@ $(package)_file_name=$(package)-$($(package)_version).tar.xz
 $(package)_download_path=https://gmplib.org/download/$(package)
 
 define $(package)_set_vars
-$(package)_config_opts=--enable-static=yes --enable-shared=no --enable-cxx
-$(package)_config_opts_linux=--with-pic
+  $(package)_config_opts=--disable-shared --enable-cxx
+  $(package)_config_opts += --enable-option-checking
+  $(package)_config_opts_linux=--with-pic
+  $(package)_config_opts_darwin += --with-pic
 endef
 
 define $(package)_preprocess_cmds
