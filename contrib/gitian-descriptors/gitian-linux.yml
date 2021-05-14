@@ -1,5 +1,5 @@
 ---
-name: "bitcoin-core-linux-0.21"
+name: "qtum-core-linux-0.21"
 enable_cache: true
 distro: "ubuntu"
 suites:
@@ -30,12 +30,24 @@ packages:
 #  - riscv64-linux-gnu
 - "binutils-riscv64-linux-gnu"
 - "g++-8-riscv64-linux-gnu"
+- "cmake"
+- "libcurl4-openssl-dev"
+- "libgmp-dev"
+- "libmicrohttpd-dev"
+- "libminiupnpc-dev"
 remotes:
-- "url": "https://github.com/bitcoin/bitcoin.git"
-  "dir": "bitcoin"
+- "url": "https://github.com/qtumproject/qtum.git"
+  "dir": "qtum"
+- "url": "https://github.com/qtumproject/cpp-eth-qtum.git"
+  "dir": "cpp-eth-qtum"
 files: []
 script: |
   set -e -o pipefail
+
+  #this is a hack since gitian has no natural support for submodules
+  #make sure this file exists... 
+  cp -r cpp-eth-qtum/* qtum/src/cpp-ethereum
+  cat qtum/src/cpp-ethereum/utils/libscrypt/b64.c 
 
   WRAP_DIR=$HOME/wrapped
   HOSTS="x86_64-linux-gnu arm-linux-gnueabihf aarch64-linux-gnu riscv64-linux-gnu"
@@ -91,7 +103,7 @@ script: |
   create_per-host_faketime_wrappers "2000-01-01 12:00:00"
   export PATH=${WRAP_DIR}:${PATH}
 
-  cd bitcoin
+  cd qtum
   BASEPREFIX="${PWD}/depends"
   # Build dependencies for each host
   for i in $HOSTS; do
@@ -133,9 +145,9 @@ script: |
 
     ./autogen.sh
     CONFIG_SITE=${BASEPREFIX}/${i}/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking ${CONFIGFLAGS} CFLAGS="${HOST_CFLAGS}" CXXFLAGS="${HOST_CXXFLAGS}" LDFLAGS="${HOST_LDFLAGS}"
-    make ${MAKEOPTS}
-    make ${MAKEOPTS} -C src check-security
-    make ${MAKEOPTS} -C src check-symbols
+    make V=1 ${MAKEOPTS}
+    make V=1 ${MAKEOPTS} -C src check-security
+    make V=1 ${MAKEOPTS} -C src check-symbols
     make install DESTDIR=${INSTALLPATH}
     cd installed
     find . -name "lib*.la" -delete
