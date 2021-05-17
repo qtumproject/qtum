@@ -352,7 +352,6 @@ public:
     }
     bool HasOpSender() const;
 
-//begin_qtum
     bool IsCoinBase() const
     {
         return (vin.size() == 1 && vin[0].prevout.IsNull() && vout.size() >= 1);
