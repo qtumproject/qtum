@@ -434,6 +434,20 @@ public:
 
     SERIALIZE_METHODS(CScript, obj) { READWRITEAS(CScriptBase, obj); }
 
+    CScript& operator+=(const CScript& b)
+    {
+        reserve(size() + b.size());
+        insert(end(), b.begin(), b.end());
+        return *this;
+    }
+
+    friend CScript operator+(const CScript& a, const CScript& b)
+    {
+        CScript ret = a;
+        ret += b;
+        return ret;
+    }
+
     explicit CScript(int64_t b) { operator<<(b); }
     explicit CScript(opcodetype b)     { operator<<(b); }
     explicit CScript(const CScriptNum& b) { operator<<(b); }
@@ -583,6 +597,23 @@ public:
     {
         return Find(OP_SENDER) == 1;
     }
+
+    bool UpdateSenderSig(const std::vector<unsigned char>& scriptSig, CScript& scriptRet) const
+    {
+        return ReplaceParam(OP_SENDER, 1, scriptSig, scriptRet);
+    }
+
+    CScript WithoutSenderSig() const
+    {
+        std::vector<unsigned char> scriptSig;
+        CScript scriptRet;
+        if(!UpdateSenderSig(scriptSig, scriptRet))
+            scriptRet = CScript(begin(), end());
+        return scriptRet;
+    }
+
+    bool ReplaceParam(opcodetype findOp, int posBefore, const std::vector<unsigned char>& vchParam, CScript& scriptRet) const;
+    /////////////////////////////////////////
 
     void clear()
     {

@@ -39,4 +39,8 @@ void ParsePrevouts(const UniValue& prevTxsUnival, FillableSigningProvider* keyst
 /** Create a transaction from univalue parameters */
 CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniValue& outputs_in, const UniValue& locktime, bool rbf);
 
+UniValue SignTransactionSender(CMutableTransaction& mtx, FillableSigningProvider *keystore, const UniValue& hashType);
+
+void CheckSenderSignatures(CMutableTransaction& mtx);
+
 #endif // BITCOIN_RPC_RAWTRANSACTION_UTIL_H

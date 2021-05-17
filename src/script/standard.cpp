@@ -9,6 +9,8 @@
 #include <pubkey.h>
 #include <script/script.h>
 
+#include <streams.h>
+
 #include <string>
 
 typedef std::vector<unsigned char> valtype;
@@ -107,7 +109,7 @@ static bool MatchMultisig(const CScript& script, unsigned int& required, std::ve
     return (it + 1 == script.end());
 }
 
-TxoutType Solver(const CScript& scriptPubKey, std::vector<std::vector<unsigned char>>& vSolutionsRet)
+TxoutType Solver(const CScript& scriptPubKey, std::vector<std::vector<unsigned char>>& vSolutionsRet, bool contractConsensus, bool allowEmptySenderSig)
 {
     vSolutionsRet.clear();
 
@@ -177,10 +179,14 @@ TxoutType Solver(const CScript& scriptPubKey, std::vector<std::vector<unsigned c
     return TxoutType::NONSTANDARD;
 }
 
-bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet)
+bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet, TxoutType *typeRet)
 {
     std::vector<valtype> vSolutions;
     TxoutType whichType = Solver(scriptPubKey, vSolutions);
+
+    if(typeRet){
+        *typeRet = whichType;
+    }
 
     if (whichType == TxoutType::PUBKEY) {
         CPubKey pubKey(vSolutions[0]);
@@ -221,11 +227,11 @@ bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet)
     return false;
 }
 
-bool ExtractDestinations(const CScript& scriptPubKey, TxoutType& typeRet, std::vector<CTxDestination>& addressRet, int& nRequiredRet)
+bool ExtractDestinations(const CScript& scriptPubKey, TxoutType& typeRet, std::vector<CTxDestination>& addressRet, int& nRequiredRet, bool contractConsensus)
 {
     addressRet.clear();
     std::vector<valtype> vSolutions;
-    typeRet = Solver(scriptPubKey, vSolutions);
+    typeRet = Solver(scriptPubKey, vSolutions, contractConsensus);
     if (typeRet == TxoutType::NONSTANDARD) {
         return false;
     } else if (typeRet == TxoutType::NULL_DATA) {
@@ -321,6 +327,97 @@ CScript GetScriptForMultisig(int nRequired, const std::vector<CPubKey>& keys)
 
 bool IsValidDestination(const CTxDestination& dest) {
     return dest.which() != 0;
+}
+
+bool IsValidContractSenderAddress(const CTxDestination &dest)
+{
+    const PKHash *keyID = boost::get<PKHash>(&dest);
+    return keyID != 0;
+}
+
+bool ExtractSenderData(const CScript &outputPubKey, CScript *senderPubKey, CScript *senderSig)
+{
+    if(outputPubKey.HasOpSender())
+    {
+        try
+        {
+            // Solve the contract with or without contract consensus
+            std::vector<valtype> vSolutions;
+            if (TxoutType::NONSTANDARD == Solver(outputPubKey, vSolutions, true) &&
+                    TxoutType::NONSTANDARD == Solver(outputPubKey, vSolutions, false))
+                return false;
+
+            // Check the size of the returned data
+            if(vSolutions.size() < 2)
+                return false;
+
+            // Get the sender public key
+            if(senderPubKey)
+            {
+                CDataStream ss(vSolutions[0], SER_NETWORK, PROTOCOL_VERSION);
+                ss >> *senderPubKey;
+            }
+
+            // Get the sender signature
+            if(senderSig)
+            {
+                CDataStream ss(vSolutions[1], SER_NETWORK, PROTOCOL_VERSION);
+                ss >> *senderSig;
+            }
+        }
+        catch(...)
+        {
+            return false;
+        }
+
+        return true;
+    }
+    return false;
+}
+
+bool GetSenderPubKey(const CScript &outputPubKey, CScript &senderPubKey)
+{
+    if(outputPubKey.HasOpSender())
+    {
+        try
+        {
+            // Solve the contract with or without contract consensus
+            std::vector<valtype> vSolutions;
+            if (TxoutType::NONSTANDARD == Solver(outputPubKey, vSolutions, true, true) &&
+                    TxoutType::NONSTANDARD == Solver(outputPubKey, vSolutions, false, true))
+                return false;
+
+            // Check the size of the returned data
+            if(vSolutions.size() < 1)
+                return false;
+
+            // Get the sender public key
+            CDataStream ss(vSolutions[0], SER_NETWORK, PROTOCOL_VERSION);
+            ss >> senderPubKey;
+        }
+        catch(...)
+        {
+            return false;
+        }
+
+        return true;
+    }
+    return false;
+}
+
+PKHash ExtractPublicKeyHash(const CScript& scriptPubKey, bool* OK)
+{
+    if(OK) *OK = false;
+    CTxDestination address;
+    TxoutType txType=TxoutType::NONSTANDARD;
+    if(ExtractDestination(scriptPubKey, address, &txType)){
+        if ((txType == TxoutType::PUBKEY || txType == TxoutType::PUBKEYHASH) && address.type() == typeid(PKHash)) {
+            if(OK) *OK = true;
+            return boost::get<PKHash>(address);
+        }
+    }
+
+    return PKHash();
 }
 
 valtype DataVisitor::operator()(const CNoDestination& noDest) const { return valtype(); }

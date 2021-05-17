@@ -1385,6 +1385,22 @@ uint256 GetSequencesSHA256(const T& txTo)
     return ss.GetSHA256();
 }
 
+template <class T>
+uint256 GetFirstPrevoutHash(const T& txTo)
+{
+    CHashWriter ss(SER_GETHASH, 0);
+    ss << txTo.vin[0].prevout;
+    return ss.GetHash();
+}
+
+template <class T>
+uint256 GetFirstSequenceHash(const T& txTo)
+{
+    CHashWriter ss(SER_GETHASH, 0);
+    ss << txTo.vin[0].nSequence;
+    return ss.GetHash();
+}
+
 /** Compute the (single) SHA256 of the concatenation of all txouts of a tx. */
 template <class T>
 uint256 GetOutputsSHA256(const T& txTo)
@@ -1416,6 +1432,27 @@ uint256 GetSpentScriptsSHA256(const std::vector<CTxOut>& outputs_spent)
     return ss.GetSHA256();
 }
 
+CTxOut GetOutputWithoutSenderSig(const CTxOut& output)
+{
+    return CTxOut(output.nValue, output.scriptPubKey.WithoutSenderSig());
+}
+
+template <class T>
+uint256 GetOutputsOpSenderHash(const T& txTo)
+{
+    CHashWriter ss(SER_GETHASH, 0);
+    for (const auto& txout : txTo.vout) {
+        if(txout.scriptPubKey.HasOpSender())
+        {
+            ss << GetOutputWithoutSenderSig(txout);
+        }
+        else
+        {
+            ss << txout;
+        }
+    }
+    return ss.GetHash();
+}
 
 } // namespace
 
@@ -1571,6 +1608,60 @@ bool SignatureHashSchnorr(uint256& hash_out, const ScriptExecutionData& execdata
 
     hash_out = ss.GetSHA256();
     return true;
+}
+
+template <class T>
+uint256 SignatureHashOutput(const CScript& scriptCode, const T& txTo, unsigned int nOut, int nHashType, const CAmount& amount, SigVersion sigversion, const PrecomputedTransactionData* cache)
+{
+    assert(nOut < txTo.vout.size());
+
+    uint256 hashPrevouts;
+    uint256 hashSequence;
+    uint256 hashOutputs;
+    const bool cacheready = cache && cache->m_bip143_segwit_ready;
+
+    if (nHashType & SIGHASH_ANYONECANPAY) {
+        assert(0 < txTo.vin.size());
+        hashPrevouts = GetFirstPrevoutHash(txTo);
+        hashSequence = GetFirstSequenceHash(txTo);
+    }
+
+    if (!(nHashType & SIGHASH_ANYONECANPAY)) {
+        hashPrevouts = cacheready ? cache->hashPrevouts : GetPrevoutsSHA256(txTo);
+    }
+
+    if (!(nHashType & SIGHASH_ANYONECANPAY) && (nHashType & 0x1f) != SIGHASH_SINGLE && (nHashType & 0x1f) != SIGHASH_NONE) {
+        hashSequence = cacheready ? cache->hashSequence : GetSequencesSHA256(txTo);
+    }
+
+
+    if ((nHashType & 0x1f) != SIGHASH_SINGLE && (nHashType & 0x1f) != SIGHASH_NONE) {
+        hashOutputs = cacheready ? cache->hashOutputsOpSender : GetOutputsOpSenderHash(txTo);
+    } else if ((nHashType & 0x1f) == SIGHASH_SINGLE && nOut < txTo.vout.size()) {
+        CHashWriter ss(SER_GETHASH, 0);
+        ss << GetOutputWithoutSenderSig(txTo.vout[nOut]);
+        hashOutputs = ss.GetHash();
+    }
+
+    CHashWriter ss(SER_GETHASH, 0);
+
+    // Version
+    ss << txTo.nVersion;
+    // Input prevouts/nSequence (none/first/all, depending on flags)
+    ss << hashPrevouts;
+    ss << hashSequence;
+    // The output being signed
+    ss << GetOutputWithoutSenderSig(txTo.vout[nOut]);
+    ss << scriptCode;
+    ss << amount;
+    // Outputs (none/one/all, depending on flags)
+    ss << hashOutputs;
+    // Locktime
+    ss << txTo.nLockTime;
+    // Sighash type
+    ss << nHashType;
+
+    return ss.GetHash();
 }
 
 template <class T>
@@ -1790,6 +1881,38 @@ bool GenericTransactionSignatureChecker<T>::CheckSequence(const CScriptNum& nSeq
 // explicit instantiation
 template class GenericTransactionSignatureChecker<CTransaction>;
 template class GenericTransactionSignatureChecker<CMutableTransaction>;
+
+template <class T>
+bool GenericTransactionSignatureOutputChecker<T>::VerifyECDSASignature(const std::vector<unsigned char>& vchSig, const CPubKey& pubkey, const uint256& sighash) const
+{
+    return pubkey.Verify(sighash, vchSig);
+}
+
+template <class T>
+bool GenericTransactionSignatureOutputChecker<T>::CheckECDSASignature(const std::vector<unsigned char>& vchSigIn, const std::vector<unsigned char>& vchPubKey, const CScript& scriptCode, SigVersion sigversion) const
+{
+    CPubKey pubkey(vchPubKey);
+    if (!pubkey.IsValid())
+        return false;
+
+    // Hash type is one byte tacked on to the end of the signature
+    std::vector<unsigned char> vchSig(vchSigIn);
+    if (vchSig.empty())
+        return false;
+    int nHashType = vchSig.back();
+    vchSig.pop_back();
+
+    uint256 sighash = SignatureHashOutput(scriptCode, *txTo, nOut, nHashType, amount, sigversion, this->txdata);
+
+    if (!VerifyECDSASignature(vchSig, pubkey, sighash))
+        return false;
+
+    return true;
+}
+
+// explicit instantiation
+template class GenericTransactionSignatureOutputChecker<CTransaction>;
+template class GenericTransactionSignatureOutputChecker<CMutableTransaction>;
 
 static bool ExecuteWitnessScript(const Span<const valtype>& stack_span, const CScript& scriptPubKey, unsigned int flags, SigVersion sigversion, const BaseSignatureChecker& checker, ScriptExecutionData& execdata, ScriptError* serror)
 {

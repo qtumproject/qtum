@@ -366,6 +366,38 @@ bool IsOpSuccess(const opcodetype& opcode)
            (opcode >= 187 && opcode <= 254);
 }
 
+bool CScript::ReplaceParam(opcodetype findOp, int posBefore, const std::vector<unsigned char> &vchParam, CScript &scriptRet) const
+{
+    if(posBefore < 0)
+        return false;
+
+    // Find parameter with opcode and replace the parameter before with other value
+    bool ret = false;
+    std::vector<const_iterator> opcodes;
+    int minSize = posBefore + 1;
+    opcodetype opcode;
+    opcodes.push_back(begin());
+    for (const_iterator pc = begin(); pc != end() && GetOp(pc, opcode);)
+    {
+        if (opcode == findOp)
+        {
+            int size = opcodes.size();
+            if(size > minSize)
+            {
+                int firstPart = size -1 -posBefore;
+                int secondPart = size -posBefore;
+                scriptRet = CScript(begin(), opcodes[firstPart]) << vchParam;
+                scriptRet += CScript(opcodes[secondPart], end());
+                ret = true;
+            }
+            break;
+        }
+        opcodes.push_back(pc);
+    }
+
+    return ret;
+}
+
 bool CScript::IsPayToWitnessPubkeyHash() const
 {
     // Extra-fast test for pay-to-witness-pubkey-hash CScripts:
