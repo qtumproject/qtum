@@ -303,7 +303,7 @@ class QtumQRC20Test(BitcoinTestFramework):
 
         tip = self.node.getblock(self.node.getbestblockhash())
         prevtip = self.node.getblock(tip['previousblockhash'])
-        assert_equal(self.reorg_node.qrc20listtransactions(self.contract_address, self.reorg_node.getnewaddress(), 0, 0), [{
+        assert_equal(self.reorg_node.qrc20listtransactions(self.contract_address, self.creator, 0, 0), [{
             'amount': '-0.01000000',
             'blockHash': prevtip['hash'],
             'blockNumber': 2107,
