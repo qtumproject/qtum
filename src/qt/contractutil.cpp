@@ -85,3 +85,15 @@ bool ContractUtil::getRegularExpession(const ParameterType &paramType, QRegularE
     }
     return ret;
 }
+
+QMap<QString, QString> ContractUtil::fromStdMap(const std::map<std::string, std::string> &fromMap)
+{
+    QMap<QString, QString> toMap;
+    for (auto it = fromMap.begin(); it != fromMap.end(); it++)
+    {
+        QString key = QString::fromStdString(it->first);
+        QString value = QString::fromStdString(it->second);
+        toMap[key] = value;
+    }
+    return toMap;
+}

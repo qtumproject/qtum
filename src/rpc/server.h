@@ -28,9 +28,9 @@ struct CUpdatedBlock
     int height;
 };
 
-static Mutex cs_blockchange;
-static std::condition_variable cond_blockchange;
-static CUpdatedBlock latestblock;
+extern Mutex cs_blockchange;
+extern std::condition_variable cond_blockchange;
+extern CUpdatedBlock latestblock;
 
 class CRPCCommand;
 class HTTPRequest;
