@@ -81,6 +81,8 @@ constexpr CAmount HIGH_APS_FEE{COIN / 10000};
 static const CAmount WALLET_INCREMENTAL_RELAY_FEE = 10000;
 //! Default for -spendzeroconfchange
 static const bool DEFAULT_SPEND_ZEROCONF_CHANGE = true;
+//! Default for zero balance address token
+static const bool DEFAULT_ZERO_BALANCE_ADDRESS_TOKEN = true;
 //! Default for -walletrejectlongchains
 static const bool DEFAULT_WALLET_REJECT_LONG_CHAINS = false;
 //! -txconfirmtarget default

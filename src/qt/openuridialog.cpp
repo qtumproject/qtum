@@ -7,8 +7,10 @@
 
 #include <qt/guiutil.h>
 #include <qt/sendcoinsrecipient.h>
+#include <qt/styleSheet.h>
 
 #include <QUrl>
+#include <QPushButton>
 
 OpenURIDialog::OpenURIDialog(QWidget *parent) :
     QDialog(parent),
@@ -17,6 +19,9 @@ OpenURIDialog::OpenURIDialog(QWidget *parent) :
     ui->setupUi(this);
 
     GUIUtil::handleCloseWindowShortcut(this);
+
+    SetObjectStyleSheet(ui->buttonBox->button(QDialogButtonBox::Cancel), StyleSheetNames::ButtonLight);
+    SetObjectStyleSheet(ui->buttonBox->button(QDialogButtonBox::Ok), StyleSheetNames::ButtonGray);
 }
 
 OpenURIDialog::~OpenURIDialog()
