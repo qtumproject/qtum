@@ -5452,6 +5452,11 @@ void ChainstateManager::MaybeRebalanceCaches()
     }
 }
 
+CAmount GetTxGasFee(const CMutableTransaction& _tx)
+{
+    return 0;
+}
+
 std::map<COutPoint, uint32_t> GetImmatureStakes()
 {
     std::map<COutPoint, uint32_t> immatureStakes;
