@@ -17,6 +17,7 @@
 #include <node/coinstats.h>
 #include <node/context.h>
 #include <node/utxo_snapshot.h>
+#include <key_io.h>
 #include <policy/feerate.h>
 #include <policy/policy.h>
 #include <policy/rbf.h>
@@ -36,6 +37,12 @@
 #include <validation.h>
 #include <validationinterface.h>
 #include <warnings.h>
+#include <libdevcore/CommonData.h>
+#include <pow.h>
+#include <pos.h>
+#include <txdb.h>
+#include <util/convert.h>
+#include <qtum/qtumdelegation.h>
 
 #include <stdint.h>
 
@@ -233,11 +240,23 @@ UniValue blockheaderToJSON(const CBlockIndex* tip, const CBlockIndex* blockindex
     result.pushKV("difficulty", GetDifficulty(blockindex));
     result.pushKV("chainwork", blockindex->nChainWork.GetHex());
     result.pushKV("nTx", (uint64_t)blockindex->nTx);
+    result.pushKV("hashStateRoot", blockindex->hashStateRoot.GetHex()); // qtum
+    result.pushKV("hashUTXORoot", blockindex->hashUTXORoot.GetHex()); // qtum
+
+    if(blockindex->IsProofOfStake()){
+        result.pushKV("prevoutStakeHash", blockindex->prevoutStake.hash.GetHex()); // qtum
+        result.pushKV("prevoutStakeVoutN", (int64_t)blockindex->prevoutStake.n); // qtum
+    }
 
     if (blockindex->pprev)
         result.pushKV("previousblockhash", blockindex->pprev->GetBlockHash().GetHex());
     if (pnext)
         result.pushKV("nextblockhash", pnext->GetBlockHash().GetHex());
+	
+    result.pushKV("flags", strprintf("%s", blockindex->IsProofOfStake()? "proof-of-stake" : "proof-of-work"));
+    result.pushKV("proofhash", blockindex->hashProof.GetHex());
+    result.pushKV("modifier", blockindex->nStakeModifier.GetHex());
+
     return result;
 }
 
@@ -258,6 +277,14 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* tip, const CBlockIn
     result.pushKV("version", block.nVersion);
     result.pushKV("versionHex", strprintf("%08x", block.nVersion));
     result.pushKV("merkleroot", block.hashMerkleRoot.GetHex());
+    result.pushKV("hashStateRoot", block.hashStateRoot.GetHex()); // qtum
+    result.pushKV("hashUTXORoot", block.hashUTXORoot.GetHex()); // qtum
+
+    if(blockindex->IsProofOfStake()){
+        result.pushKV("prevoutStakeHash", blockindex->prevoutStake.hash.GetHex()); // qtum
+        result.pushKV("prevoutStakeVoutN", (int64_t)blockindex->prevoutStake.n); // qtum
+    }
+
     UniValue txs(UniValue::VARR);
     for(const auto& tx : block.vtx)
     {
@@ -283,7 +310,83 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* tip, const CBlockIn
         result.pushKV("previousblockhash", blockindex->pprev->GetBlockHash().GetHex());
     if (pnext)
         result.pushKV("nextblockhash", pnext->GetBlockHash().GetHex());
+
+    result.pushKV("flags", strprintf("%s", blockindex->IsProofOfStake()? "proof-of-stake" : "proof-of-work"));
+    result.pushKV("proofhash", blockindex->hashProof.GetHex());
+    result.pushKV("modifier", blockindex->nStakeModifier.GetHex());
+
+    if (block.IsProofOfStake())
+    {
+        std::vector<unsigned char> vchBlockSig = block.GetBlockSignature();
+        result.pushKV("signature", HexStr(vchBlockSig));
+        if(block.HasProofOfDelegation())
+        {
+            std::vector<unsigned char> vchPoD = block.GetProofOfDelegation();
+            result.pushKV("proofOfDelegation", HexStr(vchPoD));
+        }
+    }
+
     return result;
+}
+
+//////////////////////////////////////////////////////////////////////////// // qtum
+UniValue executionResultToJSON(const dev::eth::ExecutionResult& exRes)
+{
+    UniValue result(UniValue::VOBJ);
+    result.pushKV("gasUsed", CAmount(exRes.gasUsed));
+    std::stringstream ss;
+    ss << exRes.excepted;
+    result.pushKV("excepted", ss.str());
+    result.pushKV("newAddress", exRes.newAddress.hex());
+    result.pushKV("output", HexStr(exRes.output));
+    result.pushKV("codeDeposit", static_cast<int32_t>(exRes.codeDeposit));
+    result.pushKV("gasRefunded", CAmount(exRes.gasRefunded));
+    result.pushKV("depositSize", static_cast<int32_t>(exRes.depositSize));
+    result.pushKV("gasForDeposit", CAmount(exRes.gasForDeposit));
+    result.pushKV("exceptedMessage", exceptedMessage(exRes.excepted, exRes.output));
+    return result;
+}
+
+UniValue transactionReceiptToJSON(const QtumTransactionReceipt& txRec)
+{
+    UniValue result(UniValue::VOBJ);
+    result.pushKV("stateRoot", txRec.stateRoot().hex());
+    result.pushKV("utxoRoot", txRec.utxoRoot().hex());
+    result.pushKV("gasUsed", CAmount(txRec.cumulativeGasUsed()));
+    result.pushKV("bloom", txRec.bloom().hex());
+    UniValue logEntries(UniValue::VARR);
+    dev::eth::LogEntries logs = txRec.log();
+    for(dev::eth::LogEntry log : logs){
+        UniValue logEntrie(UniValue::VOBJ);
+        logEntrie.pushKV("address", log.address.hex());
+        UniValue topics(UniValue::VARR);
+        for(dev::h256 l : log.topics){
+            topics.push_back(l.hex());
+        }
+        logEntrie.pushKV("topics", topics);
+        logEntrie.pushKV("data", HexStr(log.data));
+        logEntries.push_back(logEntrie);
+    }
+    result.pushKV("log", logEntries);
+    return result;
+}
+////////////////////////////////////////////////////////////////////////////
+
+static UniValue getestimatedannualroi(const JSONRPCRequest& request)
+{
+            RPCHelpMan{"getestimatedannualroi",
+                "\nReturns the estimated annual roi.\n",
+                {},
+                RPCResult{
+                    RPCResult::Type::NUM, "", "The current estimated annual roi"},
+                RPCExamples{
+                    HelpExampleCli("getestimatedannualroi", "")
+            + HelpExampleRpc("getestimatedannualroi", "")
+                },
+            }.Check(request);
+
+    LOCK(cs_main);
+    return GetEstimatedAnnualROI();
 }
 
 static RPCHelpMan getblockcount()
@@ -490,7 +593,8 @@ static RPCHelpMan syncwithvalidationinterfacequeue()
 static RPCHelpMan getdifficulty()
 {
     return RPCHelpMan{"getdifficulty",
-                "\nReturns the proof-of-work difficulty as a multiple of the minimum difficulty.\n",
+                "\nReturns the proof-of-work difficulty as a multiple of the minimum difficulty.\n"
+                "\nReturns the proof-of-stake difficulty as a multiple of the minimum difficulty.\n",
                 {},
                 RPCResult{
                     RPCResult::Type::NUM, "", "the proof-of-work difficulty as a multiple of the minimum difficulty."},
@@ -501,7 +605,10 @@ static RPCHelpMan getdifficulty()
         [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
 {
     LOCK(cs_main);
-    return GetDifficulty(::ChainActive().Tip());
+    UniValue obj(UniValue::VOBJ);
+    obj.pushKV("proof-of-work",        GetDifficulty(GetLastBlockIndex(pindexBestHeader, false)));
+    obj.pushKV("proof-of-stake",       GetDifficulty(GetLastBlockIndex(pindexBestHeader, true)));
+    return obj;
 },
     };
 }
@@ -877,6 +984,144 @@ static RPCHelpMan getblockhash()
     };
 }
 
+static UniValue getaccountinfo(const JSONRPCRequest& request)
+{
+            RPCHelpMan{"getaccountinfo",
+                "\nGet contract details including balance, storage data and code.\n",
+                {
+                    {"address", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
+                },
+                RPCResult{
+                    RPCResult::Type::OBJ, "", "",
+                    {
+                        {RPCResult::Type::STR, "address", "The address of the contract"},
+                        {RPCResult::Type::STR_AMOUNT, "balance", "The balance of the contract"},
+                        {RPCResult::Type::STR, "storage", "The storage data of the contract"},
+                        {RPCResult::Type::STR_HEX, "code", "The bytecode of the contract"},
+                    }},
+                RPCExamples{
+                    HelpExampleCli("getaccountinfo", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
+            + HelpExampleRpc("getaccountinfo", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
+                },
+            }.Check(request);
+
+    LOCK(cs_main);
+
+    std::string strAddr = request.params[0].get_str();
+    if(strAddr.size() != 40 || !CheckHex(strAddr))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect address");
+
+    dev::Address addrAccount(strAddr);
+    if(!globalState->addressInUse(addrAccount))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
+    
+    UniValue result(UniValue::VOBJ);
+
+    result.pushKV("address", strAddr);
+    result.pushKV("balance", CAmount(globalState->balance(addrAccount)));
+    std::vector<uint8_t> code(globalState->code(addrAccount));
+    auto storage(globalState->storage(addrAccount));
+
+    UniValue storageUV(UniValue::VOBJ);
+    for (auto j: storage)
+    {
+        UniValue e(UniValue::VOBJ);
+        e.pushKV(dev::toHex(dev::h256(j.second.first)), dev::toHex(dev::h256(j.second.second)));
+        storageUV.pushKV(j.first.hex(), e);
+    }
+        
+    result.pushKV("storage", storageUV);
+
+    result.pushKV("code", HexStr(code));
+
+    std::unordered_map<dev::Address, Vin> vins = globalState->vins();
+    if(vins.count(addrAccount)){
+        UniValue vin(UniValue::VOBJ);
+        valtype vchHash(vins[addrAccount].hash.asBytes());
+        std::reverse(vchHash.begin(), vchHash.end());
+        vin.pushKV("hash", HexStr(vchHash));
+        vin.pushKV("nVout", uint64_t(vins[addrAccount].nVout));
+        vin.pushKV("value", uint64_t(vins[addrAccount].value));
+        result.pushKV("vin", vin);
+    }
+    return result;
+}
+
+static UniValue getstorage(const JSONRPCRequest& request)
+{
+            RPCHelpMan{"getstorage",
+                "\nGet contract storage data.\n",
+                {
+                    {"address", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
+                    {"blockNum", RPCArg::Type::NUM,  /* default */ "latest", "Number of block to get state from."},
+                    {"index", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "Zero-based index position of the storage"},
+                },
+                RPCResult{
+                    RPCResult::Type::STR, "", "The storage data of the contract"},
+                RPCExamples{
+                    HelpExampleCli("getstorage", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
+            + HelpExampleRpc("getstorage", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
+                },
+            }.Check(request);
+
+    LOCK(cs_main);
+
+    std::string strAddr = request.params[0].get_str();
+    if(strAddr.size() != 40 || !CheckHex(strAddr))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect address"); 
+
+    TemporaryState ts(globalState);
+    if (request.params.size() > 1)
+    {
+        if (request.params[1].isNum())
+        {
+            auto blockNum = request.params[1].get_int();
+            if((blockNum < 0 && blockNum != -1) || blockNum > ::ChainActive().Height())
+                throw JSONRPCError(RPC_INVALID_PARAMS, "Incorrect block number");
+
+            if(blockNum != -1)
+                ts.SetRoot(uintToh256(::ChainActive()[blockNum]->hashStateRoot), uintToh256(::ChainActive()[blockNum]->hashUTXORoot));
+                
+        } else {
+            throw JSONRPCError(RPC_INVALID_PARAMS, "Incorrect block number");
+        }
+    }
+
+    dev::Address addrAccount(strAddr);
+    if(!globalState->addressInUse(addrAccount))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
+    
+    UniValue result(UniValue::VOBJ);
+
+    bool onlyIndex = request.params.size() > 2;
+    unsigned index = 0;
+    if (onlyIndex)
+        index = request.params[2].get_int();
+
+    auto storage(globalState->storage(addrAccount));
+
+    if (onlyIndex)
+    {
+        if (index >= storage.size())
+        {
+            std::ostringstream stringStream;
+            stringStream << "Storage size: " << storage.size() << " got index: " << index;
+            throw JSONRPCError(RPC_INVALID_PARAMS, stringStream.str());
+        }
+        auto elem = std::next(storage.begin(), index);
+        UniValue e(UniValue::VOBJ);
+
+        storage = {{elem->first, {elem->second.first, elem->second.second}}};
+    } 
+    for (const auto& j: storage)
+    {
+        UniValue e(UniValue::VOBJ);
+        e.pushKV(dev::toHex(dev::h256(j.second.first)), dev::toHex(dev::h256(j.second.second)));
+        result.pushKV(j.first.hex(), e);
+    }
+    return result;
+}
+
 static RPCHelpMan getblockheader()
 {
     return RPCHelpMan{"getblockheader",
@@ -1203,8 +1448,8 @@ static RPCHelpMan gettxout()
                                 {RPCResult::Type::STR_HEX, "hex", ""},
                                 {RPCResult::Type::NUM, "reqSigs", "Number of required signatures"},
                                 {RPCResult::Type::STR_HEX, "type", "The type, eg pubkeyhash"},
-                                {RPCResult::Type::ARR, "addresses", "array of bitcoin addresses",
-                                    {{RPCResult::Type::STR, "address", "bitcoin address"}}},
+                                {RPCResult::Type::ARR, "addresses", "array of qtum addresses",
+                                    {{RPCResult::Type::STR, "address", "qtum address"}}},
                             }},
                         {RPCResult::Type::BOOL, "coinbase", "Coinbase or not"},
                     }},
@@ -1257,6 +1502,7 @@ static RPCHelpMan gettxout()
     ScriptPubKeyToUniv(coin.out.scriptPubKey, o, true);
     ret.pushKV("scriptPubKey", o);
     ret.pushKV("coinbase", (bool)coin.fCoinBase);
+    ret.pushKV("coinstake", (bool)coin.fCoinStake);
 
     return ret;
 },
@@ -1420,6 +1666,7 @@ RPCHelpMan getblockchaininfo()
     obj.pushKV("headers",               pindexBestHeader ? pindexBestHeader->nHeight : -1);
     obj.pushKV("bestblockhash",         tip->GetBlockHash().GetHex());
     obj.pushKV("difficulty",            (double)GetDifficulty(tip));
+    obj.pushKV("moneysupply",           pindexBestHeader->nMoneySupply / COIN);
     obj.pushKV("mediantime",            (int64_t)tip->GetMedianTimePast());
     obj.pushKV("verificationprogress",  GuessVerificationProgress(Params().TxData(), tip));
     obj.pushKV("initialblockdownload",  ::ChainstateActive().IsInitialBlockDownload());
@@ -1762,7 +2009,6 @@ static RPCHelpMan getchaintxstats()
         [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
 {
     const CBlockIndex* pindex;
-    int blockcount = 30 * 24 * 60 * 60 / Params().GetConsensus().nPowTargetSpacing; // By default: 1 month
 
     if (request.params[1].isNull()) {
         LOCK(cs_main);
@@ -1778,6 +2024,7 @@ static RPCHelpMan getchaintxstats()
             throw JSONRPCError(RPC_INVALID_PARAMETER, "Block is not in main chain");
         }
     }
+    int blockcount = 30 * 24 * 60 * 60 / Params().GetConsensus().TargetSpacing(pindex->nHeight); // By default: 1 month
 
     CHECK_NONFATAL(pindex != nullptr);
 
@@ -2015,7 +2262,7 @@ static RPCHelpMan getblockstats()
             }
         }
 
-        if (tx->IsCoinBase()) {
+        if (tx->IsCoinBase() || tx->IsCoinStake()) {
             continue;
         }
 
