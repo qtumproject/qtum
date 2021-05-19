@@ -37,6 +37,9 @@
 #include <wallet/wallet.h>
 #include <wallet/walletdb.h>
 #include <wallet/walletutil.h>
+#include <qtum/qtumdelegation.h>
+#include <util/signstr.h>
+#include <interfaces/wallet.h>
 
 #include <stdint.h>
 
@@ -117,10 +120,41 @@ std::shared_ptr<CWallet> GetWalletForJSONRPCRequest(const JSONRPCRequest& reques
         "Wallet file not specified (must request wallet RPC through /wallet/<filename> uri-path).");
 }
 
+bool GetSenderDest(CWallet * const pwallet, const CTransactionRef& tx, CTxDestination& txSenderDest)
+{
+    // Initialize variables
+    CScript senderPubKey;
+
+    // Get sender destination
+    if(tx->HasOpSender())
+    {
+        // Get destination from the outputs
+        for(CTxOut out : tx->vout)
+        {
+            if(out.scriptPubKey.HasOpSender())
+            {
+                ExtractSenderData(out.scriptPubKey, &senderPubKey, 0);
+                break;
+            }
+        }
+    }
+    else
+    {
+        // Get destination from the inputs
+        senderPubKey = pwallet->mapWallet.at(tx->vin[0].prevout.hash).tx->vout[tx->vin[0].prevout.n].scriptPubKey;
+    }
+
+    // Extract destination from script
+    return ExtractDestination(senderPubKey, txSenderDest);
+}
+
 void EnsureWalletIsUnlocked(const CWallet* pwallet)
 {
     if (pwallet->IsLocked()) {
         throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Please enter the wallet passphrase with walletpassphrase first.");
+    }
+    if (pwallet->m_wallet_unlock_staking_only) {
+        throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Wallet is unlocked for staking only.");
     }
 }
 
@@ -149,7 +183,7 @@ static void WalletTxToJSON(interfaces::Chain& chain, const CWalletTx& wtx, UniVa
 {
     int confirms = wtx.GetDepthInMainChain();
     entry.pushKV("confirmations", confirms);
-    if (wtx.IsCoinBase())
+    if (wtx.IsCoinBase() || wtx.IsCoinStake())
         entry.pushKV("generated", true);
     if (confirms > 0)
     {
@@ -230,10 +264,58 @@ static void SetFeeEstimateMode(const CWallet& wallet, CCoinControl& cc, const Un
     }
 }
 
+bool SetDefaultPayForContractAddress(CWallet* const pwallet, CCoinControl & coinControl)
+{
+    // Set default coin to pay for the contract
+    // Select any valid unspent output that can be used to pay for the contract
+    std::vector<COutput> vecOutputs;
+    coinControl.fAllowOtherInputs=true;
+
+    assert(pwallet != NULL);
+    pwallet->AvailableCoins(vecOutputs, false, NULL, true);
+
+    for (const COutput& out : vecOutputs) {
+        CTxDestination destAdress;
+        const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
+        bool fValidAddress = ExtractDestination(scriptPubKey, destAdress)
+                && IsValidContractSenderAddress(destAdress);
+
+        if (!fValidAddress)
+            continue;
+
+        coinControl.Select(COutPoint(out.tx->GetHash(),out.i));
+        break;
+    }
+
+    return coinControl.HasSelected();
+}
+
+bool SetDefaultSignSenderAddress(CWallet* const pwallet, CTxDestination& destAdress)
+{
+    // Set default sender address if none provided
+    // Select any valid unspent output that can be used for contract sender address
+    std::vector<COutput> vecOutputs;
+
+    assert(pwallet != NULL);
+    pwallet->AvailableCoins(vecOutputs, false, NULL, true);
+
+    for (const COutput& out : vecOutputs) {
+        const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
+        bool fValidAddress = ExtractDestination(scriptPubKey, destAdress)
+                && IsValidContractSenderAddress(destAdress);
+
+        if (!fValidAddress)
+            continue;
+        break;
+    }
+
+    return !boost::get<CNoDestination>(&destAdress);
+}
+
 static RPCHelpMan getnewaddress()
 {
     return RPCHelpMan{"getnewaddress",
-                "\nReturns a new Bitcoin address for receiving payments.\n"
+                "\nReturns a new Qtum address for receiving payments.\n"
                 "If 'label' is specified, it is added to the address book \n"
                 "so payments received with the address will be associated with 'label'.\n",
                 {
@@ -241,7 +323,7 @@ static RPCHelpMan getnewaddress()
                     {"address_type", RPCArg::Type::STR, /* default */ "set by -addresstype", "The address type to use. Options are \"legacy\", \"p2sh-segwit\", and \"bech32\"."},
                 },
                 RPCResult{
-                    RPCResult::Type::STR, "address", "The new bitcoin address"
+                    RPCResult::Type::STR, "address", "The new qtum address"
                 },
                 RPCExamples{
                     HelpExampleCli("getnewaddress", "")
@@ -285,7 +367,7 @@ static RPCHelpMan getnewaddress()
 static RPCHelpMan getrawchangeaddress()
 {
     return RPCHelpMan{"getrawchangeaddress",
-                "\nReturns a new Bitcoin address, for receiving change.\n"
+                "\nReturns a new Qtum address, for receiving change.\n"
                 "This is for use with raw transactions, NOT normal use.\n",
                 {
                     {"address_type", RPCArg::Type::STR, /* default */ "set by -changetype", "The address type to use. Options are \"legacy\", \"p2sh-segwit\", and \"bech32\"."},
@@ -332,7 +414,7 @@ static RPCHelpMan setlabel()
     return RPCHelpMan{"setlabel",
                 "\nSets the label associated with the given address.\n",
                 {
-                    {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The bitcoin address to be associated with a label."},
+                    {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The qtum address to be associated with a label."},
                     {"label", RPCArg::Type::STR, RPCArg::Optional::NO, "The label to assign to the address."},
                 },
                 RPCResult{RPCResult::Type::NONE, "", ""},
@@ -350,7 +432,7 @@ static RPCHelpMan setlabel()
 
     CTxDestination dest = DecodeDestination(request.params[0].get_str());
     if (!IsValidDestination(dest)) {
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Bitcoin address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Qtum address");
     }
 
     std::string label = LabelFromValue(request.params[1]);
@@ -396,7 +478,7 @@ void ParseRecipients(const UniValue& address_amounts, const UniValue& subtract_f
     }
 }
 
-UniValue SendMoney(CWallet* const pwallet, const CCoinControl &coin_control, std::vector<CRecipient> &recipients, mapValue_t map_value, bool verbose)
+UniValue SendMoney(CWallet* const pwallet, const CCoinControl &coin_control, std::vector<CRecipient> &recipients, mapValue_t map_value, bool verbose, bool hasSender = false)
 {
     EnsureWalletIsUnlocked(pwallet);
 
@@ -404,6 +486,11 @@ UniValue SendMoney(CWallet* const pwallet, const CCoinControl &coin_control, std
     // This should always try to sign, if we don't have private keys, don't try to do anything here.
     if (pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS)) {
         throw JSONRPCError(RPC_WALLET_ERROR, "Error: Private keys are disabled for this wallet");
+    }
+
+    if (pwallet->m_wallet_unlock_staking_only)
+    {
+        throw JSONRPCError(RPC_WALLET_ERROR, "Error: Wallet unlocked for staking only, unable to create transaction.");
     }
 
     // Shuffle recipient list
@@ -415,7 +502,7 @@ UniValue SendMoney(CWallet* const pwallet, const CCoinControl &coin_control, std
     bilingual_str error;
     CTransactionRef tx;
     FeeCalculation fee_calc_out;
-    const bool fCreated = pwallet->CreateTransaction(recipients, tx, nFeeRequired, nChangePosRet, error, coin_control, fee_calc_out, true);
+    const bool fCreated = pwallet->CreateTransaction(recipients, tx, nFeeRequired, nChangePosRet, error, coin_control, fee_calc_out, true, 0, hasSender);
     if (!fCreated) {
         throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, error.original);
     }
@@ -429,13 +516,160 @@ UniValue SendMoney(CWallet* const pwallet, const CCoinControl &coin_control, std
     return tx->GetHash().GetHex();
 }
 
+void SplitRemainder(std::vector<CRecipient>& vecSend, CAmount& remainder, CAmount maxValue)
+{
+    if(remainder > 0)
+    {
+        for(int i = vecSend.size() - 1; i >= 0 ; i--)
+        {
+            CAmount diffAmount = maxValue - vecSend[i].nAmount;
+            if(diffAmount > 0)
+            {
+                if((remainder - diffAmount) > 0)
+                {
+                    vecSend[i].nAmount = vecSend[i].nAmount + diffAmount;
+                    remainder -= diffAmount;
+                }
+                else
+                {
+                    vecSend[i].nAmount = vecSend[i].nAmount + remainder;
+                    remainder = 0;
+                }
+            }
+
+            if(remainder <= 0)
+                break;
+        }
+    }
+}
+
+static CTransactionRef SplitUTXOs(CWallet * const pwallet, const CTxDestination &address, CAmount nValue, CAmount maxValue, const CCoinControl& coin_control, CAmount nTotal, int maxOutputs, CAmount& nSplited)
+{
+    // Check amount
+    if (nValue <= 0)
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid amount");
+
+    if (nValue > nTotal)
+        throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Insufficient funds");
+
+    // Parse Qtum address
+    CScript scriptPubKey = GetScriptForDestination(address);
+
+    // Split into utxos with nValue
+    CAmount nFeeRequired = 0;
+    bilingual_str error;
+    std::vector<CRecipient> vecSend;
+    int nChangePosRet = -1;
+    int numOfRecipients = static_cast<int>(nTotal / nValue);
+
+    // Compute the number of recipients
+    CAmount remainder = nTotal % nValue;
+    if(remainder == 0 && numOfRecipients > 0)
+    {
+        numOfRecipients -= 1;
+        remainder = nValue;
+    }
+    if(numOfRecipients > maxOutputs)
+    {
+        numOfRecipients = maxOutputs;
+        remainder = 0;
+    }
+
+    // Split coins between recipients
+    CAmount nTxAmount = 0;
+    nSplited = 0;
+    CRecipient recipient = {scriptPubKey, nValue, false};
+    for(int i = 0; i < numOfRecipients; i++) {
+        vecSend.push_back(recipient);
+    }
+    SplitRemainder(vecSend, remainder, maxValue);
+
+    // Get the total amount of the outputs
+    for(CRecipient rec : vecSend)
+    {
+        nTxAmount += rec.nAmount;
+    }
+
+    // Create the transaction
+    CTransactionRef tx;
+    if((nTxAmount + pwallet->m_default_max_tx_fee) <= nTotal)
+    {
+        FeeCalculation fee_calc_out;
+        if (!pwallet->CreateTransaction(vecSend, tx, nFeeRequired, nChangePosRet, error, coin_control, fee_calc_out, true, 0, true)) {
+            throw JSONRPCError(RPC_WALLET_ERROR, error.original);
+        }
+        nSplited = nFeeRequired;
+    }
+    else if (vecSend.size() > 0)
+    {
+        // Pay the fee for the tx with the last recipient
+        CRecipient lastRecipient = vecSend[vecSend.size() - 1];
+        lastRecipient.fSubtractFeeFromAmount = true;
+        vecSend[vecSend.size() - 1] = lastRecipient;
+        FeeCalculation fee_calc_out;
+        if (!pwallet->CreateTransaction(vecSend, tx, nFeeRequired, nChangePosRet, error, coin_control, fee_calc_out, true, 0, true)) {
+            throw JSONRPCError(RPC_WALLET_ERROR, error.original);
+        }
+
+        // Combine the last 2 outputs when the last output have value less than nValue due to paying the fee
+        if(vecSend.size() >= 2)
+        {
+            if((lastRecipient.nAmount - nFeeRequired) < nValue)
+            {
+                bool payFeeRemainder = (nTotal - nTxAmount) > nFeeRequired * 1.1;
+                if(payFeeRemainder)
+                {
+                    // Pay the fee with the remainder
+                    lastRecipient.fSubtractFeeFromAmount = false;
+                    vecSend.pop_back();
+                    vecSend.push_back(lastRecipient);
+                }
+                else
+                {
+                    // Combine the last 2 outputs
+                    CAmount nValueLast2 = lastRecipient.nAmount + vecSend[vecSend.size() - 2].nAmount;
+                    lastRecipient.nAmount = lastRecipient.nAmount + nFeeRequired;
+                    lastRecipient.fSubtractFeeFromAmount = true;
+                    nValueLast2 -= lastRecipient.nAmount;
+                    vecSend.pop_back();
+                    vecSend.pop_back();
+                    vecSend.push_back(lastRecipient);
+
+                    // Split the rest with the others
+                    SplitRemainder(vecSend, nValueLast2, maxValue);
+                }
+
+                FeeCalculation fee_calc_out;
+                if((!pwallet->CreateTransaction(vecSend, tx, nFeeRequired, nChangePosRet, error, coin_control, fee_calc_out, true, 0, true))) {
+                    throw JSONRPCError(RPC_WALLET_ERROR, error.original);
+                }
+                if(payFeeRemainder)
+                {
+                    nSplited = nFeeRequired;
+                }
+            }
+        }
+    }
+
+    // Compute the splited amount
+    for(CRecipient rec : vecSend)
+    {
+        nSplited += rec.nAmount;
+    }
+
+    // Send the transaction
+    pwallet->CommitTransaction(tx, {} /* mapValue */, {} /* orderForm */);
+
+    return tx;
+}
+
 static RPCHelpMan sendtoaddress()
 {
     return RPCHelpMan{"sendtoaddress",
                 "\nSend an amount to a given address." +
         HELP_REQUIRING_PASSPHRASE,
                 {
-                    {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The bitcoin address to send to."},
+                    {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The qtum address to send to."},
                     {"amount", RPCArg::Type::AMOUNT, RPCArg::Optional::NO, "The amount in " + CURRENCY_UNIT + " to send. eg 0.1"},
                     {"comment", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "A comment used to store what the transaction is for.\n"
                                          "This is not part of the transaction, just kept in your wallet."},
@@ -443,7 +677,7 @@ static RPCHelpMan sendtoaddress()
                                          "to which you're sending the transaction. This is not part of the \n"
                                          "transaction, just kept in your wallet."},
                     {"subtractfeefromamount", RPCArg::Type::BOOL, /* default */ "false", "The fee will be deducted from the amount being sent.\n"
-                                         "The recipient will receive less bitcoins than you enter in the amount field."},
+                                         "The recipient will receive less qtums than you enter in the amount field."},
                     {"replaceable", RPCArg::Type::BOOL, /* default */ "wallet default", "Allow this transaction to be replaced by a transaction with higher fees via BIP 125"},
                     {"conf_target", RPCArg::Type::NUM, /* default */ "wallet -txconfirmtarget", "Confirmation target in blocks"},
                     {"estimate_mode", RPCArg::Type::STR, /* default */ "unset", std::string() + "The fee estimate mode, must be one of (case insensitive):\n"
@@ -452,6 +686,8 @@ static RPCHelpMan sendtoaddress()
                                          "dirty if they have previously been used in a transaction."},
                     {"fee_rate", RPCArg::Type::AMOUNT, /* default */ "not set, fall back to wallet fee estimation", "Specify a fee rate in " + CURRENCY_ATOM + "/vB."},
                     {"verbose", RPCArg::Type::BOOL, /* default */ "false", "If true, return extra information about the transaction."},
+                    {"senderaddress", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "The qtum address that will be used to send money from."},
+                    {"changeToSender", RPCArg::Type::BOOL, /* default */ "false", "Return the change to the sender."},
                 },
                 {
                     RPCResult{"if verbose is not set or set to false",
@@ -546,7 +782,7 @@ static RPCHelpMan listaddressgroupings()
                         {
                             {RPCResult::Type::ARR, "", "",
                             {
-                                {RPCResult::Type::STR, "address", "The bitcoin address"},
+                                {RPCResult::Type::STR, "address", "The qtum address"},
                                 {RPCResult::Type::STR_AMOUNT, "amount", "The amount in " + CURRENCY_UNIT},
                                 {RPCResult::Type::STR, "label", /* optional */ true, "The label"},
                             }},
@@ -599,7 +835,7 @@ static RPCHelpMan signmessage()
                 "\nSign a message with the private key of an address" +
         HELP_REQUIRING_PASSPHRASE,
                 {
-                    {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The bitcoin address to use for the private key."},
+                    {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The qtum address to use for the private key."},
                     {"message", RPCArg::Type::STR, RPCArg::Optional::NO, "The message to create a signature of."},
                 },
                 RPCResult{
@@ -609,11 +845,11 @@ static RPCHelpMan signmessage()
             "\nUnlock the wallet for 30 seconds\n"
             + HelpExampleCli("walletpassphrase", "\"mypassphrase\" 30") +
             "\nCreate the signature\n"
-            + HelpExampleCli("signmessage", "\"1D1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\" \"my message\"") +
+            + HelpExampleCli("signmessage", "\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\" \"my message\"") +
             "\nVerify the signature\n"
-            + HelpExampleCli("verifymessage", "\"1D1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\" \"signature\" \"my message\"") +
+            + HelpExampleCli("verifymessage", "\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\" \"signature\" \"my message\"") +
             "\nAs a JSON-RPC call\n"
-            + HelpExampleRpc("signmessage", "\"1D1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\", \"my message\"")
+            + HelpExampleRpc("signmessage", "\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\", \"my message\"")
                 },
         [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
 {
@@ -702,7 +938,7 @@ static RPCHelpMan getreceivedbyaddress()
     return RPCHelpMan{"getreceivedbyaddress",
                 "\nReturns the total amount received by the given address in transactions with at least minconf confirmations.\n",
                 {
-                    {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The bitcoin address for transactions."},
+                    {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The qtum address for transactions."},
                     {"minconf", RPCArg::Type::NUM, /* default */ "1", "Only include transactions confirmed at least this many times."},
                 },
                 RPCResult{
@@ -713,7 +949,7 @@ static RPCHelpMan getreceivedbyaddress()
             + HelpExampleCli("getreceivedbyaddress", "\"" + EXAMPLE_ADDRESS[0] + "\"") +
             "\nThe amount including unconfirmed transactions, zero confirmations\n"
             + HelpExampleCli("getreceivedbyaddress", "\"" + EXAMPLE_ADDRESS[0] + "\" 0") +
-            "\nThe amount with at least 6 confirmations\n"
+            "\nThe amount with at least 6 confirmations, very safe\n"
             + HelpExampleCli("getreceivedbyaddress", "\"" + EXAMPLE_ADDRESS[0] + "\" 6") +
             "\nAs a JSON-RPC call\n"
             + HelpExampleRpc("getreceivedbyaddress", "\"" + EXAMPLE_ADDRESS[0] + "\", 6")
@@ -865,14 +1101,14 @@ static RPCHelpMan sendmany()
                     {"dummy", RPCArg::Type::STR, RPCArg::Optional::NO, "Must be set to \"\" for backwards compatibility.", "\"\""},
                     {"amounts", RPCArg::Type::OBJ, RPCArg::Optional::NO, "The addresses and amounts",
                         {
-                            {"address", RPCArg::Type::AMOUNT, RPCArg::Optional::NO, "The bitcoin address is the key, the numeric amount (can be string) in " + CURRENCY_UNIT + " is the value"},
+                            {"address", RPCArg::Type::AMOUNT, RPCArg::Optional::NO, "The qtum address is the key, the numeric amount (can be string) in " + CURRENCY_UNIT + " is the value"},
                         },
                     },
                     {"minconf", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "Ignored dummy value"},
                     {"comment", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "A comment"},
                     {"subtractfeefrom", RPCArg::Type::ARR, RPCArg::Optional::OMITTED_NAMED_ARG, "The addresses.\n"
                                        "The fee will be equally deducted from the amount of each selected address.\n"
-                                       "Those recipients will receive less bitcoins than you enter in their corresponding amount field.\n"
+                                       "Those recipients will receive less qtums than you enter in their corresponding amount field.\n"
                                        "If no addresses are specified here, the sender pays the fee.",
                         {
                             {"address", RPCArg::Type::STR, RPCArg::Optional::OMITTED, "Subtract fee from this address"},
@@ -955,15 +1191,15 @@ static RPCHelpMan addmultisigaddress()
 {
     return RPCHelpMan{"addmultisigaddress",
                 "\nAdd an nrequired-to-sign multisignature address to the wallet. Requires a new wallet backup.\n"
-                "Each key is a Bitcoin address or hex-encoded public key.\n"
+                "Each key is a Qtum address or hex-encoded public key.\n"
                 "This functionality is only intended for use with non-watchonly addresses.\n"
                 "See `importaddress` for watchonly p2sh address support.\n"
                 "If 'label' is specified, assign address to that label.\n",
                 {
                     {"nrequired", RPCArg::Type::NUM, RPCArg::Optional::NO, "The number of required signatures out of the n keys or addresses."},
-                    {"keys", RPCArg::Type::ARR, RPCArg::Optional::NO, "The bitcoin addresses or hex-encoded public keys",
+                    {"keys", RPCArg::Type::ARR, RPCArg::Optional::NO, "A json array of qtum addresses or hex-encoded public keys",
                         {
-                            {"key", RPCArg::Type::STR, RPCArg::Optional::OMITTED, "bitcoin address or hex-encoded public key"},
+                            {"key", RPCArg::Type::STR, RPCArg::Optional::OMITTED, "qtum address or hex-encoded public key"},
                         },
                         },
                     {"label", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "A label to assign the addresses to."},
@@ -1078,7 +1314,7 @@ static UniValue ListReceived(const CWallet* const pwallet, const UniValue& param
     for (const std::pair<const uint256, CWalletTx>& pairWtx : pwallet->mapWallet) {
         const CWalletTx& wtx = pairWtx.second;
 
-        if (wtx.IsCoinBase() || !pwallet->chain().checkFinalTx(*wtx.tx)) {
+        if (wtx.IsCoinBase() || wtx.IsCoinStake() || !pwallet->chain().checkFinalTx(*wtx.tx)) {
             continue;
         }
 
@@ -1311,6 +1547,18 @@ static void ListTransactions(const CWallet* const pwallet, const CWalletTx& wtx,
 
     wtx.GetAmounts(listReceived, listSent, nFee, filter_ismine);
 
+    // Check if the coinstake transactions is mined by the wallet
+    if(wtx.IsCoinStake() && listSent.size() > 0 && listReceived.size() > 0)
+    {
+        // Condense all of the coinstake inputs and outputs into one output and compute its value
+        CAmount amount = wtx.GetCredit(filter_ismine) - wtx.GetDebit(filter_ismine);
+        COutputEntry output = *listReceived.begin();
+        output.amount = amount;
+        listReceived.clear();
+        listSent.clear();
+        listReceived.push_back(output);
+    }
+
     bool involvesWatchonly = wtx.IsFromMe(ISMINE_WATCH_ONLY);
 
     // Sent
@@ -1355,11 +1603,11 @@ static void ListTransactions(const CWallet* const pwallet, const CWalletTx& wtx,
                 entry.pushKV("involvesWatchonly", true);
             }
             MaybePushAddress(entry, r.destination);
-            if (wtx.IsCoinBase())
+            if (wtx.IsCoinBase() || wtx.IsCoinStake())
             {
                 if (wtx.GetDepthInMainChain() < 1)
                     entry.pushKV("category", "orphan");
-                else if (wtx.IsImmatureCoinBase())
+                else if (wtx.IsImmature())
                     entry.pushKV("category", "immature");
                 else
                     entry.pushKV("category", "generate");
@@ -1420,13 +1668,13 @@ static RPCHelpMan listtransactions()
                         {RPCResult::Type::OBJ, "", "", Cat(Cat<std::vector<RPCResult>>(
                         {
                             {RPCResult::Type::BOOL, "involvesWatchonly", "Only returns true if imported addresses were involved in transaction."},
-                            {RPCResult::Type::STR, "address", "The bitcoin address of the transaction."},
+                            {RPCResult::Type::STR, "address", "The qtum address of the transaction."},
                             {RPCResult::Type::STR, "category", "The transaction category.\n"
                                 "\"send\"                  Transactions sent.\n"
-                                "\"receive\"               Non-coinbase transactions received.\n"
-                                "\"generate\"              Coinbase transactions received with more than 100 confirmations.\n"
-                                "\"immature\"              Coinbase transactions received with 100 or fewer confirmations.\n"
-                                "\"orphan\"                Orphaned coinbase transactions received."},
+                                "\"receive\"               Non-coinbase and non-coinstake transactions received.\n"
+                                "\"generate\"              Coinbase or coinstake transactions received with more than 500 confirmations.\n"
+                                "\"immature\"              Coinbase or coinstake transactions received with 500 or fewer confirmations.\n"
+                                "\"orphan\"                Orphaned coinbase or coinstake transactions received."},
                             {RPCResult::Type::STR_AMOUNT, "amount", "The amount in " + CURRENCY_UNIT + ". This is negative for the 'send' category, and is positive\n"
                                 "for all other categories"},
                             {RPCResult::Type::STR, "label", "A comment for the address/transaction, if any"},
@@ -1535,7 +1783,7 @@ static RPCHelpMan listsinceblock()
                             {RPCResult::Type::OBJ, "", "", Cat(Cat<std::vector<RPCResult>>(
                             {
                                 {RPCResult::Type::BOOL, "involvesWatchonly", "Only returns true if imported addresses were involved in transaction."},
-                                {RPCResult::Type::STR, "address", "The bitcoin address of the transaction."},
+                                {RPCResult::Type::STR, "address", "The qtum address of the transaction."},
                                 {RPCResult::Type::STR, "category", "The transaction category.\n"
                                     "\"send\"                  Transactions sent.\n"
                                     "\"receive\"               Non-coinbase transactions received.\n"
@@ -1665,6 +1913,7 @@ static RPCHelpMan gettransaction()
                             "Whether to include watch-only addresses in balance calculation and details[]"},
                     {"verbose", RPCArg::Type::BOOL, /* default */ "false",
                             "Whether to include a `decoded` field containing the decoded transaction (equivalent to RPC decoderawtransaction)"},
+                    {"waitconf", RPCArg::Type::NUM, /* default */ "0", "Wait for enough confirmations before returning."},
                 },
                 RPCResult{
                     RPCResult::Type::OBJ, "", "", Cat(Cat<std::vector<RPCResult>>(
@@ -1680,13 +1929,13 @@ static RPCHelpMan gettransaction()
                             {RPCResult::Type::OBJ, "", "",
                             {
                                 {RPCResult::Type::BOOL, "involvesWatchonly", "Only returns true if imported addresses were involved in transaction."},
-                                {RPCResult::Type::STR, "address", "The bitcoin address involved in the transaction."},
+                                {RPCResult::Type::STR, "address", "The qtum address involved in the transaction."},
                                 {RPCResult::Type::STR, "category", "The transaction category.\n"
                                     "\"send\"                  Transactions sent.\n"
-                                    "\"receive\"               Non-coinbase transactions received.\n"
-                                    "\"generate\"              Coinbase transactions received with more than 100 confirmations.\n"
-                                    "\"immature\"              Coinbase transactions received with 100 or fewer confirmations.\n"
-                                    "\"orphan\"                Orphaned coinbase transactions received."},
+                                    "\"receive\"               Non-coinbase and non-coinstake transactions received.\n"
+                                    "\"generate\"              Coinbase or coinstake transactions received with more than 500 confirmations.\n"
+                                    "\"immature\"              Coinbase or coinstake transactions received with 500 or fewer confirmations.\n"
+                                    "\"orphan\"                Orphaned coinbase or coinstake transactions received."},
                                 {RPCResult::Type::STR_AMOUNT, "amount", "The amount in " + CURRENCY_UNIT},
                                 {RPCResult::Type::STR, "label", "A comment for the address/transaction, if any"},
                                 {RPCResult::Type::NUM, "vout", "the vout value"},
