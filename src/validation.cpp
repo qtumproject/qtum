@@ -2520,6 +2520,10 @@ void CChainState::PruneAndFlush() {
     }
 }
 
+bool CChainState::GetSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value) {
+    return m_mempool.getSpentIndex(key, value);
+}
+
 static void DoWarning(const bilingual_str& warning)
 {
     static bool fWarned = false;
@@ -5450,6 +5454,54 @@ void ChainstateManager::MaybeRebalanceCaches()
                 m_total_coinstip_cache * 0.95, m_total_coinsdb_cache * 0.95);
         }
     }
+}
+
+////////////////////////////////////////////////////////////////////////////////// // qtum
+bool GetAddressIndex(uint256 addressHash, int type, std::vector<std::pair<CAddressIndexKey, CAmount> > &addressIndex, int start, int end)
+{
+    if (!fAddressIndex)
+        return error("address index not enabled");
+
+    if (!pblocktree->ReadAddressIndex(addressHash, type, addressIndex, start, end))
+        return error("unable to get txids for address");
+
+    return true;
+}
+
+bool GetSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value)
+{
+    if (!fAddressIndex)
+        return false;
+
+    if (ChainstateActive().GetSpentIndex(key, value))
+        return true;
+
+    if (!pblocktree->ReadSpentIndex(key, value))
+        return false;
+
+    return true;
+}
+
+bool GetAddressUnspent(uint256 addressHash, int type, std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > &unspentOutputs)
+{
+    if (!fAddressIndex)
+        return error("address index not enabled");
+
+    if (!pblocktree->ReadAddressUnspentIndex(addressHash, type, unspentOutputs))
+        return error("unable to get txids for address");
+
+    return true;
+}
+
+bool GetTimestampIndex(const unsigned int &high, const unsigned int &low, const bool fActiveOnly, std::vector<std::pair<uint256, unsigned int> > &hashes)
+{
+    if (!fAddressIndex)
+        return error("Timestamp index not enabled");
+
+    if (!pblocktree->ReadTimestampIndex(high, low, fActiveOnly, hashes))
+        return error("Unable to get hashes for timestamps");
+
+    return true;
 }
 
 CAmount GetTxGasFee(const CMutableTransaction& _tx)

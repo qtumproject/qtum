@@ -780,6 +780,8 @@ private:
     boost::thread_group* stakeThread = nullptr;
     void StakeQtums(bool fStake, CConnman* connman);
 
+    bool CreateCoinStakeFromMine(const FillableSigningProvider &keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setSelectedCoins, bool selectedOnly, COutPoint& headerPrevout);
+    bool CreateCoinStakeFromDelegate(const FillableSigningProvider &keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setDelegateCoins, std::vector<unsigned char>& vchPoD, COutPoint& headerPrevout);
     bool GetDelegationStaker(const uint160& keyid, Delegation& delegation);
     const CWalletTx* GetCoinSuperStaker(const std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, const PKHash& superStaker, COutPoint& prevout, CAmount& nValueRet);
     const CScriptCache& GetScriptCache(const COutPoint& prevout, const CScript& scriptPubKey, std::map<COutPoint, CScriptCache>* insertScriptCache = nullptr) const;
@@ -884,11 +886,24 @@ public:
     //! check whether we support the named feature
     bool CanSupportFeature(enum WalletFeature wf) const override EXCLUSIVE_LOCKS_REQUIRED(cs_wallet) { AssertLockHeld(cs_wallet); return IsFeatureSupported(nWalletVersion, wf); }
 
+    //! select coins for staking from the available coins for staking.
+    bool SelectCoinsForStaking(CAmount& nTargetValue, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoinsRet, CAmount& nValueRet) const;
+
+    //! select delegated coins for staking from other users.
+    bool SelectDelegateCoinsForStaking(std::vector<COutPoint>& setDelegateCoinsRet, std::map<uint160, CAmount>& mDelegateWeight) const;
+
+    //! select list of address with coins.
+    void SelectAddress(std::map<uint160, bool>& mapAddress) const;
+
     /**
      * populate vCoins with vector of available COutputs.
      */
+    void AvailableCoinsForStaking(const std::vector<uint256>& maturedTx, size_t from, size_t to, const std::map<COutPoint, uint32_t>& immatureStakes, std::vector<std::pair<const CWalletTx *, unsigned int> >& vCoins, std::map<COutPoint, CScriptCache>* insertScriptCache) const;
     void AvailableCoins(std::vector<COutput>& vCoins, bool fOnlySafe = true, const CCoinControl* coinControl = nullptr, const CAmount& nMinimumAmount = 1, const CAmount& nMaximumAmount = MAX_MONEY, const CAmount& nMinimumSumAmount = MAX_MONEY, const uint64_t nMaximumCount = 0) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
+    bool AvailableDelegateCoinsForStaking(const std::vector<uint160>& delegations, size_t from, size_t to, int32_t height, const std::map<COutPoint, uint32_t>& immatureStakes,  const std::map<uint256, CSuperStakerInfo>& mapStakers, std::vector<std::pair<COutPoint,CAmount>>& vUnsortedDelegateCoins, std::map<uint160, CAmount> &mDelegateWeight) const;
     bool GetSuperStaker(CSuperStakerInfo &info, const uint160& stakerAddress) const;
+    void GetStakerAddressBalance(const PKHash& staker, CAmount& balance, CAmount& stake, CAmount& weight) const;
+    void AvailableAddress(const std::vector<uint256>& maturedTx, size_t from, size_t to, std::map<uint160, bool> &mapAddress, std::map<COutPoint, CScriptCache>* insertScriptCache) const;
 
     /**
      * Return list of available coins and locked coins grouped by non-change output address.
@@ -1077,7 +1092,11 @@ public:
      */
     void CommitTransaction(CTransactionRef tx, mapValue_t mapValue, std::vector<std::pair<std::string, std::string>> orderForm);
 
+    uint64_t GetStakeWeight(uint64_t* pStakerWeight = nullptr, uint64_t* pDelegateWeight = nullptr) const;
     uint64_t GetSuperStakerWeight(const uint160& staker) const;
+    bool CreateCoinStake(const FillableSigningProvider &keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setSelectedCoins, std::vector<COutPoint>& setDelegateCoins, bool selectedOnly, std::vector<unsigned char>& vchPoD, COutPoint& headerPrevout);
+    bool CanSuperStake(const std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, const std::vector<COutPoint>& setDelegateCoins) const;
+    void UpdateMinerStakeCache(bool fStakeCache, const std::vector<COutPoint>& prevouts, CBlockIndex* pindexPrev);
 
     bool DummySignTx(CMutableTransaction &txNew, const std::set<CTxOut> &txouts, bool use_max_sig = false) const
     {
@@ -1378,7 +1397,7 @@ public:
     {
 #ifndef DEBUG_LOCKORDER
         AssertLockHeld(cs_wallet);
-#endif//QTUM_INSERT_LINE
+#endif
         assert(m_last_block_processed_height >= 0);
         return m_last_block_processed_height;
     };

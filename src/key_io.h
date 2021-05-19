@@ -27,4 +27,7 @@ bool IsValidDestinationString(const std::string& str);
 bool IsValidDestinationString(const std::string& str, const CChainParams& params);
 bool IsValidContractSenderAddressString(const std::string& str);
 
+bool DecodeIndexKey(const std::string& str, uint256& hashBytes, int& type);
+
+
 #endif // BITCOIN_KEY_IO_H
