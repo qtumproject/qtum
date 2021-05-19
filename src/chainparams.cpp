@@ -87,8 +87,8 @@ public:
         consensus.QIP7Height = 466600;
         consensus.QIP9Height = 466600;
         consensus.nOfflineStakeHeight = 680000;
-        consensus.nReduceBlocktimeHeight = 809310;
-        consensus.nMuirGlacierHeight = 809310;
+        consensus.nReduceBlocktimeHeight = 845000;
+        consensus.nMuirGlacierHeight = 845000;
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.QIP9PosLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"); // The new POS-limit activated after QIP9
@@ -118,10 +118,10 @@ public:
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
          * a large 32-bit integer with any alignment.
          */
-        pchMessageStart[0] = 0xf1;
-        pchMessageStart[1] = 0xcf;
-        pchMessageStart[2] = 0xa6;
-        pchMessageStart[3] = 0xd3;
+        pchMessageStart[0] = 0xf2;
+        pchMessageStart[1] = 0xc2;
+        pchMessageStart[2] = 0xa2;
+        pchMessageStart[3] = 0xd2;
         nDefaultPort = 3888;
         nPruneAfterHeight = 100000;
         m_assumed_blockchain_size = 8;

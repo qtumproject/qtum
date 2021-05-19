@@ -1021,9 +1021,9 @@ static UniValue createcontract(const JSONRPCRequest& request){
         {
             CKeyID key_id = GetKeyForDestination(spk_man, signSenderAddress);
             CKey key;
-            if (!spk_man.GetKey(key_id, key)) {
-                throw JSONRPCError(RPC_WALLET_ERROR, "Private key not available");
-            }
+            //if (!spk_man.GetKey(key_id, key)) {
+            //    throw JSONRPCError(RPC_WALLET_ERROR, "Private key not available");
+            //}
             std::vector<unsigned char> scriptSig;
             scriptPubKey = (CScript() << CScriptNum(addresstype::PUBKEYHASH) << ToByteVector(key_id) << ToByteVector(scriptSig) << OP_SENDER) + scriptPubKey;
         }
@@ -1244,9 +1244,9 @@ UniValue SendToContract(interfaces::Chain::Lock& locked_chain, CWallet* const pw
         {
             CKeyID key_id = GetKeyForDestination(spk_man, signSenderAddress);
             CKey key;
-            if (!spk_man.GetKey(key_id, key)) {
-                throw JSONRPCError(RPC_WALLET_ERROR, "Private key not available");
-            }
+            //if (!spk_man.GetKey(key_id, key)) {
+            //    throw JSONRPCError(RPC_WALLET_ERROR, "Private key not available");
+            //}
             std::vector<unsigned char> scriptSig;
             scriptPubKey = (CScript() << CScriptNum(addresstype::PUBKEYHASH) << ToByteVector(key_id) << ToByteVector(scriptSig) << OP_SENDER) + scriptPubKey;
         }
@@ -1485,9 +1485,9 @@ static UniValue setdelegateforaddress(const JSONRPCRequest& request){
     // Get the private key for the sender address
     CKey key;
     CKeyID keyID(*pkhSender);
-    if (!spk_man.GetKey(keyID, key)) {
-        throw JSONRPCError(RPC_WALLET_ERROR, "Private key not available for the sender address");
-    }
+    //if (!spk_man.GetKey(keyID, key)) {
+    //    throw JSONRPCError(RPC_WALLET_ERROR, "Private key not available for the sender address");
+    //}
 
     // Sign the  staker address
     std::vector<unsigned char> PoD;

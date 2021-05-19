@@ -1507,7 +1507,7 @@ protected:
         // Wait for node connections
         // Don't disable PoS mining for no connections if in regtest mode
 
-        if(!d->minDifficulty && !d->fEmergencyStaking) {
+        /*if(!d->minDifficulty && !d->fEmergencyStaking) {
             while (d->connman->GetNodeCount(CConnman::CONNECTIONS_ALL) == 0 || ::ChainstateActive().IsInitialBlockDownload()) {
                 d->pwallet->m_last_coin_stake_search_interval = 0;
                 d->fTryToSync = true;
@@ -1522,7 +1522,7 @@ protected:
                     return false;
                 }
             }
-        }
+        }*/
 
         // Check if cached data is old
         uint32_t blokTime = GetAdjustedTime();
