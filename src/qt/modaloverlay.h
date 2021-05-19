@@ -22,7 +22,12 @@ class ModalOverlay : public QWidget
     Q_OBJECT
 
 public:
-    explicit ModalOverlay(bool enable_wallet, QWidget *parent);
+    enum OverlayType
+    {
+        Sync = 0,
+        Backup = 1
+    };
+    explicit ModalOverlay(bool enable_wallet, QWidget *parent, OverlayType _type = OverlayType::Sync);
     ~ModalOverlay();
 
     void tipUpdate(int count, const QDateTime& blockDate, double nVerificationProgress);
@@ -35,9 +40,11 @@ public:
 public Q_SLOTS:
     void toggleVisibility();
     void closeClicked();
+    void backupWalletClicked();
 
 Q_SIGNALS:
     void triggered(bool hidden);
+    void backupWallet();
 
 protected:
     bool eventFilter(QObject * obj, QEvent * ev) override;
@@ -52,6 +59,7 @@ private:
     bool userClosed;
     QPropertyAnimation m_animation;
     void UpdateHeaderSyncLabel();
+    OverlayType type;
 };
 
 #endif // BITCOIN_QT_MODALOVERLAY_H
