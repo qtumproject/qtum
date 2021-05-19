@@ -18,7 +18,7 @@ typedef std::pair<std::vector<unsigned char>, std::vector<unsigned char> > KeyVa
 
 static bool KeyFilter(const std::string& type)
 {
-    return WalletBatch::IsKeyType(type) || type == DBKeys::HDCHAIN;
+    return WalletBatch::IsKeyType(type) || type == DBKeys::HDCHAIN || type == DBKeys::TOKEN || type == DBKeys::TOKENTX || type == DBKeys::DELEGATION;
 }
 
 bool RecoverDatabaseFile(const fs::path& file_path, bilingual_str& error, std::vector<bilingual_str>& warnings)

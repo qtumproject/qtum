@@ -87,6 +87,8 @@ extern const std::string WATCHS;
 extern const std::string TOKEN;
 extern const std::string TOKENTX;
 extern const std::string CONTRACTDATA;
+extern const std::string DELEGATION;
+extern const std::string SUPERSTAKER;
 } // namespace DBKeys
 
 /* simple HD chain data model */
