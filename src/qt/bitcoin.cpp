@@ -20,11 +20,13 @@
 #include <qt/splashscreen.h>
 #include <qt/utilitydialog.h>
 #include <qt/winshutdownmonitor.h>
+#include <qt/styleSheet.h>
 
 #ifdef ENABLE_WALLET
 #include <qt/paymentserver.h>
 #include <qt/walletcontroller.h>
 #include <qt/walletmodel.h>
+#include <wallet/walletutil.h>
 #endif // ENABLE_WALLET
 
 #include <init.h>
@@ -52,6 +54,9 @@
 #include <QTimer>
 #include <QTranslator>
 #include <QtGlobal>
+#include <QFile>
+#include <QProcess>
+#include <QFileInfo>
 
 #if defined(QT_STATICPLUGIN)
 #include <QtPlugin>
@@ -152,6 +157,32 @@ void DebugMessageHandler(QtMsgType type, const QMessageLogContext& context, cons
     }
 }
 
+void removeParam(QStringList& list, const QString& param, bool startWith)
+{
+    for(int index = 0; index < list.size();)
+    {
+        QString item = list[index];
+        bool remove = false;
+        if(startWith)
+        {
+            remove = item.startsWith(param);
+        }
+        else
+        {
+            remove = item == param;
+        }
+
+        if(remove)
+        {
+            list.removeAt(index);
+        }
+        else
+        {
+            index++;
+        }
+    }
+}
+
 BitcoinCore::BitcoinCore(interfaces::Node& node) :
     QObject(), m_node(node)
 {
@@ -195,7 +226,7 @@ void BitcoinCore::shutdown()
 }
 
 static int qt_argc = 1;
-static const char* qt_argv = "bitcoin-qt";
+static const char* qt_argv = "qtum-qt";
 
 BitcoinApplication::BitcoinApplication():
     QApplication(qt_argc, const_cast<char **>(&qt_argv)),
@@ -205,7 +236,8 @@ BitcoinApplication::BitcoinApplication():
     window(nullptr),
     pollShutdownTimer(nullptr),
     returnValue(0),
-    platformStyle(nullptr)
+    platformStyle(nullptr),
+    restartApp(false)
 {
     // Qt runs setlocale(LC_ALL, "") on initialization.
     RegisterMetaTypes();
@@ -343,6 +375,12 @@ void BitcoinApplication::requestShutdown()
     // Must disconnect node signals otherwise current thread can deadlock since
     // no event loop is running.
     window->unsubscribeFromCoreSignals();
+#ifdef ENABLE_WALLET
+    // Get restore wallet data
+    if(m_wallet_controller) m_wallet_controller->getRestoreData(restorePath, restoreParam, restoreName);
+#endif
+    // Get restart wallet
+    if(optionsModel) restartApp = optionsModel->getRestartApp();
     // Request node shutdown, which can interrupt long operations, like
     // rescanning a wallet.
     node().startShutdown();
@@ -365,6 +403,7 @@ void BitcoinApplication::initializeResult(bool success, interfaces::BlockAndHead
     returnValue = success ? EXIT_SUCCESS : EXIT_FAILURE;
     if(success)
     {
+        LOCK(cs_main);
         // Log this only after AppInitMain finishes, as then logging setup is guaranteed complete
         qInfo() << "Platform customization:" << platformStyle->getName();
         clientModel = new ClientModel(node(), optionsModel);
@@ -388,7 +427,6 @@ void BitcoinApplication::initializeResult(bool success, interfaces::BlockAndHead
             window->showMinimized();
         }
         Q_EMIT splashFinished();
-        Q_EMIT windowShown(window);
 
 #ifdef ENABLE_WALLET
         // Now that initialization/startup is done, process any command-line
@@ -403,6 +441,12 @@ void BitcoinApplication::initializeResult(bool success, interfaces::BlockAndHead
         }
 #endif
         pollShutdownTimer->start(200);
+
+        processEvents();
+    }
+
+    if(success) {
+        Q_EMIT windowShown(window);
     } else {
         Q_EMIT splashFinished(); // Make sure splash screen doesn't stick around during shutdown
         quit(); // Exit first main loop invocation
@@ -426,6 +470,77 @@ WId BitcoinApplication::getMainWinId() const
         return 0;
 
     return window->winId();
+}
+
+void BitcoinApplication::parseParameters(int argc, const char* const argv[])
+{
+    for(int i = 0; i < argc; i++)
+    {
+        parameters.append(argv[i]);
+    }
+}
+
+void BitcoinApplication::restart(const QString& commandLine)
+{
+    // Unlock the data folder
+    UnlockDataDirectory();
+    QThread::currentThread()->sleep(2);
+
+    // Create new process and start the wallet
+    QProcess::startDetached(commandLine);
+}
+
+void BitcoinApplication::restartWallet()
+{
+#ifdef ENABLE_WALLET
+    // Restart the wallet if needed
+    if(!restorePath.isEmpty())
+    { 
+        // Create command line
+        QString walletParam = "-wallet=" + restoreName;
+        QString commandLine;
+        QStringList arg = parameters;
+        removeParam(arg, "-reindex", false);
+        removeParam(arg, "-zapwallettxes=2", false);
+        removeParam(arg, "-deleteblockchaindata", false);
+        removeParam(arg, "-wallet", true);
+        if(!arg.contains(restoreParam))
+        {
+            arg.append(restoreParam);
+        }
+        arg.append(walletParam);
+        commandLine = arg.join(' ');
+
+        // Copy the new wallet.dat to the data folder
+        fs::path path = GetWalletDir();
+        if(!restoreName.isEmpty())
+        {
+            path /= restoreName.toStdString();
+        }
+        path /= "wallet.dat";
+        QString pathWallet = QString::fromStdString(path.string());
+        bool ret = QFile::exists(restorePath) && QFile::exists(pathWallet);
+        if(ret && QFileInfo(restorePath) != QFileInfo(pathWallet))
+        {
+            ret &= QFile::remove(pathWallet);
+            ret &= QFile::copy(restorePath, pathWallet);
+        }
+
+        // Restart wallet for restore
+        if(ret)
+        {
+            restart(commandLine);
+            restartApp = false;
+        }
+    }
+#endif
+
+    if(restartApp)
+    {
+        // Restart wallet for option
+        QString commandLine = parameters.join(' ');
+        restart(commandLine);
+    }
 }
 
 static void SetupUIArgs(ArgsManager& argsman)
@@ -475,6 +590,7 @@ int GuiMain(int argc, char* argv[])
 #endif
 
     BitcoinApplication app;
+    app.parseParameters(argc, argv);
 
     /// 2. Parse command-line options. We do this after qt in order to show an error if there are problems parsing these
     // Command-line options take precedence:
@@ -490,8 +606,6 @@ int GuiMain(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    // Now that the QApplication is setup and we have parsed our parameters, we can set the platform style
-    app.setupPlatformStyle();
 
     /// 3. Application identification
     // must be set before OptionsModel is initialized or translations are loaded,
@@ -566,6 +680,8 @@ int GuiMain(int argc, char* argv[])
     assert(!networkStyle.isNull());
     // Allow for separate UI settings for testnets
     QApplication::setApplicationName(networkStyle->getAppName());
+    // Now that the QApplication is setup and we have parsed our parameters, we can set the platform style
+    app.setupPlatformStyle();
     // Re-initialize translations after changing application name (language in network-specific settings can be different)
     initTranslations(qtTranslatorBase, qtTranslator, translatorBase, translator);
 
@@ -614,6 +730,8 @@ int GuiMain(int argc, char* argv[])
     int rv = EXIT_SUCCESS;
     try
     {
+        SetObjectStyleSheet(&app, StyleSheetNames::App);
+
         app.createWindow(networkStyle.data());
         // Perform base initialization before spinning up initialization/shutdown thread
         // This is acceptable because this function only contains steps that are quick to execute,
@@ -638,5 +756,6 @@ int GuiMain(int argc, char* argv[])
         PrintExceptionContinue(nullptr, "Runaway exception");
         app.handleRunawayException(QString::fromStdString(app.node().getWarnings().translated));
     }
+    app.restartWallet();
     return rv;
 }
