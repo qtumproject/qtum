@@ -20,6 +20,8 @@ class CTransaction;
 class CTxOut;
 class uint256;
 
+typedef std::vector<unsigned char> valtype;
+
 /** Signature hash types/flags */
 enum
 {
@@ -139,6 +141,14 @@ enum
 
     // Making unknown public key versions (in BIP 342 scripts) non-standard
     SCRIPT_VERIFY_DISCOURAGE_UPGRADABLE_PUBKEYTYPE = (1U << 20),
+
+    // Support sender address in contract output
+    //
+    SCRIPT_OUTPUT_SENDER = (1U << 29),
+
+    // Performs the compiled byte code
+    //
+    SCRIPT_EXEC_BYTE_CODE = (1U << 30),
 };
 
 bool CheckSignatureEncoding(const std::vector<unsigned char> &vchSig, unsigned int flags, ScriptError* serror);
@@ -331,5 +341,9 @@ bool VerifyScript(const CScript& scriptSig, const CScript& scriptPubKey, const C
 size_t CountWitnessSigOps(const CScript& scriptSig, const CScript& scriptPubKey, const CScriptWitness* witness, unsigned int flags);
 
 int FindAndDelete(CScript& script, const CScript& b);
+
+bool IsLowDERSignature(const valtype &vchSig, ScriptError* serror = NULL, bool haveHashType = true);
+bool IsDERSignature(const valtype &vchSig, ScriptError* serror = NULL, bool haveHashType = true);
+bool IsCompressedOrUncompressedPubKey(const valtype &vchPubKey);
 
 #endif // BITCOIN_SCRIPT_INTERPRETER_H

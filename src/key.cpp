@@ -150,6 +150,10 @@ int ec_seckey_export_der(const secp256k1_context *ctx, unsigned char *seckey, si
     return 1;
 }
 
+bool EnsureLowS(std::vector<unsigned char>& vchSig) {
+    return false;
+}
+
 bool CKey::Check(const unsigned char *vch) {
     return secp256k1_ec_seckey_verify(secp256k1_context_sign, vch);
 }
