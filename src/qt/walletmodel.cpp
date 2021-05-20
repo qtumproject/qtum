@@ -584,6 +584,22 @@ bool WalletModel::isMultiwallet()
     return m_node.walletClient().getWallets().size() > 1;
 }
 
+QString WalletModel::getRestorePath()
+{
+    return restorePath;
+}
+
+QString WalletModel::getRestoreParam()
+{
+    return restoreParam;
+}
+
+bool WalletModel::restore()
+{
+    return !restorePath.isEmpty();
+}
+
+
 void WalletModel::refresh(bool pk_hash_only)
 {
     addressTableModel = new AddressTableModel(this, pk_hash_only);
