@@ -17,6 +17,12 @@
 #include <qt/recentrequeststablemodel.h>
 #include <qt/sendcoinsdialog.h>
 #include <qt/transactiontablemodel.h>
+#include <qt/tokenitemmodel.h>
+#include <qt/tokentransactiontablemodel.h>
+#include <qt/contracttablemodel.h>
+#include <qt/delegationitemmodel.h>
+#include <qt/superstakeritemmodel.h>
+#include <qt/delegationstakeritemmodel.h>
 
 #include <interfaces/handler.h>
 #include <interfaces/node.h>
@@ -34,6 +40,7 @@
 #include <QMessageBox>
 #include <QSet>
 #include <QTimer>
+#include <QFile>
 
 
 WalletModel::WalletModel(std::unique_ptr<interfaces::Wallet> wallet, ClientModel& client_model, const PlatformStyle *platformStyle, QObject *parent) :
@@ -287,6 +294,11 @@ AddressTableModel *WalletModel::getAddressTableModel()
     return addressTableModel;
 }
 
+ContractTableModel *WalletModel::getContractTableModel()
+{
+    return contractTableModel;
+}
+
 TransactionTableModel *WalletModel::getTransactionTableModel()
 {
     return transactionTableModel;
@@ -295,6 +307,31 @@ TransactionTableModel *WalletModel::getTransactionTableModel()
 RecentRequestsTableModel *WalletModel::getRecentRequestsTableModel()
 {
     return recentRequestsTableModel;
+}
+
+TokenItemModel *WalletModel::getTokenItemModel()
+{
+    return tokenItemModel;
+}
+
+TokenTransactionTableModel *WalletModel::getTokenTransactionTableModel()
+{
+    return tokenTransactionTableModel;
+}
+
+DelegationItemModel *WalletModel::getDelegationItemModel()
+{
+    return delegationItemModel;
+}
+
+SuperStakerItemModel *WalletModel::getSuperStakerItemModel()
+{
+    return superStakerItemModel;
+}
+
+DelegationStakerItemModel *WalletModel::getDelegationStakerItemModel()
+{
+    return delegationStakerItemModel;
 }
 
 WalletModel::EncryptionStatus WalletModel::getEncryptionStatus() const
@@ -339,6 +376,23 @@ bool WalletModel::changePassphrase(const SecureString &oldPass, const SecureStri
 {
     m_wallet->lock(); // Make sure wallet is locked before attempting pass change
     return m_wallet->changeWalletPassphrase(oldPass, newPass);
+}
+
+bool WalletModel::restoreWallet(const QString &filename, const QString &param)
+{
+    if(QFile::exists(filename))
+    {
+        fs::path pathWalletBak = GetDataDir() / strprintf("wallet.%d.bak", GetTime());
+        std::string walletBak = pathWalletBak.string();
+        if(m_wallet->backupWallet(walletBak))
+        {
+            restorePath = filename;
+            restoreParam = param;
+            return true;
+        }
+    }
+
+    return false;
 }
 
 // Handlers for core signals

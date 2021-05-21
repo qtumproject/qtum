@@ -67,7 +67,7 @@ private:
     void emitDataChanged(int index);
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();
-    QString formatWeight(const DelegationStakerItemEntry *rec, BitcoinUnits::SeparatorStyle separators=BitcoinUnits::separatorStandard) const;
+    QString formatWeight(const DelegationStakerItemEntry *rec, BitcoinUnits::SeparatorStyle separators=BitcoinUnits::SeparatorStyle::STANDARD) const;
     QString formatFee(const DelegationStakerItemEntry *rec) const;
 
     QStringList columns;

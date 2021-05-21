@@ -31,6 +31,12 @@ class RecentRequestsTableModel;
 class SendCoinsRecipient;
 class TransactionTableModel;
 class WalletModelTransaction;
+class DelegationItemModel;
+class TokenTransactionTableModel;
+class ContractTableModel;
+class TokenItemModel;
+class SuperStakerItemModel;
+class DelegationStakerItemModel;
 
 class CCoinControl;
 class CKeyID;
@@ -78,8 +84,14 @@ public:
 
     OptionsModel *getOptionsModel();
     AddressTableModel *getAddressTableModel();
+    ContractTableModel *getContractTableModel();
     TransactionTableModel *getTransactionTableModel();
     RecentRequestsTableModel *getRecentRequestsTableModel();
+    TokenItemModel *getTokenItemModel();
+    TokenTransactionTableModel *getTokenTransactionTableModel();
+    DelegationItemModel *getDelegationItemModel();
+    SuperStakerItemModel *getSuperStakerItemModel();
+    DelegationStakerItemModel *getDelegationStakerItemModel();
 
     EncryptionStatus getEncryptionStatus() const;
 
@@ -109,6 +121,7 @@ public:
     // Passphrase only needed when unlocking
     bool setWalletLocked(bool locked, const SecureString &passPhrase=SecureString());
     bool changePassphrase(const SecureString &oldPass, const SecureString &newPass);
+    bool restoreWallet(const QString &filename, const QString &param);
     bool getWalletUnlockStakingOnly();
     void setWalletUnlockStakingOnly(bool unlock);
 
@@ -184,8 +197,14 @@ private:
     OptionsModel *optionsModel;
 
     AddressTableModel *addressTableModel;
+    ContractTableModel *contractTableModel;
     TransactionTableModel *transactionTableModel;
     RecentRequestsTableModel *recentRequestsTableModel;
+    TokenItemModel *tokenItemModel;
+    TokenTransactionTableModel *tokenTransactionTableModel;
+    DelegationItemModel *delegationItemModel;
+    SuperStakerItemModel *superStakerItemModel;
+    DelegationStakerItemModel *delegationStakerItemModel;
 
     // Cache some values to be able to detect changes
     interfaces::WalletBalances m_cached_balances;
@@ -231,6 +250,9 @@ Q_SIGNALS:
 
     // Notify that there are now keys in the keypool
     void canGetAddressesChanged();
+
+    // Signal that available coin addresses are changed
+    void availableAddressesChanged(QStringList spendableAddresses, QStringList allAddresses, bool includeZeroValue);
 
 public Q_SLOTS:
     /* Starts a timer to periodically update the balance */

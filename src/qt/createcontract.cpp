@@ -198,7 +198,7 @@ void CreateContract::on_createContractClicked()
         QString bytecode = ui->textEditBytecode->toPlainText() + toDataHex(func, errorMessage);
         ExecRPCCommand::appendParam(lstParams, PARAM_BYTECODE, bytecode);
         ExecRPCCommand::appendParam(lstParams, PARAM_GASLIMIT, QString::number(gasLimit));
-        ExecRPCCommand::appendParam(lstParams, PARAM_GASPRICE, BitcoinUnits::format(unit, gasPrice, false, BitcoinUnits::separatorNever));
+        ExecRPCCommand::appendParam(lstParams, PARAM_GASPRICE, BitcoinUnits::format(unit, gasPrice, false, BitcoinUnits::SeparatorStyle::NEVER));
         ExecRPCCommand::appendParam(lstParams, PARAM_SENDER, ui->lineEditSenderAddress->currentText());
 
         QString questionString = tr("Are you sure you want to create contract? <br />");
