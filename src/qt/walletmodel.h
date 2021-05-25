@@ -171,6 +171,8 @@ public:
     QString getRestoreParam();
     bool restore();
 
+    uint64_t getStakeWeight();
+
     AddressTableModel* getAddressTableModel() const { return addressTableModel; }
 
     void refresh(bool pk_hash_only = false);
@@ -216,6 +218,8 @@ private:
 
     QString restorePath;
     QString restoreParam;
+
+    uint64_t nWeight;
 
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();

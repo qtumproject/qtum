@@ -653,6 +653,10 @@ bool WalletModel::restore()
     return !restorePath.isEmpty();
 }
 
+uint64_t WalletModel::getStakeWeight()
+{
+    return nWeight;
+}
 
 void WalletModel::refresh(bool pk_hash_only)
 {

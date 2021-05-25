@@ -55,6 +55,7 @@ QT_FORMS_UI = \
   qt/forms/superstakeritemwidget.ui \
   qt/forms/superstakerconfigdialog.ui \
   qt/forms/superstakerpage.ui \
+  qt/forms/titlebar.ui \
   qt/forms/tokendescdialog.ui \
   qt/forms/tokenitemwidget.ui \
   qt/forms/transactiondescdialog.ui
@@ -100,6 +101,7 @@ QT_MOC_CPP = \
   qt/moc_macdockiconhandler.cpp \
   qt/moc_macnotificationhandler.cpp \
   qt/moc_modaloverlay.cpp \
+  qt/moc_navigationbar.cpp \
   qt/moc_notificator.cpp \
   qt/moc_openuridialog.cpp \
   qt/moc_optionsdialog.cpp \
@@ -135,6 +137,7 @@ QT_MOC_CPP = \
   qt/moc_superstakerconfigdialog.cpp \
   qt/moc_superstakerpage.cpp \
   qt/moc_tabbarinfo.cpp \
+  qt/moc_titlebar.cpp \
   qt/moc_tokenamountfield.cpp \
   qt/moc_tokendescdialog.cpp \
   qt/moc_tokenfilterproxy.cpp \
@@ -150,6 +153,7 @@ QT_MOC_CPP = \
   qt/moc_transactionview.cpp \
   qt/moc_utilitydialog.cpp \
   qt/moc_walletcontroller.cpp \
+  qt/moc_qtumversionchecker.cpp \
   qt/moc_walletframe.cpp \
   qt/moc_walletmodel.cpp \
   qt/moc_walletview.cpp
@@ -217,6 +221,7 @@ BITCOIN_QT_H = \
   qt/macnotificationhandler.h \
   qt/macos_appnap.h \
   qt/modaloverlay.h \
+  qt/navigationbar.h \
   qt/networkstyle.h \
   qt/notificator.h \
   qt/openuridialog.h \
@@ -256,6 +261,7 @@ BITCOIN_QT_H = \
   qt/superstakerconfigdialog.h \
   qt/superstakerpage.h \
   qt/tabbarinfo.h \
+  qt/titlebar.h \
   qt/token.h \
   qt/tokenamountfield.h \
   qt/tokendescdialog.h \
@@ -273,6 +279,7 @@ BITCOIN_QT_H = \
   qt/transactionview.h \
   qt/utilitydialog.h \
   qt/walletcontroller.h \
+  qt/qtumversionchecker.h \
   qt/walletframe.h \
   qt/walletmodel.h \
   qt/walletmodeltransaction.h \
@@ -367,6 +374,7 @@ BITCOIN_QT_BASE_CPP = \
   qt/guiutil.cpp \
   qt/intro.cpp \
   qt/modaloverlay.cpp \
+  qt/navigationbar.cpp \
   qt/networkstyle.cpp \
   qt/notificator.cpp \
   qt/optionsdialog.cpp \
@@ -382,10 +390,12 @@ BITCOIN_QT_BASE_CPP = \
   qt/splitutxopage.cpp \
   qt/styleSheet.cpp \
   qt/tabbarinfo.cpp \
+  qt/titlebar.cpp \
   qt/token.cpp \
   qt/tokenamountfield.cpp \
   qt/trafficgraphwidget.cpp \
   qt/utilitydialog.cpp \
+  qt/qtumversionchecker.cpp \
   qt/qtumpushbutton.cpp
 
 BITCOIN_QT_WINDOWS_CPP = qt/winshutdownmonitor.cpp
