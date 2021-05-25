@@ -486,6 +486,7 @@ UniValue getaddressmempool(const JSONRPCRequest& request)
                 },
             }.Check(request);
 
+    CTxMemPool& mempool = EnsureMemPool(request.context);
     std::vector<std::pair<uint256, int> > addresses;
 
     if (!getAddressesFromParams(request.params, addresses)) {
@@ -494,7 +495,7 @@ UniValue getaddressmempool(const JSONRPCRequest& request)
 
     std::vector<std::pair<CMempoolAddressDeltaKey, CMempoolAddressDelta> > indexes;
 
-    if (!ChainstateActive().Mempool().getAddressIndex(addresses, indexes)) {
+    if (!mempool.getAddressIndex(addresses, indexes)) {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "No information available for address");
     }
 
