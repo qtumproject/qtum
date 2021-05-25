@@ -26,7 +26,7 @@ static TransactionError HandleATMPError(const TxValidationState& state, std::str
     }
 }
 
-TransactionError BroadcastTransaction(NodeContext& node, const CTransactionRef tx, std::string& err_string, const CAmount& max_tx_fee, bool relay, bool wait_callback)
+TransactionError BroadcastTransaction(NodeContext& node, const CTransactionRef tx, std::string& err_string, const CAmount& max_tx_fee, bool relay, bool wait_callback, bool rawTx)
 {
     // BroadcastTransaction can be called by either sendrawtransaction RPC or wallet RPCs.
     // node.connman is assigned both before chain clients and before RPC server is accepting calls,
@@ -64,7 +64,7 @@ TransactionError BroadcastTransaction(NodeContext& node, const CTransactionRef t
         }
         // Try to submit the transaction to the mempool.
         if (!AcceptToMemoryPool(*node.mempool, state, tx,
-                nullptr /* plTxnReplaced */, false /* bypass_limits */)) {
+                nullptr /* plTxnReplaced */, false /* bypass_limits */, false, nullptr, rawTx)) {
             return HandleATMPError(state, err_string);
         }
 
