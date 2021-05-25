@@ -3274,8 +3274,8 @@ void CChainState::PruneAndFlush() {
     }
 }
 
-bool CChainState::GetSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value) {
-    return m_mempool.getSpentIndex(key, value);
+CTxMemPool& CChainState::Mempool() {
+    return m_mempool;
 }
 
 static void DoWarning(const bilingual_str& warning)
@@ -6493,7 +6493,7 @@ bool GetSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value)
     if (!fAddressIndex)
         return false;
 
-    if (ChainstateActive().GetSpentIndex(key, value))
+    if (ChainstateActive().Mempool().getSpentIndex(key, value))
         return true;
 
     if (!pblocktree->ReadSpentIndex(key, value))

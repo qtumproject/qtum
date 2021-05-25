@@ -52,16 +52,6 @@
 #include <memory>
 #include <mutex>
 
-struct CUpdatedBlock
-{
-    uint256 hash;
-    int height;
-};
-
-static Mutex cs_blockchange;
-static std::condition_variable cond_blockchange;
-static CUpdatedBlock latestblock GUARDED_BY(cs_blockchange);
-
 NodeContext& EnsureNodeContext(const util::Ref& context)
 {
     if (!context.Has<NodeContext>()) {
