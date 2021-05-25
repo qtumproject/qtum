@@ -65,7 +65,6 @@ uint256 SendCoins(CWallet& wallet, SendCoinsDialog& sendCoinsDialog, const CTxDe
     entry->findChild<QValidatedLineEdit*>("payTo")->setText(QString::fromStdString(EncodeDestination(address)));
     entry->findChild<BitcoinAmountField*>("payAmount")->setValue(amount);
     sendCoinsDialog.findChild<QFrame*>("frameFee")
-        ->findChild<QFrame*>("frameFeeSelection")
         ->findChild<QCheckBox*>("optInRBF")
         ->setCheckState(rbf ? Qt::Checked : Qt::Unchecked);
     uint256 txid;
@@ -140,6 +139,7 @@ void TestGUI(interfaces::Node& node)
     }
     node.setContext(&test.m_node);
     std::shared_ptr<CWallet> wallet = std::make_shared<CWallet>(node.context()->chain.get(), "", CreateMockWalletDatabase());
+    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(0);
     bool firstRun;
     wallet->LoadWallet(firstRun);
     {
@@ -147,7 +147,7 @@ void TestGUI(interfaces::Node& node)
         LOCK2(wallet->cs_wallet, spk_man->cs_KeyStore);
         wallet->SetAddressBook(GetDestinationForKey(test.coinbaseKey.GetPubKey(), wallet->m_default_address_type), "", "receive");
         spk_man->AddKeyPubKey(test.coinbaseKey, test.coinbaseKey.GetPubKey());
-        wallet->SetLastBlockProcessed(105, ::ChainActive().Tip()->GetBlockHash());
+        wallet->SetLastBlockProcessed(coinbaseMaturity + 5, ::ChainActive().Tip()->GetBlockHash());
     }
     {
         WalletRescanReserver reserver(*wallet);
@@ -183,10 +183,10 @@ void TestGUI(interfaces::Node& node)
 
     // Send two transactions, and verify they are added to transaction list.
     TransactionTableModel* transactionTableModel = walletModel.getTransactionTableModel();
-    QCOMPARE(transactionTableModel->rowCount({}), 105);
+    QCOMPARE(transactionTableModel->rowCount({}), coinbaseMaturity + 5);
     uint256 txid1 = SendCoins(*wallet.get(), sendCoinsDialog, PKHash(), 5 * COIN, false /* rbf */);
     uint256 txid2 = SendCoins(*wallet.get(), sendCoinsDialog, PKHash(), 10 * COIN, true /* rbf */);
-    QCOMPARE(transactionTableModel->rowCount({}), 107);
+    QCOMPARE(transactionTableModel->rowCount({}), coinbaseMaturity + 7);
     QVERIFY(FindTx(*transactionTableModel, txid1).isValid());
     QVERIFY(FindTx(*transactionTableModel, txid2).isValid());
 
@@ -203,7 +203,7 @@ void TestGUI(interfaces::Node& node)
     QString balanceText = balanceLabel->text().trimmed();
     int unit = walletModel.getOptionsModel()->getDisplayUnit();
     CAmount balance = walletModel.wallet().getBalance();
-    QString balanceComparison = BitcoinUnits::formatWithUnit(unit, balance, false, BitcoinUnits::SeparatorStyle::ALWAYS);
+    QString balanceComparison = BitcoinUnits::format(unit, balance, false, BitcoinUnits::SeparatorStyle::ALWAYS);
     QCOMPARE(balanceText, balanceComparison);
 
     // Check Request Payment button
@@ -228,10 +228,10 @@ void TestGUI(interfaces::Node& node)
     for (QWidget* widget : QApplication::topLevelWidgets()) {
         if (widget->inherits("ReceiveRequestDialog")) {
             ReceiveRequestDialog* receiveRequestDialog = qobject_cast<ReceiveRequestDialog*>(widget);
-            QCOMPARE(receiveRequestDialog->QObject::findChild<QLabel*>("payment_header")->text(), QString("Payment information"));
+            QCOMPARE(receiveRequestDialog->QObject::findChild<QLabel*>("payment_header")->text(), QString("Payment information").toUpper());
             QCOMPARE(receiveRequestDialog->QObject::findChild<QLabel*>("uri_tag")->text(), QString("URI:"));
             QString uri = receiveRequestDialog->QObject::findChild<QLabel*>("uri_content")->text();
-            QCOMPARE(uri.count("bitcoin:"), 2);
+            QCOMPARE(uri.count("qtum:"), 2);
             QCOMPARE(receiveRequestDialog->QObject::findChild<QLabel*>("address_tag")->text(), QString("Address:"));
 
             QCOMPARE(uri.count("amount=0.00000001"), 2);
@@ -247,13 +247,6 @@ void TestGUI(interfaces::Node& node)
             QCOMPARE(receiveRequestDialog->QObject::findChild<QLabel*>("message_content")->text(), QString("TEST_MESSAGE_1"));
         }
     }
-
-    // Clear button
-    QPushButton* clearButton = receiveCoinsDialog.findChild<QPushButton*>("clearButton");
-    clearButton->click();
-    QCOMPARE(labelInput->text(), QString(""));
-    QCOMPARE(amountInput->value(), CAmount(0));
-    QCOMPARE(messageInput->text(), QString(""));
 
     // Check addition to history
     int currentRowCount = requestTableModel->rowCount({});
