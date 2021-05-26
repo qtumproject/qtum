@@ -20,7 +20,13 @@ static const int COINBASE_MATURITY = 100;
 
 extern unsigned int dgpMaxBlockSerSize;
 
+extern unsigned int dgpMaxBlockWeight;
+
 extern unsigned int dgpMaxBlockSize; // qtum
+
+extern int64_t dgpMaxBlockSigOps;
+
+extern unsigned int dgpMaxProtoMsgLength;
 
 extern unsigned int dgpMaxTxSigOps;
 
@@ -34,5 +40,7 @@ static const size_t MIN_SERIALIZABLE_TRANSACTION_WEIGHT = WITNESS_SCALE_FACTOR *
 static constexpr unsigned int LOCKTIME_VERIFY_SEQUENCE = (1 << 0);
 /** Use GetMedianTimePast() instead of nTime for end point timestamp. */
 static constexpr unsigned int LOCKTIME_MEDIAN_TIME_PAST = (1 << 1);
+
+void updateBlockSizeParams(unsigned int newBlockSize);
 
 #endif // BITCOIN_CONSENSUS_CONSENSUS_H
