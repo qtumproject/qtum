@@ -2348,7 +2348,7 @@ bool CheckSenderScript(const CCoinsViewCache& view, const CTransaction& tx){
     return true;
 }
 
-std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, const dev::Address& sender, uint64_t gasLimit){
+std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, const dev::Address& sender, uint64_t gasLimit, CAmount nAmount){
     return {};
 }
 
@@ -6526,7 +6526,62 @@ bool GetTimestampIndex(const unsigned int &high, const unsigned int &low, const 
 
 CAmount GetTxGasFee(const CMutableTransaction& _tx)
 {
-    return 0;
+    CTransaction tx(_tx);
+    CAmount nGasFee = 0;
+    if(tx.HasCreateOrCall())
+    {
+        CCoinsViewCache& view = ::ChainstateActive().CoinsTip();
+        const CChainParams& chainparams = Params();
+        unsigned int contractflags = GetContractScriptFlags(GetSpendHeight(view), chainparams.GetConsensus());
+        QtumTxConverter convert(tx, NULL, NULL, contractflags);
+
+        ExtractQtumTX resultConvertQtumTX;
+        if(!convert.extractionQtumTransactions(resultConvertQtumTX)){
+            return nGasFee;
+        }
+
+        dev::u256 sumGas = dev::u256(0);
+        for(QtumTransaction& qtx : resultConvertQtumTX.first){
+            sumGas += qtx.gas() * qtx.gasPrice();
+        }
+
+        nGasFee = (CAmount) sumGas;
+    }
+    return nGasFee;
+}
+
+bool GetAddressWeight(uint256 addressHash, int type, const std::map<COutPoint, uint32_t>& immatureStakes, int32_t nHeight, uint64_t& nWeight)
+{
+    nWeight = 0;
+
+    if (!fAddressIndex)
+        return error("address index not enabled");
+
+    // Get address utxos
+    std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > unspentOutputs;
+    if (!GetAddressUnspent(addressHash, type, unspentOutputs)) {
+        throw error("No information available for address");
+    }
+
+    // Add the utxos to the list if they are mature
+	const Consensus::Params& consensusParams = Params().GetConsensus();
+    for (std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> >::const_iterator i=unspentOutputs.begin(); i!=unspentOutputs.end(); i++) {
+
+        int nDepth = nHeight - i->second.blockHeight + 1;
+        if (nDepth < consensusParams.CoinbaseMaturity(nHeight + 1))
+            continue;
+
+        if(i->second.satoshis < 0)
+            continue;
+
+        COutPoint prevout = COutPoint(i->first.txhash, i->first.index);
+        if(immatureStakes.find(prevout) == immatureStakes.end())
+        {
+            nWeight+= i->second.satoshis;
+        }
+    }
+
+    return true;
 }
 
 std::map<COutPoint, uint32_t> GetImmatureStakes()
