@@ -66,7 +66,7 @@
         <translation>Địa chỉ đang nhận</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation>Đây là những địa chỉ đang thực hiện thanh toán. Luôn kiểm tra số lượng và địa chỉ nhận trước khi gửi coins.</translation>
     </message>
     <message>
@@ -164,8 +164,8 @@
         <translation>Xác nhận mã hóa ví</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
-        <translation>Cảnh báo: Nếu bạn mã hóa ví và mất cụm mật khẩu, bạn sẽ &lt;b&gt;MẤT TẤT CẢ BITCOIN&lt;/b&gt;!</translation>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
+        <translation>Cảnh báo: Nếu bạn mã hóa ví và mất cụm mật khẩu, bạn sẽ &lt;b&gt;MẤT TẤT CẢ QTUM&lt;/b&gt;!</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -184,8 +184,8 @@
         <translation>Nhập cụm mật khẩu cũ và mật khẩu mới cho ví.</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
-        <translation>Xin lưu ý rằng mật mã hóa ví của bạn không thể bảo vệ hoàn toàn bitcoin của bạn khỏi đánh cắp bởi các phẩn mềm gián điệp nhiễm vào máy tính của bạn.</translation>
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
+        <translation>Xin lưu ý rằng mật mã hóa ví của bạn không thể bảo vệ hoàn toàn qtum của bạn khỏi đánh cắp bởi các phẩn mềm gián điệp nhiễm vào máy tính của bạn.</translation>
     </message>
     <message>
         <source>Wallet to be encrypted</source>
@@ -248,7 +248,7 @@
     </message>
 </context>
 <context>
-    <name>BitcoinGUI</name>
+    <name>QtumGUI</name>
     <message>
         <source>Sign &amp;message...</source>
         <translation>Chữ ký &amp;lời nhắn...</translation>
@@ -358,8 +358,8 @@
         <translation>Proxy là &lt;b&gt; cho phép &lt;/b&gt;: %1</translation>
     </message>
     <message>
-        <source>Send coins to a Bitcoin address</source>
-        <translation>Gửi coin đến một địa chỉ Bitcoin</translation>
+        <source>Send coins to a Qtum address</source>
+        <translation>Gửi coin đến một địa chỉ Qtum</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -394,12 +394,12 @@
         <translation>Mã hóa private key thuộc về ví của bạn</translation>
     </message>
     <message>
-        <source>Sign messages with your Bitcoin addresses to prove you own them</source>
-        <translation>Đăng ký lời nhắn với địa chỉ Bitcoin của bạn để chứng minh quyền sở hữu chúng</translation>
+        <source>Sign messages with your Qtum addresses to prove you own them</source>
+        <translation>Đăng ký lời nhắn với địa chỉ Qtum của bạn để chứng minh quyền sở hữu chúng</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Bitcoin addresses</source>
-        <translation>Xác minh lời nhắn để chắc chắn đã được đăng ký với địa chỉ Bitcoin xác định</translation>
+        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
+        <translation>Xác minh lời nhắn để chắc chắn đã được đăng ký với địa chỉ Qtum xác định</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -418,8 +418,8 @@
         <translation>Các thanh công cụ</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
-        <translation>Yêu cầu thanh toán (tạo QR code và bitcoin: URIs)</translation>
+        <source>Request payments (generates QR codes and qtum: URIs)</source>
+        <translation>Yêu cầu thanh toán (tạo QR code và qtum: URIs)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -434,8 +434,8 @@
         <translation>&amp;Tùy chỉnh Command-line</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Bitcoin network</source>
-        <translation><numerusform>%n kết nối đến Bitcoin network</numerusform></translation>
+        <source>%n active connection(s) to Qtum network</source>
+        <translation><numerusform>%n kết nối đến Qtum network</numerusform></translation>
     </message>
     <message>
         <source>Indexing blocks on disk...</source>
@@ -502,8 +502,8 @@
         <translation>&amp;Các địa chỉ đang nhận</translation>
     </message>
     <message>
-        <source>Open a bitcoin: URI</source>
-        <translation>Mở một bitcoin: URI</translation>
+        <source>Open a qtum: URI</source>
+        <translation>Mở một qtum: URI</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -530,8 +530,8 @@
         <translation>Đóng tất cả ví</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Bitcoin command-line options</source>
-        <translation>Hiển thị %1 tin nhắn hỗ trợ để nhận được danh sách Bitcoin command-line khả dụng</translation>
+        <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
+        <translation>Hiển thị %1 tin nhắn hỗ trợ để nhận được danh sách Qtum command-line khả dụng</translation>
     </message>
     <message>
         <source>default wallet</source>
@@ -886,8 +886,8 @@
         <translation>Edit address đang gửi</translation>
     </message>
     <message>
-        <source>The entered address "%1" is not a valid Bitcoin address.</source>
-        <translation>Address đã nhập "%1" không valid Bitcoin address.</translation>
+        <source>The entered address "%1" is not a valid Qtum address.</source>
+        <translation>Address đã nhập "%1" không valid Qtum address.</translation>
     </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
@@ -983,8 +983,8 @@
         <translation>Sử dụng custom danh mục data:</translation>
     </message>
     <message>
-        <source>Bitcoin</source>
-        <translation>Bitcoin</translation>
+        <source>Qtum</source>
+        <translation>Qtum</translation>
     </message>
     <message>
         <source>At least %1 GB of data will be stored in this directory, and it will grow over time.</source>
@@ -995,8 +995,8 @@
         <translation>Gần đúng %1 GB of data sẽ được lưu giữ trong danh mục này.</translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the Bitcoin block chain.</source>
-        <translation>%1 sẽ download và lưu trữ một bản copy của Bitcoin block chain.</translation>
+        <source>%1 will download and store a copy of the Qtum block chain.</source>
+        <translation>%1 sẽ download và lưu trữ một bản copy của Qtum block chain.</translation>
     </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
@@ -1030,12 +1030,12 @@
         <translation>Form</translation>
     </message>
     <message>
-        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the bitcoin network, as detailed below.</source>
-        <translation>Giao dịch gần đây có thể chưa được hiển thị, và vì vậy số dư wallet của bạn có thể không dúng. Thông tin này sẽ được làm đúng khi wallet hoàn thành đồng bộ với bitcoin network, như chi tiết bên dưới.</translation>
+        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
+        <translation>Giao dịch gần đây có thể chưa được hiển thị, và vì vậy số dư wallet của bạn có thể không dúng. Thông tin này sẽ được làm đúng khi wallet hoàn thành đồng bộ với qtum network, như chi tiết bên dưới.</translation>
     </message>
     <message>
-        <source>Attempting to spend bitcoins that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
-        <translation>Cố gắng spend các bitcoins bị ảnh hưởng bởi các giao dịch chưa được hiển thị sẽ không được chấp nhận bởi mạng.</translation>
+        <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
+        <translation>Cố gắng spend các qtums bị ảnh hưởng bởi các giao dịch chưa được hiển thị sẽ không được chấp nhận bởi mạng.</translation>
     </message>
     <message>
         <source>Number of blocks left</source>
@@ -1085,8 +1085,8 @@
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open bitcoin URI</source>
-        <translation>Mở bitcoin URI</translation>
+        <source>Open qtum URI</source>
+        <translation>Mở qtum URI</translation>
     </message>
     <message>
         <source>URI:</source>
@@ -1227,8 +1227,8 @@
         <translation>&amp;Spend unconfirmed change</translation>
     </message>
     <message>
-        <source>Automatically open the Bitcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Automatically open the Bitcoin client port on the router. This only works when your router supports UPnP and it is enabled.</translation>
+        <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
@@ -1243,8 +1243,8 @@
         <translation>Chấp nhận  kết nối đang tới</translation>
     </message>
     <message>
-        <source>Connect to the Bitcoin network through a SOCKS5 proxy.</source>
-        <translation>Kết nối đến Bitcoin network qua một SOCKS5 proxy.</translation>
+        <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
+        <translation>Kết nối đến Qtum network qua một SOCKS5 proxy.</translation>
     </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
@@ -1386,8 +1386,8 @@
         <translation>Form</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Bitcoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>Thông tin được hiển thị có thể đã lỗi thời. Cái wallet tự động đồng bộ với Bitcoin network sau một connection được thiết lập, nhưng quá trình này vẫn chưa completed yet.</translation>
+        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
+        <translation>Thông tin được hiển thị có thể đã lỗi thời. Cái wallet tự động đồng bộ với Qtum network sau một connection được thiết lập, nhưng quá trình này vẫn chưa completed yet.</translation>
     </message>
     <message>
         <source>Watch-only:</source>
@@ -1528,16 +1528,16 @@
         <translation>Payment request error</translation>
     </message>
     <message>
-        <source>Cannot start bitcoin: click-to-pay handler</source>
-        <translation>Không thể khởi tạo bitcoin: click-to-pay handler</translation>
+        <source>Cannot start qtum: click-to-pay handler</source>
+        <translation>Không thể khởi tạo qtum: click-to-pay handler</translation>
     </message>
     <message>
         <source>URI handling</source>
         <translation>URI handling</translation>
     </message>
     <message>
-        <source>'bitcoin://' is not a valid URI. Use 'bitcoin:' instead.</source>
-        <translation>'bitcoin://' không khả dụng URI. Dùng thay vì 'bitcoin:' .</translation>
+        <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
+        <translation>'qtum://' không khả dụng URI. Dùng thay vì 'qtum:' .</translation>
     </message>
     <message>
         <source>Cannot process payment request because BIP70 is not supported.</source>
@@ -1556,8 +1556,8 @@
         <translation>Invalid payment address %1</translation>
     </message>
     <message>
-        <source>URI cannot be parsed! This can be caused by an invalid Bitcoin address or malformed URI parameters.</source>
-        <translation>URI không thể phân tích cú pháp! Đây có thể gây nên bởi invalid Bitcoin address hoặc URI không đúng định dạng tham số.</translation>
+        <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source>
+        <translation>URI không thể phân tích cú pháp! Đây có thể gây nên bởi invalid Qtum address hoặc URI không đúng định dạng tham số.</translation>
     </message>
     <message>
         <source>Payment request file handling</source>
@@ -1598,8 +1598,8 @@
         <translation>Số lượng</translation>
     </message>
     <message>
-        <source>Enter a Bitcoin address (e.g. %1)</source>
-        <translation>Nhập một Bitcoin address (e.g. %1)</translation>
+        <source>Enter a Qtum address (e.g. %1)</source>
+        <translation>Nhập một Qtum address (e.g. %1)</translation>
     </message>
     <message>
         <source>%1 d</source>
@@ -2055,8 +2055,8 @@
         <translation>&amp;Message:</translation>
     </message>
     <message>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Bitcoin network.</source>
-        <translation>Một optional lời nhắn để đính kèm đến payment request, cái mà sẽ được hiển thị khi mà request đang mở. Lưu ý: Tin nhắn này sẽ không được gửi với payment over the Bitcoin network.</translation>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
+        <translation>Một optional lời nhắn để đính kèm đến payment request, cái mà sẽ được hiển thị khi mà request đang mở. Lưu ý: Tin nhắn này sẽ không được gửi với payment over the Qtum network.</translation>
     </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
@@ -2336,8 +2336,8 @@ Lưu ý: Vì phí được tính trên cơ sở mỗi byte, nên phí "100 satos
         <translation>Ẩn cài đặt phí giao dịch</translation>
     </message>
     <message>
-        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for bitcoin transactions than the network can process.</source>
-        <translation>Khi có khối lượng giao dịch ít hơn chổ trống trong các khối, các nhà đào mỏ cũng như các nút chuyển tiếp có thể thực thi chỉ với một khoản phí tối thiểu. Chỉ trả khoản phí tối thiểu này là tốt, nhưng lưu ý rằng điều này có thể dẫn đến một giao dịch không bao giờ xác nhận một khi có nhu cầu giao dịch bitcoin nhiều hơn khả năng mạng có thể xử lý.</translation>
+        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
+        <translation>Khi có khối lượng giao dịch ít hơn chổ trống trong các khối, các nhà đào mỏ cũng như các nút chuyển tiếp có thể thực thi chỉ với một khoản phí tối thiểu. Chỉ trả khoản phí tối thiểu này là tốt, nhưng lưu ý rằng điều này có thể dẫn đến một giao dịch không bao giờ xác nhận một khi có nhu cầu giao dịch qtum nhiều hơn khả năng mạng có thể xử lý.</translation>
     </message>
     <message>
         <source>A too low fee might result in a never confirming transaction (read the tooltip)</source>
@@ -2408,8 +2408,8 @@ Lưu ý: Vì phí được tính trên cơ sở mỗi byte, nên phí "100 satos
         <translation>Cr&amp;eate không được ký</translation>
     </message>
     <message>
-        <source>Creates a Partially Signed Bitcoin Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
-        <translation>Tạo Giao dịch Bitcoin được ký một phần (PSBT) để sử dụng với các dạng như: ví ngoại tuyến %1 hoặc ví phần cứng tương thích PSBT.</translation>
+        <source>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <translation>Tạo Giao dịch Qtum được ký một phần (PSBT) để sử dụng với các dạng như: ví ngoại tuyến %1 hoặc ví phần cứng tương thích PSBT.</translation>
     </message>
     <message>
         <source> from wallet '%1'</source>
@@ -2520,8 +2520,8 @@ Lưu ý: Vì phí được tính trên cơ sở mỗi byte, nên phí "100 satos
         <translation><numerusform>Dự kiến bắt đầu xác nhận trong vòng %n blocks.</numerusform></translation>
     </message>
     <message>
-        <source>Warning: Invalid Bitcoin address</source>
-        <translation>Warning: Invalid Bitcoin address</translation>
+        <source>Warning: Invalid Qtum address</source>
+        <translation>Warning: Invalid Qtum address</translation>
     </message>
     <message>
         <source>Warning: Unknown change address</source>
@@ -2559,8 +2559,8 @@ Lưu ý: Vì phí được tính trên cơ sở mỗi byte, nên phí "100 satos
         <translation>Chọn mới thì address</translation>
     </message>
     <message>
-        <source>The Bitcoin address to send the payment to</source>
-        <translation>The Bitcoin address để gửi the payment đến</translation>
+        <source>The Qtum address to send the payment to</source>
+        <translation>The Qtum address để gửi the payment đến</translation>
     </message>
     <message>
         <source>Alt+A</source>
@@ -2583,8 +2583,8 @@ Lưu ý: Vì phí được tính trên cơ sở mỗi byte, nên phí "100 satos
         <translation>Lượng tiền để gửi trong mỗi đơn vị đã chọn</translation>
     </message>
     <message>
-        <source>The fee will be deducted from the amount being sent. The recipient will receive less bitcoins than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
-        <translation>The fee sẽ được khấu trừ từ số tiền đang gửi. Người nhận sẽ receive ít bitcoins hơn bạn gõ vào khoảng trống. Nếu nhiều người gửi được chọn, fee sẽ được chia đều.</translation>
+        <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
+        <translation>The fee sẽ được khấu trừ từ số tiền đang gửi. Người nhận sẽ receive ít qtums hơn bạn gõ vào khoảng trống. Nếu nhiều người gửi được chọn, fee sẽ được chia đều.</translation>
     </message>
     <message>
         <source>S&amp;ubtract fee from amount</source>
@@ -2611,8 +2611,8 @@ Lưu ý: Vì phí được tính trên cơ sở mỗi byte, nên phí "100 satos
         <translation>Nhập một label cho cái address này để thêm vào danh sách địa chỉ đã sử dụng</translation>
     </message>
     <message>
-        <source>A message that was attached to the bitcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Bitcoin network.</source>
-        <translation>Một tin nhắn được đính kèm với số bitcoin: URI mà sẽ được lưu giữ với transaction dành cho tài liệu tham khảo. Lưu ý: Tin nhắn này sẽ không được gửi thông qua Bitcoin network.</translation>
+        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
+        <translation>Một tin nhắn được đính kèm với số qtum: URI mà sẽ được lưu giữ với transaction dành cho tài liệu tham khảo. Lưu ý: Tin nhắn này sẽ không được gửi thông qua Qtum network.</translation>
     </message>
     <message>
         <source>Pay To:</source>
@@ -2645,12 +2645,12 @@ Lưu ý: Vì phí được tính trên cơ sở mỗi byte, nên phí "100 satos
         <translation>&amp;Sign Tin nhắn</translation>
     </message>
     <message>
-        <source>You can sign messages/agreements with your addresses to prove you can receive bitcoins sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
-        <translation>Bạn có thể ký/đồng ý với địa chỉ chứng minh bạn có thể receive bitcoins đã gửi đến chúng. Cẩn thận không ký bất cứ không rõ hay random, như các cuộc tấn công lừa đảo có thể cố lừa bạn ký tên vào danh tính của bạn.. Chỉ ký các bản tuyên bố hoàn chỉnh mà bạn đồng ý.</translation>
+        <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
+        <translation>Bạn có thể ký/đồng ý với địa chỉ chứng minh bạn có thể receive qtums đã gửi đến chúng. Cẩn thận không ký bất cứ không rõ hay random, như các cuộc tấn công lừa đảo có thể cố lừa bạn ký tên vào danh tính của bạn.. Chỉ ký các bản tuyên bố hoàn chỉnh mà bạn đồng ý.</translation>
     </message>
     <message>
-        <source>The Bitcoin address to sign the message with</source>
-        <translation>The Bitcoin address để ký với tin nhắn</translation>
+        <source>The Qtum address to sign the message with</source>
+        <translation>The Qtum address để ký với tin nhắn</translation>
     </message>
     <message>
         <source>Choose previously used address</source>
@@ -2681,8 +2681,8 @@ Lưu ý: Vì phí được tính trên cơ sở mỗi byte, nên phí "100 satos
         <translation>Copy hiện tại signature tới system clipboard</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this Bitcoin address</source>
-        <translation>Ký tin nhắn để chứng minh bạn sở hữu Bitcoin address này</translation>
+        <source>Sign the message to prove you own this Qtum address</source>
+        <translation>Ký tin nhắn để chứng minh bạn sở hữu Qtum address này</translation>
     </message>
     <message>
         <source>Sign &amp;Message</source>
@@ -2705,8 +2705,8 @@ Lưu ý: Vì phí được tính trên cơ sở mỗi byte, nên phí "100 satos
         <translation>Nhập vào address người nhận, tin nhắn (chắc rằng bạn copy line breaks, khoảng trống, tabs, etc. chính xác) và signature bên dưới verify tin nhắn. Cẩn thận không đọc nhiều hơn từ signature so với cái được ký trong bản thân tin nhắn, để tránh bị lừa bới man-in-the-middle tấn công. Lưu ý rằng điều này chỉ chứng nhận nhóm những người nhân với address, nó không thể chứng minh bên gửi có bất kỳ transaction!</translation>
     </message>
     <message>
-        <source>The Bitcoin address the message was signed with</source>
-        <translation>The Bitcoin address tin nhắn đã ký với</translation>
+        <source>The Qtum address the message was signed with</source>
+        <translation>The Qtum address tin nhắn đã ký với</translation>
     </message>
     <message>
         <source>The signed message to verify</source>
@@ -2717,8 +2717,8 @@ Lưu ý: Vì phí được tính trên cơ sở mỗi byte, nên phí "100 satos
         <translation>Chữ ký được cung cấp khi tin nhắn đã được ký</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified Bitcoin address</source>
-        <translation>Verify tin nhắn để chắc rằng nó đã được ký với xác định Bitcoin address</translation>
+        <source>Verify the message to ensure it was signed with the specified Qtum address</source>
+        <translation>Verify tin nhắn để chắc rằng nó đã được ký với xác định Qtum address</translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
@@ -3388,7 +3388,7 @@ Lưu ý: Vì phí được tính trên cơ sở mỗi byte, nên phí "100 satos
     </message>
 </context>
 <context>
-    <name>bitcoin-core</name>
+    <name>qtum-core</name>
     <message>
         <source>Distributed under the MIT software license, see the accompanying file %s or %s</source>
         <translation>Distributed under the MIT software license, see the accompanying file %s or %s</translation>

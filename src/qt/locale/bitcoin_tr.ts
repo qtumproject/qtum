@@ -51,7 +51,7 @@
     </message>
     <message>
         <source>Choose the address to receive coins with</source>
-        <translation>Bitcoinleri alacağınız adresi seçin</translation>
+        <translation>Qtumleri alacağınız adresi seçin</translation>
     </message>
     <message>
         <source>C&amp;hoose</source>
@@ -66,14 +66,14 @@
         <translation>Alıcı adresler</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation>Bunlar Bitcoinleriniz için gönderici adreslerinizdir.
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation>Bunlar Qtumleriniz için gönderici adreslerinizdir.
 Gönderim yapmadan önce her zaman tutarı ve alıcı adresi kontrol ediniz.</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation>Bunlar ödeme almak için kullanacağınız bitcoin adreslerinizdir. Yeni adres oluşturmak için ödeme alma sekmesindeki 'Yeni alıcı adresi oluşturun' kısmına tıklayın.
+        <translation>Bunlar ödeme almak için kullanacağınız qtum adreslerinizdir. Yeni adres oluşturmak için ödeme alma sekmesindeki 'Yeni alıcı adresi oluşturun' kısmına tıklayın.
 İmzalama sadece 'legacy' tipindeki adreslerle mümkündür.</translation>
     </message>
     <message>
@@ -172,8 +172,8 @@ Cüzdan kilidini aç.</translation>
         <translation>Cüzdan şifrelemeyi onayla</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
-        <translation>Uyarı: Cüzdanınızı şifreler ve parolanızı unutursanız &lt;b&gt;TÜM BITCOINLERINIZI KAYBEDERSİNİZ&lt;/b&gt;!</translation>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
+        <translation>Uyarı: Cüzdanınızı şifreler ve parolanızı unutursanız &lt;b&gt;TÜM QTUMLERINIZI KAYBEDERSİNİZ&lt;/b&gt;!</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -192,8 +192,8 @@ Cüzdan kilidini aç.</translation>
         <translation>Cüzdanınızın eski ve yeni parolasını giriniz.</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
-        <translation>Cüzdanınızı şifrelemenin bilgisayarınıza bulaşan kötü amaçlı yazılımlar tarafından bitcoinlerinizin çalınmasına karşı tamamen koruyamayacağını unutmayın.</translation>
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
+        <translation>Cüzdanınızı şifrelemenin bilgisayarınıza bulaşan kötü amaçlı yazılımlar tarafından qtumlerinizin çalınmasına karşı tamamen koruyamayacağını unutmayın.</translation>
     </message>
     <message>
         <source>Wallet to be encrypted</source>
@@ -256,7 +256,7 @@ Cüzdan kilidini aç.</translation>
     </message>
 </context>
 <context>
-    <name>BitcoinGUI</name>
+    <name>QtumGUI</name>
     <message>
         <source>Sign &amp;message...</source>
         <translation>&amp;Mesajı imzala ...</translation>
@@ -366,8 +366,8 @@ Cüzdan kilidini aç.</translation>
         <translation>Proxy &lt;b&gt;etkinleştirildi&lt;/b&gt;: %1 </translation>
     </message>
     <message>
-        <source>Send coins to a Bitcoin address</source>
-        <translation>Bir Bitcoin adresine Bitcoin yolla</translation>
+        <source>Send coins to a Qtum address</source>
+        <translation>Bir Qtum adresine Qtum yolla</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -402,12 +402,12 @@ Cüzdan kilidini aç.</translation>
         <translation>Cüzdanınıza ait özel anahtarları şifreleyin</translation>
     </message>
     <message>
-        <source>Sign messages with your Bitcoin addresses to prove you own them</source>
-        <translation>Bitcoin adreslerine sahip olduğunuzu kanıtlamak için mesajlarınızı imzalayın</translation>
+        <source>Sign messages with your Qtum addresses to prove you own them</source>
+        <translation>Qtum adreslerine sahip olduğunuzu kanıtlamak için mesajlarınızı imzalayın</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Bitcoin addresses</source>
-        <translation>Belirtilen Bitcoin adresleriyle imzalandıklarından emin olmak için mesajları doğrulayın</translation>
+        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
+        <translation>Belirtilen Qtum adresleriyle imzalandıklarından emin olmak için mesajları doğrulayın</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -426,8 +426,8 @@ Cüzdan kilidini aç.</translation>
         <translation>Araç çubuğu sekmeleri</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
-        <translation>Ödeme isteyin (QR kodları ve bitcoin: URI'ler üretir)</translation>
+        <source>Request payments (generates QR codes and qtum: URIs)</source>
+        <translation>Ödeme isteyin (QR kodları ve qtum: URI'ler üretir)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -442,8 +442,8 @@ Cüzdan kilidini aç.</translation>
         <translation>&amp;Komut satırı seçenekleri</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Bitcoin network</source>
-        <translation><numerusform>Bitcoin ağına %n etkin bağlantı</numerusform><numerusform>Bitcoin ağına %n etkin bağlantı</numerusform></translation>
+        <source>%n active connection(s) to Qtum network</source>
+        <translation><numerusform>Qtum ağına %n etkin bağlantı</numerusform><numerusform>Qtum ağına %n etkin bağlantı</numerusform></translation>
     </message>
     <message>
         <source>Indexing blocks on disk...</source>
@@ -486,16 +486,16 @@ Cüzdan kilidini aç.</translation>
         <translation>PSBT'yi dosyadan yükle ...</translation>
     </message>
     <message>
-        <source>Load Partially Signed Bitcoin Transaction</source>
-        <translation>Kısmen İmzalanmış Bitcoin İşlemini Yükle </translation>
+        <source>Load Partially Signed Qtum Transaction</source>
+        <translation>Kısmen İmzalanmış Qtum İşlemini Yükle </translation>
     </message>
     <message>
         <source>Load PSBT from clipboard...</source>
         <translation>PBT'yi panadon yükle ...</translation>
     </message>
     <message>
-        <source>Load Partially Signed Bitcoin Transaction from clipboard</source>
-        <translation>Kısmen İmzalanmış Bitcoin işlemini panodan yükle</translation>
+        <source>Load Partially Signed Qtum Transaction from clipboard</source>
+        <translation>Kısmen İmzalanmış Qtum işlemini panodan yükle</translation>
     </message>
     <message>
         <source>Node window</source>
@@ -514,8 +514,8 @@ Cüzdan kilidini aç.</translation>
         <translation>&amp; Adresler alınıyor</translation>
     </message>
     <message>
-        <source>Open a bitcoin: URI</source>
-        <translation>Bitcoin’i aç.</translation>
+        <source>Open a qtum: URI</source>
+        <translation>Qtum’i aç.</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -892,8 +892,8 @@ Cüzdan kilidini aç.</translation>
         <translation>Gönderme adresini  düzenleyin</translation>
     </message>
     <message>
-        <source>The entered address "%1" is not a valid Bitcoin address.</source>
-        <translation>Girilen "%1" adresi geçerli bir Bitcoin adresi değildir.</translation>
+        <source>The entered address "%1" is not a valid Qtum address.</source>
+        <translation>Girilen "%1" adresi geçerli bir Qtum adresi değildir.</translation>
     </message>
     </context>
 <context>
@@ -937,8 +937,8 @@ Cüzdan kilidini aç.</translation>
         <translation>Özel bir veri klasörü kullan:</translation>
     </message>
     <message>
-        <source>Bitcoin</source>
-        <translation>Bitcoin</translation>
+        <source>Qtum</source>
+        <translation>Qtum</translation>
     </message>
     <message>
         <source>At least %1 GB of data will be stored in this directory, and it will grow over time.</source>
@@ -956,8 +956,8 @@ Cüzdan kilidini aç.</translation>
 <context>
     <name>ModalOverlay</name>
     <message>
-        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the bitcoin network, as detailed below.</source>
-        <translation>Son işlemler henüz görünmeyebilir ve bu nedenle cüzdanınızın bakiyesi yanlış olabilir. Bu bilgiler, aşağıda detaylandırıldığı gibi, cüzdanınız bitcoin ağı ile senkronizasyonunu tamamladığında doğru olacaktır. </translation>
+        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
+        <translation>Son işlemler henüz görünmeyebilir ve bu nedenle cüzdanınızın bakiyesi yanlış olabilir. Bu bilgiler, aşağıda detaylandırıldığı gibi, cüzdanınız qtum ağı ile senkronizasyonunu tamamladığında doğru olacaktır. </translation>
     </message>
     <message>
         <source>Unknown...</source>
@@ -1158,8 +1158,8 @@ Cüzdan kilidini aç.</translation>
         <translation>Ödeme isteği hatası</translation>
     </message>
     <message>
-        <source>'bitcoin://' is not a valid URI. Use 'bitcoin:' instead.</source>
-        <translation>'bitcoin://' geçerli bir URI değil. Onun yerine 'bitcoin:' kullanın.</translation>
+        <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
+        <translation>'qtum://' geçerli bir URI değil. Onun yerine 'qtum:' kullanın.</translation>
     </message>
     </context>
 <context>
@@ -1180,8 +1180,8 @@ Cüzdan kilidini aç.</translation>
         <translation>Mitar</translation>
     </message>
     <message>
-        <source>Enter a Bitcoin address (e.g. %1)</source>
-        <translation>Bir bitcoin adresi giriniz (örneğin %1)</translation>
+        <source>Enter a Qtum address (e.g. %1)</source>
+        <translation>Bir qtum adresi giriniz (örneğin %1)</translation>
     </message>
     <message>
         <source>%1 d</source>
@@ -1911,7 +1911,7 @@ Cüzdan kilidini aç.</translation>
     </message>
 </context>
 <context>
-    <name>bitcoin-core</name>
+    <name>qtum-core</name>
     <message>
         <source>Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly.</source>
         <translation>Lütfen bilgisayarınızın tarih ve saatinin doğruluğunu kontrol edin. Hata varsa %s doğru çalışmayacaktır.</translation>

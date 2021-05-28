@@ -66,8 +66,8 @@
         <translation>អាសយដ្ឋានសម្រាប់ទទួល</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation>ទាំងនេះ​គឺជាអាសយដ្ឋាន Bitcoin របស់អ្នកសម្រាប់ធ្វើការផ្ញើការបង់ប្រាក់។ តែងតែពិនិត្យមើលចំនួនប្រាក់ និងអាសយដ្ឋានដែលទទួល មុនពេលផ្ញើប្រាក់។</translation>
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation>ទាំងនេះ​គឺជាអាសយដ្ឋាន Qtum របស់អ្នកសម្រាប់ធ្វើការផ្ញើការបង់ប្រាក់។ តែងតែពិនិត្យមើលចំនួនប្រាក់ និងអាសយដ្ឋានដែលទទួល មុនពេលផ្ញើប្រាក់។</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -160,8 +160,8 @@
         <translation>បញ្ជាក់ការអ៊ិនគ្រីបកាបូបចល័ត</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
-        <translation>ការព្រមាន៖ ប្រសិនបើអ្នកអ៊ិនគ្រីបកាបូបចល័តរបស់អ្នក ហើយអ្នកភ្លេចបាត់ឃ្លាសម្ងាត់ នោះអ្នកនិង &lt;b&gt;បាត់បង់ BITCOINS របស់អ្នកទាំងអស់&lt;/b&gt;!</translation>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
+        <translation>ការព្រមាន៖ ប្រសិនបើអ្នកអ៊ិនគ្រីបកាបូបចល័តរបស់អ្នក ហើយអ្នកភ្លេចបាត់ឃ្លាសម្ងាត់ នោះអ្នកនិង &lt;b&gt;បាត់បង់ QTUMS របស់អ្នកទាំងអស់&lt;/b&gt;!</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -236,7 +236,7 @@
     </message>
 </context>
 <context>
-    <name>BitcoinGUI</name>
+    <name>QtumGUI</name>
     <message>
         <source>Sign &amp;message...</source>
         <translation>ស៊ីញ៉េសារ...</translation>
@@ -338,8 +338,8 @@
         <translation>ប្រូកស៊ី ត្រូវបាន &lt;b&gt;អនុញ្ញាត&lt;/b&gt;៖ %1</translation>
     </message>
     <message>
-        <source>Send coins to a Bitcoin address</source>
-        <translation>ផ្ញើកាក់ទៅកាន់ អាសយដ្ឋាន Bitcoin មួយ</translation>
+        <source>Send coins to a Qtum address</source>
+        <translation>ផ្ញើកាក់ទៅកាន់ អាសយដ្ឋាន Qtum មួយ</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -374,11 +374,11 @@
         <translation>បំលែងលេខសំម្ងាត់សម្រាប់កាបូបអេឡិចត្រូនិច របស់អ្នកឲ្យទៅជាភាសាកុំព្យូទ័រ </translation>
     </message>
     <message>
-        <source>Sign messages with your Bitcoin addresses to prove you own them</source>
+        <source>Sign messages with your Qtum addresses to prove you own them</source>
         <translation>ចុះហត្ថលេខាលើសារ អាសយដ្ឋានប៊ីតខញរបស់អ្នក ដើម្បីបញ្ចាក់ថាអ្នកជាម្ចាស់</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Bitcoin addresses</source>
+        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
         <translation>ធ្វើការបញ្ចាក់សារ ដើម្បីធានាថាសារទាំំងនោះបានចុះហត្ថលេខា ជាមួយអាសយដ្ខានប៊ីតខញ</translation>
     </message>
     <message>
@@ -398,7 +398,7 @@
         <translation>ធូបារថេប</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
+        <source>Request payments (generates QR codes and qtum: URIs)</source>
         <translation>សំណើរទូរទាត់​(បង្កើតកូដ QR និង ប៊ីតខញ: URLs)</translation>
     </message>
     <message>
@@ -731,7 +731,7 @@
         <translation>ប្រើទីតាំងផ្ទុកទិន្នន័យ ដែលមានការជ្រើសរើសមួយៈ</translation>
     </message>
     <message>
-        <source>Bitcoin</source>
+        <source>Qtum</source>
         <translation>ប៊ីតខញ</translation>
     </message>
     <message>
@@ -746,11 +746,11 @@
         <translation>ទម្រង់</translation>
     </message>
     <message>
-        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the bitcoin network, as detailed below.</source>
+        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
         <translation>ប្រត្តិបត្តិការថ្មីៗនេះប្រហែលជាមិនអាចមើលឃើញ ហេតុដូច្នេះសមតុល្យនៅក្នងកាបូបអេឡិចត្រូនិចរបស់អ្នកប្រហែលជាមិនត្រឹមត្រូវ។ ព័ត៌មានត្រឹមត្រូវនៅពេលដែលកាបូបអេឡិចត្រូនិចរបស់អ្នកបានធ្វើសមកាលកម្មជាមួយបណ្តាញប៊ឺតខញ  សូមពិនិត្យព័ត៌មានលំម្អិតខាងក្រោម។</translation>
     </message>
     <message>
-        <source>Attempting to spend bitcoins that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
+        <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation>ព្យាយាមក្នុងការចំណាយប៊ីតខញដែលទទួលរងឥទ្ឋិពលពីប្រត្តិបត្តិការមិនទាន់ធ្វើការបង្ហាញ នឹងមិនត្រូវទទួលស្គាល់ពីបណ្តាញ។</translation>
     </message>
     <message>
@@ -793,7 +793,7 @@
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open bitcoin URI</source>
+        <source>Open qtum URI</source>
         <translation>បើកប៊ីតខញ​URl</translation>
     </message>
     <message>
@@ -1780,7 +1780,7 @@
     </message>
 </context>
 <context>
-    <name>bitcoin-core</name>
+    <name>qtum-core</name>
     <message>
         <source>Transaction fee and change calculation failed</source>
         <translation>ការគណនា ការផ្លាស់ប្តូរ និង កម្រៃប្រត្តិបត្តការ មិនជោគជ័យ</translation>
