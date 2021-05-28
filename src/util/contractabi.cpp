@@ -484,9 +484,9 @@ bool ParameterABI::abiIn(const std::vector<std::string> &value, std::string &dat
     return true;
 }
 
-std::string deserialiseString(dev::bytesConstRef& io_t, unsigned p)
+std::string deserialiseString(dev::bytesConstRef& io_t, unsigned p, int index = 0)
 {
-    unsigned o = (uint16_t)dev::u256(dev::h256(io_t.cropped(0, 32))) - p;
+    unsigned o = (uint16_t)dev::u256(dev::h256(io_t.cropped(index*32, 32))) - p;
     unsigned s = (uint16_t)dev::u256(dev::h256(io_t.cropped(o, 32)));
     std::string ret;
     ret.resize(s);
@@ -559,8 +559,28 @@ bool ParameterABI::abiOut(const std::string &data, size_t &pos, std::vector<std:
             // Read list
             for(size_t i = 0; i < length; i++)
             {
-                if(!abiOutBasic(abiType, data, pos, paramValue))
-                    return false;
+                // Decode complex type
+                switch (abiType) {
+                case ParameterType::abi_bytes:
+                {
+                    dev::bytes rawData = dev::fromHex(data.substr(pos));
+                    dev::bytesConstRef o(&rawData);
+                    std::string outData = deserialiseString(o, 0, i);
+                    paramValue = dev::toHex(outData);
+                }
+                    break;
+                case ParameterType::abi_string:
+                {
+                    dev::bytes rawData = dev::fromHex(data.substr(pos));
+                    dev::bytesConstRef o(&rawData);
+                    paramValue = deserialiseString(o, 0, i);
+                }
+                    break;
+                // Decode basic type
+                default:
+                    if(!abiOutBasic(abiType, data, pos, paramValue))
+                        return false;
+                }
                 value.push_back(paramValue);
             }
 
