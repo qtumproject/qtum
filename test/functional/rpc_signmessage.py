@@ -6,6 +6,7 @@
 
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal
+from test_framework.qtum import convert_btc_address_to_qtum
 
 class SignMessagesTest(BitcoinTestFramework):
     def set_test_params(self):
@@ -21,8 +22,8 @@ class SignMessagesTest(BitcoinTestFramework):
 
         self.log.info('test signing with priv_key')
         priv_key = 'cUeKHd5orzT3mz8P9pxyREHfsWtVfgsfDjiZZBcjUBAaGk1BTj7N'
-        address = 'mpLQjfK79b7CCV4VMJWEWAj5Mpx8Up5zxB'
-        expected_signature = 'INbVnW4e6PeRmsv2Qgu8NuopvrVjkcxob+sX8OcZG0SALhWybUjzMLPdAsXI46YZGb0KQTRii+wWIQzRpG/U+S0='
+        address = convert_btc_address_to_qtum('mpLQjfK79b7CCV4VMJWEWAj5Mpx8Up5zxB')
+        expected_signature = 'H82vbb1DFcGX32hHYCrWxCxo9aQCSSm4caa/+rvV2rdrT3YrZgkIQOIydNkd8F9rI94tTCgjzL/rplldv0ImR4I='
         signature = self.nodes[0].signmessagewithprivkey(priv_key, message)
         assert_equal(expected_signature, signature)
         assert self.nodes[0].verifymessage(address, signature, message)

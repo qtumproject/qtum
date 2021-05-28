@@ -8,7 +8,7 @@ from test_framework.messages import msg_tx, CTransaction, FromHex
 from test_framework.p2p import P2PInterface
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal
-
+from test_framework.qtumconfig import INITIAL_BLOCK_REWARD
 
 class P2PBlocksOnly(BitcoinTestFramework):
     def set_test_params(self):
@@ -27,7 +27,7 @@ class P2PBlocksOnly(BitcoinTestFramework):
                 'vout': 0
             }],
             outputs=[{
-                self.nodes[0].get_deterministic_priv_key().address: 50 - 0.00125
+                self.nodes[0].get_deterministic_priv_key().address: INITIAL_BLOCK_REWARD - 0.00125
             }],
         )
         sigtx = self.nodes[0].signrawtransactionwithkey(

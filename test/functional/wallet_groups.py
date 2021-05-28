@@ -10,7 +10,8 @@ from test_framework.util import (
     assert_approx,
     assert_equal,
 )
-
+from test_framework.qtumconfig import COINBASE_MATURITY, MAX_BLOCK_SIGOPS
+from test_framework.qtum import generatesynchronized
 
 class WalletGroupTest(BitcoinTestFramework):
     def set_test_params(self):
@@ -23,14 +24,14 @@ class WalletGroupTest(BitcoinTestFramework):
             ["-maxapsfee=0.00002719"],
             ["-maxapsfee=0.00002720"],
         ]
-        self.rpc_timeout = 480
+        self.rpc_timewait = 120
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
 
     def run_test(self):
         # Mine some coins
-        self.nodes[0].generate(110)
+        generatesynchronized(self.nodes[0], 10+COINBASE_MATURITY, None, self.nodes)
 
         # Get some addresses from the two nodes
         addr1 = [self.nodes[1].getnewaddress() for _ in range(3)]
@@ -57,7 +58,7 @@ class WalletGroupTest(BitcoinTestFramework):
         v = [vout["value"] for vout in tx1["vout"]]
         v.sort()
         assert_approx(v[0], vexp=0.2, vspan=0.0001)
-        assert_approx(v[1], vexp=0.3, vspan=0.0001)
+        assert_approx(v[1], vexp=0.3, vspan=0.01)
 
         txid2 = self.nodes[2].sendtoaddress(self.nodes[0].getnewaddress(), 0.2)
         tx2 = self.nodes[2].getrawtransaction(txid2, True)
@@ -68,7 +69,7 @@ class WalletGroupTest(BitcoinTestFramework):
         v = [vout["value"] for vout in tx2["vout"]]
         v.sort()
         assert_approx(v[0], vexp=0.2, vspan=0.0001)
-        assert_approx(v[1], vexp=1.3, vspan=0.0001)
+        assert_approx(v[1], vexp=1.3, vspan=0.01)
 
         # Test 'avoid partial if warranted, even if disabled'
         self.sync_all()
@@ -149,11 +150,11 @@ class WalletGroupTest(BitcoinTestFramework):
 
         # Fill node2's wallet with 10000 outputs corresponding to the same
         # scriptPubKey
-        for _ in range(5):
-            raw_tx = self.nodes[0].createrawtransaction([{"txid":"0"*64, "vout":0}], [{addr2[0]: 0.05}])
+        for _ in range(10):
+            raw_tx = self.nodes[0].createrawtransaction([{"txid":"0"*64, "vout":0}], [{addr2[0]: 10/(MAX_BLOCK_SIGOPS//10)}])
             tx = FromHex(CTransaction(), raw_tx)
             tx.vin = []
-            tx.vout = [tx.vout[0]] * 2000
+            tx.vout = [tx.vout[0]] * (MAX_BLOCK_SIGOPS//10)
             funded_tx = self.nodes[0].fundrawtransaction(ToHex(tx))
             signed_tx = self.nodes[0].signrawtransactionwithwallet(funded_tx['hex'])
             self.nodes[0].sendrawtransaction(signed_tx['hex'])

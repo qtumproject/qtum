@@ -200,7 +200,7 @@ class EstimateFeeTest(BitcoinTestFramework):
         self.log.info("Splitting inputs so we can generate tx's")
 
         # Start node0
-        self.start_node(0)
+        self.start_node(0, ['-minrelaytxfee=0.000001'])
         self.txouts = []
         self.txouts2 = []
         # Split a coinbase into two transaction puzzle outputs

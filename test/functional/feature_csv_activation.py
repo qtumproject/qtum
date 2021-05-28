@@ -56,6 +56,7 @@ from test_framework.util import (
     hex_str_to_bytes,
     softfork_active,
 )
+from test_framework.qtumconfig import *
 
 TESTING_TX_COUNT = 83  # Number of testing transactions: 1 BIP113 tx, 16 BIP68 txs, 66 BIP112 txs (see comments above)
 COINBASE_BLOCK_COUNT = TESTING_TX_COUNT  # Number of coinbase blocks we need to generate as inputs for our txs
@@ -104,6 +105,13 @@ def create_bip112emptystack(node, input, txversion, address):
     signtx = sign_transaction(node, tx)
     signtx.vin[0].scriptSig = CScript([OP_CHECKSEQUENCEVERIFY] + list(CScript(signtx.vin[0].scriptSig)))
     return signtx
+
+def send_generic_unspent_input_tx(node, unspent, address):
+    inputs = [{'txid': unspent[0], 'vout': unspent[1]}]
+    outputs = {address : unspent[2]-Decimal("0.01")}
+    rawtx = node.createrawtransaction(inputs, outputs)
+    rawtx = node.signrawtransactionwithwallet(rawtx)['hex']
+    return node.sendrawtransaction(rawtx)
 
 def send_generic_input_tx(node, coinbases, address):
     return node.sendrawtransaction(ToHex(sign_transaction(node, create_transaction(node, node.getblock(coinbases.pop())['tx'][0], address, amount=Decimal("49.99")))))
@@ -166,6 +174,7 @@ class BIP68_112_113Test(BitcoinTestFramework):
             self.last_block_time += 600
             self.tip = block.sha256
             self.tipheight += 1
+            extend_txs = []
         return test_blocks
 
     def create_test_block(self, txs):
@@ -187,7 +196,8 @@ class BIP68_112_113Test(BitcoinTestFramework):
         self.helper_peer = self.nodes[0].add_p2p_connection(P2PDataStore())
 
         self.log.info("Generate blocks in the past for coinbase outputs.")
-        long_past_time = int(time.time()) - 600 * 1000  # enough to build up to 1000 blocks 10 minutes apart without worrying about getting into the future
+        start_time = 1510247077 + 600 * 1000 + 101
+        long_past_time = start_time - 600 * 1000 # enough to build up to 1000 blocks 10 minutes apart without worrying about getting into the future
         self.nodes[0].setmocktime(long_past_time - 100)  # enough so that the generated blocks will still all be before long_past_time
         self.coinbase_blocks = self.nodes[0].generate(COINBASE_BLOCK_COUNT)  # blocks generated for inputs
         self.nodes[0].setmocktime(0)  # set time back to present so yielded blocks aren't in the future as we advance last_block_time
@@ -209,14 +219,14 @@ class BIP68_112_113Test(BitcoinTestFramework):
         # 16 normal inputs
         bip68inputs = []
         for _ in range(16):
-            bip68inputs.append(send_generic_input_tx(self.nodes[0], self.coinbase_blocks, self.nodeaddress))
+            bip68inputs.append(send_generic_unspent_input_tx(self.nodes[0], self.unspents.pop(), self.nodeaddress))
 
         # 2 sets of 16 inputs with 10 OP_CSV OP_DROP (actually will be prepended to spending scriptSig)
         bip112basicinputs = []
         for _ in range(2):
             inputs = []
             for _ in range(16):
-                inputs.append(send_generic_input_tx(self.nodes[0], self.coinbase_blocks, self.nodeaddress))
+                inputs.append(send_generic_unspent_input_tx(self.nodes[0], self.unspents.pop(), self.nodeaddress))
             bip112basicinputs.append(inputs)
 
         # 2 sets of 16 varied inputs with (relative_lock_time) OP_CSV OP_DROP (actually will be prepended to spending scriptSig)
@@ -224,16 +234,16 @@ class BIP68_112_113Test(BitcoinTestFramework):
         for _ in range(2):
             inputs = []
             for _ in range(16):
-                inputs.append(send_generic_input_tx(self.nodes[0], self.coinbase_blocks, self.nodeaddress))
+                inputs.append(send_generic_unspent_input_tx(self.nodes[0], self.unspents.pop(), self.nodeaddress))
             bip112diverseinputs.append(inputs)
 
         # 1 special input with -1 OP_CSV OP_DROP (actually will be prepended to spending scriptSig)
-        bip112specialinput = send_generic_input_tx(self.nodes[0], self.coinbase_blocks, self.nodeaddress)
+        bip112specialinput = send_generic_unspent_input_tx(self.nodes[0], self.unspents.pop(), self.nodeaddress)
         # 1 special input with (empty stack) OP_CSV (actually will be prepended to spending scriptSig)
         bip112emptystackinput = send_generic_input_tx(self.nodes[0],self.coinbase_blocks, self.nodeaddress)
 
         # 1 normal input
-        bip113input = send_generic_input_tx(self.nodes[0], self.coinbase_blocks, self.nodeaddress)
+        bip113input = send_generic_unspent_input_tx(self.nodes[0], self.unspents.pop(), self.nodeaddress)
 
         self.nodes[0].setmocktime(self.last_block_time + 600)
         inputblockhash = self.nodes[0].generate(1)[0]  # 1 block generated for inputs to be in chain at height 431

@@ -8,7 +8,7 @@ import struct
 from test_framework.address import ADDRESS_BCRT1_UNSPENDABLE, ADDRESS_BCRT1_P2WSH_OP_TRUE
 from test_framework.blocktools import create_block, create_coinbase, add_witness_commitment
 from test_framework.test_framework import BitcoinTestFramework
-from test_framework.messages import CTransaction, hash256, FromHex
+from test_framework.messages import CTransaction, hash256, FromHex, CBlockHeader
 from test_framework.util import (
     assert_equal,
     assert_raises_rpc_error,
@@ -127,7 +127,11 @@ class ZMQTest (BitcoinTestFramework):
 
             # Should receive the generated raw block.
             block = rawblock.receive()
-            assert_equal(genhashes[x], hash256_reversed(block[:80]).hex())
+            f = BytesIO(block)
+            header = CBlockHeader()
+            header.deserialize(f)
+            header.rehash()
+            assert_equal(genhashes[x], header.hash)
 
             # Should receive the generated block hash.
             hash = hashblock.receive().hex()

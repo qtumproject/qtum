@@ -17,6 +17,7 @@ from test_framework.messages import COIN
 from test_framework.p2p import P2PDataStore
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal
+from test_framework.qtumconfig import *
 
 class InvalidBlockRequestTest(BitcoinTestFramework):
     def set_test_params(self):
@@ -45,7 +46,7 @@ class InvalidBlockRequestTest(BitcoinTestFramework):
         peer.send_blocks_and_test([block1], node, success=True)
 
         self.log.info("Mature the block.")
-        node.generatetoaddress(100, node.get_deterministic_priv_key().address)
+        node.generatetoaddress(COINBASE_MATURITY, node.get_deterministic_priv_key().address)
 
         best_block = node.getblock(node.getbestblockhash())
         tip = int(node.getbestblockhash(), 16)
@@ -97,14 +98,14 @@ class InvalidBlockRequestTest(BitcoinTestFramework):
 
         block3 = create_block(tip, create_coinbase(height), block_time)
         block_time += 1
-        block3.vtx[0].vout[0].nValue = 100 * COIN  # Too high!
+        block3.vtx[0].vout[0].nValue = 2 * INITIAL_BLOCK_REWARD * COIN  # Too high!
         block3.vtx[0].sha256 = None
         block3.vtx[0].calc_sha256()
         block3.hashMerkleRoot = block3.calc_merkle_root()
         block3.rehash()
         block3.solve()
 
-        peer.send_blocks_and_test([block3], node, success=False, reject_reason='bad-cb-amount')
+        peer.send_blocks_and_test([block3], node, success=False)
 
 
         # Complete testing of CVE-2012-2459 by sending the original block.

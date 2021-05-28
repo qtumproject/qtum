@@ -7,6 +7,8 @@
 Test that the DERSIG soft-fork activates at (regtest) height 1251.
 """
 
+# QTUM note: this test always runs without the reduceblocktime fork activated to allow testing pre bip66
+
 from test_framework.blocktools import create_coinbase, create_block, create_transaction
 from test_framework.messages import msg_block
 from test_framework.p2p import P2PInterface
@@ -30,7 +32,7 @@ def unDERify(tx):
     newscript = []
     for i in scriptSig:
         if (len(newscript) == 0):
-            newscript.append(i[0:-1] + b'\0' + i[-1:])
+            newscript.append(i[0:-1] + b'\x00' + i[-1:])
         else:
             newscript.append(i)
     tx.vin[0].scriptSig = CScript(newscript)
@@ -42,9 +44,10 @@ class BIP66Test(BitcoinTestFramework):
         self.extra_args = [[
             '-whitelist=noban@127.0.0.1',
             '-par=1',  # Use only one script thread to get the exact log msg for testing
+            '-reduceblocktimeheight=100000'
         ]]
         self.setup_clean_chain = True
-        self.rpc_timeout = 240
+        self.rpc_timewait = 120
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
@@ -52,8 +55,8 @@ class BIP66Test(BitcoinTestFramework):
     def test_dersig_info(self, *, is_active):
         assert_equal(self.nodes[0].getblockchaininfo()['softforks']['bip66'],
             {
-                "active": is_active,
-                "height": DERSIG_HEIGHT,
+                "active": True,
+                "height": 0,
                 "type": "buried",
             },
         )
@@ -61,37 +64,14 @@ class BIP66Test(BitcoinTestFramework):
     def run_test(self):
         peer = self.nodes[0].add_p2p_connection(P2PInterface())
 
-        self.test_dersig_info(is_active=False)
-
         self.log.info("Mining %d blocks", DERSIG_HEIGHT - 2)
         self.coinbase_txids = [self.nodes[0].getblock(b)['tx'][0] for b in self.nodes[0].generate(DERSIG_HEIGHT - 2)]
         self.nodeaddress = self.nodes[0].getnewaddress()
 
-        self.log.info("Test that a transaction with non-DER signature can still appear in a block")
-
-        spendtx = create_transaction(self.nodes[0], self.coinbase_txids[0],
-                self.nodeaddress, amount=1.0)
-        unDERify(spendtx)
-        spendtx.rehash()
-
-        tip = self.nodes[0].getbestblockhash()
-        block_time = self.nodes[0].getblockheader(tip)['mediantime'] + 1
-        block = create_block(int(tip, 16), create_coinbase(DERSIG_HEIGHT - 1), block_time)
-        block.nVersion = 2
-        block.vtx.append(spendtx)
-        block.hashMerkleRoot = block.calc_merkle_root()
-        block.rehash()
-        block.solve()
-
-        self.test_dersig_info(is_active=False)  # Not active as of current tip and next block does not need to obey rules
-        peer.send_and_ping(msg_block(block))
-        self.test_dersig_info(is_active=True)  # Not active as of current tip, but next block must obey rules
-        assert_equal(self.nodes[0].getbestblockhash(), block.hash)
-
         self.log.info("Test that blocks must now be at least version 3")
-        tip = block.sha256
-        block_time += 1
-        block = create_block(tip, create_coinbase(DERSIG_HEIGHT), block_time)
+        tip = int(self.nodes[0].getbestblockhash(), 16)
+        block_time = self.nodes[0].getblock(self.nodes[0].getbestblockhash())['time']+1
+        block = create_block(tip, create_coinbase(self.nodes[0].getblockcount()+1), block_time)
         block.nVersion = 2
         block.rehash()
         block.solve()
@@ -102,7 +82,7 @@ class BIP66Test(BitcoinTestFramework):
             peer.sync_with_ping()
 
         self.log.info("Test that transactions with non-DER signatures cannot appear in a block")
-        block.nVersion = 3
+        block.nVersion = 4
 
         spendtx = create_transaction(self.nodes[0], self.coinbase_txids[1],
                 self.nodeaddress, amount=1.0)
