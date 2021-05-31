@@ -210,7 +210,8 @@ void SendTokenPage::on_confirmClicked()
         QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();
         if(retval == QMessageBox::Yes)
         {
-            if(m_tokenABI->transfer(toAddress, amountToSend, true))
+            bool success;
+            if(m_tokenABI->transfer(toAddress, amountToSend, success, true))
             {
                 if(bCreateUnsigned)
                 {

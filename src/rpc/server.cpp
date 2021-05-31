@@ -30,6 +30,10 @@ static Mutex g_deadline_timers_mutex;
 static std::map<std::string, std::unique_ptr<RPCTimerBase> > deadlineTimers GUARDED_BY(g_deadline_timers_mutex);
 static bool ExecuteCommand(const CRPCCommand& command, const JSONRPCRequest& request, UniValue& result, bool last_handler);
 
+Mutex cs_blockchange;
+std::condition_variable cond_blockchange;
+CUpdatedBlock latestblock;
+
 struct RPCCommandExecutionInfo
 {
     std::string method;

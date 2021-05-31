@@ -287,7 +287,8 @@ BASE_SCRIPTS = [
     'qtum_block_index_cleanup.py',
     'qtum_pod.py',
     'qtum_simple_delegation_contract.py',
-    'qtum_delegation_contract.py'
+    'qtum_delegation_contract.py',
+    'qtum_qrc20.py'
 ]
 
 # Place EXTENDED_SCRIPTS first since it has the 3 longest running tests
