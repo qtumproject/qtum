@@ -76,6 +76,10 @@ UniValue CallToContract(const UniValue& params)
             senderAddress = dev::Address(params[2].get_str());
         }
 
+        if(globalState->addressInUse(senderAddress))
+        {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, strprintf("Contract address %s is used as sender. Only P2PK and P2PKH allowed", senderAddress.hex()));
+        }
     }
     uint64_t gasLimit=0;
     if(params.size() >= 4){
