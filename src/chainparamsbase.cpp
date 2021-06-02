@@ -15,6 +15,7 @@ const std::string CBaseChainParams::MAIN = "main";
 const std::string CBaseChainParams::TESTNET = "test";
 const std::string CBaseChainParams::SIGNET = "signet";
 const std::string CBaseChainParams::REGTEST = "regtest";
+const std::string CBaseChainParams::UNITTEST = "unittest";
 
 void SetupChainParamsBaseOptions(ArgsManager& argsman)
 {
@@ -38,19 +39,21 @@ const CBaseChainParams& BaseParams()
 }
 
 /**
- * Port numbers for incoming Tor connections (8334, 18334, 38334, 18445) have
+ * Port numbers for incoming Tor connections (3891, 13891, 33891, 13891) have
  * been chosen arbitrarily to keep ranges of used ports tight.
  */
 std::unique_ptr<CBaseChainParams> CreateBaseChainParams(const std::string& chain)
 {
     if (chain == CBaseChainParams::MAIN) {
-        return MakeUnique<CBaseChainParams>("", 8332, 8334);
+        return MakeUnique<CBaseChainParams>("", 3889, 3891);
     } else if (chain == CBaseChainParams::TESTNET) {
-        return MakeUnique<CBaseChainParams>("testnet3", 18332, 18334);
+        return MakeUnique<CBaseChainParams>("testnet3", 13889, 13891);
     } else if (chain == CBaseChainParams::SIGNET) {
-        return MakeUnique<CBaseChainParams>("signet", 38332, 38334);
+        return MakeUnique<CBaseChainParams>("signet", 33889, 33891);
     } else if (chain == CBaseChainParams::REGTEST) {
-        return MakeUnique<CBaseChainParams>("regtest", 18443, 18445);
+        return MakeUnique<CBaseChainParams>("regtest", 13889, 13891);
+    } else if (chain == CBaseChainParams::UNITTEST) {
+        return MakeUnique<CBaseChainParams>("regtest", 13889, 13891);
     }
     throw std::runtime_error(strprintf("%s: Unknown chain %s.", __func__, chain));
 }

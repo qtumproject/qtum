@@ -10,9 +10,11 @@
 #include <consensus/params.h>
 #include <primitives/block.h>
 #include <protocol.h>
+#include <libethashseal/GenesisInfo.h>
 
 #include <memory>
 #include <vector>
+#include <string>
 
 struct SeedSpec6 {
     uint8_t addr[16];
@@ -83,7 +85,7 @@ public:
     /** Minimum free space (in GB) needed for data directory when pruned; Does not include prune target*/
     uint64_t AssumedChainStateSize() const { return m_assumed_chain_state_size; }
     /** Whether it is possible to mine blocks on demand (no retargeting) */
-    bool MineBlocksOnDemand() const { return consensus.fPowNoRetargeting; }
+    bool MineBlocksOnDemand() const { return fMineBlocksOnDemand; }
     /** Return the network string */
     std::string NetworkIDString() const { return strNetworkID; }
     /** Return the list of hostnames to look up for DNS seeds */
@@ -93,7 +95,23 @@ public:
     const std::vector<SeedSpec6>& FixedSeeds() const { return vFixedSeeds; }
     const CCheckpointData& Checkpoints() const { return checkpointData; }
     const ChainTxData& TxData() const { return chainTxData; }
+    std::string EVMGenesisInfo() const;
+    std::string EVMGenesisInfo(int nHeight) const;
+    void UpdateOpSenderBlockHeight(int nHeight);
+    void UpdateBtcEcrecoverBlockHeight(int nHeight);
+    void UpdateConstantinopleBlockHeight(int nHeight);
+    void UpdateDifficultyChangeBlockHeight(int nHeight);
+    void UpdateOfflineStakingBlockHeight(int nHeight);
+    void UpdateDelegationsAddress(const uint160& address);
+    void UpdateLastMPoSBlockHeight(int nHeight);
+    void UpdateReduceBlocktimeHeight(int nHeight);
+    void UpdatePowAllowMinDifficultyBlocks(bool fValue);
+    void UpdatePowNoRetargeting(bool fValue);
+    void UpdatePoSNoRetargeting(bool fValue);
+    void UpdateMuirGlacierHeight(int nHeight);
+
 protected:
+    dev::eth::Network GetEVMNetwork() const;
     CChainParams() {}
 
     Consensus::Params consensus;
@@ -110,6 +128,7 @@ protected:
     std::vector<SeedSpec6> vFixedSeeds;
     bool fDefaultConsistencyChecks;
     bool fRequireStandard;
+    bool fMineBlocksOnDemand;
     bool m_is_test_chain;
     bool m_is_mockable_chain;
     CCheckpointData checkpointData;
@@ -134,5 +153,66 @@ const CChainParams &Params();
  * @throws std::runtime_error when the chain is not supported.
  */
 void SelectParams(const std::string& chain);
+
+/**
+ * Allows modifying the Op Sender block height regtest parameter.
+ */
+void UpdateOpSenderBlockHeight(int nHeight);
+
+/**
+ * Allows modifying the btc_ecrecover block height regtest parameter.
+ */
+void UpdateBtcEcrecoverBlockHeight(int nHeight);
+
+/**
+ * Allows modifying the constantinople block height regtest parameter.
+ */
+void UpdateConstantinopleBlockHeight(int nHeight);
+
+/**
+ * Allows modifying the difficulty change block height regtest parameter.
+ */
+void UpdateDifficultyChangeBlockHeight(int nHeight);
+
+/**
+ * Allows modifying the offline staking block height regtest parameter.
+ */
+void UpdateOfflineStakingBlockHeight(int nHeight);
+
+/**
+ * Allows modifying the delegations address regtest parameter.
+ */
+void UpdateDelegationsAddress(const uint160& address);
+
+/**
+ * @brief UpdateLastMPoSBlockHeight Last mpos block height
+ * @param nHeight Block height
+ */
+void UpdateLastMPoSBlockHeight(int nHeight);
+
+/**
+ * Allows modifying the reduce block time height regtest parameter.
+ */
+void UpdateReduceBlocktimeHeight(int nHeight);
+
+/**
+ * Allows modifying the pow allow for min difficulty blocks regtest parameter.
+ */
+void UpdatePowAllowMinDifficultyBlocks(bool fValue);
+
+/**
+ * Allows modifying the pow no retargeting regtest parameter.
+ */
+void UpdatePowNoRetargeting(bool fValue);
+
+/**
+ * Allows modifying the pos no retargeting regtest parameter.
+ */
+void UpdatePoSNoRetargeting(bool fValue);
+
+/**
+ * Allows modifying the muir glacier block height regtest parameter.
+ */
+void UpdateMuirGlacierHeight(int nHeight);
 
 #endif // BITCOIN_CHAINPARAMS_H
