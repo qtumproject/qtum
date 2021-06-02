@@ -18,18 +18,21 @@ static const int64_t MAX_BLOCK_SIGOPS_COST = 80000;
 /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
 static const int COINBASE_MATURITY = 100;
 
+/** The maximum allowed size for a serialized block, in bytes (only for buffer size limits) */
 extern unsigned int dgpMaxBlockSerSize;
-
+/** The maximum allowed weight for a block, see BIP 141 (network rule) */
 extern unsigned int dgpMaxBlockWeight;
 
 extern unsigned int dgpMaxBlockSize; // qtum
 
+/** The maximum allowed number of signature check operations in a block (network rule) */
 extern int64_t dgpMaxBlockSigOps;
 
 extern unsigned int dgpMaxProtoMsgLength;
 
 extern unsigned int dgpMaxTxSigOps;
 
+static const int MAX_TRANSACTION_BASE_SIZE = 1000000;
 static const int WITNESS_SCALE_FACTOR = 4;
 
 static const size_t MIN_TRANSACTION_WEIGHT = WITNESS_SCALE_FACTOR * 60; // 60 is the lower bound for the size of a valid serialized CTransaction
