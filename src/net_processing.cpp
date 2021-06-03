@@ -30,6 +30,7 @@
 #include <util/strencodings.h>
 #include <util/system.h>
 #include <validation.h>
+#include <shutdown.h>
 
 #include <memory>
 #include <typeinfo>
@@ -4616,6 +4617,119 @@ bool PeerManager::SendMessages(CNode* pto)
         }
     } // release cs_main
     return true;
+}
+
+bool RemoveNetBlockIndex(CBlockIndex *pindex)
+{
+    // Make sure it's not listed somewhere already.
+    MarkBlockAsReceived(pindex->GetBlockHash());
+
+    for (std::map<NodeId, CNodeState>::iterator it=mapNodeState.begin(); it!=mapNodeState.end(); it++)
+    {
+        CNodeState * state = &it->second;
+
+        if(state->pindexBestKnownBlock == pindex)
+            state->pindexBestKnownBlock = nullptr;
+
+        if(state->pindexLastCommonBlock == pindex)
+            state->pindexLastCommonBlock = nullptr;
+
+        if(state->pindexBestHeaderSent == pindex)
+            state->pindexBestHeaderSent = nullptr;
+
+        if(state->m_chain_sync.m_work_header == pindex)
+            state->m_chain_sync.m_work_header = nullptr;
+    }
+
+    return true;
+}
+
+bool NeedToEraseBlockIndex(const CBlockIndex *pindex, const CBlockIndex *pindexCheck)
+{
+    if(!::ChainActive().Contains(pindex))
+    {
+        if(pindex->nHeight <= pindexCheck->nHeight) return true;
+        const CBlockIndex *pindexBlock = pindex;
+        while(pindexBlock)
+        {
+           pindexBlock = pindexBlock->pprev;
+           if(pindexBlock->nHeight == pindexCheck->nHeight) return pindexBlock != pindexCheck;
+        }
+    }
+    return false;
+}
+
+bool RemoveBlockIndex(CBlockIndex *pindex)
+{
+    bool ret = RemoveStateBlockIndex(pindex);
+    ret &= RemoveNetBlockIndex(pindex);
+    return ret;
+}
+
+void CleanBlockIndex()
+{
+    unsigned int cleanTimeout = gArgs.GetArg("-cleanblockindextimeout", DEFAULT_CLEANBLOCKINDEXTIMEOUT);
+    if(cleanTimeout == 0) cleanTimeout = DEFAULT_CLEANBLOCKINDEXTIMEOUT;
+
+    while(!ShutdownRequested())
+    {
+        if(!::ChainstateActive().IsInitialBlockDownload())
+        {
+            // Select block indexes to delete
+            std::vector<uint256> indexNeedErase;
+            {
+                LOCK(cs_main);
+                int nHeight = ::ChainActive().Height();
+                int checkpointSpan = Params().GetConsensus().CheckpointSpan(nHeight);
+                const CBlockIndex *pindexCheck = ::ChainActive()[nHeight - checkpointSpan -1];
+                if(pindexCheck)
+                {
+                    for (BlockMap::iterator it=g_chainman.BlockIndex().begin(); it!=g_chainman.BlockIndex().end(); it++)
+                    {
+                        CBlockIndex *pindex = (*it).second;
+                        if(NeedToEraseBlockIndex(pindex, pindexCheck))
+                        {
+                            indexNeedErase.push_back(pindex->GetBlockHash());
+                        }
+                    }
+                }
+            }
+
+            // Delete selected block indexes
+            if(indexNeedErase.size() > 0)
+            {
+                SyncWithValidationInterfaceQueue();
+
+                LOCK(cs_main);
+                std::vector<uint256> indexEraseDB;
+                for(uint256 blockHash : indexNeedErase)
+                {
+                    BlockMap::iterator it=g_chainman.BlockIndex().find(blockHash);
+                    if(it!=g_chainman.BlockIndex().end())
+                    {
+                        CBlockIndex *pindex = (*it).second;
+                        if(RemoveBlockIndex(pindex))
+                        {
+                            delete pindex;
+                            g_chainman.BlockIndex().erase(it);
+                            indexEraseDB.push_back(blockHash);
+                        }
+                    }
+                }
+
+                if(pblocktree)
+                {
+                    if(!pblocktree->EraseBlockIndex(indexEraseDB))
+                    {
+                        LogPrintf("Fail to erase block indexes.\n");
+                    }
+                }
+            }
+        }
+
+        for(unsigned int i = 0; (i < cleanTimeout) && !ShutdownRequested(); i++)
+            UninterruptibleSleep(std::chrono::seconds{1});
+    }
 }
 
 class CNetProcessingCleanup

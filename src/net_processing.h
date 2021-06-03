@@ -31,6 +31,21 @@ static const bool DEFAULT_PEERBLOOMFILTERS = false;
 static const bool DEFAULT_PEERBLOCKFILTERS = false;
 /** Threshold for marking a node to be discouraged, e.g. disconnected and added to the discouragement filter. */
 static const int DISCOURAGEMENT_THRESHOLD{100};
+/** Default maximum orphan blocks */
+static const unsigned int DEFAULT_MAX_ORPHAN_BLOCKS = 40;
+/** Default for -headerspamfilter, use header spam filter */
+static const bool DEFAULT_HEADER_SPAM_FILTER = true;
+/** Default for -headerspamfiltermaxsize, maximum size of the list of indexes in the header spam filter */
+static const unsigned int DEFAULT_HEADER_SPAM_FILTER_MAX_SIZE = 500;
+/** Default for -headerspamfiltermaxavg, maximum average size of an index occurrence in the header spam filter */
+static const unsigned int DEFAULT_HEADER_SPAM_FILTER_MAX_AVG = 10;
+/** Default for -headerspamfilterignoreport, ignore the port in the ip address when looking for header spam,
+ multiple nodes on the same ip will be treated as the one when computing the filter*/
+static const unsigned int DEFAULT_HEADER_SPAM_FILTER_IGNORE_PORT = true;
+/** Default for -cleanblockindex. */
+static const bool DEFAULT_CLEANBLOCKINDEX = true;
+/** Default for -cleanblockindextimeout. */
+static const unsigned int DEFAULT_CLEANBLOCKINDEXTIMEOUT = 600;
 
 class PeerManager final : public CValidationInterface, public NetEventsInterface {
 public:
@@ -157,5 +172,8 @@ bool GetNodeStateStats(NodeId nodeid, CNodeStateStats &stats);
 
 /** Relay transaction to every node */
 void RelayTransaction(const uint256& txid, const uint256& wtxid, const CConnman& connman) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
+
+/** Clean block index */
+void CleanBlockIndex();
 
 #endif // BITCOIN_NET_PROCESSING_H
