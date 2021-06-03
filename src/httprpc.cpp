@@ -34,7 +34,7 @@ class HTTPRPCTimer : public RPCTimerBase
 {
 public:
     HTTPRPCTimer(struct event_base* eventBase, std::function<void()>& func, int64_t millis) :
-        ev(eventBase, false, func)
+        ev(eventBase, false, nullptr, func)
     {
         struct timeval tv;
         tv.tv_sec = millis/1000;
