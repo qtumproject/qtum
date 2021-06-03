@@ -130,7 +130,7 @@ bool GetStakeCoin(const COutPoint& prevout, Coin& coinPrev, CBlockIndex*& blockF
     int nHeight = pindexPrev->nHeight + 1;
     int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(nHeight);
     if(nHeight - coinPrev.nHeight < coinbaseMaturity){
-        return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "stake-prevout-not-mature", strprintf("CheckProofOfStake() : Stake prevout is not mature, expecting %i and only matured to %i", COINBASE_MATURITY, nHeight - coinPrev.nHeight));
+        return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "stake-prevout-not-mature", strprintf("CheckProofOfStake() : Stake prevout is not mature, expecting %i and only matured to %i", coinbaseMaturity, nHeight - coinPrev.nHeight));
     }
 
     // Get the block header from the coin
@@ -154,7 +154,7 @@ bool GetStakeCoin(const COutPoint& prevout, Coin& coinPrev, CBlockIndex*& blockF
     }
     if(coinHeight != -1) {
         if(nHeight - coinHeight < coinbaseMaturity){
-            return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "stake-prevout-not-mature", strprintf("CheckProofOfStake() : Stake prevout is not mature, expecting %i and only matured to %i", COINBASE_MATURITY, nHeight - coinHeight));
+            return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "stake-prevout-not-mature", strprintf("CheckProofOfStake() : Stake prevout is not mature, expecting %i and only matured to %i", coinbaseMaturity, nHeight - coinHeight));
         }
     }
 
