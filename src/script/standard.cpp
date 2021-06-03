@@ -9,6 +9,10 @@
 #include <pubkey.h>
 #include <script/script.h>
 
+#include <qtum/qtumstate.h>
+#include <qtum/qtumDGP.h>
+#include <qtum/qtumtransaction.h>
+#include <validation.h>
 #include <streams.h>
 
 #include <string>
@@ -429,5 +433,58 @@ valtype DataVisitor::operator()(const WitnessUnknown&) const { return valtype();
 
 bool ExtractDestination(const COutPoint& prevout, const CScript& scriptPubKey, CTxDestination& addressRet, TxoutType* typeRet)
 {
+    std::vector<valtype> vSolutions;
+    TxoutType whichType = Solver(scriptPubKey, vSolutions);
+
+    if(typeRet){
+        *typeRet = whichType;
+    }
+
+
+    if (whichType == TxoutType::PUBKEY)
+    {
+        CPubKey pubKey(vSolutions[0]);
+        if (!pubKey.IsValid())
+            return false;
+
+        addressRet = PKHash(pubKey);
+        return true;
+    }
+    else if (whichType == TxoutType::PUBKEYHASH)
+    {
+        addressRet = PKHash(uint160(vSolutions[0]));
+        return true;
+    }
+    else if (whichType == TxoutType::SCRIPTHASH)
+    {
+        addressRet = ScriptHash(uint160(vSolutions[0]));
+        return true;
+    }
+    else if(whichType == TxoutType::CALL){
+        addressRet = PKHash(uint160(vSolutions[0]));
+        return true;
+    }
+    else if(whichType == TxoutType::WITNESS_V0_KEYHASH)
+    {
+        addressRet = WitnessV0KeyHash(uint160(vSolutions[0]));
+        return true;
+    }
+    else if(whichType == TxoutType::WITNESS_V0_SCRIPTHASH)
+    {
+        addressRet = WitnessV0ScriptHash(uint256(vSolutions[0]));
+        return true;
+    }
+    else if (whichType == TxoutType::WITNESS_UNKNOWN) {
+        WitnessUnknown unk;
+        unk.version = vSolutions[0][0];
+        std::copy(vSolutions[1].begin(), vSolutions[1].end(), unk.program);
+        unk.length = vSolutions[1].size();
+        addressRet = unk;
+        return true;
+    }
+    else if (whichType == TxoutType::CREATE) {
+        addressRet = PKHash(uint160(QtumState::createQtumAddress(uintToh256(prevout.hash), prevout.n).asBytes()));
+        return true;
+    }
     return false;
 }
