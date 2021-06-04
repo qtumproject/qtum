@@ -5008,15 +5008,9 @@ RPCHelpMan signrawtransactionwithwallet()
     };
 }
 
-UniValue signrawsendertransactionwithwallet(const JSONRPCRequest& request)
+RPCHelpMan signrawsendertransactionwithwallet()
 {
-    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
-    if (!wallet) return NullUniValue;
-    CWallet* const pwallet = wallet.get();
-
-    if (request.fHelp || request.params.size() < 1 || request.params.size() > 2)
-        throw std::runtime_error(
-            RPCHelpMan{"signrawsendertransactionwithwallet",
+    return RPCHelpMan{"signrawsendertransactionwithwallet",
                 "\nSign OP_SENDER outputs for raw transaction (serialized, hex-encoded).\n" +
                     HELP_REQUIRING_PASSPHRASE,
                 {
@@ -5049,7 +5043,11 @@ UniValue signrawsendertransactionwithwallet(const JSONRPCRequest& request)
                     HelpExampleCli("signrawsendertransactionwithwallet", "\"myhex\"")
             + HelpExampleRpc("signrawsendertransactionwithwallet", "\"myhex\"")
                 },
-            }.ToString());
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
+    if (!wallet) return NullUniValue;
+    CWallet* const pwallet = wallet.get();
 
     RPCTypeCheck(request.params, {UniValue::VSTR, UniValue::VSTR}, true);
 
@@ -5064,6 +5062,8 @@ UniValue signrawsendertransactionwithwallet(const JSONRPCRequest& request)
     EnsureWalletIsUnlocked(pwallet);
 
     return SignTransactionSender(mtx, &spk_man, request.params[1]);
+},
+    };
 }
 
 static RPCHelpMan bumpfee_helper(std::string method_name)
