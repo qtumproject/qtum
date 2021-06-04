@@ -71,7 +71,7 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
     vbox->addLayout(hbox_buttons);
     transactionsPage->setLayout(vbox);
 
-    receiveCoinsPage = new ReceiveRequestDialog(/*platformStyle, */overviewPage);//QTUM_CHECK
+    receiveCoinsPage = new ReceiveRequestDialog(platformStyle, overviewPage);
     sendCoinsPage = new SendCoinsDialog(platformStyle, overviewPage);
 
     usedSendingAddressesPage = new AddressBookPage(platformStyle, AddressBookPage::ForEditing, AddressBookPage::SendingTab, this);
@@ -100,13 +100,13 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
     connect(overviewPage, &OverviewPage::outOfSyncWarningClicked, this, &WalletView::requestedSyncWarningInfo);
 
     // Clicking on a transaction on the overview page simply sends you to transaction history page
-//    connect(overviewPage, &OverviewPage::showMoreClicked, this, &WalletView::showMore);//QTUM_CHECK
+    connect(overviewPage, &OverviewPage::showMoreClicked, this, &WalletView::showMore);
 
     // Clicking send coins button show send coins dialog
-//    connect(overviewPage, &OverviewPage::sendCoinsClicked, this, &WalletView::sendCoins);//QTUM_CHECK
+    connect(overviewPage, &OverviewPage::sendCoinsClicked, this, &WalletView::sendCoins);
 
     // Clicking receive coins button show receive coins dialog
-//    connect(overviewPage, &OverviewPage::receiveCoinsClicked, this, &WalletView::receiveCoins);//QTUM_CHECK
+    connect(overviewPage, &OverviewPage::receiveCoinsClicked, this, &WalletView::receiveCoins);
 
     connect(sendCoinsPage, &SendCoinsDialog::coinsSent, this, &WalletView::coinsSent);
     // Highlight transaction after send
