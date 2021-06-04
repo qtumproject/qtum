@@ -6,6 +6,7 @@
 #define BITCOIN_QT_RECEIVECOINSDIALOG_H
 
 #include <qt/guiutil.h>
+#include <qt/walletmodel.h>
 
 #include <QDialog>
 #include <QHeaderView>
@@ -15,6 +16,7 @@
 #include <QPoint>
 #include <QVariant>
 
+class OptionsModel;
 class PlatformStyle;
 class WalletModel;
 
@@ -34,7 +36,7 @@ class ReceiveCoinsDialog : public QDialog
 public:
     enum ColumnWidths {
         DATE_COLUMN_WIDTH = 130,
-        LABEL_COLUMN_WIDTH = 120,
+        LABEL_COLUMN_WIDTH = 180,
         AMOUNT_MINIMUM_COLUMN_WIDTH = 180,
         MINIMUM_COLUMN_WIDTH = 130
     };
@@ -43,6 +45,8 @@ public:
     ~ReceiveCoinsDialog();
 
     void setModel(WalletModel *model);
+
+    SendCoinsRecipient getInfo() const;
 
 public Q_SLOTS:
     void clear();
@@ -55,6 +59,7 @@ private:
     WalletModel *model;
     QMenu *contextMenu;
     const PlatformStyle *platformStyle;
+    SendCoinsRecipient info;
 
     QModelIndex selectedRow();
     void copyColumnToClipboard(int column);
@@ -65,6 +70,8 @@ private Q_SLOTS:
     void on_showRequestButton_clicked();
     void on_removeRequestButton_clicked();
     void on_recentRequestsView_doubleClicked(const QModelIndex &index);
+    void on_recentRequestsView_clicked(const QModelIndex &index);
+    void on_cancelButton_clicked();
     void recentRequestsView_selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
     void updateDisplayUnit();
     void showMenu(const QPoint &point);
