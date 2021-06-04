@@ -163,8 +163,9 @@ void TxToJSONExpanded(const CTransaction& tx, const uint256 hashBlock, UniValue&
     }
 }
 
-static UniValue gethexaddress(const JSONRPCRequest& request) {
-                RPCHelpMan{"gethexaddress",
+static RPCHelpMan gethexaddress()
+{
+    return RPCHelpMan{"gethexaddress",
                     "\nConverts a base58 pubkeyhash address to a hex address for use in smart contracts.\n",
                         {
                             {"address", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The base58 address"},
@@ -175,7 +176,8 @@ static UniValue gethexaddress(const JSONRPCRequest& request) {
                         HelpExampleCli("gethexaddress", "\"address\"")
                         + HelpExampleRpc("gethexaddress", "\"address\"")
                         },
-                }.Check(request);
+            [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
 
     CTxDestination dest = DecodeDestination(request.params[0].get_str());
     if (!IsValidDestination(dest)) {
@@ -187,10 +189,13 @@ static UniValue gethexaddress(const JSONRPCRequest& request) {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Only pubkeyhash addresses are supported");
 
     return ToKeyID(*keyID).GetReverseHex();
+},
+    };
 }
 
-static UniValue fromhexaddress(const JSONRPCRequest& request) {
-                RPCHelpMan{"fromhexaddress",
+static RPCHelpMan fromhexaddress()
+{
+    return RPCHelpMan{"fromhexaddress",
                         "\nConverts a raw hex address to a base58 pubkeyhash address\n",
                         {
                             {"hexaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO,  "The raw hex address"},
@@ -201,7 +206,8 @@ static UniValue fromhexaddress(const JSONRPCRequest& request) {
                         HelpExampleCli("fromhexaddress", "\"hexaddress\"")
                         + HelpExampleRpc("fromhexaddress", "\"hexaddress\"")
                         },
-                }.Check(request);
+            [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
 
     if (request.params[0].get_str().size() != 40)
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid pubkeyhash hex size (should be 40 hex characters)");
@@ -211,6 +217,8 @@ static UniValue fromhexaddress(const JSONRPCRequest& request) {
     CTxDestination dest(raw);
 
     return EncodeDestination(dest);
+},
+    };
 }
 
 static RPCHelpMan getrawtransaction()
@@ -1014,9 +1022,9 @@ static RPCHelpMan signrawtransactionwithkey()
     };
 }
 
-static UniValue signrawsendertransactionwithkey(const JSONRPCRequest& request)
+static RPCHelpMan signrawsendertransactionwithkey()
 {
-            RPCHelpMan{"signrawsendertransactionwithkey",
+    return RPCHelpMan{"signrawsendertransactionwithkey",
                 "\nSign OP_SENDER outputs for raw transaction (serialized, hex-encoded).\n"
                 "The second argument is an array of base58-encoded private\n"
                 "keys that will be the only keys used to sign the transaction.\n",
@@ -1056,7 +1064,8 @@ static UniValue signrawsendertransactionwithkey(const JSONRPCRequest& request)
                     HelpExampleCli("signrawsendertransactionwithkey", "\"myhex\" \"[\\\"key1\\\",\\\"key2\\\"]\"")
             + HelpExampleRpc("signrawsendertransactionwithkey", "\"myhex\", \"[\\\"key1\\\",\\\"key2\\\"]\"")
                 },
-            }.Check(request);
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
 
     RPCTypeCheck(request.params, {UniValue::VSTR, UniValue::VARR, UniValue::VSTR}, true);
 
@@ -1077,6 +1086,8 @@ static UniValue signrawsendertransactionwithkey(const JSONRPCRequest& request)
     }
 
     return SignTransactionSender(mtx, &keystore, request.params[2]);
+},
+    };
 }
 
 static RPCHelpMan sendrawtransaction()

@@ -362,9 +362,9 @@ UniValue transactionReceiptToJSON(const QtumTransactionReceipt& txRec)
 }
 ////////////////////////////////////////////////////////////////////////////
 
-static UniValue getestimatedannualroi(const JSONRPCRequest& request)
+static RPCHelpMan getestimatedannualroi()
 {
-            RPCHelpMan{"getestimatedannualroi",
+    return RPCHelpMan{"getestimatedannualroi",
                 "\nReturns the estimated annual roi.\n",
                 {},
                 RPCResult{
@@ -373,10 +373,13 @@ static UniValue getestimatedannualroi(const JSONRPCRequest& request)
                     HelpExampleCli("getestimatedannualroi", "")
             + HelpExampleRpc("getestimatedannualroi", "")
                 },
-            }.Check(request);
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
 
     LOCK(cs_main);
     return GetEstimatedAnnualROI();
+},
+    };
 }
 
 static RPCHelpMan getblockcount()
@@ -974,9 +977,9 @@ static RPCHelpMan getblockhash()
     };
 }
 
-static UniValue getaccountinfo(const JSONRPCRequest& request)
+static RPCHelpMan getaccountinfo()
 {
-            RPCHelpMan{"getaccountinfo",
+    return RPCHelpMan{"getaccountinfo",
                 "\nGet contract details including balance, storage data and code.\n",
                 {
                     {"address", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
@@ -993,7 +996,8 @@ static UniValue getaccountinfo(const JSONRPCRequest& request)
                     HelpExampleCli("getaccountinfo", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
             + HelpExampleRpc("getaccountinfo", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
                 },
-            }.Check(request);
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
 
     LOCK(cs_main);
 
@@ -1035,11 +1039,13 @@ static UniValue getaccountinfo(const JSONRPCRequest& request)
         result.pushKV("vin", vin);
     }
     return result;
+},
+    };
 }
 
-static UniValue getstorage(const JSONRPCRequest& request)
+static RPCHelpMan getstorage()
 {
-            RPCHelpMan{"getstorage",
+    return RPCHelpMan{"getstorage",
                 "\nGet contract storage data.\n",
                 {
                     {"address", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
@@ -1052,7 +1058,8 @@ static UniValue getstorage(const JSONRPCRequest& request)
                     HelpExampleCli("getstorage", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
             + HelpExampleRpc("getstorage", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
                 },
-            }.Check(request);
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
 
     LOCK(cs_main);
 
@@ -1110,6 +1117,8 @@ static UniValue getstorage(const JSONRPCRequest& request)
         result.pushKV(j.first.hex(), e);
     }
     return result;
+},
+    };
 }
 
 static RPCHelpMan getblockheader()
@@ -1307,9 +1316,9 @@ static RPCHelpMan getblock()
 }
 
 ////////////////////////////////////////////////////////////////////// // qtum
-UniValue callcontract(const JSONRPCRequest& request)
+RPCHelpMan callcontract()
 {
-            RPCHelpMan{"callcontract",
+    return RPCHelpMan{"callcontract",
                 "\nCall contract methods offline, or test contract deployment offline.\n",
                 {
                     {"address", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address, or empty address \"\""},
@@ -1354,7 +1363,8 @@ UniValue callcontract(const JSONRPCRequest& request)
             + HelpExampleRpc("callcontract", "eb23c0b3e6042821da281a2e2364feb22dd543e3 06fdde03")
             + HelpExampleRpc("callcontract", "\"\" 60606040525b33600060006101000a81548173ffffffffffffffffffffffffffffffffffffffff02191690836c010000000000000000000000009081020402179055506103786001600050819055505b600c80605b6000396000f360606040526008565b600256")
                 },
-            }.Check(request);
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
  
     LOCK(cs_main);
     
@@ -1411,6 +1421,8 @@ UniValue callcontract(const JSONRPCRequest& request)
     result.pushKV("transactionReceipt", transactionReceiptToJSON(execResults[0].txRec));
  
     return result;
+},
+    };
 }
 
 void assignJSON(UniValue& entry, const TransactionReceiptInfo& resExec) {
@@ -1618,9 +1630,9 @@ private:
 
 };
 
-UniValue searchlogs(const JSONRPCRequest& request)
+RPCHelpMan searchlogs()
 {
-            RPCHelpMan{"searchlogs",
+    return RPCHelpMan{"searchlogs",
                 "\nSearch logs, requires -logevents to be enabled.\n",
                 {
                     {"fromBlock", RPCArg::Type::NUM, RPCArg::Optional::NO, "The number of the earliest block (latest may be given to mean the most recent block)."},
@@ -1657,7 +1669,8 @@ UniValue searchlogs(const JSONRPCRequest& request)
                     HelpExampleCli("searchlogs", "0 100 '{\"addresses\": [\"12ae42729af478ca92c8c66773a3e32115717be4\"]}' '{\"topics\": [null,\"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"]}'")
             + HelpExampleRpc("searchlogs", "0 100 '{\"addresses\": [\"12ae42729af478ca92c8c66773a3e32115717be4\"]} {\"topics\": [null,\"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"]}'")
                 },
-            }.Check(request);
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
 
     if(!fLogEvents)
         throw JSONRPCError(RPC_INTERNAL_ERROR, "Events indexing disabled");
@@ -1734,11 +1747,13 @@ UniValue searchlogs(const JSONRPCRequest& request)
     }
 
     return result;
+},
+    };
 }
 
-UniValue gettransactionreceipt(const JSONRPCRequest& request)
+RPCHelpMan gettransactionreceipt()
 {
-            RPCHelpMan{"gettransactionreceipt",
+    return RPCHelpMan{"gettransactionreceipt",
                 "\nGet the transaction receipt.\n",
                 {
                     {"hash", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The transaction hash"},
@@ -1772,8 +1787,9 @@ UniValue gettransactionreceipt(const JSONRPCRequest& request)
                     HelpExampleCli("gettransactionreceipt", "3b04bc73afbbcf02cfef2ca1127b60fb0baf5f8946a42df67f1659671a2ec53c")
             + HelpExampleRpc("gettransactionreceipt", "3b04bc73afbbcf02cfef2ca1127b60fb0baf5f8946a42df67f1659671a2ec53c")
                 },
-            }.Check(request);
- 
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+
     if(!fLogEvents)
         throw JSONRPCError(RPC_INTERNAL_ERROR, "Events indexing disabled");
 
@@ -1795,11 +1811,13 @@ UniValue gettransactionreceipt(const JSONRPCRequest& request)
         result.push_back(tri);
     }
     return result;
+},
+    };
 }
 
-UniValue getdelegationinfoforaddress(const JSONRPCRequest& request)
+RPCHelpMan getdelegationinfoforaddress()
 {
-            RPCHelpMan{"getdelegationinfoforaddress",
+    return RPCHelpMan{"getdelegationinfoforaddress",
                 "\nGet delegation information for an address.\n",
                 {
                     {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The qtum address string"},
@@ -1817,7 +1835,8 @@ UniValue getdelegationinfoforaddress(const JSONRPCRequest& request)
                     HelpExampleCli("getdelegationinfoforaddress", "QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd")
             + HelpExampleRpc("getdelegationinfoforaddress", "QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd")
                 },
-            }.Check(request);
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
 
     LOCK(cs_main);
 
@@ -1853,6 +1872,8 @@ UniValue getdelegationinfoforaddress(const JSONRPCRequest& request)
     result.pushKV("verified", verified);
 
     return result;
+},
+    };
 }
 
 class DelegationsStakerFilter : public IDelegationFilter
@@ -1889,9 +1910,9 @@ uint64_t getDelegateWeight(const uint160& keyid, const std::map<COutPoint, uint3
     return weight;
 }
 
-UniValue getdelegationsforstaker(const JSONRPCRequest& request)
+RPCHelpMan getdelegationsforstaker()
 {
-            RPCHelpMan{"getdelegationsforstaker",
+    return RPCHelpMan{"getdelegationsforstaker",
                 "requires -logevents to be enabled\n"
                 "\nGet the current list of delegates for a super staker.\n",
                 {
@@ -1914,7 +1935,8 @@ UniValue getdelegationsforstaker(const JSONRPCRequest& request)
                     HelpExampleCli("getdelegationsforstaker", "QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd")
             + HelpExampleRpc("getdelegationsforstaker", "QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd")
                 },
-            }.Check(request);
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
 
     if (!fLogEvents)
         throw JSONRPCError(RPC_INTERNAL_ERROR, "Events indexing disabled");
@@ -1965,12 +1987,14 @@ UniValue getdelegationsforstaker(const JSONRPCRequest& request)
     }
 
     return result;
+},
+    };
 }
 //////////////////////////////////////////////////////////////////////
 
-UniValue listcontracts(const JSONRPCRequest& request)
+RPCHelpMan listcontracts()
 {
-            RPCHelpMan{"listcontracts",
+    return RPCHelpMan{"listcontracts",
                 "\nGet the contracts list.\n",
                 {
                     {"start", RPCArg::Type::NUM, /* default */ "1", "The starting account index"},
@@ -1985,7 +2009,8 @@ UniValue listcontracts(const JSONRPCRequest& request)
                     HelpExampleCli("listcontracts", "")
             + HelpExampleRpc("listcontracts", "")
                 },
-            }.Check(request);
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
 
 	LOCK(cs_main);
 
@@ -2021,6 +2046,8 @@ UniValue listcontracts(const JSONRPCRequest& request)
 	}
 
 	return result;
+},
+    };
 }
 
 static RPCHelpMan pruneblockchain()

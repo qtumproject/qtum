@@ -407,9 +407,9 @@ static RPCHelpMan generateblock()
     };
 }
 
-static UniValue getsubsidy(const JSONRPCRequest& request)
+static RPCHelpMan getsubsidy()
 {
-            RPCHelpMan{"getsubsidy",
+    return RPCHelpMan{"getsubsidy",
                 "\nReturns subsidy value for the specified value of target.",
                 {
                     {"height", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "Specify block height."},
@@ -421,12 +421,15 @@ static UniValue getsubsidy(const JSONRPCRequest& request)
                     HelpExampleCli("getsubsidy", "")
             + HelpExampleRpc("getsubsidy", "")
                 },
-            }.Check(request);
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
     int nTarget = request.params.size() == 1 ? request.params[0].get_int() : ::ChainActive().Height();
     if (nTarget < 0)
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Block height out of range");
     const Consensus::Params& consensusParams = Params().GetConsensus();
     return (uint64_t)GetBlockSubsidy(nTarget, consensusParams);
+},
+    };
 }
 
 static RPCHelpMan getmininginfo()
@@ -502,9 +505,9 @@ static RPCHelpMan getmininginfo()
     };
 }
 
-static UniValue getstakinginfo(const JSONRPCRequest& request)
+static RPCHelpMan getstakinginfo()
 {
-            RPCHelpMan{"getstakinginfo",
+    return RPCHelpMan{"getstakinginfo",
                 "\nReturns an object containing staking-related information.",
                 {},
                 RPCResult{
@@ -525,7 +528,8 @@ static UniValue getstakinginfo(const JSONRPCRequest& request)
                     HelpExampleCli("getstakinginfo", "")
             + HelpExampleRpc("getstakinginfo", "")
                 },
-            }.Check(request);
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
 
     LOCK(cs_main);
     const CTxMemPool& mempool = EnsureMemPool(request.context);
@@ -571,6 +575,8 @@ static UniValue getstakinginfo(const JSONRPCRequest& request)
     obj.pushKV("expectedtime", nExpectedTime);
 
     return obj;
+},
+    };
 }
 
 // NOTE: Unlike wallet RPC (which use BTC values), mining RPCs follow GBT (BIP 22) in using satoshi amounts

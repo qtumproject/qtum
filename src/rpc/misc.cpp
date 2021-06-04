@@ -84,9 +84,9 @@ static RPCHelpMan validateaddress()
 }
 
 /////////////////////////////////////////////////////////////////////// // qtum
-UniValue getdgpinfo(const JSONRPCRequest& request)
+RPCHelpMan getdgpinfo()
 {
-            RPCHelpMan{"getdgpinfo",
+    return RPCHelpMan{"getdgpinfo",
                 "\nReturns an object containing DGP state info.\n",
                 {},
                 RPCResult{
@@ -101,8 +101,8 @@ UniValue getdgpinfo(const JSONRPCRequest& request)
                     HelpExampleCli("getdgpinfo", "")
             + HelpExampleRpc("getdgpinfo", "")
                 },
-            }.Check(request);
-
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
 
     LOCK(cs_main);
 
@@ -114,6 +114,8 @@ UniValue getdgpinfo(const JSONRPCRequest& request)
     obj.pushKV("blockgaslimit", (uint64_t)qtumDGP.getBlockGasLimit(::ChainActive().Height()));
 
     return obj;
+},
+    };
 }
 
 bool getAddressesFromParams(const UniValue& params, std::vector<std::pair<uint256, int> > &addresses)
@@ -179,9 +181,9 @@ bool getAddressFromIndex(const int &type, const uint256 &hash, std::string &addr
     return true;
 }
 
-UniValue getaddressdeltas(const JSONRPCRequest& request)
+RPCHelpMan getaddressdeltas()
 {
-        RPCHelpMan{"getaddressdeltas",
+    return RPCHelpMan{"getaddressdeltas",
             "\nReturns all changes for an address (requires addressindex to be enabled).\n",
             {
                 {"Input params", RPCArg::Type::OBJ, RPCArg::Optional::NO, "Json object",
@@ -213,8 +215,8 @@ UniValue getaddressdeltas(const JSONRPCRequest& request)
                 HelpExampleCli("getaddressdeltas", "'{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"], \"start\": 5000, \"end\": 5500, \"chainInfo\": true}'")
         + HelpExampleRpc("getaddressdeltas", "{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"], \"start\": 5000, \"end\": 5500, \"chainInfo\": true}")
             },
-        }.Check(request);
-
+    [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
 
     UniValue startValue = find_value(request.params[0].get_obj(), "start");
     UniValue endValue = find_value(request.params[0].get_obj(), "end");
@@ -306,11 +308,13 @@ UniValue getaddressdeltas(const JSONRPCRequest& request)
     } else {
         return deltas;
     }
+},
+    };
 }
 
-UniValue getaddressbalance(const JSONRPCRequest& request)
+RPCHelpMan getaddressbalance()
 {
-            RPCHelpMan{"getaddressbalance",
+    return RPCHelpMan{"getaddressbalance",
                 "\nReturns the balance for an address(es) (requires addressindex to be enabled).\n",
                 {
                     {"addresses", RPCArg::Type::ARR, RPCArg::Optional::NO, "The qtum addresses",
@@ -329,7 +333,8 @@ UniValue getaddressbalance(const JSONRPCRequest& request)
                     HelpExampleCli("getaddressbalance", "'{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}'")
             + HelpExampleRpc("getaddressbalance", "{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}")
                 },
-            }.Check(request);
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
 
     std::vector<std::pair<uint256, int> > addresses;
 
@@ -365,11 +370,13 @@ UniValue getaddressbalance(const JSONRPCRequest& request)
     result.pushKV("immature", immature);
 
     return result;
+},
+    };
 }
 
-UniValue getaddressutxos(const JSONRPCRequest& request)
+RPCHelpMan getaddressutxos()
 {
-            RPCHelpMan{"getaddressutxos",
+    return RPCHelpMan{"getaddressutxos",
                 "\nReturns all unspent outputs for an address (requires addressindex to be enabled).\n",
                 {
                     {"Input params", RPCArg::Type::OBJ, RPCArg::Optional::NO, "Json object",
@@ -400,7 +407,8 @@ UniValue getaddressutxos(const JSONRPCRequest& request)
                     HelpExampleCli("getaddressutxos", "'{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"], \"chainInfo\": true}'")
             + HelpExampleRpc("getaddressutxos", "{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"], \"chainInfo\": true}")
                 },
-            }.Check(request);
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
 
     bool includeChainInfo = false;
     if (request.params[0].isObject()) {
@@ -456,11 +464,13 @@ UniValue getaddressutxos(const JSONRPCRequest& request)
     } else {
         return utxos;
     }
+},
+    };
 }
 
-UniValue getaddressmempool(const JSONRPCRequest& request)
+RPCHelpMan getaddressmempool()
 {
-            RPCHelpMan{"getaddressmempool",
+    return RPCHelpMan{"getaddressmempool",
                 "\nReturns all mempool deltas for an address (requires addressindex to be enabled).\n",
                 {
                     {"addresses", RPCArg::Type::ARR, RPCArg::Optional::NO, "The qtum addresses",
@@ -484,7 +494,8 @@ UniValue getaddressmempool(const JSONRPCRequest& request)
                     HelpExampleCli("getaddressmempool", "'{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}'")
             + HelpExampleRpc("getaddressmempool", "{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}")
                 },
-            }.Check(request);
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
 
     CTxMemPool& mempool = EnsureMemPool(request.context);
     std::vector<std::pair<uint256, int> > addresses;
@@ -525,11 +536,13 @@ UniValue getaddressmempool(const JSONRPCRequest& request)
     }
 
     return result;
+},
+    };
 }
 
-UniValue getblockhashes(const JSONRPCRequest& request)
+RPCHelpMan getblockhashes()
 {
-            RPCHelpMan{"getblockhashes",
+    return RPCHelpMan{"getblockhashes",
                 "\nReturns array of hashes of blocks within the timestamp range provided.\n",
                 {
                     {"high", RPCArg::Type::NUM, RPCArg::Optional::NO, "The newer block timestamp"},
@@ -561,7 +574,8 @@ UniValue getblockhashes(const JSONRPCRequest& request)
                     + HelpExampleCli("getblockhashes", "1231614698 1231024505 '{\"noOrphans\":false, \"logicalTimes\":true}'")
             + HelpExampleRpc("getblockhashes", "1231614698, 1231024505")
                 },
-            }.Check(request);
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
 
     unsigned int high = request.params[0].get_int();
     unsigned int low = request.params[1].get_int();
@@ -604,11 +618,13 @@ UniValue getblockhashes(const JSONRPCRequest& request)
     }
 
     return result;
+},
+    };
 }
 
-UniValue getspentinfo(const JSONRPCRequest& request)
+RPCHelpMan getspentinfo()
 {
-            RPCHelpMan{"getspentinfo",
+    return RPCHelpMan{"getspentinfo",
                 "\nReturns the txid and index where an output is spent.\n",
                 {
                     {"data", RPCArg::Type::OBJ, RPCArg::Optional::NO, "Transaction data",
@@ -629,7 +645,8 @@ UniValue getspentinfo(const JSONRPCRequest& request)
                     HelpExampleCli("getspentinfo", "'{\"txid\": \"0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9\", \"index\": 0}'")
             + HelpExampleRpc("getspentinfo", "{\"txid\": \"0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9\", \"index\": 0}")
                 },
-            }.Check(request);
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
 
     UniValue txidValue = find_value(request.params[0].get_obj(), "txid");
     UniValue indexValue = find_value(request.params[0].get_obj(), "index");
@@ -654,11 +671,13 @@ UniValue getspentinfo(const JSONRPCRequest& request)
     obj.pushKV("height", value.blockHeight);
 
     return obj;
+},
+    };
 }
 
-UniValue getaddresstxids(const JSONRPCRequest& request)
+RPCHelpMan getaddresstxids()
 {
-            RPCHelpMan{"getaddresstxids",
+    return RPCHelpMan{"getaddresstxids",
                 "\nReturns the txids for an address(es) (requires addressindex to be enabled).\n",
                 {
                     {"Input params", RPCArg::Type::OBJ, RPCArg::Optional::NO, "Json object",
@@ -685,7 +704,8 @@ UniValue getaddresstxids(const JSONRPCRequest& request)
                     HelpExampleCli("getaddresstxids", "'{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"], \"start\": 5000, \"end\": 5500}'")
             + HelpExampleRpc("getaddresstxids", "{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"], \"start\": 5000, \"end\": 5500}")
                 },
-            }.Check(request);
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
 
     std::vector<std::pair<uint256, int> > addresses;
 
@@ -741,6 +761,8 @@ UniValue getaddresstxids(const JSONRPCRequest& request)
     }
 
     return result;
+},
+    };
 }
 
 std::vector<std::string> getListArgsType()
@@ -770,9 +792,9 @@ std::vector<std::string> getListArgsType()
     return ret;
 }
 
-UniValue listconf(const JSONRPCRequest& request)
+RPCHelpMan listconf()
 {
-            RPCHelpMan{"listconf",
+    return RPCHelpMan{"listconf",
                 "\nReturns the current options that qtumd was started with.\n",
                 {},
                 RPCResult{
@@ -787,7 +809,8 @@ UniValue listconf(const JSONRPCRequest& request)
                     HelpExampleCli("listconf", "")
             + HelpExampleRpc("listconf", "")
                 },
-            }.Check(request);
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
 
     UniValue ret(UniValue::VOBJ);
 
@@ -809,6 +832,8 @@ UniValue listconf(const JSONRPCRequest& request)
         }
     }
     return ret;
+},
+    };
 }
 ///////////////////////////////////////////////////////////////////////
 

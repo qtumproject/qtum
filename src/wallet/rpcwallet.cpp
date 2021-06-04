@@ -769,13 +769,9 @@ static RPCHelpMan sendtoaddress()
     };
 }
 
-static UniValue splitutxosforaddress(const JSONRPCRequest& request)
+static RPCHelpMan splitutxosforaddress()
 {
-    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
-    if (!wallet) return NullUniValue;
-    CWallet* const pwallet = wallet.get();
-
-            RPCHelpMan{"splitutxosforaddress",
+    return RPCHelpMan{"splitutxosforaddress",
                 "\nSplit an address coins into utxo between min and max value." +
                     HELP_REQUIRING_PASSPHRASE,
                 {
@@ -798,7 +794,11 @@ static UniValue splitutxosforaddress(const JSONRPCRequest& request)
             + HelpExampleRpc("splitutxosforaddress", "\"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 100 200")
             + HelpExampleRpc("splitutxosforaddress", "\"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 100 200 100")
                 },
-            }.Check(request);
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
+    if (!wallet) return NullUniValue;
+    CWallet* const pwallet = wallet.get();
 
     // Make sure the results are valid at least up to the most recent block
     // the user could have gotten from another RPC command prior to now
@@ -877,22 +877,18 @@ static UniValue splitutxosforaddress(const JSONRPCRequest& request)
     obj.pushKV("selected",      FormatMoney(total));
     obj.pushKV("splited",       FormatMoney(splited));
     return obj;
+},
+    };
 }
 
-static UniValue createcontract(const JSONRPCRequest& request){
-
-    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
-    if (!wallet) return NullUniValue;
-    CWallet* const pwallet = wallet.get();
-
-    LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
-    LOCK2(pwallet->cs_wallet, spk_man.cs_KeyStore);
+static RPCHelpMan createcontract()
+{
     QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
     uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(::ChainActive().Height());
     uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(::ChainActive().Height()));
     CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
 
-                RPCHelpMan{"createcontract",
+    return RPCHelpMan{"createcontract",
                 "\nCreate a contract with bytcode." +
                 HELP_REQUIRING_PASSPHRASE,
                 {
@@ -919,8 +915,14 @@ static UniValue createcontract(const JSONRPCRequest& request){
                 HelpExampleCli("createcontract", "\"60606040525b33600060006101000a81548173ffffffffffffffffffffffffffffffffffffffff02191690836c010000000000000000000000009081020402179055506103786001600050819055505b600c80605b6000396000f360606040526008565b600256\"")
                 + HelpExampleCli("createcontract", "\"60606040525b33600060006101000a81548173ffffffffffffffffffffffffffffffffffffffff02191690836c010000000000000000000000009081020402179055506103786001600050819055505b600c80605b6000396000f360606040526008565b600256\" 6000000 "+FormatMoney(minGasPrice)+" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" true")
                 },
-            }.Check(request);
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
+    if (!wallet) return NullUniValue;
+    CWallet* const pwallet = wallet.get();
 
+    LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
+    LOCK2(pwallet->cs_wallet, spk_man.cs_KeyStore);
 
     std::string bytecode=request.params[0].get_str();
 
@@ -1123,6 +1125,8 @@ static UniValue createcontract(const JSONRPCRequest& request){
     result.pushKV("raw transaction", strHex);
     }
     return result;
+},
+    };
 }
 
 UniValue SendToContract(CWallet* const pwallet, LegacyScriptPubKeyMan& spk_man, const UniValue& params)
@@ -1335,20 +1339,14 @@ UniValue SendToContract(CWallet* const pwallet, LegacyScriptPubKeyMan& spk_man, 
     return result;
 }
 
-static UniValue sendtocontract(const JSONRPCRequest& request){
-
-    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
-    if (!wallet) return NullUniValue;
-    CWallet* const pwallet = wallet.get();
-
-    LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
-    LOCK2(pwallet->cs_wallet, spk_man.cs_KeyStore);
+static RPCHelpMan sendtocontract()
+{
     QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
     uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(::ChainActive().Height());
     uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(::ChainActive().Height()));
     CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
 
-                RPCHelpMan{"sendtocontract",
+    return RPCHelpMan{"sendtocontract",
                     "\nSend funds and data to a contract." +
                     HELP_REQUIRING_PASSPHRASE,
                     {
@@ -1376,25 +1374,29 @@ static UniValue sendtocontract(const JSONRPCRequest& request){
                     HelpExampleCli("sendtocontract", "\"c6ca2697719d00446d4ea51f6fac8fd1e9310214\" \"54f6127f\"")
                     + HelpExampleCli("sendtocontract", "\"c6ca2697719d00446d4ea51f6fac8fd1e9310214\" \"54f6127f\" 12.0015 6000000 "+FormatMoney(minGasPrice)+" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\"")
                     },
-                }.Check(request);
-
-    return SendToContract(pwallet, spk_man, request.params);
-}
-
-static UniValue removedelegationforaddress(const JSONRPCRequest& request){
-
+            [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
     std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
     if (!wallet) return NullUniValue;
     CWallet* const pwallet = wallet.get();
 
     LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
     LOCK2(pwallet->cs_wallet, spk_man.cs_KeyStore);
+
+
+    return SendToContract(pwallet, spk_man, request.params);
+},
+    };
+}
+
+static RPCHelpMan removedelegationforaddress()
+{
     QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
     uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(::ChainActive().Height());
     uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(::ChainActive().Height()));
     CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
 
-                RPCHelpMan{"removedelegationforaddress",
+    return RPCHelpMan{"removedelegationforaddress",
                     "\nRemove delegation for address." +
                     HELP_REQUIRING_PASSPHRASE,
                     {
@@ -1416,7 +1418,15 @@ static UniValue removedelegationforaddress(const JSONRPCRequest& request){
                     RPCExamples{
                     HelpExampleCli("removedelegationforaddress", " \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 6000000 "+FormatMoney(minGasPrice))
                     },
-                }.Check(request);
+            [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+
+    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
+    if (!wallet) return NullUniValue;
+    CWallet* const pwallet = wallet.get();
+
+    LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
+    LOCK2(pwallet->cs_wallet, spk_man.cs_KeyStore);
 
     // Get send to contract parameters for removing delegation for address
     UniValue params(UniValue::VARR);
@@ -1437,22 +1447,18 @@ static UniValue removedelegationforaddress(const JSONRPCRequest& request){
 
     // Send to contract
     return SendToContract(pwallet, spk_man, params);
+},
+    };
 }
 
-static UniValue setdelegateforaddress(const JSONRPCRequest& request){
-
-    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
-    if (!wallet) return NullUniValue;
-    CWallet* const pwallet = wallet.get();
-
-    LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
-    LOCK2(pwallet->cs_wallet, spk_man.cs_KeyStore);
+static RPCHelpMan setdelegateforaddress()
+{
     QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
     uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(::ChainActive().Height());
     uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(::ChainActive().Height()));
     CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
 
-                RPCHelpMan{"setdelegateforaddress",
+    return RPCHelpMan{"setdelegateforaddress",
                     "\nSet delegate for address." +
                     HELP_REQUIRING_PASSPHRASE,
                     {
@@ -1476,7 +1482,15 @@ static UniValue setdelegateforaddress(const JSONRPCRequest& request){
                     RPCExamples{
                     HelpExampleCli("setdelegateforaddress", " \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 10 \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" 6000000 "+FormatMoney(minGasPrice))
                     },
-                }.Check(request);
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+
+    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
+    if (!wallet) return NullUniValue;
+    CWallet* const pwallet = wallet.get();
+
+    LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
+    LOCK2(pwallet->cs_wallet, spk_man.cs_KeyStore);
 
     // Get send to contract parameters for add delegation for address
     UniValue params(UniValue::VARR);
@@ -1534,6 +1548,8 @@ static UniValue setdelegateforaddress(const JSONRPCRequest& request){
 
     // Send to contract
     return SendToContract(pwallet, spk_man, params);
+},
+    };
 }
 
 UniValue GetJsonSuperStakerConfig(const CSuperStakerInfo& superStaker)
@@ -1564,14 +1580,9 @@ UniValue GetJsonSuperStakerConfig(const CSuperStakerInfo& superStaker)
     return result;
 }
 
-static UniValue setsuperstakervaluesforaddress(const JSONRPCRequest& request){
-
-    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
-    if (!wallet) return NullUniValue;
-    CWallet* const pwallet = wallet.get();
-
-    LOCK(pwallet->cs_wallet);
-                RPCHelpMan{"setsuperstakervaluesforaddress",
+static RPCHelpMan setsuperstakervaluesforaddress()
+{
+    return RPCHelpMan{"setsuperstakervaluesforaddress",
                     "\nList super staker configuration values for address." +
                     HELP_REQUIRING_PASSPHRASE,
                     {
@@ -1623,7 +1634,14 @@ static UniValue setsuperstakervaluesforaddress(const JSONRPCRequest& request){
                         + HelpExampleRpc("setsuperstakervaluesforaddress", "\"{\\\"address\\\":\\\"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\\\",\\\"stakingminutxovalue\\\": \\\"100\\\",\\\"stakingminfee\\\": 10,\\\"allow\\\":[\\\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\\\"]}\"")
                         + HelpExampleRpc("setsuperstakervaluesforaddress", "\"{\\\"address\\\":\\\"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\\\",\\\"stakingminutxovalue\\\": \\\"100\\\",\\\"stakingminfee\\\": 10,\\\"exclude\\\":[\\\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\\\"]}\"")
                     },
-                }.Check(request);
+            [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+
+    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
+    if (!wallet) return NullUniValue;
+    CWallet* const pwallet = wallet.get();
+
+    LOCK(pwallet->cs_wallet);
 
     // Get params for the super staker
     UniValue params(UniValue::VOBJ);
@@ -1712,16 +1730,13 @@ static UniValue setsuperstakervaluesforaddress(const JSONRPCRequest& request){
     }
 
     return GetJsonSuperStakerConfig(superStaker);
+},
+    };
 }
 
-static UniValue listsuperstakercustomvalues(const JSONRPCRequest& request){
-
-    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
-    if (!wallet) return NullUniValue;
-    CWallet* const pwallet = wallet.get();
-
-    LOCK(pwallet->cs_wallet);
-                RPCHelpMan{"listsuperstakercustomvalues",
+static RPCHelpMan listsuperstakercustomvalues()
+{
+    return RPCHelpMan{"listsuperstakercustomvalues",
                     "\nList custom super staker configurations values." +
                     HELP_REQUIRING_PASSPHRASE,
                     {},
@@ -1751,7 +1766,14 @@ static UniValue listsuperstakercustomvalues(const JSONRPCRequest& request){
                     HelpExampleCli("listsuperstakercustomvalues", "")
                     + HelpExampleRpc("listsuperstakercustomvalues", "")
                     },
-                }.Check(request);
+            [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+
+    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
+    if (!wallet) return NullUniValue;
+    CWallet* const pwallet = wallet.get();
+
+    LOCK(pwallet->cs_wallet);
 
     // Search for super stakers
     UniValue result(UniValue::VARR);
@@ -1765,16 +1787,13 @@ static UniValue listsuperstakercustomvalues(const JSONRPCRequest& request){
     }
 
     return result;
+},
+    };
 }
 
-static UniValue listsuperstakervaluesforaddress(const JSONRPCRequest& request){
-
-    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
-    if (!wallet) return NullUniValue;
-    CWallet* const pwallet = wallet.get();
-
-    LOCK(pwallet->cs_wallet);
-                RPCHelpMan{"listsuperstakervaluesforaddress",
+static RPCHelpMan listsuperstakervaluesforaddress()
+{
+    return RPCHelpMan{"listsuperstakervaluesforaddress",
                     "\nList super staker configuration values for address." +
                     HELP_REQUIRING_PASSPHRASE,
                     {
@@ -1806,7 +1825,14 @@ static UniValue listsuperstakervaluesforaddress(const JSONRPCRequest& request){
                     HelpExampleCli("listsuperstakervaluesforaddress", "QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd")
                     + HelpExampleRpc("listsuperstakervaluesforaddress", "QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd")
                     },
-                }.Check(request);
+            [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+
+    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
+    if (!wallet) return NullUniValue;
+    CWallet* const pwallet = wallet.get();
+
+    LOCK(pwallet->cs_wallet);
 
     // Parse the super staker address
     CTxDestination destStaker = DecodeDestination(request.params[0].get_str());
@@ -1834,16 +1860,13 @@ static UniValue listsuperstakervaluesforaddress(const JSONRPCRequest& request){
     }
 
     return GetJsonSuperStakerConfig(superStaker);
+},
+    };
 }
 
-static UniValue removesuperstakervaluesforaddress(const JSONRPCRequest& request){
-
-    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
-    if (!wallet) return NullUniValue;
-    CWallet* const pwallet = wallet.get();
-
-    LOCK(pwallet->cs_wallet);
-                RPCHelpMan{"removesuperstakervaluesforaddress",
+static RPCHelpMan removesuperstakervaluesforaddress()
+{
+    return RPCHelpMan{"removesuperstakervaluesforaddress",
                     "\nRemove super staker configuration values for address." +
                     HELP_REQUIRING_PASSPHRASE,
                     {
@@ -1854,7 +1877,14 @@ static UniValue removesuperstakervaluesforaddress(const JSONRPCRequest& request)
                     HelpExampleCli("removesuperstakervaluesforaddress", "QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd")
                     + HelpExampleRpc("removesuperstakervaluesforaddress", "QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd")
                     },
-                }.Check(request);
+            [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+
+    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
+    if (!wallet) return NullUniValue;
+    CWallet* const pwallet = wallet.get();
+
+    LOCK(pwallet->cs_wallet);
 
     // Parse the super staker address
     CTxDestination destStaker = DecodeDestination(request.params[0].get_str());
@@ -1896,6 +1926,8 @@ static UniValue removesuperstakervaluesforaddress(const JSONRPCRequest& request)
     }
 
     return NullUniValue;
+},
+    };
 }
 
 static RPCHelpMan listaddressgroupings()
@@ -2316,13 +2348,9 @@ static RPCHelpMan sendmany()
     };
 }
 
-static UniValue sendmanywithdupes(const JSONRPCRequest& request)
+static RPCHelpMan sendmanywithdupes()
 {
-    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
-    if (!wallet) return NullUniValue;
-    CWallet* const pwallet = wallet.get();
-
-    RPCHelpMan{"sendmanywithdupes",
+    return RPCHelpMan{"sendmanywithdupes",
                 "\nSend multiple times. Amounts are double-precision floating point numbers. Supports duplicate addresses" +
                     HELP_REQUIRING_PASSPHRASE,
                 {
@@ -2363,7 +2391,12 @@ static UniValue sendmanywithdupes(const JSONRPCRequest& request)
             "\nAs a JSON-RPC call\n"
             + HelpExampleRpc("sendmanywithdupes", "\"\", {\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\":0.01,\"Q353tsE8YMTA4EuV7dgUXGjNFf9KpVvKHz\":0.02}, 6, \"testing\"")
                 },
-    }.Check(request);
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+
+    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
+    if (!wallet) return NullUniValue;
+    CWallet* const pwallet = wallet.get();
 
     // Make sure the results are valid at least up to the most recent block
     // the user could have gotten from another RPC command prior to now
@@ -2446,6 +2479,8 @@ static UniValue sendmanywithdupes(const JSONRPCRequest& request)
     pwallet->CommitTransaction(tx, std::move(mapValue), {} /* orderForm */);
 
     return tx->GetHash().GetHex();
+},
+    };
 }
 
 static RPCHelpMan addmultisigaddress()
@@ -3667,13 +3702,9 @@ static RPCHelpMan encryptwallet()
     };
 }
 
-static UniValue reservebalance(const JSONRPCRequest& request)
+static RPCHelpMan reservebalance()
 {
-    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
-    if (!wallet) return NullUniValue;
-    CWallet* const pwallet = wallet.get();
-
-            RPCHelpMan{"reservebalance",
+    return RPCHelpMan{"reservebalance",
             "\nSet reserve amount not participating in network protection."
             "\nIf no parameters provided current setting is printed.\n",
             {
@@ -3688,7 +3719,12 @@ static UniValue reservebalance(const JSONRPCRequest& request)
             + HelpExampleCli("reservebalance", "false") +
             "\nGet reserve balance\n"
             + HelpExampleCli("reservebalance", "")			},
-            }.Check(request);
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+
+    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
+    if (!wallet) return NullUniValue;
+    CWallet* const pwallet = wallet.get();
 
 
     if (request.params.size() > 0)
@@ -3716,6 +3752,8 @@ static UniValue reservebalance(const JSONRPCRequest& request)
     result.pushKV("reserve", (pwallet->m_reserve_balance > 0));
     result.pushKV("amount", ValueFromAmount(pwallet->m_reserve_balance));
     return result;
+},
+    };
 }
 
 static RPCHelpMan lockunspent()
