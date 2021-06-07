@@ -446,6 +446,7 @@ if test "x$CXXFLAGS_overridden" = "xno"; then
   AX_CHECK_COMPILE_FLAG([-Wdeprecated-copy],[NOWARN_CXXFLAGS="$NOWARN_CXXFLAGS -Wno-deprecated-copy"],,[[$CXXFLAG_WERROR]])
   AX_CHECK_COMPILE_FLAG([-Wno-unknown-pragmas],[NOWARN_CXXFLAGS="$NOWARN_CXXFLAGS -Wno-unknown-pragmas"],,[[$CXXFLAG_WERROR]])
   AX_CHECK_COMPILE_FLAG([-Wno-strict-aliasing],[NOWARN_CXXFLAGS="$NOWARN_CXXFLAGS -Wno-strict-aliasing"],,[[$CXXFLAG_WERROR]])
+  AX_CHECK_COMPILE_FLAG([-Wno-duplicated-branches],[NOWARN_CXXFLAGS="$NOWARN_CXXFLAGS -Wno-duplicated-branches"],,[[$CXXFLAG_WERROR]])
 fi
 
 dnl Don't allow extended (non-ASCII) symbols in identifiers. This is easier for code review.
