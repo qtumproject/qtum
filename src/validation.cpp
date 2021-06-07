@@ -5522,28 +5522,66 @@ bool BlockManager::AcceptBlockHeader(const CBlockHeader& block, BlockValidationS
 }
 
 // Exposed wrapper for AcceptBlockHeader
-bool ChainstateManager::ProcessNewBlockHeaders(const std::vector<CBlockHeader>& headers, BlockValidationState& state, const CChainParams& chainparams, const CBlockIndex** ppindex)
+bool ChainstateManager::ProcessNewBlockHeaders(const std::vector<CBlockHeader>& headers, BlockValidationState& state, const CChainParams& chainparams, const CBlockIndex** ppindex,  const CBlockIndex** pindexFirst)
 {
+    if(!::ChainstateActive().IsInitialBlockDownload() && headers.size() > 1) {
+        LOCK(cs_main);
+        const CBlockHeader last_header = headers[headers.size()-1];
+        unsigned int nHeight = ::ChainActive().Height() + 1;
+        if (last_header.IsProofOfStake() && last_header.GetBlockTime() > FutureDrift(GetAdjustedTime(), nHeight, chainparams.GetConsensus())) {
+            return state.Invalid(BlockValidationResult::BLOCK_TIME_FUTURE, "time-too-new", "block timestamp too far in the future");
+        }
+    }
     AssertLockNotHeld(cs_main);
     {
         LOCK(cs_main);
-        for (const CBlockHeader& header : headers) {
+        bool bFirst = true;
+        bool fInstantBan = false;
+        for (size_t i = 0; i < headers.size(); ++i) {
+            const CBlockHeader& header = headers[i];
+
+            // If the stake has been seen and the header has not yet been seen
+            if (!fReindex && !fImporting && !::ChainstateActive().IsInitialBlockDownload() && header.IsProofOfStake() && ::ChainstateActive().setStakeSeen.count(std::make_pair(header.prevoutStake, header.nTime)) && !g_chainman.BlockIndex().count(header.GetHash())) {
+                // if it is the last header of the list
+                if(i+1 == headers.size()) {
+                    if(fInstantBan) {
+                        // if we've seen a dupe stake header already in this list, then instaban
+                        return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "dupe-stake", strprintf("%s: duplicate proof-of-stake instant ban (%s, %d) for header %s", __func__, header.prevoutStake.ToString(), header.nTime, header.GetHash().ToString()));
+                    } else {
+                        // otherwise just reject the block until it is part of a longer list
+                        return state.Invalid(BlockValidationResult::BLOCK_HEADER_REJECT, "dupe-stake", strprintf("%s: duplicate proof-of-stake (%s, %d) for header %s", __func__, header.prevoutStake.ToString(), header.nTime, header.GetHash().ToString()));
+                    }
+                } else {
+                    // if it is not part of the longest chain, then any error on a subsequent header should result in an instant ban
+                    fInstantBan = true;
+                }
+            }
+
             CBlockIndex *pindex = nullptr; // Use a temp pindex instead of ppindex to avoid a const_cast
             bool accepted = m_blockman.AcceptBlockHeader(
                 header, state, chainparams, &pindex);
             ::ChainstateActive().CheckBlockIndex(chainparams.GetConsensus());
 
             if (!accepted) {
+                // if we have seen a duplicate stake in this header list previously, then ban immediately.
+                if(fInstantBan) {
+                    state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, state.GetRejectReason(), "instant ban, due to duplicate header in the chain");
+                }
                 return false;
             }
             if (ppindex) {
                 *ppindex = pindex;
+                if(bFirst && pindexFirst)
+                {
+                    *pindexFirst = pindex;
+                    bFirst = false;
+                }
             }
         }
     }
     if (NotifyHeaderTip()) {
         if (::ChainstateActive().IsInitialBlockDownload() && ppindex && *ppindex) {
-            LogPrintf("Synchronizing blockheaders, height: %d (~%.2f%%)\n", (*ppindex)->nHeight, 100.0/((*ppindex)->nHeight+(GetAdjustedTime() - (*ppindex)->GetBlockTime()) / Params().GetConsensus().nPowTargetSpacing) * (*ppindex)->nHeight);
+            LogPrintf("Synchronizing blockheaders, height: %d (~%.2f%%)\n", (*ppindex)->nHeight, 100.0/((*ppindex)->nHeight+(GetAdjustedTime() - (*ppindex)->GetBlockTime()) / Params().GetConsensus().TargetSpacing((*ppindex)->nHeight)) * (*ppindex)->nHeight);
         }
     }
     return true;

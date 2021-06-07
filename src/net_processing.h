@@ -11,6 +11,7 @@
 #include <sync.h>
 #include <txrequest.h>
 #include <validationinterface.h>
+#include <consensus/consensus.h>
 
 class BlockTransactionsRequest;
 class BlockValidationState;
@@ -22,6 +23,7 @@ class TxValidationState;
 
 extern RecursiveMutex cs_main;
 extern RecursiveMutex g_cs_orphans;
+class CChainParams;
 
 /** Default for -maxorphantx, maximum number of orphan transactions kept in memory */
 static const unsigned int DEFAULT_MAX_ORPHAN_TRANSACTIONS = 100;
@@ -149,6 +151,10 @@ private:
     void AddTxAnnouncement(const CNode& node, const GenTxid& gtxid, std::chrono::microseconds current_time)
         EXCLUSIVE_LOCKS_REQUIRED(::cs_main);
 
+    bool ProcessNetBlockHeaders(CNode* pfrom, const std::vector<CBlockHeader>& block, BlockValidationState& state, const CChainParams& chainparams, const CBlockIndex** ppindex=nullptr);
+
+    bool ProcessNetBlock(const std::shared_ptr<const CBlock> pblock, bool fForceProcessing, bool* fNewBlock, CNode* pfrom, CConnman& connman);
+
     const CChainParams& m_chainparams;
     CConnman& m_connman;
     /** Pointer to this node's banman. May be nullptr - check existence before dereferencing. */
@@ -173,7 +179,13 @@ bool GetNodeStateStats(NodeId nodeid, CNodeStateStats &stats);
 /** Relay transaction to every node */
 void RelayTransaction(const uint256& txid, const uint256& wtxid, const CConnman& connman) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
 
+/** Process network block received from a given node */
+bool ProcessNetBlock(const CChainParams& chainparams, const std::shared_ptr<const CBlock> pblock, bool fForceProcessing, bool* fNewBlock, CNode* pfrom, CConnman& connman);
+
 /** Clean block index */
 void CleanBlockIndex();
+
+/** Default for -headerspamfiltermaxsize, maximum size of the list of indexes in the header spam filter */
+unsigned int GefaultHeaderSpamFilterMaxSize();
 
 #endif // BITCOIN_NET_PROCESSING_H
