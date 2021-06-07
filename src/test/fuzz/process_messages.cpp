@@ -29,7 +29,8 @@ void initialize()
     };
     g_setup = &setup;
 
-    for (int i = 0; i < 2 * COINBASE_MATURITY; i++) {
+    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(0);
+    for (int i = 0; i < 2 * coinbaseMaturity; i++) {
         MineBlock(g_setup->m_node, CScript() << OP_TRUE);
     }
     SyncWithValidationInterfaceQueue();

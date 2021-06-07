@@ -44,13 +44,13 @@ void checkResult(bool isCreation, std::vector<QtumTransaction> results, uint256 
 }
 
 void runTest(bool isCreation, size_t n, CScript& script1, CScript script2 = CScript()){
-    mempool.clear();
+    ChainstateActive().Mempool().clear();
     TestMemPoolEntryHelper entry;
     CMutableTransaction tx1, tx2;
     std::vector<CTxOut> outs1 = {CTxOut(value, CScript() << OP_DUP << OP_HASH160 << address << OP_EQUALVERIFY << OP_CHECKSIG)};
     tx1 = createTX(outs1);
     uint256 hashParentTx = tx1.GetHash(); // save this txid for later use
-    mempool.addUnchecked(entry.Fee(1000).Time(GetTime()).SpendsCoinbase(true).FromTx(tx1));
+    ChainstateActive().Mempool().addUnchecked(entry.Fee(1000).Time(GetTime()).SpendsCoinbase(true).FromTx(tx1));
     std::vector<CTxOut> outs2;
     for(size_t i = 0; i < n; i++){
         if(script2 == CScript()){
@@ -78,13 +78,13 @@ void runTest(bool isCreation, size_t n, CScript& script1, CScript script2 = CScr
 }
 
 void runFailingTest(bool isCreation, size_t n, CScript& script1, CScript script2 = CScript()){
-    mempool.clear();
+    ChainstateActive().Mempool().clear();
     TestMemPoolEntryHelper entry;
     CMutableTransaction tx1, tx2;
     std::vector<CTxOut> outs1 = {CTxOut(value, CScript() << OP_DUP << OP_HASH160 << address << OP_EQUALVERIFY << OP_CHECKSIG)};
     tx1 = createTX(outs1);
     uint256 hashParentTx = tx1.GetHash(); // save this txid for later use
-    mempool.addUnchecked(entry.Fee(1000).Time(GetTime()).SpendsCoinbase(true).FromTx(tx1));
+    ChainstateActive().Mempool().addUnchecked(entry.Fee(1000).Time(GetTime()).SpendsCoinbase(true).FromTx(tx1));
     std::vector<CTxOut> outs2;
     for(size_t i = 0; i < n; i++){
         if(script2 == CScript()){

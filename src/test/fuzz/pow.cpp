@@ -43,7 +43,7 @@ void test_one_input(const std::vector<uint8_t>& buffer)
                 current_block.nHeight = current_height;
             }
             if (fuzzed_data_provider.ConsumeBool()) {
-                current_block.nTime = fixed_time + current_height * consensus_params.nPowTargetSpacing;
+                current_block.nTime = fixed_time + current_height * consensus_params.TargetSpacing(current_height);
             }
             if (fuzzed_data_provider.ConsumeBool()) {
                 current_block.nBits = fixed_bits;
