@@ -344,7 +344,7 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
         CBlock *pblock = &pblocktemplate->block; // pointer for convenience
         {
             LOCK(cs_main);
-            pblock->nVersion = 1;
+            pblock->nVersion = 4; //use version 4 as we enable BIP34, BIP65 and BIP66 since genesis
             pblock->nTime = ::ChainActive().Tip()->GetMedianTimePast()+1+i;
             CMutableTransaction txCoinbase(*pblock->vtx[0]);
             txCoinbase.nVersion = 1;

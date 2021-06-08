@@ -314,7 +314,7 @@ static bool rest_chaininfo(const util::Ref& context, HTTPRequest* req, const std
 
     switch (rf) {
     case RetFormat::JSON: {
-        JSONRPCRequest jsonRequest(context);
+        JSONRPCRequestLong jsonRequest(context, req);
         jsonRequest.params = UniValue(UniValue::VARR);
         UniValue chainInfoObject = getblockchaininfo().HandleRequest(jsonRequest);
         std::string strJSON = chainInfoObject.write() + "\n";
