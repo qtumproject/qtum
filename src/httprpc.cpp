@@ -85,8 +85,14 @@ static void JSONErrorReply(HTTPRequest* req, const UniValue& objError, const Uni
 
     std::string strReply = JSONRPCReply(NullUniValue, objError, id);
 
-    req->WriteHeader("Content-Type", "application/json");
-    req->WriteReply(nStatus, strReply);
+    if (req->isChunkMode()) {
+        // in chunk mode, we assume that the handler had already set the response content-type
+        req->Chunk(strReply);
+        req->ChunkEnd();
+    } else {
+        req->WriteHeader("Content-Type", "application/json");
+        req->WriteReply(nStatus, strReply);
+    }
 }
 
 //This function checks username and password against -rpcauth
@@ -165,7 +171,7 @@ static bool HTTPReq_JSONRPC(const util::Ref& context, HTTPRequest* req)
         return false;
     }
 
-    JSONRPCRequest jreq(context);
+    JSONRPCRequestLong jreq(context, req);
     jreq.peerAddr = req->GetPeer().ToString();
     if (!RPCAuthorized(authHeader.second, jreq.authUser)) {
         LogPrintf("ThreadRPCServer incorrect password attempt from %s\n", jreq.peerAddr);
@@ -205,6 +211,11 @@ static bool HTTPReq_JSONRPC(const util::Ref& context, HTTPRequest* req)
                 return false;
             }
             UniValue result = tableRPC.execute(jreq);
+
+            if (jreq.isLongPolling) {
+                jreq.PollReply(result);
+                return true;
+            }
 
             // Send reply
             strReply = JSONRPCReply(result, NullUniValue, jreq.id);

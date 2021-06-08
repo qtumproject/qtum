@@ -35,12 +35,51 @@ static std::condition_variable cond_blockchange;
 static CUpdatedBlock latestblock GUARDED_BY(cs_blockchange);
 
 class CRPCCommand;
+class HTTPRequest;
 
 namespace RPCServer
 {
     void OnStarted(std::function<void ()> slot);
     void OnStopped(std::function<void ()> slot);
 }
+
+class JSONRPCRequestLong : public JSONRPCRequest
+{
+public:
+    JSONRPCRequestLong(const util::Ref& context) : JSONRPCRequest(context) {};
+
+    JSONRPCRequestLong(const util::Ref& context, HTTPRequest *_req);
+
+    /**
+     * Start long-polling
+     */
+    void PollStart();
+
+    /**
+     * Ping long-poll connection with an empty character to make sure it's still alive.
+     */
+    void PollPing();
+
+    /**
+     * Returns whether the underlying long-poll connection is still alive.
+     */
+    bool PollAlive();
+
+    /**
+     * End a long poll request.
+     */
+    void PollCancel();
+
+    /**
+     * Return the JSON result of a long poll request
+     */
+    void PollReply(const UniValue& result);
+
+    /**
+     * Return the http request
+     */
+     HTTPRequest* req();
+};
 
 /** Query whether RPC is running */
 bool IsRPCRunning();
