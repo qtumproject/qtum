@@ -345,7 +345,7 @@ bool RPCIsInWarmup(std::string *outStatus)
 }
 
 JSONRPCRequestLong::JSONRPCRequestLong(const util::Ref& context, HTTPRequest *_req): JSONRPCRequestLong(context) {
-	request = _req;
+	httpreq = _req;
 }
 
 bool JSONRPCRequestLong::PollAlive() {
@@ -384,7 +384,7 @@ void JSONRPCRequestLong::PollReply(const UniValue& result) {
 }
 
 HTTPRequest* JSONRPCRequestLong::req() {
-    return (HTTPRequest*)request;
+    return (HTTPRequest*)httpreq;
 }
 
 bool IsDeprecatedRPCEnabled(const std::string& method)

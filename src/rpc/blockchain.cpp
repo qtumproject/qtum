@@ -1590,6 +1590,205 @@ void parseParam(const UniValue& val, std::vector<boost::optional<dev::h256>> &h2
     });
 }
 
+class WaitForLogsParams {
+public:
+    int fromBlock;
+    int toBlock;
+
+    int minconf;
+
+    std::set<dev::h160> addresses;
+    std::vector<boost::optional<dev::h256>> topics;
+
+    // bool wait;
+
+    WaitForLogsParams(const UniValue& params) {
+        std::unique_lock<std::mutex> lock(cs_blockchange);
+
+        fromBlock = parseBlockHeight(params[0], latestblock.height + 1);
+        toBlock = parseBlockHeight(params[1], -1);
+
+        parseFilter(params[2]);
+        minconf = parseUInt(params[3], 6);
+    }
+
+private:
+    void parseFilter(const UniValue& val) {
+        if (val.isNull()) {
+            return;
+        }
+
+        parseParam(val["addresses"], addresses);
+        parseParam(val["topics"], topics);
+    }
+};
+
+RPCHelpMan waitforlogs()
+{
+    return RPCHelpMan{"waitforlogs",
+                "requires -logevents to be enabled\n"
+                "\nWaits for a new logs and return matching log entries. When the call returns, it also specifies the next block number to start waiting for new logs.\n"
+                "By calling waitforlogs repeatedly using the returned `nextBlock` number, a client can receive a stream of up-to-date log entires.\n"
+                "\nThis call is different from the similarly named `searchlogs`. This call returns individual matching log entries, `searchlogs` returns a transaction receipt if one of the log entries of that transaction matches the filter conditions.\n",
+                {
+                    {"fromBlock", RPCArg::Type::NUM, /* default */ "null", "The block number to start looking for logs."},
+                    {"toBlock", RPCArg::Type::NUM, /* default */ "null", "The block number to stop looking for logs. If null, will wait indefinitely into the future."},
+                    {"filter", RPCArg::Type::STR, /* default */ "{}", "\"{ addresses?: Hex160String[], topics?: Hex256String[] }\", Filter conditions for logs."},
+                    {"minconf", RPCArg::Type::NUM, /* default */ "6", "Minimal number of confirmations before a log is returned"},
+                },
+                RPCResult{RPCResult::Type::STR, "", 
+                "An object with the following properties:\n"
+                "1. logs (LogEntry[]) Array of matchiing log entries. This may be empty if `filter` removed all entries."
+                "2. count (int) How many log entries are returned."
+                "3. nextBlock (int) To wait for new log entries haven't seen before, use this number as `fromBlock`"
+                "\nUsage:\n"
+                "`waitforlogs` waits for new logs, starting from the tip of the chain.\n"
+                "`waitforlogs 600` waits for new logs, but starting from block 600. If there are logs available, this call will return immediately.\n"
+                "`waitforlogs 600 700` waits for new logs, but only up to 700th block\n"
+                "`waitforlogs null null` this is equivalent to `waitforlogs`, using default parameter values\n"
+                "`waitforlogs null null` { \"addresses\": [ \"ff0011...\" ], \"topics\": [ \"c0fefe\"] }` waits for logs in the future matching the specified conditions\n"
+                "\nSample Output:\n"
+                "{\n  \"entries\": [\n    {\n      \"blockHash\": \"56d5f1f5ec239ef9c822d9ed600fe9aa63727071770ac7c0eabfc903bf7316d4\",\n      \"blockNumber\": 3286,\n      \"transactionHash\": \"00aa0f041ce333bc3a855b2cba03c41427cda04f0334d7f6cb0acad62f338ddc\",\n      \"transactionIndex\": 2,\n      \"from\": \"3f6866e2b59121ada1ddfc8edc84a92d9655675f\",\n      \"to\": \"8e1ee0b38b719abe8fa984c986eabb5bb5071b6b\",\n      \"cumulativeGasUsed\": 23709,\n      \"gasUsed\": 23709,\n      \"contractAddress\": \"8e1ee0b38b719abe8fa984c986eabb5bb5071b6b\",\n      \"topics\": [\n        \"f0e1159fa6dc12bb31e0098b7a1270c2bd50e760522991c6f0119160028d9916\",\n        \"0000000000000000000000000000000000000000000000000000000000000002\"\n      ],\n      \"data\": \"00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003\"\n    }\n  ],\n\n  \"count\": 7,\n  \"nextblock\": 801\n}\n"
+                },
+                RPCExamples{
+                    HelpExampleCli("waitforlogs", "") + HelpExampleCli("waitforlogs", "600") + HelpExampleCli("waitforlogs", "600 700") + HelpExampleCli("waitforlogs", "null null")
+                    + HelpExampleCli("waitforlogs", "null null '{ \"addresses\": [ \"12ae42729af478ca92c8c66773a3e32115717be4\" ], \"topics\": [ \"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"] }'")
+            + HelpExampleRpc("waitforlogs", "") + HelpExampleRpc("waitforlogs", "600") + HelpExampleRpc("waitforlogs", "600 700") + HelpExampleRpc("waitforlogs", "null null")
+            + HelpExampleRpc("waitforlogs", "null null '{ \"addresses\": [ \"12ae42729af478ca92c8c66773a3e32115717be4\" ], \"topics\": [ \"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"] }'")
+                },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request_) -> UniValue
+{
+
+    if (!fLogEvents)
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "Events indexing disabled");
+
+    // this is a long poll function. force cast to non const pointer
+    JSONRPCRequest& request = (JSONRPCRequest&) request_;
+    if(!request.httpreq)
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "HTTP connection not available");
+
+    WaitForLogsParams params(request.params);
+
+    request.PollStart();
+
+    std::vector<std::vector<uint256>> hashesToBlock;
+
+    int curheight = 0;
+
+    auto& addresses = params.addresses;
+    auto& filterTopics = params.topics;
+
+    while (curheight == 0) {
+        {
+            LOCK(cs_main);
+            curheight = pblocktree->ReadHeightIndex(params.fromBlock, params.toBlock, params.minconf,
+                    hashesToBlock, addresses);
+        }
+
+        // if curheight >= fromBlock. Blockchain extended with new log entries. Return next block height to client.
+        //    nextBlock = curheight + 1
+        // if curheight == 0. No log entry found in index. Wait for new block then try again.
+        //    nextBlock = fromBlock
+        // if curheight == -1. Incorrect parameters has entered.
+        //
+        // if curheight advanced, but all filtered out, API should return empty array, but advancing the cursor anyway.
+
+        if (curheight > 0) {
+            break;
+        }
+
+        if (curheight == -1) {
+            throw JSONRPCError(RPC_INVALID_PARAMETER, "Incorrect params");
+        }
+
+        // wait for a new block to arrive
+        {
+            while (true) {
+                std::unique_lock<std::mutex> lock(cs_blockchange);
+                auto blockHeight = latestblock.height;
+
+                request.PollPing();
+
+                cond_blockchange.wait_for(lock, std::chrono::milliseconds(1000));
+                if (latestblock.height > blockHeight) {
+                    break;
+                }
+
+                // TODO: maybe just merge `IsRPCRunning` this into PollAlive
+                if (!request.PollAlive() || !IsRPCRunning()) {
+                    LogPrintf("waitforlogs client disconnected\n");
+                    return NullUniValue;
+                }
+            }
+        }
+    }
+
+    LOCK(cs_main);
+
+    UniValue jsonLogs(UniValue::VARR);
+
+    std::set<uint256> dupes;
+
+    for (const auto& txHashes : hashesToBlock) {
+        for (const auto& txHash : txHashes) {
+
+            if(dupes.find(txHash) != dupes.end()) {
+                continue;
+            }
+            dupes.insert(txHash);
+
+            std::vector<TransactionReceiptInfo> receipts = pstorageresult->getResult(
+                    uintToh256(txHash));
+
+            for (const auto& receipt : receipts) {
+                for (const auto& log : receipt.logs) {
+
+                    bool includeLog = true;
+
+                    if (!filterTopics.empty()) {
+                        for (size_t i = 0; i < filterTopics.size(); i++) {
+                            auto filterTopic = filterTopics[i];
+
+                            if (!filterTopic) {
+                                continue;
+                            }
+
+                            auto filterTopicContent = filterTopic.get();
+                            auto topicContent = log.topics[i];
+
+                            if (topicContent != filterTopicContent) {
+                                includeLog = false;
+                                break;
+                            }
+                        }
+                    }
+
+
+                    if (!includeLog) {
+                        continue;
+                    }
+
+                    UniValue jsonLog(UniValue::VOBJ);
+
+                    assignJSON(jsonLog, receipt);
+                    assignJSON(jsonLog, log, false);
+
+                    jsonLogs.push_back(jsonLog);
+                }
+            }
+        }
+    }
+
+    UniValue result(UniValue::VOBJ);
+    result.pushKV("entries", jsonLogs);
+    result.pushKV("count", (int) jsonLogs.size());
+    result.pushKV("nextblock", curheight + 1);
+
+    return result;
+},
+    };
+}
+
 class SearchLogsParams {
 public:
     size_t fromBlock;
@@ -3584,6 +3783,7 @@ static const CRPCCommand commands[] =
     { "blockchain",         "gettransactionreceipt",  &gettransactionreceipt,  {"hash"} },
     { "blockchain",         "searchlogs",             &searchlogs,             {"fromBlock", "toBlock", "address", "topics"} },
 
+    { "blockchain",         "waitforlogs",            &waitforlogs,            {"fromBlock", "nblocks", "address", "topics"} },
     { "blockchain",         "getestimatedannualroi",  &getestimatedannualroi,  {} },
     { "blockchain",         "getdelegationinfoforaddress",  &getdelegationinfoforaddress,  {"address"} },
     { "blockchain",         "getdelegationsforstaker",      &getdelegationsforstaker,      {"address"} },
