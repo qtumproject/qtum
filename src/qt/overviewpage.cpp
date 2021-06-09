@@ -33,7 +33,6 @@
 #include <QStandardItemModel>
 #include <QSortFilterProxyModel>
 
-#define DECORATION_SIZE 54
 #define NUM_ITEMS 5
 #define TOKEN_SIZE 40
 #define MARGIN 5
