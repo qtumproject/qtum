@@ -1415,19 +1415,19 @@ uint256 GetSequencesSHA256(const T& txTo)
 }
 
 template <class T>
-uint256 GetFirstPrevoutHash(const T& txTo)
+uint256 GetFirstPrevoutSHA256(const T& txTo)
 {
     CHashWriter ss(SER_GETHASH, 0);
     ss << txTo.vin[0].prevout;
-    return ss.GetHash();
+    return ss.GetSHA256();
 }
 
 template <class T>
-uint256 GetFirstSequenceHash(const T& txTo)
+uint256 GetFirstSequenceSHA256(const T& txTo)
 {
     CHashWriter ss(SER_GETHASH, 0);
     ss << txTo.vin[0].nSequence;
-    return ss.GetHash();
+    return ss.GetSHA256();
 }
 
 /** Compute the (single) SHA256 of the concatenation of all txouts of a tx. */
@@ -1467,7 +1467,7 @@ CTxOut GetOutputWithoutSenderSig(const CTxOut& output)
 }
 
 template <class T>
-uint256 GetOutputsOpSenderHash(const T& txTo)
+uint256 GetOutputsOpSenderSHA256(const T& txTo)
 {
     CHashWriter ss(SER_GETHASH, 0);
     for (const auto& txout : txTo.vout) {
@@ -1480,7 +1480,7 @@ uint256 GetOutputsOpSenderHash(const T& txTo)
             ss << txout;
         }
     }
-    return ss.GetHash();
+    return ss.GetSHA256();
 }
 
 } // namespace
@@ -1499,6 +1499,7 @@ void PrecomputedTransactionData::Init(const T& txTo, std::vector<CTxOut>&& spent
     // Determine which precomputation-impacting features this transaction uses.
     bool uses_bip143_segwit = false;
     bool uses_bip341_taproot = false;
+    bool uses_op_sender = txTo.HasOpSender();
     for (size_t inpos = 0; inpos < txTo.vin.size(); ++inpos) {
         if (!txTo.vin[inpos].scriptWitness.IsNull()) {
             if (m_spent_outputs_ready && m_spent_outputs[inpos].scriptPubKey.size() == 2 + WITNESS_V1_TAPROOT_SIZE &&
@@ -1518,16 +1519,24 @@ void PrecomputedTransactionData::Init(const T& txTo, std::vector<CTxOut>&& spent
         if (uses_bip341_taproot && uses_bip143_segwit) break; // No need to scan further if we already need all.
     }
 
-    if (uses_bip143_segwit || uses_bip341_taproot) {
+    if (uses_bip143_segwit || uses_bip341_taproot || uses_op_sender) {
         // Computations shared between both sighash schemes.
         m_prevouts_single_hash = GetPrevoutsSHA256(txTo);
         m_sequences_single_hash = GetSequencesSHA256(txTo);
         m_outputs_single_hash = GetOutputsSHA256(txTo);
+        if(uses_op_sender)
+        {
+            m_outputs_opsender_single_hash = GetOutputsOpSenderSHA256(txTo);
+        }
     }
-    if (uses_bip143_segwit) {
+    if (uses_bip143_segwit || uses_op_sender) {
         hashPrevouts = SHA256Uint256(m_prevouts_single_hash);
         hashSequence = SHA256Uint256(m_sequences_single_hash);
         hashOutputs = SHA256Uint256(m_outputs_single_hash);
+        if(uses_op_sender)
+        {
+            hashOutputsOpSender = SHA256Uint256(m_outputs_opsender_single_hash);
+        }
         m_bip143_segwit_ready = true;
     }
     if (uses_bip341_taproot) {
@@ -1651,21 +1660,21 @@ uint256 SignatureHashOutput(const CScript& scriptCode, const T& txTo, unsigned i
 
     if (nHashType & SIGHASH_ANYONECANPAY) {
         assert(0 < txTo.vin.size());
-        hashPrevouts = GetFirstPrevoutHash(txTo);
-        hashSequence = GetFirstSequenceHash(txTo);
+        hashPrevouts = SHA256Uint256(GetFirstPrevoutSHA256(txTo));
+        hashSequence = SHA256Uint256(GetFirstSequenceSHA256(txTo));
     }
 
     if (!(nHashType & SIGHASH_ANYONECANPAY)) {
-        hashPrevouts = cacheready ? cache->hashPrevouts : GetPrevoutsSHA256(txTo);
+        hashPrevouts = cacheready ? cache->hashPrevouts : SHA256Uint256(GetPrevoutsSHA256(txTo));
     }
 
     if (!(nHashType & SIGHASH_ANYONECANPAY) && (nHashType & 0x1f) != SIGHASH_SINGLE && (nHashType & 0x1f) != SIGHASH_NONE) {
-        hashSequence = cacheready ? cache->hashSequence : GetSequencesSHA256(txTo);
+        hashSequence = cacheready ? cache->hashSequence : SHA256Uint256(GetSequencesSHA256(txTo));
     }
 
 
     if ((nHashType & 0x1f) != SIGHASH_SINGLE && (nHashType & 0x1f) != SIGHASH_NONE) {
-        hashOutputs = cacheready ? cache->hashOutputsOpSender : GetOutputsOpSenderHash(txTo);
+        hashOutputs = cacheready ? cache->hashOutputsOpSender : SHA256Uint256(GetOutputsOpSenderSHA256(txTo));
     } else if ((nHashType & 0x1f) == SIGHASH_SINGLE && nOut < txTo.vout.size()) {
         CHashWriter ss(SER_GETHASH, 0);
         ss << GetOutputWithoutSenderSig(txTo.vout[nOut]);

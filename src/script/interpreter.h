@@ -160,6 +160,7 @@ struct PrecomputedTransactionData
     uint256 m_prevouts_single_hash;
     uint256 m_sequences_single_hash;
     uint256 m_outputs_single_hash;
+    uint256 m_outputs_opsender_single_hash;
     uint256 m_spent_amounts_single_hash;
     uint256 m_spent_scripts_single_hash;
     //! Whether the 5 fields above are initialized.
