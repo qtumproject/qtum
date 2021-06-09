@@ -764,7 +764,55 @@ static RPCHelpMan sendtoaddress()
     ParseRecipients(address_amounts, subtractFeeFromAmount, recipients);
     const bool verbose{request.params[10].isNull() ? false : request.params[10].get_bool()};
 
-    return SendMoney(pwallet, coin_control, recipients, mapValue, verbose);
+    bool fHasSender=false;
+    CTxDestination senderAddress;
+    if (request.params.size() > 11 && !request.params[11].isNull()){
+    senderAddress = DecodeDestination(request.params[11].get_str());
+        if (!IsValidDestination(senderAddress))
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Qtum address to send from");
+        else
+            fHasSender=true;
+    }
+
+    bool fChangeToSender=false;
+    if (request.params.size() > 12 && !request.params[12].isNull()){
+        fChangeToSender=request.params[12].get_bool();
+    }
+
+    if(fHasSender){
+    //find a UTXO with sender address
+
+     UniValue results(UniValue::VARR);
+     std::vector<COutput> vecOutputs;
+
+     coin_control.fAllowOtherInputs=true;
+
+     assert(pwallet != NULL);
+     pwallet->AvailableCoins(vecOutputs, false, NULL, true);
+
+     for(const COutput& out : vecOutputs) {
+         CTxDestination destAdress;
+         const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
+         bool fValidAddress = ExtractDestination(scriptPubKey, destAdress);
+
+         if (!fValidAddress || senderAddress != destAdress)
+             continue;
+
+         coin_control.Select(COutPoint(out.tx->GetHash(),out.i));
+
+         break;
+
+     }
+
+        if(!coin_control.HasSelected()){
+            throw JSONRPCError(RPC_TYPE_ERROR, "Sender address does not have any unspent outputs");
+        }
+        if(fChangeToSender){
+            coin_control.destChange=senderAddress;
+        }
+    }
+
+    return SendMoney(pwallet, coin_control, recipients, mapValue, verbose, fHasSender);
 },
     };
 }
@@ -2079,7 +2127,7 @@ static CAmount GetReceived(const CWallet& wallet, const UniValue& params, bool b
     CAmount amount = 0;
     for (const std::pair<const uint256, CWalletTx>& wtx_pair : wallet.mapWallet) {
         const CWalletTx& wtx = wtx_pair.second;
-        if (wtx.IsCoinBase() || !wallet.chain().checkFinalTx(*wtx.tx) || wtx.GetDepthInMainChain() < min_depth) {
+        if (wtx.IsCoinBase() || wtx.IsCoinStake() || !wallet.chain().checkFinalTx(*wtx.tx) || wtx.GetDepthInMainChain() < min_depth) {
             continue;
         }
 
@@ -3254,8 +3302,11 @@ static RPCHelpMan gettransaction()
             + HelpExampleCli("gettransaction", "\"1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d\" false true")
             + HelpExampleRpc("gettransaction", "\"1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d\"")
                 },
-        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request_) -> UniValue
 {
+    // long-poll
+    JSONRPCRequest& request = (JSONRPCRequest&) request_;
+
     std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
     if (!wallet) return NullUniValue;
     const CWallet* const pwallet = wallet.get();
@@ -3263,8 +3314,6 @@ static RPCHelpMan gettransaction()
     // Make sure the results are valid at least up to the most recent block
     // the user could have gotten from another RPC command prior to now
     pwallet->BlockUntilSyncedToCurrentChain();
-
-    LOCK(pwallet->cs_wallet);
 
     uint256 hash(ParseHashV(request.params[0], "txid"));
 
@@ -3276,21 +3325,79 @@ static RPCHelpMan gettransaction()
 
     bool verbose = request.params[2].isNull() ? false : request.params[2].get_bool();
 
-    UniValue entry(UniValue::VOBJ);
     auto it = pwallet->mapWallet.find(hash);
     if (it == pwallet->mapWallet.end()) {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid or non-wallet transaction id");
     }
-    const CWalletTx& wtx = it->second;
 
+    int waitconf = 0;
+    if(request.params.size() > 3) {
+        waitconf = request.params[3].get_int();
+    }
+
+    bool shouldWaitConf = request.params.size() > 3 && waitconf > 0;
+
+    {
+        LOCK(pwallet->cs_wallet);
+        if (!pwallet->mapWallet.count(hash))
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid or non-wallet transaction id");
+    }
+
+    const CWalletTx* _wtx = nullptr;
+
+    // avoid long-poll if API caller does not specify waitconf
+    if (!shouldWaitConf) {
+        {
+            LOCK(pwallet->cs_wallet);
+            _wtx = &pwallet->mapWallet.at(hash);
+        }
+
+    } else {
+        if(!request.httpreq)
+            throw JSONRPCError(RPC_INTERNAL_ERROR, "No HTTP connection. Waitconf is available from qtum-cli, not qtum-qt");
+
+        request.PollStart();
+        while (true) {
+            {
+                LOCK(pwallet->cs_wallet);
+                _wtx = &pwallet->mapWallet.at(hash);
+
+                if (_wtx->GetDepthInMainChain() >= waitconf) {
+                    break;
+                }
+            }
+
+            request.PollPing();
+
+            std::unique_lock<std::mutex> lock(cs_blockchange);
+            cond_blockchange.wait_for(lock, std::chrono::milliseconds(300));
+
+            if (!request.PollAlive() || !IsRPCRunning()) {
+                return NullUniValue;
+            }
+        }
+    }
+
+    LOCK(pwallet->cs_wallet);
+    const CWalletTx& wtx = *_wtx;
+
+    UniValue entry(UniValue::VOBJ);
     CAmount nCredit = wtx.GetCredit(filter);
     CAmount nDebit = wtx.GetDebit(filter);
     CAmount nNet = nCredit - nDebit;
     CAmount nFee = (wtx.IsFromMe(filter) ? wtx.tx->GetValueOut() - nDebit : 0);
 
-    entry.pushKV("amount", ValueFromAmount(nNet - nFee));
-    if (wtx.IsFromMe(filter))
-        entry.pushKV("fee", ValueFromAmount(nFee));
+    if(wtx.IsCoinStake())
+    {
+        CAmount amount = nNet;
+        entry.pushKV("amount", ValueFromAmount(amount));
+    }
+    else
+    {
+        entry.pushKV("amount", ValueFromAmount(nNet - nFee));
+        if (wtx.IsFromMe(filter))
+            entry.pushKV("fee", ValueFromAmount(nFee));
+    }
 
     WalletTxToJSON(pwallet->chain(), wtx, entry);
 
