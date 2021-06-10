@@ -53,8 +53,8 @@ class FeeFilterTest(BitcoinTestFramework):
         # See issue #16499
         # grant noban permission to all peers to speed up tx relay / mempool sync
         self.extra_args = [[
-            "-minrelaytxfee=0.00000100",
-            "-mintxfee=0.00000100",
+            "-minrelaytxfee=0.01000000",
+            "-mintxfee=0.01000000",
             "-whitelist=noban@127.0.0.1",
         ]] * self.num_nodes
 
@@ -84,21 +84,21 @@ class FeeFilterTest(BitcoinTestFramework):
 
         conn = self.nodes[0].add_p2p_connection(TestP2PConn())
 
-        self.log.info("Test txs paying 0.2 sat/byte are received by test connection")
-        txids = [miniwallet.send_self_transfer(fee_rate=Decimal('0.00000200'), from_node=node1)['wtxid'] for _ in range(3)]
+        self.log.info("Test txs paying 20 sat/byte are received by test connection")
+        txids = [miniwallet.send_self_transfer(fee_rate=Decimal('0.02000000'), from_node=node1)['wtxid'] for _ in range(3)]
         conn.wait_for_invs_to_match(txids)
         conn.clear_invs()
 
-        # Set a fee filter of 0.15 sat/byte on test connection
-        conn.send_and_ping(msg_feefilter(150))
+        # Set a fee filter of 15 sat/byte on test connection
+        conn.send_and_ping(msg_feefilter(1500000))
 
-        self.log.info("Test txs paying 0.15 sat/byte are received by test connection")
-        txids = [miniwallet.send_self_transfer(fee_rate=Decimal('0.00000150'), from_node=node1)['wtxid'] for _ in range(3)]
+        self.log.info("Test txs paying 15 sat/byte are received by test connection")
+        txids = [miniwallet.send_self_transfer(fee_rate=Decimal('0.01500000'), from_node=node1)['wtxid'] for _ in range(3)]
         conn.wait_for_invs_to_match(txids)
         conn.clear_invs()
 
-        self.log.info("Test txs paying 0.1 sat/byte are no longer received by test connection")
-        txids = [miniwallet.send_self_transfer(fee_rate=Decimal('0.00000100'), from_node=node1)['wtxid'] for _ in range(3)]
+        self.log.info("Test txs paying 10 sat/byte are no longer received by test connection")
+        txids = [miniwallet.send_self_transfer(fee_rate=Decimal('0.01000000'), from_node=node1)['wtxid'] for _ in range(3)]
         self.sync_mempools()  # must be sure node 0 has received all txs
 
         # Send one transaction from node0 that should be received, so that we
@@ -108,14 +108,14 @@ class FeeFilterTest(BitcoinTestFramework):
         # to 35 entries in an inv, which means that when this next transaction
         # is eligible for relay, the prior transactions from node1 are eligible
         # as well.
-        txids = [miniwallet.send_self_transfer(fee_rate=Decimal('0.00020000'), from_node=node0)['wtxid'] for _ in range(1)]
+        txids = [miniwallet.send_self_transfer(fee_rate=Decimal('0.02000000'), from_node=node0)['wtxid'] for _ in range(1)]
         conn.wait_for_invs_to_match(txids)
         conn.clear_invs()
         self.sync_mempools()  # must be sure node 1 has received all txs
 
         self.log.info("Remove fee filter and check txs are received again")
         conn.send_and_ping(msg_feefilter(0))
-        txids = [miniwallet.send_self_transfer(fee_rate=Decimal('0.00020000'), from_node=node1)['wtxid'] for _ in range(3)]
+        txids = [miniwallet.send_self_transfer(fee_rate=Decimal('0.02000000'), from_node=node1)['wtxid'] for _ in range(3)]
         conn.wait_for_invs_to_match(txids)
         conn.clear_invs()
 
