@@ -186,7 +186,7 @@ RPCHelpMan getaddressdeltas()
     return RPCHelpMan{"getaddressdeltas",
             "\nReturns all changes for an address (requires addressindex to be enabled).\n",
             {
-                {"Input params", RPCArg::Type::OBJ, RPCArg::Optional::NO, "Json object",
+                {"argument", RPCArg::Type::OBJ, RPCArg::Optional::NO, "Json object",
                     {
                         {"addresses", RPCArg::Type::ARR, RPCArg::Optional::NO, "The qtum addresses",
                             {
@@ -317,10 +317,15 @@ RPCHelpMan getaddressbalance()
     return RPCHelpMan{"getaddressbalance",
                 "\nReturns the balance for an address(es) (requires addressindex to be enabled).\n",
                 {
-                    {"addresses", RPCArg::Type::ARR, RPCArg::Optional::NO, "The qtum addresses",
+                    {"argument", RPCArg::Type::OBJ, RPCArg::Optional::NO, "Json object",
                         {
-                            {"address", RPCArg::Type::STR, RPCArg::Optional::OMITTED, "The qtum address"},
-                        }},
+                            {"addresses", RPCArg::Type::ARR, RPCArg::Optional::NO, "The qtum addresses",
+                                {
+                                    {"address", RPCArg::Type::STR, RPCArg::Optional::OMITTED, "The qtum address"},
+                                }
+                            },
+                        }
+                    }
                 },
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",
@@ -379,7 +384,7 @@ RPCHelpMan getaddressutxos()
     return RPCHelpMan{"getaddressutxos",
                 "\nReturns all unspent outputs for an address (requires addressindex to be enabled).\n",
                 {
-                    {"Input params", RPCArg::Type::OBJ, RPCArg::Optional::NO, "Json object",
+                    {"argument", RPCArg::Type::OBJ, RPCArg::Optional::NO, "Json object",
                         {
                             {"addresses", RPCArg::Type::ARR, RPCArg::Optional::NO, "The qtum addresses",
                                 {
@@ -473,10 +478,15 @@ RPCHelpMan getaddressmempool()
     return RPCHelpMan{"getaddressmempool",
                 "\nReturns all mempool deltas for an address (requires addressindex to be enabled).\n",
                 {
-                    {"addresses", RPCArg::Type::ARR, RPCArg::Optional::NO, "The qtum addresses",
+                    {"argument", RPCArg::Type::OBJ, RPCArg::Optional::NO, "Json object",
                         {
-                            {"address", RPCArg::Type::STR, RPCArg::Optional::OMITTED, "The qtum address"},
-                        }},
+                            {"addresses", RPCArg::Type::ARR, RPCArg::Optional::NO, "The qtum addresses",
+                                {
+                                    {"address", RPCArg::Type::STR, RPCArg::Optional::OMITTED, "The qtum address"},
+                                }
+                            },
+                        }
+                    }
                 },
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",
@@ -627,7 +637,7 @@ RPCHelpMan getspentinfo()
     return RPCHelpMan{"getspentinfo",
                 "\nReturns the txid and index where an output is spent.\n",
                 {
-                    {"data", RPCArg::Type::OBJ, RPCArg::Optional::NO, "Transaction data",
+                    {"argument", RPCArg::Type::OBJ, RPCArg::Optional::NO, "Transaction data",
                         {
                             {"txid", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The hex string of the txid"},
                             {"index", RPCArg::Type::NUM, RPCArg::Optional::NO, "The start block height"},
@@ -680,7 +690,7 @@ RPCHelpMan getaddresstxids()
     return RPCHelpMan{"getaddresstxids",
                 "\nReturns the txids for an address(es) (requires addressindex to be enabled).\n",
                 {
-                    {"Input params", RPCArg::Type::OBJ, RPCArg::Optional::NO, "Json object",
+                    {"argument", RPCArg::Type::OBJ, RPCArg::Optional::NO, "Json object",
                         {
                             {"addresses", RPCArg::Type::ARR, RPCArg::Optional::NO, "The qtum addresses",
                                 {
@@ -1494,11 +1504,11 @@ static const CRPCCommand commands[] =
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////// // qtum
     { "control",            "getdgpinfo",             &getdgpinfo,             {} },
-    { "util",               "getaddresstxids",        &getaddresstxids,        {"addresses"} },
-    { "util",               "getaddressdeltas",       &getaddressdeltas,       {"addresses"} },
-    { "util",               "getaddressbalance",      &getaddressbalance,      {"addresses"} },
-    { "util",               "getaddressutxos",        &getaddressutxos,        {"addresses"} },
-    { "util",               "getaddressmempool",      &getaddressmempool,      {"addresses"} },
+    { "util",               "getaddresstxids",        &getaddresstxids,        {"argument"} },
+    { "util",               "getaddressdeltas",       &getaddressdeltas,       {"argument"} },
+    { "util",               "getaddressbalance",      &getaddressbalance,      {"argument"} },
+    { "util",               "getaddressutxos",        &getaddressutxos,        {"argument"} },
+    { "util",               "getaddressmempool",      &getaddressmempool,      {"argument"} },
     { "util",               "getblockhashes",         &getblockhashes,         {"high","low","options"} },
     { "util",               "getspentinfo",           &getspentinfo,           {"argument"} },
     { "util",               "listconf",               &listconf,               {} },

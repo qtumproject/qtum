@@ -3763,8 +3763,8 @@ static const CRPCCommand commands[] =
     { "blockchain",         "pruneblockchain",        &pruneblockchain,        {"height"} },
     { "blockchain",         "savemempool",            &savemempool,            {} },
     { "blockchain",         "verifychain",            &verifychain,            {"checklevel","nblocks"} },
-    { "blockchain",         "getaccountinfo",         &getaccountinfo,         {"contract_address"} },
-    { "blockchain",         "getstorage",             &getstorage,             {"address, index, blockNum"} },
+    { "blockchain",         "getaccountinfo",         &getaccountinfo,         {"address"} },
+    { "blockchain",         "getstorage",             &getstorage,             {"address", "blockNum", "index"} },
 
     { "blockchain",         "preciousblock",          &preciousblock,          {"blockhash"} },
     { "blockchain",         "scantxoutset",           &scantxoutset,           {"action", "scanobjects"} },
@@ -3781,9 +3781,9 @@ static const CRPCCommand commands[] =
     { "hidden",             "dumptxoutset",           &dumptxoutset,           {"path"} },
     { "blockchain",         "listcontracts",          &listcontracts,          {"start", "maxDisplay"} },
     { "blockchain",         "gettransactionreceipt",  &gettransactionreceipt,  {"hash"} },
-    { "blockchain",         "searchlogs",             &searchlogs,             {"fromBlock", "toBlock", "address", "topics"} },
+    { "blockchain",         "searchlogs",             &searchlogs,             {"fromBlock", "toBlock", "address", "topics", "minconf"} },
 
-    { "blockchain",         "waitforlogs",            &waitforlogs,            {"fromBlock", "nblocks", "address", "topics"} },
+    { "blockchain",         "waitforlogs",            &waitforlogs,            {"fromBlock", "toBlock", "filter", "minconf"} },
     { "blockchain",         "getestimatedannualroi",  &getestimatedannualroi,  {} },
     { "blockchain",         "getdelegationinfoforaddress",  &getdelegationinfoforaddress,  {"address"} },
     { "blockchain",         "getdelegationsforstaker",      &getdelegationsforstaker,      {"address"} },
