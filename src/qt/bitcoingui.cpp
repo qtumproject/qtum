@@ -237,6 +237,7 @@ BitcoinGUI::BitcoinGUI(interfaces::Node& node, const PlatformStyle *_platformSty
         openOptionsDialogWithTab(OptionsDialog::TAB_NETWORK);
     });
 
+    modalOverlay = new ModalOverlay(enableWallet, this);
     qtumVersionChecker = new QtumVersionChecker(this);
 
     connect(labelBlocksIcon, &GUIUtil::ClickableLabel::clicked, this, &BitcoinGUI::showModalOverlay);
@@ -321,6 +322,35 @@ void BitcoinGUI::createActions()
     historyAction->setCheckable(true);
     historyAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_2));
     tabGroup->addAction(historyAction);
+
+    smartContractAction = new QAction(platformStyle->MultiStatesIcon(":/icons/smart_contract"), tr("Smart &Contracts"), this);
+    smartContractAction->setStatusTip(tr("Smart contracts"));
+    smartContractAction->setToolTip(smartContractAction->statusTip());
+    smartContractAction->setCheckable(true);
+    smartContractAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_3));
+    tabGroup->addAction(smartContractAction);
+
+    createContractAction = new QAction(tr("Create"), this);
+    sendToContractAction = new QAction(tr("Send To"), this);
+    callContractAction = new QAction(tr("Call"), this);
+
+    walletStakeAction = new QAction(platformStyle->MultiStatesIcon(":/icons/tx_mined"), tr("&Stake"), this);
+    walletStakeAction->setStatusTip(tr("Show stake of wallet"));
+    walletStakeAction->setToolTip(walletStakeAction->statusTip());
+    walletStakeAction->setCheckable(true);
+    walletStakeAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_4));
+    tabGroup->addAction(walletStakeAction);
+
+    stakeAction = new QAction(tr("Staking"), this);
+    delegationAction = new QAction(tr("Delegations"), this);
+    superStakerAction = new QAction(tr("Super Staking"), this);
+
+    QRCTokenAction = new QAction(platformStyle->MultiStatesIcon(":/icons/qrctoken"), tr("&QRC Tokens"), this);
+    QRCTokenAction->setStatusTip(tr("QRC Tokens (send, receive or add Tokens in list)"));
+    QRCTokenAction->setToolTip(QRCTokenAction->statusTip());
+    QRCTokenAction->setCheckable(true);
+    QRCTokenAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_5));
+    tabGroup->addAction(QRCTokenAction);
 
 #ifdef ENABLE_WALLET
     // These showNormalIfMinimized are needed because Send Coins and Receive Coins
