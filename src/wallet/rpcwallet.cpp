@@ -225,12 +225,12 @@ bool SetDefaultPayForContractAddress(CWallet* const pwallet, interfaces::Chain::
     coinControl.fAllowOtherInputs=true;
 
     assert(pwallet != NULL);
-    pwallet->AvailableCoins(locked_chain, vecOutputs, false, NULL, true);
+    pwallet->AvailableCoins(locked_chain, vecOutputs, false, &coinControl, true);
 
     for (const COutput& out : vecOutputs) {
         CTxDestination destAdress;
         const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
-        bool fValidAddress = ExtractDestination(scriptPubKey, destAdress)
+        bool fValidAddress = out.fSpendable && ExtractDestination(scriptPubKey, destAdress)
                 && IsValidContractSenderAddress(destAdress);
 
         if (!fValidAddress)
@@ -243,18 +243,19 @@ bool SetDefaultPayForContractAddress(CWallet* const pwallet, interfaces::Chain::
     return coinControl.HasSelected();
 }
 
-bool SetDefaultSignSenderAddress(CWallet* const pwallet, interfaces::Chain::Lock& locked_chain, CTxDestination& destAdress)
+bool SetDefaultSignSenderAddress(CWallet* const pwallet, interfaces::Chain::Lock& locked_chain, CTxDestination& destAdress, CCoinControl & coinControl)
 {
     // Set default sender address if none provided
     // Select any valid unspent output that can be used for contract sender address
     std::vector<COutput> vecOutputs;
+    coinControl.fAllowOtherInputs=true;
 
     assert(pwallet != NULL);
-    pwallet->AvailableCoins(locked_chain, vecOutputs, false, NULL, true);
+    pwallet->AvailableCoins(locked_chain, vecOutputs, false, &coinControl, true);
 
     for (const COutput& out : vecOutputs) {
         const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
-        bool fValidAddress = ExtractDestination(scriptPubKey, destAdress)
+        bool fValidAddress = out.fSpendable && ExtractDestination(scriptPubKey, destAdress)
                 && IsValidContractSenderAddress(destAdress);
 
         if (!fValidAddress)
@@ -959,7 +960,7 @@ static UniValue createcontract(const JSONRPCRequest& request){
         for (const COutput& out : vecOutputs) {
             CTxDestination destAdress;
             const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
-            bool fValidAddress = ExtractDestination(scriptPubKey, destAdress);
+            bool fValidAddress = out.fSpendable && ExtractDestination(scriptPubKey, destAdress);
 
             if (!fValidAddress || senderAddress != destAdress)
                 continue;
@@ -995,7 +996,7 @@ static UniValue createcontract(const JSONRPCRequest& request){
         if(::ChainActive().Height() >= Params().GetConsensus().QIP5Height)
         {
             // If no sender address provided set to the default sender address
-            SetDefaultSignSenderAddress(pwallet, *locked_chain, signSenderAddress);
+            SetDefaultSignSenderAddress(pwallet, *locked_chain, signSenderAddress, coinControl);
         }
     }
     EnsureWalletIsUnlocked(pwallet);
@@ -1181,7 +1182,7 @@ UniValue SendToContract(interfaces::Chain::Lock& locked_chain, CWallet* const pw
 
             CTxDestination destAdress;
             const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
-            bool fValidAddress = ExtractDestination(scriptPubKey, destAdress);
+            bool fValidAddress = out.fSpendable && ExtractDestination(scriptPubKey, destAdress);
 
             if (!fValidAddress || senderAddress != destAdress)
                 continue;
@@ -1217,7 +1218,7 @@ UniValue SendToContract(interfaces::Chain::Lock& locked_chain, CWallet* const pw
         if(::ChainActive().Height() >= Params().GetConsensus().QIP5Height)
         {
             // If no sender address provided set to the default sender address
-            SetDefaultSignSenderAddress(pwallet, locked_chain, signSenderAddress);
+            SetDefaultSignSenderAddress(pwallet, locked_chain, signSenderAddress, coinControl);
         }
     }
 
