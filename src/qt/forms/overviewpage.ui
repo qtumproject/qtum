@@ -178,7 +178,6 @@
              <widget class="QLabel" name="labelSpendable">
               <property name="font">
                <font>
-                <family>Monospace</family>
                 <pointsize>23</pointsize>
                </font>
               </property>
@@ -194,7 +193,6 @@
              <widget class="QLabel" name="labelTotal">
               <property name="font">
                <font>
-                <family>Monospace</family>
                 <pointsize>23</pointsize>
                </font>
               </property>
@@ -541,7 +539,6 @@
              <widget class="QLabel" name="labelWatchonly">
               <property name="font">
                <font>
-                <family>Monospace</family>
                 <pointsize>23</pointsize>
                </font>
               </property>
@@ -557,7 +554,6 @@
              <widget class="QLabel" name="labelWatchTotal">
               <property name="font">
                <font>
-                <family>Monospace</family>
                 <pointsize>23</pointsize>
                </font>
               </property>
