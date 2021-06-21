@@ -1630,9 +1630,6 @@ bool AppInitMain(const util::Ref& context, NodeContext& node, interfaces::BlockA
      * available in the GUI RPC console even if external calls are disabled.
      */
     RegisterAllCoreRPCCommands(tableRPC);
-    for (const auto& client : node.chain_clients) {
-        client->registerRpcs();
-    }
 #if ENABLE_ZMQ
     RegisterZMQRPCCommands(tableRPC);
 #endif
@@ -2131,6 +2128,11 @@ bool AppInitMain(const util::Ref& context, NodeContext& node, interfaces::BlockA
                 return InitError(strLoadError);
             }
         }
+    }
+
+    // Register rpcs after loading the chainstate
+    for (const auto& client : node.chain_clients) {
+        client->registerRpcs();
     }
 
     // As LoadBlockIndex can take several minutes, it's possible the user

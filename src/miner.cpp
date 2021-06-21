@@ -1211,7 +1211,8 @@ bool CheckStake(const std::shared_ptr<const CBlock> pblock, CWallet& wallet)
         LOCK(cs_main);
         if (pblock->hashPrevBlock != ::ChainActive().Tip()->GetBlockHash())
             return error("CheckStake() : generated block is stale");
-
+    }
+    {
         LOCK(wallet.cs_wallet);
         for(const CTxIn& vin : pblock->vtx[1]->vin) {
             if (wallet.IsSpent(vin.prevout.hash, vin.prevout.n)) {
@@ -1590,14 +1591,18 @@ protected:
     bool UpdateData()
     {
         if(d->pwallet->IsStakeClosing()) return false;
-        LOCK2(cs_main, d->pwallet->cs_wallet);
+        LOCK(d->pwallet->cs_wallet);
 
         d->clearCache();
         CAmount nBalance = d->pwallet->GetBalance().m_mine_trusted;
         d->nTargetValue = nBalance - d->pwallet->m_reserve_balance;
         CAmount nValueIn = 0;
-        d->pindexPrev = ::ChainActive().Tip();
-        int32_t nHeightTip = ::ChainActive().Height();
+        int32_t nHeightTip = 0;
+        {
+            LOCK(cs_main);
+            d->pindexPrev = ::ChainActive().Tip();
+            nHeightTip = ::ChainActive().Height();
+        }
         d->nHeight = nHeightTip + 1;
         updateMinerParams(d->nHeight, d->consensusParams, d->minDifficulty);
         bool fOfflineStakeEnabled = (d->nHeight > d->nOfflineStakeHeight) && d->fDelegationsContract;
@@ -1865,14 +1870,18 @@ void RefreshDelegates(CWallet *pwallet, bool refreshMyDelegates, bool refreshSta
 {
     if(pwallet && (refreshMyDelegates || refreshStakerDelegates))
     {
-        LOCK2(cs_main, pwallet->cs_wallet);
+        LOCK(pwallet->cs_wallet);
 
         DelegationsStaker delegationsStaker(pwallet);
         MyDelegations myDelegations(pwallet);
 
         int nOfflineStakeHeight = Params().GetConsensus().nOfflineStakeHeight;
         bool fDelegationsContract = !Params().GetConsensus().delegationsAddress.IsNull();
-        int32_t nHeight = ::ChainActive().Height();
+        int32_t nHeight = 0;
+        {
+            LOCK(cs_main);
+            nHeight = ::ChainActive().Height();
+        }
         bool fOfflineStakeEnabled = ((nHeight + 1) > nOfflineStakeHeight) && fDelegationsContract;
         if(fOfflineStakeEnabled)
         {

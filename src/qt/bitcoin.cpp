@@ -403,7 +403,6 @@ void BitcoinApplication::initializeResult(bool success, interfaces::BlockAndHead
     returnValue = success ? EXIT_SUCCESS : EXIT_FAILURE;
     if(success)
     {
-        LOCK(cs_main);
         // Log this only after AppInitMain finishes, as then logging setup is guaranteed complete
         qInfo() << "Platform customization:" << platformStyle->getName();
         clientModel = new ClientModel(node(), optionsModel);
