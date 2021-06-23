@@ -880,6 +880,8 @@ void BitcoinGUI::setWalletActionsEnabled(bool enabled)
     backupWalletAction->setEnabled(enabled);
     restoreWalletAction->setEnabled(enabled);
     changePassphraseAction->setEnabled(enabled);
+    unlockWalletAction->setEnabled(enabled);
+    lockWalletAction->setEnabled(enabled);
     signMessageAction->setEnabled(enabled);
     verifyMessageAction->setEnabled(enabled);
     usedSendingAddressesAction->setEnabled(enabled);
@@ -889,6 +891,8 @@ void BitcoinGUI::setWalletActionsEnabled(bool enabled)
     delegationAction->setEnabled(enabled);
     superStakerAction->setEnabled(enabled);
     walletStakeAction->setEnabled(enabled);
+    m_load_psbt_action->setEnabled(enabled);
+    m_load_psbt_clipboard_action->setEnabled(enabled);
     m_close_wallet_action->setEnabled(enabled);
     m_close_all_wallets_action->setEnabled(enabled);
 }
