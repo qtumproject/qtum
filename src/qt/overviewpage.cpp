@@ -272,7 +272,7 @@ void OverviewPage::setPrivacy(bool privacy)
         setBalance(m_balances);
     }
 
-    ui->listTransactions->setVisible(!m_privacy);
+    ui->widgetListTransaction->setVisible(!m_privacy);
 
     const QString status_tip = m_privacy ? tr("Privacy mode activated for the Overview tab. To unmask the values, uncheck Settings->Mask values.") : "";
     setStatusTip(status_tip);
