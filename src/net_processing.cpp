@@ -4851,6 +4851,7 @@ void static PruneOrphanBlocks()
 
 bool PeerManager::ProcessNetBlock(const std::shared_ptr<const CBlock> pblock, bool fForceProcessing, bool* fNewBlock, CNode* pfrom, CConnman& connman)
 {
+    uint256 hash;
     {
         LOCK(cs_main);
 
@@ -4865,20 +4866,23 @@ bool PeerManager::ProcessNetBlock(const std::shared_ptr<const CBlock> pblock, bo
         // Check for duplicate orphan block
         // Duplicate stake allowed only when there is orphan child block
         // if the block header is already known, allow it (to account for headers being sent before the block itself)
-        uint256 hash = pblock->GetHash();
+        hash = pblock->GetHash();
         if (!fReindex && !fImporting && pblock->IsProofOfStake() && ::ChainstateActive().setStakeSeen.count(pblock->GetProofOfStake()) && !g_chainman.BlockIndex().count(hash) && !mapOrphanBlocksByPrev.count(hash))
             return error("ProcessNetBlock() : duplicate proof-of-stake (%s, %d) for block %s", pblock->GetProofOfStake().first.ToString(), pblock->GetProofOfStake().second, hash.ToString());
+    }
 
-        // Process the header before processing the block
-        const CBlockIndex *pindex = nullptr;
-        BlockValidationState state;
-        if (!ProcessNetBlockHeaders(pfrom, {*pblock}, state, m_chainparams, &pindex)) {
-            if (state.IsInvalid()) {
-                MaybePunishNodeForBlock(pfrom->GetId(), state, false, strprintf("Peer %d sent us invalid header\n", pfrom->GetId()));
-                return error("ProcessNetBlock() : invalid header received");
-            }
+    // Process the header before processing the block
+    const CBlockIndex *pindex = nullptr;
+    BlockValidationState state;
+    if (!ProcessNetBlockHeaders(pfrom, {*pblock}, state, m_chainparams, &pindex)) {
+        if (state.IsInvalid()) {
+            MaybePunishNodeForBlock(pfrom->GetId(), state, false, strprintf("Peer %d sent us invalid header\n", pfrom->GetId()));
+            return error("ProcessNetBlock() : invalid header received");
         }
+    }
 
+    {
+        LOCK(cs_main);
         if (mapOrphanBlocks.count(hash))
             return error("ProcessNetBlock() : already have block (orphan) %s", hash.ToString());
 
