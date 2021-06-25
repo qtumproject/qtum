@@ -929,12 +929,25 @@ static RPCHelpMan splitutxosforaddress()
     };
 }
 
+void getDgpData(uint64_t& blockGasLimit, uint64_t& minGasPrice, CAmount& nGasPrice)
+{
+    blockGasLimit = DEFAULT_BLOCK_GAS_LIMIT_DGP;
+    minGasPrice = DEFAULT_MIN_GAS_PRICE_DGP;
+    if(globalState.get())
+    {
+        LOCK(cs_main);
+        QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
+        blockGasLimit = qtumDGP.getBlockGasLimit(::ChainActive().Height());
+        minGasPrice = CAmount(qtumDGP.getMinGasPrice(::ChainActive().Height()));
+    }
+    nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
+}
+
 static RPCHelpMan createcontract()
 {
-    QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
-    uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(::ChainActive().Height());
-    uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(::ChainActive().Height()));
-    CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
+    uint64_t blockGasLimit = 0, minGasPrice = 0;
+    CAmount nGasPrice = 0;
+    getDgpData(blockGasLimit, minGasPrice, nGasPrice);
 
     return RPCHelpMan{"createcontract",
                 "\nCreate a contract with bytcode." +
@@ -1179,10 +1192,9 @@ static RPCHelpMan createcontract()
 
 UniValue SendToContract(CWallet* const pwallet, LegacyScriptPubKeyMan& spk_man, const UniValue& params)
 {
-    QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
-    uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(::ChainActive().Height());
-    uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(::ChainActive().Height()));
-    CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
+    uint64_t blockGasLimit = 0, minGasPrice = 0;
+    CAmount nGasPrice = 0;
+    getDgpData(blockGasLimit, minGasPrice, nGasPrice);
 
     std::string contractaddress = params[0].get_str();
     if(contractaddress.size() != 40 || !CheckHex(contractaddress))
@@ -1389,10 +1401,9 @@ UniValue SendToContract(CWallet* const pwallet, LegacyScriptPubKeyMan& spk_man, 
 
 static RPCHelpMan sendtocontract()
 {
-    QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
-    uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(::ChainActive().Height());
-    uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(::ChainActive().Height()));
-    CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
+    uint64_t blockGasLimit = 0, minGasPrice = 0;
+    CAmount nGasPrice = 0;
+    getDgpData(blockGasLimit, minGasPrice, nGasPrice);
 
     return RPCHelpMan{"sendtocontract",
                     "\nSend funds and data to a contract." +
@@ -1439,10 +1450,9 @@ static RPCHelpMan sendtocontract()
 
 static RPCHelpMan removedelegationforaddress()
 {
-    QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
-    uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(::ChainActive().Height());
-    uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(::ChainActive().Height()));
-    CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
+    uint64_t blockGasLimit = 0, minGasPrice = 0;
+    CAmount nGasPrice = 0;
+    getDgpData(blockGasLimit, minGasPrice, nGasPrice);
 
     return RPCHelpMan{"removedelegationforaddress",
                     "\nRemove delegation for address." +
@@ -1501,10 +1511,9 @@ static RPCHelpMan removedelegationforaddress()
 
 static RPCHelpMan setdelegateforaddress()
 {
-    QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
-    uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(::ChainActive().Height());
-    uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(::ChainActive().Height()));
-    CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
+    uint64_t blockGasLimit = 0, minGasPrice = 0;
+    CAmount nGasPrice = 0;
+    getDgpData(blockGasLimit, minGasPrice, nGasPrice);
 
     return RPCHelpMan{"setdelegateforaddress",
                     "\nSet delegate for address." +
