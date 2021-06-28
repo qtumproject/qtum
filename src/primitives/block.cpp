@@ -10,6 +10,7 @@
 #include <util/strencodings.h>
 #include <crypto/common.h>
 #include <pubkey.h>
+#include <streams.h>
 
 // Used to serialize the header without signature
 // Workaround due to removing serialization templates in Bitcoin Core 0.18
@@ -74,6 +75,13 @@ uint256 CBlockHeader::GetHash() const
 uint256 CBlockHeader::GetHashWithoutSign() const
 {
     return SerializeHash(CBlockHeaderSign(*this), SER_GETHASH);
+}
+
+std::string CBlockHeader::GetWithoutSign() const
+{
+    CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
+    ss << CBlockHeaderSign(*this);
+    return EncodeBase64(ss.str());
 }
 
 std::string CBlock::ToString() const

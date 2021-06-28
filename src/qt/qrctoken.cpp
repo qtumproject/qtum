@@ -66,6 +66,8 @@ QRCToken::QRCToken(const PlatformStyle *platformStyle, QWidget *parent) :
     connect(removeTokenAction, &QAction::triggered, this, &QRCToken::removeToken);
 
     connect(m_tokenList, &TokenListWidget::customContextMenuRequested, this, &QRCToken::contextualMenu);
+
+    connect(m_sendTokenPage, &SendTokenPage::message, this, &QRCToken::message);
 }
 
 QRCToken::~QRCToken()

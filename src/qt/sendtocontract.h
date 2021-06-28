@@ -32,6 +32,8 @@ public:
     void setContractAddress(const QString &address);
 
 Q_SIGNALS:
+    // Fired when a message should be reported to the user
+    void message(const QString &title, const QString &message, unsigned int style);
 
 public Q_SLOTS:
     void on_clearAllClicked();
@@ -63,6 +65,7 @@ private:
     TabBarInfo* m_tabInfo;
     const PlatformStyle* m_platformStyle;
     int m_results;
+    bool bCreateUnsigned = false;
 };
 
 #endif // SENDTOCONTRACT_H

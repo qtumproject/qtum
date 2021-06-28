@@ -11,6 +11,7 @@
 #include <qt/rpcconsole.h>
 #include <qt/execrpccommand.h>
 #include <qt/sendcoinsdialog.h>
+#include <qt/hardwaresigntx.h>
 
 namespace AddDelegation_NS
 {
@@ -99,6 +100,13 @@ void AddDelegationPage::setModel(WalletModel *_model)
 
     // update the display unit, to not use the default ("QTUM")
     updateDisplayUnit();
+
+    bCreateUnsigned = m_model->createUnsigned();
+
+    if (bCreateUnsigned) {
+        ui->addDelegationButton->setText(tr("Cr&eate Unsigned"));
+        ui->addDelegationButton->setToolTip(tr("Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.").arg(PACKAGE_NAME));
+    }
 }
 
 void AddDelegationPage::setClientModel(ClientModel *_clientModel)
@@ -244,12 +252,25 @@ void AddDelegationPage::on_addDelegationClicked()
         ExecRPCCommand::appendParam(lstParams, PARAM_GASLIMIT, QString::number(gasLimit));
         ExecRPCCommand::appendParam(lstParams, PARAM_GASPRICE, BitcoinUnits::format(unit, gasPrice, false, BitcoinUnits::separatorNever));
 
+        QString questionString;
+        if (bCreateUnsigned) {
+            questionString.append(tr("Do you want to draft this transaction?"));
+            questionString.append("<br /><span style='font-size:10pt;'>");
+            questionString.append(tr("Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.").arg(PACKAGE_NAME));
+            questionString.append("</span>");
+            questionString.append(tr("<br /><br />Delegate the address to the staker<br />"));
+            questionString.append(tr("<b>%1</b>?")
+                                  .arg(ui->lineEditStakerAddress->text()));
+        } else {
+            questionString.append(tr("Are you sure you want to delegate the address to the staker<br /><br />"));
+            questionString.append(tr("<b>%1</b>?")
+                                  .arg(ui->lineEditStakerAddress->text()));
+        }
 
-        QString questionString = tr("Are you sure you want to delegate the address to the staker<br /><br />");
-        questionString.append(tr("<b>%1</b>?")
-                              .arg(ui->lineEditStakerAddress->text()));
+        const QString confirmation = bCreateUnsigned ? tr("Confirm address delegation proposal.") : tr("Confirm address delegation to staker.");
+        const QString confirmButtonText = bCreateUnsigned ? tr("Copy PSBT to clipboard") : tr("Send");
+        SendConfirmationDialog confirmationDialog(confirmation, questionString, "", "", SEND_CONFIRM_DELAY, confirmButtonText, this);
 
-        SendConfirmationDialog confirmationDialog(tr("Confirm address delegation to staker."), questionString, "", "", SEND_CONFIRM_DELAY, tr("Send"), this);
         confirmationDialog.exec();
 
         QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();
@@ -263,14 +284,33 @@ void AddDelegationPage::on_addDelegationClicked()
             else
             {
                 QVariantMap variantMap = result.toMap();
-                std::string txid = variantMap.value("txid").toString().toStdString();
-                interfaces::DelegationInfo delegation;
-                delegation.delegate_address = delegateAddress.toStdString();
-                delegation.staker_address = stakerAddress.toStdString();
-                delegation.staker_name = stakerName.trimmed().toStdString();
-                delegation.fee = stakerFee;
-                delegation.create_tx_hash.SetHex(txid);
-                m_model->wallet().addDelegationEntry(delegation);
+                if(bCreateUnsigned)
+                {
+                    GUIUtil::setClipboard(variantMap.value("psbt").toString());
+                    Q_EMIT message(tr("PSBT copied"), "Copied to clipboard", CClientUIInterface::MSG_INFORMATION);
+                }
+                else
+                {
+                    bool isSent = true;
+                    if(m_model->getSignPsbtWithHwiTool())
+                    {
+                        QString psbt = variantMap.value("psbt").toString();
+                        if(!HardwareSignTx::process(this, m_model, psbt, variantMap))
+                            isSent = false;
+                    }
+
+                    if(isSent)
+                    {
+                        std::string txid = variantMap.value("txid").toString().toStdString();
+                        interfaces::DelegationInfo delegation;
+                        delegation.delegate_address = delegateAddress.toStdString();
+                        delegation.staker_address = stakerAddress.toStdString();
+                        delegation.staker_name = stakerName.trimmed().toStdString();
+                        delegation.fee = stakerFee;
+                        delegation.create_tx_hash.SetHex(txid);
+                        m_model->wallet().addDelegationEntry(delegation);
+                    }
+                }
             }
 
             accept();
