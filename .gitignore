@@ -5,9 +5,11 @@
 src/bitcoin
 src/bitcoind
 src/bitcoin-cli
+src/bitcoin-gui
+src/bitcoin-node
 src/bitcoin-tx
 src/bitcoin-wallet
-src/test/fuzz
+src/test/fuzz/*
 !src/test/fuzz/*.*
 src/test/test_bitcoin
 src/qt/test/test_bitcoin-qt
@@ -117,7 +119,10 @@ releases
 /*.info
 test_bitcoin.coverage/
 total.coverage/
+fuzz.coverage/
 coverage_percent.txt
+/cov_tool_wrapper.sh
+qa-assets/
 
 #build tests
 linux-coverage-build
@@ -125,6 +130,7 @@ linux-build
 win32-build
 test/config.ini
 test/cache/*
+test/.mypy_cache/
 
 !src/leveldb*/Makefile
 
@@ -149,11 +155,12 @@ dist/
 src/qtum-cli
 src/qtum-tx
 src/qtumd
+src/qtum-node
 src/qtum-wallet
 src/bench/bench_qtum
 src/qt/qtum-qt
+src/qt/qtum-gui
 src/qt/test/test_qtum-qt
 src/test/buildenv.py
 src/test/test_qtum
 src/test/test_qtum_fuzzy
-Debug

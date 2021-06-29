@@ -207,8 +207,8 @@ void SplitUTXOPage::on_splitCoinsClicked()
 
         // Append params to the list
         ExecRPCCommand::appendParam(lstParams, PARAM_ADDRESS, address);
-        ExecRPCCommand::appendParam(lstParams, PARAM_MIN_VALUE, BitcoinUnits::format(unit, minValue, false, BitcoinUnits::separatorNever));
-        ExecRPCCommand::appendParam(lstParams, PARAM_MAX_VALUE, BitcoinUnits::format(unit, maxValue, false, BitcoinUnits::separatorNever));
+        ExecRPCCommand::appendParam(lstParams, PARAM_MIN_VALUE, BitcoinUnits::format(unit, minValue, false, BitcoinUnits::SeparatorStyle::NEVER));
+        ExecRPCCommand::appendParam(lstParams, PARAM_MAX_VALUE, BitcoinUnits::format(unit, maxValue, false, BitcoinUnits::SeparatorStyle::NEVER));
         ExecRPCCommand::appendParam(lstParams, PARAM_MAX_OUTPUTS, QString::number(maxOutputs));
 
         QString questionString = tr("Are you sure you want to split coins for address");

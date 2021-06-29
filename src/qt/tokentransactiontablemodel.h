@@ -103,8 +103,8 @@ private:
     QString formatTxType(const TokenTransactionRecord *wtx) const;
     QString formatTxToAddress(const TokenTransactionRecord *wtx, bool tooltip) const;
     QString formatTxTokenSymbol(const TokenTransactionRecord *wtx) const;
-    QString formatTxAmount(const TokenTransactionRecord *wtx, bool showUnconfirmed=true, BitcoinUnits::SeparatorStyle separators=BitcoinUnits::separatorStandard) const;
-    QString formatTxAmountWithUnit(const TokenTransactionRecord *wtx, bool showUnconfirmed=true, BitcoinUnits::SeparatorStyle separators=BitcoinUnits::separatorStandard) const;
+    QString formatTxAmount(const TokenTransactionRecord *wtx, bool showUnconfirmed=true, BitcoinUnits::SeparatorStyle separators=BitcoinUnits::SeparatorStyle::STANDARD) const;
+    QString formatTxAmountWithUnit(const TokenTransactionRecord *wtx, bool showUnconfirmed=true, BitcoinUnits::SeparatorStyle separators=BitcoinUnits::SeparatorStyle::STANDARD) const;
     QString formatTooltip(const TokenTransactionRecord *rec) const;
     QVariant txStatusDecoration(const TokenTransactionRecord *wtx) const;
     QVariant txAddressDecoration(const TokenTransactionRecord *wtx) const;

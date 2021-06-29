@@ -44,6 +44,9 @@ void checkResult(bool isCreation, std::vector<QtumTransaction> results, uint256 
 }
 
 void runTest(bool isCreation, size_t n, CScript& script1, CScript script2 = CScript()){
+    LOCK(::cs_main);
+    CTxMemPool& mempool = ChainstateActive().Mempool();
+    LOCK(mempool.cs);
     mempool.clear();
     TestMemPoolEntryHelper entry;
     CMutableTransaction tx1, tx2;
@@ -78,6 +81,9 @@ void runTest(bool isCreation, size_t n, CScript& script1, CScript script2 = CScr
 }
 
 void runFailingTest(bool isCreation, size_t n, CScript& script1, CScript script2 = CScript()){
+    LOCK(::cs_main);
+    CTxMemPool& mempool = ChainstateActive().Mempool();
+    LOCK(mempool.cs);
     mempool.clear();
     TestMemPoolEntryHelper entry;
     CMutableTransaction tx1, tx2;

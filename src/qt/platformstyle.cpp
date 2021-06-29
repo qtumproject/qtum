@@ -254,7 +254,6 @@ const PlatformStyle *PlatformStyle::instantiate(const QString &platformId)
     return nullptr;
 }
 
-
 QIcon PlatformStyle::MultiStatesIconV1(const QString &resourcename, PlatformStyle::StateType type) const
 {
     QColor color = multiStatesIconColor1;

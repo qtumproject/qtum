@@ -13,7 +13,20 @@
 
 #include <future>
 
-TransactionError BroadcastTransaction(NodeContext& node, const CTransactionRef tx, std::string& err_string, const CAmount& max_tx_fee, bool relay, bool wait_callback, bool rawTx)
+static TransactionError HandleATMPError(const TxValidationState& state, std::string& err_string_out)
+{
+    err_string_out = state.ToString();
+    if (state.IsInvalid()) {
+        if (state.GetResult() == TxValidationResult::TX_MISSING_INPUTS) {
+            return TransactionError::MISSING_INPUTS;
+        }
+        return TransactionError::MEMPOOL_REJECTED;
+    } else {
+        return TransactionError::MEMPOOL_ERROR;
+    }
+}
+
+TransactionError BroadcastTransaction(NodeContext& node, const CTransactionRef tx, std::string& err_string, const CAmount& max_tx_fee, bool relay, bool wait_callback)
 {
     // BroadcastTransaction can be called by either sendrawtransaction RPC or wallet RPCs.
     // node.connman is assigned both before chain clients and before RPC server is accepting calls,
@@ -36,19 +49,23 @@ TransactionError BroadcastTransaction(NodeContext& node, const CTransactionRef t
         if (!existingCoin.IsSpent()) return TransactionError::ALREADY_IN_CHAIN;
     }
     if (!node.mempool->exists(hashTx)) {
-        // Transaction is not already in the mempool. Submit it.
+        // Transaction is not already in the mempool.
         TxValidationState state;
-        if (!AcceptToMemoryPool(*node.mempool, state, std::move(tx),
-                nullptr /* plTxnReplaced */, false /* bypass_limits */, max_tx_fee, false, rawTx)) {
-            err_string = state.ToString();
-            if (state.IsInvalid()) {
-                if (state.GetResult() == TxValidationResult::TX_MISSING_INPUTS) {
-                    return TransactionError::MISSING_INPUTS;
-                }
-                return TransactionError::MEMPOOL_REJECTED;
-            } else {
-                return TransactionError::MEMPOOL_ERROR;
+        if (max_tx_fee > 0) {
+            // First, call ATMP with test_accept and check the fee. If ATMP
+            // fails here, return error immediately.
+            CAmount fee{0};
+            if (!AcceptToMemoryPool(*node.mempool, state, tx,
+                nullptr /* plTxnReplaced */, false /* bypass_limits */, /* test_accept */ true, &fee)) {
+                return HandleATMPError(state, err_string);
+            } else if (fee > max_tx_fee) {
+                return TransactionError::MAX_FEE_EXCEEDED;
             }
+        }
+        // Try to submit the transaction to the mempool.
+        if (!AcceptToMemoryPool(*node.mempool, state, tx,
+                nullptr /* plTxnReplaced */, false /* bypass_limits */, false, nullptr)) {
+            return HandleATMPError(state, err_string);
         }
 
         // Transaction was accepted to the mempool.
@@ -78,7 +95,12 @@ TransactionError BroadcastTransaction(NodeContext& node, const CTransactionRef t
     }
 
     if (relay) {
-        RelayTransaction(hashTx, *node.connman);
+        // the mempool tracks locally submitted transactions to make a
+        // best-effort of initial broadcast
+        node.mempool->AddUnbroadcastTx(hashTx);
+
+        LOCK(cs_main);
+        RelayTransaction(hashTx, tx->GetWitnessHash(), *node.connman);
     }
 
     return TransactionError::OK;

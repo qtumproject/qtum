@@ -67,7 +67,12 @@
     </message>
     <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation>Jen viaj Qtum adresoj por sendi pagojn. Zorge kontrolu la sumon kaj la alsendan adreson antaŭ ol sendi.</translation>
+        <translation>Jen viaj Qtum-adresoj por sendi pagojn. Zorge kontrolu la sumon kaj la alsendan adreson antaŭ ol sendi.</translation>
+    </message>
+    <message>
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+Signing is only possible with addresses of the type 'legacy'.</source>
+        <translation>Jen viaj qtumaj adresoj por ricevi pagojn. Estas konsilinde uzi apartan ricevan adreson por ĉiu transakcio.</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -132,6 +137,10 @@
         <translation>Ripetu la novan pasfrazon</translation>
     </message>
     <message>
+        <source>Show passphrase</source>
+        <translation>Montri pasfrazon</translation>
+    </message>
+    <message>
         <source>Encrypt wallet</source>
         <translation>Ĉifri la monujon</translation>
     </message>
@@ -161,7 +170,7 @@
     </message>
     <message>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
-        <translation>Atentu! Se vi ĉifras vian monujon kaj perdas la pasfrazon, vi &lt;b&gt;PERDOS LA TUTON DE VIA BITMONO&lt;b&gt;!</translation>
+        <translation>Atentu! Se vi ĉifras vian monujon kaj perdas la pasfrazon, vi &lt;b&gt;PERDOS LA TUTON DE VIA QTUMO&lt;b&gt;!</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -170,6 +179,26 @@
     <message>
         <source>Wallet encrypted</source>
         <translation>La monujo estas ĉifrita</translation>
+    </message>
+    <message>
+        <source>Enter the new passphrase for the wallet.&lt;br/&gt;Please use a passphrase of &lt;b&gt;ten or more random characters&lt;/b&gt;, or &lt;b&gt;eight or more words&lt;/b&gt;.</source>
+        <translation>Enigi la novan pasfrazon por la monujo. &lt;br/&gt;Bonvolu uzi pasfrazon de &lt;b&gt;dek aŭ pli hazardaj signoj&lt;/b&gt;, aŭ &lt;b&gt;ok aŭ pli vortoj&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Enter the old passphrase and new passphrase for the wallet.</source>
+        <translation>Enigi la malnovan pasfrazon kaj la novan pasfrazon por la monujo.</translation>
+    </message>
+    <message>
+        <source>Wallet to be encrypted</source>
+        <translation>Monujo ĉifriĝota</translation>
+    </message>
+    <message>
+        <source>Your wallet is about to be encrypted. </source>
+        <translation>Via monujo estas ĉifriĝota.</translation>
+    </message>
+    <message>
+        <source>Your wallet is now encrypted. </source>
+        <translation>Via monujo ĵus estas ĉifrata.</translation>
     </message>
     <message>
         <source>IMPORTANT: Any previous backups you have made of your wallet file should be replaced with the newly generated, encrypted wallet file. For security reasons, previous backups of the unencrypted wallet file will become useless as soon as you start using the new, encrypted wallet.</source>
@@ -210,7 +239,11 @@
 </context>
 <context>
     <name>BanTableModel</name>
-    </context>
+    <message>
+        <source>Banned Until</source>
+        <translation>Ekzilita Ĝis</translation>
+    </message>
+</context>
 <context>
     <name>QtumGUI</name>
     <message>
@@ -250,6 +283,10 @@
         <translation>&amp;Pri %1</translation>
     </message>
     <message>
+        <source>Show information about %1</source>
+        <translation>Montri informojn pri %1</translation>
+    </message>
+    <message>
         <source>About &amp;Qt</source>
         <translation>Pri &amp;Qt</translation>
     </message>
@@ -260,6 +297,10 @@
     <message>
         <source>&amp;Options...</source>
         <translation>&amp;Agordoj...</translation>
+    </message>
+    <message>
+        <source>Modify configuration options for %1</source>
+        <translation>Ŝanĝi agordojn por %1</translation>
     </message>
     <message>
         <source>&amp;Encrypt Wallet...</source>
@@ -278,12 +319,36 @@
         <translation>Malfermi &amp;URI-on...</translation>
     </message>
     <message>
+        <source>Create Wallet...</source>
+        <translation>Krei Monujon...</translation>
+    </message>
+    <message>
+        <source>Create a new wallet</source>
+        <translation>Krei novan monujon</translation>
+    </message>
+    <message>
+        <source>Wallet:</source>
+        <translation>Monujo:</translation>
+    </message>
+    <message>
+        <source>Click to disable network activity.</source>
+        <translation>Alklaki por malebligi retajn agadojn.</translation>
+    </message>
+    <message>
+        <source>Network activity disabled.</source>
+        <translation>Retaj agadoj malebliĝas.</translation>
+    </message>
+    <message>
+        <source>Click to enable network activity again.</source>
+        <translation>Alklaki por denove ebligi retajn agadojn.</translation>
+    </message>
+    <message>
         <source>Reindexing blocks on disk...</source>
         <translation>Reindeksado de blokoj sur disko...</translation>
     </message>
     <message>
         <source>Send coins to a Qtum address</source>
-        <translation>Sendi monon al Bitmon-adreso</translation>
+        <translation>Sendi monon al Qtum-adreso</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -319,11 +384,11 @@
     </message>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
-        <translation>Subskribi mesaĝojn per via Bitmon-adresoj por pravigi, ke vi estas la posedanto</translation>
+        <translation>Subskribi mesaĝojn per via Qtum-adresoj por pravigi, ke vi estas la posedanto</translation>
     </message>
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
-        <translation>Kontroli mesaĝojn por kontroli ĉu ili estas subskribitaj per specifaj Bitmon-adresoj</translation>
+        <translation>Kontroli mesaĝojn por kontroli ĉu ili estas subskribitaj per specifaj Qtum-adresoj</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -386,12 +451,56 @@
         <translation>Ĝisdata</translation>
     </message>
     <message>
+        <source>Open Wallet</source>
+        <translation>Malfermi la Monujon</translation>
+    </message>
+    <message>
+        <source>Open a wallet</source>
+        <translation>Malfermi monujon</translation>
+    </message>
+    <message>
+        <source>Close Wallet...</source>
+        <translation>Fermi la Monujon...</translation>
+    </message>
+    <message>
+        <source>Close wallet</source>
+        <translation>Fermi monujon</translation>
+    </message>
+    <message>
+        <source>Close All Wallets...</source>
+        <translation>Fermi Ĉiujn Monujojn...</translation>
+    </message>
+    <message>
+        <source>Close all wallets</source>
+        <translation>Fermi ĉiujn monujojn</translation>
+    </message>
+    <message>
+        <source>default wallet</source>
+        <translation>defaŭlta monujo</translation>
+    </message>
+    <message>
         <source>&amp;Window</source>
         <translation>&amp;Fenestro</translation>
     </message>
     <message>
+        <source>Zoom</source>
+        <translation>Zomi</translation>
+    </message>
+    <message>
+        <source>Main Window</source>
+        <translation>Ĉefa Fenestro</translation>
+    </message>
+    <message>
         <source>Catching up...</source>
         <translation>Ĝisdatigante...</translation>
+    </message>
+    <message>
+        <source>Error: %1</source>
+        <translation>Eraro: %1</translation>
+    </message>
+    <message>
+        <source>Warning: %1</source>
+        <translation>Averto: %1</translation>
     </message>
     <message>
         <source>Date: %1
@@ -403,6 +512,12 @@
         <source>Amount: %1
 </source>
         <translation>Sumo: %1
+</translation>
+    </message>
+    <message>
+        <source>Wallet: %1
+</source>
+        <translation>Monujo: %1
 </translation>
     </message>
     <message>
@@ -440,12 +555,20 @@
         <translation>Monujo estas &lt;b&gt;ĉifrita&lt;/b&gt; kaj aktuale &lt;b&gt;ŝlosita&lt;/b&gt;</translation>
     </message>
     <message>
-        <source>A fatal error occurred. Qtum can no longer continue safely and will quit.</source>
-        <translation>Okazis neriparebla eraro. Bitmono ne plu povas sekure daŭri, do ĝi sekure ĉesos.</translation>
+        <source>Original message:</source>
+        <translation>Originala mesaĝo:</translation>
+    </message>
+    <message>
+        <source>A fatal error occurred. %1 can no longer continue safely and will quit.</source>
+        <translation>Neriparebla eraro okazis. %1 ne plu sekure povas daŭri kaj ĝi ĉesiĝos.</translation>
     </message>
 </context>
 <context>
     <name>CoinControlDialog</name>
+    <message>
+        <source>Coin Selection</source>
+        <translation>Monero-Elektaĵo</translation>
+    </message>
     <message>
         <source>Quantity:</source>
         <translation>Kvanto:</translation>
@@ -585,9 +708,41 @@
 </context>
 <context>
     <name>CreateWalletActivity</name>
-    </context>
+    <message>
+        <source>Create wallet failed</source>
+        <translation>Krei monujon malsukcesis</translation>
+    </message>
+    <message>
+        <source>Create wallet warning</source>
+        <translation>Averto pro krei monujon</translation>
+    </message>
+</context>
 <context>
     <name>CreateWalletDialog</name>
+    <message>
+        <source>Create Wallet</source>
+        <translation>Krei Monujon</translation>
+    </message>
+    <message>
+        <source>Wallet Name</source>
+        <translation>Monujo-Nomo</translation>
+    </message>
+    <message>
+        <source>Encrypt Wallet</source>
+        <translation>Ĉifri Monujon</translation>
+    </message>
+    <message>
+        <source>Disable private keys for this wallet. Wallets with private keys disabled will have no private keys and cannot have an HD seed or imported private keys. This is ideal for watch-only wallets.</source>
+        <translation>Malebligi privatajn ŝlosilojn por ĉi tiu monujo. Monujoj kun malebligitaj privataj ŝlosiloj ne havos privatajn ŝlosilojn, kaj povas havi nek HD-semon nek importatajn privatajn ŝlosilojn. Ĉi tio estas ideale por nurspektaj monujoj.</translation>
+    </message>
+    <message>
+        <source>Disable Private Keys</source>
+        <translation>Malebligi Privatajn Ŝlosilojn</translation>
+    </message>
+    <message>
+        <source>Create</source>
+        <translation>Krei</translation>
+    </message>
     </context>
 <context>
     <name>EditAddressDialog</name>
@@ -625,7 +780,7 @@
     </message>
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source>
-        <translation>La adreso enigita "%1" ne estas valida Bitmon-adreso.</translation>
+        <translation>La adreso enigita "%1" ne estas valida Qtum-adreso.</translation>
     </message>
     <message>
         <source>Could not unlock wallet.</source>
@@ -666,6 +821,10 @@
         <translation>versio</translation>
     </message>
     <message>
+        <source>About %1</source>
+        <translation>Pri %1</translation>
+    </message>
+    <message>
         <source>Command-line options</source>
         <translation>Komandliniaj agordaĵoj</translation>
     </message>
@@ -677,6 +836,10 @@
         <translation>Bonvenon</translation>
     </message>
     <message>
+        <source>Welcome to %1.</source>
+        <translation>Bonvenon al %1.</translation>
+    </message>
+    <message>
         <source>Use the default data directory</source>
         <translation>Uzi la defaŭltan dosierujon por datumoj</translation>
     </message>
@@ -686,7 +849,7 @@
     </message>
     <message>
         <source>Qtum</source>
-        <translation>Bitmono</translation>
+        <translation>Qtumo</translation>
     </message>
     <message>
         <source>Error</source>
@@ -704,12 +867,44 @@
         <translation>Formularo</translation>
     </message>
     <message>
+        <source>Unknown...</source>
+        <translation>Nekonata...</translation>
+    </message>
+    <message>
         <source>Last block time</source>
         <translation>Horo de la lasta bloko</translation>
+    </message>
+    <message>
+        <source>Progress</source>
+        <translation>Progreso</translation>
+    </message>
+    <message>
+        <source>Progress increase per hour</source>
+        <translation>Hora pligrandigo da progreso</translation>
+    </message>
+    <message>
+        <source>calculating...</source>
+        <translation>kalkuladas...</translation>
+    </message>
+    <message>
+        <source>Hide</source>
+        <translation>Kaŝi</translation>
+    </message>
+    <message>
+        <source>Esc</source>
+        <translation>Esk</translation>
+    </message>
+    <message>
+        <source>%1 is currently syncing.  It will download headers and blocks from peers and validate them until reaching the tip of the block chain.</source>
+        <translation>%1 sinkronigadas. Ĝi elŝutos kapaĵojn kaj blokojn de samtavolanoj, kaj validigos ilin, ĝis ĝi atingas la pinton de la blokĉeno.</translation>
     </message>
     </context>
 <context>
     <name>OpenURIDialog</name>
+    <message>
+        <source>Open qtum URI</source>
+        <translation>Malfermi na la URI de qtumo</translation>
+    </message>
     <message>
         <source>URI:</source>
         <translation>URI:</translation>
@@ -717,7 +912,23 @@
 </context>
 <context>
     <name>OpenWalletActivity</name>
-    </context>
+    <message>
+        <source>Open wallet failed</source>
+        <translation>Malfermi monujon malsukcesis</translation>
+    </message>
+    <message>
+        <source>Open wallet warning</source>
+        <translation>Malfermi monujon averto</translation>
+    </message>
+    <message>
+        <source>default wallet</source>
+        <translation>defaŭlta monujo</translation>
+    </message>
+    <message>
+        <source>Opening Wallet &lt;b&gt;%1&lt;/b&gt;...</source>
+        <translation>Malfermadas Monujon &lt;b&gt;%1&lt;/b&gt;...</translation>
+    </message>
+</context>
 <context>
     <name>OptionsDialog</name>
     <message>
@@ -729,8 +940,24 @@
         <translation>Ĉ&amp;efa</translation>
     </message>
     <message>
+        <source>Automatically start %1 after logging in to the system.</source>
+        <translation>Aŭtomate komenci na %1 post ensalutis en la sistemon.</translation>
+    </message>
+    <message>
+        <source>&amp;Start %1 on system login</source>
+        <translation>&amp;Komenci na %1 kiam ensaluti en la sistemon</translation>
+    </message>
+    <message>
         <source>Size of &amp;database cache</source>
         <translation>Dosiergrando de &amp;datumbasa kaŝmemoro</translation>
+    </message>
+    <message>
+        <source>Number of script &amp;verification threads</source>
+        <translation>Kvanto da skriptaj kaj kontroleraraj fadenoj</translation>
+    </message>
+    <message>
+        <source>IP address of the proxy (e.g. IPv4: 127.0.0.1 / IPv6: ::1)</source>
+        <translation>IP-adreso de prokurilo (ekz. IPv4: 127.0.0.1 / IPv6: ::1)</translation>
     </message>
     <message>
         <source>Reset all client options to default.</source>
@@ -754,7 +981,7 @@
     </message>
     <message>
         <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Aŭtomate malfermi la kursilan pordon por Bitmono. Tio funkcias nur se via kursilo havas la UPnP-funkcion, kaj se tiu ĉi estas ŝaltita.</translation>
+        <translation>Aŭtomate malfermi la kursilan pordon por Qtumo. Tio funkcias nur se via kursilo havas la UPnP-funkcion, kaj se tiu ĉi estas ŝaltita.</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
@@ -810,7 +1037,7 @@
     </message>
     <message>
         <source>Choose the default subdivision unit to show in the interface and when sending coins.</source>
-        <translation>Elekti la defaŭltan manieron por montri bitmonajn sumojn en la interfaco, kaj kiam vi sendos bitmonon.</translation>
+        <translation>Elekti la defaŭltan manieron por montri qtumajn sumojn en la interfaco, kaj kiam vi sendos qtumon.</translation>
     </message>
     <message>
         <source>Whether to show coin control features or not.</source>
@@ -853,7 +1080,11 @@
     </message>
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
-        <translation>Eblas, ke la informoj videblaj ĉi tie estas eksdataj. Via monujo aŭtomate sinkoniĝas kun la bitmona reto kiam ili konektiĝas, sed tiu procezo ankoraŭ ne finfariĝis.</translation>
+        <translation>Eblas, ke la informoj videblaj ĉi tie estas eksdataj. Via monujo aŭtomate sinkoniĝas kun la qtuma reto kiam ili konektiĝas, sed tiu procezo ankoraŭ ne finfariĝis.</translation>
+    </message>
+    <message>
+        <source>Available:</source>
+        <translation>Disponebla:</translation>
     </message>
     <message>
         <source>Your current spendable balance</source>
@@ -890,6 +1121,25 @@
     <message>
         <source>Recent transactions</source>
         <translation>Lastaj transakcioj</translation>
+    </message>
+    </context>
+<context>
+    <name>PSBTOperationsDialog</name>
+    <message>
+        <source>Save...</source>
+        <translation>Konservi...</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Fermi</translation>
+    </message>
+    <message>
+        <source>Total Amount</source>
+        <translation>Totala Sumo</translation>
+    </message>
+    <message>
+        <source>or</source>
+        <translation>aŭ</translation>
     </message>
     </context>
 <context>
@@ -948,9 +1198,33 @@
         <source>N/A</source>
         <translation>neaplikebla</translation>
     </message>
+    <message numerus="yes">
+        <source>%n second(s)</source>
+        <translation><numerusform>%n sekundo</numerusform><numerusform>%n sekundoj</numerusform></translation>
+    </message>
+    <message numerus="yes">
+        <source>%n minute(s)</source>
+        <translation><numerusform>%n minuto</numerusform><numerusform>%n minutoj</numerusform></translation>
+    </message>
+    <message numerus="yes">
+        <source>%n hour(s)</source>
+        <translation><numerusform>%n horo</numerusform><numerusform>%n horoj</numerusform></translation>
+    </message>
+    <message numerus="yes">
+        <source>%n day(s)</source>
+        <translation><numerusform>%n tago</numerusform><numerusform>%n tagoj</numerusform></translation>
+    </message>
+    <message numerus="yes">
+        <source>%n week(s)</source>
+        <translation><numerusform>%n semajno</numerusform><numerusform>%n semajnoj</numerusform></translation>
+    </message>
     <message>
         <source>%1 and %2</source>
         <translation>%1 kaj %2</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n year(s)</source>
+        <translation><numerusform>%n jaro</numerusform><numerusform>%n jaroj</numerusform></translation>
     </message>
     <message>
         <source>%1 B</source>
@@ -971,6 +1245,10 @@
     <message>
         <source>Error: Specified data directory "%1" does not exist.</source>
         <translation>Eraro: la elektita dosierujo por datumoj "%1" ne ekzistas.</translation>
+    </message>
+    <message>
+        <source>Error: %1</source>
+        <translation>Eraro: %1</translation>
     </message>
     <message>
         <source>unknown</source>
@@ -1043,8 +1321,8 @@
         <translation>Blokĉeno</translation>
     </message>
     <message>
-        <source>Current number of blocks</source>
-        <translation>Aktuala nombro de blokoj</translation>
+        <source>Wallet: </source>
+        <translation>Monujo:</translation>
     </message>
     <message>
         <source>Received</source>
@@ -1110,7 +1388,35 @@
         <source>Clear console</source>
         <translation>Malplenigi konzolon</translation>
     </message>
-    </context>
+    <message>
+        <source>1 &amp;hour</source>
+        <translation>1 &amp;horo</translation>
+    </message>
+    <message>
+        <source>1 &amp;day</source>
+        <translation>1 &amp;tago</translation>
+    </message>
+    <message>
+        <source>1 &amp;week</source>
+        <translation>1 &amp;semajno</translation>
+    </message>
+    <message>
+        <source>1 &amp;year</source>
+        <translation>1 &amp;jaro</translation>
+    </message>
+    <message>
+        <source>&amp;Unban</source>
+        <translation>&amp;Malekzili</translation>
+    </message>
+    <message>
+        <source>never</source>
+        <translation>neniam</translation>
+    </message>
+    <message>
+        <source>Unknown</source>
+        <translation>Nekonata</translation>
+    </message>
+</context>
 <context>
     <name>ReceiveCoinsDialog</name>
     <message>
@@ -1153,12 +1459,32 @@
         <source>Copy amount</source>
         <translation>Kopii sumon</translation>
     </message>
-</context>
+    <message>
+        <source>Could not unlock wallet.</source>
+        <translation>Ne eblis malŝlosi monujon.</translation>
+    </message>
+    </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
-        <source>QR Code</source>
-        <translation>QR-kodo</translation>
+        <source>Address:</source>
+        <translation>Adreso:</translation>
+    </message>
+    <message>
+        <source>Amount:</source>
+        <translation>Sumo:</translation>
+    </message>
+    <message>
+        <source>Label:</source>
+        <translation>Etikedo:</translation>
+    </message>
+    <message>
+        <source>Message:</source>
+        <translation>Mesaĝo:</translation>
+    </message>
+    <message>
+        <source>Wallet:</source>
+        <translation>Monujo:</translation>
     </message>
     <message>
         <source>Copy &amp;URI</source>
@@ -1179,30 +1505,6 @@
     <message>
         <source>Payment information</source>
         <translation>Paginformoj</translation>
-    </message>
-    <message>
-        <source>URI</source>
-        <translation>URI</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Adreso</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>Sumo</translation>
-    </message>
-    <message>
-        <source>Label</source>
-        <translation>Etikedo</translation>
-    </message>
-    <message>
-        <source>Message</source>
-        <translation>Mesaĝo</translation>
-    </message>
-    <message>
-        <source>Wallet</source>
-        <translation>Monujo</translation>
     </message>
 </context>
 <context>
@@ -1232,7 +1534,7 @@
     <name>SendCoinsDialog</name>
     <message>
         <source>Send Coins</source>
-        <translation>Sendi Bitmonon</translation>
+        <translation>Sendi Qtumon</translation>
     </message>
     <message>
         <source>Coin Control Features</source>
@@ -1273,6 +1575,10 @@
     <message>
         <source>Transaction Fee:</source>
         <translation>Krompago:</translation>
+    </message>
+    <message>
+        <source>Hide</source>
+        <translation>Kaŝi</translation>
     </message>
     <message>
         <source>Send to multiple recipients at once</source>
@@ -1351,8 +1657,16 @@
         <translation>Krompago</translation>
     </message>
     <message>
+        <source>Total Amount</source>
+        <translation>Totala Sumo</translation>
+    </message>
+    <message>
         <source>Confirm send coins</source>
-        <translation>Konfirmi sendon de bitmono</translation>
+        <translation>Konfirmi sendon de qtumo</translation>
+    </message>
+    <message>
+        <source>Send</source>
+        <translation>Sendi</translation>
     </message>
     <message>
         <source>The amount to pay must be larger than 0.</source>
@@ -1372,7 +1686,7 @@
     </message>
     <message>
         <source>Warning: Invalid Qtum address</source>
-        <translation>Averto: Nevalida Bitmon-adreso</translation>
+        <translation>Averto: Nevalida Qtum-adreso</translation>
     </message>
     <message>
         <source>(no label)</source>
@@ -1477,7 +1791,7 @@
     </message>
     <message>
         <source>Sign the message to prove you own this Qtum address</source>
-        <translation>Subskribi la mesaĝon por pravigi, ke vi estas la posedanto de tiu Bitmon-adreso</translation>
+        <translation>Subskribi la mesaĝon por pravigi, ke vi estas la posedanto de tiu Qtum-adreso</translation>
     </message>
     <message>
         <source>Sign &amp;Message</source>
@@ -1497,7 +1811,7 @@
     </message>
     <message>
         <source>Verify the message to ensure it was signed with the specified Qtum address</source>
-        <translation>Kontroli la mesaĝon por pravigi, ke ĝi ja estas subskribita per la specifa Bitmon-adreso</translation>
+        <translation>Kontroli la mesaĝon por pravigi, ke ĝi ja estas subskribita per la specifa Qtum-adreso</translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
@@ -1888,17 +2202,33 @@
     </context>
 <context>
     <name>WalletController</name>
+    <message>
+        <source>Close wallet</source>
+        <translation>Fermi monujon</translation>
+    </message>
+    <message>
+        <source>Close all wallets</source>
+        <translation>Fermi ĉiujn monujojn</translation>
+    </message>
     </context>
 <context>
     <name>WalletFrame</name>
-    </context>
+    <message>
+        <source>Create a new wallet</source>
+        <translation>Krei novan monujon</translation>
+    </message>
+</context>
 <context>
     <name>WalletModel</name>
     <message>
         <source>Send Coins</source>
-        <translation>Sendi Bitmonon</translation>
+        <translation>Sendi Qtumon</translation>
     </message>
-    </context>
+    <message>
+        <source>default wallet</source>
+        <translation>defaŭlta monujo</translation>
+    </message>
+</context>
 <context>
     <name>WalletView</name>
     <message>
@@ -1908,6 +2238,10 @@
     <message>
         <source>Export the data in the current tab to a file</source>
         <translation>Eksporti la datumojn el la aktuala langeto al dosiero</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Eraro</translation>
     </message>
     <message>
         <source>Backup Wallet</source>

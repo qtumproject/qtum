@@ -3,7 +3,7 @@
     <name>AddressBookPage</name>
     <message>
         <source>Right-click to edit address or label</source>
-        <translation>Feu clic dret per a editar l'adreça o l'etiqueta</translation>
+        <translation>Feu clic al botó dret per a editar l'adreça o l'etiqueta</translation>
     </message>
     <message>
         <source>Create a new address</source>
@@ -23,7 +23,7 @@
     </message>
     <message>
         <source>C&amp;lose</source>
-        <translation>&amp;Tanca</translation>
+        <translation>T&amp;anca</translation>
     </message>
     <message>
         <source>Delete the currently selected address from the list</source>
@@ -70,8 +70,10 @@
         <translation>Aquestes són les vostres adreces de Qtum per enviar els pagaments. Sempre reviseu l'import i l'adreça del destinatari abans de transferir monedes.</translation>
     </message>
     <message>
-        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.</source>
-        <translation>Aquestes són les teves adreces Qtum per rebre pagaments. Utilitza el botó "Crear nova adreça de recepció" de la pestanya de recepció per crear noves adreces.</translation>
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+Signing is only possible with addresses of the type 'legacy'.</source>
+        <translation>Aquestes son les teves adreces de Qtum per rebre pagaments. Utilitza el botó "Crear nova adreça de recepció" de la pestanya de recepció per crear una nova adreça.
+Només és possible firmar amb adreces del tipus "legacy".</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -189,7 +191,7 @@
     </message>
     <message>
         <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
-        <translation>Recorda que tot i xifrant la teva cartera, els teus qtums no estan completament protegits de robatori a través de programari maliciós que està infectant el teu ordinador.</translation>
+        <translation>Recorda que tot i xifrant la teva cartera, els teus qtums no estan completament protegits de robatori a través de programari maliciós que estigui infectant el teu ordinador.</translation>
     </message>
     <message>
         <source>Wallet to be encrypted</source>
@@ -291,7 +293,7 @@
     </message>
     <message>
         <source>Show information about %1</source>
-        <translation>Mosta informació sobre el %1</translation>
+        <translation>Mostra informació sobre el %1</translation>
     </message>
     <message>
         <source>About &amp;Qt</source>
@@ -482,6 +484,22 @@
         <translation>Actualitzat</translation>
     </message>
     <message>
+        <source>&amp;Load PSBT from file...</source>
+        <translation>&amp;Carrega el PSBT des del fitxer ...</translation>
+    </message>
+    <message>
+        <source>Load Partially Signed Qtum Transaction</source>
+        <translation>Carrega la transacció Qtum signada parcialment</translation>
+    </message>
+    <message>
+        <source>Load PSBT from clipboard...</source>
+        <translation>Carrega PSBT des del porta-retalls ...</translation>
+    </message>
+    <message>
+        <source>Load Partially Signed Qtum Transaction from clipboard</source>
+        <translation>Carrega la transacció de Qtum signada parcialment des del porta-retalls</translation>
+    </message>
+    <message>
         <source>Node window</source>
         <translation>Finestra node</translation>
     </message>
@@ -507,7 +525,7 @@
     </message>
     <message>
         <source>Open a wallet</source>
-        <translation>Obre la cartera</translation>
+        <translation>Obre una cartera</translation>
     </message>
     <message>
         <source>Close Wallet...</source>
@@ -518,8 +536,24 @@
         <translation>Tanca la cartera</translation>
     </message>
     <message>
+        <source>Close All Wallets...</source>
+        <translation>Tanca totes les carteres ...</translation>
+    </message>
+    <message>
+        <source>Close all wallets</source>
+        <translation>Tanqueu totes les carteres</translation>
+    </message>
+    <message>
         <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
         <translation>Mostra el missatge d'ajuda del %1 per obtenir una llista amb les possibles opcions de línia d'ordres de Qtum</translation>
+    </message>
+    <message>
+        <source>&amp;Mask values</source>
+        <translation>&amp;Emmascara els valors</translation>
+    </message>
+    <message>
+        <source>Mask the values in the Overview tab</source>
+        <translation>Emmascara els valors en la pestanya Visió general</translation>
     </message>
     <message>
         <source>default wallet</source>
@@ -630,8 +664,12 @@
         <translation>La cartera està &lt;b&gt;encriptada&lt;/b&gt; i actualment &lt;b&gt;blocada&lt;/b&gt;</translation>
     </message>
     <message>
-        <source>A fatal error occurred. Qtum can no longer continue safely and will quit.</source>
-        <translation>S'ha produït un error fatal. Qtum no pot continuar amb seguretat i finalitzarà.</translation>
+        <source>Original message:</source>
+        <translation>Missatge original:</translation>
+    </message>
+    <message>
+        <source>A fatal error occurred. %1 can no longer continue safely and will quit.</source>
+        <translation>S'ha produït un error fatal. %1 ja no pot continuar amb seguretat i sortirà.</translation>
     </message>
 </context>
 <context>
@@ -836,8 +874,20 @@ Això és ideal per a carteres de mode només lectura.</translation>
         <translation>Fes cartera en blanc</translation>
     </message>
     <message>
+        <source>Use descriptors for scriptPubKey management</source>
+        <translation>Utilitzeu descriptors per a la gestió de scriptPubKey</translation>
+    </message>
+    <message>
+        <source>Descriptor Wallet</source>
+        <translation>Cartera del descriptor</translation>
+    </message>
+    <message>
         <source>Create</source>
         <translation>Crear</translation>
+    </message>
+    <message>
+        <source>Compiled without sqlite support (required for descriptor wallets)</source>
+        <translation>Compilat sense el suport sqlite (requerit per carteres descriptor)</translation>
     </message>
 </context>
 <context>
@@ -945,7 +995,7 @@ Això és ideal per a carteres de mode només lectura.</translation>
     </message>
     <message>
         <source>As this is the first time the program is launched, you can choose where %1 will store its data.</source>
-        <translation>Com és la primera vegada que s'executa el programa, podeu triar on %1 emmagatzemarà les dades.</translation>
+        <translation>Com és la primera vegada que s'executa el programa, podeu triar on %1 emmagatzemaran les dades.</translation>
     </message>
     <message>
         <source>When you click OK, %1 will begin to download and process the full %4 block chain (%2GB) starting with the earliest transactions in %3 when %4 initially launched.</source>
@@ -1140,10 +1190,6 @@ Això és ideal per a carteres de mode només lectura.</translation>
         <translation>Mostra si el proxy SOCKS5 predeterminat subministrat s'utilitza per arribar a altres nodes a través d'aquest tipus de xarxa.</translation>
     </message>
     <message>
-        <source>Use separate SOCKS&amp;5 proxy to reach peers via Tor hidden services:</source>
-        <translation>Usi un proxy SOCKS&amp;5 separat per connectar amb nodes a través dels serveis ocults de Tor:</translation>
-    </message>
-    <message>
         <source>Hide the icon from the system tray.</source>
         <translation>Amaga la icona de la safata del sistema</translation>
     </message>
@@ -1276,10 +1322,6 @@ Això és ideal per a carteres de mode només lectura.</translation>
         <translation>Tor</translation>
     </message>
     <message>
-        <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor hidden services.</source>
-        <translation>Conectar a la red de Qtum a través de un proxy SOCKS5 per als serveis ocults de Tor</translation>
-    </message>
-    <message>
         <source>&amp;Window</source>
         <translation>&amp;Finestra</translation>
     </message>
@@ -1318,6 +1360,14 @@ Això és ideal per a carteres de mode només lectura.</translation>
     <message>
         <source>Whether to show coin control features or not.</source>
         <translation>Si voleu mostrar les funcions de control de monedes o no.</translation>
+    </message>
+    <message>
+        <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor onion services.</source>
+        <translation>Connecteu-vos a la xarxa Qtum mitjançant un servidor intermediari SOCKS5 separat per als serveis de ceba Tor.</translation>
+    </message>
+    <message>
+        <source>Use separate SOCKS&amp;5 proxy to reach peers via Tor onion services:</source>
+        <translation>Utilitzeu el servidor intermediari SOCKS&amp;5 per arribar als peers mitjançant els serveis d'onion de Tor:</translation>
     </message>
     <message>
         <source>&amp;Third party transaction URLs</source>
@@ -1453,6 +1503,129 @@ Això és ideal per a carteres de mode només lectura.</translation>
     <message>
         <source>Current total balance in watch-only addresses</source>
         <translation>Balanç total actual en adreces de només lectura</translation>
+    </message>
+    <message>
+        <source>Privacy mode activated for the Overview tab. To unmask the values, uncheck Settings-&gt;Mask values.</source>
+        <translation>El mode de privadesa està activat a la pestanya d'Overview. Per desenmascarar els valors, desmarqueu Configuració-&gt; Valors de màscara.</translation>
+    </message>
+</context>
+<context>
+    <name>PSBTOperationsDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation>Diàleg</translation>
+    </message>
+    <message>
+        <source>Sign Tx</source>
+        <translation>Signa Tx</translation>
+    </message>
+    <message>
+        <source>Broadcast Tx</source>
+        <translation>Emet Tx</translation>
+    </message>
+    <message>
+        <source>Copy to Clipboard</source>
+        <translation>Còpia al Clipboard</translation>
+    </message>
+    <message>
+        <source>Save...</source>
+        <translation>Desa...</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Tanca</translation>
+    </message>
+    <message>
+        <source>Failed to load transaction: %1</source>
+        <translation>Ha fallat la càrrega de la transacció: %1</translation>
+    </message>
+    <message>
+        <source>Failed to sign transaction: %1</source>
+        <translation>Ha fallat la firma de la transacció: %1</translation>
+    </message>
+    <message>
+        <source>Could not sign any more inputs.</source>
+        <translation>No s'han pogut firmar més entrades.</translation>
+    </message>
+    <message>
+        <source>Signed %1 inputs, but more signatures are still required.</source>
+        <translation>Firmades %1 entrades, però encara es requereixen més firmes.</translation>
+    </message>
+    <message>
+        <source>Signed transaction successfully. Transaction is ready to broadcast.</source>
+        <translation>La transacció s'ha firmat correctament. La transacció està a punt per emetre's.</translation>
+    </message>
+    <message>
+        <source>Unknown error processing transaction.</source>
+        <translation>Error desconnegut al processar la transacció.</translation>
+    </message>
+    <message>
+        <source>Transaction broadcast failed: %1</source>
+        <translation>L'emissió de la transacció ha fallat: %1</translation>
+    </message>
+    <message>
+        <source>PSBT copied to clipboard.</source>
+        <translation>PSBT copiada al porta-retalls.</translation>
+    </message>
+    <message>
+        <source>Save Transaction Data</source>
+        <translation>Guarda Dades de Transacció</translation>
+    </message>
+    <message>
+        <source>Partially Signed Transaction (Binary) (*.psbt)</source>
+        <translation>Transacció Parcialment Firmada (Binari) (*.psbt)</translation>
+    </message>
+    <message>
+        <source>PSBT saved to disk.</source>
+        <translation>PSBT guardada al disc.</translation>
+    </message>
+    <message>
+        <source> * Sends %1 to %2</source>
+        <translation>*Envia %1 a %2</translation>
+    </message>
+    <message>
+        <source>Unable to calculate transaction fee or total transaction amount.</source>
+        <translation>Incapaç de calcular la comissió de transacció o la quantitat total de la transacció</translation>
+    </message>
+    <message>
+        <source>Pays transaction fee: </source>
+        <translation>Paga comissió de transacció:</translation>
+    </message>
+    <message>
+        <source>Total Amount</source>
+        <translation>Import total</translation>
+    </message>
+    <message>
+        <source>or</source>
+        <translation>o</translation>
+    </message>
+    <message>
+        <source>Transaction has %1 unsigned inputs.</source>
+        <translation>La transacció té %1 entrades no firmades.</translation>
+    </message>
+    <message>
+        <source>Transaction is missing some information about inputs.</source>
+        <translation>La transacció manca d'informació en algunes entrades.</translation>
+    </message>
+    <message>
+        <source>Transaction still needs signature(s).</source>
+        <translation>La transacció encara necessita una o vàries firmes.</translation>
+    </message>
+    <message>
+        <source>(But this wallet cannot sign transactions.)</source>
+        <translation>(Però aquesta cartera no pot firmar transaccions.)</translation>
+    </message>
+    <message>
+        <source>(But this wallet does not have the right keys.)</source>
+        <translation>(Però aquesta cartera no té les claus correctes.)</translation>
+    </message>
+    <message>
+        <source>Transaction is fully signed and ready for broadcast.</source>
+        <translation>La transacció està completament firmada i a punt per emetre's.</translation>
+    </message>
+    <message>
+        <source>Transaction status is unknown.</source>
+        <translation>L'estat de la transacció és desconegut.</translation>
     </message>
 </context>
 <context>
@@ -1620,6 +1793,10 @@ Això és ideal per a carteres de mode només lectura.</translation>
         <translation>Avís: %1</translation>
     </message>
     <message>
+        <source>Error initializing settings: %1</source>
+        <translation>Error a l'inicialitzar la configuració: %1</translation>
+    </message>
+    <message>
         <source>%1 didn't yet exit safely...</source>
         <translation>%1 encara no ha finalitzat de manera segura...</translation>
     </message>
@@ -1718,10 +1895,6 @@ Això és ideal per a carteres de mode només lectura.</translation>
         <translation>Cadena de blocs</translation>
     </message>
     <message>
-        <source>Current number of blocks</source>
-        <translation>Nombre de blocs actuals</translation>
-    </message>
-    <message>
         <source>Memory Pool</source>
         <translation>Reserva de memòria</translation>
     </message>
@@ -1766,10 +1939,6 @@ Això és ideal per a carteres de mode només lectura.</translation>
         <translation>Seleccioneu un igual per mostrar informació detallada.</translation>
     </message>
     <message>
-        <source>Whitelisted</source>
-        <translation>A la llista blanca</translation>
-    </message>
-    <message>
         <source>Direction</source>
         <translation>Direcció</translation>
     </message>
@@ -1806,6 +1975,10 @@ Això és ideal per a carteres de mode només lectura.</translation>
         <translation>Finestra node</translation>
     </message>
     <message>
+        <source>Current block height</source>
+        <translation>Altura actual de bloc</translation>
+    </message>
+    <message>
         <source>Open the %1 debug log file from the current data directory. This can take a few seconds for large log files.</source>
         <translation>Obre el fitxer de registre de depuració %1 del directori de dades actual. Això pot trigar uns segons en fitxers de registre grans.</translation>
     </message>
@@ -1818,12 +1991,12 @@ Això és ideal per a carteres de mode només lectura.</translation>
         <translation>Augmenta la mida de la lletra</translation>
     </message>
     <message>
-        <source>Services</source>
-        <translation>Serveis</translation>
+        <source>Permissions</source>
+        <translation>Permisos</translation>
     </message>
     <message>
-        <source>Ban Score</source>
-        <translation>Puntuació de bandeig</translation>
+        <source>Services</source>
+        <translation>Serveis</translation>
     </message>
     <message>
         <source>Connection Time</source>
@@ -1974,14 +2147,6 @@ Això és ideal per a carteres de mode només lectura.</translation>
         <translation>Sortint</translation>
     </message>
     <message>
-        <source>Yes</source>
-        <translation>Sí</translation>
-    </message>
-    <message>
-        <source>No</source>
-        <translation>No</translation>
-    </message>
-    <message>
         <source>Unknown</source>
         <translation>Desconegut</translation>
     </message>
@@ -2080,12 +2245,40 @@ Això és ideal per a carteres de mode només lectura.</translation>
         <source>Copy amount</source>
         <translation>Copia l'import</translation>
     </message>
+    <message>
+        <source>Could not unlock wallet.</source>
+        <translation>No s'ha pogut desblocar la cartera.</translation>
+    </message>
+    <message>
+        <source>Could not generate new %1 address</source>
+        <translation>No s'ha pogut generar una nova %1 direcció</translation>
+    </message>
 </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
-        <source>QR Code</source>
-        <translation>Codi QR</translation>
+        <source>Request payment to ...</source>
+        <translation>Sol·licita el pagament a ...</translation>
+    </message>
+    <message>
+        <source>Address:</source>
+        <translation>Direcció:</translation>
+    </message>
+    <message>
+        <source>Amount:</source>
+        <translation>Import:</translation>
+    </message>
+    <message>
+        <source>Label:</source>
+        <translation>Etiqueta:</translation>
+    </message>
+    <message>
+        <source>Message:</source>
+        <translation>Missatge:</translation>
+    </message>
+    <message>
+        <source>Wallet:</source>
+        <translation>Moneder:</translation>
     </message>
     <message>
         <source>Copy &amp;URI</source>
@@ -2106,30 +2299,6 @@ Això és ideal per a carteres de mode només lectura.</translation>
     <message>
         <source>Payment information</source>
         <translation>Informació de pagament</translation>
-    </message>
-    <message>
-        <source>URI</source>
-        <translation>URI</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Adreça</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>Import</translation>
-    </message>
-    <message>
-        <source>Label</source>
-        <translation>Etiqueta</translation>
-    </message>
-    <message>
-        <source>Message</source>
-        <translation>Missatge</translation>
-    </message>
-    <message>
-        <source>Wallet</source>
-        <translation>Cartera</translation>
     </message>
 </context>
 <context>
@@ -2378,8 +2547,20 @@ Nota: Com que la comissió es calcula en funció dels bytes, una comissió de "1
         <translation>Esteu segur que ho voleu enviar?</translation>
     </message>
     <message>
-        <source>Please, review your transaction proposal. This will produce a Partially Signed Bitcoin Transaction (PSBT) which you can copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
-        <translation>Revisa la teva proposta de transacció. Es produirà una transacció de Bitcoin amb signatura parcial (PSBT) que podeu copiar i després signar, per exemple, amb una cartera %1 de tipus fora de línia o una cartera física compatible amb PSBT.</translation>
+        <source>Create Unsigned</source>
+        <translation>Creació sense firmar</translation>
+    </message>
+    <message>
+        <source>Save Transaction Data</source>
+        <translation>Guarda Dades de Transacció</translation>
+    </message>
+    <message>
+        <source>Partially Signed Transaction (Binary) (*.psbt)</source>
+        <translation>Transacció Parcialment Firmada (Binari) (*.psbt)</translation>
+    </message>
+    <message>
+        <source>PSBT saved</source>
+        <translation>PSBT guardada</translation>
     </message>
     <message>
         <source>or</source>
@@ -2388,6 +2569,10 @@ Nota: Com que la comissió es calcula en funció dels bytes, una comissió de "1
     <message>
         <source>You can increase the fee later (signals Replace-By-Fee, BIP-125).</source>
         <translation>Pot incrementar la comissió més tard (senyala Replace-By-Fee o substitució per comissió, BIP-125).</translation>
+    </message>
+    <message>
+        <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <translation>Si us plau, revisa la teva proposta de transacció. Es produirà una transacció de Qtum amb firma parcial (PSBT) que podeu guardar o copiar i després firmar, per exemple, amb una cartera %1, o amb una cartera física compatible amb PSBT.</translation>
     </message>
     <message>
         <source>Please, review your transaction.</source>
@@ -2418,16 +2603,8 @@ Nota: Com que la comissió es calcula en funció dels bytes, una comissió de "1
         <translation>Confirmeu la proposta de transacció</translation>
     </message>
     <message>
-        <source>Copy PSBT to clipboard</source>
-        <translation>Copiar PSBT al porta-retalls.</translation>
-    </message>
-    <message>
         <source>Send</source>
         <translation>Enviar</translation>
-    </message>
-    <message>
-        <source>PSBT copied</source>
-        <translation>PSBT copiada</translation>
     </message>
     <message>
         <source>Watch-only balance:</source>
@@ -3211,12 +3388,28 @@ Nota: Com que la comissió es calcula en funció dels bytes, una comissió de "1
         <source>Closing the wallet for too long can result in having to resync the entire chain if pruning is enabled.</source>
         <translation>Si tanqueu la cartera durant massa temps, es pot haver de tornar a sincronitzar tota la cadena si teniu el sistema de poda habilitat.</translation>
     </message>
+    <message>
+        <source>Close all wallets</source>
+        <translation>Tanqueu totes les carteres</translation>
+    </message>
+    <message>
+        <source>Are you sure you wish to close all wallets?</source>
+        <translation>Esteu segur que voleu tancar totes les carteres?</translation>
+    </message>
 </context>
 <context>
     <name>WalletFrame</name>
     <message>
-        <source>No wallet has been loaded.</source>
-        <translation>No s'ha carregat cap cartera.</translation>
+        <source>No wallet has been loaded.
+Go to File &gt; Open Wallet to load a wallet.
+- OR -</source>
+        <translation>No s'ha carregat cap cartera. 
+Ves a Arxiu &gt; Obrir Cartera per a carregar cartera. 
+- O -</translation>
+    </message>
+    <message>
+        <source>Create a new wallet</source>
+        <translation>Crear una nova cartera</translation>
     </message>
 </context>
 <context>
@@ -3289,6 +3482,30 @@ Nota: Com que la comissió es calcula en funció dels bytes, una comissió de "1
         <translation>Exporta les dades de la pestanya actual a un fitxer</translation>
     </message>
     <message>
+        <source>Error</source>
+        <translation>Error</translation>
+    </message>
+    <message>
+        <source>Unable to decode PSBT from clipboard (invalid base64)</source>
+        <translation>Incapaç de descodificar la PSBT del porta-retalls (base64 invàlida)</translation>
+    </message>
+    <message>
+        <source>Load Transaction Data</source>
+        <translation>Carrega dades de transacció</translation>
+    </message>
+    <message>
+        <source>Partially Signed Transaction (*.psbt)</source>
+        <translation>Transacció Parcialment Firmada (*.psbt)</translation>
+    </message>
+    <message>
+        <source>PSBT file must be smaller than 100 MiB</source>
+        <translation>L'arxiu PSBT ha de ser més petit que 100MiB</translation>
+    </message>
+    <message>
+        <source>Unable to decode PSBT</source>
+        <translation>Incapaç de descodificar la PSBT</translation>
+    </message>
+    <message>
         <source>Backup Wallet</source>
         <translation>Còpia de seguretat de la cartera</translation>
     </message>
@@ -3332,10 +3549,6 @@ Nota: Com que la comissió es calcula en funció dels bytes, una comissió de "1
         <translation>Poda: la darrera sincronització de la cartera va més enllà de les dades podades. Cal que activeu -reindex (baixeu tota la cadena de blocs de nou en cas de node podat)</translation>
     </message>
     <message>
-        <source>Error: A fatal internal error occurred, see debug.log for details</source>
-        <translation>Error: s'ha produït un error intern fatal. Vegeu debug.log per a més detalls</translation>
-    </message>
-    <message>
         <source>Pruning blockstore...</source>
         <translation>S'està podant la cadena de blocs...</translation>
     </message>
@@ -3346,10 +3559,6 @@ Nota: Com que la comissió es calcula en funció dels bytes, una comissió de "1
     <message>
         <source>The %s developers</source>
         <translation>Els desenvolupadors %s</translation>
-    </message>
-    <message>
-        <source>Can't generate a change-address key. No keys in the internal keypool and can't generate any keys.</source>
-        <translation>No es pot generar una clau d’adreça de canvi. No hi ha claus al keypool intern i no es pot generar cap clau.</translation>
     </message>
     <message>
         <source>Cannot obtain a lock on data directory %s. %s is probably already running.</source>
@@ -3364,12 +3573,28 @@ Nota: Com que la comissió es calcula en funció dels bytes, una comissió de "1
         <translation>S'ha produït un error en llegir %s. Totes les claus es llegeixen correctament, però les dades de la transacció o les entrades de la llibreta d'adreces podrien faltar o ser incorrectes.</translation>
     </message>
     <message>
+        <source>More than one onion bind address is provided. Using %s for the automatically created Tor onion service.</source>
+        <translation> Es proporciona més d'una adreça de vinculació. Utilitzant %s pel servei Tor onion automàticament creat.</translation>
+    </message>
+    <message>
         <source>Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly.</source>
         <translation>Comproveu que la data i hora de l'ordinador són correctes. Si el rellotge és incorrecte, %s no funcionarà correctament.</translation>
     </message>
     <message>
         <source>Please contribute if you find %s useful. Visit %s for further information about the software.</source>
         <translation>Contribueix si trobes %s útil. Visita %s per obtenir més informació sobre el programari.</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Failed to prepare the statement to fetch sqlite wallet schema version: %s</source>
+        <translation>SQLiteDatabase: No s'ha pogut preparar la sentència per obtenir la versió de l'esquema de la cartera sqlite: %s</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Failed to prepare the statement to fetch the application id: %s</source>
+        <translation>SQLiteDatabase: No s'ha pogut preparar la sentència per obtenir l'identificador de l'aplicació: %s</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Unknown sqlite wallet schema version %d. Only version %d is supported</source>
+        <translation>SQLiteDatabase: esquema de cartera sqlite de versió %d desconegut. Només és compatible la versió %d</translation>
     </message>
     <message>
         <source>The block database contains a block which appears to be from the future. This may be due to your computer's date and time being set incorrectly. Only rebuild the block database if you are sure that your computer's date and time are correct</source>
@@ -3398,14 +3623,6 @@ Nota: Com que la comissió es calcula en funció dels bytes, una comissió de "1
     <message>
         <source>Warning: We do not appear to fully agree with our peers! You may need to upgrade, or other nodes may need to upgrade.</source>
         <translation>Avís: sembla que no estem plenament d'acord amb els nostres iguals! Podria caler que actualitzar l'aplicació, o potser que ho facin altres nodes.</translation>
-    </message>
-    <message>
-        <source>%d of last 100 blocks have unexpected version</source>
-        <translation>%d dels últims 100 blocs tenen una versió inesperada</translation>
-    </message>
-    <message>
-        <source>%s corrupt, salvage failed</source>
-        <translation>%s està malmès, el rescat de les dades ha fallat</translation>
     </message>
     <message>
         <source>-maxmempool must be at least %d MB</source>
@@ -3484,6 +3701,14 @@ Nota: Com que la comissió es calcula en funció dels bytes, una comissió de "1
         <translation>No s'ha pogut escanejar novament la cartera durant la inicialització</translation>
     </message>
     <message>
+        <source>Failed to verify database</source>
+        <translation>Ha fallat la verificació de la base de dades</translation>
+    </message>
+    <message>
+        <source>Ignoring duplicate -wallet %s.</source>
+        <translation>Ignorant -cartera duplicada %s.</translation>
+    </message>
+    <message>
         <source>Importing...</source>
         <translation>S'està important...</translation>
     </message>
@@ -3512,6 +3737,30 @@ Nota: Com que la comissió es calcula en funció dels bytes, una comissió de "1
         <translation>Import invàlid per -fallbackfee=&lt;amount&gt;: '%s'</translation>
     </message>
     <message>
+        <source>SQLiteDatabase: Failed to execute statement to verify database: %s</source>
+        <translation>SQLiteDatabase: No s'ha pogut executar la sentència per verificar la base de dades: %s</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Failed to fetch sqlite wallet schema version: %s</source>
+        <translation>SQLiteDatabase: No s'ha pogut obtenir la versió d'esquema de cartera sqlite: %s</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Failed to fetch the application id: %s</source>
+        <translation>SQLiteDatabase: No s'ha pogut obtenir l'identificador de l'aplicació: %s</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Failed to prepare statement to verify database: %s</source>
+        <translation>SQLiteDatabase: No s'ha pogut preparar la sentència per verificar la base de dades: %s</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Failed to read database verification error: %s</source>
+        <translation>SQLiteDatabase: ha fallat la lectura de la base de dades. Error de verificació: %s</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Unexpected application id. Expected %u, got %u</source>
+        <translation>SQLiteDatabase: Identificador d’aplicació inesperat. S'esperava %u, s'ha obtingut  %u</translation>
+    </message>
+    <message>
         <source>Specified blocks directory "%s" does not exist.</source>
         <translation>El directori de blocs especificat "%s" no existeix.</translation>
     </message>
@@ -3530,10 +3779,6 @@ Nota: Com que la comissió es calcula en funció dels bytes, una comissió de "1
     <message>
         <source>Loading P2P addresses...</source>
         <translation>S'estan carregant les adreces P2P ...</translation>
-    </message>
-    <message>
-        <source>Error: Disk space is too low!</source>
-        <translation>Error: l'espai del disc és insuficient.</translation>
     </message>
     <message>
         <source>Loading banlist...</source>
@@ -3600,6 +3845,14 @@ Nota: Com que la comissió es calcula en funció dels bytes, una comissió de "1
         <translation>Error: ha fallat escoltar les connexions entrants (l'escoltament ha retornat l'error %s)</translation>
     </message>
     <message>
+        <source>%s corrupt. Try using the wallet tool qtum-wallet to salvage or restoring a backup.</source>
+        <translation>%s està malmès. Proveu d’utilitzar l’eina qtum-wallet per recuperar o restaurar una còpia de seguretat.</translation>
+    </message>
+    <message>
+        <source>Cannot upgrade a non HD split wallet without upgrading to support pre split keypool. Please use version 169900 or no version specified.</source>
+        <translation>No es pot actualitzar una cartera dividida que no sigui HD sense actualitzar-la per donar suport al grup de claus previ a la divisió. Utilitzeu la versió 169900 o no especificar-ne cap.</translation>
+    </message>
+    <message>
         <source>Invalid amount for -maxtxfee=&lt;amount&gt;: '%s' (must be at least the minrelay fee of %s to prevent stuck transactions)</source>
         <translation>Import no vàlid per a -maxtxfee=&lt;amount&gt;: '%s' (cal que sigui com a mínim la comissió de minrelay de %s per evitar que les comissions s'encallin)</translation>
     </message>
@@ -3608,8 +3861,32 @@ Nota: Com que la comissió es calcula en funció dels bytes, una comissió de "1
         <translation>L'import de la transacció és massa petit per enviar-la després que se'n dedueixi la comissió</translation>
     </message>
     <message>
+        <source>This error could occur if this wallet was not shutdown cleanly and was last loaded using a build with a newer version of Berkeley DB. If so, please use the software that last loaded this wallet</source>
+        <translation>Aquest error es podria produir si la cartera no es va tancar netament i es va carregar per última vegada mitjançant una més nova de Berkeley DB. Si és així, utilitzeu el programari que va carregar aquesta cartera per última vegada</translation>
+    </message>
+    <message>
+        <source>This is the maximum transaction fee you pay (in addition to the normal fee) to prioritize partial spend avoidance over regular coin selection.</source>
+        <translation>Aquesta és la comissió màxima de transacció que pagueu (a més de la tarifa normal) per prioritzar l'evitació parcial de la despesa per sobre de la selecció regular de monedes.</translation>
+    </message>
+    <message>
+        <source>Transaction needs a change address, but we can't generate it. Please call keypoolrefill first.</source>
+        <translation>La transacció necessita una adreça de canvi, però no la podem generar. Si us plau, visiteu primer a keypoolrefill.</translation>
+    </message>
+    <message>
         <source>You need to rebuild the database using -reindex to go back to unpruned mode.  This will redownload the entire blockchain</source>
         <translation>Cal que torneu a construir la base de dades fent servir -reindex per tornar al mode no podat. Això tornarà a baixar la cadena de blocs sencera</translation>
+    </message>
+    <message>
+        <source>A fatal internal error occurred, see debug.log for details</source>
+        <translation>S'ha produït un error intern fatal. Consulteu debug.log per a més detalls</translation>
+    </message>
+    <message>
+        <source>Cannot set -peerblockfilters without -blockfilterindex.</source>
+        <translation>No es poden configurar -peerblockfilters sense -blockfilterindex.</translation>
+    </message>
+    <message>
+        <source>Disk space is too low!</source>
+        <translation>L'espai de disc és insuficient!</translation>
     </message>
     <message>
         <source>Error reading from database, shutting down.</source>
@@ -3622,6 +3899,14 @@ Nota: Com que la comissió es calcula en funció dels bytes, una comissió de "1
     <message>
         <source>Error: Disk space is low for %s</source>
         <translation>Error: l'espai del disc és insuficient per a %s</translation>
+    </message>
+    <message>
+        <source>Error: Keypool ran out, please call keypoolrefill first</source>
+        <translation>Error: Keypool s’ha esgotat. Visiteu primer keypoolrefill</translation>
+    </message>
+    <message>
+        <source>Fee rate (%s) is lower than the minimum fee rate setting (%s)</source>
+        <translation>La taxa de tarifa (%s) és inferior a la configuració de la tarifa mínima (%s)</translation>
     </message>
     <message>
         <source>Invalid -onion address or hostname: '%s'</source>
@@ -3642,6 +3927,10 @@ Nota: Com que la comissió es calcula en funció dels bytes, una comissió de "1
     <message>
         <source>Need to specify a port with -whitebind: '%s'</source>
         <translation>Cal especificar un port amb -whitebind: «%s»</translation>
+    </message>
+    <message>
+        <source>No proxy server specified. Use -proxy=&lt;ip&gt; or -proxy=&lt;ip:port&gt;.</source>
+        <translation>No s'ha especificat cap servidor intermediari. Utilitzeu -proxy =&lt;ip&gt; o -proxy =&lt;ip:port&gt;.</translation>
     </message>
     <message>
         <source>Prune mode is incompatible with -blockfilterindex.</source>
@@ -3718,10 +4007,6 @@ Nota: Com que la comissió es calcula en funció dels bytes, una comissió de "1
         <translation>Avís: regles noves desconegudes activades (versionbit %i)</translation>
     </message>
     <message>
-        <source>Zapping all transactions from wallet...</source>
-        <translation>Se suprimeixen totes les transaccions de la cartera..</translation>
-    </message>
-    <message>
         <source>-maxtxfee is set very high! Fees this large could be paid on a single transaction.</source>
         <translation>-maxtxfee especificat molt alt! Comissions tan grans podrien pagar-se en una única transacció.</translation>
     </message>
@@ -3734,16 +4019,8 @@ Nota: Com que la comissió es calcula en funció dels bytes, una comissió de "1
         <translation>La longitud total de la cadena de la versió de xarxa (%i) supera la longitud màxima (%i). Redueix el nombre o la mida de uacomments.</translation>
     </message>
     <message>
-        <source>Warning: Wallet file corrupt, data salvaged! Original %s saved as %s in %s; if your balance or transactions are incorrect you should restore from a backup.</source>
-        <translation>Advertència: la cartera és malmesa, les dades es recuperen! Original %s desat com a %s en %s; si el vostre saldo o transaccions són incorrectes, haureu de restaurar des d'una còpia de seguretat.</translation>
-    </message>
-    <message>
         <source>%s is set very high!</source>
         <translation>%s està especificat molt alt!</translation>
-    </message>
-    <message>
-        <source>Error loading wallet %s. Duplicate -wallet filename specified.</source>
-        <translation>S'ha produït un error en carregar la cartera %s. S'ha especificat un nom de fitxer duplicat -wallet.</translation>
     </message>
     <message>
         <source>Starting network threads...</source>
@@ -3780,10 +4057,6 @@ Nota: Com que la comissió es calcula en funció dels bytes, una comissió de "1
     <message>
         <source>Insufficient funds</source>
         <translation>Balanç insuficient</translation>
-    </message>
-    <message>
-        <source>Cannot upgrade a non HD split wallet without upgrading to support pre split keypool. Please use -upgradewallet=169900 or -upgradewallet with no version specified.</source>
-        <translation>No es pot actualitzar una cartera de tipus dividida que no sigui física sense haver d'actualitzar per tal de suportar keypool pre dividida. Si us plau, utilitzeu -upgradewallet = 169900 o -upgradewallet sense cap versió especificada.</translation>
     </message>
     <message>
         <source>Fee estimation failed. Fallbackfee is disabled. Wait a few blocks or enable -fallbackfee.</source>

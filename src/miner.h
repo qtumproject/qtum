@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2019 The Bitcoin Core developers
+// Copyright (c) 2009-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -169,7 +169,7 @@ struct CompareModifiedEntry {
 
             // If the txs are identical in their minimum gas prices and tx size
             // order based on the tx hash for consistency.
-            return CTxMemPool::CompareIteratorByHash()(a.iter, b.iter);
+            return CompareIteratorByHash()(a.iter, b.iter);
         }
 
         // If neither of the txs we are comparing are contract txs, use the standard comparison based on ancestor fees / ancestor size
@@ -185,7 +185,7 @@ struct CompareTxIterByAncestorCount {
     {
         if (a->GetCountWithAncestors() != b->GetCountWithAncestors())
             return a->GetCountWithAncestors() < b->GetCountWithAncestors();
-        return CTxMemPool::CompareIteratorByHash()(a, b);
+        return CompareIteratorByHash()(a, b);
     }
 };
 
@@ -229,8 +229,6 @@ class BlockAssembler
 private:
     // The constructed block template
     std::unique_ptr<CBlockTemplate> pblocktemplate;
-    // A convenience pointer that always refers to the CBlock in pblocktemplate
-    CBlock* pblock;
 
     // Configuration parameters for the block size
     bool fIncludeWitness;
@@ -294,16 +292,16 @@ private:
     /** Add a tx to the block */
     void AddToBlock(CTxMemPool::txiter iter);
 
-    bool AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64_t minGasPrice);
+    bool AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64_t minGasPrice, CBlock* pblock);
 
     // Methods for how to add transactions to a block.
     /** Add transactions based on feerate including unconfirmed ancestors
       * Increments nPackagesSelected / nDescendantsUpdated with corresponding
       * statistics from the package selection (for logging statistics). */
-    void addPackageTxs(int& nPackagesSelected, int& nDescendantsUpdated, uint64_t minGasPrice) EXCLUSIVE_LOCKS_REQUIRED(m_mempool.cs);
+    void addPackageTxs(int& nPackagesSelected, int& nDescendantsUpdated, uint64_t minGasPrice, CBlock* pblock) EXCLUSIVE_LOCKS_REQUIRED(m_mempool.cs);
 
     /** Rebuild the coinbase/coinstake transaction to account for new gas refunds **/
-    void RebuildRefundTransaction();
+    void RebuildRefundTransaction(CBlock* pblock);
     // helper functions for addPackageTxs()
     /** Remove confirmed (inBlock) entries from given set */
     void onlyUnconfirmed(CTxMemPool::setEntries& testSet);
@@ -334,5 +332,8 @@ void RefreshDelegates(CWallet *pwallet, bool myDelegates, bool stakerDelegates);
 /** Modify the extranonce in a block */
 void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned int& nExtraNonce);
 int64_t UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParams, const CBlockIndex* pindexPrev);
+
+/** Update an old GenerateCoinbaseCommitment from CreateNewBlock after the block txs have changed */
+void RegenerateCommitments(CBlock& block);
 
 #endif // BITCOIN_MINER_H

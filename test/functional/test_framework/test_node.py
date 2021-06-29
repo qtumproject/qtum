@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2017-2019 The Bitcoin Core developers
+# Copyright (c) 2017-2020 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Class for bitcoind node under test"""
@@ -22,13 +22,16 @@ import shlex
 import sys
 
 from .authproxy import JSONRPCException
+from .descriptors import descsum_create
+from .messages import MY_SUBVERSION
 from .util import (
     MAX_NODES,
     append_config,
     delete_cookie_file,
+    get_auth_cookie,
     get_rpc_proxy,
     rpc_url,
-    wait_until,
+    wait_until_helper,
     p2p_port,
     EncodeDecimal,
 )
@@ -62,7 +65,7 @@ class TestNode():
     To make things easier for the test writer, any unrecognised messages will
     be dispatched to the RPC connection."""
 
-    def __init__(self, i, datadir, *, chain, rpchost, timewait, bitcoind, bitcoin_cli, coverage_dir, cwd, extra_conf=None, extra_args=None, use_cli=False, start_perf=False, use_valgrind=False, version=None, enable_wallet=False):
+    def __init__(self, i, datadir, *, chain, rpchost, timewait, timeout_factor, bitcoind, bitcoin_cli, coverage_dir, cwd, extra_conf=None, extra_args=None, use_cli=False, start_perf=False, use_valgrind=False, version=None, descriptors=False, enable_wallet=False):
         """
         Kwargs:
             start_perf (bool): If True, begin profiling the node with `perf` as soon as
@@ -80,6 +83,7 @@ class TestNode():
         self.binary = bitcoind
         self.coverage_dir = coverage_dir
         self.cwd = cwd
+        self.descriptors = descriptors
         self.enable_wallet = enable_wallet
         if extra_conf is not None:
             append_config(datadir, extra_conf)
@@ -110,7 +114,7 @@ class TestNode():
                          "--gen-suppressions=all", "--exit-on-first-error=yes",
                          "--error-exitcode=1", "--quiet"] + self.args
 
-        if self.version is None or self.version >= 190000:
+        if self.version_is_at_least(190000):
             self.args.append("-logthreadnames")
 
         self.cli = TestNodeCLI(bitcoin_cli, self.datadir)
@@ -128,6 +132,7 @@ class TestNode():
         self.perf_subprocesses = {}
 
         self.p2ps = []
+        self.timeout_factor = timeout_factor
 
     AddressKeyPair = collections.namedtuple('AddressKeyPair', ['address', 'key'])
     PRIV_KEYS = [
@@ -172,10 +177,10 @@ class TestNode():
     def __getattr__(self, name):
         """Dispatches any unrecognised messages to the RPC connection or a CLI instance."""
         if self.use_cli:
-            return getattr(self.cli, name)
+            return getattr(RPCOverloadWrapper(self.cli, True, self.descriptors), name)
         else:
             assert self.rpc_connected and self.rpc is not None, self._node_msg("Error: no RPC connection")
-            return getattr(self.rpc, name)
+            return getattr(RPCOverloadWrapper(self.rpc, descriptors=self.descriptors), name)
 
     def start(self, extra_args=None, *, cwd=None, stdout=None, stderr=None, **kwargs):
         """Start the node."""
@@ -231,9 +236,35 @@ class TestNode():
                 raise FailedToStartError(self._node_msg(
                     'bitcoind exited with status {} during initialization'.format(self.process.returncode)))
             try:
-                rpc = get_rpc_proxy(rpc_url(self.datadir, self.index, self.chain, self.rpchost), self.index, timeout=self.rpc_timeout, coveragedir=self.coverage_dir)
+                rpc = get_rpc_proxy(
+                    rpc_url(self.datadir, self.index, self.chain, self.rpchost),
+                    self.index,
+                    timeout=self.rpc_timeout // 2,  # Shorter timeout to allow for one retry in case of ETIMEDOUT
+                    coveragedir=self.coverage_dir,
+                )
                 rpc.getblockcount()
                 # If the call to getblockcount() succeeds then the RPC connection is up
+                if self.version_is_at_least(190000):
+                    # getmempoolinfo.loaded is available since commit
+                    # bb8ae2c (version 0.19.0)
+                    wait_until_helper(lambda: rpc.getmempoolinfo()['loaded'], timeout_factor=self.timeout_factor)
+                    # Wait for the node to finish reindex, block import, and
+                    # loading the mempool. Usually importing happens fast or
+                    # even "immediate" when the node is started. However, there
+                    # is no guarantee and sometimes ThreadImport might finish
+                    # later. This is going to cause intermittent test failures,
+                    # because generally the tests assume the node is fully
+                    # ready after being started.
+                    #
+                    # For example, the node will reject block messages from p2p
+                    # when it is still importing with the error "Unexpected
+                    # block message received"
+                    #
+                    # The wait is done here to make tests as robust as possible
+                    # and prevent racy tests and intermittent failures as much
+                    # as possible. Some tests might not need this, but the
+                    # overhead is trivial, and the added guarantees are worth
+                    # the minimal performance cost.
                 self.log.debug("RPC successfully started")
                 if self.use_cli:
                     return
@@ -241,9 +272,6 @@ class TestNode():
                 self.rpc_connected = True
                 self.url = self.rpc.url
                 return
-            except IOError as e:
-                if e.errno != errno.ECONNREFUSED:  # Port not yet open?
-                    raise  # unknown IO error
             except JSONRPCException as e:  # Initialization phase
                 # -28 RPC in warmup
                 # -342 Service unavailable, RPC server started but is shutting down due to error
@@ -253,11 +281,33 @@ class TestNode():
                 # This might happen when the RPC server is in warmup, but shut down before the call to getblockcount
                 # succeeds. Try again to properly raise the FailedToStartError
                 pass
-            except ValueError as e:  # cookie file not found and no rpcuser or rpcassword. bitcoind still starting
+            except OSError as e:
+                if e.errno == errno.ETIMEDOUT:
+                    pass  # Treat identical to ConnectionResetError
+                elif e.errno == errno.ECONNREFUSED:
+                    pass  # Port not yet open?
+                else:
+                    raise  # unknown OS error
+            except ValueError as e:  # cookie file not found and no rpcuser or rpcpassword; bitcoind is still starting
                 if "No RPC credentials" not in str(e):
                     raise
             time.sleep(1.0 / poll_per_s)
-        self._raise_assertion_error("Unable to connect to bitcoind")
+        self._raise_assertion_error("Unable to connect to bitcoind after {}s".format(self.rpc_timeout))
+
+    def wait_for_cookie_credentials(self):
+        """Ensures auth cookie credentials can be read, e.g. for testing CLI with -rpcwait before RPC connection is up."""
+        self.log.debug("Waiting for cookie credentials")
+        # Poll at a rate of four times per second.
+        poll_per_s = 4
+        for _ in range(poll_per_s * self.rpc_timeout):
+            try:
+                get_auth_cookie(self.datadir, self.chain)
+                self.log.debug("Cookie credentials successfully retrieved")
+                return
+            except ValueError:  # cookie file not found and no rpcuser or rpcpassword; bitcoind is still starting
+                pass            # so we continue polling until RPC credentials are retrieved
+            time.sleep(1.0 / poll_per_s)
+        self._raise_assertion_error("Unable to retrieve cookie credentials after {}s".format(self.rpc_timeout))
 
     def generate(self, nblocks, maxtries=1000000):
         self.log.debug("TestNode.generate() dispatches `generate` call to `generatetoaddress`")
@@ -265,11 +315,14 @@ class TestNode():
 
     def get_wallet_rpc(self, wallet_name):
         if self.use_cli:
-            return self.cli("-rpcwallet={}".format(wallet_name))
+            return RPCOverloadWrapper(self.cli("-rpcwallet={}".format(wallet_name)), True, self.descriptors)
         else:
             assert self.rpc_connected and self.rpc, self._node_msg("RPC not connected")
             wallet_path = "wallet/{}".format(urllib.parse.quote(wallet_name))
-            return self.rpc / wallet_path
+            return RPCOverloadWrapper(self.rpc / wallet_path, descriptors=self.descriptors)
+
+    def version_is_at_least(self, ver):
+        return self.version is None or self.version >= ver
 
     def stop_node(self, expected_stderr='', wait=0):
         """Stop the node."""
@@ -278,7 +331,7 @@ class TestNode():
         self.log.debug("Stopping node")
         try:
             # Do not use wait argument when testing older nodes, e.g. in feature_backwards_compatibility.py
-            if self.version is None or self.version >= 180000:
+            if self.version_is_at_least(180000):
                 self.stop(wait=wait)
             else:
                 self.stop()
@@ -322,13 +375,13 @@ class TestNode():
         return True
 
     def wait_until_stopped(self, timeout=BITCOIND_PROC_WAIT_TIMEOUT):
-        wait_until(self.is_node_stopped, timeout=timeout)
+        wait_until_helper(self.is_node_stopped, timeout=timeout, timeout_factor=self.timeout_factor)
 
     @contextlib.contextmanager
     def assert_debug_log(self, expected_msgs, unexpected_msgs=None, timeout=2):
         if unexpected_msgs is None:
             unexpected_msgs = []
-        time_end = time.time() + timeout
+        time_end = time.time() + timeout * self.timeout_factor
         debug_log = os.path.join(self.datadir, self.chain, 'debug.log')
         with open(debug_log, encoding='utf-8') as dl:
             dl.seek(0, 2)
@@ -485,8 +538,9 @@ class TestNode():
         if 'dstaddr' not in kwargs:
             kwargs['dstaddr'] = '127.0.0.1'
 
-        p2p_conn.peer_connect(**kwargs, net=self.chain)()
+        p2p_conn.peer_connect(**kwargs, net=self.chain, timeout_factor=self.timeout_factor)()
         self.p2ps.append(p2p_conn)
+        p2p_conn.wait_until(lambda: p2p_conn.is_connected, check_connected=False)
         if wait_for_verack:
             # Wait for the node to send us the version and verack
             p2p_conn.wait_for_verack()
@@ -499,25 +553,21 @@ class TestNode():
             # transaction that will be added to the mempool as soon as we return here.
             #
             # So syncing here is redundant when we only want to send a message, but the cost is low (a few milliseconds)
-            # in comparision to the upside of making tests less fragile and unexpected intermittent errors less likely.
+            # in comparison to the upside of making tests less fragile and unexpected intermittent errors less likely.
             p2p_conn.sync_with_ping()
 
         return p2p_conn
 
-    @property
-    def p2p(self):
-        """Return the first p2p connection
-
-        Convenience property - most tests only use a single p2p connection to each
-        node, so this saves having to write node.p2ps[0] many times."""
-        assert self.p2ps, self._node_msg("No p2p connection")
-        return self.p2ps[0]
+    def num_test_p2p_connections(self):
+        """Return number of test framework p2p connections to the node."""
+        return len([peer for peer in self.getpeerinfo() if peer['subver'] == MY_SUBVERSION])
 
     def disconnect_p2ps(self):
         """Close all p2p connections to the node."""
         for p in self.p2ps:
             p.peer_disconnect()
         del self.p2ps[:]
+        wait_until_helper(lambda: self.num_test_p2p_connections() == 0, timeout_factor=self.timeout_factor)
 
 
 class TestNodeCLIAttr:
@@ -535,6 +585,8 @@ class TestNodeCLIAttr:
 def arg_to_cli(arg):
     if isinstance(arg, bool):
         return str(arg).lower()
+    elif arg is None:
+        return 'null'
     elif isinstance(arg, dict) or isinstance(arg, list):
         return json.dumps(arg, default=EncodeDecimal)
     else:
@@ -543,7 +595,6 @@ def arg_to_cli(arg):
 
 class TestNodeCLI():
     """Interface to bitcoin-cli for an individual node"""
-
     def __init__(self, binary, datadir):
         self.options = []
         self.binary = binary
@@ -581,7 +632,7 @@ class TestNodeCLI():
         if command is not None:
             p_args += [command]
         p_args += pos_args + named_args
-        self.log.debug("Running bitcoin-cli command: %s" % command)
+        self.log.debug("Running bitcoin-cli {}".format(p_args[2:]))
         process = subprocess.Popen(p_args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         cli_stdout, cli_stderr = process.communicate(input=self.input)
         returncode = process.poll()
@@ -594,5 +645,89 @@ class TestNodeCLI():
             raise subprocess.CalledProcessError(returncode, self.binary, output=cli_stderr)
         try:
             return json.loads(cli_stdout, parse_float=decimal.Decimal)
-        except json.JSONDecodeError:
+        except (json.JSONDecodeError, decimal.InvalidOperation):
             return cli_stdout.rstrip("\n")
+
+class RPCOverloadWrapper():
+    def __init__(self, rpc, cli=False, descriptors=False):
+        self.rpc = rpc
+        self.is_cli = cli
+        self.descriptors = descriptors
+
+    def __getattr__(self, name):
+        return getattr(self.rpc, name)
+
+    def createwallet(self, wallet_name, disable_private_keys=None, blank=None, passphrase='', avoid_reuse=None, descriptors=None, load_on_startup=None):
+        if descriptors is None:
+            descriptors = self.descriptors
+        return self.__getattr__('createwallet')(wallet_name, disable_private_keys, blank, passphrase, avoid_reuse, descriptors, load_on_startup)
+
+    def importprivkey(self, privkey, label=None, rescan=None):
+        wallet_info = self.getwalletinfo()
+        if 'descriptors' not in wallet_info or ('descriptors' in wallet_info and not wallet_info['descriptors']):
+            return self.__getattr__('importprivkey')(privkey, label, rescan)
+        desc = descsum_create('combo(' + privkey + ')')
+        req = [{
+            'desc': desc,
+            'timestamp': 0 if rescan else 'now',
+            'label': label if label else ''
+        }]
+        import_res = self.importdescriptors(req)
+        if not import_res[0]['success']:
+            raise JSONRPCException(import_res[0]['error'])
+
+    def addmultisigaddress(self, nrequired, keys, label=None, address_type=None):
+        wallet_info = self.getwalletinfo()
+        if 'descriptors' not in wallet_info or ('descriptors' in wallet_info and not wallet_info['descriptors']):
+            return self.__getattr__('addmultisigaddress')(nrequired, keys, label, address_type)
+        cms = self.createmultisig(nrequired, keys, address_type)
+        req = [{
+            'desc': cms['descriptor'],
+            'timestamp': 0,
+            'label': label if label else ''
+        }]
+        import_res = self.importdescriptors(req)
+        if not import_res[0]['success']:
+            raise JSONRPCException(import_res[0]['error'])
+        return cms
+
+    def importpubkey(self, pubkey, label=None, rescan=None):
+        wallet_info = self.getwalletinfo()
+        if 'descriptors' not in wallet_info or ('descriptors' in wallet_info and not wallet_info['descriptors']):
+            return self.__getattr__('importpubkey')(pubkey, label, rescan)
+        desc = descsum_create('combo(' + pubkey + ')')
+        req = [{
+            'desc': desc,
+            'timestamp': 0 if rescan else 'now',
+            'label': label if label else ''
+        }]
+        import_res = self.importdescriptors(req)
+        if not import_res[0]['success']:
+            raise JSONRPCException(import_res[0]['error'])
+
+    def importaddress(self, address, label=None, rescan=None, p2sh=None):
+        wallet_info = self.getwalletinfo()
+        if 'descriptors' not in wallet_info or ('descriptors' in wallet_info and not wallet_info['descriptors']):
+            return self.__getattr__('importaddress')(address, label, rescan, p2sh)
+        is_hex = False
+        try:
+            int(address ,16)
+            is_hex = True
+            desc = descsum_create('raw(' + address + ')')
+        except:
+            desc = descsum_create('addr(' + address + ')')
+        reqs = [{
+            'desc': desc,
+            'timestamp': 0 if rescan else 'now',
+            'label': label if label else ''
+        }]
+        if is_hex and p2sh:
+            reqs.append({
+                'desc': descsum_create('p2sh(raw(' + address + '))'),
+                'timestamp': 0 if rescan else 'now',
+                'label': label if label else ''
+            })
+        import_res = self.importdescriptors(reqs)
+        for res in import_res:
+            if not res['success']:
+                raise JSONRPCException(res['error'])

@@ -47,7 +47,7 @@ public:
         val = getMax(val, minAmount);
         if(valid)
         {
-            input = BitcoinUnits::formatToken(decimalUnits, val, false, BitcoinUnits::separatorAlways);
+            input = BitcoinUnits::formatToken(decimalUnits, val, false, BitcoinUnits::SeparatorStyle::ALWAYS);
             lineEdit()->setText(input);
         }
     }
@@ -60,7 +60,7 @@ public:
     void setValue(const int256_t& value)
     {
         int256_t val = getMax(value, minAmount);
-        lineEdit()->setText(BitcoinUnits::formatToken(decimalUnits, val, false, BitcoinUnits::separatorAlways));
+        lineEdit()->setText(BitcoinUnits::formatToken(decimalUnits, val, false, BitcoinUnits::SeparatorStyle::ALWAYS));
         Q_EMIT valueChanged();
     }
 

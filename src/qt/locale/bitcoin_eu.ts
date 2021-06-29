@@ -70,10 +70,6 @@
         <translation>Hauek dira zuk dirua jaso dezaketen Qtum helbideak. Egiaztatu beti diru-kopurua eta dirua jasoko duen helbidea zuzen egon daitezen, txanponak bidali baino lehen.</translation>
     </message>
     <message>
-        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.</source>
-        <translation>Hauek dira ordainketak jasotzeko zure Qtum helbideak. Jaso taulako 'Jasotzeko helbide berri bat sortu' botoia erabili helbide berri bat sortzeko.</translation>
-    </message>
-    <message>
         <source>&amp;Copy Address</source>
         <translation>&amp;Helbidea kopiatu</translation>
     </message>
@@ -414,6 +410,10 @@
         <translation>Akatsa</translation>
     </message>
     <message>
+        <source>Warning</source>
+        <translation>Abisua</translation>
+    </message>
+    <message>
         <source>Information</source>
         <translation>Informazioa</translation>
     </message>
@@ -444,6 +444,14 @@
     <message>
         <source>Close wallet</source>
         <translation>Diruzorroa itxi</translation>
+    </message>
+    <message>
+        <source>Close All Wallets...</source>
+        <translation>Diruzorro guztiak itxi...</translation>
+    </message>
+    <message>
+        <source>Close all wallets</source>
+        <translation>Diruzorro guztiak itxi</translation>
     </message>
     <message>
         <source>default wallet</source>
@@ -620,7 +628,7 @@
         <source>Create</source>
         <translation>Sortu</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>EditAddressDialog</name>
     <message>
@@ -805,6 +813,9 @@
     </message>
     </context>
 <context>
+    <name>PSBTOperationsDialog</name>
+    </context>
+<context>
     <name>PaymentServer</name>
     </context>
 <context>
@@ -853,28 +864,28 @@
         <source>Copy label</source>
         <translation>Etiketa kopiatu</translation>
     </message>
+    <message>
+        <source>Could not unlock wallet.</source>
+        <translation>Ezin da diruzorroa desblokeatu.</translation>
+    </message>
     </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
+        <source>Amount:</source>
+        <translation>Kopurua:</translation>
+    </message>
+    <message>
+        <source>Message:</source>
+        <translation>Mezua:</translation>
+    </message>
+    <message>
+        <source>Wallet:</source>
+        <translation>Diruzorroa:</translation>
+    </message>
+    <message>
         <source>Copy &amp;Address</source>
         <translation>&amp;Helbidea kopiatu</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Helbidea</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>Kopurua</translation>
-    </message>
-    <message>
-        <source>Label</source>
-        <translation>Izendapen</translation>
-    </message>
-    <message>
-        <source>Message</source>
-        <translation>Mezua</translation>
     </message>
     </context>
 <context>
@@ -1216,10 +1227,18 @@
         <source>Close wallet</source>
         <translation>Diruzorroa itxi</translation>
     </message>
+    <message>
+        <source>Close all wallets</source>
+        <translation>Diruzorro guztiak itxi</translation>
+    </message>
     </context>
 <context>
     <name>WalletFrame</name>
-    </context>
+    <message>
+        <source>Create a new wallet</source>
+        <translation>Diruzorro berri bat sortu</translation>
+    </message>
+</context>
 <context>
     <name>WalletModel</name>
     <message>
@@ -1240,6 +1259,10 @@
     <message>
         <source>Export the data in the current tab to a file</source>
         <translation>Uneko fitxategian datuak esportatu</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Akatsa</translation>
     </message>
     </context>
 <context>

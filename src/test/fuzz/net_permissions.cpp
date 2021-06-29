@@ -3,10 +3,10 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <net_permissions.h>
-#include <optional.h>
 #include <test/fuzz/FuzzedDataProvider.h>
 #include <test/fuzz/fuzz.h>
 #include <test/fuzz/util.h>
+#include <util/translation.h>
 
 #include <cassert>
 #include <cstdint>
@@ -24,13 +24,14 @@ void test_one_input(const std::vector<uint8_t>& buffer)
                                                                                              NetPermissionFlags::PF_FORCERELAY,
                                                                                              NetPermissionFlags::PF_NOBAN,
                                                                                              NetPermissionFlags::PF_MEMPOOL,
+                                                                                             NetPermissionFlags::PF_ADDR,
                                                                                              NetPermissionFlags::PF_ISIMPLICIT,
                                                                                              NetPermissionFlags::PF_ALL,
                                                                                          }) :
                                                                                          static_cast<NetPermissionFlags>(fuzzed_data_provider.ConsumeIntegral<uint32_t>());
 
     NetWhitebindPermissions net_whitebind_permissions;
-    std::string error_net_whitebind_permissions;
+    bilingual_str error_net_whitebind_permissions;
     if (NetWhitebindPermissions::TryParse(s, net_whitebind_permissions, error_net_whitebind_permissions)) {
         (void)NetPermissions::ToStrings(net_whitebind_permissions.m_flags);
         (void)NetPermissions::AddFlag(net_whitebind_permissions.m_flags, net_permission_flags);
@@ -40,7 +41,7 @@ void test_one_input(const std::vector<uint8_t>& buffer)
     }
 
     NetWhitelistPermissions net_whitelist_permissions;
-    std::string error_net_whitelist_permissions;
+    bilingual_str error_net_whitelist_permissions;
     if (NetWhitelistPermissions::TryParse(s, net_whitelist_permissions, error_net_whitelist_permissions)) {
         (void)NetPermissions::ToStrings(net_whitelist_permissions.m_flags);
         (void)NetPermissions::AddFlag(net_whitelist_permissions.m_flags, net_permission_flags);

@@ -8,6 +8,7 @@
 #include <qt/bitcoinunits.h>
 #include <qt/guiutil.h>
 #include <qt/optionsmodel.h>
+#include <qt/qrimagewidget.h>
 #include <qt/walletmodel.h>
 #include <qt/styleSheet.h>
 #include <qt/platformstyle.h>
@@ -15,8 +16,8 @@
 #include <qt/recentrequeststablemodel.h>
 #include <qt/receivecoinsdialog.h>
 
-#include <QClipboard>
-#include <QPixmap>
+#include <QDialog>
+#include <QString>
 
 #if defined(HAVE_CONFIG_H)
 #include <config/bitcoin-config.h> /* for USE_QRCODE */
@@ -30,6 +31,7 @@ ReceiveRequestDialog::ReceiveRequestDialog(const PlatformStyle *_platformStyle, 
     requestPaymentDialog(0)
 {
     ui->setupUi(this);
+    GUIUtil::handleCloseWindowShortcut(this);
 
     requestPaymentDialog = new ReceiveCoinsDialog(platformStyle, this);
 
@@ -40,7 +42,6 @@ ReceiveRequestDialog::ReceiveRequestDialog(const PlatformStyle *_platformStyle, 
 #ifndef USE_QRCODE
     ui->widgetQRMargin->setVisible(false);
 #endif
-
 }
 
 ReceiveRequestDialog::~ReceiveRequestDialog()
@@ -52,7 +53,7 @@ void ReceiveRequestDialog::setModel(WalletModel *_model)
 {
     this->model = _model;
 
-    if(_model && _model->getOptionsModel())
+    if (_model && _model->getOptionsModel())
     {
         connect(_model->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &ReceiveRequestDialog::update);
 
@@ -123,36 +124,34 @@ bool ReceiveRequestDialog::getDefaultAddress()
 
 void ReceiveRequestDialog::update()
 {
-    if(!model)
-        return;
-    QString target = info.label;
-    if(target.isEmpty())
-        target = info.address;
-    setWindowTitle(tr("Request payment to %1").arg(target));
+    setWindowTitle(tr("Request payment to %1").arg(info.label.isEmpty() ? info.address : info.label));
+    QString uri = GUIUtil::formatBitcoinURI(info);
 
     if(!info.address.isEmpty())
     {
         QString uri = GUIUtil::formatBitcoinURI(info);
 #ifdef USE_QRCODE
-        if(ui->lblQRCode->setQR(uri))
+        if(ui->qr_code->setQR(uri))
         {
-            ui->lblQRCode->setScaledContents(true);
+            ui->qr_code->setScaledContents(true);
         }
 #endif
 
         ui->widgetPaymentInformation->setEnabled(true);
 
-        ui->labelAddress->setText(info.address);
+        ui->address_content->setText(info.address);
         SendCoinsRecipient _info;
         _info.address = info.address;
         QString _uri = GUIUtil::formatBitcoinURI(_info);
-        ui->labelURI->setText(_uri);
-        ui->labelURI->setToolTip(uri);
+        ui->uri_content->setText(_uri);
+        ui->uri_content->setToolTip(uri);
     }
     else
     {
         clear();
     }
+
+    QWidget::update();
 }
 
 void ReceiveRequestDialog::on_btnCopyURI_clicked()
@@ -164,7 +163,6 @@ void ReceiveRequestDialog::on_btnCopyAddress_clicked()
 {
     GUIUtil::setClipboard(info.address);
 }
-
 void ReceiveRequestDialog::on_btnRefreshAddress_clicked()
 {
     // Refresh address
@@ -196,10 +194,10 @@ void ReceiveRequestDialog::clear()
         setWindowTitle(tr("Request payment to %1").arg(""));
         info = SendCoinsRecipient();
 #ifdef USE_QRCODE
-        ui->lblQRCode->clear();
+        ui->qr_code->clear();
 #endif
-        ui->labelURI->clear();
-        ui->labelAddress->clear();
+        ui->uri_content->clear();
+        ui->address_content->clear();
         ui->widgetPaymentInformation->setEnabled(false);
     }
 }

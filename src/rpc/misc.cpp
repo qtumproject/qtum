@@ -1,9 +1,12 @@
 // Copyright (c) 2010 Satoshi Nakamoto
-// Copyright (c) 2009-2019 The Bitcoin Core developers
+// Copyright (c) 2009-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <httpserver.h>
+#include <index/blockfilterindex.h>
+#include <index/txindex.h>
+#include <interfaces/chain.h>
 #include <key_io.h>
 #include <node/context.h>
 #include <outputtype.h>
@@ -14,6 +17,7 @@
 #include <script/descriptor.h>
 #include <util/check.h>
 #include <util/message.h> // For MessageSign(), MessageVerify()
+#include <util/ref.h>
 #include <util/strencodings.h>
 #include <util/system.h>
 
@@ -33,9 +37,9 @@
 
 #include <univalue.h>
 
-static UniValue validateaddress(const JSONRPCRequest& request)
+static RPCHelpMan validateaddress()
 {
-            RPCHelpMan{"validateaddress",
+    return RPCHelpMan{"validateaddress",
                 "\nReturn information about the given qtum address.\n",
                 {
                     {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The qtum address to validate"},
@@ -56,8 +60,8 @@ static UniValue validateaddress(const JSONRPCRequest& request)
                     HelpExampleCli("validateaddress", "\"" + EXAMPLE_ADDRESS[0] + "\"") +
                     HelpExampleRpc("validateaddress", "\"" + EXAMPLE_ADDRESS[0] + "\"")
                 },
-            }.Check(request);
-
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
     CTxDestination dest = DecodeDestination(request.params[0].get_str());
     bool isValid = IsValidDestination(dest);
 
@@ -69,18 +73,20 @@ static UniValue validateaddress(const JSONRPCRequest& request)
         ret.pushKV("address", currentAddress);
 
         CScript scriptPubKey = GetScriptForDestination(dest);
-        ret.pushKV("scriptPubKey", HexStr(scriptPubKey.begin(), scriptPubKey.end()));
+        ret.pushKV("scriptPubKey", HexStr(scriptPubKey));
 
         UniValue detail = DescribeAddress(dest);
         ret.pushKVs(detail);
     }
     return ret;
+},
+    };
 }
 
 /////////////////////////////////////////////////////////////////////// // qtum
-UniValue getdgpinfo(const JSONRPCRequest& request)
+RPCHelpMan getdgpinfo()
 {
-            RPCHelpMan{"getdgpinfo",
+    return RPCHelpMan{"getdgpinfo",
                 "\nReturns an object containing DGP state info.\n",
                 {},
                 RPCResult{
@@ -95,8 +101,8 @@ UniValue getdgpinfo(const JSONRPCRequest& request)
                     HelpExampleCli("getdgpinfo", "")
             + HelpExampleRpc("getdgpinfo", "")
                 },
-            }.Check(request);
-
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
 
     LOCK(cs_main);
 
@@ -108,6 +114,8 @@ UniValue getdgpinfo(const JSONRPCRequest& request)
     obj.pushKV("blockgaslimit", (uint64_t)qtumDGP.getBlockGasLimit(::ChainActive().Height()));
 
     return obj;
+},
+    };
 }
 
 bool getAddressesFromParams(const UniValue& params, std::vector<std::pair<uint256, int> > &addresses)
@@ -173,12 +181,12 @@ bool getAddressFromIndex(const int &type, const uint256 &hash, std::string &addr
     return true;
 }
 
-UniValue getaddressdeltas(const JSONRPCRequest& request)
+RPCHelpMan getaddressdeltas()
 {
-        RPCHelpMan{"getaddressdeltas",
+    return RPCHelpMan{"getaddressdeltas",
             "\nReturns all changes for an address (requires addressindex to be enabled).\n",
             {
-                {"Input params", RPCArg::Type::OBJ, RPCArg::Optional::NO, "Json object",
+                {"argument", RPCArg::Type::OBJ, RPCArg::Optional::NO, "Json object",
                     {
                         {"addresses", RPCArg::Type::ARR, RPCArg::Optional::NO, "The qtum addresses",
                             {
@@ -207,8 +215,8 @@ UniValue getaddressdeltas(const JSONRPCRequest& request)
                 HelpExampleCli("getaddressdeltas", "'{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"], \"start\": 5000, \"end\": 5500, \"chainInfo\": true}'")
         + HelpExampleRpc("getaddressdeltas", "{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"], \"start\": 5000, \"end\": 5500, \"chainInfo\": true}")
             },
-        }.Check(request);
-
+    [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
 
     UniValue startValue = find_value(request.params[0].get_obj(), "start");
     UniValue endValue = find_value(request.params[0].get_obj(), "end");
@@ -300,17 +308,24 @@ UniValue getaddressdeltas(const JSONRPCRequest& request)
     } else {
         return deltas;
     }
+},
+    };
 }
 
-UniValue getaddressbalance(const JSONRPCRequest& request)
+RPCHelpMan getaddressbalance()
 {
-            RPCHelpMan{"getaddressbalance",
+    return RPCHelpMan{"getaddressbalance",
                 "\nReturns the balance for an address(es) (requires addressindex to be enabled).\n",
                 {
-                    {"addresses", RPCArg::Type::ARR, RPCArg::Optional::NO, "The qtum addresses",
+                    {"argument", RPCArg::Type::OBJ, RPCArg::Optional::NO, "Json object",
                         {
-                            {"address", RPCArg::Type::STR, RPCArg::Optional::OMITTED, "The qtum address"},
-                        }},
+                            {"addresses", RPCArg::Type::ARR, RPCArg::Optional::NO, "The qtum addresses",
+                                {
+                                    {"address", RPCArg::Type::STR, RPCArg::Optional::OMITTED, "The qtum address"},
+                                }
+                            },
+                        }
+                    }
                 },
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",
@@ -323,7 +338,8 @@ UniValue getaddressbalance(const JSONRPCRequest& request)
                     HelpExampleCli("getaddressbalance", "'{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}'")
             + HelpExampleRpc("getaddressbalance", "{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}")
                 },
-            }.Check(request);
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
 
     std::vector<std::pair<uint256, int> > addresses;
 
@@ -359,14 +375,16 @@ UniValue getaddressbalance(const JSONRPCRequest& request)
     result.pushKV("immature", immature);
 
     return result;
+},
+    };
 }
 
-UniValue getaddressutxos(const JSONRPCRequest& request)
+RPCHelpMan getaddressutxos()
 {
-            RPCHelpMan{"getaddressutxos",
+    return RPCHelpMan{"getaddressutxos",
                 "\nReturns all unspent outputs for an address (requires addressindex to be enabled).\n",
                 {
-                    {"Input params", RPCArg::Type::OBJ, RPCArg::Optional::NO, "Json object",
+                    {"argument", RPCArg::Type::OBJ, RPCArg::Optional::NO, "Json object",
                         {
                             {"addresses", RPCArg::Type::ARR, RPCArg::Optional::NO, "The qtum addresses",
                                 {
@@ -394,7 +412,8 @@ UniValue getaddressutxos(const JSONRPCRequest& request)
                     HelpExampleCli("getaddressutxos", "'{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"], \"chainInfo\": true}'")
             + HelpExampleRpc("getaddressutxos", "{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"], \"chainInfo\": true}")
                 },
-            }.Check(request);
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
 
     bool includeChainInfo = false;
     if (request.params[0].isObject()) {
@@ -432,7 +451,7 @@ UniValue getaddressutxos(const JSONRPCRequest& request)
         output.pushKV("address", address);
         output.pushKV("txid", it->first.txhash.GetHex());
         output.pushKV("outputIndex", (int)it->first.index);
-        output.pushKV("script", HexStr(it->second.script.begin(), it->second.script.end()));
+        output.pushKV("script", HexStr(MakeUCharSpan(it->second.script)));
         output.pushKV("satoshis", it->second.satoshis);
         output.pushKV("height", it->second.blockHeight);
         output.pushKV("isStake", it->second.coinStake);
@@ -450,17 +469,24 @@ UniValue getaddressutxos(const JSONRPCRequest& request)
     } else {
         return utxos;
     }
+},
+    };
 }
 
-UniValue getaddressmempool(const JSONRPCRequest& request)
+RPCHelpMan getaddressmempool()
 {
-            RPCHelpMan{"getaddressmempool",
+    return RPCHelpMan{"getaddressmempool",
                 "\nReturns all mempool deltas for an address (requires addressindex to be enabled).\n",
                 {
-                    {"addresses", RPCArg::Type::ARR, RPCArg::Optional::NO, "The qtum addresses",
+                    {"argument", RPCArg::Type::OBJ, RPCArg::Optional::NO, "Json object",
                         {
-                            {"address", RPCArg::Type::STR, RPCArg::Optional::OMITTED, "The qtum address"},
-                        }},
+                            {"addresses", RPCArg::Type::ARR, RPCArg::Optional::NO, "The qtum addresses",
+                                {
+                                    {"address", RPCArg::Type::STR, RPCArg::Optional::OMITTED, "The qtum address"},
+                                }
+                            },
+                        }
+                    }
                 },
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",
@@ -478,8 +504,10 @@ UniValue getaddressmempool(const JSONRPCRequest& request)
                     HelpExampleCli("getaddressmempool", "'{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}'")
             + HelpExampleRpc("getaddressmempool", "{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}")
                 },
-            }.Check(request);
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
 
+    CTxMemPool& mempool = EnsureMemPool(request.context);
     std::vector<std::pair<uint256, int> > addresses;
 
     if (!getAddressesFromParams(request.params, addresses)) {
@@ -518,11 +546,13 @@ UniValue getaddressmempool(const JSONRPCRequest& request)
     }
 
     return result;
+},
+    };
 }
 
-UniValue getblockhashes(const JSONRPCRequest& request)
+RPCHelpMan getblockhashes()
 {
-            RPCHelpMan{"getblockhashes",
+    return RPCHelpMan{"getblockhashes",
                 "\nReturns array of hashes of blocks within the timestamp range provided.\n",
                 {
                     {"high", RPCArg::Type::NUM, RPCArg::Optional::NO, "The newer block timestamp"},
@@ -554,7 +584,8 @@ UniValue getblockhashes(const JSONRPCRequest& request)
                     + HelpExampleCli("getblockhashes", "1231614698 1231024505 '{\"noOrphans\":false, \"logicalTimes\":true}'")
             + HelpExampleRpc("getblockhashes", "1231614698, 1231024505")
                 },
-            }.Check(request);
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
 
     unsigned int high = request.params[0].get_int();
     unsigned int low = request.params[1].get_int();
@@ -597,14 +628,16 @@ UniValue getblockhashes(const JSONRPCRequest& request)
     }
 
     return result;
+},
+    };
 }
 
-UniValue getspentinfo(const JSONRPCRequest& request)
+RPCHelpMan getspentinfo()
 {
-            RPCHelpMan{"getspentinfo",
+    return RPCHelpMan{"getspentinfo",
                 "\nReturns the txid and index where an output is spent.\n",
                 {
-                    {"data", RPCArg::Type::OBJ, RPCArg::Optional::NO, "Transaction data",
+                    {"argument", RPCArg::Type::OBJ, RPCArg::Optional::NO, "Transaction data",
                         {
                             {"txid", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The hex string of the txid"},
                             {"index", RPCArg::Type::NUM, RPCArg::Optional::NO, "The start block height"},
@@ -622,7 +655,8 @@ UniValue getspentinfo(const JSONRPCRequest& request)
                     HelpExampleCli("getspentinfo", "'{\"txid\": \"0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9\", \"index\": 0}'")
             + HelpExampleRpc("getspentinfo", "{\"txid\": \"0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9\", \"index\": 0}")
                 },
-            }.Check(request);
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
 
     UniValue txidValue = find_value(request.params[0].get_obj(), "txid");
     UniValue indexValue = find_value(request.params[0].get_obj(), "index");
@@ -647,14 +681,16 @@ UniValue getspentinfo(const JSONRPCRequest& request)
     obj.pushKV("height", value.blockHeight);
 
     return obj;
+},
+    };
 }
 
-UniValue getaddresstxids(const JSONRPCRequest& request)
+RPCHelpMan getaddresstxids()
 {
-            RPCHelpMan{"getaddresstxids",
+    return RPCHelpMan{"getaddresstxids",
                 "\nReturns the txids for an address(es) (requires addressindex to be enabled).\n",
                 {
-                    {"Input params", RPCArg::Type::OBJ, RPCArg::Optional::NO, "Json object",
+                    {"argument", RPCArg::Type::OBJ, RPCArg::Optional::NO, "Json object",
                         {
                             {"addresses", RPCArg::Type::ARR, RPCArg::Optional::NO, "The qtum addresses",
                                 {
@@ -678,7 +714,8 @@ UniValue getaddresstxids(const JSONRPCRequest& request)
                     HelpExampleCli("getaddresstxids", "'{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"], \"start\": 5000, \"end\": 5500}'")
             + HelpExampleRpc("getaddresstxids", "{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"], \"start\": 5000, \"end\": 5500}")
                 },
-            }.Check(request);
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
 
     std::vector<std::pair<uint256, int> > addresses;
 
@@ -734,6 +771,8 @@ UniValue getaddresstxids(const JSONRPCRequest& request)
     }
 
     return result;
+},
+    };
 }
 
 std::vector<std::string> getListArgsType()
@@ -763,9 +802,9 @@ std::vector<std::string> getListArgsType()
     return ret;
 }
 
-UniValue listconf(const JSONRPCRequest& request)
+RPCHelpMan listconf()
 {
-            RPCHelpMan{"listconf",
+    return RPCHelpMan{"listconf",
                 "\nReturns the current options that qtumd was started with.\n",
                 {},
                 RPCResult{
@@ -780,7 +819,8 @@ UniValue listconf(const JSONRPCRequest& request)
                     HelpExampleCli("listconf", "")
             + HelpExampleRpc("listconf", "")
                 },
-            }.Check(request);
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
 
     UniValue ret(UniValue::VOBJ);
 
@@ -802,12 +842,14 @@ UniValue listconf(const JSONRPCRequest& request)
         }
     }
     return ret;
+},
+    };
 }
 ///////////////////////////////////////////////////////////////////////
 
-static UniValue createmultisig(const JSONRPCRequest& request)
+static RPCHelpMan createmultisig()
 {
-            RPCHelpMan{"createmultisig",
+    return RPCHelpMan{"createmultisig",
                 "\nCreates a multi-signature address with n signature of m keys required.\n"
                 "It returns a json object with the address and redeemScript.\n",
                 {
@@ -832,14 +874,14 @@ static UniValue createmultisig(const JSONRPCRequest& request)
             "\nAs a JSON-RPC call\n"
             + HelpExampleRpc("createmultisig", "2, \"[\\\"QjWnDZxwLhrJDcp4Hisse8RfBo2jRDZY5Z\\\",\\\"Q6sSauSf5pF2UkUwvKGq4qjNRzBZYqgEL5\\\"]\"")
                 },
-            }.Check(request);
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
 
 #ifdef ENABLE_WALLET
     std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
     CWallet* const pwallet = wallet.get();
 
     LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
-    auto locked_chain = pwallet->chain().lock();
     LOCK2(pwallet->cs_wallet, spk_man.cs_KeyStore);
 #endif
 
@@ -878,15 +920,17 @@ static UniValue createmultisig(const JSONRPCRequest& request)
 
     UniValue result(UniValue::VOBJ);
     result.pushKV("address", EncodeDestination(dest));
-    result.pushKV("redeemScript", HexStr(inner.begin(), inner.end()));
+    result.pushKV("redeemScript", HexStr(inner));
     result.pushKV("descriptor", descriptor->ToString());
 
     return result;
+},
+    };
 }
 
-UniValue getdescriptorinfo(const JSONRPCRequest& request)
+static RPCHelpMan getdescriptorinfo()
 {
-            RPCHelpMan{"getdescriptorinfo",
+    return RPCHelpMan{"getdescriptorinfo",
             {"\nAnalyses a descriptor.\n"},
             {
                 {"descriptor", RPCArg::Type::STR, RPCArg::Optional::NO, "The descriptor."},
@@ -904,8 +948,9 @@ UniValue getdescriptorinfo(const JSONRPCRequest& request)
             RPCExamples{
                 "Analyse a descriptor\n" +
                 HelpExampleCli("getdescriptorinfo", "\"wpkh([d34db33f/84h/0h/0h]0279be667ef9dcbbac55a06295Ce870b07029Bfcdb2dce28d959f2815b16f81798)\"")
-            }}.Check(request);
-
+            },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
     RPCTypeCheck(request.params, {UniValue::VSTR});
 
     FlatSigningProvider provider;
@@ -922,11 +967,13 @@ UniValue getdescriptorinfo(const JSONRPCRequest& request)
     result.pushKV("issolvable", desc->IsSolvable());
     result.pushKV("hasprivatekeys", provider.keys.size() > 0);
     return result;
+},
+    };
 }
 
-UniValue deriveaddresses(const JSONRPCRequest& request)
+static RPCHelpMan deriveaddresses()
 {
-            RPCHelpMan{"deriveaddresses",
+    return RPCHelpMan{"deriveaddresses",
             {"\nDerives one or more addresses corresponding to an output descriptor.\n"
             "Examples of output descriptors are:\n"
             "    pkh(<pubkey>)                        P2PKH outputs for the given pubkey\n"
@@ -949,8 +996,9 @@ UniValue deriveaddresses(const JSONRPCRequest& request)
             RPCExamples{
                 "First three native segwit receive addresses\n" +
                 HelpExampleCli("deriveaddresses", "\"wpkh([d34db33f/84h/0h/0h]xpub6DJ2dNUysrn5Vt36jH2KLBT2i1auw1tTSSomg8PhqNiUtx8QX2SvC9nrHu81fT41fvDUnhMjEzQgXnQjKEu3oaqMSzhSrHMxyyoEAmUHQbY/0/*)#cjjspncu\" \"[0,2]\"")
-            }}.Check(request);
-
+            },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
     RPCTypeCheck(request.params, {UniValue::VSTR, UniValueType()}); // Range argument is checked later
     const std::string desc_str = request.params[0].get_str();
 
@@ -1001,11 +1049,13 @@ UniValue deriveaddresses(const JSONRPCRequest& request)
     }
 
     return addresses;
+},
+    };
 }
 
-static UniValue verifymessage(const JSONRPCRequest& request)
+static RPCHelpMan verifymessage()
 {
-            RPCHelpMan{"verifymessage",
+    return RPCHelpMan{"verifymessage",
                 "\nVerify a signed message\n",
                 {
                     {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The qtum address to use for the signature."},
@@ -1025,8 +1075,8 @@ static UniValue verifymessage(const JSONRPCRequest& request)
             "\nAs a JSON-RPC call\n"
             + HelpExampleRpc("verifymessage", "\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\", \"signature\", \"my message\"")
                 },
-            }.Check(request);
-
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
     LOCK(cs_main);
 
     std::string strAddress  = request.params[0].get_str();
@@ -1048,11 +1098,13 @@ static UniValue verifymessage(const JSONRPCRequest& request)
     }
 
     return false;
+},
+    };
 }
 
-static UniValue signmessagewithprivkey(const JSONRPCRequest& request)
+static RPCHelpMan signmessagewithprivkey()
 {
-            RPCHelpMan{"signmessagewithprivkey",
+    return RPCHelpMan{"signmessagewithprivkey",
                 "\nSign a message with the private key of an address\n",
                 {
                     {"privkey", RPCArg::Type::STR, RPCArg::Optional::NO, "The private key to sign the message with."},
@@ -1069,8 +1121,8 @@ static UniValue signmessagewithprivkey(const JSONRPCRequest& request)
             "\nAs a JSON-RPC call\n"
             + HelpExampleRpc("signmessagewithprivkey", "\"privkey\", \"my message\"")
                 },
-            }.Check(request);
-
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
     std::string strPrivkey = request.params[0].get_str();
     std::string strMessage = request.params[1].get_str();
 
@@ -1086,20 +1138,22 @@ static UniValue signmessagewithprivkey(const JSONRPCRequest& request)
     }
 
     return signature;
+},
+    };
 }
 
-static UniValue setmocktime(const JSONRPCRequest& request)
+static RPCHelpMan setmocktime()
 {
-            RPCHelpMan{"setmocktime",
-                "\nSet the local time to given timestamp (-regtest only)\n",
-                {
-                    {"timestamp", RPCArg::Type::NUM, RPCArg::Optional::NO, UNIX_EPOCH_TIME + "\n"
-            "   Pass 0 to go back to using the system time."},
-                },
-                RPCResult{RPCResult::Type::NONE, "", ""},
-                RPCExamples{""},
-            }.Check(request);
-
+    return RPCHelpMan{"setmocktime",
+        "\nSet the local time to given timestamp (-regtest only)\n",
+        {
+            {"timestamp", RPCArg::Type::NUM, RPCArg::Optional::NO, UNIX_EPOCH_TIME + "\n"
+             "Pass 0 to go back to using the system time."},
+        },
+        RPCResult{RPCResult::Type::NONE, "", ""},
+        RPCExamples{""},
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
     if (!Params().IsMockableChain()) {
         throw std::runtime_error("setmocktime is for regression testing (-regtest mode) only");
     }
@@ -1112,22 +1166,33 @@ static UniValue setmocktime(const JSONRPCRequest& request)
     LOCK(cs_main);
 
     RPCTypeCheck(request.params, {UniValue::VNUM});
-    SetMockTime(request.params[0].get_int64());
+    const int64_t time{request.params[0].get_int64()};
+    if (time < 0) {
+        throw JSONRPCError(RPC_INVALID_PARAMETER, strprintf("Mocktime can not be negative: %s.", time));
+    }
+    SetMockTime(time);
+    if (request.context.Has<NodeContext>()) {
+        for (const auto& chain_client : request.context.Get<NodeContext>().chain_clients) {
+            chain_client->setMockTime(time);
+        }
+    }
 
     return NullUniValue;
+},
+    };
 }
 
-static UniValue mockscheduler(const JSONRPCRequest& request)
+static RPCHelpMan mockscheduler()
 {
-    RPCHelpMan{"mockscheduler",
+    return RPCHelpMan{"mockscheduler",
         "\nBump the scheduler into the future (-regtest only)\n",
         {
             {"delta_time", RPCArg::Type::NUM, RPCArg::Optional::NO, "Number of seconds to forward the scheduler into the future." },
         },
         RPCResult{RPCResult::Type::NONE, "", ""},
         RPCExamples{""},
-    }.Check(request);
-
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
     if (!Params().IsMockableChain()) {
         throw std::runtime_error("mockscheduler is for regression testing (-regtest mode) only");
     }
@@ -1140,11 +1205,14 @@ static UniValue mockscheduler(const JSONRPCRequest& request)
     }
 
     // protect against null pointer dereference
-    CHECK_NONFATAL(g_rpc_node);
-    CHECK_NONFATAL(g_rpc_node->scheduler);
-    g_rpc_node->scheduler->MockForward(std::chrono::seconds(delta_seconds));
+    CHECK_NONFATAL(request.context.Has<NodeContext>());
+    NodeContext& node = request.context.Get<NodeContext>();
+    CHECK_NONFATAL(node.scheduler);
+    node.scheduler->MockForward(std::chrono::seconds(delta_seconds));
 
     return NullUniValue;
+},
+    };
 }
 
 static UniValue RPCLockedMemoryInfo()
@@ -1179,12 +1247,12 @@ static std::string RPCMallocInfo()
 }
 #endif
 
-static UniValue getmemoryinfo(const JSONRPCRequest& request)
+static RPCHelpMan getmemoryinfo()
 {
     /* Please, avoid using the word "pool" here in the RPC interface or help,
      * as users will undoubtedly confuse it with the other "memory pool"
      */
-            RPCHelpMan{"getmemoryinfo",
+    return RPCHelpMan{"getmemoryinfo",
                 "Returns an object containing information about memory usage.\n",
                 {
                     {"mode", RPCArg::Type::STR, /* default */ "\"stats\"", "determines what kind of information is returned.\n"
@@ -1214,8 +1282,8 @@ static UniValue getmemoryinfo(const JSONRPCRequest& request)
                     HelpExampleCli("getmemoryinfo", "")
             + HelpExampleRpc("getmemoryinfo", "")
                 },
-            }.Check(request);
-
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
     std::string mode = request.params[0].isNull() ? "stats" : request.params[0].get_str();
     if (mode == "stats") {
         UniValue obj(UniValue::VOBJ);
@@ -1230,6 +1298,8 @@ static UniValue getmemoryinfo(const JSONRPCRequest& request)
     } else {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "unknown mode " + mode);
     }
+},
+    };
 }
 
 static void EnableOrDisableLogCategories(UniValue cats, bool enable) {
@@ -1250,15 +1320,15 @@ static void EnableOrDisableLogCategories(UniValue cats, bool enable) {
     }
 }
 
-UniValue logging(const JSONRPCRequest& request)
+static RPCHelpMan logging()
 {
-            RPCHelpMan{"logging",
+    return RPCHelpMan{"logging",
             "Gets and sets the logging configuration.\n"
             "When called without an argument, returns the list of categories with status that are currently being debug logged or not.\n"
             "When called with arguments, adds or removes categories from debug logging and return the lists above.\n"
             "The arguments are evaluated in order \"include\", \"exclude\".\n"
             "If an item is both included and excluded, it will thus end up being excluded.\n"
-            "The valid logging categories are: " + ListLogCategories() + "\n"
+            "The valid logging categories are: " + LogInstance().LogCategoriesString() + "\n"
             "In addition, the following are available as category names with special meanings:\n"
             "  - \"all\",  \"1\" : represent all logging categories.\n"
             "  - \"none\", \"0\" : even if other logging categories are specified, ignore all of them.\n"
@@ -1283,8 +1353,8 @@ UniValue logging(const JSONRPCRequest& request)
                     HelpExampleCli("logging", "\"[\\\"all\\\"]\" \"[\\\"http\\\"]\"")
             + HelpExampleRpc("logging", "[\"all\"], [\"libevent\"]")
                 },
-            }.Check(request);
-
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
     uint32_t original_log_categories = LogInstance().GetCategoryMask();
     if (request.params[0].isArray()) {
         EnableOrDisableLogCategories(request.params[0], true);
@@ -1310,32 +1380,104 @@ UniValue logging(const JSONRPCRequest& request)
     }
 
     UniValue result(UniValue::VOBJ);
-    std::vector<CLogCategoryActive> vLogCatActive = ListActiveLogCategories();
-    for (const auto& logCatActive : vLogCatActive) {
+    for (const auto& logCatActive : LogInstance().LogCategoriesList()) {
         result.pushKV(logCatActive.category, logCatActive.active);
     }
 
     return result;
+},
+    };
 }
 
-static UniValue echo(const JSONRPCRequest& request)
+static RPCHelpMan echo(const std::string& name)
 {
-    if (request.fHelp)
-        throw std::runtime_error(
-            RPCHelpMan{"echo|echojson ...",
+    return RPCHelpMan{name,
                 "\nSimply echo back the input arguments. This command is for testing.\n"
-                "\nIt will return an internal bug report when exactly 100 arguments are passed.\n"
+                "\nIt will return an internal bug report when arg9='trigger_internal_bug' is passed.\n"
                 "\nThe difference between echo and echojson is that echojson has argument conversion enabled in the client-side table in "
                 "qtum-cli and the GUI. There is no server-side difference.",
-                {},
+                {
+                    {"arg0", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, ""},
+                    {"arg1", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, ""},
+                    {"arg2", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, ""},
+                    {"arg3", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, ""},
+                    {"arg4", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, ""},
+                    {"arg5", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, ""},
+                    {"arg6", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, ""},
+                    {"arg7", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, ""},
+                    {"arg8", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, ""},
+                    {"arg9", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, ""},
+                },
                 RPCResult{RPCResult::Type::NONE, "", "Returns whatever was passed in"},
                 RPCExamples{""},
-            }.ToString()
-        );
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+    if (request.fHelp) throw std::runtime_error(self.ToString());
 
-    CHECK_NONFATAL(request.params.size() != 100);
+    if (request.params[9].isStr()) {
+        CHECK_NONFATAL(request.params[9].get_str() != "trigger_internal_bug");
+    }
 
     return request.params;
+},
+    };
+}
+
+static RPCHelpMan echo() { return echo("echo"); }
+static RPCHelpMan echojson() { return echo("echojson"); }
+
+static UniValue SummaryToJSON(const IndexSummary&& summary, std::string index_name)
+{
+    UniValue ret_summary(UniValue::VOBJ);
+    if (!index_name.empty() && index_name != summary.name) return ret_summary;
+
+    UniValue entry(UniValue::VOBJ);
+    entry.pushKV("synced", summary.synced);
+    entry.pushKV("best_block_height", summary.best_block_height);
+    ret_summary.pushKV(summary.name, entry);
+    return ret_summary;
+}
+
+static RPCHelpMan getindexinfo()
+{
+    return RPCHelpMan{"getindexinfo",
+                "\nReturns the status of one or all available indices currently running in the node.\n",
+                {
+                    {"index_name", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "Filter results for an index with a specific name."},
+                },
+                RPCResult{
+                    RPCResult::Type::OBJ, "", "", {
+                        {
+                            RPCResult::Type::OBJ, "name", "The name of the index",
+                            {
+                                {RPCResult::Type::BOOL, "synced", "Whether the index is synced or not"},
+                                {RPCResult::Type::NUM, "best_block_height", "The block height to which the index is synced"},
+                            }
+                        },
+                    },
+                },
+                RPCExamples{
+                    HelpExampleCli("getindexinfo", "")
+                  + HelpExampleRpc("getindexinfo", "")
+                  + HelpExampleCli("getindexinfo", "txindex")
+                  + HelpExampleRpc("getindexinfo", "txindex")
+                },
+                [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+    UniValue result(UniValue::VOBJ);
+    const std::string index_name = request.params[0].isNull() ? "" : request.params[0].get_str();
+
+    if (g_txindex) {
+        result.pushKVs(SummaryToJSON(g_txindex->GetSummary(), index_name));
+    }
+
+    ForEachBlockFilterIndex([&result, &index_name](const BlockFilterIndex& index) {
+        result.pushKVs(SummaryToJSON(index.GetSummary(), index_name));
+    });
+
+    return result;
+},
+    };
 }
 
 void RegisterMiscRPCCommands(CRPCTable &t)
@@ -1352,27 +1494,28 @@ static const CRPCCommand commands[] =
     { "util",               "getdescriptorinfo",      &getdescriptorinfo,      {"descriptor"} },
     { "util",               "verifymessage",          &verifymessage,          {"address","signature","message"} },
     { "util",               "signmessagewithprivkey", &signmessagewithprivkey, {"privkey","message"} },
+    { "util",               "getindexinfo",           &getindexinfo,           {"index_name"} },
 
     /* Not shown in help */
     { "hidden",             "setmocktime",            &setmocktime,            {"timestamp"}},
     { "hidden",             "mockscheduler",          &mockscheduler,          {"delta_time"}},
     { "hidden",             "echo",                   &echo,                   {"arg0","arg1","arg2","arg3","arg4","arg5","arg6","arg7","arg8","arg9"}},
-    { "hidden",             "echojson",               &echo,                   {"arg0","arg1","arg2","arg3","arg4","arg5","arg6","arg7","arg8","arg9"}},
+    { "hidden",             "echojson",               &echojson,               {"arg0","arg1","arg2","arg3","arg4","arg5","arg6","arg7","arg8","arg9"}},
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////// // qtum
     { "control",            "getdgpinfo",             &getdgpinfo,             {} },
-    { "util",               "getaddresstxids",        &getaddresstxids,        {"addresses"} },
-    { "util",               "getaddressdeltas",       &getaddressdeltas,       {"addresses"} },
-    { "util",               "getaddressbalance",      &getaddressbalance,      {"addresses"} },
-    { "util",               "getaddressutxos",        &getaddressutxos,        {"addresses"} },
-    { "util",               "getaddressmempool",      &getaddressmempool,      {"addresses"} },
+    { "util",               "getaddresstxids",        &getaddresstxids,        {"argument"} },
+    { "util",               "getaddressdeltas",       &getaddressdeltas,       {"argument"} },
+    { "util",               "getaddressbalance",      &getaddressbalance,      {"argument"} },
+    { "util",               "getaddressutxos",        &getaddressutxos,        {"argument"} },
+    { "util",               "getaddressmempool",      &getaddressmempool,      {"argument"} },
     { "util",               "getblockhashes",         &getblockhashes,         {"high","low","options"} },
     { "util",               "getspentinfo",           &getspentinfo,           {"argument"} },
     { "util",               "listconf",               &listconf,               {} },
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 };
 // clang-format on
-
-    for (unsigned int vcidx = 0; vcidx < ARRAYLEN(commands); vcidx++)
-        t.appendCommand(commands[vcidx].name, &commands[vcidx]);
+    for (const auto& c : commands) {
+        t.appendCommand(c.name, &c);
+    }
 }

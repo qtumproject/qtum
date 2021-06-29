@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2019 The Bitcoin Core developers
+// Copyright (c) 2018-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -18,7 +18,7 @@
 #define CLIENT_VERSION_MAJOR 0
 
 /* Minor version */
-#define CLIENT_VERSION_MINOR 20
+#define CLIENT_VERSION_MINOR 21
 
 /* Build revision */
 #define CLIENT_VERSION_REVISION 1
@@ -41,14 +41,14 @@
 /* Define to 1 to enable ZMQ functions */
 #define ENABLE_ZMQ 1
 
-/* parameter and return value type for __fdelt_chk */
-/* #undef FDELT_TYPE */
-
 /* define if the Boost library is available */
 #define HAVE_BOOST /**/
 
 /* define if the Boost::Filesystem library is available */
 #define HAVE_BOOST_FILESYSTEM /**/
+
+/* define if the Boost::Process library is available */
+#define HAVE_BOOST_PROCESS /**/
 
 /* define if the Boost::System library is available */
 #define HAVE_BOOST_SYSTEM /**/
@@ -139,18 +139,6 @@
 /* Define to 1 if you have the declaration of `strnlen', and to 0 if you
    don't. */
 #define HAVE_DECL_STRNLEN 1
-
-/* Define to 1 if you have the declaration of `__builtin_clz', and to 0 if you
-   don't. */
-//#define HAVE_DECL___BUILTIN_CLZ 1
-
-/* Define to 1 if you have the declaration of `__builtin_clzl', and to 0 if
-   you don't. */
-//#define HAVE_DECL___BUILTIN_CLZL 1
-
-/* Define to 1 if you have the declaration of `__builtin_clzll', and to 0 if
-   you don't. */
-//#define HAVE_DECL___BUILTIN_CLZLL 1
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 /* #undef HAVE_DLFCN_H */
@@ -265,7 +253,7 @@
 #define PACKAGE_NAME "Bitcoin Core"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "Bitcoin Core 0.19.99"
+#define PACKAGE_STRING "Bitcoin Core 0.21.1"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "bitcoin"
@@ -274,7 +262,7 @@
 #define PACKAGE_URL "https://bitcoincore.org/"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "0.19.99"
+#define PACKAGE_VERSION "0.21.1"
 
 /* Define to necessary symbol if this constant uses a non-standard name on
    your system. */

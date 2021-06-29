@@ -386,7 +386,7 @@ QVariant TokenItemModel::data(const QModelIndex &index, int role) const
         case Symbol:
             return rec->tokenSymbol;
         case Balance:
-            return BitcoinUnits::formatToken(rec->decimals, rec->balance, false, BitcoinUnits::separatorAlways);
+            return BitcoinUnits::formatToken(rec->decimals, rec->balance, false, BitcoinUnits::SeparatorStyle::ALWAYS);
         default:
             break;
         }
@@ -410,7 +410,7 @@ QVariant TokenItemModel::data(const QModelIndex &index, int role) const
         return rec->senderAddress;
         break;
     case TokenItemModel::BalanceRole:
-        return BitcoinUnits::formatToken(rec->decimals, rec->balance, false, BitcoinUnits::separatorAlways);
+        return BitcoinUnits::formatToken(rec->decimals, rec->balance, false, BitcoinUnits::SeparatorStyle::ALWAYS);
         break;
     case TokenItemModel::RawBalanceRole:
         return QString::fromStdString(rec->balance.str());
