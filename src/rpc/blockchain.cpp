@@ -3361,9 +3361,9 @@ static RPCHelpMan dumptxoutset()
     };
 }
 
-static UniValue qrc20name(const JSONRPCRequest& request)
+static RPCHelpMan qrc20name()
 {
-            RPCHelpMan{"qrc20name",
+    return RPCHelpMan{"qrc20name",
                 "\nReturns the name of the token\n",
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
@@ -3374,8 +3374,8 @@ static UniValue qrc20name(const JSONRPCRequest& request)
                     HelpExampleCli("qrc20name", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\"")
             + HelpExampleRpc("qrc20name", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\"")
                 },
-            }.Check(request);
-
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
     // Set contract address
     CallToken token;
     token.setAddress(request.params[0].get_str());
@@ -3386,11 +3386,13 @@ static UniValue qrc20name(const JSONRPCRequest& request)
         throw JSONRPCError(RPC_MISC_ERROR, "Fail to get token name");
 
     return result;
+},
+    };
 }
 
-static UniValue qrc20symbol(const JSONRPCRequest& request)
+static RPCHelpMan qrc20symbol()
 {
-            RPCHelpMan{"qrc20symbol",
+    return RPCHelpMan{"qrc20symbol",
                 "\nReturns the symbol of the token\n",
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
@@ -3401,8 +3403,8 @@ static UniValue qrc20symbol(const JSONRPCRequest& request)
                     HelpExampleCli("qrc20symbol", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\"")
             + HelpExampleRpc("qrc20symbol", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\"")
                 },
-            }.Check(request);
-
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
     // Set contract address
     CallToken token;
     token.setAddress(request.params[0].get_str());
@@ -3413,11 +3415,13 @@ static UniValue qrc20symbol(const JSONRPCRequest& request)
         throw JSONRPCError(RPC_MISC_ERROR, "Fail to get symbol");
 
     return result;
+},
+    };
 }
 
-static UniValue qrc20totalsupply(const JSONRPCRequest& request)
+static RPCHelpMan qrc20totalsupply()
 {
-            RPCHelpMan{"qrc20totalsupply",
+    return RPCHelpMan{"qrc20totalsupply",
                 "\nReturns the total supply of the token\n",
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
@@ -3428,8 +3432,8 @@ static UniValue qrc20totalsupply(const JSONRPCRequest& request)
                     HelpExampleCli("qrc20totalsupply", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\"")
             + HelpExampleRpc("qrc20totalsupply", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\"")
                 },
-            }.Check(request);
-
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
     // Set contract address
     CallToken token;
     token.setAddress(request.params[0].get_str());
@@ -3450,11 +3454,13 @@ static UniValue qrc20totalsupply(const JSONRPCRequest& request)
         throw JSONRPCError(RPC_MISC_ERROR, "Invalid total supply, value must be positive");
 
     return FormatToken(decimals, value);
+},
+    };
 }
 
-static UniValue qrc20decimals(const JSONRPCRequest& request)
+static RPCHelpMan qrc20decimals()
 {
-            RPCHelpMan{"qrc20decimals",
+    return RPCHelpMan{"qrc20decimals",
                 "\nReturns the number of decimals of the token\n",
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
@@ -3465,8 +3471,8 @@ static UniValue qrc20decimals(const JSONRPCRequest& request)
                     HelpExampleCli("qrc20decimals", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\"")
             + HelpExampleRpc("qrc20decimals", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\"")
                 },
-            }.Check(request);
-
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
     // Set contract address
     CallToken token;
     token.setAddress(request.params[0].get_str());
@@ -3477,11 +3483,13 @@ static UniValue qrc20decimals(const JSONRPCRequest& request)
         throw JSONRPCError(RPC_MISC_ERROR, "Fail to get decimals");
 
     return (int)result;
+},
+    };
 }
 
-static UniValue qrc20balanceof(const JSONRPCRequest& request)
+static RPCHelpMan qrc20balanceof()
 {
-            RPCHelpMan{"qrc20balanceof",
+    return RPCHelpMan{"qrc20balanceof",
                 "\nReturns the token balance for address\n",
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
@@ -3493,8 +3501,8 @@ static UniValue qrc20balanceof(const JSONRPCRequest& request)
                     HelpExampleCli("qrc20balanceof", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\"")
             + HelpExampleRpc("qrc20balanceof", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\"")
                 },
-            }.Check(request);
-
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
     // Get parameters
     CallToken token;
     token.setAddress(request.params[0].get_str());
@@ -3517,11 +3525,13 @@ static UniValue qrc20balanceof(const JSONRPCRequest& request)
         throw JSONRPCError(RPC_MISC_ERROR, "Invalid balance, vout must be positive");
 
     return FormatToken(decimals, value);
+},
+    };
 }
 
-static UniValue qrc20allowance(const JSONRPCRequest& request)
+static RPCHelpMan qrc20allowance()
 {
-            RPCHelpMan{"qrc20allowance",
+    return RPCHelpMan{"qrc20allowance",
                 "\nReturns remaining tokens allowed to spend for an address\n",
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
@@ -3534,9 +3544,8 @@ static UniValue qrc20allowance(const JSONRPCRequest& request)
                     HelpExampleCli("qrc20allowance", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\"")
             + HelpExampleRpc("qrc20allowance", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\"")
                 },
-            }.Check(request);
-
-
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
     // Set contract address
     CallToken token;
     token.setAddress(request.params[0].get_str());
@@ -3557,11 +3566,13 @@ static UniValue qrc20allowance(const JSONRPCRequest& request)
         throw JSONRPCError(RPC_MISC_ERROR, "Invalid allowance, value must be positive");
 
     return FormatToken(decimals, value);
+},
+    };
 }
 
-static UniValue qrc20listtransactions(const JSONRPCRequest& request)
+static RPCHelpMan qrc20listtransactions()
 {
-            RPCHelpMan{"qrc20listtransactions",
+    return RPCHelpMan{"qrc20listtransactions",
                 "\nReturns transactions history for a specific address.\n",
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address."},
@@ -3591,8 +3602,8 @@ static UniValue qrc20listtransactions(const JSONRPCRequest& request)
             + HelpExampleRpc("qrc20listtransactions", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\"")
             + HelpExampleRpc("qrc20listtransactions", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" 0 6")
                 },
-            }.Check(request);
-
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
     // Get parameters
     CallToken token;
     token.setAddress(request.params[0].get_str());
@@ -3645,6 +3656,8 @@ static UniValue qrc20listtransactions(const JSONRPCRequest& request)
     }
 
     return res;
+},
+    };
 }
 
 void RegisterBlockchainRPCCommands(CRPCTable &t)
@@ -3682,13 +3695,13 @@ static const CRPCCommand commands[] =
 
     { "blockchain",         "callcontract",           &callcontract,           {"address","data", "senderAddress", "gasLimit", "amount"} },
 
-    { "blockchain",         "qrc20name",              &qrc20name,              {"address"} },
-    { "blockchain",         "qrc20symbol",            &qrc20symbol,            {"address"} },
-    { "blockchain",         "qrc20totalsupply",       &qrc20totalsupply,       {"address"} },
-    { "blockchain",         "qrc20decimals",          &qrc20decimals,          {"address"} },
+    { "blockchain",         "qrc20name",              &qrc20name,              {"contractaddress"} },
+    { "blockchain",         "qrc20symbol",            &qrc20symbol,            {"contractaddress"} },
+    { "blockchain",         "qrc20totalsupply",       &qrc20totalsupply,       {"contractaddress"} },
+    { "blockchain",         "qrc20decimals",          &qrc20decimals,          {"contractaddress"} },
     { "blockchain",         "qrc20balanceof",         &qrc20balanceof,         {"contractaddress", "address"} },
     { "blockchain",         "qrc20allowance",         &qrc20allowance,         {"contractaddress", "addressFrom", "addressTo"} },
-    { "blockchain",         "qrc20listtransactions",  &qrc20listtransactions,  {"contractaddress", "address", "startblock", "minconf"} },
+    { "blockchain",         "qrc20listtransactions",  &qrc20listtransactions,  {"contractaddress", "address", "fromBlock", "minconf"} },
 
     /* Not shown in help */
     { "hidden",             "invalidateblock",        &invalidateblock,        {"blockhash"} },
