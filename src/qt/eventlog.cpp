@@ -12,6 +12,7 @@ static const QString PARAM_FROM_BLOCK = "fromBlock";
 static const QString PARAM_TO_BLOCK = "toBlock";
 static const QString PARAM_ADDRESSES = "address";
 static const QString PARAM_TOPICS = "topics";
+static const QString PARAM_MINCONF = "minconf";
 }
 using namespace EventLog_NS;
 
@@ -43,6 +44,7 @@ EventLog::EventLog():
     QStringList lstOptional;
     lstOptional.append(PARAM_ADDRESSES);
     lstOptional.append(PARAM_TOPICS);
+    lstOptional.append(PARAM_MINCONF);
     m_RPCCommand = new ExecRPCCommand(RPC_SERACH_LOGS, lstMandatory, lstOptional, QMap<QString, QString>());
 }
 
@@ -55,7 +57,7 @@ EventLog::~EventLog()
     }
 }
 
-bool EventLog::searchTokenTx(interfaces::Node& node, const WalletModel* wallet_model, int64_t fromBlock, int64_t toBlock, std::string strContractAddress, std::string strSenderAddress, QVariant &result)
+bool EventLog::searchTokenTx(interfaces::Node& node, const WalletModel* wallet_model, int64_t fromBlock, int64_t toBlock, int64_t minconf, std::string eventName, std::string strContractAddress, std::string strSenderAddress, int numTopics, QVariant &result)
 {
     std::vector<std::string> addresses;
     addresses.push_back(strContractAddress);
@@ -64,20 +66,27 @@ bool EventLog::searchTokenTx(interfaces::Node& node, const WalletModel* wallet_m
     // Skip the event type check
     static std::string nullRecord = uint256().ToString();
     topics.push_back(nullRecord);
-    // Match the log with sender address
-    topics.push_back(strSenderAddress);
-    // Match the log with receiver address
-    topics.push_back(strSenderAddress);
+    if(numTopics > 1)
+    {
+        // Match the log with sender address
+        topics.push_back(strSenderAddress);
+    }
+    if(numTopics > 2)
+    {
+        // Match the log with receiver address
+        topics.push_back(strSenderAddress);
+    }
 
-    return search(node, wallet_model, fromBlock, toBlock, addresses, topics, result);
+    return search(node, wallet_model, fromBlock, toBlock, minconf, addresses, topics, result);
 }
 
-bool EventLog::search(interfaces::Node& node, const WalletModel* wallet_model, int64_t fromBlock, int64_t toBlock, const std::vector<std::string> addresses, const std::vector<std::string> topics, QVariant &result)
+bool EventLog::search(interfaces::Node& node, const WalletModel* wallet_model, int64_t fromBlock, int64_t toBlock, int64_t minconf, const std::vector<std::string> addresses, const std::vector<std::string> topics, QVariant &result)
 {
     setStartBlock(fromBlock);
     setEndBlock(toBlock);
     setAddresses(addresses);
     setTopics(topics);
+    setMinconf(minconf);
 
     QString resultJson;
     QString errorMessage;
@@ -105,3 +114,9 @@ void EventLog::setTopics(const std::vector<std::string> topics)
 {
     m_lstParams[PARAM_TOPICS] = createJsonString("topics", topics);
 }
+
+void EventLog::setMinconf(int64_t minconf)
+{
+    m_lstParams[PARAM_MINCONF] = QString::number(minconf);
+}
+

@@ -126,6 +126,7 @@ private Q_SLOTS:
             tokenAbi.setAddress(tokenInfo.contract_address);
             tokenAbi.setSender(tokenInfo.sender_address);
             tokenAbi.transferEvents(tokenEvents, fromBlock, toBlock);
+            tokenAbi.burnEvents(tokenEvents, fromBlock, toBlock);
             for(size_t i = 0; i < tokenEvents.size(); i++)
             {
                 TokenEvent event = tokenEvents[i];

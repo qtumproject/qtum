@@ -396,6 +396,13 @@ QVariant TokenTransactionTableModel::txAddressDecoration(const TokenTransactionR
 
 QString TokenTransactionTableModel::formatTxToAddress(const TokenTransactionRecord *wtx, bool tooltip) const
 {
+    if(wtx->address.empty() &&
+            (wtx->type == TokenTransactionRecord::SendToOther ||
+             wtx->type == TokenTransactionRecord::SendToAddress))
+    {
+        return tr("(null)");
+    }
+
     switch(wtx->type)
     {
     case TokenTransactionRecord::RecvFromOther:
