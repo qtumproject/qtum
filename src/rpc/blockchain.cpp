@@ -3576,7 +3576,7 @@ static RPCHelpMan qrc20listtransactions()
                 "\nReturns transactions history for a specific address.\n",
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address."},
-                    {"addresss", RPCArg::Type::STR, RPCArg::Optional::NO,  "The qtum address to get history for."},
+                    {"address", RPCArg::Type::STR, RPCArg::Optional::NO,  "The qtum address to get history for."},
                     {"fromBlock", RPCArg::Type::NUM, /* default */ "0", "The number of the earliest block."},
                     {"minconf", RPCArg::Type::NUM, /* default */ "6", "Minimal number of confirmations."},
                 },

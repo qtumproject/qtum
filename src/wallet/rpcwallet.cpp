@@ -6450,22 +6450,13 @@ static RPCHelpMan upgradewallet()
     };
 }
 
-static UniValue qrc20approve(const JSONRPCRequest& request)
+static RPCHelpMan qrc20approve()
 {
-    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
-    if (!wallet) return NullUniValue;
-    CWallet* const pwallet = wallet.get();
+    uint64_t blockGasLimit = 0, minGasPrice = 0;
+    CAmount nGasPrice = 0;
+    getDgpData(blockGasLimit, minGasPrice, nGasPrice);
 
-    LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
-    LOCK2(pwallet->cs_wallet, spk_man.cs_KeyStore);
-    QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
-    uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(::ChainActive().Height());
-    uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(::ChainActive().Height()));
-    CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
-    uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
-    bool fCheckOutputs = true;
-
-            RPCHelpMan{"qrc20approve",
+    return RPCHelpMan{"qrc20approve",
                 "\nOwner approves an address to spend some amount of tokens.\n",
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address."},
@@ -6488,7 +6479,14 @@ static UniValue qrc20approve(const JSONRPCRequest& request)
             + HelpExampleRpc("qrc20approve", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
             + HelpExampleRpc("qrc20approve", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice)+" true")
                 },
-            }.Check(request);
+            [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
+    if (!wallet) return NullUniValue;
+    CWallet* const pwallet = wallet.get();
+
+    LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
+    LOCK2(pwallet->cs_wallet, spk_man.cs_KeyStore);
 
     // Get mandatory parameters
     std::string contract = request.params[0].get_str();
@@ -6497,6 +6495,7 @@ static UniValue qrc20approve(const JSONRPCRequest& request)
     std::string tokenAmount = request.params[3].get_str();
 
     // Get gas limit
+    uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
     if (request.params.size() > 4){
         nGasLimit = request.params[4].get_int64();
     }
@@ -6507,6 +6506,7 @@ static UniValue qrc20approve(const JSONRPCRequest& request)
     }
 
     // Get check outputs flag
+    bool fCheckOutputs = true;
     if (request.params.size() > 6){
         fCheckOutputs = request.params[6].get_bool();
     }
@@ -6545,24 +6545,17 @@ static UniValue qrc20approve(const JSONRPCRequest& request)
     UniValue result(UniValue::VOBJ);
     result.pushKV("txid", token.getTxId());
     return result;
+},
+    };
 }
 
-static UniValue qrc20transfer(const JSONRPCRequest& request)
+static RPCHelpMan qrc20transfer()
 {
-    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
-    if (!wallet) return NullUniValue;
-    CWallet* const pwallet = wallet.get();
+    uint64_t blockGasLimit = 0, minGasPrice = 0;
+    CAmount nGasPrice = 0;
+    getDgpData(blockGasLimit, minGasPrice, nGasPrice);
 
-    LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
-    LOCK2(pwallet->cs_wallet, spk_man.cs_KeyStore);
-    QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
-    uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(::ChainActive().Height());
-    uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(::ChainActive().Height()));
-    CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
-    uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
-    bool fCheckOutputs = true;
-
-            RPCHelpMan{"qrc20transfer",
+    return RPCHelpMan{"qrc20transfer",
                 "\nSend token amount to a given address.\n",
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address."},
@@ -6585,7 +6578,14 @@ static UniValue qrc20transfer(const JSONRPCRequest& request)
             + HelpExampleRpc("qrc20transfer", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
             + HelpExampleRpc("qrc20transfer", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice)+" true")
                 },
-            }.Check(request);
+            [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
+    if (!wallet) return NullUniValue;
+    CWallet* const pwallet = wallet.get();
+
+    LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
+    LOCK2(pwallet->cs_wallet, spk_man.cs_KeyStore);
 
     // Get mandatory parameters
     std::string contract = request.params[0].get_str();
@@ -6594,6 +6594,7 @@ static UniValue qrc20transfer(const JSONRPCRequest& request)
     std::string tokenAmount = request.params[3].get_str();
 
     // Get gas limit
+    uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
     if (request.params.size() > 4){
         nGasLimit = request.params[4].get_int64();
     }
@@ -6604,6 +6605,7 @@ static UniValue qrc20transfer(const JSONRPCRequest& request)
     }
 
     // Get check outputs flag
+    bool fCheckOutputs = true;
     if (request.params.size() > 6){
         fCheckOutputs = request.params[6].get_bool();
     }
@@ -6652,24 +6654,17 @@ static UniValue qrc20transfer(const JSONRPCRequest& request)
     UniValue result(UniValue::VOBJ);
     result.pushKV("txid", token.getTxId());
     return result;
+},
+    };
 }
 
-static UniValue qrc20transferfrom(const JSONRPCRequest& request)
+static RPCHelpMan qrc20transferfrom()
 {
-    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
-    if (!wallet) return NullUniValue;
-    CWallet* const pwallet = wallet.get();
+    uint64_t blockGasLimit = 0, minGasPrice = 0;
+    CAmount nGasPrice = 0;
+    getDgpData(blockGasLimit, minGasPrice, nGasPrice);
 
-    LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
-    LOCK2(pwallet->cs_wallet, spk_man.cs_KeyStore);
-    QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
-    uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(::ChainActive().Height());
-    uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(::ChainActive().Height()));
-    CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
-    uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
-    bool fCheckOutputs = true;
-
-            RPCHelpMan{"qrc20transferfrom",
+    return RPCHelpMan{"qrc20transferfrom",
                 "\nSend token amount from selected address to a given address.\n",
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address."},
@@ -6693,7 +6688,14 @@ static UniValue qrc20transferfrom(const JSONRPCRequest& request)
             + HelpExampleRpc("qrc20transferfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QhZThdumK8EFRX8MziWzvjCdiQWRt7Mxdz\" 0.1")
             + HelpExampleRpc("qrc20transferfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QhZThdumK8EFRX8MziWzvjCdiQWRt7Mxdz\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice)+" true")
                 },
-            }.Check(request);
+            [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
+    if (!wallet) return NullUniValue;
+    CWallet* const pwallet = wallet.get();
+
+    LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
+    LOCK2(pwallet->cs_wallet, spk_man.cs_KeyStore);
 
     // Get mandatory parameters
     std::string contract = request.params[0].get_str();
@@ -6703,6 +6705,7 @@ static UniValue qrc20transferfrom(const JSONRPCRequest& request)
     std::string tokenAmount = request.params[4].get_str();
 
     // Get gas limit
+    uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
     if (request.params.size() > 5){
         nGasLimit = request.params[5].get_int64();
     }
@@ -6713,6 +6716,7 @@ static UniValue qrc20transferfrom(const JSONRPCRequest& request)
     }
 
     // Get check outputs flag
+    bool fCheckOutputs = true;
     if (request.params.size() > 7){
         fCheckOutputs = request.params[7].get_bool();
     }
@@ -6761,24 +6765,17 @@ static UniValue qrc20transferfrom(const JSONRPCRequest& request)
     UniValue result(UniValue::VOBJ);
     result.pushKV("txid", token.getTxId());
     return result;
+},
+    };
 }
 
-static UniValue qrc20burn(const JSONRPCRequest& request)
+static RPCHelpMan qrc20burn()
 {
-    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
-    if (!wallet) return NullUniValue;
-    CWallet* const pwallet = wallet.get();
+    uint64_t blockGasLimit = 0, minGasPrice = 0;
+    CAmount nGasPrice = 0;
+    getDgpData(blockGasLimit, minGasPrice, nGasPrice);
 
-    LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
-    LOCK2(pwallet->cs_wallet, spk_man.cs_KeyStore);
-    QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
-    uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(::ChainActive().Height());
-    uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(::ChainActive().Height()));
-    CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
-    uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
-    bool fCheckOutputs = true;
-
-            RPCHelpMan{"qrc20burn",
+    return RPCHelpMan{"qrc20burn",
                 "\nBurns token amount from owner address.\n",
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address."},
@@ -6800,7 +6797,14 @@ static UniValue qrc20burn(const JSONRPCRequest& request)
             + HelpExampleRpc("qrc20burn", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
             + HelpExampleRpc("qrc20burn", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice)+" true")
                 },
-            }.Check(request);
+            [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
+    if (!wallet) return NullUniValue;
+    CWallet* const pwallet = wallet.get();
+
+    LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
+    LOCK2(pwallet->cs_wallet, spk_man.cs_KeyStore);
 
     // Get mandatory parameters
     std::string contract = request.params[0].get_str();
@@ -6808,6 +6812,7 @@ static UniValue qrc20burn(const JSONRPCRequest& request)
     std::string tokenAmount = request.params[2].get_str();
 
     // Get gas limit
+    uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
     if (request.params.size() > 3){
         nGasLimit = request.params[3].get_int64();
     }
@@ -6818,6 +6823,7 @@ static UniValue qrc20burn(const JSONRPCRequest& request)
     }
 
     // Get check outputs flag
+    bool fCheckOutputs = true;
     if (request.params.size() > 5){
         fCheckOutputs = request.params[5].get_bool();
     }
@@ -6866,24 +6872,17 @@ static UniValue qrc20burn(const JSONRPCRequest& request)
     UniValue result(UniValue::VOBJ);
     result.pushKV("txid", token.getTxId());
     return result;
+},
+    };
 }
 
-static UniValue qrc20burnfrom(const JSONRPCRequest& request)
+static RPCHelpMan qrc20burnfrom()
 {
-    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
-    if (!wallet) return NullUniValue;
-    CWallet* const pwallet = wallet.get();
+    uint64_t blockGasLimit = 0, minGasPrice = 0;
+    CAmount nGasPrice = 0;
+    getDgpData(blockGasLimit, minGasPrice, nGasPrice);
 
-    LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
-    LOCK2(pwallet->cs_wallet, spk_man.cs_KeyStore);
-    QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
-    uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(::ChainActive().Height());
-    uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(::ChainActive().Height()));
-    CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
-    uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
-    bool fCheckOutputs = true;
-
-            RPCHelpMan{"qrc20burnfrom",
+    return RPCHelpMan{"qrc20burnfrom",
                 "\nBurns token amount from a given address.\n",
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address."},
@@ -6906,7 +6905,14 @@ static UniValue qrc20burnfrom(const JSONRPCRequest& request)
             + HelpExampleRpc("qrc20burnfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
             + HelpExampleRpc("qrc20burnfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice)+" true")
                 },
-            }.Check(request);
+            [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
+    if (!wallet) return NullUniValue;
+    CWallet* const pwallet = wallet.get();
+
+    LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
+    LOCK2(pwallet->cs_wallet, spk_man.cs_KeyStore);
 
     // Get mandatory parameters
     std::string contract = request.params[0].get_str();
@@ -6915,6 +6921,7 @@ static UniValue qrc20burnfrom(const JSONRPCRequest& request)
     std::string tokenAmount = request.params[3].get_str();
 
     // Get gas limit
+    uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
     if (request.params.size() > 4){
         nGasLimit = request.params[4].get_int64();
     }
@@ -6925,6 +6932,7 @@ static UniValue qrc20burnfrom(const JSONRPCRequest& request)
     }
 
     // Get check outputs flag
+    bool fCheckOutputs = true;
     if (request.params.size() > 6){
         fCheckOutputs = request.params[6].get_bool();
     }
@@ -6973,6 +6981,8 @@ static UniValue qrc20burnfrom(const JSONRPCRequest& request)
     UniValue result(UniValue::VOBJ);
     result.pushKV("txid", token.getTxId());
     return result;
+},
+    };
 }
 
 RPCHelpMan abortrescan();
