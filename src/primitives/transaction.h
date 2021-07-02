@@ -424,6 +424,8 @@ struct CMutableTransaction
      */
     uint256 GetHash() const;
 
+    bool HasOpCall() const;
+
     bool HasOpSender() const;
 
     bool HasWitness() const

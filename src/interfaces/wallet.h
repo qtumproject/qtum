@@ -51,6 +51,7 @@ struct DelegationInfo;
 struct DelegationDetails;
 struct SuperStakerInfo;
 struct DelegationStakerInfo;
+struct SignDelegation;
 
 
 using WalletOrderForm = std::vector<std::pair<std::string, std::string>>;
@@ -428,6 +429,18 @@ public:
     //! Get staker address balance.
     virtual bool getStakerAddressBalance(const std::string& staker, CAmount& balance, CAmount& stake, CAmount& weight) = 0;
 
+    //! Get add delegation data to sign.
+    virtual bool getAddDelegationData(const std::string& psbt, std::map<int, SignDelegation>& signData, std::string& error) = 0;
+
+    //! Set signed add delegation data.
+    virtual bool setAddDelegationData(std::string& psbt, const std::map<int, SignDelegation>& signData, std::string& error) = 0;
+
+    //! Set staker ledger id.
+    virtual void setStakerLedgerId(const std::string& ledgerId) = 0;
+
+    //! Get staker ledger id.
+    virtual std::string getStakerLedgerId() = 0;
+
     //! Register handler for unload message.
     using UnloadFn = std::function<void()>;
     virtual std::unique_ptr<Handler> handleUnload(UnloadFn fn) = 0;
@@ -739,6 +752,14 @@ struct DelegationStakerInfo
     int64_t block_number = -1;
     CAmount weight = 0;
     uint160 hash;
+};
+
+// Sign PoD wallet delegation data.
+struct SignDelegation
+{
+    std::string delegate;
+    std::string staker;
+    std::string PoD;
 };
 
 //! Return implementation of Wallet interface. This function is defined in

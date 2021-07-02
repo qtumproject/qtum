@@ -52,6 +52,10 @@ DelegationPage::DelegationPage(const PlatformStyle *platformStyle, QWidget *pare
     connect(m_delegationList, &DelegationListWidget::splitCoins, this, &DelegationPage::on_splitCoins);
     connect(m_delegationList, &DelegationListWidget::restoreDelegations, this, &DelegationPage::on_restoreDelegations);
 
+    connect(m_addDelegationPage, &AddDelegationPage::message, this, &DelegationPage::message);
+    connect(m_removeDelegationPage, &RemoveDelegationPage::message, this, &DelegationPage::message);
+    connect(m_splitUtxoPage, &SplitUTXOPage::message, this, &DelegationPage::message);
+
     contextMenu = new QMenu(m_delegationList);
     contextMenu->addAction(copyStakerNameAction);
     contextMenu->addAction(copyStakerAddressAction);

@@ -404,6 +404,64 @@ bool CScript::ReplaceParam(opcodetype findOp, int posBefore, const std::vector<u
     return ret;
 }
 
+bool CScript::FindParam(opcodetype findOp, int posBefore, std::vector<unsigned char> &vchParam) const
+{
+    if(posBefore < 0)
+        return false;
+
+    // Find parameter with opcode and return the parameter before
+    bool ret = false;
+    std::vector<std::pair<const_iterator, std::vector<unsigned char>>> opcodes;
+    int minSize = posBefore + 1;
+    opcodetype opcode;
+    std::vector<unsigned char> tmpParam;
+    for (const_iterator pc = begin(); pc != end() && GetOp(pc, opcode, tmpParam);)
+    {
+        opcodes.push_back(std::make_pair(pc, tmpParam));
+        if (opcode == findOp)
+        {
+            int size = opcodes.size();
+            if(size > minSize)
+            {
+                int position = size -1 -posBefore;
+                vchParam = opcodes[position].second;
+                ret = true;
+            }
+            break;
+        }
+    }
+
+    return ret;
+}
+
+bool CScript::GetData(std::vector<unsigned char> &data) const
+{
+    if(HasOpCreate())
+    {
+        return FindParam(OP_CREATE, 1, data);
+    }
+    else if(HasOpCall())
+    {
+        return FindParam(OP_CALL, 2, data);
+    }
+
+    return false;
+}
+
+bool CScript::SetData(const std::vector<unsigned char> &data, CScript &scriptRet) const
+{
+    if(HasOpCreate())
+    {
+        return ReplaceParam(OP_CREATE, 1, data, scriptRet);
+    }
+    else if(HasOpCall())
+    {
+        return ReplaceParam(OP_CALL, 2, data, scriptRet);
+    }
+
+    return false;
+}
+
 bool CScript::IsPayToWitnessPubkeyHash() const
 {
     // Extra-fast test for pay-to-witness-pubkey-hash CScripts:

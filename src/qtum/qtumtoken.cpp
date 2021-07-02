@@ -18,6 +18,7 @@ const char *PARAM_GASPRICE = "gasprice";
 const char *PARAM_SENDER = "sender";
 const char *PARAM_BROADCAST = "broadcast";
 const char *PARAM_CHANGE_TO_SENDER = "changeToSender";
+const char *PARAM_PSBT = "psbt";
 }
 
 bool QtumTokenExec::execValid(const int &, const bool &)
@@ -36,6 +37,11 @@ bool QtumTokenExec::exec(const bool &, const std::map<std::string, std::string> 
 }
 
 bool QtumTokenExec::execEvents(const int64_t &, const int64_t &, const int64_t&, const std::string &, const std::string &, const std::string &, const int &, std::vector<TokenEvent> &)
+{
+    return false;
+}
+
+bool QtumTokenExec::privateKeysDisabled()
 {
     return false;
 }
@@ -65,6 +71,7 @@ struct QtumTokenData
     int evtBurn;
 
     std::string txid;
+    std::string psbt;
     std::string errorMessage;
 
     QtumTokenData():
@@ -248,6 +255,16 @@ void QtumToken::clear()
 std::string QtumToken::getTxId()
 {
     return d->txid;
+}
+
+std::string QtumToken::getPsbt()
+{
+    return d->psbt;
+}
+
+void QtumToken::setTxId(const std::string& txid)
+{
+    d->txid = txid;
 }
 
 bool QtumToken::name(std::string &result, bool sendTo)
@@ -571,6 +588,7 @@ bool QtumToken::exec(const std::vector<std::string> &input, int func, std::vecto
 {
     // Convert the input data into hex encoded binary data
     d->txid = "";
+    d->psbt = "";
     if(d->tokenExec == 0 || !(d->tokenExec->execValid(func, sendTo)))
         return false;
     std::string strData;
@@ -609,7 +627,14 @@ bool QtumToken::exec(const std::vector<std::string> &input, int func, std::vecto
     }
     else
     {
-        d->txid = result;
+        if(d->tokenExec->privateKeysDisabled())
+        {
+            d->psbt = result;
+        }
+        else
+        {
+            d->txid = result;
+        }
     }
 
     return true;
@@ -720,4 +745,9 @@ const char* QtumToken::paramBroadcast()
 const char* QtumToken::paramChangeToSender()
 {
     return QtumToken_NS::PARAM_CHANGE_TO_SENDER;
+}
+
+const char* QtumToken::paramPsbt()
+{
+    return QtumToken_NS::PARAM_PSBT;
 }

@@ -28,6 +28,10 @@ public:
 
     void setTokenData(std::string address, std::string sender, std::string symbol, int8_t decimals, std::string balance);
 
+Q_SIGNALS:
+    // Fired when a message should be reported to the user
+    void message(const QString &title, const QString &message, unsigned int style);
+
 private Q_SLOTS:
     void on_clearButton_clicked();
     void on_gasInfoChanged(quint64 blockGasLimit, quint64 minGasPrice, quint64 nGasPrice);
@@ -41,6 +45,7 @@ private:
     ClientModel* m_clientModel;
     Token *m_tokenABI;
     SelectedToken *m_selectedToken;
+    bool bCreateUnsigned = false;
 };
 
 #endif // SENDTOKENPAGE_H

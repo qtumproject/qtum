@@ -421,6 +421,10 @@ void BitcoinGUI::createActions()
     m_load_psbt_action->setStatusTip(tr("Load Partially Signed Qtum Transaction"));
     m_load_psbt_clipboard_action = new QAction(tr("Load PSBT from clipboard..."), this);
     m_load_psbt_clipboard_action->setStatusTip(tr("Load Partially Signed Qtum Transaction from clipboard"));
+    signTxHardwareAction = new QAction(tr("Sign with &hardware..."), this);
+    signTxHardwareAction->setStatusTip(tr("Sign transaction with hardware wallet"));
+    ledgerAction = new QAction(tr("Menage &ledger..."), this);
+    ledgerAction->setStatusTip(tr("Menage ledger hardware wallet application"));
 
     openRPCConsoleAction = new QAction(tr("Node window"), this);
     openRPCConsoleAction->setStatusTip(tr("Open node debugging and diagnostic console"));
@@ -487,6 +491,8 @@ void BitcoinGUI::createActions()
         connect(verifyMessageAction, &QAction::triggered, [this]{ gotoVerifyMessageTab(); });
         connect(usedSendingAddressesAction, &QAction::triggered, walletFrame, &WalletFrame::usedSendingAddresses);
         connect(usedReceivingAddressesAction, &QAction::triggered, walletFrame, &WalletFrame::usedReceivingAddresses);
+        connect(signTxHardwareAction, &QAction::triggered, [this]{ signTxHardware(); });
+        connect(ledgerAction, &QAction::triggered, [this]{ setupLedger(); });
         connect(openAction, &QAction::triggered, this, &BitcoinGUI::openClicked);
         connect(m_open_wallet_menu, &QMenu::aboutToShow, [this] {
             m_open_wallet_menu->clear();
@@ -563,6 +569,11 @@ void BitcoinGUI::createMenuBar()
         file->addAction(verifyMessageAction);
         file->addAction(m_load_psbt_action);
         file->addAction(m_load_psbt_clipboard_action);
+        if(::Params().HasHardwareWalletSupport())
+        {
+            file->addAction(signTxHardwareAction);
+            file->addAction(ledgerAction);
+        }
         file->addSeparator();
     }
     file->addAction(quitAction);
@@ -893,6 +904,8 @@ void BitcoinGUI::setWalletActionsEnabled(bool enabled)
     walletStakeAction->setEnabled(enabled);
     m_load_psbt_action->setEnabled(enabled);
     m_load_psbt_clipboard_action->setEnabled(enabled);
+    signTxHardwareAction->setEnabled(enabled);
+    ledgerAction->setEnabled(enabled);
     m_close_wallet_action->setEnabled(enabled);
     m_close_all_wallets_action->setEnabled(enabled);
 }
@@ -1081,6 +1094,14 @@ void BitcoinGUI::gotoVerifyMessageTab(QString addr)
 void BitcoinGUI::gotoLoadPSBT(bool from_clipboard)
 {
     if (walletFrame) walletFrame->gotoLoadPSBT(from_clipboard);
+}
+void BitcoinGUI::signTxHardware(const QString& tx)
+{
+    if (walletFrame) walletFrame->signTxHardware(tx);
+}
+void BitcoinGUI::setupLedger()
+{
+    if (walletFrame) walletFrame->setupLedger();
 }
 #endif // ENABLE_WALLET
 
@@ -1645,6 +1666,8 @@ void BitcoinGUI::updateStakingIcon()
             labelStakingIcon->setToolTip(tr("Not staking because you don't have mature coins"));
         else if (walletModel->wallet().isLocked())
             labelStakingIcon->setToolTip(tr("Not staking because wallet is locked"));
+        else if(walletModel->hasLedgerProblem())
+            labelStakingIcon->setToolTip(tr("Not staking because the ledger fail to connect"));
         else
             labelStakingIcon->setToolTip(tr("Not staking"));
     }

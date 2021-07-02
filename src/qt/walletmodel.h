@@ -184,6 +184,16 @@ public:
 
     uint256 getLastBlockProcessed() const;
 
+    // Get or set selected hardware device fingerprint (only for hardware wallet applicable)
+    QString getFingerprint(bool stake = false) const;
+    void setFingerprint(const QString &value, bool stake = false);
+
+    // Get or set hardware wallet init required (only for hardware wallet applicable)
+    void importAddressesData(bool rescan = true, bool importPKH = true, bool importP2SH = true, bool importBech32 = true, QString pathPKH = QString(), QString pathP2SH = QString(), QString pathBech32 = QString());
+    bool getSignPsbtWithHwiTool();
+    bool createUnsigned();
+    bool hasLedgerProblem();
+
 private:
     std::unique_ptr<interfaces::Wallet> m_wallet;
     std::unique_ptr<interfaces::Handler> m_handler_unload;
@@ -231,6 +241,16 @@ private:
     uint64_t nWeight;
     std::atomic<bool> updateStakeWeight;
     std::atomic<bool> updateCoinAddresses;
+
+    QString fingerprint;
+    std::atomic<bool> hardwareWalletInitRequired{false};
+    bool rescan{true};
+    bool importPKH{true};
+    bool importP2SH{true};
+    bool importBech32{true};
+    QString pathPKH;
+    QString pathP2SH;
+    QString pathBech32;
 
     QThread t;
     WalletWorker *worker;
@@ -297,6 +317,8 @@ public Q_SLOTS:
     void checkCoinAddressesChanged();
     /* Update stake weight when changed*/
     void checkStakeWeightChanged();
+    /* Check for hardware wallet params changes*/
+    void checkHardwareWallet();
 };
 
 #endif // BITCOIN_QT_WALLETMODEL_H

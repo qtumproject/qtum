@@ -57,6 +57,8 @@ SuperStakerPage::SuperStakerPage(const PlatformStyle *platformStyle, QWidget *pa
     connect(m_superStakerList, &SuperStakerListWidget::splitCoins, this, &SuperStakerPage::on_splitCoins);
     connect(m_superStakerList, &SuperStakerListWidget::restoreSuperStakers, this, &SuperStakerPage::on_restoreSuperStakers);
 
+    connect(m_splitUtxoPage, &SplitUTXOPage::message, this, &SuperStakerPage::message);
+
     contextMenu = new QMenu(m_superStakerList);
     contextMenu->addAction(copyStakerNameAction);
     contextMenu->addAction(copyStakerAddressAction);
