@@ -932,7 +932,7 @@ static RPCHelpMan splitutxosforaddress()
     };
 }
 
-void getDgpData(uint64_t& blockGasLimit, uint64_t& minGasPrice, CAmount& nGasPrice)
+void getDgpData(uint64_t& blockGasLimit, uint64_t& minGasPrice, CAmount& nGasPrice, int* pHeight = nullptr)
 {
     blockGasLimit = DEFAULT_BLOCK_GAS_LIMIT_DGP;
     minGasPrice = DEFAULT_MIN_GAS_PRICE_DGP;
@@ -940,8 +940,10 @@ void getDgpData(uint64_t& blockGasLimit, uint64_t& minGasPrice, CAmount& nGasPri
     {
         LOCK(cs_main);
         QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
-        blockGasLimit = qtumDGP.getBlockGasLimit(::ChainActive().Height());
-        minGasPrice = CAmount(qtumDGP.getMinGasPrice(::ChainActive().Height()));
+        int height = ::ChainActive().Height();
+        blockGasLimit = qtumDGP.getBlockGasLimit(height);
+        minGasPrice = CAmount(qtumDGP.getMinGasPrice(height));
+        if(pHeight) *pHeight = height;
     }
     nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
 }
@@ -950,7 +952,8 @@ static RPCHelpMan createcontract()
 {
     uint64_t blockGasLimit = 0, minGasPrice = 0;
     CAmount nGasPrice = 0;
-    getDgpData(blockGasLimit, minGasPrice, nGasPrice);
+    int height = 0;
+    getDgpData(blockGasLimit, minGasPrice, nGasPrice, &height);
 
     return RPCHelpMan{"createcontract",
                 "\nCreate a contract with bytcode." +
@@ -979,7 +982,7 @@ static RPCHelpMan createcontract()
                 HelpExampleCli("createcontract", "\"60606040525b33600060006101000a81548173ffffffffffffffffffffffffffffffffffffffff02191690836c010000000000000000000000009081020402179055506103786001600050819055505b600c80605b6000396000f360606040526008565b600256\"")
                 + HelpExampleCli("createcontract", "\"60606040525b33600060006101000a81548173ffffffffffffffffffffffffffffffffffffffff02191690836c010000000000000000000000009081020402179055506103786001600050819055505b600c80605b6000396000f360606040526008565b600256\" 6000000 "+FormatMoney(minGasPrice)+" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" true")
                 },
-        [&,blockGasLimit,minGasPrice,nGasPrice](const RPCHelpMan& self, const JSONRPCRequest& request) mutable -> UniValue
+        [&,blockGasLimit,minGasPrice,nGasPrice,height](const RPCHelpMan& self, const JSONRPCRequest& request) mutable -> UniValue
 {
     std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
     if (!wallet) return NullUniValue;
@@ -1073,11 +1076,11 @@ static RPCHelpMan createcontract()
         else
         {
             // Create op sender transaction when op sender is activated
-            if(!(::ChainActive().Height() >= Params().GetConsensus().QIP5Height))
+            if(!(height >= Params().GetConsensus().QIP5Height))
                 throw JSONRPCError(RPC_TYPE_ERROR, "Sender address does not have any unspent outputs");
         }
 
-        if(::ChainActive().Height() >= Params().GetConsensus().QIP5Height)
+        if(height >= Params().GetConsensus().QIP5Height)
         {
             // Set the sender address
             signSenderAddress = senderAddress;
@@ -1085,7 +1088,7 @@ static RPCHelpMan createcontract()
     }
     else
     {
-        if(::ChainActive().Height() >= Params().GetConsensus().QIP5Height)
+        if(height >= Params().GetConsensus().QIP5Height)
         {
             // If no sender address provided set to the default sender address
             SetDefaultSignSenderAddress(pwallet, signSenderAddress, coinControl);
@@ -1110,7 +1113,7 @@ static RPCHelpMan createcontract()
 
     // Build OP_EXEC script
     CScript scriptPubKey = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(nGasLimit) << CScriptNum(nGasPrice) << ParseHex(bytecode) <<OP_CREATE;
-    if(::ChainActive().Height() >= Params().GetConsensus().QIP5Height)
+    if(height >= Params().GetConsensus().QIP5Height)
     {
         if(IsValidDestination(signSenderAddress))
         {
@@ -1197,15 +1200,19 @@ UniValue SendToContract(CWallet* const pwallet, LegacyScriptPubKeyMan& spk_man, 
 {
     uint64_t blockGasLimit = 0, minGasPrice = 0;
     CAmount nGasPrice = 0;
-    getDgpData(blockGasLimit, minGasPrice, nGasPrice);
+    int height = 0;
+    getDgpData(blockGasLimit, minGasPrice, nGasPrice, &height);
 
     std::string contractaddress = params[0].get_str();
     if(contractaddress.size() != 40 || !CheckHex(contractaddress))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect contract address");
 
     dev::Address addrAccount(contractaddress);
-    if(!globalState->addressInUse(addrAccount))
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "contract address does not exist");
+    {
+        LOCK(cs_main);
+        if(!globalState->addressInUse(addrAccount))
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "contract address does not exist");
+    }
 
     std::string datahex = params[1].get_str();
     if(datahex.size() % 2 != 0 || !CheckHex(datahex))
@@ -1299,11 +1306,11 @@ UniValue SendToContract(CWallet* const pwallet, LegacyScriptPubKeyMan& spk_man, 
         else
         {
             // Create op sender transaction when op sender is activated
-            if(!(::ChainActive().Height() >= Params().GetConsensus().QIP5Height))
+            if(!(height >= Params().GetConsensus().QIP5Height))
                 throw JSONRPCError(RPC_TYPE_ERROR, "Sender address does not have any unspent outputs");
         }
 
-        if(::ChainActive().Height() >= Params().GetConsensus().QIP5Height)
+        if(height >= Params().GetConsensus().QIP5Height)
         {
             // Set the sender address
             signSenderAddress = senderAddress;
@@ -1311,7 +1318,7 @@ UniValue SendToContract(CWallet* const pwallet, LegacyScriptPubKeyMan& spk_man, 
     }
     else
     {
-        if(::ChainActive().Height() >= Params().GetConsensus().QIP5Height)
+        if(height >= Params().GetConsensus().QIP5Height)
         {
             // If no sender address provided set to the default sender address
             SetDefaultSignSenderAddress(pwallet, signSenderAddress, coinControl);
@@ -1337,7 +1344,7 @@ UniValue SendToContract(CWallet* const pwallet, LegacyScriptPubKeyMan& spk_man, 
 
     // Build OP_EXEC_ASSIGN script
     CScript scriptPubKey = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(nGasLimit) << CScriptNum(nGasPrice) << ParseHex(datahex) << ParseHex(contractaddress) << OP_CALL;
-    if(::ChainActive().Height() >= Params().GetConsensus().QIP5Height)
+    if(height >= Params().GetConsensus().QIP5Height)
     {
         if(IsValidDestination(signSenderAddress))
         {
@@ -1709,7 +1716,7 @@ static RPCHelpMan setdelegateforaddress()
 
     // Sign the  staker address
     std::vector<unsigned char> PoD;
-    std::string hexStaker =  keyID.GetReverseHex();
+    std::string hexStaker =  ToKeyID(*pkhStaker).GetReverseHex();
     if(!SignStr::SignMessage(key, hexStaker, PoD))
         throw JSONRPCError(RPC_WALLET_ERROR, "Fail to sign the staker address");
 
