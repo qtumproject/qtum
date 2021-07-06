@@ -113,8 +113,7 @@ WalletModel::~WalletModel()
 {
     unsubscribeFromCoreSignals();
 
-    t.quit();
-    t.wait();
+    join();
 }
 
 void WalletModel::startPollBalance()
@@ -860,4 +859,28 @@ void WalletModel::checkStakeWeightChanged()
 void WalletModel::checkCoinAddresses()
 {
     updateCoinAddresses = true;
+}
+
+void WalletModel::join()
+{
+    // Stop timer
+    if(timer)
+        timer->stop();
+
+    // Quit thread
+    if(t.isRunning())
+    {
+        if(worker)
+            worker->disconnect(this);
+        t.quit();
+        t.wait();
+    }
+
+    // Join models
+    if(tokenItemModel)
+        tokenItemModel->join();
+    if(delegationItemModel)
+        delegationItemModel->join();
+    if(superStakerItemModel)
+        superStakerItemModel->join();
 }

@@ -184,6 +184,8 @@ public:
 
     uint256 getLastBlockProcessed() const;
 
+    void join();
+
 private:
     std::unique_ptr<interfaces::Wallet> m_wallet;
     std::unique_ptr<interfaces::Handler> m_handler_unload;

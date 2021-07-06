@@ -375,6 +375,7 @@ void BitcoinApplication::requestShutdown()
     // Must disconnect node signals otherwise current thread can deadlock since
     // no event loop is running.
     window->unsubscribeFromCoreSignals();
+    window->join();
 #ifdef ENABLE_WALLET
     // Get restore wallet data
     if(m_wallet_controller) m_wallet_controller->getRestoreData(restorePath, restoreParam, restoreName);

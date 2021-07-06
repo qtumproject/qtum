@@ -333,8 +333,7 @@ DelegationItemModel::~DelegationItemModel()
 {
     unsubscribeFromCoreSignals();
 
-    t.quit();
-    t.wait();
+    join();
 
     if(priv)
     {
@@ -565,5 +564,16 @@ void DelegationItemModel::itemChanged(QString hash, qint64 balance, qint64 stake
             priv->cachedDelegationItem[i] = delegationEntry;
             priv->updateEntry(delegationEntry, CT_UPDATED);
         }
+    }
+}
+
+void DelegationItemModel::join()
+{
+    if(t.isRunning())
+    {
+        if(worker)
+            worker->disconnect(this);
+        t.quit();
+        t.wait();
     }
 }

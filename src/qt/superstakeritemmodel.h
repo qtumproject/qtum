@@ -57,6 +57,7 @@ public:
     /*@}*/
     
     void updateSuperStakerData(const SuperStakerItemEntry& entry);
+    void join();
 
 public Q_SLOTS:
     void checkSuperStakerChanged();
