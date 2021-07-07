@@ -916,11 +916,13 @@ CWalletTx* CWallet::AddToWallet(CTransactionRef tx, const CWalletTx::Confirmatio
             wtx.m_confirm.nIndex = confirm.nIndex;
             wtx.m_confirm.hashBlock = confirm.hashBlock;
             wtx.m_confirm.block_height = confirm.block_height;
+            wtx.m_confirm.hasDelegation = confirm.hasDelegation;
             fUpdated = true;
         } else {
             assert(wtx.m_confirm.nIndex == confirm.nIndex);
             assert(wtx.m_confirm.hashBlock == confirm.hashBlock);
             assert(wtx.m_confirm.block_height == confirm.block_height);
+            assert(wtx.m_confirm.hasDelegation == confirm.hasDelegation);
         }
         // If we have a witness-stripped version of this transaction, and we
         // see a new version with a witness, then we must be upgrading a pre-segwit
@@ -1010,11 +1012,13 @@ bool CWallet::LoadToWallet(const uint256& hash, const UpdateWalletTxFn& fill_wtx
     }
     // If wallet doesn't have a chain (e.g wallet-tool), don't bother to update txn.
     if (HaveChain()) {
-        Optional<int> block_height = chain().getBlockHeight(wtx.m_confirm.hashBlock);
+        bool hasDelegation = false;
+        Optional<int> block_height = chain().getBlockHeight(wtx.m_confirm.hashBlock, &hasDelegation);
         if (block_height) {
             // Update cached block height variable since it not stored in the
             // serialized transaction.
             wtx.m_confirm.block_height = *block_height;
+            wtx.m_confirm.hasDelegation = hasDelegation;
         } else if (wtx.isConflicted() || wtx.isConfirmed()) {
             // If tx block (or conflicting block) was reorged out of chain
             // while the wallet was shutdown, change tx status to UNCONFIRMED
@@ -1235,7 +1239,7 @@ void CWallet::SyncTransaction(const CTransactionRef& ptx, CWalletTx::Confirmatio
 
 void CWallet::transactionAddedToMempool(const CTransactionRef& tx, uint64_t mempool_sequence) {
     LOCK(cs_wallet);
-    SyncTransaction(tx, {CWalletTx::Status::UNCONFIRMED, /* block height */ 0, /* block hash */ {}, /* index */ 0});
+    SyncTransaction(tx, {CWalletTx::Status::UNCONFIRMED, /* block height */ 0, /* block hash */ {}, /* index */ 0, /* hasDelegation */ false});
 
     auto it = mapWallet.find(tx->GetHash());
     if (it != mapWallet.end()) {
@@ -1277,19 +1281,20 @@ void CWallet::transactionRemovedFromMempool(const CTransactionRef& tx, MemPoolRe
         // distinguishing between conflicted and unconfirmed transactions are
         // imperfect, and could be improved in general, see
         // https://github.com/bitcoin-core/bitcoin-devwiki/wiki/Wallet-Transaction-Conflict-Tracking
-        SyncTransaction(tx, {CWalletTx::Status::UNCONFIRMED, /* block height */ 0, /* block hash */ {}, /* index */ 0});
+        SyncTransaction(tx, {CWalletTx::Status::UNCONFIRMED, /* block height */ 0, /* block hash */ {}, /* index */ 0, /* hasDelegation */ false});
     }
 }
 
 void CWallet::blockConnected(const CBlock& block, int height)
 {
     const uint256& block_hash = block.GetHash();
+    bool hasDelegation = block.HasProofOfDelegation();
     LOCK(cs_wallet);
 
     m_last_block_processed_height = height;
     m_last_block_processed = block_hash;
     for (size_t index = 0; index < block.vtx.size(); index++) {
-        SyncTransaction(block.vtx[index], {CWalletTx::Status::CONFIRMED, height, block_hash, (int)index});
+        SyncTransaction(block.vtx[index], {CWalletTx::Status::CONFIRMED, height, block_hash, (int)index, hasDelegation});
         transactionRemovedFromMempool(block.vtx[index], MemPoolRemovalReason::BLOCK, 0 /* mempool_sequence */);
     }
 }
@@ -1306,7 +1311,7 @@ void CWallet::blockDisconnected(const CBlock& block, int height)
     m_last_block_processed = block.hashPrevBlock;
     for (const CTransactionRef& ptx : block.vtx) {
         int index = ptx->IsCoinStake() ? -1 : 0;
-        SyncTransaction(ptx, {CWalletTx::Status::UNCONFIRMED, /* block height */ 0, /* block hash */ {}, index});
+        SyncTransaction(ptx, {CWalletTx::Status::UNCONFIRMED, /* block height */ 0, /* block hash */ {}, index, /* hasDelegation */ false});
     }
 }
 
@@ -1860,8 +1865,9 @@ CWallet::ScanResult CWallet::ScanForWalletTransactions(const uint256& start_bloc
                 result.status = ScanResult::FAILURE;
                 break;
             }
+            bool hasDelegation = block.HasProofOfDelegation();
             for (size_t posInBlock = 0; posInBlock < block.vtx.size(); ++posInBlock) {
-                SyncTransaction(block.vtx[posInBlock], {CWalletTx::Status::CONFIRMED, block_height, block_hash, (int)posInBlock}, fUpdate);
+                SyncTransaction(block.vtx[posInBlock], {CWalletTx::Status::CONFIRMED, block_height, block_hash, (int)posInBlock, hasDelegation}, fUpdate);
             }
             // scan succeeded, record block as most recent successfully scanned
             result.last_scanned_block = block_hash;
@@ -6077,12 +6083,9 @@ void CWallet::GetStakerAddressBalance(const PKHash &staker, CAmount &balance, CA
         if (nDepth < 1)
             continue;
 
-        uint256 hashBlock = pcoin->m_confirm.hashBlock;
-        bool fHasProofOfDelegation = false;
-        CBlockIndex* blockIndex = LookupBlockIndex(hashBlock);
-        if(!blockIndex)
+        if(pcoin->m_confirm.hashBlock.IsNull())
             continue;
-        fHasProofOfDelegation = blockIndex->HasProofOfDelegation();
+        bool fHasProofOfDelegation = pcoin->m_confirm.hasDelegation;
 
         bool isImature = pcoin->GetBlocksToMaturity() == 0;
         for (unsigned int i = 0; i < pcoin->tx->vout.size(); i++)

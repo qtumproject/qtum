@@ -52,6 +52,7 @@ public:
     /*@}*/
     
     void updateBalance(const TokenItemEntry& entry);
+    void join();
 
 public Q_SLOTS:
     void checkTokenBalanceChanged();

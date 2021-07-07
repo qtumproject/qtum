@@ -192,7 +192,7 @@ BitcoinGUI::BitcoinGUI(interfaces::Node& node, const PlatformStyle *_platformSty
 #ifdef ENABLE_WALLET
     if (gArgs.GetBoolArg("-staking", true))
     {
-        QTimer *timerStakingIcon = new QTimer(labelStakingIcon);
+        timerStakingIcon = new QTimer(labelStakingIcon);
         connect(timerStakingIcon, SIGNAL(timeout()), this, SLOT(updateStakingIcon()));
         timerStakingIcon->start(1000);
 
@@ -1877,4 +1877,17 @@ void UnitDisplayStatusBarControl::onMenuSelection(QAction* action)
 WalletFrame *BitcoinGUI::getWalletFrame() const
 {
     return walletFrame;
+}
+
+void BitcoinGUI::join()
+{
+#ifdef ENABLE_WALLET
+    if (timerStakingIcon) timerStakingIcon->stop();
+    if(m_wallet_controller)
+    {
+        for (WalletModel* wallet_model : m_wallet_controller->getOpenWallets()) {
+            wallet_model->join();
+        }
+    }
+#endif // ENABLE_WALLET
 }

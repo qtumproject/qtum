@@ -71,6 +71,7 @@ public:
     /*@}*/
     
     void updateDelegationData(const DelegationItemEntry& entry);
+    void join();
 
 public Q_SLOTS:
     void checkDelegationChanged();

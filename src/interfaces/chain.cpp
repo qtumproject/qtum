@@ -154,11 +154,12 @@ public:
         }
         return nullopt;
     }
-    Optional<int> getBlockHeight(const uint256& hash) override
+    Optional<int> getBlockHeight(const uint256& hash, bool* hasDelegation) override
     {
         LOCK(::cs_main);
         CBlockIndex* block = LookupBlockIndex(hash);
         if (block && ::ChainActive().Contains(block)) {
+            if(hasDelegation) *hasDelegation = block->HasProofOfDelegation();
             return block->nHeight;
         }
         return nullopt;

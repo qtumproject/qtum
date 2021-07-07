@@ -56,6 +56,7 @@ class QMenu;
 class QProgressBar;
 class QProgressDialog;
 class QDockWidget;
+class QTimer;
 QT_END_NAMESPACE
 
 namespace GUIUtil {
@@ -110,6 +111,8 @@ public:
 
     bool isPrivacyModeActivated() const;
 
+    void join();
+
 protected:
     void changeEvent(QEvent *e) override;
     void closeEvent(QCloseEvent *event) override;
@@ -136,6 +139,7 @@ private:
     GUIUtil::ClickableProgressBar* progressBar = nullptr;
     QProgressDialog* progressDialog = nullptr;
     QLabel *labelStakingIcon = nullptr;
+    QTimer *timerStakingIcon = nullptr;
 
     QMenuBar* appMenuBar = nullptr;
     TitleBar *appTitleBar = nullptr;

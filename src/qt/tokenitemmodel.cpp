@@ -332,8 +332,7 @@ TokenItemModel::~TokenItemModel()
 {
     unsubscribeFromCoreSignals();
 
-    t.quit();
-    t.wait();
+    join();
 
     if(priv)
     {
@@ -537,4 +536,15 @@ void TokenItemModel::updateBalance(const TokenItemEntry &entry)
     QString hash = QString::fromStdString(entry.hash.ToString());
     QMetaObject::invokeMethod(worker, "updateBalance", Qt::QueuedConnection,
                               Q_ARG(QString, hash), Q_ARG(QString, entry.contractAddress), Q_ARG(QString, entry.senderAddress));
+}
+
+void TokenItemModel::join()
+{
+    if(t.isRunning())
+    {
+        if(worker)
+            worker->disconnect(this);
+        t.quit();
+        t.wait();
+    }
 }
