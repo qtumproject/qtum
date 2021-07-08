@@ -31,11 +31,6 @@ files: []
 script: |
   set -e -o pipefail
 
-  #this is a hack since gitian has no natural support for submodules
-  cp -r cpp-eth-qtum/* qtum/src/cpp-ethereum
-  #make sure this file exists... 
-  cat qtum/src/cpp-ethereum/utils/libscrypt/b64.c
-
   WRAP_DIR=$HOME/wrapped
   HOSTS="x86_64-w64-mingw32"
   CONFIGFLAGS="--enable-reduce-exports --disable-bench --disable-gui-tests"
@@ -134,6 +129,11 @@ script: |
     INSTALLPATH="${PWD}/installed/${DISTNAME}"
     mkdir -p ${INSTALLPATH}
     tar --strip-components=1 -xf "${GIT_ARCHIVE}"
+
+    #this is a hack since gitian has no natural support for submodules
+    cp -r ../../cpp-eth-qtum/* ./src/cpp-ethereum
+    #make sure this file exists... 
+    cat ./src/cpp-ethereum/utils/libscrypt/b64.c 
 
     ./autogen.sh
     CONFIG_SITE=${BASEPREFIX}/${i}/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking ${CONFIGFLAGS} CFLAGS="${HOST_CFLAGS}" CXXFLAGS="${HOST_CXXFLAGS}"
