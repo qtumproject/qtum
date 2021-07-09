@@ -20,8 +20,8 @@ Q_SIGNALS:
     void mouseClicked();
 
 protected:
-    void mousePressEvent(QMouseEvent *event);
-    void paintEvent(QPaintEvent *event);
+    void mousePressEvent(QMouseEvent *event) override;
+    void paintEvent(QPaintEvent *event) override;
 
 private:
     QPushButton *pbSwitch;

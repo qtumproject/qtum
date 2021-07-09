@@ -1706,7 +1706,7 @@ public:
         address(_address)
     {}
 
-    bool Match(const DelegationEvent& event) const
+    bool Match(const DelegationEvent& event) const override
     {
         return event.item.staker == address;
     }

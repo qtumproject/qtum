@@ -25,8 +25,8 @@ public:
 
 public Q_SLOTS:
     void on_gasInfoChanged(quint64 blockGasLimit, quint64 minGasPrice, quint64 nGasPrice);
-    void accept();
-    void reject();
+    void accept() override;
+    void reject() override;
     void show();
 
 private Q_SLOTS:

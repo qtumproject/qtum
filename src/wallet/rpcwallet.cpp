@@ -1421,12 +1421,12 @@ public:
         spk_man(_spk_man)
     {}
 
-    bool execValid(const int& func, const bool& sendTo)
+    bool execValid(const int& func, const bool& sendTo) override
     {
         return sendTo ? func != -1 : CallToken::execValid(func, sendTo);
     }
 
-    bool exec(const bool& sendTo, const std::map<std::string, std::string>& lstParams, std::string& result, std::string& message)
+    bool exec(const bool& sendTo, const std::map<std::string, std::string>& lstParams, std::string& result, std::string& message) override
     {
         if(!sendTo)
             return CallToken::exec(sendTo, lstParams, result, message);

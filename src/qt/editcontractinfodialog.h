@@ -42,7 +42,7 @@ public:
     void setABI(const QString &ABI);
 
 public Q_SLOTS:
-    void accept();
+    void accept() override;
     void on_newContractABI();
 
 private:

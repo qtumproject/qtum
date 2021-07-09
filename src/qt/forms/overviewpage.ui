@@ -958,7 +958,7 @@
       </property>
       <item>
        <widget class="QWidget" name="widgetListTransaction" native="true">
-        <layout class="QVBoxLayout" name="verticalLayout">
+        <layout class="QVBoxLayout" name="verticalLayout_1">
          <property name="spacing">
           <number>0</number>
          </property>

@@ -984,7 +984,7 @@ public:
         }
     }
 
-    bool Match(const DelegationEvent& event) const
+    bool Match(const DelegationEvent& event) const override
     {
         bool mine = spk_man->HaveKey(CKeyID(event.item.staker));
         if(!mine)
@@ -1078,7 +1078,7 @@ public:
         spk_man = _pwallet->GetLegacyScriptPubKeyMan();
     }
 
-    bool Match(const DelegationEvent& event) const
+    bool Match(const DelegationEvent& event) const override
     {
         return spk_man->HaveKey(CKeyID(event.item.delegate));
     }
@@ -1406,12 +1406,12 @@ private:
     StakeMinerPriv *d = 0;
 
 public:
-    void Init(CWallet *pwallet, CConnman* connman)
+    void Init(CWallet *pwallet, CConnman* connman) override
     {
         d = new StakeMinerPriv(pwallet, connman);
     }
 
-    void Run()
+    void Run() override
     {
         SetThreadPriority(THREAD_PRIORITY_LOWEST);
 

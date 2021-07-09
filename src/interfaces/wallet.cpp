@@ -1059,7 +1059,7 @@ public:
     {
         return m_wallet->RemoveDelegationEntry(uint256S(sHash), true);
     }
-    bool setDelegationRemoved(const std::string &sHash, const std::string &sTxid)
+    bool setDelegationRemoved(const std::string &sHash, const std::string &sTxid) override
     {
         bool found = false;
         DelegationInfo info;

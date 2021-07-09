@@ -489,9 +489,9 @@ public:
 
     void set(CBlockIndex const* tip);
 
-    dev::h256s precedingHashes(dev::h256 const&) const;
+    dev::h256s precedingHashes(dev::h256 const&) const override;
 
-    void clear();
+    void clear() override;
 
 private:
     dev::h256s m_lastHashes;
