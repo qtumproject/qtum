@@ -3,6 +3,7 @@
 #include <qt/qtumhwitool.h>
 #include <outputtype.h>
 #include <QRegularExpression>
+#include <QRegularExpressionValidator>
 
 #define paternDerivationPath "^m/[0-9]{1,9}'/[0-9]{1,9}'/[0-9]{1,9}'$"
 QString toHWIPath(const QString& path)

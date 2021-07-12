@@ -1683,7 +1683,7 @@ public:
         return true;
     }
 
-    bool privateKeysDisabled()
+    bool privateKeysDisabled() override
     {
         return pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
     }
