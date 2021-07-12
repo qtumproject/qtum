@@ -37,11 +37,11 @@ public:
     /** Set maximum number of rows returned, -1 if unlimited. */
     void setLimit(int limit);
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
 protected:
-    bool filterAcceptsRow(int source_row, const QModelIndex & source_parent) const;
-    bool lessThan(const QModelIndex & left, const QModelIndex & right) const;
+    bool filterAcceptsRow(int source_row, const QModelIndex & source_parent) const override;
+    bool lessThan(const QModelIndex & left, const QModelIndex & right) const override;
 
 private:
     QDateTime dateFrom;

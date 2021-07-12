@@ -987,7 +987,7 @@ public:
         }
     }
 
-    bool Match(const DelegationEvent& event) const
+    bool Match(const DelegationEvent& event) const override
     {
         bool mine = false;
         if(privateKeysDisabled)
@@ -1092,7 +1092,7 @@ public:
         privateKeysDisabled = _pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
     }
 
-    bool Match(const DelegationEvent& event) const
+    bool Match(const DelegationEvent& event) const override
     {
         if(privateKeysDisabled)
         {
@@ -1428,12 +1428,12 @@ private:
     StakeMinerPriv *d = 0;
 
 public:
-    void Init(CWallet *pwallet, CConnman* connman)
+    void Init(CWallet *pwallet, CConnman* connman) override
     {
         d = new StakeMinerPriv(pwallet, connman);
     }
 
-    void Run()
+    void Run() override
     {
         SetThreadPriority(THREAD_PRIORITY_LOWEST);
 

@@ -116,7 +116,7 @@ public:
 
 private:
 
-    void transferBalance(dev::Address const& _from, dev::Address const& _to, dev::u256 const& _value);
+    void transferBalance(dev::Address const& _from, dev::Address const& _to, dev::u256 const& _value) override;
 
     Vin const* vin(dev::Address const& _a) const;
 
@@ -124,9 +124,9 @@ private:
 
     // void commit(CommitBehaviour _commitBehaviour);
 
-    void kill(dev::Address _addr);
+    void kill(dev::Address _addr) override;
 
-    void addBalance(dev::Address const& _id, dev::u256 const& _amount);
+    void addBalance(dev::Address const& _id, dev::u256 const& _amount) override;
 
     void deleteAccounts(std::set<dev::Address>& addrs);
 

@@ -53,27 +53,27 @@ public:
     /**
      * Start long-polling
      */
-    void PollStart();
+    void PollStart() override;
 
     /**
      * Ping long-poll connection with an empty character to make sure it's still alive.
      */
-    void PollPing();
+    void PollPing() override;
 
     /**
      * Returns whether the underlying long-poll connection is still alive.
      */
-    bool PollAlive();
+    bool PollAlive() override;
 
     /**
      * End a long poll request.
      */
-    void PollCancel();
+    void PollCancel() override;
 
     /**
      * Return the JSON result of a long poll request
      */
-    void PollReply(const UniValue& result);
+    void PollReply(const UniValue& result) override;
 
     /**
      * Return the http request

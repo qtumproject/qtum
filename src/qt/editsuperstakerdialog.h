@@ -18,8 +18,8 @@ public:
     QString getSuperStakerName();
 
 public Q_SLOTS:
-    void accept();
-    void reject();
+    void accept() override;
+    void reject() override;
 
 private Q_SLOTS:
     void on_cancelButton_clicked();
