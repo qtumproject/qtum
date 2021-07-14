@@ -46,9 +46,9 @@ namespace RPCServer
 class JSONRPCRequestLong : public JSONRPCRequest
 {
 public:
-    JSONRPCRequestLong(const util::Ref& context) : JSONRPCRequest(context) {};
+    JSONRPCRequestLong(const util::Ref& _context) : JSONRPCRequest(_context) {};
 
-    JSONRPCRequestLong(const util::Ref& context, HTTPRequest *_req);
+    JSONRPCRequestLong(const util::Ref& _context, HTTPRequest *_req);
 
     /**
      * Start long-polling
