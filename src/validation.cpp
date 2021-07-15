@@ -4872,7 +4872,12 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
     nTimeBlock &= ~consensusParams.StakeTimestampMask(nHeight);
     if(!spk_man)
         return false;
-    if (wallet.CreateCoinStake(*spk_man, pblock->nBits, nTotalFees, nTimeBlock, txCoinStake, key, setCoins, setSelectedCoins, setDelegateCoins, selectedOnly, vchPoD, headerPrevout))
+    bool found = false;
+    {
+        LOCK(cs_main);
+        found = wallet.CreateCoinStake(*spk_man, pblock->nBits, nTotalFees, nTimeBlock, txCoinStake, key, setCoins, setSelectedCoins, setDelegateCoins, selectedOnly, vchPoD, headerPrevout);
+    }
+    if (found)
     {
         if (nTimeBlock >= ::ChainActive().Tip()->GetMedianTimePast()+1)
         {
