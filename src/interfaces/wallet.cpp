@@ -307,7 +307,7 @@ DelegationStakerInfo MakeWalletDelegationStakerInfo(CWallet& wallet, const uint1
     return result;
 }
 
-bool TokenTxStatus(CWallet& wallet, const uint256& txid, int& block_number, bool& in_mempool, int& num_blocks)
+bool TokenTxStatus(CWallet& wallet, const uint256& txid, int& block_number, bool& in_mempool, int& num_blocks) EXCLUSIVE_LOCKS_REQUIRED(wallet.cs_wallet)
 {
     auto mi = wallet.mapTokenTx.find(txid);
     if (mi == wallet.mapTokenTx.end()) {
@@ -648,6 +648,8 @@ public:
     }
     bool isMineAddress(const std::string &strAddress) override
     {
+        LOCK(m_wallet->cs_wallet);
+
         CTxDestination address = DecodeDestination(strAddress);
         if(!IsValidDestination(address) || !m_wallet->IsMine(address))
         {
@@ -655,7 +657,7 @@ public:
         }
         return true;
     }
-    std::vector<std::string> availableAddresses(bool fIncludeZeroValue)
+    std::vector<std::string> availableAddresses(bool fIncludeZeroValue) EXCLUSIVE_LOCKS_REQUIRED(m_wallet->cs_wallet)
     {
         std::vector<std::string> result;
         std::vector<COutput> vecOutputs;

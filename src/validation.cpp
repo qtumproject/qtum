@@ -1298,6 +1298,7 @@ bool CheckHeaderPoW(const CBlockHeader& block, const Consensus::Params& consensu
 
 bool CheckHeaderPoS(const CBlockHeader& block, const Consensus::Params& consensusParams)
 {
+    LOCK(cs_main);
     // Check for proof of stake block header
     // Get prev block index
     BlockMap::iterator mi = g_chainman.BlockIndex().find(block.hashPrevBlock);
@@ -7016,6 +7017,7 @@ bool CChainState::ResizeCoinsCaches(size_t coinstip_size, size_t coinsdb_size)
 
 bool CChainState::RemoveBlockIndex(CBlockIndex *pindex)
 {
+    AssertLockHeld(cs_main);
     // Check if the block index is present in any variable and remove it
     if(pindexBestInvalid == pindex)
         pindexBestInvalid = nullptr;
@@ -7287,6 +7289,7 @@ std::string exceptedMessage(const dev::eth::TransactionException& excepted, cons
 
 bool RemoveStateBlockIndex(CBlockIndex *pindex)
 {
+    AssertLockHeld(cs_main);
     return ::ChainstateActive().RemoveBlockIndex(pindex);
 }
 
@@ -7462,6 +7465,7 @@ CAmount GetTxGasFee(const CMutableTransaction& _tx)
     CAmount nGasFee = 0;
     if(tx.HasCreateOrCall())
     {
+        LOCK(cs_main);
         CCoinsViewCache& view = ::ChainstateActive().CoinsTip();
         const CChainParams& chainparams = Params();
         unsigned int contractflags = GetContractScriptFlags(GetSpendHeight(view), chainparams.GetConsensus());

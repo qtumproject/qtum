@@ -305,6 +305,7 @@ void MinerTestingSetup::TestPackageSelection(const CChainParams& chainparams, co
 }
 
 CAmount calculateReward(const CBlock& block){
+    LOCK(cs_main);
     CAmount sumVout = 0, fee = 0;
     for(const CTransactionRef t : block.vtx){
         fee += ::ChainstateActive().CoinsTip().GetValueIn(*t);
