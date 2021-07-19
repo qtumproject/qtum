@@ -111,19 +111,6 @@
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="rbZapWallet">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Recover transactions without metadata</string>
-          </property>
-         </widget>
-        </item>
-        <item>
          <widget class="QRadioButton" name="rbInitialBlocksDownload">
           <property name="text">
            <string>Force initial blocks download mode - fix the blockchain data.</string>
@@ -165,7 +152,7 @@
      <item>
       <widget class="QLabel" name="lblInfo">
        <property name="text">
-        <string>The wallet.dat will be restored from the selected location and the Qt Wallet will be restarted with the -reindex, -zapwallettxes=2 or -deleteblockchaindata option.</string>
+        <string>The wallet.dat will be restored from the selected location and the Qt Wallet will be restarted with the -reindex or -deleteblockchaindata option.</string>
        </property>
        <property name="wordWrap">
         <bool>true</bool>

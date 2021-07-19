@@ -3650,8 +3650,8 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation type="unfinished">블록체인 로컬 사본 삭제</translation>
     </message>
     <message>
-        <source>The wallet.dat will be restored from the selected location and the Qt Wallet will be restarted with the -reindex, -zapwallettxes=2 or -deleteblockchaindata option.</source>
-        <translation type="unfinished">선택된 경로를 통해 wallet.dat가 복구되면 Qt Wallet은 -reindex, -zapwallettxes=2 또는 -deleteblockchaindata 옵션을 통해 다시 시작하게 됩니다. </translation>
+        <source>The wallet.dat will be restored from the selected location and the Qt Wallet will be restarted with the -reindex or -deleteblockchaindata option.</source>
+        <translation type="unfinished">선택된 경로를 통해 wallet.dat가 복구되면 Qt Wallet은 -reindex 또는 -deleteblockchaindata 옵션을 통해 다시 시작하게 됩니다. </translation>
     </message>
     <message>
         <source>&amp;Reset</source>
