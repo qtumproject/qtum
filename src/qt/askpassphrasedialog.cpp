@@ -187,7 +187,7 @@ void AskPassphraseDialog::accept()
                 if(UnlockStaking == mode)
                 {
                     // Start the staking if enabled on the machine
-                    bool staking = gArgs.GetBoolArg("-staking", DEFAULT_STAKE);
+                    bool staking = CanStake();
                     model->wallet().setEnabledStaking(staking);
                 }
                 QDialog::accept(); // Success

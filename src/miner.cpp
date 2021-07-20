@@ -894,6 +894,12 @@ void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned
     pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
 }
 
+bool CanStake()
+{
+    bool canStake = gArgs.GetBoolArg("-staking", DEFAULT_STAKE);
+    return canStake;
+}
+
 #ifdef ENABLE_WALLET
 //////////////////////////////////////////////////////////////////////////////
 //
