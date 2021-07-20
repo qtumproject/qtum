@@ -348,7 +348,7 @@ bool RPCIsInWarmup(std::string *outStatus)
     return fRPCInWarmup;
 }
 
-JSONRPCRequestLong::JSONRPCRequestLong(const util::Ref& context, HTTPRequest *_req): JSONRPCRequestLong(context) {
+JSONRPCRequestLong::JSONRPCRequestLong(const util::Ref& _context, HTTPRequest *_req): JSONRPCRequestLong(_context) {
 	httpreq = _req;
 }
 

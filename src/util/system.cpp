@@ -1010,6 +1010,7 @@ void ArgsManager::LogArgs() const
 
 std::map<std::string, std::vector<std::string>> ArgsManager::getArgsList(const std::vector<std::string>& paramListType) const
 {
+    LOCK(cs_args);
     // Get argument list
     std::map<std::string, bool> args;
     for (const auto& arg : m_settings.forced_settings) {

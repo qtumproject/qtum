@@ -4104,7 +4104,7 @@ Vaya a Archivo&gt; Abrir monedero para cargar un monedero.
  - Corrige problemas sincronizando al igual que datos corruptos al igual que separaciones de cadena</translation>
     </message>
     <message>
-        <source>The wallet.dat will be restored from the selected location and the Qt Wallet will be restarted with the -reindex, -zapwallettxes=2 or -deleteblockchaindata option.</source>
+        <source>The wallet.dat will be restored from the selected location and the Qt Wallet will be restarted with the -reindex or -deleteblockchaindata option.</source>
         <translation>Realiza una copia de tu billetera primero, esto necesita reiniciar la aplicacion luego de seleccionar la opcion.</translation>
     </message>
 </context>

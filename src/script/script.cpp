@@ -381,7 +381,7 @@ bool CScript::ReplaceParam(opcodetype findOp, int posBefore, const std::vector<u
     bool ret = false;
     std::vector<const_iterator> opcodes;
     int minSize = posBefore + 1;
-    opcodetype opcode;
+    opcodetype opcode = OP_INVALIDOPCODE;
     opcodes.push_back(begin());
     for (const_iterator pc = begin(); pc != end() && GetOp(pc, opcode);)
     {

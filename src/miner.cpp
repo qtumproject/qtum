@@ -1669,6 +1669,7 @@ protected:
                 d->prevouts.push_back(COutPoint(pcoin.first->GetHash(), pcoin.second));
             }
 
+            LOCK(cs_main);
             d->pwallet->UpdateMinerStakeCache(true, d->prevouts, d->pindexPrev);
         }
 

@@ -501,14 +501,16 @@ void BitcoinApplication::restartWallet()
         QString commandLine;
         QStringList arg = parameters;
         removeParam(arg, "-reindex", false);
-        removeParam(arg, "-zapwallettxes=2", false);
         removeParam(arg, "-deleteblockchaindata", false);
         removeParam(arg, "-wallet", true);
         if(!arg.contains(restoreParam))
         {
             arg.append(restoreParam);
         }
-        arg.append(walletParam);
+        if(parameters.contains(walletParam))
+        {
+            arg.append(walletParam);
+        }
         commandLine = arg.join(' ');
 
         // Copy the new wallet.dat to the data folder

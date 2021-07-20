@@ -5258,7 +5258,7 @@ Go to File &gt; Open Wallet to load a wallet.
           Fixes problems syncing the blockchain, corrupted blockchains, and split chains.</translation>
     </message>
     <message>
-        <source>The wallet.dat will be restored from the selected location and the Qt Wallet will be restarted with the -reindex, -zapwallettxes=2 or -deleteblockchaindata option.</source>
+        <source>The wallet.dat will be restored from the selected location and the Qt Wallet will be restarted with the -reindex or -deleteblockchaindata option.</source>
         <translation>Backup your wallet first, requires client restart after selecting option.</translation>
     </message>
 </context>

@@ -3595,8 +3595,8 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation type="unfinished">删除区块链的本地拷贝</translation>
     </message>
     <message>
-        <source>The wallet.dat will be restored from the selected location and the Qt Wallet will be restarted with the -reindex, -zapwallettxes=2 or -deleteblockchaindata option.</source>
-        <translation type="unfinished">wallet.dat将从选择位置恢复，Qt Wallet将使用-reindex, -zapwallettxes=2 或 -deleteblockchaindata选项重启</translation>
+        <source>The wallet.dat will be restored from the selected location and the Qt Wallet will be restarted with the -reindex or -deleteblockchaindata option.</source>
+        <translation type="unfinished">wallet.dat将从选择位置恢复，Qt Wallet将使用-reindex 或 -deleteblockchaindata选项重启</translation>
     </message>
     <message>
         <source>&amp;Reset</source>

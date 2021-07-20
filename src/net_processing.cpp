@@ -3979,6 +3979,7 @@ bool PeerManager::MaybeDiscourageAndDisconnect(CNode& pnode)
     LogPrintf("Disconnecting and discouraging peer %d!\n", peer_id);
     if (m_banman) m_banman->Discourage(pnode.addr);
     m_connman.DisconnectNode(pnode.addr);
+    LOCK(cs_main);
     // Remove all data from the header spam filter when the address is banned
     CleanAddressHeaders(pnode.addr);
     return true;
@@ -4796,8 +4797,9 @@ void PushGetBlocks(CNode* pnode, const CBlockIndex* pindexBegin, const uint256& 
     connman.PushMessage(pnode, msgMaker.Make(NetMsgType::GETBLOCKS, ::ChainActive().GetLocator(pindexBegin), hashEnd));
 }
 
-uint256 static GetOrphanRoot(const uint256& hash)
+uint256 static GetOrphanRoot(const uint256& hash) EXCLUSIVE_LOCKS_REQUIRED(cs_main)
 {
+    AssertLockHeld(cs_main);
     std::map<uint256, COrphanBlock*>::iterator it = mapOrphanBlocks.find(hash);
     if (it == mapOrphanBlocks.end())
         return hash;
@@ -4812,8 +4814,9 @@ uint256 static GetOrphanRoot(const uint256& hash)
 }
 
 // ppcoin: find block wanted by given orphan block
-uint256 WantedByOrphan(const COrphanBlock* pblockOrphan)
+uint256 WantedByOrphan(const COrphanBlock* pblockOrphan) EXCLUSIVE_LOCKS_REQUIRED(cs_main)
 {
+    AssertLockHeld(cs_main);
     // Work back to the first block in the orphan chain
     while (mapOrphanBlocks.count(pblockOrphan->hashPrev))
         pblockOrphan = mapOrphanBlocks[pblockOrphan->hashPrev];
@@ -4821,8 +4824,9 @@ uint256 WantedByOrphan(const COrphanBlock* pblockOrphan)
 }
 
 // Remove a random orphan block (which does not have any dependent orphans).
-void static PruneOrphanBlocks()
+void static PruneOrphanBlocks() EXCLUSIVE_LOCKS_REQUIRED(cs_main)
 {
+    AssertLockHeld(cs_main);
     size_t nMaxOrphanBlocksSize = gArgs.GetArg("-maxorphanblocksmib", DEFAULT_MAX_ORPHAN_BLOCKS) * ((size_t) 1 << 20);
     while (nOrphanBlocksSize > nMaxOrphanBlocksSize)
     {
@@ -4986,8 +4990,9 @@ bool PeerManager::ProcessNetBlock(const std::shared_ptr<const CBlock> pblock, bo
     return true;
 }
 
-bool RemoveNetBlockIndex(CBlockIndex *pindex)
+bool RemoveNetBlockIndex(CBlockIndex *pindex) EXCLUSIVE_LOCKS_REQUIRED(cs_main)
 {
+    AssertLockHeld(cs_main);
     // Make sure it's not listed somewhere already.
     MarkBlockAsReceived(pindex->GetBlockHash());
 
@@ -5011,8 +5016,9 @@ bool RemoveNetBlockIndex(CBlockIndex *pindex)
     return true;
 }
 
-bool NeedToEraseBlockIndex(const CBlockIndex *pindex, const CBlockIndex *pindexCheck)
+bool NeedToEraseBlockIndex(const CBlockIndex *pindex, const CBlockIndex *pindexCheck) EXCLUSIVE_LOCKS_REQUIRED(cs_main)
 {
+    AssertLockHeld(cs_main);
     if(!::ChainActive().Contains(pindex))
     {
         if(pindex->nHeight <= pindexCheck->nHeight) return true;
@@ -5026,8 +5032,9 @@ bool NeedToEraseBlockIndex(const CBlockIndex *pindex, const CBlockIndex *pindexC
     return false;
 }
 
-bool RemoveBlockIndex(CBlockIndex *pindex)
+bool RemoveBlockIndex(CBlockIndex *pindex) EXCLUSIVE_LOCKS_REQUIRED(cs_main)
 {
+    AssertLockHeld(cs_main);
     bool ret = RemoveStateBlockIndex(pindex);
     ret &= RemoveNetBlockIndex(pindex);
     return ret;

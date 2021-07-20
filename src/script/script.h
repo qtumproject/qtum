@@ -571,7 +571,7 @@ public:
     int Find(opcodetype op) const
     {
         int nFound = 0;
-        opcodetype opcode;
+        opcodetype opcode = OP_INVALIDOPCODE;
         for (const_iterator pc = begin(); pc != end() && GetOp(pc, opcode);)
             if (opcode == op)
                 ++nFound;
