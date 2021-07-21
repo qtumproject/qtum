@@ -34,6 +34,29 @@ CreateWalletDialog::CreateWalletDialog(QWidget* parent) :
             ui->disable_privkeys_checkbox->setChecked(false);
         }
     });
+
+    connect(ui->disable_privkeys_checkbox, &QCheckBox::toggled, [this](bool checked) {
+        // Disable the encrypt_wallet_checkbox when isDisablePrivateKeysChecked is
+        // set to true, enable it when isDisablePrivateKeysChecked is false.
+        ui->encrypt_wallet_checkbox->setEnabled(!checked);
+
+        // Wallets without private keys start out blank
+        if (checked) {
+            ui->blank_wallet_checkbox->setChecked(true);
+        }
+
+        // When the encrypt_wallet_checkbox is disabled, uncheck it.
+        if (!ui->encrypt_wallet_checkbox->isEnabled()) {
+            ui->encrypt_wallet_checkbox->setChecked(false);
+        }
+    });
+
+    #ifndef USE_SQLITE
+        ui->descriptor_checkbox->setToolTip(tr("Compiled without sqlite support (required for descriptor wallets)"));
+        ui->descriptor_checkbox->setEnabled(false);
+        ui->descriptor_checkbox->setChecked(false);
+    #endif
+
 }
 
 CreateWalletDialog::~CreateWalletDialog()
@@ -59,4 +82,9 @@ bool CreateWalletDialog::isDisablePrivateKeysChecked() const
 bool CreateWalletDialog::isMakeBlankWalletChecked() const
 {
     return ui->blank_wallet_checkbox->isChecked();
+}
+
+bool CreateWalletDialog::isDescriptorWalletChecked() const
+{
+    return ui->descriptor_checkbox->isChecked();
 }

@@ -9,9 +9,6 @@ from test_framework.address import ADDRESS_BCRT1_UNSPENDABLE, keyhash_to_p2pkh
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import (
     assert_equal,
-    wait_until,
-    connect_nodes,
-    disconnect_nodes,
     hex_str_to_bytes,
 )
 from test_framework.qtumconfig import *
@@ -21,7 +18,7 @@ from test_framework.qtum import generatesynchronized
 # Windows disallow control characters (0-31) and /\?%:|"<>
 FILE_CHAR_START = 32 if os.name == 'nt' else 1
 FILE_CHAR_END = 128
-FILE_CHAR_BLACKLIST = '/\\?%*:|"<>' if os.name == 'nt' else '/'
+FILE_CHARS_DISALLOWED = '/\\?%*:|"<>' if os.name == 'nt' else '/'
 
 
 def notify_outputname(walletname, txid):
@@ -34,7 +31,7 @@ class NotificationsTest(BitcoinTestFramework):
         self.setup_clean_chain = True
 
     def setup_network(self):
-        self.wallet = ''.join(chr(i) for i in range(FILE_CHAR_START, FILE_CHAR_END) if chr(i) not in FILE_CHAR_BLACKLIST)
+        self.wallet = ''.join(chr(i) for i in range(FILE_CHAR_START, FILE_CHAR_END) if chr(i) not in FILE_CHARS_DISALLOWED)
         self.alertnotify_dir = os.path.join(self.options.tmpdir, "alertnotify")
         self.blocknotify_dir = os.path.join(self.options.tmpdir, "blocknotify")
         self.walletnotify_dir = os.path.join(self.options.tmpdir, "walletnotify")
@@ -44,12 +41,13 @@ class NotificationsTest(BitcoinTestFramework):
 
         # -alertnotify and -blocknotify on node0, walletnotify on node1
         self.extra_args = [[
-                            "-alertnotify=echo > {}".format(os.path.join(self.alertnotify_dir, '%s')),
-                            "-blocknotify=echo > {}".format(os.path.join(self.blocknotify_dir, '%s'))],
-                           ["-blockversion=4",
-                            "-rescan",
-                            "-wallet={}".format(self.wallet),
-                            "-walletnotify=echo > {}".format(os.path.join(self.walletnotify_dir, notify_outputname('%w', '%s')))]]
+            "-alertnotify=echo > {}".format(os.path.join(self.alertnotify_dir, '%s')),
+            "-blocknotify=echo > {}".format(os.path.join(self.blocknotify_dir, '%s')),
+        ], [
+            "-rescan",
+            "-walletnotify=echo > {}".format(os.path.join(self.walletnotify_dir, notify_outputname('%w', '%s'))),
+        ]]
+        self.wallet_names = [self.default_wallet_name, self.wallet]
         super().setup_network()
 
     def run_test(self):
@@ -59,7 +57,7 @@ class NotificationsTest(BitcoinTestFramework):
 
         # wait at most 10 seconds for expected number of files before reading the content
         print(self.blocknotify_dir)
-        wait_until(lambda: len(os.listdir(self.blocknotify_dir)) == block_count, timeout=10)
+        self.wait_until(lambda: len(os.listdir(self.blocknotify_dir)) == block_count, timeout=10)
 
         # directory content should equal the generated blocks hashes
         assert_equal(sorted(blocks), sorted(os.listdir(self.blocknotify_dir)))
@@ -67,7 +65,7 @@ class NotificationsTest(BitcoinTestFramework):
         if self.is_wallet_compiled():
             self.log.info("test -walletnotify")
             # wait at most 10 seconds for expected number of files before reading the content
-            wait_until(lambda: len(os.listdir(self.walletnotify_dir)) == block_count, timeout=10)
+            self.wait_until(lambda: len(os.listdir(self.walletnotify_dir)) == block_count, timeout=10)
 
             # directory content should equal the generated transaction hashes
             txids_rpc = list(map(lambda t: notify_outputname(self.wallet, t['txid']), self.nodes[1].listtransactions("*", block_count)))
@@ -79,9 +77,9 @@ class NotificationsTest(BitcoinTestFramework):
             self.log.info("test -walletnotify after rescan")
             # restart node to rescan to force wallet notifications
             self.start_node(1)
-            connect_nodes(self.nodes[0], 1)
+            self.connect_nodes(0, 1)
 
-            wait_until(lambda: len(os.listdir(self.walletnotify_dir)) == block_count, timeout=10)
+            self.wait_until(lambda: len(os.listdir(self.walletnotify_dir)) == block_count, timeout=10)
 
             # directory content should equal the generated transaction hashes
             txids_rpc = list(map(lambda t: notify_outputname(self.wallet, t['txid']), self.nodes[1].listtransactions("*", block_count)))
@@ -96,6 +94,7 @@ class NotificationsTest(BitcoinTestFramework):
             self.nodes[0].sethdseed(seed=self.nodes[1].dumpprivkey(keyhash_to_p2pkh(hex_str_to_bytes(self.nodes[1].getwalletinfo()['hdseedid'])[::-1])))
             self.nodes[0].rescanblockchain()
             generatesynchronized(self.nodes[0], COINBASE_MATURITY, ADDRESS_BCRT1_UNSPENDABLE, self.nodes)
+            self.sync_blocks()
 
             # Generate transaction on node 0, sync mempools, and check for
             # notification on node 1.
@@ -129,12 +128,12 @@ class NotificationsTest(BitcoinTestFramework):
             # Bump tx2 as bump2 and generate a block on node 0 while
             # disconnected, then reconnect and check for notifications on node 1
             # about newly confirmed bump2 and newly conflicted tx2.
-            disconnect_nodes(self.nodes[0], 1)
+            self.disconnect_nodes(0, 1)
             bump2 = self.nodes[0].bumpfee(tx2)["txid"]
             self.nodes[0].generatetoaddress(1, ADDRESS_BCRT1_UNSPENDABLE)
             assert_equal(self.nodes[0].gettransaction(bump2)["confirmations"], 1)
             assert_equal(tx2 in self.nodes[1].getrawmempool(), True)
-            connect_nodes(self.nodes[0], 1)
+            self.connect_nodes(0, 1)
             self.sync_blocks()
             self.expect_wallet_notify([bump2, tx2])
             assert_equal(self.nodes[1].gettransaction(bump2)["confirmations"], 1)
@@ -142,7 +141,7 @@ class NotificationsTest(BitcoinTestFramework):
         # TODO: add test for `-alertnotify` large fork notifications
 
     def expect_wallet_notify(self, tx_ids):
-        wait_until(lambda: len(os.listdir(self.walletnotify_dir)) >= len(tx_ids), timeout=10)
+        self.wait_until(lambda: len(os.listdir(self.walletnotify_dir)) >= len(tx_ids), timeout=10)
         assert_equal(sorted(notify_outputname(self.wallet, tx_id) for tx_id in tx_ids), sorted(os.listdir(self.walletnotify_dir)))
         for tx_file in os.listdir(self.walletnotify_dir):
             os.remove(os.path.join(self.walletnotify_dir, tx_file))

@@ -12,6 +12,7 @@
 #include <qt/optionsmodel.h>
 #include <qt/platformstyle.h>
 #include <qt/recentrequeststablemodel.h>
+#include <qt/walletmodel.h>
 #include <qt/styleSheet.h>
 
 #include <QAction>
@@ -164,14 +165,36 @@ void ReceiveCoinsDialog::on_receiveButton_clicked()
         }
     }
     address = model->getAddressTableModel()->addRow(AddressTableModel::Receive, label, "", address_type);
-    SendCoinsRecipient _info(address, label,
-        ui->reqAmount->value(), ui->reqMessage->text());
 
-    /* Store request for later reference */
-    model->getRecentRequestsTableModel()->addNewRequest(_info);
+    switch(model->getAddressTableModel()->getEditStatus())
+    {
+    case AddressTableModel::EditStatus::OK: {
+        // Success
+        SendCoinsRecipient _info(address, label,
+            ui->reqAmount->value(), ui->reqMessage->text());
 
-    info = _info;
-
+        /* Store request for later reference */
+        model->getRecentRequestsTableModel()->addNewRequest(_info);
+        info = _info;
+        break;
+    }
+    case AddressTableModel::EditStatus::WALLET_UNLOCK_FAILURE:
+        QMessageBox::critical(this, windowTitle(),
+            tr("Could not unlock wallet."),
+            QMessageBox::Ok, QMessageBox::Ok);
+        break;
+    case AddressTableModel::EditStatus::KEY_GENERATION_FAILURE:
+        QMessageBox::critical(this, windowTitle(),
+            tr("Could not generate new %1 address").arg(QString::fromStdString(FormatOutputType(address_type))),
+            QMessageBox::Ok, QMessageBox::Ok);
+        break;
+    // These aren't valid return values for our action
+    case AddressTableModel::EditStatus::INVALID_ADDRESS:
+    case AddressTableModel::EditStatus::DUPLICATE_ADDRESS:
+    case AddressTableModel::EditStatus::NO_CHANGES:
+        assert(false);
+    }
+    clear();
     accept();
 }
 
@@ -230,22 +253,6 @@ void ReceiveCoinsDialog::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
     columnResizingFixer->stretchColumnWidth(RecentRequestsTableModel::Message);
-}
-
-void ReceiveCoinsDialog::keyPressEvent(QKeyEvent *event)
-{
-    if (event->key() == Qt::Key_Return)
-    {
-        // press return -> submit form
-        if (ui->reqLabel->hasFocus() || ui->reqAmount->hasFocus() || ui->reqMessage->hasFocus())
-        {
-            event->ignore();
-            on_receiveButton_clicked();
-            return;
-        }
-    }
-
-    this->QDialog::keyPressEvent(event);
 }
 
 QModelIndex ReceiveCoinsDialog::selectedRow()

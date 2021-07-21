@@ -1,16 +1,16 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2019 The Bitcoin Core developers
+// Copyright (c) 2009-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef BITCOIN_COINS_H
 #define BITCOIN_COINS_H
 
-#include <primitives/transaction.h>
 #include <compressor.h>
 #include <core_memusage.h>
 #include <crypto/siphash.h>
 #include <memusage.h>
+#include <primitives/transaction.h>
 #include <serialize.h>
 #include <uint256.h>
 
@@ -25,13 +25,7 @@ struct CSpentIndexKey {
     uint256 txid;
     unsigned int outputIndex;
 
-    ADD_SERIALIZE_METHODS;
-
-    template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action) {
-        READWRITE(txid);
-        READWRITE(outputIndex);
-    }
+    SERIALIZE_METHODS(CSpentIndexKey, obj) { READWRITE(obj.txid, obj.outputIndex); }
 
     CSpentIndexKey(uint256 t, unsigned int i) {
         txid = t;
@@ -56,16 +50,7 @@ struct CSpentIndexValue {
     int addressType;
     uint256 addressHash;
 
-    ADD_SERIALIZE_METHODS;
-    template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action) {
-        READWRITE(txid);
-        READWRITE(inputIndex);
-        READWRITE(blockHeight);
-        READWRITE(satoshis);
-        READWRITE(addressType);
-        READWRITE(addressHash);
-    }
+    SERIALIZE_METHODS(CSpentIndexValue, obj) { READWRITE(obj.txid, obj.inputIndex, obj.blockHeight, obj.satoshis, obj.addressType, obj.addressHash); }
 
     CSpentIndexValue(uint256 t, unsigned int i, int h, CAmount s, int type, uint256 a) {
         txid = t;
@@ -101,7 +86,7 @@ struct CSpentIndexValue {
  * Serialized format:
  * - VARINT((coinbase ? 1 : 0) | (height << 2))
  * - VARINT((coinstake ? 2 : 0) | (height << 2))
- * - the non-spent CTxOut (via CTxOutCompressor)
+ * - the non-spent CTxOut (via TxOutCompression)
  */
 class Coin
 {
@@ -191,19 +176,45 @@ public:
     }
 };
 
+/**
+ * A Coin in one level of the coins database caching hierarchy.
+ *
+ * A coin can either be:
+ * - unspent or spent (in which case the Coin object will be nulled out - see Coin.Clear())
+ * - DIRTY or not DIRTY
+ * - FRESH or not FRESH
+ *
+ * Out of these 2^3 = 8 states, only some combinations are valid:
+ * - unspent, FRESH, DIRTY (e.g. a new coin created in the cache)
+ * - unspent, not FRESH, DIRTY (e.g. a coin changed in the cache during a reorg)
+ * - unspent, not FRESH, not DIRTY (e.g. an unspent coin fetched from the parent cache)
+ * - spent, FRESH, not DIRTY (e.g. a spent coin fetched from the parent cache)
+ * - spent, not FRESH, DIRTY (e.g. a coin is spent and spentness needs to be flushed to the parent)
+ */
 struct CCoinsCacheEntry
 {
     Coin coin; // The actual cached data.
     unsigned char flags;
 
     enum Flags {
-        DIRTY = (1 << 0), // This cache entry is potentially different from the version in the parent view.
-        FRESH = (1 << 1), // The parent view does not have this entry (or it is pruned).
-        /* Note that FRESH is a performance optimization with which we can
-         * erase coins that are fully spent if we know we do not need to
-         * flush the changes to the parent cache.  It is always safe to
-         * not mark FRESH if that condition is not guaranteed.
+        /**
+         * DIRTY means the CCoinsCacheEntry is potentially different from the
+         * version in the parent cache. Failure to mark a coin as DIRTY when
+         * it is potentially different from the parent cache will cause a
+         * consensus failure, since the coin's state won't get written to the
+         * parent when the cache is flushed.
          */
+        DIRTY = (1 << 0),
+        /**
+         * FRESH means the parent cache does not have this coin or that it is a
+         * spent coin in the parent cache. If a FRESH coin in the cache is
+         * later spent, it can be deleted entirely and doesn't ever need to be
+         * flushed to the parent. This is a performance optimization. Marking a
+         * coin as FRESH when it exists unspent in the parent cache will cause a
+         * consensus failure, since it might not be deleted from the parent
+         * when this cache is flushed.
+         */
+        FRESH = (1 << 1),
     };
 
     CCoinsCacheEntry() : flags(0) {}
@@ -328,7 +339,7 @@ public:
     bool HaveCoinInCache(const COutPoint &outpoint) const;
 
     /**
-     * Return a reference to Coin in the cache, or a pruned one if not found. This is
+     * Return a reference to Coin in the cache, or coinEmpty if not found. This is
      * more efficient than GetCoin.
      *
      * Generally, do not hold the reference returned for more than a short scope.
@@ -340,10 +351,10 @@ public:
     const Coin& AccessCoin(const COutPoint &output) const;
 
     /**
-     * Add a coin. Set potential_overwrite to true if a non-pruned version may
-     * already exist.
+     * Add a coin. Set possible_overwrite to true if an unspent version may
+     * already exist in the cache.
      */
-    void AddCoin(const COutPoint& outpoint, Coin&& coin, bool potential_overwrite);
+    void AddCoin(const COutPoint& outpoint, Coin&& coin, bool possible_overwrite);
 
     /**
      * Spend a coin. Pass moveto in order to get the deleted data.
@@ -383,6 +394,13 @@ public:
 
     //! Check whether all prevouts of the transaction are present in the UTXO set represented by this view
     bool HaveInputs(const CTransaction& tx) const;
+
+    //! Force a reallocation of the cache map. This is required when downsizing
+    //! the cache because the map's allocator may be hanging onto a lot of
+    //! memory despite having called .clear().
+    //!
+    //! See: https://stackoverflow.com/questions/42114044/how-to-release-unordered-map-memory
+    void ReallocateCache();
 
     const CTxOut &GetOutputFor(const CTxIn& input) const;
 

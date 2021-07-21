@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2019 The Bitcoin Core developers
+// Copyright (c) 2011-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -7,14 +7,22 @@
 #include <consensus/merkle.h>
 #include <consensus/validation.h>
 #include <pow.h>
+#include <test/util/setup_common.h>
 #include <txmempool.h>
 #include <validation.h>
 #include <util/convert.h>
 
 
-
-static void DuplicateInputs(benchmark::State& state)
+static void DuplicateInputs(benchmark::Bench& bench)
 {
+    TestingSetup test_setup{
+        CBaseChainParams::REGTEST,
+        /* extra_args */ {
+            "-nodebuglogfile",
+            "-nodebug",
+        },
+    };
+
     const CScript SCRIPT_PUB{CScript(OP_TRUE)};
 
     const CChainParams& chainparams = Params();
@@ -43,7 +51,7 @@ static void DuplicateInputs(benchmark::State& state)
     naughtyTx.vout[0].nValue = 0;
     naughtyTx.vout[0].scriptPubKey = SCRIPT_PUB;
 
-    uint64_t n_inputs = ((std::min((uint64_t)(dgpMaxBlockSerSize / WITNESS_SCALE_FACTOR), (uint64_t)MAX_TRANSACTION_BASE_SIZE) - (CTransaction(coinbaseTx).GetTotalSize() + CTransaction(naughtyTx).GetTotalSize())) / 41) - 100;
+    uint64_t n_inputs = (((dgpMaxBlockSerSize / WITNESS_SCALE_FACTOR) - (CTransaction(coinbaseTx).GetTotalSize() + CTransaction(naughtyTx).GetTotalSize())) / 41) - 100;
     for (uint64_t x = 0; x < (n_inputs - 1); ++x) {
         naughtyTx.vin.emplace_back(GetRandHash(), 0, CScript(), 0);
     }
@@ -54,11 +62,11 @@ static void DuplicateInputs(benchmark::State& state)
 
     block.hashMerkleRoot = BlockMerkleRoot(block);
 
-    while (state.KeepRunning()) {
+    bench.run([&] {
         BlockValidationState cvstate{};
         assert(!CheckBlock(block, cvstate, chainparams.GetConsensus(), false, false));
         assert(cvstate.GetRejectReason() == "bad-txns-inputs-duplicate");
-    }
+    });
 }
 
-BENCHMARK(DuplicateInputs, 10);
+BENCHMARK(DuplicateInputs);

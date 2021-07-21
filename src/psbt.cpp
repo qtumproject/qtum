@@ -1,4 +1,4 @@
-// Copyright (c) 2009-2019 The Bitcoin Core developers
+// Copyright (c) 2009-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -192,6 +192,17 @@ void PSBTOutput::Merge(const PSBTOutput& output)
 bool PSBTInputSigned(const PSBTInput& input)
 {
     return !input.final_script_sig.empty() || !input.final_script_witness.IsNull();
+}
+
+size_t CountPSBTUnsignedInputs(const PartiallySignedTransaction& psbt) {
+    size_t count = 0;
+    for (const auto& input : psbt.inputs) {
+        if (!PSBTInputSigned(input)) {
+            count++;
+        }
+    }
+
+    return count;
 }
 
 void UpdatePSBTOutput(const SigningProvider& provider, PartiallySignedTransaction& psbt, int index)

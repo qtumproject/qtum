@@ -14,6 +14,7 @@ namespace Consensus {
 enum DeploymentPos
 {
     DEPLOYMENT_TESTDUMMY,
+    DEPLOYMENT_TAPROOT, // Deployment of Schnorr/Taproot (BIPs 340-342)
     // NOTE: Also add new deployments to VersionBitsDeploymentInfo in versionbits.cpp
     MAX_VERSION_BITS_DEPLOYMENTS
 };
@@ -28,6 +29,11 @@ struct BIP9Deployment {
     int64_t nStartTime;
     /** Timeout/expiry MedianTime for the deployment attempt. */
     int64_t nTimeout;
+    /** If lock in occurs, delay activation until at least this block
+     *  height.  Note that activation will only occur on a retarget
+     *  boundary.
+     */
+    int min_activation_height{0};
 
     /** Constant for nTimeout very far in the future. */
     static constexpr int64_t NO_TIMEOUT = std::numeric_limits<int64_t>::max();
@@ -37,6 +43,11 @@ struct BIP9Deployment {
      *  process (which takes at least 3 BIP9 intervals). Only tests that specifically test the
      *  behaviour during activation cannot use this. */
     static constexpr int64_t ALWAYS_ACTIVE = -1;
+
+    /** Special value for nStartTime indicating that the deployment is never active.
+     *  This is useful for integrating the code changes for a new feature
+     *  prior to deploying it on some or all networks. */
+    static constexpr int64_t NEVER_ACTIVE = -2;
 };
 
 /**
@@ -100,7 +111,16 @@ struct Params {
     int64_t nPowTargetTimespanV2;
     int64_t nRBTPowTargetTimespan;
     uint256 nMinimumChainWork;
+    /** By default assume that the signatures in ancestors of this block are valid */
     uint256 defaultAssumeValid;
+
+    /**
+     * If true, witness commitments contain a payload equal to a Bitcoin Script solution
+     * to the signet challenge. See BIP325.
+     */
+    bool signet_blocks{false};
+    std::vector<uint8_t> signet_challenge;
+
     int nLastPOWBlock;
     int nFirstMPoSBlock;
     int nMPoSRewardRecipients;

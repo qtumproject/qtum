@@ -245,8 +245,8 @@ void DelegationItemWidget::updateBalance()
     int unit = BitcoinUnits::BTC;
     if(m_model && m_model->getOptionsModel())
         unit = m_model->getOptionsModel()->getDisplayUnit();
-    ui->labelAssets->setText(BitcoinUnits::formatWithUnit(unit, d->balance, false, BitcoinUnits::separatorAlways));
-    ui->labelStake->setText(BitcoinUnits::formatWithUnit(unit, d->stake, false, BitcoinUnits::separatorAlways));
+    ui->labelAssets->setText(BitcoinUnits::formatWithUnit(unit, d->balance, false, BitcoinUnits::SeparatorStyle::ALWAYS));
+    ui->labelStake->setText(BitcoinUnits::formatWithUnit(unit, d->stake, false, BitcoinUnits::SeparatorStyle::ALWAYS));
 }
 
 void DelegationItemWidget::setLight(DelegationItemWidget::LightType type)

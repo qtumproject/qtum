@@ -73,11 +73,11 @@ public:
         RawDecorationRole,
     };
 
-    int rowCount(const QModelIndex &parent) const;
-    int columnCount(const QModelIndex &parent) const;
-    QVariant data(const QModelIndex &index, int role) const;
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-    QModelIndex index(int row, int column, const QModelIndex & parent = QModelIndex()) const;
+    int rowCount(const QModelIndex &parent) const override;
+    int columnCount(const QModelIndex &parent) const override;
+    QVariant data(const QModelIndex &index, int role) const override;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+    QModelIndex index(int row, int column, const QModelIndex & parent = QModelIndex()) const override;
     bool processingQueuedTransactions() { return fProcessingQueuedTransactions; }
 
 private:
@@ -103,8 +103,8 @@ private:
     QString formatTxType(const TokenTransactionRecord *wtx) const;
     QString formatTxToAddress(const TokenTransactionRecord *wtx, bool tooltip) const;
     QString formatTxTokenSymbol(const TokenTransactionRecord *wtx) const;
-    QString formatTxAmount(const TokenTransactionRecord *wtx, bool showUnconfirmed=true, BitcoinUnits::SeparatorStyle separators=BitcoinUnits::separatorStandard) const;
-    QString formatTxAmountWithUnit(const TokenTransactionRecord *wtx, bool showUnconfirmed=true, BitcoinUnits::SeparatorStyle separators=BitcoinUnits::separatorStandard) const;
+    QString formatTxAmount(const TokenTransactionRecord *wtx, bool showUnconfirmed=true, BitcoinUnits::SeparatorStyle separators=BitcoinUnits::SeparatorStyle::STANDARD) const;
+    QString formatTxAmountWithUnit(const TokenTransactionRecord *wtx, bool showUnconfirmed=true, BitcoinUnits::SeparatorStyle separators=BitcoinUnits::SeparatorStyle::STANDARD) const;
     QString formatTooltip(const TokenTransactionRecord *rec) const;
     QVariant txStatusDecoration(const TokenTransactionRecord *wtx) const;
     QVariant txAddressDecoration(const TokenTransactionRecord *wtx) const;

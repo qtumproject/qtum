@@ -65,10 +65,10 @@ OSX_PACKAGING = $(OSX_DEPLOY_SCRIPT) $(OSX_FANCY_PLIST) $(OSX_INSTALLER_ICONS) \
   $(top_srcdir)/contrib/macdeploy/detached-sig-apply.sh \
   $(top_srcdir)/contrib/macdeploy/detached-sig-create.sh
 
-COVERAGE_INFO = baseline.info \
+COVERAGE_INFO = $(COV_TOOL_WRAPPER) baseline.info \
   test_bitcoin_filtered.info total_coverage.info \
   baseline_filtered.info functional_test.info functional_test_filtered.info \
-  test_bitcoin_coverage.info test_bitcoin.info fuzz.info fuzz_coverage.info
+  test_bitcoin_coverage.info test_bitcoin.info fuzz.info fuzz_filtered.info fuzz_coverage.info
 
 dist-hook:
 	-$(GIT) archive --format=tar HEAD -- src/clientversion.cpp | $(AMTAR) -C $(top_distdir) -xf -
@@ -80,7 +80,7 @@ $(BITCOIN_WIN_INSTALLER): all-recursive
 	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BITCOIN_CLI_BIN) $(top_builddir)/release
 	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BITCOIN_TX_BIN) $(top_builddir)/release
 	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BITCOIN_WALLET_BIN) $(top_builddir)/release
-	@test -f $(MAKENSIS) && $(MAKENSIS) -V2 $(top_builddir)/share/setup.nsi || \
+	@test -f $(MAKENSIS) && echo 'OutFile "$@"' | cat $(top_builddir)/share/setup.nsi - | $(MAKENSIS) -V2 - || \
 	  echo error: could not build $@
 	@echo built $@
 
@@ -181,6 +181,7 @@ $(BITCOIN_WALLET_BIN): FORCE
 
 if USE_LCOV
 LCOV_FILTER_PATTERN = \
+	-p "/usr/local/" \
 	-p "/usr/include/" \
 	-p "/usr/lib/" \
 	-p "/usr/lib64/" \
@@ -192,7 +193,13 @@ LCOV_FILTER_PATTERN = \
 	-p "src/secp256k1" \
 	-p "depends"
 
-baseline.info:
+DIR_FUZZ_SEED_CORPUS ?= qa-assets/fuzz_seed_corpus
+
+$(COV_TOOL_WRAPPER):
+	@echo 'exec $(COV_TOOL) "$$@"' > $(COV_TOOL_WRAPPER)
+	@chmod +x $(COV_TOOL_WRAPPER)
+
+baseline.info: $(COV_TOOL_WRAPPER)
 	$(LCOV) -c -i -d $(abs_builddir)/src -o $@
 
 baseline_filtered.info: baseline.info
@@ -200,7 +207,7 @@ baseline_filtered.info: baseline.info
 	$(LCOV) -a $@ $(LCOV_OPTS) -o $@
 
 fuzz.info: baseline_filtered.info
-	@TIMEOUT=15 test/fuzz/test_runner.py qa-assets/fuzz_seed_corpus -l DEBUG
+	@TIMEOUT=15 test/fuzz/test_runner.py $(DIR_FUZZ_SEED_CORPUS) -l DEBUG
 	$(LCOV) -c $(LCOV_OPTS) -d $(abs_builddir)/src --t fuzz-tests -o $@
 	$(LCOV) -z $(LCOV_OPTS) -d $(abs_builddir)/src
 
@@ -342,3 +349,14 @@ clean-local: clean-docs
 	rm -rf coverage_percent.txt test_bitcoin.coverage/ total.coverage/ fuzz.coverage/ test/tmp/ cache/ $(OSX_APP)
 	rm -rf test/functional/__pycache__ test/functional/test_framework/__pycache__ test/cache share/rpcauth/__pycache__
 	rm -rf osx_volname dist/ dpi36.background.tiff dpi72.background.tiff
+
+test-security-check:
+if TARGET_DARWIN
+	$(AM_V_at) $(PYTHON) $(top_srcdir)/contrib/devtools/test-security-check.py TestSecurityChecks.test_MACHO
+endif
+if TARGET_WINDOWS
+	$(AM_V_at) $(PYTHON) $(top_srcdir)/contrib/devtools/test-security-check.py TestSecurityChecks.test_PE
+endif
+if TARGET_LINUX
+	$(AM_V_at) $(PYTHON) $(top_srcdir)/contrib/devtools/test-security-check.py TestSecurityChecks.test_ELF
+endif

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 The Bitcoin Core developers
+// Copyright (c) 2019-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -24,8 +24,8 @@
 #include <test/fuzz/FuzzedDataProvider.h>
 #include <test/fuzz/fuzz.h>
 #include <test/fuzz/util.h>
-#include <time.h>
 #include <uint256.h>
+#include <util/check.h>
 #include <util/moneystr.h>
 #include <util/strencodings.h>
 #include <util/string.h>
@@ -35,6 +35,7 @@
 
 #include <cassert>
 #include <chrono>
+#include <ctime>
 #include <limits>
 #include <set>
 #include <vector>
@@ -147,11 +148,7 @@ void test_one_input(const std::vector<uint8_t>& buffer)
 
     const CScriptNum script_num{i64};
     (void)script_num.getint();
-    // Avoid negation failure:
-    // script/script.h:332:35: runtime error: negation of -9223372036854775808 cannot be represented in type 'int64_t' (aka 'long'); cast to an unsigned type to negate this value to itself
-    if (script_num != CScriptNum{std::numeric_limits<int64_t>::min()}) {
-        (void)script_num.getvch();
-    }
+    (void)script_num.getvch();
 
     const arith_uint256 au256 = UintToArith256(u256);
     assert(ArithToUint256(au256) == u256);
@@ -287,8 +284,12 @@ void test_one_input(const std::vector<uint8_t>& buffer)
         try {
             const uint64_t deserialized_u64 = ReadCompactSize(stream);
             assert(u64 == deserialized_u64 && stream.empty());
+        } catch (const std::ios_base::failure&) {
         }
-        catch (const std::ios_base::failure&) {
-        }
+    }
+
+    try {
+        CHECK_NONFATAL(b);
+    } catch (const NonFatalCheckError&) {
     }
 }

@@ -30,8 +30,8 @@ public:
     void clearAll();
 
 public Q_SLOTS:
-    void accept();
-    void reject();
+    void accept() override;
+    void reject() override;
 
 private Q_SLOTS:
     void updateDisplayUnit();

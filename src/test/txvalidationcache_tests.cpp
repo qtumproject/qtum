@@ -4,12 +4,12 @@
 
 #include <consensus/validation.h>
 #include <key.h>
-#include <validation.h>
-#include <txmempool.h>
-#include <script/standard.h>
 #include <script/sign.h>
 #include <script/signingprovider.h>
+#include <script/standard.h>
 #include <test/util/setup_common.h>
+#include <txmempool.h>
+#include <validation.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -30,7 +30,7 @@ BOOST_FIXTURE_TEST_CASE(tx_mempool_block_doublespend, TestChain100Setup)
 
         TxValidationState state;
         return AcceptToMemoryPool(*m_node.mempool, state, MakeTransactionRef(tx),
-            nullptr /* plTxnReplaced */, true /* bypass_limits */, 0 /* nAbsurdFee */);
+            nullptr /* plTxnReplaced */, true /* bypass_limits */);
     };
 
     // Create a double-spend of mature coinbase txn:
@@ -108,7 +108,7 @@ BOOST_FIXTURE_TEST_CASE(tx_mempool_block_doublespend, TestChain100Setup)
 // any script flag that is implemented as an upgraded NOP code.
 static void ValidateCheckInputsForAllFlags(const CTransaction &tx, uint32_t failing_flags, bool add_to_cache) EXCLUSIVE_LOCKS_REQUIRED(cs_main)
 {
-    PrecomputedTransactionData txdata(tx);
+    PrecomputedTransactionData txdata;
     // If we add many more flags, this loop can get too expensive, but we can
     // rewrite in the future to randomly pick a set of flags to evaluate.
     for (uint32_t test_flags=0; test_flags < (1U << 16); test_flags += 1) {
@@ -157,7 +157,7 @@ BOOST_FIXTURE_TEST_CASE(checkinputs_test, TestChain100Setup)
     CScript p2pk_scriptPubKey = CScript() << ToByteVector(coinbaseKey.GetPubKey()) << OP_CHECKSIG;
     CScript p2sh_scriptPubKey = GetScriptForDestination(ScriptHash(p2pk_scriptPubKey));
     CScript p2pkh_scriptPubKey = GetScriptForDestination(PKHash(coinbaseKey.GetPubKey()));
-    CScript p2wpkh_scriptPubKey = GetScriptForWitness(p2pkh_scriptPubKey);
+    CScript p2wpkh_scriptPubKey = GetScriptForDestination(WitnessV0KeyHash(coinbaseKey.GetPubKey()));
 
     FillableSigningProvider keystore;
     BOOST_CHECK(keystore.AddKey(coinbaseKey));
@@ -200,7 +200,7 @@ BOOST_FIXTURE_TEST_CASE(checkinputs_test, TestChain100Setup)
         LOCK(cs_main);
 
         TxValidationState state;
-        PrecomputedTransactionData ptd_spend_tx(spend_tx);
+        PrecomputedTransactionData ptd_spend_tx;
 
         BOOST_CHECK(!CheckInputScripts(CTransaction(spend_tx), state, &::ChainstateActive().CoinsTip(), SCRIPT_VERIFY_P2SH | SCRIPT_VERIFY_DERSIG, true, true, ptd_spend_tx, nullptr));
 
@@ -269,7 +269,7 @@ BOOST_FIXTURE_TEST_CASE(checkinputs_test, TestChain100Setup)
         // Make it valid, and check again
         invalid_with_cltv_tx.vin[0].scriptSig = CScript() << vchSig << 100;
         TxValidationState state;
-        PrecomputedTransactionData txdata(invalid_with_cltv_tx);
+        PrecomputedTransactionData txdata;
         BOOST_CHECK(CheckInputScripts(CTransaction(invalid_with_cltv_tx), state, ::ChainstateActive().CoinsTip(), SCRIPT_VERIFY_CHECKLOCKTIMEVERIFY, true, true, txdata, nullptr));
     }
 
@@ -297,7 +297,7 @@ BOOST_FIXTURE_TEST_CASE(checkinputs_test, TestChain100Setup)
         // Make it valid, and check again
         invalid_with_csv_tx.vin[0].scriptSig = CScript() << vchSig << 100;
         TxValidationState state;
-        PrecomputedTransactionData txdata(invalid_with_csv_tx);
+        PrecomputedTransactionData txdata;
         BOOST_CHECK(CheckInputScripts(CTransaction(invalid_with_csv_tx), state, &::ChainstateActive().CoinsTip(), SCRIPT_VERIFY_CHECKSEQUENCEVERIFY, true, true, txdata, nullptr));
     }
 
@@ -358,7 +358,7 @@ BOOST_FIXTURE_TEST_CASE(checkinputs_test, TestChain100Setup)
         tx.vin[1].scriptWitness.SetNull();
 
         TxValidationState state;
-        PrecomputedTransactionData txdata(tx);
+        PrecomputedTransactionData txdata;
         // This transaction is now invalid under segwit, because of the second input.
         BOOST_CHECK(!CheckInputScripts(CTransaction(tx), state, &::ChainstateActive().CoinsTip(), SCRIPT_VERIFY_P2SH | SCRIPT_VERIFY_WITNESS, true, true, txdata, nullptr));
 

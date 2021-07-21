@@ -50,11 +50,8 @@ public:
 
 public Q_SLOTS:
     void clear();
-    void reject();
-    void accept();
-
-protected:
-    virtual void keyPressEvent(QKeyEvent *event);
+    void reject() override;
+    void accept() override;
 
 private:
     Ui::ReceiveCoinsDialog *ui;
@@ -66,7 +63,7 @@ private:
 
     QModelIndex selectedRow();
     void copyColumnToClipboard(int column);
-    virtual void resizeEvent(QResizeEvent *event);
+    virtual void resizeEvent(QResizeEvent *event) override;
 
 private Q_SLOTS:
     void on_receiveButton_clicked();

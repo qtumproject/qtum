@@ -47,11 +47,11 @@
     </message>
     <message>
         <source>Choose the address to send coins to</source>
-        <translation>Alege $adresa unde să trimiteţi monede</translation>
+        <translation>Alege adresa unde să trimiteţi monede</translation>
     </message>
     <message>
         <source>Choose the address to receive coins with</source>
-        <translation>Alege adresa la care sa primesti monedele cu</translation>
+        <translation>Alege adresa la care să primești monedele</translation>
     </message>
     <message>
         <source>C&amp;hoose</source>
@@ -174,6 +174,19 @@
     <message>
         <source>Wallet encrypted</source>
         <translation>Portofel criptat</translation>
+    </message>
+    <message>
+        <source>Enter the new passphrase for the wallet.&lt;br/&gt;Please use a passphrase of &lt;b&gt;ten or more random characters&lt;/b&gt;, or &lt;b&gt;eight or more words&lt;/b&gt;.</source>
+        <translation>Introduceti o parola noua pentru portofel. &lt;br/&gt;Va rugam sa folositi o parola de &lt;b&gt; zece sau mai multe caractere&lt;/b&gt;, sau &lt;b&gt;mai mult de opt cuvinte&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Enter the old passphrase and new passphrase for the wallet.</source>
+        <translation>Introduceţi vechea şi noua parolă pentru portofel.
+ </translation>
+    </message>
+    <message>
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
+        <translation>Reţineti: criptarea portofelului dvs. nu vă poate proteja în totalitate qtum-urile împotriva furtului de malware care vă infectează computerul.</translation>
     </message>
     <message>
         <source>Wallet to be encrypted</source>
@@ -482,6 +495,10 @@
         <translation>&amp;Adresele de primire</translation>
     </message>
     <message>
+        <source>Open a qtum: URI</source>
+        <translation>Deschidere qtum: o adresa URI sau o cerere de plată</translation>
+    </message>
+    <message>
         <source>Open Wallet</source>
         <translation>Deschide portofel</translation>
     </message>
@@ -609,11 +626,7 @@
         <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;locked&lt;/b&gt;</source>
         <translation>Portofelul este &lt;b&gt;criptat&lt;/b&gt; iar în momentul de faţă este &lt;b&gt;blocat&lt;/b&gt;</translation>
     </message>
-    <message>
-        <source>A fatal error occurred. Qtum can no longer continue safely and will quit.</source>
-        <translation>A survenit o eroare fatală. Qtum nu mai poate continua în siguranţă şi se va opri.</translation>
-    </message>
-</context>
+    </context>
 <context>
     <name>CoinControlDialog</name>
     <message>
@@ -768,6 +781,10 @@
 <context>
     <name>CreateWalletActivity</name>
     <message>
+        <source>Creating Wallet &lt;b&gt;%1&lt;/b&gt;...</source>
+        <translation>Creare Portofel &lt;b&gt;%1&lt;/b&gt;...</translation>
+    </message>
+    <message>
         <source>Create wallet failed</source>
         <translation>Crearea portofelului a eşuat</translation>
     </message>
@@ -801,6 +818,18 @@
     <message>
         <source>Disable Private Keys</source>
         <translation>Dezactivează cheile private</translation>
+    </message>
+    <message>
+        <source>Make a blank wallet. Blank wallets do not initially have private keys or scripts. Private keys and addresses can be imported, or an HD seed can be set, at a later time.</source>
+        <translation>Make a blank wallet. Blank wallets do not initially have private keys or scripts. Private keys and addresses can be imported, or an HD seed can be set, at a later time.</translation>
+    </message>
+    <message>
+        <source>Make Blank Wallet</source>
+        <translation>Faceți Portofel gol</translation>
+    </message>
+    <message>
+        <source>Create</source>
+        <translation>Creează</translation>
     </message>
     </context>
 <context>
@@ -1024,6 +1053,14 @@
 <context>
     <name>OpenWalletActivity</name>
     <message>
+        <source>Open wallet failed</source>
+        <translation>Deschiderea portofelului a eșuat</translation>
+    </message>
+    <message>
+        <source>Open wallet warning</source>
+        <translation>Atenționare la deschiderea portofelului</translation>
+    </message>
+    <message>
         <source>default wallet</source>
         <translation>portofel implicit</translation>
     </message>
@@ -1061,10 +1098,6 @@
     <message>
         <source>Shows if the supplied default SOCKS5 proxy is used to reach peers via this network type.</source>
         <translation>Arata daca proxy-ul SOCKS5 furnizat implicit este folosit pentru a gasi parteneri via acest tip de retea.</translation>
-    </message>
-    <message>
-        <source>Use separate SOCKS&amp;5 proxy to reach peers via Tor hidden services:</source>
-        <translation>Foloseste un proxy SOCKS&amp;5 separat pentru a gasi parteneri via servicii TOR ascunse</translation>
     </message>
     <message>
         <source>Hide the icon from the system tray.</source>
@@ -1193,10 +1226,6 @@
     <message>
         <source>Tor</source>
         <translation>Tor</translation>
-    </message>
-    <message>
-        <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor hidden services.</source>
-        <translation>Conectare la reteaua Qtum printr-un proxy SOCKS5 separat pentru serviciile TOR ascunse.</translation>
     </message>
     <message>
         <source>&amp;Window</source>
@@ -1369,7 +1398,18 @@
         <source>Current total balance in watch-only addresses</source>
         <translation>Soldul dvs. total în adresele doar-supraveghere</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>PSBTOperationsDialog</name>
+    <message>
+        <source>Total Amount</source>
+        <translation>Suma totală</translation>
+    </message>
+    <message>
+        <source>or</source>
+        <translation>sau</translation>
+    </message>
+    </context>
 <context>
     <name>PaymentServer</name>
     <message>
@@ -1605,10 +1645,6 @@
         <translation>Lanţ de blocuri</translation>
     </message>
     <message>
-        <source>Current number of blocks</source>
-        <translation>Numărul curent de blocuri</translation>
-    </message>
-    <message>
         <source>Memory Pool</source>
         <translation>Pool Memorie</translation>
     </message>
@@ -1653,10 +1689,6 @@
         <translation>Selectaţi un partener pentru a vedea informaţiile detaliate.</translation>
     </message>
     <message>
-        <source>Whitelisted</source>
-        <translation>Whitelisted</translation>
-    </message>
-    <message>
         <source>Direction</source>
         <translation>Direcţie</translation>
     </message>
@@ -1699,10 +1731,6 @@
     <message>
         <source>Services</source>
         <translation>Servicii</translation>
-    </message>
-    <message>
-        <source>Ban Score</source>
-        <translation>Scor Ban</translation>
     </message>
     <message>
         <source>Connection Time</source>
@@ -1853,14 +1881,6 @@
         <translation>Ieşire</translation>
     </message>
     <message>
-        <source>Yes</source>
-        <translation>Da</translation>
-    </message>
-    <message>
-        <source>No</source>
-        <translation>Nu</translation>
-    </message>
-    <message>
         <source>Unknown</source>
         <translation>Necunoscut</translation>
     </message>
@@ -1947,12 +1967,24 @@
         <source>Copy amount</source>
         <translation>Copiază suma</translation>
     </message>
-</context>
+    <message>
+        <source>Could not unlock wallet.</source>
+        <translation>Portofelul nu a putut fi deblocat.</translation>
+    </message>
+    </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
-        <source>QR Code</source>
-        <translation>Cod QR</translation>
+        <source>Amount:</source>
+        <translation>Sumă:</translation>
+    </message>
+    <message>
+        <source>Message:</source>
+        <translation>Mesaj:</translation>
+    </message>
+    <message>
+        <source>Wallet:</source>
+        <translation>Portofel:</translation>
     </message>
     <message>
         <source>Copy &amp;URI</source>
@@ -1973,30 +2005,6 @@
     <message>
         <source>Payment information</source>
         <translation>Informaţiile plată</translation>
-    </message>
-    <message>
-        <source>URI</source>
-        <translation>URI</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Adresă</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>Cantitate</translation>
-    </message>
-    <message>
-        <source>Label</source>
-        <translation>Etichetă</translation>
-    </message>
-    <message>
-        <source>Message</source>
-        <translation>Mesaj</translation>
-    </message>
-    <message>
-        <source>Wallet</source>
-        <translation>Portofel</translation>
     </message>
 </context>
 <context>
@@ -2203,6 +2211,10 @@ Nota: Cum taxa este calculata per byte, o taxa de "100 satoshi per kB" pentru o 
     <message>
         <source>%1 (%2 blocks)</source>
         <translation>%1(%2 blocuri)</translation>
+    </message>
+    <message>
+        <source> from wallet '%1'</source>
+        <translation>din portofelul '%1'</translation>
     </message>
     <message>
         <source>%1 to %2</source>
@@ -2668,6 +2680,10 @@ Nota: Cum taxa este calculata per byte, o taxa de "100 satoshi per kB" pentru o 
         <translation>Index debit</translation>
     </message>
     <message>
+        <source> (Certificate was not verified)</source>
+        <translation>(Certificatul nu a fost verificat)</translation>
+    </message>
+    <message>
         <source>Merchant</source>
         <translation>Comerciant</translation>
     </message>
@@ -2994,8 +3010,8 @@ Nota: Cum taxa este calculata per byte, o taxa de "100 satoshi per kB" pentru o 
 <context>
     <name>WalletFrame</name>
     <message>
-        <source>No wallet has been loaded.</source>
-        <translation>Nu a fost încărcat nici un portofel.</translation>
+        <source>Create a new wallet</source>
+        <translation>Crează un portofel nou</translation>
     </message>
 </context>
 <context>
@@ -3056,6 +3072,10 @@ Nota: Cum taxa este calculata per byte, o taxa de "100 satoshi per kB" pentru o 
         <translation>Exportă datele din tab-ul curent într-un fişier</translation>
     </message>
     <message>
+        <source>Error</source>
+        <translation>Eroare</translation>
+    </message>
+    <message>
         <source>Backup Wallet</source>
         <translation>Backup portofelul electronic</translation>
     </message>
@@ -3097,10 +3117,6 @@ Nota: Cum taxa este calculata per byte, o taxa de "100 satoshi per kB" pentru o 
     <message>
         <source>Prune: last wallet synchronisation goes beyond pruned data. You need to -reindex (download the whole blockchain again in case of pruned node)</source>
         <translation>Reductie: ultima sincronizare merge dincolo de datele reductiei. Trebuie sa faceti -reindex (sa descarcati din nou intregul blockchain in cazul unui nod redus)</translation>
-    </message>
-    <message>
-        <source>Error: A fatal internal error occurred, see debug.log for details</source>
-        <translation>Eroare: S-a produs o eroare interna fatala, vedeti debug.log pentru detalii</translation>
     </message>
     <message>
         <source>Pruning blockstore...</source>
@@ -3161,14 +3177,6 @@ Nota: Cum taxa este calculata per byte, o taxa de "100 satoshi per kB" pentru o 
     <message>
         <source>Warning: We do not appear to fully agree with our peers! You may need to upgrade, or other nodes may need to upgrade.</source>
         <translation>Atenţie: Aparent, nu sîntem de acord cu toţi partenerii noştri! Va trebui să faceţi o actualizare, sau alte noduri necesită actualizare.</translation>
-    </message>
-    <message>
-        <source>%d of last 100 blocks have unexpected version</source>
-        <translation>%d din ultimele 100 blocuri a o versiune neasteptata</translation>
-    </message>
-    <message>
-        <source>%s corrupt, salvage failed</source>
-        <translation>%s corupt, salvare nereuşită</translation>
     </message>
     <message>
         <source>-maxmempool must be at least %d MB</source>
@@ -3355,6 +3363,10 @@ Nota: Cum taxa este calculata per byte, o taxa de "100 satoshi per kB" pentru o 
         <translation>Eroare la actualizarea bazei de date chainstate</translation>
     </message>
     <message>
+        <source>Error: Disk space is low for %s</source>
+        <translation>Eroare: Spațiul pe disc este redus pentru %s</translation>
+    </message>
+    <message>
         <source>Invalid -onion address or hostname: '%s'</source>
         <translation>Adresa sau hostname -onion invalide: '%s'</translation>
     </message>
@@ -3395,6 +3407,12 @@ Nota: Cum taxa este calculata per byte, o taxa de "100 satoshi per kB" pentru o 
         <translation>-walletdir "%s" specificat nu este un director</translation>
     </message>
     <message>
+        <source>The specified config file %s does not exist
+</source>
+        <translation>Fișierul de configurare specificat %s nu există
+</translation>
+    </message>
+    <message>
         <source>The transaction amount is too small to pay the fee</source>
         <translation>Suma tranzactiei este prea mica pentru plata taxei</translation>
     </message>
@@ -3427,10 +3445,6 @@ Nota: Cum taxa este calculata per byte, o taxa de "100 satoshi per kB" pentru o 
         <translation>Atentie: se activeaza reguli noi necunoscute (versionbit %i)</translation>
     </message>
     <message>
-        <source>Zapping all transactions from wallet...</source>
-        <translation>Şterge toate tranzacţiile din portofel...</translation>
-    </message>
-    <message>
         <source>-maxtxfee is set very high! Fees this large could be paid on a single transaction.</source>
         <translation>-maxtxfee este setata foarte sus! Se pot plati taxe de aceasta marime pe o singura tranzactie.</translation>
     </message>
@@ -3443,16 +3457,8 @@ Nota: Cum taxa este calculata per byte, o taxa de "100 satoshi per kB" pentru o 
         <translation>Lungimea totala a sirului versiunii retelei (%i) depaseste lungimea maxima (%i). Reduceti numarul sa dimensiunea uacomments.</translation>
     </message>
     <message>
-        <source>Warning: Wallet file corrupt, data salvaged! Original %s saved as %s in %s; if your balance or transactions are incorrect you should restore from a backup.</source>
-        <translation>Atenţie: fişierul portofelului este corupt, date salvate! Fişierul %s a fost salvat ca %s in %s; dacă balanta sau tranzactiile sunt incorecte ar trebui să restauraţi dintr-o copie de siguranţă.</translation>
-    </message>
-    <message>
         <source>%s is set very high!</source>
         <translation>%s este setata foarte sus!</translation>
-    </message>
-    <message>
-        <source>Error loading wallet %s. Duplicate -wallet filename specified.</source>
-        <translation>Eroare la incarcarea portofelului %s. Este specificat un fisier -wallet duplicat.</translation>
     </message>
     <message>
         <source>Starting network threads...</source>
@@ -3489,10 +3495,6 @@ Nota: Cum taxa este calculata per byte, o taxa de "100 satoshi per kB" pentru o 
     <message>
         <source>Insufficient funds</source>
         <translation>Fonduri insuficiente</translation>
-    </message>
-    <message>
-        <source>Cannot upgrade a non HD split wallet without upgrading to support pre split keypool. Please use -upgradewallet=169900 or -upgradewallet with no version specified.</source>
-        <translation>Nu se poate actualiza un portofel split HD fără a fi actualizat pentru a sprijini keypool-ul pre divizat. Vă rugăm să folosiți -upgradewallet=169900 sau -upgradewallet fără nicio versiune specificată.</translation>
     </message>
     <message>
         <source>Fee estimation failed. Fallbackfee is disabled. Wait a few blocks or enable -fallbackfee.</source>

@@ -49,11 +49,11 @@ public:
         SAT
     };
 
-    enum SeparatorStyle
+    enum class SeparatorStyle
     {
-        separatorNever,
-        separatorStandard,
-        separatorAlways
+        NEVER,
+        STANDARD,
+        ALWAYS
     };
 
     //! @name Static API
@@ -77,11 +77,15 @@ public:
     //! Number of decimals left
     static int decimals(int unit);
     //! Format as string
-    static QString format(int unit, const CAmount& amount, bool plussign=false, SeparatorStyle separators=separatorStandard);
+    static QString format(int unit, const CAmount& amount, bool plussign = false, SeparatorStyle separators = SeparatorStyle::STANDARD, bool justify = false);
     //! Format as string (with unit)
-    static QString formatWithUnit(int unit, const CAmount& amount, bool plussign=false, SeparatorStyle separators=separatorStandard);
+    static QString formatWithUnit(int unit, const CAmount& amount, bool plussign=false, SeparatorStyle separators=SeparatorStyle::STANDARD);
     //! Format as HTML string (with unit)
-    static QString formatHtmlWithUnit(int unit, const CAmount& amount, bool plussign=false, SeparatorStyle separators=separatorStandard);
+    static QString formatHtmlWithUnit(int unit, const CAmount& amount, bool plussign=false, SeparatorStyle separators=SeparatorStyle::STANDARD);
+    //! Format as string of fixed length to preserve privacy, if it is set.
+    static QString formatPrivacy(int unit, const CAmount& amount, SeparatorStyle separators, bool privacy);
+    //! Format as string (with unit) of fixed length to preserve privacy, if it is set.
+    static QString formatWithPrivacy(int unit, const CAmount& amount, SeparatorStyle separators, bool privacy);
     //! Parse string to coin amount
     static bool parse(int unit, const QString &value, CAmount *val_out);
     //! Gets title for amount column including current display unit if optionsModel reference available */
@@ -89,11 +93,11 @@ public:
     //! Parse string to token amount
     static bool parseToken(int decimal_units, const QString &value, int256_t *val_out);
     //! Format token as string
-    static QString formatToken(int decimal_units, const int256_t& amount, bool plussign=false, SeparatorStyle separators=separatorStandard); //! Format token as string
+    static QString formatToken(int decimal_units, const int256_t& amount, bool plussign=false, SeparatorStyle separators=SeparatorStyle::STANDARD); //! Format token as string
     //! Format token as string (with unit)
-    static QString formatTokenWithUnit(const QString unit, int decimals, const int256_t& amount, bool plussign=false, SeparatorStyle separators=separatorStandard);
+    static QString formatTokenWithUnit(const QString unit, int decimals, const int256_t& amount, bool plussign=false, SeparatorStyle separators=SeparatorStyle::STANDARD);
     //! Format integer number as string (with and without separator)
-    static QString formatInt(const int64_t& number, bool plussign=false, SeparatorStyle separators=separatorStandard);
+    static QString formatInt(const int64_t& number, bool plussign=false, SeparatorStyle separators=SeparatorStyle::STANDARD);
     ///@}
 
     //! @name AbstractListModel implementation
@@ -103,8 +107,8 @@ public:
         /** Unit identifier */
         UnitRole = Qt::UserRole
     };
-    int rowCount(const QModelIndex &parent) const;
-    QVariant data(const QModelIndex &index, int role) const;
+    int rowCount(const QModelIndex &parent) const override;
+    QVariant data(const QModelIndex &index, int role) const override;
     ///@}
 
     static QString removeSpaces(QString text)

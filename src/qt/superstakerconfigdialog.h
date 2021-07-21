@@ -34,8 +34,8 @@ public:
 
 public Q_SLOTS:
     void chooseAddressType(int idx);
-    void accept();
-    void reject();
+    void accept() override;
+    void reject() override;
 
 private Q_SLOTS:
     void on_buttonOk_clicked();

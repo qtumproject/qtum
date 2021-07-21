@@ -22,12 +22,24 @@
         <translation>&amp;Kopjo</translation>
     </message>
     <message>
+        <source>C&amp;lose</source>
+        <translation>afer</translation>
+    </message>
+    <message>
         <source>Delete the currently selected address from the list</source>
         <translation>Fshi adresen e selektuar nga lista</translation>
     </message>
     <message>
+        <source>Enter address or label to search</source>
+        <translation>Vendos adresën ose etiketën për të kërkuar</translation>
+    </message>
+    <message>
         <source>Export the data in the current tab to a file</source>
         <translation>Eksporto të dhënat e skedës korrente në një skedar</translation>
+    </message>
+    <message>
+        <source>&amp;Export</source>
+        <translation>&amp;Eksporto</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
@@ -56,6 +68,11 @@
     <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation>Këto janë Qtum adresat e juaja për të dërguar pagesa. Gjithmon kontrolloni shumën dhe adresën pranuese para se të dërgoni monedha.</translation>
+    </message>
+    <message>
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+Signing is only possible with addresses of the type 'legacy'.</source>
+        <translation>Këto janë adresat tuaja të Qtum për të marrë pagesa. Përdorni butonin 'Krijo adresë të re marrëse' në skedën e marrjes për të krijuar adresa të reja. Nënshkrimi është i mundur vetëm me adresa të tipit 'trashëgimi'.</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -103,6 +120,10 @@
 </context>
 <context>
     <name>AskPassphraseDialog</name>
+    <message>
+        <source>Passphrase Dialog</source>
+        <translation>Dialog i Fjalëkalimit</translation>
+    </message>
     <message>
         <source>Enter passphrase</source>
         <translation>Futni fjalëkalimin</translation>
@@ -164,6 +185,18 @@
         <translation>Jepe fjalëkalimin e vjetër dhe fjalkalimin e ri për portofolin.</translation>
     </message>
     <message>
+        <source>Wallet to be encrypted</source>
+        <translation>Portofoli që duhet të enkriptohet</translation>
+    </message>
+    <message>
+        <source>Your wallet is about to be encrypted. </source>
+        <translation>Portofoli juaj do të enkriptohet</translation>
+    </message>
+    <message>
+        <source>Your wallet is now encrypted. </source>
+        <translation>Portofoli juaj është i enkriptuar.</translation>
+    </message>
+    <message>
         <source>Wallet encryption failed</source>
         <translation>Enkriptimi i portofolit dështoi</translation>
     </message>
@@ -216,6 +249,10 @@
     <message>
         <source>Quit application</source>
         <translation>Mbyllni aplikacionin</translation>
+    </message>
+    <message>
+        <source>Show information about Qt</source>
+        <translation>Shfaq informacion rreth Qt</translation>
     </message>
     <message>
         <source>&amp;Options...</source>
@@ -431,6 +468,9 @@
     </message>
     </context>
 <context>
+    <name>PSBTOperationsDialog</name>
+    </context>
+<context>
     <name>PaymentServer</name>
     </context>
 <context>
@@ -487,30 +527,22 @@
         <source>Clear</source>
         <translation>Pastro</translation>
     </message>
+    <message>
+        <source>Could not unlock wallet.</source>
+        <translation>Nuk mund të ç'kyçet portofoli.</translation>
+    </message>
     </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
+        <source>Amount:</source>
+        <translation>Shuma:</translation>
+    </message>
+    <message>
         <source>Copy &amp;Address</source>
         <translation>&amp;Kopjo adresen</translation>
     </message>
-    <message>
-        <source>Address</source>
-        <translation>Adresë</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>Sasia</translation>
-    </message>
-    <message>
-        <source>Label</source>
-        <translation>Etiketë</translation>
-    </message>
-    <message>
-        <source>Wallet</source>
-        <translation>Portofol</translation>
-    </message>
-</context>
+    </context>
 <context>
     <name>RecentRequestsTableModel</name>
     <message>
@@ -768,8 +800,16 @@
 <context>
     <name>WalletView</name>
     <message>
+        <source>&amp;Export</source>
+        <translation>&amp;Eksporto</translation>
+    </message>
+    <message>
         <source>Export the data in the current tab to a file</source>
         <translation>Eksporto të dhënat e skedës korrente në një skedar</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Problem</translation>
     </message>
     </context>
 <context>

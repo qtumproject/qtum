@@ -33,7 +33,7 @@ void test_one_input(const std::vector<uint8_t>& buffer)
         case 0: {
             const int64_t i = fuzzed_data_provider.ConsumeIntegral<int64_t>();
             assert((script_num == i) != (script_num != i));
-            assert((script_num <= i) != script_num > i);
+            assert((script_num <= i) != (script_num > i));
             assert((script_num >= i) != (script_num < i));
             // Avoid signed integer overflow:
             // script/script.h:264:93: runtime error: signed integer overflow: -2261405121394637306 + -9223372036854775802 cannot be represented in type 'long'
@@ -129,10 +129,6 @@ void test_one_input(const std::vector<uint8_t>& buffer)
             break;
         }
         (void)script_num.getint();
-        // Avoid negation failure:
-        // script/script.h:332:35: runtime error: negation of -9223372036854775808 cannot be represented in type 'int64_t' (aka 'long'); cast to an unsigned type to negate this value to itself
-        if (script_num != CScriptNum{std::numeric_limits<int64_t>::min()}) {
-            (void)script_num.getvch();
-        }
+        (void)script_num.getvch();
     }
 }

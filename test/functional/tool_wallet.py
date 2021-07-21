@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2018-2019 The Bitcoin Core developers
+# Copyright (c) 2018-2020 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test bitcoin-wallet."""
@@ -14,6 +14,7 @@ from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal
 
 BUFFER_SIZE = 16 * 1024
+
 
 class ToolWalletTest(BitcoinTestFramework):
     def set_test_params(self):
@@ -48,7 +49,7 @@ class ToolWalletTest(BitcoinTestFramework):
         h = hashlib.sha1()
         mv = memoryview(bytearray(BUFFER_SIZE))
         with open(self.wallet_path, 'rb', buffering=0) as f:
-            for n in iter(lambda : f.readinto(mv), 0):
+            for n in iter(lambda: f.readinto(mv), 0):
                 h.update(mv[:n])
         return h.hexdigest()
 
@@ -69,8 +70,17 @@ class ToolWalletTest(BitcoinTestFramework):
         self.assert_raises_tool_error('Invalid command: help', 'help')
         self.assert_raises_tool_error('Error: two methods provided (info and create). Only one method should be provided.', 'info', 'create')
         self.assert_raises_tool_error('Error parsing command line arguments: Invalid parameter -foo', '-foo')
-        self.assert_raises_tool_error('Error loading wallet.dat. Is wallet being used by other process?', '-wallet=wallet.dat', 'info')
-        self.assert_raises_tool_error('Error: no wallet file at nonexistent.dat', '-wallet=nonexistent.dat', 'info')
+        locked_dir = os.path.join(self.options.tmpdir, "node0", "regtest", "wallets")
+        error = 'Error initializing wallet database environment "{}"!'.format(locked_dir)
+        if self.options.descriptors:
+            error = "SQLiteDatabase: Unable to obtain an exclusive lock on the database, is it being used by another bitcoind?"
+        self.assert_raises_tool_error(
+            error,
+            '-wallet=' + self.default_wallet_name,
+            'info',
+        )
+        path = os.path.join(self.options.tmpdir, "node0", "regtest", "wallets", "nonexistent.dat")
+        self.assert_raises_tool_error("Failed to load database path '{}'. Path does not exist.".format(path), '-wallet=nonexistent.dat', 'info')
 
     def test_tool_wallet_info(self):
         # Stop the node to close the wallet to call the info command.
@@ -84,26 +94,44 @@ class ToolWalletTest(BitcoinTestFramework):
         #
         # self.log.debug('Setting wallet file permissions to 400 (read-only)')
         # os.chmod(self.wallet_path, stat.S_IRUSR)
-        # assert(self.wallet_permissions() in ['400', '666']) # Sanity check. 666 because Appveyor.
+        # assert self.wallet_permissions() in ['400', '666'] # Sanity check. 666 because Appveyor.
         # shasum_before = self.wallet_shasum()
         timestamp_before = self.wallet_timestamp()
         self.log.debug('Wallet file timestamp before calling info: {}'.format(timestamp_before))
-        out = textwrap.dedent('''\
-            Wallet info
-            ===========
-            Encrypted: no
-            HD (hd seed available): yes
-            Keypool Size: 2
-            Transactions: 0
-            Address Book: 3
-        ''')
-        self.assert_tool_output(out, '-wallet=wallet.dat', 'info')
+        if self.options.descriptors:
+            out = textwrap.dedent('''\
+                Wallet info
+                ===========
+                Name: default_wallet
+                Format: sqlite
+                Descriptors: yes
+                Encrypted: no
+                HD (hd seed available): yes
+                Keypool Size: 6
+                Transactions: 0
+                Address Book: 1
+            ''')
+        else:
+            out = textwrap.dedent('''\
+                Wallet info
+                ===========
+                Name: \
+
+                Format: bdb
+                Descriptors: no
+                Encrypted: no
+                HD (hd seed available): yes
+                Keypool Size: 2
+                Transactions: 0
+                Address Book: 3
+            ''')
+        self.assert_tool_output(out, '-wallet=' + self.default_wallet_name, 'info')
         timestamp_after = self.wallet_timestamp()
         self.log.debug('Wallet file timestamp after calling info: {}'.format(timestamp_after))
         self.log_wallet_timestamp_comparison(timestamp_before, timestamp_after)
         self.log.debug('Setting wallet file permissions back to 600 (read/write)')
         os.chmod(self.wallet_path, stat.S_IRUSR | stat.S_IWUSR)
-        assert(self.wallet_permissions() in ['600', '666']) # Sanity check. 666 because Appveyor.
+        assert self.wallet_permissions() in ['600', '666']  # Sanity check. 666 because Appveyor.
         #
         # TODO: Wallet tool info should not write to the wallet file.
         # The following lines should be uncommented and the tests still succeed:
@@ -127,16 +155,34 @@ class ToolWalletTest(BitcoinTestFramework):
         shasum_before = self.wallet_shasum()
         timestamp_before = self.wallet_timestamp()
         self.log.debug('Wallet file timestamp before calling info: {}'.format(timestamp_before))
-        out = textwrap.dedent('''\
-            Wallet info
-            ===========
-            Encrypted: no
-            HD (hd seed available): yes
-            Keypool Size: 2
-            Transactions: 1
-            Address Book: 3
-        ''')
-        self.assert_tool_output(out, '-wallet=wallet.dat', 'info')
+        if self.options.descriptors:
+            out = textwrap.dedent('''\
+                Wallet info
+                ===========
+                Name: default_wallet
+                Format: sqlite
+                Descriptors: yes
+                Encrypted: no
+                HD (hd seed available): yes
+                Keypool Size: 6
+                Transactions: 1
+                Address Book: 1
+            ''')
+        else:
+            out = textwrap.dedent('''\
+                Wallet info
+                ===========
+                Name: \
+
+                Format: bdb
+                Descriptors: no
+                Encrypted: no
+                HD (hd seed available): yes
+                Keypool Size: 2
+                Transactions: 1
+                Address Book: 3
+            ''')
+        self.assert_tool_output(out, '-wallet=' + self.default_wallet_name, 'info')
         shasum_after = self.wallet_shasum()
         timestamp_after = self.wallet_timestamp()
         self.log.debug('Wallet file timestamp after calling info: {}'.format(timestamp_after))
@@ -157,6 +203,9 @@ class ToolWalletTest(BitcoinTestFramework):
             Topping up keypool...
             Wallet info
             ===========
+            Name: foo
+            Format: bdb
+            Descriptors: no
             Encrypted: no
             HD (hd seed available): yes
             Keypool Size: 2000
@@ -174,7 +223,7 @@ class ToolWalletTest(BitcoinTestFramework):
 
     def test_getwalletinfo_on_different_wallet(self):
         self.log.info('Starting node with arg -wallet=foo')
-        self.start_node(0, ['-wallet=foo'])
+        self.start_node(0, ['-nowallet', '-wallet=foo'])
 
         self.log.info('Calling getwalletinfo on a different wallet ("foo"), testing output')
         shasum_before = self.wallet_shasum()
@@ -197,15 +246,27 @@ class ToolWalletTest(BitcoinTestFramework):
         assert_equal(shasum_after, shasum_before)
         self.log.debug('Wallet file shasum unchanged\n')
 
+    def test_salvage(self):
+        # TODO: Check salvage actually salvages and doesn't break things. https://github.com/bitcoin/bitcoin/issues/7463
+        self.log.info('Check salvage')
+        self.start_node(0)
+        self.nodes[0].createwallet("salvage")
+        self.stop_node(0)
+
+        self.assert_tool_output('', '-wallet=salvage', 'salvage')
+
     def run_test(self):
-        self.wallet_path = os.path.join(self.nodes[0].datadir, self.chain, 'wallets', 'wallet.dat')
+        self.wallet_path = os.path.join(self.nodes[0].datadir, self.chain, 'wallets', self.default_wallet_name, self.wallet_data_filename)
         self.test_invalid_tool_commands_and_args()
         # Warning: The following tests are order-dependent.
         self.test_tool_wallet_info()
         self.test_tool_wallet_info_after_transaction()
-        self.test_tool_wallet_create_on_existing_wallet()
-        self.test_getwalletinfo_on_different_wallet()
-
+        if not self.options.descriptors:
+            # TODO: Wallet tool needs more create options at which point these can be enabled.
+            self.test_tool_wallet_create_on_existing_wallet()
+            self.test_getwalletinfo_on_different_wallet()
+            # Salvage is a legacy wallet only thing
+            self.test_salvage()
 
 if __name__ == '__main__':
     ToolWalletTest().main()

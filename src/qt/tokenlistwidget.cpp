@@ -138,7 +138,7 @@ void TokenListWidget::updateRow(const QModelIndex &index, int position)
         int256_t totalSupply(balance);
         TokenItemWidget* item = m_rows[position];
         item->setPosition(position);
-        item->setData(QString::fromStdString(name), BitcoinUnits::formatTokenWithUnit(QString::fromStdString(symbol), decimals, totalSupply, false, BitcoinUnits::separatorAlways), QString::fromStdString(sender), tokenIconPath);
+        item->setData(QString::fromStdString(name), BitcoinUnits::formatTokenWithUnit(QString::fromStdString(symbol), decimals, totalSupply, false, BitcoinUnits::SeparatorStyle::ALWAYS), QString::fromStdString(sender), tokenIconPath);
 
     }
 }

@@ -15,7 +15,7 @@
     </message>
     <message>
         <source>Copy the currently selected address to the system clipboard</source>
-        <translation>Αντέγραψε την επιλεγμένη διεύθυνση στο πρόχειρο του συστήματος</translation>
+        <translation>Αντιγράψτε την επιλεγμένη διεύθυνση στο πρόχειρο του συστήματος</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
@@ -68,10 +68,6 @@
     <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation>Αυτές είναι οι Qtum διευθύνσεις σας για να στέλνετε πληρωμές. Να ελέγχετε πάντα το ποσό, καθώς και τη διεύθυνση παραλήπτη πριν στείλετε νομίσματα.</translation>
-    </message>
-    <message>
-        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.</source>
-        <translation>Αυτές είναι οι Qtum διευθύνσεις για την λήψη πληρωμών. Χρησιμοποιήσε το κουμπί  'Δημιουργία νέας διεύθυνσης λήψεων' στο παράθυρο λήψεων για την δημιουργία νέας διεύθυνσης  </translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -518,6 +514,14 @@
         <translation>Κλείσιμο πορτοφολιού</translation>
     </message>
     <message>
+        <source>Close All Wallets...</source>
+        <translation>Κλείσιμο όλων των πορτοφολιών...</translation>
+    </message>
+    <message>
+        <source>Close all wallets</source>
+        <translation>Κλείσιμο όλων των πορτοφολιών</translation>
+    </message>
+    <message>
         <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
         <translation>Εμφάνισε το %1 βοηθητικό μήνυμα για λήψη μιας λίστας με διαθέσιμες επιλογές για Qtum εντολές </translation>
     </message>
@@ -630,8 +634,12 @@
         <translation>Το πορτοφόλι είναι &lt;b&gt;κρυπτογραφημένο&lt;/b&gt; και &lt;b&gt;κλειδωμένο&lt;/b&gt;</translation>
     </message>
     <message>
-        <source>A fatal error occurred. Qtum can no longer continue safely and will quit.</source>
-        <translation>Εμφανίστηκε ένα μοιραίο σφάλμα. Το Qtum δεν μπορεί πλέον να συνεχίσει με ασφάλεια και θα σταματήσει.</translation>
+        <source>Original message:</source>
+        <translation>Αρχικό Μήνυμα:</translation>
+    </message>
+    <message>
+        <source>A fatal error occurred. %1 can no longer continue safely and will quit.</source>
+        <translation>Συνέβη ενα μοιραίο σφάλμα. %1 δε μπορεί να συνεχιστεί με ασφάλεια και θα σταματήσει</translation>
     </message>
 </context>
 <context>
@@ -654,7 +662,7 @@
     </message>
     <message>
         <source>Fee:</source>
-        <translation>Ταρίφα:</translation>
+        <translation>Τέλη:</translation>
     </message>
     <message>
         <source>Dust:</source>
@@ -662,7 +670,7 @@
     </message>
     <message>
         <source>After Fee:</source>
-        <translation>Ταρίφα αλλαγής:</translation>
+        <translation>Τέλη αλλαγής:</translation>
     </message>
     <message>
         <source>Change:</source>
@@ -838,6 +846,10 @@
         <source>Create</source>
         <translation>Δημιουργία</translation>
     </message>
+    <message>
+        <source>Compiled without sqlite support (required for descriptor wallets)</source>
+        <translation>Μεταγλωτίστηκε χωρίς την υποστήριξη sqlite (απαραίτητη για περιγραφικά πορτοφόλια )</translation>
+    </message>
 </context>
 <context>
     <name>EditAddressDialog</name>
@@ -941,10 +953,6 @@
     <message>
         <source>Welcome to %1.</source>
         <translation>Καλωσήρθες στο %1.</translation>
-    </message>
-    <message>
-        <source>When you click OK, %1 will begin to download and process the full %4 block chain (%2GB) starting with the earliest transactions in %3 when %4 initially launched.</source>
-        <translation>Όταν κάνετε κλικ στο OK, το %1 θα ξεκινήσει τη λήψη και την επεξεργασία της πλήρους αλυσίδας μπλοκ% 4 (%2GB) αρχίζοντας από τις πρώτες συναλλαγές στο %3 όταν αρχικά ξεκίνησε το %4.</translation>
     </message>
     <message>
         <source>Reverting this setting requires re-downloading the entire blockchain. It is faster to download the full chain first and prune it later. Disables some advanced features.</source>
@@ -1131,10 +1139,6 @@
         <translation>Εμφανίζει αν ο προεπιλεγμένος διακομιστής μεσολάβησης SOCKS5 χρησιμοποιείται για την προσέγγιση χρηστών μέσω αυτού του τύπου δικτύου.</translation>
     </message>
     <message>
-        <source>Use separate SOCKS&amp;5 proxy to reach peers via Tor hidden services:</source>
-        <translation>Χρησιμοποιήστε χωριστό SOCKS&amp;5 proxy για να προσεγγίσετε συνομηλίκους μέσω κρυφών υπηρεσιών Tor:</translation>
-    </message>
-    <message>
         <source>Hide the icon from the system tray.</source>
         <translation>Απόκρυψη του εικονιδίου από το συρτάρι του συστήματος.</translation>
     </message>
@@ -1265,10 +1269,6 @@
     <message>
         <source>Tor</source>
         <translation>Tor</translation>
-    </message>
-    <message>
-        <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor hidden services.</source>
-        <translation>Συνδεθείτε στο δίκτυο Qtum μέσω ενός ξεχωριστού διακομιστή μεσολάβησης SOCKS5 για κρυφές υπηρεσίες Tor.</translation>
     </message>
     <message>
         <source>&amp;Window</source>
@@ -1441,6 +1441,82 @@
     <message>
         <source>Current total balance in watch-only addresses</source>
         <translation>Το τρέχον συνολικό υπόλοιπο σε διευθύνσεις παρακολούθησης μόνο</translation>
+    </message>
+    </context>
+<context>
+    <name>PSBTOperationsDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation>Διάλογος</translation>
+    </message>
+    <message>
+        <source>Copy to Clipboard</source>
+        <translation>Αντιγραφή στο Πρόχειρο</translation>
+    </message>
+    <message>
+        <source>Save...</source>
+        <translation>Αποθήκευση...</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Κλείσιμο</translation>
+    </message>
+    <message>
+        <source>Failed to load transaction: %1</source>
+        <translation>Αποτυχία φόρτωσης μεταφοράς: %1</translation>
+    </message>
+    <message>
+        <source>Failed to sign transaction: %1</source>
+        <translation>Αποτυχία εκπλήρωσης συναλλαγής: %1</translation>
+    </message>
+    <message>
+        <source>Signed transaction successfully. Transaction is ready to broadcast.</source>
+        <translation>Η συναλλαγή υπογράφηκε με επιτυχία. Η συναλλαγή είναι έτοιμη για μετάδοση.</translation>
+    </message>
+    <message>
+        <source>Unknown error processing transaction.</source>
+        <translation>Άγνωστο λάθος  επεξεργασίας μεταφοράς.</translation>
+    </message>
+    <message>
+        <source>Transaction broadcast successfully! Transaction ID: %1</source>
+        <translation>Έγινε επιτυχής αναμετάδοση της συναλλαγής! 
+ID Συναλλαγής: %1</translation>
+    </message>
+    <message>
+        <source>Transaction broadcast failed: %1</source>
+        <translation>Η αναμετάδοση της συναλαγής απέτυχε: %1</translation>
+    </message>
+    <message>
+        <source>PSBT copied to clipboard.</source>
+        <translation>PSBT αντιγράφηκε στο πρόχειρο.</translation>
+    </message>
+    <message>
+        <source>Save Transaction Data</source>
+        <translation>Αποθήκευση Δεδομένων Συναλλαγής</translation>
+    </message>
+    <message>
+        <source>PSBT saved to disk.</source>
+        <translation>PSBT αποθηκεύτηκε στο δίσκο.</translation>
+    </message>
+    <message>
+        <source> * Sends %1 to %2</source>
+        <translation>* Στέλνει %1 προς  %2</translation>
+    </message>
+    <message>
+        <source>Pays transaction fee: </source>
+        <translation>Πληρωμή τέλους συναλλαγής:</translation>
+    </message>
+    <message>
+        <source>Total Amount</source>
+        <translation>Συνολικό Ποσό</translation>
+    </message>
+    <message>
+        <source>or</source>
+        <translation>ή</translation>
+    </message>
+    <message>
+        <source>Transaction status is unknown.</source>
+        <translation>Η κατάσταση της συναλλαγής είναι άγνωστη.</translation>
     </message>
 </context>
 <context>
@@ -1702,10 +1778,6 @@
         <translation>Αλυσίδα μπλοκ</translation>
     </message>
     <message>
-        <source>Current number of blocks</source>
-        <translation>Τρέχον αριθμός μπλοκ</translation>
-    </message>
-    <message>
         <source>Memory Pool</source>
         <translation>Πισίνα μνήμης</translation>
     </message>
@@ -1750,10 +1822,6 @@
         <translation>Επιλέξτε ένα χρήστη για να δείτε αναλυτικές πληροφορίες.</translation>
     </message>
     <message>
-        <source>Whitelisted</source>
-        <translation> Τα στοιχεία που έχουν πρόσβαση στο σύστημα</translation>
-    </message>
-    <message>
         <source>Direction</source>
         <translation>Κατεύθυνση</translation>
     </message>
@@ -1790,6 +1858,10 @@
         <translation>Κόμβος παράθυρο</translation>
     </message>
     <message>
+        <source>Current block height</source>
+        <translation>Τωρινό ύψος block</translation>
+    </message>
+    <message>
         <source>Open the %1 debug log file from the current data directory. This can take a few seconds for large log files.</source>
         <translation>Ανοίξτε το αρχείο καταγραφής εντοπισμού σφαλμάτων %1 από τον τρέχοντα κατάλογο δεδομένων. Αυτό μπορεί να διαρκέσει μερικά δευτερόλεπτα για τα μεγάλα αρχεία καταγραφής.</translation>
     </message>
@@ -1802,12 +1874,12 @@
         <translation>Αύξηση μεγέθους γραμματοσειράς</translation>
     </message>
     <message>
-        <source>Services</source>
-        <translation>Υπηρεσίες</translation>
+        <source>Permissions</source>
+        <translation>Αδειες</translation>
     </message>
     <message>
-        <source>Ban Score</source>
-        <translation>Σκορ Aποκλεισμού</translation>
+        <source>Services</source>
+        <translation>Υπηρεσίες</translation>
     </message>
     <message>
         <source>Connection Time</source>
@@ -1959,14 +2031,6 @@
         <translation>Εξερχόμενα</translation>
     </message>
     <message>
-        <source>Yes</source>
-        <translation>Ναι</translation>
-    </message>
-    <message>
-        <source>No</source>
-        <translation>Όχι</translation>
-    </message>
-    <message>
         <source>Unknown</source>
         <translation>Άγνωστο(α)</translation>
     </message>
@@ -2065,12 +2129,32 @@
         <source>Copy amount</source>
         <translation>Αντιγραφή ποσού</translation>
     </message>
-</context>
+    <message>
+        <source>Could not unlock wallet.</source>
+        <translation>Δεν είναι δυνατό το ξεκλείδωμα του πορτοφολιού.</translation>
+    </message>
+    </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
-        <source>QR Code</source>
-        <translation>Κώδικας QR</translation>
+        <source>Request payment to ...</source>
+        <translation>Αίτημα πληρωμής προς ...</translation>
+    </message>
+    <message>
+        <source>Address:</source>
+        <translation>Διεύθυνση:</translation>
+    </message>
+    <message>
+        <source>Amount:</source>
+        <translation>Ποσό:</translation>
+    </message>
+    <message>
+        <source>Message:</source>
+        <translation>Μήνυμα:</translation>
+    </message>
+    <message>
+        <source>Wallet:</source>
+        <translation>Πορτοφόλι</translation>
     </message>
     <message>
         <source>Copy &amp;URI</source>
@@ -2091,30 +2175,6 @@
     <message>
         <source>Payment information</source>
         <translation>Πληροφορίες πληρωμής</translation>
-    </message>
-    <message>
-        <source>URI</source>
-        <translation>URI</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Διεύθυνση</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>Ποσό</translation>
-    </message>
-    <message>
-        <source>Label</source>
-        <translation>Ετικέτα</translation>
-    </message>
-    <message>
-        <source>Message</source>
-        <translation>Μήνυμα</translation>
-    </message>
-    <message>
-        <source>Wallet</source>
-        <translation>Πορτοφόλι</translation>
     </message>
 </context>
 <context>
@@ -2360,8 +2420,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>Είστε βέβαιοι ότι θέλετε να στείλετε;</translation>
     </message>
     <message>
-        <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
-        <translation>Παρακαλώ ελέγξτε την πρόταση συναλλαγής. Αυτό θα παράγει μια συναλλαγή Qtum με μερική υπογραφή (PSBT), την οποία μπορείτε να αντιγράψετε και στη συνέχεια να υπογράψετε με π.χ. ένα πορτοφόλι %1 εκτός σύνδεσης ή ένα πορτοφόλι υλικού συμβατό με το PSBT.</translation>
+        <source>Save Transaction Data</source>
+        <translation>Αποθήκευση Δεδομένων Συναλλαγής</translation>
     </message>
     <message>
         <source>or</source>
@@ -2401,16 +2461,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation> Επιβεβαιώστε την πρόταση συναλλαγής</translation>
     </message>
     <message>
-        <source>Copy PSBT to clipboard</source>
-        <translation>Αντιγράψτε το PSBT στο πρόχειρο</translation>
-    </message>
-    <message>
         <source>Send</source>
         <translation>Αποστολή</translation>
-    </message>
-    <message>
-        <source>PSBT copied</source>
-        <translation>PSBT αντιγράφηκε</translation>
     </message>
     <message>
         <source>Watch-only balance:</source>
@@ -3190,12 +3242,16 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <source>Closing the wallet for too long can result in having to resync the entire chain if pruning is enabled.</source>
         <translation>Το κλείσιμο του πορτοφολιού για πολύ μεγάλο χρονικό διάστημα μπορεί να οδηγήσει στην επανασύνδεση ολόκληρης της αλυσίδας αν είναι ενεργοποιημένη η περικοπή.</translation>
     </message>
-</context>
+    <message>
+        <source>Close all wallets</source>
+        <translation>Κλείσιμο όλων των πορτοφολιών</translation>
+    </message>
+    </context>
 <context>
     <name>WalletFrame</name>
     <message>
-        <source>No wallet has been loaded.</source>
-        <translation>Δεν έχει φορτωθεί πορτοφόλι.</translation>
+        <source>Create a new wallet</source>
+        <translation>Δημιουργία νέου Πορτοφολιού</translation>
     </message>
 </context>
 <context>
@@ -3268,6 +3324,14 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>Εξαγωγή δεδομένων καρτέλας σε αρχείο</translation>
     </message>
     <message>
+        <source>Error</source>
+        <translation>Σφάλμα</translation>
+    </message>
+    <message>
+        <source>Load Transaction Data</source>
+        <translation>Φόρτωση δεδομένων συναλλαγής</translation>
+    </message>
+    <message>
         <source>Backup Wallet</source>
         <translation>Αντίγραφο ασφαλείας Πορτοφολιού</translation>
     </message>
@@ -3311,10 +3375,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>Κλάδεμα: ο τελευταίος συγχρονισμός πορτοφολιού ξεπερνά τα κλαδεμένα δεδομένα. Πρέπει να κάνετε -reindex (κατεβάστε ολόκληρο το blockchain και πάλι σε περίπτωση κλαδέματος κόμβου)</translation>
     </message>
     <message>
-        <source>Error: A fatal internal error occurred, see debug.log for details</source>
-        <translation>Σφάλμα: Παρουσιάστηκε θανάσιμο εσωτερικό σφάλμα, ανατρέξτε στην ενότητα debug.log για λεπτομέρειες</translation>
-    </message>
-    <message>
         <source>Pruning blockstore...</source>
         <translation>Κλάδεμα blockstore...</translation>
     </message>
@@ -3325,10 +3385,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     <message>
         <source>The %s developers</source>
         <translation>Οι προγραμματιστές %s</translation>
-    </message>
-    <message>
-        <source>Can't generate a change-address key. No keys in the internal keypool and can't generate any keys.</source>
-        <translation>Δεν είναι δυνατή η δημιουργία ενός κλειδιού αλλαγής διεύθυνσης. Δεν υπάρχουν κλειδιά στην εσωτερική κεντρική μονάδα κλειδιών και δεν μπορούν να δημιουργήσουν κανένα κλειδί.</translation>
     </message>
     <message>
         <source>Cannot obtain a lock on data directory %s. %s is probably already running.</source>
@@ -3377,14 +3433,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     <message>
         <source>Warning: We do not appear to fully agree with our peers! You may need to upgrade, or other nodes may need to upgrade.</source>
         <translation>Προειδοποίηση: Δεν φαίνεται να συμφωνούμε πλήρως με τους συμμαθητές μας! Ίσως χρειαστεί να κάνετε αναβάθμιση ή ίσως χρειαστεί να αναβαθμίσετε άλλους κόμβους.</translation>
-    </message>
-    <message>
-        <source>%d of last 100 blocks have unexpected version</source>
-        <translation>Το %d των τελευταίων 100 μπλοκ έχει μη αναμενόμενη έκδοση</translation>
-    </message>
-    <message>
-        <source>%s corrupt, salvage failed</source>
-        <translation>%s διεφθαρμένη, αποτυχία διάσωσης</translation>
     </message>
     <message>
         <source>-maxmempool must be at least %d MB</source>
@@ -3503,10 +3551,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>Φόρτωση P2P διευθύνσεων...</translation>
     </message>
     <message>
-        <source>Error: Disk space is too low!</source>
-        <translation> Σφάλμα: Ο χώρος στο δίσκο είναι πολύ χαμηλός!</translation>
-    </message>
-    <message>
         <source>Loading banlist...</source>
         <translation>Φόρτωση λίστα απαγόρευσης...</translation>
     </message>
@@ -3581,6 +3625,10 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     <message>
         <source>You need to rebuild the database using -reindex to go back to unpruned mode.  This will redownload the entire blockchain</source>
         <translation>Πρέπει να ξαναφτιάξετε τη βάση δεδομένων χρησιμοποιώντας το -reindex για να επιστρέψετε στη λειτουργία χωρίς εκτύπωση. Αυτό θα ξαναφορτώσει ολόκληρο το blockchain</translation>
+    </message>
+    <message>
+        <source>Disk space is too low!</source>
+        <translation>Αποθηκευτικός χώρος πολύ μικρός!</translation>
     </message>
     <message>
         <source>Error reading from database, shutting down.</source>
@@ -3689,10 +3737,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>Προειδοποίηση: Άγνωστοι νέοι κανόνες ενεργοποιήθηκαν (έκδοσηbit %i)</translation>
     </message>
     <message>
-        <source>Zapping all transactions from wallet...</source>
-        <translation>Μεταφορά όλων των συναλλαγών από το πορτοφόλι</translation>
-    </message>
-    <message>
         <source>-maxtxfee is set very high! Fees this large could be paid on a single transaction.</source>
         <translation> -maxtxfee είναι καταχωρημένο πολύ υψηλά! Έξοδα τόσο υψηλά μπορούν να πληρωθούν σε μια ενιαία συναλλαγή.</translation>
     </message>
@@ -3735,10 +3779,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     <message>
         <source>Insufficient funds</source>
         <translation>Ανεπαρκές κεφάλαιο</translation>
-    </message>
-    <message>
-        <source>Cannot upgrade a non HD split wallet without upgrading to support pre split keypool. Please use -upgradewallet=169900 or -upgradewallet with no version specified.</source>
-        <translation>Δεν είναι δυνατή η αναβάθμιση ενός διαχωρισμένου πορτοφολιού χωρίς HD χωρίς αναβάθμιση για να υποστηρίξετε τη διαχωριστική κλειδαριά. Παρακαλούμε χρησιμοποιήστε το -upgradewallet = 169900 ή -upgradewallet χωρίς να έχετε καθορίσει καμία έκδοση.</translation>
     </message>
     <message>
         <source>Fee estimation failed. Fallbackfee is disabled. Wait a few blocks or enable -fallbackfee.</source>

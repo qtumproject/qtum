@@ -10,6 +10,10 @@
 
 #include <univalue.h>
 
+namespace util {
+class Ref;
+} // namespace util
+
 UniValue JSONRPCRequestObj(const std::string& strMethod, const UniValue& params, const UniValue& id);
 UniValue JSONRPCReplyObj(const UniValue& result, const UniValue& error, const UniValue& id);
 std::string JSONRPCReply(const UniValue& result, const UniValue& error, const UniValue& id);
@@ -22,9 +26,9 @@ bool GetAuthCookie(std::string *cookie_out);
 /** Delete RPC authentication cookie from disk */
 void DeleteAuthCookie();
 /** Parse JSON-RPC batch reply into a vector */
-std::vector<UniValue> JSONRPCProcessBatchReply(const UniValue &in, size_t num);
+std::vector<UniValue> JSONRPCProcessBatchReply(const UniValue& in);
 
-class JSONRPCRequestBase
+class JSONRPCRequest
 {
 public:
     UniValue id;
@@ -34,9 +38,47 @@ public:
     std::string URI;
     std::string authUser;
     std::string peerAddr;
+    const util::Ref& context;
+    bool isLongPolling;
+    void *httpreq;
 
-    JSONRPCRequestBase() : id(NullUniValue), params(NullUniValue), fHelp(false) {}
+    JSONRPCRequest(const util::Ref& context) : id(NullUniValue), params(NullUniValue), fHelp(false), context(context), isLongPolling(false), httpreq(nullptr) {}
+
+    //! Initializes request information from another request object and the
+    //! given context. The implementation should be updated if any members are
+    //! added or removed above.
+    JSONRPCRequest(const JSONRPCRequest& other, const util::Ref& context)
+        : id(other.id), strMethod(other.strMethod), params(other.params), fHelp(other.fHelp), URI(other.URI),
+          authUser(other.authUser), peerAddr(other.peerAddr), context(context), isLongPolling(other.isLongPolling), httpreq(other.httpreq)
+    {
+    }
+
     void parse(const UniValue& valRequest);
+
+    /**
+     * Start long-polling
+     */
+    virtual void PollStart();
+
+    /**
+     * Ping long-poll connection with an empty character to make sure it's still alive.
+     */
+    virtual void PollPing();
+
+    /**
+     * Returns whether the underlying long-poll connection is still alive.
+     */
+    virtual bool PollAlive();
+
+    /**
+     * End a long poll request.
+     */
+    virtual void PollCancel();
+
+    /**
+     * Return the JSON result of a long poll request
+     */
+    virtual void PollReply(const UniValue& result);
 };
 
 #endif // BITCOIN_RPC_REQUEST_H

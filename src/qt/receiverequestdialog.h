@@ -30,8 +30,8 @@ public:
 
 public Q_SLOTS:
     void clear();
-    void reject();
-    void accept();
+    void reject() override;
+    void accept() override;
 
 private Q_SLOTS:
     void on_btnCopyURI_clicked();

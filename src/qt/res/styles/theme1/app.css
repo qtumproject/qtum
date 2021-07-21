@@ -1044,7 +1044,7 @@ Overview Page Widget CSS
     image:url(":/icons/bitcoin");
     margin-top: 4px;
 }
-#widgetRecent #showMoreButton{
+#widgetListTransaction #showMoreButton{
     min-width: 3em;
     padding: 1px;
     border-radius: 8px;

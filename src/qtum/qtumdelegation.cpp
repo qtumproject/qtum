@@ -188,7 +188,11 @@ bool QtumDelegation::GetDelegation(const uint160 &address, Delegation &delegatio
         return error("Failed to serialize get delegation input parameters");
 
     // Get delegation for address
-    std::vector<ResultExecute> execResults = CallContract(priv->delegationsAddress, ParseHex(inputData));
+    std::vector<ResultExecute> execResults;
+    {
+        LOCK(cs_main);
+        execResults = CallContract(priv->delegationsAddress, ParseHex(inputData));
+    }
     if(execResults.size() < 1)
         return error("Failed to CallContract to get delegation for address");
 
@@ -269,6 +273,7 @@ bool QtumDelegation::FilterDelegationEvents(std::vector<DelegationEvent> &events
     if(!priv->m_pfRemoveDelegationEvent)
         return error("Remove delegation ABI does not exist");
 
+    LOCK(cs_main);
     int curheight = 0;
     std::set<dev::h160> addresses;
     addresses.insert(priv->delegationsAddress);
@@ -344,6 +349,7 @@ void QtumDelegation::UpdateDelegationsFromEvents(const std::vector<DelegationEve
 
 bool QtumDelegation::ExistDelegationContract() const
 {
+    LOCK(cs_main);
     // Delegation contract exist check
     return globalState && globalState->addressInUse(priv->delegationsAddress);
 }

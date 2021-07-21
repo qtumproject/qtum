@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2019 The Bitcoin Core developers
+// Copyright (c) 2011-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -15,6 +15,8 @@
 #include <net.h>
 #include <netbase.h>
 #include <util/system.h>
+#include <util/threadnames.h>
+#include <validation.h>
 #include <wallet/wallet.h>
 
 #include <stdint.h>
@@ -54,6 +56,9 @@ ClientModel::ClientModel(interfaces::Node& node, OptionsModel *_optionsModel, QO
     timer->moveToThread(m_thread);
     m_thread->start();
     fBatchProcessingMode = true;
+    QTimer::singleShot(0, timer, []() {
+        util::ThreadRename("qt-clientmodl");
+    });
 
     subscribeToCoreSignals();
 }
@@ -108,6 +113,37 @@ int64_t ClientModel::getHeaderTipTime() const
     return cachedBestHeaderTime;
 }
 
+int ClientModel::getNumBlocks() const
+{
+    if (m_cached_num_blocks == -1) {
+        m_cached_num_blocks = m_node.getNumBlocks();
+    }
+    return m_cached_num_blocks;
+}
+
+uint256 ClientModel::getBestBlockHash()
+{
+    uint256 tip{WITH_LOCK(m_cached_tip_mutex, return m_cached_tip_blocks)};
+
+    if (!tip.IsNull()) {
+        return tip;
+    }
+
+    // Lock order must be: first `cs_main`, then `m_cached_tip_mutex`.
+    // The following will lock `cs_main` (and release it), so we must not
+    // own `m_cached_tip_mutex` here.
+    tip = m_node.getBestBlockHash();
+
+    LOCK(m_cached_tip_mutex);
+    // We checked that `m_cached_tip_blocks` is not null above, but then we
+    // released the mutex `m_cached_tip_mutex`, so it could have changed in the
+    // meantime. Thus, check again.
+    if (m_cached_tip_blocks.IsNull()) {
+        m_cached_tip_blocks = tip;
+    }
+    return m_cached_tip_blocks;
+}
+
 void ClientModel::updateNumConnections(int numConnections)
 {
     Q_EMIT numConnectionsChanged(numConnections);
@@ -137,7 +173,7 @@ enum BlockSource ClientModel::getBlockSource() const
 
 QString ClientModel::getStatusBarWarnings() const
 {
-    return QString::fromStdString(m_node.getWarnings());
+    return QString::fromStdString(m_node.getWarnings().translated);
 }
 
 OptionsModel *ClientModel::getOptionsModel()
@@ -229,53 +265,53 @@ static void BannedListChanged(ClientModel *clientmodel)
     assert(invoked);
 }
 
-static void BlockTipChanged(ClientModel *clientmodel, bool initialSync, int height, int64_t blockTime, double verificationProgress, bool fHeader)
+static void BlockTipChanged(ClientModel* clientmodel, SynchronizationState sync_state, interfaces::BlockTip tip, double verificationProgress, bool fHeader)
 {
     // Wallet batch mode checks
-    if(height > 0)
+    bool batchMode = false;
+    if(tip.block_height > 0)
     {
-        int64_t secs = GetTime() - blockTime;
-        bool batchMode = secs >= MAX_BLOCK_TIME_GAP ? true : false;
+        int64_t secs = GetTime() - tip.block_time;
+        batchMode = secs >= MAX_BLOCK_TIME_GAP ? true : false;
         if(batchMode)
         {
-            initialSync |= batchMode;
             if(!clientmodel->fBatchProcessingMode)
             {
                 clientmodel->fBatchProcessingMode = true;
             }
         }
     }
-    // lock free async UI updates in case we have a new block tip
-    // during initial sync, only update the UI if the last update
-    // was > 250ms (MODEL_UPDATE_DELAY) ago
-    int64_t now = 0;
-    if (initialSync)
-        now = GetTimeMillis();
-
-    int64_t& nLastUpdateNotification = fHeader ? nLastHeaderTipUpdateNotification : nLastBlockTipUpdateNotification;
 
     if (fHeader) {
         // cache best headers time and height to reduce future cs_main locks
-        clientmodel->cachedBestHeaderHeight = height;
-        clientmodel->cachedBestHeaderTime = blockTime;
+        clientmodel->cachedBestHeaderHeight = tip.block_height;
+        clientmodel->cachedBestHeaderTime = tip.block_time;
+    } else {
+        clientmodel->m_cached_num_blocks = tip.block_height;
+        WITH_LOCK(clientmodel->m_cached_tip_mutex, clientmodel->m_cached_tip_blocks = tip.block_hash;);
     }
 
-    // During initial sync, block notifications, and header notifications from reindexing are both throttled.
-    if (!initialSync || (fHeader && !clientmodel->node().getReindex()) || now - nLastUpdateNotification > MODEL_UPDATE_DELAY) {
-        //pass an async signal to the UI thread
-        bool invoked = QMetaObject::invokeMethod(clientmodel, "numBlocksChanged", Qt::QueuedConnection,
-                                  Q_ARG(int, height),
-                                  Q_ARG(QDateTime, QDateTime::fromTime_t(blockTime)),
-                                  Q_ARG(double, verificationProgress),
-                                  Q_ARG(bool, fHeader));
-        assert(invoked);
-        if(!fHeader && !clientmodel->fBatchProcessingMode)
-        {
-            bool invoked = QMetaObject::invokeMethod(clientmodel, "tipChanged", Qt::QueuedConnection);
-            assert(invoked);
-        }
-        nLastUpdateNotification = now;
+    // Throttle GUI notifications about (a) blocks during initial sync, and (b) both blocks and headers during reindex.
+    const bool throttle = (sync_state != SynchronizationState::POST_INIT && !fHeader) || sync_state == SynchronizationState::INIT_REINDEX || batchMode;
+    const int64_t now = throttle ? GetTimeMillis() : 0;
+    int64_t& nLastUpdateNotification = fHeader ? nLastHeaderTipUpdateNotification : nLastBlockTipUpdateNotification;
+    if (throttle && now < nLastUpdateNotification + MODEL_UPDATE_DELAY) {
+        return;
     }
+
+    bool invoked = QMetaObject::invokeMethod(clientmodel, "numBlocksChanged", Qt::QueuedConnection,
+        Q_ARG(int, tip.block_height),
+        Q_ARG(QDateTime, QDateTime::fromTime_t(tip.block_time)),
+        Q_ARG(double, verificationProgress),
+        Q_ARG(bool, fHeader),
+        Q_ARG(SynchronizationState, sync_state));
+    assert(invoked);
+    if(!fHeader && !clientmodel->fBatchProcessingMode)
+    {
+        bool invoked = QMetaObject::invokeMethod(clientmodel, "tipChanged", Qt::QueuedConnection);
+        assert(invoked);
+    }
+    nLastUpdateNotification = now;
 }
 
 void ClientModel::subscribeToCoreSignals()
@@ -286,8 +322,8 @@ void ClientModel::subscribeToCoreSignals()
     m_handler_notify_network_active_changed = m_node.handleNotifyNetworkActiveChanged(std::bind(NotifyNetworkActiveChanged, this, std::placeholders::_1));
     m_handler_notify_alert_changed = m_node.handleNotifyAlertChanged(std::bind(NotifyAlertChanged, this));
     m_handler_banned_list_changed = m_node.handleBannedListChanged(std::bind(BannedListChanged, this));
-    m_handler_notify_block_tip = m_node.handleNotifyBlockTip(std::bind(BlockTipChanged, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false));
-    m_handler_notify_header_tip = m_node.handleNotifyHeaderTip(std::bind(BlockTipChanged, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, true));
+    m_handler_notify_block_tip = m_node.handleNotifyBlockTip(std::bind(BlockTipChanged, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, false));
+    m_handler_notify_header_tip = m_node.handleNotifyHeaderTip(std::bind(BlockTipChanged, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, true));
 }
 
 void ClientModel::unsubscribeFromCoreSignals()

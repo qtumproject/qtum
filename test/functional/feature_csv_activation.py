@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2015-2019 The Bitcoin Core developers
+# Copyright (c) 2015-2020 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test CSV soft fork activation.
@@ -44,7 +44,7 @@ import time
 
 from test_framework.blocktools import create_coinbase, create_block, create_transaction
 from test_framework.messages import ToHex, CTransaction
-from test_framework.mininode import P2PDataStore
+from test_framework.p2p import P2PDataStore
 from test_framework.script import (
     CScript,
     OP_CHECKSEQUENCEVERIFY,
@@ -158,7 +158,6 @@ class BIP68_112_113Test(BitcoinTestFramework):
         self.setup_clean_chain = True
         self.extra_args = [[
             '-whitelist=noban@127.0.0.1',
-            '-blockversion=4',
             '-addresstype=legacy',
             '-par=1',  # Use only one script thread to get the exact reject reason for testing
         ]]
@@ -169,7 +168,7 @@ class BIP68_112_113Test(BitcoinTestFramework):
 
     def generate_blocks(self, number):
         test_blocks = []
-        for i in range(number):
+        for _ in range(number):
             block = self.create_test_block([])
             test_blocks.append(block)
             self.last_block_time += 600
@@ -191,10 +190,10 @@ class BIP68_112_113Test(BitcoinTestFramework):
         """Sends blocks to test node. Syncs and verifies that tip has advanced to most recent block.
 
         Call with success = False if the tip shouldn't advance to the most recent block."""
-        self.nodes[0].p2p.send_blocks_and_test(blocks, self.nodes[0], success=success, reject_reason=reject_reason)
+        self.helper_peer.send_blocks_and_test(blocks, self.nodes[0], success=success, reject_reason=reject_reason)
 
     def run_test(self):
-        self.nodes[0].add_p2p_connection(P2PDataStore())
+        self.helper_peer = self.nodes[0].add_p2p_connection(P2PDataStore())
 
         self.log.info("Generate blocks in the past for coinbase outputs.")
         start_time = 1510247077 + 600 * 1000 + 101
@@ -219,22 +218,22 @@ class BIP68_112_113Test(BitcoinTestFramework):
         # Note we reuse inputs for v1 and v2 txs so must test these separately
         # 16 normal inputs
         bip68inputs = []
-        for i in range(16):
+        for _ in range(16):
             bip68inputs.append(send_generic_unspent_input_tx(self.nodes[0], self.unspents.pop(), self.nodeaddress))
 
         # 2 sets of 16 inputs with 10 OP_CSV OP_DROP (actually will be prepended to spending scriptSig)
         bip112basicinputs = []
-        for j in range(2):
+        for _ in range(2):
             inputs = []
-            for i in range(16):
+            for _ in range(16):
                 inputs.append(send_generic_unspent_input_tx(self.nodes[0], self.unspents.pop(), self.nodeaddress))
             bip112basicinputs.append(inputs)
 
         # 2 sets of 16 varied inputs with (relative_lock_time) OP_CSV OP_DROP (actually will be prepended to spending scriptSig)
         bip112diverseinputs = []
-        for j in range(2):
+        for _ in range(2):
             inputs = []
-            for i in range(16):
+            for _ in range(16):
                 inputs.append(send_generic_unspent_input_tx(self.nodes[0], self.unspents.pop(), self.nodeaddress))
             bip112diverseinputs.append(inputs)
 

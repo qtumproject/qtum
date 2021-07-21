@@ -1,5 +1,5 @@
 // Copyright (c) 2010 Satoshi Nakamoto
-// Copyright (c) 2009-2019 The Bitcoin Core developers
+// Copyright (c) 2009-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -33,6 +33,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "generatetoaddress", 2, "maxtries" },
     { "generatetodescriptor", 0, "num_blocks" },
     { "generatetodescriptor", 2, "maxtries" },
+    { "generateblock", 1, "transactions" },
     { "getnetworkhashps", 0, "nblocks" },
     { "getnetworkhashps", 1, "height" },
     { "sendtoaddress", 1, "amount" },
@@ -40,7 +41,9 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "sendtoaddress", 5 , "replaceable" },
     { "sendtoaddress", 6 , "conf_target" },
     { "sendtoaddress", 8, "avoid_reuse" },
-    { "sendtoaddress", 10, "changeToSender" },
+    { "sendtoaddress", 9, "fee_rate"},
+    { "sendtoaddress", 10, "verbose"},
+    { "sendtoaddress", 12, "changeToSender" },
     { "splitutxosforaddress", 1, "minValue" },
     { "splitutxosforaddress", 2, "maxValue" },
     { "splitutxosforaddress", 3, "maxOutputs" },
@@ -77,19 +80,23 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "sendmany", 4, "subtractfeefrom" },
     { "sendmany", 5 , "replaceable" },
     { "sendmany", 6 , "conf_target" },
+    { "sendmany", 8, "fee_rate"},
+    { "sendmany", 9, "verbose" },
     { "deriveaddresses", 1, "range" },
     { "scantxoutset", 1, "scanobjects" },
     { "sendmanywithdupes", 1, "amounts" },
     { "sendmanywithdupes", 2, "minconf" },
     { "sendmanywithdupes", 4, "subtractfeefrom" },
+    { "sendmanywithdupes", 5, "replaceable" },
+    { "sendmanywithdupes", 6, "conf_target" },
     { "addmultisigaddress", 0, "nrequired" },
     { "addmultisigaddress", 1, "keys" },
     ////////////////////////////////////////////////// // qtum
-    { "getaddresstxids", 0, "addresses"},
-    { "getaddressmempool", 0, "addresses"},
-    { "getaddressdeltas", 0, "addresses"},
-    { "getaddressbalance", 0, "addresses"},
-    { "getaddressutxos", 0, "addresses"},
+    { "getaddresstxids", 0, "argument"},
+    { "getaddressmempool", 0, "argument"},
+    { "getaddressdeltas", 0, "argument"},
+    { "getaddressbalance", 0, "argument"},
+    { "getaddressutxos", 0, "argument"},
     { "getblockhashes", 0, "high"},
     { "getblockhashes", 1, "low"},
     { "getblockhashes", 2, "options"},
@@ -100,10 +107,9 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "searchlogs", 3, "topics"},
     { "searchlogs", 4, "minconf"},
     { "waitforlogs", 0, "fromBlock"},
-    { "waitforlogs", 1, "txlimit"},
-    { "waitforlogs", 2, "address"},
-    { "waitforlogs", 3, "topics"},
-    { "waitforlogs", 4, "minconf"},
+    { "waitforlogs", 1, "toBlock"},
+    { "waitforlogs", 2, "filter"},
+    { "waitforlogs", 3, "minconf"},
     { "qrc20listtransactions", 2, "fromBlock"},
     { "qrc20listtransactions", 3, "minconf"},
     //////////////////////////////////////////////////
@@ -131,11 +137,9 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "signrawtransactionwithkey", 2, "prevtxs" },
     { "signrawsendertransactionwithkey", 1, "privkeys" },
     { "signrawtransactionwithwallet", 1, "prevtxs" },
-    { "sendrawtransaction", 1, "allowhighfees" },
     { "sendrawtransaction", 1, "maxfeerate" },
     { "sendrawtransaction", 2, "showcontractdata" },
     { "testmempoolaccept", 0, "rawtxs" },
-    { "testmempoolaccept", 1, "allowhighfees" },
     { "testmempoolaccept", 1, "maxfeerate" },
     { "combinerawtransaction", 0, "txs" },
     { "fundrawtransaction", 1, "options" },
@@ -161,12 +165,17 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "gettxoutproof", 0, "txids" },
     { "lockunspent", 0, "unlock" },
     { "lockunspent", 1, "transactions" },
+    { "send", 0, "outputs" },
+    { "send", 1, "conf_target" },
+    { "send", 3, "fee_rate"},
+    { "send", 4, "options" },
     { "importprivkey", 2, "rescan" },
     { "importaddress", 2, "rescan" },
     { "importaddress", 3, "p2sh" },
     { "importpubkey", 2, "rescan" },
     { "importmulti", 0, "requests" },
     { "importmulti", 1, "options" },
+    { "importdescriptors", 0, "requests" },
     { "verifychain", 0, "checklevel" },
     { "verifychain", 1, "nblocks" },
     { "getblockstats", 0, "hash_or_height" },
@@ -174,6 +183,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "pruneblockchain", 0, "height" },
     { "keypoolrefill", 0, "newsize" },
     { "getrawmempool", 0, "verbose" },
+    { "getrawmempool", 1, "mempool_sequence" },
     { "estimatesmartfee", 0, "conf_target" },
     { "estimaterawfee", 0, "conf_target" },
     { "estimaterawfee", 1, "threshold" },
@@ -186,9 +196,11 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "getmempoolancestors", 1, "verbose" },
     { "getmempooldescendants", 1, "verbose" },
     { "bumpfee", 1, "options" },
+    { "psbtbumpfee", 1, "options" },
     { "logging", 0, "include" },
     { "logging", 1, "exclude" },
     { "disconnectnode", 1, "nodeid" },
+    { "upgradewallet", 0, "version" },
     { "createcontract", 1, "gasLimit" },
     { "createcontract", 2, "gasPrice" },
     { "createcontract", 4, "broadcast" },
@@ -243,7 +255,12 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "createwallet", 1, "disable_private_keys"},
     { "createwallet", 2, "blank"},
     { "createwallet", 4, "avoid_reuse"},
+    { "createwallet", 5, "descriptors"},
+    { "createwallet", 6, "load_on_startup"},
+    { "loadwallet", 1, "load_on_startup"},
+    { "unloadwallet", 1, "load_on_startup"},
     { "getnodeaddresses", 0, "count"},
+    { "addpeeraddress", 1, "port"},
     { "stop", 0, "wait" },
 };
 // clang-format on
@@ -288,7 +305,7 @@ UniValue ParseNonRFCJSONValue(const std::string& strVal)
     UniValue jVal;
     if (!jVal.read(std::string("[")+strVal+std::string("]")) ||
         !jVal.isArray() || jVal.size()!=1)
-        throw std::runtime_error(std::string("Error parsing JSON:")+strVal);
+        throw std::runtime_error(std::string("Error parsing JSON: ") + strVal);
     return jVal[0];
 }
 

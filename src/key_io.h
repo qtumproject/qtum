@@ -29,4 +29,5 @@ bool IsValidContractSenderAddressString(const std::string& str);
 
 bool DecodeIndexKey(const std::string& str, uint256& hashBytes, int& type);
 
+
 #endif // BITCOIN_KEY_IO_H

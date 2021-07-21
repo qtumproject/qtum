@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2015-2019 The Bitcoin Core developers
+# Copyright (c) 2015-2020 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test block processing."""
@@ -24,7 +24,7 @@ from test_framework.messages import (
     uint256_from_compact,
     uint256_from_str,
 )
-from test_framework.mininode import P2PDataStore
+from test_framework.p2p import P2PDataStore
 from test_framework.script import (
     CScript,
     MAX_SCRIPT_ELEMENT_SIZE,
@@ -52,7 +52,7 @@ from test_framework.util import assert_equal
 from data import invalid_txs
 from test_framework.qtumconfig import *
 
-#  Use this class for tests that require behavior other than normal "mininode" behavior.
+#  Use this class for tests that require behavior other than normal p2p behavior.
 #  For now, it is used to serialize a bloated varint (b64).
 class CBrokenBlock(CBlock):
     def initialize(self, base_block):
@@ -127,7 +127,7 @@ class FullBlockTest(BitcoinTestFramework):
 
         # collect spendable outputs now to avoid cluttering the code later on
         out = []
-        for i in range(NUM_OUTPUTS_TO_COLLECT):
+        for _ in range(NUM_OUTPUTS_TO_COLLECT):
             out.append(self.get_spendable_output())
 
         # Start by building a couple of blocks on top (which output is spent is
@@ -1234,7 +1234,7 @@ class FullBlockTest(BitcoinTestFramework):
         blocks = []
         spend = out[32]
         for i in range(89, LARGE_REORG_SIZE + 89):
-            b = self.next_block(i, spend, version=4)
+            b = self.next_block(i, spend)
             tx = CTransaction()
             script_length = MAX_BLOCK_BASE_SIZE - len(b.serialize()) - 69
             script_output = CScript([b'\x00' * script_length])
@@ -1253,18 +1253,18 @@ class FullBlockTest(BitcoinTestFramework):
         self.move_tip(88)
         blocks2 = []
         for i in range(89, LARGE_REORG_SIZE + 89):
-            blocks2.append(self.next_block("alt" + str(i), version=4))
+            blocks2.append(self.next_block("alt" + str(i)))
         self.send_blocks(blocks2, False, force_send=True)
 
         # extend alt chain to trigger re-org
-        block = self.next_block("alt" + str(chain1_tip + 1), version=4)
+        block = self.next_block("alt" + str(chain1_tip + 1))
         self.send_blocks([block], True, timeout=480)
 
         # ... and re-org back to the first chain
         self.move_tip(chain1_tip)
-        block = self.next_block(chain1_tip + 1, version=4)
+        block = self.next_block(chain1_tip + 1)
         self.send_blocks([block], False, force_send=True)
-        block = self.next_block(chain1_tip + 2, version=4)
+        block = self.next_block(chain1_tip + 2)
         self.send_blocks([block], True, timeout=480)
 
         time.sleep(1)
@@ -1273,7 +1273,7 @@ class FullBlockTest(BitcoinTestFramework):
         self.send_blocks([b_v1], success=False, force_send=True, reject_reason='bad-version(0x00000001)', reconnect=True)
 
         self.move_tip(chain1_tip + 2)
-        b_cb34 = self.next_block('b_cb34', version=4)
+        b_cb34 = self.next_block('b_cb34')
         b_cb34.vtx[0].vin[0].scriptSig = b_cb34.vtx[0].vin[0].scriptSig[:-1]
         b_cb34.vtx[0].rehash()
         b_cb34.hashMerkleRoot = b_cb34.calc_merkle_root()
@@ -1370,14 +1370,14 @@ class FullBlockTest(BitcoinTestFramework):
         """Add a P2P connection to the node.
 
         Helper to connect and wait for version handshake."""
-        self.nodes[0].add_p2p_connection(P2PDataStore())
+        self.helper_peer = self.nodes[0].add_p2p_connection(P2PDataStore())
         # We need to wait for the initial getheaders from the peer before we
         # start populating our blockstore. If we don't, then we may run ahead
         # to the next subtest before we receive the getheaders. We'd then send
         # an INV for the next block and receive two getheaders - one for the
         # IBD and one for the INV. We'd respond to both and could get
         # unexpectedly disconnected if the DoS score for that error is 50.
-        self.nodes[0].p2p.wait_for_getheaders(timeout=timeout)
+        self.helper_peer.wait_for_getheaders(timeout=timeout)
 
     def reconnect_p2p(self, timeout=60):
         """Tear down and bootstrap the P2P connection to the node.
@@ -1391,7 +1391,7 @@ class FullBlockTest(BitcoinTestFramework):
         """Sends blocks to test node. Syncs and verifies that tip has advanced to most recent block.
 
         Call with success = False if the tip shouldn't advance to the most recent block."""
-        self.nodes[0].p2p.send_blocks_and_test(blocks, self.nodes[0], success=success, reject_reason=reject_reason, force_send=force_send, timeout=timeout, expect_disconnect=reconnect)
+        self.helper_peer.send_blocks_and_test(blocks, self.nodes[0], success=success, reject_reason=reject_reason, force_send=force_send, timeout=timeout, expect_disconnect=reconnect)
 
         if reconnect:
             self.reconnect_p2p(timeout=timeout)

@@ -32,13 +32,13 @@ class CallToken : public QtumTokenExec, public QtumToken
 public:
     CallToken();
 
-    bool execValid(const int& func, const bool& sendTo);
+    bool execValid(const int& func, const bool& sendTo) override;
 
-    bool execEventsValid(const int &func, const int64_t &fromBlock);
+    bool execEventsValid(const int &func, const int64_t &fromBlock) override;
 
-    bool exec(const bool& sendTo, const std::map<std::string, std::string>& lstParams, std::string& result, std::string&);
+    bool exec(const bool& sendTo, const std::map<std::string, std::string>& lstParams, std::string& result, std::string&) override;
 
-    bool execEvents(const int64_t &fromBlock, const int64_t &toBlock, const int64_t &minconf, const std::string &eventName, const std::string &contractAddress, const std::string &senderAddress, const int &numTopics, std::vector<TokenEvent> &result);
+    bool execEvents(const int64_t &fromBlock, const int64_t &toBlock, const int64_t &minconf, const std::string &eventName, const std::string &contractAddress, const std::string &senderAddress, const int &numTopics, std::vector<TokenEvent> &result) override;
 
     bool searchTokenTx(const int64_t &fromBlock, const int64_t &toBlock, const int64_t &minconf, const std::string &eventName, const std::string &contractAddress, const std::string &senderAddress, const int &numTopics, UniValue& resultVar);
 

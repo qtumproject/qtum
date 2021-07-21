@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2019 The Bitcoin Core developers
+// Copyright (c) 2011-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -21,11 +21,6 @@
 #include <util/system.h>
 
 #ifdef WIN32
-#ifdef _WIN32_IE
-#undef _WIN32_IE
-#endif
-#define _WIN32_IE 0x0501
-#define WIN32_LEAN_AND_MEAN 1
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
@@ -48,10 +43,12 @@
 #include <QKeyEvent>
 #include <QLineEdit>
 #include <QList>
+#include <QMenu>
 #include <QMouseEvent>
 #include <QProgressDialog>
 #include <QScreen>
 #include <QSettings>
+#include <QShortcut>
 #include <QSize>
 #include <QString>
 #include <QTextDocument> // for Qt::mightBeRichText
@@ -92,7 +89,7 @@ static std::string DummyAddress(const CChainParams &params)
     std::vector<unsigned char> sourcedata = params.Base58Prefix(CChainParams::PUBKEY_ADDRESS);
     sourcedata.insert(sourcedata.end(), dummydata, dummydata + sizeof(dummydata));
     for(int i=0; i<256; ++i) { // Try every trailing byte
-        std::string s = EncodeBase58(sourcedata.data(), sourcedata.data() + sourcedata.size());
+        std::string s = EncodeBase58(sourcedata);
         if (!IsValidDestinationString(s)) {
             return s;
         }
@@ -185,7 +182,7 @@ QString formatBitcoinURI(const SendCoinsRecipient &info)
 
     if (info.amount)
     {
-        ret += QString("?amount=%1").arg(BitcoinUnits::format(BitcoinUnits::BTC, info.amount, false, BitcoinUnits::separatorNever));
+        ret += QString("?amount=%1").arg(BitcoinUnits::format(BitcoinUnits::BTC, info.amount, false, BitcoinUnits::SeparatorStyle::NEVER));
         paramCount++;
     }
 
@@ -229,7 +226,7 @@ QString HtmlEscape(const std::string& str, bool fMultiLine)
     return HtmlEscape(QString::fromStdString(str), fMultiLine);
 }
 
-void copyEntryData(QAbstractItemView *view, int column, int role)
+void copyEntryData(const QAbstractItemView *view, int column, int role)
 {
     if(!view || !view->selectionModel())
         return;
@@ -255,11 +252,18 @@ void copyEntryDataFromList(QAbstractItemView *view, int role)
     }
 }
 
-QList<QModelIndex> getEntryData(QAbstractItemView *view, int column)
+QList<QModelIndex> getEntryData(const QAbstractItemView *view, int column)
 {
     if(!view || !view->selectionModel())
         return QList<QModelIndex>();
     return view->selectionModel()->selectedRows(column);
+}
+
+bool hasEntryData(const QAbstractItemView *view, int column, int role)
+{
+    QModelIndexList selection = getEntryData(view, column);
+    if (selection.isEmpty()) return false;
+    return !selection.at(0).data(role).toString().isEmpty();
 }
 
 QString getDefaultDataDirectory()
@@ -390,6 +394,11 @@ void bringToFront(QWidget* w)
     }
 }
 
+void handleCloseWindowShortcut(QWidget* w)
+{
+    QObject::connect(new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_W), w), &QShortcut::activated, w, &QWidget::close);
+}
+
 void openDebugLogfile()
 {
     fs::path pathDebug = GetDataDir() / "debug.log";
@@ -446,6 +455,28 @@ bool ToolTipToRichTextFilter::eventFilter(QObject *obj, QEvent *evt)
         }
     }
     return QObject::eventFilter(obj, evt);
+}
+
+LabelOutOfFocusEventFilter::LabelOutOfFocusEventFilter(QObject* parent)
+    : QObject(parent)
+{
+}
+
+bool LabelOutOfFocusEventFilter::eventFilter(QObject* watched, QEvent* event)
+{
+    if (event->type() == QEvent::FocusOut) {
+        auto focus_out = static_cast<QFocusEvent*>(event);
+        if (focus_out->reason() != Qt::PopupFocusReason) {
+            auto label = qobject_cast<QLabel*>(watched);
+            if (label) {
+                auto flags = label->textInteractionFlags();
+                label->setTextInteractionFlags(Qt::NoTextInteraction);
+                label->setTextInteractionFlags(flags);
+            }
+        }
+    }
+
+    return QObject::eventFilter(watched, event);
 }
 
 void TableViewLastColumnResizingFixer::connectViewHeadersSignals()
@@ -751,34 +782,12 @@ QString formatDurationStr(int secs)
     return strList.join(" ");
 }
 
-QString serviceFlagToStr(const quint64 mask, const int bit)
-{
-    switch (ServiceFlags(mask)) {
-    case NODE_NONE: abort();  // impossible
-    case NODE_NETWORK:         return "NETWORK";
-    case NODE_GETUTXO:         return "GETUTXO";
-    case NODE_BLOOM:           return "BLOOM";
-    case NODE_WITNESS:         return "WITNESS";
-    case NODE_NETWORK_LIMITED: return "NETWORK_LIMITED";
-    // Not using default, so we get warned when a case is missing
-    }
-    if (bit < 8) {
-        return QString("%1[%2]").arg("UNKNOWN").arg(mask);
-    } else {
-        return QString("%1[2^%2]").arg("UNKNOWN").arg(bit);
-    }
-}
-
 QString formatServicesStr(quint64 mask)
 {
     QStringList strList;
 
-    for (int i = 0; i < 64; i++) {
-        uint64_t check = 1LL << i;
-        if (mask & check)
-        {
-            strList.append(serviceFlagToStr(check, i));
-        }
+    for (const auto& flag : serviceFlagsToStr(mask)) {
+        strList.append(QString::fromStdString(flag));
     }
 
     if (strList.size())
@@ -916,6 +925,13 @@ void LogQtInfo()
     for (const QScreen* s : QGuiApplication::screens()) {
         LogPrintf("Screen: %s %dx%d, pixel ratio=%.1f\n", s->name().toStdString(), s->size().width(), s->size().height(), s->devicePixelRatio());
     }
+}
+
+void PopupMenu(QMenu* menu, const QPoint& point, QAction* at_action)
+{
+    // The qminimal plugin does not provide window system integration.
+    if (QApplication::platformName() == "minimal") return;
+    menu->popup(point, at_action);
 }
 
 void formatToolButtons(QToolButton *btn1, QToolButton *btn2, QToolButton *btn3)

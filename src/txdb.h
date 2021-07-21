@@ -12,6 +12,7 @@
 #include <primitives/block.h>
 #include <libdevcore/Common.h>
 #include <libdevcore/FixedHash.h>
+#include <index/disktxpos.h>
 
 #include <memory>
 #include <string>
@@ -58,36 +59,16 @@ static const int64_t max_filter_index_cache = 1024;
 //! Max memory allocated to coin DB specific cache (MiB)
 static const int64_t nMaxCoinsDBCache = 8;
 
-struct CDiskTxPos : public FlatFilePos
-{
-    unsigned int nTxOffset; // after header
-
-    ADD_SERIALIZE_METHODS;
-
-    template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action) {
-        READWRITEAS(FlatFilePos, *this);
-        READWRITE(VARINT(nTxOffset));
-    }
-
-    CDiskTxPos(const FlatFilePos &blockIn, unsigned int nTxOffsetIn) : FlatFilePos(blockIn.nFile, blockIn.nPos), nTxOffset(nTxOffsetIn) {
-    }
-
-    CDiskTxPos() {
-        SetNull();
-    }
-
-    void SetNull() {
-        FlatFilePos::SetNull();
-        nTxOffset = 0;
-    }
-};
+// Actually declared in validation.cpp; can't include because of circular dependency.
+extern RecursiveMutex cs_main;
 
 /** CCoinsView backed by the coin database (chainstate/) */
 class CCoinsViewDB final : public CCoinsView
 {
 protected:
-    CDBWrapper db;
+    std::unique_ptr<CDBWrapper> m_db;
+    fs::path m_ldb_path;
+    bool m_is_memory;
 public:
     /**
      * @param[in] ldb_path    Location in the filesystem where leveldb data will be stored.
@@ -104,6 +85,9 @@ public:
     //! Attempt to update from an older database format. Returns whether an error occurred.
     bool Upgrade();
     size_t EstimateSize() const override;
+
+    //! Dynamically alter the underlying leveldb cache size.
+    void ResizeCache(size_t new_cache_size) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
 };
 
 /** Specialization of CCoinsViewCursor to iterate over a CCoinsViewDB */
@@ -428,15 +412,7 @@ struct CAddressUnspentValue {
     int blockHeight;
     bool coinStake;
 
-    ADD_SERIALIZE_METHODS;
-
-    template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action) {
-        READWRITE(satoshis);
-        READWRITE(*(CScriptBase*)(&script));
-        READWRITE(blockHeight);
-        READWRITE(coinStake);
-    }
+    SERIALIZE_METHODS(CAddressUnspentValue, obj) { READWRITE(obj.satoshis, *(CScriptBase*)(&obj.script), obj.blockHeight, obj.coinStake); }
 
     CAddressUnspentValue(CAmount sats, CScript scriptPubKey, int height, bool isStake) {
         satoshis = sats;

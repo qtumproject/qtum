@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
-# Copyright (c) 2019 The Bitcoin Core developers
+# Copyright (c) 2019-2020 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Run fuzz test targets.
 """
 
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import argparse
 import configparser
-import os
-import sys
-import subprocess
 import logging
+import os
+import subprocess
+import sys
 
 
 def main():
@@ -36,6 +37,13 @@ def main():
         help="A comma-separated list of targets to exclude",
     )
     parser.add_argument(
+        '--par',
+        '-j',
+        type=int,
+        default=4,
+        help='How many targets to merge or execute in parallel.',
+    )
+    parser.add_argument(
         'seed_dir',
         help='The seed corpus to run on (must contain subfolders for each fuzz target).',
     )
@@ -47,6 +55,14 @@ def main():
     parser.add_argument(
         '--m_dir',
         help='Merge inputs from this directory into the seed_dir. Needs /target subdirectory.',
+    )
+    parser.add_argument(
+        '-g',
+        '--generate',
+        action='store_true',
+        help='Create new corpus seeds (or extend the existing ones) by running'
+             ' the given targets for a finite number of times. Outputs them to'
+             ' the passed seed_dir.'
     )
 
     args = parser.parse_args()
@@ -92,19 +108,20 @@ def main():
 
     logging.info("{} of {} detected fuzz target(s) selected: {}".format(len(test_list_selection), len(test_list_all), " ".join(test_list_selection)))
 
-    test_list_seedless = []
-    for t in test_list_selection:
-        corpus_path = os.path.join(args.seed_dir, t)
-        if not os.path.exists(corpus_path) or len(os.listdir(corpus_path)) == 0:
-            test_list_seedless.append(t)
-    test_list_seedless.sort()
-    if test_list_seedless:
-        logging.info(
-            "Fuzzing harnesses lacking a seed corpus: {}".format(
-                " ".join(test_list_seedless)
+    if not args.generate:
+        test_list_seedless = []
+        for t in test_list_selection:
+            corpus_path = os.path.join(args.seed_dir, t)
+            if not os.path.exists(corpus_path) or len(os.listdir(corpus_path)) == 0:
+                test_list_seedless.append(t)
+        test_list_seedless.sort()
+        if test_list_seedless:
+            logging.info(
+                "Fuzzing harnesses lacking a seed corpus: {}".format(
+                    " ".join(test_list_seedless)
+                )
             )
-        )
-        logging.info("Please consider adding a fuzz seed corpus at https://github.com/bitcoin-core/qa-assets")
+            logging.info("Please consider adding a fuzz seed corpus at https://github.com/bitcoin-core/qa-assets")
 
     try:
         help_output = subprocess.run(
@@ -124,25 +141,68 @@ def main():
         logging.error("subprocess timed out: Currently only libFuzzer is supported")
         sys.exit(1)
 
-    if args.m_dir:
-        merge_inputs(
+    with ThreadPoolExecutor(max_workers=args.par) as fuzz_pool:
+        if args.generate:
+            return generate_corpus_seeds(
+                fuzz_pool=fuzz_pool,
+                build_dir=config["environment"]["BUILDDIR"],
+                seed_dir=args.seed_dir,
+                targets=test_list_selection,
+            )
+
+        if args.m_dir:
+            merge_inputs(
+                fuzz_pool=fuzz_pool,
+                corpus=args.seed_dir,
+                test_list=test_list_selection,
+                build_dir=config["environment"]["BUILDDIR"],
+                merge_dir=args.m_dir,
+            )
+            return
+
+        run_once(
+            fuzz_pool=fuzz_pool,
             corpus=args.seed_dir,
             test_list=test_list_selection,
             build_dir=config["environment"]["BUILDDIR"],
-            merge_dir=args.m_dir,
+            use_valgrind=args.valgrind,
         )
-        return
-
-    run_once(
-        corpus=args.seed_dir,
-        test_list=test_list_selection,
-        build_dir=config["environment"]["BUILDDIR"],
-        use_valgrind=args.valgrind,
-    )
 
 
-def merge_inputs(*, corpus, test_list, build_dir, merge_dir):
+def generate_corpus_seeds(*, fuzz_pool, build_dir, seed_dir, targets):
+    """Generates new corpus seeds.
+
+    Run {targets} without input, and outputs the generated corpus seeds to
+    {seed_dir}.
+    """
+    logging.info("Generating corpus seeds to {}".format(seed_dir))
+
+    def job(command):
+        logging.debug("Running '{}'\n".format(" ".join(command)))
+        logging.debug("Command '{}' output:\n'{}'\n".format(
+            ' '.join(command),
+            subprocess.run(command, check=True, stderr=subprocess.PIPE,
+                           universal_newlines=True).stderr
+        ))
+
+    futures = []
+    for target in targets:
+        target_seed_dir = os.path.join(seed_dir, target)
+        os.makedirs(target_seed_dir, exist_ok=True)
+        command = [
+            os.path.join(build_dir, "src", "test", "fuzz", target),
+            "-runs=100000",
+            target_seed_dir,
+        ]
+        futures.append(fuzz_pool.submit(job, command))
+
+    for future in as_completed(futures):
+        future.result()
+
+
+def merge_inputs(*, fuzz_pool, corpus, test_list, build_dir, merge_dir):
     logging.info("Merge the inputs in the passed dir into the seed_dir. Passed dir {}".format(merge_dir))
+    jobs = []
     for t in test_list:
         args = [
             os.path.join(build_dir, 'src', 'test', 'fuzz', t),
@@ -153,12 +213,20 @@ def merge_inputs(*, corpus, test_list, build_dir, merge_dir):
         ]
         os.makedirs(os.path.join(corpus, t), exist_ok=True)
         os.makedirs(os.path.join(merge_dir, t), exist_ok=True)
-        logging.debug('Run {} with args {}'.format(t, args))
-        output = subprocess.run(args, check=True, stderr=subprocess.PIPE, universal_newlines=True).stderr
-        logging.debug('Output: {}'.format(output))
+
+        def job(t, args):
+            output = 'Run {} with args {}\n'.format(t, " ".join(args))
+            output += subprocess.run(args, check=True, stderr=subprocess.PIPE, universal_newlines=True).stderr
+            logging.debug(output)
+
+        jobs.append(fuzz_pool.submit(job, t, args))
+
+    for future in as_completed(jobs):
+        future.result()
 
 
-def run_once(*, corpus, test_list, build_dir, use_valgrind):
+def run_once(*, fuzz_pool, corpus, test_list, build_dir, use_valgrind):
+    jobs = []
     for t in test_list:
         corpus_path = os.path.join(corpus, t)
         os.makedirs(corpus_path, exist_ok=True)
@@ -169,10 +237,18 @@ def run_once(*, corpus, test_list, build_dir, use_valgrind):
         ]
         if use_valgrind:
             args = ['valgrind', '--quiet', '--error-exitcode=1'] + args
-        logging.debug('Run {} with args {}'.format(t, args))
-        result = subprocess.run(args, stderr=subprocess.PIPE, universal_newlines=True)
-        output = result.stderr
-        logging.debug('Output: {}'.format(output))
+
+        def job(t, args):
+            output = 'Run {} with args {}'.format(t, args)
+            result = subprocess.run(args, stderr=subprocess.PIPE, universal_newlines=True)
+            output += result.stderr
+            return output, result
+
+        jobs.append(fuzz_pool.submit(job, t, args))
+
+    for future in as_completed(jobs):
+        output, result = future.result()
+        logging.debug(output)
         try:
             result.check_returncode()
         except subprocess.CalledProcessError as e:
@@ -180,7 +256,7 @@ def run_once(*, corpus, test_list, build_dir, use_valgrind):
                 logging.info(e.stdout)
             if e.stderr:
                 logging.info(e.stderr)
-            logging.info("Target \"{}\" failed with exit code {}: {}".format(t, e.returncode, " ".join(args)))
+            logging.info("Target \"{}\" failed with exit code {}".format(" ".join(result.args), e.returncode))
             sys.exit(1)
 
 

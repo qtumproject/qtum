@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (c) 2018-2019 The Bitcoin Core developers
+# Copyright (c) 2018-2020 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #
@@ -25,7 +25,6 @@ disabled=(
 disabled_gitian=(
     SC2094 # Make sure not to read and write the same file in the same pipeline.
     SC2129 # Consider using { cmd1; cmd2; } >> file instead of individual redirects.
-    SC2230 # which is non-standard. Use builtin 'command -v' instead.
 )
 
 EXIT_CODE=0
@@ -35,8 +34,9 @@ if ! command -v shellcheck > /dev/null; then
     exit $EXIT_CODE
 fi
 
+SHELLCHECK_CMD=(shellcheck --external-sources --check-sourced)
 EXCLUDE="--exclude=$(IFS=','; echo "${disabled[*]}")"
-if ! shellcheck "$EXCLUDE" $(git ls-files -- '*.sh' | grep -vE 'src/(leveldb|secp256k1|univalue)/'); then
+if ! "${SHELLCHECK_CMD[@]}" "$EXCLUDE" $(git ls-files -- '*.sh' | grep -vE 'src/(leveldb|secp256k1|univalue)/'); then
     EXIT_CODE=1
 fi
 
@@ -48,13 +48,14 @@ fi
 EXCLUDE_GITIAN=${EXCLUDE}",$(IFS=','; echo "${disabled_gitian[*]}")"
 for descriptor in $(git ls-files -- 'contrib/gitian-descriptors/*.yml')
 do
-    echo
-    echo "$descriptor"
+    script=$(basename "$descriptor")
     # Use #!/bin/bash as gitian-builder/bin/gbuild does to complete a script.
-    SCRIPT=$'#!/bin/bash\n'$(yq -r .script "$descriptor")
-    if ! echo "$SCRIPT" | shellcheck "$EXCLUDE_GITIAN" -; then
+    echo "#!/bin/bash" > $script
+    yq -r .script "$descriptor" >> $script
+    if ! "${SHELLCHECK_CMD[@]}" "$EXCLUDE_GITIAN" $script; then
         EXIT_CODE=1
     fi
+    rm $script
 done
 
 exit $EXIT_CODE

@@ -70,7 +70,8 @@
         <translation>Disse er dine Qtum-adresser til afsendelse af betalinger. Tjek altid beløb og modtagelsesadresse, inden du sender qtums.</translation>
     </message>
     <message>
-        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.</source>
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>Disse er dine Qtum adresser til at modtage betalinger. Benyt 'Opret ny modtager adresse' knappen i modtag fanen for at oprette nye adresser.</translation>
     </message>
     <message>
@@ -482,6 +483,22 @@
         <translation>Opdateret</translation>
     </message>
     <message>
+        <source>&amp;Load PSBT from file...</source>
+        <translation>&amp;Indlæs PSBT fra fil...</translation>
+    </message>
+    <message>
+        <source>Load Partially Signed Qtum Transaction</source>
+        <translation>Indlæs Partvist Signeret Qtum-Transaktion</translation>
+    </message>
+    <message>
+        <source>Load PSBT from clipboard...</source>
+        <translation>Indlæs PSBT fra udklipsholder...</translation>
+    </message>
+    <message>
+        <source>Load Partially Signed Qtum Transaction from clipboard</source>
+        <translation>Indlæs Partvist Signeret Qtum-Transaktion fra udklipsholder</translation>
+    </message>
+    <message>
         <source>Node window</source>
         <translation>Knudevindue</translation>
     </message>
@@ -518,8 +535,24 @@
         <translation>Luk tegnebog</translation>
     </message>
     <message>
+        <source>Close All Wallets...</source>
+        <translation>Luk alle tegnebøgerne ...</translation>
+    </message>
+    <message>
+        <source>Close all wallets</source>
+        <translation>Luk alle tegnebøgerne </translation>
+    </message>
+    <message>
         <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
         <translation>Vis %1 hjælpebesked for at få en liste over mulige tilvalg for Qtum kommandolinje</translation>
+    </message>
+    <message>
+        <source>&amp;Mask values</source>
+        <translation>&amp;Maskér værdier</translation>
+    </message>
+    <message>
+        <source>Mask the values in the Overview tab</source>
+        <translation>Maskér værdierne i Oversigt-fanebladet</translation>
     </message>
     <message>
         <source>default wallet</source>
@@ -630,8 +663,12 @@
         <translation>Tegnebog er &lt;b&gt;krypteret&lt;/b&gt; og i øjeblikket &lt;b&gt;låst&lt;/b&gt;</translation>
     </message>
     <message>
-        <source>A fatal error occurred. Qtum can no longer continue safely and will quit.</source>
-        <translation>Der opstod en fatal fejl. Qtum kan ikke længere fortsætte sikkert og vil afslutte.</translation>
+        <source>Original message:</source>
+        <translation>Original besked:</translation>
+    </message>
+    <message>
+        <source>A fatal error occurred. %1 can no longer continue safely and will quit.</source>
+        <translation>Der skete en fatal fejl. %1 kan ikke længere fortsætte sikkert og vil afslutte.</translation>
     </message>
 </context>
 <context>
@@ -835,8 +872,20 @@
         <translation>Lav flad tegnebog</translation>
     </message>
     <message>
+        <source>Use descriptors for scriptPubKey management</source>
+        <translation>Brug beskrivere til håndtering af scriptPubKey</translation>
+    </message>
+    <message>
+        <source>Descriptor Wallet</source>
+        <translation>Beskriver-Pung</translation>
+    </message>
+    <message>
         <source>Create</source>
         <translation>Opret</translation>
+    </message>
+    <message>
+        <source>Compiled without sqlite support (required for descriptor wallets)</source>
+        <translation>Kompileret uden sqlite-understøttelse (krævet til beskriver-punge)</translation>
     </message>
 </context>
 <context>
@@ -1139,10 +1188,6 @@
         <translation>Viser om den angivne standard-SOCKS5-proxy bruges til at nå knuder via denne netværkstype.</translation>
     </message>
     <message>
-        <source>Use separate SOCKS&amp;5 proxy to reach peers via Tor hidden services:</source>
-        <translation>Brug separat SOCKS&amp;5-proxy for at nå knuder via Tors skjulte tjenester:</translation>
-    </message>
-    <message>
         <source>Hide the icon from the system tray.</source>
         <translation>Skjul ikonet fra statusfeltet.</translation>
     </message>
@@ -1275,10 +1320,6 @@
         <translation>Tor</translation>
     </message>
     <message>
-        <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor hidden services.</source>
-        <translation>Forbind til Qtum-netværket gennem en separat SOCKS5-proxy for Tors skjulte tjenester.</translation>
-    </message>
-    <message>
         <source>&amp;Window</source>
         <translation>&amp;Vindue</translation>
     </message>
@@ -1317,6 +1358,14 @@
     <message>
         <source>Whether to show coin control features or not.</source>
         <translation>Hvorvidt egenskaber for coin-styring skal vises eller ej.</translation>
+    </message>
+    <message>
+        <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor onion services.</source>
+        <translation>Opret forbindelse til Qtum-netværk igennem en separat SOCKS5 proxy til Tor-onion-tjenester.</translation>
+    </message>
+    <message>
+        <source>Use separate SOCKS&amp;5 proxy to reach peers via Tor onion services:</source>
+        <translation>Brug separate SOCKS&amp;5 proxy, for at nå fælle via Tor-onion-tjenester:</translation>
     </message>
     <message>
         <source>&amp;Third party transaction URLs</source>
@@ -1452,6 +1501,133 @@
     <message>
         <source>Current total balance in watch-only addresses</source>
         <translation>Nuværende totalsaldo på kigge-adresser</translation>
+    </message>
+    <message>
+        <source>Privacy mode activated for the Overview tab. To unmask the values, uncheck Settings-&gt;Mask values.</source>
+        <translation>Privatlivstilstand aktiveret for Oversigt-fanebladet. Fjern flueben fra Instillinger-&gt;Maskér værdier, for at afmaskere værdierne.</translation>
+    </message>
+</context>
+<context>
+    <name>PSBTOperationsDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation>Dialog</translation>
+    </message>
+    <message>
+        <source>Sign Tx</source>
+        <translation>Signér Tx</translation>
+    </message>
+    <message>
+        <source>Broadcast Tx</source>
+        <translation>Udsend Tx</translation>
+    </message>
+    <message>
+        <source>Copy to Clipboard</source>
+        <translation>Kopier til udklipsholder</translation>
+    </message>
+    <message>
+        <source>Save...</source>
+        <translation>Gem...</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Luk</translation>
+    </message>
+    <message>
+        <source>Failed to load transaction: %1</source>
+        <translation>Kunne ikke indlæse transaktion: %1</translation>
+    </message>
+    <message>
+        <source>Failed to sign transaction: %1</source>
+        <translation>Kunne ikke signere transaktion: %1</translation>
+    </message>
+    <message>
+        <source>Could not sign any more inputs.</source>
+        <translation>Kunne ikke signere flere input.</translation>
+    </message>
+    <message>
+        <source>Signed %1 inputs, but more signatures are still required.</source>
+        <translation>Signerede %1 input, men flere signaturer kræves endnu.</translation>
+    </message>
+    <message>
+        <source>Signed transaction successfully. Transaction is ready to broadcast.</source>
+        <translation>Signering af transaktion lykkedes. Transaktion er klar til udsendelse.</translation>
+    </message>
+    <message>
+        <source>Unknown error processing transaction.</source>
+        <translation>Ukendt fejl i behandling af transaktion.</translation>
+    </message>
+    <message>
+        <source>Transaction broadcast successfully! Transaction ID: %1</source>
+        <translation>Udsendelse af transaktion lykkedes! Transaktions-ID: %1</translation>
+    </message>
+    <message>
+        <source>Transaction broadcast failed: %1</source>
+        <translation>Udsendelse af transaktion mislykkedes: %1</translation>
+    </message>
+    <message>
+        <source>PSBT copied to clipboard.</source>
+        <translation>PSBT kopieret til udklipsholder.</translation>
+    </message>
+    <message>
+        <source>Save Transaction Data</source>
+        <translation>Gem Transaktionsdata</translation>
+    </message>
+    <message>
+        <source>Partially Signed Transaction (Binary) (*.psbt)</source>
+        <translation>Partvist Signeret Transaktion (Binær) (*.psbt)</translation>
+    </message>
+    <message>
+        <source>PSBT saved to disk.</source>
+        <translation>PSBT gemt på disk.</translation>
+    </message>
+    <message>
+        <source> * Sends %1 to %2</source>
+        <translation>* Sender %1 til %2</translation>
+    </message>
+    <message>
+        <source>Unable to calculate transaction fee or total transaction amount.</source>
+        <translation>Kunne ikke beregne transaktionsgebyr eller totalt transaktionsbeløb.</translation>
+    </message>
+    <message>
+        <source>Pays transaction fee: </source>
+        <translation>Betaler transaktionsgebyr</translation>
+    </message>
+    <message>
+        <source>Total Amount</source>
+        <translation>Total Mængde</translation>
+    </message>
+    <message>
+        <source>or</source>
+        <translation>eller</translation>
+    </message>
+    <message>
+        <source>Transaction has %1 unsigned inputs.</source>
+        <translation>Transaktion har %1 usignerede input.</translation>
+    </message>
+    <message>
+        <source>Transaction is missing some information about inputs.</source>
+        <translation>Transaktion mangler noget information om input.</translation>
+    </message>
+    <message>
+        <source>Transaction still needs signature(s).</source>
+        <translation>Transaktion mangler stadig signatur(er).</translation>
+    </message>
+    <message>
+        <source>(But this wallet cannot sign transactions.)</source>
+        <translation>(Men denne pung kan ikke signere transaktioner.)</translation>
+    </message>
+    <message>
+        <source>(But this wallet does not have the right keys.)</source>
+        <translation>(Men denne pung har ikke de rette nøgler.)</translation>
+    </message>
+    <message>
+        <source>Transaction is fully signed and ready for broadcast.</source>
+        <translation>Transaktion er fuldt signeret og klar til udsendelse.</translation>
+    </message>
+    <message>
+        <source>Transaction status is unknown.</source>
+        <translation>Transaktionsstatus er ukendt.</translation>
     </message>
 </context>
 <context>
@@ -1619,6 +1795,10 @@
         <translation>Fejl: %1</translation>
     </message>
     <message>
+        <source>Error initializing settings: %1</source>
+        <translation>Fejl ved initialisering af indstillinger: %1</translation>
+    </message>
+    <message>
         <source>%1 didn't yet exit safely...</source>
         <translation>%1 har endnu ikke afsluttet på sikker vis…</translation>
     </message>
@@ -1717,10 +1897,6 @@
         <translation>Blokkæde</translation>
     </message>
     <message>
-        <source>Current number of blocks</source>
-        <translation>Nuværende antal blokke</translation>
-    </message>
-    <message>
         <source>Memory Pool</source>
         <translation>Hukommelsespulje</translation>
     </message>
@@ -1765,10 +1941,6 @@
         <translation>Vælg en anden knude for at se detaljeret information.</translation>
     </message>
     <message>
-        <source>Whitelisted</source>
-        <translation>På hvidliste</translation>
-    </message>
-    <message>
         <source>Direction</source>
         <translation>Retning</translation>
     </message>
@@ -1805,6 +1977,10 @@
         <translation>Knudevindue</translation>
     </message>
     <message>
+        <source>Current block height</source>
+        <translation>Nuværende blokhøjde</translation>
+    </message>
+    <message>
         <source>Open the %1 debug log file from the current data directory. This can take a few seconds for large log files.</source>
         <translation>Åbn %1s fejlsøgningslogfil fra den aktuelle datamappe. Dette kan tage nogle få sekunder for store logfiler.</translation>
     </message>
@@ -1817,12 +1993,12 @@
         <translation>Forstør skrifttypestørrelse</translation>
     </message>
     <message>
-        <source>Services</source>
-        <translation>Tjenester</translation>
+        <source>Permissions</source>
+        <translation>Tilladelser</translation>
     </message>
     <message>
-        <source>Ban Score</source>
-        <translation>Bandlysningsscore</translation>
+        <source>Services</source>
+        <translation>Tjenester</translation>
     </message>
     <message>
         <source>Connection Time</source>
@@ -1973,14 +2149,6 @@
         <translation>Udgående</translation>
     </message>
     <message>
-        <source>Yes</source>
-        <translation>Ja</translation>
-    </message>
-    <message>
-        <source>No</source>
-        <translation>Nej</translation>
-    </message>
-    <message>
         <source>Unknown</source>
         <translation>Ukendt</translation>
     </message>
@@ -2079,12 +2247,40 @@
         <source>Copy amount</source>
         <translation>Kopiér beløb</translation>
     </message>
+    <message>
+        <source>Could not unlock wallet.</source>
+        <translation>Kunne ikke låse tegnebog op.</translation>
+    </message>
+    <message>
+        <source>Could not generate new %1 address</source>
+        <translation>Kunne ikke generere ny %1 adresse</translation>
+    </message>
 </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
-        <source>QR Code</source>
-        <translation>QR-kode</translation>
+        <source>Request payment to ...</source>
+        <translation>Anmod om betaling til</translation>
+    </message>
+    <message>
+        <source>Address:</source>
+        <translation>Adresse</translation>
+    </message>
+    <message>
+        <source>Amount:</source>
+        <translation>Beløb:</translation>
+    </message>
+    <message>
+        <source>Label:</source>
+        <translation>Mærkat:</translation>
+    </message>
+    <message>
+        <source>Message:</source>
+        <translation>Besked:</translation>
+    </message>
+    <message>
+        <source>Wallet:</source>
+        <translation>Tegnebog:</translation>
     </message>
     <message>
         <source>Copy &amp;URI</source>
@@ -2105,30 +2301,6 @@
     <message>
         <source>Payment information</source>
         <translation>Betalingsinformation</translation>
-    </message>
-    <message>
-        <source>URI</source>
-        <translation>URI</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Adresse</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>Beløb</translation>
-    </message>
-    <message>
-        <source>Label</source>
-        <translation>Mærkat</translation>
-    </message>
-    <message>
-        <source>Message</source>
-        <translation>Besked</translation>
-    </message>
-    <message>
-        <source>Wallet</source>
-        <translation>Tegnebog</translation>
     </message>
 </context>
 <context>
@@ -2373,12 +2545,32 @@ Note: Siden gebyret er kalkuleret på en per-byte basis, et gebyr på "100 satos
         <translation>Er du sikker på, at du vil sende?</translation>
     </message>
     <message>
+        <source>Create Unsigned</source>
+        <translation>Opret Usigneret</translation>
+    </message>
+    <message>
+        <source>Save Transaction Data</source>
+        <translation>Gem Transaktionsdata</translation>
+    </message>
+    <message>
+        <source>Partially Signed Transaction (Binary) (*.psbt)</source>
+        <translation>Partvist Signeret Transaktion (Binær) (*.psbt)</translation>
+    </message>
+    <message>
+        <source>PSBT saved</source>
+        <translation>PSBT gemt</translation>
+    </message>
+    <message>
         <source>or</source>
         <translation>eller</translation>
     </message>
     <message>
         <source>You can increase the fee later (signals Replace-By-Fee, BIP-125).</source>
         <translation>Du kan øge gebyret senere (signalerer erstat-med-gebyr, BIP-125).</translation>
+    </message>
+    <message>
+        <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <translation>Gennemse venligst dit transaktionsforslag. Dette vil producere en Partvist Signeret Qtum Transaktion (PSBT), som du kan gemme eller kopiere, og så signere med f.eks. en offline %1 pung, eller en PSBT-kompatibel maskinelpung.</translation>
     </message>
     <message>
         <source>Please, review your transaction.</source>
@@ -2409,16 +2601,8 @@ Note: Siden gebyret er kalkuleret på en per-byte basis, et gebyr på "100 satos
         <translation>Bekræft transaktionsudkast</translation>
     </message>
     <message>
-        <source>Copy PSBT to clipboard</source>
-        <translation>Kopiér PSBT til udklipsholderen</translation>
-    </message>
-    <message>
         <source>Send</source>
         <translation>Afsend</translation>
-    </message>
-    <message>
-        <source>PSBT copied</source>
-        <translation>PSBT kopieret</translation>
     </message>
     <message>
         <source>Watch-only balance:</source>
@@ -3202,12 +3386,28 @@ Note: Siden gebyret er kalkuleret på en per-byte basis, et gebyr på "100 satos
         <source>Closing the wallet for too long can result in having to resync the entire chain if pruning is enabled.</source>
         <translation>Lukning af tegnebog i for lang tid kan resultere i at synkronisere hele kæden forfra, hvis beskæring er aktiveret.</translation>
     </message>
+    <message>
+        <source>Close all wallets</source>
+        <translation>Luk alle tegnebøgerne </translation>
+    </message>
+    <message>
+        <source>Are you sure you wish to close all wallets?</source>
+        <translation>Er du sikker på du vil lukke alle tegnebøgerne?</translation>
+    </message>
 </context>
 <context>
     <name>WalletFrame</name>
     <message>
-        <source>No wallet has been loaded.</source>
-        <translation>Ingen tegnebog er indlæst.</translation>
+        <source>No wallet has been loaded.
+Go to File &gt; Open Wallet to load a wallet.
+- OR -</source>
+        <translation>Ingen pung er blevet indlæst.
+Gå til Fil &gt; Åbn Pung for, at indlæse en pung.
+- ELLER -</translation>
+    </message>
+    <message>
+        <source>Create a new wallet</source>
+        <translation>Opret en ny tegnebog</translation>
     </message>
 </context>
 <context>
@@ -3280,6 +3480,30 @@ Note: Siden gebyret er kalkuleret på en per-byte basis, et gebyr på "100 satos
         <translation>Eksportér den aktuelle visning til en fil</translation>
     </message>
     <message>
+        <source>Error</source>
+        <translation>Fejl</translation>
+    </message>
+    <message>
+        <source>Unable to decode PSBT from clipboard (invalid base64)</source>
+        <translation>Kan ikke afkode PSBT fra udklipsholder (ugyldigt base64)</translation>
+    </message>
+    <message>
+        <source>Load Transaction Data</source>
+        <translation>Indlæs transaktions data</translation>
+    </message>
+    <message>
+        <source>Partially Signed Transaction (*.psbt)</source>
+        <translation>Partvist Signeret Transaktion (*.psbt)</translation>
+    </message>
+    <message>
+        <source>PSBT file must be smaller than 100 MiB</source>
+        <translation>PSBT-fil skal være mindre end 100 MiB</translation>
+    </message>
+    <message>
+        <source>Unable to decode PSBT</source>
+        <translation>Kunne ikke afkode PSBT</translation>
+    </message>
+    <message>
         <source>Backup Wallet</source>
         <translation>Sikkerhedskopiér tegnebog</translation>
     </message>
@@ -3323,10 +3547,6 @@ Note: Siden gebyret er kalkuleret på en per-byte basis, et gebyr på "100 satos
         <translation>Beskæring: Seneste synkronisering rækker udover beskårne data. Du er nødt til at bruge -reindex (downloade hele blokkæden igen i fald af beskåret knude)</translation>
     </message>
     <message>
-        <source>Error: A fatal internal error occurred, see debug.log for details</source>
-        <translation>Fejl: En alvorlig intern fejl er opstået. Se debug.log for detaljer</translation>
-    </message>
-    <message>
         <source>Pruning blockstore...</source>
         <translation>Beskærer bloklager…</translation>
     </message>
@@ -3337,10 +3557,6 @@ Note: Siden gebyret er kalkuleret på en per-byte basis, et gebyr på "100 satos
     <message>
         <source>The %s developers</source>
         <translation>Udviklerne af %s</translation>
-    </message>
-    <message>
-        <source>Can't generate a change-address key. No keys in the internal keypool and can't generate any keys.</source>
-        <translation>Kan ikke generere en bytte-adresse nøgle. Ingen nøgler i den interne nøglepulje og kan ikke generere nogle nøgler.</translation>
     </message>
     <message>
         <source>Cannot obtain a lock on data directory %s. %s is probably already running.</source>
@@ -3355,12 +3571,28 @@ Note: Siden gebyret er kalkuleret på en per-byte basis, et gebyr på "100 satos
         <translation>Fejl under læsning af %s! Alle nøgler blev læst korrekt, men transaktionsdata eller indgange i adressebogen kan mangle eller være ukorrekte.</translation>
     </message>
     <message>
+        <source>More than one onion bind address is provided. Using %s for the automatically created Tor onion service.</source>
+        <translation>Mere end én onion-bindingsadresse er opgivet. Bruger %s til den automatiske oprettelse af Tor-onion-tjeneste.</translation>
+    </message>
+    <message>
         <source>Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly.</source>
         <translation>Undersøg venligst at din computers dato og klokkeslet er korrekt indstillet! Hvis der er fejl i disse, vil %s ikke fungere korrekt.</translation>
     </message>
     <message>
         <source>Please contribute if you find %s useful. Visit %s for further information about the software.</source>
         <translation>Overvej venligst at bidrage til udviklingen, hvis du finder %s brugbar. Besøg %s for yderligere information om softwaren.</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Failed to prepare the statement to fetch sqlite wallet schema version: %s</source>
+        <translation>SQLiteDatabase: Forberedelse af udtrykket på, at gribe sqlite-pung-skemaversion mislykkedes: %s</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Failed to prepare the statement to fetch the application id: %s</source>
+        <translation>SQLiteDatabase: Forberedelse af udtrykket på, at gribe applikations-ID mislykkedes: %s</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Unknown sqlite wallet schema version %d. Only version %d is supported</source>
+        <translation>SQLiteDatabase: Ukendt sqlite-pung-skemaversion %d. Kun version %d understøttes</translation>
     </message>
     <message>
         <source>The block database contains a block which appears to be from the future. This may be due to your computer's date and time being set incorrectly. Only rebuild the block database if you are sure that your computer's date and time are correct</source>
@@ -3389,14 +3621,6 @@ Note: Siden gebyret er kalkuleret på en per-byte basis, et gebyr på "100 satos
     <message>
         <source>Warning: We do not appear to fully agree with our peers! You may need to upgrade, or other nodes may need to upgrade.</source>
         <translation>Advarsel: Vi ser ikke ud til at være fuldt ud enige med andre knuder! Du kan være nødt til at opgradere, eller andre knuder kan være nødt til at opgradere.</translation>
-    </message>
-    <message>
-        <source>%d of last 100 blocks have unexpected version</source>
-        <translation>%d af de seneste 100 blokke har en uventet version</translation>
-    </message>
-    <message>
-        <source>%s corrupt, salvage failed</source>
-        <translation>%s ødelagt, redning af data mislykkedes</translation>
     </message>
     <message>
         <source>-maxmempool must be at least %d MB</source>
@@ -3475,6 +3699,14 @@ Note: Siden gebyret er kalkuleret på en per-byte basis, et gebyr på "100 satos
         <translation>Genindlæsning af tegnebogen under initialisering mislykkedes</translation>
     </message>
     <message>
+        <source>Failed to verify database</source>
+        <translation>Kunne ikke verificere databasen</translation>
+    </message>
+    <message>
+        <source>Ignoring duplicate -wallet %s.</source>
+        <translation>Ignorerer duplikeret -pung %s.</translation>
+    </message>
+    <message>
         <source>Importing...</source>
         <translation>Importerer…</translation>
     </message>
@@ -3503,6 +3735,22 @@ Note: Siden gebyret er kalkuleret på en per-byte basis, et gebyr på "100 satos
         <translation>Ugyldigt beløb for -fallbackfee=&lt;beløb&gt;: “%s”</translation>
     </message>
     <message>
+        <source>SQLiteDatabase: Failed to execute statement to verify database: %s</source>
+        <translation>SQLiteDatabase: Udførelse af udtryk for, at bekræfte database mislykkedes: %s</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Failed to prepare statement to verify database: %s</source>
+        <translation>SQLiteDatabase: Forberedelse af udtryk på, at bekræfte database mislykkedes: %s</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Failed to read database verification error: %s</source>
+        <translation>SQLiteDatabase: Indlæsning af database-bekræftelsesfejl mislykkedes: %s</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Unexpected application id. Expected %u, got %u</source>
+        <translation>SQLiteDatabase: Uventet applikations-ID. Ventede %u, fik %u</translation>
+    </message>
+    <message>
         <source>Specified blocks directory "%s" does not exist.</source>
         <translation>Angivet blokmappe “%s” eksisterer ikke.</translation>
     </message>
@@ -3521,10 +3769,6 @@ Note: Siden gebyret er kalkuleret på en per-byte basis, et gebyr på "100 satos
     <message>
         <source>Loading P2P addresses...</source>
         <translation>Indlæser P2P-adresser…</translation>
-    </message>
-    <message>
-        <source>Error: Disk space is too low!</source>
-        <translation>Fejl: Disk pladsen er for lav!</translation>
     </message>
     <message>
         <source>Loading banlist...</source>
@@ -3591,6 +3835,14 @@ Note: Siden gebyret er kalkuleret på en per-byte basis, et gebyr på "100 satos
         <translation>Fejl: Lytning efter indkommende forbindelser mislykkedes (lytning resultarede i fejl %s)</translation>
     </message>
     <message>
+        <source>%s corrupt. Try using the wallet tool qtum-wallet to salvage or restoring a backup.</source>
+        <translation>%s beskadiget. Prøv at bruge pung-værktøjet qtum-wallet til, at bjærge eller gendanne en sikkerhedskopi.</translation>
+    </message>
+    <message>
+        <source>Cannot upgrade a non HD split wallet without upgrading to support pre split keypool. Please use version 169900 or no version specified.</source>
+        <translation>Kan ikke opgradere en ikke-HD-splittet pung, uden at opgradere  for, at understøtte præ-split-nøglepøl. Brug venligst version 169900 eller ingen specificeret version.</translation>
+    </message>
+    <message>
         <source>Invalid amount for -maxtxfee=&lt;amount&gt;: '%s' (must be at least the minrelay fee of %s to prevent stuck transactions)</source>
         <translation>Ugyldigt beløb for -maxtxfee=&lt;beløb&gt;: “%s” (skal være på mindst minrelay-gebyret på %s for at undgå hængende transaktioner)</translation>
     </message>
@@ -3599,8 +3851,32 @@ Note: Siden gebyret er kalkuleret på en per-byte basis, et gebyr på "100 satos
         <translation>Transaktionsbeløbet er for lille til at sende, når gebyret er trukket fra</translation>
     </message>
     <message>
+        <source>This error could occur if this wallet was not shutdown cleanly and was last loaded using a build with a newer version of Berkeley DB. If so, please use the software that last loaded this wallet</source>
+        <translation>Denne fejl kunne finde sted hvis denne pung ikke blev lukket rent ned og sidst blev indlæst vha. en udgave med en nyere version af Berkeley DB. Brug i så fald venligst den programvare, som sidst indlæste denne pung</translation>
+    </message>
+    <message>
+        <source>This is the maximum transaction fee you pay (in addition to the normal fee) to prioritize partial spend avoidance over regular coin selection.</source>
+        <translation>Dette er det maksimale transaktionsgebyr, du betaler (ud over det normale gebyr) for, at prioritere partisk forbrugsafvigelse over almindelig møntudvælgelse.</translation>
+    </message>
+    <message>
+        <source>Transaction needs a change address, but we can't generate it. Please call keypoolrefill first.</source>
+        <translation>Transaktion har brug for for, at skifte adresse, men vi kan ikke generere den. Tilkald venligst keypoolrefill først.</translation>
+    </message>
+    <message>
         <source>You need to rebuild the database using -reindex to go back to unpruned mode.  This will redownload the entire blockchain</source>
         <translation>Du er nødt til at genopbygge databasen ved hjælp af -reindex for at gå tilbage til ikke-beskåret tilstand. Dette vil downloade hele blokkæden igen</translation>
+    </message>
+    <message>
+        <source>A fatal internal error occurred, see debug.log for details</source>
+        <translation>Der er sket en fatal intern fejl, se debug.log for detaljer</translation>
+    </message>
+    <message>
+        <source>Cannot set -peerblockfilters without -blockfilterindex.</source>
+        <translation>Kan ikke indstille -peerblockfilters uden -blockfilterindex.</translation>
+    </message>
+    <message>
+        <source>Disk space is too low!</source>
+        <translation>Fejl: Disk pladsen er for lav!</translation>
     </message>
     <message>
         <source>Error reading from database, shutting down.</source>
@@ -3613,6 +3889,14 @@ Note: Siden gebyret er kalkuleret på en per-byte basis, et gebyr på "100 satos
     <message>
         <source>Error: Disk space is low for %s</source>
         <translation>Fejl: Disk plads er lavt for %s</translation>
+    </message>
+    <message>
+        <source>Error: Keypool ran out, please call keypoolrefill first</source>
+        <translation>Fejl: Nøglepøl løb tør, tilkald venligst keypoolrefill først</translation>
+    </message>
+    <message>
+        <source>Fee rate (%s) is lower than the minimum fee rate setting (%s)</source>
+        <translation>Gebyrrate (%s) er lavere end den minimale gebyrrate-indstilling (%s)</translation>
     </message>
     <message>
         <source>Invalid -onion address or hostname: '%s'</source>
@@ -3633,6 +3917,10 @@ Note: Siden gebyret er kalkuleret på en per-byte basis, et gebyr på "100 satos
     <message>
         <source>Need to specify a port with -whitebind: '%s'</source>
         <translation>Nødt til at angive en port med -whitebinde: “%s”</translation>
+    </message>
+    <message>
+        <source>No proxy server specified. Use -proxy=&lt;ip&gt; or -proxy=&lt;ip:port&gt;.</source>
+        <translation>Ingen proxyserver specificeret. Brug -proxy=&lt;ip&gt; eller -proxy=&lt;ip:port&gt;.</translation>
     </message>
     <message>
         <source>Prune mode is incompatible with -blockfilterindex.</source>
@@ -3709,10 +3997,6 @@ Note: Siden gebyret er kalkuleret på en per-byte basis, et gebyr på "100 satos
         <translation>Advarsel: Ukendte nye regler aktiveret (versionsbit %i)</translation>
     </message>
     <message>
-        <source>Zapping all transactions from wallet...</source>
-        <translation>Zapper alle transaktioner fra tegnebog…</translation>
-    </message>
-    <message>
         <source>-maxtxfee is set very high! Fees this large could be paid on a single transaction.</source>
         <translation>-maxtxfee er sat meget højt! Gebyrer så store risikeres betalt på en enkelt transaktion.</translation>
     </message>
@@ -3725,16 +4009,8 @@ Note: Siden gebyret er kalkuleret på en per-byte basis, et gebyr på "100 satos
         <translation>Den totale længde på netværksversionsstrengen (%i) overstiger maksimallængden (%i). Reducér antaller af eller størrelsen på uacomments.</translation>
     </message>
     <message>
-        <source>Warning: Wallet file corrupt, data salvaged! Original %s saved as %s in %s; if your balance or transactions are incorrect you should restore from a backup.</source>
-        <translation>Advarsel: Tegnebogsfil ødelagt, data reddet! Oprindelig %s gemt som %s i %s; hvis din saldo eller dine transaktioner er forkert, bør du genskabe fra en sikkerhedskopi.</translation>
-    </message>
-    <message>
         <source>%s is set very high!</source>
         <translation>%s er meget højt sat!</translation>
-    </message>
-    <message>
-        <source>Error loading wallet %s. Duplicate -wallet filename specified.</source>
-        <translation>Fejl under indlæsning af tegnebog %s. -wallet filnavn angivet mere end én gang.</translation>
     </message>
     <message>
         <source>Starting network threads...</source>
@@ -3771,10 +4047,6 @@ Note: Siden gebyret er kalkuleret på en per-byte basis, et gebyr på "100 satos
     <message>
         <source>Insufficient funds</source>
         <translation>Manglende dækning</translation>
-    </message>
-    <message>
-        <source>Cannot upgrade a non HD split wallet without upgrading to support pre split keypool. Please use -upgradewallet=169900 or -upgradewallet with no version specified.</source>
-        <translation>Kan ikke opgradere en ikke HD dele tegnebog uden opgradering til at støtte før split nøglepool. Venligst brug -upgradewallet=169900 eller -upgradewallet med ingen version specificeret.</translation>
     </message>
     <message>
         <source>Fee estimation failed. Fallbackfee is disabled. Wait a few blocks or enable -fallbackfee.</source>

@@ -121,6 +121,8 @@ $ git clone https://github.com/google/afl
 $ make -C afl/
 $ make -C afl/llvm_mode/
 $ ./autogen.sh
+# It is possible to compile with afl-gcc and afl-g++ instead of afl-clang. However, running afl-fuzz
+# may require more memory via the -m flag.
 $ CC=$(pwd)/afl/afl-clang-fast CXX=$(pwd)/afl/afl-clang-fast++ ./configure --enable-fuzz
 $ make
 # For macOS you may need to ignore x86 compilation checks when running "make". If so,
@@ -133,3 +135,25 @@ $ afl/afl-fuzz -i inputs/ -o outputs/ -- src/test/fuzz/bech32
 ```
 
 Read the [`afl-fuzz` documentation](https://github.com/google/afl) for more information.
+
+# Fuzzing Bitcoin Core using Honggfuzz
+
+## Quickstart guide
+
+To quickly get started fuzzing Bitcoin Core using [Honggfuzz](https://github.com/google/honggfuzz):
+
+```sh
+$ git clone https://github.com/bitcoin/bitcoin
+$ cd bitcoin/
+$ ./autogen.sh
+$ git clone https://github.com/google/honggfuzz
+$ cd honggfuzz/
+$ make
+$ cd ..
+$ CC=$(pwd)/honggfuzz/hfuzz_cc/hfuzz-clang CXX=$(pwd)/honggfuzz/hfuzz_cc/hfuzz-clang++ ./configure --enable-fuzz --with-sanitizers=address,undefined
+$ make
+$ mkdir -p inputs/
+$ honggfuzz/honggfuzz -i inputs/ -- src/test/fuzz/process_message
+```
+
+Read the [Honggfuzz documentation](https://github.com/google/honggfuzz/blob/master/docs/USAGE.md) for more information.

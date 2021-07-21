@@ -12,6 +12,18 @@ REST Interface consistency guarantees
 The [same guarantees as for the RPC Interface](/doc/JSON-RPC-interface.md#rpc-consistency-guarantees)
 apply.
 
+Limitations
+-----------
+
+There is a known issue in the REST interface that can cause a node to crash if
+too many http connections are being opened at the same time because the system runs
+out of available file descriptors. To prevent this from happening you might
+want to increase the number of maximum allowed file descriptors in your system
+and try to prevent opening too many connections to your rest interface at the
+same time if this is under your control. It is hard to give general advice
+since this depends on your system but if you make several hundred requests at
+once you are definitely at risk of encountering this issue.
+
 Supported API
 -------------
 
@@ -30,7 +42,7 @@ To query for a confirmed transaction, enable the transaction index via "txindex=
 Given a block hash: returns a block, in binary, hex-encoded binary or JSON formats.
 Responds with 404 if the block doesn't exist.
 
-The HTTP request and response are both handled entirely in-memory, thus making maximum memory usage at least 2.66MB (1 MB max block, plus hex encoding) per request.
+The HTTP request and response are both handled entirely in-memory.
 
 With the /notxdetails/ option JSON response will only contain the transaction hash instead of the complete transaction details. The option only affects the JSON response.
 
@@ -61,7 +73,6 @@ Only supports JSON as output format.
 * pruned : (boolean) if the blocks are subject to pruning
 * pruneheight : (numeric) highest block available
 * softforks : (array) status of softforks in progress
-* bip9_softforks : (object) status of BIP9 softforks in progress
 
 #### Query UTXO set
 `GET /rest/getutxos/<checkmempool>/<txid>-<n>/<txid>-<n>/.../<txid>-<n>.<bin|hex|json>`
@@ -79,7 +90,6 @@ $ curl localhost:18332/rest/getutxos/checkmempool/b2cdfd7b89def827ff8af7cd9bff76
    "bitmap": "1",
    "utxos" : [
       {
-         "txvers" : 1
          "height" : 2147483647,
          "value" : 8.8687,
          "scriptPubKey" : {

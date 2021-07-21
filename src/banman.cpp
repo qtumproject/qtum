@@ -6,7 +6,7 @@
 #include <banman.h>
 
 #include <netaddress.h>
-#include <ui_interface.h>
+#include <node/ui_interface.h>
 #include <util/system.h>
 #include <util/time.h>
 #include <util/translation.h>
@@ -26,7 +26,7 @@ BanMan::BanMan(fs::path ban_file, CClientUIInterface* client_interface, int64_t 
         SweepBanned();            // sweep out unused entries
 
         LogPrint(BCLog::NET, "Loaded %d banned node ips/subnets from banlist.dat  %dms\n",
-            banmap.size(), GetTimeMillis() - n_start);
+            m_banned.size(), GetTimeMillis() - n_start);
     } else {
         LogPrintf("Invalid or missing banlist.dat; recreating\n");
         SetBannedSetDirty(true); // force write
@@ -184,7 +184,7 @@ void BanMan::SweepBanned()
         while (it != m_banned.end()) {
             CSubNet sub_net = (*it).first;
             CBanEntry ban_entry = (*it).second;
-            if (now > ban_entry.nBanUntil) {
+            if (!sub_net.IsValid() || now > ban_entry.nBanUntil) {
                 m_banned.erase(it++);
                 m_is_dirty = true;
                 notify_ui = true;

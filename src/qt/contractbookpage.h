@@ -33,7 +33,7 @@ public:
 
 
 public Q_SLOTS:
-    void done(int retval);
+    void done(int retval) override;
 
 private:
     Ui::ContractBookPage *ui;
