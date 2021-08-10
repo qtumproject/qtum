@@ -413,8 +413,6 @@ void BitcoinGUI::createActions()
     verifyMessageAction->setStatusTip(tr("Verify messages to ensure they were signed with specified Qtum addresses"));
     signTxHardwareAction = new QAction(tr("Sign with &hardware..."), this);
     signTxHardwareAction->setStatusTip(tr("Sign transaction with hardware wallet"));
-    ledgerAction = new QAction(tr("Menage &ledger..."), this);
-    ledgerAction->setStatusTip(tr("Menage ledger hardware wallet application"));
 
     openRPCConsoleAction = new QAction(tr("Node window"), this);
     openRPCConsoleAction->setStatusTip(tr("Open node debugging and diagnostic console"));
@@ -472,7 +470,6 @@ void BitcoinGUI::createActions()
         connect(usedSendingAddressesAction, &QAction::triggered, walletFrame, &WalletFrame::usedSendingAddresses);
         connect(usedReceivingAddressesAction, &QAction::triggered, walletFrame, &WalletFrame::usedReceivingAddresses);
         connect(signTxHardwareAction, &QAction::triggered, [this]{ signTxHardware(); });
-        connect(ledgerAction, &QAction::triggered, [this]{ setupLedger(); });
         connect(openAction, &QAction::triggered, this, &BitcoinGUI::openClicked);
         connect(m_open_wallet_menu, &QMenu::aboutToShow, [this] {
             m_open_wallet_menu->clear();
@@ -545,7 +542,6 @@ void BitcoinGUI::createMenuBar()
         if(::Params().HasHardwareWalletSupport())
         {
             file->addAction(signTxHardwareAction);
-            file->addAction(ledgerAction);
         }
         file->addSeparator();
     }
@@ -864,7 +860,6 @@ void BitcoinGUI::setWalletActionsEnabled(bool enabled)
     superStakerAction->setEnabled(enabled);
     walletStakeAction->setEnabled(enabled);
     signTxHardwareAction->setEnabled(enabled);
-    ledgerAction->setEnabled(enabled);
     m_close_wallet_action->setEnabled(enabled);
 }
 
@@ -1052,10 +1047,6 @@ void BitcoinGUI::gotoVerifyMessageTab(QString addr)
 void BitcoinGUI::signTxHardware(const QString& tx)
 {
     if (walletFrame) walletFrame->signTxHardware(tx);
-}
-void BitcoinGUI::setupLedger()
-{
-    if (walletFrame) walletFrame->setupLedger();
 }
 #endif // ENABLE_WALLET
 

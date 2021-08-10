@@ -240,18 +240,4 @@
         <file alias="bg">res/styles/theme3/app-icons/bg.png</file>
         <file alias="splash_bg">res/styles/theme3/app-icons/splash_bg.png</file>
     </qresource>
-    <qresource prefix="/ledger">
-        <file alias="nanos_app">res/ledger/nanos_app.hex</file>
-        <file alias="nanos_load">res/ledger/nanos_load.txt</file>
-        <file alias="nanos_delete">res/ledger/nanos_delete.txt</file>
-        <file alias="nanos_stake_app">res/ledger/nanos_stake_app.hex</file>
-        <file alias="nanos_stake_load">res/ledger/nanos_stake_load.txt</file>
-        <file alias="nanos_stake_delete">res/ledger/nanos_stake_delete.txt</file>
-        <file alias="nanos_test_app">res/ledger/nanos_test_app.hex</file>
-        <file alias="nanos_test_load">res/ledger/nanos_test_load.txt</file>
-        <file alias="nanos_test_delete">res/ledger/nanos_test_delete.txt</file>
-        <file alias="nanos_stake_test_app">res/ledger/nanos_stake_test_app.hex</file>
-        <file alias="nanos_stake_test_load">res/ledger/nanos_stake_test_load.txt</file>
-        <file alias="nanos_stake_test_delete">res/ledger/nanos_stake_test_delete.txt</file>
-    </qresource>
 </RCC>
