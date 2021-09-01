@@ -76,7 +76,7 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
         # Check all permutations of keys because order matters apparently
         for keys in itertools.permutations([pk0, pk1, pk2]):
             # Results should be the same as this legacy one
-            legacy_addr = node0.createmultisig(2, keys, 'legacy')['address']
+            legacy_addr = wmulti0.createmultisig(2, keys, 'legacy')['address']
             assert_equal(legacy_addr, wmulti0.addmultisigaddress(2, keys, '', 'legacy')['address'])
 
             # Generate addresses with the segwit types. These should all make legacy addresses

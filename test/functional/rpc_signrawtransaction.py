@@ -258,7 +258,7 @@ class SignRawTransactionsTest(BitcoinTestFramework):
         vout = find_vout_for_address(self.nodes[0], txid, address)
         self.nodes[0].generate(1)
         utxo = self.nodes[0].listunspent()[0]
-        amt = Decimal(1) + utxo["amount"] - Decimal(0.00001)
+        amt = Decimal(1) + utxo["amount"] - Decimal(0.001)
         tx = self.nodes[0].createrawtransaction(
             [{"txid": txid, "vout": vout, "sequence": 1},{"txid": utxo["txid"], "vout": utxo["vout"]}],
             [{self.nodes[0].getnewaddress(): amt}],
@@ -294,7 +294,7 @@ class SignRawTransactionsTest(BitcoinTestFramework):
         vout = find_vout_for_address(self.nodes[0], txid, address)
         self.nodes[0].generate(1)
         utxo = self.nodes[0].listunspent()[0]
-        amt = Decimal(1) + utxo["amount"] - Decimal(0.00001)
+        amt = Decimal(1) + utxo["amount"] - Decimal(0.001)
         tx = self.nodes[0].createrawtransaction(
             [{"txid": txid, "vout": vout},{"txid": utxo["txid"], "vout": utxo["vout"]}],
             [{self.nodes[0].getnewaddress(): amt}],

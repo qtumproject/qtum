@@ -3,7 +3,7 @@
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
 from test_framework.script import *
-from test_framework.mininode import *
+from test_framework.p2p import *
 from test_framework.qtum import *
 from test_framework.address import *
 from test_framework.blocktools import *
@@ -475,7 +475,7 @@ class QtumOpSenderTest(BitcoinTestFramework):
         # Trigger the HF
         self.restart_node(0, ['-opsenderheight=602', '-acceptnonstdtxn'])
         self.restart_node(1, ['-opsenderheight=602', '-acceptnonstdtxn'])
-        connect_nodes(self.nodes[0], 1)
+        self.connect_nodes(0, 1)
         
         self.single_op_sender_op_create_tx_test()
         self.single_op_sender_op_call_tx_test()

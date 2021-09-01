@@ -6,7 +6,7 @@
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
 from test_framework.script import *
-from test_framework.mininode import *
+from test_framework.p2p import *
 from test_framework.qtum import *
 from test_framework.qtumconfig import *
 import sys
@@ -23,7 +23,7 @@ class CallContractTest(BitcoinTestFramework):
 
     # Verifies that the fallback function is correctly called
     def callcontract_fallback_function_test(self):
-        connect_nodes(self.nodes[0], 1)
+        self.connect_nodes(0, 1)
         self.node = self.nodes[0]
         """
         pragma solidity ^0.4.10;

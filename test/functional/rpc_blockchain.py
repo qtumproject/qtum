@@ -139,9 +139,9 @@ class BlockchainTest(BitcoinTestFramework):
                     'start_time': 0,
                     'since': 432,
                     'timeout': 0x7fffffffffffffff,  # testdummy does not have a timeout so is set to the max int64 value
-                    },
                     'min_activation_height': 0,
                 },
+                'height': 432, 
                 'active': True
             },
             'taproot': {

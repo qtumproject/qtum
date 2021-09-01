@@ -131,7 +131,7 @@ class MempoolAcceptanceTest(BitcoinTestFramework):
         tx.deserialize(BytesIO(hex_str_to_bytes(raw_tx_0)))
         txid_0 = tx.rehash()
         self.check_mempool_result(
-            result_expected=[{'txid': txid_0, 'allowed': True, 'vsize': tx.get_vsize(), 'fees': {'base': (2 * fee)}}],
+            result_expected=[{'txid': txid_0, 'allowed': True, 'vsize': tx.get_vsize(), 'fees': {'base': Decimal("0.00004200")}}],
             rawtxs=[raw_tx_0],
         )
 

@@ -73,8 +73,8 @@ class RpcMiscTest(BitcoinTestFramework):
         assert_equal(
             node.getindexinfo(),
             {
-                "txindex": {"synced": True, "best_block_height": 200},
-                "basic block filter index": {"synced": True, "best_block_height": 200}
+                "txindex": {"synced": True, "best_block_height": 2100},
+                "basic block filter index": {"synced": True, "best_block_height": 2100}
             }
         )
 
@@ -82,7 +82,7 @@ class RpcMiscTest(BitcoinTestFramework):
         assert_equal(
             node.getindexinfo("txindex"),
             {
-                "txindex": {"synced": True, "best_block_height": 200},
+                "txindex": {"synced": True, "best_block_height": 2100},
             }
         )
 

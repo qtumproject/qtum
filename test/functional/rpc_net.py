@@ -25,6 +25,7 @@ from test_framework.util import (
     assert_raises_rpc_error,
     p2p_port,
 )
+from test_framework.qtumconfig import COINBASE_MATURITY
 
 
 def assert_net_servicesnames(servicesflag, servicenames):
@@ -49,7 +50,7 @@ class NetTest(BitcoinTestFramework):
 
     def run_test(self):
         # Get out of IBD for the minfeefilter and getpeerinfo tests.
-        self.nodes[0].generate(101)
+        self.nodes[0].generate(COINBASE_MATURITY+1)
 
         # By default, the test framework sets up an addnode connection from
         # node 1 --> node0. By connecting node0 --> node 1, we're left with

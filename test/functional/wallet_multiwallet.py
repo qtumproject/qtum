@@ -249,9 +249,9 @@ class MultiWalletTest(BitcoinTestFramework):
         self.log.info('Check for per-wallet settxfee call')
         assert_equal(w1.getwalletinfo()['paytxfee'], 0)
         assert_equal(w2.getwalletinfo()['paytxfee'], 0)
-        w2.settxfee(0.001)
+        w2.settxfee(0.01)
         assert_equal(w1.getwalletinfo()['paytxfee'], 0)
-        assert_equal(w2.getwalletinfo()['paytxfee'], Decimal('0.00100000'))
+        assert_equal(w2.getwalletinfo()['paytxfee'], Decimal('0.0100000'))
 
         self.log.info("Test dynamic wallet loading")
 
