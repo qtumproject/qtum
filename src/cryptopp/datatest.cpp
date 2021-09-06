@@ -29,6 +29,7 @@ extern "C" void __coverity_tainted_data_sanitize__(void *);
 
 USING_NAMESPACE(CryptoPP)
 USING_NAMESPACE(std)
+using byte = CryptoPP::byte;
 
 typedef std::map<std::string, std::string> TestData;
 static bool s_thorough = false;

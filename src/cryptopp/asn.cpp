@@ -12,6 +12,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 USING_NAMESPACE(std)
+using byte = CryptoPP::byte;
 
 /// DER Length
 size_t DERLengthEncode(BufferedTransformation &bt, lword length)

@@ -27,6 +27,7 @@
 
 USING_NAMESPACE(CryptoPP)
 USING_NAMESPACE(std)
+using byte = CryptoPP::byte;
 
 #ifdef CLOCKS_PER_SEC
 const double CLOCK_TICKS_PER_SECOND = (double)CLOCKS_PER_SEC;

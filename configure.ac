@@ -75,7 +75,7 @@ AC_ARG_ENABLE([c++17],
   [AS_HELP_STRING([--enable-c++17],
   [enable compilation in c++17 mode (disabled by default)])],
   [use_cxx17=$enableval],
-  [use_cxx17=no])
+  [use_cxx17=yes])
 
 dnl Require C++14 or C++17 compiler (no GNU extensions)
 if test "x$use_cxx17" = xyes -o "x$enable_fuzz" = xyes ; then
