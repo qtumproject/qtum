@@ -109,6 +109,7 @@ public:
     void UpdatePowNoRetargeting(bool fValue);
     void UpdatePoSNoRetargeting(bool fValue);
     void UpdateMuirGlacierHeight(int nHeight);
+    void UpdateLondonHeight(int nHeight);
 
 protected:
     dev::eth::Network GetEVMNetwork() const;
@@ -214,5 +215,10 @@ void UpdatePoSNoRetargeting(bool fValue);
  * Allows modifying the muir glacier block height regtest parameter.
  */
 void UpdateMuirGlacierHeight(int nHeight);
+
+/**
+ * Allows modifying the london block height regtest parameter.
+ */
+void UpdateLondonHeight(int nHeight);
 
 #endif // BITCOIN_CHAINPARAMS_H

@@ -92,6 +92,7 @@ public:
         consensus.nOfflineStakeHeight = 680000;
         consensus.nReduceBlocktimeHeight = 845000;
         consensus.nMuirGlacierHeight = 845000;
+        consensus.nLondonHeight = 0x7fffffff;
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.QIP9PosLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"); // The new POS-limit activated after QIP9
@@ -238,6 +239,7 @@ public:
         consensus.nOfflineStakeHeight = 625000;
         consensus.nReduceBlocktimeHeight = 806600;
         consensus.nMuirGlacierHeight = 806600;
+        consensus.nLondonHeight = 0x7fffffff;
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.QIP9PosLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"); // The new POS-limit activated after QIP9
@@ -408,6 +410,7 @@ public:
         consensus.nOfflineStakeHeight = 1;
         consensus.nReduceBlocktimeHeight = 0;
         consensus.nMuirGlacierHeight = 0;
+        consensus.nLondonHeight = 0;
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.QIP9PosLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"); // The new POS-limit activated after QIP9
@@ -510,6 +513,7 @@ public:
         consensus.nOfflineStakeHeight = 1;
         consensus.nReduceBlocktimeHeight = 0;
         consensus.nMuirGlacierHeight = 0;
+        consensus.nLondonHeight = 0;
         consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.QIP9PosLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // The new POS-limit activated after QIP9
@@ -731,6 +735,7 @@ std::string CChainParams::EVMGenesisInfo() const
     ReplaceInt(consensus.QIP7Height,         "QIP7_STARTING_BLOCK", genesisInfo);
     ReplaceInt(consensus.QIP6Height,         "QIP6_STARTING_BLOCK", genesisInfo);
     ReplaceInt(consensus.nMuirGlacierHeight, "MUIR_STARTING_BLOCK", genesisInfo);
+    ReplaceInt(consensus.nLondonHeight,      "LONDON_STARTING_BLOCK", genesisInfo);
     return genesisInfo;
 }
 
@@ -740,6 +745,7 @@ std::string CChainParams::EVMGenesisInfo(int nHeight) const
     ReplaceInt(nHeight, "QIP7_STARTING_BLOCK", genesisInfo);
     ReplaceInt(nHeight, "QIP6_STARTING_BLOCK", genesisInfo);
     ReplaceInt(nHeight, "MUIR_STARTING_BLOCK", genesisInfo);
+    ReplaceInt(nHeight, "LONDON_STARTING_BLOCK", genesisInfo);
     return genesisInfo;
 }
 
@@ -880,4 +886,14 @@ void CChainParams::UpdateMuirGlacierHeight(int nHeight)
 void UpdateMuirGlacierHeight(int nHeight)
 {
     const_cast<CChainParams*>(globalChainParams.get())->UpdateMuirGlacierHeight(nHeight);
+}
+
+void CChainParams::UpdateLondonHeight(int nHeight)
+{
+    consensus.nLondonHeight = nHeight;
+}
+
+void UpdateLondonHeight(int nHeight)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdateLondonHeight(nHeight);
 }

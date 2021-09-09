@@ -89,6 +89,8 @@ struct Params {
     int nReduceBlocktimeHeight;
     /** Block height at which EVM Muir Glacier fork becomes active */
     int nMuirGlacierHeight;
+    /** Block height at which EVM London fork becomes active */
+    int nLondonHeight;
     /**
      * Minimum blocks including miner confirmation of the total of 2016 blocks in a retargeting period,
      * (nPowTargetTimespan / nPowTargetSpacing) which is also used for BIP9 deployments.

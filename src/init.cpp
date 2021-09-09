@@ -586,6 +586,7 @@ void SetupServerArgs(NodeContext& node)
     argsman.AddArg("-pownoretargeting", "Use given value for pow no retargeting parameter (regtest-only, default: 1)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-posnoretargeting", "Use given value for pos no retargeting parameter (regtest-only, default: 1)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-muirglacierheight=<n>", "Use given block height to check contracts with EVM Muir Glacier (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    argsman.AddArg("-londonheight=<n>", "Use given block height to check contracts with EVM London (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
 
     SetupChainParamsBaseOptions(argsman);
 
@@ -1444,6 +1445,20 @@ bool AppInitParameterInteraction(const ArgsManager& args)
         {
             UpdateMuirGlacierHeight(muirglacierheight);
             LogPrintf("Activate EVM Muir Glacier at block height %d\n.", muirglacierheight);
+        }
+    }
+
+    if (args.IsArgSet("-londonheight")) {
+        // Allow overriding EVM London block height for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Short EVM London height may only be overridden on regtest."));
+        }
+
+        int londonheight = args.GetArg("-londonheight", 0);
+        if(londonheight >= 0)
+        {
+            UpdateLondonHeight(londonheight);
+            LogPrintf("Activate EVM London at block height %d\n.", londonheight);
         }
     }
 
