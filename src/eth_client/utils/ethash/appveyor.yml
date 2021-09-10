@@ -1,0 +1,37 @@
+version: "{build}"
+branches:
+  only:
+  - master
+  - appveyor
+  - hunter
+configuration:
+  - Release
+environment:
+  HUNTER_CACHE_TOKEN:
+    secure: agYfiC1OKfHnGOJQolOBorIRovVTgDW3TJ8JOb2+0XZiAnNwbrtPegxaaFM8/VWu
+  matrix:
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      GENERATOR: "Visual Studio 15 2017 Win64"
+      CONFIGURATION: Debug
+
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      GENERATOR: "Visual Studio 15 2017"
+
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      GENERATOR: "Visual Studio 14 2015 Win64"
+
+install:
+  # Python 3
+  - set PATH=C:\Python36-x64;C:\Python36-x64\Scripts;%PATH%
+  - pip install requests
+
+before_build: |
+  if not exist build mkdir build
+  cd build
+  cmake -G "%GENERATOR%" .. -DHUNTER_CONFIGURATION_TYPES=%CONFIGURATION%
+
+build_script: |
+  cmake --build . --config %CONFIGURATION%
+
+test_script: |
+  if %CONFIGURATION%==Release C:\projects\ethash\build\test\%CONFIGURATION%\ethash-test.exe
