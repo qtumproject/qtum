@@ -6,7 +6,6 @@
 #include "ExtVM.h"
 #include "State.h"
 #include <libdevcore/CommonIO.h>
-#include <libethcore/CommonJS.h>
 #include <libevm/VMFactory.h>
 
 using namespace std;
