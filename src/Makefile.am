@@ -26,8 +26,8 @@ BITCOIN_INCLUDES += -I$(srcdir)/libff/libff
 BITCOIN_INCLUDES += -I$(srcdir)/libff
 BITCOIN_INCLUDES += $(UNIVALUE_CFLAGS)
 
-BITCOIN_INCLUDES += -I$(srcdir)/cpp-ethereum/evmone/evmc/include
-BITCOIN_INCLUDES += -I$(srcdir)/cpp-ethereum/evmone/include
+BITCOIN_INCLUDES += -I$(srcdir)/evmone/evmc/include
+BITCOIN_INCLUDES += -I$(srcdir)/evmone/include
 BITCOIN_INCLUDES += -I$(srcdir)/eth_client
 BITCOIN_INCLUDES += -I$(srcdir)/eth_client/utils/ethash/include
 BITCOIN_INCLUDES += -I$(srcdir)/eth_client/utils/libscrypt
@@ -564,34 +564,34 @@ libbitcoin_common_a_SOURCES = \
   util/contractabi.cpp \
   libff/libff/algebra/curves/public_params.hpp \
   libff/libff/algebra/curves/curve_utils.hpp \
-  cpp-ethereum/evmone/include/evmone/evmone.h \
-  cpp-ethereum/evmone/evmc/lib/instructions/instruction_metrics.c \
-  cpp-ethereum/evmone/evmc/lib/instructions/instruction_names.c \
-  cpp-ethereum/evmone/evmc/include/evmc/evmc.h \
-  cpp-ethereum/evmone/evmc/include/evmc/evmc.hpp \
-  cpp-ethereum/evmone/evmc/include/evmc/helpers.h \
-  cpp-ethereum/evmone/evmc/include/evmc/instructions.h \
-  cpp-ethereum/evmone/evmc/include/evmc/loader.h \
-  cpp-ethereum/evmone/evmc/include/evmc/utils.h \
-  cpp-ethereum/evmone/lib/evmone/analysis.cpp \
-  cpp-ethereum/evmone/lib/evmone/analysis.hpp \
-  cpp-ethereum/evmone/lib/evmone/baseline.cpp \
-  cpp-ethereum/evmone/lib/evmone/baseline.hpp \
-  cpp-ethereum/evmone/lib/evmone/baseline_instruction_table.cpp \
-  cpp-ethereum/evmone/lib/evmone/baseline_instruction_table.hpp \
-  cpp-ethereum/evmone/lib/evmone/execution.cpp \
-  cpp-ethereum/evmone/lib/evmone/execution.hpp \
-  cpp-ethereum/evmone/lib/evmone/execution_state.hpp \
-  cpp-ethereum/evmone/lib/evmone/instructions_calls.cpp \
-  cpp-ethereum/evmone/lib/evmone/instructions.cpp \
-  cpp-ethereum/evmone/lib/evmone/instructions.hpp \
-  cpp-ethereum/evmone/lib/evmone/instruction_traits.hpp \
-  cpp-ethereum/evmone/lib/evmone/limits.hpp \
-  cpp-ethereum/evmone/lib/evmone/opcodes_helpers.h \
-  cpp-ethereum/evmone/lib/evmone/tracing.cpp \
-  cpp-ethereum/evmone/lib/evmone/tracing.hpp \
-  cpp-ethereum/evmone/lib/evmone/vm.cpp \
-  cpp-ethereum/evmone/lib/evmone/vm.hpp \
+  evmone/include/evmone/evmone.h \
+  evmone/evmc/lib/instructions/instruction_metrics.c \
+  evmone/evmc/lib/instructions/instruction_names.c \
+  evmone/evmc/include/evmc/evmc.h \
+  evmone/evmc/include/evmc/evmc.hpp \
+  evmone/evmc/include/evmc/helpers.h \
+  evmone/evmc/include/evmc/instructions.h \
+  evmone/evmc/include/evmc/loader.h \
+  evmone/evmc/include/evmc/utils.h \
+  evmone/lib/evmone/analysis.cpp \
+  evmone/lib/evmone/analysis.hpp \
+  evmone/lib/evmone/baseline.cpp \
+  evmone/lib/evmone/baseline.hpp \
+  evmone/lib/evmone/baseline_instruction_table.cpp \
+  evmone/lib/evmone/baseline_instruction_table.hpp \
+  evmone/lib/evmone/execution.cpp \
+  evmone/lib/evmone/execution.hpp \
+  evmone/lib/evmone/execution_state.hpp \
+  evmone/lib/evmone/instructions_calls.cpp \
+  evmone/lib/evmone/instructions.cpp \
+  evmone/lib/evmone/instructions.hpp \
+  evmone/lib/evmone/instruction_traits.hpp \
+  evmone/lib/evmone/limits.hpp \
+  evmone/lib/evmone/opcodes_helpers.h \
+  evmone/lib/evmone/tracing.cpp \
+  evmone/lib/evmone/tracing.hpp \
+  evmone/lib/evmone/vm.cpp \
+  evmone/lib/evmone/vm.hpp \
   eth_client/libdevcore/Address.cpp \
   eth_client/libdevcore/Address.h \
   eth_client/libdevcore/Assertions.h \
