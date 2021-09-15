@@ -385,7 +385,7 @@ BOOST_AUTO_TEST_CASE(gas_schedule_default_state_test3){
     QtumDGP qtumDGP(globalState.get());
     int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(0);
     dev::eth::EVMSchedule schedule = qtumDGP.getGasSchedule(coinbaseMaturity + 900);
-    BOOST_CHECK(compareEVMSchedule(schedule, dev::eth::IstanbulSchedule));
+    BOOST_CHECK(compareEVMSchedule(schedule, dev::eth::LondonSchedule));
 }
 
 BOOST_AUTO_TEST_CASE(gas_schedule_one_paramsInstance_introductory_block_1_test1){
