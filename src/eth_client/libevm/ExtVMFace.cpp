@@ -5,6 +5,7 @@
 #include "ExtVMFace.h"
 
 #include <evmc/helpers.h>
+#include <evmc/instructions.h>
 using namespace evmc;
 
 namespace dev
@@ -191,7 +192,7 @@ evmc::result EvmCHost::create(evmc_message const& _msg) noexcept
     u256 value = fromEvmC(_msg.value);
     bytesConstRef init = {_msg.input_data, _msg.input_size};
     u256 salt = fromEvmC(_msg.create2_salt);
-    Instruction opcode = _msg.kind == EVMC_CREATE ? Instruction::CREATE : Instruction::CREATE2;
+    Instruction opcode = _msg.kind == EVMC_CREATE ? OP_CREATE : OP_CREATE2;
 
     // ExtVM::create takes the sender address from .myAddress.
     assert(fromEvmC(_msg.sender) == m_extVM.myAddress);

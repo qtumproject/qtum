@@ -3,8 +3,6 @@
 // Licensed under the GNU General Public License, Version 3.
 #pragma once
 
-#include "Instruction.h"
-
 #include <libdevcore/Common.h>
 #include <libdevcore/CommonData.h>
 #include <libdevcore/SHA3.h>
@@ -40,6 +38,7 @@ namespace eth
 /// with it was moved out of VM interface making VMs "stateless".
 ///
 /// The type is movable, but not copyable. Default constructor available.
+using Instruction = uint8_t;
 class owning_bytes_ref : public vector_ref<byte const>
 {
 public:

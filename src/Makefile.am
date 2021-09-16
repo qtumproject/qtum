@@ -696,8 +696,6 @@ libbitcoin_common_a_SOURCES = \
   eth_client/libevm/EVMC.h \
   eth_client/libevm/ExtVMFace.cpp \
   eth_client/libevm/ExtVMFace.h \
-  eth_client/libevm/Instruction.cpp \
-  eth_client/libevm/Instruction.h \
   eth_client/libevm/VMFace.h \
   eth_client/libevm/VMFactory.cpp \
   eth_client/libevm/VMFactory.h \

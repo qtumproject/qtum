@@ -5,6 +5,7 @@
 #include "LastBlockHashesFace.h"
 #include <boost/thread.hpp>
 #include <exception>
+#include <evmc/instructions.h>
 
 using namespace dev;
 using namespace dev::eth;
@@ -137,11 +138,11 @@ CreateResult ExtVM::create(u256 _endowment, u256& io_gas, bytesConstRef _code, I
 {
     Executive e{m_s, envInfo(), m_sealEngine, depth + 1};
     bool result = false;
-    if (_op == Instruction::CREATE)
+    if (_op == OP_CREATE)
         result = e.createOpcode(myAddress, _endowment, gasPrice, io_gas, _code, origin);
     else
     {
-        assert(_op == Instruction::CREATE2);
+        assert(_op == OP_CREATE2);
         result = e.create2Opcode(myAddress, _endowment, gasPrice, io_gas, _code, origin, _salt);
     }
 
