@@ -603,8 +603,6 @@ libbitcoin_common_a_SOURCES = \
   eth_client/libdevcore/CommonData.h \
   eth_client/libdevcore/CommonIO.cpp \
   eth_client/libdevcore/CommonIO.h \
-  eth_client/libdevcore/CommonJS.cpp \
-  eth_client/libdevcore/CommonJS.h \
   eth_client/libdevcore/DBFactory.cpp \
   eth_client/libdevcore/DBFactory.h \
   eth_client/libdevcore/Exceptions.h \
@@ -620,7 +618,6 @@ libbitcoin_common_a_SOURCES = \
   eth_client/libdevcore/LevelDB.h \
   eth_client/libdevcore/Log.cpp \
   eth_client/libdevcore/Log.h \
-  eth_client/libdevcore/LruCache.h \
   eth_client/libdevcore/OverlayDB.cpp \
   eth_client/libdevcore/OverlayDB.h \
   eth_client/libdevcore/RLP.cpp \

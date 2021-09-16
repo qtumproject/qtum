@@ -40,7 +40,6 @@ public:
     virtual unsigned revision() const { return 0; }
     virtual unsigned sealFields() const { return 0; }
     virtual bytes sealRLP() const { return bytes(); }
-    virtual StringHashMap jsInfo(BlockHeader const&) const { return StringHashMap(); }
 
     /// Don't forget to call Super::verify when subclassing & overriding.
     virtual void verify(Strictness _s, BlockHeader const& _bi, BlockHeader const& _parent = BlockHeader(), bytesConstRef _block = bytesConstRef()) const;
@@ -148,7 +147,6 @@ public:
     void generateSeal(BlockHeader const& _bi) override;
     void populateFromParent(BlockHeader& _bi, BlockHeader const& _parent) const override;
     void verify(Strictness _s, BlockHeader const& _bi, BlockHeader const& _parent, bytesConstRef _block) const override;
-    StringHashMap jsInfo(BlockHeader const& _bi) const override;
 };
 
 u256 calculateEthashDifficulty(

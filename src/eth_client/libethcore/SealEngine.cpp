@@ -4,7 +4,6 @@
 
 #include "SealEngine.h"
 #include "TransactionBase.h"
-#include <libdevcore/CommonJS.h>
 
 using namespace std;
 namespace dev
@@ -53,11 +52,6 @@ void NoProof::verify(Strictness _s, BlockHeader const& _bi, BlockHeader const& _
         if (difficulty != expected)
             BOOST_THROW_EXCEPTION(InvalidDifficulty() << RequirementError((bigint)expected, (bigint)difficulty));
     }
-}
-
-StringHashMap NoProof::jsInfo(BlockHeader const& _bi) const
-{
-    return {{"difficulty", toJS(_bi.difficulty())}};
 }
 
 void SealEngineFace::verify(Strictness _s, BlockHeader const& _bi, BlockHeader const& _parent, bytesConstRef _block) const
