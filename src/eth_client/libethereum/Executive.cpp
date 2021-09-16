@@ -275,6 +275,15 @@ OnOpFunc Executive::simpleTrace()
     return [&traceLogger](uint64_t steps, uint64_t PC, Instruction inst, bigint newMemSize,
                bigint gasCost, bigint gas, VMFace const* _vm, ExtVMFace const* voidExt) {
         ExtVM const& ext = *static_cast<ExtVM const*>(voidExt);
+        (void)inst;
+        (void)_vm;
+
+        LOG(traceLogger) << dumpStorage(ext);
+        LOG(traceLogger) << " < " << dec << ext.depth << " : " << ext.myAddress << " : #" << steps
+                         << " : " << hex << setw(4) << setfill('0') << PC << " : "
+                         << dec << gas << " : -" << dec
+                         << gasCost << " : " << newMemSize << "x32"
+                         << " >";
     };
 }
 
