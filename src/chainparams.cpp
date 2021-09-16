@@ -731,22 +731,18 @@ void SelectParams(const std::string& network)
 
 std::string CChainParams::EVMGenesisInfo() const
 {
-    std::string genesisInfo = dev::eth::genesisInfo(GetEVMNetwork());
-    ReplaceInt(consensus.QIP7Height,         "QIP7_STARTING_BLOCK", genesisInfo);
-    ReplaceInt(consensus.QIP6Height,         "QIP6_STARTING_BLOCK", genesisInfo);
-    ReplaceInt(consensus.nMuirGlacierHeight, "MUIR_STARTING_BLOCK", genesisInfo);
-    ReplaceInt(consensus.nLondonHeight,      "LONDON_STARTING_BLOCK", genesisInfo);
-    return genesisInfo;
+    dev::eth::EVMConsensus evmConsensus;
+    evmConsensus.QIP6Height = consensus.QIP6Height;
+    evmConsensus.QIP7Height = consensus.QIP7Height;
+    evmConsensus.nMuirGlacierHeight = consensus.nMuirGlacierHeight;
+    evmConsensus.nLondonHeight = consensus.nLondonHeight;
+    return dev::eth::genesisInfoQtum(GetEVMNetwork(), evmConsensus);
 }
 
 std::string CChainParams::EVMGenesisInfo(int nHeight) const
 {
-    std::string genesisInfo = dev::eth::genesisInfo(GetEVMNetwork());
-    ReplaceInt(nHeight, "QIP7_STARTING_BLOCK", genesisInfo);
-    ReplaceInt(nHeight, "QIP6_STARTING_BLOCK", genesisInfo);
-    ReplaceInt(nHeight, "MUIR_STARTING_BLOCK", genesisInfo);
-    ReplaceInt(nHeight, "LONDON_STARTING_BLOCK", genesisInfo);
-    return genesisInfo;
+    dev::eth::EVMConsensus evmConsensus(nHeight);
+    return dev::eth::genesisInfoQtum(GetEVMNetwork(), evmConsensus);
 }
 
 dev::eth::Network CChainParams::GetEVMNetwork() const

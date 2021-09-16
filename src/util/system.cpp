@@ -14,7 +14,6 @@
 #include <util/strencodings.h>
 #include <util/string.h>
 #include <util/translation.h>
-#include <regex>
 #include <iomanip>
 
 
@@ -1359,28 +1358,6 @@ void ScheduleBatchPriority()
         LogPrintf("Failed to pthread_setschedparam: %s\n", strerror(rc));
     }
 #endif
-}
-
-std::string toHexString(int64_t intValue) {
-    //Store big endian representation in a vector
-    uint64_t num = (uint64_t)intValue;
-    std::vector<unsigned char> bigEndian;
-    for(int i=sizeof(num) -1; i>=0; i--){
-       bigEndian.push_back( (num>>(8*i)) & 0xff );
-    }
-
-    //Convert the vector into hex string
-    return "0x" + HexStr(MakeUCharSpan(bigEndian));
-}
-
-void ReplaceInt(const int64_t& number, const std::string& key, std::string& str)
-{
-    // Convert the number into hex string
-    std::string num_hex = toHexString(number);
-
-    // Search for key in str and replace it with the hex string
-    std::string str_replaced = std::regex_replace(str, std::regex(key), num_hex);
-    str = str_replaced;
 }
 
 namespace util {

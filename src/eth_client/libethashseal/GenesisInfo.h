@@ -23,5 +23,24 @@ enum class Network
 std::string const& genesisInfo(Network _n);
 h256 const& genesisStateRoot(Network _n);
 
+/// Set the improvements activation blocks for Qtum
+struct EVMConsensus
+{
+    EVMConsensus() {}
+    EVMConsensus(int nHeight) :
+        QIP6Height(nHeight),
+        QIP7Height(nHeight),
+        nMuirGlacierHeight(nHeight),
+        nLondonHeight(nHeight)
+    {}
+
+    int QIP6Height = 0x7fffffff;
+    int QIP7Height = 0x7fffffff;
+    int nMuirGlacierHeight = 0x7fffffff;
+    int nLondonHeight = 0x7fffffff;
+};
+
+std::string genesisInfoQtum(Network _n, EVMConsensus _consensus);
+
 }
 }
