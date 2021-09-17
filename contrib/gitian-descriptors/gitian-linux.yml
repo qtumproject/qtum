@@ -38,8 +38,8 @@ packages:
 remotes:
 - "url": "https://github.com/qtumproject/qtum.git"
   "dir": "qtum"
-- "url": "https://github.com/qtumproject/cpp-eth-qtum.git"
-  "dir": "cpp-eth-qtum"
+- "url": "https://github.com/qtumproject/qtum-evmone.git"
+  "dir": "qtum-evmone"
 files: []
 script: |
   set -e -o pipefail
@@ -139,9 +139,9 @@ script: |
     tar --strip-components=1 -xf "${GIT_ARCHIVE}"
 
     #this is a hack since gitian has no natural support for submodules
-    cp -r ../../cpp-eth-qtum/* ./src/cpp-ethereum
+    cp -r ../../qtum-evmone/* ./src/evmone
     #make sure this file exists... 
-    cat ./src/cpp-ethereum/utils/libscrypt/b64.c 
+    cat ./src/evmone/include/evmone/evmone.h 
 
     ./autogen.sh
     CONFIG_SITE=${BASEPREFIX}/${i}/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking ${CONFIGFLAGS} CFLAGS="${HOST_CFLAGS}" CXXFLAGS="${HOST_CXXFLAGS}" LDFLAGS="${HOST_LDFLAGS}"
