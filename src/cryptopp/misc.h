@@ -343,6 +343,19 @@ const T & Singleton<T, F, instance>::Ref(CRYPTOPP_NOINLINE_DOTDOTDOT) const
 
 // ************** misc functions ***************
 
+/// \brief Create a pointer with an offset
+/// \tparam PTR a pointer type
+/// \tparam OFF a size type
+/// \param pointer a pointer
+/// \param offset a offset into the pointer
+/// \details PtrAdd can be used to squash Clang and GCC
+///  UBsan findings for pointer addition and subtraction.
+template <typename PTR, typename OFF>
+inline PTR PtrAdd(PTR pointer, OFF offset)
+{
+	return pointer+static_cast<ptrdiff_t>(offset);
+}
+
 #if (!__STDC_WANT_SECURE_LIB__ && !defined(_MEMORY_S_DEFINED)) || defined(CRYPTOPP_WANT_SECURE_LIB)
 
 //! \brief Bounds checking replacement for memcpy()
@@ -2353,6 +2366,20 @@ template <unsigned int bits, class T>
 inline T SafeLeftShift(T value)
 {
 	return SafeShifter<(bits>=(8*sizeof(T)))>::LeftShift(value, bits);
+}
+
+/// \brief Finds first element not in a range
+/// \tparam InputIt Input iterator type
+/// \tparam T class or type
+/// \param first iterator to first element
+/// \param last iterator to last element
+/// \param value the value used as a predicate
+/// \return iterator to the first element in the range that is not value
+template<typename InputIt, typename T>
+inline InputIt FindIfNot(InputIt first, InputIt last, const T &value) {
+    return std::find_if(first, last, [&value](const T &o) {
+        return value!=o;
+    });
 }
 
 // ************** use one buffer for multiple data members ***************
