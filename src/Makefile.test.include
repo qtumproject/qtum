@@ -298,7 +298,8 @@ BITCOIN_TESTS =\
   test/qtumtests/constantinoplefork_tests.cpp \
   test/qtumtests/btcecrecoverfork_tests.cpp \
   test/qtumtests/delegations_tests.cpp \
-  test/qtumtests/istanbulfork_tests.cpp
+  test/qtumtests/istanbulfork_tests.cpp \
+  test/qtumtests/londonfork_tests.cpp
 
 
 if ENABLE_WALLET
