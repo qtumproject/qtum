@@ -182,6 +182,9 @@ static const EVMSchedule BerlinSchedule = [] {
 static const EVMSchedule LondonSchedule = [] {
     EVMSchedule schedule = BerlinSchedule;
     schedule.eip1559Mode = true;
+
+    // selfdestructRefundGas implements the changes in EIP-2539 (no refunds)
+    schedule.selfdestructRefundGas = 0;
     return schedule;
 }();
 
