@@ -183,8 +183,12 @@ static const EVMSchedule LondonSchedule = [] {
     EVMSchedule schedule = BerlinSchedule;
     schedule.eip1559Mode = true;
 
-    // selfdestructRefundGas implements the changes in EIP-2539 (no refunds)
+    // selfdestructRefundGas implements the changes in EIP-2539 and EIP-3529 (no refunds)
     schedule.selfdestructRefundGas = 0;
+	// sstoreRefundGas implements the changes in EIP-3529: 
+    // SSTORE_CLEARS_SCHEDULE is defined as SSTORE_RESET_GAS + ACCESS_LIST_STORAGE_KEY_COST
+	// Which becomes: 5000 - 2100 + 1900 = 4800
+    schedule.sstoreRefundGas = 4800;
     return schedule;
 }();
 
@@ -198,7 +202,7 @@ static const EVMSchedule ExperimentalSchedule = [] {
 inline EVMSchedule const& latestScheduleForAccountVersion(u256 const& _version)
 {
     if (_version == 0)
-        return IstanbulSchedule;
+        return LondonSchedule;
     else if (_version == ExperimentalSchedule.accountVersion)
         return ExperimentalSchedule;
     else
