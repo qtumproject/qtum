@@ -37,7 +37,8 @@ enum class TransactionException
 	InvalidZeroSignatureFormat,
 	AddressAlreadyUsed,
 	CreateWithValue,
-	NoInformation
+	NoInformation,
+	InvalidCode				///< EIP-3541 Invalid code: must not begin with 0xef.
 };
 
 enum class CodeDeposit

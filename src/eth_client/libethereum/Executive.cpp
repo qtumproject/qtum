@@ -308,6 +308,8 @@ bool Executive::go(OnOpFunc const& _onOp)
                 }
                 if (out.size() > m_ext->evmSchedule().maxCodeSize)
                     BOOST_THROW_EXCEPTION(OutOfGas());
+                else if(m_ext->evmSchedule().eip1559Mode && out.size() > 0 && out[0] == 0xEF)
+                    BOOST_THROW_EXCEPTION(InvalidCode());
                 else if (out.size() * m_ext->evmSchedule().createDataGas <= m_gas)
                 {
                     if (m_res)

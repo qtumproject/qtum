@@ -54,6 +54,8 @@ TransactionException dev::eth::toTransactionException(Exception const& _e)
 		return TransactionException::StackUnderflow;
 	if (!!dynamic_cast<CreateWithValue const*>(&_e))
 		return TransactionException::CreateWithValue;
+	if (!!dynamic_cast<InvalidCode const*>(&_e))
+		return TransactionException::InvalidCode;
 	return TransactionException::Unknown;
 }
 
@@ -78,6 +80,7 @@ std::ostream& dev::eth::operator<<(std::ostream& _out, TransactionException cons
 		case TransactionException::CreateWithValue: _out << "CreateWithValue"; break;
 		case TransactionException::NoInformation: _out << "NoInformation"; break;
 		case TransactionException::RevertInstruction: _out << "Revert"; break;
+		case TransactionException::InvalidCode: _out << "InvalidCode"; break;
 		default: _out << "Unknown"; break;
 	}
 	return _out;

@@ -181,6 +181,7 @@ static const EVMSchedule BerlinSchedule = [] {
 
 static const EVMSchedule LondonSchedule = [] {
     EVMSchedule schedule = BerlinSchedule;
+    // London revision
     schedule.eip1559Mode = true;
 
     // selfdestructRefundGas implements the changes in EIP-2539 and EIP-3529 (no refunds)
