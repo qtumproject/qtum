@@ -745,6 +745,11 @@ std::string CChainParams::EVMGenesisInfo(int nHeight) const
     return dev::eth::genesisInfoQtum(GetEVMNetwork(), evmConsensus);
 }
 
+std::string CChainParams::EVMGenesisInfo(const dev::eth::EVMConsensus& evmConsensus) const
+{
+    return dev::eth::genesisInfoQtum(GetEVMNetwork(), evmConsensus);
+}
+
 dev::eth::Network CChainParams::GetEVMNetwork() const
 {
     return dev::eth::Network::qtumMainNetwork;

@@ -97,6 +97,7 @@ public:
     const ChainTxData& TxData() const { return chainTxData; }
     std::string EVMGenesisInfo() const;
     std::string EVMGenesisInfo(int nHeight) const;
+    std::string EVMGenesisInfo(const dev::eth::EVMConsensus& evmConsensus) const;
     void UpdateOpSenderBlockHeight(int nHeight);
     void UpdateBtcEcrecoverBlockHeight(int nHeight);
     void UpdateConstantinopleBlockHeight(int nHeight);
