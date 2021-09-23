@@ -170,6 +170,8 @@ TEST_SRCDIR = test
 TEST_BINARY=test/test_qtum$(EXEEXT)
 
 JSON_TEST_FILES = \
+  test/qtumtests/data/modexp.json \
+  test/qtumtests/data/modexp_eip2565.json \
   test/data/script_tests.json \
   test/data/base58_encode_decode.json \
   test/data/blockfilters.json \
