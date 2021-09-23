@@ -293,6 +293,7 @@ BITCOIN_TESTS =\
   test/validationinterface_tests.cpp \
   test/versionbits_tests.cpp \
   test/qtumtests/test_utils.h \
+  test/qtumtests/precompiled_utils.h \
   test/qtumtests/qtumtxconverter_tests.cpp \
   test/qtumtests/bytecodeexec_tests.cpp \
   test/qtumtests/condensingtransaction_tests.cpp \

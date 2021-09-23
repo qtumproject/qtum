@@ -1,3 +1,6 @@
+#ifndef QTUMTESTS_TEST_UTILS_H
+#define QTUMTESTS_TEST_UTILS_H
+
 #include <util/system.h>
 #include <validation.h>
 #include <util/strencodings.h>
@@ -73,3 +76,5 @@ inline std::pair<std::vector<ResultExecute>, ByteCodeExecResult> executeBC(std::
     globalState->dbUtxo().commit();
     return std::make_pair(res, bceExecRes);
 }
+
+#endif // QTUMTESTS_TEST_UTILS_H
