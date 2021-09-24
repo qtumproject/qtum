@@ -148,7 +148,7 @@ BOOST_AUTO_TEST_CASE(checking_london_after_fork){
         // Call modexp
         std::string name = "modexp";
         dev::eth::ChainOperationParams const& params = globalSealEngine->chainParams();
-        dev::u256 blockNumber = ChainActive().Tip()->nHeight + 1;
+        dev::u256 blockNumber = ChainActive().Tip()->nHeight;
         PrecompiledTester tester(name, params, blockNumber);
         std::string jsondata = std::string(json_tests::modexp_eip2565, json_tests::modexp_eip2565 + sizeof(json_tests::modexp_eip2565));
         tester.performTests(jsondata);
@@ -210,7 +210,7 @@ BOOST_AUTO_TEST_CASE(checking_london_before_fork){
         // Call modexp
         std::string name = "modexp";
         dev::eth::ChainOperationParams const& params = globalSealEngine->chainParams();
-        dev::u256 blockNumber = ChainActive().Tip()->nHeight + 1;
+        dev::u256 blockNumber = ChainActive().Tip()->nHeight;
         PrecompiledTester tester(name, params, blockNumber);
         std::string jsondata = std::string(json_tests::modexp, json_tests::modexp + sizeof(json_tests::modexp));
         tester.performTests(jsondata);

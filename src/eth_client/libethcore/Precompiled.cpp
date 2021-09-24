@@ -224,7 +224,7 @@ namespace
     }
 }
 
-ETH_REGISTER_PRECOMPILED_PRICER(modexp)(bytesConstRef _in, ChainOperationParams const&, u256 const&)
+ETH_REGISTER_PRECOMPILED_PRICER(modexp)(bytesConstRef _in, ChainOperationParams const& _chainParams, u256 const& _blockNumber)
 {
     bigint const baseLength(parseBigEndianRightPadded(_in, 0, 32));
     bigint const expLength(parseBigEndianRightPadded(_in, 32, 32));
@@ -233,7 +233,21 @@ ETH_REGISTER_PRECOMPILED_PRICER(modexp)(bytesConstRef _in, ChainOperationParams 
     bigint const maxLength(max(modLength, baseLength));
     bigint const adjustedExpLength(expLengthAdjust(baseLength + 96, expLength, _in));
 
-    return multComplexity(maxLength) * max<bigint>(adjustedExpLength, 1) / 20;
+    bigint gas = maxLength;
+    if(_blockNumber < _chainParams.berlinForkBlock)
+    {
+        gas = multComplexity(maxLength) * max<bigint>(adjustedExpLength, 1) / 20;
+    }
+    else
+    {
+        gas += 7;
+        gas /= 8;
+        gas *= gas;
+        gas = gas * max<bigint>(adjustedExpLength, 1) / 3;
+        gas = max<bigint>(200, gas);
+    }
+
+    return gas;
 }
 
 ETH_REGISTER_PRECOMPILED(alt_bn128_G1_add)(bytesConstRef _in)
