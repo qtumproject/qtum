@@ -2,6 +2,9 @@
 #include <qtumtests/test_utils.h>
 #include <script/standard.h>
 #include <chainparams.h>
+#include <qtumtests/precompiled_utils.h>
+#include <test/qtumtests/data/modexp.json.h>
+#include <test/qtumtests/data/modexp_eip2565.json.h>
 
 namespace LondonTest{
 
@@ -140,6 +143,16 @@ BOOST_AUTO_TEST_CASE(checking_london_after_fork){
         BOOST_CHECK(result.first[5].execRes.excepted != dev::eth::TransactionException::InvalidCode);
         BOOST_CHECK(result.first[6].execRes.excepted != dev::eth::TransactionException::InvalidCode);
     }
+
+    {
+        // Call modexp
+        std::string name = "modexp";
+        dev::eth::ChainOperationParams const& params = globalSealEngine->chainParams();
+        dev::u256 blockNumber = ChainActive().Tip()->nHeight + 1;
+        PrecompiledTester tester(name, params, blockNumber);
+        std::string jsondata = std::string(json_tests::modexp_eip2565, json_tests::modexp_eip2565 + sizeof(json_tests::modexp_eip2565));
+        tester.performTests(jsondata);
+    }
 }
 
 BOOST_AUTO_TEST_CASE(checking_london_before_fork){
@@ -191,6 +204,16 @@ BOOST_AUTO_TEST_CASE(checking_london_before_fork){
         BOOST_CHECK(result.first[4].execRes.excepted != dev::eth::TransactionException::InvalidCode);
         BOOST_CHECK(result.first[5].execRes.excepted != dev::eth::TransactionException::InvalidCode);
         BOOST_CHECK(result.first[6].execRes.excepted != dev::eth::TransactionException::InvalidCode);
+    }
+
+    {
+        // Call modexp
+        std::string name = "modexp";
+        dev::eth::ChainOperationParams const& params = globalSealEngine->chainParams();
+        dev::u256 blockNumber = ChainActive().Tip()->nHeight + 1;
+        PrecompiledTester tester(name, params, blockNumber);
+        std::string jsondata = std::string(json_tests::modexp, json_tests::modexp + sizeof(json_tests::modexp));
+        tester.performTests(jsondata);
     }
 }
 

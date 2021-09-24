@@ -30,10 +30,13 @@ public:
 
     /**
      * @brief performTests Perform tests for the precompiled contract
-     * @param json_tests List of tests to perform
+     * @param jsondata List of tests to perform
      */
-    void performTests(const UniValue& json_tests)
+    void performTests(const std::string& jsondata)
     {
+        // Read tests
+        UniValue json_tests = read_json(jsondata);
+
         // Check the executor and gas pricer
         BOOST_CHECK(exec);
         BOOST_CHECK(cost);
@@ -71,6 +74,18 @@ private:
         auto res = exec(dev::bytesConstRef(in.data(), in.size()));
         BOOST_CHECK(res.first);
         BOOST_CHECK_EQUAL_COLLECTIONS(res.second.begin(), res.second.end(), expected.begin(), expected.end());
+    }
+
+    UniValue read_json(const std::string& jsondata)
+    {
+        UniValue v;
+
+        if (!v.read(jsondata) || !v.isArray())
+        {
+            BOOST_ERROR("Parse error.");
+            return UniValue(UniValue::VARR);
+        }
+        return v.get_array();
     }
 
     dev::eth::PrecompiledExecutor exec;
