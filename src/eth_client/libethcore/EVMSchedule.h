@@ -167,6 +167,11 @@ static const EVMSchedule BerlinSchedule = [] {
     EVMSchedule schedule = MuirGlacierSchedule;
     schedule.eip2929Mode = true;
 
+	// sloadGas implements the changes in EIP-2929: WARM_STORAGE_READ_COST
+    schedule.sloadGas = 100;
+	// sstoreResetGas implements the changes in EIP-2929: 5000 - COLD_SLOAD_COST
+    schedule.sstoreResetGas = 2900;
+
     // Warm storage read cost
     schedule.extcodesizeGas = 100;
     schedule.extcodecopyGas = 100;
@@ -175,7 +180,6 @@ static const EVMSchedule BerlinSchedule = [] {
     schedule.callGas = 100;
     schedule.callSelfGas = 100;
     schedule.precompileStaticCallGas = 100;
-    schedule.sloadGas = 100;
     return schedule;
 }();
 
