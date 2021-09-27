@@ -3,6 +3,10 @@
 #include <script/standard.h>
 #include <chainparams.h>
 #include <qtumtests/precompiled_utils.h>
+#include <test/qtumtests/data/ecrecover.json.h>
+#include <test/qtumtests/data/sha256.json.h>
+#include <test/qtumtests/data/ripemd160.json.h>
+#include <test/qtumtests/data/identity.json.h>
 #include <test/qtumtests/data/modexp.json.h>
 #include <test/qtumtests/data/modexp_eip2565.json.h>
 
@@ -97,6 +101,10 @@ BOOST_AUTO_TEST_CASE(checking_london_after_fork){
     createNewBlocks(this, 499);
     dev::h256 hashTx(HASHTX);
 
+    //------------------------------------
+    // Contract tests
+    //------------------------------------
+
     // Create contract
     std::vector<QtumTransaction> txs;
     txs.push_back(createQtumTransaction(CODE[0], 0, GASLIMIT, dev::u256(1), hashTx, dev::Address()));
@@ -144,11 +152,48 @@ BOOST_AUTO_TEST_CASE(checking_london_after_fork){
         BOOST_CHECK(result.first[6].execRes.excepted != dev::eth::TransactionException::InvalidCode);
     }
 
+    //------------------------------------
+    // Precompiled contract tests
+    //------------------------------------
+
+    dev::eth::ChainOperationParams const& params = globalSealEngine->chainParams();
+    dev::u256 blockNumber = ChainActive().Tip()->nHeight;
+
     {
-        // Call modexp
+        // Call ecrecover 01
+        std::string name = "ecrecover";
+        PrecompiledTester tester(name, params, blockNumber);
+        std::string jsondata = std::string(json_tests::ecrecover, json_tests::ecrecover + sizeof(json_tests::ecrecover));
+        tester.performTests(jsondata);
+    }
+
+    {
+        // Call sha256 02
+        std::string name = "sha256";
+        PrecompiledTester tester(name, params, blockNumber);
+        std::string jsondata = std::string(json_tests::sha256, json_tests::sha256 + sizeof(json_tests::sha256));
+        tester.performTests(jsondata);
+    }
+
+    {
+        // Call ripemd160 03
+        std::string name = "ripemd160";
+        PrecompiledTester tester(name, params, blockNumber);
+        std::string jsondata = std::string(json_tests::ripemd160, json_tests::ripemd160 + sizeof(json_tests::ripemd160));
+        tester.performTests(jsondata);
+    }
+
+    {
+        // Call identity 04
+        std::string name = "identity";
+        PrecompiledTester tester(name, params, blockNumber);
+        std::string jsondata = std::string(json_tests::identity, json_tests::identity + sizeof(json_tests::identity));
+        tester.performTests(jsondata);
+    }
+
+    {
+        // Call modexp 05
         std::string name = "modexp";
-        dev::eth::ChainOperationParams const& params = globalSealEngine->chainParams();
-        dev::u256 blockNumber = ChainActive().Tip()->nHeight;
         PrecompiledTester tester(name, params, blockNumber);
         std::string jsondata = std::string(json_tests::modexp_eip2565, json_tests::modexp_eip2565 + sizeof(json_tests::modexp_eip2565));
         tester.performTests(jsondata);
@@ -159,6 +204,10 @@ BOOST_AUTO_TEST_CASE(checking_london_before_fork){
     genesisLoading();
     createNewBlocks(this, 498);
     dev::h256 hashTx(HASHTX);
+
+    //------------------------------------
+    // Contract tests
+    //------------------------------------
 
     // Create contract
     std::vector<QtumTransaction> txs;
@@ -206,11 +255,48 @@ BOOST_AUTO_TEST_CASE(checking_london_before_fork){
         BOOST_CHECK(result.first[6].execRes.excepted != dev::eth::TransactionException::InvalidCode);
     }
 
+    //------------------------------------
+    // Precompiled contract tests
+    //------------------------------------
+
+    dev::eth::ChainOperationParams const& params = globalSealEngine->chainParams();
+    dev::u256 blockNumber = ChainActive().Tip()->nHeight;
+
     {
-        // Call modexp
+        // Call ecrecover 01
+        std::string name = "ecrecover";
+        PrecompiledTester tester(name, params, blockNumber);
+        std::string jsondata = std::string(json_tests::ecrecover, json_tests::ecrecover + sizeof(json_tests::ecrecover));
+        tester.performTests(jsondata);
+    }
+
+    {
+        // Call sha256 02
+        std::string name = "sha256";
+        PrecompiledTester tester(name, params, blockNumber);
+        std::string jsondata = std::string(json_tests::sha256, json_tests::sha256 + sizeof(json_tests::sha256));
+        tester.performTests(jsondata);
+    }
+
+    {
+        // Call ripemd160 03
+        std::string name = "ripemd160";
+        PrecompiledTester tester(name, params, blockNumber);
+        std::string jsondata = std::string(json_tests::ripemd160, json_tests::ripemd160 + sizeof(json_tests::ripemd160));
+        tester.performTests(jsondata);
+    }
+
+    {
+        // Call identity 04
+        std::string name = "identity";
+        PrecompiledTester tester(name, params, blockNumber);
+        std::string jsondata = std::string(json_tests::identity, json_tests::identity + sizeof(json_tests::identity));
+        tester.performTests(jsondata);
+    }
+
+    {
+        // Call modexp 05
         std::string name = "modexp";
-        dev::eth::ChainOperationParams const& params = globalSealEngine->chainParams();
-        dev::u256 blockNumber = ChainActive().Tip()->nHeight;
         PrecompiledTester tester(name, params, blockNumber);
         std::string jsondata = std::string(json_tests::modexp, json_tests::modexp + sizeof(json_tests::modexp));
         tester.performTests(jsondata);
