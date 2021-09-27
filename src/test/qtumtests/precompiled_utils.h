@@ -94,4 +94,12 @@ private:
     dev::u256 blockNumber;
 };
 
+#define RunPrecompiledTests(contract, data, params, blockNumber)\
+    do {\
+        std::string name = #contract;\
+        PrecompiledTester tester(name, params, blockNumber);\
+        std::string jsondata = std::string(json_tests::data, json_tests::data + sizeof(json_tests::data));\
+        tester.performTests(jsondata);\
+    } while(false)
+
 #endif // QTUMTESTS_PRECOMPILED_UTILS_H

@@ -163,77 +163,32 @@ BOOST_AUTO_TEST_CASE(checking_london_after_fork){
     dev::eth::ChainOperationParams const& params = globalSealEngine->chainParams();
     dev::u256 blockNumber = ChainActive().Tip()->nHeight;
 
-    {
-        // Call ecrecover 01
-        std::string name = "ecrecover";
-        PrecompiledTester tester(name, params, blockNumber);
-        std::string jsondata = std::string(json_tests::ecrecover, json_tests::ecrecover + sizeof(json_tests::ecrecover));
-        tester.performTests(jsondata);
-    }
+    // Call ecrecover 01
+    RunPrecompiledTests(ecrecover, ecrecover, params, blockNumber);
 
-    {
-        // Call sha256 02
-        std::string name = "sha256";
-        PrecompiledTester tester(name, params, blockNumber);
-        std::string jsondata = std::string(json_tests::sha256, json_tests::sha256 + sizeof(json_tests::sha256));
-        tester.performTests(jsondata);
-    }
+    // Call sha256 02
+    RunPrecompiledTests(sha256, sha256, params, blockNumber);
 
-    {
-        // Call ripemd160 03
-        std::string name = "ripemd160";
-        PrecompiledTester tester(name, params, blockNumber);
-        std::string jsondata = std::string(json_tests::ripemd160, json_tests::ripemd160 + sizeof(json_tests::ripemd160));
-        tester.performTests(jsondata);
-    }
+    // Call ripemd160 03
+    RunPrecompiledTests(ripemd160, ripemd160, params, blockNumber);
 
-    {
-        // Call identity 04
-        std::string name = "identity";
-        PrecompiledTester tester(name, params, blockNumber);
-        std::string jsondata = std::string(json_tests::identity, json_tests::identity + sizeof(json_tests::identity));
-        tester.performTests(jsondata);
-    }
+    // Call identity 04
+    RunPrecompiledTests(identity, identity, params, blockNumber);
 
-    {
-        // Call modexp 05
-        std::string name = "modexp";
-        PrecompiledTester tester(name, params, blockNumber);
-        std::string jsondata = std::string(json_tests::modexp_eip2565, json_tests::modexp_eip2565 + sizeof(json_tests::modexp_eip2565));
-        tester.performTests(jsondata);
-    }
+    // Call modexp 05
+    RunPrecompiledTests(modexp, modexp_eip2565, params, blockNumber);
 
-    {
-        // Call alt_bn128_G1_add 06
-        std::string name = "alt_bn128_G1_add";
-        PrecompiledTester tester(name, params, blockNumber);
-        std::string jsondata = std::string(json_tests::alt_bn128_G1_add, json_tests::alt_bn128_G1_add + sizeof(json_tests::alt_bn128_G1_add));
-        tester.performTests(jsondata);
-    }
+    // Call alt_bn128_G1_add 06
+    RunPrecompiledTests(alt_bn128_G1_add, alt_bn128_G1_add, params, blockNumber);
 
-    {
-        // Call alt_bn128_G1_mul 07
-        std::string name = "alt_bn128_G1_mul";
-        PrecompiledTester tester(name, params, blockNumber);
-        std::string jsondata = std::string(json_tests::alt_bn128_G1_mul, json_tests::alt_bn128_G1_mul + sizeof(json_tests::alt_bn128_G1_mul));
-        tester.performTests(jsondata);
-    }
+    // Call alt_bn128_G1_mul 07
+    RunPrecompiledTests(alt_bn128_G1_mul, alt_bn128_G1_mul, params, blockNumber);
 
-    {
-        // Call alt_bn128_pairing_product 08
-        std::string name = "alt_bn128_pairing_product";
-        PrecompiledTester tester(name, params, blockNumber);
-        std::string jsondata = std::string(json_tests::alt_bn128_pairing_product, json_tests::alt_bn128_pairing_product + sizeof(json_tests::alt_bn128_pairing_product));
-        tester.performTests(jsondata);
-    }
+    // Call alt_bn128_pairing_product 08
+    RunPrecompiledTests(alt_bn128_pairing_product, alt_bn128_pairing_product, params, blockNumber);
 
-    {
-        // Call blake2_compression 09
-        std::string name = "blake2_compression";
-        PrecompiledTester tester(name, params, blockNumber);
-        std::string jsondata = std::string(json_tests::blake2_compression, json_tests::blake2_compression + sizeof(json_tests::blake2_compression));
-        tester.performTests(jsondata);
-    }
+    // Call blake2_compression 09
+    RunPrecompiledTests(blake2_compression, blake2_compression, params, blockNumber);
 }
 
 BOOST_AUTO_TEST_CASE(checking_london_before_fork){
@@ -298,77 +253,32 @@ BOOST_AUTO_TEST_CASE(checking_london_before_fork){
     dev::eth::ChainOperationParams const& params = globalSealEngine->chainParams();
     dev::u256 blockNumber = ChainActive().Tip()->nHeight;
 
-    {
-        // Call ecrecover 01
-        std::string name = "ecrecover";
-        PrecompiledTester tester(name, params, blockNumber);
-        std::string jsondata = std::string(json_tests::ecrecover, json_tests::ecrecover + sizeof(json_tests::ecrecover));
-        tester.performTests(jsondata);
-    }
+    // Call ecrecover 01
+    RunPrecompiledTests(ecrecover, ecrecover, params, blockNumber);
 
-    {
-        // Call sha256 02
-        std::string name = "sha256";
-        PrecompiledTester tester(name, params, blockNumber);
-        std::string jsondata = std::string(json_tests::sha256, json_tests::sha256 + sizeof(json_tests::sha256));
-        tester.performTests(jsondata);
-    }
+    // Call sha256 02
+    RunPrecompiledTests(sha256, sha256, params, blockNumber);
 
-    {
-        // Call ripemd160 03
-        std::string name = "ripemd160";
-        PrecompiledTester tester(name, params, blockNumber);
-        std::string jsondata = std::string(json_tests::ripemd160, json_tests::ripemd160 + sizeof(json_tests::ripemd160));
-        tester.performTests(jsondata);
-    }
+    // Call ripemd160 03
+    RunPrecompiledTests(ripemd160, ripemd160, params, blockNumber);
 
-    {
-        // Call identity 04
-        std::string name = "identity";
-        PrecompiledTester tester(name, params, blockNumber);
-        std::string jsondata = std::string(json_tests::identity, json_tests::identity + sizeof(json_tests::identity));
-        tester.performTests(jsondata);
-    }
+    // Call identity 04
+    RunPrecompiledTests(identity, identity, params, blockNumber);
 
-    {
-        // Call modexp 05
-        std::string name = "modexp";
-        PrecompiledTester tester(name, params, blockNumber);
-        std::string jsondata = std::string(json_tests::modexp, json_tests::modexp + sizeof(json_tests::modexp));
-        tester.performTests(jsondata);
-    }
+    // Call modexp 05
+    RunPrecompiledTests(modexp, modexp, params, blockNumber);
 
-    {
-        // Call alt_bn128_G1_add 06
-        std::string name = "alt_bn128_G1_add";
-        PrecompiledTester tester(name, params, blockNumber);
-        std::string jsondata = std::string(json_tests::alt_bn128_G1_add, json_tests::alt_bn128_G1_add + sizeof(json_tests::alt_bn128_G1_add));
-        tester.performTests(jsondata);
-    }
+    // Call alt_bn128_G1_add 06
+    RunPrecompiledTests(alt_bn128_G1_add, alt_bn128_G1_add, params, blockNumber);
 
-    {
-        // Call alt_bn128_G1_mul 07
-        std::string name = "alt_bn128_G1_mul";
-        PrecompiledTester tester(name, params, blockNumber);
-        std::string jsondata = std::string(json_tests::alt_bn128_G1_mul, json_tests::alt_bn128_G1_mul + sizeof(json_tests::alt_bn128_G1_mul));
-        tester.performTests(jsondata);
-    }
+    // Call alt_bn128_G1_mul 07
+    RunPrecompiledTests(alt_bn128_G1_mul, alt_bn128_G1_mul, params, blockNumber);
 
-    {
-        // Call alt_bn128_pairing_product 08
-        std::string name = "alt_bn128_pairing_product";
-        PrecompiledTester tester(name, params, blockNumber);
-        std::string jsondata = std::string(json_tests::alt_bn128_pairing_product, json_tests::alt_bn128_pairing_product + sizeof(json_tests::alt_bn128_pairing_product));
-        tester.performTests(jsondata);
-    }
+    // Call alt_bn128_pairing_product 08
+    RunPrecompiledTests(alt_bn128_pairing_product, alt_bn128_pairing_product, params, blockNumber);
 
-    {
-        // Call blake2_compression 09
-        std::string name = "blake2_compression";
-        PrecompiledTester tester(name, params, blockNumber);
-        std::string jsondata = std::string(json_tests::blake2_compression, json_tests::blake2_compression + sizeof(json_tests::blake2_compression));
-        tester.performTests(jsondata);
-    }
+    // Call blake2_compression 09
+    RunPrecompiledTests(blake2_compression, blake2_compression, params, blockNumber);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
