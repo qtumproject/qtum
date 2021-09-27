@@ -9,6 +9,10 @@
 #include <test/qtumtests/data/identity.json.h>
 #include <test/qtumtests/data/modexp.json.h>
 #include <test/qtumtests/data/modexp_eip2565.json.h>
+#include <test/qtumtests/data/alt_bn128_G1_add.json.h>
+#include <test/qtumtests/data/alt_bn128_G1_mul.json.h>
+#include <test/qtumtests/data/alt_bn128_pairing_product.json.h>
+#include <test/qtumtests/data/blake2_compression.json.h>
 
 namespace LondonTest{
 
@@ -198,6 +202,38 @@ BOOST_AUTO_TEST_CASE(checking_london_after_fork){
         std::string jsondata = std::string(json_tests::modexp_eip2565, json_tests::modexp_eip2565 + sizeof(json_tests::modexp_eip2565));
         tester.performTests(jsondata);
     }
+
+    {
+        // Call alt_bn128_G1_add 06
+        std::string name = "alt_bn128_G1_add";
+        PrecompiledTester tester(name, params, blockNumber);
+        std::string jsondata = std::string(json_tests::alt_bn128_G1_add, json_tests::alt_bn128_G1_add + sizeof(json_tests::alt_bn128_G1_add));
+        tester.performTests(jsondata);
+    }
+
+    {
+        // Call alt_bn128_G1_mul 07
+        std::string name = "alt_bn128_G1_mul";
+        PrecompiledTester tester(name, params, blockNumber);
+        std::string jsondata = std::string(json_tests::alt_bn128_G1_mul, json_tests::alt_bn128_G1_mul + sizeof(json_tests::alt_bn128_G1_mul));
+        tester.performTests(jsondata);
+    }
+
+    {
+        // Call alt_bn128_pairing_product 08
+        std::string name = "alt_bn128_pairing_product";
+        PrecompiledTester tester(name, params, blockNumber);
+        std::string jsondata = std::string(json_tests::alt_bn128_pairing_product, json_tests::alt_bn128_pairing_product + sizeof(json_tests::alt_bn128_pairing_product));
+        tester.performTests(jsondata);
+    }
+
+    {
+        // Call blake2_compression 09
+        std::string name = "blake2_compression";
+        PrecompiledTester tester(name, params, blockNumber);
+        std::string jsondata = std::string(json_tests::blake2_compression, json_tests::blake2_compression + sizeof(json_tests::blake2_compression));
+        tester.performTests(jsondata);
+    }
 }
 
 BOOST_AUTO_TEST_CASE(checking_london_before_fork){
@@ -299,6 +335,38 @@ BOOST_AUTO_TEST_CASE(checking_london_before_fork){
         std::string name = "modexp";
         PrecompiledTester tester(name, params, blockNumber);
         std::string jsondata = std::string(json_tests::modexp, json_tests::modexp + sizeof(json_tests::modexp));
+        tester.performTests(jsondata);
+    }
+
+    {
+        // Call alt_bn128_G1_add 06
+        std::string name = "alt_bn128_G1_add";
+        PrecompiledTester tester(name, params, blockNumber);
+        std::string jsondata = std::string(json_tests::alt_bn128_G1_add, json_tests::alt_bn128_G1_add + sizeof(json_tests::alt_bn128_G1_add));
+        tester.performTests(jsondata);
+    }
+
+    {
+        // Call alt_bn128_G1_mul 07
+        std::string name = "alt_bn128_G1_mul";
+        PrecompiledTester tester(name, params, blockNumber);
+        std::string jsondata = std::string(json_tests::alt_bn128_G1_mul, json_tests::alt_bn128_G1_mul + sizeof(json_tests::alt_bn128_G1_mul));
+        tester.performTests(jsondata);
+    }
+
+    {
+        // Call alt_bn128_pairing_product 08
+        std::string name = "alt_bn128_pairing_product";
+        PrecompiledTester tester(name, params, blockNumber);
+        std::string jsondata = std::string(json_tests::alt_bn128_pairing_product, json_tests::alt_bn128_pairing_product + sizeof(json_tests::alt_bn128_pairing_product));
+        tester.performTests(jsondata);
+    }
+
+    {
+        // Call blake2_compression 09
+        std::string name = "blake2_compression";
+        PrecompiledTester tester(name, params, blockNumber);
+        std::string jsondata = std::string(json_tests::blake2_compression, json_tests::blake2_compression + sizeof(json_tests::blake2_compression));
         tester.performTests(jsondata);
     }
 }
