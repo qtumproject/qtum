@@ -26,21 +26,33 @@ const std::vector<valtype> CODE = {
 
     contract LondonContract {
         address private owner;
+        uint256 num_store;
         constructor() {
             owner = msg.sender;
+            num_store = 1;
         }
         function getBaseFee() public view returns (uint256 fee) {
             assembly {
                 fee := basefee()
             }
         }
-        function close() public { 
+        function close() public {
             address payable addr = payable(owner);
-            selfdestruct(addr); 
+            selfdestruct(addr);
+        }
+        function getStore() public {
+            num_store = 2;
+            num_store = 3;
+            num_store = 4;
+        }
+        function getLoad() public view returns (uint256 num_load) {
+            num_load = num_store + 1;
+            num_load = num_store + 2;
+            num_load = num_store + 3;
         }
     }
     */
-    valtype(ParseHex("608060405234801561001057600080fd5b50336000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550610106806100606000396000f3fe6080604052348015600f57600080fd5b506004361060325760003560e01c806315e812ad14603757806343d726d6146051575b600080fd5b603d6059565b6040516048919060ad565b60405180910390f35b60576061565b005b600048905090565b60008060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1690508073ffffffffffffffffffffffffffffffffffffffff16ff5b60a78160c6565b82525050565b600060208201905060c0600083018460a0565b92915050565b600081905091905056fea2646970667358221220533ac75fbef0edfb29e840b19d4f3c851ec9e4dbf5a00840d68785006f370fe264736f6c63430008070033")),
+    valtype(ParseHex("608060405234801561001057600080fd5b50336000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555060018081905550610228806100676000396000f3fe608060405234801561001057600080fd5b506004361061004c5760003560e01c806315e812ad1461005157806343d726d61461006f578063c2722ecc14610079578063dfa2062e14610083575b600080fd5b6100596100a1565b6040516100669190610148565b60405180910390f35b6100776100a9565b005b6100816100e8565b005b61008b610102565b6040516100989190610148565b60405180910390f35b600048905090565b60008060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1690508073ffffffffffffffffffffffffffffffffffffffff16ff5b600260018190555060036001819055506004600181905550565b6000600180546101129190610163565b905060026001546101239190610163565b905060036001546101349190610163565b905090565b610142816101b9565b82525050565b600060208201905061015d6000830184610139565b92915050565b600061016e826101b9565b9150610179836101b9565b9250827fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff038211156101ae576101ad6101c3565b5b828201905092915050565b6000819050919050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601160045260246000fdfea264697066735822122080d6ca6e9f654afc37c68f04ea441822e177844deebcfea7dbbd3012169a2ca164736f6c63430008070033")),
 
     // getBaseFee()
     valtype(ParseHex("15e812ad")),
@@ -67,7 +79,13 @@ const std::vector<valtype> CODE = {
     valtype(ParseHex("ef653660")),
 
     // call with second byte ef
-    valtype(ParseHex("60ef6536"))
+    valtype(ParseHex("60ef6536")),
+
+    // getStore()
+    valtype(ParseHex("c2722ecc")),
+
+    // getLoad()
+    valtype(ParseHex("dfa2062e"))
 };
 
 void genesisLoading(){
@@ -116,6 +134,7 @@ BOOST_AUTO_TEST_CASE(checking_london_after_fork){
 
     {
         // Call basefee
+        assert(txs.size() > 0);
         dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
         std::vector<QtumTransaction> txIsItLondon;
         txIsItLondon.push_back(createQtumTransaction(CODE[1], 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
@@ -126,17 +145,8 @@ BOOST_AUTO_TEST_CASE(checking_london_after_fork){
     }
 
     {
-        // Call selfdestruct
-        dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
-        std::vector<QtumTransaction> txIsItLondon;
-        txIsItLondon.push_back(createQtumTransaction(CODE[2], 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
-        auto result = executeBC(txIsItLondon);
-        BOOST_CHECK(result.first[0].execRes.gasRefunded == 0);
-        BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::None);
-    }
-
-    {
         // Call invalidcode
+        assert(txs.size() > 0);
         dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
         std::vector<QtumTransaction> txIsItLondon;
         txIsItLondon.push_back(createQtumTransaction(CODE[3], 0, GASLIMIT, dev::u256(1), ++hashTx, dev::Address()));
@@ -154,6 +164,21 @@ BOOST_AUTO_TEST_CASE(checking_london_after_fork){
         BOOST_CHECK(result.first[4].execRes.excepted != dev::eth::TransactionException::InvalidCode);
         BOOST_CHECK(result.first[5].execRes.excepted != dev::eth::TransactionException::InvalidCode);
         BOOST_CHECK(result.first[6].execRes.excepted != dev::eth::TransactionException::InvalidCode);
+    }
+
+    {
+        // Call store and load three times (cold, warm and warm)
+        assert(txs.size() > 0);
+        dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
+        std::vector<QtumTransaction> txIsItLondon;
+        txIsItLondon.push_back(createQtumTransaction(CODE[10], 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
+        txIsItLondon.push_back(createQtumTransaction(CODE[11], 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
+        auto result = executeBC(txIsItLondon);
+        BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::None);
+        BOOST_CHECK(result.first[0].execRes.gasUsed == 26472);
+        BOOST_CHECK(result.first[1].execRes.excepted == dev::eth::TransactionException::None);
+        BOOST_CHECK(dev::h256(result.first[1].execRes.output) == dev::h256(7));
+        BOOST_CHECK(result.first[1].execRes.gasUsed == 24343);
     }
 
     //------------------------------------
@@ -189,6 +214,22 @@ BOOST_AUTO_TEST_CASE(checking_london_after_fork){
 
     // Call blake2_compression 09
     RunPrecompiledTests(blake2_compression, blake2_compression, params, blockNumber);
+
+    //------------------------------------
+    // Close contract test
+    //------------------------------------
+
+    {
+        // Call selfdestruct
+        assert(txs.size() > 0);
+        dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
+        std::vector<QtumTransaction> txIsItLondon;
+        txIsItLondon.push_back(createQtumTransaction(CODE[2], 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
+        auto result = executeBC(txIsItLondon);
+        BOOST_CHECK(result.first[0].execRes.gasRefunded == 0);
+        BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::None);
+        txs.clear();
+    }
 }
 
 BOOST_AUTO_TEST_CASE(checking_london_before_fork){
@@ -207,6 +248,7 @@ BOOST_AUTO_TEST_CASE(checking_london_before_fork){
 
     {
         // Call basefee
+        assert(txs.size() > 0);
         dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
         std::vector<QtumTransaction> txIsItLondon;
         txIsItLondon.push_back(createQtumTransaction(CODE[1], 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
@@ -216,17 +258,8 @@ BOOST_AUTO_TEST_CASE(checking_london_before_fork){
     }
 
     {
-        // Call selfdestruct
-        dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
-        std::vector<QtumTransaction> txIsItLondon;
-        txIsItLondon.push_back(createQtumTransaction(CODE[2], 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
-        auto result = executeBC(txIsItLondon);
-        BOOST_CHECK(result.first[0].execRes.gasRefunded == 24000);
-        BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::None);
-    }
-
-    {
         // Call invalidcode
+        assert(txs.size() > 0);
         dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
         std::vector<QtumTransaction> txIsItLondon;
         txIsItLondon.push_back(createQtumTransaction(CODE[3], 0, GASLIMIT, dev::u256(1), ++hashTx, dev::Address()));
@@ -244,6 +277,21 @@ BOOST_AUTO_TEST_CASE(checking_london_before_fork){
         BOOST_CHECK(result.first[4].execRes.excepted != dev::eth::TransactionException::InvalidCode);
         BOOST_CHECK(result.first[5].execRes.excepted != dev::eth::TransactionException::InvalidCode);
         BOOST_CHECK(result.first[6].execRes.excepted != dev::eth::TransactionException::InvalidCode);
+    }
+
+    {
+        // Call store and load three times
+        assert(txs.size() > 0);
+        dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
+        std::vector<QtumTransaction> txIsItLondon;
+        txIsItLondon.push_back(createQtumTransaction(CODE[10], 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
+        txIsItLondon.push_back(createQtumTransaction(CODE[11], 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
+        auto result = executeBC(txIsItLondon);
+        BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::None);
+        BOOST_CHECK(result.first[0].execRes.gasUsed == 27872);
+        BOOST_CHECK(result.first[1].execRes.excepted == dev::eth::TransactionException::None);
+        BOOST_CHECK(dev::h256(result.first[1].execRes.output) == dev::h256(7));
+        BOOST_CHECK(result.first[1].execRes.gasUsed == 24443);
     }
 
     //------------------------------------
@@ -279,6 +327,22 @@ BOOST_AUTO_TEST_CASE(checking_london_before_fork){
 
     // Call blake2_compression 09
     RunPrecompiledTests(blake2_compression, blake2_compression, params, blockNumber);
+
+    //------------------------------------
+    // Close contract test
+    //------------------------------------
+
+    {
+        // Call selfdestruct
+        assert(txs.size() > 0);
+        dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
+        std::vector<QtumTransaction> txIsItLondon;
+        txIsItLondon.push_back(createQtumTransaction(CODE[2], 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
+        auto result = executeBC(txIsItLondon);
+        BOOST_CHECK(result.first[0].execRes.gasRefunded == 24000);
+        BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::None);
+        txs.clear();
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
