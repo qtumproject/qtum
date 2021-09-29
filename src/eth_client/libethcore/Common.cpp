@@ -4,7 +4,6 @@
 
 
 #include "Common.h"
-#include <libdevcore/Base64.h>
 #include <libdevcore/CommonIO.h>
 #include <libdevcore/Log.h>
 #include <libdevcore/SHA3.h>

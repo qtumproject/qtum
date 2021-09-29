@@ -595,8 +595,6 @@ libbitcoin_common_a_SOURCES = \
   eth_client/libdevcore/Address.cpp \
   eth_client/libdevcore/Address.h \
   eth_client/libdevcore/Assertions.h \
-  eth_client/libdevcore/Base64.cpp \
-  eth_client/libdevcore/Base64.h \
   eth_client/libdevcore/Common.cpp \
   eth_client/libdevcore/Common.h \
   eth_client/libdevcore/CommonData.cpp \
@@ -610,7 +608,6 @@ libbitcoin_common_a_SOURCES = \
   eth_client/libdevcore/FileSystem.h \
   eth_client/libdevcore/FixedHash.cpp \
   eth_client/libdevcore/FixedHash.h \
-  eth_client/libdevcore/Guards.cpp \
   eth_client/libdevcore/Guards.h \
   eth_client/libdevcore/JsonUtils.cpp \
   eth_client/libdevcore/JsonUtils.h \
