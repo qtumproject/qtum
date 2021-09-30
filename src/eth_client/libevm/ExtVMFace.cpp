@@ -140,10 +140,7 @@ evmc_access_status EvmCHost::access_account(const evmc::address& addr) noexcept
     record_account_access(addr);
 
     // Accessing precompiled contracts is always warm.
-    if ((addr >= 0x0000000000000000000000000000000000000001_address &&
-         addr <= 0x0000000000000000000000000000000000000009_address) || 
-        (addr >= 0x0000000000000000000000000000000000000080_address &&
-         addr <= 0x0000000000000000000000000000000000000086_address))
+    if (m_extVM.isPrecompiled(fromEvmC(addr)))
         return EVMC_ACCESS_WARM;
 
     return already_accessed;

@@ -257,6 +257,9 @@ public:
     /// Return the EVM gas-price schedule for this execution context.
     virtual EVMSchedule const& evmSchedule() const { return DefaultSchedule; }
 
+    /// Is the address from precompiled contract
+    virtual bool isPrecompiled(Address) const = 0;
+
 private:
     EnvInfo const& m_envInfo;
 

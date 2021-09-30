@@ -193,3 +193,8 @@ h256 ExtVM::blockHash(u256 _number)
     std::tie(res, std::ignore) = m_s.execute(envInfo(), m_sealEngine, tx, Permanence::Reverted);
     return h256(res.output);
 }
+
+bool ExtVM::isPrecompiled(Address _a) const
+{
+    return m_sealEngine.isPrecompiled(_a, envInfo().number());
+}

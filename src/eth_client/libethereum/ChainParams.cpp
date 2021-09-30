@@ -160,7 +160,6 @@ void ChainParams::loadConfig(
     precompiled.insert({Address{0x5}, PrecompiledContract{"modexp", byzantiumForkBlock}});
     precompiled.insert({Address{0x6}, PrecompiledContract{"alt_bn128_G1_add", byzantiumForkBlock}});
     precompiled.insert({Address{0x7}, PrecompiledContract{"alt_bn128_G1_mul", byzantiumForkBlock}});
-    precompiled.insert({Address{0x7}, PrecompiledContract{"alt_bn128_G1_mul", byzantiumForkBlock}});
     precompiled.insert(
         {Address{0x8}, PrecompiledContract{"alt_bn128_pairing_product", byzantiumForkBlock}});
     precompiled.insert(
