@@ -3,6 +3,7 @@
 #include <script/standard.h>
 #include <chainparams.h>
 #include <qtumtests/precompiled_utils.h>
+#include <test/qtumtests/data/btc_ecrecover.json.h>
 #include <test/qtumtests/data/ecrecover.json.h>
 #include <test/qtumtests/data/sha256.json.h>
 #include <test/qtumtests/data/ripemd160.json.h>
@@ -233,31 +234,34 @@ BOOST_AUTO_TEST_CASE(checking_london_after_fork){
     dev::eth::ChainOperationParams const& params = globalSealEngine->chainParams();
     dev::u256 blockNumber = ChainActive().Tip()->nHeight;
 
-    // Call ecrecover 01
+    // Call btc_ecrecover 0x85
+    RunPrecompiledTests(btc_ecrecover, btc_ecrecover, params, blockNumber);
+
+    // Call ecrecover 0x1
     RunPrecompiledTests(ecrecover, ecrecover, params, blockNumber);
 
-    // Call sha256 02
+    // Call sha256 0x2
     RunPrecompiledTests(sha256, sha256, params, blockNumber);
 
-    // Call ripemd160 03
+    // Call ripemd160 0x3
     RunPrecompiledTests(ripemd160, ripemd160, params, blockNumber);
 
-    // Call identity 04
+    // Call identity 0x4
     RunPrecompiledTests(identity, identity, params, blockNumber);
 
-    // Call modexp 05
+    // Call modexp 0x5
     RunPrecompiledTests(modexp, modexp_eip2565, params, blockNumber);
 
-    // Call alt_bn128_G1_add 06
+    // Call alt_bn128_G1_add 0x6
     RunPrecompiledTests(alt_bn128_G1_add, alt_bn128_G1_add, params, blockNumber);
 
-    // Call alt_bn128_G1_mul 07
+    // Call alt_bn128_G1_mul 0x7
     RunPrecompiledTests(alt_bn128_G1_mul, alt_bn128_G1_mul, params, blockNumber);
 
-    // Call alt_bn128_pairing_product 08
+    // Call alt_bn128_pairing_product 0x8
     RunPrecompiledTests(alt_bn128_pairing_product, alt_bn128_pairing_product, params, blockNumber);
 
-    // Call blake2_compression 09
+    // Call blake2_compression 0x9
     RunPrecompiledTests(blake2_compression, blake2_compression, params, blockNumber);
 
     //------------------------------------
@@ -373,31 +377,34 @@ BOOST_AUTO_TEST_CASE(checking_london_before_fork){
     dev::eth::ChainOperationParams const& params = globalSealEngine->chainParams();
     dev::u256 blockNumber = ChainActive().Tip()->nHeight;
 
-    // Call ecrecover 01
+    // Call btc_ecrecover 0x85
+    RunPrecompiledTests(btc_ecrecover, btc_ecrecover, params, blockNumber);
+
+    // Call ecrecover 0x1
     RunPrecompiledTests(ecrecover, ecrecover, params, blockNumber);
 
-    // Call sha256 02
+    // Call sha256 0x2
     RunPrecompiledTests(sha256, sha256, params, blockNumber);
 
-    // Call ripemd160 03
+    // Call ripemd160 0x3
     RunPrecompiledTests(ripemd160, ripemd160, params, blockNumber);
 
-    // Call identity 04
+    // Call identity 0x4
     RunPrecompiledTests(identity, identity, params, blockNumber);
 
-    // Call modexp 05
+    // Call modexp 0x5
     RunPrecompiledTests(modexp, modexp, params, blockNumber);
 
-    // Call alt_bn128_G1_add 06
+    // Call alt_bn128_G1_add 0x6
     RunPrecompiledTests(alt_bn128_G1_add, alt_bn128_G1_add, params, blockNumber);
 
-    // Call alt_bn128_G1_mul 07
+    // Call alt_bn128_G1_mul 0x7
     RunPrecompiledTests(alt_bn128_G1_mul, alt_bn128_G1_mul, params, blockNumber);
 
-    // Call alt_bn128_pairing_product 08
+    // Call alt_bn128_pairing_product 0x8
     RunPrecompiledTests(alt_bn128_pairing_product, alt_bn128_pairing_product, params, blockNumber);
 
-    // Call blake2_compression 09
+    // Call blake2_compression 0x9
     RunPrecompiledTests(blake2_compression, blake2_compression, params, blockNumber);
 
     //------------------------------------
