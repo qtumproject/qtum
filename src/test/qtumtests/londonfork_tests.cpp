@@ -50,9 +50,16 @@ const std::vector<valtype> CODE = {
             num_load = num_store + 2;
             num_load = num_store + 3;
         }
+
+        function getExtcodesize(address addr) public view returns(uint32 size){
+          assembly {
+            size := extcodesize(addr)
+            size := extcodesize(addr)
+          }
+        }
     }
     */
-    valtype(ParseHex("608060405234801561001057600080fd5b50336000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555060018081905550610228806100676000396000f3fe608060405234801561001057600080fd5b506004361061004c5760003560e01c806315e812ad1461005157806343d726d61461006f578063c2722ecc14610079578063dfa2062e14610083575b600080fd5b6100596100a1565b6040516100669190610148565b60405180910390f35b6100776100a9565b005b6100816100e8565b005b61008b610102565b6040516100989190610148565b60405180910390f35b600048905090565b60008060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1690508073ffffffffffffffffffffffffffffffffffffffff16ff5b600260018190555060036001819055506004600181905550565b6000600180546101129190610163565b905060026001546101239190610163565b905060036001546101349190610163565b905090565b610142816101b9565b82525050565b600060208201905061015d6000830184610139565b92915050565b600061016e826101b9565b9150610179836101b9565b9250827fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff038211156101ae576101ad6101c3565b5b828201905092915050565b6000819050919050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601160045260246000fdfea264697066735822122080d6ca6e9f654afc37c68f04ea441822e177844deebcfea7dbbd3012169a2ca164736f6c63430008070033")),
+    valtype(ParseHex("608060405234801561001057600080fd5b50336000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055506001808190555061033c806100676000396000f3fe608060405234801561001057600080fd5b50600436106100575760003560e01c806315e812ad1461005c57806343d726d61461007a578063458f6cf814610084578063c2722ecc146100b4578063dfa2062e146100be575b600080fd5b6100646100dc565b60405161007191906101e3565b60405180910390f35b6100826100e4565b005b61009e60048036038101906100999190610198565b610123565b6040516100ab91906101fe565b60405180910390f35b6100bc610132565b005b6100c661014c565b6040516100d391906101e3565b60405180910390f35b600048905090565b60008060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1690508073ffffffffffffffffffffffffffffffffffffffff16ff5b6000813b9050813b9050919050565b600260018190555060036001819055506004600181905550565b60006001805461015c9190610219565b9050600260015461016d9190610219565b9050600360015461017e9190610219565b905090565b600081359050610192816102ef565b92915050565b6000602082840312156101ae576101ad6102ea565b5b60006101bc84828501610183565b91505092915050565b6101ce816102a1565b82525050565b6101dd816102ab565b82525050565b60006020820190506101f860008301846101c5565b92915050565b600060208201905061021360008301846101d4565b92915050565b6000610224826102a1565b915061022f836102a1565b9250827fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff03821115610264576102636102bb565b5b828201905092915050565b600061027a82610281565b9050919050565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b6000819050919050565b600063ffffffff82169050919050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601160045260246000fd5b600080fd5b6102f88161026f565b811461030357600080fd5b5056fea26469706673582212201ed939a8031f29326c9c390c8e8d511a03db0533bd32fbfaf0aff0a875cba8cb64736f6c63430008070033")),
 
     // getBaseFee()
     valtype(ParseHex("15e812ad")),
@@ -85,7 +92,10 @@ const std::vector<valtype> CODE = {
     valtype(ParseHex("c2722ecc")),
 
     // getLoad()
-    valtype(ParseHex("dfa2062e"))
+    valtype(ParseHex("dfa2062e")),
+
+    // getExtcodesize()
+    valtype(ParseHex("458f6cf8"))
 };
 
 void genesisLoading(){
@@ -175,10 +185,45 @@ BOOST_AUTO_TEST_CASE(checking_london_after_fork){
         txIsItLondon.push_back(createQtumTransaction(CODE[11], 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
         auto result = executeBC(txIsItLondon);
         BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::None);
-        BOOST_CHECK(result.first[0].execRes.gasUsed == 26472);
+        BOOST_CHECK(result.first[0].execRes.gasUsed == 26494);
         BOOST_CHECK(result.first[1].execRes.excepted == dev::eth::TransactionException::None);
         BOOST_CHECK(dev::h256(result.first[1].execRes.output) == dev::h256(7));
-        BOOST_CHECK(result.first[1].execRes.gasUsed == 24343);
+        BOOST_CHECK(result.first[1].execRes.gasUsed == 24365);
+    }
+
+    for(size_t a = 1; a < 300; a++)
+    {
+        // Call extcodesize two times (cold and warm)
+        valtype addr = dev::toBigEndian(dev::u256(a));
+        valtype data = CODE[12];
+        data.insert(data.end(), addr.begin(), addr.end());
+
+        assert(txs.size() > 0);
+        dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
+        std::vector<QtumTransaction> txIsItLondon;
+        txIsItLondon.push_back(createQtumTransaction(data, 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
+        auto result = executeBC(txIsItLondon);
+
+        uint32_t gasUsed = 0;
+        if((a >= 0x1 && a <= 0x9) || a == 0x85)
+        {
+            gasUsed = 22091;
+        }
+        else
+        {
+            gasUsed = 24591;
+            if(a > 0x100) gasUsed += 12;
+        }
+
+        uint32_t codeSize = 0;
+        if((a >= 0x80 && a <= 0x84) || a == 0x86)
+        {
+            codeSize = a == 0x86 ? 6064 : 12885;
+        }
+
+        BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::None);
+        BOOST_CHECK(result.first[0].execRes.gasUsed == gasUsed);
+        BOOST_CHECK(dev::h256(result.first[0].execRes.output) == dev::h256(codeSize));
     }
 
     //------------------------------------
@@ -288,10 +333,37 @@ BOOST_AUTO_TEST_CASE(checking_london_before_fork){
         txIsItLondon.push_back(createQtumTransaction(CODE[11], 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
         auto result = executeBC(txIsItLondon);
         BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::None);
-        BOOST_CHECK(result.first[0].execRes.gasUsed == 27872);
+        BOOST_CHECK(result.first[0].execRes.gasUsed == 27894);
         BOOST_CHECK(result.first[1].execRes.excepted == dev::eth::TransactionException::None);
         BOOST_CHECK(dev::h256(result.first[1].execRes.output) == dev::h256(7));
-        BOOST_CHECK(result.first[1].execRes.gasUsed == 24443);
+        BOOST_CHECK(result.first[1].execRes.gasUsed == 24465);
+    }
+
+    for(size_t a = 1; a < 300; a++)
+    {
+        // Call extcodesize two times
+        valtype addr = dev::toBigEndian(dev::u256(a));
+        valtype data = CODE[12];
+        data.insert(data.end(), addr.begin(), addr.end());
+
+        assert(txs.size() > 0);
+        dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
+        std::vector<QtumTransaction> txIsItLondon;
+        txIsItLondon.push_back(createQtumTransaction(data, 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
+        auto result = executeBC(txIsItLondon);
+
+        uint32_t gasUsed = 23291;
+        if(a > 0x100) gasUsed += 12;
+
+        uint32_t codeSize = 0;
+        if((a >= 0x80 && a <= 0x84) || a == 0x86)
+        {
+            codeSize = a == 0x86 ? 6064 : 12885;
+        }
+
+        BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::None);
+        BOOST_CHECK(result.first[0].execRes.gasUsed == gasUsed);
+        BOOST_CHECK(dev::h256(result.first[0].execRes.output) == dev::h256(codeSize));
     }
 
     //------------------------------------
