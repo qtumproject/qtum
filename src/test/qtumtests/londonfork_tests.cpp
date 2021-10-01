@@ -99,6 +99,30 @@ const std::vector<valtype> CODE = {
     valtype(ParseHex("458f6cf8"))
 };
 
+// Codes IDs used to check that london fork is present
+enum class CodeID
+{
+    contract = 0,
+    getBaseFee,
+    close,
+    deploy1ef,
+    deploy2ef,
+    deploy3ef,
+    deploy32ef,
+    deploy1fe,
+    call1ef,
+    call2ef,
+    getStore,
+    getLoad,
+    getExtcodesize
+};
+
+// Get the code identified by the ID
+valtype getCode(CodeID id)
+{
+    return CODE[(int)id];
+}
+
 void genesisLoading(){
     const CChainParams& chainparams = Params();
     int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(0);
@@ -140,7 +164,7 @@ BOOST_AUTO_TEST_CASE(checking_london_after_fork){
 
     // Create contract
     std::vector<QtumTransaction> txs;
-    txs.push_back(createQtumTransaction(CODE[0], 0, GASLIMIT, dev::u256(1), hashTx, dev::Address()));
+    txs.push_back(createQtumTransaction(getCode(CodeID::contract), 0, GASLIMIT, dev::u256(1), hashTx, dev::Address()));
     executeBC(txs);
 
     {
@@ -148,7 +172,7 @@ BOOST_AUTO_TEST_CASE(checking_london_after_fork){
         assert(txs.size() > 0);
         dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
         std::vector<QtumTransaction> txIsItLondon;
-        txIsItLondon.push_back(createQtumTransaction(CODE[1], 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
+        txIsItLondon.push_back(createQtumTransaction(getCode(CodeID::getBaseFee), 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
         auto result = executeBC(txIsItLondon);
         BOOST_CHECK(result.first[0].execRes.output.size() == 32);
         BOOST_CHECK(dev::h256(result.first[0].execRes.output) == dev::h256(0));
@@ -160,13 +184,13 @@ BOOST_AUTO_TEST_CASE(checking_london_after_fork){
         assert(txs.size() > 0);
         dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
         std::vector<QtumTransaction> txIsItLondon;
-        txIsItLondon.push_back(createQtumTransaction(CODE[3], 0, GASLIMIT, dev::u256(1), ++hashTx, dev::Address()));
-        txIsItLondon.push_back(createQtumTransaction(CODE[4], 0, GASLIMIT, dev::u256(1), ++hashTx, dev::Address()));
-        txIsItLondon.push_back(createQtumTransaction(CODE[5], 0, GASLIMIT, dev::u256(1), ++hashTx, dev::Address()));
-        txIsItLondon.push_back(createQtumTransaction(CODE[6], 0, GASLIMIT, dev::u256(1), ++hashTx, dev::Address()));
-        txIsItLondon.push_back(createQtumTransaction(CODE[7], 0, GASLIMIT, dev::u256(1), ++hashTx, dev::Address()));
-        txIsItLondon.push_back(createQtumTransaction(CODE[8], 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
-        txIsItLondon.push_back(createQtumTransaction(CODE[9], 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
+        txIsItLondon.push_back(createQtumTransaction(getCode(CodeID::deploy1ef), 0, GASLIMIT, dev::u256(1), ++hashTx, dev::Address()));
+        txIsItLondon.push_back(createQtumTransaction(getCode(CodeID::deploy2ef), 0, GASLIMIT, dev::u256(1), ++hashTx, dev::Address()));
+        txIsItLondon.push_back(createQtumTransaction(getCode(CodeID::deploy3ef), 0, GASLIMIT, dev::u256(1), ++hashTx, dev::Address()));
+        txIsItLondon.push_back(createQtumTransaction(getCode(CodeID::deploy32ef), 0, GASLIMIT, dev::u256(1), ++hashTx, dev::Address()));
+        txIsItLondon.push_back(createQtumTransaction(getCode(CodeID::deploy1fe), 0, GASLIMIT, dev::u256(1), ++hashTx, dev::Address()));
+        txIsItLondon.push_back(createQtumTransaction(getCode(CodeID::call1ef), 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
+        txIsItLondon.push_back(createQtumTransaction(getCode(CodeID::call2ef), 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
         auto result = executeBC(txIsItLondon);
         BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::InvalidCode);
         BOOST_CHECK(result.first[1].execRes.excepted == dev::eth::TransactionException::InvalidCode);
@@ -182,8 +206,8 @@ BOOST_AUTO_TEST_CASE(checking_london_after_fork){
         assert(txs.size() > 0);
         dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
         std::vector<QtumTransaction> txIsItLondon;
-        txIsItLondon.push_back(createQtumTransaction(CODE[10], 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
-        txIsItLondon.push_back(createQtumTransaction(CODE[11], 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
+        txIsItLondon.push_back(createQtumTransaction(getCode(CodeID::getStore), 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
+        txIsItLondon.push_back(createQtumTransaction(getCode(CodeID::getLoad), 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
         auto result = executeBC(txIsItLondon);
         BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::None);
         BOOST_CHECK(result.first[0].execRes.gasUsed == 26494);
@@ -196,7 +220,7 @@ BOOST_AUTO_TEST_CASE(checking_london_after_fork){
     {
         // Call extcodesize two times (cold and warm)
         valtype addr = dev::toBigEndian(dev::u256(a));
-        valtype data = CODE[12];
+        valtype data = getCode(CodeID::getExtcodesize);
         data.insert(data.end(), addr.begin(), addr.end());
 
         assert(txs.size() > 0);
@@ -273,7 +297,7 @@ BOOST_AUTO_TEST_CASE(checking_london_after_fork){
         assert(txs.size() > 0);
         dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
         std::vector<QtumTransaction> txIsItLondon;
-        txIsItLondon.push_back(createQtumTransaction(CODE[2], 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
+        txIsItLondon.push_back(createQtumTransaction(getCode(CodeID::close), 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
         auto result = executeBC(txIsItLondon);
         BOOST_CHECK(result.first[0].execRes.gasRefunded == 0);
         BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::None);
@@ -292,7 +316,7 @@ BOOST_AUTO_TEST_CASE(checking_london_before_fork){
 
     // Create contract
     std::vector<QtumTransaction> txs;
-    txs.push_back(createQtumTransaction(CODE[0], 0, GASLIMIT, dev::u256(1), hashTx, dev::Address()));
+    txs.push_back(createQtumTransaction(getCode(CodeID::contract), 0, GASLIMIT, dev::u256(1), hashTx, dev::Address()));
     executeBC(txs);
 
     {
@@ -300,7 +324,7 @@ BOOST_AUTO_TEST_CASE(checking_london_before_fork){
         assert(txs.size() > 0);
         dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
         std::vector<QtumTransaction> txIsItLondon;
-        txIsItLondon.push_back(createQtumTransaction(CODE[1], 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
+        txIsItLondon.push_back(createQtumTransaction(getCode(CodeID::getBaseFee), 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
         auto result = executeBC(txIsItLondon);
         BOOST_CHECK(result.first[0].execRes.output.size() == 0);
         BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::BadInstruction);
@@ -311,13 +335,13 @@ BOOST_AUTO_TEST_CASE(checking_london_before_fork){
         assert(txs.size() > 0);
         dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
         std::vector<QtumTransaction> txIsItLondon;
-        txIsItLondon.push_back(createQtumTransaction(CODE[3], 0, GASLIMIT, dev::u256(1), ++hashTx, dev::Address()));
-        txIsItLondon.push_back(createQtumTransaction(CODE[4], 0, GASLIMIT, dev::u256(1), ++hashTx, dev::Address()));
-        txIsItLondon.push_back(createQtumTransaction(CODE[5], 0, GASLIMIT, dev::u256(1), ++hashTx, dev::Address()));
-        txIsItLondon.push_back(createQtumTransaction(CODE[6], 0, GASLIMIT, dev::u256(1), ++hashTx, dev::Address()));
-        txIsItLondon.push_back(createQtumTransaction(CODE[7], 0, GASLIMIT, dev::u256(1), ++hashTx, dev::Address()));
-        txIsItLondon.push_back(createQtumTransaction(CODE[8], 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
-        txIsItLondon.push_back(createQtumTransaction(CODE[9], 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
+        txIsItLondon.push_back(createQtumTransaction(getCode(CodeID::deploy1ef), 0, GASLIMIT, dev::u256(1), ++hashTx, dev::Address()));
+        txIsItLondon.push_back(createQtumTransaction(getCode(CodeID::deploy2ef), 0, GASLIMIT, dev::u256(1), ++hashTx, dev::Address()));
+        txIsItLondon.push_back(createQtumTransaction(getCode(CodeID::deploy3ef), 0, GASLIMIT, dev::u256(1), ++hashTx, dev::Address()));
+        txIsItLondon.push_back(createQtumTransaction(getCode(CodeID::deploy32ef), 0, GASLIMIT, dev::u256(1), ++hashTx, dev::Address()));
+        txIsItLondon.push_back(createQtumTransaction(getCode(CodeID::deploy1fe), 0, GASLIMIT, dev::u256(1), ++hashTx, dev::Address()));
+        txIsItLondon.push_back(createQtumTransaction(getCode(CodeID::call1ef), 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
+        txIsItLondon.push_back(createQtumTransaction(getCode(CodeID::call2ef), 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
         auto result = executeBC(txIsItLondon);
         BOOST_CHECK(result.first[0].execRes.excepted != dev::eth::TransactionException::InvalidCode);
         BOOST_CHECK(result.first[1].execRes.excepted != dev::eth::TransactionException::InvalidCode);
@@ -333,8 +357,8 @@ BOOST_AUTO_TEST_CASE(checking_london_before_fork){
         assert(txs.size() > 0);
         dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
         std::vector<QtumTransaction> txIsItLondon;
-        txIsItLondon.push_back(createQtumTransaction(CODE[10], 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
-        txIsItLondon.push_back(createQtumTransaction(CODE[11], 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
+        txIsItLondon.push_back(createQtumTransaction(getCode(CodeID::getStore), 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
+        txIsItLondon.push_back(createQtumTransaction(getCode(CodeID::getLoad), 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
         auto result = executeBC(txIsItLondon);
         BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::None);
         BOOST_CHECK(result.first[0].execRes.gasUsed == 27894);
@@ -347,7 +371,7 @@ BOOST_AUTO_TEST_CASE(checking_london_before_fork){
     {
         // Call extcodesize two times
         valtype addr = dev::toBigEndian(dev::u256(a));
-        valtype data = CODE[12];
+        valtype data = getCode(CodeID::getExtcodesize);
         data.insert(data.end(), addr.begin(), addr.end());
 
         assert(txs.size() > 0);
@@ -416,7 +440,7 @@ BOOST_AUTO_TEST_CASE(checking_london_before_fork){
         assert(txs.size() > 0);
         dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
         std::vector<QtumTransaction> txIsItLondon;
-        txIsItLondon.push_back(createQtumTransaction(CODE[2], 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
+        txIsItLondon.push_back(createQtumTransaction(getCode(CodeID::close), 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
         auto result = executeBC(txIsItLondon);
         BOOST_CHECK(result.first[0].execRes.gasRefunded == 24000);
         BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::None);
