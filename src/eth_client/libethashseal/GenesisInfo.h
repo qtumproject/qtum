@@ -16,8 +16,7 @@ namespace eth
 /// The network id.
 enum class Network
 {
-    qtumMainNetwork = 1,
-    qtumTestNetwork = 2
+    qtumNetwork = 1
 };
 
 std::string const& genesisInfo(Network _n);
@@ -40,6 +39,12 @@ struct EVMConsensus
     int nLondonHeight = 0x7fffffff;
 };
 
+/**
+ * @brief genesisInfoQtum Get the genesis information for EVM
+ * @param _n Network type
+ * @param _consensus Qtum network consensus parameters (mainnet, testnet, signet or regtest parameters)
+ * @return Genesis information for EVM
+ */
 std::string genesisInfoQtum(Network _n, EVMConsensus _consensus);
 
 }

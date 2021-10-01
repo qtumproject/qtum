@@ -752,7 +752,7 @@ std::string CChainParams::EVMGenesisInfo(const dev::eth::EVMConsensus& evmConsen
 
 dev::eth::Network CChainParams::GetEVMNetwork() const
 {
-    return dev::eth::Network::qtumMainNetwork;
+    return dev::eth::Network::qtumNetwork;
 }
 
 void CChainParams::UpdateOpSenderBlockHeight(int nHeight)
