@@ -222,6 +222,18 @@ public:
         }
         return Params().GenesisBlock().GetBlockTime(); // Genesis block's time of current network
     }
+    uint256 getBlockHash(int blockNumber) override
+    {
+        LOCK(::cs_main);
+        CBlockIndex* index = chainman().ActiveChain()[blockNumber];
+        return index ? index->GetBlockHash() : uint256();
+    }
+    int64_t getBlockTime(int blockNumber) override
+    {
+        LOCK(::cs_main);
+        CBlockIndex* index = chainman().ActiveChain()[blockNumber];
+        return index ? index->GetBlockTime() : 0;
+    }
     double getVerificationProgress() override
     {
         const CBlockIndex* tip;
@@ -234,6 +246,7 @@ public:
     bool isInitialBlockDownload() override {
         return chainman().ActiveChainstate().IsInitialBlockDownload();
     }
+    bool isAddressTypeSet() override { return !::gArgs.GetArg("-addresstype", "").empty(); }
     bool getReindex() override { return ::fReindex; }
     bool getImporting() override { return ::fImporting; }
     void setNetworkActive(bool active) override
@@ -264,6 +277,53 @@ public:
     WalletClient& walletClient() override
     {
         return *Assert(m_context->wallet_client);
+    }
+    void getGasInfo(uint64_t& blockGasLimit, uint64_t& minGasPrice, uint64_t& nGasPrice) override
+    {
+    }
+    void getSyncInfo(int& numBlocks, bool& isSyncing) override
+    {
+        LOCK(::cs_main);
+        // Get node synchronization information with minimal locks
+        numBlocks = chainman().ActiveChain().Height();
+        int64_t blockTime = chainman().ActiveChain().Tip() ? chainman().ActiveChain().Tip()->GetBlockTime() :
+                                                  Params().GenesisBlock().GetBlockTime();
+        int64_t secs = GetTime() - blockTime;
+        isSyncing = secs >= 90*60 ? true : false;
+    }
+    bool tryGetSyncInfo(int& numBlocks, bool& isSyncing) override
+    {
+        TRY_LOCK(::cs_main, lockMain);
+        if (lockMain) {
+            // Get node synchronization information with minimal locks
+            numBlocks = chainman().ActiveChain().Height();
+            int64_t blockTime = chainman().ActiveChain().Tip() ? chainman().ActiveChain().Tip()->GetBlockTime() :
+                                                      Params().GenesisBlock().GetBlockTime();
+            int64_t secs = GetTime() - blockTime;
+            isSyncing = secs >= 90*60 ? true : false;
+            return true;
+        }
+
+        return false;
+    }
+    int64_t getBlockSubsidy(int nHeight) override
+    {
+        const CChainParams& chainparams = Params();
+        return GetBlockSubsidy(nHeight, chainparams.GetConsensus());
+    }
+    uint64_t getNetworkStakeWeight() override
+    {
+        LOCK(::cs_main);
+        return GetPoSKernelPS();
+    }
+    double getEstimatedAnnualROI() override
+    {
+        LOCK(::cs_main);
+        return GetEstimatedAnnualROI();
+    }
+    int64_t getMoneySupply() override
+    {
+        return pindexBestHeader ? pindexBestHeader->nMoneySupply : 0;
     }
     std::unique_ptr<Handler> handleInitMessage(InitMessageFn fn) override
     {
@@ -328,6 +388,7 @@ bool FillBlock(const CBlockIndex* index, const FoundBlock& block, UniqueLock<Rec
     if (block.m_time) *block.m_time = index->GetBlockTime();
     if (block.m_max_time) *block.m_max_time = index->GetBlockTimeMax();
     if (block.m_mtp_time) *block.m_mtp_time = index->GetMedianTimePast();
+    if (block.m_has_delegation) *block.m_has_delegation = index->HasProofOfDelegation();
     if (block.m_in_active_chain) *block.m_in_active_chain = active[index->nHeight] == index;
     if (block.m_next_block) FillBlock(active[index->nHeight] == index ? active[index->nHeight + 1] : nullptr, *block.m_next_block, lock, active);
     if (block.m_data) {
@@ -466,6 +527,11 @@ public:
     {
         LOCK(cs_main);
         return CheckFinalTx(chainman().ActiveChain().Tip(), tx);
+    }
+    std::map<COutPoint, uint32_t> getImmatureStakes() override
+    {
+        LOCK(cs_main);
+        return GetImmatureStakes();
     }
     std::optional<int> findLocatorFork(const CBlockLocator& locator) override
     {

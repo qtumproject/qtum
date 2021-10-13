@@ -742,6 +742,13 @@ public:
      */
     boost::signals2::signal<void(const uint256& hashTx, ChangeType status)> NotifyTransactionChanged;
 
+    /** 
+     * Wallet token transaction added, removed or updated.
+     * @note called with lock cs_wallet held.
+     */
+    boost::signals2::signal<void (CWallet *wallet, const uint256 &hashTx,
+            ChangeType status)> NotifyTokenTransactionChanged;
+
     /** Show progress e.g. for rescan */
     boost::signals2::signal<void (const std::string &title, int nProgress)> ShowProgress;
 
@@ -756,6 +763,27 @@ public:
      * Note: Called without locks held.
      */
     boost::signals2::signal<void (CWallet* wallet)> NotifyStatusChanged;
+
+    /** Wallet transaction added, removed or updated. */
+    boost::signals2::signal<void (CWallet *wallet, const uint256 &hashToken,
+            ChangeType status)> NotifyTokenChanged;
+
+    /** Contract book entry changed. */
+    boost::signals2::signal<void (CWallet *wallet, const std::string &address,
+            const std::string &label, const std::string &abi,
+            ChangeType status)> NotifyContractBookChanged;
+
+    /** Wallet delegation added, removed or updated. */
+    boost::signals2::signal<void (CWallet *wallet, const uint256 &hashDelegation,
+            ChangeType status)> NotifyDelegationChanged;
+
+    /** Wallet super staker added, removed or updated. */
+    boost::signals2::signal<void (CWallet *wallet, const uint256 &hashSuperStaker,
+            ChangeType status)> NotifySuperStakerChanged;
+
+    /** Wallet delegations staker added, removed or updated. */
+    boost::signals2::signal<void (CWallet *wallet, const uint160 &addressDelegate,
+            ChangeType status)> NotifyDelegationsStakerChanged;
 
     /** Inquire whether this wallet broadcasts transactions. */
     bool GetBroadcastTransactions() const { return fBroadcastTransactions; }

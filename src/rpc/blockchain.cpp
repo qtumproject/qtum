@@ -133,6 +133,16 @@ double GetDifficulty(const CBlockIndex* blockindex)
     return dDiff;
 }
 
+double GetPoSKernelPS()
+{
+    return {};
+}
+
+double GetEstimatedAnnualROI()
+{
+    return {};
+}
+
 static int ComputeNextBlockAndDepth(const CBlockIndex* tip, const CBlockIndex* blockindex, const CBlockIndex*& next)
 {
     next = tip->GetAncestor(blockindex->nHeight + 1);

@@ -5101,3 +5101,9 @@ void ChainstateManager::MaybeRebalanceCaches()
         }
     }
 }
+
+std::map<COutPoint, uint32_t> GetImmatureStakes()
+{
+    return {};
+}
+

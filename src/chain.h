@@ -192,7 +192,15 @@ public:
     uint32_t nTime{0};
     uint32_t nBits{0};
     uint32_t nNonce{0};
+    uint256 hashStateRoot{}; // qtum
+    uint256 hashUTXORoot{}; // qtum
+    // block signature - proof-of-stake protect the block by signing the block using a stake holder private key
+    std::vector<unsigned char> vchBlockSigDlgt{};
+    uint256 nStakeModifier{};
+    // proof-of-stake specific fields
     COutPoint prevoutStake{};
+    uint256 hashProof{}; // qtum
+    uint64_t nMoneySupply{0};
 
     //! (memory only) Sequential id assigned to distinguish order in which blocks are received.
     int32_t nSequenceId{0};
@@ -288,6 +296,12 @@ public:
     {
         return !prevoutStake.IsNull();
     }
+
+    std::vector<unsigned char> GetBlockSignature() const;
+
+    std::vector<unsigned char> GetProofOfDelegation() const;
+
+    bool HasProofOfDelegation() const;
 
     std::string ToString() const
     {
