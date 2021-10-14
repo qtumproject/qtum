@@ -172,7 +172,7 @@ std::string GetTxnOutputType(TxoutType t);
  * @param[out]  vSolutionsRet  Vector of parsed pubkeys and hashes
  * @return                     The script type. TxoutType::NONSTANDARD represents a failed solve.
  */
-TxoutType Solver(const CScript& scriptPubKey, std::vector<std::vector<unsigned char>>& vSolutionsRet);
+TxoutType Solver(const CScript& scriptPubKey, std::vector<std::vector<unsigned char>>& vSolutionsRet, bool contractConsensus=false, bool allowEmptySenderSig=false);
 
 /**
  * Parse a standard scriptPubKey for the destination address. Assigns result to

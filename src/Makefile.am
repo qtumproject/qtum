@@ -397,7 +397,6 @@ libbitcoin_server_a_SOURCES = \
   qtum/qtumstate.cpp \
   qtum/qtumtransaction.cpp \
   qtum/qtumDGP.cpp \
-  consensus/consensus.cpp \
   qtum/storageresults.cpp \
   $(BITCOIN_CORE_H)
 
@@ -539,6 +538,7 @@ libbitcoin_consensus_a_SOURCES = \
   amount.h \
   arith_uint256.cpp \
   arith_uint256.h \
+  consensus/consensus.cpp \
   consensus/merkle.cpp \
   consensus/merkle.h \
   consensus/params.h \
@@ -911,7 +911,7 @@ qtum_cli_LDADD += $(BOOST_LIBS) $(EVENT_LIBS)
 #
 
 # bitcoin-tx binary #
-qtum_tx_SOURCES = bitcoin-tx.cpp consensus/consensus.cpp
+qtum_tx_SOURCES = bitcoin-tx.cpp
 qtum_tx_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
 qtum_tx_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 qtum_tx_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) $(PTHREAD_FLAGS)
@@ -972,7 +972,6 @@ qtum_util_LDADD += $(BOOST_LIBS)
 if BUILD_BITCOIN_LIBS
 include_HEADERS = script/bitcoinconsensus.h
 libbitcoinconsensus_la_SOURCES = support/cleanse.cpp $(crypto_libbitcoin_crypto_base_a_SOURCES) $(libbitcoin_consensus_a_SOURCES) \
-  consensus/consensus.cpp \
   script/standard.cpp \
   eth_client/libdevcore/CommonData.cpp
 

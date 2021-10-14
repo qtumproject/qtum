@@ -35,7 +35,8 @@ public:
 
     //! whether containing transaction was a coinbase
     unsigned int fCoinBase : 1;
-
+    unsigned int fCoinStake : 1;
+	
     //! at which height this containing transaction was included in the active block chain
     uint32_t nHeight : 31;
 
@@ -54,6 +55,9 @@ public:
 
     bool IsCoinBase() const {
         return fCoinBase;
+    }
+    bool IsCoinStake() const {
+        return fCoinStake;
     }
 
     template<typename Stream>

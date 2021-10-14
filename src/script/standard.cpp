@@ -141,7 +141,7 @@ static bool MatchMultisig(const CScript& script, int& required_sigs, std::vector
     return (it + 1 == script.end());
 }
 
-TxoutType Solver(const CScript& scriptPubKey, std::vector<std::vector<unsigned char>>& vSolutionsRet)
+TxoutType Solver(const CScript& scriptPubKey, std::vector<std::vector<unsigned char>>& vSolutionsRet, bool contractConsensus, bool allowEmptySenderSig)
 {
     vSolutionsRet.clear();
 
