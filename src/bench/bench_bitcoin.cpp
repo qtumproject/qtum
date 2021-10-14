@@ -7,6 +7,7 @@
 #include <crypto/sha256.h>
 #include <util/strencodings.h>
 #include <util/system.h>
+#include <libethcore/SealEngine.h>
 
 #include <memory>
 
@@ -52,6 +53,9 @@ int main(int argc, char** argv)
 
         return EXIT_SUCCESS;
     }
+
+    // Overwrite arguments for bench
+    gArgs.SoftSetBoolArg("-acceptnonstdtxn", true);
 
     benchmark::Args args;
     args.regex_filter = argsman.GetArg("-filter", DEFAULT_BENCH_FILTER);
