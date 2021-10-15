@@ -35,6 +35,7 @@
 #include <QMessageBox>
 #include <QSet>
 #include <QTimer>
+#include <QFile>
 
 
 WalletModel::WalletModel(std::unique_ptr<interfaces::Wallet> wallet, ClientModel& client_model, const PlatformStyle *platformStyle, QObject *parent) :
@@ -342,6 +343,23 @@ bool WalletModel::changePassphrase(const SecureString &oldPass, const SecureStri
     return m_wallet->changeWalletPassphrase(oldPass, newPass);
 }
 
+bool WalletModel::restoreWallet(const QString &filename, const QString &param)
+{
+    if(QFile::exists(filename))
+    {
+        fs::path pathWalletBak = gArgs.GetDataDirNet() / strprintf("wallet.%d.bak", GetTime());
+        std::string walletBak = pathWalletBak.string();
+        if(m_wallet->backupWallet(walletBak))
+        {
+            restorePath = filename;
+            restoreParam = param;
+            return true;
+        }
+    }
+
+    return false;
+}
+
 // Handlers for core signals
 static void NotifyUnload(WalletModel* walletModel)
 {
@@ -593,4 +611,19 @@ void WalletModel::refresh(bool pk_hash_only)
 uint256 WalletModel::getLastBlockProcessed() const
 {
     return m_client_model ? m_client_model->getBestBlockHash() : uint256{};
+}
+
+QString WalletModel::getRestorePath()
+{
+    return restorePath;
+}
+
+QString WalletModel::getRestoreParam()
+{
+    return restoreParam;
+}
+
+bool WalletModel::restore()
+{
+    return !restorePath.isEmpty();
 }

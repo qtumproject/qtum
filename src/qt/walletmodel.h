@@ -109,6 +109,7 @@ public:
     // Passphrase only needed when unlocking
     bool setWalletLocked(bool locked, const SecureString &passPhrase=SecureString());
     bool changePassphrase(const SecureString &oldPass, const SecureString &newPass);
+    bool restoreWallet(const QString &filename, const QString &param);
 
     // RAI object for unlocking wallet, returned by requestUnlock()
     class UnlockContext
@@ -150,6 +151,10 @@ public:
 
     bool isMultiwallet();
 
+    QString getRestorePath();
+    QString getRestoreParam();
+    bool restore();
+
     AddressTableModel* getAddressTableModel() const { return addressTableModel; }
 
     void refresh(bool pk_hash_only = false);
@@ -186,6 +191,9 @@ private:
 
     // Block hash denoting when the last balance update was done.
     uint256 m_cached_last_update_tip{};
+
+    QString restorePath;
+    QString restoreParam;
 
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();

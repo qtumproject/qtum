@@ -18,6 +18,7 @@
 #include <util/system.h>
 #include <util/threadnames.h>
 #include <validation.h>
+#include <wallet/wallet.h>
 
 #include <stdint.h>
 #include <functional>
@@ -56,9 +57,11 @@ ClientModel::ClientModel(interfaces::Node& node, OptionsModel *_optionsModel, QO
     });
     connect(m_thread, &QThread::finished, timer, &QObject::deleteLater);
     connect(m_thread, &QThread::started, [timer] { timer->start(); });
+    connect(this, &ClientModel::tipChanged, this, &ClientModel::updateTip);
     // move timer to thread so that polling doesn't disturb main event loop
     timer->moveToThread(m_thread);
     m_thread->start();
+    fBatchProcessingMode = true;
     QTimer::singleShot(0, timer, []() {
         util::ThreadRename("qt-clientmodl");
     });
@@ -275,6 +278,21 @@ static void BannedListChanged(ClientModel *clientmodel)
 
 static void BlockTipChanged(ClientModel* clientmodel, SynchronizationState sync_state, interfaces::BlockTip tip, double verificationProgress, bool fHeader)
 {
+    // Wallet batch mode checks
+    bool batchMode = false;
+    if(tip.block_height > 0)
+    {
+        int64_t secs = GetTime() - tip.block_time;
+        batchMode = secs >= MAX_BLOCK_TIME_GAP ? true : false;
+        if(batchMode)
+        {
+            if(!clientmodel->fBatchProcessingMode)
+            {
+                clientmodel->fBatchProcessingMode = true;
+            }
+        }
+    }
+
     if (fHeader) {
         // cache best headers time and height to reduce future cs_main locks
         clientmodel->cachedBestHeaderHeight = tip.block_height;
@@ -285,7 +303,7 @@ static void BlockTipChanged(ClientModel* clientmodel, SynchronizationState sync_
     }
 
     // Throttle GUI notifications about (a) blocks during initial sync, and (b) both blocks and headers during reindex.
-    const bool throttle = (sync_state != SynchronizationState::POST_INIT && !fHeader) || sync_state == SynchronizationState::INIT_REINDEX;
+    const bool throttle = (sync_state != SynchronizationState::POST_INIT && !fHeader) || sync_state == SynchronizationState::INIT_REINDEX || batchMode;
     const int64_t now = throttle ? GetTimeMillis() : 0;
     int64_t& nLastUpdateNotification = fHeader ? nLastHeaderTipUpdateNotification : nLastBlockTipUpdateNotification;
     if (throttle && now < nLastUpdateNotification + MODEL_UPDATE_DELAY) {
@@ -299,6 +317,11 @@ static void BlockTipChanged(ClientModel* clientmodel, SynchronizationState sync_
         Q_ARG(bool, fHeader),
         Q_ARG(SynchronizationState, sync_state));
     assert(invoked);
+    if(!fHeader && !clientmodel->fBatchProcessingMode)
+    {
+        bool invoked = QMetaObject::invokeMethod(clientmodel, "tipChanged", Qt::QueuedConnection);
+        assert(invoked);
+    }
     nLastUpdateNotification = now;
 }
 
@@ -334,4 +357,14 @@ bool ClientModel::getProxyInfo(std::string& ip_port) const
       return true;
     }
     return false;
+}
+
+void ClientModel::updateTip()
+{
+    // Get the new gas info
+    uint64_t blockGasLimit = 0;
+    uint64_t minGasPrice = 0;
+    uint64_t nGasPrice = 0;
+    m_node.getGasInfo(blockGasLimit, minGasPrice, nGasPrice);
+    Q_EMIT gasInfoChanged(blockGasLimit, minGasPrice, nGasPrice);
 }
