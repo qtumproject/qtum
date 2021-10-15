@@ -20,7 +20,7 @@
 #include <vector>
 
 // Maximum number of bytes pushable to the stack
-static const unsigned int MAX_SCRIPT_ELEMENT_SIZE = 520;
+static const unsigned int MAX_SCRIPT_ELEMENT_SIZE = 128000; //(128 kb)
 
 // Maximum number of non-push operations per script
 static const int MAX_OPS_PER_SCRIPT = 201;
@@ -29,7 +29,10 @@ static const int MAX_OPS_PER_SCRIPT = 201;
 static const int MAX_PUBKEYS_PER_MULTISIG = 20;
 
 // Maximum script length in bytes
-static const int MAX_SCRIPT_SIZE = 10000;
+static const int MAX_SCRIPT_SIZE = 129000; // (129 kb)
+
+// Maximum base script length in bytes
+static const int MAX_BASE_SCRIPT_SIZE = 10000;
 
 // Maximum number of values on script interpreter stack
 static const int MAX_STACK_SIZE = 1000;
@@ -207,6 +210,19 @@ enum opcodetype
     OP_SPEND = 0xc3,
     OP_SENDER = 0xc4,
 
+    // template matching params
+    OP_ADDRESS_TYPE = 0xf2,
+    OP_ADDRESS = 0xf3,
+    OP_SCRIPT_SIG = 0xf4,
+    OP_GAS_PRICE = 0xf5,
+    OP_VERSION = 0xf6,
+    OP_GAS_LIMIT = 0xf7,
+    OP_DATA = 0xf8,
+    OP_SMALLINTEGER = 0xfa,
+    OP_PUBKEYS = 0xfb,
+    OP_PUBKEYHASH = 0xfd,
+    OP_PUBKEY = 0xfe,
+
     OP_INVALIDOPCODE = 0xff,
 };
 
@@ -342,6 +358,30 @@ public:
         return serialize(m_value);
     }
 
+    ///////////////////////////////// qtum
+    static uint64_t vch_to_uint64(const std::vector<unsigned char>& vch)
+    {
+        if (vch.size() > 8) {
+            throw scriptnum_error("script number overflow");
+        }
+
+        if (vch.empty())
+            return 0;
+
+        uint64_t result = 0;
+        for (size_t i = 0; i != vch.size(); ++i)
+            result |= static_cast<uint64_t>(vch[i]) << 8*i;
+
+        // If the input vector's most significant byte is 0x80, remove it from
+        // the result's msb and return a negative.
+        if (vch.back() & 0x80)
+            throw scriptnum_error("Negative gas value.");
+            // return -((uint64_t)(result & ~(0x80ULL << (8 * (vch.size() - 1)))));
+
+        return result;
+    }
+    /////////////////////////////////
+
     static std::vector<unsigned char> serialize(const int64_t& value)
     {
         if(value == 0)
@@ -433,6 +473,20 @@ public:
     CScript(const unsigned char* pbegin, const unsigned char* pend) : CScriptBase(pbegin, pend) { }
 
     SERIALIZE_METHODS(CScript, obj) { READWRITEAS(CScriptBase, obj); }
+
+    CScript& operator+=(const CScript& b)
+    {
+        reserve(size() + b.size());
+        insert(end(), b.begin(), b.end());
+        return *this;
+    }
+
+    friend CScript operator+(const CScript& a, const CScript& b)
+    {
+        CScript ret = a;
+        ret += b;
+        return ret;
+    }
 
     explicit CScript(int64_t b) { operator<<(b); }
     explicit CScript(opcodetype b)     { operator<<(b); }
@@ -540,6 +594,10 @@ public:
     unsigned int GetSigOpCount(const CScript& scriptSig) const;
 
     bool IsPayToScriptHash() const;
+    ///////////////////////////////////////////////// // qtum
+    bool IsPayToPubkey() const;
+    bool IsPayToPubkeyHash() const;
+    /////////////////////////////////////////////////
     bool IsPayToWitnessScriptHash() const;
     bool IsWitnessProgram(int& version, std::vector<unsigned char>& program) const;
 
@@ -580,12 +638,31 @@ public:
         return Find(OP_SENDER) == 1;
     }
 
+    bool UpdateSenderSig(const std::vector<unsigned char>& scriptSig, CScript& scriptRet) const
+    {
+        return ReplaceParam(OP_SENDER, 1, scriptSig, scriptRet);
+    }
+
+    CScript WithoutSenderSig() const
+    {
+        std::vector<unsigned char> scriptSig;
+        CScript scriptRet;
+        if(!UpdateSenderSig(scriptSig, scriptRet))
+            scriptRet = CScript(begin(), end());
+        return scriptRet;
+    }
+
+    bool ReplaceParam(opcodetype findOp, int posBefore, const std::vector<unsigned char>& vchParam, CScript& scriptRet) const;
+    /////////////////////////////////////////
+
     void clear()
     {
         // The default prevector::clear() does not release memory
         CScriptBase::clear();
         shrink_to_fit();
     }
+
+    bool IsPayToWitnessPubkeyHash() const;
 };
 
 struct CScriptWitness
