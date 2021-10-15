@@ -26,5 +26,6 @@ CTxDestination DecodeDestination(const std::string& str);
 CTxDestination DecodeDestination(const std::string& str, std::string& error_msg);
 bool IsValidDestinationString(const std::string& str);
 bool IsValidDestinationString(const std::string& str, const CChainParams& params);
+bool IsValidContractSenderAddressString(const std::string& str);
 
 #endif // BITCOIN_KEY_IO_H
