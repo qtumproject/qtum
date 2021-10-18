@@ -23,7 +23,9 @@ static const bool DEFAULT_LOGIPS        = false;
 static const bool DEFAULT_LOGTIMESTAMPS = true;
 static const bool DEFAULT_LOGTHREADNAMES = false;
 static const bool DEFAULT_LOGSOURCELOCATIONS = false;
+static const bool DEFAULT_SHOWEVMLOGS   = false;
 extern const char * const DEFAULT_DEBUGLOGFILE;
+extern const char * const DEFAULT_DEBUGVMLOGFILE;
 
 extern bool fLogIPs;
 
@@ -59,7 +61,21 @@ namespace BCLog {
         VALIDATION  = (1 << 21),
         I2P         = (1 << 22),
         IPC         = (1 << 23),
+        COINSTAKE   = (1 << 24),
+        HTTPPOLL    = (1 << 25),
+        INDEX       = (1 << 26),
         ALL         = ~(uint32_t)0,
+    };
+
+    struct LogMsg
+    {
+        LogMsg(const std::string& _msg, bool _useVMLog) :
+            msg(_msg),
+            useVMLog(_useVMLog)
+        {}
+
+        std::string msg;
+        bool useVMLog;
     };
 
     class Logger
@@ -68,7 +84,8 @@ namespace BCLog {
         mutable StdMutex m_cs; // Can not use Mutex from sync.h because in debug mode it would cause a deadlock when a potential deadlock was detected
 
         FILE* m_fileout GUARDED_BY(m_cs) = nullptr;
-        std::list<std::string> m_msgs_before_open GUARDED_BY(m_cs);
+        FILE* m_fileoutVM GUARDED_BY(m_cs) = nullptr;
+        std::list<LogMsg> m_msgs_before_open GUARDED_BY(m_cs);
         bool m_buffering GUARDED_BY(m_cs) = true; //!< Buffer messages before logging can be started.
 
         /**
@@ -94,12 +111,14 @@ namespace BCLog {
         bool m_log_time_micros = DEFAULT_LOGTIMEMICROS;
         bool m_log_threadnames = DEFAULT_LOGTHREADNAMES;
         bool m_log_sourcelocations = DEFAULT_LOGSOURCELOCATIONS;
+        bool m_show_evm_logs = DEFAULT_SHOWEVMLOGS;
 
         fs::path m_file_path;
+        fs::path m_file_pathVM;
         std::atomic<bool> m_reopen_file{false};
 
         /** Send a string to the log output */
-        void LogPrintStr(const std::string& str, const std::string& logging_function, const std::string& source_file, const int source_line);
+        void LogPrintStr(const std::string& str, const std::string& logging_function, const std::string& source_file, const int source_line, bool useVMLog = false);
 
         /** Returns whether logs will be written to any output */
         bool Enabled() const
