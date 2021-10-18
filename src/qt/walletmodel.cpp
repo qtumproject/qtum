@@ -465,7 +465,8 @@ WalletModel::UnlockContext WalletModel::requestUnlock()
 WalletModel::UnlockContext::UnlockContext(WalletModel *_wallet, bool _valid, bool _relock):
         wallet(_wallet),
         valid(_valid),
-        relock(_relock)
+        relock(_relock),
+        stakingOnly(false)
 {
 }
 
@@ -626,4 +627,14 @@ QString WalletModel::getRestoreParam()
 bool WalletModel::restore()
 {
     return !restorePath.isEmpty();
+}
+
+bool WalletModel::getWalletUnlockStakingOnly()
+{
+    return m_wallet->getWalletUnlockStakingOnly();
+}
+
+void WalletModel::setWalletUnlockStakingOnly(bool unlock)
+{
+    m_wallet->setWalletUnlockStakingOnly(unlock);
 }

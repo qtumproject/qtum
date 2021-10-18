@@ -453,3 +453,16 @@ void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned
     pblock->vtx[0] = MakeTransactionRef(std::move(txCoinbase));
     pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
 }
+
+bool CanStake()
+{
+    bool canStake = gArgs.GetBoolArg("-staking", DEFAULT_STAKE);
+
+    if(canStake)
+    {
+        // Signet is for creating PoW blocks by an authorized signer
+        canStake = !Params().GetConsensus().signet_blocks;
+    }
+
+    return canStake;
+}

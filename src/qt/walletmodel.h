@@ -110,6 +110,8 @@ public:
     bool setWalletLocked(bool locked, const SecureString &passPhrase=SecureString());
     bool changePassphrase(const SecureString &oldPass, const SecureString &newPass);
     bool restoreWallet(const QString &filename, const QString &param);
+    bool getWalletUnlockStakingOnly();
+    void setWalletUnlockStakingOnly(bool unlock);
 
     // RAI object for unlocking wallet, returned by requestUnlock()
     class UnlockContext
@@ -129,6 +131,7 @@ public:
         WalletModel *wallet;
         bool valid;
         mutable bool relock; // mutable, as it can be set to false by copying
+        bool stakingOnly;
 
         UnlockContext& operator=(const UnlockContext&) = default;
         void CopyFrom(UnlockContext&& rhs);
