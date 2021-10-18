@@ -22,6 +22,7 @@
 #include <QProgressBar>
 #include <QString>
 #include <QTableView>
+#include <QToolButton>
 
 #include <cassert>
 #include <chrono>
@@ -95,6 +96,13 @@ namespace GUIUtil
        @see  TransactionView::copyLabel, TransactionView::copyAmount, TransactionView::copyAddress
      */
     void copyEntryData(const QAbstractItemView *view, int column, int role=Qt::EditRole);
+
+    /** Copy a field of the currently selected entry of a view to the clipboard. Does nothing if nothing
+        is selected.
+       @param[in] role    Data role to extract from the model
+       @see  QRCToken::copyTokenAddress
+     */
+    void copyEntryDataFromList(QAbstractItemView *view, int role=Qt::EditRole);
 
     /** Return a field of the currently selected entry as a QString. Does nothing if nothing
         is selected.
@@ -416,6 +424,10 @@ namespace GUIUtil
             },
             type);
     }
+
+    void formatToolButtons(QToolButton* btn1, QToolButton* btn2 = 0, QToolButton* btn3 = 0);
+
+    QString cutString(const QString& text, int length);
 
 } // namespace GUIUtil
 

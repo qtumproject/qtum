@@ -165,7 +165,8 @@ BITCOIN_QT_H = \
   qt/walletmodel.h \
   qt/walletmodeltransaction.h \
   qt/walletview.h \
-  qt/winshutdownmonitor.h
+  qt/winshutdownmonitor.h \
+  qt/qtumpushbutton.h
 
 RES_FONTS = \
   qt/res/fonts/RobotoMono-Bold.ttf
@@ -263,7 +264,8 @@ BITCOIN_QT_BASE_CPP = \
   qt/splashscreen.cpp \
   qt/styleSheet.cpp \
   qt/trafficgraphwidget.cpp \
-  qt/utilitydialog.cpp
+  qt/utilitydialog.cpp \
+  qt/qtumpushbutton.cpp
 
 BITCOIN_QT_WINDOWS_CPP = qt/winshutdownmonitor.cpp
 
