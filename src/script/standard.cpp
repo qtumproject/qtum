@@ -19,7 +19,7 @@
 #include <streams.h>
 
 #include <string>
-#include <tuple>
+#include <variant>
 
 typedef std::vector<unsigned char> valtype;
 
@@ -902,7 +902,7 @@ std::optional<std::vector<std::tuple<int, CScript, int>>> InferTaprootTree(const
 
 bool IsValidContractSenderAddress(const CTxDestination &dest)
 {
-    return dest.index() == 1;
+    return std::holds_alternative<PKHash>(dest);
 }
 
 bool ExtractSenderData(const CScript &outputPubKey, CScript *senderPubKey, CScript *senderSig)
@@ -981,7 +981,7 @@ PKHash ExtractPublicKeyHash(const CScript& scriptPubKey, bool* OK)
     CTxDestination address;
     TxoutType txType=TxoutType::NONSTANDARD;
     if(ExtractDestination(scriptPubKey, address, &txType)){
-        if ((txType == TxoutType::PUBKEY || txType == TxoutType::PUBKEYHASH) && address.index() == 1) {
+        if ((txType == TxoutType::PUBKEY || txType == TxoutType::PUBKEYHASH) && std::holds_alternative<PKHash>(address)) {
             if(OK) *OK = true;
             return std::get<PKHash>(address);
         }

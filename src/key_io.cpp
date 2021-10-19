@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <assert.h>
 #include <string.h>
+#include <variant>
 
 /// Maximum witness length for Bech32 addresses.
 static constexpr std::size_t BECH32_WITNESS_PROG_MAX_LEN = 40;
@@ -283,4 +284,43 @@ bool IsValidDestinationString(const std::string& str)
 bool IsValidContractSenderAddressString(const std::string& str)
 {
     return IsValidContractSenderAddress(DecodeDestination(str));
+}
+
+bool DecodeIndexKey(const std::string &str, uint256 &hashBytes, int &type)
+{
+    CTxDestination dest = DecodeDestination(str);
+    if (IsValidDestination(dest))
+    {
+        if(std::holds_alternative<PKHash>(dest))
+        {
+            PKHash keyID = std::get<PKHash>(dest);
+            memcpy(hashBytes.data(), &keyID, 20);
+            type = 1;
+            return true;
+        }
+
+        if(std::holds_alternative<ScriptHash>(dest))
+        {
+            ScriptHash scriptID = std::get<ScriptHash>(dest);
+            memcpy(hashBytes.data(), &scriptID, 20);
+            type = 2;
+            return true;
+        }
+
+        if (std::holds_alternative<WitnessV0ScriptHash>(dest)) {
+            WitnessV0ScriptHash witnessV0ScriptID = std::get<WitnessV0ScriptHash>(dest);
+            memcpy(hashBytes.data(), &witnessV0ScriptID, 32);
+            type = 3;
+            return true;
+        }
+
+        if (std::holds_alternative<WitnessV0KeyHash>(dest)) {
+            const WitnessV0KeyHash witnessV0KeyID = std::get<WitnessV0KeyHash>(dest);
+            memcpy(hashBytes.data(), &witnessV0KeyID, 20);
+            type = 4;
+            return true;
+        }
+    }
+
+    return false;
 }
