@@ -143,6 +143,9 @@ public:
     //! pointer to the index of the predecessor of this block
     CBlockIndex* pprev{nullptr};
 
+    //! pointer to the index of the successor of this block
+    CBlockIndex* pnext{nullptr};
+
     //! pointer to the index of some further predecessor of this block
     CBlockIndex* pskip{nullptr};
 
@@ -217,7 +220,11 @@ public:
           hashMerkleRoot{block.hashMerkleRoot},
           nTime{block.nTime},
           nBits{block.nBits},
-          nNonce{block.nNonce}
+          nNonce{block.nNonce},
+          hashStateRoot{block.hashStateRoot},
+          hashUTXORoot{block.hashUTXORoot},
+          vchBlockSigDlgt{block.vchBlockSigDlgt},
+          prevoutStake{block.prevoutStake}
     {
     }
 
@@ -249,6 +256,10 @@ public:
         block.nTime          = nTime;
         block.nBits          = nBits;
         block.nNonce         = nNonce;
+        block.hashStateRoot  = hashStateRoot; // qtum
+        block.hashUTXORoot   = hashUTXORoot; // qtum
+        block.vchBlockSigDlgt    = vchBlockSigDlgt;
+        block.prevoutStake   = prevoutStake;
         return block;
     }
 
@@ -290,6 +301,11 @@ public:
 
         std::sort(pbegin, pend);
         return pbegin[(pend - pbegin)/2];
+    }
+
+    bool IsProofOfWork() const // qtum
+    {
+        return !IsProofOfStake();
     }
 
     bool IsProofOfStake() const
@@ -374,6 +390,7 @@ public:
         if (obj.nStatus & (BLOCK_HAVE_DATA | BLOCK_HAVE_UNDO)) READWRITE(VARINT_MODE(obj.nFile, VarIntMode::NONNEGATIVE_SIGNED));
         if (obj.nStatus & BLOCK_HAVE_DATA) READWRITE(VARINT(obj.nDataPos));
         if (obj.nStatus & BLOCK_HAVE_UNDO) READWRITE(VARINT(obj.nUndoPos));
+        READWRITE(VARINT(obj.nMoneySupply));
 
         // block header
         READWRITE(obj.nVersion);
@@ -382,6 +399,12 @@ public:
         READWRITE(obj.nTime);
         READWRITE(obj.nBits);
         READWRITE(obj.nNonce);
+        READWRITE(obj.hashStateRoot); // qtum
+        READWRITE(obj.hashUTXORoot); // qtum
+        READWRITE(obj.nStakeModifier);
+        READWRITE(obj.prevoutStake);
+        READWRITE(obj.hashProof);
+        READWRITE(obj.vchBlockSigDlgt); // qtum
     }
 
     uint256 GetBlockHash() const
@@ -393,6 +416,10 @@ public:
         block.nTime           = nTime;
         block.nBits           = nBits;
         block.nNonce          = nNonce;
+        block.hashStateRoot   = hashStateRoot; // qtum
+        block.hashUTXORoot    = hashUTXORoot; // qtum
+        block.vchBlockSigDlgt     = vchBlockSigDlgt;
+        block.prevoutStake    = prevoutStake;
         return block.GetHash();
     }
 
@@ -429,6 +456,12 @@ public:
         if (nHeight < 0 || nHeight >= (int)vChain.size())
             return nullptr;
         return vChain[nHeight];
+    }
+
+    /** Compare two chains efficiently. */
+    friend bool operator==(const CChain &a, const CChain &b) {
+        return a.vChain.size() == b.vChain.size() &&
+               a.vChain[a.vChain.size() - 1] == b.vChain[b.vChain.size() - 1];
     }
 
     /** Efficiently check whether a block is present in this chain. */
