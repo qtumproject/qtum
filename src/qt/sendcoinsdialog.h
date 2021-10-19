@@ -65,23 +65,21 @@ private:
     std::unique_ptr<CCoinControl> m_coin_control;
     std::unique_ptr<WalletModelTransaction> m_current_transaction;
     bool fNewRecipientAllowed;
-    bool fFeeMinimized;
     const PlatformStyle *platformStyle;
+    int64_t targetSpacing;
 
     // Process WalletModel::SendCoinsReturn and generate a pair consisting
     // of a message and message flags for use in Q_EMIT message().
     // Additional parameter msgArg can be used via .arg(msgArg).
     void processSendCoinsReturn(const WalletModel::SendCoinsReturn &sendCoinsReturn, const QString &msgArg = QString());
-    void minimizeFeeSection(bool fMinimize);
     // Format confirmation message
     bool PrepareSendText(QString& question_string, QString& informative_text, QString& detailed_text);
-    void updateFeeMinimizedLabel();
     void updateCoinControlState();
+    // Update the target selector item text
+    QString targetSelectorItemText(const int n);
 
 private Q_SLOTS:
     void sendButtonClicked(bool checked);
-    void on_buttonChooseFee_clicked();
-    void on_buttonMinimizeFee_clicked();
     void removeEntry(SendCoinsEntry* entry);
     void useAvailableBalance(SendCoinsEntry* entry);
     void updateDisplayUnit();
