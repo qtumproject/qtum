@@ -31,6 +31,7 @@ class RecentRequestsTableModel;
 class SendCoinsRecipient;
 class TransactionTableModel;
 class WalletModelTransaction;
+class TokenItemModel;
 
 class CCoinControl;
 class CKeyID;
@@ -80,6 +81,7 @@ public:
     AddressTableModel *getAddressTableModel();
     TransactionTableModel *getTransactionTableModel();
     RecentRequestsTableModel *getRecentRequestsTableModel();
+    TokenItemModel *getTokenItemModel();
 
     EncryptionStatus getEncryptionStatus() const;
 
@@ -186,6 +188,7 @@ private:
     AddressTableModel *addressTableModel;
     TransactionTableModel *transactionTableModel;
     RecentRequestsTableModel *recentRequestsTableModel;
+    TokenItemModel *tokenItemModel;
 
     // Cache some values to be able to detect changes
     interfaces::WalletBalances m_cached_balances;

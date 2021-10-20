@@ -17,6 +17,7 @@
 #include <qt/recentrequeststablemodel.h>
 #include <qt/sendcoinsdialog.h>
 #include <qt/transactiontablemodel.h>
+#include <qt/tokenitemmodel.h>
 
 #include <interfaces/handler.h>
 #include <interfaces/node.h>
@@ -47,6 +48,7 @@ WalletModel::WalletModel(std::unique_ptr<interfaces::Wallet> wallet, ClientModel
     addressTableModel(nullptr),
     transactionTableModel(nullptr),
     recentRequestsTableModel(nullptr),
+    tokenItemModel(nullptr),
     cachedEncryptionStatus(Unencrypted),
     timer(new QTimer(this))
 {
@@ -54,6 +56,7 @@ WalletModel::WalletModel(std::unique_ptr<interfaces::Wallet> wallet, ClientModel
     addressTableModel = new AddressTableModel(this);
     transactionTableModel = new TransactionTableModel(platformStyle, this);
     recentRequestsTableModel = new RecentRequestsTableModel(this);
+    tokenItemModel = new TokenItemModel(this);
 
     subscribeToCoreSignals();
 }
@@ -300,6 +303,11 @@ TransactionTableModel *WalletModel::getTransactionTableModel()
 RecentRequestsTableModel *WalletModel::getRecentRequestsTableModel()
 {
     return recentRequestsTableModel;
+}
+
+TokenItemModel *WalletModel::getTokenItemModel()
+{
+    return tokenItemModel;
 }
 
 WalletModel::EncryptionStatus WalletModel::getEncryptionStatus() const

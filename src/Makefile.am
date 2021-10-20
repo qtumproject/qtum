@@ -322,7 +322,8 @@ BITCOIN_CORE_H = \
   qtum/qtumtransaction.h \
   qtum/qtumDGP.h \
   qtum/storageresults.h \
-  qtum/qtumutils.h
+  qtum/qtumutils.h \
+  qtum/qtumtoken.h
 
 obj/build.h: FORCE
 	@$(MKDIR_P) $(builddir)/obj
@@ -398,6 +399,7 @@ libbitcoin_server_a_SOURCES = \
   qtum/qtumtransaction.cpp \
   qtum/qtumDGP.cpp \
   qtum/storageresults.cpp \
+  qtum/qtumtoken.cpp \
   $(BITCOIN_CORE_H)
 
 if ENABLE_WALLET
