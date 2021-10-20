@@ -176,7 +176,8 @@ enum addresstype
     SCRIPTHASH = 2,
     WITNESSSCRIPTHASH = 3,
     WITNESSPUBKEYHASH = 4,
-    NONSTANDARD = 5
+    WITNESSTAPROOT = 5,
+    NONSTANDARD = 6
 };
 
 /** Check whether a CTxDestination is a CNoDestination. */
@@ -375,6 +376,7 @@ struct DataVisitor
     valtype operator()(const ScriptHash& scriptID) const;
     valtype operator()(const WitnessV0ScriptHash& witnessScriptHash) const;
     valtype operator()(const WitnessV0KeyHash& witnessKeyHash) const;
+    valtype operator()(const WitnessV1Taproot& witnessTaproot) const;
     valtype operator()(const WitnessUnknown& witnessUnknown) const;
 };
 

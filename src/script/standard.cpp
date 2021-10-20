@@ -995,6 +995,7 @@ valtype DataVisitor::operator()(const PKHash& keyID) const { return valtype(keyI
 valtype DataVisitor::operator()(const ScriptHash& scriptID) const { return valtype(scriptID.begin(), scriptID.end()); }
 valtype DataVisitor::operator()(const WitnessV0ScriptHash& witnessScriptHash) const { return valtype(witnessScriptHash.begin(), witnessScriptHash.end()); }
 valtype DataVisitor::operator()(const WitnessV0KeyHash& witnessKeyHash) const { return valtype(witnessKeyHash.begin(), witnessKeyHash.end()); }
+valtype DataVisitor::operator()(const WitnessV1Taproot& witnessTaproot) const { return valtype(witnessTaproot.begin(), witnessTaproot.end()); }
 valtype DataVisitor::operator()(const WitnessUnknown&) const { return valtype(); }
 
 bool ExtractDestination(const COutPoint& prevout, const CScript& scriptPubKey, CTxDestination& addressRet, TxoutType* typeRet)
@@ -1038,6 +1039,13 @@ bool ExtractDestination(const COutPoint& prevout, const CScript& scriptPubKey, C
     else if(whichType == TxoutType::WITNESS_V0_SCRIPTHASH)
     {
         addressRet = WitnessV0ScriptHash(uint256(vSolutions[0]));
+        return true;
+    }
+    else if(whichType == TxoutType::WITNESS_V1_TAPROOT)
+    {
+        WitnessV1Taproot tap;
+        std::copy(vSolutions[0].begin(), vSolutions[0].end(), tap.begin());
+        addressRet = tap;
         return true;
     }
     else if (whichType == TxoutType::WITNESS_UNKNOWN) {
