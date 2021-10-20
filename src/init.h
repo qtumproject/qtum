@@ -71,4 +71,7 @@ void SetupServerArgs(ArgsManager& argsman);
 /** Returns licensing information (for -version) */
 std::string LicenseInfo();
 
+/** Unlock the data directory */
+void UnlockDataDirectory();
+
 #endif // BITCOIN_INIT_H
