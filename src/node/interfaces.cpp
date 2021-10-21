@@ -488,10 +488,13 @@ public:
 
 class ChainImpl : public Chain
 {
-private:
-    ChainstateManager& chainman() { return *Assert(m_node.chainman); }
 public:
     explicit ChainImpl(NodeContext& node) : m_node(node) {}
+
+    ChainstateManager& chainman() override { return *Assert(m_node.chainman); }
+
+    const CTxMemPool& mempool() override { return *Assert(m_node.mempool); }
+
     std::optional<int> getHeight() override
     {
         LOCK(::cs_main);

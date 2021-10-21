@@ -30,6 +30,8 @@ struct bilingual_str;
 struct CBlockLocator;
 struct FeeCalculation;
 struct NodeContext;
+class ChainstateManager;
+class CTxMemPool;
 
 namespace interfaces {
 
@@ -94,6 +96,12 @@ class Chain
 {
 public:
     virtual ~Chain() {}
+
+    //! Get chain state manager
+    virtual ChainstateManager& chainman() = 0;
+
+    //! Get mempool
+    virtual const CTxMemPool& mempool() = 0;
 
     //! Get current chain height, not including genesis block (returns 0 if
     //! chain only contains genesis block, nullopt if chain does not contain
