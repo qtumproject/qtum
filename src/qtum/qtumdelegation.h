@@ -8,6 +8,7 @@
 
 class QtumDelegationPriv;
 class ContractABI;
+class ChainstateManager;
 
 extern const std::string strDelegationsABI;
 const ContractABI &DelegationABI();
@@ -121,12 +122,13 @@ public:
      * @brief FilterDelegationEvents Filter delegation events
      * @param events Output list of delegation events for the filter
      * @param filter Delegation filter
+     * @param chainman Chain state manager
      * @param fromBlock Start with block
      * @param toBlock End with block, -1 mean all available
      * @param minconf Minimum confirmations
      * @return true/false
      */
-    bool FilterDelegationEvents(std::vector<DelegationEvent>& events, const IDelegationFilter& filter, int fromBlock = 0, int toBlock = -1, int minconf = 0) const;
+    bool FilterDelegationEvents(std::vector<DelegationEvent>& events, const IDelegationFilter& filter, ChainstateManager &chainman, int fromBlock = 0, int toBlock = -1, int minconf = 0) const;
 
     /**
      * @brief DelegationsFromEvents Get the delegations from the events

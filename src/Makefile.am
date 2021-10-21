@@ -211,6 +211,7 @@ BITCOIN_CORE_H = \
   policy/rbf.h \
   policy/settings.h \
   pow.h \
+  pos.h \
   protocol.h \
   psbt.h \
   random.h \
@@ -285,6 +286,7 @@ BITCOIN_CORE_H = \
   util/convert.h \
   util/signstr.h \
   util/contractabi.h \
+  util/tokenstr.h \
   validation.h \
   validationinterface.h \
   versionbits.h \
@@ -323,6 +325,7 @@ BITCOIN_CORE_H = \
   qtum/qtumDGP.h \
   qtum/storageresults.h \
   qtum/qtumutils.h \
+  qtum/qtumdelegation.h \
   qtum/qtumtoken.h
 
 obj/build.h: FORCE
@@ -376,6 +379,7 @@ libbitcoin_server_a_SOURCES = \
   policy/rbf.cpp \
   policy/settings.cpp \
   pow.cpp \
+  pos.cpp \
   rest.cpp \
   rpc/blockchain.cpp \
   rpc/mining.cpp \
@@ -399,6 +403,7 @@ libbitcoin_server_a_SOURCES = \
   qtum/qtumtransaction.cpp \
   qtum/qtumDGP.cpp \
   qtum/storageresults.cpp \
+  qtum/qtumdelegation.cpp \
   qtum/qtumtoken.cpp \
   $(BITCOIN_CORE_H)
 
@@ -825,6 +830,7 @@ libqtum_util_a_SOURCES = \
   util/string.cpp \
   util/time.cpp \
   util/tokenpipe.cpp \
+  util/tokenstr.cpp \
   $(BITCOIN_CORE_H)
 
 if USE_LIBEVENT

@@ -255,7 +255,7 @@ bool QtumDelegation::VerifyDelegation(const uint160 &address, const Delegation &
     return SignStr::VerifyMessage(CKeyID(address), delegation.staker.GetReverseHex(), delegation.PoD);
 }
 
-bool QtumDelegation::FilterDelegationEvents(std::vector<DelegationEvent> &events, const IDelegationFilter &filter, int fromBlock, int toBlock, int minconf) const
+bool QtumDelegation::FilterDelegationEvents(std::vector<DelegationEvent> &events, const IDelegationFilter &filter, ChainstateManager &chainman, int fromBlock, int toBlock, int minconf) const
 {
     // Check if log events are enabled
     if(!fLogEvents)
@@ -278,7 +278,7 @@ bool QtumDelegation::FilterDelegationEvents(std::vector<DelegationEvent> &events
     std::set<dev::h160> addresses;
     addresses.insert(priv->delegationsAddress);
     std::vector<std::vector<uint256>> hashesToBlock;
-    curheight = pblocktree->ReadHeightIndex(fromBlock, toBlock, minconf, hashesToBlock, addresses);
+    curheight = pblocktree->ReadHeightIndex(fromBlock, toBlock, minconf, hashesToBlock, addresses, chainman);
 
     if (curheight == -1) {
         return error("Incorrect params");

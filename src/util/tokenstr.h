@@ -10,6 +10,6 @@
 #include <string>
 
 std::string FormatToken(const unsigned int& decimals, const dev::s256& n);
-NODISCARD bool ParseToken(const unsigned int& decimals, const std::string& str, dev::s256& nRet);
+[[nodiscard]] bool ParseToken(const unsigned int& decimals, const std::string& str, dev::s256& nRet);
 
 #endif // UTIL_TOKENSTR_H
