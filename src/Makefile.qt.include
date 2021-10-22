@@ -107,7 +107,8 @@ QT_MOC = \
   qt/rpcconsole.moc \
   qt/tokenitemmodel.moc \
   qt/delegationitemmodel.moc \
-  qt/superstakeritemmodel.moc
+  qt/superstakeritemmodel.moc \
+  qt/walletmodel.moc
 
 QT_QRC_CPP = qt/qrc_bitcoin.cpp
 QT_QRC = qt/bitcoin.qrc
