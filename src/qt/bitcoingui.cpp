@@ -1565,3 +1565,16 @@ void UnitDisplayStatusBarControl::onMenuSelection(QAction* action)
         optionsModel->setDisplayUnit(action->data());
     }
 }
+
+void BitcoinGUI::join()
+{
+#ifdef ENABLE_WALLET
+    if (timerStakingIcon) timerStakingIcon->stop();
+    if(m_wallet_controller)
+    {
+        for (WalletModel* wallet_model : m_wallet_controller->getOpenWallets()) {
+            wallet_model->join();
+        }
+    }
+#endif // ENABLE_WALLET
+}

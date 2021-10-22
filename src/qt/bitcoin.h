@@ -90,6 +90,12 @@ public:
     /// Setup platform style
     void setupPlatformStyle();
 
+    /// Restart wallet if needed
+    void restartWallet();
+
+    /// Parse parameters
+    void parseParameters(int argc, const char* const argv[]);
+
     interfaces::Node& node() const { assert(m_node); return *m_node; }
     void setNode(interfaces::Node& node);
 
@@ -128,6 +134,13 @@ private:
     interfaces::Node* m_node = nullptr;
 
     void startThread();
+    void restart(const QString& commandLine);
+
+    QString restorePath;
+    QString restoreParam;
+    QString restoreName;
+    bool restartApp;
+    QStringList parameters;
 };
 
 int GuiMain(int argc, char* argv[]);

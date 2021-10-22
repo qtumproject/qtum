@@ -105,6 +105,8 @@ public:
 
     bool isPrivacyModeActivated() const;
 
+    void join();
+
 protected:
     void changeEvent(QEvent *e) override;
     void closeEvent(QCloseEvent *event) override;
@@ -130,6 +132,7 @@ private:
     QLabel* progressBarLabel = nullptr;
     GUIUtil::ClickableProgressBar* progressBar = nullptr;
     QProgressDialog* progressDialog = nullptr;
+    QTimer *timerStakingIcon = nullptr;
 
     QMenuBar* appMenuBar = nullptr;
     QToolBar* appToolBar = nullptr;
