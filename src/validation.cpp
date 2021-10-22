@@ -1697,10 +1697,24 @@ static unsigned int GetBlockScriptFlags(const CBlockIndex* pindex, const Consens
         flags |= SCRIPT_VERIFY_NULLDUMMY;
     }
 
+    // Start support sender address in contract output
+    if (pindex->nHeight >= consensusparams.QIP5Height) {
+        flags |= SCRIPT_OUTPUT_SENDER;
+    }
+
     return flags;
 }
 
+unsigned int GetContractScriptFlags(int nHeight, const Consensus::Params& consensusparams) {
+    unsigned int flags = SCRIPT_EXEC_BYTE_CODE;
 
+    // Start support sender address in contract output
+    if (nHeight >= consensusparams.QIP5Height) {
+        flags |= SCRIPT_OUTPUT_SENDER;
+    }
+
+    return flags;
+}
 
 static int64_t nTimeCheck = 0;
 static int64_t nTimeForks = 0;

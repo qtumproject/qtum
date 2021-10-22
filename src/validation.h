@@ -416,6 +416,8 @@ extern std::unique_ptr<StorageResults> pstorageresult;
 
 bool GetSpentCoinFromMainChain(const CBlockIndex* pforkPrev, COutPoint prevoutStake, Coin* coin, ChainstateManager& chainman);
 
+unsigned int GetContractScriptFlags(int nHeight, const Consensus::Params& consensusparams);
+
 std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, const dev::Address& sender = dev::Address(), uint64_t gasLimit=0, CAmount nAmount=0);
 
 struct ByteCodeExecResult{

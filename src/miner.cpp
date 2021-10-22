@@ -728,3 +728,35 @@ bool CanStake()
 
     return canStake;
 }
+
+#ifdef ENABLE_WALLET
+//////////////////////////////////////////////////////////////////////////////
+//
+// Proof of Stake miner
+//
+
+//
+// Looking for suitable coins for creating new block.
+//
+
+class DelegationFilterBase : public IDelegationFilter
+{
+public:
+    bool GetKey(const std::string& strAddress, uint160& keyId)
+    {
+        CTxDestination destination = DecodeDestination(strAddress);
+        if (!IsValidDestination(destination)) {
+            return false;
+        }
+
+        if (!std::holds_alternative<PKHash>(destination)) {
+            return false;
+        }
+
+        keyId = uint160(std::get<PKHash>(destination));
+
+        return true;
+    }
+};
+
+#endif
