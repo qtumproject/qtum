@@ -400,8 +400,6 @@ libbitcoin_server_a_SOURCES = \
   validationinterface.cpp \
   versionbits.cpp \
   qtum/qtumstate.cpp \
-  qtum/qtumtransaction.cpp \
-  qtum/qtumDGP.cpp \
   qtum/storageresults.cpp \
   qtum/qtumdelegation.cpp \
   qtum/qtumtoken.cpp \

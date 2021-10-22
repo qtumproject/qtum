@@ -170,6 +170,7 @@ if USE_BDB
 BITCOIN_TESTS += wallet/test/db_tests.cpp
 endif
 
+FUZZ_SUITE_LD_COMMON += $(LIBCRYPTOPP) $(LIBFF) $(GMP_LIBS) $(GMPXX_LIBS)
 
 BITCOIN_TEST_SUITE += \
   wallet/test/wallet_test_fixture.cpp \
