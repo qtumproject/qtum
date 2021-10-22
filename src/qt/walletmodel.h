@@ -18,8 +18,11 @@
 #include <support/allocators/secure.h>
 
 #include <vector>
+#include <atomic>
 
 #include <QObject>
+#include <QStringList>
+#include <QThread>
 
 enum class OutputType;
 
@@ -31,7 +34,13 @@ class RecentRequestsTableModel;
 class SendCoinsRecipient;
 class TransactionTableModel;
 class WalletModelTransaction;
+class DelegationItemModel;
+class TokenTransactionTableModel;
+class ContractTableModel;
+class WalletWorker;
 class TokenItemModel;
+class SuperStakerItemModel;
+class DelegationStakerItemModel;
 
 class CCoinControl;
 class CKeyID;
@@ -79,9 +88,14 @@ public:
 
     OptionsModel *getOptionsModel();
     AddressTableModel *getAddressTableModel();
+    ContractTableModel *getContractTableModel();
     TransactionTableModel *getTransactionTableModel();
     RecentRequestsTableModel *getRecentRequestsTableModel();
     TokenItemModel *getTokenItemModel();
+    TokenTransactionTableModel *getTokenTransactionTableModel();
+    DelegationItemModel *getDelegationItemModel();
+    SuperStakerItemModel *getSuperStakerItemModel();
+    DelegationStakerItemModel *getDelegationStakerItemModel();
 
     EncryptionStatus getEncryptionStatus() const;
 
@@ -160,11 +174,15 @@ public:
     QString getRestoreParam();
     bool restore();
 
+    uint64_t getStakeWeight();
+
     AddressTableModel* getAddressTableModel() const { return addressTableModel; }
 
     void refresh(bool pk_hash_only = false);
 
     uint256 getLastBlockProcessed() const;
+
+    void join();
 
 private:
     std::unique_ptr<interfaces::Wallet> m_wallet;
@@ -172,9 +190,11 @@ private:
     std::unique_ptr<interfaces::Handler> m_handler_status_changed;
     std::unique_ptr<interfaces::Handler> m_handler_address_book_changed;
     std::unique_ptr<interfaces::Handler> m_handler_transaction_changed;
+    std::unique_ptr<interfaces::Handler> m_handler_token_changed;
     std::unique_ptr<interfaces::Handler> m_handler_show_progress;
     std::unique_ptr<interfaces::Handler> m_handler_watch_only_changed;
     std::unique_ptr<interfaces::Handler> m_handler_can_get_addrs_changed;
+    std::unique_ptr<interfaces::Handler> m_handler_contract_book_changed;
     ClientModel* m_client_model;
     interfaces::Node& m_node;
 
@@ -186,9 +206,14 @@ private:
     OptionsModel *optionsModel;
 
     AddressTableModel *addressTableModel;
+    ContractTableModel *contractTableModel;
     TransactionTableModel *transactionTableModel;
     RecentRequestsTableModel *recentRequestsTableModel;
     TokenItemModel *tokenItemModel;
+    TokenTransactionTableModel *tokenTransactionTableModel;
+    DelegationItemModel *delegationItemModel;
+    SuperStakerItemModel *superStakerItemModel;
+    DelegationStakerItemModel *delegationStakerItemModel;
 
     // Cache some values to be able to detect changes
     interfaces::WalletBalances m_cached_balances;
@@ -198,12 +223,24 @@ private:
     // Block hash denoting when the last balance update was done.
     uint256 m_cached_last_update_tip{};
 
+    int pollNum = 0;
+
     QString restorePath;
     QString restoreParam;
 
+    uint64_t nWeight;
+    std::atomic<bool> updateStakeWeight;
+    std::atomic<bool> updateCoinAddresses;
+
+    QThread t;
+    WalletWorker *worker;
+
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();
-    void checkBalanceChanged(const interfaces::WalletBalances& new_balances);
+    bool checkBalanceChanged(const interfaces::WalletBalances& new_balances);
+    void checkTokenBalanceChanged();
+    void checkDelegationChanged();
+    void checkSuperStakerChanged();
 
 Q_SIGNALS:
     // Signal that balance in wallet changed
@@ -235,6 +272,9 @@ Q_SIGNALS:
     // Notify that there are now keys in the keypool
     void canGetAddressesChanged();
 
+    // Signal that available coin addresses are changed
+    void availableAddressesChanged(QStringList spendableAddresses, QStringList allAddresses, bool includeZeroValue);
+
     void timerTimeout();
 
 public Q_SLOTS:
@@ -251,6 +291,14 @@ public Q_SLOTS:
     void updateWatchOnlyFlag(bool fHaveWatchonly);
     /* Current, immature or unconfirmed balance might have changed - emit 'balanceChanged' if so */
     void pollBalanceChanged();
+    /* New, updated or removed contract book entry */
+    void updateContractBook(const QString &address, const QString &label, const QString &abi, int status);
+    /* Set that update for coin address is needed */
+    void checkCoinAddresses();
+    /* Update coin addresses when changed*/
+    void checkCoinAddressesChanged();
+    /* Update stake weight when changed*/
+    void checkStakeWeightChanged();
 };
 
 #endif // BITCOIN_QT_WALLETMODEL_H

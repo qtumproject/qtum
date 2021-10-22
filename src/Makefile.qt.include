@@ -48,7 +48,10 @@ QT_MOC_CPP = \
   qt/moc_clientmodel.cpp \
   qt/moc_coincontroldialog.cpp \
   qt/moc_coincontroltreewidget.cpp \
+  qt/moc_contracttablemodel.cpp \
   qt/moc_csvmodelwriter.cpp \
+  qt/moc_delegationitemmodel.cpp \
+  qt/moc_delegationstakeritemmodel.cpp \
   qt/moc_editaddressdialog.cpp \
   qt/moc_guiutil.cpp \
   qt/moc_intro.cpp \
@@ -75,7 +78,10 @@ QT_MOC_CPP = \
   qt/moc_sendcoinsentry.cpp \
   qt/moc_signverifymessagedialog.cpp \
   qt/moc_splashscreen.cpp \
+  qt/moc_superstakeritemmodel.cpp \
   qt/moc_tokenitemmodel.cpp \
+  qt/moc_tokentransactiontablemodel.cpp \
+  qt/moc_tokentransactiondesc.cpp \
   qt/moc_trafficgraphwidget.cpp \
   qt/moc_transactiondesc.cpp \
   qt/moc_transactiondescdialog.cpp \
@@ -99,7 +105,9 @@ QT_MOC = \
   qt/intro.moc \
   qt/overviewpage.moc \
   qt/rpcconsole.moc \
-  qt/tokenitemmodel.moc
+  qt/tokenitemmodel.moc \
+  qt/delegationitemmodel.moc \
+  qt/superstakeritemmodel.moc
 
 QT_QRC_CPP = qt/qrc_bitcoin.cpp
 QT_QRC = qt/bitcoin.qrc
@@ -121,7 +129,10 @@ BITCOIN_QT_H = \
   qt/coincontroltreewidget.h \
   qt/createwalletdialog.h \
   qt/contractutil.h \
+  qt/contracttablemodel.h \
   qt/csvmodelwriter.h \
+  qt/delegationitemmodel.h \
+  qt/delegationstakeritemmodel.h \
   qt/editaddressdialog.h \
   qt/eventlog.h \
   qt/execrpccommand.h \
@@ -156,8 +167,12 @@ BITCOIN_QT_H = \
   qt/signverifymessagedialog.h \
   qt/splashscreen.h \
   qt/styleSheet.h \
+  qt/superstakeritemmodel.h \
   qt/token.h \
   qt/tokenitemmodel.h \
+  qt/tokentransactionrecord.h \
+  qt/tokentransactiontablemodel.h \
+  qt/tokentransactiondesc.h \
   qt/trafficgraphwidget.h \
   qt/transactiondesc.h \
   qt/transactiondescdialog.h \
@@ -255,6 +270,8 @@ BITCOIN_QT_BASE_CPP = \
   qt/bitcoinunits.cpp \
   qt/clientmodel.cpp \
   qt/csvmodelwriter.cpp \
+  qt/delegationitemmodel.cpp \
+  qt/delegationstakeritemmodel.cpp \
   qt/guiutil.cpp \
   qt/intro.cpp \
   qt/modaloverlay.cpp \
@@ -272,6 +289,7 @@ BITCOIN_QT_BASE_CPP = \
   qt/styleSheet.cpp \
   qt/token.cpp \
   qt/tokenitemmodel.cpp \
+  qt/superstakeritemmodel.cpp \
   qt/trafficgraphwidget.cpp \
   qt/utilitydialog.cpp \
   qt/qtumpushbutton.cpp
@@ -285,6 +303,7 @@ BITCOIN_QT_WALLET_CPP = \
   qt/coincontroldialog.cpp \
   qt/coincontroltreewidget.cpp \
   qt/contractutil.cpp \
+  qt/contracttablemodel.cpp \
   qt/eventlog.cpp \
   qt/execrpccommand.cpp \
   qt/createwalletdialog.cpp \
@@ -300,6 +319,9 @@ BITCOIN_QT_WALLET_CPP = \
   qt/sendcoinsdialog.cpp \
   qt/sendcoinsentry.cpp \
   qt/signverifymessagedialog.cpp \
+  qt/tokentransactionrecord.cpp \
+  qt/tokentransactiontablemodel.cpp \
+  qt/tokentransactiondesc.cpp \
   qt/transactiondesc.cpp \
   qt/transactiondescdialog.cpp \
   qt/transactionfilterproxy.cpp \
