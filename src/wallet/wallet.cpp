@@ -2659,6 +2659,24 @@ bool CWallet::SignTransaction(CMutableTransaction& tx, const std::map<COutPoint,
     return false;
 }
 
+bool CWallet::SignTransactionOutput(CMutableTransaction& tx) const
+{
+    std::map<int, std::string> output_errors;
+    return SignTransactionOutput(tx, output_errors);
+}
+
+bool CWallet::SignTransactionOutput(CMutableTransaction& tx, std::map<int, std::string>& output_errors) const
+{
+    // Sign transaction op_sender outputs
+    for (ScriptPubKeyMan* spk_man : GetAllScriptPubKeyMans()) {
+        if (spk_man->SignTransactionOutput(tx, output_errors)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 TransactionError CWallet::FillPSBT(PartiallySignedTransaction& psbtx, bool& complete, int sighash_type, bool sign, bool bip32derivs, size_t * n_signed) const
 {
     if (n_signed) {
@@ -3226,34 +3244,9 @@ bool CWallet::CreateTransactionInternal(
             txNew.vin.push_back(CTxIn(coin.outpoint, CScript(), nSequence));
         }
 
-        if (sign)
-        {
-            // Signing transaction outputs
-            int nOut = 0;
-            for (const auto& output : txNew.vout)
-            {
-                if(output.scriptPubKey.HasOpSender())
-                {
-                    const CScript& scriptPubKey = GetScriptForDestination(signSenderAddress);
-                    SignatureData sigdata;
-
-                    auto spk_man = GetLegacyScriptPubKeyMan();
-                    if (!ProduceSignature(*spk_man, MutableTransactionSignatureOutputCreator(&txNew, nOut, output.nValue, SIGHASH_ALL), scriptPubKey, sigdata))
-                    {
-                        error = _("Signing transaction output failed");
-                        return false;
-                    }
-                    else
-                    {
-                        if(!UpdateOutput(txNew.vout.at(nOut), sigdata))
-                        {
-                            error = _("Update transaction output failed");
-                            return false;
-                        }
-                    }
-                }
-                nOut++;
-            }
+        if(sign && txNew.HasOpSender() && !SignTransactionOutput(txNew)) {
+            error = _("Signing transaction output failed");
+            return false;
         }
 
         if (sign && !SignTransaction(txNew)) {

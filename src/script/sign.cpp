@@ -577,3 +577,41 @@ bool UpdateOutput(CTxOut &output, const SignatureData &data)
     }
     return ret;
 }
+
+bool SignTransactionOutput(CMutableTransaction &mtx, const SigningProvider *provider, std::map<int, std::string>& output_errors)
+{
+    // Signing transaction outputs
+    for (unsigned int i = 0; i < mtx.vout.size(); i++)
+    {
+        CTxOut& output = mtx.vout[i];
+        if(output.scriptPubKey.HasOpSender())
+        {
+            CScript scriptPubKey;
+            if(!GetSenderPubKey(output.scriptPubKey, scriptPubKey))
+            {
+                output_errors[i] = "Fail to get sender public key";
+                continue;
+            }
+
+            SignatureData sigdata;
+            if (!ProduceSignature(*provider, MutableTransactionSignatureOutputCreator(&mtx, i, output.nValue, SIGHASH_ALL), scriptPubKey, sigdata))
+            {
+                output_errors[i] = "Signing transaction output failed";
+                continue;
+            }
+            else
+            {
+                if(UpdateOutput(output, sigdata))
+                {
+                    output_errors.erase(i);
+                }
+                else
+                {
+                    output_errors[i] = "Update transaction output failed";
+                    continue;
+                }
+            }
+        }
+    }
+    return output_errors.empty();
+}

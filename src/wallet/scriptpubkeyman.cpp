@@ -2265,3 +2265,30 @@ const std::vector<CScript> DescriptorScriptPubKeyMan::GetScriptPubKeys() const
     }
     return script_pub_keys;
 }
+
+bool LegacyScriptPubKeyMan::SignTransactionOutput(CMutableTransaction &tx, std::map<int, std::string> &output_errors) const
+{
+    return ::SignTransactionOutput(tx, this, output_errors);
+}
+
+bool DescriptorScriptPubKeyMan::SignTransactionOutput(CMutableTransaction &tx, std::map<int, std::string> &output_errors) const
+{
+    std::unique_ptr<FlatSigningProvider> keys = MakeUnique<FlatSigningProvider>();
+    for (CTxOut& output : tx.vout)
+    {
+        if(output.scriptPubKey.HasOpSender())
+        {
+            CScript scriptPubKey;
+            if(GetSenderPubKey(output.scriptPubKey, scriptPubKey))
+            {
+                std::unique_ptr<FlatSigningProvider> coin_keys = GetSigningProvider(scriptPubKey, true);
+                if (!coin_keys) {
+                    return false;
+                }
+                *keys = Merge(*keys, *coin_keys);
+            }
+        }
+    }
+
+    return ::SignTransactionOutput(tx, keys.get(), output_errors);
+}
