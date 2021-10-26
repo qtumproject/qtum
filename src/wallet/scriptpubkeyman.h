@@ -236,7 +236,7 @@ public:
     /** Adds script and derivation path information to a PSBT, and optionally signs it. */
     virtual TransactionError FillPSBT(PartiallySignedTransaction& psbt, int sighash_type = 1 /* SIGHASH_ALL */, bool sign = true, bool bip32derivs = false, int* n_signed = nullptr) const { return TransactionError::INVALID_PSBT; }
     /** Creates new output signatures and adds them to the transaction. Returns whether all op_sender outputs were signed */
-    virtual bool SignTransactionOutput(CMutableTransaction& tx, std::map<int, std::string>& output_errors) const { return false; }
+    virtual bool SignTransactionOutput(CMutableTransaction& tx, int sighash, std::map<int, std::string>& output_errors) const { return false; }
 
     virtual uint256 GetID() const { return uint256(); }
 
@@ -396,7 +396,7 @@ public:
     bool SignTransaction(CMutableTransaction& tx, const std::map<COutPoint, Coin>& coins, int sighash, std::map<int, std::string>& input_errors) const override;
     SigningResult SignMessage(const std::string& message, const PKHash& pkhash, std::string& str_sig) const override;
     TransactionError FillPSBT(PartiallySignedTransaction& psbt, int sighash_type = 1 /* SIGHASH_ALL */, bool sign = true, bool bip32derivs = false, int* n_signed = nullptr) const override;
-    bool SignTransactionOutput(CMutableTransaction& tx, std::map<int, std::string>& output_errors) const override;
+    bool SignTransactionOutput(CMutableTransaction& tx, int sighash, std::map<int, std::string>& output_errors) const override;
 
     uint256 GetID() const override;
 
@@ -602,7 +602,7 @@ public:
     bool SignTransaction(CMutableTransaction& tx, const std::map<COutPoint, Coin>& coins, int sighash, std::map<int, std::string>& input_errors) const override;
     SigningResult SignMessage(const std::string& message, const PKHash& pkhash, std::string& str_sig) const override;
     TransactionError FillPSBT(PartiallySignedTransaction& psbt, int sighash_type = 1 /* SIGHASH_ALL */, bool sign = true, bool bip32derivs = false, int* n_signed = nullptr) const override;
-    bool SignTransactionOutput(CMutableTransaction& tx, std::map<int, std::string>& output_errors) const override;
+    bool SignTransactionOutput(CMutableTransaction& tx, int sighash, std::map<int, std::string>& output_errors) const override;
 
     uint256 GetID() const override;
 

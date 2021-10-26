@@ -578,7 +578,7 @@ bool UpdateOutput(CTxOut &output, const SignatureData &data)
     return ret;
 }
 
-bool SignTransactionOutput(CMutableTransaction &mtx, const SigningProvider *provider, std::map<int, std::string>& output_errors)
+bool SignTransactionOutput(CMutableTransaction &mtx, const SigningProvider *provider, int nHashType, std::map<int, std::string>& output_errors)
 {
     // Signing transaction outputs
     for (unsigned int i = 0; i < mtx.vout.size(); i++)
@@ -594,7 +594,7 @@ bool SignTransactionOutput(CMutableTransaction &mtx, const SigningProvider *prov
             }
 
             SignatureData sigdata;
-            if (!ProduceSignature(*provider, MutableTransactionSignatureOutputCreator(&mtx, i, output.nValue, SIGHASH_ALL), scriptPubKey, sigdata))
+            if (!ProduceSignature(*provider, MutableTransactionSignatureOutputCreator(&mtx, i, output.nValue, nHashType), scriptPubKey, sigdata))
             {
                 output_errors[i] = "Signing transaction output failed";
                 continue;

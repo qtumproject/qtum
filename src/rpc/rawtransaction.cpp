@@ -1085,7 +1085,9 @@ static RPCHelpMan signrawsendertransactionwithkey()
         keystore.AddKey(key);
     }
 
-    return SignTransactionSender(mtx, &keystore, request.params[2]);
+    UniValue result(UniValue::VOBJ);
+    SignTransactionOutput(mtx, &keystore, request.params[2], result);
+    return result;
 },
     };
 }

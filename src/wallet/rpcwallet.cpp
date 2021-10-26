@@ -5311,11 +5311,18 @@ RPCHelpMan signrawsendertransactionwithwallet()
     }
 
     // Sign the transaction
-    LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
-    LOCK2(pwallet->cs_wallet, spk_man.cs_KeyStore);
+    LOCK(pwallet->cs_wallet);
     EnsureWalletIsUnlocked(pwallet);
 
-    return SignTransactionSender(mtx, &spk_man, request.params[1]);
+    int nHashType = ParseSighashString(request.params[1]);
+
+    // Script verification errors
+    std::map<int, std::string> output_errors;
+
+    bool complete = pwallet->SignTransactionOutput(mtx, nHashType, output_errors);
+    UniValue result(UniValue::VOBJ);
+    SignTransactionOutputResultToJSON(mtx, complete, output_errors, result);
+    return result;
 },
     };
 }

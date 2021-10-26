@@ -2662,14 +2662,14 @@ bool CWallet::SignTransaction(CMutableTransaction& tx, const std::map<COutPoint,
 bool CWallet::SignTransactionOutput(CMutableTransaction& tx) const
 {
     std::map<int, std::string> output_errors;
-    return SignTransactionOutput(tx, output_errors);
+    return SignTransactionOutput(tx, SIGHASH_ALL, output_errors);
 }
 
-bool CWallet::SignTransactionOutput(CMutableTransaction& tx, std::map<int, std::string>& output_errors) const
+bool CWallet::SignTransactionOutput(CMutableTransaction& tx, int sighash, std::map<int, std::string>& output_errors) const
 {
     // Sign transaction op_sender outputs
     for (ScriptPubKeyMan* spk_man : GetAllScriptPubKeyMans()) {
-        if (spk_man->SignTransactionOutput(tx, output_errors)) {
+        if (spk_man->SignTransactionOutput(tx, sighash, output_errors)) {
             return true;
         }
     }
