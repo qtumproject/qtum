@@ -988,7 +988,6 @@ static RPCHelpMan createcontract()
     if (!wallet) return NullUniValue;
     CWallet* const pwallet = wallet.get();
 
-    LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
     LOCK(pwallet->cs_wallet);
 
     std::string bytecode=request.params[0].get_str();
@@ -1117,11 +1116,10 @@ static RPCHelpMan createcontract()
     {
         if(IsValidDestination(signSenderAddress))
         {
-            CKeyID key_id = GetKeyForDestination(spk_man, signSenderAddress);
-            CKey key;
-            if (!spk_man.GetKey(key_id, key)) {
+            if (!pwallet->HasPrivateKey(signSenderAddress, &coinControl)) {
                 throw JSONRPCError(RPC_WALLET_ERROR, "Private key not available");
             }
+            CKeyID key_id = pwallet->GetKeyForDestination(signSenderAddress);
             std::vector<unsigned char> scriptSig;
             scriptPubKey = (CScript() << CScriptNum(addresstype::PUBKEYHASH) << ToByteVector(key_id) << ToByteVector(scriptSig) << OP_SENDER) + scriptPubKey;
         }
@@ -1165,7 +1163,7 @@ static RPCHelpMan createcontract()
     result.pushKV("txid", txId);
 
     CTxDestination txSenderAdress(txSenderDest);
-    CKeyID keyid = GetKeyForDestination(spk_man, txSenderAdress);
+    CKeyID keyid = pwallet->GetKeyForDestination(txSenderAdress);
 
     result.pushKV("sender", EncodeDestination(txSenderAdress));
     result.pushKV("hash160", HexStr(valtype(keyid.begin(),keyid.end())));

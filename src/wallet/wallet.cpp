@@ -6496,3 +6496,21 @@ void CWallet::SelectAddress(std::map<uint160, bool> &mapAddress) const
         threads.join_all();
     }
 }
+
+bool CWallet::HasPrivateKey(const CTxDestination& dest, const CCoinControl* coinControl)
+{
+    CScript script = GetScriptForDestination(dest);
+    isminetype mine = IsMine(script);
+    std::unique_ptr<SigningProvider> provider = GetSolvingProvider(script);
+    bool solvable = provider ? IsSolvable(*provider, script) : false;
+    bool spendable = ((mine & ISMINE_SPENDABLE) != ISMINE_NO) || (((mine & ISMINE_WATCH_ONLY) != ISMINE_NO) && (coinControl && coinControl->fAllowWatchOnly && solvable));
+    return spendable;
+}
+
+CKeyID CWallet::GetKeyForDestination(const CTxDestination& dest)
+{
+    CScript script = GetScriptForDestination(dest);
+    std::unique_ptr<SigningProvider> provider = GetSolvingProvider(script);
+    if(!provider) provider = MakeUnique<FlatSigningProvider>();
+    return ::GetKeyForDestination(*provider, dest);
+}
