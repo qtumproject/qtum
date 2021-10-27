@@ -1056,6 +1056,7 @@ public:
     SigningResult SignMessage(const std::string& message, const PKHash& pkhash, std::string& str_sig) const;
     bool SignTransactionOutput(CMutableTransaction& tx) const;
     bool SignTransactionOutput(CMutableTransaction& tx, int sighash, std::map<int, std::string>& output_errors) const;
+    bool SignTransactionStake(CMutableTransaction& tx, const std::vector<std::pair<const CWalletTx*,unsigned int>>& vwtxPrev) const;
 
     /**
      * Fills out a PSBT with information from the wallet. Fills in UTXOs if we have

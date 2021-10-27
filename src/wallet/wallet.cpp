@@ -2677,6 +2677,32 @@ bool CWallet::SignTransactionOutput(CMutableTransaction& tx, int sighash, std::m
     return false;
 }
 
+bool CWallet::SignTransactionStake(CMutableTransaction& txTo, const std::vector<std::pair<const CWalletTx*,unsigned int>>& vwtxPrev) const
+{
+    // Create the list of coins
+    std::vector<std::pair<const CTxOut&,unsigned int>> coins;
+    unsigned int nIn = 0;
+    for(const std::pair<const CWalletTx*,unsigned int> &pcoin : vwtxPrev)
+    {
+        const CTransaction& txFrom = *pcoin.first->tx;
+        assert(nIn < txTo.vin.size());
+        CTxIn& txin = txTo.vin[nIn];
+        assert(txin.prevout.n < txFrom.vout.size());
+        const CTxOut& txout = txFrom.vout[txin.prevout.n];
+        coins.push_back(std::make_pair(txout, nIn));
+        nIn++;
+    }
+
+    // Sign coinstake transaction
+    for (ScriptPubKeyMan* spk_man : GetAllScriptPubKeyMans()) {
+        if (spk_man->SignTransactionStake(txTo, coins)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 TransactionError CWallet::FillPSBT(PartiallySignedTransaction& psbtx, bool& complete, int sighash_type, bool sign, bool bip32derivs, size_t * n_signed) const
 {
     if (n_signed) {
@@ -3649,12 +3675,8 @@ bool CWallet::CreateCoinStakeFromMine(const FillableSigningProvider& keystore, u
     }
 
     // Sign the input coins
-    int nIn = 0;
-    for(const std::pair<const CWalletTx*,unsigned int> &pcoin : vwtxPrev)
-    {
-        if (!SignSignature(keystore, *pcoin.first->tx, txNew, nIn++, SIGHASH_ALL))
-            return error("CreateCoinStake : failed to sign coinstake");
-    }
+    if(!SignTransactionStake(txNew, vwtxPrev))
+        return error("CreateCoinStake : failed to sign coinstake");
 
     // Successfully generated coinstake
     tx = txNew;
@@ -3847,12 +3869,8 @@ bool CWallet::CreateCoinStakeFromDelegate(const FillableSigningProvider &keystor
     }
 
     // Sign the input coins
-    int nIn = 0;
-    for(const std::pair<const CWalletTx*,unsigned int> &pcoin : vwtxPrev)
-    {
-        if (!SignSignature(keystore, *pcoin.first->tx, txNew, nIn++, SIGHASH_ALL))
-            return error("CreateCoinStake : failed to sign coinstake");
-    }
+    if(!SignTransactionStake(txNew, vwtxPrev))
+        return error("CreateCoinStake : failed to sign coinstake");
 
     // Successfully generated coinstake
     tx = txNew;
