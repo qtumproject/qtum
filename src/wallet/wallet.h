@@ -1175,7 +1175,7 @@ public:
     isminetype IsMine(const CTxDestination& dest) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
     isminetype IsMine(const CScript& script) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
     isminetype IsMine(const CTxIn& txin) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
-    bool HasPrivateKey(const CTxDestination& dest, const CCoinControl* coinControl = nullptr) EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
+    bool HasPrivateKey(const CTxDestination& dest, const bool& fAllowWatchOnly) EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
     CKeyID GetKeyForDestination(const CTxDestination& dest);
     /**
      * Returns amount of debit if the input matches the
